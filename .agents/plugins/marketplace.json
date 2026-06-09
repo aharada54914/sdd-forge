@@ -1,0 +1,32 @@
+{
+  "name": "sdd-plugins",
+  "interface": {
+    "displayName": "SDD Plugins"
+  },
+  "plugins": [
+    {
+      "name": "sdd-bootstrap",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sdd-bootstrap"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "sdd-quality-loop",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sdd-quality-loop"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

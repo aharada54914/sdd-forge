@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Show repository
+        run: ls -la
+
+      - name: Placeholder
+        run: echo "Replace with lint/typecheck/test/api lint commands for this project"

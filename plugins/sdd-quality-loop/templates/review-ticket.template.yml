@@ -1,0 +1,13 @@
+ticket_id: RT-0001
+type: test-gap
+severity: major
+target:
+  feature: ""
+  files: []
+summary: ""
+problem: |
+  ""
+expected_fix: []
+references: []
+auto_fix_allowed: true
+requires_human_decision: false
