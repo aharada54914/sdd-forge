@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective")
-$expectedVersion = "0.3.0"
+$expectedVersion = "0.4.0"
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -29,10 +29,11 @@ foreach ($name in $expectedPlugins) {
 
     $codexManifest = Read-JsonFile "plugins/$name/.codex-plugin/plugin.json"
     $claudeManifest = Read-JsonFile "plugins/$name/.claude-plugin/plugin.json"
-    if ($codexManifest.name -ne $name -or $claudeManifest.name -ne $name) {
+    $copilotManifest = Read-JsonFile "plugins/$name/.plugin/plugin.json"
+    if ($codexManifest.name -ne $name -or $claudeManifest.name -ne $name -or $copilotManifest.name -ne $name) {
         throw "Plugin directory and manifest names differ for $name."
     }
-    if ($codexManifest.version -ne $expectedVersion -or $claudeManifest.version -ne $expectedVersion) {
+    if ($codexManifest.version -ne $expectedVersion -or $claudeManifest.version -ne $expectedVersion -or $copilotManifest.version -ne $expectedVersion) {
         throw "Plugin version differs from $expectedVersion for $name."
     }
 }
@@ -97,7 +98,19 @@ $requiredFiles = @(
     "plugins/sdd-quality-loop/references/evaluation-rubric.md",
     "plugins/sdd-quality-loop/templates/verification-contract.template.json",
     "plugins/sdd-quality-loop/templates/retrospective-report.template.md",
-    "plugins/sdd-quality-loop/templates/workflow-improvement.template.md"
+    "plugins/sdd-quality-loop/templates/workflow-improvement.template.md",
+    "plugins/sdd-bootstrap/.plugin/plugin.json",
+    "plugins/sdd-implementation/.plugin/plugin.json",
+    "plugins/sdd-quality-loop/.plugin/plugin.json",
+    "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+    "plugins/sdd-quality-loop/scripts/kill-switch.ps1",
+    "plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md",
+    "plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md",
+    ".codex/agents/sdd-investigator.toml",
+    ".codex/agents/sdd-evaluator.toml"
 )
 foreach ($relativePath in $requiredFiles) {
     if (-not (Test-Path (Join-Path $repositoryRoot $relativePath))) {
@@ -160,6 +173,34 @@ $hooksConfig = Read-JsonFile "plugins/sdd-quality-loop/hooks/hooks.json"
 if (-not $hooksConfig.hooks.PreToolUse) {
     throw "hooks.json does not define PreToolUse hooks."
 }
+$allHookEntries = $hooksConfig.hooks.PreToolUse | ForEach-Object { $_.hooks } | Where-Object { $_ }
+foreach ($hookEntry in $allHookEntries) {
+    if (-not $hookEntry.command) {
+        throw "hooks.json hook entry is missing 'command' field."
+    }
+    if (-not $hookEntry.command_windows) {
+        throw "hooks.json hook entry is missing 'command_windows' field."
+    }
+}
+$allMatchers = $hooksConfig.hooks.PreToolUse | Select-Object -ExpandProperty matcher
+$hasApplyPatch = $allMatchers | Where-Object { $_ -match "apply_patch" }
+if (-not $hasApplyPatch) {
+    throw "hooks.json does not have any matcher containing 'apply_patch'."
+}
+
+# copilot-hooks.json must parse and have expected structure.
+$copilotHooks = Read-JsonFile "plugins/sdd-quality-loop/hooks/copilot-hooks.json"
+if ($copilotHooks.version -ne 1) {
+    throw "copilot-hooks.json version must be 1."
+}
+foreach ($entry in $copilotHooks.hooks.preToolUse) {
+    if (-not $entry.bash) {
+        throw "copilot-hooks.json preToolUse entry is missing 'bash' field."
+    }
+    if (-not $entry.powershell) {
+        throw "copilot-hooks.json preToolUse entry is missing 'powershell' field."
+    }
+}
 
 # The verification contract template must stay Default-FAIL.
 $contractTemplate = Read-JsonFile "plugins/sdd-quality-loop/templates/verification-contract.template.json"
@@ -172,6 +213,18 @@ foreach ($checkId in @("lint", "unit-tests", "build", "placeholder-scan", "task-
     if ($checkId -notin $contractTemplate.checks.id) {
         throw "Verification contract template is missing check: $checkId"
     }
+}
+foreach ($check in $contractTemplate.checks) {
+    $props = $check | Get-Member -MemberType NoteProperty | Select-Object -ExpandProperty Name
+    if ("waiver_reason" -notin $props) {
+        throw "Verification contract template check '$($check.id)' is missing 'waiver_reason' property."
+    }
+}
+
+# CI template must fail-closed with TODO marker.
+$ciTemplate = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-github.template.yml")
+if ($ciTemplate -notmatch [regex]::Escape("TODO_REPLACE_WITH_PROJECT_COMMANDS")) {
+    throw "ci-github.template.yml does not contain TODO_REPLACE_WITH_PROJECT_COMMANDS marker."
 }
 
 # Side-effecting skills must not be auto-invocable by the model.

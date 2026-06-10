@@ -3,8 +3,9 @@
 Machine-verified gates that do not trust agent self-reports. All logic lives
 in `scripts/` as paired POSIX shell (`.sh`) and PowerShell 5.1+ (`.ps1`)
 implementations, so every gate runs the same way on Claude Code, Codex, or
-any other CLI. The Claude Code `hooks/hooks.json` layer only automates what
-can also be run manually.
+Copilot CLI. The hook layer only automates what can also be run manually;
+the deterministic scripts remain the final line of defense regardless of
+whether hooks fire.
 
 ## Default-FAIL Verification Contract
 
@@ -15,10 +16,19 @@ can also be run manually.
 2. A check may be flipped to `true` only after its verification command
    actually ran and its output was saved to a file (log, report, or
    screenshot) whose repository-relative path is written into `evidence`.
+   The evidence path must be within the repository root (path traversal
+   sequences such as `../` are rejected).
 3. Mark checks that do not apply to the project as `"required": false` and
-   record why in the quality-gate report. Never delete a check to pass.
+   record the reason in `waiver_reason`. Never delete a check to pass. A
+   non-required check with `passes: false` must have a non-empty
+   `waiver_reason` — an empty string fails `check-contract`.
 4. Before any `Done` decision, run `scripts/check-contract.(sh|ps1)
    <contract>`. The gate fails closed: missing evidence files fail it.
+5. Duplicate check IDs within a single contract are rejected by
+   `check-contract`.
+6. The baseline required-set (`lint`, `unit-tests`, `build`,
+   `placeholder-scan`, `task-state-check`) may not be removed from the
+   template.
 
 ## Required Scripted Gates
 
@@ -39,17 +49,41 @@ generic fallbacks, and error screens that unit tests miss. Save the output or
 screenshots as evidence for the `smoke-run` check. If the project cannot be
 started, set `smoke-run` to `"required": false` and record why.
 
-## Claude Code Enforcement Layer
+## Hook Enforcement Layer
 
-`hooks/hooks.json` wires two guards into `PreToolUse`:
+The unified `sdd-hook-guard` script (`scripts/sdd-hook-guard.{sh,ps1,py}`)
+is wired into `PreToolUse` across three runtimes:
 
-- `kill-switch.sh`: while a human-created `AGENT_STOP` file exists at the
+- **Claude Code** — `hooks/hooks.json` registers it for `Edit|Write|MultiEdit|apply_patch`
+  and a separate `kill-switch` entry for all tools (`*`).
+- **Codex CLI** — reads the same `hooks/hooks.json` when the `plugin_hooks`
+  feature flag is enabled. The `command_windows` field provides the PowerShell
+  override. `apply_patch` payloads are intercepted via the `tool_input.command`
+  field and processed by `sdd-hook-guard`.
+- **Copilot CLI** — reads `hooks/copilot-hooks.json`, which emits a
+  `permissionDecision` JSON response on stdout and fails safe (deny) when the
+  guard script cannot be located. Known limitation: plugin-defined preToolUse
+  hooks may not fire inside Copilot subagents.
+
+The two enforced invariants are:
+
+- **Kill-switch**: while a human-created `AGENT_STOP` file exists at the
   project root, every tool call is blocked. Delete the file to resume.
-- `guard-task-approval.sh`: blocks any edit that adds `Approval: Approved`
-  to a tasks.md file. Only a human may approve, by editing the file outside
-  the agent.
+- **Approval guard**: blocks any edit that adds `Approval: Approved` to a
+  tasks.md file. Only a human may approve, by editing the file outside the
+  agent.
 
-On Codex these hooks do not fire. The same invariants still hold because
-`check-task-state` validates the resulting file state on every quality-gate
-run, and the skills forbid self-approval. Treat the hooks as defense in
-depth, not as the only line of defense.
+Treat the hooks as defense in depth (auxiliary line). `check-task-state`
+validates the resulting file state on every quality-gate run, and the skills
+forbid self-approval. The deterministic scripts are the final defense.
+
+## Task-State Validation Rules
+
+`check-task-state` enforces the following additional invariants:
+
+- Duplicate task IDs within a `tasks.md` file are rejected.
+- A task in `Implementation Complete` state must have a corresponding
+  `reports/implementation/<task-id>.md` file.
+- A task in `Blocked` state must have a non-empty `Blockers` field.
+- A task in `Done` state must have a corresponding
+  `specs/<feature>/verification/<task-id>.contract.json` file.

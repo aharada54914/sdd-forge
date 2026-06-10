@@ -17,5 +17,7 @@ jobs:
       - name: Show repository
         run: ls -la
 
-      - name: Placeholder
-        run: echo "Replace with lint/typecheck/test/api lint commands for this project"
+      - name: TODO_REPLACE_WITH_PROJECT_COMMANDS
+        run: |
+          echo "TODO_REPLACE_WITH_PROJECT_COMMANDS: replace this step with the project's lint/typecheck/test/build commands."
+          exit 1

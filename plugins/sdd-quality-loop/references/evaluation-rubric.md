@@ -1,8 +1,12 @@
 # Evaluation Rubric
 
 Shared scoring standard for independent critical review. On Claude Code the
-`sdd-evaluator` subagent applies it automatically. On Codex, or wherever
-subagents are unavailable, start a fresh session (or a clearly separated
+`sdd-evaluator` subagent applies it automatically. On Codex CLI, use the
+`sdd-evaluator` TOML agent (`.codex/agents/sdd-evaluator.toml`) in an
+interactive session; the installer also copies it to `~/.codex/agents/`.
+On Copilot CLI, use the `sdd-evaluator.agent.md` agent from
+`plugins/sdd-quality-loop/copilot-agents/`. Where none of these agent
+mechanisms are available, start a fresh session (or a clearly separated
 review pass with none of the implementation conversation), give it this
 rubric, and have it produce the same verdict format.
 
