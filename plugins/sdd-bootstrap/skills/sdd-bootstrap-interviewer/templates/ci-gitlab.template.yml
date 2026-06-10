@@ -1,0 +1,7 @@
+stages:
+  - verify
+
+verify:
+  stage: verify
+  script:
+    - echo "Replace with repository lint, typecheck, test, build, and contract checks"

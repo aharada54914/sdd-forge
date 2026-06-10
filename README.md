@@ -1,32 +1,37 @@
 # SDD Plugins Windows Installer
 
-Windows PowerShell から、次の2つの Spec-Driven Development プラグインを Codex CLI と Claude Code に導入します。
+Windows PowerShellから、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLIとClaude Codeへ導入します。
 
-- `sdd-bootstrap`: 実装前の要件・設計・ADR・API契約・タスク・トレーサビリティを対話形式で作成
-- `sdd-quality-loop`: 実装後のテスト・品質ゲート・レビュー指摘修正・トレーサビリティ更新を実行
+```text
+sdd-bootstrap       仕様・設計・承認済みタスクを作る
+       ↓
+sdd-implementation  承認済みタスクを実装可能な差分へ変換する
+       ↓
+sdd-quality-loop    実装後の品質と仕様整合性を独立して保証する
+```
 
-## Windows ワンライナー
+詳しい運用方法と実際の開発例は [USERGUIDE.md](USERGUIDE.md) を参照してください。
 
-PowerShell で実行してください。
+## Windowsワンライナー
 
 ```powershell
 irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1 | iex
 ```
 
-スクリプトはリポジトリを `%LOCALAPPDATA%\sdd-plugins` に配置し、PATH 上に存在する Codex CLI / Claude Code CLI へマーケットプレイスと2つのプラグインを登録します。
+既定では3プラグインすべてを登録します。利用可能なCodex CLI / Claude Code CLIだけが設定されます。
 
 ## 個別インストール
 
-Codex CLI のみ:
+ホストを選ぶ場合:
 
 ```powershell
 & ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1))) -Target Codex
 ```
 
-Claude Code のみ:
+プラグインを選ぶ場合:
 
 ```powershell
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1))) -Target Claude
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1))) -Plugins sdd-bootstrap,sdd-implementation
 ```
 
 ファイル配置のみ:
@@ -38,35 +43,20 @@ Claude Code のみ:
 ## 前提条件
 
 - Windows 10/11
-- PowerShell 5.1 以上、または PowerShell 7
-- 利用するホストの CLI
-  - Codex CLI: `codex`
-  - Claude Code: `claude`
-
-どちらか一方の CLI しかない場合、既定のワンライナーは存在する CLI のみ設定します。
+- PowerShell 5.1以上、またはPowerShell 7
+- Codex CLIまたはClaude Code CLI
 
 ## セキュリティ
 
-リモートスクリプトの実行前に内容を確認する場合:
+リモートスクリプトの内容を確認してから実行できます。
 
 ```powershell
 irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1
 ```
 
-確認後、リポジトリを clone してローカルスクリプトを実行できます。
-
-```powershell
-git clone https://github.com/aharada54914/sdd-plugins-windows-installer.git
-.\sdd-plugins-windows-installer\install.ps1
-```
-
 ## 検証
-
-Windows 上でリポジトリ構造とインストーラー統合テストを実行:
 
 ```powershell
 .\tests\validate-repository.ps1
 .\tests\install.tests.ps1
 ```
-
-GitHub Actions の `windows-latest` でも同じ検証を実行します。

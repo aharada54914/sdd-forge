@@ -1,7 +1,7 @@
 {
   "name": "sdd-bootstrap",
-  "description": "Interview-driven Spec-Driven Development bootstrap plugin for Claude Code. Generates requirements, design, ADRs, API contracts, tasks, traceability, and CI templates before implementation.",
-  "version": "0.1.0",
+  "description": "Create implementation-ready SDD specifications and approved task contracts.",
+  "version": "0.2.0",
   "author": {
     "name": "Harada"
   }

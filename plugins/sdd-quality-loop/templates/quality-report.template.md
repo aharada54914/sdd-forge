@@ -1,33 +1,25 @@
 # Quality Gate Report
 
 ## Target
-
 {{target}}
 
-## Summary
+## Implementation Report Reviewed
+{{implementation_report}}
 
-{{summary}}
+## Verification Results
+{{verification_results}}
 
-## Tests Added or Updated
+## Critical Review Cycles
+{{critical_review_cycles}}
 
-{{tests}}
+## UI Verification
+{{ui_verification}}
 
-## CI Results
+## Traceability And Drift
+{{traceability_and_drift}}
 
-{{ci_results}}
-
-## Traceability Updates
-
-{{traceability_updates}}
-
-## Review Tickets Created
-
+## Review Tickets
 {{review_tickets}}
 
-## Remaining Risks
-
-{{risks}}
-
-## Next Recommended Action
-
-{{next_action}}
+## Decision
+{{decision}}

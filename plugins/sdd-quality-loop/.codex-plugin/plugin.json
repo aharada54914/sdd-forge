@@ -1,22 +1,22 @@
 {
   "name": "sdd-quality-loop",
-  "version": "0.1.0",
-  "description": "Quality loop plugin for Spec-Anchored AI Development. Generates tests, runs CI-equivalent checks, fixes scoped review tickets, and updates traceability.",
+  "version": "0.2.0",
+  "description": "Independently verify Implementation Complete tasks, run critical review, fix approved tickets, and decide Done.",
   "skills": "./skills/",
   "author": {
     "name": "Harada"
   },
   "interface": {
     "displayName": "SDD Quality Loop",
-    "shortDescription": "Run scoped post-implementation quality loops",
-    "longDescription": "Spec-Anchored AI Development quality loop for tests, CI-equivalent checks, scoped review-ticket fixes, and traceability updates.",
+    "shortDescription": "Independently verify completed implementations",
+    "longDescription": "Final SDD stage for CI-equivalent verification, critical review, UI checks, review-ticket fixes, traceability, and Done decisions.",
     "developerName": "Harada",
     "category": "Developer Tools",
     "capabilities": [
-      "Quality gate execution",
-      "Scoped review-ticket fixes",
-      "Traceability and spec-drift updates"
+      "Independent quality gate",
+      "Critical review and UI verification",
+      "Scoped review-ticket fixes"
     ],
-    "defaultPrompt": "Use the quality-gate skill for the completed implementation task."
+    "defaultPrompt": "Use the quality-gate skill for an Implementation Complete task."
   }
 }

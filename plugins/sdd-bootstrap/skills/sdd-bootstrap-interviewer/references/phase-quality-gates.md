@@ -1,46 +1,29 @@
-# Phase Quality Gates
+# Bootstrap Quality Gates
 
-## Phase 0 Gate
+## Intake Gate
 
-- Project name is defined
-- Target repository style is defined
-- AI agent usage rule is defined
-- MVP scope and non-goals are listed
+- Mode is `project`, `feature`, or `bugfix`.
+- GitHub/GitLab Issue URL or supplied requirement text is recorded.
+- Goals, non-goals, constraints, and open questions are separated.
 
-## Phase 1 Gate
+## Specification Gate
 
-- At least 3 user stories exist
-- Acceptance criteria are testable
-- Roles are defined
-- Open questions are separated from assumptions
+- Requirements and acceptance criteria are testable.
+- Design, security, deployment, and data/API contract needs are explicit.
+- Major architecture decisions have ADRs.
+- Existing code and tests were investigated for feature and bugfix work.
 
-## Phase 2 Gate
+## Task Gate
 
-- Frontend/backend/DB necessity is clear
-- Test strategy is defined
-- Security and deployment assumptions are listed
+- Each task fits in one PR/MR and has one clear goal.
+- Every task contains Source Issue, Approval, Status, Must Read, Scope,
+  Done When, Out of Scope, and Blockers.
+- Every task is generated with `Approval: Draft` and `Status: Planned`.
+- Acceptance tests and initial traceability exist.
 
-## Phase 3 Gate
+## Handoff Gate
 
-- System context is described
-- Container/component responsibilities are described
-- Major technical decisions have ADRs
-
-## Phase 4 Gate
-
-- API or data contract exists
-- Error response shape is described
-- JSON Schema or equivalent data shape exists
-
-## Phase 5 Gate
-
-- Tasks are small enough for PR/MR
-- Each task has Done When
-- Each task has tests
-- Each task has Must Read references
-
-## Phase 6 Gate
-
-- traceability.md connects requirements, design, code targets, and tests
-- CI template exists
-- Issue and PR templates exist
+- Open questions and risks are reported.
+- Independent pre-implementation review is complete when available.
+- No task is marked Approved by the skill.
+- The human is told to approve a task before using `implement-task`.

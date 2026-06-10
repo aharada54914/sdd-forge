@@ -9,7 +9,7 @@
 - small test expectation updates
 - minor OpenAPI / JSON Schema mismatch
 - traceability updates
-- scoped review ticket fixes
+- fixes explicitly allowed by a review ticket
 
 ## Auto-fix Forbidden
 
@@ -22,4 +22,4 @@
 - unrelated changes
 - ambiguous business decisions
 
-When forbidden, create a review ticket or spec drift report.
+When forbidden, create a review ticket. Do not set the task to `Done`.

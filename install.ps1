@@ -5,6 +5,8 @@ param(
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [ValidateSet("All", "Codex", "Claude", "FilesOnly")]
     [string]$Target = "All",
+    [ValidateSet("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")]
+    [string[]]$Plugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"),
     [switch]$SkipPluginInstall,
     [string]$SourceDirectory
 )
@@ -39,8 +41,9 @@ function Install-CodexPlugins {
 
     Invoke-PluginCommand "codex" @("plugin", "marketplace", "add", $MarketplaceRoot)
     if (-not $SkipPluginInstall) {
-        Invoke-PluginCommand "codex" @("plugin", "add", "sdd-bootstrap@sdd-plugins")
-        Invoke-PluginCommand "codex" @("plugin", "add", "sdd-quality-loop@sdd-plugins")
+        foreach ($plugin in $Plugins) {
+            Invoke-PluginCommand "codex" @("plugin", "add", "$plugin@sdd-plugins")
+        }
     }
 }
 
@@ -57,14 +60,16 @@ function Install-ClaudePlugins {
 
     Invoke-PluginCommand "claude" @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
     if (-not $SkipPluginInstall) {
-        Invoke-PluginCommand "claude" @("plugin", "install", "sdd-bootstrap@sdd-plugins", "--scope", "user")
-        Invoke-PluginCommand "claude" @("plugin", "install", "sdd-quality-loop@sdd-plugins", "--scope", "user")
+        foreach ($plugin in $Plugins) {
+            Invoke-PluginCommand "claude" @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
+        }
     }
 }
 
 $temporaryRoot = $null
 $backupRoot = $null
 $stagingRoot = $null
+$newInstallPlaced = $false
 try {
     if ($SourceDirectory) {
         $sourceRoot = (Resolve-Path $SourceDirectory).Path
@@ -91,6 +96,7 @@ try {
         ".agents/plugins/marketplace.json",
         ".claude-plugin/marketplace.json",
         "plugins/sdd-bootstrap/.codex-plugin/plugin.json",
+        "plugins/sdd-implementation/.codex-plugin/plugin.json",
         "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
     )
     foreach ($relativePath in $requiredPaths) {
@@ -125,6 +131,7 @@ try {
     }
     Move-Item -Path $stagingRoot -Destination $InstallRoot
     $stagingRoot = $null
+    $newInstallPlaced = $true
 
     $resolvedInstallRoot = (Resolve-Path $InstallRoot).Path
     if ($Target -in @("All", "Codex")) {
@@ -151,6 +158,9 @@ catch {
         }
         Move-Item -Path $backupRoot -Destination $InstallRoot
         $backupRoot = $null
+    }
+    elseif ($newInstallPlaced -and (Test-Path $InstallRoot)) {
+        Remove-Item -Path $InstallRoot -Recurse -Force
     }
     throw
 }

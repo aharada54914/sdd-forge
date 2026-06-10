@@ -1,41 +1,41 @@
 # Review Ticket
 
 ## Ticket ID
+RT-0001
 
-RT-0000
+## Status
+open / resolved / rejected
 
 ## Type
-
 bug / test-gap / security / spec-drift / ci-failure / api-contract-mismatch / documentation / refactor-request
 
 ## Severity
-
 critical / major / minor
 
 ## Target
-
 Feature:
+Task:
 Files:
 
-## Problem
+## Summary
+Describe the finding.
 
-Describe the issue.
+## Problem
+Describe evidence and impact.
 
 ## Expected Fix
-
-- Expected change 1
-- Expected change 2
+- Expected change
 
 ## References
-
 - specs/<feature>/requirements.md
 - specs/<feature>/design.md
 - specs/<feature>/traceability.md
 
 ## Auto-fix Allowed
-
 true / false
 
 ## Requires Human Decision
-
 true / false
+
+## Review Cycles
+1

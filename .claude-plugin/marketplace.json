@@ -1,19 +1,28 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "sdd-plugins",
-  "description": "Spec-driven development bootstrap and quality-loop plugins.",
+  "description": "Three-stage specification, implementation, and quality plugins.",
   "owner": {
     "name": "Harada"
   },
   "metadata": {
-    "description": "Bootstrap specifications, then run a traceable implementation quality loop."
+    "description": "Prepare approved specifications, implement one task, then independently verify it."
   },
   "plugins": [
     {
       "name": "sdd-bootstrap",
       "source": "./plugins/sdd-bootstrap",
-      "description": "Interview-driven Spec-Driven Development bootstrap plugin.",
-      "version": "0.1.0",
+      "description": "Prepare implementation-ready specifications and tasks.",
+      "version": "0.2.0",
+      "author": {
+        "name": "Harada"
+      }
+    },
+    {
+      "name": "sdd-implementation",
+      "source": "./plugins/sdd-implementation",
+      "description": "Implement one approved task and prepare a quality-gate handoff.",
+      "version": "0.2.0",
       "author": {
         "name": "Harada"
       }
@@ -21,8 +30,8 @@
     {
       "name": "sdd-quality-loop",
       "source": "./plugins/sdd-quality-loop",
-      "description": "Post-implementation quality loop for tests, review-ticket fixes, and traceability.",
-      "version": "0.1.0",
+      "description": "Independently verify implementations and resolve review tickets.",
+      "version": "0.2.0",
       "author": {
         "name": "Harada"
       }

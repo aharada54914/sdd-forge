@@ -1,0 +1,22 @@
+{
+  "name": "sdd-implementation",
+  "version": "0.2.0",
+  "description": "Implement one approved SDD task and prepare it for independent quality review.",
+  "skills": "./skills/",
+  "author": {
+    "name": "Harada"
+  },
+  "interface": {
+    "displayName": "SDD Implementation",
+    "shortDescription": "Implement approved specification tasks",
+    "longDescription": "Restores task state, implements one approved task, runs scoped tests, and produces an implementation handoff report.",
+    "developerName": "Harada",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Approved task implementation",
+      "Task state restoration",
+      "Implementation handoff reporting"
+    ],
+    "defaultPrompt": "Use the implement-task skill for the next approved task."
+  }
+}

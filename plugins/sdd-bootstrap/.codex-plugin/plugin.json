@@ -1,22 +1,22 @@
 {
   "name": "sdd-bootstrap",
-  "version": "0.1.0",
-  "description": "Interview-driven Spec-Driven Development bootstrap plugin. Generates requirements, design, ADRs, API contracts, tasks, traceability, and CI templates before implementation.",
+  "version": "0.2.0",
+  "description": "Create implementation-ready SDD specifications and approved task contracts from GitHub/GitLab issues or supplied requirements.",
   "skills": "./skills/",
   "author": {
     "name": "Harada"
   },
   "interface": {
     "displayName": "SDD Bootstrap",
-    "shortDescription": "Bootstrap specification-driven projects",
-    "longDescription": "Interview-driven Spec-Anchored AI Development bootstrap for requirements, design, ADRs, contracts, tasks, traceability, and CI templates.",
+    "shortDescription": "Prepare approved specification tasks",
+    "longDescription": "Interview-driven project, feature, and bugfix specification for the first stage of the three-stage SDD workflow.",
     "developerName": "Harada",
     "category": "Developer Tools",
     "capabilities": [
-      "Interview-driven project bootstrap",
-      "Specification and contract generation",
-      "Implementation-ready task planning"
+      "Issue-driven specification",
+      "Project, feature, and bugfix modes",
+      "Approved task preparation"
     ],
-    "defaultPrompt": "Use the sdd-bootstrap-interviewer skill to prepare a project for implementation."
+    "defaultPrompt": "Use the sdd-bootstrap-interviewer skill to prepare approved implementation tasks."
   }
 }

@@ -1,7 +1,7 @@
 {
   "name": "sdd-quality-loop",
-  "description": "Quality loop plugin for Claude Code. Generates tests, runs CI-equivalent checks, fixes scoped review tickets, and updates traceability.",
-  "version": "0.1.0",
+  "description": "Independently verify Implementation Complete tasks and decide Done.",
+  "version": "0.2.0",
   "author": {
     "name": "Harada"
   }
