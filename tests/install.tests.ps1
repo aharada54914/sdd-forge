@@ -109,6 +109,27 @@ Invoke-InstallerScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins"
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins" -SeedExistingInstall
 
+$filesOnlyRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-filesonly-" + [guid]::NewGuid())
+$filesOnlyInstall = Join-Path $filesOnlyRoot "installed"
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $filesOnlyInstall -Target FilesOnly
+    $filesOnlyChecks = @(
+        ".codex/agents/sdd-investigator.toml",
+        "plugins/sdd-quality-loop/.plugin/plugin.json",
+        "plugins/sdd-quality-loop/hooks/copilot-hooks.json"
+    )
+    foreach ($relativePath in $filesOnlyChecks) {
+        if (-not (Test-Path (Join-Path $filesOnlyInstall $relativePath))) {
+            throw "FilesOnly install did not copy: $relativePath"
+        }
+    }
+}
+finally {
+    if (Test-Path $filesOnlyRoot) {
+        Remove-Item -Path $filesOnlyRoot -Recurse -Force
+    }
+}
+
 $preDeploymentRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-predeploy-" + [guid]::NewGuid())
 $badSourceRoot = Join-Path $preDeploymentRoot "bad-source"
 $existingInstallRoot = Join-Path $preDeploymentRoot "installed"

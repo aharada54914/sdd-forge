@@ -3,11 +3,12 @@ param(
     [string]$Repository = "aharada54914/sdd-plugins-windows-installer",
     [string]$Ref = "main",
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
-    [ValidateSet("All", "Codex", "Claude", "FilesOnly")]
+    [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
     [string]$Target = "All",
     [ValidateSet("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"),
     [switch]$SkipPluginInstall,
+    [switch]$SkipAgentInstall,
     [string]$SourceDirectory
 )
 
@@ -47,6 +48,25 @@ function Install-CodexPlugins {
     }
 }
 
+function Install-CopilotPlugins {
+    param([Parameter(Mandatory)][string]$MarketplaceRoot)
+
+    if (-not (Get-Command "copilot" -ErrorAction SilentlyContinue)) {
+        if ($Target -eq "Copilot") {
+            throw "Copilot CLI was not found in PATH."
+        }
+        Write-Warning "Copilot CLI was not found. Copilot registration was skipped."
+        return
+    }
+
+    Invoke-PluginCommand "copilot" @("plugin", "marketplace", "add", $MarketplaceRoot)
+    if (-not $SkipPluginInstall) {
+        foreach ($plugin in $Plugins) {
+            Invoke-PluginCommand "copilot" @("plugin", "install", "$plugin@sdd-plugins")
+        }
+    }
+}
+
 function Install-ClaudePlugins {
     param([Parameter(Mandatory)][string]$MarketplaceRoot)
 
@@ -63,6 +83,30 @@ function Install-ClaudePlugins {
         foreach ($plugin in $Plugins) {
             Invoke-PluginCommand "claude" @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
         }
+    }
+}
+
+function Install-CodexAgents {
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+
+    $agentSourceDir = Join-Path (Join-Path $InstallRootPath ".codex") "agents"
+    if (-not (Test-Path $agentSourceDir)) {
+        Write-Warning "No .codex/agents directory found in install root. Codex agent install skipped."
+        return
+    }
+
+    try {
+        $agentDestDir = Join-Path (Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex") "agents"
+        if (-not (Test-Path $agentDestDir)) {
+            New-Item -ItemType Directory -Path $agentDestDir -Force | Out-Null
+        }
+        foreach ($tomlFile in (Get-ChildItem -Path $agentSourceDir -Filter "sdd-*.toml")) {
+            $destFile = Join-Path $agentDestDir $tomlFile.Name
+            Copy-Item -Path $tomlFile.FullName -Destination $destFile -Force
+        }
+    }
+    catch {
+        Write-Warning "Codex agent install failed: $_"
     }
 }
 
@@ -97,7 +141,11 @@ try {
         ".claude-plugin/marketplace.json",
         "plugins/sdd-bootstrap/.codex-plugin/plugin.json",
         "plugins/sdd-implementation/.codex-plugin/plugin.json",
-        "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
+        "plugins/sdd-quality-loop/.codex-plugin/plugin.json",
+        "plugins/sdd-bootstrap/.plugin/plugin.json",
+        "plugins/sdd-implementation/.plugin/plugin.json",
+        "plugins/sdd-quality-loop/.plugin/plugin.json",
+        ".codex/agents/sdd-investigator.toml"
     )
     foreach ($relativePath in $requiredPaths) {
         if (-not (Test-Path (Join-Path $sourceRoot $relativePath))) {
@@ -124,6 +172,7 @@ try {
     Copy-Item -Path (Join-Path $sourceRoot "*") -Destination $stagingRoot -Recurse -Force
     Copy-Item -Path (Join-Path $sourceRoot ".agents") -Destination $stagingRoot -Recurse -Force
     Copy-Item -Path (Join-Path $sourceRoot ".claude-plugin") -Destination $stagingRoot -Recurse -Force
+    Copy-Item -Path (Join-Path $sourceRoot ".codex") -Destination $stagingRoot -Recurse -Force
 
     if (Test-Path $InstallRoot) {
         $backupRoot = Join-Path $installParent ("sdd-plugins-backup-" + [guid]::NewGuid())
@@ -136,9 +185,15 @@ try {
     $resolvedInstallRoot = (Resolve-Path $InstallRoot).Path
     if ($Target -in @("All", "Codex")) {
         Install-CodexPlugins $resolvedInstallRoot
+        if (-not $SkipAgentInstall -and (Get-Command "codex" -ErrorAction SilentlyContinue)) {
+            Install-CodexAgents $resolvedInstallRoot
+        }
     }
     if ($Target -in @("All", "Claude")) {
         Install-ClaudePlugins $resolvedInstallRoot
+    }
+    if ($Target -in @("All", "Copilot")) {
+        Install-CopilotPlugins $resolvedInstallRoot
     }
 
     Write-Host ""

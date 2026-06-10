@@ -7,7 +7,7 @@ param(
 )
 $ErrorActionPreference = "Stop"
 
-$pattern = 'TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|placeholder|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)'
+$pattern = 'TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|placeholder|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)|TODO_REPLACE_WITH_PROJECT_COMMANDS'
 $findings = @()
 
 foreach ($path in $Paths) {

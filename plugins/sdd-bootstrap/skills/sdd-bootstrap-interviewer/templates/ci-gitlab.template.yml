@@ -4,4 +4,5 @@ stages:
 verify:
   stage: verify
   script:
-    - echo "Replace with repository lint, typecheck, test, build, and contract checks"
+    - echo "TODO_REPLACE_WITH_PROJECT_COMMANDS: replace this step with the project's lint/typecheck/test/build commands."
+    - exit 1

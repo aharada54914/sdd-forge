@@ -17,13 +17,19 @@ approved task scope.
 - Accept only the conclusion back into the main context; discard intermediate
   reasoning.
 
-## Codex / No-Subagent Environments
+## Codex / Copilot / No-Subagent Environments
 
-- Run the same investigation unit in a fresh session.
+- On Codex CLI, use the `sdd-investigator` TOML agent (`.codex/agents/sdd-investigator.toml`)
+  for investigation units. The installer copies it to `~/.codex/agents/` for
+  personal scope. Invoke it in an interactive session as a single-purpose unit.
+- On Copilot CLI, use the `sdd-investigator.agent.md` agent from
+  `plugins/sdd-bootstrap/copilot-agents/` for investigation units.
+- When neither agent mechanism is available, run the investigation unit in a
+  fresh session.
 - Record the conclusion in the Working Notes section of
   `reports/implementation/<task-id>.md` before returning to the main task.
-- Treat each fresh session as a single-purpose unit; do not carry prior
-  conversation state into it.
+- Treat each agent invocation or fresh session as a single-purpose unit; do
+  not carry prior conversation state into it.
 
 ## Context Hygiene
 

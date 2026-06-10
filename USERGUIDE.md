@@ -94,7 +94,7 @@ Use the quality-gate skill for specs/reservation/tasks.md#T-001
 1. タスク開始時に `templates/verification-contract.template.json` から Default-FAIL 契約 (`specs/<feature>/verification/<task-id>.contract.json`) を作成する。すべての検査項目は `passes: false` で始まる。
 2. CI相当チェック、`check-placeholders`、`check-task-state` を実行し、実際の出力をエビデンスファイルに保存して契約を更新する。
 3. Done 判定の前に `check-contract` を実行し、未充足チェックがあれば Done を拒否する。
-4. `sdd-evaluator` サブエージェント (Claude Code) または新規セッション (Codex) で独立批判レビューを行う。最大3サイクル。
+4. `sdd-evaluator` サブエージェント (Claude Code)、Codex `.codex/agents/` エージェント、または Copilot `*.agent.md` エージェントで独立批判レビューを行う。最大3サイクル。
 5. `refactor` / `bugfix` タスクで `baseline-behavior.md` が存在する場合、`differential-test-policy.md` に従い各 BL エントリを `fix-required` / `accepted` / `environmental` に分類する。
 
 UI変更時は利用可能なブラウザまたはPlaywrightで画面、DOM、consoleも確認します。
@@ -125,18 +125,25 @@ Use the fix-by-review-ticket skill for docs/review-tickets/RT-0001.yml
 
 各機能がどの実行環境で動作するかを示します。
 
-| 機能 | Claude Code | Codex | 併用 |
+| 機能 | Claude Code | Codex CLI | Copilot CLI |
 |---|---|---|---|
-| スキル本文 / テンプレート / references | ○ | ○ | ○ |
+| スキル本文 / テンプレート / references | ○ | ○ | ○ (SKILL.md互換) |
 | scripts (.sh / .ps1) | ○ | ○ | ○ |
-| `sdd-investigator` エージェント (`context: fork`) | ○ | — | △ (Claude Code側のみ) |
-| `sdd-evaluator` エージェント | ○ | — | △ (Claude Code側のみ) |
-| `hooks/hooks.json` (承認ガード / AGENT_STOP) | ○ | — | △ (Claude Code側のみ) |
-| `disable-model-invocation` / `context: fork` | ○ | — | △ (Claude Code側のみ) |
+| `sdd-investigator` エージェント | ○ (`context: fork`) | ○¹ (`.codex/agents/`) | ○ (`*.agent.md`) |
+| `sdd-evaluator` エージェント | ○ (サブエージェント) | ○¹ (`.codex/agents/`) | ○ (`*.agent.md`) |
+| `hooks/hooks.json` (承認ガード / AGENT_STOP) | ○ | ○² (`plugin_hooks` フラグ必要) | ○³ (plugin `preToolUse`) |
+| `disable-model-invocation` | ○ | — | ○ |
+| `context: fork` | ○ | — | — |
 
-**Codex での等価手順:** `sdd-investigator` の代わりに新規セッションで `investigate-codebase` を実行し生成ファイルを作業コンテキストに貼り付けます。`sdd-evaluator` の代わりに `evaluation-rubric.md` を与えた新規セッションで批判レビューを行います。`hooks` の代わりに `scripts/check-task-state` と `scripts/check-contract` を手動実行して同じ不変条件を確認します。
+¹ `.codex/agents/` の TOML エージェントは Codex app / CLI のインタラクティブセッションで動作します。インストーラーはこれらを `~/.codex/agents/` へもコピーします。  
+² Codex は `hooks/hooks.json` の `command` / `command_windows` を `plugin_hooks` フィーチャーフラグが有効な場合に読み込みます。`apply_patch` ペイロードは `sdd-hook-guard` が処理します。  
+³ Copilot は `hooks/copilot-hooks.json` を使用します。stdout で `permissionDecision` を返すフォーマットを採用し、フェイルセーフ拒否を実装しています。既知の不具合: サブエージェント内では発火しない場合があります。
 
-**併用時のハンドオフ:** ワークフロー状態はすべてリポジトリ内ファイル (`tasks.md` / `specs/` / `reports/` / 検証契約 JSON / `docs/review-tickets/`) に保存されます。Claude Code で生成した成果物を Codex セッションでそのまま引き継ぐことができ、逆方向も同様です。
+**hooksは補助線 (defense in depth)。決定論的スクリプト (`check-contract` / `check-task-state`) が最終防衛線です。**
+
+**Codex / Copilot での運用:** `sdd-investigator` と `sdd-evaluator` はそれぞれ Codex の `.codex/agents/` TOML エージェントおよび Copilot の `copilot-agents/*.agent.md` として利用できます。インストーラーが `~/.codex/agents/` へ自動コピーするため、`codex` CLI のインタラクティブセッションからそのまま起動できます。hooks が無効な環境では、`scripts/check-task-state` と `scripts/check-contract` を手動実行して同じ不変条件を確認してください。
+
+**併用時のハンドオフ:** ワークフロー状態はすべてリポジトリ内ファイル (`tasks.md` / `specs/` / `reports/` / 検証契約 JSON / `docs/review-tickets/`) に保存されます。Claude Code で生成した成果物を Codex / Copilot セッションでそのまま引き継ぐことができ、逆方向も同様です。
 
 ## 4. 決定論的ゲートの使い方
 
@@ -163,7 +170,7 @@ sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/reservation/tasks.
 
 ### AGENT_STOP キルスイッチ
 
-Claude Code の `hooks.json` は全ツール呼び出し前に `kill-switch.sh` を実行します。プロジェクトルートに `AGENT_STOP` ファイルが存在する間、エージェントのすべてのツール操作がブロックされます。
+統一ガード `sdd-hook-guard` が Claude Code、Codex (plugin_hooks フラグ有効時)、Copilot の3ランタイムで AGENT_STOP を強制します。プロジェクトルートに `AGENT_STOP` ファイルが存在する間、エージェントのすべてのツール操作がブロックされます。
 
 ```powershell
 # エージェントを停止する
@@ -173,7 +180,7 @@ New-Item AGENT_STOP
 Remove-Item AGENT_STOP
 ```
 
-Codex では `hooks` が動作しないため、`AGENT_STOP` ファイルはシグナルとして機能しません。代わりにセッションを手動で終了してください。
+hooks が有効でない環境 (Codex で `plugin_hooks` フラグ未設定、Copilot のサブエージェント内など) では、`AGENT_STOP` ファイルはシグナルとして機能しません。その場合はセッションを手動で終了してください。
 
 ## 5. refactorモードと差分テスト
 
@@ -249,7 +256,9 @@ Issue URLの読取りはread-onlyです。Issue作成、コメント、commit、
 
 仕様不足の場合は `sdd-bootstrap-interviewer` へ戻り、仕様更新と再承認を行います。
 
-## 11. v0.2.0からの移行 (v0.3.0)
+## 11. バージョン移行ガイド
+
+### v0.2.0 → v0.3.0
 
 | v0.2.0 | v0.3.0 |
 |---|---|
@@ -260,10 +269,33 @@ Issue URLの読取りはread-onlyです。Issue作成、コメント、commit、
 | フックなし | `hooks/hooks.json` が承認ガード / AGENT_STOP を強制 |
 | レトロスペクティブなし | `workflow-retrospective` + WFI ループが追加 |
 
+### v0.3.0 → v0.4.0
+
+| v0.3.0 | v0.4.0 |
+|---|---|
+| Claude Code のみ対応 | **Copilot CLI対応**: SKILL.md スキル、`*.agent.md` エージェント、`hooks/copilot-hooks.json` (preToolUse、既知の不具合: サブエージェント内) |
+| Codex hookなし / エージェントなし | **Codex hooks/agents対応**: `command_windows` フィールド追加、`apply_patch` ペイロード処理、`.codex/agents/` TOML エージェント、インストーラーが `~/.codex/agents/` へコピー |
+| 個別の kill-switch / guard スクリプト | **統一ガード `sdd-hook-guard`**: 3ランタイム共通、kill-switch + タスク承認チェックを統合 |
+| check-contract / check-task-state 基本版 | **強化版スクリプト**: `waiver_reason` 必須化、証拠パストラバーサル防止、重複タスクID検出、実装レポート必須 (`Implementation Complete`)、`Blocked`/`Done` 検証強化、ベースライン必須セット保護 |
+| CIテンプレートがコマンドなしで通過 | **フェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定のまま通過しない |
+| version 0.3.0 | version 0.4.0 |
+
 通常は3プラグインすべてを導入してください。個別導入する場合:
 
 ```powershell
 .\install.ps1 -Plugins sdd-bootstrap,sdd-implementation
+```
+
+Copilot CLIのみに登録する場合:
+
+```powershell
+.\install.ps1 -Target Copilot
+```
+
+Codexエージェントの個人ディレクトリへのコピーをスキップする場合:
+
+```powershell
+.\install.ps1 -Target Codex -SkipAgentInstall
 ```
 
 ## 12. トラブルシューティング

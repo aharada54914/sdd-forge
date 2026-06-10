@@ -2,17 +2,17 @@
   "task_id": "T-000",
   "feature": "<feature-slug>",
   "created": "<ISO-8601 timestamp>",
-  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails.",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
   "checks": [
-    { "id": "lint", "required": true, "passes": false, "evidence": "" },
-    { "id": "typecheck", "required": true, "passes": false, "evidence": "" },
-    { "id": "unit-tests", "required": true, "passes": false, "evidence": "" },
-    { "id": "integration-tests", "required": false, "passes": false, "evidence": "" },
-    { "id": "build", "required": true, "passes": false, "evidence": "" },
-    { "id": "placeholder-scan", "required": true, "passes": false, "evidence": "" },
-    { "id": "task-state-check", "required": true, "passes": false, "evidence": "" },
-    { "id": "smoke-run", "required": false, "passes": false, "evidence": "" },
-    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "" },
-    { "id": "ui-verification", "required": false, "passes": false, "evidence": "" }
+    { "id": "lint", "required": true, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "" }
   ]
 }
