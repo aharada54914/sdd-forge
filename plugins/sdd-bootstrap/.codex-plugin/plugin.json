@@ -1,7 +1,7 @@
 {
   "name": "sdd-bootstrap",
-  "version": "0.2.0",
-  "description": "Create implementation-ready SDD specifications and approved task contracts from GitHub/GitLab issues or supplied requirements.",
+  "version": "0.3.0",
+  "description": "Create implementation-ready SDD specifications and approved task contracts from GitHub/GitLab issues or supplied requirements. Supports project, feature, bugfix, and refactor modes with read-only codebase investigation.",
   "skills": "./skills/",
   "author": {
     "name": "Harada"
@@ -14,7 +14,8 @@
     "category": "Developer Tools",
     "capabilities": [
       "Issue-driven specification",
-      "Project, feature, and bugfix modes",
+      "Project, feature, bugfix, and refactor modes",
+      "Read-only codebase investigation",
       "Approved task preparation"
     ],
     "defaultPrompt": "Use the sdd-bootstrap-interviewer skill to prepare approved implementation tasks."

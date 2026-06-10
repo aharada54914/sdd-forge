@@ -1,7 +1,7 @@
 {
   "name": "sdd-bootstrap",
-  "description": "Create implementation-ready SDD specifications and approved task contracts.",
-  "version": "0.2.0",
+  "description": "Create implementation-ready SDD specifications and approved task contracts. Supports project, feature, bugfix, and refactor modes with read-only codebase investigation.",
+  "version": "0.3.0",
   "author": {
     "name": "Harada"
   }
