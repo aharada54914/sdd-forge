@@ -1,6 +1,7 @@
 ---
 name: fix-by-review-ticket
 description: Apply only a human-approved repository review-ticket YAML fix, run scoped checks, and return the task to Implementation Complete for another quality gate.
+disable-model-invocation: true
 ---
 
 # Fix By Review Ticket

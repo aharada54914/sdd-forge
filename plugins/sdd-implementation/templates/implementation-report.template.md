@@ -31,3 +31,18 @@
 ## Quality Gate Focus
 
 {{quality_gate_focus}}
+
+## Working Notes
+
+Record conclusions from delegated investigations here. One entry per
+delegation unit: purpose, result, and file paths examined.
+
+{{working_notes}}
+
+## Session Handoff
+
+Populate this section before ending a session mid-task.
+
+- **Current status**: {{handoff_status}}
+- **Next action**: {{handoff_next_action}}
+- **Unresolved items**: {{handoff_unresolved}}

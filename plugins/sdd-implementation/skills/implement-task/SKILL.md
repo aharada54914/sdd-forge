@@ -1,6 +1,7 @@
 ---
 name: implement-task
 description: Restore the current SDD task state and implement exactly one approved task. Use after sdd-bootstrap-interviewer and before quality-gate.
+disable-model-invocation: true
 ---
 
 # Implement Task
@@ -24,7 +25,8 @@ Claude Code:
 ## Required Reading
 
 Read `AGENTS.md`, the target feature requirements, design, tasks, acceptance tests,
-traceability, relevant ADRs and contracts, and `references/implementation-policy.md`.
+traceability, relevant ADRs and contracts, `references/implementation-policy.md`,
+and `references/agent-delegation-policy.md`.
 
 ## State Restoration
 
@@ -34,6 +36,14 @@ traceability, relevant ADRs and contracts, and `references/implementation-policy
 3. Preserve unrelated existing changes. If they conflict with the task scope, set
    the task to `Blocked` and stop.
 4. Do not start a task whose approval is not `Approved`.
+
+## Delegation And Context
+
+Delegate large-scope surveys (impact analysis, pattern discovery, test
+enumeration) following `references/agent-delegation-policy.md`. Keep one
+session per task. When crossing a session boundary, write current state to the
+Session Handoff section of the implementation report before stopping; on
+resume, re-read `tasks.md` and the report before taking any action.
 
 ## Implementation Process
 

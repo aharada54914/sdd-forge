@@ -1,6 +1,7 @@
 ---
 name: sdd-bootstrap-interviewer
-description: Interview-driven SDD bootstrap for project, feature, or bugfix work. Creates approved implementation-ready specifications and tasks from GitHub/GitLab issues or supplied requirements.
+description: Interview-driven SDD bootstrap for project, feature, bugfix, or refactor work. Creates approved implementation-ready specifications and tasks from GitHub/GitLab issues or supplied requirements.
+disable-model-invocation: true
 ---
 
 # SDD Bootstrap Interviewer
@@ -14,14 +15,14 @@ Codex:
 
 ```txt
 Use the sdd-bootstrap-interviewer skill.
-Mode: project | feature | bugfix
+Mode: project | feature | bugfix | refactor
 Source: <GitHub/GitLab issue URL or requirement text>
 ```
 
 Claude Code:
 
 ```txt
-/sdd-bootstrap:sdd-bootstrap-interviewer <project|feature|bugfix> <source>
+/sdd-bootstrap:sdd-bootstrap-interviewer <project|feature|bugfix|refactor> <source>
 ```
 
 ## Intake And Investigation
@@ -29,10 +30,14 @@ Claude Code:
 1. Accept a GitHub/GitLab issue URL or supplied requirement text.
 2. Attempt read-only URL retrieval when available; otherwise ask for issue text.
 3. Identify repository host as GitHub, GitLab, or local.
-4. In `feature` and `bugfix` modes, inspect related code, tests, contracts, and
-   established patterns. Parallel agents may be used only for investigation and
-   independent pre-implementation review.
-5. Record unknown product decisions under `Open Questions`; do not invent them.
+4. In `feature`, `bugfix`, and `refactor` modes, inspect related code, tests,
+   contracts, and established patterns. Parallel agents may be used only for
+   investigation and independent pre-implementation review.
+5. If `specs/<feature>/investigation.md` exists, read it and carry all INV-xxx
+   and BL-xxx IDs forward into requirements and traceability.
+6. For large or unfamiliar codebases in `feature`, `bugfix`, or `refactor`
+   modes, run `investigate-codebase` first and pass its outputs as context here.
+7. Record unknown product decisions under `Open Questions`; do not invent them.
 
 ## Modes
 
@@ -40,6 +45,11 @@ Claude Code:
 - `feature`: specify a new capability in an existing repository.
 - `bugfix`: specify the observed behavior, expected behavior, regression test,
   affected area, and smallest safe correction.
+- `refactor`: specify a structural improvement that does not change observable
+  behavior. Requires `specs/<feature>/investigation.md` and
+  `specs/<feature>/baseline-behavior.md`; run `investigate-codebase` first if
+  they are absent. Acceptance criteria are expressed as BL-xxx behavior
+  equivalence.
 
 Create `AGENTS.md`, `CLAUDE.md`, and project-level architecture only when absent
 or when an approved decision requires an update.

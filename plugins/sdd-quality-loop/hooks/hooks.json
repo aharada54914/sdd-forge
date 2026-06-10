@@ -1,0 +1,25 @@
+{
+  "description": "Claude Code enforcement layer for the SDD state machine. These hooks are thin wrappers around scripts/ so the same gates can be run manually on Codex or any other CLI.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/kill-switch.sh\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh \"${CLAUDE_PLUGIN_ROOT}/scripts/guard-task-approval.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 {
   "name": "sdd-implementation",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Implement one approved SDD task and prepare it for independent quality review.",
   "skills": "./skills/",
   "author": {
@@ -15,7 +15,8 @@
     "capabilities": [
       "Approved task implementation",
       "Task state restoration",
-      "Implementation handoff reporting"
+      "Implementation handoff reporting",
+      "Context-safe delegation to helper agents"
     ],
     "defaultPrompt": "Use the implement-task skill for the next approved task."
   }

@@ -3,8 +3,8 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
-$expectedSkills = @("sdd-bootstrap-interviewer", "implement-task", "quality-gate", "fix-by-review-ticket")
-$expectedVersion = "0.2.0"
+$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective")
+$expectedVersion = "0.3.0"
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -80,7 +80,24 @@ $requiredFiles = @(
     "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/pull-request.template.md",
     "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/merge-request.template.md",
     "plugins/sdd-implementation/templates/implementation-report.template.md",
-    "plugins/sdd-quality-loop/templates/review-ticket.template.yml"
+    "plugins/sdd-quality-loop/templates/review-ticket.template.yml",
+    "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
+    "plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md",
+    "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md",
+    "plugins/sdd-bootstrap/agents/investigator.md",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/architecture-review-checklist.md",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-context.template.md",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md",
+    "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-component.template.md",
+    "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md",
+    "plugins/sdd-quality-loop/agents/evaluator.md",
+    "plugins/sdd-quality-loop/hooks/hooks.json",
+    "plugins/sdd-quality-loop/references/deterministic-check-policy.md",
+    "plugins/sdd-quality-loop/references/differential-test-policy.md",
+    "plugins/sdd-quality-loop/references/evaluation-rubric.md",
+    "plugins/sdd-quality-loop/templates/verification-contract.template.json",
+    "plugins/sdd-quality-loop/templates/retrospective-report.template.md",
+    "plugins/sdd-quality-loop/templates/workflow-improvement.template.md"
 )
 foreach ($relativePath in $requiredFiles) {
     if (-not (Test-Path (Join-Path $repositoryRoot $relativePath))) {
@@ -115,9 +132,53 @@ foreach ($rule in @("Approved", "In Progress", "Blocked", "Implementation Comple
 }
 
 $qualitySkill = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
-foreach ($rule in @("Implementation Complete", "maximum of 3", "Done", "Playwright", "traceability")) {
+foreach ($rule in @("Implementation Complete", "maximum of 3", "Done", "Playwright", "traceability", "check-contract", "check-placeholders", "check-task-state", "sdd-evaluator")) {
     if ($qualitySkill -notmatch [regex]::Escape($rule)) {
         throw "Quality-gate skill is missing required rule: $rule"
+    }
+}
+
+# Deterministic gate scripts must exist as portable sh/ps1 pairs.
+foreach ($script in @("check-contract", "check-placeholders", "check-task-state")) {
+    foreach ($extension in @("sh", "ps1")) {
+        $scriptPath = "plugins/sdd-quality-loop/scripts/$script.$extension"
+        if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
+            throw "Missing deterministic gate script: $scriptPath"
+        }
+    }
+}
+foreach ($scriptPath in @("plugins/sdd-quality-loop/scripts/guard-task-approval.sh",
+                          "plugins/sdd-quality-loop/scripts/guard-task-approval.ps1",
+                          "plugins/sdd-quality-loop/scripts/kill-switch.sh")) {
+    if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
+        throw "Missing hook script: $scriptPath"
+    }
+}
+
+# Hooks must parse as JSON and reference only bundled scripts.
+$hooksConfig = Read-JsonFile "plugins/sdd-quality-loop/hooks/hooks.json"
+if (-not $hooksConfig.hooks.PreToolUse) {
+    throw "hooks.json does not define PreToolUse hooks."
+}
+
+# The verification contract template must stay Default-FAIL.
+$contractTemplate = Read-JsonFile "plugins/sdd-quality-loop/templates/verification-contract.template.json"
+foreach ($check in $contractTemplate.checks) {
+    if ($check.passes) {
+        throw "Verification contract template must default every check to passes=false (violated by '$($check.id)')."
+    }
+}
+foreach ($checkId in @("lint", "unit-tests", "build", "placeholder-scan", "task-state-check")) {
+    if ($checkId -notin $contractTemplate.checks.id) {
+        throw "Verification contract template is missing check: $checkId"
+    }
+}
+
+# Side-effecting skills must not be auto-invocable by the model.
+foreach ($skillFile in $skillFiles) {
+    $content = Get-Content -Raw -Encoding Utf8 $skillFile.FullName
+    if ($content -notmatch "(?m)^disable-model-invocation:\s*true$") {
+        throw "Skill must set disable-model-invocation: true: $($skillFile.FullName)"
     }
 }
 
