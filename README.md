@@ -1,6 +1,6 @@
 # SDD Plugins Windows Installer
 
-v0.4.0 — Windows PowerShellから、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
+v0.5.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
 
 ```text
 [Stage 0] investigate-codebase  既存コードを読み取り専用で調査し、INV/BL証跡を生成する
@@ -16,6 +16,14 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 ```
 
 詳しい運用方法と実際の開発例は [USERGUIDE.md](USERGUIDE.md) を参照してください。
+
+## v0.5.0 新機能
+
+- **macOS/Linuxインストーラ追加**: `install.sh` により `curl | bash` ワンライナーで macOS 13+ および Linux へ導入可能。フラグは PowerShell 版と対称 (`--target`, `--plugins`, `--install-root` 等)。
+- **Claude CodeフックのNode.js exec form化**: `hooks/claude-hooks.json` が `sh` 経由のシェル形式ではなく `node` コマンドの exec form を使用。Git Bash 不要の Windowsネイティブ対応を実現。
+- **CIをWindows+macOSマトリクスに拡張**: `.github/workflows/test.yml` が `windows-latest` と `macos-latest` の両方でテスト実行。`hooks.tests.ps1` を CI に追加。
+- **PS 5.1のTLS 1.2強制**: PowerShell 5.1 環境で `[Net.ServicePointManager]::SecurityProtocol` を TLS 1.2 に設定し、ダウンロード失敗を防止。
+- **check-task-state.shのmktemp化**: 競合状態を排除するため一時ファイルに `mktemp` を使用。
 
 ## v0.4.0 新機能
 
@@ -41,6 +49,35 @@ irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer
 ```
 
 既定では3プラグインすべてを登録します。利用可能なCodex CLI / Claude Code CLIだけが設定されます。
+
+## macOS / Linux ワンライナー
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash
+```
+
+既定では3プラグインすべてを登録します。利用可能なCodex CLI / Claude Code CLIだけが設定されます。
+
+オプション指定の例:
+
+```bash
+# Codex CLIのみ
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash -s -- --target Codex
+
+# 特定プラグインのみ
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash -s -- --plugins sdd-bootstrap,sdd-implementation
+
+# ファイル配置のみ (CLIへの登録はしない)
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash -s -- --target FilesOnly
+```
+
+実行前にスクリプトの内容を確認する場合:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | less
+# 内容を確認してから手動実行
+bash install.sh
+```
 
 ## 個別インストール
 
@@ -68,9 +105,17 @@ irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer
 
 ## 前提条件
 
+**Windows:**
 - Windows 10/11
 - PowerShell 5.1以上、またはPowerShell 7
-- Codex CLI、Claude Code CLI、またはCopilot CLI (いずれか1つ以上)
+
+**macOS / Linux:**
+- macOS 13 以上、または主要 Linux ディストリビューション
+- bash、curl、tar (通常プリインストール済み)
+
+**共通:**
+- Codex CLI、Claude Code CLI、またはCopilot CLI は任意です。PATHにあるものだけが自動登録されます。
+- Claude Codeのフック強制層は公式推奨のNode.js exec formを使用するため、**Node.js**が必要です (Git Bash は不要)。
 
 ## セキュリティ
 
@@ -83,6 +128,14 @@ irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer
 ## 検証
 
 ```powershell
+# PowerShell (Windows / macOS / Linux)
 .\tests\validate-repository.ps1
+.\tests\scripts.tests.ps1
+.\tests\hooks.tests.ps1
 .\tests\install.tests.ps1
+```
+
+```bash
+# bash (macOS / Linux)
+bash tests/install.tests.sh
 ```

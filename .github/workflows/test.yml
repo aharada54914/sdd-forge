@@ -1,4 +1,4 @@
-name: Test Windows installer
+name: Test installers and gates
 
 on:
   push:
@@ -11,7 +11,11 @@ permissions:
 
 jobs:
   test:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - name: Validate repository
@@ -20,6 +24,13 @@ jobs:
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
+      - name: Test hook guards
+        shell: pwsh
+        run: ./tests/hooks.tests.ps1
       - name: Test installer
         shell: pwsh
         run: ./tests/install.tests.ps1
+      - name: Test POSIX installer
+        if: runner.os == 'macOS'
+        shell: bash
+        run: ./tests/install.tests.sh

@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective")
-$expectedVersion = "0.4.0"
+$expectedVersion = "0.5.0"
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)

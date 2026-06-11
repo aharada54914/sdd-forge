@@ -280,7 +280,22 @@ Issue URLの読取りはread-onlyです。Issue作成、コメント、commit、
 | CIテンプレートがコマンドなしで通過 | **フェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定のまま通過しない |
 | version 0.3.0 | version 0.4.0 |
 
-通常は3プラグインすべてを導入してください。個別導入する場合:
+### v0.4.0 → v0.5.0
+
+| v0.4.0 | v0.5.0 |
+|---|---|
+| Windowsのみインストーラー (`install.ps1`) | **クロスプラットフォーム対応**: `install.sh` により macOS 13+ / Linux へ `curl \| bash` で導入可能 |
+| Claude Codeフックが `sh` 経由のシェル形式 (Git Bash必須) | **Node.js exec form化**: `hooks/claude-hooks.json` が `node` コマンドの exec form を使用。Git Bash 不要 |
+| CI は windows-latest のみ | **マトリクスCI**: `windows-latest` と `macos-latest` の両方で実行。`hooks.tests.ps1` を CI に追加 |
+| PS 5.1でダウンロード失敗する場合あり | **TLS 1.2強制**: `[Net.ServicePointManager]::SecurityProtocol` を TLS 1.2 に設定 |
+| `check-task-state.sh` が固定パス一時ファイル | **mktemp化**: 競合状態を排除 |
+| version 0.4.0 | version 0.5.0 |
+
+通常は3プラグインすべてを導入してください。
+
+#### Windowsインストール
+
+個別導入する場合:
 
 ```powershell
 .\install.ps1 -Plugins sdd-bootstrap,sdd-implementation
@@ -296,6 +311,26 @@ Codexエージェントの個人ディレクトリへのコピーをスキップ
 
 ```powershell
 .\install.ps1 -Target Codex -SkipAgentInstall
+```
+
+#### macOS / Linuxインストール
+
+個別導入する場合:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash -s -- --plugins sdd-bootstrap,sdd-implementation
+```
+
+Codex CLIのみに登録する場合:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash -s -- --target Codex
+```
+
+Codexエージェントのコピーをスキップする場合:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash -s -- --target Codex --skip-agent-install
 ```
 
 ## 12. トラブルシューティング
