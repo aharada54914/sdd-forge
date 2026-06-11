@@ -1,8 +1,11 @@
 # SDD Plugins Windows Installer
 
-v0.5.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
+v0.6.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
 
 ```text
+[brownfield] sdd-adopt           既存プロジェクトへ SDD 構造を途中導入する
+                                 (AGENTS.md/CLAUDE.md/docs/adr/等をスキャフォールド、ADR 移行)
+       ↓
 [Stage 0] investigate-codebase  既存コードを読み取り専用で調査し、INV/BL証跡を生成する
                                  (refactorモードでは必須、他モードは任意)
        ↓
@@ -16,6 +19,12 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 ```
 
 詳しい運用方法と実際の開発例は [USERGUIDE.md](USERGUIDE.md) を参照してください。
+
+## v0.6.0 新機能
+
+- **brownfield導入サポート (`sdd-adopt`)**: プロジェクト開始後に SDD を採用する「brownfield導入」シナリオ向けスキル。`AGENTS.md` / `CLAUDE.md` / `docs/adr/` / `docs/review-tickets/` / `reports/` をスキャフォールドし、`specs/<feature>/adr/` などの旧配置 ADR を `docs/adr/` へ移行する。ホスト (GitHub / GitLab) に合わせたテンプレートを選択。
+- **構造プリフライトチェック (`check-sdd-structure`)**: `plugins/sdd-bootstrap/scripts/check-sdd-structure.sh` / `.ps1` が必須ファイル・ディレクトリの有無を検査し `missing:` / `advisory:` / `drift:` / `host:` 行で報告。不足時は exit 1。`sdd-bootstrap-interviewer` が feature / bugfix / refactor モード開始時に自動実行し、不足があれば `sdd-adopt` の実行を促して停止する。
+- **implement-task / quality-gate の明示的前提条件**: `AGENTS.md` が存在しない場合、両スキルがガイダンス付きで停止し `sdd-adopt` の実行を促す。
 
 ## v0.5.0 新機能
 

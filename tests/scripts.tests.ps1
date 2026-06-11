@@ -330,6 +330,74 @@ Status: Done
         Write-Host "bash not found; skipping POSIX variant tests."
     }
 
+    # --- check-sdd-structure ---
+    $bootstrapScriptsDir = Join-Path $repositoryRoot "plugins/sdd-bootstrap/scripts"
+
+    function Invoke-BootstrapGate {
+        param([string]$Script, [string[]]$Arguments)
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $bootstrapScriptsDir $Script) @Arguments *> $null
+        return $LASTEXITCODE
+    }
+
+    # Helper: build a fresh sub-directory under $workDir for an isolated fixture tree.
+    function New-Fixture {
+        param([string]$Name)
+        $path = Join-Path $workDir $Name
+        New-Item -ItemType Directory -Path $path | Out-Null
+        return $path
+    }
+
+    # Test 1: complete structure → exit 0
+    $fixtureComplete = New-Fixture "sdd-complete"
+    foreach ($d in @("specs", "reports/implementation", "reports/quality-gate", "docs/adr", "docs/review-tickets")) {
+        New-Item -ItemType Directory -Path (Join-Path $fixtureComplete $d) -Force | Out-Null
+    }
+    "" | Set-Content -Encoding Utf8 (Join-Path $fixtureComplete "AGENTS.md")
+    Assert-ExitCode "check-sdd-structure complete → OK" (Invoke-BootstrapGate "check-sdd-structure.ps1" @($fixtureComplete)) 0
+
+    # Test 2: missing AGENTS.md and docs/adr → exit 1
+    $fixtureMissing = New-Fixture "sdd-missing"
+    foreach ($d in @("specs", "reports/implementation", "reports/quality-gate", "docs/review-tickets")) {
+        New-Item -ItemType Directory -Path (Join-Path $fixtureMissing $d) -Force | Out-Null
+    }
+    # No AGENTS.md, no docs/adr
+    Assert-ExitCode "check-sdd-structure missing AGENTS.md + docs/adr → FAIL" (Invoke-BootstrapGate "check-sdd-structure.ps1" @($fixtureMissing)) 1
+
+    # Test 3: drift dir specs/foo/adr present, structure otherwise complete → exit 0
+    $fixtureDrift = New-Fixture "sdd-drift"
+    foreach ($d in @("specs/foo/adr", "reports/implementation", "reports/quality-gate", "docs/adr", "docs/review-tickets")) {
+        New-Item -ItemType Directory -Path (Join-Path $fixtureDrift $d) -Force | Out-Null
+    }
+    "" | Set-Content -Encoding Utf8 (Join-Path $fixtureDrift "AGENTS.md")
+    Assert-ExitCode "check-sdd-structure drift dir present + complete → OK" (Invoke-BootstrapGate "check-sdd-structure.ps1" @($fixtureDrift)) 0
+
+    # Test 4: advisory-only missing (CLAUDE.md absent, contracts absent) → exit 0
+    $fixtureAdvisory = New-Fixture "sdd-advisory"
+    foreach ($d in @("specs", "reports/implementation", "reports/quality-gate", "docs/adr", "docs/review-tickets")) {
+        New-Item -ItemType Directory -Path (Join-Path $fixtureAdvisory $d) -Force | Out-Null
+    }
+    "" | Set-Content -Encoding Utf8 (Join-Path $fixtureAdvisory "AGENTS.md")
+    # CLAUDE.md, contracts/, docs/architecture/ are intentionally absent
+    Assert-ExitCode "check-sdd-structure advisory-only missing → OK" (Invoke-BootstrapGate "check-sdd-structure.ps1" @($fixtureAdvisory)) 0
+
+    # POSIX variants via bash
+    $bash = Get-Command bash -ErrorAction SilentlyContinue
+    if ($bash) {
+        & bash (Join-Path $bootstrapScriptsDir "check-sdd-structure.sh") $fixtureComplete *> $null
+        Assert-ExitCode "check-sdd-structure.sh complete → OK" $LASTEXITCODE 0
+
+        & bash (Join-Path $bootstrapScriptsDir "check-sdd-structure.sh") $fixtureMissing *> $null
+        Assert-ExitCode "check-sdd-structure.sh missing AGENTS.md + docs/adr → FAIL" $LASTEXITCODE 1
+
+        & bash (Join-Path $bootstrapScriptsDir "check-sdd-structure.sh") $fixtureDrift *> $null
+        Assert-ExitCode "check-sdd-structure.sh drift dir present + complete → OK" $LASTEXITCODE 0
+
+        & bash (Join-Path $bootstrapScriptsDir "check-sdd-structure.sh") $fixtureAdvisory *> $null
+        Assert-ExitCode "check-sdd-structure.sh advisory-only missing → OK" $LASTEXITCODE 0
+    } else {
+        Write-Host "bash not found; skipping check-sdd-structure.sh POSIX tests."
+    }
+
     Write-Host "Script gate tests passed."
 } finally {
     Pop-Location
