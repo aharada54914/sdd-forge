@@ -1,0 +1,335 @@
+#!/usr/bin/env bash
+# install.sh — SDD plugins installer for macOS and Linux
+# Mirrors install.ps1 behavior exactly.
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Defaults
+# ---------------------------------------------------------------------------
+REPOSITORY="aharada54914/sdd-plugins-windows-installer"
+REF="main"
+INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins"
+TARGET="All"
+PLUGINS="sdd-bootstrap,sdd-implementation,sdd-quality-loop"
+SKIP_PLUGIN_INSTALL=0
+SKIP_AGENT_INSTALL=0
+SOURCE_DIRECTORY=""
+
+VALID_PLUGINS="sdd-bootstrap sdd-implementation sdd-quality-loop"
+
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
+usage() {
+    cat >&2 <<EOF
+Usage: install.sh [options]
+
+  --repository <owner/repo>      Default: aharada54914/sdd-plugins-windows-installer
+  --ref <ref>                    Default: main
+  --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
+  --target All|Codex|Claude|Copilot|FilesOnly
+                                 Default: All
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-implementation,sdd-quality-loop
+                                 Default: all three
+  --skip-plugin-install          Skip registering plugins with CLI tools
+  --skip-agent-install           Skip copying Codex agent TOML files
+  --source-directory <path>      Use a local directory instead of downloading
+EOF
+    exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --repository)       [[ $# -gt 1 ]] || usage; REPOSITORY="$2"; shift 2 ;;
+        --ref)              [[ $# -gt 1 ]] || usage; REF="$2"; shift 2 ;;
+        --install-root)     [[ $# -gt 1 ]] || usage; INSTALL_ROOT="$2"; shift 2 ;;
+        --target)           [[ $# -gt 1 ]] || usage; TARGET="$2"; shift 2 ;;
+        --plugins)          [[ $# -gt 1 ]] || usage; PLUGINS="$2"; shift 2 ;;
+        --skip-plugin-install) SKIP_PLUGIN_INSTALL=1; shift ;;
+        --skip-agent-install)  SKIP_AGENT_INSTALL=1; shift ;;
+        --source-directory) [[ $# -gt 1 ]] || usage; SOURCE_DIRECTORY="$2"; shift 2 ;;
+        *) echo "Unknown option: $1" >&2; usage ;;
+    esac
+done
+
+# Validate --target
+case "$TARGET" in
+    All|Codex|Claude|Copilot|FilesOnly) ;;
+    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, or FilesOnly)" >&2; usage ;;
+esac
+
+# Validate --plugins
+IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
+for p in "${PLUGIN_LIST[@]}"; do
+    valid=0
+    for v in $VALID_PLUGINS; do
+        [[ "$p" == "$v" ]] && valid=1 && break
+    done
+    if [[ $valid -eq 0 ]]; then
+        echo "Invalid plugin name: $p (must be one of: $VALID_PLUGINS)" >&2
+        exit 1
+    fi
+done
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+run_plugin_command() {
+    local cmd="$1"; shift
+    local rc=0
+    "$cmd" "$@" || rc=$?
+    if [[ $rc -ne 0 ]]; then
+        echo "Error: '$cmd $*' failed with exit code $rc." >&2
+        return 1
+    fi
+}
+
+target_requires() {
+    # Returns 0 if $TARGET is exactly the given value (hard-error context)
+    [[ "$TARGET" == "$1" ]]
+}
+
+install_codex_plugins() {
+    local marketplace_root="$1"
+    if ! command -v codex >/dev/null 2>&1; then
+        if target_requires Codex; then
+            echo "Error: Codex CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Codex CLI was not found. Codex registration was skipped." >&2
+        return 0
+    fi
+    run_plugin_command codex plugin marketplace add "$marketplace_root"
+    if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            run_plugin_command codex plugin add "${p}@sdd-plugins"
+        done
+    fi
+}
+
+install_claude_plugins() {
+    local marketplace_root="$1"
+    if ! command -v claude >/dev/null 2>&1; then
+        if target_requires Claude; then
+            echo "Error: Claude Code CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Claude Code CLI was not found. Claude registration was skipped." >&2
+        return 0
+    fi
+    run_plugin_command claude plugin marketplace add "$marketplace_root" --scope user
+    if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            run_plugin_command claude plugin install "${p}@sdd-plugins" --scope user
+        done
+    fi
+}
+
+install_copilot_plugins() {
+    local marketplace_root="$1"
+    if ! command -v copilot >/dev/null 2>&1; then
+        if target_requires Copilot; then
+            echo "Error: Copilot CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Copilot CLI was not found. Copilot registration was skipped." >&2
+        return 0
+    fi
+    run_plugin_command copilot plugin marketplace add "$marketplace_root"
+    if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            run_plugin_command copilot plugin install "${p}@sdd-plugins"
+        done
+    fi
+}
+
+install_codex_agents() {
+    local install_root_path="$1"
+    local agent_source_dir="${install_root_path}/.codex/agents"
+    if [[ ! -d "$agent_source_dir" ]]; then
+        echo "Warning: No .codex/agents directory found in install root. Codex agent install skipped." >&2
+        return 0
+    fi
+    local agent_dest_dir="${HOME}/.codex/agents"
+    {
+        mkdir -p "$agent_dest_dir"
+        for toml in "${agent_source_dir}"/sdd-*.toml; do
+            [[ -f "$toml" ]] || continue
+            cp -f "$toml" "$agent_dest_dir/"
+        done
+    } || echo "Warning: Codex agent install failed." >&2
+}
+
+# ---------------------------------------------------------------------------
+# Cleanup state
+# ---------------------------------------------------------------------------
+TEMPORARY_ROOT=""
+BACKUP_ROOT=""
+STAGING_ROOT=""
+NEW_INSTALL_PLACED=0
+
+cleanup() {
+    # Called from trap EXIT — runs on every exit path
+    if [[ -n "$STAGING_ROOT" && -d "$STAGING_ROOT" ]]; then
+        rm -rf "$STAGING_ROOT"
+    fi
+    if [[ -n "$TEMPORARY_ROOT" && -d "$TEMPORARY_ROOT" ]]; then
+        rm -rf "$TEMPORARY_ROOT"
+    fi
+}
+
+rollback() {
+    # Restore previous installation on error
+    if [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]]; then
+        if [[ -d "$INSTALL_ROOT" ]]; then
+            rm -rf "$INSTALL_ROOT"
+        fi
+        mv "$BACKUP_ROOT" "$INSTALL_ROOT"
+        BACKUP_ROOT=""
+    elif [[ $NEW_INSTALL_PLACED -eq 1 && -d "$INSTALL_ROOT" ]]; then
+        rm -rf "$INSTALL_ROOT"
+    fi
+}
+
+trap 'rc=$?; rollback; cleanup; exit $rc' EXIT
+
+# ---------------------------------------------------------------------------
+# Resolve source
+# ---------------------------------------------------------------------------
+if [[ -n "$SOURCE_DIRECTORY" ]]; then
+    SOURCE_ROOT="$(cd "$SOURCE_DIRECTORY" && pwd)"
+else
+    TEMPORARY_ROOT="$(mktemp -d)"
+    DOWNLOAD_URL="https://codeload.github.com/${REPOSITORY}/tar.gz/${REF}"
+    echo "Downloading ${DOWNLOAD_URL}"
+    curl -fsSL "$DOWNLOAD_URL" -o "${TEMPORARY_ROOT}/source.tar.gz"
+    tar -xzf "${TEMPORARY_ROOT}/source.tar.gz" -C "$TEMPORARY_ROOT"
+
+    SOURCE_ROOT=""
+    for d in "${TEMPORARY_ROOT}"/*/; do
+        if [[ -f "${d}.agents/plugins/marketplace.json" ]]; then
+            SOURCE_ROOT="${d%/}"
+            break
+        fi
+    done
+    if [[ -z "$SOURCE_ROOT" ]]; then
+        echo "Error: The downloaded archive does not contain an SDD plugin marketplace." >&2
+        exit 1
+    fi
+fi
+
+# ---------------------------------------------------------------------------
+# Validate required paths
+# ---------------------------------------------------------------------------
+REQUIRED_PATHS=(
+    ".agents/plugins/marketplace.json"
+    ".claude-plugin/marketplace.json"
+    "plugins/sdd-bootstrap/.codex-plugin/plugin.json"
+    "plugins/sdd-implementation/.codex-plugin/plugin.json"
+    "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
+    "plugins/sdd-bootstrap/.plugin/plugin.json"
+    "plugins/sdd-implementation/.plugin/plugin.json"
+    "plugins/sdd-quality-loop/.plugin/plugin.json"
+    ".codex/agents/sdd-investigator.toml"
+)
+for rel in "${REQUIRED_PATHS[@]}"; do
+    if [[ ! -e "${SOURCE_ROOT}/${rel}" ]]; then
+        echo "Error: Required file is missing: ${rel}" >&2
+        exit 1
+    fi
+done
+
+# ---------------------------------------------------------------------------
+# Resolve install root and safety checks
+# ---------------------------------------------------------------------------
+# Canonicalise without requiring the path to already exist
+INSTALL_ROOT="$(python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$INSTALL_ROOT" 2>/dev/null || \
+    realpath -m "$INSTALL_ROOT" 2>/dev/null || \
+    { mkdir -p "$(dirname "$INSTALL_ROOT")"; cd "$(dirname "$INSTALL_ROOT")"; echo "$(pwd)/$(basename "$INSTALL_ROOT")"; })"
+
+# Must not be a filesystem root
+case "$INSTALL_ROOT" in
+    /) echo "Error: --install-root must not be a filesystem root: $INSTALL_ROOT" >&2; exit 1 ;;
+    *) ;;
+esac
+# Check it is not exactly a root by seeing if parent == itself
+_parent="$(dirname "$INSTALL_ROOT")"
+if [[ "$_parent" == "$INSTALL_ROOT" ]]; then
+    echo "Error: --install-root must not be a filesystem root: $INSTALL_ROOT" >&2
+    exit 1
+fi
+
+# Must differ from source directory
+_resolved_source="$(cd "$SOURCE_ROOT" && pwd)"
+if [[ "$INSTALL_ROOT" == "$_resolved_source" ]]; then
+    echo "Error: --install-root must differ from --source-directory." >&2
+    exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Stage, swap, register
+# ---------------------------------------------------------------------------
+INSTALL_PARENT="$(dirname "$INSTALL_ROOT")"
+mkdir -p "$INSTALL_PARENT"
+
+STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
+
+# Copy everything including dot-dirs
+cp -R "${SOURCE_ROOT}/." "${STAGING_ROOT}/"
+
+# Explicitly copy dot-directories (in case cp -R missed them on some platforms)
+for dotdir in .agents .claude-plugin .codex; do
+    if [[ -d "${SOURCE_ROOT}/${dotdir}" ]]; then
+        cp -R "${SOURCE_ROOT}/${dotdir}" "${STAGING_ROOT}/${dotdir}"
+    fi
+done
+
+# Backup existing install — generate a unique path without pre-creating it
+# so that `mv` renames the directory rather than moving it inside.
+if [[ -d "$INSTALL_ROOT" ]]; then
+    BACKUP_ROOT="${INSTALL_PARENT}/sdd-plugins-backup-$$-${RANDOM}${RANDOM}"
+    while [[ -e "$BACKUP_ROOT" ]]; do
+        BACKUP_ROOT="${INSTALL_PARENT}/sdd-plugins-backup-$$-${RANDOM}${RANDOM}"
+    done
+    mv "$INSTALL_ROOT" "$BACKUP_ROOT"
+fi
+
+mv "$STAGING_ROOT" "$INSTALL_ROOT"
+STAGING_ROOT=""
+NEW_INSTALL_PLACED=1
+
+RESOLVED_INSTALL_ROOT="$(cd "$INSTALL_ROOT" && pwd)"
+
+# ---------------------------------------------------------------------------
+# Registration
+# ---------------------------------------------------------------------------
+if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
+    install_codex_plugins "$RESOLVED_INSTALL_ROOT"
+    if [[ $SKIP_AGENT_INSTALL -eq 0 ]] && command -v codex >/dev/null 2>&1; then
+        install_codex_agents "$RESOLVED_INSTALL_ROOT"
+    fi
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
+    install_claude_plugins "$RESOLVED_INSTALL_ROOT"
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
+    install_copilot_plugins "$RESOLVED_INSTALL_ROOT"
+fi
+
+# ---------------------------------------------------------------------------
+# Success
+# ---------------------------------------------------------------------------
+echo ""
+echo "SDD plugins installed at: ${RESOLVED_INSTALL_ROOT}"
+if [[ "$TARGET" == "FilesOnly" ]]; then
+    echo "Plugin registration was skipped because --target=FilesOnly."
+fi
+
+# Remove backup on success
+if [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]]; then
+    rm -rf "$BACKUP_ROOT"
+    BACKUP_ROOT=""
+fi
+
+# Disarm rollback — success path
+NEW_INSTALL_PLACED=0

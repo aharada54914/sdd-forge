@@ -1,5 +1,5 @@
 {
-  "description": "SDD enforcement layer. Shared by Claude Code AND Codex CLI (Codex reads this same hooks/hooks.json but requires the 'plugin_hooks' feature flag enabled). 'command' is the POSIX invocation; 'command_windows' is the Codex Windows override (Claude Code ignores the unknown field). Both wrap scripts/ so the same gates run on any CLI.",
+  "description": "Codex CLI enforcement config for the SDD quality loop. Codex CLI reads this file (requires the 'plugin_hooks' feature flag). 'command' is the POSIX invocation; 'command_windows' is the Codex Windows override. Claude Code uses hooks/claude-hooks.json (referenced via .claude-plugin/plugin.json) which uses exec-form Node.js hooks instead. GitHub Copilot CLI uses hooks/copilot-hooks.json.",
   "hooks": {
     "PreToolUse": [
       {

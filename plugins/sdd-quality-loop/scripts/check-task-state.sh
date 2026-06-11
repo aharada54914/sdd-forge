@@ -19,6 +19,9 @@ if [ -z "$tasks" ] || [ ! -f "$tasks" ]; then
   exit 1
 fi
 
+_tmpout="$(mktemp)"
+trap 'rm -f "$_tmpout"' EXIT
+
 TASKS="$tasks" REPORTS="$reports" IMPL_REPORTS="$impl_reports" awk '
 BEGIN {
   task = ""; failures = 0; count = 0
@@ -88,11 +91,10 @@ END {
   if (failures > 0) { exit 1 }
   print "Task state check passed for " count " task(s)."
 }
-' "$tasks" > /tmp/check-task-state.$$ 2>&1
+' "$tasks" > "$_tmpout" 2>&1
 rc=$?
 if [ $rc -ne 0 ]; then
   echo "Task state check FAILED:"
 fi
-cat /tmp/check-task-state.$$
-rm -f /tmp/check-task-state.$$
+cat "$_tmpout"
 exit $rc

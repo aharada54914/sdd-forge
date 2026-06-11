@@ -133,6 +133,86 @@ Approval: Draft
         Write-Host "bash+python3 not both found; skipping POSIX dispatcher tests."
     }
 
+    # --- Node.js guard (sdd-hook-guard.js / kill-switch.js) when node is available ---
+    $node = Get-Command node -ErrorAction SilentlyContinue
+    if ($node) {
+        function Invoke-GuardNode {
+            param([string]$Payload, [string]$EmitMode = "exit")
+            $outFile = Join-Path $workDir ("node-" + [guid]::NewGuid() + ".txt")
+            $Payload | & node (Join-Path $scriptsDir "sdd-hook-guard.js") "--emit" $EmitMode > $outFile 2>$null
+            $code = $LASTEXITCODE
+            $out = if (Test-Path $outFile) { (Get-Content -Raw -ErrorAction SilentlyContinue $outFile) } else { "" }
+            return @{ Code = $code; Out = $out }
+        }
+
+        function Invoke-KillSwitchNode {
+            param([string]$Cwd, [string]$ProjectDir = $null)
+            $savedDir = $env:CLAUDE_PROJECT_DIR
+            if ($ProjectDir) { $env:CLAUDE_PROJECT_DIR = $ProjectDir } else { Remove-Item Env:\CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue }
+            try {
+                Push-Location $Cwd
+                & node (Join-Path $scriptsDir "kill-switch.js") *> $null
+                return $LASTEXITCODE
+            } finally {
+                Pop-Location
+                if ($savedDir) { $env:CLAUDE_PROJECT_DIR = $savedDir } else { Remove-Item Env:\CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue }
+            }
+        }
+
+        # --- Edit payload adding Approval: Approved -> deny ---
+        $r = Invoke-GuardNode '{"tool_name":"Edit","tool_input":{"file_path":"/p/specs/x/tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
+        Assert "node: edit adds approval -> deny (exit 2)" ($r.Code -eq 2)
+
+        # --- status-only change -> allow ---
+        $r = Invoke-GuardNode '{"tool_name":"Edit","tool_input":{"file_path":"/p/specs/x/tasks.md","old_string":"Status: Planned","new_string":"Status: In Progress"}}'
+        Assert "node: status-only change -> allow (exit 0)" ($r.Code -eq 0)
+
+        # --- Write content payload: same count -> allow; extra approval -> deny ---
+        $r = Invoke-GuardNode $payloadN
+        Assert "node: write content same count -> allow" ($r.Code -eq 0)
+        $r = Invoke-GuardNode $payloadN1
+        Assert "node: write content extra approval -> deny" ($r.Code -eq 2)
+
+        # --- apply_patch adding Approval: Approved to tasks.md -> deny ---
+        $r = Invoke-GuardNode $patchDeny
+        Assert "node: apply_patch adds approval to tasks.md -> deny" ($r.Code -eq 2)
+
+        # --- apply_patch to another file -> allow ---
+        $r = Invoke-GuardNode $patchOther
+        Assert "node: apply_patch to other file -> allow" ($r.Code -eq 0)
+
+        # --- shell echo Approval >> tasks.md -> deny ---
+        $r = Invoke-GuardNode $shellDeny
+        Assert "node: shell appends approval to tasks.md -> deny" ($r.Code -eq 2)
+
+        # --- copilot emit: allow case -> valid JSON allow, exit 0 ---
+        $r = Invoke-GuardNode '{"tool_name":"Edit","tool_input":{"file_path":"/p/src/a.py","old_string":"a","new_string":"b"}}' "copilot"
+        $okJson = $false
+        try { $okJson = ((($r.Out | ConvertFrom-Json).permissionDecision) -eq "allow") } catch { }
+        Assert "node: copilot allow -> JSON allow, exit 0" ($r.Code -eq 0 -and $okJson)
+
+        # --- copilot emit: deny case -> valid JSON deny, exit 0 ---
+        $r = Invoke-GuardNode '{"tool_name":"Edit","tool_input":{"file_path":"/p/specs/x/tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}' "copilot"
+        $okDeny = $false
+        try { $okDeny = ((($r.Out | ConvertFrom-Json).permissionDecision) -eq "deny") } catch { }
+        Assert "node: copilot deny -> JSON deny, exit 0" ($r.Code -eq 0 -and $okDeny)
+
+        # --- malformed payload -> allow ---
+        $r = Invoke-GuardNode 'this is not json'
+        Assert "node: malformed payload -> allow (exit 0)" ($r.Code -eq 0)
+
+        # --- kill-switch.js: AGENT_STOP absent via CLAUDE_PROJECT_DIR -> 0 ---
+        $ksNodeDir = Join-Path $workDir "ks-node"
+        New-Item -ItemType Directory -Path $ksNodeDir -Force | Out-Null
+        Assert "node: kill-switch absent -> 0" ((Invoke-KillSwitchNode $ksNodeDir $ksNodeDir) -eq 0)
+
+        # --- kill-switch.js: AGENT_STOP present via CLAUDE_PROJECT_DIR -> 2 ---
+        "stop" | Set-Content -Encoding Utf8 (Join-Path $ksNodeDir "AGENT_STOP")
+        Assert "node: kill-switch present -> 2" ((Invoke-KillSwitchNode $ksNodeDir $ksNodeDir) -eq 2)
+    } else {
+        Write-Host "node not found; skipping Node.js guard tests."
+    }
+
     # --- hooks.json parses; referenced scripts exist; each entry has command_windows ---
     $hooksJson = Get-Content -Raw -Encoding Utf8 (Join-Path $hooksDir "hooks.json") | ConvertFrom-Json
     Assert "hooks.json parses with PreToolUse" ($null -ne $hooksJson.hooks.PreToolUse)

@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective")
-$expectedVersion = "0.4.0"
+$expectedVersion = "0.5.0"
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -106,7 +106,10 @@ $requiredFiles = @(
     "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
     "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
     "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
     "plugins/sdd-quality-loop/scripts/kill-switch.ps1",
+    "plugins/sdd-quality-loop/scripts/kill-switch.js",
+    "plugins/sdd-quality-loop/hooks/claude-hooks.json",
     "plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md",
     "plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md",
     ".codex/agents/sdd-investigator.toml",
@@ -200,6 +203,31 @@ foreach ($entry in $copilotHooks.hooks.preToolUse) {
     if (-not $entry.powershell) {
         throw "copilot-hooks.json preToolUse entry is missing 'powershell' field."
     }
+}
+
+# claude-hooks.json must parse, define PreToolUse, and use exec-form Node.js hooks.
+$claudeHooks = Read-JsonFile "plugins/sdd-quality-loop/hooks/claude-hooks.json"
+if (-not $claudeHooks.hooks.PreToolUse) {
+    throw "claude-hooks.json does not define PreToolUse hooks."
+}
+$claudeHookEntries = $claudeHooks.hooks.PreToolUse | ForEach-Object { $_.hooks } | Where-Object { $_ }
+foreach ($entry in $claudeHookEntries) {
+    if ($entry.command -ne "node") {
+        throw "claude-hooks.json hook entry must have command = 'node' (found '$($entry.command)')."
+    }
+    if (-not $entry.args -or $entry.args.Count -eq 0) {
+        throw "claude-hooks.json hook entry must have a non-empty 'args' array."
+    }
+    $firstArg = [string]$entry.args[0]
+    if (-not $firstArg.StartsWith('${CLAUDE_PLUGIN_ROOT}')) {
+        throw "claude-hooks.json hook entry first arg must start with '\${CLAUDE_PLUGIN_ROOT}' (found '$firstArg')."
+    }
+}
+
+# .claude-plugin/plugin.json for sdd-quality-loop must reference claude-hooks.json.
+$claudePluginManifest = Read-JsonFile "plugins/sdd-quality-loop/.claude-plugin/plugin.json"
+if ($claudePluginManifest.hooks -ne "./hooks/claude-hooks.json") {
+    throw ".claude-plugin/plugin.json for sdd-quality-loop must have hooks = './hooks/claude-hooks.json' (found '$($claudePluginManifest.hooks)')."
 }
 
 # The verification contract template must stay Default-FAIL.

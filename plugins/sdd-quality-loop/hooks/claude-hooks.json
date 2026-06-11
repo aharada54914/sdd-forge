@@ -1,0 +1,27 @@
+{
+  "description": "Claude Code-specific enforcement layer for the SDD quality loop. This file is referenced from .claude-plugin/plugin.json via the 'hooks' field and uses the officially recommended exec form with Node.js so the gates run identically on Windows (no Git Bash needed), macOS, and Linux. ${CLAUDE_PLUGIN_ROOT} is expanded by Claude Code itself before spawning and works in args on all operating systems. hooks/hooks.json remains the Codex CLI enforcement config; hooks/copilot-hooks.json remains the GitHub Copilot CLI variant.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/kill-switch.js"]
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PLUGIN_ROOT}/scripts/sdd-hook-guard.js", "--emit", "exit"]
+          }
+        ]
+      }
+    ]
+  }
+}
