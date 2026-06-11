@@ -8,6 +8,13 @@ disable-model-invocation: true
 
 Use after `implement-task` has set a task to `Implementation Complete`.
 
+## Preconditions
+
+If `AGENTS.md` is absent at the repository root, stop immediately and direct
+the user to run `/sdd-bootstrap:sdd-adopt`; do not proceed without it.
+Missing `reports/quality-gate/` or `docs/review-tickets/` directories may be
+created on the fly before continuing.
+
 ## Required Reading
 
 Read the task, implementation report, requirements, design, acceptance tests,

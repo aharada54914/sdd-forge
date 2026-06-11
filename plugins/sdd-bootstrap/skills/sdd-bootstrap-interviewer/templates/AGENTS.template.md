@@ -16,6 +16,20 @@ This project follows a three-stage Spec-Anchored AI Development workflow.
 - `traceability.md`: requirements, design, contracts, code, tests, and final status
 - `docs/review-tickets/*.yml`: unresolved quality findings
 
+## Source Artifact Locations
+
+- `specs/<feature>/requirements.md`
+- `specs/<feature>/design.md`
+- `specs/<feature>/tasks.md`
+- `specs/<feature>/acceptance-tests.md`
+- `specs/<feature>/traceability.md`
+- `docs/adr/NNNN-*.md` — all ADRs; no other ADR location is valid
+- `contracts/` — API and data contracts
+- `docs/architecture/` — architecture diagrams and context documents
+- `reports/implementation/<task-id>.md`
+- `reports/quality-gate/<timestamp>.md` (names the task id)
+- `docs/review-tickets/*.yml`
+
 ## Rules
 
 - Do not implement Draft tasks.

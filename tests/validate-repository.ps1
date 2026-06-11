@@ -3,8 +3,8 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
-$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective")
-$expectedVersion = "0.5.0"
+$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt")
+$expectedVersion = "0.6.0"
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -113,7 +113,10 @@ $requiredFiles = @(
     "plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md",
     "plugins/sdd-quality-loop/copilot-agents/sdd-evaluator.agent.md",
     ".codex/agents/sdd-investigator.toml",
-    ".codex/agents/sdd-evaluator.toml"
+    ".codex/agents/sdd-evaluator.toml",
+    "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
+    "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
+    "plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1"
 )
 foreach ($relativePath in $requiredFiles) {
     if (-not (Test-Path (Join-Path $repositoryRoot $relativePath))) {

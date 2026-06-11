@@ -39,6 +39,16 @@ Claude Code:
    modes, run `investigate-codebase` first and pass its outputs as context here.
 7. Record unknown product decisions under `Open Questions`; do not invent them.
 
+## Preflight
+
+In `feature`, `bugfix`, and `refactor` modes, run
+`scripts/check-sdd-structure.sh` (or `.ps1`) against the project root before
+producing any specification artifacts. If the script reports any `missing:`
+lines, run `sdd-adopt` (or perform its full process) to resolve every missing
+item before continuing. Do not create specifications in a repository that lacks
+the required SDD structure. Project-level constitution files (`AGENTS.md`,
+`CLAUDE.md`) and CI/issue/PR templates are created by `sdd-adopt`; defer to it.
+
 ## Modes
 
 - `project`: create the project constitution and first feature specification.
@@ -51,9 +61,6 @@ Claude Code:
   they are absent. Acceptance criteria are expressed as BL-xxx behavior
   equivalence.
 
-Create `AGENTS.md`, `CLAUDE.md`, and project-level architecture only when absent
-or when an approved decision requires an update.
-
 ## Required Outputs
 
 - `specs/<feature>/requirements.md`
@@ -61,10 +68,12 @@ or when an approved decision requires an update.
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/tasks.md`
 - `specs/<feature>/traceability.md`
-- relevant ADRs and API/data contracts
+- `docs/adr/NNNN-<slug>.md` for each new ADR (4-digit repository-wide sequence;
+  `specs/<feature>/adr/` must not be created)
+- relevant API/data contracts
 
-For GitHub, create GitHub Actions, Issue, and PR templates. For GitLab, create
-GitLab CI, Issue, and MR templates. Use the bundled references and templates.
+CI/issue/PR templates are created by `sdd-adopt` based on detected host; do not
+recreate them here.
 
 ## Approval Gate
 

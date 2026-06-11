@@ -22,6 +22,14 @@ Claude Code:
 /sdd-implementation:implement-task specs/<feature>/tasks.md#T-001
 ```
 
+## Preconditions
+
+Before reading any specification, verify that `AGENTS.md` exists at the
+repository root and that `scripts/check-sdd-structure.sh` (or `.ps1`) reports
+no `missing:` items. If either check fails, stop immediately and direct the user
+to run `/sdd-bootstrap:sdd-adopt`. Do not improvise project rules or infer
+missing structure from context.
+
 ## Required Reading
 
 Read `AGENTS.md`, the target feature requirements, design, tasks, acceptance tests,
