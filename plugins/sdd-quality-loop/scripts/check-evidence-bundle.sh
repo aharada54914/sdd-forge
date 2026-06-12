@@ -6,6 +6,7 @@
 
 bundle="$1"
 root="${2:-.}"
+script_dir="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
 
 if [ -z "$bundle" ] || [ ! -f "$bundle" ]; then
   echo "check-evidence-bundle: evidence bundle not found: $bundle" >&2
@@ -13,7 +14,7 @@ if [ -z "$bundle" ] || [ ! -f "$bundle" ]; then
 fi
 
 if command -v python3 >/dev/null 2>&1; then
-  BUNDLE="$bundle" ROOT="$root" python3 - <<'PYEOF'
+  BUNDLE="$bundle" ROOT="$root" SCRIPT_DIR="$script_dir" python3 - <<'PYEOF'
 import hashlib
 import json
 import os
@@ -24,6 +25,7 @@ import sys
 
 bundle_path = os.environ["BUNDLE"]
 root = os.environ["ROOT"]
+script_dir = os.environ["SCRIPT_DIR"]
 failures = []
 
 
@@ -132,7 +134,7 @@ if contract_abs is not None:
             fail(f"verification_contract task_id mismatch: {contract_task} != {task_id}")
 
 if contract_abs is not None:
-    check_script = pathlib.Path(root).resolve() / "plugins/sdd-quality-loop/scripts/check-contract.sh"
+    check_script = pathlib.Path(script_dir) / "check-contract.sh"
     if not check_script.exists():
         fail(f"check-contract script not found: {check_script}")
     else:
