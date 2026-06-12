@@ -8,8 +8,8 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-pattern='TODO|FIXME|HACK|NotImplemented|not[ _-]implemented|PLACEHOLDER|placeholder|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)|TODO_REPLACE_WITH_PROJECT_COMMANDS'
-out="$(grep -rEn --binary-files=without-match \
+pattern='TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)|TODO_REPLACE_WITH_PROJECT_COMMANDS'
+out="$(grep -rEin --binary-files=without-match \
   --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bin \
   --exclude-dir=obj --exclude-dir=dist \
   -e "$pattern" "$@" 2>/dev/null)"

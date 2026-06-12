@@ -36,6 +36,7 @@ function Get-Count {
 function Test-TasksMd {
     param([string]$Path)
     if ([string]::IsNullOrEmpty($Path)) { return $false }
+    # -match is case-insensitive in PowerShell (intentional: matches JS/py behavior; Windows FS is case-insensitive).
     return ($Path -replace "\\", "/") -match "tasks\.md$"
 }
 
@@ -108,7 +109,8 @@ function Test-ApprovalIncreases {
 
     # Codex Bash/shell: conservative heuristic.
     if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
-        if ($command.Contains("tasks.md") -and [regex]::IsMatch($command, "Approval:\s*Approved")) {
+        # Case-insensitive tasks.md check (intentional: matches JS/py behavior).
+        if ($command.ToLower().Contains("tasks.md") -and [regex]::IsMatch($command, "Approval:\s*Approved")) {
             return $true
         }
         return $false

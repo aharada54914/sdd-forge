@@ -79,7 +79,10 @@ run_plugin_command() {
     local rc=0
     "$cmd" "$@" || rc=$?
     if [[ $rc -ne 0 ]]; then
-        echo "Error: '$cmd $*' failed with exit code $rc." >&2
+        # Use printf %q so multi-word arguments are unambiguous in the message.
+        local quoted_args
+        printf -v quoted_args '%q ' "$@"
+        echo "Error: '$cmd ${quoted_args% }' failed with exit code $rc." >&2
         return 1
     fi
 }
@@ -99,10 +102,10 @@ install_codex_plugins() {
         echo "Warning: Codex CLI was not found. Codex registration was skipped." >&2
         return 0
     fi
-    run_plugin_command codex plugin marketplace add "$marketplace_root"
+    run_plugin_command codex plugin marketplace add "$marketplace_root" || return 1
     if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
         for p in "${PLUGIN_LIST[@]}"; do
-            run_plugin_command codex plugin add "${p}@sdd-plugins"
+            run_plugin_command codex plugin add "${p}@sdd-plugins" || return 1
         done
     fi
 }
@@ -117,10 +120,10 @@ install_claude_plugins() {
         echo "Warning: Claude Code CLI was not found. Claude registration was skipped." >&2
         return 0
     fi
-    run_plugin_command claude plugin marketplace add "$marketplace_root" --scope user
+    run_plugin_command claude plugin marketplace add "$marketplace_root" --scope user || return 1
     if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
         for p in "${PLUGIN_LIST[@]}"; do
-            run_plugin_command claude plugin install "${p}@sdd-plugins" --scope user
+            run_plugin_command claude plugin install "${p}@sdd-plugins" --scope user || return 1
         done
     fi
 }
@@ -135,10 +138,10 @@ install_copilot_plugins() {
         echo "Warning: Copilot CLI was not found. Copilot registration was skipped." >&2
         return 0
     fi
-    run_plugin_command copilot plugin marketplace add "$marketplace_root"
+    run_plugin_command copilot plugin marketplace add "$marketplace_root" || return 1
     if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
         for p in "${PLUGIN_LIST[@]}"; do
-            run_plugin_command copilot plugin install "${p}@sdd-plugins"
+            run_plugin_command copilot plugin install "${p}@sdd-plugins" || return 1
         done
     fi
 }
@@ -151,13 +154,17 @@ install_codex_agents() {
         return 0
     fi
     local agent_dest_dir="${HOME}/.codex/agents"
-    {
+    # A partial copy from a prior failed run is safe to overwrite on re-run.
+    if ! {
         mkdir -p "$agent_dest_dir"
         for toml in "${agent_source_dir}"/sdd-*.toml; do
             [[ -f "$toml" ]] || continue
             cp -f "$toml" "$agent_dest_dir/"
         done
-    } || echo "Warning: Codex agent install failed." >&2
+    }; then
+        echo "Warning: Codex agent install failed." >&2
+        return 1
+    fi
 }
 
 # ---------------------------------------------------------------------------
@@ -231,6 +238,7 @@ REQUIRED_PATHS=(
     "plugins/sdd-implementation/.plugin/plugin.json"
     "plugins/sdd-quality-loop/.plugin/plugin.json"
     ".codex/agents/sdd-investigator.toml"
+    ".codex/agents/sdd-evaluator.toml"
 )
 for rel in "${REQUIRED_PATHS[@]}"; do
     if [[ ! -e "${SOURCE_ROOT}/${rel}" ]]; then
@@ -242,10 +250,48 @@ done
 # ---------------------------------------------------------------------------
 # Resolve install root and safety checks
 # ---------------------------------------------------------------------------
-# Canonicalise without requiring the path to already exist
-INSTALL_ROOT="$(python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$INSTALL_ROOT" 2>/dev/null || \
-    realpath -m "$INSTALL_ROOT" 2>/dev/null || \
-    { mkdir -p "$(dirname "$INSTALL_ROOT")"; cd "$(dirname "$INSTALL_ROOT")"; echo "$(pwd)/$(basename "$INSTALL_ROOT")"; })"
+# Canonicalise without requiring the path to already exist.
+# Preference order: python3 (most portable), realpath -m (GNU coreutils),
+# then a pure-shell fallback that does NOT create directories or silently
+# yield a wrong path if cd fails.
+_canon_install_root() {
+    local p="$1"
+    # python3: available on macOS 12+ and virtually all Linux distros
+    if python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$p" 2>/dev/null; then
+        return 0
+    fi
+    # realpath -m: GNU coreutils; BSD realpath (macOS) does not support -m
+    if realpath -m "$p" 2>/dev/null; then
+        return 0
+    fi
+    # An absolute path with no '.'/'..' segments needs no resolution; accept it
+    # as-is. This covers default roots whose parents may not exist yet
+    # (e.g. ~/.local/share/sdd-plugins on a fresh macOS without python3).
+    case "$p" in
+        /*)
+            case "/${p}/" in
+                */./*|*/../*) : ;;
+                *) printf '%s\n' "$p"; return 0 ;;
+            esac
+            ;;
+    esac
+    # Pure-shell fallback: resolve existing parent first, then append basename.
+    # Validates that parent either exists or can be resolved; exits on cd failure
+    # rather than continuing with a wrong path.
+    local _parent _base
+    _parent="$(dirname "$p")"
+    _base="$(basename "$p")"
+    # Resolve parent without creating it (it must already exist or be creatable
+    # — we create it in the staging step only after all validation has passed).
+    local _resolved_parent
+    _resolved_parent="$(cd "$_parent" 2>/dev/null && pwd)" || {
+        echo "Error: cannot resolve parent directory of --install-root: ${_parent}" >&2
+        exit 1
+    }
+    echo "${_resolved_parent}/${_base}"
+}
+INSTALL_ROOT="$(_canon_install_root "$INSTALL_ROOT")"
+unset -f _canon_install_root
 
 # Must not be a filesystem root
 case "$INSTALL_ROOT" in
@@ -274,15 +320,10 @@ mkdir -p "$INSTALL_PARENT"
 
 STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 
-# Copy everything including dot-dirs
+# Copy everything including dot-dirs.
+# `cp -R src/. dst/` copies dot-directories on all POSIX platforms; an
+# additional explicit loop would double-nest them (.agents/.agents/ etc.).
 cp -R "${SOURCE_ROOT}/." "${STAGING_ROOT}/"
-
-# Explicitly copy dot-directories (in case cp -R missed them on some platforms)
-for dotdir in .agents .claude-plugin .codex; do
-    if [[ -d "${SOURCE_ROOT}/${dotdir}" ]]; then
-        cp -R "${SOURCE_ROOT}/${dotdir}" "${STAGING_ROOT}/${dotdir}"
-    fi
-done
 
 # Backup existing install — generate a unique path without pre-creating it
 # so that `mv` renames the directory rather than moving it inside.
@@ -303,17 +344,20 @@ RESOLVED_INSTALL_ROOT="$(cd "$INSTALL_ROOT" && pwd)"
 # ---------------------------------------------------------------------------
 # Registration
 # ---------------------------------------------------------------------------
+# Track whether codex agent install succeeded so we can warn in the summary.
+CODEX_AGENTS_FAILED=0
+
 if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
-    install_codex_plugins "$RESOLVED_INSTALL_ROOT"
+    install_codex_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
     if [[ $SKIP_AGENT_INSTALL -eq 0 ]] && command -v codex >/dev/null 2>&1; then
-        install_codex_agents "$RESOLVED_INSTALL_ROOT"
+        install_codex_agents "$RESOLVED_INSTALL_ROOT" || CODEX_AGENTS_FAILED=1
     fi
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
-    install_claude_plugins "$RESOLVED_INSTALL_ROOT"
+    install_claude_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
-    install_copilot_plugins "$RESOLVED_INSTALL_ROOT"
+    install_copilot_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
 fi
 
 # ---------------------------------------------------------------------------
@@ -323,6 +367,11 @@ echo ""
 echo "SDD plugins installed at: ${RESOLVED_INSTALL_ROOT}"
 if [[ "$TARGET" == "FilesOnly" ]]; then
     echo "Plugin registration was skipped because --target=FilesOnly."
+fi
+if [[ $CODEX_AGENTS_FAILED -eq 1 ]]; then
+    echo "" >&2
+    echo "WARNING: Codex agents were not installed to ~/.codex/agents." >&2
+    echo "         Re-run the installer or copy .codex/agents/sdd-*.toml manually." >&2
 fi
 
 # Remove backup on success

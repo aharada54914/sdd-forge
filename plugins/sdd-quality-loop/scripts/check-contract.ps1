@@ -18,7 +18,7 @@ param(
 )
 $ErrorActionPreference = "Stop"
 
-if (-not (Test-Path $ContractPath)) {
+if (-not (Test-Path -LiteralPath $ContractPath)) {
     Write-Error "Contract file not found: $ContractPath"
     exit 1
 }
@@ -92,7 +92,7 @@ foreach ($check in $contract.checks) {
             continue
         }
 
-        if (-not (Test-Path $joined)) {
+        if (-not (Test-Path -LiteralPath $joined)) {
             $failures += "check '$id' evidence file missing: $evidence"
         }
     }

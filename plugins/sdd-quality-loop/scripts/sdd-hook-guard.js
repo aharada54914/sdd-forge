@@ -56,8 +56,9 @@ function countApprovals(text) {
 }
 
 function isTasksMd(filePath) {
+  // Case-insensitive match (intentional: Windows FS is case-insensitive; matches py/ps1 behavior).
   if (!filePath) return false;
-  return String(filePath).replace(/\\/g, '/').endsWith('tasks.md');
+  return String(filePath).replace(/\\/g, '/').toLowerCase().endsWith('tasks.md');
 }
 
 function emitDecision(decision, reason, mode) {
@@ -133,11 +134,12 @@ function approvalIncreases(payload) {
 
   // --- Codex Bash/shell: conservative heuristic ---
   if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
-    if (command.includes('tasks.md') && APPROVAL_RE.test(command)) {
+    // Use countApprovals (which uses String.prototype.match, always searching from 0)
+    // rather than APPROVAL_RE.test() to avoid leaving lastIndex in a non-zero state
+    // on a true return (APPROVAL_RE is a global regex).
+    if (command.toLowerCase().includes('tasks.md') && countApprovals(command) > 0) {
       return true;
     }
-    // reset lastIndex after test (regex is global)
-    APPROVAL_RE.lastIndex = 0;
     return false;
   }
 

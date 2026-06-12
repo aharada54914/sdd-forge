@@ -5,7 +5,7 @@
       {
         "type": "command",
         "bash": "root=\"${CLAUDE_PLUGIN_ROOT:-${PLUGIN_ROOT:-$COPILOT_PLUGIN_ROOT}}\"; if [ -z \"$root\" ] || [ ! -f \"$root/scripts/sdd-hook-guard.sh\" ]; then printf '%s' '{\"permissionDecision\":\"allow\"}'; exit 0; fi; sh \"$root/scripts/sdd-hook-guard.sh\" --emit copilot",
-        "powershell": "$root = $env:CLAUDE_PLUGIN_ROOT; if (-not $root) { $root = $env:PLUGIN_ROOT }; if (-not $root) { $root = $env:COPILOT_PLUGIN_ROOT }; $guard = if ($root) { Join-Path $root 'scripts/sdd-hook-guard.ps1' } else { $null }; if (-not $guard -or -not (Test-Path -LiteralPath $guard)) { [Console]::Out.Write('{\"permissionDecision\":\"allow\"}'); exit 0 }; & powershell.exe -NoProfile -ExecutionPolicy Bypass -File $guard -Emit copilot",
+        "powershell": "$root = $env:CLAUDE_PLUGIN_ROOT; if (-not $root) { $root = $env:PLUGIN_ROOT }; if (-not $root) { $root = $env:COPILOT_PLUGIN_ROOT }; $guard = if ($root) { Join-Path $root 'scripts/sdd-hook-guard.ps1' } else { $null }; if (-not $guard -or -not (Test-Path -LiteralPath $guard)) { [Console]::Out.Write('{\"permissionDecision\":\"allow\"}'); exit 0 }; $ps = if (Get-Command pwsh -ErrorAction SilentlyContinue) { 'pwsh' } else { 'powershell.exe' }; & $ps -NoProfile -ExecutionPolicy Bypass -File $guard -Emit copilot",
         "timeoutSec": 30
       }
     ]

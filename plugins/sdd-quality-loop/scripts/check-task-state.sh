@@ -38,8 +38,8 @@ function fail(msg) { print " - " msg; failures++ }
   task = newid; approval = ""; status = ""; count++
   in_blockers = 0; blockers_content = ""
 }
-/^Approval:/ { if (task != "") { approval = $0; sub(/^Approval:[ \t]*/, "", approval) } }
-/^Status:/ { if (task != "") { status = $0; sub(/^Status:[ \t]*/, "", status) } }
+/^Approval:/ { if (task != "") { approval = $0; sub(/^Approval:[ \t]*/, "", approval); in_blockers = 0 } }
+/^Status:/ { if (task != "") { status = $0; sub(/^Status:[ \t]*/, "", status); in_blockers = 0 } }
 /^### Blockers/ { if (task != "") { in_blockers = 1 } }
 /^## [^#]/ { if ($0 !~ /^## T-[0-9]+/) { in_blockers = 0 } }
 {

@@ -15,7 +15,7 @@ param(
 )
 $ErrorActionPreference = "Stop"
 
-if (-not (Test-Path $TasksPath)) {
+if (-not (Test-Path -LiteralPath $TasksPath)) {
     Write-Error "tasks file not found: $TasksPath"
     exit 1
 }
@@ -36,13 +36,17 @@ $inBlockers = $false
 
 foreach ($line in $lines) {
     if ($line -match '^##\s+(T-\d+)') {
-        $currentTask = $Matches[1]
+        $newTask = $Matches[1]
         $inBlockers = $false
-        if ($seenIds.ContainsKey($currentTask)) {
-            $failures += "duplicate task id $currentTask"
+        if ($seenIds.ContainsKey($newTask)) {
+            $failures += "duplicate task id $newTask"
+            # Keep currentTask pointing to the first occurrence (first-wins); stop updating fields for this duplicate.
+            $currentTask = $null
+        } else {
+            $currentTask = $newTask
+            $seenIds[$currentTask] = $true
+            if (-not $blockers.ContainsKey($currentTask)) { $blockers[$currentTask] = "" }
         }
-        $seenIds[$currentTask] = $true
-        if (-not $blockers.ContainsKey($currentTask)) { $blockers[$currentTask] = "" }
     } elseif ($currentTask -and $line -match '^Approval:\s*(.+)$') {
         $approval[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
@@ -62,7 +66,7 @@ foreach ($line in $lines) {
     }
 }
 
-if ($approval.Count -eq 0 -and $status.Count -eq 0) {
+if ($seenIds.Count -eq 0) {
     Write-Host "check-task-state: no tasks found in $TasksPath"
     exit 1
 }
@@ -84,7 +88,7 @@ foreach ($task in $allTasks) {
     }
     if ($s -eq "Done") {
         $hasReport = $false
-        if (Test-Path $ReportsDir) {
+        if (Test-Path -LiteralPath $ReportsDir) {
             $hasReport = [bool](Get-ChildItem $ReportsDir -File -Recurse |
                 Where-Object { Select-String -Path $_.FullName -Pattern $task -Quiet })
         }
@@ -93,13 +97,13 @@ foreach ($task in $allTasks) {
         }
         # Check for verification contract file
         $contractPath = Join-Path $tasksDir "verification/$task.contract.json"
-        if (-not (Test-Path $contractPath)) {
+        if (-not (Test-Path -LiteralPath $contractPath)) {
             $failures += "$task is Done but verification/$task.contract.json does not exist in $tasksDir"
         }
     }
     if ($s -eq "Implementation Complete") {
         $hasImplReport = $false
-        if (Test-Path $ImplReportsDir) {
+        if (Test-Path -LiteralPath $ImplReportsDir) {
             $hasImplReport = [bool](Get-ChildItem $ImplReportsDir -File -Recurse |
                 Where-Object { Select-String -Path $_.FullName -Pattern $task -Quiet })
         }

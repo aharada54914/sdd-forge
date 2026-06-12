@@ -213,6 +213,183 @@ Approval: Draft
         Write-Host "node not found; skipping Node.js guard tests."
     }
 
+    # =========================================================
+    # Wave 2 additions
+    # =========================================================
+
+    # 4a. MultiEdit edits[] payload: deny if edits add approval to tasks.md
+    $multiEditDeny = '{"tool_name":"MultiEdit","tool_input":{"file_path":"/p/specs/x/tasks.md","edits":[{"old_string":"Approval: Draft","new_string":"Approval: Approved"}]}}'
+    $r = Invoke-GuardPs $multiEditDeny
+    Assert "ps: MultiEdit edits[] approval in tasks.md -> deny" ($r.Code -eq 2)
+
+    # 4b. Case-insensitive path test: file_path ending TASKS.MD (uppercase) -> deny
+    $upperPathDeny = '{"tool_name":"Edit","tool_input":{"file_path":"/p/specs/x/TASKS.MD","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
+    $r = Invoke-GuardPs $upperPathDeny
+    Assert "ps: TASKS.MD uppercase path -> deny" ($r.Code -eq 2)
+
+    # 4c. Write content-mode to a NONEXISTENT tasks.md with Approval: Approved in content -> deny
+    $nonexistentTasksPath = Join-Path $workDir "nonexistent-tasks.md"
+    # Ensure it doesn't exist (file on disk = 0 approvals -> 1 in content = increase)
+    if (Test-Path $nonexistentTasksPath) { Remove-Item $nonexistentTasksPath }
+    $writeNewDeny = (@{ tool_name = "Write"; tool_input = @{ file_path = $nonexistentTasksPath; content = "Approval: Approved" } } | ConvertTo-Json -Compress -Depth 5)
+    $r = Invoke-GuardPs $writeNewDeny
+    Assert "ps: Write to nonexistent tasks.md with approval -> deny" ($r.Code -eq 2)
+
+    # 4d. Kill-switch dual-path test: AGENT_STOP in cwd while CLAUDE_PROJECT_DIR points elsewhere
+    $ksDualCwd = Join-Path $workDir "ks-dual-cwd"
+    $ksDualProject = Join-Path $workDir "ks-dual-project"
+    New-Item -ItemType Directory -Path $ksDualCwd -Force | Out-Null
+    New-Item -ItemType Directory -Path $ksDualProject -Force | Out-Null
+    # Place AGENT_STOP in cwd, NOT in CLAUDE_PROJECT_DIR
+    "stop" | Set-Content -Encoding Utf8 (Join-Path $ksDualCwd "AGENT_STOP")
+    $env:CLAUDE_PROJECT_DIR = $ksDualProject  # points elsewhere (no AGENT_STOP there)
+    $dualResult = $null
+    try {
+        Push-Location $ksDualCwd
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "kill-switch.ps1") *> $null
+        $dualResult = $LASTEXITCODE
+    } finally { Pop-Location }
+    Assert "ps: kill-switch cwd has AGENT_STOP while CLAUDE_PROJECT_DIR doesn't -> 2" ($dualResult -eq 2)
+    Remove-Item Env:\CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue
+
+    # Node.js MultiEdit, case-insensitive, Write-nonexistent, and kill-switch dual-path
+    $node = Get-Command node -ErrorAction SilentlyContinue
+    if ($node) {
+        function Invoke-GuardNodeLocal {
+            param([string]$Payload, [string]$EmitMode = "exit")
+            $outFile = Join-Path $workDir ("node2-" + [guid]::NewGuid() + ".txt")
+            $Payload | & node (Join-Path $scriptsDir "sdd-hook-guard.js") "--emit" $EmitMode > $outFile 2>$null
+            $code = $LASTEXITCODE
+            $out = if (Test-Path $outFile) { (Get-Content -Raw -ErrorAction SilentlyContinue $outFile) } else { "" }
+            return @{ Code = $code; Out = $out }
+        }
+
+        $r = Invoke-GuardNodeLocal $multiEditDeny
+        Assert "node: MultiEdit edits[] approval -> deny" ($r.Code -eq 2)
+
+        $r = Invoke-GuardNodeLocal $upperPathDeny
+        Assert "node: TASKS.MD uppercase -> deny" ($r.Code -eq 2)
+
+        $r = Invoke-GuardNodeLocal $writeNewDeny
+        Assert "node: Write nonexistent tasks.md with approval -> deny" ($r.Code -eq 2)
+
+        # Kill-switch dual-path for node
+        $env:CLAUDE_PROJECT_DIR = $ksDualProject
+        $nodeDualResult = $null
+        try {
+            Push-Location $ksDualCwd
+            & node (Join-Path $scriptsDir "kill-switch.js") *> $null
+            $nodeDualResult = $LASTEXITCODE
+        } finally { Pop-Location }
+        Assert "node: kill-switch cwd AGENT_STOP while CLAUDE_PROJECT_DIR elsewhere -> 2" ($nodeDualResult -eq 2)
+        Remove-Item Env:\CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue
+    } else {
+        Write-Host "node not found; skipping Wave-2 Node.js kill-switch dual-path test."
+    }
+
+    # 4d: kill-switch.sh dual-path (bash conditional)
+    $bash2 = Get-Command bash -ErrorAction SilentlyContinue
+    if ($bash2) {
+        $env:CLAUDE_PROJECT_DIR = $ksDualProject
+        $shDualResult = $null
+        try {
+            Push-Location $ksDualCwd
+            & bash (Join-Path $scriptsDir "kill-switch.sh") *> $null
+            $shDualResult = $LASTEXITCODE
+        } finally { Pop-Location }
+        Assert "sh: kill-switch cwd AGENT_STOP while CLAUDE_PROJECT_DIR elsewhere -> 2" ($shDualResult -eq 2)
+        Remove-Item Env:\CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue
+    } else {
+        Write-Host "bash not found; skipping Wave-2 sh kill-switch dual-path test."
+    }
+
+    # 4e. Direct python3 sdd-hook-guard.py tests
+    # Functional probe rather than Get-Command alone: on Windows, "python3" can
+    # resolve to the Microsoft Store alias stub, which is not a working Python.
+    $py3 = $null
+    if (Get-Command python3 -ErrorAction SilentlyContinue) {
+        try {
+            if ((& python3 -c "print(123)" 2>$null) -eq "123") { $py3 = $true }
+        } catch { }
+    }
+    if ($py3) {
+        function Invoke-GuardPy {
+            param([string]$Payload, [string]$EmitMode = "exit")
+            $outFile = Join-Path $workDir ("py-" + [guid]::NewGuid() + ".txt")
+            $Payload | & python3 (Join-Path $scriptsDir "sdd-hook-guard.py") "--emit" $EmitMode > $outFile 2>$null
+            $code = $LASTEXITCODE
+            $out = if (Test-Path $outFile) { (Get-Content -Raw -ErrorAction SilentlyContinue $outFile) } else { "" }
+            return @{ Code = $code; Out = $out }
+        }
+
+        # basic deny
+        $r = Invoke-GuardPy '{"tool_name":"Edit","tool_input":{"file_path":"/p/specs/x/tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
+        Assert "py: edit adds approval -> deny (exit 2)" ($r.Code -eq 2)
+
+        # basic allow
+        $r = Invoke-GuardPy '{"tool_name":"Edit","tool_input":{"file_path":"/p/specs/x/tasks.md","old_string":"Status: Planned","new_string":"Status: In Progress"}}'
+        Assert "py: status-only change -> allow (exit 0)" ($r.Code -eq 0)
+
+        # malformed
+        $r = Invoke-GuardPy 'this is not json'
+        Assert "py: malformed payload -> allow (exit 0)" ($r.Code -eq 0)
+
+        # copilot mode deny
+        $r = Invoke-GuardPy '{"tool_name":"Edit","tool_input":{"file_path":"/p/specs/x/tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}' "copilot"
+        $okDenyPy = $false
+        try { $okDenyPy = ((($r.Out | ConvertFrom-Json).permissionDecision) -eq "deny") } catch { }
+        Assert "py: copilot deny -> JSON deny, exit 0" ($r.Code -eq 0 -and $okDenyPy)
+
+        # copilot mode allow
+        $r = Invoke-GuardPy '{"tool_name":"Edit","tool_input":{"file_path":"/p/src/a.py","old_string":"a","new_string":"b"}}' "copilot"
+        $okAllowPy = $false
+        try { $okAllowPy = ((($r.Out | ConvertFrom-Json).permissionDecision) -eq "allow") } catch { }
+        Assert "py: copilot allow -> JSON allow, exit 0" ($r.Code -eq 0 -and $okAllowPy)
+
+        # TTY-no-hang: run with </dev/null (stdin redirected, not a TTY) - should allow
+        if ($bash2) {
+            $ttyResult = $null
+            $ttyResult = & bash -c ("python3 '" + (Join-Path $scriptsDir "sdd-hook-guard.py").Replace("'","'\\''") + "' < /dev/null; echo $?") 2>$null
+            # Should exit 0 (allow)
+            Assert "py: TTY guard with empty stdin does not hang -> allow" ($ttyResult -match "^0$" -or ($LASTEXITCODE -eq 0))
+        }
+
+        # 4f. Assert js and py --emit copilot outputs are byte-identical for both allow and deny
+        if ($node) {
+            # allow case
+            $allowPayload = '{"tool_name":"Edit","tool_input":{"file_path":"/p/src/a.py","old_string":"a","new_string":"b"}}'
+            $jsAllow = Invoke-GuardNodeLocal $allowPayload "copilot"
+            $pyAllow = Invoke-GuardPy $allowPayload "copilot"
+            Assert "js/py copilot allow output byte-identical" ($jsAllow.Out -eq $pyAllow.Out)
+
+            # deny case
+            $denyPayload = '{"tool_name":"Edit","tool_input":{"file_path":"/p/specs/x/tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
+            $jsDeny = Invoke-GuardNodeLocal $denyPayload "copilot"
+            $pyDeny = Invoke-GuardPy $denyPayload "copilot"
+            Assert "js/py copilot deny output byte-identical" ($jsDeny.Out -eq $pyDeny.Out)
+        } else {
+            Write-Host "node not found; skipping js/py byte-identical comparison."
+        }
+
+        # py MultiEdit
+        $r = Invoke-GuardPy $multiEditDeny
+        Assert "py: MultiEdit edits[] approval -> deny" ($r.Code -eq 2)
+
+        # py uppercase TASKS.MD
+        $r = Invoke-GuardPy $upperPathDeny
+        Assert "py: TASKS.MD uppercase -> deny" ($r.Code -eq 2)
+
+        # py Write to nonexistent tasks.md
+        $r = Invoke-GuardPy $writeNewDeny
+        Assert "py: Write nonexistent tasks.md with approval -> deny" ($r.Code -eq 2)
+    } else {
+        Write-Host "python3 not found; skipping direct py guard tests."
+    }
+
+    # =========================================================
+    # (end Wave 2 additions)
+    # =========================================================
+
     # --- hooks.json parses; referenced scripts exist; each entry has command_windows ---
     $hooksJson = Get-Content -Raw -Encoding Utf8 (Join-Path $hooksDir "hooks.json") | ConvertFrom-Json
     Assert "hooks.json parses with PreToolUse" ($null -ne $hooksJson.hooks.PreToolUse)
