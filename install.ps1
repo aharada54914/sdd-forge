@@ -124,13 +124,20 @@ function Install-CodexAgents {
 }
 
 function Get-GitHubAuthToken {
+    foreach ($tokenVariable in @("GH_TOKEN", "GITHUB_TOKEN")) {
+        $token = [Environment]::GetEnvironmentVariable($tokenVariable)
+        if (-not [string]::IsNullOrWhiteSpace($token)) {
+            return $token.Trim()
+        }
+    }
+
     if (-not (Get-Command "gh" -ErrorAction SilentlyContinue)) {
-        throw "GitHub CLI (gh) was not found in PATH. Install it or use -SourceDirectory."
+        throw "GitHub authentication is required for remote installs. Set GH_TOKEN/GITHUB_TOKEN, install and authenticate gh, or use -SourceDirectory."
     }
 
     $token = & gh auth token 2>$null
     if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($token)) {
-        throw "GitHub CLI authentication is required for remote installs. Run 'gh auth login' first."
+        throw "GitHub authentication is required for remote installs. Set GH_TOKEN/GITHUB_TOKEN or run 'gh auth login'."
     }
 
     return $token.Trim()
@@ -146,7 +153,7 @@ function Download-AuthenticatedArchive {
     $token = Get-GitHubAuthToken
     $downloadUrl = "https://api.github.com/repos/$RepositoryName/tarball/$RefName"
     Write-Host "Downloading authenticated archive from $downloadUrl"
-    Invoke-WebRequest -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath -UseBasicParsing
+    Invoke-WebRequest -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath
 }
 
 $temporaryRoot = $null

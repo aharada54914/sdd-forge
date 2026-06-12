@@ -1,7 +1,7 @@
 # SDD Forge
 
 旧リポジトリ名 `sdd-plugins-windows-installer` から改名。現在の正式なリポジトリ名は `sdd-forge` です。
-本リポジトリは private です。リモート取得を使う場合は `gh auth login` で GitHub CLI を認証してください。
+本リポジトリは private です。リモート取得を使う場合は `GH_TOKEN` / `GITHUB_TOKEN` を設定するか、`gh auth login` で GitHub CLI を認証してください。
 
 v0.8.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
 
@@ -54,9 +54,13 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 
 ### 事前準備
 
-GitHub CLI を認証します。private repo へのアクセス権が必要です。
+private repo へのアクセス権を持つトークンを設定するか、GitHub CLI を認証します。
 
 ```bash
+# 非対話環境
+export GH_TOKEN="<token>"
+
+# 対話環境
 gh auth login
 ```
 

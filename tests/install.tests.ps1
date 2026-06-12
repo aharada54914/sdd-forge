@@ -151,6 +151,7 @@ function Invoke-RemoteInstallerScenario {
     $commandLog = Join-Path $testRoot "commands.log"
     $originalPath = $env:PATH
     $originalCodexHome = $env:SDD_CODEX_HOME
+    $originalGhToken = $env:GH_TOKEN
     $archivePath = New-ArchiveFixture -SourceRoot $repositoryRoot
 
     function global:Invoke-WebRequest {
@@ -177,6 +178,7 @@ function Invoke-RemoteInstallerScenario {
         New-FakeCommands -BinRoot $fakeBin -LogPath $commandLog
         $env:PATH = "$fakeBin$([System.IO.Path]::PathSeparator)$originalPath"
         $env:SDD_CODEX_HOME = Join-Path $testRoot "codex-home"
+        $env:GH_TOKEN = "fake-gh-token"
 
         $failed = $false
         try {
@@ -194,16 +196,13 @@ function Invoke-RemoteInstallerScenario {
         }
 
         $log = Get-Content -Raw $commandLog
-        if ($log -notmatch 'gh auth token') {
-            throw "Authenticated remote install did not request a GitHub token"
-        }
         if ($log -notmatch 'Invoke-WebRequest https://api\.github\.com/repos/aharada54914/sdd-forge/tarball/main') {
             throw "Authenticated remote install did not use the GitHub API archive URL"
         }
         if ($log -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
             throw "Authenticated remote install still referenced raw/codeload hosts"
         }
-        Write-Host "ok: authenticated remote install uses GitHub CLI token flow"
+        Write-Host "ok: authenticated remote install uses GitHub token flow"
     }
     finally {
         Remove-Item Function:Invoke-WebRequest -ErrorAction SilentlyContinue
@@ -213,6 +212,12 @@ function Invoke-RemoteInstallerScenario {
         }
         else {
             $env:SDD_CODEX_HOME = $originalCodexHome
+        }
+        if ($null -eq $originalGhToken) {
+            Remove-Item Env:GH_TOKEN -ErrorAction SilentlyContinue
+        }
+        else {
+            $env:GH_TOKEN = $originalGhToken
         }
         if (Test-Path $testRoot) {
             Remove-Item -Path $testRoot -Recurse -Force
