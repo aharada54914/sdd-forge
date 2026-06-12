@@ -98,6 +98,39 @@ Approval: Draft
     $r = Invoke-GuardPs 'this is not json'
     Assert "ps: malformed payload -> allow (exit 0)" ($r.Code -eq 0)
 
+    # --- Agent-role guard tests for PowerShell ---
+    # 1. DENY: Write-style payload to agent role path without developer_instructions
+    $r = Invoke-GuardPs '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\n"}}'
+    Assert "ps: Write agent role without developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
+
+    # 2. ALLOW: Write-style payload to agent role path WITH developer_instructions
+    $r = Invoke-GuardPs '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\ndeveloper_instructions = \"\"\"test\"\"\"\n"}}'
+    Assert "ps: Write agent role with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+
+    # 3. ALLOW: Write-style payload lacking developer_instructions key to NON-agent path
+    $r = Invoke-GuardPs '{"tool_name":"Write","tool_input":{"file_path":"/tmp/pyproject.toml","content":"name = \"project\"\n"}}'
+    Assert "ps: Write to non-agent path -> allow (exit 0)" ($r.Code -eq 0)
+
+    # 4. DENY: apply_patch Add File targeting agent role path with empty body
+    $r = Invoke-GuardPs '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+    Assert "ps: apply_patch Add File agent role with empty body -> deny (exit 2)" ($r.Code -eq 2)
+
+    # 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
+    $r = Invoke-GuardPs '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
+    Assert "ps: apply_patch Update File agent role -> allow (exit 0)" ($r.Code -eq 0)
+
+    # 6. DENY: shell payload redirect into agent role path without developer_instructions in command
+    $r = Invoke-GuardPs '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=1\nEOF"}}'
+    Assert "ps: shell redirect into agent role without developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
+
+    # 7. ALLOW: shell payload read from agent role path (no redirect)
+    $r = Invoke-GuardPs '{"tool_name":"shell","tool_input":{"command":"cat ~/.codex/agents/judge.toml"}}'
+    Assert "ps: shell read agent role path -> allow (exit 0)" ($r.Code -eq 0)
+
+    # 8. ALLOW: shell heredoc command containing developer_instructions
+    $r = Invoke-GuardPs '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
+    Assert "ps: shell heredoc with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+
     # --- kill-switch.ps1: AGENT_STOP present -> 2; absent -> 0 ---
     $ksDir = Join-Path $workDir "ks"
     New-Item -ItemType Directory -Path $ksDir -Force | Out-Null
@@ -129,6 +162,24 @@ Approval: Draft
         Assert "sh: copilot deny -> JSON deny, exit 0" ($r.Code -eq 0 -and $okDeny)
         $r = Invoke-GuardSh 'not json'
         Assert "sh: malformed -> allow" ($r.Code -eq 0)
+
+        # Agent-role guard tests for sh dispatcher
+        $r = Invoke-GuardSh '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\n"}}'
+        Assert "sh: Write agent role without developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
+        $r = Invoke-GuardSh '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\ndeveloper_instructions = \"\"\"test\"\"\"\n"}}'
+        Assert "sh: Write agent role with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+        $r = Invoke-GuardSh '{"tool_name":"Write","tool_input":{"file_path":"/tmp/pyproject.toml","content":"name = \"project\"\n"}}'
+        Assert "sh: Write to non-agent path -> allow (exit 0)" ($r.Code -eq 0)
+        $r = Invoke-GuardSh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+        Assert "sh: apply_patch Add File agent role with empty body -> deny (exit 2)" ($r.Code -eq 2)
+        $r = Invoke-GuardSh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
+        Assert "sh: apply_patch Update File agent role -> allow (exit 0)" ($r.Code -eq 0)
+        $r = Invoke-GuardSh '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=1\nEOF"}}'
+        Assert "sh: shell redirect into agent role without developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
+        $r = Invoke-GuardSh '{"tool_name":"shell","tool_input":{"command":"cat ~/.codex/agents/judge.toml"}}'
+        Assert "sh: shell read agent role path -> allow (exit 0)" ($r.Code -eq 0)
+        $r = Invoke-GuardSh '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
+        Assert "sh: shell heredoc with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
     } else {
         Write-Host "bash+python3 not both found; skipping POSIX dispatcher tests."
     }
@@ -200,6 +251,39 @@ Approval: Draft
         # --- malformed payload -> allow ---
         $r = Invoke-GuardNode 'this is not json'
         Assert "node: malformed payload -> allow (exit 0)" ($r.Code -eq 0)
+
+        # --- Agent-role guard tests for Node.js ---
+        # 1. DENY: Write-style payload to agent role path without developer_instructions
+        $r = Invoke-GuardNode '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\n"}}'
+        Assert "node: Write agent role without developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
+
+        # 2. ALLOW: Write-style payload to agent role path WITH developer_instructions
+        $r = Invoke-GuardNode '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\ndeveloper_instructions = \"\"\"test\"\"\"\n"}}'
+        Assert "node: Write agent role with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+
+        # 3. ALLOW: Write-style payload lacking developer_instructions key to NON-agent path
+        $r = Invoke-GuardNode '{"tool_name":"Write","tool_input":{"file_path":"/tmp/pyproject.toml","content":"name = \"project\"\n"}}'
+        Assert "node: Write to non-agent path -> allow (exit 0)" ($r.Code -eq 0)
+
+        # 4. DENY: apply_patch Add File targeting agent role path with empty body
+        $r = Invoke-GuardNode '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+        Assert "node: apply_patch Add File agent role with empty body -> deny (exit 2)" ($r.Code -eq 2)
+
+        # 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
+        $r = Invoke-GuardNode '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
+        Assert "node: apply_patch Update File agent role -> allow (exit 0)" ($r.Code -eq 0)
+
+        # 6. DENY: shell payload redirect into agent role path without developer_instructions in command
+        $r = Invoke-GuardNode '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=1\nEOF"}}'
+        Assert "node: shell redirect into agent role without developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
+
+        # 7. ALLOW: shell payload read from agent role path (no redirect)
+        $r = Invoke-GuardNode '{"tool_name":"shell","tool_input":{"command":"cat ~/.codex/agents/judge.toml"}}'
+        Assert "node: shell read agent role path -> allow (exit 0)" ($r.Code -eq 0)
+
+        # 8. ALLOW: shell heredoc command containing developer_instructions
+        $r = Invoke-GuardNode '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
+        Assert "node: shell heredoc with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
 
         # --- kill-switch.js: AGENT_STOP absent via CLAUDE_PROJECT_DIR -> 0 ---
         $ksNodeDir = Join-Path $workDir "ks-node"

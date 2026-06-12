@@ -79,6 +79,71 @@ else
     fail "sh: copilot deny -> JSON deny (code=$GUARD_CODE out='$GUARD_OUT')"
 fi
 
+# Agent-role guard tests for sh dispatcher
+# 1. DENY: Write-style payload to agent role path without developer_instructions
+invoke_guard_sh '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\n"}}'
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: Write agent role without developer_instructions -> deny (exit 2)"
+else
+    fail "sh: Write agent role without developer_instructions -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+# 2. ALLOW: Write-style payload to agent role path WITH developer_instructions
+invoke_guard_sh '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\ndeveloper_instructions = \"\"\"test\"\"\"\n"}}'
+if [[ $GUARD_CODE -eq 0 ]]; then
+    ok "sh: Write agent role with developer_instructions -> allow (exit 0)"
+else
+    fail "sh: Write agent role with developer_instructions -> allow (expected 0, got $GUARD_CODE)"
+fi
+
+# 3. ALLOW: Write-style payload lacking developer_instructions key to NON-agent path
+invoke_guard_sh '{"tool_name":"Write","tool_input":{"file_path":"/tmp/pyproject.toml","content":"name = \"project\"\n"}}'
+if [[ $GUARD_CODE -eq 0 ]]; then
+    ok "sh: Write to non-agent path -> allow (exit 0)"
+else
+    fail "sh: Write to non-agent path -> allow (expected 0, got $GUARD_CODE)"
+fi
+
+# 4. DENY: apply_patch Add File targeting agent role path with empty body
+invoke_guard_sh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: apply_patch Add File agent role with empty body -> deny (exit 2)"
+else
+    fail "sh: apply_patch Add File agent role with empty body -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+# 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
+invoke_guard_sh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
+if [[ $GUARD_CODE -eq 0 ]]; then
+    ok "sh: apply_patch Update File agent role -> allow (exit 0)"
+else
+    fail "sh: apply_patch Update File agent role -> allow (expected 0, got $GUARD_CODE)"
+fi
+
+# 6. DENY: shell payload redirect into agent role path without developer_instructions in command
+invoke_guard_sh '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=1\nEOF"}}'
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: shell redirect into agent role without developer_instructions -> deny (exit 2)"
+else
+    fail "sh: shell redirect into agent role without developer_instructions -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+# 7. ALLOW: shell payload read from agent role path (no redirect)
+invoke_guard_sh '{"tool_name":"shell","tool_input":{"command":"cat ~/.codex/agents/judge.toml"}}'
+if [[ $GUARD_CODE -eq 0 ]]; then
+    ok "sh: shell read agent role path -> allow (exit 0)"
+else
+    fail "sh: shell read agent role path -> allow (expected 0, got $GUARD_CODE)"
+fi
+
+# 8. ALLOW: shell heredoc command containing developer_instructions
+invoke_guard_sh '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
+if [[ $GUARD_CODE -eq 0 ]]; then
+    ok "sh: shell heredoc with developer_instructions -> allow (exit 0)"
+else
+    fail "sh: shell heredoc with developer_instructions -> allow (expected 0, got $GUARD_CODE)"
+fi
+
 # ---------------------------------------------------------------------------
 # kill-switch.sh — basic absent/present
 # ---------------------------------------------------------------------------
@@ -190,6 +255,79 @@ if command -v python3 >/dev/null 2>&1; then
     else
         fail "py: kill-switch in cwd -> deny (expected 2, got $PY_KS_CODE)"
     fi
+
+    # Agent-role guard tests for python3
+    # 1. DENY: Write-style payload to agent role path without developer_instructions
+    WRITE_AGENT_NO_DEV='{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\n"}}'
+    invoke_py_guard "$WRITE_AGENT_NO_DEV"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: Write agent role without developer_instructions -> deny (exit 2)"
+    else
+        fail "py: Write agent role without developer_instructions -> deny (expected 2, got $PY_CODE)"
+    fi
+
+    # 2. ALLOW: Write-style payload to agent role path WITH developer_instructions
+    WRITE_AGENT_WITH_DEV='{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\ndeveloper_instructions = \"\"\"test\"\"\"\n"}}'
+    invoke_py_guard "$WRITE_AGENT_WITH_DEV"
+    if [[ $PY_CODE -eq 0 ]]; then
+        ok "py: Write agent role with developer_instructions -> allow (exit 0)"
+    else
+        fail "py: Write agent role with developer_instructions -> allow (expected 0, got $PY_CODE)"
+    fi
+
+    # 3. ALLOW: Write-style payload lacking developer_instructions key to NON-agent path
+    WRITE_NON_AGENT='{"tool_name":"Write","tool_input":{"file_path":"/tmp/pyproject.toml","content":"name = \"project\"\n"}}'
+    invoke_py_guard "$WRITE_NON_AGENT"
+    if [[ $PY_CODE -eq 0 ]]; then
+        ok "py: Write to non-agent path -> allow (exit 0)"
+    else
+        fail "py: Write to non-agent path -> allow (expected 0, got $PY_CODE)"
+    fi
+
+    # 4. DENY: apply_patch Add File targeting agent role path with empty body
+    PATCH_AGENT_EMPTY='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+    invoke_py_guard "$PATCH_AGENT_EMPTY"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: apply_patch Add File agent role with empty body -> deny (exit 2)"
+    else
+        fail "py: apply_patch Add File agent role with empty body -> deny (expected 2, got $PY_CODE)"
+    fi
+
+    # 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
+    PATCH_AGENT_UPDATE='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
+    invoke_py_guard "$PATCH_AGENT_UPDATE"
+    if [[ $PY_CODE -eq 0 ]]; then
+        ok "py: apply_patch Update File agent role -> allow (exit 0)"
+    else
+        fail "py: apply_patch Update File agent role -> allow (expected 0, got $PY_CODE)"
+    fi
+
+    # 6. DENY: shell payload redirect into agent role path without developer_instructions in command
+    SHELL_AGENT_NO_DEV='{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=1\nEOF"}}'
+    invoke_py_guard "$SHELL_AGENT_NO_DEV"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: shell redirect into agent role without developer_instructions -> deny (exit 2)"
+    else
+        fail "py: shell redirect into agent role without developer_instructions -> deny (expected 2, got $PY_CODE)"
+    fi
+
+    # 7. ALLOW: shell payload read from agent role path (no redirect)
+    SHELL_AGENT_READ='{"tool_name":"shell","tool_input":{"command":"cat ~/.codex/agents/judge.toml"}}'
+    invoke_py_guard "$SHELL_AGENT_READ"
+    if [[ $PY_CODE -eq 0 ]]; then
+        ok "py: shell read agent role path -> allow (exit 0)"
+    else
+        fail "py: shell read agent role path -> allow (expected 0, got $PY_CODE)"
+    fi
+
+    # 8. ALLOW: shell heredoc command containing developer_instructions
+    SHELL_AGENT_WITH_DEV='{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
+    invoke_py_guard "$SHELL_AGENT_WITH_DEV"
+    if [[ $PY_CODE -eq 0 ]]; then
+        ok "py: shell heredoc with developer_instructions -> allow (exit 0)"
+    else
+        fail "py: shell heredoc with developer_instructions -> allow (expected 0, got $PY_CODE)"
+    fi
 else
     echo "python3 not found; skipping direct python3 guard tests."
 fi
@@ -220,6 +358,71 @@ if command -v node >/dev/null 2>&1; then
         ok "node: other file -> allow (exit 0)"
     else
         fail "node: other file -> allow (expected 0, got $NODE_CODE)"
+    fi
+
+    # Agent-role guard tests for node (via shell dispatcher which prefers python3 if available)
+    # 1. DENY: Write-style payload to agent role path without developer_instructions
+    invoke_node_guard '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\n"}}'
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: Write agent role without developer_instructions -> deny (exit 2)"
+    else
+        fail "node: Write agent role without developer_instructions -> deny (expected 2, got $NODE_CODE)"
+    fi
+
+    # 2. ALLOW: Write-style payload to agent role path WITH developer_instructions
+    invoke_node_guard '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\ndeveloper_instructions = \"\"\"test\"\"\"\n"}}'
+    if [[ $NODE_CODE -eq 0 ]]; then
+        ok "node: Write agent role with developer_instructions -> allow (exit 0)"
+    else
+        fail "node: Write agent role with developer_instructions -> allow (expected 0, got $NODE_CODE)"
+    fi
+
+    # 3. ALLOW: Write-style payload lacking developer_instructions key to NON-agent path
+    invoke_node_guard '{"tool_name":"Write","tool_input":{"file_path":"/tmp/pyproject.toml","content":"name = \"project\"\n"}}'
+    if [[ $NODE_CODE -eq 0 ]]; then
+        ok "node: Write to non-agent path -> allow (exit 0)"
+    else
+        fail "node: Write to non-agent path -> allow (expected 0, got $NODE_CODE)"
+    fi
+
+    # 4. DENY: apply_patch Add File targeting agent role path with empty body
+    invoke_node_guard '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: apply_patch Add File agent role with empty body -> deny (exit 2)"
+    else
+        fail "node: apply_patch Add File agent role with empty body -> deny (expected 2, got $NODE_CODE)"
+    fi
+
+    # 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
+    invoke_node_guard '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
+    if [[ $NODE_CODE -eq 0 ]]; then
+        ok "node: apply_patch Update File agent role -> allow (exit 0)"
+    else
+        fail "node: apply_patch Update File agent role -> allow (expected 0, got $NODE_CODE)"
+    fi
+
+    # 6. DENY: shell payload redirect into agent role path without developer_instructions in command
+    invoke_node_guard '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=1\nEOF"}}'
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: shell redirect into agent role without developer_instructions -> deny (exit 2)"
+    else
+        fail "node: shell redirect into agent role without developer_instructions -> deny (expected 2, got $NODE_CODE)"
+    fi
+
+    # 7. ALLOW: shell payload read from agent role path (no redirect)
+    invoke_node_guard '{"tool_name":"shell","tool_input":{"command":"cat ~/.codex/agents/judge.toml"}}'
+    if [[ $NODE_CODE -eq 0 ]]; then
+        ok "node: shell read agent role path -> allow (exit 0)"
+    else
+        fail "node: shell read agent role path -> allow (expected 0, got $NODE_CODE)"
+    fi
+
+    # 8. ALLOW: shell heredoc command containing developer_instructions
+    invoke_node_guard '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
+    if [[ $NODE_CODE -eq 0 ]]; then
+        ok "node: shell heredoc with developer_instructions -> allow (exit 0)"
+    else
+        fail "node: shell heredoc with developer_instructions -> allow (expected 0, got $NODE_CODE)"
     fi
 else
     echo "node not found; skipping Node.js guard tests."

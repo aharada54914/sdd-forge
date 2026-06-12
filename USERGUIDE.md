@@ -393,3 +393,18 @@ curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-in
 - CLI登録に失敗する: インストーラーは初回配置を削除、更新時は以前の配置へ復元する。
 - implement-task / quality-gate が AGENTS.md 不在で停止する: `sdd-adopt` を実行して SDD 構造を導入してから再試行する。
 - ADR が `specs/<feature>/adr/` にある: `sdd-adopt` を実行すると `docs/adr/` へ自動移行する。
+
+### Codex起動時の「Ignoring malformed agent role definition」警告
+
+Codex起動時に次のような警告が表示される場合があります：
+
+```
+⚠ Ignoring malformed agent role definition: ~/.codex/agents/auditor.toml must define `developer_instructions`
+```
+
+本リポジトリが配布するのは `sdd-investigator.toml` と `sdd-evaluator.toml` のみで、どちらも有効です。警告に表示されたファイル（例：`auditor.toml`、`constraint-guardian.toml` など）は、他のツールやAIセッションが作成したもので、`~/.codex/agents/` ディレクトリに不正に配置されています。
+
+**対応方法：**
+1. 警告に表示されたファイルを削除する：`rm ~/.codex/agents/auditor.toml` など
+2. または、そのファイルに `developer_instructions` キーを追加する
+3. インストーラーはインストール時にこの問題を検出して警告し、SDDフックガードはエージェントによる不正なロールファイル作成をブロックします

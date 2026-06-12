@@ -37,8 +37,10 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
 7. For `refactor` and `bugfix` tasks with a `baseline-behavior.md`, apply
    `differential-test-policy.md` and classify every BL diff.
 8. Run critical review with an isolated evaluator using `evaluation-rubric.md`.
-   On Claude Code use the `sdd-evaluator` subagent. Elsewhere, perform the
-   review in a fresh session or a clearly separated critical-review pass.
+   On Claude Code use the `sdd-evaluator` subagent. On Codex use the shipped
+   `sdd-evaluator` TOML agent; do not create new agent role files under
+   `~/.codex/agents/`. Elsewhere, perform the review in a fresh session or a
+   clearly separated critical-review pass.
 9. Classify findings as `Accepted`, `Rejected`, or `Deferred`.
 10. Apply only safe fixes allowed by `auto-fix-policy.md`.
 11. Repeat critical review for a maximum of 3 cycles.

@@ -34,6 +34,8 @@ Usage: install.sh [options]
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
+
+Environment: SDD_CODEX_HOME     Override ~/.codex destination for agent TOML files
 EOF
     exit 1
 }
@@ -153,7 +155,9 @@ install_codex_agents() {
         echo "Warning: No .codex/agents directory found in install root. Codex agent install skipped." >&2
         return 0
     fi
-    local agent_dest_dir="${HOME}/.codex/agents"
+    # Override destination via SDD_CODEX_HOME environment variable (for testing; default is user profile).
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local agent_dest_dir="${codex_home}/agents"
     # A partial copy from a prior failed run is safe to overwrite on re-run.
     if ! {
         mkdir -p "$agent_dest_dir"
@@ -165,6 +169,13 @@ install_codex_agents() {
         echo "Warning: Codex agent install failed." >&2
         return 1
     fi
+    # Scan destination for malformed agent role files (warning only; do not modify or delete).
+    for toml_file in "${agent_dest_dir}"/*.toml; do
+        [[ -f "$toml_file" ]] || continue
+        if ! grep -Eq '^[[:space:]]*developer_instructions[[:space:]]*=' "$toml_file"; then
+            echo "Warning: Codex will ignore malformed agent role file at startup ('Ignoring malformed agent role definition'): ${toml_file}. Add a developer_instructions entry or delete the file." >&2
+        fi
+    done
 }
 
 # ---------------------------------------------------------------------------
@@ -246,6 +257,28 @@ for rel in "${REQUIRED_PATHS[@]}"; do
         exit 1
     fi
 done
+
+# Validate all sdd-*.toml files: must have no BOM and must define name and developer_instructions.
+agent_source_dir="${SOURCE_ROOT}/.codex/agents"
+if [[ -d "$agent_source_dir" ]]; then
+    for toml_file in "${agent_source_dir}"/sdd-*.toml; do
+        [[ -f "$toml_file" ]] || continue
+        # Check for UTF-8 BOM
+        if head -c 3 "$toml_file" | LC_ALL=C grep -q "$(printf '\xef\xbb\xbf')"; then
+            echo "Error: Malformed Codex agent role file (must define developer_instructions, no BOM): $(basename "$toml_file")" >&2
+            exit 1
+        fi
+        # Check for name and developer_instructions
+        if ! grep -Eq '^name[[:space:]]*=' "$toml_file"; then
+            echo "Error: Malformed Codex agent role file (must define developer_instructions, no BOM): $(basename "$toml_file")" >&2
+            exit 1
+        fi
+        if ! grep -Eq '^developer_instructions[[:space:]]*=' "$toml_file"; then
+            echo "Error: Malformed Codex agent role file (must define developer_instructions, no BOM): $(basename "$toml_file")" >&2
+            exit 1
+        fi
+    done
+fi
 
 # ---------------------------------------------------------------------------
 # Resolve install root and safety checks
