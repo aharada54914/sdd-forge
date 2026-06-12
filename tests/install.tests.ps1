@@ -231,3 +231,7 @@ finally {
 }
 
 Write-Host "Installer integration tests passed."
+
+# Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which
+# would otherwise leak the exit code of the last native command run above.
+exit 0

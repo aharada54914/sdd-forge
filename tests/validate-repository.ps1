@@ -281,3 +281,7 @@ foreach ($skillFile in $skillFiles) {
 }
 
 Write-Host "Repository validation passed."
+
+# Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which
+# would otherwise leak the exit code of the last native command run above.
+exit 0

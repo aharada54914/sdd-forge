@@ -228,12 +228,20 @@ catch {
         catch {
             Write-Warning "Could not remove failed install at '$InstallRoot': $_"
         }
-        try {
-            Move-Item -Path $backupRoot -Destination $InstallRoot
-            $backupRoot = $null
+        # Only restore when the failed install is fully gone: Move-Item into a
+        # still-existing directory would nest the backup INSIDE it and lose the
+        # recovery location.
+        if (Test-Path $InstallRoot) {
+            Write-Warning "CRITICAL: failed install could not be removed from '$InstallRoot' (locked files?). Your previous installation is preserved at: $backupRoot"
         }
-        catch {
-            Write-Error "CRITICAL: Could not restore backup. Your previous installation is preserved at: $backupRoot"
+        else {
+            try {
+                Move-Item -Path $backupRoot -Destination $InstallRoot
+                $backupRoot = $null
+            }
+            catch {
+                Write-Warning "CRITICAL: Could not restore backup. Your previous installation is preserved at: $backupRoot"
+            }
         }
     }
     elseif ($newInstallPlaced -and (Test-Path $InstallRoot)) {

@@ -421,3 +421,8 @@ Approval: Draft
     Remove-Item Env:\CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue
     Remove-Item -Recurse -Force $workDir -ErrorAction SilentlyContinue
 }
+
+# Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which
+# would otherwise leak the exit code of the last native command run above
+# (e.g. a guard test that intentionally exits 2 on deny).
+exit 0

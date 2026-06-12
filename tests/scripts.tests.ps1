@@ -433,3 +433,8 @@ Status: Done
     Pop-Location
     Remove-Item -Recurse -Force $workDir -ErrorAction SilentlyContinue
 }
+
+# Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which
+# would otherwise leak the exit code of the last native command run above
+# (e.g. a gate test that intentionally exits non-zero).
+exit 0

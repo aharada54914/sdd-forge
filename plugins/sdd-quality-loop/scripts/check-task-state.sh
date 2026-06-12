@@ -68,7 +68,9 @@ function finish() {
     report = ""
     # Check for verification contract file
     tasks_dir = ENVIRON["TASKS"]
-    sub(/[/][^/]*$/, "", tasks_dir)
+    # NOTE: escape "/" instead of bracketing it ([/]) — BSD awk (macOS) rejects
+    # an unescaped "/" inside a bracket expression as an unterminated regex.
+    sub(/\/[^\/]*$/, "", tasks_dir)
     if (tasks_dir == ENVIRON["TASKS"]) tasks_dir = "."
     contract_path = tasks_dir "/verification/" task ".contract.json"
     cmd2 = "test -f \"" contract_path "\" && echo yes || echo no"
