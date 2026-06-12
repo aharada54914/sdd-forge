@@ -8,7 +8,7 @@
 
 **リポジトリ改名**: `sdd-plugins-windows-installer` から `sdd-forge` へ改名（自動リダイレクト）。
 
-**週次セルフ改善ワークフロー**: `.github/workflows/self-improvement.yml` を新設。毎週月曜 09:00 JST に `anthropics/claude-code-action@v1` がリポジトリを監査し、Issue 起票と小さな改善 PR の作成までを自動実行する（人間はレビューとマージのみ）。実行指示は `.github/self-improvement-prompt.md` に置き、プロンプト自体も改善対象。認証は `claude setup-token` で発行した `CLAUDE_CODE_OAUTH_TOKEN` シークレット（Pro/Max サブスクリプション枠を消費、API 従量課金なし）。
+**週次セルフ改善ワークフロー**: `.github/workflows/self-improvement.yml` を新設。毎週月曜 09:00 JST に `anthropics/claude-code-action@v1` がリポジトリを監査し、Issue 起票と小さな改善 PR の作成までを自動実行する（人間はレビューとマージのみ）。実行指示は `.github/self-improvement-prompt.md` に置き、プロンプト自体も改善対象。認証は `claude setup-token` で発行した `CLAUDE_CODE_OAUTH_TOKEN` シークレット（Pro/Max サブスクリプション枠を消費、API 従量課金なし）。workflow-retrospective (WFI) ループとの競合は調停プロトコル（不可侵領域・台帳照合・WFI provenance・単一飛行・優先順位）で防止 — docs/workflow-guide.md「週次セルフ改善ルーチンとの境界と優先順位」参照。
 
 ### v0.6.2 からの移行
 

@@ -615,6 +615,36 @@ review_cycles: <実施済みサイクル数>
 - Question bank (よくある質問リスト) を `CLAUDE.md` に追加
 - Interviewer への明確な role/constraint を AGENTS.md に記述
 
+### 週次セルフ改善ルーチンとの境界と優先順位
+
+sdd-forge リポジトリ自体には、WFI ループとは別に週次セルフ改善ルーチン
+(`.github/workflows/self-improvement.yml` + `.github/self-improvement-prompt.md`) が存在します。
+2つの改善ループが互いの成果を潰さないよう、以下のプロトコルで分離・調停します。
+
+**スコープ分離 (原則)**
+
+| ループ | 対象 | 変更してよいもの |
+|---|---|---|
+| workflow-retrospective (WFI) | SDD **プロセス**の摩擦 | プロジェクト側ワークフローファイルのみ (`AGENTS.md` / `CLAUDE.md` / `specs/` テンプレート等。`plugins/` 内は禁止) |
+| 週次セルフ改善 | リポジトリという**プロダクト** | コード・テスト・docs・インストーラ等 (下記の不可侵領域を除く) |
+
+競合は、このリポジトリ自身を SDD でドッグフーディングした場合 (両ループが同じリポジトリに作用する場合) にのみ発生します。
+
+**調停ルール**
+
+1. **不可侵領域**: 週次セルフ改善は `docs/workflow-improvements/` と `reports/` を読み取り専用として扱う。
+   また、コミットメッセージや PR に `WFI-` 参照を持つ変更を巻き戻さない。WFI 由来の変更に疑義がある場合は、
+   変更せず週次 Issue に「要人間判断」として記載する。
+2. **着手前の台帳照合**: 週次セルフ改善は作業選定前に `docs/workflow-improvements/WFI-*.md` と
+   open Issue/PR を確認し、WFI で追跡中のテーマを選ばない。逆に workflow-retrospective も WFI 起票前に
+   `self-improvement` ラベルの open Issue を確認し、重複する場合は WFI 本文で Issue 番号を参照する。
+3. **provenance の義務**: 承認済み WFI を適用するコミット / PR には必ず WFI ID (`WFI-NNN`) を含める。
+   これがルール 1 の巻き戻し禁止を機械的に判定する手がかりになる。
+4. **単一飛行**: open な `auto/improve-*` PR が存在する間、週次セルフ改善は新しい PR を作らない
+   (既存 Issue への追記のみ)。
+5. **優先順位**: 衝突した場合は「人間の直接指示 > 承認済み WFI > 週次セルフ改善」の順に優先する。
+   下位のループは上位の決定を覆す変更を提案できるが、適用には上位 (最終的には人間) の承認が必要。
+
 ---
 
 ## 6. 成果物ディレクトリマップ
