@@ -72,9 +72,11 @@ invoke_installer_scenario() {
     local fake_bin="${test_root}/bin"
     local command_log="${test_root}/commands.log"
     local original_path="$PATH"
+    local _orig_codex_home="${SDD_CODEX_HOME:-}"
 
     make_fake_commands "$fake_bin" "$command_log" "$fail_pattern"
     export PATH="${fake_bin}:${original_path}"
+    export SDD_CODEX_HOME="${test_root}/codex-home"
 
     if [[ $seed_existing -eq 1 ]]; then
         mkdir -p "$install_root"
@@ -91,6 +93,11 @@ invoke_installer_scenario() {
         2>&1)" || installer_failed=1
 
     export PATH="$original_path"
+    if [[ -z "$_orig_codex_home" ]]; then
+        unset SDD_CODEX_HOME
+    else
+        export SDD_CODEX_HOME="$_orig_codex_home"
+    fi
 
     # Error path
     if [[ -n "$fail_pattern" ]]; then
@@ -260,14 +267,21 @@ _g_install="${_g_root}/installed"
 _g_bin="${_g_root}/bin"
 _g_log="${_g_root}/commands.log"
 _g_orig_path="$PATH"
+_g_orig_codex_home="${SDD_CODEX_HOME:-}"
 make_fake_commands "$_g_bin" "$_g_log"
 export PATH="${_g_bin}:${_g_orig_path}"
+export SDD_CODEX_HOME="${_g_root}/codex-home"
 # First run
 _g_failed=0
 bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_g_install" --target All 2>/dev/null || _g_failed=1
 # Second run (idempotent)
 bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_g_install" --target All 2>/dev/null || _g_failed=1
 export PATH="$_g_orig_path"
+if [[ -z "$_g_orig_codex_home" ]]; then
+    unset SDD_CODEX_HOME
+else
+    export SDD_CODEX_HOME="$_g_orig_codex_home"
+fi
 _g_ok=1
 if [[ $_g_failed -ne 0 ]]; then
     fail "idempotency: second install failed"
@@ -290,10 +304,17 @@ _h_install="${_h_root}/installed"
 _h_bin="${_h_root}/bin"
 _h_log="${_h_root}/commands.log"
 _h_orig_path="$PATH"
+_h_orig_codex_home="${SDD_CODEX_HOME:-}"
 make_fake_commands "$_h_bin" "$_h_log"
 export PATH="${_h_bin}:${_h_orig_path}"
+export SDD_CODEX_HOME="${_h_root}/codex-home"
 bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_h_install" --target All 2>/dev/null
 export PATH="$_h_orig_path"
+if [[ -z "$_h_orig_codex_home" ]]; then
+    unset SDD_CODEX_HOME
+else
+    export SDD_CODEX_HOME="$_h_orig_codex_home"
+fi
 _h_ok=1
 # Must NOT have nested dirs
 for nested in ".agents/.agents" ".codex/.codex" ".claude-plugin/.claude-plugin"; do
@@ -311,6 +332,90 @@ for toml in ".codex/agents/sdd-investigator.toml" ".codex/agents/sdd-evaluator.t
 done
 rm -rf "$_h_root"
 [[ $_h_ok -eq 1 ]] && ok "no-nesting: layout correct after install"
+
+# ---------------------------------------------------------------------------
+# Scenario (i): codex agent install + malformed-role diagnostic
+# ---------------------------------------------------------------------------
+_i_root="$(mktemp -d)"
+_i_install="${_i_root}/installed"
+_i_codex_home="${_i_root}/codex-home"
+_i_codex_agents="${_i_codex_home}/agents"
+_i_bin="${_i_root}/bin"
+_i_log="${_i_root}/commands.log"
+_i_orig_path="$PATH"
+_i_orig_codex_home="${SDD_CODEX_HOME:-}"
+mkdir -p "$_i_codex_agents"
+echo 'name = "auditor"' > "${_i_codex_agents}/auditor.toml"
+make_fake_commands "$_i_bin" "$_i_log"
+export PATH="${_i_bin}:${_i_orig_path}"
+export SDD_CODEX_HOME="$_i_codex_home"
+_i_output="$(bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_i_install" --target All 2>&1)" || true
+export PATH="$_i_orig_path"
+if [[ -z "$_i_orig_codex_home" ]]; then
+    unset SDD_CODEX_HOME
+else
+    export SDD_CODEX_HOME="$_i_orig_codex_home"
+fi
+_i_ok=1
+# Verify agents installed with developer_instructions
+if [[ ! -f "${_i_codex_agents}/sdd-investigator.toml" ]]; then
+    fail "codex agent scenario (i): sdd-investigator.toml not installed"
+    _i_ok=0
+elif ! grep -Eq '^developer_instructions\s*=' "${_i_codex_agents}/sdd-investigator.toml"; then
+    fail "codex agent scenario (i): sdd-investigator.toml missing developer_instructions"
+    _i_ok=0
+fi
+if [[ ! -f "${_i_codex_agents}/sdd-evaluator.toml" ]]; then
+    fail "codex agent scenario (i): sdd-evaluator.toml not installed"
+    _i_ok=0
+elif ! grep -Eq '^developer_instructions\s*=' "${_i_codex_agents}/sdd-evaluator.toml"; then
+    fail "codex agent scenario (i): sdd-evaluator.toml missing developer_instructions"
+    _i_ok=0
+fi
+# Verify warning output
+if ! echo "$_i_output" | grep -q "Ignoring malformed agent role definition"; then
+    fail "codex agent scenario (i): expected warning not in output"
+    _i_ok=0
+fi
+if ! echo "$_i_output" | grep -q "auditor.toml"; then
+    fail "codex agent scenario (i): auditor.toml path not in output"
+    _i_ok=0
+fi
+# Verify auditor.toml unchanged
+if [[ "$(cat "${_i_codex_agents}/auditor.toml")" != 'name = "auditor"' ]]; then
+    fail "codex agent scenario (i): auditor.toml was modified"
+    _i_ok=0
+fi
+rm -rf "$_i_root"
+[[ $_i_ok -eq 1 ]] && ok "codex agent install + malformed-role diagnostic"
+
+# ---------------------------------------------------------------------------
+# Scenario (j): malformed source agent TOML rejected before deployment
+# ---------------------------------------------------------------------------
+_j_root="$(mktemp -d)"
+_j_src="${_j_root}/bad-src"
+_j_install="${_j_root}/installed"
+mkdir -p "$_j_src" "$_j_install"
+# Copy repository to bad source, excluding .git
+cp -R "$REPO_ROOT"/. "$_j_src/" 2>/dev/null || true
+rm -rf "$_j_src/.git"
+# Overwrite sdd-investigator.toml to make it malformed
+echo 'name = "sdd-investigator"' > "$_j_src/.codex/agents/sdd-investigator.toml"
+# Pre-create install root with existing.marker
+echo "keep" > "${_j_install}/existing.marker"
+_j_failed=0
+bash "$INSTALLER" --source-directory "$_j_src" --install-root "$_j_install" --target FilesOnly 2>/dev/null || _j_failed=1
+_j_ok=1
+if [[ $_j_failed -eq 0 ]]; then
+    fail "malformed source rejected scenario (j): installer accepted bad source"
+    _j_ok=0
+fi
+if [[ ! -f "${_j_install}/existing.marker" ]]; then
+    fail "malformed source rejected scenario (j): existing.marker was removed"
+    _j_ok=0
+fi
+rm -rf "$_j_root"
+[[ $_j_ok -eq 1 ]] && ok "malformed source agent TOML rejected before deployment"
 
 # ---------------------------------------------------------------------------
 # Summary

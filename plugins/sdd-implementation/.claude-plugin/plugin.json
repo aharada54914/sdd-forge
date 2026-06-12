@@ -1,7 +1,7 @@
 {
   "name": "sdd-implementation",
   "description": "Implement one approved SDD task and prepare it for independent quality review.",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "author": {
     "name": "Harada"
   }

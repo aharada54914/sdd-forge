@@ -4,6 +4,8 @@ Shared scoring standard for independent critical review. On Claude Code the
 `sdd-evaluator` subagent applies it automatically. On Codex CLI, use the
 `sdd-evaluator` TOML agent (`.codex/agents/sdd-evaluator.toml`) in an
 interactive session; the installer also copies it to `~/.codex/agents/`.
+Do not create new agent role files under `~/.codex/agents/`; a role file
+without `developer_instructions` is ignored by Codex at startup.
 On Copilot CLI, use the `sdd-evaluator.agent.md` agent from
 `plugins/sdd-quality-loop/copilot-agents/`. Where none of these agent
 mechanisms are available, start a fresh session (or a clearly separated

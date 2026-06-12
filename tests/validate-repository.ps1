@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt")
-$expectedVersion = "0.6.1"
+$expectedVersion = "0.6.2"
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -172,6 +172,82 @@ foreach ($script in @("check-contract", "check-placeholders", "check-task-state"
 foreach ($scriptPath in @("plugins/sdd-quality-loop/scripts/kill-switch.sh")) {
     if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
         throw "Missing hook script: $scriptPath"
+    }
+}
+
+# ---------------------------------------------------------------------------
+# Codex agent TOML validation
+# ---------------------------------------------------------------------------
+$agentSourceDir = Join-Path (Join-Path $repositoryRoot ".codex") "agents"
+if (-not (Test-Path $agentSourceDir)) {
+    throw "Missing required directory: .codex/agents"
+}
+foreach ($tomlFile in (Get-ChildItem -Path $agentSourceDir -Filter "*.toml")) {
+    # The installers only copy sdd-*.toml; anything else would silently not install.
+    if ($tomlFile.Name -notmatch '^sdd-.*\.toml$') {
+        throw "Codex agent role file would not be installed (must be named sdd-*.toml): $($tomlFile.Name)"
+    }
+    $bytes = [System.IO.File]::ReadAllBytes($tomlFile.FullName)
+    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+        throw "Codex agent role file has UTF-8 BOM (must not): $($tomlFile.Name)"
+    }
+    $content = [System.Text.Encoding]::UTF8.GetString($bytes)
+    if ($content -match "`r") {
+        throw "Codex agent role file contains CR characters (must be LF-only): $($tomlFile.Name)"
+    }
+    if ($content -notmatch '(?m)^name\s*=') {
+        throw "Codex agent role file lacks required 'name =' line: $($tomlFile.Name)"
+    }
+    if ($content -notmatch '(?m)^description\s*=') {
+        throw "Codex agent role file lacks required 'description =' line: $($tomlFile.Name)"
+    }
+    if ($content -notmatch '(?m)^developer_instructions\s*=\s*"""') {
+        throw "Codex agent role file lacks a developer_instructions multiline string: $($tomlFile.Name)"
+    }
+    if ($content -notmatch '(?s)developer_instructions\s*=\s*"""\s*\S.*?"""') {
+        throw "Codex agent role file has empty developer_instructions: $($tomlFile.Name)"
+    }
+}
+
+# Policy regression markers
+$agentPolicyFile = Join-Path $repositoryRoot "plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md"
+if (Test-Path $agentPolicyFile) {
+    $agentPolicyContent = Get-Content -Raw -Encoding Utf8 $agentPolicyFile
+    if ($agentPolicyContent -notmatch [regex]::Escape("Agent Role File Rules (Codex)")) {
+        throw "agent-delegation-policy.md missing required text: 'Agent Role File Rules (Codex)'"
+    }
+    if ($agentPolicyContent -notmatch [regex]::Escape("developer_instructions")) {
+        throw "agent-delegation-policy.md missing required text: 'developer_instructions'"
+    }
+}
+
+$qualityGateFile = Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+if (Test-Path $qualityGateFile) {
+    $qualityGateContent = Get-Content -Raw -Encoding Utf8 $qualityGateFile
+    if ($qualityGateContent -notmatch [regex]::Escape("do not create new agent role files")) {
+        throw "quality-gate SKILL.md missing required text: 'do not create new agent role files'"
+    }
+}
+
+$installPsFile = Join-Path $repositoryRoot "install.ps1"
+if (Test-Path $installPsFile) {
+    $installPsContent = Get-Content -Raw -Encoding Utf8 $installPsFile
+    if ($installPsContent -notmatch [regex]::Escape("SDD_CODEX_HOME")) {
+        throw "install.ps1 missing required text: 'SDD_CODEX_HOME'"
+    }
+    if ($installPsContent -notmatch [regex]::Escape("developer_instructions")) {
+        throw "install.ps1 missing required text: 'developer_instructions'"
+    }
+}
+
+$installShFile = Join-Path $repositoryRoot "install.sh"
+if (Test-Path $installShFile) {
+    $installShContent = Get-Content -Raw -Encoding Utf8 $installShFile
+    if ($installShContent -notmatch [regex]::Escape("SDD_CODEX_HOME")) {
+        throw "install.sh missing required text: 'SDD_CODEX_HOME'"
+    }
+    if ($installShContent -notmatch [regex]::Escape("developer_instructions")) {
+        throw "install.sh missing required text: 'developer_instructions'"
     }
 }
 

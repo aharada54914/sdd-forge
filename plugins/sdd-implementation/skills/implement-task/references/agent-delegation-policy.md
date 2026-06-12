@@ -31,6 +31,21 @@ approved task scope.
 - Treat each agent invocation or fresh session as a single-purpose unit; do
   not carry prior conversation state into it.
 
+## Agent Role File Rules (Codex)
+
+- Do not create new agent role files under `~/.codex/agents/` or
+  `.codex/agents/`. Use only the shipped `sdd-investigator` and
+  `sdd-evaluator` roles; do not invent ad-hoc roles such as auditor,
+  constraint-guardian, or regression-judge.
+- A Codex agent role file is malformed unless it defines `name`,
+  `description`, and a non-empty `developer_instructions` multiline string.
+  Codex ignores malformed role files at startup with the warning
+  "Ignoring malformed agent role definition".
+- If a new role is genuinely required, add it to the repository's
+  `.codex/agents/` as `sdd-<role>.toml` with the required keys so the
+  installer ships and validates it. Never write directly into
+  `~/.codex/agents/`.
+
 ## Context Hygiene
 
 - Enforce one session per task.

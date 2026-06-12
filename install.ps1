@@ -100,13 +100,22 @@ function Install-CodexAgents {
     }
 
     try {
-        $agentDestDir = Join-Path (Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex") "agents"
+        # Override destination via SDD_CODEX_HOME environment variable (for testing; default is user profile).
+        $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
+        $agentDestDir = Join-Path $codexHome "agents"
         if (-not (Test-Path $agentDestDir)) {
             New-Item -ItemType Directory -Path $agentDestDir -Force | Out-Null
         }
         foreach ($tomlFile in (Get-ChildItem -Path $agentSourceDir -Filter "sdd-*.toml")) {
             $destFile = Join-Path $agentDestDir $tomlFile.Name
             Copy-Item -Path $tomlFile.FullName -Destination $destFile -Force
+        }
+        # Scan destination for malformed agent role files (warning only; do not modify or delete).
+        foreach ($tomlFile in (Get-ChildItem -Path $agentDestDir -Filter "*.toml")) {
+            $content = Get-Content -Path $tomlFile.FullName -Raw
+            if (-not ($content -match '(?m)^\s*developer_instructions\s*=')) {
+                Write-Warning "Codex will ignore malformed agent role file at startup ('Ignoring malformed agent role definition'): $($tomlFile.FullName). Add a developer_instructions entry or delete the file."
+            }
         }
     }
     catch {
@@ -155,6 +164,24 @@ try {
     foreach ($relativePath in $requiredPaths) {
         if (-not (Test-Path (Join-Path $sourceRoot $relativePath))) {
             throw "Required file is missing: $relativePath"
+        }
+    }
+
+    # Validate all sdd-*.toml files: must have no BOM and must define name and developer_instructions.
+    $agentSourceDir = Join-Path (Join-Path $sourceRoot ".codex") "agents"
+    if (Test-Path $agentSourceDir) {
+        foreach ($tomlFile in (Get-ChildItem -Path $agentSourceDir -Filter "sdd-*.toml")) {
+            $bytes = [System.IO.File]::ReadAllBytes($tomlFile.FullName)
+            if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+                throw "Malformed Codex agent role file (must define developer_instructions, no BOM): $($tomlFile.Name)"
+            }
+            $content = Get-Content -Path $tomlFile.FullName -Raw
+            if (-not ($content -match '(?m)^name\s*=')) {
+                throw "Malformed Codex agent role file (must define developer_instructions, no BOM): $($tomlFile.Name)"
+            }
+            if (-not ($content -match '(?m)^developer_instructions\s*=')) {
+                throw "Malformed Codex agent role file (must define developer_instructions, no BOM): $($tomlFile.Name)"
+            }
         }
     }
 

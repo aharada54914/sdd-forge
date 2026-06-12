@@ -6,13 +6,16 @@
  * hooks (hooks/claude-hooks.json) so the gates run identically on Windows (no
  * Git Bash needed), macOS, and Linux.
  *
- * Runs the same two checks for Claude Code:
+ * Runs the same three checks for Claude Code:
  *
  *   1. Kill switch: if an AGENT_STOP file exists at $CLAUDE_PROJECT_DIR
  *      (fallback: cwd), deny every tool call until a human deletes it.
  *   2. Approval guard: deny any tool call that would INCREASE the number of
  *      "Approval: Approved" occurrences in a file whose path ends with
  *      tasks.md. Only a human may approve a task.
+ *   3. Agent-role guard: deny any tool call that would write a Codex agent role
+ *      file (path matching .codex/agents/[^/]+.toml) without a
+ *      developer_instructions field. Such files are ignored by Codex at startup.
  *
  * Payload formats handled:
  *   - Claude / Copilot Edit/Write: tool_input.file_path plus
@@ -39,6 +42,8 @@ const fs = require('fs');
 const path = require('path');
 
 const APPROVAL_RE = /Approval:\s*Approved/g;
+const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
+const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
 
 const APPROVAL_MSG =
   "SDD deterministic gate: agents must not set 'Approval: Approved' in " +
@@ -48,6 +53,13 @@ const APPROVAL_MSG =
 const KILL_MSG =
   "SDD kill switch: AGENT_STOP exists at the project root. All tool use is " +
   "suspended until a human deletes the file.";
+
+const AGENT_ROLE_MSG =
+  "SDD deterministic gate: refusing to write a Codex agent role file without " +
+  "developer_instructions. Files under .codex/agents/ must define " +
+  "developer_instructions or Codex ignores them at startup " +
+  "('Ignoring malformed agent role definition'). Use the shipped " +
+  "sdd-investigator/sdd-evaluator roles instead of creating new ones.";
 
 function countApprovals(text) {
   if (!text) return 0;
@@ -59,6 +71,17 @@ function isTasksMd(filePath) {
   // Case-insensitive match (intentional: Windows FS is case-insensitive; matches py/ps1 behavior).
   if (!filePath) return false;
   return String(filePath).replace(/\\/g, '/').toLowerCase().endsWith('tasks.md');
+}
+
+function isAgentRolePath(filePath) {
+  if (!filePath) return false;
+  const normalized = String(filePath).replace(/\\/g, '/').toLowerCase();
+  return AGENT_ROLE_PATH_RE.test(normalized);
+}
+
+function hasDeveloperInstructions(content) {
+  if (typeof content !== 'string' || !content) return false;
+  return DEVELOPER_INSTRUCTIONS_RE.test(content);
 }
 
 function emitDecision(decision, reason, mode) {
@@ -122,6 +145,48 @@ function patchIncreases(patch) {
   return (added - removed) > 0;
 }
 
+function patchWritesInvalidAgentRole(patch) {
+  let currentIsAgentRole = false;
+  let bodyLines = [];
+  for (const raw of patch.split('\n')) {
+    const line = raw.replace(/\r$/, '');
+    const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+    if (m) {
+      // Flush previous Add File section if it was for agent role.
+      // An empty body is also malformed: it lacks developer_instructions.
+      if (currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
+        return true;
+      }
+      bodyLines = [];
+      const op = m[1];
+      const filePath = m[2].trim();
+      currentIsAgentRole = op === 'Add' && isAgentRolePath(filePath);
+      continue;
+    }
+    if (line.startsWith('*** End Patch') || line.startsWith('*** Begin Patch')) {
+      continue;
+    }
+    if (currentIsAgentRole && line.startsWith('+') && !line.startsWith('+++')) {
+      bodyLines.push(line.slice(1));
+    }
+  }
+  // Flush final section.
+  if (currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
+    return true;
+  }
+  return false;
+}
+
+function shellWritesInvalidAgentRole(cmd) {
+  if (typeof cmd !== 'string') return false;
+  // If command contains developer_instructions, allow it.
+  if (cmd.includes('developer_instructions')) return false;
+  // Check if command redirects into an agent role path.
+  const normalizedCmd = cmd.replace(/\\/g, '/');
+  const redirectRe = /(>>?|tee(?:\s+-a)?)\s*["']?[^"'\s]*\.codex\/agents\/[^"'\s]*\.toml/i;
+  return redirectRe.test(normalizedCmd);
+}
+
 function approvalIncreases(payload) {
   const toolInput = payload.tool_input || {};
   const toolName = String(payload.tool_name || '').toLowerCase();
@@ -172,6 +237,28 @@ function approvalIncreases(payload) {
   }
 
   return newCount > oldCount;
+}
+
+function agentRoleInvalid(payload) {
+  const toolInput = payload.tool_input || {};
+  const toolName = String(payload.tool_name || '').toLowerCase();
+
+  // --- Codex apply_patch: check Add File sections for agent role paths ---
+  const command = toolInput.command;
+  if (toolName === 'apply_patch' || looksLikePatch(command)) {
+    return patchWritesInvalidAgentRole(command || '');
+  }
+
+  // --- Write-style tools: full-file writes with file_path ---
+  const filePath = toolInput.file_path || '';
+  if (isAgentRolePath(filePath) && 'content' in toolInput) {
+    const content = toolInput.content;
+    if (!hasDeveloperInstructions(content)) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 function parseArgs(argv) {
@@ -235,6 +322,26 @@ async function main() {
     }
   } catch (e) {
     // Never crash; fail open on the approval check.
+    emitDecision('allow', null, mode);
+    return;
+  }
+
+  // Check 3: agent-role guard.
+  try {
+    const toolInput = payload.tool_input || {};
+    const toolName = String(payload.tool_name || '').toLowerCase();
+    // Write-style tools and apply_patch.
+    if (agentRoleInvalid(payload)) {
+      emitDecision('deny', AGENT_ROLE_MSG, mode);
+    }
+    // Bash/shell tools.
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof toolInput.command === 'string') {
+      if (shellWritesInvalidAgentRole(toolInput.command)) {
+        emitDecision('deny', AGENT_ROLE_MSG, mode);
+      }
+    }
+  } catch (e) {
+    // Never crash; fail open on the agent-role check.
     emitDecision('allow', null, mode);
     return;
   }

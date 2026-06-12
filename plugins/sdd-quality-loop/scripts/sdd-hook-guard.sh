@@ -6,6 +6,8 @@
 # copilot-mode it prints an allow decision (Copilot fail-safe-DENIES on missing
 # output, so we must always print something).
 #
+# Runs three checks: kill switch, approval guard, and agent-role guard.
+#
 # Usage: sdd-hook-guard.sh --emit exit|copilot   (default: exit)
 
 dir="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
