@@ -152,7 +152,7 @@ function Invoke-RemoteInstallerScenario {
     $originalPath = $env:PATH
     $originalCodexHome = $env:SDD_CODEX_HOME
     $originalGhToken = $env:GH_TOKEN
-    $archivePath = New-ArchiveFixture -SourceRoot $repositoryRoot
+    $global:SddInstallerFixtureArchivePath = New-ArchiveFixture -SourceRoot $repositoryRoot
 
     function global:Invoke-WebRequest {
         param(
@@ -171,7 +171,7 @@ function Invoke-RemoteInstallerScenario {
         if ($Uri -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
             throw "remote download still references raw/codeload hosts: $Uri"
         }
-        Copy-Item -Path $archivePath -Destination $OutFile -Force
+        Copy-Item -Path $global:SddInstallerFixtureArchivePath -Destination $OutFile -Force
     }
 
     try {
@@ -222,9 +222,10 @@ function Invoke-RemoteInstallerScenario {
         if (Test-Path $testRoot) {
             Remove-Item -Path $testRoot -Recurse -Force
         }
-        if (Test-Path (Split-Path -Parent $archivePath)) {
-            Remove-Item -Path (Split-Path -Parent $archivePath) -Recurse -Force
+        if (Test-Path (Split-Path -Parent $global:SddInstallerFixtureArchivePath)) {
+            Remove-Item -Path (Split-Path -Parent $global:SddInstallerFixtureArchivePath) -Recurse -Force
         }
+        Remove-Variable -Name SddInstallerFixtureArchivePath -Scope Global -ErrorAction SilentlyContinue
     }
 }
 
