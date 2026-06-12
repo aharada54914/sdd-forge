@@ -6,7 +6,8 @@
 # copilot-mode it prints an allow decision (Copilot fail-safe-DENIES on missing
 # output, so we must always print something).
 #
-# Runs three checks: kill switch, approval guard, and agent-role guard.
+# Runs three checks: kill switch, approval guard (bypassed by valid SDD_SUDO flag),
+# and agent-role guard. Kill switch and agent-role guard are never bypassed.
 #
 # Usage: sdd-hook-guard.sh --emit exit|copilot   (default: exit)
 

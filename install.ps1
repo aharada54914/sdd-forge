@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Repository = "aharada54914/sdd-plugins-windows-installer",
+    [string]$Repository = "aharada54914/sdd-forge",
     [string]$Ref = "main",
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]

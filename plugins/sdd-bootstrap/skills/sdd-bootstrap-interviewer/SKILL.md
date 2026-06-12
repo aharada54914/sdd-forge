@@ -84,6 +84,14 @@ change approval to `Approved`.
 Do not approve tasks while requirements, design, contracts, acceptance criteria,
 scope, or important risks remain ambiguous.
 
+### Sudo Mode
+
+If a valid `SDD_SUDO` flag file exists at the project root (see
+`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), human approval
+checkpoints auto-pass. Record `Approval: Approved (sudo <ISO8601 UTC>)` in
+tasks.md and continue. All deterministic gates still apply; every check runs as
+normal.
+
 ## Handoff
 
 Report generated files, open questions, risks, and the next draft task. Remind

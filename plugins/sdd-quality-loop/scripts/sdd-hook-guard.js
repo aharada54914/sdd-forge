@@ -12,7 +12,9 @@
  *      (fallback: cwd), deny every tool call until a human deletes it.
  *   2. Approval guard: deny any tool call that would INCREASE the number of
  *      "Approval: Approved" occurrences in a file whose path ends with
- *      tasks.md. Only a human may approve a task.
+ *      tasks.md. Only a human may approve a task. Bypassed while a human-enabled
+ *      SDD_SUDO flag file with an unexpired 'expires-epoch: <unix-seconds>' line
+ *      exists at the project root (sudo mode). Checks 1 and 3 are never bypassed.
  *   3. Agent-role guard: deny any tool call that would write a Codex agent role
  *      file (path matching .codex/agents/[^/]+.toml) without a
  *      developer_instructions field. Such files are ignored by Codex at startup.
@@ -44,6 +46,7 @@ const path = require('path');
 const APPROVAL_RE = /Approval:\s*Approved/g;
 const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
+const SUDO_EPOCH_RE = /(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)/;
 
 const APPROVAL_MSG =
   "SDD deterministic gate: agents must not set 'Approval: Approved' in " +
@@ -112,6 +115,21 @@ function killSwitchTripped() {
       if (stat.isFile()) return true;
     } catch (e) {
       // not found or inaccessible — continue
+    }
+  }
+  return false;
+}
+
+function sudoActive() {
+  const root = process.env.CLAUDE_PROJECT_DIR || '.';
+  for (const base of [root, '.']) {
+    try {
+      const candidate = path.join(base, 'SDD_SUDO');
+      if (!fs.statSync(candidate).isFile()) continue;
+      const m = fs.readFileSync(candidate, 'utf8').match(SUDO_EPOCH_RE);
+      if (m && parseInt(m[2], 10) > Date.now() / 1000) return true;
+    } catch (e) {
+      // missing or unreadable — sudo stays inactive
     }
   }
   return false;
@@ -317,7 +335,7 @@ async function main() {
   try {
     // Reset global regex state before use.
     APPROVAL_RE.lastIndex = 0;
-    if (approvalIncreases(payload)) {
+    if (approvalIncreases(payload) && !sudoActive()) {
       emitDecision('deny', APPROVAL_MSG, mode);
     }
   } catch (e) {

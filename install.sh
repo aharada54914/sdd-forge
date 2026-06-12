@@ -6,7 +6,7 @@ set -euo pipefail
 # ---------------------------------------------------------------------------
 # Defaults
 # ---------------------------------------------------------------------------
-REPOSITORY="aharada54914/sdd-plugins-windows-installer"
+REPOSITORY="aharada54914/sdd-forge"
 REF="main"
 INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins"
 TARGET="All"
@@ -24,7 +24,7 @@ usage() {
     cat >&2 <<EOF
 Usage: install.sh [options]
 
-  --repository <owner/repo>      Default: aharada54914/sdd-plugins-windows-installer
+  --repository <owner/repo>      Default: aharada54914/sdd-forge
   --ref <ref>                    Default: main
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
   --target All|Codex|Claude|Copilot|FilesOnly

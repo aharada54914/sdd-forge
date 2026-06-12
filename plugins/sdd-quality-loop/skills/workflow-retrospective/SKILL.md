@@ -55,7 +55,10 @@ leave template placeholders unfilled.
    `docs/workflow-improvements/WFI-NNN.md` from
    `templates/workflow-improvement.template.md` with `status: Draft`.
    Increment NNN from the highest existing WFI number (start at 001 if none
-   exist).
+   exist).  If the repository also runs an automated self-improvement routine
+   (e.g. it has `.github/self-improvement-prompt.md`), check open issues
+   labeled `self-improvement` first; if one covers the same theme, reference
+   its issue number in the WFI instead of duplicating the work.
 
 3. **Await human Approved.** Do not apply any improvement until a human sets
    the WFI `status` to `Approved`.  Record the pending WFI references in the
@@ -68,6 +71,11 @@ leave template placeholders unfilled.
 
    Do not modify installed plugin files (skills, references, templates inside
    `plugins/`).
+
+   Always include the WFI ID (`WFI-NNN`) in the commit message and any PR that
+   applies an approved improvement.  Automated maintenance routines treat
+   `WFI-`-referenced changes as protected and will not revert them; changes
+   without the marker lose that protection.
 
 5. **Verify effect.** After the next task cycle completes, re-run metrics
    collection and append a `Result` section to the WFI document.  Compare with

@@ -145,6 +145,222 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# sudo mode (SDD_SUDO flag) — tests for sh dispatcher and direct python3/node
+# ---------------------------------------------------------------------------
+
+# Test a: valid sudo (future epoch) + Edit payload that increases Approval -> ALLOW
+SUDO_DIR_A="${WORK}/sudo-a"
+mkdir -p "$SUDO_DIR_A"
+SUDO_EPOCH=$(($(date +%s) + 3600))
+echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_A}/SDD_SUDO"
+SUDO_PAYLOAD='{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
+SUDO_CODE_A=0
+(cd "$SUDO_DIR_A" && printf '%s' "$SUDO_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_A=$?
+if [[ $SUDO_CODE_A -eq 0 ]]; then
+    ok "sh sudo: valid future epoch + approval increase -> allow (exit 0)"
+else
+    fail "sh sudo: valid future epoch + approval increase -> allow (expected 0, got $SUDO_CODE_A)"
+fi
+rm -rf "$SUDO_DIR_A"
+
+# Test b: expired sudo (past epoch) + same payload -> DENY
+SUDO_DIR_B="${WORK}/sudo-b"
+mkdir -p "$SUDO_DIR_B"
+EXPIRED_EPOCH=$(($(date +%s) - 10))
+echo "expires-epoch: $EXPIRED_EPOCH" > "${SUDO_DIR_B}/SDD_SUDO"
+SUDO_CODE_B=0
+(cd "$SUDO_DIR_B" && printf '%s' "$SUDO_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_B=$?
+if [[ $SUDO_CODE_B -eq 2 ]]; then
+    ok "sh sudo: expired epoch + approval increase -> deny (exit 2)"
+else
+    fail "sh sudo: expired epoch + approval increase -> deny (expected 2, got $SUDO_CODE_B)"
+fi
+rm -rf "$SUDO_DIR_B"
+
+# Test c: malformed flag (no expires-epoch line) + same payload -> DENY
+SUDO_DIR_C="${WORK}/sudo-c"
+mkdir -p "$SUDO_DIR_C"
+echo "some-other-field: value" > "${SUDO_DIR_C}/SDD_SUDO"
+SUDO_CODE_C=0
+(cd "$SUDO_DIR_C" && printf '%s' "$SUDO_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_C=$?
+if [[ $SUDO_CODE_C -eq 2 ]]; then
+    ok "sh sudo: malformed flag + approval increase -> deny (exit 2)"
+else
+    fail "sh sudo: malformed flag + approval increase -> deny (expected 2, got $SUDO_CODE_C)"
+fi
+rm -rf "$SUDO_DIR_C"
+
+# Test d: valid sudo AND AGENT_STOP both present -> DENY (kill switch wins)
+SUDO_DIR_D="${WORK}/sudo-d"
+mkdir -p "$SUDO_DIR_D"
+echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_D}/SDD_SUDO"
+echo "stop" > "${SUDO_DIR_D}/AGENT_STOP"
+SUDO_CODE_D=0
+(cd "$SUDO_DIR_D" && printf '%s' "$SUDO_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_D=$?
+if [[ $SUDO_CODE_D -eq 2 ]]; then
+    ok "sh sudo: valid sudo + AGENT_STOP -> deny (exit 2, kill switch wins)"
+else
+    fail "sh sudo: valid sudo + AGENT_STOP -> deny (expected 2, got $SUDO_CODE_D)"
+fi
+rm -rf "$SUDO_DIR_D"
+
+# Test e: valid sudo + invalid agent-role Write payload -> DENY (sudo does not bypass check 3)
+SUDO_DIR_E="${WORK}/sudo-e"
+mkdir -p "$SUDO_DIR_E"
+echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_E}/SDD_SUDO"
+AGENT_PAYLOAD='{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\foo.toml","content":"name = \"foo\"\n"}}'
+SUDO_CODE_E=0
+(cd "$SUDO_DIR_E" && printf '%s' "$AGENT_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_E=$?
+if [[ $SUDO_CODE_E -eq 2 ]]; then
+    ok "sh sudo: valid sudo + invalid agent role -> deny (exit 2, check 3 not bypassed)"
+else
+    fail "sh sudo: valid sudo + invalid agent role -> deny (expected 2, got $SUDO_CODE_E)"
+fi
+rm -rf "$SUDO_DIR_E"
+
+# Direct python3 sudo tests (same cases as above)
+if command -v python3 >/dev/null 2>&1; then
+    # Test a: valid sudo + approval increase -> ALLOW
+    SUDO_DIR_PY_A="${WORK}/sudo-py-a"
+    mkdir -p "$SUDO_DIR_PY_A"
+    SUDO_EPOCH=$(($(date +%s) + 3600))
+    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_PY_A}/SDD_SUDO"
+    PY_SUDO_CODE_A=0
+    (cd "$SUDO_DIR_PY_A" && printf '%s' "$SUDO_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_A=$?
+    if [[ $PY_SUDO_CODE_A -eq 0 ]]; then
+        ok "py sudo: valid future epoch + approval increase -> allow (exit 0)"
+    else
+        fail "py sudo: valid future epoch + approval increase -> allow (expected 0, got $PY_SUDO_CODE_A)"
+    fi
+    rm -rf "$SUDO_DIR_PY_A"
+
+    # Test b: expired sudo + approval increase -> DENY
+    SUDO_DIR_PY_B="${WORK}/sudo-py-b"
+    mkdir -p "$SUDO_DIR_PY_B"
+    EXPIRED_EPOCH=$(($(date +%s) - 10))
+    echo "expires-epoch: $EXPIRED_EPOCH" > "${SUDO_DIR_PY_B}/SDD_SUDO"
+    PY_SUDO_CODE_B=0
+    (cd "$SUDO_DIR_PY_B" && printf '%s' "$SUDO_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_B=$?
+    if [[ $PY_SUDO_CODE_B -eq 2 ]]; then
+        ok "py sudo: expired epoch + approval increase -> deny (exit 2)"
+    else
+        fail "py sudo: expired epoch + approval increase -> deny (expected 2, got $PY_SUDO_CODE_B)"
+    fi
+    rm -rf "$SUDO_DIR_PY_B"
+
+    # Test c: malformed flag + approval increase -> DENY
+    SUDO_DIR_PY_C="${WORK}/sudo-py-c"
+    mkdir -p "$SUDO_DIR_PY_C"
+    echo "some-other-field: value" > "${SUDO_DIR_PY_C}/SDD_SUDO"
+    PY_SUDO_CODE_C=0
+    (cd "$SUDO_DIR_PY_C" && printf '%s' "$SUDO_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_C=$?
+    if [[ $PY_SUDO_CODE_C -eq 2 ]]; then
+        ok "py sudo: malformed flag + approval increase -> deny (exit 2)"
+    else
+        fail "py sudo: malformed flag + approval increase -> deny (expected 2, got $PY_SUDO_CODE_C)"
+    fi
+    rm -rf "$SUDO_DIR_PY_C"
+
+    # Test d: valid sudo + AGENT_STOP both present -> DENY
+    SUDO_DIR_PY_D="${WORK}/sudo-py-d"
+    mkdir -p "$SUDO_DIR_PY_D"
+    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_PY_D}/SDD_SUDO"
+    echo "stop" > "${SUDO_DIR_PY_D}/AGENT_STOP"
+    PY_SUDO_CODE_D=0
+    (cd "$SUDO_DIR_PY_D" && printf '%s' "$SUDO_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_D=$?
+    if [[ $PY_SUDO_CODE_D -eq 2 ]]; then
+        ok "py sudo: valid sudo + AGENT_STOP -> deny (exit 2)"
+    else
+        fail "py sudo: valid sudo + AGENT_STOP -> deny (expected 2, got $PY_SUDO_CODE_D)"
+    fi
+    rm -rf "$SUDO_DIR_PY_D"
+
+    # Test e: valid sudo + invalid agent role -> DENY
+    SUDO_DIR_PY_E="${WORK}/sudo-py-e"
+    mkdir -p "$SUDO_DIR_PY_E"
+    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_PY_E}/SDD_SUDO"
+    PY_SUDO_CODE_E=0
+    (cd "$SUDO_DIR_PY_E" && printf '%s' "$AGENT_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_E=$?
+    if [[ $PY_SUDO_CODE_E -eq 2 ]]; then
+        ok "py sudo: valid sudo + invalid agent role -> deny (exit 2)"
+    else
+        fail "py sudo: valid sudo + invalid agent role -> deny (expected 2, got $PY_SUDO_CODE_E)"
+    fi
+    rm -rf "$SUDO_DIR_PY_E"
+fi
+
+# Node.js sudo tests (same cases via direct node invocation)
+if command -v node >/dev/null 2>&1; then
+    # Test a: valid sudo + approval increase -> ALLOW
+    SUDO_DIR_NODE_A="${WORK}/sudo-node-a"
+    mkdir -p "$SUDO_DIR_NODE_A"
+    SUDO_EPOCH=$(($(date +%s) + 3600))
+    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_NODE_A}/SDD_SUDO"
+    NODE_SUDO_CODE_A=0
+    (cd "$SUDO_DIR_NODE_A" && printf '%s' "$SUDO_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_A=$?
+    if [[ $NODE_SUDO_CODE_A -eq 0 ]]; then
+        ok "node sudo: valid future epoch + approval increase -> allow (exit 0)"
+    else
+        fail "node sudo: valid future epoch + approval increase -> allow (expected 0, got $NODE_SUDO_CODE_A)"
+    fi
+    rm -rf "$SUDO_DIR_NODE_A"
+
+    # Test b: expired sudo + approval increase -> DENY
+    SUDO_DIR_NODE_B="${WORK}/sudo-node-b"
+    mkdir -p "$SUDO_DIR_NODE_B"
+    EXPIRED_EPOCH=$(($(date +%s) - 10))
+    echo "expires-epoch: $EXPIRED_EPOCH" > "${SUDO_DIR_NODE_B}/SDD_SUDO"
+    NODE_SUDO_CODE_B=0
+    (cd "$SUDO_DIR_NODE_B" && printf '%s' "$SUDO_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_B=$?
+    if [[ $NODE_SUDO_CODE_B -eq 2 ]]; then
+        ok "node sudo: expired epoch + approval increase -> deny (exit 2)"
+    else
+        fail "node sudo: expired epoch + approval increase -> deny (expected 2, got $NODE_SUDO_CODE_B)"
+    fi
+    rm -rf "$SUDO_DIR_NODE_B"
+
+    # Test c: malformed flag + approval increase -> DENY
+    SUDO_DIR_NODE_C="${WORK}/sudo-node-c"
+    mkdir -p "$SUDO_DIR_NODE_C"
+    echo "some-other-field: value" > "${SUDO_DIR_NODE_C}/SDD_SUDO"
+    NODE_SUDO_CODE_C=0
+    (cd "$SUDO_DIR_NODE_C" && printf '%s' "$SUDO_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_C=$?
+    if [[ $NODE_SUDO_CODE_C -eq 2 ]]; then
+        ok "node sudo: malformed flag + approval increase -> deny (exit 2)"
+    else
+        fail "node sudo: malformed flag + approval increase -> deny (expected 2, got $NODE_SUDO_CODE_C)"
+    fi
+    rm -rf "$SUDO_DIR_NODE_C"
+
+    # Test d: valid sudo + AGENT_STOP both present -> DENY
+    SUDO_DIR_NODE_D="${WORK}/sudo-node-d"
+    mkdir -p "$SUDO_DIR_NODE_D"
+    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_NODE_D}/SDD_SUDO"
+    echo "stop" > "${SUDO_DIR_NODE_D}/AGENT_STOP"
+    NODE_SUDO_CODE_D=0
+    (cd "$SUDO_DIR_NODE_D" && printf '%s' "$SUDO_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_D=$?
+    if [[ $NODE_SUDO_CODE_D -eq 2 ]]; then
+        ok "node sudo: valid sudo + AGENT_STOP -> deny (exit 2)"
+    else
+        fail "node sudo: valid sudo + AGENT_STOP -> deny (expected 2, got $NODE_SUDO_CODE_D)"
+    fi
+    rm -rf "$SUDO_DIR_NODE_D"
+
+    # Test e: valid sudo + invalid agent role -> DENY
+    SUDO_DIR_NODE_E="${WORK}/sudo-node-e"
+    mkdir -p "$SUDO_DIR_NODE_E"
+    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_NODE_E}/SDD_SUDO"
+    NODE_SUDO_CODE_E=0
+    (cd "$SUDO_DIR_NODE_E" && printf '%s' "$AGENT_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_E=$?
+    if [[ $NODE_SUDO_CODE_E -eq 2 ]]; then
+        ok "node sudo: valid sudo + invalid agent role -> deny (exit 2)"
+    else
+        fail "node sudo: valid sudo + invalid agent role -> deny (expected 2, got $NODE_SUDO_CODE_E)"
+    fi
+    rm -rf "$SUDO_DIR_NODE_E"
+fi
+
+# ---------------------------------------------------------------------------
 # kill-switch.sh — basic absent/present
 # ---------------------------------------------------------------------------
 KS_DIR="${WORK}/ks-basic"

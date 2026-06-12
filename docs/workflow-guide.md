@@ -453,7 +453,76 @@ review_cycles: <実施済みサイクル数>
 
 その場合は手動でセッションを終了してください。
 
-### 4.9 トレーサビリティのドリフト検出
+### 4.9 sudoモード運用
+
+**目的**: ソロワーク・低リスク作業で、人間承認ゲート (Approval: Approved、アーキテクチャ review 承認、quality-gate 判定) を期限付きで自動通過させ、効率を向上させます。
+
+**いつ使う**
+
+- 自分だけで実施する低リスク変更 (ドキュメント、コメント、小規模リファクタ)
+- 確実性の高いバグ修正で、round-trip review delay を避けたい
+- SDD ワークフロー自体のテスト
+- チームで「このタスクは approval 不要」と事前合意した場合
+
+**いつ避ける**
+
+- 共有リポジトリ・本番環境の変更
+- 大規模アーキテクチャ変更
+- セキュリティ・認証・認可 関連の変更
+- 決定論的ゲート（contract 検証、placeholder 検出）の自信がない場合
+
+**有効化**
+
+```txt
+/sdd-sudo 8h              # デフォルト 8 時間
+/sdd-sudo 4h              # 4 時間
+/sdd-sudo 24h             # 最大 24 時間
+```
+
+**動作**
+
+1. `SDD_SUDO` ファイルをプロジェクトルートに作成
+   - `expires-epoch` (unix-seconds) で期限を記録
+2. その後の人間承認ゲートはすべて自動通過
+3. 各 Approval gate 通過時に `Approval: Approved (sudo 2026-06-12T15:30:45Z)` と記録（audit mark）
+4. **AGENT_STOP は常に有効** — sudo 中でも kill switch は機能
+5. **決定論的スクリプト** (`check-contract`, `check-placeholders`, `check-task-state`, `check-sdd-structure`) は常に実行・検査
+
+**状態確認**
+
+```txt
+/sdd-sudo status         # 有効期限と残り時間を表示
+```
+
+**無効化**
+
+```txt
+/sdd-sudo off            # 即座に無効化
+```
+
+または、`SDD_SUDO` ファイルを手動削除。
+
+**期限自動失効**
+
+- Unix timestamp で常に `now > expires-epoch` をチェック
+- 失効後は自動で「無効」の扱い (ファイル削除なし)
+- 再度有効化するには `/sdd-sudo` を明示的に再実行
+
+**audit trail**
+
+- タスク tasks.md に `(sudo <ISO8601>)` 記号で deferral を記録
+- 品質ゲート報告書に sudo 期間を明記
+- 全証拠ファイル (contract, report) は通常通り保管
+
+**hard policy**
+
+- エージェント自身が `SDD_SUDO` を作成・延長しない (人間の明示実行のみ)
+- 期限切れ後の自動再有効化はしない
+- 不明な場合は人間に質問
+
+詳細は `/sdd-sudo` スキル と `plugins/sdd-quality-loop/references/sudo-mode-policy.md` を参照。
+
+### 4.10 トレーサビリティのドリフト検出
 
 **状況**: integrity-policy で以下が検出された。
 
@@ -545,6 +614,36 @@ review_cycles: <実施済みサイクル数>
 - タスク粒度を細分化 (1 タスク = 1 API endpoint など)
 - Question bank (よくある質問リスト) を `CLAUDE.md` に追加
 - Interviewer への明確な role/constraint を AGENTS.md に記述
+
+### 週次セルフ改善ルーチンとの境界と優先順位
+
+sdd-forge リポジトリ自体には、WFI ループとは別に週次セルフ改善ルーチン
+(`.github/workflows/self-improvement.yml` + `.github/self-improvement-prompt.md`) が存在します。
+2つの改善ループが互いの成果を潰さないよう、以下のプロトコルで分離・調停します。
+
+**スコープ分離 (原則)**
+
+| ループ | 対象 | 変更してよいもの |
+|---|---|---|
+| workflow-retrospective (WFI) | SDD **プロセス**の摩擦 | プロジェクト側ワークフローファイルのみ (`AGENTS.md` / `CLAUDE.md` / `specs/` テンプレート等。`plugins/` 内は禁止) |
+| 週次セルフ改善 | リポジトリという**プロダクト** | コード・テスト・docs・インストーラ等 (下記の不可侵領域を除く) |
+
+競合は、このリポジトリ自身を SDD でドッグフーディングした場合 (両ループが同じリポジトリに作用する場合) にのみ発生します。
+
+**調停ルール**
+
+1. **不可侵領域**: 週次セルフ改善は `docs/workflow-improvements/` と `reports/` を読み取り専用として扱う。
+   また、コミットメッセージや PR に `WFI-` 参照を持つ変更を巻き戻さない。WFI 由来の変更に疑義がある場合は、
+   変更せず週次 Issue に「要人間判断」として記載する。
+2. **着手前の台帳照合**: 週次セルフ改善は作業選定前に `docs/workflow-improvements/WFI-*.md` と
+   open Issue/PR を確認し、WFI で追跡中のテーマを選ばない。逆に workflow-retrospective も WFI 起票前に
+   `self-improvement` ラベルの open Issue を確認し、重複する場合は WFI 本文で Issue 番号を参照する。
+3. **provenance の義務**: 承認済み WFI を適用するコミット / PR には必ず WFI ID (`WFI-NNN`) を含める。
+   これがルール 1 の巻き戻し禁止を機械的に判定する手がかりになる。
+4. **単一飛行**: open な `auto/improve-*` PR が存在する間、週次セルフ改善は新しい PR を作らない
+   (既存 Issue への追記のみ)。
+5. **優先順位**: 衝突した場合は「人間の直接指示 > 承認済み WFI > 週次セルフ改善」の順に優先する。
+   下位のループは上位の決定を覆す変更を提案できるが、適用には上位 (最終的には人間) の承認が必要。
 
 ---
 
