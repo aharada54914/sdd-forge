@@ -180,7 +180,7 @@ foreach ($artifact in @($artifacts)) {
         continue
     }
     if ($artifactSha -notmatch '^[a-f0-9]{64}$') {
-        Add-Failure "artifact sha256 is invalid for $artifactPath: $($artifact.sha256)"
+        Add-Failure "artifact sha256 is invalid for ${artifactPath}: $($artifact.sha256)"
         continue
     }
     if ($artifactIndex.ContainsKey($artifactInfo.Normalized)) {
@@ -201,7 +201,7 @@ foreach ($requiredPath in $requiredArtifacts.Keys) {
 }
 
 if ($failures.Count -gt 0) {
-    Write-Host "Evidence bundle FAILED for task $taskId:"
+    Write-Host "Evidence bundle FAILED for task ${taskId}:"
     $failures | ForEach-Object { Write-Host " - $_" }
     exit 1
 }
