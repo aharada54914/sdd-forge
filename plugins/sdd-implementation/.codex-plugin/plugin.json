@@ -1,6 +1,6 @@
 {
   "name": "sdd-implementation",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Implement one approved SDD task and prepare it for independent quality review.",
   "skills": "./skills/",
   "author": {

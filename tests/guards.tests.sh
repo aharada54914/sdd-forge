@@ -45,6 +45,14 @@ invoke_kill_switch_sh() {
     echo "$code"
 }
 
+write_sudo_flag() {
+    local dir="$1"
+    local expires="$2"
+    cat > "${dir}/SDD_SUDO" <<EOF
+expires-epoch: ${expires}
+EOF
+}
+
 # ---------------------------------------------------------------------------
 # sdd-hook-guard.sh — basic deny/allow/malformed
 # ---------------------------------------------------------------------------
@@ -65,10 +73,10 @@ else
 fi
 
 invoke_guard_sh 'not valid json'
-if [[ $GUARD_CODE -eq 0 ]]; then
-    ok "sh: malformed payload -> allow (exit 0)"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: malformed payload -> deny (exit 2)"
 else
-    fail "sh: malformed payload -> allow (expected 0, got $GUARD_CODE)"
+    fail "sh: malformed payload -> deny (expected 2, got $GUARD_CODE)"
 fi
 
 # copilot mode deny
@@ -112,12 +120,28 @@ else
     fail "sh: apply_patch Add File agent role with empty body -> deny (expected 2, got $GUARD_CODE)"
 fi
 
+# 4b. ALLOW: apply_patch Add File with developer_instructions
+invoke_guard_sh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n+name = \"regression-judge\"\n+developer_instructions = \"\"\"test\"\"\"\n*** End Patch"}}'
+if [[ $GUARD_CODE -eq 0 ]]; then
+    ok "sh: apply_patch Add File agent role with developer_instructions -> allow (exit 0)"
+else
+    fail "sh: apply_patch Add File agent role with developer_instructions -> allow (expected 0, got $GUARD_CODE)"
+fi
+
+# 4c. DENY: apply_patch Delete File targeting agent role path
+invoke_guard_sh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Delete File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: apply_patch Delete File agent role -> deny (exit 2)"
+else
+    fail "sh: apply_patch Delete File agent role -> deny (expected 2, got $GUARD_CODE)"
+fi
+
 # 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
 invoke_guard_sh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
-if [[ $GUARD_CODE -eq 0 ]]; then
-    ok "sh: apply_patch Update File agent role -> allow (exit 0)"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: apply_patch Update File agent role -> deny (exit 2)"
 else
-    fail "sh: apply_patch Update File agent role -> allow (expected 0, got $GUARD_CODE)"
+    fail "sh: apply_patch Update File agent role -> deny (expected 2, got $GUARD_CODE)"
 fi
 
 # 6. DENY: shell payload redirect into agent role path without developer_instructions in command
@@ -136,12 +160,25 @@ else
     fail "sh: shell read agent role path -> allow (expected 0, got $GUARD_CODE)"
 fi
 
-# 8. ALLOW: shell heredoc command containing developer_instructions
+# 8. DENY: shell heredoc command containing developer_instructions still counts as a write
 invoke_guard_sh '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
-if [[ $GUARD_CODE -eq 0 ]]; then
-    ok "sh: shell heredoc with developer_instructions -> allow (exit 0)"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: shell heredoc with developer_instructions -> deny (exit 2)"
 else
-    fail "sh: shell heredoc with developer_instructions -> allow (expected 0, got $GUARD_CODE)"
+    fail "sh: shell heredoc with developer_instructions -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+# 9. DENY: sdd-hook-guard.sh with no python3 or PowerShell available
+NORUNTIME_DIR="${WORK}/noruntime-bin"
+mkdir -p "$NORUNTIME_DIR"
+ln -s "$(command -v cat)" "${NORUNTIME_DIR}/cat"
+ln -s "$(command -v dirname)" "${NORUNTIME_DIR}/dirname"
+NO_RUNTIME_CODE=0
+(PATH="$NORUNTIME_DIR"; printf '%s' '{"tool_name":"Edit","tool_input":{"file_path":"src/a.py","old_string":"a","new_string":"b"}}' | /bin/bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || NO_RUNTIME_CODE=$?
+if [[ $NO_RUNTIME_CODE -eq 2 ]]; then
+    ok "sh: no runtime available -> deny (exit 2)"
+else
+    fail "sh: no runtime available -> deny (expected 2, got $NO_RUNTIME_CODE)"
 fi
 
 # ---------------------------------------------------------------------------
@@ -151,11 +188,11 @@ fi
 # Test a: valid sudo (future epoch) + Edit payload that increases Approval -> ALLOW
 SUDO_DIR_A="${WORK}/sudo-a"
 mkdir -p "$SUDO_DIR_A"
-SUDO_EPOCH=$(($(date +%s) + 3600))
-echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_A}/SDD_SUDO"
+SUDO_EPOCH=$(( $(date +%s) + 3600 ))
+write_sudo_flag "$SUDO_DIR_A" "$SUDO_EPOCH"
 SUDO_PAYLOAD='{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
 SUDO_CODE_A=0
-(cd "$SUDO_DIR_A" && printf '%s' "$SUDO_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_A=$?
+(cd "$SUDO_DIR_A" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_A" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_A=$?
 if [[ $SUDO_CODE_A -eq 0 ]]; then
     ok "sh sudo: valid future epoch + approval increase -> allow (exit 0)"
 else
@@ -166,10 +203,10 @@ rm -rf "$SUDO_DIR_A"
 # Test b: expired sudo (past epoch) + same payload -> DENY
 SUDO_DIR_B="${WORK}/sudo-b"
 mkdir -p "$SUDO_DIR_B"
-EXPIRED_EPOCH=$(($(date +%s) - 10))
-echo "expires-epoch: $EXPIRED_EPOCH" > "${SUDO_DIR_B}/SDD_SUDO"
+EXPIRED_EPOCH=$(( $(date +%s) - 10 ))
+write_sudo_flag "$SUDO_DIR_B" "$EXPIRED_EPOCH"
 SUDO_CODE_B=0
-(cd "$SUDO_DIR_B" && printf '%s' "$SUDO_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_B=$?
+(cd "$SUDO_DIR_B" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_B" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_B=$?
 if [[ $SUDO_CODE_B -eq 2 ]]; then
     ok "sh sudo: expired epoch + approval increase -> deny (exit 2)"
 else
@@ -182,7 +219,7 @@ SUDO_DIR_C="${WORK}/sudo-c"
 mkdir -p "$SUDO_DIR_C"
 echo "some-other-field: value" > "${SUDO_DIR_C}/SDD_SUDO"
 SUDO_CODE_C=0
-(cd "$SUDO_DIR_C" && printf '%s' "$SUDO_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_C=$?
+(cd "$SUDO_DIR_C" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_C" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_C=$?
 if [[ $SUDO_CODE_C -eq 2 ]]; then
     ok "sh sudo: malformed flag + approval increase -> deny (exit 2)"
 else
@@ -193,10 +230,10 @@ rm -rf "$SUDO_DIR_C"
 # Test d: valid sudo AND AGENT_STOP both present -> DENY (kill switch wins)
 SUDO_DIR_D="${WORK}/sudo-d"
 mkdir -p "$SUDO_DIR_D"
-echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_D}/SDD_SUDO"
+write_sudo_flag "$SUDO_DIR_D" "$SUDO_EPOCH"
 echo "stop" > "${SUDO_DIR_D}/AGENT_STOP"
 SUDO_CODE_D=0
-(cd "$SUDO_DIR_D" && printf '%s' "$SUDO_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_D=$?
+(cd "$SUDO_DIR_D" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_D" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_D=$?
 if [[ $SUDO_CODE_D -eq 2 ]]; then
     ok "sh sudo: valid sudo + AGENT_STOP -> deny (exit 2, kill switch wins)"
 else
@@ -207,10 +244,10 @@ rm -rf "$SUDO_DIR_D"
 # Test e: valid sudo + invalid agent-role Write payload -> DENY (sudo does not bypass check 3)
 SUDO_DIR_E="${WORK}/sudo-e"
 mkdir -p "$SUDO_DIR_E"
-echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_E}/SDD_SUDO"
+write_sudo_flag "$SUDO_DIR_E" "$SUDO_EPOCH"
 AGENT_PAYLOAD='{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\foo.toml","content":"name = \"foo\"\n"}}'
 SUDO_CODE_E=0
-(cd "$SUDO_DIR_E" && printf '%s' "$AGENT_PAYLOAD" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_E=$?
+(cd "$SUDO_DIR_E" && printf '%s' "$AGENT_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_E" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SUDO_CODE_E=$?
 if [[ $SUDO_CODE_E -eq 2 ]]; then
     ok "sh sudo: valid sudo + invalid agent role -> deny (exit 2, check 3 not bypassed)"
 else
@@ -224,9 +261,9 @@ if command -v python3 >/dev/null 2>&1; then
     SUDO_DIR_PY_A="${WORK}/sudo-py-a"
     mkdir -p "$SUDO_DIR_PY_A"
     SUDO_EPOCH=$(($(date +%s) + 3600))
-    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_PY_A}/SDD_SUDO"
+    write_sudo_flag "$SUDO_DIR_PY_A" "$SUDO_EPOCH"
     PY_SUDO_CODE_A=0
-    (cd "$SUDO_DIR_PY_A" && printf '%s' "$SUDO_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_A=$?
+    (cd "$SUDO_DIR_PY_A" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_PY_A" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_A=$?
     if [[ $PY_SUDO_CODE_A -eq 0 ]]; then
         ok "py sudo: valid future epoch + approval increase -> allow (exit 0)"
     else
@@ -238,9 +275,9 @@ if command -v python3 >/dev/null 2>&1; then
     SUDO_DIR_PY_B="${WORK}/sudo-py-b"
     mkdir -p "$SUDO_DIR_PY_B"
     EXPIRED_EPOCH=$(($(date +%s) - 10))
-    echo "expires-epoch: $EXPIRED_EPOCH" > "${SUDO_DIR_PY_B}/SDD_SUDO"
+    write_sudo_flag "$SUDO_DIR_PY_B" "$EXPIRED_EPOCH"
     PY_SUDO_CODE_B=0
-    (cd "$SUDO_DIR_PY_B" && printf '%s' "$SUDO_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_B=$?
+    (cd "$SUDO_DIR_PY_B" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_PY_B" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_B=$?
     if [[ $PY_SUDO_CODE_B -eq 2 ]]; then
         ok "py sudo: expired epoch + approval increase -> deny (exit 2)"
     else
@@ -253,7 +290,7 @@ if command -v python3 >/dev/null 2>&1; then
     mkdir -p "$SUDO_DIR_PY_C"
     echo "some-other-field: value" > "${SUDO_DIR_PY_C}/SDD_SUDO"
     PY_SUDO_CODE_C=0
-    (cd "$SUDO_DIR_PY_C" && printf '%s' "$SUDO_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_C=$?
+    (cd "$SUDO_DIR_PY_C" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_PY_C" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_C=$?
     if [[ $PY_SUDO_CODE_C -eq 2 ]]; then
         ok "py sudo: malformed flag + approval increase -> deny (exit 2)"
     else
@@ -264,10 +301,10 @@ if command -v python3 >/dev/null 2>&1; then
     # Test d: valid sudo + AGENT_STOP both present -> DENY
     SUDO_DIR_PY_D="${WORK}/sudo-py-d"
     mkdir -p "$SUDO_DIR_PY_D"
-    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_PY_D}/SDD_SUDO"
+    write_sudo_flag "$SUDO_DIR_PY_D" "$SUDO_EPOCH"
     echo "stop" > "${SUDO_DIR_PY_D}/AGENT_STOP"
     PY_SUDO_CODE_D=0
-    (cd "$SUDO_DIR_PY_D" && printf '%s' "$SUDO_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_D=$?
+    (cd "$SUDO_DIR_PY_D" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_PY_D" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_D=$?
     if [[ $PY_SUDO_CODE_D -eq 2 ]]; then
         ok "py sudo: valid sudo + AGENT_STOP -> deny (exit 2)"
     else
@@ -278,9 +315,9 @@ if command -v python3 >/dev/null 2>&1; then
     # Test e: valid sudo + invalid agent role -> DENY
     SUDO_DIR_PY_E="${WORK}/sudo-py-e"
     mkdir -p "$SUDO_DIR_PY_E"
-    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_PY_E}/SDD_SUDO"
+    write_sudo_flag "$SUDO_DIR_PY_E" "$SUDO_EPOCH"
     PY_SUDO_CODE_E=0
-    (cd "$SUDO_DIR_PY_E" && printf '%s' "$AGENT_PAYLOAD" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_E=$?
+    (cd "$SUDO_DIR_PY_E" && printf '%s' "$AGENT_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_PY_E" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_SUDO_CODE_E=$?
     if [[ $PY_SUDO_CODE_E -eq 2 ]]; then
         ok "py sudo: valid sudo + invalid agent role -> deny (exit 2)"
     else
@@ -295,9 +332,9 @@ if command -v node >/dev/null 2>&1; then
     SUDO_DIR_NODE_A="${WORK}/sudo-node-a"
     mkdir -p "$SUDO_DIR_NODE_A"
     SUDO_EPOCH=$(($(date +%s) + 3600))
-    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_NODE_A}/SDD_SUDO"
+    write_sudo_flag "$SUDO_DIR_NODE_A" "$SUDO_EPOCH"
     NODE_SUDO_CODE_A=0
-    (cd "$SUDO_DIR_NODE_A" && printf '%s' "$SUDO_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_A=$?
+    (cd "$SUDO_DIR_NODE_A" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_NODE_A" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_A=$?
     if [[ $NODE_SUDO_CODE_A -eq 0 ]]; then
         ok "node sudo: valid future epoch + approval increase -> allow (exit 0)"
     else
@@ -309,9 +346,9 @@ if command -v node >/dev/null 2>&1; then
     SUDO_DIR_NODE_B="${WORK}/sudo-node-b"
     mkdir -p "$SUDO_DIR_NODE_B"
     EXPIRED_EPOCH=$(($(date +%s) - 10))
-    echo "expires-epoch: $EXPIRED_EPOCH" > "${SUDO_DIR_NODE_B}/SDD_SUDO"
+    write_sudo_flag "$SUDO_DIR_NODE_B" "$EXPIRED_EPOCH"
     NODE_SUDO_CODE_B=0
-    (cd "$SUDO_DIR_NODE_B" && printf '%s' "$SUDO_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_B=$?
+    (cd "$SUDO_DIR_NODE_B" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_NODE_B" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_B=$?
     if [[ $NODE_SUDO_CODE_B -eq 2 ]]; then
         ok "node sudo: expired epoch + approval increase -> deny (exit 2)"
     else
@@ -324,7 +361,7 @@ if command -v node >/dev/null 2>&1; then
     mkdir -p "$SUDO_DIR_NODE_C"
     echo "some-other-field: value" > "${SUDO_DIR_NODE_C}/SDD_SUDO"
     NODE_SUDO_CODE_C=0
-    (cd "$SUDO_DIR_NODE_C" && printf '%s' "$SUDO_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_C=$?
+    (cd "$SUDO_DIR_NODE_C" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_NODE_C" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_C=$?
     if [[ $NODE_SUDO_CODE_C -eq 2 ]]; then
         ok "node sudo: malformed flag + approval increase -> deny (exit 2)"
     else
@@ -335,10 +372,10 @@ if command -v node >/dev/null 2>&1; then
     # Test d: valid sudo + AGENT_STOP both present -> DENY
     SUDO_DIR_NODE_D="${WORK}/sudo-node-d"
     mkdir -p "$SUDO_DIR_NODE_D"
-    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_NODE_D}/SDD_SUDO"
+    write_sudo_flag "$SUDO_DIR_NODE_D" "$SUDO_EPOCH"
     echo "stop" > "${SUDO_DIR_NODE_D}/AGENT_STOP"
     NODE_SUDO_CODE_D=0
-    (cd "$SUDO_DIR_NODE_D" && printf '%s' "$SUDO_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_D=$?
+    (cd "$SUDO_DIR_NODE_D" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_NODE_D" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_D=$?
     if [[ $NODE_SUDO_CODE_D -eq 2 ]]; then
         ok "node sudo: valid sudo + AGENT_STOP -> deny (exit 2)"
     else
@@ -349,9 +386,9 @@ if command -v node >/dev/null 2>&1; then
     # Test e: valid sudo + invalid agent role -> DENY
     SUDO_DIR_NODE_E="${WORK}/sudo-node-e"
     mkdir -p "$SUDO_DIR_NODE_E"
-    echo "expires-epoch: $SUDO_EPOCH" > "${SUDO_DIR_NODE_E}/SDD_SUDO"
+    write_sudo_flag "$SUDO_DIR_NODE_E" "$SUDO_EPOCH"
     NODE_SUDO_CODE_E=0
-    (cd "$SUDO_DIR_NODE_E" && printf '%s' "$AGENT_PAYLOAD" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_E=$?
+    (cd "$SUDO_DIR_NODE_E" && printf '%s' "$AGENT_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_NODE_E" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_SUDO_CODE_E=$?
     if [[ $NODE_SUDO_CODE_E -eq 2 ]]; then
         ok "node sudo: valid sudo + invalid agent role -> deny (exit 2)"
     else
@@ -437,10 +474,10 @@ if command -v python3 >/dev/null 2>&1; then
     fi
 
     invoke_py_guard 'not valid json'
-    if [[ $PY_CODE -eq 0 ]]; then
-        ok "py: malformed -> allow (exit 0)"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: malformed -> deny (exit 2)"
     else
-        fail "py: malformed -> allow (expected 0, got $PY_CODE)"
+        fail "py: malformed -> deny (expected 2, got $PY_CODE)"
     fi
 
     # copilot mode
@@ -451,13 +488,13 @@ if command -v python3 >/dev/null 2>&1; then
         fail "py: copilot deny -> JSON (code=$PY_CODE out='$PY_OUT')"
     fi
 
-    # TTY guard: run with stdin from /dev/null (not a TTY) — must not hang, must allow
+    # TTY guard: run with stdin from /dev/null (not a TTY) — must not hang, must deny
     PY_TTY_CODE=0
     python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" </dev/null >/dev/null 2>/dev/null || PY_TTY_CODE=$?
-    if [[ $PY_TTY_CODE -eq 0 ]]; then
-        ok "py: TTY guard with empty stdin (/dev/null) does not hang -> allow (exit 0)"
+    if [[ $PY_TTY_CODE -eq 2 ]]; then
+        ok "py: TTY guard with empty stdin (/dev/null) does not hang -> deny (exit 2)"
     else
-        fail "py: TTY guard with empty stdin -> allow (expected 0, got $PY_TTY_CODE)"
+        fail "py: TTY guard with empty stdin -> deny (expected 2, got $PY_TTY_CODE)"
     fi
 
     # kill-switch precedence: py guard checks kill-switch before reading stdin
@@ -509,13 +546,31 @@ if command -v python3 >/dev/null 2>&1; then
         fail "py: apply_patch Add File agent role with empty body -> deny (expected 2, got $PY_CODE)"
     fi
 
-    # 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
+    # 4b. ALLOW: apply_patch Add File with developer_instructions
+    PATCH_AGENT_ADD='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n+name = \"regression-judge\"\n+developer_instructions = \"\"\"test\"\"\"\n*** End Patch"}}'
+    invoke_py_guard "$PATCH_AGENT_ADD"
+    if [[ $PY_CODE -eq 0 ]]; then
+        ok "py: apply_patch Add File agent role with developer_instructions -> allow (exit 0)"
+    else
+        fail "py: apply_patch Add File agent role with developer_instructions -> allow (expected 0, got $PY_CODE)"
+    fi
+
+    # 4c. DENY: apply_patch Delete File targeting agent role path
+    PATCH_AGENT_DELETE='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Delete File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+    invoke_py_guard "$PATCH_AGENT_DELETE"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: apply_patch Delete File agent role -> deny (exit 2)"
+    else
+        fail "py: apply_patch Delete File agent role -> deny (expected 2, got $PY_CODE)"
+    fi
+
+    # 5. DENY: apply_patch Update File section touching agent role path (partial diff)
     PATCH_AGENT_UPDATE='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
     invoke_py_guard "$PATCH_AGENT_UPDATE"
-    if [[ $PY_CODE -eq 0 ]]; then
-        ok "py: apply_patch Update File agent role -> allow (exit 0)"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: apply_patch Update File agent role -> deny (exit 2)"
     else
-        fail "py: apply_patch Update File agent role -> allow (expected 0, got $PY_CODE)"
+        fail "py: apply_patch Update File agent role -> deny (expected 2, got $PY_CODE)"
     fi
 
     # 6. DENY: shell payload redirect into agent role path without developer_instructions in command
@@ -536,13 +591,13 @@ if command -v python3 >/dev/null 2>&1; then
         fail "py: shell read agent role path -> allow (expected 0, got $PY_CODE)"
     fi
 
-    # 8. ALLOW: shell heredoc command containing developer_instructions
+    # 8. DENY: shell heredoc command containing developer_instructions still counts as a write
     SHELL_AGENT_WITH_DEV='{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
     invoke_py_guard "$SHELL_AGENT_WITH_DEV"
-    if [[ $PY_CODE -eq 0 ]]; then
-        ok "py: shell heredoc with developer_instructions -> allow (exit 0)"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: shell heredoc with developer_instructions -> deny (exit 2)"
     else
-        fail "py: shell heredoc with developer_instructions -> allow (expected 0, got $PY_CODE)"
+        fail "py: shell heredoc with developer_instructions -> deny (expected 2, got $PY_CODE)"
     fi
 else
     echo "python3 not found; skipping direct python3 guard tests."
@@ -609,12 +664,28 @@ if command -v node >/dev/null 2>&1; then
         fail "node: apply_patch Add File agent role with empty body -> deny (expected 2, got $NODE_CODE)"
     fi
 
-    # 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
-    invoke_node_guard '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
+    # 4b. ALLOW: apply_patch Add File with developer_instructions
+    invoke_node_guard '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n+name = \"regression-judge\"\n+developer_instructions = \"\"\"test\"\"\"\n*** End Patch"}}'
     if [[ $NODE_CODE -eq 0 ]]; then
-        ok "node: apply_patch Update File agent role -> allow (exit 0)"
+        ok "node: apply_patch Add File agent role with developer_instructions -> allow (exit 0)"
     else
-        fail "node: apply_patch Update File agent role -> allow (expected 0, got $NODE_CODE)"
+        fail "node: apply_patch Add File agent role with developer_instructions -> allow (expected 0, got $NODE_CODE)"
+    fi
+
+    # 4c. DENY: apply_patch Delete File targeting agent role path
+    invoke_node_guard '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Delete File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: apply_patch Delete File agent role -> deny (exit 2)"
+    else
+        fail "node: apply_patch Delete File agent role -> deny (expected 2, got $NODE_CODE)"
+    fi
+
+    # 5. DENY: apply_patch Update File section touching agent role path (partial diff)
+    invoke_node_guard '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: apply_patch Update File agent role -> deny (exit 2)"
+    else
+        fail "node: apply_patch Update File agent role -> deny (expected 2, got $NODE_CODE)"
     fi
 
     # 6. DENY: shell payload redirect into agent role path without developer_instructions in command
@@ -633,12 +704,12 @@ if command -v node >/dev/null 2>&1; then
         fail "node: shell read agent role path -> allow (expected 0, got $NODE_CODE)"
     fi
 
-    # 8. ALLOW: shell heredoc command containing developer_instructions
+    # 8. DENY: shell heredoc command containing developer_instructions still counts as a write
     invoke_node_guard '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
-    if [[ $NODE_CODE -eq 0 ]]; then
-        ok "node: shell heredoc with developer_instructions -> allow (exit 0)"
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: shell heredoc with developer_instructions -> deny (exit 2)"
     else
-        fail "node: shell heredoc with developer_instructions -> allow (expected 0, got $NODE_CODE)"
+        fail "node: shell heredoc with developer_instructions -> deny (expected 2, got $NODE_CODE)"
     fi
 else
     echo "node not found; skipping Node.js guard tests."
@@ -678,6 +749,58 @@ fi
 # ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
+RELATIVE_AGENT_WRITE='{"tool_name":"shell","tool_input":{"command":"cd ~/.codex/agents && cat > judge.toml <<EOF\nname=judge\nEOF"}}'
+invoke_guard_sh "$RELATIVE_AGENT_WRITE"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: relative write after cd into agent role directory -> deny (exit 2)"
+else
+    fail "sh: relative write after cd into agent role directory -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+if command -v python3 >/dev/null 2>&1; then
+    invoke_py_guard "$RELATIVE_AGENT_WRITE"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: relative write after cd into agent role directory -> deny (exit 2)"
+    else
+        fail "py: relative write after cd into agent role directory -> deny (expected 2, got $PY_CODE)"
+    fi
+fi
+
+if command -v node >/dev/null 2>&1; then
+    invoke_node_guard "$RELATIVE_AGENT_WRITE"
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: relative write after cd into agent role directory -> deny (exit 2)"
+    else
+        fail "node: relative write after cd into agent role directory -> deny (expected 2, got $NODE_CODE)"
+    fi
+fi
+
+COPY_AGENT_WRITE='{"tool_name":"shell","tool_input":{"command":"cp /tmp/source.toml ~/.codex/agents/evil.toml"}}'
+invoke_guard_sh "$COPY_AGENT_WRITE"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: cp into agent role directory -> deny (exit 2)"
+else
+    fail "sh: cp into agent role directory -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+if command -v python3 >/dev/null 2>&1; then
+    invoke_py_guard "$COPY_AGENT_WRITE"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: cp into agent role directory -> deny (exit 2)"
+    else
+        fail "py: cp into agent role directory -> deny (expected 2, got $PY_CODE)"
+    fi
+fi
+
+if command -v node >/dev/null 2>&1; then
+    invoke_node_guard "$COPY_AGENT_WRITE"
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: cp into agent role directory -> deny (exit 2)"
+    else
+        fail "node: cp into agent role directory -> deny (expected 2, got $NODE_CODE)"
+    fi
+fi
+
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed."
 [[ $FAIL -eq 0 ]]

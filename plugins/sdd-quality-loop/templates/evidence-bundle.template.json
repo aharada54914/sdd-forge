@@ -1,0 +1,11 @@
+{
+  "task_id": "T-000",
+  "feature": "<feature-slug>",
+  "quality_report": "reports/quality-gate/T-000.md",
+  "verification_contract": "specs/<feature-slug>/verification/T-000.contract.json",
+  "artifacts": [
+    { "path": "specs/<feature-slug>/verification/T-000.contract.json", "sha256": "" },
+    { "path": "reports/quality-gate/T-000.md", "sha256": "" },
+    { "path": "specs/<feature-slug>/verification/<passing-evidence>.log", "sha256": "" }
+  ]
+}

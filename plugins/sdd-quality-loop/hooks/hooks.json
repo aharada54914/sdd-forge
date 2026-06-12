@@ -13,7 +13,7 @@
         ]
       },
       {
-        "matcher": "Edit|Write|MultiEdit|apply_patch",
+        "matcher": "Edit|Write|MultiEdit|apply_patch|Bash|bash|shell|exec_command|exec",
         "hooks": [
           {
             "type": "command",

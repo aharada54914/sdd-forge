@@ -18,7 +18,7 @@ Checks:
 Payloads: Claude/Copilot Edit/Write, Codex apply_patch, Codex Bash/shell.
 Output: -Emit exit (default; allow=0, deny=stderr+exit 2) or
         -Emit copilot (always print {"permissionDecision":...} to stdout, exit 0).
-Malformed payloads are always allowed; the guard never throws.
+Malformed payloads are denied; the guard never throws.
 #>
 param(
     [string]$Emit = "exit"
@@ -56,6 +56,33 @@ function Test-AgentRolePath {
     if ([string]::IsNullOrEmpty($Path)) { return $false }
     # Case-insensitive match for .codex/agents/*.toml
     return ($Path -replace "\\", "/").ToLower() -match "\.codex/agents/[^/]+\.toml$"
+}
+
+function Test-ShellWritesAgentRole {
+    param([string]$Cmd)
+    if ([string]::IsNullOrEmpty($Cmd)) { return $false }
+    $normalizedCmd = $Cmd -replace "\\", "/"
+    if (-not ($normalizedCmd.ToLower() -match "\.codex/agents(?:/|\b)")) { return $false }
+    $readOnlyRe = "(?is)^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex/agents(?:/|\b)"
+    return -not [regex]::IsMatch($normalizedCmd, $readOnlyRe)
+}
+
+function Test-PayloadMalformed {
+    param($Payload)
+    $toolName = ""
+    if ($Payload.PSObject.Properties["tool_name"]) { $toolName = ([string]$Payload.tool_name).ToLower() }
+    $toolInput = $Payload.tool_input
+    if ($null -eq $toolInput) { return $true }
+    $targetedCommandTools = @("apply_patch", "bash", "shell", "exec_command", "exec")
+    $targetedFileTools = @("edit", "write", "multiedit")
+    if ($targetedCommandTools -contains $toolName) {
+        if (-not $toolInput.PSObject.Properties["command"] -or -not ($toolInput.command -is [string]) -or [string]::IsNullOrWhiteSpace([string]$toolInput.command)) { return $true }
+    }
+    if ($targetedFileTools -contains $toolName) {
+        if (-not $toolInput.PSObject.Properties["file_path"] -or -not ($toolInput.file_path -is [string]) -or [string]::IsNullOrWhiteSpace([string]$toolInput.file_path)) { return $true }
+        if (-not $toolInput.PSObject.Properties["edits"] -and -not $toolInput.PSObject.Properties["new_string"] -and -not $toolInput.PSObject.Properties["content"]) { return $true }
+    }
+    return $false
 }
 
 function Test-HasDeveloperInstructions {
@@ -136,29 +163,32 @@ function Test-PatchIncreases {
 function Test-PatchWritesInvalidAgentRole {
     param([string]$Patch)
     $currentIsAgentRole = $false
+    $currentOp = $null
     $bodyLines = @()
     foreach ($line in ($Patch -split "`n")) {
         $line = $line -replace "`r$", ""
         $m = [regex]::Match($line, "^\*\*\* (Update|Add|Delete) File: (.+)$")
         if ($m.Success) {
-            # Flush previous Add File section if it was for agent role.
-            # An empty body is also malformed: it lacks developer_instructions.
-            if ($currentIsAgentRole -and -not (Test-HasDeveloperInstructions ($bodyLines -join "`n"))) {
+            # Flush previous Add File section if it targeted an agent role.
+            if ($currentOp -eq "Add" -and $currentIsAgentRole -and -not (Test-HasDeveloperInstructions ($bodyLines -join "`n"))) {
                 return $true
             }
             $bodyLines = @()
-            $op = $m.Groups[1].Value
+            $currentOp = $m.Groups[1].Value
             $filePath = $m.Groups[2].Value.Trim()
-            $currentIsAgentRole = ($op -eq "Add") -and (Test-AgentRolePath $filePath)
+            $currentIsAgentRole = Test-AgentRolePath $filePath
+            if ($currentIsAgentRole -and ($currentOp -eq "Update" -or $currentOp -eq "Delete")) {
+                return $true
+            }
             continue
         }
         if ($line.StartsWith("*** End Patch") -or $line.StartsWith("*** Begin Patch")) { continue }
-        if ($currentIsAgentRole -and $line.StartsWith("+") -and -not $line.StartsWith("+++")) {
+        if ($currentOp -eq "Add" -and $currentIsAgentRole -and $line.StartsWith("+") -and -not $line.StartsWith("+++")) {
             $bodyLines += $line.Substring(1)
         }
     }
     # Flush final section.
-    if ($currentIsAgentRole -and -not (Test-HasDeveloperInstructions ($bodyLines -join "`n"))) {
+    if ($currentOp -eq "Add" -and $currentIsAgentRole -and -not (Test-HasDeveloperInstructions ($bodyLines -join "`n"))) {
         return $true
     }
     return $false
@@ -166,13 +196,7 @@ function Test-PatchWritesInvalidAgentRole {
 
 function Test-ShellWritesInvalidAgentRole {
     param([string]$Cmd)
-    if ([string]::IsNullOrEmpty($Cmd)) { return $false }
-    # If command contains developer_instructions, allow it.
-    if ($Cmd.Contains("developer_instructions")) { return $false }
-    # Check if command redirects into an agent role path.
-    $normalizedCmd = $Cmd -replace "\\", "/"
-    $redirectRe = "(>>?|tee(?:\s+-a)?)\s*[""']?[^""'\s]*\.codex/agents/[^""'\s]*\.toml"
-    return [regex]::IsMatch($normalizedCmd, $redirectRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    return Test-ShellWritesAgentRole $Cmd
 }
 
 function Test-AgentRoleInvalid {
@@ -258,24 +282,27 @@ if ($null -eq $raw) {
     try { $raw = [Console]::In.ReadToEnd() } catch { $raw = "" }
 }
 
-if ([string]::IsNullOrWhiteSpace($raw)) { Emit-Decision "allow" $null }
+if ([string]::IsNullOrWhiteSpace($raw)) { Emit-Decision "deny" "SDD deterministic gate: malformed hook payload." }
 
 try {
     $payload = $raw | ConvertFrom-Json
 } catch {
-    Emit-Decision "allow" $null
+    Emit-Decision "deny" "SDD deterministic gate: malformed hook payload."
 }
 
 try {
+    if ($null -eq $payload -or -not $payload.PSObject.Properties["tool_name"] -or -not ($payload.tool_name -is [string]) -or -not $payload.PSObject.Properties["tool_input"] -or $null -eq $payload.tool_input -or ($payload.tool_input -isnot [psobject] -and $payload.tool_input -isnot [System.Collections.IDictionary])) {
+        Emit-Decision "deny" "SDD deterministic gate: malformed hook payload."
+    }
+    if (Test-PayloadMalformed $payload) { Emit-Decision "deny" "SDD deterministic gate: malformed hook payload." }
     if ((Test-ApprovalIncreases $payload) -and -not (Test-SudoActive)) { Emit-Decision "deny" $ApprovalMsg }
 } catch {
-    Emit-Decision "allow" $null
+    Emit-Decision "deny" "SDD deterministic gate: approval guard failed closed."
 }
 
 # Check 3: agent-role guard.
 try {
     $toolInput = $payload.tool_input
-    if ($null -eq $toolInput) { $toolInput = @{} }
     $toolName = ""
     if ($payload.PSObject.Properties["tool_name"]) { $toolName = ([string]$payload.tool_name).ToLower() }
 
@@ -289,7 +316,7 @@ try {
         if (Test-ShellWritesInvalidAgentRole $command) { Emit-Decision "deny" $AgentRoleMsg }
     }
 } catch {
-    Emit-Decision "allow" $null
+    Emit-Decision "deny" "SDD deterministic gate: agent-role guard failed closed."
 }
 
 Emit-Decision "allow" $null

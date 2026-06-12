@@ -2,9 +2,7 @@
 # POSIX dispatcher for the unified SDD PreToolUse guard.
 # Reads the hook payload from stdin once, then prefers python3 (payload passed
 # via the PAYLOAD env var), falling back to PowerShell. If no runtime is
-# available it fails OPEN: in exit-mode it warns and allows (exit 0); in
-# copilot-mode it prints an allow decision (Copilot fail-safe-DENIES on missing
-# output, so we must always print something).
+# available it fails closed and denies.
 #
 # Runs three checks: kill switch, approval guard (bypassed by valid SDD_SUDO flag),
 # and agent-role guard. Kill switch and agent-role guard are never bypassed.
@@ -41,10 +39,10 @@ for ps in pwsh powershell.exe powershell; do
   fi
 done
 
-# No runtime available: fail open.
+# No runtime available: fail closed.
 if [ "$emit" = "copilot" ]; then
-  printf '%s' '{"permissionDecision":"allow"}'
+  printf '%s' '{"permissionDecision":"deny","permissionDecisionReason":"sdd-hook-guard: python3 and PowerShell unavailable; guard denied."}'
   exit 0
 fi
-echo "sdd-hook-guard: python3 and PowerShell unavailable; guard skipped. Do not set 'Approval: Approved' yourself and respect AGENT_STOP." >&2
-exit 0
+echo "sdd-hook-guard: python3 and PowerShell unavailable; guard denied." >&2
+exit 2

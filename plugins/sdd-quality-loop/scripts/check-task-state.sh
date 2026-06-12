@@ -1,18 +1,21 @@
 #!/bin/sh
 # Deterministic gate: validate the tasks.md state machine on disk.
-# Usage: check-task-state.sh <path-to-tasks.md> [reports-dir] [impl-reports-dir]
+# Usage: check-task-state.sh <path-to-tasks.md> [reports-dir] [impl-reports-dir] [repo-root]
 # Reports dirs default to reports/quality-gate and reports/implementation.
 # Rules enforced:
 #  - Approval is Draft or Approved; Status is a known lifecycle value.
 #  - In Progress / Implementation Complete / Done require Approval: Approved.
-#  - Done additionally requires a quality-gate report mentioning the task id,
-#    AND a verification/<task-id>.contract.json file in the tasks.md directory.
+#  - Done additionally requires a verification/<task-id>.evidence.json file
+#    in the tasks.md directory, and that bundle must validate the report,
+#    contract, and passing evidence artifacts.
 #  - Implementation Complete requires an implementation report mentioning the task id.
 #  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
 #  - Duplicate task ids (## T-NNN repeated) → fail.
 tasks="$1"
 reports="${2:-reports/quality-gate}"
 impl_reports="${3:-reports/implementation}"
+repo_root="${4:-.}"
+script_dir="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
 
 if [ -z "$tasks" ] || [ ! -f "$tasks" ]; then
   echo "check-task-state: tasks file not found: $tasks" >&2
@@ -22,7 +25,7 @@ fi
 _tmpout="$(mktemp)"
 trap 'rm -f "$_tmpout"' EXIT
 
-TASKS="$tasks" REPORTS="$reports" IMPL_REPORTS="$impl_reports" awk '
+TASKS="$tasks" REPORTS="$reports" IMPL_REPORTS="$impl_reports" SCRIPT_DIR="$script_dir" REPO_ROOT="$repo_root" awk '
 BEGIN {
   task = ""; failures = 0; count = 0
   in_blockers = 0; blockers_content = ""
@@ -62,23 +65,24 @@ function finish() {
   if ((status == "In Progress" || status == "Implementation Complete" || status == "Done") && approval != "Approved")
     fail(task " is \x27" status "\x27 without Approval: Approved")
   if (status == "Done") {
-    cmd = "grep -rl \x27" task "\x27 \"" ENVIRON["REPORTS"] "\" 2>/dev/null | head -1"
-    cmd | getline report; close(cmd)
-    if (report == "") fail(task " is Done but no quality-gate report in " ENVIRON["REPORTS"] " mentions it")
-    report = ""
-    # Check for verification contract file
     tasks_dir = ENVIRON["TASKS"]
     # NOTE: escape "/" instead of bracketing it ([/]) — BSD awk (macOS) rejects
     # an unescaped "/" inside a bracket expression as an unterminated regex.
     sub(/\/[^\/]*$/, "", tasks_dir)
     if (tasks_dir == ENVIRON["TASKS"]) tasks_dir = "."
-    contract_path = tasks_dir "/verification/" task ".contract.json"
-    cmd2 = "test -f \"" contract_path "\" && echo yes || echo no"
-    cmd2 | getline exists; close(cmd2)
-    if (exists != "yes") fail(task " is Done but verification/" task ".contract.json does not exist in " tasks_dir)
+    bundle_path = tasks_dir "/verification/" task ".evidence.json"
+    cmd = "test -f \"" bundle_path "\" && echo yes || echo no"
+    cmd | getline exists; close(cmd)
+    if (exists != "yes") fail(task " is Done but verification/" task ".evidence.json does not exist in " tasks_dir)
+    else {
+      cmd2 = "sh \"" ENVIRON["SCRIPT_DIR"] "/check-evidence-bundle.sh\" \"" bundle_path "\" \"" ENVIRON["REPO_ROOT"] "\""
+      status_code = system(cmd2)
+      if (status_code != 0) fail(task " evidence bundle failed validation: " bundle_path)
+    }
   }
   if (status == "Implementation Complete") {
-    cmd = "grep -rl \x27" task "\x27 \"" ENVIRON["IMPL_REPORTS"] "\" 2>/dev/null | head -1"
+    # C-07: word-boundary match to prevent T-001 matching T-0010
+    cmd = "grep -rlw \x27" task "\x27 \"" ENVIRON["IMPL_REPORTS"] "\" 2>/dev/null | head -1"
     cmd | getline impl_report; close(cmd)
     if (impl_report == "") fail(task " is Implementation Complete but no implementation report in " ENVIRON["IMPL_REPORTS"] " mentions it")
     impl_report = ""

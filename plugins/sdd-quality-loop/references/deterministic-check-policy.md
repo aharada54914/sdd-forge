@@ -23,19 +23,26 @@ whether hooks fire.
    non-required check with `passes: false` must have a non-empty
    `waiver_reason` — an empty string fails `check-contract`.
 4. Before any `Done` decision, run `scripts/check-contract.(sh|ps1)
-   <contract>`. The gate fails closed: missing evidence files fail it.
+   <contract>` and `scripts/check-evidence-bundle.(sh|ps1) <bundle>`. The
+   gates fail closed: missing evidence files or missing bundle artifacts fail
+   them.
 5. Duplicate check IDs within a single contract are rejected by
    `check-contract`.
 6. The baseline required-set (`lint`, `unit-tests`, `build`,
    `placeholder-scan`, `task-state-check`) may not be removed from the
    template.
+7. When a task is ready for `Done`, create
+   `specs/<feature>/verification/<task-id>.evidence.json`. The bundle must
+   name the `quality_report`, the `verification_contract`, and all passing
+   evidence artifacts referenced by the contract.
 
 ## Required Scripted Gates
 
 | Script | Purpose | When |
 | --- | --- | --- |
 | `check-placeholders` | Detect placeholder/stub/generic-fallback code in changed production files | Every quality-gate run |
-| `check-task-state` | Validate the tasks.md state machine; `Done` requires a quality-gate report naming the task | Every quality-gate run |
+| `check-task-state` | Validate the tasks.md state machine; `Done` requires an evidence bundle naming the task | Every quality-gate run |
+| `check-evidence-bundle` | Validate the Done evidence bundle, report, contract, and passing artifact hashes | Before the Done decision |
 | `check-contract` | Refuse Done while any required contract check fails or lacks evidence | Before the Done decision |
 
 Run the `.sh` variants from POSIX shells (including Git Bash on Windows) and
@@ -86,4 +93,8 @@ forbid self-approval. The deterministic scripts are the final defense.
   `reports/implementation/<task-id>.md` file.
 - A task in `Blocked` state must have a non-empty `Blockers` field.
 - A task in `Done` state must have a corresponding
-  `specs/<feature>/verification/<task-id>.contract.json` file.
+  `specs/<feature>/verification/<task-id>.evidence.json` file.
+- The evidence bundle must point at a `quality_report` containing `Task ID:
+  T-NNN` and `VERDICT: PASS`, a verification contract that passes
+  `check-contract`, and artifact entries for the contract plus every passing
+  evidence path from the contract.

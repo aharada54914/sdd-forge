@@ -26,15 +26,15 @@
  *   - Codex apply_patch: tool_input.command holds the raw patch envelope.
  *     For each *** Update File:/*** Add File: section targeting a tasks.md,
  *     count Approval: Approved on + lines vs - lines and deny if net positive.
- *   - Codex Bash/shell (tool_name bash/shell/exec_command/exec): a conservative
- *     heuristic - if the shell command string mentions tasks.md AND contains
- *     Approval: Approved, deny.
+ *   - Codex Bash/shell (tool_name bash/shell/exec_command/exec): deny shell
+ *     commands that write to a Codex agent role path; read-only commands are
+ *     allowed. Shell approval edits still follow the approval guard.
  *
  * Output modes:
  *   --emit exit     (default) allow = exit 0; deny = reason on stderr, exit 2.
  *   --emit copilot  always print {"permissionDecision": ...} to stdout, exit 0.
  *
- * Malformed/unknown payloads are ALWAYS allowed. The guard never crashes.
+ * Malformed/unknown payloads are denied. The guard never crashes.
  * Plain Node.js, no dependencies, works on Node 14+.
  */
 
@@ -47,6 +47,9 @@ const APPROVAL_RE = /Approval:\s*Approved/g;
 const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
 const SUDO_EPOCH_RE = /(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)/;
+const SHELL_AGENT_ROLE_READ_ONLY_RE = /^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex\/agents(?:\/|\b)/is;
+const TARGETED_COMMAND_TOOLS = new Set(['apply_patch', 'bash', 'shell', 'exec_command', 'exec']);
+const TARGETED_FILE_TOOLS = new Set(['edit', 'write', 'multiedit']);
 
 const APPROVAL_MSG =
   "SDD deterministic gate: agents must not set 'Approval: Approved' in " +
@@ -166,30 +169,33 @@ function patchIncreases(patch) {
 function patchWritesInvalidAgentRole(patch) {
   let currentIsAgentRole = false;
   let bodyLines = [];
+  let currentOp = null;
   for (const raw of patch.split('\n')) {
     const line = raw.replace(/\r$/, '');
     const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
     if (m) {
-      // Flush previous Add File section if it was for agent role.
-      // An empty body is also malformed: it lacks developer_instructions.
-      if (currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
+      // Flush previous Add File section if it targeted an agent role.
+      if (currentOp === 'Add' && currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
         return true;
       }
       bodyLines = [];
-      const op = m[1];
+      currentOp = m[1];
       const filePath = m[2].trim();
-      currentIsAgentRole = op === 'Add' && isAgentRolePath(filePath);
+      currentIsAgentRole = isAgentRolePath(filePath);
+      if (currentIsAgentRole && (currentOp === 'Update' || currentOp === 'Delete')) {
+        return true;
+      }
       continue;
     }
     if (line.startsWith('*** End Patch') || line.startsWith('*** Begin Patch')) {
       continue;
     }
-    if (currentIsAgentRole && line.startsWith('+') && !line.startsWith('+++')) {
+    if (currentOp === 'Add' && currentIsAgentRole && line.startsWith('+') && !line.startsWith('+++')) {
       bodyLines.push(line.slice(1));
     }
   }
   // Flush final section.
-  if (currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
+  if (currentOp === 'Add' && currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
     return true;
   }
   return false;
@@ -197,12 +203,22 @@ function patchWritesInvalidAgentRole(patch) {
 
 function shellWritesInvalidAgentRole(cmd) {
   if (typeof cmd !== 'string') return false;
-  // If command contains developer_instructions, allow it.
-  if (cmd.includes('developer_instructions')) return false;
-  // Check if command redirects into an agent role path.
   const normalizedCmd = cmd.replace(/\\/g, '/');
-  const redirectRe = /(>>?|tee(?:\s+-a)?)\s*["']?[^"'\s]*\.codex\/agents\/[^"'\s]*\.toml/i;
-  return redirectRe.test(normalizedCmd);
+  if (!/\.codex\/agents(?:\/|\b)/i.test(normalizedCmd)) return false;
+  return !SHELL_AGENT_ROLE_READ_ONLY_RE.test(normalizedCmd);
+}
+
+function payloadIsMalformed(payload) {
+  const toolName = String(payload.tool_name || '').toLowerCase();
+  const toolInput = payload.tool_input || {};
+  if (TARGETED_COMMAND_TOOLS.has(toolName) && (typeof toolInput.command !== 'string' || toolInput.command.trim() === '')) {
+    return true;
+  }
+  if (TARGETED_FILE_TOOLS.has(toolName)) {
+    if (typeof toolInput.file_path !== 'string' || toolInput.file_path.trim() === '') return true;
+    if (!('edits' in toolInput || 'new_string' in toolInput || 'content' in toolInput)) return true;
+  }
+  return false;
 }
 
 function approvalIncreases(payload) {
@@ -325,22 +341,30 @@ async function main() {
   try {
     payload = raw ? JSON.parse(raw) : {};
     if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
-      payload = {};
+      throw new Error('payload must be a JSON object');
     }
   } catch (e) {
-    emitDecision('allow', null, mode);
+    emitDecision('deny', 'SDD deterministic gate: malformed hook payload.', mode);
     return;
   }
 
   try {
+    if (typeof payload.tool_name !== 'string' || typeof payload.tool_input !== 'object' || payload.tool_input === null || Array.isArray(payload.tool_input)) {
+      emitDecision('deny', 'SDD deterministic gate: malformed hook payload.', mode);
+      return;
+    }
+    if (payloadIsMalformed(payload)) {
+      emitDecision('deny', 'SDD deterministic gate: malformed hook payload.', mode);
+      return;
+    }
     // Reset global regex state before use.
     APPROVAL_RE.lastIndex = 0;
     if (approvalIncreases(payload) && !sudoActive()) {
       emitDecision('deny', APPROVAL_MSG, mode);
     }
   } catch (e) {
-    // Never crash; fail open on the approval check.
-    emitDecision('allow', null, mode);
+    // Never crash; fail closed on the approval check.
+    emitDecision('deny', 'SDD deterministic gate: approval guard failed closed.', mode);
     return;
   }
 
@@ -359,8 +383,8 @@ async function main() {
       }
     }
   } catch (e) {
-    // Never crash; fail open on the agent-role check.
-    emitDecision('allow', null, mode);
+    // Never crash; fail closed on the agent-role check.
+    emitDecision('deny', 'SDD deterministic gate: agent-role guard failed closed.', mode);
     return;
   }
 

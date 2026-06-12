@@ -12,4 +12,4 @@ architecture changes lack an ADR.
 
 Small mapping gaps may be corrected directly. Ambiguous or major gaps require a
 review ticket. Do not mark `Done` unless implementation, tests, verification,
-critical review, and traceability are complete.
+critical review, traceability, and the Done evidence bundle are complete.

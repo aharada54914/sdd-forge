@@ -22,16 +22,15 @@ Payload formats handled:
     For each ``*** Update File:``/``*** Add File:`` section targeting a
     tasks.md, count ``Approval: Approved`` on ``+`` lines vs ``-`` lines and
     deny if the net is positive.
-  - Codex Bash/shell (tool_name Bash/shell/exec_command/exec): a conservative
-    heuristic - if the shell command string mentions ``tasks.md`` AND contains
-    ``Approval: Approved`` (e.g. ``sed``/``echo >>``), deny. This intentionally
-    over-blocks shell tricks that would smuggle an approval in.
+  - Codex Bash/shell (tool_name Bash/shell/exec_command/exec): deny shell
+    commands that write to a Codex agent role path; read-only commands are
+    allowed. Shell approval edits still follow the approval guard.
 
 Output modes:
   --emit exit     (default) allow = exit 0; deny = reason on stderr, exit 2.
   --emit copilot  always print {"permissionDecision": ...} to stdout, exit 0.
 
-Malformed/unknown payloads are ALWAYS allowed. The guard never crashes.
+Malformed/unknown payloads are denied. The guard never crashes.
 """
 import json
 import os
@@ -41,8 +40,14 @@ import time
 
 APPROVAL_RE = re.compile(r"Approval:\s*Approved")
 AGENT_ROLE_PATH_RE = re.compile(r"\.codex/agents/[^/]+\.toml$")
+TASK_SECTION_RE = re.compile(r"^##\s+(T-\S+)", re.MULTILINE)
 DEVELOPER_INSTRUCTIONS_RE = re.compile(r"(^|\n)[ \t]*developer_instructions[ \t]*=")
 SUDO_EPOCH_RE = re.compile(r"(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)")
+SHELL_AGENT_ROLE_READ_ONLY_RE = re.compile(
+    r"(?is)^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex/agents(?:/|\b)"
+)
+TARGETED_COMMAND_TOOLS = {"apply_patch", "bash", "shell", "exec_command", "exec"}
+TARGETED_FILE_TOOLS = {"edit", "write", "multiedit"}
 
 APPROVAL_MSG = (
     "SDD deterministic gate: agents must not set 'Approval: Approved' in "
@@ -141,7 +146,7 @@ def approval_increases(payload):
     if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
         return _patch_increases(tool_input.get("command") or "")
 
-    # --- Codex Bash/shell: conservative heuristic ---
+    # --- Codex Bash/shell: approval writes still denied ---
     if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
         tool_input.get("command"), str
     ):
@@ -204,35 +209,37 @@ def _patch_increases(patch):
 
 
 def agent_role_invalid(payload):
-    """Return True if this would write an invalid agent role file."""
+    """Return True if this would write an invalid or protected agent role file."""
     tool_input = payload.get("tool_input") or {}
     tool_name = (payload.get("tool_name") or "").lower()
 
-    # --- Codex apply_patch: check Add File sections for agent role paths ---
+    # --- Codex apply_patch: deny Update/Delete, validate Add File bodies ---
     if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
         patch = tool_input.get("command") or ""
         current_is_agent_role = False
+        current_op = None
         body_lines = []
         for raw in patch.splitlines():
             m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
             if m:
-                # Flush previous section if it was Add File for agent role.
-                # An empty body is also malformed: no developer_instructions.
-                if current_is_agent_role and not has_developer_instructions(
+                # Flush previous Add File section if it targeted an agent role.
+                if current_op == "Add" and current_is_agent_role and not has_developer_instructions(
                     "\n".join(body_lines)
                 ):
                     return True
                 body_lines = []
-                op = m.group(1)
+                current_op = m.group(1)
                 path = m.group(2).strip()
-                current_is_agent_role = op == "Add" and is_agent_role_path(path)
+                current_is_agent_role = is_agent_role_path(path)
+                if current_is_agent_role and current_op in ("Update", "Delete"):
+                    return True
                 continue
             if raw.startswith("*** End Patch") or raw.startswith("*** Begin Patch"):
                 continue
-            if current_is_agent_role and raw.startswith("+") and not raw.startswith("+++"):
+            if current_op == "Add" and current_is_agent_role and raw.startswith("+") and not raw.startswith("+++"):
                 body_lines.append(raw[1:])
         # Flush final section.
-        if current_is_agent_role and not has_developer_instructions(
+        if current_op == "Add" and current_is_agent_role and not has_developer_instructions(
             "\n".join(body_lines)
         ):
             return True
@@ -247,21 +254,29 @@ def agent_role_invalid(payload):
     return False
 
 
-def _shell_writes_invalid_agent_role(cmd):
-    """Conservative heuristic: deny if shell writes invalid agent role file."""
+def _shell_writes_agent_role(cmd):
+    """Deny agent-role shell access unless it is an unambiguously read-only command."""
     if not isinstance(cmd, str):
         return False
-    # Check if command contains developer_instructions.
-    if "developer_instructions" in cmd:
-        return False
-    # Check if command redirects into an agent role path.
     normalized_cmd = cmd.replace("\\", "/")
-    # Match: >> or > or tee followed by path matching .codex/agents/*.toml
-    redirect_re = re.compile(
-        r'(>>?|tee(?:\s+-a)?)\s*["\']?[^"\'\s]*\.codex/agents/[^"\'\ \s]*\.toml',
-        re.IGNORECASE
-    )
-    return bool(redirect_re.search(normalized_cmd))
+    if not re.search(r"(?i)\.codex/agents(?:/|\b)", normalized_cmd):
+        return False
+    return not bool(SHELL_AGENT_ROLE_READ_ONLY_RE.search(normalized_cmd))
+
+
+def payload_is_malformed(payload):
+    tool_name = (payload.get("tool_name") or "").lower()
+    tool_input = payload.get("tool_input") or {}
+    if tool_name in TARGETED_COMMAND_TOOLS and (
+        not isinstance(tool_input.get("command"), str) or not tool_input.get("command").strip()
+    ):
+        return True
+    if tool_name in TARGETED_FILE_TOOLS:
+        if not isinstance(tool_input.get("file_path"), str) or not tool_input.get("file_path").strip():
+            return True
+        if not any(key in tool_input for key in ("edits", "new_string", "content")):
+            return True
+    return False
 
 
 def parse_args(argv):
@@ -300,17 +315,25 @@ def main():
     try:
         payload = json.loads(raw) if raw else {}
         if not isinstance(payload, dict):
-            payload = {}
+            raise ValueError("payload must be a JSON object")
     except Exception:
-        emit("allow", None, mode)
+        emit("deny", "SDD deterministic gate: malformed hook payload.", mode)
         return
 
     try:
+        tool_input = payload.get("tool_input")
+        tool_name = payload.get("tool_name")
+        if not isinstance(tool_name, str) or not isinstance(tool_input, dict):
+            emit("deny", "SDD deterministic gate: malformed hook payload.", mode)
+            return
+        if payload_is_malformed(payload):
+            emit("deny", "SDD deterministic gate: malformed hook payload.", mode)
+            return
         if approval_increases(payload) and not sudo_active():
             emit("deny", APPROVAL_MSG, mode)
     except Exception:
-        # Never crash; fail open on the approval check.
-        emit("allow", None, mode)
+        # Never crash; fail closed on the approval check.
+        emit("deny", "SDD deterministic gate: approval guard failed closed.", mode)
         return
 
     # Check 3: agent-role guard.
@@ -324,11 +347,11 @@ def main():
         if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
             tool_input.get("command"), str
         ):
-            if _shell_writes_invalid_agent_role(tool_input["command"]):
+            if _shell_writes_agent_role(tool_input["command"]):
                 emit("deny", AGENT_ROLE_MSG, mode)
     except Exception:
-        # Never crash; fail open on the agent-role check.
-        emit("allow", None, mode)
+        # Never crash; fail closed on the agent-role check.
+        emit("deny", "SDD deterministic gate: agent-role guard failed closed.", mode)
         return
 
     emit("allow", None, mode)

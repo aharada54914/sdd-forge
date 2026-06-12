@@ -13,19 +13,47 @@ function New-FakeCommands {
     )
 
     New-Item -ItemType Directory -Path $BinRoot -Force | Out-Null
-    foreach ($command in @("codex", "claude", "copilot")) {
+    foreach ($command in @("codex", "claude", "copilot", "gh")) {
         if ($isWindowsPlatform) {
             $commandPath = Join-Path $BinRoot "$command.cmd"
-            $failureLine = if ($FailPattern) { "@echo %*| findstr /c:`"$FailPattern`" >nul && exit /b 9`r`n" } else { "" }
-            "@echo $command %*>>`"$LogPath`"`r`n$failureLine@exit /b 0`r`n" | Set-Content -Path $commandPath -Encoding Ascii
+            $failureLine = if ($FailPattern -and $command -ne "gh") { "@echo %*| findstr /c:`"$FailPattern`" >nul && exit /b 9`r`n" } else { "" }
+            if ($command -eq "gh") {
+                "@echo gh %*>>`"$LogPath`"`r`n@if /i `"%~1`"==auth if /i `"%~2`"==token echo fake-gh-token`r`n@exit /b 0`r`n" | Set-Content -Path $commandPath -Encoding Ascii
+            }
+            else {
+                "@echo $command %*>>`"$LogPath`"`r`n$failureLine@exit /b 0`r`n" | Set-Content -Path $commandPath -Encoding Ascii
+            }
         }
         else {
             $commandPath = Join-Path $BinRoot $command
-            $failureLine = if ($FailPattern) { "echo `"`$*`" | grep -F `"$FailPattern`" >/dev/null && exit 9`n" } else { "" }
-            "#!/bin/sh`necho `"$command `$*`" >> `"$LogPath`"`n$failureLine" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+            $failureLine = if ($FailPattern -and $command -ne "gh") { "echo `"`$*`" | grep -F `"$FailPattern`" >/dev/null && exit 9`n" } else { "" }
+            if ($command -eq "gh") {
+                "#!/bin/sh`necho `"$command `$*`" >> `"$LogPath`"`nif [ `"`$1`" = auth ] && [ `"`$2`" = token ]; then`n    printf '%s\n' fake-gh-token`n    exit 0`nfi`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+            }
+            else {
+                "#!/bin/sh`necho `"$command `$*`" >> `"$LogPath`"`n$failureLine" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+            }
             & chmod +x $commandPath
         }
     }
+}
+
+function New-ArchiveFixture {
+    param(
+        [Parameter(Mandatory)][string]$SourceRoot
+    )
+
+    $archiveRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-archive-" + [guid]::NewGuid())
+    $archiveSource = Join-Path $archiveRoot "repo"
+    $archivePath = Join-Path $archiveRoot "source.tar.gz"
+    New-Item -ItemType Directory -Path $archiveSource -Force | Out-Null
+    foreach ($entry in (Get-ChildItem -Path $SourceRoot -Force)) {
+        if ($entry.Name -ne ".git") {
+            Copy-Item -Path $entry.FullName -Destination (Join-Path $archiveSource $entry.Name) -Recurse -Force
+        }
+    }
+    & tar -czf $archivePath -C $archiveRoot "repo"
+    return $archivePath
 }
 
 function Invoke-InstallerScenario {
@@ -116,6 +144,85 @@ function Invoke-InstallerScenario {
     }
 }
 
+function Invoke-RemoteInstallerScenario {
+    $testRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-remote-" + [guid]::NewGuid())
+    $installRoot = Join-Path $testRoot "installed"
+    $fakeBin = Join-Path $testRoot "bin"
+    $commandLog = Join-Path $testRoot "commands.log"
+    $originalPath = $env:PATH
+    $originalCodexHome = $env:SDD_CODEX_HOME
+    $archivePath = New-ArchiveFixture -SourceRoot $repositoryRoot
+
+    function global:Invoke-WebRequest {
+        param(
+            [Parameter(Mandatory)][string]$Uri,
+            [hashtable]$Headers,
+            [Parameter(Mandatory)][string]$OutFile
+        )
+
+        Add-Content -Path $commandLog -Value "Invoke-WebRequest $Uri"
+        if ($Headers.Authorization -ne "Bearer fake-gh-token") {
+            throw "missing GitHub auth header"
+        }
+        if ($Uri -notmatch '^https://api\.github\.com/repos/aharada54914/sdd-forge/tarball/main$') {
+            throw "unexpected remote download URL: $Uri"
+        }
+        if ($Uri -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
+            throw "remote download still references raw/codeload hosts: $Uri"
+        }
+        Copy-Item -Path $archivePath -Destination $OutFile -Force
+    }
+
+    try {
+        New-FakeCommands -BinRoot $fakeBin -LogPath $commandLog
+        $env:PATH = "$fakeBin$([System.IO.Path]::PathSeparator)$originalPath"
+        $env:SDD_CODEX_HOME = Join-Path $testRoot "codex-home"
+
+        $failed = $false
+        try {
+            & (Join-Path $repositoryRoot "install.ps1") -InstallRoot $installRoot -Target All -Plugins $allPlugins
+        }
+        catch {
+            $failed = $true
+            throw
+        }
+
+        foreach ($plugin in $allPlugins) {
+            if (-not (Test-Path (Join-Path $installRoot "plugins/$plugin/.codex-plugin/plugin.json"))) {
+                throw "Authenticated remote install did not copy plugin: $plugin"
+            }
+        }
+
+        $log = Get-Content -Raw $commandLog
+        if ($log -notmatch 'gh auth token') {
+            throw "Authenticated remote install did not request a GitHub token"
+        }
+        if ($log -notmatch 'Invoke-WebRequest https://api\.github\.com/repos/aharada54914/sdd-forge/tarball/main') {
+            throw "Authenticated remote install did not use the GitHub API archive URL"
+        }
+        if ($log -match 'raw\.githubusercontent\.com|codeload\.github\.com') {
+            throw "Authenticated remote install still referenced raw/codeload hosts"
+        }
+        Write-Host "ok: authenticated remote install uses GitHub CLI token flow"
+    }
+    finally {
+        Remove-Item Function:Invoke-WebRequest -ErrorAction SilentlyContinue
+        $env:PATH = $originalPath
+        if ($null -eq $originalCodexHome) {
+            Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue
+        }
+        else {
+            $env:SDD_CODEX_HOME = $originalCodexHome
+        }
+        if (Test-Path $testRoot) {
+            Remove-Item -Path $testRoot -Recurse -Force
+        }
+        if (Test-Path (Split-Path -Parent $archivePath)) {
+            Remove-Item -Path (Split-Path -Parent $archivePath) -Recurse -Force
+        }
+    }
+}
+
 Invoke-InstallerScenario -Plugins $allPlugins
 Invoke-InstallerScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins"
@@ -201,6 +308,9 @@ try {
         if (-not (Test-Path (Join-Path $idempotencyInstall "plugins/$plugin/.codex-plugin/plugin.json"))) {
             throw "Idempotency: plugin not present after second install: $plugin"
         }
+    }
+    if (Test-Path (Join-Path $idempotencyInstall ".git")) {
+        throw "Idempotency: .git repository history was installed"
     }
     Write-Host "ok: idempotency: second install exits 0, state consistent"
 }
@@ -347,11 +457,13 @@ try {
     if (-not (Test-Path (Join-Path $badDeployInstall "existing.marker"))) {
         throw "existing.marker was removed before deployment"
     }
-    Write-Host "ok: malformed source agent TOML rejected before deployment"
+Write-Host "ok: malformed source agent TOML rejected before deployment"
 }
 finally {
     if (Test-Path $badDeployRoot) { Remove-Item -Path $badDeployRoot -Recurse -Force }
 }
+
+Invoke-RemoteInstallerScenario
 
 Write-Host "Installer integration tests passed."
 

@@ -34,6 +34,10 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
 5. Verify tests using `test-policy.md`.
 6. Run the scripted gates: `check-placeholders` on changed production files
    and `check-task-state` on tasks.md (use `scripts/*.sh` or `scripts/*.ps1`).
+   For `Done` tasks, validate
+   `specs/<feature>/verification/<task-id>.evidence.json` with
+   `check-evidence-bundle.(sh|ps1)` so the report, contract, and passing
+   evidence artifacts are all bound together.
 7. For `refactor` and `bugfix` tasks with a `baseline-behavior.md`, apply
    `differential-test-policy.md` and classify every BL diff.
 8. Run critical review with an isolated evaluator using `evaluation-rubric.md`.
@@ -65,6 +69,8 @@ Set the task to `Done` only when:
 
 - `check-contract` passes: every required contract check is true with
   existing evidence files
+- `check-evidence-bundle` passes: the bundle names the report, contract, and
+  contract-passing artifacts, with matching hashes and task id
 - acceptance criteria have tests
 - no unresolved Critical or Major finding remains
 - required UI verification succeeds

@@ -1,8 +1,9 @@
 # SDD Forge
 
-旧リポジトリ名 `sdd-plugins-windows-installer` から改名。旧URLはGitHubにより自動リダイレクトされます。
+旧リポジトリ名 `sdd-plugins-windows-installer` から改名。現在の正式なリポジトリ名は `sdd-forge` です。
+本リポジトリは private です。リモート取得を使う場合は `gh auth login` で GitHub CLI を認証してください。
 
-v0.7.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
+v0.8.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
 
 ```text
 [brownfield] sdd-adopt           既存プロジェクトへ SDD 構造を途中導入する
@@ -51,50 +52,65 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 
 ## クイックスタート
 
-### Windowsワンライナー
+### 事前準備
+
+GitHub CLI を認証します。private repo へのアクセス権が必要です。
+
+```bash
+gh auth login
+```
+
+### Windows
 
 ```powershell
-irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1 | iex
+$installer = Join-Path $env:TEMP "sdd-forge-install.ps1"
+gh api repos/aharada54914/sdd-forge/contents/install.ps1 -H "Accept: application/vnd.github.raw+json" |
+  Set-Content -Encoding Utf8 $installer
+& $installer
 ```
 
 既定では3プラグインすべてを登録します。利用可能なCodex CLI / Claude Code CLIだけが設定されます。
 
-### macOS / Linux ワンライナー
+### macOS / Linux
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | bash
+installer="$(mktemp)"
+gh api repos/aharada54914/sdd-forge/contents/install.sh \
+  -H "Accept: application/vnd.github.raw+json" > "$installer"
+bash "$installer"
+rm -f "$installer"
 ```
 
 既定では3プラグインすべてを登録します。利用可能なCodex CLI / Claude Code CLIだけが設定されます。
 
 ### パラメーター指定の例
 
-`irm … | iex` 形式はすべてデフォルト設定でインストールされます。`-Target`、`-Plugins` などのパラメーターを指定するには、**スクリプトブロック形式**を使用してください。
-
 **PowerShell (Windows / macOS / Linux):**
 
 ```powershell
+# 上記手順で $installer を取得後:
 # Codex CLIのみ
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1))) -Target Codex
+& $installer -Target Codex
 
 # 特定プラグインのみ
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1))) -Plugins sdd-bootstrap,sdd-implementation
+& $installer -Plugins sdd-bootstrap,sdd-implementation
 
 # ファイル配置のみ (CLIへの登録はしない)
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1))) -Target FilesOnly
+& $installer -Target FilesOnly
 ```
 
 **bash (macOS / Linux):**
 
 ```bash
+# 上記手順で $installer を取得後:
 # Codex CLIのみ
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | bash -s -- --target Codex
+bash "$installer" --target Codex
 
 # 特定プラグインのみ
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | bash -s -- --plugins sdd-bootstrap,sdd-implementation
+bash "$installer" --plugins sdd-bootstrap,sdd-implementation
 
 # ファイル配置のみ
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | bash -s -- --target FilesOnly
+bash "$installer" --target FilesOnly
 ```
 
 ### スクリプト内容の確認
@@ -102,15 +118,15 @@ curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install
 実行前にスクリプトの内容を確認できます：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | less
+less "$installer"
 # 内容を確認してから手動実行
-bash install.sh
+bash "$installer"
 ```
 
 セキュリティ重視の場合、以下で PowerShell スクリプトの内容を確認できます：
 
 ```powershell
-irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1
+Get-Content $installer
 ```
 
 ## 前提条件
@@ -126,6 +142,7 @@ irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1
 **共通:**
 - Codex CLI、Claude Code CLI、またはCopilot CLI は任意です。PATHにあるものだけが自動登録されます。
 - Claude Codeのフック強制層は公式推奨のNode.js exec formを使用するため、**Node.js**が必要です (Git Bash は不要)。
+- リモート install を使う場合は **GitHub CLI (`gh`)** の認証済みセッションが必要です。installer は `gh auth token` を使って private repo の archive を GitHub API から取得します。
 
 ## インストール先
 
