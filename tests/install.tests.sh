@@ -152,7 +152,16 @@ invoke_installer_scenario() {
             fail "expected command not found: claude plugin install ${p}@sdd-plugins"
             all_ok=0
         fi
+        if ! echo "$log" | grep -qF "copilot plugin install ${p}@sdd-plugins"; then
+            fail "expected command not found: copilot plugin install ${p}@sdd-plugins"
+            all_ok=0
+        fi
     done
+    # Copilot marketplace command
+    if ! echo "$log" | grep -qF "copilot plugin marketplace add"; then
+        fail "expected command not found: copilot plugin marketplace add"
+        all_ok=0
+    fi
 
     # Did NOT register unselected plugins
     for p in $ALL_PLUGINS; do
@@ -241,6 +250,67 @@ if [[ $_f_failed -eq 1 ]]; then
 else
     fail "invalid plugin name was accepted"
 fi
+
+# ---------------------------------------------------------------------------
+# Scenario (g): idempotency — second successful install into same root exits 0
+# and state is consistent
+# ---------------------------------------------------------------------------
+_g_root="$(mktemp -d)"
+_g_install="${_g_root}/installed"
+_g_bin="${_g_root}/bin"
+_g_log="${_g_root}/commands.log"
+_g_orig_path="$PATH"
+make_fake_commands "$_g_bin" "$_g_log"
+export PATH="${_g_bin}:${_g_orig_path}"
+# First run
+_g_failed=0
+bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_g_install" --target All 2>/dev/null || _g_failed=1
+# Second run (idempotent)
+bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_g_install" --target All 2>/dev/null || _g_failed=1
+export PATH="$_g_orig_path"
+_g_ok=1
+if [[ $_g_failed -ne 0 ]]; then
+    fail "idempotency: second install failed"
+    _g_ok=0
+fi
+for p in $ALL_PLUGINS; do
+    if [[ ! -f "${_g_install}/plugins/${p}/.codex-plugin/plugin.json" ]]; then
+        fail "idempotency: plugin not present after second install: $p"
+        _g_ok=0
+    fi
+done
+rm -rf "$_g_root"
+[[ $_g_ok -eq 1 ]] && ok "idempotency: second install exits 0, state consistent"
+
+# ---------------------------------------------------------------------------
+# Scenario (h): no-nesting assertion after install
+# ---------------------------------------------------------------------------
+_h_root="$(mktemp -d)"
+_h_install="${_h_root}/installed"
+_h_bin="${_h_root}/bin"
+_h_log="${_h_root}/commands.log"
+_h_orig_path="$PATH"
+make_fake_commands "$_h_bin" "$_h_log"
+export PATH="${_h_bin}:${_h_orig_path}"
+bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_h_install" --target All 2>/dev/null
+export PATH="$_h_orig_path"
+_h_ok=1
+# Must NOT have nested dirs
+for nested in ".agents/.agents" ".codex/.codex" ".claude-plugin/.claude-plugin"; do
+    if [[ -d "${_h_install}/${nested}" ]]; then
+        fail "no-nesting: found unexpected nested directory: ${nested}"
+        _h_ok=0
+    fi
+done
+# Must have both TOML files
+for toml in ".codex/agents/sdd-investigator.toml" ".codex/agents/sdd-evaluator.toml"; do
+    if [[ ! -f "${_h_install}/${toml}" ]]; then
+        fail "no-nesting: expected file missing after install: ${toml}"
+        _h_ok=0
+    fi
+done
+rm -rf "$_h_root"
+[[ $_h_ok -eq 1 ]] && ok "no-nesting: layout correct after install"
 
 # ---------------------------------------------------------------------------
 # Summary

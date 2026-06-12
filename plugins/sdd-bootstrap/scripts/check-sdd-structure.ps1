@@ -26,7 +26,7 @@ param(
 )
 $ErrorActionPreference = "Stop"
 
-if (-not (Test-Path $Root -PathType Container)) {
+if (-not (Test-Path -LiteralPath $Root -PathType Container)) {
     Write-Error "check-sdd-structure: project root not found: $Root"
     exit 1
 }
@@ -36,7 +36,7 @@ $missing = 0
 function Check-Required {
     param([string]$RelPath, [string]$Kind)
     $full = Join-Path $Root $RelPath
-    $exists = if ($Kind -eq "f") { Test-Path $full -PathType Leaf } else { Test-Path $full -PathType Container }
+    $exists = if ($Kind -eq "f") { Test-Path -LiteralPath $full -PathType Leaf } else { Test-Path -LiteralPath $full -PathType Container }
     if (-not $exists) {
         Write-Host "missing: $RelPath"
         $script:missing++
@@ -46,7 +46,7 @@ function Check-Required {
 function Check-Advisory {
     param([string]$RelPath, [string]$Kind)
     $full = Join-Path $Root $RelPath
-    $exists = if ($Kind -eq "f") { Test-Path $full -PathType Leaf } else { Test-Path $full -PathType Container }
+    $exists = if ($Kind -eq "f") { Test-Path -LiteralPath $full -PathType Leaf } else { Test-Path -LiteralPath $full -PathType Container }
     if (-not $exists) {
         Write-Host "advisory: $RelPath"
     }
@@ -67,15 +67,16 @@ Check-Advisory "docs/architecture"   "d"
 
 # --- drift check: specs/*/adr directories ---
 $specsPath = Join-Path $Root "specs"
-if (Test-Path $specsPath -PathType Container) {
+# Hoist Resolve-Path outside the foreach loop to avoid repeated syscalls.
+$absRoot = (Resolve-Path -LiteralPath $Root).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+if (Test-Path -LiteralPath $specsPath -PathType Container) {
     $adrDirs = Get-ChildItem -Path $specsPath -Directory -ErrorAction SilentlyContinue |
         ForEach-Object {
             $candidate = Join-Path $_.FullName "adr"
-            if (Test-Path $candidate -PathType Container) { $candidate }
+            if (Test-Path -LiteralPath $candidate -PathType Container) { $candidate }
         }
     foreach ($adrDir in $adrDirs) {
         # Produce relative path from Root
-        $absRoot = (Resolve-Path $Root).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
         $rel = $adrDir.Substring($absRoot.Length).TrimStart([System.IO.Path]::DirectorySeparatorChar, '/')
         # Normalise to forward slashes for cross-platform consistency
         $rel = $rel -replace '\\', '/'
@@ -87,12 +88,12 @@ if (Test-Path $specsPath -PathType Container) {
 $detectedHost = $false
 $gitlabCi = Join-Path $Root ".gitlab-ci.yml"
 $gitlabDir = Join-Path $Root ".gitlab"
-if ((Test-Path $gitlabCi -PathType Leaf) -or (Test-Path $gitlabDir -PathType Container)) {
+if ((Test-Path -LiteralPath $gitlabCi -PathType Leaf) -or (Test-Path -LiteralPath $gitlabDir -PathType Container)) {
     Write-Host "host: gitlab"
     $detectedHost = $true
 }
 $githubDir = Join-Path $Root ".github"
-if (Test-Path $githubDir -PathType Container) {
+if (Test-Path -LiteralPath $githubDir -PathType Container) {
     Write-Host "host: github"
     $detectedHost = $true
 }

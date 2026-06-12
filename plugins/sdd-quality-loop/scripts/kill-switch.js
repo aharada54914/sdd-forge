@@ -13,21 +13,22 @@
 const fs = require('fs');
 const path = require('path');
 
+const KILL_MSG =
+  "SDD kill switch: AGENT_STOP exists at the project root. All tool use is " +
+  "suspended until a human deletes the file.\n";
+
+// Check both CLAUDE_PROJECT_DIR (if set) and cwd, matching sdd-hook-guard.js semantics.
 const root = process.env.CLAUDE_PROJECT_DIR || '.';
-const candidate = path.join(root, 'AGENT_STOP');
-
-let isFile = false;
-try {
-  isFile = fs.statSync(candidate).isFile();
-} catch (e) {
-  // not found or inaccessible
-}
-
-if (isFile) {
-  process.stderr.write(
-    "SDD kill switch: AGENT_STOP exists at the project root. All tool use is " +
-    "suspended until a human deletes the file.\n"
-  );
-  process.exit(2);
+for (const base of [root, '.']) {
+  let isFile = false;
+  try {
+    isFile = fs.statSync(path.join(base, 'AGENT_STOP')).isFile();
+  } catch (e) {
+    // not found or inaccessible
+  }
+  if (isFile) {
+    process.stderr.write(KILL_MSG);
+    process.exit(2);
+  }
 }
 process.exit(0);

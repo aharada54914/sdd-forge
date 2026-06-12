@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt")
-$expectedVersion = "0.6.0"
+$expectedVersion = "0.6.1"
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -64,7 +64,10 @@ foreach ($name in $expectedSkills) {
 $forbiddenPaths = @(
     "plugins/sdd-quality-loop/skills/update-traceability/SKILL.md",
     "plugins/sdd-quality-loop/templates/traceability.template.md",
-    "plugins/sdd-quality-loop/templates/ci-report.template.md"
+    "plugins/sdd-quality-loop/templates/ci-report.template.md",
+    # Superseded by sdd-hook-guard; must NOT reappear.
+    "plugins/sdd-quality-loop/scripts/guard-task-approval.sh",
+    "plugins/sdd-quality-loop/scripts/guard-task-approval.ps1"
 )
 foreach ($relativePath in $forbiddenPaths) {
     if (Test-Path (Join-Path $repositoryRoot $relativePath)) {
@@ -166,9 +169,7 @@ foreach ($script in @("check-contract", "check-placeholders", "check-task-state"
         }
     }
 }
-foreach ($scriptPath in @("plugins/sdd-quality-loop/scripts/guard-task-approval.sh",
-                          "plugins/sdd-quality-loop/scripts/guard-task-approval.ps1",
-                          "plugins/sdd-quality-loop/scripts/kill-switch.sh")) {
+foreach ($scriptPath in @("plugins/sdd-quality-loop/scripts/kill-switch.sh")) {
     if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
         throw "Missing hook script: $scriptPath"
     }
@@ -233,6 +234,19 @@ if ($claudePluginManifest.hooks -ne "./hooks/claude-hooks.json") {
     throw ".claude-plugin/plugin.json for sdd-quality-loop must have hooks = './hooks/claude-hooks.json' (found '$($claudePluginManifest.hooks)')."
 }
 
+# .codex-plugin/plugin.json for sdd-quality-loop must have a hooks field pointing at hooks/hooks.json.
+$codexPluginManifest = Read-JsonFile "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
+if ($codexPluginManifest.hooks -ne "./hooks/hooks.json") {
+    throw ".codex-plugin/plugin.json for sdd-quality-loop must have hooks = './hooks/hooks.json' (found '$($codexPluginManifest.hooks)')."
+}
+
+# claude-hooks.json approval-guard matcher must contain 'apply_patch'.
+$approvalGuardMatchers = $claudeHooks.hooks.PreToolUse | Select-Object -ExpandProperty matcher
+$hasApplyPatchClaude = $approvalGuardMatchers | Where-Object { $_ -match "apply_patch" }
+if (-not $hasApplyPatchClaude) {
+    throw "claude-hooks.json does not have any PreToolUse matcher containing 'apply_patch'."
+}
+
 # The verification contract template must stay Default-FAIL.
 $contractTemplate = Read-JsonFile "plugins/sdd-quality-loop/templates/verification-contract.template.json"
 foreach ($check in $contractTemplate.checks) {
@@ -267,3 +281,7 @@ foreach ($skillFile in $skillFiles) {
 }
 
 Write-Host "Repository validation passed."
+
+# Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which
+# would otherwise leak the exit code of the last native command run above.
+exit 0

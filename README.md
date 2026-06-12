@@ -1,6 +1,6 @@
 # SDD Plugins Windows Installer
 
-v0.6.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
+v0.6.1、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
 
 ```text
 [brownfield] sdd-adopt           既存プロジェクトへ SDD 構造を途中導入する
@@ -19,6 +19,15 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 ```
 
 詳しい運用方法と実際の開発例は [USERGUIDE.md](USERGUIDE.md) を参照してください。
+
+## v0.6.1 変更点
+
+ハーネス監査に基づく信頼性修正リリース。機能追加はありません。
+
+- **強制レイヤの穴を修正**: Claude Code 用フックの承認ガードに `apply_patch` マッチャーを追加 (Codex 用設定との不一致でバイパス可能だった)。Copilot 用フックが `pwsh` のみの環境でフェイルオープンしていた問題を修正 (`pwsh` 優先 + `powershell.exe` フォールバック)。
+- **ガード4ランタイム (js/py/sh/ps1) の挙動統一**: `tasks.md` パス判定を全ランタイムで大文字小文字非区別に統一。Python ガードのキルスイッチ判定を stdin 読み込みより前に移動し、TTY ハングを防止。キルスイッチ単体スクリプトが `CLAUDE_PROJECT_DIR` とカレントディレクトリの両方を確認するよう統一。旧世代の `guard-task-approval.{sh,ps1}` (キルスイッチ/apply_patch 非対応) を削除。
+- **インストーラ修正**: `install.sh` がインストール先に `.codex/.codex/` 等の入れ子ディレクトリを作成するバグを修正。失敗時ロールバックを堅牢化 (Windows のファイルロックでも復元を試行)。エラー伝播を明示化。
+- **テスト/CI強化**: Linux (ubuntu-latest) を CI マトリクスに追加。`.gitattributes` で EOL を固定。Python ガード・キルスイッチ・MultiEdit ペイロード・インストーラ再実行冪等性・Copilot 登録の直接テストを追加。CI 失敗時のログアーティファクト保存を追加。
 
 ## v0.6.0 新機能
 
@@ -48,7 +57,7 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 - **refactorモード**: `sdd-bootstrap-interviewer` に追加。`baseline-behavior.md` が必須前提となり、受入条件を BL 同値として表現する。
 - **決定論的検証ゲート**: Default-FAIL 契約 (`verification-contract.json`)、`check-contract` / `check-placeholders` / `check-task-state` スクリプト (.sh / .ps1) により、エージェント自己申告に依存しない機械検証を実施する。
 - **独立 Evaluator**: `sdd-evaluator` サブエージェント (Claude Code) または新規セッション (Codex) が実装文脈を持たない状態で批判レビューを行う。
-- **Claude Code フック強制層**: `hooks/hooks.json` が `PreToolUse` に `kill-switch.sh` と `guard-task-approval.sh` を挿入し、AGENT_STOP と自己承認を強制ブロックする。
+- **Claude Code フック強制層**: `PreToolUse` フックがキルスイッチ (AGENT_STOP) と自己承認の強制ブロックを行う (現在は `hooks/claude-hooks.json` + `kill-switch.js` / `sdd-hook-guard.js` の Node.js exec form に移行済み)。
 - **ワークフローレトロスペクティブ**: `workflow-retrospective` スキルがリワーク指標を計測し、WFI (Workflow Improvement) 提案を人間承認ループで適用する。
 
 ## Windowsワンライナー
@@ -58,6 +67,8 @@ irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer
 ```
 
 既定では3プラグインすべてを登録します。利用可能なCodex CLI / Claude Code CLIだけが設定されます。
+
+> **注意:** `irm … | iex` 形式はすべてデフォルト設定でインストールされます。`-Target`、`-Plugins` などのパラメーターを指定するには、以下のスクリプトブロック形式を使用してください。
 
 ## macOS / Linux ワンライナー
 
@@ -125,6 +136,24 @@ bash install.sh
 **共通:**
 - Codex CLI、Claude Code CLI、またはCopilot CLI は任意です。PATHにあるものだけが自動登録されます。
 - Claude Codeのフック強制層は公式推奨のNode.js exec formを使用するため、**Node.js**が必要です (Git Bash は不要)。
+
+## インストール先
+
+インストーラーが配置するファイルのデフォルトパスは以下のとおりです。
+
+| 環境 | インストール先 |
+|---|---|
+| Windows | `%LOCALAPPDATA%\sdd-plugins` |
+| macOS / Linux | `${XDG_DATA_HOME:-~/.local/share}/sdd-plugins` |
+
+Codex エージェント TOML は上記のインストール先とは別に、個人ディレクトリへもコピーされます。
+
+| ファイル | コピー先 |
+|---|---|
+| `.codex/agents/sdd-investigator.toml` | `~/.codex/agents/` |
+| `.codex/agents/sdd-evaluator.toml` | `~/.codex/agents/` |
+
+`--install-root` (`install.sh`) または `-InstallRoot` (`install.ps1`) でデフォルトのインストール先を変更できます。Codex エージェントのコピーをスキップするには `--skip-agent-install` / `-SkipAgentInstall` を使用してください。
 
 ## セキュリティ
 

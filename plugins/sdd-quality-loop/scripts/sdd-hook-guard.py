@@ -17,7 +17,7 @@ Payload formats handled:
     For each ``*** Update File:``/``*** Add File:`` section targeting a
     tasks.md, count ``Approval: Approved`` on ``+`` lines vs ``-`` lines and
     deny if the net is positive.
-  - Codex Bash/shell (tool_name Bash/shell/exec_command): a conservative
+  - Codex Bash/shell (tool_name Bash/shell/exec_command/exec): a conservative
     heuristic - if the shell command string mentions ``tasks.md`` AND contains
     ``Approval: Approved`` (e.g. ``sed``/``echo >>``), deny. This intentionally
     over-blocks shell tricks that would smuggle an approval in.
@@ -53,7 +53,8 @@ def count(text):
 
 
 def is_tasks_md(path):
-    return bool(path) and str(path).replace("\\", "/").endswith("tasks.md")
+    # Case-insensitive match (intentional: matches JS/PS1 behavior; Windows FS is case-insensitive).
+    return bool(path) and str(path).replace("\\", "/").lower().endswith("tasks.md")
 
 
 def emit(decision, reason, mode):
@@ -62,7 +63,7 @@ def emit(decision, reason, mode):
         out = {"permissionDecision": decision}
         if decision == "deny" and reason:
             out["permissionDecisionReason"] = reason
-        sys.stdout.write(json.dumps(out))
+        sys.stdout.write(json.dumps(out, separators=(",", ":")))
         sys.exit(0)
     # exit mode
     if decision == "deny":
@@ -97,7 +98,7 @@ def approval_increases(payload):
         tool_input.get("command"), str
     ):
         cmd = tool_input["command"]
-        if "tasks.md" in cmd and APPROVAL_RE.search(cmd):
+        if "tasks.md" in cmd.lower() and APPROVAL_RE.search(cmd):
             return True
         return False
 
@@ -135,7 +136,6 @@ def _patch_increases(patch):
     """Parse a Codex patch envelope; return True if net approvals added to a tasks.md."""
     current_is_tasks = False
     added = removed = 0
-    net_for_file = 0
     for raw in patch.splitlines():
         # File section headers.
         m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
@@ -173,16 +173,20 @@ def parse_args(argv):
 def main():
     mode = parse_args(sys.argv[1:])
 
+    # Check 1: kill switch runs regardless of payload validity (checked before stdin read, matching JS/PS1).
+    if kill_switch_tripped():
+        emit("deny", KILL_MSG, mode)
+
     raw = os.environ.get("PAYLOAD")
     if raw is None:
         try:
-            raw = sys.stdin.read()
+            # TTY guard: if stdin is a terminal, treat as empty (mirrors JS isTTY; avoids hang).
+            if sys.stdin.isatty():
+                raw = ""
+            else:
+                raw = sys.stdin.read()
         except Exception:
             raw = ""
-
-    # Check 1: kill switch runs regardless of payload validity.
-    if kill_switch_tripped():
-        emit("deny", KILL_MSG, mode)
 
     try:
         payload = json.loads(raw) if raw else {}

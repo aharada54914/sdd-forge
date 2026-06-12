@@ -149,7 +149,8 @@ try {
         "plugins/sdd-bootstrap/.plugin/plugin.json",
         "plugins/sdd-implementation/.plugin/plugin.json",
         "plugins/sdd-quality-loop/.plugin/plugin.json",
-        ".codex/agents/sdd-investigator.toml"
+        ".codex/agents/sdd-investigator.toml",
+        ".codex/agents/sdd-evaluator.toml"
     )
     foreach ($relativePath in $requiredPaths) {
         if (-not (Test-Path (Join-Path $sourceRoot $relativePath))) {
@@ -173,10 +174,15 @@ try {
 
     $stagingRoot = Join-Path $installParent ("sdd-plugins-staging-" + [guid]::NewGuid())
     New-Item -ItemType Directory -Path $stagingRoot | Out-Null
-    Copy-Item -Path (Join-Path $sourceRoot "*") -Destination $stagingRoot -Recurse -Force
-    Copy-Item -Path (Join-Path $sourceRoot ".agents") -Destination $stagingRoot -Recurse -Force
-    Copy-Item -Path (Join-Path $sourceRoot ".claude-plugin") -Destination $stagingRoot -Recurse -Force
-    Copy-Item -Path (Join-Path $sourceRoot ".codex") -Destination $stagingRoot -Recurse -Force
+    # Use Get-ChildItem -Force so that dot-directories (hidden on Windows) are
+    # included.  Copying each top-level entry individually avoids the double-
+    # nesting that occurs when Copy-Item with a wildcard is followed by
+    # explicit dot-dir copies: on PowerShell Core those dirs are not hidden so
+    # the wildcard already copied them, and re-copying would create
+    # .agents\.agents\, .codex\.codex\, etc.
+    foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force)) {
+        Copy-Item -Path $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
+    }
 
     if (Test-Path $InstallRoot) {
         $backupRoot = Join-Path $installParent ("sdd-plugins-backup-" + [guid]::NewGuid())
@@ -211,15 +217,40 @@ try {
     }
 }
 catch {
+    # Rollback is best-effort: wrap each destructive step so that a locked file
+    # or other Windows error does not prevent the restore from being attempted.
     if ($backupRoot -and (Test-Path $backupRoot)) {
-        if (Test-Path $InstallRoot) {
-            Remove-Item -Path $InstallRoot -Recurse -Force
+        try {
+            if (Test-Path $InstallRoot) {
+                Remove-Item -Path $InstallRoot -Recurse -Force -ErrorAction SilentlyContinue
+            }
         }
-        Move-Item -Path $backupRoot -Destination $InstallRoot
-        $backupRoot = $null
+        catch {
+            Write-Warning "Could not remove failed install at '$InstallRoot': $_"
+        }
+        # Only restore when the failed install is fully gone: Move-Item into a
+        # still-existing directory would nest the backup INSIDE it and lose the
+        # recovery location.
+        if (Test-Path $InstallRoot) {
+            Write-Warning "CRITICAL: failed install could not be removed from '$InstallRoot' (locked files?). Your previous installation is preserved at: $backupRoot"
+        }
+        else {
+            try {
+                Move-Item -Path $backupRoot -Destination $InstallRoot
+                $backupRoot = $null
+            }
+            catch {
+                Write-Warning "CRITICAL: Could not restore backup. Your previous installation is preserved at: $backupRoot"
+            }
+        }
     }
     elseif ($newInstallPlaced -and (Test-Path $InstallRoot)) {
-        Remove-Item -Path $InstallRoot -Recurse -Force
+        try {
+            Remove-Item -Path $InstallRoot -Recurse -Force
+        }
+        catch {
+            Write-Warning "Could not remove incomplete install at '$InstallRoot': $_"
+        }
     }
     throw
 }

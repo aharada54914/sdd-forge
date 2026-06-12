@@ -13,7 +13,7 @@ function New-FakeCommands {
     )
 
     New-Item -ItemType Directory -Path $BinRoot -Force | Out-Null
-    foreach ($command in @("codex", "claude")) {
+    foreach ($command in @("codex", "claude", "copilot")) {
         if ($isWindowsPlatform) {
             $commandPath = Join-Path $BinRoot "$command.cmd"
             $failureLine = if ($FailPattern) { "@echo %*| findstr /c:`"$FailPattern`" >nul && exit /b 9`r`n" } else { "" }
@@ -84,11 +84,15 @@ function Invoke-InstallerScenario {
 
         $log = Get-Content -Raw $commandLog
         foreach ($plugin in $Plugins) {
-            foreach ($expectedCommand in @("codex plugin add $plugin@sdd-plugins", "claude plugin install $plugin@sdd-plugins")) {
+            foreach ($expectedCommand in @("codex plugin add $plugin@sdd-plugins", "claude plugin install $plugin@sdd-plugins", "copilot plugin install $plugin@sdd-plugins")) {
                 if ($log -notmatch [regex]::Escape($expectedCommand)) {
                     throw "Installer did not run expected command: $expectedCommand"
                 }
             }
+        }
+        # Copilot marketplace command must appear
+        if ($log -notmatch [regex]::Escape("copilot plugin marketplace add")) {
+            throw "Installer did not run copilot plugin marketplace add"
         }
         foreach ($plugin in $allPlugins | Where-Object { $_ -notin $Plugins }) {
             if ($log -match [regex]::Escape("plugin add $plugin@sdd-plugins") -or $log -match [regex]::Escape("plugin install $plugin@sdd-plugins")) {
@@ -168,4 +172,66 @@ if (-not $invalidFailed) {
     throw "Installer accepted an invalid plugin name."
 }
 
+# ---------------------------------------------------------------------------
+# Idempotency: second successful install into same root exits 0, state consistent
+# ---------------------------------------------------------------------------
+$idempotencyRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-idempotency-" + [guid]::NewGuid())
+$idempotencyInstall = Join-Path $idempotencyRoot "installed"
+$idempotencyBin = Join-Path $idempotencyRoot "bin"
+$idempotencyLog = Join-Path $idempotencyRoot "commands.log"
+$savedPath = $env:PATH
+try {
+    New-FakeCommands -BinRoot $idempotencyBin -LogPath $idempotencyLog
+    $env:PATH = "$idempotencyBin$([System.IO.Path]::PathSeparator)$savedPath"
+    # First install
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $idempotencyInstall -Target All -Plugins $allPlugins
+    # Second install (idempotent)
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $idempotencyInstall -Target All -Plugins $allPlugins
+    $env:PATH = $savedPath
+    foreach ($plugin in $allPlugins) {
+        if (-not (Test-Path (Join-Path $idempotencyInstall "plugins/$plugin/.codex-plugin/plugin.json"))) {
+            throw "Idempotency: plugin not present after second install: $plugin"
+        }
+    }
+    Write-Host "ok: idempotency: second install exits 0, state consistent"
+}
+finally {
+    $env:PATH = $savedPath
+    if (Test-Path $idempotencyRoot) { Remove-Item -Path $idempotencyRoot -Recurse -Force }
+}
+
+# ---------------------------------------------------------------------------
+# No-nesting assertion after install
+# ---------------------------------------------------------------------------
+$nonestingRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-nonest-" + [guid]::NewGuid())
+$nonestingInstall = Join-Path $nonestingRoot "installed"
+$nonestingBin = Join-Path $nonestingRoot "bin"
+$nonestingLog = Join-Path $nonestingRoot "commands.log"
+$savedPath2 = $env:PATH
+try {
+    New-FakeCommands -BinRoot $nonestingBin -LogPath $nonestingLog
+    $env:PATH = "$nonestingBin$([System.IO.Path]::PathSeparator)$savedPath2"
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $nonestingInstall -Target All -Plugins $allPlugins
+    $env:PATH = $savedPath2
+    foreach ($nested in @(".agents/.agents", ".codex/.codex", ".claude-plugin/.claude-plugin")) {
+        if (Test-Path (Join-Path $nonestingInstall $nested)) {
+            throw "No-nesting: found unexpected nested directory: $nested"
+        }
+    }
+    foreach ($toml in @(".codex/agents/sdd-investigator.toml", ".codex/agents/sdd-evaluator.toml")) {
+        if (-not (Test-Path (Join-Path $nonestingInstall $toml))) {
+            throw "No-nesting: expected file missing after install: $toml"
+        }
+    }
+    Write-Host "ok: no-nesting: layout correct after install"
+}
+finally {
+    $env:PATH = $savedPath2
+    if (Test-Path $nonestingRoot) { Remove-Item -Path $nonestingRoot -Recurse -Force }
+}
+
 Write-Host "Installer integration tests passed."
+
+# Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which
+# would otherwise leak the exit code of the last native command run above.
+exit 0

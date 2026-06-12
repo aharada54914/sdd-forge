@@ -86,18 +86,34 @@ Status: Done
     Assert-ExitCode "check-placeholders dirty" (Invoke-Gate "check-placeholders.ps1" @("src/dirty.py")) 1
     Assert-ExitCode "check-placeholders clean" (Invoke-Gate "check-placeholders.ps1" @("src/clean.py")) 0
 
-    # --- guard-task-approval (hook payload over stdin) ---
-    function Invoke-Guard {
-        param([string]$Payload)
-        $Payload | & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "guard-task-approval.ps1") *> $null
-        return $LASTEXITCODE
+    # guard-task-approval.ps1 was superseded by sdd-hook-guard; guard tests live in hooks.tests.ps1.
+
+    # =========================================================
+    # check-placeholders case-insensitivity (Wave 2)
+    # =========================================================
+    # Lowercase "todo" must be flagged by the PS1 variant (grep -i added in Wave 1).
+    "def f():`n    pass  # todo implement this" | Set-Content -Encoding Utf8 "src/todo-lower.py"
+    Assert-ExitCode "check-placeholders ps1 lowercase todo flagged" (Invoke-Gate "check-placeholders.ps1" @("src/todo-lower.py")) 1
+
+    # =========================================================
+    # check-task-state header-only task (Wave 2)
+    # =========================================================
+    # A '## T-1' header with no Approval:/Status: lines must produce per-field errors
+    # (not "no tasks found") and exit 1.
+    @"
+## T-1 Header only task
+"@ | Set-Content -Encoding Utf8 "tasks-header-only.md"
+    $headerOnlyOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") "tasks-header-only.md" 2>&1
+    $headerOnlyExit = $LASTEXITCODE
+    Assert-ExitCode "check-task-state header-only exits 1" $headerOnlyExit 1
+    $headerOnlyStr = ($headerOnlyOutput | Out-String)
+    if ($headerOnlyStr -match "no tasks found") {
+        throw "check-task-state header-only must produce per-field errors, not 'no tasks found'"
     }
-    $block = Invoke-Guard '{"tool_input":{"file_path":"/x/specs/f/tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
-    Assert-ExitCode "guard blocks self-approval" $block 2
-    $allow = Invoke-Guard '{"tool_input":{"file_path":"/x/specs/f/tasks.md","old_string":"Status: Planned","new_string":"Status: In Progress"}}'
-    Assert-ExitCode "guard allows status change" $allow 0
-    $other = Invoke-Guard '{"tool_input":{"file_path":"/x/src/a.py","old_string":"a","new_string":"b"}}'
-    Assert-ExitCode "guard ignores other files" $other 0
+    if ($headerOnlyStr -notmatch "Approval" -and $headerOnlyStr -notmatch "Status") {
+        throw "check-task-state header-only must report per-field errors (Approval/Status)"
+    }
+    Write-Host "ok: check-task-state header-only produces per-field errors"
 
     # =========================================================
     # NEW RULES: check-contract
@@ -295,6 +311,20 @@ Status: Done
         & bash (Join-Path $scriptsDir "check-placeholders.sh") "src/ci-placeholder.sh" *> $null
         Assert-ExitCode "check-placeholders.sh catches TODO_REPLACE_WITH_PROJECT_COMMANDS" $LASTEXITCODE 1
 
+        # check-placeholders.sh case-insensitivity: lowercase todo must be flagged
+        & bash (Join-Path $scriptsDir "check-placeholders.sh") "src/todo-lower.py" *> $null
+        Assert-ExitCode "check-placeholders.sh lowercase todo flagged" $LASTEXITCODE 1
+
+        # check-task-state.sh header-only task: per-field errors, NOT "no tasks found"
+        $shHeaderOut = & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-header-only.md" 2>&1
+        $shHeaderExit = $LASTEXITCODE
+        Assert-ExitCode "check-task-state.sh header-only exits 1" $shHeaderExit 1
+        $shHeaderStr = ($shHeaderOut | Out-String)
+        if ($shHeaderStr -match "no tasks found") {
+            throw "check-task-state.sh header-only must produce per-field errors, not 'no tasks found'"
+        }
+        Write-Host "ok: check-task-state.sh header-only produces per-field errors"
+
         # check-contract.sh: duplicate ids
         & bash (Join-Path $scriptsDir "check-contract.sh") "contract-dup-ids.json" "." *> $null
         Assert-ExitCode "check-contract.sh duplicate ids" $LASTEXITCODE 1
@@ -403,3 +433,8 @@ Status: Done
     Pop-Location
     Remove-Item -Recurse -Force $workDir -ErrorAction SilentlyContinue
 }
+
+# Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which
+# would otherwise leak the exit code of the last native command run above
+# (e.g. a gate test that intentionally exits non-zero).
+exit 0
