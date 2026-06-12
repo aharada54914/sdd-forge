@@ -1,0 +1,66 @@
+name: Weekly Self-Improvement
+
+# sdd-forge 週次セルフ改善ワークフロー。
+# .github/self-improvement-prompt.md の指示に従い、リポジトリを監査して
+# Issue 起票と小さな改善 PR の作成までを自動で行う。人間はスマホで
+# Issue / PR を確認してマージをタップするだけ。
+#
+# 必要なセットアップ(初回のみ):
+#   1. ローカルで `claude setup-token` を実行し、出力されたトークンを
+#      リポジトリ Secrets に CLAUDE_CODE_OAUTH_TOKEN として登録
+#      (Claude Pro/Max のサブスクリプション枠を消費。API従量課金なし)
+#   2. Settings → Actions → General → Workflow permissions で
+#      "Allow GitHub Actions to create and approve pull requests" を有効化
+#
+# 既知の制限: 既定の GITHUB_TOKEN で作成された PR では CI (test.yml) が
+# 自動起動しない。代わりに本ワークフロー内で Linux 実行可能なテストを
+# 実行し、結果を PR 本文に貼る。完全な 3 OS CI が必要なら GitHub App
+# トークン方式に移行する(docs 参照)。
+
+on:
+  schedule:
+    - cron: "0 0 * * 1" # 毎週月曜 00:00 UTC = 09:00 JST
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+concurrency:
+  group: self-improvement
+  cancel-in-progress: false
+
+jobs:
+  improve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run Claude self-improvement session
+        uses: anthropics/claude-code-action@v1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          prompt: |
+            このリポジトリの .github/self-improvement-prompt.md を読み、
+            そこに書かれた手順と制約に厳密に従って週次セルフ改善を実行してください。
+          claude_args: |
+            --model claude-sonnet-4-6
+            --allowedTools "Bash,Read,Write,Edit,MultiEdit,Glob,Grep,WebFetch,TodoWrite"
+            --max-turns 75
+
+      - name: Report workflow failure as issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Weekly self-improvement run failed ($(date -u +%Y-%m-%d))" \
+            --body "実行ログ: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"

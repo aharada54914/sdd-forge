@@ -8,6 +8,9 @@ Checks:
      $env:CLAUDE_PROJECT_DIR (fallback: cwd).
   2. Approval guard: deny a tool call that would increase the number of
      "Approval: Approved" occurrences in any path ending with tasks.md.
+     Bypassed while a human-enabled SDD_SUDO flag file with an unexpired
+     'expires-epoch: <unix-seconds>' line exists at the project root (sudo mode).
+     Checks 1 and 3 are never bypassed.
   3. Agent-role guard: deny any tool call that would write a Codex agent role
      file (path matching .codex/agents/[^/]+.toml) without a developer_instructions
      field. Such files are ignored by Codex at startup.
@@ -85,6 +88,23 @@ function Test-KillSwitch {
     foreach ($base in @($root, ".")) {
         try {
             if (Test-Path -LiteralPath (Join-Path $base "AGENT_STOP") -PathType Leaf) { return $true }
+        } catch { }
+    }
+    return $false
+}
+
+function Test-SudoActive {
+    $root = $env:CLAUDE_PROJECT_DIR
+    if ([string]::IsNullOrEmpty($root)) { $root = "." }
+    foreach ($base in @($root, ".")) {
+        try {
+            $flag = Join-Path $base "SDD_SUDO"
+            if (-not (Test-Path -LiteralPath $flag -PathType Leaf)) { continue }
+            $m = [regex]::Match((Get-Content -Raw -Encoding Utf8 -LiteralPath $flag), "(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)")
+            if ($m.Success) {
+                $now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+                if ([int64]$m.Groups[2].Value -gt $now) { return $true }
+            }
         } catch { }
     }
     return $false
@@ -247,7 +267,7 @@ try {
 }
 
 try {
-    if (Test-ApprovalIncreases $payload) { Emit-Decision "deny" $ApprovalMsg }
+    if ((Test-ApprovalIncreases $payload) -and -not (Test-SudoActive)) { Emit-Decision "deny" $ApprovalMsg }
 } catch {
     Emit-Decision "allow" $null
 }

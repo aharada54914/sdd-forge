@@ -1,6 +1,8 @@
-# SDD Plugins Windows Installer
+# SDD Forge
 
-v0.6.2、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
+旧リポジトリ名 `sdd-plugins-windows-installer` から改名。旧URLはGitHubにより自動リダイレクトされます。
+
+v0.7.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
 
 ```text
 [brownfield] sdd-adopt           既存プロジェクトへ SDD 構造を途中導入する
@@ -23,6 +25,7 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 - **責務の明確な分離**: 仕様化・実装・品質保証を別々のスキルが担当し、実装者が自分の成果物を甘く採点する構造を排除します。
 - **人間承認ゲート**: エージェントは自己承認できず、フック + 決定論的スクリプトの二重防衛により不正な承認を防止します。
 - **独立した批判レビュー**: 実装者とは別の `sdd-evaluator` エージェント (またはセッション) が新しい視点で検証します。
+- **sudoモード**: 人間承認ゲートを期限付きで自動通過させ、ソロワークの効率を向上。AGENT_STOPと決定論的ゲートは常時有効。
 - **3環境に対応**: Claude Code、Codex CLI、Copilot CLI の環境でスキル・エージェント・フック・スクリプトがリポジトリ内ファイルを通じて相互ハンドオフし、環境を超えて作業を継続できます。
 
 ## ドキュメントマップ
@@ -31,18 +34,27 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 |---|---|
 | [README](README.md) (本ファイル) | インストール手順と概要 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
-| [docs/skill-reference.md](docs/skill-reference.md) | 7スキル・エージェント・フック・スクリプトの詳細 |
+| [docs/skill-reference.md](docs/skill-reference.md) | 8スキル・エージェント・フック・スクリプトの詳細 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
 | [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
 
 **初めての方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
+
+## 週次セルフ改善 (自動運用)
+
+[.github/workflows/self-improvement.yml](.github/workflows/self-improvement.yml) が毎週月曜 09:00 JST に [.github/self-improvement-prompt.md](.github/self-improvement-prompt.md) の指示でリポジトリを監査し、Issue 起票と小さな改善 PR の作成まで自動で行います。人間の作業はレビューとマージのみです。
+
+初回セットアップ (1回だけ):
+
+1. 手元で `claude setup-token` を実行し、トークンをリポジトリの Secrets に `CLAUDE_CODE_OAUTH_TOKEN` として登録 (Claude Pro/Max のサブスクリプション枠を消費。API 従量課金なし)
+2. Settings → Actions → General → Workflow permissions で "Allow GitHub Actions to create and approve pull requests" を有効化
 
 ## クイックスタート
 
 ### Windowsワンライナー
 
 ```powershell
-irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1 | iex
+irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1 | iex
 ```
 
 既定では3プラグインすべてを登録します。利用可能なCodex CLI / Claude Code CLIだけが設定されます。
@@ -50,7 +62,7 @@ irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer
 ### macOS / Linux ワンライナー
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | bash
 ```
 
 既定では3プラグインすべてを登録します。利用可能なCodex CLI / Claude Code CLIだけが設定されます。
@@ -63,26 +75,26 @@ curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-in
 
 ```powershell
 # Codex CLIのみ
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1))) -Target Codex
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1))) -Target Codex
 
 # 特定プラグインのみ
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1))) -Plugins sdd-bootstrap,sdd-implementation
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1))) -Plugins sdd-bootstrap,sdd-implementation
 
 # ファイル配置のみ (CLIへの登録はしない)
-& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1))) -Target FilesOnly
+& ([scriptblock]::Create((irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1))) -Target FilesOnly
 ```
 
 **bash (macOS / Linux):**
 
 ```bash
 # Codex CLIのみ
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash -s -- --target Codex
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | bash -s -- --target Codex
 
 # 特定プラグインのみ
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash -s -- --plugins sdd-bootstrap,sdd-implementation
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | bash -s -- --plugins sdd-bootstrap,sdd-implementation
 
 # ファイル配置のみ
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | bash -s -- --target FilesOnly
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | bash -s -- --target FilesOnly
 ```
 
 ### スクリプト内容の確認
@@ -90,7 +102,7 @@ curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-in
 実行前にスクリプトの内容を確認できます：
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.sh | less
+curl -fsSL https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.sh | less
 # 内容を確認してから手動実行
 bash install.sh
 ```
@@ -98,7 +110,7 @@ bash install.sh
 セキュリティ重視の場合、以下で PowerShell スクリプトの内容を確認できます：
 
 ```powershell
-irm https://raw.githubusercontent.com/aharada54914/sdd-plugins-windows-installer/main/install.ps1
+irm https://raw.githubusercontent.com/aharada54914/sdd-forge/main/install.ps1
 ```
 
 ## 前提条件

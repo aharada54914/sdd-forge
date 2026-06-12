@@ -36,6 +36,14 @@ Read `AGENTS.md`, the target feature requirements, design, tasks, acceptance tes
 traceability, relevant ADRs and contracts, `references/implementation-policy.md`,
 and `references/agent-delegation-policy.md`.
 
+### Sudo Mode
+
+If a valid `SDD_SUDO` flag file exists at the project root (see
+`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), human approval
+checkpoints auto-pass. Record `Approval: Approved (sudo <ISO8601 UTC>)` in
+tasks.md and continue. All deterministic gates still apply; every check runs as
+normal.
+
 ## State Restoration
 
 1. Inspect `tasks.md` and select the named task, an `In Progress` task, or the first

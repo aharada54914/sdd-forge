@@ -453,7 +453,76 @@ review_cycles: <実施済みサイクル数>
 
 その場合は手動でセッションを終了してください。
 
-### 4.9 トレーサビリティのドリフト検出
+### 4.9 sudoモード運用
+
+**目的**: ソロワーク・低リスク作業で、人間承認ゲート (Approval: Approved、アーキテクチャ review 承認、quality-gate 判定) を期限付きで自動通過させ、効率を向上させます。
+
+**いつ使う**
+
+- 自分だけで実施する低リスク変更 (ドキュメント、コメント、小規模リファクタ)
+- 確実性の高いバグ修正で、round-trip review delay を避けたい
+- SDD ワークフロー自体のテスト
+- チームで「このタスクは approval 不要」と事前合意した場合
+
+**いつ避ける**
+
+- 共有リポジトリ・本番環境の変更
+- 大規模アーキテクチャ変更
+- セキュリティ・認証・認可 関連の変更
+- 決定論的ゲート（contract 検証、placeholder 検出）の自信がない場合
+
+**有効化**
+
+```txt
+/sdd-sudo 8h              # デフォルト 8 時間
+/sdd-sudo 4h              # 4 時間
+/sdd-sudo 24h             # 最大 24 時間
+```
+
+**動作**
+
+1. `SDD_SUDO` ファイルをプロジェクトルートに作成
+   - `expires-epoch` (unix-seconds) で期限を記録
+2. その後の人間承認ゲートはすべて自動通過
+3. 各 Approval gate 通過時に `Approval: Approved (sudo 2026-06-12T15:30:45Z)` と記録（audit mark）
+4. **AGENT_STOP は常に有効** — sudo 中でも kill switch は機能
+5. **決定論的スクリプト** (`check-contract`, `check-placeholders`, `check-task-state`, `check-sdd-structure`) は常に実行・検査
+
+**状態確認**
+
+```txt
+/sdd-sudo status         # 有効期限と残り時間を表示
+```
+
+**無効化**
+
+```txt
+/sdd-sudo off            # 即座に無効化
+```
+
+または、`SDD_SUDO` ファイルを手動削除。
+
+**期限自動失効**
+
+- Unix timestamp で常に `now > expires-epoch` をチェック
+- 失効後は自動で「無効」の扱い (ファイル削除なし)
+- 再度有効化するには `/sdd-sudo` を明示的に再実行
+
+**audit trail**
+
+- タスク tasks.md に `(sudo <ISO8601>)` 記号で deferral を記録
+- 品質ゲート報告書に sudo 期間を明記
+- 全証拠ファイル (contract, report) は通常通り保管
+
+**hard policy**
+
+- エージェント自身が `SDD_SUDO` を作成・延長しない (人間の明示実行のみ)
+- 期限切れ後の自動再有効化はしない
+- 不明な場合は人間に質問
+
+詳細は `/sdd-sudo` スキル と `plugins/sdd-quality-loop/references/sudo-mode-policy.md` を参照。
+
+### 4.10 トレーサビリティのドリフト検出
 
 **状況**: integrity-policy で以下が検出された。
 

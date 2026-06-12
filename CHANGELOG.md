@@ -1,5 +1,25 @@
 # Changelog
 
+## v0.7.0
+
+### 新機能
+
+**sudoモード**: 人間による明示的な `/sdd-sudo` 呼び出しで、人間承認ゲート（tasks.md の `Approval: Approved`、アーキテクチャ review 承認、quality-gate 判定）を期限付きで自動通過。AGENT_STOP kill switch と決定論的スクリプト（contract 検証、placeholder 検出、task-state 検証）は常に有効。audit trail には `(sudo <ISO8601>)` 記号で記録。使用は `/sdd-sudo [duration]`、`/sdd-sudo status`、`/sdd-sudo off`。詳細は `plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md` と `sudo-mode-policy.md` を参照。
+
+**リポジトリ改名**: `sdd-plugins-windows-installer` から `sdd-forge` へ改名（自動リダイレクト）。
+
+**週次セルフ改善ワークフロー**: `.github/workflows/self-improvement.yml` を新設。毎週月曜 09:00 JST に `anthropics/claude-code-action@v1` がリポジトリを監査し、Issue 起票と小さな改善 PR の作成までを自動実行する（人間はレビューとマージのみ）。実行指示は `.github/self-improvement-prompt.md` に置き、プロンプト自体も改善対象。認証は `claude setup-token` で発行した `CLAUDE_CODE_OAUTH_TOKEN` シークレット（Pro/Max サブスクリプション枠を消費、API 従量課金なし）。
+
+### v0.6.2 からの移行
+
+| v0.6.2 | v0.7.0 |
+|---|---|
+| sudoモードなし | **sudoモード追加**: 人間 `/sdd-sudo` 呼び出しで approval gate 自動通過。AGENT_STOP と決定論的ゲートは常に有効 |
+| リポジトリ名 `sdd-plugins-windows-installer` | **改名**: `sdd-forge` へ移行（GitHub 自動リダイレクト対応） |
+| 改善は人手起点のみ | **週次セルフ改善ワークフロー追加**: GitHub Actions が毎週監査 → Issue → 改善 PR を自動作成（要 `CLAUDE_CODE_OAUTH_TOKEN` シークレット） |
+
+**破壊的変更**: なし。プラグインの再インストール（ワンライナー再実行)のみで移行完了。
+
 ## v0.6.2
 
 ### 変更内容

@@ -7,7 +7,9 @@ Runs the same three checks for Claude Code, Codex CLI, and GitHub Copilot CLI:
      (fallback: cwd), deny every tool call until a human deletes it.
   2. Approval guard: deny any tool call that would INCREASE the number of
      ``Approval: Approved`` occurrences in a file whose path ends with
-     ``tasks.md``. Only a human may approve a task.
+     ``tasks.md``. Only a human may approve a task. Bypassed while a human-enabled
+     SDD_SUDO flag file with an unexpired 'expires-epoch: <unix-seconds>' line
+     exists at the project root (sudo mode). Checks 1 and 3 are never bypassed.
   3. Agent-role guard: deny any tool call that would write a Codex agent role
      file (path matching ``.codex/agents/[^/]+.toml``) without a
      ``developer_instructions`` field. Such files are ignored by Codex at startup.
@@ -35,10 +37,12 @@ import json
 import os
 import re
 import sys
+import time
 
 APPROVAL_RE = re.compile(r"Approval:\s*Approved")
 AGENT_ROLE_PATH_RE = re.compile(r"\.codex/agents/[^/]+\.toml$")
 DEVELOPER_INSTRUCTIONS_RE = re.compile(r"(^|\n)[ \t]*developer_instructions[ \t]*=")
+SUDO_EPOCH_RE = re.compile(r"(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)")
 
 APPROVAL_MSG = (
     "SDD deterministic gate: agents must not set 'Approval: Approved' in "
@@ -105,6 +109,23 @@ def kill_switch_tripped():
     for base in (root, "."):
         try:
             if os.path.isfile(os.path.join(base, "AGENT_STOP")):
+                return True
+        except OSError:
+            pass
+    return False
+
+
+def sudo_active():
+    """True if a valid, unexpired SDD_SUDO flag exists at the project root."""
+    root = os.environ.get("CLAUDE_PROJECT_DIR") or "."
+    for base in (root, "."):
+        try:
+            flag = os.path.join(base, "SDD_SUDO")
+            if not os.path.isfile(flag):
+                continue
+            with open(flag, encoding="utf-8") as f:
+                m = SUDO_EPOCH_RE.search(f.read())
+            if m and int(m.group(2)) > time.time():
                 return True
         except OSError:
             pass
@@ -285,7 +306,7 @@ def main():
         return
 
     try:
-        if approval_increases(payload):
+        if approval_increases(payload) and not sudo_active():
             emit("deny", APPROVAL_MSG, mode)
     except Exception:
         # Never crash; fail open on the approval check.

@@ -474,6 +474,130 @@ Approval: Draft
     # (end Wave 2 additions)
     # =========================================================
 
+    # =========================================================
+    # Sudo mode (SDD_SUDO flag) tests — PowerShell guard
+    # =========================================================
+
+    # Test a: valid sudo (future epoch) + Edit payload that increases Approval -> ALLOW
+    $sudoDirA = Join-Path $workDir "sudo-ps-a"
+    New-Item -ItemType Directory -Path $sudoDirA -Force | Out-Null
+    $sudoEpoch = [int64]([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) + 3600
+    "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirA "SDD_SUDO")
+    $sudoPayload = '{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
+    Push-Location $sudoDirA
+    $sudoRa = $null
+    try {
+        $sudoRa = Invoke-GuardPs $sudoPayload "exit"
+    } finally { Pop-Location }
+    Assert "ps sudo: valid future epoch + approval increase -> allow (exit 0)" ($sudoRa.Code -eq 0)
+    Remove-Item -Recurse -Force $sudoDirA -ErrorAction SilentlyContinue
+
+    # Test b: expired sudo (past epoch) + same payload -> DENY
+    $sudoDirB = Join-Path $workDir "sudo-ps-b"
+    New-Item -ItemType Directory -Path $sudoDirB -Force | Out-Null
+    $expiredEpoch = [int64]([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) - 10
+    "expires-epoch: $expiredEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirB "SDD_SUDO")
+    Push-Location $sudoDirB
+    $sudoRb = $null
+    try {
+        $sudoRb = Invoke-GuardPs $sudoPayload "exit"
+    } finally { Pop-Location }
+    Assert "ps sudo: expired epoch + approval increase -> deny (exit 2)" ($sudoRb.Code -eq 2)
+    Remove-Item -Recurse -Force $sudoDirB -ErrorAction SilentlyContinue
+
+    # Test c: malformed flag (no expires-epoch line) + same payload -> DENY
+    $sudoDirC = Join-Path $workDir "sudo-ps-c"
+    New-Item -ItemType Directory -Path $sudoDirC -Force | Out-Null
+    "some-other-field: value" | Set-Content -Encoding Utf8 (Join-Path $sudoDirC "SDD_SUDO")
+    Push-Location $sudoDirC
+    $sudoRc = $null
+    try {
+        $sudoRc = Invoke-GuardPs $sudoPayload "exit"
+    } finally { Pop-Location }
+    Assert "ps sudo: malformed flag + approval increase -> deny (exit 2)" ($sudoRc.Code -eq 2)
+    Remove-Item -Recurse -Force $sudoDirC -ErrorAction SilentlyContinue
+
+    # Test d: valid sudo AND AGENT_STOP both present -> DENY (kill switch wins)
+    $sudoDirD = Join-Path $workDir "sudo-ps-d"
+    New-Item -ItemType Directory -Path $sudoDirD -Force | Out-Null
+    "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirD "SDD_SUDO")
+    "stop" | Set-Content -Encoding Utf8 (Join-Path $sudoDirD "AGENT_STOP")
+    Push-Location $sudoDirD
+    $sudoRd = $null
+    try {
+        $sudoRd = Invoke-GuardPs $sudoPayload "exit"
+    } finally { Pop-Location }
+    Assert "ps sudo: valid sudo + AGENT_STOP -> deny (exit 2, kill switch wins)" ($sudoRd.Code -eq 2)
+    Remove-Item -Recurse -Force $sudoDirD -ErrorAction SilentlyContinue
+
+    # Test e: valid sudo + invalid agent-role Write payload -> DENY (sudo does not bypass check 3)
+    $sudoDirE = Join-Path $workDir "sudo-ps-e"
+    New-Item -ItemType Directory -Path $sudoDirE -Force | Out-Null
+    "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirE "SDD_SUDO")
+    $agentPayload = '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\foo.toml","content":"name = \"foo\"\n"}}'
+    Push-Location $sudoDirE
+    $sudoRe = $null
+    try {
+        $sudoRe = Invoke-GuardPs $agentPayload "exit"
+    } finally { Pop-Location }
+    Assert "ps sudo: valid sudo + invalid agent role -> deny (exit 2, check 3 not bypassed)" ($sudoRe.Code -eq 2)
+    Remove-Item -Recurse -Force $sudoDirE -ErrorAction SilentlyContinue
+
+    # Node.js sudo mode tests (if node available)
+    $node = Get-Command node -ErrorAction SilentlyContinue
+    if ($node) {
+        # Test a: valid sudo + approval increase -> ALLOW
+        $sudoDirNodeA = Join-Path $workDir "sudo-node-ps-a"
+        New-Item -ItemType Directory -Path $sudoDirNodeA -Force | Out-Null
+        "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeA "SDD_SUDO")
+        Push-Location $sudoDirNodeA
+        $sudoNodeRa = Invoke-GuardNode $sudoPayload "exit"
+        Pop-Location
+        Assert "node sudo (ps context): valid future epoch + approval increase -> allow (exit 0)" ($sudoNodeRa.Code -eq 0)
+        Remove-Item -Recurse -Force $sudoDirNodeA -ErrorAction SilentlyContinue
+
+        # Test b: expired sudo + approval increase -> DENY
+        $sudoDirNodeB = Join-Path $workDir "sudo-node-ps-b"
+        New-Item -ItemType Directory -Path $sudoDirNodeB -Force | Out-Null
+        "expires-epoch: $expiredEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeB "SDD_SUDO")
+        Push-Location $sudoDirNodeB
+        $sudoNodeRb = Invoke-GuardNode $sudoPayload "exit"
+        Pop-Location
+        Assert "node sudo (ps context): expired epoch + approval increase -> deny (exit 2)" ($sudoNodeRb.Code -eq 2)
+        Remove-Item -Recurse -Force $sudoDirNodeB -ErrorAction SilentlyContinue
+
+        # Test c: malformed flag + approval increase -> DENY
+        $sudoDirNodeC = Join-Path $workDir "sudo-node-ps-c"
+        New-Item -ItemType Directory -Path $sudoDirNodeC -Force | Out-Null
+        "some-other-field: value" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeC "SDD_SUDO")
+        Push-Location $sudoDirNodeC
+        $sudoNodeRc = Invoke-GuardNode $sudoPayload "exit"
+        Pop-Location
+        Assert "node sudo (ps context): malformed flag + approval increase -> deny (exit 2)" ($sudoNodeRc.Code -eq 2)
+        Remove-Item -Recurse -Force $sudoDirNodeC -ErrorAction SilentlyContinue
+
+        # Test d: valid sudo + AGENT_STOP both present -> DENY
+        $sudoDirNodeD = Join-Path $workDir "sudo-node-ps-d"
+        New-Item -ItemType Directory -Path $sudoDirNodeD -Force | Out-Null
+        "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeD "SDD_SUDO")
+        "stop" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeD "AGENT_STOP")
+        Push-Location $sudoDirNodeD
+        $sudoNodeRd = Invoke-GuardNode $sudoPayload "exit"
+        Pop-Location
+        Assert "node sudo (ps context): valid sudo + AGENT_STOP -> deny (exit 2)" ($sudoNodeRd.Code -eq 2)
+        Remove-Item -Recurse -Force $sudoDirNodeD -ErrorAction SilentlyContinue
+
+        # Test e: valid sudo + invalid agent role -> DENY
+        $sudoDirNodeE = Join-Path $workDir "sudo-node-ps-e"
+        New-Item -ItemType Directory -Path $sudoDirNodeE -Force | Out-Null
+        "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeE "SDD_SUDO")
+        Push-Location $sudoDirNodeE
+        $sudoNodeRe = Invoke-GuardNode $agentPayload "exit"
+        Pop-Location
+        Assert "node sudo (ps context): valid sudo + invalid agent role -> deny (exit 2)" ($sudoNodeRe.Code -eq 2)
+        Remove-Item -Recurse -Force $sudoDirNodeE -ErrorAction SilentlyContinue
+    }
+
     # --- hooks.json parses; referenced scripts exist; each entry has command_windows ---
     $hooksJson = Get-Content -Raw -Encoding Utf8 (Join-Path $hooksDir "hooks.json") | ConvertFrom-Json
     Assert "hooks.json parses with PreToolUse" ($null -ne $hooksJson.hooks.PreToolUse)
