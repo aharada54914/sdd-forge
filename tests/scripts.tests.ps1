@@ -12,14 +12,15 @@ New-Item -ItemType Directory -Path $workDir | Out-Null
 
 function Invoke-Gate {
     param([string]$Script, [string[]]$Arguments)
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir $Script) @Arguments *> $null
+    $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir $Script) @Arguments 2>&1
     return $LASTEXITCODE
 }
 
 function Assert-ExitCode {
     param([string]$Name, [int]$Actual, [int]$Expected)
     if ($Actual -ne $Expected) {
-        throw "$Name expected exit $Expected but got $Actual"
+        $details = ($script:gateOutput | Out-String).Trim()
+        throw "$Name expected exit $Expected but got $Actual`n$details"
     }
     Write-Host "ok: $Name"
 }
