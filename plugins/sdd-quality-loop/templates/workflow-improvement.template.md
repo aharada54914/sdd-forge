@@ -6,7 +6,7 @@
 
 ## Status
 
-{{status}}
+Status: {{status}}
 
 <!-- Allowed values: Draft | Approved | Applied | Verified | Rejected -->
 <!-- Only a human may set status to Approved. The AI sets Draft, Applied, and Verified. -->

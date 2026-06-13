@@ -642,6 +642,43 @@ Approval: Draft
         Remove-Item -Recurse -Force $sudoDirNodeE -ErrorAction SilentlyContinue
     }
 
+    # =========================================================
+    # WFI approval guard — 'Status: Approved' in workflow-improvements/*.md is
+    # human-only and NEVER bypassed by sudo (mirrors tasks.md approval guard).
+    # =========================================================
+    $wfiApprove = '{"tool_name":"Edit","tool_input":{"file_path":"/p/docs/workflow-improvements/WFI-001.md","old_string":"Status: Draft","new_string":"Status: Approved"}}'
+    $r = Invoke-GuardPs $wfiApprove
+    Assert "ps: WFI Edit Status: Approved -> deny (exit 2)" ($r.Code -eq 2)
+
+    $wfiApplied = '{"tool_name":"Edit","tool_input":{"file_path":"/p/docs/workflow-improvements/WFI-001.md","old_string":"Status: Draft","new_string":"Status: Applied"}}'
+    $r = Invoke-GuardPs $wfiApplied
+    Assert "ps: WFI Edit Status: Applied -> allow (exit 0)" ($r.Code -eq 0)
+
+    $wfiPatch = "{`"tool_name`":`"apply_patch`",`"tool_input`":{`"command`":`"*** Begin Patch\n*** Update File: docs/workflow-improvements/WFI-002.md\n-Status: Draft\n+Status: Approved\n*** End Patch`"}}"
+    $r = Invoke-GuardPs $wfiPatch
+    Assert "ps: WFI apply_patch Status: Approved -> deny (exit 2)" ($r.Code -eq 2)
+
+    # KEY: WFI approval is NOT bypassed by valid sudo.
+    $wfiSudoDir = Join-Path $workDir "wfi-sudo-ps"
+    New-Item -ItemType Directory -Path $wfiSudoDir -Force | Out-Null
+    Write-SudoFlag $wfiSudoDir $sudoEpoch
+    $wfiSudoPayload = '{"tool_name":"Edit","tool_input":{"file_path":"docs/workflow-improvements/WFI-001.md","old_string":"Status: Draft","new_string":"Status: Approved"}}'
+    Push-Location $wfiSudoDir
+    $wfiSudoR = $null
+    try { $wfiSudoR = Invoke-GuardPs $wfiSudoPayload "exit" } finally { Pop-Location }
+    Assert "ps sudo: WFI Status: Approved denied even with valid sudo (exit 2)" ($wfiSudoR.Code -eq 2)
+    Remove-Item -Recurse -Force $wfiSudoDir -ErrorAction SilentlyContinue
+
+    $node = Get-Command node -ErrorAction SilentlyContinue
+    if ($node) {
+        $r = Invoke-GuardNode $wfiApprove
+        Assert "node: WFI Edit Status: Approved -> deny (exit 2)" ($r.Code -eq 2)
+        $r = Invoke-GuardNode $wfiApplied
+        Assert "node: WFI Edit Status: Applied -> allow (exit 0)" ($r.Code -eq 0)
+        $r = Invoke-GuardNode $wfiPatch
+        Assert "node: WFI apply_patch Status: Approved -> deny (exit 2)" ($r.Code -eq 2)
+    }
+
     # --- hooks.json parses; referenced scripts exist; each entry has command_windows ---
     $hooksJson = Get-Content -Raw -Encoding Utf8 (Join-Path $hooksDir "hooks.json") | ConvertFrom-Json
     Assert "hooks.json parses with PreToolUse" ($null -ne $hooksJson.hooks.PreToolUse)

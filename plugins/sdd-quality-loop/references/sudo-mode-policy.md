@@ -49,9 +49,11 @@ form the second class of human touchpoint alongside the kill switch:
 - **Architecture / auth / authz / breaking-API / security decisions**: ADR-level
   judgment. `implement-task` still goes `Blocked` and `sdd-bootstrap-interviewer`
   still records them as Open Questions; sudo does not let the agent decide them.
-- **WFI (Workflow Improvement) approval**: setting a WFI `status` to `Approved`
+- **WFI (Workflow Improvement) approval**: setting a WFI `Status: Approved`
   changes the SDD workflow itself (governance), so `workflow-retrospective` still
-  awaits a human even under sudo.
+  awaits a human even under sudo. A hook guard denies any agent edit that
+  introduces `Status: Approved` in `docs/workflow-improvements/WFI-*.md`; unlike
+  the tasks.md approval guard, it is never bypassed by sudo.
 
 **Summary:** under sudo the only human touchpoints that remain are (1) genuine
 judgment forks — where the agent stops (Blocked / Open Question) and defers — and
