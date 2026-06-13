@@ -33,6 +33,14 @@ with open(contract_path, encoding="utf-8") as f:
 
 BASELINE_IDS = {"lint", "typecheck", "unit-tests", "build", "placeholder-scan", "task-state-check"}
 
+# Risk tier required-id sets (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
+RISK_TIERS = {
+    "low":      {"lint", "typecheck", "build", "placeholder-scan", "task-state-check"},
+    "medium":   {"lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression"},
+    "high":     {"lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability"},
+    "critical": {"lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability"},
+}
+
 failures = []
 seen_ids = {}
 checks = contract.get("checks", [])
@@ -127,6 +135,28 @@ for bid in sorted(BASELINE_IDS):
                         f"(set a non-empty waiver_reason)"
                     )
             break
+
+# Pass 4: risk-tier enforcement (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
+risk = (contract.get("risk") or "").strip()
+if risk:  # LEGACY mode: if risk is absent or empty string, skip this pass
+    # Validate risk tier value
+    if risk not in RISK_TIERS:
+        failures.append(f"contract risk is invalid: {risk}")
+    else:
+        # Enforce tier's required-id set
+        required_ids = RISK_TIERS[risk]
+        present_ids_set = set(check.get("id", "?") for check in checks)
+
+        for req_id in sorted(required_ids):
+            if req_id not in present_ids_set:
+                failures.append(f"risk {risk} requires check '{req_id}' present and required:true (missing)")
+            else:
+                # Find the check and verify required:true
+                for check in checks:
+                    if check.get("id") == req_id:
+                        if not check.get("required", False):
+                            failures.append(f"risk {risk} requires check '{req_id}' to be required:true")
+                        break
 
 task = contract.get("task_id", "?")
 if failures:

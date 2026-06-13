@@ -27,6 +27,14 @@ $failures = @()
 
 $BASELINE_IDS = @("lint", "typecheck", "unit-tests", "build", "placeholder-scan", "task-state-check")
 
+# Risk tier required-id sets (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
+$RISK_TIERS = @{
+    "low"      = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check")
+    "medium"   = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression")
+    "high"     = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
+    "critical" = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
+}
+
 # Resolve repo root to an absolute path for traversal checks
 $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
@@ -132,6 +140,31 @@ foreach ($bid in $BASELINE_IDS) {
             $failures += "baseline check '$bid' is downgraded to required:false without waiver_reason; " +
                 "downgrading a baseline check requires justification recorded in the quality-gate report " +
                 "(set a non-empty waiver_reason)"
+        }
+    }
+}
+
+# Pass 4: risk-tier enforcement (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
+$risk = ([string]($contract.risk)).Trim()
+if ($risk) {  # LEGACY mode: if risk is absent or empty string, skip this pass
+    # Validate risk tier value
+    if ($risk -notin $RISK_TIERS.Keys) {
+        $failures += "contract risk is invalid: $risk"
+    } else {
+        # Enforce tier's required-id set
+        $requiredIds = $RISK_TIERS[$risk]
+        $presentIdSet = $contract.checks | ForEach-Object { $_.id }
+
+        foreach ($reqId in ($requiredIds | Sort-Object)) {
+            if ($reqId -notin $presentIdSet) {
+                $failures += "risk $risk requires check '$reqId' present and required:true (missing)"
+            } else {
+                # Find the check and verify required:true
+                $check = $contract.checks | Where-Object { $_.id -eq $reqId } | Select-Object -First 1
+                if (-not [bool]$check.required) {
+                    $failures += "risk $risk requires check '$reqId' to be required:true"
+                }
+            }
         }
     }
 }

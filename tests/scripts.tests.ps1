@@ -229,6 +229,195 @@ Status: Done
     Assert-ExitCode "check-contract baseline downgrade with-waiver passes" (Invoke-Gate "check-contract.ps1" @("contract-downgrade-good.json", "-RepoRoot", ".")) 0
 
     # =========================================================
+    # T-003: risk-aware check-contract
+    # =========================================================
+
+    # Helper to create evidence file
+    function New-Evidence {
+        param([string]$Path)
+        $dir = Split-Path -Parent $Path
+        New-Item -ItemType Directory -Path $dir -Force | Out-Null
+        "evidence data" | Set-Content -Encoding Utf8 $Path
+    }
+
+    # Test: T-003.1 - LEGACY: contract with NO risk field passes (regression test)
+    New-Evidence "reports/test.log"
+    $t003_1 = @{
+        task_id = "T-003.1"
+        feature = "test-feature"
+        created = "2026-06-13T00:00:00Z"
+        comment = "LEGACY: no risk field"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t003_1 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t003-1.json"
+    Assert-ExitCode "T-003.1: LEGACY (no risk field) with baseline set passes" (Invoke-Gate "check-contract.ps1" @("contract-t003-1.json", "-RepoRoot", ".")) 0
+
+    # Test: T-003.2 - risk: low with required set all required:true+passing
+    $t003_2 = @{
+        task_id = "T-003.2"
+        feature = "test-feature"
+        risk = "low"
+        created = "2026-06-13T00:00:00Z"
+        comment = "risk: low, required set (unit-tests optional per low tier)"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $false; passes = $false; evidence = ""; waiver_reason = "test-after approach" }
+        )
+    }
+    $t003_2 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t003-2.json"
+    Assert-ExitCode "T-003.2: risk: low with required set passes (unit-tests optional)" (Invoke-Gate "check-contract.ps1" @("contract-t003-2.json", "-RepoRoot", ".")) 0
+
+    # Test: T-003.3 - risk: low but build required:false → FAILS
+    $t003_3 = @{
+        task_id = "T-003.3"
+        feature = "test-feature"
+        risk = "low"
+        created = "2026-06-13T00:00:00Z"
+        comment = "risk: low, but build is required:false (should fail)"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $false; passes = $false; evidence = ""; waiver_reason = "downgraded" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $false; passes = $false; evidence = ""; waiver_reason = "test-after" }
+        )
+    }
+    $t003_3 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t003-3.json"
+    Assert-ExitCode "T-003.3: risk: low with build required:false fails correctly" (Invoke-Gate "check-contract.ps1" @("contract-t003-3.json", "-RepoRoot", ".")) 1
+
+    # Test: T-003.4 - risk: medium WITHOUT acceptance-tests check → FAILS
+    $t003_4 = @{
+        task_id = "T-003.4"
+        feature = "test-feature"
+        risk = "medium"
+        created = "2026-06-13T00:00:00Z"
+        comment = "risk: medium, missing acceptance-tests"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t003_4 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t003-4.json"
+    Assert-ExitCode "T-003.4: risk: medium missing acceptance-tests fails correctly" (Invoke-Gate "check-contract.ps1" @("contract-t003-4.json", "-RepoRoot", ".")) 1
+
+    # Test: T-003.5 - risk: medium full (adds unit-tests, acceptance-tests, regression)
+    $t003_5 = @{
+        task_id = "T-003.5"
+        feature = "test-feature"
+        risk = "medium"
+        created = "2026-06-13T00:00:00Z"
+        comment = "risk: medium, full required set"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t003_5 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t003-5.json"
+    Assert-ExitCode "T-003.5: risk: medium with full required set passes" (Invoke-Gate "check-contract.ps1" @("contract-t003-5.json", "-RepoRoot", ".")) 0
+
+    # Test: T-003.6 - risk: high WITHOUT requirement-traceability → FAILS
+    $t003_6 = @{
+        task_id = "T-003.6"
+        feature = "test-feature"
+        risk = "high"
+        created = "2026-06-13T00:00:00Z"
+        comment = "risk: high, missing requirement-traceability"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t003_6 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t003-6.json"
+    Assert-ExitCode "T-003.6: risk: high missing requirement-traceability fails correctly" (Invoke-Gate "check-contract.ps1" @("contract-t003-6.json", "-RepoRoot", ".")) 1
+
+    # Test: T-003.7 - risk: high full (adds requirement-traceability)
+    $t003_7 = @{
+        task_id = "T-003.7"
+        feature = "test-feature"
+        risk = "high"
+        created = "2026-06-13T00:00:00Z"
+        comment = "risk: high, full required set"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t003_7 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t003-7.json"
+    Assert-ExitCode "T-003.7: risk: high with full required set passes" (Invoke-Gate "check-contract.ps1" @("contract-t003-7.json", "-RepoRoot", ".")) 0
+
+    # Test: T-003.8 - risk: critical (same set as high)
+    $t003_8 = @{
+        task_id = "T-003.8"
+        feature = "test-feature"
+        risk = "critical"
+        created = "2026-06-13T00:00:00Z"
+        comment = "risk: critical, full required set (same as high)"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t003_8 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t003-8.json"
+    Assert-ExitCode "T-003.8: risk: critical with full required set passes" (Invoke-Gate "check-contract.ps1" @("contract-t003-8.json", "-RepoRoot", ".")) 0
+
+    # Test: T-003.9 - risk: "severe" (invalid) → FAILS
+    $t003_9 = @{
+        task_id = "T-003.9"
+        feature = "test-feature"
+        risk = "severe"
+        created = "2026-06-13T00:00:00Z"
+        comment = "risk: severe (invalid)"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t003_9 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t003-9.json"
+    Assert-ExitCode "T-003.9: risk: 'severe' (invalid) fails correctly" (Invoke-Gate "check-contract.ps1" @("contract-t003-9.json", "-RepoRoot", ".")) 1
+
+    # =========================================================
     # NEW RULES: check-task-state
     # =========================================================
 

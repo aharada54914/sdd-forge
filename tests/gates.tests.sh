@@ -802,6 +802,261 @@ else
 fi
 
 # ============================================================================
+# T-003: risk-aware check-contract Tests
+# ============================================================================
+
+echo "=== T-003: risk-aware check-contract ==="
+
+# Helper to create evidence file for a contract
+create_evidence() {
+    local path="$1"
+    mkdir -p "$(dirname "$path")"
+    echo "evidence data" > "$path"
+}
+
+# Test: T-003.1 - LEGACY: contract with NO risk field passes (regression test)
+mkdir -p "${WORK}/t003_test1/reports"
+create_evidence "${WORK}/t003_test1/reports/test.log"
+cat > "${WORK}/t003_test1/T-003.1.contract.json" <<'EOF'
+{
+  "task_id": "T-003.1",
+  "feature": "test-feature",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "LEGACY: no risk field",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t003_test1/T-003.1.contract.json" "${WORK}/t003_test1"; then
+    ok "T-003.1: LEGACY (no risk field) with baseline set passes"
+else
+    fail "T-003.1: LEGACY contract should pass"
+fi
+
+# Test: T-003.2 - risk: low with required set all required:true+passing
+mkdir -p "${WORK}/t003_test2/reports"
+create_evidence "${WORK}/t003_test2/reports/test.log"
+cat > "${WORK}/t003_test2/T-003.2.contract.json" <<'EOF'
+{
+  "task_id": "T-003.2",
+  "feature": "test-feature",
+  "risk": "low",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "risk: low, required set (unit-tests optional per low tier)",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "test-after approach" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t003_test2/T-003.2.contract.json" "${WORK}/t003_test2"; then
+    ok "T-003.2: risk: low with required set passes (unit-tests optional)"
+else
+    fail "T-003.2: risk: low should pass with required set"
+fi
+
+# Test: T-003.3 - risk: low but build required:false → FAILS
+mkdir -p "${WORK}/t003_test3/reports"
+create_evidence "${WORK}/t003_test3/reports/test.log"
+cat > "${WORK}/t003_test3/T-003.3.contract.json" <<'EOF'
+{
+  "task_id": "T-003.3",
+  "feature": "test-feature",
+  "risk": "low",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "risk: low, but build is required:false (should fail)",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "downgraded" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t003_test3/T-003.3.contract.json" "${WORK}/t003_test3")
+if echo "$output" | grep -q "requires check 'build' to be required:true"; then
+    ok "T-003.3: risk: low with build required:false fails correctly"
+else
+    fail "T-003.3: should fail with 'requires check build to be required:true'. Got: $output"
+fi
+
+# Test: T-003.4 - risk: medium WITHOUT acceptance-tests check → FAILS
+mkdir -p "${WORK}/t003_test4/reports"
+create_evidence "${WORK}/t003_test4/reports/test.log"
+cat > "${WORK}/t003_test4/T-003.4.contract.json" <<'EOF'
+{
+  "task_id": "T-003.4",
+  "feature": "test-feature",
+  "risk": "medium",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "risk: medium, missing acceptance-tests",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t003_test4/T-003.4.contract.json" "${WORK}/t003_test4")
+if echo "$output" | grep -q "requires check 'acceptance-tests' present"; then
+    ok "T-003.4: risk: medium missing acceptance-tests fails correctly"
+else
+    fail "T-003.4: should fail with 'requires check acceptance-tests present'. Got: $output"
+fi
+
+# Test: T-003.5 - risk: medium full (adds unit-tests, acceptance-tests, regression)
+mkdir -p "${WORK}/t003_test5/reports"
+create_evidence "${WORK}/t003_test5/reports/test.log"
+cat > "${WORK}/t003_test5/T-003.5.contract.json" <<'EOF'
+{
+  "task_id": "T-003.5",
+  "feature": "test-feature",
+  "risk": "medium",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "risk: medium, full required set",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t003_test5/T-003.5.contract.json" "${WORK}/t003_test5"; then
+    ok "T-003.5: risk: medium with full required set passes"
+else
+    fail "T-003.5: risk: medium with full set should pass"
+fi
+
+# Test: T-003.6 - risk: high WITHOUT requirement-traceability → FAILS
+mkdir -p "${WORK}/t003_test6/reports"
+create_evidence "${WORK}/t003_test6/reports/test.log"
+cat > "${WORK}/t003_test6/T-003.6.contract.json" <<'EOF'
+{
+  "task_id": "T-003.6",
+  "feature": "test-feature",
+  "risk": "high",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "risk: high, missing requirement-traceability",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t003_test6/T-003.6.contract.json" "${WORK}/t003_test6")
+if echo "$output" | grep -q "requires check 'requirement-traceability' present"; then
+    ok "T-003.6: risk: high missing requirement-traceability fails correctly"
+else
+    fail "T-003.6: should fail with 'requires check requirement-traceability present'. Got: $output"
+fi
+
+# Test: T-003.7 - risk: high full (adds requirement-traceability)
+mkdir -p "${WORK}/t003_test7/reports"
+create_evidence "${WORK}/t003_test7/reports/test.log"
+cat > "${WORK}/t003_test7/T-003.7.contract.json" <<'EOF'
+{
+  "task_id": "T-003.7",
+  "feature": "test-feature",
+  "risk": "high",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "risk: high, full required set",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t003_test7/T-003.7.contract.json" "${WORK}/t003_test7"; then
+    ok "T-003.7: risk: high with full required set passes"
+else
+    fail "T-003.7: risk: high with full set should pass"
+fi
+
+# Test: T-003.8 - risk: critical (same set as high)
+mkdir -p "${WORK}/t003_test8/reports"
+create_evidence "${WORK}/t003_test8/reports/test.log"
+cat > "${WORK}/t003_test8/T-003.8.contract.json" <<'EOF'
+{
+  "task_id": "T-003.8",
+  "feature": "test-feature",
+  "risk": "critical",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "risk: critical, full required set (same as high)",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t003_test8/T-003.8.contract.json" "${WORK}/t003_test8"; then
+    ok "T-003.8: risk: critical with full required set passes"
+else
+    fail "T-003.8: risk: critical with full set should pass"
+fi
+
+# Test: T-003.9 - risk: "severe" (invalid) → FAILS
+mkdir -p "${WORK}/t003_test9/reports"
+create_evidence "${WORK}/t003_test9/reports/test.log"
+cat > "${WORK}/t003_test9/T-003.9.contract.json" <<'EOF'
+{
+  "task_id": "T-003.9",
+  "feature": "test-feature",
+  "risk": "severe",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "risk: severe (invalid)",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t003_test9/T-003.9.contract.json" "${WORK}/t003_test9")
+if echo "$output" | grep -q "contract risk is invalid"; then
+    ok "T-003.9: risk: 'severe' (invalid) fails correctly"
+else
+    fail "T-003.9: should fail with 'contract risk is invalid'. Got: $output"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 
