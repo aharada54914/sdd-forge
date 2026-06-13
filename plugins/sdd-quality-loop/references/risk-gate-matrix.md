@@ -73,6 +73,11 @@ Notes:
 
 ## Backward compatibility
 
-A contract with no `risk` field is treated as `medium` for required-set purposes,
-which equals the historical BASELINE_IDS behavior — pre-feature contracts and
-their tests pass unchanged.
+A contract with **no** `risk` field runs in **legacy mode**: `check-contract`
+applies only its historical behavior (baseline-protection of {lint, typecheck,
+unit-tests, build, placeholder-scan, task-state-check}) and enforces **no tier
+minimum**. Tier-minimum enforcement is opt-in — it activates only when `risk` is
+present. (Absent is NOT mapped to `medium`: the `medium` minimum adds
+`acceptance-tests`/`regression`, which pre-feature contracts do not carry, so an
+absent→medium mapping would fail every existing contract. Pre-feature contracts
+and their tests therefore pass unchanged.)

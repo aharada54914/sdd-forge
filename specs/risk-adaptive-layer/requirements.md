@@ -81,7 +81,7 @@ See `acceptance-tests.md` for AC-NNN ↔ TEST-NNN mapping. Summary:
 
 ## Edge Cases
 
-- Legacy contract with no `risk` field → treated as the documented default tier (medium-equivalent baseline), validates as today (no regression). New flows MUST set risk.
+- Legacy contract with no `risk` field → legacy mode: no tier-minimum enforcement, validates exactly as today (no regression). New flows MUST set risk; tier enforcement is opt-in via the `risk` field.
 - Risk downgraded mid-task (high→low) → requires human approval + spec-change record; gate refuses silent downgrade.
 - `tdd` workflow on a pure-refactor (no new behavior) → red evidence may be the differential baseline failing case; documented in design.
 - Free-tier repo without branch-protection API → apply script degrades to documented manual steps + a status-check-only fallback.

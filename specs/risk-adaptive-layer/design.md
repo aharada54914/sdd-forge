@@ -83,7 +83,12 @@ New top-level fields + per-check optional Red/Green + requirement mapping:
 }
 ```
 
-- `risk` absent ⇒ default tier = **medium-baseline** (the current fixed set) → no regression.
+- `risk` absent ⇒ **legacy mode**: `check-contract` applies ONLY its current behavior
+  (historical baseline-protection of {lint, typecheck, unit-tests, build,
+  placeholder-scan, task-state-check}); it enforces NO tier minimum. Tier-minimum
+  enforcement activates **only when `risk` is present**. (Do NOT map absent→medium:
+  the `medium` minimum adds `acceptance-tests`/`regression`, which pre-feature
+  contracts lack, so mapping absent→medium would fail every existing contract.)
 - `red_evidence`/`green_evidence` optional in schema; **required by the gate** only when `required_workflow == "tdd"` for checks of type test.
 - `requirement_ids` optional in schema; **required by `check-traceability`** for high/critical.
 
@@ -206,7 +211,7 @@ both runtimes. Regression: all pre-feature fixtures MUST still pass unchanged
 
 ## Migration & backward compatibility (load-bearing)
 
-1. **Default tier**: `risk` absent ⇒ medium-baseline = today's BASELINE_IDS. Existing contracts/tests pass unchanged.
+1. **Legacy mode**: `risk` absent ⇒ today's behavior exactly (baseline-protection only, no tier minimum). Existing contracts/tests pass unchanged. Tier enforcement is opt-in via the `risk` field.
 2. **Additive schema**: all new fields optional in templates; gates only *require* them per risk tier.
 3. **Phase order enforces safety**: expand tests FIRST (red), then change the gate (green). Never change a gate without its failing+passing fixtures landing in the same task.
 4. **Dual-runtime parity**: a change is incomplete until py and PowerShell behave identically (verified by `scripts.tests.ps1` + `gates.tests.sh`).
