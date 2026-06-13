@@ -48,6 +48,27 @@ whether hooks fire.
 Run the `.sh` variants from POSIX shells (including Git Bash on Windows) and
 the `.ps1` variants from PowerShell. Both behave identically.
 
+### check-placeholders Scope and Waivers
+
+`check-placeholders` scans whatever path it is given — a file, or recursively a
+directory — and has no Git-diff filtering of its own. The quality-gate skill is
+therefore responsible for invoking it on **only the production files the task
+changed**; passing a whole directory would also scan pre-existing markers in
+untouched files and could block the task. Keep the caller scoped to changed files.
+
+The scan is intentionally conservative: it flags `TODO`/`FIXME`/stub markers and
+`raise NotImplementedError` / `panic("TODO")`-style bodies. On a brownfield repo
+a changed file may legitimately contain such a pattern — e.g. an abstract method
+whose body is `raise NotImplementedError`, or a long-standing `# TODO` unrelated
+to the task. This is not a defect in the gate. To let such a task proceed, the
+operator must do **both**: (a) set the contract's `placeholder-scan` check to
+`"required": false` with a non-empty `waiver_reason` (per the Default-FAIL rules
+above), and (b) record the human acceptance in the quality-gate report.
+`check-contract` does not read the report — it fails any required check left at
+`passes: false` — so it is the `required: false` + `waiver_reason` contract edit
+that actually unblocks the gate. Do not weaken the scan itself to silence the
+prompt.
+
 ## Smoke Run
 
 When the project can be started (dev server, Docker, CLI binary), start it
