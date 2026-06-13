@@ -41,6 +41,7 @@ import sys
 import time
 
 APPROVAL_RE = re.compile(r"Approval:\s*Approved")
+WFI_APPROVAL_RE = re.compile(r"Status:\s*Approved")
 AGENT_ROLE_PATH_RE = re.compile(r"\.codex/agents/[^/]+\.toml$")
 TASK_SECTION_RE = re.compile(r"^##\s+(T-\S+)", re.MULTILINE)
 DEVELOPER_INSTRUCTIONS_RE = re.compile(r"(^|\n)[ \t]*developer_instructions[ \t]*=")
@@ -64,6 +65,12 @@ APPROVAL_MSG = (
     "SDD deterministic gate: agents must not set 'Approval: Approved' in "
     "tasks.md. Only a human may approve a task by editing the file directly. "
     "Leave the task as Draft and ask the human to approve it."
+)
+WFI_APPROVAL_MSG = (
+    "SDD deterministic gate: agents must not set 'Status: Approved' in a "
+    "docs/workflow-improvements/WFI-*.md file. Only a human may approve a "
+    "Workflow Improvement; this is never bypassed by sudo. Leave it as Draft "
+    "and ask the human to approve it."
 )
 SDD_SUDO_WRITE_MSG = (
     "SDD deterministic gate: agents must not create, edit, or delete the "
@@ -91,6 +98,20 @@ def count(text):
 def is_tasks_md(path):
     # Case-insensitive match (intentional: matches JS/PS1 behavior; Windows FS is case-insensitive).
     return bool(path) and str(path).replace("\\", "/").lower().endswith("tasks.md")
+
+
+def is_wfi_path(path):
+    # WFI docs live under docs/workflow-improvements/ and end with .md.
+    if not path:
+        return False
+    normalized = str(path).replace("\\", "/").lower()
+    return "workflow-improvements/" in normalized and normalized.endswith(".md")
+
+
+def wfi_count(text):
+    if not text:
+        return 0
+    return len(WFI_APPROVAL_RE.findall(text))
 
 
 def is_agent_role_path(path):
@@ -443,6 +464,72 @@ def _patch_increases(patch):
     return net_for_file > 0
 
 
+def wfi_approval_increases(payload):
+    """Return True if this tool call would set 'Status: Approved' in a WFI file.
+
+    WFI approval is human-only and is NEVER bypassed by sudo. Mirrors the tasks.md
+    approval guard but keyed on the 'Status: Approved' marker and scoped to
+    docs/workflow-improvements/*.md.
+    """
+    tool_input = payload.get("tool_input") or {}
+    tool_name = (payload.get("tool_name") or "").lower()
+
+    if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
+        return _wfi_patch_increases(tool_input.get("command") or "")
+
+    if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
+        tool_input.get("command"), str
+    ):
+        cmd = tool_input["command"]
+        if "workflow-improvements/" in cmd.lower() and WFI_APPROVAL_RE.search(cmd):
+            return True
+        return False
+
+    file_path = tool_input.get("file_path") or ""
+    if not is_wfi_path(file_path):
+        return False
+
+    if isinstance(tool_input.get("edits"), list):
+        for edit in tool_input["edits"]:
+            if wfi_count((edit or {}).get("new_string")) > 0:
+                return True
+        return False
+    elif "new_string" in tool_input:
+        return wfi_count(tool_input.get("new_string")) > 0
+    elif "content" in tool_input:
+        return _wfi_write_content_increases(file_path, tool_input.get("content") or "")
+    else:
+        return False
+
+
+def _wfi_write_content_increases(file_path, new_content):
+    try:
+        with open(file_path, encoding="utf-8") as f:
+            old_content = f.read()
+    except OSError:
+        old_content = ""
+    return wfi_count(new_content) > wfi_count(old_content)
+
+
+def _wfi_patch_increases(patch):
+    current_is_wfi = False
+    added = removed = 0
+    for raw in patch.splitlines():
+        m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
+        if m:
+            current_is_wfi = is_wfi_path(m.group(2).strip())
+            continue
+        if raw.startswith("*** End Patch") or raw.startswith("*** Begin Patch"):
+            continue
+        if not current_is_wfi:
+            continue
+        if raw.startswith("+") and not raw.startswith("+++"):
+            added += wfi_count(raw[1:])
+        elif raw.startswith("-") and not raw.startswith("---"):
+            removed += wfi_count(raw[1:])
+    return (added - removed) > 0
+
+
 def agent_role_invalid(payload):
     """Return True if this would write an invalid or protected agent role file."""
     tool_input = payload.get("tool_input") or {}
@@ -616,6 +703,10 @@ def main():
         # Check 2b: Approval guard (bypassed by valid sudo).
         if approval_increases(payload) and not sudo_active():
             emit("deny", APPROVAL_MSG, mode)
+
+        # Check 2c: WFI approval guard (NEVER bypassed by sudo).
+        if wfi_approval_increases(payload):
+            emit("deny", WFI_APPROVAL_MSG, mode)
     except Exception:
         # Never crash; fail closed on the approval check.
         emit("deny", "SDD deterministic gate: approval guard failed closed.", mode)

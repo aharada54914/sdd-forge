@@ -45,6 +45,7 @@ const fs = require('fs');
 const path = require('path');
 
 const APPROVAL_RE = /Approval:\s*Approved/g;
+const WFI_APPROVAL_RE = /Status:\s*Approved/g;
 const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
 const SUDO_EPOCH_RE = /(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)/;
@@ -62,6 +63,12 @@ const APPROVAL_MSG =
   "SDD deterministic gate: agents must not set 'Approval: Approved' in " +
   "tasks.md. Only a human may approve a task by editing the file directly. " +
   "Leave the task as Draft and ask the human to approve it.";
+
+const WFI_APPROVAL_MSG =
+  "SDD deterministic gate: agents must not set 'Status: Approved' in a " +
+  "docs/workflow-improvements/WFI-*.md file. Only a human may approve a " +
+  "Workflow Improvement; this is never bypassed by sudo. Leave it as Draft " +
+  "and ask the human to approve it.";
 
 const SDD_SUDO_WRITE_MSG =
   "SDD deterministic gate: agents must not create, edit, or delete the " +
@@ -88,6 +95,19 @@ function isTasksMd(filePath) {
   // Case-insensitive match (intentional: Windows FS is case-insensitive; matches py/ps1 behavior).
   if (!filePath) return false;
   return String(filePath).replace(/\\/g, '/').toLowerCase().endsWith('tasks.md');
+}
+
+function isWfiPath(filePath) {
+  // WFI docs live under docs/workflow-improvements/ and end with .md.
+  if (!filePath) return false;
+  const normalized = String(filePath).replace(/\\/g, '/').toLowerCase();
+  return normalized.includes('workflow-improvements/') && normalized.endsWith('.md');
+}
+
+function wfiCount(text) {
+  if (!text) return 0;
+  const matches = text.match(WFI_APPROVAL_RE);
+  return matches ? matches.length : 0;
 }
 
 function isAgentRolePath(filePath) {
@@ -538,6 +558,79 @@ function approvalIncreases(payload) {
   }
 }
 
+function wfiApprovalIncreases(payload) {
+  // WFI approval is human-only and NEVER bypassed by sudo. Mirrors the tasks.md
+  // approval guard but keyed on 'Status: Approved' and scoped to
+  // docs/workflow-improvements/*.md.
+  const toolInput = payload.tool_input || {};
+  const toolName = String(payload.tool_name || '').toLowerCase();
+  const command = toolInput.command;
+
+  if (toolName === 'apply_patch' || looksLikePatch(command)) {
+    return wfiPatchIncreases(command || '');
+  }
+
+  if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
+    if (command.toLowerCase().includes('workflow-improvements/') && wfiCount(command) > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  const filePath = toolInput.file_path || '';
+  if (!isWfiPath(filePath)) return false;
+
+  if (Array.isArray(toolInput.edits)) {
+    for (const edit of toolInput.edits) {
+      const e = edit || {};
+      if (wfiCount(e.new_string) > 0) {
+        return true;
+      }
+    }
+    return false;
+  } else if ('new_string' in toolInput) {
+    return wfiCount(toolInput.new_string) > 0;
+  } else if ('content' in toolInput) {
+    return wfiWriteContentIncreases(filePath, toolInput.content || '');
+  } else {
+    return false;
+  }
+}
+
+function wfiWriteContentIncreases(filePath, newContent) {
+  let oldContent = '';
+  try {
+    oldContent = fs.readFileSync(filePath, 'utf8');
+  } catch (e) {
+    oldContent = '';
+  }
+  return wfiCount(newContent) > wfiCount(oldContent);
+}
+
+function wfiPatchIncreases(patch) {
+  let currentIsWfi = false;
+  let added = 0;
+  let removed = 0;
+  for (const raw of patch.split('\n')) {
+    const line = raw.replace(/\r$/, '');
+    const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+    if (m) {
+      currentIsWfi = isWfiPath(m[2].trim());
+      continue;
+    }
+    if (line.startsWith('*** End Patch') || line.startsWith('*** Begin Patch')) {
+      continue;
+    }
+    if (!currentIsWfi) continue;
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      added += wfiCount(line.slice(1));
+    } else if (line.startsWith('-') && !line.startsWith('---')) {
+      removed += wfiCount(line.slice(1));
+    }
+  }
+  return (added - removed) > 0;
+}
+
 function agentRoleInvalid(payload) {
   const toolInput = payload.tool_input || {};
   const toolName = String(payload.tool_name || '').toLowerCase();
@@ -662,6 +755,12 @@ async function main() {
     APPROVAL_RE.lastIndex = 0;
     if (approvalIncreases(payload) && !sudoActive()) {
       emitDecision('deny', APPROVAL_MSG, mode);
+    }
+
+    // Check 2c: WFI approval guard (NEVER bypassed by sudo).
+    WFI_APPROVAL_RE.lastIndex = 0;
+    if (wfiApprovalIncreases(payload)) {
+      emitDecision('deny', WFI_APPROVAL_MSG, mode);
     }
   } catch (e) {
     // Never crash; fail closed on the approval check.

@@ -6,7 +6,40 @@ disable-model-invocation: true
 
 # Sudo Mode
 
-Human-invoked toggle that bypasses human approval checkpoints (tasks.md `Approval: Approved`, architecture review sign-off, quality-gate human sign-off) with an expiring token.
+Human-invoked toggle that auto-passes routine human *approval* checkpoints (tasks.md `Approval: Approved`, routine quality-gate sign-off, `accepted` baseline-diff approval) with an expiring token. It never auto-passes genuine *judgment* (see "What Is NOT Bypassed").
+
+## How to Turn It On (Quick Start)
+
+Sudo mode is **human-only**: you type the command yourself; the agent can never
+enable it. Three steps:
+
+1. **Turn on** — type one command in your CLI (pick a duration, default 8h):
+
+   ```txt
+   /sdd-sudo            # 8 hours (default)
+   /sdd-sudo 4h         # 4 hours
+   /sdd-sudo 24h        # maximum
+   ```
+
+   This writes an expiring `SDD_SUDO` token at the project root and prints a
+   banner showing exactly what is and is not bypassed and when it expires.
+
+2. **Work** — the agent now passes routine approval *waiting* (task approval,
+   `accepted` baseline diffs) automatically, recording an `(sudo <time>)` audit
+   mark at each. Deterministic gates, the kill switch, and genuine judgment
+   forks still stop it (see below).
+
+3. **Turn off** — when done, or to end early:
+
+   ```txt
+   /sdd-sudo off        # delete the token now
+   /sdd-sudo status     # check remaining time / expiry
+   ```
+
+   The token also expires on its own after the duration; nothing is left active.
+
+> The agent cannot create, extend, or re-enable `SDD_SUDO`. If it ever claims
+> sudo is on without you having typed `/sdd-sudo`, treat that as a bug.
 
 ## Usage
 
@@ -43,9 +76,12 @@ Deletes the `SDD_SUDO` flag file and confirms.
 
 ## What Is Bypassed
 
-- `Approval: Approved` gate in tasks.md (human sign-off requirement)
-- Architecture review sign-off (when `quality-gate` normally waits for human approval)
-- Quality-gate human decision steps (contract decision, review completion)
+Routine **approval** gates only (human sign-off *waiting*):
+
+- `Approval: Approved` gate in tasks.md (routine task sign-off)
+- Contract approval / routine `Done` sign-off in `quality-gate`
+- `accepted` baseline-diff approval for `refactor`/`bugfix` work (intentional,
+  task-described behavior change); update `baseline-behavior.md` and mark `(sudo)`
 
 At each approval checkpoint, record `Approval: Approved (sudo <ISO8601 UTC>)` in
 tasks.md and continue; the approval guard permits it.
@@ -57,9 +93,14 @@ tasks.md and continue; the approval guard permits it.
 - **Agent-role guard**: agent role file validation and constraints still apply
 - **All deterministic gate scripts**: `check-contract`, `check-placeholders`,
   `check-task-state`, `check-sdd-structure` still run and may reject the task
+- **Genuine human judgment (not approval)** — sudo never auto-passes these; the
+  agent stops and defers to you:
+  - `requires_human_decision: true` review tickets
+  - architecture / auth / authz / breaking-API / security decisions (ADR-level)
+  - WFI (Workflow Improvement) approval — it changes the workflow itself
 
-Sudo mode replaces human WAITING, not quality EVIDENCE. All automation and
-deterministic gates run as normal.
+Sudo mode replaces human *waiting on approval*, not quality *evidence* and not
+human *judgment*. All automation and deterministic gates run as normal.
 
 ## Implementation
 

@@ -39,10 +39,14 @@ and `references/agent-delegation-policy.md`.
 ### Sudo Mode
 
 If a valid `SDD_SUDO` flag file exists at the project root (see
-`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), human approval
-checkpoints auto-pass. Record `Approval: Approved (sudo <ISO8601 UTC>)` in
-tasks.md and continue. All deterministic gates still apply; every check runs as
-normal.
+`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), the routine task
+**approval** checkpoint auto-passes. Record
+`Approval: Approved (sudo <ISO8601 UTC>)` in tasks.md and continue.
+
+Sudo does **not** bypass the Block-and-Stop decisions below: requirement,
+architecture, authentication, authorization, breaking-API, or security
+decisions still require a human. Set the task to `Blocked` and defer to the
+human even under sudo. All deterministic gates apply; every check runs as normal.
 
 ## State Restoration
 

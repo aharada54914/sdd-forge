@@ -29,6 +29,9 @@ $ErrorActionPreference = "Stop"
 $ApprovalMsg = "SDD deterministic gate: agents must not set 'Approval: Approved' in tasks.md. " +
     "Only a human may approve a task by editing the file directly. " +
     "Leave the task as Draft and ask the human to approve it."
+$WfiApprovalMsg = "SDD deterministic gate: agents must not set 'Status: Approved' in a " +
+    "docs/workflow-improvements/WFI-*.md file. Only a human may approve a Workflow " +
+    "Improvement; this is never bypassed by sudo. Leave it as Draft and ask the human to approve it."
 $SddSudoWriteMsg = "SDD deterministic gate: agents must not create, edit, or delete the " +
     "SDD_SUDO flag file. Only a human may manage sudo mode."
 $KillMsg = "SDD kill switch: AGENT_STOP exists at the project root. All tool use is suspended until a human deletes the file."
@@ -51,6 +54,19 @@ function Test-TasksMd {
     if ([string]::IsNullOrEmpty($Path)) { return $false }
     # -match is case-insensitive in PowerShell (intentional: matches JS/py behavior; Windows FS is case-insensitive).
     return ($Path -replace "\\", "/") -match "tasks\.md$"
+}
+
+function Test-WfiPath {
+    param([string]$Path)
+    if ([string]::IsNullOrEmpty($Path)) { return $false }
+    $normalized = ($Path -replace "\\", "/").ToLower()
+    return ($normalized -match "workflow-improvements/" -and $normalized.EndsWith(".md"))
+}
+
+function Get-WfiCount {
+    param([string]$Text)
+    if ([string]::IsNullOrEmpty($Text)) { return 0 }
+    return ([regex]::Matches($Text, "Status:\s*Approved")).Count
 }
 
 function Test-AgentRolePath {
@@ -292,6 +308,78 @@ function Test-PatchIncreases {
     return (($added - $removed) -gt 0)
 }
 
+function Test-WfiPatchIncreases {
+    param([string]$Patch)
+    $currentIsWfi = $false
+    $added = 0
+    $removed = 0
+    foreach ($line in ($Patch -split "`n")) {
+        $line = $line -replace "`r$", ""
+        $m = [regex]::Match($line, "^\*\*\* (Update|Add|Delete) File: (.+)$")
+        if ($m.Success) {
+            $currentIsWfi = Test-WfiPath ($m.Groups[2].Value.Trim())
+            continue
+        }
+        if ($line.StartsWith("*** End Patch") -or $line.StartsWith("*** Begin Patch")) { continue }
+        if (-not $currentIsWfi) { continue }
+        if ($line.StartsWith("+") -and -not $line.StartsWith("+++")) {
+            $added += Get-WfiCount $line.Substring(1)
+        } elseif ($line.StartsWith("-") -and -not $line.StartsWith("---")) {
+            $removed += Get-WfiCount $line.Substring(1)
+        }
+    }
+    return (($added - $removed) -gt 0)
+}
+
+function Test-WfiWriteContentIncreases {
+    param([string]$FilePath, [string]$NewContent)
+    $oldContent = ""
+    if (Test-Path -LiteralPath $FilePath) {
+        $oldContent = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+    }
+    return ((Get-WfiCount $NewContent) -gt (Get-WfiCount $oldContent))
+}
+
+function Test-WfiApprovalIncreases {
+    param($Payload)
+    $toolInput = $Payload.tool_input
+    if ($null -eq $toolInput) { return $false }
+    $toolName = ""
+    if ($Payload.PSObject.Properties["tool_name"]) { $toolName = ([string]$Payload.tool_name).ToLower() }
+
+    $command = $null
+    if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
+
+    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+        return Test-WfiPatchIncreases $command
+    }
+
+    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+        if ($command.ToLower().Contains("workflow-improvements/") -and [regex]::IsMatch($command, "Status:\s*Approved")) {
+            return $true
+        }
+        return $false
+    }
+
+    $filePath = [string]$toolInput.file_path
+    if (-not (Test-WfiPath $filePath)) { return $false }
+
+    if ($toolInput.PSObject.Properties["edits"] -and $null -ne $toolInput.edits) {
+        foreach ($edit in $toolInput.edits) {
+            if ((Get-WfiCount ([string]$edit.new_string)) -gt 0) {
+                return $true
+            }
+        }
+        return $false
+    } elseif ($toolInput.PSObject.Properties["new_string"]) {
+        return (Get-WfiCount ([string]$toolInput.new_string)) -gt 0
+    } elseif ($toolInput.PSObject.Properties["content"]) {
+        return Test-WfiWriteContentIncreases $filePath ([string]$toolInput.content)
+    } else {
+        return $false
+    }
+}
+
 function Test-PatchWritesInvalidAgentRole {
     param([string]$Patch)
     $currentIsAgentRole = $false
@@ -523,6 +611,9 @@ try {
 
     # Check 2b: Approval guard (bypassed by valid sudo).
     if ((Test-ApprovalIncreases $payload) -and -not (Test-SudoActive)) { Emit-Decision "deny" $ApprovalMsg }
+
+    # Check 2c: WFI approval guard (NEVER bypassed by sudo).
+    if (Test-WfiApprovalIncreases $payload) { Emit-Decision "deny" $WfiApprovalMsg }
 } catch {
     Emit-Decision "deny" "SDD deterministic gate: approval guard failed closed."
 }

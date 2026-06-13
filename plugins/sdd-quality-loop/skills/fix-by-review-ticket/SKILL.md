@@ -19,5 +19,12 @@ Use this skill for one review ticket under `docs/review-tickets/`.
 6. Return the task to `Implementation Complete`.
 7. Run `quality-gate` again before the task can become `Done`.
 
+## Sudo Mode
+
+A valid `SDD_SUDO` flag does **not** bypass `requires_human_decision: true`.
+Those tickets need genuine human judgment, not just approval, so the step 2 stop
+still applies under sudo. Scoped deterministic checks run as normal. See
+`plugins/sdd-quality-loop/references/sudo-mode-policy.md`.
+
 Do not make unrelated improvements, silently change requirements, or perform
 breaking changes. Do not commit, push, or create a PR/MR unless explicitly requested.
