@@ -341,9 +341,11 @@ function payloadIsMalformed(payload) {
 }
 
 function writeContentIncreases(filePath, newContent) {
-  // C-03 Write: task-section-level comparison.
-  // Return True if newContent would result in a task (## T-NNN section) being Approved
-  // when it was not before, or if a new task appears as Approved.
+  // C-03 Write: deny any net increase in Approved markers.
+  // True if newContent raises the file-wide Approved count (which also covers a
+  // brand-new file and any 'Approval: Approved' written outside a recognized
+  // ## T-NNN section), or if any individual task section goes from un-approved
+  // to Approved while the file-wide total stays constant.
   let oldContent = '';
   try {
     oldContent = fs.readFileSync(filePath, 'utf8');
@@ -351,6 +353,14 @@ function writeContentIncreases(filePath, newContent) {
     oldContent = '';
   }
 
+  // File-wide guard: any net increase in total Approved markers is a deny.
+  // Catches headerless approvals, brand-new files, and bulk additions.
+  if (countApprovals(newContent) > countApprovals(oldContent)) {
+    return true;
+  }
+
+  // Task-section guard: catch a per-task Draft->Approved swap that keeps the
+  // file-wide total constant.
   // Extract task sections from old and new content.
   const taskRegex = /^##\s+(T-\S+)/gm;
   const oldTasks = {};

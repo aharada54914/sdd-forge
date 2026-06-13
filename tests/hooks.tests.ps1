@@ -38,8 +38,12 @@ function Invoke-KillSwitchPs {
 }
 
 function Write-SudoFlag {
-    param([string]$Path, [int64]$ExpiresEpoch)
+    # The hardened guard requires BOTH issued-epoch and expires-epoch with a
+    # TTL <= 86400s (matches guards.tests.sh write_sudo_flag and sudo_active()).
+    param([string]$Path, [int64]$ExpiresEpoch, [int64]$IssuedEpoch = -1)
+    if ($IssuedEpoch -lt 0) { $IssuedEpoch = [int64]([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) }
     @"
+issued-epoch: $IssuedEpoch
 expires-epoch: $ExpiresEpoch
 "@ | Set-Content -Encoding Utf8 (Join-Path $Path "SDD_SUDO")
 }

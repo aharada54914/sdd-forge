@@ -92,6 +92,25 @@ else
     fail "sh: copilot deny -> JSON deny (code=$GUARD_CODE out='$GUARD_OUT')"
 fi
 
+# Write content-mode approval guard (regression: file-wide count, not only
+# per-task sections). A headerless 'Approval: Approved' or a brand-new file must
+# still be denied — otherwise an agent could self-approve outside any ## T-NNN.
+WC_DIR="${WORK}/wc"
+mkdir -p "$WC_DIR"
+printf '# Tasks\n## T-001\nApproval: Approved\n## T-002\nApproval: Draft\n' > "${WC_DIR}/tasks.md"
+# new file (does not exist on disk) + headerless approval -> deny
+invoke_guard_sh '{"tool_name":"Write","tool_input":{"file_path":"'"${WC_DIR}"'/new-tasks.md","content":"Approval: Approved"}}'
+if [[ $GUARD_CODE -eq 2 ]]; then ok "sh: Write nonexistent tasks.md with approval -> deny"; else fail "sh: Write nonexistent tasks.md with approval -> deny (expected 2, got $GUARD_CODE)"; fi
+# existing file, content raises total approvals (headerless) -> deny
+invoke_guard_sh '{"tool_name":"Write","tool_input":{"file_path":"'"${WC_DIR}"'/tasks.md","content":"Approval: Approved\nApproval: Approved"}}'
+if [[ $GUARD_CODE -eq 2 ]]; then ok "sh: Write content extra headerless approval -> deny"; else fail "sh: Write content extra headerless approval -> deny (expected 2, got $GUARD_CODE)"; fi
+# existing file, same total approvals -> allow
+invoke_guard_sh '{"tool_name":"Write","tool_input":{"file_path":"'"${WC_DIR}"'/tasks.md","content":"Approval: Approved\nApproval: Draft"}}'
+if [[ $GUARD_CODE -eq 0 ]]; then ok "sh: Write content same approval count -> allow"; else fail "sh: Write content same approval count -> allow (expected 0, got $GUARD_CODE)"; fi
+# per-task Draft->Approved swap keeping file-wide total constant -> deny
+invoke_guard_sh '{"tool_name":"Write","tool_input":{"file_path":"'"${WC_DIR}"'/tasks.md","content":"## T-001\nApproval: Draft\n## T-002\nApproval: Approved\n"}}'
+if [[ $GUARD_CODE -eq 2 ]]; then ok "sh: Write per-task swap (constant total) -> deny"; else fail "sh: Write per-task swap (constant total) -> deny (expected 2, got $GUARD_CODE)"; fi
+
 # Agent-role guard tests for sh dispatcher
 # 1. DENY: Write-style payload to agent role path without developer_instructions
 invoke_guard_sh '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\n"}}'

@@ -25,7 +25,10 @@ if (-not [string]::IsNullOrEmpty($envRoot)) {
             }
         } catch { }
         $parent = Split-Path -Parent $current
-        if ($parent -eq $current) { break }
+        # Stop at the filesystem root: Split-Path -Parent "/" (POSIX) and
+        # "C:\" (Windows) both return an empty string, which would otherwise
+        # leave $current empty and make Join-Path throw under -ErrorAction Stop.
+        if ([string]::IsNullOrEmpty($parent) -or $parent -eq $current) { break }
         $current = $parent
     }
     if (-not $gitRootFound -and "." -notin $bases) {

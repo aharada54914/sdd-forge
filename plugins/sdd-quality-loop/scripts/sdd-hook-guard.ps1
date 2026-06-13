@@ -137,7 +137,10 @@ function Resolve-ProjectRoot {
             }
         } catch { }
         $parent = Split-Path -Parent $current
-        if ($parent -eq $current) { break }
+        # Stop at the filesystem root: Split-Path -Parent "/" (POSIX) and
+        # "C:\" (Windows) both return an empty string, which would otherwise
+        # leave $current empty and make Join-Path throw under -ErrorAction Stop.
+        if ([string]::IsNullOrEmpty($parent) -or $parent -eq $current) { break }
         $current = $parent
     }
     return @{ SudoRoot = "."; Bases = @(".") }
@@ -276,12 +279,18 @@ function Test-AgentRoleInvalid {
 
 function Test-WriteContentIncreases {
     param([string]$FilePath, [string]$NewContent)
-    # C-03 Write: task-section-level comparison.
+    # C-03 Write: deny any net increase in Approved markers (file-wide), or a
+    # per-task Draft->Approved swap that keeps the file-wide total constant.
     $oldContent = ""
     if (Test-Path -LiteralPath $FilePath) {
         $oldContent = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
     }
 
+    # File-wide guard: any net increase in total Approved markers is a deny.
+    # Catches headerless approvals, brand-new files, and bulk additions.
+    if ((Get-Count $NewContent) -gt (Get-Count $oldContent)) { return $true }
+
+    # Task-section guard: catch a per-task swap with a constant file-wide total.
     # Extract task sections from old and new content.
     $taskRegex = "^##\s+(T-\S+)"
     $oldTasks = @{}
