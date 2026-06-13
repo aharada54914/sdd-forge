@@ -19,7 +19,7 @@
 
 1. **タスク承認**【sudo: 自動通過（承認ゲート）】: `tasks.md` の `Approval` フィールドを `Draft` → `Approved` に変更する。フック (承認ガード) がエージェントの自己承認を物理的にブロックします。
 2. **品質ゲート差分の承認**【sudo: 自動通過（承認ゲート）】: `baseline-behavior.md` の差分が `accepted` に分類される場合、人間がその変更を明示的に承認する必要があります。
-3. **WFI (Workflow Improvement) の承認**【sudo: 対象外（ワークフロー統治の判断）】: `docs/workflow-improvements/WFI-NNN.md` の `status` を `Draft` → `Approved` に変更する。
+3. **WFI (Workflow Improvement) の承認**【sudo: 対象外（ワークフロー統治の判断）】: `docs/workflow-improvements/WFI-NNN.md` の `Status` を `Draft` → `Approved` に変更する。フックガードがエージェントの WFI 自己承認を物理ブロックします（sudo でも解除されません）。
 4. **人間判断が必要な指摘対応**【sudo: 対象外（業務判断）】: `requires_human_decision: true` のレビューチケットは自動修正されません。
 5. **AGENT_STOP ファイルの管理**【sudo: 対象外（緊急制御・常時有効）】: エージェント暴走時の緊急停止・再開。
 6. **重要なアーキテクチャ決定**【sudo: 対象外（ADR 級の判断）】: ADR (Architecture Decision Record) が必要な判断。
@@ -595,7 +595,7 @@ review_cycles: <実施済みサイクル数>
    WFI-001
 
    ## Status
-   Draft
+   Status: Draft
 
    ## Problem Evidence
    RT-0042, RT-0043 (同種の test-gap チケットが T-001 / T-002 で反復)
@@ -608,7 +608,7 @@ review_cycles: <実施済みサイクル数>
    |---|---|
    | AGENTS.md | 金額計算を含む要件には「計算タイミング」の明記を必須とするガイドラインを追加 |
    ```
-   Status の許容値は `Draft | Approved | Applied | Verified | Rejected`。`Approved` に設定できるのは人間のみで、AI は `Draft` / `Applied` / `Verified` を設定します。
+   Status は `Status: <値>` 形式で記録します（許容値: `Draft | Approved | Applied | Verified | Rejected`）。`Approved` に設定できるのは人間のみで、AI は `Draft` / `Applied` / `Verified` を設定します。フックガードが `docs/workflow-improvements/WFI-*.md` への `Status: Approved` のエージェント書き込みを拒否します（sudo でも解除されません）。
 
 2. **人間が Approved に変更**
    - 改善内容に同意 → 適用

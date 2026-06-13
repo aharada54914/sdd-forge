@@ -86,7 +86,10 @@ leave template placeholders unfilled.
 A valid `SDD_SUDO` flag does **not** bypass WFI approval. Setting a WFI `status`
 to `Approved` changes the SDD workflow itself (governance), so it remains a
 human-only action even under sudo: continue to await human `Approved` before
-applying any improvement. Read-only metrics collection runs as normal. See
+applying any improvement. The WFI records status as an inline `Status: <value>`
+field; a hook guard denies any agent edit introducing `Status: Approved` in a
+`docs/workflow-improvements/WFI-*.md` file, and is never bypassed by sudo.
+Read-only metrics collection runs as normal. See
 `plugins/sdd-quality-loop/references/sudo-mode-policy.md`.
 
 ## Boundaries

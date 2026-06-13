@@ -1035,6 +1035,69 @@ else
 fi
 rm -rf "$KS_PARENT"
 
+# ---------------------------------------------------------------------------
+# WFI approval guard — 'Status: Approved' in docs/workflow-improvements/*.md is
+# human-only and NEVER bypassed by sudo (mirrors the tasks.md approval guard).
+# ---------------------------------------------------------------------------
+WFI_EDIT_APPROVE='{"tool_name":"Edit","tool_input":{"file_path":"/p/docs/workflow-improvements/WFI-001.md","old_string":"Status: Draft","new_string":"Status: Approved"}}'
+WFI_EDIT_APPLIED='{"tool_name":"Edit","tool_input":{"file_path":"/p/docs/workflow-improvements/WFI-001.md","old_string":"Status: Draft","new_string":"Status: Applied"}}'
+WFI_NONPATH_APPROVE='{"tool_name":"Edit","tool_input":{"file_path":"/p/docs/notes.md","old_string":"x","new_string":"Status: Approved"}}'
+WFI_PATCH_APPROVE='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: docs/workflow-improvements/WFI-002.md\n-Status: Draft\n+Status: Approved\n*** End Patch"}}'
+
+invoke_guard_sh "$WFI_EDIT_APPROVE"
+if [[ $GUARD_CODE -eq 2 ]]; then ok "sh: WFI Edit Status: Approved -> deny (exit 2)"; else fail "sh: WFI Edit Status: Approved -> deny (expected 2, got $GUARD_CODE)"; fi
+
+invoke_guard_sh "$WFI_EDIT_APPLIED"
+if [[ $GUARD_CODE -eq 0 ]]; then ok "sh: WFI Edit Status: Applied -> allow (exit 0)"; else fail "sh: WFI Edit Status: Applied -> allow (expected 0, got $GUARD_CODE)"; fi
+
+invoke_guard_sh "$WFI_NONPATH_APPROVE"
+if [[ $GUARD_CODE -eq 0 ]]; then ok "sh: Status: Approved in non-WFI path -> allow (exit 0)"; else fail "sh: Status: Approved in non-WFI path -> allow (expected 0, got $GUARD_CODE)"; fi
+
+invoke_guard_sh "$WFI_PATCH_APPROVE"
+if [[ $GUARD_CODE -eq 2 ]]; then ok "sh: WFI apply_patch Status: Approved -> deny (exit 2)"; else fail "sh: WFI apply_patch Status: Approved -> deny (expected 2, got $GUARD_CODE)"; fi
+
+# KEY: WFI approval is NOT bypassed by valid sudo (unlike tasks.md approval).
+WFI_SUDO_DIR="${WORK}/wfi-sudo"
+mkdir -p "$WFI_SUDO_DIR"
+write_sudo_flag "$WFI_SUDO_DIR" "$(( $(date +%s) + 3600 ))"
+WFI_SUDO_PAYLOAD='{"tool_name":"Edit","tool_input":{"file_path":"docs/workflow-improvements/WFI-001.md","old_string":"Status: Draft","new_string":"Status: Approved"}}'
+WFI_SUDO_CODE=0
+(cd "$WFI_SUDO_DIR" && printf '%s' "$WFI_SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$WFI_SUDO_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || WFI_SUDO_CODE=$?
+if [[ $WFI_SUDO_CODE -eq 2 ]]; then ok "sh sudo: WFI Status: Approved denied even with valid sudo (exit 2)"; else fail "sh sudo: WFI approval must be denied under sudo (expected 2, got $WFI_SUDO_CODE)"; fi
+rm -rf "$WFI_SUDO_DIR"
+
+if command -v python3 >/dev/null 2>&1; then
+    invoke_py_guard "$WFI_EDIT_APPROVE"
+    if [[ $PY_CODE -eq 2 ]]; then ok "py: WFI Edit Status: Approved -> deny (exit 2)"; else fail "py: WFI Edit Status: Approved -> deny (expected 2, got $PY_CODE)"; fi
+    invoke_py_guard "$WFI_EDIT_APPLIED"
+    if [[ $PY_CODE -eq 0 ]]; then ok "py: WFI Edit Status: Applied -> allow (exit 0)"; else fail "py: WFI Edit Status: Applied -> allow (expected 0, got $PY_CODE)"; fi
+    invoke_py_guard "$WFI_PATCH_APPROVE"
+    if [[ $PY_CODE -eq 2 ]]; then ok "py: WFI apply_patch Status: Approved -> deny (exit 2)"; else fail "py: WFI apply_patch Status: Approved -> deny (expected 2, got $PY_CODE)"; fi
+    WFI_SUDO_DIR_PY="${WORK}/wfi-sudo-py"
+    mkdir -p "$WFI_SUDO_DIR_PY"
+    write_sudo_flag "$WFI_SUDO_DIR_PY" "$(( $(date +%s) + 3600 ))"
+    WFI_SUDO_PY_CODE=0
+    (cd "$WFI_SUDO_DIR_PY" && printf '%s' "$WFI_SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$WFI_SUDO_DIR_PY" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || WFI_SUDO_PY_CODE=$?
+    if [[ $WFI_SUDO_PY_CODE -eq 2 ]]; then ok "py sudo: WFI approval denied even with valid sudo (exit 2)"; else fail "py sudo: WFI approval under sudo (expected 2, got $WFI_SUDO_PY_CODE)"; fi
+    rm -rf "$WFI_SUDO_DIR_PY"
+fi
+
+if command -v node >/dev/null 2>&1; then
+    invoke_node_guard "$WFI_EDIT_APPROVE"
+    if [[ $NODE_CODE -eq 2 ]]; then ok "node: WFI Edit Status: Approved -> deny (exit 2)"; else fail "node: WFI Edit Status: Approved -> deny (expected 2, got $NODE_CODE)"; fi
+    invoke_node_guard "$WFI_EDIT_APPLIED"
+    if [[ $NODE_CODE -eq 0 ]]; then ok "node: WFI Edit Status: Applied -> allow (exit 0)"; else fail "node: WFI Edit Status: Applied -> allow (expected 0, got $NODE_CODE)"; fi
+    invoke_node_guard "$WFI_PATCH_APPROVE"
+    if [[ $NODE_CODE -eq 2 ]]; then ok "node: WFI apply_patch Status: Approved -> deny (exit 2)"; else fail "node: WFI apply_patch Status: Approved -> deny (expected 2, got $NODE_CODE)"; fi
+    WFI_SUDO_DIR_NODE="${WORK}/wfi-sudo-node"
+    mkdir -p "$WFI_SUDO_DIR_NODE"
+    write_sudo_flag "$WFI_SUDO_DIR_NODE" "$(( $(date +%s) + 3600 ))"
+    WFI_SUDO_NODE_CODE=0
+    (cd "$WFI_SUDO_DIR_NODE" && printf '%s' "$WFI_SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$WFI_SUDO_DIR_NODE" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || WFI_SUDO_NODE_CODE=$?
+    if [[ $WFI_SUDO_NODE_CODE -eq 2 ]]; then ok "node sudo: WFI approval denied even with valid sudo (exit 2)"; else fail "node sudo: WFI approval under sudo (expected 2, got $WFI_SUDO_NODE_CODE)"; fi
+    rm -rf "$WFI_SUDO_DIR_NODE"
+fi
+
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed."
 [[ $FAIL -eq 0 ]]

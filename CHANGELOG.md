@@ -10,6 +10,12 @@
 - `/sdd-sudo` スキルに「How to Turn It On (Quick Start)」を追加し、入り方を明確化。
 - 注: v0.7.0 で「アーキテクチャ review 承認も自動通過」と記載していたが、アーキテクチャ決定は承認ではなく判断のため sudo では通さない、と整理（ガードのコード挙動は不変）。
 
+### WFI 承認の決定論的ガードを追加
+
+- `docs/workflow-improvements/WFI-*.md` への `Status: Approved` のエージェント書き込みをフックガードが拒否（py / js / ps1 全ランタイム）。WFI 承認は **sudo でも解除されません**（タスク承認ガードと異なる点）。
+- WFI テンプレートの Status を決定論的に検出可能なインライン `Status: <値>` 形式へ変更。
+- `tests/guards.tests.sh` と `tests/hooks.tests.ps1` に WFI ガードのテストを追加。
+
 ## v0.8.0
 
 ### 変更内容
