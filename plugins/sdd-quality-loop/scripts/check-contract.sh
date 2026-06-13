@@ -48,8 +48,18 @@ for i, check in enumerate(checks):
 # Pass 2: per-check rules
 for check in checks:
     cid = check.get("id", "?")
+
+    # Type strictness: required and passes must be JSON boolean (not string, number, null)
     required = check.get("required", False)
+    if not isinstance(required, bool):
+        failures.append(f"check '{cid}' has invalid type for required: {type(required).__name__} (expected bool)")
+        continue
+
     passes = check.get("passes", False)
+    if not isinstance(passes, bool):
+        failures.append(f"check '{cid}' has invalid type for passes: {type(passes).__name__} (expected bool)")
+        continue
+
     evidence = (check.get("evidence") or "").strip()
     waiver_reason = (check.get("waiver_reason") or "").strip()
 
@@ -91,8 +101,13 @@ for check in checks:
             failures.append(f"check '{cid}' evidence path escapes repo root: {evidence}")
             continue
 
+        # Evidence must exist, be a regular file, and have size > 0
         if not os.path.exists(resolved):
             failures.append(f"check '{cid}' evidence file missing: {evidence}")
+        elif not os.path.isfile(resolved):
+            failures.append(f"check '{cid}' evidence is not a regular file: {evidence}")
+        elif os.path.getsize(resolved) == 0:
+            failures.append(f"check '{cid}' evidence file is empty: {evidence}")
 
 # Pass 3: required-set protection
 present_ids = set(check.get("id", "?") for check in checks)

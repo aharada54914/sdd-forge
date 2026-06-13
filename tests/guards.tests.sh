@@ -48,8 +48,13 @@ invoke_kill_switch_sh() {
 write_sudo_flag() {
     local dir="$1"
     local expires="$2"
+    local issued=$(( expires - 3600 ))  # Issued 1 hour before expiry
     cat > "${dir}/SDD_SUDO" <<EOF
+enabled-by: human via /sdd-sudo
+enabled-at: 2026-06-13T00:00:00Z
+issued-epoch: ${issued}
 expires-epoch: ${expires}
+duration: 1h
 EOF
 }
 
@@ -800,6 +805,216 @@ if command -v node >/dev/null 2>&1; then
         fail "node: cp into agent role directory -> deny (expected 2, got $NODE_CODE)"
     fi
 fi
+
+# ---------------------------------------------------------------------------
+# C-03 Write-full-replace: Draft→Approved transition via full-content Write
+# ---------------------------------------------------------------------------
+WRITE_DRAFT_TO_APPROVED='{"tool_name":"Write","tool_input":{"file_path":"tasks.md","content":"## T-001 Task A\nApproval: Approved\nStatus: Planned\n"}}'
+WRITE_TEST_DIR="${WORK}/write-full-replace"
+mkdir -p "$WRITE_TEST_DIR"
+printf '## T-001 Task A\nApproval: Draft\nStatus: Planned\n' > "$WRITE_TEST_DIR/tasks.md"
+WRITE_CODE=0
+(cd "$WRITE_TEST_DIR" && printf '%s' "$WRITE_DRAFT_TO_APPROVED" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || WRITE_CODE=$?
+if [[ $WRITE_CODE -eq 2 ]]; then
+    ok "sh: Write full-replace Draft→Approved -> deny (exit 2)"
+else
+    fail "sh: Write full-replace Draft→Approved -> deny (expected 2, got $WRITE_CODE)"
+fi
+rm -rf "$WRITE_TEST_DIR"
+
+# C-03 Write-full-replace: Preserving Approval state (no transition)
+WRITE_APPROVED_PRESERVE='{"tool_name":"Write","tool_input":{"file_path":"tasks.md","content":"## T-001 Task A\nApproval: Approved\nStatus: In Progress\n"}}'
+WRITE_TEST_DIR2="${WORK}/write-preserve"
+mkdir -p "$WRITE_TEST_DIR2"
+printf '## T-001 Task A\nApproval: Approved\nStatus: Planned\n' > "$WRITE_TEST_DIR2/tasks.md"
+WRITE_CODE2=0
+(cd "$WRITE_TEST_DIR2" && printf '%s' "$WRITE_APPROVED_PRESERVE" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || WRITE_CODE2=$?
+if [[ $WRITE_CODE2 -eq 0 ]]; then
+    ok "sh: Write preserving Approved state -> allow (exit 0)"
+else
+    fail "sh: Write preserving Approved state -> allow (expected 0, got $WRITE_CODE2)"
+fi
+rm -rf "$WRITE_TEST_DIR2"
+
+# C-03 Write-full-replace: Introducing new Approved task
+WRITE_NEW_APPROVED='{"tool_name":"Write","tool_input":{"file_path":"tasks.md","content":"## T-001 Task A\nApproval: Draft\nStatus: Planned\n## T-002 Task B\nApproval: Approved\nStatus: Planned\n"}}'
+WRITE_TEST_DIR3="${WORK}/write-new-approved"
+mkdir -p "$WRITE_TEST_DIR3"
+printf '## T-001 Task A\nApproval: Draft\nStatus: Planned\n' > "$WRITE_TEST_DIR3/tasks.md"
+WRITE_CODE3=0
+(cd "$WRITE_TEST_DIR3" && printf '%s' "$WRITE_NEW_APPROVED" | bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || WRITE_CODE3=$?
+if [[ $WRITE_CODE3 -eq 2 ]]; then
+    ok "sh: Write introducing new Approved task -> deny (exit 2)"
+else
+    fail "sh: Write introducing new Approved task -> deny (expected 2, got $WRITE_CODE3)"
+fi
+rm -rf "$WRITE_TEST_DIR3"
+
+# C-03 Python direct: Write full-replace Draft→Approved
+if command -v python3 >/dev/null 2>&1; then
+    PY_WRITE_TEST_DIR="${WORK}/py-write-test"
+    mkdir -p "$PY_WRITE_TEST_DIR"
+    printf '## T-001 Task A\nApproval: Draft\nStatus: Planned\n' > "$PY_WRITE_TEST_DIR/tasks.md"
+    PY_WRITE_CODE=0
+    (cd "$PY_WRITE_TEST_DIR" && printf '%s' "$WRITE_DRAFT_TO_APPROVED" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_WRITE_CODE=$?
+    if [[ $PY_WRITE_CODE -eq 2 ]]; then
+        ok "py: Write full-replace Draft→Approved -> deny (exit 2)"
+    else
+        fail "py: Write full-replace Draft→Approved -> deny (expected 2, got $PY_WRITE_CODE)"
+    fi
+    rm -rf "$PY_WRITE_TEST_DIR"
+
+    PY_WRITE_TEST_DIR2="${WORK}/py-write-preserve"
+    mkdir -p "$PY_WRITE_TEST_DIR2"
+    printf '## T-001 Task A\nApproval: Approved\nStatus: Planned\n' > "$PY_WRITE_TEST_DIR2/tasks.md"
+    PY_WRITE_CODE2=0
+    (cd "$PY_WRITE_TEST_DIR2" && printf '%s' "$WRITE_APPROVED_PRESERVE" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_WRITE_CODE2=$?
+    if [[ $PY_WRITE_CODE2 -eq 0 ]]; then
+        ok "py: Write preserving Approved state -> allow (exit 0)"
+    else
+        fail "py: Write preserving Approved state -> allow (expected 0, got $PY_WRITE_CODE2)"
+    fi
+    rm -rf "$PY_WRITE_TEST_DIR2"
+
+    PY_WRITE_TEST_DIR3="${WORK}/py-write-new-approved"
+    mkdir -p "$PY_WRITE_TEST_DIR3"
+    printf '## T-001 Task A\nApproval: Draft\nStatus: Planned\n' > "$PY_WRITE_TEST_DIR3/tasks.md"
+    PY_WRITE_CODE3=0
+    (cd "$PY_WRITE_TEST_DIR3" && printf '%s' "$WRITE_NEW_APPROVED" | python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || PY_WRITE_CODE3=$?
+    if [[ $PY_WRITE_CODE3 -eq 2 ]]; then
+        ok "py: Write introducing new Approved task -> deny (exit 2)"
+    else
+        fail "py: Write introducing new Approved task -> deny (expected 2, got $PY_WRITE_CODE3)"
+    fi
+    rm -rf "$PY_WRITE_TEST_DIR3"
+fi
+
+# C-03 Node direct: Write full-replace Draft→Approved
+if command -v node >/dev/null 2>&1; then
+    NODE_WRITE_TEST_DIR="${WORK}/node-write-test"
+    mkdir -p "$NODE_WRITE_TEST_DIR"
+    printf '## T-001 Task A\nApproval: Draft\nStatus: Planned\n' > "$NODE_WRITE_TEST_DIR/tasks.md"
+    NODE_WRITE_CODE=0
+    (cd "$NODE_WRITE_TEST_DIR" && printf '%s' "$WRITE_DRAFT_TO_APPROVED" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_WRITE_CODE=$?
+    if [[ $NODE_WRITE_CODE -eq 2 ]]; then
+        ok "node: Write full-replace Draft→Approved -> deny (exit 2)"
+    else
+        fail "node: Write full-replace Draft→Approved -> deny (expected 2, got $NODE_WRITE_CODE)"
+    fi
+    rm -rf "$NODE_WRITE_TEST_DIR"
+
+    NODE_WRITE_TEST_DIR2="${WORK}/node-write-preserve"
+    mkdir -p "$NODE_WRITE_TEST_DIR2"
+    printf '## T-001 Task A\nApproval: Approved\nStatus: Planned\n' > "$NODE_WRITE_TEST_DIR2/tasks.md"
+    NODE_WRITE_CODE2=0
+    (cd "$NODE_WRITE_TEST_DIR2" && printf '%s' "$WRITE_APPROVED_PRESERVE" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_WRITE_CODE2=$?
+    if [[ $NODE_WRITE_CODE2 -eq 0 ]]; then
+        ok "node: Write preserving Approved state -> allow (exit 0)"
+    else
+        fail "node: Write preserving Approved state -> allow (expected 0, got $NODE_WRITE_CODE2)"
+    fi
+    rm -rf "$NODE_WRITE_TEST_DIR2"
+
+    NODE_WRITE_TEST_DIR3="${WORK}/node-write-new-approved"
+    mkdir -p "$NODE_WRITE_TEST_DIR3"
+    printf '## T-001 Task A\nApproval: Draft\nStatus: Planned\n' > "$NODE_WRITE_TEST_DIR3/tasks.md"
+    NODE_WRITE_CODE3=0
+    (cd "$NODE_WRITE_TEST_DIR3" && printf '%s' "$WRITE_NEW_APPROVED" | node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NODE_WRITE_CODE3=$?
+    if [[ $NODE_WRITE_CODE3 -eq 2 ]]; then
+        ok "node: Write introducing new Approved task -> deny (exit 2)"
+    else
+        fail "node: Write introducing new Approved task -> deny (expected 2, got $NODE_WRITE_CODE3)"
+    fi
+    rm -rf "$NODE_WRITE_TEST_DIR3"
+fi
+
+# ---------------------------------------------------------------------------
+# C-03: net-zero approval transfer rejection (Edit/MultiEdit)
+# ---------------------------------------------------------------------------
+NETZERO_EDIT_PAYLOAD='{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"## T-1\nApproval: Approved","new_string":"## T-1\nApproval: Draft\n## T-2\nApproval: Approved"}}'
+invoke_guard_sh "$NETZERO_EDIT_PAYLOAD"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: net-zero approval transfer (delete old, add new) -> deny (exit 2)"
+else
+    fail "sh: net-zero approval transfer -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+# C-03: Approved→Draft deletion is ALLOWED
+APPROVED_TO_DRAFT='{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"## T-1\nApproval: Approved","new_string":"## T-1\nApproval: Draft"}}'
+invoke_guard_sh "$APPROVED_TO_DRAFT"
+if [[ $GUARD_CODE -eq 0 ]]; then
+    ok "sh: Approved→Draft deletion only -> allow (exit 0)"
+else
+    fail "sh: Approved→Draft deletion only -> allow (expected 0, got $GUARD_CODE)"
+fi
+
+# ---------------------------------------------------------------------------
+# C-02: SDD_SUDO write protection (never bypassed)
+# ---------------------------------------------------------------------------
+SUDO_WRITE_PAYLOAD='{"tool_name":"Write","tool_input":{"file_path":"SDD_SUDO","content":"enabled-by: test\n"}}'
+invoke_guard_sh "$SUDO_WRITE_PAYLOAD"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: Write to SDD_SUDO -> deny even without sudo (exit 2)"
+else
+    fail "sh: Write to SDD_SUDO -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+SUDO_SHELL_WRITE='{"tool_name":"shell","tool_input":{"command":"echo test > SDD_SUDO"}}'
+invoke_guard_sh "$SUDO_SHELL_WRITE"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: shell write to SDD_SUDO -> deny (exit 2)"
+else
+    fail "sh: shell write to SDD_SUDO -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+# ---------------------------------------------------------------------------
+# C-02: issued-epoch missing or TTL > 24h -> sudo inactive
+# ---------------------------------------------------------------------------
+SUDO_DIR_NOISSUED="${WORK}/sudo-noissued"
+mkdir -p "$SUDO_DIR_NOISSUED"
+cat > "${SUDO_DIR_NOISSUED}/SDD_SUDO" <<EOF
+expires-epoch: $(( $(date +%s) + 3600 ))
+EOF
+NOISSUED_CODE=0
+(cd "$SUDO_DIR_NOISSUED" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_NOISSUED" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || NOISSUED_CODE=$?
+if [[ $NOISSUED_CODE -eq 2 ]]; then
+    ok "sh sudo: missing issued-epoch -> sudo inactive, approval denied (exit 2)"
+else
+    fail "sh sudo: missing issued-epoch -> sudo inactive (expected 2, got $NOISSUED_CODE)"
+fi
+rm -rf "$SUDO_DIR_NOISSUED"
+
+SUDO_DIR_TOOLONG="${WORK}/sudo-toolong"
+mkdir -p "$SUDO_DIR_TOOLONG"
+TOOLONG_ISSUED=$(( $(date +%s) ))
+TOOLONG_EXPIRES=$(( TOOLONG_ISSUED + 86401 ))  # > 24h
+cat > "${SUDO_DIR_TOOLONG}/SDD_SUDO" <<EOF
+issued-epoch: ${TOOLONG_ISSUED}
+expires-epoch: ${TOOLONG_EXPIRES}
+EOF
+TOOLONG_CODE=0
+(cd "$SUDO_DIR_TOOLONG" && printf '%s' "$SUDO_PAYLOAD" | env CLAUDE_PROJECT_DIR="$SUDO_DIR_TOOLONG" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || TOOLONG_CODE=$?
+if [[ $TOOLONG_CODE -eq 2 ]]; then
+    ok "sh sudo: TTL > 24h -> sudo inactive (exit 2)"
+else
+    fail "sh sudo: TTL > 24h -> sudo inactive (expected 2, got $TOOLONG_CODE)"
+fi
+rm -rf "$SUDO_DIR_TOOLONG"
+
+# ---------------------------------------------------------------------------
+# C-08: kill-switch parent-directory walk
+# ---------------------------------------------------------------------------
+KS_PARENT="${WORK}/ks-parent"
+KS_CHILD="${KS_PARENT}/child/subdir"
+mkdir -p "$KS_CHILD"
+echo "stop" > "${KS_PARENT}/AGENT_STOP"
+code="$(cd "$KS_CHILD" && unset CLAUDE_PROJECT_DIR && bash "${SCRIPTS_DIR}/kill-switch.sh" >/dev/null 2>&1; echo $?)"
+if [[ "$code" -eq 2 ]]; then
+    ok "sh: kill-switch found in ancestor directory -> 2"
+else
+    fail "sh: kill-switch found in ancestor -> 2 (got $code)"
+fi
+rm -rf "$KS_PARENT"
 
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed."

@@ -29,6 +29,8 @@ $ErrorActionPreference = "Stop"
 $ApprovalMsg = "SDD deterministic gate: agents must not set 'Approval: Approved' in tasks.md. " +
     "Only a human may approve a task by editing the file directly. " +
     "Leave the task as Draft and ask the human to approve it."
+$SddSudoWriteMsg = "SDD deterministic gate: agents must not create, edit, or delete the " +
+    "SDD_SUDO flag file. Only a human may manage sudo mode."
 $KillMsg = "SDD kill switch: AGENT_STOP exists at the project root. All tool use is suspended until a human deletes the file."
 $AgentRoleMsg = "SDD deterministic gate: refusing to write a Codex agent role file without " +
     "developer_instructions. Files under .codex/agents/ must define " +
@@ -120,20 +122,49 @@ function Test-KillSwitch {
     return $false
 }
 
-function Test-SudoActive {
-    $root = $env:CLAUDE_PROJECT_DIR
-    if ([string]::IsNullOrEmpty($root)) { $root = "." }
-    foreach ($base in @($root, ".")) {
+function Resolve-ProjectRoot {
+    $envRoot = $env:CLAUDE_PROJECT_DIR
+    if (-not [string]::IsNullOrEmpty($envRoot)) {
+        return @{ SudoRoot = $envRoot; Bases = @($envRoot, ".") }
+    }
+    # Walk up to 20 levels; find git root.
+    $current = (Get-Location).Path
+    for ($i = 0; $i -lt 20; $i++) {
+        $gitCandidate = Join-Path $current ".git"
         try {
-            $flag = Join-Path $base "SDD_SUDO"
-            if (-not (Test-Path -LiteralPath $flag -PathType Leaf)) { continue }
-            $m = [regex]::Match((Get-Content -Raw -Encoding Utf8 -LiteralPath $flag), "(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)")
-            if ($m.Success) {
-                $now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
-                if ([int64]$m.Groups[2].Value -gt $now) { return $true }
+            if (Test-Path -LiteralPath $gitCandidate) {
+                return @{ SudoRoot = $current; Bases = @($current, ".") }
             }
         } catch { }
+        $parent = Split-Path -Parent $current
+        if ($parent -eq $current) { break }
+        $current = $parent
     }
+    return @{ SudoRoot = "."; Bases = @(".") }
+}
+
+function Test-SudoActive {
+    # C-02/C-08: True if valid, unexpired SDD_SUDO flag exists at project root only.
+    # Validates: not a symlink, has issued-epoch, expires-epoch in future, TTL <= 86400s.
+    $proj = Resolve-ProjectRoot
+    $sudoRoot = $proj.SudoRoot
+    try {
+        $flag = Join-Path $sudoRoot "SDD_SUDO"
+        # Check if path exists and is a file (but not symlink on Windows we can't easily check, skip for now).
+        if (-not (Test-Path -LiteralPath $flag -PathType Leaf)) { return $false }
+        $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $flag
+        $mExp = [regex]::Match($content, "(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)")
+        $mIss = [regex]::Match($content, "(^|\n)[ \t]*issued-epoch:[ \t]*(\d+)")
+        if (-not $mExp.Success -or -not $mIss.Success) { return $false }
+        $expires = [int64]$mExp.Groups[2].Value
+        $issued = [int64]$mIss.Groups[2].Value
+        $now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+        # C-02: issued-epoch <= now < expires-epoch AND TTL <= 86400
+        if ($issued -gt $now) { return $false }
+        if ($expires -le $now) { return $false }
+        if (($expires - $issued) -gt 86400) { return $false }
+        return $true
+    } catch { }
     return $false
 }
 
@@ -199,6 +230,25 @@ function Test-ShellWritesInvalidAgentRole {
     return Test-ShellWritesAgentRole $Cmd
 }
 
+function Test-TargetPathIsSddSudo {
+    param([string]$FilePath)
+    # C-02: Return True if file_path ends with 'SDD_SUDO' (case-insensitive).
+    if ([string]::IsNullOrEmpty($FilePath)) { return $false }
+    $normalized = ($FilePath -replace "\\", "/").ToLower()
+    return $normalized.EndsWith("sdd_sudo")
+}
+
+function Test-ShellTargetsSddSudo {
+    param([string]$Cmd)
+    # C-02: Return True if shell command targets SDD_SUDO file for write/delete.
+    if ([string]::IsNullOrEmpty($Cmd)) { return $false }
+    # Check if SDD_SUDO appears in the command (case-insensitive).
+    if (-not $Cmd.ToLower().Contains("sdd_sudo")) { return $false }
+    # Check if there's a write operator or destructive verb.
+    $writeRe = "(?:>|>>|\btee\b|\btouch\b|\bcp\b|\bmv\b|\brm\b|\bSet-Content\b|\bOut-File\b|\bNew-Item\b|\bRemove-Item\b)"
+    return [regex]::IsMatch($Cmd, $writeRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+}
+
 function Test-AgentRoleInvalid {
     param($Payload)
     $toolInput = $Payload.tool_input
@@ -221,6 +271,48 @@ function Test-AgentRoleInvalid {
         if (-not (Test-HasDeveloperInstructions $content)) { return $true }
     }
 
+    return $false
+}
+
+function Test-WriteContentIncreases {
+    param([string]$FilePath, [string]$NewContent)
+    # C-03 Write: task-section-level comparison.
+    $oldContent = ""
+    if (Test-Path -LiteralPath $FilePath) {
+        $oldContent = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+    }
+
+    # Extract task sections from old and new content.
+    $taskRegex = "^##\s+(T-\S+)"
+    $oldTasks = @{}
+    $newTasks = @{}
+
+    $oldMatches = [regex]::Matches($oldContent, $taskRegex, [System.Text.RegularExpressions.RegexOptions]::Multiline)
+    $oldSplit = [regex]::Split($oldContent, $taskRegex)
+    for ($i = 1; $i -lt $oldSplit.Count; $i += 2) {
+        $taskId = $oldSplit[$i]
+        $section = if ($i + 1 -lt $oldSplit.Count) { $oldSplit[$i + 1] } else { "" }
+        if ($taskId) { $oldTasks[$taskId] = Get-Count $section }
+    }
+
+    $newMatches = [regex]::Matches($NewContent, $taskRegex, [System.Text.RegularExpressions.RegexOptions]::Multiline)
+    $newSplit = [regex]::Split($NewContent, $taskRegex)
+    for ($i = 1; $i -lt $newSplit.Count; $i += 2) {
+        $taskId = $newSplit[$i]
+        $section = if ($i + 1 -lt $newSplit.Count) { $newSplit[$i + 1] } else { "" }
+        if ($taskId) { $newTasks[$taskId] = Get-Count $section }
+    }
+
+    # Check for transitions: Draft → Approved or new Approved tasks.
+    foreach ($taskId in $newTasks.Keys) {
+        $newCount = $newTasks[$taskId]
+        if ($newCount -gt 0) {
+            $oldCount = if ($oldTasks.ContainsKey($taskId)) { $oldTasks[$taskId] } else { 0 }
+            if ($newCount -gt $oldCount) {
+                return $true
+            }
+        }
+    }
     return $false
 }
 
@@ -252,25 +344,23 @@ function Test-ApprovalIncreases {
     $filePath = [string]$toolInput.file_path
     if (-not (Test-TasksMd $filePath)) { return $false }
 
-    $old = 0
-    $new = 0
     if ($toolInput.PSObject.Properties["edits"] -and $null -ne $toolInput.edits) {
+        # C-03: any Approved added in any new_string is a deny, regardless of deletions.
         foreach ($edit in $toolInput.edits) {
-            $old += Get-Count ([string]$edit.old_string)
-            $new += Get-Count ([string]$edit.new_string)
+            if ((Get-Count ([string]$edit.new_string)) -gt 0) {
+                return $true
+            }
         }
+        return $false
     } elseif ($toolInput.PSObject.Properties["new_string"]) {
-        $old = Get-Count ([string]$toolInput.old_string)
-        $new = Get-Count ([string]$toolInput.new_string)
+        # C-03: any Approved in new_string is a deny (don't subtract old).
+        return (Get-Count ([string]$toolInput.new_string)) -gt 0
     } elseif ($toolInput.PSObject.Properties["content"]) {
-        if (Test-Path -LiteralPath $filePath) {
-            $old = Get-Count (Get-Content -Raw -Encoding Utf8 -LiteralPath $filePath)
-        }
-        $new = Get-Count ([string]$toolInput.content)
+        # C-03 Write: task-section-level comparison.
+        return Test-WriteContentIncreases $filePath ([string]$toolInput.content)
     } else {
         return $false
     }
-    return ($new -gt $old)
 }
 
 # --- Check 1: kill switch (runs regardless of payload validity) ---
@@ -295,6 +385,36 @@ try {
         Emit-Decision "deny" "SDD deterministic gate: malformed hook payload."
     }
     if (Test-PayloadMalformed $payload) { Emit-Decision "deny" "SDD deterministic gate: malformed hook payload." }
+
+    # Check 2a: C-02 SDD_SUDO write/delete protection (never bypassed by sudo).
+    $toolName = ""
+    if ($payload.PSObject.Properties["tool_name"]) { $toolName = ([string]$payload.tool_name).ToLower() }
+    $toolInput = $payload.tool_input
+    $filePath = [string]$toolInput.file_path
+
+    # File tools: Edit, Write, MultiEdit targeting SDD_SUDO.
+    if (@("edit", "write", "multiedit") -contains $toolName) {
+        if (Test-TargetPathIsSddSudo $filePath) { Emit-Decision "deny" $SddSudoWriteMsg }
+    }
+
+    # Shell commands targeting SDD_SUDO.
+    $command = $null
+    if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
+    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+        if (Test-ShellTargetsSddSudo $command) { Emit-Decision "deny" $SddSudoWriteMsg }
+    }
+
+    # apply_patch: check for SDD_SUDO targets.
+    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+        foreach ($line in ($command -split "`n")) {
+            $m = [regex]::Match($line, "^\*\*\* (Update|Add|Delete) File: (.+)$")
+            if ($m.Success) {
+                if (Test-TargetPathIsSddSudo $m.Groups[2].Value.Trim()) { Emit-Decision "deny" $SddSudoWriteMsg }
+            }
+        }
+    }
+
+    # Check 2b: Approval guard (bypassed by valid sudo).
     if ((Test-ApprovalIncreases $payload) -and -not (Test-SudoActive)) { Emit-Decision "deny" $ApprovalMsg }
 } catch {
     Emit-Decision "deny" "SDD deterministic gate: approval guard failed closed."

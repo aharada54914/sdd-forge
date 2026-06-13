@@ -22,9 +22,11 @@ if (-not (Test-Path -LiteralPath $TasksPath)) {
     exit 1
 }
 
-$validApprovals = @("Draft", "Approved")
 $validStatuses = @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")
 $approvedOnlyStatuses = @("In Progress", "Implementation Complete", "Done")
+
+# Pattern for sudo-format approval: Approved (sudo YYYY-MM-DDTHH:MM:SSZ)
+$sudoApprovalPattern = "^Approved \(sudo [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$"
 
 $failures = @()
 $currentTask = $null
@@ -83,13 +85,25 @@ foreach ($task in $allTasks) {
     $s = $status[$task]
     if (-not $a) { $failures += "$task has no Approval line"; continue }
     if (-not $s) { $failures += "$task has no Status line"; continue }
-    if ($a -notin $validApprovals) { $failures += "$task has invalid Approval: $a" }
+
+    # Validate Approval: Draft | Approved | Approved (sudo YYYY-MM-DDTHH:MM:SSZ)
+    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $sudoApprovalPattern)
+    if (-not $isValidApproval) {
+        $failures += "$task has invalid Approval: $a"
+    }
+
+    # For gate checks, treat Approved (sudo ...) same as Approved
+    $isApproved = ($a -eq "Approved" -or $a -match $sudoApprovalPattern)
+
     if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
-    if ($s -in $approvedOnlyStatuses -and $a -ne "Approved") {
+    if ($s -in $approvedOnlyStatuses -and -not $isApproved) {
         $failures += "$task is '$s' without Approval: Approved"
     }
     if ($s -eq "Done") {
         $evidenceBundlePath = Join-Path $tasksDir "verification/$task.evidence.json"
+        $contractPath = Join-Path $tasksDir "verification/$task.contract.json"
+
+        # Check evidence bundle
         if (-not (Test-Path -LiteralPath $evidenceBundlePath)) {
             $failures += "$task is Done but verification/$task.evidence.json does not exist in $tasksDir"
         } else {
@@ -97,6 +111,26 @@ foreach ($task in $allTasks) {
             & $powerShellExe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "check-evidence-bundle.ps1") -BundlePath $evidenceBundlePath -RepoRoot $RepoRoot
             if ($LASTEXITCODE -ne 0) {
                 $failures += "$task evidence bundle failed validation: $evidenceBundlePath"
+            }
+        }
+
+        # C-07: Check contract existence, size, and task_id match
+        if (-not (Test-Path -LiteralPath $contractPath)) {
+            $failures += "$task is Done but verification/$task.contract.json does not exist in $tasksDir"
+        } else {
+            $fileInfo = Get-Item -LiteralPath $contractPath -ErrorAction SilentlyContinue
+            if ($null -eq $fileInfo -or $fileInfo.Length -eq 0) {
+                $failures += "$task is Done but verification/$task.contract.json is empty in $tasksDir"
+            } else {
+                # Validate contract JSON and task_id match
+                try {
+                    $contract = Get-Content -Raw -Encoding Utf8 $contractPath | ConvertFrom-Json
+                    if ($contract.task_id -ne $task) {
+                        $failures += "$task is Done but verification/$task.contract.json has mismatched task_id"
+                    }
+                } catch {
+                    $failures += "$task is Done but verification/$task.contract.json has invalid JSON"
+                }
             }
         }
     }

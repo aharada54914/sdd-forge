@@ -58,11 +58,18 @@ function fail(msg) { print " - " msg; failures++ }
 }
 function finish() {
   if (approval == "") fail(task " has no Approval line")
-  else if (approval != "Draft" && approval != "Approved") fail(task " has invalid Approval: " approval)
+  else {
+    # Accept: Draft | Approved | Approved (sudo YYYY-MM-DDTHH:MM:SSZ)
+    is_valid_approval = (approval == "Draft" || approval == "Approved" || \
+      approval ~ /^Approved \(sudo [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
+    if (!is_valid_approval) fail(task " has invalid Approval: " approval)
+  }
+  # For gate checks, treat Approved (sudo ...) same as Approved
+  is_approved = (approval == "Approved" || approval ~ /^Approved \(sudo [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
   if (status == "") fail(task " has no Status line")
   else if (status != "Planned" && status != "In Progress" && status != "Blocked" && status != "Implementation Complete" && status != "Done")
     fail(task " has invalid Status: " status)
-  if ((status == "In Progress" || status == "Implementation Complete" || status == "Done") && approval != "Approved")
+  if ((status == "In Progress" || status == "Implementation Complete" || status == "Done") && !is_approved)
     fail(task " is \x27" status "\x27 without Approval: Approved")
   if (status == "Done") {
     tasks_dir = ENVIRON["TASKS"]
@@ -71,6 +78,10 @@ function finish() {
     sub(/\/[^\/]*$/, "", tasks_dir)
     if (tasks_dir == ENVIRON["TASKS"]) tasks_dir = "."
     bundle_path = tasks_dir "/verification/" task ".evidence.json"
+    # C-07: contract must be non-empty regular file with valid JSON and task_id match
+    contract_path = tasks_dir "/verification/" task ".contract.json"
+
+    # Check bundle existence and validity
     cmd = "test -f \"" bundle_path "\" && echo yes || echo no"
     cmd | getline exists; close(cmd)
     if (exists != "yes") fail(task " is Done but verification/" task ".evidence.json does not exist in " tasks_dir)
@@ -78,6 +89,28 @@ function finish() {
       cmd2 = "sh \"" ENVIRON["SCRIPT_DIR"] "/check-evidence-bundle.sh\" \"" bundle_path "\" \"" ENVIRON["REPO_ROOT"] "\""
       status_code = system(cmd2)
       if (status_code != 0) fail(task " evidence bundle failed validation: " bundle_path)
+    }
+
+    # Check contract existence and validity
+    cmd = "test -f \"" contract_path "\" && echo yes || echo no"
+    cmd | getline contract_exists; close(cmd)
+    if (contract_exists != "yes") fail(task " is Done but verification/" task ".contract.json does not exist in " tasks_dir)
+    else {
+      # Validate contract is non-empty regular file
+      cmd = "test -s \"" contract_path "\" && echo yes || echo no"
+      cmd | getline contract_nonempty; close(cmd)
+      if (contract_nonempty != "yes") fail(task " is Done but verification/" task ".contract.json is empty in " tasks_dir)
+      else {
+        # Validate contract has matching task_id using python3 if available, else grep
+        if (system("command -v python3 >/dev/null 2>&1") == 0) {
+          cmd3 = "python3 -c \"import json,sys; c=json.load(open(\\\"" contract_path "\\\")); sys.exit(0 if c.get(\\\"task_id\\\") == \\\"" task "\\\" else 1)\" 2>/dev/null"
+          if (system(cmd3) != 0) fail(task " is Done but verification/" task ".contract.json has mismatched task_id")
+        } else {
+          # Fallback to grep for task_id match without python3
+          grep_cmd = "grep -F \"\\\"task_id\\\"\" \"" contract_path "\" | grep -F \"\\\"" task "\\\"\" >/dev/null 2>&1"
+          if (system(grep_cmd) != 0) fail(task " is Done but verification/" task ".contract.json has mismatched task_id (or invalid JSON)")
+        }
+      }
     }
   }
   if (status == "Implementation Complete") {

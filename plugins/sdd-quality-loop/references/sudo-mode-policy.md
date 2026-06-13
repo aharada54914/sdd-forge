@@ -45,18 +45,22 @@ by the `/sdd-sudo` skill and read by hook guards and skills.
 ```
 enabled-by: human via /sdd-sudo
 enabled-at: <ISO8601 UTC timestamp>
+issued-epoch: <unix-seconds>
 expires-epoch: <unix-seconds>
 duration: <e.g. 8h>
 ```
 
 ### Validation
 
-- All four lines are required. Missing any line renders the flag inactive.
-- `expires-epoch` is a decimal integer (output of `date -u +%s` or
+- All five lines are required. Missing any line renders the flag inactive.
+- `issued-epoch` and `expires-epoch` are decimal integers (output of `date -u +%s` or
   `[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()`).
-- Current time is checked as `if (now_unix_time > expires_epoch) { inactive }`.
+- All four checks must pass: `issued-epoch <= now < expires-epoch` AND `expires-epoch - issued-epoch <= 86400` (24 hours).
+- Symlink SDD_SUDO files are always invalid (even if contents are correct).
+- Current time is checked as `if (now_unix_time > expires_epoch) { inactive }` or `if (issued_unix_time > now_unix_time) { inactive }`.
+- TTL (time-to-live) is computed as `expires-epoch - issued-epoch` and must not exceed 86400 seconds (24 hours).
 - The file is read by hook guards and quality-gate skill; no writing occurs
-  outside `/sdd-sudo` invocation.
+  outside `/sdd-sudo` invocation. Agents cannot create, edit, or delete SDD_SUDO.
 
 ## Audit Trail Requirements
 
@@ -163,6 +167,13 @@ After a task is approved and merged with `(sudo)` notation:
 If deterministic gates gave sufficient confidence and the change was low-risk,
 the audit is complete. If gates detected issues or risk is high, escalate for
 post-hoc human review.
+
+## Future Work
+
+- **Signature-backed capability tokens**: Replace the plaintext SDD_SUDO file with a
+  cryptographically signed token (issuer signature, nonce, repository binding, expiry).
+  This would eliminate the risk of unauthorized token creation or extension within a
+  single session.
 
 ## See Also
 

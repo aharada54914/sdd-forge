@@ -44,8 +44,20 @@ foreach ($check in $contract.checks) {
 # Pass 2: per-check rules
 foreach ($check in $contract.checks) {
     $id = $check.id
-    $required = [bool]$check.required
-    $passes = [bool]$check.passes
+
+    # Type strictness: required and passes must be JSON boolean (not string, number, null)
+    $required = $check.required
+    if ($null -eq $required -or $required -isnot [bool]) {
+        $failures += "check '$id' has invalid type for required: $($required.GetType().Name) (expected bool)"
+        continue
+    }
+
+    $passes = $check.passes
+    if ($null -eq $passes -or $passes -isnot [bool]) {
+        $failures += "check '$id' has invalid type for passes: $($passes.GetType().Name) (expected bool)"
+        continue
+    }
+
     $evidence = ([string]($check.evidence)).Trim()
     $waiverReason = ([string]($check.waiver_reason)).Trim()
 
@@ -92,8 +104,16 @@ foreach ($check in $contract.checks) {
             continue
         }
 
+        # Evidence must exist, be a regular file (not directory), and have size > 0
         if (-not (Test-Path -LiteralPath $joined)) {
             $failures += "check '$id' evidence file missing: $evidence"
+        } elseif ((Test-Path -LiteralPath $joined -PathType Container)) {
+            $failures += "check '$id' evidence is not a regular file: $evidence"
+        } else {
+            $fileInfo = Get-Item -LiteralPath $joined -ErrorAction SilentlyContinue
+            if ($fileInfo -and $fileInfo.Length -eq 0) {
+                $failures += "check '$id' evidence file is empty: $evidence"
+            }
         }
     }
 }
