@@ -81,6 +81,14 @@ leave template placeholders unfilled.
    collection and append a `Result` section to the WFI document.  Compare with
    the previous retrospective to confirm the friction decreased.
 
+## Sudo Mode
+
+A valid `SDD_SUDO` flag does **not** bypass WFI approval. Setting a WFI `status`
+to `Approved` changes the SDD workflow itself (governance), so it remains a
+human-only action even under sudo: continue to await human `Approved` before
+applying any improvement. Read-only metrics collection runs as normal. See
+`plugins/sdd-quality-loop/references/sudo-mode-policy.md`.
+
 ## Boundaries
 
 - Do not modify application code.

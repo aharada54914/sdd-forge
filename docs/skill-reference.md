@@ -305,8 +305,8 @@ Use the quality-gate skill for specs/reservation/tasks.md#T-001
 
 **人間の関与ポイント**
 
-- 自動修正不可の場合、Review ticket 作成と人間審査が必要
-- `refactor`/`bugfix` で BL 差分が `accepted` の場合、人間承認が必要
+- 自動修正不可の場合、Review ticket 作成と人間審査が必要（`requires_human_decision: true` は sudo でも人間判断）
+- `refactor`/`bugfix` で BL 差分が `accepted` の場合、人間承認が必要（sudo 中は自動通過。`fix-required` は自動通過しない）
 
 **やらないこと (Boundaries)**
 
@@ -344,7 +344,7 @@ Use the fix-by-review-ticket skill for docs/review-tickets/RT-001.yml
 
 **人間の関与ポイント**
 
-- Review ticket は人間により承認される必要がある
+- Review ticket は人間により承認される必要がある（`requires_human_decision: true` は sudo でも人間判断のまま）
 
 **やらないこと (Boundaries)**
 
@@ -413,7 +413,7 @@ Use the workflow-retrospective skill for specs/reservation/
 
 **人間の関与ポイント**
 
-- WFI は人間により `status: Approved` に設定される必要がある
+- WFI は人間により `status: Approved` に設定される必要がある（ワークフロー統治の変更のため sudo でも自動通過しない）
 
 **やらないこと (Boundaries)**
 
@@ -429,7 +429,7 @@ Use the workflow-retrospective skill for specs/reservation/
 
 **目的**
 
-人間承認ゲート（`Approval: Approved`、アーキテクチャ review 承認、quality-gate 人間判定）を期限付きで自動通過させます。AGENT_STOP とすべての決定論的ゲートは常に有効。ソロワーク・低リスク作業の効率向上。
+人間の **承認待ち**（`Approval: Approved`、quality-gate の定型サインオフ、`accepted` 差分承認）を期限付きで自動通過させます。**判断フォーク**（`requires_human_decision`、アーキ/認証/セキュリティ決定、WFI 承認）と AGENT_STOP・すべての決定論的ゲートは常に人間/有効。ソロワーク・低リスク作業の効率向上。**人間専用**（エージェントは有効化不可）。
 
 **呼び出し例**
 
@@ -451,13 +451,19 @@ Use the workflow-retrospective skill for specs/reservation/
 2. `/sdd-sudo status` で現在の状態と残り時間を報告
 3. `/sdd-sudo off` で即座に無効化
 
-**Bypass 対象（sudo モード中は自動通過）**
+**Bypass 対象（sudo モード中は自動通過）＝承認ゲートのみ**
 
-- `Approval: Approved` 書き込みガード（hook）
-- アーキテクチャ review 人間承認
-- quality-gate 人間判定ステップ
+- `Approval: Approved` 書き込みガード（hook、タスク承認）
+- quality-gate の定型サインオフ（contract 承認・定型 Done）
+- `refactor`/`bugfix` の baseline 差分 `accepted` 承認（`baseline-behavior.md` 更新）
 
-すべての approval gate 通過時に `Approval: Approved (sudo <ISO8601>)` と記録（audit trail）
+各 approval gate 通過時に `Approval: Approved (sudo <ISO8601>)` と記録（audit trail）
+
+**sudo でも通さない＝判断・統治（常に人間）**
+
+- `requires_human_decision: true` レビューチケット（業務判断）
+- architecture / auth / authz / breaking-API / security 決定（ADR 級の判断）
+- WFI `status: Approved`（ワークフロー統治の変更）
 
 **非Bypass 対象（常に有効）**
 

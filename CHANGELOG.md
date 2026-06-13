@@ -1,5 +1,15 @@
 # Changelog
 
+## Unreleased
+
+### sudoモードの適用範囲を明確化（文書のみ・挙動変更なし）
+
+- sudo が自動通過するのは **承認ゲートのみ** であることを明文化：tasks.md のタスク承認、quality-gate の定型サインオフ、`refactor`/`bugfix` の baseline 差分 `accepted` 承認。
+- sudo が **通さない判断・統治** を第2の明示例外（brownfield と並ぶ）として明文化：`requires_human_decision: true` チケット、アーキテクチャ/認証/認可/breaking-API/セキュリティ決定、WFI 承認。AGENT_STOP・決定論的ゲートは従来どおり常時有効。
+- `workflow-retrospective` と `fix-by-review-ticket` に `Sudo Mode` 節を追加し、quality-gate / implement-task / interviewer の `Sudo Mode` 節を承認と判断を区別する記述に更新。
+- `/sdd-sudo` スキルに「How to Turn It On (Quick Start)」を追加し、入り方を明確化。
+- 注: v0.7.0 で「アーキテクチャ review 承認も自動通過」と記載していたが、アーキテクチャ決定は承認ではなく判断のため sudo では通さない、と整理（ガードのコード挙動は不変）。
+
 ## v0.8.0
 
 ### 変更内容

@@ -58,10 +58,15 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
 ### Sudo Mode
 
 If a valid `SDD_SUDO` flag file exists at the project root (see
-`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), human approval
-checkpoints auto-pass. Record `Approval: Approved (sudo <ISO8601 UTC>)` in
-tasks.md and continue. All deterministic gates still apply; every check runs as
-normal.
+`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), routine **approval**
+checkpoints auto-pass: record `Approval: Approved (sudo <ISO8601 UTC>)` in
+tasks.md and continue. A `refactor`/`bugfix` BL diff classified `accepted` also
+auto-passes (mark `(sudo <ISO8601 UTC>)` and update `baseline-behavior.md`).
+
+Sudo never auto-passes genuine **judgment**: `requires_human_decision: true`
+findings, architecture/auth/authz/breaking-API/security decisions, and a
+`fix-required` baseline diff still stop the gate and require a human. All
+deterministic gates apply; every check runs as normal.
 
 ## Done Decision
 

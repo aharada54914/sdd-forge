@@ -7,15 +7,18 @@ checkpoints while preserving all machine-enforced gates and audit trails.
 
 ### Bypassed (Sudo Disables)
 
+These are **routine approval gates** — human *sign-off waiting*, not judgment:
+
 - **Approval: Approved gate**: The hook that prevents agents from writing
-  `Approval: Approved` to tasks.md is bypassed. When an agent encounters a
-  human-approval checkpoint during task implementation or quality review, it
-  records `Approval: Approved (sudo <ISO8601 UTC>)` and continues.
-- **Architecture review sign-off**: The quality-gate skill normally pauses for
-  human sign-off on architectural decisions. Under sudo, the gate passes
-  automatically after deterministic checks.
-- **Quality-gate human decision steps**: Contract approval, critical review
-  completion, and Done decision gates that normally require human input are
+  `Approval: Approved` to tasks.md is bypassed. When an agent reaches the task
+  sign-off checkpoint, it records `Approval: Approved (sudo <ISO8601 UTC>)` and
+  continues.
+- **Routine quality-gate sign-off**: Contract approval and the routine `Done`
+  sign-off in `quality-gate` are auto-passed after deterministic checks succeed.
+- **Accepted baseline-diff approval**: For `refactor`/`bugfix` work, a BL diff
+  classified `accepted` (an intentional, task-described behavior change) is an
+  approval checkpoint; under sudo it auto-passes with an `(sudo <ISO8601 UTC>)`
+  mark and `baseline-behavior.md` is updated. A `fix-required` diff is never
   auto-passed.
 
 ### Enforced (Sudo Never Disables)
@@ -34,6 +37,25 @@ checkpoints while preserving all machine-enforced gates and audit trails.
     implementation report presence. May reject Done if validation fails.
   - `check-sdd-structure`: Validates SDD project structure (AGENTS.md, ADRs,
     review-tickets, etc.). May fail even with sudo active.
+
+### Human Judgment (Never Auto-Passed — Distinct From Approval)
+
+Sudo eliminates *waiting on approval*; it never substitutes for *judgment* or
+*workflow governance*. The following remain human-owned even under sudo and
+form the second class of human touchpoint alongside the kill switch:
+
+- **`requires_human_decision: true` review tickets**: genuine business/technical
+  judgment. `fix-by-review-ticket` still stops; the agent defers to the human.
+- **Architecture / auth / authz / breaking-API / security decisions**: ADR-level
+  judgment. `implement-task` still goes `Blocked` and `sdd-bootstrap-interviewer`
+  still records them as Open Questions; sudo does not let the agent decide them.
+- **WFI (Workflow Improvement) approval**: setting a WFI `status` to `Approved`
+  changes the SDD workflow itself (governance), so `workflow-retrospective` still
+  awaits a human even under sudo.
+
+**Summary:** under sudo the only human touchpoints that remain are (1) genuine
+judgment forks — where the agent stops (Blocked / Open Question) and defers — and
+(2) the AGENT_STOP kill switch. All routine approval *waiting* is eliminated.
 
 ## Flag-File Format
 
