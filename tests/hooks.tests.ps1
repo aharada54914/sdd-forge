@@ -717,6 +717,41 @@ Approval: Draft
     Assert "ps sudo: WFI Status: Approved denied even with valid sudo (exit 2)" ($wfiSudoR.Code -eq 2)
     Remove-Item -Recurse -Force $wfiSudoDir -ErrorAction SilentlyContinue
 
+    # --- T-007b-2: Second Approval guard (tasks.md), NEVER bypassed by sudo ---
+    $secondEdit = '{"tool_name":"Edit","tool_input":{"file_path":"specs/x/tasks.md","old_string":"x","new_string":"Second Approval: Approved (bob 2026-06-13T11:00:00Z)"}}'
+    $r = Invoke-GuardPs $secondEdit
+    Assert "ps: edit adds Second Approval -> deny (exit 2)" ($r.Code -eq 2)
+
+    # KEY: Second Approval is human judgment and is NOT bypassed by valid sudo.
+    $secondSudoDir = Join-Path $workDir "second-sudo-ps"
+    New-Item -ItemType Directory -Path $secondSudoDir -Force | Out-Null
+    Write-SudoFlag $secondSudoDir $sudoEpoch
+    Push-Location $secondSudoDir
+    $secondSudoR = $null
+    try { $secondSudoR = Invoke-GuardPs $secondEdit "exit" } finally { Pop-Location }
+    Assert "ps sudo: Second Approval denied even with valid sudo (exit 2) -- sudo does NOT bypass" ($secondSudoR.Code -eq 2)
+    Remove-Item -Recurse -Force $secondSudoDir -ErrorAction SilentlyContinue
+
+    # Write content adding a Second Approval line -> deny (over-count fix routes it here).
+    $secondWriteDir = Join-Path $workDir "second-write-ps"
+    New-Item -ItemType Directory -Path (Join-Path $secondWriteDir "specs/x") -Force | Out-Null
+    $secondDiskTasks = Join-Path $secondWriteDir "specs/x/tasks.md"
+    "## T-001" | Set-Content -Encoding Utf8 $secondDiskTasks
+    $secondWritePayload = (@{ tool_name = "Write"; tool_input = @{ file_path = $secondDiskTasks; content = "## T-001`nSecond Approval: Approved (bob 2026-06-13T11:00:00Z)" } } | ConvertTo-Json -Compress -Depth 5)
+    $r = Invoke-GuardPs $secondWritePayload
+    Assert "ps: write content adds Second Approval -> deny (exit 2)" ($r.Code -eq 2)
+    Remove-Item -Recurse -Force $secondWriteDir -ErrorAction SilentlyContinue
+
+    # apply_patch adding Second Approval to tasks.md -> deny.
+    $secondPatch = "{`"tool_name`":`"apply_patch`",`"tool_input`":{`"command`":`"*** Begin Patch\n*** Update File: specs/x/tasks.md\n+Second Approval: Approved\n*** End Patch`"}}"
+    $r = Invoke-GuardPs $secondPatch
+    Assert "ps: apply_patch adds Second Approval to tasks.md -> deny (exit 2)" ($r.Code -eq 2)
+
+    # shell appending Second Approval to tasks.md -> deny.
+    $secondShell = "{`"tool_name`":`"shell`",`"tool_input`":{`"command`":`"echo 'Second Approval: Approved' >> specs/x/tasks.md`"}}"
+    $r = Invoke-GuardPs $secondShell
+    Assert "ps: shell appends Second Approval to tasks.md -> deny (exit 2)" ($r.Code -eq 2)
+
     $node = Get-Command node -ErrorAction SilentlyContinue
     if ($node) {
         $r = Invoke-GuardNode $wfiApprove

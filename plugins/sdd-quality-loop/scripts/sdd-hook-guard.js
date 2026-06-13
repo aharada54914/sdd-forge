@@ -45,6 +45,7 @@ const fs = require('fs');
 const path = require('path');
 
 const APPROVAL_RE = /Approval:\s*Approved/g;
+const SECOND_APPROVAL_RE = /Second Approval:\s*Approved/g;
 const WFI_APPROVAL_RE = /Status:\s*Approved/g;
 const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
@@ -70,6 +71,12 @@ const WFI_APPROVAL_MSG =
   "Workflow Improvement; this is never bypassed by sudo. Leave it as Draft " +
   "and ask the human to approve it.";
 
+const SECOND_APPROVAL_MSG =
+  "SDD deterministic gate: agents must not set 'Second Approval: Approved' in " +
+  "tasks.md. A second approval is an independent human judgment (like a Workflow " +
+  "Improvement) and is never bypassed by sudo. Leave it for a second human " +
+  "approver to record.";
+
 const SDD_SUDO_WRITE_MSG =
   "SDD deterministic gate: agents must not create, edit, or delete the " +
   "SDD_SUDO flag file. Only a human may manage sudo mode.";
@@ -87,8 +94,13 @@ const AGENT_ROLE_MSG =
 
 function countApprovals(text) {
   if (!text) return 0;
-  const matches = text.match(APPROVAL_RE);
-  return matches ? matches.length : 0;
+  // Subtract second approvals from primary count to avoid over-counting
+  // (since "Second Approval: Approved" contains "Approval: Approved" as a substring)
+  const approvalMatches = text.match(APPROVAL_RE);
+  const secondMatches = text.match(SECOND_APPROVAL_RE);
+  const approvalCount = approvalMatches ? approvalMatches.length : 0;
+  const secondCount = secondMatches ? secondMatches.length : 0;
+  return approvalCount - secondCount;
 }
 
 function isTasksMd(filePath) {
@@ -107,6 +119,12 @@ function isWfiPath(filePath) {
 function wfiCount(text) {
   if (!text) return 0;
   const matches = text.match(WFI_APPROVAL_RE);
+  return matches ? matches.length : 0;
+}
+
+function countSecondApprovals(text) {
+  if (!text) return 0;
+  const matches = text.match(SECOND_APPROVAL_RE);
   return matches ? matches.length : 0;
 }
 
@@ -631,6 +649,78 @@ function wfiPatchIncreases(patch) {
   return (added - removed) > 0;
 }
 
+function secondApprovalIncreases(payload) {
+  // Second Approval is human-only and NEVER bypassed by sudo. Mirrors the tasks.md
+  // approval guard but keyed on 'Second Approval: Approved' and scoped to tasks.md.
+  const toolInput = payload.tool_input || {};
+  const toolName = String(payload.tool_name || '').toLowerCase();
+  const command = toolInput.command;
+
+  if (toolName === 'apply_patch' || looksLikePatch(command)) {
+    return secondApprovalPatchIncreases(command || '');
+  }
+
+  if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
+    if (command.toLowerCase().includes('tasks.md') && command.match(SECOND_APPROVAL_RE)) {
+      return true;
+    }
+    return false;
+  }
+
+  const filePath = toolInput.file_path || '';
+  if (!isTasksMd(filePath)) return false;
+
+  if (Array.isArray(toolInput.edits)) {
+    for (const edit of toolInput.edits) {
+      const e = edit || {};
+      if (countSecondApprovals(e.new_string) > 0) {
+        return true;
+      }
+    }
+    return false;
+  } else if ('new_string' in toolInput) {
+    return countSecondApprovals(toolInput.new_string) > 0;
+  } else if ('content' in toolInput) {
+    return secondApprovalWriteContentIncreases(filePath, toolInput.content || '');
+  } else {
+    return false;
+  }
+}
+
+function secondApprovalWriteContentIncreases(filePath, newContent) {
+  let oldContent = '';
+  try {
+    oldContent = fs.readFileSync(filePath, 'utf8');
+  } catch (e) {
+    oldContent = '';
+  }
+  return countSecondApprovals(newContent) > countSecondApprovals(oldContent);
+}
+
+function secondApprovalPatchIncreases(patch) {
+  let currentIsTasks = false;
+  let added = 0;
+  let removed = 0;
+  for (const raw of patch.split('\n')) {
+    const line = raw.replace(/\r$/, '');
+    const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+    if (m) {
+      currentIsTasks = isTasksMd(m[2].trim());
+      continue;
+    }
+    if (line.startsWith('*** End Patch') || line.startsWith('*** Begin Patch')) {
+      continue;
+    }
+    if (!currentIsTasks) continue;
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      added += countSecondApprovals(line.slice(1));
+    } else if (line.startsWith('-') && !line.startsWith('---')) {
+      removed += countSecondApprovals(line.slice(1));
+    }
+  }
+  return (added - removed) > 0;
+}
+
 function agentRoleInvalid(payload) {
   const toolInput = payload.tool_input || {};
   const toolName = String(payload.tool_name || '').toLowerCase();
@@ -761,6 +851,12 @@ async function main() {
     WFI_APPROVAL_RE.lastIndex = 0;
     if (wfiApprovalIncreases(payload)) {
       emitDecision('deny', WFI_APPROVAL_MSG, mode);
+    }
+
+    // Check 2d: Second Approval guard (NEVER bypassed by sudo).
+    SECOND_APPROVAL_RE.lastIndex = 0;
+    if (secondApprovalIncreases(payload)) {
+      emitDecision('deny', SECOND_APPROVAL_MSG, mode);
     }
   } catch (e) {
     // Never crash; fail closed on the approval check.

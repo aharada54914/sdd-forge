@@ -1275,6 +1275,192 @@ if command -v node >/dev/null 2>&1; then
     rm -rf "$WFI_SUDO_DIR_NODE"
 fi
 
+# ---------------------------------------------------------------------------
+# Second Approval guard tests — the security property is "sudo does NOT bypass"
+# ---------------------------------------------------------------------------
+
+# Test 1: Agent Edit adding "Second Approval: Approved" to tasks.md (no sudo) -> DENY
+SECOND_EDIT_DENY='{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"Approval: Draft","new_string":"Second Approval: Approved"}}'
+invoke_guard_sh "$SECOND_EDIT_DENY"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: edit adds Second Approval to tasks.md -> deny (exit 2)"
+else
+    fail "sh: edit adds Second Approval to tasks.md -> deny (code=$GUARD_CODE)"
+fi
+
+# Test 2: CRUCIAL — same Edit WITH a valid signed SDD_SUDO token active -> STILL DENY
+# (This proves sudo does not bypass the Second Approval guard)
+SECOND_SUDO_DIR="${WORK}/second-sudo"
+mkdir -p "$SECOND_SUDO_DIR"
+SECOND_SUDO_EPOCH=$(( $(date +%s) + 3600 ))
+write_sudo_flag "$SECOND_SUDO_DIR" "$SECOND_SUDO_EPOCH"
+SECOND_SUDO_CODE=0
+(cd "$SECOND_SUDO_DIR" && printf '%s' "$SECOND_EDIT_DENY" | env CLAUDE_PROJECT_DIR="$SECOND_SUDO_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SECOND_SUDO_CODE=$?
+if [[ $SECOND_SUDO_CODE -eq 2 ]]; then
+    ok "sh sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass"
+else
+    fail "sh sudo: Second Approval must be denied under sudo (expected 2, got $SECOND_SUDO_CODE)"
+fi
+rm -rf "$SECOND_SUDO_DIR"
+
+# Test 3: Agent Write (full content) that adds a Second Approval line -> DENY (with and without sudo)
+SECOND_WRITE_DIR="${WORK}/second-write"
+mkdir -p "$SECOND_WRITE_DIR"
+printf '# Tasks\n## T-001\nApproval: Draft\n' > "${SECOND_WRITE_DIR}/tasks.md"
+SECOND_WRITE_DENY='{"tool_name":"Write","tool_input":{"file_path":"'"${SECOND_WRITE_DIR}"'/tasks.md","content":"# Tasks\n## T-001\nSecond Approval: Approved\n"}}'
+invoke_guard_sh "$SECOND_WRITE_DENY"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: Write content adds Second Approval -> deny (exit 2)"
+else
+    fail "sh: Write content adds Second Approval -> deny (expected 2, got $GUARD_CODE)"
+fi
+rm -rf "$SECOND_WRITE_DIR"
+
+# Test 4: Agent Bash/shell command writing "Second Approval: Approved" into tasks.md -> DENY (with and without sudo)
+SECOND_BASH_DENY='{"tool_name":"bash","tool_input":{"command":"echo \"Second Approval: Approved\" >> tasks.md"}}'
+invoke_guard_sh "$SECOND_BASH_DENY"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: bash writes Second Approval to tasks.md -> deny (exit 2)"
+else
+    fail "sh: bash writes Second Approval to tasks.md -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+# Test 5: Codex apply_patch adding "+Second Approval: Approved" to a tasks.md -> DENY
+SECOND_PATCH_DENY='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: tasks.md\n-Approval: Draft\n+Second Approval: Approved\n*** End Patch"}}'
+invoke_guard_sh "$SECOND_PATCH_DENY"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: apply_patch adds Second Approval to tasks.md -> deny (exit 2)"
+else
+    fail "sh: apply_patch adds Second Approval to tasks.md -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+# Test 6 (REGRESSION): an Edit adding ONLY primary "Approval: Approved" (no "Second ")
+# is STILL denied without sudo and STILL bypassed WITH valid sudo
+FIRST_EDIT_DENY='{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
+invoke_guard_sh "$FIRST_EDIT_DENY"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: primary Approval without sudo -> deny (exit 2)"
+else
+    fail "sh: primary Approval without sudo -> deny (expected 2, got $GUARD_CODE)"
+fi
+
+# WITH valid sudo, primary approval should be allowed
+FIRST_SUDO_DIR="${WORK}/first-sudo"
+mkdir -p "$FIRST_SUDO_DIR"
+FIRST_SUDO_EPOCH=$(( $(date +%s) + 3600 ))
+write_sudo_flag "$FIRST_SUDO_DIR" "$FIRST_SUDO_EPOCH"
+FIRST_SUDO_CODE=0
+(cd "$FIRST_SUDO_DIR" && printf '%s' "$FIRST_EDIT_DENY" | env CLAUDE_PROJECT_DIR="$FIRST_SUDO_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || FIRST_SUDO_CODE=$?
+if [[ $FIRST_SUDO_CODE -eq 0 ]]; then
+    ok "sh sudo: primary Approval WITH valid sudo -> allow (exit 0) — primary guard behavior unchanged"
+else
+    fail "sh sudo: primary Approval WITH valid sudo -> allow (expected 0, got $FIRST_SUDO_CODE)"
+fi
+rm -rf "$FIRST_SUDO_DIR"
+
+# Test 7 (REGRESSION): an Edit adding ONLY Second Approval is denied (proves it's caught)
+SECOND_EDIT_PAYLOAD='{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"x","new_string":"Second Approval: Approved"}}'
+invoke_guard_sh "$SECOND_EDIT_PAYLOAD"
+if [[ $GUARD_CODE -eq 2 ]]; then
+    ok "sh: Second Approval edit denied (not bypassed by primary guard)"
+else
+    fail "sh: Second Approval edit should be denied (code=$GUARD_CODE)"
+fi
+
+# Python tests for Second Approval (mirror the key cases)
+if command -v python3 >/dev/null 2>&1; then
+    # Test 1: Edit adds Second Approval -> DENY
+    invoke_py_guard "$SECOND_EDIT_DENY"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: edit adds Second Approval to tasks.md -> deny (exit 2)"
+    else
+        fail "py: edit adds Second Approval to tasks.md -> deny (code=$PY_CODE)"
+    fi
+
+    # Test 2: WITH valid sudo, Second Approval still denied
+    SECOND_SUDO_DIR_PY="${WORK}/second-sudo-py"
+    mkdir -p "$SECOND_SUDO_DIR_PY"
+    SECOND_SUDO_EPOCH=$(($(date +%s) + 3600))
+    write_sudo_flag "$SECOND_SUDO_DIR_PY" "$SECOND_SUDO_EPOCH"
+    SECOND_SUDO_PY_CODE=0
+    (cd "$SECOND_SUDO_DIR_PY" && printf '%s' "$SECOND_EDIT_DENY" | env CLAUDE_PROJECT_DIR="$SECOND_SUDO_DIR_PY" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || SECOND_SUDO_PY_CODE=$?
+    if [[ $SECOND_SUDO_PY_CODE -eq 2 ]]; then
+        ok "py sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass"
+    else
+        fail "py sudo: Second Approval must be denied under sudo (expected 2, got $SECOND_SUDO_PY_CODE)"
+    fi
+    rm -rf "$SECOND_SUDO_DIR_PY"
+
+    # Test 6 (REGRESSION): primary Approval still bypassed by valid sudo
+    FIRST_SUDO_DIR_PY="${WORK}/first-sudo-py"
+    mkdir -p "$FIRST_SUDO_DIR_PY"
+    FIRST_SUDO_EPOCH=$(($(date +%s) + 3600))
+    write_sudo_flag "$FIRST_SUDO_DIR_PY" "$FIRST_SUDO_EPOCH"
+    FIRST_SUDO_PY_CODE=0
+    (cd "$FIRST_SUDO_DIR_PY" && printf '%s' "$FIRST_EDIT_DENY" | env CLAUDE_PROJECT_DIR="$FIRST_SUDO_DIR_PY" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || FIRST_SUDO_PY_CODE=$?
+    if [[ $FIRST_SUDO_PY_CODE -eq 0 ]]; then
+        ok "py sudo: primary Approval WITH valid sudo -> allow (exit 0)"
+    else
+        fail "py sudo: primary Approval WITH valid sudo -> allow (expected 0, got $FIRST_SUDO_PY_CODE)"
+    fi
+    rm -rf "$FIRST_SUDO_DIR_PY"
+
+    # Test 7 (REGRESSION): Second Approval edit denied (proves it's caught)
+    invoke_py_guard "$SECOND_EDIT_PAYLOAD"
+    if [[ $PY_CODE -eq 2 ]]; then
+        ok "py: Second Approval edit denied (not bypassed by primary guard)"
+    else
+        fail "py: Second Approval edit should be denied (code=$PY_CODE)"
+    fi
+fi
+
+# Node tests for Second Approval (mirror the key cases)
+if command -v node >/dev/null 2>&1; then
+    # Test 1: Edit adds Second Approval -> DENY
+    invoke_node_guard "$SECOND_EDIT_DENY"
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: edit adds Second Approval to tasks.md -> deny (exit 2)"
+    else
+        fail "node: edit adds Second Approval to tasks.md -> deny (code=$NODE_CODE)"
+    fi
+
+    # Test 2: WITH valid sudo, Second Approval still denied
+    SECOND_SUDO_DIR_NODE="${WORK}/second-sudo-node"
+    mkdir -p "$SECOND_SUDO_DIR_NODE"
+    SECOND_SUDO_EPOCH=$(($(date +%s) + 3600))
+    write_sudo_flag "$SECOND_SUDO_DIR_NODE" "$SECOND_SUDO_EPOCH"
+    SECOND_SUDO_NODE_CODE=0
+    (cd "$SECOND_SUDO_DIR_NODE" && printf '%s' "$SECOND_EDIT_DENY" | env CLAUDE_PROJECT_DIR="$SECOND_SUDO_DIR_NODE" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || SECOND_SUDO_NODE_CODE=$?
+    if [[ $SECOND_SUDO_NODE_CODE -eq 2 ]]; then
+        ok "node sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass"
+    else
+        fail "node sudo: Second Approval must be denied under sudo (expected 2, got $SECOND_SUDO_NODE_CODE)"
+    fi
+    rm -rf "$SECOND_SUDO_DIR_NODE"
+
+    # Test 6 (REGRESSION): primary Approval still bypassed by valid sudo
+    FIRST_SUDO_DIR_NODE="${WORK}/first-sudo-node"
+    mkdir -p "$FIRST_SUDO_DIR_NODE"
+    FIRST_SUDO_EPOCH=$(($(date +%s) + 3600))
+    write_sudo_flag "$FIRST_SUDO_DIR_NODE" "$FIRST_SUDO_EPOCH"
+    FIRST_SUDO_NODE_CODE=0
+    (cd "$FIRST_SUDO_DIR_NODE" && printf '%s' "$FIRST_EDIT_DENY" | env CLAUDE_PROJECT_DIR="$FIRST_SUDO_DIR_NODE" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || FIRST_SUDO_NODE_CODE=$?
+    if [[ $FIRST_SUDO_NODE_CODE -eq 0 ]]; then
+        ok "node sudo: primary Approval WITH valid sudo -> allow (exit 0)"
+    else
+        fail "node sudo: primary Approval WITH valid sudo -> allow (expected 0, got $FIRST_SUDO_NODE_CODE)"
+    fi
+    rm -rf "$FIRST_SUDO_DIR_NODE"
+
+    # Test 7 (REGRESSION): Second Approval edit denied (proves it's caught)
+    invoke_node_guard "$SECOND_EDIT_PAYLOAD"
+    if [[ $NODE_CODE -eq 2 ]]; then
+        ok "node: Second Approval edit denied (not bypassed by primary guard)"
+    else
+        fail "node: Second Approval edit should be denied (code=$NODE_CODE)"
+    fi
+fi
+
 echo ""
 echo "Results: ${PASS} passed, ${FAIL} failed."
 [[ $FAIL -eq 0 ]]
