@@ -52,6 +52,28 @@ check_task_state_passes() {
     bash "${SCRIPTS_DIR}/check-task-state.sh" "$tasks" "$reports" "$impl_reports" "$root" >/dev/null 2>&1
 }
 
+# Invoke check-risk.sh and return output
+run_check_risk() {
+    local tasks="$1"
+    local task_id="${2:-}"
+    if [ -z "$task_id" ]; then
+        bash "${SCRIPTS_DIR}/check-risk.sh" "$tasks" 2>&1 || true
+    else
+        bash "${SCRIPTS_DIR}/check-risk.sh" "$tasks" "$task_id" 2>&1 || true
+    fi
+}
+
+# Check if check-risk passes (exit 0)
+check_risk_passes() {
+    local tasks="$1"
+    local task_id="${2:-}"
+    if [ -z "$task_id" ]; then
+        bash "${SCRIPTS_DIR}/check-risk.sh" "$tasks" >/dev/null 2>&1
+    else
+        bash "${SCRIPTS_DIR}/check-risk.sh" "$tasks" "$task_id" >/dev/null 2>&1
+    fi
+}
+
 # ============================================================================
 # Test Fixtures
 # ============================================================================
@@ -519,6 +541,264 @@ if check_bundle_passes "$bundle_file" "${H02_REPO}"; then
     ok "H-02.5: bundle with ancestor git_commit still passes check"
 else
     fail "H-02.5: ancestor commit should pass check-evidence-bundle: $(run_check_bundle "$bundle_file" "${H02_REPO}")"
+fi
+
+# ============================================================================
+# T-002: check-risk Tests
+# ============================================================================
+
+echo "=== T-002: check-risk ==="
+
+# Test: T-002.1 - valid task with Risk and Rationale passes
+mkdir -p "${WORK}/t002_test1"
+cat > "${WORK}/t002_test1/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+EOF
+if check_risk_passes "${WORK}/t002_test1/tasks.md"; then
+    ok "T-002.1: valid task with Risk: high and Rationale passes"
+else
+    fail "T-002.1: valid task should pass"
+fi
+
+# Test: T-002.2 - missing Risk line fails
+mkdir -p "${WORK}/t002_test2"
+cat > "${WORK}/t002_test2/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk Rationale: some reason
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test2/tasks.md")
+if echo "$output" | grep -q "has no Risk line"; then
+    ok "T-002.2: missing Risk line fails"
+else
+    fail "T-002.2: should fail on missing Risk line"
+fi
+
+# Test: T-002.3 - invalid Risk value fails
+mkdir -p "${WORK}/t002_test3"
+cat > "${WORK}/t002_test3/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: severe
+Risk Rationale: verifies tokens
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test3/tasks.md")
+if echo "$output" | grep -q "has invalid Risk:"; then
+    ok "T-002.3: invalid Risk value fails"
+else
+    fail "T-002.3: should fail on invalid Risk value"
+fi
+
+# Test: T-002.4 - placeholder Risk value fails
+mkdir -p "${WORK}/t002_test4"
+cat > "${WORK}/t002_test4/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: {{risk}}
+Risk Rationale: verifies tokens
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test4/tasks.md")
+if echo "$output" | grep -q "has invalid Risk:"; then
+    ok "T-002.4: placeholder Risk: {{risk}} fails"
+else
+    fail "T-002.4: should fail on placeholder Risk value"
+fi
+
+# Test: T-002.5 - empty Rationale fails
+mkdir -p "${WORK}/t002_test5"
+cat > "${WORK}/t002_test5/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale:
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test5/tasks.md")
+if echo "$output" | grep -q "has empty Risk Rationale"; then
+    ok "T-002.5: empty Risk Rationale fails"
+else
+    fail "T-002.5: should fail on empty Rationale"
+fi
+
+# Test: T-002.6 - missing Rationale line fails
+mkdir -p "${WORK}/t002_test6"
+cat > "${WORK}/t002_test6/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: medium
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test6/tasks.md")
+if echo "$output" | grep -q "has empty Risk Rationale"; then
+    ok "T-002.6: missing Risk Rationale line fails"
+else
+    fail "T-002.6: should fail on missing Rationale line"
+fi
+
+# Test: T-002.7 - two valid tasks pass
+mkdir -p "${WORK}/t002_test7"
+cat > "${WORK}/t002_test7/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+
+## T-002
+
+Risk: low
+Risk Rationale: documentation change
+Status: Planned
+EOF
+if check_risk_passes "${WORK}/t002_test7/tasks.md"; then
+    ok "T-002.7: two valid tasks pass"
+else
+    fail "T-002.7: two valid tasks should pass"
+fi
+
+# Test: T-002.8 - two tasks, one invalid fails
+mkdir -p "${WORK}/t002_test8"
+cat > "${WORK}/t002_test8/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+
+## T-002
+
+Risk: invalid_value
+Risk Rationale: something
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test8/tasks.md")
+if echo "$output" | grep -q "T-002 has invalid Risk:"; then
+    ok "T-002.8: two tasks, one invalid fails"
+else
+    fail "T-002.8: should fail when one task is invalid"
+fi
+
+# Test: T-002.9 - file not found fails
+output=$(run_check_risk "${WORK}/nonexistent.md")
+if echo "$output" | grep -q "tasks file not found"; then
+    ok "T-002.9: nonexistent file fails with correct message"
+else
+    fail "T-002.9: should fail with file not found message"
+fi
+
+# Test: T-002.10 - task-id arg selects one valid section among invalid file
+mkdir -p "${WORK}/t002_test10"
+cat > "${WORK}/t002_test10/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+
+## T-002
+
+Risk: bad_value
+Risk Rationale: bad
+Status: Planned
+EOF
+if check_risk_passes "${WORK}/t002_test10/tasks.md" "T-001"; then
+    ok "T-002.10: task-id arg selects one valid section"
+else
+    fail "T-002.10: should pass when validating only specified task"
+fi
+
+# Test: T-002.11 - valid low risk passes
+mkdir -p "${WORK}/t002_test11"
+cat > "${WORK}/t002_test11/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: low
+Risk Rationale: documentation update
+Status: Planned
+EOF
+if check_risk_passes "${WORK}/t002_test11/tasks.md"; then
+    ok "T-002.11: valid Risk: low passes"
+else
+    fail "T-002.11: valid low risk should pass"
+fi
+
+# Test: T-002.12 - valid medium risk passes
+mkdir -p "${WORK}/t002_test12"
+cat > "${WORK}/t002_test12/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: medium
+Risk Rationale: normal feature implementation
+Status: Planned
+EOF
+if check_risk_passes "${WORK}/t002_test12/tasks.md"; then
+    ok "T-002.12: valid Risk: medium passes"
+else
+    fail "T-002.12: valid medium risk should pass"
+fi
+
+# Test: T-002.13 - valid critical risk passes
+mkdir -p "${WORK}/t002_test13"
+cat > "${WORK}/t002_test13/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: critical
+Risk Rationale: payment settlement path
+Status: Planned
+EOF
+if check_risk_passes "${WORK}/t002_test13/tasks.md"; then
+    ok "T-002.13: valid Risk: critical passes"
+else
+    fail "T-002.13: valid critical risk should pass"
+fi
+
+# Test: T-002.14 - task-id filter matching no task fails closed (no silent pass)
+mkdir -p "${WORK}/t002_test14"
+cat > "${WORK}/t002_test14/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test14/tasks.md" "T-999")
+if echo "$output" | grep -q "requested task T-999 not found"; then
+    ok "T-002.14: filter task-id not found fails closed"
+else
+    fail "T-002.14: missing filter task-id must fail closed, not silently pass"
 fi
 
 # ============================================================================

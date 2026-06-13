@@ -549,6 +549,210 @@ Status: Done
         Write-Host "bash not found; skipping POSIX variant tests."
     }
 
+    # =========================================================
+    # T-002: check-risk (PowerShell)
+    # =========================================================
+
+    # Test: T-002.1 - valid task with Risk and Rationale passes
+    @"
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-01.md"
+    Assert-ExitCode "T-002.1: valid task passes" (Invoke-Gate "check-risk.ps1" @("tasks-t002-01.md")) 0
+
+    # Test: T-002.2 - missing Risk line fails
+    @"
+# Tasks
+
+## T-001
+
+Risk Rationale: some reason
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-02.md"
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-02.md" 2>&1
+    $outStr = ($out | Out-String)
+    if ($outStr -match "has no Risk line") {
+        Write-Host "ok: T-002.2: missing Risk line fails"
+    } else {
+        throw "T-002.2: should fail on missing Risk line"
+    }
+    Assert-ExitCode "T-002.2: missing Risk exits 1" $LASTEXITCODE 1
+
+    # Test: T-002.3 - invalid Risk value fails
+    @"
+# Tasks
+
+## T-001
+
+Risk: severe
+Risk Rationale: verifies tokens
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-03.md"
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-03.md" 2>&1
+    $outStr = ($out | Out-String)
+    if ($outStr -match "has invalid Risk:") {
+        Write-Host "ok: T-002.3: invalid Risk value fails"
+    } else {
+        throw "T-002.3: should fail on invalid Risk value"
+    }
+    Assert-ExitCode "T-002.3: invalid Risk exits 1" $LASTEXITCODE 1
+
+    # Test: T-002.4 - placeholder Risk value fails
+    @"
+# Tasks
+
+## T-001
+
+Risk: {{risk}}
+Risk Rationale: verifies tokens
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-04.md"
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-04.md" 2>&1
+    Assert-ExitCode "T-002.4: placeholder Risk exits 1" $LASTEXITCODE 1
+
+    # Test: T-002.5 - empty Rationale fails
+    @"
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale:
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-05.md"
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-05.md" 2>&1
+    $outStr = ($out | Out-String)
+    if ($outStr -match "has empty Risk Rationale") {
+        Write-Host "ok: T-002.5: empty Rationale fails"
+    } else {
+        throw "T-002.5: should fail on empty Rationale"
+    }
+    Assert-ExitCode "T-002.5: empty Rationale exits 1" $LASTEXITCODE 1
+
+    # Test: T-002.6 - missing Rationale line fails
+    @"
+# Tasks
+
+## T-001
+
+Risk: medium
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-06.md"
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-06.md" 2>&1
+    Assert-ExitCode "T-002.6: missing Rationale exits 1" $LASTEXITCODE 1
+
+    # Test: T-002.7 - two valid tasks pass
+    @"
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+
+## T-002
+
+Risk: low
+Risk Rationale: documentation change
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-07.md"
+    Assert-ExitCode "T-002.7: two valid tasks pass" (Invoke-Gate "check-risk.ps1" @("tasks-t002-07.md")) 0
+
+    # Test: T-002.8 - two tasks, one invalid fails
+    @"
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+
+## T-002
+
+Risk: invalid_value
+Risk Rationale: something
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-08.md"
+    Assert-ExitCode "T-002.8: two tasks, one invalid fails" (Invoke-Gate "check-risk.ps1" @("tasks-t002-08.md")) 1
+
+    # Test: T-002.9 - file not found fails
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "nonexistent.md" 2>&1
+    Assert-ExitCode "T-002.9: nonexistent file exits 1" $LASTEXITCODE 1
+
+    # Test: T-002.10 - task-id arg selects one valid section
+    @"
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+
+## T-002
+
+Risk: bad_value
+Risk Rationale: bad
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-10.md"
+    Assert-ExitCode "T-002.10: task-id filter selects valid task" (Invoke-Gate "check-risk.ps1" @("tasks-t002-10.md", "-TaskId", "T-001")) 0
+
+    # Test: T-002.11 - valid low risk passes
+    @"
+# Tasks
+
+## T-001
+
+Risk: low
+Risk Rationale: documentation update
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-11.md"
+    Assert-ExitCode "T-002.11: valid low risk passes" (Invoke-Gate "check-risk.ps1" @("tasks-t002-11.md")) 0
+
+    # Test: T-002.12 - valid medium risk passes
+    @"
+# Tasks
+
+## T-001
+
+Risk: medium
+Risk Rationale: normal feature implementation
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-12.md"
+    Assert-ExitCode "T-002.12: valid medium risk passes" (Invoke-Gate "check-risk.ps1" @("tasks-t002-12.md")) 0
+
+    # Test: T-002.13 - valid critical risk passes
+    @"
+# Tasks
+
+## T-001
+
+Risk: critical
+Risk Rationale: payment settlement path
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-13.md"
+    Assert-ExitCode "T-002.13: valid critical risk passes" (Invoke-Gate "check-risk.ps1" @("tasks-t002-13.md")) 0
+
+    # Test: T-002.14 - task-id filter matching no task fails closed (no silent pass)
+    @"
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-14.md"
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-14.md" "-TaskId" "T-999" 2>&1
+    Assert-ExitCode "T-002.14: filter task-id not found fails closed" $LASTEXITCODE 1
+
     # --- check-sdd-structure ---
     $bootstrapScriptsDir = Join-Path $repositoryRoot "plugins/sdd-bootstrap/scripts"
 
