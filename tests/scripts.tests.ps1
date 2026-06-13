@@ -1823,6 +1823,87 @@ Quality gate report for T-201.
         Write-Host "bash not found; skipping check-sdd-structure.sh POSIX tests."
     }
 
+    # =========================================================
+    # T-007b: Two-Person Approval (Critical Risk)
+    # =========================================================
+
+    Write-Host "Testing T-007b: Two-Person Approval (Critical Risk)"
+
+    # Test 1: critical + Done + NO Second Approval => output contains "Second Approval"
+    @"
+## T-001
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+"@ | Set-Content -Encoding Utf8 "t007b-test1.md"
+    $t007b_1_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") "t007b-test1.md" 2>&1
+    if ($t007b_1_out | Where-Object { $_ -match "Second Approval" }) {
+        Write-Host "ok: T-007b.1: critical Done without Second Approval fails with correct message"
+    } else {
+        throw "T-007b.1: should report missing Second Approval"
+    }
+
+    # Test 2: critical + Done + primary bare Approved + named Second => output contains "named approver"
+    @"
+## T-001
+Approval: Approved
+Status: Done
+Risk: critical
+Second Approval: Approved (bob 2026-06-13T11:00:00Z)
+"@ | Set-Content -Encoding Utf8 "t007b-test2.md"
+    $t007b_2_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") "t007b-test2.md" 2>&1
+    if ($t007b_2_out | Where-Object { $_ -match "named approver" }) {
+        Write-Host "ok: T-007b.2: critical Done with bare primary Approval fails (needs named)"
+    } else {
+        throw "T-007b.2: should report need for named approver"
+    }
+
+    # Test 3: critical + Done + primary (alice) + secondary (alice) => output contains "two distinct"
+    @"
+## T-001
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+Second Approval: Approved (alice 2026-06-13T11:00:00Z)
+"@ | Set-Content -Encoding Utf8 "t007b-test3.md"
+    $t007b_3_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") "t007b-test3.md" 2>&1
+    if ($t007b_3_out | Where-Object { $_ -match "two distinct" }) {
+        Write-Host "ok: T-007b.3: critical Done with same approver fails"
+    } else {
+        throw "T-007b.3: should report need for two distinct approvers"
+    }
+
+    # Test 4: critical + Done + primary sudo + secondary bob => output contains "sudo"
+    @"
+## T-001
+Approval: Approved (sudo 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+Second Approval: Approved (bob 2026-06-13T11:00:00Z)
+"@ | Set-Content -Encoding Utf8 "t007b-test4.md"
+    $t007b_4_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-task-state.ps1") "t007b-test4.md" 2>&1
+    if ($t007b_4_out | Where-Object { $_ -match "sudo" }) {
+        Write-Host "ok: T-007b.4: critical Done with sudo primary approver fails"
+    } else {
+        throw "T-007b.4: should reject sudo as primary approver"
+    }
+
+    # Test 5: REGRESSION - named Approval format accepted (not invalid)
+    @"
+## T-001
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: In Progress
+"@ | Set-Content -Encoding Utf8 "t007b-test5.md"
+    Assert-ExitCode "T-007b.5: named Approval format accepted" (Invoke-Gate "check-task-state.ps1" @("t007b-test5.md")) 0
+
+    # Test 6: REGRESSION - sudo format still accepted
+    @"
+## T-001
+Approval: Approved (sudo 2026-06-13T10:00:00Z)
+Status: In Progress
+"@ | Set-Content -Encoding Utf8 "t007b-test6.md"
+    Assert-ExitCode "T-007b.6: sudo Approval format still accepted (backward compat)" (Invoke-Gate "check-task-state.ps1" @("t007b-test6.md")) 0
+
     Write-Host "Script gate tests passed."
 } finally {
     Pop-Location

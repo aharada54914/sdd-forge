@@ -25,13 +25,15 @@ if (-not (Test-Path -LiteralPath $TasksPath)) {
 $validStatuses = @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")
 $approvedOnlyStatuses = @("In Progress", "Implementation Complete", "Done")
 
-# Pattern for sudo-format approval: Approved (sudo YYYY-MM-DDTHH:MM:SSZ)
-$sudoApprovalPattern = "^Approved \(sudo [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$"
+# Pattern for generalized approval: Approved (<id> YYYY-MM-DDTHH:MM:SSZ) where <id> is any non-space/non-paren token
+$namedApprovalPattern = "^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$"
 
 $failures = @()
 $currentTask = $null
 $approval = @{}
 $status = @{}
+$risk = @{}
+$second = @{}
 $blockers = @{}
 $seenIds = @{}
 
@@ -57,6 +59,12 @@ foreach ($line in $lines) {
     } elseif ($currentTask -and $line -match '^Status:\s*(.+)$') {
         $status[$currentTask] = $Matches[1].Trim()
         $inBlockers = $false
+    } elseif ($currentTask -and $line -match '^Risk:\s*(.+)$') {
+        $risk[$currentTask] = $Matches[1].Trim().ToLower()
+        $inBlockers = $false
+    } elseif ($currentTask -and $line -match '^Second Approval:\s*(.+)$') {
+        $second[$currentTask] = $Matches[1].Trim()
+        $inBlockers = $false
     } elseif ($currentTask -and $line -match '^###\s+Blockers') {
         $inBlockers = $true
     } elseif ($line -match '^##') {
@@ -75,6 +83,14 @@ if ($seenIds.Count -eq 0) {
     exit 1
 }
 
+# Extract approver id from an approval string (e.g. "Approved (alice 2026-06-13T...Z)" → "alice")
+function Get-ApproverId([string]$s) {
+    if ($s -match "^Approved \(([^ )]+) [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$") {
+        return $Matches[1]
+    }
+    return ""
+}
+
 # Directory of the tasks file (for verification contract lookup)
 $tasksDir = Split-Path -Parent (Resolve-Path $TasksPath)
 
@@ -86,20 +102,44 @@ foreach ($task in $allTasks) {
     if (-not $a) { $failures += "$task has no Approval line"; continue }
     if (-not $s) { $failures += "$task has no Status line"; continue }
 
-    # Validate Approval: Draft | Approved | Approved (sudo YYYY-MM-DDTHH:MM:SSZ)
-    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $sudoApprovalPattern)
+    # Validate Approval: Draft | Approved | Approved (<id> YYYY-MM-DDTHH:MM:SSZ)
+    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $namedApprovalPattern)
     if (-not $isValidApproval) {
         $failures += "$task has invalid Approval: $a"
     }
 
-    # For gate checks, treat Approved (sudo ...) same as Approved
-    $isApproved = ($a -eq "Approved" -or $a -match $sudoApprovalPattern)
+    # For gate checks, treat Approved (with any id) same as Approved
+    $isApproved = ($a -eq "Approved" -or $a -match $namedApprovalPattern)
 
     if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
     if ($s -in $approvedOnlyStatuses -and -not $isApproved) {
         $failures += "$task is '$s' without Approval: Approved"
     }
     if ($s -eq "Done") {
+        # Two-person approval enforcement for critical Done tasks
+        $taskRisk = if ($risk.ContainsKey($task)) { $risk[$task] } else { "" }
+        if ($taskRisk -eq "critical") {
+            $primId = Get-ApproverId -s $a
+            $secValue = if ($second.ContainsKey($task)) { $second[$task] } else { "" }
+            $secId = Get-ApproverId -s $secValue
+
+            if ($primId -eq "") {
+                $failures += "$task is critical Done but primary Approval lacks a named approver (need 'Approved (<id> <ISO>)')"
+            }
+            if ($primId.ToLower() -eq "sudo") {
+                $failures += "$task is critical Done but primary approver is 'sudo'; critical requires a named human approver"
+            }
+            if ($secValue -eq "" -or $secId -eq "") {
+                $failures += "$task is critical Done but Second Approval is missing or not a named 'Approved (<id> <ISO>)'"
+            }
+            if ($secId.ToLower() -eq "sudo") {
+                $failures += "$task is critical Done but Second Approval approver is 'sudo'; critical requires a named human second approver"
+            }
+            if ($primId -ne "" -and $primId.ToLower() -eq $secId.ToLower()) {
+                $failures += "$task is critical Done but both approvals are by the same approver '$primId'; two distinct approvers required"
+            }
+        }
+
         $evidenceBundlePath = Join-Path $tasksDir "verification/$task.evidence.json"
         $contractPath = Join-Path $tasksDir "verification/$task.contract.json"
 

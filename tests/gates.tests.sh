@@ -2146,6 +2146,262 @@ else
 fi
 
 # ============================================================================
+# T-007b: Two-Person Approval (Critical Risk)
+# ============================================================================
+
+echo "=== T-007b: Two-Person Approval (Critical Risk) ==="
+
+# Test 1: critical + Done + NO Second Approval => output contains "Second Approval"
+mkdir -p "${WORK}/t007b_test1/verification"
+mkdir -p "${WORK}/t007b_test1/reports/quality-gate"
+mkdir -p "${WORK}/t007b_test1/reports/implementation"
+echo "test" > "${WORK}/t007b_test1/reports/quality-gate/test.log"
+cat > "${WORK}/t007b_test1/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+EOF
+echo "test" > "${WORK}/t007b_test1/verification/T-001.evidence.json"
+cat > "${WORK}/t007b_test1/verification/T-001.contract.json" <<'EOF'
+{
+  "task_id": "T-001",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/quality-gate/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_task_state "${WORK}/t007b_test1/tasks.md" \
+    "${WORK}/t007b_test1/reports/quality-gate" \
+    "${WORK}/t007b_test1/reports/implementation" \
+    "${WORK}/t007b_test1")
+if echo "$output" | grep -q "Second Approval"; then
+    ok "T-007b.1: critical Done without Second Approval fails with correct message"
+else
+    fail "T-007b.1: should report missing Second Approval"
+fi
+
+# Test 2: critical + Done + primary bare Approved + named Second => output contains "named approver"
+mkdir -p "${WORK}/t007b_test2/verification"
+mkdir -p "${WORK}/t007b_test2/reports/quality-gate"
+mkdir -p "${WORK}/t007b_test2/reports/implementation"
+echo "test" > "${WORK}/t007b_test2/reports/quality-gate/test.log"
+cat > "${WORK}/t007b_test2/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Approval: Approved
+Status: Done
+Risk: critical
+Second Approval: Approved (bob 2026-06-13T11:00:00Z)
+EOF
+echo "test" > "${WORK}/t007b_test2/verification/T-001.evidence.json"
+cat > "${WORK}/t007b_test2/verification/T-001.contract.json" <<'EOF'
+{
+  "task_id": "T-001",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/quality-gate/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_task_state "${WORK}/t007b_test2/tasks.md" \
+    "${WORK}/t007b_test2/reports/quality-gate" \
+    "${WORK}/t007b_test2/reports/implementation" \
+    "${WORK}/t007b_test2")
+if echo "$output" | grep -q "named approver"; then
+    ok "T-007b.2: critical Done with bare primary Approval fails (needs named)"
+else
+    fail "T-007b.2: should report need for named approver"
+fi
+
+# Test 3: critical + Done + primary (alice) + secondary (alice) => output contains "two distinct"
+mkdir -p "${WORK}/t007b_test3/verification"
+mkdir -p "${WORK}/t007b_test3/reports/quality-gate"
+mkdir -p "${WORK}/t007b_test3/reports/implementation"
+echo "test" > "${WORK}/t007b_test3/reports/quality-gate/test.log"
+cat > "${WORK}/t007b_test3/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+Second Approval: Approved (alice 2026-06-13T11:00:00Z)
+EOF
+echo "test" > "${WORK}/t007b_test3/verification/T-001.evidence.json"
+cat > "${WORK}/t007b_test3/verification/T-001.contract.json" <<'EOF'
+{
+  "task_id": "T-001",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/quality-gate/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_task_state "${WORK}/t007b_test3/tasks.md" \
+    "${WORK}/t007b_test3/reports/quality-gate" \
+    "${WORK}/t007b_test3/reports/implementation" \
+    "${WORK}/t007b_test3")
+if echo "$output" | grep -q "two distinct"; then
+    ok "T-007b.3: critical Done with same approver fails"
+else
+    fail "T-007b.3: should report need for two distinct approvers"
+fi
+
+# Test 4: critical + Done + primary sudo + secondary bob => output contains "sudo"
+mkdir -p "${WORK}/t007b_test4/verification"
+mkdir -p "${WORK}/t007b_test4/reports/quality-gate"
+mkdir -p "${WORK}/t007b_test4/reports/implementation"
+echo "test" > "${WORK}/t007b_test4/reports/quality-gate/test.log"
+cat > "${WORK}/t007b_test4/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Approval: Approved (sudo 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+Second Approval: Approved (bob 2026-06-13T11:00:00Z)
+EOF
+echo "test" > "${WORK}/t007b_test4/verification/T-001.evidence.json"
+cat > "${WORK}/t007b_test4/verification/T-001.contract.json" <<'EOF'
+{
+  "task_id": "T-001",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/quality-gate/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_task_state "${WORK}/t007b_test4/tasks.md" \
+    "${WORK}/t007b_test4/reports/quality-gate" \
+    "${WORK}/t007b_test4/reports/implementation" \
+    "${WORK}/t007b_test4")
+if echo "$output" | grep -q "sudo"; then
+    ok "T-007b.4: critical Done with sudo primary approver fails"
+else
+    fail "T-007b.4: should reject sudo as primary approver"
+fi
+
+# Test 5: critical + Done + primary alice + secondary bob => rule passes
+# (May still fail on bundle validation; just assert two-person msgs are ABSENT)
+mkdir -p "${WORK}/t007b_test5/verification"
+mkdir -p "${WORK}/t007b_test5/reports/quality-gate"
+mkdir -p "${WORK}/t007b_test5/reports/implementation"
+echo "test" > "${WORK}/t007b_test5/reports/quality-gate/test.log"
+cat > "${WORK}/t007b_test5/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: Done
+Risk: critical
+Second Approval: Approved (bob 2026-06-13T11:00:00Z)
+EOF
+echo "test" > "${WORK}/t007b_test5/verification/T-001.evidence.json"
+cat > "${WORK}/t007b_test5/verification/T-001.contract.json" <<'EOF'
+{
+  "task_id": "T-001",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/quality-gate/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_task_state "${WORK}/t007b_test5/tasks.md" \
+    "${WORK}/t007b_test5/reports/quality-gate" \
+    "${WORK}/t007b_test5/reports/implementation" \
+    "${WORK}/t007b_test5")
+if ! echo "$output" | grep -q "Second Approval" && \
+   ! echo "$output" | grep -q "two distinct" && \
+   ! echo "$output" | grep -q "named approver" && \
+   ! echo "$output" | grep -q "primary approver is 'sudo'"; then
+    ok "T-007b.5: critical Done with alice + bob passes two-person rule"
+else
+    fail "T-007b.5: should pass two-person rule: $output"
+fi
+
+# Test 6: REGRESSION - non-critical Done without Second Approval => no two-person error
+mkdir -p "${WORK}/t007b_test6/verification"
+mkdir -p "${WORK}/t007b_test6/reports/quality-gate"
+mkdir -p "${WORK}/t007b_test6/reports/implementation"
+echo "test" > "${WORK}/t007b_test6/reports/quality-gate/test.log"
+cat > "${WORK}/t007b_test6/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Approval: Approved
+Status: Done
+Risk: high
+EOF
+echo "test" > "${WORK}/t007b_test6/verification/T-001.evidence.json"
+cat > "${WORK}/t007b_test6/verification/T-001.contract.json" <<'EOF'
+{
+  "task_id": "T-001",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/quality-gate/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_task_state "${WORK}/t007b_test6/tasks.md" \
+    "${WORK}/t007b_test6/reports/quality-gate" \
+    "${WORK}/t007b_test6/reports/implementation" \
+    "${WORK}/t007b_test6")
+if ! echo "$output" | grep -q "Second Approval" && \
+   ! echo "$output" | grep -q "two distinct" && \
+   ! echo "$output" | grep -q "two-person"; then
+    ok "T-007b.6: non-critical Done without Second Approval passes (no enforcement)"
+else
+    fail "T-007b.6: should not enforce two-person for non-critical: $output"
+fi
+
+# Test 7: REGRESSION - named Approval format accepted (not invalid)
+mkdir -p "${WORK}/t007b_test7/reports/quality-gate"
+mkdir -p "${WORK}/t007b_test7/reports/implementation"
+cat > "${WORK}/t007b_test7/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Approval: Approved (alice 2026-06-13T10:00:00Z)
+Status: In Progress
+EOF
+output=$(run_check_task_state "${WORK}/t007b_test7/tasks.md" \
+    "${WORK}/t007b_test7/reports/quality-gate" \
+    "${WORK}/t007b_test7/reports/implementation" \
+    "${WORK}/t007b_test7")
+if ! echo "$output" | grep -q "invalid Approval"; then
+    ok "T-007b.7: named Approval format accepted (not invalid)"
+else
+    fail "T-007b.7: should accept named Approval format"
+fi
+
+# Test 8: REGRESSION - sudo format still accepted
+mkdir -p "${WORK}/t007b_test8/reports/quality-gate"
+mkdir -p "${WORK}/t007b_test8/reports/implementation"
+cat > "${WORK}/t007b_test8/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Approval: Approved (sudo 2026-06-13T10:00:00Z)
+Status: In Progress
+EOF
+output=$(run_check_task_state "${WORK}/t007b_test8/tasks.md" \
+    "${WORK}/t007b_test8/reports/quality-gate" \
+    "${WORK}/t007b_test8/reports/implementation" \
+    "${WORK}/t007b_test8")
+if ! echo "$output" | grep -q "invalid Approval"; then
+    ok "T-007b.8: sudo Approval format still accepted (backward compat)"
+else
+    fail "T-007b.8: should still accept sudo format"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 
