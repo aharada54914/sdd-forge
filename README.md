@@ -3,7 +3,7 @@
 旧リポジトリ名 `sdd-plugins-windows-installer` から改名。現在の正式なリポジトリ名は `sdd-forge` です。
 本リポジトリは private です。リモート取得を使う場合は `GH_TOKEN` / `GITHUB_TOKEN` を設定するか、`gh auth login` で GitHub CLI を認証してください。
 
-v0.8.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
+v0.9.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
 
 ```text
 [brownfield] sdd-adopt           既存プロジェクトへ SDD 構造を途中導入する
