@@ -48,6 +48,18 @@ whether hooks fire.
 Run the `.sh` variants from POSIX shells (including Git Bash on Windows) and
 the `.ps1` variants from PowerShell. Both behave identically.
 
+### check-placeholders Scope and Waivers
+
+`check-placeholders` runs only on the production files a task **changed**, not
+the whole repository, so pre-existing markers in untouched files never block a
+task. It is intentionally conservative: it flags `TODO`/`FIXME`/stub markers and
+`raise NotImplementedError` / `panic("TODO")`-style bodies. On a brownfield repo
+a changed file may legitimately contain such a pattern — e.g. an abstract method
+whose body is `raise NotImplementedError`, or a long-standing `# TODO` unrelated
+to the task. This is not a defect in the gate: record the finding as accepted in
+the quality-gate report (a human waiver) and proceed. Do not weaken the scan to
+silence the prompt — the waiver is the intended escape hatch.
+
 ## Smoke Run
 
 When the project can be started (dev server, Docker, CLI binary), start it
