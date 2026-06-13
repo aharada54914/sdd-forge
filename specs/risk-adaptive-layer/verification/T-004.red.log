@@ -1,0 +1,60 @@
+=== C-06: Contract Type Strictness ===
+ok: C-06.1: reject string 'true' for required field
+ok: C-06.2: reject numeric 1 for passes field
+ok: C-06.3: reject directory as evidence
+ok: C-06.4: reject empty (0-byte) evidence file
+ok: C-06.5: valid contract with boolean types passes
+=== C-07: Done State Strictness ===
+ok: C-07.1: reject Done without contract.json
+ok: C-07.2: reject Done with empty contract.json
+ok: C-07.3: reject Done with mismatched contract task_id
+=== C-05: Sudo Approval Format ===
+ok: C-05.1: valid sudo format Approved (sudo ISO8601) passes
+ok: C-05.2: reject malformed sudo format Approved (sudo bogus)
+ok: C-05.3: sudo-format Approved allows Done status
+=== H-02: Evidence Bundle Round-Trip + git_commit Binding ===
+ok: H-02.1a: generate-evidence-bundle succeeds
+ok: H-02.1b: bundle file created at expected path
+ok: H-02.1c: check-evidence-bundle passes on generated bundle
+ok: H-02.2: tampered artifact → check fails with sha256 mismatch
+ok: H-02.3: bogus git_commit → check-evidence-bundle fails
+ok: H-02.4: missing git_commit → check-evidence-bundle fails
+ok: H-02.5: bundle with ancestor git_commit still passes check
+=== T-002: check-risk ===
+ok: T-002.1: valid task with Risk: high and Rationale passes
+ok: T-002.2: missing Risk line fails
+ok: T-002.3: invalid Risk value fails
+ok: T-002.4: placeholder Risk: {{risk}} fails
+ok: T-002.5: empty Risk Rationale fails
+ok: T-002.6: missing Risk Rationale line fails
+ok: T-002.7: two valid tasks pass
+ok: T-002.8: two tasks, one invalid fails
+ok: T-002.9: nonexistent file fails with correct message
+ok: T-002.10: task-id arg selects one valid section
+ok: T-002.11: valid Risk: low passes
+ok: T-002.12: valid Risk: medium passes
+ok: T-002.13: valid Risk: critical passes
+ok: T-002.14: filter task-id not found fails closed
+=== T-003: risk-aware check-contract ===
+ok: T-003.1: LEGACY (no risk field) with baseline set passes
+ok: T-003.2: risk: low with required set passes (unit-tests optional)
+ok: T-003.3: risk: low with build required:false fails correctly
+ok: T-003.4: risk: medium missing acceptance-tests fails correctly
+ok: T-003.5: risk: medium with full required set passes
+ok: T-003.6: risk: high missing requirement-traceability fails correctly
+ok: T-003.7: risk: high with full required set passes
+ok: T-003.8: risk: critical with full required set passes
+ok: T-003.9: risk: 'severe' (invalid) fails correctly
+=== T-004: Red→Green evidence enforcement ===
+ok: T-004.1: LEGACY (no risk, no required_workflow) passes without red/green
+ok: T-004.2: required_workflow: test-after (low) passes without red/green
+ok: T-004.3: required_workflow: tdd with valid red+green evidence passes
+FAIL: T-004.4: should fail with 'needs non-empty red_evidence'. Got: Verification contract passed for task T-004.
+FAIL: T-004.5: should fail with 'red_evidence file missing'. Got: Verification contract passed for task T-005.
+FAIL: T-004.6: should fail with 'risk high requires required_workflow: tdd'. Got: Verification contract passed for task T-006.
+ok: T-004.7: risk high full tier set with tdd red+green passes
+
+====== Test Summary ======
+PASS: 45
+FAIL: 3
+==========================

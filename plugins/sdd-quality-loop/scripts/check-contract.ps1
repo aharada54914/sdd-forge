@@ -169,6 +169,116 @@ if ($risk) {  # LEGACY mode: if risk is absent or empty string, skip this pass
     }
 }
 
+# Pass 5: Red→Green evidence enforcement (only when required_workflow == "tdd")
+$requiredWorkflow = ([string]($contract.required_workflow)).Trim()
+if ($requiredWorkflow -eq "tdd") {
+    # TDD test-check ids that require red_evidence and green_evidence when required=true
+    $tddTestIds = @("unit-tests", "acceptance-tests")
+
+    foreach ($check in $contract.checks) {
+        $id = $check.id
+        $required = $check.required
+
+        # Only enforce red/green for test-type checks that are required:true
+        if ($id -in $tddTestIds -and $required) {
+            $redEvidence = ([string]($check.red_evidence)).Trim()
+            $greenEvidence = ([string]($check.green_evidence)).Trim()
+
+            # Rule 2a: must not be empty/missing
+            if ([string]::IsNullOrWhiteSpace($redEvidence)) {
+                $failures += "check '$id' required_workflow tdd needs non-empty red_evidence"
+                continue
+            }
+            if ([string]::IsNullOrWhiteSpace($greenEvidence)) {
+                $failures += "check '$id' required_workflow tdd needs non-empty green_evidence"
+                continue
+            }
+
+            # Rule 2b: validate red_evidence path (same as evidence in Pass 2)
+            # Reject absolute POSIX paths
+            if ($redEvidence.StartsWith("/")) {
+                $failures += "check '$id' red_evidence is an absolute path: $redEvidence"
+                continue
+            }
+            # Reject Windows drive paths and UNC
+            if (($redEvidence.Length -ge 2 -and $redEvidence[1] -eq ':') -or $redEvidence.StartsWith("\\")) {
+                $failures += "check '$id' red_evidence is an absolute path: $redEvidence"
+                continue
+            }
+
+            # Check for traversal outside root
+            try {
+                $joinedRed = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absRoot, $redEvidence))
+            } catch {
+                $failures += "check '$id' red_evidence path could not be resolved: $redEvidence"
+                continue
+            }
+            $sep = [System.IO.Path]::DirectorySeparatorChar
+            if (-not ($joinedRed.StartsWith($absRoot + $sep) -or $joinedRed -eq $absRoot)) {
+                $failures += "check '$id' red_evidence path escapes repo root: $redEvidence"
+                continue
+            }
+
+            # File must exist, be regular file (not directory), and have size > 0
+            if (-not (Test-Path -LiteralPath $joinedRed)) {
+                $failures += "check '$id' red_evidence file missing: $redEvidence"
+            } elseif ((Test-Path -LiteralPath $joinedRed -PathType Container)) {
+                $failures += "check '$id' red_evidence is not a regular file: $redEvidence"
+            } else {
+                $fileInfo = Get-Item -LiteralPath $joinedRed -ErrorAction SilentlyContinue
+                if ($fileInfo -and $fileInfo.Length -eq 0) {
+                    $failures += "check '$id' red_evidence file is empty: $redEvidence"
+                }
+            }
+
+            # Rule 2b: validate green_evidence path (same as evidence in Pass 2)
+            # Reject absolute POSIX paths
+            if ($greenEvidence.StartsWith("/")) {
+                $failures += "check '$id' green_evidence is an absolute path: $greenEvidence"
+                continue
+            }
+            # Reject Windows drive paths and UNC
+            if (($greenEvidence.Length -ge 2 -and $greenEvidence[1] -eq ':') -or $greenEvidence.StartsWith("\\")) {
+                $failures += "check '$id' green_evidence is an absolute path: $greenEvidence"
+                continue
+            }
+
+            # Check for traversal outside root
+            try {
+                $joinedGreen = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absRoot, $greenEvidence))
+            } catch {
+                $failures += "check '$id' green_evidence path could not be resolved: $greenEvidence"
+                continue
+            }
+            if (-not ($joinedGreen.StartsWith($absRoot + $sep) -or $joinedGreen -eq $absRoot)) {
+                $failures += "check '$id' green_evidence path escapes repo root: $greenEvidence"
+                continue
+            }
+
+            # File must exist, be regular file (not directory), and have size > 0
+            if (-not (Test-Path -LiteralPath $joinedGreen)) {
+                $failures += "check '$id' green_evidence file missing: $greenEvidence"
+            } elseif ((Test-Path -LiteralPath $joinedGreen -PathType Container)) {
+                $failures += "check '$id' green_evidence is not a regular file: $greenEvidence"
+            } else {
+                $fileInfo = Get-Item -LiteralPath $joinedGreen -ErrorAction SilentlyContinue
+                if ($fileInfo -and $fileInfo.Length -eq 0) {
+                    $failures += "check '$id' green_evidence file is empty: $greenEvidence"
+                }
+            }
+        }
+    }
+}
+
+# Pass 5b: Risk→Workflow consistency (only when BOTH risk AND required_workflow are present)
+if ($risk -and $requiredWorkflow) {  # Enforce only if both fields are present and non-empty
+    if ($risk -in @("high", "critical")) {
+        if ($requiredWorkflow -ne "tdd") {
+            $failures += "risk $risk requires required_workflow: tdd (got '$requiredWorkflow')"
+        }
+    }
+}
+
 if ($failures.Count -gt 0) {
     Write-Host "Verification contract FAILED for task $($contract.task_id):"
     $failures | ForEach-Object { Write-Host " - $_" }

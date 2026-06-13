@@ -159,6 +159,93 @@ if risk:  # LEGACY mode: if risk is absent or empty string, skip this pass
                         break
 
 task = contract.get("task_id", "?")
+
+# Pass 5: Red→Green evidence enforcement (only when required_workflow == "tdd")
+required_workflow = (contract.get("required_workflow") or "").strip()
+if required_workflow == "tdd":
+    # TDD test-check ids that require red_evidence and green_evidence when required=true
+    tdd_test_ids = {"unit-tests", "acceptance-tests"}
+
+    for check in checks:
+        cid = check.get("id", "?")
+        required = check.get("required", False)
+
+        # Only enforce red/green for test-type checks that are required:true
+        if cid in tdd_test_ids and required:
+            red_evidence = (check.get("red_evidence") or "").strip()
+            green_evidence = (check.get("green_evidence") or "").strip()
+
+            # Rule 2a: must not be empty/missing
+            if not red_evidence:
+                failures.append(f"check '{cid}' required_workflow tdd needs non-empty red_evidence")
+                continue
+            if not green_evidence:
+                failures.append(f"check '{cid}' required_workflow tdd needs non-empty green_evidence")
+                continue
+
+            # Rule 2b: validate red_evidence path (same as evidence in Pass 2)
+            # Reject absolute POSIX paths
+            if red_evidence.startswith("/"):
+                failures.append(f"check '{cid}' red_evidence is an absolute path: {red_evidence}")
+                continue
+            # Reject Windows drive paths and UNC
+            if (len(red_evidence) >= 2 and red_evidence[1] == ":") or red_evidence.startswith("\\\\"):
+                failures.append(f"check '{cid}' red_evidence is an absolute path: {red_evidence}")
+                continue
+
+            # Check for traversal outside root
+            abs_root = str(pathlib.Path(root).resolve())
+            try:
+                resolved_red = str(pathlib.Path(root).joinpath(red_evidence).resolve())
+            except Exception:
+                failures.append(f"check '{cid}' red_evidence path could not be resolved: {red_evidence}")
+                continue
+            if not resolved_red.startswith(abs_root + os.sep) and resolved_red != abs_root:
+                failures.append(f"check '{cid}' red_evidence path escapes repo root: {red_evidence}")
+                continue
+
+            # File must exist, be regular file, be non-empty
+            if not os.path.exists(resolved_red):
+                failures.append(f"check '{cid}' red_evidence file missing: {red_evidence}")
+            elif not os.path.isfile(resolved_red):
+                failures.append(f"check '{cid}' red_evidence is not a regular file: {red_evidence}")
+            elif os.path.getsize(resolved_red) == 0:
+                failures.append(f"check '{cid}' red_evidence file is empty: {red_evidence}")
+
+            # Rule 2b: validate green_evidence path (same as evidence in Pass 2)
+            # Reject absolute POSIX paths
+            if green_evidence.startswith("/"):
+                failures.append(f"check '{cid}' green_evidence is an absolute path: {green_evidence}")
+                continue
+            # Reject Windows drive paths and UNC
+            if (len(green_evidence) >= 2 and green_evidence[1] == ":") or green_evidence.startswith("\\\\"):
+                failures.append(f"check '{cid}' green_evidence is an absolute path: {green_evidence}")
+                continue
+
+            # Check for traversal outside root
+            try:
+                resolved_green = str(pathlib.Path(root).joinpath(green_evidence).resolve())
+            except Exception:
+                failures.append(f"check '{cid}' green_evidence path could not be resolved: {green_evidence}")
+                continue
+            if not resolved_green.startswith(abs_root + os.sep) and resolved_green != abs_root:
+                failures.append(f"check '{cid}' green_evidence path escapes repo root: {green_evidence}")
+                continue
+
+            # File must exist, be regular file, be non-empty
+            if not os.path.exists(resolved_green):
+                failures.append(f"check '{cid}' green_evidence file missing: {green_evidence}")
+            elif not os.path.isfile(resolved_green):
+                failures.append(f"check '{cid}' green_evidence is not a regular file: {green_evidence}")
+            elif os.path.getsize(resolved_green) == 0:
+                failures.append(f"check '{cid}' green_evidence file is empty: {green_evidence}")
+
+# Pass 5b: Risk→Workflow consistency (only when BOTH risk AND required_workflow are present)
+if risk and required_workflow:  # Enforce only if both fields are present and non-empty
+    if risk in {"high", "critical"}:
+        if required_workflow != "tdd":
+            failures.append(f"risk {risk} requires required_workflow: tdd (got '{required_workflow}')")
+
 if failures:
     print(f"Verification contract FAILED for task {task}:")
     for failure in failures:

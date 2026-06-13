@@ -1057,6 +1057,209 @@ else
 fi
 
 # ============================================================================
+# T-004: Red→Green evidence enforcement
+# ============================================================================
+
+echo "=== T-004: Red→Green evidence enforcement ==="
+
+# Test: T-004.1 - LEGACY: no risk, no required_workflow, valid set → passes (regression)
+mkdir -p "${WORK}/t004_test1/reports"
+echo "test" > "${WORK}/t004_test1/reports/test.log"
+cat > "${WORK}/t004_test1/T-001.contract.json" <<'EOF'
+{
+  "task_id": "T-001",
+  "feature": "test-feature",
+  "created": "2026-06-13T00:00:00Z",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t004_test1/T-001.contract.json" "${WORK}/t004_test1"; then
+    ok "T-004.1: LEGACY (no risk, no required_workflow) passes without red/green"
+else
+    fail "T-004.1: LEGACY contract should pass"
+fi
+
+# Test: T-004.2 - required_workflow: test-after (low), no red/green present → passes (no tdd requirement)
+mkdir -p "${WORK}/t004_test2/reports"
+echo "test" > "${WORK}/t004_test2/reports/test.log"
+cat > "${WORK}/t004_test2/T-002.contract.json" <<'EOF'
+{
+  "task_id": "T-002",
+  "feature": "test-feature",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "test-after workflow" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t004_test2/T-002.contract.json" "${WORK}/t004_test2"; then
+    ok "T-004.2: required_workflow: test-after (low) passes without red/green"
+else
+    fail "T-004.2: test-after workflow should pass without red/green"
+fi
+
+# Test: T-004.3 - required_workflow: tdd, unit-tests and acceptance-tests required:true WITH valid red_evidence+green_evidence → passes
+mkdir -p "${WORK}/t004_test3/reports"
+echo "test" > "${WORK}/t004_test3/reports/test.log"
+echo "red log" > "${WORK}/t004_test3/reports/red.log"
+echo "green log" > "${WORK}/t004_test3/reports/green.log"
+cat > "${WORK}/t004_test3/T-003.contract.json" <<'EOF'
+{
+  "task_id": "T-003",
+  "feature": "test-feature",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/red.log", "green_evidence": "reports/green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/red.log", "green_evidence": "reports/green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t004_test3/T-003.contract.json" "${WORK}/t004_test3"; then
+    ok "T-004.3: required_workflow: tdd with valid red+green evidence passes"
+else
+    fail "T-004.3: tdd contract with red/green should pass"
+fi
+
+# Test: T-004.4 - required_workflow: tdd, unit-tests required:true MISSING red_evidence → FAILS
+mkdir -p "${WORK}/t004_test4/reports"
+echo "test" > "${WORK}/t004_test4/reports/test.log"
+echo "green log" > "${WORK}/t004_test4/reports/green.log"
+cat > "${WORK}/t004_test4/T-004.contract.json" <<'EOF'
+{
+  "task_id": "T-004",
+  "feature": "test-feature",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "", "green_evidence": "reports/green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t004_test4/T-004.contract.json" "${WORK}/t004_test4")
+if echo "$output" | grep -q "needs non-empty red_evidence"; then
+    ok "T-004.4: missing red_evidence fails with correct message"
+else
+    fail "T-004.4: should fail with 'needs non-empty red_evidence'. Got: $output"
+fi
+
+# Test: T-004.5 - required_workflow: tdd, unit-tests required:true with red_evidence pointing at NON-EXISTENT file → FAILS
+mkdir -p "${WORK}/t004_test5/reports"
+echo "test" > "${WORK}/t004_test5/reports/test.log"
+cat > "${WORK}/t004_test5/T-005.contract.json" <<'EOF'
+{
+  "task_id": "T-005",
+  "feature": "test-feature",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/missing-red.log", "green_evidence": "reports/test.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t004_test5/T-005.contract.json" "${WORK}/t004_test5")
+if echo "$output" | grep -q "red_evidence file missing"; then
+    ok "T-004.5: non-existent red_evidence file fails correctly"
+else
+    fail "T-004.5: should fail with 'red_evidence file missing'. Got: $output"
+fi
+
+# Test: T-004.6 - risk: high, required_workflow: acceptance-first (wrong workflow) → FAILS
+mkdir -p "${WORK}/t004_test6/reports"
+echo "test" > "${WORK}/t004_test6/reports/test.log"
+cat > "${WORK}/t004_test6/T-006.contract.json" <<'EOF'
+{
+  "task_id": "T-006",
+  "feature": "test-feature",
+  "risk": "high",
+  "required_workflow": "acceptance-first",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t004_test6/T-006.contract.json" "${WORK}/t004_test6")
+if echo "$output" | grep -q "risk high requires required_workflow: tdd"; then
+    ok "T-004.6: risk high with wrong required_workflow fails"
+else
+    fail "T-004.6: should fail with 'risk high requires required_workflow: tdd'. Got: $output"
+fi
+
+# Test: T-004.7 - risk: high, required_workflow: tdd, FULL high tier set required:true with red+green → passes
+mkdir -p "${WORK}/t004_test7/reports"
+echo "test" > "${WORK}/t004_test7/reports/test.log"
+echo "red log" > "${WORK}/t004_test7/reports/red.log"
+echo "green log" > "${WORK}/t004_test7/reports/green.log"
+cat > "${WORK}/t004_test7/T-007.contract.json" <<'EOF'
+{
+  "task_id": "T-007",
+  "feature": "test-feature",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/red.log", "green_evidence": "reports/green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/red.log", "green_evidence": "reports/green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t004_test7/T-007.contract.json" "${WORK}/t004_test7"; then
+    ok "T-004.7: risk high full tier set with tdd red+green passes"
+else
+    fail "T-004.7: full high tier set with tdd should pass"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 

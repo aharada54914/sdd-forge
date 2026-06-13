@@ -418,6 +418,156 @@ Status: Done
     Assert-ExitCode "T-003.9: risk: 'severe' (invalid) fails correctly" (Invoke-Gate "check-contract.ps1" @("contract-t003-9.json", "-RepoRoot", ".")) 1
 
     # =========================================================
+    # T-004: Red→Green evidence enforcement
+    # =========================================================
+
+    # Test: T-004.1 - LEGACY: no risk, no required_workflow, valid set → passes (regression)
+    $t004_1 = @{
+        task_id = "T-004.1"
+        feature = "test-feature"
+        created = "2026-06-13T00:00:00Z"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t004_1 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t004-1.json"
+    Assert-ExitCode "T-004.1: LEGACY (no risk, no required_workflow) passes without red/green" (Invoke-Gate "check-contract.ps1" @("contract-t004-1.json", "-RepoRoot", ".")) 0
+
+    # Test: T-004.2 - required_workflow: test-after (low), no red/green present → passes (no tdd requirement)
+    $t004_2 = @{
+        task_id = "T-004.2"
+        feature = "test-feature"
+        risk = "low"
+        required_workflow = "test-after"
+        created = "2026-06-13T00:00:00Z"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $false; passes = $false; evidence = ""; waiver_reason = "test-after workflow" }
+        )
+    }
+    $t004_2 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t004-2.json"
+    Assert-ExitCode "T-004.2: required_workflow: test-after (low) passes without red/green" (Invoke-Gate "check-contract.ps1" @("contract-t004-2.json", "-RepoRoot", ".")) 0
+
+    # Test: T-004.3 - required_workflow: tdd, unit-tests and acceptance-tests required:true WITH valid red_evidence+green_evidence → passes
+    $t004_3 = @{
+        task_id = "T-004.3"
+        feature = "test-feature"
+        risk = "high"
+        required_workflow = "tdd"
+        created = "2026-06-13T00:00:00Z"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = "reports/red.log"; green_evidence = "reports/green.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = "reports/red.log"; green_evidence = "reports/green.log" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t004_3 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t004-3.json"
+    Assert-ExitCode "T-004.3: required_workflow: tdd with valid red+green evidence passes" (Invoke-Gate "check-contract.ps1" @("contract-t004-3.json", "-RepoRoot", ".")) 0
+
+    # Test: T-004.4 - required_workflow: tdd, unit-tests required:true MISSING red_evidence → FAILS
+    $t004_4 = @{
+        task_id = "T-004.4"
+        feature = "test-feature"
+        risk = "high"
+        required_workflow = "tdd"
+        created = "2026-06-13T00:00:00Z"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = ""; green_evidence = "reports/green.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = "reports/red.log"; green_evidence = "reports/green.log" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t004_4 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t004-4.json"
+    Assert-ExitCode "T-004.4: missing red_evidence fails with correct message" (Invoke-Gate "check-contract.ps1" @("contract-t004-4.json", "-RepoRoot", ".")) 1
+
+    # Test: T-004.5 - required_workflow: tdd, unit-tests required:true with red_evidence pointing at NON-EXISTENT file → FAILS
+    $t004_5 = @{
+        task_id = "T-004.5"
+        feature = "test-feature"
+        risk = "high"
+        required_workflow = "tdd"
+        created = "2026-06-13T00:00:00Z"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = "reports/missing-red.log"; green_evidence = "reports/test.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = "reports/red.log"; green_evidence = "reports/green.log" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t004_5 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t004-5.json"
+    Assert-ExitCode "T-004.5: non-existent red_evidence file fails correctly" (Invoke-Gate "check-contract.ps1" @("contract-t004-5.json", "-RepoRoot", ".")) 1
+
+    # Test: T-004.6 - risk: high, required_workflow: acceptance-first (wrong workflow) → FAILS
+    $t004_6 = @{
+        task_id = "T-004.6"
+        feature = "test-feature"
+        risk = "high"
+        required_workflow = "acceptance-first"
+        created = "2026-06-13T00:00:00Z"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t004_6 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t004-6.json"
+    Assert-ExitCode "T-004.6: risk high with wrong required_workflow fails" (Invoke-Gate "check-contract.ps1" @("contract-t004-6.json", "-RepoRoot", ".")) 1
+
+    # Test: T-004.7 - risk: high, required_workflow: tdd, FULL high tier set required:true with red+green → passes
+    $t004_7 = @{
+        task_id = "T-004.7"
+        feature = "test-feature"
+        risk = "high"
+        required_workflow = "tdd"
+        created = "2026-06-13T00:00:00Z"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = "reports/red.log"; green_evidence = "reports/green.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = "reports/red.log"; green_evidence = "reports/green.log" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t004_7 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t004-7.json"
+    Assert-ExitCode "T-004.7: risk high full tier set with tdd red+green passes" (Invoke-Gate "check-contract.ps1" @("contract-t004-7.json", "-RepoRoot", ".")) 0
+
+    # =========================================================
     # NEW RULES: check-task-state
     # =========================================================
 
