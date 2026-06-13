@@ -146,26 +146,124 @@ function Resolve-ProjectRoot {
     return @{ SudoRoot = "."; Bases = @(".") }
 }
 
+function Get-SudoFields {
+    param([string]$Content)
+    # Parse key: value lines into a hashtable (values stripped).
+    $fields = @{}
+    foreach ($rawLine in ($Content -split "`n")) {
+        $line = $rawLine -replace "`r$", ""
+        $colonIdx = $line.IndexOf(":")
+        if ($colonIdx -ge 0) {
+            $key = $line.Substring(0, $colonIdx).Trim()
+            $val = $line.Substring($colonIdx + 1).Trim()
+            $fields[$key] = $val
+        }
+    }
+    return $fields
+}
+
+function Resolve-SudoKey {
+    # C-04: Resolve signing key bytes per priority order. Returns [byte[]] or $null.
+    # 1. env SDD_SUDO_KEY
+    $envKey = $env:SDD_SUDO_KEY
+    if (-not [string]::IsNullOrEmpty($envKey)) {
+        return [System.Text.Encoding]::UTF8.GetBytes($envKey)
+    }
+    # 2. env SDD_SUDO_KEY_FILE
+    $envKeyFile = $env:SDD_SUDO_KEY_FILE
+    if (-not [string]::IsNullOrEmpty($envKeyFile)) {
+        try {
+            $raw = (Get-Content -Raw -Encoding Utf8 -LiteralPath $envKeyFile).TrimEnd(" `t`r`n")
+            if ($raw.Length -gt 0) {
+                return [System.Text.Encoding]::UTF8.GetBytes($raw)
+            }
+        } catch { }
+        return $null
+    }
+    # 3. <HOME>/.sdd/sudo-key
+    $home = $env:HOME
+    if ([string]::IsNullOrEmpty($home)) { $home = $env:USERPROFILE }
+    if (-not [string]::IsNullOrEmpty($home)) {
+        $keyPath = Join-Path $home ".sdd/sudo-key"
+        try {
+            $raw = (Get-Content -Raw -Encoding Utf8 -LiteralPath $keyPath).TrimEnd(" `t`r`n")
+            if ($raw.Length -gt 0) {
+                return [System.Text.Encoding]::UTF8.GetBytes($raw)
+            }
+        } catch { }
+    }
+    # 4. No key
+    return $null
+}
+
+function Get-SudoCanonical {
+    param([hashtable]$Fields)
+    # Canonical string: 5 values joined by LF (no trailing newline).
+    $issuer   = if ($Fields.ContainsKey("issuer"))        { $Fields["issuer"] }        else { "" }
+    $nonce    = if ($Fields.ContainsKey("nonce"))         { $Fields["nonce"] }         else { "" }
+    $repo     = if ($Fields.ContainsKey("repo"))          { $Fields["repo"] }          else { "" }
+    $issuedV  = if ($Fields.ContainsKey("issued-epoch"))  { $Fields["issued-epoch"] }  else { "0" }
+    $expiresV = if ($Fields.ContainsKey("expires-epoch")) { $Fields["expires-epoch"] } else { "0" }
+    $issuedStr  = [string]([int64]$issuedV)
+    $expiresStr = [string]([int64]$expiresV)
+    return ($issuer, $nonce, $repo, $issuedStr, $expiresStr) -join "`n"
+}
+
 function Test-SudoActive {
-    # C-02/C-08: True if valid, unexpired SDD_SUDO flag exists at project root only.
-    # Validates: not a symlink, has issued-epoch, expires-epoch in future, TTL <= 86400s.
+    # C-02/C-04/C-08: True if valid, signed, unexpired SDD_SUDO flag exists at project root only.
+    # Validates: not a symlink, required fields present, nonce format, epoch ranges,
+    # repo-binding, and HMAC-SHA256 signature with key resolved from env/file.
     $proj = Resolve-ProjectRoot
     $sudoRoot = $proj.SudoRoot
     try {
         $flag = Join-Path $sudoRoot "SDD_SUDO"
-        # Check if path exists and is a file (but not symlink on Windows we can't easily check, skip for now).
+        # Check if path exists and is a file (not symlink).
         if (-not (Test-Path -LiteralPath $flag -PathType Leaf)) { return $false }
         $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $flag
-        $mExp = [regex]::Match($content, "(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)")
-        $mIss = [regex]::Match($content, "(^|\n)[ \t]*issued-epoch:[ \t]*(\d+)")
-        if (-not $mExp.Success -or -not $mIss.Success) { return $false }
-        $expires = [int64]$mExp.Groups[2].Value
-        $issued = [int64]$mIss.Groups[2].Value
+
+        $fields = Get-SudoFields $content
+
+        # Required fields
+        foreach ($req in @("issuer", "nonce", "repo", "issued-epoch", "expires-epoch", "sig")) {
+            if (-not $fields.ContainsKey($req) -or [string]::IsNullOrEmpty($fields[$req])) { return $false }
+        }
+
+        # Nonce format: >= 32 hex chars
+        if (-not [regex]::IsMatch($fields["nonce"], "^[0-9a-fA-F]{32,}$")) { return $false }
+
+        $expires = [int64]$fields["expires-epoch"]
+        $issued  = [int64]$fields["issued-epoch"]
         $now = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+
         # C-02: issued-epoch <= now < expires-epoch AND TTL <= 86400
         if ($issued -gt $now) { return $false }
         if ($expires -le $now) { return $false }
         if (($expires - $issued) -gt 86400) { return $false }
+
+        # Repo-binding: canonical path of the directory holding SDD_SUDO
+        $actualRepo = $null
+        try {
+            $actualRepo = (Resolve-Path -LiteralPath $sudoRoot).Path
+        } catch {
+            try { $actualRepo = [System.IO.Path]::GetFullPath($sudoRoot) } catch { return $false }
+        }
+        if ($fields["repo"] -ne $actualRepo) { return $false }
+
+        # Key resolution and HMAC verification
+        $keyBytes = Resolve-SudoKey
+        if ($null -eq $keyBytes) { return $false }
+
+        $canonical = Get-SudoCanonical $fields
+        $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
+        $hmacObj = New-Object System.Security.Cryptography.HMACSHA256(,$keyBytes)
+        $macBytes = $hmacObj.ComputeHash($canonicalBytes)
+        $hmacObj.Dispose()
+        $expectedHex = -join ($macBytes | ForEach-Object { $_.ToString("x2") })
+        $sigField = $fields["sig"].ToLower()
+
+        # String comparison (acceptable in ps1 per spec)
+        if ($expectedHex -ne $sigField) { return $false }
+
         return $true
     } catch { }
     return $false

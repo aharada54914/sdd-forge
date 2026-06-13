@@ -45,16 +45,42 @@ invoke_kill_switch_sh() {
     echo "$code"
 }
 
+# C-04: Export a known test key for the whole suite so both write_sudo_flag and
+# guard verification use the same key.
+export SDD_SUDO_KEY="test-key-do-not-use"
+
 write_sudo_flag() {
     local dir="$1"
     local expires="$2"
     local issued=$(( expires - 3600 ))  # Issued 1 hour before expiry
+    local repo
+    repo="$(python3 -c "import os; print(os.path.realpath('${dir}'))")"
+    local nonce
+    nonce="$(python3 -c "import secrets; print(secrets.token_hex(32))")"
+    local issuer="testuser@testhost"
+    # Build canonical string and compute HMAC-SHA256 sig
+    local canonical="${issuer}
+${nonce}
+${repo}
+${issued}
+${expires}"
+    local sig
+    sig="$(python3 -c "
+import hmac, hashlib
+key = '${SDD_SUDO_KEY}'.encode('utf-8')
+canonical = '''${canonical}'''
+print(hmac.new(key, canonical.encode('utf-8'), hashlib.sha256).hexdigest())
+")"
     cat > "${dir}/SDD_SUDO" <<EOF
 enabled-by: human via /sdd-sudo
 enabled-at: 2026-06-13T00:00:00Z
+issuer: ${issuer}
+nonce: ${nonce}
+repo: ${repo}
 issued-epoch: ${issued}
 expires-epoch: ${expires}
 duration: 1h
+sig: ${sig}
 EOF
 }
 
@@ -420,6 +446,157 @@ if command -v node >/dev/null 2>&1; then
     fi
     rm -rf "$SUDO_DIR_NODE_E"
 fi
+
+# ---------------------------------------------------------------------------
+# C-04: Signed sudo token — new negative cases (sh dispatcher / py / node)
+# ---------------------------------------------------------------------------
+
+SUDO_PAYLOAD_APPROVE='{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
+
+# --- Case (a): valid signed flag -> approval bypassed (allow) ---
+# (This already passes as tests a above, but we verify again explicitly here
+# with the exact SDD_SUDO_KEY env that write_sudo_flag uses.)
+SIGNED_VALID_DIR="${WORK}/signed-valid"
+mkdir -p "$SIGNED_VALID_DIR"
+SIGNED_EPOCH=$(( $(date +%s) + 3600 ))
+write_sudo_flag "$SIGNED_VALID_DIR" "$SIGNED_EPOCH"
+
+SIGNED_SH_CODE=0
+(cd "$SIGNED_VALID_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_VALID_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || SIGNED_SH_CODE=$?
+if [[ $SIGNED_SH_CODE -eq 0 ]]; then ok "sh: valid signed token -> approval bypassed (allow)"; else fail "sh: valid signed token -> approval bypassed (expected 0, got $SIGNED_SH_CODE)"; fi
+
+if command -v python3 >/dev/null 2>&1; then
+    SIGNED_PY_CODE=0
+    (cd "$SIGNED_VALID_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_VALID_DIR" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || SIGNED_PY_CODE=$?
+    if [[ $SIGNED_PY_CODE -eq 0 ]]; then ok "py: valid signed token -> approval bypassed (allow)"; else fail "py: valid signed token -> approval bypassed (expected 0, got $SIGNED_PY_CODE)"; fi
+fi
+
+if command -v node >/dev/null 2>&1; then
+    SIGNED_NODE_CODE=0
+    (cd "$SIGNED_VALID_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_VALID_DIR" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || SIGNED_NODE_CODE=$?
+    if [[ $SIGNED_NODE_CODE -eq 0 ]]; then ok "node: valid signed token -> approval bypassed (allow)"; else fail "node: valid signed token -> approval bypassed (expected 0, got $SIGNED_NODE_CODE)"; fi
+fi
+rm -rf "$SIGNED_VALID_DIR"
+
+# --- Case (b): valid fields but wrong/garbage sig -> inactive -> approval denied ---
+SIGNED_BADSIG_DIR="${WORK}/signed-badsig"
+mkdir -p "$SIGNED_BADSIG_DIR"
+SIGNED_EPOCH=$(( $(date +%s) + 3600 ))
+write_sudo_flag "$SIGNED_BADSIG_DIR" "$SIGNED_EPOCH"
+# Overwrite sig field with garbage
+python3 -c "
+import re, sys
+content = open('${SIGNED_BADSIG_DIR}/SDD_SUDO').read()
+content = re.sub(r'(?m)^sig:.*$', 'sig: 0000000000000000000000000000000000000000000000000000000000000000', content)
+open('${SIGNED_BADSIG_DIR}/SDD_SUDO', 'w').write(content)
+"
+
+BADSIG_SH_CODE=0
+(cd "$SIGNED_BADSIG_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_BADSIG_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || BADSIG_SH_CODE=$?
+if [[ $BADSIG_SH_CODE -eq 2 ]]; then ok "sh: wrong sig -> sudo inactive -> approval denied"; else fail "sh: wrong sig -> sudo inactive -> approval denied (expected 2, got $BADSIG_SH_CODE)"; fi
+
+if command -v python3 >/dev/null 2>&1; then
+    BADSIG_PY_CODE=0
+    (cd "$SIGNED_BADSIG_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_BADSIG_DIR" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || BADSIG_PY_CODE=$?
+    if [[ $BADSIG_PY_CODE -eq 2 ]]; then ok "py: wrong sig -> sudo inactive -> approval denied"; else fail "py: wrong sig -> sudo inactive -> approval denied (expected 2, got $BADSIG_PY_CODE)"; fi
+fi
+
+if command -v node >/dev/null 2>&1; then
+    BADSIG_NODE_CODE=0
+    (cd "$SIGNED_BADSIG_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_BADSIG_DIR" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || BADSIG_NODE_CODE=$?
+    if [[ $BADSIG_NODE_CODE -eq 2 ]]; then ok "node: wrong sig -> sudo inactive -> approval denied"; else fail "node: wrong sig -> sudo inactive -> approval denied (expected 2, got $BADSIG_NODE_CODE)"; fi
+fi
+rm -rf "$SIGNED_BADSIG_DIR"
+
+# --- Case (c): valid signed fields but repo pointing at a different path -> inactive -> denied ---
+SIGNED_BADREPO_DIR="${WORK}/signed-badrepo"
+mkdir -p "$SIGNED_BADREPO_DIR"
+SIGNED_EPOCH=$(( $(date +%s) + 3600 ))
+write_sudo_flag "$SIGNED_BADREPO_DIR" "$SIGNED_EPOCH"
+# Overwrite repo field with a different (nonexistent) path; this also invalidates
+# the sig, so we need to re-sign with the bad repo to get a "valid sig but wrong repo" case.
+# Actually the guard checks repo-binding BEFORE signature, so a wrong repo will be
+# caught before sig verification. But to be thorough: write a flag where repo is wrong
+# and sig matches that wrong repo (so only the repo-binding check catches it).
+WRONG_REPO="/nonexistent/other/project"
+python3 -c "
+import hmac, hashlib, re
+content = open('${SIGNED_BADREPO_DIR}/SDD_SUDO').read()
+# Parse fields
+fields = {}
+for line in content.splitlines():
+    line = line.rstrip('\r')
+    if ':' in line:
+        k, _, v = line.partition(':')
+        fields[k.strip()] = v.strip()
+# Replace repo with wrong path
+fields['repo'] = '${WRONG_REPO}'
+# Re-sign with wrong repo (so sig is valid for wrong repo, but repo != actual)
+key = '${SDD_SUDO_KEY}'.encode('utf-8')
+canonical = '\n'.join([fields['issuer'], fields['nonce'], fields['repo'],
+                       str(int(fields['issued-epoch'])), str(int(fields['expires-epoch']))])
+sig = hmac.new(key, canonical.encode('utf-8'), hashlib.sha256).hexdigest()
+fields['sig'] = sig
+# Rebuild file
+lines_out = [
+    'enabled-by: human via /sdd-sudo',
+    'enabled-at: 2026-06-13T00:00:00Z',
+    'issuer: ' + fields['issuer'],
+    'nonce: ' + fields['nonce'],
+    'repo: ' + fields['repo'],
+    'issued-epoch: ' + fields['issued-epoch'],
+    'expires-epoch: ' + fields['expires-epoch'],
+    'duration: 1h',
+    'sig: ' + sig,
+]
+open('${SIGNED_BADREPO_DIR}/SDD_SUDO', 'w').write('\n'.join(lines_out) + '\n')
+"
+
+BADREPO_SH_CODE=0
+(cd "$SIGNED_BADREPO_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_BADREPO_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || BADREPO_SH_CODE=$?
+if [[ $BADREPO_SH_CODE -eq 2 ]]; then ok "sh: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied"; else fail "sh: repo mismatch -> sudo inactive -> approval denied (expected 2, got $BADREPO_SH_CODE)"; fi
+
+if command -v python3 >/dev/null 2>&1; then
+    BADREPO_PY_CODE=0
+    (cd "$SIGNED_BADREPO_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_BADREPO_DIR" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || BADREPO_PY_CODE=$?
+    if [[ $BADREPO_PY_CODE -eq 2 ]]; then ok "py: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied"; else fail "py: repo mismatch -> sudo inactive -> approval denied (expected 2, got $BADREPO_PY_CODE)"; fi
+fi
+
+if command -v node >/dev/null 2>&1; then
+    BADREPO_NODE_CODE=0
+    (cd "$SIGNED_BADREPO_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_BADREPO_DIR" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || BADREPO_NODE_CODE=$?
+    if [[ $BADREPO_NODE_CODE -eq 2 ]]; then ok "node: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied"; else fail "node: repo mismatch -> sudo inactive -> approval denied (expected 2, got $BADREPO_NODE_CODE)"; fi
+fi
+rm -rf "$SIGNED_BADREPO_DIR"
+
+# --- Case (d): missing sig field -> inactive -> denied ---
+SIGNED_NOSIG_DIR="${WORK}/signed-nosig"
+mkdir -p "$SIGNED_NOSIG_DIR"
+SIGNED_EPOCH=$(( $(date +%s) + 3600 ))
+write_sudo_flag "$SIGNED_NOSIG_DIR" "$SIGNED_EPOCH"
+# Remove sig field entirely
+python3 -c "
+content = open('${SIGNED_NOSIG_DIR}/SDD_SUDO').read()
+lines = [l for l in content.splitlines() if not l.startswith('sig:')]
+open('${SIGNED_NOSIG_DIR}/SDD_SUDO', 'w').write('\n'.join(lines) + '\n')
+"
+
+NOSIG_SH_CODE=0
+(cd "$SIGNED_NOSIG_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_NOSIG_DIR" bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1) || NOSIG_SH_CODE=$?
+if [[ $NOSIG_SH_CODE -eq 2 ]]; then ok "sh: missing sig field -> sudo inactive -> approval denied"; else fail "sh: missing sig field -> sudo inactive -> approval denied (expected 2, got $NOSIG_SH_CODE)"; fi
+
+if command -v python3 >/dev/null 2>&1; then
+    NOSIG_PY_CODE=0
+    (cd "$SIGNED_NOSIG_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_NOSIG_DIR" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" "--emit" "exit" >/dev/null 2>&1) || NOSIG_PY_CODE=$?
+    if [[ $NOSIG_PY_CODE -eq 2 ]]; then ok "py: missing sig field -> sudo inactive -> approval denied"; else fail "py: missing sig field -> sudo inactive -> approval denied (expected 2, got $NOSIG_PY_CODE)"; fi
+fi
+
+if command -v node >/dev/null 2>&1; then
+    NOSIG_NODE_CODE=0
+    (cd "$SIGNED_NOSIG_DIR" && printf '%s' "$SUDO_PAYLOAD_APPROVE" | env CLAUDE_PROJECT_DIR="$SIGNED_NOSIG_DIR" node "${SCRIPTS_DIR}/sdd-hook-guard.js" "--emit" "exit" >/dev/null 2>&1) || NOSIG_NODE_CODE=$?
+    if [[ $NOSIG_NODE_CODE -eq 2 ]]; then ok "node: missing sig field -> sudo inactive -> approval denied"; else fail "node: missing sig field -> sudo inactive -> approval denied (expected 2, got $NOSIG_NODE_CODE)"; fi
+fi
+rm -rf "$SIGNED_NOSIG_DIR"
 
 # ---------------------------------------------------------------------------
 # kill-switch.sh — basic absent/present

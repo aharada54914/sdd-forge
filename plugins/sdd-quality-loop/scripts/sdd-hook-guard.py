@@ -32,6 +32,8 @@ Output modes:
 
 Malformed/unknown payloads are denied. The guard never crashes.
 """
+import hashlib
+import hmac
 import json
 import os
 import re
@@ -184,9 +186,64 @@ def kill_switch_tripped():
     return False
 
 
+def _parse_sudo_fields(content):
+    """Parse key: value lines from SDD_SUDO content into a dict (stripped values)."""
+    fields = {}
+    for line in content.splitlines():
+        line = line.rstrip("\r")
+        if ":" in line:
+            key, _, val = line.partition(":")
+            fields[key.strip()] = val.strip()
+    return fields
+
+
+def _resolve_sudo_key():
+    """C-04: Resolve signing key bytes per priority order.
+    Returns key bytes or None if no key is available."""
+    # 1. env SDD_SUDO_KEY
+    env_key = os.environ.get("SDD_SUDO_KEY")
+    if env_key:
+        return env_key.encode("utf-8")
+    # 2. env SDD_SUDO_KEY_FILE
+    env_key_file = os.environ.get("SDD_SUDO_KEY_FILE")
+    if env_key_file:
+        try:
+            with open(env_key_file, "rb") as f:
+                raw = f.read().rstrip(b" \t\r\n")
+            if raw:
+                return raw
+        except OSError:
+            pass
+        return None
+    # 3. <HOME>/.sdd/sudo-key
+    home = os.environ.get("HOME") or os.environ.get("USERPROFILE", "")
+    if home:
+        key_path = os.path.join(home, ".sdd", "sudo-key")
+        try:
+            with open(key_path, "rb") as f:
+                raw = f.read().rstrip(b" \t\r\n")
+            if raw:
+                return raw
+        except OSError:
+            pass
+    # 4. No key
+    return None
+
+
+def _sudo_canonical(fields):
+    """Return the canonical string to HMAC-sign/verify (5 fields joined by LF)."""
+    issuer = fields.get("issuer", "")
+    nonce = fields.get("nonce", "")
+    repo = fields.get("repo", "")
+    issued_str = str(int(fields.get("issued-epoch", "0")))
+    expires_str = str(int(fields.get("expires-epoch", "0")))
+    return "\n".join([issuer, nonce, repo, issued_str, expires_str])
+
+
 def sudo_active():
-    """C-02/C-08: True if a valid, unexpired SDD_SUDO flag exists at project root only.
-    Validates: not a symlink, has issued-epoch, expires-epoch in future, TTL <= 86400s."""
+    """C-02/C-04/C-08: True if a valid, signed, unexpired SDD_SUDO flag exists at project root only.
+    Validates: not a symlink, required fields present, nonce format, epoch ranges, repo-binding,
+    and HMAC-SHA256 signature with key resolved from env/file."""
     sudo_root, _ = _resolve_project_root()
     try:
         flag = os.path.join(sudo_root, SDD_SUDO_NAME)
@@ -197,12 +254,24 @@ def sudo_active():
             return False
         with open(flag, encoding="utf-8") as f:
             content = f.read()
-        m_exp = SUDO_EPOCH_RE.search(content)
-        m_iss = SUDO_ISSUED_RE.search(content)
-        if not m_exp or not m_iss:
+
+        fields = _parse_sudo_fields(content)
+
+        # Required fields: issuer, nonce, repo, issued-epoch, expires-epoch, sig
+        for req in ("issuer", "nonce", "repo", "issued-epoch", "expires-epoch", "sig"):
+            if req not in fields or not fields[req]:
+                return False
+
+        # Nonce format: >= 32 hex chars
+        if not re.match(r"^[0-9a-fA-F]{32,}$", fields["nonce"]):
             return False
-        expires = int(m_exp.group(2))
-        issued = int(m_iss.group(2))
+
+        try:
+            expires = int(fields["expires-epoch"])
+            issued = int(fields["issued-epoch"])
+        except (ValueError, TypeError):
+            return False
+
         now = time.time()
         # C-02: issued-epoch <= now < expires-epoch AND TTL <= 86400
         if issued > now:
@@ -211,8 +280,27 @@ def sudo_active():
             return False
         if (expires - issued) > 86400:
             return False
+
+        # Repo-binding: canonical realpath of the directory holding SDD_SUDO
+        try:
+            actual_repo = os.path.realpath(sudo_root)
+        except OSError:
+            return False
+        if fields["repo"] != actual_repo:
+            return False
+
+        # Key resolution and HMAC verification
+        key_bytes = _resolve_sudo_key()
+        if key_bytes is None:
+            return False
+
+        canonical = _sudo_canonical(fields)
+        expected_mac = hmac.new(key_bytes, canonical.encode("utf-8"), hashlib.sha256).hexdigest()
+        if not hmac.compare_digest(expected_mac, fields["sig"].lower()):
+            return False
+
         return True
-    except OSError:
+    except (OSError, ValueError, TypeError):
         pass
     return False
 

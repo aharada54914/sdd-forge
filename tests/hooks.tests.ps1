@@ -38,13 +38,47 @@ function Invoke-KillSwitchPs {
 }
 
 function Write-SudoFlag {
-    # The hardened guard requires BOTH issued-epoch and expires-epoch with a
-    # TTL <= 86400s (matches guards.tests.sh write_sudo_flag and sudo_active()).
+    # C-04: Mint a fully signed SDD_SUDO capability token.
+    # Matches guards.tests.sh write_sudo_flag and the canonical string defined in all guards.
+    # Requires $env:SDD_SUDO_KEY to be set (set near the sudo test section below).
     param([string]$Path, [int64]$ExpiresEpoch, [int64]$IssuedEpoch = -1)
     if ($IssuedEpoch -lt 0) { $IssuedEpoch = [int64]([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) }
+
+    # Resolve canonical repo path (realpath of the directory that will hold SDD_SUDO)
+    $repoPath = $null
+    try { $repoPath = (Resolve-Path -LiteralPath $Path).Path } catch {
+        try { $repoPath = [System.IO.Path]::GetFullPath($Path) } catch { $repoPath = $Path }
+    }
+
+    # Generate a 32-byte (64 hex char) nonce
+    $nonceBytes = [System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32)
+    $nonce = -join ($nonceBytes | ForEach-Object { $_.ToString("x2") })
+
+    $issuer = "testuser@testhost"
+
+    # Canonical string: issuer\nnonce\nrepo\nissued-epoch\nexpires-epoch (no trailing newline)
+    $issuedStr  = [string]$IssuedEpoch
+    $expiresStr = [string]$ExpiresEpoch
+    $canonical  = ($issuer, $nonce, $repoPath, $issuedStr, $expiresStr) -join "`n"
+
+    # Compute HMAC-SHA256 using the test key from $env:SDD_SUDO_KEY
+    $keyBytes      = [System.Text.Encoding]::UTF8.GetBytes($env:SDD_SUDO_KEY)
+    $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
+    $hmacObj       = New-Object System.Security.Cryptography.HMACSHA256(,$keyBytes)
+    $macBytes      = $hmacObj.ComputeHash($canonicalBytes)
+    $hmacObj.Dispose()
+    $sig = -join ($macBytes | ForEach-Object { $_.ToString("x2") })
+
     @"
+enabled-by: human via /sdd-sudo
+enabled-at: 2026-06-13T00:00:00Z
+issuer: $issuer
+nonce: $nonce
+repo: $repoPath
 issued-epoch: $IssuedEpoch
 expires-epoch: $ExpiresEpoch
+duration: 1h
+sig: $sig
 "@ | Set-Content -Encoding Utf8 (Join-Path $Path "SDD_SUDO")
 }
 
@@ -522,6 +556,10 @@ Approval: Draft
     # Sudo mode (SDD_SUDO flag) tests — PowerShell guard
     # =========================================================
 
+    # C-04: Export a known test key for all sudo tests so both Write-SudoFlag
+    # (signing) and the guard's verification use the same key.
+    $env:SDD_SUDO_KEY = "test-key-do-not-use"
+
     # Test a: valid sudo (future epoch) + Edit payload that increases Approval -> ALLOW
     $sudoDirA = Join-Path $workDir "sudo-ps-a"
     New-Item -ItemType Directory -Path $sudoDirA -Force | Out-Null
@@ -641,6 +679,9 @@ Approval: Draft
         Assert "node sudo (ps context): valid sudo + invalid agent role -> deny (exit 2)" ($sudoNodeRe.Code -eq 2)
         Remove-Item -Recurse -Force $sudoDirNodeE -ErrorAction SilentlyContinue
     }
+
+    # Clear the test signing key after the sudo test section.
+    Remove-Item Env:\SDD_SUDO_KEY -ErrorAction SilentlyContinue
 
     # --- hooks.json parses; referenced scripts exist; each entry has command_windows ---
     $hooksJson = Get-Content -Raw -Encoding Utf8 (Join-Path $hooksDir "hooks.json") | ConvertFrom-Json
