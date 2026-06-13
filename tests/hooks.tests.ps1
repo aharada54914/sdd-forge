@@ -44,10 +44,20 @@ function Write-SudoFlag {
     param([string]$Path, [int64]$ExpiresEpoch, [int64]$IssuedEpoch = -1)
     if ($IssuedEpoch -lt 0) { $IssuedEpoch = [int64]([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) }
 
-    # Resolve canonical repo path (realpath of the directory that will hold SDD_SUDO)
+    # Resolve the canonical (symlink-resolved) repo path EXACTLY as the guard
+    # process sees it. getcwd() resolves symlinks (e.g. macOS /var ->
+    # /private/var), and a freshly-spawned guard derives its repo from that
+    # resolved cwd; mirroring it here keeps the signed repo field byte-identical
+    # to the guard's binding on every platform.
     $repoPath = $null
-    try { $repoPath = (Resolve-Path -LiteralPath $Path).Path } catch {
-        try { $repoPath = [System.IO.Path]::GetFullPath($Path) } catch { $repoPath = $Path }
+    $savedCwd = [System.IO.Directory]::GetCurrentDirectory()
+    try {
+        [System.IO.Directory]::SetCurrentDirectory($Path)
+        $repoPath = [System.IO.Directory]::GetCurrentDirectory()
+    } catch {
+        try { $repoPath = (Resolve-Path -LiteralPath $Path).Path } catch { $repoPath = [System.IO.Path]::GetFullPath($Path) }
+    } finally {
+        try { [System.IO.Directory]::SetCurrentDirectory($savedCwd) } catch { }
     }
 
     # Generate a 32-byte (64 hex char) nonce

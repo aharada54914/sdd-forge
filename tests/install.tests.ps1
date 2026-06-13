@@ -480,6 +480,7 @@ $lockBin = Join-Path $lockTestRoot "bin"
 $lockLog = Join-Path $lockTestRoot "commands.log"
 $lockSavedPath = $env:PATH
 $lockSavedCodexHome = $env:SDD_CODEX_HOME
+$holderJob = $null
 try {
     New-FakeCommands -BinRoot $lockBin -LogPath $lockLog
     $env:PATH = "$lockBin$([System.IO.Path]::PathSeparator)$lockSavedPath"
@@ -493,8 +494,32 @@ try {
     $rootHash = [System.BitConverter]::ToString($hashBytes).Replace("-", "").ToLower()
     $mutexName = "Global\sdd-forge-install-$rootHash"
 
-    # Hold the mutex in the test process before running the installer
-    $holderMutex = New-Object System.Threading.Mutex($true, $mutexName)
+    # Hold the mutex in a SEPARATE process so the installer (invoked in-process
+    # below) cannot reentrantly acquire it. .NET mutexes are reentrant for the
+    # owning thread, so an in-process holder would let the same-thread installer
+    # acquire immediately and defeat the test. Start-Job runs in a child
+    # process; named mutexes are visible across processes on Windows, Linux, and
+    # macOS, so this exercises real cross-process exclusion.
+    $holderReady = Join-Path $lockTestRoot "holder-ready"
+    $holderJob = Start-Job -ScriptBlock {
+        param($name, $ready)
+        $m = New-Object System.Threading.Mutex($false, $name)
+        [void]$m.WaitOne()
+        New-Item -ItemType File -Path $ready -Force | Out-Null
+        Start-Sleep -Seconds 30
+        try { $m.ReleaseMutex() } catch { }
+        $m.Dispose()
+    } -ArgumentList $mutexName, $holderReady
+
+    # Wait (up to ~15s) for the holder process to actually acquire the mutex.
+    $holderWait = 0
+    while (-not (Test-Path $holderReady) -and $holderWait -lt 150) {
+        Start-Sleep -Milliseconds 100
+        $holderWait++
+    }
+    if (-not (Test-Path $holderReady)) {
+        throw "Lock scenario (l): holder job failed to acquire the mutex"
+    }
 
     $env:SDD_INSTALL_LOCK_TIMEOUT = "1"
     $lockFailed = $false
@@ -517,17 +542,21 @@ try {
         throw "Lock scenario (l): INSTALL_ROOT was modified while mutex was held"
     }
 
-    # Release the mutex and verify a normal install succeeds
-    $holderMutex.ReleaseMutex()
-    $holderMutex.Dispose()
-    $holderMutex = $null
+    # Stop the holder process (its mutex is released when the child exits) and
+    # verify a normal install now succeeds.
+    Stop-Job $holderJob -ErrorAction SilentlyContinue | Out-Null
+    Remove-Job $holderJob -Force -ErrorAction SilentlyContinue | Out-Null
+    $holderJob = $null
 
     & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $lockInstallRoot -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
 
     Write-Host "ok: lock: concurrent install blocked, succeeds after mutex released"
 }
 finally {
-    if ($holderMutex) { try { $holderMutex.ReleaseMutex() } catch { }; $holderMutex.Dispose() }
+    if ($holderJob) {
+        Stop-Job $holderJob -ErrorAction SilentlyContinue | Out-Null
+        Remove-Job $holderJob -Force -ErrorAction SilentlyContinue | Out-Null
+    }
     $env:PATH = $lockSavedPath
     if ($null -eq $lockSavedCodexHome) {
         Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue

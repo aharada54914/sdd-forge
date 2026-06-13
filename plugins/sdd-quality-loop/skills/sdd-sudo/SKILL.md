@@ -88,7 +88,12 @@ When `/sdd-sudo` is invoked with a duration:
    if (-not (Test-Path $sddDir)) { New-Item -ItemType Directory -Path $sddDir | Out-Null }
    $keyBytes = [System.Security.Cryptography.RandomNumberGenerator]::GetBytes(32)
    $keyHex = -join ($keyBytes | ForEach-Object { $_.ToString("x2") })
-   Set-Content -Encoding Utf8 (Join-Path $sddDir "sudo-key") $keyHex
+   # Write WITHOUT a BOM: Set-Content -Encoding Utf8 on Windows PowerShell 5.1
+   # prepends a UTF-8 BOM, which the Node/Python guards would fold into the HMAC
+   # key bytes and reject every token. UTF8Encoding($false) emits no BOM.
+   [System.IO.File]::WriteAllText((Join-Path $sddDir "sudo-key"), $keyHex, (New-Object System.Text.UTF8Encoding($false)))
+   # Restrict permissions where supported (no-op on Windows ACLs):
+   if ($IsLinux -or $IsMacOS) { chmod 600 (Join-Path $sddDir "sudo-key") }
    ```
 
 2. **Compute token fields:**

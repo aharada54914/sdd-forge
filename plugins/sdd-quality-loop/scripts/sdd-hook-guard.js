@@ -219,7 +219,7 @@ function resolveSudoKey() {
   if (envKeyFile) {
     try {
       const raw = fs.readFileSync(envKeyFile);
-      const stripped = Buffer.from(raw.toString('utf8').replace(/[\s\r\n]+$/, ''), 'utf8');
+      const stripped = Buffer.from(raw.toString('utf8').replace(/^\uFEFF/, '').replace(/[\s\r\n]+$/, ''), 'utf8');
       if (stripped.length > 0) return stripped;
     } catch (e) { /* fall through */ }
     return null;
@@ -230,7 +230,7 @@ function resolveSudoKey() {
     const keyPath = path.join(home, '.sdd', 'sudo-key');
     try {
       const raw = fs.readFileSync(keyPath);
-      const stripped = Buffer.from(raw.toString('utf8').replace(/[\s\r\n]+$/, ''), 'utf8');
+      const stripped = Buffer.from(raw.toString('utf8').replace(/^\uFEFF/, '').replace(/[\s\r\n]+$/, ''), 'utf8');
       if (stripped.length > 0) return stripped;
     } catch (e) { /* fall through */ }
   }
@@ -291,8 +291,11 @@ function sudoActive() {
     if (expires <= now) return false;
     if (expires - issued > 86400) return false;
 
-    // Repo-binding: canonical realpath of the directory holding SDD_SUDO
-    let actualRepo;
+    // Repo-binding: compare the canonical realpath on BOTH sides so that
+    // symlinked representations of the same directory (e.g. macOS /var vs
+    // /private/var) compare equal. A token whose repo does not resolve to this
+    // directory is rejected (fail-closed, blocks cross-repo replay).
+    let actualRepo, storedRepo;
     try {
       actualRepo = fs.realpathSync(sudoRoot);
     } catch (e) {
@@ -302,7 +305,12 @@ function sudoActive() {
         return false;
       }
     }
-    if (fields['repo'] !== actualRepo) return false;
+    try {
+      storedRepo = fs.realpathSync(fields['repo']);
+    } catch (e) {
+      storedRepo = fields['repo'];
+    }
+    if (storedRepo !== actualRepo) return false;
 
     // Key resolution and HMAC verification
     const keyBuf = resolveSudoKey();

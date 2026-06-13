@@ -197,6 +197,15 @@ def _parse_sudo_fields(content):
     return fields
 
 
+def _strip_key_bytes(raw):
+    """Normalize raw key-file bytes: drop a leading UTF-8 BOM (so a key written
+    by a BOM-emitting editor/tool matches a BOM-less one across runtimes) and
+    strip trailing whitespace/newlines."""
+    if raw.startswith(b"\xef\xbb\xbf"):
+        raw = raw[3:]
+    return raw.rstrip(b" \t\r\n")
+
+
 def _resolve_sudo_key():
     """C-04: Resolve signing key bytes per priority order.
     Returns key bytes or None if no key is available."""
@@ -209,7 +218,7 @@ def _resolve_sudo_key():
     if env_key_file:
         try:
             with open(env_key_file, "rb") as f:
-                raw = f.read().rstrip(b" \t\r\n")
+                raw = _strip_key_bytes(f.read())
             if raw:
                 return raw
         except OSError:
@@ -221,7 +230,7 @@ def _resolve_sudo_key():
         key_path = os.path.join(home, ".sdd", "sudo-key")
         try:
             with open(key_path, "rb") as f:
-                raw = f.read().rstrip(b" \t\r\n")
+                raw = _strip_key_bytes(f.read())
             if raw:
                 return raw
         except OSError:
@@ -281,12 +290,16 @@ def sudo_active():
         if (expires - issued) > 86400:
             return False
 
-        # Repo-binding: canonical realpath of the directory holding SDD_SUDO
+        # Repo-binding: compare the canonical realpath on BOTH sides so that
+        # symlinked representations of the same directory (e.g. macOS /var vs
+        # /private/var) compare equal. A token whose repo does not resolve to
+        # this directory is rejected (fail-closed, blocks cross-repo replay).
         try:
             actual_repo = os.path.realpath(sudo_root)
-        except OSError:
+            stored_repo = os.path.realpath(fields["repo"])
+        except (OSError, ValueError):
             return False
-        if fields["repo"] != actual_repo:
+        if stored_repo != actual_repo:
             return False
 
         # Key resolution and HMAC verification

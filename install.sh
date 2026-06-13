@@ -392,10 +392,12 @@ mkdir -p "$INSTALL_PARENT"
 # mkdir is atomic on POSIX — only one process can succeed for a given path.
 # Stale-lock reclaim: if the lock's mtime is older than SDD_INSTALL_LOCK_STALE
 # seconds (default 600) OR the recorded pid is not alive, the lock is reclaimed.
-# NOTE: there is a small TOCTOU race between detecting a stale lock and
-# reclaiming it — two installers could both detect the same stale lock and
-# both attempt rm-rf/mkdir.  The second mkdir will simply fail and the process
-# will continue retrying normally.  This is intentional best-effort behaviour.
+# Staleness is decided by ownership first: a lock whose recorded PID is still
+# alive is NEVER reclaimed, however old it is (a long install must not be
+# evicted). Only a dead/unknown owner makes a lock eligible, and reclamation is
+# done by an atomic rename (one racer wins) followed by a re-check that the
+# claimed lock is the dead one we observed — so a racer cannot delete a fresh
+# lock another installer just created.
 # ---------------------------------------------------------------------------
 LOCK_DIR="${INSTALL_ROOT}.sdd-install.lock"
 _lock_timeout="${SDD_INSTALL_LOCK_TIMEOUT:-120}"
@@ -411,29 +413,50 @@ while true; do
         break
     fi
 
-    # Lock exists — check for staleness before waiting.
+    # Lock exists — decide staleness before waiting. Ownership wins: a live
+    # recorded PID is never stale (don't evict a long-running install).
     if [[ $_lock_reclaimed -eq 0 && -d "$LOCK_DIR" ]]; then
         _stale=0
-        # Check mtime age
-        _lock_mtime=0
-        if _lock_mtime_raw="$(stat -c %Y "$LOCK_DIR" 2>/dev/null || stat -f %m "$LOCK_DIR" 2>/dev/null)"; then
-            _lock_mtime="$_lock_mtime_raw"
-        fi
-        _now="$(date +%s)"
-        if (( _now - _lock_mtime > _lock_stale )); then
-            _stale=1
-        fi
-        # Check recorded pid
-        if [[ $_stale -eq 0 && -f "${LOCK_DIR}/pid" ]]; then
+        _lock_pid=""
+        if [[ -f "${LOCK_DIR}/pid" ]]; then
             _lock_pid="$(cat "${LOCK_DIR}/pid" 2>/dev/null || true)"
-            if [[ -n "$_lock_pid" ]] && ! kill -0 "$_lock_pid" 2>/dev/null; then
+        fi
+        if [[ -n "$_lock_pid" ]]; then
+            # Owner known: stale only if that process is no longer alive.
+            if ! kill -0 "$_lock_pid" 2>/dev/null; then
+                _stale=1
+            fi
+        else
+            # Owner unknown (missing/empty pid): fall back to mtime age.
+            _lock_mtime=0
+            if _lock_mtime_raw="$(stat -c %Y "$LOCK_DIR" 2>/dev/null || stat -f %m "$LOCK_DIR" 2>/dev/null)"; then
+                _lock_mtime="$_lock_mtime_raw"
+            fi
+            _now="$(date +%s)"
+            if (( _now - _lock_mtime > _lock_stale )); then
                 _stale=1
             fi
         fi
         if [[ $_stale -eq 1 ]]; then
-            rm -rf "$LOCK_DIR" 2>/dev/null || true
+            # Atomic, ownership-checked reclamation. Rename the stale lock to a
+            # private name (only one racer can win this rename); then verify the
+            # claimed lock is the dead-owner one we observed before removing it.
+            # If it changed underfoot (a fresh lock), put it back and retry.
+            _claim="${LOCK_DIR}.reclaim.$$.${RANDOM}"
+            if mv "$LOCK_DIR" "$_claim" 2>/dev/null; then
+                _claim_pid=""
+                if [[ -f "${_claim}/pid" ]]; then
+                    _claim_pid="$(cat "${_claim}/pid" 2>/dev/null || true)"
+                fi
+                if [[ "$_claim_pid" == "$_lock_pid" ]] && { [[ -z "$_claim_pid" ]] || ! kill -0 "$_claim_pid" 2>/dev/null; }; then
+                    rm -rf "$_claim" 2>/dev/null || true
+                else
+                    # Not the lock we observed (likely a fresh one) — restore it.
+                    mv "$_claim" "$LOCK_DIR" 2>/dev/null || rm -rf "$_claim" 2>/dev/null || true
+                fi
+            fi
             _lock_reclaimed=1
-            continue  # retry mkdir immediately
+            continue  # retry mkdir
         fi
     fi
 
@@ -445,7 +468,7 @@ while true; do
 
     sleep 0.5
 done
-unset _lock_timeout _lock_stale _lock_deadline _lock_reclaimed _stale _lock_mtime _lock_mtime_raw _now _lock_pid
+unset _lock_timeout _lock_stale _lock_deadline _lock_reclaimed _stale _lock_mtime _lock_mtime_raw _now _lock_pid _claim _claim_pid
 
 STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 
