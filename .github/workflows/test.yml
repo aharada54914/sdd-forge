@@ -17,7 +17,7 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       # pwsh steps run the test scripts directly: piping through tee changes
       # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
@@ -71,7 +71,7 @@ jobs:
 
       - name: Upload test logs
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
         with:
           name: test-logs-${{ matrix.os }}
           path: ${{ runner.temp }}/*.log
