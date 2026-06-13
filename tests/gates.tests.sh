@@ -1794,6 +1794,357 @@ else
     fail "T-006.7: stripped bundle risk must not dodge provenance. Got: $empty_risk_out"
 fi
 
+# Restore high_bundle for later tests
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${high_bundle}")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["risk"] = "high"  # restore to correct risk
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+
+# ============================================================================
+# T-007a: Evidence bundle cryptographic signing (CRITICAL bundles)
+# ============================================================================
+
+echo "=== T-007a: evidence bundle signing (critical risk) ==="
+
+# Create a critical-risk repo for signing tests
+T007A_REPO="${WORK}/t007a_repo"
+mkdir -p "${T007A_REPO}/specs/test-feature/verification"
+mkdir -p "${T007A_REPO}/reports/quality-gate"
+
+git -C "${T007A_REPO}" init -q
+git -C "${T007A_REPO}" config user.name ci
+git -C "${T007A_REPO}" config user.email ci@example.com
+git -C "${T007A_REPO}" config commit.gpgsign false
+
+# Create spec files for spec_revision
+cat > "${T007A_REPO}/specs/test-feature/requirements.md" <<'EOF'
+# Requirements
+REQ-001: critical functionality
+EOF
+
+cat > "${T007A_REPO}/specs/test-feature/design.md" <<'EOF'
+# Design
+Critical system design.
+EOF
+
+cat > "${T007A_REPO}/specs/test-feature/acceptance-tests.md" <<'EOF'
+# Acceptance Tests
+AC-001: critical requirement verified
+EOF
+
+# Create evidence file
+printf 'critical evidence: OK\n' > "${T007A_REPO}/specs/test-feature/verification/ev.log"
+
+# Create quality report for T-200
+cat > "${T007A_REPO}/reports/quality-gate/T-200.md" <<'EOF'
+Task ID: T-200
+VERDICT: PASS
+Critical: 0
+Major: 0
+Minor: 0
+Quality gate report for T-200.
+EOF
+
+# Create critical contract
+cat > "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" <<'EOF'
+{
+  "task_id": "T-200",
+  "feature": "test-feature",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "T-007a critical-risk signing test",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "build", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
+  ]
+}
+EOF
+
+git -C "${T007A_REPO}" add -A
+git -C "${T007A_REPO}" commit -q -m "T-007a critical bundle fixture"
+
+# Test T-007a.1: critical bundle generated WITH key + verified WITH same key → PASS
+export SDD_EVIDENCE_KEY="test-evidence-key-0123456789"
+if generate_bundle_passes \
+    "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+    "${T007A_REPO}/reports/quality-gate/T-200.md" \
+    "${T007A_REPO}"; then
+    ok "T-007a.1a: generate-evidence-bundle succeeds for critical with key"
+else
+    fail "T-007a.1a: generate-evidence-bundle failed for critical: $(run_generate_bundle \
+        "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+        "${T007A_REPO}/reports/quality-gate/T-200.md" \
+        "${T007A_REPO}")"
+fi
+
+critical_bundle="${T007A_REPO}/specs/test-feature/verification/T-200.evidence.json"
+if [ -f "$critical_bundle" ]; then
+    ok "T-007a.1b: critical bundle file created"
+else
+    fail "T-007a.1b: critical bundle file not created"
+fi
+
+# Verify bundle contains signature field
+if python3 -c "import json; b=json.load(open('${critical_bundle}')); assert 'signature' in b, 'no signature field'" 2>/dev/null; then
+    ok "T-007a.1c: critical bundle contains signature field"
+else
+    fail "T-007a.1c: critical bundle missing signature field"
+fi
+
+if check_bundle_passes "$critical_bundle" "${T007A_REPO}"; then
+    ok "T-007a.1d: check-evidence-bundle passes on critical with matching key"
+else
+    fail "T-007a.1d: check-evidence-bundle should pass: $(run_check_bundle "$critical_bundle" "${T007A_REPO}")"
+fi
+
+# Test T-007a.2: critical bundle, DELETE signature field → FAIL
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${critical_bundle}")
+b = json.loads(p.read_text(encoding="utf-8"))
+b.pop("signature", None)
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+
+t007a_2_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
+if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
+   echo "$t007a_2_out" | grep -q "signature"; then
+    ok "T-007a.2: critical bundle without signature fails check"
+else
+    fail "T-007a.2: should fail with signature requirement. Got: $t007a_2_out"
+fi
+
+# Restore signature for next tests
+if generate_bundle_passes \
+    "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+    "${T007A_REPO}/reports/quality-gate/T-200.md" \
+    "${T007A_REPO}"; then
+    :
+else
+    fail "T-007a.X: could not regenerate critical bundle for next test"
+fi
+
+# Test T-007a.3: critical bundle, tamper a signed field (change git_commit) → FAIL (HMAC mismatch)
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${critical_bundle}")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["git_commit"] = "0" * 40  # tamper git_commit
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+
+t007a_3_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
+if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
+   echo "$t007a_3_out" | grep -q "signature"; then
+    ok "T-007a.3: tampered git_commit fails HMAC check"
+else
+    fail "T-007a.3: should fail with HMAC mismatch. Got: $t007a_3_out"
+fi
+
+# Restore bundle
+if generate_bundle_passes \
+    "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+    "${T007A_REPO}/reports/quality-gate/T-200.md" \
+    "${T007A_REPO}"; then
+    :
+else
+    fail "T-007a.X: could not regenerate critical bundle for next test"
+fi
+
+# Test T-007a.4: critical bundle with sigstore alg but SDD_EVIDENCE_SIGSTORE_VERIFIED unset → FAIL
+# First restore fresh bundle with correct signature for this test
+if generate_bundle_passes \
+    "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+    "${T007A_REPO}/reports/quality-gate/T-200.md" \
+    "${T007A_REPO}"; then
+    :
+else
+    fail "T-007a.X: could not regenerate critical bundle"
+fi
+
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${critical_bundle}")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["signature"] = {"alg": "sigstore", "value": "x", "key_ref": "sigstore"}
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+
+unset SDD_EVIDENCE_SIGSTORE_VERIFIED
+t007a_4_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
+if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
+   echo "$t007a_4_out" | grep -q "SIGSTORE_VERIFIED"; then
+    ok "T-007a.4: sigstore without SIGSTORE_VERIFIED env fails"
+else
+    fail "T-007a.4: should fail without SDD_EVIDENCE_SIGSTORE_VERIFIED. Got: $t007a_4_out"
+fi
+
+# Test T-007a.5: critical bundle with sigstore signature AND SDD_EVIDENCE_SIGSTORE_VERIFIED=1 → PASS
+# Create a fresh critical bundle for this test to avoid dirty tree issues
+# Create a new contract and bundle for T-201
+cat > "${T007A_REPO}/reports/quality-gate/T-201.md" <<'EOF'
+Task ID: T-201
+VERDICT: PASS
+Critical: 0
+Major: 0
+Minor: 0
+Quality gate report for T-201.
+EOF
+
+cat > "${T007A_REPO}/specs/test-feature/verification/T-201.contract.json" <<'EOF'
+{
+  "task_id": "T-201",
+  "feature": "test-feature",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "T-007a sigstore test",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "build", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
+  ]
+}
+EOF
+
+git -C "${T007A_REPO}" add -A
+git -C "${T007A_REPO}" commit -q -m "T-007a T-201 sigstore test fixture"
+
+export SDD_EVIDENCE_KEY="test-evidence-key-0123456789"
+if generate_bundle_passes \
+    "${T007A_REPO}/specs/test-feature/verification/T-201.contract.json" \
+    "${T007A_REPO}/reports/quality-gate/T-201.md" \
+    "${T007A_REPO}"; then
+    :
+else
+    fail "T-007a.X: could not generate T-201 bundle"
+fi
+
+t201_bundle="${T007A_REPO}/specs/test-feature/verification/T-201.evidence.json"
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${t201_bundle}")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["signature"] = {"alg": "sigstore", "value": "x", "key_ref": "sigstore"}
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+
+export SDD_EVIDENCE_SIGSTORE_VERIFIED=1
+if check_bundle_passes "$t201_bundle" "${T007A_REPO}"; then
+    ok "T-007a.5: sigstore with SIGSTORE_VERIFIED env passes"
+else
+    fail "T-007a.5: sigstore with SIGSTORE_VERIFIED should pass: $(run_check_bundle "$t201_bundle" "${T007A_REPO}")"
+fi
+unset SDD_EVIDENCE_SIGSTORE_VERIFIED
+
+# Restore bundle with hmac-sha256
+if generate_bundle_passes \
+    "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+    "${T007A_REPO}/reports/quality-gate/T-200.md" \
+    "${T007A_REPO}"; then
+    :
+else
+    fail "T-007a.X: could not regenerate critical bundle"
+fi
+
+# Test T-007a.6: critical bundle with valid signature, but verify with NO key → FAIL
+unset SDD_EVIDENCE_KEY
+t007a_6_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
+if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
+   echo "$t007a_6_out" | grep -q "no evidence key"; then
+    ok "T-007a.6: verify without key fails"
+else
+    fail "T-007a.6: should fail without key. Got: $t007a_6_out"
+fi
+
+# Restore key for final tests
+export SDD_EVIDENCE_KEY="test-evidence-key-0123456789"
+
+# Test T-007a.7: critical bundle with git_generated_dirty:true → FAIL
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${critical_bundle}")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["git_generated_dirty"] = True
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+
+t007a_7_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
+if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
+   echo "$t007a_7_out" | grep -q "dirty"; then
+    ok "T-007a.7: critical with dirty tree fails"
+else
+    fail "T-007a.7: should fail with dirty tree. Got: $t007a_7_out"
+fi
+
+# Restore bundle
+if generate_bundle_passes \
+    "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+    "${T007A_REPO}/reports/quality-gate/T-200.md" \
+    "${T007A_REPO}"; then
+    :
+else
+    fail "T-007a.X: could not regenerate critical bundle"
+fi
+
+# Test T-007a.8: generate critical bundle with NO key → generate fails
+unset SDD_EVIDENCE_KEY
+if generate_bundle_passes \
+    "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+    "${T007A_REPO}/reports/quality-gate/T-200.md" \
+    "${T007A_REPO}"; then
+    fail "T-007a.8: generate critical without key should fail"
+else
+    t007a_8_out=$(run_generate_bundle \
+        "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+        "${T007A_REPO}/reports/quality-gate/T-200.md" \
+        "${T007A_REPO}")
+    if echo "$t007a_8_out" | grep -q "evidence signing key"; then
+        ok "T-007a.8: generate critical without key fails"
+    else
+        fail "T-007a.8: should fail with 'evidence signing key'. Got: $t007a_8_out"
+    fi
+fi
+
+# Restore key and regenerate for next tests
+export SDD_EVIDENCE_KEY="test-evidence-key-0123456789"
+generate_bundle_passes \
+    "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
+    "${T007A_REPO}/reports/quality-gate/T-200.md" \
+    "${T007A_REPO}" >/dev/null 2>&1 || true
+
+# Test T-007a.9: REGRESSION - high (not critical) bundle without signature → PASS
+# Use the existing high bundle from T-006
+if check_bundle_passes "$high_bundle" "${T006_REPO}"; then
+    ok "T-007a.9: high-risk bundle without signature still passes"
+else
+    fail "T-007a.9: high-risk bundle should pass without signature: $(run_check_bundle "$high_bundle" "${T006_REPO}")"
+fi
+
+# Test T-007a.10: REGRESSION - legacy bundle (no risk) → PASS
+if check_bundle_passes "$legacy_bundle" "${T006_REPO}"; then
+    ok "T-007a.10: legacy bundle without risk field still passes"
+else
+    fail "T-007a.10: legacy bundle should pass: $(run_check_bundle "$legacy_bundle" "${T006_REPO}")"
+fi
+
 # ============================================================================
 # Summary
 # ============================================================================

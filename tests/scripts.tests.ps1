@@ -1498,6 +1498,263 @@ Quality gate.
     }
     Write-Host "ok: T-006.ps.7: emptied bundle risk vs high contract fails closed"
 
+    # =========================================================
+    # T-007a: Evidence bundle cryptographic signing (critical bundles)
+    # =========================================================
+
+    # Create a critical-risk repo for signing tests
+    $t007aRepo = Join-Path $workDir "t007a_repo"
+    New-Item -ItemType Directory -Path "$t007aRepo/specs/test-feature/verification" -Force | Out-Null
+    New-Item -ItemType Directory -Path "$t007aRepo/reports/quality-gate" -Force | Out-Null
+
+    & git init -q "$t007aRepo" 2>&1 | Out-Null
+    & git -C "$t007aRepo" config user.name ci
+    & git -C "$t007aRepo" config user.email ci@example.com
+    & git -C "$t007aRepo" config commit.gpgsign false
+
+    # Create spec files for spec_revision
+    @"
+# Requirements
+REQ-001: critical functionality
+"@ | Set-Content -Encoding Utf8 "$t007aRepo/specs/test-feature/requirements.md"
+
+    @"
+# Design
+Critical system design.
+"@ | Set-Content -Encoding Utf8 "$t007aRepo/specs/test-feature/design.md"
+
+    @"
+# Acceptance Tests
+AC-001: critical requirement verified
+"@ | Set-Content -Encoding Utf8 "$t007aRepo/specs/test-feature/acceptance-tests.md"
+
+    # Create evidence file
+    "critical evidence: OK`n" | Set-Content -Encoding Utf8 "$t007aRepo/specs/test-feature/verification/ev.log" -NoNewline
+
+    # Create quality report for T-200
+    @"
+Task ID: T-200
+VERDICT: PASS
+Critical: 0
+Major: 0
+Minor: 0
+Quality gate report for T-200.
+"@ | Set-Content -Encoding Utf8 "$t007aRepo/reports/quality-gate/T-200.md"
+
+    # Create critical contract with full superset of checks
+    @"
+{
+  "task_id": "T-200",
+  "feature": "test-feature",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "T-007a critical-risk signing test",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "build", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
+  ]
+}
+"@ | Set-Content -Encoding Utf8 "$t007aRepo/specs/test-feature/verification/T-200.contract.json"
+
+    & git -C "$t007aRepo" add -A 2>&1 | Out-Null
+    & git -C "$t007aRepo" commit -q -m "T-007a critical bundle fixture" 2>&1 | Out-Null
+
+    # Test T-007a.1: critical bundle generated WITH key + verified WITH same key → PASS, bundle contains signature
+    $env:SDD_EVIDENCE_KEY = "test-evidence-key-0123456789"
+    $t007a_1_exit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t007aRepo/specs/test-feature/verification/T-200.contract.json", "-QualityReport", "$t007aRepo/reports/quality-gate/T-200.md", "-RepoRoot", "$t007aRepo")
+    Assert-ExitCode "T-007a.1a: generate-evidence-bundle succeeds for critical with key" $t007a_1_exit 0
+
+    $t007a_critical_bundle = "$t007aRepo/specs/test-feature/verification/T-200.evidence.json"
+    if (-not (Test-Path -LiteralPath $t007a_critical_bundle)) {
+        throw "T-007a.1b: critical bundle file not created"
+    }
+    Write-Host "ok: T-007a.1b: critical bundle file created"
+
+    # Verify bundle contains signature field
+    $t007a_bundle_json = Get-Content -Raw -Encoding Utf8 $t007a_critical_bundle | ConvertFrom-Json
+    if (-not $t007a_bundle_json.signature) {
+        throw "T-007a.1c: critical bundle missing signature field"
+    }
+    Write-Host "ok: T-007a.1c: critical bundle contains signature field"
+
+    $t007a_check_1_exit = Invoke-Gate "check-evidence-bundle.ps1" @($t007a_critical_bundle, "-RepoRoot", "$t007aRepo")
+    Assert-ExitCode "T-007a.1d: check-evidence-bundle passes on critical with matching key" $t007a_check_1_exit 0
+
+    # Test T-007a.2: critical bundle, DELETE signature field → FAIL
+    $t007a_bundle_json = Get-Content -Raw -Encoding Utf8 $t007a_critical_bundle | ConvertFrom-Json
+    $t007a_bundle_json.PSObject.Properties.Remove('signature')
+    $t007a_bundle_json | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $t007a_critical_bundle
+
+    $t007a_check_2_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
+    $t007a_check_2_exit = $LASTEXITCODE
+    $t007a_check_2_str = ($t007a_check_2_output | Out-String)
+    if ($t007a_check_2_exit -eq 0 -or $t007a_check_2_str -notmatch "signature") {
+        throw "T-007a.2: should fail with signature error. Got exit $t007a_check_2_exit"
+    }
+    Write-Host "ok: T-007a.2: critical bundle without signature fails check"
+
+    # Restore signature for next tests
+    $t007a_regen_exit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t007aRepo/specs/test-feature/verification/T-200.contract.json", "-QualityReport", "$t007aRepo/reports/quality-gate/T-200.md", "-RepoRoot", "$t007aRepo")
+    if ($t007a_regen_exit -ne 0) {
+        throw "T-007a.X: could not regenerate critical bundle"
+    }
+
+    # Test T-007a.3: critical bundle, tamper a signed field (git_commit) → FAIL (HMAC mismatch)
+    $t007a_bundle_json = Get-Content -Raw -Encoding Utf8 $t007a_critical_bundle | ConvertFrom-Json
+    $t007a_bundle_json.git_commit = "0000000000000000000000000000000000000000"
+    $t007a_bundle_json | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $t007a_critical_bundle
+
+    $t007a_check_3_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
+    $t007a_check_3_exit = $LASTEXITCODE
+    $t007a_check_3_str = ($t007a_check_3_output | Out-String)
+    if ($t007a_check_3_exit -eq 0 -or $t007a_check_3_str -notmatch "signature") {
+        throw "T-007a.3: should fail with HMAC/signature mismatch. Got exit $t007a_check_3_exit"
+    }
+    Write-Host "ok: T-007a.3: tampered git_commit fails HMAC check"
+
+    # Restore bundle
+    $t007a_regen_exit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t007aRepo/specs/test-feature/verification/T-200.contract.json", "-QualityReport", "$t007aRepo/reports/quality-gate/T-200.md", "-RepoRoot", "$t007aRepo")
+    if ($t007a_regen_exit -ne 0) {
+        throw "T-007a.X: could not regenerate critical bundle"
+    }
+
+    # Test T-007a.4: critical bundle with sigstore alg but SDD_EVIDENCE_SIGSTORE_VERIFIED unset → FAIL
+    $t007a_bundle_json = Get-Content -Raw -Encoding Utf8 $t007a_critical_bundle | ConvertFrom-Json
+    $t007a_bundle_json.signature = @{ alg = "sigstore"; value = "x"; key_ref = "sigstore" }
+    $t007a_bundle_json | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $t007a_critical_bundle
+
+    Remove-Item Env:SDD_EVIDENCE_SIGSTORE_VERIFIED -ErrorAction SilentlyContinue
+    $t007a_check_4_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
+    $t007a_check_4_exit = $LASTEXITCODE
+    $t007a_check_4_str = ($t007a_check_4_output | Out-String)
+    if ($t007a_check_4_exit -eq 0 -or $t007a_check_4_str -notmatch "SIGSTORE_VERIFIED") {
+        throw "T-007a.4: should fail without SDD_EVIDENCE_SIGSTORE_VERIFIED. Got exit $t007a_check_4_exit"
+    }
+    Write-Host "ok: T-007a.4: sigstore without SIGSTORE_VERIFIED env fails"
+
+    # Test T-007a.5: critical bundle with sigstore signature AND SDD_EVIDENCE_SIGSTORE_VERIFIED=1 → PASS
+    # Create fresh bundle for T-201
+    @"
+Task ID: T-201
+VERDICT: PASS
+Critical: 0
+Major: 0
+Minor: 0
+Quality gate report for T-201.
+"@ | Set-Content -Encoding Utf8 "$t007aRepo/reports/quality-gate/T-201.md"
+
+    @"
+{
+  "task_id": "T-201",
+  "feature": "test-feature",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "T-007a sigstore test",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "build", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
+  ]
+}
+"@ | Set-Content -Encoding Utf8 "$t007aRepo/specs/test-feature/verification/T-201.contract.json"
+
+    & git -C "$t007aRepo" add -A 2>&1 | Out-Null
+    & git -C "$t007aRepo" commit -q -m "T-007a T-201 sigstore test fixture" 2>&1 | Out-Null
+
+    $env:SDD_EVIDENCE_KEY = "test-evidence-key-0123456789"
+    $t007a_gen_201_exit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t007aRepo/specs/test-feature/verification/T-201.contract.json", "-QualityReport", "$t007aRepo/reports/quality-gate/T-201.md", "-RepoRoot", "$t007aRepo")
+    if ($t007a_gen_201_exit -ne 0) {
+        throw "T-007a.X: could not generate T-201 bundle"
+    }
+
+    $t007a_t201_bundle = "$t007aRepo/specs/test-feature/verification/T-201.evidence.json"
+    $t007a_bundle_json = Get-Content -Raw -Encoding Utf8 $t007a_t201_bundle | ConvertFrom-Json
+    $t007a_bundle_json.signature = @{ alg = "sigstore"; value = "x"; key_ref = "sigstore" }
+    $t007a_bundle_json | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $t007a_t201_bundle
+
+    $env:SDD_EVIDENCE_SIGSTORE_VERIFIED = "1"
+    $t007a_check_5_exit = Invoke-Gate "check-evidence-bundle.ps1" @($t007a_t201_bundle, "-RepoRoot", "$t007aRepo")
+    Assert-ExitCode "T-007a.5: sigstore with SIGSTORE_VERIFIED env passes" $t007a_check_5_exit 0
+    Remove-Item Env:SDD_EVIDENCE_SIGSTORE_VERIFIED -ErrorAction SilentlyContinue
+
+    # Restore bundle with hmac-sha256
+    $t007a_regen_exit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t007aRepo/specs/test-feature/verification/T-200.contract.json", "-QualityReport", "$t007aRepo/reports/quality-gate/T-200.md", "-RepoRoot", "$t007aRepo")
+    if ($t007a_regen_exit -ne 0) {
+        throw "T-007a.X: could not regenerate critical bundle"
+    }
+
+    # Test T-007a.6: critical bundle with valid signature, but verify with NO key → FAIL
+    Remove-Item Env:SDD_EVIDENCE_KEY -ErrorAction SilentlyContinue
+    $t007a_check_6_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
+    $t007a_check_6_exit = $LASTEXITCODE
+    $t007a_check_6_str = ($t007a_check_6_output | Out-String)
+    if ($t007a_check_6_exit -eq 0 -or $t007a_check_6_str -notmatch "no evidence key") {
+        throw "T-007a.6: should fail without key. Got exit $t007a_check_6_exit"
+    }
+    Write-Host "ok: T-007a.6: verify without key fails"
+
+    # Restore key for final tests
+    $env:SDD_EVIDENCE_KEY = "test-evidence-key-0123456789"
+
+    # Test T-007a.7: critical bundle with git_generated_dirty:true → FAIL
+    $t007a_bundle_json = Get-Content -Raw -Encoding Utf8 $t007a_critical_bundle | ConvertFrom-Json
+    $t007a_bundle_json.git_generated_dirty = $true
+    $t007a_bundle_json | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $t007a_critical_bundle
+
+    $t007a_check_7_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
+    $t007a_check_7_exit = $LASTEXITCODE
+    $t007a_check_7_str = ($t007a_check_7_output | Out-String)
+    if ($t007a_check_7_exit -eq 0 -or $t007a_check_7_str -notmatch "dirty") {
+        throw "T-007a.7: should fail with dirty tree. Got exit $t007a_check_7_exit"
+    }
+    Write-Host "ok: T-007a.7: critical with dirty tree fails"
+
+    # Restore bundle
+    $t007a_regen_exit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t007aRepo/specs/test-feature/verification/T-200.contract.json", "-QualityReport", "$t007aRepo/reports/quality-gate/T-200.md", "-RepoRoot", "$t007aRepo")
+    if ($t007a_regen_exit -ne 0) {
+        throw "T-007a.X: could not regenerate critical bundle"
+    }
+
+    # Test T-007a.8: generate critical bundle with NO key → generate fails
+    Remove-Item Env:SDD_EVIDENCE_KEY -ErrorAction SilentlyContinue
+    $t007a_gen_8_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "generate-evidence-bundle.ps1") -ContractPath "$t007aRepo/specs/test-feature/verification/T-200.contract.json" -QualityReport "$t007aRepo/reports/quality-gate/T-200.md" -RepoRoot "$t007aRepo" 2>&1
+    $t007a_gen_8_exit = $LASTEXITCODE
+    $t007a_gen_8_str = ($t007a_gen_8_output | Out-String)
+    if ($t007a_gen_8_exit -eq 0) {
+        throw "T-007a.8: generate critical without key should fail"
+    }
+    if ($t007a_gen_8_str -notmatch "evidence signing key") {
+        throw "T-007a.8: should fail with 'evidence signing key'. Got: $t007a_gen_8_str"
+    }
+    Write-Host "ok: T-007a.8: generate critical without key fails"
+
+    # Restore key and regenerate for next tests
+    $env:SDD_EVIDENCE_KEY = "test-evidence-key-0123456789"
+    Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t007aRepo/specs/test-feature/verification/T-200.contract.json", "-QualityReport", "$t007aRepo/reports/quality-gate/T-200.md", "-RepoRoot", "$t007aRepo") | Out-Null
+
+    # Test T-007a.9: REGRESSION - high (not critical) bundle without signature → PASS
+    $t007a_check_9_exit = Invoke-Gate "check-evidence-bundle.ps1" @($highBundle, "-RepoRoot", "$t006Repo")
+    Assert-ExitCode "T-007a.9: high-risk bundle without signature still passes" $t007a_check_9_exit 0
+
+    # Test T-007a.10: REGRESSION - legacy bundle (no risk) → PASS
+    $t007a_check_10_exit = Invoke-Gate "check-evidence-bundle.ps1" @($legacyBundle, "-RepoRoot", "$t006Repo")
+    Assert-ExitCode "T-007a.10: legacy bundle without risk field still passes" $t007a_check_10_exit 0
+
     # --- check-sdd-structure ---
     $bootstrapScriptsDir = Join-Path $repositoryRoot "plugins/sdd-bootstrap/scripts"
 

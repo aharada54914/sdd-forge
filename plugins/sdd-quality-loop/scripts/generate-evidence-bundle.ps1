@@ -298,6 +298,102 @@ $builder = [ordered]@{
 }
 
 # ------------------------------------------------------------------
+# Signing helpers (T-007a)
+# ------------------------------------------------------------------
+
+function Resolve-EvidenceKey {
+    $envKey = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY")
+    if (-not [string]::IsNullOrWhiteSpace($envKey)) {
+        return @{ key = [System.Text.Encoding]::UTF8.GetBytes($envKey); ref = "env:SDD_EVIDENCE_KEY" }
+    }
+    $envKeyFile = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY_FILE")
+    if (-not [string]::IsNullOrWhiteSpace($envKeyFile)) {
+        try {
+            $raw = [System.IO.File]::ReadAllBytes($envKeyFile)
+            # Strip BOM (0xEF 0xBB 0xBF)
+            if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
+                $raw = $raw[3..($raw.Length-1)]
+            }
+            # Strip trailing whitespace
+            $raw = [System.Linq.Enumerable]::Reverse(
+                [System.Linq.Enumerable]::SkipWhile(
+                    [System.Linq.Enumerable]::Reverse($raw),
+                    { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
+                )
+            ).ToArray()
+            if ($raw.Length -gt 0) {
+                return @{ key = $raw; ref = "file:$envKeyFile" }
+            }
+        } catch {
+            return $null
+        }
+    }
+    $home = $env:HOME
+    if ([string]::IsNullOrWhiteSpace($home)) { $home = $env:USERPROFILE }
+    if (-not [string]::IsNullOrWhiteSpace($home)) {
+        $keyPath = Join-Path $home ".sdd" "evidence-key"
+        if (Test-Path -LiteralPath $keyPath) {
+            try {
+                $raw = [System.IO.File]::ReadAllBytes($keyPath)
+                # Strip BOM
+                if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
+                    $raw = $raw[3..($raw.Length-1)]
+                }
+                # Strip trailing whitespace
+                $raw = [System.Linq.Enumerable]::Reverse(
+                    [System.Linq.Enumerable]::SkipWhile(
+                        [System.Linq.Enumerable]::Reverse($raw),
+                        { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
+                    )
+                ).ToArray()
+                if ($raw.Length -gt 0) {
+                    return @{ key = $raw; ref = "file:~/.sdd/evidence-key" }
+                }
+            } catch {
+                return $null
+            }
+        }
+    }
+    return $null
+}
+
+function Get-EvidenceCanonical {
+    param([Parameter(Mandatory)]$Bundle)
+    $artifacts = @($Bundle.artifacts)
+    $pairs = @()
+    foreach ($artifact in $artifacts) {
+        $path = [string]($artifact.path).Trim()
+        $sha = ([string]($artifact.sha256).Trim()).ToLowerInvariant()
+        $pairs += $path + [char]0 + $sha
+    }
+    # Ordinal sort to match Python's code-point sort (Sort-Object is culture-aware
+    # and would diverge across runtimes, breaking signature parity).
+    $pairsArr = [string[]]$pairs
+    [System.Array]::Sort($pairsArr, [System.StringComparer]::Ordinal)
+    $pairsStr = $pairsArr -join "`n"
+    $pairsBytes = [System.Text.Encoding]::UTF8.GetBytes($pairsStr)
+    $hasher = [System.Security.Cryptography.SHA256]::Create()
+    $artifactsDigest = ($hasher.ComputeHash($pairsBytes) | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+
+    $dirty = if ($Bundle.git_generated_dirty) { "true" } else { "false" }
+    $verdict = [string]($Bundle.review_verdict.verdict).Trim()
+
+    $lines = @(
+        "sdd-evidence-v1",
+        [string]($Bundle.task_id).Trim(),
+        [string]($Bundle.feature).Trim(),
+        [string]($Bundle.risk).Trim(),
+        [string]($Bundle.required_workflow).Trim(),
+        [string]($Bundle.spec_revision).Trim(),
+        [string]($Bundle.git_commit).Trim(),
+        $dirty,
+        $verdict,
+        $artifactsDigest
+    )
+    return $lines -join "`n"
+}
+
+# ------------------------------------------------------------------
 # Write bundle
 # ------------------------------------------------------------------
 
@@ -315,6 +411,25 @@ $bundle = [ordered]@{
     builder               = $builder
     review_verdict        = $reviewVerdict
     artifacts             = $artifacts
+}
+
+# Sign critical bundles (T-007a)
+if ($contractRisk -eq "critical") {
+    $keyInfo = Resolve-EvidenceKey
+    if ($null -eq $keyInfo) {
+        Write-Error "generate-evidence-bundle: risk=critical requires an evidence signing key (SDD_EVIDENCE_KEY / SDD_EVIDENCE_KEY_FILE / ~/.sdd/evidence-key); none found"
+        exit 1
+    }
+    $canonical = Get-EvidenceCanonical -Bundle $bundle
+    $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
+    $hmac = New-Object System.Security.Cryptography.HMACSHA256 -ArgumentList $keyInfo.key
+    $signatureBytes = $hmac.ComputeHash($canonicalBytes)
+    $signatureValue = ($signatureBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+    $bundle["signature"] = [ordered]@{
+        alg     = "hmac-sha256"
+        value   = $signatureValue
+        key_ref = $keyInfo.ref
+    }
 }
 
 $outputDir = Split-Path -Parent $resolvedOutputPath

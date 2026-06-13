@@ -34,6 +34,7 @@ if command -v python3 >/dev/null 2>&1; then
   CONTRACT="$contract_file" REPORT="$quality_report_file" ROOT="$root" OUT_ARG="$output_path_arg" \
     python3 - <<'PYEOF'
 import hashlib
+import hmac
 import json
 import os
 import pathlib
@@ -302,6 +303,70 @@ builder = {
 }
 
 # ------------------------------------------------------------------
+# Signing helpers (T-007a)
+# ------------------------------------------------------------------
+
+def _strip_key_bytes(raw):
+    if raw.startswith(b"\xef\xbb\xbf"):
+        raw = raw[3:]
+    return raw.rstrip(b" \t\r\n")
+
+def resolve_evidence_key():
+    env_key = os.environ.get("SDD_EVIDENCE_KEY")
+    if env_key:
+        return env_key.encode("utf-8"), "env:SDD_EVIDENCE_KEY"
+    env_file = os.environ.get("SDD_EVIDENCE_KEY_FILE")
+    if env_file:
+        try:
+            with open(env_file, "rb") as f:
+                raw = _strip_key_bytes(f.read())
+            if raw:
+                return raw, "file:" + env_file
+        except OSError:
+            pass
+        return None, None
+    home = os.environ.get("HOME") or os.environ.get("USERPROFILE", "")
+    if home:
+        key_path = os.path.join(home, ".sdd", "evidence-key")
+        try:
+            with open(key_path, "rb") as f:
+                raw = _strip_key_bytes(f.read())
+            if raw:
+                return raw, "file:~/.sdd/evidence-key"
+        except OSError:
+            pass
+    return None, None
+
+def evidence_canonical(bundle):
+    def s(v):
+        return str(v if v is not None else "").strip()
+    artifacts = bundle.get("artifacts") or []
+    pairs = []
+    for a in artifacts:
+        p = str((a or {}).get("path", "")).strip()
+        sh = str((a or {}).get("sha256", "")).strip().lower()
+        pairs.append(p + "\x00" + sh)
+    pairs.sort()
+    artifacts_digest = hashlib.sha256("\n".join(pairs).encode("utf-8")).hexdigest()
+    dirty = bundle.get("git_generated_dirty")
+    dirty_str = "true" if dirty is True else "false"
+    rv = bundle.get("review_verdict")
+    verdict = str(rv.get("verdict", "")).strip() if isinstance(rv, dict) else ""
+    lines = [
+        "sdd-evidence-v1",
+        s(bundle.get("task_id")),
+        s(bundle.get("feature")),
+        s(bundle.get("risk")),
+        s(bundle.get("required_workflow")),
+        s(bundle.get("spec_revision")),
+        s(bundle.get("git_commit")),
+        dirty_str,
+        verdict,
+        artifacts_digest,
+    ]
+    return "\n".join(lines)
+
+# ------------------------------------------------------------------
 # Write bundle
 # ------------------------------------------------------------------
 
@@ -320,6 +385,18 @@ bundle = {
     "review_verdict": review_verdict,
     "artifacts": artifacts,
 }
+
+# Sign critical bundles (T-007a)
+if contract_risk == "critical":
+    key_bytes, key_ref = resolve_evidence_key()
+    if key_bytes is None:
+        print("generate-evidence-bundle: risk=critical requires an evidence signing key "
+              "(SDD_EVIDENCE_KEY / SDD_EVIDENCE_KEY_FILE / ~/.sdd/evidence-key); none found",
+              file=sys.stderr)
+        sys.exit(1)
+    canonical = evidence_canonical(bundle)
+    value = hmac.new(key_bytes, canonical.encode("utf-8"), hashlib.sha256).hexdigest()
+    bundle["signature"] = {"alg": "hmac-sha256", "value": value, "key_ref": key_ref}
 
 output_path.parent.mkdir(parents=True, exist_ok=True)
 with open(output_path, "w", encoding="utf-8") as fh:
