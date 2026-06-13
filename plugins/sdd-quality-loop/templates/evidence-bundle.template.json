@@ -3,6 +3,8 @@
   "feature": "<feature-slug>",
   "quality_report": "reports/quality-gate/T-000.md",
   "verification_contract": "specs/<feature-slug>/verification/T-000.contract.json",
+  "git_commit": "0000000000000000000000000000000000000000",
+  "git_generated_dirty": false,
   "artifacts": [
     { "path": "specs/<feature-slug>/verification/T-000.contract.json", "sha256": "" },
     { "path": "reports/quality-gate/T-000.md", "sha256": "" },

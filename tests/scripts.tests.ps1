@@ -45,6 +45,12 @@ try {
     New-Item -ItemType Directory -Path "reports/implementation" -Force | Out-Null
     New-Item -ItemType Directory -Path "verification" -Force | Out-Null
 
+    # Initialise a local git repo so check-evidence-bundle can verify git_commit binding.
+    & git init -q . 2>&1 | Out-Null
+    & git config user.name ci
+    & git config user.email ci@example.com
+    & git config commit.gpgsign false
+
     # tasks-good.md: T-001 is Done (needs quality-gate report + contract + evidence bundle), T-002 is Planned
     @"
 # Tasks: demo
@@ -72,10 +78,18 @@ quality gate report for T-001
         }
     }
     $taskOneContract | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "verification/T-001.contract.json"
+
+    # Commit all fixture files so we have a real HEAD commit for git_commit binding
+    & git add -A 2>&1 | Out-Null
+    & git commit -q -m "scripts.tests.ps1 initial fixture" 2>&1 | Out-Null
+    $fixtureGitCommit = (& git rev-parse HEAD).Trim()
+
     $taskOneBundle = [ordered]@{
         task_id = "T-001"
         quality_report = "reports/quality-gate/r1.md"
         verification_contract = "verification/T-001.contract.json"
+        git_commit = $fixtureGitCommit
+        git_generated_dirty = $false
         artifacts = @(
             (New-ArtifactEntry "verification/T-001.contract.json"),
             (New-ArtifactEntry "reports/quality-gate/r1.md"),
@@ -298,16 +312,29 @@ Status: Done
     Assert-ExitCode "check-task-state done without bundle fails" (Invoke-Gate "check-task-state.ps1" @("spec-dir/tasks-done-nocontract.md", "-ReportsDir", "reports/quality-gate")) 1
 
     # -- Done with evidence bundle → exit 0 --
+    # Commit any new files so git_commit binding is valid for T-040 bundle
+    & git add -A 2>&1 | Out-Null
+    & git commit -q -m "scripts.tests.ps1 T-040 fixture" 2>&1 | Out-Null
+    $t040GitCommit = (& git rev-parse HEAD).Trim()
+
     $doneBundle = [ordered]@{
         task_id = "T-040"
         quality_report = "reports/quality-gate/r-T040.md"
         verification_contract = "spec-dir/verification/T-040.contract.json"
+        git_commit = $t040GitCommit
+        git_generated_dirty = $false
         artifacts = @(
             (New-ArtifactEntry "spec-dir/verification/T-040.contract.json"),
             (New-ArtifactEntry "reports/quality-gate/r-T040.md"),
             (New-ArtifactEntry "spec-dir/verification/T-040-evidence.log")
         )
     }
+    $doneBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+    & git add -A 2>&1 | Out-Null
+    & git commit -q -m "scripts.tests.ps1 T-040 bundle" 2>&1 | Out-Null
+    # Update git_commit to the bundle commit itself
+    $t040GitCommit2 = (& git rev-parse HEAD).Trim()
+    $doneBundle["git_commit"] = $t040GitCommit2
     $doneBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
     Assert-ExitCode "check-task-state done with bundle passes" (Invoke-Gate "check-task-state.ps1" @("spec-dir/tasks-done-nocontract.md", "-ReportsDir", "reports/quality-gate")) 0
 
@@ -342,6 +369,27 @@ quality gate report for T-040
     $badReportBundle.artifacts[1] = (New-ArtifactEntry "reports/quality-gate/r-T040-bad.md")
     $badReportBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-bad-report.evidence.json"
     Assert-ExitCode "check-evidence-bundle bad report fails" (Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040-bad-report.evidence.json", "-RepoRoot", ".")) 1
+
+    # =========================================================
+    # H-02: check-evidence-bundle git_commit binding (PS1 path)
+    # =========================================================
+    # missing git_commit → exit 1
+    $missingGitCommitBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $missingGitCommitBundleOrdered = [ordered]@{
+        task_id               = $missingGitCommitBundle.task_id
+        quality_report        = $missingGitCommitBundle.quality_report
+        verification_contract = $missingGitCommitBundle.verification_contract
+        # git_commit intentionally omitted
+        artifacts             = $missingGitCommitBundle.artifacts
+    }
+    $missingGitCommitBundleOrdered | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-no-git-commit.evidence.json"
+    Assert-ExitCode "check-evidence-bundle ps1 missing git_commit fails" (Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040-no-git-commit.evidence.json", "-RepoRoot", ".")) 1
+
+    # malformed git_commit (not 40 lowercase hex) → exit 1
+    $malformedGitCommitBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $malformedGitCommitBundle | Add-Member -NotePropertyName git_commit -NotePropertyValue "DEADBEEF" -Force
+    $malformedGitCommitBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-bad-git-commit.evidence.json"
+    Assert-ExitCode "check-evidence-bundle ps1 malformed git_commit fails" (Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040-bad-git-commit.evidence.json", "-RepoRoot", ".")) 1
 
     # =========================================================
     # NEW RULES: check-placeholders - TODO_REPLACE_WITH_PROJECT_COMMANDS
@@ -415,11 +463,17 @@ Status: Done
         & bash (Join-Path $scriptsDir "check-task-state.sh") "spec-dir2/tasks-done-nocontract-sh.md" "reports/quality-gate" *> $null
         Assert-ExitCode "check-task-state.sh done without bundle fails" $LASTEXITCODE 1
 
-        # Done with bundle
+        # Done with bundle — commit T-041 files so git_commit binding is valid
+        & git add -A 2>&1 | Out-Null
+        & git commit -q -m "scripts.tests.ps1 T-041 fixture" 2>&1 | Out-Null
+        $t041GitCommit = (& git rev-parse HEAD).Trim()
+
         $doneBundleSh = [ordered]@{
             task_id = "T-041"
             quality_report = "reports/quality-gate/r-T041.md"
             verification_contract = "spec-dir2/verification/T-041.contract.json"
+            git_commit = $t041GitCommit
+            git_generated_dirty = $false
             artifacts = @(
                 (New-ArtifactEntry "spec-dir2/verification/T-041.contract.json"),
                 (New-ArtifactEntry "reports/quality-gate/r-T041.md"),

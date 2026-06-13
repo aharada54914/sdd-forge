@@ -213,6 +213,8 @@ TEMPORARY_ROOT=""
 BACKUP_ROOT=""
 STAGING_ROOT=""
 NEW_INSTALL_PLACED=0
+LOCK_DIR=""
+LOCK_HELD=0
 
 cleanup() {
     # Called from trap EXIT — runs on every exit path
@@ -221,6 +223,12 @@ cleanup() {
     fi
     if [[ -n "$TEMPORARY_ROOT" && -d "$TEMPORARY_ROOT" ]]; then
         rm -rf "$TEMPORARY_ROOT"
+    fi
+    # Release the exclusive lock if we hold it.
+    # Only remove the lock directory we created — never remove a lock we do not hold.
+    if [[ $LOCK_HELD -eq 1 && -n "$LOCK_DIR" && -d "$LOCK_DIR" ]]; then
+        rm -rf "$LOCK_DIR"
+        LOCK_HELD=0
     fi
 }
 
@@ -376,6 +384,91 @@ fi
 # ---------------------------------------------------------------------------
 INSTALL_PARENT="$(dirname "$INSTALL_ROOT")"
 mkdir -p "$INSTALL_PARENT"
+
+# ---------------------------------------------------------------------------
+# Exclusive per-install-root lock (atomic mkdir; portable: no flock required)
+#
+# LOCK_DIR is a sibling of INSTALL_ROOT so separate roots never contend.
+# mkdir is atomic on POSIX — only one process can succeed for a given path.
+# Stale-lock reclaim: if the lock's mtime is older than SDD_INSTALL_LOCK_STALE
+# seconds (default 600) OR the recorded pid is not alive, the lock is reclaimed.
+# Staleness is decided by ownership first: a lock whose recorded PID is still
+# alive is NEVER reclaimed, however old it is (a long install must not be
+# evicted). Only a dead/unknown owner makes a lock eligible, and reclamation is
+# done by an atomic rename (one racer wins) followed by a re-check that the
+# claimed lock is the dead one we observed — so a racer cannot delete a fresh
+# lock another installer just created.
+# ---------------------------------------------------------------------------
+LOCK_DIR="${INSTALL_ROOT}.sdd-install.lock"
+_lock_timeout="${SDD_INSTALL_LOCK_TIMEOUT:-120}"
+_lock_stale="${SDD_INSTALL_LOCK_STALE:-600}"
+_lock_deadline=$(( $(date +%s) + _lock_timeout ))
+_lock_reclaimed=0
+
+while true; do
+    if mkdir "$LOCK_DIR" 2>/dev/null; then
+        # We created the directory — we own the lock.
+        printf '%s\n' "$$" > "${LOCK_DIR}/pid"
+        LOCK_HELD=1
+        break
+    fi
+
+    # Lock exists — decide staleness before waiting. Ownership wins: a live
+    # recorded PID is never stale (don't evict a long-running install).
+    if [[ $_lock_reclaimed -eq 0 && -d "$LOCK_DIR" ]]; then
+        _stale=0
+        _lock_pid=""
+        if [[ -f "${LOCK_DIR}/pid" ]]; then
+            _lock_pid="$(cat "${LOCK_DIR}/pid" 2>/dev/null || true)"
+        fi
+        if [[ -n "$_lock_pid" ]]; then
+            # Owner known: stale only if that process is no longer alive.
+            if ! kill -0 "$_lock_pid" 2>/dev/null; then
+                _stale=1
+            fi
+        else
+            # Owner unknown (missing/empty pid): fall back to mtime age.
+            _lock_mtime=0
+            if _lock_mtime_raw="$(stat -c %Y "$LOCK_DIR" 2>/dev/null || stat -f %m "$LOCK_DIR" 2>/dev/null)"; then
+                _lock_mtime="$_lock_mtime_raw"
+            fi
+            _now="$(date +%s)"
+            if (( _now - _lock_mtime > _lock_stale )); then
+                _stale=1
+            fi
+        fi
+        if [[ $_stale -eq 1 ]]; then
+            # Atomic, ownership-checked reclamation. Rename the stale lock to a
+            # private name (only one racer can win this rename); then verify the
+            # claimed lock is the dead-owner one we observed before removing it.
+            # If it changed underfoot (a fresh lock), put it back and retry.
+            _claim="${LOCK_DIR}.reclaim.$$.${RANDOM}"
+            if mv "$LOCK_DIR" "$_claim" 2>/dev/null; then
+                _claim_pid=""
+                if [[ -f "${_claim}/pid" ]]; then
+                    _claim_pid="$(cat "${_claim}/pid" 2>/dev/null || true)"
+                fi
+                if [[ "$_claim_pid" == "$_lock_pid" ]] && { [[ -z "$_claim_pid" ]] || ! kill -0 "$_claim_pid" 2>/dev/null; }; then
+                    rm -rf "$_claim" 2>/dev/null || true
+                else
+                    # Not the lock we observed (likely a fresh one) — restore it.
+                    mv "$_claim" "$LOCK_DIR" 2>/dev/null || rm -rf "$_claim" 2>/dev/null || true
+                fi
+            fi
+            _lock_reclaimed=1
+            continue  # retry mkdir
+        fi
+    fi
+
+    # Check timeout
+    if (( $(date +%s) >= _lock_deadline )); then
+        echo "Error: another sdd-forge install is in progress (lock: ${LOCK_DIR}). Retry later, or remove the lock if it is stale." >&2
+        exit 1
+    fi
+
+    sleep 0.5
+done
+unset _lock_timeout _lock_stale _lock_deadline _lock_reclaimed _stale _lock_mtime _lock_mtime_raw _now _lock_pid _claim _claim_pid
 
 STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 

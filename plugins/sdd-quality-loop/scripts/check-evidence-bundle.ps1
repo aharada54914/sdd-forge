@@ -96,6 +96,8 @@ $bundle = Get-Content -Raw -Encoding Utf8 $BundlePath | ConvertFrom-Json
 $taskId = ([string]$bundle.task_id).Trim()
 $qualityReport = $bundle.quality_report
 $verificationContract = $bundle.verification_contract
+$gitCommit = $bundle.git_commit
+$gitGeneratedDirty = $bundle.git_generated_dirty
 $artifacts = @()
 
 if ($taskId -notmatch '^T-\d+$') {
@@ -198,6 +200,40 @@ foreach ($requiredPath in $requiredArtifacts.Keys) {
     if (-not $artifactIndex.ContainsKey($requiredPath)) {
         Add-Failure "manifest is missing $($requiredArtifacts[$requiredPath]): $requiredPath"
     }
+}
+
+# --- git_commit binding ---
+if ($null -eq $gitCommit -or ($gitCommit -is [string] -and [string]::IsNullOrWhiteSpace($gitCommit))) {
+    Add-Failure "git_commit is required but missing"
+} elseif (([string]$gitCommit) -notmatch '^[0-9a-f]{40}$') {
+    Add-Failure "git_commit is invalid (must be 40 lowercase hex): $gitCommit"
+} else {
+    $gitCommitStr = ([string]$gitCommit).Trim()
+    $gitExe = Get-Command git -ErrorAction SilentlyContinue
+    if (-not $gitExe) {
+        Add-Failure "git is not available; cannot verify git_commit binding"
+    } else {
+        $absRoot = (Resolve-Path $RepoRoot).Path
+        try {
+            # Verify commit exists
+            $r1 = Start-Process -FilePath "git" -ArgumentList @("-C", $absRoot, "cat-file", "-e", "${gitCommitStr}^{commit}") -NoNewWindow -Wait -PassThru
+            if ($r1.ExitCode -ne 0) {
+                Add-Failure "git_commit does not exist in repository: $gitCommitStr"
+            } else {
+                # Verify commit is HEAD or an ancestor of HEAD
+                $r2 = Start-Process -FilePath "git" -ArgumentList @("-C", $absRoot, "merge-base", "--is-ancestor", $gitCommitStr, "HEAD") -NoNewWindow -Wait -PassThru
+                if ($r2.ExitCode -ne 0) {
+                    Add-Failure "git_commit is not an ancestor of HEAD (foreign or future commit): $gitCommitStr"
+                }
+            }
+        } catch {
+            Add-Failure "git verification failed unexpectedly: $_"
+        }
+    }
+}
+
+if ($gitGeneratedDirty -eq $true) {
+    Write-Host "WARNING: evidence bundle for task ${taskId} was generated with a dirty working tree"
 }
 
 if ($failures.Count -gt 0) {

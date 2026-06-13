@@ -1,6 +1,30 @@
 # Changelog
 
-## Unreleased
+## v0.9.0
+
+監査の残課題（C-04 / H-02 / H-04 / C-06 / H-06 / H-05）に対応したセキュリティ強化リリース。
+
+### 新機能・強化
+
+**署名付き sudo capability token (C-04)**: `SDD_SUDO` を偽造耐性のある署名トークン化。`issuer` / `nonce` (≥32 hex) / `repo`（プロジェクトルートの正規絶対パス）束縛 + HMAC-SHA256 署名 (`sig`) を追加。署名鍵はリポジトリ作業ツリーの**外**（`SDD_SUDO_KEY` / `SDD_SUDO_KEY_FILE` / `<HOME>/.sdd/sudo-key`）に置く。`sudo_active()` は py/js/ps1 共通で、非シンボリックリンク・必須フィールド・nonce 形式・`issued<=now<expires`・TTL≤24h・repo 一致・鍵で再計算した HMAC 一致をすべて満たす場合のみ有効化し、いずれか欠落で**フェイルクローズ**（承認ゲート維持＝バイパスは決して起きない）。偽造・コミット済み・他リポジトリからのコピー・リプレイを拒否。残存リスク（鍵を読めるエージェントは署名可）は `sudo-mode-policy.md` に明記。`/sdd-sudo` スキルが鍵生成（0600）と署名を行う。
+
+**evidence の runner 生成・git SHA 束縛 (H-02)**: `generate-evidence-bundle.{sh,ps1}` を新設。証拠の SHA-256・`git_commit`(HEAD)・`git_generated_dirty` を自動算出してバンドルを生成（エージェントによる手書きを排除）。`check-evidence-bundle` は `git_commit` を必須化し、リポジトリ履歴に存在し HEAD の祖先（または HEAD）であることを検証（git 不在・検証不能はフェイルクローズ）。digest 束縛（成果物 SHA-256 一致）と併せ、捏造・古い・他コミット由来の証拠を拒否。
+
+**Actions の SHA pin・release 署名・SBOM (H-04 / C-06)**: `test.yml` / `self-improvement.yml` の全 Action を commit SHA に pin（`# vX.Y.Z` コメント付き）。`.github/dependabot.yml` で pin を定期更新。`release.yml` を新設し、Release publish 時に再現可能ソース tarball・CycloneDX SBOM・`SHA256SUMS`・sigstore ベースの build-provenance attestation（keyless）を生成・添付。SBOM は `.github/scripts/generate-sbom.py`（stdlib のみ）が workflow の pin 済み Action から自動生成。
+
+**installer の排他 lock (H-06)**: 同一インストール先への並行 install による stage→backup→swap 競合を防止。`install.sh` は atomic な `mkdir` lock ディレクトリ（macOS でも動くよう flock 非依存）、`install.ps1` はインストール先のハッシュで識別する名前付き Mutex。タイムアウト（`SDD_INSTALL_LOCK_TIMEOUT`、既定 120s）と stale 回収（`SDD_INSTALL_LOCK_STALE` / 死んだ pid）を備え、全 exit 経路で解放。タイムアウト時は install 先に触れずフェイルクローズ。
+
+**outcome ベースの eval suite (H-05)**: `tests/eval.tests.sh` を新設。実際のゲート群（check-contract / check-placeholders / check-evidence-bundle / check-task-state / sdd-hook-guard）を good/completion-faking の 8 シナリオに対して実行し、Done 可否という**結末**を検証。CI (`test.yml`) に組み込み。
+
+### 修正
+
+- 承認ガードの穴を解消: Write content モードが `## T-NNN` セクション単位でしか比較せず、ヘッダ無しの `Approval: Approved` や新規 tasks.md がすり抜けていた問題を、ファイル全体の承認数の純増でも deny するよう py/js/ps1 で統一（per-task swap 検知は維持）。あわせて sudo テストの `issued-epoch` 欠落と、PowerShell の親ディレクトリ走査がルートで終端できず例外になる不具合を修正。
+
+### WFI 承認の決定論的ガードを追加
+
+- `docs/workflow-improvements/WFI-*.md` への `Status: Approved` のエージェント書き込みをフックガードが拒否（py / js / ps1 全ランタイム）。WFI 承認は **sudo でも解除されません**（タスク承認ガードと異なる点）。
+- WFI テンプレートの Status を決定論的に検出可能なインライン `Status: <値>` 形式へ変更。
+- `tests/guards.tests.sh` と `tests/hooks.tests.ps1` に WFI ガードのテストを追加。
 
 ### sudoモードの適用範囲を明確化（文書のみ・挙動変更なし）
 
@@ -10,12 +34,12 @@
 - `/sdd-sudo` スキルに「How to Turn It On (Quick Start)」を追加し、入り方を明確化。
 - 注: v0.7.0 で「アーキテクチャ review 承認も自動通過」と記載していたが、アーキテクチャ決定は承認ではなく判断のため sudo では通さない、と整理（ガードのコード挙動は不変）。
 
-### WFI 承認の決定論的ガードを追加
+### v0.8.0 からの移行
 
-- `docs/workflow-improvements/WFI-*.md` への `Status: Approved` のエージェント書き込みをフックガードが拒否（py / js / ps1 全ランタイム）。WFI 承認は **sudo でも解除されません**（タスク承認ガードと異なる点）。
-- WFI テンプレートの Status を決定論的に検出可能なインライン `Status: <値>` 形式へ変更。
-- `tests/guards.tests.sh` と `tests/hooks.tests.ps1` に WFI ガードのテストを追加。
-
+- **sudo モードは鍵が必要に**: `/sdd-sudo` を再実行して鍵（`<HOME>/.sdd/sudo-key`）を生成し直してください。署名の無い・古い `SDD_SUDO` は無効（フェイルクローズ）として扱われます。CI 等で鍵を共有する場合は `SDD_SUDO_KEY` を設定。
+- **evidence bundle は runner 生成必須**: `git_commit` フィールドが必須になりました。`generate-evidence-bundle.{sh,ps1}` で生成してください（手書きの sha256 / git_commit は不可）。
+- **GitHub Actions は SHA pin**: タグ更新で自動追従しなくなります。更新は Dependabot（または手動で SHA + コメント更新）で行ってください。
+- 破壊的なファイル配置変更はなし。プラグイン再インストール（ワンライナー再実行）で移行完了。
 ## v0.8.0
 
 ### 変更内容

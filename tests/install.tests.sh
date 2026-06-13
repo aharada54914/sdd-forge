@@ -588,6 +588,158 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Scenario (l): concurrent-lock — pre-created lock with live pid blocks install
+# ---------------------------------------------------------------------------
+_l_root="$(mktemp -d)"
+_l_install="${_l_root}/installed"
+_l_bin="${_l_root}/bin"
+_l_log="${_l_root}/commands.log"
+_l_lock_dir="${_l_install}.sdd-install.lock"
+_l_orig_path="$PATH"
+_l_orig_codex_home="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_l_bin" "$_l_log"
+# Simulate a live lock holder: create lock dir with the current process pid as holder
+mkdir -p "$_l_lock_dir"
+echo "$$" > "${_l_lock_dir}/pid"
+export PATH="${_l_bin}:${_l_orig_path}"
+export SDD_CODEX_HOME="${_l_root}/codex-home"
+_l_failed=0
+_l_out="$(SDD_INSTALL_LOCK_TIMEOUT=1 bash "$INSTALLER" \
+    --source-directory "$REPO_ROOT" \
+    --install-root "$_l_install" \
+    --target FilesOnly \
+    --skip-plugin-install \
+    --skip-agent-install \
+    2>&1)" || _l_failed=1
+export PATH="$_l_orig_path"
+if [[ -z "$_l_orig_codex_home" ]]; then
+    unset SDD_CODEX_HOME
+else
+    export SDD_CODEX_HOME="$_l_orig_codex_home"
+fi
+_l_ok=1
+if [[ $_l_failed -eq 0 ]]; then
+    fail "lock scenario (l): installer should have failed when lock held"
+    _l_ok=0
+fi
+if ! echo "$_l_out" | grep -q "in progress"; then
+    fail "lock scenario (l): expected 'in progress' message not found in output"
+    _l_ok=0
+fi
+if [[ -d "$_l_install" ]]; then
+    fail "lock scenario (l): INSTALL_ROOT was modified while lock was held"
+    _l_ok=0
+fi
+# Now remove the lock and assert a normal install succeeds
+rm -rf "$_l_lock_dir"
+_l_bin2="${_l_root}/bin2"
+_l_log2="${_l_root}/commands2.log"
+make_fake_commands "$_l_bin2" "$_l_log2"
+export PATH="${_l_bin2}:${_l_orig_path}"
+export SDD_CODEX_HOME="${_l_root}/codex-home"
+_l_failed2=0
+bash "$INSTALLER" \
+    --source-directory "$REPO_ROOT" \
+    --install-root "$_l_install" \
+    --target FilesOnly \
+    --skip-plugin-install \
+    --skip-agent-install \
+    2>/dev/null || _l_failed2=1
+export PATH="$_l_orig_path"
+if [[ -z "$_l_orig_codex_home" ]]; then
+    unset SDD_CODEX_HOME
+else
+    export SDD_CODEX_HOME="$_l_orig_codex_home"
+fi
+if [[ $_l_failed2 -ne 0 ]]; then
+    fail "lock scenario (l): install after lock release failed"
+    _l_ok=0
+fi
+rm -rf "$_l_root"
+[[ $_l_ok -eq 1 ]] && ok "lock: concurrent install blocked, succeeds after lock released"
+
+# ---------------------------------------------------------------------------
+# Scenario (m): lock released on success — lock dir must not exist after install
+# ---------------------------------------------------------------------------
+_m_root="$(mktemp -d)"
+_m_install="${_m_root}/installed"
+_m_bin="${_m_root}/bin"
+_m_log="${_m_root}/commands.log"
+_m_lock_dir="${_m_install}.sdd-install.lock"
+_m_orig_path="$PATH"
+_m_orig_codex_home="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_m_bin" "$_m_log"
+export PATH="${_m_bin}:${_m_orig_path}"
+export SDD_CODEX_HOME="${_m_root}/codex-home"
+_m_failed=0
+bash "$INSTALLER" \
+    --source-directory "$REPO_ROOT" \
+    --install-root "$_m_install" \
+    --target FilesOnly \
+    --skip-plugin-install \
+    --skip-agent-install \
+    2>/dev/null || _m_failed=1
+export PATH="$_m_orig_path"
+if [[ -z "$_m_orig_codex_home" ]]; then
+    unset SDD_CODEX_HOME
+else
+    export SDD_CODEX_HOME="$_m_orig_codex_home"
+fi
+_m_ok=1
+if [[ $_m_failed -ne 0 ]]; then
+    fail "lock scenario (m): successful install failed unexpectedly"
+    _m_ok=0
+fi
+if [[ -d "$_m_lock_dir" ]]; then
+    fail "lock scenario (m): lock dir was not cleaned up after successful install"
+    _m_ok=0
+fi
+rm -rf "$_m_root"
+[[ $_m_ok -eq 1 ]] && ok "lock: released on success — lock dir absent after install"
+
+# ---------------------------------------------------------------------------
+# Scenario (n): stale lock reclaimed — install succeeds when lock has dead pid
+# ---------------------------------------------------------------------------
+_n_root="$(mktemp -d)"
+_n_install="${_n_root}/installed"
+_n_bin="${_n_root}/bin"
+_n_log="${_n_root}/commands.log"
+_n_lock_dir="${_n_install}.sdd-install.lock"
+_n_orig_path="$PATH"
+_n_orig_codex_home="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_n_bin" "$_n_log"
+# Pre-create lock with a definitely dead pid (999999 is virtually never alive)
+mkdir -p "$_n_lock_dir"
+echo "999999" > "${_n_lock_dir}/pid"
+export PATH="${_n_bin}:${_n_orig_path}"
+export SDD_CODEX_HOME="${_n_root}/codex-home"
+_n_failed=0
+bash "$INSTALLER" \
+    --source-directory "$REPO_ROOT" \
+    --install-root "$_n_install" \
+    --target FilesOnly \
+    --skip-plugin-install \
+    --skip-agent-install \
+    2>/dev/null || _n_failed=1
+export PATH="$_n_orig_path"
+if [[ -z "$_n_orig_codex_home" ]]; then
+    unset SDD_CODEX_HOME
+else
+    export SDD_CODEX_HOME="$_n_orig_codex_home"
+fi
+_n_ok=1
+if [[ $_n_failed -ne 0 ]]; then
+    fail "lock scenario (n): install with stale dead-pid lock failed"
+    _n_ok=0
+fi
+if [[ -d "$_n_lock_dir" ]]; then
+    fail "lock scenario (n): lock dir was not cleaned up after stale-lock reclaim"
+    _n_ok=0
+fi
+rm -rf "$_n_root"
+[[ $_n_ok -eq 1 ]] && ok "lock: stale lock with dead pid reclaimed — install succeeds"
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""

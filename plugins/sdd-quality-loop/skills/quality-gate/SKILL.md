@@ -37,7 +37,10 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    For `Done` tasks, validate
    `specs/<feature>/verification/<task-id>.evidence.json` with
    `check-evidence-bundle.(sh|ps1)` so the report, contract, and passing
-   evidence artifacts are all bound together.
+   evidence artifacts are all bound together. Always produce the bundle with
+   `generate-evidence-bundle.(sh|ps1)` — never hand-author sha256 fields or
+   the `git_commit` field. The runner binds the bundle to the current git
+   commit and computes digests automatically.
 7. For `refactor` and `bugfix` tasks with a `baseline-behavior.md`, apply
    `differential-test-policy.md` and classify every BL diff.
 8. Run critical review with an isolated evaluator using `evaluation-rubric.md`.

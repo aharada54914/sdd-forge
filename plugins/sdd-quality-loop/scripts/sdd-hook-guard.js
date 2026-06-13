@@ -40,6 +40,7 @@
 
 'use strict';
 
+const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
 
@@ -211,9 +212,66 @@ function killSwitchTripped() {
   return false;
 }
 
+function parseSudoFields(content) {
+  // Parse key: value lines into a plain object (values stripped).
+  const fields = {};
+  for (const rawLine of content.split('\n')) {
+    const line = rawLine.replace(/\r$/, '');
+    const colonIdx = line.indexOf(':');
+    if (colonIdx !== -1) {
+      const key = line.slice(0, colonIdx).trim();
+      const val = line.slice(colonIdx + 1).trim();
+      fields[key] = val;
+    }
+  }
+  return fields;
+}
+
+function resolveSudoKey() {
+  // C-04: Resolve signing key per priority order. Returns Buffer or null.
+  // 1. env SDD_SUDO_KEY
+  const envKey = process.env.SDD_SUDO_KEY;
+  if (envKey) {
+    return Buffer.from(envKey, 'utf8');
+  }
+  // 2. env SDD_SUDO_KEY_FILE
+  const envKeyFile = process.env.SDD_SUDO_KEY_FILE;
+  if (envKeyFile) {
+    try {
+      const raw = fs.readFileSync(envKeyFile);
+      const stripped = Buffer.from(raw.toString('utf8').replace(/^\uFEFF/, '').replace(/[\s\r\n]+$/, ''), 'utf8');
+      if (stripped.length > 0) return stripped;
+    } catch (e) { /* fall through */ }
+    return null;
+  }
+  // 3. <HOME>/.sdd/sudo-key
+  const home = process.env.HOME || process.env.USERPROFILE || '';
+  if (home) {
+    const keyPath = path.join(home, '.sdd', 'sudo-key');
+    try {
+      const raw = fs.readFileSync(keyPath);
+      const stripped = Buffer.from(raw.toString('utf8').replace(/^\uFEFF/, '').replace(/[\s\r\n]+$/, ''), 'utf8');
+      if (stripped.length > 0) return stripped;
+    } catch (e) { /* fall through */ }
+  }
+  // 4. No key
+  return null;
+}
+
+function sudoCanonical(fields) {
+  // Canonical string to sign/verify: 5 values joined by LF (no trailing newline).
+  const issuer = fields['issuer'] || '';
+  const nonce = fields['nonce'] || '';
+  const repo = fields['repo'] || '';
+  const issuedStr = String(parseInt(fields['issued-epoch'] || '0', 10));
+  const expiresStr = String(parseInt(fields['expires-epoch'] || '0', 10));
+  return [issuer, nonce, repo, issuedStr, expiresStr].join('\n');
+}
+
 function sudoActive() {
-  // C-02/C-08: True if valid, unexpired SDD_SUDO flag exists at project root only.
-  // Validates: not a symlink, has issued-epoch, expires-epoch in future, TTL <= 86400s.
+  // C-02/C-04/C-08: True if valid, signed, unexpired SDD_SUDO flag at project root.
+  // Validates: not a symlink, required fields present, nonce format, epoch ranges,
+  // repo-binding, and HMAC-SHA256 signature.
   const proj = resolveProjectRoot();
   const sudoRoot = proj.sudoRoot;
   try {
@@ -231,24 +289,63 @@ function sudoActive() {
       return false;
     }
     const content = fs.readFileSync(flag, 'utf8');
-    const mExp = content.match(SUDO_EPOCH_RE);
-    const mIss = content.match(SUDO_ISSUED_RE);
-    if (!mExp || !mIss) {
+    const fields = parseSudoFields(content);
+
+    // Required fields
+    for (const req of ['issuer', 'nonce', 'repo', 'issued-epoch', 'expires-epoch', 'sig']) {
+      if (!fields[req]) return false;
+    }
+
+    // Nonce format: >= 32 hex chars
+    if (!/^[0-9a-fA-F]{32,}$/.test(fields['nonce'])) {
       return false;
     }
-    const expires = parseInt(mExp[2], 10);
-    const issued = parseInt(mIss[2], 10);
+
+    const expires = parseInt(fields['expires-epoch'], 10);
+    const issued = parseInt(fields['issued-epoch'], 10);
+    if (isNaN(expires) || isNaN(issued)) return false;
+
     const now = Math.floor(Date.now() / 1000);
     // C-02: issued-epoch <= now < expires-epoch AND TTL <= 86400
-    if (issued > now) {
-      return false;
+    if (issued > now) return false;
+    if (expires <= now) return false;
+    if (expires - issued > 86400) return false;
+
+    // Repo-binding: compare the canonical realpath on BOTH sides so that
+    // symlinked representations of the same directory (e.g. macOS /var vs
+    // /private/var) compare equal. A token whose repo does not resolve to this
+    // directory is rejected (fail-closed, blocks cross-repo replay).
+    let actualRepo, storedRepo;
+    try {
+      actualRepo = fs.realpathSync(sudoRoot);
+    } catch (e) {
+      try {
+        actualRepo = path.resolve(sudoRoot);
+      } catch (e2) {
+        return false;
+      }
     }
-    if (expires <= now) {
-      return false;
+    try {
+      storedRepo = fs.realpathSync(fields['repo']);
+    } catch (e) {
+      storedRepo = fields['repo'];
     }
-    if (expires - issued > 86400) {
-      return false;
-    }
+    if (storedRepo !== actualRepo) return false;
+
+    // Key resolution and HMAC verification
+    const keyBuf = resolveSudoKey();
+    if (!keyBuf) return false;
+
+    const canonical = sudoCanonical(fields);
+    const expectedMac = crypto.createHmac('sha256', keyBuf).update(canonical, 'utf8').digest('hex');
+    const sigField = (fields['sig'] || '').toLowerCase();
+
+    // Constant-time comparison: guard against length mismatch
+    if (expectedMac.length !== sigField.length) return false;
+    const expectedBuf = Buffer.from(expectedMac, 'utf8');
+    const sigBuf = Buffer.from(sigField, 'utf8');
+    if (!crypto.timingSafeEqual(expectedBuf, sigBuf)) return false;
+
     return true;
   } catch (e) {
     // missing or unreadable — sudo stays inactive

@@ -69,22 +69,54 @@ by the `/sdd-sudo` skill and read by hook guards and skills.
 ```
 enabled-by: human via /sdd-sudo
 enabled-at: <ISO8601 UTC timestamp>
+issuer: <string, no newlines — e.g. whoami@hostname>
+nonce: <lowercase hex, >= 32 hex chars>
+repo: <absolute canonical path of the project root that holds SDD_SUDO>
 issued-epoch: <unix-seconds>
 expires-epoch: <unix-seconds>
 duration: <e.g. 8h>
+sig: <lowercase hex HMAC-SHA256>
 ```
+
+### Signing Key Location
+
+The signing key lives **outside the repository working tree**, never inside it. Resolution
+order (identical across all guard implementations):
+
+1. Env var `SDD_SUDO_KEY` (non-empty) — key bytes are its UTF-8 bytes.
+2. Else env var `SDD_SUDO_KEY_FILE` — read that file, strip trailing whitespace.
+3. Else `<HOME>/.sdd/sudo-key` (where HOME = env `HOME` or `USERPROFILE`) — read + strip.
+4. Else no key → token is inactive.
+
+### Canonical String for Signing/Verification
+
+The HMAC-SHA256 input is the following five values joined by a single LF (`\n`), with
+no trailing newline:
+
+```
+<issuer>\n<nonce>\n<repo>\n<issued-epoch>\n<expires-epoch>
+```
+
+Epoch values are decimal integer strings (no leading zeros, no spaces). String values
+are the stripped field values verbatim.
 
 ### Validation
 
-- All five lines are required. Missing any line renders the flag inactive.
-- `issued-epoch` and `expires-epoch` are decimal integers (output of `date -u +%s` or
-  `[DateTimeOffset]::UtcNow.ToUnixTimeSeconds()`).
-- All four checks must pass: `issued-epoch <= now < expires-epoch` AND `expires-epoch - issued-epoch <= 86400` (24 hours).
-- Symlink SDD_SUDO files are always invalid (even if contents are correct).
-- Current time is checked as `if (now_unix_time > expires_epoch) { inactive }` or `if (issued_unix_time > now_unix_time) { inactive }`.
-- TTL (time-to-live) is computed as `expires-epoch - issued-epoch` and must not exceed 86400 seconds (24 hours).
-- The file is read by hook guards and quality-gate skill; no writing occurs
-  outside `/sdd-sudo` invocation. Agents cannot create, edit, or delete SDD_SUDO.
+All of the following must hold; if any check fails the flag is inactive (fail-closed):
+
+1. File exists at the resolved project root, is a regular file, NOT a symlink.
+2. All required fields present and non-empty: `issuer`, `nonce`, `repo`, `issued-epoch`,
+   `expires-epoch`, `sig`.
+3. `nonce` matches `^[0-9a-fA-F]{32,}$`.
+4. `issued-epoch <= now < expires-epoch` AND `expires-epoch - issued-epoch <= 86400` (24 hours).
+5. **Repo-binding**: the `repo` field (after stripping) equals the canonical realpath of
+   the directory containing `SDD_SUDO`. Prevents cross-repo token reuse.
+6. **Signature**: recomputed HMAC-SHA256 of the canonical string matches the `sig` field,
+   using the resolved key. Verified constant-time in Python/Node; string-compare in PowerShell.
+   If no key is resolvable, the flag is inactive.
+
+The file is read by hook guards and quality-gate skill; no writing occurs
+outside `/sdd-sudo` invocation. Agents cannot create, edit, or delete SDD_SUDO.
 
 ## Audit Trail Requirements
 
@@ -102,22 +134,32 @@ deferred and when they expire.
 
 ## Threat Model and Residual Risk
 
+### What the Signature Defends Against
+
+- **Forged/hand-written tokens**: An agent (or script) that writes a `SDD_SUDO` file
+  with plausible epoch values cannot produce a valid `sig` field without the key.
+  The guard rejects such tokens as inactive — approval gate stays enforced.
+- **Committed or copied tokens**: A token committed to git or copied from another
+  checkout fails repo-binding: the `repo` field will not match the canonical realpath
+  of the current project root. Cross-repo reuse is rejected.
+- **Stale/replayed tokens**: Expired tokens (now >= expires-epoch) are rejected even
+  if the signature is valid. The nonce + issued-epoch combination prevents exact
+  replay within the TTL window from being useful across different installations (the
+  repo-binding check would also catch it).
+
 ### Attack Scenarios
 
 1. **Misbehaving agent writes its own SDD_SUDO**: An agent could theoretically
-   create the flag file on its own to bypass approval gates indefinitely.
-   - **Mitigation**: The skill explicitly forbids write-without-invocation in its
-     hard policy. Hook guards and skill implementations check whether the agent
-     explicitly invoked `/sdd-sudo` in the current session before accepting the
-     flag. (In practice, a session-scoped invocation log or explicit human
-     prompt verifies this.)
+   create the flag file on its own to bypass approval gates.
+   - **Mitigation**: Without the signing key (which lives outside the repo), the
+     agent cannot produce a valid `sig`. The guard rejects any unsigned or
+     incorrectly-signed token as inactive — fail closed.
 
 2. **Agent modifies or extends SDD_SUDO after human invocation**: The agent could
-   extend the duration, update `expires-epoch`, or change `enabled-by`.
-   - **Mitigation**: The flag is immutable after the initial `/sdd-sudo`
-     invocation. Only `/sdd-sudo off` or manual file deletion may modify it.
-     Hook guards validate the format strictly; malformed flags are treated as
-     inactive.
+   attempt to extend `expires-epoch` or change other fields.
+   - **Mitigation**: Modifying any signed field invalidates the HMAC; the guard
+     rejects the altered token. The agent would need the key to re-sign, which
+     it should not have write access to.
 
 3. **Token re-enablement after expiry**: An agent could attempt to invoke
    `/sdd-sudo` again to keep the flag alive indefinitely.
@@ -135,10 +177,15 @@ deferred and when they expire.
 
 ### Residual Risk
 
+- **Key read access**: An agent that can read `~/.sdd/sudo-key` (or the relevant env
+  var) can compute a valid HMAC and mint its own token. The signature raises the bar
+  significantly — it blocks stale, committed, copied, and forged tokens — but it is
+  **not** a defense against an attacker with full read access to the key material.
+  Protect the key file accordingly (mode 600, outside the repo).
 - **Session isolation**: If sudo mode is enabled in one session and the flag
-  file persists after the session ends, a different (possibly unrelated) session
-  may inherit the token. **Mitigation**: Sudo mode has a hard expiry; the token
-  becomes inactive after the specified duration regardless of who runs the agent.
+  file persists after the session ends, a different session on the same machine
+  with the same key may accept the still-valid token. **Mitigation**: Sudo mode has
+  a hard TTL; the token expires at most 24 hours after issuance.
 - **Audit visibility**: If the `(sudo)` notation is lost or removed from tasks.md,
   historical record of the deferral is obscured. **Mitigation**: Quality-gate
   reports and contracts are immutable artifacts stored separately from tasks.md
@@ -191,13 +238,6 @@ After a task is approved and merged with `(sudo)` notation:
 If deterministic gates gave sufficient confidence and the change was low-risk,
 the audit is complete. If gates detected issues or risk is high, escalate for
 post-hoc human review.
-
-## Future Work
-
-- **Signature-backed capability tokens**: Replace the plaintext SDD_SUDO file with a
-  cryptographically signed token (issuer signature, nonce, repository binding, expiry).
-  This would eliminate the risk of unauthorized token creation or extension within a
-  single session.
 
 ## See Also
 

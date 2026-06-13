@@ -160,6 +160,8 @@ $temporaryRoot = $null
 $backupRoot = $null
 $stagingRoot = $null
 $newInstallPlaced = $false
+$mutex = $null
+$mutexAcquired = $false
 try {
     if ($SourceDirectory) {
         $sourceRoot = (Resolve-Path $SourceDirectory).Path
@@ -228,6 +230,33 @@ try {
     $installParent = Split-Path -Parent $InstallRoot
     if (-not (Test-Path $installParent)) {
         New-Item -ItemType Directory -Path $installParent -Force | Out-Null
+    }
+
+    # ---------------------------------------------------------------------------
+    # Exclusive per-install-root named mutex
+    # The mutex name is keyed to the resolved InstallRoot (case-insensitive) so
+    # concurrent installs to different roots do not contend.
+    # An AbandonedMutexException means a prior holder exited without releasing —
+    # we take ownership; the install tree may be in an unknown state but the
+    # backup/rollback logic below handles that.
+    # ---------------------------------------------------------------------------
+    $mutexTimeoutSeconds = if ($env:SDD_INSTALL_LOCK_TIMEOUT) { [int]$env:SDD_INSTALL_LOCK_TIMEOUT } else { 120 }
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    $rootBytes = [System.Text.Encoding]::UTF8.GetBytes($InstallRoot.ToLower())
+    $hashBytes = $sha256.ComputeHash($rootBytes)
+    $sha256.Dispose()
+    $rootHash = [System.BitConverter]::ToString($hashBytes).Replace("-", "").ToLower()
+    $mutexName = "Global\sdd-forge-install-$rootHash"
+    $mutex = New-Object System.Threading.Mutex($false, $mutexName)
+    try {
+        $mutexAcquired = $mutex.WaitOne([TimeSpan]::FromSeconds($mutexTimeoutSeconds))
+    }
+    catch [System.Threading.AbandonedMutexException] {
+        # Prior holder died without releasing — we now own it.
+        $mutexAcquired = $true
+    }
+    if (-not $mutexAcquired) {
+        throw "another sdd-forge install is in progress (mutex: $mutexName). Retry later."
     }
 
     $stagingRoot = Join-Path $installParent ("sdd-plugins-staging-" + [guid]::NewGuid())
@@ -318,5 +347,12 @@ finally {
     }
     if ($temporaryRoot -and (Test-Path $temporaryRoot)) {
         Remove-Item -Path $temporaryRoot -Recurse -Force
+    }
+    # Release the exclusive mutex if we acquired it.
+    if ($mutexAcquired -and $mutex) {
+        try { $mutex.ReleaseMutex() } catch { }
+    }
+    if ($mutex) {
+        $mutex.Dispose()
     }
 }

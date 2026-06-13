@@ -352,6 +352,176 @@ else
 fi
 
 # ============================================================================
+# H-02: Evidence Bundle Round-Trip + git_commit Binding Tests
+# ============================================================================
+
+echo "=== H-02: Evidence Bundle Round-Trip + git_commit Binding ==="
+
+# Helpers for H-02 that avoid set -e triggering on non-zero exit codes
+# by capturing exit codes safely with ||
+run_generate_bundle() {
+    local contract="$1" report="$2" root="$3"
+    "${SCRIPTS_DIR}/generate-evidence-bundle.sh" "$contract" "$report" "$root" 2>&1 || true
+}
+generate_bundle_passes() {
+    local contract="$1" report="$2" root="$3"
+    "${SCRIPTS_DIR}/generate-evidence-bundle.sh" "$contract" "$report" "$root" >/dev/null 2>&1
+}
+run_check_bundle() {
+    local bundle="$1" root="$2"
+    bash "${SCRIPTS_DIR}/check-evidence-bundle.sh" "$bundle" "$root" 2>&1 || true
+}
+check_bundle_passes() {
+    local bundle="$1" root="$2"
+    bash "${SCRIPTS_DIR}/check-evidence-bundle.sh" "$bundle" "$root" >/dev/null 2>&1
+}
+
+# Create a fixture git repo for these tests
+H02_REPO="${WORK}/h02_repo"
+mkdir -p "${H02_REPO}/specs/test-feature/verification"
+mkdir -p "${H02_REPO}/reports/quality-gate"
+
+# Configure git identity for CI (no global identity available)
+git -C "${H02_REPO}" init -q
+git -C "${H02_REPO}" config user.name ci
+git -C "${H02_REPO}" config user.email ci@example.com
+git -C "${H02_REPO}" config commit.gpgsign false
+
+# Create evidence file and quality report
+printf 'lint output: OK\n' > "${H02_REPO}/specs/test-feature/verification/ev.log"
+cat > "${H02_REPO}/reports/quality-gate/T-099.md" <<'EOF'
+Task ID: T-099
+VERDICT: PASS
+Quality gate report for T-099.
+EOF
+
+# Create a valid contract
+cat > "${H02_REPO}/specs/test-feature/verification/T-099.contract.json" <<'EOF'
+{
+  "task_id": "T-099",
+  "feature": "test-feature",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "H-02 test contract",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "N/A" },
+    { "id": "build", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "manual only" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "not applicable" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "no UI changes" }
+  ]
+}
+EOF
+
+# Commit everything so git_commit is valid
+git -C "${H02_REPO}" add -A
+git -C "${H02_REPO}" commit -q -m "H-02 fixture initial commit"
+
+H02_COMMIT1="$(git -C "${H02_REPO}" rev-parse HEAD)"
+
+# --- H-02.1: generate then check → PASS ---
+if generate_bundle_passes \
+    "${H02_REPO}/specs/test-feature/verification/T-099.contract.json" \
+    "${H02_REPO}/reports/quality-gate/T-099.md" \
+    "${H02_REPO}"; then
+    ok "H-02.1a: generate-evidence-bundle succeeds"
+else
+    fail "H-02.1a: generate-evidence-bundle failed: $(run_generate_bundle \
+        "${H02_REPO}/specs/test-feature/verification/T-099.contract.json" \
+        "${H02_REPO}/reports/quality-gate/T-099.md" \
+        "${H02_REPO}")"
+fi
+
+bundle_file="${H02_REPO}/specs/test-feature/verification/T-099.evidence.json"
+if [ -f "$bundle_file" ]; then
+    ok "H-02.1b: bundle file created at expected path"
+else
+    fail "H-02.1b: bundle file not created at expected path"
+fi
+
+if check_bundle_passes "$bundle_file" "${H02_REPO}"; then
+    ok "H-02.1c: check-evidence-bundle passes on generated bundle"
+else
+    fail "H-02.1c: check-evidence-bundle should pass on generated bundle: $(run_check_bundle "$bundle_file" "${H02_REPO}")"
+fi
+
+# --- H-02.2: tamper artifact after generation → digest mismatch → FAIL ---
+# Tamper ev.log; the bundle still has the old sha256, so check must fail
+printf 'tampered\n' >> "${H02_REPO}/specs/test-feature/verification/ev.log"
+h02_2_out="$(run_check_bundle "$bundle_file" "${H02_REPO}")"
+if ! check_bundle_passes "$bundle_file" "${H02_REPO}" && \
+   echo "$h02_2_out" | grep -q "sha256 mismatch"; then
+    ok "H-02.2: tampered artifact → check fails with sha256 mismatch"
+else
+    fail "H-02.2: tampered artifact should cause sha256 mismatch failure: $h02_2_out"
+fi
+
+# Restore ev.log for subsequent tests
+printf 'lint output: OK\n' > "${H02_REPO}/specs/test-feature/verification/ev.log"
+
+# --- H-02.3: bogus/foreign git_commit → FAIL ---
+# Overwrite git_commit with 40 f's (valid hex format but unknown commit)
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${H02_REPO}/specs/test-feature/verification/T-099.evidence.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["git_commit"] = "f" * 40
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+h02_3_out="$(run_check_bundle "$bundle_file" "${H02_REPO}")"
+if ! check_bundle_passes "$bundle_file" "${H02_REPO}"; then
+    ok "H-02.3: bogus git_commit → check-evidence-bundle fails"
+else
+    fail "H-02.3: bogus git_commit should cause check-evidence-bundle to fail: $h02_3_out"
+fi
+
+# --- H-02.4: missing git_commit → FAIL ---
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${H02_REPO}/specs/test-feature/verification/T-099.evidence.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b.pop("git_commit", None)
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+h02_4_out="$(run_check_bundle "$bundle_file" "${H02_REPO}")"
+if ! check_bundle_passes "$bundle_file" "${H02_REPO}" && \
+   echo "$h02_4_out" | grep -q "git_commit is required"; then
+    ok "H-02.4: missing git_commit → check-evidence-bundle fails"
+else
+    fail "H-02.4: missing git_commit should cause check-evidence-bundle to fail: $h02_4_out"
+fi
+
+# --- H-02.5: ancestor commit still PASSES ---
+# Make a second commit, then test that a bundle with the first (ancestor) commit passes
+printf 'second commit file\n' > "${H02_REPO}/second.txt"
+git -C "${H02_REPO}" add second.txt
+git -C "${H02_REPO}" commit -q -m "H-02 fixture second commit"
+
+# Re-generate so digests are fresh (ev.log is now restored)
+generate_bundle_passes \
+    "${H02_REPO}/specs/test-feature/verification/T-099.contract.json" \
+    "${H02_REPO}/reports/quality-gate/T-099.md" \
+    "${H02_REPO}"
+
+# Overwrite git_commit with the first (ancestor) commit sha
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${H02_REPO}/specs/test-feature/verification/T-099.evidence.json")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["git_commit"] = "${H02_COMMIT1}"
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+if check_bundle_passes "$bundle_file" "${H02_REPO}"; then
+    ok "H-02.5: bundle with ancestor git_commit still passes check"
+else
+    fail "H-02.5: ancestor commit should pass check-evidence-bundle: $(run_check_bundle "$bundle_file" "${H02_REPO}")"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 

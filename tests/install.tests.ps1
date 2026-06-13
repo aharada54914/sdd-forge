@@ -471,6 +471,156 @@ finally {
 
 Invoke-RemoteInstallerScenario
 
+# ---------------------------------------------------------------------------
+# Lock scenario (l): concurrent install is blocked when mutex is already held
+# ---------------------------------------------------------------------------
+$lockTestRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-lock-" + [guid]::NewGuid())
+$lockInstallRoot = Join-Path $lockTestRoot "installed"
+$lockBin = Join-Path $lockTestRoot "bin"
+$lockLog = Join-Path $lockTestRoot "commands.log"
+$lockSavedPath = $env:PATH
+$lockSavedCodexHome = $env:SDD_CODEX_HOME
+$holderJob = $null
+try {
+    New-FakeCommands -BinRoot $lockBin -LogPath $lockLog
+    $env:PATH = "$lockBin$([System.IO.Path]::PathSeparator)$lockSavedPath"
+    $env:SDD_CODEX_HOME = Join-Path $lockTestRoot "codex-home"
+
+    # Compute the same mutex name as install.ps1 will compute for $lockInstallRoot
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    $rootBytes = [System.Text.Encoding]::UTF8.GetBytes($lockInstallRoot.ToLower())
+    $hashBytes = $sha256.ComputeHash($rootBytes)
+    $sha256.Dispose()
+    $rootHash = [System.BitConverter]::ToString($hashBytes).Replace("-", "").ToLower()
+    $mutexName = "Global\sdd-forge-install-$rootHash"
+
+    # Hold the mutex in a SEPARATE process so the installer (invoked in-process
+    # below) cannot reentrantly acquire it. .NET mutexes are reentrant for the
+    # owning thread, so an in-process holder would let the same-thread installer
+    # acquire immediately and defeat the test. Start-Job runs in a child
+    # process; named mutexes are visible across processes on Windows, Linux, and
+    # macOS, so this exercises real cross-process exclusion.
+    $holderReady = Join-Path $lockTestRoot "holder-ready"
+    $holderJob = Start-Job -ScriptBlock {
+        param($name, $ready)
+        $m = New-Object System.Threading.Mutex($false, $name)
+        [void]$m.WaitOne()
+        New-Item -ItemType File -Path $ready -Force | Out-Null
+        Start-Sleep -Seconds 30
+        try { $m.ReleaseMutex() } catch { }
+        $m.Dispose()
+    } -ArgumentList $mutexName, $holderReady
+
+    # Wait (up to ~15s) for the holder process to actually acquire the mutex.
+    $holderWait = 0
+    while (-not (Test-Path $holderReady) -and $holderWait -lt 150) {
+        Start-Sleep -Milliseconds 100
+        $holderWait++
+    }
+    if (-not (Test-Path $holderReady)) {
+        throw "Lock scenario (l): holder job failed to acquire the mutex"
+    }
+
+    $env:SDD_INSTALL_LOCK_TIMEOUT = "1"
+    $lockFailed = $false
+    try {
+        & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $lockInstallRoot -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
+    }
+    catch {
+        $lockFailed = $true
+        if ($_ -notmatch "in progress") {
+            throw "Lock scenario (l): expected 'in progress' in error but got: $_"
+        }
+    }
+    finally {
+        Remove-Item Env:SDD_INSTALL_LOCK_TIMEOUT -ErrorAction SilentlyContinue
+    }
+    if (-not $lockFailed) {
+        throw "Lock scenario (l): installer should have failed when mutex is held"
+    }
+    if (Test-Path $lockInstallRoot) {
+        throw "Lock scenario (l): INSTALL_ROOT was modified while mutex was held"
+    }
+
+    # Stop the holder process (its mutex is released when the child exits) and
+    # verify a normal install now succeeds.
+    Stop-Job $holderJob -ErrorAction SilentlyContinue | Out-Null
+    Remove-Job $holderJob -Force -ErrorAction SilentlyContinue | Out-Null
+    $holderJob = $null
+
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $lockInstallRoot -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
+
+    Write-Host "ok: lock: concurrent install blocked, succeeds after mutex released"
+}
+finally {
+    if ($holderJob) {
+        Stop-Job $holderJob -ErrorAction SilentlyContinue | Out-Null
+        Remove-Job $holderJob -Force -ErrorAction SilentlyContinue | Out-Null
+    }
+    $env:PATH = $lockSavedPath
+    if ($null -eq $lockSavedCodexHome) {
+        Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:SDD_CODEX_HOME = $lockSavedCodexHome
+    }
+    Remove-Item Env:SDD_INSTALL_LOCK_TIMEOUT -ErrorAction SilentlyContinue
+    if (Test-Path $lockTestRoot) { Remove-Item -Path $lockTestRoot -Recurse -Force }
+}
+
+# ---------------------------------------------------------------------------
+# Lock scenario (m): lock released on success — mutex not held after install
+# ---------------------------------------------------------------------------
+$lockSuccessRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-locksucc-" + [guid]::NewGuid())
+$lockSuccessInstall = Join-Path $lockSuccessRoot "installed"
+$lockSuccessBin = Join-Path $lockSuccessRoot "bin"
+$lockSuccessLog = Join-Path $lockSuccessRoot "commands.log"
+$lockSuccessSavedPath = $env:PATH
+$lockSuccessSavedCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $lockSuccessBin -LogPath $lockSuccessLog
+    $env:PATH = "$lockSuccessBin$([System.IO.Path]::PathSeparator)$lockSuccessSavedPath"
+    $env:SDD_CODEX_HOME = Join-Path $lockSuccessRoot "codex-home"
+
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $lockSuccessInstall -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
+
+    # Verify the mutex is no longer held: we should be able to acquire it immediately
+    $sha256 = [System.Security.Cryptography.SHA256]::Create()
+    $rootBytes = [System.Text.Encoding]::UTF8.GetBytes($lockSuccessInstall.ToLower())
+    $hashBytes = $sha256.ComputeHash($rootBytes)
+    $sha256.Dispose()
+    $rootHash = [System.BitConverter]::ToString($hashBytes).Replace("-", "").ToLower()
+    $mutexName = "Global\sdd-forge-install-$rootHash"
+
+    $checkMutex = New-Object System.Threading.Mutex($false, $mutexName)
+    $canAcquire = $false
+    try {
+        $canAcquire = $checkMutex.WaitOne([TimeSpan]::FromSeconds(0))
+    }
+    catch [System.Threading.AbandonedMutexException] {
+        $canAcquire = $true
+    }
+    finally {
+        if ($canAcquire) { try { $checkMutex.ReleaseMutex() } catch { } }
+        $checkMutex.Dispose()
+    }
+    if (-not $canAcquire) {
+        throw "Lock scenario (m): mutex was not released after successful install"
+    }
+
+    Write-Host "ok: lock: released on success — mutex acquirable after install"
+}
+finally {
+    $env:PATH = $lockSuccessSavedPath
+    if ($null -eq $lockSuccessSavedCodexHome) {
+        Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue
+    }
+    else {
+        $env:SDD_CODEX_HOME = $lockSuccessSavedCodexHome
+    }
+    if (Test-Path $lockSuccessRoot) { Remove-Item -Path $lockSuccessRoot -Recurse -Force }
+}
+
 Write-Host "Installer integration tests passed."
 
 # Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which

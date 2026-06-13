@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo")
-$expectedVersion = "0.8.0"
+$expectedVersion = "0.9.0"
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -170,6 +170,13 @@ foreach ($script in @("check-contract", "check-evidence-bundle", "check-placehol
         if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
             throw "Missing deterministic gate script: $scriptPath"
         }
+    }
+}
+# Evidence bundle runner must exist as portable sh/ps1 pair.
+foreach ($extension in @("sh", "ps1")) {
+    $scriptPath = "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.$extension"
+    if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
+        throw "Missing evidence bundle runner: $scriptPath"
     }
 }
 foreach ($scriptPath in @("plugins/sdd-quality-loop/scripts/kill-switch.sh")) {

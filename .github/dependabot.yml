@@ -1,0 +1,12 @@
+version: 2
+# Keep SHA-pinned GitHub Actions (H-04) current. Dependabot opens PRs that bump
+# the pin to the newest release's commit SHA and updates the `# vX.Y.Z` comment,
+# so pinning does not mean stale, unpatched actions.
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: "ci(deps)"

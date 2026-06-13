@@ -37,12 +37,14 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           fetch-depth: 0
 
       - name: Run Claude self-improvement session
-        uses: anthropics/claude-code-action@v1
+        # Pinned to a commit SHA (H-04). Bump periodically (or via Dependabot)
+        # to pick up upstream fixes; verify the SHA against the release tag.
+        uses: anthropics/claude-code-action@d5726de019ec4498aa667642bc3a80fca83aa102 # v1.0.148
         env:
           GH_TOKEN: ${{ github.token }}
         with:
