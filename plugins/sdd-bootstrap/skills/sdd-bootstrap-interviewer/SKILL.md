@@ -87,10 +87,15 @@ scope, or important risks remain ambiguous.
 ### Sudo Mode
 
 If a valid `SDD_SUDO` flag file exists at the project root (see
-`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), human approval
-checkpoints auto-pass. Record `Approval: Approved (sudo <ISO8601 UTC>)` in
-tasks.md and continue. All deterministic gates still apply; every check runs as
-normal.
+`plugins/sdd-quality-loop/references/sudo-mode-policy.md`), the routine task
+**approval** checkpoint auto-passes. Record
+`Approval: Approved (sudo <ISO8601 UTC>)` in tasks.md and continue.
+
+Sudo does not license approving ambiguous specifications: if requirements,
+design, contracts, acceptance criteria, scope, or important architecture/
+security risks remain unresolved, keep them as Open Questions and do not
+auto-approve those tasks. Such decisions remain human-owned even under sudo. All
+deterministic gates apply; every check runs as normal.
 
 ## Handoff
 

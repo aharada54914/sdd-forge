@@ -46,6 +46,14 @@ For each `Must Preserve: yes` BL entry:
    | `accepted` | After-state intentionally differs (stated in the task description) | Require human Approved on the change; update `baseline-behavior.md` |
    | `environmental` | Difference eliminated after normalisation | No action required |
 
+### Sudo Mode
+
+Under a valid `SDD_SUDO` flag, the human approval required for an `accepted`
+classification auto-passes: mark the change `(sudo <ISO8601 UTC>)` and update
+`baseline-behavior.md`. A `fix-required` classification is never auto-passed — it
+always creates a review ticket and blocks `Done`. The differential comparison
+itself always runs regardless of sudo.
+
 ## Verification Methods
 
 - **Unit / integration tests** — run the test suite scoped to the changed
@@ -72,4 +80,6 @@ containing a table with one row per `Must Preserve: yes` BL entry:
 
 If a `fix-required` row exists, set the task to `Blocked` and create a review
 ticket.  If an `accepted` row exists and human approval is absent, retain
-`Implementation Complete` and note the pending approval requirement.
+`Implementation Complete` and note the pending approval requirement — unless a
+valid `SDD_SUDO` flag is active, in which case the `accepted` approval
+auto-passes (see "Sudo Mode" above).

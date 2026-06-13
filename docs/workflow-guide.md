@@ -15,14 +15,16 @@
 
 ### 人間にしかできない操作
 
-以下の操作は **人間のみが実行可能** です。エージェント・スキルは自動承認できません。
+以下の操作は **人間のみが実行可能** です。エージェント・スキルは自動承認できません。各項目に sudo モードでの扱いを併記します。
 
-1. **タスク承認**: `tasks.md` の `Approval` フィールドを `Draft` → `Approved` に変更する。フック (承認ガード) がエージェントの自己承認を物理的にブロックします。
-2. **品質ゲート差分の承認**: `baseline-behavior.md` の差分が `accepted` に分類される場合、人間がその変更を明示的に承認する必要があります。
-3. **WFI (Workflow Improvement) の承認**: `docs/workflow-improvements/WFI-NNN.md` の `status` を `Draft` → `Approved` に変更する。
-4. **人間判断が必要な指摘対応**: `requires_human_decision: true` のレビューチケットは自動修正されません。
-5. **AGENT_STOP ファイルの管理**: エージェント暴走時の緊急停止・再開。
-6. **重要なアーキテクチャ決定**: ADR (Architecture Decision Record) が必要な判断。
+1. **タスク承認**【sudo: 自動通過（承認ゲート）】: `tasks.md` の `Approval` フィールドを `Draft` → `Approved` に変更する。フック (承認ガード) がエージェントの自己承認を物理的にブロックします。
+2. **品質ゲート差分の承認**【sudo: 自動通過（承認ゲート）】: `baseline-behavior.md` の差分が `accepted` に分類される場合、人間がその変更を明示的に承認する必要があります。
+3. **WFI (Workflow Improvement) の承認**【sudo: 対象外（ワークフロー統治の判断）】: `docs/workflow-improvements/WFI-NNN.md` の `status` を `Draft` → `Approved` に変更する。
+4. **人間判断が必要な指摘対応**【sudo: 対象外（業務判断）】: `requires_human_decision: true` のレビューチケットは自動修正されません。
+5. **AGENT_STOP ファイルの管理**【sudo: 対象外（緊急制御・常時有効）】: エージェント暴走時の緊急停止・再開。
+6. **重要なアーキテクチャ決定**【sudo: 対象外（ADR 級の判断）】: ADR (Architecture Decision Record) が必要な判断。
+
+> **sudo の原則**: sudo モードは「承認待ち」(1, 2) だけを自動化します。判断・統治・緊急制御 (3, 4, 5, 6) は sudo でも人間に残ります（brownfield と並ぶ明示例外）。sudo 中に人間へ残るのは「真の判断フォーク（エージェントは Blocked / Open Question で停止し人間に委ねる）」と「緊急停止」のみです。
 
 ---
 
@@ -386,6 +388,7 @@ review_cycles: <実施済みサイクル数>
 4. **accepted 差分の人間承認** (人間)
    - 変更が設計の範囲内か確認
    - `baseline-behavior.md` を更新して新 BL を記録
+   - sudo モードが有効な場合はこの承認は自動通過し、`(sudo <ISO8601>)` マークを記録（`fix-required` は自動通過しない）
 
 ### 4.7 セッション中断・コンテキスト喪失からの再開
 
@@ -455,7 +458,15 @@ review_cycles: <実施済みサイクル数>
 
 ### 4.9 sudoモード運用
 
-**目的**: ソロワーク・低リスク作業で、人間承認ゲート (Approval: Approved、アーキテクチャ review 承認、quality-gate 判定) を期限付きで自動通過させ、効率を向上させます。
+**目的**: ソロワーク・低リスク作業で、人間の **承認待ち** (タスク承認、`accepted` 差分承認、quality-gate の定型サインオフ) を期限付きで自動通過させ、効率を向上させます。判断・統治・緊急制御は sudo でも人間に残ります（後述）。
+
+**▶ 入り方（最短3ステップ）**
+
+1. CLI で `/sdd-sudo` と入力（既定 8h。`/sdd-sudo 4h` などで時間指定）— これだけで有効化。
+2. そのまま作業。承認待ちが自動通過し、各所に `(sudo <時刻>)` の監査マークが残る。
+3. 終わったら `/sdd-sudo off`（`/sdd-sudo status` で残り時間確認）。期限が来れば自動失効。
+
+> sudo は **人間専用**。エージェントは `SDD_SUDO` を作成・延長・再有効化できません。
 
 **いつ使う**
 
@@ -481,12 +492,19 @@ review_cycles: <実施済みサイクル数>
 
 **動作**
 
-1. `SDD_SUDO` ファイルをプロジェクトルートに作成
-   - `expires-epoch` (unix-seconds) で期限を記録
-2. その後の人間承認ゲートはすべて自動通過
-3. 各 Approval gate 通過時に `Approval: Approved (sudo 2026-06-12T15:30:45Z)` と記録（audit mark）
-4. **AGENT_STOP は常に有効** — sudo 中でも kill switch は機能
-5. **決定論的スクリプト** (`check-contract`, `check-placeholders`, `check-task-state`, `check-sdd-structure`) は常に実行・検査
+1. `SDD_SUDO` ファイルをプロジェクトルートに作成（`expires-epoch` (unix-seconds) で期限を記録）
+2. **自動通過する＝承認ゲートのみ**:
+   - tasks.md の `Approval: Draft → Approved`（タスク承認）
+   - `refactor`/`bugfix` の baseline 差分 `accepted` 承認（`baseline-behavior.md` を更新）
+   - quality-gate の定型サインオフ（contract 承認・定型 Done）
+   - 各通過時に `Approval: Approved (sudo 2026-06-12T15:30:45Z)` と記録（audit mark）
+3. **sudo でも通さない＝判断・統治・制御**:
+   - `requires_human_decision: true` チケット（業務判断）
+   - architecture / auth / authz / breaking-API / security 決定（ADR 級の判断）
+   - WFI `status: Approved`（ワークフロー統治の変更）
+   - **AGENT_STOP**（緊急制御・常時有効）
+   - 決定論的スクリプト (`check-contract`, `check-placeholders`, `check-task-state`, `check-sdd-structure`) は常に実行・検査
+4. **要約**: sudo 中に人間へ残るのは「真の判断フォーク（エージェントは Blocked / Open Question で停止）」と「緊急停止」のみ。
 
 **状態確認**
 
