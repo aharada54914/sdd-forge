@@ -1092,6 +1092,135 @@ Status: Planned
     $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-14.md" "-TaskId" "T-999" 2>&1
     Assert-ExitCode "T-002.14: filter task-id not found fails closed" $LASTEXITCODE 1
 
+    # =========================================================
+    # T-005: check-traceability
+    # =========================================================
+
+    # Test: T-005.1 - valid traceability (req+acs+tests, no evidence, no require-evidence) → exit 0
+    $t005_1 = @{
+        feature = "test-feature"
+        links = @(
+            @{ req = "REQ-001"; acs = @("AC-001"); tests = @("TEST-001") }
+        )
+    }
+    $t005_1 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-1.json"
+    Assert-ExitCode "T-005.1: valid traceability (req+acs+tests, no evidence) passes" (Invoke-Gate "check-traceability.ps1" @("traceability-t005-1.json", "-RepoRoot", ".")) 0
+
+    # Test: T-005.2 - empty acs array → exit 1 ("has no acceptance criteria")
+    $t005_2 = @{
+        feature = "test-feature"
+        links = @(
+            @{ req = "REQ-001"; acs = @(); tests = @("TEST-001") }
+        )
+    }
+    $t005_2 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-2.json"
+    $t005_2_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-2.json" 2>&1
+    Assert-ExitCode "T-005.2: empty acs array fails with correct message" $LASTEXITCODE 1
+    if ($t005_2_out -notmatch "has no acceptance criteria") {
+        throw "T-005.2 should fail with 'has no acceptance criteria'"
+    }
+
+    # Test: T-005.3 - empty tests array → exit 1 ("has no tests")
+    $t005_3 = @{
+        feature = "test-feature"
+        links = @(
+            @{ req = "REQ-001"; acs = @("AC-001"); tests = @() }
+        )
+    }
+    $t005_3 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-3.json"
+    $t005_3_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-3.json" 2>&1
+    Assert-ExitCode "T-005.3: empty tests array fails with correct message" $LASTEXITCODE 1
+    if ($t005_3_out -notmatch "has no tests") {
+        throw "T-005.3 should fail with 'has no tests'"
+    }
+
+    # Test: T-005.4 - evidence key present but file missing → exit 1
+    $t005_4 = @{
+        feature = "test-feature"
+        links = @(
+            @{ req = "REQ-001"; acs = @("AC-001"); tests = @("TEST-001"); evidence = @("specs/missing.log") }
+        )
+    }
+    $t005_4 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-4.json"
+    $t005_4_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-4.json" 2>&1
+    Assert-ExitCode "T-005.4: missing evidence file fails correctly" $LASTEXITCODE 1
+    if ($t005_4_out -notmatch "file missing") {
+        throw "T-005.4 should fail with 'file missing'"
+    }
+
+    # Test: T-005.5 - evidence present + existing non-empty file → exit 0
+    New-Item -ItemType Directory -Path "specs/test-feature/verification" -Force | Out-Null
+    "evidence data" | Set-Content -Encoding Utf8 "specs/test-feature/verification/T-001.unit.log"
+    $t005_5 = @{
+        feature = "test-feature"
+        links = @(
+            @{ req = "REQ-001"; acs = @("AC-001"); tests = @("TEST-001"); evidence = @("specs/test-feature/verification/T-001.unit.log") }
+        )
+    }
+    $t005_5 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-5.json"
+    Assert-ExitCode "T-005.5: evidence file present and non-empty passes" (Invoke-Gate "check-traceability.ps1" @("traceability-t005-5.json", "-RepoRoot", ".")) 0
+
+    # Test: T-005.6 - require-evidence mode, link has NO evidence → exit 1 ("requires evidence")
+    $t005_6 = @{
+        feature = "test-feature"
+        links = @(
+            @{ req = "REQ-001"; acs = @("AC-001"); tests = @("TEST-001") }
+        )
+    }
+    $t005_6 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-6.json"
+    $t005_6_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-6.json" "-RequireEvidence" 2>&1
+    Assert-ExitCode "T-005.6: require-evidence mode without evidence fails correctly" $LASTEXITCODE 1
+    if ($t005_6_out -notmatch "requires evidence") {
+        throw "T-005.6 should fail with 'requires evidence'"
+    }
+
+    # Test: T-005.7 - require-evidence mode, link has existing evidence → exit 0
+    $t005_7 = @{
+        feature = "test-feature"
+        links = @(
+            @{ req = "REQ-001"; acs = @("AC-001"); tests = @("TEST-001"); evidence = @("specs/test-feature/verification/T-001.unit.log") }
+        )
+    }
+    $t005_7 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-7.json"
+    Assert-ExitCode "T-005.7: require-evidence mode with evidence passes" (Invoke-Gate "check-traceability.ps1" @("traceability-t005-7.json", "-RepoRoot", ".", "-RequireEvidence")) 0
+
+    # Test: T-005.8 - invalid JSON → exit 1
+    "{ invalid json" | Set-Content -Encoding Utf8 "traceability-t005-8.json"
+    $t005_8_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-8.json" 2>&1
+    Assert-ExitCode "T-005.8: invalid JSON fails with correct message" $LASTEXITCODE 1
+    if ($t005_8_out -notmatch "invalid JSON") {
+        throw "T-005.8 should fail with 'invalid JSON'"
+    }
+
+    # Test: T-005.9 - file not found → exit 1
+    $t005_9_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "nonexistent.json" 2>&1
+    Assert-ExitCode "T-005.9: nonexistent file fails with correct message" $LASTEXITCODE 1
+    if ($t005_9_out -notmatch "file not found") {
+        throw "T-005.9 should fail with 'file not found'"
+    }
+
+    # Test: T-005.10 - links empty array → exit 1 ("has no links")
+    $t005_10 = @{
+        feature = "test-feature"
+        links = @()
+    }
+    $t005_10 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-10.json"
+    $t005_10_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-10.json" 2>&1
+    Assert-ExitCode "T-005.10: empty links array fails with correct message" $LASTEXITCODE 1
+    if ($t005_10_out -notmatch "has no links") {
+        throw "T-005.10 should fail with 'has no links'"
+    }
+
+    # Test: T-005.11 - require-evidence with EMPTY evidence array fails closed (no silent pass)
+    @"
+{ "feature": "test-feature", "links": [ { "req": "REQ-001", "acs": ["AC-001"], "tests": ["TEST-001"], "evidence": [] } ] }
+"@ | Set-Content -Encoding Utf8 "traceability-t005-11.json"
+    $t005_11_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-11.json" "-RequireEvidence" 2>&1
+    Assert-ExitCode "T-005.11: require-evidence + empty array fails closed" $LASTEXITCODE 1
+    if ($t005_11_out -notmatch "requires evidence but none listed") {
+        throw "T-005.11 empty evidence array must fail in require-evidence mode"
+    }
+
     # --- check-sdd-structure ---
     $bootstrapScriptsDir = Join-Path $repositoryRoot "plugins/sdd-bootstrap/scripts"
 

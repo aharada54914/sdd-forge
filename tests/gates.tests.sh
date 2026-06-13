@@ -74,6 +74,30 @@ check_risk_passes() {
     fi
 }
 
+# Invoke check-traceability.sh and return output
+run_check_traceability() {
+    local traceability="$1"
+    local root="${2:-.}"
+    local require_evidence="${3:-}"
+    if [ -z "$require_evidence" ]; then
+        bash "${SCRIPTS_DIR}/check-traceability.sh" "$traceability" "$root" 2>&1 || true
+    else
+        bash "${SCRIPTS_DIR}/check-traceability.sh" "$traceability" "$root" "$require_evidence" 2>&1 || true
+    fi
+}
+
+# Check if check-traceability passes (exit 0)
+check_traceability_passes() {
+    local traceability="$1"
+    local root="${2:-.}"
+    local require_evidence="${3:-}"
+    if [ -z "$require_evidence" ]; then
+        bash "${SCRIPTS_DIR}/check-traceability.sh" "$traceability" "$root" >/dev/null 2>&1
+    else
+        bash "${SCRIPTS_DIR}/check-traceability.sh" "$traceability" "$root" "$require_evidence" >/dev/null 2>&1
+    fi
+}
+
 # ============================================================================
 # Test Fixtures
 # ============================================================================
@@ -1257,6 +1281,178 @@ if check_contract_passes "${WORK}/t004_test7/T-007.contract.json" "${WORK}/t004_
     ok "T-004.7: risk high full tier set with tdd red+green passes"
 else
     fail "T-004.7: full high tier set with tdd should pass"
+fi
+
+# ============================================================================
+# T-005: check-traceability
+# ============================================================================
+
+echo "=== T-005: check-traceability ==="
+
+# Test: T-005.1 - valid traceability (req+acs+tests, no evidence, no require-evidence) → exit 0
+mkdir -p "${WORK}/t005_test1"
+cat > "${WORK}/t005_test1/traceability.json" <<'EOF'
+{
+  "feature": "test-feature",
+  "links": [
+    { "req": "REQ-001", "acs": ["AC-001"], "tests": ["TEST-001"] }
+  ]
+}
+EOF
+if check_traceability_passes "${WORK}/t005_test1/traceability.json" "${WORK}/t005_test1"; then
+    ok "T-005.1: valid traceability (req+acs+tests, no evidence) passes"
+else
+    fail "T-005.1: valid traceability should pass"
+fi
+
+# Test: T-005.2 - empty acs array → exit 1 ("has no acceptance criteria")
+mkdir -p "${WORK}/t005_test2"
+cat > "${WORK}/t005_test2/traceability.json" <<'EOF'
+{
+  "feature": "test-feature",
+  "links": [
+    { "req": "REQ-001", "acs": [], "tests": ["TEST-001"] }
+  ]
+}
+EOF
+output=$(run_check_traceability "${WORK}/t005_test2/traceability.json" "${WORK}/t005_test2")
+if echo "$output" | grep -q "has no acceptance criteria"; then
+    ok "T-005.2: empty acs array fails with correct message"
+else
+    fail "T-005.2: should fail with 'has no acceptance criteria'. Got: $output"
+fi
+
+# Test: T-005.3 - empty tests array → exit 1 ("has no tests")
+mkdir -p "${WORK}/t005_test3"
+cat > "${WORK}/t005_test3/traceability.json" <<'EOF'
+{
+  "feature": "test-feature",
+  "links": [
+    { "req": "REQ-001", "acs": ["AC-001"], "tests": [] }
+  ]
+}
+EOF
+output=$(run_check_traceability "${WORK}/t005_test3/traceability.json" "${WORK}/t005_test3")
+if echo "$output" | grep -q "has no tests"; then
+    ok "T-005.3: empty tests array fails with correct message"
+else
+    fail "T-005.3: should fail with 'has no tests'. Got: $output"
+fi
+
+# Test: T-005.4 - evidence key present but file missing → exit 1
+mkdir -p "${WORK}/t005_test4"
+cat > "${WORK}/t005_test4/traceability.json" <<'EOF'
+{
+  "feature": "test-feature",
+  "links": [
+    { "req": "REQ-001", "acs": ["AC-001"], "tests": ["TEST-001"], "evidence": ["specs/missing.log"] }
+  ]
+}
+EOF
+output=$(run_check_traceability "${WORK}/t005_test4/traceability.json" "${WORK}/t005_test4")
+if echo "$output" | grep -q "file missing"; then
+    ok "T-005.4: missing evidence file fails correctly"
+else
+    fail "T-005.4: should fail with 'file missing'. Got: $output"
+fi
+
+# Test: T-005.5 - evidence present + existing non-empty file → exit 0
+mkdir -p "${WORK}/t005_test5/specs/test-feature/verification"
+echo "evidence data" > "${WORK}/t005_test5/specs/test-feature/verification/T-001.unit.log"
+cat > "${WORK}/t005_test5/traceability.json" <<'EOF'
+{
+  "feature": "test-feature",
+  "links": [
+    { "req": "REQ-001", "acs": ["AC-001"], "tests": ["TEST-001"], "evidence": ["specs/test-feature/verification/T-001.unit.log"] }
+  ]
+}
+EOF
+if check_traceability_passes "${WORK}/t005_test5/traceability.json" "${WORK}/t005_test5"; then
+    ok "T-005.5: evidence file present and non-empty passes"
+else
+    fail "T-005.5: should pass with existing evidence file"
+fi
+
+# Test: T-005.6 - require-evidence mode, link has NO evidence → exit 1 ("requires evidence")
+mkdir -p "${WORK}/t005_test6"
+cat > "${WORK}/t005_test6/traceability.json" <<'EOF'
+{
+  "feature": "test-feature",
+  "links": [
+    { "req": "REQ-001", "acs": ["AC-001"], "tests": ["TEST-001"] }
+  ]
+}
+EOF
+output=$(run_check_traceability "${WORK}/t005_test6/traceability.json" "${WORK}/t005_test6" "require-evidence")
+if echo "$output" | grep -q "requires evidence"; then
+    ok "T-005.6: require-evidence mode without evidence fails correctly"
+else
+    fail "T-005.6: should fail with 'requires evidence'. Got: $output"
+fi
+
+# Test: T-005.7 - require-evidence mode, link has existing evidence → exit 0
+mkdir -p "${WORK}/t005_test7/specs/test-feature/verification"
+echo "evidence data" > "${WORK}/t005_test7/specs/test-feature/verification/T-001.unit.log"
+cat > "${WORK}/t005_test7/traceability.json" <<'EOF'
+{
+  "feature": "test-feature",
+  "links": [
+    { "req": "REQ-001", "acs": ["AC-001"], "tests": ["TEST-001"], "evidence": ["specs/test-feature/verification/T-001.unit.log"] }
+  ]
+}
+EOF
+if check_traceability_passes "${WORK}/t005_test7/traceability.json" "${WORK}/t005_test7" "require-evidence"; then
+    ok "T-005.7: require-evidence mode with evidence passes"
+else
+    fail "T-005.7: should pass with evidence in require-evidence mode"
+fi
+
+# Test: T-005.8 - invalid JSON → exit 1
+mkdir -p "${WORK}/t005_test8"
+echo "{ invalid json" > "${WORK}/t005_test8/traceability.json"
+output=$(run_check_traceability "${WORK}/t005_test8/traceability.json" "${WORK}/t005_test8")
+if echo "$output" | grep -q "invalid JSON"; then
+    ok "T-005.8: invalid JSON fails with correct message"
+else
+    fail "T-005.8: should fail with 'invalid JSON'. Got: $output"
+fi
+
+# Test: T-005.9 - file not found → exit 1
+output=$(run_check_traceability "${WORK}/nonexistent.json" "${WORK}")
+if echo "$output" | grep -q "file not found"; then
+    ok "T-005.9: nonexistent file fails with correct message"
+else
+    fail "T-005.9: should fail with 'file not found'. Got: $output"
+fi
+
+# Test: T-005.10 - links empty array → exit 1 ("has no links")
+mkdir -p "${WORK}/t005_test10"
+cat > "${WORK}/t005_test10/traceability.json" <<'EOF'
+{
+  "feature": "test-feature",
+  "links": []
+}
+EOF
+output=$(run_check_traceability "${WORK}/t005_test10/traceability.json" "${WORK}/t005_test10")
+if echo "$output" | grep -q "has no links"; then
+    ok "T-005.10: empty links array fails with correct message"
+else
+    fail "T-005.10: should fail with 'has no links'. Got: $output"
+fi
+
+# Test: T-005.11 - require-evidence with EMPTY evidence array fails closed (no silent pass)
+mkdir -p "${WORK}/t005_test11"
+cat > "${WORK}/t005_test11/traceability.json" <<'EOF'
+{
+  "feature": "test-feature",
+  "links": [ { "req": "REQ-001", "acs": ["AC-001"], "tests": ["TEST-001"], "evidence": [] } ]
+}
+EOF
+output=$(bash "${SCRIPTS_DIR}/check-traceability.sh" "${WORK}/t005_test11/traceability.json" "${WORK}/t005_test11" require-evidence 2>&1 || true)
+if echo "$output" | grep -q "requires evidence but none listed"; then
+    ok "T-005.11: require-evidence + empty array fails closed"
+else
+    fail "T-005.11: empty evidence array must fail in require-evidence mode. Got: $output"
 fi
 
 # ============================================================================
