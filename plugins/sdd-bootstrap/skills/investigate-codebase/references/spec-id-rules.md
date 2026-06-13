@@ -9,6 +9,8 @@
 | `REQ-NNN` | Requirement | `REQ-001` |
 | `T-NNN` | Implementation task | `T-001` |
 | `ADR-NNN` | Architecture decision record | `ADR-001` |
+| `AC-NNN` | Acceptance criterion | `AC-001` |
+| `TEST-NNN` | Test case | `TEST-001` |
 
 ## Sequencing
 
@@ -24,6 +26,11 @@
   alongside the Requirement, Design, and Test columns.
 - ADRs that resolve an Open Question from `investigation.md` must cite the
   relevant INV-xxx IDs in their Context section.
+- Every requirement (REQ) must map to at least one acceptance criterion (AC) in
+  `acceptance-tests.md`.
+- Every acceptance criterion (AC) must map to at least one test case (TEST).
+- The traceability chain REQ → AC → TEST → evidence is recorded in
+  `traceability.md` and `traceability.json`.
 
 ## Deprecation
 

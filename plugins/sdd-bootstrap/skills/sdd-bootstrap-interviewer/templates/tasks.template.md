@@ -16,6 +16,14 @@ Approval: Draft
 
 Status: Planned
 
+Risk: {{risk}}
+
+Risk Rationale: {{risk_rationale}}
+
+Required Workflow: {{required_workflow}}
+
+Requirements: {{requirement_ids}}
+
 ### Goal
 {{goal}}
 
@@ -35,6 +43,9 @@ Status: Planned
 - [ ] Implementation report created
 - [ ] Quality gate passes
 - [ ] traceability.md updated
+- [ ] (high/critical) Red→Green evidence captured
+- [ ] (high/critical) Independent review verdict recorded
+- [ ] (critical) Second approver recorded and evidence bundle signed
 
 ### Out of Scope
 {{out_of_scope}}

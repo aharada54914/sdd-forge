@@ -1,10 +1,16 @@
 {
   "task_id": "T-000",
   "feature": "<feature-slug>",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "",
   "quality_report": "reports/quality-gate/T-000.md",
   "verification_contract": "specs/<feature-slug>/verification/T-000.contract.json",
   "git_commit": "0000000000000000000000000000000000000000",
   "git_generated_dirty": false,
+  "build_env": { "os": "", "python": "", "git": "", "lockfile_sha256": null },
+  "builder": { "kind": "", "id": "", "runtime": "" },
+  "review_verdict": { "verdict": "", "critical": 0, "major": 0, "minor": 0, "reviewer": "" },
   "artifacts": [
     { "path": "specs/<feature-slug>/verification/T-000.contract.json", "sha256": "" },
     { "path": "reports/quality-gate/T-000.md", "sha256": "" },
