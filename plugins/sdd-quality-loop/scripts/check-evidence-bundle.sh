@@ -90,6 +90,8 @@ task_id = str(bundle.get("task_id", "")).strip()
 quality_report = bundle.get("quality_report")
 verification_contract = bundle.get("verification_contract")
 artifacts = bundle.get("artifacts", [])
+git_commit = bundle.get("git_commit")
+git_generated_dirty = bundle.get("git_generated_dirty")
 
 if not re.fullmatch(r"T-\d+", task_id):
     fail(f"task_id is invalid: {task_id}")
@@ -178,6 +180,40 @@ for artifact in artifacts:
 for required_path, label in required_artifacts.items():
     if required_path not in artifact_index:
         fail(f"manifest is missing {label}: {required_path}")
+
+# --- git_commit binding ---
+if git_commit is None:
+    fail("git_commit is required but missing")
+elif not re.fullmatch(r"[0-9a-f]{40}", str(git_commit)):
+    fail(f"git_commit is invalid (must be 40 lowercase hex): {git_commit}")
+else:
+    git_commit_str = str(git_commit)
+    import shutil
+    if shutil.which("git") is None:
+        fail("git is not available; cannot verify git_commit binding")
+    else:
+        abs_root = str(pathlib.Path(root).resolve())
+        # Verify commit exists
+        try:
+            r1 = subprocess.run(
+                ["git", "-C", abs_root, "cat-file", "-e", f"{git_commit_str}^{{commit}}"],
+                capture_output=True,
+            )
+            if r1.returncode != 0:
+                fail(f"git_commit does not exist in repository: {git_commit_str}")
+            else:
+                # Verify commit is HEAD or an ancestor of HEAD
+                r2 = subprocess.run(
+                    ["git", "-C", abs_root, "merge-base", "--is-ancestor", git_commit_str, "HEAD"],
+                    capture_output=True,
+                )
+                if r2.returncode != 0:
+                    fail(f"git_commit is not an ancestor of HEAD (foreign or future commit): {git_commit_str}")
+        except Exception as exc:
+            fail(f"git verification failed unexpectedly: {exc}")
+
+if git_generated_dirty is True:
+    print(f"WARNING: evidence bundle for task {task_id} was generated with a dirty working tree")
 
 if failures:
     print(f"Evidence bundle FAILED for task {task_id}:")

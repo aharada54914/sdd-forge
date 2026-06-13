@@ -172,6 +172,13 @@ foreach ($script in @("check-contract", "check-evidence-bundle", "check-placehol
         }
     }
 }
+# Evidence bundle runner must exist as portable sh/ps1 pair.
+foreach ($extension in @("sh", "ps1")) {
+    $scriptPath = "plugins/sdd-quality-loop/scripts/generate-evidence-bundle.$extension"
+    if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
+        throw "Missing evidence bundle runner: $scriptPath"
+    }
+}
 foreach ($scriptPath in @("plugins/sdd-quality-loop/scripts/kill-switch.sh")) {
     if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
         throw "Missing hook script: $scriptPath"
