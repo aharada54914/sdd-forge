@@ -232,6 +232,41 @@ if ($null -eq $gitCommit -or ($gitCommit -is [string] -and [string]::IsNullOrWhi
     }
 }
 
+# --- provenance validation (gated on risk) ---
+$bundleRisk = ([string]$bundle.risk).Trim()
+
+# The contract is hash-validated and re-checked, so it is the trusted source of
+# the risk tier. The bundle's own risk must agree; a stripped or forged bundle
+# risk must NOT be able to dodge the provenance requirements.
+$contractRisk = ""
+if ($contract) { $contractRisk = ([string]$contract.risk).Trim() }
+if ($contractRisk -and $contractRisk -ne $bundleRisk) {
+    $shownRisk = if ($bundleRisk) { $bundleRisk } else { "(empty)" }
+    Add-Failure "bundle risk '$shownRisk' != contract risk '$contractRisk'"
+}
+# Gate provenance on the trusted contract risk; fall back to bundle risk (legacy).
+$effectiveRisk = if ($contractRisk) { $contractRisk } else { $bundleRisk }
+
+# High/critical tier provenance requirements
+if (@("high", "critical") -contains $effectiveRisk) {
+    $specRevision = ([string]$bundle.spec_revision).Trim()
+    if ($specRevision -notmatch '^[a-f0-9]{64}$') {
+        Add-Failure "high/critical bundle requires spec_revision (64-hex), got: $(if ($specRevision) { $specRevision } else { '(empty)' })"
+    }
+
+    $buildEnv = $bundle.build_env
+    if (-not $buildEnv -or -not (([string]$buildEnv.os).Trim())) {
+        Add-Failure "high/critical bundle requires build_env.os"
+    }
+
+    $reviewVerdict = $bundle.review_verdict
+    if (-not $reviewVerdict) {
+        Add-Failure "high/critical bundle requires review_verdict object"
+    } elseif (([string]$reviewVerdict.verdict).Trim() -ne "PASS") {
+        Add-Failure "high/critical bundle requires review_verdict.verdict == PASS, got: $(if ($reviewVerdict.verdict) { $reviewVerdict.verdict } else { '(empty)' })"
+    }
+}
+
 if ($gitGeneratedDirty -eq $true) {
     Write-Host "WARNING: evidence bundle for task ${taskId} was generated with a dirty working tree"
 }

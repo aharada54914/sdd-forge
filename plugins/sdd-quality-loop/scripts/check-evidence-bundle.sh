@@ -212,6 +212,38 @@ else:
         except Exception as exc:
             fail(f"git verification failed unexpectedly: {exc}")
 
+# --- provenance validation (gated on risk) ---
+bundle_risk = str(bundle.get("risk", "")).strip()
+
+# The contract is hash-validated and re-checked, so it is the trusted source of
+# the risk tier. The bundle's own risk must agree with it; a stripped or forged
+# bundle risk must NOT be able to dodge the provenance requirements.
+contract_risk = ""
+if isinstance(contract, dict):
+    contract_risk = str(contract.get("risk", "")).strip()
+if contract_risk and contract_risk != bundle_risk:
+    fail(f"bundle risk '{bundle_risk or '(empty)'}' != contract risk '{contract_risk}'")
+
+# Gate provenance on the trusted contract risk; fall back to the bundle risk only
+# when the contract carries none (legacy).
+effective_risk = contract_risk or bundle_risk
+
+# High/critical tier provenance requirements
+if effective_risk in {"high", "critical"}:
+    spec_revision = str(bundle.get("spec_revision", "")).strip()
+    if not re.fullmatch(r"[a-f0-9]{64}", spec_revision):
+        fail(f"high/critical bundle requires spec_revision (64-hex), got: {spec_revision or '(empty)'}")
+
+    build_env = bundle.get("build_env")
+    if not isinstance(build_env, dict) or not str(build_env.get("os", "")).strip():
+        fail("high/critical bundle requires build_env.os")
+
+    review_verdict = bundle.get("review_verdict")
+    if not isinstance(review_verdict, dict):
+        fail("high/critical bundle requires review_verdict object")
+    elif str(review_verdict.get("verdict", "")).strip() != "PASS":
+        fail(f"high/critical bundle requires review_verdict.verdict == PASS, got: {review_verdict.get('verdict', '(empty)')}")
+
 if git_generated_dirty is True:
     print(f"WARNING: evidence bundle for task {task_id} was generated with a dirty working tree")
 

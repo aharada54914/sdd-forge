@@ -1221,6 +1221,283 @@ Status: Planned
         throw "T-005.11 empty evidence array must fail in require-evidence mode"
     }
 
+    # =========================================================
+    # T-006: evidence provenance (PowerShell)
+    # =========================================================
+
+    # Create a reusable high-risk repo for T-006 tests
+    $t006Repo = Join-Path $workDir "t006_repo"
+    New-Item -ItemType Directory -Path "$t006Repo/specs/test-feature/verification" -Force | Out-Null
+    New-Item -ItemType Directory -Path "$t006Repo/reports/quality-gate" -Force | Out-Null
+
+    & git init -q "$t006Repo" 2>&1 | Out-Null
+    & git -C "$t006Repo" config user.name ci
+    & git -C "$t006Repo" config user.email ci@example.com
+    & git -C "$t006Repo" config commit.gpgsign false
+
+    # Create spec files for spec_revision hash computation
+    @"
+# Requirements
+
+REQ-001: basic functionality
+"@ | Set-Content -Encoding Utf8 "$t006Repo/specs/test-feature/requirements.md"
+
+    @"
+# Design
+
+Technical approach for test-feature.
+"@ | Set-Content -Encoding Utf8 "$t006Repo/specs/test-feature/design.md"
+
+    @"
+# Acceptance Tests
+
+AC-001: requirement verified
+"@ | Set-Content -Encoding Utf8 "$t006Repo/specs/test-feature/acceptance-tests.md"
+
+    # Create evidence file
+    "lint output: OK" | Set-Content -Encoding Utf8 "$t006Repo/specs/test-feature/verification/ev.log"
+
+    # Test: T-006.ps.1 - LEGACY: contract with NO risk field → generate bundle → check passes (exit 0)
+    @"
+Task ID: T-099
+VERDICT: PASS
+Critical: 0
+Major: 0
+Minor: 0
+Quality gate report for T-099.
+"@ | Set-Content -Encoding Utf8 "$t006Repo/reports/quality-gate/T-099.md"
+
+    $t006_legacy = @{
+        task_id = "T-099"
+        feature = "test-feature"
+        created = "2026-06-13T00:00:00Z"
+        comment = "LEGACY: no risk field"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" }
+        )
+    }
+    $t006_legacy | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "$t006Repo/specs/test-feature/verification/T-099-legacy.contract.json"
+
+    & git -C "$t006Repo" add -A 2>&1 | Out-Null
+    & git -C "$t006Repo" commit -q -m "T-006 legacy fixture" 2>&1 | Out-Null
+
+    $legacyBundleExit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t006Repo/specs/test-feature/verification/T-099-legacy.contract.json", "-QualityReport", "$t006Repo/reports/quality-gate/T-099.md", "-RepoRoot", "$t006Repo")
+    Assert-ExitCode "T-006.ps.1a: generate-evidence-bundle succeeds for legacy contract" $legacyBundleExit 0
+
+    $legacyBundle = "$t006Repo/specs/test-feature/verification/T-099.evidence.json"
+    if (-not (Test-Path -LiteralPath $legacyBundle)) {
+        throw "T-006.ps.1b: legacy bundle file not created at $legacyBundle"
+    }
+    Write-Host "ok: T-006.ps.1b: legacy bundle file created at expected path"
+
+    $checkLegacyExit = Invoke-Gate "check-evidence-bundle.ps1" @($legacyBundle, "-RepoRoot", "$t006Repo")
+    Assert-ExitCode "T-006.ps.1c: check-evidence-bundle passes on legacy bundle (no risk field)" $checkLegacyExit 0
+
+    # Test: T-006.ps.2 - generated bundle CONTAINS provenance fields (spec_revision, build_env, builder, review_verdict, risk)
+    $legacyBundleJson = Get-Content -Raw -Encoding Utf8 $legacyBundle | ConvertFrom-Json
+    if (-not $legacyBundleJson.risk) {
+        throw "T-006.ps.2a: generated bundle missing 'risk' field"
+    }
+    Write-Host "ok: T-006.ps.2a: generated bundle contains 'risk' field"
+
+    if (-not $legacyBundleJson.spec_revision) {
+        throw "T-006.ps.2b: generated bundle missing 'spec_revision' field"
+    }
+    Write-Host "ok: T-006.ps.2b: generated bundle contains 'spec_revision' field"
+
+    if (-not $legacyBundleJson.build_env) {
+        throw "T-006.ps.2c: generated bundle missing 'build_env' field"
+    }
+    Write-Host "ok: T-006.ps.2c: generated bundle contains 'build_env' field"
+
+    if (-not $legacyBundleJson.builder) {
+        throw "T-006.ps.2d: generated bundle missing 'builder' field"
+    }
+    Write-Host "ok: T-006.ps.2d: generated bundle contains 'builder' field"
+
+    if (-not $legacyBundleJson.review_verdict) {
+        throw "T-006.ps.2e: generated bundle missing 'review_verdict' field"
+    }
+    Write-Host "ok: T-006.ps.2e: generated bundle contains 'review_verdict' field"
+
+    # Test: T-006.ps.3 - high-risk bundle happy path: spec files exist, contract has risk:high, VERDICT: PASS → check passes
+    @"
+Task ID: T-100
+VERDICT: PASS
+Critical: 0
+Major: 0
+Minor: 0
+Quality gate report for T-100.
+"@ | Set-Content -Encoding Utf8 "$t006Repo/reports/quality-gate/T-100.md"
+
+    $t006_high = @{
+        task_id = "T-100"
+        feature = "test-feature"
+        risk = "high"
+        required_workflow = "tdd"
+        created = "2026-06-13T00:00:00Z"
+        comment = "T-006 high-risk happy path"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = ""; red_evidence = "specs/test-feature/verification/ev.log"; green_evidence = "specs/test-feature/verification/ev.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = ""; red_evidence = "specs/test-feature/verification/ev.log"; green_evidence = "specs/test-feature/verification/ev.log" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" }
+        )
+    }
+    $t006_high | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "$t006Repo/specs/test-feature/verification/T-100.contract.json"
+
+    & git -C "$t006Repo" add specs/test-feature/verification/T-100.contract.json 2>&1 | Out-Null
+    & git -C "$t006Repo" commit -q -m "T-006 high-risk contract" 2>&1 | Out-Null
+
+    $highBundleExit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t006Repo/specs/test-feature/verification/T-100.contract.json", "-QualityReport", "$t006Repo/reports/quality-gate/T-100.md", "-RepoRoot", "$t006Repo")
+    Assert-ExitCode "T-006.ps.3a: generate-evidence-bundle succeeds for high-risk contract" $highBundleExit 0
+
+    $highBundle = "$t006Repo/specs/test-feature/verification/T-100.evidence.json"
+    $checkHighExit = Invoke-Gate "check-evidence-bundle.ps1" @($highBundle, "-RepoRoot", "$t006Repo")
+    Assert-ExitCode "T-006.ps.3b: check-evidence-bundle passes on high-risk bundle with full provenance" $checkHighExit 0
+
+    $highBundleJson = Get-Content -Raw -Encoding Utf8 $highBundle | ConvertFrom-Json
+    $specRev = $highBundleJson.spec_revision
+    if ($specRev -notmatch '^[a-f0-9]{64}$') {
+        throw "T-006.ps.3c: spec_revision is not valid 64-char hex: '$specRev'"
+    }
+    Write-Host "ok: T-006.ps.3c: spec_revision is valid 64-char hex"
+
+    $reviewVerdict = $highBundleJson.review_verdict.verdict
+    if ($reviewVerdict -ne "PASS") {
+        throw "T-006.ps.3d: review_verdict.verdict is not PASS, got: '$reviewVerdict'"
+    }
+    Write-Host "ok: T-006.ps.3d: review_verdict.verdict is PASS"
+
+    # Test: T-006.ps.4 - same as .3 but quality report VERDICT: NEEDS_WORK → check FAILS
+    @"
+Task ID: T-101
+VERDICT: NEEDS_WORK
+Critical: 1
+Major: 0
+Minor: 0
+Fail for testing.
+"@ | Set-Content -Encoding Utf8 "$t006Repo/reports/quality-gate/T-101.md"
+
+    $t006_needs_work = @{
+        task_id = "T-101"
+        feature = "test-feature"
+        risk = "high"
+        required_workflow = "tdd"
+        created = "2026-06-13T00:00:00Z"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = ""; red_evidence = "specs/test-feature/verification/ev.log"; green_evidence = "specs/test-feature/verification/ev.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = ""; red_evidence = "specs/test-feature/verification/ev.log"; green_evidence = "specs/test-feature/verification/ev.log" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "specs/test-feature/verification/ev.log"; waiver_reason = "" }
+        )
+    }
+    $t006_needs_work | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "$t006Repo/specs/test-feature/verification/T-101.contract.json"
+
+    & git -C "$t006Repo" add specs/test-feature/verification/T-101.contract.json reports/quality-gate/T-101.md 2>&1 | Out-Null
+    & git -C "$t006Repo" commit -q -m "T-006 verdict NEEDS_WORK test" 2>&1 | Out-Null
+
+    $needsWorkBundleExit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t006Repo/specs/test-feature/verification/T-101.contract.json", "-QualityReport", "$t006Repo/reports/quality-gate/T-101.md", "-RepoRoot", "$t006Repo")
+    Assert-ExitCode "T-006.ps.4a: generate-evidence-bundle succeeds even with NEEDS_WORK report" $needsWorkBundleExit 0
+
+    $needsWorkBundle = "$t006Repo/specs/test-feature/verification/T-101.evidence.json"
+    $checkNeedsWorkExit = Invoke-Gate "check-evidence-bundle.ps1" @($needsWorkBundle, "-RepoRoot", "$t006Repo")
+    Assert-ExitCode "T-006.ps.4: high bundle with VERDICT: NEEDS_WORK fails check correctly" $checkNeedsWorkExit 1
+
+    # Test: T-006.ps.5 - high contract but NO spec files (so spec_revision empty) → check FAILS
+    $t006_no_spec = Join-Path $workDir "t006_no_spec"
+    New-Item -ItemType Directory -Path "$t006_no_spec/specs/empty-feature/verification" -Force | Out-Null
+    New-Item -ItemType Directory -Path "$t006_no_spec/reports/quality-gate" -Force | Out-Null
+
+    & git init -q "$t006_no_spec" 2>&1 | Out-Null
+    & git -C "$t006_no_spec" config user.name ci
+    & git -C "$t006_no_spec" config user.email ci@example.com
+    & git -C "$t006_no_spec" config commit.gpgsign false
+
+    "test" | Set-Content -Encoding Utf8 "$t006_no_spec/specs/empty-feature/verification/ev.log"
+    @"
+Task ID: T-102
+VERDICT: PASS
+Quality gate.
+"@ | Set-Content -Encoding Utf8 "$t006_no_spec/reports/quality-gate/T-102.md"
+
+    $t006_no_spec_contract = @{
+        task_id = "T-102"
+        feature = "empty-feature"
+        risk = "high"
+        required_workflow = "tdd"
+        created = "2026-06-13T00:00:00Z"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "specs/empty-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "specs/empty-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "specs/empty-feature/verification/ev.log"; waiver_reason = ""; red_evidence = "specs/empty-feature/verification/ev.log"; green_evidence = "specs/empty-feature/verification/ev.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "specs/empty-feature/verification/ev.log"; waiver_reason = ""; red_evidence = "specs/empty-feature/verification/ev.log"; green_evidence = "specs/empty-feature/verification/ev.log" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "specs/empty-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "specs/empty-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "specs/empty-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "specs/empty-feature/verification/ev.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "specs/empty-feature/verification/ev.log"; waiver_reason = "" }
+        )
+    }
+    $t006_no_spec_contract | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "$t006_no_spec/specs/empty-feature/verification/T-102.contract.json"
+
+    & git -C "$t006_no_spec" add -A 2>&1 | Out-Null
+    & git -C "$t006_no_spec" commit -q -m "T-006 no spec files test" 2>&1 | Out-Null
+
+    $noSpecBundleExit = Invoke-Gate "generate-evidence-bundle.ps1" @("-ContractPath", "$t006_no_spec/specs/empty-feature/verification/T-102.contract.json", "-QualityReport", "$t006_no_spec/reports/quality-gate/T-102.md", "-RepoRoot", "$t006_no_spec")
+    Assert-ExitCode "T-006.ps.5a: generate-evidence-bundle succeeds (generates empty spec_revision)" $noSpecBundleExit 0
+
+    $noSpecBundle = "$t006_no_spec/specs/empty-feature/verification/T-102.evidence.json"
+    $checkNoSpecOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $noSpecBundle -RepoRoot "$t006_no_spec" 2>&1
+    $checkNoSpecExit = $LASTEXITCODE
+    if ($checkNoSpecExit -eq 0 -or ($checkNoSpecOutput | Out-String) -notmatch "spec_revision") {
+        throw "T-006.ps.5: high bundle with empty spec_revision should fail check with spec_revision message. Got exit $checkNoSpecExit"
+    }
+    Write-Host "ok: T-006.ps.5: high bundle with empty spec_revision fails check"
+
+    # Test: T-006.ps.6 - hand-edit the generated high bundle's risk to "low" (mismatch contract) → check FAILS
+    $highBundleJsonForEdit = Get-Content -Raw -Encoding Utf8 $highBundle | ConvertFrom-Json
+    $highBundleJsonForEdit.risk = "low"
+    $highBundleJsonForEdit | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $highBundle
+
+    $checkMismatchOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $highBundle -RepoRoot "$t006Repo" 2>&1
+    $checkMismatchExit = $LASTEXITCODE
+    if ($checkMismatchExit -eq 0 -or ($checkMismatchOutput | Out-String) -notmatch "bundle risk") {
+        throw "T-006.ps.6: risk mismatch should fail check with bundle risk message. Got exit $checkMismatchExit"
+    }
+    Write-Host "ok: T-006.ps.6: risk mismatch (bundle vs contract) fails check"
+
+    # Restore high_bundle for .7 test
+    $highBundleJsonForEdit.risk = "high"
+    $highBundleJsonForEdit | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $highBundle
+
+    # Test: T-006.ps.7 - hand-edit the generated high bundle's risk to "" (empty) → check FAILS (no fail-open)
+    $highBundleJsonForEdit = Get-Content -Raw -Encoding Utf8 $highBundle | ConvertFrom-Json
+    $highBundleJsonForEdit.risk = ""
+    $highBundleJsonForEdit | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $highBundle
+
+    $checkEmptyRiskOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $highBundle -RepoRoot "$t006Repo" 2>&1
+    $checkEmptyRiskExit = $LASTEXITCODE
+    if ($checkEmptyRiskExit -eq 0 -or ($checkEmptyRiskOutput | Out-String) -notmatch "bundle risk") {
+        throw "T-006.ps.7: emptied bundle risk should fail closed with bundle risk message. Got exit $checkEmptyRiskExit"
+    }
+    Write-Host "ok: T-006.ps.7: emptied bundle risk vs high contract fails closed"
+
     # --- check-sdd-structure ---
     $bootstrapScriptsDir = Join-Path $repositoryRoot "plugins/sdd-bootstrap/scripts"
 

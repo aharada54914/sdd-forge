@@ -71,6 +71,10 @@ $feature = ([string]$contract.feature).Trim()
 
 $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
+# Extract risk and required_workflow from contract (may be absent for legacy bundles)
+$contractRisk = ([string]$contract.risk).Trim()
+$contractRequiredWorkflow = ([string]$contract.required_workflow).Trim()
+
 # ------------------------------------------------------------------
 # Determine output path
 # ------------------------------------------------------------------
@@ -189,16 +193,127 @@ if ($statusExit -ne 0) {
 $gitGeneratedDirty = (-not [string]::IsNullOrWhiteSpace(($statusResult | Out-String).Trim()))
 
 # ------------------------------------------------------------------
+# Compute spec_revision (sha256 over spec files)
+# ------------------------------------------------------------------
+
+function Get-SpecRevision {
+    param([Parameter(Mandatory)][string]$FeatureSlug, [Parameter(Mandatory)][string]$AbsRoot)
+    $specFiles = @(
+        (Join-Path $AbsRoot "specs" $FeatureSlug "requirements.md"),
+        (Join-Path $AbsRoot "specs" $FeatureSlug "design.md"),
+        (Join-Path $AbsRoot "specs" $FeatureSlug "acceptance-tests.md")
+    )
+    $hasher = [System.Security.Cryptography.SHA256]::Create()
+    $foundAny = $false
+    foreach ($specFile in $specFiles) {
+        if (Test-Path -LiteralPath $specFile) {
+            $bytes = [System.IO.File]::ReadAllBytes($specFile)
+            $hasher.TransformBlock($bytes, 0, $bytes.Length, $null, 0) | Out-Null
+            $foundAny = $true
+        }
+    }
+    $hasher.TransformFinalBlock([byte[]]@(), 0, 0) | Out-Null
+    if ($foundAny) {
+        return ($hasher.Hash | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+    }
+    return ""
+}
+
+$specRevision = Get-SpecRevision -FeatureSlug $feature -AbsRoot $absRoot
+
+# ------------------------------------------------------------------
+# Parse review_verdict from quality report
+# ------------------------------------------------------------------
+
+function Get-ReviewVerdict {
+    param([Parameter(Mandatory)][string]$ReportPath)
+    $verdict = ""
+    $critical = 0
+    $major = 0
+    $minor = 0
+    try {
+        $content = Get-Content -Raw -LiteralPath $ReportPath -Encoding Utf8
+        if ($content -match "(?m)^VERDICT:\s*(\S+)") {
+            $verdict = $matches[1]
+        }
+        if ($content -match "(?m)^Critical:\s*(\d+)") { $critical = [int]$matches[1] }
+        if ($content -match "(?m)^Major:\s*(\d+)") { $major = [int]$matches[1] }
+        if ($content -match "(?m)^Minor:\s*(\d+)") { $minor = [int]$matches[1] }
+    } catch {
+        # If parsing fails, return defaults
+    }
+    return [ordered]@{
+        verdict  = $verdict
+        critical = $critical
+        major    = $major
+        minor    = $minor
+        reviewer = "sdd-evaluator"
+    }
+}
+
+$reviewVerdict = Get-ReviewVerdict -ReportPath (Resolve-Path $QualityReport).Path
+
+# ------------------------------------------------------------------
+# Build build_env
+# ------------------------------------------------------------------
+
+$osName = [System.Runtime.InteropServices.RuntimeInformation]::OSDescription
+if ($osName -match "Windows") { $osName = "windows" }
+elseif ($osName -match "Linux") { $osName = "linux" }
+elseif ($osName -match "Darwin") { $osName = "darwin" }
+else { $osName = $osName.ToLower() }
+
+$pythonVersion = python --version 2>&1 | Out-String
+$pythonVersion = [regex]::Match($pythonVersion, '\d+\.\d+').Value
+
+$gitVersion = ""
+$gitCmd = Get-Command git -ErrorAction SilentlyContinue
+if ($gitCmd) {
+    $gitVersion = (& git --version) -join " "
+}
+
+$buildEnv = [ordered]@{
+    os              = $osName
+    python          = $pythonVersion
+    git             = $gitVersion
+    lockfile_sha256 = $null
+}
+
+# ------------------------------------------------------------------
+# Build builder
+# ------------------------------------------------------------------
+
+$builderKind = if ($env:CI -or $env:GITHUB_ACTIONS) { "ci" } else { "local" }
+$builderId = $env:GITHUB_RUN_ID
+if ([string]::IsNullOrWhiteSpace($builderId)) {
+    $builderId = $env:USERNAME
+    if ([string]::IsNullOrWhiteSpace($builderId)) { $builderId = "unknown" }
+}
+$builderRuntime = if ($env:SDD_RUNTIME) { $env:SDD_RUNTIME } else { "unknown" }
+
+$builder = [ordered]@{
+    kind    = $builderKind
+    id      = $builderId
+    runtime = $builderRuntime
+}
+
+# ------------------------------------------------------------------
 # Write bundle
 # ------------------------------------------------------------------
 
 $bundle = [ordered]@{
     task_id               = $taskId
     feature               = $feature
+    risk                  = $contractRisk
+    required_workflow     = $contractRequiredWorkflow
+    spec_revision         = $specRevision
     quality_report        = $reportRel
     verification_contract = $contractRel
     git_commit            = $gitCommit
     git_generated_dirty   = $gitGeneratedDirty
+    build_env             = $buildEnv
+    builder               = $builder
+    review_verdict        = $reviewVerdict
     artifacts             = $artifacts
 }
 

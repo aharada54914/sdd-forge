@@ -94,6 +94,10 @@ if not re.fullmatch(r"T-\d+", task_id):
 
 feature = str(contract.get("feature", "")).strip()
 
+# Extract risk and required_workflow from contract (may be absent for legacy bundles)
+contract_risk = str(contract.get("risk", "")).strip()
+contract_required_workflow = str(contract.get("required_workflow", "")).strip()
+
 # ------------------------------------------------------------------
 # Determine output path
 # ------------------------------------------------------------------
@@ -192,16 +196,128 @@ quality_report_rel = normalize_rel_path(pathlib.Path(report_path).resolve(), abs
 verification_contract_rel = normalize_rel_path(pathlib.Path(contract_path).resolve(), abs_root)
 
 # ------------------------------------------------------------------
+# Compute spec_revision (sha256 over spec files)
+# ------------------------------------------------------------------
+
+def compute_spec_revision(feature_slug, abs_root):
+    """
+    Compute SHA256 over the concatenated bytes of:
+    specs/<feature>/requirements.md, design.md, acceptance-tests.md
+    (in that order, files that exist).
+    Returns 64-char hex string, or "" if no files found.
+    """
+    spec_files = [
+        abs_root / "specs" / feature_slug / "requirements.md",
+        abs_root / "specs" / feature_slug / "design.md",
+        abs_root / "specs" / feature_slug / "acceptance-tests.md",
+    ]
+    hasher = hashlib.sha256()
+    found_any = False
+    for spec_file in spec_files:
+        if spec_file.exists() and spec_file.is_file():
+            with open(spec_file, "rb") as fh:
+                hasher.update(fh.read())
+            found_any = True
+    return hasher.hexdigest() if found_any else ""
+
+
+spec_revision = compute_spec_revision(feature, abs_root)
+
+# ------------------------------------------------------------------
+# Parse review_verdict from quality report
+# ------------------------------------------------------------------
+
+def parse_review_verdict(report_path):
+    """
+    Parse quality report markdown for:
+    - VERDICT: <verdict> line
+    - Critical: <N>, Major: <N>, Minor: <N> lines
+    Returns dict { "verdict": "...", "critical": N, "major": N, "minor": N, "reviewer": "sdd-evaluator" }
+    """
+    verdict = ""
+    critical = 0
+    major = 0
+    minor = 0
+    try:
+        with open(report_path, encoding="utf-8") as fh:
+            content = fh.read()
+        # Match VERDICT line
+        m = re.search(r"(?m)^VERDICT:\s*(\S+)", content)
+        if m:
+            verdict = m.group(1)
+        # Match Critical/Major/Minor lines
+        for line in content.split("\n"):
+            if m := re.search(r"^Critical:\s*(\d+)", line):
+                critical = int(m.group(1))
+            if m := re.search(r"^Major:\s*(\d+)", line):
+                major = int(m.group(1))
+            if m := re.search(r"^Minor:\s*(\d+)", line):
+                minor = int(m.group(1))
+    except Exception:
+        pass
+    return {
+        "verdict": verdict,
+        "critical": critical,
+        "major": major,
+        "minor": minor,
+        "reviewer": "sdd-evaluator",
+    }
+
+
+review_verdict = parse_review_verdict(report_path)
+
+# ------------------------------------------------------------------
+# Build build_env
+# ------------------------------------------------------------------
+
+import platform
+import subprocess as sp_import
+
+build_env = {
+    "os": platform.system().lower(),
+    "python": f"{platform.python_version()}",
+    "git": "",
+    "lockfile_sha256": None,
+}
+
+try:
+    git_version_r = subprocess.run(["git", "--version"], capture_output=True, text=True)
+    if git_version_r.returncode == 0:
+        build_env["git"] = git_version_r.stdout.strip()
+except Exception:
+    pass
+
+# ------------------------------------------------------------------
+# Build builder
+# ------------------------------------------------------------------
+
+builder_kind = "ci" if os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS") else "local"
+builder_id = os.environ.get("GITHUB_RUN_ID") or os.environ.get("USER", "unknown")
+builder_runtime = os.environ.get("SDD_RUNTIME", "unknown")
+
+builder = {
+    "kind": builder_kind,
+    "id": builder_id,
+    "runtime": builder_runtime,
+}
+
+# ------------------------------------------------------------------
 # Write bundle
 # ------------------------------------------------------------------
 
 bundle = {
     "task_id": task_id,
     "feature": feature,
+    "risk": contract_risk,
+    "required_workflow": contract_required_workflow,
+    "spec_revision": spec_revision,
     "quality_report": quality_report_rel,
     "verification_contract": verification_contract_rel,
     "git_commit": git_commit,
     "git_generated_dirty": git_generated_dirty,
+    "build_env": build_env,
+    "builder": builder,
+    "review_verdict": review_verdict,
     "artifacts": artifacts,
 }
 

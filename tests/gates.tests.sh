@@ -1456,6 +1456,345 @@ else
 fi
 
 # ============================================================================
+# T-006: Evidence bundle provenance (risk, spec_revision, build_env, builder, review_verdict)
+# ============================================================================
+
+echo "=== T-006: evidence provenance ==="
+
+# Create a reusable high-risk repo for T-006 tests
+T006_REPO="${WORK}/t006_repo"
+mkdir -p "${T006_REPO}/specs/test-feature/verification"
+mkdir -p "${T006_REPO}/reports/quality-gate"
+
+git -C "${T006_REPO}" init -q
+git -C "${T006_REPO}" config user.name ci
+git -C "${T006_REPO}" config user.email ci@example.com
+git -C "${T006_REPO}" config commit.gpgsign false
+
+# Create spec files for spec_revision hash computation
+cat > "${T006_REPO}/specs/test-feature/requirements.md" <<'EOF'
+# Requirements
+
+REQ-001: basic functionality
+EOF
+
+cat > "${T006_REPO}/specs/test-feature/design.md" <<'EOF'
+# Design
+
+Technical approach for test-feature.
+EOF
+
+cat > "${T006_REPO}/specs/test-feature/acceptance-tests.md" <<'EOF'
+# Acceptance Tests
+
+AC-001: requirement verified
+EOF
+
+# Create evidence file
+printf 'lint output: OK\n' > "${T006_REPO}/specs/test-feature/verification/ev.log"
+
+# Test: T-006.1 - LEGACY: generate bundle without risk field, then check → passes (regression)
+# Create quality report for T-099 (legacy contract)
+cat > "${T006_REPO}/reports/quality-gate/T-099.md" <<'EOF'
+Task ID: T-099
+VERDICT: PASS
+Critical: 0
+Major: 0
+Minor: 0
+Quality gate report for T-099.
+EOF
+
+cat > "${T006_REPO}/specs/test-feature/verification/T-099-legacy.contract.json" <<'EOF'
+{
+  "task_id": "T-099",
+  "feature": "test-feature",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "LEGACY: no risk field",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
+  ]
+}
+EOF
+
+git -C "${T006_REPO}" add -A
+git -C "${T006_REPO}" commit -q -m "T-006 legacy fixture"
+
+if generate_bundle_passes \
+    "${T006_REPO}/specs/test-feature/verification/T-099-legacy.contract.json" \
+    "${T006_REPO}/reports/quality-gate/T-099.md" \
+    "${T006_REPO}"; then
+    ok "T-006.1a: generate-evidence-bundle succeeds for legacy contract"
+else
+    fail "T-006.1a: generate-evidence-bundle failed for legacy contract: $(run_generate_bundle \
+        "${T006_REPO}/specs/test-feature/verification/T-099-legacy.contract.json" \
+        "${T006_REPO}/reports/quality-gate/T-099.md" \
+        "${T006_REPO}")"
+fi
+
+legacy_bundle="${T006_REPO}/specs/test-feature/verification/T-099.evidence.json"
+if [ -f "$legacy_bundle" ]; then
+    ok "T-006.1b: legacy bundle file created at expected path"
+else
+    fail "T-006.1b: legacy bundle file not created"
+fi
+
+if check_bundle_passes "$legacy_bundle" "${T006_REPO}"; then
+    ok "T-006.1c: check-evidence-bundle passes on legacy bundle (no risk field)"
+else
+    fail "T-006.1c: check-evidence-bundle should pass on legacy bundle: $(run_check_bundle "$legacy_bundle" "${T006_REPO}")"
+fi
+
+# Test: T-006.2 - generated bundle CONTAINS the new provenance fields (risk, spec_revision, build_env, builder, review_verdict)
+if grep -q '"risk"' "$legacy_bundle"; then
+    ok "T-006.2a: generated bundle contains 'risk' field"
+else
+    fail "T-006.2a: generated bundle missing 'risk' field"
+fi
+
+if grep -q '"spec_revision"' "$legacy_bundle"; then
+    ok "T-006.2b: generated bundle contains 'spec_revision' field"
+else
+    fail "T-006.2b: generated bundle missing 'spec_revision' field"
+fi
+
+if grep -q '"build_env"' "$legacy_bundle"; then
+    ok "T-006.2c: generated bundle contains 'build_env' field"
+else
+    fail "T-006.2c: generated bundle missing 'build_env' field"
+fi
+
+if grep -q '"builder"' "$legacy_bundle"; then
+    ok "T-006.2d: generated bundle contains 'builder' field"
+else
+    fail "T-006.2d: generated bundle missing 'builder' field"
+fi
+
+if grep -q '"review_verdict"' "$legacy_bundle"; then
+    ok "T-006.2e: generated bundle contains 'review_verdict' field"
+else
+    fail "T-006.2e: generated bundle missing 'review_verdict' field"
+fi
+
+# Test: T-006.3 - high-risk bundle happy path: spec files exist, contract has risk:high, VERDICT: PASS
+# Create quality report for T-100
+cat > "${T006_REPO}/reports/quality-gate/T-100.md" <<'EOF'
+Task ID: T-100
+VERDICT: PASS
+Critical: 0
+Major: 0
+Minor: 0
+Quality gate report for T-100.
+EOF
+
+cat > "${T006_REPO}/specs/test-feature/verification/T-100.contract.json" <<'EOF'
+{
+  "task_id": "T-100",
+  "feature": "test-feature",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "T-006 high-risk happy path",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "build", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
+  ]
+}
+EOF
+
+git -C "${T006_REPO}" add specs/test-feature/verification/T-100.contract.json
+git -C "${T006_REPO}" commit -q -m "T-006 high-risk contract"
+
+if generate_bundle_passes \
+    "${T006_REPO}/specs/test-feature/verification/T-100.contract.json" \
+    "${T006_REPO}/reports/quality-gate/T-100.md" \
+    "${T006_REPO}"; then
+    ok "T-006.3a: generate-evidence-bundle succeeds for high-risk contract"
+else
+    fail "T-006.3a: generate-evidence-bundle failed for high-risk: $(run_generate_bundle \
+        "${T006_REPO}/specs/test-feature/verification/T-100.contract.json" \
+        "${T006_REPO}/reports/quality-gate/T-100.md" \
+        "${T006_REPO}")"
+fi
+
+high_bundle="${T006_REPO}/specs/test-feature/verification/T-100.evidence.json"
+if check_bundle_passes "$high_bundle" "${T006_REPO}"; then
+    ok "T-006.3b: check-evidence-bundle passes on high-risk bundle with full provenance"
+else
+    fail "T-006.3b: check-evidence-bundle should pass on high-risk bundle: $(run_check_bundle "$high_bundle" "${T006_REPO}")"
+fi
+
+# Verify spec_revision is 64-char hex
+if python3 -c "import json, re; b=json.load(open('${high_bundle}')); assert re.fullmatch(r'[a-f0-9]{64}', b.get('spec_revision', '') or ''), 'invalid spec_revision'" 2>/dev/null; then
+    ok "T-006.3c: spec_revision is valid 64-char hex"
+else
+    fail "T-006.3c: spec_revision is not valid 64-char hex"
+fi
+
+# Verify review_verdict.verdict is PASS
+if python3 -c "import json; b=json.load(open('${high_bundle}')); assert b.get('review_verdict', {}).get('verdict') == 'PASS', 'verdict not PASS'" 2>/dev/null; then
+    ok "T-006.3d: review_verdict.verdict is PASS"
+else
+    fail "T-006.3d: review_verdict.verdict is not PASS"
+fi
+
+# Test: T-006.4 - high bundle with VERDICT: NEEDS_WORK (not PASS) → check FAILS
+cat > "${T006_REPO}/reports/quality-gate/T-101.md" <<'EOF'
+Task ID: T-101
+VERDICT: NEEDS_WORK
+Critical: 1
+Major: 0
+Minor: 0
+Fail for testing.
+EOF
+
+cat > "${T006_REPO}/specs/test-feature/verification/T-101.contract.json" <<'EOF'
+{
+  "task_id": "T-101",
+  "feature": "test-feature",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "created": "2026-06-13T00:00:00Z",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/test-feature/verification/ev.log", "green_evidence": "specs/test-feature/verification/ev.log" },
+    { "id": "build", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/test-feature/verification/ev.log", "waiver_reason": "" }
+  ]
+}
+EOF
+
+git -C "${T006_REPO}" add specs/test-feature/verification/T-101.contract.json reports/quality-gate/T-101.md
+git -C "${T006_REPO}" commit -q -m "T-006 verdict NEEDS_WORK test"
+
+if generate_bundle_passes \
+    "${T006_REPO}/specs/test-feature/verification/T-101.contract.json" \
+    "${T006_REPO}/reports/quality-gate/T-101.md" \
+    "${T006_REPO}"; then
+    fail_bundle="${T006_REPO}/specs/test-feature/verification/T-101.evidence.json"
+    if check_bundle_passes "$fail_bundle" "${T006_REPO}"; then
+        fail "T-006.4: high bundle with VERDICT: NEEDS_WORK should FAIL check"
+    else
+        ok "T-006.4: high bundle with VERDICT: NEEDS_WORK fails check correctly"
+    fi
+else
+    fail "T-006.4: generate-evidence-bundle should succeed even with NEEDS_WORK report"
+fi
+
+# Test: T-006.5 - high bundle with empty spec_revision (no spec files) → check FAILS
+T006_NO_SPEC="${WORK}/t006_no_spec"
+mkdir -p "${T006_NO_SPEC}/specs/empty-feature/verification"
+mkdir -p "${T006_NO_SPEC}/reports/quality-gate"
+
+git -C "${T006_NO_SPEC}" init -q
+git -C "${T006_NO_SPEC}" config user.name ci
+git -C "${T006_NO_SPEC}" config user.email ci@example.com
+git -C "${T006_NO_SPEC}" config commit.gpgsign false
+
+printf 'test\n' > "${T006_NO_SPEC}/specs/empty-feature/verification/ev.log"
+cat > "${T006_NO_SPEC}/reports/quality-gate/T-102.md" <<'EOF'
+Task ID: T-102
+VERDICT: PASS
+Quality gate.
+EOF
+
+cat > "${T006_NO_SPEC}/specs/empty-feature/verification/T-102.contract.json" <<'EOF'
+{
+  "task_id": "T-102",
+  "feature": "empty-feature",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "created": "2026-06-13T00:00:00Z",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "specs/empty-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "specs/empty-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/empty-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/empty-feature/verification/ev.log", "green_evidence": "specs/empty-feature/verification/ev.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/empty-feature/verification/ev.log", "waiver_reason": "", "red_evidence": "specs/empty-feature/verification/ev.log", "green_evidence": "specs/empty-feature/verification/ev.log" },
+    { "id": "build", "required": true, "passes": true, "evidence": "specs/empty-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/empty-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/empty-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/empty-feature/verification/ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/empty-feature/verification/ev.log", "waiver_reason": "" }
+  ]
+}
+EOF
+
+git -C "${T006_NO_SPEC}" add -A
+git -C "${T006_NO_SPEC}" commit -q -m "T-006 no spec files test"
+
+if generate_bundle_passes \
+    "${T006_NO_SPEC}/specs/empty-feature/verification/T-102.contract.json" \
+    "${T006_NO_SPEC}/reports/quality-gate/T-102.md" \
+    "${T006_NO_SPEC}"; then
+    no_spec_bundle="${T006_NO_SPEC}/specs/empty-feature/verification/T-102.evidence.json"
+    no_spec_out=$(run_check_bundle "$no_spec_bundle" "${T006_NO_SPEC}")
+    if echo "$no_spec_out" | grep -q "spec_revision"; then
+        ok "T-006.5: high bundle with empty spec_revision fails check"
+    else
+        fail "T-006.5: should fail with spec_revision requirement. Got: $no_spec_out"
+    fi
+else
+    fail "T-006.5: generate-evidence-bundle should succeed (generates empty spec_revision)"
+fi
+
+# Test: T-006.6 - bundle risk mismatched vs contract risk → check FAILS
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${high_bundle}")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["risk"] = "low"  # hand-edit the bundle's risk to mismatch contract
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+
+mismatch_out=$(run_check_bundle "$high_bundle" "${T006_REPO}")
+if echo "$mismatch_out" | grep -q "bundle risk"; then
+    ok "T-006.6: risk mismatch (bundle vs contract) fails check"
+else
+    fail "T-006.6: should fail with risk mismatch. Got: $mismatch_out"
+fi
+
+# Restore high_bundle for later tests
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${high_bundle}")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["risk"] = "high"  # restore to correct risk
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+
+# Test: T-006.7 - bundle risk EMPTIED while contract is high → check FAILS (no fail-open)
+python3 - <<PYEOF
+import json, pathlib
+p = pathlib.Path("${high_bundle}")
+b = json.loads(p.read_text(encoding="utf-8"))
+b["risk"] = ""  # strip the bundle risk to try to dodge provenance gating
+p.write_text(json.dumps(b, indent=2) + "\n", encoding="utf-8")
+PYEOF
+
+empty_risk_out=$(run_check_bundle "$high_bundle" "${T006_REPO}")
+if echo "$empty_risk_out" | grep -q "bundle risk"; then
+    ok "T-006.7: emptied bundle risk vs high contract fails closed"
+else
+    fail "T-006.7: stripped bundle risk must not dodge provenance. Got: $empty_risk_out"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 
