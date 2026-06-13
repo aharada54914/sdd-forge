@@ -26,15 +26,15 @@
  *   - Codex apply_patch: tool_input.command holds the raw patch envelope.
  *     For each *** Update File:/*** Add File: section targeting a tasks.md,
  *     count Approval: Approved on + lines vs - lines and deny if net positive.
- *   - Codex Bash/shell (tool_name bash/shell/exec_command/exec): a conservative
- *     heuristic - if the shell command string mentions tasks.md AND contains
- *     Approval: Approved, deny.
+ *   - Codex Bash/shell (tool_name bash/shell/exec_command/exec): deny shell
+ *     commands that write to a Codex agent role path; read-only commands are
+ *     allowed. Shell approval edits still follow the approval guard.
  *
  * Output modes:
  *   --emit exit     (default) allow = exit 0; deny = reason on stderr, exit 2.
  *   --emit copilot  always print {"permissionDecision": ...} to stdout, exit 0.
  *
- * Malformed/unknown payloads are ALWAYS allowed. The guard never crashes.
+ * Malformed/unknown payloads are denied. The guard never crashes.
  * Plain Node.js, no dependencies, works on Node 14+.
  */
 
@@ -47,11 +47,24 @@ const APPROVAL_RE = /Approval:\s*Approved/g;
 const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
 const SUDO_EPOCH_RE = /(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)/;
+const SUDO_ISSUED_RE = /(^|\n)[ \t]*issued-epoch:[ \t]*(\d+)/;
+const SHELL_AGENT_ROLE_READ_ONLY_RE = /^\s*(?:cat|ls|stat|head|tail|grep|rg)\b[^;&|><]*\.codex\/agents(?:\/|\b)/is;
+// C-02: shell write patterns that indicate SDD_SUDO manipulation
+const SHELL_SUDO_WRITE_RE = /(?:>|>>|\btee\b|\btouch\b|\bcp\b|\bmv\b|\brm\b|\bSet-Content\b|\bOut-File\b|\bNew-Item\b|\bRemove-Item\b)/i;
+const SHELL_SUDO_READ_ONLY_RE = /^\s*(?:cat|ls|test|grep|stat|head|tail|rg)\b/i;
+const TARGETED_COMMAND_TOOLS = new Set(['apply_patch', 'bash', 'shell', 'exec_command', 'exec']);
+const TARGETED_FILE_TOOLS = new Set(['edit', 'write', 'multiedit']);
+
+const SDD_SUDO_NAME = 'SDD_SUDO';
 
 const APPROVAL_MSG =
   "SDD deterministic gate: agents must not set 'Approval: Approved' in " +
   "tasks.md. Only a human may approve a task by editing the file directly. " +
   "Leave the task as Draft and ask the human to approve it.";
+
+const SDD_SUDO_WRITE_MSG =
+  "SDD deterministic gate: agents must not create, edit, or delete the " +
+  "SDD_SUDO flag file. Only a human may manage sudo mode.";
 
 const KILL_MSG =
   "SDD kill switch: AGENT_STOP exists at the project root. All tool use is " +
@@ -106,9 +119,67 @@ function emitDecision(decision, reason, mode) {
   process.exit(0);
 }
 
+function findGitRoot(start) {
+  let current = path.resolve(start);
+  for (let i = 0; i < 20; i++) {
+    const gitCandidate = path.join(current, '.git');
+    try {
+      if (fs.existsSync(gitCandidate)) {
+        return current;
+      }
+    } catch (e) {
+      // continue
+    }
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  return null;
+}
+
+function resolveProjectRoot() {
+  const envRoot = process.env.CLAUDE_PROJECT_DIR;
+  if (envRoot) {
+    return { sudoRoot: envRoot, bases: [envRoot, '.'] };
+  }
+  const gitRoot = findGitRoot('.');
+  if (gitRoot) {
+    return { sudoRoot: gitRoot, bases: [gitRoot, '.'] };
+  }
+  return { sudoRoot: '.', bases: ['.'] };
+}
+
 function killSwitchTripped() {
-  const root = process.env.CLAUDE_PROJECT_DIR || '.';
-  for (const base of [root, '.']) {
+  // C-08: walk parents up to git root checking for AGENT_STOP.
+  const envRoot = process.env.CLAUDE_PROJECT_DIR;
+  let bases;
+  if (envRoot) {
+    bases = [envRoot, '.'];
+  } else {
+    // Walk up to 20 levels; check every directory up to and including git root.
+    bases = [];
+    let current = path.resolve('.');
+    let gitRootFound = null;
+    for (let i = 0; i < 21; i++) {
+      bases.push(current);
+      const gitCandidate = path.join(current, '.git');
+      try {
+        if (fs.existsSync(gitCandidate)) {
+          gitRootFound = current;
+          break;
+        }
+      } catch (e) {
+        // continue
+      }
+      const parent = path.dirname(current);
+      if (parent === current) break;
+      current = parent;
+    }
+    if (!gitRootFound && !bases.includes('.')) {
+      bases.push('.');
+    }
+  }
+  for (const base of bases) {
     try {
       const candidate = path.join(base, 'AGENT_STOP');
       const stat = fs.statSync(candidate);
@@ -121,16 +192,46 @@ function killSwitchTripped() {
 }
 
 function sudoActive() {
-  const root = process.env.CLAUDE_PROJECT_DIR || '.';
-  for (const base of [root, '.']) {
+  // C-02/C-08: True if valid, unexpired SDD_SUDO flag exists at project root only.
+  // Validates: not a symlink, has issued-epoch, expires-epoch in future, TTL <= 86400s.
+  const proj = resolveProjectRoot();
+  const sudoRoot = proj.sudoRoot;
+  try {
+    const flag = path.join(sudoRoot, SDD_SUDO_NAME);
+    // C-02: symlink check — symlink SDD_SUDO is invalid.
     try {
-      const candidate = path.join(base, 'SDD_SUDO');
-      if (!fs.statSync(candidate).isFile()) continue;
-      const m = fs.readFileSync(candidate, 'utf8').match(SUDO_EPOCH_RE);
-      if (m && parseInt(m[2], 10) > Date.now() / 1000) return true;
+      const stats = fs.lstatSync(flag);
+      if (stats.isSymbolicLink()) {
+        return false;
+      }
+      if (!stats.isFile()) {
+        return false;
+      }
     } catch (e) {
-      // missing or unreadable — sudo stays inactive
+      return false;
     }
+    const content = fs.readFileSync(flag, 'utf8');
+    const mExp = content.match(SUDO_EPOCH_RE);
+    const mIss = content.match(SUDO_ISSUED_RE);
+    if (!mExp || !mIss) {
+      return false;
+    }
+    const expires = parseInt(mExp[2], 10);
+    const issued = parseInt(mIss[2], 10);
+    const now = Math.floor(Date.now() / 1000);
+    // C-02: issued-epoch <= now < expires-epoch AND TTL <= 86400
+    if (issued > now) {
+      return false;
+    }
+    if (expires <= now) {
+      return false;
+    }
+    if (expires - issued > 86400) {
+      return false;
+    }
+    return true;
+  } catch (e) {
+    // missing or unreadable — sudo stays inactive
   }
   return false;
 }
@@ -166,30 +267,33 @@ function patchIncreases(patch) {
 function patchWritesInvalidAgentRole(patch) {
   let currentIsAgentRole = false;
   let bodyLines = [];
+  let currentOp = null;
   for (const raw of patch.split('\n')) {
     const line = raw.replace(/\r$/, '');
     const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
     if (m) {
-      // Flush previous Add File section if it was for agent role.
-      // An empty body is also malformed: it lacks developer_instructions.
-      if (currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
+      // Flush previous Add File section if it targeted an agent role.
+      if (currentOp === 'Add' && currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
         return true;
       }
       bodyLines = [];
-      const op = m[1];
+      currentOp = m[1];
       const filePath = m[2].trim();
-      currentIsAgentRole = op === 'Add' && isAgentRolePath(filePath);
+      currentIsAgentRole = isAgentRolePath(filePath);
+      if (currentIsAgentRole && (currentOp === 'Update' || currentOp === 'Delete')) {
+        return true;
+      }
       continue;
     }
     if (line.startsWith('*** End Patch') || line.startsWith('*** Begin Patch')) {
       continue;
     }
-    if (currentIsAgentRole && line.startsWith('+') && !line.startsWith('+++')) {
+    if (currentOp === 'Add' && currentIsAgentRole && line.startsWith('+') && !line.startsWith('+++')) {
       bodyLines.push(line.slice(1));
     }
   }
   // Flush final section.
-  if (currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
+  if (currentOp === 'Add' && currentIsAgentRole && !hasDeveloperInstructions(bodyLines.join('\n'))) {
     return true;
   }
   return false;
@@ -197,12 +301,99 @@ function patchWritesInvalidAgentRole(patch) {
 
 function shellWritesInvalidAgentRole(cmd) {
   if (typeof cmd !== 'string') return false;
-  // If command contains developer_instructions, allow it.
-  if (cmd.includes('developer_instructions')) return false;
-  // Check if command redirects into an agent role path.
   const normalizedCmd = cmd.replace(/\\/g, '/');
-  const redirectRe = /(>>?|tee(?:\s+-a)?)\s*["']?[^"'\s]*\.codex\/agents\/[^"'\s]*\.toml/i;
-  return redirectRe.test(normalizedCmd);
+  if (!/\.codex\/agents(?:\/|\b)/i.test(normalizedCmd)) return false;
+  return !SHELL_AGENT_ROLE_READ_ONLY_RE.test(normalizedCmd);
+}
+
+function targetPathIsSddSudo(filePath) {
+  // C-02: Return True if file_path ends with 'SDD_SUDO' (case-insensitive).
+  if (!filePath) return false;
+  const normalized = String(filePath).replace(/\\/g, '/').toLowerCase();
+  return normalized.endsWith(SDD_SUDO_NAME.toLowerCase());
+}
+
+function shellTargetsSddSudo(cmd) {
+  // C-02: Return True if shell command targets SDD_SUDO file for write/delete.
+  if (typeof cmd !== 'string') return false;
+  // Check if SDD_SUDO appears in the command (case-insensitive).
+  if (!cmd.toLowerCase().includes(SDD_SUDO_NAME.toLowerCase())) {
+    return false;
+  }
+  // Check if there's a write operator or destructive verb.
+  if (SHELL_SUDO_WRITE_RE.test(cmd)) {
+    return true;
+  }
+  return false;
+}
+
+function payloadIsMalformed(payload) {
+  const toolName = String(payload.tool_name || '').toLowerCase();
+  const toolInput = payload.tool_input || {};
+  if (TARGETED_COMMAND_TOOLS.has(toolName) && (typeof toolInput.command !== 'string' || toolInput.command.trim() === '')) {
+    return true;
+  }
+  if (TARGETED_FILE_TOOLS.has(toolName)) {
+    if (typeof toolInput.file_path !== 'string' || toolInput.file_path.trim() === '') return true;
+    if (!('edits' in toolInput || 'new_string' in toolInput || 'content' in toolInput)) return true;
+  }
+  return false;
+}
+
+function writeContentIncreases(filePath, newContent) {
+  // C-03 Write: deny any net increase in Approved markers.
+  // True if newContent raises the file-wide Approved count (which also covers a
+  // brand-new file and any 'Approval: Approved' written outside a recognized
+  // ## T-NNN section), or if any individual task section goes from un-approved
+  // to Approved while the file-wide total stays constant.
+  let oldContent = '';
+  try {
+    oldContent = fs.readFileSync(filePath, 'utf8');
+  } catch (e) {
+    oldContent = '';
+  }
+
+  // File-wide guard: any net increase in total Approved markers is a deny.
+  // Catches headerless approvals, brand-new files, and bulk additions.
+  if (countApprovals(newContent) > countApprovals(oldContent)) {
+    return true;
+  }
+
+  // Task-section guard: catch a per-task Draft->Approved swap that keeps the
+  // file-wide total constant.
+  // Extract task sections from old and new content.
+  const taskRegex = /^##\s+(T-\S+)/gm;
+  const oldTasks = {};
+  const newTasks = {};
+
+  let match;
+  const oldSections = oldContent.split(taskRegex);
+  for (let i = 1; i < oldSections.length; i += 2) {
+    const taskId = oldSections[i];
+    const section = oldSections[i + 1] || '';
+    oldTasks[taskId] = countApprovals(section);
+  }
+
+  const newSections = newContent.split(taskRegex);
+  for (let i = 1; i < newSections.length; i += 2) {
+    const taskId = newSections[i];
+    const section = newSections[i + 1] || '';
+    newTasks[taskId] = countApprovals(section);
+  }
+
+  // Check for transitions: Draft → Approved or new Approved tasks.
+  for (const taskId in newTasks) {
+    const newCount = newTasks[taskId];
+    if (newCount > 0) {
+      const oldCount = oldTasks[taskId] || 0;
+      // If Approved count increased, or if this is a new task with Approved.
+      if (newCount > oldCount) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }
 
 function approvalIncreases(payload) {
@@ -230,31 +421,24 @@ function approvalIncreases(payload) {
   const filePath = toolInput.file_path || '';
   if (!isTasksMd(filePath)) return false;
 
-  let oldCount = 0;
-  let newCount = 0;
-
   if (Array.isArray(toolInput.edits)) {
+    // C-03: any Approved added in any new_string is a deny, regardless of deletions.
     for (const edit of toolInput.edits) {
       const e = edit || {};
-      oldCount += countApprovals(e.old_string);
-      newCount += countApprovals(e.new_string);
+      if (countApprovals(e.new_string) > 0) {
+        return true;
+      }
     }
+    return false;
   } else if ('new_string' in toolInput) {
-    oldCount = countApprovals(toolInput.old_string);
-    newCount = countApprovals(toolInput.new_string);
+    // C-03: any Approved in new_string is a deny (don't subtract old).
+    return countApprovals(toolInput.new_string) > 0;
   } else if ('content' in toolInput) {
-    try {
-      const diskContent = fs.readFileSync(filePath, 'utf8');
-      oldCount = countApprovals(diskContent);
-    } catch (e) {
-      oldCount = 0;
-    }
-    newCount = countApprovals(toolInput.content);
+    // C-03 Write: task-section-level comparison.
+    return writeContentIncreases(filePath, toolInput.content || '');
   } else {
     return false;
   }
-
-  return newCount > oldCount;
 }
 
 function agentRoleInvalid(payload) {
@@ -325,22 +509,66 @@ async function main() {
   try {
     payload = raw ? JSON.parse(raw) : {};
     if (typeof payload !== 'object' || payload === null || Array.isArray(payload)) {
-      payload = {};
+      throw new Error('payload must be a JSON object');
     }
   } catch (e) {
-    emitDecision('allow', null, mode);
+    emitDecision('deny', 'SDD deterministic gate: malformed hook payload.', mode);
     return;
   }
 
   try {
+    if (typeof payload.tool_name !== 'string' || typeof payload.tool_input !== 'object' || payload.tool_input === null || Array.isArray(payload.tool_input)) {
+      emitDecision('deny', 'SDD deterministic gate: malformed hook payload.', mode);
+      return;
+    }
+    if (payloadIsMalformed(payload)) {
+      emitDecision('deny', 'SDD deterministic gate: malformed hook payload.', mode);
+      return;
+    }
+
+    // Check 2a: C-02 SDD_SUDO write/delete protection (never bypassed by sudo).
+    const toolName = String(payload.tool_name || '').toLowerCase();
+    const toolInput = payload.tool_input || {};
+    const filePath = (toolInput.file_path || '').toLowerCase();
+
+    // File tools: Edit, Write, MultiEdit targeting SDD_SUDO.
+    if (['edit', 'write', 'multiedit'].includes(toolName)) {
+      if (targetPathIsSddSudo(filePath)) {
+        emitDecision('deny', SDD_SUDO_WRITE_MSG, mode);
+        return;
+      }
+    }
+
+    // Shell commands targeting SDD_SUDO.
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof toolInput.command === 'string') {
+      if (shellTargetsSddSudo(toolInput.command)) {
+        emitDecision('deny', SDD_SUDO_WRITE_MSG, mode);
+        return;
+      }
+    }
+
+    // apply_patch: check for SDD_SUDO targets.
+    if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
+      const patch = toolInput.command || '';
+      const fileRegex = /^\*\*\* (Update|Add|Delete) File: (.+)$/gm;
+      let fileMatch;
+      while ((fileMatch = fileRegex.exec(patch))) {
+        if (targetPathIsSddSudo(fileMatch[2].trim())) {
+          emitDecision('deny', SDD_SUDO_WRITE_MSG, mode);
+          return;
+        }
+      }
+    }
+
+    // Check 2b: Approval guard (bypassed by valid sudo).
     // Reset global regex state before use.
     APPROVAL_RE.lastIndex = 0;
     if (approvalIncreases(payload) && !sudoActive()) {
       emitDecision('deny', APPROVAL_MSG, mode);
     }
   } catch (e) {
-    // Never crash; fail open on the approval check.
-    emitDecision('allow', null, mode);
+    // Never crash; fail closed on the approval check.
+    emitDecision('deny', 'SDD deterministic gate: approval guard failed closed.', mode);
     return;
   }
 
@@ -359,8 +587,8 @@ async function main() {
       }
     }
   } catch (e) {
-    // Never crash; fail open on the agent-role check.
-    emitDecision('allow', null, mode);
+    // Never crash; fail closed on the agent-role check.
+    emitDecision('deny', 'SDD deterministic gate: agent-role guard failed closed.', mode);
     return;
   }
 

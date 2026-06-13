@@ -36,6 +36,7 @@ Usage: install.sh [options]
   --source-directory <path>      Use a local directory instead of downloading
 
 Environment: SDD_CODEX_HOME     Override ~/.codex destination for agent TOML files
+  Remote installs require a GitHub CLI-authenticated session (`gh auth login`).
 EOF
     exit 1
 }
@@ -148,6 +149,33 @@ install_copilot_plugins() {
     fi
 }
 
+get_github_auth_token() {
+    if ! command -v gh >/dev/null 2>&1; then
+        echo "Error: GitHub CLI (gh) was not found in PATH. Install it or use --source-directory." >&2
+        return 1
+    fi
+    local token=""
+    if ! token="$(gh auth token 2>/dev/null)"; then
+        echo "Error: GitHub CLI authentication is required for remote installs. Run 'gh auth login' first." >&2
+        return 1
+    fi
+    if [[ -z "$token" ]]; then
+        echo "Error: GitHub CLI did not return an auth token. Run 'gh auth login' first." >&2
+        return 1
+    fi
+    printf '%s' "$token"
+}
+
+download_authenticated_archive() {
+    local archive_path="$1"
+    local archive_url="https://api.github.com/repos/${REPOSITORY}/tarball/${REF}"
+    local token
+    token="$(get_github_auth_token)" || return 1
+    echo "Downloading authenticated archive from ${archive_url}"
+    printf 'header = "Authorization: Bearer %s"\nheader = "Accept: application/vnd.github+json"\n' "$token" |
+        curl -fsSL --config - "$archive_url" -o "$archive_path"
+}
+
 install_codex_agents() {
     local install_root_path="$1"
     local agent_source_dir="${install_root_path}/.codex/agents"
@@ -218,9 +246,7 @@ if [[ -n "$SOURCE_DIRECTORY" ]]; then
     SOURCE_ROOT="$(cd "$SOURCE_DIRECTORY" && pwd)"
 else
     TEMPORARY_ROOT="$(mktemp -d)"
-    DOWNLOAD_URL="https://codeload.github.com/${REPOSITORY}/tar.gz/${REF}"
-    echo "Downloading ${DOWNLOAD_URL}"
-    curl -fsSL "$DOWNLOAD_URL" -o "${TEMPORARY_ROOT}/source.tar.gz"
+    download_authenticated_archive "${TEMPORARY_ROOT}/source.tar.gz"
     tar -xzf "${TEMPORARY_ROOT}/source.tar.gz" -C "$TEMPORARY_ROOT"
 
     SOURCE_ROOT=""
@@ -353,10 +379,14 @@ mkdir -p "$INSTALL_PARENT"
 
 STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 
-# Copy everything including dot-dirs.
-# `cp -R src/. dst/` copies dot-directories on all POSIX platforms; an
-# additional explicit loop would double-nest them (.agents/.agents/ etc.).
-cp -R "${SOURCE_ROOT}/." "${STAGING_ROOT}/"
+# Copy distributable top-level entries, including dot-directories but excluding
+# repository history. Installing .git is unnecessary and can stall on locked
+# object files in a live checkout.
+for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
+    [[ -e "$entry" ]] || continue
+    [[ "$(basename "$entry")" == ".git" ]] && continue
+    cp -R "$entry" "${STAGING_ROOT}/"
+done
 
 # Backup existing install — generate a unique path without pre-creating it
 # so that `mv` renames the directory rather than moving it inside.

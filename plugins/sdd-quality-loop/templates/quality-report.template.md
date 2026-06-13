@@ -1,5 +1,8 @@
 # Quality Gate Report
 
+Task ID: {{task_id}}
+VERDICT: {{verdict}}
+
 ## Target
 {{target}}
 

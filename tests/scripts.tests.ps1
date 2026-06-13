@@ -12,16 +12,30 @@ New-Item -ItemType Directory -Path $workDir | Out-Null
 
 function Invoke-Gate {
     param([string]$Script, [string[]]$Arguments)
-    & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir $Script) @Arguments *> $null
+    $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir $Script) @Arguments 2>&1
     return $LASTEXITCODE
 }
 
 function Assert-ExitCode {
     param([string]$Name, [int]$Actual, [int]$Expected)
     if ($Actual -ne $Expected) {
-        throw "$Name expected exit $Expected but got $Actual"
+        $details = ($script:gateOutput | Out-String).Trim()
+        throw "$Name expected exit $Expected but got $Actual`n$details"
     }
     Write-Host "ok: $Name"
+}
+
+function Get-Sha256Hex {
+    param([string]$Path)
+    return (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
+}
+
+function New-ArtifactEntry {
+    param([string]$Path)
+    return [ordered]@{
+        path = $Path
+        sha256 = (Get-Sha256Hex -Path $Path)
+    }
 }
 
 Push-Location $workDir
@@ -31,7 +45,7 @@ try {
     New-Item -ItemType Directory -Path "reports/implementation" -Force | Out-Null
     New-Item -ItemType Directory -Path "verification" -Force | Out-Null
 
-    # tasks-good.md: T-001 is Done (needs quality-gate report + contract file), T-002 is Planned
+    # tasks-good.md: T-001 is Done (needs quality-gate report + contract + evidence bundle), T-002 is Planned
     @"
 # Tasks: demo
 ## T-001 First
@@ -41,9 +55,34 @@ Status: Done
 Approval: Draft
 Status: Planned
 "@ | Set-Content -Encoding Utf8 "tasks-good.md"
-    "quality gate report for T-001" | Set-Content -Encoding Utf8 "reports/quality-gate/r1.md"
-    # Create verification contract file required by Done status
-    '{"task_id":"T-001"}' | Set-Content -Encoding Utf8 "verification/T-001.contract.json"
+    @"
+Task ID: T-001
+VERDICT: PASS
+quality gate report for T-001
+"@ | Set-Content -Encoding Utf8 "reports/quality-gate/r1.md"
+    "pass evidence for T-001" | Set-Content -Encoding Utf8 "verification/T-001.evidence.log"
+    $taskOneContract = Get-Content -Raw -Encoding Utf8 (Join-Path $templatesDir "verification-contract.template.json") | ConvertFrom-Json
+    $taskOneContract.task_id = "T-001"
+    foreach ($check in $taskOneContract.checks) {
+        if ($check.required) {
+            $check.passes = $true
+            $check.evidence = "verification/T-001.evidence.log"
+        } else {
+            $check | Add-Member -NotePropertyName waiver_reason -NotePropertyValue "not applicable to this demo" -Force
+        }
+    }
+    $taskOneContract | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "verification/T-001.contract.json"
+    $taskOneBundle = [ordered]@{
+        task_id = "T-001"
+        quality_report = "reports/quality-gate/r1.md"
+        verification_contract = "verification/T-001.contract.json"
+        artifacts = @(
+            (New-ArtifactEntry "verification/T-001.contract.json"),
+            (New-ArtifactEntry "reports/quality-gate/r1.md"),
+            (New-ArtifactEntry "verification/T-001.evidence.log")
+        )
+    }
+    $taskOneBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "verification/T-001.evidence.json"
 
     @"
 ## T-001 First
@@ -232,19 +271,77 @@ Waiting for API credentials from vendor.
 "@ | Set-Content -Encoding Utf8 "tasks-blocked-real.md"
     Assert-ExitCode "check-task-state blocked with real text passes" (Invoke-Gate "check-task-state.ps1" @("tasks-blocked-real.md")) 0
 
-    # -- Done without verification contract json → exit 1 --
+    # -- Done without evidence bundle json → exit 1 --
     New-Item -ItemType Directory -Path "spec-dir/verification" -Force | Out-Null
-    "quality gate report for T-040" | Set-Content -Encoding Utf8 "reports/quality-gate/r-T040.md"
+    @"
+Task ID: T-040
+VERDICT: PASS
+quality gate report for T-040
+"@ | Set-Content -Encoding Utf8 "reports/quality-gate/r-T040.md"
+    "pass evidence for T-040" | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-evidence.log"
+    $doneContract = Get-Content -Raw -Encoding Utf8 $templatePath | ConvertFrom-Json
+    $doneContract.task_id = "T-040"
+    foreach ($check in $doneContract.checks) {
+        if ($check.required) {
+            $check.passes = $true
+            $check.evidence = "spec-dir/verification/T-040-evidence.log"
+        } else {
+            $check | Add-Member -NotePropertyName waiver_reason -NotePropertyValue "not applicable to this feature" -Force
+        }
+    }
+    $doneContract | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.contract.json"
     @"
 ## T-040 DoneNoContract
 Approval: Approved
 Status: Done
 "@ | Set-Content -Encoding Utf8 "spec-dir/tasks-done-nocontract.md"
-    Assert-ExitCode "check-task-state done without contract fails" (Invoke-Gate "check-task-state.ps1" @("spec-dir/tasks-done-nocontract.md", "-ReportsDir", "reports/quality-gate")) 1
+    Assert-ExitCode "check-task-state done without bundle fails" (Invoke-Gate "check-task-state.ps1" @("spec-dir/tasks-done-nocontract.md", "-ReportsDir", "reports/quality-gate")) 1
 
-    # -- Done with verification contract json AND quality-gate report → exit 0 --
-    '{"task_id":"T-040"}' | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.contract.json"
-    Assert-ExitCode "check-task-state done with contract passes" (Invoke-Gate "check-task-state.ps1" @("spec-dir/tasks-done-nocontract.md", "-ReportsDir", "reports/quality-gate")) 0
+    # -- Done with evidence bundle → exit 0 --
+    $doneBundle = [ordered]@{
+        task_id = "T-040"
+        quality_report = "reports/quality-gate/r-T040.md"
+        verification_contract = "spec-dir/verification/T-040.contract.json"
+        artifacts = @(
+            (New-ArtifactEntry "spec-dir/verification/T-040.contract.json"),
+            (New-ArtifactEntry "reports/quality-gate/r-T040.md"),
+            (New-ArtifactEntry "spec-dir/verification/T-040-evidence.log")
+        )
+    }
+    $doneBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+    Assert-ExitCode "check-task-state done with bundle passes" (Invoke-Gate "check-task-state.ps1" @("spec-dir/tasks-done-nocontract.md", "-ReportsDir", "reports/quality-gate")) 0
+
+    # -- check-evidence-bundle direct validation --
+    Assert-ExitCode "check-evidence-bundle passing" (Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040.evidence.json", "-RepoRoot", ".")) 0
+
+    $missingArtifactBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $missingArtifactBundle.artifacts = @(
+        $missingArtifactBundle.artifacts[0],
+        $missingArtifactBundle.artifacts[1]
+    )
+    $missingArtifactBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-missing-artifact.evidence.json"
+    Assert-ExitCode "check-evidence-bundle missing passing evidence artifact" (Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040-missing-artifact.evidence.json", "-RepoRoot", ".")) 1
+
+    $badShaBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $badShaBundle.artifacts[0].sha256 = "0000000000000000000000000000000000000000000000000000000000000000"
+    $badShaBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-bad-sha.evidence.json"
+    Assert-ExitCode "check-evidence-bundle sha mismatch fails" (Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040-bad-sha.evidence.json", "-RepoRoot", ".")) 1
+
+    $badPathBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $badPathBundle.artifacts[2].path = "../outside.log"
+    $badPathBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-bad-path.evidence.json"
+    Assert-ExitCode "check-evidence-bundle path safety fails" (Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040-bad-path.evidence.json", "-RepoRoot", ".")) 1
+
+    $badReportBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $badReportBundle.quality_report = "reports/quality-gate/r-T040-bad.md"
+    @"
+Task ID: T-040
+VERDICT: NEEDS_WORK
+quality gate report for T-040
+"@ | Set-Content -Encoding Utf8 "reports/quality-gate/r-T040-bad.md"
+    $badReportBundle.artifacts[1] = (New-ArtifactEntry "reports/quality-gate/r-T040-bad.md")
+    $badReportBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-bad-report.evidence.json"
+    Assert-ExitCode "check-evidence-bundle bad report fails" (Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040-bad-report.evidence.json", "-RepoRoot", ".")) 1
 
     # =========================================================
     # NEW RULES: check-placeholders - TODO_REPLACE_WITH_PROJECT_COMMANDS
@@ -291,21 +388,59 @@ Status: Implementation Complete
         & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-blocked-real.md" *> $null
         Assert-ExitCode "check-task-state.sh blocked real text passes" $LASTEXITCODE 0
 
-        # Done without contract (use fresh task id T-041 not yet covered)
+        # Done without bundle (use fresh task id T-041 not yet covered)
         New-Item -ItemType Directory -Path "spec-dir2/verification" -Force | Out-Null
-        "quality gate report for T-041" | Set-Content -Encoding Utf8 "reports/quality-gate/r-T041.md"
+        @"
+Task ID: T-041
+VERDICT: PASS
+quality gate report for T-041
+"@ | Set-Content -Encoding Utf8 "reports/quality-gate/r-T041.md"
+        "pass evidence for T-041" | Set-Content -Encoding Utf8 "spec-dir2/verification/T-041-evidence.log"
+        $doneContractSh = Get-Content -Raw -Encoding Utf8 $templatePath | ConvertFrom-Json
+        $doneContractSh.task_id = "T-041"
+        foreach ($check in $doneContractSh.checks) {
+            if ($check.required) {
+                $check.passes = $true
+                $check.evidence = "spec-dir2/verification/T-041-evidence.log"
+            } else {
+                $check | Add-Member -NotePropertyName waiver_reason -NotePropertyValue "not applicable to this feature" -Force
+            }
+        }
+        $doneContractSh | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir2/verification/T-041.contract.json"
         @"
 ## T-041 DoneNoContractSh
 Approval: Approved
 Status: Done
 "@ | Set-Content -Encoding Utf8 "spec-dir2/tasks-done-nocontract-sh.md"
         & bash (Join-Path $scriptsDir "check-task-state.sh") "spec-dir2/tasks-done-nocontract-sh.md" "reports/quality-gate" *> $null
-        Assert-ExitCode "check-task-state.sh done without contract fails" $LASTEXITCODE 1
+        Assert-ExitCode "check-task-state.sh done without bundle fails" $LASTEXITCODE 1
 
-        # Done with contract
-        '{"task_id":"T-041"}' | Set-Content -Encoding Utf8 "spec-dir2/verification/T-041.contract.json"
+        # Done with bundle
+        $doneBundleSh = [ordered]@{
+            task_id = "T-041"
+            quality_report = "reports/quality-gate/r-T041.md"
+            verification_contract = "spec-dir2/verification/T-041.contract.json"
+            artifacts = @(
+                (New-ArtifactEntry "spec-dir2/verification/T-041.contract.json"),
+                (New-ArtifactEntry "reports/quality-gate/r-T041.md"),
+                (New-ArtifactEntry "spec-dir2/verification/T-041-evidence.log")
+            )
+        }
+        $doneBundleSh | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir2/verification/T-041.evidence.json"
         & bash (Join-Path $scriptsDir "check-task-state.sh") "spec-dir2/tasks-done-nocontract-sh.md" "reports/quality-gate" *> $null
-        Assert-ExitCode "check-task-state.sh done with contract passes" $LASTEXITCODE 0
+        Assert-ExitCode "check-task-state.sh done with bundle passes" $LASTEXITCODE 0
+
+        & bash (Join-Path $scriptsDir "check-evidence-bundle.sh") "spec-dir2/verification/T-041.evidence.json" "." *> $null
+        Assert-ExitCode "check-evidence-bundle.sh passing" $LASTEXITCODE 0
+
+        $shMissingArtifactBundle = Get-Content -Raw -Encoding Utf8 "spec-dir2/verification/T-041.evidence.json" | ConvertFrom-Json
+        $shMissingArtifactBundle.artifacts = @(
+            $shMissingArtifactBundle.artifacts[0],
+            $shMissingArtifactBundle.artifacts[1]
+        )
+        $shMissingArtifactBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir2/verification/T-041-missing-artifact.evidence.json"
+        & bash (Join-Path $scriptsDir "check-evidence-bundle.sh") "spec-dir2/verification/T-041-missing-artifact.evidence.json" "." *> $null
+        Assert-ExitCode "check-evidence-bundle.sh missing passing evidence artifact" $LASTEXITCODE 1
 
         # TODO_REPLACE_WITH_PROJECT_COMMANDS
         & bash (Join-Path $scriptsDir "check-placeholders.sh") "src/ci-placeholder.sh" *> $null

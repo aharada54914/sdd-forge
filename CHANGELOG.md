@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.8.0
+
+### 変更内容
+
+- private repo 前提の remote install に対応。`install.sh` / `install.ps1` は `gh auth token` を使って GitHub API の archive を取得。
+- `SourceDirectory` の既存テストを維持しつつ、認証済み remote path の mock テストを追加。
+- README / troubleshooting を private 前提に更新。
+- フックガードを fail-closed に変更し、agent role の更新・削除・shell 書き込みを拒否。
+- `Done` 判定に SHA-256 付き evidence bundle を必須化。
+
+### v0.7.0 からの移行
+
+- `Done` タスクには `specs/<feature>/verification/<task-id>.evidence.json` が必要です。
+- evidence bundle は quality report、verification contract、passing evidence の SHA-256 を記録します。
+- malformed hook payload、guard runtime 不在、Copilot guard 不在は拒否されます。
+
 ## v0.7.0
 
 ### 新機能

@@ -22,9 +22,19 @@ make_fake_commands() {
     local log_path="$2"
     local fail_pattern="${3:-}"
     mkdir -p "$bin_dir"
-    for cmd in codex claude copilot; do
+    for cmd in codex claude copilot gh; do
         local shim="${bin_dir}/${cmd}"
-        if [[ -n "$fail_pattern" ]]; then
+        if [[ "$cmd" == "gh" ]]; then
+            cat > "$shim" <<SHIM
+#!/bin/sh
+echo "gh \$*" >> "${log_path}"
+if [ "\$1" = "auth" ] && [ "\$2" = "token" ]; then
+    printf '%s\n' "fake-gh-token"
+    exit 0
+fi
+exit 0
+SHIM
+        elif [[ -n "$fail_pattern" ]]; then
             cat > "$shim" <<SHIM
 #!/bin/sh
 echo "${cmd} \$*" >> "${log_path}"
@@ -40,6 +50,81 @@ SHIM
         fi
         chmod +x "$shim"
     done
+}
+
+make_archive_fixture() {
+    local source_root="$1"
+    local archive_root
+    archive_root="$(mktemp -d)"
+    local archive_source="${archive_root}/repo"
+    local archive_path="${archive_root}/source.tar.gz"
+    mkdir -p "$archive_source"
+    for entry in "$source_root"/* "$source_root"/.[!.]* "$source_root"/..?*; do
+        [[ -e "$entry" ]] || continue
+        [[ "$(basename "$entry")" == ".git" ]] && continue
+        cp -R "$entry" "$archive_source/"
+    done
+    tar -czf "$archive_path" -C "$archive_root" "repo"
+    printf '%s\n' "$archive_path"
+}
+
+make_fake_remote_fetcher() {
+    local bin_dir="$1"
+    local log_path="$2"
+    local archive_path="$3"
+    mkdir -p "$bin_dir"
+
+    cat > "${bin_dir}/gh" <<SHIM
+#!/bin/sh
+echo "gh \$*" >> "${log_path}"
+if [ "\$1" = "auth" ] && [ "\$2" = "token" ]; then
+    printf '%s\n' "fake-gh-token"
+    exit 0
+fi
+exit 0
+SHIM
+    chmod +x "${bin_dir}/gh"
+
+    cat > "${bin_dir}/curl" <<SHIM
+#!/bin/sh
+echo "curl \$*" >> "${log_path}"
+config=""
+case "\$*" in
+    *"--config -"*) config="\$(cat)" ;;
+esac
+case "\$config" in
+    *"Authorization: Bearer fake-gh-token"*) ;;
+    *) echo "missing GitHub auth header" >&2; exit 9 ;;
+esac
+case "\$*" in
+    *"fake-gh-token"*) echo "GitHub token leaked through curl arguments" >&2; exit 9 ;;
+esac
+case "\$*" in
+    *"https://api.github.com/repos/"*) ;;
+    *) echo "unexpected remote download URL" >&2; exit 9 ;;
+esac
+output=""
+    while [ "\$#" -gt 0 ]; do
+    case "\$1" in
+        -o)
+            output="\$2"
+            shift 2
+            ;;
+        -H)
+            shift 2
+            ;;
+        -fsSL)
+            shift
+            ;;
+        *)
+            shift
+            ;;
+    esac
+done
+cp "${archive_path}" "\$output"
+exit 0
+SHIM
+    chmod +x "${bin_dir}/curl"
 }
 
 # Run a scenario. Args handled by variables set before calling.
@@ -189,6 +274,75 @@ invoke_installer_scenario() {
     [[ $all_ok -eq 1 ]]
 }
 
+invoke_remote_installer_scenario() {
+    local test_root
+    test_root="$(mktemp -d)"
+    local install_root="${test_root}/installed"
+    local fake_bin="${test_root}/bin"
+    local command_log="${test_root}/commands.log"
+    local original_path="$PATH"
+    local original_codex_home="${SDD_CODEX_HOME:-}"
+    local archive_path
+    archive_path="$(make_archive_fixture "$REPO_ROOT")"
+
+    make_fake_commands "$fake_bin" "$command_log"
+    make_fake_remote_fetcher "$fake_bin" "$command_log" "$archive_path"
+    export PATH="${fake_bin}:${original_path}"
+    export SDD_CODEX_HOME="${test_root}/codex-home"
+
+    local installer_failed=0
+    local out
+    out="$(run_installer \
+        --install-root "$install_root" \
+        --target All \
+        2>&1)" || installer_failed=1
+
+    export PATH="$original_path"
+    if [[ -z "$original_codex_home" ]]; then
+        unset SDD_CODEX_HOME
+    else
+        export SDD_CODEX_HOME="$original_codex_home"
+    fi
+
+    local remote_ok=1
+    if [[ $installer_failed -ne 0 ]]; then
+        echo "  installer output: $out" >&2
+        fail "authenticated remote install failed"
+        remote_ok=0
+    fi
+    for p in $ALL_PLUGINS; do
+        if [[ ! -f "${install_root}/plugins/${p}/.codex-plugin/plugin.json" ]]; then
+            fail "authenticated remote install did not copy plugin: $p"
+            remote_ok=0
+        fi
+    done
+    if ! grep -qF "gh auth token" "$command_log"; then
+        fail "authenticated remote install did not request a GitHub token"
+        remote_ok=0
+    fi
+    if ! grep -qF "curl -fsSL" "$command_log"; then
+        fail "authenticated remote install did not use curl"
+        remote_ok=0
+    fi
+    if ! grep -qF "https://api.github.com/repos/aharada54914/sdd-forge/tarball/main" "$command_log"; then
+        fail "authenticated remote install did not use the GitHub API archive URL"
+        remote_ok=0
+    fi
+    if grep -qF "raw.githubusercontent.com" "$command_log" || grep -qF "codeload.github.com" "$command_log"; then
+        fail "authenticated remote install still referenced raw/codeload hosts"
+        remote_ok=0
+    fi
+
+    if [[ -d "$test_root" ]]; then
+        rm -rf "$test_root"
+    fi
+    if [[ -d "$(dirname "$archive_path")" ]]; then
+        rm -rf "$(dirname "$archive_path")"
+    fi
+
+    [[ $remote_ok -eq 1 ]]
+}
+
 # ---------------------------------------------------------------------------
 # Scenario (a): full install — all plugins registered
 # ---------------------------------------------------------------------------
@@ -293,6 +447,10 @@ for p in $ALL_PLUGINS; do
         _g_ok=0
     fi
 done
+if [[ -d "${_g_install}/.git" ]]; then
+    fail "idempotency: .git repository history was installed"
+    _g_ok=0
+fi
 rm -rf "$_g_root"
 [[ $_g_ok -eq 1 ]] && ok "idempotency: second install exits 0, state consistent"
 
@@ -396,9 +554,12 @@ _j_root="$(mktemp -d)"
 _j_src="${_j_root}/bad-src"
 _j_install="${_j_root}/installed"
 mkdir -p "$_j_src" "$_j_install"
-# Copy repository to bad source, excluding .git
-cp -R "$REPO_ROOT"/. "$_j_src/" 2>/dev/null || true
-rm -rf "$_j_src/.git"
+# Copy repository to bad source, excluding .git.
+for entry in "$REPO_ROOT"/* "$REPO_ROOT"/.[!.]* "$REPO_ROOT"/..?*; do
+    [[ -e "$entry" ]] || continue
+    [[ "$(basename "$entry")" == ".git" ]] && continue
+    cp -R "$entry" "$_j_src/"
+done
 # Overwrite sdd-investigator.toml to make it malformed
 echo 'name = "sdd-investigator"' > "$_j_src/.codex/agents/sdd-investigator.toml"
 # Pre-create install root with existing.marker
@@ -416,6 +577,15 @@ if [[ ! -f "${_j_install}/existing.marker" ]]; then
 fi
 rm -rf "$_j_root"
 [[ $_j_ok -eq 1 ]] && ok "malformed source agent TOML rejected before deployment"
+
+# ---------------------------------------------------------------------------
+# Scenario (k): authenticated remote install uses GitHub CLI token flow
+# ---------------------------------------------------------------------------
+if invoke_remote_installer_scenario; then
+    ok "authenticated remote install uses GitHub CLI token flow"
+else
+    fail "authenticated remote install uses GitHub CLI token flow"
+fi
 
 # ---------------------------------------------------------------------------
 # Summary

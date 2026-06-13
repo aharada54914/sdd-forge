@@ -37,6 +37,17 @@ function Invoke-KillSwitchPs {
     } finally { Pop-Location }
 }
 
+function Write-SudoFlag {
+    # The hardened guard requires BOTH issued-epoch and expires-epoch with a
+    # TTL <= 86400s (matches guards.tests.sh write_sudo_flag and sudo_active()).
+    param([string]$Path, [int64]$ExpiresEpoch, [int64]$IssuedEpoch = -1)
+    if ($IssuedEpoch -lt 0) { $IssuedEpoch = [int64]([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) }
+    @"
+issued-epoch: $IssuedEpoch
+expires-epoch: $ExpiresEpoch
+"@ | Set-Content -Encoding Utf8 (Join-Path $Path "SDD_SUDO")
+}
+
 Push-Location $workDir
 try {
     New-Item -ItemType Directory -Path "specs/x" -Force | Out-Null
@@ -94,9 +105,9 @@ Approval: Draft
     try { $okDeny = ((($r.Out | ConvertFrom-Json).permissionDecision) -eq "deny") } catch { }
     Assert "ps: copilot deny -> JSON deny, exit 0" ($r.Code -eq 0 -and $okDeny)
 
-    # --- malformed payload -> allow ---
+    # --- malformed payload -> deny ---
     $r = Invoke-GuardPs 'this is not json'
-    Assert "ps: malformed payload -> allow (exit 0)" ($r.Code -eq 0)
+    Assert "ps: malformed payload -> deny (exit 2)" ($r.Code -eq 2)
 
     # --- Agent-role guard tests for PowerShell ---
     # 1. DENY: Write-style payload to agent role path without developer_instructions
@@ -115,9 +126,17 @@ Approval: Draft
     $r = Invoke-GuardPs '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
     Assert "ps: apply_patch Add File agent role with empty body -> deny (exit 2)" ($r.Code -eq 2)
 
-    # 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
+    # 4b. ALLOW: apply_patch Add File with developer_instructions
+    $r = Invoke-GuardPs '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n+name = \"regression-judge\"\n+developer_instructions = \"\"\"test\"\"\"\n*** End Patch"}}'
+    Assert "ps: apply_patch Add File agent role with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+
+    # 4c. DENY: apply_patch Delete File targeting agent role path
+    $r = Invoke-GuardPs '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Delete File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+    Assert "ps: apply_patch Delete File agent role -> deny (exit 2)" ($r.Code -eq 2)
+
+    # 5. DENY: apply_patch Update File section touching agent role path (partial diff)
     $r = Invoke-GuardPs '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
-    Assert "ps: apply_patch Update File agent role -> allow (exit 0)" ($r.Code -eq 0)
+    Assert "ps: apply_patch Update File agent role -> deny (exit 2)" ($r.Code -eq 2)
 
     # 6. DENY: shell payload redirect into agent role path without developer_instructions in command
     $r = Invoke-GuardPs '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=1\nEOF"}}'
@@ -127,9 +146,14 @@ Approval: Draft
     $r = Invoke-GuardPs '{"tool_name":"shell","tool_input":{"command":"cat ~/.codex/agents/judge.toml"}}'
     Assert "ps: shell read agent role path -> allow (exit 0)" ($r.Code -eq 0)
 
-    # 8. ALLOW: shell heredoc command containing developer_instructions
+    $r = Invoke-GuardPs '{"tool_name":"shell","tool_input":{"command":"cd ~/.codex/agents && cat > judge.toml <<EOF\nname=judge\nEOF"}}'
+    Assert "ps: relative write after cd into agent role directory -> deny (exit 2)" ($r.Code -eq 2)
+    $r = Invoke-GuardPs '{"tool_name":"shell","tool_input":{"command":"cp /tmp/source.toml ~/.codex/agents/evil.toml"}}'
+    Assert "ps: cp into agent role directory -> deny (exit 2)" ($r.Code -eq 2)
+
+    # 8. DENY: shell heredoc command containing developer_instructions still counts as a write
     $r = Invoke-GuardPs '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
-    Assert "ps: shell heredoc with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+    Assert "ps: shell heredoc with developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
 
     # --- kill-switch.ps1: AGENT_STOP present -> 2; absent -> 0 ---
     $ksDir = Join-Path $workDir "ks"
@@ -161,7 +185,7 @@ Approval: Draft
         try { $okDeny = ((($r.Out | ConvertFrom-Json).permissionDecision) -eq "deny") } catch { }
         Assert "sh: copilot deny -> JSON deny, exit 0" ($r.Code -eq 0 -and $okDeny)
         $r = Invoke-GuardSh 'not json'
-        Assert "sh: malformed -> allow" ($r.Code -eq 0)
+        Assert "sh: malformed -> deny" ($r.Code -eq 2)
 
         # Agent-role guard tests for sh dispatcher
         $r = Invoke-GuardSh '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\auditor.toml","content":"name = \"auditor\"\n"}}'
@@ -172,14 +196,22 @@ Approval: Draft
         Assert "sh: Write to non-agent path -> allow (exit 0)" ($r.Code -eq 0)
         $r = Invoke-GuardSh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
         Assert "sh: apply_patch Add File agent role with empty body -> deny (exit 2)" ($r.Code -eq 2)
+        $r = Invoke-GuardSh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n+name = \"regression-judge\"\n+developer_instructions = \"\"\"test\"\"\"\n*** End Patch"}}'
+        Assert "sh: apply_patch Add File agent role with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+        $r = Invoke-GuardSh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Delete File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+        Assert "sh: apply_patch Delete File agent role -> deny (exit 2)" ($r.Code -eq 2)
         $r = Invoke-GuardSh '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
-        Assert "sh: apply_patch Update File agent role -> allow (exit 0)" ($r.Code -eq 0)
+        Assert "sh: apply_patch Update File agent role -> deny (exit 2)" ($r.Code -eq 2)
         $r = Invoke-GuardSh '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=1\nEOF"}}'
         Assert "sh: shell redirect into agent role without developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
         $r = Invoke-GuardSh '{"tool_name":"shell","tool_input":{"command":"cat ~/.codex/agents/judge.toml"}}'
         Assert "sh: shell read agent role path -> allow (exit 0)" ($r.Code -eq 0)
+        $r = Invoke-GuardSh '{"tool_name":"shell","tool_input":{"command":"cd ~/.codex/agents && cat > judge.toml <<EOF\nname=judge\nEOF"}}'
+        Assert "sh: relative write after cd into agent role directory -> deny (exit 2)" ($r.Code -eq 2)
+        $r = Invoke-GuardSh '{"tool_name":"shell","tool_input":{"command":"cp /tmp/source.toml ~/.codex/agents/evil.toml"}}'
+        Assert "sh: cp into agent role directory -> deny (exit 2)" ($r.Code -eq 2)
         $r = Invoke-GuardSh '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
-        Assert "sh: shell heredoc with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+        Assert "sh: shell heredoc with developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
     } else {
         Write-Host "bash+python3 not both found; skipping POSIX dispatcher tests."
     }
@@ -248,9 +280,9 @@ Approval: Draft
         try { $okDeny = ((($r.Out | ConvertFrom-Json).permissionDecision) -eq "deny") } catch { }
         Assert "node: copilot deny -> JSON deny, exit 0" ($r.Code -eq 0 -and $okDeny)
 
-        # --- malformed payload -> allow ---
+        # --- malformed payload -> deny ---
         $r = Invoke-GuardNode 'this is not json'
-        Assert "node: malformed payload -> allow (exit 0)" ($r.Code -eq 0)
+        Assert "node: malformed payload -> deny (exit 2)" ($r.Code -eq 2)
 
         # --- Agent-role guard tests for Node.js ---
         # 1. DENY: Write-style payload to agent role path without developer_instructions
@@ -269,9 +301,17 @@ Approval: Draft
         $r = Invoke-GuardNode '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
         Assert "node: apply_patch Add File agent role with empty body -> deny (exit 2)" ($r.Code -eq 2)
 
-        # 5. ALLOW: apply_patch Update File section touching agent role path (partial diff)
+        # 4b. ALLOW: apply_patch Add File with developer_instructions
+        $r = Invoke-GuardNode '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Add File: /home/u/.codex/agents/regression-judge.toml\n+name = \"regression-judge\"\n+developer_instructions = \"\"\"test\"\"\"\n*** End Patch"}}'
+        Assert "node: apply_patch Add File agent role with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+
+        # 4c. DENY: apply_patch Delete File targeting agent role path
+        $r = Invoke-GuardNode '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Delete File: /home/u/.codex/agents/regression-judge.toml\n*** End Patch"}}'
+        Assert "node: apply_patch Delete File agent role -> deny (exit 2)" ($r.Code -eq 2)
+
+        # 5. DENY: apply_patch Update File section touching agent role path (partial diff)
         $r = Invoke-GuardNode '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: /home/u/.codex/agents/judge.toml\n-name = \"old\"\n+name = \"judge\"\n*** End Patch"}}'
-        Assert "node: apply_patch Update File agent role -> allow (exit 0)" ($r.Code -eq 0)
+        Assert "node: apply_patch Update File agent role -> deny (exit 2)" ($r.Code -eq 2)
 
         # 6. DENY: shell payload redirect into agent role path without developer_instructions in command
         $r = Invoke-GuardNode '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=1\nEOF"}}'
@@ -280,10 +320,14 @@ Approval: Draft
         # 7. ALLOW: shell payload read from agent role path (no redirect)
         $r = Invoke-GuardNode '{"tool_name":"shell","tool_input":{"command":"cat ~/.codex/agents/judge.toml"}}'
         Assert "node: shell read agent role path -> allow (exit 0)" ($r.Code -eq 0)
+        $r = Invoke-GuardNode '{"tool_name":"shell","tool_input":{"command":"cd ~/.codex/agents && cat > judge.toml <<EOF\nname=judge\nEOF"}}'
+        Assert "node: relative write after cd into agent role directory -> deny (exit 2)" ($r.Code -eq 2)
+        $r = Invoke-GuardNode '{"tool_name":"shell","tool_input":{"command":"cp /tmp/source.toml ~/.codex/agents/evil.toml"}}'
+        Assert "node: cp into agent role directory -> deny (exit 2)" ($r.Code -eq 2)
 
-        # 8. ALLOW: shell heredoc command containing developer_instructions
+        # 8. DENY: shell heredoc command containing developer_instructions still counts as a write
         $r = Invoke-GuardNode '{"tool_name":"shell","tool_input":{"command":"cat > ~/.codex/agents/judge.toml <<EOF\nname=judge\ndeveloper_instructions=\"\"\"test\"\"\"\nEOF"}}'
-        Assert "node: shell heredoc with developer_instructions -> allow (exit 0)" ($r.Code -eq 0)
+        Assert "node: shell heredoc with developer_instructions -> deny (exit 2)" ($r.Code -eq 2)
 
         # --- kill-switch.js: AGENT_STOP absent via CLAUDE_PROJECT_DIR -> 0 ---
         $ksNodeDir = Join-Path $workDir "ks-node"
@@ -416,7 +460,7 @@ Approval: Draft
 
         # malformed
         $r = Invoke-GuardPy 'this is not json'
-        Assert "py: malformed payload -> allow (exit 0)" ($r.Code -eq 0)
+        Assert "py: malformed payload -> deny (exit 2)" ($r.Code -eq 2)
 
         # copilot mode deny
         $r = Invoke-GuardPy '{"tool_name":"Edit","tool_input":{"file_path":"/p/specs/x/tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}' "copilot"
@@ -482,7 +526,7 @@ Approval: Draft
     $sudoDirA = Join-Path $workDir "sudo-ps-a"
     New-Item -ItemType Directory -Path $sudoDirA -Force | Out-Null
     $sudoEpoch = [int64]([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) + 3600
-    "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirA "SDD_SUDO")
+    Write-SudoFlag $sudoDirA $sudoEpoch
     $sudoPayload = '{"tool_name":"Edit","tool_input":{"file_path":"tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
     Push-Location $sudoDirA
     $sudoRa = $null
@@ -496,7 +540,7 @@ Approval: Draft
     $sudoDirB = Join-Path $workDir "sudo-ps-b"
     New-Item -ItemType Directory -Path $sudoDirB -Force | Out-Null
     $expiredEpoch = [int64]([DateTimeOffset]::UtcNow.ToUnixTimeSeconds()) - 10
-    "expires-epoch: $expiredEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirB "SDD_SUDO")
+    Write-SudoFlag $sudoDirB $expiredEpoch
     Push-Location $sudoDirB
     $sudoRb = $null
     try {
@@ -520,7 +564,7 @@ Approval: Draft
     # Test d: valid sudo AND AGENT_STOP both present -> DENY (kill switch wins)
     $sudoDirD = Join-Path $workDir "sudo-ps-d"
     New-Item -ItemType Directory -Path $sudoDirD -Force | Out-Null
-    "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirD "SDD_SUDO")
+    Write-SudoFlag $sudoDirD $sudoEpoch
     "stop" | Set-Content -Encoding Utf8 (Join-Path $sudoDirD "AGENT_STOP")
     Push-Location $sudoDirD
     $sudoRd = $null
@@ -533,7 +577,7 @@ Approval: Draft
     # Test e: valid sudo + invalid agent-role Write payload -> DENY (sudo does not bypass check 3)
     $sudoDirE = Join-Path $workDir "sudo-ps-e"
     New-Item -ItemType Directory -Path $sudoDirE -Force | Out-Null
-    "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirE "SDD_SUDO")
+    Write-SudoFlag $sudoDirE $sudoEpoch
     $agentPayload = '{"tool_name":"Write","tool_input":{"file_path":"C:\\Users\\u\\.codex\\agents\\foo.toml","content":"name = \"foo\"\n"}}'
     Push-Location $sudoDirE
     $sudoRe = $null
@@ -549,7 +593,7 @@ Approval: Draft
         # Test a: valid sudo + approval increase -> ALLOW
         $sudoDirNodeA = Join-Path $workDir "sudo-node-ps-a"
         New-Item -ItemType Directory -Path $sudoDirNodeA -Force | Out-Null
-        "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeA "SDD_SUDO")
+        Write-SudoFlag $sudoDirNodeA $sudoEpoch
         Push-Location $sudoDirNodeA
         $sudoNodeRa = Invoke-GuardNode $sudoPayload "exit"
         Pop-Location
@@ -559,7 +603,7 @@ Approval: Draft
         # Test b: expired sudo + approval increase -> DENY
         $sudoDirNodeB = Join-Path $workDir "sudo-node-ps-b"
         New-Item -ItemType Directory -Path $sudoDirNodeB -Force | Out-Null
-        "expires-epoch: $expiredEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeB "SDD_SUDO")
+        Write-SudoFlag $sudoDirNodeB $expiredEpoch
         Push-Location $sudoDirNodeB
         $sudoNodeRb = Invoke-GuardNode $sudoPayload "exit"
         Pop-Location
@@ -579,7 +623,7 @@ Approval: Draft
         # Test d: valid sudo + AGENT_STOP both present -> DENY
         $sudoDirNodeD = Join-Path $workDir "sudo-node-ps-d"
         New-Item -ItemType Directory -Path $sudoDirNodeD -Force | Out-Null
-        "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeD "SDD_SUDO")
+        Write-SudoFlag $sudoDirNodeD $sudoEpoch
         "stop" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeD "AGENT_STOP")
         Push-Location $sudoDirNodeD
         $sudoNodeRd = Invoke-GuardNode $sudoPayload "exit"
@@ -590,7 +634,7 @@ Approval: Draft
         # Test e: valid sudo + invalid agent role -> DENY
         $sudoDirNodeE = Join-Path $workDir "sudo-node-ps-e"
         New-Item -ItemType Directory -Path $sudoDirNodeE -Force | Out-Null
-        "expires-epoch: $sudoEpoch" | Set-Content -Encoding Utf8 (Join-Path $sudoDirNodeE "SDD_SUDO")
+        Write-SudoFlag $sudoDirNodeE $sudoEpoch
         Push-Location $sudoDirNodeE
         $sudoNodeRe = Invoke-GuardNode $agentPayload "exit"
         Pop-Location
@@ -612,6 +656,8 @@ Approval: Draft
             }
         }
     }
+    $guardMatchers = $hooksJson.hooks.PreToolUse | Select-Object -ExpandProperty matcher
+    Assert "hooks.json matcher covers shell tools" (($guardMatchers -join " ") -match "shell" -and ($guardMatchers -join " ") -match "exec_command")
 
     # --- copilot-hooks.json parses; version 1; preToolUse entries have bash + powershell ---
     $copJson = Get-Content -Raw -Encoding Utf8 (Join-Path $hooksDir "copilot-hooks.json") | ConvertFrom-Json
@@ -620,6 +666,8 @@ Approval: Draft
     foreach ($e in $copJson.hooks.preToolUse) {
         Assert "copilot-hooks.json entry has bash" ($null -ne $e.bash -and $e.bash -ne "")
         Assert "copilot-hooks.json entry has powershell" ($null -ne $e.powershell -and $e.powershell -ne "")
+        Assert "copilot-hooks.json bash fallback is deny" ($e.bash -match '"permissionDecision":"deny"')
+        Assert "copilot-hooks.json powershell fallback is deny" ($e.powershell -match '"permissionDecision":"deny"')
     }
 
     if ($failures -gt 0) { throw "$failures hook test(s) failed." }

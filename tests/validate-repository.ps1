@@ -4,7 +4,7 @@ Set-StrictMode -Version Latest
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo")
-$expectedVersion = "0.7.0"
+$expectedVersion = "0.8.0"
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -102,6 +102,7 @@ $requiredFiles = @(
     "plugins/sdd-quality-loop/references/sudo-mode-policy.md",
     "plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md",
     "plugins/sdd-quality-loop/templates/verification-contract.template.json",
+    "plugins/sdd-quality-loop/templates/evidence-bundle.template.json",
     "plugins/sdd-quality-loop/templates/retrospective-report.template.md",
     "plugins/sdd-quality-loop/templates/workflow-improvement.template.md",
     "plugins/sdd-bootstrap/.plugin/plugin.json",
@@ -156,14 +157,14 @@ foreach ($rule in @("Approved", "In Progress", "Blocked", "Implementation Comple
 }
 
 $qualitySkill = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
-foreach ($rule in @("Implementation Complete", "maximum of 3", "Done", "Playwright", "traceability", "check-contract", "check-placeholders", "check-task-state", "sdd-evaluator")) {
+foreach ($rule in @("Implementation Complete", "maximum of 3", "Done", "Playwright", "traceability", "check-contract", "check-evidence-bundle", "check-placeholders", "check-task-state", "sdd-evaluator")) {
     if ($qualitySkill -notmatch [regex]::Escape($rule)) {
         throw "Quality-gate skill is missing required rule: $rule"
     }
 }
 
 # Deterministic gate scripts must exist as portable sh/ps1 pairs.
-foreach ($script in @("check-contract", "check-placeholders", "check-task-state")) {
+foreach ($script in @("check-contract", "check-evidence-bundle", "check-placeholders", "check-task-state")) {
     foreach ($extension in @("sh", "ps1")) {
         $scriptPath = "plugins/sdd-quality-loop/scripts/$script.$extension"
         if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
@@ -272,6 +273,10 @@ $hasApplyPatch = $allMatchers | Where-Object { $_ -match "apply_patch" }
 if (-not $hasApplyPatch) {
     throw "hooks.json does not have any matcher containing 'apply_patch'."
 }
+$hasShellMatcher = $allMatchers | Where-Object { $_ -match "shell|Bash|exec_command|exec" }
+if (-not $hasShellMatcher) {
+    throw "hooks.json does not have any matcher containing shell tool names."
+}
 
 # copilot-hooks.json must parse and have expected structure.
 $copilotHooks = Read-JsonFile "plugins/sdd-quality-loop/hooks/copilot-hooks.json"
@@ -284,6 +289,12 @@ foreach ($entry in $copilotHooks.hooks.preToolUse) {
     }
     if (-not $entry.powershell) {
         throw "copilot-hooks.json preToolUse entry is missing 'powershell' field."
+    }
+    if ($entry.bash -notmatch '"permissionDecision":"deny"') {
+        throw "copilot-hooks.json bash fallback must deny when the guard is unavailable."
+    }
+    if ($entry.powershell -notmatch '"permissionDecision":"deny"') {
+        throw "copilot-hooks.json powershell fallback must deny when the guard is unavailable."
     }
 }
 

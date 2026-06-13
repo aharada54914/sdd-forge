@@ -1,17 +1,19 @@
 # Deterministic gate: validate the tasks.md state machine on disk.
-# Usage: check-task-state.ps1 <path-to-tasks.md> [-ReportsDir <reports/quality-gate>] [-ImplReportsDir <reports/implementation>]
+# Usage: check-task-state.ps1 <path-to-tasks.md> [-ReportsDir <reports/quality-gate>] [-ImplReportsDir <reports/implementation>] [-RepoRoot <path>]
 # Rules enforced:
 #  - Approval is Draft or Approved; Status is a known lifecycle value.
 #  - In Progress / Implementation Complete / Done require Approval: Approved.
-#  - Done additionally requires a quality-gate report mentioning the task id,
-#    AND a verification/<task-id>.contract.json file in the tasks.md directory.
+#  - Done additionally requires a verification/<task-id>.evidence.json file
+#    in the tasks.md directory, and that bundle must validate the report,
+#    contract, and passing evidence artifacts.
 #  - Implementation Complete requires an implementation report mentioning the task id.
 #  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
 #  - Duplicate task ids (## T-NNN repeated) → fail.
 param(
     [Parameter(Mandatory)][string]$TasksPath,
     [string]$ReportsDir = "reports/quality-gate",
-    [string]$ImplReportsDir = "reports/implementation"
+    [string]$ImplReportsDir = "reports/implementation",
+    [string]$RepoRoot = "."
 )
 $ErrorActionPreference = "Stop"
 
@@ -20,9 +22,11 @@ if (-not (Test-Path -LiteralPath $TasksPath)) {
     exit 1
 }
 
-$validApprovals = @("Draft", "Approved")
 $validStatuses = @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")
 $approvedOnlyStatuses = @("In Progress", "Implementation Complete", "Done")
+
+# Pattern for sudo-format approval: Approved (sudo YYYY-MM-DDTHH:MM:SSZ)
+$sudoApprovalPattern = "^Approved \(sudo [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$"
 
 $failures = @()
 $currentTask = $null
@@ -81,24 +85,53 @@ foreach ($task in $allTasks) {
     $s = $status[$task]
     if (-not $a) { $failures += "$task has no Approval line"; continue }
     if (-not $s) { $failures += "$task has no Status line"; continue }
-    if ($a -notin $validApprovals) { $failures += "$task has invalid Approval: $a" }
+
+    # Validate Approval: Draft | Approved | Approved (sudo YYYY-MM-DDTHH:MM:SSZ)
+    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $sudoApprovalPattern)
+    if (-not $isValidApproval) {
+        $failures += "$task has invalid Approval: $a"
+    }
+
+    # For gate checks, treat Approved (sudo ...) same as Approved
+    $isApproved = ($a -eq "Approved" -or $a -match $sudoApprovalPattern)
+
     if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
-    if ($s -in $approvedOnlyStatuses -and $a -ne "Approved") {
+    if ($s -in $approvedOnlyStatuses -and -not $isApproved) {
         $failures += "$task is '$s' without Approval: Approved"
     }
     if ($s -eq "Done") {
-        $hasReport = $false
-        if (Test-Path -LiteralPath $ReportsDir) {
-            $hasReport = [bool](Get-ChildItem $ReportsDir -File -Recurse |
-                Where-Object { Select-String -Path $_.FullName -Pattern $task -Quiet })
-        }
-        if (-not $hasReport) {
-            $failures += "$task is Done but no quality-gate report in $ReportsDir mentions it"
-        }
-        # Check for verification contract file
+        $evidenceBundlePath = Join-Path $tasksDir "verification/$task.evidence.json"
         $contractPath = Join-Path $tasksDir "verification/$task.contract.json"
+
+        # Check evidence bundle
+        if (-not (Test-Path -LiteralPath $evidenceBundlePath)) {
+            $failures += "$task is Done but verification/$task.evidence.json does not exist in $tasksDir"
+        } else {
+            $powerShellExe = (Get-Process -Id $PID).Path
+            & $powerShellExe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "check-evidence-bundle.ps1") -BundlePath $evidenceBundlePath -RepoRoot $RepoRoot
+            if ($LASTEXITCODE -ne 0) {
+                $failures += "$task evidence bundle failed validation: $evidenceBundlePath"
+            }
+        }
+
+        # C-07: Check contract existence, size, and task_id match
         if (-not (Test-Path -LiteralPath $contractPath)) {
             $failures += "$task is Done but verification/$task.contract.json does not exist in $tasksDir"
+        } else {
+            $fileInfo = Get-Item -LiteralPath $contractPath -ErrorAction SilentlyContinue
+            if ($null -eq $fileInfo -or $fileInfo.Length -eq 0) {
+                $failures += "$task is Done but verification/$task.contract.json is empty in $tasksDir"
+            } else {
+                # Validate contract JSON and task_id match
+                try {
+                    $contract = Get-Content -Raw -Encoding Utf8 $contractPath | ConvertFrom-Json
+                    if ($contract.task_id -ne $task) {
+                        $failures += "$task is Done but verification/$task.contract.json has mismatched task_id"
+                    }
+                } catch {
+                    $failures += "$task is Done but verification/$task.contract.json has invalid JSON"
+                }
+            }
         }
     }
     if ($s -eq "Implementation Complete") {

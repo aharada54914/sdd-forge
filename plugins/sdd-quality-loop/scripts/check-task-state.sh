@@ -1,18 +1,21 @@
 #!/bin/sh
 # Deterministic gate: validate the tasks.md state machine on disk.
-# Usage: check-task-state.sh <path-to-tasks.md> [reports-dir] [impl-reports-dir]
+# Usage: check-task-state.sh <path-to-tasks.md> [reports-dir] [impl-reports-dir] [repo-root]
 # Reports dirs default to reports/quality-gate and reports/implementation.
 # Rules enforced:
 #  - Approval is Draft or Approved; Status is a known lifecycle value.
 #  - In Progress / Implementation Complete / Done require Approval: Approved.
-#  - Done additionally requires a quality-gate report mentioning the task id,
-#    AND a verification/<task-id>.contract.json file in the tasks.md directory.
+#  - Done additionally requires a verification/<task-id>.evidence.json file
+#    in the tasks.md directory, and that bundle must validate the report,
+#    contract, and passing evidence artifacts.
 #  - Implementation Complete requires an implementation report mentioning the task id.
 #  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
 #  - Duplicate task ids (## T-NNN repeated) → fail.
 tasks="$1"
 reports="${2:-reports/quality-gate}"
 impl_reports="${3:-reports/implementation}"
+repo_root="${4:-.}"
+script_dir="$(CDPATH= cd -- "$(dirname "$0")" && pwd)"
 
 if [ -z "$tasks" ] || [ ! -f "$tasks" ]; then
   echo "check-task-state: tasks file not found: $tasks" >&2
@@ -22,7 +25,7 @@ fi
 _tmpout="$(mktemp)"
 trap 'rm -f "$_tmpout"' EXIT
 
-TASKS="$tasks" REPORTS="$reports" IMPL_REPORTS="$impl_reports" awk '
+TASKS="$tasks" REPORTS="$reports" IMPL_REPORTS="$impl_reports" SCRIPT_DIR="$script_dir" REPO_ROOT="$repo_root" awk '
 BEGIN {
   task = ""; failures = 0; count = 0
   in_blockers = 0; blockers_content = ""
@@ -55,30 +58,64 @@ function fail(msg) { print " - " msg; failures++ }
 }
 function finish() {
   if (approval == "") fail(task " has no Approval line")
-  else if (approval != "Draft" && approval != "Approved") fail(task " has invalid Approval: " approval)
+  else {
+    # Accept: Draft | Approved | Approved (sudo YYYY-MM-DDTHH:MM:SSZ)
+    is_valid_approval = (approval == "Draft" || approval == "Approved" || \
+      approval ~ /^Approved \(sudo [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
+    if (!is_valid_approval) fail(task " has invalid Approval: " approval)
+  }
+  # For gate checks, treat Approved (sudo ...) same as Approved
+  is_approved = (approval == "Approved" || approval ~ /^Approved \(sudo [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
   if (status == "") fail(task " has no Status line")
   else if (status != "Planned" && status != "In Progress" && status != "Blocked" && status != "Implementation Complete" && status != "Done")
     fail(task " has invalid Status: " status)
-  if ((status == "In Progress" || status == "Implementation Complete" || status == "Done") && approval != "Approved")
+  if ((status == "In Progress" || status == "Implementation Complete" || status == "Done") && !is_approved)
     fail(task " is \x27" status "\x27 without Approval: Approved")
   if (status == "Done") {
-    cmd = "grep -rl \x27" task "\x27 \"" ENVIRON["REPORTS"] "\" 2>/dev/null | head -1"
-    cmd | getline report; close(cmd)
-    if (report == "") fail(task " is Done but no quality-gate report in " ENVIRON["REPORTS"] " mentions it")
-    report = ""
-    # Check for verification contract file
     tasks_dir = ENVIRON["TASKS"]
     # NOTE: escape "/" instead of bracketing it ([/]) — BSD awk (macOS) rejects
     # an unescaped "/" inside a bracket expression as an unterminated regex.
     sub(/\/[^\/]*$/, "", tasks_dir)
     if (tasks_dir == ENVIRON["TASKS"]) tasks_dir = "."
+    bundle_path = tasks_dir "/verification/" task ".evidence.json"
+    # C-07: contract must be non-empty regular file with valid JSON and task_id match
     contract_path = tasks_dir "/verification/" task ".contract.json"
-    cmd2 = "test -f \"" contract_path "\" && echo yes || echo no"
-    cmd2 | getline exists; close(cmd2)
-    if (exists != "yes") fail(task " is Done but verification/" task ".contract.json does not exist in " tasks_dir)
+
+    # Check bundle existence and validity
+    cmd = "test -f \"" bundle_path "\" && echo yes || echo no"
+    cmd | getline exists; close(cmd)
+    if (exists != "yes") fail(task " is Done but verification/" task ".evidence.json does not exist in " tasks_dir)
+    else {
+      cmd2 = "sh \"" ENVIRON["SCRIPT_DIR"] "/check-evidence-bundle.sh\" \"" bundle_path "\" \"" ENVIRON["REPO_ROOT"] "\""
+      status_code = system(cmd2)
+      if (status_code != 0) fail(task " evidence bundle failed validation: " bundle_path)
+    }
+
+    # Check contract existence and validity
+    cmd = "test -f \"" contract_path "\" && echo yes || echo no"
+    cmd | getline contract_exists; close(cmd)
+    if (contract_exists != "yes") fail(task " is Done but verification/" task ".contract.json does not exist in " tasks_dir)
+    else {
+      # Validate contract is non-empty regular file
+      cmd = "test -s \"" contract_path "\" && echo yes || echo no"
+      cmd | getline contract_nonempty; close(cmd)
+      if (contract_nonempty != "yes") fail(task " is Done but verification/" task ".contract.json is empty in " tasks_dir)
+      else {
+        # Validate contract has matching task_id using python3 if available, else grep
+        if (system("command -v python3 >/dev/null 2>&1") == 0) {
+          cmd3 = "python3 -c \"import json,sys; c=json.load(open(\\\"" contract_path "\\\")); sys.exit(0 if c.get(\\\"task_id\\\") == \\\"" task "\\\" else 1)\" 2>/dev/null"
+          if (system(cmd3) != 0) fail(task " is Done but verification/" task ".contract.json has mismatched task_id")
+        } else {
+          # Fallback to grep for task_id match without python3
+          grep_cmd = "grep -F \"\\\"task_id\\\"\" \"" contract_path "\" | grep -F \"\\\"" task "\\\"\" >/dev/null 2>&1"
+          if (system(grep_cmd) != 0) fail(task " is Done but verification/" task ".contract.json has mismatched task_id (or invalid JSON)")
+        }
+      }
+    }
   }
   if (status == "Implementation Complete") {
-    cmd = "grep -rl \x27" task "\x27 \"" ENVIRON["IMPL_REPORTS"] "\" 2>/dev/null | head -1"
+    # C-07: word-boundary match to prevent T-001 matching T-0010
+    cmd = "grep -rlw \x27" task "\x27 \"" ENVIRON["IMPL_REPORTS"] "\" 2>/dev/null | head -1"
     cmd | getline impl_report; close(cmd)
     if (impl_report == "") fail(task " is Implementation Complete but no implementation report in " ENVIRON["IMPL_REPORTS"] " mentions it")
     impl_report = ""

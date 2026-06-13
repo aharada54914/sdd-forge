@@ -123,6 +123,39 @@ function Install-CodexAgents {
     }
 }
 
+function Get-GitHubAuthToken {
+    foreach ($tokenVariable in @("GH_TOKEN", "GITHUB_TOKEN")) {
+        $token = [Environment]::GetEnvironmentVariable($tokenVariable)
+        if (-not [string]::IsNullOrWhiteSpace($token)) {
+            return $token.Trim()
+        }
+    }
+
+    if (-not (Get-Command "gh" -ErrorAction SilentlyContinue)) {
+        throw "GitHub authentication is required for remote installs. Set GH_TOKEN/GITHUB_TOKEN, install and authenticate gh, or use -SourceDirectory."
+    }
+
+    $token = & gh auth token 2>$null
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($token)) {
+        throw "GitHub authentication is required for remote installs. Set GH_TOKEN/GITHUB_TOKEN or run 'gh auth login'."
+    }
+
+    return $token.Trim()
+}
+
+function Download-AuthenticatedArchive {
+    param(
+        [Parameter(Mandatory)][string]$RepositoryName,
+        [Parameter(Mandatory)][string]$RefName,
+        [Parameter(Mandatory)][string]$ArchivePath
+    )
+
+    $token = Get-GitHubAuthToken
+    $downloadUrl = "https://api.github.com/repos/$RepositoryName/tarball/$RefName"
+    Write-Host "Downloading authenticated archive from $downloadUrl"
+    Invoke-WebRequest -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath
+}
+
 $temporaryRoot = $null
 $backupRoot = $null
 $stagingRoot = $null
@@ -135,11 +168,9 @@ try {
         $temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-plugins-" + [guid]::NewGuid())
         New-Item -ItemType Directory -Path $temporaryRoot | Out-Null
 
-        $archivePath = Join-Path $temporaryRoot "source.zip"
-        $downloadUrl = "https://codeload.github.com/$Repository/zip/$Ref"
-        Write-Host "Downloading $downloadUrl"
-        Invoke-WebRequest -Uri $downloadUrl -OutFile $archivePath -UseBasicParsing
-        Expand-Archive -Path $archivePath -DestinationPath $temporaryRoot -Force
+        $archivePath = Join-Path $temporaryRoot "source.tar.gz"
+        Download-AuthenticatedArchive -RepositoryName $Repository -RefName $Ref -ArchivePath $archivePath
+        & tar -xzf $archivePath -C $temporaryRoot
 
         $sourceRoot = Get-ChildItem -Path $temporaryRoot -Directory |
             Where-Object { Test-Path (Join-Path $_.FullName ".agents/plugins/marketplace.json") } |
@@ -207,7 +238,7 @@ try {
     # explicit dot-dir copies: on PowerShell Core those dirs are not hidden so
     # the wildcard already copied them, and re-copying would create
     # .agents\.agents\, .codex\.codex\, etc.
-    foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force)) {
+    foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force | Where-Object { $_.Name -ne ".git" })) {
         Copy-Item -Path $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
     }
 

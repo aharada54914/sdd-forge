@@ -60,7 +60,7 @@ stateDiagram-v2
 |---|---|---|
 | `In Progress` | **Approved** | — |
 | `Implementation Complete` | **Approved** | • `reports/implementation/<task-id>.md` が task id を言及 |
-| `Done` | **Approved** | • Quality-gate レポートが task id を言及<br/>• `specs/<feature>/verification/<task-id>.contract.json` が存在 |
+| `Done` | **Approved** | • `specs/<feature>/verification/<task-id>.evidence.json` が存在<br/>• report、contract、passing evidence の task ID・PASS判定・SHA-256 が検証済み |
 | `Blocked` | Draft / Approved 両方可 | • 非空の `### Blockers` セクション (実装値記述必須) |
 
 ---
@@ -76,7 +76,7 @@ stateDiagram-v2
 | 3. 仕様化 | AI (sdd-bootstrap-interviewer) | `specs/<feature>/requirements.md`<br/>`specs/<feature>/design.md`<br/>`specs/<feature>/acceptance-tests.md`<br/>`specs/<feature>/tasks.md`<br/>`specs/<feature>/traceability.md`<br/>契約 JSON / ADR | 要件が実装可能か？設計に異議はないか？タスク粒度は適正か？ |
 | 4. 承認 | 人間 | `tasks.md` の `Approval: Approved` | タスク1の承認が済んだか？ |
 | 5. 実装 (タスク単位) | AI (implement-task) | 実装コード<br/>テストコード<br/>`reports/implementation/<task-id>.md` | 設計通りか？テストは十分か？無関係変更は混在していないか？ |
-| 6. 品質検証 | AI (quality-gate) + 人間 | `specs/<feature>/verification/<task-id>.contract.json`<br/>`reports/quality-gate/<timestamp>.md`<br/>`docs/review-tickets/RT-*.yml` | 全チェック合格？Critical/Major 指摘は resolved？ |
+| 6. 品質検証 | AI (quality-gate) + 人間 | `specs/<feature>/verification/<task-id>.contract.json`<br/>`specs/<feature>/verification/<task-id>.evidence.json`<br/>`reports/quality-gate/<timestamp>.md`<br/>`docs/review-tickets/RT-*.yml` | 全チェック合格？証跡hash一致？Critical/Major 指摘は resolved？ |
 | 7. 指摘修正 (必要時) | AI (fix-by-review-ticket) | 修正コード・テスト | チケット指定範囲を超えていないか？ |
 | 8. 再検証 (指摘有時) | AI (quality-gate 再実行) | 更新契約・レポート | Critical/Major が解消されたか？ |
 | 9. 繰り返し | — | — | 全タスク Done まで 5〜8 を繰り返し |
@@ -703,6 +703,7 @@ project-root/
 | `specs/<feature>/investigation.md` | 既存コード調査 | `investigate-codebase` |
 | `specs/<feature>/baseline-behavior.md` | 動作基線 (refactor/bugfix) | `investigate-codebase` |
 | `specs/<feature>/verification/<task-id>.contract.json` | 検証契約 (Default-FAIL) | `quality-gate` |
+| `specs/<feature>/verification/<task-id>.evidence.json` | report・contract・passing evidence の SHA-256 証跡bundle | `quality-gate` |
 | `docs/adr/NNNN-<slug>.md` | アーキテクチャ決定 | `sdd-bootstrap-interviewer` または 人間 |
 | `docs/review-tickets/RT-NNNN.yml` | 品質指摘 | `quality-gate` |
 | `docs/workflow-improvements/WFI-NNN.md` | ワークフロー改善案 | `workflow-retrospective` |

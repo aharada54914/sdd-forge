@@ -38,17 +38,36 @@ jobs:
         shell: pwsh
         run: ./tests/install.tests.ps1
 
+      - name: Test authenticated remote installer (pwsh)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./install.ps1 -Ref $env:GITHUB_SHA -InstallRoot (Join-Path $env:RUNNER_TEMP "sdd-remote-pwsh") -Target FilesOnly
+
       - name: Test POSIX installer
         if: runner.os != 'Windows'
         shell: bash
         run: |
           ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
 
+      - name: Test authenticated remote installer (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./install.sh --ref "$GITHUB_SHA" --install-root "${RUNNER_TEMP}/sdd-remote-bash" --target FilesOnly
+
       - name: Test guards (bash)
         if: runner.os != 'Windows'
         shell: bash
         run: |
           ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
+
+      - name: Test deterministic gates (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
 
       - name: Upload test logs
         if: failure()
