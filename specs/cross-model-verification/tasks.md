@@ -19,7 +19,7 @@ also require a distinct `Second Approval`.
 
 Source Issue: requirements.md REQ-008; design.md §2, §4
 Approval: Approved
-Status: Planned
+Status: Done
 Risk: medium
 Risk Rationale: reference/doc + schema only; no gate logic, but foundational for all later tasks.
 Required Workflow: acceptance-first
@@ -61,7 +61,7 @@ None
 
 Source Issue: requirements.md REQ-001..004; design.md §3
 Approval: Approved
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: new fail-closed deterministic control other gates depend on; must be cross-runtime correct and not give a false PASS.
 Required Workflow: tdd
@@ -103,7 +103,7 @@ T-001
 
 Source Issue: requirements.md REQ-001, REQ-006, REQ-007; design.md §4, §5
 Approval: Approved
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: modifies the core Default-FAIL gate engine; a regression weakens every adopter's assurance. Backward compatibility is load-bearing. Run in main session (Opus) + human review.
 Required Workflow: tdd
@@ -146,7 +146,7 @@ T-002
 
 Source Issue: requirements.md REQ-005; design.md §6
 Approval: Approved
-Status: Planned
+Status: Done
 Risk: high
 Risk Rationale: handles secrets and the external-send boundary; a bug could leak secrets to third-party LLMs.
 Required Workflow: tdd
@@ -182,7 +182,7 @@ T-001
 
 Source Issue: requirements.md REQ-002, REQ-003; design.md §1, §7
 Approval: Approved
-Status: Planned
+Status: Done
 Risk: medium
 Risk Rationale: orchestration + external CLI runners; never runs in CI and produces no gate verdict itself, so blast radius is contained. Ports the external fusion-fable pattern.
 Required Workflow: acceptance-first
@@ -221,7 +221,7 @@ T-002, T-004
 
 Source Issue: requirements.md REQ-008; design.md §8
 Approval: Approved
-Status: Planned
+Status: Done
 Risk: medium
 Risk Rationale: produces self-evidence; low code surface but must actually pass the new gate to be meaningful.
 Required Workflow: acceptance-first
