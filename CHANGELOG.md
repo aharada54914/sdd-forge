@@ -1,5 +1,36 @@
 # Changelog
 
+## v0.10.0
+
+リスク適応ゲート (risk-adaptive-layer) を追加したセキュリティ・品質強化リリース。PR #16、CI グリーン (Windows / macOS / Linux)。
+
+### 新機能・強化
+
+**リスク階層 (`low / medium / high / critical`) とゲートマトリクス**: タスクに `Risk:` + `Risk Rationale:` フィールドを追加。階層が上がるほど必須ゲートセットが拡大し、下位階層の必須セットを完全包含する (非ダウングレード superset 則)。`Risk:` フィールドが無いタスク/contract はレガシーモードで動作し、階層強制を一切行わない (後方互換)。正準対応表: `plugins/sdd-quality-loop/references/risk-gate-matrix.md`。
+
+**新ゲート `check-risk.{sh,ps1}`**: タスクの `Risk:` 階層と `Risk Rationale:` フィールドを検証。`high`/`critical` タスクが `Required Workflow: tdd` を宣言していない場合にフェイルクローズ。
+
+**新ゲート `check-traceability.{sh,ps1}`**: REQ→AC→TEST→証跡のトレーサビリティチェーンを決定論的に検証。`high`/`critical` は require-evidence モードで証跡ファイルの実在も検査。
+
+**リスク対応 `check-contract.{sh,ps1}` 拡張**: Pass 4 でタスク階層の必須チェックセット superset を強制。Pass 5 で `required_workflow: tdd` の Red→Green 証跡 (`red_evidence` / `green_evidence`) を検証。`stack` 記述子 (`code` / `shell` / `docs` / `spec`) に対応し、非コードスタックでは compile 系チェック (`lint` / `typecheck` / `build`) を理由付き (`waiver_reason` 非空) で waive 可能。テスト/トレーサビリティ系チェックは全スタックで必須のまま。
+
+**Evidence bundle プロベナンス** (`generate-evidence-bundle.{sh,ps1}`): `risk`・`required_workflow`・`spec_revision`・`build_env`・`builder`・`review_verdict` フィールドを bundle に出力。`check-evidence-bundle.{sh,ps1}` が `high`/`critical` でこれらフィールドを必須検証。
+
+**HMAC-SHA256 署名 (critical bundle)**: 鍵は外部 (`SDD_EVIDENCE_KEY` 環境変数 / `SDD_EVIDENCE_KEY_FILE` / `~/.sdd/evidence-key`) からのみ解決。`critical` タスクのバンドルは dirty ツリーでの生成をハードフェイル。
+
+**二者承認 (critical タスク)**: `check-task-state` が `Approval:` + 別名義の `Second Approval:` を要求。sudo でもバイパス不可。`sdd-hook-guard` でも同様に強制。
+
+**ガバナンスのコード化**: `.github/rulesets/main.json` (GitHub Rulesets API 形式)、ルート `CODEOWNERS`、`scripts/apply-branch-protection.sh`、`.github/workflows/test.yml` に `merge_group:` トリガーと `required-checks` ジョブを追加。
+
+**新規ドキュメント**: `docs/THREAT-MODEL.md`（脅威モデル）・`docs/agent-capability-matrix.md`（エージェント能力マトリクス）を追加。
+
+### v0.9.0 からの移行
+
+- **既存タスク/contract への影響なし**: `Risk:` フィールドが無い contract はレガシーモードで通過。新フィールドの追加は任意 (opt-in)。
+- **`stack` 記述子**: 非コードリポジトリで compile 系チェックを waive する場合のみ、contract に `"stack": "docs"` 等を追加。
+- **critical タスクを使う場合**: 証拠鍵 (`~/.sdd/evidence-key`) の生成と `Second Approval:` の人間記入が必要。
+- 破壊的なファイル配置変更なし。プラグイン再インストール（ワンライナー再実行）で移行完了。
+
 ## v0.9.0
 
 監査の残課題（C-04 / H-02 / H-04 / C-06 / H-06 / H-05）に対応したセキュリティ強化リリース。
