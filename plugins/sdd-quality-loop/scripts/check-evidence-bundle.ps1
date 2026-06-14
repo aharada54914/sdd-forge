@@ -121,10 +121,12 @@ function Resolve-EvidenceKey {
             return $null
         }
     }
-    $home = $env:HOME
-    if ([string]::IsNullOrWhiteSpace($home)) { $home = $env:USERPROFILE }
-    if (-not [string]::IsNullOrWhiteSpace($home)) {
-        $keyPath = Join-Path $home ".sdd" "evidence-key"
+    # NB: do not name this $home — $HOME is a read-only automatic variable in
+    # PowerShell (case-insensitive), and assigning to it throws under -ErrorAction Stop.
+    $userHome = $env:HOME
+    if ([string]::IsNullOrWhiteSpace($userHome)) { $userHome = $env:USERPROFILE }
+    if (-not [string]::IsNullOrWhiteSpace($userHome)) {
+        $keyPath = Join-Path $userHome ".sdd" "evidence-key"
         if (Test-Path -LiteralPath $keyPath) {
             try {
                 $raw = [System.IO.File]::ReadAllBytes($keyPath)
@@ -246,7 +248,7 @@ $scriptRoot = Split-Path -Parent $PSScriptRoot
 $checkContractScript = Join-Path $scriptRoot "scripts/check-contract.ps1"
 if ($contractInfo) {
     $powerShellExe = (Get-Process -Id $PID).Path
-    & $powerShellExe -NoProfile -ExecutionPolicy Bypass -File $checkContractScript -ContractPath $contractInfo.Normalized -RepoRoot $RepoRoot
+    & $powerShellExe -NoProfile -ExecutionPolicy Bypass -File $checkContractScript -ContractPath $contractInfo.Resolved -RepoRoot $RepoRoot
     if ($LASTEXITCODE -ne 0) {
         Add-Failure "verification_contract failed check-contract validation: $verificationContract"
     }
@@ -381,7 +383,8 @@ if ($effectiveRisk -eq "critical") {
             } else {
                 $canonical = Get-EvidenceCanonical -Bundle $bundle
                 $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
-                $hmac = New-Object System.Security.Cryptography.HMACSHA256 -ArgumentList $keyInfo.key
+                # ::new() so the byte[] key is one ctor arg (New-Object -ArgumentList splats arrays).
+                $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
                 $expectedBytes = $hmac.ComputeHash($canonicalBytes)
                 $expected = ($expectedBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
                 if ([string]::Compare($expected, $value, [System.StringComparison]::OrdinalIgnoreCase) -ne 0) {

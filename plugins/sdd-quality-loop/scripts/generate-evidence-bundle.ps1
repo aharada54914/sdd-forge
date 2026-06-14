@@ -263,8 +263,15 @@ elseif ($osName -match "Linux") { $osName = "linux" }
 elseif ($osName -match "Darwin") { $osName = "darwin" }
 else { $osName = $osName.ToLower() }
 
-$pythonVersion = python --version 2>&1 | Out-String
-$pythonVersion = [regex]::Match($pythonVersion, '\d+\.\d+').Value
+# Resolve python robustly: many systems (incl. GitHub ubuntu/macos runners) ship
+# only `python3`, not bare `python`. This is provenance metadata only, so fall back
+# to an empty string when no interpreter is found rather than failing the bundle.
+$pythonVersion = ""
+$pythonCmd = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $pythonCmd) { $pythonCmd = Get-Command python -ErrorAction SilentlyContinue }
+if ($pythonCmd) {
+    $pythonVersion = [regex]::Match(((& $pythonCmd.Source --version 2>&1) | Out-String), '\d+\.\d+').Value
+}
 
 $gitVersion = ""
 $gitCmd = Get-Command git -ErrorAction SilentlyContinue
@@ -328,10 +335,12 @@ function Resolve-EvidenceKey {
             return $null
         }
     }
-    $home = $env:HOME
-    if ([string]::IsNullOrWhiteSpace($home)) { $home = $env:USERPROFILE }
-    if (-not [string]::IsNullOrWhiteSpace($home)) {
-        $keyPath = Join-Path $home ".sdd" "evidence-key"
+    # NB: do not name this $home — $HOME is a read-only automatic variable in
+    # PowerShell (case-insensitive), and assigning to it throws under -ErrorAction Stop.
+    $userHome = $env:HOME
+    if ([string]::IsNullOrWhiteSpace($userHome)) { $userHome = $env:USERPROFILE }
+    if (-not [string]::IsNullOrWhiteSpace($userHome)) {
+        $keyPath = Join-Path $userHome ".sdd" "evidence-key"
         if (Test-Path -LiteralPath $keyPath) {
             try {
                 $raw = [System.IO.File]::ReadAllBytes($keyPath)
@@ -422,7 +431,10 @@ if ($contractRisk -eq "critical") {
     }
     $canonical = Get-EvidenceCanonical -Bundle $bundle
     $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
-    $hmac = New-Object System.Security.Cryptography.HMACSHA256 -ArgumentList $keyInfo.key
+    # Use ::new() so the byte[] key is passed as a single constructor argument.
+    # New-Object -ArgumentList splats an array into multiple ctor args (HMACSHA256
+    # would see N byte arguments instead of one byte[]), so it must not be used here.
+    $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
     $signatureBytes = $hmac.ComputeHash($canonicalBytes)
     $signatureValue = ($signatureBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
     $bundle["signature"] = [ordered]@{

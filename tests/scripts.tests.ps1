@@ -564,6 +564,11 @@ Status: Done
     # T-004: Red→Green evidence enforcement
     # =========================================================
 
+    # tdd fixtures below reference these red/green evidence files; they must exist
+    # and be non-empty for check-contract Pass 5 to accept the Red→Green pair.
+    New-Evidence "reports/red.log"
+    New-Evidence "reports/green.log"
+
     # Test: T-004.1 - LEGACY: no risk, no required_workflow, valid set → passes (regression)
     $t004_1 = @{
         task_id = "T-004.1"
@@ -777,6 +782,9 @@ quality gate report for T-040
     "pass evidence for T-040" | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-evidence.log"
     $doneContract = Get-Content -Raw -Encoding Utf8 $templatePath | ConvertFrom-Json
     $doneContract.task_id = "T-040"
+    # Legacy contract (template default risk=medium predates tier enforcement; the
+    # bundle below carries no risk, so keep them aligned and tier-exempt).
+    $doneContract.risk = ""
     foreach ($check in $doneContract.checks) {
         if ($check.required) {
             $check.passes = $true
@@ -928,6 +936,8 @@ quality gate report for T-041
         "pass evidence for T-041" | Set-Content -Encoding Utf8 "spec-dir2/verification/T-041-evidence.log"
         $doneContractSh = Get-Content -Raw -Encoding Utf8 $templatePath | ConvertFrom-Json
         $doneContractSh.task_id = "T-041"
+        # Legacy contract (template default risk=medium predates tier enforcement).
+        $doneContractSh.risk = ""
         foreach ($check in $doneContractSh.checks) {
             if ($check.required) {
                 $check.passes = $true
@@ -1360,7 +1370,7 @@ Status: Planned
     $t005_2 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-2.json"
     $t005_2_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-2.json" 2>&1
     Assert-ExitCode "T-005.2: empty acs array fails with correct message" $LASTEXITCODE 1
-    if ($t005_2_out -notmatch "has no acceptance criteria") {
+    if (($t005_2_out | Out-String) -notmatch "has no acceptance criteria") {
         throw "T-005.2 should fail with 'has no acceptance criteria'"
     }
 
@@ -1374,7 +1384,7 @@ Status: Planned
     $t005_3 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-3.json"
     $t005_3_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-3.json" 2>&1
     Assert-ExitCode "T-005.3: empty tests array fails with correct message" $LASTEXITCODE 1
-    if ($t005_3_out -notmatch "has no tests") {
+    if (($t005_3_out | Out-String) -notmatch "has no tests") {
         throw "T-005.3 should fail with 'has no tests'"
     }
 
@@ -1388,7 +1398,7 @@ Status: Planned
     $t005_4 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-4.json"
     $t005_4_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-4.json" 2>&1
     Assert-ExitCode "T-005.4: missing evidence file fails correctly" $LASTEXITCODE 1
-    if ($t005_4_out -notmatch "file missing") {
+    if (($t005_4_out | Out-String) -notmatch "file missing") {
         throw "T-005.4 should fail with 'file missing'"
     }
 
@@ -1414,7 +1424,7 @@ Status: Planned
     $t005_6 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-6.json"
     $t005_6_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-6.json" "-RequireEvidence" 2>&1
     Assert-ExitCode "T-005.6: require-evidence mode without evidence fails correctly" $LASTEXITCODE 1
-    if ($t005_6_out -notmatch "requires evidence") {
+    if (($t005_6_out | Out-String) -notmatch "requires evidence") {
         throw "T-005.6 should fail with 'requires evidence'"
     }
 
@@ -1432,14 +1442,14 @@ Status: Planned
     "{ invalid json" | Set-Content -Encoding Utf8 "traceability-t005-8.json"
     $t005_8_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-8.json" 2>&1
     Assert-ExitCode "T-005.8: invalid JSON fails with correct message" $LASTEXITCODE 1
-    if ($t005_8_out -notmatch "invalid JSON") {
+    if (($t005_8_out | Out-String) -notmatch "invalid JSON") {
         throw "T-005.8 should fail with 'invalid JSON'"
     }
 
     # Test: T-005.9 - file not found → exit 1
     $t005_9_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "nonexistent.json" 2>&1
     Assert-ExitCode "T-005.9: nonexistent file fails with correct message" $LASTEXITCODE 1
-    if ($t005_9_out -notmatch "file not found") {
+    if (($t005_9_out | Out-String) -notmatch "file not found") {
         throw "T-005.9 should fail with 'file not found'"
     }
 
@@ -1451,7 +1461,7 @@ Status: Planned
     $t005_10 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "traceability-t005-10.json"
     $t005_10_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-10.json" 2>&1
     Assert-ExitCode "T-005.10: empty links array fails with correct message" $LASTEXITCODE 1
-    if ($t005_10_out -notmatch "has no links") {
+    if (($t005_10_out | Out-String) -notmatch "has no links") {
         throw "T-005.10 should fail with 'has no links'"
     }
 
@@ -1461,7 +1471,7 @@ Status: Planned
 "@ | Set-Content -Encoding Utf8 "traceability-t005-11.json"
     $t005_11_out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-traceability.ps1") "traceability-t005-11.json" "-RequireEvidence" 2>&1
     Assert-ExitCode "T-005.11: require-evidence + empty array fails closed" $LASTEXITCODE 1
-    if ($t005_11_out -notmatch "requires evidence but none listed") {
+    if (($t005_11_out | Out-String) -notmatch "requires evidence but none listed") {
         throw "T-005.11 empty evidence array must fail in require-evidence mode"
     }
 
@@ -1542,32 +1552,10 @@ Quality gate report for T-099.
     $checkLegacyExit = Invoke-Gate "check-evidence-bundle.ps1" @($legacyBundle, "-RepoRoot", "$t006Repo")
     Assert-ExitCode "T-006.ps.1c: check-evidence-bundle passes on legacy bundle (no risk field)" $checkLegacyExit 0
 
-    # Test: T-006.ps.2 - generated bundle CONTAINS provenance fields (spec_revision, build_env, builder, review_verdict, risk)
-    $legacyBundleJson = Get-Content -Raw -Encoding Utf8 $legacyBundle | ConvertFrom-Json
-    if (-not $legacyBundleJson.risk) {
-        throw "T-006.ps.2a: generated bundle missing 'risk' field"
-    }
-    Write-Host "ok: T-006.ps.2a: generated bundle contains 'risk' field"
-
-    if (-not $legacyBundleJson.spec_revision) {
-        throw "T-006.ps.2b: generated bundle missing 'spec_revision' field"
-    }
-    Write-Host "ok: T-006.ps.2b: generated bundle contains 'spec_revision' field"
-
-    if (-not $legacyBundleJson.build_env) {
-        throw "T-006.ps.2c: generated bundle missing 'build_env' field"
-    }
-    Write-Host "ok: T-006.ps.2c: generated bundle contains 'build_env' field"
-
-    if (-not $legacyBundleJson.builder) {
-        throw "T-006.ps.2d: generated bundle missing 'builder' field"
-    }
-    Write-Host "ok: T-006.ps.2d: generated bundle contains 'builder' field"
-
-    if (-not $legacyBundleJson.review_verdict) {
-        throw "T-006.ps.2e: generated bundle missing 'review_verdict' field"
-    }
-    Write-Host "ok: T-006.ps.2e: generated bundle contains 'review_verdict' field"
+    # Test: T-006.ps.2 - provenance-field presence is asserted on the HIGH-risk bundle
+    # (relocated below, after T-006.ps.3b). A legacy/no-risk bundle legitimately carries
+    # an empty risk/spec_revision/review_verdict, so those fields must be checked on a
+    # high-risk bundle that actually populates provenance.
 
     # Test: T-006.ps.3 - high-risk bundle happy path: spec files exist, contract has risk:high, VERDICT: PASS → check passes
     @"
@@ -1611,6 +1599,19 @@ Quality gate report for T-100.
     Assert-ExitCode "T-006.ps.3b: check-evidence-bundle passes on high-risk bundle with full provenance" $checkHighExit 0
 
     $highBundleJson = Get-Content -Raw -Encoding Utf8 $highBundle | ConvertFrom-Json
+
+    # T-006.ps.2 (relocated): the high-risk generated bundle carries all provenance fields.
+    if (-not $highBundleJson.risk) { throw "T-006.ps.2a: generated bundle missing 'risk' field" }
+    Write-Host "ok: T-006.ps.2a: generated bundle contains 'risk' field"
+    if (-not $highBundleJson.spec_revision) { throw "T-006.ps.2b: generated bundle missing 'spec_revision' field" }
+    Write-Host "ok: T-006.ps.2b: generated bundle contains 'spec_revision' field"
+    if (-not $highBundleJson.build_env) { throw "T-006.ps.2c: generated bundle missing 'build_env' field" }
+    Write-Host "ok: T-006.ps.2c: generated bundle contains 'build_env' field"
+    if (-not $highBundleJson.builder) { throw "T-006.ps.2d: generated bundle missing 'builder' field" }
+    Write-Host "ok: T-006.ps.2d: generated bundle contains 'builder' field"
+    if (-not $highBundleJson.review_verdict) { throw "T-006.ps.2e: generated bundle missing 'review_verdict' field" }
+    Write-Host "ok: T-006.ps.2e: generated bundle contains 'review_verdict' field"
+
     $specRev = $highBundleJson.spec_revision
     if ($specRev -notmatch '^[a-f0-9]{64}$') {
         throw "T-006.ps.3c: spec_revision is not valid 64-char hex: '$specRev'"
@@ -1741,6 +1742,11 @@ Quality gate.
         throw "T-006.ps.7: emptied bundle risk should fail closed with bundle risk message. Got exit $checkEmptyRiskExit"
     }
     Write-Host "ok: T-006.ps.7: emptied bundle risk vs high contract fails closed"
+
+    # Restore the high bundle's risk so later reuse (T-007a.9 regression) sees a
+    # valid high bundle again; .7 emptied it in place and must not leave it corrupted.
+    $highBundleJsonForEdit.risk = "high"
+    $highBundleJsonForEdit | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $highBundle
 
     # =========================================================
     # T-007a: Evidence bundle cryptographic signing (critical bundles)
@@ -1948,7 +1954,7 @@ Quality gate report for T-201.
     $t007a_check_6_exit = $LASTEXITCODE
     $t007a_check_6_str = ($t007a_check_6_output | Out-String)
     if ($t007a_check_6_exit -eq 0 -or $t007a_check_6_str -notmatch "no evidence key") {
-        throw "T-007a.6: should fail without key. Got exit $t007a_check_6_exit"
+        throw "T-007a.6: should fail without key. Got exit $t007a_check_6_exit. Output: $t007a_check_6_str"
     }
     Write-Host "ok: T-007a.6: verify without key fails"
 
