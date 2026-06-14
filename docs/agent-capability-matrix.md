@@ -47,6 +47,60 @@ A read-only summary of agent roles, tool scopes, and which actions are enforced 
 
 ---
 
+### sdd-panelist-gpt
+**Purpose:** Independent blind verification of a task's implementation from an OpenAI vendor perspective; emits a structured verdict JSON as advisory signal.
+
+**Vendor / Invocation:** `openai` — invoked via codex CLI (`run-panelist-gpt.{sh,ps1}`).
+
+**Sandbox Mode:** `read-only` (TOML setting; `disallowedTools: Write, Edit, NotebookEdit`)
+
+| Capability | Allowed | Enforced By | Notes |
+|---|---|---|---|
+| **Read sanitized task input** | ✓ | Convention + sandbox | Receives only the `prepare-panelist-input` sanitized bundle (no secrets, no `.env`, no absolute paths, no private URLs) |
+| **Emit verdict JSON** | ✓ | Convention | Outputs `cross-model-verdict/v1` JSON with `verdict` (PASS/NEEDS_WORK), `findings`, `blind:true`, `input_digest`, `consent` |
+| **Write code or spec files** | ✗ | Sandbox mode (`disallowedTools`) | Panelist role is read-only; cannot modify the repository |
+| **Approve tasks or set Approval fields** | ✗ | Hook guard | sdd-hook-guard blocks any write that increases Approval/Second Approval counts |
+| **Sign evidence bundles** | ✗ | External key + policy | No access to `SDD_EVIDENCE_KEY`; cannot invoke `generate-evidence-bundle` |
+| **Read evaluator verdict or prior review tickets** | ✗ | Convention (blind execution) | `prepare-panelist-input` provides only the task spec; evaluator context is excluded |
+| **Receive secrets, keys, or absolute paths** | ✗ | Sanitization step | `prepare-panelist-input` strips these before any external send |
+
+**Output:** `specs/<feature>/verification/T-NNN.panelist-openai.verdict.json` (`cross-model-verdict/v1`).
+**External API send:** Only after explicit consent (`Cross-Model: enabled` in `tasks.md` OR valid `SDD_SUDO`). Never invoked in CI.
+
+**Agent role files:**
+- `.codex/agents/sdd-panelist-gpt.toml` (developer_instructions 必須)
+- `plugins/sdd-quality-loop/agents/panelist-gpt.md`
+
+---
+
+### sdd-panelist-gemini
+**Purpose:** Independent blind verification of a task's implementation from a Google vendor perspective; emits a structured verdict JSON as advisory signal.
+
+**Vendor / Invocation:** `google` — invoked via gemini CLI (`run-panelist-gemini.{sh,ps1}`).
+
+**Sandbox Mode:** `read-only` (TOML setting; `disallowedTools: Write, Edit, NotebookEdit`)
+
+| Capability | Allowed | Enforced By | Notes |
+|---|---|---|---|
+| **Read sanitized task input** | ✓ | Convention + sandbox | Receives only the `prepare-panelist-input` sanitized bundle (no secrets, no `.env`, no absolute paths, no private URLs) |
+| **Emit verdict JSON** | ✓ | Convention | Outputs `cross-model-verdict/v1` JSON with `verdict` (PASS/NEEDS_WORK), `findings`, `blind:true`, `input_digest`, `consent` |
+| **Write code or spec files** | ✗ | Sandbox mode (`disallowedTools`) | Panelist role is read-only; cannot modify the repository |
+| **Approve tasks or set Approval fields** | ✗ | Hook guard | sdd-hook-guard blocks any write that increases Approval/Second Approval counts |
+| **Sign evidence bundles** | ✗ | External key + policy | No access to `SDD_EVIDENCE_KEY`; cannot invoke `generate-evidence-bundle` |
+| **Read evaluator verdict or prior review tickets** | ✗ | Convention (blind execution) | `prepare-panelist-input` provides only the task spec; evaluator context is excluded |
+| **Receive secrets, keys, or absolute paths** | ✗ | Sanitization step | `prepare-panelist-input` strips these before any external send |
+
+**Output:** `specs/<feature>/verification/T-NNN.panelist-google.verdict.json` (`cross-model-verdict/v1`).
+**External API send:** Only after explicit consent (`Cross-Model: enabled` in `tasks.md` OR valid `SDD_SUDO`). Never invoked in CI.
+
+**Agent role files:**
+- `.codex/agents/sdd-panelist-gemini.toml` (developer_instructions 必須)
+- `plugins/sdd-quality-loop/agents/panelist-gemini.md`
+
+> **Note — Claude panelist:** Claude は常在ベースラインパネリストとして Agent ツール経由で起動される（別途 `.codex` toml 不要）。出力形式は上記 2 者と同一（`vendor: "anthropic"`、`blind:true`）。verdict は助言的信号であり、`sdd-evaluator` の `review_verdict` とは独立して保持される（マージ・上書き不可）。
+
+---
+
 ## Model routing (cost-aware) — M-04
 
 Codex agent model selection is a **runtime control** (`--model` / `--effort` flags

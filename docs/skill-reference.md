@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-3つのプラグイン（sdd-bootstrap、sdd-implementation、sdd-quality-loop）に含まれる8つのスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+3つのプラグイン（sdd-bootstrap、sdd-implementation、sdd-quality-loop）に含まれる9つのスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 ## 1. スキル一覧 (早見表)
 
@@ -14,6 +14,7 @@
 | fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
 | workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案 | quality-gate | — |
 | sdd-sudo | sdd-quality-loop | 人間承認ゲートを期限付きで自動通過 | — | implement-task, quality-gate (オプション) |
+| cross-model-verify | sdd-quality-loop | 複数ベンダーの独立 LLM パネリストを盲目並列実行し verdict JSON を収集 | quality-gate (critical タスク) | check-cross-model ゲート |
 
 **重要:** すべてのスキルは `disable-model-invocation: true` を指定しています。つまり、モデルが勝手にスキルを起動することはなく、ユーザーが明示的に `/sdd-bootstrap:sdd-adopt` のようなコマンドで呼び出す必要があります。このため、実装途中の誤った自動実行を防げます。
 
@@ -478,6 +479,55 @@ Use the workflow-retrospective skill for specs/reservation/
 - 不明な場合は人間に質問
 
 詳細は `plugins/sdd-quality-loop/references/sudo-mode-policy.md` を参照。
+
+---
+
+### cross-model-verify
+
+**目的**
+
+critical タスクの意味的検証を単一ベンダーに依存せず、複数の独立 LLM ベンダーによる並列盲目検証で補強します。`disable-model-invocation: true`（ユーザーが明示起動）。CI では実行しません。
+
+**2層分離**
+
+- **収集層**（非決定的・外部・opt-in・ローカル専用・**CI 非送信**）: `prepare-panelist-input`（同意確認 + 秘密情報サニタイズ）→ 盲目並列パネリスト呼び出し（Claude は Agent tool、GPT/Gemini は CLI ランナー）→ 各ベンダーの `T-NNN.panelist-<vendor>.verdict.json` を `specs/<feature>/verification/` に保存。
+- **ゲート層**（決定論的・ネットワーク不要・CI fixture 検証）: `check-cross-model.{sh,ps1}` が verdict JSON を集約し `T-NNN.cross-model.json`（aggregate）を生成。終了コード 0/1/2。
+
+**多様性要件と consensus ポリシー**
+
+- distinct ベンダー数 ≥ 2 かつ 非 Anthropic ベンダー ≥ 1 が必須（unmet → FAIL）。
+- 全パネリスト PASS かつ Critical 所見なし → 集約 `result: PASS`（exit 0）。
+- いずれかが NEEDS_WORK または Critical 所見あり → `result: FAIL`（exit 1）。
+- パネリスト consensus と sdd-evaluator verdict が乖離 → `requires_human_decision: true`、`result: NEEDS_HUMAN`（exit 1）。
+
+**consent とサニタイズ**
+
+`prepare-panelist-input` は `tasks.md` の `Cross-Model: enabled` フラグまたは有効な `SDD_SUDO` トークンがない限りフェイルクローズ。外部送信前に `.env` 内容・鍵素材・絶対パス・プライベート URL を除去し、サニタイズ済みバンドルの SHA-256 を `input_digest` として各 verdict に埋め込みます。
+
+**check-contract との統合**
+
+`check-contract` は contract の `cross_model` ディスクリプタ（`required` / `waived` / `legacy`）を読み Pass 6 で条件付き強制。`required` → aggregate JSON が evidence として必須。`waived` → `waiver_reason` 非空で OK。absent / `"legacy"` → 強制なし（後方互換）。`cross_model` は `RISK_TIERS` の機械形セットには含まれません（`signature` / 二者承認と同様の条件付き制御）。
+
+**呼び出し例**
+
+```txt
+Use the cross-model-verify skill for specs/cross-model-verification/tasks.md#T-001
+```
+
+**関連スクリプト・エージェント**
+
+| ファイル | 層 |
+|---|---|
+| `plugins/sdd-quality-loop/scripts/prepare-panelist-input.{sh,ps1}` | 収集 |
+| `plugins/sdd-quality-loop/scripts/detect-panel.{sh,ps1}` | 収集 |
+| `plugins/sdd-quality-loop/scripts/run-panelist-gpt.{sh,ps1}` | 収集 |
+| `plugins/sdd-quality-loop/scripts/run-panelist-gemini.{sh,ps1}` | 収集 |
+| `plugins/sdd-quality-loop/scripts/check-cross-model.{sh,ps1}` | ゲート |
+| `plugins/sdd-quality-loop/agents/panelist-gpt.md` | 収集 |
+| `plugins/sdd-quality-loop/agents/panelist-gemini.md` | 収集 |
+| `.codex/agents/sdd-panelist-gpt.toml` / `sdd-panelist-gemini.toml` | 収集 (Codex) |
+
+詳細は `plugins/sdd-quality-loop/references/cross-model-verification-policy.md` を参照。
 
 ---
 

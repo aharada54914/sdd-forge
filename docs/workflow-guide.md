@@ -745,8 +745,14 @@ project-root/
 |------|----------------------|
 | `low` | baseline (lint / typecheck / build / placeholder-scan / task-state)。`unit-tests` は理由付きで waive 可 |
 | `medium` | `unit-tests` + `acceptance-tests` + `regression` |
-| `high` | `requirement-traceability`、`tdd` の Red→Green 証跡、provenance (`spec_revision` / `build_env` / `review_verdict == PASS`) |
-| `critical` | クリーンツリー上の HMAC `signature` (dirty はハードフェイル)、二者承認 (`Second Approval`、sudo でバイパス不可) |
+| `high` | `requirement-traceability`、`tdd` の Red→Green 証跡、provenance (`spec_revision` / `build_env` / `review_verdict == PASS`)。`cross-model-verify` は opt-in で利用可 |
+| `critical` | クリーンツリー上の HMAC `signature` (dirty はハードフェイル)、二者承認 (`Second Approval`、sudo でバイパス不可)、**`cross-model-verify`（必須、waiver 可）** |
+
+> **cross-model-verify の 2 層構造**
+> - **収集層**（非決定論的・opt-in・**ローカル専用**）: `prepare-panelist-input` が consent を確認しサニタイズ後、`sdd-panelist-gpt`（OpenAI / codex CLI 経由）と `sdd-panelist-gemini`（Google / gemini CLI 経由）を盲目・並列に起動。各パネリストは read-only で、verdict JSON のみを出力する。**CI では収集層は一切実行されない**（コスト管理・外部送信防止のため）。
+> - **ゲート層**（決定論的・CI テスト可）: `check-cross-model` がローカル保存の verdict JSON を読み取り、コンセンサスポリシーを適用してアグリゲート JSON を生成。CI ではフィクスチャを使ってネットワーク不要で検証する。
+>
+> `critical` かつ `cross_model: required` のタスクで収集層未実行（または waiver なし）の場合、ゲートは fail-closed でブロックする。`high` の opt-in は contract の check id 存在で判定。
 
 ### 配線 (どのフェーズで誰が見るか)
 

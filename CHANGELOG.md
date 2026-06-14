@@ -2,7 +2,7 @@
 
 ## v0.10.0
 
-リスク適応ゲート (risk-adaptive-layer) を追加したセキュリティ・品質強化リリース。PR #16、CI グリーン (Windows / macOS / Linux)。
+リスク適応ゲート (risk-adaptive-layer, PR #16) と クロスモデル検証 (cross-model-verification, PR #20) を追加したセキュリティ・品質強化リリース。CI グリーン (Windows / macOS / Linux)。
 
 ### 新機能・強化
 
@@ -23,6 +23,15 @@
 **ガバナンスのコード化**: `.github/rulesets/main.json` (GitHub Rulesets API 形式)、ルート `CODEOWNERS`、`scripts/apply-branch-protection.sh`、`.github/workflows/test.yml` に `merge_group:` トリガーと `required-checks` ジョブを追加。
 
 **新規ドキュメント**: `docs/THREAT-MODEL.md`（脅威モデル）・`docs/agent-capability-matrix.md`（エージェント能力マトリクス）を追加。
+
+**クロスモデル検証 (cross-model-verification, PR #20)**: 単一の独立 evaluator (`sdd-evaluator`) に加え、複数ベンダーの LLM パネリスト (Claude + GPT/Gemini) に同一の検証を**盲目・並列**で投げ、独立 verdict を集約して単一ベンダー盲点を補強する層を追加。
+
+- **新スキル `cross-model-verify`**: 収集層（`prepare-panelist-input` で consent＋サニタイズ → `detect-panel` / `run-panelist-{gpt,gemini}` で盲目並列実行 → verdict JSON 収集）。`disable-model-invocation: true`（ユーザー明示起動）。
+- **新ゲート `check-cross-model.{sh,ps1}`**: 決定論的 consensus 判定（多様性: distinct vendor ≥2 かつ 非Anthropic ≥1 / 全 verdict PASS かつ Critical なし / evaluator 乖離 → `requires_human_decision`）。exit 0/1/2。
+- **`check-contract` Pass 6**: contract の `cross_model` ディスクリプタ (`required` / `waived` / `legacy`) を検証。`signature`/`two-person approval` と同じ条件付き制御で、機械形 `RISK_TIERS` には非追加（matrix↔encoding パリティと後方互換を維持）。critical=必須(waiver可)/high=opt-in。
+- **新パネリストエージェント**: `sdd-panelist-gpt`・`sdd-panelist-gemini`（read-only、`.codex/agents/sdd-panelist-*.toml` ＋ `plugins/sdd-quality-loop/agents/panelist-*.md`）。Claude パネリストは Agent ツール経由。
+- **2層分離**: 収集層は外部 API・opt-in・**CI では実行しない**（コストと外部送信防止）。ゲート層のみ CI で fixture 検証。`SDD_EVIDENCE_KEY` 等はパネリストに渡さない。
+- **新ポリシー**: `plugins/sdd-quality-loop/references/cross-model-verification-policy.md`。
 
 ### v0.9.0 からの移行
 

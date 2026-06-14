@@ -11,6 +11,10 @@ than silently adding heavy tools.
 If no executable verification commands exist, create a review ticket and do
 not mark the task `Done`.
 
+## Related Documents
+
+- [cross-model-verification-policy.md](cross-model-verification-policy.md) — multi-vendor panelist verification: consent, sanitization, consensus algorithm, and contract integration.
+
 ## Evidence Bundle Authoring
 
 Evidence bundles MUST be produced with `generate-evidence-bundle.(sh|ps1)`,
