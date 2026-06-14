@@ -1,7 +1,10 @@
 # Traceability: risk-adaptive-layer
 
 Requirement → Investigation → Design → Acceptance/Test → Code Target → Task → Status.
-The machine-readable form is produced in T-011 as `traceability.json`.
+The machine-readable form now exists at `traceability.json` (produced in T-011, validated by
+`check-traceability` in both default and require-evidence modes). Per-task live status is tracked
+in `tasks.md`; the `Status` column below is the planning snapshot. T-011 surfaced two findings —
+see `reports/implementation/T-011.md` (check-contract medium-tier calibration; AC-009 wording vs M-04).
 
 | Requirement | Investigation | Design | AC / Test | Code Target | Task | Status |
 |---|---|---|---|---|---|---|

@@ -1,0 +1,8 @@
+# T-011 check-contract on its own contract (honest result; expect medium-tier findings on lint/typecheck/build)
+date(UTC): 2026-06-14T01:52:21Z
+$ check-contract.sh specs/risk-adaptive-layer/verification/T-011.contract.json .
+Verification contract FAILED for task T-011:
+ - risk medium requires check 'build' to be required:true
+ - risk medium requires check 'lint' to be required:true
+ - risk medium requires check 'typecheck' to be required:true
+exit=1
