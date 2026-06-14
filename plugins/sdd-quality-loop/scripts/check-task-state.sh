@@ -30,6 +30,8 @@ BEGIN {
   task = ""; failures = 0; count = 0
   in_blockers = 0; blockers_content = ""
 }
+# Strip a trailing CR so a CRLF-encoded tasks.md parses identically to LF (cross-platform parity).
+{ sub(/\r$/, "") }
 function fail(msg) { print " - " msg; failures++ }
 function approver_id(s,   rest) {
   if (s ~ /^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/) {
