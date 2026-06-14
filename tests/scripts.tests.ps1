@@ -69,6 +69,11 @@ quality gate report for T-001
     "pass evidence for T-001" | Set-Content -Encoding Utf8 "verification/T-001.evidence.log"
     $taskOneContract = Get-Content -Raw -Encoding Utf8 (Join-Path $templatesDir "verification-contract.template.json") | ConvertFrom-Json
     $taskOneContract.task_id = "T-001"
+    # Legacy contract (no risk tier) for this task-state/evidence-bundle demo: the
+    # template's default check set predates tier enforcement and lacks
+    # acceptance-tests/regression, so leaving risk=medium would fail check-contract
+    # Pass 4. This demo validates task-state + bundle mechanics, not tier rules.
+    $taskOneContract.risk = ""
     foreach ($check in $taskOneContract.checks) {
         if ($check.required) {
             $check.passes = $true
