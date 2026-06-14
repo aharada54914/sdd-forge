@@ -35,6 +35,10 @@ jobs:
         shell: pwsh
         run: ./tests/hooks.tests.ps1
 
+      - name: Test cross-runtime scenario suite (pwsh)
+        shell: pwsh
+        run: ./tests/scenario.tests.ps1
+
       - name: Test installer (pwsh)
         shell: pwsh
         run: ./tests/install.tests.ps1
@@ -75,6 +79,18 @@ jobs:
         shell: bash
         run: |
           bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
+
+      - name: Test CRLF line-ending parity (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
+
+      - name: Test cross-runtime scenario suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
 
       - name: Test branch-protection script (bash)
         if: runner.os != 'Windows'
