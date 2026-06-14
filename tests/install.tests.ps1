@@ -621,6 +621,84 @@ finally {
     if (Test-Path $lockSuccessRoot) { Remove-Item -Path $lockSuccessRoot -Recurse -Force }
 }
 
+# ---------------------------------------------------------------------------
+# Scenario (D): post-install functional smoke — run installed check-risk gate
+# ---------------------------------------------------------------------------
+$smokeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-smoke-" + [guid]::NewGuid())
+$smokeInstall = Join-Path $smokeRoot "installed"
+$smokeBin = Join-Path $smokeRoot "bin"
+$smokeLog = Join-Path $smokeRoot "commands.log"
+$smokeFixtures = Join-Path $smokeRoot "fixtures"
+$smokeSavedPath = $env:PATH
+$smokeSavedCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $smokeBin -LogPath $smokeLog
+    $env:PATH = "$smokeBin$([System.IO.Path]::PathSeparator)$smokeSavedPath"
+    $env:SDD_CODEX_HOME = Join-Path $smokeRoot "codex-home"
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $smokeInstall -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
+
+    $smokeGate = Join-Path $smokeInstall "plugins/sdd-quality-loop/scripts/check-risk.ps1"
+    if (-not (Test-Path $smokeGate)) {
+        throw "smoke (D): installed check-risk.ps1 not found at: $smokeGate"
+    }
+
+    New-Item -ItemType Directory -Path $smokeFixtures -Force | Out-Null
+
+    # Pass fixture: high-risk task with Required Workflow: tdd
+    $passFixture = Join-Path $smokeFixtures "pass.md"
+    Set-Content -Path $passFixture -Encoding Utf8NoBOM -Value @"
+## T-001
+Risk: high
+Risk Rationale: affects critical auth path
+Required Workflow: tdd
+"@
+
+    # Fail fixture: high-risk task missing Required Workflow: tdd
+    $failFixture = Join-Path $smokeFixtures "fail.md"
+    Set-Content -Path $failFixture -Encoding Utf8NoBOM -Value @"
+## T-001
+Risk: high
+Risk Rationale: affects critical auth path
+"@
+
+    # Pass path: must exit 0
+    $passExitCode = 0
+    try {
+        & pwsh -NoProfile -NonInteractive -File $smokeGate -TasksPath $passFixture | Out-Null
+        $passExitCode = $LASTEXITCODE
+    } catch {
+        $passExitCode = 1
+    }
+    if ($passExitCode -eq 0) {
+        Write-Host "ok: smoke (D): installed gate exits 0 for well-formed high+tdd task"
+    } else {
+        throw "smoke (D): installed gate unexpectedly failed on well-formed task (exit $passExitCode)"
+    }
+
+    # Fail path: must exit non-zero
+    $failExitCode = 0
+    try {
+        & pwsh -NoProfile -NonInteractive -File $smokeGate -TasksPath $failFixture | Out-Null
+        $failExitCode = $LASTEXITCODE
+    } catch {
+        $failExitCode = 1
+    }
+    if ($failExitCode -ne 0) {
+        Write-Host "ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd"
+    } else {
+        throw "smoke (D): installed gate incorrectly passed on task missing Required Workflow: tdd"
+    }
+}
+finally {
+    $env:PATH = $smokeSavedPath
+    if ($null -eq $smokeSavedCodexHome) {
+        Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue
+    } else {
+        $env:SDD_CODEX_HOME = $smokeSavedCodexHome
+    }
+    if (Test-Path $smokeRoot) { Remove-Item -Path $smokeRoot -Recurse -Force }
+}
+
 Write-Host "Installer integration tests passed."
 
 # Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which

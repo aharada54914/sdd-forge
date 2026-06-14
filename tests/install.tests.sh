@@ -740,6 +740,75 @@ rm -rf "$_n_root"
 [[ $_n_ok -eq 1 ]] && ok "lock: stale lock with dead pid reclaimed — install succeeds"
 
 # ---------------------------------------------------------------------------
+# Scenario (D): post-install functional smoke — run installed check-risk gate
+# ---------------------------------------------------------------------------
+_d_root="$(mktemp -d)"
+_d_install="${_d_root}/installed"
+_d_bin="${_d_root}/bin"
+_d_log="${_d_root}/commands.log"
+_d_orig_path="$PATH"
+_d_orig_codex_home="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_d_bin" "$_d_log"
+export PATH="${_d_bin}:${_d_orig_path}"
+export SDD_CODEX_HOME="${_d_root}/codex-home"
+bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_d_install" --target FilesOnly --skip-plugin-install --skip-agent-install 2>/dev/null
+export PATH="$_d_orig_path"
+if [[ -z "$_d_orig_codex_home" ]]; then
+    unset SDD_CODEX_HOME
+else
+    export SDD_CODEX_HOME="$_d_orig_codex_home"
+fi
+
+_d_gate="${_d_install}/plugins/sdd-quality-loop/scripts/check-risk.sh"
+_d_fixtures="${_d_root}/fixtures"
+mkdir -p "$_d_fixtures"
+
+# Pass fixture: high-risk task with Required Workflow: tdd
+cat > "${_d_fixtures}/pass.md" <<'TASKS'
+## T-001
+Risk: high
+Risk Rationale: affects critical auth path
+Required Workflow: tdd
+TASKS
+
+# Fail fixture: high-risk task missing Required Workflow: tdd
+cat > "${_d_fixtures}/fail.md" <<'TASKS'
+## T-001
+Risk: high
+Risk Rationale: affects critical auth path
+TASKS
+
+_d_ok=1
+
+# Assert gate is present and executable
+if [[ ! -x "$_d_gate" ]]; then
+    fail "smoke (D): installed check-risk.sh not found or not executable at: $_d_gate"
+    _d_ok=0
+fi
+
+if [[ $_d_ok -eq 1 ]]; then
+    # Pass path must exit 0
+    if bash "$_d_gate" "${_d_fixtures}/pass.md" 2>/dev/null; then
+        ok "smoke (D): installed gate exits 0 for well-formed high+tdd task"
+    else
+        fail "smoke (D): installed gate unexpectedly failed on well-formed task"
+        _d_ok=0
+    fi
+
+    # Fail path must exit non-zero
+    _d_fail_rc=0
+    bash "$_d_gate" "${_d_fixtures}/fail.md" 2>/dev/null || _d_fail_rc=$?
+    if [[ $_d_fail_rc -ne 0 ]]; then
+        ok "smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd"
+    else
+        fail "smoke (D): installed gate incorrectly passed on task missing Required Workflow: tdd"
+        _d_ok=0
+    fi
+fi
+
+rm -rf "$_d_root"
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""
