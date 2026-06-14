@@ -292,10 +292,10 @@ if [ -f "$SKILL" ]; then
     else
         fail "CL-012b: SKILL.md missing name frontmatter"
     fi
-    if grep -q "disable-model-invocation: false" "$SKILL"; then
-        ok "CL-012c: SKILL.md has disable-model-invocation: false"
+    if grep -q "disable-model-invocation: true" "$SKILL"; then
+        ok "CL-012c: SKILL.md has disable-model-invocation: true"
     else
-        fail "CL-012c: SKILL.md missing disable-model-invocation: false"
+        fail "CL-012c: SKILL.md missing disable-model-invocation: true"
     fi
     if grep -q "blind" "$SKILL" && grep -q "parallel" "$SKILL"; then
         ok "CL-012d: SKILL.md mentions blind and parallel"

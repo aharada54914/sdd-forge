@@ -260,8 +260,8 @@ if (Test-Path $skill) {
     $sc = Get-Content $skill -Raw
     if ($sc -match "name: cross-model-verify") { ok "CL-012b: SKILL.md has name frontmatter" }
     else { fail "CL-012b: SKILL.md missing name frontmatter" }
-    if ($sc -match "disable-model-invocation: false") { ok "CL-012c: SKILL.md has disable-model-invocation: false" }
-    else { fail "CL-012c: SKILL.md missing disable-model-invocation: false" }
+    if ($sc -match "disable-model-invocation: true") { ok "CL-012c: SKILL.md has disable-model-invocation: true" }
+    else { fail "CL-012c: SKILL.md missing disable-model-invocation: true" }
     if ($sc -imatch "blind" -and $sc -imatch "parallel") { ok "CL-012d: SKILL.md mentions blind and parallel" }
     else { fail "CL-012d: SKILL.md should document blind/parallel isolation" }
 } else {

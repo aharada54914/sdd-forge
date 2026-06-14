@@ -1,7 +1,7 @@
 ---
 name: cross-model-verify
 description: Orchestrate blind parallel cross-model panelist verification for a critical SDD task. Runs prepare-panelist-input (consent + sanitize), invokes panelists blind in parallel (Claude via Agent tool; GPT/Gemini via CLI runners), collects verdict JSONs, then prompts the user to run check-cross-model to gate the result.
-disable-model-invocation: false
+disable-model-invocation: true
 ---
 
 # Cross-Model Verify
