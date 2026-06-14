@@ -55,6 +55,20 @@ generate_bundle_passes() {
     bash "${SCRIPTS_DIR}/generate-evidence-bundle.sh" "$1" "$2" "$3" >/dev/null 2>&1
 }
 
+run_check_risk() {
+    bash "${SCRIPTS_DIR}/check-risk.sh" "$1" "${2:-}" 2>&1 || true
+}
+check_risk_passes() {
+    bash "${SCRIPTS_DIR}/check-risk.sh" "$1" "${2:-}" >/dev/null 2>&1
+}
+
+run_check_traceability() {
+    bash "${SCRIPTS_DIR}/check-traceability.sh" "$1" "${2:-.}" "${3:-}" 2>&1 || true
+}
+check_traceability_passes() {
+    bash "${SCRIPTS_DIR}/check-traceability.sh" "$1" "${2:-.}" "${3:-}" >/dev/null 2>&1
+}
+
 git_init_and_commit() {
     local repo="$1"
     git -C "$repo" init -q
@@ -430,6 +444,83 @@ if ! check_contract_passes "${S8}/T-008.contract.json" "$S8" \
     ok "optional-check-no-waiver: check-contract FAILS — mentions waiver_reason"
 else
     fail "optional-check-no-waiver: check-contract should fail on optional passes=false + empty waiver_reason (out='${out8}')"
+fi
+
+# ============================================================================
+# SCENARIO 9: risk-tiered (check-risk + check-traceability, pass + adversarial)
+# A high-risk task must declare Required Workflow: tdd and carry a complete
+# REQ -> AC -> TEST traceability chain. Exercises both gates end-to-end and
+# their fail-closed paths.
+# ============================================================================
+echo "=== Scenario: risk-tiered ==="
+
+S9="${WORK}/s9-risk-tiered"
+mkdir -p "$S9"
+
+# (a) high task WITH Required Workflow: tdd -> check-risk passes
+cat > "${S9}/tasks.md" <<'TEOF'
+# Project Tasks
+
+## T-009
+
+Risk: high
+Risk Rationale: touches the evidence-signing path
+Required Workflow: tdd
+Status: Planned
+TEOF
+if check_risk_passes "${S9}/tasks.md"; then
+    ok "risk-tiered: high task with Required Workflow: tdd passes check-risk"
+else
+    fail "risk-tiered: high+tdd should pass check-risk — $(run_check_risk "${S9}/tasks.md")"
+fi
+
+# (b) ADVERSARIAL: same task with the workflow line removed -> check-risk fails closed
+cat > "${S9}/tasks-bad.md" <<'TEOF'
+# Project Tasks
+
+## T-009
+
+Risk: high
+Risk Rationale: touches the evidence-signing path
+Status: Planned
+TEOF
+out9a="$(run_check_risk "${S9}/tasks-bad.md")"
+if ! check_risk_passes "${S9}/tasks-bad.md" && echo "$out9a" | grep -q "Required Workflow: tdd"; then
+    ok "risk-tiered: high task missing tdd workflow fails check-risk (fail-closed)"
+else
+    fail "risk-tiered: high without tdd workflow must fail check-risk (out='${out9a}')"
+fi
+
+# (c) complete traceability chain REQ -> AC -> TEST -> evidence -> check-traceability passes
+printf 'test ran\n' > "${S9}/ev.log"
+cat > "${S9}/traceability.json" <<'JEOF'
+{
+  "feature": "feat-risk",
+  "links": [
+    { "req": "REQ-001", "acs": ["AC-001"], "tests": ["TEST-001"], "evidence": ["ev.log"] }
+  ]
+}
+JEOF
+if check_traceability_passes "${S9}/traceability.json" "$S9" "require-evidence"; then
+    ok "risk-tiered: complete REQ->AC->TEST->evidence chain passes check-traceability"
+else
+    fail "risk-tiered: complete chain should pass check-traceability — $(run_check_traceability "${S9}/traceability.json" "$S9" "require-evidence")"
+fi
+
+# (d) ADVERSARIAL: a link with an empty tests array -> check-traceability fails closed
+cat > "${S9}/traceability-bad.json" <<'JEOF'
+{
+  "feature": "feat-risk",
+  "links": [
+    { "req": "REQ-001", "acs": ["AC-001"], "tests": [], "evidence": ["ev.log"] }
+  ]
+}
+JEOF
+out9b="$(run_check_traceability "${S9}/traceability-bad.json" "$S9")"
+if ! check_traceability_passes "${S9}/traceability-bad.json" "$S9" && echo "$out9b" | grep -qi "no tests"; then
+    ok "risk-tiered: link with empty tests array fails check-traceability (fail-closed)"
+else
+    fail "risk-tiered: empty tests array must fail check-traceability (out='${out9b}')"
 fi
 
 # ============================================================================

@@ -1,0 +1,30 @@
+# T-011 / REQ-011 / AC-011 / TEST-011 — self-spec gate run (dogfood)
+date(UTC): 2026-06-14T01:47:48Z
+
+== 1. check-risk on own tasks.md ==
+$ check-risk.sh specs/risk-adaptive-layer/tasks.md
+Risk check passed for 11 task(s).
+exit=0
+
+== 2. check-traceability DEFAULT mode (structural REQ->AC->TEST + listed evidence exists) ==
+$ check-traceability.sh specs/risk-adaptive-layer/traceability.json .
+Traceability check passed for risk-adaptive-layer: 11 link(s).
+exit=0
+
+== 3. check-traceability REQUIRE-EVIDENCE mode (every REQ must have >=1 evidence file) ==
+$ check-traceability.sh specs/risk-adaptive-layer/traceability.json . require-evidence
+Traceability check passed for risk-adaptive-layer: 11 link(s).
+exit=0
+
+== 4. ADVERSARIAL fail-closed (harness inputs are valid JSON; failures are gate logic) ==
+(a) REQ-004 tests=[] -> default mode must FAIL on 'no tests'
+$ check-traceability.sh /tmp/trace-broken.json .
+Traceability check FAILED:
+ - REQ-004 has no tests
+exit=1 (expect 1)
+
+(b) REQ-001 evidence -> nonexistent file, require-evidence must FAIL on missing file
+$ check-traceability.sh /tmp/trace-missing.json . require-evidence
+Traceability check FAILED:
+ - REQ-001 evidence specs/risk-adaptive-layer/verification/DOES-NOT-EXIST.log file missing
+exit=1 (expect 1)

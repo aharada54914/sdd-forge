@@ -41,6 +41,7 @@ import sys
 import time
 
 APPROVAL_RE = re.compile(r"Approval:\s*Approved")
+SECOND_APPROVAL_RE = re.compile(r"Second Approval:\s*Approved")
 WFI_APPROVAL_RE = re.compile(r"Status:\s*Approved")
 AGENT_ROLE_PATH_RE = re.compile(r"\.codex/agents/[^/]+\.toml$")
 TASK_SECTION_RE = re.compile(r"^##\s+(T-\S+)", re.MULTILINE)
@@ -72,6 +73,12 @@ WFI_APPROVAL_MSG = (
     "Workflow Improvement; this is never bypassed by sudo. Leave it as Draft "
     "and ask the human to approve it."
 )
+SECOND_APPROVAL_MSG = (
+    "SDD deterministic gate: agents must not set 'Second Approval: Approved' in "
+    "tasks.md. A second approval is an independent human judgment (like a Workflow "
+    "Improvement) and is never bypassed by sudo. Leave it for a second human "
+    "approver to record."
+)
 SDD_SUDO_WRITE_MSG = (
     "SDD deterministic gate: agents must not create, edit, or delete the "
     "SDD_SUDO flag file. Only a human may manage sudo mode."
@@ -92,7 +99,9 @@ AGENT_ROLE_MSG = (
 def count(text):
     if not text:
         return 0
-    return len(APPROVAL_RE.findall(text))
+    # Subtract second approvals from primary count to avoid over-counting
+    # (since "Second Approval: Approved" contains "Approval: Approved" as a substring)
+    return len(APPROVAL_RE.findall(text)) - len(SECOND_APPROVAL_RE.findall(text))
 
 
 def is_tasks_md(path):
@@ -112,6 +121,13 @@ def wfi_count(text):
     if not text:
         return 0
     return len(WFI_APPROVAL_RE.findall(text))
+
+
+def count_second(text):
+    """Count Second Approval: Approved occurrences in tasks.md."""
+    if not text:
+        return 0
+    return len(SECOND_APPROVAL_RE.findall(text))
 
 
 def is_agent_role_path(path):
@@ -530,6 +546,81 @@ def _wfi_patch_increases(patch):
     return (added - removed) > 0
 
 
+def second_approval_increases(payload):
+    """Return True if this tool call would set 'Second Approval: Approved' in tasks.md.
+
+    Second Approval is human-only and is NEVER bypassed by sudo. Mirrors the tasks.md
+    approval guard but keyed on the 'Second Approval: Approved' marker and scoped to
+    tasks.md (not a separate path).
+    """
+    tool_input = payload.get("tool_input") or {}
+    tool_name = (payload.get("tool_name") or "").lower()
+
+    if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
+        return _second_approval_patch_increases(tool_input.get("command") or "")
+
+    if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
+        tool_input.get("command"), str
+    ):
+        cmd = tool_input["command"]
+        if "tasks.md" in cmd.lower() and SECOND_APPROVAL_RE.search(cmd):
+            return True
+        return False
+
+    file_path = tool_input.get("file_path") or ""
+    if not is_tasks_md(file_path):
+        return False
+
+    if isinstance(tool_input.get("edits"), list):
+        # Deny if any edit's new_string adds a Second Approval
+        for edit in tool_input["edits"]:
+            if count_second((edit or {}).get("new_string")) > 0:
+                return True
+        return False
+    elif "new_string" in tool_input:
+        # Deny if new_string has any Second Approval
+        return count_second(tool_input.get("new_string")) > 0
+    elif "content" in tool_input:
+        # Write: deny if net increase in Second Approval markers
+        return _second_approval_write_content_increases(file_path, tool_input.get("content") or "")
+    else:
+        return False
+
+
+def _second_approval_write_content_increases(file_path, new_content):
+    """Return True if new_content raises the file-wide Second Approval count."""
+    try:
+        with open(file_path, encoding="utf-8") as f:
+            old_content = f.read()
+    except OSError:
+        old_content = ""
+
+    return count_second(new_content) > count_second(old_content)
+
+
+def _second_approval_patch_increases(patch):
+    """Parse a Codex patch envelope; return True if net second approvals added to tasks.md."""
+    current_is_tasks = False
+    added = removed = 0
+    for raw in patch.splitlines():
+        # File section headers.
+        m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
+        if m:
+            current_is_tasks = is_tasks_md(m.group(2).strip())
+            continue
+        if raw.startswith("*** End Patch") or raw.startswith("*** Begin Patch"):
+            continue
+        if not current_is_tasks:
+            continue
+        # Patch body lines.
+        if raw.startswith("+") and not raw.startswith("+++"):
+            added += count_second(raw[1:])
+        elif raw.startswith("-") and not raw.startswith("---"):
+            removed += count_second(raw[1:])
+    net_for_file = added - removed
+    return net_for_file > 0
+
+
 def agent_role_invalid(payload):
     """Return True if this would write an invalid or protected agent role file."""
     tool_input = payload.get("tool_input") or {}
@@ -707,6 +798,10 @@ def main():
         # Check 2c: WFI approval guard (NEVER bypassed by sudo).
         if wfi_approval_increases(payload):
             emit("deny", WFI_APPROVAL_MSG, mode)
+
+        # Check 2d: Second Approval guard (NEVER bypassed by sudo).
+        if second_approval_increases(payload):
+            emit("deny", SECOND_APPROVAL_MSG, mode)
     except Exception:
         # Never crash; fail closed on the approval check.
         emit("deny", "SDD deterministic gate: approval guard failed closed.", mode)

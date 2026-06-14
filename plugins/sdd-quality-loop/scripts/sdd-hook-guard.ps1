@@ -32,6 +32,10 @@ $ApprovalMsg = "SDD deterministic gate: agents must not set 'Approval: Approved'
 $WfiApprovalMsg = "SDD deterministic gate: agents must not set 'Status: Approved' in a " +
     "docs/workflow-improvements/WFI-*.md file. Only a human may approve a Workflow " +
     "Improvement; this is never bypassed by sudo. Leave it as Draft and ask the human to approve it."
+$SecondApprovalMsg = "SDD deterministic gate: agents must not set 'Second Approval: Approved' in " +
+    "tasks.md. A second approval is an independent human judgment (like a Workflow " +
+    "Improvement) and is never bypassed by sudo. Leave it for a second human " +
+    "approver to record."
 $SddSudoWriteMsg = "SDD deterministic gate: agents must not create, edit, or delete the " +
     "SDD_SUDO flag file. Only a human may manage sudo mode."
 $KillMsg = "SDD kill switch: AGENT_STOP exists at the project root. All tool use is suspended until a human deletes the file."
@@ -46,7 +50,11 @@ if ($Emit -ne "copilot") { $Emit = "exit" }
 function Get-Count {
     param([string]$Text)
     if ([string]::IsNullOrEmpty($Text)) { return 0 }
-    return ([regex]::Matches($Text, "Approval:\s*Approved")).Count
+    # Subtract second approvals from primary count to avoid over-counting
+    # (since "Second Approval: Approved" contains "Approval: Approved" as a substring)
+    $primary = ([regex]::Matches($Text, "Approval:\s*Approved")).Count
+    $secondary = ([regex]::Matches($Text, "Second Approval:\s*Approved")).Count
+    return ($primary - $secondary)
 }
 
 function Test-TasksMd {
@@ -67,6 +75,12 @@ function Get-WfiCount {
     param([string]$Text)
     if ([string]::IsNullOrEmpty($Text)) { return 0 }
     return ([regex]::Matches($Text, "Status:\s*Approved")).Count
+}
+
+function Get-SecondApprovalCount {
+    param([string]$Text)
+    if ([string]::IsNullOrEmpty($Text)) { return 0 }
+    return ([regex]::Matches($Text, "Second Approval:\s*Approved")).Count
 }
 
 function Test-AgentRolePath {
@@ -380,6 +394,78 @@ function Test-WfiApprovalIncreases {
     }
 }
 
+function Test-SecondApprovalPatchIncreases {
+    param([string]$Patch)
+    $currentIsTasks = $false
+    $added = 0
+    $removed = 0
+    foreach ($line in ($Patch -split "`n")) {
+        $line = $line -replace "`r$", ""
+        $m = [regex]::Match($line, "^\*\*\* (Update|Add|Delete) File: (.+)$")
+        if ($m.Success) {
+            $currentIsTasks = Test-TasksMd ($m.Groups[2].Value.Trim())
+            continue
+        }
+        if ($line.StartsWith("*** End Patch") -or $line.StartsWith("*** Begin Patch")) { continue }
+        if (-not $currentIsTasks) { continue }
+        if ($line.StartsWith("+") -and -not $line.StartsWith("+++")) {
+            $added += Get-SecondApprovalCount $line.Substring(1)
+        } elseif ($line.StartsWith("-") -and -not $line.StartsWith("---")) {
+            $removed += Get-SecondApprovalCount $line.Substring(1)
+        }
+    }
+    return (($added - $removed) -gt 0)
+}
+
+function Test-SecondApprovalWriteContentIncreases {
+    param([string]$FilePath, [string]$NewContent)
+    $oldContent = ""
+    if (Test-Path -LiteralPath $FilePath) {
+        $oldContent = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+    }
+    return ((Get-SecondApprovalCount $NewContent) -gt (Get-SecondApprovalCount $oldContent))
+}
+
+function Test-SecondApprovalIncreases {
+    param($Payload)
+    $toolInput = $Payload.tool_input
+    if ($null -eq $toolInput) { return $false }
+    $toolName = ""
+    if ($Payload.PSObject.Properties["tool_name"]) { $toolName = ([string]$Payload.tool_name).ToLower() }
+
+    $command = $null
+    if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
+
+    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+        return Test-SecondApprovalPatchIncreases $command
+    }
+
+    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+        if ($command.ToLower().Contains("tasks.md") -and [regex]::IsMatch($command, "Second Approval:\s*Approved")) {
+            return $true
+        }
+        return $false
+    }
+
+    $filePath = [string]$toolInput.file_path
+    if (-not (Test-TasksMd $filePath)) { return $false }
+
+    if ($toolInput.PSObject.Properties["edits"] -and $null -ne $toolInput.edits) {
+        foreach ($edit in $toolInput.edits) {
+            if ((Get-SecondApprovalCount ([string]$edit.new_string)) -gt 0) {
+                return $true
+            }
+        }
+        return $false
+    } elseif ($toolInput.PSObject.Properties["new_string"]) {
+        return (Get-SecondApprovalCount ([string]$toolInput.new_string)) -gt 0
+    } elseif ($toolInput.PSObject.Properties["content"]) {
+        return Test-SecondApprovalWriteContentIncreases $filePath ([string]$toolInput.content)
+    } else {
+        return $false
+    }
+}
+
 function Test-PatchWritesInvalidAgentRole {
     param([string]$Patch)
     $currentIsAgentRole = $false
@@ -614,6 +700,9 @@ try {
 
     # Check 2c: WFI approval guard (NEVER bypassed by sudo).
     if (Test-WfiApprovalIncreases $payload) { Emit-Decision "deny" $WfiApprovalMsg }
+
+    # Check 2d: Second Approval guard (NEVER bypassed by sudo).
+    if (Test-SecondApprovalIncreases $payload) { Emit-Decision "deny" $SecondApprovalMsg }
 } catch {
     Emit-Decision "deny" "SDD deterministic gate: approval guard failed closed."
 }

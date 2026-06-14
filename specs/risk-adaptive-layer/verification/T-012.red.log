@@ -1,0 +1,13 @@
+# T-012 RED — stack tests run BEFORE check-contract.sh stack logic (impl stashed to HEAD)
+date(UTC): 2026-06-14T02:15:58Z
+$ bash tests/gates.tests.sh   (T-012 lines + summary)
+=== T-012: stack descriptor (compile-check applicability) ===
+FAIL: T-012.1: stack docs should pass with compile checks waived
+ok: T-012.2: absent stack (=code) keeps build mandatory (backward compat)
+ok: T-012.3: stack docs cannot waive unit-tests (abuse blocked)
+ok: T-012.4: stack docs waiver still requires waiver_reason
+ok: T-012.5: explicit stack code keeps build mandatory
+FAIL: T-012.6: should fail with 'contract stack is invalid'. Got: Verification contract passed for task T-012.6.
+FAIL: T-012.7: stack shell high+tdd tier should pass with compile checks waived
+PASS: 106
+FAIL: 3

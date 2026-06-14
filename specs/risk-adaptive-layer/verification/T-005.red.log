@@ -1,0 +1,16 @@
+=== T-005: check-traceability ===
+FAIL: T-005.1: valid traceability should pass
+FAIL: T-005.2: should fail with 'has no acceptance criteria'. Got: bash: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-quality-loop/scripts/check-traceability.sh: No such file or directory
+FAIL: T-005.3: should fail with 'has no tests'. Got: bash: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-quality-loop/scripts/check-traceability.sh: No such file or directory
+FAIL: T-005.4: should fail with 'file missing'. Got: bash: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-quality-loop/scripts/check-traceability.sh: No such file or directory
+FAIL: T-005.5: should pass with existing evidence file
+FAIL: T-005.6: should fail with 'requires evidence'. Got: bash: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-quality-loop/scripts/check-traceability.sh: No such file or directory
+FAIL: T-005.7: should pass with evidence in require-evidence mode
+FAIL: T-005.8: should fail with 'invalid JSON'. Got: bash: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-quality-loop/scripts/check-traceability.sh: No such file or directory
+FAIL: T-005.9: should fail with 'file not found'. Got: bash: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-quality-loop/scripts/check-traceability.sh: No such file or directory
+FAIL: T-005.10: should fail with 'has no links'. Got: bash: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-quality-loop/scripts/check-traceability.sh: No such file or directory
+
+====== Test Summary (RED) ======
+PASS: 48
+FAIL: 10
+==========================

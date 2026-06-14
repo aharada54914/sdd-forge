@@ -1,0 +1,27 @@
+=== Scenario: clean-pass ===
+ok: clean-pass: generate-evidence-bundle succeeds
+ok: clean-pass: check-contract PASS
+ok: clean-pass: check-placeholders PASS
+ok: clean-pass: check-evidence-bundle PASS
+ok: clean-pass: check-task-state PASS — Done permitted
+=== Scenario: placeholder-stub ===
+ok: placeholder-stub: check-placeholders FAILS (Done blocked) — mentions TODO
+=== Scenario: missing-evidence ===
+ok: missing-evidence: check-contract FAILS — mentions missing evidence
+=== Scenario: tampered-evidence ===
+ok: tampered-evidence: check-evidence-bundle FAILS — mentions sha256 mismatch
+=== Scenario: foreign-commit-evidence ===
+ok: foreign-commit-evidence: check-evidence-bundle FAILS (foreign git_commit not in history)
+=== Scenario: self-approval-blocked ===
+ok: self-approval-blocked: sdd-hook-guard.sh exits 2 (denied) — no SDD_SUDO
+=== Scenario: done-without-report ===
+ok: done-without-report: check-task-state FAILS — Done blocked (report/bundle mismatch)
+=== Scenario: optional-check-no-waiver ===
+ok: optional-check-no-waiver: check-contract FAILS — mentions waiver_reason
+=== Scenario: risk-tiered ===
+ok: risk-tiered: high task with Required Workflow: tdd passes check-risk
+ok: risk-tiered: high task missing tdd workflow fails check-risk (fail-closed)
+ok: risk-tiered: complete REQ->AC->TEST->evidence chain passes check-traceability
+ok: risk-tiered: link with empty tests array fails check-traceability (fail-closed)
+
+Results: 16 passed, 0 failed.

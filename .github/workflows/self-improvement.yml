@@ -44,6 +44,8 @@ jobs:
       - name: Run Claude self-improvement session
         # Pinned to a commit SHA (H-04). Bump periodically (or via Dependabot)
         # to pick up upstream fixes; verify the SHA against the release tag.
+        # NOTE: Generated PRs will be gated by required-checks from test.yml;
+        # no auto-merge will bypass CI. Manual review & approval is required.
         uses: anthropics/claude-code-action@d5726de019ec4498aa667642bc3a80fca83aa102 # v1.0.148
         env:
           GH_TOKEN: ${{ github.token }}

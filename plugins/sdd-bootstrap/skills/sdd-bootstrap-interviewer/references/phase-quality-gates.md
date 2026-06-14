@@ -12,6 +12,9 @@
 - Design, security, deployment, and data/API contract needs are explicit.
 - Major architecture decisions have ADRs.
 - Existing code and tests were investigated for feature and bugfix work.
+- Each requirement/task carries a risk tier with a rationale; security, auth,
+  data-integrity, and money-moving paths are escalated to `high`/`critical`
+  per `risk-classification-policy.md`.
 
 ## Task Gate
 
@@ -19,6 +22,8 @@
 - Every task contains Source Issue, Approval, Status, Must Read, Scope,
   Done When, Out of Scope, and Blockers.
 - Every task is generated with `Approval: Draft` and `Status: Planned`.
+- Every task declares `Risk:`, `Risk Rationale:`, and a `Required Workflow:`
+  consistent with the matrix (`high`/`critical ⇒ tdd`); `check-risk` passes.
 - Acceptance tests and initial traceability exist.
 
 ## Handoff Gate

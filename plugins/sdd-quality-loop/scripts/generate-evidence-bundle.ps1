@@ -71,6 +71,10 @@ $feature = ([string]$contract.feature).Trim()
 
 $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
+# Extract risk and required_workflow from contract (may be absent for legacy bundles)
+$contractRisk = ([string]$contract.risk).Trim()
+$contractRequiredWorkflow = ([string]$contract.required_workflow).Trim()
+
 # ------------------------------------------------------------------
 # Determine output path
 # ------------------------------------------------------------------
@@ -189,17 +193,255 @@ if ($statusExit -ne 0) {
 $gitGeneratedDirty = (-not [string]::IsNullOrWhiteSpace(($statusResult | Out-String).Trim()))
 
 # ------------------------------------------------------------------
+# Compute spec_revision (sha256 over spec files)
+# ------------------------------------------------------------------
+
+function Get-SpecRevision {
+    param([Parameter(Mandatory)][string]$FeatureSlug, [Parameter(Mandatory)][string]$AbsRoot)
+    $specFiles = @(
+        (Join-Path $AbsRoot "specs" $FeatureSlug "requirements.md"),
+        (Join-Path $AbsRoot "specs" $FeatureSlug "design.md"),
+        (Join-Path $AbsRoot "specs" $FeatureSlug "acceptance-tests.md")
+    )
+    $hasher = [System.Security.Cryptography.SHA256]::Create()
+    $foundAny = $false
+    foreach ($specFile in $specFiles) {
+        if (Test-Path -LiteralPath $specFile) {
+            $bytes = [System.IO.File]::ReadAllBytes($specFile)
+            $hasher.TransformBlock($bytes, 0, $bytes.Length, $null, 0) | Out-Null
+            $foundAny = $true
+        }
+    }
+    $hasher.TransformFinalBlock([byte[]]@(), 0, 0) | Out-Null
+    if ($foundAny) {
+        return ($hasher.Hash | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+    }
+    return ""
+}
+
+$specRevision = Get-SpecRevision -FeatureSlug $feature -AbsRoot $absRoot
+
+# ------------------------------------------------------------------
+# Parse review_verdict from quality report
+# ------------------------------------------------------------------
+
+function Get-ReviewVerdict {
+    param([Parameter(Mandatory)][string]$ReportPath)
+    $verdict = ""
+    $critical = 0
+    $major = 0
+    $minor = 0
+    try {
+        $content = Get-Content -Raw -LiteralPath $ReportPath -Encoding Utf8
+        if ($content -match "(?m)^VERDICT:\s*(\S+)") {
+            $verdict = $matches[1]
+        }
+        if ($content -match "(?m)^Critical:\s*(\d+)") { $critical = [int]$matches[1] }
+        if ($content -match "(?m)^Major:\s*(\d+)") { $major = [int]$matches[1] }
+        if ($content -match "(?m)^Minor:\s*(\d+)") { $minor = [int]$matches[1] }
+    } catch {
+        # If parsing fails, return defaults
+    }
+    return [ordered]@{
+        verdict  = $verdict
+        critical = $critical
+        major    = $major
+        minor    = $minor
+        reviewer = "sdd-evaluator"
+    }
+}
+
+$reviewVerdict = Get-ReviewVerdict -ReportPath (Resolve-Path $QualityReport).Path
+
+# ------------------------------------------------------------------
+# Build build_env
+# ------------------------------------------------------------------
+
+$osName = [System.Runtime.InteropServices.RuntimeInformation]::OSDescription
+if ($osName -match "Windows") { $osName = "windows" }
+elseif ($osName -match "Linux") { $osName = "linux" }
+elseif ($osName -match "Darwin") { $osName = "darwin" }
+else { $osName = $osName.ToLower() }
+
+# Resolve python robustly: many systems (incl. GitHub ubuntu/macos runners) ship
+# only `python3`, not bare `python`. This is provenance metadata only, so fall back
+# to an empty string when no interpreter is found rather than failing the bundle.
+$pythonVersion = ""
+$pythonCmd = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $pythonCmd) { $pythonCmd = Get-Command python -ErrorAction SilentlyContinue }
+if ($pythonCmd) {
+    $pythonVersion = [regex]::Match(((& $pythonCmd.Source --version 2>&1) | Out-String), '\d+\.\d+').Value
+}
+
+$gitVersion = ""
+$gitCmd = Get-Command git -ErrorAction SilentlyContinue
+if ($gitCmd) {
+    $gitVersion = (& git --version) -join " "
+}
+
+$buildEnv = [ordered]@{
+    os              = $osName
+    python          = $pythonVersion
+    git             = $gitVersion
+    lockfile_sha256 = $null
+}
+
+# ------------------------------------------------------------------
+# Build builder
+# ------------------------------------------------------------------
+
+$builderKind = if ($env:CI -or $env:GITHUB_ACTIONS) { "ci" } else { "local" }
+$builderId = $env:GITHUB_RUN_ID
+if ([string]::IsNullOrWhiteSpace($builderId)) {
+    $builderId = $env:USERNAME
+    if ([string]::IsNullOrWhiteSpace($builderId)) { $builderId = "unknown" }
+}
+$builderRuntime = if ($env:SDD_RUNTIME) { $env:SDD_RUNTIME } else { "unknown" }
+
+$builder = [ordered]@{
+    kind    = $builderKind
+    id      = $builderId
+    runtime = $builderRuntime
+}
+
+# ------------------------------------------------------------------
+# Signing helpers (T-007a)
+# ------------------------------------------------------------------
+
+function Resolve-EvidenceKey {
+    $envKey = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY")
+    if (-not [string]::IsNullOrWhiteSpace($envKey)) {
+        return @{ key = [System.Text.Encoding]::UTF8.GetBytes($envKey); ref = "env:SDD_EVIDENCE_KEY" }
+    }
+    $envKeyFile = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY_FILE")
+    if (-not [string]::IsNullOrWhiteSpace($envKeyFile)) {
+        try {
+            $raw = [System.IO.File]::ReadAllBytes($envKeyFile)
+            # Strip BOM (0xEF 0xBB 0xBF)
+            if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
+                $raw = $raw[3..($raw.Length-1)]
+            }
+            # Strip trailing whitespace
+            $raw = [System.Linq.Enumerable]::Reverse(
+                [System.Linq.Enumerable]::SkipWhile(
+                    [System.Linq.Enumerable]::Reverse($raw),
+                    { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
+                )
+            ).ToArray()
+            if ($raw.Length -gt 0) {
+                return @{ key = $raw; ref = "file:$envKeyFile" }
+            }
+        } catch {
+            return $null
+        }
+    }
+    # NB: do not name this $home — $HOME is a read-only automatic variable in
+    # PowerShell (case-insensitive), and assigning to it throws under -ErrorAction Stop.
+    $userHome = $env:HOME
+    if ([string]::IsNullOrWhiteSpace($userHome)) { $userHome = $env:USERPROFILE }
+    if (-not [string]::IsNullOrWhiteSpace($userHome)) {
+        $keyPath = Join-Path $userHome ".sdd" "evidence-key"
+        if (Test-Path -LiteralPath $keyPath) {
+            try {
+                $raw = [System.IO.File]::ReadAllBytes($keyPath)
+                # Strip BOM
+                if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
+                    $raw = $raw[3..($raw.Length-1)]
+                }
+                # Strip trailing whitespace
+                $raw = [System.Linq.Enumerable]::Reverse(
+                    [System.Linq.Enumerable]::SkipWhile(
+                        [System.Linq.Enumerable]::Reverse($raw),
+                        { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
+                    )
+                ).ToArray()
+                if ($raw.Length -gt 0) {
+                    return @{ key = $raw; ref = "file:~/.sdd/evidence-key" }
+                }
+            } catch {
+                return $null
+            }
+        }
+    }
+    return $null
+}
+
+function Get-EvidenceCanonical {
+    param([Parameter(Mandatory)]$Bundle)
+    $artifacts = @($Bundle.artifacts)
+    $pairs = @()
+    foreach ($artifact in $artifacts) {
+        $path = [string]($artifact.path).Trim()
+        $sha = ([string]($artifact.sha256).Trim()).ToLowerInvariant()
+        $pairs += $path + [char]0 + $sha
+    }
+    # Ordinal sort to match Python's code-point sort (Sort-Object is culture-aware
+    # and would diverge across runtimes, breaking signature parity).
+    $pairsArr = [string[]]$pairs
+    [System.Array]::Sort($pairsArr, [System.StringComparer]::Ordinal)
+    $pairsStr = $pairsArr -join "`n"
+    $pairsBytes = [System.Text.Encoding]::UTF8.GetBytes($pairsStr)
+    $hasher = [System.Security.Cryptography.SHA256]::Create()
+    $artifactsDigest = ($hasher.ComputeHash($pairsBytes) | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+
+    $dirty = if ($Bundle.git_generated_dirty) { "true" } else { "false" }
+    $verdict = [string]($Bundle.review_verdict.verdict).Trim()
+
+    $lines = @(
+        "sdd-evidence-v1",
+        [string]($Bundle.task_id).Trim(),
+        [string]($Bundle.feature).Trim(),
+        [string]($Bundle.risk).Trim(),
+        [string]($Bundle.required_workflow).Trim(),
+        [string]($Bundle.spec_revision).Trim(),
+        [string]($Bundle.git_commit).Trim(),
+        $dirty,
+        $verdict,
+        $artifactsDigest
+    )
+    return $lines -join "`n"
+}
+
+# ------------------------------------------------------------------
 # Write bundle
 # ------------------------------------------------------------------
 
 $bundle = [ordered]@{
     task_id               = $taskId
     feature               = $feature
+    risk                  = $contractRisk
+    required_workflow     = $contractRequiredWorkflow
+    spec_revision         = $specRevision
     quality_report        = $reportRel
     verification_contract = $contractRel
     git_commit            = $gitCommit
     git_generated_dirty   = $gitGeneratedDirty
+    build_env             = $buildEnv
+    builder               = $builder
+    review_verdict        = $reviewVerdict
     artifacts             = $artifacts
+}
+
+# Sign critical bundles (T-007a)
+if ($contractRisk -eq "critical") {
+    $keyInfo = Resolve-EvidenceKey
+    if ($null -eq $keyInfo) {
+        Write-Error "generate-evidence-bundle: risk=critical requires an evidence signing key (SDD_EVIDENCE_KEY / SDD_EVIDENCE_KEY_FILE / ~/.sdd/evidence-key); none found"
+        exit 1
+    }
+    $canonical = Get-EvidenceCanonical -Bundle $bundle
+    $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
+    # Use ::new() so the byte[] key is passed as a single constructor argument.
+    # New-Object -ArgumentList splats an array into multiple ctor args (HMACSHA256
+    # would see N byte arguments instead of one byte[]), so it must not be used here.
+    $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
+    $signatureBytes = $hmac.ComputeHash($canonicalBytes)
+    $signatureValue = ($signatureBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+    $bundle["signature"] = [ordered]@{
+        alg     = "hmac-sha256"
+        value   = $signatureValue
+        key_ref = $keyInfo.ref
+    }
 }
 
 $outputDir = Split-Path -Parent $resolvedOutputPath

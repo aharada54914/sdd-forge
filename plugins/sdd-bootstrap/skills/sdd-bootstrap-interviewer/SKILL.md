@@ -75,6 +75,24 @@ the required SDD structure. Project-level constitution files (`AGENTS.md`,
 CI/issue/PR templates are created by `sdd-adopt` based on detected host; do not
 recreate them here.
 
+## Risk Classification
+
+For every generated task, propose a `Risk:` tier
+(`low | medium | high | critical`) following
+`plugins/sdd-quality-loop/references/risk-classification-policy.md`, with a
+one-line `Risk Rationale:`. The agent proposes; the human confirms the tier at
+approval. Derive `Required Workflow:` from the tier per
+`plugins/sdd-quality-loop/references/risk-gate-matrix.md`:
+`low → test-after`, `medium → acceptance-first`, `high`/`critical → tdd`.
+
+For `high`/`critical` tasks, add the risk-derived `Done When` items the matrix
+mandates (Red→Green evidence captured; independent review verdict recorded;
+provenance with `spec_revision`; and for `critical`, an HMAC-signed evidence
+bundle plus a second, distinct named approver). Leaving `Risk:` absent selects
+legacy mode (no tier enforcement) and is reserved for pre-existing contracts —
+do not use it to dodge a tier. `check-risk` rejects a `high`/`critical` task
+that does not declare `Required Workflow: tdd`.
+
 ## Approval Gate
 
 Generate every task with `Approval: Draft` and `Status: Planned`. Present the

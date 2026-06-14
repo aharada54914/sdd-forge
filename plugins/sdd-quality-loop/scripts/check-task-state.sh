@@ -31,6 +31,15 @@ BEGIN {
   in_blockers = 0; blockers_content = ""
 }
 function fail(msg) { print " - " msg; failures++ }
+function approver_id(s,   rest) {
+  if (s ~ /^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/) {
+    rest = s
+    sub(/^Approved \(/, "", rest)
+    sub(/ .*$/, "", rest)
+    return rest
+  }
+  return ""
+}
 /^## T-[0-9]+/ {
   if (task != "") finish()
   newid = $2
@@ -38,11 +47,13 @@ function fail(msg) { print " - " msg; failures++ }
     fail("duplicate task id " newid)
   }
   seen[newid] = 1
-  task = newid; approval = ""; status = ""; count++
+  task = newid; approval = ""; status = ""; risk = ""; second = ""; count++
   in_blockers = 0; blockers_content = ""
 }
 /^Approval:/ { if (task != "") { approval = $0; sub(/^Approval:[ \t]*/, "", approval); in_blockers = 0 } }
 /^Status:/ { if (task != "") { status = $0; sub(/^Status:[ \t]*/, "", status); in_blockers = 0 } }
+/^Risk:/ { if (task != "") { risk = $0; sub(/^Risk:[ \t]*/, "", risk); risk = tolower(risk); sub(/[ \t]+$/, "", risk); in_blockers = 0 } }
+/^Second Approval:/ { if (task != "") { second = $0; sub(/^Second Approval:[ \t]*/, "", second); in_blockers = 0 } }
 /^### Blockers/ { if (task != "") { in_blockers = 1 } }
 /^## [^#]/ { if ($0 !~ /^## T-[0-9]+/) { in_blockers = 0 } }
 {
@@ -59,13 +70,13 @@ function fail(msg) { print " - " msg; failures++ }
 function finish() {
   if (approval == "") fail(task " has no Approval line")
   else {
-    # Accept: Draft | Approved | Approved (sudo YYYY-MM-DDTHH:MM:SSZ)
+    # Accept: Draft | Approved | Approved (<id> YYYY-MM-DDTHH:MM:SSZ) where <id> can be any non-space/non-paren token
     is_valid_approval = (approval == "Draft" || approval == "Approved" || \
-      approval ~ /^Approved \(sudo [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
+      approval ~ /^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
     if (!is_valid_approval) fail(task " has invalid Approval: " approval)
   }
-  # For gate checks, treat Approved (sudo ...) same as Approved
-  is_approved = (approval == "Approved" || approval ~ /^Approved \(sudo [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
+  # For gate checks, treat Approved (with any id) same as Approved
+  is_approved = (approval == "Approved" || approval ~ /^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
   if (status == "") fail(task " has no Status line")
   else if (status != "Planned" && status != "In Progress" && status != "Blocked" && status != "Implementation Complete" && status != "Done")
     fail(task " has invalid Status: " status)
@@ -122,6 +133,27 @@ function finish() {
   }
   if (status == "Blocked") {
     if (blockers_content == "") fail(task " is Blocked but ### Blockers section has no content (not None or empty)")
+  }
+  # Two-person approval enforcement for critical Done tasks
+  if (status == "Done" && risk == "critical") {
+    prim_id = approver_id(approval)
+    sec_id = approver_id(second)
+
+    if (prim_id == "") {
+      fail(task " is critical Done but primary Approval lacks a named approver (need \x27Approved (<id> <ISO>)\x27)")
+    }
+    if (tolower(prim_id) == "sudo") {
+      fail(task " is critical Done but primary approver is \x27sudo\x27; critical requires a named human approver")
+    }
+    if (second == "" || sec_id == "") {
+      fail(task " is critical Done but Second Approval is missing or not a named \x27Approved (<id> <ISO>)\x27")
+    }
+    if (tolower(sec_id) == "sudo") {
+      fail(task " is critical Done but Second Approval approver is \x27sudo\x27; critical requires a named human second approver")
+    }
+    if (tolower(prim_id) == tolower(sec_id) && prim_id != "") {
+      fail(task " is critical Done but both approvals are by the same approver \x27" prim_id "\x27; two distinct approvers required")
+    }
   }
 }
 END {

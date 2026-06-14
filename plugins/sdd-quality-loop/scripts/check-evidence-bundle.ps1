@@ -92,6 +92,102 @@ function Get-Sha256 {
     return (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
 }
 
+# --- Signing verification helpers (T-007a) ---
+
+function Resolve-EvidenceKey {
+    $envKey = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY")
+    if (-not [string]::IsNullOrWhiteSpace($envKey)) {
+        return @{ key = [System.Text.Encoding]::UTF8.GetBytes($envKey); ref = "env:SDD_EVIDENCE_KEY" }
+    }
+    $envKeyFile = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_KEY_FILE")
+    if (-not [string]::IsNullOrWhiteSpace($envKeyFile)) {
+        try {
+            $raw = [System.IO.File]::ReadAllBytes($envKeyFile)
+            # Strip BOM (0xEF 0xBB 0xBF)
+            if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
+                $raw = $raw[3..($raw.Length-1)]
+            }
+            # Strip trailing whitespace
+            $raw = [System.Linq.Enumerable]::Reverse(
+                [System.Linq.Enumerable]::SkipWhile(
+                    [System.Linq.Enumerable]::Reverse($raw),
+                    { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
+                )
+            ).ToArray()
+            if ($raw.Length -gt 0) {
+                return @{ key = $raw; ref = "file:$envKeyFile" }
+            }
+        } catch {
+            return $null
+        }
+    }
+    # NB: do not name this $home — $HOME is a read-only automatic variable in
+    # PowerShell (case-insensitive), and assigning to it throws under -ErrorAction Stop.
+    $userHome = $env:HOME
+    if ([string]::IsNullOrWhiteSpace($userHome)) { $userHome = $env:USERPROFILE }
+    if (-not [string]::IsNullOrWhiteSpace($userHome)) {
+        $keyPath = Join-Path $userHome ".sdd" "evidence-key"
+        if (Test-Path -LiteralPath $keyPath) {
+            try {
+                $raw = [System.IO.File]::ReadAllBytes($keyPath)
+                # Strip BOM
+                if ($raw.Length -ge 3 -and $raw[0] -eq 0xEF -and $raw[1] -eq 0xBB -and $raw[2] -eq 0xBF) {
+                    $raw = $raw[3..($raw.Length-1)]
+                }
+                # Strip trailing whitespace
+                $raw = [System.Linq.Enumerable]::Reverse(
+                    [System.Linq.Enumerable]::SkipWhile(
+                        [System.Linq.Enumerable]::Reverse($raw),
+                        { param($b) $b -in @(0x20, 0x09, 0x0D, 0x0A) }
+                    )
+                ).ToArray()
+                if ($raw.Length -gt 0) {
+                    return @{ key = $raw; ref = "file:~/.sdd/evidence-key" }
+                }
+            } catch {
+                return $null
+            }
+        }
+    }
+    return $null
+}
+
+function Get-EvidenceCanonical {
+    param([Parameter(Mandatory)]$Bundle)
+    $artifacts = @($Bundle.artifacts)
+    $pairs = @()
+    foreach ($artifact in $artifacts) {
+        $path = [string]($artifact.path).Trim()
+        $sha = ([string]($artifact.sha256).Trim()).ToLowerInvariant()
+        $pairs += $path + [char]0 + $sha
+    }
+    # Ordinal sort to match Python's code-point sort (Sort-Object is culture-aware
+    # and would diverge across runtimes, breaking signature parity).
+    $pairsArr = [string[]]$pairs
+    [System.Array]::Sort($pairsArr, [System.StringComparer]::Ordinal)
+    $pairsStr = $pairsArr -join "`n"
+    $pairsBytes = [System.Text.Encoding]::UTF8.GetBytes($pairsStr)
+    $hasher = [System.Security.Cryptography.SHA256]::Create()
+    $artifactsDigest = ($hasher.ComputeHash($pairsBytes) | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+
+    $dirty = if ($Bundle.git_generated_dirty) { "true" } else { "false" }
+    $verdict = [string]($Bundle.review_verdict.verdict).Trim()
+
+    $lines = @(
+        "sdd-evidence-v1",
+        [string]($Bundle.task_id).Trim(),
+        [string]($Bundle.feature).Trim(),
+        [string]($Bundle.risk).Trim(),
+        [string]($Bundle.required_workflow).Trim(),
+        [string]($Bundle.spec_revision).Trim(),
+        [string]($Bundle.git_commit).Trim(),
+        $dirty,
+        $verdict,
+        $artifactsDigest
+    )
+    return $lines -join "`n"
+}
+
 $bundle = Get-Content -Raw -Encoding Utf8 $BundlePath | ConvertFrom-Json
 $taskId = ([string]$bundle.task_id).Trim()
 $qualityReport = $bundle.quality_report
@@ -152,7 +248,7 @@ $scriptRoot = Split-Path -Parent $PSScriptRoot
 $checkContractScript = Join-Path $scriptRoot "scripts/check-contract.ps1"
 if ($contractInfo) {
     $powerShellExe = (Get-Process -Id $PID).Path
-    & $powerShellExe -NoProfile -ExecutionPolicy Bypass -File $checkContractScript -ContractPath $contractInfo.Normalized -RepoRoot $RepoRoot
+    & $powerShellExe -NoProfile -ExecutionPolicy Bypass -File $checkContractScript -ContractPath $contractInfo.Resolved -RepoRoot $RepoRoot
     if ($LASTEXITCODE -ne 0) {
         Add-Failure "verification_contract failed check-contract validation: $verificationContract"
     }
@@ -228,6 +324,80 @@ if ($null -eq $gitCommit -or ($gitCommit -is [string] -and [string]::IsNullOrWhi
             }
         } catch {
             Add-Failure "git verification failed unexpectedly: $_"
+        }
+    }
+}
+
+# --- provenance validation (gated on risk) ---
+$bundleRisk = ([string]$bundle.risk).Trim()
+
+# The contract is hash-validated and re-checked, so it is the trusted source of
+# the risk tier. The bundle's own risk must agree; a stripped or forged bundle
+# risk must NOT be able to dodge the provenance requirements.
+$contractRisk = ""
+if ($contract) { $contractRisk = ([string]$contract.risk).Trim() }
+if ($contractRisk -and $contractRisk -ne $bundleRisk) {
+    $shownRisk = if ($bundleRisk) { $bundleRisk } else { "(empty)" }
+    Add-Failure "bundle risk '$shownRisk' != contract risk '$contractRisk'"
+}
+# Gate provenance on the trusted contract risk; fall back to bundle risk (legacy).
+$effectiveRisk = if ($contractRisk) { $contractRisk } else { $bundleRisk }
+
+# High/critical tier provenance requirements
+if (@("high", "critical") -contains $effectiveRisk) {
+    $specRevision = ([string]$bundle.spec_revision).Trim()
+    if ($specRevision -notmatch '^[a-f0-9]{64}$') {
+        Add-Failure "high/critical bundle requires spec_revision (64-hex), got: $(if ($specRevision) { $specRevision } else { '(empty)' })"
+    }
+
+    $buildEnv = $bundle.build_env
+    if (-not $buildEnv -or -not (([string]$buildEnv.os).Trim())) {
+        Add-Failure "high/critical bundle requires build_env.os"
+    }
+
+    $reviewVerdict = $bundle.review_verdict
+    if (-not $reviewVerdict) {
+        Add-Failure "high/critical bundle requires review_verdict object"
+    } elseif (([string]$reviewVerdict.verdict).Trim() -ne "PASS") {
+        Add-Failure "high/critical bundle requires review_verdict.verdict == PASS, got: $(if ($reviewVerdict.verdict) { $reviewVerdict.verdict } else { '(empty)' })"
+    }
+}
+
+# Critical-only signature verification (T-007a)
+if ($effectiveRisk -eq "critical") {
+    if ($gitGeneratedDirty -eq $true) {
+        Add-Failure "critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)"
+    }
+    $signature = $bundle.signature
+    if ($null -eq $signature -or -not ($signature -is [PSCustomObject] -or $signature -is [Hashtable])) {
+        Add-Failure "critical bundle requires a signature object"
+    } else {
+        $alg = ([string]$signature.alg).Trim()
+        $value = ([string]$signature.value).Trim().ToLowerInvariant()
+        if ([string]::IsNullOrWhiteSpace($alg) -or [string]::IsNullOrWhiteSpace($value)) {
+            Add-Failure "critical bundle signature requires non-empty alg and value"
+        } elseif ($alg -eq "hmac-sha256") {
+            $keyInfo = Resolve-EvidenceKey
+            if ($null -eq $keyInfo) {
+                Add-Failure "critical bundle signature cannot be verified: no evidence key available"
+            } else {
+                $canonical = Get-EvidenceCanonical -Bundle $bundle
+                $canonicalBytes = [System.Text.Encoding]::UTF8.GetBytes($canonical)
+                # ::new() so the byte[] key is one ctor arg (New-Object -ArgumentList splats arrays).
+                $hmac = [System.Security.Cryptography.HMACSHA256]::new([byte[]]$keyInfo.key)
+                $expectedBytes = $hmac.ComputeHash($canonicalBytes)
+                $expected = ($expectedBytes | ForEach-Object { "{0:x2}" -f $_ }) -join ""
+                if ([string]::Compare($expected, $value, [System.StringComparison]::OrdinalIgnoreCase) -ne 0) {
+                    Add-Failure "critical bundle signature is invalid (HMAC mismatch)"
+                }
+            }
+        } elseif ($alg -eq "sigstore") {
+            $verified = [System.Environment]::GetEnvironmentVariable("SDD_EVIDENCE_SIGSTORE_VERIFIED")
+            if ([string]::IsNullOrWhiteSpace($verified)) {
+                Add-Failure "critical bundle uses sigstore signature but SDD_EVIDENCE_SIGSTORE_VERIFIED is not set"
+            }
+        } else {
+            Add-Failure "critical bundle has unsupported signature alg: $alg"
         }
     }
 }

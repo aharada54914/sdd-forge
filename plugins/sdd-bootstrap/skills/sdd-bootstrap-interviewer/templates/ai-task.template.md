@@ -8,6 +8,18 @@ T-000
 
 specs/<feature>
 
+## Risk
+
+{{risk}}  <!-- low | medium | high | critical -->
+
+## Required Workflow
+
+{{required_workflow}}  <!-- test-after | acceptance-first | tdd -->
+
+## Requirements
+
+{{requirement_ids}}  <!-- REQ-001, REQ-004 -->
+
 ## Must Read
 
 - AGENTS.md

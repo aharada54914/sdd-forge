@@ -40,13 +40,36 @@ whether hooks fire.
 
 | Script | Purpose | When |
 | --- | --- | --- |
+| `check-risk` | Validate the task's `Risk:` tier + rationale, and (high/critical) `Required Workflow: tdd` | Every quality-gate run |
 | `check-placeholders` | Detect placeholder/stub/generic-fallback code in changed production files | Every quality-gate run |
 | `check-task-state` | Validate the tasks.md state machine; `Done` requires an evidence bundle naming the task | Every quality-gate run |
-| `check-evidence-bundle` | Validate the Done evidence bundle, report, contract, and passing artifact hashes | Before the Done decision |
-| `check-contract` | Refuse Done while any required contract check fails or lacks evidence | Before the Done decision |
+| `check-contract` | Refuse Done while any required (tier-minimum) contract check fails or lacks evidence | Before the Done decision |
+| `check-traceability` | Validate REQ → AC → TEST → evidence chains (required for high/critical) | Before the Done decision |
+| `check-evidence-bundle` | Validate the Done evidence bundle, report, contract, passing artifact hashes, and (high/critical) provenance + signature | Before the Done decision |
 
 Run the `.sh` variants from POSIX shells (including Git Bash on Windows) and
 the `.ps1` variants from PowerShell. Both behave identically.
+
+### Risk-tiered enforcement
+
+The task's `Risk:` tier selects which checks are mandatory, via the canonical
+`risk-gate-matrix.md`. Each higher tier's required set is a superset of the one
+below (non-downgradable):
+
+- `low` → baseline set (`lint`, `typecheck`, `build`, `placeholder-scan`,
+  `task-state-check`); `unit-tests` waivable with a reason.
+- `medium` → adds `unit-tests`, `acceptance-tests`, `regression`.
+- `high` → adds `requirement-traceability`, Red→Green `tdd` evidence, and
+  evidence-bundle provenance (`spec_revision`, `build_env`,
+  `review_verdict.verdict == PASS`).
+- `critical` → adds an HMAC `signature` over a clean tree
+  (`git_generated_dirty == true` is a hard fail) and a second distinct named
+  approver (`check-task-state`, never sudo-bypassed).
+
+**Legacy mode:** a contract/task with **no** `risk` field keeps the historical
+behavior — only baseline-protection, no tier minimum. Absent is NOT mapped to
+`medium`; tier enforcement is opt-in and activates only when `risk` is present,
+so pre-feature contracts pass unchanged.
 
 ### check-placeholders Scope and Waivers
 

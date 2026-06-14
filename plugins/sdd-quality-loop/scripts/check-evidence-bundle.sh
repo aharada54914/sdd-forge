@@ -16,6 +16,7 @@ fi
 if command -v python3 >/dev/null 2>&1; then
   BUNDLE="$bundle" ROOT="$root" SCRIPT_DIR="$script_dir" python3 - <<'PYEOF'
 import hashlib
+import hmac
 import json
 import os
 import pathlib
@@ -81,6 +82,68 @@ def sha256_file(path):
         for chunk in iter(lambda: handle.read(8192), b""):
             hasher.update(chunk)
     return hasher.hexdigest()
+
+
+# Signing verification helpers (T-007a)
+def _strip_key_bytes(raw):
+    if raw.startswith(b"\xef\xbb\xbf"):
+        raw = raw[3:]
+    return raw.rstrip(b" \t\r\n")
+
+def resolve_evidence_key():
+    env_key = os.environ.get("SDD_EVIDENCE_KEY")
+    if env_key:
+        return env_key.encode("utf-8"), "env:SDD_EVIDENCE_KEY"
+    env_file = os.environ.get("SDD_EVIDENCE_KEY_FILE")
+    if env_file:
+        try:
+            with open(env_file, "rb") as f:
+                raw = _strip_key_bytes(f.read())
+            if raw:
+                return raw, "file:" + env_file
+        except OSError:
+            pass
+        return None, None
+    home = os.environ.get("HOME") or os.environ.get("USERPROFILE", "")
+    if home:
+        key_path = os.path.join(home, ".sdd", "evidence-key")
+        try:
+            with open(key_path, "rb") as f:
+                raw = _strip_key_bytes(f.read())
+            if raw:
+                return raw, "file:~/.sdd/evidence-key"
+        except OSError:
+            pass
+    return None, None
+
+def evidence_canonical(bundle):
+    def s(v):
+        return str(v if v is not None else "").strip()
+    artifacts = bundle.get("artifacts") or []
+    pairs = []
+    for a in artifacts:
+        p = str((a or {}).get("path", "")).strip()
+        sh = str((a or {}).get("sha256", "")).strip().lower()
+        pairs.append(p + "\x00" + sh)
+    pairs.sort()
+    artifacts_digest = hashlib.sha256("\n".join(pairs).encode("utf-8")).hexdigest()
+    dirty = bundle.get("git_generated_dirty")
+    dirty_str = "true" if dirty is True else "false"
+    rv = bundle.get("review_verdict")
+    verdict = str(rv.get("verdict", "")).strip() if isinstance(rv, dict) else ""
+    lines = [
+        "sdd-evidence-v1",
+        s(bundle.get("task_id")),
+        s(bundle.get("feature")),
+        s(bundle.get("risk")),
+        s(bundle.get("required_workflow")),
+        s(bundle.get("spec_revision")),
+        s(bundle.get("git_commit")),
+        dirty_str,
+        verdict,
+        artifacts_digest,
+    ]
+    return "\n".join(lines)
 
 
 with open(bundle_path, encoding="utf-8") as handle:
@@ -211,6 +274,65 @@ else:
                     fail(f"git_commit is not an ancestor of HEAD (foreign or future commit): {git_commit_str}")
         except Exception as exc:
             fail(f"git verification failed unexpectedly: {exc}")
+
+# --- provenance validation (gated on risk) ---
+bundle_risk = str(bundle.get("risk", "")).strip()
+
+# The contract is hash-validated and re-checked, so it is the trusted source of
+# the risk tier. The bundle's own risk must agree with it; a stripped or forged
+# bundle risk must NOT be able to dodge the provenance requirements.
+contract_risk = ""
+if isinstance(contract, dict):
+    contract_risk = str(contract.get("risk", "")).strip()
+if contract_risk and contract_risk != bundle_risk:
+    fail(f"bundle risk '{bundle_risk or '(empty)'}' != contract risk '{contract_risk}'")
+
+# Gate provenance on the trusted contract risk; fall back to the bundle risk only
+# when the contract carries none (legacy).
+effective_risk = contract_risk or bundle_risk
+
+# High/critical tier provenance requirements
+if effective_risk in {"high", "critical"}:
+    spec_revision = str(bundle.get("spec_revision", "")).strip()
+    if not re.fullmatch(r"[a-f0-9]{64}", spec_revision):
+        fail(f"high/critical bundle requires spec_revision (64-hex), got: {spec_revision or '(empty)'}")
+
+    build_env = bundle.get("build_env")
+    if not isinstance(build_env, dict) or not str(build_env.get("os", "")).strip():
+        fail("high/critical bundle requires build_env.os")
+
+    review_verdict = bundle.get("review_verdict")
+    if not isinstance(review_verdict, dict):
+        fail("high/critical bundle requires review_verdict object")
+    elif str(review_verdict.get("verdict", "")).strip() != "PASS":
+        fail(f"high/critical bundle requires review_verdict.verdict == PASS, got: {review_verdict.get('verdict', '(empty)')}")
+
+# Critical-only signature verification (T-007a)
+if effective_risk == "critical":
+    if git_generated_dirty is True:
+        fail("critical bundle must not be generated with a dirty working tree (git_generated_dirty=true)")
+    signature = bundle.get("signature")
+    if not isinstance(signature, dict):
+        fail("critical bundle requires a signature object")
+    else:
+        alg = str(signature.get("alg", "")).strip()
+        value = str(signature.get("value", "")).strip().lower()
+        if not alg or not value:
+            fail("critical bundle signature requires non-empty alg and value")
+        elif alg == "hmac-sha256":
+            key_bytes, _ = resolve_evidence_key()
+            if key_bytes is None:
+                fail("critical bundle signature cannot be verified: no evidence key available")
+            else:
+                canonical = evidence_canonical(bundle)
+                expected = hmac.new(key_bytes, canonical.encode("utf-8"), hashlib.sha256).hexdigest()
+                if not hmac.compare_digest(expected, value):
+                    fail("critical bundle signature is invalid (HMAC mismatch)")
+        elif alg == "sigstore":
+            if not str(os.environ.get("SDD_EVIDENCE_SIGSTORE_VERIFIED", "")).strip():
+                fail("critical bundle uses sigstore signature but SDD_EVIDENCE_SIGSTORE_VERIFIED is not set")
+        else:
+            fail("critical bundle has unsupported signature alg: " + alg)
 
 if git_generated_dirty is True:
     print(f"WARNING: evidence bundle for task {task_id} was generated with a dirty working tree")

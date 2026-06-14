@@ -3,3 +3,8 @@
 __pycache__/
 SDD_SUDO
 AGENT_STOP
+
+# Verification evidence (red/green test logs, gate outputs) MUST be committable:
+# check-contract / check-evidence-bundle reference these paths, so they have to
+# survive a fresh clone. Re-include them despite the blanket *.log rule above.
+!specs/**/verification/*.log

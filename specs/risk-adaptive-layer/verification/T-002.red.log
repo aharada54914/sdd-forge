@@ -1,0 +1,41 @@
+=== C-06: Contract Type Strictness ===
+ok: C-06.1: reject string 'true' for required field
+ok: C-06.2: reject numeric 1 for passes field
+ok: C-06.3: reject directory as evidence
+ok: C-06.4: reject empty (0-byte) evidence file
+ok: C-06.5: valid contract with boolean types passes
+=== C-07: Done State Strictness ===
+ok: C-07.1: reject Done without contract.json
+ok: C-07.2: reject Done with empty contract.json
+ok: C-07.3: reject Done with mismatched contract task_id
+=== C-05: Sudo Approval Format ===
+ok: C-05.1: valid sudo format Approved (sudo ISO8601) passes
+ok: C-05.2: reject malformed sudo format Approved (sudo bogus)
+ok: C-05.3: sudo-format Approved allows Done status
+=== H-02: Evidence Bundle Round-Trip + git_commit Binding ===
+ok: H-02.1a: generate-evidence-bundle succeeds
+ok: H-02.1b: bundle file created at expected path
+ok: H-02.1c: check-evidence-bundle passes on generated bundle
+ok: H-02.2: tampered artifact → check fails with sha256 mismatch
+ok: H-02.3: bogus git_commit → check-evidence-bundle fails
+ok: H-02.4: missing git_commit → check-evidence-bundle fails
+ok: H-02.5: bundle with ancestor git_commit still passes check
+=== T-002: check-risk ===
+FAIL: T-002.1: valid task should pass
+FAIL: T-002.2: should fail on missing Risk line
+FAIL: T-002.3: should fail on invalid Risk value
+FAIL: T-002.4: should fail on placeholder Risk value
+FAIL: T-002.5: should fail on empty Rationale
+FAIL: T-002.6: should fail on missing Rationale line
+FAIL: T-002.7: two valid tasks should pass
+FAIL: T-002.8: should fail when one task is invalid
+FAIL: T-002.9: should fail with file not found message
+FAIL: T-002.10: should pass when validating only specified task
+FAIL: T-002.11: valid low risk should pass
+FAIL: T-002.12: valid medium risk should pass
+FAIL: T-002.13: valid critical risk should pass
+
+====== Test Summary ======
+PASS: 18
+FAIL: 13
+==========================

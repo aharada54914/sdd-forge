@@ -731,6 +731,104 @@ project-root/
 
 ---
 
+## 7. リスク適応ゲート (risk-adaptive)
+
+各タスクは `Risk:` 階層 (`low | medium | high | critical`) を持ち、その階層が
+「どの決定論的ゲートを必須とするか」を駆動します。正準対応表は
+[`risk-gate-matrix.md`](../plugins/sdd-quality-loop/references/risk-gate-matrix.md)。
+階層が上がるほど必須セットは厳しくなり、下位階層の必須セットを包含します
+(非ダウングレード superset 則)。
+
+### 階層 → 必須ゲート (概要)
+
+| 階層 | 追加で必須になるもの |
+|------|----------------------|
+| `low` | baseline (lint / typecheck / build / placeholder-scan / task-state)。`unit-tests` は理由付きで waive 可 |
+| `medium` | `unit-tests` + `acceptance-tests` + `regression` |
+| `high` | `requirement-traceability`、`tdd` の Red→Green 証跡、provenance (`spec_revision` / `build_env` / `review_verdict == PASS`) |
+| `critical` | クリーンツリー上の HMAC `signature` (dirty はハードフェイル)、二者承認 (`Second Approval`、sudo でバイパス不可) |
+
+### 配線 (どのフェーズで誰が見るか)
+
+- **`sdd-bootstrap-interviewer`** — タスク生成時に `Risk:` / `Risk Rationale:` を提案し、
+  階層から `Required Workflow:` を導出 (`low→test-after` / `medium→acceptance-first` /
+  `high`・`critical→tdd`)。最終的な階層は人間が承認時に確定。
+- **`implement-task`** — `tdd` タスクでは Red→Green を逐次キャプチャ (失敗→成功の出力を保存)。
+- **`quality-gate`** — `check-risk` → `check-placeholders` → `check-task-state` →
+  `check-contract` (tier superset + tdd red/green) → `check-traceability` の順で実行し、
+  `Done` 前に `check-evidence-bundle` で provenance / signature を検証。
+
+### レガシー互換
+
+`Risk:` フィールドが **無い** タスク/contract は **レガシーモード**で動作し、
+階層強制を一切行いません (baseline-protection のみ)。absent は `medium` に
+マップ**しません** — 階層強制は opt-in で、`risk` が存在するときだけ有効になるため、
+既存の (本機能以前の) contract はそのまま通過します。
+
+`check-risk` は `high`/`critical` タスクが `Required Workflow: tdd` を宣言していない場合に
+fail-closed で拒否します。署名鍵・sudo トークンは外部 (`SDD_EVIDENCE_KEY` /
+`~/.sdd/`) のみに置かれ、エージェントからは読めません。
+
+---
+
+## Branch protection & merge queue
+
+GitHub 上の `main` ブランチは以下の保護ルールでガード されています。本ルールセットは`.github/rulesets/main.json`で定義され、GitHub API 経由で適用されます。
+
+### 保護ルール
+
+| ルール | 要件 |
+|---|---|
+| **Pull request required** | マージ前に PR が必須。1 人以上の承認が必要。古いレビューは新しいプッシュで自動却下 |
+| **Status checks required** | 以下のすべてのステータスチェックが PASS である必要があります:<br/>• `test (windows-latest)`<br/>• `test (macos-latest)`<br/>• `test (ubuntu-latest)`<br/>• `required-checks` (summary job)<br/>ブランチは常にメインブランチと最新の状態である必要があります |
+| **Branches up to date** | マージ前にベースブランチとの衝突がないこと |
+| **Force push blocked** | `git push --force-with-lease` を含む強制プッシュは禁止 |
+| **Deletion blocked** | ブランチ削除は禁止 |
+
+### Merge queue (CI + merge 順序制御)
+
+本リポジトリでは GitHub の merge queue 機能を使用しています。
+
+- **トリガー**: `.github/workflows/test.yml` に `merge_group:` トリガーを追加し、merge queue に入ったすべての PR に対して完全なテスト実行(3 OS × full matrix) が自動実行されます
+- **効果**: 複数の PR が同時にマージ待ちになったとき、順序保証 + 各 PR が独立したテスト環境で検証されるため、「前の PR がレッドで次の PR もレッドになる」というフレークを回避できます
+
+### 設定の適用
+
+ローカル環境で `.github/rulesets/main.json` を更新した後、以下で GitHub に反映:
+
+```bash
+# gh CLI で自動適用 (管理者権限が必要、Team/Enterprise プランが必須)
+./scripts/apply-branch-protection.sh
+
+# Free/Pro plan の場合は手動で GitHub UI から設定
+# Settings → Rules → Branch rules で上記ルール表を参考に設定
+```
+
+> **注意**: GitHub free tier ではリセット機能が使えません。Team/Enterprise への契約が必要です。
+
+### Self-improvement workflow との連携
+
+`.github/workflows/self-improvement.yml` で自動生成される PR は、上記保護ルールを **経由** します。つまり:
+
+- Auto-merge による自動マージはできません (status check が必須)
+- 人間が明示的に「マージ」をタップしてから、CI が実行されます
+- CI が PASS したら merge queue に入り、順序を守ってマージされます
+
+### Release の安全性 (レッドでは出荷しない)
+
+`.github/workflows/release.yml` は `release: published` と `workflow_dispatch` で
+のみ起動し、リリース成果物は `main` のタグから切り出されます。`main` は上記の
+必須ステータスチェックにより常にグリーン (全 CI 通過済み) が保証されるため、
+タグ付けされたリリースコミットは既にフルテストを通過しています。
+
+> リリースの CI ゲートは **ブランチ保護の必須チェック (マージ時)** で担保します。
+> release.yml に `workflow_run` 自動トリガーは **付けません** — それを付けると
+> `main` への push でテストが通るたびにリリースジョブが起動し、タグではない
+> `refs/tags/main` を archive しようとして毎回失敗 (レッド) するためです。
+> 緊急時は `workflow_dispatch` で手動リリースできます。
+
+---
+
 ## 関連ドキュメント
 
 - [README.md](../README.md) — プラグイン概要・インストール

@@ -1,0 +1,134 @@
+ok: sh: edit adds approval -> deny (exit 2)
+ok: sh: status-only change -> allow (exit 0)
+ok: sh: malformed payload -> deny (exit 2)
+ok: sh: copilot deny -> JSON deny, exit 0
+ok: sh: Write nonexistent tasks.md with approval -> deny
+ok: sh: Write content extra headerless approval -> deny
+ok: sh: Write content same approval count -> allow
+ok: sh: Write per-task swap (constant total) -> deny
+ok: sh: Write agent role without developer_instructions -> deny (exit 2)
+ok: sh: Write agent role with developer_instructions -> allow (exit 0)
+ok: sh: Write to non-agent path -> allow (exit 0)
+ok: sh: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: sh: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: sh: apply_patch Delete File agent role -> deny (exit 2)
+ok: sh: apply_patch Update File agent role -> deny (exit 2)
+ok: sh: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: sh: shell read agent role path -> allow (exit 0)
+ok: sh: shell heredoc with developer_instructions -> deny (exit 2)
+ok: sh: no runtime available -> deny (exit 2)
+ok: sh sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: sh sudo: expired epoch + approval increase -> deny (exit 2)
+ok: sh sudo: malformed flag + approval increase -> deny (exit 2)
+ok: sh sudo: valid sudo + AGENT_STOP -> deny (exit 2, kill switch wins)
+ok: sh sudo: valid sudo + invalid agent role -> deny (exit 2, check 3 not bypassed)
+ok: py sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: py sudo: expired epoch + approval increase -> deny (exit 2)
+ok: py sudo: malformed flag + approval increase -> deny (exit 2)
+ok: py sudo: valid sudo + AGENT_STOP -> deny (exit 2)
+ok: py sudo: valid sudo + invalid agent role -> deny (exit 2)
+ok: node sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: node sudo: expired epoch + approval increase -> deny (exit 2)
+ok: node sudo: malformed flag + approval increase -> deny (exit 2)
+ok: node sudo: valid sudo + AGENT_STOP -> deny (exit 2)
+ok: node sudo: valid sudo + invalid agent role -> deny (exit 2)
+ok: sh: valid signed token -> approval bypassed (allow)
+ok: py: valid signed token -> approval bypassed (allow)
+ok: node: valid signed token -> approval bypassed (allow)
+ok: sh: wrong sig -> sudo inactive -> approval denied
+ok: py: wrong sig -> sudo inactive -> approval denied
+ok: node: wrong sig -> sudo inactive -> approval denied
+ok: sh: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: py: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: node: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: sh: missing sig field -> sudo inactive -> approval denied
+ok: py: missing sig field -> sudo inactive -> approval denied
+ok: node: missing sig field -> sudo inactive -> approval denied
+ok: sh: kill-switch absent -> 0
+ok: sh: kill-switch present -> 2
+ok: sh: kill-switch dual-path: cwd has AGENT_STOP -> 2
+ok: sh: kill-switch dual-path: CLAUDE_PROJECT_DIR has AGENT_STOP -> 2
+ok: py: edit adds approval -> deny (exit 2)
+ok: py: other file -> allow (exit 0)
+ok: py: malformed -> deny (exit 2)
+ok: py: copilot deny -> JSON deny, exit 0
+ok: py: TTY guard with empty stdin (/dev/null) does not hang -> deny (exit 2)
+ok: py: kill-switch in cwd -> deny (exit 2)
+ok: py: Write agent role without developer_instructions -> deny (exit 2)
+ok: py: Write agent role with developer_instructions -> allow (exit 0)
+ok: py: Write to non-agent path -> allow (exit 0)
+ok: py: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: py: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: py: apply_patch Delete File agent role -> deny (exit 2)
+ok: py: apply_patch Update File agent role -> deny (exit 2)
+ok: py: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: py: shell read agent role path -> allow (exit 0)
+ok: py: shell heredoc with developer_instructions -> deny (exit 2)
+ok: node: edit adds approval -> deny (exit 2)
+ok: node: other file -> allow (exit 0)
+ok: node: Write agent role without developer_instructions -> deny (exit 2)
+ok: node: Write agent role with developer_instructions -> allow (exit 0)
+ok: node: Write to non-agent path -> allow (exit 0)
+ok: node: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: node: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: node: apply_patch Delete File agent role -> deny (exit 2)
+ok: node: apply_patch Update File agent role -> deny (exit 2)
+ok: node: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: node: shell read agent role path -> allow (exit 0)
+ok: node: shell heredoc with developer_instructions -> deny (exit 2)
+ok: check-task-state.sh header-only exits 1
+ok: check-task-state.sh header-only produces per-field errors (not 'no tasks found')
+ok: check-placeholders.sh: lowercase todo flagged
+ok: sh: relative write after cd into agent role directory -> deny (exit 2)
+ok: py: relative write after cd into agent role directory -> deny (exit 2)
+ok: node: relative write after cd into agent role directory -> deny (exit 2)
+ok: sh: cp into agent role directory -> deny (exit 2)
+ok: py: cp into agent role directory -> deny (exit 2)
+ok: node: cp into agent role directory -> deny (exit 2)
+ok: sh: Write full-replace Draft→Approved -> deny (exit 2)
+ok: sh: Write preserving Approved state -> allow (exit 0)
+ok: sh: Write introducing new Approved task -> deny (exit 2)
+ok: py: Write full-replace Draft→Approved -> deny (exit 2)
+ok: py: Write preserving Approved state -> allow (exit 0)
+ok: py: Write introducing new Approved task -> deny (exit 2)
+ok: node: Write full-replace Draft→Approved -> deny (exit 2)
+ok: node: Write preserving Approved state -> allow (exit 0)
+ok: node: Write introducing new Approved task -> deny (exit 2)
+ok: sh: net-zero approval transfer (delete old, add new) -> deny (exit 2)
+ok: sh: Approved→Draft deletion only -> allow (exit 0)
+ok: sh: Write to SDD_SUDO -> deny even without sudo (exit 2)
+ok: sh: shell write to SDD_SUDO -> deny (exit 2)
+ok: sh sudo: missing issued-epoch -> sudo inactive, approval denied (exit 2)
+ok: sh sudo: TTL > 24h -> sudo inactive (exit 2)
+ok: sh: kill-switch found in ancestor directory -> 2
+ok: sh: WFI Edit Status: Approved -> deny (exit 2)
+ok: sh: WFI Edit Status: Applied -> allow (exit 0)
+ok: sh: Status: Approved in non-WFI path -> allow (exit 0)
+ok: sh: WFI apply_patch Status: Approved -> deny (exit 2)
+ok: sh sudo: WFI Status: Approved denied even with valid sudo (exit 2)
+ok: py: WFI Edit Status: Approved -> deny (exit 2)
+ok: py: WFI Edit Status: Applied -> allow (exit 0)
+ok: py: WFI apply_patch Status: Approved -> deny (exit 2)
+ok: py sudo: WFI approval denied even with valid sudo (exit 2)
+ok: node: WFI Edit Status: Approved -> deny (exit 2)
+ok: node: WFI Edit Status: Applied -> allow (exit 0)
+ok: node: WFI apply_patch Status: Approved -> deny (exit 2)
+ok: node sudo: WFI approval denied even with valid sudo (exit 2)
+ok: sh: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: sh sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: sh: Write content adds Second Approval -> deny (exit 2)
+ok: sh: bash writes Second Approval to tasks.md -> deny (exit 2)
+ok: sh: apply_patch adds Second Approval to tasks.md -> deny (exit 2)
+ok: sh: primary Approval without sudo -> deny (exit 2)
+ok: sh sudo: primary Approval WITH valid sudo -> allow (exit 0) — primary guard behavior unchanged
+ok: sh: Second Approval edit denied (not bypassed by primary guard)
+ok: py: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: py sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: py sudo: primary Approval WITH valid sudo -> allow (exit 0)
+ok: py: Second Approval edit denied (not bypassed by primary guard)
+ok: node: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: node sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: node sudo: primary Approval WITH valid sudo -> allow (exit 0)
+ok: node: Second Approval edit denied (not bypassed by primary guard)
+
+Results: 132 passed, 0 failed.

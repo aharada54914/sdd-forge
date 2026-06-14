@@ -1,0 +1,5 @@
+# T-011 check-contract on its own contract (stack=docs; Finding 1 resolved by T-012)
+date(UTC): 2026-06-14T02:22:38Z
+$ check-contract.sh specs/risk-adaptive-layer/verification/T-011.contract.json .
+Verification contract passed for task T-011.
+exit=0

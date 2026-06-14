@@ -1,0 +1,102 @@
+{
+  "feature": "risk-adaptive-layer",
+  "generated_by": "T-011 dogfood validation",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": ["AC-001"],
+      "tests": ["TEST-001"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-002.red.log",
+        "specs/risk-adaptive-layer/verification/T-002.green.log"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": ["AC-002"],
+      "tests": ["TEST-002"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-003.red.log",
+        "specs/risk-adaptive-layer/verification/T-003.green.log"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": ["AC-003"],
+      "tests": ["TEST-003"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-004.red.log",
+        "specs/risk-adaptive-layer/verification/T-004.green.log"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": ["AC-004"],
+      "tests": ["TEST-004"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-005.red.log",
+        "specs/risk-adaptive-layer/verification/T-005.green.log"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": ["AC-005"],
+      "tests": ["TEST-005"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-006.green.log"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": ["AC-006"],
+      "tests": ["TEST-006"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-006.green.log"
+      ]
+    },
+    {
+      "req": "REQ-007",
+      "acs": ["AC-007"],
+      "tests": ["TEST-007"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-011.guards.log",
+        "specs/risk-adaptive-layer/verification/T-011.gates.log"
+      ]
+    },
+    {
+      "req": "REQ-008",
+      "acs": ["AC-008"],
+      "tests": ["TEST-008"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-008.config.log"
+      ]
+    },
+    {
+      "req": "REQ-009",
+      "acs": ["AC-009"],
+      "tests": ["TEST-009"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-009.presence.log"
+      ]
+    },
+    {
+      "req": "REQ-010",
+      "acs": ["AC-009"],
+      "tests": ["TEST-009"],
+      "note": "AC-009 wording on role-toml model key is superseded by the M-04 runtime-routing decision; see T-009.presence.log and the T-011 report.",
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-009.presence.log"
+      ]
+    },
+    {
+      "req": "REQ-011",
+      "acs": ["AC-011"],
+      "tests": ["TEST-011"],
+      "evidence": [
+        "specs/risk-adaptive-layer/verification/T-011.gates.log",
+        "specs/risk-adaptive-layer/verification/T-011.eval.log"
+      ]
+    }
+  ]
+}
