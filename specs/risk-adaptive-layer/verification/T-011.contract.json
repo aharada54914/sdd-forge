@@ -2,10 +2,11 @@
   "task_id": "T-011",
   "feature": "risk-adaptive-layer",
   "risk": "medium",
+  "stack": "docs",
   "required_workflow": "acceptance-first",
   "spec_revision": "",
   "created": "2026-06-14T01:51:00Z",
-  "comment": "Default-FAIL verification contract for the dogfood-validation task. DOGFOOD FINDING (see reports/implementation/T-011.md): the medium-tier required-set {lint,typecheck,build,...} is calibrated for compiled application code. This repository is shell + Markdown + JSON with no lint/typecheck/build toolchain, and T-011 ships a JSON spec artifact + gate-run logs. lint/typecheck/build are therefore honestly waived (required:false + waiver_reason) rather than backed by fabricated evidence; check-contract correctly reports them as tier-rule findings. Verification is via the deterministic gates and shell test suites.",
+  "comment": "Default-FAIL verification contract for the dogfood-validation task. T-011 Finding 1 (medium tier required lint/typecheck/build on a repo with no compile toolchain) is now RESOLVED by the T-012 stack descriptor: this repo ships shell + Markdown + JSON, so stack=docs makes lint/typecheck/build legitimately waivable (required:false + waiver_reason); the test/trace/placeholder/task-state checks remain mandatory. check-contract now passes. Verification is via the deterministic gates and shell test suites.",
   "checks": [
     { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Shell+Markdown+JSON repo: no lint toolchain wired (no eslint/ruff/shellcheck target). DOGFOOD FINDING: medium tier requires lint:required=true; not satisfiable without fabrication on this repo. Verification is via deterministic gates + shell suites.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
     { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "No typed language in this change (JSON + Markdown). Not applicable.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },

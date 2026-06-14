@@ -3,10 +3,10 @@
   "feature": "risk-adaptive-layer",
   "risk": "medium",
   "required_workflow": "acceptance-first",
-  "spec_revision": "b063a72070db47bd373759fd60a478ebf611dc70961d05a892fab486aa178509",
+  "spec_revision": "da025416ef244f085108a0ff71a87e50b789e401b3697d4b92ff5b95242245fb",
   "quality_report": "reports/quality-gate/T-011.md",
   "verification_contract": "specs/risk-adaptive-layer/verification/T-011.contract.json",
-  "git_commit": "a511f7c7f49728d42f1fe743cf0cf9d0240b344a",
+  "git_commit": "91fa6645905cf351a37b8f3e77cd438148290739",
   "git_generated_dirty": true,
   "build_env": {
     "os": "darwin",
@@ -20,7 +20,7 @@
     "runtime": "unknown"
   },
   "review_verdict": {
-    "verdict": "CONDITIONAL-PASS",
+    "verdict": "PASS",
     "critical": 0,
     "major": 0,
     "minor": 0,
@@ -29,11 +29,11 @@
   "artifacts": [
     {
       "path": "specs/risk-adaptive-layer/verification/T-011.contract.json",
-      "sha256": "64ac1affd1cf9ab6b1ebd25c829a78119c506e1238fccd668e8386936f707217"
+      "sha256": "da59a7fe82cd22be933e8b16b909167005dd7aae30bd1156d89d66d60b55853c"
     },
     {
       "path": "reports/quality-gate/T-011.md",
-      "sha256": "43bbea184614f50529f61a6986f9346e5dee16776fdebb334e7de0c8852ac58c"
+      "sha256": "34a2e51f987f8f05ffbd5721f4499c6ac6ffaf64c2f42cc3c22b06a51e0315c2"
     },
     {
       "path": "specs/risk-adaptive-layer/verification/T-011.eval.log",
