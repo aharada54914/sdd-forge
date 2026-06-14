@@ -1,6 +1,6 @@
 # sdd-lite 設計ドキュメント
 
-- **状態**: Draft（人間レビュー待ち）
+- **状態**: 確定（人間レビュー済み・実装計画へ）
 - **作成日**: 2026-06-15
 - **ブランチ**: `feature/sdd-lite`（分岐元 = main `796921f`、cross-model マージ済み）
 - **目的**: 社内・部署内利用に閉じたアプリ向けに、現行 SDD フローを簡略化した「中量」開発トラックを、独立した軽量プラグイン `sdd-lite` として提供する。複数人開発への移行余地を「加算的昇格」で残す。
@@ -155,8 +155,8 @@ traceability.md、ADR の必須化、evidence.json バンドル（SHA256/git_com
 - 実装は割安モデルのサブエージェント（Haiku/Sonnet）に委譲。fork スクリプトの定型実装・テンプレ作成・plugin.json/marketplace 編集は機械的なため適。
 - 設計判断・レビュー・統合はメインが担当。
 
-## 11. 未解決メモ（レビューで確定）
+## 11. 確定事項（レビュー済み 2026-06-15）
 
-1. §4.2 の「contract.json を残すか（客観性 vs 軽さ）」— 既定は省略、反転可。
-2. プラグイン名 `sdd-lite` の最終確認（代替: `sdd-app` / `app-flow`）。
-3. lite-spec が要件/設計/タスクを**3ファイル分割**か**1ファイル統合**か（D1 は中量＝分割寄りだが統合も可）。
+1. **contract.json は省略**。lite-gate は contract.json / evidence.json を生成せず、lite品質レポート（VERDICT: PASS）で代替する（§4.2 既定どおり）。
+2. **プラグイン名は `sdd-lite`**（既存 sdd-* と命名一貫）。
+3. **lite-spec は3ファイル分割**（`requirements.md` / `design.md` / `tasks.md`）。完全版 SDD の部分集合性と昇格連続性を保つため。
