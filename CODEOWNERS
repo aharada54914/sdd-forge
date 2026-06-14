@@ -5,7 +5,7 @@
 # before this config takes effect.
 #
 # To update CODEOWNERS:
-#   1. Replace @OWNER-PLACEHOLDER with the actual team slug (e.g., @sdd-forge/maintainers)
+#   1. Replace @aharada54914 with the actual team slug (e.g., @sdd-forge/maintainers)
 #      or individual GitHub handle (e.g., @alice).
 #   2. Commit and push to activate.
 #
@@ -14,11 +14,11 @@
 # - all paths default to the primary maintainer team
 
 # Security-critical: quality-loop gate scripts and guards
-/plugins/sdd-quality-loop/scripts/         @OWNER-PLACEHOLDER
-/plugins/sdd-quality-loop/references/      @OWNER-PLACEHOLDER
+/plugins/sdd-quality-loop/scripts/         @aharada54914
+/plugins/sdd-quality-loop/references/      @aharada54914
 
 # CI/CD and governance
-/.github/                                   @OWNER-PLACEHOLDER
+/.github/                                   @aharada54914
 
 # Specification and risk policy
-/specs/                                     @OWNER-PLACEHOLDER
+/specs/                                     @aharada54914
