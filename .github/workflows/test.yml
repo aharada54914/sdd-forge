@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  merge_group:
   workflow_dispatch:
 
 permissions:
@@ -82,3 +83,17 @@ jobs:
           name: test-logs-${{ matrix.os }}
           path: ${{ runner.temp }}/*.log
           if-no-files-found: ignore
+
+  required-checks:
+    name: required-checks
+    if: always()
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all required tests passed
+        run: |
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "One or more required tests failed"
+            exit 1
+          fi
+          echo "all required checks passed"

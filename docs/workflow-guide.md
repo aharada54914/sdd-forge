@@ -731,6 +731,64 @@ project-root/
 
 ---
 
+## Branch protection & merge queue
+
+GitHub 上の `main` ブランチは以下の保護ルールでガード されています。本ルールセットは`.github/rulesets/main.json`で定義され、GitHub API 経由で適用されます。
+
+### 保護ルール
+
+| ルール | 要件 |
+|---|---|
+| **Pull request required** | マージ前に PR が必須。1 人以上の承認が必要。古いレビューは新しいプッシュで自動却下 |
+| **Status checks required** | 以下のすべてのステータスチェックが PASS である必要があります:<br/>• `test (windows-latest)`<br/>• `test (macos-latest)`<br/>• `test (ubuntu-latest)`<br/>• `required-checks` (summary job)<br/>ブランチは常にメインブランチと最新の状態である必要があります |
+| **Branches up to date** | マージ前にベースブランチとの衝突がないこと |
+| **Force push blocked** | `git push --force-with-lease` を含む強制プッシュは禁止 |
+| **Deletion blocked** | ブランチ削除は禁止 |
+
+### Merge queue (CI + merge 順序制御)
+
+本リポジトリでは GitHub の merge queue 機能を使用しています。
+
+- **トリガー**: `.github/workflows/test.yml` に `merge_group:` トリガーを追加し、merge queue に入ったすべての PR に対して完全なテスト実行(3 OS × full matrix) が自動実行されます
+- **効果**: 複数の PR が同時にマージ待ちになったとき、順序保証 + 各 PR が独立したテスト環境で検証されるため、「前の PR がレッドで次の PR もレッドになる」というフレークを回避できます
+
+### 設定の適用
+
+ローカル環境で `.github/rulesets/main.json` を更新した後、以下で GitHub に反映:
+
+```bash
+# gh CLI で自動適用 (管理者権限が必要、Team/Enterprise プランが必須)
+./scripts/apply-branch-protection.sh
+
+# Free/Pro plan の場合は手動で GitHub UI から設定
+# Settings → Rules → Branch rules で上記ルール表を参考に設定
+```
+
+> **注意**: GitHub free tier ではリセット機能が使えません。Team/Enterprise への契約が必要です。
+
+### Self-improvement workflow との連携
+
+`.github/workflows/self-improvement.yml` で自動生成される PR は、上記保護ルールを **経由** します。つまり:
+
+- Auto-merge による自動マージはできません (status check が必須)
+- 人間が明示的に「マージ」をタップしてから、CI が実行されます
+- CI が PASS したら merge queue に入り、順序を守ってマージされます
+
+### Release の安全性 (レッドでは出荷しない)
+
+`.github/workflows/release.yml` は `release: published` と `workflow_dispatch` で
+のみ起動し、リリース成果物は `main` のタグから切り出されます。`main` は上記の
+必須ステータスチェックにより常にグリーン (全 CI 通過済み) が保証されるため、
+タグ付けされたリリースコミットは既にフルテストを通過しています。
+
+> リリースの CI ゲートは **ブランチ保護の必須チェック (マージ時)** で担保します。
+> release.yml に `workflow_run` 自動トリガーは **付けません** — それを付けると
+> `main` への push でテストが通るたびにリリースジョブが起動し、タグではない
+> `refs/tags/main` を archive しようとして毎回失敗 (レッド) するためです。
+> 緊急時は `workflow_dispatch` で手動リリースできます。
+
+---
+
 ## 関連ドキュメント
 
 - [README.md](../README.md) — プラグイン概要・インストール
