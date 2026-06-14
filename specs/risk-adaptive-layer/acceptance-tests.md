@@ -14,6 +14,6 @@ standard in `acceptance-tests.template.md`.)
 | AC-006 | REQ-006 | TEST-006 | gate (integration) | generate-evidence-bundle emits provenance fields; check-evidence-bundle validates them | Planned |
 | AC-007 | REQ-007 | TEST-007 | gate (unit) | check-task-state: critical Done without distinct `Second Approval` ⇒ fail; with ⇒ pass; sudo cannot auto-pass it | Planned |
 | AC-008 | REQ-008 | TEST-008 | config (lint) | rulesets/CODEOWNERS parse; `merge_group` present in test.yml; release gated on CI | Planned |
-| AC-009 | REQ-009, REQ-010 | TEST-009 | doc/config presence | `docs/THREAT-MODEL.md` + `docs/agent-capability-matrix.md` enumerate controls/agents; `.codex/agents/*.toml` declare `model` | Planned |
+| AC-009 | REQ-009, REQ-010 | TEST-009 | doc/config presence | `docs/THREAT-MODEL.md` + `docs/agent-capability-matrix.md` enumerate controls/agents; cost-aware `model` routing for the shipped agent roles is documented in capability-matrix M-04 as a runtime control (`--model`/`--effort`) and intentionally NOT pinned as a `model` key in the role toml files (unconfirmed schema key → "malformed agent role" reject risk) | Planned |
 | AC-010 | (all) | TEST-010 | regression | every pre-feature fixture in gates/guards/scripts/eval suites still passes unchanged | Planned |
 | AC-011 | REQ-011 | TEST-011 | dogfood | `specs/risk-adaptive-layer/` carries risk-tiered tasks + `traceability.json` + per-task evidence; self gates pass | Planned |
