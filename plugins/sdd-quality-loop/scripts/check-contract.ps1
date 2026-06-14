@@ -35,6 +35,15 @@ $RISK_TIERS = @{
     "critical" = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
 }
 
+# Stack descriptor (source: risk-gate-matrix.md). Compile-oriented checks are
+# toolchain-dependent: on a non-code stack (shell/docs/spec) they may be waived
+# (required:false + waiver_reason, enforced by Pass 2/3) instead of forced to
+# required:true. Test/trace/placeholder/task-state checks are NEVER waivable this
+# way. Absent/empty stack == "code" == legacy behavior (fully backward compatible).
+$COMPILE_CHECKS = @("lint", "typecheck", "build")
+$KNOWN_STACKS = @("code", "shell", "docs", "spec")
+$NONCODE_STACKS = @("shell", "docs", "spec")
+
 # Resolve repo root to an absolute path for traversal checks
 $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
@@ -146,7 +155,14 @@ foreach ($bid in $BASELINE_IDS) {
 
 # Pass 4: risk-tier enforcement (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
 $risk = ([string]($contract.risk)).Trim()
+$stack = ([string]($contract.stack)).Trim()
+if (-not $stack) { $stack = "code" }  # absent/empty == code (legacy)
 if ($risk) {  # LEGACY mode: if risk is absent or empty string, skip this pass
+    # Validate stack value; unknown -> fail and fall back to strictest (code).
+    if ($stack -notin $KNOWN_STACKS) {
+        $failures += "contract stack is invalid: $stack"
+        $stack = "code"
+    }
     # Validate risk tier value
     if ($risk -notin $RISK_TIERS.Keys) {
         $failures += "contract risk is invalid: $risk"
@@ -154,6 +170,7 @@ if ($risk) {  # LEGACY mode: if risk is absent or empty string, skip this pass
         # Enforce tier's required-id set
         $requiredIds = $RISK_TIERS[$risk]
         $presentIdSet = $contract.checks | ForEach-Object { $_.id }
+        $compileWaivable = ($stack -in $NONCODE_STACKS)
 
         foreach ($reqId in ($requiredIds | Sort-Object)) {
             if ($reqId -notin $presentIdSet) {
@@ -162,7 +179,13 @@ if ($risk) {  # LEGACY mode: if risk is absent or empty string, skip this pass
                 # Find the check and verify required:true
                 $check = $contract.checks | Where-Object { $_.id -eq $reqId } | Select-Object -First 1
                 if (-not [bool]$check.required) {
-                    $failures += "risk $risk requires check '$reqId' to be required:true"
+                    # Non-code stack: compile-oriented checks are waivable (required:false).
+                    # The waiver_reason itself is enforced by Pass 2/3. Everything else stays mandatory.
+                    if ($compileWaivable -and ($reqId -in $COMPILE_CHECKS)) {
+                        # accepted as N/A for this stack
+                    } else {
+                        $failures += "risk $risk requires check '$reqId' to be required:true"
+                    }
                 }
             }
         }

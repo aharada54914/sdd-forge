@@ -386,3 +386,31 @@ check-traceability, and (for high/critical tasks) provenance.
 
 ### Blockers
 T-002..T-007
+
+## T-012 Stack descriptor for non-compiled repos
+
+Source Issue: reports/implementation/T-011.md Finding 1
+Approval: Draft
+Status: Planned
+Risk: high
+Risk Rationale: changes check-contract Pass 4 (the gate engine); must keep all existing contract tests green and stay backward compatible.
+Required Workflow: tdd
+Requirements: REQ-002
+
+### Goal
+Let check-contract honor an optional `stack` contract field so compile-oriented
+checks (lint/typecheck/build) are waivable (required:false + waiver_reason) on a
+non-code stack (shell/docs/spec), while every test/trace/placeholder/task-state
+check stays mandatory at its tier. Absent/empty stack == code == legacy behavior.
+
+### Must Read
+- plugins/sdd-quality-loop/references/risk-gate-matrix.md (Stack descriptor section)
+- specs/risk-adaptive-layer/verification/T-012.red.log, T-012.green.log
+
+### Done When
+- [ ] check-contract.{sh,ps1} honor `stack`; compile checks waivable on non-code stacks ONLY
+- [ ] tests both runtimes (gates.tests.sh T-012.1-7; scripts.tests.ps1) with Red->Green evidence
+- [ ] risk-gate-matrix.md documents the stack descriptor; backward compatible (absent == code)
+
+### Blockers
+T-003

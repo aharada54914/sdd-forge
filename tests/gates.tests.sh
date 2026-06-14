@@ -1194,6 +1194,223 @@ else
 fi
 
 # ============================================================================
+# T-012: stack descriptor — compile-checks waivable on non-code stacks
+#  (lint/typecheck/build) while test/trace/placeholder/task-state stay mandatory.
+# ============================================================================
+
+echo "=== T-012: stack descriptor (compile-check applicability) ==="
+
+# Test: T-012.1 - stack: docs, medium, compile checks waived (required:false+reason),
+#   test set required:true+passing → PASSES (the new behavior).
+mkdir -p "${WORK}/t012_test1/reports"
+create_evidence "${WORK}/t012_test1/reports/test.log"
+cat > "${WORK}/t012_test1/T-012.1.contract.json" <<'EOF'
+{
+  "task_id": "T-012.1",
+  "feature": "test-feature",
+  "risk": "medium",
+  "stack": "docs",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "stack docs: lint/typecheck/build waivable",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs/json repo: no lint toolchain" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "no typed language" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "no build step" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t012_test1/T-012.1.contract.json" "${WORK}/t012_test1"; then
+    ok "T-012.1: stack docs waives compile checks with reasons → passes"
+else
+    fail "T-012.1: stack docs should pass with compile checks waived"
+fi
+
+# Test: T-012.2 - stack ABSENT (legacy=code), medium, build required:false → STILL FAILS (backward compat).
+mkdir -p "${WORK}/t012_test2/reports"
+create_evidence "${WORK}/t012_test2/reports/test.log"
+cat > "${WORK}/t012_test2/T-012.2.contract.json" <<'EOF'
+{
+  "task_id": "T-012.2",
+  "feature": "test-feature",
+  "risk": "medium",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "no stack = code: build must be required:true",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "no build" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t012_test2/T-012.2.contract.json" "${WORK}/t012_test2")
+if echo "$output" | grep -q "requires check 'build' to be required:true"; then
+    ok "T-012.2: absent stack (=code) keeps build mandatory (backward compat)"
+else
+    fail "T-012.2: absent stack should keep build mandatory. Got: $output"
+fi
+
+# Test: T-012.3 - stack: docs but unit-tests required:false → STILL FAILS (tests never waivable).
+mkdir -p "${WORK}/t012_test3/reports"
+create_evidence "${WORK}/t012_test3/reports/test.log"
+cat > "${WORK}/t012_test3/T-012.3.contract.json" <<'EOF'
+{
+  "task_id": "T-012.3",
+  "feature": "test-feature",
+  "risk": "medium",
+  "stack": "docs",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "abuse vector: docs must NOT waive unit-tests",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "no lint" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "no types" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "no build" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "trying to skip tests" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t012_test3/T-012.3.contract.json" "${WORK}/t012_test3")
+if echo "$output" | grep -q "requires check 'unit-tests' to be required:true"; then
+    ok "T-012.3: stack docs cannot waive unit-tests (abuse blocked)"
+else
+    fail "T-012.3: stack docs must keep unit-tests mandatory. Got: $output"
+fi
+
+# Test: T-012.4 - stack: docs, lint required:false WITHOUT waiver_reason → STILL FAILS.
+mkdir -p "${WORK}/t012_test4/reports"
+create_evidence "${WORK}/t012_test4/reports/test.log"
+cat > "${WORK}/t012_test4/T-012.4.contract.json" <<'EOF'
+{
+  "task_id": "T-012.4",
+  "feature": "test-feature",
+  "risk": "medium",
+  "stack": "docs",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "waived compile check still needs a reason",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "no types" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "no build" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t012_test4/T-012.4.contract.json" "${WORK}/t012_test4"; then
+    fail "T-012.4: waived lint without reason should FAIL"
+else
+    ok "T-012.4: stack docs waiver still requires waiver_reason"
+fi
+
+# Test: T-012.5 - stack: code (explicit), build required:false → FAILS (explicit code = legacy).
+mkdir -p "${WORK}/t012_test5/reports"
+create_evidence "${WORK}/t012_test5/reports/test.log"
+cat > "${WORK}/t012_test5/T-012.5.contract.json" <<'EOF'
+{
+  "task_id": "T-012.5",
+  "feature": "test-feature",
+  "risk": "medium",
+  "stack": "code",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "explicit code stack keeps compile checks mandatory",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "trying to skip" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t012_test5/T-012.5.contract.json" "${WORK}/t012_test5")
+if echo "$output" | grep -q "requires check 'build' to be required:true"; then
+    ok "T-012.5: explicit stack code keeps build mandatory"
+else
+    fail "T-012.5: explicit code stack should keep build mandatory. Got: $output"
+fi
+
+# Test: T-012.6 - invalid stack value → FAILS.
+mkdir -p "${WORK}/t012_test6/reports"
+create_evidence "${WORK}/t012_test6/reports/test.log"
+cat > "${WORK}/t012_test6/T-012.6.contract.json" <<'EOF'
+{
+  "task_id": "T-012.6",
+  "feature": "test-feature",
+  "risk": "low",
+  "stack": "bogus",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "unknown stack must fail",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "low tier: test-after" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/t012_test6/T-012.6.contract.json" "${WORK}/t012_test6")
+if echo "$output" | grep -q "contract stack is invalid"; then
+    ok "T-012.6: invalid stack value fails correctly"
+else
+    fail "T-012.6: should fail with 'contract stack is invalid'. Got: $output"
+fi
+
+# Test: T-012.7 - stack: shell, HIGH tier + tdd (Red→Green), compile waived + full
+#   test set + traceability → PASSES. Proves stack composes with the tdd/high rules.
+mkdir -p "${WORK}/t012_test7/reports"
+create_evidence "${WORK}/t012_test7/reports/test.log"
+create_evidence "${WORK}/t012_test7/reports/test.red.log"
+create_evidence "${WORK}/t012_test7/reports/test.green.log"
+cat > "${WORK}/t012_test7/T-012.7.contract.json" <<'EOF'
+{
+  "task_id": "T-012.7",
+  "feature": "test-feature",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "created": "2026-06-13T00:00:00Z",
+  "comment": "shell stack at high tier with tdd red/green",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "shell repo: no lint target" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "no typed language" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "no build step" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "", "red_evidence": "reports/test.red.log", "green_evidence": "reports/test.green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/t012_test7/T-012.7.contract.json" "${WORK}/t012_test7"; then
+    ok "T-012.7: stack shell at high+tdd tier waives compile checks → passes"
+else
+    fail "T-012.7: stack shell high+tdd tier should pass with compile checks waived"
+fi
+
+# ============================================================================
 # T-004: Red→Green evidence enforcement
 # ============================================================================
 

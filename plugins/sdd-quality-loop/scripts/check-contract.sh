@@ -41,6 +41,16 @@ RISK_TIERS = {
     "critical": {"lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability"},
 }
 
+# Stack descriptor (source: risk-gate-matrix.md). Compile-oriented checks are
+# toolchain-dependent: on a non-code stack (shell/docs/spec) they may be waived
+# (required:false + waiver_reason, enforced by Pass 2/3) instead of forced to
+# required:true. Test/trace/placeholder/task-state checks are NEVER waivable this
+# way, so a code task cannot use stack to skip its tests. Absent/empty stack ==
+# "code" == legacy behavior (fully backward compatible).
+COMPILE_CHECKS = {"lint", "typecheck", "build"}
+KNOWN_STACKS = {"code", "shell", "docs", "spec"}
+NONCODE_STACKS = {"shell", "docs", "spec"}
+
 failures = []
 seen_ids = {}
 checks = contract.get("checks", [])
@@ -138,7 +148,12 @@ for bid in sorted(BASELINE_IDS):
 
 # Pass 4: risk-tier enforcement (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
 risk = (contract.get("risk") or "").strip()
+stack = (contract.get("stack") or "code").strip()  # absent/empty == code (legacy)
 if risk:  # LEGACY mode: if risk is absent or empty string, skip this pass
+    # Validate stack value; unknown -> fail and fall back to strictest (code).
+    if stack not in KNOWN_STACKS:
+        failures.append(f"contract stack is invalid: {stack}")
+        stack = "code"
     # Validate risk tier value
     if risk not in RISK_TIERS:
         failures.append(f"contract risk is invalid: {risk}")
@@ -146,6 +161,7 @@ if risk:  # LEGACY mode: if risk is absent or empty string, skip this pass
         # Enforce tier's required-id set
         required_ids = RISK_TIERS[risk]
         present_ids_set = set(check.get("id", "?") for check in checks)
+        compile_waivable = stack in NONCODE_STACKS
 
         for req_id in sorted(required_ids):
             if req_id not in present_ids_set:
@@ -155,7 +171,13 @@ if risk:  # LEGACY mode: if risk is absent or empty string, skip this pass
                 for check in checks:
                     if check.get("id") == req_id:
                         if not check.get("required", False):
-                            failures.append(f"risk {risk} requires check '{req_id}' to be required:true")
+                            # Non-code stack: compile-oriented checks are waivable
+                            # (required:false). The waiver_reason itself is enforced
+                            # by Pass 2/3. Everything else stays mandatory.
+                            if compile_waivable and req_id in COMPILE_CHECKS:
+                                pass
+                            else:
+                                failures.append(f"risk {risk} requires check '{req_id}' to be required:true")
                         break
 
 task = contract.get("task_id", "?")

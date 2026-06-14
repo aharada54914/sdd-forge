@@ -36,6 +36,30 @@ present as an optional check with a `waiver_reason`).
 ² Enforced as: when `required_workflow == "tdd"`, every test-type check must carry
   non-empty, existing, path-safe `red_evidence` **and** `green_evidence`.
 
+## Stack descriptor (toolchain applicability)
+
+The tier minimums above are calibrated for compiled application code. A repository
+without a compile toolchain (pure shell / Markdown / JSON / docs) genuinely cannot
+satisfy `lint` / `typecheck` / `build` — forcing them `required:true` would invite
+fabricated evidence. The optional contract field `stack` resolves this:
+
+| `stack` value          | effect on the tier minimum |
+|------------------------|----------------------------|
+| absent / `""` / `code` | **legacy/default** — `lint`/`typecheck`/`build` stay `required:true` (no change) |
+| `shell` / `docs` / `spec` | the three **compile-oriented** checks `{lint, typecheck, build}` may be `required:false` **with a non-empty `waiver_reason`** |
+
+Hard rules (enforced by `check-contract` Pass 4, tested in `tests/gates.tests.sh`
+T-012 and `tests/scripts.tests.ps1`):
+
+- **Only** `{lint, typecheck, build}` become waivable on a non-code stack. Every
+  test/quality check — `unit-tests`, `acceptance-tests`, `regression`,
+  `requirement-traceability`, `placeholder-scan`, `task-state-check` — stays
+  mandatory at its tier for **all** stacks. A code task cannot set `stack: docs`
+  to skip its tests.
+- A waived compile check still needs a non-empty `waiver_reason` (Pass 2/3).
+- An unknown `stack` value fails the gate (`contract stack is invalid: <value>`)
+  and falls back to the strictest (`code`) interpretation for the rest of the pass.
+
 ## Required check ids (machine form — the gate's source of truth)
 
 These id sets are the contract-check ids `check-contract` requires per tier. The

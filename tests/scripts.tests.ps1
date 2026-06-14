@@ -418,6 +418,138 @@ Status: Done
     Assert-ExitCode "T-003.9: risk: 'severe' (invalid) fails correctly" (Invoke-Gate "check-contract.ps1" @("contract-t003-9.json", "-RepoRoot", ".")) 1
 
     # =========================================================
+    # T-012: stack descriptor — compile-checks waivable on non-code stacks
+    # =========================================================
+
+    New-Evidence "reports/test.red.log"
+    New-Evidence "reports/test.green.log"
+
+    # Test: T-012.1 - stack docs, medium, compile checks waived → PASSES
+    $t012_1 = @{
+        task_id = "T-012.1"; feature = "test-feature"; risk = "medium"; stack = "docs"
+        created = "2026-06-13T00:00:00Z"; comment = "stack docs waives compile checks"
+        checks = @(
+            @{ id = "lint"; required = $false; passes = $false; evidence = ""; waiver_reason = "no lint toolchain" },
+            @{ id = "typecheck"; required = $false; passes = $false; evidence = ""; waiver_reason = "no types" },
+            @{ id = "build"; required = $false; passes = $false; evidence = ""; waiver_reason = "no build" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t012_1 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t012-1.json"
+    Assert-ExitCode "T-012.1: stack docs waives compile checks with reasons -> passes" (Invoke-Gate "check-contract.ps1" @("contract-t012-1.json", "-RepoRoot", ".")) 0
+
+    # Test: T-012.2 - stack ABSENT (=code), build required:false → FAILS (backward compat)
+    $t012_2 = @{
+        task_id = "T-012.2"; feature = "test-feature"; risk = "medium"
+        created = "2026-06-13T00:00:00Z"; comment = "no stack = code: build mandatory"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $false; passes = $false; evidence = ""; waiver_reason = "no build" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t012_2 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t012-2.json"
+    Assert-ExitCode "T-012.2: absent stack (=code) keeps build mandatory" (Invoke-Gate "check-contract.ps1" @("contract-t012-2.json", "-RepoRoot", ".")) 1
+
+    # Test: T-012.3 - stack docs but unit-tests required:false → FAILS (tests never waivable)
+    $t012_3 = @{
+        task_id = "T-012.3"; feature = "test-feature"; risk = "medium"; stack = "docs"
+        created = "2026-06-13T00:00:00Z"; comment = "docs must NOT waive unit-tests"
+        checks = @(
+            @{ id = "lint"; required = $false; passes = $false; evidence = ""; waiver_reason = "no lint" },
+            @{ id = "typecheck"; required = $false; passes = $false; evidence = ""; waiver_reason = "no types" },
+            @{ id = "build"; required = $false; passes = $false; evidence = ""; waiver_reason = "no build" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $false; passes = $false; evidence = ""; waiver_reason = "trying to skip" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t012_3 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t012-3.json"
+    Assert-ExitCode "T-012.3: stack docs cannot waive unit-tests (abuse blocked)" (Invoke-Gate "check-contract.ps1" @("contract-t012-3.json", "-RepoRoot", ".")) 1
+
+    # Test: T-012.4 - stack docs, lint required:false WITHOUT waiver_reason → FAILS
+    $t012_4 = @{
+        task_id = "T-012.4"; feature = "test-feature"; risk = "medium"; stack = "docs"
+        created = "2026-06-13T00:00:00Z"; comment = "waived compile check still needs a reason"
+        checks = @(
+            @{ id = "lint"; required = $false; passes = $false; evidence = ""; waiver_reason = "" },
+            @{ id = "typecheck"; required = $false; passes = $false; evidence = ""; waiver_reason = "no types" },
+            @{ id = "build"; required = $false; passes = $false; evidence = ""; waiver_reason = "no build" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t012_4 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t012-4.json"
+    Assert-ExitCode "T-012.4: stack docs waiver still requires waiver_reason" (Invoke-Gate "check-contract.ps1" @("contract-t012-4.json", "-RepoRoot", ".")) 1
+
+    # Test: T-012.5 - stack code (explicit), build required:false → FAILS
+    $t012_5 = @{
+        task_id = "T-012.5"; feature = "test-feature"; risk = "medium"; stack = "code"
+        created = "2026-06-13T00:00:00Z"; comment = "explicit code keeps compile checks mandatory"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $false; passes = $false; evidence = ""; waiver_reason = "trying to skip" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t012_5 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t012-5.json"
+    Assert-ExitCode "T-012.5: explicit stack code keeps build mandatory" (Invoke-Gate "check-contract.ps1" @("contract-t012-5.json", "-RepoRoot", ".")) 1
+
+    # Test: T-012.6 - invalid stack value → FAILS
+    $t012_6 = @{
+        task_id = "T-012.6"; feature = "test-feature"; risk = "low"; stack = "bogus"
+        created = "2026-06-13T00:00:00Z"; comment = "unknown stack must fail"
+        checks = @(
+            @{ id = "lint"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "typecheck"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "build"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $false; passes = $false; evidence = ""; waiver_reason = "low tier: test-after" }
+        )
+    }
+    $t012_6 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t012-6.json"
+    Assert-ExitCode "T-012.6: invalid stack value fails correctly" (Invoke-Gate "check-contract.ps1" @("contract-t012-6.json", "-RepoRoot", ".")) 1
+
+    # Test: T-012.7 - stack shell, high+tdd, compile waived + red/green → PASSES
+    $t012_7 = @{
+        task_id = "T-012.7"; feature = "test-feature"; risk = "high"; stack = "shell"; required_workflow = "tdd"
+        created = "2026-06-13T00:00:00Z"; comment = "shell stack at high+tdd"
+        checks = @(
+            @{ id = "lint"; required = $false; passes = $false; evidence = ""; waiver_reason = "shell: no lint target" },
+            @{ id = "typecheck"; required = $false; passes = $false; evidence = ""; waiver_reason = "no types" },
+            @{ id = "build"; required = $false; passes = $false; evidence = ""; waiver_reason = "no build" },
+            @{ id = "placeholder-scan"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "task-state-check"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "unit-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = "reports/test.red.log"; green_evidence = "reports/test.green.log" },
+            @{ id = "acceptance-tests"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = ""; red_evidence = "reports/test.red.log"; green_evidence = "reports/test.green.log" },
+            @{ id = "regression"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" },
+            @{ id = "requirement-traceability"; required = $true; passes = $true; evidence = "reports/test.log"; waiver_reason = "" }
+        )
+    }
+    $t012_7 | ConvertTo-Json -Depth 5 | Set-Content -Encoding Utf8 "contract-t012-7.json"
+    Assert-ExitCode "T-012.7: stack shell at high+tdd tier waives compile checks -> passes" (Invoke-Gate "check-contract.ps1" @("contract-t012-7.json", "-RepoRoot", ".")) 0
+
+    # =========================================================
     # T-004: Red→Green evidence enforcement
     # =========================================================
 
