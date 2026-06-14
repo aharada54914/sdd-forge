@@ -31,10 +31,18 @@ present as an optional check with a `waiver_reason`).
 | provenance (spec_rev+env)  |  —  |   —    |  ✓   |    ✓     |
 | evidence-bundle signature  |  —  |   —    |  —   |    ✓     |
 | two-person approval        |  —  |   —    |  —   |    ✓     |
+| cross-model-verification   |  —  |   —    |  ◐³  |    ✓³    |
 
 ¹ `low`: `unit-tests` may be `required:false` **only** with a non-empty `waiver_reason`.
 ² Enforced as: when `required_workflow == "tdd"`, every test-type check must carry
   non-empty, existing, path-safe `red_evidence` **and** `green_evidence`.
+³ `◐` = opt-in (high), `✓` = required (critical). Like `signature`/`two-person`, this
+  is a **conditional control**, NOT part of the machine-form `RISK_TIERS` set below.
+  It activates only when a contract declares the `cross_model` descriptor
+  (`required` ⇒ a passing `cross-model-verification` check; `waived` ⇒ that check
+  `required:false` with a `waiver_reason`; absent/`legacy` ⇒ no enforcement,
+  backward compatible). Enforced by `check-contract` Pass 6; the consensus itself is
+  computed by `check-cross-model` (see `references/cross-model-verification-policy.md`).
 
 ## Stack descriptor (toolchain applicability)
 

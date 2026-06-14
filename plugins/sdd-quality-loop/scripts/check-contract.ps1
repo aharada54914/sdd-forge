@@ -302,6 +302,31 @@ if ($risk -and $requiredWorkflow) {  # Enforce only if both fields are present a
     }
 }
 
+# Pass 6: cross-model verification descriptor (conditional control, like signature/two-person).
+# Enforced ONLY when the contract opts in via `cross_model`. Absent/empty/"legacy" =>
+# no enforcement (backward compatible). NOT part of the machine-form RISK_TIERS set.
+$crossModel = ([string]($contract.cross_model)).Trim()
+if ($crossModel -and $crossModel -ne "legacy") {
+    if ($crossModel -notin @("required", "waived")) {
+        $failures += "contract cross_model is invalid: $crossModel"
+    } else {
+        $cmCheck = $contract.checks | Where-Object { $_.id -eq "cross-model-verification" } | Select-Object -First 1
+        if ($crossModel -eq "required") {
+            if (-not $cmCheck) {
+                $failures += "cross_model:required needs a 'cross-model-verification' check present and required:true with evidence"
+            } elseif (-not [bool]$cmCheck.required) {
+                $failures += "cross_model:required needs 'cross-model-verification' to be required:true"
+            }
+        } elseif ($crossModel -eq "waived") {
+            if (-not $cmCheck) {
+                $failures += "cross_model:waived needs a 'cross-model-verification' check present with a non-empty waiver_reason"
+            } elseif ([string]::IsNullOrWhiteSpace(([string]($cmCheck.waiver_reason)).Trim())) {
+                $failures += "cross_model:waived needs a non-empty waiver_reason on 'cross-model-verification'"
+            }
+        }
+    }
+}
+
 if ($failures.Count -gt 0) {
     Write-Host "Verification contract FAILED for task $($contract.task_id):"
     $failures | ForEach-Object { Write-Host " - $_" }

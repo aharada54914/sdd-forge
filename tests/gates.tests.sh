@@ -2732,6 +2732,131 @@ else
 fi
 
 # ============================================================================
+# T-003-CM: cross_model descriptor (cross-model-verification conditional pass)
+#  Enforced only when a contract opts in via `cross_model`. Absent/"legacy" =>
+#  no enforcement (backward compatible). Like signature/two-person, it is a
+#  conditional control, NOT part of the machine-form RISK_TIERS set.
+# ============================================================================
+
+echo "=== T-003-CM: cross_model descriptor ==="
+
+# CM.1 - critical + cross_model:required + passing cross-model-verification → PASS
+mkdir -p "${WORK}/cm_test1/reports"; create_evidence "${WORK}/cm_test1/reports/test.log"
+cat > "${WORK}/cm_test1/CM-1.contract.json" <<'EOF'
+{
+  "task_id": "CM-1", "feature": "test-feature", "risk": "critical", "cross_model": "required",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "cross-model-verification", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/cm_test1/CM-1.contract.json" "${WORK}/cm_test1"; then
+    ok "CM.1: critical cross_model:required with passing check → passes"
+else
+    fail "CM.1: should pass"
+fi
+
+# CM.2 - critical + cross_model:required but MISSING cross-model-verification → FAIL
+mkdir -p "${WORK}/cm_test2/reports"; create_evidence "${WORK}/cm_test2/reports/test.log"
+cat > "${WORK}/cm_test2/CM-2.contract.json" <<'EOF'
+{
+  "task_id": "CM-2", "feature": "test-feature", "risk": "critical", "cross_model": "required",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/cm_test2/CM-2.contract.json" "${WORK}/cm_test2")
+if echo "$output" | grep -q "cross_model:required needs"; then
+    ok "CM.2: cross_model:required missing cross-model-verification fails"
+else
+    fail "CM.2: should fail with 'cross_model:required needs'. Got: $output"
+fi
+
+# CM.3 - critical + cross_model ABSENT (legacy) + no cross-model check → PASS (backward compat)
+mkdir -p "${WORK}/cm_test3/reports"; create_evidence "${WORK}/cm_test3/reports/test.log"
+cat > "${WORK}/cm_test3/CM-3.contract.json" <<'EOF'
+{
+  "task_id": "CM-3", "feature": "test-feature", "risk": "critical",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/cm_test3/CM-3.contract.json" "${WORK}/cm_test3"; then
+    ok "CM.3: critical with cross_model absent (legacy) → passes (backward compat)"
+else
+    fail "CM.3: legacy (no cross_model) critical should pass"
+fi
+
+# CM.4 - critical + cross_model:waived + cross-model-verification waived → PASS
+mkdir -p "${WORK}/cm_test4/reports"; create_evidence "${WORK}/cm_test4/reports/test.log"
+cat > "${WORK}/cm_test4/CM-4.contract.json" <<'EOF'
+{
+  "task_id": "CM-4", "feature": "test-feature", "risk": "critical", "cross_model": "waived",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" },
+    { "id": "cross-model-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "air-gapped repo: no external model access" }
+  ]
+}
+EOF
+if check_contract_passes "${WORK}/cm_test4/CM-4.contract.json" "${WORK}/cm_test4"; then
+    ok "CM.4: critical cross_model:waived with waiver_reason → passes"
+else
+    fail "CM.4: waived with reason should pass"
+fi
+
+# CM.5 - cross_model:invalid → FAIL
+mkdir -p "${WORK}/cm_test5/reports"; create_evidence "${WORK}/cm_test5/reports/test.log"
+cat > "${WORK}/cm_test5/CM-5.contract.json" <<'EOF'
+{
+  "task_id": "CM-5", "feature": "test-feature", "risk": "critical", "cross_model": "bogus",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "reports/test.log", "waiver_reason": "" }
+  ]
+}
+EOF
+output=$(run_check_contract "${WORK}/cm_test5/CM-5.contract.json" "${WORK}/cm_test5")
+if echo "$output" | grep -q "cross_model is invalid"; then
+    ok "CM.5: cross_model:bogus (invalid) fails correctly"
+else
+    fail "CM.5: should fail with 'cross_model is invalid'. Got: $output"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 

@@ -1,0 +1,369 @@
+#!/bin/sh
+# Collection layer: prepare sanitized panelist input bundle with consent gate.
+# Usage:
+#   prepare-panelist-input.sh --task T-NNN --feature <f> --input <path|dir>
+#                             [--tasks-file specs/<f>/tasks.md]
+#                             [--out <path>]
+#                             [--spec-root <dir>]
+#                             [--project-root <dir>]
+#
+# Security (design.md §6):
+#   • Fail-closed consent gate: exits non-zero without writing output unless
+#     tasks.md contains "Cross-Model: enabled" for the task, OR a valid
+#     SDD_SUDO token is present (see sudo-mode-policy.md).
+#   • Sanitization: strips .env values, API keys/tokens, absolute paths, and
+#     private/RFC-1918 URLs before writing the bundle.
+#   • input_digest: sha256 of the sanitized bundle, printed to stdout.
+#   • Key isolation: SDD_EVIDENCE_KEY / sudo key are never included in output.
+#
+# Exit codes: 0=success  1=consent denied / input error  2=tool error (bad args)
+#
+# Simplification note (HMAC): Full HMAC-SHA256 verification of SDD_SUDO requires
+# the key from ~/.sdd/sudo-key or SDD_SUDO_KEY env var. We perform complete
+# HMAC verification when python3 is available and the key is resolvable. When
+# SDD_SUDO_SKIP_SIG=1 is set (test scaffolding only), signature check is skipped.
+# The policy doc (sudo-mode-policy.md §Validation) documents this residual risk.
+
+task_id=""
+feature=""
+input_path=""
+tasks_file=""
+out_path=""
+spec_root="specs"
+project_root=""
+
+while [ $# -gt 0 ]; do
+    case "$1" in
+        --task)         task_id="$2";       shift 2 ;;
+        --feature)      feature="$2";       shift 2 ;;
+        --input)        input_path="$2";    shift 2 ;;
+        --tasks-file)   tasks_file="$2";    shift 2 ;;
+        --out)          out_path="$2";      shift 2 ;;
+        --spec-root)    spec_root="$2";     shift 2 ;;
+        --project-root) project_root="$2";  shift 2 ;;
+        *) printf 'prepare-panelist-input: unknown argument: %s\n' "$1" >&2; exit 2 ;;
+    esac
+done
+
+# ── Validate required arguments ──────────────────────────────────────────────
+
+if [ -z "$task_id" ]; then
+    printf 'prepare-panelist-input: --task is required\n' >&2
+    exit 2
+fi
+if [ -z "$feature" ]; then
+    printf 'prepare-panelist-input: --feature is required\n' >&2
+    exit 2
+fi
+if [ -z "$input_path" ]; then
+    printf 'prepare-panelist-input: --input is required\n' >&2
+    exit 2
+fi
+
+# Resolve project root (default: directory containing this script's repo root)
+if [ -z "$project_root" ]; then
+    # Walk up from CWD to find the repo root (contains AGENTS.md or .git)
+    _dir="$(pwd)"
+    while [ "$_dir" != "/" ]; do
+        if [ -f "$_dir/AGENTS.md" ] || [ -d "$_dir/.git" ]; then
+            project_root="$_dir"
+            break
+        fi
+        _dir="$(dirname "$_dir")"
+    done
+    if [ -z "$project_root" ]; then
+        project_root="$(pwd)"
+    fi
+fi
+
+# Default tasks file
+if [ -z "$tasks_file" ]; then
+    tasks_file="${spec_root}/${feature}/tasks.md"
+fi
+
+# Default output path
+if [ -z "$out_path" ]; then
+    out_path="${spec_root}/${feature}/verification/${task_id}.panelist-input.txt"
+fi
+
+# ── Consent gate (fail-closed) ───────────────────────────────────────────────
+# Condition (a): tasks.md has "Cross-Model: enabled" line in the task section
+# Condition (b): valid SDD_SUDO token exists
+
+consent_kind=""
+
+# Check (a): tasks.md flag
+if [ -f "$tasks_file" ]; then
+    # Find the task section and check for Cross-Model: enabled within it
+    # We scan from the task heading until the next ## heading or EOF
+    in_section=0
+    while IFS= read -r line; do
+        # Strip CR for Windows line endings
+        line="${line%$'\r'}"
+        case "$line" in
+            "## ${task_id} "* | "## ${task_id}")
+                in_section=1 ;;
+            "## "*)
+                if [ "$in_section" = "1" ]; then
+                    break
+                fi ;;
+            "Cross-Model: enabled")
+                if [ "$in_section" = "1" ]; then
+                    consent_kind="human-flag"
+                    break
+                fi ;;
+        esac
+    done < "$tasks_file"
+fi
+
+# Check (b): SDD_SUDO token
+if [ -z "$consent_kind" ]; then
+    sudo_file="${project_root}/SDD_SUDO"
+    if [ -f "$sudo_file" ] && [ ! -L "$sudo_file" ]; then
+        # Parse required fields
+        _issuer=""       ; _nonce=""       ; _repo=""
+        _issued_epoch="" ; _expires_epoch="" ; _sig=""
+
+        while IFS= read -r _line; do
+            _line="${_line%$'\r'}"
+            case "$_line" in
+                "issuer: "*)        _issuer="${_line#issuer: }" ;;
+                "nonce: "*)         _nonce="${_line#nonce: }" ;;
+                "repo: "*)          _repo="${_line#repo: }" ;;
+                "issued-epoch: "*)  _issued_epoch="${_line#issued-epoch: }" ;;
+                "expires-epoch: "*) _expires_epoch="${_line#expires-epoch: }" ;;
+                "sig: "*)           _sig="${_line#sig: }" ;;
+            esac
+        done < "$sudo_file"
+
+        # All required fields present?
+        if [ -n "$_issuer" ] && [ -n "$_nonce" ] && [ -n "$_repo" ] && \
+           [ -n "$_issued_epoch" ] && [ -n "$_expires_epoch" ] && [ -n "$_sig" ]; then
+
+            # Nonce: must be >= 32 hex chars
+            _nonce_ok=0
+            if printf '%s' "$_nonce" | grep -qE '^[0-9a-fA-F]{32,}$'; then
+                _nonce_ok=1
+            fi
+
+            # Time window: issued_epoch <= now < expires_epoch
+            _now="$(date +%s)"
+            _time_ok=0
+            _max_ttl=86400  # 24 hours
+            if [ "$_nonce_ok" = "1" ] && \
+               [ "$_issued_epoch" -le "$_now" ] 2>/dev/null && \
+               [ "$_now" -lt "$_expires_epoch" ] 2>/dev/null && \
+               [ "$(( _expires_epoch - _issued_epoch ))" -le "$_max_ttl" ] 2>/dev/null; then
+                _time_ok=1
+            fi
+
+            # Repo binding: repo field must equal canonical path of dir containing SDD_SUDO.
+            # We resolve BOTH the expected path and the repo field to handle macOS symlinks
+            # (/var/folders vs /private/var/folders) and other platform quirks.
+            _repo_ok=0
+            _expected_repo="$(cd "$(dirname "$sudo_file")" && pwd -P 2>/dev/null || dirname "$sudo_file")"
+            # Also resolve the repo field itself (in case it used a non-canonical path)
+            _repo_resolved=""
+            if [ -d "$_repo" ]; then
+                _repo_resolved="$(cd "$_repo" && pwd -P 2>/dev/null || printf '%s' "$_repo")"
+            else
+                _repo_resolved="$_repo"
+            fi
+            if [ "$_repo_resolved" = "$_expected_repo" ]; then
+                _repo_ok=1
+            fi
+
+            # HMAC signature verification
+            _sig_ok=0
+            if [ "${SDD_SUDO_SKIP_SIG:-0}" = "1" ]; then
+                # Test scaffolding only: skip HMAC check
+                _sig_ok=1
+            elif command -v python3 >/dev/null 2>&1; then
+                # Attempt full HMAC verification via python3
+                _key=""
+                if [ -n "${SDD_SUDO_KEY:-}" ]; then
+                    _key="$SDD_SUDO_KEY"
+                elif [ -n "${SDD_SUDO_KEY_FILE:-}" ] && [ -f "$SDD_SUDO_KEY_FILE" ]; then
+                    _key="$(cat "$SDD_SUDO_KEY_FILE" | tr -d '\n\r')"
+                else
+                    _key_file="${HOME:-$USERPROFILE}/.sdd/sudo-key"
+                    if [ -f "$_key_file" ]; then
+                        _key="$(cat "$_key_file" | tr -d '\n\r')"
+                    fi
+                fi
+
+                if [ -n "$_key" ]; then
+                    _hmac_result=$(python3 - <<PYEOF
+import hmac, hashlib, sys
+key    = b"""${_key}"""
+msg    = "${_issuer}\n${_nonce}\n${_repo}\n${_issued_epoch}\n${_expires_epoch}"
+sig    = "${_sig}".lower()
+computed = hmac.new(key, msg.encode(), hashlib.sha256).hexdigest()
+print("ok" if hmac.compare_digest(computed, sig) else "fail")
+PYEOF
+)
+                    if [ "$_hmac_result" = "ok" ]; then
+                        _sig_ok=1
+                    fi
+                fi
+                # If no key is resolvable, token is inactive (fail-closed)
+            fi
+            # No python3 and no SKIP_SIG: token inactive, _sig_ok remains 0
+
+            if [ "$_nonce_ok" = "1" ] && [ "$_time_ok" = "1" ] && \
+               [ "$_repo_ok" = "1" ] && [ "$_sig_ok" = "1" ]; then
+                consent_kind="sudo"
+            fi
+        fi
+    fi
+fi
+
+if [ -z "$consent_kind" ]; then
+    printf 'prepare-panelist-input: consent denied for %s — no Cross-Model: enabled flag in %s and no valid SDD_SUDO token\n' \
+        "$task_id" "$tasks_file" >&2
+    exit 1
+fi
+
+# ── Collect input content ────────────────────────────────────────────────────
+
+if [ ! -e "$input_path" ]; then
+    printf 'prepare-panelist-input: input not found: %s\n' "$input_path" >&2
+    exit 1
+fi
+
+if [ -d "$input_path" ]; then
+    # Concatenate all text files in the directory
+    raw_content=""
+    for f in "$input_path"/*; do
+        [ -f "$f" ] || continue
+        raw_content="${raw_content}$(cat "$f")
+"
+    done
+else
+    raw_content="$(cat "$input_path")"
+fi
+
+# ── Sanitize via python3 ─────────────────────────────────────────────────────
+# Uses python3 for reliable regex; required for sha256 as well.
+# Content is passed via a temp file to avoid shell interpolation of $ in Python heredocs.
+
+if ! command -v python3 >/dev/null 2>&1; then
+    printf 'prepare-panelist-input: python3 is required but not found\n' >&2
+    exit 2
+fi
+
+_raw_tmp="$(mktemp)"
+_py_tmp="${_raw_tmp}.py"
+trap 'rm -f "$_raw_tmp" "$_py_tmp"' EXIT
+
+printf '%s' "$raw_content" > "$_raw_tmp"
+
+cat > "$_py_tmp" << 'PYEOF'
+import re, hashlib, sys
+
+raw_file = sys.argv[1]
+with open(raw_file, encoding="utf-8", errors="replace") as f:
+    raw = f.read()
+
+# ── Secret patterns (reusing check-ph patterns + common key detection) ──
+#
+# Pattern set:
+#  1. KEY=VALUE lines: lines containing credential env-var assignments
+#  2. AWS Access Key IDs (AKIA...)
+#  3. GitHub/GitLab PATs (ghp_, ghs_, gho_, glpat-)
+#  4. sk-prefixed tokens (OpenAI etc.)
+#  5. Long random secrets on KEY= lines (catch-all >= 32 chars)
+#  6. Absolute Unix paths (/home, /Users, /root, /var, /etc, /usr, /opt, /tmp, /private)
+#  7. Windows absolute paths (C:\...)
+#  8. Private/RFC-1918 IP URLs
+#  9. Internal/corp hostnames in URLs
+
+REDACTED      = "[REDACTED]"
+PATH_REDACTED = "[PATH_REDACTED]"
+URL_REDACTED  = "[URL_REDACTED]"
+
+# 1. Credential assignment lines
+cred_key_pat = re.compile(
+    r'(?im)^[^\n=]*(?:api[_\-]?key|secret[_\-]?(?:access[_\-]?)?key|access[_\-]?key(?:[_\-]?id)?'
+    r'|auth[_\-]?token|bearer|password|passwd|credential|private[_\-]?(?:key|token)|token)[^\n=]*=[^\n]+',
+)
+text = cred_key_pat.sub(lambda m: m.group(0).split('=')[0] + '=' + REDACTED, raw)
+
+# 2. AWS Access Key IDs
+text = re.sub(r'AKIA[0-9A-Z]{16}', REDACTED, text)
+
+# 3. GitHub/GitLab PATs
+text = re.sub(r'(?:ghp_|ghs_|gho_|glpat-)[A-Za-z0-9_\-]{20,}', REDACTED, text)
+
+# 4. sk- prefixed tokens
+text = re.sub(r'sk-[A-Za-z0-9_\-]{20,}', REDACTED, text)
+
+# 5. Long random secrets catch-all
+text = re.sub(
+    r'(?im)((?:key|token|secret|password|passwd|credential)[^\n=]*=\s*)[A-Za-z0-9+/=]{32,}',
+    lambda m: m.group(1) + REDACTED, text
+)
+
+# 6. Absolute Unix paths
+text = re.sub(r'/(?:home|root|Users|var|etc|usr|opt|tmp|private)/[^\s\'")\]]*', PATH_REDACTED, text)
+
+# 7. Windows absolute paths
+text = re.sub(r'[A-Za-z]:\\[^\s\'")\]]*', PATH_REDACTED, text)
+
+# 8. Private/RFC-1918 IP URLs
+text = re.sub(
+    r'https?://(?:192\.168\.\d{1,3}|10\.\d{1,3}\.\d{1,3}|172\.(?:1[6-9]|2[0-9]|3[01])\.\d{1,3})'
+    r'(?::\d+)?[^\s\'")\]]*',
+    URL_REDACTED, text
+)
+
+# 9. Internal/corp hostnames in URLs
+text = re.sub(
+    r'https?://[^\s\'")\]]*(?:internal|corp|intranet|private)[^\s\'")\]]*',
+    URL_REDACTED, text
+)
+
+digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+# Output: digest on first line, then sanitized content
+sys.stdout.write(digest + "\n")
+sys.stdout.write(text)
+PYEOF
+
+sanitized_and_digest=$(python3 "$_py_tmp" "$_raw_tmp")
+_py_rc=$?
+rm -f "$_raw_tmp" "$_py_tmp"
+
+if [ "$_py_rc" -ne 0 ]; then
+    printf 'prepare-panelist-input: sanitization failed\n' >&2
+    exit 2
+fi
+
+# Split: first line is digest, remainder is sanitized content
+input_digest=$(printf '%s\n' "$sanitized_and_digest" | head -1)
+sanitized_content=$(printf '%s\n' "$sanitized_and_digest" | tail -n +2)
+
+# ── Write output bundle ──────────────────────────────────────────────────────
+
+out_dir="$(dirname "$out_path")"
+mkdir -p "$out_dir" || {
+    printf 'prepare-panelist-input: cannot create output directory: %s\n' "$out_dir" >&2
+    exit 2
+}
+
+# Write bundle header + sanitized content
+{
+    printf '# Panelist Input Bundle\n'
+    printf '# task_id: %s\n' "$task_id"
+    printf '# feature: %s\n' "$feature"
+    printf '# input_digest: %s\n' "$input_digest"
+    printf '# consent: %s\n' "$consent_kind"
+    printf '# WARNING: This file is sanitized for external LLM review.\n'
+    printf '#          Do not include secrets, absolute paths, or private URLs.\n'
+    printf '\n'
+    printf '%s\n' "$sanitized_content"
+} > "$out_path"
+
+# ── Emit digest to stdout ────────────────────────────────────────────────────
+
+printf '%s\n' "$input_digest"
+exit 0

@@ -268,6 +268,30 @@ if risk and required_workflow:  # Enforce only if both fields are present and no
         if required_workflow != "tdd":
             failures.append(f"risk {risk} requires required_workflow: tdd (got '{required_workflow}')")
 
+# Pass 6: cross-model verification descriptor (source: references/cross-model-verification-policy.md)
+# Conditional control (like evidence-bundle signature / two-person approval): enforced
+# ONLY when the contract opts in via `cross_model`. Absent/empty/"legacy" => no
+# enforcement (backward compatible). Deliberately NOT part of the machine-form
+# RISK_TIERS set, so the matrix↔encoding invariant is unchanged. passes/evidence and
+# waiver_reason themselves are enforced by Pass 2; this pass only enforces presence
+# and the required:true / waiver intent implied by the descriptor.
+cross_model = (contract.get("cross_model") or "").strip()
+if cross_model and cross_model != "legacy":
+    if cross_model not in {"required", "waived"}:
+        failures.append(f"contract cross_model is invalid: {cross_model}")
+    else:
+        cm_check = next((c for c in checks if c.get("id") == "cross-model-verification"), None)
+        if cross_model == "required":
+            if cm_check is None:
+                failures.append("cross_model:required needs a 'cross-model-verification' check present and required:true with evidence")
+            elif not cm_check.get("required", False):
+                failures.append("cross_model:required needs 'cross-model-verification' to be required:true")
+        elif cross_model == "waived":
+            if cm_check is None:
+                failures.append("cross_model:waived needs a 'cross-model-verification' check present with a non-empty waiver_reason")
+            elif not (cm_check.get("waiver_reason") or "").strip():
+                failures.append("cross_model:waived needs a non-empty waiver_reason on 'cross-model-verification'")
+
 if failures:
     print(f"Verification contract FAILED for task {task}:")
     for failure in failures:
