@@ -35,6 +35,10 @@ jobs:
         shell: pwsh
         run: ./tests/hooks.tests.ps1
 
+      - name: Test cross-runtime scenario suite (pwsh)
+        shell: pwsh
+        run: ./tests/scenario.tests.ps1
+
       - name: Test installer (pwsh)
         shell: pwsh
         run: ./tests/install.tests.ps1
@@ -76,6 +80,18 @@ jobs:
         run: |
           bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
 
+      - name: Test CRLF line-ending parity (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
+
+      - name: Test cross-runtime scenario suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
+
       - name: Test branch-protection script (bash)
         if: runner.os != 'Windows'
         shell: bash
@@ -90,16 +106,57 @@ jobs:
           path: ${{ runner.temp }}/*.log
           if-no-files-found: ignore
 
+  # B2 — exercise the SDD hook guard with the REAL CLI toolchains installed on
+  # each OS, through the exact command line each CLI's hook config invokes. This
+  # closes the gap that the unit/scenario suites only run the guard scripts in
+  # isolation; here Claude Code / Codex / Copilot binaries are actually present.
+  # (A live agent session that fires the hook needs an API-key secret and is
+  # non-deterministic, so it is not gated here — the deterministic enforcement
+  # below is what protects the branch.)
+  cli-hook-enforcement:
+    name: cli-hook-enforcement
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Install Claude Code CLI
+        shell: bash
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Install Codex CLI (best-effort)
+        shell: bash
+        continue-on-error: true
+        run: npm install -g @openai/codex
+
+      - name: Install Copilot CLI (best-effort)
+        shell: bash
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh extension install github/gh-copilot
+
+      - name: CLI hook enforcement (real toolchain present)
+        shell: pwsh
+        run: ./tests/cli-hook-enforcement.ps1
+
   required-checks:
     name: required-checks
     if: always()
-    needs: [test]
+    needs: [test, cli-hook-enforcement]
     runs-on: ubuntu-latest
     steps:
       - name: Check all required tests passed
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
-            echo "One or more required tests failed"
+            echo "test job failed"
+            exit 1
+          fi
+          if [ "${{ needs.cli-hook-enforcement.result }}" != "success" ]; then
+            echo "cli-hook-enforcement job failed"
             exit 1
           fi
           echo "all required checks passed"

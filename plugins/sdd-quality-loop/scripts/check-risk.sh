@@ -27,6 +27,8 @@ awk \
 BEGIN {
   task = ""; failures = 0; count = 0; found_filter = 0
 }
+# Strip a trailing CR so a CRLF-encoded tasks.md parses identically to LF (cross-platform parity).
+{ sub(/\r$/, "") }
 /^## T-[0-9]+/ {
   if (task != "") finish()
   newid = $2
