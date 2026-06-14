@@ -1,0 +1,20 @@
+{
+  "task_id": "T-001",
+  "feature": "cross-model-verification",
+  "risk": "medium",
+  "stack": "shell",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "",
+  "created": "2026-06-15T00:00:00Z",
+  "comment": "Default-FAIL verification contract for T-001: Policy + verdict schema + matrix doc. Stack=shell waives lint/typecheck/build (no compile toolchain). Medium tier: unit-tests, acceptance-tests, regression all required with evidence.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Shell+Markdown+JSON repo: no lint toolchain. Stack: shell waives compile-oriented checks.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "No typed language in this task (Markdown + JSON policy docs). Stack: shell waives typecheck.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "No build step for a shell/markdown plugins repo. Stack: shell waives build.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-003.green.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-003.green.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-002.green.log", "waiver_reason": "", "requirement_ids": ["REQ-008"], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-006.green.log", "waiver_reason": "", "requirement_ids": ["REQ-008"], "red_evidence": "", "green_evidence": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/cross-model-verification/verification/T-003.green.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

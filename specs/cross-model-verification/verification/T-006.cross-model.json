@@ -1,0 +1,25 @@
+{
+  "schema": "cross-model-aggregate/v1",
+  "task_id": "T-006",
+  "feature": "cross-model-verification",
+  "panelists": [
+    {
+      "vendor": "anthropic",
+      "model": "claude-opus-4.8",
+      "verdict": "PASS"
+    },
+    {
+      "vendor": "openai",
+      "model": "gpt-5.5",
+      "verdict": "PASS"
+    }
+  ],
+  "vendors_distinct": 2,
+  "non_anthropic_count": 1,
+  "all_pass": true,
+  "any_critical": false,
+  "evaluator_verdict": null,
+  "divergence": false,
+  "requires_human_decision": false,
+  "result": "PASS"
+}

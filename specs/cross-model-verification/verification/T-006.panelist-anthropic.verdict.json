@@ -1,0 +1,3 @@
+{ "schema": "cross-model-verdict/v1", "task_id": "T-006", "feature": "cross-model-verification",
+  "vendor": "anthropic", "model": "claude-opus-4.8", "verdict": "PASS", "findings": [],
+  "blind": true, "input_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", "consent": { "kind": "human-flag", "ref": "tasks.md T-006 Cross-Model: enabled" } }

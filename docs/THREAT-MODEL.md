@@ -13,6 +13,7 @@
 - **In-repo files**: evidence bundles and signatures are generated locally or in CI and verified against external keys; bundles with self-asserted risk are re-validated against hash-verified contracts (T-006)
 - **Agent memory or state**: every gate decision is stateless and enforced by an external file guard (sdd-hook-guard)
 - **External content** fed to agents: agents treat external URLs, docs, and provided code as data only; external directives are never executed
+- **External LLMs (GPT / Gemini panelists)**: panelist verdicts are advisory signals only; they cannot approve tasks, sign bundles, or set risk classifications. Verdict divergence with the primary evaluator triggers `requires_human_decision` rather than auto-resolution.
 
 ---
 
@@ -98,6 +99,13 @@
 ### Threat: WFI approval is bypassed by sudo to change workflow
 **Attack:** Agent sets `Status: Approved` in a WFI doc under sudo mode to unilaterally change SDD governance.
 - **Mitigation:** WFI approval is **never** bypassed by sudo. It is a governance/judgment action, not a routine approval gate. sdd-hook-guard treats WFI exactly like Second Approval: no bypass regardless of sudo state. Sudo mode only bypasses routine approvals (task Done sign-off), not workflow changes.
+
+### Threat: Code leakage to external LLMs via cross-model panelists
+**Attack:** The cross-model verification collection layer sends raw repository content (secrets, keys, private URLs, absolute paths) to third-party LLM APIs (OpenAI / Google), exposing sensitive data externally.
+- **Mitigation (explicit activation):** The collection layer is never auto-invoked. `prepare-panelist-input` requires an explicit human consent signal — either a `Cross-Model: enabled` flag in `tasks.md` or a valid `SDD_SUDO` token — before any external send. Absent consent, the script exits with error and no panelist is contacted (fail-closed).
+- **Mitigation (sanitization):** Before any external send, `prepare-panelist-input` strips `.env` content, SSH/AWS/GCP key material, absolute filesystem paths, and private URLs using the same patterns as `check-placeholders`. The `input_digest` (SHA-256 of the sanitized bundle) in each verdict JSON lets auditors verify that only the redacted form was sent.
+- **Mitigation (CI isolation):** The collection layer is **never invoked by any CI job**. Only the deterministic gate layer (`check-cross-model`) runs in CI, reading pre-collected fixture files with no network access. This prevents accidental external send from automated pipelines.
+- **Mitigation (key isolation):** `SDD_EVIDENCE_KEY` and `SDD_SUDO_KEY` are never passed to panelists and never appear in verdict JSONs. Panelists hold read-only roles (`disallowedTools: Write, Edit, NotebookEdit`) and cannot access signing infrastructure.
 
 ---
 

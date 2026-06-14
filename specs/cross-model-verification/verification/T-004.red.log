@@ -1,0 +1,40 @@
+# T-004 Red Log — tests failing before implementation
+
+## bash (prepare-panelist.tests.sh)
+
+=== PP-001: Fail closed — no consent ===
+ok: PP-001a: no consent → non-zero exit (127)
+ok: PP-001b: no consent → output file NOT created
+FAIL: PP-001c: error message should mention 'consent', got: bash: .../prepare-panelist-input.sh: No such file or directory
+=== PP-002: Consent via tasks.md flag + secret sanitization ===
+FAIL: PP-002a: consent present should exit 0, got 127. Output: bash: .../prepare-panelist-input.sh: No such file or directory
+FAIL: PP-002b: output file not created. Output: bash: .../prepare-panelist-input.sh: No such file or directory
+=== PP-003: input_digest deterministic and 64-hex ===
+FAIL: PP-003: exit non-zero unexpectedly: 127. Output: bash: .../prepare-panelist-input.sh: No such file or directory
+=== PP-004: Digest is deterministic (same input → same digest) ===
+(tests aborted — set -e on script-not-found)
+
+## pwsh (prepare-panelist.tests.ps1)
+
+=== PP-001: Fail closed — no consent ===
+ok: PP-001a: no consent → non-zero exit (64)
+ok: PP-001b: no consent → output file NOT created
+FAIL: PP-001c: error message should mention 'consent', got: ...prepare-panelist-input.ps1 not recognized...
+=== PP-002: Consent via tasks.md flag + secret sanitization ===
+FAIL: PP-002a: consent present should exit 0, got 64. Output: ...not recognized...
+FAIL: PP-002b: output file not created. Output: ...not recognized...
+=== PP-003: input_digest deterministic and 64-hex ===
+FAIL: PP-003: exit non-zero unexpectedly: 64. Output: ...not recognized...
+=== PP-004: Digest is deterministic ===
+FAIL: PP-004: digest not deterministic: run1= run2=
+=== PP-005: Default output path ===
+FAIL: PP-005: unexpected failure: 64. Output: ...not recognized...
+=== PP-006: Required args validation ===
+ok: PP-006a: missing --task → non-zero exit
+ok: PP-006b: missing --feature → non-zero exit
+=== PP-007: SDD_SUDO consent path ===
+ok: PP-007: SDD_SUDO path: (skip-sig not supported, consent check triggered — acceptable for now)
+Results: 5 passed, 6 failed
+
+## Root cause
+prepare-panelist-input.sh and prepare-panelist-input.ps1 do not exist yet.

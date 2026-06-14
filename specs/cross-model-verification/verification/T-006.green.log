@@ -1,0 +1,4 @@
+=== dogfood: check-cross-model self-run ===
+check-cross-model: consensus PASS for T-006 (2 panelists, 2 distinct vendors)
+--- aggregate result field ---
+  "result": "PASS"

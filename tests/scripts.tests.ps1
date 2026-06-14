@@ -216,6 +216,77 @@ Status: Done
     # -- required:false + passes:false + non-empty waiver_reason → exit 0 --
     Assert-ExitCode "check-contract optional with-waiver passes" (Invoke-Gate "check-contract.ps1" @("contract-good.json", "-RepoRoot", ".")) 0
 
+    # =========================================================
+    # T-003-CM: cross_model descriptor (conditional cross-model-verification)
+    # =========================================================
+@'
+{ "task_id": "CM-1", "feature": "test-feature", "risk": "critical", "cross_model": "required",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "cross-model-verification", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" } ] }
+'@ | Set-Content -Encoding Utf8 "contract-cm1.json"
+    Assert-ExitCode "CM.1: cross_model:required passing -> pass" (Invoke-Gate "check-contract.ps1" @("contract-cm1.json", "-RepoRoot", ".")) 0
+
+@'
+{ "task_id": "CM-2", "feature": "test-feature", "risk": "critical", "cross_model": "required",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" } ] }
+'@ | Set-Content -Encoding Utf8 "contract-cm2.json"
+    Assert-ExitCode "CM.2: cross_model:required missing check -> fail" (Invoke-Gate "check-contract.ps1" @("contract-cm2.json", "-RepoRoot", ".")) 1
+
+@'
+{ "task_id": "CM-3", "feature": "test-feature", "risk": "critical",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" } ] }
+'@ | Set-Content -Encoding Utf8 "contract-cm3.json"
+    Assert-ExitCode "CM.3: cross_model absent (legacy) -> pass" (Invoke-Gate "check-contract.ps1" @("contract-cm3.json", "-RepoRoot", ".")) 0
+
+@'
+{ "task_id": "CM-4", "feature": "test-feature", "risk": "critical", "cross_model": "waived",
+  "checks": [
+    { "id": "lint", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "typecheck", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "build", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" },
+    { "id": "cross-model-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "air-gapped repo" } ] }
+'@ | Set-Content -Encoding Utf8 "contract-cm4.json"
+    Assert-ExitCode "CM.4: cross_model:waived with reason -> pass" (Invoke-Gate "check-contract.ps1" @("contract-cm4.json", "-RepoRoot", ".")) 0
+
+@'
+{ "task_id": "CM-5", "feature": "test-feature", "risk": "critical", "cross_model": "bogus",
+  "checks": [ { "id": "lint", "required": true, "passes": true, "evidence": "ev.log", "waiver_reason": "" } ] }
+'@ | Set-Content -Encoding Utf8 "contract-cm5.json"
+    Assert-ExitCode "CM.5: cross_model:bogus (invalid) -> fail" (Invoke-Gate "check-contract.ps1" @("contract-cm5.json", "-RepoRoot", ".")) 1
+
     # -- Baseline id removed → exit 1 --
     $removedBaseline = Get-Content -Raw -Encoding Utf8 "contract-good.json" | ConvertFrom-Json
     $removedBaseline.checks = @($removedBaseline.checks | Where-Object { $_.id -ne "lint" })

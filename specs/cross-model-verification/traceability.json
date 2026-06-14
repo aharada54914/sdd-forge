@@ -1,0 +1,15 @@
+{
+  "feature": "cross-model-verification",
+  "generated_by": "T-006 dogfood validation",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    { "req": "REQ-001", "acs": ["AC-001"], "tests": ["TEST-001"], "evidence": ["specs/cross-model-verification/verification/T-003.red.log", "specs/cross-model-verification/verification/T-003.green.log"] },
+    { "req": "REQ-002", "acs": ["AC-002"], "tests": ["TEST-002"], "evidence": ["specs/cross-model-verification/verification/T-002.red.log", "specs/cross-model-verification/verification/T-002.green.log"] },
+    { "req": "REQ-003", "acs": ["AC-003"], "tests": ["TEST-003"], "evidence": ["specs/cross-model-verification/verification/T-002.green.log"] },
+    { "req": "REQ-004", "acs": ["AC-004"], "tests": ["TEST-004"], "evidence": ["specs/cross-model-verification/verification/T-002.green.log"] },
+    { "req": "REQ-005", "acs": ["AC-005"], "tests": ["TEST-005"], "evidence": ["specs/cross-model-verification/verification/T-004.red.log", "specs/cross-model-verification/verification/T-004.green.log"] },
+    { "req": "REQ-006", "acs": ["AC-006"], "tests": ["TEST-006"], "evidence": ["specs/cross-model-verification/verification/T-003.green.log"] },
+    { "req": "REQ-007", "acs": ["AC-007"], "tests": ["TEST-007"], "evidence": ["specs/cross-model-verification/verification/T-003.green.log"] },
+    { "req": "REQ-008", "acs": ["AC-008"], "tests": ["TEST-008"], "evidence": ["specs/cross-model-verification/verification/T-006.green.log"] }
+  ]
+}
