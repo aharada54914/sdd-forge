@@ -731,6 +731,46 @@ project-root/
 
 ---
 
+## 7. リスク適応ゲート (risk-adaptive)
+
+各タスクは `Risk:` 階層 (`low | medium | high | critical`) を持ち、その階層が
+「どの決定論的ゲートを必須とするか」を駆動します。正準対応表は
+[`risk-gate-matrix.md`](../plugins/sdd-quality-loop/references/risk-gate-matrix.md)。
+階層が上がるほど必須セットは厳しくなり、下位階層の必須セットを包含します
+(非ダウングレード superset 則)。
+
+### 階層 → 必須ゲート (概要)
+
+| 階層 | 追加で必須になるもの |
+|------|----------------------|
+| `low` | baseline (lint / typecheck / build / placeholder-scan / task-state)。`unit-tests` は理由付きで waive 可 |
+| `medium` | `unit-tests` + `acceptance-tests` + `regression` |
+| `high` | `requirement-traceability`、`tdd` の Red→Green 証跡、provenance (`spec_revision` / `build_env` / `review_verdict == PASS`) |
+| `critical` | クリーンツリー上の HMAC `signature` (dirty はハードフェイル)、二者承認 (`Second Approval`、sudo でバイパス不可) |
+
+### 配線 (どのフェーズで誰が見るか)
+
+- **`sdd-bootstrap-interviewer`** — タスク生成時に `Risk:` / `Risk Rationale:` を提案し、
+  階層から `Required Workflow:` を導出 (`low→test-after` / `medium→acceptance-first` /
+  `high`・`critical→tdd`)。最終的な階層は人間が承認時に確定。
+- **`implement-task`** — `tdd` タスクでは Red→Green を逐次キャプチャ (失敗→成功の出力を保存)。
+- **`quality-gate`** — `check-risk` → `check-placeholders` → `check-task-state` →
+  `check-contract` (tier superset + tdd red/green) → `check-traceability` の順で実行し、
+  `Done` 前に `check-evidence-bundle` で provenance / signature を検証。
+
+### レガシー互換
+
+`Risk:` フィールドが **無い** タスク/contract は **レガシーモード**で動作し、
+階層強制を一切行いません (baseline-protection のみ)。absent は `medium` に
+マップ**しません** — 階層強制は opt-in で、`risk` が存在するときだけ有効になるため、
+既存の (本機能以前の) contract はそのまま通過します。
+
+`check-risk` は `high`/`critical` タスクが `Required Workflow: tdd` を宣言していない場合に
+fail-closed で拒否します。署名鍵・sudo トークンは外部 (`SDD_EVIDENCE_KEY` /
+`~/.sdd/`) のみに置かれ、エージェントからは読めません。
+
+---
+
 ## Branch protection & merge queue
 
 GitHub 上の `main` ブランチは以下の保護ルールでガード されています。本ルールセットは`.github/rulesets/main.json`で定義され、GitHub API 経由で適用されます。
