@@ -120,6 +120,12 @@ Status: Done
     Assert-ExitCode "check-contract default-fail template" (Invoke-Gate "check-contract.ps1" @($templatePath, "-RepoRoot", ".")) 1
 
     $contract = Get-Content -Raw -Encoding Utf8 $templatePath | ConvertFrom-Json
+    # Legacy base fixture (no risk tier): the template default (risk=medium) predates
+    # tier enforcement and carries only the baseline check set (no acceptance-tests/
+    # regression), so a medium contract-good.json would fail check-contract Pass 4.
+    # These demos exercise baseline/duplicate/path-safety/waiver rules, not tier rules,
+    # and many derived fixtures inherit from it — so it must validate in legacy mode.
+    $contract.risk = ""
     "evidence log" | Set-Content -Encoding Utf8 "ev.log"
     foreach ($check in $contract.checks) {
         if ($check.required) {
