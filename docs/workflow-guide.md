@@ -769,6 +769,16 @@ project-root/
 fail-closed で拒否します。署名鍵・sudo トークンは外部 (`SDD_EVIDENCE_KEY` /
 `~/.sdd/`) のみに置かれ、エージェントからは読めません。
 
+### stack 記述子 (非コードリポジトリ)
+
+contract の任意フィールド `stack` (`code` | `shell` | `docs` | `spec`) で、compile 系
+チェックの適用可否を切り替えます。非コードスタック (`shell` / `docs` / `spec`) では
+`lint` / `typecheck` / `build` を理由付き (`waiver_reason` 非空) で waive 可能 —
+コンパイルツールチェーンを持たない shell / Markdown / JSON リポジトリ向けです。
+テスト / トレーサビリティ / placeholder / task-state 系チェックは**全スタックで必須**の
+ままなので、コードタスクが `stack` を使ってテストを免れることはできません。
+absent / `""` / `code` は従来挙動 (compile 系も必須) で、完全な後方互換です。
+
 ---
 
 ## Branch protection & merge queue

@@ -18,8 +18,8 @@ Only `quality-gate` may set `Done`.
 ## T-001 Risk descriptor + policy docs + ID rules
 
 Source Issue: investigation.md INV-001, INV-004
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: template/reference/doc changes only; no gate logic yet, but foundational for all later tasks.
 Required Workflow: acceptance-first
@@ -64,8 +64,8 @@ None
 ## T-002 check-risk deterministic gate
 
 Source Issue: investigation.md INV-001
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: high
 Risk Rationale: introduces a new fail-closed deterministic control that other gates depend on; must be cross-runtime correct and unforgeable.
 Required Workflow: tdd
@@ -103,8 +103,8 @@ T-001
 ## T-003 Risk-aware check-contract (tier-minimum superset)
 
 Source Issue: investigation.md INV-002
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: high
 Risk Rationale: modifies the core Default-FAIL gate; a regression here weakens every adopter's assurance. Backward compatibility is load-bearing.
 Required Workflow: tdd
@@ -142,8 +142,8 @@ T-001, T-002
 ## T-004 Red→Green evidence enforcement
 
 Source Issue: investigation.md INV-003
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: high
 Risk Rationale: enforces TDD proof for high/critical; incorrect logic would either block valid work or admit fake TDD.
 Required Workflow: tdd
@@ -174,8 +174,8 @@ T-003
 ## T-005 check-traceability gate + machine-readable links
 
 Source Issue: investigation.md INV-004
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: high
 Risk Rationale: a new control that auditors rely on for requirement coverage; must be deterministic and not give false PASS.
 Required Workflow: tdd
@@ -203,8 +203,8 @@ T-001
 ## T-006 Evidence bundle provenance + spec_revision
 
 Source Issue: investigation.md INV-005, INV-006
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: high
 Risk Rationale: extends the tamper-evident evidence chain; bugs here corrupt audit trust. Must keep generator-only authoring (STR-003).
 Required Workflow: tdd
@@ -236,10 +236,10 @@ T-003
 ## T-007 Evidence signing + two-person approval (Critical controls)
 
 Source Issue: investigation.md INV-006, INV-007
-Approval: Draft
+Approval: Approved
 Second Approval: (required — Risk: critical; see design.md §7. For bootstrap, the
 sole maintainer records both with rationale until a second approver exists.)
-Status: Planned
+Status: Implementation Complete
 Risk: critical
 Risk Rationale: introduces cryptographic signing of evidence AND a new approval control; the highest-trust surface in the feature. Demonstrates the Critical workflow on itself.
 Required Workflow: tdd
@@ -271,8 +271,8 @@ T-006
 ## T-008 CI/branch-protection codification + merge queue
 
 Source Issue: investigation.md INV-008
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: governance config; misconfig is visible and reversible, but affects merge safety.
 Required Workflow: acceptance-first
@@ -301,8 +301,8 @@ None (parallelizable with B–D)
 ## T-009 Threat model + capability matrix + model routing
 
 Source Issue: investigation.md INV-009, INV-010
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: low
 Risk Rationale: documentation + agent config; no executable control surface.
 Required Workflow: test-after
@@ -331,8 +331,8 @@ None
 ## T-010 Wire risk layer into skills + policies
 
 Source Issue: investigation.md INV-001..007 (integration)
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: changes operator-facing workflow; wrong wiring could skip a gate. Behavioral but not cryptographic.
 Required Workflow: acceptance-first
@@ -363,8 +363,8 @@ T-002..T-007
 ## T-011 Dogfood validation
 
 Source Issue: investigation.md INV-011
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: produces the self-evidence; low code surface but must actually pass the new gates to be meaningful.
 Required Workflow: acceptance-first
@@ -390,8 +390,8 @@ T-002..T-007
 ## T-012 Stack descriptor for non-compiled repos
 
 Source Issue: reports/implementation/T-011.md Finding 1
-Approval: Draft
-Status: Planned
+Approval: Approved
+Status: Implementation Complete
 Risk: high
 Risk Rationale: changes check-contract Pass 4 (the gate engine); must keep all existing contract tests green and stay backward compatible.
 Required Workflow: tdd

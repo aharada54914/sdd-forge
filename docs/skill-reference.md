@@ -682,6 +682,15 @@ sh plugins/sdd-quality-loop/scripts/check-contract.sh <path-to-contract.json> [r
 3. **必須セット保護:**
    Baseline IDs (`lint`, `unit-tests`, `build`, `placeholder-scan`, `task-state-check`) は template に存在必須。存在するが `required: false` なら `waiver_reason` が非空でなければ FAIL
 
+4. **リスク階層 superset 強制 (Pass 4):**
+   contract に `risk` フィールドが存在する場合、`risk-gate-matrix.md` の階層最小セットを全て `required: true` で含むこと（contract は最小セットの superset であること）。`risk` フィールドが無い場合はレガシーモード（Pass 4 スキップ）。
+
+5. **TDD Red→Green 証跡 (Pass 5):**
+   `required_workflow: tdd` の場合、各テスト系チェックが非空・パスセーフな `red_evidence` と `green_evidence` ファイルパスを持つこと。
+
+6. **`stack` 記述子:**
+   contract に `"stack": "shell"` / `"docs"` / `"spec"` が設定されている場合、`lint` / `typecheck` / `build` の3チェックは `required: false` + 非空 `waiver_reason` で waive 可能。absent / `""` / `"code"` はデフォルト（waive 不可）。テスト/トレーサビリティ系チェックは全 stack で必須のまま。
+
 **Exit codes**
 
 - 0: すべてのチェック成功
@@ -737,11 +746,63 @@ sh plugins/sdd-quality-loop/scripts/check-task-state.sh <path-to-tasks.md> [repo
 
 ---
 
+### check-risk
+
+**目的**
+
+タスクの `Risk:` 階層 (`low / medium / high / critical`) と `Risk Rationale:` フィールドの存在・値を決定論的に検証。`high`/`critical` タスクが `Required Workflow: tdd` を宣言していない場合にフェイルクローズ。
+
+**使用法**
+
+```bash
+sh plugins/sdd-quality-loop/scripts/check-risk.sh <path-to-tasks.md> [task-id]
+```
+
+```powershell
+.\plugins\sdd-quality-loop\scripts\check-risk.ps1 <path-to-tasks.md> [-TaskId <task-id>]
+```
+
+**Exit codes**
+
+- 0: Risk フィールドが有効
+- 1: 無効な階層値、`Risk Rationale:` 欠落、または `high`/`critical` で `Required Workflow: tdd` 未宣言
+
+---
+
+### check-traceability
+
+**目的**
+
+`traceability.json` の REQ→AC→TEST→証跡チェーンを決定論的に検証。第3引数 `require-evidence`（呼び出し側の quality-gate が `high`/`critical` 時に付与）を渡すと、各 link に証跡 (`evidence`) が列挙され実ファイルが存在することも検査。
+
+**使用法**
+
+```bash
+sh plugins/sdd-quality-loop/scripts/check-traceability.sh <traceability.json> [repo-root] [require-evidence]
+```
+
+```powershell
+.\plugins\sdd-quality-loop\scripts\check-traceability.ps1 -TracePath <traceability.json> [-RepoRoot <repo-root>] [-RequireEvidence]
+```
+
+**検査内容**
+
+1. 各 link に非空の `req`、≥1件の `acs`（受け入れ条件）、≥1件の `tests` があること
+2. `evidence` が列挙されている場合、各パスがリポジトリ内・実在・非空であること（`..` などの path traversal は拒否）
+3. `require-evidence` モードでは、全 link が ≥1件の証跡ファイルを列挙していること（未列挙はフェイルクローズ）
+
+**Exit codes**
+
+- 0: トレーサビリティチェーン有効
+- 1: チェーン断絶（`req`/`acs`/`tests` 欠落）、または `require-evidence` モードでの証跡欠落・不正パス
+
+---
+
 ### check-evidence-bundle
 
 **目的**
 
-`Done` 判定に使う quality report、verification contract、passing evidence の存在と SHA-256 を検証。
+`Done` 判定に使う quality report、verification contract、passing evidence の存在と SHA-256 を検証。`high`/`critical` タスクでは `risk`・`required_workflow`・`spec_revision`・`build_env`・`builder`・`review_verdict` のプロベナンスフィールドを必須検証。`critical` タスクでは HMAC-SHA256 署名も検証（鍵は `SDD_EVIDENCE_KEY` / `SDD_EVIDENCE_KEY_FILE` / `~/.sdd/evidence-key` から解決）。
 
 ```bash
 sh plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh <path-to-evidence.json> [repo-root]
