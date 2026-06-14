@@ -69,7 +69,13 @@ resume, re-read `tasks.md` and the report before taking any action.
 
 1. Set the selected task to `In Progress`.
 2. Implement only its `Scope` and `Done When`.
-3. Add or update the task-required tests.
+3. Add or update the task-required tests. When the task's `Required Workflow`
+   is `tdd` (high/critical risk), follow Red→Green: write the failing test
+   first and save its failing output (e.g. under
+   `specs/<feature>/verification/`), then implement until it passes and save
+   the passing output. quality-gate's risk-aware `check-contract` requires
+   non-empty `red_evidence` and `green_evidence` for every test-type check, so
+   capture both as you go rather than reconstructing them later.
 4. Run related existing regression tests.
 5. Perform a scoped self-review against the approved specification.
 6. Create `reports/implementation/<task-id>.md` from the bundled template.

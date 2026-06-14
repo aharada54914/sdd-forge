@@ -19,7 +19,8 @@ created on the fly before continuing.
 
 Read the task, implementation report, requirements, design, acceptance tests,
 traceability, contracts, ADRs, Git diff, and all bundled references, including
-`deterministic-check-policy.md` and `evaluation-rubric.md`.
+`deterministic-check-policy.md`, `evaluation-rubric.md`, `risk-gate-matrix.md`,
+and `risk-classification-policy.md`.
 
 ## Process
 
@@ -32,22 +33,36 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
 4. Detect and run all available CI-equivalent checks using `verification-policy.md`.
    Save real command output as evidence and update the contract.
 5. Verify tests using `test-policy.md`.
-6. Run the scripted gates: `check-placeholders` on changed production files
-   and `check-task-state` on tasks.md (use `scripts/*.sh` or `scripts/*.ps1`).
+6. Run the scripted gates with `scripts/*.sh` or `scripts/*.ps1`, in this order:
+   - `check-risk` on the task: confirms a valid `Risk:` tier, a non-empty
+     `Risk Rationale:`, and — for `high`/`critical` — `Required Workflow: tdd`.
+     The tier selects the required-check set per `risk-gate-matrix.md`.
+   - `check-placeholders` on the changed production files only.
+   - `check-task-state` on tasks.md.
+   - `check-contract` on the task contract: enforces the tier-minimum required
+     set (superset rule) and, when `required_workflow` is `tdd`, non-empty
+     `red_evidence` + `green_evidence` for every test-type check.
+   - `check-traceability` on `specs/<feature>/traceability.json`: every
+     REQ → AC → TEST → evidence chain is intact (required for `high`/`critical`).
    For `Done` tasks, validate
    `specs/<feature>/verification/<task-id>.evidence.json` with
    `check-evidence-bundle.(sh|ps1)` so the report, contract, and passing
-   evidence artifacts are all bound together. Always produce the bundle with
-   `generate-evidence-bundle.(sh|ps1)` — never hand-author sha256 fields or
-   the `git_commit` field. The runner binds the bundle to the current git
-   commit and computes digests automatically.
+   evidence artifacts are all bound together. For `high`/`critical` the bundle
+   must carry `spec_revision`, `build_env`, and `review_verdict.verdict == PASS`;
+   for `critical` it must additionally carry a verifiable HMAC `signature` and a
+   clean tree (`git_generated_dirty == true` is a hard fail). Always produce the
+   bundle with `generate-evidence-bundle.(sh|ps1)` — never hand-author sha256
+   fields or the `git_commit` field. The runner binds the bundle to the current
+   git commit and computes digests automatically.
 7. For `refactor` and `bugfix` tasks with a `baseline-behavior.md`, apply
    `differential-test-policy.md` and classify every BL diff.
 8. Run critical review with an isolated evaluator using `evaluation-rubric.md`.
    On Claude Code use the `sdd-evaluator` subagent. On Codex use the shipped
    `sdd-evaluator` TOML agent; do not create new agent role files under
    `~/.codex/agents/`. Elsewhere, perform the review in a fresh session or a
-   clearly separated critical-review pass.
+   clearly separated critical-review pass. For `high`/`critical` tasks, record
+   the evaluator's verdict as `review_verdict` in the evidence bundle;
+   `check-evidence-bundle` requires `review_verdict.verdict == PASS`.
 9. Classify findings as `Accepted`, `Rejected`, or `Deferred`.
 10. Apply only safe fixes allowed by `auto-fix-policy.md`.
 11. Repeat critical review for a maximum of 3 cycles.
@@ -75,10 +90,19 @@ deterministic gates apply; every check runs as normal.
 
 Set the task to `Done` only when:
 
-- `check-contract` passes: every required contract check is true with
-  existing evidence files
+- `check-risk` passes: valid tier + rationale, and `high`/`critical` declares
+  `Required Workflow: tdd`
+- `check-contract` passes: every required contract check (the tier-minimum
+  superset) is true with existing evidence files; for `tdd`, test checks carry
+  `red_evidence` + `green_evidence`
+- `check-traceability` passes for `high`/`critical` (REQ → AC → TEST → evidence)
 - `check-evidence-bundle` passes: the bundle names the report, contract, and
-  contract-passing artifacts, with matching hashes and task id
+  contract-passing artifacts, with matching hashes and task id; for
+  `high`/`critical` it carries `spec_revision`, `build_env`, and
+  `review_verdict.verdict == PASS`; for `critical` it carries a verified HMAC
+  `signature` over a clean tree
+- for `critical`, a second distinct named approver recorded
+  `Second Approval: Approved` (enforced by `check-task-state`; never sudo-bypassed)
 - acceptance criteria have tests
 - no unresolved Critical or Major finding remains
 - required UI verification succeeds
