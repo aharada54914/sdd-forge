@@ -4,6 +4,8 @@
 # Rules enforced:
 #  - Every task must have a Risk: line with a valid value (low, medium, high, critical)
 #  - Every task must have a Risk Rationale: line with non-empty content
+#  - A high/critical task MUST declare `Required Workflow: tdd` (risk->workflow
+#    derivation, design.md:118). low/medium not constrained (stricter allowed).
 #  - If TaskId arg is given, validate only that task
 #  - Fail-closed; exit 1 on any validation failure
 param(
@@ -22,6 +24,7 @@ $failures = @()
 $currentTask = $null
 $risk = @{}
 $riskRationale = @{}
+$requiredWorkflow = @{}
 $seenIds = @{}
 $foundFilter = $false
 
@@ -36,10 +39,13 @@ foreach ($line in $lines) {
         $currentTask = $newTask
         if (-not $risk.ContainsKey($currentTask)) { $risk[$currentTask] = "" }
         if (-not $riskRationale.ContainsKey($currentTask)) { $riskRationale[$currentTask] = "" }
+        if (-not $requiredWorkflow.ContainsKey($currentTask)) { $requiredWorkflow[$currentTask] = "" }
     } elseif ($currentTask -and $line -match '^Risk:\s*(.*)$') {
         $risk[$currentTask] = $Matches[1].Trim()
     } elseif ($currentTask -and $line -match '^Risk Rationale:\s*(.*)$') {
         $riskRationale[$currentTask] = $Matches[1].Trim()
+    } elseif ($currentTask -and $line -match '^Required Workflow:\s*(.*)$') {
+        $requiredWorkflow[$currentTask] = $Matches[1].Trim()
     }
 }
 
@@ -68,6 +74,17 @@ foreach ($task in $allTasks) {
 
     if ($rr -eq "") {
         $failures += "$task has empty Risk Rationale"
+    }
+
+    # high/critical risk must declare Required Workflow: tdd (design.md:118).
+    # Only checked for valid high/critical risk; low/medium unconstrained.
+    if ($r -eq "high" -or $r -eq "critical") {
+        $rw = $requiredWorkflow[$task]
+        if ($rw -eq "") {
+            $failures += "$task (risk $r) must declare Required Workflow: tdd (none found)"
+        } elseif ($rw -ne "tdd") {
+            $failures += "$task (risk $r) must declare Required Workflow: tdd, found: $rw"
+        }
     }
 }
 

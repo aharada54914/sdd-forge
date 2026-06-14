@@ -900,6 +900,7 @@ Status: Done
 
 Risk: high
 Risk Rationale: verifies tokens
+Required Workflow: tdd
 Status: Planned
 "@ | Set-Content -Encoding Utf8 "tasks-t002-01.md"
     Assert-ExitCode "T-002.1: valid task passes" (Invoke-Gate "check-risk.ps1" @("tasks-t002-01.md")) 0
@@ -993,6 +994,7 @@ Status: Planned
 
 Risk: high
 Risk Rationale: verifies tokens
+Required Workflow: tdd
 Status: Planned
 
 ## T-002
@@ -1011,6 +1013,7 @@ Status: Planned
 
 Risk: high
 Risk Rationale: verifies tokens
+Required Workflow: tdd
 Status: Planned
 
 ## T-002
@@ -1033,6 +1036,7 @@ Status: Planned
 
 Risk: high
 Risk Rationale: verifies tokens
+Required Workflow: tdd
 Status: Planned
 
 ## T-002
@@ -1075,6 +1079,7 @@ Status: Planned
 
 Risk: critical
 Risk Rationale: payment settlement path
+Required Workflow: tdd
 Status: Planned
 "@ | Set-Content -Encoding Utf8 "tasks-t002-13.md"
     Assert-ExitCode "T-002.13: valid critical risk passes" (Invoke-Gate "check-risk.ps1" @("tasks-t002-13.md")) 0
@@ -1091,6 +1096,102 @@ Status: Planned
 "@ | Set-Content -Encoding Utf8 "tasks-t002-14.md"
     $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-14.md" "-TaskId" "T-999" 2>&1
     Assert-ExitCode "T-002.14: filter task-id not found fails closed" $LASTEXITCODE 1
+
+    # Test: T-002.15 - high risk WITHOUT Required Workflow line fails (T-010 follow-up)
+    @"
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-15.md"
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-15.md" 2>&1
+    $outStr = ($out | Out-String)
+    if ($outStr -match "Required Workflow: tdd") {
+        Write-Host "ok: T-002.15: high risk without Required Workflow fails"
+    } else {
+        throw "T-002.15: high risk must require Required Workflow: tdd"
+    }
+    Assert-ExitCode "T-002.15: high risk without workflow exits 1" $LASTEXITCODE 1
+
+    # Test: T-002.16 - high risk with WRONG (too-weak) workflow fails
+    @"
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Required Workflow: acceptance-first
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-16.md"
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-16.md" 2>&1
+    $outStr = ($out | Out-String)
+    if ($outStr -match "Required Workflow: tdd") {
+        Write-Host "ok: T-002.16: high risk with acceptance-first fails (must be tdd)"
+    } else {
+        throw "T-002.16: high risk with non-tdd workflow must fail"
+    }
+    Assert-ExitCode "T-002.16: high risk wrong workflow exits 1" $LASTEXITCODE 1
+
+    # Test: T-002.17 - critical risk WITHOUT Required Workflow fails
+    @"
+# Tasks
+
+## T-001
+
+Risk: critical
+Risk Rationale: payment settlement path
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-17.md"
+    $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-risk.ps1") "tasks-t002-17.md" 2>&1
+    $outStr = ($out | Out-String)
+    if ($outStr -match "Required Workflow: tdd") {
+        Write-Host "ok: T-002.17: critical risk without Required Workflow fails"
+    } else {
+        throw "T-002.17: critical risk must require Required Workflow: tdd"
+    }
+    Assert-ExitCode "T-002.17: critical risk without workflow exits 1" $LASTEXITCODE 1
+
+    # Test: T-002.18 - high risk WITH Required Workflow: tdd passes
+    @"
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Required Workflow: tdd
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-18.md"
+    Assert-ExitCode "T-002.18: high risk with tdd passes" (Invoke-Gate "check-risk.ps1" @("tasks-t002-18.md")) 0
+
+    # Test: T-002.19 - critical risk WITH Required Workflow: tdd passes
+    @"
+# Tasks
+
+## T-001
+
+Risk: critical
+Risk Rationale: payment settlement path
+Required Workflow: tdd
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-19.md"
+    Assert-ExitCode "T-002.19: critical risk with tdd passes" (Invoke-Gate "check-risk.ps1" @("tasks-t002-19.md")) 0
+
+    # Test: T-002.20 - medium risk withOUT Required Workflow passes (rule scoped to high/critical)
+    @"
+# Tasks
+
+## T-001
+
+Risk: medium
+Risk Rationale: normal feature implementation
+Status: Planned
+"@ | Set-Content -Encoding Utf8 "tasks-t002-20.md"
+    Assert-ExitCode "T-002.20: medium risk without workflow passes (not over-enforced)" (Invoke-Gate "check-risk.ps1" @("tasks-t002-20.md")) 0
 
     # =========================================================
     # T-005: check-traceability

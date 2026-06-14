@@ -64,6 +64,7 @@ Notes:
 | Concern | Enforced by |
 |---------|-------------|
 | tier required-set superset | `check-contract` |
+| `high`/`critical` task declares `Required Workflow: tdd` | `check-risk` (task-level, before contract) |
 | tdd Red→Green evidence | `check-contract` (when `required_workflow == tdd`) |
 | `spec_revision` present (high/critical) | `check-contract` + `check-evidence-bundle` |
 | provenance fields, `review_verdict == PASS` (high/critical) | `check-evidence-bundle` |

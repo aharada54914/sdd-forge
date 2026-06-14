@@ -582,6 +582,7 @@ cat > "${WORK}/t002_test1/tasks.md" <<'EOF'
 
 Risk: high
 Risk Rationale: verifies tokens
+Required Workflow: tdd
 Status: Planned
 EOF
 if check_risk_passes "${WORK}/t002_test1/tasks.md"; then
@@ -687,6 +688,7 @@ cat > "${WORK}/t002_test7/tasks.md" <<'EOF'
 
 Risk: high
 Risk Rationale: verifies tokens
+Required Workflow: tdd
 Status: Planned
 
 ## T-002
@@ -710,6 +712,7 @@ cat > "${WORK}/t002_test8/tasks.md" <<'EOF'
 
 Risk: high
 Risk Rationale: verifies tokens
+Required Workflow: tdd
 Status: Planned
 
 ## T-002
@@ -742,6 +745,7 @@ cat > "${WORK}/t002_test10/tasks.md" <<'EOF'
 
 Risk: high
 Risk Rationale: verifies tokens
+Required Workflow: tdd
 Status: Planned
 
 ## T-002
@@ -799,6 +803,7 @@ cat > "${WORK}/t002_test13/tasks.md" <<'EOF'
 
 Risk: critical
 Risk Rationale: payment settlement path
+Required Workflow: tdd
 Status: Planned
 EOF
 if check_risk_passes "${WORK}/t002_test13/tasks.md"; then
@@ -823,6 +828,114 @@ if echo "$output" | grep -q "requested task T-999 not found"; then
     ok "T-002.14: filter task-id not found fails closed"
 else
     fail "T-002.14: missing filter task-id must fail closed, not silently pass"
+fi
+
+# Test: T-002.15 - high risk WITHOUT Required Workflow line fails (T-010 follow-up)
+mkdir -p "${WORK}/t002_test15"
+cat > "${WORK}/t002_test15/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test15/tasks.md")
+if echo "$output" | grep -q "Required Workflow: tdd"; then
+    ok "T-002.15: high risk without Required Workflow fails"
+else
+    fail "T-002.15: high risk must require Required Workflow: tdd"
+fi
+
+# Test: T-002.16 - high risk with WRONG (too-weak) workflow fails
+mkdir -p "${WORK}/t002_test16"
+cat > "${WORK}/t002_test16/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Required Workflow: acceptance-first
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test16/tasks.md")
+if echo "$output" | grep -q "Required Workflow: tdd"; then
+    ok "T-002.16: high risk with acceptance-first fails (must be tdd)"
+else
+    fail "T-002.16: high risk with non-tdd workflow must fail"
+fi
+
+# Test: T-002.17 - critical risk WITHOUT Required Workflow fails
+mkdir -p "${WORK}/t002_test17"
+cat > "${WORK}/t002_test17/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: critical
+Risk Rationale: payment settlement path
+Status: Planned
+EOF
+output=$(run_check_risk "${WORK}/t002_test17/tasks.md")
+if echo "$output" | grep -q "Required Workflow: tdd"; then
+    ok "T-002.17: critical risk without Required Workflow fails"
+else
+    fail "T-002.17: critical risk must require Required Workflow: tdd"
+fi
+
+# Test: T-002.18 - high risk WITH Required Workflow: tdd passes
+mkdir -p "${WORK}/t002_test18"
+cat > "${WORK}/t002_test18/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: high
+Risk Rationale: verifies tokens
+Required Workflow: tdd
+Status: Planned
+EOF
+if check_risk_passes "${WORK}/t002_test18/tasks.md"; then
+    ok "T-002.18: high risk with Required Workflow: tdd passes"
+else
+    fail "T-002.18: high risk + tdd should pass"
+fi
+
+# Test: T-002.19 - critical risk WITH Required Workflow: tdd passes
+mkdir -p "${WORK}/t002_test19"
+cat > "${WORK}/t002_test19/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: critical
+Risk Rationale: payment settlement path
+Required Workflow: tdd
+Status: Planned
+EOF
+if check_risk_passes "${WORK}/t002_test19/tasks.md"; then
+    ok "T-002.19: critical risk with Required Workflow: tdd passes"
+else
+    fail "T-002.19: critical risk + tdd should pass"
+fi
+
+# Test: T-002.20 - medium risk withOUT Required Workflow passes (rule scoped to high/critical)
+mkdir -p "${WORK}/t002_test20"
+cat > "${WORK}/t002_test20/tasks.md" <<'EOF'
+# Tasks
+
+## T-001
+
+Risk: medium
+Risk Rationale: normal feature implementation
+Status: Planned
+EOF
+if check_risk_passes "${WORK}/t002_test20/tasks.md"; then
+    ok "T-002.20: medium risk without Required Workflow passes (not over-enforced)"
+else
+    fail "T-002.20: medium risk must NOT require tdd workflow"
 fi
 
 # ============================================================================
