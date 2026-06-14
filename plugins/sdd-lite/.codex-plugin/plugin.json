@@ -1,0 +1,23 @@
+{
+  "name": "sdd-lite",
+  "version": "0.11.0",
+  "description": "Lightweight medium-weight SDD track for internal/departmental apps: spec, single approval, implement, lite gate.",
+  "skills": "./skills/",
+  "author": {
+    "name": "Harada"
+  },
+  "interface": {
+    "displayName": "SDD Lite",
+    "shortDescription": "Lightweight SDD track for internal apps",
+    "longDescription": "A medium-weight spec-driven flow for internal/departmental apps: generate requirements/design/tasks, a single human approval, implement, then a lightweight deterministic gate. Reuses the SDD anti-self-approval guard; graduates additively to full SDD.",
+    "developerName": "Harada",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Lightweight specification (requirements/design/tasks)",
+      "Single human approval gate",
+      "Lightweight deterministic quality gate",
+      "Additive graduation to full SDD"
+    ],
+    "defaultPrompt": "Use the lite-spec skill to prepare a lightweight specification."
+  }
+}
