@@ -688,9 +688,13 @@ $guardSh = Join-Path $scriptsDir "sdd-hook-guard.sh"
 $guardPs = Join-Path $scriptsDir "sdd-hook-guard.ps1"
 
 # Self-approval payload (deny): Edit targeting tasks.md adding Approval: Approved
-$selfApprovePayload = '{"tool_name":"Edit","tool_input":{"file_path":"' + ($sb -replace '\\','\\\\') + '/specs/x/tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
+$selfApprovePayload = '{"tool_name":"Edit","tool_input":{"file_path":"' + ($sb -replace '\\','/') + '/specs/x/tasks.md","old_string":"Approval: Draft","new_string":"Approval: Approved"}}'
 # Benign payload (allow): Edit to a non-tasks path
-$benignPayload = '{"tool_name":"Edit","tool_input":{"file_path":"' + ($sb -replace '\\','\\\\') + '/src/foo.js","old_string":"a","new_string":"b"}}'
+$benignPayload = '{"tool_name":"Edit","tool_input":{"file_path":"' + ($sb -replace '\\','/') + '/src/foo.js","old_string":"a","new_string":"b"}}'
+# Write payload temp files WITHOUT a UTF-8 BOM: the guards parse stdin with
+# JSON.parse / json.loads, which reject a leading BOM as a malformed payload
+# (fail-closed => deny). [System.Text.Encoding]::UTF8 would emit a BOM.
+$utf8NoBom = [System.Text.UTF8Encoding]::new($false)
 
 # ---- B1.1: Claude Code: node sdd-hook-guard.js --emit exit ----
 Write-Host "--- B1.1: Claude Code node --emit exit ---"
@@ -701,7 +705,7 @@ if ($nodeCmd) {
     $tmpNodeDenyIn  = [System.IO.Path]::GetTempFileName()
     $tmpNodeDenyOut = [System.IO.Path]::GetTempFileName()
     $tmpNodeDenyErr = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($tmpNodeDenyIn, $selfApprovePayload, [System.Text.Encoding]::UTF8)
+    [System.IO.File]::WriteAllText($tmpNodeDenyIn, $selfApprovePayload, $utf8NoBom)
     $proc = Start-Process -FilePath "node" -ArgumentList @($guardJs, "--emit", "exit") `
         -RedirectStandardInput  $tmpNodeDenyIn `
         -RedirectStandardOutput $tmpNodeDenyOut `
@@ -718,7 +722,7 @@ if ($nodeCmd) {
     $tmpNodeAlwIn  = [System.IO.Path]::GetTempFileName()
     $tmpNodeAlwOut = [System.IO.Path]::GetTempFileName()
     $tmpNodeAlwErr = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($tmpNodeAlwIn, $benignPayload, [System.Text.Encoding]::UTF8)
+    [System.IO.File]::WriteAllText($tmpNodeAlwIn, $benignPayload, $utf8NoBom)
     $proc2 = Start-Process -FilePath "node" -ArgumentList @($guardJs, "--emit", "exit") `
         -RedirectStandardInput  $tmpNodeAlwIn `
         -RedirectStandardOutput $tmpNodeAlwOut `
@@ -742,7 +746,7 @@ $shCmd = Get-Command sh -ErrorAction SilentlyContinue
 if ($shCmd) {
     # Self-approval => exit 2
     $tmpShDeny = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($tmpShDeny, $selfApprovePayload, [System.Text.Encoding]::UTF8)
+    [System.IO.File]::WriteAllText($tmpShDeny, $selfApprovePayload, $utf8NoBom)
     $procSh1 = Start-Process -FilePath "sh" -ArgumentList @($guardSh, "--emit", "exit") `
         -RedirectStandardInput  $tmpShDeny `
         -RedirectStandardOutput ([System.IO.Path]::GetTempFileName()) `
@@ -757,7 +761,7 @@ if ($shCmd) {
 
     # Benign => exit 0
     $tmpShAllow = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($tmpShAllow, $benignPayload, [System.Text.Encoding]::UTF8)
+    [System.IO.File]::WriteAllText($tmpShAllow, $benignPayload, $utf8NoBom)
     $procSh2 = Start-Process -FilePath "sh" -ArgumentList @($guardSh, "--emit", "exit") `
         -RedirectStandardInput  $tmpShAllow `
         -RedirectStandardOutput ([System.IO.Path]::GetTempFileName()) `
@@ -781,7 +785,7 @@ if ($shCmd) {
     # Self-approval => stdout JSON with permissionDecision="deny", exit 0
     $tmpCopDenyIn  = [System.IO.Path]::GetTempFileName()
     $tmpCopDenyOut = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($tmpCopDenyIn, $selfApprovePayload, [System.Text.Encoding]::UTF8)
+    [System.IO.File]::WriteAllText($tmpCopDenyIn, $selfApprovePayload, $utf8NoBom)
     $procCop1 = Start-Process -FilePath "sh" -ArgumentList @($guardSh, "--emit", "copilot") `
         -RedirectStandardInput  $tmpCopDenyIn `
         -RedirectStandardOutput $tmpCopDenyOut `
@@ -803,7 +807,7 @@ if ($shCmd) {
     # Benign => stdout JSON with permissionDecision="allow", exit 0
     $tmpCopAlwIn  = [System.IO.Path]::GetTempFileName()
     $tmpCopAlwOut = [System.IO.Path]::GetTempFileName()
-    [System.IO.File]::WriteAllText($tmpCopAlwIn, $benignPayload, [System.Text.Encoding]::UTF8)
+    [System.IO.File]::WriteAllText($tmpCopAlwIn, $benignPayload, $utf8NoBom)
     $procCop2 = Start-Process -FilePath "sh" -ArgumentList @($guardSh, "--emit", "copilot") `
         -RedirectStandardInput  $tmpCopAlwIn `
         -RedirectStandardOutput $tmpCopAlwOut `
