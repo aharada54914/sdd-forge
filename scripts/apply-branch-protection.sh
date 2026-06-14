@@ -101,10 +101,46 @@ if [ "$DRY_RUN" = 1 ]; then
   exit 0
 fi
 
-# Check if ruleset already exists by name
+# Check if a ruleset with this name already exists.
+#
+# The rulesets LIST API (GET .../rulesets) returns a JSON ARRAY on success, but
+# on repos where rulesets are unavailable (e.g. GitHub Free + private) it
+# returns an error OBJECT instead, e.g.:
+#   {"message":"Upgrade to GitHub Pro ...","documentation_url":"...","status":"403"}
+# and `gh api` prints that body to stdout while exiting non-zero. We must NOT
+# mistake that object for a ruleset record. Previously the inline `-q` filter +
+# `|| echo ""` captured the whole error JSON as the "existing id", producing a
+# malformed PUT URL (repos/.../rulesets/%7B%22message%22... -> "unsupported
+# protocol scheme"). So: only mine an id when the call SUCCEEDS *and* the body
+# is a JSON array with no top-level API error. Otherwise fall through to the
+# create (POST) attempt, which surfaces the MANUAL FALLBACK steps on failure.
 echo "Checking for existing ruleset '$RULESET_NAME'..."
-existing_id=$(gh api "repos/${GITHUB_REPOSITORY}/rulesets" \
-  -q ".[] | select(.name == \"${RULESET_NAME}\") | .id" 2>/dev/null || echo "")
+existing_id=""
+if rulesets_json=$(gh api "repos/${GITHUB_REPOSITORY}/rulesets" 2>/dev/null); then
+  existing_id=$(
+    printf '%s' "$rulesets_json" | python3 -c '
+import json, sys
+
+name = sys.argv[1]
+try:
+    data = json.load(sys.stdin)
+except Exception:
+    sys.exit(0)
+
+# A successful list is a JSON array. An API error is an object carrying
+# "status"/"message". Treat anything that is not a plain array as "no existing
+# ruleset" so we fall through to create / manual fallback instead of building a
+# bogus update URL out of an error payload.
+if not isinstance(data, list):
+    sys.exit(0)
+
+for rs in data:
+    if isinstance(rs, dict) and rs.get("name") == name:
+        print(rs.get("id", ""))
+        break
+' "$RULESET_NAME" 2>/dev/null || echo ""
+  )
+fi
 
 if [ -n "$existing_id" ]; then
   echo "Found existing ruleset ID $existing_id. Updating..."
@@ -115,7 +151,7 @@ if [ -n "$existing_id" ]; then
     handle_api_error
   fi
 else
-  echo "No existing ruleset found. Creating new..."
+  echo "No existing ruleset found (or rulesets unavailable). Creating new..."
   if gh api -X POST "repos/${GITHUB_REPOSITORY}/rulesets" --input "$RULESET_FILE" 2>&1; then
     echo "Successfully created branch protection ruleset."
     exit 0

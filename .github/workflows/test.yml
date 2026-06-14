@@ -76,6 +76,12 @@ jobs:
         run: |
           bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
 
+      - name: Test branch-protection script (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
+
       - name: Upload test logs
         if: failure()
         uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
