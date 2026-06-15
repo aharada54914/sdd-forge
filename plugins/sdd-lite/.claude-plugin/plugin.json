@@ -1,0 +1,8 @@
+{
+  "name": "sdd-lite",
+  "description": "Lightweight medium-weight SDD track for internal/departmental apps: spec, single approval, implement, lite gate.",
+  "version": "0.11.0",
+  "author": {
+    "name": "Harada"
+  }
+}

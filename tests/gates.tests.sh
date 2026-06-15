@@ -2857,6 +2857,170 @@ else
 fi
 
 # ============================================================================
+# sdd-lite: check-task-state-lite.sh Tests (L1–L6)
+# ============================================================================
+
+echo "=== sdd-lite: check-task-state-lite ==="
+
+LITE="${REPO_ROOT}/plugins/sdd-lite/scripts/check-task-state-lite.sh"
+
+# Helpers for lite gate (mirror run_check_task_state / check_task_state_passes style)
+run_check_task_state_lite() {
+    local tasks="$1"
+    local reports="${2:-reports/quality-gate}"
+    local impl_reports="${3:-reports/implementation}"
+    local root="${4:-.}"
+    bash "${LITE}" "$tasks" "$reports" "$impl_reports" "$root" 2>&1 || true
+}
+check_task_state_lite_passes() {
+    local tasks="$1"
+    local reports="${2:-reports/quality-gate}"
+    local impl_reports="${3:-reports/implementation}"
+    local root="${4:-.}"
+    bash "${LITE}" "$tasks" "$reports" "$impl_reports" "$root" >/dev/null 2>&1
+}
+
+# --- L1: Done with impl report + VERDICT:PASS report → PASS (no evidence.json needed) ---
+mkdir -p "${WORK}/l1/specs/f"
+mkdir -p "${WORK}/l1/reports/quality-gate"
+mkdir -p "${WORK}/l1/reports/implementation"
+cat > "${WORK}/l1/specs/f/tasks.md" <<'EOF'
+## T-001
+Approval: Approved
+Status: Done
+EOF
+printf 'Implementation of T-001 complete.\n' > "${WORK}/l1/reports/implementation/T-001.md"
+cat > "${WORK}/l1/reports/quality-gate/T-001.md" <<'EOF'
+Task ID: T-001
+VERDICT: PASS
+All checks passed.
+EOF
+if check_task_state_lite_passes "${WORK}/l1/specs/f/tasks.md" \
+    "${WORK}/l1/reports/quality-gate" \
+    "${WORK}/l1/reports/implementation" \
+    "${WORK}/l1"; then
+    ok "L1: Done with impl report + VERDICT:PASS report passes (no evidence.json required)"
+else
+    fail "L1: Done with impl report + VERDICT:PASS report should pass: $(run_check_task_state_lite "${WORK}/l1/specs/f/tasks.md" "${WORK}/l1/reports/quality-gate" "${WORK}/l1/reports/implementation" "${WORK}/l1")"
+fi
+
+# --- L2: Done but Approval: Draft → FAIL ---
+mkdir -p "${WORK}/l2/specs/f"
+mkdir -p "${WORK}/l2/reports/quality-gate"
+mkdir -p "${WORK}/l2/reports/implementation"
+cat > "${WORK}/l2/specs/f/tasks.md" <<'EOF'
+## T-001
+Approval: Draft
+Status: Done
+EOF
+printf 'Implementation of T-001 complete.\n' > "${WORK}/l2/reports/implementation/T-001.md"
+cat > "${WORK}/l2/reports/quality-gate/T-001.md" <<'EOF'
+Task ID: T-001
+VERDICT: PASS
+EOF
+output=$(run_check_task_state_lite "${WORK}/l2/specs/f/tasks.md" \
+    "${WORK}/l2/reports/quality-gate" \
+    "${WORK}/l2/reports/implementation" \
+    "${WORK}/l2")
+if echo "$output" | grep -q "without Approval: Approved"; then
+    ok "L2: Done with Approval: Draft fails (Approval required)"
+else
+    fail "L2: Done with Approval: Draft should fail. Got: $output"
+fi
+
+# --- L3: Done but quality-gate report has VERDICT: FAIL → FAIL ---
+mkdir -p "${WORK}/l3/specs/f"
+mkdir -p "${WORK}/l3/reports/quality-gate"
+mkdir -p "${WORK}/l3/reports/implementation"
+cat > "${WORK}/l3/specs/f/tasks.md" <<'EOF'
+## T-001
+Approval: Approved
+Status: Done
+EOF
+printf 'Implementation of T-001 complete.\n' > "${WORK}/l3/reports/implementation/T-001.md"
+cat > "${WORK}/l3/reports/quality-gate/T-001.md" <<'EOF'
+Task ID: T-001
+VERDICT: FAIL
+Some checks failed.
+EOF
+output=$(run_check_task_state_lite "${WORK}/l3/specs/f/tasks.md" \
+    "${WORK}/l3/reports/quality-gate" \
+    "${WORK}/l3/reports/implementation" \
+    "${WORK}/l3")
+if echo "$output" | grep -q "no quality-gate report"; then
+    ok "L3: Done with VERDICT: FAIL in quality-gate report fails"
+else
+    fail "L3: Done with VERDICT: FAIL should fail. Got: $output"
+fi
+
+# --- L4: Done but impl reports dir is empty (no impl report) → FAIL ---
+mkdir -p "${WORK}/l4/specs/f"
+mkdir -p "${WORK}/l4/reports/quality-gate"
+mkdir -p "${WORK}/l4/reports/implementation"
+cat > "${WORK}/l4/specs/f/tasks.md" <<'EOF'
+## T-001
+Approval: Approved
+Status: Done
+EOF
+cat > "${WORK}/l4/reports/quality-gate/T-001.md" <<'EOF'
+Task ID: T-001
+VERDICT: PASS
+EOF
+# impl dir is intentionally left empty (no T-001.md)
+output=$(run_check_task_state_lite "${WORK}/l4/specs/f/tasks.md" \
+    "${WORK}/l4/reports/quality-gate" \
+    "${WORK}/l4/reports/implementation" \
+    "${WORK}/l4")
+if echo "$output" | grep -q "no implementation report"; then
+    ok "L4: Done with no impl report fails"
+else
+    fail "L4: Done with empty impl dir should fail. Got: $output"
+fi
+
+# --- L5: Duplicate task ID → FAIL ---
+mkdir -p "${WORK}/l5/specs/f"
+mkdir -p "${WORK}/l5/reports/quality-gate"
+mkdir -p "${WORK}/l5/reports/implementation"
+cat > "${WORK}/l5/specs/f/tasks.md" <<'EOF'
+## T-001
+Approval: Approved
+Status: Planned
+
+## T-001
+Approval: Approved
+Status: Planned
+EOF
+output=$(run_check_task_state_lite "${WORK}/l5/specs/f/tasks.md" \
+    "${WORK}/l5/reports/quality-gate" \
+    "${WORK}/l5/reports/implementation" \
+    "${WORK}/l5")
+if echo "$output" | grep -q "duplicate task id"; then
+    ok "L5: Duplicate task ID T-001 fails"
+else
+    fail "L5: Duplicate task ID should fail. Got: $output"
+fi
+
+# --- L6: CRLF tasks.md with valid Done → PASS (same as L1 but CRLF line endings) ---
+mkdir -p "${WORK}/l6/specs/f"
+mkdir -p "${WORK}/l6/reports/quality-gate"
+mkdir -p "${WORK}/l6/reports/implementation"
+printf '## T-001\r\nApproval: Approved\r\nStatus: Done\r\n' > "${WORK}/l6/specs/f/tasks.md"
+printf 'Implementation of T-001 complete.\n' > "${WORK}/l6/reports/implementation/T-001.md"
+cat > "${WORK}/l6/reports/quality-gate/T-001.md" <<'EOF'
+Task ID: T-001
+VERDICT: PASS
+All checks passed.
+EOF
+if check_task_state_lite_passes "${WORK}/l6/specs/f/tasks.md" \
+    "${WORK}/l6/reports/quality-gate" \
+    "${WORK}/l6/reports/implementation" \
+    "${WORK}/l6"; then
+    ok "L6: CRLF tasks.md with valid Done passes (CRLF parity)"
+else
+    fail "L6: CRLF tasks.md should pass same as LF: $(run_check_task_state_lite "${WORK}/l6/specs/f/tasks.md" "${WORK}/l6/reports/quality-gate" "${WORK}/l6/reports/implementation" "${WORK}/l6")"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 

@@ -10,12 +10,12 @@ REPOSITORY="aharada54914/sdd-forge"
 REF="main"
 INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins"
 TARGET="All"
-PLUGINS="sdd-bootstrap,sdd-implementation,sdd-quality-loop"
+PLUGINS="sdd-bootstrap,sdd-implementation,sdd-quality-loop,sdd-lite"
 SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
 
-VALID_PLUGINS="sdd-bootstrap sdd-implementation sdd-quality-loop"
+VALID_PLUGINS="sdd-bootstrap sdd-implementation sdd-quality-loop sdd-lite"
 
 # ---------------------------------------------------------------------------
 # Argument parsing
@@ -29,8 +29,8 @@ Usage: install.sh [options]
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
   --target All|Codex|Claude|Copilot|FilesOnly
                                  Default: All
-  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-implementation,sdd-quality-loop
-                                 Default: all three
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-implementation,sdd-quality-loop,sdd-lite
+                                 Default: all four
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
@@ -282,6 +282,8 @@ REQUIRED_PATHS=(
     "plugins/sdd-bootstrap/.plugin/plugin.json"
     "plugins/sdd-implementation/.plugin/plugin.json"
     "plugins/sdd-quality-loop/.plugin/plugin.json"
+    "plugins/sdd-lite/.codex-plugin/plugin.json"
+    "plugins/sdd-lite/.plugin/plugin.json"
     ".codex/agents/sdd-investigator.toml"
     ".codex/agents/sdd-evaluator.toml"
 )
