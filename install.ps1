@@ -5,8 +5,8 @@ param(
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
     [string]$Target = "All",
-    [ValidateSet("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")]
-    [string[]]$Plugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"),
+    [ValidateSet("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite")]
+    [string[]]$Plugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite"),
     [switch]$SkipPluginInstall,
     [switch]$SkipAgentInstall,
     [string]$SourceDirectory
@@ -191,6 +191,8 @@ try {
         "plugins/sdd-bootstrap/.plugin/plugin.json",
         "plugins/sdd-implementation/.plugin/plugin.json",
         "plugins/sdd-quality-loop/.plugin/plugin.json",
+        "plugins/sdd-lite/.codex-plugin/plugin.json",
+        "plugins/sdd-lite/.plugin/plugin.json",
         ".codex/agents/sdd-investigator.toml",
         ".codex/agents/sdd-evaluator.toml"
     )

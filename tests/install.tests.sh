@@ -5,7 +5,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALLER="${REPO_ROOT}/install.sh"
-ALL_PLUGINS="sdd-bootstrap sdd-implementation sdd-quality-loop"
+ALL_PLUGINS="sdd-bootstrap sdd-implementation sdd-quality-loop sdd-lite"
 PASS=0
 FAIL=0
 
