@@ -2225,6 +2225,94 @@ Status: In Progress
 "@ | Set-Content -Encoding Utf8 "t007b-test6.md"
     Assert-ExitCode "T-007b.6: sudo Approval format still accepted (backward compat)" (Invoke-Gate "check-task-state.ps1" @("t007b-test6.md")) 0
 
+    # =========================================================
+    # sdd-lite: check-task-state-lite.ps1 (L1-L6)
+    # =========================================================
+    $liteScript = Join-Path $repositoryRoot "plugins/sdd-lite/scripts/check-task-state-lite.ps1"
+    $liteQgDir  = Join-Path $workDir "lite-reports/quality-gate"
+    $liteImplDir = Join-Path $workDir "lite-reports/implementation"
+    New-Item -ItemType Directory -Path $liteQgDir  -Force | Out-Null
+    New-Item -ItemType Directory -Path $liteImplDir -Force | Out-Null
+
+    # L1: Done with impl report + VERDICT:PASS report => exit 0
+    @"
+## T-001 Lite done
+Approval: Approved
+Status: Done
+"@ | Set-Content -Encoding Utf8 (Join-Path $workDir "lite-tasks-L1.md")
+    "Implementation report for T-001." | Set-Content -Encoding Utf8 (Join-Path $liteImplDir "T-001-impl.md")
+    @"
+Task ID: T-001
+VERDICT: PASS
+quality gate passed
+"@ | Set-Content -Encoding Utf8 (Join-Path $liteQgDir "T-001-qg.md")
+    $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $liteScript (Join-Path $workDir "lite-tasks-L1.md") $liteQgDir $liteImplDir $workDir 2>&1
+    Assert-ExitCode "L1: lite Done with impl+VERDICT:PASS passes" $LASTEXITCODE 0
+
+    # L2: Approval Draft + Status Done => exit 1 (no approval)
+    @"
+## T-001 No approval
+Approval: Draft
+Status: Done
+"@ | Set-Content -Encoding Utf8 (Join-Path $workDir "lite-tasks-L2.md")
+    $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $liteScript (Join-Path $workDir "lite-tasks-L2.md") $liteQgDir $liteImplDir $workDir 2>&1
+    Assert-ExitCode "L2: lite Done without Approval:Approved fails" $LASTEXITCODE 1
+
+    # L3: Done + impl report + VERDICT:FAIL in qg report => exit 1
+    $liteQgDir3 = Join-Path $workDir "lite-reports3/quality-gate"
+    $liteImplDir3 = Join-Path $workDir "lite-reports3/implementation"
+    New-Item -ItemType Directory -Path $liteQgDir3  -Force | Out-Null
+    New-Item -ItemType Directory -Path $liteImplDir3 -Force | Out-Null
+    @"
+## T-001 Verdict fail
+Approval: Approved
+Status: Done
+"@ | Set-Content -Encoding Utf8 (Join-Path $workDir "lite-tasks-L3.md")
+    "Implementation report for T-001." | Set-Content -Encoding Utf8 (Join-Path $liteImplDir3 "T-001-impl.md")
+    @"
+Task ID: T-001
+VERDICT: FAIL
+quality gate failed
+"@ | Set-Content -Encoding Utf8 (Join-Path $liteQgDir3 "T-001-qg.md")
+    $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $liteScript (Join-Path $workDir "lite-tasks-L3.md") $liteQgDir3 $liteImplDir3 $workDir 2>&1
+    Assert-ExitCode "L3: lite Done with VERDICT:FAIL fails" $LASTEXITCODE 1
+
+    # L4: Done but no impl report => exit 1
+    $liteQgDir4 = Join-Path $workDir "lite-reports4/quality-gate"
+    $liteImplDir4 = Join-Path $workDir "lite-reports4/implementation"
+    New-Item -ItemType Directory -Path $liteQgDir4  -Force | Out-Null
+    New-Item -ItemType Directory -Path $liteImplDir4 -Force | Out-Null
+    @"
+## T-001 No impl report
+Approval: Approved
+Status: Done
+"@ | Set-Content -Encoding Utf8 (Join-Path $workDir "lite-tasks-L4.md")
+    @"
+Task ID: T-001
+VERDICT: PASS
+quality gate passed
+"@ | Set-Content -Encoding Utf8 (Join-Path $liteQgDir4 "T-001-qg.md")
+    $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $liteScript (Join-Path $workDir "lite-tasks-L4.md") $liteQgDir4 $liteImplDir4 $workDir 2>&1
+    Assert-ExitCode "L4: lite Done with no impl report fails" $LASTEXITCODE 1
+
+    # L5: duplicate task id => exit 1
+    @"
+## T-001 First
+Approval: Approved
+Status: Planned
+## T-001 Duplicate
+Approval: Approved
+Status: Planned
+"@ | Set-Content -Encoding Utf8 (Join-Path $workDir "lite-tasks-L5.md")
+    $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $liteScript (Join-Path $workDir "lite-tasks-L5.md") $liteQgDir $liteImplDir $workDir 2>&1
+    Assert-ExitCode "L5: lite duplicate task id fails" $LASTEXITCODE 1
+
+    # L6: CRLF tasks.md same as L1 => exit 0
+    $crlfContent = "## T-001 Lite done`r`nApproval: Approved`r`nStatus: Done`r`n"
+    [System.IO.File]::WriteAllText((Join-Path $workDir "lite-tasks-L6.md"), $crlfContent)
+    $script:gateOutput = & pwsh -NoProfile -ExecutionPolicy Bypass -File $liteScript (Join-Path $workDir "lite-tasks-L6.md") $liteQgDir $liteImplDir $workDir 2>&1
+    Assert-ExitCode "L6: lite CRLF tasks.md passes same as LF" $LASTEXITCODE 0
+
     Write-Host "Script gate tests passed."
 } finally {
     Pop-Location
