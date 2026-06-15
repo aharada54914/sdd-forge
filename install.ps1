@@ -15,6 +15,20 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
+# sdd-lite depends on its companions and cannot run standalone:
+#  - lite-spec requires sdd-bootstrap (sdd-adopt / check-sdd-structure) and
+#    sdd-implementation (implement-task).
+#  - lite-gate requires sdd-quality-loop (check-placeholders) and the approval /
+#    kill-switch hooks live only in sdd-quality-loop.
+# Selecting sdd-lite alone would silently omit the self-approval protection, so
+# auto-expand the selection to include the companions.
+if ($Plugins -contains "sdd-lite") {
+    foreach ($dep in @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")) {
+        if ($Plugins -notcontains $dep) { $Plugins += $dep }
+    }
+    Write-Warning "sdd-lite selected; auto-included its companions (sdd-bootstrap, sdd-implementation, sdd-quality-loop)."
+}
+
 if ($PSVersionTable.PSEdition -eq 'Desktop') {
     [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 }

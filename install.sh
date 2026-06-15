@@ -74,6 +74,26 @@ for p in "${PLUGIN_LIST[@]}"; do
     fi
 done
 
+# sdd-lite depends on its companions and cannot run standalone:
+#  - lite-spec requires sdd-bootstrap (sdd-adopt / check-sdd-structure) and
+#    sdd-implementation (implement-task).
+#  - lite-gate requires sdd-quality-loop (check-placeholders) and the approval /
+#    kill-switch hooks live only in sdd-quality-loop.
+# Selecting sdd-lite alone would silently omit the self-approval protection, so
+# auto-expand the selection to include the companions.
+case ",$PLUGINS," in
+    *,sdd-lite,*)
+        for dep in sdd-bootstrap sdd-implementation sdd-quality-loop; do
+            case ",$PLUGINS," in
+                *,"$dep",*) ;;
+                *) PLUGINS="$PLUGINS,$dep" ;;
+            esac
+        done
+        IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
+        echo "Note: sdd-lite selected; auto-included its companions (sdd-bootstrap, sdd-implementation, sdd-quality-loop)." >&2
+        ;;
+esac
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
