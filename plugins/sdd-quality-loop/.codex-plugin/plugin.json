@@ -1,6 +1,6 @@
 {
   "name": "sdd-quality-loop",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Independently verify Implementation Complete tasks, run critical review, fix approved tickets, verify differential baselines, retrospect on workflow performance, and decide Done.",
   "skills": "./skills/",
   "hooks": "./hooks/hooks.json",
