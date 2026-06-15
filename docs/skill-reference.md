@@ -533,6 +533,108 @@ Use the cross-model-verify skill for specs/cross-model-verification/tasks.md#T-0
 
 ---
 
+### lite-spec
+
+**目的**
+
+社内・部署内アプリ向けの軽量仕様を作ります（`sdd-lite` プラグイン）。`sdd-bootstrap-interviewer` の縮約版で、要件・設計・タスクの3ファイルのみを生成し、traceability・ADR・受け入れテストの厳密記述は任意とします。アプリのコードは実装しません。低ステークスの社内開発向け。より高い厳格さが要るなら `sdd-bootstrap-interviewer` に切り替えます。
+
+**呼び出し例**
+
+```txt
+# Claude Code
+/sdd-lite:lite-spec <issue URL または 要件テキスト>
+
+# Codex
+Use the lite-spec skill.
+Source: <issue URL または 要件テキスト>
+```
+
+**前提条件**
+
+1. `AGENTS.md` がリポジトリルートに存在
+2. `scripts/check-sdd-structure.sh` (または `.ps1`) が `missing:` を報告しない
+3. 未整備なら `/sdd-bootstrap:sdd-adopt` を案内して停止（lite でも SDD 構造は前提）
+
+**処理の流れ**
+
+1. Issue URL か要件テキストを受け取る（読み取り専用取得を試み、不可なら本文を尋ねる）
+2. 関連コード・既存パターンを軽く調査（大規模調査は委譲可）
+3. `specs/<feature>/` に `requirements.md` / `design.md` / `tasks.md` を本プラグインの `templates/` から生成
+4. 各タスクは `Approval: Draft` / `Status: Planned` で生成。`Risk:` 行は付けない（lite は階層強制を使わない）
+5. 不明な製品判断は `Open Questions` に残す（勝手に埋めない）
+
+**生成物**
+
+- `specs/<feature>/requirements.md` / `design.md` / `tasks.md`
+
+**人間の関与ポイント**
+
+- タスク承認: 人間のみが `tasks.md` の `Approval:` を `Approved` にできる（AI は不可。既存 hook-guard が承認マーカーの増加をブロック）
+
+**やらないこと (Boundaries)**
+
+- traceability.md・ADR・evidence-bundle・受け入れテストの厳密記述の生成（必要なら `sdd-bootstrap-interviewer` へ）
+- アプリのコード実装（`implement-task` が担当）
+- 承認・Done 化
+
+**昇格**
+
+lite 成果物はフル SDD の部分集合。複数人開発や高ステークスへ移る際は `design.md` §6 / `plugins/sdd-lite/references/lite-flow-policy.md` の手順で加算的に厳格化できます。
+
+---
+
+### lite-gate
+
+**目的**
+
+`sdd-lite` フローの軽量品質ゲート（`sdd-lite` プラグイン）。実装者の自己申告ではなく、ゲート自身が検証コマンドを再実行して結果を記録します（自己採点防止の核を低コストで維持）。evidence-bundle・contract.json・cross-model・署名は扱いません。`implement-task` の後、lite フローの最終段で使用します。
+
+**呼び出し例**
+
+```txt
+# Claude Code
+/sdd-lite:lite-gate specs/<feature>/tasks.md#T-001
+
+# Codex
+Use the lite-gate skill for specs/<feature>/tasks.md#T-001
+```
+
+**前提条件**
+
+- 対象タスクが `Status: Implementation Complete` かつ `Approval: Approved`
+- `reports/implementation/<task-id>.md` が存在
+- 望ましくは別コンテキスト/別セッション（または委譲）で実行し、実装者の主張を独立に再検証
+
+**処理の流れ**
+
+1. 変更範囲に対し `check-placeholders.{sh,ps1}` を実行
+2. プロジェクトの lint / typecheck / build / test コマンドを**ゲート自身が実行**し出力を捕捉（コマンドが無い種別は「N/A」と理由を記録）
+3. `check-task-state-lite.{sh,ps1}` を実行し状態機械を検証
+4. `reports/quality-gate/<task-id>.md` を `templates/quality-report-lite.md` から生成。先頭に `Task ID: <task-id>` と `VERDICT: PASS|FAIL` を必ず置く（`check-task-state-lite` の Done 判定が依存）
+5. すべて PASS のときのみ対象タスクを `Status: Done` にする。1つでも FAIL なら `VERDICT: FAIL` を記録し Done にせず実装者へ差し戻す
+
+**生成物**
+
+- `reports/quality-gate/<task-id>.md`（VERDICT 付き）
+- 成功時の `Status: Done` 遷移
+
+**人間の関与ポイント**
+
+- なし（`Approval` は変更しない。承認は人間専管）
+
+**やらないこと (Boundaries)**
+
+- evidence-bundle / contract.json / cross-model-verify / 二者承認 / リスク階層強制（昇格時はフルの `quality-gate` へ）
+- `Approval` の変更
+- `Done` は本スキルのみが設定（`implement-task` は設定しない）
+
+**昇格**
+
+より強い保証が要るときは `quality-gate`（evidence-bundle・独立批判レビュー・cross-model 等）へ切り替えます。差分の全体像は [軽量トラック（sdd-lite）](workflow-guide.md#軽量トラックsdd-lite) を参照。
+
+---
+
 ## 3. サブエージェント
 
 ### sdd-investigator
