@@ -15,6 +15,8 @@
 | workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案 | quality-gate | — |
 | sdd-sudo | sdd-quality-loop | 人間承認ゲートを期限付きで自動通過 | — | implement-task, quality-gate (オプション) |
 | cross-model-verify | sdd-quality-loop | 複数ベンダーの独立 LLM パネリストを盲目並列実行し verdict JSON を収集 | quality-gate (critical タスク) | check-cross-model ゲート |
+| lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task |
+| lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task | — |
 
 **重要:** すべてのスキルは `disable-model-invocation: true` を指定しています。つまり、モデルが勝手にスキルを起動することはなく、ユーザーが明示的に `/sdd-bootstrap:sdd-adopt` のようなコマンドで呼び出す必要があります。このため、実装途中の誤った自動実行を防げます。
 
@@ -788,6 +790,37 @@ sh plugins/sdd-quality-loop/scripts/check-task-state.sh <path-to-tasks.md> [repo
    - Non-empty `### Blockers` セクション（None / 空白 / bare list marker のみは不可）
 
 7. **Duplicate task IDs**: `## T-001` の重複 → FAIL
+
+**Exit codes**
+
+- 0: すべてのタスク状態有効
+- 1: ルール違反
+
+---
+
+### check-task-state-lite
+
+**目的**
+
+sdd-lite フロー用に `check-task-state` を fork した軽量状態ゲート。`Done` 遷移を evidence-bundle 非依存にし、「実装レポートがタスク ID に言及 + 品質レポートが `VERDICT: PASS` でタスク ID に言及」の2条件で許可する。共有ルール（Approval/Status 妥当値・In Progress/Impl Complete/Done の Approval 必須・Blocked の Blockers 必須・重複 ID 検出・CRLF 正規化）は `check-task-state` と同一。
+
+**使用法**
+
+```bash
+# Git Bash / WSL / macOS / Linux
+sh plugins/sdd-lite/scripts/check-task-state-lite.sh <path-to-tasks.md> [reports-dir] [impl-reports-dir] [repo-root]
+```
+
+```powershell
+# PowerShell
+.\plugins\sdd-lite\scripts\check-task-state-lite.ps1 <path-to-tasks.md> [<reports-dir>] [<impl-reports-dir>] [<repo-root>]
+```
+
+**lite 差分（check-task-state との違い）**
+
+- 除去: `Done` の `verification/<id>.evidence.json` 必須・`.contract.json` 必須・check-evidence-bundle 呼出
+- 除去: critical 二者承認ロジック
+- 変更: `Done` 要件を「`Approval: Approved` + 実装レポートがタスク ID に言及 + lite 品質レポートが `VERDICT: PASS` でタスク ID に言及」に置換
 
 **Exit codes**
 

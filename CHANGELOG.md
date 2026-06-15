@@ -1,5 +1,19 @@
 # Changelog
 
+## v0.11.0 (2026-06-15)
+
+### 追加
+
+- **sdd-lite プラグイン（軽量・中量トラック）**: 社内・部署内アプリ向けの4ステップフロー（lite-spec → 単一承認 → implement-task → lite-gate → Done）。evidence-bundle / ADR 必須 / cross-model / critical を省略し、既存プラグインとの加算的昇格に対応。
+  - スキル: `lite-spec`（軽量仕様生成）、`lite-gate`（軽量品質ゲート）
+  - スクリプト: `check-task-state-lite.{sh,ps1}`（Done を evidence-bundle 非依存にした lite 状態ゲート）
+  - テンプレート: `requirements-lite.md` / `design-lite.md` / `tasks-lite.md` / `quality-report-lite.md`
+  - リファレンス: `lite-flow-policy.md`（lite 規約・昇格手順）
+
+### 変更
+
+- **install / marketplace が4プラグイン構成に**: `install.sh` / `install.ps1` および `.claude-plugin/marketplace.json` / `.agents/plugins/marketplace.json` に `sdd-lite` を追加。既定インストールで `sdd-bootstrap` + `sdd-implementation` + `sdd-quality-loop` + `sdd-lite` の4プラグインが同時導入される。
+
 ## v0.10.0
 
 リスク適応ゲート (risk-adaptive-layer, PR #16) と クロスモデル検証 (cross-model-verification, PR #20) を追加したセキュリティ・品質強化リリース。CI グリーン (Windows / macOS / Linux)。

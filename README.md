@@ -21,8 +21,16 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
                     + workflow-retrospective でワークフロー自体を改善する
 ```
 
+```text
+[lite] sdd-lite      社内・部署内アプリ向けの中量トラック
+                     lite-spec(要件/設計/タスク) → 単一承認 → implement-task → lite-gate → Done
+                     traceability/ADR/evidence-bundle/cross-model/critical を省略。
+                     昇格は加算的（Risk追加→階層、本体ゲート→bundle、cross_model→検証）。
+```
+
 ## 特徴
 
+- **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/criticalを省略。既存プラグインとの加算的昇格に対応。
 - **責務の明確な分離**: 仕様化・実装・品質保証を別々のスキルが担当し、実装者が自分の成果物を甘く採点する構造を排除します。
 - **人間承認ゲート**: エージェントはタスク承認も WFI 承認も自己承認できず、フック + 決定論的スクリプトの二重防衛により不正な承認を防止します。critical タスクは二者承認（`Approval:` + 別名義の `Second Approval:`）が必須で、sudo でもバイパスできません。
 - **独立した批判レビュー**: 実装者とは別の `sdd-evaluator` エージェント (またはセッション) が新しい視点で検証します。
@@ -41,6 +49,8 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |
 | [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
+| [specs/sdd-lite/design.md](specs/sdd-lite/design.md) | sdd-lite 設計 |
+| [plugins/sdd-lite/references/lite-flow-policy.md](plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |
 
 **初めての方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
 
