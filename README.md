@@ -3,7 +3,7 @@
 旧リポジトリ名 `sdd-plugins-windows-installer` から改名。現在の正式なリポジトリ名は `sdd-forge` です。
 本リポジトリは private です。リモート取得を使う場合は `GH_TOKEN` / `GITHUB_TOKEN` を設定するか、`gh auth login` で GitHub CLI を認証してください。
 
-v0.11.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
+v0.12.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
 
 ```text
 [brownfield] sdd-adopt           既存プロジェクトへ SDD 構造を途中導入する
@@ -51,6 +51,11 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 | [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
 | [specs/sdd-lite/design.md](specs/sdd-lite/design.md) | sdd-lite 設計 |
 | [plugins/sdd-lite/references/lite-flow-policy.md](plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |
+| [plugins/sdd-quality-loop/references/security-checklist.md](plugins/sdd-quality-loop/references/security-checklist.md) | セキュリティレビュー観点 (STRIDE/OWASP)・オンデマンド |
+| [plugins/sdd-quality-loop/references/performance-checklist.md](plugins/sdd-quality-loop/references/performance-checklist.md) | パフォーマンスレビュー観点・オンデマンド |
+| [plugins/sdd-quality-loop/references/accessibility-checklist.md](plugins/sdd-quality-loop/references/accessibility-checklist.md) | アクセシビリティレビュー観点 (WCAG 2.1 AA)・オンデマンド |
+| [plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md](plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md) | 実装クラフト：薄い垂直スライス・スコープ規律 |
+| [plugins/sdd-quality-loop/references/debugging-recovery-policy.md](plugins/sdd-quality-loop/references/debugging-recovery-policy.md) | 体系的デバッグ・エラー回復 |
 
 **初めての方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
 

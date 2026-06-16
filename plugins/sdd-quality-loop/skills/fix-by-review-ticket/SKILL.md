@@ -13,7 +13,11 @@ Use this skill for one review ticket under `docs/review-tickets/`.
 1. Read the ticket and its referenced task, specification, code, and tests.
 2. Stop when `requires_human_decision: true`, the target is unclear, or the
    requested change exceeds the ticket.
-3. Apply the smallest fix described by the ticket.
+3. Apply the smallest fix described by the ticket. For a non-obvious defect,
+   diagnose it systematically (reproduce → isolate → hypothesis → minimal fix
+   at the cause → verify → regression test) per
+   `plugins/sdd-quality-loop/references/debugging-recovery-policy.md`. Never
+   suppress the symptom, weaken a test, or hardcode to the fixture to pass.
 4. Add or update required tests and run scoped checks.
 5. Mark the ticket `resolved` only when the requested fix and tests succeed.
 6. Return the task to `Implementation Complete`.
