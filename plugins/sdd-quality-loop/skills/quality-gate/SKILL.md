@@ -57,6 +57,11 @@ and `risk-classification-policy.md`.
 7. For `refactor` and `bugfix` tasks with a `baseline-behavior.md`, apply
    `differential-test-policy.md` and classify every BL diff.
 8. Run critical review with an isolated evaluator using `evaluation-rubric.md`.
+   When the change touches the relevant surface, the evaluator also applies the
+   on-demand domain checklists — `security-checklist.md` (user input, auth,
+   secrets, external systems, AI/LLM), `performance-checklist.md` (data access,
+   hot paths, rendering), and `accessibility-checklist.md` (user-facing UI).
+   Load a checklist only when its domain is in scope, to keep review context lean.
    On Claude Code use the `sdd-evaluator` subagent. On Codex use the shipped
    `sdd-evaluator` TOML agent; do not create new agent role files under
    `~/.codex/agents/`. Elsewhere, perform the review in a fresh session or a
@@ -112,3 +117,32 @@ Set the task to `Done` only when:
 Otherwise set the task to `Blocked` or retain `Implementation Complete`, and
 create review tickets. Do not commit, push, or create a PR/MR unless explicitly
 requested.
+
+## Common Rationalizations
+
+The gate exists because generators grade their own work generously. Reject
+these excuses — each one launders a claim into a `Done`.
+
+- "The report says all tests pass, so they pass" — the report is a claim; rerun
+  the checks and read the output yourself (`evaluation-rubric.md`).
+- "The checks are green, the review can be light" — green checks do not cover
+  spec compliance, untested acceptance criteria, or completion-faking.
+- "This finding is probably fine, downgrade it to Minor" — never weaken a
+  severity without recording why in the report.
+- "A check doesn't apply, I'll just delete it from the contract" — mark it
+  `required: false` with a non-empty `waiver_reason`; never remove a check to pass.
+- "The evidence file is missing but the result is obviously right" — Default-FAIL:
+  no saved evidence means the check stays false.
+- "sudo is on, so I can wave this through" — sudo auto-passes routine *approval*
+  only; judgment findings and architecture/auth/security decisions still stop
+  the gate.
+
+## Red Flags
+
+- Flipping a contract check to `passes: true` without a saved evidence path.
+- A handler returning data shaped like the test fixture (completion-faking —
+  `Critical`).
+- Skipped/`todo`/`xit` tests covering in-scope behavior left unaddressed.
+- An acceptance criterion with no test traced to it.
+- Setting `Done` while a Critical or Major finding is unresolved.
+- Running the critical review in the same context as the implementation.

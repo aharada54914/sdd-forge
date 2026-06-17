@@ -212,12 +212,12 @@ Use the implement-task skill for specs/reservation/tasks.md#T-001
 
 **処理の流れ**
 
-1. `AGENTS.md`、対象機能の要件・設計・タスク・受け入れテスト・トレーサビリティ・関連ADR・契約・`references/implementation-policy.md`・`references/agent-delegation-policy.md` を読む
+1. `AGENTS.md`、対象機能の要件・設計・タスク・受け入れテスト・トレーサビリティ・関連ADR・契約・`references/implementation-policy.md`・`references/implementation-craft-policy.md`・`references/agent-delegation-policy.md` を読む
 2. `tasks.md` を検査し、指定タスク、または最初の `Approval: Approved` かつ `Status: Planned` タスクを選択
 3. `git status` と `git diff` を確認。無関係な既存変更を保持。タスク範囲と競合するなら `Blocked` として停止
 4. `Approval: Approved` でないタスクは開始しない
 5. タスクを `In Progress` に設定
-6. Scope と Done When のみを実装
+6. Scope と Done When のみを、薄い垂直スライスで実装し、各スライスごとに（実装 → タスク必須テスト実行 → 挙動確認）検証してから次へ進む（`references/implementation-craft-policy.md`）
 7. タスク必須テストを追加・更新、関連既存回帰テストを実行
 8. 承認仕様に対するスコープ限定の自己レビューを実施
 9. `reports/implementation/<task-id>.md` をテンプレートから生成
@@ -277,7 +277,7 @@ Use the quality-gate skill for specs/reservation/tasks.md#T-001
 5. `test-policy.md` に従いテストを検証
 6. `scripts/check-placeholders.sh`（変更ファイル）と `scripts/check-task-state.sh`（tasks.md）を実行
 7. `refactor` / `bugfix` タスクで `baseline-behavior.md` が存在すれば、`differential-test-policy.md` を適用。すべての BL 差分を分類
-8. 隔離された評価者で重要レビューを実行。Claude Code ではサブエージェント `sdd-evaluator` を使用。Codex では同梱の sdd-evaluator TOML を使用（`~/.codex/agents/` 直下の新規ロールファイル不可）。それ以外は新規セッションで実施
+8. 隔離された評価者で重要レビューを実行。Claude Code ではサブエージェント `sdd-evaluator` を使用。Codex では同梱の sdd-evaluator TOML を使用（`~/.codex/agents/` 直下の新規ロールファイル不可）。それ以外は新規セッションで実施。変更が該当領域に触れる場合のみ、オンデマンドのドメインチェックリスト（`security-checklist.md` / `performance-checklist.md` / `accessibility-checklist.md`）を併用し、トークンを節約
 9. 発見を `Accepted`、`Rejected`、`Deferred` で分類
 10. `auto-fix-policy.md` で許可される安全な修正のみ適用
 11. 重要レビューを最大3サイクル繰り返す
@@ -333,7 +333,7 @@ Use the fix-by-review-ticket skill for docs/review-tickets/RT-001.yml
 
 1. チケットと参照タスク・仕様・コード・テストを読む
 2. `requires_human_decision: true` または対象が不明確またはチケットの範囲を超過なら停止
-3. チケットが説明する最小限の修正を適用
+3. チケットが説明する最小限の修正を適用。原因が非自明なら `references/debugging-recovery-policy.md` に従い体系的に診断（再現 → 分離 → 仮説 → 原因への最小修正 → 検証 → 回帰テスト）。症状の握り潰し・テスト弱体化・フィクスチャへのハードコードは禁止
 4. 必須テスト追加・更新、スコープ限定チェック実行
 5. 要求される修正とテストが成功したら `resolved` に標記
 6. タスクを `Implementation Complete` に戻す
