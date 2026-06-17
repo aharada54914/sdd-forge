@@ -157,7 +157,7 @@ def emit(decision, reason, mode):
         out = {"permissionDecision": decision}
         if decision == "deny" and reason:
             out["permissionDecisionReason"] = reason
-        sys.stdout.write(json.dumps(out, separators=(",", ":"), ensure_ascii=False))
+        sys.stdout.buffer.write(json.dumps(out, separators=(",", ":"), ensure_ascii=False).encode("utf-8"))
         sys.exit(0)
     # exit mode
     if decision == "deny":
