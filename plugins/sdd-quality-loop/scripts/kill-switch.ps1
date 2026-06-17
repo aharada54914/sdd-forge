@@ -39,7 +39,8 @@ if (-not [string]::IsNullOrEmpty($envRoot)) {
 foreach ($base in $bases) {
     try {
         if (Test-Path -LiteralPath (Join-Path $base "AGENT_STOP") -PathType Leaf) {
-            [Console]::Error.WriteLine("SDD kill switch: AGENT_STOP exists at the project root. All tool use is suspended until a human deletes the file.")
+            [Console]::Error.WriteLine("SDDキルスイッチ: プロジェクトルートに AGENT_STOP が存在します。人間がこのファイルを削除するまで、すべてのツール使用が停止されます。")
+            [Console]::Error.WriteLine("[EN] SDD kill switch: AGENT_STOP exists at the project root. All tool use is suspended until a human deletes the file.")
             exit 2
         }
     } catch { }
