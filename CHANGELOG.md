@@ -1,24 +1,27 @@
 # Changelog
 
-## v0.12.0 (2026-06-16)
-
-オープンソースの [`addyosmani/agent-skills`](https://github.com/addyosmani/agent-skills) のパターン（anti-rationalization 構造、オンデマンド・レビューチェックリスト、実装クラフト規律、体系的デバッグ）を SDD のガバナンス哲学（責務分離・Default-FAIL・人間承認ゲート・no-commit 境界）に合わせて再執筆・統合したリリース。逐語コピーはせず、SDD の語彙と既存境界に整合させた。状態機械・決定論的ゲート・契約フォーマットは不変（後方互換）。
+## v0.12.0 (2026-06-18)
 
 ### 追加
 
-- **オンデマンド・レビューチェックリスト**（`plugins/sdd-quality-loop/references/`）: 変更が該当領域に触れる時のみ読み込みトークンを節約する3種を追加。
-  - `security-checklist.md`（STRIDE/OWASP・入力検証・authz・secrets・SSRF・AI/LLM 硬化）
-  - `performance-checklist.md`（N+1・無制限ループ・hot-path・レンダリング）
-  - `accessibility-checklist.md`（WCAG 2.1 AA）
-  - `quality-gate` の重要レビュー（step 8）と `evaluation-rubric.md` から条件付きで参照。発見は既存 severity（Critical/Major/Minor）にマップ。
-- **実装クラフト規約** `plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md`: 薄い垂直スライス、スライス毎の検証チェックポイント（implement → test → verify）、スコープ規律、simplicity-first。「スライス毎コミット」は SDD の no-commit 境界に合わせ「スライス毎**検証**」へ適応。`implement-task` の Required Reading と実装手順から参照。
-- **体系的デバッグ・回復規約** `plugins/sdd-quality-loop/references/debugging-recovery-policy.md`: 再現 → 分離 → 仮説 → 原因への最小修正 → 検証 → 回帰防止。症状握り潰し・散弾的変更・フィクスチャへのハードコードを anti-pattern として明記。`fix-by-review-ticket` と `implement-task` の Block-and-Stop から参照。
+- **`implement-tasks` スキル（バッチ実装）**: `sdd-implementation` プラグインに新スキルを追加。承認済みタスクを依存関係順に連続実行し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動する。
+  - **依存関係フィルタ**: 各タスクの `### Blockers` セクションを解析し、参照先タスク (`T-NNN` パターン) が未完了の場合はスキップして後回しにする
+  - **自動 quality-gate 移行**: 全 `Approval: Approved` タスクが `Implementation Complete` になった時点で quality-gate を自動起動する
+  - **ループ再開対応**: Blocked 発生時はバッチを停止し、再実行時に最初の選択可能タスクから自動再開する
+  - **sudo 対応**: 有効な `SDD_SUDO` があれば per-task 承認チェックを自動通過（Block-and-Stop 決定は sudo でもバイパスしない）
+  - ファイル: `plugins/sdd-implementation/skills/implement-tasks/SKILL.md`
 
 ### 変更
 
-- **既存スキルの anti-shortcut 強化**: `implement-task` / `quality-gate` に `Common Rationalizations`（最短経路への言い訳と反論）+ `Red Flags` 節を追加。`lite-gate` に軽量版 `Red Flags` 節を追加。いずれも追加のみで挙動・ゲートは不変。
-- **バージョン lockstep**: 全4プラグイン（`sdd-bootstrap` / `sdd-implementation` / `sdd-quality-loop` / `sdd-lite`）と `marketplace.json` を v0.12.0 に更新。
-- **ドキュメント更新**: `README.md`（版表記・ドキュメントマップに新リファレンス追加）、`docs/skill-reference.md`（implement-task / quality-gate / fix-by-review-ticket の手順に新リファレンスを反映）、`docs/workflow-guide.md`（feature フローと Blocked 対応にクラフト・デバッグ規約を反映）。
+- **`sdd-implementation` プラグインを v0.12.0 に更新**: description・capabilities・`defaultPrompt` を `implement-tasks` を含む形に更新（`.plugin/plugin.json` / `.claude-plugin/plugin.json` / `.codex-plugin/plugin.json`）
+- **`docs/skill-reference.md` 更新**: スキル早見表に `implement-tasks` 行を追加（12スキルに）。既存行の「後段スキル」を `implement-tasks` 対応に更新。`implement-tasks` の詳細セクションを追加
+- **`docs/workflow-guide.md` 更新**: §3.1 正常系フローの「実装」行に `implement-tasks` を追記。Mermaid 状態遷移図のラベルを更新。§4.7 セッション再開例に `implement-tasks` を追加
+
+### v0.11.0 からの移行
+
+- 破壊的変更なし。`implement-task` は従来通り動作する。
+- 新スキル `implement-tasks` は追加のインストール不要（スキルディレクトリへの配置のみ）。
+- 既存の tasks.md / reports / specs ファイルへの変更不要。
 
 ## v0.11.0 (2026-06-15)
 
