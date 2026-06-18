@@ -7,7 +7,8 @@
 # Helper: check for AGENT_STOP at the given directory.
 check_agent_stop() {
   if [ -f "$1/AGENT_STOP" ]; then
-    echo "SDD kill switch: AGENT_STOP exists at the project root. All tool use is suspended until a human deletes the file." >&2
+    echo "SDDキルスイッチ: プロジェクトルートに AGENT_STOP が存在します。人間がこのファイルを削除するまで、すべてのツール使用が停止されます。" >&2
+    echo "[EN] SDD kill switch: AGENT_STOP exists at the project root. All tool use is suspended until a human deletes the file." >&2
     exit 2
   fi
 }

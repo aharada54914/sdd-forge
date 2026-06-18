@@ -185,7 +185,7 @@ When `/sdd-sudo` is invoked with a duration:
    sig: <lowercase hex HMAC-SHA256>
    ```
 
-5. Print a prominent banner stating:
+5. Print a prominent banner **in Japanese** (this banner is shown to the human user, so write it in Japanese for readability) stating:
    - What is bypassed (approval gates only)
    - What is NOT bypassed (kill switch, agent-role guard, deterministic gates)
    - Exact expiry time in human-readable form
