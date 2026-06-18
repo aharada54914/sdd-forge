@@ -14,7 +14,8 @@ const fs = require('fs');
 const path = require('path');
 
 const KILL_MSG =
-  "SDD kill switch: AGENT_STOP exists at the project root. All tool use is " +
+  "SDDキルスイッチ: プロジェクトルートに AGENT_STOP が存在します。人間がこのファイルを削除するまで、すべてのツール使用が停止されます。" +
+  "\n[EN] SDD kill switch: AGENT_STOP exists at the project root. All tool use is " +
   "suspended until a human deletes the file.\n";
 
 // C-08: walk parents up to git root checking for AGENT_STOP.

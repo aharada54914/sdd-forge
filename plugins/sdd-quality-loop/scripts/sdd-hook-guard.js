@@ -61,32 +61,38 @@ const TARGETED_FILE_TOOLS = new Set(['edit', 'write', 'multiedit']);
 const SDD_SUDO_NAME = 'SDD_SUDO';
 
 const APPROVAL_MSG =
-  "SDD deterministic gate: agents must not set 'Approval: Approved' in " +
+  "SDD決定論ゲート: エージェントは tasks.md に 'Approval: Approved' を設定できません。タスクの承認は、ファイルを直接編集する人間のみが行えます。タスクは Draft のままにし、人間に承認を依頼してください。" +
+  "\n[EN] SDD deterministic gate: agents must not set 'Approval: Approved' in " +
   "tasks.md. Only a human may approve a task by editing the file directly. " +
   "Leave the task as Draft and ask the human to approve it.";
 
 const WFI_APPROVAL_MSG =
-  "SDD deterministic gate: agents must not set 'Status: Approved' in a " +
+  "SDD決定論ゲート: エージェントは docs/workflow-improvements/WFI-*.md ファイルに 'Status: Approved' を設定できません。Workflow Improvement の承認は人間のみが行え、sudo でもバイパスされません。Draft のままにし、人間に承認を依頼してください。" +
+  "\n[EN] SDD deterministic gate: agents must not set 'Status: Approved' in a " +
   "docs/workflow-improvements/WFI-*.md file. Only a human may approve a " +
   "Workflow Improvement; this is never bypassed by sudo. Leave it as Draft " +
   "and ask the human to approve it.";
 
 const SECOND_APPROVAL_MSG =
-  "SDD deterministic gate: agents must not set 'Second Approval: Approved' in " +
+  "SDD決定論ゲート: エージェントは tasks.md に 'Second Approval: Approved' を設定できません。第二承認は（Workflow Improvement と同様に）独立した人間の判断であり、sudo でもバイパスされません。第二の人間の承認者が記録するまで残してください。" +
+  "\n[EN] SDD deterministic gate: agents must not set 'Second Approval: Approved' in " +
   "tasks.md. A second approval is an independent human judgment (like a Workflow " +
   "Improvement) and is never bypassed by sudo. Leave it for a second human " +
   "approver to record.";
 
 const SDD_SUDO_WRITE_MSG =
-  "SDD deterministic gate: agents must not create, edit, or delete the " +
+  "SDD決定論ゲート: エージェントは SDD_SUDO フラグファイルの作成・編集・削除を行えません。sudo モードの管理は人間のみが行えます。" +
+  "\n[EN] SDD deterministic gate: agents must not create, edit, or delete the " +
   "SDD_SUDO flag file. Only a human may manage sudo mode.";
 
 const KILL_MSG =
-  "SDD kill switch: AGENT_STOP exists at the project root. All tool use is " +
+  "SDDキルスイッチ: プロジェクトルートに AGENT_STOP が存在します。人間がこのファイルを削除するまで、すべてのツール使用が停止されます。" +
+  "\n[EN] SDD kill switch: AGENT_STOP exists at the project root. All tool use is " +
   "suspended until a human deletes the file.";
 
 const AGENT_ROLE_MSG =
-  "SDD deterministic gate: refusing to write a Codex agent role file without " +
+  "SDD決定論ゲート: developer_instructions の無い Codex エージェントロールファイルの書き込みを拒否しました。.codex/agents/ 配下のファイルは developer_instructions を定義する必要があり、無い場合 Codex は起動時にこれを無視します（'Ignoring malformed agent role definition'）。新規作成せず、同梱の sdd-investigator / sdd-evaluator ロールを使用してください。" +
+  "\n[EN] SDD deterministic gate: refusing to write a Codex agent role file without " +
   "developer_instructions. Files under .codex/agents/ must define " +
   "developer_instructions or Codex ignores them at startup " +
   "('Ignoring malformed agent role definition'). Use the shipped " +
@@ -792,17 +798,17 @@ async function main() {
       throw new Error('payload must be a JSON object');
     }
   } catch (e) {
-    emitDecision('deny', 'SDD deterministic gate: malformed hook payload.', mode);
+    emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
     return;
   }
 
   try {
     if (typeof payload.tool_name !== 'string' || typeof payload.tool_input !== 'object' || payload.tool_input === null || Array.isArray(payload.tool_input)) {
-      emitDecision('deny', 'SDD deterministic gate: malformed hook payload.', mode);
+      emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
       return;
     }
     if (payloadIsMalformed(payload)) {
-      emitDecision('deny', 'SDD deterministic gate: malformed hook payload.', mode);
+      emitDecision('deny', 'SDD決定論ゲート: フックのペイロードが不正です。\n[EN] SDD deterministic gate: malformed hook payload.', mode);
       return;
     }
 
@@ -860,7 +866,7 @@ async function main() {
     }
   } catch (e) {
     // Never crash; fail closed on the approval check.
-    emitDecision('deny', 'SDD deterministic gate: approval guard failed closed.', mode);
+    emitDecision('deny', 'SDD決定論ゲート: 承認ガードがフェイルクローズしました。\n[EN] SDD deterministic gate: approval guard failed closed.', mode);
     return;
   }
 
@@ -880,7 +886,7 @@ async function main() {
     }
   } catch (e) {
     // Never crash; fail closed on the agent-role check.
-    emitDecision('deny', 'SDD deterministic gate: agent-role guard failed closed.', mode);
+    emitDecision('deny', 'SDD決定論ゲート: エージェントロールガードがフェイルクローズしました。\n[EN] SDD deterministic gate: agent-role guard failed closed.', mode);
     return;
   }
 
