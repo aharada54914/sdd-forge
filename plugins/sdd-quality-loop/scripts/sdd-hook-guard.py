@@ -299,13 +299,19 @@ def sudo_active():
     sudo_root, _ = _resolve_project_root()
     try:
         flag = os.path.join(sudo_root, SDD_SUDO_NAME)
-        # C-02: symlink check — symlink SDD_SUDO is invalid.
-        if os.path.islink(flag):
+        # R-11: Use O_NOFOLLOW to close lstat→open symlink-swap race at kernel level.
+        # O_NOFOLLOW is available on Linux/macOS; falls back to 0 (no-op) on Windows.
+        # On POSIX, if SDD_SUDO is a symlink, os.open raises OSError(ELOOP) → caught below → False.
+        try:
+            _oflags = os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0)
+            _fd = os.open(flag, _oflags)
+        except OSError:
             return False
-        if not os.path.isfile(flag):
+        try:
+            with os.fdopen(_fd, encoding="utf-8") as f:
+                content = f.read()
+        except UnicodeDecodeError:
             return False
-        with open(flag, encoding="utf-8") as f:
-            content = f.read()
 
         fields = _parse_sudo_fields(content)
 
@@ -356,7 +362,7 @@ def sudo_active():
             return False
 
         return True
-    except (OSError, ValueError, TypeError):
+    except (OSError, ValueError, TypeError, UnicodeDecodeError):
         pass
     return False
 
@@ -673,6 +679,95 @@ def agent_role_invalid(payload):
     return False
 
 
+# R-10: Enforcement-chain file protection.
+# Files whose write denial is NOT bypassable by sudo. Patterns are matched
+# case-insensitively against the normalized (forward-slash) path.
+# NOTE: Bash tool path-substring scan (below) is best-effort only — agents
+# using python3 -c / node -e inline may bypass verb detection. Edit/Write/MultiEdit
+# path is the primary enforcement point.
+_PROTECTED_GATE_SUFFIXES = (
+    # hook guard scripts (self-protection)
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+    # kill-switch scripts
+    "plugins/sdd-quality-loop/scripts/kill-switch.js",
+    "plugins/sdd-quality-loop/scripts/kill-switch.sh",
+    "plugins/sdd-quality-loop/scripts/kill-switch.ps1",
+    # hook registration files
+    "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+    "plugins/sdd-quality-loop/hooks/hooks.json",
+    "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+    # gate scripts
+    "plugins/sdd-quality-loop/scripts/check-contract.sh",
+    "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+    "plugins/sdd-quality-loop/scripts/check-contract.py",
+    "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+    "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1",
+    "plugins/sdd-quality-loop/scripts/check-evidence-bundle.py",
+    # shared path-validation utility (R-01)
+    "plugins/sdd-quality-loop/scripts/validate_path.py",
+    # Claude Code hook-loading config
+    ".claude/settings.json",
+    ".claude/settings.local.json",
+    # critical test files (hollowing breaks CI safety net)
+    "tests/gates.tests.sh",
+    "tests/eval.tests.sh",
+    "tests/guard-parity.tests.sh",
+)
+
+_PROTECTED_GATE_PLUGIN_JSON_SUFFIXES = (
+    # plugin entry points that point to hook registration
+    "/.plugin/plugin.json",
+    "/.claude-plugin/plugin.json",
+    "/.codex-plugin/plugin.json",
+)
+
+_GATE_PROTECT_MSG = (
+    "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。"
+    "\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook "
+    "configuration, or critical test files. These are part of the enforcement chain "
+    "and cannot be bypassed by sudo."
+)
+
+
+_SHELL_COMPOUND_RE = re.compile(r"&&|\|\||;|\|")
+
+
+def _is_protected_gate_file(file_path):
+    """R-10: Return True if file_path matches a protected enforcement-chain file."""
+    if not file_path:
+        return False
+    normalized = str(file_path).replace("\\", "/").lower()
+    for suffix in _PROTECTED_GATE_SUFFIXES:
+        if normalized.endswith(suffix.lower()):
+            return True
+    for suffix in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES:
+        sl = suffix.lower()
+        # Match absolute paths (suffix has leading /) AND relative paths (no leading /).
+        if normalized.endswith(sl) or normalized.endswith(sl.lstrip("/")):
+            return True
+    return False
+
+
+def _shell_targets_protected_gate_file(cmd):
+    """R-10: Deny shell commands targeting protected gate files.
+    Uses substring scan (path appears literally in command) combined with write-verb check.
+    Read-only short-circuit is skipped for compound commands (&&, ||, ;, |) because
+    `cat file && rm file` starts with a read verb but still destroys the file."""
+    if not isinstance(cmd, str):
+        return False
+    cmd_lower = cmd.lower()
+    has_protected_path = any(s.lower() in cmd_lower for s in _PROTECTED_GATE_SUFFIXES) or \
+                         any(s.lower() in cmd_lower for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
+    if not has_protected_path:
+        return False
+    if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd):
+        return False
+    return bool(SHELL_SUDO_WRITE_RE.search(cmd))
+
+
 def _shell_writes_agent_role(cmd):
     """Deny agent-role shell access unless it is an unambiguously read-only command."""
     if not isinstance(cmd, str):
@@ -795,6 +890,27 @@ def main():
                 m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
                 if m and _target_path_is_sdd_sudo(m.group(2).strip()):
                     emit("deny", SDD_SUDO_WRITE_MSG, mode)
+                    return
+
+        # Check 2a-R10: Enforcement-chain file protection (never bypassed by sudo).
+        if tool_name_lower in ("edit", "write", "multiedit"):
+            if _is_protected_gate_file(tool_input.get("file_path") or ""):
+                emit("deny", _GATE_PROTECT_MSG, mode)
+                return
+
+        if tool_name_lower in ("bash", "shell", "exec_command", "exec") and isinstance(
+            tool_input.get("command"), str
+        ):
+            if _shell_targets_protected_gate_file(tool_input["command"]):
+                emit("deny", _GATE_PROTECT_MSG, mode)
+                return
+
+        if tool_name_lower == "apply_patch" or _looks_like_patch(tool_input.get("command")):
+            patch = tool_input.get("command") or ""
+            for line in patch.splitlines():
+                m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
+                if m and _is_protected_gate_file(m.group(2).strip()):
+                    emit("deny", _GATE_PROTECT_MSG, mode)
                     return
 
         # Check 2b: Approval guard (bypassed by valid sudo).
