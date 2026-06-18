@@ -754,8 +754,10 @@ def _is_protected_gate_file(file_path):
 def _shell_targets_protected_gate_file(cmd):
     """R-10: Deny shell commands targeting protected gate files.
     Uses substring scan (path appears literally in command) combined with write-verb check.
-    Read-only short-circuit is skipped for compound commands (&&, ||, ;, |) because
-    `cat file && rm file` starts with a read verb but still destroys the file."""
+    Read-only short-circuit only fires when ALL of the following hold:
+      1. No compound operators (&&, ||, ;, |) — prevents `cat f && rm f`
+      2. Command starts with a read-only verb (cat, grep, …)
+      3. No write verb/redirect appears anywhere — prevents `cat > f << EOF`"""
     if not isinstance(cmd, str):
         return False
     cmd_lower = cmd.lower()
@@ -763,9 +765,10 @@ def _shell_targets_protected_gate_file(cmd):
                          any(s.lower() in cmd_lower for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
     if not has_protected_path:
         return False
-    if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd):
+    has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))
+    if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd) and not has_write:
         return False
-    return bool(SHELL_SUDO_WRITE_RE.search(cmd))
+    return has_write
 
 
 def _shell_writes_agent_role(cmd):

@@ -152,9 +152,11 @@ function shellTargetsProtectedGateFile(cmd) {
   const cmdLower = cmd.toLowerCase();
   const hasProtectedPath = PROTECTED_GATE_SUFFIXES.some(s => cmdLower.includes(s.toLowerCase()));
   if (!hasProtectedPath) return false;
-  // Skip read-only short-circuit for compound commands (&&, ||, ;, |): `cat f && rm f` must be denied.
-  if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd)) return false;
-  return SHELL_SUDO_WRITE_RE.test(cmd);
+  // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
+  // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
+  const hasWrite = SHELL_SUDO_WRITE_RE.test(cmd);
+  if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite) return false;
+  return hasWrite;
 }
 
 function countApprovals(text) {

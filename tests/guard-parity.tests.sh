@@ -205,6 +205,14 @@ parity_check "r10-gate-protect: compound cat+rm on guard file denied" \
     '{"tool_name":"bash","tool_input":{"command":"cat plugins/sdd-quality-loop/scripts/sdd-hook-guard.py && rm plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
 
 # ---------------------------------------------------------------------------
+# Scenario 18: heredoc redirect overwrite denied (deny — exit 2)
+# `cat > protected_file << EOF` starts with a read-only verb but writes to the
+# protected file via redirect. Must be denied even without compound operators.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: cat heredoc redirect to guard file denied" \
+    '{"tool_name":"bash","tool_input":{"command":"cat > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py << EOF\nmalicious content\nEOF"}}'
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""
