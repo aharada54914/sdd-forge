@@ -28,6 +28,18 @@ rubric, and have it produce the same verdict format.
 | Major | Untested acceptance criterion, unhandled error path, spec drift, scope creep | Yes |
 | Minor | Style, naming, non-blocking cleanup | No |
 
+## Domain Checklists
+
+When the change touches a specialized surface, apply the matching on-demand
+checklist in addition to this rubric, and map its findings onto the severities
+above. Load a checklist only when its domain is in scope:
+
+- `security-checklist.md` — user input, authentication/authorization, secrets,
+  external systems, AI/LLM features.
+- `performance-checklist.md` — data access, hot paths, loops over user-sized
+  input, rendering.
+- `accessibility-checklist.md` — user-facing UI (WCAG 2.1 AA).
+
 ## Calibration Examples
 
 - Tests pass, but the handler returns hardcoded data shaped like the fixture:

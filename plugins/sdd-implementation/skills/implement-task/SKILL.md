@@ -34,7 +34,8 @@ missing structure from context.
 
 Read `AGENTS.md`, the target feature requirements, design, tasks, acceptance tests,
 traceability, relevant ADRs and contracts, `references/implementation-policy.md`,
-and `references/agent-delegation-policy.md`.
+`references/implementation-craft-policy.md`, and
+`references/agent-delegation-policy.md`.
 
 ### Sudo Mode
 
@@ -68,7 +69,9 @@ resume, re-read `tasks.md` and the report before taking any action.
 ## Implementation Process
 
 1. Set the selected task to `In Progress`.
-2. Implement only its `Scope` and `Done When`.
+2. Implement only its `Scope` and `Done When`, building in thin vertical slices
+   and verifying each slice (implement → run task-required tests → confirm
+   behavior) before starting the next, per `references/implementation-craft-policy.md`.
 3. Add or update the task-required tests. When the task's `Required Workflow`
    is `tdd` (high/critical risk), follow Red→Green: write the failing test
    first and save its failing output (e.g. under
@@ -94,7 +97,33 @@ Set the task to `Blocked`, record the blocker, and stop when:
 - the requested work exceeds the approved scope
 
 Return specification gaps to `sdd-bootstrap-interviewer`. Do not resolve them by
-guessing.
+guessing. When a failure is in-scope but non-obvious, diagnose it
+systematically with
+`plugins/sdd-quality-loop/references/debugging-recovery-policy.md` before
+deciding whether to continue or set the task `Blocked`.
+
+## Common Rationalizations
+
+Counter these excuses; each one is how a task quietly ships incomplete work.
+
+- "Tests can come after I finish" — required tests are part of the task; write
+  them with the slice, and Red→Green first for high/critical risk.
+- "While I'm here I'll also fix/refactor X" — out-of-scope work belongs in a new
+  task or a review ticket, not this change.
+- "It's basically done, I'll set it to Done" — only `quality-gate` (or
+  `lite-gate`) sets `Done`; stop at `Implementation Complete`.
+- "I'll just approve this task to unblock myself" — approval is human-only and
+  hook-guarded; never self-approve.
+- "The spec is unclear but I can guess the intent" — stop and set `Blocked`;
+  return the gap to `sdd-bootstrap-interviewer`.
+
+## Red Flags
+
+- A large amount of code written before any test runs.
+- Edits to files outside the task's `Scope`.
+- An unrelated refactor mixed into the task's diff.
+- A test made to pass by hardcoding data shaped like the fixture.
+- Setting `Done`, or adding `Approval: Approved`, from inside the session.
 
 ## Boundaries
 
