@@ -1,7 +1,7 @@
 {
   "name": "sdd-implementation",
   "version": "0.12.0",
-  "description": "Implement one approved SDD task and prepare it for independent quality review.",
+  "description": "Implement approved SDD tasks (one at a time or in batch) and prepare them for independent quality review.",
   "skills": "./skills/",
   "author": {
     "name": "Harada"
@@ -9,15 +9,17 @@
   "interface": {
     "displayName": "SDD Implementation",
     "shortDescription": "Implement approved specification tasks",
-    "longDescription": "Restores task state, implements one approved task, runs scoped tests, and produces an implementation handoff report.",
+    "longDescription": "Restores task state, implements approved tasks one at a time or in batch (dependency-aware), runs scoped tests, auto-transitions to quality-gate on batch completion, and produces implementation handoff reports.",
     "developerName": "Harada",
     "category": "Developer Tools",
     "capabilities": [
-      "Approved task implementation",
-      "Task state restoration",
+      "Approved task implementation (single: implement-task)",
+      "Batch task implementation in dependency order (implement-tasks)",
+      "Task state restoration and dependency-aware scheduling",
+      "Auto quality-gate transition when all tasks reach Implementation Complete",
       "Implementation handoff reporting",
       "Context-safe delegation to helper agents"
     ],
-    "defaultPrompt": "Use the implement-task skill for the next approved task."
+    "defaultPrompt": "Use the implement-tasks skill for specs/<feature>/tasks.md to implement all approved tasks in order."
   }
 }

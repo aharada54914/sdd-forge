@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-3つのプラグイン（sdd-bootstrap、sdd-implementation、sdd-quality-loop）に含まれる9つのスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+4つのプラグイン（sdd-bootstrap、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる12のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 ## 1. スキル一覧 (早見表)
 
@@ -8,15 +8,16 @@
 |---|---|---|---|---|
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
-| sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様・タスク作成 | investigate-codebase (任意) | implement-task |
+| sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様・タスク作成 | investigate-codebase (任意) | implement-task, implement-tasks |
 | implement-task | sdd-implementation | 承認済みタスク1つを実装 | sdd-bootstrap-interviewer | quality-gate |
-| quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task | fix-by-review-ticket (条件付き), workflow-retrospective |
+| **implement-tasks** | **sdd-implementation** | **承認済みタスクを依存関係順に一括実装し、全完了時に自動で quality-gate へ移行** | **sdd-bootstrap-interviewer** | **quality-gate (自動)** |
+| quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
 | fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
 | workflow-retrospective | sdd-quality-loop | SDD ワークフロー自体の改善提案 | quality-gate | — |
-| sdd-sudo | sdd-quality-loop | 人間承認ゲートを期限付きで自動通過 | — | implement-task, quality-gate (オプション) |
+| sdd-sudo | sdd-quality-loop | 人間承認ゲートを期限付きで自動通過 | — | implement-task, implement-tasks, quality-gate (オプション) |
 | cross-model-verify | sdd-quality-loop | 複数ベンダーの独立 LLM パネリストを盲目並列実行し verdict JSON を収集 | quality-gate (critical タスク) | check-cross-model ゲート |
-| lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task |
-| lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task | — |
+| lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
+| lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task, implement-tasks | — |
 
 **重要:** すべてのスキルは `disable-model-invocation: true` を指定しています。つまり、モデルが勝手にスキルを起動することはなく、ユーザーが明示的に `/sdd-bootstrap:sdd-adopt` のようなコマンドで呼び出す必要があります。このため、実装途中の誤った自動実行を防げます。
 
@@ -212,12 +213,12 @@ Use the implement-task skill for specs/reservation/tasks.md#T-001
 
 **処理の流れ**
 
-1. `AGENTS.md`、対象機能の要件・設計・タスク・受け入れテスト・トレーサビリティ・関連ADR・契約・`references/implementation-policy.md`・`references/implementation-craft-policy.md`・`references/agent-delegation-policy.md` を読む
+1. `AGENTS.md`、対象機能の要件・設計・タスク・受け入れテスト・トレーサビリティ・関連ADR・契約・`references/implementation-policy.md`・`references/agent-delegation-policy.md` を読む
 2. `tasks.md` を検査し、指定タスク、または最初の `Approval: Approved` かつ `Status: Planned` タスクを選択
 3. `git status` と `git diff` を確認。無関係な既存変更を保持。タスク範囲と競合するなら `Blocked` として停止
 4. `Approval: Approved` でないタスクは開始しない
 5. タスクを `In Progress` に設定
-6. Scope と Done When のみを、薄い垂直スライスで実装し、各スライスごとに（実装 → タスク必須テスト実行 → 挙動確認）検証してから次へ進む（`references/implementation-craft-policy.md`）
+6. Scope と Done When のみを実装
 7. タスク必須テストを追加・更新、関連既存回帰テストを実行
 8. 承認仕様に対するスコープ限定の自己レビューを実施
 9. `reports/implementation/<task-id>.md` をテンプレートから生成
@@ -251,6 +252,69 @@ Use the implement-task skill for specs/reservation/tasks.md#T-001
 
 ---
 
+### implement-tasks
+
+**目的**
+
+承認済みタスクを依存関係順に一括実装し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動します。`implement-task` を1タスクずつ手動で実行する代わりに、承認済みタスクをまとめて処理したい場合に使用します。
+
+**呼び出し例**
+
+```txt
+# Claude Code
+/sdd-implementation:implement-tasks specs/<feature>/tasks.md
+
+# Codex
+Use the implement-tasks skill for specs/<feature>/tasks.md
+```
+
+**前提条件**
+
+`implement-task` と同一: `AGENTS.md` の存在確認 + `scripts/check-sdd-structure.sh` が `missing:` を報告しないこと。
+
+**タスク選択アルゴリズム**
+
+1. `tasks.md` を読み込み、`Approval: Approved` かつ `Status: Planned` または `In Progress` のタスクを収集
+2. **依存関係フィルタ**: 各タスクの `### Blockers` セクションを解析し、参照先タスク (`T-NNN` パターン) が `Implementation Complete` / `Done` 未満なら選択対象から除外
+3. `tasks.md` に登場する順序で最初の対象タスクを選択
+
+**処理の流れ**
+
+1. タスク選択アルゴリズムで次のタスクを決定
+2. タスクを `In Progress` に設定
+3. `implement-task` と同じロジックで Scope と Done When を実装
+4. テスト追加・回帰テスト実行・自己レビュー・実装レポート生成
+5. タスクを `Implementation Complete` に設定
+6. 依存関係を再評価（完了タスクにより新たに選択可能になったタスクが出る可能性あり）
+7. 次の選択可能タスクがあればループ（1 へ戻る）、なければ **全完了チェック** へ
+
+**全完了チェックと quality-gate 自動移行**
+
+`Approval: Approved` の全タスクが `Implementation Complete` または `Done` になった時点で:
+
+1. 完了タスク一覧をユーザーに報告
+2. **`quality-gate` を自動起動** し、`tasks.md` の順に全タスクを処理
+
+一部のタスクが依存関係でブロックされていたり未承認の場合は、その状況をレポートして停止する（全完了条件を満たすまで quality-gate は起動しない）。
+
+**停止・Blocked になる条件**
+
+`implement-task` と同一: 要件曖昧・アーキテクチャ決定必要・無関係変更の競合・テスト実行不可・スコープ超過。Blocked になったタスクを記録してバッチ全体を停止。再開は本スキルを再実行すれば、最初の選択可能タスクから自動的に再開する。
+
+**人間の関与ポイント**
+
+- タスク承認: タスクは `Approval: Approved` である必要がある
+- Blocked 解消: ブロッカーを解消した後、スキルを再実行
+
+**やらないこと (Boundaries)**
+
+- バッチ途中での個別タスク quality-gate 実行（全タスク完了後にまとめて実行する）
+- タスクを `Done` に設定（`quality-gate` のみ可能）
+- コミット・プッシュ・PR/MR作成（明示要求がない限り）
+- `Approval: Approved` でないタスクの開始
+
+---
+
 ### quality-gate
 
 **目的**
@@ -277,7 +341,7 @@ Use the quality-gate skill for specs/reservation/tasks.md#T-001
 5. `test-policy.md` に従いテストを検証
 6. `scripts/check-placeholders.sh`（変更ファイル）と `scripts/check-task-state.sh`（tasks.md）を実行
 7. `refactor` / `bugfix` タスクで `baseline-behavior.md` が存在すれば、`differential-test-policy.md` を適用。すべての BL 差分を分類
-8. 隔離された評価者で重要レビューを実行。Claude Code ではサブエージェント `sdd-evaluator` を使用。Codex では同梱の sdd-evaluator TOML を使用（`~/.codex/agents/` 直下の新規ロールファイル不可）。それ以外は新規セッションで実施。変更が該当領域に触れる場合のみ、オンデマンドのドメインチェックリスト（`security-checklist.md` / `performance-checklist.md` / `accessibility-checklist.md`）を併用し、トークンを節約
+8. 隔離された評価者で重要レビューを実行。Claude Code ではサブエージェント `sdd-evaluator` を使用。Codex では同梱の sdd-evaluator TOML を使用（`~/.codex/agents/` 直下の新規ロールファイル不可）。それ以外は新規セッションで実施
 9. 発見を `Accepted`、`Rejected`、`Deferred` で分類
 10. `auto-fix-policy.md` で許可される安全な修正のみ適用
 11. 重要レビューを最大3サイクル繰り返す
@@ -333,7 +397,7 @@ Use the fix-by-review-ticket skill for docs/review-tickets/RT-001.yml
 
 1. チケットと参照タスク・仕様・コード・テストを読む
 2. `requires_human_decision: true` または対象が不明確またはチケットの範囲を超過なら停止
-3. チケットが説明する最小限の修正を適用。原因が非自明なら `references/debugging-recovery-policy.md` に従い体系的に診断（再現 → 分離 → 仮説 → 原因への最小修正 → 検証 → 回帰テスト）。症状の握り潰し・テスト弱体化・フィクスチャへのハードコードは禁止
+3. チケットが説明する最小限の修正を適用
 4. 必須テスト追加・更新、スコープ限定チェック実行
 5. 要求される修正とテストが成功したら `resolved` に標記
 6. タスクを `Implementation Complete` に戻す
