@@ -31,6 +31,7 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 ## 特徴
 
 - **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/criticalを省略。既存プラグインとの加算的昇格に対応。
+- **バッチ実装 (`implement-tasks`)**: 承認済みタスクを依存関係順に連続実行し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動します。`### Blockers` セクションのタスク参照を解析して依存関係を自動解決します。
 - **責務の明確な分離**: 仕様化・実装・品質保証を別々のスキルが担当し、実装者が自分の成果物を甘く採点する構造を排除します。
 - **人間承認ゲート**: エージェントはタスク承認も WFI 承認も自己承認できず、フック + 決定論的スクリプトの二重防衛により不正な承認を防止します。critical タスクは二者承認（`Approval:` + 別名義の `Second Approval:`）が必須で、sudo でもバイパスできません。
 - **独立した批判レビュー**: 実装者とは別の `sdd-evaluator` エージェント (またはセッション) が新しい視点で検証します。
@@ -51,11 +52,6 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 | [CHANGELOG.md](CHANGELOG.md) | 変更履歴と版移行ガイド |
 | [specs/sdd-lite/design.md](specs/sdd-lite/design.md) | sdd-lite 設計 |
 | [plugins/sdd-lite/references/lite-flow-policy.md](plugins/sdd-lite/references/lite-flow-policy.md) | sdd-lite 規約・昇格 |
-| [plugins/sdd-quality-loop/references/security-checklist.md](plugins/sdd-quality-loop/references/security-checklist.md) | セキュリティレビュー観点 (STRIDE/OWASP)・オンデマンド |
-| [plugins/sdd-quality-loop/references/performance-checklist.md](plugins/sdd-quality-loop/references/performance-checklist.md) | パフォーマンスレビュー観点・オンデマンド |
-| [plugins/sdd-quality-loop/references/accessibility-checklist.md](plugins/sdd-quality-loop/references/accessibility-checklist.md) | アクセシビリティレビュー観点 (WCAG 2.1 AA)・オンデマンド |
-| [plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md](plugins/sdd-implementation/skills/implement-task/references/implementation-craft-policy.md) | 実装クラフト：薄い垂直スライス・スコープ規律 |
-| [plugins/sdd-quality-loop/references/debugging-recovery-policy.md](plugins/sdd-quality-loop/references/debugging-recovery-policy.md) | 体系的デバッグ・エラー回復 |
 
 **初めての方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
 

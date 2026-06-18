@@ -47,7 +47,7 @@
 
 ```mermaid
 stateDiagram-v2
-    Planned --> In_Progress: implement-task<br/>(Approval: Approved)
+    Planned --> In_Progress: implement-task / implement-tasks<br/>(Approval: Approved)
     In_Progress --> Implementation_Complete: 実装+テスト<br/>完了
     In_Progress --> Blocked: 要件曖昧、設計変更必要、<br/>テスト実行不可
     Blocked --> In_Progress: 障害解消<br/>(sdd-bootstrap-interviewer<br/>で仕様更新)
@@ -77,8 +77,8 @@ stateDiagram-v2
 | 2. 調査 (任意) | AI (investigate-codebase) | `specs/<feature>/investigation.md`<br/>`specs/<feature>/baseline-behavior.md` | 既存コード/API契約/テストの知見が証跡付きか？ |
 | 3. 仕様化 | AI (sdd-bootstrap-interviewer) | `specs/<feature>/requirements.md`<br/>`specs/<feature>/design.md`<br/>`specs/<feature>/acceptance-tests.md`<br/>`specs/<feature>/tasks.md`<br/>`specs/<feature>/traceability.md`<br/>契約 JSON / ADR | 要件が実装可能か？設計に異議はないか？タスク粒度は適正か？ |
 | 4. 承認 | 人間 | `tasks.md` の `Approval: Approved` | タスク1の承認が済んだか？ |
-| 5. 実装 (タスク単位) | AI (implement-task) | 実装コード<br/>テストコード<br/>`reports/implementation/<task-id>.md` | 設計通りか？テストは十分か？無関係変更は混在していないか？（薄い垂直スライス・スコープ規律: `implementation-craft-policy.md`） |
-| 6. 品質検証 | AI (quality-gate) + 人間 | `specs/<feature>/verification/<task-id>.contract.json`<br/>`specs/<feature>/verification/<task-id>.evidence.json`<br/>`reports/quality-gate/<timestamp>.md`<br/>`docs/review-tickets/RT-*.yml` | 全チェック合格？証跡hash一致？Critical/Major 指摘は resolved？（該当領域は security/performance/accessibility チェックリストを併用） |
+| 5. 実装 (タスク単位 **または一括**) | AI (implement-task **または implement-tasks**) | 実装コード<br/>テストコード<br/>`reports/implementation/<task-id>.md` | 設計通りか？テストは十分か？無関係変更は混在していないか？<br/>**implement-tasks を使う場合**: 依存関係を自動解決し、全承認済みタスク完了後に quality-gate を自動起動 |
+| 6. 品質検証 | AI (quality-gate) + 人間 | `specs/<feature>/verification/<task-id>.contract.json`<br/>`specs/<feature>/verification/<task-id>.evidence.json`<br/>`reports/quality-gate/<timestamp>.md`<br/>`docs/review-tickets/RT-*.yml` | 全チェック合格？証跡hash一致？Critical/Major 指摘は resolved？ |
 | 7. 指摘修正 (必要時) | AI (fix-by-review-ticket) | 修正コード・テスト | チケット指定範囲を超えていないか？ |
 | 8. 再検証 (指摘有時) | AI (quality-gate 再実行) | 更新契約・レポート | Critical/Major が解消されたか？ |
 | 9. 繰り返し | — | — | 全タスク Done まで 5〜8 を繰り返し |
@@ -197,8 +197,6 @@ stateDiagram-v2
 | **承認スコープ超過** (タスク仕様より大きな実装が必要) | 1. タスクを分割<br/>2. `sdd-bootstrap-interviewer` で新タスク生成<br/>3. 新タスクを `Approved` に変更<br/>4. 各タスク単位で `implement-task` | `sdd-bootstrap-interviewer` |
 
 **確認すべきこと**: `tasks.md` の Blockers 欄は必ず記述されているか？(check-task-state が強制)
-
-> **非自明な失敗の診断**: 原因が範囲内だが不明確な場合は、握り潰しや散弾的変更に逃げず `plugins/sdd-quality-loop/references/debugging-recovery-policy.md` の手順（再現 → 分離 → 仮説 → 原因への最小修正 → 検証 → 回帰テスト）で診断してから、続行か `Blocked` かを判断する。
 
 ### 4.3 品質ゲートで指摘が出た (差し戻しループ)
 
@@ -408,13 +406,17 @@ review_cycles: <実施済みサイクル数>
    - `git diff` → タスク相関変更を確認
    - `tasks.md` → Status と Blockers を読む
 
-2. **implement-task を再実行** (AI)
+2. **implement-task または implement-tasks を再実行** (AI)
    ```txt
+   # 1タスクずつ手動実行
    Use the implement-task skill for specs/reservation/tasks.md
+
+   # バッチ再開（残りの承認済みタスクを依存関係順に自動再開）
+   Use the implement-tasks skill for specs/reservation/tasks.md
    ```
    - Skill が `In Progress` タスクを優先選択
    - 既存変更を保護
-   - 実装を継続
+   - 実装を継続（`implement-tasks` は全タスク完了後に quality-gate を自動起動）
 
 3. **Session Handoff セクション** (実装レポート)
    - 前セッションで記録した現在位置
