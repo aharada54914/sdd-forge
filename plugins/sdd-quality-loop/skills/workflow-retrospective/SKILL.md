@@ -40,9 +40,56 @@ For each task derive:
 
 ## Output
 
-Generate `reports/retrospective/<timestamp>.md` from
-`templates/retrospective-report.template.md`.  Fill every section; do not
-leave template placeholders unfilled.
+Generate `reports/retrospective/<timestamp>.md` using the structure below.
+Fill every section; do not leave placeholders unfilled.
+
+```markdown
+# Retrospective Report
+
+## Header
+
+| Field | Value |
+|---|---|
+| Feature | {{feature}} |
+| Period | {{period_start}} – {{period_end}} |
+| Generated | {{generated_timestamp}} |
+
+## Metrics
+
+| Task | QG Cycles | Blocked Count | Tickets (C/M/Min) | Auto-fixed | Outcome |
+|---|---|---|---|---|---|
+| {{task_id}} | {{qg_cycles}} | {{blocked_count}} | {{critical}}/{{major}}/{{minor}} | {{auto_fixed}} | {{outcome}} |
+| **Total** | | | | | |
+
+_C = Critical, M = Major, Min = Minor_
+
+## Friction Patterns
+
+Patterns observed across two or more tasks in this period.
+
+### {{pattern_id}}: {{pattern_title}}
+
+- **Evidence:** {{affected_tasks_and_ticket_ids}}
+- **Frequency:** {{occurrence_count}} occurrences
+- **Phase:** {{workflow_phase}}
+
+## Proposed Improvements
+
+| WFI-ID | Status | Problem | Target File(s) |
+|---|---|---|---|
+| {{wfi_id}} | Draft | {{problem_summary}} | {{target_files}} |
+
+## Comparison With Previous Retrospective
+
+| Metric | Previous | This Period | Trend |
+|---|---|---|---|
+| Avg QG Cycles per Task | {{prev_avg_qg}} | {{curr_avg_qg}} | {{trend}} |
+| Total Blocked Count | {{prev_blocked}} | {{curr_blocked}} | {{trend}} |
+| Total Review Tickets | {{prev_tickets}} | {{curr_tickets}} | {{trend}} |
+| Auto-fix Rate | {{prev_autofix_pct}} | {{curr_autofix_pct}} | {{trend}} |
+
+_If no previous retrospective exists, mark all "Previous" cells as N/A._
+```
 
 ## Improvement Loop
 
@@ -52,13 +99,65 @@ leave template placeholders unfilled.
    - Auto-fix rate drops below 50 % for a ticket type.
 
 2. **Draft a WFI.** For each identified friction, create
-   `docs/workflow-improvements/WFI-NNN.md` from
-   `templates/workflow-improvement.template.md` with `status: Draft`.
-   Increment NNN from the highest existing WFI number (start at 001 if none
-   exist).  If the repository also runs an automated self-improvement routine
-   (e.g. it has `.github/self-improvement-prompt.md`), check open issues
-   labeled `self-improvement` first; if one covers the same theme, reference
-   its issue number in the WFI instead of duplicating the work.
+   `docs/workflow-improvements/WFI-NNN.md` with `Status: Draft` using the
+   structure below. Increment NNN from the highest existing WFI number (start
+   at 001 if none exist). If the repository also runs an automated
+   self-improvement routine (e.g. it has `.github/self-improvement-prompt.md`),
+   check open issues labeled `self-improvement` first; if one covers the same
+   theme, reference its issue number in the WFI instead of duplicating the work.
+
+   ```markdown
+   # Workflow Improvement
+
+   ## WFI-ID
+
+   {{wfi_id}}
+
+   ## Status
+
+   Status: Draft
+
+   <!-- Allowed values: Draft | Approved | Applied | Verified | Rejected -->
+   <!-- Only a human may set status to Approved. The AI sets Draft, Applied, and Verified. -->
+
+   ## Problem Evidence
+
+   {{metrics_and_ticket_references}}
+
+   <!-- Quote specific BL-IDs, RT-IDs, or retrospective table rows that show the friction. -->
+
+   ## Root Cause Hypothesis
+
+   {{root_cause}}
+
+   ## Proposed Change
+
+   | Target File | Change Description |
+   |---|---|
+   | {{file_path}} | {{change_description}} |
+
+   <!-- Target files must be project-side workflow files only (AGENTS.md, CLAUDE.md,    -->
+   <!-- specs/ templates, task-splitting guidelines). Plugin files must not be listed.  -->
+
+   ## Expected Effect
+
+   {{expected_effect}}
+
+   <!-- State the metric(s) expected to improve and by how much. -->
+
+   ## Verification Plan
+
+   {{verification_plan}}
+
+   <!-- Describe how the next task cycle will confirm the improvement. -->
+   <!-- Reference the specific metric rows from the retrospective template. -->
+
+   ## Result
+
+   Pending
+
+   <!-- Fill after the next task cycle completes. Append a comparison table. -->
+   ```
 
 3. **Await human Approved.** Do not apply any improvement until a human sets
    the WFI `status` to `Approved`.  Record the pending WFI references in the

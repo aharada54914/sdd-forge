@@ -16,6 +16,11 @@ This project follows a three-stage Spec-Anchored AI Development workflow.
 - `traceability.md`: requirements, design, contracts, code, tests, and final status
 - `docs/review-tickets/*.yml`: unresolved quality findings
 
+## Active Spec Directories
+
+Update this list whenever a new spec directory is bootstrapped:
+- `specs/<feature>/`
+
 ## Source Artifact Locations
 
 - `specs/<feature>/requirements.md`

@@ -38,6 +38,11 @@ Claude Code:
 6. For large or unfamiliar codebases in `feature`, `bugfix`, or `refactor`
    modes, run `investigate-codebase` first and pass its outputs as context here.
 7. Record unknown product decisions under `Open Questions`; do not invent them.
+8. If a task adds or changes a user-facing entry point (view, dialog, menu item,
+   context action), explicitly ask: "Where in the shell is this reachable? What
+   safety preconditions must hold before the action is available?" Require at
+   least one AC in the UI Integration Checklist of `acceptance-tests.md`
+   asserting shell-level reachability before completing the interview.
 
 ## Preflight
 
@@ -119,3 +124,7 @@ deterministic gates apply; every check runs as normal.
 
 Report generated files, open questions, risks, and the next draft task. Remind
 the user that implementation starts with `implement-task` only after approval.
+
+After creating a new spec directory, append its path (`specs/<feature>/`) to
+the **Active Spec Directories** list in `AGENTS.md`. If the list does not exist
+yet, add it as a new section under `## Sources Of Truth`.
