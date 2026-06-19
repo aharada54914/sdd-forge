@@ -3,7 +3,7 @@
 旧リポジトリ名 `sdd-plugins-windows-installer` から改名。現在の正式なリポジトリ名は `sdd-forge` です。
 本リポジトリは private です。リモート取得を使う場合は `GH_TOKEN` / `GITHUB_TOKEN` を設定するか、`gh auth login` で GitHub CLI を認証してください。
 
-v0.13.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離した3つのSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
+v0.14.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — PowerShell または bash から、仕様化・実装・品質保証を分離したSDDプラグインをCodex CLI、Claude Code、Copilot CLIへ導入します。
 
 ```text
 [brownfield] sdd-adopt           既存プロジェクトへ SDD 構造を途中導入する
@@ -12,8 +12,17 @@ v0.13.0、クロスプラットフォーム対応 (Windows / macOS / Linux) — 
 [Stage 0] investigate-codebase  既存コードを読み取り専用で調査し、INV/BL証跡を生成する
                                  (refactorモードでは必須、他モードは任意)
        ↓
-sdd-bootstrap       仕様・設計・承認済みタスクを作る
+sdd-bootstrap       仕様・設計を作る [Phase 1]
                     モード: project / feature / bugfix / refactor
+       ↓
+sdd-impl-review     実装方針レビューループ (2体の独立レビュアー × 最大3ラウンド)
+                    → Impl-Review-Status: Passed で Phase 2 を解放
+       ↓
+sdd-bootstrap       承認済みタスク分解を作る [Phase 2]
+                    (tasks.md + traceability.md)
+       ↓
+sdd-task-review     タスク分解レビューループ (2体の独立レビュアー × 最大3ラウンド)
+                    → Task-Review-Status: Passed で承認ゲートへ
        ↓
 sdd-implementation  承認済みタスクを実装可能な差分へ変換する
        ↓
@@ -25,12 +34,16 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 [lite] sdd-lite      社内・部署内アプリ向けの中量トラック
                      lite-spec(要件/設計/タスク) → 単一承認 → implement-task → lite-gate → Done
                      traceability/ADR/evidence-bundle/cross-model/critical を省略。
+                     impl-review-loop / task-review-loop もスキップ。
                      昇格は加算的（Risk追加→階層、本体ゲート→bundle、cross_model→検証）。
 ```
 
 ## 特徴
 
-- **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/criticalを省略。既存プラグインとの加算的昇格に対応。
+- **実装方針レビューループ (`impl-review-loop`)**: design.md に対して2体の独立したブラインドレビュアー（A: 構造健全性、B: 実装可能性/リスク）が最大3ラウンドのレビューを実施し、`Impl-Review-Status: Passed` になるまで tasks.md 生成をブロックします。PASS-with-warnings（Minor のみ）も通過扱い。BLOCKED + `--reset` で新attemptを開始。
+- **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して2体の独立したブラインドレビュアー（A: 構造カバレッジ14チェック、B: 品質/リスク8チェック）が最大3ラウンドのレビューを実施します。依存関係サイクル検出・Blockers 正準形式検証を含む。
+- **Phase 1/2 分割**: `sdd-bootstrap-interviewer` が Phase 1（仕様・設計・受入テスト）と Phase 2（タスク・トレーサビリティ）に分割され、`impl-review-loop` 通過を Phase 2 の前提条件とします。
+- **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
 - **バッチ実装 (`implement-tasks`)**: 承認済みタスクを依存関係順に連続実行し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動します。`### Blockers` セクションのタスク参照を解析して依存関係を自動解決します。
 - **責務の明確な分離**: 仕様化・実装・品質保証を別々のスキルが担当し、実装者が自分の成果物を甘く採点する構造を排除します。
 - **人間承認ゲート**: エージェントはタスク承認も WFI 承認も自己承認できず、フック + 決定論的スクリプトの二重防衛により不正な承認を防止します。critical タスクは二者承認（`Approval:` + 別名義の `Second Approval:`）が必須で、sudo でもバイパスできません。
@@ -45,7 +58,7 @@ sdd-quality-loop    実装後の品質と仕様整合性を独立して保証す
 |---|---|
 | [README](README.md) (本ファイル) | インストール手順と概要 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
-| [docs/skill-reference.md](docs/skill-reference.md) | 9スキル・エージェント・フック・スクリプトの詳細 |
+| [docs/skill-reference.md](docs/skill-reference.md) | 14スキル・エージェント・フック・スクリプトの詳細 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |

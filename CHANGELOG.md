@@ -1,5 +1,42 @@
 # Changelog
 
+## v0.14.0 (2026-06-19)
+
+### 追加
+
+- **`impl-review-loop` スキル（実装方針レビューループ）**: `sdd-impl-review` プラグインを新設し、design.md に対して 2 体の独立したブラインドレビュアー（A: 構造健全性、B: 実装可能性/リスク）による最大 3 ラウンドのレビューを実施する。
+  - **Phase 1/2 分割**: `sdd-bootstrap-interviewer` を Phase 1（requirements.md + design.md + acceptance-tests.md）と Phase 2（tasks.md + traceability.md）に分割。`impl-review-loop` で `Impl-Review-Status: Passed` が設定されるまで Phase 2 はブロック。
+  - **PASS-with-warnings**: ラウンド 3 終了時に Minor 指摘のみ残存の場合は `Passed` として設定し、`## Implementation Warnings` セクションに記録。
+  - **BLOCKED + --reset**: ラウンド 3 終了時に Major/Critical 残存の場合は BLOCKED。`--reset` で attempt-M+1 からやり直し。
+  - **ブラインドレビュー**: reviewer-b は `disallowedPaths` で reviewer-a.json を読めない。オーケストレーターが `integrated-summary.json`（件数 + ID のみ）を橋渡し。
+  - **legacy_design 互換モード**: 新テンプレートフィールド未設定の既存仕様書は `[LEGACY COMPAT]` Minor 通知のみで失敗しない。
+  - ファイル: `plugins/sdd-impl-review/skills/impl-review-loop/SKILL.md`、`agents/impl-reviewer-a.md`、`agents/impl-reviewer-b.md`、`scripts/impl-review-precheck.sh`、`templates/impl-review-contract.template.json`
+
+- **`task-review-loop` スキル（タスク分解レビューループ）**: `sdd-task-review` プラグインを新設し、tasks.md に対して 2 体の独立したブラインドレビュアー（A: 構造カバレッジ、B: 品質/リスク）による最大 3 ラウンドのレビューを実施する。
+  - **Reviewer-A の 14 チェック**: PREREQ-AC-IDS、BLOCKERS-FORMAT、REQ-COVERAGE、AC-COVERAGE、ORPHAN-TASK、ORPHAN-TEST、INITIAL-STATE、RISK-WORKFLOW-FORMAT、NO-DUPLICATE-AC、DEPENDENCY-COMPLETE（A.10）、DEPENDENCY-CYCLE（A.11）、SINGLE-CONCERN、OBSERVABLE-DONE、TRACEABILITY-SYNC
+  - **Reviewer-B の 8 チェック**: RISK-APPROPRIATE、HIGH-CRITICAL-EVIDENCE、TASK-SIZE、EDGE-CASE-COVERAGE、TEST-TYPE-MATCH、ROLLBACK-PLAN、SCOPE-DISJOINT、DEPENDENCY-OVERLAP
+  - **DEPENDENCY-COMPLETE → DEPENDENCY-CYCLE 順序保証**: A.10 (DEPENDENCY-COMPLETE) が A.11 (DEPENDENCY-CYCLE) より先に実行されることをスキルで保証。
+  - **Blockers 正準形式検証**: `precheck.sh` がカンマ区切り T-NNN 形式を検証し、range 記法（`T-NNN..T-MMM`）を Major で棄却。
+  - ファイル: `plugins/sdd-task-review/skills/task-review-loop/SKILL.md`、`agents/task-reviewer-a.md`、`agents/task-reviewer-b.md`、`scripts/task-review-precheck.sh`、`templates/task-review-contract.template.json`
+
+- **`sdd-bootstrap-interviewer` にレビューゲート追加**: Phase 1 → 仕様レビュー → 実装方針レビュー → Phase 2 → タスク分解レビュー → 承認ゲートの5段階フローに変更。
+  - LITE プロファイル（`spec_profile: lite`）は全ゲートをスキップ。
+  - acceptance-tests.md 不在の場合は LITE-SKIP が自動発動。
+
+### 変更
+
+- **`sdd-hook-guard.js` ガード拡充**: 新規レビュアーエージェントファイル 6 点を R-10 保護リストに追加。`Impl-Review-Status: Passed` を有効な `integrated-verdict.json`（PASS|PASS-with-warnings）なしに書き込む操作をブロック。
+- **`workflow-retrospective`**: `reports/task-review/`・`reports/impl-review/` をスキャン対象に追加。新メトリクス: `task_review_rounds_per_feature`、`impl_review_rounds_per_feature`、`impl_review_blocked_rate`、`impl_review_legacy_design_rate`。
+- **design.md テンプレート拡張**: `Impl-Review-Status: Pending`・`Feature Type`・`## Components`・`## Architecture Decision Records`・`## Security Boundaries`・`## Constraint Compliance`・`## Open Questions`（Blocks Implementation / Resolution Path 形式）を追加。
+- **tasks.md テンプレート拡張**: `Task-Review-Status: Pending` ヘッダー・タスク単位の `Planned Files`・`Data Migration`・`Breaking API` フィールドを追加。
+- **requirements.md テンプレート拡張**: `## Security Boundaries` セクションを追加。
+
+### v0.13.0 からの移行
+
+- 破壊的変更なし。既存の design.md / tasks.md に新フィールドが無い場合は `[LEGACY COMPAT]` Minor 通知のみで自動通過。
+- `impl-review-loop` と `task-review-loop` は新規フィーチャーからの適用を推奨。既存フィーチャーへの後付け適用も可能（`Impl-Review-Status: Pending` を design.md ヘッダーに追記するだけ）。
+- プラグイン再インストール（ワンライナー再実行）で移行完了。
+
 ## v0.13.0 (2026-06-19)
 
 ### セキュリティ強化

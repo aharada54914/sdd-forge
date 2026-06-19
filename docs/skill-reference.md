@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-4つのプラグイン（sdd-bootstrap、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる12のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+6つのプラグイン（sdd-bootstrap、sdd-impl-review、sdd-task-review、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる14のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 ## 1. スキル一覧 (早見表)
 
@@ -8,7 +8,9 @@
 |---|---|---|---|---|
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
-| sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様・タスク作成 | investigate-codebase (任意) | implement-task, implement-tasks |
+| sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
+| **impl-review-loop** | **sdd-impl-review** | **design.md の実装方針を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 1]** | **sdd-bootstrap-interviewer [Phase 2] (Impl-Review-Status: Passed後)** |
+| **task-review-loop** | **sdd-task-review** | **tasks.md のタスク分解を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 2]** | **implement-task, implement-tasks (承認ゲート後)** |
 | implement-task | sdd-implementation | 承認済みタスク1つを実装 | sdd-bootstrap-interviewer | quality-gate |
 | **implement-tasks** | **sdd-implementation** | **承認済みタスクを依存関係順に一括実装し、全完了時に自動で quality-gate へ移行** | **sdd-bootstrap-interviewer** | **quality-gate (自動)** |
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
@@ -696,6 +698,130 @@ Use the lite-gate skill for specs/<feature>/tasks.md#T-001
 **昇格**
 
 より強い保証が要るときは `quality-gate`（evidence-bundle・独立批判レビュー・cross-model 等）へ切り替えます。差分の全体像は [軽量トラック（sdd-lite）](workflow-guide.md#軽量トラックsdd-lite) を参照。
+
+---
+
+### impl-review-loop
+
+**目的**
+
+`design.md` の実装方針を、2体の独立したブラインドレビュアー（A: 構造健全性、B: 実装可能性/リスク）による最大3ラウンドのレビューで品質保証します。`Impl-Review-Status: Passed` が `design.md` に書き込まれるまで、Phase 2（タスク生成）はブロックされます。
+
+**呼び出し例**
+
+```txt
+# Codex
+Use the impl-review-loop skill for feature <slug>
+
+# Claude Code
+/sdd-impl-review:impl-review-loop --feature <slug>
+/sdd-impl-review:impl-review-loop --feature <slug> --edit-summary "Security Boundaries セクション追記"
+/sdd-impl-review:impl-review-loop --feature <slug> --reset
+```
+
+**前提条件**
+
+1. `specs/<feature>/design.md` が存在し、`Impl-Review-Status: Pending` ヘッダーフィールドがある。
+2. 仕様レビュー（spec-review-loop）が通過済み（`Spec-Review-Status: Passed` が requirements.md に存在）。
+
+**処理の流れ**
+
+| ステップ | 処理 | 出力 |
+|---|---|---|
+| 1. Precheck | `impl-review-precheck.sh` 実行 | `precheck-result.json`（sha256・drift 検知・legacy_design フラグ） |
+| 2. Reviewer-A | impl-reviewer-a を独立エージェントとして呼び出し | `reviewer-a.json`（9チェック: ARCH-COVERAGE など） |
+| 3. integrated-summary | Reviewer-A の件数+IDのみを抽出（定見なし） | `integrated-summary.json` |
+| 4. Reviewer-B | impl-reviewer-b を独立エージェントとして呼び出し（reviewer-a.json 読み取り不可） | `reviewer-b.json`（9チェック: DECISION-JUSTIFIED など） |
+| 5. Verdict 統合 | Critical/Major/Minor 件数で判定 | `integrated-verdict.json`、`impl-review-contract.json` |
+| 6. 状態遷移 | PASS/PASS-with-warnings/NEEDS_WORK/BLOCKED に分岐 | design.md 更新 or 提案レポート |
+
+**判定ルール**
+
+| 判定 | 条件 |
+|---|---|
+| PASS | Critical=0, Major=0, Minor=0 |
+| PASS-with-warnings | ラウンド3 + Critical=0, Major=0, Minor>0 |
+| NEEDS_WORK | ラウンド<3 + (Critical>0 または Major>0) |
+| BLOCKED | ラウンド3 + (Critical>0 または Major>0) → `--reset` で新attempt |
+
+**Reviewer-A の 9 チェック (TYPE-D 構造)**
+
+ARCH-COVERAGE, NO-CIRCULAR-DEPS, DATA-COVERAGE, API-COVERAGE, SECURITY-COVERAGE, FRONTEND-BACKEND-CONSISTENCY, TEST-STRATEGY-COVERAGE, NO-UNDEFINED-COMPONENT, ADR-PRESENT
+
+**Reviewer-B の 9 チェック (TYPE-H 品質/実装可能性)**
+
+DECISION-JUSTIFIED, OPEN-QUESTIONS-RESOLVABLE, ASSUMPTIONS-VALID, NO-REQ-CONTRADICTION, PERF-ADDRESSED, DEPLOYMENT-CONCRETE, MIGRATION-PLANNED, INTEGRATION-IDENTIFIED, DESIGN-WITHIN-SCOPE
+
+**backward compatibility**
+
+既存 design.md に新フィールド（`## Components` 等）が無い場合は `[LEGACY COMPAT]` Minor 通知のみで失敗しない（`legacy_design: true` が contract に記録される）。
+
+**Sudo モード**
+
+Sudo モードは適用外。`--edit-summary` 要件も sudo では免除されない。
+
+**LITE-SKIP**
+
+acceptance-tests.md が不在で design.md に `Impl-Review-Status:` フィールドもない場合はスキップ警告を発して停止（PASS と見なさない）。
+
+---
+
+### task-review-loop
+
+**目的**
+
+`tasks.md` のタスク分解を、2体の独立したブラインドレビュアー（A: 構造カバレッジ、B: 品質/リスク）による最大3ラウンドのレビューで品質保証します。依存関係サイクル検出・Blockers 正準形式検証を含みます。
+
+**呼び出し例**
+
+```txt
+# Codex
+Use the task-review-loop skill for feature <slug>
+
+# Claude Code
+/sdd-task-review:task-review-loop --feature <slug>
+/sdd-task-review:task-review-loop --feature <slug> --edit-summary "T-003のBlockers修正"
+/sdd-task-review:task-review-loop --feature <slug> --reset
+```
+
+**前提条件**
+
+1. `specs/<feature>/tasks.md` と `specs/<feature>/requirements.md` が存在する。
+2. spec-review-loop が通過済み（`Spec-Review-Status: Passed`）。
+3. impl-review-loop が通過済み（`Impl-Review-Status: Passed` が design.md にある）。
+
+**処理の流れ**
+
+| ステップ | 処理 | 出力 |
+|---|---|---|
+| 1. Precheck | `task-review-precheck.sh` 実行 | `precheck-result.json`（WORKFLOW-MATCH、Blockers 形式検証、sha256）、`dependency-graph.json` |
+| 2. Reviewer-A | task-reviewer-a を独立エージェントとして呼び出し | `reviewer-a.json`（14チェック） |
+| 3. integrated-summary | 件数+IDのみ抽出 | `integrated-summary.json` |
+| 4. Reviewer-B | task-reviewer-b を独立エージェントとして呼び出し（reviewer-a.json 読み取り不可） | `reviewer-b.json`（8チェック） |
+| 5. Verdict 統合 | Critical/Major/Minor 件数で判定 | `integrated-verdict.json`、`task-review-contract.json` |
+| 6. 状態遷移 | PASS/PASS-with-warnings/NEEDS_WORK/BLOCKED に分岐 | tasks.md 更新 or 提案レポート |
+
+**Reviewer-A の 14 チェック (TYPE-D 構造)**
+
+PREREQ-AC-IDS, BLOCKERS-FORMAT, REQ-COVERAGE, AC-COVERAGE, ORPHAN-TASK, ORPHAN-TEST, INITIAL-STATE, RISK-WORKFLOW-FORMAT, NO-DUPLICATE-AC, DEPENDENCY-COMPLETE (A.10), DEPENDENCY-CYCLE (A.11), SINGLE-CONCERN, OBSERVABLE-DONE, TRACEABILITY-SYNC
+
+> DEPENDENCY-COMPLETE (A.10) は DEPENDENCY-CYCLE (A.11) より先に実行する（dependency-graph.json が完成してからサイクル検出を行うため）。
+
+**Reviewer-B の 8 チェック (TYPE-H 品質/リスク)**
+
+RISK-APPROPRIATE, HIGH-CRITICAL-EVIDENCE, TASK-SIZE, EDGE-CASE-COVERAGE, TEST-TYPE-MATCH, ROLLBACK-PLAN, SCOPE-DISJOINT, DEPENDENCY-OVERLAP
+
+**Blockers 正準形式**
+
+`None`、`T-NNN`、`T-NNN, T-MMM`（カンマ区切り T-NNN IDのみ）。range 記法（`T-001..T-003`）は Major で棄却。`precheck.sh` が事前検証し、依存グラフを `dependency-graph.json` として生成。
+
+**LITE-SKIP**
+
+acceptance-tests.md が不在の場合は即時 PASS を返してスキップ。
+
+**Sudo モード**
+
+Sudo モードは適用外。
 
 ---
 
