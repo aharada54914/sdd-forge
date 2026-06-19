@@ -98,6 +98,73 @@ const AGENT_ROLE_MSG =
   "('Ignoring malformed agent role definition'). Use the shipped " +
   "sdd-investigator/sdd-evaluator roles instead of creating new ones.";
 
+// R-10: Enforcement-chain file protection (never bypassed by sudo).
+// NOTE: Bash tool path-substring scan is best-effort — agents using python3 -c / node -e
+// inline may bypass verb detection. Edit/Write/MultiEdit path is primary enforcement.
+const GATE_PROTECT_MSG =
+  "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。" +
+  "\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook " +
+  "configuration, or critical test files. These are part of the enforcement chain " +
+  "and cannot be bypassed by sudo.";
+
+const PROTECTED_GATE_SUFFIXES = [
+  'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js',
+  'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py',
+  'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1',
+  'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh',
+  'plugins/sdd-quality-loop/scripts/kill-switch.js',
+  'plugins/sdd-quality-loop/scripts/kill-switch.sh',
+  'plugins/sdd-quality-loop/scripts/kill-switch.ps1',
+  'plugins/sdd-quality-loop/hooks/claude-hooks.json',
+  'plugins/sdd-quality-loop/hooks/hooks.json',
+  'plugins/sdd-quality-loop/hooks/copilot-hooks.json',
+  'plugins/sdd-quality-loop/scripts/check-contract.sh',
+  'plugins/sdd-quality-loop/scripts/check-contract.ps1',
+  'plugins/sdd-quality-loop/scripts/check-contract.py',
+  'plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh',
+  'plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1',
+  'plugins/sdd-quality-loop/scripts/check-evidence-bundle.py',
+  'plugins/sdd-quality-loop/scripts/validate_path.py',
+  '.claude/settings.json',
+  '.claude/settings.local.json',
+  'tests/gates.tests.sh',
+  'tests/eval.tests.sh',
+  'tests/guard-parity.tests.sh',
+  'tests/constant-parity.tests.sh',
+  '/.plugin/plugin.json',
+  '/.claude-plugin/plugin.json',
+  '/.codex-plugin/plugin.json',
+];
+
+const SHELL_COMPOUND_RE = /&&|\|\||;|\|/;
+
+function isProtectedGateFile(filePath) {
+  if (!filePath) return false;
+  // posix.normalize collapses .. segments so ../../tests/gates.tests.sh is caught.
+  const normalized = path.posix.normalize(String(filePath).replace(/\\/g, '/')).toLowerCase();
+  return PROTECTED_GATE_SUFFIXES.some(s => {
+    const sl = s.toLowerCase();
+    // Match absolute paths and relative paths for suffixes that start with /.
+    return normalized.endsWith(sl) || (sl.startsWith('/') && normalized.endsWith(sl.slice(1)));
+  });
+}
+
+function shellTargetsProtectedGateFile(cmd) {
+  if (typeof cmd !== 'string') return false;
+  const cmdLower = cmd.toLowerCase();
+  const hasProtectedPath = PROTECTED_GATE_SUFFIXES.some(s => {
+    const sl = s.toLowerCase();
+    // Also match relative forms of suffixes that begin with / (e.g. .plugin/plugin.json).
+    return cmdLower.includes(sl) || (sl.startsWith('/') && cmdLower.includes(sl.slice(1)));
+  });
+  if (!hasProtectedPath) return false;
+  // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
+  // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
+  const hasWrite = SHELL_SUDO_WRITE_RE.test(cmd);
+  if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite) return false;
+  return hasWrite;
+}
+
 function countApprovals(text) {
   if (!text) return 0;
   // Subtract second approvals from primary count to avoid over-counting
@@ -300,19 +367,36 @@ function sudoActive() {
   const sudoRoot = proj.sudoRoot;
   try {
     const flag = path.join(sudoRoot, SDD_SUDO_NAME);
-    // C-02: symlink check — symlink SDD_SUDO is invalid.
+    // R-11: Use O_NOFOLLOW to close lstat→open symlink-swap race at kernel level.
+    // O_NOFOLLOW is present on Linux/macOS; falls back to 0 (no-op) on Windows.
+    // On POSIX, if SDD_SUDO is a symlink, openSync throws ELOOP → caught below → false.
+    // O_NONBLOCK prevents blocking on FIFOs masquerading as the flag file.
+    let content;
     try {
-      const stats = fs.lstatSync(flag);
-      if (stats.isSymbolicLink()) {
-        return false;
+      const oNoFollow = fs.constants.O_NOFOLLOW || 0;
+      const oNonBlock = fs.constants.O_NONBLOCK || 0;
+      if (oNoFollow === 0) {
+        // Windows: no O_NOFOLLOW — use lstatSync to reject symlinks before open.
+        try {
+          const lst = fs.lstatSync(flag);
+          if (lst.isSymbolicLink()) { return false; }
+        } catch (e) {
+          return false;
+        }
       }
-      if (!stats.isFile()) {
-        return false;
+      const fd = fs.openSync(flag, fs.constants.O_RDONLY | oNoFollow | oNonBlock);
+      try {
+        const stat = fs.fstatSync(fd);
+        if (!stat.isFile()) { fs.closeSync(fd); return false; }
+        const buf = Buffer.alloc(stat.size || 65536);
+        const bytesRead = fs.readSync(fd, buf, 0, buf.length, 0);
+        content = buf.slice(0, bytesRead).toString('utf8');
+      } finally {
+        try { fs.closeSync(fd); } catch (_) { /* already closed */ }
       }
     } catch (e) {
       return false;
     }
-    const content = fs.readFileSync(flag, 'utf8');
     const fields = parseSudoFields(content);
 
     // Required fields
@@ -841,6 +925,33 @@ async function main() {
       while ((fileMatch = fileRegex.exec(patch))) {
         if (targetPathIsSddSudo(fileMatch[2].trim())) {
           emitDecision('deny', SDD_SUDO_WRITE_MSG, mode);
+          return;
+        }
+      }
+    }
+
+    // Check 2a-R10: Enforcement-chain file protection (never bypassed by sudo).
+    if (['edit', 'write', 'multiedit'].includes(toolName)) {
+      if (isProtectedGateFile(toolInput.file_path || '')) {
+        emitDecision('deny', GATE_PROTECT_MSG, mode);
+        return;
+      }
+    }
+
+    if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof toolInput.command === 'string') {
+      if (shellTargetsProtectedGateFile(toolInput.command)) {
+        emitDecision('deny', GATE_PROTECT_MSG, mode);
+        return;
+      }
+    }
+
+    if (toolName === 'apply_patch' || looksLikePatch(toolInput.command)) {
+      const patch = toolInput.command || '';
+      const fileRegex2 = /^\*\*\* (Update|Add|Delete) File: (.+)$/gm;
+      let fileMatch2;
+      while ((fileMatch2 = fileRegex2.exec(patch))) {
+        if (isProtectedGateFile(fileMatch2[2].trim())) {
+          emitDecision('deny', GATE_PROTECT_MSG, mode);
           return;
         }
       }

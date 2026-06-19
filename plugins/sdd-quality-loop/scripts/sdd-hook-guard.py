@@ -37,6 +37,7 @@ import hmac
 import json
 import os
 import re
+import stat
 import sys
 import time
 
@@ -103,6 +104,7 @@ AGENT_ROLE_MSG = (
 
 
 def count(text):
+    """Count primary Approval: Approved markers, excluding Second Approval occurrences."""
     if not text:
         return 0
     # Subtract second approvals from primary count to avoid over-counting
@@ -111,11 +113,13 @@ def count(text):
 
 
 def is_tasks_md(path):
+    """Return True if path ends with 'tasks.md' (case-insensitive)."""
     # Case-insensitive match (intentional: matches JS/PS1 behavior; Windows FS is case-insensitive).
     return bool(path) and str(path).replace("\\", "/").lower().endswith("tasks.md")
 
 
 def is_wfi_path(path):
+    """Return True if path is a Workflow Improvement file under docs/workflow-improvements/."""
     # WFI docs live under docs/workflow-improvements/ and end with .md.
     if not path:
         return False
@@ -124,6 +128,7 @@ def is_wfi_path(path):
 
 
 def wfi_count(text):
+    """Count Status: Approved occurrences in WFI file content."""
     if not text:
         return 0
     return len(WFI_APPROVAL_RE.findall(text))
@@ -299,13 +304,40 @@ def sudo_active():
     sudo_root, _ = _resolve_project_root()
     try:
         flag = os.path.join(sudo_root, SDD_SUDO_NAME)
-        # C-02: symlink check — symlink SDD_SUDO is invalid.
-        if os.path.islink(flag):
+        # R-11: Use O_NOFOLLOW to close lstat→open symlink-swap race at kernel level.
+        # O_NOFOLLOW is available on Linux/macOS; falls back to 0 (no-op) on Windows.
+        # On POSIX, if SDD_SUDO is a symlink, os.open raises OSError(ELOOP) → caught below → False.
+        # O_NONBLOCK prevents blocking on FIFOs masquerading as the flag file.
+        try:
+            o_nofollow = getattr(os, "O_NOFOLLOW", 0)
+            o_nonblock = getattr(os, "O_NONBLOCK", 0)
+            if o_nofollow == 0:
+                # Windows: no O_NOFOLLOW — use lstat to reject symlinks before open.
+                try:
+                    _lst = os.lstat(flag)
+                except OSError:
+                    return False
+                if stat.S_ISLNK(_lst.st_mode):
+                    return False
+            _oflags = os.O_RDONLY | o_nofollow | o_nonblock
+            _fd = os.open(flag, _oflags)
+        except OSError:
             return False
-        if not os.path.isfile(flag):
+        try:
+            _st = os.fstat(_fd)
+            if not stat.S_ISREG(_st.st_mode):
+                os.close(_fd)
+                return False
+            with os.fdopen(_fd, encoding="utf-8") as f:
+                content = f.read()
+        except UnicodeDecodeError:
             return False
-        with open(flag, encoding="utf-8") as f:
-            content = f.read()
+        except OSError:
+            try:
+                os.close(_fd)
+            except OSError:
+                pass
+            return False
 
         fields = _parse_sudo_fields(content)
 
@@ -356,7 +388,7 @@ def sudo_active():
             return False
 
         return True
-    except (OSError, ValueError, TypeError):
+    except (OSError, ValueError, TypeError, UnicodeDecodeError):
         pass
     return False
 
@@ -460,6 +492,7 @@ def _write_content_increases(file_path, new_content):
 
 
 def _looks_like_patch(command):
+    """Return True if command string looks like a Codex apply_patch envelope."""
     return isinstance(command, str) and "*** Begin Patch" in command
 
 
@@ -525,6 +558,7 @@ def wfi_approval_increases(payload):
 
 
 def _wfi_write_content_increases(file_path, new_content):
+    """Return True if new_content raises the WFI approval count compared to the file on disk."""
     try:
         with open(file_path, encoding="utf-8") as f:
             old_content = f.read()
@@ -534,6 +568,7 @@ def _wfi_write_content_increases(file_path, new_content):
 
 
 def _wfi_patch_increases(patch):
+    """Parse a Codex patch envelope; return True if net Status: Approved added to a WFI file."""
     current_is_wfi = False
     added = removed = 0
     for raw in patch.splitlines():
@@ -673,6 +708,101 @@ def agent_role_invalid(payload):
     return False
 
 
+# R-10: Enforcement-chain file protection.
+# Files whose write denial is NOT bypassable by sudo. Patterns are matched
+# case-insensitively against the normalized (forward-slash) path.
+# NOTE: Bash tool path-substring scan (below) is best-effort only — agents
+# using python3 -c / node -e inline may bypass verb detection. Edit/Write/MultiEdit
+# path is the primary enforcement point.
+_PROTECTED_GATE_SUFFIXES = (
+    # hook guard scripts (self-protection)
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+    "plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh",
+    # kill-switch scripts
+    "plugins/sdd-quality-loop/scripts/kill-switch.js",
+    "plugins/sdd-quality-loop/scripts/kill-switch.sh",
+    "plugins/sdd-quality-loop/scripts/kill-switch.ps1",
+    # hook registration files
+    "plugins/sdd-quality-loop/hooks/claude-hooks.json",
+    "plugins/sdd-quality-loop/hooks/hooks.json",
+    "plugins/sdd-quality-loop/hooks/copilot-hooks.json",
+    # gate scripts
+    "plugins/sdd-quality-loop/scripts/check-contract.sh",
+    "plugins/sdd-quality-loop/scripts/check-contract.ps1",
+    "plugins/sdd-quality-loop/scripts/check-contract.py",
+    "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh",
+    "plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1",
+    "plugins/sdd-quality-loop/scripts/check-evidence-bundle.py",
+    # shared path-validation utility (R-01)
+    "plugins/sdd-quality-loop/scripts/validate_path.py",
+    # Claude Code hook-loading config
+    ".claude/settings.json",
+    ".claude/settings.local.json",
+    # critical test files (hollowing breaks CI safety net)
+    "tests/gates.tests.sh",
+    "tests/eval.tests.sh",
+    "tests/guard-parity.tests.sh",
+    "tests/constant-parity.tests.sh",
+)
+
+_PROTECTED_GATE_PLUGIN_JSON_SUFFIXES = (
+    # plugin entry points that point to hook registration
+    "/.plugin/plugin.json",
+    "/.claude-plugin/plugin.json",
+    "/.codex-plugin/plugin.json",
+)
+
+_GATE_PROTECT_MSG = (
+    "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。"
+    "\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook "
+    "configuration, or critical test files. These are part of the enforcement chain "
+    "and cannot be bypassed by sudo."
+)
+
+
+_SHELL_COMPOUND_RE = re.compile(r"&&|\|\||;|\|")
+
+
+def _is_protected_gate_file(file_path):
+    """R-10: Return True if file_path matches a protected enforcement-chain file."""
+    if not file_path:
+        return False
+    # normpath collapses .. segments so `../../tests/gates.tests.sh` is caught.
+    normalized = os.path.normpath(str(file_path).replace("\\", "/")).replace("\\", "/").lower()
+    for suffix in _PROTECTED_GATE_SUFFIXES:
+        if normalized.endswith(suffix.lower()):
+            return True
+    for suffix in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES:
+        sl = suffix.lower()
+        # Match absolute paths (suffix has leading /) AND relative paths (no leading /).
+        if normalized.endswith(sl) or normalized.endswith(sl.lstrip("/")):
+            return True
+    return False
+
+
+def _shell_targets_protected_gate_file(cmd):
+    """R-10: Deny shell commands targeting protected gate files.
+    Uses substring scan (path appears literally in command) combined with write-verb check.
+    Read-only short-circuit only fires when ALL of the following hold:
+      1. No compound operators (&&, ||, ;, |) — prevents `cat f && rm f`
+      2. Command starts with a read-only verb (cat, grep, …)
+      3. No write verb/redirect appears anywhere — prevents `cat > f << EOF`"""
+    if not isinstance(cmd, str):
+        return False
+    cmd_lower = cmd.lower()
+    has_protected_path = any(s.lower() in cmd_lower for s in _PROTECTED_GATE_SUFFIXES) or \
+                         any(s.lower() in cmd_lower or s.lower().lstrip("/") in cmd_lower
+                             for s in _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
+    if not has_protected_path:
+        return False
+    has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))
+    if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd) and not has_write:
+        return False
+    return has_write
+
+
 def _shell_writes_agent_role(cmd):
     """Deny agent-role shell access unless it is an unambiguously read-only command."""
     if not isinstance(cmd, str):
@@ -705,6 +835,7 @@ def _shell_targets_sdd_sudo(cmd):
 
 
 def payload_is_malformed(payload):
+    """Return True if required fields for the tool type are missing or empty."""
     tool_name = (payload.get("tool_name") or "").lower()
     tool_input = payload.get("tool_input") or {}
     if tool_name in TARGETED_COMMAND_TOOLS and (
@@ -720,6 +851,7 @@ def payload_is_malformed(payload):
 
 
 def parse_args(argv):
+    """Parse --emit <mode> from argv; return 'exit' or 'copilot' (default 'exit')."""
     mode = "exit"
     i = 0
     while i < len(argv):
@@ -735,6 +867,7 @@ def parse_args(argv):
 
 
 def main():
+    """Entry point: read payload from stdin or PAYLOAD env var, run all guards, emit decision."""
     mode = parse_args(sys.argv[1:])
 
     # Check 1: kill switch runs regardless of payload validity (checked before stdin read, matching JS/PS1).
@@ -795,6 +928,27 @@ def main():
                 m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
                 if m and _target_path_is_sdd_sudo(m.group(2).strip()):
                     emit("deny", SDD_SUDO_WRITE_MSG, mode)
+                    return
+
+        # Check 2a-R10: Enforcement-chain file protection (never bypassed by sudo).
+        if tool_name_lower in ("edit", "write", "multiedit"):
+            if _is_protected_gate_file(tool_input.get("file_path") or ""):
+                emit("deny", _GATE_PROTECT_MSG, mode)
+                return
+
+        if tool_name_lower in ("bash", "shell", "exec_command", "exec") and isinstance(
+            tool_input.get("command"), str
+        ):
+            if _shell_targets_protected_gate_file(tool_input["command"]):
+                emit("deny", _GATE_PROTECT_MSG, mode)
+                return
+
+        if tool_name_lower == "apply_patch" or _looks_like_patch(tool_input.get("command")):
+            patch = tool_input.get("command") or ""
+            for line in patch.splitlines():
+                m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", line)
+                if m and _is_protected_gate_file(m.group(2).strip()):
+                    emit("deny", _GATE_PROTECT_MSG, mode)
                     return
 
         # Check 2b: Approval guard (bypassed by valid sudo).
