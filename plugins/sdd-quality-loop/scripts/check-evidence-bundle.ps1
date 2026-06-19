@@ -319,7 +319,23 @@ if ($null -eq $gitCommit -or ($gitCommit -is [string] -and [string]::IsNullOrWhi
                 # Verify commit is HEAD or an ancestor of HEAD
                 $r2 = Start-Process -FilePath "git" -ArgumentList @("-C", $absRoot, "merge-base", "--is-ancestor", $gitCommitStr, "HEAD") -NoNewWindow -Wait -PassThru
                 if ($r2.ExitCode -ne 0) {
-                    Add-Failure "git_commit is not an ancestor of HEAD (foreign or future commit): $gitCommitStr"
+                    # Commit exists but is not an ancestor — may have been rewritten after
+                    # amend/rebase. Tolerate if all artifact hashes still match (35.1).
+                    $hashesOk = ($artifactIndex.Count -gt 0)
+                    foreach ($norm in $artifactIndex.Keys) {
+                        $artPath = [System.IO.Path]::Combine($absRoot, $norm)
+                        if (-not (Test-Path -LiteralPath $artPath) -or (Get-Sha256 -Path $artPath) -ne $artifactIndex[$norm]) {
+                            $hashesOk = $false
+                            break
+                        }
+                    }
+                    if ($hashesOk) {
+                        Write-Host ("WARNING: git_commit $gitCommitStr is not an ancestor of HEAD " +
+                            "(history may have been rewritten after amend/rebase), " +
+                            "but all artifact hashes still match")
+                    } else {
+                        Add-Failure "git_commit is not an ancestor of HEAD (foreign or future commit): $gitCommitStr"
+                    }
                 }
             }
         } catch {
