@@ -34,6 +34,7 @@ REPO_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
 def read_default_version():
+    """Read the plugin version from marketplace.json, or return '0.0.0' as fallback."""
     candidate = os.path.join(REPO_ROOT, ".claude-plugin", "marketplace.json")
     try:
         with open(candidate, encoding="utf-8") as f:
@@ -84,6 +85,7 @@ def collect_action_uses():
 
 
 def build_sbom(version, repo):
+    """Build a CycloneDX SBOM dict for the given plugin version and GitHub repo slug."""
     timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
     components = []
     for _, (action_repo, ref, subpath) in sorted(collect_action_uses().items()):
@@ -122,6 +124,7 @@ def build_sbom(version, repo):
 
 
 def main(argv):
+    """Parse CLI arguments and write a CycloneDX SBOM to stdout or a file."""
     parser = argparse.ArgumentParser(description="Generate a CycloneDX SBOM for sdd-forge.")
     parser.add_argument("--version", default=None)
     parser.add_argument("--repo", default="aharada54914/sdd-forge")
