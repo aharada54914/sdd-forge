@@ -13,7 +13,7 @@
       "name": "sdd-bootstrap",
       "source": "./plugins/sdd-bootstrap",
       "description": "Prepare implementation-ready specifications and tasks.",
-      "version": "0.12.0",
+      "version": "0.13.0",
       "author": {
         "name": "Harada"
       }
@@ -22,7 +22,7 @@
       "name": "sdd-implementation",
       "source": "./plugins/sdd-implementation",
       "description": "Implement one approved task and prepare a quality-gate handoff.",
-      "version": "0.12.0",
+      "version": "0.13.0",
       "author": {
         "name": "Harada"
       }
@@ -31,7 +31,7 @@
       "name": "sdd-quality-loop",
       "source": "./plugins/sdd-quality-loop",
       "description": "Independently verify implementations and resolve review tickets.",
-      "version": "0.12.0",
+      "version": "0.13.0",
       "author": {
         "name": "Harada"
       }
@@ -40,7 +40,7 @@
       "name": "sdd-lite",
       "source": "./plugins/sdd-lite",
       "description": "Lightweight medium-weight SDD track for internal/departmental apps.",
-      "version": "0.12.0",
+      "version": "0.13.0",
       "author": {
         "name": "Harada"
       }

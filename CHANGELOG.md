@@ -1,5 +1,31 @@
 # Changelog
 
+## v0.13.0 (2026-06-19)
+
+### セキュリティ強化
+
+- **`sudo_active()` TOCTOU 防止**: `O_NOFOLLOW` + `O_NONBLOCK`（FIFO ブロッキング攻撃対策）+ `fstat`（シンボリックリンク置換競合防止）を py/js 双方に追加。Windows では `O_NOFOLLOW` が存在しない場合に `lstatSync` / `os.lstat` でシンボリックリンクを拒否するフォールバックも追加。
+- **パストラバーサル防止**: `_is_protected_gate_file` / `isProtectedGateFile` に `os.path.normpath` / `path.posix.normalize` を適用し、`../` を含むパスによる R-10 保護回避を閉じる。
+- **heredoc リダイレクト保護**: `cat > protected_file << EOF` 形式のコマンドが R-10 保護ファイルを上書きできた問題を修正。
+- **R-10 保護リスト拡充**: `tests/constant-parity.tests.sh` を py/js の保護対象に追加。
+- **プラグイン JSON 相対パス修正**: シェルコマンドスキャンで相対パス形式のプラグイン JSON を正しく検出。
+
+### 修正
+
+- **`validate_path.py` 空白バイパス修正**: 空白のみのパス文字列がチェックを通過していた問題を修正（`strip()` を空チェック前に適用）。
+- **`check-contract.py` JSON 型安全**: `checks` が非リストの場合・リスト内に非 dict 要素がある場合を明示的に失敗。`evidence` / `waiver_reason` フィールドに `_str_field()` ヘルパーで型安全な抽出を適用。
+
+### テスト改善
+
+- **`guard-parity.tests.sh`**: `parity_check` に期待 exit code パラメータを追加し、両ランタイムが一致しているだけでなく期待値通りであることも検証。
+- **`constant-parity.tests.sh`**: `RISK_TIERS` の検証をティア名の比較から `tier:id` ペア（31 エントリ）の完全比較に強化。
+- **`gates.tests.sh`**: R-04 テストを tmpdir コピー方式に変更し、テスト失敗時にスクリプトが消えない安全な実装に修正。
+
+### v0.12.0 からの移行
+
+- 破壊的変更なし。既存の tasks.md / contract / evidence ファイルへの変更不要。
+- プラグイン再インストール（ワンライナー再実行）で移行完了。
+
 ## v0.12.0 (2026-06-18)
 
 ### 追加
