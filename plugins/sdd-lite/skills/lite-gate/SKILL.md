@@ -44,6 +44,22 @@ Claude Code:
 - `Approval` を変更しない（人間のみ）。
 - Done は本スキルのみが設定する（implement-task は設定しない）。
 
+## Post-Done: Automatic Retrospective
+
+`VERDICT: PASS` かつ step 5 の `check-task-state-lite` が成功してタスクが `Done`
+に確定したとき、自動的に retrospective フローに入る:
+
+1. `reports/quality-gate/<task-id>.md` の生成完了を確認する（step 3 完了後）。
+2. タスクの spec ディレクトリからフィーチャーパスを特定する（例: `specs/<feature>`）。
+3. 当該フィーチャーの `workflow-retrospective` を起動する:
+   - Claude Code: `/sdd-quality-loop:workflow-retrospective specs/<feature>`
+   - Codex: `Use the workflow-retrospective skill for specs/<feature>`
+4. retrospective は読み取り専用で動作し、タスク状態やコードを変更しない。
+5. フィーチャーパスが特定できない場合はスキップし、品質レポートに
+   `[WARN] retrospective skipped: feature path unknown` を追記する。
+
+`VERDICT: FAIL` または `check-task-state-lite` 失敗時は起動しない。
+
 ## Handoff
 
-VERDICT と各チェック結果、Done 化の有無を報告する。FAIL 時は不足点を明示し implement-task への差し戻しを案内する。
+VERDICT と各チェック結果、Done 化の有無を報告する。FAIL 時は不足点を明示し implement-task への差し戻しを案内する。Done 化成功時は上記 retrospective の起動結果も合わせて報告する。

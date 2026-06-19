@@ -118,6 +118,26 @@ Otherwise set the task to `Blocked` or retain `Implementation Complete`, and
 create review tickets. Do not commit, push, or create a PR/MR unless explicitly
 requested.
 
+## Post-Done: Automatic Retrospective
+
+When the task transitions to `Done` (all conditions in the Done Decision section
+are met), automatically invoke the retrospective flow:
+
+1. Confirm `reports/quality-gate/<timestamp>.md` has been written (step 15 must
+   complete first so the new report is included in retrospective metrics).
+2. Determine the feature path from the task's spec directory (e.g. `specs/<feature>`).
+3. Invoke `workflow-retrospective` for that feature path:
+   - Claude Code: `/sdd-quality-loop:workflow-retrospective specs/<feature>`
+   - Codex: `Use the workflow-retrospective skill for specs/<feature>`
+4. The retrospective runs in read-only mode and does not affect `Done` status or
+   any other task field.
+5. If the feature path cannot be determined, skip the retrospective and append a
+   `[WARN] retrospective skipped: feature path unknown` line to the quality-gate
+   report.
+
+Do **not** invoke this flow when the gate exits with `Blocked` or retains
+`Implementation Complete`.
+
 ## Common Rationalizations
 
 The gate exists because generators grade their own work generously. Reject
