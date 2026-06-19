@@ -1,5 +1,7 @@
 # Tasks: {{feature_name}}
 
+Task-Review-Status: Pending
+
 ## Lifecycle
 
 `Draft -> Approved -> In Progress -> Implementation Complete -> Done`
@@ -24,6 +26,12 @@ Required Workflow: {{required_workflow}}
 
 Requirements: {{requirement_ids}}
 
+Planned Files: {{planned_files}}
+
+Data Migration: {{data_migration}}
+
+Breaking API: {{breaking_api}}
+
 ### Goal
 {{goal}}
 
@@ -42,7 +50,7 @@ Requirements: {{requirement_ids}}
 - [ ] Related regression tests pass
 - [ ] Implementation report created
 - [ ] Quality gate passes
-- [ ] traceability.md updated
+- [ ] traceability.md updated with T-001 → {{requirement_ids}} mapping
 - [ ] (high/critical) Red→Green evidence captured
 - [ ] (high/critical) Independent review verdict recorded
 - [ ] (critical) Second approver recorded and evidence bundle signed

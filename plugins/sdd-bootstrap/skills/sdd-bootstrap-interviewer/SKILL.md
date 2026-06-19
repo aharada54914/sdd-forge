@@ -68,17 +68,56 @@ the required SDD structure. Project-level constitution files (`AGENTS.md`,
 
 ## Required Outputs
 
+Phase 1 outputs (generated before review gates):
+
 - `specs/<feature>/requirements.md`
-- `specs/<feature>/design.md`
 - `specs/<feature>/acceptance-tests.md`
-- `specs/<feature>/tasks.md`
-- `specs/<feature>/traceability.md`
+- `specs/<feature>/design.md`
 - `docs/adr/NNNN-<slug>.md` for each new ADR (4-digit repository-wide sequence;
   `specs/<feature>/adr/` must not be created)
 - relevant API/data contracts
 
+Phase 2 outputs (generated after impl-review-loop passes):
+
+- `specs/<feature>/tasks.md`
+- `specs/<feature>/traceability.md`
+
 CI/issue/PR templates are created by `sdd-adopt` based on detected host; do not
 recreate them here.
+
+## Specification Review Gate
+
+Run after Phase 1 artifacts (requirements.md, acceptance-tests.md) are generated.
+
+1. If `spec_profile: lite` in AGENTS.md → SKIP; log "spec-review skipped: lite profile".
+2. Invoke `/spec-review-loop --feature <feature>`.
+3. verdict == PASS or PASS-with-warnings → continue.
+4. verdict == NEEDS_WORK → present proposed changes; await human edit of
+   requirements.md or acceptance-tests.md; re-invoke.
+5. verdict == BLOCKED → halt; instruct human to run
+   `/spec-review-loop --reset --feature <feature>`.
+
+## Implementation Policy Review Gate
+
+Run after design.md is generated and spec-review-loop has passed.
+
+1. Check AGENTS.md spec_profile. If lite → SKIP.
+2. Invoke `/impl-review-loop --feature <feature>`.
+3. verdict == PASS or PASS-with-warnings → continue (Impl-Review-Status: Passed
+   is now set in design.md).
+4. verdict == NEEDS_WORK → present design-round-N-proposed-changes.md; await
+   human edit of design.md; re-invoke.
+5. verdict == BLOCKED → halt; instruct human to run
+   `/impl-review-loop --reset --feature <feature>`.
+
+## Required Outputs Phase 2
+
+Before generating tasks.md and traceability.md:
+
+- Read design.md header for `Impl-Review-Status`.
+- If Impl-Review-Status != "Passed" → STOP: "impl-review-loop must PASS before
+  Phase 2. Run `/impl-review-loop --feature <feature>`"
+- Generate tasks.md and traceability.md.
 
 ## Risk Classification
 
@@ -97,6 +136,18 @@ bundle plus a second, distinct named approver). Leaving `Risk:` absent selects
 legacy mode (no tier enforcement) and is reserved for pre-existing contracts —
 do not use it to dodge a tier. `check-risk` rejects a `high`/`critical` task
 that does not declare `Required Workflow: tdd`.
+
+## Task Decomposition Review Gate
+
+Run after Risk Classification completes and tasks.md has been generated.
+
+1. Check AGENTS.md spec_profile. If lite → SKIP.
+2. Invoke `/task-review-loop --feature <feature>`.
+3. verdict == PASS or PASS-with-warnings → continue to ## Approval Gate.
+4. verdict == NEEDS_WORK → present tasks-round-N-proposed-changes.md; await
+   human edit of tasks.md; re-invoke.
+5. verdict == BLOCKED → halt; instruct human to run
+   `/task-review-loop --reset --feature <feature>`.
 
 ## Approval Gate
 

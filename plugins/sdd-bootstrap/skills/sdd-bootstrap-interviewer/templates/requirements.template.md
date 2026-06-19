@@ -40,6 +40,14 @@
 
 {{edge_cases}}
 
+## Security Boundaries
+
+| Trust Boundary | Auth/Authz Requirement | PII / Data Classification | Regulatory Constraints |
+|---|---|---|---|
+| {{boundary}} | {{auth_requirement}} | {{data_classification}} | {{regulatory}} |
+
+{{security_boundaries_detail}}
+
 ## Assumptions
 
 {{assumptions}}
