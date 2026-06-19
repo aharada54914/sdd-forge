@@ -49,6 +49,14 @@ NONCODE_STACKS = {"shell", "docs", "spec"}
 TDD_TEST_IDS = {"unit-tests", "acceptance-tests"}
 
 
+def _str_field(check, key):
+    """Safely extract a string field from a check dict; returns '' for non-string values."""
+    val = check.get(key)
+    if not isinstance(val, str):
+        return ""
+    return val.strip()
+
+
 def _pass1_duplicate_ids(checks, failures):
     """Detect duplicate check ids."""
     seen_ids = {}
@@ -75,8 +83,8 @@ def _pass2_per_check_rules(checks, root, failures):
             failures.append(f"check '{cid}' has invalid type for passes: {type(passes).__name__} (expected bool)")
             continue
 
-        evidence = (check.get("evidence") or "").strip()
-        waiver_reason = (check.get("waiver_reason") or "").strip()
+        evidence = _str_field(check, "evidence")
+        waiver_reason = _str_field(check, "waiver_reason")
 
         if not required and not passes:
             if not waiver_reason:
@@ -217,8 +225,17 @@ def run(contract_path, root):
     except json.JSONDecodeError as exc:
         return "?", [f"contract JSON parse error: {exc}"]
 
-    checks = contract.get("checks", [])
+    checks_raw = contract.get("checks", [])
     failures = []
+
+    if not isinstance(checks_raw, list):
+        failures.append(f"contract 'checks' is not a list (got {type(checks_raw).__name__})")
+        return contract.get("task_id", "?"), failures
+
+    non_dict_indices = [i for i, c in enumerate(checks_raw) if not isinstance(c, dict)]
+    if non_dict_indices:
+        failures.append(f"contract 'checks' has non-dict elements at indices: {non_dict_indices}")
+    checks = [c for c in checks_raw if isinstance(c, dict)]
 
     _pass1_duplicate_ids(checks, failures)
     _pass2_per_check_rules(checks, root, failures)
@@ -232,6 +249,7 @@ def run(contract_path, root):
 
 
 def main():
+    """CLI entry point: run contract validation, print summary, exit 0/1."""
     # Accept args either from env (when called from .sh dispatcher) or CLI.
     contract_path = os.environ.get("CONTRACT") or (sys.argv[1] if len(sys.argv) > 1 else None)
     root = os.environ.get("ROOT") or (sys.argv[2] if len(sys.argv) > 2 else ".")

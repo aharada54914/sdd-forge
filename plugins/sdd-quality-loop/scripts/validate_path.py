@@ -39,11 +39,10 @@ def validate_evidence_path(label, raw_path, root, failures):
     """
     initial_count = len(failures)
 
-    if not raw_path:
+    path = str(raw_path).strip() if raw_path is not None else ""
+    if not path:
         failures.append(f"{label} is missing or empty")
         return False
-
-    path = str(raw_path).strip()
 
     # Reject absolute POSIX paths
     if path.startswith("/"):

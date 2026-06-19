@@ -28,7 +28,8 @@ this handoff — the session continuity is the signal.
 
 quality-gate should verify on entry:
 - At least one task exists in `Implementation Complete` state
-- No task with `Approval: Approved` remains in `Draft` or `Blocked` state
+- Every task with `Approval: Approved` is in `Implementation Complete` state (not `Draft` or `Blocked`)
+- All `### Blockers` references between tasks have been resolved in dependency order
 
 If preconditions are not met, quality-gate should pause and report the gap
 rather than proceeding with an incomplete implementation set.

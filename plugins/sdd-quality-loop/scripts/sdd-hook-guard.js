@@ -130,6 +130,7 @@ const PROTECTED_GATE_SUFFIXES = [
   'tests/gates.tests.sh',
   'tests/eval.tests.sh',
   'tests/guard-parity.tests.sh',
+  'tests/constant-parity.tests.sh',
   '/.plugin/plugin.json',
   '/.claude-plugin/plugin.json',
   '/.codex-plugin/plugin.json',
@@ -139,7 +140,8 @@ const SHELL_COMPOUND_RE = /&&|\|\||;|\|/;
 
 function isProtectedGateFile(filePath) {
   if (!filePath) return false;
-  const normalized = String(filePath).replace(/\\/g, '/').toLowerCase();
+  // posix.normalize collapses .. segments so ../../tests/gates.tests.sh is caught.
+  const normalized = path.posix.normalize(String(filePath).replace(/\\/g, '/')).toLowerCase();
   return PROTECTED_GATE_SUFFIXES.some(s => {
     const sl = s.toLowerCase();
     // Match absolute paths and relative paths for suffixes that start with /.
@@ -150,7 +152,11 @@ function isProtectedGateFile(filePath) {
 function shellTargetsProtectedGateFile(cmd) {
   if (typeof cmd !== 'string') return false;
   const cmdLower = cmd.toLowerCase();
-  const hasProtectedPath = PROTECTED_GATE_SUFFIXES.some(s => cmdLower.includes(s.toLowerCase()));
+  const hasProtectedPath = PROTECTED_GATE_SUFFIXES.some(s => {
+    const sl = s.toLowerCase();
+    // Also match relative forms of suffixes that begin with / (e.g. .plugin/plugin.json).
+    return cmdLower.includes(sl) || (sl.startsWith('/') && cmdLower.includes(sl.slice(1)));
+  });
   if (!hasProtectedPath) return false;
   // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
   // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
@@ -364,10 +370,21 @@ function sudoActive() {
     // R-11: Use O_NOFOLLOW to close lstat→open symlink-swap race at kernel level.
     // O_NOFOLLOW is present on Linux/macOS; falls back to 0 (no-op) on Windows.
     // On POSIX, if SDD_SUDO is a symlink, openSync throws ELOOP → caught below → false.
+    // O_NONBLOCK prevents blocking on FIFOs masquerading as the flag file.
     let content;
     try {
       const oNoFollow = fs.constants.O_NOFOLLOW || 0;
-      const fd = fs.openSync(flag, fs.constants.O_RDONLY | oNoFollow);
+      const oNonBlock = fs.constants.O_NONBLOCK || 0;
+      if (oNoFollow === 0) {
+        // Windows: no O_NOFOLLOW — use lstatSync to reject symlinks before open.
+        try {
+          const lst = fs.lstatSync(flag);
+          if (lst.isSymbolicLink()) { return false; }
+        } catch (e) {
+          return false;
+        }
+      }
+      const fd = fs.openSync(flag, fs.constants.O_RDONLY | oNoFollow | oNonBlock);
       try {
         const stat = fs.fstatSync(fd);
         if (!stat.isFile()) { fs.closeSync(fd); return false; }

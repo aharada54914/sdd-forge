@@ -29,12 +29,13 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 # ---------------------------------------------------------------------------
-# Helper: run payload through both guards, assert same exit code.
-# Usage: parity_check "scenario name" <payload_json>
+# Helper: run payload through both guards, assert same exit code AND expected.
+# Usage: parity_check "scenario name" <expected_exit_code> <payload_json>
 # ---------------------------------------------------------------------------
 parity_check() {
     local scenario="$1"
-    local payload="$2"
+    local expected="$2"
+    local payload="$3"
     local js_code=0
     local py_code=0
 
@@ -48,10 +49,12 @@ parity_check() {
         | CLAUDE_PROJECT_DIR="$WORK" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" --emit exit \
         >/dev/null 2>&1 || py_code=$?
 
-    if [ "$js_code" = "$py_code" ]; then
-        ok "parity [$scenario]: both exit $js_code"
+    if [ "$js_code" != "$py_code" ]; then
+        fail "parity [$scenario]: JS=$js_code PY=$py_code — DIVERGENCE (expected $expected)"
+    elif [ "$js_code" != "$expected" ]; then
+        fail "parity [$scenario]: both exit $js_code but expected $expected"
     else
-        fail "parity [$scenario]: JS=$js_code PY=$py_code — DIVERGENCE"
+        ok "parity [$scenario]: both exit $js_code (expected)"
     fi
 }
 
@@ -71,27 +74,27 @@ EOF
 # Scenario 1: kill switch (deny — exit 2)
 # ---------------------------------------------------------------------------
 touch "${WORK}/AGENT_STOP"
-parity_check "kill-switch: AGENT_STOP exists" \
+parity_check "kill-switch: AGENT_STOP exists" 2 \
     '{"tool_name":"write","tool_input":{"file_path":"README.md","content":"x"}}'
 rm -f "${WORK}/AGENT_STOP"
 
 # ---------------------------------------------------------------------------
 # Scenario 2: kill switch not tripped (allow — exit 0)
 # ---------------------------------------------------------------------------
-parity_check "kill-switch: no AGENT_STOP" \
+parity_check "kill-switch: no AGENT_STOP" 0 \
     '{"tool_name":"write","tool_input":{"file_path":"README.md","content":"x"}}'
 
 # ---------------------------------------------------------------------------
 # Scenario 3: approval guard — Write adding Approval: Approved (deny — exit 2)
 # ---------------------------------------------------------------------------
-parity_check "approval-guard: Write adds Approval" \
+parity_check "approval-guard: Write adds Approval" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${TASKS_MD}\",\"content\":\"## T-001\\nApproval: Approved\"}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 4: approval guard — Edit adding Approval: Approved (deny — exit 2)
 # ---------------------------------------------------------------------------
-parity_check "approval-guard: Edit adds Approval" \
-    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${TASKS_MD}\",\"old_string\":\"Draft\",\"new_string\":\"Approved\"}}"
+parity_check "approval-guard: Edit adds Approval" 2 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${TASKS_MD}\",\"old_string\":\"Approval: Draft\",\"new_string\":\"Approval: Approved\"}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 5: WFI guard — write Status: Approved in WFI path (deny — exit 2)
@@ -99,50 +102,50 @@ parity_check "approval-guard: Edit adds Approval" \
 mkdir -p "${WORK}/docs/workflow-improvements"
 WFI_FILE="${WORK}/docs/workflow-improvements/WFI-001.md"
 printf 'Status: Draft\n' > "$WFI_FILE"
-parity_check "wfi-guard: write Status: Approved" \
+parity_check "wfi-guard: write Status: Approved" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WFI_FILE}\",\"content\":\"Status: Approved\"}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 6: Second Approval guard — Write adding Second Approval: Approved (deny — exit 2)
 # ---------------------------------------------------------------------------
-parity_check "second-approval-guard: Write adds Second Approval" \
+parity_check "second-approval-guard: Write adds Second Approval" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${TASKS_MD}\",\"content\":\"## T-001\\nApproval: Draft\\nSecond Approval: Approved\"}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 7: Agent-role guard — write .toml without developer_instructions (deny — exit 2)
 # ---------------------------------------------------------------------------
 mkdir -p "${WORK}/.codex/agents"
-parity_check "agent-role-guard: toml without developer_instructions" \
+parity_check "agent-role-guard: toml without developer_instructions" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WORK}/.codex/agents/custom.toml\",\"content\":\"name = \\\"test\\\"\"}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 8: Agent-role guard — write .toml WITH developer_instructions (allow — exit 0)
 # ---------------------------------------------------------------------------
-parity_check "agent-role-guard: toml with developer_instructions" \
+parity_check "agent-role-guard: toml with developer_instructions" 0 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WORK}/.codex/agents/custom.toml\",\"content\":\"developer_instructions = \\\"ok\\\"\"}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 9: R-10 gate protect — write hook guard file (deny — exit 2)
 # ---------------------------------------------------------------------------
-parity_check "r10-gate-protect: write sdd-hook-guard.py" \
+parity_check "r10-gate-protect: write sdd-hook-guard.py" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\",\"content\":\"x\"}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 10: R-10 gate protect — write claude-hooks.json (deny — exit 2)
 # ---------------------------------------------------------------------------
-parity_check "r10-gate-protect: write claude-hooks.json" \
+parity_check "r10-gate-protect: write claude-hooks.json" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"plugins/sdd-quality-loop/hooks/claude-hooks.json\",\"content\":\"x\"}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 11: SDD_SUDO protection — write SDD_SUDO file (deny — exit 2)
 # ---------------------------------------------------------------------------
-parity_check "sudo-protect: write SDD_SUDO" \
+parity_check "sudo-protect: write SDD_SUDO" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WORK}/SDD_SUDO\",\"content\":\"x\"}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 12: Valid tool call (allow — exit 0)
 # ---------------------------------------------------------------------------
-parity_check "allow: write non-sensitive file" \
+parity_check "allow: write non-sensitive file" 0 \
     '{"tool_name":"write","tool_input":{"file_path":"src/main.py","content":"print(1)"}}'
 
 # ---------------------------------------------------------------------------
@@ -150,20 +153,20 @@ parity_check "allow: write non-sensitive file" \
 # Codex-format patch that adds Approval: Approved to tasks.md must be denied.
 # ---------------------------------------------------------------------------
 PATCH_PAYLOAD='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: tasks.md\n+Approval: Approved\n*** End Patch"}}'
-parity_check "approval-guard: apply_patch adds Approval" "$PATCH_PAYLOAD"
+parity_check "approval-guard: apply_patch adds Approval" 2 "$PATCH_PAYLOAD"
 
 # ---------------------------------------------------------------------------
 # Scenario 14: multiedit approval guard (deny — exit 2)
 # An edits[] array with new_string containing full "Approval: Approved" must be denied.
 # ---------------------------------------------------------------------------
-parity_check "approval-guard: multiedit edits adds Approval: Approved" \
+parity_check "approval-guard: multiedit edits adds Approval: Approved" 2 \
     "{\"tool_name\":\"multiedit\",\"tool_input\":{\"file_path\":\"${TASKS_MD}\",\"edits\":[{\"old_string\":\"Approval: Draft\",\"new_string\":\"Approval: Approved\"}]}}"
 
 # ---------------------------------------------------------------------------
 # Scenario 15: bash command approval guard (deny — exit 2)
 # Bash command echoing Approval: Approved into tasks.md must be denied.
 # ---------------------------------------------------------------------------
-parity_check "approval-guard: bash echo Approval to tasks.md" \
+parity_check "approval-guard: bash echo Approval to tasks.md" 2 \
     "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"echo 'Approval: Approved' >> ${TASKS_MD}\"}}"
 
 # ---------------------------------------------------------------------------
@@ -188,7 +191,7 @@ canonical = "\n".join([issuer, nonce, repo, issued_str, expires_str])
 sig = hmac.new(key, canonical.encode("utf-8"), hashlib.sha256).hexdigest()
 print(f"issuer: {issuer}\nnonce: {nonce}\nrepo: {repo}\nissued-epoch: {issued_str}\nexpires-epoch: {expires_str}\nsig: {sig}", end="")
 PYEOF
-    parity_check "sudo-active: approval bypass allowed" \
+    parity_check "sudo-active: approval bypass allowed" 0 \
         "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${TASKS_MD}\",\"content\":\"## T-001\\nApproval: Approved\"}}"
     rm -f "${WORK}/SDD_SUDO"
 else
@@ -201,7 +204,7 @@ fi
 # `cat file && rm file` previously bypassed the read-only short-circuit.
 # After the compound-command fix, this must be denied by both runtimes.
 # ---------------------------------------------------------------------------
-parity_check "r10-gate-protect: compound cat+rm on guard file denied" \
+parity_check "r10-gate-protect: compound cat+rm on guard file denied" 2 \
     '{"tool_name":"bash","tool_input":{"command":"cat plugins/sdd-quality-loop/scripts/sdd-hook-guard.py && rm plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
 
 # ---------------------------------------------------------------------------
@@ -209,7 +212,7 @@ parity_check "r10-gate-protect: compound cat+rm on guard file denied" \
 # `cat > protected_file << EOF` starts with a read-only verb but writes to the
 # protected file via redirect. Must be denied even without compound operators.
 # ---------------------------------------------------------------------------
-parity_check "r10-gate-protect: cat heredoc redirect to guard file denied" \
+parity_check "r10-gate-protect: cat heredoc redirect to guard file denied" 2 \
     '{"tool_name":"bash","tool_input":{"command":"cat > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py << EOF\nmalicious content\nEOF"}}'
 
 # ---------------------------------------------------------------------------

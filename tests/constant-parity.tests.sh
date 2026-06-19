@@ -80,7 +80,8 @@ PYEOF
 }
 
 # ---------------------------------------------------------------------------
-# Extract RISK_TIERS keys from check-contract.py
+# Extract RISK_TIERS tier:id pairs from check-contract.py
+# Produces lines like "critical:acceptance-tests", sorted, one per line.
 # ---------------------------------------------------------------------------
 extract_risk_tiers_sh() {
     python3 - "$PY" <<'PYEOF'
@@ -90,31 +91,42 @@ content = open(path).read()
 # Match RISK_TIERS = { ... } (multi-line dict literal in Python)
 m = re.search(r'RISK_TIERS\s*=\s*\{(.+?)\}(?=\s*\n\s*#|\s*\n\s*COMPILE|\s*\n\s*KNOWN)', content, re.DOTALL)
 if not m:
-    print("ERROR: RISK_TIERS not found in sh", file=sys.stderr)
+    print("ERROR: RISK_TIERS not found in py", file=sys.stderr)
     sys.exit(1)
 block = m.group(1)
-# Extract the tier names (keys like "low", "medium", "high", "critical")
-tiers = sorted(t.strip().strip('"').strip("'") for t in re.findall(r'"([a-z]+)"\s*:', block))
-print('\n'.join(tiers))
+pairs = []
+for tier_m in re.finditer(r'"([a-z]+)"\s*:\s*\{([^}]+)\}', block):
+    tier = tier_m.group(1)
+    ids = [s.strip().strip('"').strip("'") for s in tier_m.group(2).split(',')
+           if s.strip().strip('"').strip("'")]
+    for id_ in ids:
+        pairs.append(f"{tier}:{id_}")
+print('\n'.join(sorted(pairs)))
 PYEOF
 }
 
 # ---------------------------------------------------------------------------
-# Extract RISK_TIERS keys from check-contract.ps1
+# Extract RISK_TIERS tier:id pairs from check-contract.ps1
 # ---------------------------------------------------------------------------
 extract_risk_tiers_ps1() {
     python3 - "$PS1" <<'PYEOF'
 import sys, re
 path = sys.argv[1]
 content = open(path).read()
-# Look for $RISK_TIERS or $risk_tiers hashtable
+# Look for $RISK_TIERS hashtable
 m = re.search(r'\$RISK_TIERS\s*=\s*@\{(.+?)\}(?=\s*\n)', content, re.IGNORECASE | re.DOTALL)
 if not m:
     print("ERROR: RISK_TIERS not found in ps1", file=sys.stderr)
     sys.exit(1)
 block = m.group(1)
-tiers = sorted(t.strip().strip('"').strip("'") for t in re.findall(r'"([a-z]+)"\s*=', block))
-print('\n'.join(tiers))
+pairs = []
+for tier_m in re.finditer(r'"([a-z]+)"\s*=\s*@\(([^)]+)\)', block, re.IGNORECASE):
+    tier = tier_m.group(1).lower()
+    ids = [s.strip().strip('"').strip("'") for s in tier_m.group(2).split(',')
+           if s.strip().strip('"').strip("'")]
+    for id_ in ids:
+        pairs.append(f"{tier}:{id_}")
+print('\n'.join(sorted(pairs)))
 PYEOF
 }
 
@@ -148,26 +160,26 @@ else
     fail "BASELINE_IDS: could not extract from sh"
 fi
 
-# Check 2: RISK_TIERS tier-name parity
+# Check 2: RISK_TIERS tier:id pair parity
 RISK_SH="${WORK}/risk_sh.txt"
 RISK_PS1="${WORK}/risk_ps1.txt"
 
 if extract_risk_tiers_sh >"$RISK_SH" 2>/dev/null; then
     if extract_risk_tiers_ps1 >"$RISK_PS1" 2>/dev/null; then
         if diff -u "$RISK_SH" "$RISK_PS1" >/dev/null 2>&1; then
-            ok "RISK_TIERS keys: sh and ps1 are identical ($(wc -l <"$RISK_SH") tiers)"
+            ok "RISK_TIERS tier:id pairs: sh and ps1 are identical ($(wc -l <"$RISK_SH") pairs)"
         else
-            fail "RISK_TIERS keys: sh and ps1 DIVERGE"
+            fail "RISK_TIERS tier:id pairs: sh and ps1 DIVERGE"
             echo "  --- sh ---"
             cat "$RISK_SH"
             echo "  --- ps1 ---"
             cat "$RISK_PS1"
         fi
     else
-        fail "RISK_TIERS keys: could not extract from ps1"
+        fail "RISK_TIERS tier:id pairs: could not extract from ps1"
     fi
 else
-    fail "RISK_TIERS keys: could not extract from sh"
+    fail "RISK_TIERS tier:id pairs: could not extract from sh"
 fi
 
 # ---------------------------------------------------------------------------

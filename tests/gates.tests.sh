@@ -3027,11 +3027,13 @@ fi
 # R04-1: check-contract.sh exits 1 when check-contract.py is missing
 if command -v python3 >/dev/null 2>&1; then
     PY_SCRIPT="${SCRIPTS_DIR}/check-contract.py"
-    PY_BACKUP="${SCRIPTS_DIR}/check-contract.py.r04bak"
-    mv "$PY_SCRIPT" "$PY_BACKUP"
+    R04_TMP="$(mktemp -d)"
+    cp "$PY_SCRIPT" "${R04_TMP}/check-contract.py"
+    rm -f "$PY_SCRIPT"
     r04_exit=0
     bash "${SCRIPTS_DIR}/check-contract.sh" /dev/null . >/dev/null 2>&1 || r04_exit=$?
-    mv "$PY_BACKUP" "$PY_SCRIPT"
+    cp "${R04_TMP}/check-contract.py" "$PY_SCRIPT"
+    rm -rf "$R04_TMP"
     if [ "$r04_exit" -eq 1 ]; then
         ok "R04-1: check-contract.sh exits 1 (fail-closed) when check-contract.py is missing"
     else
