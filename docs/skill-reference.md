@@ -1300,6 +1300,6 @@ TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|lorem ipsum|com
 
 ## 関連ドキュメント
 
-- [../README.md](../README.md) — プロジェクト概要・インストール方法
+- [../README.md](../README.md) — プロジェクト概要・フロー図
 - [workflow-guide.md](workflow-guide.md) — SDD ワークフロー全体フロー・実行例
 - [troubleshooting.md](troubleshooting.md) — よくあるエラー・解決方法
