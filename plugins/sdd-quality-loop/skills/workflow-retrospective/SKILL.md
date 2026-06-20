@@ -125,6 +125,23 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
    - A phase produces `Blocked` more than once.
    - Auto-fix rate drops below 50 % for a ticket type.
 
+1.5. **Classify the WFI.** Before drafting, determine the WFI category by reading
+   `plugins/sdd-quality-loop/references/wfi-category-guide.md`:
+
+   - **`plugin-improvement`**: friction evidence comes from the "Spec Review Gate
+     Metrics" table (`impl_review_rounds`, `task_review_blocked_rate`,
+     `impl_review_blocked_rate`, `impl_review_legacy_design_rate`) or involves
+     cross-plugin handoff transitions (design review → task decomposition →
+     implementation flow). These WFIs are expressed in generic workflow terms
+     (see Section 2 of the category guide) and will be tracked as GitHub Issues.
+   - **`app-dev-efficiency`**: all other friction patterns (task sizing, test
+     coverage gaps, spec quality, project-specific recurring ticket types). These
+     WFIs use project-specific concrete language (feature slugs, task IDs, RT-IDs).
+
+   For `plugin-improvement` WFIs: read Section 2 of `wfi-category-guide.md` and
+   apply all term substitutions to Root Cause Hypothesis, Proposed Change, and
+   Expected Effect. Problem Evidence may cite raw metric names from the retrospective.
+
 2. **Draft a WFI.** For each identified friction, create
    `docs/workflow-improvements/WFI-NNN.md` with `Status: Draft` using the
    structure below. Increment NNN from the highest existing WFI number (start
@@ -147,15 +164,39 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
    <!-- Allowed values: Draft | Approved | Applied | Verified | Rejected -->
    <!-- Only a human may set status to Approved. The AI sets Draft, Applied, and Verified. -->
 
+   ## Category
+
+   Category: {{plugin-improvement|app-dev-efficiency}}
+
+   <!-- plugin-improvement: use generic workflow terms (wfi-category-guide.md §2). -->
+   <!-- app-dev-efficiency: use project-specific detail (feature slug, task IDs).   -->
+
+   ## GitHub-Issue
+
+   GitHub-Issue: {{N/A for app-dev-efficiency | Pending for plugin-improvement}}
+
+   <!-- Populated by wfi-audit-cycle after gh issue create (plugin-improvement only). -->
+
+   ## Audit-Status
+
+   Audit-Status: Not-Started
+
+   <!-- wfi-audit-cycle advances this through Cycle-1-In-Progress →              -->
+   <!-- Cycle-2-In-Progress → Human-Pending before human review.                  -->
+
    ## Problem Evidence
 
    {{metrics_and_ticket_references}}
 
    <!-- Quote specific BL-IDs, RT-IDs, or retrospective table rows that show the friction. -->
+   <!-- For plugin-improvement: raw metric field names are acceptable here.        -->
 
    ## Root Cause Hypothesis
 
    {{root_cause}}
+
+   <!-- plugin-improvement: use generic workflow terms only (wfi-category-guide.md §2). -->
+   <!-- app-dev-efficiency: name the specific feature/task/ticket driving the issue. -->
 
    ## Proposed Change
 
@@ -170,7 +211,9 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
 
    {{expected_effect}}
 
-   <!-- State the metric(s) expected to improve and by how much. -->
+   <!-- State the metric(s) expected to improve and by how much.                       -->
+   <!-- plugin-improvement: use generic metric names from wfi-category-guide.md §2.   -->
+   <!-- app-dev-efficiency: use project-specific metric names with concrete targets.   -->
 
    ## Verification Plan
 
@@ -185,6 +228,34 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
 
    <!-- Fill after the next task cycle completes. Append a comparison table. -->
    ```
+
+2.5. **Trigger audit cycle.** Immediately after creating the WFI Draft, invoke
+   the `wfi-audit-cycle` skill for every new WFI regardless of category:
+
+   Claude Code:
+   ```
+   /sdd-quality-loop:wfi-audit-cycle WFI-NNN
+   ```
+   Codex:
+   ```
+   Use the wfi-audit-cycle skill for WFI-NNN
+   ```
+
+   The audit cycle runs 2 independent review cycles (Cycle 1: proposal quality;
+   Cycle 2: impact and risk), revises the WFI between cycles, and sets
+   `Audit-Status: Human-Pending` when complete.
+
+   For `plugin-improvement` WFIs, `wfi-audit-cycle` also creates a GitHub Issue
+   after both cycles complete.
+
+   Record the WFI in the retrospective report under "Proposed Improvements" only
+   after the audit cycle completes (i.e., after `Audit-Status: Human-Pending` is
+   set). Use these status labels in the table:
+
+   | Category | Status label in table |
+   |---|---|
+   | `plugin-improvement` | `Human-Pending (audited, issue created)` |
+   | `app-dev-efficiency` | `Human-Pending (audited)` |
 
 3. **Await human Approved.** Do not apply any improvement until a human sets
    the WFI `status` to `Approved`.  Record the pending WFI references in the
