@@ -1,0 +1,21 @@
+{
+  "schema": "impl-review-contract/v1",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "fullstack",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "",
+  "acceptance_sha256": "",
+  "design_sha256": "",
+  "design_req_drift": false,
+  "human_edit_summary": "",
+  "timestamp": ""
+}

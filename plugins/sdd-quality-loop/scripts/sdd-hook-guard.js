@@ -101,6 +101,16 @@ const AGENT_ROLE_MSG =
 // R-10: Enforcement-chain file protection (never bypassed by sudo).
 // NOTE: Bash tool path-substring scan is best-effort — agents using python3 -c / node -e
 // inline may bypass verb detection. Edit/Write/MultiEdit path is primary enforcement.
+
+// impl-review gate: deny writing 'Impl-Review-Status: Passed' in design.md
+// unless a valid integrated-verdict.json with PASS|PASS-with-warnings exists for the feature.
+const IMPL_REVIEW_STATUS_PASSED_RE = /Impl-Review-Status:\s*Passed/;
+const IMPL_REVIEW_STATUS_MSG =
+  "SDD決定論ゲート: エージェントは impl-review-loop の PASS 判定なしに design.md に 'Impl-Review-Status: Passed' を書き込めません。impl-review-loop を実行し、integrated-verdict.json が PASS または PASS-with-warnings を返すまで待ってください。" +
+  "\n[EN] SDD deterministic gate: agents must not write 'Impl-Review-Status: Passed' in " +
+  "design.md without a valid integrated-verdict.json with verdict PASS or PASS-with-warnings " +
+  "for the feature. Run impl-review-loop and await its verdict.";
+
 const GATE_PROTECT_MSG =
   "SDD決定論ゲート: エージェントはゲートスクリプト・フック設定・テストファイルを書き換えられません。これらのファイルは強制チェーンの一部です。sudo でもバイパスできません。" +
   "\n[EN] SDD deterministic gate: agents must not modify gate scripts, hook " +
@@ -134,6 +144,13 @@ const PROTECTED_GATE_SUFFIXES = [
   '/.plugin/plugin.json',
   '/.claude-plugin/plugin.json',
   '/.codex-plugin/plugin.json',
+  // R-10: task-review and impl-review gate files (enforcement chain)
+  'plugins/sdd-task-review/agents/task-reviewer-a.md',
+  'plugins/sdd-task-review/agents/task-reviewer-b.md',
+  'plugins/sdd-task-review/skills/task-review-loop/SKILL.md',
+  'plugins/sdd-impl-review/agents/impl-reviewer-a.md',
+  'plugins/sdd-impl-review/agents/impl-reviewer-b.md',
+  'plugins/sdd-impl-review/skills/impl-review-loop/SKILL.md',
 ];
 
 const SHELL_COMPOUND_RE = /&&|\|\||;|\|/;
@@ -833,6 +850,90 @@ function agentRoleInvalid(payload) {
   return false;
 }
 
+function isDesignMd(filePath) {
+  // Match files named design.md (case-insensitive).
+  if (!filePath) return false;
+  return String(filePath).replace(/\\/g, '/').toLowerCase().endsWith('design.md');
+}
+
+function implReviewVerdictExists(filePath) {
+  // Check whether a valid integrated-verdict.json with PASS or PASS-with-warnings
+  // exists in reports/impl-review/<feature>/. Extract feature from the design.md path.
+  // Path pattern: specs/<feature>/design.md
+  if (!filePath) return false;
+  const normalized = String(filePath).replace(/\\/g, '/');
+  const specsMatch = normalized.match(/specs\/([^/]+)\/design\.md$/i);
+  if (!specsMatch) return false;
+  const feature = specsMatch[1];
+
+  // Look for any integrated-verdict.json in reports/impl-review/<feature>/
+  const reportsBase = 'reports/impl-review/' + feature;
+  try {
+    // Walk attempt dirs
+    const attemptDirs = fs.readdirSync(reportsBase).filter(d => d.startsWith('attempt-'));
+    for (const attemptDir of attemptDirs) {
+      const roundBase = path.join(reportsBase, attemptDir);
+      const roundDirs = fs.readdirSync(roundBase).filter(d => d.startsWith('round-'));
+      for (const roundDir of roundDirs) {
+        const verdictPath = path.join(roundBase, roundDir, 'integrated-verdict.json');
+        try {
+          const content = fs.readFileSync(verdictPath, 'utf8');
+          const verdict = JSON.parse(content);
+          if (verdict.verdict === 'PASS' || verdict.verdict === 'PASS-with-warnings') {
+            return true;
+          }
+        } catch (e) {
+          // continue
+        }
+      }
+    }
+  } catch (e) {
+    // reports dir doesn't exist or can't be read
+  }
+  return false;
+}
+
+function implReviewStatusPassedIncreases(payload) {
+  // Deny writing 'Impl-Review-Status: Passed' in design.md unless a valid
+  // integrated-verdict.json with PASS|PASS-with-warnings exists for the feature.
+  const toolInput = payload.tool_input || {};
+  const toolName = String(payload.tool_name || '').toLowerCase();
+  const filePath = toolInput.file_path || '';
+
+  if (!TARGETED_FILE_TOOLS.has(toolName)) return false;
+  if (!isDesignMd(filePath)) return false;
+
+  // Determine what new content will contain
+  let newContent = '';
+  if (Array.isArray(toolInput.edits)) {
+    for (const edit of toolInput.edits) {
+      const e = edit || {};
+      if (IMPL_REVIEW_STATUS_PASSED_RE.test(e.new_string || '')) {
+        newContent = e.new_string || '';
+        break;
+      }
+    }
+  } else if ('new_string' in toolInput) {
+    newContent = toolInput.new_string || '';
+  } else if ('content' in toolInput) {
+    newContent = toolInput.content || '';
+  }
+
+  if (!IMPL_REVIEW_STATUS_PASSED_RE.test(newContent)) return false;
+
+  // Check if old content already had Impl-Review-Status: Passed
+  let oldContent = '';
+  try {
+    oldContent = fs.readFileSync(filePath, 'utf8');
+  } catch (e) {
+    oldContent = '';
+  }
+  if (IMPL_REVIEW_STATUS_PASSED_RE.test(oldContent)) return false; // already set; not a new introduction
+
+  // New introduction of Impl-Review-Status: Passed — require verdict file
+  return !implReviewVerdictExists(filePath);
+}
+
 function parseArgs(argv) {
   let mode = 'exit';
   for (let i = 0; i < argv.length; i++) {
@@ -974,6 +1075,14 @@ async function main() {
     SECOND_APPROVAL_RE.lastIndex = 0;
     if (secondApprovalIncreases(payload)) {
       emitDecision('deny', SECOND_APPROVAL_MSG, mode);
+    }
+
+    // Check 2e: Impl-Review-Status: Passed guard (NEVER bypassed by sudo).
+    // Deny writing 'Impl-Review-Status: Passed' in design.md without a valid
+    // integrated-verdict.json with PASS|PASS-with-warnings for the feature.
+    IMPL_REVIEW_STATUS_PASSED_RE.lastIndex = 0;
+    if (implReviewStatusPassedIncreases(payload)) {
+      emitDecision('deny', IMPL_REVIEW_STATUS_MSG, mode);
     }
   } catch (e) {
     // Never crash; fail closed on the approval check.

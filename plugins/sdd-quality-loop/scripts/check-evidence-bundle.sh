@@ -13,8 +13,19 @@ if [ -z "$bundle" ] || [ ! -f "$bundle" ]; then
   exit 1
 fi
 
-if command -v python3 >/dev/null 2>&1; then
-  BUNDLE="$bundle" ROOT="$root" SCRIPT_DIR="$script_dir" python3 - <<'PYEOF'
+_find_python3() {
+  if python3 -c "import sys" >/dev/null 2>&1; then
+    echo "python3"
+  elif python -c "import sys; assert sys.version_info[0] >= 3" >/dev/null 2>&1; then
+    echo "python"
+  else
+    echo ""
+  fi
+}
+PYTHON3_BIN="$(_find_python3)"
+
+if [ -n "$PYTHON3_BIN" ]; then
+  BUNDLE="$bundle" ROOT="$root" SCRIPT_DIR="$script_dir" "$PYTHON3_BIN" - <<'PYEOF'
 import hashlib
 import hmac
 import json
@@ -271,7 +282,19 @@ else:
                     capture_output=True,
                 )
                 if r2.returncode != 0:
-                    fail(f"git_commit is not an ancestor of HEAD (foreign or future commit): {git_commit_str}")
+                    # Commit exists but is not an ancestor — may have been rewritten after
+                    # amend/rebase. Tolerate if all artifact hashes still match (35.1).
+                    hashes_ok = bool(artifact_index) and all(
+                        (pathlib.Path(root) / pathlib.Path(norm)).exists()
+                        and sha256_file(pathlib.Path(root) / pathlib.Path(norm)) == sha
+                        for norm, sha in artifact_index.items()
+                    )
+                    if hashes_ok:
+                        print(f"WARNING: git_commit {git_commit_str} is not an ancestor of HEAD "
+                              f"(history may have been rewritten after amend/rebase), "
+                              f"but all artifact hashes still match")
+                    else:
+                        fail(f"git_commit is not an ancestor of HEAD (foreign or future commit): {git_commit_str}")
         except Exception as exc:
             fail(f"git verification failed unexpectedly: {exc}")
 

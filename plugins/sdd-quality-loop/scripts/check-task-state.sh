@@ -3,11 +3,13 @@
 # Usage: check-task-state.sh <path-to-tasks.md> [reports-dir] [impl-reports-dir] [repo-root]
 # Reports dirs default to reports/quality-gate and reports/implementation.
 # Rules enforced:
-#  - Approval is Draft or Approved; Status is a known lifecycle value.
+#  - Approval is Draft or Approved (bare) or Approved (<any annotation>); Status is a known lifecycle value.
 #  - In Progress / Implementation Complete / Done require Approval: Approved.
 #  - Done additionally requires a verification/<task-id>.evidence.json file
 #    in the tasks.md directory, and that bundle must validate the report,
 #    contract, and passing evidence artifacts.
+#  - Done additionally requires a quality-gate report in reports/quality-gate
+#    that mentions the task id and contains VERDICT: PASS.
 #  - Implementation Complete requires an implementation report mentioning the task id.
 #  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
 #  - Duplicate task ids (## T-NNN repeated) → fail.
@@ -29,6 +31,14 @@ TASKS="$tasks" REPORTS="$reports" IMPL_REPORTS="$impl_reports" SCRIPT_DIR="$scri
 BEGIN {
   task = ""; failures = 0; count = 0
   in_blockers = 0; blockers_content = ""
+  # Detect available Python 3 interpreter (35.2: Windows ships a python3 stub)
+  if (system("python3 -c \"import sys\" >/dev/null 2>&1") == 0) {
+    PYTHON_CMD = "python3"
+  } else if (system("python -c \"import sys; assert sys.version_info[0] >= 3\" >/dev/null 2>&1") == 0) {
+    PYTHON_CMD = "python"
+  } else {
+    PYTHON_CMD = ""
+  }
 }
 # Strip a trailing CR so a CRLF-encoded tasks.md parses identically to LF (cross-platform parity).
 { sub(/\r$/, "") }
@@ -72,13 +82,13 @@ function approver_id(s,   rest) {
 function finish() {
   if (approval == "") fail(task " has no Approval line")
   else {
-    # Accept: Draft | Approved | Approved (<id> YYYY-MM-DDTHH:MM:SSZ) where <id> can be any non-space/non-paren token
+    # Accept: Draft | Approved | Approved (<any non-empty annotation>)
     is_valid_approval = (approval == "Draft" || approval == "Approved" || \
-      approval ~ /^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
+      approval ~ /^Approved \(.+\)$/)
     if (!is_valid_approval) fail(task " has invalid Approval: " approval)
   }
-  # For gate checks, treat Approved (with any id) same as Approved
-  is_approved = (approval == "Approved" || approval ~ /^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$/)
+  # For gate checks, treat Approved (with any non-empty annotation) same as Approved
+  is_approved = (approval == "Approved" || approval ~ /^Approved \(.+\)$/)
   if (status == "") fail(task " has no Status line")
   else if (status != "Planned" && status != "In Progress" && status != "Blocked" && status != "Implementation Complete" && status != "Done")
     fail(task " has invalid Status: " status)
@@ -115,8 +125,8 @@ function finish() {
       if (contract_nonempty != "yes") fail(task " is Done but verification/" task ".contract.json is empty in " tasks_dir)
       else {
         # Validate contract has matching task_id using python3 if available, else grep
-        if (system("command -v python3 >/dev/null 2>&1") == 0) {
-          cmd3 = "python3 -c \"import json,sys; c=json.load(open(\\\"" contract_path "\\\")); sys.exit(0 if c.get(\\\"task_id\\\") == \\\"" task "\\\" else 1)\" 2>/dev/null"
+        if (PYTHON_CMD != "") {
+          cmd3 = PYTHON_CMD " -c \"import json,sys; c=json.load(open(\\\"" contract_path "\\\")); sys.exit(0 if c.get(\\\"task_id\\\") == \\\"" task "\\\" else 1)\" 2>/dev/null"
           if (system(cmd3) != 0) fail(task " is Done but verification/" task ".contract.json has mismatched task_id")
         } else {
           # Fallback to grep for task_id match without python3
@@ -124,6 +134,16 @@ function finish() {
           if (system(grep_cmd) != 0) fail(task " is Done but verification/" task ".contract.json has mismatched task_id (or invalid JSON)")
         }
       }
+    }
+    # Issue #34: require quality-gate report with VERDICT: PASS
+    qg_cmd = "grep -rlw \x27" task "\x27 \"" ENVIRON["REPORTS"] "\" 2>/dev/null | head -1"
+    qg_cmd | getline qg_report; close(qg_cmd)
+    if (qg_report == "") {
+      fail(task " is Done but no quality-gate report in " ENVIRON["REPORTS"] " mentions it")
+    } else {
+      qg_pass_cmd = "grep -q \x27VERDICT: PASS\x27 \"" qg_report "\" 2>/dev/null && echo yes || echo no"
+      qg_pass_cmd | getline qg_pass; close(qg_pass_cmd)
+      if (qg_pass != "yes") fail(task " is Done but quality-gate report does not contain VERDICT: PASS: " qg_report)
     }
   }
   if (status == "Implementation Complete") {

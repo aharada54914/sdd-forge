@@ -1,6 +1,6 @@
 {
   "name": "sdd-lite",
-  "version": "0.13.0",
+  "version": "0.14.0",
   "description": "Lightweight medium-weight SDD track for internal/departmental apps: spec, single approval, implement, lite gate.",
   "skills": "./skills/",
   "author": {

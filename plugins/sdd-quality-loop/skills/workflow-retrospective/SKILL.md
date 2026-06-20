@@ -28,6 +28,8 @@ Read the following sources; do not modify them:
 - `reports/quality-gate/` — one report per quality-gate run
 - `docs/review-tickets/` — all YAML tickets for the feature
 - `git log --oneline` — commit history scoped to the feature path
+- `reports/task-review/` — task-review-contract.json files for each feature
+- `reports/impl-review/` — impl-review-contract.json files for each feature
 
 For each task derive:
 
@@ -37,6 +39,20 @@ For each task derive:
 - **Auto-fixed** — count of tickets where `auto_fix_allowed: true` and
   `status: resolved`
 - **Outcome** — final task status (`Done` or still open)
+
+For task-review and impl-review metrics, scan the contract files and derive:
+
+- **task_review_rounds_per_feature** — for each feature, the round number of the
+  final passing task-review-contract.json (rounds consumed to reach PASS).
+  If no PASS contract exists, record the maximum round reached.
+- **task_review_blocked_rate** — percentage of features where the task-review-loop
+  reached BLOCKED state (verdict == BLOCKED in the final attempt's last round).
+- **impl_review_rounds_per_feature** — for each feature, the round number of the
+  final passing impl-review-contract.json.
+- **impl_review_blocked_rate** — percentage of features where the impl-review-loop
+  reached BLOCKED state.
+- **impl_review_legacy_design_rate** — percentage of features where
+  `legacy_design: true` in at least one impl-review-contract.json.
 
 ## Output
 
@@ -79,6 +95,12 @@ Patterns observed across two or more tasks in this period.
 |---|---|---|---|
 | {{wfi_id}} | Draft | {{problem_summary}} | {{target_files}} |
 
+## Spec Review Gate Metrics
+
+| Feature | Task Review Rounds | Task Review Verdict | Impl Review Rounds | Impl Review Verdict | Legacy Design |
+|---|---|---|---|---|---|
+| {{feature}} | {{task_review_rounds}} | {{task_review_verdict}} | {{impl_review_rounds}} | {{impl_review_verdict}} | {{legacy_design}} |
+
 ## Comparison With Previous Retrospective
 
 | Metric | Previous | This Period | Trend |
@@ -87,6 +109,11 @@ Patterns observed across two or more tasks in this period.
 | Total Blocked Count | {{prev_blocked}} | {{curr_blocked}} | {{trend}} |
 | Total Review Tickets | {{prev_tickets}} | {{curr_tickets}} | {{trend}} |
 | Auto-fix Rate | {{prev_autofix_pct}} | {{curr_autofix_pct}} | {{trend}} |
+| Avg Task Review Rounds | {{prev_task_review_rounds}} | {{curr_task_review_rounds}} | {{trend}} |
+| Task Review Blocked Rate | {{prev_task_review_blocked}} | {{curr_task_review_blocked}} | {{trend}} |
+| Avg Impl Review Rounds | {{prev_impl_review_rounds}} | {{curr_impl_review_rounds}} | {{trend}} |
+| Impl Review Blocked Rate | {{prev_impl_review_blocked}} | {{curr_impl_review_blocked}} | {{trend}} |
+| Impl Legacy Design Rate | {{prev_legacy_design_rate}} | {{curr_legacy_design_rate}} | {{trend}} |
 
 _If no previous retrospective exists, mark all "Previous" cells as N/A._
 ```

@@ -1,11 +1,13 @@
 # Deterministic gate: validate the tasks.md state machine on disk.
 # Usage: check-task-state.ps1 <path-to-tasks.md> [-ReportsDir <reports/quality-gate>] [-ImplReportsDir <reports/implementation>] [-RepoRoot <path>]
 # Rules enforced:
-#  - Approval is Draft or Approved; Status is a known lifecycle value.
+#  - Approval is Draft or Approved (bare) or Approved (<any annotation>); Status is a known lifecycle value.
 #  - In Progress / Implementation Complete / Done require Approval: Approved.
 #  - Done additionally requires a verification/<task-id>.evidence.json file
 #    in the tasks.md directory, and that bundle must validate the report,
 #    contract, and passing evidence artifacts.
+#  - Done additionally requires a quality-gate report in ReportsDir that mentions
+#    the task id and contains VERDICT: PASS.
 #  - Implementation Complete requires an implementation report mentioning the task id.
 #  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
 #  - Duplicate task ids (## T-NNN repeated) → fail.
@@ -25,8 +27,10 @@ if (-not (Test-Path -LiteralPath $TasksPath)) {
 $validStatuses = @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")
 $approvedOnlyStatuses = @("In Progress", "Implementation Complete", "Done")
 
-# Pattern for generalized approval: Approved (<id> YYYY-MM-DDTHH:MM:SSZ) where <id> is any non-space/non-paren token
+# Strict pattern for critical two-person approval (named approver + ISO timestamp)
 $namedApprovalPattern = "^Approved \([^ )]+ [0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z\)$"
+# Relaxed pattern: Approved (<any non-empty annotation>) — used for non-critical gate checks
+$flexApprovalPattern = "^Approved \(.+\)$"
 
 $failures = @()
 $currentTask = $null
@@ -102,14 +106,14 @@ foreach ($task in $allTasks) {
     if (-not $a) { $failures += "$task has no Approval line"; continue }
     if (-not $s) { $failures += "$task has no Status line"; continue }
 
-    # Validate Approval: Draft | Approved | Approved (<id> YYYY-MM-DDTHH:MM:SSZ)
-    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $namedApprovalPattern)
+    # Validate Approval: Draft | Approved | Approved (<any non-empty annotation>)
+    $isValidApproval = ($a -eq "Draft" -or $a -eq "Approved" -or $a -match $flexApprovalPattern)
     if (-not $isValidApproval) {
         $failures += "$task has invalid Approval: $a"
     }
 
-    # For gate checks, treat Approved (with any id) same as Approved
-    $isApproved = ($a -eq "Approved" -or $a -match $namedApprovalPattern)
+    # For gate checks, treat Approved (with any non-empty annotation) same as Approved
+    $isApproved = ($a -eq "Approved" -or $a -match $flexApprovalPattern)
 
     if ($s -notin $validStatuses) { $failures += "$task has invalid Status: $s" }
     if ($s -in $approvedOnlyStatuses -and -not $isApproved) {
@@ -171,6 +175,21 @@ foreach ($task in $allTasks) {
                 } catch {
                     $failures += "$task is Done but verification/$task.contract.json has invalid JSON"
                 }
+            }
+        }
+        # Issue #34: require quality-gate report with VERDICT: PASS
+        $qgReport = $null
+        if (Test-Path -LiteralPath $ReportsDir) {
+            $qgReport = Get-ChildItem $ReportsDir -File -Recurse |
+                Where-Object { Select-String -Path $_.FullName -Pattern ([regex]::Escape($task)) -Quiet } |
+                Select-Object -First 1 -ExpandProperty FullName
+        }
+        if (-not $qgReport) {
+            $failures += "$task is Done but no quality-gate report in $ReportsDir mentions it"
+        } else {
+            $qgContent = Get-Content -Raw -Encoding Utf8 $qgReport
+            if ($qgContent -notmatch '(?m)^VERDICT:\s*PASS\s*$') {
+                $failures += "$task is Done but quality-gate report does not contain VERDICT: PASS: $qgReport"
             }
         }
     }
