@@ -58,7 +58,7 @@ flowchart TD
 ```
 
 > **Brownfield 既存プロジェクトへの導入**: 上記フローの前に `/sdd-adopt` を実行してください（[詳細](docs/workflow-guide.md)）。
-
+>
 > **LITE トラック** (`spec_profile: lite`): impl-review-loop / task-review-loop はスキップ。traceability/ADR/evidence-bundle/cross-model/critical を省略。下図参照。
 
 ```mermaid

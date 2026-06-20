@@ -343,7 +343,7 @@ else
     fail "C-05.1: valid sudo format should pass"
 fi
 
-# Test: invalid sudo format rejected
+# Test: any Approved (...) annotation is accepted (relaxed format per #35.3)
 mkdir -p "${WORK}/c05_test2/reports/quality-gate"
 mkdir -p "${WORK}/c05_test2/reports/implementation"
 cat > "${WORK}/c05_test2/tasks.md" <<'EOF'
@@ -354,14 +354,13 @@ cat > "${WORK}/c05_test2/tasks.md" <<'EOF'
 Approval: Approved (sudo bogus)
 Status: In Progress
 EOF
-output=$(run_check_task_state "${WORK}/c05_test2/tasks.md" \
+if check_task_state_passes "${WORK}/c05_test2/tasks.md" \
     "${WORK}/c05_test2/reports/quality-gate" \
     "${WORK}/c05_test2/reports/implementation" \
-    "${WORK}/c05_test2")
-if echo "$output" | grep -q "invalid Approval"; then
-    ok "C-05.2: reject malformed sudo format Approved (sudo bogus)"
+    "${WORK}/c05_test2"; then
+    ok "C-05.2: any Approved (...) annotation accepted (relaxed format)"
 else
-    fail "C-05.2: should reject malformed sudo format"
+    fail "C-05.2: Approved (sudo bogus) should be accepted under relaxed format"
 fi
 
 # Test: Approved (sudo ...) allows Done status
