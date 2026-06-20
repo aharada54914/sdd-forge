@@ -1,7 +1,7 @@
 {
   "name": "sdd-implementation",
   "version": "0.14.0",
-  "description": "Implement approved SDD tasks (one at a time or in batch) and prepare them for independent quality review.",
+  "description": "[internal] Implement approved SDD tasks (one at a time or in batch) and prepare them for independent quality review. Use /sdd-ship for the standard workflow.",
   "skills": "./skills/",
   "author": {
     "name": "Harada"

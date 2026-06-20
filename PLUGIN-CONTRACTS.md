@@ -36,10 +36,42 @@ rather than proceeding with an incomplete implementation set.
 
 ---
 
+## sdd-ship → internal plugins (v0.15.0+)
+
+**Source**: `plugins/sdd-ship/skills/sdd-ship/SKILL.md`
+**Targets**: sdd-implementation (implement-tasks), sdd-quality-loop (quality-gate, lite-gate via sdd-lite), sdd-bootstrap (sdd-adopt preflight)
+
+### Orchestration Contract
+
+sdd-ship is a thin orchestrator. It does not re-implement logic from its dependencies:
+
+1. **Implementation**: delegates entirely to `/sdd-implementation:implement-tasks` (full track) or `/sdd-implementation:implement-task` in document order (lite track).
+2. **Quality gate (full)**: delegates to `/sdd-quality-loop:quality-gate` per task. BLOCKED verdict halts the batch immediately.
+3. **Quality gate (lite)**: delegates to `/sdd-lite:lite-gate` per task. FAIL verdict halts the batch.
+4. **Cross-model verify**: delegates to `/sdd-quality-loop:cross-model-verify` only when `--verify` flag is present AND the task has `Cross-Model: enabled`.
+5. **Retrospective**: delegates to `/sdd-quality-loop:workflow-retrospective` when `--retro` is passed or all tasks reach Done for the first time in the session.
+
+### Security Invariants
+
+- sdd-ship must never invoke `sdd-sudo` or create/modify `SDD_SUDO`.
+- sdd-ship must never set `Approval: Approved` on any task.
+- sdd-ship must never modify files under `plugins/sdd-quality-loop/hooks/` or any `sdd-hook-guard.*` script.
+- sdd-ship must never push to remote or create pull requests without explicit user instruction.
+
+### Track Detection (priority order)
+
+1. `--full` flag → FULL (verifies acceptance-tests.md + traceability.md exist)
+2. `--lite` flag → LITE
+3. `spec_profile: lite` in AGENTS.md → LITE
+4. Default → FULL
+
+---
+
 ## Plugin Dependency Declarations
 
 | Plugin | Depends On | Notes |
 |--------|------------|-------|
+| sdd-ship | sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-lite | orchestrates all implementation and verification phases |
 | sdd-implementation | sdd-quality-loop | quality-gate invocation |
 | sdd-lite | sdd-quality-loop | check-task-state-lite mirrors check-task-state logic |
 | sdd-bootstrap | (none) | standalone |

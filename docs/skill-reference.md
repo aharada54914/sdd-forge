@@ -1,11 +1,15 @@
 # SDD スキルリファレンス
 
-6つのプラグイン（sdd-bootstrap、sdd-impl-review、sdd-task-review、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる14のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+7つのプラグイン（sdd-bootstrap、sdd-ship、sdd-impl-review、sdd-task-review、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる16のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+
+> **2コマンドワークフロー**: ユーザーが直接呼び出すのは `/sdd-bootstrap` と `/sdd-ship` の2つのみです。他のスキルはこれらのオーケストレーターが内部で呼び出します。
 
 ## 1. スキル一覧 (早見表)
 
 | スキル名 | 所属プラグイン | 役割 | 前段スキル | 後段スキル |
 |---|---|---|---|---|
+| **sdd-bootstrap** | **sdd-bootstrap** | **[公開] 仕様化フェーズのエントリーポイント。investigate/adopt/feature/bugfix/refactor/project モードをルーティング** | **—** | **sdd-ship** |
+| **sdd-ship** | **sdd-ship** | **[公開] 実装・品質保証フェーズのオーケストレーター。implement-tasks → quality-gate (or lite-gate) → workflow-retrospective を順次実行** | **sdd-bootstrap** | **—** |
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
 | sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
@@ -24,6 +28,71 @@
 **重要:** すべてのスキルは `disable-model-invocation: true` を指定しています。つまり、モデルが勝手にスキルを起動することはなく、ユーザーが明示的に `/sdd-bootstrap:sdd-adopt` のようなコマンドで呼び出す必要があります。このため、実装途中の誤った自動実行を防げます。
 
 ## 2. 各スキル詳細
+
+### sdd-bootstrap（公開エントリーポイント）
+
+**目的**
+
+仕様化フェーズのトップレベルルーターです。`feature` / `bugfix` / `refactor` / `project` / `adopt` / `investigate` の各モードをサブスキルにルーティングし、Phase 1 → impl-review-loop → Phase 2 → task-review-loop → 承認ゲートの全フローを管理します。
+
+**呼び出し例**
+
+```txt
+# Claude Code
+/sdd-bootstrap feature https://github.com/example/repo/issues/42
+/sdd-bootstrap bugfix  https://github.com/example/repo/issues/88
+/sdd-bootstrap refactor https://github.com/example/repo/issues/55
+/sdd-bootstrap project "新規プロジェクト要件"
+/sdd-bootstrap adopt
+/sdd-bootstrap investigate refactor src/payments
+/sdd-bootstrap feature --lite <source>
+/sdd-bootstrap feature --feature my-slug <source>
+/sdd-bootstrap feature --reset --feature my-slug
+
+# Codex
+Use the sdd-bootstrap skill.
+Mode: feature
+Source: https://github.com/example/repo/issues/42
+```
+
+**詳細は** `plugins/sdd-bootstrap/skills/sdd-bootstrap/SKILL.md` **を参照。**
+
+---
+
+### sdd-ship（公開エントリーポイント）
+
+**目的**
+
+実装・品質保証フェーズのオーケストレーターです。承認済みタスクを implement-tasks → quality-gate (または lite-gate) → workflow-retrospective の順に処理し、全タスクを Done に導きます。
+
+**呼び出し例**
+
+```txt
+# Claude Code
+/sdd-ship                                          # ゼロ引数（Active Spec Dirs から自動選択）
+/sdd-ship specs/<feature>/tasks.md                 # バッチ実装（全承認済みタスク）
+/sdd-ship specs/<feature>/tasks.md#T-001           # 単一タスク
+/sdd-ship --lite specs/<feature>/tasks.md          # lite トラック強制
+/sdd-ship --full specs/<feature>/tasks.md          # フル トラック強制
+/sdd-ship --verify specs/<feature>/tasks.md        # cross-model-verify を実行
+/sdd-ship --retro specs/<feature>/tasks.md         # 完了後に workflow-retrospective を実行
+
+# Codex
+Use the sdd-ship skill for specs/<feature>/tasks.md
+```
+
+**トラック検出（優先順）**
+
+1. `--full` フラグ → FULL（acceptance-tests.md と traceability.md の存在確認）
+2. `--lite` フラグ → LITE
+3. AGENTS.md に `spec_profile: lite` → LITE
+4. デフォルト → FULL
+
+**ゼロ引数起動**: AGENTS.md の `## Active Spec Directories` を読み、承認済みタスクが1件のみなら自動選択。複数ある場合はリスト表示して停止。
+
+**詳細は** `plugins/sdd-ship/skills/sdd-ship/SKILL.md` **を参照。**
+
+---
 
 ### sdd-adopt
 

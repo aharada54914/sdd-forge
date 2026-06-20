@@ -745,6 +745,15 @@ _PROTECTED_GATE_SUFFIXES = (
     "tests/eval.tests.sh",
     "tests/guard-parity.tests.sh",
     "tests/constant-parity.tests.sh",
+    # R-10: task-review and impl-review gate files (enforcement chain)
+    "plugins/sdd-task-review/agents/task-reviewer-a.md",
+    "plugins/sdd-task-review/agents/task-reviewer-b.md",
+    "plugins/sdd-task-review/skills/task-review-loop/SKILL.md",
+    "plugins/sdd-impl-review/agents/impl-reviewer-a.md",
+    "plugins/sdd-impl-review/agents/impl-reviewer-b.md",
+    "plugins/sdd-impl-review/skills/impl-review-loop/SKILL.md",
+    # R-10: sdd-ship orchestrator (self-protection of the second public command)
+    "plugins/sdd-ship/skills/sdd-ship/SKILL.md",
 )
 
 _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES = (

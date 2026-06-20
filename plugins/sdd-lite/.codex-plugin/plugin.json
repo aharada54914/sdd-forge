@@ -1,7 +1,7 @@
 {
   "name": "sdd-lite",
   "version": "0.14.0",
-  "description": "Lightweight medium-weight SDD track for internal/departmental apps: spec, single approval, implement, lite gate.",
+  "description": "[internal] Lightweight medium-weight SDD track for internal/departmental apps. Use /sdd-ship --lite for the standard workflow.",
   "skills": "./skills/",
   "author": {
     "name": "Harada"

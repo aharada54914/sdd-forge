@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.15.0 (2026-06-20)
+
+### 追加
+
+- **`sdd-ship` プラグイン（実装・品質保証フェーズのオーケストレーター）**: 新しいトップレベル公開コマンド。承認済みタスクを `implement-tasks` → `quality-gate`（または `lite-gate`）→ `workflow-retrospective` の順に処理し、全タスクを Done に導く薄いオーケストレーター。
+  - **2コマンドワークフロー確立**: ユーザーが直接呼び出すのは `/sdd-bootstrap` と `/sdd-ship` の2つのみ。内部スキル（`implement-task`、`quality-gate` 等）は引き続き動作し、後方互換性を完全に維持。
+  - **自動トラック検出**: `--full` → `--lite` → `spec_profile: lite`（AGENTS.md）→ デフォルト FULL の優先順でトラックを自動検出。`[sdd-ship] Track: ...` メッセージを常に先頭に出力。
+  - **ゼロ引数起動**: 引数なしで実行すると AGENTS.md の `## Active Spec Directories` を走査し、承認済みタスクが1フィーチャーのみなら自動選択。
+  - **`--verify` フラグ**: `Cross-Model: enabled` を持つタスクのみ `cross-model-verify` を実行。対象タスクがない場合は警告を出力して通常ゲートへ。lite トラックでは無視。
+  - **`--retro` フラグ**: 全タスク Done 後に `workflow-retrospective` を強制実行。
+  - **サイクル上限**: 同一タスクで `quality-gate` を3回実行しても Done に到達しない場合は人間調査を促して停止。
+  - **セキュリティ境界**: `sdd-sudo` の呼び出し禁止、`Approval: Approved` の自己設定禁止、フックファイルの変更禁止。
+  - ファイル: `plugins/sdd-ship/skills/sdd-ship/SKILL.md`、`plugins/sdd-ship/.claude-plugin/plugin.json`、`plugins/sdd-ship/.codex-plugin/plugin.json`、`plugins/sdd-ship/.plugin/plugin.json`
+
+- **`sdd-bootstrap` トップレベルルーター**: `plugins/sdd-bootstrap/skills/sdd-bootstrap/SKILL.md` を新規作成し、全モード（feature/bugfix/refactor/project/adopt/investigate）のルーティングと `--lite`/`--feature`/`--reset` フラグを一元管理するエントリーポイントを追加。ハンドオフは常に `/sdd-ship` を次ステップとして案内。
+
+### 変更
+
+- **`install.sh` / `install.ps1` デフォルト変更**: デフォルトプラグインセットを `sdd-bootstrap,sdd-ship` に変更。`sdd-ship` を選択すると全依存プラグインが自動展開される。`VALID_PLUGINS` に `sdd-ship` を追加。`REQUIRED_PATHS` に sdd-ship の3ファイルを追加。
+- **marketplace 更新**: `.claude-plugin/marketplace.json` と `.agents/plugins/marketplace.json` に `sdd-ship` エントリを追加。`sdd-implementation` と `sdd-lite` の description に `[internal]` プレフィックスを付与（UX 整理; 機能削除なし）。
+- **フックガード更新**: `sdd-hook-guard.js` と `sdd-hook-guard.py` の `PROTECTED_GATE_SUFFIXES` に `plugins/sdd-ship/skills/sdd-ship/SKILL.md` を追加（R-10 保護）。
+- **ドキュメント更新**: README.md にクイックスタート（2コマンド）セクションを追加。`docs/workflow-guide.md` に2コマンドクイックリファレンス表を追加。`docs/skill-reference.md` に sdd-ship と sdd-bootstrap のエントリを追加し、スキル数を16に更新。
+
+### v0.14.0 からの移行
+
+- 破壊的変更なし。すべての内部スキルは引き続き直接呼び出し可能（後方互換性を恒久的に保証）。
+- 既存の `sdd-bootstrap,sdd-implementation,sdd-quality-loop,sdd-lite` でのインストールは引き続き動作する。新インストールは `sdd-bootstrap,sdd-ship` のみで全依存が自動展開される。
+- `spec_profile: lite` を持つ既存プロジェクトは `/sdd-ship` が自動的に lite トラックを検出する。
+
 ## v0.14.0 (2026-06-19)
 
 ### 追加

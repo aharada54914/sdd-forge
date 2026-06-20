@@ -151,6 +151,8 @@ const PROTECTED_GATE_SUFFIXES = [
   'plugins/sdd-impl-review/agents/impl-reviewer-a.md',
   'plugins/sdd-impl-review/agents/impl-reviewer-b.md',
   'plugins/sdd-impl-review/skills/impl-review-loop/SKILL.md',
+  // R-10: sdd-ship orchestrator (self-protection of the second public command)
+  'plugins/sdd-ship/skills/sdd-ship/SKILL.md',
 ];
 
 const SHELL_COMPOUND_RE = /&&|\|\||;|\|/;

@@ -2,6 +2,21 @@
 
 実際のソフトウェア開発業務 (仕様変更、レビュー差し戻し、他部署レビュー、障害報告) の中で SDD プラグインをどう運用するかを説明するガイドです。各スキルの個別仕様は [skill-reference.md](skill-reference.md) を参照してください。
 
+## 2コマンドクイックリファレンス
+
+| コマンド | 役割 | 実行者 |
+|---|---|---|
+| `/sdd-bootstrap <mode> <source>` | 仕様化フェーズ: 要件 → 仕様 → タスク契約 | AI + 人間レビュー |
+| `/sdd-ship specs/<feature>/tasks.md` | 実装・品質保証フェーズ: 承認済みタスク → Done | AI (人間承認後) |
+
+**フルトラック**: `sdd-bootstrap` → 人間承認 → `sdd-ship`
+
+**lite トラック**: `sdd-bootstrap --lite` → 人間承認 → `sdd-ship --lite`
+
+内部スキル（`implement-task`、`quality-gate` 等）は `sdd-ship` が自動的に呼び出します。
+
+---
+
 ## 全体フロー図 (feature / fullstack)
 
 ```mermaid
