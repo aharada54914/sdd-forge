@@ -85,7 +85,7 @@ Unless `--lite` is present and `spec_profile` in `AGENTS.md` is not `full`:
    Outputs: `requirements.md`, `design.md`, `acceptance-tests.md`, ADRs,
    `design.md` with `Impl-Review-Status: Pending`.
 
-2. **Impl-review gate** — invoke `/sdd-impl-review:impl-review-loop --feature <slug>`.
+2. **Impl-review gate** — invoke `/sdd-review-loop:impl-review-loop --feature <slug>`.
    - PASS / PASS-with-warnings: continue to Phase 2.
    - NEEDS_WORK: present proposed edits to the human, wait for `design.md`
      update, then re-invoke.
@@ -96,7 +96,7 @@ Unless `--lite` is present and `spec_profile` in `AGENTS.md` is not `full`:
    in Phase 2 mode (after `Impl-Review-Status: Passed`).
    Outputs: `tasks.md` (Approval: Draft), `traceability.md`.
 
-4. **Task-review gate** — invoke `/sdd-task-review:task-review-loop --feature <slug>`.
+4. **Task-review gate** — invoke `/sdd-review-loop:task-review-loop --feature <slug>`.
    - PASS / PASS-with-warnings: continue to Approval Gate.
    - NEEDS_WORK: present proposed edits, wait for `tasks.md` update, re-invoke.
    - BLOCKED: stop. Instruct: `/sdd-bootstrap <mode> --reset --feature <slug>`.

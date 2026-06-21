@@ -19,7 +19,7 @@ Use the task-review-loop skill for feature <slug>
 
 Claude Code:
 ```
-/sdd-task-review:task-review-loop --feature <slug> [--reset] [--edit-summary "<text>"]
+/sdd-review-loop:task-review-loop --feature <slug> [--reset] [--edit-summary "<text>"]
 ```
 
 Flags:
@@ -56,7 +56,7 @@ attempt-1/round-1.
 
 ### STEP 1 — Precheck
 
-Run `plugins/sdd-task-review/scripts/task-review-precheck.sh <feature> <attempt> <round>`.
+Run `plugins/sdd-review-loop/scripts/task-review-precheck.sh <feature> <attempt> <round>`.
 
 This script produces:
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
@@ -142,7 +142,7 @@ Write `reports/task-review/<feature>/attempt-<M>/round-<N>/integrated-verdict.js
 ```
 
 Write `reports/task-review/<feature>/attempt-<M>/round-<N>/task-review-contract.json`
-using the schema from `plugins/sdd-task-review/templates/task-review-contract.template.json`.
+using the schema from `plugins/sdd-review-loop/templates/task-review-contract.template.json`.
 
 ### STEP 6 — State Machine Outcome
 
@@ -164,7 +164,7 @@ using the schema from `plugins/sdd-task-review/templates/task-review-contract.te
 #### Round < 3, Major or Critical findings → NEEDS_WORK
 
 - Generate `reports/task-review/<feature>/attempt-<M>/round-<N>/tasks-round-<N>-proposed-changes.md`
-  using `plugins/sdd-task-review/templates/task-review-report.template.md`.
+  using `plugins/sdd-review-loop/templates/task-review-report.template.md`.
 - Present the proposed changes file to the human.
 - Print: "task-review-loop NEEDS_WORK — round <N> of 3. Review proposed changes
   and edit specs/<feature>/tasks.md. Then re-invoke with --edit-summary."
@@ -216,7 +216,7 @@ is not waived by sudo.
 ## Report Format
 
 Display findings to the human using:
-`plugins/sdd-task-review/templates/task-review-report.template.md`
+`plugins/sdd-review-loop/templates/task-review-report.template.md`
 
 Always show:
 1. Verdict (PASS / PASS-with-warnings / NEEDS_WORK / BLOCKED)

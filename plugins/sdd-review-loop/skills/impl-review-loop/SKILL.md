@@ -19,7 +19,7 @@ Use the impl-review-loop skill for feature <slug>
 
 Claude Code:
 ```
-/sdd-impl-review:impl-review-loop --feature <slug> [--reset] [--edit-summary "<text>"]
+/sdd-review-loop:impl-review-loop --feature <slug> [--reset] [--edit-summary "<text>"]
 ```
 
 Flags:
@@ -67,7 +67,7 @@ attempt-1/round-1.
 
 ### STEP 1 — Precheck
 
-Run `plugins/sdd-impl-review/scripts/impl-review-precheck.sh <feature> <attempt> <round>`.
+Run `plugins/sdd-review-loop/scripts/impl-review-precheck.sh <feature> <attempt> <round>`.
 
 This script produces:
 - `reports/impl-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
@@ -153,7 +153,7 @@ Write `reports/impl-review/<feature>/attempt-<M>/round-<N>/integrated-verdict.js
 ```
 
 Write `reports/impl-review/<feature>/attempt-<M>/round-<N>/impl-review-contract.json`
-using the schema from `plugins/sdd-impl-review/templates/impl-review-contract.template.json`.
+using the schema from `plugins/sdd-review-loop/templates/impl-review-contract.template.json`.
 
 ### STEP 6 — State Machine Outcome
 
@@ -178,7 +178,7 @@ using the schema from `plugins/sdd-impl-review/templates/impl-review-contract.te
 #### Round < 3, Major or Critical findings → NEEDS_WORK
 
 - Generate `reports/impl-review/<feature>/attempt-<M>/round-<N>/design-round-<N>-proposed-changes.md`
-  using `plugins/sdd-impl-review/templates/impl-review-report.template.md`.
+  using `plugins/sdd-review-loop/templates/impl-review-report.template.md`.
 - Present the proposed changes file to the human.
 - Print: "impl-review-loop NEEDS_WORK — round <N> of 3. Review proposed changes
   and edit specs/<feature>/design.md. Then re-invoke with --edit-summary."
@@ -237,7 +237,7 @@ is not waived by sudo.
 ## Report Format
 
 Display findings to the human using:
-`plugins/sdd-impl-review/templates/impl-review-report.template.md`
+`plugins/sdd-review-loop/templates/impl-review-report.template.md`
 
 Always show:
 1. Verdict (PASS / PASS-with-warnings / NEEDS_WORK / BLOCKED)
