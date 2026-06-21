@@ -28,10 +28,10 @@
 | REQ-001 | T-002 Phase 2 | plugins/sdd-review-loop/ 作成 |
 | REQ-001 | T-002 Phase 3 | sdd-bootstrap/sdd-bootstrap-interviewer caller 更新 |
 | REQ-001 | T-002 Phase 4 | plugins/sdd-impl-review/ + sdd-task-review/ 削除 |
+| REQ-001 | T-003 | implement-task/implement-tasks/quality-gate に Caller ヘッダー追加 |
 | REQ-002 | T-002 Phase 1 | Python Check 2e 追加（human/sudo）|
 | REQ-003 | T-005 | validate-repository.ps1 $expectedSkills 15→17、$forbiddenPaths 追加 |
 | REQ-004 | T-002 Phase 3 | sdd-bootstrap-interviewer L105/L111/L118/L119/L145/L150 更新 |
-| REQ-005 | T-003 | 内部 SKILL.md に Caller ヘッダー追加 |
 | REQ-005 | T-004 | docs/skill-reference.md + docs/workflow-guide.md 再構成 |
 | REQ-006 | T-005 | guard-parity.tests.sh Scenarios 19/20/21 追加 |
 
@@ -42,8 +42,8 @@
 | AC-001 | REQ-001, REQ-004 | /sdd-bootstrap 実行時に新パス /sdd-review-loop:impl-review-loop が起動 |
 | AC-002 | REQ-001 | hook guard が新パス plugins/sdd-review-loop/ 配下への書き込みを拒否 |
 | AC-003 | REQ-001 | 旧パスへの書き込みが削除後に no-op または exit 2 |
-| AC-004 | REQ-002 | Python ガードが verdict なし Impl-Review-Status: Passed を exit 2 で拒否 |
-| AC-005 | REQ-002 | Python ガードが valid PASS verdict ありなら exit 0 で許可 |
+| AC-004 | REQ-002 | Python ガードが verdict なし Impl-Review-Status: Passed を exit 2 で拒否（BL-008） |
+| AC-005 | REQ-002 | Python ガードが valid PASS verdict ありなら exit 0 で許可（BL-008） |
 | AC-006 | REQ-006 | guard-parity.tests.sh が 21 シナリオ全て pass |
 | AC-007 | REQ-003 | validate-repository.ps1 が 17 件のスキルを正常検出 |
 | AC-008 | REQ-001 | scenario.tests.sh + install.tests.sh が変更前後で同じ結果 |
@@ -57,10 +57,13 @@
 | AC-001 | BL-001, BL-002 | impl-review / task-review 自動起動 |
 | AC-002 | BL-003, BL-004, BL-005, BL-006 | 新パスへの書き込みが hook guard で拒否 |
 | AC-003 | BL-015, BL-016 | 旧パスは削除後 no-op（intentionally changed）|
+| AC-004 | BL-008 | Python ガードが Impl-Review-Status: Passed を verdict なしで拒否 |
+| AC-005 | BL-008 | Python ガードが valid PASS verdict ありで許可（BL-008 の Python パリティ回復）|
 | AC-006 | BL-009 | guard-parity 全シナリオ pass |
+| AC-007 | — | validate-repository.ps1 17件検出（INV-003 修正確認 — 対応 BL なし）|
 | AC-008 | BL-010, BL-011 | scenario + install テスト変化なし |
-| AC-009 | BL-007 | Approval: Approved 書き換え拒否 |
-| AC-010 | BL-012, BL-013 | install.sh auto-included + marketplace に sdd-ship |
+| AC-009 | BL-007 | Approval: Approved 書き換え拒否（承認ガード健在 — T-002 Done When に追加）|
+| AC-010 | BL-012, BL-013 | install.sh auto-included + marketplace に sdd-ship（T-002 Done When に追加）|
 
 ## Task → 実装ファイル
 
@@ -87,7 +90,6 @@
 | T-002 Phase 4 | plugins/sdd-task-review/ | 完全削除 |
 | T-002 Phase 5 | plugins/sdd-quality-loop/scripts/sdd-hook-guard.js | 旧6パス削除（human/sudo）|
 | T-002 Phase 5 | plugins/sdd-quality-loop/scripts/sdd-hook-guard.py | 旧6パス削除（human/sudo）|
-| T-002 Phase 5 | tests/validate-repository.ps1 | $forbiddenPaths 追加 |
 | T-003 | plugins/sdd-implementation/skills/implement-task/SKILL.md | Caller ヘッダー追加 |
 | T-003 | plugins/sdd-implementation/skills/implement-tasks/SKILL.md | Caller ヘッダー追加 |
 | T-003 | plugins/sdd-quality-loop/skills/quality-gate/SKILL.md | Caller ヘッダー追加 |

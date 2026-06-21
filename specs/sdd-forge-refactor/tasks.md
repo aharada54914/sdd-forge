@@ -1,5 +1,7 @@
 # Tasks: sdd-forge-refactor
 
+Task-Review-Status: Passed
+
 ## Lifecycle
 
 `Draft -> Approved -> In Progress -> Implementation Complete -> Done`
@@ -91,23 +93,32 @@ Requirements: REQ-001, REQ-002, REQ-004
    - L145: `/task-review-loop` → `/sdd-review-loop:task-review-loop`
    - L150: `/task-review-loop --reset` → `/sdd-review-loop:task-review-loop --reset`
 
-**Phase 4 [エージェント — Phase 3 完了後]**:
+**Phase 3.5 [エージェント — Phase 3 完了後、Phase 4 前の検証ゲート]**:
+削除前に以下を確認してから Phase 4 に進む:
+- `plugins/sdd-review-loop/` が全ファイル（skills/, agents/, scripts/, templates/, references/）を含む
+- `sdd-bootstrap/SKILL.md` L88/L99 が新パスを参照している
+- `sdd-bootstrap-interviewer/SKILL.md` L105/111/118/119/145/150 が更新済み
+- AC-002（新パスへの書き込みが exit 2 で拒否）が手動確認可能な状態
+
+**Phase 4 [エージェント — Phase 3.5 検証後]**:
 6. `plugins/sdd-impl-review/` を完全削除
 7. `plugins/sdd-task-review/` を完全削除
 
 **Phase 5 [human/sudo — Phase 4 完了後]**:
 8. `sdd-hook-guard.js/py` PROTECTED_GATE_SUFFIXES から旧 6 パスを削除
-9. `tests/validate-repository.ps1` `$forbiddenPaths` に `plugins/sdd-impl-review` と
-   `plugins/sdd-task-review` を追加
+（注: `$forbiddenPaths` の更新は T-005 が担当 — ここでは行わない）
 
 ### Done When
 - [ ] Phase 1: guard files 更新済み（human/sudo 実施）
 - [ ] Phase 2: `plugins/sdd-review-loop/` が全ファイルを含んで存在する
 - [ ] Phase 3: sdd-bootstrap/SKILL.md L88/L99 と sdd-bootstrap-interviewer/SKILL.md L105/111/118/119/145/150 が更新済み
+- [ ] Phase 3.5: 新プラグイン・caller 更新の事前検証完了
 - [ ] Phase 4: `plugins/sdd-impl-review/` と `plugins/sdd-task-review/` が存在しない
-- [ ] Phase 5: guard の旧パスが削除済み、$forbiddenPaths 更新済み（human/sudo 実施）
+- [ ] Phase 5: guard の旧パスが削除済み（human/sudo 実施）
 - [ ] AC-001, AC-002, AC-003 が pass する
+- [ ] AC-009（承認ガード健在）が pass する
 - [ ] BL-009（guard-parity）、BL-010（scenario）、BL-011（install）が pass する
+- [ ] BL-012/BL-013（install.sh auto-include + marketplace sdd-ship）が変化しないことを確認
 - [ ] 実装レポート作成
 - [ ] quality gate pass
 
