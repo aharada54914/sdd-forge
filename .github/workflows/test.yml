@@ -61,6 +61,7 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: |
+          bash -n ./tests/release-host-smoke.sh
           ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
 
       - name: Test authenticated remote installer (bash)

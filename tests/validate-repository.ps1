@@ -2,14 +2,15 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-ship")
+$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.0.0"
-    "sdd-implementation" = "1.0.0"
-    "sdd-quality-loop"   = "1.0.0"
-    "sdd-lite"           = "1.0.0"
-    "sdd-ship"           = "1.0.0"
+    "sdd-bootstrap"      = "1.1.0"
+    "sdd-implementation" = "1.1.0"
+    "sdd-quality-loop"   = "1.1.0"
+    "sdd-lite"           = "1.1.0"
+    "sdd-review-loop"    = "1.1.0"
+    "sdd-ship"           = "1.1.0"
 }
 
 function Read-JsonFile {
@@ -134,7 +135,12 @@ $requiredFiles = @(
     ".codex/agents/sdd-evaluator.toml",
     "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
     "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
-    "plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1"
+    "plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1",
+    "plugins/sdd-review-loop/.claude-plugin/plugin.json",
+    "plugins/sdd-review-loop/.codex-plugin/plugin.json",
+    "plugins/sdd-review-loop/.plugin/plugin.json",
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md"
 )
 foreach ($relativePath in $requiredFiles) {
     if (-not (Test-Path (Join-Path $repositoryRoot $relativePath))) {

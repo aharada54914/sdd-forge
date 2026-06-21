@@ -15,7 +15,7 @@ SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
 
-VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite"
+VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
 
 # ---------------------------------------------------------------------------
 # Argument parsing
@@ -29,7 +29,7 @@ Usage: install.sh [options]
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
   --target All|Codex|Claude|Copilot|FilesOnly
                                  Default: All
-  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop
                                  Default: sdd-bootstrap,sdd-ship
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
@@ -74,42 +74,35 @@ for p in "${PLUGIN_LIST[@]}"; do
     fi
 done
 
-# sdd-ship depends on sdd-implementation, sdd-quality-loop, and sdd-lite.
-# The approval guard and kill-switch hooks live only in sdd-quality-loop,
-# so selecting sdd-ship alone would silently omit self-approval protection.
-# Auto-expand to include all required companions.
-case ",$PLUGINS," in
-    *,sdd-ship,*)
-        for dep in sdd-bootstrap sdd-implementation sdd-quality-loop sdd-lite; do
+# Resolve dependencies to a fixed point. This is deliberately iterative: lite
+# adds bootstrap, and bootstrap then adds the internal review loop.
+AUTO_INCLUDED=()
+dependencies_changed=1
+while [[ $dependencies_changed -eq 1 ]]; do
+    dependencies_changed=0
+    for plugin in "${PLUGIN_LIST[@]}"; do
+        dependencies=()
+        case "$plugin" in
+            sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+            sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
+            sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
+        esac
+        for dep in "${dependencies[@]}"; do
             case ",$PLUGINS," in
                 *,"$dep",*) ;;
-                *) PLUGINS="$PLUGINS,$dep" ;;
+                *)
+                    PLUGINS="$PLUGINS,$dep"
+                    PLUGIN_LIST+=("$dep")
+                    AUTO_INCLUDED+=("$dep")
+                    dependencies_changed=1
+                    ;;
             esac
         done
-        IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
-        echo "Note: sdd-ship selected; auto-included its companions (sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-lite)." >&2
-        ;;
-esac
-
-# sdd-lite depends on its companions and cannot run standalone:
-#  - lite-spec requires sdd-bootstrap (sdd-adopt / check-sdd-structure) and
-#    sdd-implementation (implement-task).
-#  - lite-gate requires sdd-quality-loop (check-placeholders) and the approval /
-#    kill-switch hooks live only in sdd-quality-loop.
-# Selecting sdd-lite alone would silently omit the self-approval protection, so
-# auto-expand the selection to include the companions.
-case ",$PLUGINS," in
-    *,sdd-lite,*)
-        for dep in sdd-bootstrap sdd-implementation sdd-quality-loop; do
-            case ",$PLUGINS," in
-                *,"$dep",*) ;;
-                *) PLUGINS="$PLUGINS,$dep" ;;
-            esac
-        done
-        IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
-        echo "Note: sdd-lite selected; auto-included its companions (sdd-bootstrap, sdd-implementation, sdd-quality-loop)." >&2
-        ;;
-esac
+    done
+done
+if [[ ${#AUTO_INCLUDED[@]} -gt 0 ]]; then
+    echo "Note: dependency resolution auto-included: ${AUTO_INCLUDED[*]}." >&2
+fi
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -287,8 +280,14 @@ trap 'rc=$?; rollback; cleanup; exit $rc' EXIT
 # ---------------------------------------------------------------------------
 # Resolve source
 # ---------------------------------------------------------------------------
+SOURCE_IS_LOCAL=0
 if [[ -n "$SOURCE_DIRECTORY" ]]; then
     SOURCE_ROOT="$(cd "$SOURCE_DIRECTORY" && pwd)"
+    SOURCE_IS_LOCAL=1
+    if ! git_prefix="$(git -C "$SOURCE_ROOT" rev-parse --show-prefix 2>/dev/null)" || [[ -n "$git_prefix" ]]; then
+        echo "Error: --source-directory must be the root of a Git worktree so only tracked files can be installed." >&2
+        exit 1
+    fi
 else
     TEMPORARY_ROOT="$(mktemp -d)"
     download_authenticated_archive "${TEMPORARY_ROOT}/source.tar.gz"
@@ -324,6 +323,9 @@ REQUIRED_PATHS=(
     "plugins/sdd-quality-loop/.plugin/plugin.json"
     "plugins/sdd-lite/.codex-plugin/plugin.json"
     "plugins/sdd-lite/.plugin/plugin.json"
+    "plugins/sdd-review-loop/.claude-plugin/plugin.json"
+    "plugins/sdd-review-loop/.codex-plugin/plugin.json"
+    "plugins/sdd-review-loop/.plugin/plugin.json"
     ".codex/agents/sdd-investigator.toml"
     ".codex/agents/sdd-evaluator.toml"
 )
@@ -333,6 +335,19 @@ for rel in "${REQUIRED_PATHS[@]}"; do
         exit 1
     fi
 done
+
+# A local worktree is staged from its Git index, not by recursively copying the
+# directory. Reject a source whose required release files are present only as
+# untracked working-tree changes; otherwise the installation could report
+# success while omitting a required manifest from the staged result.
+if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
+    for rel in "${REQUIRED_PATHS[@]}"; do
+        if ! git -C "$SOURCE_ROOT" ls-files --error-unmatch -- "$rel" >/dev/null 2>&1; then
+            echo "Error: Required file is not Git-tracked in --source-directory: ${rel}" >&2
+            exit 1
+        fi
+    done
+fi
 
 # Validate all sdd-*.toml files: must have no BOM and must define name and developer_instructions.
 agent_source_dir="${SOURCE_ROOT}/.codex/agents"
@@ -514,14 +529,22 @@ unset _lock_timeout _lock_stale _lock_deadline _lock_reclaimed _stale _lock_mtim
 
 STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 
-# Copy distributable top-level entries, including dot-directories but excluding
-# repository history. Installing .git is unnecessary and can stall on locked
-# object files in a live checkout.
-for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
-    [[ -e "$entry" ]] || continue
-    [[ "$(basename "$entry")" == ".git" ]] && continue
-    cp -R "$entry" "${STAGING_ROOT}/"
-done
+# A local worktree can contain credentials, caches, and nested untracked files.
+# Copy its Git index only. Downloaded archives are trusted release inputs and
+# have no local untracked state, so retain their complete archive layout.
+if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
+    while IFS= read -r -d '' relative_path; do
+        destination_path="${STAGING_ROOT}/${relative_path}"
+        mkdir -p "$(dirname "$destination_path")"
+        cp -p "${SOURCE_ROOT}/${relative_path}" "$destination_path"
+    done < <(git -C "$SOURCE_ROOT" ls-files -z)
+else
+    for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
+        [[ -e "$entry" ]] || continue
+        [[ "$(basename "$entry")" == ".git" ]] && continue
+        cp -R "$entry" "${STAGING_ROOT}/"
+    done
+fi
 
 # Backup existing install — generate a unique path without pre-creating it
 # so that `mv` renames the directory rather than moving it inside.

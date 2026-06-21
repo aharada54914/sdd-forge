@@ -53,6 +53,15 @@
       "author": {
         "name": "Harada"
       }
+    },
+    {
+      "name": "sdd-review-loop",
+      "source": "./plugins/sdd-review-loop",
+      "description": "[internal] Independent implementation and task decomposition reviews used by sdd-bootstrap.",
+      "version": "1.0.0",
+      "author": {
+        "name": "Harada"
+      }
     }
   ]
 }

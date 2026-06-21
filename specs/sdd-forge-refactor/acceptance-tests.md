@@ -15,3 +15,7 @@
 | AC-008 | TEST-008 | BL-010, BL-011 | `bash tests/scenario.tests.sh && bash tests/install.tests.sh` を実行する | すべてのシナリオが変更前後で同じ結果（pass）を返す | いずれかのシナリオが fail する |
 | AC-009 | TEST-009 | BL-007 | エージェントが `Approval: Draft` → `Approval: Approved` の書き換えを試みる | hook guard が exit 2 で拒否する（承認ガード健在） | exit 0 で通過する |
 | AC-010 | TEST-010 | BL-012, BL-013 | `install.sh --plugins sdd-bootstrap,sdd-ship --skip-plugin-install` と marketplace JSON 検証を実行する | auto-included ログが出力され、marketplace に sdd-ship が含まれる | いずれかが欠落する |
+| AC-011 | TEST-011 | — | `validate-repository.ps1` と installer required-path test を実行する | `sdd-review-loop` の3 manifest と両 marketplace entry が存在する | manifest または marketplace entry が欠落する |
+| AC-012 | TEST-012 | — | bootstrap/lite/ship を個別選択して installer integration test を実行する | 依存 closure に `sdd-review-loop` が含まれ、全 host の登録ログに現れる | review-loop が未登録または依存展開が1回で止まる |
+| AC-013 | TEST-013 | — | Git clone fixture の root と plugin 内に未追跡ファイルを作成して FilesOnly install を実行する | 未追跡ファイルは staging/install root に存在しない | root または入れ子の未追跡ファイルが漏えいする |
+| AC-014 | TEST-014 | — | release workflow を `run_host_smoke=true` で手動起動する | 隔離設定で実 CLI の bootstrap/review-loop 登録が成功する | host CLI 不在・未認証・登録失敗を明示的に fail する |

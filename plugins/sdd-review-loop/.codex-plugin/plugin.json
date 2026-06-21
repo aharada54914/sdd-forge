@@ -1,0 +1,21 @@
+{
+  "name": "sdd-review-loop",
+  "version": "1.0.0",
+  "description": "[internal] Run independent implementation and task decomposition review loops for sdd-bootstrap.",
+  "skills": "./skills/",
+  "author": {
+    "name": "Harada"
+  },
+  "interface": {
+    "displayName": "SDD Review Loop",
+    "shortDescription": "Review SDD designs and task decompositions",
+    "longDescription": "Internal dependency of sdd-bootstrap. Runs independent implementation-policy and task-decomposition review loops before human approval.",
+    "developerName": "Harada",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Independent implementation-policy review",
+      "Independent task-decomposition review"
+    ],
+    "defaultPrompt": "Use the sdd-bootstrap skill to prepare a specification; it invokes the required review loop."
+  }
+}
