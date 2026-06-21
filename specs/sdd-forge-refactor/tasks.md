@@ -43,7 +43,7 @@ None
 
 ## T-002 sdd-review-loop プラグイン作成 + ガード更新 + caller 更新 + 旧プラグイン削除
 
-Approval: Draft
+Approval: Approved
 Status: Planned
 Risk: high
 Risk Rationale: hook guard の PROTECTED_GATE_SUFFIXES 更新（自己保護のため human/sudo 必須）。callerの更新漏れで sdd-bootstrap が runtime エラーになる。旧プラグイン削除は後戻り不可。
@@ -129,7 +129,7 @@ T-001
 
 ## T-003 内部 SKILL.md に Caller ヘッダー追加
 
-Approval: Draft
+Approval: Approved
 Status: Planned
 Risk: low
 Risk Rationale: 各ファイルへの4行追加のみ。validate-repository.ps1 の期待テキストとの競合がないことを確認する。
@@ -171,7 +171,7 @@ T-002
 
 ## T-004 ドキュメント再構成
 
-Approval: Draft
+Approval: Approved
 Status: Planned
 Risk: low
 Risk Rationale: ドキュメント移動・更新のみ。CI への影響なし。リンク切れのリスクは redirect note で軽減。
@@ -220,7 +220,7 @@ T-002
 
 ## T-005 CHANGELOG + guard-parity Scenarios 19/20/21 + validate-repository.ps1 修正
 
-Approval: Draft
+Approval: Approved
 Status: Planned
 Risk: low
 Risk Rationale: テスト追加と既存 CI 不整合の修正のみ。
