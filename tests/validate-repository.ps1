@@ -3,7 +3,7 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite")
-$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "impl-review-loop", "task-review-loop", "wfi-audit-cycle")
+$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "sdd-bootstrap", "sdd-ship")
 $expectedVersion = "0.14.0"
 
 function Read-JsonFile {
@@ -67,7 +67,10 @@ $forbiddenPaths = @(
     "plugins/sdd-quality-loop/templates/ci-report.template.md",
     # Superseded by sdd-hook-guard; must NOT reappear.
     "plugins/sdd-quality-loop/scripts/guard-task-approval.sh",
-    "plugins/sdd-quality-loop/scripts/guard-task-approval.ps1"
+    "plugins/sdd-quality-loop/scripts/guard-task-approval.ps1",
+    # Merged into sdd-review-loop; must NOT reappear (ADR-002).
+    "plugins/sdd-impl-review",
+    "plugins/sdd-task-review"
 )
 foreach ($relativePath in $forbiddenPaths) {
     if (Test-Path (Join-Path $repositoryRoot $relativePath)) {

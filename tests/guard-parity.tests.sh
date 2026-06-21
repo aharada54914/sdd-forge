@@ -58,6 +58,35 @@ parity_check() {
     fi
 }
 
+# Helper: same as parity_check but runs guards from a given CWD.
+# Required for checks that resolve reports/ relative to CWD (ADR-004).
+# Usage: parity_check_in <cwd> "scenario name" <expected_exit_code> <payload_json>
+# ---------------------------------------------------------------------------
+parity_check_in() {
+    local cwd="$1"
+    local scenario="$2"
+    local expected="$3"
+    local payload="$4"
+    local js_code=0
+    local py_code=0
+
+    printf '%s' "$payload" \
+        | (cd "$cwd" && CLAUDE_PROJECT_DIR="$cwd" node "${SCRIPTS_DIR}/sdd-hook-guard.js" --emit exit) \
+        >/dev/null 2>&1 || js_code=$?
+
+    printf '%s' "$payload" \
+        | (cd "$cwd" && CLAUDE_PROJECT_DIR="$cwd" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" --emit exit) \
+        >/dev/null 2>&1 || py_code=$?
+
+    if [ "$js_code" != "$py_code" ]; then
+        fail "parity [$scenario]: JS=$js_code PY=$py_code — DIVERGENCE (expected $expected)"
+    elif [ "$js_code" != "$expected" ]; then
+        fail "parity [$scenario]: both exit $js_code but expected $expected"
+    else
+        ok "parity [$scenario]: both exit $js_code (expected)"
+    fi
+}
+
 # ---------------------------------------------------------------------------
 # Setup
 # ---------------------------------------------------------------------------
@@ -214,6 +243,38 @@ parity_check "r10-gate-protect: compound cat+rm on guard file denied" 2 \
 # ---------------------------------------------------------------------------
 parity_check "r10-gate-protect: cat heredoc redirect to guard file denied" 2 \
     '{"tool_name":"bash","tool_input":{"command":"cat > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py << EOF\nmalicious content\nEOF"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 19: impl-review-status guard — deny Passed write without verdict (exit 2)
+# Guards look for reports/impl-review/<feature>/ relative to CWD (ADR-004).
+# feat-x has no verdict dir → guard must deny.
+# ---------------------------------------------------------------------------
+mkdir -p "${WORK}/specs/feat-x"
+touch "${WORK}/specs/feat-x/design.md"
+IMPL_STATUS_PAYLOAD='{"tool_name":"write","tool_input":{"file_path":"specs/feat-x/design.md","content":"Impl-Review-Status: Passed\n"}}'
+
+parity_check_in "$WORK" "impl-review-status: write Passed without verdict" 2 \
+    "$IMPL_STATUS_PAYLOAD"
+
+# ---------------------------------------------------------------------------
+# Scenario 20: impl-review-status guard — allow Passed write with PASS verdict (exit 0)
+# ⚠️ guards resolve reports/ relative to CWD — parity_check_in sets cd "$WORK".
+# ---------------------------------------------------------------------------
+mkdir -p "${WORK}/reports/impl-review/feat-x/attempt-1/round-1"
+printf '{"verdict":"PASS"}' \
+    > "${WORK}/reports/impl-review/feat-x/attempt-1/round-1/integrated-verdict.json"
+
+parity_check_in "$WORK" "impl-review-status: write Passed with PASS verdict" 0 \
+    "$IMPL_STATUS_PAYLOAD"
+
+# ---------------------------------------------------------------------------
+# Scenario 21: impl-review-status guard — deny Passed write with FAIL verdict (exit 2)
+# ---------------------------------------------------------------------------
+printf '{"verdict":"FAIL"}' \
+    > "${WORK}/reports/impl-review/feat-x/attempt-1/round-1/integrated-verdict.json"
+
+parity_check_in "$WORK" "impl-review-status: write Passed with FAIL verdict" 2 \
+    "$IMPL_STATUS_PAYLOAD"
 
 # ---------------------------------------------------------------------------
 # Summary

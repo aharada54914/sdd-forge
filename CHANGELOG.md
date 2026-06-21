@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.15.1 (2026-06-21)
+
+### 変更
+
+- **`sdd-review-loop` プラグイン新設（内部リファクタリング）**: `sdd-impl-review` と `sdd-task-review` の2プラグインを `plugins/sdd-review-loop/` に統合。`impl-review-loop` と `task-review-loop` の各スキル・エージェント・スクリプト・テンプレートを移植し、`plugins/sdd-bootstrap/skills/sdd-bootstrap/SKILL.md` および `sdd-bootstrap-interviewer/SKILL.md` の呼び出しパスを更新。旧プラグインディレクトリは完全削除（`$forbiddenPaths` で再作成を防止）。
+- **フックガード強化（Python Check 2e）**: `sdd-hook-guard.py` に `impl_review_status_passed_increases` チェック（Check 2e）を追加。JS の `implReviewStatusPassedIncreases` との動作パリティを確立。`PROTECTED_GATE_SUFFIXES` に `sdd-review-loop` の6パスを追加。
+- **内部 SKILL.md に Caller ヘッダー追加**: `implement-task`、`implement-tasks`、`quality-gate` の3スキルの frontmatter 直後に「このスキルは sdd-ship から呼ばれる」旨の caller-context ヘッダーを追加。直接呼び出し抑止のためのドキュメント整備。
+- **ドキュメント再構成**: `docs/skill-reference.md`（1374→576行）と `docs/workflow-guide.md`（998→297行）をスリム化し、内部詳細を `docs/contributor/` 配下に分離。`wfi-category-guide.md` の forbidden terms に `sdd-review-loop` を追加。
+- **テストスイート強化**: `tests/guard-parity.tests.sh` に Scenarios 19/20/21（impl-review-status ガードのパリティ検証）を追加。`tests/validate-repository.ps1` の `$expectedSkills` を 15→17 件に修正（sdd-bootstrap と sdd-ship の既存バグ修正）および `$forbiddenPaths` に旧プラグインパスを追加。
+
+### v0.15.0 からの移行
+
+- 破壊的変更なし。`impl-review-loop` と `task-review-loop` はプラグインが変わるだけで機能は同一。
+- 既存レポートパス（`reports/impl-review/`、`reports/task-review/`）は変更なし。
+- 旧パス（`/sdd-impl-review:impl-review-loop`、`/sdd-task-review:task-review-loop`）は削除済み。新パス `/sdd-review-loop:impl-review-loop` / `/sdd-review-loop:task-review-loop` を使用。
+
 ## v0.15.0 (2026-06-20)
 
 ### 追加
