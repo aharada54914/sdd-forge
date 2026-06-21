@@ -44,7 +44,7 @@ None
 ## T-002 sdd-review-loop プラグイン作成 + ガード更新 + caller 更新 + 旧プラグイン削除
 
 Approval: Approved
-Status: Planned
+Status: Blocked
 Risk: high
 Risk Rationale: hook guard の PROTECTED_GATE_SUFFIXES 更新（自己保護のため human/sudo 必須）。callerの更新漏れで sdd-bootstrap が runtime エラーになる。旧プラグイン削除は後戻り不可。
 Required Workflow: tdd
@@ -109,28 +109,28 @@ Requirements: REQ-001, REQ-002, REQ-004
 （注: `$forbiddenPaths` の更新は T-005 が担当 — ここでは行わない）
 
 ### Done When
-- [ ] Phase 1: guard files 更新済み（human/sudo 実施）
-- [ ] Phase 2: `plugins/sdd-review-loop/` が全ファイルを含んで存在する
-- [ ] Phase 3: sdd-bootstrap/SKILL.md L88/L99 と sdd-bootstrap-interviewer/SKILL.md L105/111/118/119/145/150 が更新済み
-- [ ] Phase 3.5: 新プラグイン・caller 更新の事前検証完了
-- [ ] Phase 4: `plugins/sdd-impl-review/` と `plugins/sdd-task-review/` が存在しない
+- [x] Phase 1: guard files 更新済み（human/sudo 実施）
+- [x] Phase 2: `plugins/sdd-review-loop/` が全ファイルを含んで存在する
+- [x] Phase 3: sdd-bootstrap/SKILL.md L88/L99 と sdd-bootstrap-interviewer/SKILL.md L105/111/118/119/145/150 が更新済み
+- [x] Phase 3.5: 新プラグイン・caller 更新の事前検証完了
+- [x] Phase 4: `plugins/sdd-impl-review/` と `plugins/sdd-task-review/` が存在しない
 - [ ] Phase 5: guard の旧パスが削除済み（human/sudo 実施）
-- [ ] AC-001, AC-002, AC-003 が pass する
-- [ ] AC-009（承認ガード健在）が pass する
-- [ ] BL-009（guard-parity）、BL-010（scenario）、BL-011（install）が pass する
-- [ ] BL-012/BL-013（install.sh auto-include + marketplace sdd-ship）が変化しないことを確認
-- [ ] 実装レポート作成
+- [x] AC-001, AC-002 が pass する（AC-003 は Phase 5 完了後に確認）
+- [x] AC-009（承認ガード健在）が pass する
+- [x] BL-009（guard-parity）、BL-010（scenario）、BL-011（install）が pass する
+- [x] BL-012/BL-013（install.sh auto-include + marketplace sdd-ship）が変化しないことを確認
+- [x] 実装レポート作成（reports/implementation/sdd-forge-refactor-T-002.md）
 - [ ] quality gate pass
 
 ### Blockers
-T-001
+Phase 5 は human/sudo セッションが必要。`sdd-hook-guard.js/py` PROTECTED_GATE_SUFFIXES から旧6パスを削除すること。
 
 ---
 
 ## T-003 内部 SKILL.md に Caller ヘッダー追加
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: low
 Risk Rationale: 各ファイルへの4行追加のみ。validate-repository.ps1 の期待テキストとの競合がないことを確認する。
 Required Workflow: acceptance-first
@@ -158,21 +158,21 @@ caller-context ヘッダーを追加し、直接呼び出しを抑止する。
 - `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`
 
 ### Done When
-- [ ] 3ファイルに Caller ヘッダーが追加された
-- [ ] `validate-repository.ps1` L152/L159 の期待テキストが壊れていない
-- [ ] BL-010（scenario.tests.sh）が pass する
-- [ ] 実装レポート作成
+- [x] 3ファイルに Caller ヘッダーが追加された
+- [x] `validate-repository.ps1` L152/L159 の期待テキストが壊れていない
+- [x] BL-010（scenario.tests.sh）が pass する
+- [x] 実装レポート作成（reports/implementation/sdd-forge-refactor-T-003.md）
 - [ ] quality gate pass
 
 ### Blockers
-T-002
+None
 
 ---
 
 ## T-004 ドキュメント再構成
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: low
 Risk Rationale: ドキュメント移動・更新のみ。CI への影響なし。リンク切れのリスクは redirect note で軽減。
 Required Workflow: acceptance-first
@@ -205,23 +205,23 @@ Requirements: REQ-005
 - skill-reference.md / workflow-guide.md へのリンクが分割後も有効かを確認・更新
 
 ### Done When
-- [ ] skill-reference.md が L3/L16-17/L786-788/L851-853 で新プラグイン名を使用している
-- [ ] docs/contributor/ ディレクトリが存在し skill-reference-detail.md を含む
-- [ ] workflow-guide.md のユーザー向けコンパクト版が 450 行以内
-- [ ] wfi-category-guide.md の forbidden terms に sdd-review-loop が含まれる
-- [ ] README と USERGUIDE のリンクが有効
-- [ ] 実装レポート作成
+- [x] skill-reference.md が L3/L16-17/L786-788/L851-853 で新プラグイン名を使用している
+- [x] docs/contributor/ ディレクトリが存在し skill-reference-detail.md を含む
+- [x] workflow-guide.md のユーザー向けコンパクト版が 450 行以内（297行）
+- [x] wfi-category-guide.md の forbidden terms に sdd-review-loop が含まれる
+- [x] README と USERGUIDE のリンクが有効
+- [x] 実装レポート作成（reports/implementation/sdd-forge-refactor-T-004.md）
 - [ ] quality gate pass
 
 ### Blockers
-T-002
+None
 
 ---
 
 ## T-005 CHANGELOG + guard-parity Scenarios 19/20/21 + validate-repository.ps1 修正
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: low
 Risk Rationale: テスト追加と既存 CI 不整合の修正のみ。
 Required Workflow: acceptance-first
@@ -250,13 +250,13 @@ Requirements: REQ-003, REQ-006
 **`CHANGELOG.md`** に v0.15.x エントリを追加。
 
 ### Done When
-- [ ] guard-parity.tests.sh が 21 シナリオすべてで pass する（AC-006）
-- [ ] validate-repository.ps1 が 17 件のスキルを検出して pass する（AC-007）
-- [ ] $forbiddenPaths に旧プラグインパスが含まれる
-- [ ] CHANGELOG に v0.15.x エントリがある
-- [ ] BL-009（guard-parity）、BL-010（scenario）、BL-011（install）が pass する
-- [ ] 実装レポート作成
+- [x] guard-parity.tests.sh が 21 シナリオすべてで pass する（AC-006）
+- [x] validate-repository.ps1 が 17 件のスキルを検出して pass する（AC-007）
+- [x] $forbiddenPaths に旧プラグインパスが含まれる
+- [x] CHANGELOG に v0.15.x エントリがある
+- [x] BL-009（guard-parity）、BL-010（scenario）、BL-011（install）が pass する
+- [x] 実装レポート作成（reports/implementation/sdd-forge-refactor-T-005.md）
 - [ ] quality gate pass
 
 ### Blockers
-T-002, T-003, T-004
+None
