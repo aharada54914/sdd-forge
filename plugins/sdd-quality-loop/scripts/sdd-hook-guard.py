@@ -817,12 +817,6 @@ _PROTECTED_GATE_SUFFIXES = (
     "tests/guard-parity.tests.sh",
     "tests/constant-parity.tests.sh",
     # R-10: task-review and impl-review gate files (enforcement chain)
-    "plugins/sdd-task-review/agents/task-reviewer-a.md",
-    "plugins/sdd-task-review/agents/task-reviewer-b.md",
-    "plugins/sdd-task-review/skills/task-review-loop/SKILL.md",
-    "plugins/sdd-impl-review/agents/impl-reviewer-a.md",
-    "plugins/sdd-impl-review/agents/impl-reviewer-b.md",
-    "plugins/sdd-impl-review/skills/impl-review-loop/SKILL.md",
     # R-10 NEW: sdd-review-loop gate files (T-002 Phase 1)
     "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
     "plugins/sdd-review-loop/agents/impl-reviewer-b.md",

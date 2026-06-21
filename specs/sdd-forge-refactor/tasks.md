@@ -44,7 +44,7 @@ None
 ## T-002 sdd-review-loop プラグイン作成 + ガード更新 + caller 更新 + 旧プラグイン削除
 
 Approval: Approved
-Status: Blocked
+Status: Implementation Complete
 Risk: high
 Risk Rationale: hook guard の PROTECTED_GATE_SUFFIXES 更新（自己保護のため human/sudo 必須）。callerの更新漏れで sdd-bootstrap が runtime エラーになる。旧プラグイン削除は後戻り不可。
 Required Workflow: tdd
@@ -114,8 +114,8 @@ Requirements: REQ-001, REQ-002, REQ-004
 - [x] Phase 3: sdd-bootstrap/SKILL.md L88/L99 と sdd-bootstrap-interviewer/SKILL.md L105/111/118/119/145/150 が更新済み
 - [x] Phase 3.5: 新プラグイン・caller 更新の事前検証完了
 - [x] Phase 4: `plugins/sdd-impl-review/` と `plugins/sdd-task-review/` が存在しない
-- [ ] Phase 5: guard の旧パスが削除済み（human/sudo 実施）
-- [x] AC-001, AC-002 が pass する（AC-003 は Phase 5 完了後に確認）
+- [x] Phase 5: guard の旧パスが削除済み（human/sudo 実施）
+- [x] AC-001, AC-002, AC-003 が pass する
 - [x] AC-009（承認ガード健在）が pass する
 - [x] BL-009（guard-parity）、BL-010（scenario）、BL-011（install）が pass する
 - [x] BL-012/BL-013（install.sh auto-include + marketplace sdd-ship）が変化しないことを確認
@@ -123,7 +123,7 @@ Requirements: REQ-001, REQ-002, REQ-004
 - [ ] quality gate pass
 
 ### Blockers
-Phase 5 は human/sudo セッションが必要。`sdd-hook-guard.js/py` PROTECTED_GATE_SUFFIXES から旧6パスを削除すること。
+None
 
 ---
 
