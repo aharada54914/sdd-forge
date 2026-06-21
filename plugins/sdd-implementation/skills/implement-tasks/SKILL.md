@@ -4,6 +4,9 @@ description: Batch-implement all approved tasks in dependency order, then auto-t
 disable-model-invocation: true
 ---
 
+> **Caller**: This skill is invoked by `sdd-ship`. Do not invoke directly.
+> Results are returned to the caller; no downstream skill is auto-invoked.
+
 # Implement Tasks (Batch)
 
 Implement all approved tasks for a feature in dependency order.

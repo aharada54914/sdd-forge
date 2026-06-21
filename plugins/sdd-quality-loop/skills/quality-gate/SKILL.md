@@ -4,6 +4,9 @@ description: Independently verify an Implementation Complete task with a Default
 disable-model-invocation: true
 ---
 
+> **Caller**: This skill is invoked by `sdd-ship`. Do not invoke directly.
+> Results are returned to the caller; no downstream skill is auto-invoked.
+
 # Quality Gate
 
 Use after `implement-task` has set a task to `Implementation Complete`.

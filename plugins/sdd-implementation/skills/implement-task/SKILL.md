@@ -4,6 +4,9 @@ description: Restore the current SDD task state and implement exactly one approv
 disable-model-invocation: true
 ---
 
+> **Caller**: This skill is invoked by `sdd-ship`. Do not invoke directly.
+> Results are returned to the caller; no downstream skill is auto-invoked.
+
 # Implement Task
 
 Implement one approved task and prepare it for independent quality review.
