@@ -1,0 +1,55 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "verdict": "PASS",
+  "legacy_design": true,
+  "checks": [
+    {
+      "id": "TASK-IMPLEMENTABILITY",
+      "result": "PASS",
+      "severity": "critical",
+      "finding": "All tasks (T-002 through T-005) have exact file paths, line numbers, and before/after values for every edit. T-002 Phase 2 enumerates all 12 files to create in sdd-review-loop. Phase 3 lists all 8 caller-site changes with line numbers. Done-When checklists and Blocker chains are complete. human/sudo requirement for Phases 1 and 5 is prominently documented. No ambiguity remains about what an implementer must do."
+    },
+    {
+      "id": "PHASE-ORDERING",
+      "result": "PASS",
+      "severity": "critical",
+      "finding": "Phase 1 (guard adds new 6 paths) → Phase 2 (new plugin with scripts/templates/SKILL.md) → Phase 3 (callers updated) → Phase 4 (old plugin deleted) → Phase 5 (guard removes old 6 paths). ADR-002 and ADR-003 together guarantee: (a) callers point to new plugin before old plugin is deleted, (b) guard protects new paths before old paths are removed — zero unprotected gap. Ordering is strictly enforced by Blockers field and explicit Phase labels."
+    },
+    {
+      "id": "RISK-COVERAGE",
+      "result": "PASS",
+      "severity": "high",
+      "finding": "T-002 risk field names the three primary risks: guard self-protection requiring human/sudo, caller update omission causing runtime errors, and irreversibility of directory deletion. Mitigations are built into the phase structure. INV-002 (Python security parity gap) addressed by REQ-002 + Phase 1. INV-003 (validate-repository count bug) addressed by T-005. INV-005 (bare-name no-op risk) addressed by Phase 3 with fully-qualified plugin:skill names. No identified risk is unaddressed."
+    },
+    {
+      "id": "GUARD-UPDATE-SPEC",
+      "result": "PASS",
+      "severity": "critical",
+      "finding": "ADR-003 explicitly closes the prior-round ambiguity: scripts/ and templates/ are intentionally excluded from PROTECTED_GATE_SUFFIXES. Rationale is stated: verdict validation logic resides in SKILL.md and agent files, not precheck scripts — an agent modifying a precheck script cannot bypass the verdict check. The 6 paths to add cover exactly the security-critical files (4 agent .md + 2 SKILL.md). The 6 paths to remove (Phase 5) are the old-plugin equivalents. The non-protection policy for scripts/templates is consistent with the existing sdd-impl-review and sdd-task-review policy."
+    },
+    {
+      "id": "PYTHON-CHECK2E-SPEC",
+      "result": "PASS",
+      "severity": "high",
+      "finding": "Design.md provides a complete, copy-pasteable implementation of _impl_review_verdict_exists() and Check 2e. Path resolution uses bare relative glob ('reports/impl-review/{feature}/attempt-*/round-*/integrated-verdict.json') matching ADR-004 and JS parity. Verdict check includes both 'PASS' and 'PASS-with-warnings' matching JS behavior. Phase 1 step 2 explicitly forbids _resolve_project_root(). T-005 adds guard-parity Scenarios 19/20/21 with the note that cd \"$WORK\" is required before guard execution so CWD-relative paths resolve correctly in tests. Spec is complete and unambiguous."
+    },
+    {
+      "id": "CALLER-UPDATE-COMPLETENESS",
+      "result": "PASS",
+      "severity": "critical",
+      "finding": "INV-005 identified two caller files: sdd-bootstrap/SKILL.md (2 references at L88/L99) and sdd-bootstrap-interviewer/SKILL.md (6 references at L105/L111/L118/L119/L145/L150). T-002 Phase 3 lists all 8 updates with exact old and new values. The sdd-bootstrap-interviewer bare-name references (/impl-review-loop, /task-review-loop) are upgraded to fully-qualified form (/sdd-review-loop:impl-review-loop, /sdd-review-loop:task-review-loop), fixing the INV-005 silent no-op risk. AC-001 validates the new paths are actually invoked end-to-end. No other callers are identified in the investigation."
+    },
+    {
+      "id": "DELETION-SAFETY",
+      "result": "PASS",
+      "severity": "critical",
+      "finding": "Phase 4 deletion of sdd-impl-review/ and sdd-task-review/ is safe because: (1) Phase 2 creates all scripts/ and templates/ files in sdd-review-loop before Phase 4 runs, (2) Phase 2 rewrites all 6 hardcoded path references in the new SKILL.md files so they point to sdd-review-loop/scripts/ and sdd-review-loop/templates/, (3) Phase 3 updates all callers before Phase 4 deletes the old directories, (4) guard protection of new paths is established in Phase 1 well before Phase 5 removes old paths. AC-003 covers post-deletion guard behavior for old paths (expected exit 0, no misfire)."
+    },
+    {
+      "id": "DOC-SCOPE-CLARITY",
+      "result": "PASS",
+      "severity": "medium",
+      "finding": "T-004 scope is line-level specific for skill-reference.md (L3, L16-17, L786-788, L851-853). workflow-guide.md Mermaid diagram is explicitly a non-goal (ベア名 unchanged). wfi-category-guide.md update is additive only. New docs/contributor/ directory and files are named. README/USERGUIDE link validity is included in Done When. The two-layer user vs. contributor restructure intent and output targets are unambiguous. No scope creep risks identified."
+    }
+  ]
+}
