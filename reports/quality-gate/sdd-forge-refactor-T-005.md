@@ -36,7 +36,7 @@ CHANGELOG.md v0.15.x エントリ追加。
 ## AC-006 Verification
 
 guard-parity.tests.sh output:
-```
+```text
 guard-parity.tests.sh: 21 passed, 0 failed
 ```
 All new scenarios:

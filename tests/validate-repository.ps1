@@ -2,9 +2,15 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite")
+$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-ship")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "sdd-bootstrap", "sdd-ship")
-$expectedVersion = "0.14.0"
+$expectedVersions = @{
+    "sdd-bootstrap"      = "0.14.0"
+    "sdd-implementation" = "0.14.0"
+    "sdd-quality-loop"   = "0.14.0"
+    "sdd-lite"           = "0.14.0"
+    "sdd-ship"           = "0.15.0"
+}
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -33,13 +39,15 @@ foreach ($name in $expectedPlugins) {
     if ($codexManifest.name -ne $name -or $claudeManifest.name -ne $name -or $copilotManifest.name -ne $name) {
         throw "Plugin directory and manifest names differ for $name."
     }
+    $expectedVersion = $expectedVersions[$name]
     if ($codexManifest.version -ne $expectedVersion -or $claudeManifest.version -ne $expectedVersion -or $copilotManifest.version -ne $expectedVersion) {
         throw "Plugin version differs from $expectedVersion for $name."
     }
 }
 
 foreach ($plugin in $claudeMarketplace.plugins) {
-    if ($plugin.name -notin $expectedPlugins) { continue }
+    if ($plugin.name -notin $expectedVersions.Keys) { continue }
+    $expectedVersion = $expectedVersions[$plugin.name]
     if ($plugin.version -ne $expectedVersion) {
         throw "Claude marketplace version differs from $expectedVersion for $($plugin.name)."
     }

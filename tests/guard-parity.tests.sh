@@ -277,6 +277,15 @@ parity_check_in "$WORK" "impl-review-status: write Passed with FAIL verdict" 2 \
     "$IMPL_STATUS_PAYLOAD"
 
 # ---------------------------------------------------------------------------
+# Scenario 22: impl-review-status guard — allow Passed write with PASS-with-warnings (exit 0)
+# ---------------------------------------------------------------------------
+printf '{"verdict":"PASS-with-warnings"}' \
+    > "${WORK}/reports/impl-review/feat-x/attempt-1/round-1/integrated-verdict.json"
+
+parity_check_in "$WORK" "impl-review-status: write Passed with PASS-with-warnings verdict" 0 \
+    "$IMPL_STATUS_PAYLOAD"
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""

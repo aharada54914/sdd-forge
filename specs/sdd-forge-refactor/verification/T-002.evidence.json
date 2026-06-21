@@ -48,6 +48,10 @@
       "sha256": "587e83781fec0357187d0fde0878fdcaee69ffb526d8e929a134c16b1ec29f80"
     },
     {
+      "path": "specs/sdd-forge-refactor/verification/T-002.red.log",
+      "sha256": "bb215ff0944d2d1b661c41caf8a657d15694a0f87676eb8972ae796c6a22cf7f"
+    },
+    {
       "path": "specs/sdd-forge-refactor/verification/T-002.green.log",
       "sha256": "1fae0df5ad81dec25ebce65c8084dd91e7213001fc382c01dedcfee6a2bc1ba1"
     },

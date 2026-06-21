@@ -33,7 +33,7 @@
     },
     {
       "path": "reports/quality-gate/sdd-forge-refactor-T-005.md",
-      "sha256": "78f45f54dd21e4ef50b0d69af19fe4416e90998cac2507d10a4ccdfeb611029e"
+      "sha256": "30a690487b782167e5ab178212640d80919327d584c1a9f1283decc2614dce9b"
     },
     {
       "path": "specs/sdd-forge-refactor/tasks.md",
@@ -41,7 +41,7 @@
     },
     {
       "path": "tests/guard-parity.tests.sh",
-      "sha256": "9eb0d9f15ac68162fffe5b789150efc07da4034f7f5d9e121a26cc7ce6b322ae"
+      "sha256": "29d4f4d6b3a7f1b28f38bf3c04d891bb5e2b522927e6b622aa2d73a5a6a85778"
     }
   ]
 }
