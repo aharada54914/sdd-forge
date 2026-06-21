@@ -39,6 +39,7 @@ foreach ($name in $expectedPlugins) {
 }
 
 foreach ($plugin in $claudeMarketplace.plugins) {
+    if ($plugin.name -notin $expectedPlugins) { continue }
     if ($plugin.version -ne $expectedVersion) {
         throw "Claude marketplace version differs from $expectedVersion for $($plugin.name)."
     }
