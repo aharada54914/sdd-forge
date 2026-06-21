@@ -44,7 +44,7 @@ None
 ## T-002 sdd-review-loop プラグイン作成 + ガード更新 + caller 更新 + 旧プラグイン削除
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: hook guard の PROTECTED_GATE_SUFFIXES 更新（自己保護のため human/sudo 必須）。callerの更新漏れで sdd-bootstrap が runtime エラーになる。旧プラグイン削除は後戻り不可。
 Required Workflow: tdd
@@ -120,7 +120,7 @@ Requirements: REQ-001, REQ-002, REQ-004
 - [x] BL-009（guard-parity）、BL-010（scenario）、BL-011（install）が pass する
 - [x] BL-012/BL-013（install.sh auto-include + marketplace sdd-ship）が変化しないことを確認
 - [x] 実装レポート作成（reports/implementation/sdd-forge-refactor-T-002.md）
-- [ ] quality gate pass
+- [x] quality gate pass
 
 ### Blockers
 None
@@ -130,7 +130,7 @@ None
 ## T-003 内部 SKILL.md に Caller ヘッダー追加
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: low
 Risk Rationale: 各ファイルへの4行追加のみ。validate-repository.ps1 の期待テキストとの競合がないことを確認する。
 Required Workflow: acceptance-first
@@ -162,7 +162,7 @@ caller-context ヘッダーを追加し、直接呼び出しを抑止する。
 - [x] `validate-repository.ps1` L152/L159 の期待テキストが壊れていない
 - [x] BL-010（scenario.tests.sh）が pass する
 - [x] 実装レポート作成（reports/implementation/sdd-forge-refactor-T-003.md）
-- [ ] quality gate pass
+- [x] quality gate pass
 
 ### Blockers
 None
@@ -172,7 +172,7 @@ None
 ## T-004 ドキュメント再構成
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: low
 Risk Rationale: ドキュメント移動・更新のみ。CI への影響なし。リンク切れのリスクは redirect note で軽減。
 Required Workflow: acceptance-first
@@ -211,7 +211,7 @@ Requirements: REQ-005
 - [x] wfi-category-guide.md の forbidden terms に sdd-review-loop が含まれる
 - [x] README と USERGUIDE のリンクが有効
 - [x] 実装レポート作成（reports/implementation/sdd-forge-refactor-T-004.md）
-- [ ] quality gate pass
+- [x] quality gate pass
 
 ### Blockers
 None
@@ -221,7 +221,7 @@ None
 ## T-005 CHANGELOG + guard-parity Scenarios 19/20/21 + validate-repository.ps1 修正
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: low
 Risk Rationale: テスト追加と既存 CI 不整合の修正のみ。
 Required Workflow: acceptance-first
@@ -256,7 +256,7 @@ Requirements: REQ-003, REQ-006
 - [x] CHANGELOG に v0.15.x エントリがある
 - [x] BL-009（guard-parity）、BL-010（scenario）、BL-011（install）が pass する
 - [x] 実装レポート作成（reports/implementation/sdd-forge-refactor-T-005.md）
-- [ ] quality gate pass
+- [x] quality gate pass
 
 ### Blockers
 None

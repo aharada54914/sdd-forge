@@ -122,7 +122,8 @@ Read reviewer-a.json and reviewer-b.json. Compute:
 Merged verdict:
 - BLOCKED if `findings_critical > 0`.
 - NEEDS_WORK if `findings_major > 0` and `findings_critical == 0`.
-- PASS-with-warnings if `findings_minor > 0` and round == 3.
+- PASS-with-warnings if `findings_minor > 0` and round == 3 and
+  `findings_major == 0` and `findings_critical == 0`.
 - PASS if `findings_critical == 0` and `findings_major == 0` and
   `findings_minor == 0`.
 

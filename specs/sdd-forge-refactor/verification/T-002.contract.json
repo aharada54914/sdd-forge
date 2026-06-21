@@ -1,0 +1,25 @@
+{
+  "task_id": "T-002",
+  "feature": "sdd-forge-refactor",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "docs",
+  "spec_revision": "",
+  "created": "2026-06-21T00:00:00Z",
+  "comment": "Default-FAIL verification contract for T-002: sdd-review-loop plugin creation + guard updates. High risk, TDD workflow. Stack is docs+shell; lint/typecheck/build waived. TDD evidence captured via guard-parity.tests.sh (21 scenarios) and install.tests.sh.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs+shell stack; primary artifacts are Markdown SKILL.md and shell scripts with no lint toolchain configured", "requirement_ids": ["REQ-001", "REQ-002"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs+shell stack; no typed source files in scope", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/verification/T-002.green.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-004"], "red_evidence": "specs/sdd-forge-refactor/verification/T-002.red.log", "green_evidence": "specs/sdd-forge-refactor/verification/T-002.green.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/verification/T-002.green.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-004"], "red_evidence": "specs/sdd-forge-refactor/verification/T-002.red.log", "green_evidence": "specs/sdd-forge-refactor/verification/T-002.green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/verification/T-002.install.green.log", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "specs/sdd-forge-refactor/verification/T-002.red.log", "green_evidence": "specs/sdd-forge-refactor/verification/T-002.install.green.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "integration testing covered by guard-parity end-to-end scenarios", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs+shell stack; no build step", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/tasks.md", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/traceability.md", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-004"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "guard behaviors verified via guard-parity.tests.sh end-to-end", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "baseline-behavior.md BL-015/BL-016 explicitly records intentional behavior change for old plugin paths; all other BL items preserved (verified via guard-parity 21/21 and install 19/19)", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "no UI changes", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

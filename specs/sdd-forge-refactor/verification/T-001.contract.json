@@ -1,0 +1,22 @@
+{
+  "task_id": "T-001",
+  "feature": "sdd-forge-refactor",
+  "risk": "low",
+  "required_workflow": "acceptance-first",
+  "stack": "docs",
+  "spec_revision": "",
+  "created": "2026-06-21T00:00:00Z",
+  "comment": "Default-FAIL verification contract for T-001: investigation.md + baseline-behavior.md creation. Stack is docs; lint/typecheck/build waived with reasons.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs-only task; no lintable source files", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs-only task; no typed source files", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "acceptance-first workflow; unit tests not applicable to investigation docs", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "investigation docs only; no integration test applicable", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs-only task; no build step", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/investigation.md", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/tasks.md", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "investigation docs only; no smoke run applicable", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-001 is the task that creates baseline-behavior.md; no prior baseline exists", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "no UI changes", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

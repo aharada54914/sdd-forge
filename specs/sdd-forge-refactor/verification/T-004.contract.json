@@ -1,0 +1,22 @@
+{
+  "task_id": "T-004",
+  "feature": "sdd-forge-refactor",
+  "risk": "low",
+  "required_workflow": "acceptance-first",
+  "stack": "docs",
+  "spec_revision": "",
+  "created": "2026-06-21T00:00:00Z",
+  "comment": "Default-FAIL verification contract for T-004: docs restructure. skill-reference.md split, workflow-guide.md split, wfi-category-guide.md update. Docs stack.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs-only task; Markdown files have no lint toolchain", "requirement_ids": ["REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs-only task", "requirement_ids": ["REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "acceptance-first workflow; docs restructure verified by line count and content checks", "requirement_ids": ["REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "no integration dependencies changed by doc restructure", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "docs-only task; no build step", "requirement_ids": ["REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "docs/skill-reference.md", "waiver_reason": "", "requirement_ids": ["REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/tasks.md", "waiver_reason": "", "requirement_ids": ["REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "doc restructure; runtime behaviour unchanged", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "BL-012/013 verified: install.sh auto-includes and marketplace sdd-ship both unchanged. All doc BLs N/A", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "no UI changes", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}
