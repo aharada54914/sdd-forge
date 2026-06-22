@@ -1,33 +1,33 @@
 ---
-name: sdd-ship
-description: Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow. Run after /sdd-bootstrap and human task approval.
+name: run
+description: Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow. Run after /sdd-bootstrap:run and human task approval.
 disable-model-invocation: true
 ---
 
 # SDD Ship
 
 Orchestrate approved tasks from implementation through quality verification to Done.
-This skill does not write specifications; use `/sdd-bootstrap` for that.
+This skill does not write specifications; use `/sdd-bootstrap:run` for that.
 
 ## Invocation
 
 Claude Code:
 
 ```txt
-/sdd-ship specs/<feature>/tasks.md
-/sdd-ship specs/<feature>/tasks.md#T-001
-/sdd-ship
-/sdd-ship --lite specs/<feature>/tasks.md
-/sdd-ship --full specs/<feature>/tasks.md
-/sdd-ship --verify specs/<feature>/tasks.md
-/sdd-ship --retro specs/<feature>/tasks.md
+/sdd-ship:run specs/<feature>/tasks.md
+/sdd-ship:run specs/<feature>/tasks.md#T-001
+/sdd-ship:run
+/sdd-ship:run --lite specs/<feature>/tasks.md
+/sdd-ship:run --full specs/<feature>/tasks.md
+/sdd-ship:run --verify specs/<feature>/tasks.md
+/sdd-ship:run --retro specs/<feature>/tasks.md
 ```
 
 Codex:
 
 ```txt
-Use the sdd-ship skill for specs/<feature>/tasks.md
-Use the sdd-ship skill (no argument — context-aware selection)
+Use the run skill for specs/<feature>/tasks.md
+Use the run skill (no argument — context-aware selection)
 ```
 
 ### Flags
@@ -68,9 +68,9 @@ If `#T-NNN` is given, only process that single task.
 3. **Exactly one match**: print `[sdd-ship AUTO-SELECT] specs/<feature>/tasks.md`
    and proceed without asking the user.
 4. **Zero matches**: print "No active features with Approval: Approved tasks found.
-   Run /sdd-bootstrap first." and stop.
+   Run /sdd-bootstrap:run first." and stop.
 5. **Multiple matches**: list all candidates with task counts and print
-   "Multiple active features found. Re-run: /sdd-ship specs/<feature>/tasks.md"
+   "Multiple active features found. Re-run: /sdd-ship:run specs/<feature>/tasks.md"
    and stop without touching any feature.
 
 ## Step 2 — Track Detection
@@ -191,4 +191,4 @@ After sdd-ship completes, report:
   - If all Done: "Feature complete. Consider /sdd-quality-loop:workflow-retrospective
     specs/<feature> to capture improvements."
   - If Blocked: "Address review tickets, apply fixes with
-    /sdd-quality-loop:fix-by-review-ticket, then re-run /sdd-ship."
+    /sdd-quality-loop:fix-by-review-ticket, then re-run /sdd-ship:run."

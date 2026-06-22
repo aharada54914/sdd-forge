@@ -19,6 +19,6 @@
       "Workflow retrospective on feature completion",
       "Zero-argument context-aware feature selection"
     ],
-    "defaultPrompt": "Use the sdd-ship skill for specs/<feature>/tasks.md"
+    "defaultPrompt": "Use the run skill for specs/<feature>/tasks.md"
   }
 }
