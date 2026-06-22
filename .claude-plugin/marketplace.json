@@ -30,7 +30,7 @@
     {
       "name": "sdd-implementation",
       "source": "./plugins/sdd-implementation",
-      "description": "[internal] Implement one approved task and prepare a quality-gate handoff. Use /sdd-ship for the standard workflow.",
+      "description": "[internal] Implement one approved task and prepare a quality-gate handoff. Use /sdd-ship:run for the standard workflow.",
       "version": "1.0.0",
       "author": {
         "name": "Harada"
@@ -48,7 +48,7 @@
     {
       "name": "sdd-lite",
       "source": "./plugins/sdd-lite",
-      "description": "[internal] Lightweight medium-weight SDD track for internal/departmental apps. Use /sdd-ship --lite for the standard workflow.",
+      "description": "[internal] Lightweight medium-weight SDD track for internal/departmental apps. Use /sdd-ship:run --lite for the standard workflow.",
       "version": "1.0.0",
       "author": {
         "name": "Harada"

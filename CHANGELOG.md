@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### 修正: エントリーポイントコマンドがスラッシュメニューに表示されない問題
+
+`sdd-bootstrap` / `sdd-ship` プラグインのエントリースキル名がプラグイン名と一致していたため、Claude Code のプラグインスキル名前空間と衝突し（[claude-code#22063](https://github.com/anthropics/claude-code/issues/22063)）、`/sdd-bootstrap` と `/sdd-ship` が `/` メニューに表示されず、フル入力しても `Unknown command` となっていた。
+
+- エントリースキルの `name` をそれぞれ `run` にリネーム（スキルフォルダも `skills/run/` へ移動）。
+- ユーザー向けコマンドは **`/sdd-bootstrap:run`** と **`/sdd-ship:run`** になった（プラグイン名前空間が衝突しなくなり、メニューに表示され実行可能）。
+- 内部ヘルパー（`/sdd-bootstrap:sdd-adopt` など）、プラグイン名、`marketplace.json` の `source` パスは変更なし。
+- 全ドキュメント・Codex `defaultPrompt`・テストの参照を新コマンド名に更新。
+
 ## v1.0.0 (2026-06-21)
 
 ### バージョニング方針の変更

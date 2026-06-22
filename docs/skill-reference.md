@@ -2,7 +2,7 @@
 
 6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる16のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
-> **2コマンドワークフロー**: ユーザーが直接呼び出すのは `/sdd-bootstrap` と `/sdd-ship` の2つのみです。他のスキルはこれらのオーケストレーターが内部で呼び出します。
+> **2コマンドワークフロー**: ユーザーが直接呼び出すのは `/sdd-bootstrap:run` と `/sdd-ship:run` の2つのみです。他のスキルはこれらのオーケストレーターが内部で呼び出します。
 
 ## 1. スキル一覧 (早見表)
 
@@ -39,23 +39,23 @@
 
 ```txt
 # Claude Code
-/sdd-bootstrap feature https://github.com/example/repo/issues/42
-/sdd-bootstrap bugfix  https://github.com/example/repo/issues/88
-/sdd-bootstrap refactor https://github.com/example/repo/issues/55
-/sdd-bootstrap project "新規プロジェクト要件"
-/sdd-bootstrap adopt
-/sdd-bootstrap investigate refactor src/payments
-/sdd-bootstrap feature --lite <source>
-/sdd-bootstrap feature --feature my-slug <source>
-/sdd-bootstrap feature --reset --feature my-slug
+/sdd-bootstrap:run feature https://github.com/example/repo/issues/42
+/sdd-bootstrap:run bugfix  https://github.com/example/repo/issues/88
+/sdd-bootstrap:run refactor https://github.com/example/repo/issues/55
+/sdd-bootstrap:run project "新規プロジェクト要件"
+/sdd-bootstrap:run adopt
+/sdd-bootstrap:run investigate refactor src/payments
+/sdd-bootstrap:run feature --lite <source>
+/sdd-bootstrap:run feature --feature my-slug <source>
+/sdd-bootstrap:run feature --reset --feature my-slug
 
 # Codex
-Use the sdd-bootstrap skill.
+Use the run skill.
 Mode: feature
 Source: https://github.com/example/repo/issues/42
 ```
 
-**詳細は** `plugins/sdd-bootstrap/skills/sdd-bootstrap/SKILL.md` **を参照。**
+**詳細は** `plugins/sdd-bootstrap/skills/run/SKILL.md` **を参照。**
 
 ---
 
@@ -69,16 +69,16 @@ Source: https://github.com/example/repo/issues/42
 
 ```txt
 # Claude Code
-/sdd-ship                                          # ゼロ引数（Active Spec Dirs から自動選択）
-/sdd-ship specs/<feature>/tasks.md                 # バッチ実装（全承認済みタスク）
-/sdd-ship specs/<feature>/tasks.md#T-001           # 単一タスク
-/sdd-ship --lite specs/<feature>/tasks.md          # lite トラック強制
-/sdd-ship --full specs/<feature>/tasks.md          # フル トラック強制
-/sdd-ship --verify specs/<feature>/tasks.md        # cross-model-verify を実行
-/sdd-ship --retro specs/<feature>/tasks.md         # 完了後に workflow-retrospective を実行
+/sdd-ship:run                                          # ゼロ引数（Active Spec Dirs から自動選択）
+/sdd-ship:run specs/<feature>/tasks.md                 # バッチ実装（全承認済みタスク）
+/sdd-ship:run specs/<feature>/tasks.md#T-001           # 単一タスク
+/sdd-ship:run --lite specs/<feature>/tasks.md          # lite トラック強制
+/sdd-ship:run --full specs/<feature>/tasks.md          # フル トラック強制
+/sdd-ship:run --verify specs/<feature>/tasks.md        # cross-model-verify を実行
+/sdd-ship:run --retro specs/<feature>/tasks.md         # 完了後に workflow-retrospective を実行
 
 # Codex
-Use the sdd-ship skill for specs/<feature>/tasks.md
+Use the run skill for specs/<feature>/tasks.md
 ```
 
 **トラック検出（優先順）**
@@ -90,7 +90,7 @@ Use the sdd-ship skill for specs/<feature>/tasks.md
 
 **ゼロ引数起動**: AGENTS.md の `## Active Spec Directories` を読み、承認済みタスクが1件のみなら自動選択。複数ある場合はリスト表示して停止。
 
-**詳細は** `plugins/sdd-ship/skills/sdd-ship/SKILL.md` **を参照。**
+**詳細は** `plugins/sdd-ship/skills/run/SKILL.md` **を参照。**
 
 ---
 
