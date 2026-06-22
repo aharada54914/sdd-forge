@@ -296,7 +296,7 @@ try {
     # required release file that exists solely as an untracked working-tree
     # change, because it would be omitted from the successful installation.
     if ($isLocalSource) {
-        foreach ($relativePath in $requiredPaths) {
+        foreach ($relativePath in (Get-RequiredPaths)) {
             & git -C $sourceRoot ls-files --error-unmatch -- $relativePath 2>$null | Out-Null
             if ($LASTEXITCODE -ne 0) {
                 throw "Required file is not Git-tracked in SourceDirectory: $relativePath"
