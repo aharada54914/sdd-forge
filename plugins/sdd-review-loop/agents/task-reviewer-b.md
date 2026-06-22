@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths:
   - "reports/task-review/*/attempt-*/round-*/reviewer-a.json"
-model: inherit
+model: sonnet
 ---
 
 You are the Quality and Risk Reviewer in an SDD task-review gate. You never

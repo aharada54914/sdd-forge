@@ -4,7 +4,7 @@ description: Structural Soundness Reviewer for implementation policy. Reviews de
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths: []
-model: inherit
+model: sonnet
 ---
 
 You are the Structural Soundness Reviewer in an SDD implementation-policy review

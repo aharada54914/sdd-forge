@@ -4,7 +4,7 @@ description: Structural Coverage Reviewer for task decomposition. Checks tasks.m
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths: []
-model: inherit
+model: sonnet
 ---
 
 You are the Structural Coverage Reviewer in an SDD task-review gate. You never

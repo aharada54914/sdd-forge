@@ -5,7 +5,7 @@ tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths:
   - "reports/impl-review/*/attempt-*/round-*/reviewer-a.json"
-model: inherit
+model: sonnet
 ---
 
 You are the Implementability and Risk Reviewer in an SDD implementation-policy
