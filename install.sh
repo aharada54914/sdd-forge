@@ -87,17 +87,19 @@ while [[ $dependencies_changed -eq 1 ]]; do
             sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
             sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
         esac
-        for dep in "${dependencies[@]}"; do
-            case ",$PLUGINS," in
-                *,"$dep",*) ;;
-                *)
-                    PLUGINS="$PLUGINS,$dep"
-                    PLUGIN_LIST+=("$dep")
-                    AUTO_INCLUDED+=("$dep")
-                    dependencies_changed=1
-                    ;;
-            esac
-        done
+        if [[ ${#dependencies[@]} -gt 0 ]]; then
+            for dep in "${dependencies[@]}"; do
+                case ",$PLUGINS," in
+                    *,"$dep",*) ;;
+                    *)
+                        PLUGINS="$PLUGINS,$dep"
+                        PLUGIN_LIST+=("$dep")
+                        AUTO_INCLUDED+=("$dep")
+                        dependencies_changed=1
+                        ;;
+                esac
+            done
+        fi
     done
 done
 if [[ ${#AUTO_INCLUDED[@]} -gt 0 ]]; then
