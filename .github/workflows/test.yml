@@ -47,6 +47,10 @@ jobs:
         shell: pwsh
         run: ./tests/install.tests.ps1
 
+      - name: Test Claude registration (pwsh)
+        shell: pwsh
+        run: ./tests/claude-registration.tests.ps1
+
       - name: Test authenticated remote installer (pwsh)
         shell: pwsh
         env:
