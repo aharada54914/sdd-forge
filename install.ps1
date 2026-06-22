@@ -199,6 +199,7 @@ function Download-AuthenticatedArchive {
 }
 
 function Get-RequiredPaths {
+    $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
     $paths = @(
         ".agents/plugins/marketplace.json",
         ".claude-plugin/marketplace.json",
@@ -367,9 +368,14 @@ try {
             throw "Unable to enumerate Git-tracked source files."
         }
         foreach ($relativePath in $trackedFiles) {
+            $sourcePath = Join-Path $sourceRoot $relativePath
+            $sourceItem = Get-Item -LiteralPath $sourcePath -Force
+            if (($sourceItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw "Refusing to stage Git-tracked symlink/reparse point: $relativePath"
+            }
             $destination = Join-Path $stagingRoot $relativePath
             New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
-            Copy-Item -LiteralPath (Join-Path $sourceRoot $relativePath) -Destination $destination -Force
+            Copy-Item -LiteralPath $sourcePath -Destination $destination -Force
         }
     }
     else {

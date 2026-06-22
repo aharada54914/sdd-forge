@@ -536,7 +536,7 @@ if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
     while IFS= read -r -d '' relative_path; do
         destination_path="${STAGING_ROOT}/${relative_path}"
         mkdir -p "$(dirname "$destination_path")"
-        cp -p "${SOURCE_ROOT}/${relative_path}" "$destination_path"
+        cp -P "${SOURCE_ROOT}/${relative_path}" "$destination_path"
     done < <(git -C "$SOURCE_ROOT" ls-files -z)
 else
     for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
