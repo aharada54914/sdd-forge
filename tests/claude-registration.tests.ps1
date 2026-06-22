@@ -18,7 +18,7 @@ function New-FakeClaudeCommand {
     }
     else {
         $commandPath = Join-Path $BinRoot "claude"
-        "#!/bin/sh`necho \"claude `$*\" >> \"$LogPath\"`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+        "#!/bin/sh`necho `"claude `$*`" >> `"$LogPath`"`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
         & chmod +x $commandPath
     }
 }
