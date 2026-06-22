@@ -145,12 +145,15 @@ const PROTECTED_GATE_SUFFIXES = [
   '/.claude-plugin/plugin.json',
   '/.codex-plugin/plugin.json',
   // R-10: task-review and impl-review gate files (enforcement chain)
-  'plugins/sdd-task-review/agents/task-reviewer-a.md',
-  'plugins/sdd-task-review/agents/task-reviewer-b.md',
-  'plugins/sdd-task-review/skills/task-review-loop/SKILL.md',
-  'plugins/sdd-impl-review/agents/impl-reviewer-a.md',
-  'plugins/sdd-impl-review/agents/impl-reviewer-b.md',
-  'plugins/sdd-impl-review/skills/impl-review-loop/SKILL.md',
+  // R-10 NEW: sdd-review-loop gate files (T-002 Phase 1)
+  'plugins/sdd-review-loop/agents/impl-reviewer-a.md',
+  'plugins/sdd-review-loop/agents/impl-reviewer-b.md',
+  'plugins/sdd-review-loop/agents/task-reviewer-a.md',
+  'plugins/sdd-review-loop/agents/task-reviewer-b.md',
+  'plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md',
+  'plugins/sdd-review-loop/skills/task-review-loop/SKILL.md',
+  // R-10: sdd-ship orchestrator (self-protection of the second public command)
+  'plugins/sdd-ship/skills/sdd-ship/SKILL.md',
 ];
 
 const SHELL_COMPOUND_RE = /&&|\|\||;|\|/;

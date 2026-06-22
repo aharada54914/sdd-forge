@@ -1,0 +1,47 @@
+{
+  "task_id": "T-005",
+  "feature": "sdd-forge-refactor",
+  "risk": "low",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "bbc27518fa433e2474a0a48d4eae461d139f2668b92ead78103b94416178d478",
+  "quality_report": "reports/quality-gate/sdd-forge-refactor-T-005.md",
+  "verification_contract": "specs/sdd-forge-refactor/verification/T-005.contract.json",
+  "git_commit": "b0e4b64f4c1d1a047a33b84777eb4b07dffc3832",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.11.15",
+    "git": "git version 2.43.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "unknown",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/sdd-forge-refactor/verification/T-005.contract.json",
+      "sha256": "07dd3f7581ed9f1d5e07fa295d4450ec435737c12a099c72588901f1045d43cf"
+    },
+    {
+      "path": "reports/quality-gate/sdd-forge-refactor-T-005.md",
+      "sha256": "30a690487b782167e5ab178212640d80919327d584c1a9f1283decc2614dce9b"
+    },
+    {
+      "path": "specs/sdd-forge-refactor/tasks.md",
+      "sha256": "bdc02f154cdba9a566ae25b4d4b22ebb526c01de08938517b2a26903b34d6933"
+    },
+    {
+      "path": "tests/guard-parity.tests.sh",
+      "sha256": "29d4f4d6b3a7f1b28f38bf3c04d891bb5e2b522927e6b622aa2d73a5a6a85778"
+    }
+  ]
+}

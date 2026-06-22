@@ -1,0 +1,62 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "verdict": "NEEDS_WORK",
+  "legacy_design": true,
+  "feature_type": "cli",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "FAIL",
+      "severity": "CRITICAL",
+      "finding": "The new sdd-review-loop plugin directory does not exist in plugins/ — the migration has NOT been performed. The current plugins/ directory still contains the old sdd-impl-review/ and sdd-task-review/ as independent plugin directories. The design specifies creating plugins/sdd-review-loop/ with skills/, agents/, scripts/, and templates/ subdirectories (§Directory Structure), but none of these exist. This is the core architectural requirement (REQ-001) and it is entirely unimplemented. The system remains in its pre-refactor state."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "N/A",
+      "finding": "No circular dependencies were introduced. The existing plugin topology is flat (sdd-bootstrap → review plugins, sdd-ship → implementation plugins). Since sdd-review-loop has not been created yet, no new dependency cycles can be present. The design explicitly avoids --phase merging (ADR-001) which would have increased coupling. No circular import patterns detected."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "FAIL",
+      "severity": "HIGH",
+      "finding": "Four data-flow gaps identified. (1) REQ-004 / AC-001: sdd-bootstrap/skills/sdd-bootstrap/SKILL.md L88 and L99 still reference '/sdd-impl-review:impl-review-loop' and '/sdd-task-review:task-review-loop' (old plugin paths). The design requires these to be updated to '/sdd-review-loop:impl-review-loop' and '/sdd-review-loop:task-review-loop'. (2) REQ-004: sdd-bootstrap-interviewer/SKILL.md L105/L111/L118/L119/L145/L150 use bare skill invocations (/impl-review-loop, /task-review-loop) which per INV-005 are silent no-op risk calls — while these may not change, the caller SKILL.md at L88/L99 must be updated (not done). (3) REQ-005: docs/skill-reference.md still shows 7 plugins and old sdd-impl-review/sdd-task-review plugin names at L3, L16-17, L786-788, L851-853 — this documentation update is not done. (4) SKILL.md path references within the yet-to-be-created impl-review-loop/SKILL.md and task-review-loop/SKILL.md must rewrite the 6 hardcoded paths (§SKILL.md パス参照更新) — cannot verify since the files don't exist yet."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "FAIL",
+      "severity": "HIGH",
+      "finding": "Three API-level failures. (1) REQ-002 / AC-004 / AC-005: Python guard (sdd-hook-guard.py) is missing Check 2e entirely. After Check 2d (L974) the guard jumps directly to Check 3. The JS guard has 'implReviewStatusPassedIncreases' at L1086 with a full implementation, but the Python guard has no corresponding function. The design specifies the exact implementation (_impl_review_verdict_exists function + Check 2e block). (2) REQ-003 / AC-007: validate-repository.ps1 $expectedSkills at L6 still lists 15 skills — 'sdd-bootstrap' and 'sdd-ship' are missing. There are currently 17 SKILL.md files in the repo (confirmed by find), so the count check would fail. (3) REQ-003: $forbiddenPaths in validate-repository.ps1 does not include the old plugin paths 'plugins/sdd-impl-review/' or 'plugins/sdd-task-review/' as required."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "FAIL",
+      "severity": "CRITICAL",
+      "finding": "Two security gaps remain unaddressed. (1) REQ-002 / INV-002 / AC-004: Python hook guard (sdd-hook-guard.py) has no Check 2e. The JS guard blocks agents from writing 'Impl-Review-Status: Passed' without a valid integrated-verdict.json (JS L1082-1087), but the Python guard has no such check. This is the INV-002 security parity gap that REQ-002 specifically targets. (2) ADR-003 / AC-002: The hook guard PROTECTED_GATE_SUFFIXES (both JS L148-153 and Python L749-754) only contain old plugin paths (sdd-impl-review/, sdd-task-review/). The new paths for sdd-review-loop/ have NOT been added. Phase 1 of ADR-003 requires adding 6 new paths before creating the new plugin — this pre-condition has not been met. The design states guard update must happen before new plugin creation (ADR-002 pre-condition)."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "N/A",
+      "finding": "Skipped per instructions: feature_type is cli, not a frontend/backend split system."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "FAIL",
+      "severity": "HIGH",
+      "finding": "REQ-006 / AC-006: guard-parity.tests.sh currently has 18 scenarios (parity_check calls: 20 total including function definition and usage), maxing out at Scenario 18. Scenarios 19, 20, and 21 — which must test Check 2e JS/Python parity for 'Impl-Review-Status: Passed' guard — have not been added. The acceptance test AC-006 requires all 21 scenarios to pass. The test file ends at Scenario 18 (heredoc redirect to guard file). Since Check 2e has not been implemented in the Python guard, adding these test scenarios would currently fail, but they must be present and passing before implementation is complete."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "FAIL",
+      "severity": "HIGH",
+      "finding": "Multiple undefined components referenced in design. (1) plugins/sdd-review-loop/ — entire directory tree does not exist (skills/, agents/, scripts/, templates/, references/). (2) plugins/sdd-review-loop/references/phase-review-checklist.md — the merged checklist document does not exist. (3) docs/contributor/ — the contributor-facing docs split (docs/contributor/skill-reference-detail.md, docs/contributor/workflow-detail.md) does not exist; the contributor/ directory itself is absent. (4) The _impl_review_verdict_exists Python function and its Check 2e integration are undefined in the actual codebase. All of these are referenced in the design as deliverables but are absent from the implementation."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "N/A",
+      "finding": "All 5 ADRs are present in design.md: ADR-001 (plugin move not merge), ADR-002 (complete deletion, no stub), ADR-003 (PROTECTED_GATE_SUFFIXES update strategy, with explicit scripts/ and templates/ exclusion), ADR-004 (Python Check 2e bare CWD path resolution), ADR-005 (marketplace non-registration). Each ADR documents the rationale and rejected alternatives. ADR-003 explicitly calls out that scripts/ and templates/ are intentionally NOT protected — matching the design intent. The traceability.md correctly links REQ→ADR mappings."
+    }
+  ]
+}

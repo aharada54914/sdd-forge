@@ -1,0 +1,55 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "verdict": "NEEDS_WORK",
+  "legacy_design": true,
+  "checks": [
+    {
+      "id": "TASK-IMPLEMENTABILITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-002 Phase 2 and Phase 4 have a critical scope gap: both `sdd-impl-review` and `sdd-task-review` SKILL.md files reference plugin-local scripts and templates by hardcoded path that are NOT mentioned in the design's `sdd-review-loop` directory tree. Specifically: (1) impl-review-loop/SKILL.md L70 calls `plugins/sdd-impl-review/scripts/impl-review-precheck.sh`; L156 and L181 reference `plugins/sdd-impl-review/templates/impl-review-contract.template.json` and `plugins/sdd-impl-review/templates/impl-review-report.template.md`. (2) task-review-loop/SKILL.md L59 calls `plugins/sdd-task-review/scripts/task-review-precheck.sh`; L144 and L166 reference `plugins/sdd-task-review/templates/task-review-contract.template.json` and `plugins/sdd-task-review/templates/task-review-report.template.md`. The design's directory structure for `sdd-review-loop` lists only `skills/`, `agents/`, and `references/` — no `scripts/` or `templates/` subdirectories are specified. After Phase 4 deletes the old plugin directories, all six of these hardcoded paths become dead, breaking impl-review-loop (precheck fails, report generation fails) and task-review-loop (precheck fails, report generation fails). The design must either: (a) add `scripts/` and `templates/` to the `sdd-review-loop` directory tree and specify moving the 6 files, OR (b) explicitly state that the new SKILL.md files must be updated to use new paths within `sdd-review-loop/`. Without this, T-002 cannot be implemented safely — Phase 4 will break the review loop at runtime."
+    },
+    {
+      "id": "PHASE-ORDERING",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Phase ordering is correct and maintains security at all times. Phase 1 (human/sudo: add new 6 guard paths while retaining old 6) → Phase 2 (agent: create sdd-review-loop plugin) → Phase 3 (agent: update callers) → Phase 4 (agent: delete old plugins) → Phase 5 (human/sudo: remove old 6 guard paths + update forbiddenPaths). At no point does a window exist where the new plugin files are present but unprotected, or where callers point to deleted plugins. The sequencing logic in ADR-002 ('ガード更新→新プラグイン作成→caller 更新→旧プラグイン削除→ガード後処理 の順序を厳守') is correct. The human/sudo requirement is clearly flagged in both design.md and tasks.md."
+    },
+    {
+      "id": "RISK-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The risk register (T-002 Risk Rationale) correctly identifies guard self-protection, caller update misses, and irreversible deletion. However, it does not identify the scripts/templates migration gap (see TASK-IMPLEMENTABILITY): the risk that new SKILL.md files, once moved, still reference old plugin paths that will be deleted in Phase 4. This is a runtime breakage risk that is not documented and has no mitigation in the design. Additionally, the design does not address the risk that validate-repository.ps1's `$expectedVersion` is `0.14.0` while the work is described as v0.15.x — if the version bump is not part of this refactor's scope, this should be explicitly stated as a non-goal; if it is, it is missing from tasks.md."
+    },
+    {
+      "id": "GUARD-UPDATE-SPEC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The PROTECTED_GATE_SUFFIXES update plan is complete and correct. Six new paths to add (Phase 1) and six old paths to remove (Phase 5) are fully enumerated in design.md. Cross-checked against the actual guard files: sdd-hook-guard.js L148-153 and sdd-hook-guard.py L749-754 currently contain exactly the 6 old paths listed for removal. The 6 new paths follow the same naming pattern as the old paths (agents/{reviewer}.md and skills/{loop}/SKILL.md). The human/sudo constraint is called out prominently at the top of tasks.md and in ADR-003. No missing paths detected."
+    },
+    {
+      "id": "PYTHON-CHECK2E-SPEC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The Python Check 2e spec (design.md §Python Check 2e 追加仕様) is complete enough to implement. The `_impl_review_verdict_exists` function is fully specified with correct CWD-relative path resolution (bare `reports/impl-review/{feature}/attempt-*/round-*/integrated-verdict.json` glob, matching JS `fs.readdirSync('reports/impl-review/' + feature)`). The ADR-004 rationale for not using `_resolve_project_root()` is documented. The trigger condition mirrors JS Check 2e: new introduction of `Impl-Review-Status: Passed` in design.md without a valid PASS/PASS-with-warnings integrated-verdict. Minor advisory: the insertion point is described as 'L973 付近の後に挿入' (near L973) — verified that Python Check 2d ends at L973 and the next check (Check 3) starts at L979, so there is exactly one correct insertion point. The guard-parity test spec (Scenarios 19/20/21 in T-005) correctly includes the `cd \"$WORK\"` prerequisite for CWD-relative path resolution. Implementation is fully unambiguous."
+    },
+    {
+      "id": "CALLER-UPDATE-COMPLETENESS",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All 8 caller update sites are identified and line numbers verified against actual files. sdd-bootstrap/SKILL.md: L88 (`/sdd-impl-review:impl-review-loop`) and L99 (`/sdd-task-review:task-review-loop`) — confirmed. sdd-bootstrap-interviewer/SKILL.md: L105 (`/impl-review-loop`), L111 (`/impl-review-loop --reset`), L118 (user-facing message containing `/impl-review-loop`), L119 (user-facing message containing `/impl-review-loop`), L145 (`/task-review-loop`), L150 (`/task-review-loop --reset`) — all confirmed. Minor advisory: L118/L119 are in user-facing error message strings rather than invocation lines; the design correctly proposes updating them to qualified names for accuracy. The distinction between bare invocation (L105/L111/L145/L150) and message text (L118/L119) is not explicitly called out but both are correctly targeted for update."
+    },
+    {
+      "id": "DELETION-SAFETY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Phase 4 deletion of `plugins/sdd-impl-review/` and `plugins/sdd-task-review/` is not safe as currently specified because the SKILL.md files that will live in `sdd-review-loop` after Phase 2 still reference 6 files by old hardcoded paths that will be deleted in Phase 4. Specifically: impl-review-loop/SKILL.md references `plugins/sdd-impl-review/scripts/impl-review-precheck.sh` (STEP 1), `plugins/sdd-impl-review/templates/impl-review-contract.template.json` (STEP 5), and `plugins/sdd-impl-review/templates/impl-review-report.template.md` (STEP 6/Report Format). task-review-loop/SKILL.md references `plugins/sdd-task-review/scripts/task-review-precheck.sh` (STEP 1), `plugins/sdd-task-review/templates/task-review-contract.template.json` (STEP 5), and `plugins/sdd-task-review/templates/task-review-report.template.md` (STEP 6/Report Format). No other callers of `sdd-impl-review` or `sdd-task-review` exist outside sdd-bootstrap (verified: grep across sdd-bootstrap-interviewer/SKILL.md and sdd-bootstrap/SKILL.md covers all sites). However, the internal self-references within the SKILL.md orchestration logic are the blocker. The Phase 2 scope must be extended to include these 6 ancillary files, or the new SKILL.md files must be updated during Phase 2 to use `plugins/sdd-review-loop/scripts/` and `plugins/sdd-review-loop/templates/` paths."
+    },
+    {
+      "id": "DOC-SCOPE-CLARITY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "T-004 doc restructuring scope is sufficiently clear for implementation. skill-reference.md changes are specified at the line level (L3, L16-17, L786-788, L851-853) and verified to be plausible against the described content (7→6 plugins, skill table plugin column, invocation examples). The docs/contributor/ split is defined: skill-reference-detail.md receives the Part 2 contributor content; workflow-detail.md receives the full-track detail from workflow-guide.md. The target sizes (~500 lines for skill-reference.md, ~400 lines for workflow-guide.md compact, 450-line cap in Done When) provide concrete stopping criteria. The Mermaid-no-change rationale (bare skill names) is correct and documented as a non-goal. Minor advisory: the exact section boundaries that move from workflow-guide.md to workflow-detail.md are not specified by section name or line number — an implementer must use judgment to determine what constitutes 'フルトラック詳細'. This is a low risk given the 450-line cap constraint."
+    }
+  ]
+}

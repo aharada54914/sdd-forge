@@ -59,6 +59,7 @@ they appear in retrospective reports (they are direct evidence, not prose descri
 | `impl_review_legacy_design_rate` | `design document maturity rate` |
 | `legacy_design` flag | `design document maturity` |
 | `sdd-sudo`, `sdd-lite`, `sdd-adopt` | `workflow bypass mode`, `lightweight track`, `project setup` |
+| `sdd-review-loop` (plugin name) | `review gate plugin` |
 
 ### Generic Language Examples
 

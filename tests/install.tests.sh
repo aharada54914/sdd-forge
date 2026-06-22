@@ -5,7 +5,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALLER="${REPO_ROOT}/install.sh"
-ALL_PLUGINS="sdd-bootstrap sdd-implementation sdd-quality-loop sdd-lite"
+ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite"
 PASS=0
 FAIL=0
 
@@ -807,6 +807,91 @@ if [[ $_d_ok -eq 1 ]]; then
 fi
 
 rm -rf "$_d_root"
+
+# ---------------------------------------------------------------------------
+# Scenario (o): sdd-ship auto-expansion — selecting only sdd-ship triggers
+# auto-inclusion of its companions (sdd-bootstrap, sdd-implementation,
+# sdd-quality-loop, sdd-lite)
+# ---------------------------------------------------------------------------
+_o_root="$(mktemp -d)"
+_o_install="${_o_root}/installed"
+_o_bin="${_o_root}/bin"
+_o_log="${_o_root}/commands.log"
+_o_orig_path="$PATH"
+_o_orig_codex_home="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_o_bin" "$_o_log"
+export PATH="${_o_bin}:${_o_orig_path}"
+export SDD_CODEX_HOME="${_o_root}/codex-home"
+_o_out="$(bash "$INSTALLER" \
+    --source-directory "$REPO_ROOT" \
+    --install-root "$_o_install" \
+    --target All \
+    --plugins "sdd-ship" \
+    2>&1)" || true
+export PATH="$_o_orig_path"
+if [[ -z "$_o_orig_codex_home" ]]; then
+    unset SDD_CODEX_HOME
+else
+    export SDD_CODEX_HOME="$_o_orig_codex_home"
+fi
+_o_ok=1
+# All companion plugins must be present in install root
+for p in sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite; do
+    if [[ ! -f "${_o_install}/plugins/${p}/.codex-plugin/plugin.json" ]]; then
+        fail "sdd-ship expansion (o): companion plugin not installed: $p"
+        _o_ok=0
+    fi
+done
+# Warning message should mention auto-included companions
+if ! echo "$_o_out" | grep -qi "auto-included"; then
+    fail "sdd-ship expansion (o): expected 'auto-included' warning not found"
+    _o_ok=0
+fi
+rm -rf "$_o_root"
+[[ $_o_ok -eq 1 ]] && ok "sdd-ship expansion: auto-includes all companion plugins"
+
+# ---------------------------------------------------------------------------
+# Scenario (p): marketplace.json contains sdd-ship entry
+# ---------------------------------------------------------------------------
+_p_ok=1
+if ! python3 -c "
+import json
+with open('${REPO_ROOT}/.claude-plugin/marketplace.json') as f:
+    m = json.load(f)
+names = [p['name'] for p in m['plugins']]
+assert 'sdd-ship' in names, 'sdd-ship not found in marketplace plugins'
+assert 'sdd-bootstrap' in names, 'sdd-bootstrap not found in marketplace plugins'
+" 2>/dev/null; then
+    fail "marketplace (p): sdd-ship not present in .claude-plugin/marketplace.json"
+    _p_ok=0
+fi
+if ! python3 -c "
+import json
+with open('${REPO_ROOT}/.agents/plugins/marketplace.json') as f:
+    m = json.load(f)
+names = [p['name'] for p in m['plugins']]
+assert 'sdd-ship' in names, 'sdd-ship not found in agents marketplace plugins'
+" 2>/dev/null; then
+    fail "marketplace (p): sdd-ship not present in .agents/plugins/marketplace.json"
+    _p_ok=0
+fi
+[[ $_p_ok -eq 1 ]] && ok "marketplace: sdd-ship entry present in both marketplace files"
+
+# ---------------------------------------------------------------------------
+# Scenario (q): sdd-ship required paths exist in source
+# ---------------------------------------------------------------------------
+_q_ok=1
+for path in \
+    "plugins/sdd-ship/.claude-plugin/plugin.json" \
+    "plugins/sdd-ship/.codex-plugin/plugin.json" \
+    "plugins/sdd-ship/.plugin/plugin.json" \
+    "plugins/sdd-ship/skills/sdd-ship/SKILL.md"; do
+    if [[ ! -f "${REPO_ROOT}/${path}" ]]; then
+        fail "sdd-ship required paths (q): missing: $path"
+        _q_ok=0
+    fi
+done
+[[ $_q_ok -eq 1 ]] && ok "sdd-ship required paths: all plugin files present"
 
 # ---------------------------------------------------------------------------
 # Summary

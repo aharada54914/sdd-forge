@@ -1,0 +1,865 @@
+# Phase Review Checklist
+
+Combined reference for all review checks used by `sdd-review-loop`.
+
+- **Part 1** — `impl-review-loop`: 18 checks across impl-reviewer-a and impl-reviewer-b
+- **Part 2** — `task-review-loop`: 22 checks across task-reviewer-a and task-reviewer-b
+
+---
+
+## Part 1: Implementation Policy Review Checklist (impl-review-loop)
+
+Complete reference for all 18 checks in the impl-review-loop. Checks are split
+across two reviewers: impl-reviewer-a (structural soundness, 9 checks) and
+impl-reviewer-b (implementability/risk, 9 checks).
+
+### Check Types
+
+- **TYPE-D** (Deterministic): Pass/fail can be determined by reading artifact
+  content against explicit rules. No qualitative judgment required.
+- **TYPE-H** (Heuristic): Requires judgment about intent, scope, or adequacy.
+  The reviewer must cite specific evidence and apply the rubric in
+  `references/impl-review-rubric.md`.
+
+### Default Behavior
+
+All checks **default to FAIL**. A reviewer emits PASS only when positive
+evidence is found. Absence of evidence is a finding, not a pass.
+
+### Legacy Design Mode
+
+When `legacy_design: true` in precheck-result.json, impl-reviewer-a downgrades
+absent template fields from Major/Critical to Minor `[LEGACY COMPAT]` advisories.
+
+---
+
+### Reviewer-A Checks (Structural Soundness — 9 checks)
+
+#### ARCH-COVERAGE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D |
+| Severity | Critical |
+| Default | FAIL |
+
+**Description:** `## Architecture` section must describe component boundaries,
+feature integration with existing components, and technology choices per major
+layer.
+
+**Pass condition:** All three elements present in the Architecture section.
+
+**Fail condition:** Any of the three elements is absent or described in fewer
+than meaningful detail (one-sentence summary with no component interaction
+description).
+
+---
+
+#### NO-CIRCULAR-DEPS
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Component dependency graph must be acyclic.
+
+**Pass condition:** No cycle detected in stated component dependencies.
+
+**Fail condition:** Any cycle detected in component dependency declarations.
+
+**Skip condition:** No explicit component dependency declarations present.
+
+---
+
+#### DATA-COVERAGE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** `## Data Plan` must include `Data Entities:`, `Existing Data
+Affected:`, and `Migration Strategy:` sub-fields.
+
+**Pass condition:** All three sub-fields present. If no data changes, each
+sub-field explicitly states "No data changes."
+
+**Fail condition:** Any sub-field absent; section entirely absent.
+
+---
+
+#### API-COVERAGE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** `## API / Contract Plan` must list all new/changed endpoints
+with method, path, request schema, and response schema.
+
+**Pass condition:** All endpoints documented; or "No API changes" explicitly
+stated when no endpoints are affected.
+
+**Fail condition:** API changes implied by requirements but not documented;
+missing method, path, or schema for any endpoint.
+
+---
+
+#### SECURITY-COVERAGE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D (primary) / TYPE-H (fallback) |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** `## Security Boundaries` section must address trust boundaries,
+auth/authz mechanisms, PII data classification, and relevant OWASP concerns.
+
+**Pass condition (TYPE-D):** Security Boundaries section present and covers all
+four required areas.
+
+**Fail condition (TYPE-D):** Section present but missing one or more required
+areas.
+
+**Fallback (TYPE-H):** If section absent, scan User Stories for PII keywords.
+PII keywords found → Major finding. No PII keywords → Minor advisory.
+
+---
+
+#### FRONTEND-BACKEND-CONSISTENCY
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+| Skip condition | Feature Type is api-only, frontend-only, cli, or library |
+
+**Description:** Frontend Plan API references must match API / Contract Plan
+endpoints. Frontend component data fields must match API response schemas.
+
+**Pass condition:** All frontend-referenced endpoints exist in API plan; all
+displayed fields are covered by API response schemas.
+
+**Fail condition:** Any mismatch between Frontend Plan and API / Contract Plan.
+
+---
+
+#### TEST-STRATEGY-COVERAGE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** `## Test Strategy` must cover unit, integration, and acceptance
+test scopes.
+
+**Pass condition:** All three test levels addressed with scope descriptions.
+
+**Fail condition:** Section absent; or only one or two test levels addressed.
+
+---
+
+#### NO-UNDEFINED-COMPONENT
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D |
+| Severity | Critical |
+| Default | FAIL |
+
+**Description:** Every component referenced in Architecture, Frontend Plan,
+Backend Plan, or API / Contract Plan must be defined in design.md or identified
+as an established existing system component.
+
+**Pass condition:** All referenced components are defined or identified.
+
+**Fail condition:** Any component referenced but not defined in design.md and
+not identifiable from investigation.md or requirements context.
+
+---
+
+#### ADR-PRESENT
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Referenced ADR documents must exist at `docs/adr/NNNN-<slug>.md`.
+New architectural decisions without ADRs must be flagged.
+
+**Pass condition:** All referenced ADRs exist; or no ADRs referenced and no new
+architectural decisions introduced.
+
+**Fail condition:** Referenced ADR file missing; or new architectural decision
+introduced with no ADR.
+
+---
+
+### Reviewer-B Checks (Implementability/Risk — 9 checks)
+
+#### DECISION-JUSTIFIED
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Every technology or architecture decision must include a stated
+rationale.
+
+**Pass condition:** All decisions have "because" / "since" / "due to" clauses or
+reference an ADR that provides the rationale.
+
+**Fail condition:** Any "We will use X" statement without rationale.
+
+---
+
+#### OPEN-QUESTIONS-RESOLVABLE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Open Questions must each have: an owner (role), a `Blocks
+Implementation:` field, and a `Resolution Path:`.
+
+**Pass condition:** All blocking questions have owners and resolution paths.
+Non-blocking questions with owners are Minor if incomplete.
+
+**Fail condition:** Any blocking question has no resolution path; any question
+has no owner.
+
+---
+
+#### ASSUMPTIONS-VALID
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Each assumption must be grounded in investigation.md, a
+reasonable technical default, or accepted risk. If investigation.md is absent
+and >1 non-trivial assumption exists, emit Major finding.
+
+**Pass condition:** All assumptions are grounded or explicitly accepted as risks.
+
+**Fail condition:** investigation.md absent with >1 non-trivial ungrounded
+assumption; or any assumption contradicted by investigation.md findings.
+
+---
+
+#### NO-REQ-CONTRADICTION
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-D (primary, Critical) / TYPE-H (fallback, Major) |
+| Severity | Critical (primary) / Major (fallback) |
+| Default | FAIL |
+
+**Description:** Requirements constraints must be addressed in design.md.
+
+**Pass condition (primary):** `## Constraint Compliance` present and covers all
+requirements.md constraints.
+
+**Fail condition (primary):** Constraint Compliance present but missing one or
+more constraints → Critical.
+
+**Fallback:** Section absent; scan requirements.md for constraints; any
+unaddressed → Major.
+
+---
+
+#### PERF-ADDRESSED
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Performance requirements (numeric SLAs) in requirements.md must
+be addressed in design.md with a concrete strategy.
+
+**Pass condition:** All performance requirements addressed with a design strategy;
+or no performance requirements present.
+
+**Fail condition:** Any numeric performance threshold in requirements.md with no
+corresponding design strategy.
+
+---
+
+#### DEPLOYMENT-CONCRETE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** `## Deployment / CI Plan` must specify deployment target, feature
+flag strategy, CI changes, and migration execution order (for schema changes).
+
+**Pass condition:** All required elements present; migration execution order stated
+when schema changes exist.
+
+**Fail condition:** Section absent; or migration execution order missing for schema-
+changing feature.
+
+---
+
+#### MIGRATION-PLANNED
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Features with schema changes must document migration file
+naming, rollback strategy, and performance impact acknowledgement (for tables
+>10k rows).
+
+**Pass condition:** Migration plan complete for all schema changes; or "No data
+changes" stated.
+
+**Fail condition:** Schema changes declared with no migration file path, no
+rollback strategy, or no performance acknowledgement for large tables.
+
+---
+
+#### INTEGRATION-IDENTIFIED
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Every external integration must be listed with name, contract
+version, and failure behaviour.
+
+**Pass condition:** All integrations documented with required detail.
+
+**Fail condition:** Any integration mentioned without contract version or failure
+behaviour; or integration implied by requirements but undocumented.
+
+---
+
+#### DESIGN-WITHIN-SCOPE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Design must not introduce unRequested components (scope creep)
+and must not omit required capabilities (under-scope).
+
+**Pass condition:** Design covers all Goals and User Stories; no extra capabilities
+introduced without requirement backing.
+
+**Fail condition:** Any design element with no requirement backing; any requirement
+capability absent from design.
+
+---
+
+## Part 2: Task Review Checklist (task-review-loop)
+
+Complete reference for all 22 checks in the task-review-loop. Checks are split
+across two reviewers: task-reviewer-a (structural coverage, 14 checks) and
+task-reviewer-b (quality/risk, 8 checks).
+
+### Check Types
+
+- **TYPE-D** (Deterministic): Pass/fail can be determined by reading artifact
+  content against explicit rules. No qualitative judgment required.
+- **TYPE-H** (Heuristic): Requires judgment about intent, scope, or adequacy.
+  The reviewer must cite specific evidence and apply the rubric in
+  `references/task-review-rubric.md`.
+
+### Default Behavior
+
+All checks **default to FAIL**. A reviewer emits PASS only when positive
+evidence is found. Absence of evidence is a finding, not a pass.
+
+---
+
+### Reviewer-A Checks (Structural Coverage — 14 checks)
+
+#### PREREQ-AC-IDS
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Critical |
+| Default | FAIL |
+
+**Description:** Every AC-NNN identifier referenced in a task's `Requirements:`
+field must resolve to an actual criterion in `acceptance-tests.md`.
+
+**Pass condition:** All referenced AC IDs exist verbatim in acceptance-tests.md.
+
+**Fail condition:** Any AC-NNN in tasks.md does not appear in acceptance-tests.md
+(dangling reference).
+
+---
+
+#### BLOCKERS-FORMAT
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Each task's `Blockers:` field must use canonical format: either
+`None` or a comma-separated list of `T-NNN` IDs.
+
+**Pass condition:** Every Blockers field is `None` or matches `^T-\d{3}(,\s*T-\d{3})*$`.
+
+**Fail condition:** Range notation (`T-001..T-005`), prose descriptions, missing
+field, or any non-canonical format.
+
+**Note:** DEPENDENCY-CYCLE is SKIP until this check PASS.
+
+---
+
+#### REQ-COVERAGE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Critical |
+| Default | FAIL |
+
+**Description:** Every REQ-NNN in requirements.md must appear in at least one
+task `Requirements:` field or have a deferral entry in traceability.md.
+
+**Pass condition:** All REQ-NNN IDs are accounted for across tasks or traceability.
+
+**Fail condition:** Any REQ-NNN exists in requirements.md with no task reference
+and no traceability.md deferral entry.
+
+---
+
+#### AC-COVERAGE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Critical |
+| Default | FAIL |
+
+**Description:** Every AC-NNN in acceptance-tests.md must be traceable to at
+least one task.
+
+**Pass condition:** All AC-NNN IDs are referenced in tasks or in traceability.md
+with deferral rationale.
+
+**Fail condition:** Any AC-NNN in acceptance-tests.md has no task reference and
+no traceability.md deferral entry.
+
+---
+
+#### ORPHAN-TASK
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Every task must reference at least one REQ-NNN (or approved
+pseudo-requirement INFRA/HOUSEKEEPING) in its `Requirements:` field.
+
+**Pass condition:** All tasks have at least one requirement reference.
+
+**Fail condition:** Any task has an empty or absent `Requirements:` field with no
+recognised pseudo-requirement.
+
+---
+
+#### ORPHAN-TEST
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Every test task must reference at least one AC-NNN.
+
+**Pass condition:** All test tasks (title contains "test"/"spec"/"verify" or
+scope is exclusively test-file changes) reference at least one AC-NNN.
+
+**Fail condition:** Any test task has no AC-NNN reference.
+
+---
+
+#### INITIAL-STATE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** In round 1 attempt 1, every task must have `Approval: Draft`
+and `Status: Planned`. In later rounds, `Approval:` must not be `Approved`.
+
+**Pass condition:** All tasks have correct Approval and Status field values for
+the current round/attempt.
+
+**Fail condition:** Any task has `Approval: Approved` (agent self-approval) or
+missing/invalid status field.
+
+---
+
+#### RISK-WORKFLOW-FORMAT
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Critical |
+| Default | FAIL |
+
+**Description:** Every task must declare matching `Risk:` and `Required Workflow:`
+fields per the risk-gate-matrix: low → test-after; medium → acceptance-first;
+high/critical → tdd.
+
+**Pass condition:** All tasks have both fields present and correctly paired.
+
+**Fail condition:** Any missing field, unrecognised value, or Risk/Workflow
+mismatch.
+
+---
+
+#### NO-DUPLICATE-AC
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** No AC-NNN may be the sole primary test target of more than one
+task at the same test level.
+
+**Pass condition:** Each AC-NNN appears as a primary test target in at most one
+task per test level (unit/integration/e2e).
+
+**Fail condition:** The same AC-NNN is claimed as the primary target by two tasks
+with no scope differentiation.
+
+---
+
+#### DEPENDENCY-COMPLETE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Every task ID referenced in any Blockers field must exist in
+tasks.md. Must complete before DEPENDENCY-CYCLE.
+
+**Pass condition:** All referenced Blocker IDs exist in dependency-graph.json
+`nodes` array.
+
+**Fail condition:** Any Blocker references a non-existent task ID.
+
+---
+
+#### DEPENDENCY-CYCLE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Critical |
+| Default | FAIL |
+| Precondition | BLOCKERS-FORMAT == PASS |
+
+**Description:** The dependency graph must be acyclic. Cycles create
+unresolvable execution ordering.
+
+**Pass condition:** No cycle detected in dependency-graph.json edges.
+
+**Fail condition:** Any cycle detected; report the cycle path (e.g. T-001 → T-003 → T-001).
+
+**Skip condition:** BLOCKERS-FORMAT is not PASS (cannot build valid graph).
+
+---
+
+#### SINGLE-CONCERN
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Each task addresses one coherent concern. "And" is allowed only
+for test/verification work tied to the primary clause, or mandatory housekeeping
+(AGENTS.md, CLAUDE.md, traceability.md updates).
+
+**Pass condition:** All tasks address a single coherent concern; any "and" clauses
+fall into the allowed categories.
+
+**Fail condition:** Any task title or scope joins two distinct feature concerns
+with "and" (e.g. "Add user profile and implement notifications").
+
+See `references/task-review-rubric.md` for examples.
+
+---
+
+#### OBSERVABLE-DONE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Every Done When item must be concrete and verifiable. Forbidden
+verbs: "ensure", "consider", "update X" (no target), "verify is correct", "works
+correctly", "review X" (no artifact outcome), "confirm X" (no specific result).
+
+**Pass condition:** All Done When items name a concrete artifact, test result,
+metric, or command output.
+
+**Fail condition:** Any Done When item uses a forbidden verb or pattern.
+
+See `references/task-review-rubric.md` for the full forbidden-verb list with examples.
+
+---
+
+#### TRACEABILITY-SYNC
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Every task ID in tasks.md must have a traceability.md entry.
+Every requirement ID in traceability.md must exist in requirements.md.
+
+**Pass condition:** Bidirectional consistency between tasks.md, traceability.md,
+and requirements.md.
+
+**Fail condition:** Any dangling reference in either direction.
+
+---
+
+### Reviewer-B Checks (Quality/Risk — 8 checks)
+
+#### RISK-APPROPRIATE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Each task's Risk tier must match its actual scope. Sentinel
+surfaces (auth, payment, PII, data migration, external API contracts) require
+Risk: high or critical. Pure UI/CSS/docs/test-only tasks must not be high/critical.
+
+**Pass condition:** All task Risk tiers are consistent with their scope.
+
+**Fail condition:** Under-classified sentinel surface (Risk low/medium with auth/
+payment/PII/migration scope) or over-classified routine task (Risk high/critical
+with UI-only scope).
+
+See `references/task-review-rubric.md` for sentinel surface proximity examples.
+
+---
+
+#### HIGH-CRITICAL-EVIDENCE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-D |
+| Severity | Critical |
+| Default | FAIL |
+
+**Description:** Tasks with Risk: high or critical must include mandatory Done
+When items: Red→Green evidence, independent review verdict, and (for critical)
+second approver + signed evidence bundle.
+
+**Pass condition:** All high/critical tasks have all required Done When items.
+
+**Fail condition:** Any high/critical task is missing one or more required Done
+When items.
+
+---
+
+#### TASK-SIZE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Tasks must be right-sized: completable in one focused session.
+Oversized tasks span more than three implementation areas or have more than eight
+Done When items. Fragmented tasks describe only a single-function or single-file
+change with no integration context.
+
+**Pass condition:** All tasks are neither oversized nor fragmented.
+
+**Fail condition:** Any task shows signs of over-sizing or fragmentation per the
+rubric.
+
+---
+
+#### EDGE-CASE-COVERAGE
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Every functional task must have at least one error-path or
+edge-case acceptance criterion in acceptance-tests.md.
+
+**Pass condition:** All functional tasks have at least one edge-case/error-path
+AC in acceptance-tests.md.
+
+**Fail condition:** Any functional task has only happy-path ACs with no
+corresponding error-path test task.
+
+---
+
+#### TEST-TYPE-MATCH
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** The declared test type (unit/integration/e2e/acceptance) must
+match the actual scope of the test task.
+
+**Pass condition:** All test tasks have a declared type consistent with their scope.
+
+**Fail condition:** Any test task whose declared type does not match its scope
+(e.g. "unit test" that involves two components).
+
+---
+
+#### ROLLBACK-PLAN
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Tasks with Risk: high or critical must include rollback
+consideration: a feature flag, a migration rollback script reference, or an
+explicit "Rollback procedure documented and tested" Done When item.
+
+**Pass condition:** All high/critical tasks address rollback.
+
+**Fail condition:** Any high/critical task has no rollback provision.
+
+---
+
+#### SCOPE-DISJOINT
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** No two tasks may modify the same file for the same purpose
+without a Blockers ordering between them.
+
+**Pass condition:** All file-scope overlaps have a corresponding Blockers
+relationship enforcing the order.
+
+**Fail condition:** Two tasks claim to modify the same primary file with no
+blocking relationship.
+
+---
+
+#### DEPENDENCY-OVERLAP
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Blocker relationships must reflect genuine logical dependencies.
+Spurious blockers (no real dependency) and missing blockers (real dependency
+undeclared) are both findings.
+
+**Pass condition:** All Blocker relationships reflect genuine logical dependencies;
+no spurious or missing blockers.
+
+**Fail condition:** Any spurious blocker (inflates critical path) or missing
+blocker (would cause integration failure).

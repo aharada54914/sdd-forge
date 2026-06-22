@@ -5,8 +5,8 @@ param(
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
     [string]$Target = "All",
-    [ValidateSet("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite")]
-    [string[]]$Plugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite"),
+    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite")]
+    [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship"),
     [switch]$SkipPluginInstall,
     [switch]$SkipAgentInstall,
     [string]$SourceDirectory
@@ -14,6 +14,17 @@ param(
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+
+# sdd-ship orchestrates implement-tasks, quality-gate, and lite-gate internally;
+# those internal plugins must be present for the orchestrator to function.
+# Selecting sdd-ship alone would silently omit the self-approval protection that
+# lives in sdd-quality-loop hooks, so auto-expand to include all companions.
+if ($Plugins -contains "sdd-ship") {
+    foreach ($dep in @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite")) {
+        if ($Plugins -notcontains $dep) { $Plugins += $dep }
+    }
+    Write-Warning "sdd-ship selected; auto-included its companions (sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-lite)."
+}
 
 # sdd-lite depends on its companions and cannot run standalone:
 #  - lite-spec requires sdd-bootstrap (sdd-adopt / check-sdd-structure) and
@@ -200,6 +211,9 @@ try {
         ".agents/plugins/marketplace.json",
         ".claude-plugin/marketplace.json",
         "plugins/sdd-bootstrap/.codex-plugin/plugin.json",
+        "plugins/sdd-ship/.claude-plugin/plugin.json",
+        "plugins/sdd-ship/.codex-plugin/plugin.json",
+        "plugins/sdd-ship/.plugin/plugin.json",
         "plugins/sdd-implementation/.codex-plugin/plugin.json",
         "plugins/sdd-quality-loop/.codex-plugin/plugin.json",
         "plugins/sdd-bootstrap/.plugin/plugin.json",

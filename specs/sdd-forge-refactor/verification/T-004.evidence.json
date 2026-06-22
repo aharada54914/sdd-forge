@@ -1,0 +1,47 @@
+{
+  "task_id": "T-004",
+  "feature": "sdd-forge-refactor",
+  "risk": "low",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "bbc27518fa433e2474a0a48d4eae461d139f2668b92ead78103b94416178d478",
+  "quality_report": "reports/quality-gate/sdd-forge-refactor-T-004.md",
+  "verification_contract": "specs/sdd-forge-refactor/verification/T-004.contract.json",
+  "git_commit": "b0e4b64f4c1d1a047a33b84777eb4b07dffc3832",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.11.15",
+    "git": "git version 2.43.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "unknown",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/sdd-forge-refactor/verification/T-004.contract.json",
+      "sha256": "f513fa5ad268b379b2980cac254d82ed80eaa6e2bf224151236b95da089812af"
+    },
+    {
+      "path": "reports/quality-gate/sdd-forge-refactor-T-004.md",
+      "sha256": "9bec61aa5928f6d0e8cd56bb6b39157dba891ee79b8703b33f09a4cd3ef5e62b"
+    },
+    {
+      "path": "docs/skill-reference.md",
+      "sha256": "338343a7ea0db015ff4b60d78b9542858d524b5c537093a5874bdd81543e4ec2"
+    },
+    {
+      "path": "specs/sdd-forge-refactor/tasks.md",
+      "sha256": "bdc02f154cdba9a566ae25b4d4b22ebb526c01de08938517b2a26903b34d6933"
+    }
+  ]
+}

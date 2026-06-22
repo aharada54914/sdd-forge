@@ -102,13 +102,13 @@ Run after Phase 1 artifacts (requirements.md, acceptance-tests.md) are generated
 Run after design.md is generated and spec-review-loop has passed.
 
 1. Check AGENTS.md spec_profile. If lite → SKIP.
-2. Invoke `/impl-review-loop --feature <feature>`.
+2. Invoke `/sdd-review-loop:impl-review-loop --feature <feature>`.
 3. verdict == PASS or PASS-with-warnings → continue (Impl-Review-Status: Passed
    is now set in design.md).
 4. verdict == NEEDS_WORK → present design-round-N-proposed-changes.md; await
    human edit of design.md; re-invoke.
 5. verdict == BLOCKED → halt; instruct human to run
-   `/impl-review-loop --reset --feature <feature>`.
+   `/sdd-review-loop:impl-review-loop --reset --feature <feature>`.
 
 ## Required Outputs Phase 2
 
@@ -116,7 +116,7 @@ Before generating tasks.md and traceability.md:
 
 - Read design.md header for `Impl-Review-Status`.
 - If Impl-Review-Status != "Passed" → STOP: "impl-review-loop must PASS before
-  Phase 2. Run `/impl-review-loop --feature <feature>`"
+  Phase 2. Run `/sdd-review-loop:impl-review-loop --feature <feature>`"
 - Generate tasks.md and traceability.md.
 
 ## Risk Classification
@@ -142,12 +142,12 @@ that does not declare `Required Workflow: tdd`.
 Run after Risk Classification completes and tasks.md has been generated.
 
 1. Check AGENTS.md spec_profile. If lite → SKIP.
-2. Invoke `/task-review-loop --feature <feature>`.
+2. Invoke `/sdd-review-loop:task-review-loop --feature <feature>`.
 3. verdict == PASS or PASS-with-warnings → continue to ## Approval Gate.
 4. verdict == NEEDS_WORK → present tasks-round-N-proposed-changes.md; await
    human edit of tasks.md; re-invoke.
 5. verdict == BLOCKED → halt; instruct human to run
-   `/task-review-loop --reset --feature <feature>`.
+   `/sdd-review-loop:task-review-loop --reset --feature <feature>`.
 
 ## Approval Gate
 

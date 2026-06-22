@@ -1,0 +1,22 @@
+{
+  "task_id": "T-005",
+  "feature": "sdd-forge-refactor",
+  "risk": "low",
+  "required_workflow": "acceptance-first",
+  "stack": "docs",
+  "spec_revision": "",
+  "created": "2026-06-21T00:00:00Z",
+  "comment": "Default-FAIL verification contract for T-005: guard-parity Scenarios 19/20/21, validate-repository.ps1 fixes, CHANGELOG. Shell+docs stack.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "shell+docs stack; bash syntax checked implicitly by test runner", "requirement_ids": ["REQ-003", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "shell+docs stack; no typed source files", "requirement_ids": ["REQ-003"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "acceptance-first workflow; tests are the deliverable, not under test themselves", "requirement_ids": ["REQ-003", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "guard-parity scenarios are themselves integration tests; already captured in green evidence", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "shell+docs stack; no build step", "requirement_ids": ["REQ-003"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "tests/guard-parity.tests.sh", "waiver_reason": "", "requirement_ids": ["REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-forge-refactor/tasks.md", "waiver_reason": "", "requirement_ids": ["REQ-003", "REQ-006"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "test additions; smoke run is guard-parity.tests.sh itself (AC-006)", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "test additions only expand test coverage; guard-parity 21/21 pass confirms no regression", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "no UI changes", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

@@ -17,6 +17,18 @@
       "category": "Developer Tools"
     },
     {
+      "name": "sdd-ship",
+      "source": {
+        "source": "local",
+        "path": "./plugins/sdd-ship"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
       "name": "sdd-implementation",
       "source": {
         "source": "local",

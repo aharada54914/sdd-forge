@@ -1,5 +1,66 @@
 # Changelog
 
+## v1.0.0 (2026-06-21)
+
+### バージョニング方針の変更
+
+v0.15.x から v1.0.0 へのメジャーバンプ。全プラグインのバージョンを `1.0.0` に統一。
+
+`/sdd-bootstrap` + `/sdd-ship` の2コマンドワークフローが確立し、ユーザー向けの公開インターフェースが安定したため、メジャーバージョン 1 に昇格する。
+
+### v0.14.x からの移行
+
+- **破壊的変更なし**。旧スキル（`implement-task`、`quality-gate` 等）はすべてそのまま動作し続ける。
+- ユーザーが直接使うコマンドは `/sdd-bootstrap` と `/sdd-ship` の2つ。内部スキルは `sdd-ship` 経由で自動実行される。
+- `v0.14.0` タグが旧パラダイム（15スキル時代）の最終状態として参照可能。
+
+---
+
+## v0.15.1 (2026-06-21)
+
+### 変更
+
+- **`sdd-review-loop` プラグイン新設（内部リファクタリング）**: `sdd-impl-review` と `sdd-task-review` の2プラグインを `plugins/sdd-review-loop/` に統合。`impl-review-loop` と `task-review-loop` の各スキル・エージェント・スクリプト・テンプレートを移植し、`plugins/sdd-bootstrap/skills/sdd-bootstrap/SKILL.md` および `sdd-bootstrap-interviewer/SKILL.md` の呼び出しパスを更新。旧プラグインディレクトリは完全削除（`$forbiddenPaths` で再作成を防止）。
+- **フックガード強化（Python Check 2e）**: `sdd-hook-guard.py` に `impl_review_status_passed_increases` チェック（Check 2e）を追加。JS の `implReviewStatusPassedIncreases` との動作パリティを確立。`PROTECTED_GATE_SUFFIXES` に `sdd-review-loop` の6パスを追加。
+- **内部 SKILL.md に Caller ヘッダー追加**: `implement-task`、`implement-tasks`、`quality-gate` の3スキルの frontmatter 直後に「このスキルは sdd-ship から呼ばれる」旨の caller-context ヘッダーを追加。直接呼び出し抑止のためのドキュメント整備。
+- **ドキュメント再構成**: `docs/skill-reference.md`（1374→576行）と `docs/workflow-guide.md`（998→297行）をスリム化し、内部詳細を `docs/contributor/` 配下に分離。`wfi-category-guide.md` の forbidden terms に `sdd-review-loop` を追加。
+- **テストスイート強化**: `tests/guard-parity.tests.sh` に Scenarios 19/20/21（impl-review-status ガードのパリティ検証）を追加。`tests/validate-repository.ps1` の `$expectedSkills` を 15→17 件に修正（sdd-bootstrap と sdd-ship の既存バグ修正）および `$forbiddenPaths` に旧プラグインパスを追加。
+
+### v0.15.0 からの移行
+
+- 破壊的変更なし。`impl-review-loop` と `task-review-loop` はプラグインが変わるだけで機能は同一。
+- 既存レポートパス（`reports/impl-review/`、`reports/task-review/`）は変更なし。
+- 旧パス（`/sdd-impl-review:impl-review-loop`、`/sdd-task-review:task-review-loop`）は削除済み。新パス `/sdd-review-loop:impl-review-loop` / `/sdd-review-loop:task-review-loop` を使用。
+
+## v0.15.0 (2026-06-20)
+
+### 追加
+
+- **`sdd-ship` プラグイン（実装・品質保証フェーズのオーケストレーター）**: 新しいトップレベル公開コマンド。承認済みタスクを `implement-tasks` → `quality-gate`（または `lite-gate`）→ `workflow-retrospective` の順に処理し、全タスクを Done に導く薄いオーケストレーター。
+  - **2コマンドワークフロー確立**: ユーザーが直接呼び出すのは `/sdd-bootstrap` と `/sdd-ship` の2つのみ。内部スキル（`implement-task`、`quality-gate` 等）は引き続き動作し、後方互換性を完全に維持。
+  - **自動トラック検出**: `--full` → `--lite` → `spec_profile: lite`（AGENTS.md）→ デフォルト FULL の優先順でトラックを自動検出。`[sdd-ship] Track: ...` メッセージを常に先頭に出力。
+  - **ゼロ引数起動**: 引数なしで実行すると AGENTS.md の `## Active Spec Directories` を走査し、承認済みタスクが1フィーチャーのみなら自動選択。
+  - **`--verify` フラグ**: `Cross-Model: enabled` を持つタスクのみ `cross-model-verify` を実行。対象タスクがない場合は警告を出力して通常ゲートへ。lite トラックでは無視。
+  - **`--retro` フラグ**: 全タスク Done 後に `workflow-retrospective` を強制実行。
+  - **サイクル上限**: 同一タスクで `quality-gate` を3回実行しても Done に到達しない場合は人間調査を促して停止。
+  - **セキュリティ境界**: `sdd-sudo` の呼び出し禁止、`Approval: Approved` の自己設定禁止、フックファイルの変更禁止。
+  - ファイル: `plugins/sdd-ship/skills/sdd-ship/SKILL.md`、`plugins/sdd-ship/.claude-plugin/plugin.json`、`plugins/sdd-ship/.codex-plugin/plugin.json`、`plugins/sdd-ship/.plugin/plugin.json`
+
+- **`sdd-bootstrap` トップレベルルーター**: `plugins/sdd-bootstrap/skills/sdd-bootstrap/SKILL.md` を新規作成し、全モード（feature/bugfix/refactor/project/adopt/investigate）のルーティングと `--lite`/`--feature`/`--reset` フラグを一元管理するエントリーポイントを追加。ハンドオフは常に `/sdd-ship` を次ステップとして案内。
+
+### 変更
+
+- **`install.sh` / `install.ps1` デフォルト変更**: デフォルトプラグインセットを `sdd-bootstrap,sdd-ship` に変更。`sdd-ship` を選択すると全依存プラグインが自動展開される。`VALID_PLUGINS` に `sdd-ship` を追加。`REQUIRED_PATHS` に sdd-ship の3ファイルを追加。
+- **marketplace 更新**: `.claude-plugin/marketplace.json` と `.agents/plugins/marketplace.json` に `sdd-ship` エントリを追加。`sdd-implementation` と `sdd-lite` の description に `[internal]` プレフィックスを付与（UX 整理; 機能削除なし）。
+- **フックガード更新**: `sdd-hook-guard.js` と `sdd-hook-guard.py` の `PROTECTED_GATE_SUFFIXES` に `plugins/sdd-ship/skills/sdd-ship/SKILL.md` を追加（R-10 保護）。
+- **ドキュメント更新**: README.md にクイックスタート（2コマンド）セクションを追加。`docs/workflow-guide.md` に2コマンドクイックリファレンス表を追加。`docs/skill-reference.md` に sdd-ship と sdd-bootstrap のエントリを追加し、スキル数を16に更新。
+
+### v0.14.0 からの移行
+
+- 破壊的変更なし。すべての内部スキルは引き続き直接呼び出し可能（後方互換性を恒久的に保証）。
+- 既存の `sdd-bootstrap,sdd-implementation,sdd-quality-loop,sdd-lite` でのインストールは引き続き動作する。新インストールは `sdd-bootstrap,sdd-ship` のみで全依存が自動展開される。
+- `spec_profile: lite` を持つ既存プロジェクトは `/sdd-ship` が自動的に lite トラックを検出する。
+
 ## v0.14.0 (2026-06-19)
 
 ### 追加

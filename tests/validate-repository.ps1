@@ -2,9 +2,15 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite")
-$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "impl-review-loop", "task-review-loop", "wfi-audit-cycle")
-$expectedVersion = "0.14.0"
+$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-ship")
+$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "sdd-bootstrap", "sdd-ship")
+$expectedVersions = @{
+    "sdd-bootstrap"      = "1.0.0"
+    "sdd-implementation" = "1.0.0"
+    "sdd-quality-loop"   = "1.0.0"
+    "sdd-lite"           = "1.0.0"
+    "sdd-ship"           = "1.0.0"
+}
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -33,12 +39,15 @@ foreach ($name in $expectedPlugins) {
     if ($codexManifest.name -ne $name -or $claudeManifest.name -ne $name -or $copilotManifest.name -ne $name) {
         throw "Plugin directory and manifest names differ for $name."
     }
+    $expectedVersion = $expectedVersions[$name]
     if ($codexManifest.version -ne $expectedVersion -or $claudeManifest.version -ne $expectedVersion -or $copilotManifest.version -ne $expectedVersion) {
         throw "Plugin version differs from $expectedVersion for $name."
     }
 }
 
 foreach ($plugin in $claudeMarketplace.plugins) {
+    if ($plugin.name -notin $expectedVersions.Keys) { continue }
+    $expectedVersion = $expectedVersions[$plugin.name]
     if ($plugin.version -ne $expectedVersion) {
         throw "Claude marketplace version differs from $expectedVersion for $($plugin.name)."
     }
@@ -67,7 +76,10 @@ $forbiddenPaths = @(
     "plugins/sdd-quality-loop/templates/ci-report.template.md",
     # Superseded by sdd-hook-guard; must NOT reappear.
     "plugins/sdd-quality-loop/scripts/guard-task-approval.sh",
-    "plugins/sdd-quality-loop/scripts/guard-task-approval.ps1"
+    "plugins/sdd-quality-loop/scripts/guard-task-approval.ps1",
+    # Merged into sdd-review-loop; must NOT reappear (ADR-002).
+    "plugins/sdd-impl-review",
+    "plugins/sdd-task-review"
 )
 foreach ($relativePath in $forbiddenPaths) {
     if (Test-Path (Join-Path $repositoryRoot $relativePath)) {

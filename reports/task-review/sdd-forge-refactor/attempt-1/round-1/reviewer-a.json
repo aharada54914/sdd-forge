@@ -1,0 +1,54 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 6 requirements are covered: REQ-001 by T-001/T-002/T-003, REQ-002 by T-002 Phase 1, REQ-003 by T-005, REQ-004 by T-002 Phase 3, REQ-005 by T-004, REQ-006 by T-005. No requirement is left without a task."
+    },
+    {
+      "id": "AC-TRACEABILITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-009 and AC-010 appear in acceptance-tests.md and are mapped in traceability.md (AC → REQ table) but neither appears in any task's Done-When checklist. AC-009 (承認ガード健在: BL-007 確認) and AC-010 (install.sh auto-included + marketplace sdd-ship) have no task that claims them as a pass criterion. Without a task owning these ACs, they risk being unverified at quality-gate time. Additionally, traceability.md AC→BL table omits AC-004, AC-005, AC-007, and AC-009/AC-010 BL mappings that exist in acceptance-tests.md (AC-004/AC-005 → BL-008; AC-007 has no BL but is nonetheless tested)."
+    },
+    {
+      "id": "DEPENDENCY-INTEGRITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Dependency chain is acyclic and correctly ordered: T-001 (no blockers, Done) → T-002 (blocks T-001) → T-003 and T-004 (both block T-002) → T-005 (blocks T-002, T-003, T-004). No circular dependencies. Human/sudo phases (Phase 1 and Phase 5) are clearly separated from agent phases (Phase 2, 3, 4) within T-002."
+    },
+    {
+      "id": "DONE-WHEN-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done-When conditions are specific and verifiable throughout. T-002 references exact line numbers (L88, L99, L105, L111, L118, L119, L145, L150) and exact directory paths. T-004 specifies a measurable line count threshold (workflow-guide.md <= 450 lines). T-005 specifies exact scenario counts (21 scenarios), exact file field names ($expectedSkills, $forbiddenPaths), and links to AC-006/AC-007. No vague 'works correctly' language found."
+    },
+    {
+      "id": "TASK-COMPLETENESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 5 tasks (T-001 through T-005) contain Goal, Scope, Done When, Blockers, Risk, Approval, and Status fields. T-002, T-003, T-004, T-005 additionally include Must Read references to design.md sections and test files. T-001 is marked Done with all checkboxes checked. Required Workflow field is present in all tasks. Minor: T-001's Requirements field lists only REQ-001 but its scope is investigation/baseline creation that supports all requirements — this is acceptable since T-001 is already Done."
+    },
+    {
+      "id": "PHASE-ORDERING",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002's 5 phases are in correct order. Phase 1 [human/sudo]: guard files updated with new paths before any code migration. Phase 2 [agent]: new plugin directory created. Phase 3 [agent]: callers updated to new paths. Phase 4 [agent]: old plugins deleted. Phase 5 [human/sudo]: old paths removed from guard and $forbiddenPaths added. The header warning '⚠️ T-002 Phase 1 と Phase 5 は human/sudo セッションが必須' is prominently placed. Phase sequencing ensures guards protect new paths before old plugins are removed, and old path cleanup happens last."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "File-level scope is disjoint across tasks with one noted overlap: tests/validate-repository.ps1 is touched by both T-002 Phase 5 ($forbiddenPaths addition) and T-005 ($expectedSkills 15→17 and $forbiddenPaths additions). The overlap is safe because T-005 explicitly blocks on T-002 completion (Blockers: T-002, T-003, T-004), and the two changes target different fields within the file. All other files are touched by exactly one task. No ambiguous shared ownership."
+    },
+    {
+      "id": "TRACEABILITY-CONSISTENCY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two inconsistencies between traceability.md and tasks.md: (1) traceability.md REQ→Task table maps REQ-005 → T-003 ('内部 SKILL.md に Caller ヘッダー追加') but tasks.md T-003 declares 'Requirements: REQ-001', not REQ-005. REQ-005 is docs restructuring (T-004), not Caller header addition. The mapping should be REQ-001 → T-003 in the traceability table. (2) traceability.md AC→BL table omits BL-008 mappings for AC-004 and AC-005 that are present in acceptance-tests.md, creating an incomplete baseline-coverage record. These inconsistencies could cause confusion during quality-gate verification."
+    }
+  ]
+}

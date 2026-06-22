@@ -10,12 +10,12 @@ REPOSITORY="aharada54914/sdd-forge"
 REF="main"
 INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins"
 TARGET="All"
-PLUGINS="sdd-bootstrap,sdd-implementation,sdd-quality-loop,sdd-lite"
+PLUGINS="sdd-bootstrap,sdd-ship"
 SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
 
-VALID_PLUGINS="sdd-bootstrap sdd-implementation sdd-quality-loop sdd-lite"
+VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite"
 
 # ---------------------------------------------------------------------------
 # Argument parsing
@@ -29,8 +29,8 @@ Usage: install.sh [options]
   --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
   --target All|Codex|Claude|Copilot|FilesOnly
                                  Default: All
-  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-implementation,sdd-quality-loop,sdd-lite
-                                 Default: all four
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite
+                                 Default: sdd-bootstrap,sdd-ship
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
@@ -73,6 +73,23 @@ for p in "${PLUGIN_LIST[@]}"; do
         exit 1
     fi
 done
+
+# sdd-ship depends on sdd-implementation, sdd-quality-loop, and sdd-lite.
+# The approval guard and kill-switch hooks live only in sdd-quality-loop,
+# so selecting sdd-ship alone would silently omit self-approval protection.
+# Auto-expand to include all required companions.
+case ",$PLUGINS," in
+    *,sdd-ship,*)
+        for dep in sdd-bootstrap sdd-implementation sdd-quality-loop sdd-lite; do
+            case ",$PLUGINS," in
+                *,"$dep",*) ;;
+                *) PLUGINS="$PLUGINS,$dep" ;;
+            esac
+        done
+        IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
+        echo "Note: sdd-ship selected; auto-included its companions (sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-lite)." >&2
+        ;;
+esac
 
 # sdd-lite depends on its companions and cannot run standalone:
 #  - lite-spec requires sdd-bootstrap (sdd-adopt / check-sdd-structure) and
@@ -297,10 +314,13 @@ REQUIRED_PATHS=(
     ".agents/plugins/marketplace.json"
     ".claude-plugin/marketplace.json"
     "plugins/sdd-bootstrap/.codex-plugin/plugin.json"
-    "plugins/sdd-implementation/.codex-plugin/plugin.json"
-    "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
     "plugins/sdd-bootstrap/.plugin/plugin.json"
+    "plugins/sdd-ship/.claude-plugin/plugin.json"
+    "plugins/sdd-ship/.codex-plugin/plugin.json"
+    "plugins/sdd-ship/.plugin/plugin.json"
+    "plugins/sdd-implementation/.codex-plugin/plugin.json"
     "plugins/sdd-implementation/.plugin/plugin.json"
+    "plugins/sdd-quality-loop/.codex-plugin/plugin.json"
     "plugins/sdd-quality-loop/.plugin/plugin.json"
     "plugins/sdd-lite/.codex-plugin/plugin.json"
     "plugins/sdd-lite/.plugin/plugin.json"

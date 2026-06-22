@@ -83,6 +83,13 @@ SECOND_APPROVAL_MSG = (
     "Improvement) and is never bypassed by sudo. Leave it for a second human "
     "approver to record."
 )
+IMPL_REVIEW_STATUS_PASSED_RE = re.compile(r"Impl-Review-Status:\s*Passed")
+IMPL_REVIEW_STATUS_MSG = (
+    "SDD決定論ゲート: エージェントは impl-review-loop の PASS 判定なしに design.md に 'Impl-Review-Status: Passed' を書き込めません。impl-review-loop を実行し、integrated-verdict.json が PASS または PASS-with-warnings を返すまで待ってください。"
+    "\n[EN] SDD deterministic gate: agents must not write 'Impl-Review-Status: Passed' in "
+    "design.md without a valid integrated-verdict.json with verdict PASS or PASS-with-warnings "
+    "from impl-review-loop. Run impl-review-loop and wait for it to return PASS or PASS-with-warnings."
+)
 SDD_SUDO_WRITE_MSG = (
     "SDD決定論ゲート: エージェントは SDD_SUDO フラグファイルの作成・編集・削除を行えません。sudo モードの管理は人間のみが行えます。"
     "\n[EN] SDD deterministic gate: agents must not create, edit, or delete the "
@@ -116,6 +123,70 @@ def is_tasks_md(path):
     """Return True if path ends with 'tasks.md' (case-insensitive)."""
     # Case-insensitive match (intentional: matches JS/PS1 behavior; Windows FS is case-insensitive).
     return bool(path) and str(path).replace("\\", "/").lower().endswith("tasks.md")
+
+
+
+def is_design_md(path):
+    """Return True if path ends with 'design.md' (case-insensitive)."""
+    return bool(path) and str(path).replace("\\", "/").lower().endswith("design.md")
+
+
+def _impl_review_verdict_exists(feature):
+    """CWD-relative path resolution (matches JS behavior, ADR-004)."""
+    import glob as _glob
+    import json as _json
+    pattern = f"reports/impl-review/{feature}/attempt-*/round-*/integrated-verdict.json"
+    for f in _glob.glob(pattern):
+        try:
+            with open(f) as fh:
+                data = _json.load(fh)
+            if data.get("verdict") in ("PASS", "PASS-with-warnings"):
+                return True
+        except Exception:
+            pass
+    return False
+
+
+def impl_review_status_passed_increases(payload):
+    """Return True if this call would newly introduce Impl-Review-Status: Passed without verdict."""
+    tool_input = payload.get("tool_input") or {}
+    tool_name = (payload.get("tool_name") or "").lower()
+    file_path = tool_input.get("file_path") or ""
+
+    if tool_name not in TARGETED_FILE_TOOLS:
+        return False
+    if not is_design_md(file_path):
+        return False
+
+    new_content = ""
+    if isinstance(tool_input.get("edits"), list):
+        for edit in tool_input["edits"]:
+            e = edit or {}
+            if IMPL_REVIEW_STATUS_PASSED_RE.search(e.get("new_string") or ""):
+                new_content = e.get("new_string") or ""
+                break
+    elif "new_string" in tool_input:
+        new_content = tool_input.get("new_string") or ""
+    elif "content" in tool_input:
+        new_content = tool_input.get("content") or ""
+
+    if not IMPL_REVIEW_STATUS_PASSED_RE.search(new_content):
+        return False
+
+    try:
+        with open(file_path, encoding="utf-8") as fh:
+            old_content = fh.read()
+    except Exception:
+        old_content = ""
+    if IMPL_REVIEW_STATUS_PASSED_RE.search(old_content):
+        return False  # already set; not a new introduction
+
+    m = re.search(r"specs/([^/]+)/design\.md$",
+                  str(file_path).replace("\\", "/"), re.IGNORECASE)
+    if not m:
+        return False
+    feature = m.group(1)
+    return not _impl_review_verdict_exists(feature)
 
 
 def is_wfi_path(path):
@@ -745,6 +816,16 @@ _PROTECTED_GATE_SUFFIXES = (
     "tests/eval.tests.sh",
     "tests/guard-parity.tests.sh",
     "tests/constant-parity.tests.sh",
+    # R-10: task-review and impl-review gate files (enforcement chain)
+    # R-10 NEW: sdd-review-loop gate files (T-002 Phase 1)
+    "plugins/sdd-review-loop/agents/impl-reviewer-a.md",
+    "plugins/sdd-review-loop/agents/impl-reviewer-b.md",
+    "plugins/sdd-review-loop/agents/task-reviewer-a.md",
+    "plugins/sdd-review-loop/agents/task-reviewer-b.md",
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md",
+    # R-10: sdd-ship orchestrator (self-protection of the second public command)
+    "plugins/sdd-ship/skills/sdd-ship/SKILL.md",
 )
 
 _PROTECTED_GATE_PLUGIN_JSON_SUFFIXES = (
@@ -962,6 +1043,10 @@ def main():
         # Check 2d: Second Approval guard (NEVER bypassed by sudo).
         if second_approval_increases(payload):
             emit("deny", SECOND_APPROVAL_MSG, mode)
+
+        # Check 2e: Impl-Review-Status: Passed guard (NEVER bypassed by sudo).
+        if impl_review_status_passed_increases(payload):
+            emit("deny", IMPL_REVIEW_STATUS_MSG, mode)
     except Exception:
         # Never crash; fail closed on the approval check.
         emit("deny", "SDD決定論ゲート: 承認ガードがフェイルクローズしました。\n[EN] SDD deterministic gate: approval guard failed closed.", mode)

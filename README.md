@@ -1,6 +1,19 @@
 # SDD Forge
 
-v0.14.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v0.15.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+
+## クイックスタート（2コマンド）
+
+```bash
+# Step 1: 仕様化フェーズ — 要件から承認済みタスクまで
+/sdd-bootstrap feature https://github.com/your-org/your-repo/issues/42
+# → 人間が tasks.md の Approval: Draft を Approval: Approved に変更
+
+# Step 2: 実装・品質保証フェーズ — 承認済みタスクから Done まで
+/sdd-ship specs/<feature>/tasks.md
+```
+
+> **lite トラック（社内アプリ向け）**: `/sdd-bootstrap feature --lite <source>` → `/sdd-ship --lite specs/<feature>/tasks.md`
 
 ```mermaid
 flowchart TD
@@ -98,7 +111,7 @@ flowchart LR
 |---|---|
 | [README](README.md) (本ファイル) | 概要とフロー図 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
-| [docs/skill-reference.md](docs/skill-reference.md) | 14スキル・エージェント・フック・スクリプトの詳細 |
+| [docs/skill-reference.md](docs/skill-reference.md) | 16スキル・エージェント・フック・スクリプトの詳細 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |

@@ -1,0 +1,63 @@
+{
+  "task_id": "T-002",
+  "feature": "sdd-forge-refactor",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "bbc27518fa433e2474a0a48d4eae461d139f2668b92ead78103b94416178d478",
+  "quality_report": "reports/quality-gate/sdd-forge-refactor-T-002.md",
+  "verification_contract": "specs/sdd-forge-refactor/verification/T-002.contract.json",
+  "git_commit": "b0e4b64f4c1d1a047a33b84777eb4b07dffc3832",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "linux",
+    "python": "3.11.15",
+    "git": "git version 2.43.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "unknown",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/sdd-forge-refactor/verification/T-002.contract.json",
+      "sha256": "4d9982596238d745022206a3b2af458d18d6534fe9bdb840e9e52c9135f7d192"
+    },
+    {
+      "path": "reports/quality-gate/sdd-forge-refactor-T-002.md",
+      "sha256": "caa168edfd9d71fa87bb79d0bd7cd1f8e19d992531fba33bde2b24ef9facfd66"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js",
+      "sha256": "37afd0421a95ac6a5801de78b97acfa94a6b8efe0713fca402a63aa6644cc0e5"
+    },
+    {
+      "path": "specs/sdd-forge-refactor/tasks.md",
+      "sha256": "bdc02f154cdba9a566ae25b4d4b22ebb526c01de08938517b2a26903b34d6933"
+    },
+    {
+      "path": "specs/sdd-forge-refactor/traceability.md",
+      "sha256": "587e83781fec0357187d0fde0878fdcaee69ffb526d8e929a134c16b1ec29f80"
+    },
+    {
+      "path": "specs/sdd-forge-refactor/verification/T-002.red.log",
+      "sha256": "bb215ff0944d2d1b661c41caf8a657d15694a0f87676eb8972ae796c6a22cf7f"
+    },
+    {
+      "path": "specs/sdd-forge-refactor/verification/T-002.green.log",
+      "sha256": "1fae0df5ad81dec25ebce65c8084dd91e7213001fc382c01dedcfee6a2bc1ba1"
+    },
+    {
+      "path": "specs/sdd-forge-refactor/verification/T-002.install.green.log",
+      "sha256": "2819c615626db8e4cc6a7a3171005cd8f0f20bc9d2111a54b2c25a6fd4b895fb"
+    }
+  ]
+}
