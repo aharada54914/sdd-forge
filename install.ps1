@@ -9,11 +9,17 @@ param(
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship"),
     [switch]$SkipPluginInstall,
     [switch]$SkipAgentInstall,
+    [switch]$RequireClaude,
     [string]$SourceDirectory
 )
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
+
+$allPluginNames = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite")
+$script:CodexRegistrationStatus = "not requested"
+$script:ClaudeRegistrationStatus = "not requested"
+$script:CopilotRegistrationStatus = "not requested"
 
 # sdd-ship orchestrates implement-tasks, quality-gate, and lite-gate internally;
 # those internal plugins must be present for the orchestrator to function.
@@ -61,58 +67,73 @@ function Invoke-PluginCommand {
 function Install-CodexPlugins {
     param([Parameter(Mandatory)][string]$MarketplaceRoot)
 
+    $script:CodexRegistrationStatus = "requested"
     if (-not (Get-Command "codex" -ErrorAction SilentlyContinue)) {
         if ($Target -eq "Codex") {
             throw "Codex CLI was not found in PATH."
         }
+        $script:CodexRegistrationStatus = "skipped: Codex CLI was not found in PATH"
         Write-Warning "Codex CLI was not found. Codex registration was skipped."
         return
     }
 
     Invoke-PluginCommand "codex" @("plugin", "marketplace", "add", $MarketplaceRoot)
-    if (-not $SkipPluginInstall) {
-        foreach ($plugin in $Plugins) {
-            Invoke-PluginCommand "codex" @("plugin", "add", "$plugin@sdd-plugins")
-        }
+    if ($SkipPluginInstall) {
+        $script:CodexRegistrationStatus = "marketplace registered; plugin install skipped"
+        return
     }
+    foreach ($plugin in $Plugins) {
+        Invoke-PluginCommand "codex" @("plugin", "add", "$plugin@sdd-plugins")
+    }
+    $script:CodexRegistrationStatus = "registered"
 }
 
 function Install-CopilotPlugins {
     param([Parameter(Mandatory)][string]$MarketplaceRoot)
 
+    $script:CopilotRegistrationStatus = "requested"
     if (-not (Get-Command "copilot" -ErrorAction SilentlyContinue)) {
         if ($Target -eq "Copilot") {
             throw "Copilot CLI was not found in PATH."
         }
+        $script:CopilotRegistrationStatus = "skipped: Copilot CLI was not found in PATH"
         Write-Warning "Copilot CLI was not found. Copilot registration was skipped."
         return
     }
 
     Invoke-PluginCommand "copilot" @("plugin", "marketplace", "add", $MarketplaceRoot)
-    if (-not $SkipPluginInstall) {
-        foreach ($plugin in $Plugins) {
-            Invoke-PluginCommand "copilot" @("plugin", "install", "$plugin@sdd-plugins")
-        }
+    if ($SkipPluginInstall) {
+        $script:CopilotRegistrationStatus = "marketplace registered; plugin install skipped"
+        return
     }
+    foreach ($plugin in $Plugins) {
+        Invoke-PluginCommand "copilot" @("plugin", "install", "$plugin@sdd-plugins")
+    }
+    $script:CopilotRegistrationStatus = "registered"
 }
 
 function Install-ClaudePlugins {
     param([Parameter(Mandatory)][string]$MarketplaceRoot)
 
+    $script:ClaudeRegistrationStatus = "requested"
     if (-not (Get-Command "claude" -ErrorAction SilentlyContinue)) {
-        if ($Target -eq "Claude") {
-            throw "Claude Code CLI was not found in PATH."
+        if ($Target -eq "Claude" -or $RequireClaude) {
+            throw "Claude Code CLI was not found in PATH. Install Claude Code, make sure 'claude' is on PATH, or rerun without -RequireClaude."
         }
+        $script:ClaudeRegistrationStatus = "skipped: Claude Code CLI was not found in PATH"
         Write-Warning "Claude Code CLI was not found. Claude registration was skipped."
         return
     }
 
     Invoke-PluginCommand "claude" @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
-    if (-not $SkipPluginInstall) {
-        foreach ($plugin in $Plugins) {
-            Invoke-PluginCommand "claude" @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
-        }
+    if ($SkipPluginInstall) {
+        $script:ClaudeRegistrationStatus = "marketplace registered; plugin install skipped"
+        return
     }
+    foreach ($plugin in $Plugins) {
+        Invoke-PluginCommand "claude" @("plugin", "install", "$plugin@sdd-plugins", "--scope", "user")
+    }
+    $script:ClaudeRegistrationStatus = "registered"
 }
 
 function Install-CodexAgents {
@@ -181,6 +202,56 @@ function Download-AuthenticatedArchive {
     Invoke-WebRequest -Uri $downloadUrl -Headers @{ Authorization = "Bearer $token"; Accept = "application/vnd.github+json" } -OutFile $ArchivePath
 }
 
+function Get-RequiredPaths {
+    $paths = @(
+        ".agents/plugins/marketplace.json",
+        ".claude-plugin/marketplace.json",
+        ".codex/agents/sdd-investigator.toml",
+        ".codex/agents/sdd-evaluator.toml",
+        "plugins/sdd-bootstrap/skills/run/SKILL.md",
+        "plugins/sdd-ship/skills/run/SKILL.md"
+    )
+    foreach ($plugin in $allPluginNames) {
+        $paths += "plugins/$plugin/.codex-plugin/plugin.json"
+        $paths += "plugins/$plugin/.claude-plugin/plugin.json"
+        $paths += "plugins/$plugin/.plugin/plugin.json"
+    }
+    return $paths
+}
+
+function Write-InstallSummary {
+    param([Parameter(Mandatory)][string]$ResolvedInstallRoot)
+
+    Write-Host ""
+    Write-Host "SDD plugins installed at: $ResolvedInstallRoot"
+    if ($Target -eq "FilesOnly") {
+        Write-Host "Plugin registration was skipped because Target=FilesOnly."
+        return
+    }
+
+    Write-Host ""
+    Write-Host "Registration summary:"
+    if ($Target -in @("All", "Codex")) { Write-Host "  Codex : $script:CodexRegistrationStatus" }
+    if ($Target -in @("All", "Claude")) { Write-Host "  Claude: $script:ClaudeRegistrationStatus" }
+    if ($Target -in @("All", "Copilot")) { Write-Host "  Copilot: $script:CopilotRegistrationStatus" }
+
+    if ($Target -in @("All", "Claude")) {
+        Write-Host ""
+        if ($script:ClaudeRegistrationStatus -eq "registered") {
+            Write-Host "Claude Code next step: run /reload-plugins or restart Claude Code."
+            Write-Host "Expected slash commands after reload:"
+            Write-Host "  /sdd-bootstrap:run"
+            Write-Host "  /sdd-ship:run"
+        }
+        elseif ($script:ClaudeRegistrationStatus -like "skipped:*") {
+            Write-Warning "Claude Code registration did not complete. Re-run with: .\install.ps1 -Target Claude -Plugins sdd-bootstrap,sdd-ship -RequireClaude"
+        }
+        elseif ($script:ClaudeRegistrationStatus -like "marketplace registered;*") {
+            Write-Warning "Claude marketplace was registered, but plugin install was skipped because -SkipPluginInstall was set. /sdd-bootstrap:run and /sdd-ship:run will not appear until the plugins are installed."
+        }
+    }
+}
+
 $temporaryRoot = $null
 $backupRoot = $null
 $stagingRoot = $null
@@ -207,24 +278,7 @@ try {
         }
     }
 
-    $requiredPaths = @(
-        ".agents/plugins/marketplace.json",
-        ".claude-plugin/marketplace.json",
-        "plugins/sdd-bootstrap/.codex-plugin/plugin.json",
-        "plugins/sdd-ship/.claude-plugin/plugin.json",
-        "plugins/sdd-ship/.codex-plugin/plugin.json",
-        "plugins/sdd-ship/.plugin/plugin.json",
-        "plugins/sdd-implementation/.codex-plugin/plugin.json",
-        "plugins/sdd-quality-loop/.codex-plugin/plugin.json",
-        "plugins/sdd-bootstrap/.plugin/plugin.json",
-        "plugins/sdd-implementation/.plugin/plugin.json",
-        "plugins/sdd-quality-loop/.plugin/plugin.json",
-        "plugins/sdd-lite/.codex-plugin/plugin.json",
-        "plugins/sdd-lite/.plugin/plugin.json",
-        ".codex/agents/sdd-investigator.toml",
-        ".codex/agents/sdd-evaluator.toml"
-    )
-    foreach ($relativePath in $requiredPaths) {
+    foreach ($relativePath in (Get-RequiredPaths)) {
         if (-not (Test-Path (Join-Path $sourceRoot $relativePath))) {
             throw "Required file is missing: $relativePath"
         }
@@ -266,9 +320,6 @@ try {
     # Exclusive per-install-root named mutex
     # The mutex name is keyed to the resolved InstallRoot (case-insensitive) so
     # concurrent installs to different roots do not contend.
-    # An AbandonedMutexException means a prior holder exited without releasing —
-    # we take ownership; the install tree may be in an unknown state but the
-    # backup/rollback logic below handles that.
     # ---------------------------------------------------------------------------
     $mutexTimeoutSeconds = if ($env:SDD_INSTALL_LOCK_TIMEOUT) { [int]$env:SDD_INSTALL_LOCK_TIMEOUT } else { 120 }
     $sha256 = [System.Security.Cryptography.SHA256]::Create()
@@ -291,12 +342,7 @@ try {
 
     $stagingRoot = Join-Path $installParent ("sdd-plugins-staging-" + [guid]::NewGuid())
     New-Item -ItemType Directory -Path $stagingRoot | Out-Null
-    # Use Get-ChildItem -Force so that dot-directories (hidden on Windows) are
-    # included.  Copying each top-level entry individually avoids the double-
-    # nesting that occurs when Copy-Item with a wildcard is followed by
-    # explicit dot-dir copies: on PowerShell Core those dirs are not hidden so
-    # the wildcard already copied them, and re-copying would create
-    # .agents\.agents\, .codex\.codex\, etc.
+    # Use Get-ChildItem -Force so that dot-directories (hidden on Windows) are included.
     foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force | Where-Object { $_.Name -ne ".git" })) {
         Copy-Item -Path $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
     }
@@ -323,11 +369,8 @@ try {
         Install-CopilotPlugins $resolvedInstallRoot
     }
 
-    Write-Host ""
-    Write-Host "SDD plugins installed at: $resolvedInstallRoot"
-    if ($Target -eq "FilesOnly") {
-        Write-Host "Plugin registration was skipped because Target=FilesOnly."
-    }
+    Write-InstallSummary $resolvedInstallRoot
+
     if ($backupRoot -and (Test-Path $backupRoot)) {
         Remove-Item -Path $backupRoot -Recurse -Force
         $backupRoot = $null
