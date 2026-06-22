@@ -39,7 +39,7 @@ for relative_path in \
     cp -p "${REPO_ROOT}/${relative_path}" "${SOURCE_FIXTURE}/${relative_path}"
 done
 git -C "$SOURCE_FIXTURE" add .claude-plugin/marketplace.json .agents/plugins/marketplace.json plugins/sdd-review-loop
-git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
+git -C "$SOURCE_FIXTURE" diff --cached --quiet || git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
 trap 'rm -rf "$SOURCE_FIXTURE_ROOT"' EXIT
 
 # ---------------------------------------------------------------------------

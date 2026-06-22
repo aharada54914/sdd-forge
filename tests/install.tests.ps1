@@ -34,8 +34,11 @@ foreach ($relativePath in @(
     Copy-Item -LiteralPath (Join-Path $repositoryRoot $relativePath) -Destination $destination -Force
 }
 & git -C $installerSourceRoot add .claude-plugin/marketplace.json .agents/plugins/marketplace.json plugins/sdd-review-loop
-& git -C $installerSourceRoot -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
-if ($LASTEXITCODE -ne 0) { throw "Unable to commit installer source fixture." }
+$stagedDiff = & git -C $installerSourceRoot diff --cached --name-only
+if ($stagedDiff) {
+    & git -C $installerSourceRoot -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
+    if ($LASTEXITCODE -ne 0) { throw "Unable to commit installer source fixture." }
+}
 
 function New-FakeCommands {
     param(
