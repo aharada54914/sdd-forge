@@ -73,7 +73,7 @@ $requireBin = Join-Path $requireRoot "bin"
 $requireSavedPath = $env:PATH
 try {
     New-Item -ItemType Directory -Path $requireBin -Force | Out-Null
-    $env:PATH = $requireBin
+    $env:PATH = "$requireBin$([System.IO.Path]::PathSeparator)$requireSavedPath"
 
     $failed = $false
     try {
