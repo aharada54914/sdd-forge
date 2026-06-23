@@ -38,6 +38,14 @@ try {
   $inconsistent | ConvertTo-Json | Set-Content -LiteralPath $tempContract -Encoding utf8
   Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } 'inconsistent contract identity'
   $inconsistent = Get-Content -LiteralPath $fixture -Raw | ConvertFrom-Json
+  $inconsistent.attempt = '1'
+  $inconsistent | ConvertTo-Json | Set-Content -LiteralPath $tempContract -Encoding utf8
+  Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } 'string attempt'
+  $inconsistent = Get-Content -LiteralPath $fixture -Raw | ConvertFrom-Json
+  $inconsistent.round = '2'
+  $inconsistent | ConvertTo-Json | Set-Content -LiteralPath $tempContract -Encoding utf8
+  Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } 'string round'
+  $inconsistent = Get-Content -LiteralPath $fixture -Raw | ConvertFrom-Json
   $inconsistent.input_sha256 = 'not-a-sha256'
   $inconsistent | ConvertTo-Json | Set-Content -LiteralPath $tempContract -Encoding utf8
   Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } 'invalid contract hash'
@@ -45,6 +53,10 @@ try {
   $inconsistent.run_id = @('not', 'a-string')
   $inconsistent | ConvertTo-Json | Set-Content -LiteralPath $tempContract -Encoding utf8
   Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } 'non-string run id'
+  $inconsistent = Get-Content -LiteralPath $fixture -Raw | ConvertFrom-Json
+  $inconsistent.run_id = '   '
+  $inconsistent | ConvertTo-Json | Set-Content -LiteralPath $tempContract -Encoding utf8
+  Assert-Fails { & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $tempContract } 'whitespace-only run id'
   $inconsistent = Get-Content -LiteralPath $fixture -Raw | ConvertFrom-Json
   $inconsistent | Add-Member -NotePropertyName unexpected -NotePropertyValue $true
   $inconsistent | ConvertTo-Json | Set-Content -LiteralPath $tempContract -Encoding utf8

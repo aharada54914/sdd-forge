@@ -4,7 +4,7 @@
   "feature": "utf8-feature",
   "attempt": 1,
   "round": 2,
-  "input_sha256": "日本語-fixture-sha256",
-  "run_id": "run-utf8-001",
+  "input_sha256": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+  "run_id": "run-日本語-001",
   "verdict": "PASS"
 }

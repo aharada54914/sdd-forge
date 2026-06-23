@@ -1,0 +1,8 @@
+Command: bash tests/review-contract-foundation.tests.sh
+ok: review contract foundation validates canonical input and rejects unsafe inputs
+
+Command: pwsh -NoProfile -File tests/review-contract-foundation.tests.ps1
+ok: PowerShell review contract foundation validates canonical input and rejects unsafe inputs
+
+Command: bash tests/review-contract-foundation-parity.tests.sh
+ok: review contract validators have equivalent semantic JSON output

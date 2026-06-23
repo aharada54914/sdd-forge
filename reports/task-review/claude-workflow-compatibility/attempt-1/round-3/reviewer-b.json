@@ -1,0 +1,17 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "feature": "claude-workflow-compatibility",
+  "attempt": 1,
+  "round": 3,
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"FAIL","severity":"Critical","finding":"T-001, T-002, and T-006 omit committed pre-implementation failing-test evidence and a named second reviewer."},
+    {"id":"TASK-SIZE","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"TEST-TYPE-MATCH","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"ROLLBACK-PLAN","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"DEPENDENCY-OVERLAP","result":"FAIL","severity":"Major","finding":"T-001 lacks an order to adopt T-002's portable foundation, while T-005 declares unnecessary direct blockers on T-002 and T-004."}
+  ]
+}

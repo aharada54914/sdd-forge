@@ -1,0 +1,17 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "feature": "claude-workflow-compatibility",
+  "attempt": 2,
+  "round": 1,
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"PASS","severity":"Critical","finding":"No issues found."},
+    {"id":"TASK-SIZE","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"TEST-TYPE-MATCH","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"ROLLBACK-PLAN","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Major","finding":"No issues found."},
+    {"id":"DEPENDENCY-OVERLAP","result":"FAIL","severity":"Major","finding":"T-001 does not state that it consumes T-002's foundation, and T-005 does not need T-006's downstream-gate validation output."}
+  ]
+}
