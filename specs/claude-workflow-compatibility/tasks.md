@@ -16,7 +16,7 @@ Source Issue: Bootstrap exception approved by repository maintainer on 2026-06-2
 
 Approval: Approved
 
-Status: In Progress
+Status: Done
 
 Risk: high
 
@@ -67,16 +67,16 @@ all implementation-policy and task reviewers.
 
 ### Done When
 
-- [ ] A failing review-loop test covering each AC-007 negative path
+- [x] A failing review-loop test covering each AC-007 negative path
   is committed before implementation begins, and the same tests pass after it.
-- [ ] `spec-review-loop` writes only validated attempt/round evidence and emits
+- [x] `spec-review-loop` writes only validated attempt/round evidence and emits
   `verdict: PASS` with `warningCount` for a round-three Minor-only result.
-- [ ] The two new reviewer definitions are unique, read-only, fresh-context
+- [x] The two new reviewer definitions are unique, read-only, fresh-context
   roles and reject raw report paths outside their allowed inputs.
-- [ ] Scoped review-loop tests and related regression tests pass with saved output.
-- [ ] An implementation report records Red→Green evidence and a named,
+- [x] Scoped review-loop tests and related regression tests pass with saved output.
+- [x] An implementation report records Red→Green evidence and a named,
   independent second reviewer verdict.
-- [ ] `traceability.md` maps T-001 to REQ-007, REQ-008, and AC-007.
+- [x] `traceability.md` maps T-001 to REQ-007, REQ-008, and AC-007.
 
 ### Out of Scope
 
