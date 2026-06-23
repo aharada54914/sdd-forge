@@ -16,7 +16,7 @@ Source Issue: Bootstrap exception approved by repository maintainer on 2026-06-2
 
 Approval: Approved
 
-Status: Planned
+Status: In Progress
 
 Risk: high
 
