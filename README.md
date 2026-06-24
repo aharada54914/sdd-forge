@@ -23,6 +23,12 @@ flowchart TD
         C[sdd-bootstrap\nPhase 1] --> D1[(requirements.md\ndesign.md\nacceptance-tests.md)]
     end
 
+    subgraph sr["仕様レビュー"]
+        S{spec-review-loop\n2体×最大3ラウンド}
+        SR[人間: requirements.md / acceptance-tests.md 修正 / --reset]
+        S -- NEEDS_WORK / BLOCKED --> SR --> S
+    end
+
     subgraph ir["実装方針レビュー"]
         E{impl-review-loop\n2体×最大3ラウンド}
         F[人間: design.md 修正 / --reset]
@@ -51,19 +57,22 @@ flowchart TD
     end
 
     B --> C
-    D1 --> E
+    D1 --> S
+    S -- PASS / PASS-with-warnings --> E
     E -- PASS / PASS-with-warnings --> G
     H --> I
     I -- PASS / PASS-with-warnings --> K
     K --> L --> M
     M -- 全合格 --> O([Done])
 
+    style S fill:#dbeafe,stroke:#3b82f6
     style E fill:#dbeafe,stroke:#3b82f6
     style I fill:#dbeafe,stroke:#3b82f6
     style M fill:#dbeafe,stroke:#3b82f6
     style K fill:#fef3c7,stroke:#f59e0b
     style ph1 fill:#f0fdf4,stroke:#22c55e
     style ph2 fill:#f0fdf4,stroke:#22c55e
+    style sr fill:#eff6ff,stroke:#3b82f6
     style ir fill:#eff6ff,stroke:#3b82f6
     style tr fill:#eff6ff,stroke:#3b82f6
     style impl fill:#fef9c3,stroke:#eab308
@@ -72,7 +81,7 @@ flowchart TD
 
 > **Brownfield 既存プロジェクトへの導入**: 上記フローの前に `/sdd-adopt` を実行してください（[詳細](docs/workflow-guide.md)）。
 >
-> **LITE トラック** (`spec_profile: lite`): impl-review-loop / task-review-loop はスキップ。traceability/ADR/evidence-bundle/cross-model/critical を省略。下図参照。
+> **LITE トラック** (`spec_profile: lite`): spec-review-loop / impl-review-loop / task-review-loop はスキップ。traceability/ADR/evidence-bundle/cross-model/critical を省略。下図参照。
 
 ```mermaid
 flowchart LR
@@ -93,10 +102,11 @@ flowchart LR
 
 ## 特徴
 
-- **実装方針レビューループ (`impl-review-loop`)**: design.md に対して2体の独立したブラインドレビュアー（A: 構造健全性、B: 実装可能性/リスク）が最大3ラウンドのレビューを実施し、`Impl-Review-Status: Passed` になるまで tasks.md 生成をブロックします。PASS-with-warnings（Minor のみ）も通過扱い。BLOCKED + `--reset` で新attemptを開始。
-- **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して2体の独立したブラインドレビュアー（A: 構造カバレッジ14チェック、B: 品質/リスク8チェック）が最大3ラウンドのレビューを実施します。依存関係サイクル検出・Blockers 正準形式検証を含む。
-- **Phase 1/2 分割**: `sdd-bootstrap-interviewer` が Phase 1（仕様・設計・受入テスト）と Phase 2（タスク・トレーサビリティ）に分割され、`impl-review-loop` 通過を Phase 2 の前提条件とします。
-- **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
+- **仕様レビューループ (`spec-review-loop`)**: requirements.md と acceptance-tests.md に対して `spec-reviewer-a/b` が独立してレビューし、`Spec-Review-Status: Passed` になるまで実装方針レビューを開始させません。
+- **実装方針レビューループ (`impl-review-loop`)**: design.md に対して `impl-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施し、`Impl-Review-Status: Passed` になるまで tasks.md 生成をブロックします。PASS-with-warnings（Minor のみ）も通過扱い。BLOCKED + `--reset` で新attemptを開始。
+- **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して `task-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施します。依存関係サイクル検出・Blockers 正準形式検証を含みます。
+- **Phase 1/2 分割**: `sdd-bootstrap-interviewer` は Phase 1（仕様・設計・受入テスト）の後に `spec-review-loop`、次に `impl-review-loop` を通し、Phase 2（タスク・トレーサビリティ）の後に `task-review-loop` を通す三段階の独立レビューを必須にします。
+- **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`spec-review-loop` / `impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
 - **バッチ実装 (`implement-tasks`)**: 承認済みタスクを依存関係順に連続実行し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動します。`### Blockers` セクションのタスク参照を解析して依存関係を自動解決します。
 - **責務の明確な分離**: 仕様化・実装・品質保証を別々のスキルが担当し、実装者が自分の成果物を甘く採点する構造を排除します。
 - **人間承認ゲート**: エージェントはタスク承認も WFI 承認も自己承認できず、フック + 決定論的スクリプトの二重防衛により不正な承認を防止します。critical タスクは二者承認（`Approval:` + 別名義の `Second Approval:`）が必須で、sudo でもバイパスできません。

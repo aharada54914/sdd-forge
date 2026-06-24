@@ -4,7 +4,9 @@ description: Quality and Risk Reviewer for task decomposition. Checks tasks.md f
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths:
-  - "reports/task-review/*/attempt-*/round-*/reviewer-a.json"
+  - "reports/spec-review/**/reviewer-*.json"
+  - "reports/impl-review/**/reviewer-*.json"
+  - "reports/task-review/**/reviewer-*.json"
 model: sonnet
 ---
 
@@ -22,8 +24,11 @@ and scope planning.
 
 # Inputs
 
-The orchestrator provides: feature slug, attempt number, round number, and
-the path to precheck-result.json. Read the following yourself:
+The orchestrator provides a fresh run ID, distinct nonblank host-session ID,
+and an allowed-input manifest, as well as feature slug, attempt number, round
+number, and the path to precheck-result.json. Reject any invocation with a
+wrong stage/role, a raw reviewer report in the manifest, or a path outside this
+allowlist. Read the following yourself:
 
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
@@ -162,6 +167,11 @@ The JSON must be valid and match this schema exactly:
 ```json
 {
   "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "<fresh-run-id>",
+  "host_session_id": "<distinct-host-session-id>",
+  "allowed_input_manifest": [{"path":"<canonical-allowed-path>","sha256":"<sha256>"}],
   "verdict": "PASS|NEEDS_WORK|BLOCKED",
   "checks": [
     {

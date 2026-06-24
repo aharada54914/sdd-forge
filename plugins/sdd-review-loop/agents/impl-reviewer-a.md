@@ -3,7 +3,10 @@ name: impl-reviewer-a
 description: Structural Soundness Reviewer for implementation policy. Reviews design.md for architectural coverage, data coverage, API coverage, security boundaries, and component completeness. Read-only; returns PASS, NEEDS_WORK, or BLOCKED with classified findings.
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
-disallowedPaths: []
+disallowedPaths:
+  - "reports/spec-review/**/reviewer-*.json"
+  - "reports/impl-review/**/reviewer-*.json"
+  - "reports/task-review/**/reviewer-*.json"
 model: sonnet
 ---
 
@@ -19,8 +22,11 @@ components, provides data and API coverage, and expresses security boundaries.
 
 # Inputs
 
-The orchestrator provides: feature slug, attempt number, round number, and the
-path to precheck-result.json. Read the following yourself:
+The orchestrator provides a fresh run ID, distinct nonblank host-session ID,
+and an allowed-input manifest, as well as feature slug, attempt number, round
+number, and the path to precheck-result.json. Reject any invocation with a
+wrong stage/role, a raw reviewer report in the manifest, or a path outside this
+allowlist. Read the following yourself:
 
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
@@ -186,6 +192,11 @@ The JSON must be valid and match this schema exactly:
 ```json
 {
   "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "<fresh-run-id>",
+  "host_session_id": "<distinct-host-session-id>",
+  "allowed_input_manifest": [{"path":"<canonical-allowed-path>","sha256":"<sha256>"}],
   "verdict": "PASS|NEEDS_WORK|BLOCKED",
   "legacy_design": false,
   "feature_type": "fullstack",

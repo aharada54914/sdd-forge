@@ -1,0 +1,8 @@
+Placeholder scan FAILED (6 finding(s)):
+ - tests/validate-repository.ps1:196:foreach ($rule in @("Implementation Complete", "maximum of 3", "Done", "Playwright", "traceability", "check-contract", "check-evidence-bundle", "check-placeholders", "check-task-state", "sdd-evaluator")) {
+ - tests/validate-repository.ps1:203:foreach ($script in @("check-contract", "check-evidence-bundle", "check-placeholders", "check-task-state")) {
+ - tests/validate-repository.ps1:389:foreach ($checkId in @("lint", "unit-tests", "build", "placeholder-scan", "task-state-check")) {
+ - tests/validate-repository.ps1:401:# CI template must fail-closed with TODO marker.
+ - tests/validate-repository.ps1:403:if ($ciTemplate -notmatch [regex]::Escape("TODO_REPLACE_WITH_PROJECT_COMMANDS")) {
+ - tests/validate-repository.ps1:404:    throw "ci-github.template.yml does not contain TODO_REPLACE_WITH_PROJECT_COMMANDS marker."
+Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.

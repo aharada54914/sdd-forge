@@ -3,15 +3,16 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
-$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
+$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.1.0"
+    "sdd-bootstrap"      = "1.1.1"
     "sdd-implementation" = "1.1.0"
-    "sdd-quality-loop"   = "1.1.0"
+    "sdd-quality-loop"   = "1.1.1"
     "sdd-lite"           = "1.1.0"
-    "sdd-review-loop"    = "1.1.0"
+    "sdd-review-loop"    = "1.1.1"
     "sdd-ship"           = "1.1.0"
 }
+$releasePlugins = @("sdd-bootstrap", "sdd-quality-loop", "sdd-review-loop")
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -51,6 +52,23 @@ foreach ($plugin in $claudeMarketplace.plugins) {
     $expectedVersion = $expectedVersions[$plugin.name]
     if ($plugin.version -ne $expectedVersion) {
         throw "Claude marketplace version differs from $expectedVersion for $($plugin.name)."
+    }
+}
+
+# The affected release plugins carry an explicit catalog version in both host
+# marketplaces; other entries continue to derive their version from manifests.
+foreach ($name in $releasePlugins) {
+    $expectedVersion = $expectedVersions[$name]
+    $codexEntry = @($codexMarketplace.plugins | Where-Object { $_.name -eq $name })
+    $claudeEntry = @($claudeMarketplace.plugins | Where-Object { $_.name -eq $name })
+    if ($codexEntry.Count -ne 1 -or $claudeEntry.Count -ne 1) {
+        throw "Expected exactly one marketplace entry for release plugin $name."
+    }
+    if ($codexEntry[0].version -ne $expectedVersion -or $claudeEntry[0].version -ne $expectedVersion) {
+        throw "Marketplace version differs from $expectedVersion for $name."
+    }
+    if ([version]$expectedVersion -le [version]"1.1.0") {
+        throw "Release plugin version must be newer than 1.1.0 for $name."
     }
 }
 
@@ -187,6 +205,15 @@ foreach ($script in @("check-contract", "check-evidence-bundle", "check-placehol
         $scriptPath = "plugins/sdd-quality-loop/scripts/$script.$extension"
         if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
             throw "Missing deterministic gate script: $scriptPath"
+        }
+    }
+}
+# Review-loop prechecks use the same portable contract on every supported host.
+foreach ($script in @("review-contract-validate", "impl-review-precheck", "task-review-precheck")) {
+    foreach ($extension in @("sh", "ps1")) {
+        $scriptPath = "plugins/sdd-review-loop/scripts/$script.$extension"
+        if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
+            throw "Missing portable review-loop script: $scriptPath"
         }
     }
 }

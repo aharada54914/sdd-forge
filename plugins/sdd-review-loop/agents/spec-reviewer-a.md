@@ -4,8 +4,9 @@ description: Requirements and acceptance-coverage reviewer for the specification
 tools: Read, Grep, Glob
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths:
-  - "reports/*-review/**/reviewer-*.json"
-  - "reports/spec-review/**/integrated-*.json"
+  - "reports/spec-review/**/reviewer-*.json"
+  - "reports/impl-review/**/reviewer-*.json"
+  - "reports/task-review/**/reviewer-*.json"
 model: sonnet
 ---
 

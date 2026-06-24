@@ -1,0 +1,16 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-001",
+  "category": "app-dev-efficiency",
+  "cycle": 1,
+  "verdict": "PASS",
+  "checks": [
+    {"id": "EVIDENCE-CITED", "result": "PASS", "severity": "Major", "finding": "No issues found."},
+    {"id": "ROOT-CAUSE-PLAUSIBLE", "result": "PASS", "severity": "Major", "finding": "No issues found."},
+    {"id": "CATEGORY-LANGUAGE-MATCH", "result": "PASS", "severity": "Critical", "finding": "No issues found."},
+    {"id": "CHANGE-CONCRETE", "result": "PASS", "severity": "Major", "finding": "No issues found."},
+    {"id": "EFFECT-MEASURABLE", "result": "PASS", "severity": "Major", "finding": "No issues found."},
+    {"id": "VERIFICATION-PLAN-SPECIFIC", "result": "PASS", "severity": "Minor", "finding": "No issues found."},
+    {"id": "NO-PLUGIN-SCOPE-CREEP", "result": "PASS", "severity": "Major", "finding": "No issues found."}
+  ]
+}

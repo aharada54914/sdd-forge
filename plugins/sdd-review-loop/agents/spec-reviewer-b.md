@@ -4,8 +4,9 @@ description: Independent specification risk and ambiguity reviewer for the speci
 tools: Read, Grep, Glob
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths:
-  - "reports/*-review/**/reviewer-a.json"
-  - "reports/*-review/**/reviewer-b.json"
+  - "reports/spec-review/**/reviewer-*.json"
+  - "reports/impl-review/**/reviewer-*.json"
+  - "reports/task-review/**/reviewer-*.json"
 model: sonnet
 ---
 

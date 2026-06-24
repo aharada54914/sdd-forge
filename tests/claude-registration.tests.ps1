@@ -8,18 +8,36 @@ $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.Platfo
 function New-FakeClaudeCommand {
     param(
         [Parameter(Mandatory)][string]$BinRoot,
-        [Parameter(Mandatory)][string]$LogPath
+        [Parameter(Mandatory)][string]$LogPath,
+        [switch]$FailValidate
     )
 
     New-Item -ItemType Directory -Path $BinRoot -Force | Out-Null
     if ($isWindowsPlatform) {
         $commandPath = Join-Path $BinRoot "claude.cmd"
-        "@echo claude %*>>`"$LogPath`"`r`n@exit /b 0`r`n" | Set-Content -Path $commandPath -Encoding Ascii
+        $failureLine = if ($FailValidate) { "@if /i `"%~1`"==plugin if /i `"%~2`"==validate exit /b 9`r`n" } else { "" }
+        "@echo claude %*>>`"$LogPath`"`r`n$failureLine@exit /b 0`r`n" | Set-Content -Path $commandPath -Encoding Ascii
     }
     else {
         $commandPath = Join-Path $BinRoot "claude"
-        "#!/bin/sh`necho `"claude `$*`" >> `"$LogPath`"`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+        $failureLine = if ($FailValidate) { "if [ `"`$1`" = plugin ] && [ `"`$2`" = validate ]; then exit 9; fi`n" } else { "" }
+        "#!/bin/sh`necho `"claude `$*`" >> `"$LogPath`"`n$failureLine`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
         & chmod +x $commandPath
+    }
+}
+
+function New-FakeSuccessfulPluginCommands {
+    param([Parameter(Mandatory)][string]$BinRoot)
+
+    foreach ($command in @("codex", "copilot")) {
+        if ($isWindowsPlatform) {
+            "@exit /b 0`r`n" | Set-Content -Path (Join-Path $BinRoot "$command.cmd") -Encoding Ascii
+        }
+        else {
+            $commandPath = Join-Path $BinRoot $command
+            "#!/bin/sh`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+            & chmod +x $commandPath
+        }
     }
 }
 
@@ -64,6 +82,41 @@ finally {
 }
 
 # ---------------------------------------------------------------------------
+# Claude validation must fail before marketplace registration.
+# ---------------------------------------------------------------------------
+$validationRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-claude-reg-validation-" + [guid]::NewGuid())
+$validationInstall = Join-Path $validationRoot "installed"
+$validationBin = Join-Path $validationRoot "bin"
+$validationLog = Join-Path $validationRoot "commands.log"
+$validationSavedPath = $env:PATH
+try {
+    New-FakeClaudeCommand -BinRoot $validationBin -LogPath $validationLog -FailValidate
+    $env:PATH = "$validationBin$([System.IO.Path]::PathSeparator)$validationSavedPath"
+
+    $failed = $false
+    try {
+        & $installer -SourceDirectory $repositoryRoot -InstallRoot $validationInstall -Target Claude -Plugins @("sdd-bootstrap") -RequireClaude *>&1 | Out-String | Out-Null
+    }
+    catch {
+        $failed = $true
+    }
+    if (-not $failed) { throw "Claude manifest validation failure should stop installation." }
+
+    $log = Get-Content -Raw $validationLog
+    if ($log -notmatch [regex]::Escape("claude plugin validate")) {
+        throw "Claude validation did not invoke plugin validate.`nLog:`n$log"
+    }
+    if ($log -match [regex]::Escape("claude plugin marketplace add")) {
+        throw "Claude marketplace was registered before manifest validation passed.`nLog:`n$log"
+    }
+    Write-Host "ok: Claude manifest validation fails before marketplace registration"
+}
+finally {
+    $env:PATH = $validationSavedPath
+    if (Test-Path $validationRoot) { Remove-Item -Path $validationRoot -Recurse -Force }
+}
+
+# ---------------------------------------------------------------------------
 # RequireClaude: Target All must fail when Claude CLI is absent. Without this,
 # users can see a successful install while Claude was silently skipped.
 # ---------------------------------------------------------------------------
@@ -73,7 +126,11 @@ $requireBin = Join-Path $requireRoot "bin"
 $requireSavedPath = $env:PATH
 try {
     New-Item -ItemType Directory -Path $requireBin -Force | Out-Null
-    $env:PATH = "$requireBin$([System.IO.Path]::PathSeparator)$requireSavedPath"
+    New-FakeSuccessfulPluginCommands -BinRoot $requireBin
+    # Keep Git available for source validation while excluding a real Claude
+    # executable from PATH; this test verifies the missing-CLI branch.
+    $gitDirectory = Split-Path -Parent (Get-Command git -ErrorAction Stop).Source
+    $env:PATH = "$requireBin$([System.IO.Path]::PathSeparator)$gitDirectory"
 
     $failed = $false
     try {

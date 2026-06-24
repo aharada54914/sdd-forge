@@ -12,33 +12,43 @@ FAIL=0
 clone_fixture() {
     local source_root="$1"
     local destination="$2"
-    if git clone -q "$source_root" "$destination"; then
-        return 0
-    fi
-    # macOS temporary volumes can occasionally return ESTALE while Git writes
-    # loose objects. A clean one-time retry keeps this fixture-only condition
-    # from obscuring installer behavior.
-    rm -rf "$destination"
-    sleep 0.1
-    git clone -q "$source_root" "$destination"
+    # `git clone` may invoke a host credential/helper while copying local
+    # objects. Export the committed tree instead, then initialise a disposable
+    # repository because later fixtures intentionally create commits.
+    mkdir -p "$destination"
+    git -C "$source_root" archive --format=tar HEAD | tar -xf - -C "$destination"
+    git -C "$destination" init -q
+    git -C "$destination" add -A
+    git -C "$destination" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Fixture baseline"
 }
 
-# Local installs intentionally copy Git-tracked files only. These manifests are
-# new in this working tree, so create a disposable committed fixture that
-# represents the released source without staging user changes.
+# Local installs intentionally copy Git-tracked files only. Overlay the
+# installer and Claude manifests under test so the fixture exercises this
+# working tree without including unrelated untracked files.
 SOURCE_FIXTURE_ROOT="$(mktemp -d)"
 SOURCE_FIXTURE="${SOURCE_FIXTURE_ROOT}/source"
 clone_fixture "$REPO_ROOT" "$SOURCE_FIXTURE"
 for relative_path in \
     ".claude-plugin/marketplace.json" \
     ".agents/plugins/marketplace.json" \
+    "install.sh" \
+    "install.ps1" \
+    "plugins/sdd-bootstrap/.claude-plugin/plugin.json" \
+    "plugins/sdd-quality-loop/.claude-plugin/plugin.json" \
     "plugins/sdd-review-loop/.claude-plugin/plugin.json" \
     "plugins/sdd-review-loop/.codex-plugin/plugin.json" \
     "plugins/sdd-review-loop/.plugin/plugin.json"; do
     mkdir -p "${SOURCE_FIXTURE}/$(dirname "$relative_path")"
     cp -p "${REPO_ROOT}/${relative_path}" "${SOURCE_FIXTURE}/${relative_path}"
 done
-git -C "$SOURCE_FIXTURE" add .claude-plugin/marketplace.json .agents/plugins/marketplace.json plugins/sdd-review-loop
+git -C "$SOURCE_FIXTURE" add \
+    .claude-plugin/marketplace.json \
+    .agents/plugins/marketplace.json \
+    install.sh \
+    install.ps1 \
+    plugins/sdd-bootstrap/.claude-plugin/plugin.json \
+    plugins/sdd-quality-loop/.claude-plugin/plugin.json \
+    plugins/sdd-review-loop
 git -C "$SOURCE_FIXTURE" diff --cached --quiet || git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
 trap 'rm -rf "$SOURCE_FIXTURE_ROOT"' EXIT
 
@@ -314,6 +324,10 @@ invoke_installer_scenario() {
     # Copilot marketplace command
     if ! echo "$log" | grep -qF "copilot plugin marketplace add"; then
         fail "expected command not found: copilot plugin marketplace add"
+        all_ok=0
+    fi
+    if ! echo "$log" | grep -qF "codex plugin marketplace add"; then
+        fail "expected command not found: codex plugin marketplace add"
         all_ok=0
     fi
 
@@ -1040,6 +1054,35 @@ for path in \
     fi
 done
 [[ $_r_ok -eq 1 ]] && ok "sdd-review-loop required paths: manifests and skills present"
+
+# ---------------------------------------------------------------------------
+# Scenario (s): Claude manifest validation must fail before marketplace add.
+# ---------------------------------------------------------------------------
+_s_root="$(mktemp -d)"
+_s_install="${_s_root}/installed"
+_s_bin="${_s_root}/bin"
+_s_log="${_s_root}/commands.log"
+_s_orig_path="$PATH"
+make_fake_commands "$_s_bin" "$_s_log" "plugin validate"
+export PATH="${_s_bin}:${_s_orig_path}"
+_s_failed=0
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_s_install" --target Claude --plugins "sdd-bootstrap" 2>/dev/null || _s_failed=1
+export PATH="$_s_orig_path"
+_s_ok=1
+if [[ $_s_failed -eq 0 ]]; then
+    fail "Claude validation (s): installer succeeded after manifest validation failure"
+    _s_ok=0
+fi
+if ! grep -qF "claude plugin validate" "$_s_log"; then
+    fail "Claude validation (s): validation command was not invoked"
+    _s_ok=0
+fi
+if grep -qF "claude plugin marketplace add" "$_s_log"; then
+    fail "Claude validation (s): marketplace was registered before validation passed"
+    _s_ok=0
+fi
+rm -rf "$_s_root"
+[[ $_s_ok -eq 1 ]] && ok "Claude manifest validation fails before marketplace registration"
 
 # ---------------------------------------------------------------------------
 # Summary

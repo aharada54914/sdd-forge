@@ -155,6 +155,11 @@ install_claude_plugins() {
         echo "Warning: Claude Code CLI was not found. Claude registration was skipped." >&2
         return 0
     fi
+    # Validate every selected manifest before marketplace registration. A
+    # rejected manifest must not leave a partially registered Claude install.
+    for p in "${PLUGIN_LIST[@]}"; do
+        run_plugin_command claude plugin validate "${marketplace_root}/plugins/${p}" || return 1
+    done
     run_plugin_command claude plugin marketplace add "$marketplace_root" --scope user || return 1
     if [[ $SKIP_PLUGIN_INSTALL -eq 0 ]]; then
         for p in "${PLUGIN_LIST[@]}"; do

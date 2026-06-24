@@ -90,12 +90,12 @@ recreate them here.
 Run after Phase 1 artifacts (requirements.md, acceptance-tests.md) are generated.
 
 1. If `spec_profile: lite` in AGENTS.md → SKIP; log "spec-review skipped: lite profile".
-2. Invoke `/spec-review-loop --feature <feature>`.
+2. Invoke `/sdd-review-loop:spec-review-loop --feature <feature>`.
 3. verdict == PASS or PASS-with-warnings → continue.
 4. verdict == NEEDS_WORK → present proposed changes; await human edit of
    requirements.md or acceptance-tests.md; re-invoke.
 5. verdict == BLOCKED → halt; instruct human to run
-   `/spec-review-loop --reset --feature <feature>`.
+   `/sdd-review-loop:spec-review-loop --reset --feature <feature>`.
 
 ## Implementation Policy Review Gate
 

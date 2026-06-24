@@ -10,8 +10,14 @@
     {
       "req": "REQ-008",
       "acs": ["AC-008"],
-      "tests": ["TEST-008", "tests/spec-review-loop.tests.sh"],
-      "evidence": ["specs/claude-workflow-compatibility/verification/T-001.green.log"]
+      "tests": ["TEST-008", "tests/spec-review-loop.tests.sh", "tests/review-agent-isolation.tests.sh"],
+      "evidence": ["specs/claude-workflow-compatibility/verification/T-001.green.log", "specs/claude-workflow-compatibility/verification/T-006.quality-tests.log"]
+    },
+    {
+      "req": "REQ-009",
+      "acs": ["AC-009"],
+      "tests": ["TEST-009", "tests/review-contract-foundation.tests.sh", "tests/review-contract-foundation.tests.ps1", "tests/downstream-review-precheck-parity.tests.sh"],
+      "evidence": ["specs/claude-workflow-compatibility/verification/T-002.green.log", "specs/claude-workflow-compatibility/verification/T-006.quality-tests.log"]
     }
   ]
 }

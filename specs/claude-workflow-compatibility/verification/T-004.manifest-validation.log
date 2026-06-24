@@ -1,0 +1,27 @@
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-bootstrap/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-implementation/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-lite/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-quality-loop/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-review-loop/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /Users/jrmag/Documents/SDD-Plugins/plugins/sdd-ship/.claude-plugin/plugin.json
+
+✔ Validation passed
+Validating plugin manifest: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-invalid-claude-manifest-bfc4c79e-eb6e-43b2-a5fe-62c28996cac5/.claude-plugin/plugin.json
+
+✘ Found 1 error:
+
+  ❯ agents: Invalid input
+
+✘ Validation failed
+ok: invalid Claude manifest fixture is rejected
+ok: Claude 2.1.177 (Claude Code) validated 6 shipped plugin manifests

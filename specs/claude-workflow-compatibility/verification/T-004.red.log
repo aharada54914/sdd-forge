@@ -1,0 +1,6 @@
+Exception: /Users/jrmag/Documents/SDD-Plugins/tests/validate-repository.ps1:45
+Line |
+  45 |          throw "Plugin version differs from $expectedVersion for $name …
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Plugin version differs from 1.1.1 for sdd-bootstrap.
+exit=1

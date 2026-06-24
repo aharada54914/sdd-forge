@@ -1,0 +1,25 @@
+{
+  "task_id": "T-004",
+  "feature": "claude-workflow-compatibility",
+  "risk": "medium",
+  "stack": "shell",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "",
+  "created": "2026-06-24T15:00:00Z",
+  "comment": "Default-FAIL verification contract for T-004. This task changes release validation and plugin release metadata. Compile-oriented checks are waived because the repository has no configured linter, typechecker, or build target; all behavioral release checks remain required.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "This shell, PowerShell, JSON, and Markdown repository has no configured linter.", "requirement_ids": ["REQ-002", "REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "This repository has no configured typechecker.", "requirement_ids": ["REQ-002", "REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-004.claude-registration.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-010"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-004.claude-registration.log" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "The repository has no build configuration for these shell, PowerShell, JSON, and Markdown assets.", "requirement_ids": ["REQ-002", "REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-004.placeholder.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-004.placeholder.log" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-004.task-state.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-004.task-state.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-004.manifest-validation.log", "waiver_reason": "", "requirement_ids": ["REQ-005"], "red_evidence": "specs/claude-workflow-compatibility/verification/T-004.red.log", "green_evidence": "specs/claude-workflow-compatibility/verification/T-004.manifest-validation.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-004.install-sh.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-004.install-sh.log" },
+    { "id": "release-smoke", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-004.release-smoke.log", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-010"], "red_evidence": "specs/claude-workflow-compatibility/verification/T-004.release-smoke-skip.log", "green_evidence": "specs/claude-workflow-compatibility/verification/T-004.release-smoke.log" },
+    { "id": "repository-validation", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-004.repository-validation.log", "waiver_reason": "", "requirement_ids": ["REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-004.repository-validation.log" },
+    { "id": "independent-review", "required": true, "passes": true, "evidence": "reports/implementation/T-004.md", "waiver_reason": "", "requirement_ids": ["REQ-002", "REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "reports/implementation/T-004.md" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "No baseline-behavior change requires a separate differential baseline; the isolated real-host smoke test records the relevant release behavior.", "requirement_ids": ["REQ-002", "REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-004 has no browser UI.", "requirement_ids": ["REQ-002", "REQ-005", "REQ-010"], "red_evidence": "", "green_evidence": "" }
+  ]
+}

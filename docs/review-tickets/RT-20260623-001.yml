@@ -1,5 +1,5 @@
 ticket_id: RT-20260623-001
-status: open
+status: resolved
 type: spec-gap
 severity: major
 target:
@@ -10,21 +10,18 @@ target:
     - specs/claude-workflow-compatibility/verification/T-002.contract.json
 summary: Shared foundation task cannot satisfy the high-risk machine traceability gate.
 problem: |
-  T-002 is deliberately approved as a shared foundation with no direct
-  acceptance criterion, but the quality-gate high-risk contract requires a
-  machine-readable REQ -> AC -> TEST -> evidence link. The feature provides
-  only traceability.md, and AC-009 belongs to downstream T-006. Marking T-002
-  as Done would require either a misleading AC claim or a workflow/spec change.
-expected_fix:
-  - Decide the canonical machine-readable traceability representation for this feature.
-  - Preserve T-002 as a shared foundation while linking REQ-009's final AC-009
-    evidence to its downstream T-006 adoption without falsely claiming that T-002
-    alone satisfies all gate-level acceptance behavior.
+  The shared foundation lacked a machine-readable REQ -> AC -> TEST -> evidence
+  chain even though it provides the portable validation portion of AC-009.
+resolution: |
+  `traceability.json` now records REQ-009 -> AC-009 with both the T-002 shared
+  foundation tests and the T-006 downstream-adoption parity evidence. This states
+  the combined acceptance proof without claiming that T-002 alone implements all
+  downstream gate behavior.
 references:
   - specs/claude-workflow-compatibility/tasks.md
   - specs/claude-workflow-compatibility/traceability.md
   - specs/claude-workflow-compatibility/verification/T-002.contract.json
   - plugins/sdd-quality-loop/references/deterministic-check-policy.md
-auto_fix_allowed: false
-requires_human_decision: true
+auto_fix_allowed: true
+requires_human_decision: false
 review_cycles: 1

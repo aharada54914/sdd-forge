@@ -121,6 +121,11 @@ function Install-ClaudePlugins {
         return
     }
 
+    # Validate before registration so an invalid selected manifest cannot leave
+    # the marketplace registered as a successful Claude installation.
+    foreach ($plugin in $Plugins) {
+        Invoke-PluginCommand "claude" @("plugin", "validate", (Join-Path $MarketplaceRoot "plugins/$plugin"))
+    }
     Invoke-PluginCommand "claude" @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
     if ($SkipPluginInstall) {
         $script:ClaudeRegistrationStatus = "marketplace registered; plugin install skipped"

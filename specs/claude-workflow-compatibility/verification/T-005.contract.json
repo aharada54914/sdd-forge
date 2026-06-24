@@ -1,0 +1,23 @@
+{
+  "task_id": "T-005",
+  "feature": "claude-workflow-compatibility",
+  "risk": "low",
+  "stack": "docs",
+  "required_workflow": "test-after",
+  "spec_revision": "",
+  "created": "2026-06-24T16:00:00Z",
+  "comment": "Default-FAIL verification contract for T-005. The task changes documentation and its deterministic documentation regression test only. Compile-oriented checks are waived because this repository has no configured linter, typechecker, or build target. Placeholder evidence scans the T-005 changed-line patch so literal instructional references in unchanged documentation are not mistaken for newly shipped placeholders.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "This Markdown, shell, and PowerShell repository has no configured linter.", "requirement_ids": ["REQ-011"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "This task has no typechecked source and the repository has no configured typechecker.", "requirement_ids": ["REQ-011"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-005.documentation.log", "waiver_reason": "", "requirement_ids": ["REQ-011"], "red_evidence": "specs/claude-workflow-compatibility/verification/T-005.red.log", "green_evidence": "specs/claude-workflow-compatibility/verification/T-005.documentation.log" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "This documentation task has no build target and the repository has no configured build command.", "requirement_ids": ["REQ-011"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-005.placeholder.log", "waiver_reason": "", "requirement_ids": ["REQ-011"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-005.placeholder.log" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-005.task-state.log", "waiver_reason": "", "requirement_ids": ["REQ-011"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-005.task-state.log" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-005.documentation.log", "waiver_reason": "", "requirement_ids": ["REQ-011"], "red_evidence": "specs/claude-workflow-compatibility/verification/T-005.review-red.log", "green_evidence": "specs/claude-workflow-compatibility/verification/T-005.documentation.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-005.repository-validation.log", "waiver_reason": "", "requirement_ids": ["REQ-011"], "red_evidence": "", "green_evidence": "specs/claude-workflow-compatibility/verification/T-005.repository-validation.log" },
+    { "id": "independent-review", "required": true, "passes": true, "evidence": "reports/implementation/T-005.md", "waiver_reason": "", "requirement_ids": ["REQ-011"], "red_evidence": "", "green_evidence": "reports/implementation/T-005.md" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-005 is not a behavior-preserving code refactor and has no baseline-behavior contract.", "requirement_ids": ["REQ-011"], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-005 has no browser UI.", "requirement_ids": ["REQ-011"], "red_evidence": "", "green_evidence": "" }
+  ]
+}

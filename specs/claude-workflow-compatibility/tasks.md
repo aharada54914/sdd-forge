@@ -93,7 +93,7 @@ Source Issue: Bootstrap exception approved by repository maintainer on 2026-06-2
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
@@ -102,7 +102,7 @@ review-gate adopters across supported operating systems.
 
 Required Workflow: tdd
 
-Requirements: REQ-009
+Requirements: REQ-009; AC-009
 
 Planned Files: shared review-contract validation helpers, shared UTF-8 fixtures,
 semantic JSON oracle, shell/PowerShell foundation tests
@@ -139,15 +139,15 @@ tasks can adopt without duplicating contract or path semantics.
 
 ### Done When
 
-- [ ] Failing shell and PowerShell fixture tests for the shared denial cases are
+- [x] Failing shell and PowerShell fixture tests for the shared denial cases are
   committed before implementation begins, and their passing counterparts are
   saved after it.
-- [ ] Shell and PowerShell implementations produce equivalent semantic JSON for
+- [x] Shell and PowerShell implementations produce equivalent semantic JSON for
   the shared UTF-8 fixture corpus.
-- [ ] Scoped review-loop tests and related regression tests pass with saved output.
-- [ ] An implementation report records Red→Green evidence and a named,
+- [x] Scoped review-loop tests and related regression tests pass with saved output.
+- [x] An implementation report records Red→Green evidence and a named,
   independent second reviewer verdict.
-- [ ] `traceability.md` maps T-002 to REQ-009.
+- [x] `traceability.md` maps T-002 to REQ-009 and AC-009.
 
 ### Out of Scope
 
@@ -163,7 +163,7 @@ Source Issue: Bootstrap exception approved by repository maintainer on 2026-06-2
 
 Approval: Approved
 
-Status: Planned
+Status: Done
 
 Risk: medium
 
@@ -206,17 +206,17 @@ commands, and reject an invalid selected Claude manifest before registration.
 
 ### Done When
 
-- [ ] Acceptance-first tests demonstrate that every selected invalid Claude
+- [x] Acceptance-first tests demonstrate that every selected invalid Claude
   manifest fails before marketplace registration on each applicable installer.
-- [ ] `claude plugin validate` accepts each shipped Claude manifest with no
+- [x] `claude plugin validate` accepts each shipped Claude manifest with no
   unsupported explicit agent/rules declaration.
-- [ ] The WFI audit skill frontmatter and every shipped skill metadata document
+- [x] The WFI audit skill frontmatter and every shipped skill metadata document
   parse with `name` and `description` retained.
-- [ ] Recovery documentation describes validation, `plugin list`, update or
+- [x] Recovery documentation describes validation, `plugin list`, update or
   reinstall, and `/reload-plugins` after a failed Claude installation.
-- [ ] Installer and registration regression tests pass with saved output.
-- [ ] An implementation report records test evidence and an independent reviewer verdict.
-- [ ] `traceability.md` maps T-003 to REQ-001, REQ-003, REQ-004, REQ-006 and
+- [x] Installer and registration regression tests pass with saved output.
+- [x] An implementation report records test evidence and an independent reviewer verdict.
+- [x] `traceability.md` maps T-003 to REQ-001, REQ-003, REQ-004, REQ-006 and
   AC-001, AC-003, AC-004, AC-006.
 
 ### Out of Scope
@@ -234,7 +234,7 @@ Source Issue: Bootstrap exception approved by repository maintainer on 2026-06-2
 
 Approval: Approved
 
-Status: Planned
+Status: Done
 
 Risk: medium
 
@@ -306,7 +306,7 @@ Source Issue: Bootstrap exception approved by repository maintainer on 2026-06-2
 
 Approval: Approved
 
-Status: Planned
+Status: Done
 
 Risk: low
 
@@ -371,7 +371,7 @@ Source Issue: Bootstrap exception approved by repository maintainer on 2026-06-2
 
 Approval: Approved
 
-Status: Planned
+Status: Done
 
 Risk: high
 
@@ -418,16 +418,16 @@ contracts are invalid.
 
 ### Done When
 
-- [ ] Failing fixture tests for each AC-008 and AC-009 denial path are committed
+- [x] Failing fixture tests for each AC-008 and AC-009 denial path are committed
   before implementation begins and their passing counterparts are saved after it.
-- [ ] Both downstream gates reject a missing, inconsistent, or non-PASS
+- [x] Both downstream gates reject a missing, inconsistent, or non-PASS
   predecessor contract before creating report evidence.
-- [ ] Shell and PowerShell gate outputs match the shared UTF-8 semantic oracle.
-- [ ] Dependency graph fixtures emit declared edges and detect cycles.
-- [ ] Scoped review-loop tests and related regression tests pass with saved output.
-- [ ] An implementation report records Red→Green evidence and a named,
+- [x] Shell and PowerShell gate outputs match the shared UTF-8 semantic oracle.
+- [x] Dependency graph fixtures emit declared edges and detect cycles.
+- [x] Scoped review-loop tests and related regression tests pass with saved output.
+- [x] An implementation report records Red→Green evidence and a named,
   independent second reviewer verdict.
-- [ ] `traceability.md` maps T-006 to REQ-008, REQ-009, AC-008, and AC-009.
+- [x] `traceability.md` maps T-006 to REQ-008, REQ-009, AC-008, and AC-009.
 
 ### Out of Scope
 

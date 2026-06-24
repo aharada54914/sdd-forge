@@ -4,11 +4,14 @@ This project follows a three-stage Spec-Anchored AI Development workflow.
 
 ## Required Workflow
 
-1. Use `sdd-bootstrap-interviewer` to create specifications and Draft tasks.
-2. A human reviews the specification and changes selected tasks to Approved.
-3. Use `implement-task` for one Approved task.
-4. Use `quality-gate` for independent verification and the Done decision.
-5. Use `fix-by-review-ticket` for approved review-ticket fixes, then rerun `quality-gate`.
+1. Use `sdd-bootstrap-interviewer` Phase 1 to create requirements, design, and acceptance tests.
+2. Run `spec-review-loop` with its independent reviewers; resolve findings until `Spec-Review-Status: Passed`.
+3. Run `impl-review-loop` with separate independent reviewers; resolve findings until `Impl-Review-Status: Passed`.
+4. Use `sdd-bootstrap-interviewer` Phase 2 to create Draft tasks, then run `task-review-loop` with separate independent reviewers until `Task-Review-Status: Passed`.
+5. A human reviews the specification and changes selected tasks to Approved.
+6. Use `implement-task` for one Approved task.
+7. Use `quality-gate` for independent verification and the Done decision.
+8. Use `fix-by-review-ticket` for approved review-ticket fixes, then rerun `quality-gate`.
 
 ## Sources Of Truth
 

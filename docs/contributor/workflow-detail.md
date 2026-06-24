@@ -2,6 +2,26 @@
 
 例外フロー・詳細ガイドラインです。ユーザー向けガイドは [../workflow-guide.md](../workflow-guide.md) を参照してください。
 
+## フル・レビュー連鎖
+
+Phase 1 の成果物は、次の順序で三つの**独立した**レビューを通過します。各
+stage は別の reviewer A/B 定義と fresh context を使い、他 stage の raw report
+を読めません。
+
+```mermaid
+flowchart LR
+    P1[Phase 1: requirements / design / acceptance] --> S[spec-review-loop\nspec-reviewer-a / b]
+    S -->|PASS| I[impl-review-loop\nimpl-reviewer-a / b]
+    I -->|PASS| P2[Phase 2: tasks / traceability]
+    P2 --> T[task-review-loop\ntask-reviewer-a / b]
+    T -->|PASS| A[Human approval → implementation]
+```
+
+`spec-review-loop` が `Spec-Review-Status: Passed` を書く唯一の機構です。
+その有効な PASS contract がなければ `impl-review-loop` は開始せず、同様に
+`task-review-loop` は implementation-policy review の有効な PASS を要求します。
+この前提が崩れた仕様変更では、三段階を順に再実行してください。
+
 ## 4. 異常系・例外フロー
 
 ### 4.1 実装中に仕様変更が発生した

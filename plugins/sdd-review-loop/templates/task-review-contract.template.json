@@ -1,5 +1,8 @@
 {
   "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "<feature-slug>",
+  "run_id": "<fresh-orchestrator-run-id>",
   "verdict": "NEEDS_WORK",
   "pass_type": "clean",
   "round": 1,
@@ -14,6 +17,10 @@
   "requirements_sha256": "",
   "acceptance_sha256": "",
   "tasks_sha256": "",
+  "reviewers": [
+    {"role":"task-reviewer-a","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"}]},
+    {"role":"task-reviewer-b","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"}]}
+  ],
   "human_edit_summary": "",
   "timestamp": ""
 }

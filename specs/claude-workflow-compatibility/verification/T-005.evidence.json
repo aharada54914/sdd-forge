@@ -1,0 +1,59 @@
+{
+  "task_id": "T-005",
+  "feature": "claude-workflow-compatibility",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "spec_revision": "135ae67ab8dc816eca1c8dc220e4f135b488b5f07912bab0b63adda5ff0243cb",
+  "quality_report": "reports/quality-gate/2026-06-24T160000Z-T-005.md",
+  "verification_contract": "specs/claude-workflow-compatibility/verification/T-005.contract.json",
+  "git_commit": "8e922810533ffd29e5296dc92052f27c87932c32",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-005.contract.json",
+      "sha256": "506d22c6695bf12459abd039231f53465521fd28850b0b5d0641aa72491d0be6"
+    },
+    {
+      "path": "reports/quality-gate/2026-06-24T160000Z-T-005.md",
+      "sha256": "4420e7786878e09dd72e5f98d1c1f0b1933be2f5b19dcfa3ceede3ba6a34d76a"
+    },
+    {
+      "path": "reports/implementation/T-005.md",
+      "sha256": "7c36b264fade556b0da41e97187cd661c8c3f6d3958a5dcb710164319f808976"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-005.documentation.log",
+      "sha256": "669574b7c4dfaec0436809bcabba0072d7a66a5d1372f77fac8a928820397325"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-005.placeholder.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-005.repository-validation.log",
+      "sha256": "4dba091ad34351df5a47ab88351937a7c08b8d04df4e59834546b6babf1479b0"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-005.task-state.log",
+      "sha256": "151ede1b1adc844056fe808fce9c339a5d1cb94e0e42840d9ea243c24c23bbef"
+    }
+  ]
+}

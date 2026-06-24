@@ -1,0 +1,55 @@
+{
+  "task_id": "T-002",
+  "feature": "claude-workflow-compatibility",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "135ae67ab8dc816eca1c8dc220e4f135b488b5f07912bab0b63adda5ff0243cb",
+  "quality_report": "reports/quality-gate/2026-06-25T000000Z-T-002.md",
+  "verification_contract": "specs/claude-workflow-compatibility/verification/T-002.contract.json",
+  "git_commit": "8e922810533ffd29e5296dc92052f27c87932c32",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-002.contract.json",
+      "sha256": "7310250bb340e4ef98a29c62b409a394cbaa17232529c2535587af9c847c949f"
+    },
+    {
+      "path": "reports/quality-gate/2026-06-25T000000Z-T-002.md",
+      "sha256": "4f0fb1c8a2757896005434f780fac10c4b0fa0e299c4f02969858e5aa4071109"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-002.gates.log",
+      "sha256": "f7932566f0651d6a436f1131184bd10e34a35095b1b8d8666ead85f167f2247a"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-002.green.log",
+      "sha256": "c945de364c23a7b3faeefc55d45f6f52543950aa0e4f77de62d2b50d5dbd3afd"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-002.regression.log",
+      "sha256": "459753f432b6bd8abb8bdac2731b58b155e21b394816289baf89d75b3f63e7e7"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-002.traceability.log",
+      "sha256": "d2edefb1c933375d2744b22ded8a1b580237c5111981a96cdd50316795ce5f0e"
+    }
+  ]
+}

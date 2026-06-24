@@ -20,6 +20,14 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
+      - name: Install recorded Claude Code CLI
+        shell: bash
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate Claude plugin manifests (real CLI)
+        shell: pwsh
+        run: ./tests/claude-manifest-validation.tests.ps1
+
       # pwsh steps run the test scripts directly: piping through tee changes
       # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
       # log already captures their output.
@@ -30,6 +38,12 @@ jobs:
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
+
+      - name: Test portable review-loop prechecks (pwsh)
+        shell: pwsh
+        run: |
+          ./tests/review-contract-foundation.tests.ps1
+          ./tests/downstream-review-precheck.tests.ps1
 
       - name: Test cross-model gate (pwsh)
         shell: pwsh
@@ -82,6 +96,17 @@ jobs:
         shell: bash
         run: |
           ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
+
+      - name: Test portable review-loop prechecks (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/review-contract-foundation.tests.sh
+          bash tests/review-contract-foundation-parity.tests.sh
+          bash tests/downstream-review-precheck.tests.sh
+          bash tests/downstream-review-precheck-parity.tests.sh
+          bash tests/task-review-precheck.tests.sh
+          bash tests/review-agent-isolation.tests.sh
 
       - name: Test cross-model gate (bash)
         if: runner.os != 'Windows'

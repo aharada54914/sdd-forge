@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる17のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる18のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: ユーザーが直接呼び出すのは `/sdd-bootstrap:run` と `/sdd-ship:run` の2つのみです。他のスキルはこれらのオーケストレーターが内部で呼び出します。
 
@@ -12,7 +12,8 @@
 | **sdd-ship** | **sdd-ship** | **[公開] 実装・品質保証フェーズのオーケストレーター。implement-tasks → quality-gate (or lite-gate) → workflow-retrospective を順次実行** | **sdd-bootstrap** | **—** |
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
-| sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
+| sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
+| **spec-review-loop** | **sdd-review-loop** | **requirements.md と acceptance-tests.md を `spec-reviewer-a/b` が独立レビューし、implementation-policy review の前提 PASS を作る** | **sdd-bootstrap-interviewer [Phase 1]** | **impl-review-loop (Spec-Review-Status: Passed後)** |
 | **impl-review-loop** | **sdd-review-loop** | **design.md の実装方針を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 1]** | **sdd-bootstrap-interviewer [Phase 2] (Impl-Review-Status: Passed後)** |
 | **task-review-loop** | **sdd-review-loop** | **tasks.md のタスク分解を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 2]** | **implement-task, implement-tasks (承認ゲート後)** |
 | implement-task | sdd-implementation | 承認済みタスク1つを実装 | sdd-bootstrap-interviewer | quality-gate |
@@ -34,7 +35,7 @@
 
 **目的**
 
-仕様化フェーズのトップレベルルーターです。`feature` / `bugfix` / `refactor` / `project` / `adopt` / `investigate` の各モードをサブスキルにルーティングし、Phase 1 → impl-review-loop → Phase 2 → task-review-loop → 承認ゲートの全フローを管理します。
+仕様化フェーズのトップレベルルーターです。`feature` / `bugfix` / `refactor` / `project` / `adopt` / `investigate` の各モードをサブスキルにルーティングし、Phase 1 → spec-review-loop → impl-review-loop → Phase 2 → task-review-loop → 承認ゲートの三段階独立レビューを管理します。
 
 **呼び出し例**
 

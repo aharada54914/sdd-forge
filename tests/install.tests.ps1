@@ -5,26 +5,39 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")
 $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
 
-function Invoke-GitCloneWithRetry {
+function New-TrackedFixture {
     param([Parameter(Mandatory)][string]$Source, [Parameter(Mandatory)][string]$Destination)
 
-    & git clone -q $Source $Destination
-    if ($LASTEXITCODE -eq 0) { return }
-    # macOS temporary volumes can sporadically return ESTALE while Git writes
-    # loose objects. Retry once with a clean destination.
-    Remove-Item -Path $Destination -Recurse -Force -ErrorAction SilentlyContinue
-    Start-Sleep -Milliseconds 100
-    & git clone -q $Source $Destination
-    if ($LASTEXITCODE -ne 0) { throw "Unable to clone test fixture." }
+    New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+    # Do not clone local Git objects: macOS can invoke a host credential helper
+    # while cloning. A Git archive contains only tracked content and expands
+    # much faster than copying every file one by one.
+    $archivePath = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-fixture-" + [guid]::NewGuid() + ".zip")
+    try {
+        & git -C $Source archive --format=zip "--output=$archivePath" HEAD
+        if ($LASTEXITCODE -ne 0) { throw "Unable to archive tracked fixture files." }
+        Expand-Archive -LiteralPath $archivePath -DestinationPath $Destination -Force
+        & git -C $Destination init -q
+        & git -C $Destination add -A
+        & git -C $Destination -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Fixture baseline"
+        if ($LASTEXITCODE -ne 0) { throw "Unable to initialise installer source fixture." }
+    }
+    finally {
+        Remove-Item -LiteralPath $archivePath -Force -ErrorAction SilentlyContinue
+    }
 }
 
-# Local installs use Git's tracked-file list. Build a committed source fixture
-# so the test represents a released repository without staging this worktree.
+# Local installs use Git's tracked-file list. Copy the files directly rather
+# than cloning local Git objects, which can invoke a host credential helper.
 $installerSourceRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-source-" + [guid]::NewGuid())
-Invoke-GitCloneWithRetry -Source $repositoryRoot -Destination $installerSourceRoot
+New-TrackedFixture -Source $repositoryRoot -Destination $installerSourceRoot
 foreach ($relativePath in @(
     ".claude-plugin/marketplace.json",
     ".agents/plugins/marketplace.json",
+    "install.sh",
+    "install.ps1",
+    "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
+    "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
     "plugins/sdd-review-loop/.claude-plugin/plugin.json",
     "plugins/sdd-review-loop/.codex-plugin/plugin.json",
     "plugins/sdd-review-loop/.plugin/plugin.json"
@@ -33,7 +46,14 @@ foreach ($relativePath in @(
     New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $repositoryRoot $relativePath) -Destination $destination -Force
 }
-& git -C $installerSourceRoot add .claude-plugin/marketplace.json .agents/plugins/marketplace.json plugins/sdd-review-loop
+& git -C $installerSourceRoot add `
+    .claude-plugin/marketplace.json `
+    .agents/plugins/marketplace.json `
+    install.sh `
+    install.ps1 `
+    plugins/sdd-bootstrap/.claude-plugin/plugin.json `
+    plugins/sdd-quality-loop/.claude-plugin/plugin.json `
+    plugins/sdd-review-loop
 $stagedDiff = & git -C $installerSourceRoot diff --cached --name-only
 if ($stagedDiff) {
     & git -C $installerSourceRoot -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
@@ -192,6 +212,9 @@ function Invoke-InstallerScenario {
         if ($log -notmatch [regex]::Escape("copilot plugin marketplace add")) {
             throw "Installer did not run copilot plugin marketplace add"
         }
+        if ($log -notmatch [regex]::Escape("codex plugin marketplace add")) {
+            throw "Installer did not run codex plugin marketplace add"
+        }
         foreach ($plugin in $allPlugins | Where-Object { $_ -notin $expectedRegistration }) {
             if ($log -match [regex]::Escape("plugin add $plugin@sdd-plugins") -or $log -match [regex]::Escape("plugin install $plugin@sdd-plugins")) {
                 throw "Installer registered an unselected plugin: $plugin"
@@ -329,7 +352,7 @@ $trackedOnlyRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-t
 $trackedOnlySource = Join-Path $trackedOnlyRoot "source"
 $trackedOnlyInstall = Join-Path $trackedOnlyRoot "installed"
 try {
-    Invoke-GitCloneWithRetry -Source $installerSourceRoot -Destination $trackedOnlySource
+    New-TrackedFixture -Source $installerSourceRoot -Destination $trackedOnlySource
     New-Item -ItemType Directory -Path (Join-Path $trackedOnlySource ".private") -Force | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $trackedOnlySource "plugins/sdd-bootstrap/.private") -Force | Out-Null
     Set-Content -Path (Join-Path $trackedOnlySource ".private/secret.txt") -Value "root-secret" -Encoding Ascii
@@ -352,7 +375,7 @@ $untrackedRequiredRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-insta
 $untrackedRequiredSource = Join-Path $untrackedRequiredRoot "source"
 $untrackedRequiredInstall = Join-Path $untrackedRequiredRoot "installed"
 try {
-    Invoke-GitCloneWithRetry -Source $installerSourceRoot -Destination $untrackedRequiredSource
+    New-TrackedFixture -Source $installerSourceRoot -Destination $untrackedRequiredSource
     & git -C $untrackedRequiredSource rm --cached -q "plugins/sdd-review-loop/.codex-plugin/plugin.json"
     if ($LASTEXITCODE -ne 0) { throw "Could not prepare untracked required-file fixture" }
     New-Item -ItemType Directory -Path $untrackedRequiredInstall -Force | Out-Null
@@ -518,7 +541,7 @@ try {
     $malformedOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $malformedInstall -Target All *>&1 | Out-String
     # Verify agents were installed with developer_instructions
     if (-not (Test-Path (Join-Path $malformedCodexAgents "sdd-investigator.toml"))) {
-        throw "sdd-investigator.toml was not installed"
+        throw "sdd-investigator.toml was not installed. Installer output:`n$malformedOutput"
     }
     if (-not (Test-Path (Join-Path $malformedCodexAgents "sdd-evaluator.toml"))) {
         throw "sdd-evaluator.toml was not installed"
@@ -566,7 +589,7 @@ $badDeployRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-bad
 $badDeploySource = Join-Path $badDeployRoot "bad-source"
 $badDeployInstall = Join-Path $badDeployRoot "installed"
 try {
-    Invoke-GitCloneWithRetry -Source $installerSourceRoot -Destination $badDeploySource
+    New-TrackedFixture -Source $installerSourceRoot -Destination $badDeploySource
     # Keep the malformed TOML tracked so validation is exercised after the
     # source-directory Git worktree check.
     $investigatorPath = Join-Path $badDeploySource ".codex/agents/sdd-investigator.toml"
