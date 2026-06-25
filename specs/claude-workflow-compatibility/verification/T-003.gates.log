@@ -1,0 +1,9 @@
+$ sh plugins/sdd-quality-loop/scripts/check-risk.sh specs/claude-workflow-compatibility/tasks.md T-003
+Risk check passed for task T-003.
+$ sh plugins/sdd-quality-loop/scripts/check-placeholders.sh install.sh install.ps1 plugins/sdd-bootstrap/.claude-plugin/plugin.json plugins/sdd-quality-loop/.claude-plugin/plugin.json plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md plugins/sdd-review-loop/.claude-plugin/plugin.json
+Placeholder scan passed.
+$ sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/claude-workflow-compatibility/tasks.md reports/quality-gate reports/implementation .
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+Task state check passed for 6 task(s).

@@ -151,10 +151,16 @@ Source: https://github.com/example/product/issues/42
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/design.md`
 - `specs/<feature>/acceptance-tests.md`
-- `specs/<feature>/tasks.md` (各タスクは `Approval: Draft`、`Status: Planned`)
-- `specs/<feature>/traceability.md`
+- `specs/<feature>/tasks.md` と `specs/<feature>/traceability.md`（`spec-review-loop` と `impl-review-loop` が独立した PASS を記録した後にだけ生成）
 - `docs/adr/NNNN-<slug>.md` (新規ADR。4桁リポジトリワイド連番；`specs/<feature>/adr/` は作らない)
 - 関連API・データ契約
+
+**三段階の独立レビュー**
+
+Phase 1 の後、`spec-review-loop`（`spec-reviewer-a/b`）→ `impl-review-loop`
+（`impl-reviewer-a/b`）を順に実行します。Phase 2 の後には
+`task-review-loop`（`task-reviewer-a/b`）を実行します。各 stage の reviewer は
+fresh context を使い、他 stage の raw report を読むことはできません。
 
 **停止・Blocked になる条件**
 
@@ -678,6 +684,28 @@ Use the lite-gate skill for specs/<feature>/tasks.md#T-001
 
 ---
 
+### spec-review-loop
+
+**目的**
+
+`requirements.md` と `acceptance-tests.md` を `spec-reviewer-a` と
+`spec-reviewer-b` が独立してレビューします。valid PASS contract によってのみ
+`Spec-Review-Status: Passed` が書かれ、その後に `impl-review-loop` を実行できます。
+
+**呼び出し例**
+
+```txt
+# Codex
+Use the spec-review-loop skill for feature <slug>
+
+# Claude Code
+/sdd-review-loop:spec-review-loop --feature <slug>
+/sdd-review-loop:spec-review-loop --feature <slug> --edit-summary "acceptance criteria clarified"
+/sdd-review-loop:spec-review-loop --feature <slug> --reset
+```
+
+---
+
 ### impl-review-loop
 
 **目的**
@@ -705,7 +733,7 @@ Use the impl-review-loop skill for feature <slug>
 
 | ステップ | 処理 | 出力 |
 |---|---|---|
-| 1. Precheck | `impl-review-precheck.sh` 実行 | `precheck-result.json`（sha256・drift 検知・legacy_design フラグ） |
+| 1. Precheck | `impl-review-precheck.sh` または `impl-review-precheck.ps1` を実行 | `precheck-result.json`（sha256・drift 検知・legacy_design フラグ）。`Spec-Review-Status: Passed` と保存済み spec PASS verdict が揃うまで出力を作成せず停止 |
 | 2. Reviewer-A | impl-reviewer-a を独立エージェントとして呼び出し | `reviewer-a.json`（9チェック: ARCH-COVERAGE など） |
 | 3. integrated-summary | Reviewer-A の件数+IDのみを抽出（定見なし） | `integrated-summary.json` |
 | 4. Reviewer-B | impl-reviewer-b を独立エージェントとして呼び出し（reviewer-a.json 読み取り不可） | `reviewer-b.json`（9チェック: DECISION-JUSTIFIED など） |
@@ -771,7 +799,7 @@ Use the task-review-loop skill for feature <slug>
 
 | ステップ | 処理 | 出力 |
 |---|---|---|
-| 1. Precheck | `task-review-precheck.sh` 実行 | `precheck-result.json`（WORKFLOW-MATCH、Blockers 形式検証、sha256）、`dependency-graph.json` |
+| 1. Precheck | `task-review-precheck.sh` または `task-review-precheck.ps1` を実行 | `precheck-result.json`（WORKFLOW-MATCH、Blockers 形式検証、sha256）、`dependency-graph.json`。spec/impl の保存済み PASS verdict・有効な DAG が揃うまで出力を作成せず停止 |
 | 2. Reviewer-A | task-reviewer-a を独立エージェントとして呼び出し | `reviewer-a.json`（14チェック） |
 | 3. integrated-summary | 件数+IDのみ抽出 | `integrated-summary.json` |
 | 4. Reviewer-B | task-reviewer-b を独立エージェントとして呼び出し（reviewer-a.json 読み取り不可） | `reviewer-b.json`（8チェック） |

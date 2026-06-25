@@ -5,7 +5,7 @@ param(
     [string]$InstallRoot = (Join-Path ([Environment]::GetFolderPath("LocalApplicationData")) "sdd-plugins"),
     [ValidateSet("All", "Codex", "Claude", "Copilot", "FilesOnly")]
     [string]$Target = "All",
-    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite")]
+    [ValidateSet("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")]
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship"),
     [switch]$SkipPluginInstall,
     [switch]$SkipAgentInstall,
@@ -16,34 +16,30 @@ param(
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
-$allPluginNames = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite")
-$script:CodexRegistrationStatus = "not requested"
-$script:ClaudeRegistrationStatus = "not requested"
-$script:CopilotRegistrationStatus = "not requested"
-
-# sdd-ship orchestrates implement-tasks, quality-gate, and lite-gate internally;
-# those internal plugins must be present for the orchestrator to function.
-# Selecting sdd-ship alone would silently omit the self-approval protection that
-# lives in sdd-quality-loop hooks, so auto-expand to include all companions.
-if ($Plugins -contains "sdd-ship") {
-    foreach ($dep in @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite")) {
-        if ($Plugins -notcontains $dep) { $Plugins += $dep }
+# Resolve dependency closure to a fixed point. In particular, lite adds
+# bootstrap, which then adds the internal review-loop plugin.
+$autoIncluded = [System.Collections.Generic.List[string]]::new()
+$dependenciesChanged = $true
+while ($dependenciesChanged) {
+    $dependenciesChanged = $false
+    foreach ($plugin in @($Plugins)) {
+        $dependencies = switch ($plugin) {
+            "sdd-bootstrap" { @("sdd-review-loop"); break }
+            "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
+            "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }
+            default { @() }
+        }
+        foreach ($dependency in $dependencies) {
+            if ($Plugins -notcontains $dependency) {
+                $Plugins += $dependency
+                $autoIncluded.Add($dependency)
+                $dependenciesChanged = $true
+            }
+        }
     }
-    Write-Warning "sdd-ship selected; auto-included its companions (sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-lite)."
 }
-
-# sdd-lite depends on its companions and cannot run standalone:
-#  - lite-spec requires sdd-bootstrap (sdd-adopt / check-sdd-structure) and
-#    sdd-implementation (implement-task).
-#  - lite-gate requires sdd-quality-loop (check-placeholders) and the approval /
-#    kill-switch hooks live only in sdd-quality-loop.
-# Selecting sdd-lite alone would silently omit the self-approval protection, so
-# auto-expand the selection to include the companions.
-if ($Plugins -contains "sdd-lite") {
-    foreach ($dep in @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")) {
-        if ($Plugins -notcontains $dep) { $Plugins += $dep }
-    }
-    Write-Warning "sdd-lite selected; auto-included its companions (sdd-bootstrap, sdd-implementation, sdd-quality-loop)."
+if ($autoIncluded.Count -gt 0) {
+    Write-Warning "Dependency resolution auto-included: $($autoIncluded -join ', ')."
 }
 
 if ($PSVersionTable.PSEdition -eq 'Desktop') {
@@ -125,6 +121,11 @@ function Install-ClaudePlugins {
         return
     }
 
+    # Validate before registration so an invalid selected manifest cannot leave
+    # the marketplace registered as a successful Claude installation.
+    foreach ($plugin in $Plugins) {
+        Invoke-PluginCommand "claude" @("plugin", "validate", (Join-Path $MarketplaceRoot "plugins/$plugin"))
+    }
     Invoke-PluginCommand "claude" @("plugin", "marketplace", "add", $MarketplaceRoot, "--scope", "user")
     if ($SkipPluginInstall) {
         $script:ClaudeRegistrationStatus = "marketplace registered; plugin install skipped"
@@ -203,6 +204,7 @@ function Download-AuthenticatedArchive {
 }
 
 function Get-RequiredPaths {
+    $allPluginNames = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
     $paths = @(
         ".agents/plugins/marketplace.json",
         ".claude-plugin/marketplace.json",
@@ -259,8 +261,19 @@ $newInstallPlaced = $false
 $mutex = $null
 $mutexAcquired = $false
 try {
+    $isLocalSource = -not [string]::IsNullOrWhiteSpace($SourceDirectory)
     if ($SourceDirectory) {
         $sourceRoot = (Resolve-Path $SourceDirectory).Path
+        if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+            throw "SourceDirectory must be the root of a Git worktree so only tracked files can be installed (git was not found)."
+        }
+        # --show-prefix is empty only at the worktree root. This avoids false
+        # negatives when a platform exposes the same temporary directory via
+        # canonical and symlinked paths (for example /var and /private/var).
+        $gitPrefix = & git -C $sourceRoot rev-parse --show-prefix 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not [string]::IsNullOrEmpty($gitPrefix.Trim())) {
+            throw "SourceDirectory must be the root of a Git worktree so only tracked files can be installed."
+        }
     }
     else {
         $temporaryRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-plugins-" + [guid]::NewGuid())
@@ -281,6 +294,18 @@ try {
     foreach ($relativePath in (Get-RequiredPaths)) {
         if (-not (Test-Path (Join-Path $sourceRoot $relativePath))) {
             throw "Required file is missing: $relativePath"
+        }
+    }
+
+    # Local sources are staged from Git-tracked files only. Do not allow a
+    # required release file that exists solely as an untracked working-tree
+    # change, because it would be omitted from the successful installation.
+    if ($isLocalSource) {
+        foreach ($relativePath in (Get-RequiredPaths)) {
+            & git -C $sourceRoot ls-files --error-unmatch -- $relativePath 2>$null | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                throw "Required file is not Git-tracked in SourceDirectory: $relativePath"
+            }
         }
     }
 
@@ -342,9 +367,28 @@ try {
 
     $stagingRoot = Join-Path $installParent ("sdd-plugins-staging-" + [guid]::NewGuid())
     New-Item -ItemType Directory -Path $stagingRoot | Out-Null
-    # Use Get-ChildItem -Force so that dot-directories (hidden on Windows) are included.
-    foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force | Where-Object { $_.Name -ne ".git" })) {
-        Copy-Item -Path $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
+    if ($isLocalSource) {
+        $trackedFiles = & git -C $sourceRoot ls-files
+        if ($LASTEXITCODE -ne 0) {
+            throw "Unable to enumerate Git-tracked source files."
+        }
+        foreach ($relativePath in $trackedFiles) {
+            $sourcePath = Join-Path $sourceRoot $relativePath
+            $sourceItem = Get-Item -LiteralPath $sourcePath -Force
+            if (($sourceItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+                throw "Refusing to stage Git-tracked symlink/reparse point: $relativePath"
+            }
+            $destination = Join-Path $stagingRoot $relativePath
+            New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+            Copy-Item -LiteralPath $sourcePath -Destination $destination -Force
+        }
+    }
+    else {
+        # Remote archive input is a trusted release artifact with no local
+        # untracked state. Preserve its complete layout, excluding .git.
+        foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force | Where-Object { $_.Name -ne ".git" })) {
+            Copy-Item -Path $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
+        }
     }
 
     if (Test-Path $InstallRoot) {

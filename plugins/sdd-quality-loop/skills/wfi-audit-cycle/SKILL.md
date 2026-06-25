@@ -1,6 +1,6 @@
 ---
 name: wfi-audit-cycle
-description: Orchestrator for the WFI proposal audit. Runs 2 sequential independent audit cycles on a WFI-NNN.md Draft before presenting it to a human for Approved. Cycle 1 (wfi-auditor-a) audits proposal quality. Cycle 2 (wfi-auditor-b) audits impact and risk. Each auditor runs as a fresh isolated agent. The orchestrator applies audit findings to revise the WFI between cycles, creates a GitHub Issue for plugin-improvement WFIs, and sets Audit-Status: Human-Pending when complete.
+description: "Orchestrator for the WFI proposal audit. Runs 2 sequential independent audit cycles on a WFI-NNN.md Draft before presenting it to a human for Approved. Cycle 1 (wfi-auditor-a) audits proposal quality. Cycle 2 (wfi-auditor-b) audits impact and risk. Each auditor runs as a fresh isolated agent. The orchestrator applies audit findings to revise the WFI between cycles, creates a GitHub Issue for plugin-improvement WFIs, and sets Audit-Status: Human-Pending when complete."
 disable-model-invocation: true
 ---
 

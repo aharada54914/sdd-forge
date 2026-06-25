@@ -77,9 +77,15 @@ Delegate entirely to `/sdd-bootstrap:investigate-codebase <mode> <source>`.
 Stop after investigation completes. Outputs: `specs/<feature>/investigation.md`
 and `specs/<feature>/baseline-behavior.md`.
 
-### `feature` / `bugfix` / `refactor` / `project` modes (standard track)
+### Track selection
 
-Unless `--lite` is present and `spec_profile` in `AGENTS.md` is not `full`:
+Choose the track once, before invoking the interviewer:
+
+1. `--lite` selects the lite track.
+2. Otherwise, `AGENTS.md` with `spec_profile: lite` selects the lite track.
+3. Otherwise, use the full track.
+
+### `feature` / `bugfix` / `refactor` / `project` modes (full track)
 
 1. **Phase 1** — invoke `/sdd-bootstrap:sdd-bootstrap-interviewer <mode> <source>`.
    Outputs: `requirements.md`, `design.md`, `acceptance-tests.md`, ADRs,
@@ -106,7 +112,7 @@ Unless `--lite` is present and `spec_profile` in `AGENTS.md` is not `full`:
    `Approval: Approved` on each task in `tasks.md`.
    Next step: `/sdd-ship:run specs/<slug>/tasks.md`
 
-### `--lite` flag (lite track)
+### Lite track (`--lite` or `spec_profile: lite`)
 
 Substitute `lite-spec` for `sdd-bootstrap-interviewer` and skip both review
 loops. Outputs: `requirements.md`, `design.md`, `tasks.md` (no `traceability.md`,

@@ -4,7 +4,7 @@ description: WFI Proposal Quality Auditor for audit cycle 1. Reviews WFI-NNN.md 
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths: []
-model: inherit
+model: sonnet
 ---
 
 You are the Proposal Quality Auditor in a WFI (Workflow Improvement) audit cycle.

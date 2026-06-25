@@ -1,0 +1,12 @@
+{
+  "schema": "integrated-verdict/v1",
+  "feature": "claude-workflow-compatibility",
+  "attempt": 2,
+  "round": 1,
+  "verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

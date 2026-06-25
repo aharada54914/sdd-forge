@@ -114,6 +114,74 @@
 1. `sdd-adopt` を実行すると、`specs/<feature>/adr/` 内の ADR を自動で `docs/adr/NNNN-<slug>.md` に移行します
 2. ADR の正規配置は `docs/adr/` です
 
+### Claude Code に `/sdd-bootstrap:run` などのコマンドが表示されない
+
+**症状：** Claude Code で plugin をインストールした後も、`/sdd-bootstrap:run`
+などの SDD コマンドが候補に表示されない。
+
+**対応：**
+1. インストール対象の manifest を先に検証します。plugin ルートを指定してください。
+   ```bash
+   claude plugin validate plugins/sdd-bootstrap
+   ```
+2. 登録済み plugin を確認します。
+   ```bash
+   claude plugin list
+   ```
+3. 古いまたは失敗した登録があれば、最新版を再インストールします。
+   ```bash
+   claude plugin install sdd-bootstrap@sdd-plugins --scope user
+   ```
+4. Claude Code で `/reload-plugins` を実行してから、`/sdd-bootstrap:run` を
+   再度確認します。
+
+`install.sh` と `install.ps1` は selected plugin の manifest を検証してから
+marketplace を登録します。`plugin validate` が失敗した場合は、原因を修正して
+からインストールを再実行してください。
+
+### Codex で SDD スキルを利用できない
+
+**症状：** Codex で SDD のスキルが見つからない、または Claude Code 用の
+`/sdd-bootstrap:run` をそのまま入力しても起動しない。
+
+**対応：**
+1. Codex 用の marketplace と plugin を登録します。
+   ```bash
+   ./install.sh --target Codex --plugins sdd-bootstrap,sdd-ship
+   ```
+2. Codex が認識している plugin を確認します。
+   ```bash
+   codex plugin list
+   ```
+3. Codex では slash command ではなく、スキル名を指定して依頼します。
+   ```txt
+   Use the sdd-bootstrap:run skill.
+   Mode: feature
+   Source: <issue URL または要件>
+   ```
+
+Claude の manifest 修正は Claude Code の validator 互換性に限定しています。
+Codex の `.codex-plugin` manifest、marketplace、agent TOML の配布経路は変更せず、
+インストーラー試験で `codex plugin add` を継続して検証します。
+
+### 三段階レビューが次の段階へ進まない
+
+**症状：** `impl-review-loop` または `task-review-loop` が predecessor を検証できず停止する。
+
+**対応：** フルトラックでは三つの**独立した**レビューを順に通します。
+
+1. `/sdd-review-loop:spec-review-loop --feature <feature>` を実行し、
+   `requirements.md` の `Spec-Review-Status: Passed` と valid PASS contract を確認
+2. `/sdd-review-loop:impl-review-loop --feature <feature>` を実行し、
+   `design.md` の `Impl-Review-Status: Passed` と valid PASS contract を確認
+3. Phase 2 で tasks を生成してから
+   `/sdd-review-loop:task-review-loop --feature <feature>` を実行
+
+各 stage は専用の reviewer A/B を fresh context で起動します。前段が
+`NEEDS_WORK` または `BLOCKED` の場合、該当する canonical input を人間が修正し、
+`--edit-summary` または `--reset` で同じ stage を再実行してください。status header
+だけを手作業で書き換えて次段を通すことはできません。
+
 ## フック・ガード関連
 
 ### フックが発火しない

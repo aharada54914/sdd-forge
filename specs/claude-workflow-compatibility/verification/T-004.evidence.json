@@ -1,0 +1,71 @@
+{
+  "task_id": "T-004",
+  "feature": "claude-workflow-compatibility",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "135ae67ab8dc816eca1c8dc220e4f135b488b5f07912bab0b63adda5ff0243cb",
+  "quality_report": "reports/quality-gate/2026-06-24T150000Z-T-004.md",
+  "verification_contract": "specs/claude-workflow-compatibility/verification/T-004.contract.json",
+  "git_commit": "8e922810533ffd29e5296dc92052f27c87932c32",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-004.contract.json",
+      "sha256": "cf95ea5b53b43167b56b39248dbba1ac3e3d3d8c2b75d7408c8ce6c58c028c3b"
+    },
+    {
+      "path": "reports/quality-gate/2026-06-24T150000Z-T-004.md",
+      "sha256": "48e5531f9ea3cef1d9cf5da6cd566eb25d0c5bd2547ca0869ab16d9fba0a47b4"
+    },
+    {
+      "path": "reports/implementation/T-004.md",
+      "sha256": "8ec6818ea394f23a994bd917716b2fa30b6025304fc034b5f76b7bff649d0179"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-004.claude-registration.log",
+      "sha256": "deb9f040cf9c876a0e70fae51863951f255317b009b9298303f572fe6f98bc60"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-004.install-sh.log",
+      "sha256": "5bea203832a7fea444839e885733647866e405770ba835506a9576b02298995c"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-004.manifest-validation.log",
+      "sha256": "eab4c74b156ce35eb0e6ef84cf2e4e06490591bfed4756a247fd2622895b5656"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-004.placeholder.log",
+      "sha256": "767749045dd86fd260f17e0c6a2c0821424298e718bec0fc5760077f39344c89"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-004.release-smoke.log",
+      "sha256": "9a7b336a462386ddf857eaca30916dcd335565b97311992c67e127e5c6e65121"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-004.repository-validation.log",
+      "sha256": "4dba091ad34351df5a47ab88351937a7c08b8d04df4e59834546b6babf1479b0"
+    },
+    {
+      "path": "specs/claude-workflow-compatibility/verification/T-004.task-state.log",
+      "sha256": "645c90e4cc1dca32da137fb84fb00843535465a1de53467661d51e11cd7756a9"
+    }
+  ]
+}

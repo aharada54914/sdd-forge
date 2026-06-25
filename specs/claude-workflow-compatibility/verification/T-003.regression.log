@@ -1,0 +1,175 @@
+$ bash tests/install.tests.sh
+ok: full install registers all plugins
+ok: subset --plugins only registers chosen plugins
+ok: lite selection resolves the full dependency closure
+ok: failure on registration removes incomplete fresh install
+ok: failure on registration restores pre-existing install
+ok: invalid source directory rejected before touching existing install
+ok: invalid plugin name rejected
+
+SDD plugins installed at: /private/var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/tmp.t0UUqk2MBn/installed
+
+SDD plugins installed at: /private/var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/tmp.t0UUqk2MBn/installed
+ok: idempotency: second install exits 0, state consistent
+
+SDD plugins installed at: /private/var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/tmp.02XP1SyXvG/installed
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+ok: malformed source agent TOML rejected before deployment
+ok: authenticated remote install uses GitHub CLI token flow
+
+SDD plugins installed at: /private/var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/tmp.2x2lcWfai5/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: local source installs Git-tracked files only
+ok: untracked required release file is rejected before deployment
+
+SDD plugins installed at: /private/var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/tmp.4opyCupPEq/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: concurrent install blocked, succeeds after lock released
+
+SDD plugins installed at: /private/var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/tmp.ZN9Ow9ukoP/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: released on success — lock dir absent after install
+
+SDD plugins installed at: /private/var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/tmp.JnIiiYFcdv/installed
+Plugin registration was skipped because --target=FilesOnly.
+ok: lock: stale lock with dead pid reclaimed — install succeeds
+
+SDD plugins installed at: /private/var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/tmp.7xdyaSQ9wM/installed
+Plugin registration was skipped because --target=FilesOnly.
+Risk check passed for 1 task(s).
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+Risk check FAILED:
+ - T-001 (risk high) must declare Required Workflow: tdd (none found)
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+ok: sdd-ship expansion: auto-includes all companion plugins
+ok: marketplace: sdd-ship entry present in both marketplace files
+ok: sdd-ship required paths: all plugin files present
+ok: sdd-review-loop required paths: manifests and skills present
+ok: Claude manifest validation fails before marketplace registration
+
+Results: 24 passed, 0 failed.
+$ pwsh -NoProfile -File tests/install.tests.ps1
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-test-1ad142a7-00b2-46e6-a9ca-9baa1fe30718/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:run
+  /sdd-ship:run
+WARNING: Dependency resolution auto-included: sdd-review-loop.
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-test-4f4c7838-0abc-423d-b0f7-9ea408f7a9b7/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:run
+  /sdd-ship:run
+WARNING: Dependency resolution auto-included: sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-review-loop.
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-test-cb8483f6-600a-4e5f-84a8-0860b8f6fa82/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:run
+  /sdd-ship:run
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-filesonly-d4b1b2b7-d5e0-4e32-90a0-c92fa2ce86d8/installed
+Plugin registration was skipped because Target=FilesOnly.
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-tracked-only-9ac9043a-a627-4e0c-9600-0c5df78db0fe/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: local source installs Git-tracked files only
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+ok: untracked required release file is rejected before deployment
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-idempotency-9f941274-5c89-4e3e-8db0-6dc4f0bbc432/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:run
+  /sdd-ship:run
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-idempotency-9f941274-5c89-4e3e-8db0-6dc4f0bbc432/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:run
+  /sdd-ship:run
+ok: idempotency: second install exits 0, state consistent
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-nonest-b8cd7585-013f-4d09-bbee-fc5abe529f8b/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:run
+  /sdd-ship:run
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+ok: malformed source agent TOML rejected before deployment
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-remote-e926979c-fade-470a-9b5a-e9a2c3ee65e3/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:run
+  /sdd-ship:run
+ok: authenticated remote install uses GitHub token flow
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-lock-fff2c294-6071-4f39-ad93-6dad60484871/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: concurrent install blocked, succeeds after mutex released
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-locksucc-8b213972-1719-478e-be16-89fdddb829a8/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: released on success — mutex acquirable after install
+WARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.
+
+SDD plugins installed at: /var/folders/b7/7tq8tt7j42x8qr7fvkp27lyc0000gn/T/sdd-installer-smoke-71885e30-ffaa-4356-a05f-6d15f5e52562/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+Installer integration tests passed.

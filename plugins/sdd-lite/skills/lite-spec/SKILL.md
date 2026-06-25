@@ -50,4 +50,4 @@ Claude Code:
 
 ## Handoff
 
-生成ファイル・Open Questions・最初の Draft タスクを報告し、「承認後に `/sdd-implementation:implement-task` で実装開始」と案内する。昇格が必要になったら design.md §6 の手順で full SDD に移行できることも伝える。
+生成ファイル・Open Questions・最初の Draft タスクを報告し、「承認後に `/sdd-ship --lite specs/<feature>/tasks.md` で実装開始」と案内する。昇格が必要になったら design.md §6 の手順で full SDD に移行できることも伝える。

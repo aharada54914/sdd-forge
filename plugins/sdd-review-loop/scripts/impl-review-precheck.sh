@@ -20,23 +20,83 @@ REPORT_DIR="reports/impl-review/${FEATURE}/attempt-${ATTEMPT}/round-${ROUND}"
 DESIGN_MD="${SPECS_DIR}/design.md"
 REQS_MD="${SPECS_DIR}/requirements.md"
 ACCEPT_MD="${SPECS_DIR}/acceptance-tests.md"
+SPEC_REPORT_ROOT="reports/spec-review/${FEATURE}"
+IMPL_REPORT_ROOT="reports/impl-review/${FEATURE}"
+repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
+
+fail() { echo "ERROR: impl-review-precheck: $*" >&2; exit 1; }
+sha256() {
+  if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
+  else shasum -a 256 "$1" | awk '{print $1}'; fi
+}
+require_persisted_pass() {
+  local root="$1" stage="$2" requirements_hash="$3" acceptance_hash="$4" design_hash="$5" verdict contract contract_dir
+  [[ -d "$root" && ! -L "$root" ]] || fail "missing ${stage} predecessor report root"
+  verdict="$(find "$root" -type f -name integrated-verdict.json ! -lname '*' -print | sort | tail -n 1)"
+  [[ -n "$verdict" ]] || fail "missing persisted ${stage} PASS verdict"
+  contract_dir="$(dirname "$verdict")"
+  contract="${contract_dir}/${stage}-review-contract.json"
+  [[ -f "$contract" && ! -L "$contract" ]] || fail "missing persisted ${stage} review contract"
+  jq -e --arg feature "$FEATURE" --arg stage "$stage" '
+    .feature == $feature and .stage == $stage and (.attempt | type == "number" and . > 0) and (.round | type == "number" and . > 0) and .verdict == "PASS" and
+    (if $stage == "spec" then .schema == "spec-review-integrated-verdict/v1" and
+      ([.reviewer_a_run_id, .reviewer_b_run_id, .reviewer_a_host_session_id, .reviewer_b_host_session_id] | all(type == "string" and length > 0)) and
+      .reviewer_a_run_id != .reviewer_b_run_id and .reviewer_a_host_session_id != .reviewer_b_host_session_id
+     else .schema == "integrated-verdict/v1" and (.run_id | type == "string" and length > 0) end)' "$verdict" >/dev/null ||
+    fail "persisted ${stage} verdict is not a complete PASS contract"
+  jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg accept "$acceptance_hash" --arg design "$design_hash" '
+    .schema == ($stage + "-review-contract/v1") and .feature == $feature and .stage == $stage and
+    (.attempt | type == "number" and . > 0) and (.round | type == "number" and . > 0) and
+    (.run_id | type == "string" and length > 0) and .verdict == "PASS" and
+    ([.reviewers[]? | .role] | sort) == [($stage + "-reviewer-a"), ($stage + "-reviewer-b")] and
+    ([.reviewers[]? | .host_session_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
+    ([.reviewers[]? | .run_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
+    ([.reviewers[]?.allowed_input_manifest[]? | (.path | type == "string" and startswith("specs/" + $feature + "/") and contains("reviewer-") | not) and (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))] | all) and
+    (any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/requirements.md") and .sha256 == $req)) and
+    (any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/acceptance-tests.md") and .sha256 == $accept)) and
+    ($stage != "impl" or any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/design.md") and .sha256 == $design))
+  ' "$contract" >/dev/null || fail "persisted ${stage} contract does not match canonical current inputs"
+  jq -e --slurpfile verdict "$verdict" --arg stage "$stage" '
+    . as $contract | $verdict[0] as $verdict |
+    $contract.attempt == $verdict.attempt and
+    $contract.round == $verdict.round and
+    $contract.verdict == $verdict.verdict and
+    (if $stage == "spec" then
+       ($contract.reviewers | map({key: .role, value: {run_id: .run_id, host_session_id: .host_session_id}}) | from_entries) as $reviewers |
+       $reviewers["spec-reviewer-a"].run_id == $verdict.reviewer_a_run_id and
+       $reviewers["spec-reviewer-b"].run_id == $verdict.reviewer_b_run_id and
+       $reviewers["spec-reviewer-a"].host_session_id == $verdict.reviewer_a_host_session_id and
+       $reviewers["spec-reviewer-b"].host_session_id == $verdict.reviewer_b_host_session_id
+     else $contract.run_id == $verdict.run_id end)
+  ' "$contract" >/dev/null || fail "persisted ${stage} verdict and contract contradict each other"
+}
+
+[[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
+[[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
+[[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
+[[ ! -e "$REPORT_DIR" && ! -L "$REPORT_DIR" ]] || fail "round destination already exists (replay is forbidden)"
+[[ -d "$SPECS_DIR" && ! -L "$SPECS_DIR" ]] || fail "feature specification directory must be a real directory"
+[[ "$(cd "$SPECS_DIR" && pwd -P)" == "$repo_root/specs/$FEATURE" ]] || fail "feature specification directory escapes repository"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 1: Check design.md exists and has Impl-Review-Status: Pending
 # ──────────────────────────────────────────────────────────────────────────────
 
-if [[ ! -f "${DESIGN_MD}" ]]; then
+if [[ ! -f "${DESIGN_MD}" || -L "${DESIGN_MD}" ]]; then
   echo "ERROR: impl-review-precheck: ${DESIGN_MD} not found." >&2
   exit 1
 fi
 
-if [[ ! -f "${REQS_MD}" ]]; then
+if [[ ! -f "${REQS_MD}" || -L "${REQS_MD}" ]]; then
   echo "ERROR: impl-review-precheck: ${REQS_MD} not found." >&2
   exit 1
 fi
 
+spec_review_status=$(sed -n 's/^Spec-Review-Status:[[:space:]]*//p' "${REQS_MD}" | head -n 1 | tr -d '[:space:]')
+[[ "$spec_review_status" == "Passed" ]] || fail "requirements.md must declare Spec-Review-Status: Passed"
+
 # Check for Impl-Review-Status field
-impl_review_status=$(grep -oP '^Impl-Review-Status:\s*\K.*' "${DESIGN_MD}" 2>/dev/null | head -1 | tr -d '[:space:]' || echo "")
+impl_review_status=$(sed -n 's/^Impl-Review-Status:[[:space:]]*//p' "${DESIGN_MD}" | head -n 1 | tr -d '[:space:]')
 
 if [[ -z "${impl_review_status}" ]]; then
   echo "ERROR: impl-review-precheck: design.md is missing 'Impl-Review-Status:' header field." \
@@ -80,13 +140,13 @@ fi
 # STEP 3: Compute sha256 for each input file
 # ──────────────────────────────────────────────────────────────────────────────
 
-design_sha256=$(sha256sum "${DESIGN_MD}" | awk '{print $1}')
-requirements_sha256=$(sha256sum "${REQS_MD}" | awk '{print $1}')
+design_sha256=$(sha256 "${DESIGN_MD}")
+requirements_sha256=$(sha256 "${REQS_MD}")
 
 acceptance_sha256=""
-if [[ -f "${ACCEPT_MD}" ]]; then
-  acceptance_sha256=$(sha256sum "${ACCEPT_MD}" | awk '{print $1}')
-fi
+[[ -f "${ACCEPT_MD}" && ! -L "${ACCEPT_MD}" ]] || fail "${ACCEPT_MD} not found"
+acceptance_sha256=$(sha256 "${ACCEPT_MD}")
+require_persisted_pass "$SPEC_REPORT_ROOT" spec "$requirements_sha256" "$acceptance_sha256" ""
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 4: Round > 1 — verify design.md changed; check DESIGN-REQ-DRIFT
@@ -122,7 +182,19 @@ if [[ "${ROUND}" -gt 1 ]]; then
 fi
 
 # ──────────────────────────────────────────────────────────────────────────────
-# STEP 5: Create output directory and write precheck-result.json
+# STEP 5: Validate the shared portable contract before creating output evidence.
+# ──────────────────────────────────────────────────────────────────────────────
+
+input_sha256="$(printf '%s:%s:%s' "$design_sha256" "$requirements_sha256" "$acceptance_sha256" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+foundation_contract="$(mktemp)"
+trap 'rm -f "$foundation_contract"' EXIT
+jq -n --arg feature "$FEATURE" --argjson attempt "$ATTEMPT" --argjson round "$ROUND" --arg input_sha256 "$input_sha256" \
+  '{schema:"review-contract/v1",stage:"impl",feature:$feature,attempt:$attempt,round:$round,input_sha256:$input_sha256,run_id:"impl-precheck",verdict:"PASS"}' > "$foundation_contract"
+mkdir -p "reports/impl-review"
+"${repo_root}/plugins/sdd-review-loop/scripts/review-contract-validate.sh" --feature "$FEATURE" --attempt "$ATTEMPT" --round "$ROUND" --stage impl --report-root "$IMPL_REPORT_ROOT" --contract "$foundation_contract" >/dev/null
+
+# ──────────────────────────────────────────────────────────────────────────────
+# STEP 6: Create output directory and write precheck-result.json
 # ──────────────────────────────────────────────────────────────────────────────
 
 mkdir -p "${REPORT_DIR}"

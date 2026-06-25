@@ -16,6 +16,11 @@ on:
         description: "Tag to package (e.g. v0.9.0). Defaults to the current ref."
         required: false
         type: string
+      run_host_smoke:
+        description: "Run actual authenticated Codex/Claude/Copilot registration smoke."
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write      # upload release assets
@@ -54,6 +59,12 @@ jobs:
           # git archive excludes .git and honors .gitattributes export-ignore.
           git archive --format=tar.gz --prefix="sdd-forge-${TAG}/" -o "$PKG" "refs/tags/${TAG}"
           echo "Built $PKG ($(du -h "$PKG" | cut -f1)) from refs/tags/${TAG}"
+
+      - name: Release-only real host smoke
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.run_host_smoke }}
+        env:
+          SDD_RELEASE_HOST_SMOKE: "1"
+        run: ./tests/release-host-smoke.sh
 
       - name: Generate CycloneDX SBOM
         run: |

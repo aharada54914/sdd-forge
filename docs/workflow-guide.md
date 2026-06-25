@@ -27,6 +27,14 @@ flowchart TD
         C[sdd-bootstrap-interviewer\nPhase 1] --> D[(requirements.md\ndesign.md\nacceptance-tests.md)]
     end
 
+    subgraph sr["仕様レビュー"]
+        S{spec-review-loop\n2体×最大3ラウンド}
+        SR[人間: requirements.md / acceptance-tests.md 修正]
+        SX[人間: 仕様を抜本見直し\n--reset]
+        S -- NEEDS_WORK --> SR --> S
+        S -- BLOCKED --> SX --> S
+    end
+
     subgraph ir["実装方針レビュー"]
         E{impl-review-loop\n2体×最大3ラウンド}
         F[人間: design.md 修正]
@@ -54,7 +62,8 @@ flowchart TD
     end
 
     B --> C
-    D --> E
+    D --> S
+    S -- PASS / PASS-with-warnings --> E
     E -- PASS / PASS-with-warnings --> H
     I --> J
     J -- PASS / PASS-with-warnings --> M[人間: Approval: Approved]
@@ -62,21 +71,23 @@ flowchart TD
     N --> O[(実装コード\nテストコード\nimplementation report)]
     O --> P
     P -- 全合格 --> R([Done])
-    P --> S[workflow-retrospective\nオプション]
-    S --> T([WFI 承認・改善])
+    P --> W[workflow-retrospective\nオプション]
+    W --> T([WFI 承認・改善])
 
+    style S fill:#dbeafe,stroke:#3b82f6
     style E fill:#dbeafe,stroke:#3b82f6
     style J fill:#dbeafe,stroke:#3b82f6
     style P fill:#dbeafe,stroke:#3b82f6
     style M fill:#fef3c7,stroke:#f59e0b
     style p1 fill:#f0fdf4,stroke:#22c55e
     style p2 fill:#f0fdf4,stroke:#22c55e
+    style sr fill:#eff6ff,stroke:#3b82f6
     style ir fill:#eff6ff,stroke:#3b82f6
     style tr fill:#eff6ff,stroke:#3b82f6
     style qg fill:#fdf2f8,stroke:#ec4899
 ```
 
-> **LITE トラック** (`spec_profile: lite`): impl-review-loop / task-review-loop はスキップ。Phase 1 → Phase 2 が直結し、lite-gate で品質保証。
+> **LITE トラック** (`spec_profile: lite`): spec-review-loop / impl-review-loop / task-review-loop はスキップ。Phase 1 → Phase 2 が直結し、lite-gate で品質保証。
 
 ---
 
@@ -151,10 +162,11 @@ stateDiagram-v2
 |---|---|---|---|
 | 1. Issue受領 | 人間 | GitHub/GitLab Issue | 要件が明確か？スコープは？依存関係は？ |
 | 2. 調査 (任意) | AI (investigate-codebase) | `specs/<feature>/investigation.md`<br/>`specs/<feature>/baseline-behavior.md` | 既存コード/API契約/テストの知見が証跡付きか？ |
-| **3a. 仕様化 [Phase 1]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/requirements.md`<br/>`specs/<feature>/design.md`<br/>`specs/<feature>/acceptance-tests.md`<br/>契約 JSON / ADR<br/>`design.md` に `Impl-Review-Status: Pending` | 要件・設計の骨格は整っているか？Open Questions が過剰でないか？ |
-| **3b. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `reports/impl-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ design.md に `Impl-Review-Status: Passed` | ARCH-COVERAGE・SECURITY-COVERAGE 等 18チェックが全通過か？ NEEDS_WORK なら design.md 修正して再実行 |
-| **3c. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/tasks.md`<br/>`specs/<feature>/traceability.md` | `Impl-Review-Status: Passed` が確認されてから生成される。タスク粒度は適正か？ |
-| **3d. タスク分解レビュー** | **AI (task-review-loop) + 人間** | `reports/task-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ tasks.md に `Task-Review-Status: Passed` | REQ-COVERAGE・DEPENDENCY-CYCLE 等 22チェックが全通過か？ NEEDS_WORK なら tasks.md 修正して再実行 |
+| **3a. 仕様化 [Phase 1]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/requirements.md`<br/>`specs/<feature>/design.md`<br/>`specs/<feature>/acceptance-tests.md`<br/>契約 JSON / ADR<br/>`requirements.md` に `Spec-Review-Status: Pending` | 要件・設計の骨格は整っているか？Open Questions が過剰でないか？ |
+| **3b. 仕様レビュー** | **AI (spec-review-loop) + 人間** | `reports/spec-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ requirements.md に `Spec-Review-Status: Passed` | `spec-reviewer-a/b` の独立レビューが全通過か？ NEEDS_WORK なら requirements/acceptance-tests を修正して再実行 |
+| **3c. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `reports/impl-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ design.md に `Impl-Review-Status: Passed` | `impl-reviewer-a/b` の独立レビューが全通過か？ NEEDS_WORK なら design.md 修正して再実行 |
+| **3d. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/tasks.md`<br/>`specs/<feature>/traceability.md` | `Impl-Review-Status: Passed` が確認されてから生成される。タスク粒度は適正か？ |
+| **3e. タスク分解レビュー** | **AI (task-review-loop) + 人間** | `reports/task-review/<feature>/attempt-1/round-N/`<br/>→ `integrated-verdict.json`<br/>→ tasks.md に `Task-Review-Status: Passed` | `task-reviewer-a/b` の独立レビューが全通過か？ NEEDS_WORK なら tasks.md 修正して再実行 |
 | 4. 承認 | 人間 | `tasks.md` の `Approval: Approved` | タスク1の承認が済んだか？ |
 | 5. 実装 (タスク単位 **または一括**) | AI (implement-task **または implement-tasks**) | 実装コード<br/>テストコード<br/>`reports/implementation/<task-id>.md` | 設計通りか？テストは十分か？無関係変更は混在していないか？<br/>**implement-tasks を使う場合**: 依存関係を自動解決し、全承認済みタスク完了後に quality-gate を自動起動 |
 | 6. 品質検証 | AI (quality-gate) + 人間 | `specs/<feature>/verification/<task-id>.contract.json`<br/>`specs/<feature>/verification/<task-id>.evidence.json`<br/>`reports/quality-gate/<timestamp>.md`<br/>`docs/review-tickets/RT-*.yml` | 全チェック合格？証跡hash一致？Critical/Major 指摘は resolved？ |
@@ -164,13 +176,14 @@ stateDiagram-v2
 | 10. 回顧 | AI (workflow-retrospective) | `reports/retrospective/<timestamp>.md`<br/>`docs/workflow-improvements/WFI-*.md` | 同種指摘の反復はないか？Blocked が頻発していないか？ |
 | 11. 改善検討 | 人間 | WFI 承認 | 検出された friction を認めるか？ |
 
-> **LITE プロファイル (`spec_profile: lite`)**: ステップ 3b/3d のレビューゲートはスキップされます。acceptance-tests.md が不在の場合も同様。
+> **LITE プロファイル (`spec_profile: lite`)**: ステップ 3b/3c/3e のレビューゲートはスキップされます。acceptance-tests.md が不在の場合も同様。
 
 **例: 予約キャンセル機能の実装**
 
 - Issue #42: 「設備予約のキャンセル機能」
 - Investigation で既存 API 設計、権限判定ロジック、キャンセル手数料計算ルールを抽出
 - Interviewer が Phase 1 生成: requirements.md / design.md / acceptance-tests.md
+- `spec-review-loop` で仕様レビュー → 独立 Reviewer-A/B が PASS
 - `impl-review-loop` でレビュー → Reviewer-A が ARCH-COVERAGE FAIL（バックエンド API 設計不足を指摘）→ NEEDS_WORK → 人間が design.md 修正 → ラウンド2 で PASS
 - Interviewer が Phase 2 生成: 3 タスク
   - T-001: キャンセル API エンドポイント実装 (backend)
@@ -190,8 +203,10 @@ stateDiagram-v2
 |---|---|---|---|
 | 1. Issue受領 | 人間 | GitHub Issue (再現条件) | 再現手順が明確か？影響範囲は？ |
 | **2a. 仕様化 [Phase 1]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/requirements.md`<br/>`specs/<feature>/design.md`<br/>`specs/<feature>/acceptance-tests.md` | 修正範囲は最小限か？回帰テストは十分か？ |
-| **2b. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `Impl-Review-Status: Passed` in design.md | 修正方針の妥当性が確認されたか？ |
-| **2c. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/tasks.md` (最小修正) | タスクは最小修正に絞られているか？ |
+| **2b. 仕様レビュー** | **AI (spec-review-loop) + 人間** | `Spec-Review-Status: Passed` in requirements.md | 独立した spec-reviewer-a/b が修正対象・再現条件・回帰条件を検証したか？ |
+| **2c. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `Impl-Review-Status: Passed` in design.md | 独立した impl-reviewer-a/b が修正方針の妥当性を確認したか？ |
+| **2d. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | `specs/<feature>/tasks.md` (最小修正) | タスクは最小修正に絞られているか？ |
+| **2e. タスク分解レビュー** | **AI (task-review-loop) + 人間** | `Task-Review-Status: Passed` in tasks.md | 独立した task-reviewer-a/b が最小修正の依存関係と検証可能性を確認したか？ |
 | 3. 承認 | 人間 | `Approval: Approved` | 修正方針に同意するか？ |
 | 4. 実装 | AI (implement-task) | 修正コード<br/>回帰テスト<br/>実装レポート | 規定の修正方針を逸脱していないか？ |
 | 5. 品質検証 | AI (quality-gate) + 人間 | 検証契約<br/>品質レポート<br/>指摘 YAML | 副作用はないか？ |
@@ -206,8 +221,10 @@ stateDiagram-v2
 | 1. Issue受領 | 人間 | GitHub Issue (リファクタ対象) | スコープは何か？動作変更はあるか？ |
 | 2. 調査 (必須) | AI (investigate-codebase refactor) | `specs/<feature>/investigation.md`<br/>`specs/<feature>/baseline-behavior.md` | BL-xxx で現在の動作が完全に記録されているか？ |
 | **3a. 仕様化 [Phase 1]** | **AI (sdd-bootstrap-interviewer refactor)** | requirements (変更なし)<br/>design (新構造)<br/>acceptance-tests (BL 同値) | 受入条件は「BL と同一」と記述されているか？ |
-| **3b. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `Impl-Review-Status: Passed` in design.md | リファクタ設計が循環依存・構造問題を生んでいないか？ |
-| **3c. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | tasks.md<br/>traceability | タスクの粒度と依存関係が正しいか？ |
+| **3b. 仕様レビュー** | **AI (spec-review-loop) + 人間** | `Spec-Review-Status: Passed` in requirements.md | 独立した spec-reviewer-a/b が BL 同値の受入条件を検証したか？ |
+| **3c. 実装方針レビュー** | **AI (impl-review-loop) + 人間** | `Impl-Review-Status: Passed` in design.md | 独立した impl-reviewer-a/b が循環依存・構造問題を検証したか？ |
+| **3d. 仕様化 [Phase 2]** | **AI (sdd-bootstrap-interviewer)** | tasks.md<br/>traceability | タスクの粒度と依存関係が正しいか？ |
+| **3e. タスク分解レビュー** | **AI (task-review-loop) + 人間** | `Task-Review-Status: Passed` in tasks.md | 独立した task-reviewer-a/b がタスクの依存関係と検証可能性を確認したか？ |
 | 4. 承認 | 人間 | — | 設計と受入条件に同意 |
 | 5. 実装 | AI (implement-task) | 新構造コード<br/>テスト<br/>実装レポート | 過度な変更はないか？ |
 | 6. 差分検証 | AI (quality-gate) | 契約<br/>**Differential Baseline Verification** セクション | 各 BL を `fix-required` / `accepted` / `environmental` に分類<br/>**タイムスタンプ・UUID・ホスト固有パスは正規化** |

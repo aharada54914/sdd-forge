@@ -1,0 +1,27 @@
+ticket_id: RT-20260623-001
+status: resolved
+type: spec-gap
+severity: major
+target:
+  feature: claude-workflow-compatibility
+  task: T-002
+  files:
+    - specs/claude-workflow-compatibility/traceability.md
+    - specs/claude-workflow-compatibility/verification/T-002.contract.json
+summary: Shared foundation task cannot satisfy the high-risk machine traceability gate.
+problem: |
+  The shared foundation lacked a machine-readable REQ -> AC -> TEST -> evidence
+  chain even though it provides the portable validation portion of AC-009.
+resolution: |
+  `traceability.json` now records REQ-009 -> AC-009 with both the T-002 shared
+  foundation tests and the T-006 downstream-adoption parity evidence. This states
+  the combined acceptance proof without claiming that T-002 alone implements all
+  downstream gate behavior.
+references:
+  - specs/claude-workflow-compatibility/tasks.md
+  - specs/claude-workflow-compatibility/traceability.md
+  - specs/claude-workflow-compatibility/verification/T-002.contract.json
+  - plugins/sdd-quality-loop/references/deterministic-check-policy.md
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1

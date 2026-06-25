@@ -1,0 +1,25 @@
+{
+  "task_id": "T-002",
+  "feature": "claude-workflow-compatibility",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "b60c17aaa4557d5030b3ea3fea93a923e7d396f95181ddb0a2dcdc7e6aa9eab5",
+  "created": "2026-06-23T00:16:28Z",
+  "comment": "Default-FAIL contract for T-002. REQ-009 now maps to AC-009 with combined shared-foundation and downstream-adoption proof in traceability.json.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "This shell and PowerShell repository has no configured linter.", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "This shell and PowerShell repository has no configured typechecker.", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-002.green.log", "waiver_reason": "", "requirement_ids": ["REQ-009"], "red_evidence": "specs/claude-workflow-compatibility/verification/T-002.red.log", "green_evidence": "specs/claude-workflow-compatibility/verification/T-002.green.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "The foundation has no external integration boundary.", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "The repository has no build configuration for these scripts.", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-002.gates.log", "waiver_reason": "", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-002.gates.log", "waiver_reason": "", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-002.green.log", "waiver_reason": "", "requirement_ids": ["REQ-009"], "red_evidence": "specs/claude-workflow-compatibility/verification/T-002.red.log", "green_evidence": "specs/claude-workflow-compatibility/verification/T-002.green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-002.regression.log", "waiver_reason": "", "requirement_ids": ["REQ-009"], "red_evidence": "specs/claude-workflow-compatibility/verification/T-002.red.log", "green_evidence": "specs/claude-workflow-compatibility/verification/T-002.green.log" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/claude-workflow-compatibility/verification/T-002.traceability.log", "waiver_reason": "", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "No executable application entry point exists for this internal validation helper.", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-002 is an additive feature, not a refactor or bugfix baseline change.", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-002 has no user interface.", "requirement_ids": ["REQ-009"], "red_evidence": "", "green_evidence": "" }
+  ]
+}

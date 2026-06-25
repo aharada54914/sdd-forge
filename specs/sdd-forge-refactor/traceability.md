@@ -10,6 +10,9 @@
 | REQ-004 | INV-005 | sdd-bootstrap-interviewer がベア命令で呼び出し → サイレント no-op リスク修正 |
 | REQ-005 | INV-006 | ユーザー向けドキュメントに内部スキル詳細が混在 → 2層分割 |
 | REQ-006 | INV-002 | Python Check 2e のテストカバレッジなし → guard-parity Scenarios 追加 |
+| REQ-007 | review remediation | review-loop が bootstrap の実行時依存なのに marketplace/manifest 未登録 |
+| REQ-008 | review remediation | `--lite` と AGENTS profile の条件が矛盾し、意図した track を選べない |
+| REQ-009 | review remediation | local source の全コピーで未追跡の秘密情報・cache が混入し得る |
 
 ## REQ → ADR (設計決定根拠)
 
@@ -18,8 +21,9 @@
 | REQ-001 | ADR-001 | プラグイン統合ではなく移動。2スキルの差異が大きいため --phase 統合を却下 |
 | REQ-001 | ADR-002 | 旧プラグインディレクトリを完全削除（stub なし）— validate-repository.ps1 との互換性 |
 | REQ-001 | ADR-003 | PROTECTED_GATE_SUFFIXES の更新戦略（新パス追加→移動→旧パス削除）|
-| REQ-001 | ADR-005 | sdd-review-loop を marketplace.json に登録しない（内部プラグイン方針）|
+| REQ-001 | ADR-005 (廃止) | 旧 marketplace 未登録方針。ADR-006 により置換 |
 | REQ-002 | ADR-004 | Python 版 Check 2e は bare relative path 使用（_resolve_project_root() 不使用）|
+| REQ-007, REQ-009 | ADR-006 | internal dependency の配布と固定点依存展開、Git 追跡ファイルのみの local staging |
 
 ## REQ → Task (実装対応)
 
@@ -34,6 +38,9 @@
 | REQ-004 | T-002 Phase 3 | sdd-bootstrap-interviewer L105/L111/L118/L119/L145/L150 更新 |
 | REQ-005 | T-004 | docs/skill-reference.md + docs/workflow-guide.md 再構成 |
 | REQ-006 | T-005 | guard-parity.tests.sh Scenarios 19/20/21 追加 |
+| REQ-007 | T-002 remediation | review-loop manifest、marketplace、installer dependency closure |
+| REQ-008 | T-002 remediation | bootstrap track 選択と lite handoff の同期 |
+| REQ-009 | T-002 remediation | local source を Git 追跡ファイルに限定 |
 
 ## AC → REQ (受け入れ基準 → 要件)
 
@@ -49,6 +56,10 @@
 | AC-008 | REQ-001 | scenario.tests.sh + install.tests.sh が変更前後で同じ結果 |
 | AC-009 | REQ-001 | 承認ガードが健在（BL-007 維持確認）|
 | AC-010 | REQ-001 | install.sh --plugins sdd-bootstrap,sdd-ship で依存が auto-included |
+| AC-011 | REQ-007 | review-loop manifests と marketplaces の登録 |
+| AC-012 | REQ-007 | installer の fixed-point dependency closure |
+| AC-013 | REQ-009 | local source の追跡済みファイル限定コピー |
+| AC-014 | REQ-007 | release-only の実ホスト登録 smoke |
 
 ## AC → BL (受け入れ基準 → ベースライン)
 

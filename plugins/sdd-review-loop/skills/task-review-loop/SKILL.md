@@ -131,6 +131,9 @@ Write `reports/task-review/<feature>/attempt-<M>/round-<N>/integrated-verdict.js
 ```json
 {
   "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "<feature-slug>",
+  "run_id": "<fresh-orchestrator-run-id>",
   "verdict": "PASS|PASS-with-warnings|NEEDS_WORK|BLOCKED",
   "round": 1,
   "attempt": 1,
@@ -144,6 +147,10 @@ Write `reports/task-review/<feature>/attempt-<M>/round-<N>/integrated-verdict.js
 
 Write `reports/task-review/<feature>/attempt-<M>/round-<N>/task-review-contract.json`
 using the schema from `plugins/sdd-review-loop/templates/task-review-contract.template.json`.
+Its two reviewer entries must have distinct nonblank `run_id` and
+`host_session_id` values and canonical, hash-verified allowed-input manifests.
+Persist both artifacts in the same round directory; downstream prechecks reject
+missing, stale, or incomplete predecessor contracts before creating evidence.
 
 ### STEP 6 — State Machine Outcome
 

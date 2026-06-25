@@ -1,0 +1,12 @@
+{
+  "schema": "task-review-integrated-verdict/v1",
+  "feature": "claude-workflow-compatibility",
+  "attempt": 1,
+  "round": 2,
+  "verdict": "NEEDS_WORK",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "critical_count": 0,
+  "major_count": 11,
+  "minor_count": 0
+}

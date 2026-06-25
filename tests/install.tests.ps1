@@ -2,8 +2,63 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$allPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop")
+$allPlugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop")
 $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.PlatformID]::Win32NT
+
+function New-TrackedFixture {
+    param([Parameter(Mandatory)][string]$Source, [Parameter(Mandatory)][string]$Destination)
+
+    New-Item -ItemType Directory -Path $Destination -Force | Out-Null
+    # Do not clone local Git objects: macOS can invoke a host credential helper
+    # while cloning. A Git archive contains only tracked content and expands
+    # much faster than copying every file one by one.
+    $archivePath = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-fixture-" + [guid]::NewGuid() + ".zip")
+    try {
+        & git -C $Source archive --format=zip "--output=$archivePath" HEAD
+        if ($LASTEXITCODE -ne 0) { throw "Unable to archive tracked fixture files." }
+        Expand-Archive -LiteralPath $archivePath -DestinationPath $Destination -Force
+        & git -C $Destination init -q
+        & git -C $Destination add -A
+        & git -C $Destination -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Fixture baseline"
+        if ($LASTEXITCODE -ne 0) { throw "Unable to initialise installer source fixture." }
+    }
+    finally {
+        Remove-Item -LiteralPath $archivePath -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# Local installs use Git's tracked-file list. Copy the files directly rather
+# than cloning local Git objects, which can invoke a host credential helper.
+$installerSourceRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-source-" + [guid]::NewGuid())
+New-TrackedFixture -Source $repositoryRoot -Destination $installerSourceRoot
+foreach ($relativePath in @(
+    ".claude-plugin/marketplace.json",
+    ".agents/plugins/marketplace.json",
+    "install.sh",
+    "install.ps1",
+    "plugins/sdd-bootstrap/.claude-plugin/plugin.json",
+    "plugins/sdd-quality-loop/.claude-plugin/plugin.json",
+    "plugins/sdd-review-loop/.claude-plugin/plugin.json",
+    "plugins/sdd-review-loop/.codex-plugin/plugin.json",
+    "plugins/sdd-review-loop/.plugin/plugin.json"
+)) {
+    $destination = Join-Path $installerSourceRoot $relativePath
+    New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $repositoryRoot $relativePath) -Destination $destination -Force
+}
+& git -C $installerSourceRoot add `
+    .claude-plugin/marketplace.json `
+    .agents/plugins/marketplace.json `
+    install.sh `
+    install.ps1 `
+    plugins/sdd-bootstrap/.claude-plugin/plugin.json `
+    plugins/sdd-quality-loop/.claude-plugin/plugin.json `
+    plugins/sdd-review-loop
+$stagedDiff = & git -C $installerSourceRoot diff --cached --name-only
+if ($stagedDiff) {
+    & git -C $installerSourceRoot -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
+    if ($LASTEXITCODE -ne 0) { throw "Unable to commit installer source fixture." }
+}
 
 function New-FakeCommands {
     param(
@@ -47,13 +102,45 @@ function New-ArchiveFixture {
     $archiveSource = Join-Path $archiveRoot "repo"
     $archivePath = Join-Path $archiveRoot "source.tar.gz"
     New-Item -ItemType Directory -Path $archiveSource -Force | Out-Null
-    foreach ($entry in (Get-ChildItem -Path $SourceRoot -Force)) {
-        if ($entry.Name -ne ".git") {
-            Copy-Item -Path $entry.FullName -Destination (Join-Path $archiveSource $entry.Name) -Recurse -Force
-        }
+    $trackedFiles = & git -C $SourceRoot ls-files
+    if ($LASTEXITCODE -ne 0) {
+        throw "Unable to enumerate tracked fixture files."
+    }
+    foreach ($relativePath in $trackedFiles) {
+        $destination = Join-Path $archiveSource $relativePath
+        New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
+        Copy-Item -LiteralPath (Join-Path $SourceRoot $relativePath) -Destination $destination -Force
     }
     & tar -czf $archivePath -C $archiveRoot "repo"
     return $archivePath
+}
+
+function Resolve-ExpectedPlugins {
+    param([Parameter(Mandatory)][string[]]$Plugins)
+
+    $resolved = [System.Collections.Generic.List[string]]::new()
+    foreach ($plugin in $Plugins) {
+        if (-not $resolved.Contains($plugin)) { $resolved.Add($plugin) }
+    }
+    $changed = $true
+    while ($changed) {
+        $changed = $false
+        foreach ($plugin in @($resolved)) {
+            $dependencies = switch ($plugin) {
+                "sdd-bootstrap" { @("sdd-review-loop"); break }
+                "sdd-lite" { @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop"); break }
+                "sdd-ship" { @("sdd-bootstrap", "sdd-review-loop", "sdd-implementation", "sdd-quality-loop", "sdd-lite"); break }
+                default { @() }
+            }
+            foreach ($dependency in $dependencies) {
+                if (-not $resolved.Contains($dependency)) {
+                    $resolved.Add($dependency)
+                    $changed = $true
+                }
+            }
+        }
+    }
+    return @($resolved)
 }
 
 function Invoke-InstallerScenario {
@@ -82,7 +169,7 @@ function Invoke-InstallerScenario {
 
         $failed = $false
         try {
-            & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $installRoot -Target All -Plugins $Plugins
+            & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $installRoot -Target All -Plugins $Plugins
         }
         catch {
             $failed = $true
@@ -113,7 +200,8 @@ function Invoke-InstallerScenario {
         }
 
         $log = Get-Content -Raw $commandLog
-        foreach ($plugin in $Plugins) {
+        $expectedRegistration = Resolve-ExpectedPlugins -Plugins $Plugins
+        foreach ($plugin in $expectedRegistration) {
             foreach ($expectedCommand in @("codex plugin add $plugin@sdd-plugins", "claude plugin install $plugin@sdd-plugins", "copilot plugin install $plugin@sdd-plugins")) {
                 if ($log -notmatch [regex]::Escape($expectedCommand)) {
                     throw "Installer did not run expected command: $expectedCommand"
@@ -124,7 +212,10 @@ function Invoke-InstallerScenario {
         if ($log -notmatch [regex]::Escape("copilot plugin marketplace add")) {
             throw "Installer did not run copilot plugin marketplace add"
         }
-        foreach ($plugin in $allPlugins | Where-Object { $_ -notin $Plugins }) {
+        if ($log -notmatch [regex]::Escape("codex plugin marketplace add")) {
+            throw "Installer did not run codex plugin marketplace add"
+        }
+        foreach ($plugin in $allPlugins | Where-Object { $_ -notin $expectedRegistration }) {
             if ($log -match [regex]::Escape("plugin add $plugin@sdd-plugins") -or $log -match [regex]::Escape("plugin install $plugin@sdd-plugins")) {
                 throw "Installer registered an unselected plugin: $plugin"
             }
@@ -152,7 +243,7 @@ function Invoke-RemoteInstallerScenario {
     $originalPath = $env:PATH
     $originalCodexHome = $env:SDD_CODEX_HOME
     $originalGhToken = $env:GH_TOKEN
-    $global:SddInstallerFixtureArchivePath = New-ArchiveFixture -SourceRoot $repositoryRoot
+    $global:SddInstallerFixtureArchivePath = New-ArchiveFixture -SourceRoot $installerSourceRoot
 
     function global:Invoke-WebRequest {
         param(
@@ -231,13 +322,14 @@ function Invoke-RemoteInstallerScenario {
 
 Invoke-InstallerScenario -Plugins $allPlugins
 Invoke-InstallerScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
+Invoke-InstallerScenario -Plugins @("sdd-lite")
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins"
 Invoke-InstallerScenario -Plugins $allPlugins -FailPattern "sdd-implementation@sdd-plugins" -SeedExistingInstall
 
 $filesOnlyRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-filesonly-" + [guid]::NewGuid())
 $filesOnlyInstall = Join-Path $filesOnlyRoot "installed"
 try {
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $filesOnlyInstall -Target FilesOnly
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $filesOnlyInstall -Target FilesOnly
     $filesOnlyChecks = @(
         ".codex/agents/sdd-investigator.toml",
         "plugins/sdd-quality-loop/.plugin/plugin.json",
@@ -255,6 +347,61 @@ finally {
     }
 }
 
+# A local source is a Git worktree; untracked files must never be staged.
+$trackedOnlyRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-tracked-only-" + [guid]::NewGuid())
+$trackedOnlySource = Join-Path $trackedOnlyRoot "source"
+$trackedOnlyInstall = Join-Path $trackedOnlyRoot "installed"
+try {
+    New-TrackedFixture -Source $installerSourceRoot -Destination $trackedOnlySource
+    New-Item -ItemType Directory -Path (Join-Path $trackedOnlySource ".private") -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $trackedOnlySource "plugins/sdd-bootstrap/.private") -Force | Out-Null
+    Set-Content -Path (Join-Path $trackedOnlySource ".private/secret.txt") -Value "root-secret" -Encoding Ascii
+    Set-Content -Path (Join-Path $trackedOnlySource "plugins/sdd-bootstrap/.private/secret.txt") -Value "nested-secret" -Encoding Ascii
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $trackedOnlySource -InstallRoot $trackedOnlyInstall -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
+    foreach ($leakedPath in @(".private/secret.txt", "plugins/sdd-bootstrap/.private/secret.txt")) {
+        if (Test-Path (Join-Path $trackedOnlyInstall $leakedPath)) {
+            throw "Tracked-only local source leaked untracked file: $leakedPath"
+        }
+    }
+    Write-Host "ok: local source installs Git-tracked files only"
+}
+finally {
+    if (Test-Path $trackedOnlyRoot) { Remove-Item -Path $trackedOnlyRoot -Recurse -Force }
+}
+
+# A required release file must be Git-tracked too; otherwise strict local
+# staging would omit it while reporting a successful installation.
+$untrackedRequiredRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-untracked-required-" + [guid]::NewGuid())
+$untrackedRequiredSource = Join-Path $untrackedRequiredRoot "source"
+$untrackedRequiredInstall = Join-Path $untrackedRequiredRoot "installed"
+try {
+    New-TrackedFixture -Source $installerSourceRoot -Destination $untrackedRequiredSource
+    & git -C $untrackedRequiredSource rm --cached -q "plugins/sdd-review-loop/.codex-plugin/plugin.json"
+    if ($LASTEXITCODE -ne 0) { throw "Could not prepare untracked required-file fixture" }
+    New-Item -ItemType Directory -Path $untrackedRequiredInstall -Force | Out-Null
+    Set-Content -Path (Join-Path $untrackedRequiredInstall "existing.marker") -Value "keep" -Encoding Ascii
+    $untrackedRequiredFailed = $false
+    $untrackedRequiredOutput = ""
+    try {
+        $untrackedRequiredOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $untrackedRequiredSource -InstallRoot $untrackedRequiredInstall -Target FilesOnly 2>&1 | Out-String
+    }
+    catch {
+        $untrackedRequiredFailed = $true
+        $untrackedRequiredOutput = $_ | Out-String
+    }
+    if (-not $untrackedRequiredFailed) { throw "Installer accepted an untracked required manifest" }
+    if (-not (Test-Path (Join-Path $untrackedRequiredInstall "existing.marker"))) {
+        throw "Installer modified an existing install before rejecting an untracked required manifest"
+    }
+    if ($untrackedRequiredOutput -notmatch "not Git-tracked") {
+        throw "Expected Git-tracked validation error was not reported: $untrackedRequiredOutput"
+    }
+    Write-Host "ok: untracked required release file is rejected before deployment"
+}
+finally {
+    if (Test-Path $untrackedRequiredRoot) { Remove-Item -Path $untrackedRequiredRoot -Recurse -Force }
+}
+
 $preDeploymentRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-predeploy-" + [guid]::NewGuid())
 $badSourceRoot = Join-Path $preDeploymentRoot "bad-source"
 $existingInstallRoot = Join-Path $preDeploymentRoot "installed"
@@ -263,17 +410,22 @@ try {
     New-Item -ItemType Directory -Path $existingInstallRoot -Force | Out-Null
     Set-Content -Path (Join-Path $existingInstallRoot "existing.marker") -Value "keep" -Encoding Ascii
     $preDeploymentFailed = $false
+    $preDeploymentError = ""
     try {
         & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $badSourceRoot -InstallRoot $existingInstallRoot -Target FilesOnly
     }
     catch {
         $preDeploymentFailed = $true
+        $preDeploymentError = $_.Exception.Message
     }
     if (-not $preDeploymentFailed) {
         throw "Installer accepted an invalid source directory."
     }
     if (-not (Test-Path (Join-Path $existingInstallRoot "existing.marker"))) {
         throw "Installer removed the existing installation before deployment started."
+    }
+    if ($preDeploymentError -notmatch "Git worktree") {
+        throw "Non-Git source directory did not report the Git worktree requirement."
     }
 }
 finally {
@@ -284,7 +436,7 @@ finally {
 
 $invalidFailed = $false
 try {
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot (Join-Path $env:TEMP ([guid]::NewGuid())) -Target FilesOnly -Plugins @("not-a-plugin")
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path $env:TEMP ([guid]::NewGuid())) -Target FilesOnly -Plugins @("not-a-plugin")
 }
 catch {
     $invalidFailed = $true
@@ -307,9 +459,9 @@ try {
     $env:PATH = "$idempotencyBin$([System.IO.Path]::PathSeparator)$savedPath"
     $env:SDD_CODEX_HOME = Join-Path $idempotencyRoot "codex-home"
     # First install
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $idempotencyInstall -Target All -Plugins $allPlugins
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $idempotencyInstall -Target All -Plugins $allPlugins
     # Second install (idempotent)
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $idempotencyInstall -Target All -Plugins $allPlugins
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $idempotencyInstall -Target All -Plugins $allPlugins
     foreach ($plugin in $allPlugins) {
         if (-not (Test-Path (Join-Path $idempotencyInstall "plugins/$plugin/.codex-plugin/plugin.json"))) {
             throw "Idempotency: plugin not present after second install: $plugin"
@@ -344,7 +496,7 @@ try {
     New-FakeCommands -BinRoot $nonestingBin -LogPath $nonestingLog
     $env:PATH = "$nonestingBin$([System.IO.Path]::PathSeparator)$savedPath2"
     $env:SDD_CODEX_HOME = Join-Path $nonestingRoot "codex-home"
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $nonestingInstall -Target All -Plugins $allPlugins
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $nonestingInstall -Target All -Plugins $allPlugins
     foreach ($nested in @(".agents/.agents", ".codex/.codex", ".claude-plugin/.claude-plugin")) {
         if (Test-Path (Join-Path $nonestingInstall $nested)) {
             throw "No-nesting: found unexpected nested directory: $nested"
@@ -386,10 +538,10 @@ try {
     $env:PATH = "$malformedBin$([System.IO.Path]::PathSeparator)$malformedSavedPath"
     $env:SDD_CODEX_HOME = $malformedCodexHome
     # *>&1 also merges the warning stream; 2>&1 alone would miss Write-Warning.
-    $malformedOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $malformedInstall -Target All *>&1 | Out-String
+    $malformedOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $malformedInstall -Target All *>&1 | Out-String
     # Verify agents were installed with developer_instructions
     if (-not (Test-Path (Join-Path $malformedCodexAgents "sdd-investigator.toml"))) {
-        throw "sdd-investigator.toml was not installed"
+        throw "sdd-investigator.toml was not installed. Installer output:`n$malformedOutput"
     }
     if (-not (Test-Path (Join-Path $malformedCodexAgents "sdd-evaluator.toml"))) {
         throw "sdd-evaluator.toml was not installed"
@@ -437,16 +589,14 @@ $badDeployRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-bad
 $badDeploySource = Join-Path $badDeployRoot "bad-source"
 $badDeployInstall = Join-Path $badDeployRoot "installed"
 try {
-    # Copy repository to bad source, excluding .git
-    New-Item -ItemType Directory -Path $badDeploySource -Force | Out-Null
-    foreach ($entry in (Get-ChildItem -Path $repositoryRoot -Force)) {
-        if ($entry.Name -ne ".git") {
-            Copy-Item -Path $entry.FullName -Destination (Join-Path $badDeploySource $entry.Name) -Recurse -Force
-        }
-    }
-    # Overwrite the sdd-investigator.toml to make it malformed (missing developer_instructions)
+    New-TrackedFixture -Source $installerSourceRoot -Destination $badDeploySource
+    # Keep the malformed TOML tracked so validation is exercised after the
+    # source-directory Git worktree check.
     $investigatorPath = Join-Path $badDeploySource ".codex/agents/sdd-investigator.toml"
     Set-Content -Path $investigatorPath -Value 'name = "sdd-investigator"' -Encoding Utf8
+    & git -C $badDeploySource add .codex/agents/sdd-investigator.toml
+    & git -C $badDeploySource -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Malformed agent fixture"
+    if ($LASTEXITCODE -ne 0) { throw "Could not commit malformed source fixture." }
     # Pre-create install root with existing.marker
     New-Item -ItemType Directory -Path $badDeployInstall -Force | Out-Null
     Set-Content -Path (Join-Path $badDeployInstall "existing.marker") -Value "keep" -Encoding Ascii
@@ -524,7 +674,7 @@ try {
     $env:SDD_INSTALL_LOCK_TIMEOUT = "1"
     $lockFailed = $false
     try {
-        & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $lockInstallRoot -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
+        & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $lockInstallRoot -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
     }
     catch {
         $lockFailed = $true
@@ -548,7 +698,7 @@ try {
     Remove-Job $holderJob -Force -ErrorAction SilentlyContinue | Out-Null
     $holderJob = $null
 
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $lockInstallRoot -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $lockInstallRoot -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
 
     Write-Host "ok: lock: concurrent install blocked, succeeds after mutex released"
 }
@@ -582,7 +732,7 @@ try {
     $env:PATH = "$lockSuccessBin$([System.IO.Path]::PathSeparator)$lockSuccessSavedPath"
     $env:SDD_CODEX_HOME = Join-Path $lockSuccessRoot "codex-home"
 
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $lockSuccessInstall -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $lockSuccessInstall -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
 
     # Verify the mutex is no longer held: we should be able to acquire it immediately
     $sha256 = [System.Security.Cryptography.SHA256]::Create()
@@ -635,7 +785,7 @@ try {
     New-FakeCommands -BinRoot $smokeBin -LogPath $smokeLog
     $env:PATH = "$smokeBin$([System.IO.Path]::PathSeparator)$smokeSavedPath"
     $env:SDD_CODEX_HOME = Join-Path $smokeRoot "codex-home"
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $repositoryRoot -InstallRoot $smokeInstall -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $smokeInstall -Target FilesOnly -SkipPluginInstall -SkipAgentInstall
 
     $smokeGate = Join-Path $smokeInstall "plugins/sdd-quality-loop/scripts/check-risk.ps1"
     if (-not (Test-Path $smokeGate)) {
@@ -700,6 +850,10 @@ finally {
 }
 
 Write-Host "Installer integration tests passed."
+
+if (Test-Path $installerSourceRoot) {
+    Remove-Item -Path $installerSourceRoot -Recurse -Force
+}
 
 # Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which
 # would otherwise leak the exit code of the last native command run above.

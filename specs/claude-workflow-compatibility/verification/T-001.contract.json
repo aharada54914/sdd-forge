@@ -1,0 +1,25 @@
+{
+  "task_id": "T-001",
+  "feature": "claude-workflow-compatibility",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "cc2762166b76a8606b1444d1dd3c302f35eafa17",
+  "created": "2026-06-23T00:30:00Z",
+  "comment": "Default-FAIL verification contract for T-001. Every passing test check names its committed Red and saved Green evidence.",
+  "checks": [
+    {"id":"lint","required":false,"passes":false,"evidence":"","waiver_reason":"This shell and Markdown repository has no configured linter.","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"","green_evidence":""},
+    {"id":"typecheck","required":false,"passes":false,"evidence":"","waiver_reason":"This shell and Markdown repository has no configured typechecker.","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"","green_evidence":""},
+    {"id":"unit-tests","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-001.green.log","waiver_reason":"","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"specs/claude-workflow-compatibility/verification/T-001.red.log","green_evidence":"specs/claude-workflow-compatibility/verification/T-001.green.log"},
+    {"id":"integration-tests","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-001.green.log","waiver_reason":"","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"specs/claude-workflow-compatibility/verification/T-001.red.log","green_evidence":"specs/claude-workflow-compatibility/verification/T-001.green.log"},
+    {"id":"build","required":false,"passes":false,"evidence":"","waiver_reason":"The plugin repository has no build configuration for shell and Markdown assets.","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"","green_evidence":""},
+    {"id":"placeholder-scan","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-001.gates.log","waiver_reason":"","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"","green_evidence":""},
+    {"id":"task-state-check","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-001.gates.log","waiver_reason":"","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"","green_evidence":""},
+    {"id":"acceptance-tests","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-001.green.log","waiver_reason":"","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"specs/claude-workflow-compatibility/verification/T-001.red.log","green_evidence":"specs/claude-workflow-compatibility/verification/T-001.green.log"},
+    {"id":"regression","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-001.green.log","waiver_reason":"","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"specs/claude-workflow-compatibility/verification/T-001.red.log","green_evidence":"specs/claude-workflow-compatibility/verification/T-001.green.log"},
+    {"id":"requirement-traceability","required":true,"passes":true,"evidence":"specs/claude-workflow-compatibility/verification/T-001.gates.log","waiver_reason":"","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"","green_evidence":""},
+    {"id":"smoke-run","required":false,"passes":false,"evidence":"","waiver_reason":"The review loop is a manual skill, not an application process.","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"","green_evidence":""},
+    {"id":"differential-baseline","required":false,"passes":false,"evidence":"","waiver_reason":"T-001 is an additive feature, not a refactor or bugfix baseline change.","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"","green_evidence":""},
+    {"id":"ui-verification","required":false,"passes":false,"evidence":"","waiver_reason":"T-001 has no user interface.","requirement_ids":["REQ-007","REQ-008"],"red_evidence":"","green_evidence":""}
+  ]
+}

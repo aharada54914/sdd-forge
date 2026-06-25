@@ -5,9 +5,52 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 INSTALLER="${REPO_ROOT}/install.sh"
-ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite"
+ALL_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
 PASS=0
 FAIL=0
+
+clone_fixture() {
+    local source_root="$1"
+    local destination="$2"
+    # `git clone` may invoke a host credential/helper while copying local
+    # objects. Export the committed tree instead, then initialise a disposable
+    # repository because later fixtures intentionally create commits.
+    mkdir -p "$destination"
+    git -C "$source_root" archive --format=tar HEAD | tar -xf - -C "$destination"
+    git -C "$destination" init -q
+    git -C "$destination" add -A
+    git -C "$destination" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Fixture baseline"
+}
+
+# Local installs intentionally copy Git-tracked files only. Overlay the
+# installer and Claude manifests under test so the fixture exercises this
+# working tree without including unrelated untracked files.
+SOURCE_FIXTURE_ROOT="$(mktemp -d)"
+SOURCE_FIXTURE="${SOURCE_FIXTURE_ROOT}/source"
+clone_fixture "$REPO_ROOT" "$SOURCE_FIXTURE"
+for relative_path in \
+    ".claude-plugin/marketplace.json" \
+    ".agents/plugins/marketplace.json" \
+    "install.sh" \
+    "install.ps1" \
+    "plugins/sdd-bootstrap/.claude-plugin/plugin.json" \
+    "plugins/sdd-quality-loop/.claude-plugin/plugin.json" \
+    "plugins/sdd-review-loop/.claude-plugin/plugin.json" \
+    "plugins/sdd-review-loop/.codex-plugin/plugin.json" \
+    "plugins/sdd-review-loop/.plugin/plugin.json"; do
+    mkdir -p "${SOURCE_FIXTURE}/$(dirname "$relative_path")"
+    cp -p "${REPO_ROOT}/${relative_path}" "${SOURCE_FIXTURE}/${relative_path}"
+done
+git -C "$SOURCE_FIXTURE" add \
+    .claude-plugin/marketplace.json \
+    .agents/plugins/marketplace.json \
+    install.sh \
+    install.ps1 \
+    plugins/sdd-bootstrap/.claude-plugin/plugin.json \
+    plugins/sdd-quality-loop/.claude-plugin/plugin.json \
+    plugins/sdd-review-loop
+git -C "$SOURCE_FIXTURE" diff --cached --quiet || git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
+trap 'rm -rf "$SOURCE_FIXTURE_ROOT"' EXIT
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -59,13 +102,37 @@ make_archive_fixture() {
     local archive_source="${archive_root}/repo"
     local archive_path="${archive_root}/source.tar.gz"
     mkdir -p "$archive_source"
-    for entry in "$source_root"/* "$source_root"/.[!.]* "$source_root"/..?*; do
-        [[ -e "$entry" ]] || continue
-        [[ "$(basename "$entry")" == ".git" ]] && continue
-        cp -R "$entry" "$archive_source/"
-    done
+    while IFS= read -r -d '' relative_path; do
+        mkdir -p "${archive_source}/$(dirname "$relative_path")"
+        cp -p "${source_root}/${relative_path}" "${archive_source}/${relative_path}"
+    done < <(git -C "$source_root" ls-files -z)
     tar -czf "$archive_path" -C "$archive_root" "repo"
     printf '%s\n' "$archive_path"
+}
+
+resolve_registered_plugins() {
+    local -a resolved=("$@")
+    local changed=1
+    local plugin dependency
+
+    while [[ $changed -eq 1 ]]; do
+        changed=0
+        for plugin in "${resolved[@]}"; do
+            local -a dependencies=()
+            case "$plugin" in
+                sdd-bootstrap) dependencies=(sdd-review-loop) ;;
+                sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
+                sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
+            esac
+            for dependency in "${dependencies[@]}"; do
+                if [[ " ${resolved[*]} " != *" ${dependency} "* ]]; then
+                    resolved+=("$dependency")
+                    changed=1
+                fi
+            done
+        done
+    done
+    printf '%s\n' "${resolved[@]}"
 }
 
 make_fake_remote_fetcher() {
@@ -171,7 +238,7 @@ invoke_installer_scenario() {
     local installer_failed=0
     local out
     out="$(run_installer \
-        --source-directory "$REPO_ROOT" \
+        --source-directory "$SOURCE_FIXTURE" \
         --install-root "$install_root" \
         --target All \
         ${plugins_arg:+--plugins "$plugins_arg"} \
@@ -223,13 +290,18 @@ invoke_installer_scenario() {
         fi
     done
 
-    # Determine which plugins were requested
-    local requested_plugins
+    # Determine the dependency-closed plugin set that must be registered.
+    local -a requested_plugins
     if [[ -n "$plugins_arg" ]]; then
         IFS=',' read -ra requested_plugins <<< "$plugins_arg"
     else
-        read -ra requested_plugins <<< "$ALL_PLUGINS"
+        requested_plugins=(sdd-bootstrap sdd-ship)
     fi
+    local -a initial_plugins=("${requested_plugins[@]}")
+    requested_plugins=()
+    while IFS= read -r plugin; do
+        requested_plugins+=("$plugin")
+    done < <(resolve_registered_plugins "${initial_plugins[@]}")
 
     local log=""
     [[ -f "$command_log" ]] && log="$(cat "$command_log")"
@@ -252,6 +324,10 @@ invoke_installer_scenario() {
     # Copilot marketplace command
     if ! echo "$log" | grep -qF "copilot plugin marketplace add"; then
         fail "expected command not found: copilot plugin marketplace add"
+        all_ok=0
+    fi
+    if ! echo "$log" | grep -qF "codex plugin marketplace add"; then
+        fail "expected command not found: codex plugin marketplace add"
         all_ok=0
     fi
 
@@ -283,7 +359,7 @@ invoke_remote_installer_scenario() {
     local original_path="$PATH"
     local original_codex_home="${SDD_CODEX_HOME:-}"
     local archive_path
-    archive_path="$(make_archive_fixture "$REPO_ROOT")"
+    archive_path="$(make_archive_fixture "$SOURCE_FIXTURE")"
 
     make_fake_commands "$fake_bin" "$command_log"
     make_fake_remote_fetcher "$fake_bin" "$command_log" "$archive_path"
@@ -362,6 +438,15 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Scenario (b2): lite reaches bootstrap's review-loop at the fixed point
+# ---------------------------------------------------------------------------
+if invoke_installer_scenario plugins="sdd-lite"; then
+    ok "lite selection resolves the full dependency closure"
+else
+    fail "lite selection resolves the full dependency closure"
+fi
+
+# ---------------------------------------------------------------------------
 # Scenario (c): failure during registration → no half-installed root (fresh)
 # ---------------------------------------------------------------------------
 invoke_installer_scenario fail_pattern="sdd-implementation@sdd-plugins"
@@ -382,7 +467,7 @@ _e_badsrc="${_e_root}/bad-source"
 mkdir -p "$_e_install" "$_e_badsrc"
 echo "keep" > "${_e_install}/existing.marker"
 _e_failed=0
-bash "$INSTALLER" --source-directory "$_e_badsrc" --install-root "$_e_install" --target FilesOnly 2>/dev/null || _e_failed=1
+_e_output="$(bash "$INSTALLER" --source-directory "$_e_badsrc" --install-root "$_e_install" --target FilesOnly 2>&1)" || _e_failed=1
 _e_ok=1
 if [[ $_e_failed -eq 0 ]]; then
     fail "invalid source directory was accepted"
@@ -390,6 +475,10 @@ if [[ $_e_failed -eq 0 ]]; then
 fi
 if [[ ! -f "${_e_install}/existing.marker" ]]; then
     fail "existing install was removed by pre-deployment check"
+    _e_ok=0
+fi
+if ! echo "$_e_output" | grep -qi "Git worktree"; then
+    fail "non-Git source directory did not report the Git worktree requirement"
     _e_ok=0
 fi
 rm -rf "$_e_root"
@@ -401,7 +490,7 @@ rm -rf "$_e_root"
 _f_root="$(mktemp -d)"
 _f_failed=0
 bash "$INSTALLER" \
-    --source-directory "$REPO_ROOT" \
+    --source-directory "$SOURCE_FIXTURE" \
     --install-root "${_f_root}/installed" \
     --target FilesOnly \
     --plugins "not-a-plugin" 2>/dev/null || _f_failed=1
@@ -427,9 +516,9 @@ export PATH="${_g_bin}:${_g_orig_path}"
 export SDD_CODEX_HOME="${_g_root}/codex-home"
 # First run
 _g_failed=0
-bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_g_install" --target All 2>/dev/null || _g_failed=1
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_g_install" --target All 2>/dev/null || _g_failed=1
 # Second run (idempotent)
-bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_g_install" --target All 2>/dev/null || _g_failed=1
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_g_install" --target All 2>/dev/null || _g_failed=1
 export PATH="$_g_orig_path"
 if [[ -z "$_g_orig_codex_home" ]]; then
     unset SDD_CODEX_HOME
@@ -466,7 +555,7 @@ _h_orig_codex_home="${SDD_CODEX_HOME:-}"
 make_fake_commands "$_h_bin" "$_h_log"
 export PATH="${_h_bin}:${_h_orig_path}"
 export SDD_CODEX_HOME="${_h_root}/codex-home"
-bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_h_install" --target All 2>/dev/null
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_h_install" --target All 2>/dev/null
 export PATH="$_h_orig_path"
 if [[ -z "$_h_orig_codex_home" ]]; then
     unset SDD_CODEX_HOME
@@ -507,7 +596,7 @@ echo 'name = "auditor"' > "${_i_codex_agents}/auditor.toml"
 make_fake_commands "$_i_bin" "$_i_log"
 export PATH="${_i_bin}:${_i_orig_path}"
 export SDD_CODEX_HOME="$_i_codex_home"
-_i_output="$(bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_i_install" --target All 2>&1)" || true
+_i_output="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_i_install" --target All 2>&1)" || true
 export PATH="$_i_orig_path"
 if [[ -z "$_i_orig_codex_home" ]]; then
     unset SDD_CODEX_HOME
@@ -553,15 +642,12 @@ rm -rf "$_i_root"
 _j_root="$(mktemp -d)"
 _j_src="${_j_root}/bad-src"
 _j_install="${_j_root}/installed"
-mkdir -p "$_j_src" "$_j_install"
-# Copy repository to bad source, excluding .git.
-for entry in "$REPO_ROOT"/* "$REPO_ROOT"/.[!.]* "$REPO_ROOT"/..?*; do
-    [[ -e "$entry" ]] || continue
-    [[ "$(basename "$entry")" == ".git" ]] && continue
-    cp -R "$entry" "$_j_src/"
-done
-# Overwrite sdd-investigator.toml to make it malformed
+clone_fixture "$SOURCE_FIXTURE" "$_j_src"
+mkdir -p "$_j_install"
+# Make the malformed TOML tracked so the installer reaches its validation.
 echo 'name = "sdd-investigator"' > "$_j_src/.codex/agents/sdd-investigator.toml"
+git -C "$_j_src" add .codex/agents/sdd-investigator.toml
+git -C "$_j_src" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Malformed agent fixture"
 # Pre-create install root with existing.marker
 echo "keep" > "${_j_install}/existing.marker"
 _j_failed=0
@@ -588,6 +674,60 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# Scenario (k2): a local source distributes tracked files only
+# ---------------------------------------------------------------------------
+_k2_root="$(mktemp -d)"
+_k2_source="${_k2_root}/source"
+_k2_install="${_k2_root}/installed"
+clone_fixture "$SOURCE_FIXTURE" "$_k2_source"
+mkdir -p "${_k2_source}/.private" "${_k2_source}/plugins/sdd-bootstrap/.private"
+echo "root-secret" > "${_k2_source}/.private/secret.txt"
+echo "nested-secret" > "${_k2_source}/plugins/sdd-bootstrap/.private/secret.txt"
+_k2_failed=0
+bash "$INSTALLER" --source-directory "$_k2_source" --install-root "$_k2_install" --target FilesOnly --skip-plugin-install --skip-agent-install 2>/dev/null || _k2_failed=1
+_k2_ok=1
+if [[ $_k2_failed -ne 0 ]]; then
+    fail "tracked-only source scenario: installer failed"
+    _k2_ok=0
+fi
+for leaked_path in ".private/secret.txt" "plugins/sdd-bootstrap/.private/secret.txt"; do
+    if [[ -e "${_k2_install}/${leaked_path}" ]]; then
+        fail "tracked-only source scenario: untracked file leaked: ${leaked_path}"
+        _k2_ok=0
+    fi
+done
+rm -rf "$_k2_root"
+[[ $_k2_ok -eq 1 ]] && ok "local source installs Git-tracked files only"
+
+# ---------------------------------------------------------------------------
+# Scenario (k3): untracked required release files fail before deployment
+# ---------------------------------------------------------------------------
+_k3_root="$(mktemp -d)"
+_k3_source="${_k3_root}/source"
+_k3_install="${_k3_root}/installed"
+clone_fixture "$SOURCE_FIXTURE" "$_k3_source"
+git -C "$_k3_source" rm --cached -q plugins/sdd-review-loop/.codex-plugin/plugin.json
+mkdir -p "$_k3_install"
+echo "keep" > "${_k3_install}/existing.marker"
+_k3_failed=0
+_k3_output="$(bash "$INSTALLER" --source-directory "$_k3_source" --install-root "$_k3_install" --target FilesOnly 2>&1)" || _k3_failed=1
+_k3_ok=1
+if [[ $_k3_failed -eq 0 ]]; then
+    fail "untracked required-file scenario: installer accepted an untracked manifest"
+    _k3_ok=0
+fi
+if [[ ! -f "${_k3_install}/existing.marker" ]]; then
+    fail "untracked required-file scenario: existing install was modified"
+    _k3_ok=0
+fi
+if ! echo "$_k3_output" | grep -q "not Git-tracked"; then
+    fail "untracked required-file scenario: expected tracking error not found"
+    _k3_ok=0
+fi
+rm -rf "$_k3_root"
+[[ $_k3_ok -eq 1 ]] && ok "untracked required release file is rejected before deployment"
+
+# ---------------------------------------------------------------------------
 # Scenario (l): concurrent-lock — pre-created lock with live pid blocks install
 # ---------------------------------------------------------------------------
 _l_root="$(mktemp -d)"
@@ -605,7 +745,7 @@ export PATH="${_l_bin}:${_l_orig_path}"
 export SDD_CODEX_HOME="${_l_root}/codex-home"
 _l_failed=0
 _l_out="$(SDD_INSTALL_LOCK_TIMEOUT=1 bash "$INSTALLER" \
-    --source-directory "$REPO_ROOT" \
+    --source-directory "$SOURCE_FIXTURE" \
     --install-root "$_l_install" \
     --target FilesOnly \
     --skip-plugin-install \
@@ -639,7 +779,7 @@ export PATH="${_l_bin2}:${_l_orig_path}"
 export SDD_CODEX_HOME="${_l_root}/codex-home"
 _l_failed2=0
 bash "$INSTALLER" \
-    --source-directory "$REPO_ROOT" \
+    --source-directory "$SOURCE_FIXTURE" \
     --install-root "$_l_install" \
     --target FilesOnly \
     --skip-plugin-install \
@@ -673,7 +813,7 @@ export PATH="${_m_bin}:${_m_orig_path}"
 export SDD_CODEX_HOME="${_m_root}/codex-home"
 _m_failed=0
 bash "$INSTALLER" \
-    --source-directory "$REPO_ROOT" \
+    --source-directory "$SOURCE_FIXTURE" \
     --install-root "$_m_install" \
     --target FilesOnly \
     --skip-plugin-install \
@@ -708,14 +848,17 @@ _n_lock_dir="${_n_install}.sdd-install.lock"
 _n_orig_path="$PATH"
 _n_orig_codex_home="${SDD_CODEX_HOME:-}"
 make_fake_commands "$_n_bin" "$_n_log"
-# Pre-create lock with a definitely dead pid (999999 is virtually never alive)
+# Pre-create the lock with an invalid owner identifier. Numeric PIDs can be
+# recycled immediately in containerized CI, so no numeric value reliably means
+# "dead" between writing the lock and starting the installer. The installer
+# treats an unreadable owner as stale, which is the recovery path under test.
 mkdir -p "$_n_lock_dir"
-echo "999999" > "${_n_lock_dir}/pid"
+echo "not-a-live-pid" > "${_n_lock_dir}/pid"
 export PATH="${_n_bin}:${_n_orig_path}"
 export SDD_CODEX_HOME="${_n_root}/codex-home"
 _n_failed=0
 bash "$INSTALLER" \
-    --source-directory "$REPO_ROOT" \
+    --source-directory "$SOURCE_FIXTURE" \
     --install-root "$_n_install" \
     --target FilesOnly \
     --skip-plugin-install \
@@ -751,7 +894,7 @@ _d_orig_codex_home="${SDD_CODEX_HOME:-}"
 make_fake_commands "$_d_bin" "$_d_log"
 export PATH="${_d_bin}:${_d_orig_path}"
 export SDD_CODEX_HOME="${_d_root}/codex-home"
-bash "$INSTALLER" --source-directory "$REPO_ROOT" --install-root "$_d_install" --target FilesOnly --skip-plugin-install --skip-agent-install 2>/dev/null
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_d_install" --target FilesOnly --skip-plugin-install --skip-agent-install 2>/dev/null
 export PATH="$_d_orig_path"
 if [[ -z "$_d_orig_codex_home" ]]; then
     unset SDD_CODEX_HOME
@@ -810,8 +953,8 @@ rm -rf "$_d_root"
 
 # ---------------------------------------------------------------------------
 # Scenario (o): sdd-ship auto-expansion — selecting only sdd-ship triggers
-# auto-inclusion of its companions (sdd-bootstrap, sdd-implementation,
-# sdd-quality-loop, sdd-lite)
+# auto-inclusion of its companions (sdd-bootstrap, sdd-review-loop,
+# sdd-implementation, sdd-quality-loop, sdd-lite)
 # ---------------------------------------------------------------------------
 _o_root="$(mktemp -d)"
 _o_install="${_o_root}/installed"
@@ -823,7 +966,7 @@ make_fake_commands "$_o_bin" "$_o_log"
 export PATH="${_o_bin}:${_o_orig_path}"
 export SDD_CODEX_HOME="${_o_root}/codex-home"
 _o_out="$(bash "$INSTALLER" \
-    --source-directory "$REPO_ROOT" \
+    --source-directory "$SOURCE_FIXTURE" \
     --install-root "$_o_install" \
     --target All \
     --plugins "sdd-ship" \
@@ -836,7 +979,7 @@ else
 fi
 _o_ok=1
 # All companion plugins must be present in install root
-for p in sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite; do
+for p in sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop; do
     if [[ ! -f "${_o_install}/plugins/${p}/.codex-plugin/plugin.json" ]]; then
         fail "sdd-ship expansion (o): companion plugin not installed: $p"
         _o_ok=0
@@ -861,6 +1004,7 @@ with open('${REPO_ROOT}/.claude-plugin/marketplace.json') as f:
 names = [p['name'] for p in m['plugins']]
 assert 'sdd-ship' in names, 'sdd-ship not found in marketplace plugins'
 assert 'sdd-bootstrap' in names, 'sdd-bootstrap not found in marketplace plugins'
+assert 'sdd-review-loop' in names, 'sdd-review-loop not found in marketplace plugins'
 " 2>/dev/null; then
     fail "marketplace (p): sdd-ship not present in .claude-plugin/marketplace.json"
     _p_ok=0
@@ -871,6 +1015,7 @@ with open('${REPO_ROOT}/.agents/plugins/marketplace.json') as f:
     m = json.load(f)
 names = [p['name'] for p in m['plugins']]
 assert 'sdd-ship' in names, 'sdd-ship not found in agents marketplace plugins'
+assert 'sdd-review-loop' in names, 'sdd-review-loop not found in agents marketplace plugins'
 " 2>/dev/null; then
     fail "marketplace (p): sdd-ship not present in .agents/plugins/marketplace.json"
     _p_ok=0
@@ -892,6 +1037,52 @@ for path in \
     fi
 done
 [[ $_q_ok -eq 1 ]] && ok "sdd-ship required paths: all plugin files present"
+
+# ---------------------------------------------------------------------------
+# Scenario (r): sdd-review-loop has distributable manifests and both skills
+# ---------------------------------------------------------------------------
+_r_ok=1
+for path in \
+    "plugins/sdd-review-loop/.claude-plugin/plugin.json" \
+    "plugins/sdd-review-loop/.codex-plugin/plugin.json" \
+    "plugins/sdd-review-loop/.plugin/plugin.json" \
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md" \
+    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md"; do
+    if [[ ! -f "${REPO_ROOT}/${path}" ]]; then
+        fail "sdd-review-loop required paths (r): missing: $path"
+        _r_ok=0
+    fi
+done
+[[ $_r_ok -eq 1 ]] && ok "sdd-review-loop required paths: manifests and skills present"
+
+# ---------------------------------------------------------------------------
+# Scenario (s): Claude manifest validation must fail before marketplace add.
+# ---------------------------------------------------------------------------
+_s_root="$(mktemp -d)"
+_s_install="${_s_root}/installed"
+_s_bin="${_s_root}/bin"
+_s_log="${_s_root}/commands.log"
+_s_orig_path="$PATH"
+make_fake_commands "$_s_bin" "$_s_log" "plugin validate"
+export PATH="${_s_bin}:${_s_orig_path}"
+_s_failed=0
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_s_install" --target Claude --plugins "sdd-bootstrap" 2>/dev/null || _s_failed=1
+export PATH="$_s_orig_path"
+_s_ok=1
+if [[ $_s_failed -eq 0 ]]; then
+    fail "Claude validation (s): installer succeeded after manifest validation failure"
+    _s_ok=0
+fi
+if ! grep -qF "claude plugin validate" "$_s_log"; then
+    fail "Claude validation (s): validation command was not invoked"
+    _s_ok=0
+fi
+if grep -qF "claude plugin marketplace add" "$_s_log"; then
+    fail "Claude validation (s): marketplace was registered before validation passed"
+    _s_ok=0
+fi
+rm -rf "$_s_root"
+[[ $_s_ok -eq 1 ]] && ok "Claude manifest validation fails before marketplace registration"
 
 # ---------------------------------------------------------------------------
 # Summary

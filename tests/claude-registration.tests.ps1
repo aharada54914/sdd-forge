@@ -8,17 +8,59 @@ $isWindowsPlatform = [System.Environment]::OSVersion.Platform -eq [System.Platfo
 function New-FakeClaudeCommand {
     param(
         [Parameter(Mandatory)][string]$BinRoot,
-        [Parameter(Mandatory)][string]$LogPath
+        [Parameter(Mandatory)][string]$LogPath,
+        [switch]$FailValidate
     )
 
     New-Item -ItemType Directory -Path $BinRoot -Force | Out-Null
     if ($isWindowsPlatform) {
         $commandPath = Join-Path $BinRoot "claude.cmd"
-        "@echo claude %*>>`"$LogPath`"`r`n@exit /b 0`r`n" | Set-Content -Path $commandPath -Encoding Ascii
+        # Quote both operands. cmd.exe otherwise treats the second comparison
+        # differently on Windows runners and the validation-failure fixture
+        # incorrectly exits successfully.
+        $failureLine = if ($FailValidate) { '@if /I "%~1"=="plugin" if /I "%~2"=="validate" exit /b 9' + [Environment]::NewLine } else { "" }
+        "@echo claude %*>>`"$LogPath`"`r`n$failureLine@exit /b 0`r`n" | Set-Content -Path $commandPath -Encoding Ascii
     }
     else {
         $commandPath = Join-Path $BinRoot "claude"
-        "#!/bin/sh`necho \"claude `$*\" >> \"$LogPath\"`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+        $failureLine = if ($FailValidate) { "if [ `"`$1`" = plugin ] && [ `"`$2`" = validate ]; then exit 9; fi`n" } else { "" }
+        "#!/bin/sh`necho `"claude `$*`" >> `"$LogPath`"`n$failureLine`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+        & chmod +x $commandPath
+    }
+}
+
+function New-FakeSuccessfulPluginCommands {
+    param([Parameter(Mandatory)][string]$BinRoot)
+
+    foreach ($command in @("codex", "copilot")) {
+        if ($isWindowsPlatform) {
+            "@exit /b 0`r`n" | Set-Content -Path (Join-Path $BinRoot "$command.cmd") -Encoding Ascii
+        }
+        else {
+            $commandPath = Join-Path $BinRoot $command
+            "#!/bin/sh`nexit 0`n" | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+            & chmod +x $commandPath
+        }
+    }
+}
+
+function New-GitShim {
+    param([Parameter(Mandatory)][string]$BinRoot)
+
+    $realGit = (Get-Command git -ErrorAction Stop).Source
+    if ($isWindowsPlatform) {
+        @(
+            '@echo off'
+            ('"{0}" %*' -f $realGit)
+            '@exit /b %ERRORLEVEL%'
+        ) | Set-Content -Path (Join-Path $BinRoot "git.cmd") -Encoding Ascii
+    }
+    else {
+        $commandPath = Join-Path $BinRoot "git"
+        @(
+            '#!/bin/sh'
+            ('exec "{0}" "$@"' -f $realGit)
+        ) | Set-Content -Path $commandPath -Encoding Utf8NoBOM
         & chmod +x $commandPath
     }
 }
@@ -64,6 +106,41 @@ finally {
 }
 
 # ---------------------------------------------------------------------------
+# Claude validation must fail before marketplace registration.
+# ---------------------------------------------------------------------------
+$validationRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-claude-reg-validation-" + [guid]::NewGuid())
+$validationInstall = Join-Path $validationRoot "installed"
+$validationBin = Join-Path $validationRoot "bin"
+$validationLog = Join-Path $validationRoot "commands.log"
+$validationSavedPath = $env:PATH
+try {
+    New-FakeClaudeCommand -BinRoot $validationBin -LogPath $validationLog -FailValidate
+    $env:PATH = "$validationBin$([System.IO.Path]::PathSeparator)$validationSavedPath"
+
+    $failed = $false
+    try {
+        & $installer -SourceDirectory $repositoryRoot -InstallRoot $validationInstall -Target Claude -Plugins @("sdd-bootstrap") -RequireClaude *>&1 | Out-String | Out-Null
+    }
+    catch {
+        $failed = $true
+    }
+    if (-not $failed) { throw "Claude manifest validation failure should stop installation." }
+
+    $log = Get-Content -Raw $validationLog
+    if ($log -notmatch [regex]::Escape("claude plugin validate")) {
+        throw "Claude validation did not invoke plugin validate.`nLog:`n$log"
+    }
+    if ($log -match [regex]::Escape("claude plugin marketplace add")) {
+        throw "Claude marketplace was registered before manifest validation passed.`nLog:`n$log"
+    }
+    Write-Host "ok: Claude manifest validation fails before marketplace registration"
+}
+finally {
+    $env:PATH = $validationSavedPath
+    if (Test-Path $validationRoot) { Remove-Item -Path $validationRoot -Recurse -Force }
+}
+
+# ---------------------------------------------------------------------------
 # RequireClaude: Target All must fail when Claude CLI is absent. Without this,
 # users can see a successful install while Claude was silently skipped.
 # ---------------------------------------------------------------------------
@@ -73,6 +150,12 @@ $requireBin = Join-Path $requireRoot "bin"
 $requireSavedPath = $env:PATH
 try {
     New-Item -ItemType Directory -Path $requireBin -Force | Out-Null
+    New-FakeSuccessfulPluginCommands -BinRoot $requireBin
+    # Keep Git available for source validation without retaining its containing
+    # directory on PATH. GitHub macOS runners can install git and claude in the
+    # same directory, which would otherwise make the "missing Claude" branch
+    # depend on runner layout instead of installer behavior.
+    New-GitShim -BinRoot $requireBin
     $env:PATH = $requireBin
 
     $failed = $false

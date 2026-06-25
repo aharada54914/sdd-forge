@@ -5,13 +5,14 @@
 v0.15.0 で `/sdd-bootstrap` + `/sdd-ship` の2コマンド化が完了した。
 このリファクタリングはその内部構造を整理し、メンテナンスコストを下げ、
 セキュリティパリティを修正することを目的とする。
-**すべての変更は加法的または等価的であり、既存の機能を削除・弱体化させない。**
+**既存の機能を削除・弱体化させない。ただし旧 review-loop namespace
+(`/sdd-impl-review:*` / `/sdd-task-review:*`) は `sdd-review-loop` への移設に伴う明示的な破壊的変更である。**
 
 ## Target Users
 
 - **sdd-forge コントリビューター**: プラグインの内部構造を把握・修正する開発者。
   現在 2 プラグインに分散する review-loop ロジックを 1 プラグインで管理できるようになる。
-- **sdd-forge エンドユーザー**: 変更に気づかない。BL-001〜BL-014 の振る舞いはすべて保たれる。
+- **sdd-forge エンドユーザー**: 通常フローは保たれる。旧 review-loop namespace の利用者には移行先を明示する。
 - **セキュリティ審査者**: Python ガードの Check 2e 不在（INV-002）が修正され、
   JS/Python 間のパリティが回復する。
 
@@ -31,13 +32,15 @@ v0.15.0 で `/sdd-bootstrap` + `/sdd-ship` の2コマンド化が完了した。
 - **REQ-004**: `sdd-bootstrap/SKILL.md` と `sdd-bootstrap-interviewer/SKILL.md` の全呼び出しサイトを新プラグイン名 `/sdd-review-loop:impl-review-loop` / `/sdd-review-loop:task-review-loop` に更新する。
 - **REQ-005**: `docs/skill-reference.md` と `docs/workflow-guide.md` をユーザー向けコンパクト版と内部コントリビューター向けの 2 層に再構成する。
 - **REQ-006**: guard-parity テストスイートに Scenarios 19/20/21 を追加し、Check 2e の JS/Python パリティを検証する。
+- **REQ-007**: `sdd-review-loop` を内部依存プラグインとして3種の manifest と両 marketplace に登録し、installer が登録できるようにする。
+- **REQ-008**: `sdd-bootstrap` は `--lite`、次に `AGENTS.md` の `spec_profile: lite`、最後に full を優先してトラックを決定する。
+- **REQ-009**: `--source-directory` は Git worktree root に限定し、インストール対象を Git 追跡ファイルに限定する。
 
 ## Non-goals
 
 - PS1 ガードへの R-10 / Check 2e 追加（別 issue で追跡）。
-- `sdd-review-loop` の marketplace.json 登録（旧プラグイン同様、未登録を維持）。
 - 既存のフックガード crypto（HMAC sudo、署名検証）の変更。
-- `sdd-ship` や `sdd-bootstrap` の振る舞い変更。
+- 旧 review-loop namespace の互換 alias 提供。
 - `docs/workflow-guide.md` Mermaid 図の更新（スキル名はベア名のままで正確）。
 
 ## Acceptance Criteria

@@ -2,15 +2,17 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
-$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-ship")
-$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
+$expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
+$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.0.0"
-    "sdd-implementation" = "1.0.0"
-    "sdd-quality-loop"   = "1.0.0"
-    "sdd-lite"           = "1.0.0"
-    "sdd-ship"           = "1.0.0"
+    "sdd-bootstrap"      = "1.2.0"
+    "sdd-implementation" = "1.2.0"
+    "sdd-quality-loop"   = "1.2.0"
+    "sdd-lite"           = "1.2.0"
+    "sdd-review-loop"    = "1.2.0"
+    "sdd-ship"           = "1.2.0"
 }
+$releasePlugins = $expectedPlugins
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -50,6 +52,23 @@ foreach ($plugin in $claudeMarketplace.plugins) {
     $expectedVersion = $expectedVersions[$plugin.name]
     if ($plugin.version -ne $expectedVersion) {
         throw "Claude marketplace version differs from $expectedVersion for $($plugin.name)."
+    }
+}
+
+# Every plugin carries the same explicit 1.2.x release version in both host
+# marketplaces so cache recovery and host discovery are unambiguous.
+foreach ($name in $releasePlugins) {
+    $expectedVersion = $expectedVersions[$name]
+    $codexEntry = @($codexMarketplace.plugins | Where-Object { $_.name -eq $name })
+    $claudeEntry = @($claudeMarketplace.plugins | Where-Object { $_.name -eq $name })
+    if ($codexEntry.Count -ne 1 -or $claudeEntry.Count -ne 1) {
+        throw "Expected exactly one marketplace entry for release plugin $name."
+    }
+    if ($codexEntry[0].version -ne $expectedVersion -or $claudeEntry[0].version -ne $expectedVersion) {
+        throw "Marketplace version differs from $expectedVersion for $name."
+    }
+    if ([version]$expectedVersion -le [version]"1.1.0") {
+        throw "Release plugin version must be newer than 1.1.0 for $name."
     }
 }
 
@@ -134,7 +153,12 @@ $requiredFiles = @(
     ".codex/agents/sdd-evaluator.toml",
     "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
     "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
-    "plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1"
+    "plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1",
+    "plugins/sdd-review-loop/.claude-plugin/plugin.json",
+    "plugins/sdd-review-loop/.codex-plugin/plugin.json",
+    "plugins/sdd-review-loop/.plugin/plugin.json",
+    "plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md",
+    "plugins/sdd-review-loop/skills/task-review-loop/SKILL.md"
 )
 foreach ($relativePath in $requiredFiles) {
     if (-not (Test-Path (Join-Path $repositoryRoot $relativePath))) {
@@ -181,6 +205,15 @@ foreach ($script in @("check-contract", "check-evidence-bundle", "check-placehol
         $scriptPath = "plugins/sdd-quality-loop/scripts/$script.$extension"
         if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
             throw "Missing deterministic gate script: $scriptPath"
+        }
+    }
+}
+# Review-loop prechecks use the same portable contract on every supported host.
+foreach ($script in @("review-contract-validate", "impl-review-precheck", "task-review-precheck")) {
+    foreach ($extension in @("sh", "ps1")) {
+        $scriptPath = "plugins/sdd-review-loop/scripts/$script.$extension"
+        if (-not (Test-Path (Join-Path $repositoryRoot $scriptPath))) {
+            throw "Missing portable review-loop script: $scriptPath"
         }
     }
 }

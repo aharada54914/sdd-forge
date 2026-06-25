@@ -1,0 +1,2 @@
+Command: plugins/sdd-quality-loop/scripts/check-traceability.sh specs/claude-workflow-compatibility/traceability.json . require-evidence
+Traceability check passed for claude-workflow-compatibility: 3 link(s).

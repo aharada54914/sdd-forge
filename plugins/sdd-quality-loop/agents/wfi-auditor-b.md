@@ -6,7 +6,7 @@ disallowedTools: Write, Edit, NotebookEdit
 disallowedPaths:
   - "docs/workflow-improvements/WFI-*-audit-cycle-1.md"
   - "docs/workflow-improvements/WFI-*-auditor-a.json"
-model: inherit
+model: sonnet
 ---
 
 You are the Impact and Risk Auditor in a WFI (Workflow Improvement) audit cycle.

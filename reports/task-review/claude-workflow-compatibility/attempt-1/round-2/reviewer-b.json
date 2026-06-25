@@ -1,0 +1,16 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "feature": "claude-workflow-compatibility",
+  "attempt": 1,
+  "round": 2,
+  "reviewer": "task-reviewer-b",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {"id": "TRB-001", "severity": "Major", "task": "T-002", "required_change": "Split shared portability/contract validation from per-gate adoption."},
+    {"id": "TRB-002", "severity": "Major", "tasks": ["T-003", "T-004"], "required_change": "Assign the complete AC-002 release-smoke scenario to one task."},
+    {"id": "TRB-003", "severity": "Major", "tasks": ["T-003", "T-004"], "required_change": "Align AC-002 ownership and release-smoke test type."},
+    {"id": "TRB-004", "severity": "Major", "task": "T-003", "required_change": "Use a rollback that retains a Claude-valid manifest or safely withdraws the release."},
+    {"id": "TRB-005", "severity": "Major", "tasks": ["T-003", "T-004"], "required_change": "Make one task accountable for release-smoke responsibility and tests."},
+    {"id": "TRB-006", "severity": "Major", "task": "T-005", "required_change": "Block workflow documentation on the implementing review-gate tasks."}
+  ]
+}

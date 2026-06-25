@@ -1,0 +1,17 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "feature": "claude-workflow-compatibility",
+  "attempt": 2,
+  "round": 2,
+  "verdict": "PASS",
+  "checks": [
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Minor","finding":"No issues found."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"PASS","severity":"Minor","finding":"No issues found."},
+    {"id":"TASK-SIZE","result":"PASS","severity":"Minor","finding":"No issues found."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Minor","finding":"No issues found."},
+    {"id":"TEST-TYPE-MATCH","result":"PASS","severity":"Minor","finding":"No issues found."},
+    {"id":"ROLLBACK-PLAN","result":"PASS","severity":"Minor","finding":"No issues found."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Minor","finding":"No issues found."},
+    {"id":"DEPENDENCY-OVERLAP","result":"PASS","severity":"Minor","finding":"No issues found."}
+  ]
+}

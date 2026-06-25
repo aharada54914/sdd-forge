@@ -1,0 +1,26 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "<feature-slug>",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "<sha256>",
+  "acceptance_sha256": "<sha256>",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "<fresh-run-id>",
+      "host_session_id": "<distinct-host-session-id>",
+      "allowed_input_manifest": [{"path": "<canonical-path>", "sha256": "<sha256>"}]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "<fresh-run-id>",
+      "host_session_id": "<distinct-host-session-id>",
+      "allowed_input_manifest": [{"path": "<canonical-path>", "sha256": "<sha256>"}]
+    }
+  ],
+  "run_id": "<fresh-orchestrator-run-id>",
+  "verdict": "PASS|NEEDS_WORK|BLOCKED",
+  "warningCount": 0
+}

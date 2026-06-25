@@ -48,7 +48,7 @@ Status: Done
 Risk: high
 Risk Rationale: hook guard の PROTECTED_GATE_SUFFIXES 更新（自己保護のため human/sudo 必須）。callerの更新漏れで sdd-bootstrap が runtime エラーになる。旧プラグイン削除は後戻り不可。
 Required Workflow: tdd
-Requirements: REQ-001, REQ-002, REQ-004
+Requirements: REQ-001, REQ-002, REQ-004, REQ-007, REQ-008, REQ-009
 
 ### Goal
 `sdd-impl-review` と `sdd-task-review` を `sdd-review-loop` プラグインに統合移動する。
@@ -77,7 +77,7 @@ Requirements: REQ-001, REQ-002, REQ-004
    - `templates/task-review-contract.template.json`（sdd-task-review/templates/ から移植）
    - `templates/task-review-report.template.md`（sdd-task-review/templates/ から移植）
    - `references/phase-review-checklist.md`（impl + task チェックリスト統合）
-   - plugin.json manifest は作成しない（marketplace 未登録方針: ADR-005）
+   - Claude/Codex/Copilot の plugin manifest を作成し、両 marketplace に internal dependency として登録する（ADR-006。ADR-005 を廃止）
    - **SKILL.md パス参照更新**: `plugins/sdd-impl-review/` → `plugins/sdd-review-loop/`、
      `plugins/sdd-task-review/` → `plugins/sdd-review-loop/`（各 SKILL.md 内の全参照）
 
@@ -121,6 +121,16 @@ Requirements: REQ-001, REQ-002, REQ-004
 - [x] BL-012/BL-013（install.sh auto-include + marketplace sdd-ship）が変化しないことを確認
 - [x] 実装レポート作成（reports/implementation/sdd-forge-refactor-T-002.md）
 - [x] quality gate pass
+
+### Post-completion remediation (ADR-006)
+
+既存完了タスクの監査で、review-loop が runtime 依存であるにもかかわらず配布・登録されない
+矛盾を確認した。以下は ADR-006 に基づく是正実装の完了条件である。
+
+- [x] `sdd-review-loop` の3 manifest と両 marketplace entry を追加
+- [x] installer dependency closure を bootstrap/lite/ship から `sdd-review-loop` まで展開
+- [x] `--source-directory` は Git 追跡ファイルだけを stage
+- [x] bootstrap の lite 選択優先順位と lite-spec の handoff を2コマンド workflow と同期
 
 ### Blockers
 None
