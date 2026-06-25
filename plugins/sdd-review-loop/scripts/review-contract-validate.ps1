@@ -16,8 +16,6 @@ function Is-JsonInteger([object]$Value) {
 if ($Feature -notmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
-$attemptNumber = [System.Numerics.BigInteger]::Parse($Attempt)
-$roundNumber = [System.Numerics.BigInteger]::Parse($Round)
 if (-not (Test-Path -LiteralPath $Contract -PathType Leaf)) { Fail 'contract does not exist' }
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path
@@ -36,4 +34,7 @@ $expectedProperties = @('attempt', 'feature', 'input_sha256', 'round', 'run_id',
 $actualProperties = @($data.PSObject.Properties.Name | Sort-Object)
 if (@(Compare-Object -ReferenceObject $expectedProperties -DifferenceObject $actualProperties).Count -ne 0 -or $data.schema -ne 'review-contract/v1' -or $data.feature -ne $Feature -or -not (Is-JsonInteger $data.attempt) -or $data.attempt.ToString() -ne $Attempt -or -not (Is-JsonInteger $data.round) -or $data.round.ToString() -ne $Round -or $data.stage -ne $Stage -or $data.input_sha256 -isnot [string] -or $data.input_sha256 -notmatch '^[0-9a-fA-F]{64}$' -or $data.run_id -isnot [string] -or [string]::IsNullOrWhiteSpace($data.run_id) -or $data.verdict -ne 'PASS') { Fail 'contract identity or PASS verdict is invalid' }
 
-[ordered]@{ schema = 'review-contract-validation/v1'; feature = $Feature; attempt = $attemptNumber; round = $roundNumber; stage = $Stage; verdict = 'PASS' } | ConvertTo-Json -Compress
+# PowerShell 7.5+ may serialize BigInteger values as objects on macOS. Feature
+# and stage are already constrained to JSON-safe tokens, and attempt/round are
+# canonical positive integer strings, so emit the protocol JSON directly.
+Write-Output ('{"schema":"review-contract-validation/v1","feature":"' + $Feature + '","attempt":' + $Attempt + ',"round":' + $Round + ',"stage":"' + $Stage + '","verdict":"PASS"}')
