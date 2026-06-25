@@ -15,7 +15,10 @@ function New-FakeClaudeCommand {
     New-Item -ItemType Directory -Path $BinRoot -Force | Out-Null
     if ($isWindowsPlatform) {
         $commandPath = Join-Path $BinRoot "claude.cmd"
-        $failureLine = if ($FailValidate) { "@if /i `"%~1`"==plugin if /i `"%~2`"==validate exit /b 9`r`n" } else { "" }
+        # Quote both operands. cmd.exe otherwise treats the second comparison
+        # differently on Windows runners and the validation-failure fixture
+        # incorrectly exits successfully.
+        $failureLine = if ($FailValidate) { '@if /I "%~1"=="plugin" if /I "%~2"=="validate" exit /b 9' + [Environment]::NewLine } else { "" }
         "@echo claude %*>>`"$LogPath`"`r`n$failureLine@exit /b 0`r`n" | Set-Content -Path $commandPath -Encoding Ascii
     }
     else {

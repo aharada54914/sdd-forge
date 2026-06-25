@@ -23,7 +23,10 @@ try {
   if ($createdParent) { New-Item -ItemType Directory -Path $reportParent | Out-Null }
 
   $output = & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $fixture | ConvertFrom-Json
-  if ($output.schema -ne 'review-contract-validation/v1' -or $output.feature -ne 'utf8-feature' -or $output.attempt -ne 1 -or $output.round -ne 2 -or $output.stage -ne 'spec' -or $output.verdict -ne 'PASS') {
+  # ConvertFrom-Json may materialize JSON integer tokens as BigInteger on newer
+  # PowerShell builds. Compare their canonical text, not a runtime-specific
+  # numeric CLR type, while retaining the exact protocol values under test.
+  if ($output.schema -ne 'review-contract-validation/v1' -or $output.feature -ne 'utf8-feature' -or $output.attempt.ToString() -ne '1' -or $output.round.ToString() -ne '2' -or $output.stage -ne 'spec' -or $output.verdict -ne 'PASS') {
     throw "unexpected canonical output: $($output | ConvertTo-Json -Compress)"
   }
 
