@@ -6,7 +6,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 function Fail([string]$Message) { throw "task-review-precheck: $Message" }
-function Require-Pass([string]$Root, [string]$Stage, [string]$FeatureName, [string]$RequirementsHash, [string]$AcceptanceHash, [string]$DesignHash) {
+function Require-Pass([string]$Root, [string]$Stage, [string]$FeatureName, [string]$RequirementsHash, [string]$AcceptanceHash, [string]$DesignHash, [string]$CalibrationHash) {
   if (-not (Test-Path -LiteralPath $Root -PathType Container) -or (Get-Item -LiteralPath $Root).LinkType) { Fail "missing $Stage predecessor report root" }
   $verdict = Get-ChildItem -LiteralPath $Root -Filter integrated-verdict.json -File -Recurse | Sort-Object FullName | Select-Object -Last 1
   if ($null -eq $verdict) { Fail "missing persisted $Stage PASS verdict" }
@@ -23,9 +23,20 @@ function Require-Pass([string]$Root, [string]$Stage, [string]$FeatureName, [stri
   if (@($reviewers.host_session_id | Where-Object { [string]::IsNullOrWhiteSpace($_) }).Count -gt 0 -or @($reviewers.host_session_id | Select-Object -Unique).Count -ne 2) { Fail "persisted $Stage contract does not isolate reviewer sessions" }
   if (@($reviewers.run_id | Where-Object { [string]::IsNullOrWhiteSpace($_) }).Count -gt 0 -or @($reviewers.run_id | Select-Object -Unique).Count -ne 2) { Fail "persisted $Stage contract has invalid reviewer run IDs" }
   $manifest = @($reviewers | ForEach-Object { @($_.allowed_input_manifest) })
-  if ($manifest.Count -eq 0 -or @($manifest | Where-Object { [string]::IsNullOrWhiteSpace($_.path) -or $_.path -notlike "specs/$FeatureName/*" -or $_.path -match 'reviewer-' -or $_.sha256 -notmatch '^[0-9a-f]{64}$' }).Count -gt 0) { Fail "persisted $Stage contract has an invalid allowed input manifest" }
+  $calibrationPath = 'plugins/sdd-review-loop/references/reviewer-calibration.md'
+  $invalidManifest = @($manifest | Where-Object {
+    $specPath = $_.path -like "specs/$FeatureName/*" -and $_.path -notmatch 'reviewer-'
+    $calibrationEntry = $Stage -eq 'impl' -and $_.path -eq $calibrationPath
+    [string]::IsNullOrWhiteSpace($_.path) -or $_.sha256 -notmatch '^[0-9a-f]{64}$' -or -not ($specPath -or $calibrationEntry)
+  }).Count -gt 0
+  if ($manifest.Count -eq 0 -or $invalidManifest) { Fail "persisted $Stage contract has an invalid allowed input manifest" }
   $expected = @(@("specs/$FeatureName/requirements.md", $RequirementsHash), @("specs/$FeatureName/acceptance-tests.md", $AcceptanceHash)); if ($Stage -eq 'impl') { $expected += ,@("specs/$FeatureName/design.md", $DesignHash) }
   foreach ($pair in $expected) { if (@($manifest | Where-Object { $_.path -eq $pair[0] -and $_.sha256 -eq $pair[1] }).Count -eq 0) { Fail "persisted $Stage contract does not match canonical current inputs" } }
+  if ($Stage -eq 'impl') {
+    foreach ($reviewer in $reviewers) {
+      if (@($reviewer.allowed_input_manifest | Where-Object { $_.path -eq $calibrationPath -and $_.sha256 -eq $CalibrationHash }).Count -eq 0) { Fail "persisted $Stage contract does not match canonical current inputs" }
+    }
+  }
   if ($contract.attempt -ne $data.attempt -or $contract.round -ne $data.round -or $contract.verdict -ne $data.verdict) { Fail "persisted $Stage verdict and contract contradict each other" }
   $reviewerByRole = @{}; foreach ($reviewer in $reviewers) { $reviewerByRole[$reviewer.role] = $reviewer }
   if ($Stage -eq 'spec') {
@@ -58,7 +69,11 @@ $inDegree=@{}; foreach($node in $nodes){ $inDegree[$node]=0 }; foreach($edge in 
 $queue=[Collections.Generic.Queue[string]]::new(); foreach($node in $nodes){ if($inDegree[$node] -eq 0){ $queue.Enqueue($node) } }
 $visited=0; while($queue.Count -gt 0){ $node=$queue.Dequeue(); $visited++; foreach($edge in $edges | Where-Object { $_.from -eq $node }){ $inDegree[$edge.to]--; if($inDegree[$edge.to] -eq 0){ $queue.Enqueue($edge.to) } } }
 if($visited -ne $nodes.Count){ Fail 'Blockers dependency graph contains a cycle' }
-$tasksHash=(Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower(); $requirementsHash=(Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower(); $acceptanceHash=(Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower(); $designHash=(Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower(); Require-Pass (Join-Path $root "reports/spec-review/$Feature") 'spec' $Feature $requirementsHash $acceptanceHash ''; Require-Pass (Join-Path $root "reports/impl-review/$Feature") 'impl' $Feature $requirementsHash $acceptanceHash $designHash
+$tasksHash=(Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower(); $requirementsHash=(Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower(); $acceptanceHash=(Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower(); $designHash=(Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower()
+$calibration = Join-Path $root 'plugins/sdd-review-loop/references/reviewer-calibration.md'
+if (-not (Test-Path -LiteralPath $calibration -PathType Leaf) -or (Get-Item -LiteralPath $calibration).LinkType) { Fail 'plugins/sdd-review-loop/references/reviewer-calibration.md not found' }
+$calibrationHash = (Get-FileHash -LiteralPath $calibration -Algorithm SHA256).Hash.ToLower()
+Require-Pass (Join-Path $root "reports/spec-review/$Feature") 'spec' $Feature $requirementsHash $acceptanceHash '' ''; Require-Pass (Join-Path $root "reports/impl-review/$Feature") 'impl' $Feature $requirementsHash $acceptanceHash $designHash $calibrationHash
 $riskScript = Join-Path $root 'plugins/sdd-quality-loop/scripts/check-risk.ps1'
 if (-not (Test-Path -LiteralPath $riskScript -PathType Leaf)) { Fail 'shared risk gate is missing' }
 & $riskScript -TasksPath $tasks

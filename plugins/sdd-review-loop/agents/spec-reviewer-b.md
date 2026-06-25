@@ -29,7 +29,8 @@ The integrated summary may contain only check IDs, severities, and aggregate
 counts; it must not contain raw findings. Reject an invocation whose `stage` is
 not `spec`, role is not `spec-reviewer-b`, host-session identifier is blank, or
 manifest includes raw reviewer reports, path traversal, or paths outside this
-allowlist. Never read any `reviewer-*.json` or another stage's review evidence.
+allowlist. Never read `reviewer-a.json`, any `reviewer-*.json`, or another
+stage's review evidence.
 
 # Review
 

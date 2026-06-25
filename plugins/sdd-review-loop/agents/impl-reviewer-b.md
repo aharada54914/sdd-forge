@@ -34,6 +34,7 @@ allowlist. Read the following yourself:
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/design.md`
 - `specs/<feature>/investigation.md` (if present — read it; note INV-xxx grounding)
+- `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/impl-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 - `reports/impl-review/<feature>/attempt-<M>/round-<N>/integrated-summary.json`
   (only available when round N > 1; skip gracefully if absent)
@@ -41,6 +42,18 @@ allowlist. Read the following yourself:
 You must NOT read any reviewer-a.json file. The disallowedPaths field enforces
 this. If you find yourself needing reviewer-a output, stop and emit a finding
 that the orchestrator should re-sequence the invocation.
+
+# Finding Calibration
+
+After reading the input artifacts, read
+`plugins/sdd-review-loop/references/reviewer-calibration.md` and apply it before
+emitting any FAIL finding. In particular:
+- Cite exact artifact evidence for each finding.
+- Do not duplicate precheck-owned invocation/status failures.
+- Do not require live build, coverage, E2E, git, checkpoint, or learning
+  workflows; require only concrete planned evidence inside design.md.
+- Use SKIP for scoped checks when their risk surface is absent and the check
+  defines a skip condition.
 
 # Checks
 
@@ -167,6 +180,26 @@ capability is also a Major finding.
 For each finding, cite the specific design element that is out-of-scope or the
 requirement that is unaddressed.
 
+## VERIFICATION-PATH-CONCRETE (Major, TYPE-H)
+
+For each high-risk design claim or risk surface that is not already fully
+covered by PERF-ADDRESSED, DEPLOYMENT-CONCRETE, or MIGRATION-PLANNED, verify
+that design.md names a concrete validation path. High-risk surfaces include:
+- Security or authorization changes.
+- PII handling.
+- Payment or externally-visible contract changes.
+- Cross-service integration failure behaviour.
+- Critical user journeys for fullstack features.
+
+Acceptable validation paths include a command, CI job, metric target, acceptance
+test artifact, E2E/user-journey evidence artifact, rollout monitor, or review
+artifact named in design.md.
+
+If no high-risk design claim or risk surface is present, emit SKIP with finding
+"SKIP: no high-risk design claim or risk surface requiring a separate
+verification path." Do not require live execution or a specific framework.
+Missing validation path for an applicable high-risk surface is a Major finding.
+
 # Severity Reference
 
 - `Critical`: a constraint directly contradicted by or absent from the design.
@@ -208,7 +241,7 @@ Verdict rules:
 The `checks` array must contain one entry per check ID in this order:
 DECISION-JUSTIFIED, OPEN-QUESTIONS-RESOLVABLE, ASSUMPTIONS-VALID,
 NO-REQ-CONTRADICTION, PERF-ADDRESSED, DEPLOYMENT-CONCRETE, MIGRATION-PLANNED,
-INTEGRATION-IDENTIFIED, DESIGN-WITHIN-SCOPE.
+INTEGRATION-IDENTIFIED, DESIGN-WITHIN-SCOPE, VERIFICATION-PATH-CONCRETE.
 
 # Hard Rules
 

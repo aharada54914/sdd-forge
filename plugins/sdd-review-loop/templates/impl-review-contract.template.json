@@ -20,8 +20,8 @@
   "design_sha256": "",
   "design_req_drift": false,
   "reviewers": [
-    {"role":"impl-reviewer-a","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"}]},
-    {"role":"impl-reviewer-b","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"}]}
+    {"role":"impl-reviewer-a","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"},{"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"<sha256>"}]},
+    {"role":"impl-reviewer-b","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"},{"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"<sha256>"}]}
   ],
   "human_edit_summary": "",
   "timestamp": ""

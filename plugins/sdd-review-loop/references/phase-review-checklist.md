@@ -2,16 +2,16 @@
 
 Combined reference for all review checks used by `sdd-review-loop`.
 
-- **Part 1** — `impl-review-loop`: 18 checks across impl-reviewer-a and impl-reviewer-b
-- **Part 2** — `task-review-loop`: 22 checks across task-reviewer-a and task-reviewer-b
+- **Part 1** — `impl-review-loop`: 19 checks across impl-reviewer-a and impl-reviewer-b
+- **Part 2** — `task-review-loop`: 23 checks across task-reviewer-a and task-reviewer-b
 
 ---
 
 ## Part 1: Implementation Policy Review Checklist (impl-review-loop)
 
-Complete reference for all 18 checks in the impl-review-loop. Checks are split
+Complete reference for all 19 checks in the impl-review-loop. Checks are split
 across two reviewers: impl-reviewer-a (structural soundness, 9 checks) and
-impl-reviewer-b (implementability/risk, 9 checks).
+impl-reviewer-b (implementability/risk, 10 checks).
 
 ### Check Types
 
@@ -167,11 +167,16 @@ displayed fields are covered by API response schemas.
 | Default | FAIL |
 
 **Description:** `## Test Strategy` must cover unit, integration, and acceptance
-test scopes.
+test scopes, plus planned verification evidence such as commands, report paths,
+or artifact names when design.md identifies project tooling or CI. Fullstack
+features with critical user journeys must name an E2E, user-journey, acceptance,
+or manual verification evidence path.
 
-**Pass condition:** All three test levels addressed with scope descriptions.
+**Pass condition:** All three test levels addressed with scope descriptions and
+applicable planned verification evidence named.
 
-**Fail condition:** Section absent; or only one or two test levels addressed.
+**Fail condition:** Section absent; only one or two test levels addressed; or an
+applicable critical user journey has no planned verification path.
 
 ---
 
@@ -215,7 +220,7 @@ introduced with no ADR.
 
 ---
 
-### Reviewer-B Checks (Implementability/Risk — 9 checks)
+### Reviewer-B Checks (Implementability/Risk — 10 checks)
 
 #### DECISION-JUSTIFIED
 
@@ -398,11 +403,38 @@ capability absent from design.
 
 ---
 
+#### VERIFICATION-PATH-CONCRETE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+| Skip condition | No high-risk design claim or risk surface requiring a separate verification path |
+
+**Description:** High-risk design claims or risk surfaces not already fully
+covered by performance, deployment, or migration checks must name a concrete
+validation path.
+
+**Pass condition:** Each applicable high-risk surface names a command, CI job,
+metric target, acceptance test artifact, E2E/user-journey evidence artifact,
+rollout monitor, or review artifact.
+
+**Fail condition:** Security/authz, PII, payment, external contract, integration
+failure behaviour, or critical fullstack user journey risk exists with no
+concrete validation path.
+
+**Skip condition:** No high-risk design claim or risk surface requires a
+separate verification path.
+
+---
+
 ## Part 2: Task Review Checklist (task-review-loop)
 
-Complete reference for all 22 checks in the task-review-loop. Checks are split
+Complete reference for all 23 checks in the task-review-loop. Checks are split
 across two reviewers: task-reviewer-a (structural coverage, 14 checks) and
-task-reviewer-b (quality/risk, 8 checks).
+task-reviewer-b (quality/risk, 9 checks).
 
 ### Check Types
 
@@ -672,11 +704,16 @@ See `references/task-review-rubric.md` for examples.
 **Description:** Every Done When item must be concrete and verifiable. Forbidden
 verbs: "ensure", "consider", "update X" (no target), "verify is correct", "works
 correctly", "review X" (no artifact outcome), "confirm X" (no specific result).
+Each non-documentation-only task must include at least one Done When item naming
+a concrete verification command or evidence artifact. Documentation-only tasks
+may instead name the exact file and section whose change proves completion.
 
 **Pass condition:** All Done When items name a concrete artifact, test result,
-metric, or command output.
+metric, command output, or exact documentation file/section for documentation-only
+tasks.
 
-**Fail condition:** Any Done When item uses a forbidden verb or pattern.
+**Fail condition:** Any Done When item uses a forbidden verb or pattern, or a
+non-documentation-only task lacks a verification command or evidence artifact.
 
 See `references/task-review-rubric.md` for the full forbidden-verb list with examples.
 
@@ -701,7 +738,7 @@ and requirements.md.
 
 ---
 
-### Reviewer-B Checks (Quality/Risk — 8 checks)
+### Reviewer-B Checks (Quality/Risk — 9 checks)
 
 #### RISK-APPROPRIATE
 
@@ -863,3 +900,29 @@ no spurious or missing blockers.
 
 **Fail condition:** Any spurious blocker (inflates critical path) or missing
 blocker (would cause integration failure).
+
+---
+
+#### BUGFIX-DIAGNOSTIC-PATH
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+| Skip condition | No bugfix or debugging task in scope |
+
+**Description:** Bugfix, regression fix, debugging, failure diagnosis,
+flaky-test, or incident remediation tasks must include a systematic diagnostic
+path before implementation.
+
+**Pass condition:** Each applicable task includes reproduction evidence or an
+exact reproduction command/symptom, a diagnostic/root-cause investigation step,
+and a regression test, verification command, or evidence artifact proving the
+original failure is fixed.
+
+**Fail condition:** Any applicable task starts directly with an implementation
+change or lacks reproduction, diagnostic, or regression/verification evidence.
+
+**Skip condition:** No bugfix/debugging task exists in tasks.md.
