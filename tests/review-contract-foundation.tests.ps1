@@ -22,11 +22,12 @@ function Assert-Fails([scriptblock]$Action, [string]$Description) {
 try {
   if ($createdParent) { New-Item -ItemType Directory -Path $reportParent | Out-Null }
 
-  $output = & $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $fixture | ConvertFrom-Json
-  # ConvertFrom-Json may materialize JSON integer tokens as BigInteger on newer
-  # PowerShell builds. Compare their canonical text, not a runtime-specific
-  # numeric CLR type, while retaining the exact protocol values under test.
-  if ($output.schema -ne 'review-contract-validation/v1' -or $output.feature -ne 'utf8-feature' -or $output.attempt.ToString() -ne '1' -or $output.round.ToString() -ne '2' -or $output.stage -ne 'spec' -or $output.verdict -ne 'PASS') {
+  $rawOutput = @(& $validator -Feature 'utf8-feature' -Attempt 1 -Round 2 -Stage spec -ReportRoot $reportRoot -Contract $fixture) -join [Environment]::NewLine
+  $output = $rawOutput | ConvertFrom-Json
+  # ConvertFrom-Json may materialize JSON integer tokens as BigInteger-like
+  # objects on newer PowerShell/macOS builds. Assert the canonical numeric JSON
+  # tokens from the raw protocol output, then parse string fields normally.
+  if ($output.schema -ne 'review-contract-validation/v1' -or $output.feature -ne 'utf8-feature' -or $rawOutput -notmatch '"attempt":1(,|})' -or $rawOutput -notmatch '"round":2(,|})' -or $output.stage -ne 'spec' -or $output.verdict -ne 'PASS') {
     throw "unexpected canonical output: $($output | ConvertTo-Json -Compress)"
   }
 
