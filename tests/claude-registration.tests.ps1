@@ -44,6 +44,26 @@ function New-FakeSuccessfulPluginCommands {
     }
 }
 
+function New-GitShim {
+    param([Parameter(Mandatory)][string]$BinRoot)
+
+    $realGit = (Get-Command git -ErrorAction Stop).Source
+    if ($isWindowsPlatform) {
+        @(
+            ('"{0}" %*' -f $realGit)
+            '@exit /b %ERRORLEVEL%'
+        ) | Set-Content -Path (Join-Path $BinRoot "git.cmd") -Encoding Ascii
+    }
+    else {
+        $commandPath = Join-Path $BinRoot "git"
+        @(
+            '#!/bin/sh'
+            ('exec "{0}" "$@"' -f $realGit)
+        ) | Set-Content -Path $commandPath -Encoding Utf8NoBOM
+        & chmod +x $commandPath
+    }
+}
+
 # ---------------------------------------------------------------------------
 # Target Claude: must register marketplace and install the two public commands.
 # sdd-ship auto-expands its internal companions, but sdd-bootstrap and sdd-ship
@@ -130,10 +150,12 @@ $requireSavedPath = $env:PATH
 try {
     New-Item -ItemType Directory -Path $requireBin -Force | Out-Null
     New-FakeSuccessfulPluginCommands -BinRoot $requireBin
-    # Keep Git available for source validation while excluding a real Claude
-    # executable from PATH; this test verifies the missing-CLI branch.
-    $gitDirectory = Split-Path -Parent (Get-Command git -ErrorAction Stop).Source
-    $env:PATH = "$requireBin$([System.IO.Path]::PathSeparator)$gitDirectory"
+    # Keep Git available for source validation without retaining its containing
+    # directory on PATH. GitHub macOS runners can install git and claude in the
+    # same directory, which would otherwise make the "missing Claude" branch
+    # depend on runner layout instead of installer behavior.
+    New-GitShim -BinRoot $requireBin
+    $env:PATH = $requireBin
 
     $failed = $false
     try {
