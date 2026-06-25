@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.2.0 (2026-06-25)
+
 ### 修正: エントリーポイントコマンドがスラッシュメニューに表示されない問題
 
 `sdd-bootstrap` / `sdd-ship` プラグインのエントリースキル名がプラグイン名と一致していたため、Claude Code のプラグインスキル名前空間と衝突し（[claude-code#22063](https://github.com/anthropics/claude-code/issues/22063)）、`/sdd-bootstrap` と `/sdd-ship` が `/` メニューに表示されず、フル入力しても `Unknown command` となっていた。

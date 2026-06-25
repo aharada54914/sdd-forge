@@ -5,14 +5,14 @@ $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.1.1"
-    "sdd-implementation" = "1.1.0"
-    "sdd-quality-loop"   = "1.1.1"
-    "sdd-lite"           = "1.1.0"
-    "sdd-review-loop"    = "1.1.1"
-    "sdd-ship"           = "1.1.0"
+    "sdd-bootstrap"      = "1.2.0"
+    "sdd-implementation" = "1.2.0"
+    "sdd-quality-loop"   = "1.2.0"
+    "sdd-lite"           = "1.2.0"
+    "sdd-review-loop"    = "1.2.0"
+    "sdd-ship"           = "1.2.0"
 }
-$releasePlugins = @("sdd-bootstrap", "sdd-quality-loop", "sdd-review-loop")
+$releasePlugins = $expectedPlugins
 
 function Read-JsonFile {
     param([Parameter(Mandatory)][string]$RelativePath)
@@ -55,8 +55,8 @@ foreach ($plugin in $claudeMarketplace.plugins) {
     }
 }
 
-# The affected release plugins carry an explicit catalog version in both host
-# marketplaces; other entries continue to derive their version from manifests.
+# Every plugin carries the same explicit 1.2.x release version in both host
+# marketplaces so cache recovery and host discovery are unambiguous.
 foreach ($name in $releasePlugins) {
     $expectedVersion = $expectedVersions[$name]
     $codexEntry = @($codexMarketplace.plugins | Where-Object { $_.name -eq $name })
