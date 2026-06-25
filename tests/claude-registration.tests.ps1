@@ -50,6 +50,7 @@ function New-GitShim {
     $realGit = (Get-Command git -ErrorAction Stop).Source
     if ($isWindowsPlatform) {
         @(
+            '@echo off'
             ('"{0}" %*' -f $realGit)
             '@exit /b %ERRORLEVEL%'
         ) | Set-Content -Path (Join-Path $BinRoot "git.cmd") -Encoding Ascii
