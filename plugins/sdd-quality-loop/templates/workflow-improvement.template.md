@@ -69,6 +69,13 @@ Audit-Status: {{audit_status}}
 
 <!-- State the metric(s) expected to improve and by how much. -->
 
+## Verification Metric
+
+{{metric_name_baseline_target_checkpoint}}
+
+<!-- Name one primary metric, the current baseline, target, and checkpoint. -->
+<!-- Retrospective compares this after the next task cycle.                 -->
+
 ## Verification Plan
 
 {{verification_plan}}

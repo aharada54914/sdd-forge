@@ -26,34 +26,46 @@ expect_failure() {
 
 write_contract() {
   local directory="$1" verdict="$2" severity="$3"
-  local requirements_sha acceptance_sha precheck_sha summary_sha round a_verdict a_result a_fails a_passes critical major minor warning
+  local requirements_sha acceptance_sha precheck_sha summary_sha calibration calibration_sha round a_verdict a_result a_fails a_passes critical major minor warning check_severity
   round="$(jq -r .round "${directory}/precheck-result.json")"
   case "${severity}" in
-    none) a_verdict="PASS"; a_result="PASS"; a_fails=0; a_passes=1; critical=0; major=0; minor=0 ;;
-    Critical) a_verdict="BLOCKED"; a_result="FAIL"; a_fails=1; a_passes=0; critical=1; major=0; minor=0 ;;
-    Major) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=0; critical=0; major=1; minor=0 ;;
-    Minor) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=0; critical=0; major=0; minor=1 ;;
+    none) a_verdict="PASS"; a_result="PASS"; a_fails=0; a_passes=6; critical=0; major=0; minor=0; check_severity="Minor" ;;
+    Critical) a_verdict="BLOCKED"; a_result="FAIL"; a_fails=1; a_passes=5; critical=1; major=0; minor=0; check_severity="Critical" ;;
+    Major) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=5; critical=0; major=1; minor=0; check_severity="Major" ;;
+    Minor) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=5; critical=0; major=0; minor=1; check_severity="Minor" ;;
     *) fail "unknown fixture severity: ${severity}" ;;
   esac
   warning=0
   [[ "${round}" == 3 && "${severity}" == Minor ]] && warning=1
-  jq -n --argjson attempt 1 --argjson round "${round}" --arg result "${a_result}" --arg severity "${severity}" \
+  jq -n --argjson attempt 1 --argjson round "${round}" --arg result "${a_result}" --arg severity "${check_severity}" \
     --argjson fail_count "${a_fails}" --argjson pass_count "${a_passes}" \
-    '{schema:"integrated-summary/v1",attempt:$attempt,round:$round,reviewer_a_checks:[{id:"REQ-TESTABILITY",result:$result,severity:$severity}],reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
+    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE"] as $ids |
+    {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
+     reviewer_a_checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end)})),
+     reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
     > "${directory}/integrated-summary.json"
-  local requirements_sha acceptance_sha precheck_sha summary_sha
   requirements_sha="$(jq -r .requirements_sha256 "${directory}/precheck-result.json")"
   acceptance_sha="$(jq -r .acceptance_sha256 "${directory}/precheck-result.json")"
   precheck_sha="$(sha256sum "${directory}/precheck-result.json" | awk '{print $1}')"
   summary_sha="$(sha256sum "${directory}/integrated-summary.json" | awk '{print $1}')"
-  jq -n --arg feature "${FEATURE}" --arg result "${a_result}" --arg severity "${severity}" --arg verdict "${a_verdict}" \
-    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" \
-    --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg precheck_sha "${precheck_sha}" \
-    '{schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha}],verdict:$verdict,checks:[{id:"REQ-TESTABILITY",result:$result,severity:$severity,finding:"fixture finding"}]}' \
+  calibration="${ROOT}/plugins/sdd-review-loop/references/spec-review-calibration.md"
+  calibration_sha="$(sha256sum "${calibration}" | awk '{print $1}')"
+  jq -n --arg feature "${FEATURE}" --arg result "${a_result}" --arg severity "${check_severity}" --arg verdict "${a_verdict}" \
+    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg calibration "${calibration}" \
+    --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg precheck_sha "${precheck_sha}" --arg calibration_sha "${calibration_sha}" \
+    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE"] as $ids |
+    {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
+     allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}],
+     verdict:$verdict,
+     checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
     > "${directory}/reviewer-a.json"
   jq -n --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" \
-    --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" \
-    '{schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$summary,sha256:$summary_sha}],verdict:"PASS",checks:[{id:"AMBIGUITY",result:"PASS",severity:"Minor",finding:"fixture pass"}]}' \
+    --arg calibration "${calibration}" --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" --arg calibration_sha "${calibration_sha}" \
+    '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
+     allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}],
+     verdict:"PASS",
+     checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
     > "${directory}/reviewer-b.json"
   jq -n --arg feature "${FEATURE}" --arg verdict "${verdict}" --argjson round "${round}" --argjson warning "${warning}" --argjson critical "${critical}" --argjson major "${major}" --argjson minor "${minor}" \
     '{schema:"spec-review-integrated-verdict/v1",stage:"spec",feature:$feature,attempt:1,round:$round,reviewer_a_run_id:"fixture-a",reviewer_b_run_id:"fixture-b",reviewer_a_host_session_id:"session-a",reviewer_b_host_session_id:"session-b",finding_counts:{critical:$critical,major:$major,minor:$minor},verdict:$verdict,warningCount:$warning}' \
@@ -61,14 +73,14 @@ write_contract() {
   jq -n --arg feature "${FEATURE}" --arg verdict "${verdict}" \
     --arg requirements_sha256 "${requirements_sha}" --arg acceptance_sha256 "${acceptance_sha}" \
     --argjson round "${round}" --argjson warning "${warning}" \
-    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" \
-    --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" \
+    --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" --arg calibration "${calibration}" \
+    --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" --arg calibration_sha "${calibration_sha}" \
     '{schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:1,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[
       {role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[
-        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha}
+        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}
       ]},
       {role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:[
-        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$summary,sha256:$summary_sha}
+        {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}
       ]}
     ],run_id:"fixture-orchestrator",verdict:$verdict,warningCount:$warning}' \
     > "${directory}/spec-review-contract.json"
@@ -111,6 +123,11 @@ expect_failure "${PRECHECK}" "${FEATURE^^}" 0 1
 write_contract "${ROUND_ONE}" NEEDS_WORK Major
 expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
 printf '\n- Human correction recorded.\n' >> "${SPEC_DIR}/requirements.md"
+tmp_reviewer="${ROUND_ONE}/reviewer-a.tmp"
+jq '.checks = [.checks[0]]' "${ROUND_ONE}/reviewer-a.json" > "${tmp_reviewer}"
+mv "${tmp_reviewer}" "${ROUND_ONE}/reviewer-a.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 1 2 --edit-summary="fixed wording"
+write_contract "${ROUND_ONE}" NEEDS_WORK Major
 tmp_contract="${ROUND_ONE}/spec-review-contract.tmp"
 jq '.reviewers[0].allowed_input_manifest += [{"path":"../reports/impl-review/x/reviewer-a.json","sha256":"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}]' \
   "${ROUND_ONE}/spec-review-contract.json" > "${tmp_contract}"

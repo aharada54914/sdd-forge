@@ -24,6 +24,7 @@ The orchestrator supplies an allowed-input manifest containing exactly:
 - optional `specs/<feature>/investigation.md`
 - `reports/spec-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 - `reports/spec-review/<feature>/attempt-<M>/round-<N>/integrated-summary.json`
+- `plugins/sdd-review-loop/references/spec-review-calibration.md`
 
 The integrated summary may contain only check IDs, severities, and aggregate
 counts; it must not contain raw findings. Reject an invocation whose `stage` is
@@ -32,12 +33,40 @@ manifest includes raw reviewer reports, path traversal, or paths outside this
 allowlist. Never read `reviewer-a.json`, any `reviewer-*.json`, or another
 stage's review evidence.
 
+# Finding Calibration
+
+Before reviewing, read
+`plugins/sdd-review-loop/references/spec-review-calibration.md` and apply it to
+every check. The integrated summary is only a counts-and-IDs bridge; it is not
+evidence for a finding.
+
 # Review
 
-Independently assess ambiguity, contradictory requirements, missing edge-case
-acceptance coverage, and whether the declared review/approval boundaries are
-testable. Classify a direct safety or workflow-boundary contradiction as
-Critical, an implementability gap as Major, and advisory improvement as Minor.
+All checks default to FAIL. Emit PASS only when the artifact gives enough
+evidence to remove downstream ambiguity. Emit SKIP only when the check has an
+explicit skip condition.
+
+Run these checks:
+
+- `AMBIGUITY` (Major): terms, actors, states, inputs, or outputs are concrete
+  enough that two implementers would not reasonably build different behavior.
+- `CONTRADICTION` (Critical): requirements, acceptance criteria, constraints,
+  or non-goals do not directly conflict.
+- `EDGE-CASE-COVERAGE` (Major): acceptance tests cover material negative paths,
+  empty states, boundary states, or failure modes implied by the requirements.
+- `ASSUMPTIONS-RESOLVABLE` (Major): assumptions are either resolved by
+  investigation or explicitly marked as decisions needed before design/task
+  decomposition.
+- `APPROVAL-BOUNDARY` (Critical, SKIP allowed): human approval, governance, or
+  irreversible-change boundaries are testable when the requirements imply them.
+  SKIP only when no such boundary is in scope.
+- `DOWNSTREAM-READINESS` (Major): the specification is ready to hand to
+  implementation-policy review without requiring the design reviewer to invent
+  missing product behavior.
+
+Classify a direct safety or workflow-boundary contradiction as Critical, an
+ambiguity that will cause downstream mismatch as Major, and non-blocking
+clarification as Minor.
 
 Return only this JSON shape:
 
@@ -50,8 +79,11 @@ Return only this JSON shape:
   "host_session_id": "<distinct-host-session-id>",
   "allowed_input_manifest": [{"path":"<canonical-allowed-path>","sha256":"<sha256>"}],
   "verdict": "PASS|NEEDS_WORK|BLOCKED",
-  "checks": [{"id":"AMBIGUITY","result":"PASS|FAIL","severity":"Critical|Major|Minor","finding":"evidence"}]
+  "checks": [{"id":"AMBIGUITY","result":"PASS|FAIL|SKIP","severity":"Critical|Major|Minor","finding":"evidence"}]
 }
 ```
 
 Do not include another reviewer's raw finding in your output.
+
+The `checks` array must contain one entry per check ID in this order:
+`AMBIGUITY, CONTRADICTION, EDGE-CASE-COVERAGE, ASSUMPTIONS-RESOLVABLE, APPROVAL-BOUNDARY, DOWNSTREAM-READINESS.`

@@ -50,6 +50,7 @@ reports_base="${reports_root}/spec-review"
 spec_dir="${repo_root}/specs/${feature}"
 requirements="${spec_dir}/requirements.md"
 acceptance="${spec_dir}/acceptance-tests.md"
+calibration="${repo_root}/plugins/sdd-review-loop/references/spec-review-calibration.md"
 report_root="${repo_root}/reports/spec-review/${feature}"
 report_dir="${report_root}/attempt-${attempt}/round-${round}"
 
@@ -59,6 +60,7 @@ report_dir="${report_root}/attempt-${attempt}/round-${round}"
 [[ "$(canonical_dir "$spec_dir")" == "$spec_dir" ]] || fail "feature specification directory escapes repository"
 [[ -f "$requirements" && ! -L "$requirements" ]] || fail "requirements.md must be a regular non-symlink file"
 [[ -f "$acceptance" && ! -L "$acceptance" ]] || fail "acceptance-tests.md must be a regular non-symlink file"
+[[ -f "$calibration" && ! -L "$calibration" ]] || fail "spec review calibration reference must be a regular non-symlink file"
 [[ -d "$reports_root" && ! -L "$reports_root" ]] || fail "reports root must be a real directory"
 [[ "$(canonical_dir "$reports_root")" == "$reports_root" ]] || fail "reports root escapes repository"
 if [[ -e "$reports_base" ]]; then
@@ -77,29 +79,43 @@ fi
 
 requirements_sha="$(sha256 "$requirements")"
 acceptance_sha="$(sha256 "$acceptance")"
+calibration_sha="$(sha256 "$calibration")"
 input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
 
 validate_reviewer_output() {
   local output="$1" role="$2" manifest="$3" run_id="$4" host_session_id="$5"
-  local expected_verdict actual_manifest
+  local expected_verdict actual_manifest expected_ids actual_ids
   [[ -f "$output" && ! -L "$output" ]] || return 1
   jq -e --arg schema "${role}/v1" --arg role "$role" --arg run_id "$run_id" --arg host_session_id "$host_session_id" '
     type == "object" and keys == ["allowed_input_manifest", "checks", "host_session_id", "role", "run_id", "schema", "stage", "verdict"] and
     .schema == $schema and .stage == "spec" and .role == $role and .run_id == $run_id and .host_session_id == $host_session_id and
     (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["path", "sha256"] and (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")))) and
     (.checks | type == "array" and length > 0 and all(.[]; type == "object" and keys == ["finding", "id", "result", "severity"] and
-      (.id | type == "string" and test("\\S")) and (.result == "PASS" or .result == "FAIL") and
+      (.id | type == "string" and test("\\S")) and (.result == "PASS" or .result == "FAIL" or .result == "SKIP") and
       (.severity == "Critical" or .severity == "Major" or .severity == "Minor") and (.finding | type == "string"))) and
     (.verdict == "PASS" or .verdict == "NEEDS_WORK" or .verdict == "BLOCKED")' "$output" >/dev/null || return 1
   actual_manifest="$(jq -c '.allowed_input_manifest | sort_by(.path)' "$output")"
   [[ "$actual_manifest" == "$manifest" ]] || return 1
+  case "$role" in
+    spec-reviewer-a)
+      expected_ids="REQ-TESTABILITY,GOAL-AC-TRACE,AC-OBSERVABLE,SCOPE-BOUNDARY,CONSTRAINTS-EXPLICIT,RISK-VALIDATION-SURFACE"
+      ;;
+    spec-reviewer-b)
+      expected_ids="AMBIGUITY,CONTRADICTION,EDGE-CASE-COVERAGE,ASSUMPTIONS-RESOLVABLE,APPROVAL-BOUNDARY,DOWNSTREAM-READINESS"
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+  actual_ids="$(jq -r '[.checks[].id] | join(",")' "$output")"
+  [[ "$actual_ids" == "$expected_ids" ]] || return 1
   expected_verdict="$(jq -r 'if ([.checks[] | select(.result == "FAIL" and .severity == "Critical")] | length) > 0 then "BLOCKED" elif ([.checks[] | select(.result == "FAIL")] | length) > 0 then "NEEDS_WORK" else "PASS" end' "$output")"
   [[ "$(jq -r .verdict "$output")" == "$expected_verdict" ]]
 }
 
 validate_contract() {
   local contract="$1" expected_attempt="$2" expected_round="$3" expected_verdict="$4" precheck="$5"
-  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash
+  local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash
   local reviewer_a reviewer_b a_run a_session b_run b_session checks critical major minor expected_merged expected_warning
   [[ -f "$contract" && ! -L "$contract" && -f "$precheck" && ! -L "$precheck" ]] || return 1
   jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_verdict" '
@@ -111,7 +127,8 @@ validate_contract() {
       (([.[] | .host_session_id] | all(type == "string" and test("\\S"))) and ([.[] | .host_session_id] | unique | length == 2)) and
       all(.[]; (.run_id | type == "string" and test("\\S")) and (.allowed_input_manifest | type == "array" and length > 0 and all(.[]; (.path | type == "string") and (.sha256 | type == "string" and test("^[0-9a-fA-F]{64}$"))))))' "$contract" >/dev/null || return 1
   jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg requirements_sha "$(jq -r .requirements_sha256 "$contract")" --arg acceptance_sha "$(jq -r .acceptance_sha256 "$contract")" '
-    .schema == "spec-review-precheck/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .requirements_sha256 == $requirements_sha and .acceptance_sha256 == $acceptance_sha' "$precheck" >/dev/null || return 1
+    .schema == "spec-review-precheck/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .requirements_sha256 == $requirements_sha and .acceptance_sha256 == $acceptance_sha and
+    (.calibration_sha256 == null or (.calibration_sha256 | type == "string" and test("^[0-9a-fA-F]{64}$")))' "$precheck" >/dev/null || return 1
 
   round_dir="$(dirname "$contract")"
   summary="${round_dir}/integrated-summary.json"
@@ -120,14 +137,19 @@ validate_contract() {
     type == "object" and keys == ["attempt", "generated_at", "reviewer_a_checks", "reviewer_a_fail_count", "reviewer_a_pass_count", "reviewer_a_skip_count", "round", "schema"] and
     .schema == "integrated-summary/v1" and .attempt == $attempt and .round == $round and
     (.reviewer_a_checks | type == "array" and all(.[]; type == "object" and keys == ["id", "result", "severity"] and
-      (.id | type == "string" and test("\\S")) and (.result == "PASS" or .result == "FAIL") and
+      (.id | type == "string" and test("\\S")) and (.result == "PASS" or .result == "FAIL" or .result == "SKIP") and
       (.severity == "Critical" or .severity == "Major" or .severity == "Minor"))) and
     (.reviewer_a_fail_count | type == "number" and . >= 0) and (.reviewer_a_pass_count | type == "number" and . >= 0) and (.reviewer_a_skip_count | type == "number" and . >= 0) and
     (.generated_at | type == "string")' "$summary" >/dev/null || return 1
 
   requirements_hash="$(jq -r .requirements_sha256 "$contract")"
   acceptance_hash="$(jq -r .acceptance_sha256 "$contract")"
-  expected_a="$(jq -cn --arg requirements "$requirements" --arg requirements_hash "$requirements_hash" --arg acceptance "$acceptance" --arg acceptance_hash "$acceptance_hash" --arg precheck "$precheck" --arg precheck_hash "$(sha256 "$precheck")" '[{path:$requirements,sha256:$requirements_hash},{path:$acceptance,sha256:$acceptance_hash},{path:$precheck,sha256:$precheck_hash}] | sort_by(.path)')"
+  calibration_hash="$(jq -r --arg calibration "$calibration" '[.reviewers[].allowed_input_manifest[] | select(.path == $calibration) | .sha256] | unique | if length == 1 then .[0] else "" end' "$contract")"
+  is_sha256 "$calibration_hash" || return 1
+  if jq -e '.calibration_sha256 != null' "$precheck" >/dev/null; then
+    [[ "$(jq -r .calibration_sha256 "$precheck")" == "$calibration_hash" ]] || return 1
+  fi
+  expected_a="$(jq -cn --arg requirements "$requirements" --arg requirements_hash "$requirements_hash" --arg acceptance "$acceptance" --arg acceptance_hash "$acceptance_hash" --arg precheck "$precheck" --arg precheck_hash "$(sha256 "$precheck")" --arg calibration "$calibration" --arg calibration_hash "$calibration_hash" '[{path:$requirements,sha256:$requirements_hash},{path:$acceptance,sha256:$acceptance_hash},{path:$precheck,sha256:$precheck_hash},{path:$calibration,sha256:$calibration_hash}] | sort_by(.path)')"
   if [[ -f "${spec_dir}/investigation.md" && ! -L "${spec_dir}/investigation.md" ]]; then
     expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "${spec_dir}/investigation.md" --arg investigation_hash "$(sha256 "${spec_dir}/investigation.md")" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
   fi
@@ -147,7 +169,7 @@ validate_contract() {
   [[ "$(jq -c '[.checks[] | {id, result, severity}]' "$reviewer_a")" == "$(jq -c '.reviewer_a_checks' "$summary")" ]] || return 1
   [[ "$(jq -r '.reviewer_a_fail_count' "$summary")" == "$(jq '[.checks[] | select(.result == "FAIL")] | length' "$reviewer_a")" ]] || return 1
   [[ "$(jq -r '.reviewer_a_pass_count' "$summary")" == "$(jq '[.checks[] | select(.result == "PASS")] | length' "$reviewer_a")" ]] || return 1
-  [[ "$(jq -r '.reviewer_a_skip_count' "$summary")" == "0" ]] || return 1
+  [[ "$(jq -r '.reviewer_a_skip_count' "$summary")" == "$(jq '[.checks[] | select(.result == "SKIP")] | length' "$reviewer_a")" ]] || return 1
 
   checks="$(jq -sc '[.[].checks[]]' "$reviewer_a" "$reviewer_b")"
   critical="$(jq '[.[] | select(.result == "FAIL" and .severity == "Critical")] | length' <<<"$checks")"
@@ -233,10 +255,10 @@ generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
 jq -n \
   --arg schema "spec-review-precheck/v1" --arg feature "$feature" \
   --argjson attempt "$attempt" --argjson round "$round" \
-  --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" --arg input_sha256 "$input_sha" \
+  --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" --arg calibration_sha256 "$calibration_sha" --arg input_sha256 "$input_sha" \
   --arg status "$status" --arg edit_summary "$edit_summary" --arg generated_at "$generated_at" \
   --argjson reset "$reset" \
-  '{schema:$schema,stage:"spec",feature:$feature,attempt:$attempt,round:$round,spec_review_status_field:$status,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,input_sha256:$input_sha256,edit_summary:$edit_summary,reset:$reset,generated_at:$generated_at}' \
+  '{schema:$schema,stage:"spec",feature:$feature,attempt:$attempt,round:$round,spec_review_status_field:$status,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,calibration_sha256:$calibration_sha256,input_sha256:$input_sha256,edit_summary:$edit_summary,reset:$reset,generated_at:$generated_at}' \
   > "${report_dir}/precheck-result.json"
 
 echo "spec-review-precheck: complete. Output written to ${report_dir}/"

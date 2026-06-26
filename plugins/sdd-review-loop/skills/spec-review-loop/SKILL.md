@@ -33,7 +33,8 @@ used by the shared review-contract validation foundation.
 ## Independent reviewer sequence
 
 1. Build a stage `spec` allowed-input manifest from the precheck result. Include
-   only canonical requirements, acceptance tests, optional investigation, and
+   only canonical requirements, acceptance tests, optional investigation,
+   `plugins/sdd-review-loop/references/spec-review-calibration.md`, and
    precheck-result paths with hashes.
 2. Start `spec-reviewer-a` in a fresh host context with a new `run_id` and a
    host-session identifier that is distinct from every other reviewer session.
@@ -42,8 +43,9 @@ used by the shared review-contract validation foundation.
 3. Create `integrated-summary.json` containing only check IDs, severities, and
    counts. It must not reproduce any raw finding text.
 4. Start `spec-reviewer-b` in a separate fresh host context. Its allowed-input
-   manifest contains only the canonical artifacts, precheck result, and that
-   sanitized summary. It must never receive `reviewer-a.json`.
+   manifest contains only the canonical artifacts, calibration reference,
+   precheck result, and that sanitized summary. It must never receive
+   `reviewer-a.json`.
 5. Validate both returned schemas, stage/role/run/session identity, allowed
    manifests, and input hashes. Derive the sanitized A summary from A's
    checks, then derive `integrated-verdict.json` from both outputs. Reject a
@@ -74,3 +76,13 @@ Each round directory contains `precheck-result.json`, reviewer output targets,
 summary across reviewer boundaries. The reviewer role files declare cross-stage
 raw-report denial and are intentionally distinct from implementation-policy and
 task-review roles.
+
+## Calibration Boundaries
+
+Reviewers must read `references/spec-review-calibration.md` before emitting
+findings. The calibration keeps this gate focused on Phase 1 readiness:
+requirements must be testable, acceptance criteria observable, scope and
+constraints explicit, and risks connected to a future validation surface. The
+gate must not require design sections, task breakdowns, command execution,
+documentation-update workflows, checkpoint/learning workflows, or live eval
+execution.

@@ -23,7 +23,8 @@ created on the fly before continuing.
 Read the task, implementation report, requirements, design, acceptance tests,
 traceability, contracts, ADRs, Git diff, and all bundled references, including
 `deterministic-check-policy.md`, `evaluation-rubric.md`, `risk-gate-matrix.md`,
-and `risk-classification-policy.md`.
+`risk-classification-policy.md`, and
+`plugins/sdd-quality-loop/references/quality-gate-calibration.md`.
 
 ## Process
 
@@ -60,6 +61,10 @@ and `risk-classification-policy.md`.
 7. For `refactor` and `bugfix` tasks with a `baseline-behavior.md`, apply
    `differential-test-policy.md` and classify every BL diff.
 8. Run critical review with an isolated evaluator using `evaluation-rubric.md`.
+   The evaluator must also apply `quality-gate-calibration.md`: deterministic
+   command output, bundled scripted gates, line-level inspection, and manual
+   artifacts outrank implementation-report claims; the implementation report
+   never supports PASS by itself.
    When the change touches the relevant surface, the evaluator also applies the
    on-demand domain checklists — `security-checklist.md` (user input, auth,
    secrets, external systems, AI/LLM), `performance-checklist.md` (data access,
@@ -74,6 +79,9 @@ and `risk-classification-policy.md`.
 9. Classify findings as `Accepted`, `Rejected`, or `Deferred`.
 10. Apply only safe fixes allowed by `auto-fix-policy.md`.
 11. Repeat critical review for a maximum of 3 cycles.
+    Stop earlier when the remaining issue requires human decision, missing
+    evidence cannot be produced, or the fix belongs to `fix-by-review-ticket` or
+    an upstream review loop. Do not downgrade a finding merely to end the loop.
 12. For UI changes, use available browser or Playwright tooling to verify the
     rendered screen, DOM, and console, and when feasible perform the smoke
     run described in `deterministic-check-policy.md`.
@@ -116,6 +124,8 @@ Set the task to `Done` only when:
 - required UI verification succeeds
 - contracts and ADRs agree with the implementation
 - traceability is current
+- every in-scope "cannot verify" item has been resolved by evidence or recorded
+  as a blocking review ticket
 
 Otherwise set the task to `Blocked` or retain `Implementation Complete`, and
 create review tickets. Do not commit, push, or create a PR/MR unless explicitly
@@ -161,6 +171,8 @@ these excuses — each one launders a claim into a `Done`.
   `required: false` with a non-empty `waiver_reason`; never remove a check to pass.
 - "The evidence file is missing but the result is obviously right" — Default-FAIL:
   no saved evidence means the check stays false.
+- "I cannot verify this, but no failure is visible" — cannot-verify is not PASS;
+  keep the check false or create a review ticket.
 - "sudo is on, so I can wave this through" — sudo auto-passes routine *approval*
   only; judgment findings and architecture/auth/security decisions still stop
   the gate.

@@ -11,13 +11,19 @@
       "role": "spec-reviewer-a",
       "run_id": "<fresh-run-id>",
       "host_session_id": "<distinct-host-session-id>",
-      "allowed_input_manifest": [{"path": "<canonical-path>", "sha256": "<sha256>"}]
+      "allowed_input_manifest": [
+        {"path": "<canonical-path-to-reviewed-input>", "sha256": "<sha256>"},
+        {"path": "<canonical-path-to-plugins/sdd-review-loop/references/spec-review-calibration.md>", "sha256": "<sha256>"}
+      ]
     },
     {
       "role": "spec-reviewer-b",
       "run_id": "<fresh-run-id>",
       "host_session_id": "<distinct-host-session-id>",
-      "allowed_input_manifest": [{"path": "<canonical-path>", "sha256": "<sha256>"}]
+      "allowed_input_manifest": [
+        {"path": "<canonical-path-to-reviewed-input>", "sha256": "<sha256>"},
+        {"path": "<canonical-path-to-plugins/sdd-review-loop/references/spec-review-calibration.md>", "sha256": "<sha256>"}
+      ]
     }
   ],
   "run_id": "<fresh-orchestrator-run-id>",
