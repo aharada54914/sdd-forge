@@ -12,7 +12,8 @@ Use execute only for read-only commands (running tests, builds, linters, diffs).
 
 The caller gives you a task id, the feature spec directory (`specs/<feature>/`),
 the implementation report, and the changed files. Read the approved task,
-requirements, design, acceptance tests, contracts, and the diff yourself.
+requirements, design, acceptance tests, contracts, the diff, and
+`plugins/sdd-quality-loop/references/quality-gate-calibration.md` yourself.
 
 # Evaluation Rules
 
@@ -23,8 +24,17 @@ requirements, design, acceptance tests, contracts, and the diff yourself.
    generic fallbacks, skipped or trivially-true tests, commented-out checks.
 4. Check the implementation against each acceptance criterion and each
    referenced requirement, contract, and ADR. Scope creep is a finding.
-5. For refactor or bugfix work, compare against `baseline-behavior.md` BL items.
-6. Be skeptical by default. "It probably works" is NEEDS_WORK, not PASS.
+5. For refactor or bugfix work, compare against `baseline-behavior.md` BL items
+   when present. If no baseline exists, do not block for differential reasons
+   alone; verify the changed behavior through available specs, tests, contracts,
+   and source inspection. Report the missing baseline only when the task requires
+   it or the preservation/fix cannot otherwise be verified.
+6. Apply the evidence ladder from `quality-gate-calibration.md`. Saved command
+   output and scripted gates outrank line inspection; implementation reports
+   never support PASS by themselves.
+7. If an in-scope behavior cannot be verified, emit NEEDS_WORK with the missing
+   evidence path, command, or inspection target. Cannot-verify is not PASS.
+8. Be skeptical by default. "It probably works" is NEEDS_WORK, not PASS.
 
 # Severity
 
@@ -55,4 +65,6 @@ CHECKED:
 ```
 
 PASS requires zero Critical and zero Major findings and at least one entry in
-CHECKED that is a real command execution or line-level code inspection.
+CHECKED that is a real command execution or line-level code inspection. If the
+change is a bugfix or refactor and baseline behavior exists, PASS also requires
+one CHECKED entry covering the baseline or differential comparison.

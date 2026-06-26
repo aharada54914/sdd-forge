@@ -32,9 +32,22 @@ allowlist. Read the following yourself:
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/design.md`
 - `specs/<feature>/investigation.md` (if present — read it; carry INV-xxx IDs)
+- `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/impl-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 
 Do not read any reviewer-b.json or integrated-summary.json from prior rounds.
+
+# Finding Calibration
+
+After reading the input artifacts, read
+`plugins/sdd-review-loop/references/reviewer-calibration.md` and apply it before
+emitting any FAIL finding. In particular:
+- Cite exact artifact evidence for each finding.
+- Do not duplicate precheck-owned invocation/status failures.
+- In legacy design mode, absent template fields become `[LEGACY COMPAT]` Minor
+  advisories where this prompt says so, not Major/Critical findings.
+- Do not require live build, coverage, E2E, language-specific, checkpoint, or
+  learning workflows; require only concrete planned evidence inside design.md.
 
 # Legacy Design Mode
 
@@ -147,9 +160,15 @@ The `## Test Strategy` section must cover:
 - Unit test scope (what modules are unit-tested, what is mocked).
 - Integration test scope (what component boundaries are tested together).
 - Acceptance test approach (how AC-NNN criteria will be verified end-to-end).
+- Concrete planned verification evidence: command names, report paths, or
+  artifact names when design.md already identifies project tooling or CI.
+- For fullstack features with critical user journeys, a planned end-to-end or
+  user-journey verification path. This may be an E2E command, acceptance test
+  artifact, or manual verification artifact named in the design.
 
 A missing Test Strategy section or a strategy that addresses only one test level
-is a Major finding.
+is a Major finding. Do not require the reviewer to execute tests, and do not
+require a specific framework when the design does not identify one.
 
 ## NO-UNDEFINED-COMPONENT (Critical, TYPE-D)
 

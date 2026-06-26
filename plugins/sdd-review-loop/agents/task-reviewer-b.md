@@ -35,6 +35,7 @@ allowlist. Read the following yourself:
 - `specs/<feature>/tasks.md`
 - `plugins/sdd-quality-loop/references/risk-gate-matrix.md`
 - `plugins/sdd-quality-loop/references/risk-classification-policy.md`
+- `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/integrated-summary.json`
   (only available when round N > 1; skip gracefully if absent)
@@ -42,6 +43,18 @@ allowlist. Read the following yourself:
 You must NOT read any reviewer-a.json file. The disallowedPaths field enforces
 this. If you find yourself needing reviewer-a output, stop and emit a finding
 that the orchestrator should re-sequence the invocation.
+
+# Finding Calibration
+
+After reading the input artifacts, read
+`plugins/sdd-review-loop/references/reviewer-calibration.md` and apply it before
+emitting any FAIL finding. In particular:
+- Cite exact artifact, task ID, field, REQ-NNN, or AC-NNN evidence.
+- Do not duplicate precheck-owned invocation/status failures.
+- Do not require live build, coverage, E2E, git, checkpoint, or learning
+  workflows; require only planned, inspectable task evidence.
+- Use SKIP for scoped checks when their task type or risk surface is absent and
+  the check defines a skip condition.
 
 # Checks
 
@@ -151,6 +164,22 @@ Major finding. Missing blockers (tasks whose scopes depend on another task's
 output but declare no Blockers) are also Major findings when the omission would
 cause integration failures.
 
+## BUGFIX-DIAGNOSTIC-PATH (Major, TYPE-H)
+
+Apply this check only to tasks explicitly scoped as bugfix, regression fix,
+debugging, failure diagnosis, flaky-test resolution, or incident remediation
+(based on title, Goal, Scope, or Done When text). For those tasks, verify the
+task includes:
+- Reproduction evidence or exact reproduction command/symptom.
+- A diagnostic or root-cause investigation step before implementation.
+- A regression test, verification command, or evidence artifact proving the
+  original failure is fixed.
+
+If no bugfix/debugging task exists, emit SKIP with finding
+"SKIP: no bugfix or debugging task in scope." A bugfix/debugging task that
+starts directly with an implementation change and lacks diagnostic or regression
+evidence is a Major finding.
+
 # Severity Reference
 
 - `Critical`: a high/critical task missing mandatory evidence items; hard policy
@@ -191,7 +220,8 @@ Verdict rules:
 
 The `checks` array must contain one entry per check ID in this order:
 RISK-APPROPRIATE, HIGH-CRITICAL-EVIDENCE, TASK-SIZE, EDGE-CASE-COVERAGE,
-TEST-TYPE-MATCH, ROLLBACK-PLAN, SCOPE-DISJOINT, DEPENDENCY-OVERLAP.
+TEST-TYPE-MATCH, ROLLBACK-PLAN, SCOPE-DISJOINT, DEPENDENCY-OVERLAP,
+BUGFIX-DIAGNOSTIC-PATH.
 
 # Hard Rules
 

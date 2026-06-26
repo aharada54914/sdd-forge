@@ -80,10 +80,10 @@ Schema:
   "schema": "wfi-integrated-summary/v1",
   "wfi_id": "WFI-NNN",
   "cycle": 1,
-  "auditor_a_check_ids": ["EVIDENCE-CITED", "ROOT-CAUSE-PLAUSIBLE", "CATEGORY-LANGUAGE-MATCH", "CHANGE-CONCRETE", "EFFECT-MEASURABLE", "VERIFICATION-PLAN-SPECIFIC", "NO-PLUGIN-SCOPE-CREEP"],
+  "auditor_a_check_ids": ["EVIDENCE-CITED", "ROOT-CAUSE-PLAUSIBLE", "CATEGORY-LANGUAGE-MATCH", "CHANGE-CONCRETE", "EFFECT-MEASURABLE", "VERIFICATION-METRIC-DEFINED", "VERIFICATION-PLAN-SPECIFIC", "NO-PLUGIN-SCOPE-CREEP"],
   "auditor_a_fail_ids": ["<IDs of FAIL checks>"],
   "auditor_a_fail_count": 0,
-  "auditor_a_pass_count": 7,
+  "auditor_a_pass_count": 8,
   "auditor_a_skip_count": 0,
   "auditor_a_verdict": "PASS|NEEDS_REVISION|BLOCKED",
   "generated_at": "<ISO8601>"
@@ -110,8 +110,10 @@ Halt. Do not proceed to Cycle 2.
 
 #### Cycle 1 NEEDS_REVISION or PASS
 
-Read the `## Proposed Revisions` section of the auditor output. Apply each revision
-to `docs/workflow-improvements/WFI-NNN.md` by editing the named sections. The
+Read the `proposed_revisions` array from `wfi-auditor-a.json`. For PASS, the
+array may be empty. For NEEDS_REVISION, halt if the array is empty unless every
+Major finding explicitly requires human clarification. Apply each revision to
+`docs/workflow-improvements/WFI-NNN.md` by editing the named sections. The
 orchestrator is the only entity that writes content to WFI-NNN.md during audit.
 
 After applying revisions, write the Cycle 1 audit report to
@@ -167,7 +169,10 @@ Halt.
 
 #### Cycle 2 NEEDS_REVISION or PASS
 
-Apply Cycle 2 revisions to WFI-NNN.md. Write the Cycle 2 audit report to
+Read the `proposed_revisions` array from `wfi-auditor-b.json`. For PASS, the
+array may be empty. For NEEDS_REVISION, halt if the array is empty unless every
+Major finding explicitly requires human clarification. Apply each Cycle 2
+revision to WFI-NNN.md. Write the Cycle 2 audit report to
 `docs/workflow-improvements/WFI-NNN-audit-cycle-2.md` using the same template
 (set `{{cycle_number}}` to 2 and `{{auditor_slot}}` to b).
 

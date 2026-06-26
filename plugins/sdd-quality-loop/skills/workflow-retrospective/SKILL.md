@@ -28,8 +28,11 @@ Read the following sources; do not modify them:
 - `reports/quality-gate/` — one report per quality-gate run
 - `docs/review-tickets/` — all YAML tickets for the feature
 - `git log --oneline` — commit history scoped to the feature path
+- `reports/spec-review/` — spec-review-contract.json files for each feature
 - `reports/task-review/` — task-review-contract.json files for each feature
 - `reports/impl-review/` — impl-review-contract.json files for each feature
+- previous `reports/retrospective/*.md` — comparison baseline and prior WFI
+  verification results
 
 For each task derive:
 
@@ -40,7 +43,27 @@ For each task derive:
   `status: resolved`
 - **Outcome** — final task status (`Done` or still open)
 
-For task-review and impl-review metrics, scan the contract files and derive:
+Also derive dataset quality indicators:
+
+- **Sample Size** — number of tasks, review contracts, quality-gate reports, and
+  review tickets used.
+- **Data Completeness** — Complete when all expected report roots exist for the
+  feature; Partial when an optional source is missing; Blocked when required task
+  or quality-gate evidence is absent.
+- **Confidence** — High for recurring patterns across at least three tasks or
+  two independent evidence types; Medium for recurring patterns across two
+  tasks; Low for single-task observations. Low-confidence observations may be
+  reported but must not create a WFI.
+
+For spec-review, task-review, and impl-review metrics, scan the contract files
+and derive:
+
+- **spec_review_rounds_per_feature** — for each feature, the round number of the
+  final passing spec-review-contract.json (rounds consumed to reach PASS).
+  If no PASS contract exists, record the maximum round reached.
+- **spec_review_blocked_rate** — percentage of features where the
+  spec-review-loop reached BLOCKED state (verdict == BLOCKED in the final
+  attempt's last round).
 
 - **task_review_rounds_per_feature** — for each feature, the round number of the
   final passing task-review-contract.json (rounds consumed to reach PASS).
@@ -69,6 +92,9 @@ Fill every section; do not leave placeholders unfilled.
 | Feature | {{feature}} |
 | Period | {{period_start}} – {{period_end}} |
 | Generated | {{generated_timestamp}} |
+| Sample Size | {{task_count}} tasks, {{review_contract_count}} review contracts, {{qg_report_count}} QG reports, {{ticket_count}} tickets |
+| Data Completeness | {{complete_partial_blocked}} |
+| Confidence | {{high_medium_low_with_reason}} |
 
 ## Metrics
 
@@ -88,6 +114,8 @@ Patterns observed across two or more tasks in this period.
 - **Evidence:** {{affected_tasks_and_ticket_ids}}
 - **Frequency:** {{occurrence_count}} occurrences
 - **Phase:** {{workflow_phase}}
+- **Confidence:** {{high_medium_low}}
+- **Do Not Overfit:** {{why_this_is_not_a_single_task_exception}}
 
 ## Proposed Improvements
 
@@ -95,11 +123,17 @@ Patterns observed across two or more tasks in this period.
 |---|---|---|---|
 | {{wfi_id}} | Draft | {{problem_summary}} | {{target_files}} |
 
-## Spec Review Gate Metrics
+## Improvement Verification Plan
 
-| Feature | Task Review Rounds | Task Review Verdict | Impl Review Rounds | Impl Review Verdict | Legacy Design |
-|---|---|---|---|---|---|
-| {{feature}} | {{task_review_rounds}} | {{task_review_verdict}} | {{impl_review_rounds}} | {{impl_review_verdict}} | {{legacy_design}} |
+| WFI-ID | Expected Effect Metric | Baseline | Target | Next Checkpoint |
+|---|---|---|---|---|
+| {{wfi_id}} | {{metric}} | {{baseline}} | {{target}} | {{next_feature_or_date}} |
+
+## Review Gate Metrics
+
+| Feature | Spec Review Rounds | Spec Review Verdict | Task Review Rounds | Task Review Verdict | Impl Review Rounds | Impl Review Verdict | Legacy Design |
+|---|---|---|---|---|---|---|---|
+| {{feature}} | {{spec_review_rounds}} | {{spec_review_verdict}} | {{task_review_rounds}} | {{task_review_verdict}} | {{impl_review_rounds}} | {{impl_review_verdict}} | {{legacy_design}} |
 
 ## Comparison With Previous Retrospective
 
@@ -109,11 +143,15 @@ Patterns observed across two or more tasks in this period.
 | Total Blocked Count | {{prev_blocked}} | {{curr_blocked}} | {{trend}} |
 | Total Review Tickets | {{prev_tickets}} | {{curr_tickets}} | {{trend}} |
 | Auto-fix Rate | {{prev_autofix_pct}} | {{curr_autofix_pct}} | {{trend}} |
+| Avg Spec Review Rounds | {{prev_spec_review_rounds}} | {{curr_spec_review_rounds}} | {{trend}} |
+| Spec Review Blocked Rate | {{prev_spec_review_blocked}} | {{curr_spec_review_blocked}} | {{trend}} |
 | Avg Task Review Rounds | {{prev_task_review_rounds}} | {{curr_task_review_rounds}} | {{trend}} |
 | Task Review Blocked Rate | {{prev_task_review_blocked}} | {{curr_task_review_blocked}} | {{trend}} |
 | Avg Impl Review Rounds | {{prev_impl_review_rounds}} | {{curr_impl_review_rounds}} | {{trend}} |
 | Impl Review Blocked Rate | {{prev_impl_review_blocked}} | {{curr_impl_review_blocked}} | {{trend}} |
 | Impl Legacy Design Rate | {{prev_legacy_design_rate}} | {{curr_legacy_design_rate}} | {{trend}} |
+| Repeat Finding Rate | {{prev_repeat_finding_rate}} | {{curr_repeat_finding_rate}} | {{trend}} |
+| WFI Verification Rate | {{prev_wfi_verification_rate}} | {{curr_wfi_verification_rate}} | {{trend}} |
 
 _If no previous retrospective exists, mark all "Previous" cells as N/A._
 ```
@@ -124,12 +162,18 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
    - Same `type` of review ticket appears repeatedly.
    - A phase produces `Blocked` more than once.
    - Auto-fix rate drops below 50 % for a ticket type.
+   - A prior WFI's expected-effect metric does not improve by its next
+     checkpoint.
+
+   Do not draft a WFI from a single-task observation. Record it under Friction
+   Patterns with Low confidence only when it may become relevant later.
 
 1.5. **Classify the WFI.** Before drafting, determine the WFI category by reading
    `plugins/sdd-quality-loop/references/wfi-category-guide.md`:
 
-   - **`plugin-improvement`**: friction evidence comes from the "Spec Review Gate
-     Metrics" table (`impl_review_rounds`, `task_review_blocked_rate`,
+   - **`plugin-improvement`**: friction evidence comes from the "Review Gate
+     Metrics" table (`spec_review_rounds`, `spec_review_blocked_rate`,
+     `impl_review_rounds`, `task_review_blocked_rate`,
      `impl_review_blocked_rate`, `impl_review_legacy_design_rate`) or involves
      cross-plugin handoff transitions (design review → task decomposition →
      implementation flow). These WFIs are expressed in generic workflow terms
@@ -215,6 +259,13 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
    <!-- plugin-improvement: use generic metric names from wfi-category-guide.md §2.   -->
    <!-- app-dev-efficiency: use project-specific metric names with concrete targets.   -->
 
+   ## Verification Metric
+
+   {{metric_name_baseline_target_checkpoint}}
+
+   <!-- Name one primary metric, the current baseline, target, and checkpoint.          -->
+   <!-- This is the metric retrospective will compare after the next task cycle.        -->
+
    ## Verification Plan
 
    {{verification_plan}}
@@ -275,8 +326,16 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
    without the marker lose that protection.
 
 5. **Verify effect.** After the next task cycle completes, re-run metrics
-   collection and append a `Result` section to the WFI document.  Compare with
-   the previous retrospective to confirm the friction decreased.
+   collection and append a `Result` section to the WFI document. Compare the
+   `Verification Metric` baseline and target with current results. Classify the
+   result as:
+   - `Verified`: target met without introducing a worse repeated friction.
+   - `Needs-Followup`: direction improved but target was not met.
+   - `Rejected`: metric worsened or the proposal caused a new repeated failure.
+
+   This mirrors continuous eval practice: keep the successful regression signal,
+   promote recurring misses into new WFI candidates, and avoid reactive changes
+   from one-off failures.
 
 ## Sudo Mode
 

@@ -2,16 +2,273 @@
 
 Combined reference for all review checks used by `sdd-review-loop`.
 
-- **Part 1** — `impl-review-loop`: 18 checks across impl-reviewer-a and impl-reviewer-b
-- **Part 2** — `task-review-loop`: 22 checks across task-reviewer-a and task-reviewer-b
+- **Part 0** — `spec-review-loop`: 12 checks across spec-reviewer-a and spec-reviewer-b
+- **Part 1** — `impl-review-loop`: 19 checks across impl-reviewer-a and impl-reviewer-b
+- **Part 2** — `task-review-loop`: 23 checks across task-reviewer-a and task-reviewer-b
+
+---
+
+## Part 0: Specification Review Checklist (spec-review-loop)
+
+Complete reference for all 12 checks in the spec-review-loop. Checks are split
+across two reviewers: spec-reviewer-a (requirements and acceptance coverage, 6
+checks) and spec-reviewer-b (ambiguity, contradiction, and downstream readiness,
+6 checks).
+
+### Check Types
+
+- **TYPE-D** (Deterministic): Pass/fail can be determined by reading artifact
+  content against explicit rules. No qualitative judgment required.
+- **TYPE-H** (Heuristic): Requires judgment about ambiguity, scope, risk, or
+  downstream readiness. The reviewer must cite concrete evidence and apply
+  `references/spec-review-calibration.md`.
+
+### Default Behavior
+
+All checks **default to FAIL**. A reviewer emits PASS only when positive
+evidence is found. Use SKIP only when the check declares an explicit skip
+condition and the scoped surface is absent. Absence of evidence on an in-scope
+surface is a finding, not a pass.
+
+### Reviewer-A Checks (Requirements and Acceptance Coverage — 6 checks)
+
+#### REQ-TESTABILITY
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-a |
+| Type | TYPE-H |
+| Severity | Critical |
+| Default | FAIL |
+
+**Description:** Every in-scope requirement must be observable or measurable
+enough to validate later.
+
+**Pass condition:** Requirements name concrete actors, states, inputs, outputs,
+or externally observable artifact changes.
+
+**Fail condition:** A requirement is phrased only as intent, quality, or
+internal desire with no observable outcome.
+
+---
+
+#### GOAL-AC-TRACE
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Every stated goal must trace to at least one acceptance
+criterion.
+
+**Pass condition:** Each goal has an explicit or unambiguous matching AC.
+
+**Fail condition:** A stated goal has no acceptance coverage.
+
+---
+
+#### AC-OBSERVABLE
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-a |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Acceptance criteria must describe externally observable
+behavior, state, or artifact changes.
+
+**Pass condition:** Each AC can be verified by later automated test, manual
+inspection, or quality-gate evidence.
+
+**Fail condition:** An AC requires unverifiable judgment such as "works well"
+without observable evidence.
+
+---
+
+#### SCOPE-BOUNDARY
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-a |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Non-goals, exclusions, or out-of-scope boundaries must be
+explicit where the feature could otherwise expand.
+
+**Pass condition:** Scope boundaries are explicit or the feature is narrow
+enough that no material expansion risk exists.
+
+**Fail condition:** The requirements imply multiple plausible scopes and do not
+state what is excluded.
+
+---
+
+#### CONSTRAINTS-EXPLICIT
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-a |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Material data, compatibility, security, migration, governance,
+or approval constraints must be stated when implied by the requirements.
+
+**Pass condition:** Implied constraints are explicit or explicitly marked not in
+scope.
+
+**Fail condition:** A material constraint is implied but left unstated.
+
+---
+
+#### RISK-VALIDATION-SURFACE
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-a |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+| Skip condition | No high-risk claim or risk surface is present |
+
+**Description:** High-risk claims must have a planned validation surface.
+
+**Pass condition:** The claim maps to an AC, manual inspection target, or later
+quality-gate evidence path.
+
+**Fail condition:** A high-risk claim is made with no way to validate it later.
+
+---
+
+### Reviewer-B Checks (Ambiguity and Downstream Readiness — 6 checks)
+
+#### AMBIGUITY
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Terms, actors, states, inputs, and outputs must be concrete
+enough that two implementers would not reasonably build different behavior.
+
+**Pass condition:** Material terms are defined by context or explicit wording.
+
+**Fail condition:** A material term or state allows incompatible
+interpretations.
+
+---
+
+#### CONTRADICTION
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-b |
+| Type | TYPE-D |
+| Severity | Critical |
+| Default | FAIL |
+
+**Description:** Requirements, ACs, constraints, and non-goals must not directly
+conflict.
+
+**Pass condition:** No direct conflict is present.
+
+**Fail condition:** Any pair of statements cannot both be true.
+
+---
+
+#### EDGE-CASE-COVERAGE
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Acceptance tests must cover material negative paths, empty
+states, boundary states, or failure modes implied by the requirements.
+
+**Pass condition:** Material edge cases are covered or explicitly out of scope.
+
+**Fail condition:** The requirements imply an edge case but ACs omit it.
+
+---
+
+#### ASSUMPTIONS-RESOLVABLE
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** Assumptions must be resolved by investigation or marked as
+decisions needed before design/task decomposition.
+
+**Pass condition:** Each material assumption is resolved, bounded, or explicitly
+queued as a decision.
+
+**Fail condition:** A material assumption remains hidden or unresolved.
+
+---
+
+#### APPROVAL-BOUNDARY
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-b |
+| Type | TYPE-H |
+| Severity | Critical |
+| Default | FAIL |
+| Skip condition | No human approval, governance, or irreversible-change boundary is in scope |
+
+**Description:** Human approval, governance, or irreversible-change boundaries
+must be testable when implied by the requirements.
+
+**Pass condition:** The boundary and approval point are explicit and observable.
+
+**Fail condition:** The feature can cross an approval or governance boundary
+without a stated check.
+
+---
+
+#### DOWNSTREAM-READINESS
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+
+**Description:** The specification must be ready for implementation-policy
+review without requiring the design reviewer to invent missing product behavior.
+
+**Pass condition:** Open questions are either resolved, bounded, or explicitly
+assigned before the next gate.
+
+**Fail condition:** The next gate would have to decide product behavior rather
+than design implementation policy.
 
 ---
 
 ## Part 1: Implementation Policy Review Checklist (impl-review-loop)
 
-Complete reference for all 18 checks in the impl-review-loop. Checks are split
+Complete reference for all 19 checks in the impl-review-loop. Checks are split
 across two reviewers: impl-reviewer-a (structural soundness, 9 checks) and
-impl-reviewer-b (implementability/risk, 9 checks).
+impl-reviewer-b (implementability/risk, 10 checks).
 
 ### Check Types
 
@@ -167,11 +424,16 @@ displayed fields are covered by API response schemas.
 | Default | FAIL |
 
 **Description:** `## Test Strategy` must cover unit, integration, and acceptance
-test scopes.
+test scopes, plus planned verification evidence such as commands, report paths,
+or artifact names when design.md identifies project tooling or CI. Fullstack
+features with critical user journeys must name an E2E, user-journey, acceptance,
+or manual verification evidence path.
 
-**Pass condition:** All three test levels addressed with scope descriptions.
+**Pass condition:** All three test levels addressed with scope descriptions and
+applicable planned verification evidence named.
 
-**Fail condition:** Section absent; or only one or two test levels addressed.
+**Fail condition:** Section absent; only one or two test levels addressed; or an
+applicable critical user journey has no planned verification path.
 
 ---
 
@@ -215,7 +477,7 @@ introduced with no ADR.
 
 ---
 
-### Reviewer-B Checks (Implementability/Risk — 9 checks)
+### Reviewer-B Checks (Implementability/Risk — 10 checks)
 
 #### DECISION-JUSTIFIED
 
@@ -398,11 +660,38 @@ capability absent from design.
 
 ---
 
+#### VERIFICATION-PATH-CONCRETE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+| Skip condition | No high-risk design claim or risk surface requiring a separate verification path |
+
+**Description:** High-risk design claims or risk surfaces not already fully
+covered by performance, deployment, or migration checks must name a concrete
+validation path.
+
+**Pass condition:** Each applicable high-risk surface names a command, CI job,
+metric target, acceptance test artifact, E2E/user-journey evidence artifact,
+rollout monitor, or review artifact.
+
+**Fail condition:** Security/authz, PII, payment, external contract, integration
+failure behaviour, or critical fullstack user journey risk exists with no
+concrete validation path.
+
+**Skip condition:** No high-risk design claim or risk surface requires a
+separate verification path.
+
+---
+
 ## Part 2: Task Review Checklist (task-review-loop)
 
-Complete reference for all 22 checks in the task-review-loop. Checks are split
+Complete reference for all 23 checks in the task-review-loop. Checks are split
 across two reviewers: task-reviewer-a (structural coverage, 14 checks) and
-task-reviewer-b (quality/risk, 8 checks).
+task-reviewer-b (quality/risk, 9 checks).
 
 ### Check Types
 
@@ -672,11 +961,16 @@ See `references/task-review-rubric.md` for examples.
 **Description:** Every Done When item must be concrete and verifiable. Forbidden
 verbs: "ensure", "consider", "update X" (no target), "verify is correct", "works
 correctly", "review X" (no artifact outcome), "confirm X" (no specific result).
+Each non-documentation-only task must include at least one Done When item naming
+a concrete verification command or evidence artifact. Documentation-only tasks
+may instead name the exact file and section whose change proves completion.
 
 **Pass condition:** All Done When items name a concrete artifact, test result,
-metric, or command output.
+metric, command output, or exact documentation file/section for documentation-only
+tasks.
 
-**Fail condition:** Any Done When item uses a forbidden verb or pattern.
+**Fail condition:** Any Done When item uses a forbidden verb or pattern, or a
+non-documentation-only task lacks a verification command or evidence artifact.
 
 See `references/task-review-rubric.md` for the full forbidden-verb list with examples.
 
@@ -701,7 +995,7 @@ and requirements.md.
 
 ---
 
-### Reviewer-B Checks (Quality/Risk — 8 checks)
+### Reviewer-B Checks (Quality/Risk — 9 checks)
 
 #### RISK-APPROPRIATE
 
@@ -863,3 +1157,29 @@ no spurious or missing blockers.
 
 **Fail condition:** Any spurious blocker (inflates critical path) or missing
 blocker (would cause integration failure).
+
+---
+
+#### BUGFIX-DIAGNOSTIC-PATH
+
+| Field | Value |
+|---|---|
+| Reviewer | task-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | FAIL |
+| Skip condition | No bugfix or debugging task in scope |
+
+**Description:** Bugfix, regression fix, debugging, failure diagnosis,
+flaky-test, or incident remediation tasks must include a systematic diagnostic
+path before implementation.
+
+**Pass condition:** Each applicable task includes reproduction evidence or an
+exact reproduction command/symptom, a diagnostic/root-cause investigation step,
+and a regression test, verification command, or evidence artifact proving the
+original failure is fixed.
+
+**Fail condition:** Any applicable task starts directly with an implementation
+change or lacks reproduction, diagnostic, or regression/verification evidence.
+
+**Skip condition:** No bugfix/debugging task exists in tasks.md.

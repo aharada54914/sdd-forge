@@ -32,10 +32,11 @@ sha256() {
 write_pass_artifacts() {
   local stage="$1"
   local output_dir="$2"
-  local requirements_hash acceptance_hash design_hash
+  local requirements_hash acceptance_hash design_hash calibration_hash
   requirements_hash="$(sha256 "${SPEC_DIR}/requirements.md")"
   acceptance_hash="$(sha256 "${SPEC_DIR}/acceptance-tests.md")"
   design_hash="$(sha256 "${SPEC_DIR}/design.md")"
+  calibration_hash="$(sha256 "${REPO_ROOT}/plugins/sdd-review-loop/references/reviewer-calibration.md")"
   mkdir -p "${output_dir}"
 
   if [[ "${stage}" == "spec" ]]; then
@@ -50,6 +51,7 @@ write_pass_artifacts() {
     --arg requirements_hash "${requirements_hash}" \
     --arg acceptance_hash "${acceptance_hash}" \
     --arg design_hash "${design_hash}" \
+    --arg calibration_hash "${calibration_hash}" \
     '{schema:($stage + "-review-contract/v1"),stage:$stage,feature:$feature,attempt:1,round:1,run_id:($stage + "-contract-run"),verdict:"PASS",reviewers:[
       {role:($stage + "-reviewer-a"),run_id:($stage + "-a-run"),host_session_id:($stage + "-a-session"),allowed_input_manifest:[
         {path:("specs/" + $feature + "/requirements.md"),sha256:$requirements_hash},
@@ -60,7 +62,10 @@ write_pass_artifacts() {
         {path:("specs/" + $feature + "/acceptance-tests.md"),sha256:$acceptance_hash}
       ]}
     ]}
-    | if $stage == "impl" then .reviewers |= map(.allowed_input_manifest += [{path:("specs/" + $feature + "/design.md"),sha256:$design_hash}]) else . end' > "${output_dir}/${stage}-review-contract.json"
+    | if $stage == "impl" then .reviewers |= map(.allowed_input_manifest += [
+        {path:("specs/" + $feature + "/design.md"),sha256:$design_hash},
+        {path:"plugins/sdd-review-loop/references/reviewer-calibration.md",sha256:$calibration_hash}
+      ]) else . end' > "${output_dir}/${stage}-review-contract.json"
 }
 
 mkdir -p "${SPEC_REPORT_DIR}/attempt-1/round-1" "${IMPL_REPORT_DIR}/attempt-1/round-1"

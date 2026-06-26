@@ -80,6 +80,8 @@ to reviewer invocation.
 Spawn impl-reviewer-a as a fresh agent (no shared context) with:
 - Feature slug, attempt number, round number.
 - Path to precheck-result.json.
+- Hash-verified allowed-input manifest including
+  `plugins/sdd-review-loop/references/reviewer-calibration.md`.
 
 The agent reads inputs itself and writes:
 `reports/impl-review/<feature>/attempt-<M>/round-<N>/reviewer-a.json`
@@ -115,6 +117,8 @@ Spawn impl-reviewer-b as a fresh agent (no shared context) with:
 - Feature slug, attempt number, round number.
 - Path to precheck-result.json.
 - Path to integrated-summary.json.
+- Hash-verified allowed-input manifest including
+  `plugins/sdd-review-loop/references/reviewer-calibration.md`.
 
 impl-reviewer-b has `disallowedPaths` covering reviewer-a.json. The agent reads
 its own inputs and writes:
@@ -159,6 +163,8 @@ Write `reports/impl-review/<feature>/attempt-<M>/round-<N>/impl-review-contract.
 using the schema from `plugins/sdd-review-loop/templates/impl-review-contract.template.json`.
 Its two reviewer entries must have distinct nonblank `run_id` and
 `host_session_id` values and canonical, hash-verified allowed-input manifests.
+Each reviewer manifest must include every input the reviewer is instructed to
+read, including `plugins/sdd-review-loop/references/reviewer-calibration.md`.
 Persist both artifacts in the same round directory; downstream prechecks reject
 missing, stale, or incomplete predecessor contracts before creating evidence.
 

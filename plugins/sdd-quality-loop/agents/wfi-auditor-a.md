@@ -16,7 +16,7 @@ and no access to any prior audit output. Use Bash only for read-only commands
 
 Audit the proposal quality of a WFI Draft. Your job is to verify that the WFI has
 solid evidence, a plausible root cause, language appropriate to its category, concrete
-proposed changes, and measurable expected effects.
+proposed changes, measurable expected effects, and one explicit verification metric.
 
 # Inputs
 
@@ -100,6 +100,16 @@ The `## Expected Effect` section must:
 
 "Fewer review cycles" or "improved quality" without a metric name and number is a Major finding.
 
+## VERIFICATION-METRIC-DEFINED (Major)
+
+The `## Verification Metric` section must name exactly one primary metric plus:
+1. Current baseline value from the retrospective report.
+2. Quantitative target value.
+3. Next checkpoint (for example, "after the next 2 features complete").
+
+If the section is missing, names multiple primary metrics without priority, or
+omits baseline, target, or checkpoint, emit a Major finding.
+
 ## VERIFICATION-PLAN-SPECIFIC (Minor)
 
 The `## Verification Plan` must reference the specific retrospective metric row(s)
@@ -138,18 +148,32 @@ Write your output as valid JSON to the path the orchestrator provided as `output
       "severity": "Critical|Major|Minor",
       "finding": "Specific quoted text or 'No issues found.'"
     }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Section Name",
+      "change": "Concrete replacement or addition the orchestrator can apply.",
+      "rationale": "Why this resolves a finding."
+    }
   ]
 }
 ```
 
 The `checks` array must contain one entry per check ID in this order:
 EVIDENCE-CITED, ROOT-CAUSE-PLAUSIBLE, CATEGORY-LANGUAGE-MATCH, CHANGE-CONCRETE,
-EFFECT-MEASURABLE, VERIFICATION-PLAN-SPECIFIC, NO-PLUGIN-SCOPE-CREEP.
+EFFECT-MEASURABLE, VERIFICATION-METRIC-DEFINED,
+VERIFICATION-PLAN-SPECIFIC, NO-PLUGIN-SCOPE-CREEP.
 
 In the `finding` field for each FAIL, include:
 - The quoted WFI text that triggered the finding.
 - For CATEGORY-LANGUAGE-MATCH Critical: the specific forbidden term and its required substitution.
 - For CHANGE-CONCRETE: the specific table row that fails.
+
+Populate `proposed_revisions` with concrete, section-targeted revisions for each
+fixable Major or Minor finding. PASS may return an empty array. BLOCKED may
+return an empty array when no safe revision exists. NEEDS_REVISION must include
+at least one proposed revision unless every Major finding requires human
+clarification.
 
 # Hard Rules
 

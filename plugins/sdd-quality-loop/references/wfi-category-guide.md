@@ -6,8 +6,9 @@ language rules. Read this document before drafting any WFI.
 ## Section 1 — Classification Flowchart
 
 ```
-Is the friction evidence drawn from the "Spec Review Gate Metrics" table
-(impl_review_rounds, task_review_blocked_rate, impl_review_blocked_rate,
+Is the friction evidence drawn from the "Review Gate Metrics" table
+(spec_review_rounds, spec_review_blocked_rate, impl_review_rounds,
+task_review_blocked_rate, impl_review_blocked_rate,
 impl_review_legacy_design_rate) or does it involve cross-plugin handoff
 transitions (e.g., design review → task decomposition → implementation flow)?
       │
@@ -22,6 +23,7 @@ transitions (e.g., design review → task decomposition → implementation flow)
 
 **Examples of plugin-improvement friction:**
 - `impl_review_rounds_per_feature` averages 2.8 over 4 features (design review gate cycles)
+- `spec_review_blocked_rate` is 33% (specification review gate blocked rate)
 - `task_review_blocked_rate` is 50% (task decomposition review gate blocked rate)
 - Cross-plugin handoff: designs consistently require rework before the task decomposition
   review gate accepts them
@@ -52,10 +54,11 @@ they appear in retrospective reports (they are direct evidence, not prose descri
 | `sdd-task-review`, `task-review-loop`, `task-reviewer-a`, `task-reviewer-b` | `task decomposition review gate` |
 | `quality-gate`, `sdd-quality-loop` (when describing the gate concept) | `quality verification gate` |
 | `sdd-bootstrap-interviewer` | `specification generator` |
+| `spec-review-loop`, `spec-reviewer-a`, `spec-reviewer-b` | `specification review gate` |
 | `implement-task`, `implement-tasks` | `implementation phase` |
 | `workflow-retrospective` | `retrospective analysis` |
-| `impl_review_rounds`, `task_review_rounds` | `review gate round count` |
-| `impl_review_blocked_rate`, `task_review_blocked_rate` | `review gate blocked rate` |
+| `spec_review_rounds`, `impl_review_rounds`, `task_review_rounds` | `review gate round count` |
+| `spec_review_blocked_rate`, `impl_review_blocked_rate`, `task_review_blocked_rate` | `review gate blocked rate` |
 | `impl_review_legacy_design_rate` | `design document maturity rate` |
 | `legacy_design` flag | `design document maturity` |
 | `sdd-sudo`, `sdd-lite`, `sdd-adopt` | `workflow bypass mode`, `lightweight track`, `project setup` |
@@ -83,6 +86,8 @@ they appear in retrospective reports (they are direct evidence, not prose descri
 
 | Retrospective Table Column | Generic Name (use in Expected Effect / Verification Plan) |
 |---|---|
+| `spec_review_rounds_per_feature` | `average specification review gate round count` |
+| `spec_review_blocked_rate` | `specification review gate blocked rate` |
 | `task_review_rounds_per_feature` | `average task decomposition review gate round count` |
 | `task_review_blocked_rate` | `task decomposition review gate blocked rate` |
 | `impl_review_rounds_per_feature` | `average design review gate round count` |

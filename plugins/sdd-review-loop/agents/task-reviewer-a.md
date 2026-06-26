@@ -33,10 +33,23 @@ allowlist. Read the following yourself:
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/tasks.md`
 - `specs/<feature>/traceability.md`
+- `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/dependency-graph.json`
 
 Do not read any reviewer-b.json or integrated-summary.json from prior rounds.
+
+# Finding Calibration
+
+After reading the input artifacts, read
+`plugins/sdd-review-loop/references/reviewer-calibration.md` and apply it before
+emitting any FAIL finding. In particular:
+- Cite exact artifact, task ID, field, REQ-NNN, or AC-NNN evidence.
+- Do not duplicate precheck-owned invocation/status failures.
+- Keep formal check entries such as BLOCKERS-FORMAT and RISK-WORKFLOW-FORMAT
+  even when precheck has already recorded related mechanical failures.
+- Do not require live build, coverage, E2E, git, checkpoint, or learning
+  workflows; require only planned, inspectable task evidence.
 
 # Checks
 
@@ -161,6 +174,11 @@ Forbidden verbs and phrases:
 Each Done When item must name a concrete artifact, test result, metric, or
 command output that a human can inspect to confirm completion. A missing or
 vague done-when criterion is a Major finding per affected task.
+
+Additionally, each non-documentation-only task must include at least one Done
+When item that names a concrete verification command or evidence artifact. A
+documentation-only task may instead name the exact file and section whose change
+proves completion. Do not require the reviewer to execute the command.
 
 ## TRACEABILITY-SYNC (Major, TYPE-D)
 

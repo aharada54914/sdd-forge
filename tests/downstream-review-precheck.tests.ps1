@@ -5,10 +5,11 @@ $feature = 'downstream-precheck-ps-fixture'; $spec = Join-Path $root "specs/$fea
 $specReport = Join-Path $root "reports/spec-review/$feature"; $implReport = Join-Path $root "reports/impl-review/$feature"; $taskReport = Join-Path $root "reports/task-review/$feature"
 function Assert-Fails([scriptblock]$Action, [string]$Message) { try { & $Action } catch { return }; throw "not ok: $Message" }
 function Write-PassArtifacts([string]$Stage, [string]$Directory) {
-  $req = (Get-FileHash (Join-Path $spec requirements.md) -Algorithm SHA256).Hash.ToLower(); $acc = (Get-FileHash (Join-Path $spec acceptance-tests.md) -Algorithm SHA256).Hash.ToLower(); $designHash = (Get-FileHash (Join-Path $spec design.md) -Algorithm SHA256).Hash.ToLower()
+  $req = (Get-FileHash (Join-Path $spec requirements.md) -Algorithm SHA256).Hash.ToLower(); $acc = (Get-FileHash (Join-Path $spec acceptance-tests.md) -Algorithm SHA256).Hash.ToLower(); $designHash = (Get-FileHash (Join-Path $spec design.md) -Algorithm SHA256).Hash.ToLower(); $calibration = (Get-FileHash (Join-Path $root 'plugins/sdd-review-loop/references/reviewer-calibration.md') -Algorithm SHA256).Hash.ToLower()
   $verdict = if ($Stage -eq 'spec') { [ordered]@{schema='spec-review-integrated-verdict/v1';stage='spec';feature=$feature;attempt=1;round=1;reviewer_a_run_id='run-a';reviewer_b_run_id='run-b';reviewer_a_host_session_id='session-a';reviewer_b_host_session_id='session-b';finding_counts=@{critical=0;major=0;minor=0};verdict='PASS';warningCount=0} } else { [ordered]@{schema='integrated-verdict/v1';stage=$Stage;feature=$feature;attempt=1;round=1;run_id="$Stage-orchestrator";verdict='PASS'} }
   $verdict | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $Directory integrated-verdict.json) -Encoding utf8NoBOM
   $manifest=@(@{path="specs/$feature/requirements.md";sha256=$req},@{path="specs/$feature/acceptance-tests.md";sha256=$acc},@{path="specs/$feature/design.md";sha256=$designHash})
+  if ($Stage -eq 'impl') { $manifest += @{path='plugins/sdd-review-loop/references/reviewer-calibration.md';sha256=$calibration} }
   [ordered]@{schema="$Stage-review-contract/v1";stage=$Stage;feature=$feature;attempt=1;round=1;run_id="$Stage-orchestrator";verdict='PASS';requirements_sha256=$req;acceptance_sha256=$acc;design_sha256=$designHash;reviewers=@(@{role="$Stage-reviewer-a";run_id='run-a';host_session_id='session-a';allowed_input_manifest=$manifest},@{role="$Stage-reviewer-b";run_id='run-b';host_session_id='session-b';allowed_input_manifest=$manifest})} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $Directory "$Stage-review-contract.json") -Encoding utf8NoBOM
 }
 try {
@@ -43,6 +44,11 @@ try {
   $graph = Get-Content "$taskReport/attempt-1/round-1/dependency-graph.json" -Raw | ConvertFrom-Json
   if ($graph.edges.Count -ne 1 -or $graph.edges[0].from -ne 'T-002' -or $graph.edges[0].to -ne 'T-001') { throw 'not ok: PowerShell task graph lost declared edge' }
   Remove-Item $taskReport -Recurse -Force
+  $implContract = Get-Content "$implReport/attempt-1/round-1/impl-review-contract.json" -Raw | ConvertFrom-Json
+  foreach ($reviewer in $implContract.reviewers) { $reviewer.allowed_input_manifest = @($reviewer.allowed_input_manifest | Where-Object { $_.path -ne 'plugins/sdd-review-loop/references/reviewer-calibration.md' }) }
+  $implContract | ConvertTo-Json -Depth 6 | Set-Content "$implReport/attempt-1/round-1/impl-review-contract.json" -Encoding utf8NoBOM
+  Assert-Fails { & (Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $feature -Attempt 1 -Round 1 } 'task must reject missing impl calibration manifest'; if (Test-Path $taskReport) { throw 'not ok: missing calibration created task evidence' }
+  Write-PassArtifacts impl "$implReport/attempt-1/round-1"
   $contradictoryImplVerdict = Get-Content "$implReport/attempt-1/round-1/integrated-verdict.json" -Raw | ConvertFrom-Json
   $contradictoryImplVerdict.run_id = 'contradictory-impl-run'
   $contradictoryImplVerdict | ConvertTo-Json -Depth 4 | Set-Content "$implReport/attempt-1/round-1/integrated-verdict.json" -Encoding utf8NoBOM

@@ -24,7 +24,9 @@ DESIGN_MD="${SPECS_DIR}/design.md"
 SPEC_REPORT_ROOT="reports/spec-review/${FEATURE}"
 IMPL_REPORT_ROOT="reports/impl-review/${FEATURE}"
 CHECK_RISK_SCRIPT="plugins/sdd-quality-loop/scripts/check-risk.sh"
+CALIBRATION_MD="plugins/sdd-review-loop/references/reviewer-calibration.md"
 repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
+calibration_sha256=""
 
 fail() { echo "ERROR: task-review-precheck: $*" >&2; exit 1; }
 sha256() {
@@ -45,17 +47,21 @@ require_persisted_pass() {
       .reviewer_a_run_id != .reviewer_b_run_id and .reviewer_a_host_session_id != .reviewer_b_host_session_id
      else .schema == "integrated-verdict/v1" and (.run_id | type == "string" and length > 0) end)' "$verdict" >/dev/null ||
     fail "persisted ${stage} verdict is not a complete PASS contract"
-  jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg accept "$acceptance_hash" --arg design "$design_hash" '
+  jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg accept "$acceptance_hash" --arg design "$design_hash" --arg calibration "$CALIBRATION_MD" --arg calibration_hash "$calibration_sha256" '
     .schema == ($stage + "-review-contract/v1") and .feature == $feature and .stage == $stage and
     (.attempt | type == "number" and . > 0) and (.round | type == "number" and . > 0) and
     (.run_id | type == "string" and length > 0) and .verdict == "PASS" and
     ([.reviewers[]? | .role] | sort) == [($stage + "-reviewer-a"), ($stage + "-reviewer-b")] and
     ([.reviewers[]? | .host_session_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
     ([.reviewers[]? | .run_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
-    ([.reviewers[]?.allowed_input_manifest[]? | (.path | type == "string" and startswith("specs/" + $feature + "/") and contains("reviewer-") | not) and (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))] | all) and
+    ([.reviewers[]?.allowed_input_manifest[]? |
+      (.path | type == "string" and ((startswith("specs/" + $feature + "/") and (contains("reviewer-") | not)) or . == $calibration)) and
+      (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+    ] | all) and
     (any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/requirements.md") and .sha256 == $req)) and
     (any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/acceptance-tests.md") and .sha256 == $accept)) and
-    ($stage != "impl" or any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/design.md") and .sha256 == $design))
+    ($stage != "impl" or any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/design.md") and .sha256 == $design)) and
+    ($stage != "impl" or all(.reviewers[]?; any(.allowed_input_manifest[]?; .path == $calibration and .sha256 == $calibration_hash)))
   ' "$contract" >/dev/null || fail "persisted ${stage} contract does not match canonical current inputs"
   jq -e --slurpfile verdict "$verdict" --arg stage "$stage" '
     . as $contract | $verdict[0] as $verdict |
@@ -269,6 +275,8 @@ tasks_sha256=$(sha256 "${TASKS_MD}")
 requirements_sha256=$(sha256 "${REQS_MD}")
 acceptance_sha256=$(sha256 "${ACCEPT_MD}")
 design_sha256=$(sha256 "${DESIGN_MD}")
+[[ -f "${CALIBRATION_MD}" && ! -L "${CALIBRATION_MD}" ]] || fail "${CALIBRATION_MD} not found"
+calibration_sha256=$(sha256 "${CALIBRATION_MD}")
 require_persisted_pass "$SPEC_REPORT_ROOT" spec "$requirements_sha256" "$acceptance_sha256" ""
 require_persisted_pass "$IMPL_REPORT_ROOT" impl "$requirements_sha256" "$acceptance_sha256" "$design_sha256"
 

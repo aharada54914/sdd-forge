@@ -49,15 +49,17 @@ All checks default to FAIL. Emit PASS only when you can cite specific evidence.
 
 ## VERIFICATION-COMPLETE (Major)
 
-The `## Verification Plan` must specify all three of the following:
+The `## Verification Metric` and `## Verification Plan` sections must specify
+all four of the following:
 1. **Which metric rows** from the retrospective template will be compared
    (name the specific column or generic metric name).
-2. **How many task cycles** are needed before the comparison is valid
+2. **Current baseline and target** for the primary verification metric.
+3. **How many task cycles** are needed before the comparison is valid
    (e.g., "after the next 2 features complete").
-3. **What threshold** constitutes improvement (e.g., "average round count drops
+4. **What threshold** constitutes improvement (e.g., "average round count drops
    below 1.5" or "edge-case tickets below 1 per feature").
 
-A plan missing any of the three elements is a Major finding. Quote what is present
+A metric or plan missing any element is a Major finding. Quote what is present
 and name what is absent.
 
 ## SCOPE-PROPORTIONAL (Major)
@@ -156,7 +158,7 @@ Write your output as valid JSON to the path the orchestrator provided as `output
   "verdict": "PASS|NEEDS_REVISION|BLOCKED",
   "cycle_1_summary": {
     "auditor_a_fail_count": 0,
-    "auditor_a_pass_count": 7,
+    "auditor_a_pass_count": 8,
     "auditor_a_verdict": "PASS"
   },
   "checks": [
@@ -165,6 +167,13 @@ Write your output as valid JSON to the path the orchestrator provided as `output
       "result": "PASS|FAIL|SKIP",
       "severity": "Critical|Major|Minor",
       "finding": "Specific quoted text or 'No issues found.'"
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Section Name",
+      "change": "Concrete replacement or addition the orchestrator can apply.",
+      "rationale": "Why this resolves a finding."
     }
   ]
 }
@@ -176,6 +185,12 @@ The `checks` array must contain one entry per check ID in this order:
 VERIFICATION-COMPLETE, SCOPE-PROPORTIONAL, UNINTENDED-CONSEQUENCES,
 FEASIBILITY-WITHOUT-PLUGINS, CATEGORY-LANGUAGE-SECOND-PASS,
 EFFECT-CONSISTENT-WITH-EVIDENCE, ISSUE-BODY-QUALITY.
+
+Populate `proposed_revisions` with concrete, section-targeted revisions for each
+fixable Major or Minor finding. PASS may return an empty array. BLOCKED may
+return an empty array when no safe revision exists. NEEDS_REVISION must include
+at least one proposed revision unless every Major finding requires human
+clarification.
 
 # Hard Rules
 

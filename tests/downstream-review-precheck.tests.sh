@@ -53,14 +53,16 @@ write_impl_pass() {
   write_pass_artifacts impl "$IMPL_REPORT/attempt-1/round-1"
 }
 write_pass_artifacts() {
-  local stage="$1" directory="$2" req acc design
+  local stage="$1" directory="$2" req acc design calibration
   req="$(shasum -a 256 "$SPEC_DIR/requirements.md" | awk '{print $1}')"
   acc="$(shasum -a 256 "$SPEC_DIR/acceptance-tests.md" | awk '{print $1}')"
   design="$(shasum -a 256 "$SPEC_DIR/design.md" | awk '{print $1}')"
+  calibration="$(shasum -a 256 "$ROOT/plugins/sdd-review-loop/references/reviewer-calibration.md" | awk '{print $1}')"
   jq -n --arg stage "$stage" --arg feature "$FEATURE" --arg req "$req" --arg acc "$acc" --arg design "$design" \
     'if $stage == "spec" then {schema:"spec-review-integrated-verdict/v1",stage:"spec",feature:$feature,attempt:1,round:1,reviewer_a_run_id:"run-a",reviewer_b_run_id:"run-b",reviewer_a_host_session_id:"session-a",reviewer_b_host_session_id:"session-b",finding_counts:{critical:0,major:0,minor:0},verdict:"PASS",warningCount:0} else {schema:"integrated-verdict/v1",stage:$stage,feature:$feature,attempt:1,round:1,run_id:($stage+"-orchestrator"),verdict:"PASS"} end' > "$directory/integrated-verdict.json"
-  jq -n --arg stage "$stage" --arg feature "$FEATURE" --arg req "$req" --arg acc "$acc" --arg design "$design" \
-    '{schema:($stage+"-review-contract/v1"),stage:$stage,feature:$feature,attempt:1,round:1,run_id:($stage+"-orchestrator"),verdict:"PASS",requirements_sha256:$req,acceptance_sha256:$acc,design_sha256:$design,reviewers:[{role:($stage+"-reviewer-a"),run_id:"run-a",host_session_id:"session-a",allowed_input_manifest:[{path:("specs/"+$feature+"/requirements.md"),sha256:$req},{path:("specs/"+$feature+"/acceptance-tests.md"),sha256:$acc},{path:("specs/"+$feature+"/design.md"),sha256:$design}]},{role:($stage+"-reviewer-b"),run_id:"run-b",host_session_id:"session-b",allowed_input_manifest:[{path:("specs/"+$feature+"/requirements.md"),sha256:$req},{path:("specs/"+$feature+"/acceptance-tests.md"),sha256:$acc},{path:("specs/"+$feature+"/design.md"),sha256:$design}]}]}' > "$directory/$stage-review-contract.json"
+  jq -n --arg stage "$stage" --arg feature "$FEATURE" --arg req "$req" --arg acc "$acc" --arg design "$design" --arg calibration "$calibration" \
+    '{schema:($stage+"-review-contract/v1"),stage:$stage,feature:$feature,attempt:1,round:1,run_id:($stage+"-orchestrator"),verdict:"PASS",requirements_sha256:$req,acceptance_sha256:$acc,design_sha256:$design,reviewers:[{role:($stage+"-reviewer-a"),run_id:"run-a",host_session_id:"session-a",allowed_input_manifest:[{path:("specs/"+$feature+"/requirements.md"),sha256:$req},{path:("specs/"+$feature+"/acceptance-tests.md"),sha256:$acc},{path:("specs/"+$feature+"/design.md"),sha256:$design}]},{role:($stage+"-reviewer-b"),run_id:"run-b",host_session_id:"session-b",allowed_input_manifest:[{path:("specs/"+$feature+"/requirements.md"),sha256:$req},{path:("specs/"+$feature+"/acceptance-tests.md"),sha256:$acc},{path:("specs/"+$feature+"/design.md"),sha256:$design}]}]}
+    | if $stage == "impl" then .reviewers |= map(.allowed_input_manifest += [{path:"plugins/sdd-review-loop/references/reviewer-calibration.md",sha256:$calibration}]) else . end' > "$directory/$stage-review-contract.json"
 }
 expect_denied_without_evidence() {
   local label="$1" report="$2"; shift 2
@@ -110,6 +112,10 @@ expect_denied_without_evidence "nonpositive task attempt" "$TASK_REPORT" \
 write_impl_pass
 rm -f "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.json"
 expect_denied_without_evidence "task missing complete impl contract" "$TASK_REPORT" \
+  bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "$FEATURE" 1 1
+write_impl_pass
+jq '(.reviewers[].allowed_input_manifest) |= map(select(.path != "plugins/sdd-review-loop/references/reviewer-calibration.md"))' "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.json" > "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.tmp" && mv "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.tmp" "$IMPL_REPORT/attempt-1/round-1/impl-review-contract.json"
+expect_denied_without_evidence "task missing impl calibration manifest" "$TASK_REPORT" \
   bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "$FEATURE" 1 1
 write_impl_pass
 printf '{"schema":"integrated-verdict/v1","stage":"impl","feature":"%s","attempt":1,"round":1,"verdict":"NEEDS_WORK"}\n' "$FEATURE" > "$IMPL_REPORT/attempt-1/round-1/integrated-verdict.json"
