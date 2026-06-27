@@ -85,7 +85,8 @@ run_full_uninstall_scenario() {
     [[ "$skip_agents" -eq 1 ]] && extra_args+=(--skip-agent-uninstall)
 
     local failed=0
-    bash "$UNINSTALLER" --install-root "$install_root" --target All "${extra_args[@]}" >/dev/null 2>&1 || failed=1
+    # Expand an empty array safely under `set -u` on bash 3.2 (macOS default).
+    bash "$UNINSTALLER" --install-root "$install_root" --target All "${extra_args[@]+"${extra_args[@]}"}" >/dev/null 2>&1 || failed=1
 
     export PATH="$original_path"
     if [[ -z "$_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_orig_codex_home"; fi
