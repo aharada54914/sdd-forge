@@ -1,0 +1,247 @@
+#!/usr/bin/env bash
+# uninstall.sh — SDD plugins uninstaller for macOS and Linux
+# Mirrors uninstall.ps1 behavior exactly. Reverses install.sh:
+#   - unregisters plugins and the marketplace from Codex / Claude / Copilot
+#   - removes installed Codex agent role files (~/.codex/agents/sdd-*.toml)
+#   - removes the installed files at the install root (unless --keep-files)
+set -euo pipefail
+
+# ---------------------------------------------------------------------------
+# Defaults
+# ---------------------------------------------------------------------------
+INSTALL_ROOT="${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins"
+MARKETPLACE_NAME="sdd-plugins"
+TARGET="All"
+PLUGINS="sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop"
+KEEP_FILES=0
+SKIP_PLUGIN_UNINSTALL=0
+SKIP_AGENT_UNINSTALL=0
+
+VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+
+# ---------------------------------------------------------------------------
+# Argument parsing
+# ---------------------------------------------------------------------------
+usage() {
+    cat >&2 <<EOF
+Usage: uninstall.sh [options]
+
+  --install-root <path>          Default: \${XDG_DATA_HOME:-\$HOME/.local/share}/sdd-plugins
+  --marketplace-name <name>      Registered marketplace name. Default: sdd-plugins
+  --target All|Codex|Claude|Copilot|FilesOnly
+                                 Default: All
+  --plugins <comma-separated>    Names from: sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd-review-loop
+                                 Default: all plugins
+  --keep-files                   Unregister from CLI tools but keep the installed files
+  --skip-plugin-uninstall        Skip unregistering plugins/marketplace from CLI tools
+  --skip-agent-uninstall         Skip removing Codex agent TOML files
+
+Environment: SDD_CODEX_HOME      Override ~/.codex location for agent TOML files
+  Unregistration is best-effort: a plugin or marketplace that is already absent
+  is treated as success so the uninstaller is idempotent.
+EOF
+    exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --install-root)         [[ $# -gt 1 ]] || usage; INSTALL_ROOT="$2"; shift 2 ;;
+        --marketplace-name)     [[ $# -gt 1 ]] || usage; MARKETPLACE_NAME="$2"; shift 2 ;;
+        --target)               [[ $# -gt 1 ]] || usage; TARGET="$2"; shift 2 ;;
+        --plugins)              [[ $# -gt 1 ]] || usage; PLUGINS="$2"; shift 2 ;;
+        --keep-files)           KEEP_FILES=1; shift ;;
+        --skip-plugin-uninstall) SKIP_PLUGIN_UNINSTALL=1; shift ;;
+        --skip-agent-uninstall)  SKIP_AGENT_UNINSTALL=1; shift ;;
+        *) echo "Unknown option: $1" >&2; usage ;;
+    esac
+done
+
+# Validate --target
+case "$TARGET" in
+    All|Codex|Claude|Copilot|FilesOnly) ;;
+    *) echo "Invalid --target value: $TARGET (must be All, Codex, Claude, Copilot, or FilesOnly)" >&2; usage ;;
+esac
+
+# Validate --plugins
+IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
+for p in "${PLUGIN_LIST[@]}"; do
+    valid=0
+    for v in $VALID_PLUGINS; do
+        [[ "$p" == "$v" ]] && valid=1 && break
+    done
+    if [[ $valid -eq 0 ]]; then
+        echo "Invalid plugin name: $p (must be one of: $VALID_PLUGINS)" >&2
+        exit 1
+    fi
+done
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+target_requires() {
+    # Returns 0 if $TARGET is exactly the given value (hard-error context)
+    [[ "$TARGET" == "$1" ]]
+}
+
+# Best-effort plugin command. A non-zero exit (e.g. "plugin not installed")
+# is reported as a warning but never aborts the uninstall — re-running the
+# uninstaller must converge on a clean state.
+try_plugin_command() {
+    local cmd="$1"; shift
+    local rc=0
+    "$cmd" "$@" >/dev/null 2>&1 || rc=$?
+    if [[ $rc -ne 0 ]]; then
+        local quoted_args
+        printf -v quoted_args '%q ' "$@"
+        echo "Warning: '$cmd ${quoted_args% }' exited with code $rc (already removed?). Continuing." >&2
+    fi
+    return 0
+}
+
+uninstall_codex_plugins() {
+    if ! command -v codex >/dev/null 2>&1; then
+        if target_requires Codex; then
+            echo "Error: Codex CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Codex CLI was not found. Codex unregistration was skipped." >&2
+        return 0
+    fi
+    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]]; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            try_plugin_command codex plugin remove "${p}"
+        done
+        try_plugin_command codex plugin marketplace remove "$MARKETPLACE_NAME"
+    fi
+}
+
+uninstall_claude_plugins() {
+    if ! command -v claude >/dev/null 2>&1; then
+        if target_requires Claude; then
+            echo "Error: Claude Code CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Claude Code CLI was not found. Claude unregistration was skipped." >&2
+        return 0
+    fi
+    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]]; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            try_plugin_command claude plugin uninstall "${p}@${MARKETPLACE_NAME}"
+        done
+        try_plugin_command claude plugin marketplace remove "$MARKETPLACE_NAME"
+    fi
+}
+
+uninstall_copilot_plugins() {
+    if ! command -v copilot >/dev/null 2>&1; then
+        if target_requires Copilot; then
+            echo "Error: Copilot CLI was not found in PATH." >&2
+            return 1
+        fi
+        echo "Warning: Copilot CLI was not found. Copilot unregistration was skipped." >&2
+        return 0
+    fi
+    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]]; then
+        for p in "${PLUGIN_LIST[@]}"; do
+            try_plugin_command copilot plugin uninstall "${p}@${MARKETPLACE_NAME}"
+        done
+        try_plugin_command copilot plugin marketplace remove "$MARKETPLACE_NAME"
+    fi
+}
+
+uninstall_codex_agents() {
+    # Override destination via SDD_CODEX_HOME environment variable (for testing; default is user profile).
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local agent_dest_dir="${codex_home}/agents"
+    [[ -d "$agent_dest_dir" ]] || return 0
+    # Remove only the role files shipped by this project (sdd-*.toml), mirroring
+    # the install glob. A user's own agent role files are never touched.
+    for toml in "${agent_dest_dir}"/sdd-*.toml; do
+        [[ -e "$toml" ]] || continue
+        rm -f "$toml"
+    done
+}
+
+# ---------------------------------------------------------------------------
+# Resolve install root and safety checks (mirror install.sh)
+# ---------------------------------------------------------------------------
+_canon_install_root() {
+    local p="$1"
+    if python3 -c "import os,sys; print(os.path.realpath(sys.argv[1]))" "$p" 2>/dev/null; then
+        return 0
+    fi
+    if realpath -m "$p" 2>/dev/null; then
+        return 0
+    fi
+    case "$p" in
+        /*)
+            case "/${p}/" in
+                */./*|*/../*) : ;;
+                *) printf '%s\n' "$p"; return 0 ;;
+            esac
+            ;;
+    esac
+    local _parent _base
+    _parent="$(dirname "$p")"
+    _base="$(basename "$p")"
+    local _resolved_parent
+    _resolved_parent="$(cd "$_parent" 2>/dev/null && pwd)" || {
+        echo "Error: cannot resolve parent directory of --install-root: ${_parent}" >&2
+        exit 1
+    }
+    echo "${_resolved_parent}/${_base}"
+}
+INSTALL_ROOT="$(_canon_install_root "$INSTALL_ROOT")"
+unset -f _canon_install_root
+
+# Must not be a filesystem root
+case "$INSTALL_ROOT" in
+    /) echo "Error: --install-root must not be a filesystem root: $INSTALL_ROOT" >&2; exit 1 ;;
+    *) ;;
+esac
+_parent="$(dirname "$INSTALL_ROOT")"
+if [[ "$_parent" == "$INSTALL_ROOT" ]]; then
+    echo "Error: --install-root must not be a filesystem root: $INSTALL_ROOT" >&2
+    exit 1
+fi
+# Refuse obviously dangerous roots (a home directory or its parent).
+case "$INSTALL_ROOT" in
+    "$HOME"|"$HOME/") echo "Error: refusing to remove the home directory: $INSTALL_ROOT" >&2; exit 1 ;;
+esac
+
+# ---------------------------------------------------------------------------
+# Unregister from CLI tools
+# ---------------------------------------------------------------------------
+if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
+    uninstall_codex_plugins || exit 1
+    if [[ $SKIP_AGENT_UNINSTALL -eq 0 ]]; then
+        uninstall_codex_agents
+    fi
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
+    uninstall_claude_plugins || exit 1
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
+    uninstall_copilot_plugins || exit 1
+fi
+
+# ---------------------------------------------------------------------------
+# Remove installed files
+# ---------------------------------------------------------------------------
+if [[ $KEEP_FILES -eq 1 ]]; then
+    echo "Kept installed files at: ${INSTALL_ROOT} (--keep-files)."
+elif [[ -d "$INSTALL_ROOT" ]]; then
+    rm -rf "$INSTALL_ROOT"
+    echo "Removed installed files at: ${INSTALL_ROOT}."
+else
+    echo "No installed files found at: ${INSTALL_ROOT}."
+fi
+
+# ---------------------------------------------------------------------------
+# Success
+# ---------------------------------------------------------------------------
+echo ""
+echo "SDD plugins uninstalled."
+if [[ "$TARGET" == "FilesOnly" ]]; then
+    echo "Plugin unregistration was skipped because --target=FilesOnly."
+fi
