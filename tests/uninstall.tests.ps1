@@ -39,12 +39,20 @@ function New-InstalledLayout {
     )
     New-Item -ItemType Directory -Path (Join-Path $InstallRoot "plugins/sdd-bootstrap") -Force | Out-Null
     Set-Content -Path (Join-Path $InstallRoot "marker.txt") -Value "marker" -Encoding Ascii
+    # Manifest: the role files this project ships (source install copied from).
+    $manifest = Join-Path (Join-Path $InstallRoot ".codex") "agents"
+    New-Item -ItemType Directory -Path $manifest -Force | Out-Null
+    Set-Content -Path (Join-Path $manifest "sdd-investigator.toml") -Value "name = `"sdd-investigator`"`ndeveloper_instructions = `"x`"" -Encoding Utf8NoBOM
+    Set-Content -Path (Join-Path $manifest "sdd-evaluator.toml") -Value "name = `"sdd-evaluator`"`ndeveloper_instructions = `"x`"" -Encoding Utf8NoBOM
+    # Destination ~/.codex/agents: shipped roles + user-owned roles.
     $agents = Join-Path $CodexHome "agents"
     New-Item -ItemType Directory -Path $agents -Force | Out-Null
     Set-Content -Path (Join-Path $agents "sdd-investigator.toml") -Value "name = `"sdd-investigator`"`ndeveloper_instructions = `"x`"" -Encoding Utf8NoBOM
     Set-Content -Path (Join-Path $agents "sdd-evaluator.toml") -Value "name = `"sdd-evaluator`"`ndeveloper_instructions = `"x`"" -Encoding Utf8NoBOM
-    # A user's own agent role file that must NOT be removed.
+    # A user's own non-project role file — must NOT be removed.
     Set-Content -Path (Join-Path $agents "auditor.toml") -Value "name = `"auditor`"" -Encoding Utf8NoBOM
+    # A user-authored role that merely shares the sdd- prefix — must NOT be removed.
+    Set-Content -Path (Join-Path $agents "sdd-custom.toml") -Value "name = `"sdd-custom`"`ndeveloper_instructions = `"x`"" -Encoding Utf8NoBOM
 }
 
 # Restricted PATH used by "missing CLI" scenarios so a real codex on the host
@@ -64,6 +72,7 @@ function Invoke-UninstallScenario {
         [string]$Target = "All",
         [switch]$KeepFiles,
         [switch]$SkipAgentUninstall,
+        [switch]$SkipPluginUninstall,
         [string]$OmitCommand,
         [switch]$RestrictPath
     )
@@ -87,6 +96,7 @@ function Invoke-UninstallScenario {
         $params = @{ InstallRoot = $installRoot; Target = $Target; Plugins = $Plugins }
         if ($KeepFiles) { $params.KeepFiles = $true }
         if ($SkipAgentUninstall) { $params.SkipAgentUninstall = $true }
+        if ($SkipPluginUninstall) { $params.SkipPluginUninstall = $true }
         & $uninstaller @params *>$null
     }
     catch {
@@ -115,7 +125,7 @@ $a = Invoke-UninstallScenario
 try {
     if ($a.Failed) { throw "full uninstall: uninstaller threw" }
     foreach ($p in $allPlugins) {
-        foreach ($expected in @("codex plugin remove $p", "claude plugin uninstall $p@sdd-plugins", "copilot plugin uninstall $p@sdd-plugins")) {
+        foreach ($expected in @("codex plugin remove $p@sdd-plugins", "claude plugin uninstall $p@sdd-plugins", "copilot plugin uninstall $p@sdd-plugins")) {
             if ($a.Log -notmatch [regex]::Escape($expected)) { throw "full uninstall: missing command: $expected" }
         }
     }
@@ -123,9 +133,10 @@ try {
         if ($a.Log -notmatch [regex]::Escape($expected)) { throw "full uninstall: missing command: $expected" }
     }
     if (-not (Test-Path (Join-Path $a.CodexHome "agents/auditor.toml"))) { throw "full uninstall: user's auditor.toml was removed" }
+    if (-not (Test-Path (Join-Path $a.CodexHome "agents/sdd-custom.toml"))) { throw "full uninstall: user-authored sdd-custom.toml was removed" }
     if (Test-Path $a.InstallRoot) { throw "full uninstall: install root not removed" }
     if (Test-Path (Join-Path $a.CodexHome "agents/sdd-investigator.toml")) { throw "full uninstall: shipped agent toml not removed" }
-    Write-Host "ok: full uninstall unregisters all plugins+marketplace, removes files and shipped agents"
+    Write-Host "ok: full uninstall unregisters all plugins+marketplace, removes files and only shipped agents"
 }
 finally { if (Test-Path $a.TestRoot) { Remove-Item -Path $a.TestRoot -Recurse -Force } }
 
@@ -152,14 +163,17 @@ try {
 finally { if (Test-Path $c.TestRoot) { Remove-Item -Path $c.TestRoot -Recurse -Force } }
 
 # ---------------------------------------------------------------------------
-# Scenario (d): subset -Plugins only unregisters chosen plugins
+# Scenario (d): subset -Plugins unregisters only chosen plugins and KEEPS the
+# marketplace (removing it would uninstall the unselected plugins too).
 # ---------------------------------------------------------------------------
 $d = Invoke-UninstallScenario -Plugins @("sdd-bootstrap", "sdd-implementation")
 try {
+    if ($d.Failed) { throw "subset: uninstaller threw" }
     if ($d.Log -notmatch [regex]::Escape("claude plugin uninstall sdd-bootstrap@sdd-plugins")) { throw "subset: sdd-bootstrap not unregistered" }
     if ($d.Log -notmatch [regex]::Escape("claude plugin uninstall sdd-implementation@sdd-plugins")) { throw "subset: sdd-implementation not unregistered" }
-    if ($d.Log -match [regex]::Escape("uninstall sdd-ship@sdd-plugins") -or $d.Log -match [regex]::Escape("remove sdd-ship")) { throw "subset: unselected sdd-ship was unregistered" }
-    Write-Host "ok: subset -Plugins only unregisters chosen plugins"
+    if ($d.Log -match [regex]::Escape("uninstall sdd-ship@sdd-plugins") -or $d.Log -match [regex]::Escape("remove sdd-ship@sdd-plugins")) { throw "subset: unselected sdd-ship was unregistered" }
+    if ($d.Log -match [regex]::Escape("marketplace remove")) { throw "subset: marketplace must not be removed for a partial uninstall" }
+    Write-Host "ok: subset -Plugins unregisters only chosen plugins and keeps the marketplace"
 }
 finally { if (Test-Path $d.TestRoot) { Remove-Item -Path $d.TestRoot -Recurse -Force } }
 
@@ -185,11 +199,21 @@ try {
 finally { if (Test-Path $f.TestRoot) { Remove-Item -Path $f.TestRoot -Recurse -Force } }
 
 # ---------------------------------------------------------------------------
+# Scenario (f2): -SkipPluginUninstall proceeds even when the CLI is absent
+# ---------------------------------------------------------------------------
+$f2 = Invoke-UninstallScenario -Target "Codex" -OmitCommand "codex" -RestrictPath -SkipPluginUninstall
+try {
+    if ($f2.Failed) { throw "-SkipPluginUninstall should not error on absent CLI" }
+    if (Test-Path $f2.InstallRoot) { throw "-SkipPluginUninstall should still remove files" }
+    Write-Host "ok: -SkipPluginUninstall proceeds when CLI is absent"
+}
+finally { if (Test-Path $f2.TestRoot) { Remove-Item -Path $f2.TestRoot -Recurse -Force } }
+
+# ---------------------------------------------------------------------------
 # Scenario (g): idempotency — a second uninstall still succeeds
 # ---------------------------------------------------------------------------
 $g1 = Invoke-UninstallScenario
 $gFailed = $g1.Failed
-# Re-run against the now-clean root (files already gone): must not throw.
 $gRoot = $g1.InstallRoot
 $gCodex = $g1.CodexHome
 $savedPath = $env:PATH
@@ -221,6 +245,24 @@ if (-not $hFailed) { throw "invalid plugin name was accepted" }
 Write-Host "ok: invalid plugin name rejected"
 
 # ---------------------------------------------------------------------------
+# Scenario (h2): invalid -Target rejected (ValidateSet)
+# ---------------------------------------------------------------------------
+$h2Failed = $false
+try { & $uninstaller -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target "NotATarget" *>$null }
+catch { $h2Failed = $true }
+if (-not $h2Failed) { throw "invalid -Target was accepted" }
+Write-Host "ok: invalid -Target rejected"
+
+# ---------------------------------------------------------------------------
+# Scenario (h3): empty -InstallRoot rejected before any removal
+# ---------------------------------------------------------------------------
+$h3Failed = $false
+try { & $uninstaller -InstallRoot "" -Target FilesOnly -SkipPluginUninstall -SkipAgentUninstall *>$null }
+catch { $h3Failed = $true }
+if (-not $h3Failed) { throw "empty -InstallRoot was accepted" }
+Write-Host "ok: empty -InstallRoot rejected"
+
+# ---------------------------------------------------------------------------
 # Scenario (i): refuses a filesystem root as -InstallRoot
 # ---------------------------------------------------------------------------
 $rootPath = [System.IO.Path]::GetPathRoot([System.IO.Path]::GetFullPath([System.IO.Path]::GetTempPath()))
@@ -229,6 +271,16 @@ try { & $uninstaller -InstallRoot $rootPath -Target FilesOnly -SkipPluginUninsta
 catch { $iFailed = $true }
 if (-not $iFailed) { throw "filesystem root was accepted as -InstallRoot" }
 Write-Host "ok: filesystem root rejected as -InstallRoot"
+
+# ---------------------------------------------------------------------------
+# Scenario (i2): refuses the home directory as -InstallRoot
+# ---------------------------------------------------------------------------
+$homeDir = [Environment]::GetFolderPath("UserProfile")
+$i2Failed = $false
+try { & $uninstaller -InstallRoot $homeDir -Target FilesOnly -SkipPluginUninstall -SkipAgentUninstall *>$null }
+catch { $i2Failed = $true }
+if (-not $i2Failed) { throw "home directory was accepted as -InstallRoot" }
+Write-Host "ok: home directory rejected as -InstallRoot"
 
 # ---------------------------------------------------------------------------
 # Scenario (j): FilesOnly skips CLI calls but still removes files

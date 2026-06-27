@@ -2,7 +2,7 @@
 # uninstall.sh — SDD plugins uninstaller for macOS and Linux
 # Mirrors uninstall.ps1 behavior exactly. Reverses install.sh:
 #   - unregisters plugins and the marketplace from Codex / Claude / Copilot
-#   - removes installed Codex agent role files (~/.codex/agents/sdd-*.toml)
+#   - removes the Codex agent role files this project installed
 #   - removes the installed files at the install root (unless --keep-files)
 set -euo pipefail
 
@@ -18,6 +18,9 @@ SKIP_PLUGIN_UNINSTALL=0
 SKIP_AGENT_UNINSTALL=0
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+# Role files this project installs into ~/.codex/agents. Used as a fallback when
+# the install root (the manifest source) is no longer present.
+SHIPPED_AGENTS="sdd-investigator.toml sdd-evaluator.toml sdd-panelist-gpt.toml sdd-panelist-gemini.toml"
 
 # ---------------------------------------------------------------------------
 # Argument parsing
@@ -38,7 +41,9 @@ Usage: uninstall.sh [options]
 
 Environment: SDD_CODEX_HOME      Override ~/.codex location for agent TOML files
   Unregistration is best-effort: a plugin or marketplace that is already absent
-  is treated as success so the uninstaller is idempotent.
+  is treated as success so the uninstaller is idempotent. The marketplace is only
+  removed during a full uninstall (every plugin selected) because removing it
+  would also uninstall any plugins left behind by a subset uninstall.
 EOF
     exit 1
 }
@@ -55,6 +60,14 @@ while [[ $# -gt 0 ]]; do
         *) echo "Unknown option: $1" >&2; usage ;;
     esac
 done
+
+# Reject an empty install root before any canonicalization. os.path.realpath('')
+# resolves to the current working directory, so an unset caller variable
+# (e.g. --install-root "$UNSET") must never reach the removal step.
+if [[ -z "${INSTALL_ROOT//[[:space:]]/}" ]]; then
+    echo "Error: --install-root must not be empty." >&2
+    exit 1
+fi
 
 # Validate --target
 case "$TARGET" in
@@ -73,6 +86,18 @@ for p in "${PLUGIN_LIST[@]}"; do
         echo "Invalid plugin name: $p (must be one of: $VALID_PLUGINS)" >&2
         exit 1
     fi
+done
+
+# A full uninstall selects every known plugin. Only then is it safe to remove the
+# marketplace, since removing it also uninstalls any plugins still registered
+# from it.
+IS_FULL_UNINSTALL=1
+for v in $VALID_PLUGINS; do
+    found=0
+    for p in "${PLUGIN_LIST[@]}"; do
+        [[ "$p" == "$v" ]] && found=1 && break
+    done
+    if [[ $found -eq 0 ]]; then IS_FULL_UNINSTALL=0; break; fi
 done
 
 # ---------------------------------------------------------------------------
@@ -98,7 +123,18 @@ try_plugin_command() {
     return 0
 }
 
+remove_marketplace_if_full() {
+    # Only remove the marketplace for a full uninstall (see IS_FULL_UNINSTALL).
+    local cmd="$1"
+    if [[ $IS_FULL_UNINSTALL -eq 1 ]]; then
+        try_plugin_command "$cmd" plugin marketplace remove "$MARKETPLACE_NAME"
+    fi
+}
+
 uninstall_codex_plugins() {
+    # Honor --skip-plugin-uninstall before probing the CLI so a removed CLI does
+    # not block the agent/file cleanup paths.
+    [[ $SKIP_PLUGIN_UNINSTALL -ne 0 ]] && return 0
     if ! command -v codex >/dev/null 2>&1; then
         if target_requires Codex; then
             echo "Error: Codex CLI was not found in PATH." >&2
@@ -107,15 +143,15 @@ uninstall_codex_plugins() {
         echo "Warning: Codex CLI was not found. Codex unregistration was skipped." >&2
         return 0
     fi
-    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]]; then
-        for p in "${PLUGIN_LIST[@]}"; do
-            try_plugin_command codex plugin remove "${p}"
-        done
-        try_plugin_command codex plugin marketplace remove "$MARKETPLACE_NAME"
-    fi
+    for p in "${PLUGIN_LIST[@]}"; do
+        # Codex plugin state is keyed by the qualified plugin@marketplace id.
+        try_plugin_command codex plugin remove "${p}@${MARKETPLACE_NAME}"
+    done
+    remove_marketplace_if_full codex
 }
 
 uninstall_claude_plugins() {
+    [[ $SKIP_PLUGIN_UNINSTALL -ne 0 ]] && return 0
     if ! command -v claude >/dev/null 2>&1; then
         if target_requires Claude; then
             echo "Error: Claude Code CLI was not found in PATH." >&2
@@ -124,15 +160,14 @@ uninstall_claude_plugins() {
         echo "Warning: Claude Code CLI was not found. Claude unregistration was skipped." >&2
         return 0
     fi
-    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]]; then
-        for p in "${PLUGIN_LIST[@]}"; do
-            try_plugin_command claude plugin uninstall "${p}@${MARKETPLACE_NAME}"
-        done
-        try_plugin_command claude plugin marketplace remove "$MARKETPLACE_NAME"
-    fi
+    for p in "${PLUGIN_LIST[@]}"; do
+        try_plugin_command claude plugin uninstall "${p}@${MARKETPLACE_NAME}"
+    done
+    remove_marketplace_if_full claude
 }
 
 uninstall_copilot_plugins() {
+    [[ $SKIP_PLUGIN_UNINSTALL -ne 0 ]] && return 0
     if ! command -v copilot >/dev/null 2>&1; then
         if target_requires Copilot; then
             echo "Error: Copilot CLI was not found in PATH." >&2
@@ -141,12 +176,10 @@ uninstall_copilot_plugins() {
         echo "Warning: Copilot CLI was not found. Copilot unregistration was skipped." >&2
         return 0
     fi
-    if [[ $SKIP_PLUGIN_UNINSTALL -eq 0 ]]; then
-        for p in "${PLUGIN_LIST[@]}"; do
-            try_plugin_command copilot plugin uninstall "${p}@${MARKETPLACE_NAME}"
-        done
-        try_plugin_command copilot plugin marketplace remove "$MARKETPLACE_NAME"
-    fi
+    for p in "${PLUGIN_LIST[@]}"; do
+        try_plugin_command copilot plugin uninstall "${p}@${MARKETPLACE_NAME}"
+    done
+    remove_marketplace_if_full copilot
 }
 
 uninstall_codex_agents() {
@@ -154,12 +187,29 @@ uninstall_codex_agents() {
     local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
     local agent_dest_dir="${codex_home}/agents"
     [[ -d "$agent_dest_dir" ]] || return 0
-    # Remove only the role files shipped by this project (sdd-*.toml), mirroring
-    # the install glob. A user's own agent role files are never touched.
-    for toml in "${agent_dest_dir}"/sdd-*.toml; do
-        [[ -e "$toml" ]] || continue
-        rm -f "$toml"
+    # Remove only the role files this project installed. Prefer the manifest in
+    # the install root (the source install copied from); fall back to the known
+    # shipped names if the install root is already gone. A user's own role files
+    # — including any sdd-* they authored themselves — are never touched.
+    local -a shipped=()
+    local src_agents="${INSTALL_ROOT}/.codex/agents"
+    if [[ -d "$src_agents" ]]; then
+        for f in "$src_agents"/sdd-*.toml; do
+            [[ -e "$f" ]] && shipped+=("$(basename "$f")")
+        done
+    fi
+    if [[ ${#shipped[@]} -eq 0 ]]; then
+        # shellcheck disable=SC2206
+        shipped=($SHIPPED_AGENTS)
+    fi
+    for name in "${shipped[@]}"; do
+        if [[ -e "${agent_dest_dir}/${name}" ]]; then
+            rm -f "${agent_dest_dir}/${name}"
+        fi
     done
+    # Always succeed: a non-existent last entry must not make the function (and,
+    # under set -e, the whole uninstaller) exit non-zero on a repeat run.
+    return 0
 }
 
 # ---------------------------------------------------------------------------
@@ -204,9 +254,12 @@ if [[ "$_parent" == "$INSTALL_ROOT" ]]; then
     echo "Error: --install-root must not be a filesystem root: $INSTALL_ROOT" >&2
     exit 1
 fi
-# Refuse obviously dangerous roots (a home directory or its parent).
+# Refuse obviously dangerous roots: the home directory or its parent. A path like
+# "$HOME/.." canonicalizes to the parent above, so guard against it explicitly.
+HOME_PARENT="$(dirname "$HOME")"
 case "$INSTALL_ROOT" in
     "$HOME"|"$HOME/") echo "Error: refusing to remove the home directory: $INSTALL_ROOT" >&2; exit 1 ;;
+    "$HOME_PARENT"|"$HOME_PARENT/") echo "Error: refusing to remove the parent of the home directory: $INSTALL_ROOT" >&2; exit 1 ;;
 esac
 
 # ---------------------------------------------------------------------------

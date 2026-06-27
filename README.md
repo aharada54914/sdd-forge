@@ -132,7 +132,7 @@ flowchart LR
 | `--skip-plugin-uninstall` | CLI からの登録解除をスキップ |
 | `--skip-agent-uninstall` | Codex エージェント TOML の削除をスキップ |
 
-登録解除はべき等です（既に存在しないプラグイン／marketplace は成功扱い）。利用者自身が `~/.codex/agents/` に置いた `sdd-*` 以外のロールファイルは削除しません。
+登録解除はべき等です（既に存在しないプラグイン／marketplace は成功扱い）。Codex エージェントロールは **本プロジェクトがインストールしたファイルのみ** を削除し、利用者自身が `~/.codex/agents/` に置いたファイルは（`sdd-*` という名前のものを含め）削除しません。また `--plugins` で一部のみ指定した場合は marketplace を削除しません（marketplace を消すと、そこからインストールされた他のプラグインも巻き添えで消えるため）。
 
 ## 特徴
 
