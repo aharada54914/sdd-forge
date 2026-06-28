@@ -76,6 +76,24 @@ expect_valid() {
     fail "valid PowerShell fixture failed: $root"
 }
 
+latest_task_round_dir() {
+  local root="$1" path attempt round best="" best_attempt=-1 best_round=-1
+  for path in "$root"/reports/task-review/workflow-state-integrity/attempt-*/round-*; do
+    [[ -d "$path" ]] || continue
+    attempt="${path%/round-*}"
+    attempt="${attempt##*/attempt-}"
+    round="${path##*/round-}"
+    [[ "$attempt" =~ ^[0-9]+$ && "$round" =~ ^[0-9]+$ ]] || continue
+    if ((attempt > best_attempt || attempt == best_attempt && round > best_round)); then
+      best="$path"
+      best_attempt="$attempt"
+      best_round="$round"
+    fi
+  done
+  [[ -n "$best" ]] || fail "latest task-review round was not found"
+  printf '%s\n' "$best"
+}
+
 [[ -f "$CHECKER" ]] || fail "workflow-state Shell adapter is missing"
 
 valid="$(make_full_fixture valid)"
@@ -128,11 +146,12 @@ rm "$order/specs/workflow-state-integrity/requirements.md.bak"
 expect_rule "$order" stage-order
 
 forged="$(make_full_fixture forged)"
+forged_task_round="$(latest_task_round_dir "$forged")"
 jq '.feature = "other-feature"' \
-  "$forged/reports/task-review/workflow-state-integrity/attempt-3/round-3/task-review-contract.json" \
+  "$forged_task_round/task-review-contract.json" \
   > "$forged/contract.tmp"
 mv "$forged/contract.tmp" \
-  "$forged/reports/task-review/workflow-state-integrity/attempt-3/round-3/task-review-contract.json"
+  "$forged_task_round/task-review-contract.json"
 expect_rule "$forged" stage-provenance
 
 manifest_gap="$(make_full_fixture manifest-gap)"
@@ -215,11 +234,12 @@ mv "$contradictory_reviewer/reviewer.tmp" \
 expect_rule "$contradictory_reviewer" stage-provenance
 
 contradictory_task_reviewer_b="$(make_full_fixture contradictory-task-reviewer-b)"
+contradictory_task_round="$(latest_task_round_dir "$contradictory_task_reviewer_b")"
 jq '.checks[0].result = "FAIL"' \
-  "$contradictory_task_reviewer_b/reports/task-review/workflow-state-integrity/attempt-3/round-3/reviewer-b.json" \
+  "$contradictory_task_round/reviewer-b.json" \
   > "$contradictory_task_reviewer_b/reviewer.tmp"
 mv "$contradictory_task_reviewer_b/reviewer.tmp" \
-  "$contradictory_task_reviewer_b/reports/task-review/workflow-state-integrity/attempt-3/round-3/reviewer-b.json"
+  "$contradictory_task_round/reviewer-b.json"
 expect_rule "$contradictory_task_reviewer_b" stage-provenance
 
 contradictory_summary="$(make_full_fixture contradictory-summary)"
