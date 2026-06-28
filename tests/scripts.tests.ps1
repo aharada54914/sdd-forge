@@ -852,12 +852,14 @@ Waiting for API credentials from vendor.
     New-Item -ItemType Directory -Path "spec-dir/verification" -Force | Out-Null
     @"
 Task ID: T-040
+Feature: test-feature
 VERDICT: PASS
 quality gate report for T-040
 "@ | Set-Content -Encoding Utf8 "reports/quality-gate/r-T040.md"
     "pass evidence for T-040" | Set-Content -Encoding Utf8 "spec-dir/verification/T-040-evidence.log"
     $doneContract = Get-Content -Raw -Encoding Utf8 $templatePath | ConvertFrom-Json
     $doneContract.task_id = "T-040"
+    $doneContract.feature = "test-feature"
     # Legacy contract (template default risk=medium predates tier enforcement; the
     # bundle below carries no risk, so keep them aligned and tier-exempt).
     $doneContract.risk = ""
@@ -885,6 +887,7 @@ Status: Done
 
     $doneBundle = [ordered]@{
         task_id = "T-040"
+        feature = "test-feature"
         quality_report = "reports/quality-gate/r-T040.md"
         verification_contract = "spec-dir/verification/T-040.contract.json"
         git_commit = $t040GitCommit
@@ -906,6 +909,23 @@ Status: Done
 
     # -- check-evidence-bundle direct validation --
     Assert-ExitCode "check-evidence-bundle passing" (Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040.evidence.json", "-RepoRoot", ".")) 0
+
+    $crossFeatureBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $crossFeatureBundle.quality_report = "reports/quality-gate/r-T040-cross-feature.md"
+    @"
+Task ID: T-040
+Feature: other-feature
+VERDICT: PASS
+quality gate report for another feature's T-040
+"@ | Set-Content -Encoding Utf8 "reports/quality-gate/r-T040-cross-feature.md"
+    $crossFeatureBundle.artifacts[1] = (New-ArtifactEntry "reports/quality-gate/r-T040-cross-feature.md")
+    $crossFeatureBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+    $crossFeatureExit = Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040.evidence.json", "-RepoRoot", ".")
+    Assert-ExitCode "check-evidence-bundle cross-feature PASS report fails" $crossFeatureExit 1
+    if (($script:gateOutput | Out-String) -notmatch "quality_report feature mismatch") {
+        throw "cross-feature PASS report must fail specifically on quality_report feature mismatch"
+    }
+    $doneBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
 
     $missingArtifactBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
     $missingArtifactBundle.artifacts = @(

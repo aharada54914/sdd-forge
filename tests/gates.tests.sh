@@ -436,6 +436,7 @@ git -C "${H02_REPO}" config commit.gpgsign false
 printf 'lint output: OK\n' > "${H02_REPO}/specs/test-feature/verification/ev.log"
 cat > "${H02_REPO}/reports/quality-gate/T-099.md" <<'EOF'
 Task ID: T-099
+Feature: test-feature
 VERDICT: PASS
 Quality gate report for T-099.
 EOF
@@ -493,6 +494,31 @@ if check_bundle_passes "$bundle_file" "${H02_REPO}"; then
 else
     fail "H-02.1c: check-evidence-bundle should pass on generated bundle: $(run_check_bundle "$bundle_file" "${H02_REPO}")"
 fi
+
+# --- H-02.1d: report feature must match contract and bundle feature ---
+cat > "${H02_REPO}/reports/quality-gate/T-099-cross-feature.md" <<'EOF'
+Task ID: T-099
+Feature: other-feature
+VERDICT: PASS
+Quality gate report for another feature's T-099.
+EOF
+generate_bundle_passes \
+    "${H02_REPO}/specs/test-feature/verification/T-099.contract.json" \
+    "${H02_REPO}/reports/quality-gate/T-099-cross-feature.md" \
+    "${H02_REPO}"
+cross_feature_out="$(run_check_bundle "$bundle_file" "${H02_REPO}")"
+if ! check_bundle_passes "$bundle_file" "${H02_REPO}" && \
+   echo "$cross_feature_out" | grep -q "quality_report feature mismatch"; then
+    ok "H-02.1d: cross-feature PASS report is rejected"
+else
+    fail "H-02.1d: cross-feature PASS report must be rejected: $cross_feature_out"
+fi
+
+# Restore the valid bundle for subsequent tamper and provenance tests.
+generate_bundle_passes \
+    "${H02_REPO}/specs/test-feature/verification/T-099.contract.json" \
+    "${H02_REPO}/reports/quality-gate/T-099.md" \
+    "${H02_REPO}"
 
 # --- H-02.2: tamper artifact after generation → digest mismatch → FAIL ---
 # Tamper ev.log; the bundle still has the old sha256, so check must fail
