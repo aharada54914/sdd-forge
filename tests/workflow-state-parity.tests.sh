@@ -23,6 +23,24 @@ reviewed_sha() {
   esac
   sha "$output"
 }
+latest_task_contract() {
+  local root="$1" path attempt round best="" best_attempt=-1 best_round=-1
+  for path in "$root"/reports/task-review/workflow-state-integrity/attempt-*/round-*/task-review-contract.json; do
+    [[ -f "$path" ]] || continue
+    attempt="${path%/round-*}"
+    attempt="${attempt##*/attempt-}"
+    round="${path%/task-review-contract.json}"
+    round="${round##*/round-}"
+    [[ "$attempt" =~ ^[0-9]+$ && "$round" =~ ^[0-9]+$ ]] || continue
+    if ((attempt > best_attempt || attempt == best_attempt && round > best_round)); then
+      best="$path"
+      best_attempt="$attempt"
+      best_round="$round"
+    fi
+  done
+  [[ -n "$best" ]] || fail "latest task-review contract was not found"
+  printf '%s\n' "$best"
+}
 
 mkdir -p "$TMP/specs/sdd-lite"
 printf '# Lite\r\n' > "$TMP/specs/sdd-lite/requirements.md"
@@ -76,7 +94,7 @@ accept_raw="$(sha "$FULL/specs/workflow-state-integrity/acceptance-tests.md")"
 tasks_reviewed="$(reviewed_sha "$FULL/specs/workflow-state-integrity/tasks.md" task)"
 spec_contract="$FULL/reports/spec-review/workflow-state-integrity/attempt-1/round-2/spec-review-contract.json"
 impl_contract="$FULL/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
-task_contract="$FULL/reports/task-review/workflow-state-integrity/attempt-3/round-3/task-review-contract.json"
+task_contract="$(latest_task_contract "$FULL")"
 jq --arg req "$req_spec" --arg accept "$accept_raw" '
   .requirements_sha256 = $req |
   .acceptance_sha256 = $accept |
