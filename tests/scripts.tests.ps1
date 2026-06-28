@@ -63,6 +63,11 @@ Status: Planned
 "@ | Set-Content -Encoding Utf8 "tasks-good.md"
     @"
 Task ID: T-001
+VERDICT: NEEDS_WORK
+conflicting quality gate report for another feature's T-001
+"@ | Set-Content -Encoding Utf8 "reports/quality-gate/000-conflicting-T-001.md"
+    @"
+Task ID: T-001
 VERDICT: PASS
 quality gate report for T-001
 "@ | Set-Content -Encoding Utf8 "reports/quality-gate/r1.md"

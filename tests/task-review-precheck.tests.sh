@@ -8,11 +8,20 @@ SPEC_DIR="${REPO_ROOT}/specs/${FEATURE}"
 REPORT_DIR="${REPO_ROOT}/reports/task-review/${FEATURE}"
 SPEC_REPORT_DIR="${REPO_ROOT}/reports/spec-review/${FEATURE}"
 IMPL_REPORT_DIR="${REPO_ROOT}/reports/impl-review/${FEATURE}"
+REGISTRY="${REPO_ROOT}/specs/workflow-state-registry.json"
+REGISTRY_BACKUP="$(mktemp)"
+cp "${REGISTRY}" "${REGISTRY_BACKUP}"
 
 cleanup() {
+  cp "${REGISTRY_BACKUP}" "${REGISTRY}"
+  rm -f "${REGISTRY_BACKUP}"
   rm -rf "${SPEC_DIR}" "${REPORT_DIR}" "${SPEC_REPORT_DIR}" "${IMPL_REPORT_DIR}"
 }
 trap cleanup EXIT
+
+jq --arg feature "${FEATURE}" \
+  '.entries += [{feature:$feature,profile:"lite"}]' "${REGISTRY}" > "${REGISTRY}.tmp"
+mv "${REGISTRY}.tmp" "${REGISTRY}"
 
 mkdir -p "${SPEC_DIR}"
 cat > "${SPEC_DIR}/requirements.md" <<'EOF'
@@ -32,12 +41,21 @@ sha256() {
 write_pass_artifacts() {
   local stage="$1"
   local output_dir="$2"
-  local requirements_hash acceptance_hash design_hash calibration_hash
+  local requirements_hash acceptance_hash design_hash calibration_path calibration_hash precheck_hash summary_hash
   requirements_hash="$(sha256 "${SPEC_DIR}/requirements.md")"
   acceptance_hash="$(sha256 "${SPEC_DIR}/acceptance-tests.md")"
   design_hash="$(sha256 "${SPEC_DIR}/design.md")"
-  calibration_hash="$(sha256 "${REPO_ROOT}/plugins/sdd-review-loop/references/reviewer-calibration.md")"
+  if [[ "${stage}" == "spec" ]]; then
+    calibration_path="plugins/sdd-review-loop/references/spec-review-calibration.md"
+  else
+    calibration_path="plugins/sdd-review-loop/references/reviewer-calibration.md"
+  fi
+  calibration_hash="$(sha256 "${REPO_ROOT}/${calibration_path}")"
   mkdir -p "${output_dir}"
+  printf '{}\n' > "${output_dir}/precheck-result.json"
+  printf '{}\n' > "${output_dir}/integrated-summary.json"
+  precheck_hash="$(sha256 "${output_dir}/precheck-result.json")"
+  summary_hash="$(sha256 "${output_dir}/integrated-summary.json")"
 
   if [[ "${stage}" == "spec" ]]; then
     jq -n --arg feature "${FEATURE}" '{schema:"spec-review-integrated-verdict/v1",stage:"spec",feature:$feature,attempt:1,round:1,verdict:"PASS",reviewer_a_run_id:"spec-a-run",reviewer_b_run_id:"spec-b-run",reviewer_a_host_session_id:"spec-a-session",reviewer_b_host_session_id:"spec-b-session",finding_count:0,warning_count:0}' > "${output_dir}/integrated-verdict.json"
@@ -51,20 +69,27 @@ write_pass_artifacts() {
     --arg requirements_hash "${requirements_hash}" \
     --arg acceptance_hash "${acceptance_hash}" \
     --arg design_hash "${design_hash}" \
+    --arg calibration_path "${calibration_path}" \
     --arg calibration_hash "${calibration_hash}" \
+    --arg precheck_hash "${precheck_hash}" \
+    --arg summary_hash "${summary_hash}" \
     '{schema:($stage + "-review-contract/v1"),stage:$stage,feature:$feature,attempt:1,round:1,run_id:($stage + "-contract-run"),verdict:"PASS",reviewers:[
       {role:($stage + "-reviewer-a"),run_id:($stage + "-a-run"),host_session_id:($stage + "-a-session"),allowed_input_manifest:[
         {path:("specs/" + $feature + "/requirements.md"),sha256:$requirements_hash},
-        {path:("specs/" + $feature + "/acceptance-tests.md"),sha256:$acceptance_hash}
+        {path:("specs/" + $feature + "/acceptance-tests.md"),sha256:$acceptance_hash},
+        {path:$calibration_path,sha256:$calibration_hash},
+        {path:("reports/" + $stage + "-review/" + $feature + "/attempt-1/round-1/precheck-result.json"),sha256:$precheck_hash}
       ]},
       {role:($stage + "-reviewer-b"),run_id:($stage + "-b-run"),host_session_id:($stage + "-b-session"),allowed_input_manifest:[
         {path:("specs/" + $feature + "/requirements.md"),sha256:$requirements_hash},
-        {path:("specs/" + $feature + "/acceptance-tests.md"),sha256:$acceptance_hash}
+        {path:("specs/" + $feature + "/acceptance-tests.md"),sha256:$acceptance_hash},
+        {path:$calibration_path,sha256:$calibration_hash},
+        {path:("reports/" + $stage + "-review/" + $feature + "/attempt-1/round-1/precheck-result.json"),sha256:$precheck_hash},
+        {path:("reports/" + $stage + "-review/" + $feature + "/attempt-1/round-1/integrated-summary.json"),sha256:$summary_hash}
       ]}
     ]}
     | if $stage == "impl" then .reviewers |= map(.allowed_input_manifest += [
-        {path:("specs/" + $feature + "/design.md"),sha256:$design_hash},
-        {path:"plugins/sdd-review-loop/references/reviewer-calibration.md",sha256:$calibration_hash}
+        {path:("specs/" + $feature + "/design.md"),sha256:$design_hash}
       ]) else . end' > "${output_dir}/${stage}-review-contract.json"
 }
 
