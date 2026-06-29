@@ -117,19 +117,43 @@ normalized_hash() {
   esac
 }
 manifest_has_hash() {
-  local contract="$1" suffix="$2" expected="$3"
+  local contract="$1" suffix="$2" expected="$3" recorded_root="$4"
   jq -e --arg suffix "$suffix" --arg expected "$expected" \
-    --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" '
+    --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
+    --arg recorded "${recorded_root:+$recorded_root/}" '
     def relative_path:
+      gsub("\\\\"; "/") |
       if startswith($repo) then .[($repo|length):]
       elif startswith($alias) then .[($alias|length):]
-      elif startswith("/") then null
+      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+      elif test("^(/|[A-Za-z]:/)") then null
       else . end;
     ($suffix | ltrimstr("/")) as $target |
     all(.reviewers[]?;
       any(.allowed_input_manifest[]?;
         (.path | type == "string" and relative_path == $target) and .sha256 == $expected))
   ' "$contract" >/dev/null
+}
+recorded_repo_root() {
+  local contract="$1" repo_name
+  repo_name="$(basename "$REPO_ROOT")"
+  jq -r --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
+    --arg marker "/$repo_name/" '
+    def normalized: gsub("\\\\"; "/");
+    def rooted: test("^(/|[A-Za-z]:/)");
+    [.reviewers[].allowed_input_manifest[].path |
+      normalized |
+      select(rooted and (startswith($repo) or startswith($alias) | not)) |
+      . as $path |
+      ($path | rindex($marker)) as $index |
+      if $index == null then null
+      else $path[0:($index + ($marker | length) - 1)]
+      end] as $roots |
+    if any($roots[]; . == null) or ($roots | map(select(. != null)) | unique | length) > 1
+    then "__INVALID__"
+    else ($roots | map(select(. != null)) | unique | .[0] // "")
+    end
+  ' "$contract"
 }
 validate_passed_stage() {
   local feature="$1" stage="$2" feature_dir="$3"
@@ -199,13 +223,20 @@ validate_passed_stage() {
     ([.reviewers[]?.host_session_id] | all(type == "string" and length > 0) and (unique|length)==2)
   ' "$contract" >/dev/null 2>&1 ||
     diagnostic "$feature" stage-provenance "$stage review contract identity is invalid"
+  local recorded_root
+  recorded_root="$(recorded_repo_root "$contract")"
+  [[ "$recorded_root" != "__INVALID__" ]] ||
+    diagnostic "$feature" stage-provenance "$stage reviewer manifest paths are not canonical"
   jq -e --arg feature "$feature" --arg stage "$stage" \
     --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
+    --arg recorded "${recorded_root:+$recorded_root/}" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     def relative_path:
+      gsub("\\\\"; "/") |
       if startswith($repo) then .[($repo|length):]
       elif startswith($alias) then .[($alias|length):]
-      elif startswith("/") then null
+      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+      elif test("^(/|[A-Za-z]:/)") then null
       else . end;
     def allowed($role; $path):
       ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt|tostring)) as $attempt_root |
@@ -238,14 +269,20 @@ validate_passed_stage() {
   ' "$contract" >/dev/null 2>&1 ||
     diagnostic "$feature" stage-provenance "$stage reviewer manifest paths are not canonical"
   while IFS=$'\t' read -r manifest_path manifest_hash; do
-    case "$manifest_path" in
-      "$REPO_ROOT"/*) manifest_file="$manifest_path"; manifest_relative="${manifest_path#"$REPO_ROOT/"}" ;;
-      "$REPO_ROOT_ALIAS"/*)
-        manifest_relative="${manifest_path#"$REPO_ROOT_ALIAS/"}"
-        manifest_file="$REPO_ROOT/$manifest_relative" ;;
-      /*) diagnostic "$feature" stage-provenance "$stage reviewer manifest path escapes repository" ;;
-      *) manifest_file="$REPO_ROOT/$manifest_path"; manifest_relative="$manifest_path" ;;
-    esac
+    manifest_path="${manifest_path//\\//}"
+    if [[ -n "$recorded_root" && "$manifest_path" == "$recorded_root/"* ]]; then
+      manifest_relative="${manifest_path#"$recorded_root/"}"
+      manifest_file="$REPO_ROOT/$manifest_relative"
+    else
+      case "$manifest_path" in
+        "$REPO_ROOT"/*) manifest_file="$manifest_path"; manifest_relative="${manifest_path#"$REPO_ROOT/"}" ;;
+        "$REPO_ROOT_ALIAS"/*)
+          manifest_relative="${manifest_path#"$REPO_ROOT_ALIAS/"}"
+          manifest_file="$REPO_ROOT/$manifest_relative" ;;
+        /*|[A-Za-z]:/*) diagnostic "$feature" stage-provenance "$stage reviewer manifest path escapes repository" ;;
+        *) manifest_file="$REPO_ROOT/$manifest_path"; manifest_relative="$manifest_path" ;;
+      esac
+    fi
     case "$manifest_relative" in
       "specs/$feature/requirements.md"|"specs/$feature/design.md"|"specs/$feature/tasks.md"|"specs/$feature/traceability.md"|"specs/$feature/acceptance-tests.md") continue ;;
     esac
@@ -253,7 +290,7 @@ validate_passed_stage() {
       diagnostic "$feature" stage-provenance "$stage reviewer manifest input is missing or unreadable"
     [[ "$(sha256_file "$manifest_file")" == "$manifest_hash" ]] ||
       diagnostic "$feature" stage-provenance "$stage reviewer manifest input hash is stale"
-  done < <(jq -r '.reviewers[].allowed_input_manifest[] | [.path,.sha256] | @tsv' "$contract")
+  done < <(jq -r '.reviewers[].allowed_input_manifest[] | .path + "\t" + .sha256' "$contract")
   jq -e --slurpfile verdict "$best" --arg stage "$stage" '
     .attempt == $verdict[0].attempt and .round == $verdict[0].round and
     .verdict == $verdict[0].verdict and
@@ -372,8 +409,8 @@ validate_passed_stage() {
     .requirements_sha256 == $req and .acceptance_sha256 == $accept
   ' "$contract" >/dev/null 2>&1 ||
     diagnostic "$feature" stage-provenance "$stage top-level contract hashes are stale"
-  manifest_has_hash "$contract" "/specs/$feature/requirements.md" "$req_hash" &&
-    manifest_has_hash "$contract" "/specs/$feature/acceptance-tests.md" "$accept_hash" ||
+  manifest_has_hash "$contract" "/specs/$feature/requirements.md" "$req_hash" "$recorded_root" &&
+    manifest_has_hash "$contract" "/specs/$feature/acceptance-tests.md" "$accept_hash" "$recorded_root" ||
     diagnostic "$feature" stage-provenance "$stage contract hashes are stale"
   local calibration precheck
   if [[ "$stage" == spec ]]; then
@@ -384,14 +421,14 @@ validate_passed_stage() {
   precheck="$root/attempt-$best_attempt/round-$best_round/precheck-result.json"
   [[ -f "$calibration" && ! -L "$calibration" && -f "$precheck" && ! -L "$precheck" ]] ||
     diagnostic "$feature" stage-provenance "$stage required review inputs are missing"
-  manifest_has_hash "$contract" "/${calibration#"$REPO_ROOT/"}" "$(sha256_file "$calibration")" &&
-    manifest_has_hash "$contract" "/${precheck#"$REPO_ROOT/"}" "$(sha256_file "$precheck")" ||
+  manifest_has_hash "$contract" "/${calibration#"$REPO_ROOT/"}" "$(sha256_file "$calibration")" "$recorded_root" &&
+    manifest_has_hash "$contract" "/${precheck#"$REPO_ROOT/"}" "$(sha256_file "$precheck")" "$recorded_root" ||
     diagnostic "$feature" stage-provenance "$stage reviewer manifests omit required inputs"
   if [[ "$stage" == impl ]]; then
     local design="$feature_dir/design.md"
     [[ -f "$design" && ! -L "$design" ]] ||
       diagnostic "$feature" stage-provenance "implementation design is missing"
-    manifest_has_hash "$contract" "/specs/$feature/design.md" "$(normalized_hash "$design" impl)" ||
+    manifest_has_hash "$contract" "/specs/$feature/design.md" "$(normalized_hash "$design" impl)" "$recorded_root" ||
       diagnostic "$feature" stage-provenance "implementation design hash is stale"
     [[ "$(jq -r '.design_sha256 // empty' "$contract")" == "$(normalized_hash "$design" impl)" ]] ||
       diagnostic "$feature" stage-provenance "implementation top-level design hash is stale"
@@ -399,7 +436,7 @@ validate_passed_stage() {
     local tasks="$feature_dir/tasks.md"
     [[ -f "$tasks" && ! -L "$tasks" ]] ||
       diagnostic "$feature" stage-provenance "task plan is missing"
-    manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$(normalized_hash "$tasks" task)" ||
+    manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$(normalized_hash "$tasks" task)" "$recorded_root" ||
       diagnostic "$feature" stage-provenance "task plan hash is stale"
     [[ "$(jq -r '.tasks_sha256 // empty' "$contract")" == "$(normalized_hash "$tasks" task)" ]] ||
       diagnostic "$feature" stage-provenance "task top-level plan hash is stale"

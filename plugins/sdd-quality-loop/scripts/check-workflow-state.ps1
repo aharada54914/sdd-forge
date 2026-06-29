@@ -39,7 +39,12 @@ function Get-Header([string]$Path, [string]$Header) {
     if ($match.Success) { return $match.Groups[1].Value.TrimEnd("`r") }
     return ""
 }
-function Get-RepositoryRelativePath([string]$Path, [string]$RepositoryRoot) {
+function Test-ManifestPathRooted([string]$Path) {
+    return [IO.Path]::IsPathRooted($Path) -or $Path -match "^[A-Za-z]:[\\/]"
+}
+function Get-RepositoryRelativePath(
+    [string]$Path, [string]$RepositoryRoot, [string]$RecordedRoot = ""
+) {
     $normalizedPath = $Path.Replace("\", "/")
     $normalizedRoot = $RepositoryRoot.Replace("\", "/").TrimEnd("/")
     $roots = @($normalizedRoot)
@@ -48,22 +53,68 @@ function Get-RepositoryRelativePath([string]$Path, [string]$RepositoryRoot) {
     } elseif ($normalizedRoot.StartsWith("/var/")) {
         $roots += "/private/var/" + $normalizedRoot.Substring("/var/".Length)
     }
-    if (-not [IO.Path]::IsPathRooted($Path)) { return $normalizedPath }
+    if (-not (Test-ManifestPathRooted $Path)) { return $normalizedPath }
     foreach ($root in $roots) {
         if ($normalizedPath.StartsWith("$root/", [StringComparison]::OrdinalIgnoreCase)) {
             return $normalizedPath.Substring($root.Length + 1)
         }
     }
+    if ($RecordedRoot) {
+        $normalizedRecordedRoot = $RecordedRoot.Replace("\", "/").TrimEnd("/")
+        if ($normalizedPath.StartsWith("$normalizedRecordedRoot/", [StringComparison]::Ordinal)) {
+            return $normalizedPath.Substring($normalizedRecordedRoot.Length + 1)
+        }
+    }
     return $null
+}
+function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
+    $normalizedRoot = $RepositoryRoot.Replace("\", "/").TrimEnd("/")
+    $currentRoots = @($normalizedRoot)
+    if ($normalizedRoot.StartsWith("/private/var/")) {
+        $currentRoots += "/var/" + $normalizedRoot.Substring("/private/var/".Length)
+    } elseif ($normalizedRoot.StartsWith("/var/")) {
+        $currentRoots += "/private/var/" + $normalizedRoot.Substring("/var/".Length)
+    }
+    $repositoryName = Split-Path -Leaf $normalizedRoot
+    $marker = "/$repositoryName/"
+    $recordedRoots = [Collections.Generic.HashSet[string]]::new(
+        [StringComparer]::Ordinal)
+    foreach ($reviewer in @($Contract.reviewers)) {
+        foreach ($item in @($reviewer.allowed_input_manifest)) {
+            $rawPath = [string]$item.path
+            if (-not (Test-ManifestPathRooted $rawPath)) { continue }
+            $normalizedPath = $rawPath.Replace("\", "/")
+            $isCurrent = $false
+            foreach ($root in $currentRoots) {
+                if ($normalizedPath.StartsWith("$root/", [StringComparison]::OrdinalIgnoreCase)) {
+                    $isCurrent = $true
+                    break
+                }
+            }
+            if ($isCurrent) { continue }
+            $index = $normalizedPath.LastIndexOf($marker, [StringComparison]::OrdinalIgnoreCase)
+            if ($index -lt 0) {
+                return [pscustomobject]@{ Valid=$false; Root="" }
+            }
+            [void]$recordedRoots.Add($normalizedPath.Substring(0, $index + $marker.Length - 1))
+            if ($recordedRoots.Count -gt 1) {
+                return [pscustomobject]@{ Valid=$false; Root="" }
+            }
+        }
+    }
+    $root = if ($recordedRoots.Count) { @($recordedRoots)[0] } else { "" }
+    return [pscustomobject]@{ Valid=$true; Root=$root }
 }
 function Test-ManifestHash(
     $Contract, [string]$Suffix, [string]$Expected, [string]$RepositoryRoot
 ) {
+    $recorded = Get-RecordedRepositoryRoot $Contract $RepositoryRoot
+    if (-not $recorded.Valid) { return $false }
     $target = $Suffix.TrimStart("/")
     foreach ($reviewer in @($Contract.reviewers)) {
         $found = $false
         foreach ($item in @($reviewer.allowed_input_manifest)) {
-            $path = Get-RepositoryRelativePath ([string]$item.path) $RepositoryRoot
+            $path = Get-RepositoryRelativePath ([string]$item.path) $RepositoryRoot $recorded.Root
             if ($null -ne $path -and $path -ceq $target -and
                 [string]$item.sha256 -eq $Expected) {
                 $found = $true
@@ -78,6 +129,8 @@ function Test-ManifestPaths(
     $Contract, [string]$Feature, [string]$Stage, [int]$Attempt, [int]$Round,
     [string]$RepositoryRoot
 ) {
+    $recorded = Get-RecordedRepositoryRoot $Contract $RepositoryRoot
+    if (-not $recorded.Valid) { return $false }
     $attemptRoot = "reports/$Stage-review/$Feature/attempt-$Attempt"
     $roundRoot = "$attemptRoot/round-$Round"
     foreach ($reviewer in @($Contract.reviewers)) {
@@ -112,7 +165,7 @@ function Test-ManifestPaths(
         }
         $seen = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
         foreach ($item in @($reviewer.allowed_input_manifest)) {
-            $path = Get-RepositoryRelativePath ([string]$item.path) $RepositoryRoot
+            $path = Get-RepositoryRelativePath ([string]$item.path) $RepositoryRoot $recorded.Root
             if ($null -eq $path) { return $false }
             if ($path -match "(^|/)\.\.?(/|$)" -or -not $allowed.Contains($path) -or
                 -not $seen.Add($path)) { return $false }
@@ -284,6 +337,10 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
     if (-not (Test-ManifestPaths $contract $Feature $Stage $latest.Attempt $latest.Round $RepoRoot)) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest paths are not canonical"
     }
+    $recorded = Get-RecordedRepositoryRoot $contract $RepoRoot
+    if (-not $recorded.Valid) {
+        Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest paths are not canonical"
+    }
     $statusNeutral = @(
         "specs/$Feature/requirements.md",
         "specs/$Feature/design.md",
@@ -294,7 +351,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
     foreach ($reviewer in @($contract.reviewers)) {
         foreach ($item in @($reviewer.allowed_input_manifest)) {
             $manifestPath = [string]$item.path
-            $manifestRelative = Get-RepositoryRelativePath $manifestPath $RepoRoot
+            $manifestRelative = Get-RepositoryRelativePath $manifestPath $RepoRoot $recorded.Root
             if ($null -eq $manifestRelative) {
                 Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest path escapes repository"
             }

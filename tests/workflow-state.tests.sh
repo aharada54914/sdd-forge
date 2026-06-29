@@ -99,6 +99,49 @@ latest_task_round_dir() {
 valid="$(make_full_fixture valid)"
 expect_valid "$valid"
 
+relocated="$(make_full_fixture sdd-forge)"
+while IFS= read -r evidence; do
+  sed -i.bak "s#$relocated#/opt/ci-agent/sdd-forge#g" "$evidence"
+  rm "$evidence.bak"
+done < <(find "$relocated/reports" -type f \
+  \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
+expect_valid "$relocated"
+
+windows_relocated="$(make_full_fixture windows-sdd-forge)"
+while IFS= read -r evidence; do
+  jq --arg root "$windows_relocated" '
+    walk(if type == "object" and has("path") and (.path | type == "string")
+         then .path |= (gsub($root; "C:\\ci-agent\\windows-sdd-forge"))
+         else . end)
+  ' "$evidence" > "$windows_relocated/evidence.tmp"
+  mv "$windows_relocated/evidence.tmp" "$evidence"
+done < <(find "$windows_relocated/reports" -type f \
+  \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
+expect_valid "$windows_relocated"
+
+mixed_relocated="$(make_full_fixture mixed-relocated)"
+contract="$mixed_relocated/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
+while IFS= read -r evidence; do
+  sed -i.bak "s#$mixed_relocated#/opt/ci-agent/mixed-relocated#g" "$evidence"
+  rm "$evidence.bak"
+done < <(find "$mixed_relocated/reports" -type f \
+  \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
+jq '
+  (.reviewers[0].allowed_input_manifest[] |
+   select(.path | endswith("/specs/workflow-state-integrity/design.md")) |
+   .path) = "/other/ci-agent/mixed-relocated/specs/workflow-state-integrity/design.md"
+' "$contract" > "$mixed_relocated/contract.tmp"
+mv "$mixed_relocated/contract.tmp" "$contract"
+jq '
+  (.allowed_input_manifest[] |
+   select(.path | endswith("/specs/workflow-state-integrity/design.md")) |
+   .path) = "/other/ci-agent/mixed-relocated/specs/workflow-state-integrity/design.md"
+' "$mixed_relocated/reports/impl-review/workflow-state-integrity/attempt-1/round-2/reviewer-a.json" \
+  > "$mixed_relocated/reviewer.tmp"
+mv "$mixed_relocated/reviewer.tmp" \
+  "$mixed_relocated/reports/impl-review/workflow-state-integrity/attempt-1/round-2/reviewer-a.json"
+expect_rule "$mixed_relocated" stage-provenance
+
 pending_all="$(make_full_fixture pending-all)"
 sed -i.bak 's/^Spec-Review-Status: Passed$/Spec-Review-Status: Pending/' \
   "$pending_all/specs/workflow-state-integrity/requirements.md"
