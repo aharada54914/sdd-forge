@@ -138,3 +138,4 @@ try {
     [IO.File]::WriteAllText($Registry, $RegistryOriginal)
     Remove-Item -LiteralPath $Spec,$SpecReport,$ImplReport -Recurse -Force -ErrorAction SilentlyContinue
 }
+exit 0

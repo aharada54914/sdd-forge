@@ -98,3 +98,4 @@ try {
 } finally {
   Remove-Item -LiteralPath $WorkRoot -Recurse -Force -ErrorAction SilentlyContinue
 }
+exit 0

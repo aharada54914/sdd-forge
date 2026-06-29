@@ -105,3 +105,4 @@ try {
 Write-Host "PASS: $Pass"
 Write-Host "FAIL: $Fail"
 if ($Fail -ne 0) { exit 1 }
+exit 0
