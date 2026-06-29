@@ -12,14 +12,14 @@
     "hash_algorithm": "sha256",
     "hashes_verified": true,
     "allowed_inputs": [
-      {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
-      {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
-      {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
-      {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md", "sha256": "7ec12e7d3741dfe7eed66c5e198f4c943995120cd1a781aed358c5702325d654"},
-      {"path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
-      {"path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
-      {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-4/round-2/precheck-result.json", "sha256": "5c54661ac366df64b5e732b6aeefbfa14e009889e0fccd38bd46c746d5fbc7fa"},
-      {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-4/round-2/integrated-summary.json", "sha256": "805b236f58b90d231eae6bf8943b4cdd628747d1f12935d310cbd5700ccfe629"}
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+      {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+      {"path": "specs/workflow-state-integrity/tasks.md", "sha256": "7ec12e7d3741dfe7eed66c5e198f4c943995120cd1a781aed358c5702325d654"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/precheck-result.json", "sha256": "5c54661ac366df64b5e732b6aeefbfa14e009889e0fccd38bd46c746d5fbc7fa"},
+      {"path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/integrated-summary.json", "sha256": "805b236f58b90d231eae6bf8943b4cdd628747d1f12935d310cbd5700ccfe629"}
     ]
   },
   "checks": [

@@ -18,10 +18,27 @@ function Record-Fail([string]$Label) {
 
 function Invoke-Checker {
     param([string[]]$Arguments)
-    $output = & pwsh -NoProfile -File $Checker @Arguments 2>&1
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = (Get-Command pwsh).Source
+    $startInfo.UseShellExecute = $false
+    $startInfo.RedirectStandardOutput = $true
+    $startInfo.RedirectStandardError = $true
+    foreach ($argument in @("-NoProfile", "-File", $Checker) + $Arguments) {
+        [void]$startInfo.ArgumentList.Add($argument)
+    }
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    [void]$process.Start()
+    $stdoutTask = $process.StandardOutput.ReadToEndAsync()
+    $stderrTask = $process.StandardError.ReadToEndAsync()
+    $process.WaitForExit()
+    $stdout = $stdoutTask.GetAwaiter().GetResult().TrimEnd([char[]]"`r`n")
+    $stderr = $stderrTask.GetAwaiter().GetResult().TrimEnd([char[]]"`r`n")
     [pscustomobject]@{
-        ExitCode = $LASTEXITCODE
-        Output = (($output | ForEach-Object { "$_" }) -join "`n")
+        ExitCode = $process.ExitCode
+        StdOut = $stdout
+        StdErr = $stderr
+        Output = (@($stdout, $stderr) | Where-Object { $_ }) -join "`n"
     }
 }
 
@@ -73,8 +90,14 @@ try {
 
     foreach ($name in $files) {
         Remove-Item -LiteralPath (Join-Path $featureDir $name)
-        $expected = "missing: specs/$feature/$name`nhost: local`ncheck-sdd-structure: FAIL (1 missing)"
+        $expectedStdOut = "missing: specs/$feature/$name`nhost: local"
+        $expectedStdErr = "check-sdd-structure: FAIL (1 missing)"
+        $expected = "$expectedStdOut`n$expectedStdErr"
         Assert-Result 1 $expected "TEST-012 PowerShell missing $name has one stable diagnostic" @("-Root", $Repo, "-Feature", $feature)
+        $streams = Invoke-Checker -Arguments @("-Root", $Repo, "-Feature", $feature)
+        if ($streams.StdOut -ne $expectedStdOut -or $streams.StdErr -ne $expectedStdErr) {
+            Record-Fail "TEST-012 PowerShell missing $name preserves stdout/stderr contract"
+        }
         New-Item -ItemType File -Force -Path (Join-Path $featureDir $name) | Out-Null
     }
 

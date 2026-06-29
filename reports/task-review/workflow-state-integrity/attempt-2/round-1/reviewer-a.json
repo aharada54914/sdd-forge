@@ -5,13 +5,13 @@
   "run_id": "a329c1de-8b08-43e2-a5dc-f194ea6b9043",
   "host_session_id": "8e8e3470-7098-4f97-832f-1efde25b4f5a",
   "allowed_input_manifest": [
-    {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
-    {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-2/round-1/precheck-result.json","sha256":"0c50ed98a52296760c99adfbb4db3820eace8c3807199c4721b8036895eed843"},
-    {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-2/round-1/dependency-graph.json","sha256":"fb3f23b2c1a601c8634e6a629ef9edaa159fcf8e25a2266b1dbf9c2c53713df6"},
-    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
-    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
-    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md","sha256":"3deaa8165eb6037e0af0b2c852ec69f3e265ac7c1ebaa46bbeb744bc1ee74f57"},
-    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/traceability.md","sha256":"3ce7efb40ed09a3ad2540e716cff1f495e5ff44e7b6fd0f29f381588278d1d05"}
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-2/round-1/precheck-result.json","sha256":"0c50ed98a52296760c99adfbb4db3820eace8c3807199c4721b8036895eed843"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-2/round-1/dependency-graph.json","sha256":"fb3f23b2c1a601c8634e6a629ef9edaa159fcf8e25a2266b1dbf9c2c53713df6"},
+    {"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"specs/workflow-state-integrity/tasks.md","sha256":"3deaa8165eb6037e0af0b2c852ec69f3e265ac7c1ebaa46bbeb744bc1ee74f57"},
+    {"path":"specs/workflow-state-integrity/traceability.md","sha256":"3ce7efb40ed09a3ad2540e716cff1f495e5ff44e7b6fd0f29f381588278d1d05"}
   ],
   "verdict": "BLOCKED",
   "checks": [

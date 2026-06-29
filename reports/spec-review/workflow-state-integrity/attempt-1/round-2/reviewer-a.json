@@ -5,11 +5,11 @@
   "run_id": "spec-a-wsi-a1r2-20260627",
   "host_session_id": "host-spec-a-wsi-a1r2-20260627",
   "allowed_input_manifest": [
-    {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md", "sha256": "46c14d5cac5a213488494904fc1d59fe02896d4dff9dfd7fa472fedc09cad9f4"},
-    {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
-    {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/investigation.md", "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
-    {"path": "/Users/jrmag/sdd-forge/reports/spec-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json", "sha256": "7c9d317466f6eaa093359f13da7964f1ac5122fa60cfd879f6292409abccc727"},
-    {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+    {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "46c14d5cac5a213488494904fc1d59fe02896d4dff9dfd7fa472fedc09cad9f4"},
+    {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path": "specs/workflow-state-integrity/investigation.md", "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+    {"path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json", "sha256": "7c9d317466f6eaa093359f13da7964f1ac5122fa60cfd879f6292409abccc727"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
   ],
   "verdict": "PASS",
   "checks": [

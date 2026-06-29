@@ -23,13 +23,13 @@
       "run_id": "96a60e12-20b0-4014-85bd-58435f4dc035",
       "host_session_id": "3cb588bd-7ab9-4ec1-841a-89b303833a62",
       "allowed_input_manifest": [
-        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
-        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json", "sha256": "d540333a9061bf13f6c8d8b67a3570c69bbd7b3aed36fdc9c8c4584f299a21f2"},
-        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/dependency-graph.json", "sha256": "d41dd7f48169dec592d7ad37c2378cba0015a2a28d0148f4d2a606b2ed13393f"},
-        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
-        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
-        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md", "sha256": "f2d7106fcae17fd4b002e65407443e11f3ff6312f161967047de7413e103df54"},
-        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/traceability.md", "sha256": "e18a240c237530aedf9bd2f2495e0879f418f983ce60640d7d423fb7e75f2fca"}
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json", "sha256": "d540333a9061bf13f6c8d8b67a3570c69bbd7b3aed36fdc9c8c4584f299a21f2"},
+        {"path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/dependency-graph.json", "sha256": "d41dd7f48169dec592d7ad37c2378cba0015a2a28d0148f4d2a606b2ed13393f"},
+        {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+        {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path": "specs/workflow-state-integrity/tasks.md", "sha256": "f2d7106fcae17fd4b002e65407443e11f3ff6312f161967047de7413e103df54"},
+        {"path": "specs/workflow-state-integrity/traceability.md", "sha256": "e18a240c237530aedf9bd2f2495e0879f418f983ce60640d7d423fb7e75f2fca"}
       ]
     },
     {
@@ -37,14 +37,14 @@
       "run_id": "556f0c47-1250-4429-83a9-7b7d4b105812",
       "host_session_id": "33c08cfe-bb05-4e7b-b508-fec2f7892a59@Mac.lan",
       "allowed_input_manifest": [
-        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
-        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
-        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
-        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json", "sha256": "d540333a9061bf13f6c8d8b67a3570c69bbd7b3aed36fdc9c8c4584f299a21f2"},
-        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/integrated-summary.json", "sha256": "6a15affbbdf52a4c76b9044ba7c6f11744eb03e9ac1a2ab70f90195de7bac619"},
-        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
-        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
-        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md", "sha256": "f2d7106fcae17fd4b002e65407443e11f3ff6312f161967047de7413e103df54"}
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+        {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+        {"path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json", "sha256": "d540333a9061bf13f6c8d8b67a3570c69bbd7b3aed36fdc9c8c4584f299a21f2"},
+        {"path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/integrated-summary.json", "sha256": "6a15affbbdf52a4c76b9044ba7c6f11744eb03e9ac1a2ab70f90195de7bac619"},
+        {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+        {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path": "specs/workflow-state-integrity/tasks.md", "sha256": "f2d7106fcae17fd4b002e65407443e11f3ff6312f161967047de7413e103df54"}
       ]
     }
   ],

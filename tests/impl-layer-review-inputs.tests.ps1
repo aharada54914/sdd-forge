@@ -14,7 +14,11 @@ function Hash([string]$Path) {
 }
 
 function Spec-Hash([string]$Path) {
-    $normalized = [IO.File]::ReadAllText($Path) -replace '(?m)^Spec-Review-Status:\s*.*$', 'Spec-Review-Status: Pending'
+    $normalized = [regex]::Replace(
+        [IO.File]::ReadAllText($Path),
+        '(?m)^Spec-Review-Status:[^\r\n]*(\r?)$',
+        'Spec-Review-Status: Pending$1'
+    )
     $bytes = [Text.UTF8Encoding]::new($false).GetBytes($normalized)
     ([BitConverter]::ToString([Security.Cryptography.SHA256]::HashData($bytes))).Replace('-', '').ToLower()
 }
