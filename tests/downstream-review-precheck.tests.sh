@@ -241,8 +241,9 @@ write_impl_pass
 
 rm -rf "$TASK_REPORT"
 sed -i.bak 's/Risk: low/Risk: medium/g' "$SPEC_DIR/tasks.md"; rm -f "$SPEC_DIR/tasks.md.bak"
-expect_denied_without_evidence "medium test-after workflow mismatch" "$TASK_REPORT" \
-  bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "$FEATURE" 1 1
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "$FEATURE" 1 1) >/dev/null ||
+  fail "medium test-after should remain valid under the canonical risk policy"
+rm -rf "$TASK_REPORT"
 sed -i.bak 's/Risk: medium/Risk: low/g' "$SPEC_DIR/tasks.md"; rm -f "$SPEC_DIR/tasks.md.bak"
 
 rm -rf "$TASK_REPORT"

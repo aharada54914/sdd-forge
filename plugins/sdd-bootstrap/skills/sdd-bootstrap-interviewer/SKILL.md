@@ -44,6 +44,28 @@ Claude Code:
    least one AC in the UI Integration Checklist of `acceptance-tests.md`
    asserting shell-level reachability before completing the interview.
 
+### Full-Profile Layer Interview
+
+For non-LITE work, use `references/interview-question-bank.md` to cover product,
+UX, contracts, workflow, frontend, backend/testing, infrastructure, and
+security. Record a layer-local unknown in the owning layer document with an
+owner and resolution path; do not collapse layer uncertainty into a generic
+design catch-all.
+
+- Generate a layer only from approved interview answers and canonical REQ-NNN /
+  AC-NNN identifiers.
+- Layer generation is create-only: MUST NOT overwrite an existing layer file.
+  Before generation record its SHA-256, skip creation, and report the preserved
+  SHA-256 afterward.
+- For bugfix/refactor work, an unaffected layer records
+  `N/A — no change: <reason>`. A security impact assessment is always required,
+  even when every other layer is unaffected.
+- Ask whether the human has a local mockup or visual reference. If not, record
+  exactly `No mockup provided — optional visualization skipped` and continue.
+  If supplied, follow `references/claude-design-workflow.md`; Mermaid remains
+  canonical and the step remains manual and optional.
+- LITE excludes this section and produces no layer documents.
+
 ## Preflight
 
 In `feature`, `bugfix`, and `refactor` modes, run
@@ -73,9 +95,17 @@ Phase 1 outputs (generated before review gates):
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/design.md`
+- `specs/<feature>/ux-spec.md`
+- `specs/<feature>/frontend-spec.md`
+- `specs/<feature>/infra-spec.md`
+- `specs/<feature>/security-spec.md`
 - `docs/adr/NNNN-<slug>.md` for each new ADR (4-digit repository-wide sequence;
   `specs/<feature>/adr/` must not be created)
 - relevant API/data contracts
+
+The seven Markdown files under `specs/<feature>/` above are mandatory Phase 1
+outputs for the full profile. Create layer files from the matching templates in
+`templates/`. Existing layer files remain unchanged under the create-only rule.
 
 Phase 2 outputs (generated after impl-review-loop passes):
 

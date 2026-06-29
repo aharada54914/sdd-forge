@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## v1.4.0 (2026-06-29)
+
+### Bootstrap interviewer のレイヤー仕様対応
+
+- FULL プロファイルで UX、frontend、infrastructure、security の4レイヤー
+  artifact を生成し、`design.md` と `traceability.md` から正規アンカーで索引化。
+- 選択した feature directory だけを対象に、不足 artifact や空テンプレートを
+  Bash / PowerShell で fail-closed 検証する構造チェックを追加。
+- implementation review と task review の入力を、core spec、design、
+  traceability、4レイヤー仕様の hash に拘束し、差し替えや profile downgrade
+  による回避を拒否。
+- Draft から Approved への人手または有効な署名付き sudo の承認境界と、
+  既存 LITE / legacy profile の互換性を維持。
+
 ## v1.3.0 (2026-06-29)
 
 ### ワークフロー状態の整合性強化

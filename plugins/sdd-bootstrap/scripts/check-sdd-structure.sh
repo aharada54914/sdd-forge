@@ -1,6 +1,6 @@
 #!/bin/sh
 # Deterministic preflight: verify the SDD project directory structure.
-# Usage: check-sdd-structure.sh [project-root]
+# Usage: check-sdd-structure.sh [project-root] [feature]
 # Default project-root is the current directory.
 #
 # Required items (missing → "missing: <path>", counted toward exit code):
@@ -24,6 +24,18 @@
 #   "check-sdd-structure: FAIL (N missing)"  to stderr and exit 1 otherwise
 
 root="${1:-.}"
+feature_selected=0
+feature="${2-}"
+
+if [ "$#" -ge 2 ]; then
+  feature_selected=1
+  case "$feature" in
+    ""|-*|*[!a-z0-9-]*)
+      echo "invalid feature: $feature" >&2
+      exit 1
+      ;;
+  esac
+fi
 
 if [ ! -d "$root" ]; then
   echo "check-sdd-structure: project root not found: $root" >&2
@@ -49,6 +61,22 @@ _check_required "reports/implementation"  d
 _check_required "reports/quality-gate"    d
 _check_required "docs/adr"               d
 _check_required "docs/review-tickets"    d
+
+# --- selected full-profile feature ---
+if [ "$feature_selected" -eq 1 ]; then
+  if [ -L "$root/specs" ] || [ -L "$root/specs/$feature" ]; then
+    echo "invalid feature: $feature" >&2
+    exit 1
+  fi
+  for name in requirements.md design.md ux-spec.md frontend-spec.md \
+    infra-spec.md security-spec.md acceptance-tests.md tasks.md traceability.md; do
+    if [ -L "$root/specs/$feature/$name" ]; then
+      echo "invalid feature: $feature" >&2
+      exit 1
+    fi
+    _check_required "specs/$feature/$name" f
+  done
+fi
 
 # --- advisory items ---
 _check_advisory() {

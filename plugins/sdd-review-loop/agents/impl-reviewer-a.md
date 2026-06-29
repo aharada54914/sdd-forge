@@ -31,11 +31,18 @@ allowlist. Read the following yourself:
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/design.md`
+- `specs/<feature>/ux-spec.md` (required for full profile)
+- `specs/<feature>/frontend-spec.md` (required for full profile)
+- `specs/<feature>/infra-spec.md` (required for full profile)
+- `specs/<feature>/security-spec.md` (required for full profile)
 - `specs/<feature>/investigation.md` (if present — read it; carry INV-xxx IDs)
 - `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/impl-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 
 Do not read any reviewer-b.json or integrated-summary.json from prior rounds.
+Treat the four layer specifications as normative refinements of design.md.
+Report contradictions, missing cross-layer references, or requirements that
+are claimed by neither design.md nor the responsible layer specification.
 
 # Finding Calibration
 

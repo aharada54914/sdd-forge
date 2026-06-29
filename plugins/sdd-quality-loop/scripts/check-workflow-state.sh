@@ -244,10 +244,20 @@ validate_passed_stage() {
       ($path == ("specs/" + $feature + "/requirements.md")) or
       ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
       ($path == ("specs/" + $feature + "/investigation.md")) or
-      ($stage == "impl" and $path == ("specs/" + $feature + "/design.md")) or
+      ($stage == "impl" and
+        ($path == ("specs/" + $feature + "/design.md") or
+         $path == ("specs/" + $feature + "/ux-spec.md") or
+         $path == ("specs/" + $feature + "/frontend-spec.md") or
+         $path == ("specs/" + $feature + "/infra-spec.md") or
+         $path == ("specs/" + $feature + "/security-spec.md"))) or
       ($stage == "task" and
         ($path == ("specs/" + $feature + "/tasks.md") or
-         $path == ("specs/" + $feature + "/traceability.md"))) or
+         $path == ("specs/" + $feature + "/design.md") or
+         $path == ("specs/" + $feature + "/traceability.md") or
+         $path == ("specs/" + $feature + "/ux-spec.md") or
+         $path == ("specs/" + $feature + "/frontend-spec.md") or
+         $path == ("specs/" + $feature + "/infra-spec.md") or
+         $path == ("specs/" + $feature + "/security-spec.md"))) or
       ($path == (if $stage == "spec" then
                    "plugins/sdd-review-loop/references/spec-review-calibration.md"
                  else "plugins/sdd-review-loop/references/reviewer-calibration.md" end)) or
@@ -432,14 +442,60 @@ validate_passed_stage() {
       diagnostic "$feature" stage-provenance "implementation design hash is stale"
     [[ "$(jq -r '.design_sha256 // empty' "$contract")" == "$(normalized_hash "$design" impl)" ]] ||
       diagnostic "$feature" stage-provenance "implementation top-level design hash is stale"
+    if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
+      jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' "$precheck" >/dev/null ||
+        diagnostic "$feature" stage-provenance "implementation layer precheck manifest is incomplete"
+      for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+        layer_path="$feature_dir/$layer"
+        [[ -f "$layer_path" && ! -L "$layer_path" ]] ||
+          diagnostic "$feature" stage-provenance "implementation layer input is missing or linked"
+        layer_hash="$(sha256_file "$layer_path")"
+        [[ "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$precheck")" == "$layer_hash" &&
+           "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$contract")" == "$layer_hash" ]] ||
+          diagnostic "$feature" stage-provenance "implementation layer hash is stale"
+        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" ||
+          diagnostic "$feature" stage-provenance "implementation reviewer manifests omit layer inputs"
+      done
+    fi
   elif [[ "$stage" == task ]]; then
-    local tasks="$feature_dir/tasks.md"
+    local tasks="$feature_dir/tasks.md" traceability="$feature_dir/traceability.md"
     [[ -f "$tasks" && ! -L "$tasks" ]] ||
       diagnostic "$feature" stage-provenance "task plan is missing"
     manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$(normalized_hash "$tasks" task)" "$recorded_root" ||
       diagnostic "$feature" stage-provenance "task plan hash is stale"
     [[ "$(jq -r '.tasks_sha256 // empty' "$contract")" == "$(normalized_hash "$tasks" task)" ]] ||
       diagnostic "$feature" stage-provenance "task top-level plan hash is stale"
+    if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
+      [[ -f "$traceability" && ! -L "$traceability" ]] ||
+        diagnostic "$feature" stage-provenance "task traceability input is missing or linked"
+      local traceability_hash
+      traceability_hash="$(sha256_file "$traceability")"
+      [[ "$(jq -r '.traceability_sha256 // empty' "$precheck")" == "$traceability_hash" &&
+         "$(jq -r '.traceability_sha256 // empty' "$contract")" == "$traceability_hash" ]] ||
+        diagnostic "$feature" stage-provenance "task traceability hash is stale"
+      local task_design_hash
+      task_design_hash="$(sha256_file "$feature_dir/design.md")"
+      [[ "$(jq -r '.design_sha256 // empty' "$precheck")" == "$task_design_hash" &&
+         "$(jq -r '.design_sha256 // empty' "$contract")" == "$task_design_hash" ]] ||
+        diagnostic "$feature" stage-provenance "task design hash is stale"
+      manifest_has_hash "$contract" "/specs/$feature/design.md" "$task_design_hash" "$recorded_root" ||
+        diagnostic "$feature" stage-provenance "task reviewer manifests omit design"
+      manifest_has_hash "$contract" "/specs/$feature/traceability.md" "$traceability_hash" "$recorded_root" ||
+        diagnostic "$feature" stage-provenance "task reviewer manifests omit traceability"
+      jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' "$precheck" >/dev/null ||
+        diagnostic "$feature" stage-provenance "task layer precheck manifest is incomplete"
+      for layer in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
+        layer_path="$feature_dir/$layer"
+        [[ -f "$layer_path" && ! -L "$layer_path" ]] ||
+          diagnostic "$feature" stage-provenance "task layer input is missing or linked"
+        layer_hash="$(sha256_file "$layer_path")"
+        [[ "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$precheck")" == "$layer_hash" &&
+           "$(jq -r --arg layer "$layer" '.layer_sha256[$layer] // empty' "$contract")" == "$layer_hash" ]] ||
+          diagnostic "$feature" stage-provenance "task layer hash is stale"
+        manifest_has_hash "$contract" "/specs/$feature/$layer" "$layer_hash" "$recorded_root" ||
+          diagnostic "$feature" stage-provenance "task reviewer manifests omit layer inputs"
+      done
+    fi
   fi
 }
 

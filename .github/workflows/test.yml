@@ -48,11 +48,17 @@ jobs:
         shell: pwsh
         run: ./tests/scripts.tests.ps1
 
+      - name: Test selected-feature structure validation
+        shell: pwsh
+        run: ./tests/structure-check-feature-mode.tests.ps1
+
       - name: Test portable review-loop prechecks (pwsh)
         shell: pwsh
         run: |
           ./tests/review-contract-foundation.tests.ps1
           ./tests/downstream-review-precheck.tests.ps1
+          ./tests/impl-layer-review-inputs.tests.ps1
+          ./tests/task-layer-review-inputs.tests.ps1
 
       - name: Test cross-model gate (pwsh)
         shell: pwsh
@@ -110,6 +116,12 @@ jobs:
         run: |
           ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
 
+      - name: Test approval boundary (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
+
       - name: Test deterministic gates (bash)
         if: runner.os != 'Windows'
         shell: bash
@@ -124,6 +136,9 @@ jobs:
           bash tests/review-contract-foundation-parity.tests.sh
           bash tests/downstream-review-precheck.tests.sh
           bash tests/downstream-review-precheck-parity.tests.sh
+          bash tests/impl-layer-review-inputs.tests.sh
+          bash tests/task-layer-review-inputs.tests.sh
+          bash tests/task-layer-full-profile.tests.sh
           bash tests/task-review-precheck.tests.sh
           bash tests/review-agent-isolation.tests.sh
 

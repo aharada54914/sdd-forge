@@ -62,6 +62,14 @@ This script produces:
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/dependency-graph.json`
 
+For a registered full-profile feature, the precheck requires and hash-binds
+`design.md`, `traceability.md`, `ux-spec.md`, `frontend-spec.md`,
+`infra-spec.md`, and `security-spec.md`. It rejects invalid Layer Spec cells
+before reviewer
+invocation. Immediately before each reviewer starts, run the same precheck with
+`--verify-inputs` (or `-VerifyInputs`) so post-precheck substitutions and
+content changes fail closed.
+
 If the script exits non-zero, halt and display its stderr output. Do not proceed
 to reviewer invocation.
 
@@ -71,6 +79,7 @@ Spawn task-reviewer-a as a fresh agent (no shared context) with:
 - Feature slug, attempt number, round number.
 - Path to precheck-result.json.
 - Hash-verified allowed-input manifest including
+  `design.md`, all four layer specs, `traceability.md`, and
   `plugins/sdd-review-loop/references/reviewer-calibration.md`.
 
 The agent reads inputs itself and writes:
@@ -108,6 +117,7 @@ Spawn task-reviewer-b as a fresh agent (no shared context) with:
 - Path to precheck-result.json.
 - Path to integrated-summary.json.
 - Hash-verified allowed-input manifest including
+  `design.md`, all four layer specs, `traceability.md`, and
   `plugins/sdd-review-loop/references/reviewer-calibration.md`.
 
 task-reviewer-b has `disallowedPaths` covering reviewer-a.json. The agent reads
@@ -151,6 +161,9 @@ Write `reports/task-review/<feature>/attempt-<M>/round-<N>/integrated-verdict.js
 
 Write `reports/task-review/<feature>/attempt-<M>/round-<N>/task-review-contract.json`
 using the schema from `plugins/sdd-review-loop/templates/task-review-contract.template.json`.
+For full-profile features, copy the precheck's exact `design_sha256`,
+`traceability_sha256`, and four-entry `layer_sha256` map into the top-level
+contract.
 Its two reviewer entries must have distinct nonblank `run_id` and
 `host_session_id` values and canonical, hash-verified allowed-input manifests.
 Each reviewer manifest must include every input the reviewer is instructed to

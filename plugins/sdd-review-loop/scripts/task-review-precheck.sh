@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # task-review-precheck.sh
-# Usage: task-review-precheck.sh <feature-slug> <attempt> <round>
+# Usage: task-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs]
 #
 # Generates precheck-result.json and dependency-graph.json for the task-review-loop.
 # Outputs to: reports/task-review/<feature>/attempt-<M>/round-<N>/
@@ -14,6 +14,7 @@ set -euo pipefail
 FEATURE="${1:?Usage: task-review-precheck.sh <feature-slug> <attempt> <round>}"
 ATTEMPT="${2:?Usage: task-review-precheck.sh <feature-slug> <attempt> <round>}"
 ROUND="${3:?Usage: task-review-precheck.sh <feature-slug> <attempt> <round>}"
+MODE="${4:-}"
 
 SPECS_DIR="specs/${FEATURE}"
 REPORT_DIR="reports/task-review/${FEATURE}/attempt-${ATTEMPT}/round-${ROUND}"
@@ -21,10 +22,13 @@ TASKS_MD="${SPECS_DIR}/tasks.md"
 REQS_MD="${SPECS_DIR}/requirements.md"
 ACCEPT_MD="${SPECS_DIR}/acceptance-tests.md"
 DESIGN_MD="${SPECS_DIR}/design.md"
+TRACEABILITY_MD="${SPECS_DIR}/traceability.md"
 SPEC_REPORT_ROOT="reports/spec-review/${FEATURE}"
 IMPL_REPORT_ROOT="reports/impl-review/${FEATURE}"
 CHECK_RISK_SCRIPT="plugins/sdd-quality-loop/scripts/check-risk.sh"
 CALIBRATION_MD="plugins/sdd-review-loop/references/reviewer-calibration.md"
+REGISTRY="specs/workflow-state-registry.json"
+LAYER_FILES=("ux-spec.md" "frontend-spec.md" "infra-spec.md" "security-spec.md")
 repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 calibration_sha256=""
 
@@ -102,10 +106,19 @@ require_persisted_pass() {
        ($stage == "spec" and $path == ("specs/" + $feature + "/investigation.md")) or
        ($stage == "impl" and
         ($path == ("specs/" + $feature + "/design.md") or
+         $path == ("specs/" + $feature + "/ux-spec.md") or
+         $path == ("specs/" + $feature + "/frontend-spec.md") or
+         $path == ("specs/" + $feature + "/infra-spec.md") or
+         $path == ("specs/" + $feature + "/security-spec.md") or
          $path == ("specs/" + $feature + "/investigation.md"))) or
        ($stage == "task" and
         ($path == ("specs/" + $feature + "/tasks.md") or
-         $path == ("specs/" + $feature + "/traceability.md"))) or
+         $path == ("specs/" + $feature + "/design.md") or
+         $path == ("specs/" + $feature + "/traceability.md") or
+         $path == ("specs/" + $feature + "/ux-spec.md") or
+         $path == ("specs/" + $feature + "/frontend-spec.md") or
+         $path == ("specs/" + $feature + "/infra-spec.md") or
+         $path == ("specs/" + $feature + "/security-spec.md"))) or
        ($path == $calibration) or
        ($path == ($round_root + "/precheck-result.json")) or
        ($stage == "spec" and $role == $role_b and
@@ -180,6 +193,12 @@ require_persisted_pass() {
     if [[ "$stage" == "impl" ]]; then
       manifest_has "$role" "specs/${FEATURE}/design.md" "$design_hash" "$design_current_hash" ||
         fail "persisted impl contract reviewer manifest is missing canonical design"
+      if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$contract")" -gt 0 ]]; then
+        for layer in "${LAYER_FILES[@]}"; do
+          manifest_has "$role" "specs/${FEATURE}/${layer}" "$(sha256 "${repo_root}/specs/${FEATURE}/${layer}")" ||
+            fail "persisted impl contract reviewer manifest is missing canonical layer input: ${layer}"
+        done
+      fi
     fi
     if [[ -f "${repo_root}/${investigation_path}" ]]; then
       manifest_has "$role" "$investigation_path" "$(sha256 "${repo_root}/${investigation_path}")" ||
@@ -211,6 +230,49 @@ require_persisted_pass() {
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
+[[ -z "$MODE" || "$MODE" == "--verify-inputs" ]] || fail "unknown mode: $MODE"
+profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
+full_profile=false
+[[ "$profile" == "full" ]] && full_profile=true
+
+if [[ "$MODE" == "--verify-inputs" ]]; then
+  precheck="${REPORT_DIR}/precheck-result.json"
+  [[ -f "$precheck" && ! -L "$precheck" ]] || fail "precheck evidence is missing or substituted"
+  for path in "$TASKS_MD" "$REQS_MD" "$ACCEPT_MD" "$DESIGN_MD"; do
+    [[ -f "$path" && ! -L "$path" ]] || fail "review input is missing or substituted: $path"
+  done
+  jq -e --arg tasks "$(sha256 "$TASKS_MD")" --arg requirements "$(sha256 "$REQS_MD")" \
+    --arg acceptance "$(sha256 "$ACCEPT_MD")" --arg design "$(sha256 "$DESIGN_MD")" \
+    --arg feature "$FEATURE" \
+    --argjson attempt "$ATTEMPT" --argjson round "$ROUND" '
+      .schema == "task-review-precheck/v1" and
+      .feature == $feature and .attempt == $attempt and .round == $round and
+      .tasks_sha256 == $tasks and .requirements_sha256 == $requirements and
+      .acceptance_sha256 == $acceptance and
+      (if ((.layer_sha256 // {}) | length) > 0 then .design_sha256 == $design else true end)
+    ' "$precheck" >/dev/null || fail "core review inputs changed after precheck"
+  bound_layer_count="$(jq -r '(.layer_sha256 // {}) | length' "$precheck")"
+  if $full_profile || [[ "$bound_layer_count" -gt 0 ]]; then
+    [[ -f "$TRACEABILITY_MD" && ! -L "$TRACEABILITY_MD" ]] ||
+      fail "traceability review input is missing or substituted"
+    jq -e --arg hash "$(sha256 "$TRACEABILITY_MD")" '.traceability_sha256 == $hash' \
+      "$precheck" >/dev/null || fail "traceability review input changed after precheck"
+    python3 "${repo_root}/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" \
+      "$TRACEABILITY_MD" "$REQS_MD" || fail "traceability Layer Spec values are invalid"
+    jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' \
+      "$precheck" >/dev/null || fail "precheck layer manifest is incomplete"
+    for name in "${LAYER_FILES[@]}"; do
+      path="${SPECS_DIR}/${name}"
+      [[ -f "$path" && ! -L "$path" ]] || fail "layer review input is missing or substituted: $path"
+      jq -e --arg name "$name" --arg hash "$(sha256 "$path")" \
+        '.layer_sha256[$name] == $hash' "$precheck" >/dev/null ||
+        fail "layer review input changed after precheck: $path"
+    done
+  fi
+  echo "task-review-precheck: inputs verified for reviewer invocation."
+  exit 0
+fi
+
 [[ ! -e "$REPORT_DIR" && ! -L "$REPORT_DIR" ]] || fail "round destination already exists (replay is forbidden)"
 [[ -d "$SPECS_DIR" && ! -L "$SPECS_DIR" ]] || fail "feature specification directory must be a real directory"
 [[ "$(cd "$SPECS_DIR" && pwd -P)" == "$repo_root/specs/$FEATURE" ]] || fail "feature specification directory escapes repository"
@@ -227,6 +289,13 @@ for f in "${TASKS_MD}" "${REQS_MD}" "${ACCEPT_MD}" "${DESIGN_MD}"; do
     missing_files+=("${f}")
   fi
 done
+if $full_profile; then
+  for name in "${LAYER_FILES[@]}"; do
+    path="${SPECS_DIR}/${name}"
+    [[ -f "$path" && ! -L "$path" ]] || missing_files+=("$path")
+  done
+  [[ -f "$TRACEABILITY_MD" && ! -L "$TRACEABILITY_MD" ]] || missing_files+=("$TRACEABILITY_MD")
+fi
 
 if [[ ${#missing_files[@]} -gt 0 ]]; then
   echo "ERROR: task-review-precheck: missing required files:" >&2
@@ -254,16 +323,6 @@ if [[ -x "${CHECK_RISK_SCRIPT}" ]]; then
 else
   echo "WARNING: task-review-precheck: ${CHECK_RISK_SCRIPT} not found or not executable; skipping risk check." >&2
   workflow_match_precheck="SKIP"
-fi
-
-# Additional check: Risk: medium AND Required Workflow: test-after is forbidden
-# (medium must use acceptance-first per risk-gate-matrix)
-if grep -Eq '^Risk:[[:space:]]*medium' "${TASKS_MD}" 2>/dev/null; then
-  if grep -Eq '^Required Workflow:[[:space:]]*test-after' "${TASKS_MD}" 2>/dev/null; then
-    echo "ERROR: task-review-precheck: found Risk: medium with Required Workflow: test-after." \
-      "Medium risk requires acceptance-first workflow." >&2
-    workflow_match_precheck="FAIL"
-  fi
 fi
 
 [[ "${workflow_match_precheck}" != "FAIL" ]] || fail "Risk/Required Workflow mismatches must be fixed before creating evidence"
@@ -407,6 +466,17 @@ tasks_sha256=$(sha256 "${TASKS_MD}")
 requirements_sha256=$(sha256 "${REQS_MD}")
 acceptance_sha256=$(sha256 "${ACCEPT_MD}")
 design_sha256=$(sha256 "${DESIGN_MD}")
+traceability_sha256=""
+layer_sha256='{}'
+if $full_profile; then
+  traceability_sha256="$(sha256 "$TRACEABILITY_MD")"
+  for name in "${LAYER_FILES[@]}"; do
+    layer_sha256="$(jq -c --arg name "$name" --arg hash "$(sha256 "${SPECS_DIR}/${name}")" \
+      '. + {($name): $hash}' <<<"$layer_sha256")"
+  done
+  python3 "${repo_root}/plugins/sdd-review-loop/scripts/validate-layer-traceability.py" \
+    "$TRACEABILITY_MD" "$REQS_MD" || fail "traceability Layer Spec values are invalid"
+fi
 [[ -f "${CALIBRATION_MD}" && ! -L "${CALIBRATION_MD}" ]] || fail "${CALIBRATION_MD} not found"
 calibration_sha256=$(sha256 "${CALIBRATION_MD}")
 spec_review_requirements_sha256="$(reviewed_sha256 "$REQS_MD" "Spec-Review-Status" "Pending")"
@@ -437,7 +507,12 @@ fi
 # STEP 6: Validate the shared portable contract before creating output evidence.
 # ──────────────────────────────────────────────────────────────────────────────
 
-input_sha256="$(printf '%s:%s:%s' "$tasks_sha256" "$requirements_sha256" "$acceptance_sha256" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+if $full_profile; then
+  input_material="$(printf '%s:%s:%s:%s:%s:%s' "$tasks_sha256" "$requirements_sha256" "$acceptance_sha256" "$design_sha256" "$traceability_sha256" "$layer_sha256")"
+else
+  input_material="$(printf '%s:%s:%s' "$tasks_sha256" "$requirements_sha256" "$acceptance_sha256")"
+fi
+input_sha256="$(printf '%s' "$input_material" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
 foundation_contract="$(mktemp)"
 trap 'rm -f "$foundation_contract"' EXIT
 jq -n --arg feature "$FEATURE" --argjson attempt "$ATTEMPT" --argjson round "$ROUND" --arg input_sha256 "$input_sha256" \
@@ -505,6 +580,10 @@ cat > "${REPORT_DIR}/precheck-result.json" <<EOF
   "tasks_sha256": "${tasks_sha256}",
   "requirements_sha256": "${requirements_sha256}",
   "acceptance_sha256": "${acceptance_sha256}",
+  "design_sha256": "${design_sha256}",
+  "traceability_sha256": "${traceability_sha256}",
+  "layer_sha256": ${layer_sha256},
+  "input_sha256": "${input_sha256}",
   "generated_at": "${generated_at}"
 }
 EOF

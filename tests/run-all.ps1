@@ -9,6 +9,8 @@ $tests = @(
     'tests/scripts.tests.ps1',
     'tests/review-contract-foundation.tests.ps1',
     'tests/downstream-review-precheck.tests.ps1',
+    'tests/impl-layer-review-inputs.tests.ps1',
+    'tests/task-layer-review-inputs.tests.ps1',
     'tests/cross-model.tests.ps1',
     'tests/hooks.tests.ps1',
     'tests/scenario.tests.ps1',
@@ -17,7 +19,8 @@ $tests = @(
     'tests/claude-registration.tests.ps1',
     'tests/workflow-state-registry.tests.ps1',
     'tests/workflow-state.tests.ps1',
-    'tests/workflow-state-repository-integration.tests.ps1'
+    'tests/workflow-state-repository-integration.tests.ps1',
+    'tests/structure-check-feature-mode.tests.ps1'
 )
 
 Push-Location $root

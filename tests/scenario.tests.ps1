@@ -687,6 +687,8 @@ Write-Host "=== Scenario B1: hook contract — all 3 CLI forms ==="
 
 $sb = Join-Path $workDir "sb-hooks"
 New-Item -ItemType Directory -Path (Join-Path $sb "specs/x") -Force | Out-Null
+$originalClaudeProjectDir = $env:CLAUDE_PROJECT_DIR
+$env:CLAUDE_PROJECT_DIR = $sb
 
 $guardJs = Join-Path $scriptsDir "sdd-hook-guard.js"
 $guardSh = Join-Path $scriptsDir "sdd-hook-guard.sh"
@@ -868,6 +870,12 @@ if (($copilotContent | Select-String "sdd-hook-guard.sh" -Quiet) -and
     ok "B1.4c: copilot-hooks.json references sdd-hook-guard.sh --emit copilot"
 } else {
     fail "B1.4c: copilot-hooks.json must reference sdd-hook-guard.sh --emit copilot (check $copilotHooks)"
+}
+
+if ($null -eq $originalClaudeProjectDir) {
+    Remove-Item Env:CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue
+} else {
+    $env:CLAUDE_PROJECT_DIR = $originalClaudeProjectDir
 }
 
 # ===========================================================================

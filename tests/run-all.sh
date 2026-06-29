@@ -9,10 +9,14 @@ tests=(
   tests/install.tests.sh
   tests/uninstall.tests.sh
   tests/guards.tests.sh
+  tests/approval-boundary.tests.sh
   tests/gates.tests.sh
   tests/review-contract-foundation.tests.sh
   tests/review-contract-foundation-parity.tests.sh
   tests/downstream-review-precheck.tests.sh
+  tests/impl-layer-review-inputs.tests.sh
+  tests/task-layer-review-inputs.tests.sh
+  tests/task-layer-full-profile.tests.sh
   tests/downstream-review-precheck-parity.tests.sh
   tests/task-review-precheck.tests.sh
   tests/review-agent-isolation.tests.sh
@@ -26,6 +30,7 @@ tests=(
   tests/workflow-state.tests.sh
   tests/workflow-state-parity.tests.sh
   tests/workflow-state-ci-integration.tests.sh
+  tests/structure-check-feature-mode.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

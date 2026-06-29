@@ -12,12 +12,12 @@ if ($LASTEXITCODE -ne 0) {
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.3.0"
-    "sdd-implementation" = "1.3.0"
-    "sdd-quality-loop"   = "1.3.0"
-    "sdd-lite"           = "1.3.0"
-    "sdd-review-loop"    = "1.3.0"
-    "sdd-ship"           = "1.3.0"
+    "sdd-bootstrap"      = "1.4.0"
+    "sdd-implementation" = "1.4.0"
+    "sdd-quality-loop"   = "1.4.0"
+    "sdd-lite"           = "1.4.0"
+    "sdd-review-loop"    = "1.4.0"
+    "sdd-ship"           = "1.4.0"
 }
 $releasePlugins = $expectedPlugins
 
@@ -62,7 +62,7 @@ foreach ($plugin in $claudeMarketplace.plugins) {
     }
 }
 
-# Every plugin carries the same explicit 1.2.x release version in both host
+# Every plugin carries the same explicit release version in both host
 # marketplaces so cache recovery and host discovery are unambiguous.
 foreach ($name in $releasePlugins) {
     $expectedVersion = $expectedVersions[$name]

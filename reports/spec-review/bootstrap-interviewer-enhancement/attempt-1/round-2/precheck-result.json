@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "bootstrap-interviewer-enhancement",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "8f29022d4aab81dde80610bfb551cd79022d29898af7dbf7867b67193348a7e4",
+  "acceptance_sha256": "480679dde526da7e8a240cdde1aa7a69dac0514882096f15612fa8cd66dc2d54",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "89c03226abfe77e20eb9a6509273836c12a58d2fea23d3d6d5834191db7eee29",
+  "edit_summary": "Defined the four-layer review surfaces, exact checker/category contracts, edge-case acceptance coverage, and preserved Draft approval boundary per approved option A.",
+  "reset": false,
+  "generated_at": "2026-06-29T12:48:56Z"
+}

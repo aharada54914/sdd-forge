@@ -40,7 +40,7 @@ fi
 if [[ "$reset" == true ]]; then
   [[ "$attempt" -gt 1 && "$round" -eq 1 ]] || fail "--reset starts only attempt N+1 round 1"
 else
-  [[ "$attempt" -eq 1 ]] || fail "a new attempt requires --reset"
+  [[ "$attempt" -eq 1 || "$round" -gt 1 ]] || fail "a new attempt requires --reset"
 fi
 
 repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
