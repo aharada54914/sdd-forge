@@ -308,7 +308,7 @@ validate_passed_stage() {
     --slurpfile reviewer_b "$reviewer_b" --slurpfile summary "$summary" --arg stage "$stage" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     def normalized_manifest:
-      map({path: .path, sha256: .sha256}) | sort_by(.path, .sha256);
+      map({path: .path, sha256: .sha256}) | sort_by([.path, .sha256]);
     def reviewer_contract($role):
       $contract[0].reviewers[] | select(.role == $role);
     def check_result:
