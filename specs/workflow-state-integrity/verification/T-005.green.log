@@ -1,0 +1,69 @@
+T-005 GREEN verification
+Date: 2026-06-28
+Result: PASS
+
+Environment:
+- Darwin 25.5.0 arm64
+- GNU bash 5.3.9
+- PowerShell 7.6.2
+- spec_revision: 3066bd90a70500756be5e9133f129ece59378c6f8d8ea4666bf642b020f93add
+
+Commands:
+- PASS bash tests/run-all.sh
+- PASS pwsh -NoProfile -File tests/run-all.ps1
+- PASS bash tests/downstream-review-precheck.tests.sh
+- PASS pwsh -NoProfile -File tests/downstream-review-precheck.tests.ps1
+- PASS bash tests/downstream-review-precheck-parity.tests.sh
+- PASS pwsh -NoProfile -File tests/scripts.tests.ps1
+- PASS bash tests/gates.tests.sh (126 passed, 0 failed)
+- PASS bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+- PASS pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+- PASS plugins/sdd-quality-loop/scripts/check-traceability.sh specs/workflow-state-integrity/traceability.json . require-evidence
+- PASS bash plugins/sdd-quality-loop/scripts/check-placeholders.sh
+  plugins/sdd-quality-loop/scripts/check-task-state.sh
+  plugins/sdd-quality-loop/scripts/check-task-state.ps1
+  plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
+  plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1
+  plugins/sdd-review-loop/scripts/impl-review-precheck.sh
+  plugins/sdd-review-loop/scripts/impl-review-precheck.ps1
+  plugins/sdd-review-loop/scripts/task-review-precheck.sh
+  plugins/sdd-review-loop/scripts/task-review-precheck.ps1
+  (Placeholder scan passed.)
+- PASS pwsh -NoProfile -File
+  plugins/sdd-quality-loop/scripts/check-placeholders.ps1 with the same eight
+  changed production scripts (Placeholder scan passed.)
+- PASS Bash and PowerShell parser checks
+- PASS git diff --check
+
+Coverage:
+- Quality-gate invokes repository-wide state validation before task-state checks.
+- Impl/Task prechecks invoke scoped validation and preserve predecessor checks.
+- Done-state validation binds the quality report to the evidence-bundle path,
+  SHA-256, task ID, and PASS verdict.
+- A same-ID report belonging to another feature cannot satisfy Done state.
+- Evidence validation binds the bundle, contract, and quality report to the
+  same feature slug in both runtimes.
+- Empty bundle features and non-empty bundle/contract feature mismatches fail
+  closed whenever either side declares feature identity.
+- Quality reports must contain exactly one Feature line, and Shell/PowerShell
+  compare the feature slug case-sensitively.
+- Full POSIX and PowerShell regression runners completed successfully.
+
+Placeholder-scan scope:
+- The eight executable gate scripts listed above are the changed production
+  files and passed both deterministic scanners.
+- `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` is workflow
+  instruction documentation, not production code. Its scanner-name and policy
+  prose matches are intentionally excluded by the scanner's documented
+  "changed production files" contract.
+
+Independent review:
+- Reviewer: t005_code_review
+- Verdict: PASS
+- Critical: 0
+- Major: 0
+- Minor: 0
+
+Rollback exercise:
+- PASS isolated fixtures fail when canonical gate calls are removed and pass
+  after the call sites are restored.

@@ -190,6 +190,7 @@ function Get-EvidenceCanonical {
 
 $bundle = Get-Content -Raw -Encoding Utf8 $BundlePath | ConvertFrom-Json
 $taskId = ([string]$bundle.task_id).Trim()
+$bundleFeature = ([string]$bundle.feature).Trim()
 $qualityReport = $bundle.quality_report
 $verificationContract = $bundle.verification_contract
 $gitCommit = $bundle.git_commit
@@ -198,6 +199,9 @@ $artifacts = @()
 
 if ($taskId -notmatch '^T-\d+$') {
     Add-Failure "task_id is invalid: $taskId"
+}
+if ($bundleFeature -and $bundleFeature -notmatch '^[a-z0-9][a-z0-9-]*$') {
+    Add-Failure "feature is invalid: $bundleFeature"
 }
 if ((Split-Path -Leaf $BundlePath) -ne "$taskId.evidence.json") {
     Add-Failure "bundle filename does not match task_id: $(Split-Path -Leaf $BundlePath) vs $taskId"
@@ -216,6 +220,7 @@ if ($null -eq $bundle.artifacts) {
 $qualityInfo = Resolve-RepositoryPath -RelativePath ([string]$qualityReport) -Label "quality_report"
 $contractInfo = Resolve-RepositoryPath -RelativePath ([string]$verificationContract) -Label "verification_contract"
 
+$qualityText = $null
 if ($qualityInfo) {
     $qualityText = Get-Content -Raw -Encoding Utf8 $qualityInfo.Resolved
     if ($qualityText -notmatch "(?m)^Task ID:\s*$([regex]::Escape($taskId))\s*$") {
@@ -241,6 +246,32 @@ if ($contractInfo) {
     }
     if ($contract -and ([string]$contract.task_id).Trim() -ne $taskId) {
         Add-Failure "verification_contract task_id mismatch: $($contract.task_id) != $taskId"
+    }
+    $contractFeature = if ($contract) { ([string]$contract.feature).Trim() } else { "" }
+    if ($contract -and ($contractFeature -or $bundleFeature) -and $contractFeature -ne $bundleFeature) {
+        Add-Failure "verification_contract feature mismatch: $contractFeature != $bundleFeature"
+    }
+}
+
+$expectedFeature = if ($contract -and ([string]$contract.feature).Trim()) {
+    ([string]$contract.feature).Trim()
+} else {
+    $bundleFeature
+}
+if ($null -ne $qualityText) {
+    $reportFeatureMatches = [regex]::Matches($qualityText, '(?m)^Feature:\s*(.*?)\s*$')
+    if ($expectedFeature) {
+        if ($reportFeatureMatches.Count -ne 1) {
+            Add-Failure "quality_report must contain exactly one Feature line"
+        } elseif (-not [string]::Equals(
+            $reportFeatureMatches[0].Groups[1].Value,
+            $expectedFeature,
+            [StringComparison]::Ordinal
+        )) {
+            Add-Failure "quality_report feature mismatch: expected $expectedFeature"
+        }
+    } elseif ($reportFeatureMatches.Count -gt 0) {
+        Add-Failure "quality_report feature mismatch: bundle and contract omit feature"
     }
 }
 

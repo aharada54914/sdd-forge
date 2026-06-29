@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "workflow-state-integrity",
+  "run_id": "23A9D435-2DA3-4B52-8286-0113E8445E8C",
+  "verdict": "BLOCKED",
+  "round": 1,
+  "attempt": 2,
+  "findings_critical": 2,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "BLOCKED",
+  "reviewer_b_verdict": "BLOCKED"
+}

@@ -68,12 +68,14 @@ conflicting quality gate report for another feature's T-001
 "@ | Set-Content -Encoding Utf8 "reports/quality-gate/000-conflicting-T-001.md"
     @"
 Task ID: T-001
+Feature: test-feature
 VERDICT: PASS
 quality gate report for T-001
 "@ | Set-Content -Encoding Utf8 "reports/quality-gate/r1.md"
     "pass evidence for T-001" | Set-Content -Encoding Utf8 "verification/T-001.evidence.log"
     $taskOneContract = Get-Content -Raw -Encoding Utf8 (Join-Path $templatesDir "verification-contract.template.json") | ConvertFrom-Json
     $taskOneContract.task_id = "T-001"
+    $taskOneContract.feature = "test-feature"
     # Legacy contract (no risk tier) for this task-state/evidence-bundle demo: the
     # template's default check set predates tier enforcement and lacks
     # acceptance-tests/regression, so leaving risk=medium would fail check-contract
@@ -96,6 +98,7 @@ quality gate report for T-001
 
     $taskOneBundle = [ordered]@{
         task_id = "T-001"
+        feature = "test-feature"
         quality_report = "reports/quality-gate/r1.md"
         verification_contract = "verification/T-001.contract.json"
         git_commit = $fixtureGitCommit
@@ -927,6 +930,60 @@ quality gate report for another feature's T-040
     }
     $doneBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
 
+    $emptyFeatureBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $emptyFeatureBundle.feature = ""
+    $emptyFeatureBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+    $emptyFeatureExit = Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040.evidence.json", "-RepoRoot", ".")
+    Assert-ExitCode "check-evidence-bundle empty feature cannot bypass contract binding" $emptyFeatureExit 1
+    if (($script:gateOutput | Out-String) -notmatch "verification_contract feature mismatch") {
+        throw "empty bundle feature must fail specifically on verification_contract feature mismatch"
+    }
+    $doneBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+
+    $mismatchedFeatureBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $mismatchedFeatureBundle.feature = "other-feature"
+    $mismatchedFeatureBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+    $mismatchedFeatureExit = Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040.evidence.json", "-RepoRoot", ".")
+    Assert-ExitCode "check-evidence-bundle contract feature mismatch fails" $mismatchedFeatureExit 1
+    if (($script:gateOutput | Out-String) -notmatch "verification_contract feature mismatch") {
+        throw "bundle and contract feature mismatch must fail specifically on verification_contract feature mismatch"
+    }
+    $doneBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+
+    $duplicateFeatureBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $duplicateFeatureBundle.quality_report = "reports/quality-gate/r-T040-duplicate-feature.md"
+    @"
+Task ID: T-040
+Feature: other-feature
+Feature: test-feature
+VERDICT: PASS
+quality gate report with contradictory feature identities
+"@ | Set-Content -Encoding Utf8 "reports/quality-gate/r-T040-duplicate-feature.md"
+    $duplicateFeatureBundle.artifacts[1] = (New-ArtifactEntry "reports/quality-gate/r-T040-duplicate-feature.md")
+    $duplicateFeatureBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+    $duplicateFeatureExit = Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040.evidence.json", "-RepoRoot", ".")
+    Assert-ExitCode "check-evidence-bundle duplicate report features fail" $duplicateFeatureExit 1
+    if (($script:gateOutput | Out-String) -notmatch "exactly one Feature") {
+        throw "duplicate quality report features must fail specifically on uniqueness"
+    }
+
+    $uppercaseFeatureBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
+    $uppercaseFeatureBundle.quality_report = "reports/quality-gate/r-T040-uppercase-feature.md"
+    @"
+Task ID: T-040
+Feature: TEST-FEATURE
+VERDICT: PASS
+quality gate report with incorrectly cased feature identity
+"@ | Set-Content -Encoding Utf8 "reports/quality-gate/r-T040-uppercase-feature.md"
+    $uppercaseFeatureBundle.artifacts[1] = (New-ArtifactEntry "reports/quality-gate/r-T040-uppercase-feature.md")
+    $uppercaseFeatureBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+    $uppercaseFeatureExit = Invoke-Gate "check-evidence-bundle.ps1" @("spec-dir/verification/T-040.evidence.json", "-RepoRoot", ".")
+    Assert-ExitCode "check-evidence-bundle feature comparison is case-sensitive" $uppercaseFeatureExit 1
+    if (($script:gateOutput | Out-String) -notmatch "quality_report feature mismatch") {
+        throw "incorrectly cased quality report feature must fail specifically on mismatch"
+    }
+    $doneBundle | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 "spec-dir/verification/T-040.evidence.json"
+
     $missingArtifactBundle = Get-Content -Raw -Encoding Utf8 "spec-dir/verification/T-040.evidence.json" | ConvertFrom-Json
     $missingArtifactBundle.artifacts = @(
         $missingArtifactBundle.artifacts[0],
@@ -1026,12 +1083,14 @@ Status: Implementation Complete
         New-Item -ItemType Directory -Path "spec-dir2/verification" -Force | Out-Null
         @"
 Task ID: T-041
+Feature: test-feature
 VERDICT: PASS
 quality gate report for T-041
 "@ | Set-Content -Encoding Utf8 "reports/quality-gate/r-T041.md"
         "pass evidence for T-041" | Set-Content -Encoding Utf8 "spec-dir2/verification/T-041-evidence.log"
         $doneContractSh = Get-Content -Raw -Encoding Utf8 $templatePath | ConvertFrom-Json
         $doneContractSh.task_id = "T-041"
+        $doneContractSh.feature = "test-feature"
         # Legacy contract (template default risk=medium predates tier enforcement).
         $doneContractSh.risk = ""
         foreach ($check in $doneContractSh.checks) {
@@ -1058,6 +1117,7 @@ Status: Done
 
         $doneBundleSh = [ordered]@{
             task_id = "T-041"
+            feature = "test-feature"
             quality_report = "reports/quality-gate/r-T041.md"
             verification_contract = "spec-dir2/verification/T-041.contract.json"
             git_commit = $t041GitCommit
@@ -1610,6 +1670,7 @@ AC-001: requirement verified
     # Test: T-006.ps.1 - LEGACY: contract with NO risk field → generate bundle → check passes (exit 0)
     @"
 Task ID: T-099
+Feature: test-feature
 VERDICT: PASS
 Critical: 0
 Major: 0
@@ -1656,6 +1717,7 @@ Quality gate report for T-099.
     # Test: T-006.ps.3 - high-risk bundle happy path: spec files exist, contract has risk:high, VERDICT: PASS → check passes
     @"
 Task ID: T-100
+Feature: test-feature
 VERDICT: PASS
 Critical: 0
 Major: 0
@@ -1880,6 +1942,7 @@ AC-001: critical requirement verified
     # Create quality report for T-200
     @"
 Task ID: T-200
+Feature: test-feature
 VERDICT: PASS
 Critical: 0
 Major: 0
@@ -1990,6 +2053,7 @@ Quality gate report for T-200.
     # Create fresh bundle for T-201
     @"
 Task ID: T-201
+Feature: test-feature
 VERDICT: PASS
 Critical: 0
 Major: 0

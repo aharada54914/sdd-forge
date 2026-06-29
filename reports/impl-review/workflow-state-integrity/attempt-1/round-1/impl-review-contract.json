@@ -1,0 +1,53 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "workflow-state-integrity",
+  "run_id": "7709BD1A-3887-4902-BC80-94C762D36E07",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": true,
+  "feature_type": "unspecified",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+  "acceptance_sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+  "design_sha256": "62bdfdb0af10568c4f95e058ba97577229f41a8e5bfa233c577f21c7bdffa0d3",
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-20260627-r1-4f8d1c",
+      "host_session_id": "codex-impl-a-20260627-r1",
+      "allowed_input_manifest": [
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path":"/Users/jrmag/sdd-forge/reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json","sha256":"927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/design.md","sha256":"62bdfdb0af10568c4f95e058ba97577229f41a8e5bfa233c577f21c7bdffa0d3"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/investigation.md","sha256":"3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"}
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "2878B414-D58A-4179-B0D0-3A3B63E00780",
+      "host_session_id": "19CB80D9-945C-4D77-90C2-C5EE59B9CF9E",
+      "allowed_input_manifest": [
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path":"/Users/jrmag/sdd-forge/reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json","sha256":"927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5"},
+        {"path":"/Users/jrmag/sdd-forge/reports/impl-review/workflow-state-integrity/attempt-1/round-1/integrated-summary.json","sha256":"d150abcf80ea8464b2df563b88d7dc266395b661321c4cf57b19787f29949a55"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/design.md","sha256":"62bdfdb0af10568c4f95e058ba97577229f41a8e5bfa233c577f21c7bdffa0d3"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/investigation.md","sha256":"3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"}
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-06-27T03:08:10Z"
+}

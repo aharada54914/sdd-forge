@@ -124,6 +124,7 @@ SRCEOF
     # Quality-gate report (Task ID + VERDICT: PASS required by check-evidence-bundle)
     cat > "${dir}/reports/quality-gate/${task_id}.md" <<RPTEOF
 Task ID: ${task_id}
+Feature: ${feat}
 VERDICT: PASS
 
 All baseline checks green.

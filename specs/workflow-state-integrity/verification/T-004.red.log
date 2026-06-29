@@ -1,0 +1,10 @@
+T-004 RED — repository/CI workflow-state integration
+Date: 2026-06-28
+
+Command: pwsh -NoProfile -File tests/workflow-state-repository-integration.tests.ps1
+Exit: 1
+Observed: Repository validation does not invoke the canonical workflow-state validator.
+
+Command: bash tests/workflow-state-ci-integration.tests.sh
+Exit: 1
+Observed: CI workflow-state integration is missing the Windows and POSIX validation steps.

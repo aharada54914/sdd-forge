@@ -520,6 +520,93 @@ generate_bundle_passes \
     "${H02_REPO}/reports/quality-gate/T-099.md" \
     "${H02_REPO}"
 
+# --- H-02.1e: clearing bundle.feature must not bypass contract binding ---
+python3 - "$bundle_file" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as handle:
+    bundle = json.load(handle)
+bundle["feature"] = ""
+with open(path, "w", encoding="utf-8") as handle:
+    json.dump(bundle, handle, indent=2)
+    handle.write("\n")
+PY
+empty_feature_out="$(run_check_bundle "$bundle_file" "${H02_REPO}")"
+if ! check_bundle_passes "$bundle_file" "${H02_REPO}" && \
+   echo "$empty_feature_out" | grep -q "verification_contract feature mismatch"; then
+    ok "H-02.1e: empty bundle feature is rejected when contract has a feature"
+else
+    fail "H-02.1e: empty bundle feature must not bypass contract binding: $empty_feature_out"
+fi
+
+# --- H-02.1f: non-empty bundle/contract feature mismatch must fail ---
+python3 - "$bundle_file" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as handle:
+    bundle = json.load(handle)
+bundle["feature"] = "other-feature"
+with open(path, "w", encoding="utf-8") as handle:
+    json.dump(bundle, handle, indent=2)
+    handle.write("\n")
+PY
+contract_feature_out="$(run_check_bundle "$bundle_file" "${H02_REPO}")"
+if ! check_bundle_passes "$bundle_file" "${H02_REPO}" && \
+   echo "$contract_feature_out" | grep -q "verification_contract feature mismatch"; then
+    ok "H-02.1f: bundle and contract feature mismatch is rejected"
+else
+    fail "H-02.1f: bundle and contract feature mismatch must be rejected: $contract_feature_out"
+fi
+
+# --- H-02.1g: contradictory duplicate Feature lines must fail ---
+cat > "${H02_REPO}/reports/quality-gate/T-099-duplicate-feature.md" <<'EOF'
+Task ID: T-099
+Feature: other-feature
+Feature: test-feature
+VERDICT: PASS
+Quality gate report with contradictory feature identities.
+EOF
+generate_bundle_passes \
+    "${H02_REPO}/specs/test-feature/verification/T-099.contract.json" \
+    "${H02_REPO}/reports/quality-gate/T-099-duplicate-feature.md" \
+    "${H02_REPO}"
+duplicate_feature_out="$(run_check_bundle "$bundle_file" "${H02_REPO}")"
+if ! check_bundle_passes "$bundle_file" "${H02_REPO}" && \
+   echo "$duplicate_feature_out" | grep -q "exactly one Feature"; then
+    ok "H-02.1g: duplicate quality report features are rejected"
+else
+    fail "H-02.1g: duplicate quality report features must be rejected: $duplicate_feature_out"
+fi
+
+# --- H-02.1h: feature identity comparison is case-sensitive ---
+cat > "${H02_REPO}/reports/quality-gate/T-099-uppercase-feature.md" <<'EOF'
+Task ID: T-099
+Feature: TEST-FEATURE
+VERDICT: PASS
+Quality gate report with incorrectly cased feature identity.
+EOF
+generate_bundle_passes \
+    "${H02_REPO}/specs/test-feature/verification/T-099.contract.json" \
+    "${H02_REPO}/reports/quality-gate/T-099-uppercase-feature.md" \
+    "${H02_REPO}"
+uppercase_feature_out="$(run_check_bundle "$bundle_file" "${H02_REPO}")"
+if ! check_bundle_passes "$bundle_file" "${H02_REPO}" && \
+   echo "$uppercase_feature_out" | grep -q "quality_report feature mismatch"; then
+    ok "H-02.1h: incorrectly cased quality report feature is rejected"
+else
+    fail "H-02.1h: quality report feature comparison must be case-sensitive: $uppercase_feature_out"
+fi
+
+# Restore the valid bundle for subsequent tamper and provenance tests.
+generate_bundle_passes \
+    "${H02_REPO}/specs/test-feature/verification/T-099.contract.json" \
+    "${H02_REPO}/reports/quality-gate/T-099.md" \
+    "${H02_REPO}"
+
 # --- H-02.2: tamper artifact after generation → digest mismatch → FAIL ---
 # Tamper ev.log; the bundle still has the old sha256, so check must fail
 printf 'tampered\n' >> "${H02_REPO}/specs/test-feature/verification/ev.log"
@@ -1852,6 +1939,7 @@ printf 'lint output: OK\n' > "${T006_REPO}/specs/test-feature/verification/ev.lo
 # Create quality report for T-099 (legacy contract)
 cat > "${T006_REPO}/reports/quality-gate/T-099.md" <<'EOF'
 Task ID: T-099
+Feature: test-feature
 VERDICT: PASS
 Critical: 0
 Major: 0
@@ -1939,6 +2027,7 @@ fi
 # Create quality report for T-100
 cat > "${T006_REPO}/reports/quality-gate/T-100.md" <<'EOF'
 Task ID: T-100
+Feature: test-feature
 VERDICT: PASS
 Critical: 0
 Major: 0
@@ -2196,6 +2285,7 @@ printf 'critical evidence: OK\n' > "${T007A_REPO}/specs/test-feature/verificatio
 # Create quality report for T-200
 cat > "${T007A_REPO}/reports/quality-gate/T-200.md" <<'EOF'
 Task ID: T-200
+Feature: test-feature
 VERDICT: PASS
 Critical: 0
 Major: 0
@@ -2350,6 +2440,7 @@ fi
 # Create a new contract and bundle for T-201
 cat > "${T007A_REPO}/reports/quality-gate/T-201.md" <<'EOF'
 Task ID: T-201
+Feature: test-feature
 VERDICT: PASS
 Critical: 0
 Major: 0

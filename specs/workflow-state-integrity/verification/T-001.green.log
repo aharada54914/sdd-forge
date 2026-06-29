@@ -1,0 +1,62 @@
+Task: T-001
+Phase: green
+Verified: 2026-06-27
+Environment: macOS Darwin 25.5.0 arm64; GNU bash 5.3.9; PowerShell 7.6.2
+
+PASS bash tests/spec-review-loop.tests.sh
+  ok: spec review precheck enforces state, hashes, replay, reset, and safe paths
+PASS bash tests/downstream-review-precheck.tests.sh
+  ok: downstream prechecks reject bad predecessors and cycles before evidence, then preserve valid graph edges
+PASS bash tests/downstream-review-precheck-parity.tests.sh
+  ok: downstream review precheck shell and PowerShell outputs have equivalent semantics for CRLF predecessor transitions
+PASS pwsh -NoProfile -File tests/downstream-review-precheck.tests.ps1
+  ok: PowerShell downstream prechecks fail closed and preserve graph semantics
+PASS bash tests/task-review-precheck.tests.sh
+  ok: task review precheck records heading-style blocker dependencies
+PASS bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/workflow-state-integrity/traceability.json . require-evidence
+  Traceability check passed for workflow-state-integrity: 4 link(s).
+PASS git diff --check
+
+Rollback exercise: an isolated Pending-to-Passed fixture reproduces the raw
+hash mismatch when status-neutral hashing is removed, then demonstrates that
+normalization recovers the reviewed hash. Unsafe traversal, repository escape,
+stale hashes, arbitrary report artifacts, and reviewer-role violations remain
+negative cases in both runtimes.
+
+CRLF regression: both status-neutral hash implementations preserve the original
+line ending, and the parity fixture exercises CRLF Pending-to-Passed transitions.
+
+Quality review cycle 2 regression: both runtimes reject contracts whose declared
+attempt/round differs from the persisted report directory, per-reviewer missing
+precheck or summary evidence, and case-changed canonical manifest paths. The
+fixtures also verify that rejection occurs before downstream evidence is written.
+
+Quality review cycle 3 regression: both runtimes select attempt 10 over attempt 9
+by numeric generation ordering and reject a forged duplicate of an otherwise
+allowed manifest path. Both adversarial cases fail before downstream evidence.
+
+Quality-gate deterministic checks:
+PASS bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/workflow-state-integrity/tasks.md T-001
+  Risk check passed for task T-001.
+PASS check-placeholders.sh on all four changed production adapters
+  Placeholder scan passed. (4 files)
+PASS bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/workflow-state-integrity/tasks.md reports/quality-gate reports/implementation .
+  Task state check passed for 6 task(s).
+PASS pwsh -NoProfile -File tests/validate-repository.ps1
+  Repository validation passed.
+PASS pwsh -NoProfile -File tests/review-contract-foundation.tests.ps1
+  ok: PowerShell review contract foundation validates canonical input and rejects unsafe inputs
+PASS bash tests/review-contract-foundation.tests.sh
+  ok: review contract foundation validates canonical input and rejects unsafe inputs
+PASS bash tests/review-contract-foundation-parity.tests.sh
+  ok: review contract validators have equivalent semantic JSON output
+PASS bash tests/task-review-precheck.tests.sh
+  expected malformed-predecessor diagnostic observed; suite exited 0
+PASS bash tests/review-agent-isolation.tests.sh
+  ok: spec, implementation, and task review roles are distinct and isolated
+PASS bash tests/crlf-parity.tests.sh
+  Results: 8 passed, 0 failed.
+PASS bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/workflow-state-integrity/verification/T-001.contract.json .
+  Verification contract passed for task T-001.
+PASS pwsh -NoProfile -File plugins/sdd-quality-loop/scripts/check-contract.ps1 -ContractPath specs/workflow-state-integrity/verification/T-001.contract.json -RepoRoot .
+  Verification contract passed for task T-001.

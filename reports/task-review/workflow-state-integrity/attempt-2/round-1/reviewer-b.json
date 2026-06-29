@@ -1,0 +1,29 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "4c1dea38-a649-4f10-941f-edfd08ab0080",
+  "host_session_id": "fb354769-9a2a-4c9c-bb60-64cf61f34c07",
+  "allowed_input_manifest": [
+    {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-2/round-1/precheck-result.json","sha256":"0c50ed98a52296760c99adfbb4db3820eace8c3807199c4721b8036895eed843"},
+    {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-2/round-1/integrated-summary.json","sha256":"9f9e6dbed461b11437c74e85e506f2d483c339bfabcdc102073d43c58f359a6d"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md","sha256":"3deaa8165eb6037e0af0b2c852ec69f3e265ac7c1ebaa46bbeb744bc1ee74f57"},
+    {"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+    {"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Major","finding":"T-001 through T-005 appropriately use high risk and TDD for integrity-boundary and mandatory-gate changes whose silent failure could permit invalid persisted state or releases; T-006 appropriately uses medium risk and acceptance-first for reversible release metadata."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"FAIL","severity":"Critical","finding":"In tasks.md, every high-risk task T-001 through T-005 plans Red→Green evidence, an independent-review verdict, and spec_revision, but none requires environment provenance, and none requires evidence that the mandatory requirement-traceability check passed. The risk-gate matrix explicitly requires provenance (spec revision plus environment) and requirement-traceability evidence for high-risk tasks. A downstream quality contract can therefore lack mandatory high-tier evidence, so this is blocking at the check's required Critical severity."},
+    {"id":"TASK-SIZE","result":"PASS","severity":"Major","finding":"Each task is bounded to one cohesive deliverable with specific files, scope, completion evidence, and exclusions; the broader portable-validator and integration work is separated into T-003, T-004, and T-005."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"The decomposition covers malformed and unreadable inputs, stale and forged provenance, traversal and symlink escape, predecessor inversions, lifecycle bypasses, legacy overbreadth, lite isolation, LF/CRLF parity, CI ordering, and release-version skew."},
+    {"id":"TEST-TYPE-MATCH","result":"PASS","severity":"Major","finding":"High-risk behavioral tasks T-001 through T-005 require TDD with Red→Green evidence and targeted unit, parity, integration, or regression suites; medium-risk metadata task T-006 uses acceptance-first version-consistency and install/release validation."},
+    {"id":"ROLLBACK-PLAN","result":"PASS","severity":"Major","finding":"Every task specifies a bounded rollback unit and an inspectable exercise or validation of the rollback, including isolated fixtures where repository state would otherwise be affected."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Major","finding":"Task scopes separate transition repair, registry migration, validator implementation, repository/CI wiring, gate wiring, and release metadata. Necessary shared-file edits are sequenced and concern-distinct."},
+    {"id":"DEPENDENCY-OVERLAP","result":"PASS","severity":"Major","finding":"Overlapping files are dependency-ordered: T-005 follows T-003, which follows T-001/T-002, and T-006 follows T-004/T-005. The validator correctly depends on both the precheck repair and registry contract."},
+    {"id":"BUGFIX-DIAGNOSTIC-PATH","result":"PASS","severity":"Major","finding":"T-001 preserves a complete diagnostic path from the observed Pending-to-Passed transition failure, through canonical hash/path mismatch diagnosis, to a narrow fix, failing-before/passing-after evidence, regression fixtures, and rollback reproduction."}
+  ]
+}

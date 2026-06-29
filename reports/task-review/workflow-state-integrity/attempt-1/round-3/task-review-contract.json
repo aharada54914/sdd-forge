@@ -1,0 +1,53 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "workflow-state-integrity",
+  "run_id": "AED44358-A83A-4F0E-A930-23D19F8CE40F",
+  "verdict": "BLOCKED",
+  "pass_type": "clean",
+  "round": 3,
+  "attempt": 1,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "BLOCKED",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "e9e7fec9a633806fe30e5ed9c82414971b96a77629f48e530c00643861dc54a2",
+  "requirements_sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+  "acceptance_sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+  "tasks_sha256": "c7781b8b5d3000d85330034f8dbc1bb5ae7ccdfb4e671f499e58554652d12813",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "f4b5c821-a1eb-4ab3-8aeb-cd85f69c9174",
+      "host_session_id": "656c429f-43d9-4d38-b973-9819b58089a2",
+      "allowed_input_manifest": [
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-1/round-3/precheck-result.json","sha256":"026ca9ab1672f52bba34367dc14b98444836aea15f5786e371561efdbd794354"},
+        {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-1/round-3/dependency-graph.json","sha256":"7420ce6d5bcb2c1a8771c9b35a7fee791044a689f65a16721e2bf715db597c79"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md","sha256":"c7781b8b5d3000d85330034f8dbc1bb5ae7ccdfb4e671f499e58554652d12813"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/traceability.md","sha256":"3ce7efb40ed09a3ad2540e716cff1f495e5ff44e7b6fd0f29f381588278d1d05"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "13f591b0-7933-4d67-be6b-48bba0fa2b34",
+      "host_session_id": "70769818-fb56-42fc-ba36-640e33c71d99",
+      "allowed_input_manifest": [
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-1/round-3/precheck-result.json","sha256":"026ca9ab1672f52bba34367dc14b98444836aea15f5786e371561efdbd794354"},
+        {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-1/round-3/integrated-summary.json","sha256":"304c2b11b367c2258d6be582a99f43c7a7d00ce9c9a695693ca76f650722227b"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md","sha256":"c7781b8b5d3000d85330034f8dbc1bb5ae7ccdfb4e671f499e58554652d12813"},
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Made high-risk TDD sequencing and reviewer independence explicit for T-001 through T-005.",
+  "timestamp": "2026-06-27T03:36:40Z"
+}

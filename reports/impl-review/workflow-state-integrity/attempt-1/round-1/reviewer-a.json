@@ -1,0 +1,29 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "impl-a-20260627-r1-4f8d1c",
+  "host_session_id": "codex-impl-a-20260627-r1",
+  "allowed_input_manifest": [
+    {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"/Users/jrmag/sdd-forge/reports/impl-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json","sha256":"927b5d4f140d9ae71f109132226bd91714a8fd94b552f2c1debe8e2c4b1eccf5"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/design.md","sha256":"62bdfdb0af10568c4f95e058ba97577229f41a8e5bfa233c577f21c7bdffa0d3"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/investigation.md","sha256":"3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "legacy_design": true,
+  "feature_type": "unspecified",
+  "checks": [
+    {"id":"ARCH-COVERAGE","result":"PASS","severity":"Critical","finding":"design.md ## Architecture defines the registry, versioned schema, POSIX/PowerShell runtime adapters, and repository/CI/gate callers; it describes their interaction with the existing review-contract foundation and identifies JSON, shell, PowerShell, and CI integration choices for the applicable CLI/infrastructure layers."},
+    {"id":"NO-CIRCULAR-DEPS","result":"SKIP","severity":"Major","finding":"SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative."},
+    {"id":"DATA-COVERAGE","result":"PASS","severity":"Minor","finding":"[LEGACY COMPAT] Field ## Data Plan absent; legacy design.md predates this template requirement. The existing design nevertheless identifies the registry and versioned JSON schema as its persistent data artifacts."},
+    {"id":"API-COVERAGE","result":"PASS","severity":"Minor","finding":"[LEGACY COMPAT] Field ## API / Contract Plan absent; legacy design.md predates this template requirement. No endpoint, RPC, or event interface is introduced in the requirements or design."},
+    {"id":"SECURITY-COVERAGE","result":"PASS","severity":"Minor","finding":"[LEGACY COMPAT] Field ## Security Boundaries absent; legacy design.md predates this template requirement. design.md ## Security considerations still covers fail-closed parsing, non-execution of artifact content, path quoting, traversal and symlink rejection, and bounded legacy exceptions; no PII keywords appear in requirements.md user-facing scope."},
+    {"id":"FRONTEND-BACKEND-CONSISTENCY","result":"PASS","severity":"Minor","finding":"[LEGACY COMPAT] Feature Type, ## Frontend Plan, and ## Backend Plan fields are absent; legacy design.md predates these template requirements. The scoped feature is repository CLI/infrastructure enforcement and defines no frontend or user-facing API surface to reconcile."},
+    {"id":"TEST-STRATEGY-COVERAGE","result":"PASS","severity":"Minor","finding":"[LEGACY COMPAT] Field ## Test Strategy absent; legacy design.md predates this template requirement. acceptance-tests.md AC-001 through AC-014 still name concrete shell/PowerShell parity, repository validation, CI, quality-gate, precheck, migration, version, malformed-input, and existing-suite verification outcomes."},
+    {"id":"NO-UNDEFINED-COMPONENT","result":"PASS","severity":"Critical","finding":"All components referenced by design.md are either defined as named artifact paths and integration points in ## Architecture and ## Integration or established by requirements.md and investigation.md, including the review-contract foundation, repository validation, CI, quality gate, and downstream prechecks."},
+    {"id":"ADR-PRESENT","result":"FAIL","severity":"Major","finding":"requirements.md ## Constraints requires architecture changes to have an ADR in docs/adr/. design.md ## Architecture and ## Integration introduce a canonical repository-wide workflow-state model and a new shared enforcement integration across repository validation, CI, quality-gate, and review prechecks, but design.md references no ADR. An implementer therefore lacks the required decision record for this architectural departure, and the requirement cannot be verified; this is blocking under the ADR-PRESENT Major contract."}
+  ]
+}

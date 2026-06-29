@@ -1,6 +1,7 @@
 # Quality Gate: T-001
 
 Task ID: T-001
+Feature: claude-workflow-compatibility
 
 VERDICT: PASS
 Critical: 0

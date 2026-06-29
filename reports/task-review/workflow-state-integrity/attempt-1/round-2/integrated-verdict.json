@@ -1,0 +1,1 @@
+{"schema":"integrated-verdict/v1","stage":"task","feature":"workflow-state-integrity","run_id":"ED06848E-71F0-4E92-8A26-FB03F41CFAB4","verdict":"BLOCKED","round":2,"attempt":1,"findings_critical":1,"findings_major":0,"findings_minor":0,"reviewer_a_verdict":"PASS","reviewer_b_verdict":"BLOCKED"}

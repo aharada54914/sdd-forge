@@ -372,6 +372,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-101
+Feature: $feat
 VERDICT: PASS
 
 Docs-only task; all applicable checks green.
@@ -445,6 +446,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-103
+Feature: $feat
 VERDICT: PASS
 
 Critical-risk TDD task; all checks green.
@@ -513,6 +515,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-103
+Feature: $feat
 VERDICT: PASS
 
 Critical-risk TDD task; all checks green.
@@ -582,6 +585,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-103
+Feature: $feat
 VERDICT: PASS
 
 Critical-risk TDD task; all checks green.
@@ -653,6 +657,7 @@ Copy-Item (Join-Path $sa "verification/T-102.contract.json") (Join-Path $saT102 
 
 @"
 Task ID: T-102
+Feature: $feat
 VERDICT: PASS
 
 High-risk TDD task; all checks green including red->green evidence.
@@ -888,6 +893,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-201
+Feature: $featE
 VERDICT: PASS
 
 Critical signing task; all checks green.

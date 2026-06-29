@@ -161,6 +161,7 @@ with open(bundle_path, encoding="utf-8") as handle:
     bundle = json.load(handle)
 
 task_id = str(bundle.get("task_id", "")).strip()
+bundle_feature = str(bundle.get("feature", "")).strip()
 quality_report = bundle.get("quality_report")
 verification_contract = bundle.get("verification_contract")
 artifacts = bundle.get("artifacts", [])
@@ -169,6 +170,8 @@ git_generated_dirty = bundle.get("git_generated_dirty")
 
 if not re.fullmatch(r"T-\d+", task_id):
     fail(f"task_id is invalid: {task_id}")
+if bundle_feature and not re.fullmatch(r"[a-z0-9][a-z0-9-]*", bundle_feature):
+    fail(f"feature is invalid: {bundle_feature}")
 
 if not isinstance(artifacts, list):
     fail("artifacts must be an array")
@@ -188,6 +191,7 @@ if contract_abs is not None and not pathlib.Path(contract_abs).name.endswith(".c
     fail(f"verification_contract must point to a contract JSON file: {verification_contract}")
 
 contract = None
+quality_text = None
 if quality_abs is not None:
     try:
         quality_text = pathlib.Path(quality_abs).read_text(encoding="utf-8")
@@ -208,6 +212,27 @@ if contract_abs is not None:
         contract_task = str(contract.get("task_id", "")).strip()
         if contract_task != task_id:
             fail(f"verification_contract task_id mismatch: {contract_task} != {task_id}")
+        contract_feature = str(contract.get("feature", "")).strip()
+        if (contract_feature or bundle_feature) and contract_feature != bundle_feature:
+            fail(
+                "verification_contract feature mismatch: "
+                f"{contract_feature} != {bundle_feature}"
+            )
+
+expected_feature = ""
+if contract is not None:
+    expected_feature = str(contract.get("feature", "")).strip()
+if not expected_feature:
+    expected_feature = bundle_feature
+if quality_text is not None:
+    report_features = re.findall(r"(?m)^Feature:\s*(.*?)\s*$", quality_text)
+    if expected_feature:
+        if len(report_features) != 1:
+            fail("quality_report must contain exactly one Feature line")
+        elif report_features[0] != expected_feature:
+            fail(f"quality_report feature mismatch: expected {expected_feature}")
+    elif report_features:
+        fail("quality_report feature mismatch: bundle and contract omit feature")
 
 if contract_abs is not None:
     check_script = pathlib.Path(script_dir) / "check-contract.sh"

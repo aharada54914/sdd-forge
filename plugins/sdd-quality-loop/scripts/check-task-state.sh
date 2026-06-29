@@ -8,8 +8,8 @@
 #  - Done additionally requires a verification/<task-id>.evidence.json file
 #    in the tasks.md directory, and that bundle must validate the report,
 #    contract, and passing evidence artifacts.
-#  - Done additionally requires a quality-gate report in reports/quality-gate
-#    that mentions the task id and contains VERDICT: PASS.
+#  - Done additionally requires the evidence bundle's declared quality-gate
+#    report to mention the task id and contain VERDICT: PASS.
 #  - Implementation Complete requires an implementation report mentioning the task id.
 #  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
 #  - Duplicate task ids (## T-NNN repeated) → fail.
@@ -135,16 +135,10 @@ function finish() {
         }
       }
     }
-    # Issue #34: require quality-gate report with VERDICT: PASS
-    qg_cmd = "grep -rlw \x27" task "\x27 \"" ENVIRON["REPORTS"] "\" 2>/dev/null | head -1"
-    qg_cmd | getline qg_report; close(qg_cmd)
-    if (qg_report == "") {
-      fail(task " is Done but no quality-gate report in " ENVIRON["REPORTS"] " mentions it")
-    } else {
-      qg_pass_cmd = "grep -q \x27VERDICT: PASS\x27 \"" qg_report "\" 2>/dev/null && echo yes || echo no"
-      qg_pass_cmd | getline qg_pass; close(qg_pass_cmd)
-      if (qg_pass != "yes") fail(task " is Done but quality-gate report does not contain VERDICT: PASS: " qg_report)
-    }
+    # The evidence-bundle gate above validates its declared quality_report,
+    # including repository confinement, task identity, digest, and PASS verdict.
+    # Do not search the shared report directory by task id: task ids are only
+    # unique within a feature and a global search can select another feature.
   }
   if (status == "Implementation Complete") {
     # C-07: word-boundary match to prevent T-001 matching T-0010

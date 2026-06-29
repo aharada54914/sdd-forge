@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-wsi-a1r1-20260627",
+  "host_session_id": "host-spec-a-wsi-a1r1-20260627",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md",
+      "sha256": "5bf6474e1a5cdbfe5344398d3231ced924108f9a40da7d7792352ae4f3d8b82f"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md",
+      "sha256": "c9703749f3fad3bff342a029e556a73420b376f40deb26302a223d4064730e9c"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/investigation.md",
+      "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/reports/spec-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json",
+      "sha256": "fbf90499a150b96a957c3d79059c3864368851a00174c22b9876e7145c93183b"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004 says Draft/Planned tasks may exist only after predecessor stages “required by their phase” are valid, but neither the phase-to-predecessor matrix nor the meaning of valid for those states is specified, and AC-005 covers only Approved/In Progress/Implementation Complete/Done. A task author or verifier therefore cannot decide which review statuses make a Draft or Planned task conformant. This is Phase 1 requirement and acceptance coverage, not an implementation-detail question. Major is justified because the ambiguity can produce incompatible validators and fixtures, while the remaining lifecycle safety boundary is explicit."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The integrity-enforcement goal is covered by AC-003 through AC-010 and AC-014; behavior preservation by AC-007, AC-010, AC-012, and AC-013; historical-debt handling by AC-006 and AC-011; and deterministic runtime parity by AC-002 and AC-008."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001 through AC-014 use observable exit status, stable rule IDs, rejected or accepted fixtures, invocation-path inspection, traceable records, synchronized versions, and existing-suite outcomes."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals explicitly exclude fabricated historical reviews, policy changes, replacement of stage prechecks, installer or uninstaller behavior changes, and new services or runtime dependencies; profile boundaries are also stated in REQ-005 and REQ-006."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The specification states ADR and contract requirements, legacy eligibility, Done authority, synchronized-version constraints, fail-closed behavior, path safety, historical-provenance limits, runtime parity, and preservation of existing approval and evidence gates."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces have planned validation: provenance forgery and staleness in AC-004, privilege bypass in AC-005, bounded migration exceptions in AC-006, path escape in AC-002, integration enforcement in AC-009 and AC-010, cross-runtime/CRLF parity in AC-008, and fail-closed corruption or read denial in AC-014."
+    }
+  ]
+}

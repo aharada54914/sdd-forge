@@ -404,6 +404,7 @@ printf 'def add(a, b):\n    return a + b\n' > "${SA_T101}/src/widget.py"
 
 cat > "${SA_T101}/reports/quality-gate/T-101.md" <<RPTEOF
 Task ID: T-101
+Feature: ${feat}
 VERDICT: PASS
 
 Docs-only task; all applicable checks green.
@@ -471,6 +472,7 @@ printf '# Requirements\n- REQ-001: signing must be verifiable\n' > "${SA_T103}/s
 
 cat > "${SA_T103}/reports/quality-gate/T-103.md" <<RPTEOF
 Task ID: T-103
+Feature: ${feat}
 VERDICT: PASS
 
 Critical-risk TDD task; all checks green.
@@ -529,6 +531,7 @@ printf '# Requirements\n- REQ-001: signing must be verifiable\n' > "${SA_T103B}/
 
 cat > "${SA_T103B}/reports/quality-gate/T-103.md" <<RPTEOF
 Task ID: T-103
+Feature: ${feat}
 VERDICT: PASS
 
 Critical-risk TDD task; all checks green.
@@ -587,6 +590,7 @@ printf '# Requirements\n- REQ-001: signing must be verifiable\n' > "${SA_T103C}/
 
 cat > "${SA_T103C}/reports/quality-gate/T-103.md" <<RPTEOF
 Task ID: T-103
+Feature: ${feat}
 VERDICT: PASS
 
 Critical-risk TDD task; all checks green.
@@ -648,6 +652,7 @@ cp "${SA}/verification/T-102.contract.json" "${SA_T102}/verification/T-102.contr
 
 cat > "${SA_T102}/reports/quality-gate/T-102.md" <<RPTEOF
 Task ID: T-102
+Feature: ${feat}
 VERDICT: PASS
 
 High-risk TDD task; all checks green including red->green evidence.
@@ -812,6 +817,7 @@ printf '# Requirements\n- REQ-001: signing must be verifiable\n' > "${SE}/specs/
 
 cat > "${SE}/reports/quality-gate/T-201.md" <<RPTEOF
 Task ID: T-201
+Feature: ${feat_e}
 VERDICT: PASS
 
 Critical signing task; all checks green.
