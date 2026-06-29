@@ -137,7 +137,9 @@ try {
   Assert-Fails { & (Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $feature -Attempt 1 -Round 1 } 'task must reject contradictory impl verdict and contract'; if (Test-Path $taskReport) { throw 'not ok: contradictory predecessor created task evidence' }
   Write-PassArtifacts impl "$implReport/attempt-1/round-1"
   (Get-Content (Join-Path $spec tasks.md) -Raw).Replace('Risk: low','Risk: medium') | Set-Content (Join-Path $spec tasks.md) -Encoding utf8NoBOM
-  Assert-Fails { & (Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $feature -Attempt 1 -Round 1 } 'task must reject medium test-after before evidence'; if (Test-Path $taskReport) { throw 'not ok: workflow mismatch created evidence' }
+  & (Join-Path $root 'plugins/sdd-review-loop/scripts/task-review-precheck.ps1') -Feature $feature -Attempt 1 -Round 1 | Out-Null
+  if (-not (Test-Path $taskReport)) { throw 'not ok: canonical risk policy rejected medium test-after' }
+  Remove-Item $taskReport -Recurse -Force
   Write-Output 'ok: PowerShell downstream prechecks fail closed and preserve graph semantics'
 } finally {
   [IO.File]::WriteAllText($registry, $registryOriginal)

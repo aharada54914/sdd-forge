@@ -1,7 +1,8 @@
 param(
   [Parameter(Mandatory = $true)][string]$Feature,
   [Parameter(Mandatory = $true)][string]$Attempt,
-  [Parameter(Mandatory = $true)][string]$Round
+  [Parameter(Mandatory = $true)][string]$Round,
+  [switch]$VerifyInputs
 )
 
 $ErrorActionPreference = 'Stop'
@@ -54,13 +55,18 @@ function Test-AllowedManifestPath(
     $allowed += "specs/$FeatureName/investigation.md"
     if (Test-OrdinalEqual $Role $roleB) { $allowed += "$roundRoot/integrated-summary.json" }
   } elseif (Test-OrdinalEqual $Stage 'impl') {
-    $allowed += "specs/$FeatureName/design.md", "specs/$FeatureName/investigation.md"
+    $allowed += "specs/$FeatureName/design.md", "specs/$FeatureName/investigation.md",
+      "specs/$FeatureName/ux-spec.md", "specs/$FeatureName/frontend-spec.md",
+      "specs/$FeatureName/infra-spec.md", "specs/$FeatureName/security-spec.md"
     if (Test-OrdinalEqual $Role $roleB) { $allowed += "$roundRoot/integrated-summary.json" }
     if ((Test-OrdinalEqual $Role $roleA) -and $Round -gt 1) {
       $allowed += "$attemptRoot/round-$($Round - 1)/integrated-summary.json"
     }
   } elseif (Test-OrdinalEqual $Stage 'task') {
-    $allowed += "specs/$FeatureName/tasks.md", "specs/$FeatureName/traceability.md"
+    $allowed += "specs/$FeatureName/tasks.md", "specs/$FeatureName/design.md",
+      "specs/$FeatureName/traceability.md",
+      "specs/$FeatureName/ux-spec.md", "specs/$FeatureName/frontend-spec.md",
+      "specs/$FeatureName/infra-spec.md", "specs/$FeatureName/security-spec.md"
     if (Test-OrdinalEqual $Role $roleA) { $allowed += "$roundRoot/dependency-graph.json" }
     if (Test-OrdinalEqual $Role $roleB) {
       $allowed += "$roundRoot/integrated-summary.json",
@@ -152,6 +158,15 @@ function Require-Pass(
     $precheckPath = "reports/$Stage-review/$FeatureName/attempt-$($contract.attempt)/round-$($contract.round)/precheck-result.json"
     $precheckHash = (Get-FileHash -LiteralPath (Join-Path $repoRoot $precheckPath) -Algorithm SHA256).Hash.ToLower()
     if (-not (Test-ManifestEntry $reviewer $precheckPath @($precheckHash))) { Fail "persisted $Stage contract does not bind every reviewer to precheck evidence" }
+    $contractLayerProperties = if ($null -eq $contract.psobject.Properties['layer_sha256']) { @() } else { @($contract.layer_sha256.psobject.Properties) }
+    if ($Stage -eq 'impl' -and $contractLayerProperties.Count -gt 0) {
+      foreach ($layer in @('ux-spec.md', 'frontend-spec.md', 'infra-spec.md', 'security-spec.md')) {
+        $layerPath = Join-Path $repoRoot "specs/$FeatureName/$layer"
+        if (-not (Test-ManifestEntry $reviewer "specs/$FeatureName/$layer" @((Get-FileHash -LiteralPath $layerPath -Algorithm SHA256).Hash.ToLower()))) {
+          Fail "persisted impl contract does not bind every reviewer to canonical layer inputs"
+        }
+      }
+    }
   }
   $reviewerA = @($reviewers | Where-Object { Test-OrdinalEqual $_.role "$Stage-reviewer-a" })[0]
   $reviewerB = @($reviewers | Where-Object { Test-OrdinalEqual $_.role "$Stage-reviewer-b" })[0]
@@ -179,13 +194,57 @@ if ($Feature -notmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
 $root = (Resolve-Path (Join-Path $PSScriptRoot '../../..')).Path; $spec = Join-Path $root "specs/$Feature"; $report = Join-Path $root "reports/task-review/$Feature/attempt-$Attempt/round-$Round"
-if (Test-Path -LiteralPath $report) { Fail 'round destination already exists (replay is forbidden)' }
 if (-not (Test-Path -LiteralPath $spec -PathType Container) -or (Get-Item -LiteralPath $spec).LinkType) { Fail 'feature specification directory must be a real directory' }
+$registry = Get-Content -LiteralPath (Join-Path $root 'specs/workflow-state-registry.json') -Raw | ConvertFrom-Json
+$profileEntry = @($registry.entries | Where-Object { Test-OrdinalEqual $_.feature $Feature } | Select-Object -Last 1)
+$fullProfile = $profileEntry.Count -eq 1 -and (Test-OrdinalEqual $profileEntry[0].profile 'full')
+$layerNames = @('ux-spec.md', 'frontend-spec.md', 'infra-spec.md', 'security-spec.md')
+$requirements = Join-Path $spec 'requirements.md'; $design = Join-Path $spec 'design.md'; $acceptance = Join-Path $spec 'acceptance-tests.md'; $tasks = Join-Path $spec 'tasks.md'; $traceability = Join-Path $spec 'traceability.md'
+
+if ($VerifyInputs) {
+  $precheckPath = Join-Path $report 'precheck-result.json'
+  if (-not (Test-Path -LiteralPath $precheckPath -PathType Leaf) -or (Get-Item -LiteralPath $precheckPath).LinkType) { Fail 'precheck evidence is missing or substituted' }
+  foreach ($path in @($requirements, $acceptance, $tasks)) {
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "review input is missing or substituted: $path" }
+  }
+  $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+  if (-not (Test-OrdinalEqual $precheck.schema 'task-review-precheck/v1') -or
+      -not (Test-OrdinalEqual $precheck.feature $Feature) -or
+      [int64]$precheck.attempt -ne [int64]$Attempt -or [int64]$precheck.round -ne [int64]$Round -or
+      -not (Test-OrdinalEqual $precheck.tasks_sha256 ((Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower())) -or
+      -not (Test-OrdinalEqual $precheck.requirements_sha256 ((Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower())) -or
+      -not (Test-OrdinalEqual $precheck.acceptance_sha256 ((Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower()))) {
+    Fail 'core review inputs changed after precheck'
+  }
+  $persistedLayerProperties = if ($null -eq $precheck.psobject.Properties['layer_sha256']) { @() } else { @($precheck.layer_sha256.psobject.Properties) }
+  if ($fullProfile -or $persistedLayerProperties.Count -gt 0) {
+    if (-not (Test-Path -LiteralPath $design -PathType Leaf) -or (Get-Item -LiteralPath $design).LinkType) { Fail 'design review input is missing or substituted' }
+    if (-not (Test-OrdinalEqual $precheck.design_sha256 ((Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower()))) { Fail 'design review input changed after precheck' }
+    if (-not (Test-Path -LiteralPath $traceability -PathType Leaf) -or (Get-Item -LiteralPath $traceability).LinkType) { Fail 'traceability review input is missing or substituted' }
+    if (-not (Test-OrdinalEqual $precheck.traceability_sha256 ((Get-FileHash -LiteralPath $traceability -Algorithm SHA256).Hash.ToLower()))) { Fail 'traceability review input changed after precheck' }
+    & (Join-Path $PSScriptRoot 'validate-layer-traceability.ps1') -Path $traceability -RequirementsPath $requirements
+    $boundNames = @($precheck.layer_sha256.psobject.Properties.Name)
+    if ($boundNames.Count -ne $layerNames.Count -or @($layerNames | Where-Object { $_ -notin $boundNames }).Count -gt 0) { Fail 'precheck layer manifest is incomplete' }
+    foreach ($name in $layerNames) {
+      $path = Join-Path $spec $name
+      if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "layer review input is missing or substituted: $path" }
+      if (-not (Test-OrdinalEqual $precheck.layer_sha256.$name ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash.ToLower()))) { Fail "layer review input changed after precheck: $path" }
+    }
+  }
+  Write-Output 'task-review-precheck: inputs verified for reviewer invocation.'
+  exit 0
+}
+
+if (Test-Path -LiteralPath $report) { Fail 'round destination already exists (replay is forbidden)' }
 $powerShellExe = (Get-Process -Id $PID).Path
 & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
 if ($LASTEXITCODE -ne 0) { Fail 'canonical workflow-state validation failed' }
-$requirements = Join-Path $spec 'requirements.md'; $design = Join-Path $spec 'design.md'; $acceptance = Join-Path $spec 'acceptance-tests.md'; $tasks = Join-Path $spec 'tasks.md'
 foreach ($path in @($requirements, $design, $acceptance, $tasks)) { if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "missing required input: $path" } }
+if ($fullProfile) {
+  foreach ($path in @($traceability) + @($layerNames | ForEach-Object { Join-Path $spec $_ })) {
+    if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "missing required input: $path" }
+  }
+}
 $specStatus = (Select-String -LiteralPath $requirements -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim(); $implStatus = (Select-String -LiteralPath $design -Pattern '^Impl-Review-Status:\s*(.*)$' | Select-Object -First 1).Matches.Groups[1].Value.Trim()
 if ($specStatus -ne 'Passed') { Fail 'requirements.md must declare Spec-Review-Status: Passed' }; if ($implStatus -ne 'Passed') { Fail 'design.md must declare Impl-Review-Status: Passed' }
 $edges = @(); $nodes = @(); $current = ''; $expectBlockers = $false
@@ -205,6 +264,13 @@ $queue=[Collections.Generic.Queue[string]]::new(); foreach($node in $nodes){ if(
 $visited=0; while($queue.Count -gt 0){ $node=$queue.Dequeue(); $visited++; foreach($edge in $edges | Where-Object { $_.from -eq $node }){ $inDegree[$edge.to]--; if($inDegree[$edge.to] -eq 0){ $queue.Enqueue($edge.to) } } }
 if($visited -ne $nodes.Count){ Fail 'Blockers dependency graph contains a cycle' }
 $tasksHash=(Get-FileHash -LiteralPath $tasks -Algorithm SHA256).Hash.ToLower(); $requirementsHash=(Get-FileHash -LiteralPath $requirements -Algorithm SHA256).Hash.ToLower(); $acceptanceHash=(Get-FileHash -LiteralPath $acceptance -Algorithm SHA256).Hash.ToLower(); $designHash=(Get-FileHash -LiteralPath $design -Algorithm SHA256).Hash.ToLower()
+$traceabilityHash = ''
+$layerHashes = [ordered]@{}
+if ($fullProfile) {
+  $traceabilityHash = (Get-FileHash -LiteralPath $traceability -Algorithm SHA256).Hash.ToLower()
+  foreach ($name in $layerNames) { $layerHashes[$name] = (Get-FileHash -LiteralPath (Join-Path $spec $name) -Algorithm SHA256).Hash.ToLower() }
+  & (Join-Path $PSScriptRoot 'validate-layer-traceability.ps1') -Path $traceability -RequirementsPath $requirements
+}
 $calibration = Join-Path $root 'plugins/sdd-review-loop/references/reviewer-calibration.md'
 if (-not (Test-Path -LiteralPath $calibration -PathType Leaf) -or (Get-Item -LiteralPath $calibration).LinkType) { Fail 'plugins/sdd-review-loop/references/reviewer-calibration.md not found' }
 $calibrationHash = (Get-FileHash -LiteralPath $calibration -Algorithm SHA256).Hash.ToLower()
@@ -216,10 +282,16 @@ $riskScript = Join-Path $root 'plugins/sdd-quality-loop/scripts/check-risk.ps1'
 if (-not (Test-Path -LiteralPath $riskScript -PathType Leaf)) { Fail 'shared risk gate is missing' }
 & $riskScript -TasksPath $tasks
 if ($LASTEXITCODE -ne 0) { Fail 'Risk/Required Workflow mismatches must be fixed before creating evidence' }
-$mediumTestAfter = (Select-String -LiteralPath $tasks -Pattern '^Risk:\s*medium\s*$' -Quiet) -and (Select-String -LiteralPath $tasks -Pattern '^Required Workflow:\s*test-after\s*$' -Quiet); if ($mediumTestAfter) { Fail 'Risk: medium with Required Workflow: test-after requires acceptance-first before creating evidence' }; $inputHash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes("$tasksHash`:$requirementsHash`:$acceptanceHash"))).ToLower()
+$inputMaterial = if ($fullProfile) {
+  $layerJson = $layerHashes | ConvertTo-Json -Compress
+  "$tasksHash`:$requirementsHash`:$acceptanceHash`:$designHash`:$traceabilityHash`:$layerJson"
+} else {
+  "$tasksHash`:$requirementsHash`:$acceptanceHash"
+}
+$inputHash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($inputMaterial))).ToLower()
 $base=Join-Path $root 'reports/task-review'; New-Item -ItemType Directory -Path $base -Force | Out-Null; $temporaryContract=[IO.Path]::GetTempFileName()
 try { [ordered]@{schema='review-contract/v1';stage='task';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;input_sha256=$inputHash;run_id='task-precheck';verdict='PASS'}|ConvertTo-Json -Compress|Set-Content -LiteralPath $temporaryContract -Encoding utf8NoBOM; & (Join-Path $PSScriptRoot 'review-contract-validate.ps1') -Feature $Feature -Attempt $Attempt -Round $Round -Stage task -ReportRoot (Join-Path $root "reports/task-review/$Feature") -Contract $temporaryContract | Out-Null } finally { Remove-Item -LiteralPath $temporaryContract -Force -ErrorAction SilentlyContinue }
 New-Item -ItemType Directory -Path $report | Out-Null
 $graph=[ordered]@{schema='dependency-graph/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;nodes=$nodes;edges=$edges;generated_at=[DateTime]::UtcNow.ToString('o')}; $graph|ConvertTo-Json -Depth 4|Set-Content -LiteralPath (Join-Path $report 'dependency-graph.json') -Encoding utf8NoBOM
-[ordered]@{schema='task-review-precheck/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;workflow_match_precheck='PASS';blockers_format_valid=$true;tasks_sha256=$tasksHash;requirements_sha256=$requirementsHash;acceptance_sha256=$acceptanceHash;generated_at=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json|Set-Content -LiteralPath (Join-Path $report 'precheck-result.json') -Encoding utf8NoBOM
+[ordered]@{schema='task-review-precheck/v1';feature=$Feature;attempt=[int64]$Attempt;round=[int64]$Round;workflow_match_precheck='PASS';blockers_format_valid=$true;tasks_sha256=$tasksHash;requirements_sha256=$requirementsHash;acceptance_sha256=$acceptanceHash;design_sha256=$designHash;traceability_sha256=$traceabilityHash;layer_sha256=$layerHashes;input_sha256=$inputHash;generated_at=[DateTime]::UtcNow.ToString('o')}|ConvertTo-Json -Depth 5|Set-Content -LiteralPath (Join-Path $report 'precheck-result.json') -Encoding utf8NoBOM
 Write-Output "task-review-precheck: complete. Output written to $report/"

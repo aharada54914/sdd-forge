@@ -13,43 +13,43 @@
     "hashes_verified": true,
     "allowed_inputs": [
       {
-        "path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
         "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
       },
       {
-        "path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
         "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"
       },
       {
-        "path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
         "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
       },
       {
-        "path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json",
+        "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json",
         "sha256": "d540333a9061bf13f6c8d8b67a3570c69bbd7b3aed36fdc9c8c4584f299a21f2"
       },
       {
-        "path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/integrated-summary.json",
+        "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/integrated-summary.json",
         "sha256": "6a15affbbdf52a4c76b9044ba7c6f11744eb03e9ac1a2ab70f90195de7bac619"
       },
       {
-        "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md",
+        "path": "specs/workflow-state-integrity/requirements.md",
         "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"
       },
       {
-        "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md",
+        "path": "specs/workflow-state-integrity/acceptance-tests.md",
         "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"
       },
       {
-        "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md",
+        "path": "specs/workflow-state-integrity/tasks.md",
         "sha256": "f2d7106fcae17fd4b002e65407443e11f3ff6312f161967047de7413e103df54"
       }
     ],
     "disallowed_inputs": [
-      "/Users/jrmag/sdd-forge/AGENTS.md",
-      "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/reviewer-a.json",
-      "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/traceability.md",
-      "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/design.md",
+      "AGENTS.md",
+      "reports/task-review/workflow-state-integrity/attempt-3/round-3/reviewer-a.json",
+      "specs/workflow-state-integrity/traceability.md",
+      "specs/workflow-state-integrity/design.md",
       "all files not listed in allowed_inputs"
     ]
   },

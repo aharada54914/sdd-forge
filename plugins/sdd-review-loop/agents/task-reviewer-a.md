@@ -31,8 +31,13 @@ allowlist. Read the following yourself:
 
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
+- `specs/<feature>/design.md`
 - `specs/<feature>/tasks.md`
 - `specs/<feature>/traceability.md`
+- `specs/<feature>/ux-spec.md`
+- `specs/<feature>/frontend-spec.md`
+- `specs/<feature>/infra-spec.md`
+- `specs/<feature>/security-spec.md`
 - `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/dependency-graph.json`
@@ -185,6 +190,11 @@ proves completion. Do not require the reviewer to execute the command.
 Every task ID in tasks.md must have a corresponding entry in traceability.md.
 Every requirement ID in traceability.md must exist in requirements.md. Dangling
 references in either direction are Major findings.
+
+For full-profile inputs, verify each requirement row has either one or more
+canonical `<layer>-spec.md#<section>` anchors or a reasoned
+`N/A — cross-layer only: <reason>` value, and that cited anchors refer to the
+hash-bound layer documents.
 
 # Severity Reference
 

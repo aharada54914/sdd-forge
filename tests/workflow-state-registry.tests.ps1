@@ -98,7 +98,7 @@ $raw = Get-Content -Raw -LiteralPath $registryPath
 if (-not (Test-Json -Json $raw -SchemaFile $schemaPath)) { throw 'not ok: canonical registry fails JSON schema' }
 $registry = $raw | ConvertFrom-Json
 $features = @($registry.entries.feature | Sort-Object -CaseSensitive)
-$expected = @('claude-workflow-compatibility','cross-model-verification','risk-adaptive-layer','sdd-forge-refactor','sdd-lite','uninstall-workflow','workflow-state-integrity')
+$expected = @('bootstrap-interviewer-enhancement','claude-workflow-compatibility','cross-model-verification','risk-adaptive-layer','sdd-forge-refactor','sdd-lite','uninstall-workflow','workflow-state-integrity')
 if ($registry.schema_version -ne 1 -or $registry.migration_baseline_commit -cne $baseline -or ($features -join ',') -cne ($expected -join ',')) {
   throw 'not ok: canonical registry metadata or coverage is invalid'
 }

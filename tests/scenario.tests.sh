@@ -681,6 +681,12 @@ echo "=== Scenario B1: hook contract — all 3 CLI forms ==="
 
 SB="${WORK}/sb-hooks"
 mkdir -p "${SB}/specs/x"
+_had_claude_project_dir=0
+if [ "${CLAUDE_PROJECT_DIR+x}" = x ]; then
+    _had_claude_project_dir=1
+    _original_claude_project_dir="$CLAUDE_PROJECT_DIR"
+fi
+export CLAUDE_PROJECT_DIR="$SB"
 
 GUARD_JS="${SCRIPTS_DIR}/sdd-hook-guard.js"
 GUARD_SH="${SCRIPTS_DIR}/sdd-hook-guard.sh"
@@ -793,6 +799,12 @@ if grep -q 'sdd-hook-guard.sh' "$COPILOT_HOOKS" \
     ok "B1.4c: copilot-hooks.json references sdd-hook-guard.sh --emit copilot"
 else
     fail "B1.4c: copilot-hooks.json must reference sdd-hook-guard.sh --emit copilot (check ${COPILOT_HOOKS})"
+fi
+
+if [ "$_had_claude_project_dir" -eq 1 ]; then
+    export CLAUDE_PROJECT_DIR="$_original_claude_project_dir"
+else
+    unset CLAUDE_PROJECT_DIR
 fi
 
 # ===========================================================================

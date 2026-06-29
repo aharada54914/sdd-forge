@@ -1,0 +1,26 @@
+{
+  "schema":"task-review-contract/v1",
+  "stage":"task",
+  "feature":"bootstrap-interviewer-enhancement",
+  "run_id":"04EE0EEF-FB4B-41B2-84DA-EBAE952A2D6B",
+  "verdict":"PASS",
+  "pass_type":"clean",
+  "round":1,
+  "attempt":2,
+  "workflow_match_precheck":"PASS",
+  "reviewer_a_verdict":"PASS",
+  "reviewer_b_verdict":"PASS",
+  "findings_critical":0,
+  "findings_major":0,
+  "findings_minor":0,
+  "prior_round_contract_sha256":"",
+  "requirements_sha256":"5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902",
+  "acceptance_sha256":"55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346",
+  "tasks_sha256":"044eee6ce1a0855edce3a04329c529f362245bc6b854679d3d0a665cd9494e58",
+  "reviewers":[
+    {"role":"task-reviewer-a","run_id":"7189a995-90c2-497a-88cf-8360ada1e2ac","host_session_id":"db86c3a4-394b-455d-a522-a410ceca777a","allowed_input_manifest":[{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md","sha256":"5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md","sha256":"55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/tasks.md","sha256":"044eee6ce1a0855edce3a04329c529f362245bc6b854679d3d0a665cd9494e58"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/traceability.md","sha256":"62c6b640308734b72af77984e6182ea3de72c638efd07bffa14747638eedd2d9"},{"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-2/round-1/precheck-result.json","sha256":"5234c8b7fbe613160ecb1306c696388b20973430e17f33c79ed4243fd9416557"},{"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-2/round-1/dependency-graph.json","sha256":"74fe8eed9bff9b1477b769be61d65a578f32ce1263776000b7f6845c94f2a47b"},{"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}]},
+    {"role":"task-reviewer-b","run_id":"209f67ea-5757-4896-963f-7272e3361438","host_session_id":"76aacc63-664c-4c6a-833a-95475e9dea51","allowed_input_manifest":[{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md","sha256":"5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md","sha256":"55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346"},{"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/tasks.md","sha256":"044eee6ce1a0855edce3a04329c529f362245bc6b854679d3d0a665cd9494e58"},{"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},{"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},{"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},{"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-2/round-1/precheck-result.json","sha256":"5234c8b7fbe613160ecb1306c696388b20973430e17f33c79ed4243fd9416557"},{"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-2/round-1/integrated-summary.json","sha256":"dfdec6d9db219e907fb14f26ea5b7ea9ffce90236ed29cc1170637e48ab2d426"}]}
+  ],
+  "human_edit_summary":"Started attempt 2 after splitting implementation review, task review, and approval-boundary work into focused tasks and adding a malformed-template negative fixture.",
+  "timestamp":"2026-06-29T14:31:00Z"
+}

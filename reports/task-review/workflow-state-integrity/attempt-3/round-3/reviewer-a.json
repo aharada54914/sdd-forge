@@ -11,37 +11,37 @@
   "generated_at": "2026-06-27T07:57:10Z",
   "manifest": [
     {
-      "path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
       "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851",
       "verified": true
     },
     {
-      "path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json",
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json",
       "sha256": "d540333a9061bf13f6c8d8b67a3570c69bbd7b3aed36fdc9c8c4584f299a21f2",
       "verified": true
     },
     {
-      "path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/dependency-graph.json",
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-3/dependency-graph.json",
       "sha256": "d41dd7f48169dec592d7ad37c2378cba0015a2a28d0148f4d2a606b2ed13393f",
       "verified": true
     },
     {
-      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md",
+      "path": "specs/workflow-state-integrity/requirements.md",
       "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
       "verified": true
     },
     {
-      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md",
+      "path": "specs/workflow-state-integrity/acceptance-tests.md",
       "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
       "verified": true
     },
     {
-      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md",
+      "path": "specs/workflow-state-integrity/tasks.md",
       "sha256": "f2d7106fcae17fd4b002e65407443e11f3ff6312f161967047de7413e103df54",
       "verified": true
     },
     {
-      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/traceability.md",
+      "path": "specs/workflow-state-integrity/traceability.md",
       "sha256": "e18a240c237530aedf9bd2f2495e0879f418f983ce60640d7d423fb7e75f2fca",
       "verified": true
     }

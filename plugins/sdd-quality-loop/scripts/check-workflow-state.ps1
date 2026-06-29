@@ -147,10 +147,20 @@ function Test-ManifestPaths(
         } else {
             [void]$allowed.Add("plugins/sdd-review-loop/references/reviewer-calibration.md")
         }
-        if ($Stage -eq "impl") { [void]$allowed.Add("specs/$Feature/design.md") }
+        if ($Stage -eq "impl") {
+            foreach ($path in @(
+                "specs/$Feature/design.md", "specs/$Feature/ux-spec.md",
+                "specs/$Feature/frontend-spec.md", "specs/$Feature/infra-spec.md",
+                "specs/$Feature/security-spec.md"
+            )) { [void]$allowed.Add($path) }
+        }
         if ($Stage -eq "task") {
-            [void]$allowed.Add("specs/$Feature/tasks.md")
-            [void]$allowed.Add("specs/$Feature/traceability.md")
+            foreach ($path in @(
+                "specs/$Feature/tasks.md", "specs/$Feature/traceability.md",
+                "specs/$Feature/design.md",
+                "specs/$Feature/ux-spec.md", "specs/$Feature/frontend-spec.md",
+                "specs/$Feature/infra-spec.md", "specs/$Feature/security-spec.md"
+            )) { [void]$allowed.Add($path) }
         }
         if ($role -eq "$Stage-reviewer-b") { [void]$allowed.Add("$roundRoot/integrated-summary.json") }
         if ($Stage -eq "impl" -and $role -eq "impl-reviewer-a" -and $Round -gt 1) {
@@ -525,6 +535,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         (Get-Item -LiteralPath $precheck -Force).LinkType) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage required review inputs are missing"
     }
+    $precheckData = Get-Content -LiteralPath $precheck -Raw | ConvertFrom-Json
     if (-not (Test-ManifestHash $contract "/$calibrationRelative" (Get-Sha256 $calibration) $RepoRoot) -or
         -not (Test-ManifestHash $contract "/$precheckRelative" (Get-Sha256 $precheck) $RepoRoot)) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifests omit required inputs"
@@ -538,6 +549,34 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         if ([string]$contract.design_sha256 -ne $designHash) {
             Stop-WorkflowState $Feature "stage-provenance" "implementation top-level design hash is stale"
         }
+        $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']
+        $layerProperties = if ($null -eq $layerManifestProperty -or $null -eq $layerManifestProperty.Value) {
+            @()
+        } else {
+            @($layerManifestProperty.Value.psobject.Properties)
+        }
+        if ($layerProperties.Count -gt 0) {
+            $expectedLayers = @("ux-spec.md", "frontend-spec.md", "infra-spec.md", "security-spec.md")
+            if ($layerProperties.Count -ne $expectedLayers.Count -or
+                @($expectedLayers | Where-Object { $_ -notin $layerProperties.Name }).Count -gt 0) {
+                Stop-WorkflowState $Feature "stage-provenance" "implementation layer precheck manifest is incomplete"
+            }
+            foreach ($layer in $expectedLayers) {
+                $layerPath = Join-Path $FeatureDir $layer
+                if (-not (Test-Path -LiteralPath $layerPath -PathType Leaf) -or
+                    (Get-Item -LiteralPath $layerPath -Force).LinkType) {
+                    Stop-WorkflowState $Feature "stage-provenance" "implementation layer input is missing or linked"
+                }
+                $layerHash = Get-Sha256 $layerPath
+                if ([string]$precheckData.layer_sha256.$layer -ne $layerHash -or
+                    [string]$contract.layer_sha256.$layer -ne $layerHash) {
+                    Stop-WorkflowState $Feature "stage-provenance" "implementation layer hash is stale"
+                }
+                if (-not (Test-ManifestHash $contract "/specs/$Feature/$layer" $layerHash $RepoRoot)) {
+                    Stop-WorkflowState $Feature "stage-provenance" "implementation reviewer manifests omit layer inputs"
+                }
+            }
+        }
     } elseif ($Stage -eq "task") {
         $tasks = Join-Path $FeatureDir "tasks.md"
         $tasksHash = Get-NormalizedHash $tasks "task"
@@ -546,6 +585,46 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         }
         if ([string]$contract.tasks_sha256 -ne $tasksHash) {
             Stop-WorkflowState $Feature "stage-provenance" "task top-level plan hash is stale"
+        }
+        $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']
+        $layerProperties = if ($null -eq $layerManifestProperty -or $null -eq $layerManifestProperty.Value) { @() } else { @($layerManifestProperty.Value.psobject.Properties) }
+        if ($layerProperties.Count -gt 0) {
+            $traceability = Join-Path $FeatureDir "traceability.md"
+            if (-not (Test-Path -LiteralPath $traceability -PathType Leaf) -or (Get-Item -LiteralPath $traceability -Force).LinkType) {
+                Stop-WorkflowState $Feature "stage-provenance" "task traceability input is missing or linked"
+            }
+            $traceabilityHash = Get-Sha256 $traceability
+            if ([string]$precheckData.traceability_sha256 -ne $traceabilityHash -or [string]$contract.traceability_sha256 -ne $traceabilityHash) {
+                Stop-WorkflowState $Feature "stage-provenance" "task traceability hash is stale"
+            }
+            $taskDesign = Join-Path $FeatureDir "design.md"
+            $taskDesignHash = Get-Sha256 $taskDesign
+            if ([string]$precheckData.design_sha256 -ne (Get-Sha256 $taskDesign) -or [string]$contract.design_sha256 -ne $taskDesignHash) {
+                Stop-WorkflowState $Feature "stage-provenance" "task design hash is stale"
+            }
+            if (-not (Test-ManifestHash $contract "/specs/$Feature/design.md" $taskDesignHash $RepoRoot)) {
+                Stop-WorkflowState $Feature "stage-provenance" "task reviewer manifests omit design"
+            }
+            if (-not (Test-ManifestHash $contract "/specs/$Feature/traceability.md" $traceabilityHash $RepoRoot)) {
+                Stop-WorkflowState $Feature "stage-provenance" "task reviewer manifests omit traceability"
+            }
+            $expectedLayers = @("ux-spec.md", "frontend-spec.md", "infra-spec.md", "security-spec.md")
+            if ($layerProperties.Count -ne $expectedLayers.Count -or @($expectedLayers | Where-Object { $_ -notin $layerProperties.Name }).Count -gt 0) {
+                Stop-WorkflowState $Feature "stage-provenance" "task layer precheck manifest is incomplete"
+            }
+            foreach ($layer in $expectedLayers) {
+                $layerPath = Join-Path $FeatureDir $layer
+                if (-not (Test-Path -LiteralPath $layerPath -PathType Leaf) -or (Get-Item -LiteralPath $layerPath -Force).LinkType) {
+                    Stop-WorkflowState $Feature "stage-provenance" "task layer input is missing or linked"
+                }
+                $layerHash = Get-Sha256 $layerPath
+                if ([string]$precheckData.layer_sha256.$layer -ne $layerHash -or [string]$contract.layer_sha256.$layer -ne $layerHash) {
+                    Stop-WorkflowState $Feature "stage-provenance" "task layer hash is stale"
+                }
+                if (-not (Test-ManifestHash $contract "/specs/$Feature/$layer" $layerHash $RepoRoot)) {
+                    Stop-WorkflowState $Feature "stage-provenance" "task reviewer manifests omit layer inputs"
+                }
+            }
         }
     }
 }

@@ -1,7 +1,7 @@
 {
   "name": "sdd-review-loop",
   "description": "[internal] Run independent implementation and task decomposition review loops for sdd-bootstrap.",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "author": {
     "name": "Harada"
   },

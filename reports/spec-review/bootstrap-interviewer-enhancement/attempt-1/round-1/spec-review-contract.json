@@ -1,0 +1,37 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "bootstrap-interviewer-enhancement",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "ecd748e459ef192407d71e64ab103ead399921b16bd90500be42e89aeac4ec92",
+  "acceptance_sha256": "f2fec81e7e1331eee71382791b51d6e6d0fe04c45ad99dd90ece1f2be3d26d1c",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "spec-a-run-20260629T1229Z",
+      "host_session_id": "spec-a-20260629T1229Z",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md", "sha256": "ecd748e459ef192407d71e64ab103ead399921b16bd90500be42e89aeac4ec92"},
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md", "sha256": "f2fec81e7e1331eee71382791b51d6e6d0fe04c45ad99dd90ece1f2be3d26d1c"},
+        {"path": "/Users/jrmag/sdd-forge/reports/spec-review/bootstrap-interviewer-enhancement/attempt-1/round-1/precheck-result.json", "sha256": "3f3302e4b16a77164c07e72914f523263f0f2c27b021a18db529642bdcfcd49e"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "spec-b-run-20260629T1231Z",
+      "host_session_id": "spec-b-20260629T1231Z",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md", "sha256": "ecd748e459ef192407d71e64ab103ead399921b16bd90500be42e89aeac4ec92"},
+        {"path": "/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md", "sha256": "f2fec81e7e1331eee71382791b51d6e6d0fe04c45ad99dd90ece1f2be3d26d1c"},
+        {"path": "/Users/jrmag/sdd-forge/reports/spec-review/bootstrap-interviewer-enhancement/attempt-1/round-1/precheck-result.json", "sha256": "3f3302e4b16a77164c07e72914f523263f0f2c27b021a18db529642bdcfcd49e"},
+        {"path": "/Users/jrmag/sdd-forge/reports/spec-review/bootstrap-interviewer-enhancement/attempt-1/round-1/integrated-summary.json", "sha256": "cbc5b56d6586dc1414b07b12c83a260a81bb14c410e5e3457f836a375b8eb488"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+      ]
+    }
+  ],
+  "run_id": "spec-orchestrator-run-20260629T1233Z",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

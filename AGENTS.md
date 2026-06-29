@@ -25,6 +25,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/sdd-forge-refactor/`
 - `specs/claude-workflow-compatibility/`
 - `specs/workflow-state-integrity/`
+- `specs/bootstrap-interviewer-enhancement/`
 
 ## Source Artifact Locations
 

@@ -128,14 +128,14 @@ done < <(find "$mixed_relocated/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 jq '
   (.reviewers[0].allowed_input_manifest[] |
-   select(.path | endswith("/specs/workflow-state-integrity/design.md")) |
-   .path) = "/other/ci-agent/mixed-relocated/specs/workflow-state-integrity/design.md"
+   select(.path | endswith("specs/workflow-state-integrity/design.md")) |
+   .path) = "/other/ci-agent/mixed-relocated/specs/other-feature/design.md"
 ' "$contract" > "$mixed_relocated/contract.tmp"
 mv "$mixed_relocated/contract.tmp" "$contract"
 jq '
   (.allowed_input_manifest[] |
-   select(.path | endswith("/specs/workflow-state-integrity/design.md")) |
-   .path) = "/other/ci-agent/mixed-relocated/specs/workflow-state-integrity/design.md"
+   select(.path | endswith("specs/workflow-state-integrity/design.md")) |
+   .path) = "/other/ci-agent/mixed-relocated/specs/other-feature/design.md"
 ' "$mixed_relocated/reports/impl-review/workflow-state-integrity/attempt-1/round-2/reviewer-a.json" \
   > "$mixed_relocated/reviewer.tmp"
 mv "$mixed_relocated/reviewer.tmp" \
@@ -199,7 +199,7 @@ expect_rule "$forged" stage-provenance
 
 manifest_gap="$(make_full_fixture manifest-gap)"
 jq '(.reviewers[0].allowed_input_manifest) |=
-      map(select((.path | endswith("/specs/workflow-state-integrity/design.md")) | not))' \
+      map(select((.path | endswith("specs/workflow-state-integrity/design.md")) | not))' \
   "$manifest_gap/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json" \
   > "$manifest_gap/contract.tmp"
 mv "$manifest_gap/contract.tmp" \
@@ -208,7 +208,7 @@ expect_rule "$manifest_gap" stage-provenance
 
 evil_manifest="$(make_full_fixture evil-manifest)"
 jq '(.reviewers[0].allowed_input_manifest[] |
-      select(.path | endswith("/specs/workflow-state-integrity/design.md")) |
+      select(.path | endswith("specs/workflow-state-integrity/design.md")) |
       .path) = "/evil-prefix/specs/workflow-state-integrity/design.md"' \
   "$evil_manifest/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json" \
   > "$evil_manifest/contract.tmp"
@@ -321,7 +321,7 @@ expect_rule "$top_level_hash" stage-provenance
 
 missing_calibration="$(make_full_fixture missing-calibration)"
 jq '(.reviewers[].allowed_input_manifest) |=
-      map(select((.path | endswith("/plugins/sdd-review-loop/references/reviewer-calibration.md")) | not))' \
+      map(select((.path | endswith("plugins/sdd-review-loop/references/reviewer-calibration.md")) | not))' \
   "$missing_calibration/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json" \
   > "$missing_calibration/contract.tmp"
 mv "$missing_calibration/contract.tmp" \

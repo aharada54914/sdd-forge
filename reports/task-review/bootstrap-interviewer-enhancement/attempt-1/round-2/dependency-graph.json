@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "bootstrap-interviewer-enhancement",
+  "attempt": 1,
+  "round": 2,
+  "nodes": ["T-001","T-002","T-003","T-004"],
+  "edges": [{"from":"T-003","to":"T-001"},{"from":"T-004","to":"T-001"},{"from":"T-004","to":"T-002"},{"from":"T-004","to":"T-003"}],
+  "generated_at": "2026-06-29T14:04:35Z"
+}

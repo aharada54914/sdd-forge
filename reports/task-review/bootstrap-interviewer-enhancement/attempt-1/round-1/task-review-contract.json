@@ -1,0 +1,53 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "bootstrap-interviewer-enhancement",
+  "run_id": "task-orchestrator-a1-r1-20260629T1404Z",
+  "verdict": "BLOCKED",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 1,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "BLOCKED",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 2,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902",
+  "acceptance_sha256": "55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346",
+  "tasks_sha256": "ccd81218e8bda6958f195a5f7ae031bb17f27cd045562bbf0b4b3ec19365845f",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "30A07568-2814-4651-B8DF-BB170C63C2E7",
+      "host_session_id": "B18138C1-C9CC-417A-A3D3-89F9ED5F05E8",
+      "allowed_input_manifest": [
+        {"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md","sha256":"5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902"},
+        {"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md","sha256":"55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346"},
+        {"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/tasks.md","sha256":"ccd81218e8bda6958f195a5f7ae031bb17f27cd045562bbf0b4b3ec19365845f"},
+        {"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/traceability.md","sha256":"041c514c644394395208f2f7eaa423d588485a45d8990c5f113615c081942566"},
+        {"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-1/round-1/precheck-result.json","sha256":"0573c9a5c4e69e8a99fae3f3536b12a90617c8bab03ac6c8b9a352cf748231f7"},
+        {"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-1/round-1/dependency-graph.json","sha256":"709d2ef6b3ae43a6b63dfe010fdf82ae1b857703625f4c179d88d42fd3061989"},
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "a84fb23d-c18e-4cb2-9d72-5a81d9283b6f",
+      "host_session_id": "f37c4e19-765b-49e1-a462-85db32fe7a04",
+      "allowed_input_manifest": [
+        {"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/requirements.md","sha256":"5866c11ffb1756768417cf3b84a6788f6164567743c22957fe9d6e4c2f66d902"},
+        {"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/acceptance-tests.md","sha256":"55469f36759669a91e9e317d9e442c8215785cc37728067fe851bb666a191346"},
+        {"path":"/Users/jrmag/sdd-forge/specs/bootstrap-interviewer-enhancement/tasks.md","sha256":"ccd81218e8bda6958f195a5f7ae031bb17f27cd045562bbf0b4b3ec19365845f"},
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+        {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-1/round-1/precheck-result.json","sha256":"0573c9a5c4e69e8a99fae3f3536b12a90617c8bab03ac6c8b9a352cf748231f7"},
+        {"path":"/Users/jrmag/sdd-forge/reports/task-review/bootstrap-interviewer-enhancement/attempt-1/round-1/integrated-summary.json","sha256":"25954431aa28ed85c2d03b020da489a96f3258c984f4a193529c19f5c59267ac"}
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-06-29T14:04:00Z"
+}

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # impl-review-precheck.sh
-# Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>
+# Usage: impl-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs]
 #
 # Generates precheck-result.json for the impl-review-loop.
 # Outputs to: reports/impl-review/<feature>/attempt-<M>/round-<N>/
@@ -14,6 +14,7 @@ set -euo pipefail
 FEATURE="${1:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
 ATTEMPT="${2:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
 ROUND="${3:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
+MODE="${4:-}"
 
 SPECS_DIR="specs/${FEATURE}"
 REPORT_DIR="reports/impl-review/${FEATURE}/attempt-${ATTEMPT}/round-${ROUND}"
@@ -23,6 +24,8 @@ ACCEPT_MD="${SPECS_DIR}/acceptance-tests.md"
 SPEC_REPORT_ROOT="reports/spec-review/${FEATURE}"
 IMPL_REPORT_ROOT="reports/impl-review/${FEATURE}"
 CALIBRATION_MD="plugins/sdd-review-loop/references/reviewer-calibration.md"
+REGISTRY="specs/workflow-state-registry.json"
+LAYER_FILES=("ux-spec.md" "frontend-spec.md" "infra-spec.md" "security-spec.md")
 repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 calibration_sha256=""
 
@@ -101,6 +104,10 @@ require_persisted_pass() {
        ($stage == "spec" and $path == ("specs/" + $feature + "/investigation.md")) or
        ($stage == "impl" and
         ($path == ("specs/" + $feature + "/design.md") or
+         $path == ("specs/" + $feature + "/ux-spec.md") or
+         $path == ("specs/" + $feature + "/frontend-spec.md") or
+         $path == ("specs/" + $feature + "/infra-spec.md") or
+         $path == ("specs/" + $feature + "/security-spec.md") or
          $path == ("specs/" + $feature + "/investigation.md"))) or
        ($stage == "task" and
         ($path == ("specs/" + $feature + "/tasks.md") or
@@ -210,6 +217,41 @@ require_persisted_pass() {
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
+[[ -z "$MODE" || "$MODE" == "--verify-inputs" ]] || fail "unknown mode: $MODE"
+profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
+full_profile=false
+[[ "$profile" == "full" ]] && full_profile=true
+
+if [[ "$MODE" == "--verify-inputs" ]]; then
+  precheck="${REPORT_DIR}/precheck-result.json"
+  [[ -f "$precheck" && ! -L "$precheck" ]] || fail "precheck evidence is missing or substituted"
+  for path in "$DESIGN_MD" "$REQS_MD" "$ACCEPT_MD"; do
+    [[ -f "$path" && ! -L "$path" ]] || fail "review input is missing or substituted: $path"
+  done
+  jq -e --arg design "$(sha256 "$DESIGN_MD")" --arg requirements "$(sha256 "$REQS_MD")" \
+    --arg acceptance "$(sha256 "$ACCEPT_MD")" --arg feature "$FEATURE" \
+    --argjson attempt "$ATTEMPT" --argjson round "$ROUND" '
+      .schema == "impl-review-precheck/v1" and
+      .feature == $feature and .attempt == $attempt and .round == $round and
+      .design_sha256 == $design and .requirements_sha256 == $requirements and
+      .acceptance_sha256 == $acceptance
+    ' "$precheck" >/dev/null || fail "core review inputs changed after precheck"
+  bound_layer_count="$(jq -r '(.layer_sha256 // {}) | length' "$precheck")"
+  if $full_profile || [[ "$bound_layer_count" -gt 0 ]]; then
+    jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' \
+      "$precheck" >/dev/null || fail "precheck layer manifest is incomplete"
+    for name in "${LAYER_FILES[@]}"; do
+      path="${SPECS_DIR}/${name}"
+      [[ -f "$path" && ! -L "$path" ]] || fail "layer review input is missing or substituted: $path"
+      jq -e --arg name "$name" --arg hash "$(sha256 "$path")" \
+        '.layer_sha256[$name] == $hash' "$precheck" >/dev/null ||
+        fail "layer review input changed after precheck: $path"
+    done
+  fi
+  echo "impl-review-precheck: inputs verified for reviewer invocation."
+  exit 0
+fi
+
 [[ ! -e "$REPORT_DIR" && ! -L "$REPORT_DIR" ]] || fail "round destination already exists (replay is forbidden)"
 [[ -d "$SPECS_DIR" && ! -L "$SPECS_DIR" ]] || fail "feature specification directory must be a real directory"
 [[ "$(cd "$SPECS_DIR" && pwd -P)" == "$repo_root/specs/$FEATURE" ]] || fail "feature specification directory escapes repository"
@@ -286,6 +328,15 @@ acceptance_sha256=""
 acceptance_sha256=$(sha256 "${ACCEPT_MD}")
 [[ -f "${CALIBRATION_MD}" && ! -L "${CALIBRATION_MD}" ]] || fail "${CALIBRATION_MD} not found"
 calibration_sha256=$(sha256 "${CALIBRATION_MD}")
+layer_sha256='{}'
+if $full_profile; then
+  for name in "${LAYER_FILES[@]}"; do
+    path="${SPECS_DIR}/${name}"
+    [[ -f "$path" && ! -L "$path" ]] || fail "layer review input is missing or substituted: $path"
+    layer_sha256="$(jq -c --arg name "$name" --arg hash "$(sha256 "$path")" \
+      '. + {($name): $hash}' <<<"$layer_sha256")"
+  done
+fi
 spec_review_requirements_sha256="$(reviewed_sha256 "$REQS_MD" "Spec-Review-Status" "Pending")"
 require_persisted_pass "$SPEC_REPORT_ROOT" spec "$spec_review_requirements_sha256" "$acceptance_sha256" "" "$requirements_sha256" ""
 
@@ -326,7 +377,12 @@ fi
 # STEP 5: Validate the shared portable contract before creating output evidence.
 # ──────────────────────────────────────────────────────────────────────────────
 
-input_sha256="$(printf '%s:%s:%s' "$design_sha256" "$requirements_sha256" "$acceptance_sha256" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+if $full_profile; then
+  input_material="$(printf '%s:%s:%s:%s' "$design_sha256" "$requirements_sha256" "$acceptance_sha256" "$layer_sha256")"
+else
+  input_material="$(printf '%s:%s:%s' "$design_sha256" "$requirements_sha256" "$acceptance_sha256")"
+fi
+input_sha256="$(printf '%s' "$input_material" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
 foundation_contract="$(mktemp)"
 trap 'rm -f "$foundation_contract"' EXIT
 jq -n --arg feature "$FEATURE" --argjson attempt "$ATTEMPT" --argjson round "$ROUND" --arg input_sha256 "$input_sha256" \
@@ -354,6 +410,8 @@ cat > "${REPORT_DIR}/precheck-result.json" <<EOF
   "design_sha256": "${design_sha256}",
   "requirements_sha256": "${requirements_sha256}",
   "acceptance_sha256": "${acceptance_sha256}",
+  "layer_sha256": ${layer_sha256},
+  "input_sha256": "${input_sha256}",
   "generated_at": "${generated_at}"
 }
 EOF

@@ -349,6 +349,7 @@ APPROVE_PAYLOAD='{"tool_name":"Edit","tool_input":{"file_path":"'"${S6}"'/specs/
 
 GUARD_CODE6=0
 printf '%s' "$APPROVE_PAYLOAD" | \
+    CLAUDE_PROJECT_DIR="${S6}" \
     bash "${SCRIPTS_DIR}/sdd-hook-guard.sh" "--emit" "exit" >/dev/null 2>&1 \
     || GUARD_CODE6=$?
 

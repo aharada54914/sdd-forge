@@ -20,6 +20,10 @@
       }
     },
     {
+      "feature": "bootstrap-interviewer-enhancement",
+      "profile": "full"
+    },
+    {
       "feature": "cross-model-verification",
       "profile": "legacy",
       "legacy": {

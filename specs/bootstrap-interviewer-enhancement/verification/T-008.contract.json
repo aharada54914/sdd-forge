@@ -1,0 +1,17 @@
+{
+  "task_id": "T-008",
+  "feature": "bootstrap-interviewer-enhancement",
+  "risk": "low",
+  "stack": "spec",
+  "required_workflow": "test-after",
+  "spec_revision": "5d1e24636ccf9b4327fbcf030804fb183adf80f3dfeccee7b7a067f6b145d18b",
+  "created": "2026-06-29T15:00:00Z",
+  "checks": [
+    {"id":"lint","required":false,"passes":false,"evidence":"","waiver_reason":"JSON and Markdown release metadata have no configured linter.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"typecheck","required":false,"passes":false,"evidence":"","waiver_reason":"Repository validation parses and checks all release manifests.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"build","required":false,"passes":false,"evidence":"","waiver_reason":"This repository ships source plugins without a build step.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"placeholder-scan","required":true,"passes":true,"evidence":"specs/bootstrap-interviewer-enhancement/verification/quality/T-008-gate.log","waiver_reason":"","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"task-state-check","required":true,"passes":true,"evidence":"specs/bootstrap-interviewer-enhancement/verification/quality/T-008-gate.log","waiver_reason":"","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"unit-tests","required":false,"passes":false,"evidence":"","waiver_reason":"Low-risk metadata synchronization is covered by repository validation and manifest tests.","requirement_ids":[],"red_evidence":"","green_evidence":""}
+  ]
+}
