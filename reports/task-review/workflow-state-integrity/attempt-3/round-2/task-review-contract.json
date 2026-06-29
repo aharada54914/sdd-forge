@@ -1,0 +1,53 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "workflow-state-integrity",
+  "run_id": "11254677-c69f-47e6-9569-9fd0347ec0c0",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 3,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "269561acd6a0b8d500def85f4e57a4f0061daf1c8d63c4b67d065828abcffec1",
+  "requirements_sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+  "acceptance_sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+  "tasks_sha256": "50a825a5338e0116276da461fe60c3b003e8f05d7f3e4dcbc621a5cb14ab7e28",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "ff2a33c0-6f71-49bc-afc3-ddebc1d3b8ea",
+      "host_session_id": "e6436d77-0bae-463d-84e4-a92d2bcf8ffd",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-2/precheck-result.json", "sha256": "7d1c3ea41528ee56db9af7058f6d7f63ced5aa52aa02cda75777c802deb298c1"},
+        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-2/dependency-graph.json", "sha256": "a5c6779a1e85347dd6c4b6f4a397a81f8344e5c996205ea286e1bb35c80605ba"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md", "sha256": "50a825a5338e0116276da461fe60c3b003e8f05d7f3e4dcbc621a5cb14ab7e28"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/traceability.md", "sha256": "b4fcc6e4e28c6d21db73298fe58a6da81b16475451056461208c464f08c9d99e"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "1fb27570-0f8b-457a-aa2e-df1a3c83103e",
+      "host_session_id": "7ac2154d-23b9-423d-9943-4cff9f71d77d",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-2/precheck-result.json", "sha256": "7d1c3ea41528ee56db9af7058f6d7f63ced5aa52aa02cda75777c802deb298c1"},
+        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-2/integrated-summary.json", "sha256": "adea34beff47f20648b9bdea38cc6ab3cddb4658c48c6b7aa46342af0a408f99"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md", "sha256": "50a825a5338e0116276da461fe60c3b003e8f05d7f3e4dcbc621a5cb14ab7e28"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Added exact T-002 registry test paths, enumerated T-004/T-005 integration paths and all T-006 plugin/marketplace manifests, and added the T-001 traceability artifact.",
+  "timestamp": "2026-06-27T06:42:03Z"
+}

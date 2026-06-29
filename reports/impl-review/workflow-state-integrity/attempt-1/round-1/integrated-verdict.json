@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "workflow-state-integrity",
+  "run_id": "7709BD1A-3887-4902-BC80-94C762D36E07",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

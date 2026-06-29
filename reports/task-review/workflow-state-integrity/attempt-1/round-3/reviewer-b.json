@@ -1,0 +1,29 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "13f591b0-7933-4d67-be6b-48bba0fa2b34",
+  "host_session_id": "70769818-fb56-42fc-ba36-640e33c71d99",
+  "allowed_input_manifest": [
+    {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-1/round-3/precheck-result.json","sha256":"026ca9ab1672f52bba34367dc14b98444836aea15f5786e371561efdbd794354"},
+    {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-1/round-3/integrated-summary.json","sha256":"304c2b11b367c2258d6be582a99f43c7a7d00ce9c9a695693ca76f650722227b"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md","sha256":"c7781b8b5d3000d85330034f8dbc1bb5ae7ccdfb4e671f499e58554652d12813"},
+    {"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+    {"path":"/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Major","finding":"T-001 through T-005 appropriately use high risk for workflow-integrity and mandatory-gate surfaces; T-006 appropriately uses medium risk for reversible release metadata."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"PASS","severity":"Critical","finding":"Every high-risk task T-001 through T-005 requires TDD Red→Green logs, a named independent reviewer, spec_revision provenance, and exact changed-file hashes. No critical-risk task exists."},
+    {"id":"TASK-SIZE","result":"PASS","severity":"Major","finding":"Each task is bounded around one implementable concern with concrete files, outcomes, and exclusions."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"The tasks cover malformed and stale provenance, path traversal and symlink escape, lifecycle inversions, legacy bounds, lite isolation, CRLF parity, integration ordering, and version skew."},
+    {"id":"TEST-TYPE-MATCH","result":"PASS","severity":"Major","finding":"High-risk tasks specify TDD with Red→Green evidence, while medium-risk T-006 specifies acceptance-first evidence; planned suites match the affected shell, PowerShell, registry, CI, and release surfaces."},
+    {"id":"ROLLBACK-PLAN","result":"FAIL","severity":"Major","finding":"In specs/workflow-state-integrity/tasks.md, T-006 has Data Migration and Breaking API fields but no Rollback field or rollback completion criterion. If the synchronized version bump or release metadata validation causes install/update incompatibility, the implementer has no task-defined recovery procedure or evidence requirement. This is a blocking Major rollback-planning gap."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Major","finding":"Although some tasks touch shared integration files, their scopes are distinct: transition repair, registry creation, validator implementation, repository/CI wiring, quality/review-gate wiring, and release metadata."},
+    {"id":"DEPENDENCY-OVERLAP","result":"PASS","severity":"Major","finding":"Shared-file work is ordered transitively: T-005 follows T-003, which follows T-001; T-006 follows T-004 and T-005. Registry consumption is likewise ordered by T-003 depending on T-002."},
+    {"id":"BUGFIX-DIAGNOSTIC-PATH","result":"PASS","severity":"Major","finding":"Bugfix T-001 preserves a complete diagnostic path from the observed Spec-Passed to Impl-precheck failure, through canonical hash/path mismatch diagnosis and narrow repair, to regression and Red→Green evidence."}
+  ]
+}

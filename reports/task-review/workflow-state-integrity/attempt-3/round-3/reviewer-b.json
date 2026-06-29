@@ -1,0 +1,145 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "workflow-state-integrity",
+  "attempt": 3,
+  "round": 3,
+  "run_id": "556f0c47-1250-4429-83a9-7b7d4b105812",
+  "host_session_id": "33c08cfe-bb05-4e7b-b508-fec2f7892a59@Mac.lan",
+  "generated_at": "2026-06-27T08:00:01Z",
+  "manifest": {
+    "hash_algorithm": "sha256",
+    "hashes_verified": true,
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"
+      },
+      {
+        "path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/precheck-result.json",
+        "sha256": "d540333a9061bf13f6c8d8b67a3570c69bbd7b3aed36fdc9c8c4584f299a21f2"
+      },
+      {
+        "path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/integrated-summary.json",
+        "sha256": "6a15affbbdf52a4c76b9044ba7c6f11744eb03e9ac1a2ab70f90195de7bac619"
+      },
+      {
+        "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md",
+        "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"
+      },
+      {
+        "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md",
+        "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"
+      },
+      {
+        "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md",
+        "sha256": "f2d7106fcae17fd4b002e65407443e11f3ff6312f161967047de7413e103df54"
+      }
+    ],
+    "disallowed_inputs": [
+      "/Users/jrmag/sdd-forge/AGENTS.md",
+      "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-3/reviewer-a.json",
+      "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/traceability.md",
+      "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/design.md",
+      "all files not listed in allowed_inputs"
+    ]
+  },
+  "verdict": "PASS",
+  "summary": {
+    "pass_count": 11,
+    "fail_count": 0,
+    "skip_count": 0,
+    "findings_critical": 0,
+    "findings_major": 0,
+    "findings_minor": 0
+  },
+  "checks": [
+    {
+      "id": "TRB-001",
+      "name": "risk-workflow-match",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "T-001 through T-005 are high-risk integrity or gate changes and require tdd; T-006 is a medium-risk reversible release-metadata change and requires acceptance-first. These assignments match the risk classification policy and risk-gate matrix."
+    },
+    {
+      "id": "TRB-002",
+      "name": "executable-evidence",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "Every high-risk task requires Red-to-Green evidence at a task-specific verification path, independent review, spec revision and environment provenance, changed-file hashes, and requirement-traceability proof. T-002 additionally gives exact Bash, PowerShell, and parity commands; T-006 names repository and install/release validation outcomes."
+    },
+    {
+      "id": "TRB-003",
+      "name": "exact-planned-paths",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "Every Planned Files entry is repository-qualified. T-002 intentionally qualifies the fixture-tree scope as tests/fixtures/workflow-state/, while all scripts, contracts, reports, manifests, marketplaces, workflows, and test entry points are named by exact repository-relative paths."
+    },
+    {
+      "id": "TRB-004",
+      "name": "semantic-acceptance-ownership",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "Acceptance ownership follows implementation semantics: T-002 owns AC-001/002/006/011, T-003 owns AC-003/004/005/007/008/014, T-004 owns AC-009, T-005 owns AC-010/012, and T-006 owns AC-013."
+    },
+    {
+      "id": "TRB-005",
+      "name": "dependency-and-overlap-safety",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "The executable order is acyclic: T-001 and T-002 precede T-003; T-003 precedes T-004 and T-005; both precede T-006. Overlaps are ordered safely: T-001 repairs downstream precheck scripts/tests before T-005 integrates validation into them, and T-004 updates repository validation before T-006 updates its release constants."
+    },
+    {
+      "id": "TRB-006",
+      "name": "rollback-planning",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "Each task defines a bounded rollback unit and an inspectable post-rollback validation or isolated-fixture exercise. Registry/history rollback explicitly avoids mutating historical artifacts, and validator/integration rollback preserves prerequisite controls."
+    },
+    {
+      "id": "TRB-007",
+      "name": "diagnostic-path",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "The bugfix task T-001 preserves the required symptom-to-root-cause-to-fix-to-regression path: reproduce the Spec-Passed transition failure, diagnose canonical hash/path mismatch, apply narrow normalization, and retain traversal, stale-hash, escape, and forgery regressions."
+    },
+    {
+      "id": "TRB-008",
+      "name": "precheck-and-structural-context",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "precheck-result.json reports workflow_match_precheck PASS and valid blockers format. integrated-summary.json reports nine reviewer-A PASS checks and no FAIL or SKIP checks; no duplicate structural finding is emitted."
+    },
+    {
+      "id": "R2-T002-RED-GREEN",
+      "name": "round-2-recheck-t002-exact-red-green",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "T-002 names the exact pre-implementation command bash tests/workflow-state-registry.tests.sh and red path specs/workflow-state-integrity/verification/T-002.red.log; it names exact post-implementation Bash, PowerShell, and parity commands and green path specs/workflow-state-integrity/verification/T-002.green.log."
+    },
+    {
+      "id": "R2-PLANNED-FILES",
+      "name": "round-2-recheck-fully-qualified-planned-files",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "All six tasks use repository-relative qualified paths for every Planned Files entry; no bare filename or ambiguous basename remains."
+    },
+    {
+      "id": "R2-AC010-OWNER",
+      "name": "round-2-recheck-ac010-owned-by-t005",
+      "result": "PASS",
+      "severity": null,
+      "evidence": "T-005 explicitly declares Requirements: REQ-008, REQ-010; AC-010, AC-012 and its Scope and Done When clauses cover full quality-gate invocation plus scoped Impl/Task precheck invocation while retaining predecessor checks."
+    }
+  ],
+  "findings": []
+}

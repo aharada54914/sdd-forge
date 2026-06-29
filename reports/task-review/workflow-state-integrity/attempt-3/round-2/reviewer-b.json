@@ -1,0 +1,103 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "workflow-state-integrity",
+  "attempt": 3,
+  "round": 2,
+  "run_id": "1fb27570-0f8b-457a-aa2e-df1a3c83103e",
+  "host_session_id": "7ac2154d-23b9-423d-9943-4cff9f71d77d",
+  "generated_at": "2026-06-27T06:40:39Z",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-2/precheck-result.json",
+      "sha256": "7d1c3ea41528ee56db9af7058f6d7f63ced5aa52aa02cda75777c802deb298c1"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-2/integrated-summary.json",
+      "sha256": "adea34beff47f20648b9bdea38cc6ab3cddb4658c48c6b7aa46342af0a408f99"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md",
+      "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md",
+      "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"
+    },
+    {
+      "path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md",
+      "sha256": "50a825a5338e0116276da461fe60c3b003e8f05d7f3e4dcbc621a5cb14ab7e28"
+    }
+  ],
+  "input_hash_verification": "PASS",
+  "verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 3,
+  "findings_minor": 0,
+  "checks": [
+    {
+      "id": "RISK-WORKFLOW",
+      "result": "PASS",
+      "severity": null,
+      "finding": "T-001 through T-005 affect integrity, review-gate, validation, or CI control flow and are consistently classified high with Required Workflow tdd. T-006 is a reversible release-metadata change classified medium with acceptance-first. Each rationale names the relevant harm surface, and every high-risk task plans Red-to-Green, independent review, provenance, and requirement-traceability evidence."
+    },
+    {
+      "id": "T002-VERIFICATION-PATH",
+      "result": "FAIL",
+      "severity": "Major",
+      "task_id": "T-002",
+      "finding": "The round-1 finding is unresolved. T-002 Done When still names only the glob `specs/workflow-state-integrity/verification/T-002.*.log` for both Red and Green evidence instead of two concrete evidence files.",
+      "failure_mode": "The implementer and check-contract cannot deterministically bind the required tdd `red_evidence` and `green_evidence` fields to distinct, existing artifacts; a wildcard may match zero, one, or unrelated files.",
+      "recommendation": "Name exact separate paths, for example `specs/workflow-state-integrity/verification/T-002.red.log` and `specs/workflow-state-integrity/verification/T-002.green.log`, and state which command produces each."
+    },
+    {
+      "id": "PLANNED-FILE-PRECISION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The round-1 finding is unresolved. T-001, T-003, and T-005 list several Planned Files as bare basenames after one fully qualified path, including `impl-review-precheck.ps1`, `task-review-precheck.sh`, `task-review-precheck.ps1`, `check-workflow-state.ps1`, `tests/run-all.sh`, and `tests/run-all.ps1`.",
+      "failure_mode": "Bare basenames are not exact repository-relative paths and can resolve to the wrong directory or leave the implementation scope/changed-file allowlist ambiguous, especially where similarly named shell and PowerShell adapters exist.",
+      "recommendation": "Replace every bare basename with its complete repository-relative path; do not rely on the preceding list item to imply a directory."
+    },
+    {
+      "id": "SEMANTIC-AC-ALIGNMENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "task_id": "T-005",
+      "finding": "T-005 is the task that wires global validation into quality-gate and scoped validation into Impl/Task prechecks, but its Requirements field maps only AC-012. AC-010 explicitly requires inspection and execution of those full quality-gate and downstream precheck paths. AC-010 is instead assigned only to T-001, whose scope is the predecessor transition hash/path repair and whose Out of Scope excludes global repository-state policy.",
+      "failure_mode": "The task implementing AC-010 can be completed and traced without claiming AC-010, while the task claiming AC-010 can pass without implementing the required workflow-state integration. This breaks semantic acceptance-to-task traceability despite nominal AC coverage.",
+      "recommendation": "Add AC-010 to T-005 and retain AC-012 for regression-suite coverage. Narrow T-001's AC mapping to the transition-repair evidence it actually owns, or explicitly state the distinct AC-010 portion it verifies."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP-SAFETY",
+      "result": "PASS",
+      "severity": null,
+      "finding": "Overlapping files are ordered safely: T-001 precedes T-003 and therefore T-005 transitively; T-004 and T-005 precede T-006, which also edits repository validation metadata. T-003 depends on the registry from T-002, and integration tasks depend on the standalone validator."
+    },
+    {
+      "id": "ROLLBACK-COMPLETENESS",
+      "result": "PASS",
+      "severity": null,
+      "finding": "Each task provides a scoped rollback unit and an inspectable post-rollback validation or isolated-fixture exercise. Registry/history rollback avoids mutating historical artifacts, validator adapters roll back together, integrations preserve the standalone validator, and release metadata rolls back atomically."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": null,
+      "task_id": "T-001",
+      "finding": "T-001 preserves the required diagnostic chain: it names the observed post-transition rejection, requires reproduction of the original failure, diagnoses canonical hash/path mismatch, narrows the status-neutral hash and path-canonicalization fix, requires regression rejection cases, and records passing post-fix evidence. The separate evidence-path precision issue is owned by T002-VERIFICATION-PATH."
+    }
+  ]
+}

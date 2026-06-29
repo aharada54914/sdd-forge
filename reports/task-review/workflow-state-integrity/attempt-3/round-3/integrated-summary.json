@@ -1,0 +1,20 @@
+{
+  "schema": "integrated-summary/v1",
+  "round": 3,
+  "attempt": 3,
+  "reviewer_a_check_ids": [
+    "TRA-001",
+    "TRA-002",
+    "TRA-003",
+    "TRA-004",
+    "TRA-005",
+    "TRA-006",
+    "TRA-007",
+    "TRA-008",
+    "TRA-009"
+  ],
+  "reviewer_a_fail_count": 0,
+  "reviewer_a_pass_count": 9,
+  "reviewer_a_skip_count": 0,
+  "generated_at": "2026-06-27T07:57:58Z"
+}

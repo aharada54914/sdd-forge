@@ -1,0 +1,53 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "workflow-state-integrity",
+  "run_id": "ebfe0a23-d6dc-42ec-85d3-cf9aa9ac33e8",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 3,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 2,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+  "acceptance_sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+  "tasks_sha256": "a99b43dabd571782f27ed1318816fb9399027f177a5795348aac27541f9aa4bc",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "fb24e6ff-7274-4721-b239-860d3d080fd7",
+      "host_session_id": "13ce29ec-1253-48ad-94bf-405491a1852e",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-1/precheck-result.json", "sha256": "376d0a244b0ef0944615d7d9c4bbe434d7b30650ad64b6d15a2054c53a90ad17"},
+        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-1/dependency-graph.json", "sha256": "e39053c585df8fff5f528a3e2a14936488268958c51021721ad081bf049f8e03"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md", "sha256": "a99b43dabd571782f27ed1318816fb9399027f177a5795348aac27541f9aa4bc"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/traceability.md", "sha256": "b4fcc6e4e28c6d21db73298fe58a6da81b16475451056461208c464f08c9d99e"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "workflow-state-integrity-attempt-3-round-1",
+      "host_session_id": "019f07b9-79b8-7f51-b1ad-22c3aab49b8c",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+        {"path": "/Users/jrmag/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-1/precheck-result.json", "sha256": "376d0a244b0ef0944615d7d9c4bbe434d7b30650ad64b6d15a2054c53a90ad17"},
+        {"path": "/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-3/round-1/integrated-summary.json", "sha256": "6bfa93910dfc624c11b18154257339cc7b47345a0c0fa1e3025260604bb4329a"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+        {"path": "/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md", "sha256": "a99b43dabd571782f27ed1318816fb9399027f177a5795348aac27541f9aa4bc"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Feature-scoped implementation report paths approved by the maintainer.",
+  "timestamp": "2026-06-27T06:18:29Z"
+}

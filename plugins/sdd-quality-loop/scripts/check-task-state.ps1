@@ -6,8 +6,8 @@
 #  - Done additionally requires a verification/<task-id>.evidence.json file
 #    in the tasks.md directory, and that bundle must validate the report,
 #    contract, and passing evidence artifacts.
-#  - Done additionally requires a quality-gate report in ReportsDir that mentions
-#    the task id and contains VERDICT: PASS.
+#  - Done additionally requires the evidence bundle's declared quality-gate
+#    report to mention the task id and contain VERDICT: PASS.
 #  - Implementation Complete requires an implementation report mentioning the task id.
 #  - Blocked requires non-empty ### Blockers content (not None/whitespace/bare list markers).
 #  - Duplicate task ids (## T-NNN repeated) → fail.
@@ -177,21 +177,10 @@ foreach ($task in $allTasks) {
                 }
             }
         }
-        # Issue #34: require quality-gate report with VERDICT: PASS
-        $qgReport = $null
-        if (Test-Path -LiteralPath $ReportsDir) {
-            $qgReport = Get-ChildItem $ReportsDir -File -Recurse |
-                Where-Object { Select-String -Path $_.FullName -Pattern ([regex]::Escape($task)) -Quiet } |
-                Select-Object -First 1 -ExpandProperty FullName
-        }
-        if (-not $qgReport) {
-            $failures += "$task is Done but no quality-gate report in $ReportsDir mentions it"
-        } else {
-            $qgContent = Get-Content -Raw -Encoding Utf8 $qgReport
-            if ($qgContent -notmatch '(?m)^VERDICT:\s*PASS\s*$') {
-                $failures += "$task is Done but quality-gate report does not contain VERDICT: PASS: $qgReport"
-            }
-        }
+        # The evidence-bundle gate above validates its declared quality_report,
+        # including repository confinement, task identity, digest, and PASS verdict.
+        # Do not search the shared report directory by task id: task ids are only
+        # unique within a feature and a global search can select another feature.
     }
     if ($s -eq "Implementation Complete") {
         $hasImplReport = $false

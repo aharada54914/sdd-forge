@@ -6,12 +6,12 @@
   "spec_revision": "135ae67ab8dc816eca1c8dc220e4f135b488b5f07912bab0b63adda5ff0243cb",
   "quality_report": "reports/quality-gate/2026-06-25T010000Z-T-006.md",
   "verification_contract": "specs/claude-workflow-compatibility/verification/T-006.contract.json",
-  "git_commit": "8e922810533ffd29e5296dc92052f27c87932c32",
+  "git_commit": "effa26b9e04a4aeb75db791d1c127225b8a44027",
   "git_generated_dirty": true,
   "build_env": {
     "os": "darwin",
     "python": "3.14.5",
-    "git": "git version 2.50.1 (Apple Git-155)",
+    "git": "git version 2.53.0",
     "lockfile_sha256": null
   },
   "builder": {
@@ -33,7 +33,7 @@
     },
     {
       "path": "reports/quality-gate/2026-06-25T010000Z-T-006.md",
-      "sha256": "1e9c45d465a765d9127ece9d95f70c829c3f8456041d867f538b63e1deac2627"
+      "sha256": "2b67513e0159bb5501ecf1d84b1a848b872f962be9fc37614e88d733e668a306"
     },
     {
       "path": "specs/claude-workflow-compatibility/verification/T-006.placeholder.log",

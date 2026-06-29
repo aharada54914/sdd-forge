@@ -1,0 +1,33 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "FD9217D6-48F4-4349-AFE9-996A171FEE6A",
+  "host_session_id": "AC0D2750-5C03-40FE-ABC4-C894DA333AB8",
+  "allowed_input_manifest": [
+    {"path":"/Users/jrmag/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json","sha256":"d15145aebaf676d64c58c6e9d26562e22a01a71b1d8e15c5631032a134046031"},
+    {"path":"/Users/jrmag/sdd-forge/reports/task-review/workflow-state-integrity/attempt-1/round-2/dependency-graph.json","sha256":"8e2dbd540160a6cb08aa9bfa61730003d4822149943b1871037eedec6b4cb09e"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/tasks.md","sha256":"b59a5e37f1da83ccef5db8019c2ab7aba97712248b64bd32f9823e0ec04490e3"},
+    {"path":"/Users/jrmag/sdd-forge/specs/workflow-state-integrity/traceability.md","sha256":"3ce7efb40ed09a3ad2540e716cff1f495e5ff44e7b6fd0f29f381588278d1d05"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"PREREQ-AC-IDS","result":"PASS","severity":"Critical","finding":"tasks.md references only AC-001 through AC-014, all defined in acceptance-tests.md."},
+    {"id":"BLOCKERS-FORMAT","result":"PASS","severity":"Major","finding":"blockers_format_valid is true; T-001/T-002 use None and T-003 through T-006 use valid comma-separated T-NNN IDs."},
+    {"id":"REQ-COVERAGE","result":"PASS","severity":"Critical","finding":"REQ-001 through REQ-012 each appear in at least one task Requirements field, consistent with traceability.md."},
+    {"id":"AC-COVERAGE","result":"PASS","severity":"Critical","finding":"AC-001 through AC-014 are covered across T-001 through T-006 with no uncovered criterion."},
+    {"id":"ORPHAN-TASK","result":"PASS","severity":"Major","finding":"Every task T-001 through T-006 references at least one valid REQ-NNN in its Requirements field."},
+    {"id":"ORPHAN-TEST","result":"PASS","severity":"Major","finding":"No task title identifies a test/spec/verify task and no task scope is exclusively test-file work; all included verification work is tied to implementation scope and referenced ACs."},
+    {"id":"INITIAL-STATE","result":"PASS","severity":"Major","finding":"In attempt 1 round 2, every task remains Approval: Draft and Status: Planned; no task is Approved and all statuses are allowed."},
+    {"id":"RISK-WORKFLOW-FORMAT","result":"PASS","severity":"Critical","finding":"workflow_match_precheck is PASS; T-001 through T-005 pair high with tdd and T-006 pairs medium with acceptance-first."},
+    {"id":"NO-DUPLICATE-AC","result":"PASS","severity":"Major","finding":"Primary AC assignments are disjoint: T-001 AC-010; T-002 AC-001/002/006/011; T-003 AC-003/004/005/007/008/014; T-004 AC-009; T-005 AC-012; T-006 AC-013."},
+    {"id":"DEPENDENCY-COMPLETE","result":"PASS","severity":"Major","finding":"Every blocker reference resolves to dependency-graph.json nodes T-001 through T-006."},
+    {"id":"DEPENDENCY-CYCLE","result":"PASS","severity":"Critical","finding":"BLOCKERS-FORMAT passed; graph edges T-003→T-001/T-002, T-004/T-005→T-003, and T-006→T-004/T-005 form no cycle."},
+    {"id":"SINGLE-CONCERN","result":"PASS","severity":"Major","finding":"Each task has one coherent concern: transition repair, registry/migration records, validator implementation, repository/CI integration, gate integration, or release metadata."},
+    {"id":"OBSERVABLE-DONE","result":"PASS","severity":"Major","finding":"Every task has inspectable Done When outcomes, including named commands or suite results plus concrete verification logs and implementation reports."},
+    {"id":"TRACEABILITY-SYNC","result":"PASS","severity":"Major","finding":"traceability.md contains Task Mapping entries for T-001 through T-006, and all referenced REQ-001 through REQ-012 exist in requirements.md."}
+  ]
+}

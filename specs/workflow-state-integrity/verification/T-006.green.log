@@ -1,0 +1,44 @@
+T-006 acceptance-first verification
+Environment: Darwin 25.5.0 arm64; GNU bash 5.3.9; PowerShell 7.6.2
+
+Command: pwsh -NoProfile -File tests/validate-repository.ps1
+Exit: 0
+Output:
+workflow-state: ok
+Repository validation passed.
+
+Command: bash tests/install.tests.sh
+Exit: 0
+Output:
+Results: 24 passed, 0 failed.
+
+Command: pwsh -NoProfile -File tests/install.tests.ps1
+Exit: 0
+Output:
+Installer integration tests passed.
+
+Rollback verification:
+Command: git worktree add --detach <isolated-path> effa26b9e04a4aeb75db791d1c127225b8a44027
+Command: pwsh -NoProfile -File <isolated-path>/tests/validate-repository.ps1
+Exit: 0
+Output:
+Repository validation passed.
+
+The isolated rollback target contains the synchronized preceding 1.2.0
+manifests, marketplace entries, and validation constants.
+
+Deterministic gates:
+- Bash and PowerShell check-risk: PASS for T-006.
+- Bash and PowerShell check-placeholders: PASS for all twenty release JSON
+  surfaces.
+- Bash and PowerShell check-task-state: PASS for six tasks.
+- Bash and PowerShell check-traceability: PASS for twelve links with required
+  evidence.
+
+Full regression:
+- Command: bash tests/run-all.sh
+  Exit: 0
+  Output: All POSIX regression tests passed.
+- Command: pwsh -NoProfile -File tests/run-all.ps1
+  Exit: 0
+  Output: All PowerShell regression tests passed.

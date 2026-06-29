@@ -1,0 +1,43 @@
+{
+  "task_id": "T-004",
+  "feature": "workflow-state-integrity",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "7352f1583590bae4fe8f20c3300a9f875560341bfbc5e1d025bd4de49ce5802c",
+  "quality_report": "reports/quality-gate/20260628T103458Z.md",
+  "verification_contract": "specs/workflow-state-integrity/verification/T-004.contract.json",
+  "git_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.53.0",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/workflow-state-integrity/verification/T-004.contract.json",
+      "sha256": "8a20c6326721d0a5dfb76aca375fc569f0143d52dcdf550407d2da248469cc9e"
+    },
+    {
+      "path": "reports/quality-gate/20260628T103458Z.md",
+      "sha256": "c7e30efcddb3757abdbbe0a44f8b4663c0dce71849e6b9ba08f8cf569cfe61b2"
+    },
+    {
+      "path": "specs/workflow-state-integrity/verification/T-004.green.log",
+      "sha256": "d2f450215e3b51ce4baafc801218d6eac68d979d1adaa90c0f80167cc7379305"
+    }
+  ]
+}

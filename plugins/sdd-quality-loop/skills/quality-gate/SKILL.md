@@ -42,6 +42,8 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      `Risk Rationale:`, and — for `high`/`critical` — `Required Workflow: tdd`.
      The tier selects the required-check set per `risk-gate-matrix.md`.
    - `check-placeholders` on the changed production files only.
+   - `check-workflow-state` without `--feature`: validates the canonical
+     persisted-state invariant for every registered specification.
    - `check-task-state` on tasks.md.
    - `check-contract` on the task contract: enforces the tier-minimum required
      set (superset rule) and, when `required_workflow` is `tdd`, non-empty
