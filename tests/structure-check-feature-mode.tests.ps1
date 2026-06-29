@@ -32,8 +32,8 @@ function Invoke-Checker {
     $stdoutTask = $process.StandardOutput.ReadToEndAsync()
     $stderrTask = $process.StandardError.ReadToEndAsync()
     $process.WaitForExit()
-    $stdout = $stdoutTask.GetAwaiter().GetResult().TrimEnd([char[]]"`r`n")
-    $stderr = $stderrTask.GetAwaiter().GetResult().TrimEnd([char[]]"`r`n")
+    $stdout = $stdoutTask.GetAwaiter().GetResult().Replace("`r`n", "`n").TrimEnd([char[]]"`r`n")
+    $stderr = $stderrTask.GetAwaiter().GetResult().Replace("`r`n", "`n").TrimEnd([char[]]"`r`n")
     [pscustomobject]@{
         ExitCode = $process.ExitCode
         StdOut = $stdout
