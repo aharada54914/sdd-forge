@@ -367,34 +367,34 @@ validate_passed_stage() {
       $summary[0].reviewer_a_pass_count and
     ([$a.checks[] | select(check_result == "SKIP")] | length) ==
       $summary[0].reviewer_a_skip_count and
-    (failures($a) + failures($b)) as $findings |
-    {critical: ([$findings[] | select(.severity == "Critical")] | length),
-     major: ([$findings[] | select(.severity == "Major")] | length),
-     minor: ([$findings[] | select(.severity == "Minor")] | length)} as $counts |
-    ($counts.critical == 0 and $counts.major == 0 and
-     ($counts.minor == 0 or $round == 3)) and
-    (if $stage == "spec" then
-       $contract[0].verdict == "PASS" and
-       $contract[0].warningCount == $counts.minor and
-       $verdict[0].verdict == "PASS" and
-       $verdict[0].warningCount == $counts.minor and
-       $verdict[0].finding_counts == $counts
-     else
-       ($counts.minor == 0 and $contract[0].verdict == "PASS" and
-        $verdict[0].verdict == "PASS" or
-        $counts.minor > 0 and $contract[0].verdict == "PASS-with-warnings" and
-        $verdict[0].verdict == "PASS-with-warnings") and
-       $contract[0].findings_critical == $counts.critical and
-       $contract[0].findings_major == $counts.major and
-       $contract[0].findings_minor == $counts.minor and
-       $verdict[0].findings_critical == $counts.critical and
-       $verdict[0].findings_major == $counts.major and
-       $verdict[0].findings_minor == $counts.minor and
-       $contract[0].reviewer_a_verdict == $a.verdict and
-       $contract[0].reviewer_b_verdict == $b.verdict and
-       $verdict[0].reviewer_a_verdict == $a.verdict and
-       $verdict[0].reviewer_b_verdict == $b.verdict
-     end)
+    ((failures($a) + failures($b)) as $findings |
+     {critical: ([$findings[] | select(.severity == "Critical")] | length),
+      major: ([$findings[] | select(.severity == "Major")] | length),
+      minor: ([$findings[] | select(.severity == "Minor")] | length)} as $counts |
+     ($counts.critical == 0 and $counts.major == 0 and
+      ($counts.minor == 0 or $round == 3)) and
+     (if $stage == "spec" then
+        $contract[0].verdict == "PASS" and
+        $contract[0].warningCount == $counts.minor and
+        $verdict[0].verdict == "PASS" and
+        $verdict[0].warningCount == $counts.minor and
+        $verdict[0].finding_counts == $counts
+      else
+        ($counts.minor == 0 and $contract[0].verdict == "PASS" and
+         $verdict[0].verdict == "PASS" or
+         $counts.minor > 0 and $contract[0].verdict == "PASS-with-warnings" and
+         $verdict[0].verdict == "PASS-with-warnings") and
+        $contract[0].findings_critical == $counts.critical and
+        $contract[0].findings_major == $counts.major and
+        $contract[0].findings_minor == $counts.minor and
+        $verdict[0].findings_critical == $counts.critical and
+        $verdict[0].findings_major == $counts.major and
+        $verdict[0].findings_minor == $counts.minor and
+        $contract[0].reviewer_a_verdict == $a.verdict and
+        $contract[0].reviewer_b_verdict == $b.verdict and
+        $verdict[0].reviewer_a_verdict == $a.verdict and
+        $verdict[0].reviewer_b_verdict == $b.verdict
+      end))
   ' "$reviewer_a" >/dev/null 2>&1 ||
     diagnostic "$feature" stage-provenance "$stage reviewer outputs or integrated summary contradict the final PASS"
 
