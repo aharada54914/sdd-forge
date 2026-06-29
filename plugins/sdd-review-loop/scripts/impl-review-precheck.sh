@@ -131,11 +131,14 @@ require_persisted_pass() {
         ([.allowed_input_manifest[]? | (.path | relative_path)] as $paths |
           ($paths | length) > 0 and ($paths | length) == ($paths | unique | length)) and
         all(.allowed_input_manifest[]?;
-          (.path | type == "string" and ((startswith($repo)) or (startswith("/") | not))) and
-          (.path | relative_path) as $path |
-          ($path | test("(^|/)\\.\\.?(/|$)") | not) and
-          allowed_input($role; $path; $attempt; $round) and
-          (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))
+          .path as $raw_path |
+          (($raw_path | type == "string") and
+           (($raw_path | startswith($repo)) or (($raw_path | startswith("/")) | not)) and
+           (($raw_path | relative_path) as $path |
+             ($path | test("(^|/)\\.\\.?(/|$)") | not) and
+             allowed_input($role; $path; $attempt; $round) and
+             (.sha256 | type == "string") and
+             (.sha256 | test("^[0-9a-f]{64}$"))))
         )
       )
     ) and
