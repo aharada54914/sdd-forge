@@ -101,27 +101,80 @@ A read-only summary of agent roles, tool scopes, and which actions are enforced 
 
 ---
 
-## Model routing (cost-aware) — M-04
+## Turn-First Model Routing — M-04
 
-Codex agent model selection is a **runtime control** (`--model` / `--effort` flags
+Turn-first routing optimizes expected implementation/review iteration count
+before token price. Expected iterations are optimized first, then the weakest sufficient tier, then token price.
+Concrete model IDs are examples only; check availability at invocation and
+record the selected provider/model.
+
+### Predicted Attempts Matrix
+
+| Risk | lightweight | standard | strong |
+|---|---:|---:|---:|
+| low | 1 | 1 | 1 |
+| medium | 2 | 1 | 1 |
+| high | 3 | 2 | 1 |
+| critical | 3 | 2 | 1 |
+
+The selector chooses the minimum predicted-attempt count. Ties choose the lower
+vendor-neutral tier. Only equal-tier routes compare invocation-supplied
+`estimated_cost_per_attempt_usd`; the route also records `cost_estimate_source`
+and `cost_estimate_timestamp` so checked-in policy never embeds stale prices.
+Equal cost is resolved by the lexicographically smaller provider/model
+identifier, written as the lexicographically smaller `provider/model`.
+
+### Provider Tier Mapping
+
+| Tier | Provider | Model family | Reasoning effort |
+|---|---|---|---|
+| lightweight | Anthropic | Haiku | low |
+| standard | Anthropic | Sonnet | medium |
+| strong | Anthropic | Opus | high |
+| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low |
+| standard | OpenAI/Codex | `gpt-5.1-codex` | medium |
+| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh |
+
+Codex agent model selection is a runtime control (`--model` / `--effort` flags
 passed to the Codex CLI at invocation), not a field in the role TOML. The
-`.codex/agents/*.toml` files intentionally do **not** pin a `model` key: the Codex
-agent-role schema's support for a `model` key is unconfirmed, and pinning a model
-inside the role risks the "Ignoring malformed agent role definition" rejection
-that the hook guard exists to prevent. Routing therefore happens at the call site.
+`.codex/agents/*.toml` files intentionally do not pin a `model` key because the
+role schema has historically rejected malformed role definitions. Routing
+therefore happens at the call site after model availability is checked.
+The caller filters candidates through the host capability registry. A
+substitute is eligible only when the registry assigns it to the same canonical
+tier; the canonical tier does not change and the concrete provider/model is
+recorded. If no available candidate satisfies an exact tier or role floor,
+routing fails closed as `model-tier-unavailable`. For strong Codex routing,
+high effort is the default. Xhigh is used only when the capability registry or
+a task-specific evaluator contract requires it, with the reason recorded.
 
-Recommended cost-aware routing (the model ids below are **illustrative** — confirm
-current Codex model availability before wiring):
+### Role Floors
 
-| Role | Stakes | Suggested routing |
-|---|---|---|
-| **sdd-investigator** | high-volume, low-stakes (read-only fact extraction) | lighter/faster Codex model + lower reasoning effort — e.g. `--model gpt-5.4-mini` and/or `--effort low` |
-| **sdd-evaluator** | trust anchor (PASS/NEEDS_WORK gates `Done`) | stronger reasoning Codex model + higher effort — e.g. `--effort high` |
+| Role | Required tier | Anthropic route | OpenAI/Codex route |
+|---|---|---|---|
+| sdd-investigator | lightweight | Anthropic Haiku | OpenAI/Codex `gpt-5.1-codex-mini`, effort low |
+| spec-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
+| impl-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
+| task-reviewer-a/b | standard minimum | Anthropic Sonnet or stronger | OpenAI/Codex `gpt-5.1-codex`, effort medium or stronger |
+| sdd-evaluator | strong | Anthropic Opus | OpenAI/Codex `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback), effort high or xhigh |
 
-> Codex models evolve (`gpt-5.x-codex` family, `spark`, `-mini` tiers); confirm the
-> available identifiers via `codex --help` / the `codex-cli-runtime` skill before
-> wiring routing into an orchestrator. Valid `--effort` values:
-> `none | minimal | low | medium | high | xhigh`.
+### Escalation
+
+Failure classes are the closed enum `test`, `lint`, `typecheck`, `build`,
+`review-major`, and `review-critical`. A tier becomes ineligible for the next
+attempt only when the same classified failure occurs twice consecutively for the
+same task; different failure classes do not accumulate. Escalation is a
+one-tier increase and records prior tier, next tier, failure class, attempt
+number, and reason. At `strong`, recurrence blocks the task with
+`terminal-tier-recurrence` for human diagnosis.
+
+Terminal-tier resume is fail-closed. The paired
+`check-terminal-tier-resume.sh` and `.ps1` validators require a changed,
+hash-bound task contract, a hash-bound diagnosis reference, and an explicit
+human authority/timestamp matching the task's `Diagnosis Reference:` and
+`Terminal Reapproval:` fields. Chat history cannot replace these artifacts.
+
+Deterministic parsing, validation, hashing, and state transitions use scripts rather than model routing.
 
 ---
 

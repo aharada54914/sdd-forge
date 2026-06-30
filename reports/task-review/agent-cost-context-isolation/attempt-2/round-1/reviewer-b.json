@@ -1,0 +1,35 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "task-a2-r1-b-20260630t0430z",
+  "host_session_id": "task-a2-r1-b-session-02",
+  "allowed_input_manifest": [
+    {"path":"specs/agent-cost-context-isolation/requirements.md","sha256":"eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"},
+    {"path":"specs/agent-cost-context-isolation/acceptance-tests.md","sha256":"0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"},
+    {"path":"specs/agent-cost-context-isolation/tasks.md","sha256":"6537478670f19b7c56c49bf1ab61906466590a031322d55dc1578d90e12a584b"},
+    {"path":"specs/agent-cost-context-isolation/design.md","sha256":"7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"},
+    {"path":"specs/agent-cost-context-isolation/traceability.md","sha256":"1b029baf3d566cd2cae543626a86cebdeea5bd6dadeea2748efc33772512e9c0"},
+    {"path":"specs/agent-cost-context-isolation/ux-spec.md","sha256":"926e291b0bb86340d16476022ee5cd115a4b4cd36e5c6f95132d47874f9afe74"},
+    {"path":"specs/agent-cost-context-isolation/frontend-spec.md","sha256":"0b864688d9db685e54efed2572e3eb4a7bb9968ff7b1c977cd8c5304dcd0b58d"},
+    {"path":"specs/agent-cost-context-isolation/infra-spec.md","sha256":"2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d"},
+    {"path":"specs/agent-cost-context-isolation/security-spec.md","sha256":"cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"},
+    {"path":"reports/task-review/agent-cost-context-isolation/attempt-2/round-1/precheck-result.json","sha256":"916345f80ce00e161ffdd291a4db3c02dffcb2fb8ce0996f9c6e5aa3aafee00d"},
+    {"path":"reports/task-review/agent-cost-context-isolation/attempt-2/round-1/integrated-summary.json","sha256":"ab26b51f18cdf4de3a48bc3b7d58a3a0d21e8bc6036f8da8a29944e4585db4f5"},
+    {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+    {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"4fd42b68610a6254e8acd42e4628f827be9428a8820c041b4f33cdd33dc27354"},
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Major","finding":"T-001, T-006, T-007, and T-008 consistently declare medium for limited, controlled, behavioral changes. T-002 through T-005 consistently declare high for material, difficult, sensitive workflow and trust-boundary changes."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"PASS","severity":"Critical","finding":"Each high-risk task T-002 through T-005 names red and green evidence paths, requires failing tests committed before implementation, and names a distinct independent reviewer whose PASS must be recorded."},
+    {"id":"TASK-SIZE","result":"PASS","severity":"Major","finding":"T-001 through T-008 each define one coherent deliverable with bounded Scope, explicit Out of Scope, and no more than six Done When items."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"TEST-001 covers unavailable tiers, recurrence variants, forbidden escalation, unavailable runtimes, and invalid resume; TEST-002 and TEST-003 cover identity reuse, missing manifests, traversal, symlinks, mutation, malformed provenance, and tampering; TEST-004 covers malformed current reports; TEST-006 covers forced rollback failure."},
+    {"id":"TEST-TYPE-MATCH","result":"PASS","severity":"Major","finding":"The planned tests match their boundaries: TEST-001 exercises routing behavior, TEST-002 and TEST-003 exercise cross-component orchestration/validator integration, TEST-004 validates report contracts, TEST-005 is repository regression, and TEST-006 is an isolated rollback transaction test; each references its governing AC."},
+    {"id":"ROLLBACK-PLAN","result":"PASS","severity":"Major","finding":"Every high-risk task T-002 through T-005 has an explicit Rollback field and a Done When item requiring an isolated rollback fixture for its scoped behavior."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Major","finding":"The task scopes separate capability declarations, routing/resume, manifest mechanics, implementation orchestration, review isolation, reporting, release synchronization, and rollback tooling. Shared contracts are consumed through explicit blockers rather than modified concurrently for the same purpose."},
+    {"id":"DEPENDENCY-OVERLAP","result":"PASS","severity":"Major","finding":"Blockers correspond to produced artifacts: T-002 and T-003 consume T-001 tiers; T-004 consumes routing and manifest contracts; T-005 consumes the manifest contract; T-006 consumes orchestration and isolation identities; T-007 waits for all release content; T-008 requires T-007's finalized release hashes."},
+    {"id":"BUGFIX-DIAGNOSTIC-PATH","result":"SKIP","severity":"Major","finding":"SKIP: no bugfix or debugging task in scope."}
+  ]
+}

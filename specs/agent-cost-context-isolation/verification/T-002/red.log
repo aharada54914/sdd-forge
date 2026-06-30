@@ -1,0 +1,5 @@
+Baseline: 7df7318 with T-001 artifacts and the new TEST-001 fixture overlaid.
+Command: bash tests/agent-model-routing.tests.sh
+Exit: 1
+Output:
+not ok: missing required routing artifact: plugins/sdd-implementation/scripts/select-agent-model.sh

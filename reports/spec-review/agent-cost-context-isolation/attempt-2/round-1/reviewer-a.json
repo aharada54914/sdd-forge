@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "84397355-18D6-4BA6-AE39-917224EE9B04",
+  "host_session_id": "533B9695-15CC-4FF6-A65D-D709031AC804",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/agent-cost-context-isolation/requirements.md",
+      "sha256": "0e6cc6a7c3294bc2ea182ce4ed253b965d344db4e2856f5971efddeaac6068f6"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/acceptance-tests.md",
+      "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"
+    },
+    {
+      "path": "reports/spec-review/agent-cost-context-isolation/attempt-2/round-1/precheck-result.json",
+      "sha256": "1419a811f27ea424a3386f0cfa1cc468a0c09f314882ed6d1504fa27acb111b0"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 through REQ-011 define measurable routing, isolation, manifest, reporting, runtime-equivalence, and release outcomes; AC-001 through AC-007 and TEST-001 through TEST-006 provide corresponding observable validation surfaces."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The ordered cost-aware routing goal is covered by AC-001 and TEST-001, while bounded file-backed implementation and independent-review contexts are covered by AC-002 through AC-004 and TEST-002 through TEST-003."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001 through AC-007 specify inspectable structural-test results, identifiers, diagnostics, manifest acceptance and rejection, template fields, release values, repository validation, and rollback behavior."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals explicitly exclude universally pinned model identifiers, reviewer or evaluator fallback, and chat-log task inputs; REQ-001, REQ-005, and REQ-006 further bound role routing and host-specific fallback."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material capability, availability, approval, fail-closed, deterministic-runtime, session-isolation, immutable-snapshot, symlink, cost-provenance, compatibility, and version constraints are explicitly stated in REQ-001 through REQ-011."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk escalation, terminal blocking and reapproval, unavailable-tier and runtime failures, context reuse, manifest tampering, cross-runtime equivalence, and rollback integrity have explicit validation surfaces in AC-001 through AC-007 and TEST-001 through TEST-006."
+    }
+  ]
+}

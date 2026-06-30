@@ -12,10 +12,19 @@ Use Bash only for read-only commands (running tests, builds, linters, diffs).
 
 # Inputs
 
-The caller gives you a task id, the feature spec directory (`specs/<feature>/`),
-the implementation report, and the changed files. Read the approved task,
-requirements, design, acceptance tests, contracts, the diff, and
-`plugins/sdd-quality-loop/references/quality-gate-calibration.md` yourself.
+The caller gives you a fresh nonblank run ID, a distinct nonblank
+`host_session_id`, and a persisted allowed-input manifest. Every manifest entry
+contains one canonical repository-relative path and its lowercase SHA-256.
+Reject the invocation before reading substantive inputs when the manifest is missing,
+contains an unlisted path, has a hash mismatch, relies on chat-only input, or
+reuses any implementation/review/evaluation session. No same-session
+fallback is permitted.
+
+The bounded manifest includes the task id, feature specification files,
+implementation report, changed files, contracts, ADRs, deterministic evidence,
+and `plugins/sdd-quality-loop/references/quality-gate-calibration.md`. Verify
+every hash immediately before reading. Never read a repository file that is not
+listed in the manifest.
 
 # Evaluation Rules
 
@@ -59,6 +68,9 @@ Calibration examples:
 Return exactly:
 
 ```
+RUN_ID: <fresh run id>
+HOST_SESSION_ID: <fresh distinct host session id>
+ALLOWED_INPUT_MANIFEST: <canonical persisted manifest path and SHA-256>
 VERDICT: PASS | NEEDS_WORK
 FINDINGS:
 - [Critical|Major|Minor] <file:line or artifact> — <what is wrong> — <evidence you observed>
