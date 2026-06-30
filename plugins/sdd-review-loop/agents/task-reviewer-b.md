@@ -50,6 +50,20 @@ You must NOT read any reviewer-a.json file. The disallowedPaths field enforces
 this. If you find yourself needing reviewer-a output, stop and emit a finding
 that the orchestrator should re-sequence the invocation.
 
+The launch boundary is fail closed. Before reading any substantive input,
+require `REVIEW_CONTEXT_OK` evidence from the paired deterministic
+`validate-review-context-set` validator for the persisted
+`review-context-invocation/v2` contract for this role only. The caller must run
+the validator with `--reserve` before launch, so this run/session is atomically
+added to the canonical identity ledger and checked against every persisted
+implementation, review, and evaluation identity. The bound context must use
+`input_mode: file-manifest`, `fallback_mode: none`, `read_only: true`, a fresh
+run/session identity, a valid hash-chain continuation, and verified hashes.
+Reject a missing manifest or canonical identity ledger, an unlisted
+path, hash mismatch, chat-only input, writable context, fallback, or reused
+implementation/review/evaluation identity. No same-session fallback is
+permitted.
+
 # Finding Calibration
 
 After reading the input artifacts, read

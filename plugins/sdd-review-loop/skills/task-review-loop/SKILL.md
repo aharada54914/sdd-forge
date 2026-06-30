@@ -86,6 +86,13 @@ The agent reads inputs itself and writes:
 `reports/task-review/<feature>/attempt-<M>/round-<N>/reviewer-a.json`
 
 task-reviewer-a is read-only. It must not modify any spec file.
+Immediately before launch, persist a one-role
+`review-context-invocation/v2` manifest bound to the current hash/final record
+of `reports/review-context/identity-ledger.json`. Run
+`plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+<invocation-manifest> <repository-root> --reserve` or the PowerShell equivalent
+with `-Reserve`, and require `REVIEW_CONTEXT_OK`. Missing/stale ledger state,
+caller-omitted history, or any non-zero result blocks launch.
 
 ### STEP 3 — Generate integrated-summary.json
 
@@ -125,6 +132,11 @@ its own inputs and writes:
 `reports/task-review/<feature>/attempt-<M>/round-<N>/reviewer-b.json`
 
 task-reviewer-b is read-only. It must not modify any spec file.
+Build a new one-role `review-context-invocation/v2` manifest from the ledger
+state after reviewer A. Immediately before launch, run
+`validate-review-context-set` with `--reserve` (Bash) or `-Reserve`
+(PowerShell), require `REVIEW_CONTEXT_OK`, and launch exactly the reserved
+role/run/session. No future evaluator context is required.
 
 ### STEP 5 — Merge Verdicts
 

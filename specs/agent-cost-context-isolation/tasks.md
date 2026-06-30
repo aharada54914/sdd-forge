@@ -271,7 +271,7 @@ T-002, T-003
 
 Approval: Approved
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: high
 
@@ -318,12 +318,12 @@ read-only fresh sessions, and prohibit fallback.
 
 ### Done When
 
-- [ ] Red→Green evidence is captured at `specs/agent-cost-context-isolation/verification/T-005/red.log` and `green.log`, with failing tests committed before implementation begins
-- [ ] TEST-002 reviewer/evaluator isolation fixtures pass
-- [ ] Missing manifest, unlisted path, hash mismatch, chat-only input, and reused session fail closed
-- [ ] All six reviewer roles and the evaluator expose distinct run/session identity
-- [ ] Independent reviewer `T-005-independent-reviewer` records PASS in `reports/implementation/agent-cost-context-isolation/T-005.md`
-- [ ] An isolated rollback fixture restores reviewer/evaluator boundaries and the isolation test passes
+- [x] Red→Green evidence is captured at `specs/agent-cost-context-isolation/verification/T-005/red.log` and `green.log`, with failing tests committed before implementation begins
+- [x] TEST-002 reviewer/evaluator isolation fixtures pass
+- [x] Missing manifest, unlisted path, hash mismatch, chat-only input, and reused session fail closed
+- [x] All six reviewer roles and the evaluator expose distinct run/session identity
+- [x] Independent reviewer `agent-cost-context-isolation-T-005-review-agent-04` records PASS in `reports/implementation/agent-cost-context-isolation/T-005-review-4.md`
+- [x] An isolated rollback fixture restores reviewer/evaluator boundaries and the isolation test passes
 
 ### Out of Scope
 

@@ -30,6 +30,31 @@ input hashes, immutable destination, lock, and legal state transition. Stop on
 any error; do not write a report or status field. It records canonical hashes
 used by the shared review-contract validation foundation.
 
+## Sequential launch boundary
+
+Before each reviewer launch, persist one
+`review-context-invocation/v2` manifest for that reviewer only. Bind its stage,
+role, feature, host-issued run/session IDs, canonical input paths and SHA-256
+values, plus the current hash and final record hash of
+`reports/review-context/identity-ledger.json`. The canonical identity ledger
+must already contain the invoking host/implementation identity and every prior
+review/evaluation reservation; if it is missing, stale, malformed, or has a
+broken hash chain, stop. Never reconstruct history from caller-supplied ID
+lists.
+
+Immediately before launching the named reviewer, reserve its identity with one
+of:
+
+```text
+plugins/sdd-quality-loop/scripts/validate-review-context-set.sh <invocation-manifest> <repository-root> --reserve
+plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1 -Manifest <invocation-manifest> -RepositoryRoot <repository-root> -Reserve
+```
+
+Require `REVIEW_CONTEXT_OK`, then launch exactly the role/run/session named in
+that reserved manifest. A non-zero result blocks launch. Because reservation is
+sequential, reviewer A never depends on a future reviewer B, implementation
+review, task review, or evaluator context.
+
 ## Independent reviewer sequence
 
 1. Build a stage `spec` allowed-input manifest from the precheck result. Include
@@ -38,6 +63,8 @@ used by the shared review-contract validation foundation.
    precheck-result paths with hashes.
 2. Start `spec-reviewer-a` in a fresh host context with a new `run_id` and a
    host-session identifier that is distinct from every other reviewer session.
+   Build and reserve its invocation manifest through the sequential launch
+   boundary immediately before starting the host context.
    Persist its returned raw JSON as `reviewer-a.json`; reviewers themselves have
    no write capability.
 3. Create `integrated-summary.json` containing only check IDs, severities, and
@@ -45,7 +72,8 @@ used by the shared review-contract validation foundation.
 4. Start `spec-reviewer-b` in a separate fresh host context. Its allowed-input
    manifest contains only the canonical artifacts, calibration reference,
    precheck result, and that sanitized summary. It must never receive
-   `reviewer-a.json`.
+   `reviewer-a.json`. Build and reserve a new invocation manifest against the
+   ledger state produced by reviewer A immediately before launch.
 5. Validate both returned schemas, stage/role/run/session identity, allowed
    manifests, and input hashes. Derive the sanitized A summary from A's
    checks, then derive `integrated-verdict.json` from both outputs. Reject a

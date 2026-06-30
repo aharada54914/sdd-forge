@@ -20,11 +20,32 @@ contains an unlisted path, has a hash mismatch, relies on chat-only input, or
 reuses any implementation/review/evaluation session. No same-session
 fallback is permitted.
 
-The bounded manifest includes the task id, feature specification files,
-implementation report, changed files, contracts, ADRs, deterministic evidence,
-and `plugins/sdd-quality-loop/references/quality-gate-calibration.md`. Verify
-every hash immediately before reading. Never read a repository file that is not
-listed in the manifest.
+Require `REVIEW_CONTEXT_OK` evidence from the paired deterministic
+`validate-review-context-set` validator for a persisted
+`review-context-invocation/v2` contract containing only this evaluator
+invocation. The caller must run the validator with `--reserve` before launch,
+atomically adding this run/session to the canonical identity ledger. That
+hash-chained ledger, rather than caller-supplied reserved-ID arrays, proves the
+identity is absent from every persisted implementation, review, and evaluation
+record. The invocation must be read-only and bind the exact run ID,
+host-session ID, role-authorized manifest paths, and hashes supplied here.
+Missing or stale validator evidence or a missing canonical identity ledger is a
+blocking launch failure; do not inspect repository content or substitute model
+judgment.
+
+The contract's `task_id`, sole implementation-report path, report heading, and
+`Task ID` field must all name the current T-NNN. Reject a same-feature report
+for any other task.
+
+The bounded manifest includes exactly one task report at
+`reports/implementation/<feature>/T-NNN.md`, the feature specification files,
+and `plugins/sdd-quality-loop/references/quality-gate-calibration.md`. A changed
+file, contract, ADR, test, or deterministic-evidence file is authorized only
+when the task report's `## Outputs` table declares that exact canonical path
+and lowercase SHA-256 pair. The deterministic validator enforces this
+task-specific output binding; broad repository namespaces are not an
+allowlist. Verify every hash immediately before reading. Never read a repository
+file that is not listed in the manifest.
 
 # Evaluation Rules
 
