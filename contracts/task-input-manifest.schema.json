@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.local/contracts/task-input-manifest.schema.json",
+  "title": "SDD task input manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "task_id",
+    "run_id",
+    "session_id",
+    "agent_instance_id",
+    "model_tier",
+    "provider",
+    "model",
+    "estimated_cost_per_attempt_usd",
+    "cost_estimate_source",
+    "cost_estimate_timestamp",
+    "isolation_mode",
+    "fallback_reason",
+    "handoff_reload_evidence_hash",
+    "allowed_inputs",
+    "allowed_outputs"
+  ],
+  "properties": {
+    "schema": {
+      "const": "task-input-manifest/v1"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^T-[0-9]{3}$"
+    },
+    "run_id": {
+      "$ref": "#/$defs/nonEmptyId"
+    },
+    "session_id": {
+      "$ref": "#/$defs/nonEmptyId"
+    },
+    "agent_instance_id": {
+      "$ref": "#/$defs/nonEmptyId"
+    },
+    "model_tier": {
+      "type": "string",
+      "enum": ["lightweight", "standard", "strong"]
+    },
+    "provider": {
+      "$ref": "#/$defs/nonEmptyId"
+    },
+    "model": {
+      "$ref": "#/$defs/nonEmptyId"
+    },
+    "estimated_cost_per_attempt_usd": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+    },
+    "cost_estimate_source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "cost_estimate_timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "isolation_mode": {
+      "type": "string",
+      "enum": ["fresh-agent", "same-session-file-reload"]
+    },
+    "fallback_reason": {
+      "type": "string"
+    },
+    "handoff_reload_evidence_hash": {
+      "type": "string"
+    },
+    "allowed_inputs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256"],
+        "properties": {
+          "path": {
+            "$ref": "#/$defs/repositoryPath"
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256"
+          }
+        }
+      }
+    },
+    "allowed_outputs": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/repositoryPath"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "isolation_mode": {
+            "const": "fresh-agent"
+          }
+        },
+        "required": ["isolation_mode"]
+      },
+      "then": {
+        "properties": {
+          "fallback_reason": {
+            "const": ""
+          },
+          "handoff_reload_evidence_hash": {
+            "const": ""
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "isolation_mode": {
+            "const": "same-session-file-reload"
+          }
+        },
+        "required": ["isolation_mode"]
+      },
+      "then": {
+        "properties": {
+          "fallback_reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "handoff_reload_evidence_hash": {
+            "$ref": "#/$defs/sha256"
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "nonEmptyId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]*$"
+    },
+    "repositoryPath": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(^|/)\\.\\.?(/|$))[A-Za-z0-9][A-Za-z0-9._/-]*$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    }
+  }
+}
