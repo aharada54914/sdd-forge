@@ -2,6 +2,7 @@ param(
   [string]$Manifest,
   [string]$SnapshotRoot,
   [string]$ExpectedTask,
+  [string]$EvidenceRoot,
   [string[]]$Batch
 )
 $ErrorActionPreference = 'Stop'
@@ -75,7 +76,71 @@ function Open-SafeSnapshotInput([string]$Root, [string]$RelativePath) {
     Fail PATH "snapshot input missing or unsafe: $RelativePath"
   }
 }
-function Test-One([string]$Path, [bool]$CheckSnapshot) {
+function Read-ReloadEvidence($Data, [bool]$BindManifest = $true) {
+  $stream = Open-SafeSnapshotInput $EvidenceRoot 'handoffs/reload-evidence.txt'
+  try {
+    $memory = [IO.MemoryStream]::new()
+    try {
+      $stream.CopyTo($memory)
+      $payload = $memory.ToArray()
+    } finally {
+      $memory.Dispose()
+    }
+  } finally {
+    $stream.Dispose()
+  }
+  $sha = [Security.Cryptography.SHA256]::Create()
+  try {
+    $actualEvidenceHash = [BitConverter]::ToString($sha.ComputeHash($payload)).Replace('-','').ToLowerInvariant()
+  } finally {
+    $sha.Dispose()
+  }
+  if ($actualEvidenceHash -cne $Data.handoff_reload_evidence_hash) { Fail HANDOFF 'fallback evidence artifact hash mismatch' }
+  try {
+    $raw = [Text.UTF8Encoding]::new($false, $true).GetString($payload)
+    if ((Get-Command ConvertFrom-Json).Parameters.ContainsKey('DateKind')) {
+      $evidence = $raw | ConvertFrom-Json -DateKind String
+    } else {
+      $evidence = $raw | ConvertFrom-Json
+    }
+  } catch {
+    Fail HANDOFF 'fallback evidence artifact is not valid UTF-8 JSON'
+  }
+  $expectedNames = @('agent_instance_id','fallback_reason','implementation_subagents_available','schema','session_id','task_runs')
+  $actualNames = @(Get-PropertyNames $evidence | Sort-Object -CaseSensitive)
+  if (($actualNames -join ',') -cne ($expectedNames -join ',')) { Fail HANDOFF 'fallback evidence artifact has invalid fields' }
+  if (
+    $evidence.schema -cne 'implementation-host-capability/v1' -or
+    $evidence.implementation_subagents_available -isnot [bool] -or
+    $evidence.implementation_subagents_available -ne $false -or
+    $evidence.fallback_reason -cne 'host-does-not-support-implementation-subagents' -or
+    $evidence.session_id -cne $Data.session_id -or
+    $evidence.agent_instance_id -cne $Data.agent_instance_id
+  ) {
+    Fail HANDOFF 'fallback evidence does not prove incapable-host identity'
+  }
+  if ($evidence.task_runs -isnot [System.Array] -or $evidence.task_runs.Count -eq 0) {
+    Fail HANDOFF 'fallback evidence task_runs must be non-empty'
+  }
+  $pairs = @{}
+  foreach ($entry in @($evidence.task_runs)) {
+    $entryNames = @(Get-PropertyNames $entry | Sort-Object -CaseSensitive)
+    if (
+      ($entryNames -join ',') -cne 'run_id,task_id' -or
+      $entry.task_id -isnot [string] -or $entry.task_id -notmatch '^T-[0-9]{3}$' -or
+      $entry.run_id -isnot [string] -or $entry.run_id -notmatch '^[A-Za-z0-9][A-Za-z0-9._:-]*$'
+    ) {
+      Fail HANDOFF 'fallback evidence contains invalid task/run identity'
+    }
+    $key = "$($entry.task_id)`n$($entry.run_id)"
+    if ($pairs.ContainsKey($key)) { Fail HANDOFF 'fallback evidence contains duplicate task/run identity' }
+    $pairs[$key] = $true
+  }
+  $manifestKey = "$($Data.task_id)`n$($Data.run_id)"
+  if ($BindManifest -and -not $pairs.ContainsKey($manifestKey)) { Fail HANDOFF 'fallback evidence does not bind manifest task/run identity' }
+  return $evidence
+}
+function Test-One([string]$Path, [bool]$CheckSnapshot, [bool]$BatchValidation = $false) {
   $data = Read-Manifest $Path
   $required = @('schema','task_id','run_id','session_id','agent_instance_id','model_tier','provider','model','estimated_cost_per_attempt_usd','cost_estimate_source','cost_estimate_timestamp','isolation_mode','fallback_reason','handoff_reload_evidence_hash','allowed_inputs','allowed_outputs')
   $names = @(Get-PropertyNames $data)
@@ -107,7 +172,7 @@ function Test-One([string]$Path, [bool]$CheckSnapshot) {
   if ($data.isolation_mode -ceq 'fresh-agent') {
     if ($data.fallback_reason -cne '' -or $data.handoff_reload_evidence_hash -cne '') { Fail ISOLATION 'fresh-agent forbids fallback fields' }
   } else {
-    if ($data.fallback_reason -isnot [string] -or $data.fallback_reason.Length -eq 0) { Fail HANDOFF 'same-session fallback requires fallback_reason' }
+    if ($data.fallback_reason -cne 'host-does-not-support-implementation-subagents') { Fail HANDOFF 'same-session fallback requires incapable-host reason' }
     if ($data.handoff_reload_evidence_hash -isnot [string] -or $data.handoff_reload_evidence_hash -notmatch '^[a-f0-9]{64}$') { Fail HANDOFF 'same-session fallback requires handoff_reload_evidence_hash' }
   }
   if ($data.allowed_inputs -isnot [System.Array] -or $data.allowed_inputs.Count -eq 0) { Fail PATH 'allowed_inputs must be non-empty' }
@@ -135,6 +200,13 @@ function Test-One([string]$Path, [bool]$CheckSnapshot) {
       if ($actual -cne $entry.sha256) { Fail HASH "snapshot hash mismatch: $($entry.path)" }
     }
   }
+  if ($data.isolation_mode -ceq 'same-session-file-reload') {
+    $evidenceEntries = @($data.allowed_inputs | Where-Object { $_.path -ceq 'handoffs/reload-evidence.txt' })
+    if ($evidenceEntries.Count -ne 1) { Fail HANDOFF 'fallback requires allowed input: handoffs/reload-evidence.txt' }
+    if ($evidenceEntries[0].sha256 -cne $data.handoff_reload_evidence_hash) { Fail HANDOFF 'fallback evidence hash does not match allowed input' }
+    if ([string]::IsNullOrEmpty($EvidenceRoot)) { Fail HANDOFF 'fallback evidence root is required' }
+    Read-ReloadEvidence $data (-not $BatchValidation) | Out-Null
+  }
   $seenOutputs = @{}
   foreach ($output in @($data.allowed_outputs)) {
     if (-not (Test-RepoPath $output -AllowDirectory)) { Fail PATH "invalid output path: $output" }
@@ -155,19 +227,50 @@ if ($Batch -and $Batch.Count -gt 0) {
   $runIds = @{}
   $freshSessions = @{}
   $freshAgents = @{}
+  $modes = @{}
+  $fallbackReasons = @{}
+  $fallbackHashes = @{}
+  $fallbackSessions = @{}
+  $fallbackAgents = @{}
+  $expectedPairs = @{}
   foreach ($path in $Batch) {
-    $data = Test-One $path $false
+    $data = Test-One $path $false $true
+    $modes[$data.isolation_mode] = $true
+    if ($modes.Count -ne 1) { Fail ISOLATION 'batch cannot mix fresh-agent and same-session fallback' }
     foreach ($pair in @(@('task_id',$taskIds), @('run_id',$runIds))) {
       $field = $pair[0]
       $seen = $pair[1]
       if ($seen.ContainsKey($data.$field)) { Fail IDENTITY "duplicate ${field}: $($data.$field)" }
       $seen[$data.$field] = $true
     }
+    $expectedPairs["$($data.task_id)`n$($data.run_id)"] = $true
     if ($data.isolation_mode -ceq 'fresh-agent') {
       if ($freshSessions.ContainsKey($data.session_id)) { Fail IDENTITY "duplicate session_id: $($data.session_id)" }
       if ($freshAgents.ContainsKey($data.agent_instance_id)) { Fail IDENTITY "duplicate agent_instance_id: $($data.agent_instance_id)" }
       $freshSessions[$data.session_id] = $true
       $freshAgents[$data.agent_instance_id] = $true
+    } else {
+      $fallbackReasons[$data.fallback_reason] = $true
+      $fallbackHashes[$data.handoff_reload_evidence_hash] = $true
+      $fallbackSessions[$data.session_id] = $true
+      $fallbackAgents[$data.agent_instance_id] = $true
+    }
+  }
+  if ($modes.ContainsKey('same-session-file-reload')) {
+    if ($fallbackReasons.Count -ne 1 -or $fallbackHashes.Count -ne 1) {
+      Fail ISOLATION 'fallback batch must share one capability decision and evidence'
+    }
+    if ($fallbackSessions.Count -ne 1 -or $fallbackAgents.Count -ne 1) {
+      Fail IDENTITY 'fallback batch must reuse one physical session and agent'
+    }
+    $evidence = Read-ReloadEvidence $data
+    $actualPairs = @{}
+    foreach ($entry in @($evidence.task_runs)) {
+      $actualPairs["$($entry.task_id)`n$($entry.run_id)"] = $true
+    }
+    if ($actualPairs.Count -ne $expectedPairs.Count) { Fail HANDOFF 'fallback evidence task_runs do not match complete batch' }
+    foreach ($key in $expectedPairs.Keys) {
+      if (-not $actualPairs.ContainsKey($key)) { Fail HANDOFF 'fallback evidence task_runs do not match complete batch' }
     }
   }
 } elseif ($Manifest) {

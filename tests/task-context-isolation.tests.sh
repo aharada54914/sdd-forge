@@ -42,7 +42,19 @@ printf 'requirement text\n' > "$REPO/specs/demo/requirements.md"
 printf '{"contract":true}\n' > "$REPO/contracts/demo.json"
 REQ_HASH="$(hash_file "$REPO/specs/demo/requirements.md")"
 CONTRACT_HASH="$(hash_file "$REPO/contracts/demo.json")"
-RELOAD_HASH="$(printf 'handoff\n' | shasum -a 256 | awk '{print $1}')"
+mkdir -p "$WORK/evidence/handoffs"
+jq -n '{
+  schema: "implementation-host-capability/v1",
+  implementation_subagents_available: false,
+  fallback_reason: "host-does-not-support-implementation-subagents",
+  session_id: "shared-session",
+  agent_instance_id: "shared-agent",
+  task_runs: [
+    {task_id: "T-010", run_id: "run-010"},
+    {task_id: "T-011", run_id: "run-011"}
+  ]
+}' > "$WORK/evidence/handoffs/reload-evidence.txt"
+RELOAD_HASH="$(hash_file "$WORK/evidence/handoffs/reload-evidence.txt")"
 
 write_manifest() {
   file="$1"
@@ -78,10 +90,12 @@ write_manifest() {
       isolation_mode: $mode,
       fallback_reason: $fallback,
       handoff_reload_evidence_hash: $handoff,
-      allowed_inputs: [
+      allowed_inputs: ([
         {path: "specs/demo/requirements.md", sha256: $req},
         {path: "contracts/demo.json", sha256: $contract}
-      ],
+      ] + if $handoff == "" then [] else [{
+        path: "handoffs/reload-evidence.txt", sha256: $handoff
+      }] end),
       allowed_outputs: [
         "reports/implementation/demo/T-002.md",
         "specs/demo/verification/"
@@ -115,11 +129,35 @@ bash "$VALIDATOR" --batch "$WORK/manifests/batch-1.json" "$WORK/manifests/batch-
 jq '.session_id = "session-001"' "$WORK/manifests/batch-3.json" > "$WORK/manifests/batch-3-reuse.json"
 expect_diag TASK_INPUT_IDENTITY bash "$VALIDATOR" --batch "$WORK/manifests/batch-1.json" "$WORK/manifests/batch-2.json" "$WORK/manifests/batch-3-reuse.json"
 
-write_manifest "$WORK/manifests/fallback-a.json" T-010 run-010 shared-session shared-agent same-session-file-reload same-session-file-reload "$RELOAD_HASH"
-write_manifest "$WORK/manifests/fallback-b.json" T-011 run-011 shared-session shared-agent same-session-file-reload same-session-file-reload "$RELOAD_HASH"
-bash "$VALIDATOR" --batch "$WORK/manifests/fallback-a.json" "$WORK/manifests/fallback-b.json" >/dev/null
+write_manifest "$WORK/manifests/fallback-a.json" T-010 run-010 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents "$RELOAD_HASH"
+write_manifest "$WORK/manifests/fallback-b.json" T-011 run-011 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents "$RELOAD_HASH"
+bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch "$WORK/manifests/fallback-a.json" "$WORK/manifests/fallback-b.json" >/dev/null
+jq '.handoff_reload_evidence_hash = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb"
+    | .allowed_inputs[-1].sha256 = .handoff_reload_evidence_hash' \
+  "$WORK/manifests/fallback-a.json" > "$WORK/manifests/fallback-invented.json"
+expect_diag TASK_INPUT_HANDOFF bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch \
+  "$WORK/manifests/fallback-invented.json" "$WORK/manifests/fallback-b.json"
+expect_diag TASK_INPUT_ISOLATION bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch \
+  "$WORK/manifests/batch-1.json" "$WORK/manifests/fallback-b.json"
+printf '{"schema":"fabricated"}\n' > "$WORK/evidence/handoffs/reload-evidence.txt"
+expect_diag TASK_INPUT_HANDOFF bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch \
+  "$WORK/manifests/fallback-a.json" "$WORK/manifests/fallback-b.json"
+jq -n '{
+  schema: "implementation-host-capability/v1",
+  implementation_subagents_available: false,
+  fallback_reason: "host-does-not-support-implementation-subagents",
+  session_id: "shared-session",
+  agent_instance_id: "shared-agent",
+  task_runs: [
+    {task_id: "T-010", run_id: "run-010"},
+    {task_id: "T-011", run_id: "run-011"}
+  ]
+}' > "$WORK/evidence/handoffs/reload-evidence.txt"
+bash "$VALIDATOR" --evidence-root "$WORK/evidence" --batch "$WORK/manifests/fallback-a.json" "$WORK/manifests/fallback-b.json" >/dev/null
 jq '.handoff_reload_evidence_hash = ""' "$WORK/manifests/fallback-a.json" > "$WORK/manifests/chat-only.json"
 expect_diag TASK_INPUT_HANDOFF bash "$VALIDATOR" --manifest "$WORK/manifests/chat-only.json"
+jq '.fallback_reason = "operator-prefers-one-session"' "$WORK/manifests/fallback-a.json" > "$WORK/manifests/wrong-fallback-reason.json"
+expect_diag TASK_INPUT_HANDOFF bash "$VALIDATOR" --evidence-root "$WORK/evidence" --manifest "$WORK/manifests/wrong-fallback-reason.json"
 
 jq '.task_id = "T-999"' "$VALID" > "$WORK/manifests/bad-task.json"
 expect_diag TASK_INPUT_IDENTITY bash "$VALIDATOR" --manifest "$WORK/manifests/bad-task.json" --expected-task T-002 --snapshot-root "$WORK/snapshots/run-001"

@@ -205,7 +205,7 @@ T-001
 
 Approval: Approved
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: high
 
@@ -252,12 +252,12 @@ and specify the same-session file-reload fallback.
 
 ### Done When
 
-- [ ] Red→Green evidence is captured at `specs/agent-cost-context-isolation/verification/T-004/red.log` and `green.log`, with failing tests committed before implementation begins
-- [ ] TEST-002 capable-host fixtures reject adjacent and nonadjacent run/session/agent reuse
-- [ ] Fallback records unique task/run IDs, reused physical IDs, reason, and reload-evidence hash
-- [ ] Chat history or compaction-only handoff is rejected
-- [ ] Independent reviewer `T-004-independent-reviewer` records PASS in `reports/implementation/agent-cost-context-isolation/T-004.md`
-- [ ] An isolated rollback fixture restores the 1.4.0 implementation loop and identity tests pass
+- [x] Red→Green evidence is captured at `specs/agent-cost-context-isolation/verification/T-004/red.log` and `green.log`, with failing tests committed before implementation begins
+- [x] TEST-002 capable-host fixtures reject adjacent and nonadjacent run/session/agent reuse
+- [x] Fallback records unique task/run IDs, reused physical IDs, reason, and reload-evidence hash
+- [x] Chat history or compaction-only handoff is rejected
+- [x] Independent reviewer `T-004-independent-reviewer` records PASS in `reports/implementation/agent-cost-context-isolation/T-004.md`
+- [x] An isolated rollback fixture restores the 1.4.0 implementation loop and identity tests pass
 
 ### Out of Scope
 

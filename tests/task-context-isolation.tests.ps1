@@ -67,7 +67,21 @@ try {
   Set-Content -LiteralPath (Join-Path $repo 'contracts/demo.json') -Value "{`"contract`":true}`n" -NoNewline -Encoding utf8
   $script:reqHash = Get-Sha256 (Join-Path $repo 'specs/demo/requirements.md')
   $script:contractHash = Get-Sha256 (Join-Path $repo 'contracts/demo.json')
-  $reloadHash = [BitConverter]::ToString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes("handoff`n"))).Replace('-','').ToLowerInvariant()
+  $evidenceRoot = Join-Path $work 'evidence'
+  New-Item -ItemType Directory -Path (Join-Path $evidenceRoot 'handoffs') -Force | Out-Null
+  [ordered]@{
+    schema = 'implementation-host-capability/v1'
+    implementation_subagents_available = $false
+    fallback_reason = 'host-does-not-support-implementation-subagents'
+    session_id = 'shared-session'
+    agent_instance_id = 'shared-agent'
+    task_runs = @(
+      [ordered]@{task_id='T-010'; run_id='run-010'},
+      [ordered]@{task_id='T-011'; run_id='run-011'}
+    )
+  } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt') -Encoding utf8
+  $evidenceOriginal = Get-Content -Raw -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt')
+  $reloadHash = Get-Sha256 (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt')
 
   $valid = Join-Path $work 'manifests/valid.json'
   $validSnapshot = Join-Path $work 'snapshots/run-001'
@@ -114,13 +128,32 @@ try {
   $reuse | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/batch-3-reuse.json') -Encoding utf8
   Expect-Diagnostic TASK_INPUT_IDENTITY { & $validator -Batch @((Join-Path $work 'manifests/batch-1.json'), (Join-Path $work 'manifests/batch-2.json'), (Join-Path $work 'manifests/batch-3-reuse.json')) }
 
-  Write-Manifest (Join-Path $work 'manifests/fallback-a.json') T-010 run-010 shared-session shared-agent same-session-file-reload same-session-file-reload $reloadHash
-  Write-Manifest (Join-Path $work 'manifests/fallback-b.json') T-011 run-011 shared-session shared-agent same-session-file-reload same-session-file-reload $reloadHash
-  & $validator -Batch @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json')) | Out-Null
+  Write-Manifest (Join-Path $work 'manifests/fallback-a.json') T-010 run-010 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents $reloadHash
+  Write-Manifest (Join-Path $work 'manifests/fallback-b.json') T-011 run-011 shared-session shared-agent same-session-file-reload host-does-not-support-implementation-subagents $reloadHash
+  foreach ($fallbackPath in @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json'))) {
+    $fallback = Get-Content -Raw -LiteralPath $fallbackPath | ConvertFrom-Json
+    $fallback.allowed_inputs += [pscustomobject]@{path='handoffs/reload-evidence.txt'; sha256=$reloadHash}
+    $fallback | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath $fallbackPath -Encoding utf8
+  }
+  & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json')) | Out-Null
+  $invented = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/fallback-a.json') | ConvertFrom-Json
+  $invented.handoff_reload_evidence_hash = 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+  $invented.allowed_inputs[-1].sha256 = $invented.handoff_reload_evidence_hash
+  $invented | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/fallback-invented.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/fallback-invented.json'), (Join-Path $work 'manifests/fallback-b.json')) }
+  Expect-Diagnostic TASK_INPUT_ISOLATION { & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/batch-1.json'), (Join-Path $work 'manifests/fallback-b.json')) }
+  Set-Content -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt') -Value "{`"schema`":`"fabricated`"}`n" -NoNewline -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json')) }
+  Set-Content -LiteralPath (Join-Path $evidenceRoot 'handoffs/reload-evidence.txt') -Value $evidenceOriginal -NoNewline -Encoding utf8
+  & $validator -EvidenceRoot $evidenceRoot -Batch @((Join-Path $work 'manifests/fallback-a.json'), (Join-Path $work 'manifests/fallback-b.json')) | Out-Null
   $chatOnly = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/fallback-a.json') | ConvertFrom-Json
   $chatOnly.handoff_reload_evidence_hash = ''
   $chatOnly | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/chat-only.json') -Encoding utf8
   Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -Manifest (Join-Path $work 'manifests/chat-only.json') }
+  $wrongReason = Get-Content -Raw -LiteralPath (Join-Path $work 'manifests/fallback-a.json') | ConvertFrom-Json
+  $wrongReason.fallback_reason = 'operator-prefers-one-session'
+  $wrongReason | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $work 'manifests/wrong-fallback-reason.json') -Encoding utf8
+  Expect-Diagnostic TASK_INPUT_HANDOFF { & $validator -EvidenceRoot $evidenceRoot -Manifest (Join-Path $work 'manifests/wrong-fallback-reason.json') }
 
   $bad = Get-Content -Raw -LiteralPath $valid | ConvertFrom-Json
   $bad.task_id = 'T-999'

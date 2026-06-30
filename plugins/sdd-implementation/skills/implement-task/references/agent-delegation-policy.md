@@ -48,7 +48,13 @@ approved task scope.
 
 ## Context Hygiene
 
-- Enforce one session per task.
+- Enforce one session per task. The sole exception is an implementation batch
+  on a host that explicitly cannot create implementation subagents: that host
+  may reuse one physical session and agent only through the validated
+  `same-session-file-reload` path, with the persisted incapable-host evidence
+  artifact reread from disk before each task. Fresh per-task contexts remain
+  mandatory on every capable host, and reviewers/evaluators never receive this
+  exception.
 - If the context has grown long, or if compaction has occurred, write the
   current state to the Session Handoff section of the implementation report
   and end the session. Do not rely on summaries or compacted context.

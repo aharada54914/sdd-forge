@@ -4,6 +4,7 @@ set -euo pipefail
 manifest=""
 snapshot_root=""
 expected_task=""
+evidence_root=""
 batch=()
 
 while [[ $# -gt 0 ]]; do
@@ -20,6 +21,10 @@ while [[ $# -gt 0 ]]; do
       expected_task="${2:-}"
       shift 2
       ;;
+    --evidence-root)
+      evidence_root="${2:-}"
+      shift 2
+      ;;
     --batch)
       shift
       while [[ $# -gt 0 ]]; do
@@ -34,7 +39,7 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-python3 - "$manifest" "$snapshot_root" "$expected_task" "${batch[@]}" <<'PY'
+python3 - "$manifest" "$snapshot_root" "$expected_task" "$evidence_root" "${batch[@]}" <<'PY'
 import hashlib
 import json
 import datetime
@@ -43,7 +48,7 @@ import re
 import stat
 import sys
 
-manifest, snapshot_root, expected_task, *batch = sys.argv[1:]
+manifest, snapshot_root, expected_task, evidence_root, *batch = sys.argv[1:]
 REQUIRED = (
     "schema", "task_id", "run_id", "session_id", "agent_instance_id",
     "model_tier", "provider", "model", "estimated_cost_per_attempt_usd",
@@ -59,6 +64,8 @@ DECIMAL = re.compile(r"^(0|[1-9][0-9]*)(\.[0-9]+)?$")
 TIMESTAMP = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$")
 TASK = re.compile(r"^T-\d{3}$")
 ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._:-]*$")
+FALLBACK_REASON = "host-does-not-support-implementation-subagents"
+EVIDENCE_PATH = "handoffs/reload-evidence.txt"
 
 def fail(code, message):
     print(f"TASK_INPUT_{code}: {message}", file=sys.stderr)
@@ -142,7 +149,56 @@ def open_snapshot_input(root, rel):
             pass
         fail("PATH", f"snapshot input missing or unsafe: {rel}")
 
-def validate_one(path, check_snapshot=False):
+def load_reload_evidence(data, bind_manifest=True):
+    try:
+        file_fd = open_snapshot_input(evidence_root, EVIDENCE_PATH)
+        with os.fdopen(file_fd, "rb") as handle:
+            payload = handle.read()
+    except SystemExit:
+        raise
+    if hashlib.sha256(payload).hexdigest() != data["handoff_reload_evidence_hash"]:
+        fail("HANDOFF", "fallback evidence artifact hash mismatch")
+    try:
+        evidence = json.loads(payload.decode("utf-8"))
+    except Exception:
+        fail("HANDOFF", "fallback evidence artifact is not valid UTF-8 JSON")
+    expected_keys = {
+        "schema", "implementation_subagents_available", "fallback_reason",
+        "session_id", "agent_instance_id", "task_runs",
+    }
+    if not isinstance(evidence, dict) or set(evidence) != expected_keys:
+        fail("HANDOFF", "fallback evidence artifact has invalid fields")
+    if (
+        evidence["schema"] != "implementation-host-capability/v1"
+        or evidence["implementation_subagents_available"] is not False
+        or evidence["fallback_reason"] != FALLBACK_REASON
+        or evidence["session_id"] != data["session_id"]
+        or evidence["agent_instance_id"] != data["agent_instance_id"]
+    ):
+        fail("HANDOFF", "fallback evidence does not prove incapable-host identity")
+    task_runs = evidence["task_runs"]
+    if not isinstance(task_runs, list) or not task_runs:
+        fail("HANDOFF", "fallback evidence task_runs must be non-empty")
+    pairs = []
+    for entry in task_runs:
+        if (
+            not isinstance(entry, dict)
+            or set(entry) != {"task_id", "run_id"}
+            or not isinstance(entry["task_id"], str)
+            or not TASK.match(entry["task_id"])
+            or not isinstance(entry["run_id"], str)
+            or not ID.match(entry["run_id"])
+        ):
+            fail("HANDOFF", "fallback evidence contains invalid task/run identity")
+        pair = (entry["task_id"], entry["run_id"])
+        if pair in pairs:
+            fail("HANDOFF", "fallback evidence contains duplicate task/run identity")
+        pairs.append(pair)
+    if bind_manifest and (data["task_id"], data["run_id"]) not in pairs:
+        fail("HANDOFF", "fallback evidence does not bind manifest task/run identity")
+    return evidence
+
+def validate_one(path, check_snapshot=False, batch_validation=False):
     data = load(path)
     keys = set(data)
     extra = keys - set(REQUIRED)
@@ -185,8 +241,8 @@ def validate_one(path, check_snapshot=False):
         if data["fallback_reason"] != "" or data["handoff_reload_evidence_hash"] != "":
             fail("ISOLATION", "fresh-agent forbids fallback fields")
     else:
-        if not isinstance(data["fallback_reason"], str) or not data["fallback_reason"]:
-            fail("HANDOFF", "same-session fallback requires fallback_reason")
+        if data["fallback_reason"] != FALLBACK_REASON:
+            fail("HANDOFF", "same-session fallback requires incapable-host reason")
         if not isinstance(data["handoff_reload_evidence_hash"], str) or not SHA.match(data["handoff_reload_evidence_hash"]):
             fail("HANDOFF", "same-session fallback requires handoff_reload_evidence_hash")
     if not isinstance(data["allowed_inputs"], list) or not data["allowed_inputs"]:
@@ -213,6 +269,18 @@ def validate_one(path, check_snapshot=False):
                     digest.update(chunk)
             if digest.hexdigest() != entry["sha256"]:
                 fail("HASH", f"snapshot hash mismatch: {rel}")
+    if mode == "same-session-file-reload":
+        evidence_entries = [
+            entry for entry in data["allowed_inputs"]
+            if entry["path"] == EVIDENCE_PATH
+        ]
+        if len(evidence_entries) != 1:
+            fail("HANDOFF", f"fallback requires allowed input: {EVIDENCE_PATH}")
+        if evidence_entries[0]["sha256"] != data["handoff_reload_evidence_hash"]:
+            fail("HANDOFF", "fallback evidence hash does not match allowed input")
+        if not evidence_root:
+            fail("HANDOFF", "fallback evidence root is required")
+        load_reload_evidence(data, not batch_validation)
     seen_outputs = set()
     for rel in data["allowed_outputs"]:
         if not path_ok(rel, output=True):
@@ -228,12 +296,19 @@ def validate_one(path, check_snapshot=False):
 
 def validate_batch(paths):
     task_ids, run_ids, fresh_sessions, fresh_agents = set(), set(), set(), set()
+    modes, fallback_reasons, fallback_hashes = set(), set(), set()
+    fallback_sessions, fallback_agents = set(), set()
+    expected_pairs = set()
     for path in paths:
-        data = validate_one(path, False)
+        data = validate_one(path, False, True)
+        modes.add(data["isolation_mode"])
+        if len(modes) != 1:
+            fail("ISOLATION", "batch cannot mix fresh-agent and same-session fallback")
         for field, seen in (("task_id", task_ids), ("run_id", run_ids)):
             if data[field] in seen:
                 fail("IDENTITY", f"duplicate {field}: {data[field]}")
             seen.add(data[field])
+        expected_pairs.add((data["task_id"], data["run_id"]))
         if data["isolation_mode"] == "fresh-agent":
             if data["session_id"] in fresh_sessions:
                 fail("IDENTITY", f"duplicate session_id: {data['session_id']}")
@@ -241,6 +316,22 @@ def validate_batch(paths):
                 fail("IDENTITY", f"duplicate agent_instance_id: {data['agent_instance_id']}")
             fresh_sessions.add(data["session_id"])
             fresh_agents.add(data["agent_instance_id"])
+        else:
+            fallback_reasons.add(data["fallback_reason"])
+            fallback_hashes.add(data["handoff_reload_evidence_hash"])
+            fallback_sessions.add(data["session_id"])
+            fallback_agents.add(data["agent_instance_id"])
+    if modes == {"same-session-file-reload"}:
+        if len(fallback_reasons) != 1 or len(fallback_hashes) != 1:
+            fail("ISOLATION", "fallback batch must share one capability decision and evidence")
+        if len(fallback_sessions) != 1 or len(fallback_agents) != 1:
+            fail("IDENTITY", "fallback batch must reuse one physical session and agent")
+        evidence = load_reload_evidence(data)
+        actual_pairs = {
+            (entry["task_id"], entry["run_id"]) for entry in evidence["task_runs"]
+        }
+        if actual_pairs != expected_pairs:
+            fail("HANDOFF", "fallback evidence task_runs do not match complete batch")
 
 if batch:
     validate_batch(batch)
