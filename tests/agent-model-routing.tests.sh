@@ -34,12 +34,13 @@ SELECTOR_SH="$ROOT/plugins/sdd-implementation/scripts/select-agent-model.sh"
 SELECTOR_PS="$ROOT/plugins/sdd-implementation/scripts/select-agent-model.ps1"
 RESUME_SH="$ROOT/plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh"
 RESUME_PS="$ROOT/plugins/sdd-implementation/scripts/check-terminal-tier-resume.ps1"
+BLOCKED_STATE_SCHEMA="$ROOT/contracts/terminal-tier-blocked-state.schema.json"
 RISK_SH="$ROOT/plugins/sdd-quality-loop/scripts/check-risk.sh"
 RISK_PS="$ROOT/plugins/sdd-quality-loop/scripts/check-risk.ps1"
 
 for file in "$MATRIX" "$ADR" "$POLICY" "$INVESTIGATOR" "$COPILOT_INVESTIGATOR" \
   "$EVALUATOR" "$REGISTRY" "$SELECTOR_SH" "$SELECTOR_PS" "$RESUME_SH" \
-  "$RESUME_PS"; do
+  "$RESUME_PS" "$BLOCKED_STATE_SCHEMA"; do
   [[ -f "$file" ]] || fail "missing required routing artifact: ${file#$ROOT/}"
 done
 
@@ -137,6 +138,37 @@ cat > "$TMP/all-tiers.json" <<'JSON'
   {"name":"openai/gpt-5.2-codex","cost":"0.03","available":true,"effort":"high"}
 ]
 JSON
+printf '"not-an-array"\n' > "$TMP/scalar-candidates.json"
+cat > "$TMP/boolean-cost.json" <<'JSON'
+[
+  {"name":"openai/gpt-5.2-codex","cost":true,"available":true,"effort":"high"}
+]
+JSON
+cat > "$TMP/exponent-cost.json" <<'JSON'
+[
+  {"name":"openai/gpt-5.2-codex","cost":"1e2","available":true,"effort":"high"}
+]
+JSON
+cat > "$TMP/numeric-cost.json" <<'JSON'
+[
+  {"name":"openai/gpt-5.2-codex","cost":1,"available":true,"effort":"high"}
+]
+JSON
+cat > "$TMP/ordinal-registry.json" <<'JSON'
+{
+  "schema": "agent-model-capabilities/v1",
+  "models": [
+    {"name":"provider/Z","canonical_tier":"lightweight","efforts":["low"]},
+    {"name":"provider/i","canonical_tier":"lightweight","efforts":["low"]}
+  ]
+}
+JSON
+cat > "$TMP/ordinal-candidates.json" <<'JSON'
+[
+  {"name":"provider/i","cost":"0.01","available":true,"effort":"low"},
+  {"name":"provider/Z","cost":"0.01","available":true,"effort":"low"}
+]
+JSON
 cat > "$TMP/valid-risk.md" <<'EOF'
 ## T-001 Example
 Risk: high
@@ -191,6 +223,53 @@ for runtime in shell powershell; do
   [[ "$unavailable" == "BLOCKED model-tier-unavailable" ]] ||
     fail "$runtime selector did not fail closed when the tier was unavailable"
 
+  if run_selector low "$TMP/scalar-candidates.json" strong >/dev/null 2>&1; then
+    fail "$runtime selector accepted a scalar candidate document"
+  fi
+  for invalid_cost in boolean-cost exponent-cost numeric-cost; do
+    if run_selector low "$TMP/$invalid_cost.json" strong >/dev/null 2>&1; then
+      fail "$runtime selector accepted non-canonical $invalid_cost candidate cost"
+    fi
+  done
+
+  if [[ "$runtime" == shell ]]; then
+    ordinal="$(
+      bash "$SELECTOR_SH" --risk low --registry "$TMP/ordinal-registry.json" \
+        --candidates-file "$TMP/ordinal-candidates.json" --json
+    )"
+  else
+    ordinal="$(
+      SELECTOR_PS_PATH="$SELECTOR_PS" \
+      ORDINAL_REGISTRY_PATH="$TMP/ordinal-registry.json" \
+      ORDINAL_CANDIDATES_PATH="$TMP/ordinal-candidates.json" \
+      pwsh -NoProfile -Command '
+        [Threading.Thread]::CurrentThread.CurrentCulture =
+          [Globalization.CultureInfo]::GetCultureInfo("sv-SE")
+        & $env:SELECTOR_PS_PATH -Risk low `
+          -Registry $env:ORDINAL_REGISTRY_PATH `
+          -CandidatesFile $env:ORDINAL_CANDIDATES_PATH -Json
+      '
+    )"
+  fi
+  [[ "$(jq -r '.model' <<<"$ordinal")" == "provider/Z" ]] ||
+    fail "$runtime selector did not use ordinal provider/model tie-breaking"
+
+  if [[ "$runtime" == shell ]]; then
+    runtime_unavailable="$(
+      bash "$SELECTOR_SH" --risk low --registry "$REGISTRY" \
+        --candidates-file "$TMP/all-tiers.json" \
+        --deterministic-runtime-command sdd-runtime-that-does-not-exist
+    )"
+  else
+    runtime_unavailable="$(
+      pwsh -NoProfile -File "$SELECTOR_PS" -Risk low -Registry "$REGISTRY" \
+        -CandidatesFile "$TMP/all-tiers.json" \
+        -DeterministicRuntimeCommand sdd-runtime-that-does-not-exist
+    )"
+  fi
+  [[ "$runtime_unavailable" == "BLOCKED deterministic-runtime-unavailable" ]] ||
+    fail "$runtime selector did not directly fail closed for an unavailable deterministic runtime"
+
   selected="$(run_selector low "$TMP/effort.json" strong)"
   jq -e '.model == "openai/gpt-5.2-codex" and .effort == "high" and
     .xhigh_reason == null' <<<"$selected" >/dev/null ||
@@ -236,8 +315,19 @@ for runtime in shell powershell; do
 
   if [[ "$runtime" == shell ]]; then
     different="$(select_all medium --previous-tier standard --failure-history test,lint)"
-    same="$(select_all medium --previous-tier standard --failure-history test,test)"
-    terminal="$(select_all high --previous-tier strong --failure-history review-major,review-major)"
+    same="$(select_all medium --previous-tier standard --failure-history test,test --attempt-number 3)"
+    one_tier="$(select_all high --previous-tier lightweight --failure-history test,test --attempt-number 4)"
+    terminal="$(select_all high --previous-tier strong --failure-history review-major,review-major --attempt-number 5)"
+    same_text="$(
+      bash "$SELECTOR_SH" --risk medium --registry "$REGISTRY" \
+        --candidates-file "$TMP/all-tiers.json" --previous-tier standard \
+        --failure-history test,test --attempt-number 3
+    )"
+    terminal_text="$(
+      bash "$SELECTOR_SH" --risk high --registry "$REGISTRY" \
+        --candidates-file "$TMP/all-tiers.json" --previous-tier strong \
+        --failure-history review-major,review-major --attempt-number 5
+    )"
     if bash "$SELECTOR_SH" --risk medium --registry "$REGISTRY" \
       --candidates-file "$TMP/all-tiers.json" --failure-history test,unknown --json \
       >/dev/null 2>&1; then
@@ -245,8 +335,19 @@ for runtime in shell powershell; do
     fi
   else
     different="$(select_all medium -PreviousTier standard -FailureHistory test,lint)"
-    same="$(select_all medium -PreviousTier standard -FailureHistory test,test)"
-    terminal="$(select_all high -PreviousTier strong -FailureHistory review-major,review-major)"
+    same="$(select_all medium -PreviousTier standard -FailureHistory test,test -AttemptNumber 3)"
+    one_tier="$(select_all high -PreviousTier lightweight -FailureHistory test,test -AttemptNumber 4)"
+    terminal="$(select_all high -PreviousTier strong -FailureHistory review-major,review-major -AttemptNumber 5)"
+    same_text="$(
+      pwsh -NoProfile -File "$SELECTOR_PS" -Risk medium -Registry "$REGISTRY" \
+        -CandidatesFile "$TMP/all-tiers.json" -PreviousTier standard \
+        -FailureHistory test,test -AttemptNumber 3
+    )"
+    terminal_text="$(
+      pwsh -NoProfile -File "$SELECTOR_PS" -Risk high -Registry "$REGISTRY" \
+        -CandidatesFile "$TMP/all-tiers.json" -PreviousTier strong \
+        -FailureHistory review-major,review-major -AttemptNumber 5
+    )"
     if pwsh -NoProfile -File "$SELECTOR_PS" -Risk medium -Registry "$REGISTRY" \
       -CandidatesFile "$TMP/all-tiers.json" -FailureHistory test,unknown -Json \
       >/dev/null 2>&1; then
@@ -257,8 +358,31 @@ for runtime in shell powershell; do
     fail "$runtime selector accumulated different failure classes"
   [[ "$(jq -r '.canonical_tier' <<<"$same")" == "strong" ]] ||
     fail "$runtime selector did not advance exactly one tier after recurrence"
-  [[ "$terminal" == "BLOCKED terminal-tier-recurrence" ]] ||
+  jq -e '.escalation == {
+    "attempt_number":3,
+    "failure_class":"test",
+    "next_tier":"strong",
+    "prior_tier":"standard",
+    "reason":"same-classified-failure-twice"
+  }' <<<"$same" >/dev/null ||
+    fail "$runtime selector omitted REQ-004 escalation audit fields"
+  [[ "$(jq -r '.canonical_tier' <<<"$one_tier")" == "standard" ]] ||
+    fail "$runtime selector skipped a tier after lightweight recurrence"
+  jq -e '.status == "BLOCKED" and .reason == "terminal-tier-recurrence" and
+    .escalation == {
+      "attempt_number":5,
+      "failure_class":"review-major",
+      "next_tier":null,
+      "prior_tier":"strong",
+      "reason":"terminal-tier-recurrence"
+    }' <<<"$terminal" >/dev/null ||
     fail "$runtime selector did not block terminal-tier recurrence"
+  [[ "$same_text" == \
+    "openai/gpt-5.2-codex strong prior_tier=standard next_tier=strong failure_class=test attempt_number=3 reason=same-classified-failure-twice" ]] ||
+    fail "$runtime selector omitted non-JSON escalation audit fields"
+  [[ "$terminal_text" == \
+    "BLOCKED terminal-tier-recurrence prior_tier=strong next_tier=null failure_class=review-major attempt_number=5 reason=terminal-tier-recurrence" ]] ||
+    fail "$runtime selector omitted non-JSON terminal recurrence audit fields"
 done
 
 mkdir -p "$TMP/resume-repo/diagnostics"
@@ -280,7 +404,33 @@ Diagnosis Reference: diagnostics/T-900.md
 
 Terminal Reapproval: release-owner @ 2026-06-30T03:00:00Z
 EOF
-resume_tasks_hash="$(shasum -a 256 "$TMP/resume-repo/tasks.md" | awk '{print $1}')"
+blocked_contract_hash="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+cat > "$TMP/resume-repo/blocked-state.json" <<EOF
+{
+  "schema": "terminal-tier-blocked-state/v1",
+  "task_id": "T-900",
+  "blocked_task_contract_sha256": "$blocked_contract_hash",
+  "tier": "strong",
+  "failure_class": "review-major",
+  "attempt_number": 2,
+  "reason": "terminal-tier-recurrence",
+  "blocked_at": "2026-06-30T02:00:00Z"
+}
+EOF
+blocked_state_hash="$(
+  shasum -a 256 "$TMP/resume-repo/blocked-state.json" | awk '{print $1}'
+)"
+resume_tasks_hash="$(
+  python3 - "$TMP/resume-repo/tasks.md" <<'PY'
+import hashlib
+import re
+import sys
+with open(sys.argv[1], encoding="utf-8", newline="") as handle:
+    text = handle.read()
+section = re.search(r"(?ms)^## T-900\b.*?(?=^## T-\d{3}\b|\Z)", text).group(0)
+print(hashlib.sha256(section.rstrip("\r\n").encode("utf-8")).hexdigest())
+PY
+)"
 resume_diagnosis_hash="$(
   shasum -a 256 "$TMP/resume-repo/diagnostics/T-900.md" | awk '{print $1}'
 )"
@@ -288,7 +438,11 @@ cat > "$TMP/resume.json" <<EOF
 {
   "schema": "terminal-tier-resume/v1",
   "task_id": "T-900",
-  "blocked_task_contract_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "blocked_state_reference": {
+    "path": "blocked-state.json",
+    "sha256": "$blocked_state_hash"
+  },
+  "blocked_task_contract_sha256": "$blocked_contract_hash",
   "revised_task_contract_sha256": "$resume_tasks_hash",
   "diagnosis_reference": {
     "path": "diagnostics/T-900.md",
@@ -302,10 +456,12 @@ cat > "$TMP/resume.json" <<EOF
 EOF
 
 bash "$RESUME_SH" --evidence "$TMP/resume.json" \
+  --blocked-state "$TMP/resume-repo/blocked-state.json" \
   --tasks "$TMP/resume-repo/tasks.md" --repo-root "$TMP/resume-repo" \
   --expected-task T-900 >/dev/null ||
   fail "shell terminal-resume validator rejected complete human evidence"
 pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume.json" \
+  -BlockedState "$TMP/resume-repo/blocked-state.json" \
   -Tasks "$TMP/resume-repo/tasks.md" -RepoRoot "$TMP/resume-repo" \
   -ExpectedTask T-900 >/dev/null ||
   fail "PowerShell terminal-resume validator rejected complete human evidence"
@@ -316,25 +472,105 @@ for runtime in shell powershell; do
   if [[ "$runtime" == shell ]]; then
     if bash "$RESUME_SH" --evidence "$TMP/resume-unchanged.json" \
       --tasks "$TMP/resume-repo/tasks.md" --repo-root "$TMP/resume-repo" \
+      --blocked-state "$TMP/resume-repo/blocked-state.json" \
       --expected-task T-900 >/dev/null 2>&1; then
       fail "shell terminal-resume validator accepted an unchanged task contract"
     fi
   else
     if pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume-unchanged.json" \
       -Tasks "$TMP/resume-repo/tasks.md" -RepoRoot "$TMP/resume-repo" \
+      -BlockedState "$TMP/resume-repo/blocked-state.json" \
       -ExpectedTask T-900 >/dev/null 2>&1; then
       fail "PowerShell terminal-resume validator accepted an unchanged task contract"
     fi
   fi
 done
 
+cat >> "$TMP/resume-repo/tasks.md" <<'EOF'
+
+## T-901 Unrelated fixture
+
+Approval: Approved
+
+Status: Planned
+EOF
+bash "$RESUME_SH" --evidence "$TMP/resume.json" \
+  --blocked-state "$TMP/resume-repo/blocked-state.json" \
+  --tasks "$TMP/resume-repo/tasks.md" --repo-root "$TMP/resume-repo" \
+  --expected-task T-900 >/dev/null ||
+  fail "shell terminal-resume validator bound the hash to unrelated tasks"
+pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume.json" \
+  -BlockedState "$TMP/resume-repo/blocked-state.json" \
+  -Tasks "$TMP/resume-repo/tasks.md" -RepoRoot "$TMP/resume-repo" \
+  -ExpectedTask T-900 >/dev/null ||
+  fail "PowerShell terminal-resume validator bound the hash to unrelated tasks"
+
+jq '.blocked_task_contract_sha256 = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"' \
+  "$TMP/resume.json" > "$TMP/resume-forged-blocked-hash.json"
+for runtime in shell powershell; do
+  if [[ "$runtime" == shell ]]; then
+    if bash "$RESUME_SH" --evidence "$TMP/resume-forged-blocked-hash.json" \
+      --blocked-state "$TMP/resume-repo/blocked-state.json" \
+      --tasks "$TMP/resume-repo/tasks.md" --repo-root "$TMP/resume-repo" \
+      --expected-task T-900 >/dev/null 2>&1; then
+      fail "shell terminal-resume validator accepted a forged blocked contract hash"
+    fi
+  else
+    if pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume-forged-blocked-hash.json" \
+      -BlockedState "$TMP/resume-repo/blocked-state.json" \
+      -Tasks "$TMP/resume-repo/tasks.md" -RepoRoot "$TMP/resume-repo" \
+      -ExpectedTask T-900 >/dev/null 2>&1; then
+      fail "PowerShell terminal-resume validator accepted a forged blocked contract hash"
+    fi
+  fi
+done
+
+jq '.human_reapproval.timestamp = "2026-06-30T03:00:00.123Z"' \
+  "$TMP/resume.json" > "$TMP/resume-fractional-time.json"
+for runtime in shell powershell; do
+  if [[ "$runtime" == shell ]]; then
+    if bash "$RESUME_SH" --evidence "$TMP/resume-fractional-time.json" \
+      --blocked-state "$TMP/resume-repo/blocked-state.json" \
+      --tasks "$TMP/resume-repo/tasks.md" --repo-root "$TMP/resume-repo" \
+      --expected-task T-900 >/dev/null 2>&1; then
+      fail "shell terminal-resume validator accepted a fractional-second timestamp"
+    fi
+  else
+    if pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume-fractional-time.json" \
+      -BlockedState "$TMP/resume-repo/blocked-state.json" \
+      -Tasks "$TMP/resume-repo/tasks.md" -RepoRoot "$TMP/resume-repo" \
+      -ExpectedTask T-900 >/dev/null 2>&1; then
+      fail "PowerShell terminal-resume validator accepted a fractional-second timestamp"
+    fi
+  fi
+done
+
+mv "$TMP/resume-repo/diagnostics" "$TMP/outside-diagnostics"
+ln -s "$TMP/outside-diagnostics" "$TMP/resume-repo/diagnostics"
+if bash "$RESUME_SH" --evidence "$TMP/resume.json" \
+  --blocked-state "$TMP/resume-repo/blocked-state.json" \
+  --tasks "$TMP/resume-repo/tasks.md" --repo-root "$TMP/resume-repo" \
+  --expected-task T-900 >/dev/null 2>&1; then
+  fail "shell terminal-resume validator accepted a parent-directory symlink escape"
+fi
+if pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume.json" \
+  -BlockedState "$TMP/resume-repo/blocked-state.json" \
+  -Tasks "$TMP/resume-repo/tasks.md" -RepoRoot "$TMP/resume-repo" \
+  -ExpectedTask T-900 >/dev/null 2>&1; then
+  fail "PowerShell terminal-resume validator accepted a parent-directory symlink escape"
+fi
+rm "$TMP/resume-repo/diagnostics"
+mv "$TMP/outside-diagnostics" "$TMP/resume-repo/diagnostics"
+
 printf '\nTampered diagnosis.\n' >> "$TMP/resume-repo/diagnostics/T-900.md"
 if bash "$RESUME_SH" --evidence "$TMP/resume.json" \
+  --blocked-state "$TMP/resume-repo/blocked-state.json" \
   --tasks "$TMP/resume-repo/tasks.md" --repo-root "$TMP/resume-repo" \
   --expected-task T-900 >/dev/null 2>&1; then
   fail "shell terminal-resume validator accepted a forged diagnosis hash"
 fi
 if pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume.json" \
+  -BlockedState "$TMP/resume-repo/blocked-state.json" \
   -Tasks "$TMP/resume-repo/tasks.md" -RepoRoot "$TMP/resume-repo" \
   -ExpectedTask T-900 >/dev/null 2>&1; then
   fail "PowerShell terminal-resume validator accepted a forged diagnosis hash"
