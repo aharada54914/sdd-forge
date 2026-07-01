@@ -141,9 +141,10 @@ shell_schema_accepts() {
 jq -e --arg baseline "$BASELINE" '
   .schema_version == 1 and
   .migration_baseline_commit == $baseline and
-  (.entries | type == "array" and length == 8) and
+  (.entries | type == "array" and length == 9) and
   ([.entries[].feature] | length == (unique | length)) and
   ([.entries[].feature] | sort) == [
+    "agent-cost-context-isolation",
     "bootstrap-interviewer-enhancement",
     "claude-workflow-compatibility",
     "cross-model-verification",
@@ -168,8 +169,9 @@ jq -e --arg baseline "$BASELINE" '
     else has("legacy") | not end)
   ) and
   (.entries[] | select(.feature == "sdd-lite") | .profile) == "lite" and
-  (.entries[] | select(.feature == "bootstrap-interviewer-enhancement") | .profile) == "full" and
-  (.entries[] | select(.feature == "workflow-state-integrity") | .profile) == "full"
+  (.entries[] | select(.feature == "bootstrap-interviewer-enhancement") | .profile) == "legacy" and
+  (.entries[] | select(.feature == "workflow-state-integrity") | .profile) == "legacy" and
+  (.entries[] | select(.feature == "agent-cost-context-isolation") | .profile) == "legacy"
 ' "$REGISTRY" >/dev/null || fail "canonical registry contract is invalid"
 shell_schema_accepts "$REGISTRY" || fail "canonical registry fails independent Shell schema validation"
 
