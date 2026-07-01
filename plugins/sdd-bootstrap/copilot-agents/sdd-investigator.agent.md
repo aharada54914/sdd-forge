@@ -6,8 +6,6 @@ tools: ["read", "search", "execute"]
 
 # SDD Investigator
 
-Model tier: lightweight
-
 Perform read-only investigation of a codebase or problem domain on behalf of
 the `investigate-codebase` skill.
 

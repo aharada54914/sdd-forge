@@ -26,7 +26,6 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/claude-workflow-compatibility/`
 - `specs/workflow-state-integrity/`
 - `specs/bootstrap-interviewer-enhancement/`
-- `specs/agent-cost-context-isolation/`
 
 ## Source Artifact Locations
 

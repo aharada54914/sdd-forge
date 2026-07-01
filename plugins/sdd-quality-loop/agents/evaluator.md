@@ -12,40 +12,10 @@ Use Bash only for read-only commands (running tests, builds, linters, diffs).
 
 # Inputs
 
-The caller gives you a fresh nonblank run ID, a distinct nonblank
-`host_session_id`, and a persisted allowed-input manifest. Every manifest entry
-contains one canonical repository-relative path and its lowercase SHA-256.
-Reject the invocation before reading substantive inputs when the manifest is missing,
-contains an unlisted path, has a hash mismatch, relies on chat-only input, or
-reuses any implementation/review/evaluation session. No same-session
-fallback is permitted.
-
-Require `REVIEW_CONTEXT_OK` evidence from the paired deterministic
-`validate-review-context-set` validator for a persisted
-`review-context-invocation/v2` contract containing only this evaluator
-invocation. The caller must run the validator with `--reserve` before launch,
-atomically adding this run/session to the canonical identity ledger. That
-hash-chained ledger, rather than caller-supplied reserved-ID arrays, proves the
-identity is absent from every persisted implementation, review, and evaluation
-record. The invocation must be read-only and bind the exact run ID,
-host-session ID, role-authorized manifest paths, and hashes supplied here.
-Missing or stale validator evidence or a missing canonical identity ledger is a
-blocking launch failure; do not inspect repository content or substitute model
-judgment.
-
-The contract's `task_id`, sole implementation-report path, report heading, and
-`Task ID` field must all name the current T-NNN. Reject a same-feature report
-for any other task.
-
-The bounded manifest includes exactly one task report at
-`reports/implementation/<feature>/T-NNN.md`, the feature specification files,
-and `plugins/sdd-quality-loop/references/quality-gate-calibration.md`. A changed
-file, contract, ADR, test, or deterministic-evidence file is authorized only
-when the task report's `## Outputs` table declares that exact canonical path
-and lowercase SHA-256 pair. The deterministic validator enforces this
-task-specific output binding; broad repository namespaces are not an
-allowlist. Verify every hash immediately before reading. Never read a repository
-file that is not listed in the manifest.
+The caller gives you a task id, the feature spec directory (`specs/<feature>/`),
+the implementation report, and the changed files. Read the approved task,
+requirements, design, acceptance tests, contracts, the diff, and
+`plugins/sdd-quality-loop/references/quality-gate-calibration.md` yourself.
 
 # Evaluation Rules
 
@@ -89,9 +59,6 @@ Calibration examples:
 Return exactly:
 
 ```
-RUN_ID: <fresh run id>
-HOST_SESSION_ID: <fresh distinct host session id>
-ALLOWED_INPUT_MANIFEST: <canonical persisted manifest path and SHA-256>
 VERDICT: PASS | NEEDS_WORK
 FINDINGS:
 - [Critical|Major|Minor] <file:line or artifact> — <what is wrong> — <evidence you observed>

@@ -12,12 +12,12 @@ if ($LASTEXITCODE -ne 0) {
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.5.0"
-    "sdd-implementation" = "1.5.0"
-    "sdd-quality-loop"   = "1.5.0"
-    "sdd-lite"           = "1.5.0"
-    "sdd-review-loop"    = "1.5.0"
-    "sdd-ship"           = "1.5.0"
+    "sdd-bootstrap"      = "1.4.0"
+    "sdd-implementation" = "1.4.0"
+    "sdd-quality-loop"   = "1.4.0"
+    "sdd-lite"           = "1.4.0"
+    "sdd-review-loop"    = "1.4.0"
+    "sdd-ship"           = "1.4.0"
 }
 $releasePlugins = $expectedPlugins
 
@@ -29,20 +29,6 @@ function Read-JsonFile {
         throw "Missing required file: $RelativePath"
     }
     return Get-Content -Raw -Encoding Utf8 $path | ConvertFrom-Json
-}
-
-$readmeLines = Get-Content -Encoding Utf8 (Join-Path $repositoryRoot "README.md")
-$readmeCurrentRelease = $readmeLines |
-    Where-Object { $_ -match "^v\d+\.\d+\.\d+(?:\s|$)" } |
-    Select-Object -First 1
-if ($null -eq $readmeCurrentRelease -or $readmeCurrentRelease -notmatch "^v1\.5\.0(?:\s|$)") {
-    throw "README.md current release must be v1.5.0."
-}
-
-$changelog = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "CHANGELOG.md")
-$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.5\.0(?:\s|$)")
-if ($currentReleaseHeadings.Count -ne 1) {
-    throw "CHANGELOG.md must contain exactly one v1.5.0 release heading."
 }
 
 $codexMarketplace = Read-JsonFile ".agents/plugins/marketplace.json"

@@ -3,10 +3,6 @@
   "migration_baseline_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
   "entries": [
     {
-      "feature": "agent-cost-context-isolation",
-      "profile": "full"
-    },
-    {
       "feature": "claude-workflow-compatibility",
       "profile": "legacy",
       "legacy": {
