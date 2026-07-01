@@ -311,6 +311,47 @@
         },
         {
           "const": {
+            "feature": "agent-cost-context-isolation",
+            "profile": "legacy",
+            "legacy": {
+              "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+              "reason": "Review provenance manifest hashes drifted from committed content across the 1.5.0 release commits merged in the same PR; grandfathered rather than reconstructed.",
+              "owner": "sdd-forge maintainers",
+              "allowed_missing_stages": [
+                "spec",
+                "impl",
+                "task"
+              ],
+              "allowed_noncanonical_statuses": {
+                "spec_status": [
+                  "Passed",
+                  "Pending"
+                ],
+                "impl_status": [
+                  "Passed",
+                  "Pending"
+                ],
+                "task_status": [
+                  "Passed",
+                  "Pending"
+                ]
+              },
+              "allowed_task_approvals": [
+                "Draft",
+                "Approved"
+              ],
+              "allowed_task_statuses": [
+                "Planned",
+                "In Progress",
+                "Implementation Complete",
+                "Done",
+                "Blocked"
+              ]
+            }
+          }
+        },
+        {
+          "const": {
             "feature": "workflow-state-integrity",
             "profile": "legacy",
             "legacy": {
