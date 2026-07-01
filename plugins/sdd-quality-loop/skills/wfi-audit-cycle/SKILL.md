@@ -35,6 +35,25 @@ Before running:
    If `Audit-Status: Human-Pending`, print:
    "wfi-audit-cycle: WFI-NNN is already at Human-Pending. No action taken."
    and halt.
+   If `Audit-Status: Human-Blocked`, print:
+   "wfi-audit-cycle: WFI-NNN is Human-Blocked after repeated audit failures. A
+   human must resolve the root cause and reset Audit-Attempt to 0 (and set
+   Audit-Status: Not-Started) before re-running."
+   and halt.
+4. **Convergence guard (attempt limit).** Read `Audit-Attempt:` from the WFI
+   (absent ⇒ treat as 0). If `Audit-Attempt >= 3`, do not start another cycle:
+   set `Audit-Status: Human-Blocked`, print the Human-Blocked message above, and
+   halt. `Audit-Attempt` is a plain counter, not an approval field, so the hook
+   guard does not block the orchestrator from incrementing it; only a human may
+   reset it downward. This mirrors the review loops' `round == 3 → BLOCKED`
+   upper bound.
+5. **No-change guard.** When resuming from `Not-Started` after a prior BLOCKED,
+   compute the SHA-256 of the WFI body (all content sections, excluding the
+   `Audit-Status:`, `Audit-Attempt:`, and `Audit-Content-Hash:` control fields).
+   If it equals the stored `Audit-Content-Hash:` from the last BLOCKED, the WFI
+   was not revised: print
+   "wfi-audit-cycle: WFI-NNN unchanged since last BLOCKED. Revise the WFI before
+   re-running." and halt. This mirrors the review-loop precheck sha256 stop.
 
 ## Process (State Machine)
 
@@ -98,9 +117,15 @@ Read `wfi-auditor-a.json`. Check the `verdict` field.
 
 #### Cycle 1 BLOCKED
 
-Set `Audit-Status: Not-Started` in WFI-NNN.md. Print:
+1. Increment `Audit-Attempt:` in WFI-NNN.md by 1 (absent ⇒ set to `1`).
+2. Store the current WFI body SHA-256 (excluding `Audit-*` control fields) in
+   `Audit-Content-Hash:` — the Precondition no-change guard reads it next run.
+3. If `Audit-Attempt >= 3` after incrementing: set `Audit-Status: Human-Blocked`,
+   print the Human-Blocked message (see Preconditions), and halt. Do not reset to
+   Not-Started; a human must intervene.
+4. Otherwise set `Audit-Status: Not-Started` and print:
 ```
-wfi-audit-cycle BLOCKED at Cycle 1 — <N> Critical finding(s) in WFI-NNN.
+wfi-audit-cycle BLOCKED at Cycle 1 — <N> Critical finding(s) in WFI-NNN (attempt <Audit-Attempt>/3).
 
 The WFI has fundamental quality issues that must be resolved before audit can
 continue. Review WFI-NNN-auditor-a.json for details, revise WFI-NNN.md, then
@@ -157,9 +182,14 @@ Read `wfi-auditor-b.json`. Check the `verdict` field.
 
 #### Cycle 2 BLOCKED
 
-Set `Audit-Status: Not-Started` in WFI-NNN.md. Print:
+1. Increment `Audit-Attempt:` in WFI-NNN.md by 1 (absent ⇒ set to `1`).
+2. Store the current WFI body SHA-256 (excluding `Audit-*` control fields) in
+   `Audit-Content-Hash:`.
+3. If `Audit-Attempt >= 3` after incrementing: set `Audit-Status: Human-Blocked`,
+   print the Human-Blocked message (see Preconditions), and halt.
+4. Otherwise set `Audit-Status: Not-Started` and print:
 ```
-wfi-audit-cycle BLOCKED at Cycle 2 — <N> Critical finding(s) in WFI-NNN.
+wfi-audit-cycle BLOCKED at Cycle 2 — <N> Critical finding(s) in WFI-NNN (attempt <Audit-Attempt>/3).
 
 The revised WFI has a fundamental feasibility or scope issue. Review
 WFI-NNN-auditor-b.json for details, revise WFI-NNN.md, then re-invoke
@@ -241,7 +271,12 @@ If the skill is re-invoked after an interruption:
   skip STEP 2, proceed from STEP 3.
 - `Audit-Status: Cycle-2-In-Progress` and `WFI-NNN-auditor-b.json` exists:
   skip STEPs 2–6, proceed from STEP 7.
-- `Audit-Status: Not-Started` (reset after BLOCKED): start from STEP 1.
+- `Audit-Status: Human-Blocked`: do not resume automatically. A human must
+  address the root cause and reset `Audit-Attempt` to 0 (and set
+  `Audit-Status: Not-Started`) before re-running.
+- `Audit-Status: Not-Started` (reset after BLOCKED): first apply the Precondition
+  no-change guard — compare the WFI body SHA-256 against the stored
+  `Audit-Content-Hash:`; if unchanged, halt. Otherwise start from STEP 1.
 
 ## Audit Artifact Layout
 
