@@ -337,7 +337,7 @@ T-003
 
 Approval: Approved
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: medium
 
@@ -383,10 +383,10 @@ fixtures.
 
 ### Done When
 
-- [ ] TEST-004 validates every required output, test, identity, escalation, attempt, status, unresolved, and next-action field
-- [ ] Legacy report fixtures remain accepted without fabricated new fields
-- [ ] A current-schema report missing a required handoff field is rejected
-- [ ] Retrospectives expose task attempts, review rounds, quality-gate runs, and model escalations
+- [x] TEST-004 validates every required output, test, identity, escalation, attempt, status, unresolved, and next-action field
+- [x] Legacy report fixtures remain accepted without fabricated new fields
+- [x] A current-schema report missing a required handoff field is rejected
+- [x] Retrospectives expose task attempts, review rounds, quality-gate runs, and model escalations
 
 ### Out of Scope
 

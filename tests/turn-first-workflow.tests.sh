@@ -5,6 +5,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 IMPLEMENT_TASKS="$ROOT/plugins/sdd-implementation/skills/implement-tasks/SKILL.md"
 DELEGATION_POLICY="$ROOT/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md"
 VALIDATOR="$ROOT/plugins/sdd-implementation/scripts/validate-task-input-manifest.sh"
+IMPLEMENTATION_REPORT_TEMPLATE="$ROOT/plugins/sdd-implementation/templates/implementation-report.template.md"
+IMPLEMENTATION_REPORT_VALIDATOR="$ROOT/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
 
 fail() {
   printf 'not ok: %s\n' "$1" >&2
@@ -78,6 +80,10 @@ write_manifest() {
 [[ -f "$IMPLEMENT_TASKS" ]] || fail "missing file: $IMPLEMENT_TASKS"
 [[ -f "$DELEGATION_POLICY" ]] || fail "missing file: $DELEGATION_POLICY"
 [[ -f "$VALIDATOR" ]] || fail "missing file: $VALIDATOR"
+[[ -f "$IMPLEMENTATION_REPORT_TEMPLATE" ]] ||
+  fail "missing file: $IMPLEMENTATION_REPORT_TEMPLATE"
+[[ -x "$IMPLEMENTATION_REPORT_VALIDATOR" ]] ||
+  fail "missing executable: $IMPLEMENTATION_REPORT_VALIDATOR"
 
 for needle in \
   'launch exactly one fresh implementation agent' \
@@ -277,4 +283,320 @@ if rg -Fq 'launch exactly one fresh implementation agent' "$WORK/rollback/implem
   fail "restored 1.4.0 loop unexpectedly contains 1.5.0 launch orchestration"
 fi
 
+# Acceptance-first report contract: the current schema is complete and
+# deterministic, while pre-schema reports stay readable byte-for-byte.
+for needle in \
+  'Report Schema: implementation-report/v2' \
+  '## Output Paths And Hashes' \
+  '**Test Command**' \
+  '**Test Result**' \
+  '**Test Evidence Path**' \
+  '**Task Attempt Count**' \
+  '**Escalation Prior Tier**' \
+  '**Escalation Next Tier**' \
+  '**Escalation Failure Class**' \
+  '**Escalation Attempt Number**' \
+  '**Escalation Reason**' \
+  '**Run ID**' \
+  '**Session ID**' \
+  '**Agent Instance ID**' \
+  '**Isolation Mode**' \
+  '**Fallback Reason**' \
+  '**Handoff Reload Evidence Hash**' \
+  '## Unresolved Items' \
+  '**Current Status**' \
+  '**Next Action**' \
+  '**Unresolved Items**'; do
+  rg -Fq "$needle" "$IMPLEMENTATION_REPORT_TEMPLATE" ||
+    fail "implementation report template omits: $needle"
+done
+
+REPORT_WORK="$WORK/implementation-reports"
+mkdir -p "$REPORT_WORK/evidence"
+printf 'green evidence\n' > "$REPORT_WORK/evidence/green.log"
+cat > "$REPORT_WORK/current.md" <<'EOF'
+# Implementation Report: T-006
+
+Report Schema: implementation-report/v2
+
+## Output Paths And Hashes
+
+- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+
+## Test Evidence
+
+- **Test Command**: `bash tests/example.tests.sh`
+- **Test Result**: PASS
+- **Test Evidence Path**: `specs/example/verification/T-006/green.log`
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Run ID**: run-006
+- **Session ID**: session-006
+- **Agent Instance ID**: agent-006
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+None.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: Independent quality review
+- **Unresolved Items**: None
+EOF
+
+current_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/current.md")" ||
+  fail "complete current-schema implementation report was rejected"
+[[ "$current_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected current-schema success diagnostic: $current_output"
+
+cat > "$REPORT_WORK/legacy.md" <<'EOF'
+# Implementation Report: T-001
+
+## Summary
+
+Historical report written before implementation-report/v2.
+EOF
+legacy_hash_before="$(hash_file "$REPORT_WORK/legacy.md")"
+legacy_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/legacy.md")" ||
+  fail "legacy implementation report was rejected"
+legacy_hash_after="$(hash_file "$REPORT_WORK/legacy.md")"
+[[ "$legacy_output" == "IMPLEMENTATION_REPORT_LEGACY_OK" ]] ||
+  fail "unexpected legacy success diagnostic: $legacy_output"
+[[ "$legacy_hash_before" == "$legacy_hash_after" ]] ||
+  fail "legacy validation fabricated fields or otherwise modified the report"
+
+remove_report_text() {
+  source_file="$1"
+  destination_file="$2"
+  text_to_remove="$3"
+  python3 - "$source_file" "$destination_file" "$text_to_remove" <<'PY'
+import sys
+
+source, destination, needle = sys.argv[1:]
+with open(source, encoding="utf-8") as handle:
+    text = handle.read()
+if needle not in text:
+    raise SystemExit(f"fixture needle not found: {needle}")
+with open(destination, "w", encoding="utf-8") as handle:
+    handle.write(text.replace(needle, "", 1))
+PY
+}
+
+replace_report_text() {
+  source_file="$1"
+  destination_file="$2"
+  old_text="$3"
+  new_text="$4"
+  python3 - "$source_file" "$destination_file" "$old_text" "$new_text" <<'PY'
+import sys
+
+source, destination, old, new = sys.argv[1:]
+with open(source, encoding="utf-8") as handle:
+    text = handle.read()
+if old not in text:
+    raise SystemExit(f"fixture needle not found: {old}")
+with open(destination, "w", encoding="utf-8") as handle:
+    handle.write(text.replace(old, new, 1))
+PY
+}
+
+expect_report_rejection() {
+  expected_prefix="$1"
+  fixture="$2"
+  description="$3"
+  rejection_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$fixture" 2>&1)" &&
+    fail "$description unexpectedly passed"
+  case "$rejection_output" in
+    "$expected_prefix"*) ;;
+    *) fail "unexpected diagnostic for $description: $rejection_output" ;;
+  esac
+}
+
+missing_cases=(
+  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`'
+  '- **Test Command**: `bash tests/example.tests.sh`'
+  '- **Test Result**: PASS'
+  '- **Test Evidence Path**: `specs/example/verification/T-006/green.log`'
+  '- **Task Attempt Count**: 1'
+  '- **Escalation Prior Tier**: None'
+  '- **Escalation Next Tier**: None'
+  '- **Escalation Failure Class**: None'
+  '- **Escalation Attempt Number**: None'
+  '- **Escalation Reason**: None'
+  '- **Run ID**: run-006'
+  '- **Session ID**: session-006'
+  '- **Agent Instance ID**: agent-006'
+  '- **Isolation Mode**: fresh-agent'
+  '- **Fallback Reason**: None'
+  '- **Handoff Reload Evidence Hash**: None'
+  'None.'
+  '- **Current Status**: Implementation Complete'
+  '- **Next Action**: Independent quality review'
+  '- **Unresolved Items**: None'
+)
+case_index=0
+for missing_text in "${missing_cases[@]}"; do
+  case_index=$((case_index + 1))
+  invalid_report="$REPORT_WORK/missing-$case_index.md"
+  remove_report_text "$REPORT_WORK/current.md" "$invalid_report" "$missing_text"
+  invalid_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$invalid_report" 2>&1)" &&
+    fail "current-schema report passed with a missing required field: $missing_text"
+  case "$invalid_output" in
+    IMPLEMENTATION_REPORT_FIELD:*) ;;
+    *) fail "unexpected missing-field diagnostic: $invalid_output" ;;
+  esac
+done
+
+# Boundary cases cover partial escalation records and isolation-mode-specific
+# fallback evidence rather than merely checking for non-empty labels.
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/partial-escalation.md" \
+  '- **Escalation Prior Tier**: None' \
+  '- **Escalation Prior Tier**: lightweight'
+boundary_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/partial-escalation.md" 2>&1)" &&
+  fail "partial escalation record unexpectedly passed"
+[[ "$boundary_output" == IMPLEMENTATION_REPORT_FIELD:* ]] ||
+  fail "unexpected partial-escalation diagnostic: $boundary_output"
+
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/fallback-without-evidence.md" \
+  '- **Isolation Mode**: fresh-agent' \
+  '- **Isolation Mode**: same-session-file-reload'
+boundary_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/fallback-without-evidence.md" 2>&1)" &&
+  fail "same-session fallback without evidence unexpectedly passed"
+[[ "$boundary_output" == IMPLEMENTATION_REPORT_FIELD:* ]] ||
+  fail "unexpected fallback-evidence diagnostic: $boundary_output"
+
+# A current/v2-shaped report cannot downgrade to unchecked legacy handling by
+# deleting or damaging its schema marker.
+remove_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/missing-schema.md" \
+  'Report Schema: implementation-report/v2'
+expect_report_rejection \
+  'IMPLEMENTATION_REPORT_SCHEMA:' \
+  "$REPORT_WORK/missing-schema.md" \
+  "v2-shaped report without a schema"
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/empty-schema.md" \
+  'Report Schema: implementation-report/v2' \
+  'Report Schema: '
+expect_report_rejection \
+  'IMPLEMENTATION_REPORT_SCHEMA:' \
+  "$REPORT_WORK/empty-schema.md" \
+  "v2-shaped report with an empty schema"
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/malformed-schema.md" \
+  'Report Schema: implementation-report/v2' \
+  'Report Schema implementation-report/v2'
+expect_report_rejection \
+  'IMPLEMENTATION_REPORT_SCHEMA:' \
+  "$REPORT_WORK/malformed-schema.md" \
+  "v2-shaped report with a malformed schema"
+
+# Closed domains prevent free-form test outcomes and lifecycle states.
+for invalid_result in DEFINITELY-NOT-A-RESULT pass 'PASS — probably'; do
+  fixture="$REPORT_WORK/invalid-result-${invalid_result//[^A-Za-z0-9]/-}.md"
+  replace_report_text \
+    "$REPORT_WORK/current.md" \
+    "$fixture" \
+    '- **Test Result**: PASS' \
+    "- **Test Result**: $invalid_result"
+  expect_report_rejection \
+    'IMPLEMENTATION_REPORT_FIELD:' \
+    "$fixture" \
+    "invalid Test Result $invalid_result"
+done
+for invalid_status in BANANA Done Approved Draft; do
+  fixture="$REPORT_WORK/invalid-status-$invalid_status.md"
+  replace_report_text \
+    "$REPORT_WORK/current.md" \
+    "$fixture" \
+    '- **Current Status**: Implementation Complete' \
+    "- **Current Status**: $invalid_status"
+  expect_report_rejection \
+    'IMPLEMENTATION_REPORT_FIELD:' \
+    "$fixture" \
+    "invalid Current Status $invalid_status"
+done
+
+# Every report path field uses the same repository-relative canonical form.
+invalid_paths=(
+  '../../outside.log'
+  '/absolute/outside.log'
+  'C:/outside.log'
+  'specs\outside.log'
+  'specs//outside.log'
+  'specs/./outside.log'
+  'specs/../outside.log'
+)
+path_index=0
+for invalid_path in "${invalid_paths[@]}"; do
+  path_index=$((path_index + 1))
+  output_fixture="$REPORT_WORK/invalid-output-path-$path_index.md"
+  replace_report_text \
+    "$REPORT_WORK/current.md" \
+    "$output_fixture" \
+    'plugins/example.md' \
+    "$invalid_path"
+  expect_report_rejection \
+    'IMPLEMENTATION_REPORT_FIELD:' \
+    "$output_fixture" \
+    "non-canonical output path $invalid_path"
+
+  evidence_fixture="$REPORT_WORK/invalid-evidence-path-$path_index.md"
+  replace_report_text \
+    "$REPORT_WORK/current.md" \
+    "$evidence_fixture" \
+    'specs/example/verification/T-006/green.log' \
+    "$invalid_path"
+  expect_report_rejection \
+    'IMPLEMENTATION_REPORT_FIELD:' \
+    "$evidence_fixture" \
+    "non-canonical Test Evidence Path $invalid_path"
+done
+
+# The unsupported-host exception has one exact reason and hash-bound evidence.
+replace_report_text \
+  "$REPORT_WORK/current.md" \
+  "$REPORT_WORK/valid-fallback.md" \
+  '- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None' \
+  '- **Isolation Mode**: same-session-file-reload
+- **Fallback Reason**: host-does-not-support-implementation-subagents
+- **Handoff Reload Evidence Hash**: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fallback_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/valid-fallback.md")" ||
+  fail "documented host-capability fallback was rejected"
+[[ "$fallback_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected valid-fallback diagnostic: $fallback_output"
+replace_report_text \
+  "$REPORT_WORK/valid-fallback.md" \
+  "$REPORT_WORK/wrong-fallback-reason.md" \
+  'host-does-not-support-implementation-subagents' \
+  'operator-prefers-one-session'
+expect_report_rejection \
+  'IMPLEMENTATION_REPORT_FIELD:' \
+  "$REPORT_WORK/wrong-fallback-reason.md" \
+  "fallback with a non-capability reason"
+
 printf 'ok: turn-first orchestration enforces three-task identity and fallback fixtures\n'
+printf 'ok: implementation report v2 enforces complete file-backed handoff fields with legacy compatibility\n'
