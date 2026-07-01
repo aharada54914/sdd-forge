@@ -86,6 +86,14 @@
     {
       "feature": "workflow-state-integrity",
       "profile": "full"
+    },
+    {
+      "feature": "p0-hardening",
+      "profile": "lite"
+    },
+    {
+      "feature": "sdd-diagnose",
+      "profile": "lite"
     }
   ]
 }
