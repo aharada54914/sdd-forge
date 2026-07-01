@@ -27,8 +27,13 @@ cp -R "$ROOT/specs/$FEATURE" "$TMP/specs/"
 cp -R "$ROOT/reports/spec-review/$FEATURE" "$TMP/reports/spec-review/"
 cp -R "$ROOT/reports/impl-review/$FEATURE" "$TMP/reports/impl-review/"
 cp -R "$ROOT/reports/task-review/$FEATURE" "$TMP/reports/task-review/"
+# Force a "full" profile for the isolated fixture regardless of the real
+# registry's current classification of $FEATURE. This test exercises the
+# full-profile layer-binding code path specifically; $FEATURE may be
+# grandfathered to "legacy" in the live registry (e.g. after provenance-hash
+# drift), which is orthogonal to what this fixture needs to validate.
 jq --arg feature "$FEATURE" \
-  '{schema_version,migration_baseline_commit,entries:[.entries[]|select(.feature==$feature)]}' \
+  '{schema_version,migration_baseline_commit,entries:[.entries[]|select(.feature==$feature)|.profile="full"|del(.legacy)]}' \
   "$ROOT/specs/workflow-state-registry.json" > "$TMP/specs/workflow-state-registry.json"
 cp "$ROOT/contracts/workflow-state-registry.schema.json" "$TMP/contracts/"
 
