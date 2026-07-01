@@ -230,7 +230,7 @@ function Invoke-InstallerScenario {
             $env:SDD_CODEX_HOME = $originalCodexHome
         }
         if (Test-Path $testRoot) {
-            Remove-Item -Path $testRoot -Recurse -Force
+            Remove-Item -Path $testRoot -Recurse -Force -ErrorAction SilentlyContinue
         }
     }
 }
@@ -311,10 +311,10 @@ function Invoke-RemoteInstallerScenario {
             $env:GH_TOKEN = $originalGhToken
         }
         if (Test-Path $testRoot) {
-            Remove-Item -Path $testRoot -Recurse -Force
+            Remove-Item -Path $testRoot -Recurse -Force -ErrorAction SilentlyContinue
         }
         if (Test-Path (Split-Path -Parent $global:SddInstallerFixtureArchivePath)) {
-            Remove-Item -Path (Split-Path -Parent $global:SddInstallerFixtureArchivePath) -Recurse -Force
+            Remove-Item -Path (Split-Path -Parent $global:SddInstallerFixtureArchivePath) -Recurse -Force -ErrorAction SilentlyContinue
         }
         Remove-Variable -Name SddInstallerFixtureArchivePath -Scope Global -ErrorAction SilentlyContinue
     }
@@ -343,7 +343,7 @@ try {
 }
 finally {
     if (Test-Path $filesOnlyRoot) {
-        Remove-Item -Path $filesOnlyRoot -Recurse -Force
+        Remove-Item -Path $filesOnlyRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 
@@ -366,7 +366,7 @@ try {
     Write-Host "ok: local source installs Git-tracked files only"
 }
 finally {
-    if (Test-Path $trackedOnlyRoot) { Remove-Item -Path $trackedOnlyRoot -Recurse -Force }
+    if (Test-Path $trackedOnlyRoot) { Remove-Item -Path $trackedOnlyRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 # A required release file must be Git-tracked too; otherwise strict local
@@ -432,7 +432,7 @@ try {
 }
 finally {
     if (Test-Path $preDeploymentRoot) {
-        Remove-Item -Path $preDeploymentRoot -Recurse -Force
+        Remove-Item -Path $preDeploymentRoot -Recurse -Force -ErrorAction SilentlyContinue
     }
 }
 
@@ -482,7 +482,7 @@ finally {
     else {
         $env:SDD_CODEX_HOME = $idempotencyOriginalCodexHome
     }
-    if (Test-Path $idempotencyRoot) { Remove-Item -Path $idempotencyRoot -Recurse -Force }
+    if (Test-Path $idempotencyRoot) { Remove-Item -Path $idempotencyRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 # ---------------------------------------------------------------------------
@@ -519,7 +519,7 @@ finally {
     else {
         $env:SDD_CODEX_HOME = $nonestingOriginalCodexHome
     }
-    if (Test-Path $nonestingRoot) { Remove-Item -Path $nonestingRoot -Recurse -Force }
+    if (Test-Path $nonestingRoot) { Remove-Item -Path $nonestingRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 # ---------------------------------------------------------------------------
@@ -581,7 +581,7 @@ finally {
     else {
         $env:SDD_CODEX_HOME = $malformedSavedCodexHome
     }
-    if (Test-Path $malformedRoot) { Remove-Item -Path $malformedRoot -Recurse -Force }
+    if (Test-Path $malformedRoot) { Remove-Item -Path $malformedRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 # ---------------------------------------------------------------------------
@@ -618,7 +618,7 @@ try {
 Write-Host "ok: malformed source agent TOML rejected before deployment"
 }
 finally {
-    if (Test-Path $badDeployRoot) { Remove-Item -Path $badDeployRoot -Recurse -Force }
+    if (Test-Path $badDeployRoot) { Remove-Item -Path $badDeployRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 Invoke-RemoteInstallerScenario
@@ -717,7 +717,7 @@ finally {
         $env:SDD_CODEX_HOME = $lockSavedCodexHome
     }
     Remove-Item Env:SDD_INSTALL_LOCK_TIMEOUT -ErrorAction SilentlyContinue
-    if (Test-Path $lockTestRoot) { Remove-Item -Path $lockTestRoot -Recurse -Force }
+    if (Test-Path $lockTestRoot) { Remove-Item -Path $lockTestRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 # ---------------------------------------------------------------------------
@@ -770,7 +770,7 @@ finally {
     else {
         $env:SDD_CODEX_HOME = $lockSuccessSavedCodexHome
     }
-    if (Test-Path $lockSuccessRoot) { Remove-Item -Path $lockSuccessRoot -Recurse -Force }
+    if (Test-Path $lockSuccessRoot) { Remove-Item -Path $lockSuccessRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 # ---------------------------------------------------------------------------
@@ -848,13 +848,13 @@ finally {
     } else {
         $env:SDD_CODEX_HOME = $smokeSavedCodexHome
     }
-    if (Test-Path $smokeRoot) { Remove-Item -Path $smokeRoot -Recurse -Force }
+    if (Test-Path $smokeRoot) { Remove-Item -Path $smokeRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 Write-Host "Installer integration tests passed."
 
 if (Test-Path $installerSourceRoot) {
-    Remove-Item -Path $installerSourceRoot -Recurse -Force
+    Remove-Item -Path $installerSourceRoot -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 # Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which
