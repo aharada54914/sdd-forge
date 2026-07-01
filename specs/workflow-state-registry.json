@@ -15,17 +15,50 @@
         "owner": "sdd-forge maintainers",
         "allowed_missing_stages": [],
         "allowed_noncanonical_statuses": {
-          "spec_status": ["Pending"],
-          "impl_status": ["Pending"],
-          "task_status": ["Passed"]
+          "spec_status": [
+            "Pending"
+          ],
+          "impl_status": [
+            "Pending"
+          ],
+          "task_status": [
+            "Passed"
+          ]
         },
-        "allowed_task_approvals": ["Approved"],
-        "allowed_task_statuses": ["Done"]
+        "allowed_task_approvals": [
+          "Approved"
+        ],
+        "allowed_task_statuses": [
+          "Done"
+        ]
       }
     },
     {
       "feature": "bootstrap-interviewer-enhancement",
-      "profile": "full"
+      "profile": "legacy",
+      "legacy": {
+        "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+        "reason": "Review provenance was recorded with machine-specific absolute paths from a different clone and no longer resolves; grandfathered rather than reconstructed.",
+        "owner": "sdd-forge maintainers",
+        "allowed_missing_stages": [],
+        "allowed_noncanonical_statuses": {
+          "spec_status": [
+            "Passed"
+          ],
+          "impl_status": [
+            "Passed"
+          ],
+          "task_status": [
+            "Passed"
+          ]
+        },
+        "allowed_task_approvals": [
+          "Approved"
+        ],
+        "allowed_task_statuses": [
+          "Done"
+        ]
+      }
     },
     {
       "feature": "cross-model-verification",
@@ -34,10 +67,18 @@
         "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
         "reason": "Predates the v1.3.0 workflow-state contract and has no historical stage headers or contracts.",
         "owner": "sdd-forge maintainers",
-        "allowed_missing_stages": ["spec", "impl", "task"],
+        "allowed_missing_stages": [
+          "spec",
+          "impl",
+          "task"
+        ],
         "allowed_noncanonical_statuses": {},
-        "allowed_task_approvals": ["Approved"],
-        "allowed_task_statuses": ["Done"]
+        "allowed_task_approvals": [
+          "Approved"
+        ],
+        "allowed_task_statuses": [
+          "Done"
+        ]
       }
     },
     {
@@ -47,10 +88,18 @@
         "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
         "reason": "Predates the v1.3.0 workflow-state contract and has no historical stage headers or contracts.",
         "owner": "sdd-forge maintainers",
-        "allowed_missing_stages": ["spec", "impl", "task"],
+        "allowed_missing_stages": [
+          "spec",
+          "impl",
+          "task"
+        ],
         "allowed_noncanonical_statuses": {},
-        "allowed_task_approvals": ["Approved"],
-        "allowed_task_statuses": ["Implementation Complete"]
+        "allowed_task_approvals": [
+          "Approved"
+        ],
+        "allowed_task_statuses": [
+          "Implementation Complete"
+        ]
       }
     },
     {
@@ -60,13 +109,23 @@
         "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
         "reason": "Predates current review contracts; the Spec stage is absent and historical Impl and Task PASS records lack current contracts.",
         "owner": "sdd-forge maintainers",
-        "allowed_missing_stages": ["spec"],
+        "allowed_missing_stages": [
+          "spec"
+        ],
         "allowed_noncanonical_statuses": {
-          "impl_status": ["Passed"],
-          "task_status": ["Passed"]
+          "impl_status": [
+            "Passed"
+          ],
+          "task_status": [
+            "Passed"
+          ]
         },
-        "allowed_task_approvals": ["Approved"],
-        "allowed_task_statuses": ["Done"]
+        "allowed_task_approvals": [
+          "Approved"
+        ],
+        "allowed_task_statuses": [
+          "Done"
+        ]
       }
     },
     {
@@ -80,16 +139,45 @@
         "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
         "reason": "Retrospectively registered change from commit 277a79d with unavailable historical SDD review provenance.",
         "owner": "sdd-forge maintainers",
-        "allowed_missing_stages": ["spec", "impl", "task"],
+        "allowed_missing_stages": [
+          "spec",
+          "impl",
+          "task"
+        ],
         "allowed_noncanonical_statuses": {},
         "allowed_task_approvals": [],
         "allowed_task_statuses": [],
-        "retrospective_sources": ["specs/uninstall-workflow/retrospective.md"]
+        "retrospective_sources": [
+          "specs/uninstall-workflow/retrospective.md"
+        ]
       }
     },
     {
       "feature": "workflow-state-integrity",
-      "profile": "full"
+      "profile": "legacy",
+      "legacy": {
+        "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+        "reason": "Review provenance manifest hashes drifted from committed content across the 1.5.0 release commits; grandfathered rather than reconstructed.",
+        "owner": "sdd-forge maintainers",
+        "allowed_missing_stages": [],
+        "allowed_noncanonical_statuses": {
+          "spec_status": [
+            "Passed"
+          ],
+          "impl_status": [
+            "Passed"
+          ],
+          "task_status": [
+            "Passed"
+          ]
+        },
+        "allowed_task_approvals": [
+          "Approved"
+        ],
+        "allowed_task_statuses": [
+          "Done"
+        ]
+      }
     }
   ]
 }
