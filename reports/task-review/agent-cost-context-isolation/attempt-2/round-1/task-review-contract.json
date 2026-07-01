@@ -1,0 +1,72 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "agent-cost-context-isolation",
+  "run_id": "task-a2-r1-integrated-20260630t0730z",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 2,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21",
+  "acceptance_sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766",
+  "design_sha256": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36",
+  "tasks_sha256": "6537478670f19b7c56c49bf1ab61906466590a031322d55dc1578d90e12a584b",
+  "traceability_sha256": "1b029baf3d566cd2cae543626a86cebdeea5bd6dadeea2748efc33772512e9c0",
+  "layer_sha256": {
+    "ux-spec.md": "926e291b0bb86340d16476022ee5cd115a4b4cd36e5c6f95132d47874f9afe74",
+    "frontend-spec.md": "0b864688d9db685e54efed2572e3eb4a7bb9968ff7b1c977cd8c5304dcd0b58d",
+    "infra-spec.md": "2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d",
+    "security-spec.md": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"
+  },
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "task-a2-r1-a-20260630t0425z",
+      "host_session_id": "task-a2-r1-a-session-01",
+      "allowed_input_manifest": [
+        {"path":"specs/agent-cost-context-isolation/requirements.md","sha256":"eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"},
+        {"path":"specs/agent-cost-context-isolation/acceptance-tests.md","sha256":"0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"},
+        {"path":"specs/agent-cost-context-isolation/tasks.md","sha256":"6537478670f19b7c56c49bf1ab61906466590a031322d55dc1578d90e12a584b"},
+        {"path":"specs/agent-cost-context-isolation/design.md","sha256":"7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"},
+        {"path":"specs/agent-cost-context-isolation/traceability.md","sha256":"1b029baf3d566cd2cae543626a86cebdeea5bd6dadeea2748efc33772512e9c0"},
+        {"path":"specs/agent-cost-context-isolation/ux-spec.md","sha256":"926e291b0bb86340d16476022ee5cd115a4b4cd36e5c6f95132d47874f9afe74"},
+        {"path":"specs/agent-cost-context-isolation/frontend-spec.md","sha256":"0b864688d9db685e54efed2572e3eb4a7bb9968ff7b1c977cd8c5304dcd0b58d"},
+        {"path":"specs/agent-cost-context-isolation/infra-spec.md","sha256":"2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d"},
+        {"path":"specs/agent-cost-context-isolation/security-spec.md","sha256":"cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"},
+        {"path":"reports/task-review/agent-cost-context-isolation/attempt-2/round-1/precheck-result.json","sha256":"916345f80ce00e161ffdd291a4db3c02dffcb2fb8ce0996f9c6e5aa3aafee00d"},
+        {"path":"reports/task-review/agent-cost-context-isolation/attempt-2/round-1/dependency-graph.json","sha256":"6fc712a8b52b7550a1b6c503f0373e52c8cede96e01c0b788ff0a027e044dbee"},
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "task-a2-r1-b-20260630t0430z",
+      "host_session_id": "task-a2-r1-b-session-02",
+      "allowed_input_manifest": [
+        {"path":"specs/agent-cost-context-isolation/requirements.md","sha256":"eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"},
+        {"path":"specs/agent-cost-context-isolation/acceptance-tests.md","sha256":"0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"},
+        {"path":"specs/agent-cost-context-isolation/tasks.md","sha256":"6537478670f19b7c56c49bf1ab61906466590a031322d55dc1578d90e12a584b"},
+        {"path":"specs/agent-cost-context-isolation/design.md","sha256":"7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"},
+        {"path":"specs/agent-cost-context-isolation/traceability.md","sha256":"1b029baf3d566cd2cae543626a86cebdeea5bd6dadeea2748efc33772512e9c0"},
+        {"path":"specs/agent-cost-context-isolation/ux-spec.md","sha256":"926e291b0bb86340d16476022ee5cd115a4b4cd36e5c6f95132d47874f9afe74"},
+        {"path":"specs/agent-cost-context-isolation/frontend-spec.md","sha256":"0b864688d9db685e54efed2572e3eb4a7bb9968ff7b1c977cd8c5304dcd0b58d"},
+        {"path":"specs/agent-cost-context-isolation/infra-spec.md","sha256":"2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d"},
+        {"path":"specs/agent-cost-context-isolation/security-spec.md","sha256":"cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"},
+        {"path":"reports/task-review/agent-cost-context-isolation/attempt-2/round-1/precheck-result.json","sha256":"916345f80ce00e161ffdd291a4db3c02dffcb2fb8ce0996f9c6e5aa3aafee00d"},
+        {"path":"reports/task-review/agent-cost-context-isolation/attempt-2/round-1/integrated-summary.json","sha256":"ab26b51f18cdf4de3a48bc3b7d58a3a0d21e8bc6036f8da8a29944e4585db4f5"},
+        {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+        {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"4fd42b68610a6254e8acd42e4628f827be9428a8820c041b4f33cdd33dc27354"},
+        {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"}
+      ]
+    }
+  ],
+  "human_edit_summary": "Corrected canonical Layer Spec anchors for REQ-004 through REQ-011 after attempt 1 round 3.",
+  "timestamp": "2026-06-30T07:30:00Z"
+}

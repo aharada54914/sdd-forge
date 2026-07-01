@@ -1,0 +1,79 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-003",
+  "run_id": "agent-cost-context-isolation-T-003-run-01",
+  "session_id": "agent-cost-context-isolation-T-003-session-01",
+  "agent_instance_id": "agent-cost-context-isolation-T-003-agent-01",
+  "model_tier": "strong",
+  "provider": "openai",
+  "model": "gpt-5.2-codex",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-cost-unavailable",
+  "cost_estimate_timestamp": "2026-06-30T08:17:41Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/agent-cost-context-isolation/requirements.md",
+      "sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/design.md",
+      "sha256": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/acceptance-tests.md",
+      "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/security-spec.md",
+      "sha256": "cff3fa3f4be9e38bb65e39d407847b22dd3eef34d7d7d1239aa55824db82f51a"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/tasks.md",
+      "sha256": "e55c67a1690dcdd949ec4638677e3dca1fa1352637be7afddd1abc84656566f9"
+    },
+    {
+      "path": "contracts/task-input-manifest.schema.json",
+      "sha256": "567b75d8cd6414d41bcadcfce7a96ad9fa8803cbc0ad7830e898d8ee7fdeb1f9"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
+      "sha256": "63683f3d9220fbbe86543113de8087e058b22deeee76a3774c310dce0cab5cd0"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1",
+      "sha256": "0dc41bb84fba41af6a97d9a4f6b531c4d298fc1857dfa5afdce7283f69b9651a"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+      "sha256": "93cac55846360212bde7e655d468019060a53728da2770a3f1f37e975faab681"
+    },
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1",
+      "sha256": "0358ee309c4aec82c6e63bda209e30881ddd9b71b8e34215905957142b2607f9"
+    },
+    {
+      "path": "tests/task-context-isolation.tests.sh",
+      "sha256": "e6f7e3a14969fcc5210ad26f3fc2e2b163a868957d45f76c3c31271990db16dc"
+    },
+    {
+      "path": "tests/task-context-isolation.tests.ps1",
+      "sha256": "7e081347201c83aae0b05fe66c60bc487eb797e53e882bd8edc3c38a3a24b5a7"
+    },
+    {
+      "path": "specs/agent-cost-context-isolation/verification/T-003/red.log",
+      "sha256": "9ac862c8e2e4f28d5cabad906e3a9b10204f6cfde5cdadafc50638827092692e"
+    }
+  ],
+  "allowed_outputs": [
+    "contracts/task-input-manifest.schema.json",
+    "plugins/sdd-implementation/scripts/prepare-task-snapshot.sh",
+    "plugins/sdd-implementation/scripts/prepare-task-snapshot.ps1",
+    "plugins/sdd-implementation/scripts/validate-task-input-manifest.sh",
+    "plugins/sdd-implementation/scripts/validate-task-input-manifest.ps1",
+    "specs/agent-cost-context-isolation/verification/T-003/green.log",
+    "reports/implementation/agent-cost-context-isolation/T-003.md"
+  ]
+}

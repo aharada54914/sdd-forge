@@ -63,6 +63,10 @@ Execute this algorithm before each implementation pass:
 2. **Eligible set**: tasks where both of these hold:
    - `Approval: Approved`
    - `Status: Planned` or `Status: In Progress`
+   A task previously blocked with `terminal-tier-recurrence` is not eligible
+   until `check-terminal-tier-resume.sh` or `.ps1` validates a persisted
+   `terminal-tier-resume/v1` evidence file. Missing or forged diagnosis,
+   contract-revision, or human-reapproval evidence keeps it Blocked.
 3. **Dependency filter**: for each eligible task, parse its `### Blockers`
    section.
    - Scan for task-ID references matching the pattern `T-\d+`.
@@ -86,40 +90,115 @@ Execute this algorithm before each implementation pass:
 
 ## Implementation Loop
 
-Implement every task in the current independent set **in parallel** — they touch
-disjoint files, so there is no write conflict. Concurrency caps: **Claude Code —
-up to 4 tasks per pass**, dispatched as separate Task subagents in a single
-assistant message; **Codex — up to (CPU count − 2) tasks**, each launched as a
-parallel process and joined with `wait`. If the independent set exceeds the cap,
-take the earliest N and defer the rest to the next pass. A set of size 1, or any
-Scope-overlapping remainder, runs sequentially.
+`implement-tasks` is an orchestrator. It selects work, creates and validates
+the file-backed handoff, launches the implementation context, and consumes the
+persisted result. It does not implement a selected task in the batch
+orchestrator's accumulated conversation.
+
+Before the first launch, detect whether the host can create implementation
+subagents and persist one capability decision for the complete batch. Every
+manifest in the batch MUST use the mode selected by that decision; mixed
+`fresh-agent` and `same-session-file-reload` batches are invalid. A capable
+host MUST use the fresh-agent path. The fallback path is permitted only when
+the host explicitly reports that implementation subagents are unavailable
+with reason `host-does-not-support-implementation-subagents`.
+
+**Parallel dispatch of the independent set.** Launch every task in the current
+independent set (Task Selection step 4) concurrently — their `Scope` file lists
+are disjoint, so the fresh-agent handoffs never write the same file. Concurrency
+caps: **Claude Code — up to 4 fresh agents per pass**, dispatched in a single
+assistant message; **Codex — up to (CPU count − 2)**, each launched as a parallel
+process and joined with `wait`. If the set exceeds the cap, take the earliest N
+and defer the rest. A set of size 1, or any Scope-overlapping remainder, runs
+sequentially.
+
+**The orchestrator is the only writer of shared state.** Launched agents return
+only their file-backed artifacts (manifest, snapshot outputs, implementation
+report); they never mutate `tasks.md` or another task's
+`reports/implementation/` entry. The orchestrator serializes every `tasks.md`
+status transition and report acceptance after a worker returns, so concurrent
+tasks cannot interleave shared writes. **Fail fast:** the moment any task in the
+set returns `Blocked`, stop dispatching further passes and follow **Block And
+Stop** for the batch (in-flight siblings may finish, but no new pass starts).
 
 For each task in the set (run these concurrently across the set):
 
 1. Inspect `git status` and `git diff`. Preserve unrelated existing changes.
    If they conflict with the task scope, set the task to `Blocked` and stop.
-2. Set the selected task to `In Progress`.
-3. Implement only its `Scope` and `Done When`, following
+2. Use the checked-in routing, risk, snapshot, and manifest scripts to select
+   the model, allocate a new task/run identity, build a hash-bound task input
+   manifest, publish the immutable snapshot, and validate it with
+   `plugins/sdd-implementation/scripts/prepare-task-snapshot.sh` or `.ps1`
+   and `validate-task-input-manifest.sh` or `.ps1`. Keep every manifest in the
+   persisted batch manifest set and run the validator's batch mode over the
+   complete set before launch. For fallback batches, pass the persisted
+   evidence root to `--evidence-root` or `-EvidenceRoot`; the validator rereads
+   the evidence file from disk and binds it to the complete manifest set.
+   Deterministic parsing, validation, hashing, identity checks, and state
+   transitions are performed by checked-in scripts rather than by model
+   judgment.
+3. On a subagent-capable host, launch exactly one fresh implementation agent
+   for the selected T-NNN. Give it only the validated immutable snapshot,
+   manifest, and declared writable output roots. Do not pass chat history,
+   conversation summaries, or the orchestrator's working context. Never reuse
+   a run, session, or `agent_instance_id` from any earlier batch task, whether
+   adjacent or nonadjacent, and never assign the launched agent another task.
+4. On a host that explicitly cannot create implementation subagents, use
+   `same-session-file-reload` only after all of the following hold:
+   - Persist the manifest, immutable snapshot, implementation report location,
+     explicit host-capability fallback reason, unique task ID, and unique run
+     ID.
+   - Record the reused physical session and agent IDs. Reuse of a task or run
+     ID is forbidden.
+   - Save the closed JSON evidence artifact at
+     `handoffs/reload-evidence.txt`. It MUST use schema
+     `implementation-host-capability/v1`, record
+     `implementation_subagents_available: false`, the exact incapable-host
+     reason, reused physical session/agent IDs, and the complete batch's
+     task/run pairs.
+   - Include that evidence path and lowercase SHA-256 in every manifest's
+     `allowed_inputs`, set the same SHA-256 as
+     `handoff_reload_evidence_hash`, then use the checked-in validator to
+     reread and rehash the artifact and revalidate the manifest and snapshot
+     from disk before implementation. Fabricated hashes, missing files,
+     altered evidence content, or evidence task/run pairs that differ from the
+     complete batch fail closed.
+   - Record the fallback reason, reused physical IDs, unique run ID, evidence
+     path/hash, and reload validation result in the implementation report.
+   Chat history or compaction summaries alone are forbidden handoff input and
+   cannot satisfy any reload step.
+5. The persisted manifest and immutable snapshot are the only task handoff in
+   either host path. If launch identity, snapshot validation, saved reload
+   evidence, or output-root enforcement cannot be established, fail closed
+   before implementation.
+6. Reviewer and evaluator fallback is forbidden. This implementation-only
+   fallback does not relax their distinct fresh, read-only, file-backed
+   context requirements.
+7. Set the selected task to `In Progress`.
+8. In the launched fresh agent, or the proven same-session file-reload
+   fallback, implement only the task's `Scope` and `Done When`, following
    `references/implementation-policy.md` in full.
-4. Add or update the task-required tests. When `Required Workflow: tdd`
+9. Add or update the task-required tests. When `Required Workflow: tdd`
    (`high`/`critical` risk), follow Red→Green: write the failing test first
    and save its output, then implement until it passes and save the passing
    output.
-5. Run related existing regression tests.
-6. Perform a scoped self-review against the approved specification.
-7. Delegate large-scope surveys following
+10. Run related existing regression tests.
+11. Perform a scoped self-review against the approved specification.
+12. Delegate large-scope surveys following
    `references/agent-delegation-policy.md`. Record delegation conclusions in
    the Working Notes section of the implementation report immediately.
-8. Create `reports/implementation/<task-id>.md` from the bundled template.
-9. Set the task to `Implementation Complete` only when implementation,
+13. Persist `reports/implementation/<task-id>.md` from the bundled template,
+    validate that all produced files are inside `allowed_outputs`, and return
+    only those file-backed artifacts to the batch orchestrator.
+14. Set the task to `Implementation Complete` only when implementation,
    required tests, related regression tests, and the report are all complete.
-After the whole set finishes (barrier — wait for all parallel tasks to reach
-`Implementation Complete` or `Blocked`):
+After the whole independent set finishes (barrier — the orchestrator waits for
+every launched task to return `Implementation Complete` or `Blocked` before
+touching shared state again):
 
-10. Re-evaluate the eligible set (Task Selection steps 1–4) — completed tasks may
-    unblock previously dependency-blocked tasks, forming the next independent
-    set.
-11. If a new eligible set exists, loop back to the start of the Implementation
+15. Re-evaluate the eligible set (Task Selection steps 1–4) — completed tasks may
+    unblock previously dependency-blocked tasks, forming the next independent set.
+16. If a new eligible set exists, loop back to the start of the Implementation
     Loop and dispatch it. Otherwise proceed to **Completion Check**.
 
 ## Block And Stop

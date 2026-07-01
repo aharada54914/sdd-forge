@@ -62,6 +62,6 @@ sdd-forge には既に **バグ修正の「レビュー検査」**がある:
 
 ## 7. Open Questions
 
-- `diagnose` を `sdd-implementation` に置くか、独立プラグイン `sdd-diagnose` にするか（cross-model の panelist と同様、独立性を重視するなら別プラグイン）。
+- [resolved] `diagnose` は §2 のとおり `plugins/sdd-implementation/skills/diagnose/` に配置済み（独立プラグイン案は不採用）。
 - バグ修正軽量トラックの既定を `lite` にするか、`diagnose` 専用の最小トラックを新設するか。
 - Phase3 の「人間へ仮説提示」を SDD の承認ゲートとして扱うか、助言に留めるか。

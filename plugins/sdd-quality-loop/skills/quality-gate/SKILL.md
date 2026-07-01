@@ -75,7 +75,38 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    On Claude Code use the `sdd-evaluator` subagent. On Codex use the shipped
    `sdd-evaluator` TOML agent; do not create new agent role files under
    `~/.codex/agents/`. Elsewhere, perform the review in a fresh session or a
-   clearly separated critical-review pass. For `high`/`critical` tasks, record
+   clearly separated critical-review pass.
+   Before launch, persist a canonical allowed-input manifest containing exactly
+   one `reports/implementation/<feature>/T-NNN.md`, the task's required
+   specification and calibration files, and only those changed, test, contract,
+   ADR, or deterministic-evidence files whose exact canonical path and lowercase
+   SHA-256 pair appears in that implementation report's `## Outputs` table.
+   Broad `plugins/`, `tests/`, `contracts/`, or `docs/adr/` membership never
+   authorizes an evaluator input.
+   Reverify every hash immediately before launch and bind the manifest path/hash,
+   a fresh run ID, and a distinct host-session ID into the evaluator result.
+   Persist a one-role `review-context-invocation/v2` manifest for the evaluator.
+   Set its `task_id` to the current T-NNN and require the sole implementation
+   report path, report heading, and `Task ID` field to match that exact task.
+   Bind it to the current SHA-256 and final record hash of the canonical
+   `reports/review-context/identity-ledger.json`. The ledger must already carry
+   the invoking implementation identity and every earlier reviewer/evaluator
+   reservation as a valid hash chain; never accept caller-supplied reserved-ID
+   arrays as a substitute. Immediately before launch, atomically reserve the
+   evaluator identity by running
+   `scripts/validate-review-context-set.sh <manifest> <repository-root>
+   --reserve` or
+   `scripts/validate-review-context-set.ps1 -Manifest <manifest>
+   -RepositoryRoot <repository-root> -Reserve`. Require `REVIEW_CONTEXT_OK`,
+   then launch exactly the reserved evaluator run/session. A missing canonical
+   ledger, stale chain tip, deterministic runtime, or any non-zero result
+   retains `Implementation Complete` and blocks evaluator launch. This boundary
+   validates only the evaluator being launched; it does not require fabricated
+   future or replayed reviewer contexts.
+   Reject a missing manifest, unlisted path, hash mismatch, chat-only input, or
+   any implementation/review/evaluation session reuse.
+   No same-session fallback is permitted for the evaluator.
+   For `high`/`critical` tasks, record
    the evaluator's verdict as `review_verdict` in the evidence bundle;
    `check-evidence-bundle` requires `review_verdict.verdict == PASS`.
 9. Classify findings as `Accepted`, `Rejected`, or `Deferred`.

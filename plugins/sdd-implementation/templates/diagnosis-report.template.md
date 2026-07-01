@@ -5,11 +5,11 @@
 
 ## Phase 1 — Feedback loop
 - **Command** (already run, goes red on this bug):
-  ```
+  ```sh
   <one command>
   ```
 - **Red output** (proves it catches the symptom):
-  ```
+  ```text
   <pasted failing output>
   ```
 - Loop properties: red-capable [ ] · deterministic [ ] · fast [ ] · agent-runnable [ ]

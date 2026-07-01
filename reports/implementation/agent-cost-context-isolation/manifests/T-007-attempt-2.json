@@ -1,0 +1,41 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-007",
+  "run_id": "agent-cost-context-isolation-T-007-run-02",
+  "session_id": "agent-cost-context-isolation-T-007-session-02",
+  "agent_instance_id": "agent-cost-context-isolation-T-007-agent-02",
+  "model_tier": "standard",
+  "provider": "openai",
+  "model": "gpt-5.1-codex",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-cost-unavailable",
+  "cost_estimate_timestamp": "2026-07-01T04:36:00Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {"path": "specs/agent-cost-context-isolation/requirements.md", "sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"},
+    {"path": "specs/agent-cost-context-isolation/design.md", "sha256": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"},
+    {"path": "specs/agent-cost-context-isolation/infra-spec.md", "sha256": "2fb8c4611b0ab11a4e6e6cc0683f55d02104461320c607cf2a43c3bc1af1e74d"},
+    {"path": "specs/agent-cost-context-isolation/tasks.md", "sha256": "eef06d74d0da5adf049f50f1d978e40037632ec20d272c30e37e9e1df43d7cb1"},
+    {"path": "specs/agent-cost-context-isolation/acceptance-tests.md", "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"},
+    {"path": "reports/implementation/agent-cost-context-isolation/T-007.md", "sha256": "6289c935bc83443a0d857c034a8213b82f90551efc462546e8199433431f74b3"},
+    {"path": "reports/implementation/agent-cost-context-isolation/T-007-review.md", "sha256": "6abcf2456eb32f26620079fa7c4d0c18b7c5de710d62641489be5f189ee693d8"},
+    {"path": "specs/agent-cost-context-isolation/verification/T-007/green.log", "sha256": "48a5dbd869ba712f475514464a2245b063009c6b89af4bdbc19e44ba0f74b9be"},
+    {"path": "tests/validate-repository.sh", "sha256": "24c439f6bbc741a9d90637e5681727e86a0c0194d3539e5617884e7f1ce56776"},
+    {"path": "tests/validate-repository.ps1", "sha256": "ebcaab5512326240fdb1d1cd2491fa14e0447205b1b7bf47d8d0ef5fa3d17ce0"},
+    {"path": "tests/run-all.sh", "sha256": "abb309a46cf7d8d06f749139b905eab150a48b9d3b567b69e24788eef386e263"},
+    {"path": "tests/run-all.ps1", "sha256": "980f6e918429befeb27e6544d80f6c130ffd60956dbcc462e45c90cdb3bdb1bc"},
+    {"path": ".github/workflows/test.yml", "sha256": "e1e5c5087478e6f808942bb5eed8343b61aedf970dcdb12f3645ae61a73d420f"},
+    {"path": "README.md", "sha256": "892df71a6698e18dda84910fc74c81e8e1f187dbcdc705863139a56dbdf1fed3"},
+    {"path": "CHANGELOG.md", "sha256": "3fec7e05e3a95e9041a300f7b3fae6ea6bcb0f447f56ec9e18f2b45ef5714ec5"}
+  ],
+  "allowed_outputs": [
+    "tests/validate-repository.sh",
+    "tests/validate-repository.ps1",
+    "tests/repository-release-validation.tests.sh",
+    ".github/workflows/test.yml",
+    "specs/agent-cost-context-isolation/verification/T-007/green.log",
+    "reports/implementation/agent-cost-context-isolation/T-007.md"
+  ]
+}
