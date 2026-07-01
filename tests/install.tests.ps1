@@ -399,7 +399,9 @@ try {
     Write-Host "ok: untracked required release file is rejected before deployment"
 }
 finally {
-    if (Test-Path $untrackedRequiredRoot) { Remove-Item -Path $untrackedRequiredRoot -Recurse -Force }
+    # Best-effort cleanup: transient git object files can vanish mid-enumeration
+    # on Linux pwsh (observed flake in CI); the assertion above already ran.
+    if (Test-Path $untrackedRequiredRoot) { Remove-Item -Path $untrackedRequiredRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
 $preDeploymentRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-predeploy-" + [guid]::NewGuid())

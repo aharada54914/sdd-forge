@@ -19,6 +19,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Full history: review-loop prechecks and provenance tests resolve
+          # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
+          fetch-depth: 0
 
       - name: Install recorded Claude Code CLI
         shell: bash
