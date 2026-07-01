@@ -10,7 +10,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
-$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
+$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
 $expectedVersions = @{
     "sdd-bootstrap"      = "1.5.0"
     "sdd-implementation" = "1.5.0"
