@@ -1,0 +1,115 @@
+T-007 verification evidence
+Run: agent-cost-context-isolation-T-007-run-03
+Session: agent-cost-context-isolation-T-007-session-03
+Agent: agent-cost-context-isolation-T-007-agent-03
+Attempt: 3
+Model: openai/gpt-5.2-codex (strong)
+
+INPUT INTEGRITY
+Command: SHA-256 every allowed_input in
+  reports/implementation/agent-cost-context-isolation/manifests/T-007-attempt-3.json
+Result: PASS
+Output: 16/16 paths matched their declared SHA-256 values before any input was read.
+
+REVIEW REMEDIATION
+M-01:
+  tests/run-all.sh no longer registers the unimplemented T-008 rollback test
+  before T-008 begins. Both aggregate suites and both repository validators
+  now pass for the implemented T-001 through T-007 scope.
+M-02:
+  tests/validate-repository.sh is now a minimal full-repository entrypoint that
+  execs the checked-in PowerShell validator, preserving its complete semantics.
+M-03:
+  tests/validate-repository.ps1 now rejects a README whose first version
+  declaration is not v1.5.0 and requires exactly one v1.5.0 CHANGELOG heading.
+  tests/repository-release-validation.tests.sh proves valid-tree acceptance and
+  isolated README/CHANGELOG mutation rejection through both entrypoints.
+m-01:
+  The v1.4.0-through-EOF baseline and current suffixes were independently
+  extracted and SHA-256 hashed. The reproducible baseline hash is recorded
+  below for the next hash-bounded reviewer.
+
+REPOSITORY VALIDATOR — POSIX ENTRYPOINT
+Command: ./tests/validate-repository.sh
+Exit: 0
+Result: PASS
+Output:
+  workflow-state: ok
+  Repository validation passed.
+
+REPOSITORY VALIDATOR — POWERSHELL ENTRYPOINT
+Command: pwsh -NoProfile -File ./tests/validate-repository.ps1
+Exit: 0
+Result: PASS
+Output:
+  workflow-state: ok
+  Repository validation passed.
+
+RELEASE VALIDATION PARITY
+Command: ./tests/repository-release-validation.tests.sh
+Exit: 0
+Result: PASS
+Output:
+  Repository release validation parity tests passed: 8/8 checks.
+Coverage:
+  - valid isolated repository accepted by Bash entrypoint
+  - valid isolated repository accepted by PowerShell entrypoint
+  - mutated README rejected by both entrypoints with matching diagnostic
+  - duplicate v1.5.0 CHANGELOG heading rejected by both entrypoints with matching diagnostic
+  - restored valid repository accepted again by both entrypoints
+Isolation:
+  The test copies the repository to a temporary fixture excluding .git, mutates
+  only fixture README.md and CHANGELOG.md, and removes the fixture on exit.
+
+POSIX REGRESSION SUITE
+Command: ./tests/run-all.sh
+Exit: 0
+Result: PASS
+Output tail:
+  PASS: 25
+  FAIL: 0
+  All POSIX regression tests passed.
+Diagnosis:
+  The aggregate runner contains only implemented task suites. T-008 owns
+  registering rollback-1.5.0.tests.sh when its contract and executables exist.
+
+POWERSHELL REGRESSION SUITE
+Command: pwsh -NoProfile -File ./tests/run-all.ps1
+Exit: 0
+Result: PASS
+Output tail:
+  PASS: 19
+  FAIL: 0
+  All PowerShell regression tests passed.
+
+CHANGELOG HISTORY
+Command:
+  Extract bytes from the first "## v1.4.0 " heading through EOF in
+  git show HEAD:CHANGELOG.md and current CHANGELOG.md; SHA-256 both suffixes.
+Result: PASS
+Baseline suffix bytes: 44892
+Baseline suffix SHA-256: 798a23e751e51d416666fb5b72776bc191e27ecc47e412aa7e6c6c5fa142948e
+Current suffix bytes: 44892
+Current suffix SHA-256: 798a23e751e51d416666fb5b72776bc191e27ecc47e412aa7e6c6c5fa142948e
+Comparison: byte-for-byte equal
+
+STATIC HYGIENE
+Commands:
+  sh -n tests/validate-repository.sh
+  bash -n tests/repository-release-validation.tests.sh
+  git diff --check -- tests/validate-repository.sh
+    tests/validate-repository.ps1
+    tests/repository-release-validation.tests.sh
+    .github/workflows/test.yml
+Result: PASS
+
+ESCALATION
+Transition: standard -> strong
+Prior tier: standard
+Next tier: strong
+Failure class: acceptance-test-not-green
+Attempt number: 3
+Reason: TEST-005 remained non-green in two independent review rounds, so the
+  standard tier became ineligible for the next attempt.
+Unresolved T-007 defects: none
+Next action: fresh independent T-007 re-review.

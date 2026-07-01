@@ -1,0 +1,23 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "b4a20757-11fd-4ecf-945b-e19cb9de641d",
+  "host_session_id": "spec-b-a2r1-9f83e6c4",
+  "allowed_input_manifest": [
+    {"path": "specs/agent-cost-context-isolation/requirements.md", "sha256": "0e6cc6a7c3294bc2ea182ce4ed253b965d344db4e2856f5971efddeaac6068f6"},
+    {"path": "specs/agent-cost-context-isolation/acceptance-tests.md", "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"},
+    {"path": "reports/spec-review/agent-cost-context-isolation/attempt-2/round-1/precheck-result.json", "sha256": "1419a811f27ea424a3386f0cfa1cc468a0c09f314882ed6d1504fa27acb111b0"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/agent-cost-context-isolation/attempt-2/round-1/integrated-summary.json", "sha256": "e4875bce5000f73857eea9aca4d002e68239529fbf4a6d3d011f6f0aacc4eae7"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major", "finding": "REQ-001 through REQ-011 concretely define actors, routing order, tier mappings, recurrence identity, isolation modes, manifest fields, failure diagnostics, and observable outputs."},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "The matrix-first routing, one-tier recurrence escalation, terminal blocking, model availability rules, and same-session implementation fallback are mutually consistent with the reviewer/evaluator no-fallback boundary."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "TEST-001 through TEST-006 cover differing failure classes, terminal-tier recurrence, unavailable tiers and runtimes, identifier reuse, malformed or missing provenance, tampering, symlinks, traversal, mutable inputs, undeclared outputs, rollback failure, and legacy/current schema boundaries."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "Host capability, risk classification, price provenance, runtime availability, subagent capability, and rollback baseline assumptions are converted into checked-in policies, registries, invocation records, fail-closed states, or explicit fixtures."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "REQ-004 assigns blocked-task resumption to the human task-approval authority and requires a diagnosis reference, revised task contract, and explicit reapproval; AC-001 and TEST-001 make that boundary testable."},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": "The requirements and acceptance tests provide deterministic selection rules, closed enums, state transitions, required records, isolation invariants, diagnostics, verification surfaces, release scope, and rollback behavior without requiring product behavior to be invented downstream."}
+  ]
+}

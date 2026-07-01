@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "terminal-tier-blocked-state.schema.json",
+  "title": "Terminal-tier blocked state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "task_id",
+    "blocked_task_contract_sha256",
+    "tier",
+    "failure_class",
+    "attempt_number",
+    "reason",
+    "blocked_at"
+  ],
+  "properties": {
+    "schema": {
+      "const": "terminal-tier-blocked-state/v1"
+    },
+    "task_id": {
+      "type": "string",
+      "pattern": "^T-[0-9]{3}$"
+    },
+    "blocked_task_contract_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tier": {
+      "const": "strong"
+    },
+    "failure_class": {
+      "enum": [
+        "test",
+        "lint",
+        "typecheck",
+        "build",
+        "review-major",
+        "review-critical"
+      ]
+    },
+    "attempt_number": {
+      "type": "integer",
+      "minimum": 2
+    },
+    "reason": {
+      "const": "terminal-tier-recurrence"
+    },
+    "blocked_at": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-006",
+  "run_id": "agent-cost-context-isolation-T-006-run-01",
+  "session_id": "agent-cost-context-isolation-T-006-session-01",
+  "agent_instance_id": "agent-cost-context-isolation-T-006-agent-01",
+  "model_tier": "standard",
+  "provider": "openai",
+  "model": "gpt-5.1-codex",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-cost-unavailable",
+  "cost_estimate_timestamp": "2026-06-30T14:40:27Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {"path": "AGENTS.md", "sha256": "17b2bceb873995307a41ec05bba19bd4485bb1756efe257414e636de762db100"},
+    {"path": "specs/agent-cost-context-isolation/requirements.md", "sha256": "eb9de975afa29e47ff14cac53f8ee5c8ac617ad4a78b61acf7eba572244a1a21"},
+    {"path": "specs/agent-cost-context-isolation/design.md", "sha256": "7bf2ed2214b1ab84cb16926f5d75eb3e5288128ce1140259b285ef5ea253aa36"},
+    {"path": "specs/agent-cost-context-isolation/tasks.md", "sha256": "d1dd0f02fb015b73e8ac006aabaf1c5979f93ec9cfe4b0ca9ee8e9f309da8f43"},
+    {"path": "specs/agent-cost-context-isolation/acceptance-tests.md", "sha256": "0ba2e6963a82848f0588735da1ba3cb6f52e7850024f6b37c9bd5ce1f1d1b766"},
+    {"path": "specs/agent-cost-context-isolation/traceability.md", "sha256": "4edf2b70b2f7058ce96b1165a94f5dff8f8dc77284ea9e0b36e338f2a07c9fe9"},
+    {"path": "docs/adr/0003-turn-first-agent-routing.md", "sha256": "ed5daea1ebb815d3a2961ee062e674a9f0c408ed26041430f4ddc323fb82dd54"},
+    {"path": "plugins/sdd-implementation/templates/implementation-report.template.md", "sha256": "f64e50e2db96a26492f075a730f9c3326be646fdcc7a1b98c250acd3e2f5aaa6"},
+    {"path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh", "sha256": "de88208ec43d627d3d03ac2e598fde8074740e10abcd723b4b93154d79e47b6b"},
+    {"path": "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md", "sha256": "a39ae5efd9bbeae95b3ecf3da1775b6cd3c9bb7bcad44c340e934a13d79fe0e9"},
+    {"path": "plugins/sdd-quality-loop/templates/retrospective-report.template.md", "sha256": "0bd34f92b305f4c0313682215ebb62f4a979c5fe5559de73d5b5a2dd40933250"},
+    {"path": "tests/turn-first-workflow.tests.sh", "sha256": "0083cd5e709da5621ce42ad892157084fff1a129ae0eedb7f394a05b2d7d6cc0"},
+    {"path": "tests/retrospective-loop.tests.sh", "sha256": "c962a1e0a313eb4d66aac7afac70eb2710ce33d711903798bbe37a6977d0fafb"}
+  ],
+  "allowed_outputs": [
+    "plugins/sdd-implementation/templates/implementation-report.template.md",
+    "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+    "plugins/sdd-quality-loop/skills/workflow-retrospective/SKILL.md",
+    "plugins/sdd-quality-loop/templates/retrospective-report.template.md",
+    "tests/turn-first-workflow.tests.sh",
+    "tests/retrospective-loop.tests.sh",
+    "specs/agent-cost-context-isolation/verification/T-006/green.log",
+    "reports/implementation/agent-cost-context-isolation/T-006.md"
+  ]
+}

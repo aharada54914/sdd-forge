@@ -94,6 +94,14 @@ impl-reviewer-a is read-only. It must not modify any spec file.
 Immediately before invoking it, run the same precheck command with
 `--verify-inputs`. Halt if any core or layer input differs from the persisted
 precheck manifest.
+Then persist a one-role `review-context-invocation/v2` manifest and bind it to
+the current hash/final record of the canonical
+`reports/review-context/identity-ledger.json`. Run
+`plugins/sdd-quality-loop/scripts/validate-review-context-set.sh
+<invocation-manifest> <repository-root> --reserve` or the PowerShell equivalent
+with `-Reserve`. Require `REVIEW_CONTEXT_OK` before launch. Missing/stale ledger
+state, identity reuse, or any other non-zero result blocks launch; never replace
+persisted history with caller-supplied reserved-ID arrays.
 
 ### STEP 3 — Generate integrated-summary.json
 
@@ -134,6 +142,11 @@ its own inputs and writes:
 impl-reviewer-b is read-only. It must not modify any spec file.
 Immediately before invoking it, rerun the precheck with `--verify-inputs`.
 This verification mode is read-only and must not replace review evidence.
+Create a new one-role `review-context-invocation/v2` manifest using the ledger
+state after reviewer A, then invoke `validate-review-context-set` with
+`--reserve` (Bash) or `-Reserve` (PowerShell). Require `REVIEW_CONTEXT_OK`
+before launching reviewer B. Reviewer B does not require any future task or
+evaluator context.
 
 ### STEP 5 — Merge Verdicts
 

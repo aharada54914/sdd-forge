@@ -1,0 +1,20 @@
+T-005 Red evidence
+Command:
+  work_dir="$(mktemp -d)"
+  git archive HEAD | tar -x -C "$work_dir"
+  cp tests/review-agent-isolation.tests.sh "$work_dir/tests/review-agent-isolation.tests.sh"
+  bash "$work_dir/tests/review-agent-isolation.tests.sh"
+
+Baseline commit:
+  1bba72f feat(sdd): isolate implementation task contexts
+
+Observed exit:
+  1
+
+Observed output:
+  not ok: quality gate must fail closed instead of using evaluator fallback
+
+Interpretation:
+  The committed baseline does not require a fail-closed evaluator launch
+  boundary. The strengthened test also requires paired deterministic validators
+  before it can reach Green.

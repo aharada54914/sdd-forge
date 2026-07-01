@@ -20,6 +20,11 @@ tests=(
   tests/downstream-review-precheck-parity.tests.sh
   tests/task-review-precheck.tests.sh
   tests/review-agent-isolation.tests.sh
+  tests/agent-model-routing.tests.sh
+  tests/task-context-isolation.tests.sh
+  tests/turn-first-workflow.tests.sh
+  tests/retrospective-loop.tests.sh
+  tests/rollback-1.5.0.tests.sh
   tests/cross-model.tests.sh
   tests/eval.tests.sh
   tests/crlf-parity.tests.sh
