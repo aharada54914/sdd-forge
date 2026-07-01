@@ -1,0 +1,108 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "feature": "workflow-state-integrity",
+  "attempt": 4,
+  "round": 2,
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "883BBD73-0B61-4988-AAA8-8E13D528A345",
+  "host_session_id": "192936A1-7029-48CA-810F-47CDD0FB9EDB",
+  "verdict": "PASS",
+  "manifest": {
+    "hash_algorithm": "sha256",
+    "hashes_verified": true,
+    "allowed_inputs": [
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+      {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+      {"path": "specs/workflow-state-integrity/tasks.md", "sha256": "7ec12e7d3741dfe7eed66c5e198f4c943995120cd1a781aed358c5702325d654"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/precheck-result.json", "sha256": "5c54661ac366df64b5e732b6aeefbfa14e009889e0fccd38bd46c746d5fbc7fa"},
+      {"path": "reports/task-review/workflow-state-integrity/attempt-4/round-2/integrated-summary.json", "sha256": "805b236f58b90d231eae6bf8943b4cdd628747d1f12935d310cbd5700ccfe629"}
+    ]
+  },
+  "checks": [
+    {
+      "id": "TRB-001",
+      "name": "risk-appropriateness",
+      "result": "PASS",
+      "severity": null,
+      "task_ids": ["T-001", "T-002", "T-003", "T-004", "T-005", "T-006"],
+      "evidence": "T-001 through T-005 are appropriately high risk because they modify workflow-integrity, provenance, migration, or enforcement boundaries where defects could bypass or deadlock mandatory gates. T-006 is appropriately medium risk because it is reversible release metadata with observable compatibility impact but no sensitive runtime mutation.",
+      "finding": null
+    },
+    {
+      "id": "TRB-002",
+      "name": "high-risk-tdd-evidence",
+      "result": "PASS",
+      "severity": null,
+      "task_ids": ["T-001", "T-002", "T-003", "T-004", "T-005"],
+      "evidence": "Every high-risk task declares Required Workflow: tdd and requires a failing test in a test-only commit preceding implementation, retained Red-to-Green logs, named independent review, spec revision and environment provenance, changed-file hashes, and requirement-traceability evidence.",
+      "finding": null
+    },
+    {
+      "id": "TRB-003",
+      "name": "task-size",
+      "result": "PASS",
+      "severity": null,
+      "task_ids": ["T-001", "T-002", "T-003", "T-004", "T-005", "T-006"],
+      "evidence": "Each task has one coherent implementation outcome. Larger file sets in T-005 and T-006 are justified by paired runtime integration, regression coverage, or synchronized mechanical release surfaces rather than unrelated concerns.",
+      "finding": null
+    },
+    {
+      "id": "TRB-004",
+      "name": "edge-cases",
+      "result": "PASS",
+      "severity": null,
+      "task_ids": ["T-001", "T-002", "T-003", "T-004", "T-005", "T-006"],
+      "evidence": "The tasks plan concrete negative and boundary coverage including traversal, escaping paths and symlinks, stale or forged provenance, malformed and unreadable inputs, duplicate and dangling registry entries, predecessor inversion, lifecycle bypass, LF/CRLF parity, sudo behavior, cross-feature report collision, and release-version skew.",
+      "finding": null
+    },
+    {
+      "id": "TRB-005",
+      "name": "rollback",
+      "result": "PASS",
+      "severity": null,
+      "task_ids": ["T-001", "T-002", "T-003", "T-004", "T-005", "T-006"],
+      "evidence": "Every task defines a bounded rollback unit, preserves predecessor enforcement or prior validation behavior where necessary, and includes inspectable rollback exercise evidence in its Done When criteria.",
+      "finding": null
+    },
+    {
+      "id": "TRB-006",
+      "name": "scope-dependencies",
+      "result": "PASS",
+      "severity": null,
+      "task_ids": ["T-001", "T-002", "T-003", "T-004", "T-005", "T-006"],
+      "evidence": "Scopes and exclusions are explicit. T-001 and T-002 establish independent prerequisites; T-003 depends on both; T-004 and T-005 depend on T-003; and T-006 depends on both integration tasks. No missing dependency or conflicting execution path is evident.",
+      "finding": null
+    },
+    {
+      "id": "TRB-007",
+      "name": "bugfix-diagnostic-path",
+      "result": "PASS",
+      "severity": null,
+      "task_ids": ["T-001"],
+      "evidence": "T-001 preserves a complete diagnostic path from the observed Spec-Passed to Impl-precheck transition failure, through canonical hash/path mismatch diagnosis, to a narrowly scoped fix and regression evidence covering transition success and rejection of traversal, escape, stale hashes, and unintended normalization.",
+      "finding": null
+    }
+  ],
+  "findings": [],
+  "summary": {
+    "pass_count": 7,
+    "fail_count": 0,
+    "skip_count": 0,
+    "critical_count": 0,
+    "major_count": 0,
+    "minor_count": 0
+  },
+  "input_verification": {
+    "all_hashes_matched": true,
+    "precheck_status": "PASS",
+    "reviewer_a_summary": {
+      "pass_count": 14,
+      "fail_count": 0,
+      "skip_count": 0
+    }
+  }
+}

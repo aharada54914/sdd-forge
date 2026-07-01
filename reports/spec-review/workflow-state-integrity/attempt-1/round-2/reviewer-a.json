@@ -1,0 +1,23 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-wsi-a1r2-20260627",
+  "host_session_id": "host-spec-a-wsi-a1r2-20260627",
+  "allowed_input_manifest": [
+    {"path": "specs/workflow-state-integrity/requirements.md", "sha256": "46c14d5cac5a213488494904fc1d59fe02896d4dff9dfd7fa472fedc09cad9f4"},
+    {"path": "specs/workflow-state-integrity/acceptance-tests.md", "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path": "specs/workflow-state-integrity/investigation.md", "sha256": "3592dc261e571dcdeb39ffd444fc4e8655f7e813b2d055b3326d6387bcde878f"},
+    {"path": "reports/spec-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json", "sha256": "7c9d317466f6eaa093359f13da7964f1ac5122fa60cfd879f6292409abccc727"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "REQ-TESTABILITY", "result": "PASS", "severity": "Critical", "finding": "REQ-001 through REQ-012 state observable repository artifacts, status relationships, provenance fields, lifecycle boundaries, runtime outcomes, integration points, regression surfaces, synchronized versions, and bypass conditions; AC-001 through AC-014 provide concrete fixture, inspection, and exit-code validation surfaces."},
+    {"id": "GOAL-AC-TRACE", "result": "PASS", "severity": "Major", "finding": "Repository/CI/quality-gate enforcement is covered by AC-003 through AC-005 and AC-009 through AC-010; behavior preservation by AC-010, AC-012, and AC-013; bounded historical treatment by AC-006 and AC-011; and deterministic POSIX/PowerShell parity by AC-002, AC-008, and AC-014."},
+    {"id": "AC-OBSERVABLE", "result": "PASS", "severity": "Major", "finding": "Every acceptance criterion defines an inspectable outcome: runtime exit status and rule IDs, accepted or rejected fixtures, explicit invocation paths, traceable records, passing suites, synchronized version surfaces, or fail-closed diagnostics."},
+    {"id": "SCOPE-BOUNDARY", "result": "PASS", "severity": "Major", "finding": "The Non-goals explicitly exclude fabricated historical reviews, policy changes, replacement of stage prechecks, installer/uninstaller behavior changes, and network or non-standard runtime dependencies; constraints additionally bound legacy selection and Done transitions."},
+    {"id": "CONSTRAINTS-EXPLICIT", "result": "PASS", "severity": "Major", "finding": "Material migration, compatibility, approval, architecture, contract, release synchronization, runtime parity, provenance, and historical-safety constraints are explicit in REQ-003 through REQ-012, Non-goals, Constraints, and the investigation safety constraints."},
+    {"id": "RISK-VALIDATION-SURFACE", "result": "PASS", "severity": "Major", "finding": "The identified high-risk surfaces have planned validation: predecessor and lifecycle bypasses in AC-003 and AC-005, forged or stale provenance in AC-004, overbroad legacy exceptions in AC-006, runtime/line-ending parity in AC-008, enforcement integration in AC-009 and AC-010, historical provenance in AC-011, regression preservation in AC-012, and fail-closed behavior in AC-014."}
+  ]
+}

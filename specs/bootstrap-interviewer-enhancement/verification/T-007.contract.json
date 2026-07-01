@@ -1,0 +1,20 @@
+{
+  "task_id": "T-007",
+  "feature": "bootstrap-interviewer-enhancement",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "5d1e24636ccf9b4327fbcf030804fb183adf80f3dfeccee7b7a067f6b145d18b",
+  "created": "2026-06-29T15:00:00Z",
+  "checks": [
+    {"id":"lint","required":false,"passes":false,"evidence":"","waiver_reason":"Hook runtimes are exercised by parity and scenario suites.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"typecheck","required":false,"passes":false,"evidence":"","waiver_reason":"No static typechecker is configured across all hook runtimes.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"build","required":false,"passes":false,"evidence":"","waiver_reason":"Hook scripts are shipped as source without a build step.","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"placeholder-scan","required":true,"passes":true,"evidence":"specs/bootstrap-interviewer-enhancement/verification/quality/T-007-gate.log","waiver_reason":"","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"task-state-check","required":true,"passes":true,"evidence":"specs/bootstrap-interviewer-enhancement/verification/quality/T-007-gate.log","waiver_reason":"","requirement_ids":[],"red_evidence":"","green_evidence":""},
+    {"id":"unit-tests","required":true,"passes":true,"evidence":"specs/bootstrap-interviewer-enhancement/verification/T-007/green.log","waiver_reason":"","requirement_ids":["REQ-017"],"red_evidence":"specs/bootstrap-interviewer-enhancement/verification/T-007/red.log","green_evidence":"specs/bootstrap-interviewer-enhancement/verification/T-007/green.log"},
+    {"id":"acceptance-tests","required":true,"passes":true,"evidence":"specs/bootstrap-interviewer-enhancement/verification/T-007/green.log","waiver_reason":"","requirement_ids":["REQ-017"],"red_evidence":"specs/bootstrap-interviewer-enhancement/verification/T-007/red.log","green_evidence":"specs/bootstrap-interviewer-enhancement/verification/T-007/green.log"},
+    {"id":"regression","required":true,"passes":true,"evidence":"specs/bootstrap-interviewer-enhancement/verification/quality/run-all-sh.log","waiver_reason":"","requirement_ids":["REQ-017"],"red_evidence":"","green_evidence":""},
+    {"id":"requirement-traceability","required":true,"passes":true,"evidence":"specs/bootstrap-interviewer-enhancement/traceability.json","waiver_reason":"","requirement_ids":["REQ-017"],"red_evidence":"","green_evidence":""}
+  ]
+}

@@ -1,0 +1,120 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "feature": "workflow-state-integrity",
+  "attempt": 3,
+  "round": 2,
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "ff2a33c0-6f71-49bc-afc3-ddebc1d3b8ea",
+  "host_session_id": "e6436d77-0bae-463d-84e4-a92d2bcf8ffd",
+  "generated_at": "2026-06-27T06:29:57Z",
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851",
+      "hash_verified": true
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/precheck-result.json",
+      "sha256": "7d1c3ea41528ee56db9af7058f6d7f63ced5aa52aa02cda75777c802deb298c1",
+      "hash_verified": true
+    },
+    {
+      "path": "reports/task-review/workflow-state-integrity/attempt-3/round-2/dependency-graph.json",
+      "sha256": "a5c6779a1e85347dd6c4b6f4a397a81f8344e5c996205ea286e1bb35c80605ba",
+      "hash_verified": true
+    },
+    {
+      "path": "specs/workflow-state-integrity/requirements.md",
+      "sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+      "hash_verified": true
+    },
+    {
+      "path": "specs/workflow-state-integrity/acceptance-tests.md",
+      "sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+      "hash_verified": true
+    },
+    {
+      "path": "specs/workflow-state-integrity/tasks.md",
+      "sha256": "50a825a5338e0116276da461fe60c3b003e8f05d7f3e4dcbc621a5cb14ab7e28",
+      "hash_verified": true
+    },
+    {
+      "path": "specs/workflow-state-integrity/traceability.md",
+      "sha256": "b4fcc6e4e28c6d21db73298fe58a6da81b16475451056461208c464f08c9d99e",
+      "hash_verified": true
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "TASK-A-001",
+      "name": "structural-coverage",
+      "status": "PASS",
+      "severity": null,
+      "finding": "T-001 through T-006 collectively cover REQ-001 through REQ-012 and AC-001 through AC-014. Each task provides a source concern, goal, bounded scope, planned files, inspectable Done When criteria, rollback, and out-of-scope boundary.",
+      "evidence": [
+        "tasks.md: T-001 through T-006",
+        "traceability.md: Requirement table and Task Mapping"
+      ]
+    },
+    {
+      "id": "TASK-A-002",
+      "name": "blocker-format-and-graph",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Every Blockers field uses either None or task IDs. The supplied dependency graph contains all six tasks, is acyclic, and preserves the required execution chain: T-001 and T-002 precede T-003; T-003 precedes T-004 and T-005; both integration tasks precede T-006. Mechanical format and graph construction are also reported valid by precheck.",
+      "evidence": [
+        "tasks.md: Blockers fields for T-001 through T-006",
+        "dependency-graph.json: nodes and edges",
+        "precheck-result.json: blockers_format_valid=true and workflow_match_precheck=PASS"
+      ]
+    },
+    {
+      "id": "TASK-A-003",
+      "name": "initial-draft-planned-state",
+      "status": "PASS",
+      "severity": null,
+      "finding": "All six tasks begin with Approval: Draft and Status: Planned while Task-Review-Status is Pending, so no task is prematurely executable or completed.",
+      "evidence": [
+        "tasks.md: Task-Review-Status: Pending",
+        "tasks.md: Approval and Status fields for T-001 through T-006"
+      ]
+    },
+    {
+      "id": "TASK-A-004",
+      "name": "risk-workflow-format",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Each high-risk task declares tdd, a concrete risk rationale, red-to-green evidence, independent review, evidence metadata, and an exercised rollback. The medium-risk release task declares acceptance-first and inspectable version-consistency, implementation-report, hash, and rollback evidence.",
+      "evidence": [
+        "tasks.md: Risk, Risk Rationale, Required Workflow, Rollback, and Done When fields for T-001 through T-006"
+      ]
+    },
+    {
+      "id": "TASK-A-005",
+      "name": "concern-dependency-done-observability",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Each task isolates one implementation concern and names observable commands or artifacts for completion. T-001 preserves the required bugfix diagnostic path from reproduced transition failure through root-cause normalization repair to regression and rollback evidence. Cross-cutting file overlap is ordered transitively through T-003 before T-005.",
+      "evidence": [
+        "tasks.md: Source Issue, Scope, Done When, and Blockers for T-001 through T-006",
+        "tasks.md: T-001 Goal and Done When transition reproduction evidence",
+        "dependency-graph.json: T-003 depends on T-001 and T-005 depends on T-003"
+      ]
+    },
+    {
+      "id": "TASK-A-006",
+      "name": "traceability-sync",
+      "status": "PASS",
+      "severity": null,
+      "finding": "Task requirement and acceptance mappings agree with the traceability Task Mapping, and the requirement-level table accounts for every REQ, acceptance criterion, code target, and test target with Planned status consistent with the task lifecycle.",
+      "evidence": [
+        "tasks.md: Requirements fields for T-001 through T-006",
+        "traceability.md: Requirement table",
+        "traceability.md: Task Mapping"
+      ]
+    }
+  ],
+  "findings": []
+}

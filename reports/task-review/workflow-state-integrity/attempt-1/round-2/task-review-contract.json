@@ -1,0 +1,26 @@
+{
+  "schema":"task-review-contract/v1",
+  "stage":"task",
+  "feature":"workflow-state-integrity",
+  "run_id":"ED06848E-71F0-4E92-8A26-FB03F41CFAB4",
+  "verdict":"BLOCKED",
+  "pass_type":"clean",
+  "round":2,
+  "attempt":1,
+  "workflow_match_precheck":"PASS",
+  "reviewer_a_verdict":"PASS",
+  "reviewer_b_verdict":"BLOCKED",
+  "findings_critical":1,
+  "findings_major":0,
+  "findings_minor":0,
+  "prior_round_contract_sha256":"66b02f6f1082f5555336d679a12030f80b0752f2861c2188305d374577bb840e",
+  "requirements_sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+  "acceptance_sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+  "tasks_sha256":"b59a5e37f1da83ccef5db8019c2ab7aba97712248b64bd32f9823e0ec04490e3",
+  "reviewers":[
+    {"role":"task-reviewer-a","run_id":"FD9217D6-48F4-4349-AFE9-996A171FEE6A","host_session_id":"AC0D2750-5C03-40FE-ABC4-C894DA333AB8","allowed_input_manifest":[{"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},{"path":"reports/task-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json","sha256":"d15145aebaf676d64c58c6e9d26562e22a01a71b1d8e15c5631032a134046031"},{"path":"reports/task-review/workflow-state-integrity/attempt-1/round-2/dependency-graph.json","sha256":"8e2dbd540160a6cb08aa9bfa61730003d4822149943b1871037eedec6b4cb09e"},{"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},{"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},{"path":"specs/workflow-state-integrity/tasks.md","sha256":"b59a5e37f1da83ccef5db8019c2ab7aba97712248b64bd32f9823e0ec04490e3"},{"path":"specs/workflow-state-integrity/traceability.md","sha256":"3ce7efb40ed09a3ad2540e716cff1f495e5ff44e7b6fd0f29f381588278d1d05"}]},
+    {"role":"task-reviewer-b","run_id":"4d54ca1b-0246-4cd6-8376-188f572f8514","host_session_id":"618942b1-c5fb-4c47-bb48-589f45330bc0","allowed_input_manifest":[{"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},{"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},{"path":"specs/workflow-state-integrity/tasks.md","sha256":"b59a5e37f1da83ccef5db8019c2ab7aba97712248b64bd32f9823e0ec04490e3"},{"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},{"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},{"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},{"path":"reports/task-review/workflow-state-integrity/attempt-1/round-2/precheck-result.json","sha256":"d15145aebaf676d64c58c6e9d26562e22a01a71b1d8e15c5631032a134046031"},{"path":"reports/task-review/workflow-state-integrity/attempt-1/round-2/integrated-summary.json","sha256":"813e60bba6fd2ab359fdbd5a76b109cad443389c75473aab7c144a1a0e37b61f"}]}
+  ],
+  "human_edit_summary":"Split the oversized integration task into repository/CI and quality/review gate tasks, moved release metadata to T-006, and updated dependencies and traceability.",
+  "timestamp":"2026-06-27T03:29:23Z"
+}

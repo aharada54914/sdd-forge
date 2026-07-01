@@ -33,6 +33,10 @@ allowlist. Read the following yourself:
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/design.md`
+- `specs/<feature>/ux-spec.md` (required for full profile)
+- `specs/<feature>/frontend-spec.md` (required for full profile)
+- `specs/<feature>/infra-spec.md` (required for full profile)
+- `specs/<feature>/security-spec.md` (required for full profile)
 - `specs/<feature>/investigation.md` (if present — read it; note INV-xxx grounding)
 - `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/impl-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
@@ -42,6 +46,9 @@ allowlist. Read the following yourself:
 You must NOT read any reviewer-a.json file. The disallowedPaths field enforces
 this. If you find yourself needing reviewer-a output, stop and emit a finding
 that the orchestrator should re-sequence the invocation.
+Use the four layer specifications to evaluate implementability and cross-layer
+risk. A layer document cannot silently override requirements.md or design.md;
+record any contradiction as a finding.
 
 # Finding Calibration
 

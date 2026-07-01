@@ -88,35 +88,46 @@ Choose the track once, before invoking the interviewer:
 ### `feature` / `bugfix` / `refactor` / `project` modes (full track)
 
 1. **Phase 1** — invoke `/sdd-bootstrap:sdd-bootstrap-interviewer <mode> <source>`.
-   Outputs: `requirements.md`, `design.md`, `acceptance-tests.md`, ADRs,
-   `design.md` with `Impl-Review-Status: Pending`.
+   Outputs: `requirements.md`, `acceptance-tests.md`, `design.md`,
+   `ux-spec.md`, `frontend-spec.md`, `infra-spec.md`, and `security-spec.md`,
+   plus ADRs and contracts. `design.md` starts with
+   `Impl-Review-Status: Pending`.
 
-2. **Impl-review gate** — invoke `/sdd-review-loop:impl-review-loop --feature <slug>`.
+2. **Spec-review gate** — invoke `/sdd-review-loop:spec-review-loop --feature <slug>`.
+   - PASS / PASS-with-warnings: continue to the implementation-policy review.
+   - NEEDS_WORK: present proposed edits to the human, wait for the Phase 1
+     artifacts to be updated, then re-invoke.
+   - BLOCKED: stop. Instruct the human to revise and run
+     `/sdd-bootstrap:run <mode> --reset --feature <slug>`.
+
+3. **Impl-review gate** — invoke `/sdd-review-loop:impl-review-loop --feature <slug>`.
    - PASS / PASS-with-warnings: continue to Phase 2.
    - NEEDS_WORK: present proposed edits to the human, wait for `design.md`
      update, then re-invoke.
    - BLOCKED: stop. Instruct the human to revise and run
      `/sdd-bootstrap:run <mode> --reset --feature <slug>`.
 
-3. **Phase 2** — invoke `/sdd-bootstrap:sdd-bootstrap-interviewer <mode> <source>`
+4. **Phase 2** — invoke `/sdd-bootstrap:sdd-bootstrap-interviewer <mode> <source>`
    in Phase 2 mode (after `Impl-Review-Status: Passed`).
    Outputs: `tasks.md` (Approval: Draft), `traceability.md`.
 
-4. **Task-review gate** — invoke `/sdd-review-loop:task-review-loop --feature <slug>`.
+5. **Task-review gate** — invoke `/sdd-review-loop:task-review-loop --feature <slug>`.
    - PASS / PASS-with-warnings: continue to Approval Gate.
    - NEEDS_WORK: present proposed edits, wait for `tasks.md` update, re-invoke.
    - BLOCKED: stop. Instruct: `/sdd-bootstrap:run <mode> --reset --feature <slug>`.
 
-5. **Approval Gate** — present all generated artifacts to the human.
+6. **Approval Gate** — present all generated artifacts to the human.
    Remind them that implementation starts only after they set
    `Approval: Approved` on each task in `tasks.md`.
    Next step: `/sdd-ship:run specs/<slug>/tasks.md`
 
 ### Lite track (`--lite` or `spec_profile: lite`)
 
-Substitute `lite-spec` for `sdd-bootstrap-interviewer` and skip both review
-loops. Outputs: `requirements.md`, `design.md`, `tasks.md` (no `traceability.md`,
-no ADR). Approval gate is the same.
+Substitute `lite-spec` for `sdd-bootstrap-interviewer` and skip all three review loops.
+Outputs: `requirements.md`, `design.md`, `tasks.md` (no `traceability.md`,
+no ADR). LITE produces zero layer outputs: no `ux-spec.md`,
+`frontend-spec.md`, `infra-spec.md`, or `security-spec.md`. Approval gate is
+the same.
 
 Next step after approval: `/sdd-ship:run --lite specs/<slug>/tasks.md`
 

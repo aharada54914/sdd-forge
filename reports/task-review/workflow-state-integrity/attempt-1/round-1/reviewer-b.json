@@ -1,0 +1,29 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "4b672bc4-8563-43c1-9dcf-57514be2e921",
+  "host_session_id": "56ca7b7e-c36b-4fc9-b11b-17bc44010926",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-1/round-1/precheck-result.json","sha256":"2b23f39dda605c88dac1fbc07d50e0d579e8e1c1b241c9176ab6aa0793950641"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-1/round-1/integrated-summary.json","sha256":"9b108495774e218b924846d53a010aaadac006e8f66a19988a66b202376df567"},
+    {"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"specs/workflow-state-integrity/tasks.md","sha256":"1874381dfee8263d7b8f5c9218017137fa063431deb13219d5b794d358795dac"},
+    {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+    {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Major","finding":"tasks.md T-001 through T-004 affect fail-closed review-state, migration-registry, or enforcement boundaries and consistently declare Risk: high; T-005 is reversible release metadata and declares Risk: medium. No sentinel-sensitive task is under-classified and no high-risk task is limited to copy, CSS, documentation, or tests."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"PASS","severity":"Critical","finding":"tasks.md T-001 through T-004 each declare Required Workflow: tdd and include Done When items for saved Red→Green evidence and an independent review verdict. No Risk: critical task exists, so second-approver and signed-bundle requirements do not apply."},
+    {"id":"TASK-SIZE","result":"FAIL","severity":"Major","finding":"tasks.md T-004 Scope spans four distinct implementation areas—repository validation, CI, quality-gate, and downstream prechecks—and its Planned Files cross workflow configuration, skill policy, four runtime precheck adapters, and integration tests. This exceeds the check's three-area sizing indicator and makes one focused implementation session and isolated verification/rollback ambiguous; split T-004 into ordered enforcement-surface tasks or narrow its scope. This is Major because the oversized unit is likely to cause incomplete integration or verification."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"acceptance-tests.md AC-002, AC-003, AC-004, AC-005, AC-006, AC-008, AC-009, AC-014 and tasks.md T-001/T-003/T-004 Done When sections plan invalid, malformed, traversal, stale, forged, unreadable, predecessor-inversion, CRLF/parity, and nonzero-failure paths; T-005 also requires a pre-bump version-consistency failure."},
+    {"id":"TEST-TYPE-MATCH","result":"SKIP","severity":"Major","finding":"SKIP: tasks.md contains no standalone task declared as a unit, integration, end-to-end, or acceptance test task; functional tasks embed appropriately scoped verification instead."},
+    {"id":"ROLLBACK-PLAN","result":"PASS","severity":"Major","finding":"tasks.md T-001 through T-004 each provide an explicit Rollback field and a Done When item requiring the rollback procedure to be documented or exercised against an isolated fixture."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Major","finding":"tasks.md coordinates shared files through dependency ordering: T-004 follows T-003 and transitively T-001 before revisiting downstream prechecks, while T-005 follows T-004 before updating the shared validate-repository.ps1 release constant. Other primary implementation scopes are distinct."},
+    {"id":"DEPENDENCY-OVERLAP","result":"PASS","severity":"Major","finding":"tasks.md Blockers follow produced artifacts: T-003 consumes T-002's registry and the repaired review-contract behavior from T-001; T-004 integrates T-003's validator; T-005 follows the completed enforcement integration and updates a shared release-validation file. No missing or spurious dependency is evidenced."},
+    {"id":"BUGFIX-DIAGNOSTIC-PATH","result":"PASS","severity":"Major","finding":"tasks.md T-001 explicitly captures the Spec-Passed to Impl-precheck symptom, requires diagnosis of the canonical hash/path mismatch before implementation, records the original transition failure before the fix, and names regression/parity commands plus Red→Green evidence."}
+  ]
+}

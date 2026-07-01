@@ -40,6 +40,10 @@ Before running:
 3. The spec-review-loop for this feature must have passed (check for
    `Spec-Review-Status: Passed` in requirements.md header or equivalent gate
    record). Do not run impl-review-loop if spec-review-loop has not passed.
+4. For a feature registered with profile `full`, `ux-spec.md`,
+   `frontend-spec.md`, `infra-spec.md`, and `security-spec.md` must exist as
+   real files in the feature spec directory. The precheck hash-binds all four.
+   Lite and legacy profiles retain their existing input contract.
 
 ## LITE-SKIP
 
@@ -87,6 +91,9 @@ The agent reads inputs itself and writes:
 `reports/impl-review/<feature>/attempt-<M>/round-<N>/reviewer-a.json`
 
 impl-reviewer-a is read-only. It must not modify any spec file.
+Immediately before invoking it, run the same precheck command with
+`--verify-inputs`. Halt if any core or layer input differs from the persisted
+precheck manifest.
 
 ### STEP 3 — Generate integrated-summary.json
 
@@ -125,6 +132,8 @@ its own inputs and writes:
 `reports/impl-review/<feature>/attempt-<M>/round-<N>/reviewer-b.json`
 
 impl-reviewer-b is read-only. It must not modify any spec file.
+Immediately before invoking it, rerun the precheck with `--verify-inputs`.
+This verification mode is read-only and must not replace review evidence.
 
 ### STEP 5 — Merge Verdicts
 
@@ -165,6 +174,10 @@ Its two reviewer entries must have distinct nonblank `run_id` and
 `host_session_id` values and canonical, hash-verified allowed-input manifests.
 Each reviewer manifest must include every input the reviewer is instructed to
 read, including `plugins/sdd-review-loop/references/reviewer-calibration.md`.
+For full-profile features, both manifests must also include `ux-spec.md`,
+`frontend-spec.md`, `infra-spec.md`, and `security-spec.md`, using the hashes
+recorded in `precheck-result.json`; copy that map to the contract's
+`layer_sha256` field.
 Persist both artifacts in the same round directory; downstream prechecks reject
 missing, stale, or incomplete predecessor contracts before creating evidence.
 

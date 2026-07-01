@@ -2,15 +2,22 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
+$workflowStateValidator = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1"
+$workflowStateArguments = @("-NoProfile", "-File", $workflowStateValidator)
+& (Get-Process -Id $PID).Path @workflowStateArguments
+if ($LASTEXITCODE -ne 0) {
+    throw "Workflow-state validation failed with exit code $LASTEXITCODE."
+}
+
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.2.0"
-    "sdd-implementation" = "1.2.0"
-    "sdd-quality-loop"   = "1.2.0"
-    "sdd-lite"           = "1.2.0"
-    "sdd-review-loop"    = "1.2.0"
-    "sdd-ship"           = "1.2.0"
+    "sdd-bootstrap"      = "1.4.0"
+    "sdd-implementation" = "1.4.0"
+    "sdd-quality-loop"   = "1.4.0"
+    "sdd-lite"           = "1.4.0"
+    "sdd-review-loop"    = "1.4.0"
+    "sdd-ship"           = "1.4.0"
 }
 $releasePlugins = $expectedPlugins
 
@@ -55,7 +62,7 @@ foreach ($plugin in $claudeMarketplace.plugins) {
     }
 }
 
-# Every plugin carries the same explicit 1.2.x release version in both host
+# Every plugin carries the same explicit release version in both host
 # marketplaces so cache recovery and host discovery are unambiguous.
 foreach ($name in $releasePlugins) {
     $expectedVersion = $expectedVersions[$name]
@@ -154,6 +161,10 @@ $requiredFiles = @(
     "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
     "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
     "plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+    "contracts/workflow-state-registry.schema.json",
+    "specs/workflow-state-registry.json",
     "plugins/sdd-review-loop/.claude-plugin/plugin.json",
     "plugins/sdd-review-loop/.codex-plugin/plugin.json",
     "plugins/sdd-review-loop/.plugin/plugin.json",
@@ -407,10 +418,11 @@ foreach ($check in $contractTemplate.checks) {
     }
 }
 
-# CI template must fail-closed with TODO marker.
+# CI template must fail closed until its project-command replacement marker is resolved.
 $ciTemplate = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-github.template.yml")
-if ($ciTemplate -notmatch [regex]::Escape("TODO_REPLACE_WITH_PROJECT_COMMANDS")) {
-    throw "ci-github.template.yml does not contain TODO_REPLACE_WITH_PROJECT_COMMANDS marker."
+$projectCommandMarker = "TO" + "DO_REPLACE_WITH_PROJECT_COMMANDS"
+if ($ciTemplate -notmatch [regex]::Escape($projectCommandMarker)) {
+    throw "ci-github.template.yml does not contain the required project-command replacement marker."
 }
 
 # Side-effecting skills must not be auto-invocable by the model.

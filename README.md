@@ -100,6 +100,40 @@ flowchart LR
 プラグインのインストールと運用手順は [docs/workflow-guide.md](docs/workflow-guide.md) をご覧ください。
 **初めての方は workflow-guide.md の正常系フローからお読みください。**
 
+## アンインストール
+
+`install.sh` / `install.ps1` が登録した内容を取り消します。各 CLI（Codex / Claude / Copilot）からプラグインと marketplace を解除し、インストール済みファイル（既定では `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`）と Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）を削除します。
+
+```bash
+# macOS / Linux — 全環境からアンインストール（既定で全プラグイン対象）
+./uninstall.sh
+
+# 登録だけ解除し、ファイルは残す
+./uninstall.sh --keep-files
+
+# 特定環境・特定プラグインだけ対象にする
+./uninstall.sh --target Claude --plugins sdd-bootstrap,sdd-ship
+```
+
+```powershell
+# Windows
+./uninstall.ps1
+./uninstall.ps1 -KeepFiles
+./uninstall.ps1 -Target Claude -Plugins sdd-bootstrap,sdd-ship
+```
+
+主なオプション（`.sh` / `.ps1` 共通、PowerShell は `-CamelCase`）:
+
+| オプション | 説明 |
+|---|---|
+| `--target All\|Codex\|Claude\|Copilot\|FilesOnly` | 対象環境。`FilesOnly` は CLI 解除をスキップしファイルのみ削除 |
+| `--plugins <comma>` | 対象プラグイン。既定は全プラグイン |
+| `--keep-files` | CLI 登録のみ解除し、インストール済みファイルは保持 |
+| `--skip-plugin-uninstall` | CLI からの登録解除をスキップ |
+| `--skip-agent-uninstall` | Codex エージェント TOML の削除をスキップ |
+
+登録解除はべき等です（既に存在しないプラグイン／marketplace は成功扱い）。Codex エージェントロールは **本プロジェクトがインストールしたファイルのみ** を削除し、利用者自身が `~/.codex/agents/` に置いたファイルは（`sdd-*` という名前のものを含め）削除しません。また `--plugins` で一部のみ指定した場合は marketplace を削除しません（marketplace を消すと、そこからインストールされた他のプラグインも巻き添えで消えるため）。
+
 ## 特徴
 
 - **仕様レビューループ (`spec-review-loop`)**: requirements.md と acceptance-tests.md に対して `spec-reviewer-a/b` が独立してレビューし、`Spec-Review-Status: Passed` になるまで実装方針レビューを開始させません。

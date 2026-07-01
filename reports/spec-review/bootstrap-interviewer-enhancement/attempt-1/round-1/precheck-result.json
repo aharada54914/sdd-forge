@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "bootstrap-interviewer-enhancement",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "ecd748e459ef192407d71e64ab103ead399921b16bd90500be42e89aeac4ec92",
+  "acceptance_sha256": "f2fec81e7e1331eee71382791b51d6e6d0fe04c45ad99dd90ece1f2be3d26d1c",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "b43a8958cce27c0163d6c14d44c4288ee7cf3bcd4079a6e299fb5a8cae2580fd",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-06-29T12:28:25Z"
+}

@@ -32,7 +32,13 @@ allowlist. Read the following yourself:
 
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
+- `specs/<feature>/design.md`
 - `specs/<feature>/tasks.md`
+- `specs/<feature>/traceability.md`
+- `specs/<feature>/ux-spec.md`
+- `specs/<feature>/frontend-spec.md`
+- `specs/<feature>/infra-spec.md`
+- `specs/<feature>/security-spec.md`
 - `plugins/sdd-quality-loop/references/risk-gate-matrix.md`
 - `plugins/sdd-quality-loop/references/risk-classification-policy.md`
 - `plugins/sdd-review-loop/references/reviewer-calibration.md`

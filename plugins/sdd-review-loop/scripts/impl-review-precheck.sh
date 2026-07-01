@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # impl-review-precheck.sh
-# Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>
+# Usage: impl-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs]
 #
 # Generates precheck-result.json for the impl-review-loop.
 # Outputs to: reports/impl-review/<feature>/attempt-<M>/round-<N>/
@@ -14,6 +14,7 @@ set -euo pipefail
 FEATURE="${1:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
 ATTEMPT="${2:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
 ROUND="${3:?Usage: impl-review-precheck.sh <feature-slug> <attempt> <round>}"
+MODE="${4:-}"
 
 SPECS_DIR="specs/${FEATURE}"
 REPORT_DIR="reports/impl-review/${FEATURE}/attempt-${ATTEMPT}/round-${ROUND}"
@@ -23,6 +24,8 @@ ACCEPT_MD="${SPECS_DIR}/acceptance-tests.md"
 SPEC_REPORT_ROOT="reports/spec-review/${FEATURE}"
 IMPL_REPORT_ROOT="reports/impl-review/${FEATURE}"
 CALIBRATION_MD="plugins/sdd-review-loop/references/reviewer-calibration.md"
+REGISTRY="specs/workflow-state-registry.json"
+LAYER_FILES=("ux-spec.md" "frontend-spec.md" "infra-spec.md" "security-spec.md")
 repo_root="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 calibration_sha256=""
 
@@ -31,14 +34,54 @@ sha256() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum "$1" | awk '{print $1}';
   else shasum -a 256 "$1" | awk '{print $1}'; fi
 }
+reviewed_sha256() {
+  local file="$1" status_field="$2" reviewed_status="$3"
+  local replacement="${status_field}: ${reviewed_status}"
+  if LC_ALL=C grep -q "^${status_field}:.*"$'\r$' "$file"; then
+    replacement+=$'\r'
+  fi
+  if command -v sha256sum >/dev/null 2>&1; then
+    sed "s/^${status_field}:[[:space:]]*.*/${replacement}/" "$file" |
+      sha256sum | awk '{print $1}'
+  else
+    sed "s/^${status_field}:[[:space:]]*.*/${replacement}/" "$file" |
+      shasum -a 256 | awk '{print $1}'
+  fi
+}
 require_persisted_pass() {
-  local root="$1" stage="$2" requirements_hash="$3" acceptance_hash="$4" design_hash="$5" verdict contract contract_dir
+  local root="$1" stage="$2" requirements_hash="$3" acceptance_hash="$4" design_hash="$5"
+  local requirements_current_hash="$6" design_current_hash="$7" verdict="" contract contract_dir
+  local stage_calibration stage_calibration_hash
+  if [[ "$stage" == "spec" ]]; then
+    stage_calibration="plugins/sdd-review-loop/references/spec-review-calibration.md"
+  else
+    stage_calibration="$CALIBRATION_MD"
+  fi
+  stage_calibration_hash="$(sha256 "${repo_root}/${stage_calibration}")"
   [[ -d "$root" && ! -L "$root" ]] || fail "missing ${stage} predecessor report root"
-  verdict="$(find "$root" -type f -name integrated-verdict.json ! -lname '*' -print | sort | tail -n 1)"
+  local candidate candidate_dir relative_dir candidate_attempt candidate_round
+  local latest_attempt=0 latest_round=0
+  while IFS= read -r candidate; do
+    candidate_dir="$(dirname "$candidate")"
+    relative_dir="${candidate_dir#"${root}/"}"
+    [[ "$relative_dir" =~ ^attempt-([1-9][0-9]*)/round-([1-9][0-9]*)$ ]] ||
+      fail "persisted ${stage} verdict is outside a canonical attempt/round directory"
+    candidate_attempt="${BASH_REMATCH[1]}"
+    candidate_round="${BASH_REMATCH[2]}"
+    if (( candidate_attempt > latest_attempt ||
+          (candidate_attempt == latest_attempt && candidate_round > latest_round) )); then
+      latest_attempt="$candidate_attempt"
+      latest_round="$candidate_round"
+      verdict="$candidate"
+    fi
+  done < <(find "$root" -type f -name integrated-verdict.json ! -lname '*' -print)
   [[ -n "$verdict" ]] || fail "missing persisted ${stage} PASS verdict"
   contract_dir="$(dirname "$verdict")"
   contract="${contract_dir}/${stage}-review-contract.json"
   [[ -f "$contract" && ! -L "$contract" ]] || fail "missing persisted ${stage} review contract"
+  [[ "$contract_dir" =~ /attempt-([1-9][0-9]*)/round-([1-9][0-9]*)$ ]] ||
+    fail "persisted ${stage} contract is outside a canonical attempt/round directory"
+  local stored_attempt="${BASH_REMATCH[1]}" stored_round="${BASH_REMATCH[2]}"
   jq -e --arg feature "$FEATURE" --arg stage "$stage" '
     .feature == $feature and .stage == $stage and (.attempt | type == "number" and . > 0) and (.round | type == "number" and . > 0) and .verdict == "PASS" and
     (if $stage == "spec" then .schema == "spec-review-integrated-verdict/v1" and
@@ -46,22 +89,116 @@ require_persisted_pass() {
       .reviewer_a_run_id != .reviewer_b_run_id and .reviewer_a_host_session_id != .reviewer_b_host_session_id
      else .schema == "integrated-verdict/v1" and (.run_id | type == "string" and length > 0) end)' "$verdict" >/dev/null ||
     fail "persisted ${stage} verdict is not a complete PASS contract"
-  jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg accept "$acceptance_hash" --arg design "$design_hash" --arg calibration "$CALIBRATION_MD" --arg calibration_hash "$calibration_sha256" '
+  jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg req_current "$requirements_current_hash" \
+    --arg accept "$acceptance_hash" --arg design "$design_hash" --arg design_current "$design_current_hash" \
+    --arg repo "${repo_root}/" --arg calibration "$stage_calibration" --arg calibration_hash "$stage_calibration_hash" '
+    def relative_path:
+      if startswith($repo) then .[($repo | length):] else . end;
+    def allowed_input($role; $path; $attempt; $round):
+      ($stage + "-reviewer-a") as $role_a |
+      ($stage + "-reviewer-b") as $role_b |
+      ("reports/" + $stage + "-review/" + $feature + "/attempt-" + ($attempt | tostring)) as $attempt_root |
+      ($attempt_root + "/round-" + ($round | tostring)) as $round_root |
+      (($path == ("specs/" + $feature + "/requirements.md")) or
+       ($path == ("specs/" + $feature + "/acceptance-tests.md")) or
+       ($stage == "spec" and $path == ("specs/" + $feature + "/investigation.md")) or
+       ($stage == "impl" and
+        ($path == ("specs/" + $feature + "/design.md") or
+         $path == ("specs/" + $feature + "/ux-spec.md") or
+         $path == ("specs/" + $feature + "/frontend-spec.md") or
+         $path == ("specs/" + $feature + "/infra-spec.md") or
+         $path == ("specs/" + $feature + "/security-spec.md") or
+         $path == ("specs/" + $feature + "/investigation.md"))) or
+       ($stage == "task" and
+        ($path == ("specs/" + $feature + "/tasks.md") or
+         $path == ("specs/" + $feature + "/traceability.md"))) or
+       ($path == $calibration) or
+       ($path == ($round_root + "/precheck-result.json")) or
+       ($stage == "spec" and $role == $role_b and
+        $path == ($round_root + "/integrated-summary.json")) or
+       ($stage == "impl" and $role == $role_b and
+        $path == ($round_root + "/integrated-summary.json")) or
+       ($stage == "impl" and $role == $role_a and $round > 1 and
+        $path == ($attempt_root + "/round-" + (($round - 1) | tostring) + "/integrated-summary.json")) or
+       ($stage == "task" and $role == $role_a and
+        $path == ($round_root + "/dependency-graph.json")) or
+       ($stage == "task" and $role == $role_b and
+        ($path == ($round_root + "/integrated-summary.json") or
+         $path == "plugins/sdd-quality-loop/references/risk-gate-matrix.md" or
+         $path == "plugins/sdd-quality-loop/references/risk-classification-policy.md")));
     .schema == ($stage + "-review-contract/v1") and .feature == $feature and .stage == $stage and
     (.attempt | type == "number" and . > 0) and (.round | type == "number" and . > 0) and
     (.run_id | type == "string" and length > 0) and .verdict == "PASS" and
     ([.reviewers[]? | .role] | sort) == [($stage + "-reviewer-a"), ($stage + "-reviewer-b")] and
     ([.reviewers[]? | .host_session_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
     ([.reviewers[]? | .run_id] | (all(type == "string" and length > 0) and (unique | length == 2))) and
-    ([.reviewers[]?.allowed_input_manifest[]? |
-      (.path | type == "string" and ((startswith("specs/" + $feature + "/") and (contains("reviewer-") | not)) or . == $calibration)) and
-      (.sha256 | type == "string" and test("^[0-9a-f]{64}$"))
-    ] | all) and
-    (any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/requirements.md") and .sha256 == $req)) and
-    (any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/acceptance-tests.md") and .sha256 == $accept)) and
-    ($stage != "impl" or any(.reviewers[]?.allowed_input_manifest[]?; .path == ("specs/" + $feature + "/design.md") and .sha256 == $design)) and
-    ($stage != "impl" or all(.reviewers[]?; any(.allowed_input_manifest[]?; .path == $calibration and .sha256 == $calibration_hash)))
+    (.attempt as $attempt | .round as $round |
+      all(.reviewers[]?;
+        .role as $role |
+        ([.allowed_input_manifest[]? | (.path | relative_path)] as $paths |
+          ($paths | length) > 0 and ($paths | length) == ($paths | unique | length)) and
+        all(.allowed_input_manifest[]?;
+          .path as $raw_path |
+          (($raw_path | type == "string") and
+           (($raw_path | startswith($repo)) or (($raw_path | startswith("/")) | not)) and
+           (($raw_path | relative_path) as $path |
+             ($path | test("(^|/)\\.\\.?(/|$)") | not) and
+             allowed_input($role; $path; $attempt; $round) and
+             (.sha256 | type == "string") and
+             (.sha256 | test("^[0-9a-f]{64}$"))))
+        )
+      )
+    ) and
+    (any(.reviewers[]?.allowed_input_manifest[]?; (.path | relative_path) == ("specs/" + $feature + "/requirements.md") and (.sha256 == $req or .sha256 == $req_current))) and
+    (any(.reviewers[]?.allowed_input_manifest[]?; (.path | relative_path) == ("specs/" + $feature + "/acceptance-tests.md") and .sha256 == $accept)) and
+    ($stage != "impl" or any(.reviewers[]?.allowed_input_manifest[]?; (.path | relative_path) == ("specs/" + $feature + "/design.md") and (.sha256 == $design or .sha256 == $design_current))) and
+    all(.reviewers[]?; any(.allowed_input_manifest[]?; (.path | relative_path) == $calibration and .sha256 == $calibration_hash))
   ' "$contract" >/dev/null || fail "persisted ${stage} contract does not match canonical current inputs"
+  [[ "$(jq -r '.attempt' "$contract")" == "$stored_attempt" &&
+     "$(jq -r '.round' "$contract")" == "$stored_round" ]] ||
+    fail "persisted ${stage} contract attempt/round does not match its directory"
+
+  local role_a="${stage}-reviewer-a" role_b="${stage}-reviewer-b"
+  local precheck_path="reports/${stage}-review/${FEATURE}/attempt-${stored_attempt}/round-${stored_round}/precheck-result.json"
+  local summary_path="reports/${stage}-review/${FEATURE}/attempt-${stored_attempt}/round-${stored_round}/integrated-summary.json"
+  local investigation_path="specs/${FEATURE}/investigation.md"
+  manifest_has() {
+    local role="$1" path="$2" hash_one="$3" hash_two="${4:-}"
+    jq -e --arg role "$role" --arg path "$path" --arg absolute "${repo_root}/${path}" \
+      --arg hash_one "$hash_one" --arg hash_two "$hash_two" '
+      any(.reviewers[]?;
+        .role == $role and
+        any(.allowed_input_manifest[]?;
+          (.path == $path or .path == $absolute) and
+          (.sha256 == $hash_one or ($hash_two != "" and .sha256 == $hash_two))
+        )
+      )' "$contract" >/dev/null
+  }
+  for role in "$role_a" "$role_b"; do
+    manifest_has "$role" "specs/${FEATURE}/requirements.md" "$requirements_hash" "$requirements_current_hash" ||
+      fail "persisted ${stage} contract reviewer manifest is missing canonical requirements"
+    manifest_has "$role" "specs/${FEATURE}/acceptance-tests.md" "$acceptance_hash" ||
+      fail "persisted ${stage} contract reviewer manifest is missing canonical acceptance tests"
+    manifest_has "$role" "$stage_calibration" "$stage_calibration_hash" ||
+      fail "persisted ${stage} contract reviewer manifest is missing canonical calibration"
+    manifest_has "$role" "$precheck_path" "$(sha256 "${repo_root}/${precheck_path}")" ||
+      fail "persisted ${stage} contract reviewer manifest is missing canonical precheck evidence"
+    if [[ "$stage" == "impl" ]]; then
+      manifest_has "$role" "specs/${FEATURE}/design.md" "$design_hash" "$design_current_hash" ||
+        fail "persisted impl contract reviewer manifest is missing canonical design"
+    fi
+    if [[ -f "${repo_root}/${investigation_path}" ]]; then
+      manifest_has "$role" "$investigation_path" "$(sha256 "${repo_root}/${investigation_path}")" ||
+        fail "persisted ${stage} contract reviewer manifest is missing investigation evidence"
+    fi
+  done
+  manifest_has "$role_b" "$summary_path" "$(sha256 "${repo_root}/${summary_path}")" ||
+    fail "persisted ${stage} reviewer-b manifest is missing canonical integrated summary"
+  if [[ "$stage" == "impl" && "$stored_round" -gt 1 ]]; then
+    local previous_summary="reports/impl-review/${FEATURE}/attempt-${stored_attempt}/round-$((stored_round - 1))/integrated-summary.json"
+    manifest_has "$role_a" "$previous_summary" "$(sha256 "${repo_root}/${previous_summary}")" ||
+      fail "persisted impl reviewer-a manifest is missing previous-round summary"
+  fi
   jq -e --slurpfile verdict "$verdict" --arg stage "$stage" '
     . as $contract | $verdict[0] as $verdict |
     $contract.attempt == $verdict.attempt and
@@ -80,9 +217,46 @@ require_persisted_pass() {
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
+[[ -z "$MODE" || "$MODE" == "--verify-inputs" ]] || fail "unknown mode: $MODE"
+profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
+full_profile=false
+[[ "$profile" == "full" ]] && full_profile=true
+
+if [[ "$MODE" == "--verify-inputs" ]]; then
+  precheck="${REPORT_DIR}/precheck-result.json"
+  [[ -f "$precheck" && ! -L "$precheck" ]] || fail "precheck evidence is missing or substituted"
+  for path in "$DESIGN_MD" "$REQS_MD" "$ACCEPT_MD"; do
+    [[ -f "$path" && ! -L "$path" ]] || fail "review input is missing or substituted: $path"
+  done
+  jq -e --arg design "$(sha256 "$DESIGN_MD")" --arg requirements "$(sha256 "$REQS_MD")" \
+    --arg acceptance "$(sha256 "$ACCEPT_MD")" --arg feature "$FEATURE" \
+    --argjson attempt "$ATTEMPT" --argjson round "$ROUND" '
+      .schema == "impl-review-precheck/v1" and
+      .feature == $feature and .attempt == $attempt and .round == $round and
+      .design_sha256 == $design and .requirements_sha256 == $requirements and
+      .acceptance_sha256 == $acceptance
+    ' "$precheck" >/dev/null || fail "core review inputs changed after precheck"
+  bound_layer_count="$(jq -r '(.layer_sha256 // {}) | length' "$precheck")"
+  if $full_profile || [[ "$bound_layer_count" -gt 0 ]]; then
+    jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' \
+      "$precheck" >/dev/null || fail "precheck layer manifest is incomplete"
+    for name in "${LAYER_FILES[@]}"; do
+      path="${SPECS_DIR}/${name}"
+      [[ -f "$path" && ! -L "$path" ]] || fail "layer review input is missing or substituted: $path"
+      jq -e --arg name "$name" --arg hash "$(sha256 "$path")" \
+        '.layer_sha256[$name] == $hash' "$precheck" >/dev/null ||
+        fail "layer review input changed after precheck: $path"
+    done
+  fi
+  echo "impl-review-precheck: inputs verified for reviewer invocation."
+  exit 0
+fi
+
 [[ ! -e "$REPORT_DIR" && ! -L "$REPORT_DIR" ]] || fail "round destination already exists (replay is forbidden)"
 [[ -d "$SPECS_DIR" && ! -L "$SPECS_DIR" ]] || fail "feature specification directory must be a real directory"
 [[ "$(cd "$SPECS_DIR" && pwd -P)" == "$repo_root/specs/$FEATURE" ]] || fail "feature specification directory escapes repository"
+bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
+  fail "canonical workflow-state validation failed"
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 1: Check design.md exists and has Impl-Review-Status: Pending
@@ -154,7 +328,17 @@ acceptance_sha256=""
 acceptance_sha256=$(sha256 "${ACCEPT_MD}")
 [[ -f "${CALIBRATION_MD}" && ! -L "${CALIBRATION_MD}" ]] || fail "${CALIBRATION_MD} not found"
 calibration_sha256=$(sha256 "${CALIBRATION_MD}")
-require_persisted_pass "$SPEC_REPORT_ROOT" spec "$requirements_sha256" "$acceptance_sha256" ""
+layer_sha256='{}'
+if $full_profile; then
+  for name in "${LAYER_FILES[@]}"; do
+    path="${SPECS_DIR}/${name}"
+    [[ -f "$path" && ! -L "$path" ]] || fail "layer review input is missing or substituted: $path"
+    layer_sha256="$(jq -c --arg name "$name" --arg hash "$(sha256 "$path")" \
+      '. + {($name): $hash}' <<<"$layer_sha256")"
+  done
+fi
+spec_review_requirements_sha256="$(reviewed_sha256 "$REQS_MD" "Spec-Review-Status" "Pending")"
+require_persisted_pass "$SPEC_REPORT_ROOT" spec "$spec_review_requirements_sha256" "$acceptance_sha256" "" "$requirements_sha256" ""
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 4: Round > 1 — verify design.md changed; check DESIGN-REQ-DRIFT
@@ -193,7 +377,12 @@ fi
 # STEP 5: Validate the shared portable contract before creating output evidence.
 # ──────────────────────────────────────────────────────────────────────────────
 
-input_sha256="$(printf '%s:%s:%s' "$design_sha256" "$requirements_sha256" "$acceptance_sha256" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
+if $full_profile; then
+  input_material="$(printf '%s:%s:%s:%s' "$design_sha256" "$requirements_sha256" "$acceptance_sha256" "$layer_sha256")"
+else
+  input_material="$(printf '%s:%s:%s' "$design_sha256" "$requirements_sha256" "$acceptance_sha256")"
+fi
+input_sha256="$(printf '%s' "$input_material" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
 foundation_contract="$(mktemp)"
 trap 'rm -f "$foundation_contract"' EXIT
 jq -n --arg feature "$FEATURE" --argjson attempt "$ATTEMPT" --argjson round "$ROUND" --arg input_sha256 "$input_sha256" \
@@ -221,6 +410,8 @@ cat > "${REPORT_DIR}/precheck-result.json" <<EOF
   "design_sha256": "${design_sha256}",
   "requirements_sha256": "${requirements_sha256}",
   "acceptance_sha256": "${acceptance_sha256}",
+  "layer_sha256": ${layer_sha256},
+  "input_sha256": "${input_sha256}",
   "generated_at": "${generated_at}"
 }
 EOF

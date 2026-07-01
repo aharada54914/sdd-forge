@@ -31,6 +31,15 @@ jobs:
       # pwsh steps run the test scripts directly: piping through tee changes
       # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
       # log already captures their output.
+      - name: Validate workflow state (PowerShell)
+        shell: pwsh
+        run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+
+      - name: Validate workflow state (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+
       - name: Validate repository
         shell: pwsh
         run: ./tests/validate-repository.ps1
@@ -39,11 +48,17 @@ jobs:
         shell: pwsh
         run: ./tests/scripts.tests.ps1
 
+      - name: Test selected-feature structure validation
+        shell: pwsh
+        run: ./tests/structure-check-feature-mode.tests.ps1
+
       - name: Test portable review-loop prechecks (pwsh)
         shell: pwsh
         run: |
           ./tests/review-contract-foundation.tests.ps1
           ./tests/downstream-review-precheck.tests.ps1
+          ./tests/impl-layer-review-inputs.tests.ps1
+          ./tests/task-layer-review-inputs.tests.ps1
 
       - name: Test cross-model gate (pwsh)
         shell: pwsh
@@ -60,6 +75,10 @@ jobs:
       - name: Test installer (pwsh)
         shell: pwsh
         run: ./tests/install.tests.ps1
+
+      - name: Test uninstaller (pwsh)
+        shell: pwsh
+        run: ./tests/uninstall.tests.ps1
 
       - name: Test Claude registration (pwsh)
         shell: pwsh
@@ -78,6 +97,12 @@ jobs:
           bash -n ./tests/release-host-smoke.sh
           ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
 
+      - name: Test POSIX uninstaller
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/uninstall.tests.sh 2>&1 | tee "${{ runner.temp }}/uninstall-tests-sh.log"
+
       - name: Test authenticated remote installer (bash)
         if: runner.os != 'Windows'
         shell: bash
@@ -90,6 +115,12 @@ jobs:
         shell: bash
         run: |
           ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
+
+      - name: Test approval boundary (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
 
       - name: Test deterministic gates (bash)
         if: runner.os != 'Windows'
@@ -105,6 +136,9 @@ jobs:
           bash tests/review-contract-foundation-parity.tests.sh
           bash tests/downstream-review-precheck.tests.sh
           bash tests/downstream-review-precheck-parity.tests.sh
+          bash tests/impl-layer-review-inputs.tests.sh
+          bash tests/task-layer-review-inputs.tests.sh
+          bash tests/task-layer-full-profile.tests.sh
           bash tests/task-review-precheck.tests.sh
           bash tests/review-agent-isolation.tests.sh
 

@@ -16,7 +16,15 @@
   "prior_round_contract_sha256": "",
   "requirements_sha256": "",
   "acceptance_sha256": "",
+  "design_sha256": "",
   "tasks_sha256": "",
+  "traceability_sha256": "",
+  "layer_sha256": {
+    "ux-spec.md": "",
+    "frontend-spec.md": "",
+    "infra-spec.md": "",
+    "security-spec.md": ""
+  },
   "reviewers": [
     {"role":"task-reviewer-a","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"},{"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"<sha256>"}]},
     {"role":"task-reviewer-b","run_id":"<fresh-run-id>","host_session_id":"<distinct-host-session-id>","allowed_input_manifest":[{"path":"<canonical-path>","sha256":"<sha256>"},{"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"<sha256>"}]}
