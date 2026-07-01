@@ -9,6 +9,7 @@ $tests = @(
     'tests/scripts.tests.ps1',
     'tests/review-contract-foundation.tests.ps1',
     'tests/task-context-isolation.tests.ps1',
+    'tests/rollback-1.5.0.tests.ps1',
     'tests/downstream-review-precheck.tests.ps1',
     'tests/impl-layer-review-inputs.tests.ps1',
     'tests/task-layer-review-inputs.tests.ps1',
