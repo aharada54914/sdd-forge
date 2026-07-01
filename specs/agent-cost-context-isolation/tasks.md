@@ -252,12 +252,12 @@ and specify the same-session file-reload fallback.
 
 ### Done When
 
-- [x] Red→Green evidence is captured at `specs/agent-cost-context-isolation/verification/T-004/red.log` and `green.log`, with failing tests committed before implementation begins
-- [x] TEST-002 capable-host fixtures reject adjacent and nonadjacent run/session/agent reuse
-- [x] Fallback records unique task/run IDs, reused physical IDs, reason, and reload-evidence hash
-- [x] Chat history or compaction-only handoff is rejected
-- [x] Independent reviewer `T-004-independent-reviewer` records PASS in `reports/implementation/agent-cost-context-isolation/T-004.md`
-- [x] An isolated rollback fixture restores the 1.4.0 implementation loop and identity tests pass
+- [ ] Red→Green evidence is captured at `specs/agent-cost-context-isolation/verification/T-004/red.log` and `green.log`, with failing tests committed before implementation begins
+- [ ] TEST-002 capable-host fixtures reject adjacent and nonadjacent run/session/agent reuse
+- [ ] Fallback records unique task/run IDs, reused physical IDs, reason, and reload-evidence hash
+- [ ] Chat history or compaction-only handoff is rejected
+- [ ] Independent reviewer `T-004-independent-reviewer` records PASS in `reports/implementation/agent-cost-context-isolation/T-004.md`
+- [ ] An isolated rollback fixture restores the 1.4.0 implementation loop and identity tests pass
 
 ### Out of Scope
 
@@ -318,12 +318,12 @@ read-only fresh sessions, and prohibit fallback.
 
 ### Done When
 
-- [x] Red→Green evidence is captured at `specs/agent-cost-context-isolation/verification/T-005/red.log` and `green.log`, with failing tests committed before implementation begins
-- [x] TEST-002 reviewer/evaluator isolation fixtures pass
-- [x] Missing manifest, unlisted path, hash mismatch, chat-only input, and reused session fail closed
-- [x] All six reviewer roles and the evaluator expose distinct run/session identity
-- [x] Independent reviewer `agent-cost-context-isolation-T-005-review-agent-04` records PASS in `reports/implementation/agent-cost-context-isolation/T-005-review-4.md`
-- [x] An isolated rollback fixture restores reviewer/evaluator boundaries and the isolation test passes
+- [ ] Red→Green evidence is captured at `specs/agent-cost-context-isolation/verification/T-005/red.log` and `green.log`, with failing tests committed before implementation begins
+- [ ] TEST-002 reviewer/evaluator isolation fixtures pass
+- [ ] Missing manifest, unlisted path, hash mismatch, chat-only input, and reused session fail closed
+- [ ] All six reviewer roles and the evaluator expose distinct run/session identity
+- [ ] Independent reviewer `T-005-independent-reviewer` records PASS in `reports/implementation/agent-cost-context-isolation/T-005.md`
+- [ ] An isolated rollback fixture restores reviewer/evaluator boundaries and the isolation test passes
 
 ### Out of Scope
 
@@ -383,10 +383,10 @@ fixtures.
 
 ### Done When
 
-- [x] TEST-004 validates every required output, test, identity, escalation, attempt, status, unresolved, and next-action field
-- [x] Legacy report fixtures remain accepted without fabricated new fields
-- [x] A current-schema report missing a required handoff field is rejected
-- [x] Retrospectives expose task attempts, review rounds, quality-gate runs, and model escalations
+- [ ] TEST-004 validates every required output, test, identity, escalation, attempt, status, unresolved, and next-action field
+- [ ] Legacy report fixtures remain accepted without fabricated new fields
+- [ ] A current-schema report missing a required handoff field is rejected
+- [ ] Retrospectives expose task attempts, review rounds, quality-gate runs, and model escalations
 
 ### Out of Scope
 
@@ -400,7 +400,7 @@ T-004, T-005
 
 Approval: Approved
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: medium
 

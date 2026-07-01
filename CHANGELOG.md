@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+## v1.5.0 (2026-06-30)
+
+### Agent cost and context iteration metrics
+
+- workflow-retrospective now records task attempts, review rounds,
+  quality-gate runs, and model escalations so iteration cost can be measured
+  independently from token price.
+- All Claude, Codex, and Copilot plugin manifests, marketplaces, README, and
+  repository release surfaces identify release `1.5.0`.
+- Added a rollback contract for restoring the release surfaces to the pinned
+  `1.4.0` baseline after hash validation.
+
 ## v1.4.0 (2026-06-29)
 
 ### Bootstrap interviewer のレイヤー仕様対応
