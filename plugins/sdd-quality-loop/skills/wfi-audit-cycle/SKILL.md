@@ -2,6 +2,7 @@
 name: wfi-audit-cycle
 description: "Orchestrator for the WFI proposal audit. Runs 2 sequential independent audit cycles on a WFI-NNN.md Draft before presenting it to a human for Approved. Cycle 1 (wfi-auditor-a) audits proposal quality. Cycle 2 (wfi-auditor-b) audits impact and risk. Each auditor runs as a fresh isolated agent. The orchestrator applies audit findings to revise the WFI between cycles, creates a GitHub Issue for plugin-improvement WFIs, and sets Audit-Status: Human-Pending when complete."
 disable-model-invocation: true
+user-invocable: false
 ---
 
 # WFI Audit Cycle
@@ -237,7 +238,12 @@ Skip issue creation. `GitHub-Issue: N/A` remains unchanged.
 
 Update `Audit-Status: Human-Pending` in WFI-NNN.md.
 
-Print the completion summary:
+Print the completion summary. When the WFI has `Meta-Change: true`, the first
+line after the header must be `*** Meta-Change: true — this WFI modifies how
+the workflow is measured. Review the META-CHANGE-ANTI-GOODHART check result
+before approving. ***` so the approver knows they are approving a change to
+measurement itself.
+
 ```
 wfi-audit-cycle COMPLETE — WFI-NNN (Category: <category>) has passed 2 audit cycles.
 

@@ -2,6 +2,7 @@
 name: quality-gate
 description: Independently verify an Implementation Complete task with a Default-FAIL verification contract, deterministic checks, and an isolated critical reviewer, then decide whether it is Done.
 disable-model-invocation: true
+user-invocable: false
 ---
 
 > **Caller**: This skill is invoked by `sdd-ship`. Do not invoke directly.

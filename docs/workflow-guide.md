@@ -6,8 +6,8 @@
 
 | コマンド | 役割 | 実行者 |
 |---|---|---|
-| `/sdd-bootstrap:run <mode> <source>` | 仕様化フェーズ: 要件 → 仕様 → タスク契約 | AI + 人間レビュー |
-| `/sdd-ship:run specs/<feature>/tasks.md` | 実装・品質保証フェーズ: 承認済みタスク → Done | AI (人間承認後) |
+| `/sdd-bootstrap:bootstrap <mode> <source>` | 仕様化フェーズ: 要件 → 仕様 → タスク契約 | AI + 人間レビュー |
+| `/sdd-ship:ship specs/<feature>/tasks.md` | 実装・品質保証フェーズ: 承認済みタスク → Done | AI (人間承認後) |
 
 **フルトラック**: `sdd-bootstrap` → 人間承認 → `sdd-ship`
 

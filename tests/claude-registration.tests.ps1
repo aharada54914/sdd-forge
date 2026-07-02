@@ -96,13 +96,13 @@ try {
         }
     }
 
-    foreach ($expectedOutput in @("/reload-plugins", "/sdd-bootstrap:run", "/sdd-ship:run")) {
+    foreach ($expectedOutput in @("/reload-plugins", "/sdd-bootstrap:bootstrap", "/sdd-ship:ship")) {
         if ($output -notmatch [regex]::Escape($expectedOutput)) {
             throw "Claude install summary did not mention expected text: $expectedOutput`nOutput:`n$output"
         }
     }
 
-    Write-Host "ok: Claude registration installs sdd-bootstrap:run and sdd-ship:run plugins"
+    Write-Host "ok: Claude registration installs sdd-bootstrap:bootstrap and sdd-ship:ship plugins"
 }
 finally {
     $env:PATH = $successSavedPath

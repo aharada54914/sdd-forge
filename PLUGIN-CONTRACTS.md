@@ -38,7 +38,7 @@ rather than proceeding with an incomplete implementation set.
 
 ## sdd-ship → internal plugins (v0.15.0+)
 
-**Source**: `plugins/sdd-ship/skills/run/SKILL.md`
+**Source**: `plugins/sdd-ship/skills/ship/SKILL.md`
 **Targets**: sdd-implementation (implement-tasks), sdd-quality-loop (quality-gate, lite-gate via sdd-lite), sdd-bootstrap (sdd-adopt preflight)
 
 ### Orchestration Contract

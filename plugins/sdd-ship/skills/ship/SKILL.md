@@ -1,33 +1,33 @@
 ---
-name: run
-description: Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow. Run after /sdd-bootstrap:run and human task approval.
+name: ship
+description: Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow. Run after /sdd-bootstrap:bootstrap and human task approval.
 disable-model-invocation: true
 ---
 
 # SDD Ship
 
 Orchestrate approved tasks from implementation through quality verification to Done.
-This skill does not write specifications; use `/sdd-bootstrap:run` for that.
+This skill does not write specifications; use `/sdd-bootstrap:bootstrap` for that.
 
 ## Invocation
 
 Claude Code:
 
 ```txt
-/sdd-ship:run specs/<feature>/tasks.md
-/sdd-ship:run specs/<feature>/tasks.md#T-001
-/sdd-ship:run
-/sdd-ship:run --lite specs/<feature>/tasks.md
-/sdd-ship:run --full specs/<feature>/tasks.md
-/sdd-ship:run --verify specs/<feature>/tasks.md
-/sdd-ship:run --retro specs/<feature>/tasks.md
+/sdd-ship:ship specs/<feature>/tasks.md
+/sdd-ship:ship specs/<feature>/tasks.md#T-001
+/sdd-ship:ship
+/sdd-ship:ship --lite specs/<feature>/tasks.md
+/sdd-ship:ship --full specs/<feature>/tasks.md
+/sdd-ship:ship --verify specs/<feature>/tasks.md
+/sdd-ship:ship --retro specs/<feature>/tasks.md
 ```
 
 Codex:
 
 ```txt
-Use the run skill for specs/<feature>/tasks.md
-Use the run skill (no argument — context-aware selection)
+Use the ship skill for specs/<feature>/tasks.md
+Use the ship skill (no argument — context-aware selection)
 ```
 
 ### Flags
@@ -47,7 +47,7 @@ Use the run skill (no argument — context-aware selection)
 Before doing any work, verify that `AGENTS.md` exists at the repository root and
 that `scripts/check-sdd-structure.sh` (or `.ps1`) reports no `missing:` items.
 If either check fails, stop immediately and direct the user to run
-`/sdd-bootstrap:sdd-adopt`. Do not proceed without it.
+`/sdd-bootstrap:bootstrap adopt`. Do not proceed without it.
 
 Do **not** invoke `sdd-sudo`, create `SDD_SUDO`, or modify the `SDD_SUDO` file.
 Sudo management is always a separate human action.
@@ -68,9 +68,9 @@ If `#T-NNN` is given, only process that single task.
 3. **Exactly one match**: print `[sdd-ship AUTO-SELECT] specs/<feature>/tasks.md`
    and proceed without asking the user.
 4. **Zero matches**: print "No active features with Approval: Approved tasks found.
-   Run /sdd-bootstrap:run first." and stop.
+   Run /sdd-bootstrap:bootstrap first." and stop.
 5. **Multiple matches**: list all candidates with task counts and print
-   "Multiple active features found. Re-run: /sdd-ship:run specs/<feature>/tasks.md"
+   "Multiple active features found. Re-run: /sdd-ship:ship specs/<feature>/tasks.md"
    and stop without touching any feature.
 
 ## Step 2 — Track Detection
@@ -143,7 +143,7 @@ For each task at `Implementation Complete`, in tasks.md document order:
    `Escalate-Human` and instruct the human to investigate manually. Because each
    quality-gate run writes a durable timestamped report under
    `reports/quality-gate/`, this limit is computed from disk and holds across
-   separate `/sdd-ship:run` invocations and sessions (it does not reset per
+   separate `/sdd-ship:ship` invocations and sessions (it does not reset per
    invocation).
 
 ### Lite track
@@ -198,7 +198,7 @@ After sdd-ship completes, report:
 - Tasks implemented and their final status (Done / Blocked)
 - Any review tickets created (with file paths)
 - Next action for the user:
-  - If all Done: "Feature complete. Consider /sdd-quality-loop:workflow-retrospective
-    specs/<feature> to capture improvements."
+  - If all Done: "Feature complete. Consider re-running /sdd-ship:ship --retro
+    specs/<feature>/tasks.md to capture improvements."
   - If Blocked: "Address review tickets, apply fixes with
-    /sdd-quality-loop:fix-by-review-ticket, then re-run /sdd-ship:run."
+    /sdd-quality-loop:fix-by-review-ticket, then re-run /sdd-ship:ship."

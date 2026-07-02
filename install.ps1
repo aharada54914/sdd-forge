@@ -210,8 +210,8 @@ function Get-RequiredPaths {
         ".claude-plugin/marketplace.json",
         ".codex/agents/sdd-investigator.toml",
         ".codex/agents/sdd-evaluator.toml",
-        "plugins/sdd-bootstrap/skills/run/SKILL.md",
-        "plugins/sdd-ship/skills/run/SKILL.md"
+        "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md",
+        "plugins/sdd-ship/skills/ship/SKILL.md"
     )
     foreach ($plugin in $allPluginNames) {
         $paths += "plugins/$plugin/.codex-plugin/plugin.json"
@@ -242,14 +242,14 @@ function Write-InstallSummary {
         if ($script:ClaudeRegistrationStatus -eq "registered") {
             Write-Host "Claude Code next step: run /reload-plugins or restart Claude Code."
             Write-Host "Expected slash commands after reload:"
-            Write-Host "  /sdd-bootstrap:run"
-            Write-Host "  /sdd-ship:run"
+            Write-Host "  /sdd-bootstrap:bootstrap"
+            Write-Host "  /sdd-ship:ship"
         }
         elseif ($script:ClaudeRegistrationStatus -like "skipped:*") {
             Write-Warning "Claude Code registration did not complete. Re-run with: .\install.ps1 -Target Claude -Plugins sdd-bootstrap,sdd-ship -RequireClaude"
         }
         elseif ($script:ClaudeRegistrationStatus -like "marketplace registered;*") {
-            Write-Warning "Claude marketplace was registered, but plugin install was skipped because -SkipPluginInstall was set. /sdd-bootstrap:run and /sdd-ship:run will not appear until the plugins are installed."
+            Write-Warning "Claude marketplace was registered, but plugin install was skipped because -SkipPluginInstall was set. /sdd-bootstrap:bootstrap and /sdd-ship:ship will not appear until the plugins are installed."
         }
     }
 }

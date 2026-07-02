@@ -1,6 +1,6 @@
 ---
-name: run
-description: Generate implementation-ready SDD specifications and approved task contracts from requirements. The first of the two-command workflow — run before /sdd-ship:run.
+name: bootstrap
+description: Generate implementation-ready SDD specifications and approved task contracts from requirements. The first of the two-command workflow — run before /sdd-ship:ship.
 disable-model-invocation: true
 ---
 
@@ -16,18 +16,18 @@ and task-decomposition review.
 Claude Code:
 
 ```txt
-/sdd-bootstrap:run <mode> <source>
-/sdd-bootstrap:run adopt [project-root]
-/sdd-bootstrap:run investigate <mode> <source>
-/sdd-bootstrap:run <mode> --lite <source>
-/sdd-bootstrap:run <mode> --feature <slug> <source>
-/sdd-bootstrap:run <mode> --reset --feature <slug>
+/sdd-bootstrap:bootstrap <mode> <source>
+/sdd-bootstrap:bootstrap adopt [project-root]
+/sdd-bootstrap:bootstrap investigate <mode> <source>
+/sdd-bootstrap:bootstrap <mode> --lite <source>
+/sdd-bootstrap:bootstrap <mode> --feature <slug> <source>
+/sdd-bootstrap:bootstrap <mode> --reset --feature <slug>
 ```
 
 Codex:
 
 ```txt
-Use the run skill.
+Use the bootstrap skill.
 Mode: project | feature | bugfix | refactor | adopt | investigate
 Source: <GitHub/GitLab issue URL or requirement text>
 ```
@@ -61,7 +61,7 @@ For `feature`, `bugfix`, `refactor`, and `project` modes:
    structure, then continue.
 3. For `refactor` mode: require `specs/<feature>/investigation.md` and
    `specs/<feature>/baseline-behavior.md`. If absent, recommend running
-   `/sdd-bootstrap:run investigate refactor <source>` first and stop.
+   `/sdd-bootstrap:bootstrap investigate refactor <source>` first and stop.
 
 ## Routing
 
@@ -69,7 +69,7 @@ For `feature`, `bugfix`, `refactor`, and `project` modes:
 
 Delegate entirely to `/sdd-bootstrap:sdd-adopt [project-root]`.
 Stop after sdd-adopt completes. Remind the user to run
-`/sdd-bootstrap:run feature <source>` next.
+`/sdd-bootstrap:bootstrap feature <source>` next.
 
 ### `investigate` mode
 
@@ -98,14 +98,14 @@ Choose the track once, before invoking the interviewer:
    - NEEDS_WORK: present proposed edits to the human, wait for the Phase 1
      artifacts to be updated, then re-invoke.
    - BLOCKED: stop. Instruct the human to revise and run
-     `/sdd-bootstrap:run <mode> --reset --feature <slug>`.
+     `/sdd-bootstrap:bootstrap <mode> --reset --feature <slug>`.
 
 3. **Impl-review gate** — invoke `/sdd-review-loop:impl-review-loop --feature <slug>`.
    - PASS / PASS-with-warnings: continue to Phase 2.
    - NEEDS_WORK: present proposed edits to the human, wait for `design.md`
      update, then re-invoke.
    - BLOCKED: stop. Instruct the human to revise and run
-     `/sdd-bootstrap:run <mode> --reset --feature <slug>`.
+     `/sdd-bootstrap:bootstrap <mode> --reset --feature <slug>`.
 
 4. **Phase 2** — invoke `/sdd-bootstrap:sdd-bootstrap-interviewer <mode> <source>`
    in Phase 2 mode (after `Impl-Review-Status: Passed`).
@@ -114,12 +114,12 @@ Choose the track once, before invoking the interviewer:
 5. **Task-review gate** — invoke `/sdd-review-loop:task-review-loop --feature <slug>`.
    - PASS / PASS-with-warnings: continue to Approval Gate.
    - NEEDS_WORK: present proposed edits, wait for `tasks.md` update, re-invoke.
-   - BLOCKED: stop. Instruct: `/sdd-bootstrap:run <mode> --reset --feature <slug>`.
+   - BLOCKED: stop. Instruct: `/sdd-bootstrap:bootstrap <mode> --reset --feature <slug>`.
 
 6. **Approval Gate** — present all generated artifacts to the human.
    Remind them that implementation starts only after they set
    `Approval: Approved` on each task in `tasks.md`.
-   Next step: `/sdd-ship:run specs/<slug>/tasks.md`
+   Next step: `/sdd-ship:ship specs/<slug>/tasks.md`
 
 ### Lite track (`--lite` or `spec_profile: lite`)
 
@@ -129,7 +129,7 @@ no ADR). LITE produces zero layer outputs: no `ux-spec.md`,
 `frontend-spec.md`, `infra-spec.md`, or `security-spec.md`. Approval gate is
 the same.
 
-Next step after approval: `/sdd-ship:run --lite specs/<slug>/tasks.md`
+Next step after approval: `/sdd-ship:ship --lite specs/<slug>/tasks.md`
 
 ## Handoff
 
@@ -138,5 +138,5 @@ After sdd-bootstrap completes, report:
 - Generated artifacts with file paths
 - Open Questions that remain unresolved
 - Human action required: set `Approval: Approved` on tasks in `tasks.md`
-- Next command: `/sdd-ship:run specs/<feature-slug>/tasks.md`
-  (or `/sdd-ship:run --lite specs/<feature-slug>/tasks.md` for lite track)
+- Next command: `/sdd-ship:ship specs/<feature-slug>/tasks.md`
+  (or `/sdd-ship:ship --lite specs/<feature-slug>/tasks.md` for lite track)

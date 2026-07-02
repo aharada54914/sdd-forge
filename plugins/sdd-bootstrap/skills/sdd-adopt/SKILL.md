@@ -2,6 +2,7 @@
 name: sdd-adopt
 description: Adopt SDD in an existing repository. Creates only what is missing — structure directories, AGENTS.md, CLAUDE.md, host-appropriate CI/issue/PR templates — without writing specifications or application code.
 disable-model-invocation: true
+user-invocable: false
 ---
 
 # SDD Adopt

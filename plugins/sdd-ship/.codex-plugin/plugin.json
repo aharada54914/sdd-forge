@@ -1,6 +1,6 @@
 {
   "name": "sdd-ship",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow.",
   "skills": "./skills/",
   "author": {
@@ -19,6 +19,6 @@
       "Workflow retrospective on feature completion",
       "Zero-argument context-aware feature selection"
     ],
-    "defaultPrompt": "Use the run skill for specs/<feature>/tasks.md"
+    "defaultPrompt": "Use the ship skill for specs/<feature>/tasks.md"
   }
 }

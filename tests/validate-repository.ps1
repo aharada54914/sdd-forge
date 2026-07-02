@@ -10,14 +10,14 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
-$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
+$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.6.0"
-    "sdd-implementation" = "1.6.0"
-    "sdd-quality-loop"   = "1.6.0"
-    "sdd-lite"           = "1.6.0"
-    "sdd-review-loop"    = "1.6.0"
-    "sdd-ship"           = "1.6.0"
+    "sdd-bootstrap"      = "1.7.0"
+    "sdd-implementation" = "1.7.0"
+    "sdd-quality-loop"   = "1.7.0"
+    "sdd-lite"           = "1.7.0"
+    "sdd-review-loop"    = "1.7.0"
+    "sdd-ship"           = "1.7.0"
 }
 $releasePlugins = $expectedPlugins
 
@@ -35,14 +35,14 @@ $readmeLines = Get-Content -Encoding Utf8 (Join-Path $repositoryRoot "README.md"
 $readmeCurrentRelease = $readmeLines |
     Where-Object { $_ -match "^v\d+\.\d+\.\d+(?:\s|$)" } |
     Select-Object -First 1
-if ($null -eq $readmeCurrentRelease -or $readmeCurrentRelease -notmatch "^v1\.6\.0(?:\s|$)") {
-    throw "README.md current release must be v1.6.0."
+if ($null -eq $readmeCurrentRelease -or $readmeCurrentRelease -notmatch "^v1\.7\.0(?:\s|$)") {
+    throw "README.md current release must be v1.7.0."
 }
 
 $changelog = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "CHANGELOG.md")
-$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.6\.0(?:\s|$)")
+$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.7\.0(?:\s|$)")
 if ($currentReleaseHeadings.Count -ne 1) {
-    throw "CHANGELOG.md must contain exactly one v1.6.0 release heading."
+    throw "CHANGELOG.md must contain exactly one v1.7.0 release heading."
 }
 
 $codexMarketplace = Read-JsonFile ".agents/plugins/marketplace.json"
@@ -440,10 +440,25 @@ if ($ciTemplate -notmatch [regex]::Escape($projectCommandMarker)) {
 }
 
 # Side-effecting skills must not be auto-invocable by the model.
+# Only the two entry commands and human-only utilities may appear in the
+# user-facing slash menu; every other skill must also set user-invocable: false.
+$userVisibleSkills = @("bootstrap", "ship", "sdd-sudo", "fix-by-review-ticket", "diagnose")
 foreach ($skillFile in $skillFiles) {
     $content = Get-Content -Raw -Encoding Utf8 $skillFile.FullName
     if ($content -notmatch "(?m)^disable-model-invocation:\s*true$") {
         throw "Skill must set disable-model-invocation: true: $($skillFile.FullName)"
+    }
+    if ($content -notmatch "(?m)^name:\s*(.+)$") {
+        throw "Skill has no name: $($skillFile.FullName)"
+    }
+    $skillName = $Matches[1].Trim()
+    $hasUserInvocableFalse = $content -match "(?m)^user-invocable:\s*false$"
+    if ($skillName -in $userVisibleSkills) {
+        if ($hasUserInvocableFalse) {
+            throw "User-facing skill must not set user-invocable: false: $($skillFile.FullName)"
+        }
+    } elseif (-not $hasUserInvocableFalse) {
+        throw "Internal skill must set user-invocable: false: $($skillFile.FullName)"
     }
 }
 

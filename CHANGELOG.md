@@ -2,6 +2,46 @@
 
 ## Unreleased
 
+## v1.7.0 (2026-07-02)
+
+### スラッシュメニューの2コマンド化とエントリコマンドのリネーム
+
+- **破壊的変更**: エントリスキルをリネーム。`/sdd-bootstrap:run` → `/sdd-bootstrap:bootstrap`、
+  `/sdd-ship:run` → `/sdd-ship:ship`。両スキルが `name: run` を共有していたため、
+  ホスト UI（Claude Code / Codex）で選択後の表示がどちらも `run` になり
+  区別できなかった問題を解消。
+- 内部オーケストレーション用の14スキルに `user-invocable: false` を追加し、
+  スラッシュコマンドメニューから非表示化。ユーザーに見えるコマンドは
+  `bootstrap` / `ship` / `sdd-sudo` / `fix-by-review-ticket` / `diagnose` の5つのみ。
+  `disable-model-invocation: true` は全スキルで維持（モデルの自動起動禁止は不変）。
+  再開機能は影響なし（エントリコマンドがタスク状態から再開点を自動検出する）。
+- `tests/validate-repository.ps1` にスキル可視性契約の検証を追加
+  （公開5スキル以外は `user-invocable: false` 必須）。
+
+### 自己改善フロー（WFI）の効果測定基盤
+
+（提案の全文: `docs/contributor/self-improvement-measurement-proposal.md`）
+
+- **ランレコード（Phase A）**: `emit-run-record.sh` / `.ps1` を新設。retrospective 実行時に
+  `reports/runs/RUN-<timestamp>-<feature>.json` を決定論的に生成し、モデルID・
+  プラグインバージョン・適用中 WFI 一覧・カウントベース指標を記録する。
+  以後の WFI 効果の帰属分析はこのレコードを一次ソースとする。
+- **WFI 検証の拘束力強化（Phase B）**: WFI テンプレートに `Target-Metric` /
+  `Expected-Direction` / `Horizon` / `Rollback-Plan` と2軸分類
+  （`Category`（スコープ軸: 既存2 + `human-process` / `measurement`）、
+  `Mechanism`（instructions / memory / tools / architecture / model-routing）、
+  `Meta-Change` フラグ）を追加。retrospective は Applied WFI の Horizon を毎回
+  機械チェックし、期限内未達なら Rejected + ロールバック提案を出す。
+  測定系（grader・閾値・retrospective ロジック）を触る WFI は Meta-Change
+  厳格監査レーンへ（wfi-auditor-b に anti-Goodhart チェックを追加）。
+- **Retention チェック（Phase C）**: `docs/workflow-improvements/retention-checklist.md`
+  を新設し、Verified 済み WFI が直した失敗モードの再発を retrospective が毎回検知。
+  再発時は WFI を新状態 `Regressed` に落とし、再起票を提案する。
+- **golden タスクの足場（Phase D、スキャフォールド）**: `tests/golden/` に fixture
+  形式と pairwise 検証手順の README を追加（fixture 本体は実失敗事例から今後蓄積）。
+- `scripts/bump-version.sh` を新設し、リリース面（マニフェスト18 + marketplace 2 +
+  README + バリデータ + リリーステスト）のバージョン同期を1コマンド化。
+
 ## v1.6.0 (2026-07-02)
 
 ### バグ修正トラックと P0 ハードニング

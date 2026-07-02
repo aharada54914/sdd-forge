@@ -62,7 +62,7 @@ task_line="$(grep -n -m1 -F '/sdd-review-loop:task-review-loop --feature <featur
 [[ "$spec_line" -lt "$impl_line" && "$impl_line" -lt "$task_line" ]] || \
   fail "bootstrap interviewer review commands must be ordered spec, implementation-policy, task"
 
-run_skill="${ROOT}/plugins/sdd-bootstrap/skills/run/SKILL.md"
+run_skill="${ROOT}/plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
 run_full="$(sed -n '/^### `feature` .*full track)/,/^### Lite track/p' "$run_skill")"
 for stage in spec-review-loop impl-review-loop task-review-loop; do
   grep -Fq "$stage" <<<"$run_full" || fail "bootstrap run full track must name $stage"

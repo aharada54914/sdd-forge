@@ -1,24 +1,45 @@
 # WFI Category Guide
 
-This reference defines the two WFI categories, their classification criteria, and their
-language rules. Read this document before drafting any WFI.
+This reference defines the WFI categories (the scope axis), the mechanism axis, their
+classification criteria, and their language rules. Read this document before drafting
+any WFI.
 
-## Section 1 — Classification Flowchart
+## Section 1 — Classification Flowchart (scope axis)
 
 ```
-Is the friction evidence drawn from the "Review Gate Metrics" table
-(spec_review_rounds, spec_review_blocked_rate, impl_review_rounds,
-task_review_blocked_rate, impl_review_blocked_rate,
-impl_review_legacy_design_rate) or does it involve cross-plugin handoff
-transitions (e.g., design review → task decomposition → implementation flow)?
+Does the Proposed Change touch graders, gate thresholds, retrospective or
+audit logic, or run-record definitions (anything that MEASURES the workflow)?
       │
-      ├─ YES → Category: plugin-improvement
-      │         Use generic workflow terminology (Section 2).
-      │         A GitHub Issue will be created after audit completion.
+      ├─ YES → Category: measurement  +  Meta-Change: true
+      │         Strict audit lane (Section 5). Language rules follow the
+      │         underlying target (generic if plugin-side, concrete if
+      │         project-side).
       │
-      └─ NO  → Category: app-dev-efficiency
-                Use project-specific concrete detail (Section 3).
-                No GitHub Issue is created.
+      └─ NO
+          │
+          Does the change alter approval policy, escalation rules, or what
+          humans review (rather than what agents do)?
+              │
+              ├─ YES → Category: human-process
+              │         Application is always a human action.
+              │
+              └─ NO
+                  │
+                  Is the friction evidence drawn from the "Review Gate Metrics"
+                  table (spec_review_rounds, spec_review_blocked_rate,
+                  impl_review_rounds, task_review_blocked_rate,
+                  impl_review_blocked_rate, impl_review_legacy_design_rate) or
+                  does it involve cross-plugin handoff transitions (e.g., design
+                  review → task decomposition → implementation flow)?
+                        │
+                        ├─ YES → Category: plugin-improvement
+                        │         Use generic workflow terminology (Section 2).
+                        │         A GitHub Issue will be created after audit
+                        │         completion.
+                        │
+                        └─ NO  → Category: app-dev-efficiency
+                                  Use project-specific concrete detail
+                                  (Section 3). No GitHub Issue is created.
 ```
 
 **Examples of plugin-improvement friction:**
@@ -169,3 +190,43 @@ and set `Status: Approved` (human action required; agent writes are blocked).*
 ```
 
 **Labels:** `workflow-improvement`, `plugin-improvement`
+
+---
+
+## Section 5 — Mechanism Axis and the Meta-Change Strict Lane
+
+### Mechanism axis (orthogonal to Category)
+
+Every WFI also carries a `Mechanism:` field describing WHAT KIND of thing changes.
+The scope axis (Category) says where the change lands; the mechanism axis feeds
+aggregate analysis ("which mechanism's improvements actually get Verified?").
+
+| Mechanism | Meaning | Typical targets |
+|---|---|---|
+| `instructions` | Prompt/guidance/rubric text | SKILL guidance referenced by AGENTS.md, review rubrics |
+| `memory` | Persistent knowledge files | AGENTS.md, CLAUDE.md, spec templates |
+| `tools` | Executable scaffolding | scripts, hooks, agent definitions, schemas |
+| `architecture` | Process structure | gate ordering, reviewer counts, approval placement |
+| `model-routing` | Model selection per stage | escalation tiers, per-agent model choices |
+
+`memory`-mechanism WFIs have a known failure mode: additive-only growth dilutes
+instructions over time (context bloat). The retrospective flags any memory-target
+file that only ever grows; prefer consolidation over appending.
+
+### Meta-Change strict lane
+
+A WFI with `Meta-Change: true` (always the case for `Category: measurement`)
+changes the instruments that decide whether improvements worked. Self-modifying
+systems are demonstrably capable of gaming their own metrics, so these WFIs get
+extra scrutiny:
+
+1. **auditor-b anti-Goodhart check** — Cycle 2 must explicitly answer: "Does this
+   change make any gate, grader, threshold, or metric easier to satisfy without
+   improving the underlying outcome?" A YES is a BLOCKED verdict.
+2. **Non-decreasing guard** — the number of gates, deterministic checks, tests,
+   and audit criteria after the change must be greater than or equal to the count
+   before it. Any decrease requires an explicit human-visible justification in
+   the WFI.
+3. **Human approval display** — the audit summary presented for human approval
+   must lead with `Meta-Change: true` so the approver knows they are approving a
+   change to measurement itself.
