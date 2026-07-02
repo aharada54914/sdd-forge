@@ -152,6 +152,18 @@ stateDiagram-v2
 | `Done` | **Approved** | • `specs/<feature>/verification/<task-id>.evidence.json` が存在<br/>• report、contract、passing evidence の task ID・PASS判定・SHA-256 が検証済み |
 | `Blocked` | Draft / Approved 両方可 | • 非空の `### Blockers` セクション (実装値記述必須) |
 
+### registry profile（full / lite / legacy）
+
+`specs/workflow-state-registry.json` は feature ごとに `profile` を持ち、`contracts/workflow-state-registry.schema.json` がその形状を検証します。
+
+| profile | 意味 |
+|---|---|
+| `full` | 全レビュー（spec-review-loop / impl-review-loop / task-review-loop）の provenance が必須。標準トラックの feature はここに属する。 |
+| `lite` | 軽量トラック（sdd-lite）用。レビューループの検証をスキップする。 |
+| `legacy` | provenance が復元不能な過去の feature を bounded grandfathering する区分。機能は有効のまま維持されるが、スキーマの `const` と完全一致する固定の `legacy` オブジェクト（`reason` 等）が必須で、内容の書き換えは許されない。 |
+
+`legacy` は履歴上の事実を凍結するための区分であり、新規 feature が意図的に `legacy` を選ぶことはない。
+
 ---
 
 ## 3. 正常系フロー
