@@ -31,8 +31,14 @@ make_full_fixture() {
     rm "$evidence.bak"
   done < <(find "$target/reports" -type f \
     \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
+  # Force a "full" profile for the isolated fixture regardless of the real
+  # registry's current classification of workflow-state-integrity. These
+  # fixtures deliberately corrupt stage-provenance evidence to assert the
+  # checker still rejects it; workflow-state-integrity may be grandfathered
+  # to "legacy" in the live registry (e.g. after provenance-hash drift),
+  # which would otherwise silently mask the corruption these tests inject.
   jq '{schema_version, migration_baseline_commit,
-       entries: [.entries[] | select(.feature == "workflow-state-integrity")]}' \
+       entries: [.entries[] | select(.feature == "workflow-state-integrity") | .profile="full" | del(.legacy)]}' \
     "$ROOT/specs/workflow-state-registry.json" > "$target/specs/workflow-state-registry.json"
   printf '%s\n' "$target"
 }
