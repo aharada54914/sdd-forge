@@ -2,6 +2,7 @@
 name: implement-task
 description: Restore the current SDD task state and implement exactly one approved task. Use after sdd-bootstrap-interviewer and before quality-gate.
 disable-model-invocation: true
+user-invocable: false
 ---
 
 > **Caller**: This skill is invoked by `sdd-ship`. Do not invoke directly.

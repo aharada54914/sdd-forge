@@ -2,6 +2,7 @@
 name: workflow-retrospective
 description: Measure how the SDD workflow itself performed (rework cycles, blocked tasks, review tickets, quality-gate failures) and propose human-approved improvements to project workflow files.
 disable-model-invocation: true
+user-invocable: false
 ---
 
 # Workflow Retrospective
@@ -33,6 +34,12 @@ Read the following sources; do not modify them:
 - `reports/impl-review/` — impl-review-contract.json files for each feature
 - previous `reports/retrospective/*.md` — comparison baseline and prior WFI
   verification results
+- `reports/runs/RUN-*.json` — machine-readable run records from prior runs
+  (attribution baseline for WFI verification)
+- `docs/workflow-improvements/WFI-*.md` — Applied WFIs with open verification
+  horizons
+- `docs/workflow-improvements/retention-checklist.md` — recurrence conditions
+  for previously Verified WFIs
 
 For each task derive:
 
@@ -133,6 +140,42 @@ and derive:
 - **impl_review_legacy_design_rate** — percentage of features where
   `legacy_design: true` in at least one impl-review-contract.json.
 
+## Applied-WFI Verification (horizon and retention)
+
+Run these two checks on every retrospective, before drafting any new WFI.
+They are what makes self-improvement measurable instead of impressionistic:
+never classify a WFI from the feeling that "the run went smoother" — only from
+run records and report counts.
+
+**Horizon check.** For every WFI with `Status: Applied`:
+
+1. Read its `Verification Metric` block (`Target-Metric`, `Expected-Direction`,
+   `Horizon`, `Baseline`, `Target`).
+2. Compare the baseline against the current run records (`reports/runs/`) and
+   this retrospective's metrics. Report counts, not percentages, when fewer
+   than 20 runs exist.
+3. Classify:
+   - Target met → set `Status: Verified`, append the comparison to `## Result`,
+     and add the WFI's recurrence condition to
+     `docs/workflow-improvements/retention-checklist.md`.
+   - Direction improved, target unmet, horizon still open → leave Applied and
+     record `Needs-Followup` in `## Result`.
+   - Horizon expired without the target being met, or the metric worsened →
+     set `Status: Rejected`, append the evidence to `## Result`, and present
+     the WFI's `Rollback-Plan` to the human for approval. Do not execute the
+     rollback without human approval.
+
+**Retention check.** Read `docs/workflow-improvements/retention-checklist.md`
+(if absent, skip and note that in the report). For each entry, check whether the
+recurrence condition matches any evidence in this period. On recurrence:
+set the source WFI's `Status: Regressed`, record the evidence in its
+`## Result`, remove the checklist entry, and treat the recurrence as a friction
+pattern candidate for a follow-up WFI. Retention answers the question most
+loops forget: do previously fixed failure modes stay fixed?
+
+Before crediting or blaming any WFI, read the transcripts or reports behind the
+changed metric: grading artifacts can masquerade as effects.
+
 ## Output
 
 Generate `reports/retrospective/<timestamp>.md` using the structure below.
@@ -214,7 +257,48 @@ Patterns observed across two or more tasks in this period.
 | WFI Verification Rate | {{prev_wfi_verification_rate}} | {{curr_wfi_verification_rate}} | {{trend}} |
 
 _If no previous retrospective exists, mark all "Previous" cells as N/A._
+
+## Applied WFI Horizon Check
+
+| WFI-ID | Target-Metric | Baseline | Target | Current | Horizon | Classification |
+|---|---|---|---|---|---|---|
+| {{wfi_id}} | {{target_metric}} | {{baseline}} | {{target}} | {{current}} | {{horizon}} | {{verified_needs_followup_rejected}} |
+
+_List every WFI that was `Status: Applied` at the start of this retrospective.
+If none, state "No applied WFIs with open horizons."_
+
+## Retention Check
+
+| Source WFI | Recurrence Condition | Recurred? | Evidence |
+|---|---|---|---|
+| {{wfi_id}} | {{condition}} | {{yes_no}} | {{evidence_or_dash}} |
+
+_One row per entry in retention-checklist.md. If the checklist is absent or
+empty, state that explicitly._
 ```
+
+## Run Record (machine-readable)
+
+After writing the retrospective report, emit the machine-readable run record:
+
+```
+scripts/emit-run-record.sh <feature> --track <full|lite> \
+  --model-main <model id used for implementation> \
+  --model-reviewers <model id used for review agents> \
+  --plugin-version <installed sdd plugin version>
+```
+
+(or `emit-run-record.ps1` with the equivalent named parameters; if the project
+has no `scripts/` copy, run it from the installed sdd-quality-loop plugin's
+`scripts/` directory).
+
+The script deterministically counts tasks, first-try gate passes, gate reports,
+blocked reports, and review tickets, and records the currently Applied WFIs —
+do not compute these numbers yourself and do not edit the emitted JSON. Pass
+the model ids and track as arguments; they are per-run confound metadata that
+future attribution analysis cannot recover after the fact. If a model version
+changed since the previous run record, note that in the retrospective report:
+metric shifts across a model change must not be attributed to WFIs.
 
 ## Improvement Loop
 
@@ -228,9 +312,16 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
    Do not draft a WFI from a single-task observation. Record it under Friction
    Patterns with Low confidence only when it may become relevant later.
 
-1.5. **Classify the WFI.** Before drafting, determine the WFI category by reading
-   `plugins/sdd-quality-loop/references/wfi-category-guide.md`:
+1.5. **Classify the WFI.** Before drafting, walk the Section 1 flowchart of
+   `plugins/sdd-quality-loop/references/wfi-category-guide.md` to set the
+   scope axis (`Category`), then set the mechanism axis (`Mechanism`) from
+   Section 5:
 
+   - **`measurement`** (checked first): the change touches graders, gate
+     thresholds, retrospective/audit logic, or run-record definitions. Forces
+     `Meta-Change: true` and the strict audit lane (category guide Section 5).
+   - **`human-process`**: the change alters approval policy, escalation rules,
+     or what humans review.
    - **`plugin-improvement`**: friction evidence comes from the "Review Gate
      Metrics" table (`spec_review_rounds`, `spec_review_blocked_rate`,
      `impl_review_rounds`, `task_review_blocked_rate`,
@@ -241,6 +332,10 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
    - **`app-dev-efficiency`**: all other friction patterns (task sizing, test
      coverage gaps, spec quality, project-specific recurring ticket types). These
      WFIs use project-specific concrete language (feature slugs, task IDs, RT-IDs).
+
+   `Mechanism` is one of `instructions | memory | tools | architecture |
+   model-routing`. Set `Meta-Change: true` whenever the proposed change touches
+   anything that measures the workflow, regardless of Category.
 
    For `plugin-improvement` WFIs: read Section 2 of `wfi-category-guide.md` and
    apply all term substitutions to Root Cause Hypothesis, Proposed Change, and
@@ -265,15 +360,31 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
 
    Status: Draft
 
-   <!-- Allowed values: Draft | Approved | Applied | Verified | Rejected -->
-   <!-- Only a human may set status to Approved. The AI sets Draft, Applied, and Verified. -->
+   <!-- Allowed values: Draft | Approved | Applied | Verified | Rejected | Regressed -->
+   <!-- Only a human may set status to Approved. The AI sets Draft, Applied,        -->
+   <!-- Verified, Rejected, and Regressed.                                           -->
 
    ## Category
 
-   Category: {{plugin-improvement|app-dev-efficiency}}
+   Category: {{plugin-improvement|app-dev-efficiency|human-process|measurement}}
 
+   <!-- Scope axis — walk wfi-category-guide.md §1 flowchart.                        -->
    <!-- plugin-improvement: use generic workflow terms (wfi-category-guide.md §2). -->
    <!-- app-dev-efficiency: use project-specific detail (feature slug, task IDs).   -->
+   <!-- measurement: forces Meta-Change: true (strict audit lane, guide §5).        -->
+
+   ## Mechanism
+
+   Mechanism: {{instructions|memory|tools|architecture|model-routing}}
+
+   <!-- Mechanism axis — what kind of thing changes (wfi-category-guide.md §5). -->
+
+   ## Meta-Change
+
+   Meta-Change: {{true|false}}
+
+   <!-- true when the change touches graders, thresholds, retrospective/audit     -->
+   <!-- logic, or run-record definitions (wfi-category-guide.md §5).              -->
 
    ## GitHub-Issue
 
@@ -321,10 +432,15 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
 
    ## Verification Metric
 
-   {{metric_name_baseline_target_checkpoint}}
+   Target-Metric: {{run_record_metric_key}}
+   Expected-Direction: {{increase|decrease}}
+   Horizon: {{within_next_N_runs_or_date}}
+   Baseline: {{baseline_count}}
+   Target: {{target_count}}
 
-   <!-- Name one primary metric, the current baseline, target, and checkpoint.          -->
-   <!-- This is the metric retrospective will compare after the next task cycle.        -->
+   <!-- Target-Metric names one run-record key (reports/runs/RUN-*.json) or a       -->
+   <!-- retrospective table column. Horizon is binding: expiry without the target    -->
+   <!-- met → Status: Rejected + rollback proposal. Use counts, not percentages.     -->
 
    ## Verification Plan
 
@@ -332,6 +448,13 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
 
    <!-- Describe how the next task cycle will confirm the improvement. -->
    <!-- Reference the specific metric rows from the retrospective template. -->
+
+   ## Rollback-Plan
+
+   {{rollback_plan}}
+
+   <!-- Exact files/sections changed and how to revert (normally: git revert of  -->
+   <!-- the commit whose message contains this WFI-ID). Required before Approved. -->
 
    ## Result
 
@@ -383,19 +506,35 @@ _If no previous retrospective exists, mark all "Previous" cells as N/A._
    Always include the WFI ID (`WFI-NNN`) in the commit message and any PR that
    applies an approved improvement.  Automated maintenance routines treat
    `WFI-`-referenced changes as protected and will not revert them; changes
-   without the marker lose that protection.
+   without the marker lose that protection. The WFI-ID-in-commit rule is also
+   what makes the `Rollback-Plan` executable: reverting the WFI is reverting
+   that commit.
+
+   **Adoption hygiene (attribution discipline):** apply at most one WFI (or one
+   explicitly labeled batch) per verification window, and never mid-run.
+   Simultaneous unlabeled adoptions make it impossible to attribute a metric
+   shift to any single change.
 
 5. **Verify effect.** After the next task cycle completes, re-run metrics
-   collection and append a `Result` section to the WFI document. Compare the
-   `Verification Metric` baseline and target with current results. Classify the
-   result as:
+   collection (the Applied-WFI Verification section above) and append a
+   `Result` section to the WFI document. Compare the `Verification Metric`
+   baseline and target with the current run records. Classify the result as:
    - `Verified`: target met without introducing a worse repeated friction.
-   - `Needs-Followup`: direction improved but target was not met.
-   - `Rejected`: metric worsened or the proposal caused a new repeated failure.
+     Register the recurrence condition in
+     `docs/workflow-improvements/retention-checklist.md`.
+   - `Needs-Followup`: direction improved but target was not met and the
+     horizon is still open.
+   - `Rejected`: metric worsened, the horizon expired without the target, or
+     the proposal caused a new repeated failure. Present the `Rollback-Plan`
+     to the human.
+   - `Regressed` (set by the retention check, possibly many cycles later): a
+     previously Verified WFI's failure mode recurred.
 
    This mirrors continuous eval practice: keep the successful regression signal,
    promote recurring misses into new WFI candidates, and avoid reactive changes
-   from one-off failures.
+   from one-off failures. A model-version change between baseline and
+   checkpoint invalidates the comparison — note it and extend the horizon
+   instead of classifying.
 
 ## Sudo Mode
 

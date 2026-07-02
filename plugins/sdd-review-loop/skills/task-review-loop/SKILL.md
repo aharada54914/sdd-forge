@@ -2,6 +2,7 @@
 name: task-review-loop
 description: Orchestrator for the SDD task decomposition review loop. Runs up to three rounds of dual-reviewer checks on tasks.md. Coordinates task-reviewer-a (structural coverage) and task-reviewer-b (quality/risk), merges verdicts, and manages round/attempt state. Human edits are required between rounds when findings exist.
 disable-model-invocation: true
+user-invocable: false
 ---
 
 # Task Review Loop

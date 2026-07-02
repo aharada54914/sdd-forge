@@ -10,7 +10,7 @@ has()  { grep -q -F -- "$2" "$1"; }
 absent() { ! grep -q -F -- "$2" "$1"; }
 
 WFI="$ROOT/plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md"
-RUN="$ROOT/plugins/sdd-ship/skills/run/SKILL.md"
+RUN="$ROOT/plugins/sdd-ship/skills/ship/SKILL.md"
 IMP="$ROOT/plugins/sdd-implementation/skills/implement-tasks/SKILL.md"
 
 echo "== REQ-001: wfi-audit-cycle convergence guard =="

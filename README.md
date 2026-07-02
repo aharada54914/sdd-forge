@@ -1,19 +1,19 @@
 # SDD Forge
 
-v1.6.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.7.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 ## クイックスタート（2コマンド）
 
 ```bash
 # Step 1: 仕様化フェーズ — 要件から承認済みタスクまで
-/sdd-bootstrap:run feature https://github.com/your-org/your-repo/issues/42
+/sdd-bootstrap:bootstrap feature https://github.com/your-org/your-repo/issues/42
 # → 人間が tasks.md の Approval: Draft を Approval: Approved に変更
 
 # Step 2: 実装・品質保証フェーズ — 承認済みタスクから Done まで
-/sdd-ship:run specs/<feature>/tasks.md
+/sdd-ship:ship specs/<feature>/tasks.md
 ```
 
-> **lite トラック（社内アプリ向け）**: `/sdd-bootstrap:run feature --lite <source>` → `/sdd-ship:run --lite specs/<feature>/tasks.md`
+> **lite トラック（社内アプリ向け）**: `/sdd-bootstrap:bootstrap feature --lite <source>` → `/sdd-ship:ship --lite specs/<feature>/tasks.md`
 
 ```mermaid
 flowchart TD

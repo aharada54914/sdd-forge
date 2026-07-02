@@ -2,6 +2,7 @@
 name: impl-review-loop
 description: Orchestrator for the SDD implementation policy review loop. Runs up to three rounds of dual-reviewer checks on design.md. Coordinates impl-reviewer-a (structural soundness) and impl-reviewer-b (implementability/risk), merges verdicts, and manages round/attempt state. Human edits are required between rounds when findings exist.
 disable-model-invocation: true
+user-invocable: false
 ---
 
 # Implementation Policy Review Loop

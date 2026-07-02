@@ -139,6 +139,33 @@ If any of these would produce an empty or vague issue body, emit a Major finding
 **If `Category: app-dev-efficiency`:**
 Emit SKIP: "Category: app-dev-efficiency does not create a GitHub Issue."
 
+## META-CHANGE-ANTI-GOODHART (Critical / SKIP)
+
+**If `Meta-Change: true` (always the case for `Category: measurement`):**
+The WFI changes the instruments that measure the workflow itself. Self-modifying
+systems can game their own metrics, so answer explicitly, citing the Proposed
+Change rows:
+
+1. Does the change make any gate, grader, threshold, audit criterion, or
+   run-record metric easier to satisfy without improving the underlying
+   outcome? If YES, emit a Critical finding quoting the weakened check.
+2. Count the gates, deterministic checks, tests, and audit criteria before and
+   after the proposed change. If the count decreases and the WFI contains no
+   explicit human-visible justification for the decrease, emit a Critical
+   finding stating both counts.
+3. Verify the WFI's own `Target-Metric` is not computed by the very logic the
+   WFI modifies. If it is, emit a Critical finding: the change would grade its
+   own homework; the verification metric must come from an untouched
+   instrument.
+
+If all three pass, emit PASS citing the evidence for each.
+
+**If `Meta-Change: false` or the field is absent:**
+Emit SKIP: "Meta-Change is not set; the strict lane does not apply." If the
+field is absent but the Proposed Change plainly touches graders, thresholds,
+retrospective/audit logic, or run-record definitions, emit a Major finding
+instead: "Meta-Change must be declared true for this change."
+
 # Verdict Rules
 
 - **BLOCKED**: one or more Critical findings (FAIL with severity Critical).
@@ -184,7 +211,8 @@ Populate `cycle_1_summary` from the `integrated-summary.json` values.
 The `checks` array must contain one entry per check ID in this order:
 VERIFICATION-COMPLETE, SCOPE-PROPORTIONAL, UNINTENDED-CONSEQUENCES,
 FEASIBILITY-WITHOUT-PLUGINS, CATEGORY-LANGUAGE-SECOND-PASS,
-EFFECT-CONSISTENT-WITH-EVIDENCE, ISSUE-BODY-QUALITY.
+EFFECT-CONSISTENT-WITH-EVIDENCE, ISSUE-BODY-QUALITY,
+META-CHANGE-ANTI-GOODHART.
 
 Populate `proposed_revisions` with concrete, section-targeted revisions for each
 fixable Major or Minor finding. PASS may return an empty array. BLOCKED may

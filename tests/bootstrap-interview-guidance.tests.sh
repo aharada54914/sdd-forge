@@ -4,7 +4,7 @@ set -u
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 BASE="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer"
 INTERVIEWER="$BASE/SKILL.md"
-RUN="$ROOT/plugins/sdd-bootstrap/skills/run/SKILL.md"
+RUN="$ROOT/plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
 BANK="$BASE/references/interview-question-bank.md"
 GUIDE="$BASE/references/claude-design-workflow.md"
 PASS=0

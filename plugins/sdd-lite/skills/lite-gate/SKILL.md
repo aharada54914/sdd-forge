@@ -2,6 +2,7 @@
 name: lite-gate
 description: Lightweight deterministic quality gate for the sdd-lite flow. Runs placeholder-scan and the project's lint/typecheck/build/test commands, writes a lite quality report, moves the task to Done, then validates the final Done state with check-task-state-lite. Use after implement-task in the lite flow.
 disable-model-invocation: true
+user-invocable: false
 ---
 
 # Lite Gate
