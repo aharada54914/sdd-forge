@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる18のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる19のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: ユーザーが直接呼び出すのは `/sdd-bootstrap:run` と `/sdd-ship:run` の2つのみです。他のスキルはこれらのオーケストレーターが内部で呼び出します。
 
@@ -16,6 +16,7 @@
 | **spec-review-loop** | **sdd-review-loop** | **requirements.md と acceptance-tests.md を `spec-reviewer-a/b` が独立レビューし、implementation-policy review の前提 PASS を作る** | **sdd-bootstrap-interviewer [Phase 1]** | **impl-review-loop (Spec-Review-Status: Passed後)** |
 | **impl-review-loop** | **sdd-review-loop** | **design.md の実装方針を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 1]** | **sdd-bootstrap-interviewer [Phase 2] (Impl-Review-Status: Passed後)** |
 | **task-review-loop** | **sdd-review-loop** | **tasks.md のタスク分解を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 2]** | **implement-task, implement-tasks (承認ゲート後)** |
+| diagnose | sdd-implementation | ハードなバグ・リグレッション・フレーキーテスト・性能退行の診断規律（再現→計装→根本原因→最小修正）。`reports/diagnosis/<id>.md` を出力し、軽量トラック（lite-spec）への入口を兼ねる | — | lite-spec（診断結果を入力に要件/設計/タスクを生成） |
 | implement-task | sdd-implementation | 承認済みタスク1つを実装 | sdd-bootstrap-interviewer | quality-gate |
 | **implement-tasks** | **sdd-implementation** | **承認済みタスクを依存関係順に一括実装し、全完了時に自動で quality-gate へ移行** | **sdd-bootstrap-interviewer** | **quality-gate (自動)** |
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
@@ -530,6 +531,7 @@ TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|lorem ipsum|com
 | テンプレートパス | 生成物説明 |
 |---|---|
 | `plugins/sdd-implementation/templates/implementation-report.template.md` | 実装進捗レポート（タスク サイクルごと） |
+| `plugins/sdd-implementation/templates/diagnosis-report.template.md` | diagnose の診断レポート（再現手順・根本原因・回帰テスト） |
 
 ### sdd-quality-loop
 
