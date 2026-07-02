@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+## v1.6.0 (2026-07-02)
+
+### バグ修正トラックと P0 ハードニング
+
+- `diagnose` スキルを新設。ハードなバグ・リグレッション・フレーキーテスト・性能退行に対し、
+  再現→計装→根本原因→最小修正の5フェーズ診断規律（HITLループ）を回し、
+  `reports/diagnosis/<id>.md` として出力する。フル SDD の3レビューループを通す前段として、
+  軽量トラック（lite-spec → 単一承認 → implement-task → lite-gate）への入口を兼ねる。
+  `task-reviewer-b` の `BUGFIX-DIAGNOSTIC-PATH` チェックが要求する証跡を供給する。
+  `docs/workflow-guide.md` に「バグ修正トラック（diagnose）」節を追加。
+- `wfi-audit-cycle` の監査ループに試行上限を設け、変化なし（NO-CHANGE）が続く場合は
+  自動的に停止するよう修正し、監査サイクルの無限ループ化を防止。
+- `sdd-ship` の品質ゲートに、ディスクベースの試行回数上限を導入し、修正・再検証サイクルが
+  際限なく繰り返されることを防止。
+- `implement-tasks` を独立タスクの並列ディスパッチに対応させ、依存関係のないタスク群を
+  同時実装できるよう変更。
+- workflow-state: 1.5.0 リリースコミットで provenance が乖離した3 feature
+  （`agent-cost-context-isolation`、`bootstrap-interviewer-enhancement`、
+  `workflow-state-integrity`）を、機能は維持したまま bounded legacy プロファイルへ移行。
+- CI: provenance テストのため full history fetch (`fetch-depth: 0`) を追加し、
+  installer テストの一時ディレクトリ cleanup を best-effort 化してテストの flake を修正。
+- 全リリース面（プラグインマニフェスト、marketplace、README、リポジトリ検証スクリプト）を
+  1.6.0 に同期。
+
 ## v1.5.0 (2026-06-30)
 
 ### Agent cost and context iteration metrics
