@@ -134,8 +134,17 @@ For each task at `Implementation Complete`, in tasks.md document order:
    docs/review-tickets/. Address each ticket, then re-invoke:
    /sdd-quality-loop:fix-by-review-ticket docs/review-tickets/RT-NNN.yml`
    Do not proceed to other tasks while any task is Blocked.
-5. Cycle limit: if quality-gate has been invoked 3 times for the same task
-   without reaching Done, stop and instruct the human to investigate manually.
+5. Cycle limit (disk-based — survives re-invocation across sessions): before
+   invoking quality-gate, count this task's existing gate reports — the files in
+   `reports/quality-gate/` whose contents reference the task id (use a read-only
+   `grep -l` over that directory and count the matching files). If the count is
+   `3` or more and the task is still not Done, do **not** invoke quality-gate
+   again and do **not** prompt for fix-by-review-ticket: stop with
+   `Escalate-Human` and instruct the human to investigate manually. Because each
+   quality-gate run writes a durable timestamped report under
+   `reports/quality-gate/`, this limit is computed from disk and holds across
+   separate `/sdd-ship:run` invocations and sessions (it does not reset per
+   invocation).
 
 ### Lite track
 
@@ -163,7 +172,8 @@ IDLE
 → IMPLEMENTING       (implement-tasks for full / implement-task loop for lite)
 → QUALITY_GATE_LOOP  (quality-gate or lite-gate per task)
    ├── task Done → continue loop
-   └── task Blocked → STOP (surface review tickets)
+   ├── task Blocked → STOP (surface review tickets)
+   └── ≥3 disk gate reports for task and not Done → STOP (Escalate-Human)
 → COMPLETION_CHECK   (all targeted tasks Done?)
    └── yes → [--retro or all-Done] RETROSPECTIVE → DONE
 ```

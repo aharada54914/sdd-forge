@@ -75,8 +75,15 @@ Execute this algorithm before each implementation pass:
      or `Done`, remove the current task from the eligible set for this pass.
    - A task with `### Blockers\nNone` or a blank `### Blockers` section has
      no dependencies and remains eligible once approved.
-4. Select the task that appears **earliest** in `tasks.md` from the eligible
-   set.
+4. **Independent set (parallel-eligible).** From the eligible set, take the
+   largest subset whose tasks each have a `### Blockers` section of `None` (or
+   empty) **and** whose `Scope` file lists are mutually disjoint — no two
+   selected tasks name the same implementation file. Use the same overlap test
+   as `SCOPE-DISJOINT` in
+   `plugins/sdd-review-loop/agents/task-reviewer-b.md`: tasks that would modify
+   the same file for the same purpose must not share a set. Order the set by
+   appearance in `tasks.md`; if Scope overlap forces a choice, keep the earliest
+   task and defer the overlapping one to a later pass (sequential fallback).
 5. If no eligible task exists, report which tasks remain and why
    (unapproved / dependency-blocked / all done), then stop and go to
    **Completion Check**.
@@ -96,7 +103,25 @@ host MUST use the fresh-agent path. The fallback path is permitted only when
 the host explicitly reports that implementation subagents are unavailable
 with reason `host-does-not-support-implementation-subagents`.
 
-For each selected task:
+**Parallel dispatch of the independent set.** Launch every task in the current
+independent set (Task Selection step 4) concurrently — their `Scope` file lists
+are disjoint, so the fresh-agent handoffs never write the same file. Concurrency
+caps: **Claude Code — up to 4 fresh agents per pass**, dispatched in a single
+assistant message; **Codex — up to (CPU count − 2)**, each launched as a parallel
+process and joined with `wait`. If the set exceeds the cap, take the earliest N
+and defer the rest. A set of size 1, or any Scope-overlapping remainder, runs
+sequentially.
+
+**The orchestrator is the only writer of shared state.** Launched agents return
+only their file-backed artifacts (manifest, snapshot outputs, implementation
+report); they never mutate `tasks.md` or another task's
+`reports/implementation/` entry. The orchestrator serializes every `tasks.md`
+status transition and report acceptance after a worker returns, so concurrent
+tasks cannot interleave shared writes. **Fail fast:** the moment any task in the
+set returns `Blocked`, stop dispatching further passes and follow **Block And
+Stop** for the batch (in-flight siblings may finish, but no new pass starts).
+
+For each task in the set (run these concurrently across the set):
 
 1. Inspect `git status` and `git diff`. Preserve unrelated existing changes.
    If they conflict with the task scope, set the task to `Blocked` and stop.
@@ -167,10 +192,14 @@ For each selected task:
     only those file-backed artifacts to the batch orchestrator.
 14. Set the task to `Implementation Complete` only when implementation,
    required tests, related regression tests, and the report are all complete.
-15. Re-evaluate the eligible set (Task Selection steps 1–4) — completed
-    tasks may unblock previously dependency-blocked tasks.
-16. If a new eligible task exists, loop back to step 1. Otherwise proceed
-    to **Completion Check**.
+After the whole independent set finishes (barrier — the orchestrator waits for
+every launched task to return `Implementation Complete` or `Blocked` before
+touching shared state again):
+
+15. Re-evaluate the eligible set (Task Selection steps 1–4) — completed tasks may
+    unblock previously dependency-blocked tasks, forming the next independent set.
+16. If a new eligible set exists, loop back to the start of the Implementation
+    Loop and dispatch it. Otherwise proceed to **Completion Check**.
 
 ## Block And Stop
 

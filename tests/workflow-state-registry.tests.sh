@@ -141,14 +141,16 @@ shell_schema_accepts() {
 jq -e --arg baseline "$BASELINE" '
   .schema_version == 1 and
   .migration_baseline_commit == $baseline and
-  (.entries | type == "array" and length == 9) and
+  (.entries | type == "array" and length == 11) and
   ([.entries[].feature] | length == (unique | length)) and
   ([.entries[].feature] | sort) == [
     "agent-cost-context-isolation",
     "bootstrap-interviewer-enhancement",
     "claude-workflow-compatibility",
     "cross-model-verification",
+    "p0-hardening",
     "risk-adaptive-layer",
+    "sdd-diagnose",
     "sdd-forge-refactor",
     "sdd-lite",
     "uninstall-workflow",

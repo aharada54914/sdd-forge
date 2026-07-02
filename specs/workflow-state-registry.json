@@ -42,33 +42,6 @@
       }
     },
     {
-      "feature": "claude-workflow-compatibility",
-      "profile": "legacy",
-      "legacy": {
-        "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
-        "reason": "Predates the v1.3.0 workflow-state contract and retains only its observed historical stage and task states.",
-        "owner": "sdd-forge maintainers",
-        "allowed_missing_stages": [],
-        "allowed_noncanonical_statuses": {
-          "spec_status": [
-            "Pending"
-          ],
-          "impl_status": [
-            "Pending"
-          ],
-          "task_status": [
-            "Passed"
-          ]
-        },
-        "allowed_task_approvals": [
-          "Approved"
-        ],
-        "allowed_task_statuses": [
-          "Done"
-        ]
-      }
-    },
-    {
       "feature": "bootstrap-interviewer-enhancement",
       "profile": "legacy",
       "legacy": {
@@ -108,6 +81,33 @@
       }
     },
     {
+      "feature": "claude-workflow-compatibility",
+      "profile": "legacy",
+      "legacy": {
+        "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+        "reason": "Predates the v1.3.0 workflow-state contract and retains only its observed historical stage and task states.",
+        "owner": "sdd-forge maintainers",
+        "allowed_missing_stages": [],
+        "allowed_noncanonical_statuses": {
+          "spec_status": [
+            "Pending"
+          ],
+          "impl_status": [
+            "Pending"
+          ],
+          "task_status": [
+            "Passed"
+          ]
+        },
+        "allowed_task_approvals": [
+          "Approved"
+        ],
+        "allowed_task_statuses": [
+          "Done"
+        ]
+      }
+    },
+    {
       "feature": "cross-model-verification",
       "profile": "legacy",
       "legacy": {
@@ -129,6 +129,10 @@
       }
     },
     {
+      "feature": "p0-hardening",
+      "profile": "lite"
+    },
+    {
       "feature": "risk-adaptive-layer",
       "profile": "legacy",
       "legacy": {
@@ -148,6 +152,10 @@
           "Implementation Complete"
         ]
       }
+    },
+    {
+      "feature": "sdd-diagnose",
+      "profile": "lite"
     },
     {
       "feature": "sdd-forge-refactor",
