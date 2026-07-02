@@ -1,7 +1,7 @@
 # 統一デザインシステム統合リファクタリング計画
 
 Status: Draft（人間レビュー待ち）
-作成日: 2026-07-03
+作成日: 2026-07-03 / 改訂: 2026-07-03（SmartHR Design System 連携を追加）
 根拠調査: 本文末尾の「調査ソース」参照
 
 ## 1. 目的とスコープ
@@ -32,6 +32,25 @@ Save Medical 事例と zeroheight 2026 レポート（満足度 42%→32% 低下
 ### D4. a11y 基準は WCAG 2.2 AA に更新
 
 現行の `accessibility-checklist.md` は WCAG 2.1 AA。2026-06-28 に EU アクセシビリティ法の適用が始まっており（施行済み）、WCAG 2.2 は ISO/IEC 40500:2025 として国際標準化済み。2.2 AA へ更新する（タッチターゲット 24×24px、Focus Not Obscured、認証での認知負荷排除など）。
+
+### D5. DS プロファイル戦略 — SmartHR Design System 公式 AI プラグインとの連携
+
+kufu/smarthr-design-system は **AI コーディングエージェント向け公式スキルプラグイン** を配布している（`.claude-plugin/marketplace.json`、Claude Code / Cursor / Codex 対応。導入: `/plugin marketplace add kufu/smarthr-design-system` → `/plugin install smarthr-design-system@smarthr-design-system`）。内容は 2 スキル:
+
+- **component-guidelines**: smarthr-ui 全 104 コンポーネントのガイド。各ガイドは 3 層構成 — Layer 1: Props/型（`smarthr-ui/metadata.json` から自動生成）/ Layer 2: Do・Don't（eslint-plugin-smarthr のルール README から自動生成）/ Layer 3: 使い方チェックリスト（`checklist.yaml`、人手レビュー済み）。Progressive Disclosure で必要時のみロード。
+- **design-pattern-guidelines**: ページレイアウト・UI パターン 22 件のガイド。
+
+sdd-forge はゼロから DS を生成するだけでなく、**「実績ある公開 DS の公式 AI プラグインを併用する」を第一級の選択肢**とする。bootstrap の初期化で `ds_profile` を選択させる:
+
+| プロファイル | 内容 | 適用条件 |
+|---|---|---|
+| `smarthr` | smarthr-ui + eslint-plugin-smarthr + 公式スキルプラグイン併用。トークンは createTheme でブランド差し替え可 | TS/React スタック。SmartHR 系ルックで良い社内・業務アプリ（sdd-lite の主対象と一致） |
+| `custom` | 元計画どおり DTCG トークン + design-system.md を生成 | 独自ブランド必須、または非 React スタック |
+| `none` | DS 統合なし | UI を持たないプロジェクト |
+
+ライセンス: smarthr-ui / tamatebako（eslint-plugin-smarthr 等）/ smarthr-design-system とも **MIT を原文確認済み**（smarthr-design-system は LICENSE ファイル無しだが package.json で MIT 宣言）。ただしロゴ・イラスト等のブランド資産は別扱いの可能性があるため流用しない。スキル文書も sdd-forge へのコピー同梱はせず、**マーケットプレイス経由の併存インストール**とする。
+
+`custom` プロファイルにも SmartHR の構造を借用する: design-system.md 生成テンプレートを同じ 3 層（機械抽出の Props/トークン層 → lint/Do・Don't 層 → 人手チェックリスト層）+ Progressive Disclosure で設計し、対象アプリ独自の component-guidelines を将来スキル化できる形にしておく。
 
 ## 3. 新規成果物の定義
 
@@ -67,7 +86,8 @@ design-tokens.json のメタ検証（DTCG 必須フィールド、semver、`gene
 | # | 変更 | 対象 |
 |---|---|---|
 | 1-1 | `design.template.md:26`（`## Frontend Plan`）直後に `## Design System Compliance` セクション追加（参照する design-system.md のバージョン、使用トークン群、新規コンポーネントの要否と理由） | `templates/design.template.md` |
-| 1-2 | interviewer SKILL に分岐追加: Feature Type が `fullstack`/`frontend-only` のとき `design-system/` の存在を確認し、無ければ初期化インタビュー（トークン供給源: Figma エクスポート or 手書き / 対象スタックと出力形式 / ベースにする公開 DS の有無）を実施 | `skills/sdd-bootstrap-interviewer/SKILL.md:69-112` |
+| 1-2 | interviewer SKILL に分岐追加: Feature Type が `fullstack`/`frontend-only` のとき `design-system/` の存在を確認し、無ければ **`ds_profile` 選択インタビュー**（`smarthr` / `custom` / `none`。§2 D5 の判定条件を質問化: スタックは React か・独自ブランドが必要か・社内/公開アプリか）を実施。`custom` 時のみトークン供給源等の詳細質問に進む | `skills/sdd-bootstrap-interviewer/SKILL.md:69-112` |
+| 1-2b | `ds_profile: smarthr` 選択時: AGENTS.md に `ds_profile: smarthr` を記録し、smarthr-design-system プラグインのインストール手順（`/plugin marketplace add kufu/smarthr-design-system`）を人間に提示。smarthr-ui / eslint-plugin-smarthr / eslint-config-smarthr / stylelint-config-smarthr（いずれも MIT）の導入をセットアップタスクとして tasks.md に起票 | 同上 + `templates/tasks.template.md` |
 | 1-3 | `investigate-codebase` に brownfield 用インベントリ追加: ハードコード色・スペーシング・フォント指定の出現箇所を集計し design-system.md 初期化の入力にする | `skills/investigate-codebase/SKILL.md` |
 | 1-4 | sdd-lite: `design-lite.md` に「トークン/既存コンポーネント使用」1 行宣言のみ追加（lite の軽さを維持） | `plugins/sdd-lite/templates/design-lite.md` |
 
@@ -89,8 +109,9 @@ design-tokens.json のメタ検証（DTCG 必須フィールド、semver、`gene
 |---|---|---|
 | 3-1 | implementation-policy.md に UI 実装規則を追記: (a) スタイル値はトークン参照のみ・生値禁止、(b) 既存コンポーネント再利用優先・新規作成は design.md 記載時のみ、(c) eslint-plugin-smarthr 型の a11y 規則要点（アイコンのみボタン禁止・placeholder をラベル代替にしない・クリック可能要素はテキスト必須 等）、(d) 対象言語の lint 設定が無い場合は導入をタスク化して報告 | `skills/implement-task/references/implementation-policy.md` |
 | 3-2 | implement-task の必須読み物（SKILL.md:36-41）に「UI タスク時は design-system/design-system.md」を条件付き追加 | `skills/implement-task/SKILL.md` |
+| 3-3 | `ds_profile: smarthr` 時の実装規約を implementation-policy に追記: UI 実装前に smarthr-design-system プラグインの `component-guidelines`（コンポーネント選定・props）と `design-pattern-guidelines`（ページレイアウト）スキルを参照すること。プラグイン未導入を検出したら実装を進めず人間に導入を要請 | `skills/implement-task/references/implementation-policy.md` |
 
-受入基準: 非 UI タスクのコンテキスト消費が増えない（条件付きロードのみ）。
+受入基準: 非 UI タスクのコンテキスト消費が増えない（条件付きロードのみ）。smarthr プロファイルではプラグインスキルへの参照のみで、ガイド内容を sdd-forge に複製しない。
 
 ### Phase 4 — sdd-quality-loop: 検証ゲート
 
@@ -103,6 +124,7 @@ design-tokens.json のメタ検証（DTCG 必須フィールド、semver、`gene
 | 4-5 | verification-contract.template.json に `design-system` check を追加（UI タスクのみ required、`stack` waiver と同じ流儀で非 UI は waivable） | `templates/verification-contract.template.json` |
 | 4-6 | risk-gate-matrix.md: UI 変更を含む medium 以上のタスクの required-set に `design-system` を追加 | `references/risk-gate-matrix.md:13-106` |
 | 4-7 | evaluation-rubric.md: 「UI/コンポーネントライブラリ非準拠」を Major に分類 | `references/evaluation-rubric.md:15-53` |
+| 4-8 | `ds_profile: smarthr` 時の決定論的ゲート: check-design-system は自前の生値 grep に加えて **eslint-plugin-smarthr の実行結果を検証チェックとして採用**（lint check に smarthr ルールが含まれることを verification-contract で確認）。言語別 AST 検査の自作を回避 | `scripts/check-design-system.sh\|ps1` + `templates/verification-contract.template.json` |
 
 受入基準: gates.tests.sh に check-design-system の正常系/違反検出/waiver ケースを追加し全パス。既存ゲートの挙動が変わらない。
 
@@ -118,7 +140,7 @@ design-tokens.json のメタ検証（DTCG 必須フィールド、semver、`gene
 
 依存関係: P0 → P1 → (P2 ∥ P3 ∥ P4) → P5。各 Phase は独立 PR とし、本リポジトリ自身の SDD フロー（`/sdd-bootstrap:run feature`）で仕様化してから実装することを推奨（dogfooding）。
 
-優先度: **P0+P4-2（WCAG 2.2 更新）が最優先**（法的要件・独立して出荷可能）。次に P0→P1→P3（生成と実装強制で価値の 8 割）、P2/P4 は強制力の仕上げ。
+優先度: **P0+P4-2（WCAG 2.2 更新）が最優先**（法的要件・独立して出荷可能）。次点は **smarthr プロファイルの最小実装（1-2・1-2b・3-3・4-8）** — 公式プラグイン・既存 lint を使うため自作部分が最小で、TS/React アプリに対して即座に「より良いデザインのアプリ生成」効果が出る。`custom` プロファイル一式（トークン契約・生成・検証の自作部分）はその後に段階導入する。
 
 ## 6. リスクとアンチパターン対策
 
@@ -129,12 +151,15 @@ design-tokens.json のメタ検証（DTCG 必須フィールド、semver、`gene
 | デザインシステムの形骸化 | design-system.md に「理由・避けるべき例」を必須セクション化（SmartHR/Save Medical 流）。workflow-retrospective の観点に DS 逸脱を追加 |
 | lint プラグイン自作の泥沼 | 自作しない。TS/React は eslint-plugin-smarthr 等の既存プラグイン採用を第一候補として bootstrap が提案。他言語は grep ベースの決定論ゲートで下限を保証 |
 | トークン変換ツールのロックイン | DTCG 標準形式のみを契約化し、Terrazzo / Style Dictionary の選択は対象アプリ側の自由とする |
+| smarthr プロファイルのブランド固有性 | smarthr-ui は `createTheme()` でトークン差し替え可能（MIT）。独自ブランドが強く必要なら `custom` プロファイルへ誘導。ロゴ・イラスト等のブランド資産は流用禁止を規約に明記 |
+| SmartHR プラグインとの共存・追従リスク | スキル文書を複製せずマーケットプレイス経由で併存（更新は upstream に追従）。プラグイン名・スキル名の衝突有無を Phase 1 で検証。smarthr-ui は React 専用のため、非 React スタックには `custom` プロファイルで対応 |
 
 ## 7. 未決事項（人間の判断が必要）
 
 - **OQ-1**: `design-system/` の配置（対象アプリのリポジトリ直下 or `specs/` 隣接）。本計画は直下を仮置き。
 - **OQ-2**: check-design-system 違反の初期運用を warn（指摘のみ）と error（ゲート失格）のどちらで始めるか。本計画は warn 開始 → 2 リリース後に error を推奨。
 - **OQ-3**: sdd-lite トラックにも check-design-system を課すか。本計画は lite-gate では手動チェックリストのみ（スクリプト強制なし）を推奨。
+- **OQ-4**: `ds_profile: smarthr` を sdd-lite のデフォルトにするか。lite の主対象（社内・部署内アプリ）は SmartHR 系ルックで十分なケースが多く、公式プラグイン併用が最も安く高品質だが、SmartHR 社外での採用実績・見た目の同質化を許容するかは利用者判断。本計画はデフォルト提案（明示確認つき）を推奨。
 
 ## 調査ソース
 
@@ -142,3 +167,4 @@ design-tokens.json のメタ検証（DTCG 必須フィールド、semver、`gene
 2. **eslint-plugin-smarthr v6.21.2**（kufu/tamatebako monorepo、2026-06-30 最終更新）: 56 ルールの構成と AST 強制アプローチ。
 3. **Zenn: Save Medical「デザインシステム導入への取り組み」**（2025-02-25、Defuddle 抽出 2026-07-02）: Figma→JSON→言語別テーマ→GitHub Packages、radix-ui + vanilla-extract、CI で VRT、DX 重視。
 4. **sdd-forge 内部構造探索**（2026-07-03）: 挿入ポイントの file:line は本文の各表に記載。
+5. **kufu/smarthr-design-system・smarthr-ui・tamatebako**（GitHub API で一次確認、2026-07-03）: 公式 AI スキルプラグイン（`.claude-plugin/marketplace.json`、component-guidelines 104 件 / design-pattern-guidelines 22 件、3 層生成構造）/ smarthr-ui は MIT・React 専用・トークンは `packages/smarthr-ui/src/themes/create*.ts` / tamatebako は MIT（eslint-plugin-smarthr, eslint-config-smarthr, stylelint-config-smarthr ほか 11 パッケージ）/ smarthr-design-system は package.json で MIT 宣言（LICENSE ファイルなし）。
