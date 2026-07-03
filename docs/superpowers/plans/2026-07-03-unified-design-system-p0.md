@@ -438,8 +438,11 @@ In `tests/design-system-contract.tests.ps1`, insert directly before the final li
 
 ```powershell
 # DS-005 PLUGIN-CONTRACTS section
+# PS5.1 reads BOM-less .ps1 files as ANSI, so non-ASCII literals (the arrow in
+# the heading) must be constructed from code points, never written literally.
+$arrow = [string][char]0x2192
 $pc = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "PLUGIN-CONTRACTS.md")
-if ($pc -notmatch [regex]::Escape('## sdd-bootstrap design-system artifacts → consumers (v1.8.0+)')) { throw "not ok: DS-005 contract section missing" }
+if ($pc -notmatch [regex]::Escape("## sdd-bootstrap design-system artifacts $arrow consumers (v1.8.0+)")) { throw "not ok: DS-005 contract section missing" }
 if ($pc -notmatch 'absence never blocks') { throw "not ok: DS-005 absence contract missing" }
 Write-Host "ok: DS-005 PLUGIN-CONTRACTS section"
 ```
