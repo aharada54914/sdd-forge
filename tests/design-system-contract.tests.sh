@@ -51,6 +51,12 @@ done
 assert_contains "$UIP" 'Exactly one primary action per screen' "DS-004 single primary action rule"
 assert_contains "$UIP" 'irreversible or destructive' "DS-004 dialog timing rule"
 
+# DS-005 PLUGIN-CONTRACTS section
+PC="$ROOT/PLUGIN-CONTRACTS.md"
+assert_contains "$PC" '^## sdd-bootstrap design-system artifacts → consumers \(v1\.8\.0\+\)$' "DS-005 contract section heading"
+assert_contains "$PC" 'design-system\.contract\.v1\.schema\.json' "DS-005 schema referenced"
+assert_contains "$PC" 'absence never blocks' "DS-005 absence contract"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
