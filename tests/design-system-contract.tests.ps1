@@ -117,4 +117,12 @@ if ($acc -notmatch 'WCAG 2\.2 AA') { throw "not ok: DS-015 target not updated" }
 if ($acc -match 'WCAG 2\.1 AA') { throw "not ok: DS-015 stale 2.1 reference remains" }
 Write-Host "ok: DS-015 WCAG 2.2 AA"
 
+# DS-016 contract check id, matrix row, quality-gate wiring
+$vct = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/templates/verification-contract.template.json")
+if ($vct -notmatch '"id": "design-system"') { throw "not ok: DS-016 contract check id missing" }
+$rgm = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/risk-gate-matrix.md")
+if ($rgm -notmatch 'design-system conformance') { throw "not ok: DS-016 matrix row missing" }
+if ($qgs -notmatch 'check-design-system') { throw "not ok: DS-016 quality-gate wiring missing" }
+Write-Host "ok: DS-016 contract and matrix wiring"
+
 Write-Host "ok: design-system contract tests passed"

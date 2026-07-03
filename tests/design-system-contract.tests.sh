@@ -122,6 +122,13 @@ assert_contains "$ACC" 'WCAG 2\.2 AA' "DS-015 target updated"
 assert_contains "$ACC" '2\.5\.8 Target' "DS-015 target size SC"
 assert_contains "$ACC" '3\.3\.8 Accessible' "DS-015 accessible authentication SC"
 
+# DS-016 contract check id, matrix row, quality-gate wiring
+VCT="$ROOT/plugins/sdd-quality-loop/templates/verification-contract.template.json"
+assert_contains "$VCT" '"id": "design-system"' "DS-016 contract check id"
+RGM="$ROOT/plugins/sdd-quality-loop/references/risk-gate-matrix.md"
+assert_contains "$RGM" 'design-system conformance' "DS-016 matrix conditional row"
+assert_contains "$QGS" 'check-design-system' "DS-016 quality-gate runs the script"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]

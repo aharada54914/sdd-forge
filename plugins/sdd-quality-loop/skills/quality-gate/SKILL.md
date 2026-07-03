@@ -43,6 +43,14 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      `Risk Rationale:`, and — for `high`/`critical` — `Required Workflow: tdd`.
      The tier selects the required-check set per `risk-gate-matrix.md`.
    - `check-placeholders` on the changed production files only.
+   - `check-design-system` on the changed files when the project carries a
+     `design-system/` directory and the task touches UI-layer files: validates
+     the design-tokens.json contract envelope, scans changed files for raw
+     style values, and confirms design.md's `## Design System Compliance`
+     section. Warn-phase: findings are recorded in the report and in the
+     contract's `design-system` check but do not block until the error
+     promotion (`SDD_DESIGN_SYSTEM_ENFORCE=error`); when `design-system/` is
+     absent the script skips with a note.
    - `check-workflow-state` without `--feature`: validates the canonical
      persisted-state invariant for every registered specification.
    - `check-task-state` on tasks.md.
