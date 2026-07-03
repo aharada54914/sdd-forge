@@ -96,6 +96,10 @@ else
   fail "TEST-010 three copy-ready prompts"
 fi
 
+assert_contains "$INTERVIEWER" 'ds_profile' "TEST-019 ds_profile question present"
+assert_contains "$INTERVIEWER" 'skip design-system integration entirely' "TEST-019 none profile skips integration"
+assert_contains "$INTERVIEWER" 'ds_profile: <value>' "TEST-019 ds_profile recorded in ux-spec"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
