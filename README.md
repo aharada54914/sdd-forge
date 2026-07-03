@@ -21,6 +21,8 @@ flowchart TD
 
     subgraph ph1["Phase 1 — 仕様・設計"]
         C[sdd-bootstrap\nPhase 1] --> D1[(requirements.md\ndesign.md\nacceptance-tests.md)]
+        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop\nデザイン確認ループ]
+        DSL -.-> D1
     end
 
     subgraph sr["仕様レビュー"]
@@ -62,7 +64,10 @@ flowchart TD
     E -- PASS / PASS-with-warnings --> G
     H --> I
     I -- PASS / PASS-with-warnings --> K
-    K --> L --> M
+    K --> L
+    L -. "UIタスク" .-> VVL[visual-verify-loop\n視覚検証]
+    VVL -.-> M
+    L --> M
     M -- 全合格 --> O([Done])
 
     style S fill:#dbeafe,stroke:#3b82f6
@@ -157,7 +162,7 @@ flowchart LR
 |---|---|
 | [README](README.md) (本ファイル) | 概要とフロー図 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
-| [docs/skill-reference.md](docs/skill-reference.md) | 16スキル・エージェント・フック・スクリプトの詳細 |
+| [docs/skill-reference.md](docs/skill-reference.md) | 21スキル・エージェント・フック・スクリプトの詳細 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |

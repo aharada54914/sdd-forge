@@ -25,6 +25,8 @@ flowchart TD
 
     subgraph p1["Phase 1 — 仕様・設計"]
         C[sdd-bootstrap-interviewer\nPhase 1] --> D[(requirements.md\ndesign.md\nacceptance-tests.md)]
+        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop\ndesign-system/ 保証と\nモックアップ確認ループ]
+        DSL -.-> D
     end
 
     subgraph sr["仕様レビュー"]
@@ -68,6 +70,8 @@ flowchart TD
     I --> J
     J -- PASS / PASS-with-warnings --> M[人間: Approval: Approved]
     M --> N[implement-task\nまたは implement-tasks]
+    N -. "UIタスク" .-> VVL[visual-verify-loop\n視覚検証・証跡保存]
+    VVL -.-> O
     N --> O[(実装コード\nテストコード\nimplementation report)]
     O --> P
     P -- 全合格 --> R([Done])
