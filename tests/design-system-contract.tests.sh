@@ -57,6 +57,16 @@ assert_contains "$PC" '^## sdd-bootstrap design-system artifacts → consumers \
 assert_contains "$PC" 'design-system\.contract\.v1\.schema\.json' "DS-005 schema referenced"
 assert_contains "$PC" 'absence never blocks' "DS-005 absence contract"
 
+# DS-006 design-sync-loop v2 ensures design-system/ and token-driven mockups
+DSL="$ROOT/plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md"
+assert_contains "$DSL" '^## Ensure design-system/$' "DS-006 ensure section"
+assert_contains "$DSL" 'ui-ux-pro-max' "DS-006 seed generator detection"
+assert_contains "$DSL" 'design-system --persist' "DS-006 seed generation command"
+assert_contains "$DSL" 'ui-ux-pro-max unavailable — D6 template interview used' "DS-006 D6 fallback note"
+assert_contains "$DSL" 'figma-dtcg-import' "DS-006 figma DTCG import path"
+assert_contains "$DSL" 'design-system/design-tokens\.json' "DS-006 mockups reference tokens"
+assert_contains "$DSL" 'MASTER\.md' "DS-006 seed is input, artifacts authoritative"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]

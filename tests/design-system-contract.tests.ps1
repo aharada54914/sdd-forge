@@ -54,4 +54,11 @@ if ($pc -notmatch [regex]::Escape("## sdd-bootstrap design-system artifacts $arr
 if ($pc -notmatch 'absence never blocks') { throw "not ok: DS-005 absence contract missing" }
 Write-Host "ok: DS-005 PLUGIN-CONTRACTS section"
 
+# DS-006 design-sync-loop v2 (ASCII-only assertions; the em-dash fallback note is asserted by the sh twin)
+$dsl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md")
+foreach ($needle in @('## Ensure design-system/', 'ui-ux-pro-max', 'design-system --persist', 'figma-dtcg-import', 'design-system/design-tokens.json', 'MASTER.md')) {
+    if ($dsl -notmatch [regex]::Escape($needle)) { throw "not ok: DS-006 missing $needle" }
+}
+Write-Host "ok: DS-006 design-sync-loop v2"
+
 Write-Host "ok: design-system contract tests passed"
