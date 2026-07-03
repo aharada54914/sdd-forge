@@ -102,4 +102,13 @@ foreach ($needle in @('design-system/design-tokens.json', 'design-system/ui-patt
 }
 Write-Host "ok: DS-013 visual-verify-loop design-system comparison"
 
+# DS-014 design-system checklist and evaluator wiring
+$dsc = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/design-system-checklist.md")
+if ($dsc -notmatch [regex]::Escape('# Design System Review Checklist')) { throw "not ok: DS-014 checklist missing" }
+$rub = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/evaluation-rubric.md")
+if ($rub -notmatch 'design-system non-conformance') { throw "not ok: DS-014 rubric classification missing" }
+$qgs = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")
+if ($qgs -notmatch 'design-system-checklist\.md') { throw "not ok: DS-014 quality-gate load missing" }
+Write-Host "ok: DS-014 design-system checklist wiring"
+
 Write-Host "ok: design-system contract tests passed"

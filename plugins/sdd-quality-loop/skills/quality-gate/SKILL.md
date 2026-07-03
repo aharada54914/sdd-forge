@@ -71,7 +71,9 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    When the change touches the relevant surface, the evaluator also applies the
    on-demand domain checklists — `security-checklist.md` (user input, auth,
    secrets, external systems, AI/LLM), `performance-checklist.md` (data access,
-   hot paths, rendering), and `accessibility-checklist.md` (user-facing UI).
+   hot paths, rendering), `accessibility-checklist.md` (user-facing UI), and
+   `design-system-checklist.md` (user-facing UI in projects carrying a
+   `design-system/` contract).
    Load a checklist only when its domain is in scope, to keep review context lean.
    On Claude Code use the `sdd-evaluator` subagent. On Codex use the shipped
    `sdd-evaluator` TOML agent; do not create new agent role files under

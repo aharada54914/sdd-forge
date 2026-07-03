@@ -107,6 +107,15 @@ assert_contains "$VVL" 'design-system/design-tokens\.json' "DS-013 token conform
 assert_contains "$VVL" 'design-system/ui-patterns\.md' "DS-013 ui-patterns in loop"
 assert_contains "$VVL" 'check-design-system' "DS-013 deterministic gate ownership"
 
+# DS-014 design-system checklist and evaluator wiring
+DSC="$ROOT/plugins/sdd-quality-loop/references/design-system-checklist.md"
+assert_contains "$DSC" '^# Design System Review Checklist$' "DS-014 checklist exists"
+assert_contains "$DSC" '^## UI Patterns \(ui-patterns\.md\)$' "DS-014 ui-patterns section"
+RUB="$ROOT/plugins/sdd-quality-loop/references/evaluation-rubric.md"
+assert_contains "$RUB" 'design-system non-conformance' "DS-014 rubric Major classification"
+QGS="$ROOT/plugins/sdd-quality-loop/skills/quality-gate/SKILL.md"
+assert_contains "$QGS" 'design-system-checklist\.md' "DS-014 quality-gate conditional load"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
