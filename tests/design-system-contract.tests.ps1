@@ -28,4 +28,19 @@ foreach ($group in @('color','typography','spacing')) {
 if ($tokens.color.primary.'$value' -notmatch '^#[0-9a-fA-F]{6}$') { throw "not ok: DS-002 color.primary DTCG value" }
 Write-Host "ok: DS-002 tokens template conforms"
 
+# DS-003 / DS-004 markdown templates
+$dsPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md"
+$uipPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md"
+$ds = Get-Content -Raw -Encoding Utf8 $dsPath
+$uip = Get-Content -Raw -Encoding Utf8 $uipPath
+foreach ($section in @('## Layer 1 — Tokens (machine-extracted)', "## Layer 2 — Do / Don't (component conventions)", '## Layer 3 — Review checklist (human-curated)', '## Change Process')) {
+    if ($ds -notmatch [regex]::Escape($section)) { throw "not ok: DS-003 missing section $section" }
+}
+if ($ds -notmatch 'WCAG 2\.2 AA') { throw "not ok: DS-003 WCAG 2.2 AA missing" }
+Write-Host "ok: DS-003 design-system template sections"
+foreach ($section in @('## Actions', '## Dialogs', '## Icons', '## Flow', '## States', '## Cognitive Load')) {
+    if ($uip -notmatch [regex]::Escape($section)) { throw "not ok: DS-004 missing section $section" }
+}
+Write-Host "ok: DS-004 ui-patterns template sections"
+
 Write-Host "ok: design-system contract tests passed"

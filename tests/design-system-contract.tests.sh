@@ -35,6 +35,22 @@ done
 assert_contains "$TOKENS" '"\$type"' "DS-002 DTCG \$type present"
 assert_contains "$TOKENS" '"\$value"' "DS-002 DTCG \$value present"
 
+# DS-003 design-system.md template required sections
+DS="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md"
+assert_contains "$DS" '^## Layer 1 — Tokens \(machine-extracted\)$' "DS-003 layer 1 section"
+assert_contains "$DS" '^## Layer 2 — Do / Don'"'"'t \(component conventions\)$' "DS-003 layer 2 section"
+assert_contains "$DS" '^## Layer 3 — Review checklist \(human-curated\)$' "DS-003 layer 3 section"
+assert_contains "$DS" '^## Change Process$' "DS-003 change process section"
+assert_contains "$DS" 'WCAG 2\.2 AA' "DS-003 WCAG 2.2 AA"
+
+# DS-004 ui-patterns.md template required sections (D6 categories)
+UIP="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md"
+for section in Actions Dialogs Icons Flow States 'Cognitive Load'; do
+  assert_contains "$UIP" "^## $section$" "DS-004 ui-patterns section $section"
+done
+assert_contains "$UIP" 'Exactly one primary action per screen' "DS-004 single primary action rule"
+assert_contains "$UIP" 'irreversible or destructive' "DS-004 dialog timing rule"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
