@@ -1,8 +1,10 @@
 # Optional Claude Design Workflow
 
-This is a manual documentation aid for full-profile work. Mermaid is the primary
-and canonical diagram format. PNG mockups and HTML previews are optional
-attachments; their absence never blocks specification review.
+This is a manual documentation aid for full-profile work, and the fallback
+procedure the internal `design-sync-loop` skill uses when the DesignSync tool
+is unavailable. Mermaid is the primary and canonical diagram format. PNG
+mockups and HTML previews are optional attachments; their absence never blocks
+specification review.
 
 ## Boundaries
 
