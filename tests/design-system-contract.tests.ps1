@@ -82,4 +82,9 @@ $prc = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-r
 if ($prc -notmatch [regex]::Escape('#### DESIGN-SYSTEM-CONFORMANCE')) { throw "not ok: DS-010 checklist block missing" }
 Write-Host "ok: DS-010 reviewer-a conformance check"
 
+# DS-011 impl-reviewer-b unsanctioned UI library rule
+$irb = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-review-loop/agents/impl-reviewer-b.md")
+if ($irb -notmatch 'component library or styling framework') { throw "not ok: DS-011 reviewer-b rule missing" }
+Write-Host "ok: DS-011 reviewer-b UI library rule"
+
 Write-Host "ok: design-system contract tests passed"

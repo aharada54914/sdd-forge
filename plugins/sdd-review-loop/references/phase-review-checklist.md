@@ -676,13 +676,16 @@ behaviour; or integration implied by requirements but undocumented.
 | Default | FAIL |
 
 **Description:** Design must not introduce unRequested components (scope creep)
-and must not omit required capabilities (under-scope).
+and must not omit required capabilities (under-scope). With a `design-system/`
+contract present, an unsanctioned UI component library or styling framework is
+scope creep.
 
 **Pass condition:** Design covers all Goals and User Stories; no extra capabilities
 introduced without requirement backing.
 
 **Fail condition:** Any design element with no requirement backing; any requirement
-capability absent from design.
+capability absent from design; an unsanctioned UI component library or styling
+framework introduced while `design-system/` exists.
 
 ---
 

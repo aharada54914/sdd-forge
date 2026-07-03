@@ -88,6 +88,11 @@ PRC="$ROOT/plugins/sdd-review-loop/references/phase-review-checklist.md"
 assert_contains "$PRC" '^#### DESIGN-SYSTEM-CONFORMANCE$' "DS-010 checklist block"
 assert_contains "$PRC" 'impl-review-loop`: 20 checks' "DS-010 impl count updated"
 
+# DS-011 impl-reviewer-b unsanctioned UI library rule
+IRB="$ROOT/plugins/sdd-review-loop/agents/impl-reviewer-b.md"
+assert_contains "$IRB" 'component library or styling framework' "DS-011 reviewer-b UI library rule"
+assert_contains "$PRC" 'unsanctioned UI component library' "DS-011 checklist UI library rule"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
