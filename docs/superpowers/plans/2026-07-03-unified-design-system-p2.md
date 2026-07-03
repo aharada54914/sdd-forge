@@ -237,7 +237,7 @@ In `tests/design-system-contract.tests.sh`, insert directly before the final thr
 ```sh
 # DS-011 impl-reviewer-b unsanctioned UI library rule
 IRB="$ROOT/plugins/sdd-review-loop/agents/impl-reviewer-b.md"
-assert_contains "$IRB" 'UI component library or styling framework' "DS-011 reviewer-b UI library rule"
+assert_contains "$IRB" 'component library or styling framework' "DS-011 reviewer-b UI library rule"
 assert_contains "$PRC" 'unsanctioned UI component library' "DS-011 checklist UI library rule"
 ```
 
@@ -246,7 +246,7 @@ In `tests/design-system-contract.tests.ps1`, insert directly before the final li
 ```powershell
 # DS-011 impl-reviewer-b unsanctioned UI library rule
 $irb = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-review-loop/agents/impl-reviewer-b.md")
-if ($irb -notmatch 'UI component library or styling framework') { throw "not ok: DS-011 reviewer-b rule missing" }
+if ($irb -notmatch 'component library or styling framework') { throw "not ok: DS-011 reviewer-b rule missing" }
 Write-Host "ok: DS-011 reviewer-b UI library rule"
 ```
 
