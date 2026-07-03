@@ -101,6 +101,12 @@ assert_contains "$IPOL" 'design-system/ui-patterns\.md' "DS-012 ui-patterns refe
 ITSK="$ROOT/plugins/sdd-implementation/skills/implement-task/SKILL.md"
 assert_contains "$ITSK" 'design-system/design-system\.md' "DS-012 conditional required reading"
 
+# DS-013 visual-verify-loop design-system comparison
+VVL="$ROOT/plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md"
+assert_contains "$VVL" 'design-system/design-tokens\.json' "DS-013 token conformance in loop"
+assert_contains "$VVL" 'design-system/ui-patterns\.md' "DS-013 ui-patterns in loop"
+assert_contains "$VVL" 'check-design-system' "DS-013 deterministic gate ownership"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]

@@ -95,4 +95,11 @@ $itsk = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-
 if ($itsk -notmatch 'design-system/design-system\.md') { throw "not ok: DS-012 required reading missing" }
 Write-Host "ok: DS-012 implementation policy UI rules"
 
+# DS-013 visual-verify-loop design-system comparison
+$vvl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-implementation/skills/visual-verify-loop/SKILL.md")
+foreach ($needle in @('design-system/design-tokens.json', 'design-system/ui-patterns.md', 'check-design-system')) {
+    if ($vvl -notmatch [regex]::Escape($needle)) { throw "not ok: DS-013 missing $needle" }
+}
+Write-Host "ok: DS-013 visual-verify-loop design-system comparison"
+
 Write-Host "ok: design-system contract tests passed"
