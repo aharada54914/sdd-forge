@@ -198,6 +198,11 @@ Conversely, the design must cover every feature described in requirements.md
 `## Goals` and `## User Stories`. An under-scoped design that omits a required
 capability is also a Major finding.
 
+When the project carries a `design-system/` contract, introducing a UI
+component library or styling framework that neither requirements.md nor
+design.md's `## Design System Compliance` section sanctions is scope creep —
+a Major finding.
+
 For each finding, cite the specific design element that is out-of-scope or the
 requirement that is unaddressed.
 

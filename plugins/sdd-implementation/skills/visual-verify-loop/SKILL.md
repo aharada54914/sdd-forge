@@ -1,6 +1,6 @@
 ---
 name: visual-verify-loop
-description: Implementation-phase visual verification loop for UI tasks. Launches the app (Claude Preview MCP for web, wpf-visual-verify for WPF desktop), compares the rendered UI against approved mockups and ux-spec states, iterates fixes up to five times, and saves final screenshots as evidence under reports/visual-evidence/. Non-blocking; verdicts stay with quality-gate and human review.
+description: Implementation-phase visual verification loop for UI tasks. Launches the app (Claude Preview MCP for web, wpf-visual-verify for WPF desktop), compares the rendered UI against approved mockups, ux-spec states, and — when the project carries one — the design-system contract (tokens and ui-patterns), iterates fixes up to five times, and saves final screenshots as evidence under reports/visual-evidence/. Non-blocking; verdicts stay with quality-gate and human review.
 disable-model-invocation: true
 user-invocable: false
 ---
@@ -40,9 +40,13 @@ implementation report and return:
 2. Capture a screenshot. For web, also capture an accessibility snapshot
    and inspect computed styles for the properties under review (colors,
    fonts, spacing) instead of judging them from pixels.
-3. Compare against the approved mockups in `specs/<feature>/mockups/` and
-   the states defined in the feature's layer specs (default, empty,
-   loading, error; responsive breakpoints).
+3. Compare against the approved mockups in `specs/<feature>/mockups/`, the
+   states defined in the feature's layer specs (default, empty, loading,
+   error; responsive breakpoints), and — when the project carries a
+   `design-system/` contract — token conformance against
+   `design-system/design-tokens.json` (no raw style values in the rendered
+   output's sources) and the conventions in `design-system/ui-patterns.md`
+   (actions, dialogs, icons, flow, states).
 4. If a mismatch is within the task's approved scope, fix the code and
    repeat. If it is out of scope, record it as a finding and continue.
 5. Stop when the rendered UI matches, or after 5 iterations.
@@ -65,3 +69,5 @@ implementation report and return:
   match; record the mismatch as a finding instead.
 - A preview-server or build failure is recorded and skipped, never fixed by
   expanding scope and never a blocker.
+- Design-system conformance findings here are advisory; the deterministic
+  `check-design-system` gate (sdd-quality-loop) owns warn/error enforcement.

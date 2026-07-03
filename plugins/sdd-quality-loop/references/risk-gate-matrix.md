@@ -32,6 +32,7 @@ present as an optional check with a `waiver_reason`).
 | evidence-bundle signature  |  —  |   —    |  —   |    ✓     |
 | two-person approval        |  —  |   —    |  —   |    ✓     |
 | cross-model-verification   |  —  |   —    |  ◐³  |    ✓³    |
+| design-system conformance  |  —  |   ◐⁴   |  ◐⁴  |    ◐⁴    |
 
 ¹ `low`: `unit-tests` may be `required:false` **only** with a non-empty `waiver_reason`.
 ² Enforced as: when `required_workflow == "tdd"`, every test-type check must carry
@@ -43,6 +44,14 @@ present as an optional check with a `waiver_reason`).
   `required:false` with a `waiver_reason`; absent/`legacy` ⇒ no enforcement,
   backward compatible). Enforced by `check-contract` Pass 6; the consensus itself is
   computed by `check-cross-model` (see `references/cross-model-verification-policy.md`).
+⁴ Warn-phase **conditional control**, NOT part of the machine-form `RISK_TIERS`
+  set. When the project carries a `design-system/` directory and the task
+  touches UI-layer files, `check-design-system.(sh|ps1)` runs and its findings
+  are recorded in the report and in the contract's `design-system` check
+  (`required:false`, with evidence or a `waiver_reason`). Error promotion —
+  two releases after introduction — moves it into the tier minimums, which is
+  a human edit of the R-10-protected `check-contract` scripts and their parity
+  tests, per this file's invariant note.
 
 ## Stack descriptor (toolchain applicability)
 

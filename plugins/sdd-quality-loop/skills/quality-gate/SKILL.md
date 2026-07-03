@@ -43,6 +43,14 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      `Risk Rationale:`, and — for `high`/`critical` — `Required Workflow: tdd`.
      The tier selects the required-check set per `risk-gate-matrix.md`.
    - `check-placeholders` on the changed production files only.
+   - `check-design-system` on the changed files when the project carries a
+     `design-system/` directory and the task touches UI-layer files: validates
+     the design-tokens.json contract envelope, scans changed files for raw
+     style values, and confirms design.md's `## Design System Compliance`
+     section. Warn-phase: findings are recorded in the report and in the
+     contract's `design-system` check but do not block until the error
+     promotion (`SDD_DESIGN_SYSTEM_ENFORCE=error`); when `design-system/` is
+     absent the script skips with a note.
    - `check-workflow-state` without `--feature`: validates the canonical
      persisted-state invariant for every registered specification.
    - `check-task-state` on tasks.md.
@@ -71,7 +79,9 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    When the change touches the relevant surface, the evaluator also applies the
    on-demand domain checklists — `security-checklist.md` (user input, auth,
    secrets, external systems, AI/LLM), `performance-checklist.md` (data access,
-   hot paths, rendering), and `accessibility-checklist.md` (user-facing UI).
+   hot paths, rendering), `accessibility-checklist.md` (user-facing UI), and
+   `design-system-checklist.md` (user-facing UI in projects carrying a
+   `design-system/` contract).
    Load a checklist only when its domain is in scope, to keep review context lean.
    On Claude Code use the `sdd-evaluator` subagent. On Codex use the shipped
    `sdd-evaluator` TOML agent; do not create new agent role files under

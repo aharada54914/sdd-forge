@@ -61,12 +61,18 @@ design catch-all.
 - For bugfix/refactor work, an unaffected layer records
   `N/A — no change: <reason>`. A security impact assessment is always required,
   even when every other layer is unaffected.
-- When the target is a UI application (web or desktop), ask whether the human
-  wants the design iteration loop. If yes, run the `design-sync-loop` skill:
-  it pulls design-system context from claude.ai/design, generates disposable
-  HTML mockups under `specs/<feature>/mockups/`, manages per-upload human
-  approval, and falls back to `references/claude-design-workflow.md` when
-  design tools are unavailable.
+- When the target is a UI application (web or desktop), ask for the design
+  system profile (`ds_profile`): `custom` (project-level `design-system/`
+  contract plus the design iteration loop) or `none` (no design-system
+  integration). Record the choice as `ds_profile: <value>` in the
+  `Design Tokens` section of `ux-spec.md`. On `custom`, run the
+  `design-sync-loop` skill: it ensures `design-system/` exists (seeding it
+  when absent), pulls design-system context from claude.ai/design, generates
+  token-driven disposable HTML mockups under `specs/<feature>/mockups/`,
+  manages per-upload human approval, and falls back to
+  `references/claude-design-workflow.md` when design tools are unavailable.
+  On `none`, skip design-system integration entirely — no artifacts and no
+  further design-system questions.
 - Otherwise ask whether the human has a local mockup or visual reference. If
   not, record exactly `No mockup provided — optional visualization skipped`
   and continue. If supplied, follow `references/claude-design-workflow.md`;

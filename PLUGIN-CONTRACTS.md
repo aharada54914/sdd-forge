@@ -67,6 +67,49 @@ sdd-ship is a thin orchestrator. It does not re-implement logic from its depende
 
 ---
 
+## sdd-bootstrap design-system artifacts → consumers (v1.8.0+)
+
+**Producer**: `plugins/sdd-bootstrap` (design-sync-loop, routed from sdd-bootstrap-interviewer / lite-spec)
+**Consumers**: `plugins/sdd-implementation` (implement-task, visual-verify-loop), `plugins/sdd-quality-loop` (quality-gate, check-design-system)
+
+### Artifact Contract
+
+The target application owns a project-level `design-system/` directory at its
+repository root (one per project, distinct from per-feature `specs/<feature>/`):
+
+- `design-system/design-tokens.json` — machine-readable tokens. MUST validate
+  against `contracts/design-system.contract.v1.schema.json` (strict meta
+  envelope: `schema` const `design-system-contract/v1`, semver `version`,
+  `generated_by`, `profile`). Token groups follow the W3C DTCG format
+  (`$type`/`$value`); groups beyond color/typography/spacing are allowed.
+- `design-system/design-system.md` — rules and reasons. Required sections:
+  `## Layer 1 — Tokens (machine-extracted)`, `## Layer 2 — Do / Don't
+  (component conventions)`, `## Layer 3 — Review checklist (human-curated)`,
+  `## Change Process`.
+- `design-system/ui-patterns.md` — universal interaction conventions. Required
+  sections: `## Actions`, `## Dialogs`, `## Icons`, `## Flow`, `## States`,
+  `## Cognitive Load`.
+- `design-system/build/` — optional generated token outputs; never
+  authoritative.
+
+Templates for all three artifacts live in
+`plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/`.
+
+### Handoff Rules
+
+- The producer creates the directory from the templates only when
+  `ds_profile: custom` is selected; `ds_profile: none` produces nothing.
+  External seeds (ui-ux-pro-max MASTER.md, Figma DTCG exports) are inputs that
+  map into these artifacts; the artifacts are always authoritative.
+- Consumers read the artifacts and never create or rewrite them. Conformance
+  findings flow through review checklists and the advisory visual-verify-loop;
+  the deterministic `check-design-system` gate reports warn-level findings
+  until its error promotion (two releases after introduction).
+- Absence contract: when `design-system/` does not exist, every consumer skips
+  with a recorded reason — absence never blocks a workflow.
+
+---
+
 ## Plugin Dependency Declarations
 
 | Plugin | Depends On | Notes |

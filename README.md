@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.7.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.8.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 ## クイックスタート（2コマンド）
 
@@ -21,6 +21,8 @@ flowchart TD
 
     subgraph ph1["Phase 1 — 仕様・設計"]
         C[sdd-bootstrap\nPhase 1] --> D1[(requirements.md\ndesign.md\nacceptance-tests.md)]
+        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop\nデザイン確認ループ]
+        DSL -.-> D1
     end
 
     subgraph sr["仕様レビュー"]
@@ -62,7 +64,10 @@ flowchart TD
     E -- PASS / PASS-with-warnings --> G
     H --> I
     I -- PASS / PASS-with-warnings --> K
-    K --> L --> M
+    K --> L
+    L -. "UIタスク" .-> VVL[visual-verify-loop\n視覚検証]
+    VVL -.-> M
+    L --> M
     M -- 全合格 --> O([Done])
 
     style S fill:#dbeafe,stroke:#3b82f6
@@ -141,6 +146,7 @@ flowchart LR
 - **タスク分解レビューループ (`task-review-loop`)**: tasks.md に対して `task-reviewer-a/b` が独立したブラインドレビューを最大3ラウンド実施します。依存関係サイクル検出・Blockers 正準形式検証を含みます。
 - **Phase 1/2 分割**: `sdd-bootstrap-interviewer` は Phase 1（仕様・設計・受入テスト）の後に `spec-review-loop`、次に `impl-review-loop` を通し、Phase 2（タスク・トレーサビリティ）の後に `task-review-loop` を通す三段階の独立レビューを必須にします。
 - **軽量トラック sdd-lite**: 社内・部署内アプリ向けの中量SDDトラック。要件/設計/タスク生成・単一承認・implement-task・lite-gateの4ステップで構成し、evidence-bundle/ADR必須/cross-model/critical を省略。`spec-review-loop` / `impl-review-loop` / `task-review-loop` もスキップ。既存プラグインとの加算的昇格に対応。
+- **統一デザインシステム統合**: UI アプリでは `ds_profile: custom` を選ぶと、プロジェクト直下の `design-system/`（W3C DTCG 準拠 design-tokens.json・design-system.md・ui-patterns.md）を契約として生成・強制します。仕様段階は `design-sync-loop`（ui-ux-pro-max シード生成 / Figma DTCG 取込 / claude.ai/design 確認ループ）、実装段階は `visual-verify-loop`（Claude Preview / wpf-visual-verify による視覚検証）、品質検証は `check-design-system`（warn 開始の決定論ゲート）の3層で支えます。a11y 基準は WCAG 2.2 AA。非 UI プロジェクトへのオーバーヘッドはゼロです。
 - **バッチ実装 (`implement-tasks`)**: 承認済みタスクを依存関係順に連続実行し、全タスクが `Implementation Complete` になった時点で `quality-gate` を自動起動します。`### Blockers` セクションのタスク参照を解析して依存関係を自動解決します。
 - **責務の明確な分離**: 仕様化・実装・品質保証を別々のスキルが担当し、実装者が自分の成果物を甘く採点する構造を排除します。
 - **人間承認ゲート**: エージェントはタスク承認も WFI 承認も自己承認できず、フック + 決定論的スクリプトの二重防衛により不正な承認を防止します。critical タスクは二者承認（`Approval:` + 別名義の `Second Approval:`）が必須で、sudo でもバイパスできません。
@@ -156,7 +162,7 @@ flowchart LR
 |---|---|
 | [README](README.md) (本ファイル) | 概要とフロー図 |
 | [docs/workflow-guide.md](docs/workflow-guide.md) | 開発業務フロー：正常系・異常系・仕様変更・レビュー運用 |
-| [docs/skill-reference.md](docs/skill-reference.md) | 16スキル・エージェント・フック・スクリプトの詳細 |
+| [docs/skill-reference.md](docs/skill-reference.md) | 21スキル・エージェント・フック・スクリプトの詳細 |
 | [docs/troubleshooting.md](docs/troubleshooting.md) | 問題解決と対応策 |
 | [docs/THREAT-MODEL.md](docs/THREAT-MODEL.md) | 脅威モデル：信頼境界・攻撃面・リスク低減策 |
 | [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md) | エージェント能力マトリクス：各エージェントが実行できる操作の一覧 |

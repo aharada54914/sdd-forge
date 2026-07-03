@@ -216,6 +216,27 @@ ADR."
 If no ADRs are referenced and the feature does not introduce new architectural
 decisions, emit PASS for this check.
 
+## DESIGN-SYSTEM-CONFORMANCE (Major, TYPE-D)
+
+Applies only when the target project has a `design-system/` directory. When
+the project has no `design-system/` directory, or design.md's
+`## Design System Compliance` section records exactly
+`N/A — ds_profile: none`, record the check as skipped in the notes and emit
+PASS.
+
+Otherwise the `## Design System Compliance` section of design.md must:
+1. Name the design-system version it was written against
+   (design-tokens.json `meta.version`).
+2. List the token groups the feature uses.
+3. Record a reason for every new component — reuse of existing components is
+   the default, and an unexplained new component is a finding.
+4. Not contradict `design-system/design-system.md` or
+   `design-system/ui-patterns.md` (for example, sanctioning raw style values
+   or icon-only dialog buttons).
+
+A missing section while `design-system/` exists, a missing version reference,
+or an unexplained new component is a Major finding.
+
 # Severity Reference
 
 - `Critical`: a structural defect that makes the design unimplementable or
@@ -259,7 +280,7 @@ Verdict rules:
 The `checks` array must contain one entry per check ID in this order:
 ARCH-COVERAGE, NO-CIRCULAR-DEPS, DATA-COVERAGE, API-COVERAGE, SECURITY-COVERAGE,
 FRONTEND-BACKEND-CONSISTENCY, TEST-STRATEGY-COVERAGE, NO-UNDEFINED-COMPONENT,
-ADR-PRESENT.
+ADR-PRESENT, DESIGN-SYSTEM-CONFORMANCE.
 
 FRONTEND-BACKEND-CONSISTENCY must be SKIP for non-fullstack feature types;
 include a finding explaining why it was skipped.

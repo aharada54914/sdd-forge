@@ -25,6 +25,8 @@ flowchart TD
 
     subgraph p1["Phase 1 — 仕様・設計"]
         C[sdd-bootstrap-interviewer\nPhase 1] --> D[(requirements.md\ndesign.md\nacceptance-tests.md)]
+        C -. "UIアプリ / ds_profile: custom" .-> DSL[design-sync-loop\ndesign-system/ 保証と\nモックアップ確認ループ]
+        DSL -.-> D
     end
 
     subgraph sr["仕様レビュー"]
@@ -68,6 +70,8 @@ flowchart TD
     I --> J
     J -- PASS / PASS-with-warnings --> M[人間: Approval: Approved]
     M --> N[implement-task\nまたは implement-tasks]
+    N -. "UIタスク" .-> VVL[visual-verify-loop\n視覚検証・証跡保存]
+    VVL -.-> O
     N --> O[(実装コード\nテストコード\nimplementation report)]
     O --> P
     P -- 全合格 --> R([Done])
@@ -208,6 +212,20 @@ stateDiagram-v2
 - 同様に T-002, T-003 処理
 - 完了後 workflow-retrospective で「キャンセル手数料計算の仕様が曖昧で 2 回 Blocked」を friction として検出
 - WFI-001: 仕様テンプレートに「手数料計算ロジック」セクション追加を提案
+
+### 3.1b デザインシステム統合（UI アプリ・任意）
+
+UI アプリでは Step 3a の途中で `ds_profile`（`custom` / `none`）を選択する。
+`custom` を選ぶと内部スキル `design-sync-loop` が実行され、プロジェクト直下の
+`design-system/`（W3C DTCG 準拠の design-tokens.json / design-system.md /
+ui-patterns.md）を保証（ui-ux-pro-max シード生成・Figma DTCG エクスポート取込・
+D6 テンプレートインタビューのいずれか）したうえで、トークン駆動の使い捨て
+モックアップを生成し、claude.ai/design で確認ループを回す（アップロードは
+都度人間承認）。実装段階では `implement-task` が UI タスクで
+`visual-verify-loop`（advisory・非ブロッキング）を実行し、品質検証では
+`check-design-system.(sh|ps1)` が warn モードで決定論的に照合する
+（`SDD_DESIGN_SYSTEM_ENFORCE=error` で昇格）。`ds_profile: none` と非 UI
+フィーチャーでは生成物・質問は一切増えない。
 
 ### 3.2 不具合修正 (bugfix)
 

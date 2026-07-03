@@ -25,7 +25,7 @@ rubric, and have it produce the same verdict format.
 | Severity | Meaning | Blocks Done |
 | --- | --- | --- |
 | Critical | Wrong/missing behavior, broken contract, security defect, faked verification | Yes |
-| Major | Untested acceptance criterion, unhandled error path, spec drift, scope creep | Yes |
+| Major | Untested acceptance criterion, unhandled error path, spec drift, scope creep, design-system non-conformance | Yes |
 | Minor | Style, naming, non-blocking cleanup | No |
 
 ## Domain Checklists
@@ -38,7 +38,9 @@ above. Load a checklist only when its domain is in scope:
   external systems, AI/LLM features.
 - `performance-checklist.md` — data access, hot paths, loops over user-sized
   input, rendering.
-- `accessibility-checklist.md` — user-facing UI (WCAG 2.1 AA).
+- `accessibility-checklist.md` — user-facing UI (WCAG 2.2 AA).
+- `design-system-checklist.md` — user-facing UI in projects carrying a
+  `design-system/` contract (tokens, components, ui-patterns).
 
 ## Calibration Examples
 

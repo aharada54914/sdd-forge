@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.8.0 (2026-07-03)
+
 ### デザイン駆動高速イテレーションレーン
 
 - 内部スキル `design-sync-loop`（sdd-bootstrap）を新設。仕様段階で
@@ -16,6 +18,32 @@
   非ブロッキングで、合否判定は quality-gate と人間レビューのまま。
 - sdd-bootstrap-interviewer / lite-spec / implement-task に上記への
   ルーティングを追加。公開スキルは5つのまま（可視性契約は不変）。
+
+### 統一デザインシステム統合（design-system 契約）
+
+- プロジェクトレベルの `design-system/` 契約を新設: W3C DTCG 準拠の
+  design-tokens.json（`contracts/design-system.contract.v1.schema.json` で
+  メタ検証）、design-system.md（3層構造・WCAG 2.2 AA）、ui-patterns.md
+  （言語非依存の普遍的 UX 規約6カテゴリ）。テンプレート3点を同梱し、
+  PLUGIN-CONTRACTS.md に producer/consumer 契約を定義。
+- interviewer に `ds_profile`（custom / none）選択を追加。custom では
+  design-sync-loop v2 が design-system/ を保証（ui-ux-pro-max シード生成・
+  Figma DTCG エクスポート取込・D6 テンプレートインタビューの3経路）し、
+  トークン駆動モックアップを生成。investigate-codebase に brownfield 用
+  Design Inventory を追加。
+- レビュー統合: impl-reviewer-a に DESIGN-SYSTEM-CONFORMANCE 検査を追加
+  （impl-review-loop は20チェック化）、impl-reviewer-b の DESIGN-WITHIN-SCOPE
+  に規約外 UI ライブラリ検出を追加。
+- 実装強制: implementation-policy に UI 実装規則（トークン参照のみ・
+  再利用優先・a11y 要点・lint 未整備のタスク化）、implement-task の
+  条件付き必須読み物、visual-verify-loop の照合基準に design-system を追加。
+- 検証ゲート: design-system-checklist.md 新設、accessibility-checklist を
+  WCAG 2.2 AA に更新、決定論ゲート `check-design-system.(sh|ps1)` を warn
+  モードで導入（`SDD_DESIGN_SYSTEM_ENFORCE=error` で昇格、導入2リリース後に
+  error 化予定）。verification-contract に `design-system` チェック、
+  risk-gate-matrix に条件付きコントロール行を追加。
+- 全変更は条件付きロード / waivable check として実装し、非 UI プロジェクト・
+  `ds_profile: none` へのオーバーヘッドはゼロ。
 
 ## v1.7.0 (2026-07-02)
 
