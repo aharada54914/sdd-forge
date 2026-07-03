@@ -33,7 +33,7 @@ try {
     $warn = Join-Path $fix "warn"; New-Fixture $warn
     Set-Content -Encoding Ascii -Path (Join-Path $warn "src/bad.css") -Value '.bad { color: #ff0000; }'
     $out = & powershell -NoProfile -ExecutionPolicy Bypass -File $checkPs1 -ProjectRoot $warn -DesignMd (Join-Path $warn "specs/demo/design.md") -ChangedFiles @((Join-Path $warn "src/bad.css")) 2>&1 | Out-String
-    if ($LASTEXITCODE -ne 0 -or $out -notmatch 'check-design-system WARN' -or $out -notmatch 'raw style value') { throw "not ok: CDS-003 warn ($out)" }
+    if ($LASTEXITCODE -ne 0 -or $out -notmatch 'check-design-system WARN' -or $out -notmatch 'raw style value' -or $out -notmatch 'ff0000') { throw "not ok: CDS-003 warn ($out)" }
     Write-Host "ok: CDS-003 warn on raw value"
 
     # CDS-004 enforce mode -> exit 1

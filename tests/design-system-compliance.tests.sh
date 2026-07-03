@@ -46,7 +46,7 @@ case "$out" in *"check-design-system passed."*) [ "$rc" -eq 0 ] && pass "CDS-002
 make_fixture "$FIX/warn"
 printf '.bad { color: #ff0000; }\n' > "$FIX/warn/src/bad.css"
 out="$(sh "$CHECK_SH" "$FIX/warn" "$FIX/warn/specs/demo/design.md" "$FIX/warn/src/bad.css" 2>&1)"; rc=$?
-case "$out" in *"check-design-system WARN"*"raw style value"*) [ "$rc" -eq 0 ] && pass "CDS-003 warn on raw value" || fail "CDS-003 warn exit code" ;; *) fail "CDS-003 warn on raw value ($out)" ;; esac
+case "$out" in *"check-design-system WARN"*"raw style value"*"#ff0000"*) [ "$rc" -eq 0 ] && pass "CDS-003 warn on raw value" || fail "CDS-003 warn exit code" ;; *) fail "CDS-003 warn on raw value ($out)" ;; esac
 
 # CDS-004 enforce mode -> exit 1
 out="$(SDD_DESIGN_SYSTEM_ENFORCE=error sh "$CHECK_SH" "$FIX/warn" "$FIX/warn/specs/demo/design.md" "$FIX/warn/src/bad.css" 2>&1)"; rc=$?

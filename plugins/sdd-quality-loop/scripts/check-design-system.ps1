@@ -55,7 +55,7 @@ foreach ($f in $ChangedFiles) {
     if (-not (Test-Path -LiteralPath $target)) { $target = Join-Path $ProjectRoot $rel }
     if (-not (Test-Path -LiteralPath $target)) { continue }
     $hits = @(Select-String -LiteralPath $target -Pattern '#[0-9a-fA-F]{6}([^0-9a-fA-F]|$)|#[0-9a-fA-F]{3}([^0-9a-fA-F]|$)|rgb\(|hsl\(' | Select-Object -First 20)
-    foreach ($hit in $hits) { $findings += "raw style value: ${rel}: line $($hit.LineNumber)" }
+    foreach ($hit in $hits) { $findings += "raw style value: ${rel}: $($hit.LineNumber):$($hit.Line)" }
 }
 
 if ($DesignMd -ne "") {
