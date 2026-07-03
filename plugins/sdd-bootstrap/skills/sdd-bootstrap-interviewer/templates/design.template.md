@@ -29,6 +29,16 @@ Feature Type: {{project_or_feature_type}}
 Use `N/A — no change: <reason>` for an unaffected layer. Security impact must
 still be assessed.
 
+## Design System Compliance
+
+Applies when the project has a `design-system/` directory (`ds_profile:
+custom`); otherwise record exactly `N/A — ds_profile: none`.
+
+- Design-System-Version: {{design_system_version}} (design-tokens.json meta.version)
+- Tokens Used: {{tokens_used}}
+- New Components: {{new_components_with_reasons}} (reuse existing components
+  first; record the reason for every new component)
+
 ## Cross-Layer Dependencies
 
 | From | To | Contract / Decision | REQ | AC | Verification |

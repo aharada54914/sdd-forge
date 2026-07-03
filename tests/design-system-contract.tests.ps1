@@ -66,4 +66,12 @@ $inv = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-b
 if ($inv -notmatch 'Design Inventory') { throw "not ok: DS-007 Design Inventory missing" }
 Write-Host "ok: DS-007 investigate-codebase design inventory"
 
+# DS-008 / DS-009 design templates
+$dt = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md")
+if ($dt -notmatch [regex]::Escape('## Design System Compliance')) { throw "not ok: DS-008 compliance section missing" }
+if ($dt -notmatch 'ds_profile: none') { throw "not ok: DS-008 none rule missing" }
+$dl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-lite/templates/design-lite.md")
+if ($dl -notmatch 'design-system/') { throw "not ok: DS-009 lite declaration missing" }
+Write-Host "ok: DS-008/DS-009 design templates"
+
 Write-Host "ok: design-system contract tests passed"

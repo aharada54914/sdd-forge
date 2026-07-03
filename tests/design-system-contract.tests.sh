@@ -72,6 +72,14 @@ INV="$ROOT/plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md"
 assert_contains "$INV" 'Design Inventory' "DS-007 design inventory group"
 assert_contains "$INV" '#hex / rgb\(\) / hsl\(\)' "DS-007 hardcoded color patterns"
 
+# DS-008 design.template.md compliance section / DS-009 lite declaration
+DT="$ROOT/plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md"
+assert_contains "$DT" '^## Design System Compliance$' "DS-008 compliance section"
+assert_contains "$DT" 'ds_profile: none' "DS-008 none profile N/A rule"
+assert_contains "$DT" 'design_system_version' "DS-008 version placeholder"
+DL="$ROOT/plugins/sdd-lite/templates/design-lite.md"
+assert_contains "$DL" 'design-system/' "DS-009 lite token declaration"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
