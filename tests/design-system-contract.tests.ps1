@@ -33,7 +33,9 @@ $dsPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-
 $uipPath = Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md"
 $ds = Get-Content -Raw -Encoding Utf8 $dsPath
 $uip = Get-Content -Raw -Encoding Utf8 $uipPath
-foreach ($section in @('## Layer 1 — Tokens (machine-extracted)', "## Layer 2 — Do / Don't (component conventions)", '## Layer 3 — Review checklist (human-curated)', '## Change Process')) {
+# PS5.1 reads BOM-less .ps1 as ANSI, so non-ASCII literals must be built from code points.
+$em = [string][char]0x2014
+foreach ($section in @("## Layer 1 $em Tokens (machine-extracted)", "## Layer 2 $em Do / Don't (component conventions)", "## Layer 3 $em Review checklist (human-curated)", '## Change Process')) {
     if ($ds -notmatch [regex]::Escape($section)) { throw "not ok: DS-003 missing section $section" }
 }
 if ($ds -notmatch 'WCAG 2\.2 AA') { throw "not ok: DS-003 WCAG 2.2 AA missing" }
