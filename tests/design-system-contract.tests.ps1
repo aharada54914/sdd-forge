@@ -70,6 +70,7 @@ Write-Host "ok: DS-007 investigate-codebase design inventory"
 $dt = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design.template.md")
 if ($dt -notmatch [regex]::Escape('## Design System Compliance')) { throw "not ok: DS-008 compliance section missing" }
 if ($dt -notmatch 'ds_profile: none') { throw "not ok: DS-008 none rule missing" }
+if ($dt -notmatch 'design_system_version') { throw "not ok: DS-008 version placeholder missing" }
 $dl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-lite/templates/design-lite.md")
 if ($dl -notmatch 'design-system/') { throw "not ok: DS-009 lite declaration missing" }
 Write-Host "ok: DS-008/DS-009 design templates"
@@ -105,6 +106,7 @@ Write-Host "ok: DS-013 visual-verify-loop design-system comparison"
 # DS-014 design-system checklist and evaluator wiring
 $dsc = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/design-system-checklist.md")
 if ($dsc -notmatch [regex]::Escape('# Design System Review Checklist')) { throw "not ok: DS-014 checklist missing" }
+if ($dsc -notmatch [regex]::Escape('## UI Patterns (ui-patterns.md)')) { throw "not ok: DS-014 ui-patterns section missing" }
 $rub = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/evaluation-rubric.md")
 if ($rub -notmatch 'design-system non-conformance') { throw "not ok: DS-014 rubric classification missing" }
 $qgs = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md")

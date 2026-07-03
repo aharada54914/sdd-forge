@@ -44,6 +44,27 @@ try {
     } finally { Remove-Item Env:SDD_DESIGN_SYSTEM_ENFORCE -ErrorAction SilentlyContinue }
     Write-Host "ok: CDS-004 enforce mode fails"
 
+    # CDS-005 invalid meta envelope -> finding
+    $badmeta = Join-Path $fix "badmeta"; New-Fixture $badmeta
+    Set-Content -Encoding Ascii -Path (Join-Path $badmeta "design-system/design-tokens.json") -Value '{ "meta": { "schema": "wrong/v1" }, "color": {}, "typography": {}, "spacing": {} }'
+    $out = & powershell -NoProfile -ExecutionPolicy Bypass -File $checkPs1 -ProjectRoot $badmeta 2>&1 | Out-String
+    if ($out -notmatch 'meta\.schema is not design-system-contract/v1') { throw "not ok: CDS-005 invalid meta ($out)" }
+    Write-Host "ok: CDS-005 invalid meta detected"
+
+    # CDS-006 design.md missing compliance section -> finding
+    $nosec = Join-Path $fix "nosec"; New-Fixture $nosec
+    Set-Content -Encoding Ascii -Path (Join-Path $nosec "specs/demo/design.md") -Value '# Design: demo'
+    $out = & powershell -NoProfile -ExecutionPolicy Bypass -File $checkPs1 -ProjectRoot $nosec -DesignMd (Join-Path $nosec "specs/demo/design.md") 2>&1 | Out-String
+    if ($out -notmatch 'missing' -or $out -notmatch 'Design System Compliance') { throw "not ok: CDS-006 missing section ($out)" }
+    Write-Host "ok: CDS-006 missing section detected"
+
+    # CDS-007 excluded paths are not scanned
+    $excl = Join-Path $fix "excl"; New-Fixture $excl
+    Set-Content -Encoding Ascii -Path (Join-Path $excl "design-system/design-system.md") -Value 'color: #ff0000'
+    $out = & powershell -NoProfile -ExecutionPolicy Bypass -File $checkPs1 -ProjectRoot $excl -DesignMd (Join-Path $excl "specs/demo/design.md") -ChangedFiles @("design-system/design-system.md") 2>&1 | Out-String
+    if ($LASTEXITCODE -ne 0 -or $out -notmatch 'check-design-system passed\.') { throw "not ok: CDS-007 exclusions ($out)" }
+    Write-Host "ok: CDS-007 exclusions honored"
+
     Write-Host "ok: design-system compliance tests passed"
 } finally {
     Remove-Item -LiteralPath $fix -Recurse -Force -ErrorAction SilentlyContinue

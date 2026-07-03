@@ -61,7 +61,7 @@ foreach ($f in $ChangedFiles) {
 if ($DesignMd -ne "") {
     if (Test-Path -LiteralPath $DesignMd) {
         $dm = Get-Content -Raw -Encoding Utf8 $DesignMd
-        if ($dm -notmatch '## Design System Compliance') {
+        if ($dm -notmatch '(?m)^## Design System Compliance *\r?$') {
             $findings += "design.md: missing '## Design System Compliance' section"
         } elseif ($dm -match 'ds_profile: none') {
             $findings += "design.md: records ds_profile: none while design-system/ exists"
