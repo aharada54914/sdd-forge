@@ -3,7 +3,7 @@
 Combined reference for all review checks used by `sdd-review-loop`.
 
 - **Part 0** — `spec-review-loop`: 12 checks across spec-reviewer-a and spec-reviewer-b
-- **Part 1** — `impl-review-loop`: 19 checks across impl-reviewer-a and impl-reviewer-b
+- **Part 1** — `impl-review-loop`: 20 checks across impl-reviewer-a and impl-reviewer-b
 - **Part 2** — `task-review-loop`: 23 checks across task-reviewer-a and task-reviewer-b
 
 ---
@@ -266,8 +266,8 @@ than design implementation policy.
 
 ## Part 1: Implementation Policy Review Checklist (impl-review-loop)
 
-Complete reference for all 19 checks in the impl-review-loop. Checks are split
-across two reviewers: impl-reviewer-a (structural soundness, 9 checks) and
+Complete reference for all 20 checks in the impl-review-loop. Checks are split
+across two reviewers: impl-reviewer-a (structural soundness, 10 checks) and
 impl-reviewer-b (implementability/risk, 10 checks).
 
 ### Check Types
@@ -290,7 +290,7 @@ absent template fields from Major/Critical to Minor `[LEGACY COMPAT]` advisories
 
 ---
 
-### Reviewer-A Checks (Structural Soundness — 9 checks)
+### Reviewer-A Checks (Structural Soundness — 10 checks)
 
 #### ARCH-COVERAGE
 
@@ -474,6 +474,32 @@ architectural decisions introduced.
 
 **Fail condition:** Referenced ADR file missing; or new architectural decision
 introduced with no ADR.
+
+---
+
+#### DESIGN-SYSTEM-CONFORMANCE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a |
+| Type | TYPE-D |
+| Severity | Major |
+| Default | FAIL |
+| Skip condition | Project has no `design-system/` directory, or design.md records `N/A — ds_profile: none` |
+
+**Description:** When the project carries a `design-system/` contract, design.md's
+`## Design System Compliance` section must reference the design-system version
+(design-tokens.json `meta.version`), list the token groups used, and record a
+reason for every new component, without contradicting
+`design-system/design-system.md` or `design-system/ui-patterns.md`.
+
+**Pass condition:** Section present with a version reference and token list;
+every new component carries a reason; no contradiction with the design-system
+artifacts.
+
+**Fail condition:** Section missing while `design-system/` exists; version or
+token usage unrecorded; a new component without a reason; or a statement that
+contradicts the design-system artifacts.
 
 ---
 

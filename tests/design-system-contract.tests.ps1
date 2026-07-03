@@ -74,4 +74,12 @@ $dl = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-li
 if ($dl -notmatch 'design-system/') { throw "not ok: DS-009 lite declaration missing" }
 Write-Host "ok: DS-008/DS-009 design templates"
 
+# DS-010 impl-reviewer-a design-system conformance check
+$ira = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-review-loop/agents/impl-reviewer-a.md")
+if ($ira -notmatch [regex]::Escape('## DESIGN-SYSTEM-CONFORMANCE (Major, TYPE-D)')) { throw "not ok: DS-010 reviewer-a check missing" }
+if ($ira -notmatch [regex]::Escape('ADR-PRESENT, DESIGN-SYSTEM-CONFORMANCE.')) { throw "not ok: DS-010 ordered checks not updated" }
+$prc = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-review-loop/references/phase-review-checklist.md")
+if ($prc -notmatch [regex]::Escape('#### DESIGN-SYSTEM-CONFORMANCE')) { throw "not ok: DS-010 checklist block missing" }
+Write-Host "ok: DS-010 reviewer-a conformance check"
+
 Write-Host "ok: design-system contract tests passed"

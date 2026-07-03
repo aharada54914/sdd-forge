@@ -80,6 +80,14 @@ assert_contains "$DT" 'design_system_version' "DS-008 version placeholder"
 DL="$ROOT/plugins/sdd-lite/templates/design-lite.md"
 assert_contains "$DL" 'design-system/' "DS-009 lite token declaration"
 
+# DS-010 impl-reviewer-a design-system conformance check
+IRA="$ROOT/plugins/sdd-review-loop/agents/impl-reviewer-a.md"
+assert_contains "$IRA" '^## DESIGN-SYSTEM-CONFORMANCE \(Major, TYPE-D\)$' "DS-010 reviewer-a check defined"
+assert_contains "$IRA" 'ADR-PRESENT, DESIGN-SYSTEM-CONFORMANCE\.' "DS-010 ordered checks updated"
+PRC="$ROOT/plugins/sdd-review-loop/references/phase-review-checklist.md"
+assert_contains "$PRC" '^#### DESIGN-SYSTEM-CONFORMANCE$' "DS-010 checklist block"
+assert_contains "$PRC" 'impl-review-loop`: 20 checks' "DS-010 impl count updated"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
