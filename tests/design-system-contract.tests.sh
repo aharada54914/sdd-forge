@@ -129,6 +129,12 @@ RGM="$ROOT/plugins/sdd-quality-loop/references/risk-gate-matrix.md"
 assert_contains "$RGM" 'design-system conformance' "DS-016 matrix conditional row"
 assert_contains "$QGS" 'check-design-system' "DS-016 quality-gate runs the script"
 
+# DS-017 user-facing documentation
+assert_contains "$ROOT/README.md" 'design-system/' "DS-017 README feature bullet"
+assert_contains "$ROOT/docs/workflow-guide.md" 'design-sync-loop' "DS-017 workflow-guide integration"
+assert_contains "$ROOT/docs/skill-reference.md" 'check-design-system' "DS-017 skill-reference script entry"
+assert_contains "$ROOT/CHANGELOG.md" '統一デザインシステム統合' "DS-017 changelog entry"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]

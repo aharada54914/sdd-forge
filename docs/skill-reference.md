@@ -498,6 +498,25 @@ TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|lorem ipsum|com
 
 ---
 
+### check-design-system
+
+デザインシステム準拠の決定論ゲート（warn フェーズ）。対象プロジェクトに
+`design-system/` が存在するときのみ動作し、無ければ note 付きでスキップする
+（exit 0）。① design-tokens.json の契約エンベロープ検証
+（`design-system-contract/v1`・semver・generated_by・color/typography/spacing）、
+② 変更ファイル中の生スタイル値（#hex / rgb() / hsl()）検出（design-system/・
+build/・tests/・*.md・*.svg は除外）、③ design.md の
+`## Design System Compliance` セクション確認。既定は WARN（exit 0）、
+`SDD_DESIGN_SYSTEM_ENFORCE=error` で違反時に exit 1。
+
+```txt
+# Git Bash / WSL / macOS / Linux
+plugins/sdd-quality-loop/scripts/check-design-system.sh <project-root> [<design-md>] [<changed-file>...]
+
+# PowerShell
+plugins/sdd-quality-loop/scripts/check-design-system.ps1 -ProjectRoot <path> [-DesignMd <path>] [-ChangedFiles <paths...>]
+```
+
 ## 6. テンプレート一覧
 
 ### sdd-bootstrap

@@ -125,4 +125,13 @@ if ($rgm -notmatch 'design-system conformance') { throw "not ok: DS-016 matrix r
 if ($qgs -notmatch 'check-design-system') { throw "not ok: DS-016 quality-gate wiring missing" }
 Write-Host "ok: DS-016 contract and matrix wiring"
 
+# DS-017 user-facing documentation (ASCII-checkable subset; the Japanese changelog heading is asserted by the sh twin)
+$readme = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "README.md")
+if ($readme -notmatch 'design-system/') { throw "not ok: DS-017 README bullet missing" }
+$wfg = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "docs/workflow-guide.md")
+if ($wfg -notmatch 'design-sync-loop') { throw "not ok: DS-017 workflow-guide missing" }
+$sref = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "docs/skill-reference.md")
+if ($sref -notmatch 'check-design-system') { throw "not ok: DS-017 skill-reference missing" }
+Write-Host "ok: DS-017 documentation"
+
 Write-Host "ok: design-system contract tests passed"
