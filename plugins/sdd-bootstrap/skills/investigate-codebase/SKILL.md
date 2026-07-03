@@ -61,6 +61,14 @@ For `bugfix` and `refactor` modes also produce:
   `templates/baseline-behavior.template.md`. Each observable behavior carries a
   `BL-NNN` ID.
 
+When the investigated codebase contains UI code, additionally record a
+`Design Inventory` finding group in `investigation.md`: occurrence locations
+(`file:line`) and counts of hardcoded color codes (#hex / rgb() / hsl()),
+font specifications, and magic spacing values. Each entry carries an INV-NNN
+ID like any other finding. This inventory is the brownfield input for
+initializing `design-system/design-tokens.json` and `design-system.md`; the
+investigation itself stays read-only and creates no design-system files.
+
 ## Platform Notes
 
 Claude Code executes this skill in a forked context so the main conversation

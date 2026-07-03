@@ -61,4 +61,9 @@ foreach ($needle in @('## Ensure design-system/', 'ui-ux-pro-max', 'design-syste
 }
 Write-Host "ok: DS-006 design-sync-loop v2"
 
+# DS-007 investigate-codebase design inventory
+$inv = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md")
+if ($inv -notmatch 'Design Inventory') { throw "not ok: DS-007 Design Inventory missing" }
+Write-Host "ok: DS-007 investigate-codebase design inventory"
+
 Write-Host "ok: design-system contract tests passed"

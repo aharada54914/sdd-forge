@@ -67,6 +67,11 @@ assert_contains "$DSL" 'figma-dtcg-import' "DS-006 figma DTCG import path"
 assert_contains "$DSL" 'design-system/design-tokens\.json' "DS-006 mockups reference tokens"
 assert_contains "$DSL" 'MASTER\.md' "DS-006 seed is input, artifacts authoritative"
 
+# DS-007 investigate-codebase brownfield design inventory
+INV="$ROOT/plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md"
+assert_contains "$INV" 'Design Inventory' "DS-007 design inventory group"
+assert_contains "$INV" '#hex / rgb\(\) / hsl\(\)' "DS-007 hardcoded color patterns"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
