@@ -1,6 +1,6 @@
 # SDD スキルリファレンス
 
-6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる19のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる21のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
 > **2コマンドワークフロー**: ユーザーが直接呼び出すのは `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の2つのみです。他のスキルはこれらのオーケストレーターが内部で呼び出します。
 
@@ -13,11 +13,13 @@
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
 | sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
+| design-sync-loop | sdd-bootstrap | UI アプリ（`ds_profile: custom`）で `design-system/` 契約を保証（ui-ux-pro-max シード生成 / Figma DTCG 取込 / テンプレートインタビュー）し、トークン駆動モックアップの確認ループを回す（claude.ai/design 連携・任意・非ブロッキング） | sdd-bootstrap-interviewer, lite-spec | — |
 | **spec-review-loop** | **sdd-review-loop** | **requirements.md と acceptance-tests.md を `spec-reviewer-a/b` が独立レビューし、implementation-policy review の前提 PASS を作る** | **sdd-bootstrap-interviewer [Phase 1]** | **impl-review-loop (Spec-Review-Status: Passed後)** |
 | **impl-review-loop** | **sdd-review-loop** | **design.md の実装方針を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 1]** | **sdd-bootstrap-interviewer [Phase 2] (Impl-Review-Status: Passed後)** |
 | **task-review-loop** | **sdd-review-loop** | **tasks.md のタスク分解を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 2]** | **implement-task, implement-tasks (承認ゲート後)** |
 | diagnose | sdd-implementation | ハードなバグ・リグレッション・フレーキーテスト・性能退行の診断規律（再現→計装→根本原因→最小修正）。`reports/diagnosis/<id>.md` を出力し、軽量トラック（lite-spec）への入口を兼ねる | — | lite-spec（診断結果を入力に要件/設計/タスクを生成） |
 | implement-task | sdd-implementation | 承認済みタスク1つを実装 | sdd-bootstrap-interviewer | quality-gate |
+| visual-verify-loop | sdd-implementation | UI タスク実装後の視覚検証ループ（Claude Preview / wpf-visual-verify、advisory・最大5回、証跡を `reports/visual-evidence/` に保存） | implement-task | — |
 | **implement-tasks** | **sdd-implementation** | **承認済みタスクを依存関係順に一括実装し、全完了時に自動で quality-gate へ移行** | **sdd-bootstrap-interviewer** | **quality-gate (自動)** |
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
 | fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
@@ -532,6 +534,9 @@ plugins/sdd-quality-loop/scripts/check-design-system.ps1 -ProjectRoot <path> [-D
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/acceptance-tests.template.md` | 受け入れ基準・テスト |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md` | タスク分割 (T-xxx) |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/traceability.template.md` | トレーサビリティ行列 |
+| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json` | `design-system/` トークン契約の雛形（W3C DTCG、meta エンベロープは `contracts/design-system.contract.v1.schema.json` で検証） |
+| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md` | UI 規約の雛形（3層構造: トークン / Do・Don't / レビューチェックリスト、WCAG 2.2 AA） |
+| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md` | 言語非依存の普遍的 UX 規約（アクション / ダイアログ / アイコン / フロー / 状態 / 認知負荷 の6カテゴリ、既定値込み） |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/adr.template.md` | Architecture Decision Record |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ai-task.template.md` | AI 特化タスク template |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-context.template.md` | C4 Context diagram |
