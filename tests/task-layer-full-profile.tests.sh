@@ -43,6 +43,28 @@ while IFS= read -r evidence; do
 done < <(find "$TMP/reports" -type f \
   \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' \))
 
+# The fixture copies the CURRENT plugin references, while the recorded review
+# manifests pin the reference hashes from review time. Plugin references evolve
+# with the repository (e.g. risk-gate-matrix.md gained a design-system row);
+# this fixture exercises the layer-binding code path, not historical reference
+# pinning — that drift is exactly why the live registry may grandfather the
+# feature to "legacy". Refresh every plugins/ manifest entry (contracts and
+# reviewer mirrors alike, keeping their manifests identical) to the fixture's
+# current file hashes.
+REF_HASHES="$(cd "$TMP" && find plugins -type f -print0 |
+  while IFS= read -r -d '' ref; do
+    printf '%s\t%s\n' "$ref" "$(shasum -a 256 "$ref" | awk '{print $1}')"
+  done | jq -Rn '[inputs | split("\t") | {(.[0]): .[1]}] | add')"
+while IFS= read -r evidence; do
+  jq --argjson refs "$REF_HASHES" '
+    walk(if type == "object" and has("path") and has("sha256")
+           and (.path | type == "string") and ($refs[.path] != null)
+         then .sha256 = $refs[.path] else . end)
+  ' "$evidence" > "$evidence.tmp"
+  mv "$evidence.tmp" "$evidence"
+done < <(find "$TMP/reports" -type f \
+  \( -name '*-review-contract.json' -o -name 'reviewer-a.json' -o -name 'reviewer-b.json' -o -name 'precheck-result.json' \))
+
 SPEC="$TMP/specs/$FEATURE"
 for name in ux-spec.md frontend-spec.md infra-spec.md security-spec.md; do
   printf '# %s\n\n## canonical\n\nFixture.\n' "$name" > "$SPEC/$name"
