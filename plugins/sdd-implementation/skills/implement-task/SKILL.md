@@ -39,7 +39,10 @@ missing structure from context.
 Read `AGENTS.md`, the target feature requirements, design, tasks, acceptance tests,
 traceability, relevant ADRs and contracts, `references/implementation-policy.md`,
 `references/implementation-craft-policy.md`, and
-`references/agent-delegation-policy.md`.
+`references/agent-delegation-policy.md`. For UI tasks in a project that
+carries a `design-system/` directory, also read
+`design-system/design-system.md` and `design-system/ui-patterns.md`; for
+other tasks do not load them.
 
 ### Sudo Mode
 

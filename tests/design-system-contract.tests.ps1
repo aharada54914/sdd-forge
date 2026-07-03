@@ -87,4 +87,12 @@ $irb = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-r
 if ($irb -notmatch 'component library or styling framework') { throw "not ok: DS-011 reviewer-b rule missing" }
 Write-Host "ok: DS-011 reviewer-b UI library rule"
 
+# DS-012 implementation policy UI rules and conditional required reading
+$ipol = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md")
+if ($ipol -notmatch [regex]::Escape('## UI Implementation Rules')) { throw "not ok: DS-012 UI rules section missing" }
+if ($ipol -notmatch 'design-tokens\.json tokens only') { throw "not ok: DS-012 tokens-only rule missing" }
+$itsk = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-implementation/skills/implement-task/SKILL.md")
+if ($itsk -notmatch 'design-system/design-system\.md') { throw "not ok: DS-012 required reading missing" }
+Write-Host "ok: DS-012 implementation policy UI rules"
+
 Write-Host "ok: design-system contract tests passed"

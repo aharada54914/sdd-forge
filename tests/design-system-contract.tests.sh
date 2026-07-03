@@ -93,6 +93,14 @@ IRB="$ROOT/plugins/sdd-review-loop/agents/impl-reviewer-b.md"
 assert_contains "$IRB" 'component library or styling framework' "DS-011 reviewer-b UI library rule"
 assert_contains "$PRC" 'unsanctioned UI component library' "DS-011 checklist UI library rule"
 
+# DS-012 implementation policy UI rules and conditional required reading
+IPOL="$ROOT/plugins/sdd-implementation/skills/implement-task/references/implementation-policy.md"
+assert_contains "$IPOL" '^## UI Implementation Rules$' "DS-012 UI rules section"
+assert_contains "$IPOL" 'design-tokens\.json tokens only' "DS-012 tokens-only rule"
+assert_contains "$IPOL" 'design-system/ui-patterns\.md' "DS-012 ui-patterns reference"
+ITSK="$ROOT/plugins/sdd-implementation/skills/implement-task/SKILL.md"
+assert_contains "$ITSK" 'design-system/design-system\.md' "DS-012 conditional required reading"
+
 printf 'PASS: %s\n' "$PASS"
 printf 'FAIL: %s\n' "$FAIL"
 [ "$FAIL" -eq 0 ]
