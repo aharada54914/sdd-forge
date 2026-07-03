@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.8.0 (2026-07-03)
+
 ### デザイン駆動高速イテレーションレーン
 
 - 内部スキル `design-sync-loop`（sdd-bootstrap）を新設。仕様段階で

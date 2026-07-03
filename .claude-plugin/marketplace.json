@@ -13,7 +13,7 @@
       "name": "sdd-bootstrap",
       "source": "./plugins/sdd-bootstrap",
       "description": "Prepare implementation-ready specifications and tasks.",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "author": {
         "name": "Harada"
       }
@@ -22,7 +22,7 @@
       "name": "sdd-ship",
       "source": "./plugins/sdd-ship",
       "description": "Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow.",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "author": {
         "name": "Harada"
       }
@@ -31,7 +31,7 @@
       "name": "sdd-implementation",
       "source": "./plugins/sdd-implementation",
       "description": "[internal] Implement one approved task and prepare a quality-gate handoff. Use /sdd-ship:ship for the standard workflow.",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "author": {
         "name": "Harada"
       }
@@ -40,7 +40,7 @@
       "name": "sdd-quality-loop",
       "source": "./plugins/sdd-quality-loop",
       "description": "Independently verify implementations and resolve review tickets.",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "author": {
         "name": "Harada"
       }
@@ -49,7 +49,7 @@
       "name": "sdd-lite",
       "source": "./plugins/sdd-lite",
       "description": "[internal] Lightweight medium-weight SDD track for internal/departmental apps. Use /sdd-ship:ship --lite for the standard workflow.",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "author": {
         "name": "Harada"
       }
@@ -58,7 +58,7 @@
       "name": "sdd-review-loop",
       "source": "./plugins/sdd-review-loop",
       "description": "[internal] Independent implementation and task decomposition reviews used by sdd-bootstrap.",
-      "version": "1.7.0",
+      "version": "1.8.0",
       "author": {
         "name": "Harada"
       }
