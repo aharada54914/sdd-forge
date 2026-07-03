@@ -111,4 +111,10 @@ $qgs = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-q
 if ($qgs -notmatch 'design-system-checklist\.md') { throw "not ok: DS-014 quality-gate load missing" }
 Write-Host "ok: DS-014 design-system checklist wiring"
 
+# DS-015 WCAG 2.2 AA update
+$acc = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/accessibility-checklist.md")
+if ($acc -notmatch 'WCAG 2\.2 AA') { throw "not ok: DS-015 target not updated" }
+if ($acc -match 'WCAG 2\.1 AA') { throw "not ok: DS-015 stale 2.1 reference remains" }
+Write-Host "ok: DS-015 WCAG 2.2 AA"
+
 Write-Host "ok: design-system contract tests passed"

@@ -38,7 +38,7 @@ above. Load a checklist only when its domain is in scope:
   external systems, AI/LLM features.
 - `performance-checklist.md` — data access, hot paths, loops over user-sized
   input, rendering.
-- `accessibility-checklist.md` — user-facing UI (WCAG 2.1 AA).
+- `accessibility-checklist.md` — user-facing UI (WCAG 2.2 AA).
 - `design-system-checklist.md` — user-facing UI in projects carrying a
   `design-system/` contract (tokens, components, ui-patterns).
 
