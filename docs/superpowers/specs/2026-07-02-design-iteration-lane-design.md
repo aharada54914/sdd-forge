@@ -46,7 +46,7 @@ ship ─→ implement-tasks ─→ implement-task ─→ [UIタスク時] ─→
 仕様フェーズのデザイン確定ループを担当する。
 
 1. **能力検出**: DesignSync ツールの有無を確認。なければ手動フォールバック（現行 claude-design-workflow.md の手順）へ。
-2. **Pull**: `list_projects` でユーザーが対象のデザインシステムプロジェクトを選択（`create_project` で新規作成も可）。デザイントークン・既存コンポーネントを読み取り、`specs/<feature>/ux-spec.md` の Design-Source セクションに記録する。
+2. **Pull**: `list_projects` でユーザーが対象のデザインシステムプロジェクトを選択（`create_project` で新規作成も可）。デザイントークン・既存コンポーネントを読み取り、Design-Source セクションに記録する（記録先はフルプロファイルでは `specs/<feature>/ux-spec.md`、lite プロファイルでは `specs/<feature>/design.md`）。
 3. **モックアップ生成**: ビュー/状態ごとのセマンティック HTML（外部アセットなし・使い捨て）を `specs/<feature>/mockups/` に生成する。
 4. **Push（都度人間承認）**: 明示承認を得てから `finalize_plan` → `write_files` でデザインシステムプロジェクトに同期。ユーザーは claude.ai/design のブラウザ UI で確認・フィードバックし、再生成ループを回す。
 5. **確定**: 承認されたモックアップを ux-spec.md から参照する。**Mermaid が正典である原則は維持**し、モックアップは非正典の視覚参照とする。

@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### デザイン駆動高速イテレーションレーン
+
+- 内部スキル `design-sync-loop`（sdd-bootstrap）を新設。仕様段階で
+  claude.ai/design（DesignSync ツール）からデザインシステムを参照し、
+  使い捨て HTML モックアップを生成、都度人間承認のうえ Push して
+  ブラウザ確認ループを回す。ツールがない環境では従来の手動手順
+  （claude-design-workflow.md）にフォールバック。
+- 内部スキル `visual-verify-loop`（sdd-implementation）を新設。UI タスクの
+  実装後に Claude Preview MCP（Web）/ wpf-visual-verify（WPF）で
+  「起動→スクリーンショット→デザイン照合→修正」を最大5回イテレーションし、
+  最終スクリーンショットを `reports/visual-evidence/<task-id>/` に証跡保存。
+  非ブロッキングで、合否判定は quality-gate と人間レビューのまま。
+- sdd-bootstrap-interviewer / lite-spec / implement-task に上記への
+  ルーティングを追加。公開スキルは5つのまま（可視性契約は不変）。
+
 ## v1.7.0 (2026-07-02)
 
 ### スラッシュメニューの2コマンド化とエントリコマンドのリネーム
