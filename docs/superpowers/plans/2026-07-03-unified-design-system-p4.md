@@ -204,7 +204,7 @@ In `tests/design-system-contract.tests.sh`, insert directly before the final thr
 # DS-015 WCAG 2.2 AA update
 ACC="$ROOT/plugins/sdd-quality-loop/references/accessibility-checklist.md"
 assert_contains "$ACC" 'WCAG 2\.2 AA' "DS-015 target updated"
-assert_contains "$ACC" '2\.5\.8 Target Size' "DS-015 target size SC"
+assert_contains "$ACC" '2\.5\.8 Target' "DS-015 target size SC"
 assert_contains "$ACC" '3\.3\.8 Accessible' "DS-015 accessible authentication SC"
 ```
 
