@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "sdd-forge-mcp",
+  "run_id": "task-orch-sddforgemcp-a1r3-20260704-c2a8",
+  "verdict": "PASS",
+  "round": 3,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS"
+}

@@ -60,6 +60,22 @@ if ($stagedDiff) {
     if ($LASTEXITCODE -ne 0) { throw "Unable to commit installer source fixture." }
 }
 
+# The MCP server payload (mcp/sdd-forge-mcp/dist + package.json) is not yet
+# Git-tracked (dist/ is committed by a later task). The installer must copy
+# it from the filesystem regardless of Git tracking state, so seed a minimal
+# MCP payload directly on disk (untracked is fine).
+$mcpSourceDir = Join-Path $installerSourceRoot "mcp/sdd-forge-mcp"
+New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "dist") -Force | Out-Null
+Set-Content -Path (Join-Path $mcpSourceDir "dist/index.js") -Value "console.log('sdd-forge-mcp fixture stub');" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $mcpSourceDir "package.json") -Value '{"name":"sdd-forge-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=20"}}' -Encoding Utf8NoBOM
+# Files that must NOT be copied into the install root (node_modules/src/tests).
+New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "node_modules/should-not-copy") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "src") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "tests") -Force | Out-Null
+Set-Content -Path (Join-Path $mcpSourceDir "node_modules/should-not-copy/index.js") -Value "noise" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $mcpSourceDir "src/index.ts") -Value "noise" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $mcpSourceDir "tests/index.test.ts") -Value "noise" -Encoding Utf8NoBOM
+
 function New-FakeCommands {
     param(
         [Parameter(Mandatory)][string]$BinRoot,
@@ -847,6 +863,189 @@ finally {
         $env:SDD_CODEX_HOME = $smokeSavedCodexHome
     }
     if (Test-Path $smokeRoot) { Remove-Item -Path $smokeRoot -Recurse -Force }
+}
+
+# ---------------------------------------------------------------------------
+# MCP scenarios (T-006): AC-007 / AC-008
+# ---------------------------------------------------------------------------
+
+# Scenario (t): default install places the MCP payload and registers it,
+# excluding node_modules/src/tests.
+$mcpDefaultRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-default-" + [guid]::NewGuid())
+$mcpDefaultInstall = Join-Path $mcpDefaultRoot "installed"
+$mcpDefaultBin = Join-Path $mcpDefaultRoot "bin"
+$mcpDefaultLog = Join-Path $mcpDefaultRoot "commands.log"
+$mcpDefaultOriginalPath = $env:PATH
+$mcpDefaultOriginalCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $mcpDefaultBin -LogPath $mcpDefaultLog
+    $env:PATH = "$mcpDefaultBin$([System.IO.Path]::PathSeparator)$mcpDefaultOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $mcpDefaultRoot "codex-home"
+    New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
+
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpDefaultInstall -Target All -SkipAgentInstall
+
+    if (-not (Test-Path (Join-Path $mcpDefaultInstall "mcp/sdd-forge-mcp/dist/index.js"))) {
+        throw "default MCP install (t): dist/index.js not placed"
+    }
+    if (-not (Test-Path (Join-Path $mcpDefaultInstall "mcp/sdd-forge-mcp/package.json"))) {
+        throw "default MCP install (t): package.json not placed"
+    }
+    if (Test-Path (Join-Path $mcpDefaultInstall "mcp/sdd-forge-mcp/node_modules")) {
+        throw "default MCP install (t): node_modules was copied"
+    }
+    if (Test-Path (Join-Path $mcpDefaultInstall "mcp/sdd-forge-mcp/src")) {
+        throw "default MCP install (t): src/ was copied"
+    }
+    $mcpDefaultLogContent = Get-Content -Raw $mcpDefaultLog
+    if ($mcpDefaultLogContent -notmatch [regex]::Escape("claude mcp add sdd-forge-mcp")) {
+        throw "default MCP install (t): claude mcp add not invoked"
+    }
+    $configTomlContent = Get-Content -Raw (Join-Path $env:SDD_CODEX_HOME "config.toml")
+    if ($configTomlContent -notmatch "sdd-forge-mcp") {
+        throw "default MCP install (t): Codex config.toml missing sdd-forge-mcp entry"
+    }
+    Write-Host "ok: default install places and registers the MCP server"
+}
+finally {
+    $env:PATH = $mcpDefaultOriginalPath
+    if ($null -eq $mcpDefaultOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $mcpDefaultOriginalCodexHome }
+    if (Test-Path $mcpDefaultRoot) { Remove-Item -Path $mcpDefaultRoot -Recurse -Force }
+}
+
+# Scenario (u): -SkipMcp skips both placement and registration.
+$mcpSkipRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-skip-" + [guid]::NewGuid())
+$mcpSkipInstall = Join-Path $mcpSkipRoot "installed"
+$mcpSkipBin = Join-Path $mcpSkipRoot "bin"
+$mcpSkipLog = Join-Path $mcpSkipRoot "commands.log"
+$mcpSkipOriginalPath = $env:PATH
+$mcpSkipOriginalCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $mcpSkipBin -LogPath $mcpSkipLog
+    $env:PATH = "$mcpSkipBin$([System.IO.Path]::PathSeparator)$mcpSkipOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $mcpSkipRoot "codex-home"
+    New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
+
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpSkipInstall -Target All -SkipAgentInstall -SkipMcp
+
+    if (Test-Path (Join-Path $mcpSkipInstall "mcp")) {
+        throw "-SkipMcp (u): mcp/ was placed despite -SkipMcp"
+    }
+    if (Test-Path $mcpSkipLog) {
+        $mcpSkipLogContent = Get-Content -Raw $mcpSkipLog
+        if ($mcpSkipLogContent -match [regex]::Escape("claude mcp add")) {
+            throw "-SkipMcp (u): claude mcp add was invoked despite -SkipMcp"
+        }
+    }
+    $configTomlContent = Get-Content -Raw (Join-Path $env:SDD_CODEX_HOME "config.toml")
+    if ($configTomlContent -match "sdd-forge-mcp") {
+        throw "-SkipMcp (u): Codex config.toml was modified despite -SkipMcp"
+    }
+    Write-Host "ok: -SkipMcp skips both MCP placement and registration"
+}
+finally {
+    $env:PATH = $mcpSkipOriginalPath
+    if ($null -eq $mcpSkipOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $mcpSkipOriginalCodexHome }
+    if (Test-Path $mcpSkipRoot) { Remove-Item -Path $mcpSkipRoot -Recurse -Force }
+}
+
+# Scenario (v): -Mcp sdd-forge-mcp installs; an invalid MCP name is rejected.
+$mcpValidRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-valid-" + [guid]::NewGuid())
+$mcpValidInstall = Join-Path $mcpValidRoot "installed"
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpValidInstall -Target FilesOnly -Mcp @("sdd-forge-mcp")
+    if (-not (Test-Path (Join-Path $mcpValidInstall "mcp/sdd-forge-mcp/dist/index.js"))) {
+        throw "-Mcp sdd-forge-mcp (v): dist/index.js not placed"
+    }
+    Write-Host "ok: -Mcp sdd-forge-mcp installs the selected MCP"
+}
+finally {
+    if (Test-Path $mcpValidRoot) { Remove-Item -Path $mcpValidRoot -Recurse -Force }
+}
+
+$mcpInvalidRejected = $false
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-bogus-" + [guid]::NewGuid())) -Target FilesOnly -Mcp @("bogus-mcp") 2>$null
+}
+catch {
+    $mcpInvalidRejected = $true
+}
+if (-not $mcpInvalidRejected) {
+    throw "-Mcp bogus-mcp (v2): installer accepted an invalid MCP name"
+}
+Write-Host "ok: -Mcp bogus-mcp is rejected"
+
+# Scenario (w): missing Node >= 20 warns and skips MCP only; plugins still
+# install. Shadow `node` with a fake old-version binary.
+$mcpOldNodeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-oldnode-" + [guid]::NewGuid())
+$mcpOldNodeInstall = Join-Path $mcpOldNodeRoot "installed"
+$mcpOldNodeBin = Join-Path $mcpOldNodeRoot "bin"
+$mcpOldNodeLog = Join-Path $mcpOldNodeRoot "commands.log"
+$mcpOldNodeOriginalPath = $env:PATH
+try {
+    New-FakeCommands -BinRoot $mcpOldNodeBin -LogPath $mcpOldNodeLog
+    if ($isWindowsPlatform) {
+        $nodeShimPath = Join-Path $mcpOldNodeBin "node.cmd"
+        "@if `"%~1`"==`"--version`" (echo v14.21.0`r`n) else (exit /b 0)`r`n" | Set-Content -Path $nodeShimPath -Encoding Ascii
+    }
+    else {
+        $nodeShimPath = Join-Path $mcpOldNodeBin "node"
+        "#!/bin/sh`nif [ `"`$1`" = --version ]; then echo v14.21.0; exit 0; fi`nexit 0`n" | Set-Content -Path $nodeShimPath -Encoding Utf8NoBOM
+        & chmod +x $nodeShimPath
+    }
+    $env:PATH = "$mcpOldNodeBin$([System.IO.Path]::PathSeparator)$mcpOldNodeOriginalPath"
+
+    $warnings = $null
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpOldNodeInstall -Target FilesOnly -WarningVariable warnings -WarningAction SilentlyContinue
+
+    if (Test-Path (Join-Path $mcpOldNodeInstall "mcp")) {
+        throw "old Node (w): MCP was placed despite Node < 20"
+    }
+    foreach ($plugin in $allPlugins) {
+        if (-not (Test-Path (Join-Path $mcpOldNodeInstall "plugins/$plugin/.codex-plugin/plugin.json"))) {
+            throw "old Node (w): plugin not copied despite MCP-only skip: $plugin"
+        }
+    }
+    if (-not ($warnings | Where-Object { $_.Message -match "(?i)node" })) {
+        throw "old Node (w): expected warning mentioning Node was not raised"
+    }
+    Write-Host "ok: Node < 20 warns and skips MCP only, plugin install continues"
+}
+finally {
+    $env:PATH = $mcpOldNodeOriginalPath
+    if (Test-Path $mcpOldNodeRoot) { Remove-Item -Path $mcpOldNodeRoot -Recurse -Force }
+}
+
+# Scenario (x): Codex config.toml absent — MCP registration for Codex is
+# skipped with a warning rather than creating a new config.toml.
+$mcpNoConfigRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-noconfig-" + [guid]::NewGuid())
+$mcpNoConfigInstall = Join-Path $mcpNoConfigRoot "installed"
+$mcpNoConfigBin = Join-Path $mcpNoConfigRoot "bin"
+$mcpNoConfigLog = Join-Path $mcpNoConfigRoot "commands.log"
+$mcpNoConfigOriginalPath = $env:PATH
+$mcpNoConfigOriginalCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $mcpNoConfigBin -LogPath $mcpNoConfigLog
+    $env:PATH = "$mcpNoConfigBin$([System.IO.Path]::PathSeparator)$mcpNoConfigOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $mcpNoConfigRoot "codex-home-missing"
+
+    $warnings = $null
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpNoConfigInstall -Target All -SkipAgentInstall -WarningVariable warnings -WarningAction SilentlyContinue
+
+    if (Test-Path (Join-Path $env:SDD_CODEX_HOME "config.toml")) {
+        throw "missing config.toml (x): installer created a new config.toml"
+    }
+    if (-not ($warnings | Where-Object { $_.Message -match "(?i)config\.toml" })) {
+        throw "missing config.toml (x): expected warning about missing config.toml not raised"
+    }
+    Write-Host "ok: missing Codex config.toml skips Codex MCP registration with a warning"
+}
+finally {
+    $env:PATH = $mcpNoConfigOriginalPath
+    if ($null -eq $mcpNoConfigOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $mcpNoConfigOriginalCodexHome }
+    if (Test-Path $mcpNoConfigRoot) { Remove-Item -Path $mcpNoConfigRoot -Recurse -Force }
 }
 
 Write-Host "Installer integration tests passed."

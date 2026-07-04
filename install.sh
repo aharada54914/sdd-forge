@@ -14,8 +14,16 @@ PLUGINS="sdd-bootstrap,sdd-ship"
 SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
+SKIP_MCP=0
+MCP_LIST="sdd-forge-mcp"
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+VALID_MCPS="sdd-forge-mcp"
+# Marker used to delimit the sdd-forge-mcp block inside ~/.codex/config.toml so
+# it can be idempotently added, replaced, or removed without touching any
+# other content a user has in that file.
+CODEX_MCP_MARKER_BEGIN="# >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>"
+CODEX_MCP_MARKER_END="# <<< sdd-forge-mcp <<<"
 
 # ---------------------------------------------------------------------------
 # Argument parsing
@@ -34,8 +42,11 @@ Usage: install.sh [options]
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
+  --skip-mcp                     Skip placing and registering all MCP servers
+  --mcp <comma-separated>        Names from: sdd-forge-mcp
+                                 Default: sdd-forge-mcp
 
-Environment: SDD_CODEX_HOME     Override ~/.codex destination for agent TOML files
+Environment: SDD_CODEX_HOME     Override ~/.codex destination for agent TOML files and config.toml
   Remote installs require a GitHub CLI-authenticated session (`gh auth login`).
 EOF
     exit 1
@@ -51,6 +62,8 @@ while [[ $# -gt 0 ]]; do
         --skip-plugin-install) SKIP_PLUGIN_INSTALL=1; shift ;;
         --skip-agent-install)  SKIP_AGENT_INSTALL=1; shift ;;
         --source-directory) [[ $# -gt 1 ]] || usage; SOURCE_DIRECTORY="$2"; shift 2 ;;
+        --skip-mcp)         SKIP_MCP=1; shift ;;
+        --mcp)              [[ $# -gt 1 ]] || usage; MCP_LIST="$2"; shift 2 ;;
         *) echo "Unknown option: $1" >&2; usage ;;
     esac
 done
@@ -73,6 +86,22 @@ for p in "${PLUGIN_LIST[@]}"; do
         exit 1
     fi
 done
+
+# Validate --mcp
+MCP_SELECTION=()
+if [[ $SKIP_MCP -eq 0 ]]; then
+    IFS=',' read -ra MCP_SELECTION <<< "$MCP_LIST"
+    for m in "${MCP_SELECTION[@]}"; do
+        valid=0
+        for v in $VALID_MCPS; do
+            [[ "$m" == "$v" ]] && valid=1 && break
+        done
+        if [[ $valid -eq 0 ]]; then
+            echo "Invalid MCP name: $m (must be one of: $VALID_MCPS)" >&2
+            exit 1
+        fi
+    done
+fi
 
 # Resolve dependencies to a fixed point. This is deliberately iterative: lite
 # adds bootstrap, and bootstrap then adds the internal review loop.
@@ -241,6 +270,147 @@ install_codex_agents() {
             echo "Warning: Codex will ignore malformed agent role file at startup ('Ignoring malformed agent role definition'): ${toml_file}. Add a developer_instructions entry or delete the file." >&2
         fi
     done
+}
+
+# ---------------------------------------------------------------------------
+# MCP: Node version check, placement, and Claude/Codex registration
+# ---------------------------------------------------------------------------
+mcp_selected() {
+    # Returns 0 if the given MCP name is in MCP_SELECTION.
+    local name="$1"
+    local m
+    for m in "${MCP_SELECTION[@]}"; do
+        [[ "$m" == "$name" ]] && return 0
+    done
+    return 1
+}
+
+node_version_ok() {
+    # Returns 0 if `node` is on PATH and its major version is >= 20.
+    if ! command -v node >/dev/null 2>&1; then
+        echo "Warning: Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    local version major
+    version="$(node --version 2>/dev/null)" || version=""
+    # Expected form: vNN.N.N
+    major="${version#v}"
+    major="${major%%.*}"
+    if [[ -z "$major" || ! "$major" =~ ^[0-9]+$ ]]; then
+        echo "Warning: Could not determine Node.js version (got '${version}'). MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    if [[ "$major" -lt 20 ]]; then
+        echo "Warning: Node.js >= 20 is required for MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    return 0
+}
+
+place_mcp_servers() {
+    # Copies the minimal MCP payload (dist/ + package.json) for each selected
+    # MCP from the source tree into INSTALL_ROOT/mcp/<name>/. This is
+    # independent of Git tracking state (unlike REQUIRED_PATHS) because the
+    # MCP dist/ bundle is not yet committed to the repository as of this task.
+    local source_root="$1"
+    local install_root_path="$2"
+    local name src_dir dest_dir
+    for name in "${MCP_SELECTION[@]}"; do
+        src_dir="${source_root}/mcp/${name}"
+        if [[ ! -f "${src_dir}/dist/index.js" || ! -f "${src_dir}/package.json" ]]; then
+            echo "Warning: MCP server '${name}' payload (dist/index.js, package.json) was not found under mcp/${name}. Skipping placement." >&2
+            continue
+        fi
+        dest_dir="${install_root_path}/mcp/${name}"
+        mkdir -p "${dest_dir}/dist"
+        cp -R "${src_dir}/dist/." "${dest_dir}/dist/"
+        cp -f "${src_dir}/package.json" "${dest_dir}/package.json"
+    done
+}
+
+register_claude_mcp() {
+    # Registers each selected MCP with Claude Code (user scope). Best-effort:
+    # a missing Claude CLI is a warning, mirroring install_claude_plugins.
+    local install_root_path="$1"
+    if ! command -v claude >/dev/null 2>&1; then
+        echo "Warning: Claude Code CLI was not found. Claude MCP registration was skipped." >&2
+        return 0
+    fi
+    local name entry_point
+    for name in "${MCP_SELECTION[@]}"; do
+        entry_point="${install_root_path}/mcp/${name}/dist/index.js"
+        [[ -f "$entry_point" ]] || continue
+        run_plugin_command claude mcp add "$name" --scope user -- node "$entry_point" || return 1
+    done
+}
+
+register_codex_mcp() {
+    # Idempotently adds/replaces a marker-delimited block in
+    # ~/.codex/config.toml for each selected MCP. If config.toml does not
+    # exist, registration is skipped with a warning (a new file is never
+    # created, per requirements).
+    local install_root_path="$1"
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local config_toml="${codex_home}/config.toml"
+    if [[ ! -f "$config_toml" ]]; then
+        echo "Warning: ${config_toml} was not found. Codex MCP registration was skipped (the installer does not create a new config.toml)." >&2
+        return 0
+    fi
+    local name entry_point block_file tmp_config
+    for name in "${MCP_SELECTION[@]}"; do
+        entry_point="${install_root_path}/mcp/${name}/dist/index.js"
+        [[ -f "$entry_point" ]] || continue
+        local marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
+        local marker_end="# <<< ${name} <<<"
+        tmp_config="$(mktemp)"
+        # Strip any prior block for this MCP (idempotent re-registration),
+        # then append a fresh block.
+        awk -v begin="$marker_begin" -v end="$marker_end" '
+            $0 == begin { skip = 1; next }
+            $0 == end { skip = 0; next }
+            skip { next }
+            { print }
+        ' "$config_toml" > "$tmp_config"
+        {
+            cat "$tmp_config"
+            printf '\n%s\n[mcp_servers.%s]\ncommand = "node"\nargs = ["%s"]\n%s\n' \
+                "$marker_begin" "$name" "$entry_point" "$marker_end"
+        } > "${tmp_config}.new"
+        mv "${tmp_config}.new" "$config_toml"
+        rm -f "$tmp_config"
+    done
+}
+
+MCP_NODE_OK=0
+
+place_mcp_servers_if_selected() {
+    # Placement (like plugin files) happens regardless of --target; only
+    # registration is target-scoped. Sets MCP_NODE_OK for callers to check
+    # before attempting registration.
+    local source_root="$1"
+    local install_root_path="$2"
+    MCP_NODE_OK=0
+    if [[ $SKIP_MCP -eq 1 || ${#MCP_SELECTION[@]} -eq 0 ]]; then
+        return 0
+    fi
+    if ! node_version_ok; then
+        return 0
+    fi
+    MCP_NODE_OK=1
+    place_mcp_servers "$source_root" "$install_root_path"
+}
+
+install_mcp_servers() {
+    local install_root_path="$1"
+    if [[ $SKIP_MCP -eq 1 || ${#MCP_SELECTION[@]} -eq 0 || $MCP_NODE_OK -ne 1 ]]; then
+        return 0
+    fi
+    if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
+        register_claude_mcp "$install_root_path" || return 1
+    fi
+    if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
+        register_codex_mcp "$install_root_path" || return 1
+    fi
 }
 
 # ---------------------------------------------------------------------------
@@ -569,6 +739,10 @@ NEW_INSTALL_PLACED=1
 
 RESOLVED_INSTALL_ROOT="$(cd "$INSTALL_ROOT" && pwd)"
 
+# MCP placement mirrors plugin file placement: it happens regardless of
+# --target and is controlled only by --skip-mcp / --mcp.
+place_mcp_servers_if_selected "$SOURCE_ROOT" "$RESOLVED_INSTALL_ROOT"
+
 # ---------------------------------------------------------------------------
 # Registration
 # ---------------------------------------------------------------------------
@@ -587,6 +761,7 @@ fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
     install_copilot_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
 fi
+install_mcp_servers "$RESOLVED_INSTALL_ROOT" || exit 1
 
 # ---------------------------------------------------------------------------
 # Success

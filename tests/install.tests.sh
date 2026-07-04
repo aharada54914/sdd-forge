@@ -50,6 +50,34 @@ git -C "$SOURCE_FIXTURE" add \
     plugins/sdd-quality-loop/.claude-plugin/plugin.json \
     plugins/sdd-review-loop
 git -C "$SOURCE_FIXTURE" diff --cached --quiet || git -C "$SOURCE_FIXTURE" -c user.name="Installer Test" -c user.email="installer-test@example.invalid" commit -qm "Add review-loop fixture"
+
+# The MCP server payload (mcp/sdd-forge-mcp/dist + package.json) is not yet
+# Git-tracked in this repository (dist/ is committed by a later task). The
+# installer must copy it from the filesystem regardless of Git tracking
+# state, so seed a minimal MCP payload directly on disk (untracked is fine —
+# this mirrors the real source tree today).
+mkdir -p "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/dist"
+cat > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/dist/index.js" <<'MCPJS'
+#!/usr/bin/env node
+console.log("sdd-forge-mcp fixture stub");
+MCPJS
+cat > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/package.json" <<'MCPPKG'
+{
+  "name": "sdd-forge-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" }
+}
+MCPPKG
+# Files that must NOT be copied into the install root (node_modules/src/tests).
+mkdir -p "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/node_modules/should-not-copy" \
+    "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/src" \
+    "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/tests"
+echo "noise" > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/node_modules/should-not-copy/index.js"
+echo "noise" > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/src/index.ts"
+echo "noise" > "${SOURCE_FIXTURE}/mcp/sdd-forge-mcp/tests/index.test.ts"
+
 trap 'rm -rf "$SOURCE_FIXTURE_ROOT"' EXIT
 
 # ---------------------------------------------------------------------------
@@ -1083,6 +1111,166 @@ if grep -qF "claude plugin marketplace add" "$_s_log"; then
 fi
 rm -rf "$_s_root"
 [[ $_s_ok -eq 1 ]] && ok "Claude manifest validation fails before marketplace registration"
+
+# ---------------------------------------------------------------------------
+# MCP scenarios (T-006): AC-007 / AC-008
+# ---------------------------------------------------------------------------
+
+# Scenario (t): default install places the MCP payload and registers it with
+# Claude/Codex (best-effort via fake shims), excluding node_modules/src/tests.
+_t_root="$(mktemp -d)"
+_t_install="${_t_root}/installed"
+_t_bin="${_t_root}/bin"
+_t_log="${_t_root}/commands.log"
+_t_orig_path="$PATH"
+_t_orig_codex_home="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_t_bin" "$_t_log"
+export PATH="${_t_bin}:${_t_orig_path}"
+export SDD_CODEX_HOME="${_t_root}/codex-home"
+mkdir -p "$SDD_CODEX_HOME"
+touch "${SDD_CODEX_HOME}/config.toml"
+_t_failed=0
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_t_install" --target All --skip-agent-install 2>/dev/null || _t_failed=1
+export PATH="$_t_orig_path"
+if [[ -z "$_t_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_t_orig_codex_home"; fi
+_t_ok=1
+[[ $_t_failed -eq 0 ]] || { fail "default MCP install (t): installer exited non-zero"; _t_ok=0; }
+[[ -f "${_t_install}/mcp/sdd-forge-mcp/dist/index.js" ]] || { fail "default MCP install (t): dist/index.js not placed"; _t_ok=0; }
+[[ -f "${_t_install}/mcp/sdd-forge-mcp/package.json" ]] || { fail "default MCP install (t): package.json not placed"; _t_ok=0; }
+[[ ! -e "${_t_install}/mcp/sdd-forge-mcp/node_modules" ]] || { fail "default MCP install (t): node_modules was copied"; _t_ok=0; }
+[[ ! -e "${_t_install}/mcp/sdd-forge-mcp/src" ]] || { fail "default MCP install (t): src/ was copied"; _t_ok=0; }
+[[ ! -e "${_t_install}/mcp/sdd-forge-mcp/tests" ]] || { fail "default MCP install (t): tests/ was copied"; _t_ok=0; }
+if [[ -f "$_t_log" ]]; then
+    grep -qF "claude mcp add sdd-forge-mcp" "$_t_log" || { fail "default MCP install (t): claude mcp add not invoked"; _t_ok=0; }
+fi
+_t_toml="${SDD_CODEX_HOME:-}"
+if grep -q "sdd-forge-mcp" "${_t_root}/codex-home/config.toml" 2>/dev/null; then
+    :
+else
+    fail "default MCP install (t): Codex config.toml missing sdd-forge-mcp entry"
+    _t_ok=0
+fi
+rm -rf "$_t_root"
+[[ $_t_ok -eq 1 ]] && ok "default install places and registers the MCP server"
+
+# Scenario (u): --skip-mcp skips both placement and registration.
+_u_root="$(mktemp -d)"
+_u_install="${_u_root}/installed"
+_u_bin="${_u_root}/bin"
+_u_log="${_u_root}/commands.log"
+_u_orig_path="$PATH"
+_u_orig_codex_home="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_u_bin" "$_u_log"
+export PATH="${_u_bin}:${_u_orig_path}"
+export SDD_CODEX_HOME="${_u_root}/codex-home"
+mkdir -p "$SDD_CODEX_HOME"
+touch "${SDD_CODEX_HOME}/config.toml"
+_u_failed=0
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_u_install" --target All --skip-agent-install --skip-mcp 2>/dev/null || _u_failed=1
+export PATH="$_u_orig_path"
+if [[ -z "$_u_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_u_orig_codex_home"; fi
+_u_ok=1
+[[ $_u_failed -eq 0 ]] || { fail "--skip-mcp (u): installer exited non-zero"; _u_ok=0; }
+[[ ! -e "${_u_install}/mcp" ]] || { fail "--skip-mcp (u): mcp/ was placed despite --skip-mcp"; _u_ok=0; }
+if [[ -f "$_u_log" ]] && grep -qF "claude mcp add" "$_u_log"; then
+    fail "--skip-mcp (u): claude mcp add was invoked despite --skip-mcp"
+    _u_ok=0
+fi
+if grep -q "sdd-forge-mcp" "${_u_root}/codex-home/config.toml" 2>/dev/null; then
+    fail "--skip-mcp (u): Codex config.toml was modified despite --skip-mcp"
+    _u_ok=0
+fi
+rm -rf "$_u_root"
+[[ $_u_ok -eq 1 ]] && ok "--skip-mcp skips both MCP placement and registration"
+
+# Scenario (v): --mcp sdd-forge-mcp installs; --mcp bogus is rejected with usage.
+_v_root="$(mktemp -d)"
+_v_install="${_v_root}/installed"
+_v_bin="${_v_root}/bin"
+_v_log="${_v_root}/commands.log"
+_v_orig_path="$PATH"
+make_fake_commands "$_v_bin" "$_v_log"
+export PATH="${_v_bin}:${_v_orig_path}"
+_v_failed=0
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_v_install" --target FilesOnly --mcp "sdd-forge-mcp" 2>/dev/null || _v_failed=1
+export PATH="$_v_orig_path"
+_v_ok=1
+[[ $_v_failed -eq 0 ]] || { fail "--mcp sdd-forge-mcp (v): installer exited non-zero"; _v_ok=0; }
+[[ -f "${_v_install}/mcp/sdd-forge-mcp/dist/index.js" ]] || { fail "--mcp sdd-forge-mcp (v): dist/index.js not placed"; _v_ok=0; }
+rm -rf "$_v_root"
+
+_v2_root="$(mktemp -d)"
+_v2_failed=0
+_v2_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "${_v2_root}/installed" --target FilesOnly --mcp "bogus-mcp" 2>&1)" || _v2_failed=1
+rm -rf "$_v2_root"
+if [[ $_v2_failed -eq 0 ]]; then
+    fail "--mcp bogus-mcp (v2): installer accepted an invalid MCP name"
+    _v_ok=0
+fi
+if ! echo "$_v2_out" | grep -qi "mcp"; then
+    fail "--mcp bogus-mcp (v2): usage/error output did not mention mcp"
+    _v_ok=0
+fi
+[[ $_v_ok -eq 1 ]] && ok "--mcp <list> installs valid names and rejects invalid ones"
+
+# Scenario (w): missing Node >= 20 warns and skips MCP only; plugins still install.
+_w_root="$(mktemp -d)"
+_w_install="${_w_root}/installed"
+_w_bin="${_w_root}/bin"
+_w_log="${_w_root}/commands.log"
+_w_orig_path="$PATH"
+make_fake_commands "$_w_bin" "$_w_log"
+# Shadow `node` with a fake old-version binary ahead of the real one on PATH.
+cat > "${_w_bin}/node" <<'NODESHIM'
+#!/bin/sh
+if [ "$1" = "--version" ]; then
+    echo "v14.21.0"
+    exit 0
+fi
+exit 0
+NODESHIM
+chmod +x "${_w_bin}/node"
+export PATH="${_w_bin}:${_w_orig_path}"
+_w_failed=0
+_w_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w_install" --target FilesOnly 2>&1)" || _w_failed=1
+export PATH="$_w_orig_path"
+_w_ok=1
+[[ $_w_failed -eq 0 ]] || { fail "old Node (w): installer exited non-zero despite MCP-only skip"; _w_ok=0; }
+[[ ! -e "${_w_install}/mcp" ]] || { fail "old Node (w): MCP was placed despite Node < 20"; _w_ok=0; }
+for p in $ALL_PLUGINS; do
+    [[ -f "${_w_install}/plugins/${p}/.codex-plugin/plugin.json" ]] || { fail "old Node (w): plugin not copied despite MCP-only skip: $p"; _w_ok=0; }
+done
+if ! echo "$_w_out" | grep -qi "node"; then
+    fail "old Node (w): expected warning mentioning Node was not printed"
+    _w_ok=0
+fi
+rm -rf "$_w_root"
+[[ $_w_ok -eq 1 ]] && ok "Node < 20 warns and skips MCP only, plugin install continues"
+
+# Scenario (x): Codex config.toml absent — MCP registration for Codex is
+# skipped with a warning rather than creating a new config.toml.
+_x_root="$(mktemp -d)"
+_x_install="${_x_root}/installed"
+_x_bin="${_x_root}/bin"
+_x_log="${_x_root}/commands.log"
+_x_orig_path="$PATH"
+_x_orig_codex_home="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_x_bin" "$_x_log"
+export PATH="${_x_bin}:${_x_orig_path}"
+export SDD_CODEX_HOME="${_x_root}/codex-home-missing"
+_x_failed=0
+_x_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_x_install" --target All --skip-agent-install 2>&1)" || _x_failed=1
+export PATH="$_x_orig_path"
+if [[ -z "$_x_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_x_orig_codex_home"; fi
+_x_ok=1
+[[ $_x_failed -eq 0 ]] || { fail "missing config.toml (x): installer exited non-zero"; _x_ok=0; }
+[[ ! -f "${_x_root}/codex-home-missing/config.toml" ]] || { fail "missing config.toml (x): installer created a new config.toml"; _x_ok=0; }
+if ! echo "$_x_out" | grep -qi "config.toml"; then
+    fail "missing config.toml (x): expected warning about missing config.toml not printed"
+    _x_ok=0
+fi
+rm -rf "$_x_root"
+[[ $_x_ok -eq 1 ]] && ok "missing Codex config.toml skips Codex MCP registration with a warning"
 
 # ---------------------------------------------------------------------------
 # Summary

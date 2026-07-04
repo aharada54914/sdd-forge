@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-sddforgemcp-a1r2-20260704-b8a1",
+  "host_session_id": "hs-spec-a-7ea701ba-0004",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "8618c3ef9faa5c5828ae3c78086b0a605badd3ce62fe303bdf6c9d80b23c7b66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/requirements.md",
+      "sha256": "983f6e46c5e07249194234cbcc131eccd215d769e20e430b1f593e73b0533204"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement (REQ-001 through REQ-011) states an observable pass condition: REQ-005 requires shell-equivalent parsing verified by golden tests against 6 existing specs (AC-001), REQ-006 names concrete allowlist/denylist paths and rejects traversal (AC-003/AC-004), REQ-007 fixes root at startup with precedence order (AC-016 now added), REQ-011 requires deterministic mapping with named cannot-determine fallback (AC-012). No in-scope requirement is stated only as vague intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 11 goals now trace to at least one acceptance criterion: REQ-002 (8 core tools) traces to new AC-015 (contract-schema conformance per tool), REQ-007 (root immutability) traces to new AC-016 (no root-like tool input, post-launch env/cwd change has no effect), and REQ-005/REQ-006's named error paths trace to new AC-017 (not-found/not-sdd-root/too-large). This resolves the round-1 GOAL-AC-TRACE gap where REQ-002 and REQ-007 lacked a directly matching AC entry."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-015 requires responses to conform to a named schema file (contracts/sdd-forge-mcp-tools.v1.schema.json) and match expected key fields (kind/feature/count) per tool -- externally checkable. AC-016 requires a static check (no root-like argument in any tool's input schema) plus a runtime check (changing SDD_FORGE_ROOT/cwd post-launch does not change the responded root) -- both are concrete observable behaviors. AC-017 names exact error codes (not-found, not-sdd-root, too-large) tied to concrete triggering conditions (missing tasks.md, root without specs/, oversized file) -- observable structured error output, not vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Non-goals section explicitly excludes knowledge-mcp/local-env-mcp, all write tools, Cursor/VS Code integration, CI artifact retrieval, npm registry publishing, and evidence signature verification. This boundary is unchanged and remains adequate; the round-2 edit (adding AC-015/016/017) did not introduce any new goal that lacks a corresponding scope boundary."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints remain explicit and are reinforced by the new ACs: path security allowlist/denylist (REQ-006, AC-003/004/017), root-fixing precedence CLI > env > cwd with no runtime change (REQ-007, now backed by AC-016), Node >=20 bundled-dist distribution (REQ-008, AC-010), and shell-parity constraint for the parser (REQ-005, AC-001/002/017). No material constraint implied by the requirements is left unstated."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section's high-risk claim (parser misjudgment could cause quality-gate false pass) has a concrete validation surface: REQ-005's mandatory shell-equivalence golden test (AC-001) plus the CI-enforced drift detection note in acceptance-tests.md. This validation surface is unchanged and still adequate after the round-2 edit."
+    }
+  ]
+}

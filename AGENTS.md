@@ -24,6 +24,7 @@ This project follows a three-stage Spec-Anchored AI Development workflow.
 Update this list whenever a new spec directory is bootstrapped:
 - `specs/sdd-forge-refactor/`
 - `specs/claude-workflow-compatibility/`
+- `specs/sdd-forge-mcp/`
 
 ## Source Artifact Locations
 

@@ -1,0 +1,84 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "sdd-forge-mcp",
+  "run_id": "impl-orch-sddforgemcp-a1r2-20260704-8e6a",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "api-only",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "4c9454bec9d3b005bd3af4c88e1037298ffc3c528714baa6fdb5826a6455a715",
+  "requirements_sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e",
+  "acceptance_sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf",
+  "design_sha256": "b1667111b91af8f7834952ba8441e569de03d3d9600af6975755c22cb3ad1303",
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-sddforgemcp-a1r2-20260704-c7a5",
+      "host_session_id": "hs-impl-a-7ea701ba-0010",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-forge-mcp/requirements.md",
+          "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+          "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/design.md",
+          "sha256": "b1667111b91af8f7834952ba8441e569de03d3d9600af6975755c22cb3ad1303"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-2/precheck-result.json",
+          "sha256": "031d0ee66900611dd97d43f1ea04175fde5d1a1c3c0653824a218fed5e9b7315"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "impl-b-sddforgemcp-a1r2-20260704-a3f8",
+      "host_session_id": "hs-impl-b-7ea701ba-0011",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-forge-mcp/requirements.md",
+          "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+          "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/design.md",
+          "sha256": "b1667111b91af8f7834952ba8441e569de03d3d9600af6975755c22cb3ad1303"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-2/precheck-result.json",
+          "sha256": "031d0ee66900611dd97d43f1ea04175fde5d1a1c3c0653824a218fed5e9b7315"
+        },
+        {
+          "path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-2/integrated-summary.json",
+          "sha256": "9b6fc8ee2fb7334eaec1b3f7f2468f54bad3f7e2ed2dd03f7e1128b17e789d82"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Added a row to design.md Constraint Compliance for the 2 MiB file-size-limit constraint (path-guard size check -> too-large error, DoS mitigation, cross-referenced to security-spec.md DoS row), resolving the round-1 NO-REQ-CONTRADICTION Critical finding.",
+  "timestamp": "2026-07-04T13:56:01Z"
+}

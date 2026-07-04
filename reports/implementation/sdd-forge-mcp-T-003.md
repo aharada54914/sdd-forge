@@ -1,0 +1,206 @@
+# Implementation Report: T-003
+
+- Task ID: T-003
+- Feature: sdd-forge-mcp
+- Risk: high
+- Required Workflow: tdd
+
+## Target
+
+SDD 状態系パーサー3種（AGENTS.md / review-ticket / quality-gate report）を
+実装し、`contracts/sdd-forge-mcp-tools.v1.schema.json` の `activeSpecsData`、
+`reviewTicketsData`、`qualityGateSummaryData` エントリ形状に変換する
+（design.md「Data Plan」`agents-md.ts` / `review-ticket.ts` /
+`quality-report.ts`）。
+
+## Summary
+
+- `src/parsers/agents-md.ts`:
+  - `parseActiveSpecDirectories(root)` — `## Active Spec Directories`
+    節から `` - `specs/<feature>/` `` 形式の一覧を `{ feature, path }[]` に
+    抽出。節が存在しない場合は `cannot-determine`（情報自体が存在しない）、
+    節はあるがブレット行が期待形式でない場合は `cannot-parse` + 行番号を
+    返す（推測禁止）。前置きの説明文（「Update this list whenever...」）は
+    ブレットでない行として無視するが、`-` で始まる行は厳密に
+    `` `specs/<feature>/` `` 形状を要求する。
+  - `parseRequiredWorkflow(root)` — `## Required Workflow` 節の番号付き
+    手順（`1. ...`）を `{ step, text }[]` として順序通り抽出。節が
+    存在しない場合は `cannot-determine`、節はあるが番号付き手順が1件も
+    無い場合は `cannot-parse`（T-010 の `get_next_sdd_command` がこの
+    テキスト一覧を後で消費する前提のため、空リストではなくエラーとした）。
+  - 共通の節抽出ヘルパー（`extractSection`）は次の `#`〜`######`
+    見出し行の手前までを節本文とする（既存の tasks.md パーサーと同様、
+    CRLF 対応の行分割を踏襲）。
+- `src/parsers/review-ticket.ts`（js-yaml 使用、依存追加なし——
+  package.json に既に導入済み）:
+  - `parseReviewTicket(root, relFilePath)` — 単一 `RT-*.yml` を読み、
+    `reviewTicketsData` エントリ形状（ticketId, status, severity, type?,
+    feature?, task?, summary?, file）に変換。YAML 構文エラー
+    （`YAMLException`）は行番号（`mark.line`、1始まりに変換）付きで
+    `cannot-parse`、マッピングでない/必須フィールド（ticket_id, status,
+    severity）欠落/`ticket_id` が `^RT-[0-9]{8}-[0-9]{3}$` 不一致の
+    いずれも `cannot-parse` + `file`/`rule` を返す。
+  - `listReviewTickets(root, relDir = "docs/review-tickets")` —
+    `listGuardedFiles` でディレクトリ走査し、`.yml`/`.yaml` 以外
+    （`.gitkeep` 等）は無視。各ファイルを `parseReviewTicket` に通し、
+    成功分は `tickets[]`、失敗分は `{ file, error }[]` の `failures` に
+    集約する（1ファイルの構文エラーで走査全体を止めない）。
+- `src/parsers/quality-report.ts`:
+  - `parseQualityReport(root, relFilePath)` — `Task ID:` / `Feature:` /
+    `VERDICT:` / `Critical:` / `Major:` / `Minor:` 行（いずれも
+    ファイル中で最初に出現したものだけを採用）を
+    `qualityGateSummaryData` エントリ形状に変換。VERDICT 行が
+    1つも無いレポートは、タスク指示に従い `cannot-parse` にはせず
+    `{ ok: false, failure: { file, rule: "verdict-not-found", message } }`
+    として「verdict 抽出不能」を報告する（PASS/FAIL を推測しない）。
+    path-guard の読み取り自体が失敗した場合のみ `rule: "unreadable"`
+    として区別する。
+  - `listQualityReports(root, relDir = "reports/quality-gate")` —
+    `*.md` を走査し、成功分/失敗分をそれぞれ集約する
+    review-ticket.ts と対称的な設計。
+- 実データ検証（`reports/quality-gate/` 全19ファイル）で以下の形式差異を
+  実際に確認した上で正規表現を設計した:
+  - `Feature:` 行が無いレポート（例: `2026-06-23T001628Z-T-002.md`,
+    `2026-06-25T000000Z-T-06.md` 等）— `feature` は任意フィールドとして
+    `undefined` を許容。
+  - `VERDICT:` が1ファイル中に複数回出現するレポート（例: `T-003.md` は
+    要約ブロックの1回目と本文中の1回目、`2026-06-23T001628Z-T-002.md` は
+    `VERDICT: NEEDS_WORK` の後に「Follow-up verdict: PASS.」という
+    自由文が続く）— 正規表現 `^VERDICT:\s*(.+?)\s*$` の最初のマッチのみを
+    採用し、自由文中の "verdict" という語には一切マッチしない
+    （行頭 `VERDICT:` のみ）ことを既存レポートで確認済み。
+  - `Critical:`/`Major:`/`Minor:` 行が無いレポート（例:
+    `2026-06-23T001628Z-T-002.md`）— 全て任意フィールドとして扱う。
+
+## Files Changed
+
+- `mcp/sdd-forge-mcp/src/parsers/agents-md.ts` — AGENTS.md パーサー（新規）
+- `mcp/sdd-forge-mcp/src/parsers/review-ticket.ts` — RT-*.yml パーサー
+  （新規、js-yaml 使用）
+- `mcp/sdd-forge-mcp/src/parsers/quality-report.ts` — quality-gate
+  report パーサー（新規）
+
+## Tests Added Or Updated
+
+- `mcp/sdd-forge-mcp/tests/parsers-state/test-helpers.ts` — 実リポジトリ
+  ルートを解決する共有ヘルパー（`*.test.ts` 以外の命名。理由は
+  Working Notes 参照）。
+- `mcp/sdd-forge-mcp/tests/parsers-state/agents-md.test.ts`（9件）—
+  実データ検証（Active Spec Directories >= 3件、Required Workflow
+  番号順）、合成正常系（ブレット/番号付き手順の正しい抽出）、
+  cannot-determine（節欠落、両節）、cannot-parse（不正ブレット形状 +
+  行番号、番号付き手順ゼロ件）、guardedRead 失敗の伝播（AGENTS.md
+  自体が存在しない場合の not-found）。
+- `mcp/sdd-forge-mcp/tests/parsers-state/review-ticket.test.ts`（9件）—
+  実データ検証（`RT-20260623-001.yml` の全フィールド、
+  `listReviewTickets` が失敗なしで発見）、合成正常系（全フィールド、
+  必須フィールドのみ）、cannot-parse（YAML 構文エラー、必須フィールド
+  欠落、ticket_id 形状不一致、マッピングでない YAML）、
+  `listReviewTickets` の混在ディレクトリ集約（`.gitkeep` 無視 +
+  1ファイル失敗時も他ファイルは成功として集約）。
+- `mcp/sdd-forge-mcp/tests/parsers-state/quality-report.test.ts`（6件）—
+  実データ検証（全19ファイルを例外なく走査、finding counts 付き
+  レポートの存在確認）、合成正常系（全フィールド、VERDICT 重複時の
+  最初の出現採用）、verdict-not-found（cannot-parse にしないことの確認）、
+  `listQualityReports` の混在ディレクトリ集約。
+
+## Regression Tests Run
+
+- `npx tsc --noEmit`（src/、strict）: エラーゼロ
+- `npx tsc -p tsconfig.test.json`（テストビルド）: エラーゼロ
+- `npm test`（`node --test dist-test/tests/**/*.test.js`）:
+  **78 tests / 78 pass / 0 fail**（T-001/T-002 の既存 54 テスト + T-003 の
+  新規 24 テスト: agents-md.test.ts 9、review-ticket.test.ts 9、
+  quality-report.test.ts 6）。
+- Red/Green evidence:
+  `specs/sdd-forge-mcp/verification/T-003-red.txt`（実装前、
+  `tsc -p tsconfig.test.json` が5件のコンパイルエラーで失敗することを
+  記録）、`specs/sdd-forge-mcp/verification/T-003-green.txt`
+  （実装後、78/78 pass の `npm test` フル出力）。
+
+## Specification Differences
+
+- なし。タスク指示の3パーサー・想定エラー種別（cannot-determine /
+  cannot-parse / verdict-not-found）をそのまま実装した。
+
+## Unresolved Items
+
+- `qualityGateSummaryData` は現状「1ファイル = 1エントリ」の単純な
+  集約のみ実装した。design.md の `get_quality_gate_summary` /
+  `sdd://quality-reports` tool 本体（複数レポートの重複排除、
+  最新レポートの選択等）は T-003 のスコープ外（後続タスクで
+  `list*` 集約関数をそのまま呼び出す想定）。
+- `parseRequiredWorkflow` が返す `{ step, text }[]` は、T-010 の
+  `get_next_sdd_command` がフェーズ判定にどう使うか（ステップ番号と
+  フェーズの対応表）を本タスクでは決めていない——手順テキストの
+  生の抽出のみを提供する設計とした。
+- `review-ticket.ts` / `quality-report.ts` の集約関数
+  （`listReviewTickets` / `listQualityReports`）が返す `failures[]` は
+  現状 `reviewTicketsData` / `qualityGateSummaryData` の公開スキーマには
+  含まれていない（スキーマは `additionalProperties: false` で配列のみを
+  要求）。tool 実装側（後続タスク）で `failures` をどう扱うか
+  （無視する/別チャンネルで報告する等）は quality-gate で確認が必要。
+
+## Quality Gate Focus
+
+- `parseQualityReport` の VERDICT 抽出が「行頭 `VERDICT:` の最初の出現の
+  み」という設計で、実データ全19ファイルに対して意図通りの値を
+  返しているか（特に複数出現ファイル: `T-003.md`, `T-004.md`,
+  `2026-06-23T001628Z-T-002.md`）。
+- `parseActiveSpecDirectories` の「`-` で始まる行のみ厳密検証、それ以外の
+  自由文は無視」という判断が、AGENTS.md の将来の書式変更に対して
+  過度に緩い/厳しくないか。
+- `review-ticket.ts` の必須フィールド判定（ticket_id/status/severity）が
+  contracts スキーマの `required` と過不足なく一致しているか。
+
+## Working Notes
+
+- 調査: `reports/quality-gate/` 配下19ファイルを全件 grep し、
+  `Task ID:`/`Feature:`/`VERDICT:`/`Critical:`/`Major:`/`Minor:` の
+  出現パターンを事前に確認した。`Feature:` 行の有無、`VERDICT:` の
+  出現回数（1回 or 2回）、finding counts 行の有無がファイルごとに
+  異なることを確認し、これに基づき全フィールドを任意（`Task ID`/
+  `Feature`/counts）または「最初の出現採用」（`VERDICT`）として
+  設計した。VERDICT 行が完全に欠落している実データは現状19ファイル中
+  0件だったため、その分岐（`verdict-not-found`）は合成フィクスチャで
+  のみ検証済み。
+- 調査: `docs/review-tickets/` には現状 `RT-20260623-001.yml` の
+  1ファイルのみ存在。`target.feature`/`target.task` を含むネスト構造を
+  確認し、`RawReviewTicketTarget` 型で `target?.feature`/`target?.task`
+  として安全にオプショナルチェインで取り出す設計にした。
+- 調査: `@types/js-yaml` の `load()` は `unknown` を返し、構文エラー時は
+  `YAMLException`（`mark.line` に0始まりの行番号を保持）を投げることを
+  型定義から確認。`mark` は `Mark | undefined` になり得るため、
+  `error.mark?.line` として安全にアクセスし、1始まりに変換して
+  `details.line` に格納した。
+- 設計判断: タスク指示にある「VERDICT 行が無いレポートは cannot-parse
+  ではなく verdict 抽出不能として failures 情報付きで報告する」を、
+  `parseQualityReport` の戻り値型を `Result<T>`
+  （`{ ok, data } | { ok, error }`）ではなく独自の
+  `QualityReportParseResult`（`{ ok: true, entry } | { ok: false,
+  failure }`）にすることで表現した。理由: 共通エンベロープ
+  `Result<T>` の `error.code` は `ErrorCode`
+  （cannot-parse 等7種）に固定されており、「ファイルは正常に読めたが
+  verdict が無い」という状態はそのどれにも該当しない
+  （cannot-parse は構文的な壊れを意味し、この場合は不適切）。
+  review-ticket.ts の集約関数も対称的に `ReviewTicketFailure`
+  （`{ file, error: ErrorInfo }`）という専用型にしたが、こちらは
+  ファイル単位で見れば通常の `cannot-parse` エンベロープを流用できるため
+  `ErrorInfo` をそのまま埋め込んでいる。
+- 学び（既存メモリ通りの再確認）: 共有テストヘルパー
+  （`findSddForgeRepoRoot`/`makeRealRepoRoot`）を `tests/parsers-state/
+  test-helpers.ts`（`*.test.ts` 以外の命名）に切り出した。
+  `tests/golden/shell-runner.ts` の `findRepoRoot()` と同型の実装だが、
+  探索対象を `AGENTS.md` + `specs/`（sdd-forge リポジトリ自体の目印）に
+  限定し、golden テスト固有の
+  `plugins/sdd-quality-loop/scripts/check-task-state.sh` 存在チェックは
+  含めていない（本タスクは shell と比較しないため不要）。
+
+## Session Handoff
+
+- **Current status**: T-003 完了。`npx tsc --noEmit` エラーゼロ、
+  `npm test` 78/78 pass。Red/Green evidence と本レポートを保存済み。
+- **Next action**: quality-gate による独立レビューと Done 判定。
+- **Unresolved items**: 上記「Unresolved Items」参照
+  （quality-gate-summary の集約方針、Required Workflow ステップと
+  フェーズ対応表の設計、`failures[]` の tool 層での扱い）。

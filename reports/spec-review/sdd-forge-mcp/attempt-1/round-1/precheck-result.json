@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-forge-mcp",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "a7a94b361c8cec76237c5ea23f6e128803504ea6cbb80bc9308f0a1f9ec8e632",
+  "acceptance_sha256": "1cd8caf0111b6e5a0f4d0e22fe2f60d2329a4440d59edad63821fbffc932b6e7",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "fce83fbc06efb67299a80088f6dbeb1fa0dab95da6fa917b16333a8bd6ff5264",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-04T12:38:49Z"
+}

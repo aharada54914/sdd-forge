@@ -291,6 +291,103 @@ bash "$UNINSTALLER" --install-root "$HOME" --target FilesOnly --skip-plugin-unin
 if [[ $_i2_failed -eq 1 ]]; then ok "home directory rejected as --install-root"; else fail "home directory was accepted as --install-root"; fi
 
 # ---------------------------------------------------------------------------
+# MCP scenarios (T-006): AC-009
+# ---------------------------------------------------------------------------
+
+# Seed an installed MCP payload + a Codex config.toml with a registered
+# marker block, mirroring what install.sh would have produced.
+seed_installed_mcp() {
+    local install_root="$1"
+    local codex_home="$2"
+    mkdir -p "${install_root}/mcp/sdd-forge-mcp/dist"
+    echo "console.log('stub')" > "${install_root}/mcp/sdd-forge-mcp/dist/index.js"
+    echo '{"name":"sdd-forge-mcp"}' > "${install_root}/mcp/sdd-forge-mcp/package.json"
+    mkdir -p "$codex_home"
+    cat > "${codex_home}/config.toml" <<TOML
+[some_other_section]
+key = "value"
+
+# >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>
+[mcp_servers.sdd-forge-mcp]
+command = "node"
+args = ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"]
+# <<< sdd-forge-mcp <<<
+TOML
+}
+
+# Scenario (k): uninstall removes the MCP payload directory and the Codex
+# config.toml marker block, while preserving unrelated config.toml content.
+_k_root="$(mktemp -d)"; _k_install="${_k_root}/installed"; _k_codex="${_k_root}/codex-home"
+_k_bin="${_k_root}/bin"; _k_log="${_k_root}/commands.log"
+_k_orig_path="$PATH"; _k_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_k_bin" "$_k_log"
+seed_installed_layout "$_k_install" "$_k_codex"
+seed_installed_mcp "$_k_install" "$_k_codex"
+export PATH="${_k_bin}:${_k_orig_path}"; export SDD_CODEX_HOME="$_k_codex"
+_k_failed=0
+bash "$UNINSTALLER" --install-root "$_k_install" --target All >/dev/null 2>&1 || _k_failed=1
+export PATH="$_k_orig_path"
+if [[ -z "$_k_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_k_orig_codex"; fi
+_k_ok=1
+[[ $_k_failed -eq 0 ]] || { fail "MCP uninstall (k): uninstaller exited non-zero"; _k_ok=0; }
+[[ ! -e "${_k_install}/mcp" ]] || { fail "MCP uninstall (k): mcp/ payload not removed"; _k_ok=0; }
+[[ -f "${_k_codex}/config.toml" ]] || { fail "MCP uninstall (k): config.toml was deleted entirely"; _k_ok=0; }
+if [[ -f "${_k_codex}/config.toml" ]]; then
+    grep -qF "sdd-forge-mcp" "${_k_codex}/config.toml" && { fail "MCP uninstall (k): sdd-forge-mcp marker block not removed"; _k_ok=0; }
+    grep -qF "some_other_section" "${_k_codex}/config.toml" || { fail "MCP uninstall (k): unrelated config.toml content was removed"; _k_ok=0; }
+fi
+_k_log_content=""
+[[ -f "$_k_log" ]] && _k_log_content="$(cat "$_k_log")"
+echo "$_k_log_content" | grep -qF "claude mcp remove sdd-forge-mcp" || { fail "MCP uninstall (k): claude mcp remove not invoked"; _k_ok=0; }
+rm -rf "$_k_root"
+[[ $_k_ok -eq 1 ]] && ok "uninstall removes MCP payload and Codex config.toml marker block"
+
+# Scenario (l): uninstall on a system with no MCP ever installed succeeds
+# best-effort (no error, nothing to remove).
+_l_root="$(mktemp -d)"; _l_install="${_l_root}/installed"; _l_codex="${_l_root}/codex-home"
+_l_bin="${_l_root}/bin"; _l_log="${_l_root}/commands.log"
+_l_orig_path="$PATH"; _l_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_l_bin" "$_l_log"
+seed_installed_layout "$_l_install" "$_l_codex"
+# Intentionally do NOT seed MCP payload or config.toml — simulates --skip-mcp
+# at install time or an MCP that was never registered.
+export PATH="${_l_bin}:${_l_orig_path}"; export SDD_CODEX_HOME="$_l_codex"
+_l_failed=0
+bash "$UNINSTALLER" --install-root "$_l_install" --target All >/dev/null 2>&1 || _l_failed=1
+export PATH="$_l_orig_path"
+if [[ -z "$_l_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_l_orig_codex"; fi
+if [[ $_l_failed -eq 0 ]]; then
+    ok "uninstall with no MCP ever installed succeeds best-effort"
+else
+    fail "uninstall with no MCP ever installed succeeds best-effort"
+fi
+rm -rf "$_l_root"
+
+# Scenario (m): --mcp <list> selects which MCP registrations/payloads are
+# removed (mirrors --plugins subset selection).
+_m_root="$(mktemp -d)"; _m_install="${_m_root}/installed"; _m_codex="${_m_root}/codex-home"
+_m_bin="${_m_root}/bin"; _m_log="${_m_root}/commands.log"
+_m_orig_path="$PATH"; _m_orig_codex="${SDD_CODEX_HOME:-}"
+make_fake_commands "$_m_bin" "$_m_log"
+seed_installed_layout "$_m_install" "$_m_codex"
+seed_installed_mcp "$_m_install" "$_m_codex"
+export PATH="${_m_bin}:${_m_orig_path}"; export SDD_CODEX_HOME="$_m_codex"
+_m_failed=0
+bash "$UNINSTALLER" --install-root "$_m_install" --target All --mcp "sdd-forge-mcp" >/dev/null 2>&1 || _m_failed=1
+export PATH="$_m_orig_path"
+if [[ -z "$_m_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_m_orig_codex"; fi
+_m_ok=1
+[[ $_m_failed -eq 0 ]] || { fail "--mcp subset (m): uninstaller exited non-zero"; _m_ok=0; }
+[[ ! -e "${_m_install}/mcp" ]] || { fail "--mcp subset (m): mcp/ payload not removed"; _m_ok=0; }
+rm -rf "$_m_root"
+[[ $_m_ok -eq 1 ]] && ok "--mcp <list> selects MCP payload/registration removal"
+
+# Scenario (n): invalid --mcp name rejected
+_n_failed=0
+bash "$UNINSTALLER" --install-root "$(mktemp -d)/x" --target FilesOnly --mcp "bogus-mcp" >/dev/null 2>&1 || _n_failed=1
+if [[ $_n_failed -eq 1 ]]; then ok "invalid --mcp name rejected"; else fail "invalid --mcp name was accepted"; fi
+
+# ---------------------------------------------------------------------------
 # Scenario (j): FilesOnly skips CLI calls but still removes files
 # ---------------------------------------------------------------------------
 _j_root="$(mktemp -d)"; _j_install="${_j_root}/installed"; _j_codex="${_j_root}/codex-home"

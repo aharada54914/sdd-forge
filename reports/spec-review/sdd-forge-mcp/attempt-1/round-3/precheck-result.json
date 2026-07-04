@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-forge-mcp",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "0066d8409e13d47c6468fa139e720411236433ea50deaf677a67c5ca2f5a8469",
+  "acceptance_sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "d1b0fe2acdd7375512ad3aad85a4662da95387f5e79b66f443bd4dd9406a3543",
+  "edit_summary": "Resolved the round-2 size-limit contradiction: requirements.md Edge Cases now fixes the file size limit at 2 MiB (same value as design.md Data Plan and acceptance-tests.md AC-017) and names the too-large error code, so the threshold is a spec-approved constant rather than a design-deferred parameter.",
+  "reset": false,
+  "generated_at": "2026-07-04T13:14:49Z"
+}

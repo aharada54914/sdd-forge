@@ -1,0 +1,30 @@
+{
+  "name": "sdd-forge-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Read-only MCP server exposing SDD workflow state (sdd-forge).",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "pretest": "tsc -p tsconfig.test.json",
+    "test": "node --test dist-test/tests/**/*.test.js",
+    "golden:record": "tsc -p tsconfig.test.json && node dist-test/scripts/record-golden-fixtures.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "js-yaml": "^4.1.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/inspector": "0.22.0",
+    "@types/js-yaml": "^4.0.9",
+    "@types/node": "^20.19.0",
+    "ajv": "^8.20.0",
+    "esbuild": "^0.28.1",
+    "typescript": "^5.9.0"
+  }
+}

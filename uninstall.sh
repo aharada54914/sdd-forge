@@ -16,8 +16,11 @@ PLUGINS="sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd
 KEEP_FILES=0
 SKIP_PLUGIN_UNINSTALL=0
 SKIP_AGENT_UNINSTALL=0
+MCP_LIST="sdd-forge-mcp"
+SKIP_MCP_UNINSTALL=0
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+VALID_MCPS="sdd-forge-mcp"
 # Role files this project installs into ~/.codex/agents. Used as a fallback when
 # the install root (the manifest source) is no longer present.
 SHIPPED_AGENTS="sdd-investigator.toml sdd-evaluator.toml sdd-panelist-gpt.toml sdd-panelist-gemini.toml"
@@ -38,8 +41,10 @@ Usage: uninstall.sh [options]
   --keep-files                   Unregister from CLI tools but keep the installed files
   --skip-plugin-uninstall        Skip unregistering plugins/marketplace from CLI tools
   --skip-agent-uninstall         Skip removing Codex agent TOML files
+  --mcp <comma-separated>        Names from: sdd-forge-mcp. Default: sdd-forge-mcp
+  --skip-mcp-uninstall           Skip removing MCP payloads/registrations
 
-Environment: SDD_CODEX_HOME      Override ~/.codex location for agent TOML files
+Environment: SDD_CODEX_HOME      Override ~/.codex location for agent TOML files and config.toml
   Unregistration is best-effort: a plugin or marketplace that is already absent
   is treated as success so the uninstaller is idempotent. The marketplace is only
   removed during a full uninstall (every plugin selected) because removing it
@@ -57,6 +62,8 @@ while [[ $# -gt 0 ]]; do
         --keep-files)           KEEP_FILES=1; shift ;;
         --skip-plugin-uninstall) SKIP_PLUGIN_UNINSTALL=1; shift ;;
         --skip-agent-uninstall)  SKIP_AGENT_UNINSTALL=1; shift ;;
+        --mcp)                  [[ $# -gt 1 ]] || usage; MCP_LIST="$2"; shift 2 ;;
+        --skip-mcp-uninstall)    SKIP_MCP_UNINSTALL=1; shift ;;
         *) echo "Unknown option: $1" >&2; usage ;;
     esac
 done
@@ -87,6 +94,22 @@ for p in "${PLUGIN_LIST[@]}"; do
         exit 1
     fi
 done
+
+# Validate --mcp
+MCP_SELECTION=()
+if [[ $SKIP_MCP_UNINSTALL -eq 0 ]]; then
+    IFS=',' read -ra MCP_SELECTION <<< "$MCP_LIST"
+    for m in "${MCP_SELECTION[@]}"; do
+        valid=0
+        for v in $VALID_MCPS; do
+            [[ "$m" == "$v" ]] && valid=1 && break
+        done
+        if [[ $valid -eq 0 ]]; then
+            echo "Invalid MCP name: $m (must be one of: $VALID_MCPS)" >&2
+            exit 1
+        fi
+    done
+fi
 
 # A full uninstall selects every known plugin. Only then is it safe to remove the
 # marketplace, since removing it also uninstalls any plugins still registered
@@ -213,6 +236,61 @@ uninstall_codex_agents() {
 }
 
 # ---------------------------------------------------------------------------
+# MCP: unregister from Claude/Codex and remove the placed payload
+# (mirror install.sh's placement/registration split; all best-effort)
+# ---------------------------------------------------------------------------
+unregister_claude_mcp() {
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    if ! command -v claude >/dev/null 2>&1; then
+        echo "Warning: Claude Code CLI was not found. Claude MCP unregistration was skipped." >&2
+        return 0
+    fi
+    local name
+    for name in "${MCP_SELECTION[@]}"; do
+        try_plugin_command claude mcp remove "$name"
+    done
+}
+
+unregister_codex_mcp() {
+    # Remove the marker-delimited block for each selected MCP from
+    # ~/.codex/config.toml. Best-effort: a missing config.toml or a missing
+    # block for a given MCP is not an error (nothing to remove).
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local config_toml="${codex_home}/config.toml"
+    [[ -f "$config_toml" ]] || return 0
+    local name tmp_config
+    for name in "${MCP_SELECTION[@]}"; do
+        local marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
+        local marker_end="# <<< ${name} <<<"
+        tmp_config="$(mktemp)"
+        awk -v begin="$marker_begin" -v end="$marker_end" '
+            $0 == begin { skip = 1; next }
+            $0 == end { skip = 0; next }
+            skip { next }
+            { print }
+        ' "$config_toml" > "$tmp_config"
+        mv "$tmp_config" "$config_toml"
+    done
+    return 0
+}
+
+remove_mcp_payload() {
+    # Removes the placed MCP directories under INSTALL_ROOT/mcp/<name>/.
+    # Best-effort: absence is success (idempotent, mirrors --keep-files logic
+    # for the rest of the install root).
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    [[ $KEEP_FILES -ne 0 ]] && return 0
+    local name
+    for name in "${MCP_SELECTION[@]}"; do
+        if [[ -d "${INSTALL_ROOT}/mcp/${name}" ]]; then
+            rm -rf "${INSTALL_ROOT}/mcp/${name}"
+        fi
+    done
+    return 0
+}
+
+# ---------------------------------------------------------------------------
 # Resolve install root and safety checks (mirror install.sh)
 # ---------------------------------------------------------------------------
 _canon_install_root() {
@@ -270,9 +348,11 @@ if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
     if [[ $SKIP_AGENT_UNINSTALL -eq 0 ]]; then
         uninstall_codex_agents
     fi
+    unregister_codex_mcp
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
     uninstall_claude_plugins || exit 1
+    unregister_claude_mcp
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
     uninstall_copilot_plugins || exit 1
@@ -281,6 +361,11 @@ fi
 # ---------------------------------------------------------------------------
 # Remove installed files
 # ---------------------------------------------------------------------------
+# MCP payload removal mirrors --keep-files semantics for the rest of the
+# install root; when the whole root is removed below, this is redundant but
+# harmless (already-removed directories are treated as success).
+remove_mcp_payload
+
 if [[ $KEEP_FILES -eq 1 ]]; then
     echo "Kept installed files at: ${INSTALL_ROOT} (--keep-files)."
 elif [[ -d "$INSTALL_ROOT" ]]; then

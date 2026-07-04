@@ -8,7 +8,10 @@ param(
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop"),
     [switch]$KeepFiles,
     [switch]$SkipPluginUninstall,
-    [switch]$SkipAgentUninstall
+    [switch]$SkipAgentUninstall,
+    [ValidateSet("sdd-forge-mcp")]
+    [string[]]$Mcp = @("sdd-forge-mcp"),
+    [switch]$SkipMcpUninstall
 )
 
 # uninstall.ps1 — SDD plugins uninstaller for Windows.
@@ -119,6 +122,50 @@ function Remove-CodexAgent {
 }
 
 # ---------------------------------------------------------------------------
+# MCP: unregister from Claude/Codex and remove the placed payload
+# (mirror install.ps1's placement/registration split; all best-effort)
+# ---------------------------------------------------------------------------
+function Unregister-ClaudeMcp {
+    if ($SkipMcpUninstall) { return }
+    if (-not (Get-Command "claude" -ErrorAction SilentlyContinue)) {
+        Write-Warning "Claude Code CLI was not found. Claude MCP unregistration was skipped."
+        return
+    }
+    foreach ($name in $Mcp) {
+        Invoke-BestEffortPluginCommand "claude" @("mcp", "remove", $name)
+    }
+}
+
+function Unregister-CodexMcp {
+    if ($SkipMcpUninstall) { return }
+    $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
+    $configToml = Join-Path $codexHome "config.toml"
+    if (-not (Test-Path $configToml)) { return }
+    foreach ($name in $Mcp) {
+        $markerBegin = "# >>> $name (managed by sdd-forge installer; do not edit by hand) >>>"
+        $markerEnd = "# <<< $name <<<"
+        $existingLines = @(Get-Content -Path $configToml)
+        $filtered = [System.Collections.Generic.List[string]]::new()
+        $skip = $false
+        foreach ($line in $existingLines) {
+            if ($line -eq $markerBegin) { $skip = $true; continue }
+            if ($line -eq $markerEnd) { $skip = $false; continue }
+            if (-not $skip) { $filtered.Add($line) }
+        }
+        Set-Content -Path $configToml -Value $filtered
+    }
+}
+
+function Remove-McpPayload {
+    if ($SkipMcpUninstall) { return }
+    if ($KeepFiles) { return }
+    foreach ($name in $Mcp) {
+        $payloadDir = Join-Path (Join-Path $InstallRoot "mcp") $name
+        if (Test-Path $payloadDir) { Remove-Item -Path $payloadDir -Recurse -Force }
+    }
+}
+
+# ---------------------------------------------------------------------------
 # Resolve install root and safety checks (mirror install.ps1)
 # ---------------------------------------------------------------------------
 $InstallRoot = [System.IO.Path]::GetFullPath($InstallRoot)
@@ -145,9 +192,11 @@ if ($Target -in @("All", "Codex")) {
     if (-not $SkipAgentUninstall) {
         Remove-CodexAgent
     }
+    Unregister-CodexMcp
 }
 if ($Target -in @("All", "Claude")) {
     Uninstall-ClaudePlugin
+    Unregister-ClaudeMcp
 }
 if ($Target -in @("All", "Copilot")) {
     Uninstall-CopilotPlugin
@@ -156,6 +205,11 @@ if ($Target -in @("All", "Copilot")) {
 # ---------------------------------------------------------------------------
 # Remove installed files
 # ---------------------------------------------------------------------------
+# MCP payload removal mirrors -KeepFiles semantics for the rest of the
+# install root; when the whole root is removed below, this is redundant but
+# harmless (already-removed directories are treated as success).
+Remove-McpPayload
+
 if ($KeepFiles) {
     Write-Host "Kept installed files at: $InstallRoot (-KeepFiles)."
 }

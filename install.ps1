@@ -10,7 +10,10 @@ param(
     [switch]$SkipPluginInstall,
     [switch]$SkipAgentInstall,
     [switch]$RequireClaude,
-    [string]$SourceDirectory
+    [string]$SourceDirectory,
+    [switch]$SkipMcp,
+    [ValidateSet("sdd-forge-mcp")]
+    [string[]]$Mcp = @("sdd-forge-mcp")
 )
 
 $ErrorActionPreference = "Stop"
@@ -167,6 +170,129 @@ function Install-CodexAgents {
     }
     catch {
         Write-Warning "Codex agent install failed: $_"
+    }
+}
+
+# ---------------------------------------------------------------------------
+# MCP: Node version check, placement, and Claude/Codex registration
+# ---------------------------------------------------------------------------
+function Test-NodeVersionOk {
+    if (-not (Get-Command "node" -ErrorAction SilentlyContinue)) {
+        Write-Warning "Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)."
+        return $false
+    }
+    $version = & node --version 2>$null
+    if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($version)) {
+        Write-Warning "Could not determine Node.js version. MCP server installation was skipped (plugin installation continues)."
+        return $false
+    }
+    $majorText = ($version.TrimStart("v") -split '\.')[0]
+    $major = 0
+    if (-not [int]::TryParse($majorText, [ref]$major)) {
+        Write-Warning "Could not determine Node.js version (got '$version'). MCP server installation was skipped (plugin installation continues)."
+        return $false
+    }
+    if ($major -lt 20) {
+        Write-Warning "Node.js >= 20 is required for MCP servers (found $version). MCP server installation was skipped (plugin installation continues)."
+        return $false
+    }
+    return $true
+}
+
+function Install-McpServerPayloads {
+    param(
+        [Parameter(Mandatory)][string]$SourceRootPath,
+        [Parameter(Mandatory)][string]$InstallRootPath
+    )
+
+    foreach ($name in $Mcp) {
+        $srcDir = Join-Path (Join-Path $SourceRootPath "mcp") $name
+        $srcDist = Join-Path $srcDir "dist"
+        $srcIndex = Join-Path $srcDist "index.js"
+        $srcPackageJson = Join-Path $srcDir "package.json"
+        if (-not (Test-Path $srcIndex) -or -not (Test-Path $srcPackageJson)) {
+            Write-Warning "MCP server '$name' payload (dist/index.js, package.json) was not found under mcp/$name. Skipping placement."
+            continue
+        }
+        $destDir = Join-Path (Join-Path $InstallRootPath "mcp") $name
+        $destDist = Join-Path $destDir "dist"
+        New-Item -ItemType Directory -Path $destDist -Force | Out-Null
+        Copy-Item -Path (Join-Path $srcDist "*") -Destination $destDist -Recurse -Force
+        Copy-Item -Path $srcPackageJson -Destination (Join-Path $destDir "package.json") -Force
+    }
+}
+
+function Register-ClaudeMcp {
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+
+    if (-not (Get-Command "claude" -ErrorAction SilentlyContinue)) {
+        Write-Warning "Claude Code CLI was not found. Claude MCP registration was skipped."
+        return
+    }
+    foreach ($name in $Mcp) {
+        $entryPoint = Join-Path (Join-Path (Join-Path $InstallRootPath "mcp") $name) "dist/index.js"
+        if (-not (Test-Path $entryPoint)) { continue }
+        Invoke-PluginCommand "claude" @("mcp", "add", $name, "--scope", "user", "--", "node", $entryPoint)
+    }
+}
+
+function Register-CodexMcp {
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+
+    $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
+    $configToml = Join-Path $codexHome "config.toml"
+    if (-not (Test-Path $configToml)) {
+        Write-Warning "$configToml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml)."
+        return
+    }
+    foreach ($name in $Mcp) {
+        $entryPoint = Join-Path (Join-Path (Join-Path $InstallRootPath "mcp") $name) "dist/index.js"
+        if (-not (Test-Path $entryPoint)) { continue }
+        $markerBegin = "# >>> $name (managed by sdd-forge installer; do not edit by hand) >>>"
+        $markerEnd = "# <<< $name <<<"
+        $existingLines = @(Get-Content -Path $configToml)
+        $filtered = [System.Collections.Generic.List[string]]::new()
+        $skip = $false
+        foreach ($line in $existingLines) {
+            if ($line -eq $markerBegin) { $skip = $true; continue }
+            if ($line -eq $markerEnd) { $skip = $false; continue }
+            if (-not $skip) { $filtered.Add($line) }
+        }
+        $entryPointToml = $entryPoint -replace '\\', '/'
+        $filtered.Add("")
+        $filtered.Add($markerBegin)
+        $filtered.Add("[mcp_servers.$name]")
+        $filtered.Add('command = "node"')
+        $filtered.Add("args = [`"$entryPointToml`"]")
+        $filtered.Add($markerEnd)
+        Set-Content -Path $configToml -Value $filtered
+    }
+}
+
+$script:McpNodeOk = $false
+
+function Install-McpServersIfSelected {
+    param(
+        [Parameter(Mandatory)][string]$SourceRootPath,
+        [Parameter(Mandatory)][string]$InstallRootPath
+    )
+
+    $script:McpNodeOk = $false
+    if ($SkipMcp -or $Mcp.Count -eq 0) { return }
+    if (-not (Test-NodeVersionOk)) { return }
+    $script:McpNodeOk = $true
+    Install-McpServerPayloads -SourceRootPath $SourceRootPath -InstallRootPath $InstallRootPath
+}
+
+function Register-McpServers {
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+
+    if ($SkipMcp -or $Mcp.Count -eq 0 -or -not $script:McpNodeOk) { return }
+    if ($Target -in @("All", "Claude")) {
+        Register-ClaudeMcp -InstallRootPath $InstallRootPath
+    }
+    if ($Target -in @("All", "Codex")) {
+        Register-CodexMcp -InstallRootPath $InstallRootPath
     }
 }
 
@@ -400,6 +526,11 @@ try {
     $newInstallPlaced = $true
 
     $resolvedInstallRoot = (Resolve-Path $InstallRoot).Path
+
+    # MCP placement mirrors plugin file placement: it happens regardless of
+    # -Target and is controlled only by -SkipMcp / -Mcp.
+    Install-McpServersIfSelected -SourceRootPath $sourceRoot -InstallRootPath $resolvedInstallRoot
+
     if ($Target -in @("All", "Codex")) {
         Install-CodexPlugins $resolvedInstallRoot
         if (-not $SkipAgentInstall -and (Get-Command "codex" -ErrorAction SilentlyContinue)) {
@@ -412,6 +543,7 @@ try {
     if ($Target -in @("All", "Copilot")) {
         Install-CopilotPlugins $resolvedInstallRoot
     }
+    Register-McpServers -InstallRootPath $resolvedInstallRoot
 
     Write-InstallSummary $resolvedInstallRoot
 

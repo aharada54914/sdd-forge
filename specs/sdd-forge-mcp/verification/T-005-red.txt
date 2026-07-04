@@ -1,0 +1,383 @@
+$ npx tsc -p tsconfig.test.json && npm test
+(src/tools/evidence.ts and its 5 tool registrations in src/server.ts were
+temporarily removed to reproduce this Red state; tests/evidence/*.ts already
+existed and reference the 5 evidence tools by name via MCP callTool, so tsc
+succeeds -- the tests fail at runtime instead of at compile time, since the
+server never registers evidence_get_bundle/evidence_validate_paths/
+evidence_find_missing/evidence_summarize_contract_checks/
+evidence_compare_to_traceability. tests/core-tools/core-tools.test.ts's
+"expected 13 tools" assertion and tests/smoke/inspector-smoke.test.ts's tool
+list (already updated for T-005) also fail against the un-registered server.)
+
+✔ list_active_specs: schema-valid, flags feature-a active and feature-b inactive (945.918ms)
+✔ get_spec_status: schema-valid, reports artifact existence and review-status headers (38.141792ms)
+✔ get_task_state: schema-valid, verdict fail with 1 blocked task in feature-a (168.968125ms)
+✔ get_task_state: not-found for a feature whose tasks.md does not exist (92.652125ms)
+✔ list_approved_tasks: schema-valid, only Approved-shaped tasks for feature-a (20.982208ms)
+✔ list_blocked_tasks: schema-valid, only Blocked-status tasks for feature-a (40.628ms)
+✔ list_review_tickets: schema-valid, includes the seeded RT ticket (41.929084ms)
+✔ get_quality_gate_summary: schema-valid, includes the seeded PASS report (16.435667ms)
+✔ get_next_sdd_command: feature-a has a Blocked task -> blocked takes priority (16.835375ms)
+✔ get_next_sdd_command: no feature argument auto-selects feature-a (only active feature) (122.149708ms)
+✖ every tool's input schema never declares a root parameter (14.302834ms)
+✔ invalid feature argument shape is rejected as invalid-input (11.040417ms)
+✔ rejects a file larger than the 2 MiB limit with too-large (6.077291ms)
+✔ accepts a file exactly at the 2 MiB limit (33.931209ms)
+✔ isSddRoot is false for a root missing both AGENTS.md and specs/ (2.743958ms)
+✔ isSddRoot is false when only specs/ exists without AGENTS.md (1.009209ms)
+✔ isSddRoot is true for a properly-shaped SDD root (2.036042ms)
+✖ evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-001's bundle fields (232.6145ms)
+✖ evidence_get_bundle: synthetic, echoes signature value without verifying it (16.901375ms)
+✖ evidence_get_bundle: not-found for a task with no evidence.json (10.7705ms)
+✖ evidence_get_bundle: invalid-input for a malformed taskId (111.336542ms)
+✖ evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts are safe and exist (8.614708ms)
+✖ evidence_validate_paths: synthetic, flags a traversal artifact path as unsafe (14.202834ms)
+✖ evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has nothing missing (3.978542ms)
+✖ evidence_find_missing: synthetic Done task with a fully valid bundle has nothing missing, matching get_task_state's Done verdict (12.50775ms)
+✖ evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing (23.029459ms)
+✖ evidence_find_missing: synthetic, a task whose quality-gate report lacks VERDICT: PASS is missing that requirement only (14.751083ms)
+✖ evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's placeholder-scan check summarizes correctly (4.379792ms)
+✖ evidence_summarize_contract_checks: synthetic, converts waiverReason and requirementIds (32.27275ms)
+✖ evidence_summarize_contract_checks: cannot-parse for a malformed contract.json (20.270541ms)
+✖ evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md (99.116167ms)
+✖ evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task (35.934333ms)
+✖ evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares (30.00075ms)
+✖ evidence_compare_to_traceability: not-found when traceability.md does not exist (63.203584ms)
+✖ every evidence tool rejects a malformed feature argument as invalid-input (82.431833ms)
+✔ live shell comparison: parseTaskState matches check-task-state.sh for every golden feature (18294.275375ms)
+✔ recorded fixture comparison: parseTaskState matches the committed golden fixtures (676.938042ms)
+✔ phase1-not-started: requirements.md does not exist (528.311667ms)
+✔ spec-review: requirements.md exists but Spec-Review-Status is not Passed (14.374375ms)
+✔ spec-review: requirements.md has no Spec-Review-Status header at all (78.657125ms)
+✔ impl-review: design.md exists but Impl-Review-Status is not Passed (23.370625ms)
+✔ cannot-determine: Spec-Review-Status Passed but design.md missing (17.031792ms)
+✔ phase2-not-started: design.md Passed but tasks.md does not exist (9.879416ms)
+✔ task-review: tasks.md exists but Task-Review-Status is not Passed (7.635542ms)
+✔ approval-gate: Task-Review-Status Passed but every task is Draft (6.516209ms)
+✔ implementation: an Approved task is Planned (12.386208ms)
+✔ implementation: an Approved task is In Progress (17.565042ms)
+✔ quality-gate: every Approved task is Implementation Complete (79.434291ms)
+✔ done: every Approved task is Done (78.392791ms)
+✔ blocked: a Blocked task takes priority even when another task is Planned/Approved (5.199291ms)
+✔ cannot-determine: malformed feature name is rejected before any file access (1.682958ms)
+✔ auto-select: exactly one active feature -> resolved without a feature argument (12.682375ms)
+✔ auto-select: zero active features -> cannot-determine naming none-active (7.350417ms)
+✔ auto-select: multiple active features -> cannot-determine naming all candidates (8.816333ms)
+✔ real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-cannot-determine phase (198.8125ms)
+✔ a well-formed tasks.md with a Planned task passes with an empty failures array (16.008167ms)
+✔ Approved (<annotation>) is accepted and the annotation is echoed back (11.528542ms)
+✔ a tasks.md with no ## T-NNN headers at all fails with no-tasks-found (4.612541ms)
+✔ a nonexistent tasks.md path propagates the path-guard not-found error (9.192375ms)
+✔ a tasks.md path outside the allowlist propagates path-denied (3.681042ms)
+✔ Done without a verification/<task-id>.evidence.json file fails (23.903959ms)
+✔ Done with evidence.json but missing contract.json fails (19.717ms)
+✔ Done with an empty contract.json fails (12.466125ms)
+✔ Done with a contract.json whose task_id does not match fails (5.280834ms)
+✔ Done with no quality-gate report mentioning the task id fails (4.392375ms)
+✔ Done with a quality-gate report present but no VERDICT: PASS fails (10.358667ms)
+✔ Implementation Complete without a matching implementation report fails (7.430334ms)
+✔ Implementation Complete with a word-boundary match in an implementation report passes that rule (4.547791ms)
+✔ T-001 does not falsely match a report that only mentions T-0010 (word boundary) (4.103917ms)
+✔ critical Done without a distinct Second Approval fails (37.155875ms)
+✔ critical Done where both approvals are the same person fails (100.197916ms)
+✔ critical Done where either approver is 'sudo' fails (10.304125ms)
+✔ high-risk Done bundle missing spec_revision fails provenance (35.5995ms)
+✔ high-risk Done bundle with full provenance and matching artifact hashes passes (36.964416ms)
+✔ an artifact sha256 mismatch fails the evidence bundle (101.7505ms)
+✔ critical risk Done bundle without a signature object fails (15.308125ms)
+✔ duplicate task ids are reported and the verdict is fail (7.704917ms)
+✔ an invalid Status value is reported and the verdict is fail (4.831791ms)
+✔ a missing Approval line is reported and the verdict is fail (4.563291ms)
+✔ In Progress without Approval: Approved is reported and the verdict is fail (3.465208ms)
+✔ Blocked with Blockers: None is reported and the verdict is fail (3.364833ms)
+✔ Blocked with real blocker content passes the Blocked-specific rule (3.65025ms)
+✔ real repo: parseEvidenceBundle reads T-001.evidence.json for sdd-forge-refactor (6.665ms)
+✔ real repo: parseVerificationContract reads T-001.contract.json for sdd-forge-refactor (3.690375ms)
+✔ real repo: every existing T-*.evidence.json under sdd-forge-refactor parses without throwing (14.702833ms)
+✔ real repo: every existing T-*.contract.json under sdd-forge-refactor parses without throwing (7.837541ms)
+✔ synthetic: parseEvidenceBundle echoes the signature value without verifying it (4.374417ms)
+✔ synthetic: parseEvidenceBundle rejects a task_id mismatch as cannot-parse (3.9965ms)
+✔ synthetic: parseEvidenceBundle rejects broken JSON as cannot-parse (3.42025ms)
+✔ synthetic: parseEvidenceBundle rejects a bundle missing required fields as cannot-parse (6.199833ms)
+✔ synthetic: parseEvidenceBundle propagates a not-found error unchanged (2.329708ms)
+✔ synthetic: parseVerificationContract converts checks[] into the contractChecksSummaryData shape (10.199541ms)
+✔ synthetic: parseVerificationContract rejects a task_id mismatch as cannot-parse (4.794458ms)
+✔ synthetic: parseVerificationContract rejects broken JSON as cannot-parse (5.536792ms)
+✔ synthetic: parseVerificationContract rejects a non-array checks field as cannot-parse (8.706292ms)
+✔ real repo: sdd-forge-refactor/traceability.md yields REQ->Task and AC->REQ rows (4.937708ms)
+✔ real repo: sdd-forge-mcp/traceability.md yields REQ->Task, AC->REQ, and AC->TEST->Task rows (2.628291ms)
+✔ synthetic: a REQ->Task table with comma-separated Task-ID cells splits into multiple taskIds (31.665167ms)
+✔ synthetic: no tables at all in traceability.md yields empty arrays, not cannot-parse (3.012583ms)
+✔ synthetic: a REQ->Task table with a missing column in a data row is cannot-parse with a line number (5.800917ms)
+✔ synthetic: an AC->REQ table with an empty Task-ID-like required cell is cannot-parse (3.059958ms)
+✔ synthetic: propagates a not-found error when traceability.md is absent (2.948542ms)
+✔ real repo: Active Spec Directories has at least 3 entries with feature/path (5.179583ms)
+✔ real repo: Required Workflow has numbered steps with non-empty text (1.036625ms)
+✔ synthetic: well-formed Active Spec Directories bullets parse to feature/path pairs (4.729375ms)
+✔ synthetic: well-formed Required Workflow numbered steps parse in order (30.636875ms)
+✔ cannot-determine: AGENTS.md with no Active Spec Directories section (14.177334ms)
+✔ cannot-determine: AGENTS.md with no Required Workflow section (2.422541ms)
+✔ cannot-parse: malformed Active Spec Directories bullet reports a line number (13.999917ms)
+✔ cannot-parse: Required Workflow section with no numbered steps (31.82975ms)
+✔ guardedRead failure (missing AGENTS.md) propagates unchanged as not-found (4.84375ms)
+✔ real repo: every reports/quality-gate/*.md file is scanned without throwing (41.879958ms)
+✔ real repo: at least one report has taskId, critical/major/minor counts, and a PASS-shaped verdict (49.676ms)
+✔ synthetic: well-formed report with all fields parses every value (46.691875ms)
+✔ synthetic: VERDICT repeated later in the file uses the first occurrence (10.688708ms)
+✔ synthetic: report with no VERDICT line is reported as verdict-not-found, not cannot-parse (11.57ms)
+✔ listQualityReports aggregates reports and failures across a directory (19.847625ms)
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (9.305958ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (4.38325ms)
+✔ synthetic: well-formed ticket parses all optional fields (46.086041ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (18.86325ms)
+✔ cannot-parse: invalid YAML syntax (37.663ms)
+✔ cannot-parse: missing required fields (7.671208ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (28.837459ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (10.110791ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (88.123666ms)
+✔ denies reads under a plugins/ directory that is not on the allowlist (37.587709ms)
+✔ denies reads under a .git/ directory (12.829875ms)
+✔ denies the SDD sudo flag file even when placed inside an allowlisted directory (6.225833ms)
+✔ denies .env files reached via an allowlisted directory (9.673958ms)
+✔ never includes file contents or the offending value in the denial message or details (16.675208ms)
+✔ rejects a relative path containing a parent traversal segment (8.438625ms)
+✔ rejects an absolute path argument outright (18.414417ms)
+✔ rejects an empty path as invalid input (2.90375ms)
+✔ rejects a path argument containing backslashes (30.49ms)
+✔ rejects a symlink inside the allowlist that resolves outside it (4.481875ms)
+✔ resolveGuarded rejects the same traversal shapes without reading contents (6.744375ms)
+✔ allows a legitimate allowlisted file to be read (6.398583ms)
+✔ all 8 core tools leave the fixture repository byte-for-byte unchanged (249.276291ms)
+✔ src/ contains no filesystem write API references (18.2085ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (3.210709ms)
+✔ resources/list + resources/templates/list together expose all 5 sdd:// resources (147.002833ms)
+✔ sdd://active-specs matches list_active_specs exactly (233.969958ms)
+✔ sdd://spec/{feature} matches get_spec_status exactly (48.471875ms)
+✔ sdd://tasks/{feature} matches get_task_state exactly (20.707833ms)
+✔ sdd://tasks/{feature} surfaces invalid-input for a malformed feature, same as the tool (29.490875ms)
+✔ sdd://review-tickets matches list_review_tickets exactly (26.417125ms)
+✔ sdd://quality-reports matches get_quality_gate_summary exactly (243.955417ms)
+✔ resolved root is frozen and immutable after construction (5.428625ms)
+✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (6.713958ms)
+✔ changing cwd after resolution does not affect the already-resolved root (27.580042ms)
+✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (33.395666ms)
+✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (22.980375ms)
+✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (33.702084ms)
+✖ inspector CLI: tools/list reports all 8 core tools (6309.1445ms)
+✔ inspector CLI: resources/list + resources/templates/list report 3 static + 2 template resources (4385.942959ms)
+✔ inspector CLI: tools/call list_active_specs returns a schema-shaped envelope for the real repo (2463.308375ms)
+ℹ tests 157
+ℹ suites 0
+ℹ pass 137
+ℹ fail 20
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 19251.449916
+
+✖ failing tests:
+
+test at dist-test/tests/core-tools/core-tools.test.js:196:1
+✖ every tool's input schema never declares a root parameter (14.302834ms)
+  AssertionError [ERR_ASSERTION]: expected 13 tools, got 8
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/core-tools/core-tools.test.js:201:16)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/evidence/evidence.test.js:24:1
+✖ evidence_get_bundle: real data, schema-valid, echoes sdd-forge-refactor T-001's bundle fields (232.6145ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:35:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+
+test at dist-test/tests/evidence/evidence.test.js:51:1
+✖ evidence_get_bundle: synthetic, echoes signature value without verifying it (16.901375ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:66:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:76:1
+✖ evidence_get_bundle: not-found for a task with no evidence.json (10.7705ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:84:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:93:1
+✖ evidence_get_bundle: invalid-input for a malformed taskId (111.336542ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:101:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:111:1
+✖ evidence_validate_paths: real data, all sdd-forge-refactor T-001 artifacts are safe and exist (8.614708ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:122:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:138:1
+✖ evidence_validate_paths: synthetic, flags a traversal artifact path as unsafe (14.202834ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:158:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:177:1
+✖ evidence_find_missing: real data, sdd-forge-refactor T-001 (Done) has nothing missing (3.978542ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:188:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:201:1
+✖ evidence_find_missing: synthetic Done task with a fully valid bundle has nothing missing, matching get_task_state's Done verdict (12.50775ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:209:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:233:1
+✖ evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing (23.029459ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:241:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:252:1
+✖ evidence_find_missing: synthetic, a task whose quality-gate report lacks VERDICT: PASS is missing that requirement only (14.751083ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:263:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:275:1
+✖ evidence_summarize_contract_checks: real data, sdd-forge-refactor T-001's placeholder-scan check summarizes correctly (4.379792ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:286:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:302:1
+✖ evidence_summarize_contract_checks: synthetic, converts waiverReason and requirementIds (32.27275ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:310:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:321:1
+✖ evidence_summarize_contract_checks: cannot-parse for a malformed contract.json (20.270541ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:330:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:340:1
+✖ evidence_compare_to_traceability: real data, sdd-forge-mcp's traceability.md is fully consistent with tasks.md (99.116167ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:351:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:364:1
+✖ evidence_compare_to_traceability: synthetic, flags a REQ -> Task row referencing a nonexistent task (35.934333ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:372:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:385:1
+✖ evidence_compare_to_traceability: synthetic, flags a contract requirementId traceability.md never declares (30.00075ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:407:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:419:1
+✖ evidence_compare_to_traceability: not-found when traceability.md does not exist (63.203584ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:429:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/evidence/evidence.test.js:439:1
+✖ every evidence tool rejects a malformed feature argument as invalid-input (82.431833ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/evidence/evidence.test.js:453:30)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/smoke/inspector-smoke.test.js:76:1
+✖ inspector CLI: tools/list reports all 8 core tools (6309.1445ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   'evidence_compare_to_traceability',
+  +   'evidence_find_missing',
+  +   'evidence_get_bundle',
+  +   'evidence_summarize_contract_checks',
+  +   'evidence_validate_paths',
+      'get_next_sdd_command',
+      'get_quality_gate_summary',
+      'get_spec_status',
+      'get_task_state',
+      'list_active_specs',
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/smoke/inspector-smoke.test.js:80:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'evidence_compare_to_traceability', 'evidence_find_missing', 'evidence_get_bundle', 'evidence_summarize_contract_checks', 'evidence_validate_paths', 'get_next_sdd_command', 'get_quality_gate_summary', 'get_spec_status', 'get_task_state', 'list_active_specs', 'list_approved_tasks', 'list_blocked_tasks', 'list_review_tickets' ],
+    expected: [ 'get_next_sdd_command', 'get_quality_gate_summary', 'get_spec_status', 'get_task_state', 'list_active_specs', 'list_approved_tasks', 'list_blocked_tasks', 'list_review_tickets' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

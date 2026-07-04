@@ -55,6 +55,32 @@ function New-InstalledLayout {
     Set-Content -Path (Join-Path $agents "sdd-custom.toml") -Value "name = `"sdd-custom`"`ndeveloper_instructions = `"x`"" -Encoding Utf8NoBOM
 }
 
+# Seeds an installed MCP payload + a Codex config.toml with a registered
+# marker block, mirroring what install.ps1 would have produced.
+function New-InstalledMcpLayout {
+    param(
+        [Parameter(Mandatory)][string]$InstallRoot,
+        [Parameter(Mandatory)][string]$CodexHome
+    )
+    $mcpDistDir = Join-Path (Join-Path $InstallRoot "mcp/sdd-forge-mcp") "dist"
+    New-Item -ItemType Directory -Path $mcpDistDir -Force | Out-Null
+    Set-Content -Path (Join-Path $mcpDistDir "index.js") -Value "console.log('stub');" -Encoding Utf8NoBOM
+    Set-Content -Path (Join-Path $InstallRoot "mcp/sdd-forge-mcp/package.json") -Value '{"name":"sdd-forge-mcp"}' -Encoding Utf8NoBOM
+    New-Item -ItemType Directory -Path $CodexHome -Force | Out-Null
+    $entryPoint = (Join-Path $mcpDistDir "index.js") -replace '\\', '/'
+    $configLines = @(
+        '[some_other_section]',
+        'key = "value"',
+        '',
+        '# >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>',
+        '[mcp_servers.sdd-forge-mcp]',
+        'command = "node"',
+        "args = [`"$entryPoint`"]",
+        '# <<< sdd-forge-mcp <<<'
+    )
+    Set-Content -Path (Join-Path $CodexHome "config.toml") -Value $configLines -Encoding Utf8NoBOM
+}
+
 # Restricted PATH used by "missing CLI" scenarios so a real codex on the host
 # PATH cannot shadow the omitted shim.
 function Get-RestrictedPath {
@@ -281,6 +307,109 @@ try { & $uninstaller -InstallRoot $homeDir -Target FilesOnly -SkipPluginUninstal
 catch { $i2Failed = $true }
 if (-not $i2Failed) { throw "home directory was accepted as -InstallRoot" }
 Write-Host "ok: home directory rejected as -InstallRoot"
+
+# ---------------------------------------------------------------------------
+# MCP scenarios (T-006): AC-009
+# ---------------------------------------------------------------------------
+
+# Scenario (k): uninstall removes the MCP payload directory and the Codex
+# config.toml marker block, while preserving unrelated config.toml content.
+$kRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-uninstall-mcp-k-" + [guid]::NewGuid())
+$kInstall = Join-Path $kRoot "installed"
+$kCodexHome = Join-Path $kRoot "codex-home"
+$kBin = Join-Path $kRoot "bin"
+$kLog = Join-Path $kRoot "commands.log"
+$kOriginalPath = $env:PATH
+$kOriginalCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $kBin -LogPath $kLog
+    New-InstalledLayout -InstallRoot $kInstall -CodexHome $kCodexHome
+    New-InstalledMcpLayout -InstallRoot $kInstall -CodexHome $kCodexHome
+    $env:PATH = "$kBin$([System.IO.Path]::PathSeparator)$kOriginalPath"
+    $env:SDD_CODEX_HOME = $kCodexHome
+
+    $kFailed = $false
+    try { & $uninstaller -InstallRoot $kInstall -Target All *>$null } catch { $kFailed = $true }
+
+    if ($kFailed) { throw "MCP uninstall (k): uninstaller threw" }
+    if (Test-Path (Join-Path $kInstall "mcp")) { throw "MCP uninstall (k): mcp/ payload not removed" }
+    $configTomlPath = Join-Path $kCodexHome "config.toml"
+    if (-not (Test-Path $configTomlPath)) { throw "MCP uninstall (k): config.toml was deleted entirely" }
+    $configTomlContent = Get-Content -Raw $configTomlPath
+    if ($configTomlContent -match "sdd-forge-mcp") { throw "MCP uninstall (k): sdd-forge-mcp marker block not removed" }
+    if ($configTomlContent -notmatch "some_other_section") { throw "MCP uninstall (k): unrelated config.toml content was removed" }
+    $kLogContent = if (Test-Path $kLog) { Get-Content -Raw $kLog } else { "" }
+    if ($kLogContent -notmatch [regex]::Escape("claude mcp remove sdd-forge-mcp")) { throw "MCP uninstall (k): claude mcp remove not invoked" }
+    Write-Host "ok: uninstall removes MCP payload and Codex config.toml marker block"
+}
+finally {
+    $env:PATH = $kOriginalPath
+    if ($null -eq $kOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $kOriginalCodexHome }
+    if (Test-Path $kRoot) { Remove-Item -Path $kRoot -Recurse -Force }
+}
+
+# Scenario (l): uninstall on a system with no MCP ever installed succeeds
+# best-effort (no error, nothing to remove).
+$lRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-uninstall-mcp-l-" + [guid]::NewGuid())
+$lInstall = Join-Path $lRoot "installed"
+$lCodexHome = Join-Path $lRoot "codex-home"
+$lBin = Join-Path $lRoot "bin"
+$lLog = Join-Path $lRoot "commands.log"
+$lOriginalPath = $env:PATH
+$lOriginalCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $lBin -LogPath $lLog
+    New-InstalledLayout -InstallRoot $lInstall -CodexHome $lCodexHome
+    # Intentionally do NOT seed MCP payload or config.toml.
+    $env:PATH = "$lBin$([System.IO.Path]::PathSeparator)$lOriginalPath"
+    $env:SDD_CODEX_HOME = $lCodexHome
+
+    $lFailed = $false
+    try { & $uninstaller -InstallRoot $lInstall -Target All *>$null } catch { $lFailed = $true }
+
+    if ($lFailed) { throw "uninstall with no MCP ever installed should succeed best-effort" }
+    Write-Host "ok: uninstall with no MCP ever installed succeeds best-effort"
+}
+finally {
+    $env:PATH = $lOriginalPath
+    if ($null -eq $lOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $lOriginalCodexHome }
+    if (Test-Path $lRoot) { Remove-Item -Path $lRoot -Recurse -Force }
+}
+
+# Scenario (m): -Mcp <list> selects which MCP registrations/payloads are removed.
+$mRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-uninstall-mcp-m-" + [guid]::NewGuid())
+$mInstall = Join-Path $mRoot "installed"
+$mCodexHome = Join-Path $mRoot "codex-home"
+$mBin = Join-Path $mRoot "bin"
+$mLog = Join-Path $mRoot "commands.log"
+$mOriginalPath = $env:PATH
+$mOriginalCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $mBin -LogPath $mLog
+    New-InstalledLayout -InstallRoot $mInstall -CodexHome $mCodexHome
+    New-InstalledMcpLayout -InstallRoot $mInstall -CodexHome $mCodexHome
+    $env:PATH = "$mBin$([System.IO.Path]::PathSeparator)$mOriginalPath"
+    $env:SDD_CODEX_HOME = $mCodexHome
+
+    $mFailed = $false
+    try { & $uninstaller -InstallRoot $mInstall -Target All -Mcp @("sdd-forge-mcp") *>$null } catch { $mFailed = $true }
+
+    if ($mFailed) { throw "-Mcp subset (m): uninstaller threw" }
+    if (Test-Path (Join-Path $mInstall "mcp")) { throw "-Mcp subset (m): mcp/ payload not removed" }
+    Write-Host "ok: -Mcp <list> selects MCP payload/registration removal"
+}
+finally {
+    $env:PATH = $mOriginalPath
+    if ($null -eq $mOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $mOriginalCodexHome }
+    if (Test-Path $mRoot) { Remove-Item -Path $mRoot -Recurse -Force }
+}
+
+# Scenario (n): invalid -Mcp name rejected (ValidateSet)
+$nFailed = $false
+try { & $uninstaller -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -Mcp @("bogus-mcp") *>$null }
+catch { $nFailed = $true }
+if (-not $nFailed) { throw "invalid -Mcp name was accepted" }
+Write-Host "ok: invalid -Mcp name rejected"
 
 # ---------------------------------------------------------------------------
 # Scenario (j): FilesOnly skips CLI calls but still removes files
