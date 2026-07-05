@@ -1,5 +1,33 @@
 ticket_id: RT-20260705-001
-status: open
+status: resolved
+resolved_at: 2026-07-06
+resolution_record: |
+  Resolved via the WFI process per the human decisions of 2026-07-05
+  (options (b)/(c); T-005/T-010 Done When handled by human-authorized
+  wording amendment, not deemed satisfaction):
+  - WFI-004 (docs/workflow-improvements/WFI-004.md) drafted, audited
+    (cycle 1 NEEDS_REVISION applied; cycle 2 PASS), human-approved
+    2026-07-06, applied to AGENTS.md (Post-review artifact freeze +
+    Post-implementation provenance re-review), and Verified: the
+    persisted-state validator went from exit 1 ("task reviewer manifests
+    omit layer inputs") to exit 0 feature- and repo-wide.
+  - Item 4 (incomplete reviewer layer manifests) remedied by task-review
+    attempt 2 round 1 (reports/task-review/local-env-mcp/attempt-2/):
+    both reviewers received the complete input set incl. all four layer
+    specs and emitted the validator-canonical schemas directly; PASS with
+    0 findings (ledger sequences 42-43).
+  - Item 5 (INITIAL-STATE re-review deadlock) resolved by the AGENTS.md
+    lifecycle-validity rule; the role-file/validator schema mismatch and
+    the precheck script's initial-state assumption remain tracked as the
+    plugin-maintainer follow-up: https://github.com/aharada54914/sdd-forge/issues/86
+  - T-005 Done When items 1-2 and T-010 Done When item 2 amended in
+    tasks.md (2026-07-06 commit "docs(tasks): amend T-005/T-010 Done When
+    ...") to name the non-frozen addenda; T-010's Verification Status
+    table re-homed into its implementation report (quality-gate cycle 2
+    PASS after the fix).
+  - All ten tasks subsequently passed the quality verification gate with
+    independent evaluator verdicts and validated evidence bundles;
+    T-001..T-010 are Done.
 type: workflow-machinery
 severity: major
 target:
