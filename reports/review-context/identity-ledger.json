@@ -540,6 +540,24 @@
       "host_session_id": "hs-impl-b-8eee4773-0006",
       "previous_record_sha256": "8b533e5e782d446b2eb731a1fde13a3cfa5486c8cfcdb6a28ed917d7bc8bbad8",
       "record_sha256": "1eef0def5206f0f2db0a88b25d4a7f475cafdf64e6a274fe83e3cef97fcbd337"
+    },
+    {
+      "sequence": 61,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "task-a-cimcp-a1r1-20260706-32d9",
+      "host_session_id": "hs-task-a-8eee4773-0007",
+      "previous_record_sha256": "1eef0def5206f0f2db0a88b25d4a7f475cafdf64e6a274fe83e3cef97fcbd337",
+      "record_sha256": "71c2d79fc6c2354f7af83f1697ed92ad82cf586680875227cec1457826520aa5"
+    },
+    {
+      "sequence": 62,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "task-b-cimcp-a1r1-20260706-6898",
+      "host_session_id": "hs-task-b-8eee4773-0008",
+      "previous_record_sha256": "71c2d79fc6c2354f7af83f1697ed92ad82cf586680875227cec1457826520aa5",
+      "record_sha256": "12a85fe9c927658c3aad25a23ec0e18ac2aebb6ff9e4c52a901c051c801441f5"
     }
   ]
 }
