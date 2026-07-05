@@ -33,12 +33,15 @@
 | Task | REQ-ID | 内容 |
 |---|-----|---|
 | T-001 | REQ-001, REQ-003, REQ-012 | サーバー基盤・エンベロープ・allowlist・probe-engine |
-| T-002 | REQ-001, REQ-002, REQ-003, REQ-004, REQ-005 | 3 ツール・server/index・契約・no-secrets |
-| T-003 | REQ-006, REQ-012 | dist バンドル + dist-parity CI |
-| T-004 | REQ-007, REQ-008, REQ-009 | installer sh 拡張 + Cursor / VS Code 登録 |
-| T-005 | REQ-007, REQ-008, REQ-009 | installer ps1 パリティ |
-| T-006 | REQ-010 | uninstall 登録解除・配置削除 |
-| T-007 | REQ-011 | ドキュメント + traceability 最終化 |
+| T-002 | REQ-001, REQ-002, REQ-003, REQ-004 | 3 ツール・server/index・契約・no-exec |
+| T-003 | REQ-001, REQ-005 | stderr 診断ロガー(redaction)+ no-secrets 検査 |
+| T-004 | REQ-001, REQ-002, REQ-006, REQ-012 | dist バンドル + dist-parity CI + Inspector スモーク |
+| T-005 | REQ-008, REQ-009 | OQ-001 解消(Cursor / VS Code 設定形式確定) |
+| T-006 | REQ-007 | installer sh コア: 同梱・選択・Node<20 ゲート |
+| T-007 | REQ-008, REQ-009 | installer sh Cursor / VS Code 冪等登録 |
+| T-008 | REQ-007, REQ-008, REQ-009 | installer ps1 パリティ |
+| T-009 | REQ-010 | uninstall 登録解除・配置削除 |
+| T-010 | REQ-011 | ドキュメント + traceability 最終化 |
 
 ## AC → REQ
 
@@ -68,14 +71,14 @@
 | AC-002 | TEST-002 | T-002 | mcp/local-env-mcp/tests/tools/ |
 | AC-003 | TEST-003 | T-002 | mcp/local-env-mcp/tests/no-exec/ |
 | AC-004 | TEST-004 | T-001 | mcp/local-env-mcp/tests/error-paths/ |
-| AC-005 | TEST-005 | T-002 | mcp/local-env-mcp/tests/no-secrets/ |
+| AC-005 | TEST-005 | T-003 | mcp/local-env-mcp/tests/no-secrets/ |
 | AC-006 | TEST-006 | T-001 | mcp/local-env-mcp/tests/readonly/ |
-| AC-007 | TEST-007 | T-002 | mcp/local-env-mcp/tests/smoke/ |
-| AC-008 | TEST-008 | T-003 | .github/workflows/test.yml |
-| AC-009 | TEST-009 | T-004 | tests/install.tests.sh |
-| AC-010 | TEST-010 | T-004 | tests/install.tests.sh |
-| AC-011 | TEST-011 | T-004 | tests/install.tests.sh |
-| AC-012 | TEST-012 | T-006 | tests/uninstall.tests.sh / tests/install.tests.ps1 |
-| AC-013 | TEST-013 | T-005 | tests/install.tests.ps1 |
-| AC-014 | TEST-014 | T-007 | README.md / USERGUIDE.md(quality gate レビュー) |
-| AC-015 | TEST-015 | T-004 | tests/install.tests.sh |
+| AC-007 | TEST-007 | T-004 | mcp/local-env-mcp/tests/smoke/ |
+| AC-008 | TEST-008 | T-004 | .github/workflows/test.yml |
+| AC-009 | TEST-009 | T-006 | tests/install.tests.sh |
+| AC-010 | TEST-010 | T-007 | tests/install.tests.sh |
+| AC-011 | TEST-011 | T-007 | tests/install.tests.sh |
+| AC-012 | TEST-012 | T-009 | tests/uninstall.tests.sh / tests/install.tests.ps1 |
+| AC-013 | TEST-013 | T-008 | tests/install.tests.ps1 |
+| AC-014 | TEST-014 | T-010 | README.md / USERGUIDE.md(quality gate レビュー) |
+| AC-015 | TEST-015 | T-007 | tests/install.tests.sh |
