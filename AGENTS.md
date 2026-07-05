@@ -13,6 +13,26 @@ This project follows a three-stage Spec-Anchored AI Development workflow.
 7. Use `quality-gate` for independent verification and the Done decision.
 8. Use `fix-by-review-ticket` for approved review-ticket fixes, then rerun `quality-gate`.
 
+### Review gate precheck fallback
+
+While the upstream precheck defect tracked in issue #61
+(https://github.com/aharada54914/sdd-forge/issues/61) remains open, a review
+gate (specification review, implementation-policy review, task-decomposition
+review, or quality verification gate) whose launch precheck cannot be
+satisfied may fall back to a manually executed precheck, subject to all of
+the following:
+
+1. Run the precheck steps manually and record the results in a
+   `manual-precheck-note.md` inside the affected round directory.
+2. Obtain explicit human approval of the deviation and record it in the note.
+3. Reserve reviewer identities in the identity ledger exactly as the
+   automated path would.
+4. Reference issue #61 in the note.
+
+This fallback applies only while the upstream precheck defect (issue #61) is
+open; once the fix lands, the automated precheck path is again mandatory.
+(WFI-002)
+
 ## Sources Of Truth
 
 - `tasks.md`: task approval, execution order, and work status
