@@ -256,6 +256,55 @@ jobs:
   # (A live agent session that fires the hook needs an API-key secret and is
   # non-deterministic, so it is not gated here — the deterministic enforcement
   # below is what protects the branch.)
+  # local-env-mcp-tests — local-env-mcp (mcp/local-env-mcp/) is a read-only
+  # MCP server exposing local environment info (OS, toolchain versions, CLI
+  # availability) with no execution capability (ADR-0003/ADR-0004 pattern,
+  # same shape as sdd-forge-mcp). Exercised across the same 3-OS matrix as
+  # sdd-forge-mcp's mcp-tests job.
+  local-env-mcp-tests:
+    name: local-env-mcp-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: mcp/local-env-mcp
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: mcp/local-env-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test
+
+      # dist-parity (AC-008): rebuild the esbuild bundle and confirm the
+      # working tree's committed dist/index.js is reproducible from source.
+      # Runs once on Linux to keep the check OS-agnostic and fast; esbuild
+      # output is deterministic across platforms for this bundle (verified
+      # locally: two independent builds produced an identical SHA-256).
+      - name: Rebuild dist and verify parity
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run build
+          git diff --exit-code -- dist/
+
+      - name: Audit production dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: npm audit --omit=dev --audit-level=high
+
   cli-hook-enforcement:
     name: cli-hook-enforcement
     strategy:
