@@ -92,8 +92,13 @@ require_persisted_pass() {
   jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg req_current "$requirements_current_hash" \
     --arg accept "$acceptance_hash" --arg design "$design_hash" --arg design_current "$design_current_hash" \
     --arg repo "${repo_root}/" --arg calibration "$stage_calibration" --arg calibration_hash "$stage_calibration_hash" '
+    # Contracts persisted by predecessor gates record absolute paths of the
+    # checkout that generated them. Relativize against the known repository
+    # anchors so evidence stays verifiable from any checkout (issue #61).
     def relative_path:
-      if startswith($repo) then .[($repo | length):] else . end;
+      if startswith($repo) then .[($repo | length):]
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+      else . end;
     def allowed_input($role; $path; $attempt; $round):
       ($stage + "-reviewer-a") as $role_a |
       ($stage + "-reviewer-b") as $role_b |
@@ -140,8 +145,8 @@ require_persisted_pass() {
         all(.allowed_input_manifest[]?;
           .path as $raw_path |
           (($raw_path | type == "string") and
-           (($raw_path | startswith($repo)) or (($raw_path | startswith("/")) | not)) and
            (($raw_path | relative_path) as $path |
+             (($path | startswith("/")) | not) and
              ($path | test("(^|/)\\.\\.?(/|$)") | not) and
              allowed_input($role; $path; $attempt; $round) and
              (.sha256 | type == "string") and
@@ -164,12 +169,16 @@ require_persisted_pass() {
   local investigation_path="specs/${FEATURE}/investigation.md"
   manifest_has() {
     local role="$1" path="$2" hash_one="$3" hash_two="${4:-}"
-    jq -e --arg role "$role" --arg path "$path" --arg absolute "${repo_root}/${path}" \
+    jq -e --arg role "$role" --arg path "$path" --arg repo "${repo_root}/" \
       --arg hash_one "$hash_one" --arg hash_two "$hash_two" '
+      def relative_path:
+        if startswith($repo) then .[($repo | length):]
+        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+        else . end;
       any(.reviewers[]?;
         .role == $role and
         any(.allowed_input_manifest[]?;
-          (.path == $path or .path == $absolute) and
+          ((.path | relative_path) == $path) and
           (.sha256 == $hash_one or ($hash_two != "" and .sha256 == $hash_two))
         )
       )' "$contract" >/dev/null
