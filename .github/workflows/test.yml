@@ -213,6 +213,11 @@ jobs:
         working-directory: mcp/sdd-forge-mcp
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Full history: the golden task-state tests exercise
+          # check-evidence-bundle, which resolves each bundle's recorded
+          # git_commit binding via git; a shallow clone cannot see them.
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0

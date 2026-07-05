@@ -1,0 +1,17 @@
+PASS: complete task-review layer input set verifies
+PASS: blank, bare N/A, malformed anchor, and reasonless exclusion fail
+PASS: omitted applicable requirement row fails
+PASS: task contract manifests allow all four canonical layer inputs
+PASS: task review binds the Phase 1 design input
+PASS: persisted full manifest rejects tamper after profile downgrade
+PASS: missing layer input fails
+PASS: path-substituted layer input fails
+PASS: legacy rollback retains the historical core-input hash
+PASS: task-review layer inputs
+PASS: PowerShell complete task-review inputs verify
+PASS: PowerShell rejects invalid Layer Spec values
+PASS: PowerShell rejects omitted applicable requirement row
+PASS: PowerShell persisted full manifest rejects tamper after profile downgrade
+PASS: PowerShell rejects missing layer
+PASS: PowerShell binds the Phase 1 design input
+PASS: PowerShell rejects path-substituted layer
