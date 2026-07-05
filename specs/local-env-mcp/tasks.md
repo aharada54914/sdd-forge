@@ -246,7 +246,7 @@ T-005, T-006
 ## T-008 install.ps1 パリティ
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: T-006/T-007 と同一の IDE 設定ファイル変異面を Windows/PowerShell 経路で持つ(REQ-007〜REQ-009、security-spec.md B3)。sh/ps1 の挙動差異は片系統でのみ設定破壊を起こす silent defect になる。
 Required Workflow: tdd
