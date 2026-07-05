@@ -82,25 +82,3 @@
 | AC-013 | TEST-013 | T-008 | tests/install.tests.ps1 |
 | AC-014 | TEST-014 | T-010 | README.md / USERGUIDE.md(quality gate レビュー) |
 | AC-015 | TEST-015 | T-007 | tests/install.tests.sh |
-
-## Verification Status (T-010, 2026-07-05)
-
-Implementation of documentation and traceability finalization for local-env-mcp feature.
-
-| TEST-ID | Implementing Task | Verification Location |
-|---|---|---|
-| TEST-001 | T-002 | specs/local-env-mcp/verification/T-002-green.txt |
-| TEST-002 | T-002 | specs/local-env-mcp/verification/T-002-green.txt |
-| TEST-003 | T-002 | specs/local-env-mcp/verification/T-002-green.txt |
-| TEST-004 | T-001 | specs/local-env-mcp/verification/T-001-green.txt |
-| TEST-005 | T-003 | specs/local-env-mcp/verification/T-003-green.txt |
-| TEST-006 | T-001 | specs/local-env-mcp/verification/T-001-green.txt |
-| TEST-007 | T-004 | specs/local-env-mcp/verification/T-004-acceptance.txt |
-| TEST-008 | T-004 | specs/local-env-mcp/verification/T-004-acceptance.txt |
-| TEST-009 | T-006 | specs/local-env-mcp/verification/T-006-green.txt |
-| TEST-010 | T-007 | specs/local-env-mcp/verification/T-007-green.txt |
-| TEST-011 | T-007 | specs/local-env-mcp/verification/T-007-green.txt |
-| TEST-012 | T-009 | specs/local-env-mcp/verification/T-009-green.txt |
-| TEST-013 | T-008 | specs/local-env-mcp/verification/T-008-green.txt |
-| TEST-014 | T-010 | README.md / USERGUIDE.md (quality gate verification) |
-| TEST-015 | T-007 | specs/local-env-mcp/verification/T-007-green.txt |
