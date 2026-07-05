@@ -272,6 +272,10 @@
           "Blocked"
         ]
       }
+    },
+    {
+      "feature": "local-env-mcp",
+      "profile": "full"
     }
   ]
 }
