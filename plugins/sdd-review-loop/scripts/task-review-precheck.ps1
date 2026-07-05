@@ -27,7 +27,13 @@ function Get-ManifestRelativePath([string]$Path, [string]$RepoRoot) {
   if ($normalizedPath.StartsWith("$normalizedRoot/", [StringComparison]::Ordinal)) {
     $normalizedPath = $normalizedPath.Substring($normalizedRoot.Length + 1)
   } elseif ([IO.Path]::IsPathRooted($Path) -or $normalizedPath -match '^[A-Za-z]:/') {
-    return $null
+    # Contracts persisted by predecessor gates record absolute paths of the
+    # checkout that generated them. Relativize against the known repository
+    # anchors so evidence stays verifiable from any checkout (issue #61).
+    $anchorMatch = [Text.RegularExpressions.Regex]::Match(
+      $normalizedPath, '^.*/(?<tail>(specs|reports|plugins)/.+)$')
+    if (-not $anchorMatch.Success) { return $null }
+    $normalizedPath = $anchorMatch.Groups['tail'].Value
   }
   if ($normalizedPath -match '(^|/)\.\.?(/|$)') { return $null }
   return $normalizedPath
