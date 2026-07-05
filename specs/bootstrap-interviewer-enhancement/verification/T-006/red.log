@@ -1,0 +1,4 @@
+Command: bash tests/task-layer-review-inputs.tests.sh
+Exit: 1
+Output:
+FAIL: Bash task precheck must expose read-only input verification
