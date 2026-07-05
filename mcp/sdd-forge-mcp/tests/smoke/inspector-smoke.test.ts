@@ -17,6 +17,7 @@ import { test, before } from "node:test";
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
+import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -42,6 +43,20 @@ const PACKAGE_ROOT = findPackageRoot(THIS_FILE_DIR);
 const DIST_ENTRYPOINT = join(PACKAGE_ROOT, "dist", "index.js");
 const SDD_FORGE_REPO_ROOT = dirname(dirname(PACKAGE_ROOT));
 
+/**
+ * Absolute path to the inspector's CLI entry script, resolved through the
+ * package's own manifest. Spawning it with `process.execPath` (instead of
+ * `npx`) keeps the invocation portable: Windows has no `npx` executable —
+ * only an `npx.cmd` shim that `spawnSync` cannot start without a shell.
+ */
+const require = createRequire(import.meta.url);
+const INSPECTOR_CLI_ENTRYPOINT = join(
+  dirname(require.resolve("@modelcontextprotocol/inspector/package.json")),
+  "cli",
+  "build",
+  "cli.js",
+);
+
 const INSPECTOR_TIMEOUT_MS = 30_000;
 
 before(() => {
@@ -52,6 +67,8 @@ before(() => {
     cwd: PACKAGE_ROOT,
     encoding: "utf-8",
     timeout: 60_000,
+    // npm is npm.cmd on Windows; cmd shims need a shell to start.
+    shell: process.platform === "win32",
   });
   if (build.status !== 0) {
     throw new Error(
@@ -68,14 +85,14 @@ interface InspectorInvocation {
   status: number | null;
 }
 
-/** Runs `npx @modelcontextprotocol/inspector --cli node dist/index.js --root <repo> <extraArgs...>` and returns parsed stdout JSON. */
+/** Runs the inspector CLI (`--cli node dist/index.js --root <repo> <extraArgs...>`) and returns parsed stdout JSON. */
 function runInspector(extraArgs: readonly string[]): InspectorInvocation {
   const result = spawnSync(
-    "npx",
+    process.execPath,
     [
-      "@modelcontextprotocol/inspector",
+      INSPECTOR_CLI_ENTRYPOINT,
       "--cli",
-      "node",
+      process.execPath,
       DIST_ENTRYPOINT,
       "--root",
       SDD_FORGE_REPO_ROOT,

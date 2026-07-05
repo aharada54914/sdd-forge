@@ -16,7 +16,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { realpathSync } from "node:fs";
-import { join } from "node:path";
 import { parseTaskState } from "../../src/parsers/tasks.js";
 import type { SddRoot } from "../../src/root.js";
 import {
@@ -64,7 +63,12 @@ function assertParserMatchesShell(
     return;
   }
 
-  assert.equal(parserResult.ok, true, `${feature}: expected parser to succeed`);
+  assert.equal(
+    parserResult.ok,
+    true,
+    `${feature}: expected parser to succeed` +
+      (parserResult.ok ? "" : ` — envelope error: ${JSON.stringify(parserResult.error)}`),
+  );
   if (!parserResult.ok) {
     return;
   }
@@ -99,7 +103,10 @@ test("live shell comparison: parseTaskState matches check-task-state.sh for ever
     const fileNotFound = shellReportsFileNotFound(combinedOutput);
     const ownFailureMessages = extractOwnFailureMessages(combinedOutput);
 
-    const relTasksPath = join("specs", feature, "tasks.md");
+    // POSIX separators by contract: path-guard rejects backslashes, so the
+    // platform-dependent join() must not build this path (Windows would
+    // produce specs\<feature>\tasks.md and be denied).
+    const relTasksPath = `specs/${feature}/tasks.md`;
     const parserResult = parseTaskState(root, feature, relTasksPath);
 
     assertParserMatchesShell(feature, parserResult, exitCode, fileNotFound, ownFailureMessages);
@@ -114,7 +121,10 @@ test("recorded fixture comparison: parseTaskState matches the committed golden f
     const fixture: RecordedFixture = loadRecordedFixture(feature);
     assert.equal(fixture.feature, feature, `fixture file for ${feature} has mismatched feature field`);
 
-    const relTasksPath = join("specs", feature, "tasks.md");
+    // POSIX separators by contract: path-guard rejects backslashes, so the
+    // platform-dependent join() must not build this path (Windows would
+    // produce specs\<feature>\tasks.md and be denied).
+    const relTasksPath = `specs/${feature}/tasks.md`;
     const parserResult = parseTaskState(root, feature, relTasksPath);
 
     assertParserMatchesShell(
