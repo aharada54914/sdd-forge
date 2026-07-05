@@ -140,6 +140,73 @@ jq --arg root "$ROOT/" '(.reviewers[].allowed_input_manifest[].path) |= ($root +
 (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1) >/dev/null
 rm -rf "$IMPL_REPORT"
 
+# Issue #61 regression: spec-review-precheck.sh validate_contract persists
+# absolute manifest paths of the generating checkout plus precheck-result and
+# integrated-summary entries, hashed at review time (Spec-Review-Status:
+# Pending). The impl gate must accept that canonical format after the Passed
+# flip, including when validated from a different checkout (worktree/CI).
+write_issue61_spec_pass() {
+  local contract_root="$1" req acc calibration precheck summary
+  local dir="$SPEC_REPORT/attempt-1/round-1"
+  cat > "$SPEC_DIR/requirements.md" <<'EOF'
+Spec-Review-Status: Pending
+EOF
+  rm -rf "$SPEC_REPORT"
+  mkdir -p "$dir"
+  req="$(shasum -a 256 "$SPEC_DIR/requirements.md" | awk '{print $1}')"
+  acc="$(shasum -a 256 "$SPEC_DIR/acceptance-tests.md" | awk '{print $1}')"
+  calibration="$(shasum -a 256 "$ROOT/plugins/sdd-review-loop/references/spec-review-calibration.md" | awk '{print $1}')"
+  printf '{}\n' > "$dir/precheck-result.json"
+  printf '{}\n' > "$dir/integrated-summary.json"
+  precheck="$(shasum -a 256 "$dir/precheck-result.json" | awk '{print $1}')"
+  summary="$(shasum -a 256 "$dir/integrated-summary.json" | awk '{print $1}')"
+  jq -n --arg feature "$FEATURE" --arg root "$contract_root" --arg req "$req" --arg acc "$acc" \
+    --arg calibration "$calibration" --arg precheck "$precheck" --arg summary "$summary" '
+    def entries: [
+      {path:($root+"/specs/"+$feature+"/requirements.md"),sha256:$req},
+      {path:($root+"/specs/"+$feature+"/acceptance-tests.md"),sha256:$acc},
+      {path:($root+"/plugins/sdd-review-loop/references/spec-review-calibration.md"),sha256:$calibration},
+      {path:($root+"/reports/spec-review/"+$feature+"/attempt-1/round-1/precheck-result.json"),sha256:$precheck}];
+    {schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:1,round:1,
+     requirements_sha256:$req,acceptance_sha256:$acc,
+     reviewers:[
+       {role:"spec-reviewer-a",run_id:"run-a",host_session_id:"session-a",
+        allowed_input_manifest:(entries | sort_by(.path))},
+       {role:"spec-reviewer-b",run_id:"run-b",host_session_id:"session-b",
+        allowed_input_manifest:((entries + [{path:($root+"/reports/spec-review/"+$feature+"/attempt-1/round-1/integrated-summary.json"),sha256:$summary}]) | sort_by(.path))}],
+     run_id:"spec-orchestrator",verdict:"PASS",warningCount:0}' > "$dir/spec-review-contract.json"
+  jq -n --arg feature "$FEATURE" \
+    '{schema:"spec-review-integrated-verdict/v1",stage:"spec",feature:$feature,attempt:1,round:1,reviewer_a_run_id:"run-a",reviewer_b_run_id:"run-b",reviewer_a_host_session_id:"session-a",reviewer_b_host_session_id:"session-b",finding_counts:{critical:0,major:0,minor:0},verdict:"PASS",warningCount:0}' \
+    > "$dir/integrated-verdict.json"
+  # the orchestrating skill flips the status only after the review passes
+  sed -i.bak 's/Spec-Review-Status: Pending/Spec-Review-Status: Passed/' "$SPEC_DIR/requirements.md"
+  rm -f "$SPEC_DIR/requirements.md.bak"
+}
+
+write_issue61_spec_pass "/original-checkout/sdd-forge"
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1) >/dev/null ||
+  fail "impl must accept the canonical spec contract from another checkout after the Passed flip"
+rm -rf "$IMPL_REPORT"
+
+write_issue61_spec_pass "$ROOT"
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1) >/dev/null ||
+  fail "impl must accept the canonical spec contract from the same checkout after the Passed flip"
+rm -rf "$IMPL_REPORT"
+
+write_issue61_spec_pass "/original-checkout/sdd-forge"
+jq '(.reviewers[].allowed_input_manifest[] | select(.path | endswith("/requirements.md")) | .sha256) = ("1"*64) | .requirements_sha256 = ("1"*64)' \
+  "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.json" > "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.tmp" &&
+  mv "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.tmp" "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.json"
+expect_denied_without_evidence "impl tampered requirements hash in foreign-checkout contract" "$IMPL_REPORT" \
+  bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1
+
+write_issue61_spec_pass "/original-checkout/sdd-forge"
+jq '(.reviewers[0].allowed_input_manifest) += [{path:"/original-checkout/outside/escape.md",sha256:("0"*64)}]' \
+  "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.json" > "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.tmp" &&
+  mv "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.tmp" "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.json"
+expect_denied_without_evidence "impl anchor-less absolute path in foreign-checkout contract" "$IMPL_REPORT" \
+  bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1
+
 write_spec_pass
 jq '(.reviewers[0].allowed_input_manifest) |= map(select(.path | endswith("/precheck-result.json") | not))' \
   "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.json" > "$SPEC_REPORT/attempt-1/round-1/spec-review-contract.tmp" &&
