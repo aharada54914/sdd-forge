@@ -181,7 +181,7 @@ None
 ## T-006 install.sh コア拡張: local-env-mcp 同梱・選択・Node<20 ゲート
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: installer の MCP 配置経路の変更であり、欠陥は誤配置・意図しない登録(REQ-007)としてユーザー環境に影響する。Node<20 ゲートの退行は非対応環境への配置事故になる(requirements.md Edge Cases)。
 Required Workflow: tdd

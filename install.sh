@@ -15,15 +15,15 @@ SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
 SKIP_MCP=0
-MCP_LIST="sdd-forge-mcp"
+MCP_LIST="sdd-forge-mcp,local-env-mcp"
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
-VALID_MCPS="sdd-forge-mcp"
-# Marker used to delimit the sdd-forge-mcp block inside ~/.codex/config.toml so
-# it can be idempotently added, replaced, or removed without touching any
-# other content a user has in that file.
-CODEX_MCP_MARKER_BEGIN="# >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>"
-CODEX_MCP_MARKER_END="# <<< sdd-forge-mcp <<<"
+VALID_MCPS="sdd-forge-mcp local-env-mcp"
+# The ~/.codex/config.toml block for each selected MCP is delimited by a
+# per-MCP marker pair built inside register_codex_mcp (using the MCP name), so
+# a block can be idempotently added, replaced, or removed without touching any
+# other content a user has in that file. No single-MCP marker constant is
+# defined here because the installer ships more than one MCP.
 
 # ---------------------------------------------------------------------------
 # Argument parsing
@@ -43,8 +43,8 @@ Usage: install.sh [options]
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
   --skip-mcp                     Skip placing and registering all MCP servers
-  --mcp <comma-separated>        Names from: sdd-forge-mcp
-                                 Default: sdd-forge-mcp
+  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp
+                                 Default: sdd-forge-mcp,local-env-mcp
 
 Environment: SDD_CODEX_HOME     Override ~/.codex destination for agent TOML files and config.toml
   Remote installs require a GitHub CLI-authenticated session (`gh auth login`).
