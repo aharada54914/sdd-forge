@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "ci-mcp",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "5d7709f64d8f9e95325efe65701a19ca32f8f298bfeb6d6a6514aa8904af4bd1",
+  "acceptance_sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "5f08f769aab532c093ffc124ae976f1aafc8637510e83394f8536d746a24efc2",
+  "edit_summary": "REQ-006 error mapping disambiguated: 401 always auth-missing; 403 rate-limited only with rate-limit indicator (x-ratelimit-remaining:0 or retry-after), headerless 403 upstream-error; path-denied reserved for local input guard. AC-010 and design.md mapping table aligned.",
+  "reset": false,
+  "generated_at": "2026-07-05T23:07:43Z"
+}

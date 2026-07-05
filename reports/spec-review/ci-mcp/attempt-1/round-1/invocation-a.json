@@ -1,0 +1,33 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "ci-mcp",
+  "run_id": "spec-a-cimcp-a1r1-20260706-d4f2",
+  "host_session_id": "hs-spec-a-8eee4773-0001",
+  "sequence": 55,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "837b0e6ef0b9d6c0c8a9ca22c8e66d5bc1776bb884040c5c49b10636ab5a78ba",
+  "previous_record_sha256": "ca0f03a06975b004222738e490c6def95ef06e0fe8b70648e17edba1e2585400",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "22eb877c4d1b266c7f737345e87a63f055e68f0367335d5c66570f2f667efdd5"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "160da7026c73416472e619946dd24e236b56b766c27ae4f935aa775dc2273550"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/ci-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "8710fc6a621042781869201ba60ad5ad9f0dc5f17a46773f871d293672c9a690"
+    }
+  ]
+}
