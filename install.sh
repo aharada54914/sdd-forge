@@ -75,6 +75,12 @@ case "$TARGET" in
 esac
 
 # Validate --plugins
+# bash 3.2 treats the zero-element array produced by `read -ra` on an empty
+# string as unset under `set -u`, so reject an empty list before the read.
+if [[ -z "$PLUGINS" ]]; then
+    echo "Invalid plugin name: (empty) (must be one of: $VALID_PLUGINS)" >&2
+    exit 1
+fi
 IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
 for p in "${PLUGIN_LIST[@]}"; do
     valid=0
@@ -90,6 +96,10 @@ done
 # Validate --mcp
 MCP_SELECTION=()
 if [[ $SKIP_MCP -eq 0 ]]; then
+    if [[ -z "$MCP_LIST" ]]; then
+        echo "Invalid MCP name: (empty) (must be one of: $VALID_MCPS)" >&2
+        exit 1
+    fi
     IFS=',' read -ra MCP_SELECTION <<< "$MCP_LIST"
     for m in "${MCP_SELECTION[@]}"; do
         valid=0
@@ -709,16 +719,22 @@ STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 # A local worktree can contain credentials, caches, and nested untracked files.
 # Copy its Git index only. Downloaded archives are trusted release inputs and
 # have no local untracked state, so retain their complete archive layout.
+# The mcp/ tree is excluded here even though it is Git-tracked: MCP payload
+# placement is handled exclusively by place_mcp_servers (dist/ + package.json
+# only, gated by --skip-mcp / --mcp / the Node >= 20 check), so staging it
+# unconditionally here would bypass that gating.
 if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
     while IFS= read -r -d '' relative_path; do
         destination_path="${STAGING_ROOT}/${relative_path}"
         mkdir -p "$(dirname "$destination_path")"
         cp -P "${SOURCE_ROOT}/${relative_path}" "$destination_path"
-    done < <(git -C "$SOURCE_ROOT" ls-files -z)
+    done < <(git -C "$SOURCE_ROOT" ls-files -z -- . ':!mcp/**')
 else
     for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
         [[ -e "$entry" ]] || continue
-        [[ "$(basename "$entry")" == ".git" ]] && continue
+        case "$(basename "$entry")" in
+            .git|mcp) continue ;;
+        esac
         cp -R "$entry" "${STAGING_ROOT}/"
     done
 fi

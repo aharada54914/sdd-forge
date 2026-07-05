@@ -977,6 +977,45 @@ if (-not $mcpInvalidRejected) {
 }
 Write-Host "ok: -Mcp bogus-mcp is rejected"
 
+# Scenario (v3): -Mcp "" (empty value) is rejected cleanly by ValidateSet
+# parameter binding rather than being silently accepted as "no MCP selected".
+$mcpEmptyRejected = $false
+$mcpEmptyError = $null
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-empty-" + [guid]::NewGuid())) -Target FilesOnly -Mcp "" 2>$null
+}
+catch {
+    $mcpEmptyRejected = $true
+    $mcpEmptyError = $_
+}
+if (-not $mcpEmptyRejected) {
+    throw "-Mcp `"`" (v3): installer accepted an empty MCP value"
+}
+if ($mcpEmptyError -and ($mcpEmptyError.Exception.Message -match "unbound variable")) {
+    throw "-Mcp `"`" (v3): installer crashed with an unbound variable error"
+}
+Write-Host "ok: -Mcp `"`" (empty) is rejected"
+
+# Scenario (v4): -Plugins "" (empty value) is rejected cleanly by ValidateSet
+# parameter binding (mirrors install.sh's guard against bash 3.2's
+# unbound-variable crash on an empty --plugins list).
+$pluginsEmptyRejected = $false
+$pluginsEmptyError = $null
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-plugins-empty-" + [guid]::NewGuid())) -Target FilesOnly -Plugins "" 2>$null
+}
+catch {
+    $pluginsEmptyRejected = $true
+    $pluginsEmptyError = $_
+}
+if (-not $pluginsEmptyRejected) {
+    throw "-Plugins `"`" (v4): installer accepted an empty plugin value"
+}
+if ($pluginsEmptyError -and ($pluginsEmptyError.Exception.Message -match "unbound variable")) {
+    throw "-Plugins `"`" (v4): installer crashed with an unbound variable error"
+}
+Write-Host "ok: -Plugins `"`" (empty) is rejected"
+
 # Scenario (w): missing Node >= 20 warns and skips MCP only; plugins still
 # install. Shadow `node` with a fake old-version binary.
 $mcpOldNodeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-oldnode-" + [guid]::NewGuid())

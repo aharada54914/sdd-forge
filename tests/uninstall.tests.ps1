@@ -411,6 +411,32 @@ catch { $nFailed = $true }
 if (-not $nFailed) { throw "invalid -Mcp name was accepted" }
 Write-Host "ok: invalid -Mcp name rejected"
 
+# Scenario (n2): -Mcp "" (empty value) is rejected cleanly by ValidateSet
+# parameter binding rather than being silently accepted as "no MCP selected"
+# (mirrors uninstall.sh's guard against bash 3.2's unbound-variable crash).
+$n2Failed = $false
+$n2Error = $null
+try { & $uninstaller -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -Mcp "" *>$null }
+catch { $n2Failed = $true; $n2Error = $_ }
+if (-not $n2Failed) { throw "-Mcp `"`" (n2): uninstaller accepted an empty MCP value" }
+if ($n2Error -and ($n2Error.Exception.Message -match "unbound variable")) {
+    throw "-Mcp `"`" (n2): uninstaller crashed with an unbound variable error"
+}
+Write-Host "ok: -Mcp `"`" (empty) is rejected"
+
+# Scenario (n3): -Plugins "" (empty value) is rejected cleanly by ValidateSet
+# parameter binding (mirrors uninstall.sh's guard against bash 3.2's
+# unbound-variable crash on an empty --plugins list).
+$n3Failed = $false
+$n3Error = $null
+try { & $uninstaller -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ([guid]::NewGuid())) -Target FilesOnly -Plugins "" *>$null }
+catch { $n3Failed = $true; $n3Error = $_ }
+if (-not $n3Failed) { throw "-Plugins `"`" (n3): uninstaller accepted an empty plugin value" }
+if ($n3Error -and ($n3Error.Exception.Message -match "unbound variable")) {
+    throw "-Plugins `"`" (n3): uninstaller crashed with an unbound variable error"
+}
+Write-Host "ok: -Plugins `"`" (empty) is rejected"
+
 # ---------------------------------------------------------------------------
 # Scenario (j): FilesOnly skips CLI calls but still removes files
 # ---------------------------------------------------------------------------

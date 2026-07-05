@@ -83,6 +83,12 @@ case "$TARGET" in
 esac
 
 # Validate --plugins
+# bash 3.2 treats the zero-element array produced by `read -ra` on an empty
+# string as unset under `set -u`, so reject an empty list before the read.
+if [[ -z "$PLUGINS" ]]; then
+    echo "Invalid plugin name: (empty) (must be one of: $VALID_PLUGINS)" >&2
+    exit 1
+fi
 IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
 for p in "${PLUGIN_LIST[@]}"; do
     valid=0
@@ -98,6 +104,10 @@ done
 # Validate --mcp
 MCP_SELECTION=()
 if [[ $SKIP_MCP_UNINSTALL -eq 0 ]]; then
+    if [[ -z "$MCP_LIST" ]]; then
+        echo "Invalid MCP name: (empty) (must be one of: $VALID_MCPS)" >&2
+        exit 1
+    fi
     IFS=',' read -ra MCP_SELECTION <<< "$MCP_LIST"
     for m in "${MCP_SELECTION[@]}"; do
         valid=0

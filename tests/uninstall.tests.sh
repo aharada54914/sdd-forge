@@ -387,6 +387,50 @@ _n_failed=0
 bash "$UNINSTALLER" --install-root "$(mktemp -d)/x" --target FilesOnly --mcp "bogus-mcp" >/dev/null 2>&1 || _n_failed=1
 if [[ $_n_failed -eq 1 ]]; then ok "invalid --mcp name rejected"; else fail "invalid --mcp name was accepted"; fi
 
+# Scenario (n2): --mcp "" (empty value) is rejected cleanly rather than
+# crashing with an "unbound variable" error under bash 3.2's set -u, where a
+# zero-element array produced by `read -ra` on empty input is treated as unset.
+_n2_root="$(mktemp -d)"
+_n2_failed=0
+_n2_out="$(bash "$UNINSTALLER" --install-root "${_n2_root}/x" --target FilesOnly --mcp "" 2>&1)" || _n2_failed=1
+rm -rf "$_n2_root"
+_n2_ok=1
+if [[ $_n2_failed -eq 0 ]]; then
+    fail "--mcp \"\" (n2): uninstaller accepted an empty MCP list"
+    _n2_ok=0
+fi
+if echo "$_n2_out" | grep -qi "unbound variable"; then
+    fail "--mcp \"\" (n2): uninstaller crashed with an unbound variable error"
+    _n2_ok=0
+fi
+if ! echo "$_n2_out" | grep -qi "mcp"; then
+    fail "--mcp \"\" (n2): error output did not mention mcp"
+    _n2_ok=0
+fi
+[[ $_n2_ok -eq 1 ]] && ok "--mcp \"\" is rejected cleanly without an unbound variable crash"
+
+# Scenario (n3): --plugins "" (empty value) is rejected cleanly rather than
+# crashing with an "unbound variable" error under bash 3.2's set -u, where a
+# zero-element array produced by `read -ra` on empty input is treated as unset.
+_n3_root="$(mktemp -d)"
+_n3_failed=0
+_n3_out="$(bash "$UNINSTALLER" --install-root "${_n3_root}/x" --target FilesOnly --plugins "" 2>&1)" || _n3_failed=1
+rm -rf "$_n3_root"
+_n3_ok=1
+if [[ $_n3_failed -eq 0 ]]; then
+    fail "--plugins \"\" (n3): uninstaller accepted an empty plugin list"
+    _n3_ok=0
+fi
+if echo "$_n3_out" | grep -qi "unbound variable"; then
+    fail "--plugins \"\" (n3): uninstaller crashed with an unbound variable error"
+    _n3_ok=0
+fi
+if ! echo "$_n3_out" | grep -qi "plugin"; then
+    fail "--plugins \"\" (n3): error output did not mention plugin"
+    _n3_ok=0
+fi
+[[ $_n3_ok -eq 1 ]] && ok "--plugins \"\" is rejected cleanly without an unbound variable crash"
+
 # ---------------------------------------------------------------------------
 # Scenario (j): FilesOnly skips CLI calls but still removes files
 # ---------------------------------------------------------------------------

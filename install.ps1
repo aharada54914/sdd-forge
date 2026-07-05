@@ -494,7 +494,11 @@ try {
     $stagingRoot = Join-Path $installParent ("sdd-plugins-staging-" + [guid]::NewGuid())
     New-Item -ItemType Directory -Path $stagingRoot | Out-Null
     if ($isLocalSource) {
-        $trackedFiles = & git -C $sourceRoot ls-files
+        # The mcp/ tree is excluded here even though it is Git-tracked: MCP
+        # payload placement is handled exclusively by Install-McpServerPayloads
+        # (dist/ + package.json only, gated by -SkipMcp / -Mcp / the Node >= 20
+        # check), so staging it unconditionally here would bypass that gating.
+        $trackedFiles = & git -C $sourceRoot ls-files -- . ':!mcp/**'
         if ($LASTEXITCODE -ne 0) {
             throw "Unable to enumerate Git-tracked source files."
         }
@@ -511,8 +515,10 @@ try {
     }
     else {
         # Remote archive input is a trusted release artifact with no local
-        # untracked state. Preserve its complete layout, excluding .git.
-        foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force | Where-Object { $_.Name -ne ".git" })) {
+        # untracked state. Preserve its complete layout, excluding .git and
+        # mcp/ (MCP payload placement is handled exclusively by
+        # Install-McpServerPayloads, gated by -SkipMcp / -Mcp / Node >= 20).
+        foreach ($entry in (Get-ChildItem -Path $sourceRoot -Force | Where-Object { $_.Name -ne ".git" -and $_.Name -ne "mcp" })) {
             Copy-Item -Path $entry.FullName -Destination (Join-Path $stagingRoot $entry.Name) -Recurse -Force
         }
     }

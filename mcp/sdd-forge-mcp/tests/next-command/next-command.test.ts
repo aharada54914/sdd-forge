@@ -434,6 +434,20 @@ test("real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-can
     JSON.stringify(getEnvelopeValidator().errors),
   );
   assert.equal(result.data.feature, "sdd-forge-mcp");
-  assert.equal(result.data.phase, "implementation");
-  assert.match(result.data.nextCommand, /^\/sdd-ship:ship specs\/sdd-forge-mcp\/tasks\.md$/);
+  // The live repository's SDD state advances over time (implementation ->
+  // quality-gate -> done), so assert structural validity rather than a
+  // point-in-time phase value; point-in-time transitions are covered by the
+  // synthetic fixtures above.
+  const knownPhases = [
+    "implementation",
+    "quality-gate",
+    "done",
+    "blocked",
+    "approval-gate",
+  ];
+  assert.ok(
+    knownPhases.includes(result.data.phase),
+    `unexpected phase for live repo: ${result.data.phase}`,
+  );
+  assert.ok(result.data.nextCommand.length > 0);
 });

@@ -152,6 +152,10 @@ resolve_registered_plugins() {
                 sdd-lite) dependencies=(sdd-bootstrap sdd-implementation sdd-quality-loop) ;;
                 sdd-ship) dependencies=(sdd-bootstrap sdd-review-loop sdd-implementation sdd-quality-loop sdd-lite) ;;
             esac
+            # Guard the expansion: bash 3.2 treats a zero-element array as unset,
+            # so "${dependencies[@]}" would raise "unbound variable" under -u
+            # whenever $plugin has no case match above.
+            [[ ${#dependencies[@]} -eq 0 ]] && continue
             for dependency in "${dependencies[@]}"; do
                 if [[ " ${resolved[*]} " != *" ${dependency} "* ]]; then
                     resolved+=("$dependency")
@@ -1211,7 +1215,49 @@ if ! echo "$_v2_out" | grep -qi "mcp"; then
     fail "--mcp bogus-mcp (v2): usage/error output did not mention mcp"
     _v_ok=0
 fi
-[[ $_v_ok -eq 1 ]] && ok "--mcp <list> installs valid names and rejects invalid ones"
+
+# Scenario (v3): --mcp "" (empty value) is rejected cleanly rather than
+# crashing with an "unbound variable" error under bash 3.2's set -u, where a
+# zero-element array produced by `read -ra` on empty input is treated as unset.
+_v3_root="$(mktemp -d)"
+_v3_failed=0
+_v3_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "${_v3_root}/installed" --target FilesOnly --mcp "" 2>&1)" || _v3_failed=1
+rm -rf "$_v3_root"
+if [[ $_v3_failed -eq 0 ]]; then
+    fail "--mcp \"\" (v3): installer accepted an empty MCP list"
+    _v_ok=0
+fi
+if echo "$_v3_out" | grep -qi "unbound variable"; then
+    fail "--mcp \"\" (v3): installer crashed with an unbound variable error"
+    _v_ok=0
+fi
+if ! echo "$_v3_out" | grep -qi "mcp"; then
+    fail "--mcp \"\" (v3): usage/error output did not mention mcp"
+    _v_ok=0
+fi
+[[ $_v_ok -eq 1 ]] && ok "--mcp <list> installs valid names and rejects invalid/empty ones"
+
+# Scenario (v4): --plugins "" (empty value) is rejected cleanly rather than
+# crashing with an "unbound variable" error under bash 3.2's set -u, where a
+# zero-element array produced by `read -ra` on empty input is treated as unset.
+_v4_root="$(mktemp -d)"
+_v4_failed=0
+_v4_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "${_v4_root}/installed" --target FilesOnly --plugins "" 2>&1)" || _v4_failed=1
+rm -rf "$_v4_root"
+_v4_ok=1
+if [[ $_v4_failed -eq 0 ]]; then
+    fail "--plugins \"\" (v4): installer accepted an empty plugin list"
+    _v4_ok=0
+fi
+if echo "$_v4_out" | grep -qi "unbound variable"; then
+    fail "--plugins \"\" (v4): installer crashed with an unbound variable error"
+    _v4_ok=0
+fi
+if ! echo "$_v4_out" | grep -qi "plugin"; then
+    fail "--plugins \"\" (v4): error output did not mention plugin"
+    _v4_ok=0
+fi
+[[ $_v4_ok -eq 1 ]] && ok "--plugins \"\" is rejected cleanly without an unbound variable crash"
 
 # Scenario (w): missing Node >= 20 warns and skips MCP only; plugins still install.
 _w_root="$(mktemp -d)"
