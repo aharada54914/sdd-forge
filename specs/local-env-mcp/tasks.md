@@ -117,7 +117,7 @@ T-002
 ## T-004 esbuild バンドル + dist コミット + CI dist-parity + Inspector スモーク
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: 配布物(dist)と CI 検証・スモークの追加。挙動面は既存 ADR-0003 パターンの踏襲で、欠陥は CI で検出可能(改竄検知は dist-parity 自体が担う)。
 Required Workflow: acceptance-first
