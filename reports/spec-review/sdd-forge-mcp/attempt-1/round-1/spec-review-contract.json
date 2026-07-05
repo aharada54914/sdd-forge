@@ -1,0 +1,64 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "sdd-forge-mcp",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "a7a94b361c8cec76237c5ea23f6e128803504ea6cbb80bc9308f0a1f9ec8e632",
+  "acceptance_sha256": "1cd8caf0111b6e5a0f4d0e22fe2f60d2329a4440d59edad63821fbffc932b6e7",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "spec-a-sddforgemcp-a1r1-20260704-e42b",
+      "host_session_id": "hs-spec-a-7ea701ba-0002",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json",
+          "sha256": "95762a14ae3579024a7fbfe2fc58c36a020198a735a8c8d9521aa06b7a715261"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/acceptance-tests.md",
+          "sha256": "1cd8caf0111b6e5a0f4d0e22fe2f60d2329a4440d59edad63821fbffc932b6e7"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/requirements.md",
+          "sha256": "a7a94b361c8cec76237c5ea23f6e128803504ea6cbb80bc9308f0a1f9ec8e632"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "spec-b-sddforgemcp-a1r1-20260704-f7d3",
+      "host_session_id": "hs-spec-b-7ea701ba-0003",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-1/integrated-summary.json",
+          "sha256": "468fd97a89235217e8e5670e8948cd65207d23e0e0904a292cf3950a3bea01dc"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json",
+          "sha256": "95762a14ae3579024a7fbfe2fc58c36a020198a735a8c8d9521aa06b7a715261"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/acceptance-tests.md",
+          "sha256": "1cd8caf0111b6e5a0f4d0e22fe2f60d2329a4440d59edad63821fbffc932b6e7"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/requirements.md",
+          "sha256": "a7a94b361c8cec76237c5ea23f6e128803504ea6cbb80bc9308f0a1f9ec8e632"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-sddforgemcp-a1r1-20260704-9c2e",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

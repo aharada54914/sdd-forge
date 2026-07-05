@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.dev/contracts/sdd-forge-mcp-tools.v1.schema.json",
+  "title": "sdd-forge-mcp tool response envelope v1",
+  "description": "Response contract for all sdd-forge-mcp tools and resources. Every tool returns exactly one of the ok/error envelopes. Error envelopes never guess: cannot-parse and cannot-determine carry details instead of fabricated values.",
+  "oneOf": [
+    { "$ref": "#/$defs/okEnvelope" },
+    { "$ref": "#/$defs/errorEnvelope" }
+  ],
+  "$defs": {
+    "okEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "data"],
+      "properties": {
+        "ok": { "const": true },
+        "data": {
+          "oneOf": [
+            { "$ref": "#/$defs/taskStateData" },
+            { "$ref": "#/$defs/activeSpecsData" },
+            { "$ref": "#/$defs/specStatusData" },
+            { "$ref": "#/$defs/taskListData" },
+            { "$ref": "#/$defs/reviewTicketsData" },
+            { "$ref": "#/$defs/qualityGateSummaryData" },
+            { "$ref": "#/$defs/nextCommandData" },
+            { "$ref": "#/$defs/evidenceBundleData" },
+            { "$ref": "#/$defs/evidencePathsData" },
+            { "$ref": "#/$defs/evidenceMissingData" },
+            { "$ref": "#/$defs/contractChecksSummaryData" },
+            { "$ref": "#/$defs/traceabilityComparisonData" }
+          ]
+        }
+      }
+    },
+    "errorEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ok", "error"],
+      "properties": {
+        "ok": { "const": false },
+        "error": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["code", "message"],
+          "properties": {
+            "code": {
+              "enum": [
+                "cannot-parse",
+                "cannot-determine",
+                "not-found",
+                "path-denied",
+                "not-sdd-root",
+                "too-large",
+                "invalid-input"
+              ]
+            },
+            "message": { "type": "string", "minLength": 1 },
+            "details": {
+              "type": "object",
+              "description": "Machine-readable context: offending file, line, rule id. Never contains file contents of denied paths or environment variable values.",
+              "properties": {
+                "file": { "type": "string" },
+                "line": { "type": "integer", "minimum": 1 },
+                "rule": { "type": "string" }
+              },
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "feature": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$" },
+    "taskId": { "type": "string", "pattern": "^T-[0-9]+$" },
+    "approval": {
+      "type": "string",
+      "pattern": "^(Draft|Approved|Approved \\(.+\\))$"
+    },
+    "status": {
+      "enum": ["Planned", "In Progress", "Blocked", "Implementation Complete", "Done"]
+    },
+    "risk": { "enum": ["low", "medium", "high", "critical"] },
+    "taskEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "approval", "status", "blockersNonEmpty"],
+      "properties": {
+        "id": { "$ref": "#/$defs/taskId" },
+        "approval": { "$ref": "#/$defs/approval" },
+        "approvalAnnotation": { "type": "string" },
+        "status": { "$ref": "#/$defs/status" },
+        "risk": { "$ref": "#/$defs/risk" },
+        "requiredWorkflow": { "type": "string" },
+        "secondApproval": { "type": "string" },
+        "blockersNonEmpty": { "type": "boolean" }
+      }
+    },
+    "taskStateData": {
+      "type": "object",
+      "description": "get_task_state / sdd://tasks/{feature}. verdict and failures correspond 1:1 to check-task-state.sh exit code and failure messages (AC-001).",
+      "additionalProperties": false,
+      "required": ["kind", "feature", "tasksFile", "verdict", "taskCount", "tasks", "failures"],
+      "properties": {
+        "kind": { "const": "task-state" },
+        "feature": { "$ref": "#/$defs/feature" },
+        "tasksFile": { "type": "string" },
+        "verdict": { "enum": ["pass", "fail"] },
+        "taskCount": { "type": "integer", "minimum": 0 },
+        "tasks": { "type": "array", "items": { "$ref": "#/$defs/taskEntry" } },
+        "failures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["rule", "message"],
+            "properties": {
+              "taskId": { "$ref": "#/$defs/taskId" },
+              "rule": { "type": "string" },
+              "message": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "activeSpecsData": {
+      "type": "object",
+      "description": "list_active_specs / sdd://active-specs. Source of truth: AGENTS.md ## Active Spec Directories.",
+      "additionalProperties": false,
+      "required": ["kind", "specs"],
+      "properties": {
+        "kind": { "const": "active-specs" },
+        "specs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["feature", "path", "hasApprovedPlannedOrInProgress"],
+            "properties": {
+              "feature": { "$ref": "#/$defs/feature" },
+              "path": { "type": "string" },
+              "hasApprovedPlannedOrInProgress": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    },
+    "specStatusData": {
+      "type": "object",
+      "description": "get_spec_status / sdd://spec/{feature}: which Phase 1/2 artifacts exist and review-status headers.",
+      "additionalProperties": false,
+      "required": ["kind", "feature", "artifacts"],
+      "properties": {
+        "kind": { "const": "spec-status" },
+        "feature": { "$ref": "#/$defs/feature" },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "exists"],
+            "properties": {
+              "name": { "type": "string" },
+              "exists": { "type": "boolean" },
+              "reviewStatus": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "taskListData": {
+      "type": "object",
+      "description": "list_approved_tasks / list_blocked_tasks.",
+      "additionalProperties": false,
+      "required": ["kind", "feature", "tasks"],
+      "properties": {
+        "kind": { "enum": ["approved-tasks", "blocked-tasks"] },
+        "feature": { "$ref": "#/$defs/feature" },
+        "tasks": { "type": "array", "items": { "$ref": "#/$defs/taskEntry" } }
+      }
+    },
+    "reviewTicketsData": {
+      "type": "object",
+      "description": "list_review_tickets / sdd://review-tickets. Parsed from docs/review-tickets/RT-*.yml.",
+      "additionalProperties": false,
+      "required": ["kind", "tickets"],
+      "properties": {
+        "kind": { "const": "review-tickets" },
+        "tickets": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ticketId", "status", "severity", "file"],
+            "properties": {
+              "ticketId": { "type": "string", "pattern": "^RT-[0-9]{8}-[0-9]{3}$" },
+              "status": { "type": "string" },
+              "severity": { "type": "string" },
+              "type": { "type": "string" },
+              "feature": { "type": "string" },
+              "task": { "type": "string" },
+              "summary": { "type": "string" },
+              "file": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "qualityGateSummaryData": {
+      "type": "object",
+      "description": "get_quality_gate_summary / sdd://quality-reports. Extracted VERDICT and finding counts from reports/quality-gate/*.md.",
+      "additionalProperties": false,
+      "required": ["kind", "reports"],
+      "properties": {
+        "kind": { "const": "quality-gate-summary" },
+        "reports": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["file", "verdict"],
+            "properties": {
+              "file": { "type": "string" },
+              "taskId": { "type": "string" },
+              "feature": { "type": "string" },
+              "verdict": { "type": "string" },
+              "critical": { "type": "integer", "minimum": 0 },
+              "major": { "type": "integer", "minimum": 0 },
+              "minor": { "type": "integer", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "nextCommandData": {
+      "type": "object",
+      "description": "get_next_sdd_command. Deterministic mapping from workflow phase/task state to the next SDD command (REQ-011). No root parameter exists anywhere in this contract (REQ-007).",
+      "additionalProperties": false,
+      "required": ["kind", "phase", "nextCommand", "rationale"],
+      "properties": {
+        "kind": { "const": "next-command" },
+        "feature": { "$ref": "#/$defs/feature" },
+        "phase": { "type": "string" },
+        "nextCommand": { "type": "string" },
+        "rationale": { "type": "string" }
+      }
+    },
+    "evidenceBundleData": {
+      "type": "object",
+      "description": "evidence_get_bundle: parsed T-NNN.evidence.json (signature value is echoed as-is; the server never verifies or reads signing keys).",
+      "additionalProperties": false,
+      "required": ["kind", "feature", "taskId", "bundle"],
+      "properties": {
+        "kind": { "const": "evidence-bundle" },
+        "feature": { "$ref": "#/$defs/feature" },
+        "taskId": { "$ref": "#/$defs/taskId" },
+        "bundle": { "type": "object" }
+      }
+    },
+    "evidencePathsData": {
+      "type": "object",
+      "description": "evidence_validate_paths: relative/safe-path validation results for bundle artifacts.",
+      "additionalProperties": false,
+      "required": ["kind", "feature", "taskId", "results"],
+      "properties": {
+        "kind": { "const": "evidence-paths" },
+        "feature": { "$ref": "#/$defs/feature" },
+        "taskId": { "$ref": "#/$defs/taskId" },
+        "results": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "safe", "exists"],
+            "properties": {
+              "path": { "type": "string" },
+              "safe": { "type": "boolean" },
+              "exists": { "type": "boolean" },
+              "reason": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "evidenceMissingData": {
+      "type": "object",
+      "description": "evidence_find_missing: Done-transition requirements (evidence.json, contract.json, quality-gate report) vs. what is present.",
+      "additionalProperties": false,
+      "required": ["kind", "feature", "taskId", "required", "present", "missing"],
+      "properties": {
+        "kind": { "const": "evidence-missing" },
+        "feature": { "$ref": "#/$defs/feature" },
+        "taskId": { "$ref": "#/$defs/taskId" },
+        "required": { "type": "array", "items": { "type": "string" } },
+        "present": { "type": "array", "items": { "type": "string" } },
+        "missing": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "contractChecksSummaryData": {
+      "type": "object",
+      "description": "evidence_summarize_contract_checks: per-check pass/waiver summary from T-NNN.contract.json.",
+      "additionalProperties": false,
+      "required": ["kind", "feature", "taskId", "checks"],
+      "properties": {
+        "kind": { "const": "contract-checks" },
+        "feature": { "$ref": "#/$defs/feature" },
+        "taskId": { "$ref": "#/$defs/taskId" },
+        "checks": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "required", "passes"],
+            "properties": {
+              "id": { "type": "string" },
+              "required": { "type": "boolean" },
+              "passes": { "type": "boolean" },
+              "waiverReason": { "type": "string" },
+              "requirementIds": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+    "traceabilityComparisonData": {
+      "type": "object",
+      "description": "evidence_compare_to_traceability: mismatches between traceability.md rows and verification artifacts.",
+      "additionalProperties": false,
+      "required": ["kind", "feature", "matches", "mismatches"],
+      "properties": {
+        "kind": { "const": "traceability-comparison" },
+        "feature": { "$ref": "#/$defs/feature" },
+        "matches": { "type": "integer", "minimum": 0 },
+        "mismatches": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["subject", "issue"],
+            "properties": {
+              "subject": { "type": "string" },
+              "issue": { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

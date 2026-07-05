@@ -1,0 +1,15 @@
+T-005 GREEN — 2026-06-29
+
+Command: bash tests/impl-layer-review-inputs.tests.sh
+Exit: 0
+Observed: complete inputs and pre-review verification passed; missing, tampered, and symlink-substituted layer inputs failed closed; persisted full manifests still rejected tampering after a registry downgrade; rollback preserved the legacy core-input contract hash.
+
+Command: pwsh -NoProfile -File tests/impl-layer-review-inputs.tests.ps1
+Exit: 0
+Observed: PowerShell produced the equivalent outcomes, including downgrade resistance and rollback compatibility.
+
+Command: bash tests/downstream-review-precheck.tests.sh
+Exit: 0
+
+Command: pwsh -NoProfile -File tests/downstream-review-precheck.tests.ps1
+Exit: 0

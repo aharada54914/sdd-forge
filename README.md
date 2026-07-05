@@ -105,6 +105,8 @@ flowchart LR
 プラグインのインストールと運用手順は [docs/workflow-guide.md](docs/workflow-guide.md) をご覧ください。
 **初めての方は workflow-guide.md の正常系フローからお読みください。**
 
+`install.sh` / `install.ps1` には read-only の MCP サーバー `sdd-forge-mcp`（SDD 状態の構造化読み取り専用、書き込みなし）が同梱されており、既定で配置・登録されます。導入・除外（`--skip-mcp`）・選択導入（`--mcp sdd-forge-mcp`）・tool/resource 一覧・トラブルシュートは [USERGUIDE.md](USERGUIDE.md#sdd-forge-mcpmcp-サーバー) を参照してください。
+
 ## アンインストール
 
 `install.sh` / `install.ps1` が登録した内容を取り消します。各 CLI（Codex / Claude / Copilot）からプラグインと marketplace を解除し、インストール済みファイル（既定では `${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins`）と Codex エージェントロール（`~/.codex/agents/sdd-*.toml`）を削除します。

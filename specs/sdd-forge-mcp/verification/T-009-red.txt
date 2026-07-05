@@ -1,0 +1,255 @@
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> sdd-forge-mcp@0.1.0 test
+> node --test dist-test/tests/**/*.test.js
+
+✔ list_active_specs: schema-valid, flags feature-a active and feature-b inactive (258.375334ms)
+✔ get_spec_status: schema-valid, reports artifact existence and review-status headers (20.663209ms)
+✔ get_task_state: schema-valid, verdict fail with 1 blocked task in feature-a (60.046625ms)
+✔ get_task_state: not-found for a feature whose tasks.md does not exist (80.5205ms)
+✔ list_approved_tasks: schema-valid, only Approved-shaped tasks for feature-a (23.430459ms)
+✔ list_blocked_tasks: schema-valid, only Blocked-status tasks for feature-a (10.802416ms)
+✔ list_review_tickets: schema-valid, includes the seeded RT ticket (22.856708ms)
+✔ get_quality_gate_summary: schema-valid, includes the seeded PASS report (9.362875ms)
+✔ get_next_sdd_command: schema-valid cannot-determine stub (T-010 will replace it) (8.752333ms)
+✔ get_next_sdd_command: schema-valid cannot-determine stub with no feature argument (29.262292ms)
+✔ every tool's input schema never declares a root parameter (54.59625ms)
+✔ invalid feature argument shape is rejected as invalid-input (10.594125ms)
+✔ rejects a file larger than the 2 MiB limit with too-large (72.239709ms)
+✔ accepts a file exactly at the 2 MiB limit (19.694875ms)
+✔ isSddRoot is false for a root missing both AGENTS.md and specs/ (5.393708ms)
+✔ isSddRoot is false when only specs/ exists without AGENTS.md (3.536584ms)
+✔ isSddRoot is true for a properly-shaped SDD root (57.74ms)
+✔ live shell comparison: parseTaskState matches check-task-state.sh for every golden feature (8108.555166ms)
+✔ recorded fixture comparison: parseTaskState matches the committed golden fixtures (176.647291ms)
+✔ a well-formed tasks.md with a Planned task passes with an empty failures array (108.650125ms)
+✔ Approved (<annotation>) is accepted and the annotation is echoed back (157.203834ms)
+✔ a tasks.md with no ## T-NNN headers at all fails with no-tasks-found (18.566666ms)
+✔ a nonexistent tasks.md path propagates the path-guard not-found error (30.574958ms)
+✔ a tasks.md path outside the allowlist propagates path-denied (10.024209ms)
+✔ Done without a verification/<task-id>.evidence.json file fails (114.802375ms)
+✔ Done with evidence.json but missing contract.json fails (199.083584ms)
+✔ Done with an empty contract.json fails (60.95825ms)
+✔ Done with a contract.json whose task_id does not match fails (9.039708ms)
+✔ Done with no quality-gate report mentioning the task id fails (53.748125ms)
+✔ Done with a quality-gate report present but no VERDICT: PASS fails (68.642916ms)
+✔ Implementation Complete without a matching implementation report fails (27.959208ms)
+✔ Implementation Complete with a word-boundary match in an implementation report passes that rule (8.546333ms)
+✔ T-001 does not falsely match a report that only mentions T-0010 (word boundary) (10.139166ms)
+✔ critical Done without a distinct Second Approval fails (49.397375ms)
+✔ critical Done where both approvals are the same person fails (37.191375ms)
+✔ critical Done where either approver is 'sudo' fails (22.887583ms)
+✔ high-risk Done bundle missing spec_revision fails provenance (248.708792ms)
+✔ high-risk Done bundle with full provenance and matching artifact hashes passes (24.300625ms)
+✔ an artifact sha256 mismatch fails the evidence bundle (92.383458ms)
+✔ critical risk Done bundle without a signature object fails (19.776ms)
+✔ duplicate task ids are reported and the verdict is fail (40.337041ms)
+✔ an invalid Status value is reported and the verdict is fail (80.106083ms)
+✔ a missing Approval line is reported and the verdict is fail (26.012292ms)
+✔ In Progress without Approval: Approved is reported and the verdict is fail (40.38325ms)
+✔ Blocked with Blockers: None is reported and the verdict is fail (51.879ms)
+✔ Blocked with real blocker content passes the Blocked-specific rule (6.912334ms)
+✔ real repo: parseEvidenceBundle reads T-001.evidence.json for sdd-forge-refactor (6.063917ms)
+✔ real repo: parseVerificationContract reads T-001.contract.json for sdd-forge-refactor (9.679375ms)
+✔ real repo: every existing T-*.evidence.json under sdd-forge-refactor parses without throwing (5.9905ms)
+✔ real repo: every existing T-*.contract.json under sdd-forge-refactor parses without throwing (210.951375ms)
+✔ synthetic: parseEvidenceBundle echoes the signature value without verifying it (37.337291ms)
+✔ synthetic: parseEvidenceBundle rejects a task_id mismatch as cannot-parse (3.657083ms)
+✔ synthetic: parseEvidenceBundle rejects broken JSON as cannot-parse (16.449875ms)
+✔ synthetic: parseEvidenceBundle rejects a bundle missing required fields as cannot-parse (55.564208ms)
+✔ synthetic: parseEvidenceBundle propagates a not-found error unchanged (36.000166ms)
+✔ synthetic: parseVerificationContract converts checks[] into the contractChecksSummaryData shape (9.996417ms)
+✔ synthetic: parseVerificationContract rejects a task_id mismatch as cannot-parse (6.713375ms)
+✔ synthetic: parseVerificationContract rejects broken JSON as cannot-parse (63.776709ms)
+✔ synthetic: parseVerificationContract rejects a non-array checks field as cannot-parse (41.99475ms)
+✔ real repo: sdd-forge-refactor/traceability.md yields REQ->Task and AC->REQ rows (23.2865ms)
+✔ real repo: sdd-forge-mcp/traceability.md yields REQ->Task, AC->REQ, and AC->TEST->Task rows (9.8505ms)
+✔ synthetic: a REQ->Task table with comma-separated Task-ID cells splits into multiple taskIds (62.964542ms)
+✔ synthetic: no tables at all in traceability.md yields empty arrays, not cannot-parse (25.717292ms)
+✔ synthetic: a REQ->Task table with a missing column in a data row is cannot-parse with a line number (185.974ms)
+✔ synthetic: an AC->REQ table with an empty Task-ID-like required cell is cannot-parse (16.101708ms)
+✔ synthetic: propagates a not-found error when traceability.md is absent (40.220125ms)
+✔ real repo: Active Spec Directories has at least 3 entries with feature/path (5.015667ms)
+✔ real repo: Required Workflow has numbered steps with non-empty text (1.088916ms)
+✔ synthetic: well-formed Active Spec Directories bullets parse to feature/path pairs (3.343208ms)
+✔ synthetic: well-formed Required Workflow numbered steps parse in order (3.819625ms)
+✔ cannot-determine: AGENTS.md with no Active Spec Directories section (11.20125ms)
+✔ cannot-determine: AGENTS.md with no Required Workflow section (23.192917ms)
+✔ cannot-parse: malformed Active Spec Directories bullet reports a line number (5.549542ms)
+✔ cannot-parse: Required Workflow section with no numbered steps (117.114ms)
+✔ guardedRead failure (missing AGENTS.md) propagates unchanged as not-found (65.405708ms)
+✔ real repo: every reports/quality-gate/*.md file is scanned without throwing (218.655375ms)
+✔ real repo: at least one report has taskId, critical/major/minor counts, and a PASS-shaped verdict (23.215084ms)
+✔ synthetic: well-formed report with all fields parses every value (13.065875ms)
+✔ synthetic: VERDICT repeated later in the file uses the first occurrence (7.505208ms)
+✔ synthetic: report with no VERDICT line is reported as verdict-not-found, not cannot-parse (13.134583ms)
+✔ listQualityReports aggregates reports and failures across a directory (11.494375ms)
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (24.707458ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (5.943375ms)
+✔ synthetic: well-formed ticket parses all optional fields (8.416958ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (188.994917ms)
+✔ cannot-parse: invalid YAML syntax (30.4895ms)
+✔ cannot-parse: missing required fields (3.957167ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (19.418042ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (39.600167ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (14.247958ms)
+✔ denies reads under a plugins/ directory that is not on the allowlist (6.158834ms)
+✔ denies reads under a .git/ directory (4.125ms)
+✔ denies the SDD sudo flag file even when placed inside an allowlisted directory (3.052208ms)
+✔ denies .env files reached via an allowlisted directory (17.469167ms)
+✔ never includes file contents or the offending value in the denial message or details (6.47875ms)
+✔ rejects a relative path containing a parent traversal segment (22.033458ms)
+✔ rejects an absolute path argument outright (7.478584ms)
+✔ rejects an empty path as invalid input (3.430208ms)
+✔ rejects a path argument containing backslashes (2.583792ms)
+✔ rejects a symlink inside the allowlist that resolves outside it (4.221667ms)
+✔ resolveGuarded rejects the same traversal shapes without reading contents (4.823583ms)
+✔ allows a legitimate allowlisted file to be read (9.364667ms)
+✔ all 8 core tools leave the fixture repository byte-for-byte unchanged (229.508167ms)
+✔ src/ contains no filesystem write API references (37.055208ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (6.059625ms)
+✖ resources/list + resources/templates/list together expose all 5 sdd:// resources (98.0595ms)
+✖ sdd://active-specs matches list_active_specs exactly (108.186208ms)
+✖ sdd://spec/{feature} matches get_spec_status exactly (13.396292ms)
+✖ sdd://tasks/{feature} matches get_task_state exactly (15.735541ms)
+✖ sdd://tasks/{feature} surfaces invalid-input for a malformed feature, same as the tool (15.53125ms)
+✖ sdd://review-tickets matches list_review_tickets exactly (15.338042ms)
+✖ sdd://quality-reports matches get_quality_gate_summary exactly (29.027458ms)
+✔ resolved root is frozen and immutable after construction (7.934875ms)
+✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (9.056584ms)
+✔ changing cwd after resolution does not affect the already-resolved root (7.26425ms)
+✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (15.163ms)
+✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (8.3145ms)
+✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (5.270375ms)
+ℹ tests 118
+ℹ suites 0
+ℹ pass 111
+ℹ fail 7
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 8754.032041
+
+✖ failing tests:
+
+test at dist-test/tests/resources/resources.test.js:12:1
+✖ resources/list + resources/templates/list together expose all 5 sdd:// resources (98.0595ms)
+  Error [McpError]: MCP error -32601: Method not found
+      at McpError.fromError (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js:2048:16)
+      at Client._onresponse (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:490:36)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:234:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at Server._onrequest (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:309:23)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:237:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:743:33
+      at new Promise (<anonymous>)
+      at Client.request (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:615:16) {
+    code: -32601,
+    data: undefined
+  }
+
+test at dist-test/tests/resources/resources.test.js:27:1
+✖ sdd://active-specs matches list_active_specs exactly (108.186208ms)
+  Error [McpError]: MCP error -32601: Method not found
+      at McpError.fromError (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js:2048:16)
+      at Client._onresponse (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:490:36)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:234:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at Server._onrequest (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:309:23)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:237:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:743:33
+      at new Promise (<anonymous>)
+      at Client.request (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:615:16) {
+    code: -32601,
+    data: undefined
+  }
+
+test at dist-test/tests/resources/resources.test.js:42:1
+✖ sdd://spec/{feature} matches get_spec_status exactly (13.396292ms)
+  Error [McpError]: MCP error -32601: Method not found
+      at McpError.fromError (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js:2048:16)
+      at Client._onresponse (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:490:36)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:234:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at Server._onrequest (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:309:23)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:237:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:743:33
+      at new Promise (<anonymous>)
+      at Client.request (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:615:16) {
+    code: -32601,
+    data: undefined
+  }
+
+test at dist-test/tests/resources/resources.test.js:59:1
+✖ sdd://tasks/{feature} matches get_task_state exactly (15.735541ms)
+  Error [McpError]: MCP error -32601: Method not found
+      at McpError.fromError (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js:2048:16)
+      at Client._onresponse (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:490:36)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:234:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at Server._onrequest (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:309:23)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:237:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:743:33
+      at new Promise (<anonymous>)
+      at Client.request (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:615:16) {
+    code: -32601,
+    data: undefined
+  }
+
+test at dist-test/tests/resources/resources.test.js:76:1
+✖ sdd://tasks/{feature} surfaces invalid-input for a malformed feature, same as the tool (15.53125ms)
+  Error [McpError]: MCP error -32601: Method not found
+      at McpError.fromError (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js:2048:16)
+      at Client._onresponse (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:490:36)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:234:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at Server._onrequest (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:309:23)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:237:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:743:33
+      at new Promise (<anonymous>)
+      at Client.request (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:615:16) {
+    code: -32601,
+    data: undefined
+  }
+
+test at dist-test/tests/resources/resources.test.js:96:1
+✖ sdd://review-tickets matches list_review_tickets exactly (15.338042ms)
+  Error [McpError]: MCP error -32601: Method not found
+      at McpError.fromError (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js:2048:16)
+      at Client._onresponse (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:490:36)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:234:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at Server._onrequest (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:309:23)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:237:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:743:33
+      at new Promise (<anonymous>)
+      at Client.request (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:615:16) {
+    code: -32601,
+    data: undefined
+  }
+
+test at dist-test/tests/resources/resources.test.js:110:1
+✖ sdd://quality-reports matches get_quality_gate_summary exactly (29.027458ms)
+  Error [McpError]: MCP error -32601: Method not found
+      at McpError.fromError (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/types.js:2048:16)
+      at Client._onresponse (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:490:36)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:234:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at Server._onrequest (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:309:23)
+      at _transport.onmessage (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:237:22)
+      at InMemoryTransport.send (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/inMemory.js:40:34)
+      at file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:743:33
+      at new Promise (<anonymous>)
+      at Client.request (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/@modelcontextprotocol/sdk/dist/esm/shared/protocol.js:615:16) {
+    code: -32601,
+    data: undefined
+  }

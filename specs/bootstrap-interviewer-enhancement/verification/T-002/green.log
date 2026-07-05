@@ -1,0 +1,10 @@
+Command: ./tests/bootstrap-cross-layer-index.tests.sh
+Exit: 0
+
+TEST-007 and TEST-008 passed. The design template links all four layer specs,
+records cross-layer dependencies and ADR history, and contains no legacy inline
+plan placeholders. Every example Layer Spec value is canonical or a reasoned
+cross-layer exclusion.
+
+PASS: 19
+FAIL: 0

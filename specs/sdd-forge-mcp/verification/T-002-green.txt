@@ -1,0 +1,103 @@
+=== T-002 GREEN evidence ===
+Date: 2026-07-04T16:15:00Z
+
+The five stubbed modules (src/parsers/tasks.ts, src/parsers/task-validation.ts,
+src/parsers/task-types.ts, src/parsers/report-lookup.ts,
+src/parsers/evidence-bundle.ts) were restored to their real implementation.
+Restoration was verified byte-identical to a pre-stub backup via `diff`
+before running the commands below.
+
+--- npx tsc --noEmit (src/) ---
+tsc exit: 0
+(no output)
+
+--- npm test (pretest: tsc -p tsconfig.test.json; then node --test) ---
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> sdd-forge-mcp@0.1.0 test
+> node --test dist-test/tests/**/*.test.js
+
+✔ rejects a file larger than the 2 MiB limit with too-large (131.402ms)
+✔ accepts a file exactly at the 2 MiB limit (26.330167ms)
+✔ isSddRoot is false for a root missing both AGENTS.md and specs/ (0.951875ms)
+✔ isSddRoot is false when only specs/ exists without AGENTS.md (1.1995ms)
+✔ isSddRoot is true for a properly-shaped SDD root (2.7015ms)
+✔ live shell comparison: parseTaskState matches check-task-state.sh for every golden feature (48080.384917ms)
+✔ recorded fixture comparison: parseTaskState matches the committed golden fixtures (502.89875ms)
+✔ high-risk Done bundle missing spec_revision fails provenance (58.107834ms)
+✔ high-risk Done bundle with full provenance and matching artifact hashes passes (11.702791ms)
+✔ an artifact sha256 mismatch fails the evidence bundle (27.534542ms)
+✔ critical risk Done bundle without a signature object fails (40.875667ms)
+✔ duplicate task ids are reported and the verdict is fail (22.189042ms)
+✔ an invalid Status value is reported and the verdict is fail (62.284042ms)
+✔ a missing Approval line is reported and the verdict is fail (3.368417ms)
+✔ In Progress without Approval: Approved is reported and the verdict is fail (2.828875ms)
+✔ Blocked with Blockers: None is reported and the verdict is fail (3.287083ms)
+✔ Blocked with real blocker content passes the Blocked-specific rule (6.659208ms)
+✔ Done without a verification/<task-id>.evidence.json file fails (15.146708ms)
+✔ Done with evidence.json but missing contract.json fails (11.175583ms)
+✔ Done with an empty contract.json fails (118.877ms)
+✔ Done with a contract.json whose task_id does not match fails (5.489166ms)
+✔ Done with no quality-gate report mentioning the task id fails (7.122166ms)
+✔ Done with a quality-gate report present but no VERDICT: PASS fails (7.159459ms)
+✔ Implementation Complete without a matching implementation report fails (4.040083ms)
+✔ Implementation Complete with a word-boundary match in an implementation report passes that rule (3.961583ms)
+✔ T-001 does not falsely match a report that only mentions T-0010 (word boundary) (6.052625ms)
+✔ critical Done without a distinct Second Approval fails (11.979375ms)
+✔ critical Done where both approvals are the same person fails (45.270625ms)
+✔ critical Done where either approver is 'sudo' fails (7.117959ms)
+✔ a well-formed tasks.md with a Planned task passes with an empty failures array (11.755541ms)
+✔ Approved (<annotation>) is accepted and the annotation is echoed back (5.032666ms)
+✔ a tasks.md with no ## T-NNN headers at all fails with no-tasks-found (4.777458ms)
+✔ a nonexistent tasks.md path propagates the path-guard not-found error (2.745ms)
+✔ a tasks.md path outside the allowlist propagates path-denied (2.662041ms)
+✔ denies reads under a plugins/ directory that is not on the allowlist (51.221625ms)
+✔ denies reads under a .git/ directory (8.562375ms)
+✔ denies the SDD sudo flag file even when placed inside an allowlisted directory (4.767917ms)
+✔ denies .env files reached via an allowlisted directory (6.633792ms)
+✔ never includes file contents or the offending value in the denial message or details (8.01625ms)
+✔ rejects a relative path containing a parent traversal segment (13.91ms)
+✔ rejects an absolute path argument outright (6.89325ms)
+✔ rejects an empty path as invalid input (82.291584ms)
+✔ rejects a path argument containing backslashes (3.271667ms)
+✔ rejects a symlink inside the allowlist that resolves outside it (9.004458ms)
+✔ resolveGuarded rejects the same traversal shapes without reading contents (2.7375ms)
+✔ allows a legitimate allowlisted file to be read (5.445ms)
+✔ src/ contains no filesystem write API references (17.852292ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (1.742792ms)
+✔ resolved root is frozen and immutable after construction (6.60525ms)
+✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (9.382208ms)
+✔ changing cwd after resolution does not affect the already-resolved root (2.333083ms)
+✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (5.310167ms)
+✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (2.882708ms)
+✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (2.31875ms)
+ℹ tests 54
+ℹ suites 0
+ℹ pass 54
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48893.871958
+
+GREEN summary: 54/54 tests pass (25 pre-existing T-001 tests + 29 new T-002
+tests, currently organized as: 6 in tests/parser/field-validation.test.ts,
+12 in tests/parser/done-state.test.ts, 5 in
+tests/parser/baseline-and-io.test.ts (originally combined as 23 in a single
+tests/parser/tasks-parser.test.ts at RED time, later split for readability —
+see T-002-red.txt's post-RED note), 4 in
+tests/parser/evidence-bundle.test.ts, and 2 golden tests in
+tests/golden/task-state-golden.test.ts covering all 6 golden-set features).
+`npx tsc --noEmit` on src/ is clean.
+
+Golden verdict cross-check (parseTaskState vs. check-task-state.sh, all 6
+golden features):
+  bootstrap-interviewer-enhancement: shell exit 1 (tasks file not found)  <-> parser not-found
+  claude-workflow-compatibility:     shell exit 0 (pass)                 <-> parser pass, 0 failures
+  cross-model-verification:         shell exit 0 (pass)                 <-> parser pass, 0 failures
+  risk-adaptive-layer:               shell exit 0 (pass)                 <-> parser pass, 0 failures
+  sdd-forge-refactor:                shell exit 1 (fail, 5 failures)      <-> parser fail, 5 failures
+  sdd-lite:                          shell exit 1 (tasks file not found)  <-> parser not-found

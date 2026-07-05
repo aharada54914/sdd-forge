@@ -194,6 +194,61 @@ jobs:
           path: ${{ runner.temp }}/*.log
           if-no-files-found: ignore
 
+  # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
+  # Node/TypeScript component: a read-only MCP server exposing SDD workflow
+  # state. Its tasks.md state-machine parser must stay shell-equivalent with
+  # check-task-state.sh (golden tests), so it is exercised across the same
+  # 3-OS matrix as the rest of the suite. On POSIX runners the golden tests
+  # execute the real shell scripts; on Windows they compare against recorded
+  # fixtures (process.platform branch inside the test suite itself).
+  mcp-tests:
+    name: mcp-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: mcp/sdd-forge-mcp
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Full history: the golden task-state tests exercise
+          # check-evidence-bundle, which resolves each bundle's recorded
+          # git_commit binding via git; a shallow clone cannot see them.
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test
+
+      # dist-parity (AC-010): rebuild the esbuild bundle and confirm the
+      # working tree's committed dist/index.js is reproducible from source.
+      # Runs once on Linux to keep the check OS-agnostic and fast; esbuild
+      # output is deterministic across platforms for this bundle.
+      - name: Rebuild dist and verify parity
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run build
+          git diff --exit-code -- dist/
+
+      - name: Audit production dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: npm audit --omit=dev --audit-level=high
+
   # B2 — exercise the SDD hook guard with the REAL CLI toolchains installed on
   # each OS, through the exact command line each CLI's hook config invokes. This
   # closes the gap that the unit/scenario suites only run the guard scripts in

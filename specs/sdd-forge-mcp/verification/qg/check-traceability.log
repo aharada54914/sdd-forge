@@ -1,0 +1,3 @@
+$ bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/sdd-forge-mcp/traceability.json . require-evidence
+Traceability check passed for sdd-forge-mcp: 11 link(s).
+exit: 0

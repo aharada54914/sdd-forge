@@ -1,0 +1,3 @@
+$ check-placeholders on mcp/sdd-forge-mcp/src + installer + workflow + docs
+Placeholder scan passed.
+exit: 0

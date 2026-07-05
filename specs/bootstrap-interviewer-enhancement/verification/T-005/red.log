@@ -1,0 +1,9 @@
+T-005 RED — 2026-06-29
+
+Command: bash tests/impl-layer-review-inputs.tests.sh
+Exit: 1
+Observed: precheck-result.json had no layer_sha256 object; the test failed while requiring exact hash bindings for all four layer inputs.
+
+Command: pwsh -NoProfile -File tests/impl-layer-review-inputs.tests.ps1
+Exit: 1
+Observed: FAIL: missing hash for ux-spec.md

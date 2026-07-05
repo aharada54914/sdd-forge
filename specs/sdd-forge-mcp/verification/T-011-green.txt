@@ -1,0 +1,38 @@
+$ npx tsc --noEmit
+(no output — 0 errors)
+
+$ npm test
+✔ 98 tests, 0 failures (includes the pre-existing 78 T-001..T-010 tests plus
+  20 new tests in tests/parsers-evidence/{evidence,traceability}.test.ts)
+
+ℹ tests 98
+ℹ suites 0
+ℹ pass 98
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+
+New tests (tests/parsers-evidence/evidence.test.ts):
+✔ real repo: parseEvidenceBundle reads T-001.evidence.json for sdd-forge-refactor
+✔ real repo: parseVerificationContract reads T-001.contract.json for sdd-forge-refactor
+✔ real repo: every existing T-*.evidence.json under sdd-forge-refactor parses without throwing
+✔ real repo: every existing T-*.contract.json under sdd-forge-refactor parses without throwing
+✔ synthetic: parseEvidenceBundle echoes the signature value without verifying it
+✔ synthetic: parseEvidenceBundle rejects a task_id mismatch as cannot-parse
+✔ synthetic: parseEvidenceBundle rejects broken JSON as cannot-parse
+✔ synthetic: parseEvidenceBundle rejects a bundle missing required fields as cannot-parse
+✔ synthetic: parseEvidenceBundle propagates a not-found error unchanged
+✔ synthetic: parseVerificationContract converts checks[] into the contractChecksSummaryData shape
+✔ synthetic: parseVerificationContract rejects a task_id mismatch as cannot-parse
+✔ synthetic: parseVerificationContract rejects broken JSON as cannot-parse
+✔ synthetic: parseVerificationContract rejects a non-array checks field as cannot-parse
+
+New tests (tests/parsers-evidence/traceability.test.ts):
+✔ real repo: sdd-forge-refactor/traceability.md yields REQ->Task and AC->REQ rows
+✔ real repo: sdd-forge-mcp/traceability.md yields REQ->Task, AC->REQ, and AC->TEST->Task rows
+✔ synthetic: a REQ->Task table with comma-separated Task-ID cells splits into multiple taskIds
+✔ synthetic: no tables at all in traceability.md yields empty arrays, not cannot-parse
+✔ synthetic: a REQ->Task table with a missing column in a data row is cannot-parse with a line number
+✔ synthetic: an AC->REQ table with an empty Task-ID-like required cell is cannot-parse
+✔ synthetic: propagates a not-found error when traceability.md is absent

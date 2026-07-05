@@ -1,0 +1,31 @@
+T-004 Red evidence
+==================
+
+Command: npm test (mcp/sdd-forge-mcp/)
+Context: src/server.ts and src/tools/core.ts (the T-004 MCP server + core
+tools implementation) removed / reverted to their pre-T-004 state
+(src/index.ts reverted to its T-001 baseline), while the T-004 test suite
+(tests/core-tools/*.test.ts, tests/core-tools/test-helpers.ts,
+tests/readonly/core-tools-snapshot.test.ts) is present. This captures the
+expected failure: the new tests cannot even compile without the
+implementation they exercise.
+
+--- output ---
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/core-tools/test-helpers.ts(16,29): error TS2307: Cannot find module '../../src/server.js' or its corresponding type declarations.
+tests/core-tools/test-helpers.ts(50,19): error TS2351: This expression is not constructable.
+  Type 'typeof import("/Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/node_modules/ajv/dist/2020")' has no construct signatures.
+
+--- end output ---
+
+Exit: non-zero (tsc reported 2 errors; `npm test`'s pretest step failed
+before node:test could run).
+
+Note: the second error (ajv's default import needing `.default`) is an
+import-style defect in the *test* file itself, fixed alongside the Green
+implementation; the first error (`Cannot find module '../../src/server.js'`)
+is the actual Red signal for this task — the module this task must create
+does not exist yet.

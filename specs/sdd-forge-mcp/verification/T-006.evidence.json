@@ -1,0 +1,55 @@
+{
+  "task_id": "T-006",
+  "feature": "sdd-forge-mcp",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "e01423e07bcd190897203ba69c89a86cfe4209a1eec97d885399444922f8b419",
+  "quality_report": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-006.md",
+  "verification_contract": "specs/sdd-forge-mcp/verification/T-006.contract.json",
+  "git_commit": "b72baa4f92f63f13db8129ad5e94bda69e4f032f",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/sdd-forge-mcp/verification/T-006.contract.json",
+      "sha256": "c20d1ef136ddb1e4307e7758fb5f96b4e93507af49b8ffbd3bbae97b52be6acf"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-006.md",
+      "sha256": "b901dfeef40c6b9df225780c246ec9c10e8df21ad4ae4c691174c52b6bda95e4"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/check-placeholders.log",
+      "sha256": "66ad093616b224d41873f49a9396509af2c1a1deccfef1bdd9bb9f6470829154"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/check-task-state.log",
+      "sha256": "5294d83a751355cfc63d89c38b3dd40575879bcf6bfb4c1eb67117e0a0af4857"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/install-tests.log",
+      "sha256": "c5960e9b16bea4edca9bec9d4a980adb6ef3d6e67cdb0016a14373e13d6371f5"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/uninstall-tests.log",
+      "sha256": "34ece7fabe693c636e1c7def11cc73a2e7abaa70275bb45d4191f975aba8dbba"
+    }
+  ]
+}

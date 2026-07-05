@@ -1,0 +1,82 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "impl-b-sddforgemcp-a1r1-20260704-f9e2",
+  "host_session_id": "hs-impl-b-7ea701ba-0009",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-forge-mcp/requirements.md", "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"},
+    {"path": "specs/sdd-forge-mcp/acceptance-tests.md", "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"},
+    {"path": "specs/sdd-forge-mcp/design.md", "sha256": "6ba8af5c583df52ab4f8bbb59bb86e7d2c4e6d9d235c0655efffd499d9a2ab54"},
+    {"path": "specs/sdd-forge-mcp/ux-spec.md", "sha256": "bfaa5928e621cac80fe91f37909b2b8f9fee9b6aed8d0df308b758a89654f29e"},
+    {"path": "specs/sdd-forge-mcp/frontend-spec.md", "sha256": "c71f3e10fadea077f659fe498da265691ddd4bba0c680401a3d41c28850c4332"},
+    {"path": "specs/sdd-forge-mcp/infra-spec.md", "sha256": "bfab047bd9dbbd04fe6c3fb6f1b2fd5bf5f28e6753cc4c9eeb6a3114a97f597b"},
+    {"path": "specs/sdd-forge-mcp/security-spec.md", "sha256": "beee4dbc119cafcda106e3d46353038886b6947d8b83ce5571f85d7a8b7f418c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json", "sha256": "79c529ad65e03647d34f32530cb3f2dffe88f7b583f9166aac6b87d6bf1d09d8"},
+    {"path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-1/integrated-summary.json", "sha256": "573a89afa93d34e849353f799922ba0b6f92d70b56a77173e73d09ff5150b4a1"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All named technology decisions carry inline rationale: Node>=20 (frontend-spec.md Technology Stack: 'MCP SDK 要件充足・fs/path の安定 API・利用者環境の下限'), TypeScript 5.x ('型安全なパーサー実装'), esbuild ('単一ファイルバンドル（dist コミット方式）'), js-yaml ('review ticket パース', alternative 'yaml' rejected: 'js-yaml は依存ゼロで軽量'), and ADR-0002/0003. No unjustified 'we will use X' statement found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Open Questions contains one entry, OQ-001 (Codex への MCP 登録手段), with Owner: ai-implementer (a role), Blocks Implementation: no, and Resolution Path stated. All three required fields present."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "investigation.md is absent, and design.md ## Assumptions has 3 entries, but each cites its own grounding basis inline (existing CI config; installer's pre-existing Claude CLI requirement; stated MIT license classification + package-lock.json), satisfying ASSUMPTIONS-VALID condition 2 (reasonable technical default with cited basis) independent of investigation.md."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "design.md has a ## Constraint Compliance section (Primary/TYPE-D path applies). requirements.md states a size-limit constraint: '巨大ファイル / バイナリ混入 → サイズ上限（2 MiB、design.md Data Plan と同値）超過を too-large 構造化エラーで返す' (Edge Cases) and AC-017. This constraint has no corresponding row in design.md's ## Constraint Compliance table (rows only cover read-only/REQ-001, shell-equivalence/REQ-005, allowlist-denylist/REQ-006, root-fixation/REQ-007, dist-distribution/REQ-008, bash-compat/REQ-009, 3-OS-CI/REQ-010). The 2 MiB limit is stated elsewhere in Data Plan and the error envelope, but is absent from the dedicated Constraint Compliance section, which the Primary rule requires for every requirements.md constraint."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. The p95<=500ms and startup<=1s targets appear only in infra-spec.md Service Level Objectives as a layer-spec refinement, not a requirements.md-sourced requirement. Per check definition, PASS applies when requirements.md contains no such requirements."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Deployment / CI Plan names the deployment target (INSTALL_ROOT/mcp/sdd-forge-mcp/ via installer; local stdio child process), a flag-based rollout mechanism (--skip-mcp / --mcp <list>), concrete CI changes (mcp-tests 3-OS matrix, dist-parity step, installer test additions); migration execution order is not applicable (Data Plan declares no schema changes)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Data Plan states 'Existing Data Affected: なし（読み取りのみ）' and 'Migration Strategy: 不要'. Per check definition, PASS applies when Data Plan states no data changes."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The server has zero runtime external integrations (stdio-only, no network per security-spec.md). The only cross-tool touchpoints are installer-time local CLI/config operations (claude mcp add, Codex config.toml), whose failure behavior is addressed (OQ-001 for Codex; Node-absent installer skip). No integration meets the check's runtime cross-service target profile."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md Technical Summary '13 tools + 5 resources' matches REQ-002 (8) + REQ-003 (5) + REQ-004 (5 resources) exactly. No component/data-model/endpoint appears without a corresponding requirement; every Goals/User Stories item has a design element. No scope creep or under-scoping found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "High-risk surfaces (path-guard allowlist/denylist/traversal; read-only integrity guarantee) each name a concrete validation path: TEST-003, TEST-004, TEST-011, cross-referenced in Cross-Layer Dependencies and security-spec.md Security Tests. No PII/payment/fullstack-journey surface applies to this api-only read-only feature."
+    }
+  ]
+}

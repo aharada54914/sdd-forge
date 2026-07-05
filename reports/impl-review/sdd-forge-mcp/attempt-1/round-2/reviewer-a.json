@@ -1,0 +1,77 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "impl-a-sddforgemcp-a1r2-20260704-c7a5",
+  "host_session_id": "hs-impl-a-7ea701ba-0010",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-forge-mcp/requirements.md", "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"},
+    {"path": "specs/sdd-forge-mcp/acceptance-tests.md", "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"},
+    {"path": "specs/sdd-forge-mcp/design.md", "sha256": "b1667111b91af8f7834952ba8441e569de03d3d9600af6975755c22cb3ad1303"},
+    {"path": "specs/sdd-forge-mcp/ux-spec.md", "sha256": "bfaa5928e621cac80fe91f37909b2b8f9fee9b6aed8d0df308b758a89654f29e"},
+    {"path": "specs/sdd-forge-mcp/frontend-spec.md", "sha256": "c71f3e10fadea077f659fe498da265691ddd4bba0c680401a3d41c28850c4332"},
+    {"path": "specs/sdd-forge-mcp/infra-spec.md", "sha256": "bfab047bd9dbbd04fe6c3fb6f1b2fd5bf5f28e6753cc4c9eeb6a3114a97f597b"},
+    {"path": "specs/sdd-forge-mcp/security-spec.md", "sha256": "beee4dbc119cafcda106e3d46353038886b6947d8b83ce5571f85d7a8b7f418c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-2/precheck-result.json", "sha256": "031d0ee66900611dd97d43f1ea04175fde5d1a1c3c0653824a218fed5e9b7315"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "api-only",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Architecture (lines 16-48) gives the top-level directory/component boundary tree (index/server/root/path-guard/parsers/tools/resources/next-command), states the single-chokepoint integration rule ('すべての読み取りは path-guard.ts を必ず経由する') and the strict cannot-parse propagation rule, and the ## Components table (lines 49-62) assigns technology per layer (TypeScript + @modelcontextprotocol/sdk stdio for server, bash 3.2/PowerShell + existing installer for infra, GitHub Actions for CI). All three required elements present."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no explicit component dependency declarations found in ## Architecture or ## Components; checked for circular import patterns in the architecture narrative (index -> server -> tools/resources -> parsers -> path-guard -> fs) and found only a one-directional flow with no back-edges."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## Data Plan (lines 89-109) provides Data Entities table (8 read-only sources), 'Existing Data Affected: なし（読み取りのみ）', and 'Migration Strategy: 不要'. All three required sub-fields present and explicit."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## API / Contract Plan (lines 111-147) defines the common response envelope with full error-code enumeration, names all 13 tools and 5 resources, shows representative data shapes for 4 tools, and names the canonical external schema contracts/sdd-forge-mcp-tools.v1.schema.json (present on disk) as the shape source of truth, plus explicit versioning policy."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## Security Boundaries (lines 166-173) names both trust boundaries (B1 client->server stdio, B2 server->filesystem), states auth/authz at each (same-user local stdio + JSON Schema validation at B1; path-guard realpath/allowlist/denylist fail-closed at B2), data classification (internal / internal-restricted for denylist), and OWASP concerns (Injection at B1, Broken Access Control and Path Traversal at B2), detailed in security-spec.md. All four required items present."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: Feature Type is api-only (design.md line 4)."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## Test Strategy (lines 149-164) covers unit scope (parsers normal/cannot-parse, path-guard traversal/symlink/denylist, next-command fixtures), integration scope (MCP SDK InMemory/stdio harness, installer *.tests), acceptance verification (TEST-001 golden test tied to AC-001; TEST-011 read-only static+snapshot tied to AC-011), and concrete planned evidence (node:test, tsc --noEmit, named test directories). MCP Inspector smoke (TEST-005) serves as the e2e-equivalent path for this api-only feature."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All components referenced in ## Architecture (server/index, root, path-guard, parsers, tools/core, tools/evidence, resources, next-command) are defined in the ## Components table (lines 51-61), including the 'Existing (拡張)' installer and CI entries. No undefined component names found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## ADR Change Log (lines 82-87) references ADR-0002 and ADR-0003; both exist on disk at docs/adr/0002-sdd-forge-mcp-readonly-server.md and docs/adr/0003-mcp-dist-bundle-distribution.md. No undeclared new architectural decisions found."
+    }
+  ]
+}

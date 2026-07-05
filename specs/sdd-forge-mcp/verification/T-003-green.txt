@@ -1,0 +1,105 @@
+T-003 Green evidence
+====================
+
+Command: npm test  (runs `tsc -p tsconfig.test.json` then
+`node --test dist-test/tests/**/*.test.js`)
+
+Output:
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> sdd-forge-mcp@0.1.0 test
+> node --test dist-test/tests/**/*.test.js
+
+✔ rejects a file larger than the 2 MiB limit with too-large (15.017625ms)
+✔ accepts a file exactly at the 2 MiB limit (21.141167ms)
+✔ isSddRoot is false for a root missing both AGENTS.md and specs/ (0.839041ms)
+✔ isSddRoot is false when only specs/ exists without AGENTS.md (5.39225ms)
+✔ isSddRoot is true for a properly-shaped SDD root (18.685584ms)
+✔ live shell comparison: parseTaskState matches check-task-state.sh for every golden feature (59641.919292ms)
+✔ recorded fixture comparison: parseTaskState matches the committed golden fixtures (6383.094833ms)
+✔ a well-formed tasks.md with a Planned task passes with an empty failures array (69.19575ms)
+✔ Approved (<annotation>) is accepted and the annotation is echoed back (235.950625ms)
+✔ a tasks.md with no ## T-NNN headers at all fails with no-tasks-found (11.374ms)
+✔ a nonexistent tasks.md path propagates the path-guard not-found error (25.862708ms)
+✔ a tasks.md path outside the allowlist propagates path-denied (21.664208ms)
+✔ Done without a verification/<task-id>.evidence.json file fails (7.783708ms)
+✔ Done with evidence.json but missing contract.json fails (12.218625ms)
+✔ Done with an empty contract.json fails (250.669166ms)
+✔ Done with a contract.json whose task_id does not match fails (7.19125ms)
+✔ Done with no quality-gate report mentioning the task id fails (19.25ms)
+✔ Done with a quality-gate report present but no VERDICT: PASS fails (37.5685ms)
+✔ Implementation Complete without a matching implementation report fails (23.450083ms)
+✔ Implementation Complete with a word-boundary match in an implementation report passes that rule (19.092917ms)
+✔ T-001 does not falsely match a report that only mentions T-0010 (word boundary) (5.192125ms)
+✔ critical Done without a distinct Second Approval fails (6.143334ms)
+✔ critical Done where both approvals are the same person fails (163.658333ms)
+✔ critical Done where either approver is 'sudo' fails (8.04475ms)
+✔ high-risk Done bundle missing spec_revision fails provenance (280.819125ms)
+✔ high-risk Done bundle with full provenance and matching artifact hashes passes (40.590167ms)
+✔ an artifact sha256 mismatch fails the evidence bundle (13.725291ms)
+✔ critical risk Done bundle without a signature object fails (46.316ms)
+✔ duplicate task ids are reported and the verdict is fail (158.01125ms)
+✔ an invalid Status value is reported and the verdict is fail (208.146875ms)
+✔ a missing Approval line is reported and the verdict is fail (4.500042ms)
+✔ In Progress without Approval: Approved is reported and the verdict is fail (5.602375ms)
+✔ Blocked with Blockers: None is reported and the verdict is fail (6.703417ms)
+✔ Blocked with real blocker content passes the Blocked-specific rule (7.131333ms)
+✔ real repo: Active Spec Directories has at least 3 entries with feature/path (5.019625ms)
+✔ real repo: Required Workflow has numbered steps with non-empty text (1.703375ms)
+✔ synthetic: well-formed Active Spec Directories bullets parse to feature/path pairs (381.862709ms)
+✔ synthetic: well-formed Required Workflow numbered steps parse in order (3.145375ms)
+✔ cannot-determine: AGENTS.md with no Active Spec Directories section (24.338375ms)
+✔ cannot-determine: AGENTS.md with no Required Workflow section (14.474833ms)
+✔ cannot-parse: malformed Active Spec Directories bullet reports a line number (13.8555ms)
+✔ cannot-parse: Required Workflow section with no numbered steps (17.115208ms)
+✔ guardedRead failure (missing AGENTS.md) propagates unchanged as not-found (244.505792ms)
+✔ real repo: every reports/quality-gate/*.md file is scanned without throwing (394.986292ms)
+✔ real repo: at least one report has taskId, critical/major/minor counts, and a PASS-shaped verdict (43.411958ms)
+✔ synthetic: well-formed report with all fields parses every value (12.117125ms)
+✔ synthetic: VERDICT repeated later in the file uses the first occurrence (5.660166ms)
+✔ synthetic: report with no VERDICT line is reported as verdict-not-found, not cannot-parse (42.082584ms)
+✔ listQualityReports aggregates reports and failures across a directory (8.479333ms)
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (9.710625ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (5.019834ms)
+✔ synthetic: well-formed ticket parses all optional fields (6.268917ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (155.447125ms)
+✔ cannot-parse: invalid YAML syntax (210.2575ms)
+✔ cannot-parse: missing required fields (217.775875ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (22.521792ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (12.883417ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (6.553125ms)
+✔ denies reads under a plugins/ directory that is not on the allowlist (9.4885ms)
+✔ denies reads under a .git/ directory (63.694167ms)
+✔ denies the SDD sudo flag file even when placed inside an allowlisted directory (8.015334ms)
+✔ denies .env files reached via an allowlisted directory (7.239625ms)
+✔ never includes file contents or the offending value in the denial message or details (14.219125ms)
+✔ rejects a relative path containing a parent traversal segment (8.831792ms)
+✔ rejects an absolute path argument outright (7.012042ms)
+✔ rejects an empty path as invalid input (3.283ms)
+✔ rejects a path argument containing backslashes (6.448166ms)
+✔ rejects a symlink inside the allowlist that resolves outside it (6.114625ms)
+✔ resolveGuarded rejects the same traversal shapes without reading contents (3.042ms)
+✔ allows a legitimate allowlisted file to be read (110.496334ms)
+✔ src/ contains no filesystem write API references (19.219042ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (105.6545ms)
+✔ resolved root is frozen and immutable after construction (5.313792ms)
+✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (3.969125ms)
+✔ changing cwd after resolution does not affect the already-resolved root (2.137875ms)
+✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (11.555042ms)
+✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (14.315291ms)
+✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (2.3245ms)
+ℹ tests 78
+ℹ suites 0
+ℹ pass 78
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 66628.859125
+
+Result: 78/78 tests pass (54 pre-existing + 24 new for T-003: agents-md.ts,
+review-ticket.ts, quality-report.ts, plus their tests/parsers-state/*.test.ts
+suites). `npx tsc --noEmit` reports zero errors.

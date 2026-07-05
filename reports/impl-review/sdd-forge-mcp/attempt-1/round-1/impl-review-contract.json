@@ -1,0 +1,84 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "sdd-forge-mcp",
+  "run_id": "impl-orch-sddforgemcp-a1r1-20260704-7b3d",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "none",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "api-only",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "BLOCKED",
+  "findings_critical": 1,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e",
+  "acceptance_sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf",
+  "design_sha256": "6ba8af5c583df52ab4f8bbb59bb86e7d2c4e6d9d235c0655efffd499d9a2ab54",
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-sddforgemcp-a1r1-20260704-d4c6",
+      "host_session_id": "hs-impl-a-7ea701ba-0008",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-forge-mcp/requirements.md",
+          "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+          "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/design.md",
+          "sha256": "6ba8af5c583df52ab4f8bbb59bb86e7d2c4e6d9d235c0655efffd499d9a2ab54"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json",
+          "sha256": "79c529ad65e03647d34f32530cb3f2dffe88f7b583f9166aac6b87d6bf1d09d8"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "impl-b-sddforgemcp-a1r1-20260704-f9e2",
+      "host_session_id": "hs-impl-b-7ea701ba-0009",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-forge-mcp/requirements.md",
+          "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+          "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/design.md",
+          "sha256": "6ba8af5c583df52ab4f8bbb59bb86e7d2c4e6d9d235c0655efffd499d9a2ab54"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json",
+          "sha256": "79c529ad65e03647d34f32530cb3f2dffe88f7b583f9166aac6b87d6bf1d09d8"
+        },
+        {
+          "path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-1/integrated-summary.json",
+          "sha256": "573a89afa93d34e849353f799922ba0b6f92d70b56a77173e73d09ff5150b4a1"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-07-04T13:45:10Z"
+}

@@ -158,6 +158,33 @@
       "profile": "lite"
     },
     {
+      "feature": "sdd-forge-mcp",
+      "profile": "legacy",
+      "legacy": {
+        "introduced_before_commit": "b72baa4f92f63f13db8129ad5e94bda69e4f032f",
+        "reason": "Review provenance was produced by the v1.7.0 review loops before the v1.8.0 workflow-state contract merged into the feature branch; the impl reviewers' recorded input manifests include the four layer specs that the round contract did not record (issue #71), so full-profile manifest equality cannot be satisfied without reconstructing evidence. Grandfathered rather than reconstructed.",
+        "owner": "sdd-forge maintainers",
+        "allowed_missing_stages": [],
+        "allowed_noncanonical_statuses": {
+          "spec_status": [
+            "Passed"
+          ],
+          "impl_status": [
+            "Passed"
+          ],
+          "task_status": [
+            "Passed"
+          ]
+        },
+        "allowed_task_approvals": [
+          "Approved"
+        ],
+        "allowed_task_statuses": [
+          "Done"
+        ]
+      }
+    },
+    {
       "feature": "sdd-forge-refactor",
       "profile": "legacy",
       "legacy": {

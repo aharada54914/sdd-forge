@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "sdd-forge-mcp",
+  "run_id": "impl-orch-sddforgemcp-a1r1-20260704-7b3d",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 1,
+  "findings_critical": 1,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "BLOCKED"
+}

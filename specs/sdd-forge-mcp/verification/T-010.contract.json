@@ -1,0 +1,120 @@
+{
+  "task_id": "T-010",
+  "feature": "sdd-forge-mcp",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "code",
+  "spec_revision": "",
+  "created": "2026-07-04T23:30:18Z",
+  "comment": "Default-FAIL verification contract. Checks flipped to true only after their command ran and evidence was inspected this session.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/typecheck.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/build.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/check-placeholders.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/check-task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "specs/sdd-forge-mcp/verification/T-010-red.txt",
+      "green_evidence": "specs/sdd-forge-mcp/verification/T-010-green.txt"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "specs/sdd-forge-mcp/verification/T-010-red.txt",
+      "green_evidence": "specs/sdd-forge-mcp/verification/T-010-green.txt"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "specs/sdd-forge-mcp/verification/T-010-red.txt",
+      "green_evidence": "specs/sdd-forge-mcp/verification/T-010-green.txt"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-forge-mcp/verification/qg/check-traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

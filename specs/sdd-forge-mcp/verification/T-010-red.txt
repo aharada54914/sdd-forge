@@ -1,0 +1,451 @@
+$ node --test dist-test/tests/next-command/*.test.js dist-test/tests/core-tools/*.test.js
+(src/next-command.ts temporarily replaced with a placeholder that always returns
+cannot-determine, to capture the pre-implementation Red state of T-010's new tests
+-- 19 of 30 fail as expected before the real mapping is implemented)
+
+✔ list_active_specs: schema-valid, flags feature-a active and feature-b inactive (102.062916ms)
+✔ get_spec_status: schema-valid, reports artifact existence and review-status headers (9.865875ms)
+✔ get_task_state: schema-valid, verdict fail with 1 blocked task in feature-a (8.201333ms)
+✔ get_task_state: not-found for a feature whose tasks.md does not exist (4.758542ms)
+✔ list_approved_tasks: schema-valid, only Approved-shaped tasks for feature-a (6.870292ms)
+✔ list_blocked_tasks: schema-valid, only Blocked-status tasks for feature-a (4.555584ms)
+✔ list_review_tickets: schema-valid, includes the seeded RT ticket (12.89325ms)
+✔ get_quality_gate_summary: schema-valid, includes the seeded PASS report (10.747166ms)
+✖ get_next_sdd_command: feature-a has no requirements.md yet -> phase1-not-started (6.466791ms)
+✖ get_next_sdd_command: no feature argument auto-selects feature-a (only active feature) (4.479458ms)
+✔ every tool's input schema never declares a root parameter (10.427167ms)
+✔ invalid feature argument shape is rejected as invalid-input (11.174125ms)
+✖ phase1-not-started: requirements.md does not exist (5.763166ms)
+✖ spec-review: requirements.md exists but Spec-Review-Status is not Passed (4.976666ms)
+✖ spec-review: requirements.md has no Spec-Review-Status header at all (2.112042ms)
+✖ impl-review: design.md exists but Impl-Review-Status is not Passed (2.370042ms)
+✔ cannot-determine: Spec-Review-Status Passed but design.md missing (1.448125ms)
+✖ phase2-not-started: design.md Passed but tasks.md does not exist (1.860083ms)
+✖ task-review: tasks.md exists but Task-Review-Status is not Passed (4.895625ms)
+✖ approval-gate: Task-Review-Status Passed but every task is Draft (1.689416ms)
+✖ implementation: an Approved task is Planned (1.588667ms)
+✖ implementation: an Approved task is In Progress (2.257916ms)
+✖ quality-gate: every Approved task is Implementation Complete (2.410292ms)
+✖ done: every Approved task is Done (1.771375ms)
+✖ blocked: a Blocked task takes priority even when another task is Planned/Approved (1.585ms)
+✖ cannot-determine: malformed feature name is rejected before any file access (6.590958ms)
+✖ auto-select: exactly one active feature -> resolved without a feature argument (2.893833ms)
+✖ auto-select: zero active features -> cannot-determine naming none-active (1.877708ms)
+✖ auto-select: multiple active features -> cannot-determine naming all candidates (4.355625ms)
+✖ real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-cannot-determine phase (0.42125ms)
+ℹ tests 30
+ℹ suites 0
+ℹ pass 11
+ℹ fail 19
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 428.419333
+
+✖ failing tests:
+
+test at dist-test/tests/core-tools/core-tools.test.js:163:1
+✖ get_next_sdd_command: feature-a has no requirements.md yet -> phase1-not-started (6.466791ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/core-tools/core-tools.test.js:172:16)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/core-tools/core-tools.test.js:181:1
+✖ get_next_sdd_command: no feature argument auto-selects feature-a (only active feature) (4.479458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/core-tools/core-tools.test.js:187:16)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:46:1
+✖ phase1-not-started: requirements.md does not exist (5.763166ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:50:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:57:1
+✖ spec-review: requirements.md exists but Spec-Review-Status is not Passed (4.976666ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:63:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:70:1
+✖ spec-review: requirements.md has no Spec-Review-Status header at all (2.112042ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:76:9)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:82:1
+✖ impl-review: design.md exists but Impl-Review-Status is not Passed (2.370042ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:89:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:112:1
+✖ phase2-not-started: design.md Passed but tasks.md does not exist (1.860083ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:119:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:126:1
+✖ task-review: tasks.md exists but Task-Review-Status is not Passed (4.895625ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:134:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:141:1
+✖ approval-gate: Task-Review-Status Passed but every task is Draft (1.689416ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:153:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:160:1
+✖ implementation: an Approved task is Planned (1.588667ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:172:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:179:1
+✖ implementation: an Approved task is In Progress (2.257916ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:188:9)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:194:1
+✖ quality-gate: every Approved task is Implementation Complete (2.410292ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:206:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:213:1
+✖ done: every Approved task is Done (1.771375ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:222:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:229:1
+✖ blocked: a Blocked task takes priority even when another task is Planned/Approved (1.585ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:241:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:249:1
+✖ cannot-determine: malformed feature name is rejected before any file access (6.590958ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(["invalid-input", "path-denied", "not-found"].includes(result.error.code))
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:260:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:266:1
+✖ auto-select: exactly one active feature -> resolved without a feature argument (2.893833ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at assertOkPhase (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:20:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:281:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:288:1
+✖ auto-select: zero active features -> cannot-determine naming none-active (1.877708ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'next-command-mapping-not-yet-implemented'
+  - 'auto-select-none-active'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:303:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'next-command-mapping-not-yet-implemented',
+    expected: 'auto-select-none-active',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:309:1
+✖ auto-select: multiple active features -> cannot-determine naming all candidates (4.355625ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'next-command-mapping-not-yet-implemented'
+  - 'auto-select-multiple-active'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:326:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'next-command-mapping-not-yet-implemented',
+    expected: 'auto-select-multiple-active',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/next-command/next-command.test.js:355:1
+✖ real repository: feature=sdd-forge-mcp resolves to a schema-valid, non-cannot-determine phase (0.42125ms)
+  AssertionError [ERR_ASSERTION]: {"code":"cannot-determine","message":"not yet implemented (T-010 red-evidence placeholder)","details":{"rule":"next-command-mapping-not-yet-implemented"}}
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/next-command/next-command.test.js:360:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
