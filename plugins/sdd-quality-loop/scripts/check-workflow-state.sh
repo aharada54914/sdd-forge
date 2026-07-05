@@ -316,9 +316,39 @@ validate_passed_stage() {
 
   jq -e --slurpfile contract "$contract" --slurpfile verdict "$best" \
     --slurpfile reviewer_b "$reviewer_b" --slurpfile summary "$summary" --arg stage "$stage" \
+    --arg feature "$feature" --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
+    --arg recorded "${recorded_root:+$recorded_root/}" \
     --argjson attempt "$best_attempt" --argjson round "$best_round" '
     def normalized_manifest:
       map({path: .path, sha256: .sha256}) | sort_by(.path);
+    def manifest_relative_path:
+      gsub("\\\\"; "/") |
+      if startswith($repo) then .[($repo|length):]
+      elif startswith($alias) then .[($alias|length):]
+      elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+      elif test("^(/|[A-Za-z]:/)") then null
+      else . end;
+    def is_allowed_layer_superset_path:
+      # Scoped to impl-review only (issue #71): impl reviewers may have
+      # legitimately reviewed the four layer specs even when the round
+      # contract predates recording them. Spec/task stages must still
+      # match the contract exactly.
+      $stage == "impl" and
+      manifest_relative_path as $rel |
+      ($rel != null) and
+      ($rel == ("specs/" + $feature + "/ux-spec.md") or
+       $rel == ("specs/" + $feature + "/frontend-spec.md") or
+       $rel == ("specs/" + $feature + "/infra-spec.md") or
+       $rel == ("specs/" + $feature + "/security-spec.md"));
+    def manifest_superset_ok($reviewer_manifest; $contract_manifest):
+      ($contract_manifest | normalized_manifest) as $contract_norm |
+      ($reviewer_manifest | normalized_manifest) as $reviewer_norm |
+      # Every contract entry must be present in the reviewer manifest
+      # (path+sha256 pair) -- the contract must never be a superset.
+      (($contract_norm - $reviewer_norm) | length) == 0 and
+      # Reviewer manifest may only exceed the contract with the four
+      # implementation layer specs; any other extra entry is a fail.
+      (($reviewer_norm - $contract_norm) | all(.path | is_allowed_layer_superset_path));
     def reviewer_contract($role):
       $contract[0].reviewers[] | select(.role == $role);
     def check_result:
@@ -352,12 +382,12 @@ validate_passed_stage() {
     $a.host_session_id == reviewer_contract($stage + "-reviewer-a").host_session_id and
     $b.run_id == reviewer_contract($stage + "-reviewer-b").run_id and
     $b.host_session_id == reviewer_contract($stage + "-reviewer-b").host_session_id and
-    ((if $stage == "task" then $a.manifest else $a.allowed_input_manifest end)
-      | normalized_manifest) ==
-      (reviewer_contract($stage + "-reviewer-a").allowed_input_manifest | normalized_manifest) and
-    ((if $stage == "task" then $b.manifest.allowed_inputs else $b.allowed_input_manifest end)
-      | normalized_manifest) ==
-      (reviewer_contract($stage + "-reviewer-b").allowed_input_manifest | normalized_manifest) and
+    manifest_superset_ok(
+      (if $stage == "task" then $a.manifest else $a.allowed_input_manifest end);
+      reviewer_contract($stage + "-reviewer-a").allowed_input_manifest) and
+    manifest_superset_ok(
+      (if $stage == "task" then $b.manifest.allowed_inputs else $b.allowed_input_manifest end);
+      reviewer_contract($stage + "-reviewer-b").allowed_input_manifest) and
     $a.verdict == expected_reviewer_verdict($a) and
     $b.verdict == expected_reviewer_verdict($b) and
     (failures($a) + failures($b) |
