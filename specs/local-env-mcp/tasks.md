@@ -10,7 +10,7 @@ Lifecycle: `Draft -> Approved -> In Progress -> Implementation Complete -> Done`
 ## T-001 local-env-mcp 基盤 + probe-engine + エラーエンベロープ
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Planned
+Status: In Progress
 Risk: high
 Risk Rationale: probe-engine と allowlist は「実行機能を提供しない」境界(ADR-0004、REQ-003)の唯一のチョークポイントであり、欠陥は任意コマンド実行・リソース枯渇(DoS)に直結する(security-spec.md B2)。
 Required Workflow: tdd
@@ -150,7 +150,7 @@ T-003
 ## T-005 OQ-001 解消: Cursor / VS Code 設定形式の確定(design.md 更新)
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Planned
+Status: Implementation Complete
 Risk: low
 Risk Rationale: 公式ドキュメント調査と design.md「API / Contract Plan」の更新のみで、コード・データ・セキュリティ制御への変更がない(実装への反映は T-007/T-008 が担う)。
 Required Workflow: test-after
