@@ -72,3 +72,16 @@ Update this list whenever a new spec directory is bootstrapped:
 - API changes require contract updates; architecture changes require ADRs.
 - Only `quality-gate` may set a task to Done.
 - Do not commit, push, or create PRs/MRs unless explicitly requested.
+
+### Evidence report identity fields
+
+- Implementation reports (`reports/implementation/`) must carry a `Run ID:`
+  line and a `Task Attempt Count:` line.
+- Quality verification gate reports (`reports/quality-gate/`) must carry a
+  `Task: T-NNN` line and a `Run ID:` line whose value equals the evaluator
+  run id reserved in the identity ledger for that gate run.
+
+These fields are additive: existing consumers (check-task-state,
+evidence-bundle generation) ignore them and are unaffected. They exist so
+that retrospective analysis and run-record emission can associate evidence
+with tasks deterministically. (WFI-003)
