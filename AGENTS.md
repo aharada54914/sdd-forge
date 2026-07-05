@@ -85,3 +85,20 @@ These fields are additive: existing consumers (check-task-state,
 evidence-bundle generation) ignore them and are unaffected. They exist so
 that retrospective analysis and run-record emission can associate evidence
 with tasks deterministically. (WFI-003)
+
+### High-risk task preflight
+
+Before changing the implementation for a high-risk task (`Risk: high` or
+`Risk: critical`), the implementer must record a preflight checklist in the
+implementation report listing, for each evidence field the task will persist
+(contract fields, verdict fields, traceability claims):
+
+1. the persisted evidence field,
+2. its sibling-contract or traceability counterpart, and
+3. a failing mismatch test that fails while the field and its counterpart
+   disagree.
+
+Implementation work may start only after every persisted field has all three
+entries. This front-loads the cross-artifact consistency checks that were
+previously discovered during review (claude-workflow-compatibility T-002 and
+T-006). (WFI-001)
