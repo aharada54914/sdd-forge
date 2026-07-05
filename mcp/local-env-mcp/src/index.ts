@@ -7,22 +7,20 @@
  * the <=1s startup SLO). stdout is reserved exclusively for the MCP JSON-RPC
  * stdio transport; the only startup diagnostic is a single JSON line on stderr.
  *
- * That line is deliberately trivial — a fixed server name/version and a ready
- * flag — and carries no environment-variable value, username, hostname, or
- * home-directory path. The full redaction-aware diagnostic logger is T-003's
- * scope; index.ts keeps its own output trivially clean.
+ * That line is emitted through the redaction-safe diagnostics logger
+ * (`logStartup`), which serializes only a fixed field allowlist and never
+ * writes an environment-variable value, username, hostname, or home-directory
+ * path. Fatal startup errors are routed through `logFatal`, whose single
+ * free-form field (the message) is scrubbed of those same secrets.
  */
 
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
 import { buildServer } from "./server.js";
+import { logStartup, logFatal } from "./diagnostics.js";
 
 async function main(): Promise<void> {
-  const startupInfo = {
-    ok: true,
-    data: { server: "local-env-mcp", version: "0.1.0", ready: true },
-  };
-  process.stderr.write(`${JSON.stringify(startupInfo)}\n`);
+  logStartup({ name: "local-env-mcp", version: "0.1.0", transport: "stdio" });
 
   const server = buildServer();
   const transport = new StdioServerTransport();
@@ -30,9 +28,6 @@ async function main(): Promise<void> {
 }
 
 main().catch((error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error);
-  process.stderr.write(
-    `${JSON.stringify({ ok: false, error: { code: "cannot-determine", message } })}\n`,
-  );
+  logFatal(error);
   process.exitCode = 1;
 });
