@@ -11,7 +11,7 @@
     "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",
     "typecheck": "tsc --noEmit",
     "pretest": "tsc -p tsconfig.test.json",
-    "test": "node --test dist-test/tests/**/*.test.js",
+    "test": "node scripts/run-tests.mjs",
     "golden:record": "tsc -p tsconfig.test.json && node dist-test/scripts/record-golden-fixtures.js"
   },
   "dependencies": {
