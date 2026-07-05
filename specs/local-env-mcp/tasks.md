@@ -49,7 +49,7 @@ None
 ## T-002 MCP ツール 3 種 + server/index + 契約・no-exec 検証
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: ツール入力スキーマは B1 境界(REQ-003: コマンド/引数/パス系フィールド非提供、enum のみ)そのものであり、欠陥は injection 経路に直結する(security-spec.md B1)。
 Required Workflow: tdd
