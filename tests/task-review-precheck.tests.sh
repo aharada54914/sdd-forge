@@ -126,3 +126,65 @@ if [[ "${edges}" != '[{"from":"T-002","to":"T-001"}]' ]]; then
 fi
 
 echo "ok: task review precheck records heading-style blocker dependencies"
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Issue #61 regression (task gate): predecessor gates persist manifest paths as
+# absolute paths of the checkout that generated them. The task gate must accept
+# that canonical format from any checkout, while tampered hashes and
+# anchor-less absolute paths keep failing closed.
+# ──────────────────────────────────────────────────────────────────────────────
+
+rewrite_contract_paths_to_checkout() {
+  local contract="$1" checkout_root="$2"
+  jq --arg root "${checkout_root}/" \
+    '(.reviewers[].allowed_input_manifest[].path) |= ($root + .)' \
+    "${contract}" > "${contract}.tmp"
+  mv "${contract}.tmp" "${contract}"
+}
+
+write_foreign_checkout_artifacts() {
+  local checkout_root="$1"
+  write_pass_artifacts spec "${SPEC_REPORT_DIR}/attempt-1/round-1"
+  write_pass_artifacts impl "${IMPL_REPORT_DIR}/attempt-1/round-1"
+  rewrite_contract_paths_to_checkout "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.json" "${checkout_root}"
+  rewrite_contract_paths_to_checkout "${IMPL_REPORT_DIR}/attempt-1/round-1/impl-review-contract.json" "${checkout_root}"
+}
+
+expect_denied_without_evidence() {
+  local label="$1"
+  if (cd "${REPO_ROOT}" && bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "${FEATURE}" 1 1) >/dev/null 2>&1; then
+    echo "expected task precheck to deny: ${label}" >&2
+    exit 1
+  fi
+  if [[ -e "${REPORT_DIR}/attempt-1/round-1" ]]; then
+    echo "denied task precheck must not create round evidence: ${label}" >&2
+    exit 1
+  fi
+}
+
+rm -rf "${REPORT_DIR}"
+
+write_foreign_checkout_artifacts "/original-checkout/sdd-forge"
+(
+  cd "${REPO_ROOT}"
+  bash plugins/sdd-review-loop/scripts/task-review-precheck.sh "${FEATURE}" 1 1 >/dev/null
+) || {
+  echo "task precheck must accept canonical predecessor contracts from another checkout" >&2
+  exit 1
+}
+rm -rf "${REPORT_DIR}"
+echo "ok: task review precheck accepts predecessor contracts from another checkout"
+
+write_foreign_checkout_artifacts "/original-checkout/sdd-forge"
+jq '(.reviewers[].allowed_input_manifest[] | select(.path | endswith("/requirements.md")) | .sha256) = ("1"*64)' \
+  "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.json" > "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.tmp"
+mv "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.tmp" "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.json"
+expect_denied_without_evidence "tampered requirements hash in foreign-checkout spec contract"
+echo "ok: task review precheck denies tampered foreign-checkout contract hashes"
+
+write_foreign_checkout_artifacts "/original-checkout/sdd-forge"
+jq '(.reviewers[0].allowed_input_manifest) += [{path:"/original-checkout/outside/escape.md",sha256:("0"*64)}]' \
+  "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.json" > "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.tmp"
+mv "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.tmp" "${SPEC_REPORT_DIR}/attempt-1/round-1/spec-review-contract.json"
+expect_denied_without_evidence "anchor-less absolute manifest path in foreign-checkout contract"
+echo "ok: task review precheck denies anchor-less absolute manifest paths"
