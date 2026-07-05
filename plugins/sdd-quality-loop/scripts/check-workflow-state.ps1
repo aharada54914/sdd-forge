@@ -125,6 +125,49 @@ function Test-ManifestHash(
     }
     return @($Contract.reviewers).Count -gt 0
 }
+function Test-AllowedLayerSupersetPath(
+    [string]$Path, [string]$Feature, [string]$Stage, [string]$RepositoryRoot, [string]$RecordedRoot
+) {
+    # Scoped to impl-review only (issue #71): impl reviewers may have
+    # legitimately reviewed the four layer specs even when the round
+    # contract predates recording them. Spec/task stages must still
+    # match the contract exactly.
+    if ($Stage -ne "impl") { return $false }
+    $relative = Get-RepositoryRelativePath $Path $RepositoryRoot $RecordedRoot
+    if ($null -eq $relative) { return $false }
+    return $relative -in @(
+        "specs/$Feature/ux-spec.md", "specs/$Feature/frontend-spec.md",
+        "specs/$Feature/infra-spec.md", "specs/$Feature/security-spec.md"
+    )
+}
+function Test-ManifestSuperset(
+    $ReviewerManifest, $ContractManifest, [string]$Feature, [string]$Stage,
+    [string]$RepositoryRoot, [string]$RecordedRoot
+) {
+    $contractKeys = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($item in @($ContractManifest)) {
+        [void]$contractKeys.Add("$([string]$item.path)`t$([string]$item.sha256)")
+    }
+    $reviewerKeys = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($item in @($ReviewerManifest)) {
+        [void]$reviewerKeys.Add("$([string]$item.path)`t$([string]$item.sha256)")
+    }
+    # The contract must never record an entry the reviewer manifest lacks.
+    foreach ($key in $contractKeys) {
+        if (-not $reviewerKeys.Contains($key)) { return $false }
+    }
+    # The reviewer manifest may only exceed the contract with the four
+    # implementation layer specs; any other extra entry is a fail.
+    foreach ($item in @($ReviewerManifest)) {
+        $key = "$([string]$item.path)`t$([string]$item.sha256)"
+        if (-not $contractKeys.Contains($key)) {
+            if (-not (Test-AllowedLayerSupersetPath ([string]$item.path) $Feature $Stage $RepositoryRoot $RecordedRoot)) {
+                return $false
+            }
+        }
+    }
+    return $true
+}
 function Test-ManifestPaths(
     $Contract, [string]$Feature, [string]$Stage, [int]$Attempt, [int]$Round,
     [string]$RepositoryRoot
@@ -420,21 +463,9 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         [string]$reviewerA.host_session_id -eq [string]$contractA.host_session_id -and
         [string]$reviewerB.run_id -eq [string]$contractB.run_id -and
         [string]$reviewerB.host_session_id -eq [string]$contractB.host_session_id
-    $canonicalManifestA = @($manifestA | ForEach-Object {
-        "$([string]$_.path)`t$([string]$_.sha256)"
-    } | Sort-Object)
-    $canonicalManifestB = @($manifestB | ForEach-Object {
-        "$([string]$_.path)`t$([string]$_.sha256)"
-    } | Sort-Object)
-    $canonicalContractA = @($contractA.allowed_input_manifest | ForEach-Object {
-        "$([string]$_.path)`t$([string]$_.sha256)"
-    } | Sort-Object)
-    $canonicalContractB = @($contractB.allowed_input_manifest | ForEach-Object {
-        "$([string]$_.path)`t$([string]$_.sha256)"
-    } | Sort-Object)
     $reviewerIdentityOk = $reviewerIdentityOk -and
-        (($canonicalManifestA -join "`n") -ceq ($canonicalContractA -join "`n")) -and
-        (($canonicalManifestB -join "`n") -ceq ($canonicalContractB -join "`n"))
+        (Test-ManifestSuperset $manifestA $contractA.allowed_input_manifest $Feature $Stage $RepoRoot $recorded.Root) -and
+        (Test-ManifestSuperset $manifestB $contractB.allowed_input_manifest $Feature $Stage $RepoRoot $recorded.Root)
     $failedA = @($reviewerA.checks | Where-Object { [string]$_.$resultProperty -eq "FAIL" })
     $reviewerBResultProperty = if ($Stage -eq "task") { "result" } else { $resultProperty }
     $failedB = @($reviewerB.checks | Where-Object {
