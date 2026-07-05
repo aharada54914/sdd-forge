@@ -276,7 +276,7 @@ T-007
 ## T-009 uninstall(sh / ps1): 配置削除 + 4 クライアント登録解除
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: uninstall は削除系操作であり、欠陥はユーザー定義の他 MCP エントリの誤削除(非可逆的なユーザーデータ喪失)に直結する(REQ-010、security-spec.md B3 の誤削除 STRIDE 行)。
 Required Workflow: tdd
