@@ -8,6 +8,58 @@ function Stop-WorkflowState([string]$Feature, [string]$Rule, [string]$Message) {
 function Get-Sha256([string]$Path) {
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
 }
+# plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)
+# evolve normally over time, but historical review evidence under reports/
+# records the sha256 that was current when that evidence was produced. A
+# later, legitimate edit to a reference doc must not retroactively fail every
+# past feature's provenance. When a manifest-recorded hash for a plugins/
+# path does not match the live working-tree file, fall back to resolving the
+# file's content as of the commit that last touched the specific evidence
+# file being validated (the review contract JSON itself is immutable,
+# committed historical fact) and accept the match only if it is identical.
+# This keeps tamper detection intact: a forged hash that matches no
+# legitimate point-in-time content still fails.
+function Get-PluginsPinCommit([string]$EvidenceFile) {
+    if (-not (Get-Command git -ErrorAction SilentlyContinue)) { return $null }
+    & git -C $ScriptRoot rev-parse --is-inside-work-tree *> $null
+    if ($LASTEXITCODE -ne 0) { return $null }
+    $prefix = $RepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $EvidenceFile.StartsWith($prefix, [StringComparison]::Ordinal)) { return $null }
+    $relative = $EvidenceFile.Substring($prefix.Length).Replace("\", "/")
+    $result = & git -C $ScriptRoot log -1 --format='%H' -- $relative 2>$null
+    if ($LASTEXITCODE -ne 0 -or -not $result) { return $null }
+    return [string]$result
+}
+function Get-PluginsHashAtPin([string]$Pin, [string]$PluginsRelative) {
+    if (-not $Pin) { return $null }
+    & git -C $ScriptRoot merge-base --is-ancestor $Pin HEAD 2>$null
+    if ($LASTEXITCODE -ne 0) { return $null }
+    # Redirect the blob straight to a temp file and hash the file so the
+    # comparison is byte-exact -- capturing external-command stdout through
+    # the PowerShell pipeline splits it into lines and can alter encoding or
+    # trailing newlines, which would corrupt the sha256.
+    $tempFile = [IO.Path]::GetTempFileName()
+    try {
+        & git -C $ScriptRoot show "${Pin}:${PluginsRelative}" > $tempFile 2>$null
+        if ($LASTEXITCODE -ne 0) { return $null }
+        return (Get-FileHash -LiteralPath $tempFile -Algorithm SHA256).Hash.ToLowerInvariant()
+    } finally {
+        Remove-Item -LiteralPath $tempFile -Force -ErrorAction SilentlyContinue
+    }
+}
+function Test-PluginsHashMatches([string]$PluginsFile, [string]$Expected, [string]$EvidenceFile) {
+    if (-not (Test-Path -LiteralPath $PluginsFile -PathType Leaf) -or
+        (Get-Item -LiteralPath $PluginsFile -Force).LinkType) { return $false }
+    if ((Get-Sha256 $PluginsFile) -eq $Expected) { return $true }
+    $prefix = $RepoRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+    if (-not $PluginsFile.StartsWith($prefix, [StringComparison]::Ordinal)) { return $false }
+    $pluginsRelative = $PluginsFile.Substring($prefix.Length).Replace("\", "/")
+    $pin = Get-PluginsPinCommit $EvidenceFile
+    if (-not $pin) { return $false }
+    $historical = Get-PluginsHashAtPin $pin $pluginsRelative
+    if (-not $historical) { return $false }
+    return $historical -eq $Expected
+}
 function Get-NormalizedHash([string]$Path, [string]$Stage) {
     $text = [IO.File]::ReadAllText($Path)
     switch ($Stage) {
@@ -124,6 +176,24 @@ function Test-ManifestHash(
         if (-not $found) { return $false }
     }
     return @($Contract.reviewers).Count -gt 0
+}
+# Like Test-ManifestHash, but for a live file: accepts a manifest entry that
+# matches either the file's current hash or (for plugins/ reference docs
+# only) its content as of the commit that produced $Contract. This tolerates
+# legitimate later edits to plugins/ reference docs without weakening the
+# check for any other input.
+function Test-ManifestHashForFile(
+    $Contract, [string]$Suffix, [string]$FilePath, [string]$RepositoryRoot, [string]$EvidenceFile
+) {
+    $current = Get-Sha256 $FilePath
+    if (Test-ManifestHash $Contract $Suffix $current $RepositoryRoot) { return $true }
+    $trimmed = $Suffix.TrimStart("/")
+    if ($trimmed -notlike "plugins/*") { return $false }
+    $pin = Get-PluginsPinCommit $EvidenceFile
+    if (-not $pin) { return $false }
+    $historical = Get-PluginsHashAtPin $pin $trimmed
+    if (-not $historical) { return $false }
+    return Test-ManifestHash $Contract $Suffix $historical $RepositoryRoot
 }
 function Test-AllowedLayerSupersetPath(
     [string]$Path, [string]$Feature, [string]$Stage, [string]$RepositoryRoot, [string]$RecordedRoot
@@ -414,7 +484,11 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
                 (Get-Item -LiteralPath $manifestFile -Force).LinkType) {
                 Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest input is missing or unreadable"
             }
-            if ((Get-Sha256 $manifestFile) -ne [string]$item.sha256) {
+            if ($manifestRelative -like "plugins/*") {
+                if (-not (Test-PluginsHashMatches $manifestFile ([string]$item.sha256) $contractPath)) {
+                    Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest input hash is stale"
+                }
+            } elseif ((Get-Sha256 $manifestFile) -ne [string]$item.sha256) {
                 Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifest input hash is stale"
             }
         }
@@ -567,7 +641,7 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         Stop-WorkflowState $Feature "stage-provenance" "$Stage required review inputs are missing"
     }
     $precheckData = Get-Content -LiteralPath $precheck -Raw | ConvertFrom-Json
-    if (-not (Test-ManifestHash $contract "/$calibrationRelative" (Get-Sha256 $calibration) $RepoRoot) -or
+    if (-not (Test-ManifestHashForFile $contract "/$calibrationRelative" $calibration $RepoRoot $contractPath) -or
         -not (Test-ManifestHash $contract "/$precheckRelative" (Get-Sha256 $precheck) $RepoRoot)) {
         Stop-WorkflowState $Feature "stage-provenance" "$Stage reviewer manifests omit required inputs"
     }
