@@ -387,6 +387,15 @@
       "host_session_id": "hs-task-b4-6503d1ba-0011",
       "previous_record_sha256": "31ae34c2614f4c85c67a1343b7f61bd290767f96432d8a9ff38c4d5efd06543d",
       "record_sha256": "3d7a0e31b3fde9cdc2d61c4558523e87876f2f45e05434c8f01ca7181a23f5bd"
+    },
+    {
+      "sequence": 44,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t001-20260706-7f3a",
+      "host_session_id": "hs-qg-e1-6503d1ba-0012",
+      "previous_record_sha256": "3d7a0e31b3fde9cdc2d61c4558523e87876f2f45e05434c8f01ca7181a23f5bd",
+      "record_sha256": "c56736ae4914512731d8782223143aa249e82ff63776b0a717f128d4cf48850e"
     }
   ]
 }

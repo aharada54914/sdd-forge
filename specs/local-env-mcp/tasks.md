@@ -10,7 +10,7 @@ Lifecycle: `Draft -> Approved -> In Progress -> Implementation Complete -> Done`
 ## T-001 local-env-mcp 基盤 + probe-engine + エラーエンベロープ
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: probe-engine と allowlist は「実行機能を提供しない」境界(ADR-0004、REQ-003)の唯一のチョークポイントであり、欠陥は任意コマンド実行・リソース枯渇(DoS)に直結する(security-spec.md B2)。
 Required Workflow: tdd
