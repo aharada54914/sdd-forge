@@ -1,0 +1,29 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-003",
+  "cycle": 1,
+  "note": "Preserved output of the BLOCKED first Cycle-1 audit (attempt 1). Kept under a non-canonical filename so wfi-audit-cycle resumption logic (which keys on WFI-003-auditor-a.json) starts Cycle 1 fresh after revision.",
+  "checks": [
+    {"id": "EVIDENCE-CITED", "result": "PASS", "note": "All citations verified against the retrospective, RUN-20260705T023011Z-sdd-forge-mcp.json (gate_reports.total=0, review_tickets.major=1 confirmed verbatim), spot-checked T-001 implementation/gate reports, and RT-20260623-001.yml whose target.feature is claude-workflow-compatibility, corroborating the misattribution claim."},
+    {"id": "ROOT-CAUSE-PLAUSIBLE", "result": "PASS", "note": "Missing-specification mechanism: authors follow gate report conventions while the measurement pipeline expects an additive identity schema documented nowhere in project workflow files; drift uniform across all authors and tasks."},
+    {"id": "CATEGORY-LANGUAGE-MATCH", "result": "FAIL", "severity": "Critical", "note": "'Category: measurement' is not a recognized category: the governing guide plugins/sdd-quality-loop/references/wfi-category-guide.md (171 lines) defines only plugin-improvement and app-dev-efficiency; there is no Section 5 and no 'strict audit lane'. Additionally (conditional on plugin-improvement language rules): 'quality-gate reports' in the Change Description is a Section 2 forbidden term; required substitution 'quality verification gate reports'."},
+    {"id": "CHANGE-CONCRETE", "result": "PASS", "note": "Target AGENTS.md exists; field-level description with ledger equality constraint. Minor: AGENTS.md has no subsection literally named 'reporting conventions'; the actual target section should be named."},
+    {"id": "EFFECT-MEASURABLE", "result": "PASS", "note": "Quantitative: 33 N/A cells -> 0; gate_reports.total from 0 to the on-disk report count."},
+    {"id": "VERIFICATION-METRIC-DEFINED", "result": "PASS", "note": "One primary metric, Baseline 33, Target 0, Horizon next feature run (issue #64). Minor: 33 cells vs FP-002's 22 artifacts are different granularities and deserve a one-sentence reconciliation."},
+    {"id": "VERIFICATION-PLAN-SPECIFIC", "result": "PASS", "note": "Re-apply deterministic artifact rules at the next retrospective; cross-check run-record gate_reports.total against on-disk report count; judgment-free counts."},
+    {"id": "NO-PLUGIN-SCOPE-CREEP", "result": "PASS", "note": "Only AGENTS.md targeted."},
+    {"id": "META-CHANGE-ANTI-GOODHART", "result": "PASS", "note": "Adds ledger-verifiable identity metadata only; no grading logic, PASS/FAIL criteria, or thresholds change. Run ID values must equal ids reserved in the append-only identity ledger, so the fields cannot be fabricated to inflate counts; the change re-exposes already-verified work to the counting pipeline. Residual Minor risk: the metric tracks N/A-cell count, not the accuracy of newly populated values; bounded by the ledger cross-check."}
+  ],
+  "findings": [
+    {"severity": "Critical", "section": "## Category", "description": "'Category: measurement' and the cited 'strict audit lane, wfi-category-guide.md §5' do not exist in the governing guide, which defines only plugin-improvement and app-dev-efficiency. The WFI is unclassifiable under the existing guide."},
+    {"severity": "Major", "section": "## Proposed Change", "description": "Forbidden term 'quality-gate' (describing the gate concept) in the Change Description; required substitution 'quality verification gate'."},
+    {"severity": "Minor", "section": "## Proposed Change", "description": "'Add ... to the reporting conventions' presumes an AGENTS.md subsection that does not exist; name the actual target section."},
+    {"severity": "Minor", "section": "## Verification Metric", "description": "Baseline 33 (cells) vs retrospective FP-002's 22 (artifacts) are different countings of the same root cause and need a one-sentence reconciliation."}
+  ],
+  "proposed_revisions": [
+    {"section": "## Category", "revision": "Reclassify as 'Category: plugin-improvement' (friction concerns the plugin-side measurement pipeline handoff) and bring prose sections into Section 2 generic-language compliance; or first extend the guide with a genuine measurement category, then re-audit."},
+    {"section": "## Proposed Change", "revision": "Replace 'quality-gate reports must carry' with 'quality verification gate reports must carry'; replace 'to the reporting conventions' with a named existing AGENTS.md section."},
+    {"section": "## Verification Metric", "revision": "Add a sentence reconciling the 33-cell baseline with FP-002's 22-artifact count."}
+  ],
+  "verdict": "BLOCKED"
+}

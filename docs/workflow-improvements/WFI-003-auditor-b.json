@@ -1,0 +1,20 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-003",
+  "cycle": 2,
+  "checks": [
+    {"id": "VERIFICATION-PLAN-EXECUTABLE", "result": "FAIL", "note": "Primary check (re-count N/A cells at the next feature run, Baseline 33 -> Target 0) is executable and judgment-free. But the plan's second check (run-record gate_reports.total cross-check) depends on an emitter whose code/association rule is not locatable anywhere in the repository tree (exhaustive grep for sdd-run-record, gate_reports, first_pass_gate, and any emitter script found only the static output artifact). The claim that this second check 'requires no judgment calls' cannot be substantiated without visibility into the emitter's association rules; the next run record could still show gate_reports.total: 0 after the fix, undermining the plan's completeness."},
+    {"id": "CHANGE-SCOPE-PROPORTIONAL", "result": "PASS", "note": "Drift covers 100% of the period's evidence base (22 artifacts / 33 derived N/A cells across 11 tasks); one bounded additive subsection under AGENTS.md § Rules matches that single-root-cause, total-period friction."},
+    {"id": "NO-UNINTENDED-CONSEQUENCES", "result": "PASS", "note": "check-task-state.sh associates via grep -rlw task-id + 'VERDICT: PASS' grep; generate-evidence-bundle.sh's parse_review_verdict uses anchored ^VERDICT/^Critical/^Major/^Minor regexes -- none collide with the additive Run ID: / Task Attempt Count: / Task: lines. The identity ledger's append-only hash chain makes the Run ID equality constraint a genuine anti-fabrication bound. No Verified WFI exists to conflict with. Advisory: the WFI asserts consumer-safety without citing the specific grep/regex patterns; independently confirmed by this audit."},
+    {"id": "IMPLEMENTATION-FEASIBLE", "result": "PASS", "note": "AGENTS.md is a 52-line file with a terse Rules section; one small additive subsection, single commit with WFI-003 in the message (already standard practice per the retrospective skill)."},
+    {"id": "LANGUAGE-COMPLIANCE-SECOND-PASS", "result": "PASS", "note": "Full Section 2 forbidden-term scan: only 'quality-gate' at a Problem Evidence line, which the guide explicitly permits for direct citations. Regulated sections use 'quality verification gate' consistently."},
+    {"id": "ROLLBACK-EXECUTABLE", "result": "PASS", "note": "git revert of the single WFI-003 commit touching one AGENTS.md subsection; additive fields mean already-written reports remain valid. Minor advisory: the plan does not address artifacts regenerated under the new convention before a rollback, which does not affect mechanical executability."}
+  ],
+  "findings": [
+    {"severity": "Major", "section": "## Verification Plan", "description": "The run-record cross-check depends on an emitter not locatable in the repository (only the static output artifact exists in-tree; the emitter ships with the installed plugin cache). Without visibility into its association rules, 'requires no judgment calls' cannot be substantiated for that check, and a persistent gate_reports.total: 0 could be misread as WFI failure."}
+  ],
+  "proposed_revisions": [
+    {"section": "## Verification Plan", "revision": "Make the N/A-cell recount the primary, sufficient check; demote the run-record cross-check to secondary/best-effort (not required for Verified/Needs-Followup classification), and require recording explicitly in the Result section if the emitter's source is not locatable in the repository rather than treating a persistent gate_reports.total: 0 as evidence of failure."}
+  ],
+  "verdict": "NEEDS_REVISION"
+}
