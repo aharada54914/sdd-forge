@@ -59,6 +59,10 @@ function New-GitShim {
         $commandPath = Join-Path $BinRoot "git"
         @(
             '#!/bin/sh'
+            # Apple's /usr/bin/git dispatches through xcrun. Keep system tools
+            # available without re-exposing a separately installed Claude CLI.
+            'PATH="/usr/bin:/bin:$PATH"'
+            'export PATH'
             ('exec "{0}" "$@"' -f $realGit)
         ) | Set-Content -Path $commandPath -Encoding Utf8NoBOM
         & chmod +x $commandPath
@@ -92,13 +96,13 @@ try {
         }
     }
 
-    foreach ($expectedOutput in @("/reload-plugins", "/sdd-bootstrap:run", "/sdd-ship:run")) {
+    foreach ($expectedOutput in @("/reload-plugins", "/sdd-bootstrap:bootstrap", "/sdd-ship:ship")) {
         if ($output -notmatch [regex]::Escape($expectedOutput)) {
             throw "Claude install summary did not mention expected text: $expectedOutput`nOutput:`n$output"
         }
     }
 
-    Write-Host "ok: Claude registration installs sdd-bootstrap:run and sdd-ship:run plugins"
+    Write-Host "ok: Claude registration installs sdd-bootstrap:bootstrap and sdd-ship:ship plugins"
 }
 finally {
     $env:PATH = $successSavedPath

@@ -1062,7 +1062,7 @@ for path in \
     "plugins/sdd-ship/.claude-plugin/plugin.json" \
     "plugins/sdd-ship/.codex-plugin/plugin.json" \
     "plugins/sdd-ship/.plugin/plugin.json" \
-    "plugins/sdd-ship/skills/run/SKILL.md"; do
+    "plugins/sdd-ship/skills/ship/SKILL.md"; do
     if [[ ! -f "${REPO_ROOT}/${path}" ]]; then
         fail "sdd-ship required paths (q): missing: $path"
         _q_ok=0

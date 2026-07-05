@@ -1,7 +1,7 @@
 # Design: {{feature_name}}
 
 Impl-Review-Status: Pending
-Feature Type: fullstack
+Feature Type: {{project_or_feature_type}}
 
 ## Technical Summary
 
@@ -17,19 +17,41 @@ Feature Type: fullstack
 |---|---|---|---|
 | {{component_name}} | {{responsibility}} | {{technology}} | {{new_or_existing}} |
 
-## Architecture Decision Records
+## Layer Specifications
 
-| ADR | Decision | Status |
-|---|---|---|
-| {{adr_ref}} | {{decision_summary}} | {{status}} |
+| Layer | Summary | Canonical Detail | Owner | Status |
+|---|---|---|---|---|
+| UX | {{ux_summary}} | [UX specification](ux-spec.md#scope-and-user-journeys) | {{ux_owner}} | {{ux_status}} |
+| Frontend | {{frontend_summary}} | [Frontend specification](frontend-spec.md#technology-stack) | {{frontend_owner}} | {{frontend_status}} |
+| Infrastructure | {{infra_summary}} | [Infrastructure specification](infra-spec.md#deployment-topology) | {{infra_owner}} | {{infra_status}} |
+| Security | {{security_summary}} | [Security specification](security-spec.md#trust-boundaries) | {{security_owner}} | {{security_status}} |
 
-## Frontend Plan
+Use `N/A — no change: <reason>` for an unaffected layer. Security impact must
+still be assessed.
 
-{{frontend_plan}}
+## Design System Compliance
 
-## Backend Plan
+Applies when the project has a `design-system/` directory (`ds_profile:
+custom`); otherwise record exactly `N/A — ds_profile: none`.
 
-{{backend_plan}}
+- Design-System-Version: {{design_system_version}} (design-tokens.json meta.version)
+- Tokens Used: {{tokens_used}}
+- New Components: {{new_components_with_reasons}} (reuse existing components
+  first; record the reason for every new component)
+
+## Cross-Layer Dependencies
+
+| From | To | Contract / Decision | REQ | AC | Verification |
+|---|---|---|---|---|---|
+| requirements.md | {{layer_spec}} | {{owned_constraint}} | REQ-NNN | AC-NNN | TEST-NNN |
+| ux-spec.md | frontend-spec.md | {{view_state_component_contract}} | REQ-NNN | AC-NNN | TEST-NNN |
+| security-spec.md | infra-spec.md | {{control_and_runtime_contract}} | REQ-NNN | AC-NNN | TEST-NNN |
+
+## ADR Change Log
+
+| ADR | Decision | Status | Layer Impact | Supersedes | Date |
+|---|---|---|---|---|---|
+| {{adr_ref}} | {{decision_summary}} | {{status}} | {{layers}} | {{prior_adr_or_none}} | {{iso_date}} |
 
 ## Data Plan
 
@@ -55,11 +77,14 @@ Migration Strategy: {{migration_strategy}}
 |---|---|---|---|
 | {{boundary}} | {{auth_mechanism}} | {{data_classification}} | {{owasp_concerns}} |
 
-{{security_boundaries_detail}}
+Detailed controls: [Security specification](security-spec.md#trust-boundaries).
 
 ## Deployment / CI Plan
 
 {{deployment_ci_plan}}
+
+Detailed topology and operations:
+[Infrastructure specification](infra-spec.md#deployment-topology).
 
 ## Constraint Compliance
 

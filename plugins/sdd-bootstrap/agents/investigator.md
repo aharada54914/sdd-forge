@@ -3,7 +3,7 @@ name: sdd-investigator
 description: Read-only codebase investigator for SDD. Extracts screens, APIs, business rules, dependencies, and test coverage with file:line evidence. Never writes code.
 tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
-model: sonnet
+model: haiku
 ---
 
 # SDD Investigator

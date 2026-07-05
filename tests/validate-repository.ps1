@@ -2,15 +2,22 @@ $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
+$workflowStateValidator = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1"
+$workflowStateArguments = @("-NoProfile", "-File", $workflowStateValidator)
+& (Get-Process -Id $PID).Path @workflowStateArguments
+if ($LASTEXITCODE -ne 0) {
+    throw "Workflow-state validation failed with exit code $LASTEXITCODE."
+}
+
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship")
-$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "run", "run")
+$expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop")
 $expectedVersions = @{
-    "sdd-bootstrap"      = "1.2.0"
-    "sdd-implementation" = "1.2.0"
-    "sdd-quality-loop"   = "1.2.0"
-    "sdd-lite"           = "1.2.0"
-    "sdd-review-loop"    = "1.2.0"
-    "sdd-ship"           = "1.2.0"
+    "sdd-bootstrap"      = "1.8.0"
+    "sdd-implementation" = "1.8.0"
+    "sdd-quality-loop"   = "1.8.0"
+    "sdd-lite"           = "1.8.0"
+    "sdd-review-loop"    = "1.8.0"
+    "sdd-ship"           = "1.8.0"
 }
 $releasePlugins = $expectedPlugins
 
@@ -22,6 +29,20 @@ function Read-JsonFile {
         throw "Missing required file: $RelativePath"
     }
     return Get-Content -Raw -Encoding Utf8 $path | ConvertFrom-Json
+}
+
+$readmeLines = Get-Content -Encoding Utf8 (Join-Path $repositoryRoot "README.md")
+$readmeCurrentRelease = $readmeLines |
+    Where-Object { $_ -match "^v\d+\.\d+\.\d+(?:\s|$)" } |
+    Select-Object -First 1
+if ($null -eq $readmeCurrentRelease -or $readmeCurrentRelease -notmatch "^v1\.8\.0(?:\s|$)") {
+    throw "README.md current release must be v1.8.0."
+}
+
+$changelog = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "CHANGELOG.md")
+$currentReleaseHeadings = [regex]::Matches($changelog, "(?m)^## v1\.8\.0(?:\s|$)")
+if ($currentReleaseHeadings.Count -ne 1) {
+    throw "CHANGELOG.md must contain exactly one v1.8.0 release heading."
 }
 
 $codexMarketplace = Read-JsonFile ".agents/plugins/marketplace.json"
@@ -55,7 +76,7 @@ foreach ($plugin in $claudeMarketplace.plugins) {
     }
 }
 
-# Every plugin carries the same explicit 1.2.x release version in both host
+# Every plugin carries the same explicit release version in both host
 # marketplaces so cache recovery and host discovery are unambiguous.
 foreach ($name in $releasePlugins) {
     $expectedVersion = $expectedVersions[$name]
@@ -154,6 +175,10 @@ $requiredFiles = @(
     "plugins/sdd-bootstrap/skills/sdd-adopt/SKILL.md",
     "plugins/sdd-bootstrap/scripts/check-sdd-structure.sh",
     "plugins/sdd-bootstrap/scripts/check-sdd-structure.ps1",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.sh",
+    "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+    "contracts/workflow-state-registry.schema.json",
+    "specs/workflow-state-registry.json",
     "plugins/sdd-review-loop/.claude-plugin/plugin.json",
     "plugins/sdd-review-loop/.codex-plugin/plugin.json",
     "plugins/sdd-review-loop/.plugin/plugin.json",
@@ -407,17 +432,33 @@ foreach ($check in $contractTemplate.checks) {
     }
 }
 
-# CI template must fail-closed with TODO marker.
+# CI template must fail closed until its project-command replacement marker is resolved.
 $ciTemplate = Get-Content -Raw -Encoding Utf8 (Join-Path $repositoryRoot "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ci-github.template.yml")
-if ($ciTemplate -notmatch [regex]::Escape("TODO_REPLACE_WITH_PROJECT_COMMANDS")) {
-    throw "ci-github.template.yml does not contain TODO_REPLACE_WITH_PROJECT_COMMANDS marker."
+$projectCommandMarker = "TO" + "DO_REPLACE_WITH_PROJECT_COMMANDS"
+if ($ciTemplate -notmatch [regex]::Escape($projectCommandMarker)) {
+    throw "ci-github.template.yml does not contain the required project-command replacement marker."
 }
 
 # Side-effecting skills must not be auto-invocable by the model.
+# Only the two entry commands and human-only utilities may appear in the
+# user-facing slash menu; every other skill must also set user-invocable: false.
+$userVisibleSkills = @("bootstrap", "ship", "sdd-sudo", "fix-by-review-ticket", "diagnose")
 foreach ($skillFile in $skillFiles) {
     $content = Get-Content -Raw -Encoding Utf8 $skillFile.FullName
     if ($content -notmatch "(?m)^disable-model-invocation:\s*true$") {
         throw "Skill must set disable-model-invocation: true: $($skillFile.FullName)"
+    }
+    if ($content -notmatch "(?m)^name:\s*(.+)$") {
+        throw "Skill has no name: $($skillFile.FullName)"
+    }
+    $skillName = $Matches[1].Trim()
+    $hasUserInvocableFalse = $content -match "(?m)^user-invocable:\s*false$"
+    if ($skillName -in $userVisibleSkills) {
+        if ($hasUserInvocableFalse) {
+            throw "User-facing skill must not set user-invocable: false: $($skillFile.FullName)"
+        }
+    } elseif (-not $hasUserInvocableFalse) {
+        throw "Internal skill must set user-invocable: false: $($skillFile.FullName)"
     }
 }
 

@@ -1,22 +1,25 @@
 # SDD スキルリファレンス
 
-6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる18のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
+6つのプラグイン（sdd-bootstrap、sdd-ship、sdd-review-loop、sdd-implementation、sdd-quality-loop、sdd-lite）に含まれる21のスキルの詳細リファレンスです。業務フローの全体像については [workflow-guide.md](workflow-guide.md) を参照してください。
 
-> **2コマンドワークフロー**: ユーザーが直接呼び出すのは `/sdd-bootstrap:run` と `/sdd-ship:run` の2つのみです。他のスキルはこれらのオーケストレーターが内部で呼び出します。
+> **2コマンドワークフロー**: ユーザーが直接呼び出すのは `/sdd-bootstrap:bootstrap` と `/sdd-ship:ship` の2つのみです。他のスキルはこれらのオーケストレーターが内部で呼び出します。
 
 ## 1. スキル一覧 (早見表)
 
 | スキル名 | 所属プラグイン | 役割 | 前段スキル | 後段スキル |
 |---|---|---|---|---|
-| **sdd-bootstrap** | **sdd-bootstrap** | **[公開] 仕様化フェーズのエントリーポイント。investigate/adopt/feature/bugfix/refactor/project モードをルーティング** | **—** | **sdd-ship** |
-| **sdd-ship** | **sdd-ship** | **[公開] 実装・品質保証フェーズのオーケストレーター。implement-tasks → quality-gate (or lite-gate) → workflow-retrospective を順次実行** | **sdd-bootstrap** | **—** |
+| **bootstrap** | **sdd-bootstrap** | **[公開] 仕様化フェーズのエントリーポイント（`/sdd-bootstrap:bootstrap`）。investigate/adopt/feature/bugfix/refactor/project モードをルーティング** | **—** | **ship** |
+| **ship** | **sdd-ship** | **[公開] 実装・品質保証フェーズのオーケストレーター（`/sdd-ship:ship`）。implement-tasks → quality-gate (or lite-gate) → workflow-retrospective を順次実行** | **bootstrap** | **—** |
 | sdd-adopt | sdd-bootstrap | 既存プロジェクトにSDD構造を導入 | — | investigate-codebase, sdd-bootstrap-interviewer |
 | investigate-codebase | sdd-bootstrap | コードベース・問題領域の読み取り調査 | sdd-adopt | sdd-bootstrap-interviewer |
 | sdd-bootstrap-interviewer | sdd-bootstrap | インタビュー駆動の仕様生成 [Phase 1] と タスク生成 [Phase 2] | investigate-codebase (任意) | spec-review-loop → impl-review-loop (Phase 1後), task-review-loop (Phase 2後) |
+| design-sync-loop | sdd-bootstrap | UI アプリ（`ds_profile: custom`）で `design-system/` 契約を保証（ui-ux-pro-max シード生成 / Figma DTCG 取込 / テンプレートインタビュー）し、トークン駆動モックアップの確認ループを回す（claude.ai/design 連携・任意・非ブロッキング） | sdd-bootstrap-interviewer, lite-spec | — |
 | **spec-review-loop** | **sdd-review-loop** | **requirements.md と acceptance-tests.md を `spec-reviewer-a/b` が独立レビューし、implementation-policy review の前提 PASS を作る** | **sdd-bootstrap-interviewer [Phase 1]** | **impl-review-loop (Spec-Review-Status: Passed後)** |
 | **impl-review-loop** | **sdd-review-loop** | **design.md の実装方針を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 1]** | **sdd-bootstrap-interviewer [Phase 2] (Impl-Review-Status: Passed後)** |
 | **task-review-loop** | **sdd-review-loop** | **tasks.md のタスク分解を2体のブラインドレビュアー × 最大3ラウンドでレビュー** | **sdd-bootstrap-interviewer [Phase 2]** | **implement-task, implement-tasks (承認ゲート後)** |
+| diagnose | sdd-implementation | ハードなバグ・リグレッション・フレーキーテスト・性能退行の診断規律（再現→計装→根本原因→最小修正）。`reports/diagnosis/<id>.md` を出力し、軽量トラック（lite-spec）への入口を兼ねる | — | lite-spec（診断結果を入力に要件/設計/タスクを生成） |
 | implement-task | sdd-implementation | 承認済みタスク1つを実装 | sdd-bootstrap-interviewer | quality-gate |
+| visual-verify-loop | sdd-implementation | UI タスク実装後の視覚検証ループ（Claude Preview / wpf-visual-verify、advisory・最大5回、証跡を `reports/visual-evidence/` に保存） | implement-task | — |
 | **implement-tasks** | **sdd-implementation** | **承認済みタスクを依存関係順に一括実装し、全完了時に自動で quality-gate へ移行** | **sdd-bootstrap-interviewer** | **quality-gate (自動)** |
 | quality-gate | sdd-quality-loop | 実装完了タスクの独立検証・Done判定 | implement-task, implement-tasks | fix-by-review-ticket (条件付き), workflow-retrospective |
 | fix-by-review-ticket | sdd-quality-loop | レビューチケットの修正を実装 | quality-gate | quality-gate |
@@ -27,7 +30,7 @@
 | lite-spec | sdd-lite | 社内・部署内アプリ向けの軽量仕様生成（要件/設計/タスクの3ファイル、traceability/ADR/evidence-bundle 不要） | — | implement-task, implement-tasks |
 | lite-gate | sdd-lite | sdd-lite フローの軽量決定論的品質ゲート（検証コマンドを自分で再実行し lite 品質レポートを生成 → Done） | implement-task, implement-tasks | — |
 
-**重要:** すべてのスキルは `disable-model-invocation: true` を指定しています。つまり、モデルが勝手にスキルを起動することはなく、ユーザーが明示的に `/sdd-bootstrap:sdd-adopt` のようなコマンドで呼び出す必要があります。このため、実装途中の誤った自動実行を防げます。
+**重要（スキルの可視性契約）:** すべてのスキルは `disable-model-invocation: true` を指定しています。つまり、モデルが勝手にスキルを起動することはありません。さらに、内部オーケストレーション用スキルは `user-invocable: false` も指定しており、スラッシュコマンドメニューには表示されず、ユーザーが直接呼び出すこともできません。ユーザーに見えるコマンドは次の5つだけです: `/sdd-bootstrap:bootstrap`（エントリ1）、`/sdd-ship:ship`（エントリ2）、`/sdd-quality-loop:sdd-sudo`（人間専用トグル）、`/sdd-quality-loop:fix-by-review-ticket`（BLOCKED 後の人間による再開点）、`/sdd-implementation:diagnose`（バグ診断の独立エントリ）。この契約は `tests/validate-repository.ps1` が強制します。
 
 ## 2. 各スキル詳細
 
@@ -41,23 +44,23 @@
 
 ```txt
 # Claude Code
-/sdd-bootstrap:run feature https://github.com/example/repo/issues/42
-/sdd-bootstrap:run bugfix  https://github.com/example/repo/issues/88
-/sdd-bootstrap:run refactor https://github.com/example/repo/issues/55
-/sdd-bootstrap:run project "新規プロジェクト要件"
-/sdd-bootstrap:run adopt
-/sdd-bootstrap:run investigate refactor src/payments
-/sdd-bootstrap:run feature --lite <source>
-/sdd-bootstrap:run feature --feature my-slug <source>
-/sdd-bootstrap:run feature --reset --feature my-slug
+/sdd-bootstrap:bootstrap feature https://github.com/example/repo/issues/42
+/sdd-bootstrap:bootstrap bugfix  https://github.com/example/repo/issues/88
+/sdd-bootstrap:bootstrap refactor https://github.com/example/repo/issues/55
+/sdd-bootstrap:bootstrap project "新規プロジェクト要件"
+/sdd-bootstrap:bootstrap adopt
+/sdd-bootstrap:bootstrap investigate refactor src/payments
+/sdd-bootstrap:bootstrap feature --lite <source>
+/sdd-bootstrap:bootstrap feature --feature my-slug <source>
+/sdd-bootstrap:bootstrap feature --reset --feature my-slug
 
 # Codex
-Use the run skill.
+Use the bootstrap skill.
 Mode: feature
 Source: https://github.com/example/repo/issues/42
 ```
 
-**詳細は** `plugins/sdd-bootstrap/skills/run/SKILL.md` **を参照。**
+**詳細は** `plugins/sdd-bootstrap/skills/bootstrap/SKILL.md` **を参照。**
 
 ---
 
@@ -71,16 +74,16 @@ Source: https://github.com/example/repo/issues/42
 
 ```txt
 # Claude Code
-/sdd-ship:run                                          # ゼロ引数（Active Spec Dirs から自動選択）
-/sdd-ship:run specs/<feature>/tasks.md                 # バッチ実装（全承認済みタスク）
-/sdd-ship:run specs/<feature>/tasks.md#T-001           # 単一タスク
-/sdd-ship:run --lite specs/<feature>/tasks.md          # lite トラック強制
-/sdd-ship:run --full specs/<feature>/tasks.md          # フル トラック強制
-/sdd-ship:run --verify specs/<feature>/tasks.md        # cross-model-verify を実行
-/sdd-ship:run --retro specs/<feature>/tasks.md         # 完了後に workflow-retrospective を実行
+/sdd-ship:ship                                          # ゼロ引数（Active Spec Dirs から自動選択）
+/sdd-ship:ship specs/<feature>/tasks.md                 # バッチ実装（全承認済みタスク）
+/sdd-ship:ship specs/<feature>/tasks.md#T-001           # 単一タスク
+/sdd-ship:ship --lite specs/<feature>/tasks.md          # lite トラック強制
+/sdd-ship:ship --full specs/<feature>/tasks.md          # フル トラック強制
+/sdd-ship:ship --verify specs/<feature>/tasks.md        # cross-model-verify を実行
+/sdd-ship:ship --retro specs/<feature>/tasks.md         # 完了後に workflow-retrospective を実行
 
 # Codex
-Use the run skill for specs/<feature>/tasks.md
+Use the ship skill for specs/<feature>/tasks.md
 ```
 
 **トラック検出（優先順）**
@@ -92,7 +95,7 @@ Use the run skill for specs/<feature>/tasks.md
 
 **ゼロ引数起動**: AGENTS.md の `## Active Spec Directories` を読み、承認済みタスクが1件のみなら自動選択。複数ある場合はリスト表示して停止。
 
-**詳細は** `plugins/sdd-ship/skills/run/SKILL.md` **を参照。**
+**詳細は** `plugins/sdd-ship/skills/ship/SKILL.md` **を参照。**
 
 ---
 
@@ -497,6 +500,25 @@ TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|lorem ipsum|com
 
 ---
 
+### check-design-system
+
+デザインシステム準拠の決定論ゲート（warn フェーズ）。対象プロジェクトに
+`design-system/` が存在するときのみ動作し、無ければ note 付きでスキップする
+（exit 0）。① design-tokens.json の契約エンベロープ検証
+（`design-system-contract/v1`・semver・generated_by・color/typography/spacing）、
+② 変更ファイル中の生スタイル値（#hex / rgb() / hsl()）検出（design-system/・
+build/・tests/・*.md・*.svg は除外）、③ design.md の
+`## Design System Compliance` セクション確認。既定は WARN（exit 0）、
+`SDD_DESIGN_SYSTEM_ENFORCE=error` で違反時に exit 1。
+
+```txt
+# Git Bash / WSL / macOS / Linux
+plugins/sdd-quality-loop/scripts/check-design-system.sh <project-root> [<design-md>] [<changed-file>...]
+
+# PowerShell
+plugins/sdd-quality-loop/scripts/check-design-system.ps1 -ProjectRoot <path> [-DesignMd <path>] [-ChangedFiles <paths...>]
+```
+
 ## 6. テンプレート一覧
 
 ### sdd-bootstrap
@@ -512,6 +534,9 @@ TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|lorem ipsum|com
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/acceptance-tests.template.md` | 受け入れ基準・テスト |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md` | タスク分割 (T-xxx) |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/traceability.template.md` | トレーサビリティ行列 |
+| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-tokens.template.json` | `design-system/` トークン契約の雛形（W3C DTCG、meta エンベロープは `contracts/design-system.contract.v1.schema.json` で検証） |
+| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/design-system.template.md` | UI 規約の雛形（3層構造: トークン / Do・Don't / レビューチェックリスト、WCAG 2.2 AA） |
+| `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ui-patterns.template.md` | 言語非依存の普遍的 UX 規約（アクション / ダイアログ / アイコン / フロー / 状態 / 認知負荷 の6カテゴリ、既定値込み） |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/adr.template.md` | Architecture Decision Record |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/ai-task.template.md` | AI 特化タスク template |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-context.template.md` | C4 Context diagram |
@@ -530,6 +555,7 @@ TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|lorem ipsum|com
 | テンプレートパス | 生成物説明 |
 |---|---|
 | `plugins/sdd-implementation/templates/implementation-report.template.md` | 実装進捗レポート（タスク サイクルごと） |
+| `plugins/sdd-implementation/templates/diagnosis-report.template.md` | diagnose の診断レポート（再現手順・根本原因・回帰テスト） |
 
 ### sdd-quality-loop
 

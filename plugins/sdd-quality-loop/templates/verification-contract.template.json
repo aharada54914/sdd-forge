@@ -16,6 +16,7 @@
     { "id": "task-state-check", "required": true, "passes": false, "evidence": "", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
     { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
     { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
-    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
   ]
 }

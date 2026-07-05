@@ -1,0 +1,12 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "workflow-state-integrity",
+  "attempt": 1,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "1874381dfee8263d7b8f5c9218017137fa063431deb13219d5b794d358795dac",
+  "requirements_sha256": "02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b",
+  "acceptance_sha256": "a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd",
+  "generated_at": "2026-06-27T03:17:26Z"
+}

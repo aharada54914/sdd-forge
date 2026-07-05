@@ -31,13 +31,32 @@ allowlist. Read the following yourself:
 
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
+- `specs/<feature>/design.md`
 - `specs/<feature>/tasks.md`
 - `specs/<feature>/traceability.md`
+- `specs/<feature>/ux-spec.md`
+- `specs/<feature>/frontend-spec.md`
+- `specs/<feature>/infra-spec.md`
+- `specs/<feature>/security-spec.md`
 - `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/dependency-graph.json`
 
 Do not read any reviewer-b.json or integrated-summary.json from prior rounds.
+
+The launch boundary is fail closed. Before reading any substantive input,
+require `REVIEW_CONTEXT_OK` evidence from the paired deterministic
+`validate-review-context-set` validator for the persisted
+`review-context-invocation/v2` contract for this role only. The caller must run
+the validator with `--reserve` before launch, so this run/session is atomically
+added to the canonical identity ledger and checked against every persisted
+implementation, review, and evaluation identity. The bound context must use
+`input_mode: file-manifest`, `fallback_mode: none`, `read_only: true`, a fresh
+run/session identity, a valid hash-chain continuation, and verified hashes.
+Reject a missing manifest or canonical identity ledger, an unlisted
+path, hash mismatch, chat-only input, writable context, fallback, or reused
+implementation/review/evaluation identity. No same-session fallback is
+permitted.
 
 # Finding Calibration
 
@@ -185,6 +204,11 @@ proves completion. Do not require the reviewer to execute the command.
 Every task ID in tasks.md must have a corresponding entry in traceability.md.
 Every requirement ID in traceability.md must exist in requirements.md. Dangling
 references in either direction are Major findings.
+
+For full-profile inputs, verify each requirement row has either one or more
+canonical `<layer>-spec.md#<section>` anchors or a reasoned
+`N/A — cross-layer only: <reason>` value, and that cited anchors refer to the
+hash-bound layer documents.
 
 # Severity Reference
 

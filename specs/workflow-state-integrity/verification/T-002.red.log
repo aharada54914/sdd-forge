@@ -1,0 +1,4 @@
+Command: bash tests/workflow-state-registry.tests.sh
+Exit: 1
+Observed: not ok: registry missing
+Result: RED confirmed before the registry contract and migration records existed.

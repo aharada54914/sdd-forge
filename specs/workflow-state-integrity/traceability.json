@@ -1,0 +1,196 @@
+{
+  "feature": "workflow-state-integrity",
+  "links": [
+    {
+      "requirement": "REQ-002",
+      "acs": [
+        "AC-003"
+      ],
+      "tests": [
+        "tests/workflow-state.tests.sh",
+        "tests/workflow-state.tests.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-003.red.log",
+        "specs/workflow-state-integrity/verification/T-003.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-003",
+      "acs": ["AC-004"],
+      "tests": [
+        "tests/spec-review-loop.tests.sh",
+        "tests/downstream-review-precheck.tests.sh",
+        "tests/downstream-review-precheck.tests.ps1",
+        "tests/workflow-state.tests.sh",
+        "tests/workflow-state.tests.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-001.red.log",
+        "specs/workflow-state-integrity/verification/T-001.green.log",
+        "specs/workflow-state-integrity/verification/T-003.red.log",
+        "specs/workflow-state-integrity/verification/T-003.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-004",
+      "acs": [
+        "AC-005"
+      ],
+      "tests": [
+        "tests/workflow-state.tests.sh",
+        "tests/workflow-state.tests.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-003.red.log",
+        "specs/workflow-state-integrity/verification/T-003.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-008",
+      "acs": ["AC-010"],
+      "tests": [
+        "tests/spec-review-loop.tests.sh",
+        "tests/downstream-review-precheck.tests.sh",
+        "tests/downstream-review-precheck.tests.ps1",
+        "tests/workflow-state-repository-integration.tests.ps1",
+        "tests/workflow-state-ci-integration.tests.sh",
+        "tests/gates.tests.sh",
+        "tests/scripts.tests.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-001.red.log",
+        "specs/workflow-state-integrity/verification/T-001.green.log",
+        "specs/workflow-state-integrity/verification/T-004.red.log",
+        "specs/workflow-state-integrity/verification/T-004.green.log",
+        "specs/workflow-state-integrity/verification/T-005.red.log",
+        "specs/workflow-state-integrity/verification/T-005.green.log",
+        "specs/workflow-state-integrity/verification/T-005.downstream.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-010",
+      "acs": ["AC-012"],
+      "tests": [
+        "tests/spec-review-loop.tests.sh",
+        "tests/downstream-review-precheck.tests.sh",
+        "tests/downstream-review-precheck.tests.ps1",
+        "tests/downstream-review-precheck-parity.tests.sh",
+        "tests/workflow-state.tests.sh",
+        "tests/workflow-state.tests.ps1",
+        "tests/workflow-state-parity.tests.sh",
+        "tests/workflow-state-repository-integration.tests.ps1",
+        "tests/workflow-state-ci-integration.tests.sh",
+        "tests/run-all.sh",
+        "tests/run-all.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-001.red.log",
+        "specs/workflow-state-integrity/verification/T-001.green.log",
+        "specs/workflow-state-integrity/verification/T-003.red.log",
+        "specs/workflow-state-integrity/verification/T-003.green.log",
+        "specs/workflow-state-integrity/verification/T-004.red.log",
+        "specs/workflow-state-integrity/verification/T-004.green.log",
+        "specs/workflow-state-integrity/verification/T-005.red.log",
+        "specs/workflow-state-integrity/verification/T-005.green.log",
+        "specs/workflow-state-integrity/verification/T-005.downstream.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-012",
+      "acs": ["AC-005"],
+      "tests": [
+        "tests/downstream-review-precheck.tests.sh",
+        "tests/downstream-review-precheck.tests.ps1",
+        "tests/downstream-review-precheck-parity.tests.sh",
+        "tests/workflow-state.tests.sh",
+        "tests/workflow-state.tests.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-001.red.log",
+        "specs/workflow-state-integrity/verification/T-001.green.log",
+        "specs/workflow-state-integrity/verification/T-003.red.log",
+        "specs/workflow-state-integrity/verification/T-003.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-001",
+      "acs": ["AC-001", "AC-002"],
+      "tests": [
+        "tests/workflow-state-registry.tests.sh",
+        "tests/workflow-state-registry.tests.ps1",
+        "tests/workflow-state-registry-parity.tests.sh"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-002.red.log",
+        "specs/workflow-state-integrity/verification/T-002.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-005",
+      "acs": ["AC-006"],
+      "tests": [
+        "tests/workflow-state-registry.tests.sh",
+        "tests/workflow-state-registry.tests.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-002.red.log",
+        "specs/workflow-state-integrity/verification/T-002.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-006",
+      "acs": ["AC-007"],
+      "tests": [
+        "tests/workflow-state-registry.tests.sh",
+        "tests/workflow-state-registry.tests.ps1",
+        "tests/workflow-state.tests.sh",
+        "tests/workflow-state.tests.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-002.green.log",
+        "specs/workflow-state-integrity/verification/T-003.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-007",
+      "acs": ["AC-002", "AC-008"],
+      "tests": [
+        "tests/workflow-state-registry.tests.sh",
+        "tests/workflow-state-registry.tests.ps1",
+        "tests/workflow-state-registry-parity.tests.sh",
+        "tests/workflow-state.tests.sh",
+        "tests/workflow-state.tests.ps1",
+        "tests/workflow-state-parity.tests.sh"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-002.green.log",
+        "specs/workflow-state-integrity/verification/T-003.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-009",
+      "acs": ["AC-011"],
+      "tests": [
+        "tests/workflow-state-registry.tests.sh",
+        "tests/workflow-state-registry.tests.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-002.green.log"
+      ]
+    },
+    {
+      "requirement": "REQ-011",
+      "acs": ["AC-013"],
+      "tests": [
+        "tests/validate-repository.ps1",
+        "tests/install.tests.sh",
+        "tests/install.tests.ps1"
+      ],
+      "evidence": [
+        "specs/workflow-state-integrity/verification/T-006.red.log",
+        "specs/workflow-state-integrity/verification/T-006.green.log"
+      ]
+    }
+  ]
+}

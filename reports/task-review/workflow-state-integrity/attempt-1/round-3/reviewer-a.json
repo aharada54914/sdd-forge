@@ -1,0 +1,33 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "f4b5c821-a1eb-4ab3-8aeb-cd85f69c9174",
+  "host_session_id": "656c429f-43d9-4d38-b973-9819b58089a2",
+  "allowed_input_manifest": [
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-1/round-3/precheck-result.json","sha256":"026ca9ab1672f52bba34367dc14b98444836aea15f5786e371561efdbd794354"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-1/round-3/dependency-graph.json","sha256":"7420ce6d5bcb2c1a8771c9b35a7fee791044a689f65a16721e2bf715db597c79"},
+    {"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"specs/workflow-state-integrity/tasks.md","sha256":"c7781b8b5d3000d85330034f8dbc1bb5ae7ccdfb4e671f499e58554652d12813"},
+    {"path":"specs/workflow-state-integrity/traceability.md","sha256":"3ce7efb40ed09a3ad2540e716cff1f495e5ff44e7b6fd0f29f381588278d1d05"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"PREREQ-AC-IDS","result":"PASS","severity":"Critical","finding":"Every task references existing REQ and AC identifiers."},
+    {"id":"BLOCKERS-FORMAT","result":"PASS","severity":"Major","finding":"Precheck reports valid blocker formatting; blocker values are None or valid task IDs."},
+    {"id":"REQ-COVERAGE","result":"PASS","severity":"Critical","finding":"REQ-001 through REQ-012 are covered by at least one task."},
+    {"id":"AC-COVERAGE","result":"PASS","severity":"Critical","finding":"AC-001 through AC-014 are covered by at least one task."},
+    {"id":"ORPHAN-TASK","result":"PASS","severity":"Major","finding":"Each task maps to requirements and acceptance criteria and contributes to the specified feature."},
+    {"id":"ORPHAN-TEST","result":"PASS","severity":"Major","finding":"Every acceptance criterion maps to a planned task and test target."},
+    {"id":"INITIAL-STATE","result":"PASS","severity":"Major","finding":"All six tasks begin with Approval Draft and Status Planned."},
+    {"id":"RISK-WORKFLOW-FORMAT","result":"PASS","severity":"Critical","finding":"Each task declares a recognized risk level, rationale, and required workflow."},
+    {"id":"NO-DUPLICATE-AC","result":"PASS","severity":"Major","finding":"Acceptance-criterion ownership is nonduplicative across the task decomposition."},
+    {"id":"DEPENDENCY-COMPLETE","result":"PASS","severity":"Major","finding":"Declared blockers and the dependency graph consistently encode T-001/T-002 before T-003, T-003 before T-004/T-005, and T-004/T-005 before T-006."},
+    {"id":"DEPENDENCY-CYCLE","result":"PASS","severity":"Critical","finding":"The dependency graph is acyclic."},
+    {"id":"SINGLE-CONCERN","result":"PASS","severity":"Major","finding":"Each task has a cohesive implementation concern with bounded scope and explicit exclusions."},
+    {"id":"OBSERVABLE-DONE","result":"PASS","severity":"Major","finding":"Each task provides inspectable completion outcomes, executable verification commands or fixtures, and evidence-artifact expectations."},
+    {"id":"TRACEABILITY-SYNC","result":"PASS","severity":"Major","finding":"Task requirements, acceptance criteria, statuses, and code/test targets agree with traceability.md."}
+  ]
+}

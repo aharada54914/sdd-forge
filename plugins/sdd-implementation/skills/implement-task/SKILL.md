@@ -2,6 +2,7 @@
 name: implement-task
 description: Restore the current SDD task state and implement exactly one approved task. Use after sdd-bootstrap-interviewer and before quality-gate.
 disable-model-invocation: true
+user-invocable: false
 ---
 
 > **Caller**: This skill is invoked by `sdd-ship`. Do not invoke directly.
@@ -38,7 +39,10 @@ missing structure from context.
 Read `AGENTS.md`, the target feature requirements, design, tasks, acceptance tests,
 traceability, relevant ADRs and contracts, `references/implementation-policy.md`,
 `references/implementation-craft-policy.md`, and
-`references/agent-delegation-policy.md`.
+`references/agent-delegation-policy.md`. For UI tasks in a project that
+carries a `design-system/` directory, also read
+`design-system/design-system.md` and `design-system/ui-patterns.md`; for
+other tasks do not load them.
 
 ### Sudo Mode
 
@@ -84,8 +88,14 @@ resume, re-read `tasks.md` and the report before taking any action.
    capture both as you go rather than reconstructing them later.
 4. Run related existing regression tests.
 5. Perform a scoped self-review against the approved specification.
-6. Create `reports/implementation/<task-id>.md` from the bundled template.
-7. Set the task to `Implementation Complete` only when implementation, required
+6. When the task qualifies as a UI task (the feature has
+   `specs/<feature>/ux-spec.md` or `specs/<feature>/mockups/`, and the task
+   scope includes UI-layer files), run the `visual-verify-loop` skill. It is
+   advisory and non-blocking: record its screenshots and findings in the
+   implementation report's Visual Evidence section; when it is skipped,
+   record the skip reason instead.
+7. Create `reports/implementation/<task-id>.md` from the bundled template.
+8. Set the task to `Implementation Complete` only when implementation, required
    tests, related regression tests, and the report are complete.
 
 ## Block And Stop
@@ -131,6 +141,7 @@ Counter these excuses; each one is how a task quietly ships incomplete work.
 ## Boundaries
 
 - Do not run the full repository quality gate unless it is required by the task.
-- Do not perform independent critical review or Playwright visual verification.
+- Do not perform independent critical review; visual checks are limited to the
+  advisory `visual-verify-loop` step of the Implementation Process.
 - Do not set a task to `Done`; only `quality-gate` may do that.
 - Do not commit, push, or create a PR/MR unless explicitly requested.

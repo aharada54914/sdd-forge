@@ -1,0 +1,56 @@
+T-005 Green evidence — escalated attempt 4 remediation
+
+Review findings remediated:
+  - evaluator inputs now require exactly one task implementation report;
+    code, test, contract, ADR, and verification inputs must match a path and
+    SHA-256 declared in that report's Outputs table
+  - PowerShell removes a reservation lock only after acquiring it
+  - PowerShell rejects object-valued allowed_input_manifest and ledger records,
+    plus string-valued invocation and ledger sequence values, matching Bash
+  - evaluator quality invocations require the current task_id and the exact
+    matching implementation-report path, heading, and Task ID field
+  - Bash and PowerShell accept only the same exact two-column Outputs row
+    grammar; extra columns and trailing content fail closed
+
+Command 1:
+  bash -n plugins/sdd-quality-loop/scripts/validate-review-context-set.sh \
+    tests/review-agent-isolation.tests.sh
+Result 1: PASS
+
+Command 2:
+  PowerShell parser validation for validate-review-context-set.ps1
+Result 2: PASS
+
+Command 3:
+  /bin/bash tests/review-agent-isolation.tests.sh
+Observed output:
+  ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained
+Result 3: PASS
+
+Command 4:
+  Homebrew bash tests/review-agent-isolation.tests.sh
+Observed output:
+  ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained
+Result 4: PASS
+
+Command 5:
+  isolated git-archive HEAD overlay of the T-005 production/test outputs,
+  with T005_SOURCE_GIT_ROOT bound to the source repository, followed by:
+  /bin/bash <archive>/tests/review-agent-isolation.tests.sh
+Observed output:
+  ok: sequential reviewer and evaluator contexts are distinct, authorized, and hash-chained
+Result 5: PASS
+
+Coverage includes Bash/PowerShell success and diagnostic parity, missing
+manifest, unrelated existing files inside and outside broad namespaces, report
+output path/SHA authorization, hash mismatch, chat-only input, writable
+context, fallback, symlink input, whitespace-only identities, malformed JSON
+container/scalar types, stale ledger state, foreign-lock preservation, prior
+review identity reuse, implementation-session reuse, same-feature wrong-task
+reports, malformed Outputs rows, and seven chronological reservations.
+
+Rollback proof:
+  The suite archives only the reviewer/evaluator/quality-gate boundary from
+  baseline commit 7df7318, overlays that baseline into an isolated current
+  boundary, removes files absent at 7df7318, compares every surviving file
+  byte-for-byte, and asserts complete tree equality.

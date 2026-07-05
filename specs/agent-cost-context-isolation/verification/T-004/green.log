@@ -1,0 +1,34 @@
+T-004 remediation attempt 2 verification
+Date: 2026-06-30
+
+PASS  bash -n plugins/sdd-implementation/scripts/validate-task-input-manifest.sh
+PASS  bash -n tests/turn-first-workflow.tests.sh
+PASS  bash -n tests/task-context-isolation.tests.sh
+PASS  PowerShell parser: validate-task-input-manifest.ps1
+PASS  PowerShell parser: task-context-isolation.tests.ps1
+PASS  bash tests/turn-first-workflow.tests.sh
+      ok: turn-first orchestration enforces three-task identity and fallback fixtures
+PASS  bash tests/task-context-isolation.tests.sh
+      ok: task context isolation manifests, snapshots, fallback, and selector are deterministic
+PASS  pwsh -NoLogo -NoProfile -File tests/task-context-isolation.tests.ps1
+      ok: PowerShell task context isolation manifests, snapshots, fallback, and selector are deterministic
+PASS  git diff --check
+
+Verified negative cases:
+- invented persisted-evidence hash is rejected
+- mixed fresh-agent/fallback batch is rejected
+- evidence mutation on disk is detected by reread and revalidation
+- missing or incorrect incapable-host reason is rejected
+- duplicate task/run/session/agent identities are rejected as applicable
+- fallback evidence task/run set must exactly bind the complete batch
+
+Policy verification:
+- fresh implementation agents remain mandatory on capable hosts
+- same-session-file-reload is the sole explicit incapable-host implementation exception
+- reviewer/evaluator fallback remains forbidden
+
+Rollback verification:
+- fixture materializes the implement-tasks baseline from git object 7df7318
+- fixture verifies the baseline blob identity and legacy loop markers
+- fixture verifies the baseline predates the 1.5 fresh-agent launch contract
+- fixture is self-contained and has no T-008 dependency

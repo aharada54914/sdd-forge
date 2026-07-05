@@ -33,6 +33,10 @@ allowlist. Read the following yourself:
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/design.md`
+- `specs/<feature>/ux-spec.md` (required for full profile)
+- `specs/<feature>/frontend-spec.md` (required for full profile)
+- `specs/<feature>/infra-spec.md` (required for full profile)
+- `specs/<feature>/security-spec.md` (required for full profile)
 - `specs/<feature>/investigation.md` (if present — read it; note INV-xxx grounding)
 - `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/impl-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
@@ -42,6 +46,23 @@ allowlist. Read the following yourself:
 You must NOT read any reviewer-a.json file. The disallowedPaths field enforces
 this. If you find yourself needing reviewer-a output, stop and emit a finding
 that the orchestrator should re-sequence the invocation.
+Use the four layer specifications to evaluate implementability and cross-layer
+risk. A layer document cannot silently override requirements.md or design.md;
+record any contradiction as a finding.
+
+The launch boundary is fail closed. Before reading any substantive input,
+require `REVIEW_CONTEXT_OK` evidence from the paired deterministic
+`validate-review-context-set` validator for the persisted
+`review-context-invocation/v2` contract for this role only. The caller must run
+the validator with `--reserve` before launch, so this run/session is atomically
+added to the canonical identity ledger and checked against every persisted
+implementation, review, and evaluation identity. The bound context must use
+`input_mode: file-manifest`, `fallback_mode: none`, `read_only: true`, a fresh
+run/session identity, a valid hash-chain continuation, and verified hashes.
+Reject a missing manifest or canonical identity ledger, an unlisted
+path, hash mismatch, chat-only input, writable context, fallback, or reused
+implementation/review/evaluation identity. No same-session fallback is
+permitted.
 
 # Finding Calibration
 
@@ -176,6 +197,11 @@ have no corresponding requirement in requirements.md. Scope creep in the design
 Conversely, the design must cover every feature described in requirements.md
 `## Goals` and `## User Stories`. An under-scoped design that omits a required
 capability is also a Major finding.
+
+When the project carries a `design-system/` contract, introducing a UI
+component library or styling framework that neither requirements.md nor
+design.md's `## Design System Compliance` section sanctions is scope creep —
+a Major finding.
 
 For each finding, cite the specific design element that is out-of-scope or the
 requirement that is unaddressed.

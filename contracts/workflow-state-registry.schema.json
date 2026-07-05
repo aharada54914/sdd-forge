@@ -1,0 +1,436 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/workflow-state-registry.schema.json",
+  "title": "SDD Forge workflow-state registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "migration_baseline_commit",
+    "entries"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "migration_baseline_commit": {
+      "const": "0369c8c96de2eb3179868d1949d66644488f65aa"
+    },
+    "entries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/definitions/entry"
+      }
+    }
+  },
+  "definitions": {
+    "feature": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "spec",
+        "impl",
+        "task"
+      ]
+    },
+    "stageStatus": {
+      "type": "string",
+      "enum": [
+        "Pending",
+        "Passed"
+      ]
+    },
+    "noncanonicalStatuses": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "spec_status": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/stageStatus"
+          }
+        },
+        "impl_status": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/stageStatus"
+          }
+        },
+        "task_status": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/stageStatus"
+          }
+        }
+      }
+    },
+    "legacy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "introduced_before_commit",
+        "reason",
+        "owner",
+        "allowed_missing_stages",
+        "allowed_noncanonical_statuses",
+        "allowed_task_approvals",
+        "allowed_task_statuses"
+      ],
+      "properties": {
+        "introduced_before_commit": {
+          "const": "0369c8c96de2eb3179868d1949d66644488f65aa"
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^*]+$"
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^*]+$"
+        },
+        "allowed_missing_stages": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/definitions/stage"
+          }
+        },
+        "allowed_noncanonical_statuses": {
+          "$ref": "#/definitions/noncanonicalStatuses"
+        },
+        "allowed_task_approvals": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "Draft",
+              "Approved"
+            ]
+          }
+        },
+        "allowed_task_statuses": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "enum": [
+              "Planned",
+              "In Progress",
+              "Implementation Complete",
+              "Done"
+            ]
+          }
+        },
+        "retrospective_sources": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "pattern": "^(?!.*(?:^|/)\\.\\.?(?:/|$))[a-zA-Z0-9][a-zA-Z0-9._/-]*$"
+          }
+        }
+      }
+    },
+    "legacyEntry": {
+      "oneOf": [
+        {
+          "const": {
+            "feature": "claude-workflow-compatibility",
+            "profile": "legacy",
+            "legacy": {
+              "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+              "reason": "Predates the v1.3.0 workflow-state contract and retains only its observed historical stage and task states.",
+              "owner": "sdd-forge maintainers",
+              "allowed_missing_stages": [],
+              "allowed_noncanonical_statuses": {
+                "spec_status": [
+                  "Pending"
+                ],
+                "impl_status": [
+                  "Pending"
+                ],
+                "task_status": [
+                  "Passed"
+                ]
+              },
+              "allowed_task_approvals": [
+                "Approved"
+              ],
+              "allowed_task_statuses": [
+                "Done"
+              ]
+            }
+          }
+        },
+        {
+          "const": {
+            "feature": "cross-model-verification",
+            "profile": "legacy",
+            "legacy": {
+              "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+              "reason": "Predates the v1.3.0 workflow-state contract and has no historical stage headers or contracts.",
+              "owner": "sdd-forge maintainers",
+              "allowed_missing_stages": [
+                "spec",
+                "impl",
+                "task"
+              ],
+              "allowed_noncanonical_statuses": {},
+              "allowed_task_approvals": [
+                "Approved"
+              ],
+              "allowed_task_statuses": [
+                "Done"
+              ]
+            }
+          }
+        },
+        {
+          "const": {
+            "feature": "risk-adaptive-layer",
+            "profile": "legacy",
+            "legacy": {
+              "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+              "reason": "Predates the v1.3.0 workflow-state contract and has no historical stage headers or contracts.",
+              "owner": "sdd-forge maintainers",
+              "allowed_missing_stages": [
+                "spec",
+                "impl",
+                "task"
+              ],
+              "allowed_noncanonical_statuses": {},
+              "allowed_task_approvals": [
+                "Approved"
+              ],
+              "allowed_task_statuses": [
+                "Implementation Complete"
+              ]
+            }
+          }
+        },
+        {
+          "const": {
+            "feature": "sdd-forge-refactor",
+            "profile": "legacy",
+            "legacy": {
+              "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+              "reason": "Predates current review contracts; the Spec stage is absent and historical Impl and Task PASS records lack current contracts.",
+              "owner": "sdd-forge maintainers",
+              "allowed_missing_stages": [
+                "spec"
+              ],
+              "allowed_noncanonical_statuses": {
+                "impl_status": [
+                  "Passed"
+                ],
+                "task_status": [
+                  "Passed"
+                ]
+              },
+              "allowed_task_approvals": [
+                "Approved"
+              ],
+              "allowed_task_statuses": [
+                "Done"
+              ]
+            }
+          }
+        },
+        {
+          "const": {
+            "feature": "uninstall-workflow",
+            "profile": "legacy",
+            "legacy": {
+              "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+              "reason": "Retrospectively registered change from commit 277a79d with unavailable historical SDD review provenance.",
+              "owner": "sdd-forge maintainers",
+              "allowed_missing_stages": [
+                "spec",
+                "impl",
+                "task"
+              ],
+              "allowed_noncanonical_statuses": {},
+              "allowed_task_approvals": [],
+              "allowed_task_statuses": [],
+              "retrospective_sources": [
+                "specs/uninstall-workflow/retrospective.md"
+              ]
+            }
+          }
+        },
+        {
+          "const": {
+            "feature": "bootstrap-interviewer-enhancement",
+            "profile": "legacy",
+            "legacy": {
+              "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+              "reason": "Review provenance was recorded with machine-specific absolute paths from a different clone and no longer resolves; grandfathered rather than reconstructed.",
+              "owner": "sdd-forge maintainers",
+              "allowed_missing_stages": [
+                "spec",
+                "impl",
+                "task"
+              ],
+              "allowed_noncanonical_statuses": {
+                "spec_status": [
+                  "Passed",
+                  "Pending"
+                ],
+                "impl_status": [
+                  "Passed",
+                  "Pending"
+                ],
+                "task_status": [
+                  "Passed",
+                  "Pending"
+                ]
+              },
+              "allowed_task_approvals": [
+                "Draft",
+                "Approved"
+              ],
+              "allowed_task_statuses": [
+                "Planned",
+                "In Progress",
+                "Implementation Complete",
+                "Done",
+                "Blocked"
+              ]
+            }
+          }
+        },
+        {
+          "const": {
+            "feature": "agent-cost-context-isolation",
+            "profile": "legacy",
+            "legacy": {
+              "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+              "reason": "Review provenance manifest hashes drifted from committed content across the 1.5.0 release commits merged in the same PR; grandfathered rather than reconstructed.",
+              "owner": "sdd-forge maintainers",
+              "allowed_missing_stages": [
+                "spec",
+                "impl",
+                "task"
+              ],
+              "allowed_noncanonical_statuses": {
+                "spec_status": [
+                  "Passed",
+                  "Pending"
+                ],
+                "impl_status": [
+                  "Passed",
+                  "Pending"
+                ],
+                "task_status": [
+                  "Passed",
+                  "Pending"
+                ]
+              },
+              "allowed_task_approvals": [
+                "Draft",
+                "Approved"
+              ],
+              "allowed_task_statuses": [
+                "Planned",
+                "In Progress",
+                "Implementation Complete",
+                "Done",
+                "Blocked"
+              ]
+            }
+          }
+        },
+        {
+          "const": {
+            "feature": "workflow-state-integrity",
+            "profile": "legacy",
+            "legacy": {
+              "introduced_before_commit": "0369c8c96de2eb3179868d1949d66644488f65aa",
+              "reason": "Review provenance manifest hashes drifted from committed content across the 1.5.0 release commits; grandfathered rather than reconstructed.",
+              "owner": "sdd-forge maintainers",
+              "allowed_missing_stages": [
+                "spec",
+                "impl",
+                "task"
+              ],
+              "allowed_noncanonical_statuses": {
+                "spec_status": [
+                  "Passed",
+                  "Pending"
+                ],
+                "impl_status": [
+                  "Passed",
+                  "Pending"
+                ],
+                "task_status": [
+                  "Passed",
+                  "Pending"
+                ]
+              },
+              "allowed_task_approvals": [
+                "Draft",
+                "Approved"
+              ],
+              "allowed_task_statuses": [
+                "Planned",
+                "In Progress",
+                "Implementation Complete",
+                "Done",
+                "Blocked"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "entry": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "feature",
+            "profile"
+          ],
+          "properties": {
+            "feature": {
+              "$ref": "#/definitions/feature"
+            },
+            "profile": {
+              "const": "full"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "feature",
+            "profile"
+          ],
+          "properties": {
+            "feature": {
+              "$ref": "#/definitions/feature"
+            },
+            "profile": {
+              "const": "lite"
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/legacyEntry"
+        }
+      ]
+    }
+  }
+}

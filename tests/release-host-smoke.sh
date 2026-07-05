@@ -125,8 +125,8 @@ for host in "${selected_hosts[@]}"; do
     # Check all staged workflow surfaces, not merely the bootstrap manifest.
     host_failed=0
     required_surfaces=(
-        "${install_root}/plugins/sdd-bootstrap/skills/run/SKILL.md" \
-        "${install_root}/plugins/sdd-ship/skills/run/SKILL.md" \
+        "${install_root}/plugins/sdd-bootstrap/skills/bootstrap/SKILL.md" \
+        "${install_root}/plugins/sdd-ship/skills/ship/SKILL.md" \
         "${install_root}/plugins/sdd-review-loop/skills/spec-review-loop/SKILL.md" \
         "${install_root}/plugins/sdd-review-loop/agents/spec-reviewer-a.md" \
         "${install_root}/plugins/sdd-review-loop/agents/task-reviewer-a.md"
@@ -183,10 +183,10 @@ for host in "${selected_hosts[@]}"; do
     esac
 
     if [[ $host_failed -eq 1 ]]; then
-        records+=("{\"host\":$(json_string "$host"),\"outcome\":\"failed\",\"failure\":\"staged workflow surface, reload, or runtime discovery check failed; see stderr\",\"cli_version\":$(json_string "$cli_version"),\"plugin_version\":$(json_string "$plugin_version"),\"install_root\":$(json_string "$install_root"),\"reload\":{\"outcome\":$(json_string "$reload_outcome")},\"discovery\":{\"outcome\":\"failed\",\"commands\":[\"sdd-bootstrap:run\",\"sdd-ship:run\",\"sdd-review-loop:spec-review-loop\"],\"reviewer_agents\":[\"spec-reviewer-a\",\"task-reviewer-a\"]}}")
+        records+=("{\"host\":$(json_string "$host"),\"outcome\":\"failed\",\"failure\":\"staged workflow surface, reload, or runtime discovery check failed; see stderr\",\"cli_version\":$(json_string "$cli_version"),\"plugin_version\":$(json_string "$plugin_version"),\"install_root\":$(json_string "$install_root"),\"reload\":{\"outcome\":$(json_string "$reload_outcome")},\"discovery\":{\"outcome\":\"failed\",\"commands\":[\"sdd-bootstrap:bootstrap\",\"sdd-ship:ship\",\"sdd-review-loop:spec-review-loop\"],\"reviewer_agents\":[\"spec-reviewer-a\",\"task-reviewer-a\"]}}")
         failed=1
     else
-        records+=("{\"host\":$(json_string "$host"),\"outcome\":\"passed\",\"cli_version\":$(json_string "$cli_version"),\"plugin_version\":$(json_string "$plugin_version"),\"install_root\":$(json_string "$install_root"),\"reload\":{\"outcome\":$(json_string "$reload_outcome")},\"discovery\":{\"outcome\":\"registered-and-inspected\",\"commands\":[\"sdd-bootstrap:run\",\"sdd-ship:run\",\"sdd-review-loop:spec-review-loop\"],\"reviewer_agents\":[\"spec-reviewer-a\",\"task-reviewer-a\"]}}")
+        records+=("{\"host\":$(json_string "$host"),\"outcome\":\"passed\",\"cli_version\":$(json_string "$cli_version"),\"plugin_version\":$(json_string "$plugin_version"),\"install_root\":$(json_string "$install_root"),\"reload\":{\"outcome\":$(json_string "$reload_outcome")},\"discovery\":{\"outcome\":\"registered-and-inspected\",\"commands\":[\"sdd-bootstrap:bootstrap\",\"sdd-ship:ship\",\"sdd-review-loop:spec-review-loop\"],\"reviewer_agents\":[\"spec-reviewer-a\",\"task-reviewer-a\"]}}")
         passed=$((passed + 1))
     fi
 done

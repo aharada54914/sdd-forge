@@ -2,6 +2,7 @@
 name: investigate-codebase
 description: Read-only investigation of an existing codebase or problem domain. Produces investigation.md with INV-xxx findings and baseline-behavior.md with BL-xxx observable behaviors before any specification work.
 disable-model-invocation: true
+user-invocable: false
 context: fork
 agent: sdd-investigator
 ---
@@ -59,6 +60,14 @@ For `bugfix` and `refactor` modes also produce:
 - `specs/<feature>/baseline-behavior.md` — populated from
   `templates/baseline-behavior.template.md`. Each observable behavior carries a
   `BL-NNN` ID.
+
+When the investigated codebase contains UI code, additionally record a
+`Design Inventory` finding group in `investigation.md`: occurrence locations
+(`file:line`) and counts of hardcoded color codes (#hex / rgb() / hsl()),
+font specifications, and magic spacing values. Each entry carries an INV-NNN
+ID like any other finding. This inventory is the brownfield input for
+initializing `design-system/design-tokens.json` and `design-system.md`; the
+investigation itself stays read-only and creates no design-system files.
 
 ## Platform Notes
 

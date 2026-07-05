@@ -31,11 +31,32 @@ allowlist. Read the following yourself:
 - `specs/<feature>/requirements.md`
 - `specs/<feature>/acceptance-tests.md`
 - `specs/<feature>/design.md`
+- `specs/<feature>/ux-spec.md` (required for full profile)
+- `specs/<feature>/frontend-spec.md` (required for full profile)
+- `specs/<feature>/infra-spec.md` (required for full profile)
+- `specs/<feature>/security-spec.md` (required for full profile)
 - `specs/<feature>/investigation.md` (if present — read it; carry INV-xxx IDs)
 - `plugins/sdd-review-loop/references/reviewer-calibration.md`
 - `reports/impl-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
 
 Do not read any reviewer-b.json or integrated-summary.json from prior rounds.
+Treat the four layer specifications as normative refinements of design.md.
+Report contradictions, missing cross-layer references, or requirements that
+are claimed by neither design.md nor the responsible layer specification.
+
+The launch boundary is fail closed. Before reading any substantive input,
+require `REVIEW_CONTEXT_OK` evidence from the paired deterministic
+`validate-review-context-set` validator for the persisted
+`review-context-invocation/v2` contract for this role only. The caller must run
+the validator with `--reserve` before launch, so this run/session is atomically
+added to the canonical identity ledger and checked against every persisted
+implementation, review, and evaluation identity. The bound context must use
+`input_mode: file-manifest`, `fallback_mode: none`, `read_only: true`, a fresh
+run/session identity, a valid hash-chain continuation, and verified hashes.
+Reject a missing manifest or canonical identity ledger, an unlisted
+path, hash mismatch, chat-only input, writable context, fallback, or reused
+implementation/review/evaluation identity. No same-session fallback is
+permitted.
 
 # Finding Calibration
 
@@ -195,6 +216,27 @@ ADR."
 If no ADRs are referenced and the feature does not introduce new architectural
 decisions, emit PASS for this check.
 
+## DESIGN-SYSTEM-CONFORMANCE (Major, TYPE-D)
+
+Applies only when the target project has a `design-system/` directory. When
+the project has no `design-system/` directory, or design.md's
+`## Design System Compliance` section records exactly
+`N/A — ds_profile: none`, record the check as skipped in the notes and emit
+PASS.
+
+Otherwise the `## Design System Compliance` section of design.md must:
+1. Name the design-system version it was written against
+   (design-tokens.json `meta.version`).
+2. List the token groups the feature uses.
+3. Record a reason for every new component — reuse of existing components is
+   the default, and an unexplained new component is a finding.
+4. Not contradict `design-system/design-system.md` or
+   `design-system/ui-patterns.md` (for example, sanctioning raw style values
+   or icon-only dialog buttons).
+
+A missing section while `design-system/` exists, a missing version reference,
+or an unexplained new component is a Major finding.
+
 # Severity Reference
 
 - `Critical`: a structural defect that makes the design unimplementable or
@@ -238,7 +280,7 @@ Verdict rules:
 The `checks` array must contain one entry per check ID in this order:
 ARCH-COVERAGE, NO-CIRCULAR-DEPS, DATA-COVERAGE, API-COVERAGE, SECURITY-COVERAGE,
 FRONTEND-BACKEND-CONSISTENCY, TEST-STRATEGY-COVERAGE, NO-UNDEFINED-COMPONENT,
-ADR-PRESENT.
+ADR-PRESENT, DESIGN-SYSTEM-CONFORMANCE.
 
 FRONTEND-BACKEND-CONSISTENCY must be SKIP for non-fullstack feature types;
 include a finding explaining why it was skipped.

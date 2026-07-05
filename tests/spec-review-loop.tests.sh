@@ -4,12 +4,14 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 PRECHECK="${ROOT}/plugins/sdd-review-loop/scripts/spec-review-precheck.sh"
+IMPL_PRECHECK="${ROOT}/plugins/sdd-review-loop/scripts/impl-review-precheck.sh"
 FEATURE="spec-review-fixture-$RANDOM-$$"
 SPEC_DIR="${ROOT}/specs/${FEATURE}"
 REPORT_ROOT="${ROOT}/reports/spec-review/${FEATURE}"
+IMPL_REPORT_ROOT="${ROOT}/reports/impl-review/${FEATURE}"
 
 cleanup() {
-  rm -rf "${SPEC_DIR}" "${REPORT_ROOT}"
+  rm -rf "${SPEC_DIR}" "${REPORT_ROOT}" "${IMPL_REPORT_ROOT}"
 }
 trap cleanup EXIT
 
@@ -166,6 +168,44 @@ write_contract "${ROUND_THREE}" PASS Minor
 # Reset starts only from a validated terminal contract; symlinked/pre-existing destinations are denied.
 sed -i.bak 's/^Spec-Review-Status: Pending$/Spec-Review-Status: Passed/' "${SPEC_DIR}/requirements.md"
 rm -f "${SPEC_DIR}/requirements.md.bak"
+cat > "${SPEC_DIR}/design.md" <<'EOF'
+# Design
+
+Impl-Review-Status: Pending
+
+Feature Type: workflow
+Data Entities: None
+Existing Data Affected: No
+
+## Components
+
+- Review precheck fixture.
+
+## Security Boundaries
+
+- Repository-local files only.
+EOF
+"${IMPL_PRECHECK}" "${FEATURE}" 1 1
+[[ -f "${IMPL_REPORT_ROOT}/attempt-1/round-1/precheck-result.json" ]] ||
+  fail "spec PASS contract did not authorize the next review stage"
+
+# The rollback path remains viable: removing status normalization reproduces the
+# original raw-hash mismatch, while the normalized transition restores the
+# reviewed Pending hash in an isolated fixture.
+rollback_dir="$(mktemp -d)"
+printf 'Spec-Review-Status: Pending\n' > "${rollback_dir}/reviewed.md"
+cp "${rollback_dir}/reviewed.md" "${rollback_dir}/current.md"
+sed -i.bak 's/Spec-Review-Status: Pending/Spec-Review-Status: Passed/' "${rollback_dir}/current.md"
+rm -f "${rollback_dir}/current.md.bak"
+reviewed_raw_sha="$(sha256sum "${rollback_dir}/reviewed.md" | awk '{print $1}')"
+current_raw_sha="$(sha256sum "${rollback_dir}/current.md" | awk '{print $1}')"
+[[ "${reviewed_raw_sha}" != "${current_raw_sha}" ]] ||
+  fail "rollback fixture did not reproduce the raw-hash mismatch"
+sed 's/Spec-Review-Status: Passed/Spec-Review-Status: Pending/' "${rollback_dir}/current.md" > "${rollback_dir}/normalized.md"
+[[ "${reviewed_raw_sha}" == "$(sha256sum "${rollback_dir}/normalized.md" | awk '{print $1}')" ]] ||
+  fail "status-normalized rollback fixture did not recover the reviewed hash"
+rm -rf "${rollback_dir}"
+
 "${PRECHECK}" "${FEATURE}" 2 1 --reset
 expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
 cleanup

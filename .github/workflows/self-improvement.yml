@@ -47,7 +47,7 @@ jobs:
         # to pick up upstream fixes; verify the SHA against the release tag.
         # NOTE: Generated PRs will be gated by required-checks from test.yml;
         # no auto-merge will bypass CI. Manual review & approval is required.
-        uses: anthropics/claude-code-action@2fee15510437d71399d9139ed60433470484a8fb # v1.0.153
+        uses: anthropics/claude-code-action@a92e7c70a4da9793dc164451d829089dc057a464 # v1.0.159
         env:
           GH_TOKEN: ${{ github.token }}
         with:

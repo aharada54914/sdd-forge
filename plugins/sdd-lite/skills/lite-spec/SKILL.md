@@ -2,6 +2,7 @@
 name: lite-spec
 description: Lightweight SDD specification for internal/departmental apps. Creates requirements, design, and tasks (single-approval, no traceability/ADR/evidence-bundle). Use for low-stakes internal app work; graduate to sdd-bootstrap-interviewer for higher rigor.
 disable-model-invocation: true
+user-invocable: false
 ---
 
 # Lite Spec
@@ -35,8 +36,13 @@ Claude Code:
    - `requirements.md`（`templates/requirements-lite.md`）
    - `design.md`（`templates/design-lite.md`）
    - `tasks.md`（`templates/tasks-lite.md`）
-4. 各タスクは `Approval: Draft` / `Status: Planned` で生成する。`Risk:` 行は付けない（lite は階層強制を使わない）。
-5. 不明な製品判断は `Open Questions` に残す。勝手に埋めない。
+4. UI アプリで人間が希望する場合のみ、`design-sync-loop` スキル
+   （sdd-bootstrap プラグインの内部スキル）を実行する。モックアップは
+   `specs/<feature>/mockups/` に、`Design-Source` / `Mockup-Status` は
+   `design.md` に記録される。任意・非ブロッキングで、ツールがない環境では
+   手動手順にフォールバックする。希望しない場合はこのステップを飛ばす。
+5. 各タスクは `Approval: Draft` / `Status: Planned` で生成する。`Risk:` 行は付けない（lite は階層強制を使わない）。
+6. 不明な製品判断は `Open Questions` に残す。勝手に埋めない。
 
 ## Approval Gate
 

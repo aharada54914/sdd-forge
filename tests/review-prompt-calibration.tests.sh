@@ -57,7 +57,7 @@ done
 grep -Fq 'spec-review-loop`: 12 checks' "$CHECKLIST" || fail "spec checklist count must be 12"
 grep -Fq 'spec-reviewer-a (requirements and acceptance coverage, 6' "$CHECKLIST" || fail "spec reviewer-a count must be 6"
 grep -Fq 'spec-reviewer-b (ambiguity, contradiction, and downstream readiness,' "$CHECKLIST" || fail "spec reviewer-b count must be 6"
-grep -Fq 'impl-review-loop`: 19 checks' "$CHECKLIST" || fail "impl checklist count must be 19"
+grep -Fq 'impl-review-loop`: 20 checks' "$CHECKLIST" || fail "impl checklist count must be 20"
 grep -Fq 'impl-reviewer-b (implementability/risk, 10 checks)' "$CHECKLIST" || fail "impl reviewer-b count must be 10"
 grep -Fq 'task-review-loop`: 23 checks' "$CHECKLIST" || fail "task checklist count must be 23"
 grep -Fq 'task-reviewer-b (quality/risk, 9 checks)' "$CHECKLIST" || fail "task reviewer-b count must be 9"

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.dev/contracts/design-system.contract.v1.schema.json",
+  "title": "Design system contract v1",
+  "description": "Meta contract for a target application's design-system/design-tokens.json. The meta envelope is strict; token groups follow the W3C DTCG format ($type/$value) and additional groups are allowed. Deep DTCG validation is the job of check-design-system, not this schema.",
+  "type": "object",
+  "required": ["meta", "color", "typography", "spacing"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema", "version", "generated_by", "profile"],
+      "properties": {
+        "schema": { "const": "design-system-contract/v1" },
+        "version": { "type": "string", "pattern": "^(0|[1-9]\\d*)\\.(0|[1-9]\\d*)\\.(0|[1-9]\\d*)$" },
+        "generated_by": { "enum": ["design-sync-loop", "ui-ux-pro-max", "manual", "figma-dtcg-import"] },
+        "profile": { "enum": ["custom"] }
+      }
+    },
+    "color": { "type": "object" },
+    "typography": { "type": "object" },
+    "spacing": { "type": "object" }
+  }
+}

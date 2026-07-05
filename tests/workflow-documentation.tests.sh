@@ -62,4 +62,17 @@ task_line="$(grep -n -m1 -F '/sdd-review-loop:task-review-loop --feature <featur
 [[ "$spec_line" -lt "$impl_line" && "$impl_line" -lt "$task_line" ]] || \
   fail "bootstrap interviewer review commands must be ordered spec, implementation-policy, task"
 
+run_skill="${ROOT}/plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
+run_full="$(sed -n '/^### `feature` .*full track)/,/^### Lite track/p' "$run_skill")"
+for stage in spec-review-loop impl-review-loop task-review-loop; do
+  grep -Fq "$stage" <<<"$run_full" || fail "bootstrap run full track must name $stage"
+done
+run_spec_line="$(grep -n -m1 -F 'spec-review-loop' <<<"$run_full" | cut -d: -f1)"
+run_impl_line="$(grep -n -m1 -F 'impl-review-loop' <<<"$run_full" | cut -d: -f1)"
+run_task_line="$(grep -n -m1 -F 'task-review-loop' <<<"$run_full" | cut -d: -f1)"
+[[ "$run_spec_line" -lt "$run_impl_line" && "$run_impl_line" -lt "$run_task_line" ]] || \
+  fail "bootstrap run full track review commands must be ordered spec, implementation-policy, task"
+grep -Fq 'skip all three review loops' "$run_skill" || \
+  fail "bootstrap run lite track must explicitly skip all three review loops"
+
 printf 'ok: full SDD documentation names the three independent review stages in order\n'

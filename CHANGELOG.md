@@ -2,6 +2,151 @@
 
 ## Unreleased
 
+## v1.8.0 (2026-07-03)
+
+### デザイン駆動高速イテレーションレーン
+
+- 内部スキル `design-sync-loop`（sdd-bootstrap）を新設。仕様段階で
+  claude.ai/design（DesignSync ツール）からデザインシステムを参照し、
+  使い捨て HTML モックアップを生成、都度人間承認のうえ Push して
+  ブラウザ確認ループを回す。ツールがない環境では従来の手動手順
+  （claude-design-workflow.md）にフォールバック。
+- 内部スキル `visual-verify-loop`（sdd-implementation）を新設。UI タスクの
+  実装後に Claude Preview MCP（Web）/ wpf-visual-verify（WPF）で
+  「起動→スクリーンショット→デザイン照合→修正」を最大5回イテレーションし、
+  最終スクリーンショットを `reports/visual-evidence/<task-id>/` に証跡保存。
+  非ブロッキングで、合否判定は quality-gate と人間レビューのまま。
+- sdd-bootstrap-interviewer / lite-spec / implement-task に上記への
+  ルーティングを追加。公開スキルは5つのまま（可視性契約は不変）。
+
+### 統一デザインシステム統合（design-system 契約）
+
+- プロジェクトレベルの `design-system/` 契約を新設: W3C DTCG 準拠の
+  design-tokens.json（`contracts/design-system.contract.v1.schema.json` で
+  メタ検証）、design-system.md（3層構造・WCAG 2.2 AA）、ui-patterns.md
+  （言語非依存の普遍的 UX 規約6カテゴリ）。テンプレート3点を同梱し、
+  PLUGIN-CONTRACTS.md に producer/consumer 契約を定義。
+- interviewer に `ds_profile`（custom / none）選択を追加。custom では
+  design-sync-loop v2 が design-system/ を保証（ui-ux-pro-max シード生成・
+  Figma DTCG エクスポート取込・D6 テンプレートインタビューの3経路）し、
+  トークン駆動モックアップを生成。investigate-codebase に brownfield 用
+  Design Inventory を追加。
+- レビュー統合: impl-reviewer-a に DESIGN-SYSTEM-CONFORMANCE 検査を追加
+  （impl-review-loop は20チェック化）、impl-reviewer-b の DESIGN-WITHIN-SCOPE
+  に規約外 UI ライブラリ検出を追加。
+- 実装強制: implementation-policy に UI 実装規則（トークン参照のみ・
+  再利用優先・a11y 要点・lint 未整備のタスク化）、implement-task の
+  条件付き必須読み物、visual-verify-loop の照合基準に design-system を追加。
+- 検証ゲート: design-system-checklist.md 新設、accessibility-checklist を
+  WCAG 2.2 AA に更新、決定論ゲート `check-design-system.(sh|ps1)` を warn
+  モードで導入（`SDD_DESIGN_SYSTEM_ENFORCE=error` で昇格、導入2リリース後に
+  error 化予定）。verification-contract に `design-system` チェック、
+  risk-gate-matrix に条件付きコントロール行を追加。
+- 全変更は条件付きロード / waivable check として実装し、非 UI プロジェクト・
+  `ds_profile: none` へのオーバーヘッドはゼロ。
+
+## v1.7.0 (2026-07-02)
+
+### スラッシュメニューの2コマンド化とエントリコマンドのリネーム
+
+- **破壊的変更**: エントリスキルをリネーム。`/sdd-bootstrap:run` → `/sdd-bootstrap:bootstrap`、
+  `/sdd-ship:run` → `/sdd-ship:ship`。両スキルが `name: run` を共有していたため、
+  ホスト UI（Claude Code / Codex）で選択後の表示がどちらも `run` になり
+  区別できなかった問題を解消。
+- 内部オーケストレーション用の14スキルに `user-invocable: false` を追加し、
+  スラッシュコマンドメニューから非表示化。ユーザーに見えるコマンドは
+  `bootstrap` / `ship` / `sdd-sudo` / `fix-by-review-ticket` / `diagnose` の5つのみ。
+  `disable-model-invocation: true` は全スキルで維持（モデルの自動起動禁止は不変）。
+  再開機能は影響なし（エントリコマンドがタスク状態から再開点を自動検出する）。
+- `tests/validate-repository.ps1` にスキル可視性契約の検証を追加
+  （公開5スキル以外は `user-invocable: false` 必須）。
+
+### 自己改善フロー（WFI）の効果測定基盤
+
+（提案の全文: `docs/contributor/self-improvement-measurement-proposal.md`）
+
+- **ランレコード（Phase A）**: `emit-run-record.sh` / `.ps1` を新設。retrospective 実行時に
+  `reports/runs/RUN-<timestamp>-<feature>.json` を決定論的に生成し、モデルID・
+  プラグインバージョン・適用中 WFI 一覧・カウントベース指標を記録する。
+  以後の WFI 効果の帰属分析はこのレコードを一次ソースとする。
+- **WFI 検証の拘束力強化（Phase B）**: WFI テンプレートに `Target-Metric` /
+  `Expected-Direction` / `Horizon` / `Rollback-Plan` と2軸分類
+  （`Category`（スコープ軸: 既存2 + `human-process` / `measurement`）、
+  `Mechanism`（instructions / memory / tools / architecture / model-routing）、
+  `Meta-Change` フラグ）を追加。retrospective は Applied WFI の Horizon を毎回
+  機械チェックし、期限内未達なら Rejected + ロールバック提案を出す。
+  測定系（grader・閾値・retrospective ロジック）を触る WFI は Meta-Change
+  厳格監査レーンへ（wfi-auditor-b に anti-Goodhart チェックを追加）。
+- **Retention チェック（Phase C）**: `docs/workflow-improvements/retention-checklist.md`
+  を新設し、Verified 済み WFI が直した失敗モードの再発を retrospective が毎回検知。
+  再発時は WFI を新状態 `Regressed` に落とし、再起票を提案する。
+- **golden タスクの足場（Phase D、スキャフォールド）**: `tests/golden/` に fixture
+  形式と pairwise 検証手順の README を追加（fixture 本体は実失敗事例から今後蓄積）。
+- `scripts/bump-version.sh` を新設し、リリース面（マニフェスト18 + marketplace 2 +
+  README + バリデータ + リリーステスト）のバージョン同期を1コマンド化。
+
+## v1.6.0 (2026-07-02)
+
+### バグ修正トラックと P0 ハードニング
+
+- `diagnose` スキルを新設。ハードなバグ・リグレッション・フレーキーテスト・性能退行に対し、
+  再現→計装→根本原因→最小修正の5フェーズ診断規律（HITLループ）を回し、
+  `reports/diagnosis/<id>.md` として出力する。フル SDD の3レビューループを通す前段として、
+  軽量トラック（lite-spec → 単一承認 → implement-task → lite-gate）への入口を兼ねる。
+  `task-reviewer-b` の `BUGFIX-DIAGNOSTIC-PATH` チェックが要求する証跡を供給する。
+  `docs/workflow-guide.md` に「バグ修正トラック（diagnose）」節を追加。
+- `wfi-audit-cycle` の監査ループに試行上限を設け、変化なし（NO-CHANGE）が続く場合は
+  自動的に停止するよう修正し、監査サイクルの無限ループ化を防止。
+- `sdd-ship` の品質ゲートに、ディスクベースの試行回数上限を導入し、修正・再検証サイクルが
+  際限なく繰り返されることを防止。
+- `implement-tasks` を独立タスクの並列ディスパッチに対応させ、依存関係のないタスク群を
+  同時実装できるよう変更。
+- workflow-state: 1.5.0 リリースコミットで provenance が乖離した3 feature
+  （`agent-cost-context-isolation`、`bootstrap-interviewer-enhancement`、
+  `workflow-state-integrity`）を、機能は維持したまま bounded legacy プロファイルへ移行。
+- CI: provenance テストのため full history fetch (`fetch-depth: 0`) を追加し、
+  installer テストの一時ディレクトリ cleanup を best-effort 化してテストの flake を修正。
+- 全リリース面（プラグインマニフェスト、marketplace、README、リポジトリ検証スクリプト）を
+  1.6.0 に同期。
+
+## v1.5.0 (2026-06-30)
+
+### Agent cost and context iteration metrics
+
+- workflow-retrospective now records task attempts, review rounds,
+  quality-gate runs, and model escalations so iteration cost can be measured
+  independently from token price.
+- All Claude, Codex, and Copilot plugin manifests, marketplaces, README, and
+  repository release surfaces identify release `1.5.0`.
+- Added a rollback contract for restoring the release surfaces to the pinned
+  `1.4.0` baseline after hash validation.
+
+## v1.4.0 (2026-06-29)
+
+### Bootstrap interviewer のレイヤー仕様対応
+
+- FULL プロファイルで UX、frontend、infrastructure、security の4レイヤー
+  artifact を生成し、`design.md` と `traceability.md` から正規アンカーで索引化。
+- 選択した feature directory だけを対象に、不足 artifact や空テンプレートを
+  Bash / PowerShell で fail-closed 検証する構造チェックを追加。
+- implementation review と task review の入力を、core spec、design、
+  traceability、4レイヤー仕様の hash に拘束し、差し替えや profile downgrade
+  による回避を拒否。
+- Draft から Approved への人手または有効な署名付き sudo の承認境界と、
+  既存 LITE / legacy profile の互換性を維持。
+
+## v1.3.0 (2026-06-29)
+
+### ワークフロー状態の整合性強化
+
+- リポジトリ全体の SDD 状態を fail-closed で検証する Bash / PowerShell
+  チェッカーを追加し、CI、品質ゲート、仕様・実装・タスクの各レビュー前処理へ統合。
+- pre-v1.3.0 の履歴だけを対象に、固定 cutoff、理由、所有者、許容欠落項目を
+  明示した bounded legacy migration を導入。
+- predecessor review の遷移判定を修正し、レポートパス衝突時も feature と
+  evidence bundle に結び付いた品質レポートだけを採用。
+- 既存の公開コマンド、インストール／アンインストール動作、プラグイン構成は維持。
+
 ## v1.2.0 (2026-06-25)
 
 ### 修正: エントリーポイントコマンドがスラッシュメニューに表示されない問題

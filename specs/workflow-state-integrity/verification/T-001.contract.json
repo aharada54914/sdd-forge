@@ -1,0 +1,132 @@
+{
+  "task_id": "T-001",
+  "feature": "workflow-state-integrity",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "7352f1583590bae4fe8f20c3300a9f875560341bfbc5e1d025bd4de49ce5802c",
+  "created": "2026-06-27T08:14:21Z",
+  "comment": "Default-FAIL verification contract for the downstream review-transition repair. Shell stack waives compile-only checks; all behavioral and integrity checks remain required.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Shell, PowerShell, and JSON repository has no configured lint command for this scoped change.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No statically typed build target is present; stack=shell permits this compile-oriented waiver.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The plugin repository has no build step; executable validation is performed by repository and scoped test suites.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-001.green.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-001.green.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-001.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-008", "REQ-010", "REQ-012"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-001.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-001.green.log"
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-001.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-008", "REQ-010", "REQ-012"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-001.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-001.green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-001.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-008", "REQ-010", "REQ-012"],
+      "red_evidence": "specs/workflow-state-integrity/verification/T-001.red.log",
+      "green_evidence": "specs/workflow-state-integrity/verification/T-001.green.log"
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/workflow-state-integrity/verification/T-001.green.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-008", "REQ-010", "REQ-012"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No interactive service or UI is changed; the touched entry points are exercised directly by integration tests.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists; red/green transition fixtures verify the approved bugfix behavior.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI is in scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

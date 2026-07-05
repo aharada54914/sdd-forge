@@ -372,6 +372,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-101
+Feature: $feat
 VERDICT: PASS
 
 Docs-only task; all applicable checks green.
@@ -445,6 +446,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-103
+Feature: $feat
 VERDICT: PASS
 
 Critical-risk TDD task; all checks green.
@@ -513,6 +515,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-103
+Feature: $feat
 VERDICT: PASS
 
 Critical-risk TDD task; all checks green.
@@ -582,6 +585,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-103
+Feature: $feat
 VERDICT: PASS
 
 Critical-risk TDD task; all checks green.
@@ -653,6 +657,7 @@ Copy-Item (Join-Path $sa "verification/T-102.contract.json") (Join-Path $saT102 
 
 @"
 Task ID: T-102
+Feature: $feat
 VERDICT: PASS
 
 High-risk TDD task; all checks green including red->green evidence.
@@ -682,6 +687,8 @@ Write-Host "=== Scenario B1: hook contract — all 3 CLI forms ==="
 
 $sb = Join-Path $workDir "sb-hooks"
 New-Item -ItemType Directory -Path (Join-Path $sb "specs/x") -Force | Out-Null
+$originalClaudeProjectDir = $env:CLAUDE_PROJECT_DIR
+$env:CLAUDE_PROJECT_DIR = $sb
 
 $guardJs = Join-Path $scriptsDir "sdd-hook-guard.js"
 $guardSh = Join-Path $scriptsDir "sdd-hook-guard.sh"
@@ -865,6 +872,12 @@ if (($copilotContent | Select-String "sdd-hook-guard.sh" -Quiet) -and
     fail "B1.4c: copilot-hooks.json must reference sdd-hook-guard.sh --emit copilot (check $copilotHooks)"
 }
 
+if ($null -eq $originalClaudeProjectDir) {
+    Remove-Item Env:CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue
+} else {
+    $env:CLAUDE_PROJECT_DIR = $originalClaudeProjectDir
+}
+
 # ===========================================================================
 # SCENARIO E: CRITICAL SIGNING ROUND-TRIP
 # ===========================================================================
@@ -888,6 +901,7 @@ foreach ($d in @(
 
 @"
 Task ID: T-201
+Feature: $featE
 VERDICT: PASS
 
 Critical signing task; all checks green.

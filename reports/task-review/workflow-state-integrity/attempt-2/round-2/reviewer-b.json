@@ -1,0 +1,29 @@
+{
+  "schema":"task-reviewer-b/v1",
+  "stage":"task",
+  "role":"task-reviewer-b",
+  "run_id":"3301e884-af4c-4877-a315-571685ed0ec1",
+  "host_session_id":"cfb22332-199d-48b0-b6a3-56c57e66cb9b",
+  "allowed_input_manifest":[
+    {"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-2/round-2/precheck-result.json","sha256":"d40e82cda25a3cd734ab44da43c120fb36ba003ef656316c10b28dfb4956972f"},
+    {"path":"reports/task-review/workflow-state-integrity/attempt-2/round-2/integrated-summary.json","sha256":"91dcf1567b04df6a82c006cf64cbcc9440ed971bf4666af0d4369749ec60bc36"},
+    {"path":"specs/workflow-state-integrity/requirements.md","sha256":"02dc02245623d9dd97f134c33920fec121b9759211eef98cbec9b8a573a3899b"},
+    {"path":"specs/workflow-state-integrity/acceptance-tests.md","sha256":"a268490974c293aeac80e2a54bb0879f6b747b0126b6bd68b548c7535331a8dd"},
+    {"path":"specs/workflow-state-integrity/tasks.md","sha256":"1de0cf1f1e428515431207523b4ff3885ebf7aef9557369e419027fa9442ef25"},
+    {"path":"plugins/sdd-quality-loop/references/risk-gate-matrix.md","sha256":"6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"},
+    {"path":"plugins/sdd-quality-loop/references/risk-classification-policy.md","sha256":"21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+  ],
+  "verdict":"PASS",
+  "checks":[
+    {"id":"RISK-APPROPRIATE","result":"PASS","severity":"Major","finding":"T-001 through T-005 correctly classify integrity-boundary and gate-bypass risks as high with tdd; T-006 correctly classifies reversible release metadata as medium with acceptance-first."},
+    {"id":"HIGH-CRITICAL-EVIDENCE","result":"PASS","severity":"Critical","finding":"Every high-risk task requires Red-to-Green logs, independent review, spec_revision, environment, changed-file hashes, requirement-traceability proof, and exercised rollback evidence. No critical task is declared."},
+    {"id":"TASK-SIZE","result":"PASS","severity":"Major","finding":"T-001 through T-006 each define one cohesive deliverable with bounded planned files, explicit scope, inspectable completion criteria, and exclusions."},
+    {"id":"EDGE-CASE-COVERAGE","result":"PASS","severity":"Major","finding":"The task plan covers malformed and unreadable inputs, stale and forged provenance, traversal and symlink escape, legacy overbreadth, predecessor inversion, lifecycle bypass, LF/CRLF parity, lite isolation, version skew, and rollback behavior."},
+    {"id":"TEST-TYPE-MATCH","result":"PASS","severity":"Major","finding":"High-risk behavior changes use tdd with explicit failing and passing evidence; the medium metadata task uses acceptance-first validation. Unit, acceptance, regression, parity, integration, and repository-suite evidence match their task surfaces."},
+    {"id":"ROLLBACK-PLAN","result":"PASS","severity":"Major","finding":"Each task identifies the atomic revert scope, the state or behavior to restore, and an isolated or repository-level validation that exercises the rollback."},
+    {"id":"SCOPE-DISJOINT","result":"PASS","severity":"Major","finding":"Task goals and exclusions separate transition repair, registry migration, validator implementation, repository/CI wiring, gate wiring, and release metadata. Shared files are touched for distinct ordered concerns."},
+    {"id":"DEPENDENCY-OVERLAP","result":"PASS","severity":"Major","finding":"Overlapping surfaces are ordered transitively: T-003 depends on T-001/T-002; T-004 and T-005 depend on T-003; T-006 depends on T-004/T-005. No conflicting tasks can execute concurrently under the declared graph."},
+    {"id":"BUGFIX-DIAGNOSTIC-PATH","result":"PASS","severity":"Major","finding":"T-001 preserves the complete diagnostic path from the observed Spec-Passed to Impl-precheck failure, through canonical hash/path mismatch diagnosis and narrow correction, to Red-to-Green regression, adversarial normalization checks, and rollback reproduction."}
+  ]
+}
