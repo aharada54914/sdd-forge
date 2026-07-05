@@ -308,7 +308,7 @@ T-007, T-008
 ## T-010 ドキュメント(README / USERGUIDE)+ traceability 最終化
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Implementation Complete
+Status: Done
 Risk: low
 Risk Rationale: ドキュメント追記と traceability 表の Status 更新のみで、制御フロー・データ・セキュリティへの影響がない。
 Required Workflow: test-after
