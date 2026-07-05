@@ -1,46 +1,44 @@
 # Traceability: local-env-mcp
 
-## REQ → 根拠
+## REQ → 根拠 / Layer Spec
 
-| REQ-ID | 根拠 | 説明 |
-|-----|---|---|
-| REQ-001 | Issue #64 スコープ | read-only 環境情報 MCP(ファイル読み書きなし) |
-| REQ-002 | Issue #64 スコープ | ツールチェーンバージョン・CLI 可用性・OS 情報の提供 |
-| REQ-003 | Issue #64 承認済み決定 | 実行機能非提供(固定 allowlist プローブのみ、ADR-0004) |
-| REQ-004 | sdd-forge-mcp 基盤踏襲(Issue #64 前提) | エラーエンベロープ + 契約化 |
-| REQ-005 | セキュリティ方針(security-spec.md) | 秘密情報・準 PII の非漏えい |
-| REQ-006 | ADR-0003(Issue #64 前提) | esbuild 単一バンドル + dist-parity CI |
-| REQ-007 | Issue #64 スコープ | installer 同梱・選択(デフォルト同梱) |
-| REQ-008 | Issue #64 スコープ | Cursor 登録(ADR-0005) |
-| REQ-009 | Issue #64 スコープ | VS Code(Copilot MCP)登録(ADR-0005) |
-| REQ-010 | ADR-0003 の uninstall 対称性 | 登録解除・配置削除 |
-| REQ-011 | Issue #64 スコープ(ドキュメント) | README / USERGUIDE 追記 |
-| REQ-012 | AGENTS.md 品質規約 | node:test / 既存テストハーネス準拠 |
+各 REQ の正準レイヤー仕様アンカー(Layer Spec 列)。レイヤー仕様が所有しない
+横断要件は `N/A — cross-layer only:` で理由を記す。
+
+| REQ-ID | 根拠 | Layer Spec | 説明 |
+|-----|---|---|---|
+| REQ-001 | Issue #64 スコープ | security-spec.md#trust-boundaries; frontend-spec.md#technology-stack | read-only 環境情報 MCP(ファイル読み書きなし) |
+| REQ-002 | Issue #64 スコープ | N/A — cross-layer only: ツール仕様は design.md「API / Contract Plan」と contracts/local-env-mcp-tools.v1.schema.json が正準 | ツールチェーンバージョン・CLI 可用性・OS 情報の提供 |
+| REQ-003 | Issue #64 承認済み決定 | security-spec.md#trust-boundaries; security-spec.md#stride-analysis | 実行機能非提供(固定 allowlist プローブのみ、ADR-0004) |
+| REQ-004 | sdd-forge-mcp 基盤踏襲 | N/A — cross-layer only: エンベロープ契約は contracts/local-env-mcp-tools.v1.schema.json が正準 | エラーエンベロープ + 契約化 |
+| REQ-005 | セキュリティ方針 | security-spec.md#secrets-management; security-spec.md#data-classification-and-protection | 秘密情報・準 PII の非漏えい |
+| REQ-006 | ADR-0003(Issue #64 前提) | infra-spec.md#cicd-sequence; security-spec.md#sbom-and-supply-chain | esbuild 単一バンドル + dist-parity CI |
+| REQ-007 | Issue #64 スコープ | infra-spec.md#deployment-topology | installer 同梱・選択(デフォルト同梱) |
+| REQ-008 | Issue #64 スコープ | infra-spec.md#deployment-topology; security-spec.md#trust-boundaries | Cursor 登録(ADR-0005) |
+| REQ-009 | Issue #64 スコープ | infra-spec.md#deployment-topology; security-spec.md#trust-boundaries | VS Code(Copilot MCP)登録(ADR-0005) |
+| REQ-010 | ADR-0003 の uninstall 対称性 | infra-spec.md#rollback; security-spec.md#trust-boundaries | 登録解除・配置削除 |
+| REQ-011 | Issue #64 スコープ | N/A — cross-layer only: README / USERGUIDE のドキュメント要件でレイヤー仕様の対象外 | README / USERGUIDE 追記 |
+| REQ-012 | AGENTS.md 品質規約 | frontend-spec.md#testing | node:test / 既存テストハーネス準拠 |
 
 ## REQ → ADR
 
 | REQ-ID | 関連 ADR | 決定内容 |
 |-----|---|---|
 | REQ-001, REQ-003, REQ-005 | ADR-0004 | 実行機能非提供・コンパイル時固定 allowlist プローブ・秘密情報非漏えい境界 |
-| REQ-006 | ADR-0003 | esbuild 単一バンドル dist コミット + dist-parity CI + Node >= 20 |
+| REQ-006, REQ-007 | ADR-0003 | esbuild 単一バンドル dist コミット + dist-parity CI + Node >= 20 |
 | REQ-008, REQ-009, REQ-010 | ADR-0005 | Cursor / VS Code への冪等 JSON upsert 登録と管理キー限定の解除 |
 
-## REQ → Task
+## Task → REQ
 
-| REQ-ID | Task | 内容 |
-|-----|---|---|
-| REQ-001 | T-001, T-002 | サーバー基盤・エンベロープ・ツール実装 |
-| REQ-002 | T-002 | 3 ツール実装 |
-| REQ-003 | T-001, T-002 | allowlist / probe-engine / 入力スキーマ境界 |
-| REQ-004 | T-002 | 契約準拠(ajv 検証) |
-| REQ-005 | T-002 | no-secrets 検査 |
-| REQ-006 | T-003 | dist バンドル + dist-parity CI |
-| REQ-007 | T-004, T-005 | installer 同梱・選択(sh / ps1) |
-| REQ-008 | T-004, T-005 | Cursor 登録(sh / ps1) |
-| REQ-009 | T-004, T-005 | VS Code 登録(sh / ps1) |
-| REQ-010 | T-006 | uninstall 登録解除・配置削除 |
-| REQ-011 | T-007 | ドキュメント |
-| REQ-012 | T-001〜T-007 | テスト方式準拠(全タスク横断) |
+| Task | REQ-ID | 内容 |
+|---|-----|---|
+| T-001 | REQ-001, REQ-003, REQ-012 | サーバー基盤・エンベロープ・allowlist・probe-engine |
+| T-002 | REQ-001, REQ-002, REQ-003, REQ-004, REQ-005 | 3 ツール・server/index・契約・no-secrets |
+| T-003 | REQ-006, REQ-012 | dist バンドル + dist-parity CI |
+| T-004 | REQ-007, REQ-008, REQ-009 | installer sh 拡張 + Cursor / VS Code 登録 |
+| T-005 | REQ-007, REQ-008, REQ-009 | installer ps1 パリティ |
+| T-006 | REQ-010 | uninstall 登録解除・配置削除 |
+| T-007 | REQ-011 | ドキュメント + traceability 最終化 |
 
 ## AC → REQ
 
