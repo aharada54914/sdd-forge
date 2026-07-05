@@ -13,6 +13,26 @@ This project follows a three-stage Spec-Anchored AI Development workflow.
 7. Use `quality-gate` for independent verification and the Done decision.
 8. Use `fix-by-review-ticket` for approved review-ticket fixes, then rerun `quality-gate`.
 
+### Review gate precheck fallback
+
+While the upstream precheck defect tracked in issue #61
+(https://github.com/aharada54914/sdd-forge/issues/61) remains open, a review
+gate (specification review, implementation-policy review, task-decomposition
+review, or quality verification gate) whose launch precheck cannot be
+satisfied may fall back to a manually executed precheck, subject to all of
+the following:
+
+1. Run the precheck steps manually and record the results in a
+   `manual-precheck-note.md` inside the affected round directory.
+2. Obtain explicit human approval of the deviation and record it in the note.
+3. Reserve reviewer identities in the identity ledger exactly as the
+   automated path would.
+4. Reference issue #61 in the note.
+
+This fallback applies only while the upstream precheck defect (issue #61) is
+open; once the fix lands, the automated precheck path is again mandatory.
+(WFI-002)
+
 ## Sources Of Truth
 
 - `tasks.md`: task approval, execution order, and work status
@@ -52,3 +72,16 @@ Update this list whenever a new spec directory is bootstrapped:
 - API changes require contract updates; architecture changes require ADRs.
 - Only `quality-gate` may set a task to Done.
 - Do not commit, push, or create PRs/MRs unless explicitly requested.
+
+### Evidence report identity fields
+
+- Implementation reports (`reports/implementation/`) must carry a `Run ID:`
+  line and a `Task Attempt Count:` line.
+- Quality verification gate reports (`reports/quality-gate/`) must carry a
+  `Task: T-NNN` line and a `Run ID:` line whose value equals the evaluator
+  run id reserved in the identity ledger for that gate run.
+
+These fields are additive: existing consumers (check-task-state,
+evidence-bundle generation) ignore them and are unaffected. They exist so
+that retrospective analysis and run-record emission can associate evidence
+with tasks deterministically. (WFI-003)
