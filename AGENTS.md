@@ -48,6 +48,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/workflow-state-integrity/`
 - `specs/bootstrap-interviewer-enhancement/`
 - `specs/agent-cost-context-isolation/`
+- `specs/local-env-mcp/`
 
 ## Source Artifact Locations
 
