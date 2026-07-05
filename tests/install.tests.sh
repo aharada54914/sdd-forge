@@ -103,7 +103,18 @@ echo "noise" > "${SOURCE_FIXTURE}/mcp/local-env-mcp/node_modules/should-not-copy
 echo "noise" > "${SOURCE_FIXTURE}/mcp/local-env-mcp/src/index.ts"
 echo "noise" > "${SOURCE_FIXTURE}/mcp/local-env-mcp/tests/index.test.ts"
 
-trap 'rm -rf "$SOURCE_FIXTURE_ROOT"' EXIT
+# T-007 (AC-010/011/015): install.sh registers MCP servers with Cursor and
+# VS Code via SDD_CURSOR_DIR / SDD_VSCODE_USER_DIR-overridable config paths.
+# Tests must NEVER touch the real user's client configs, so point both at
+# non-existent directories inside an isolated root by default (an absent
+# client directory means "client not installed" and registration skips).
+# Scenarios that exercise the upsert override these per-scenario and restore
+# them to these defaults afterwards.
+GLOBAL_IDE_ROOT="$(mktemp -d)"
+export SDD_CURSOR_DIR="${GLOBAL_IDE_ROOT}/cursor-not-installed"
+export SDD_VSCODE_USER_DIR="${GLOBAL_IDE_ROOT}/vscode-not-installed"
+
+trap 'rm -rf "$SOURCE_FIXTURE_ROOT" "$GLOBAL_IDE_ROOT"' EXIT
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -1202,15 +1213,27 @@ _u_bin="${_u_root}/bin"
 _u_log="${_u_root}/commands.log"
 _u_orig_path="$PATH"
 _u_orig_codex_home="${SDD_CODEX_HOME:-}"
+_u_orig_cursor_dir="${SDD_CURSOR_DIR:-}"
+_u_orig_vscode_dir="${SDD_VSCODE_USER_DIR:-}"
 make_fake_commands "$_u_bin" "$_u_log"
 export PATH="${_u_bin}:${_u_orig_path}"
 export SDD_CODEX_HOME="${_u_root}/codex-home"
 mkdir -p "$SDD_CODEX_HOME"
 touch "${SDD_CODEX_HOME}/config.toml"
+# T-007 gating: seeded Cursor / VS Code configs must be untouched by --skip-mcp.
+export SDD_CURSOR_DIR="${_u_root}/cursor"
+export SDD_VSCODE_USER_DIR="${_u_root}/vscode-user"
+mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
+printf '{\n  "mcpServers": {}\n}\n' > "${_u_root}/cursor/mcp.json"
+printf '{\n  "servers": {}\n}\n' > "${_u_root}/vscode-user/mcp.json"
+cp "${_u_root}/cursor/mcp.json" "${_u_root}/cursor-before.json"
+cp "${_u_root}/vscode-user/mcp.json" "${_u_root}/vscode-before.json"
 _u_failed=0
 bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_u_install" --target All --skip-agent-install --skip-mcp 2>/dev/null || _u_failed=1
 export PATH="$_u_orig_path"
 if [[ -z "$_u_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_u_orig_codex_home"; fi
+if [[ -z "$_u_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_u_orig_cursor_dir"; fi
+if [[ -z "$_u_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_u_orig_vscode_dir"; fi
 _u_ok=1
 [[ $_u_failed -eq 0 ]] || { fail "--skip-mcp (u): installer exited non-zero"; _u_ok=0; }
 [[ ! -e "${_u_install}/mcp" ]] || { fail "--skip-mcp (u): mcp/ was placed despite --skip-mcp"; _u_ok=0; }
@@ -1222,6 +1245,8 @@ if grep -q "sdd-forge-mcp" "${_u_root}/codex-home/config.toml" 2>/dev/null; then
     fail "--skip-mcp (u): Codex config.toml was modified despite --skip-mcp"
     _u_ok=0
 fi
+cmp -s "${_u_root}/cursor-before.json" "${_u_root}/cursor/mcp.json" || { fail "--skip-mcp (u): Cursor mcp.json was modified despite --skip-mcp"; _u_ok=0; }
+cmp -s "${_u_root}/vscode-before.json" "${_u_root}/vscode-user/mcp.json" || { fail "--skip-mcp (u): VS Code mcp.json was modified despite --skip-mcp"; _u_ok=0; }
 rm -rf "$_u_root"
 [[ $_u_ok -eq 1 ]] && ok "--skip-mcp skips both MCP placement and registration"
 
@@ -1363,6 +1388,8 @@ _w2_bin="${_w2_root}/bin"
 _w2_log="${_w2_root}/commands.log"
 _w2_orig_path="$PATH"
 _w2_orig_codex_home="${SDD_CODEX_HOME:-}"
+_w2_orig_cursor_dir="${SDD_CURSOR_DIR:-}"
+_w2_orig_vscode_dir="${SDD_VSCODE_USER_DIR:-}"
 make_fake_commands "$_w2_bin" "$_w2_log"
 # Shadow `node` with a fake v18.x binary ahead of the real one on PATH.
 cat > "${_w2_bin}/node" <<'NODESHIM2'
@@ -1378,10 +1405,20 @@ export PATH="${_w2_bin}:${_w2_orig_path}"
 export SDD_CODEX_HOME="${_w2_root}/codex-home"
 mkdir -p "$SDD_CODEX_HOME"
 touch "${SDD_CODEX_HOME}/config.toml"
+# T-007 gating: seeded Cursor / VS Code configs must be untouched when Node < 20.
+export SDD_CURSOR_DIR="${_w2_root}/cursor"
+export SDD_VSCODE_USER_DIR="${_w2_root}/vscode-user"
+mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
+printf '{\n  "mcpServers": {}\n}\n' > "${_w2_root}/cursor/mcp.json"
+printf '{\n  "servers": {}\n}\n' > "${_w2_root}/vscode-user/mcp.json"
+cp "${_w2_root}/cursor/mcp.json" "${_w2_root}/cursor-before.json"
+cp "${_w2_root}/vscode-user/mcp.json" "${_w2_root}/vscode-before.json"
 _w2_failed=0
 _w2_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_w2_install" --target All --skip-agent-install 2>&1)" || _w2_failed=1
 export PATH="$_w2_orig_path"
 if [[ -z "$_w2_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_w2_orig_codex_home"; fi
+if [[ -z "$_w2_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_w2_orig_cursor_dir"; fi
+if [[ -z "$_w2_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_w2_orig_vscode_dir"; fi
 _w2_ok=1
 [[ $_w2_failed -eq 0 ]] || { fail "old Node v18 (w2): installer exited non-zero despite MCP-only skip"; _w2_ok=0; }
 [[ ! -e "${_w2_install}/mcp" ]] || { fail "old Node v18 (w2): MCP was placed despite Node < 20"; _w2_ok=0; }
@@ -1393,6 +1430,8 @@ if grep -qE "sdd-forge-mcp|local-env-mcp" "${_w2_root}/codex-home/config.toml" 2
     fail "old Node v18 (w2): Codex config.toml was modified despite Node < 20"
     _w2_ok=0
 fi
+cmp -s "${_w2_root}/cursor-before.json" "${_w2_root}/cursor/mcp.json" || { fail "old Node v18 (w2): Cursor mcp.json was modified despite Node < 20"; _w2_ok=0; }
+cmp -s "${_w2_root}/vscode-before.json" "${_w2_root}/vscode-user/mcp.json" || { fail "old Node v18 (w2): VS Code mcp.json was modified despite Node < 20"; _w2_ok=0; }
 if ! echo "$_w2_out" | grep -qi "node"; then
     fail "old Node v18 (w2): expected warning mentioning Node was not printed"
     _w2_ok=0
@@ -1424,6 +1463,230 @@ if ! echo "$_x_out" | grep -qi "config.toml"; then
 fi
 rm -rf "$_x_root"
 [[ $_x_ok -eq 1 ]] && ok "missing Codex config.toml skips Codex MCP registration with a warning"
+
+# ---------------------------------------------------------------------------
+# MCP scenarios (T-007): AC-010 / AC-011 / AC-015 — Cursor / VS Code upsert
+# ---------------------------------------------------------------------------
+
+# Scenario (y): AC-010 Cursor registration. A pre-existing ~/.cursor/mcp.json
+# containing a foreign entry and an unknown top-level key keeps both; the two
+# selected MCPs are upserted under mcpServers.<name> as
+# { command: "node", args: [<install-root>/mcp/<name>/dist/index.js] }; a
+# second run is byte-identical (idempotent). The VS Code user dir is absent in
+# this scenario, so VS Code registration is skipped with a notice and the
+# directory is never created.
+_y_root="$(mktemp -d)"
+_y_install="${_y_root}/installed"
+_y_bin="${_y_root}/bin"
+_y_log="${_y_root}/commands.log"
+_y_orig_path="$PATH"
+_y_orig_codex_home="${SDD_CODEX_HOME:-}"
+_y_orig_cursor_dir="${SDD_CURSOR_DIR:-}"
+_y_orig_vscode_dir="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_y_bin" "$_y_log"
+export PATH="${_y_bin}:${_y_orig_path}"
+export SDD_CODEX_HOME="${_y_root}/codex-home"
+mkdir -p "$SDD_CODEX_HOME"
+touch "${SDD_CODEX_HOME}/config.toml"
+export SDD_CURSOR_DIR="${_y_root}/cursor"
+export SDD_VSCODE_USER_DIR="${_y_root}/vscode-user-missing"
+mkdir -p "$SDD_CURSOR_DIR"
+cat > "${_y_root}/cursor/mcp.json" <<'CURSORSEED'
+{
+  "mcpServers": {
+    "user-defined-mcp": {
+      "command": "python3",
+      "args": ["/opt/user/mcp.py"]
+    }
+  },
+  "unknownTopLevelKey": { "keep": true }
+}
+CURSORSEED
+_y_failed=0
+_y_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_y_install" --target All --skip-agent-install 2>&1)" || _y_failed=1
+cp "${_y_root}/cursor/mcp.json" "${_y_root}/cursor-after-first.json" 2>/dev/null || true
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_y_install" --target All --skip-agent-install >/dev/null 2>&1 || _y_failed=1
+export PATH="$_y_orig_path"
+if [[ -z "$_y_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_y_orig_codex_home"; fi
+if [[ -z "$_y_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_y_orig_cursor_dir"; fi
+if [[ -z "$_y_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_y_orig_vscode_dir"; fi
+_y_ok=1
+[[ $_y_failed -eq 0 ]] || { fail "cursor upsert (y): installer exited non-zero"; _y_ok=0; }
+node -e '
+const c = require(process.argv[1]);
+const s = c.mcpServers || {};
+const f = s["user-defined-mcp"];
+if (!f || f.command !== "python3" || !Array.isArray(f.args) || f.args[0] !== "/opt/user/mcp.py") process.exit(1);
+for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+  const e = s[n];
+  if (!e || e.command !== "node" || !Array.isArray(e.args) || e.args.length !== 1) process.exit(1);
+  if (!e.args[0].endsWith("/mcp/" + n + "/dist/index.js")) process.exit(1);
+}
+if (!c.unknownTopLevelKey || c.unknownTopLevelKey.keep !== true) process.exit(1);
+' "${_y_root}/cursor/mcp.json" 2>/dev/null || { fail "cursor upsert (y): mcp.json missing managed entries, foreign entry, or unknown top-level key"; _y_ok=0; }
+cmp -s "${_y_root}/cursor-after-first.json" "${_y_root}/cursor/mcp.json" || { fail "cursor upsert (y): second run is not byte-identical (not idempotent)"; _y_ok=0; }
+[[ ! -e "${_y_root}/vscode-user-missing" ]] || { fail "cursor upsert (y): absent VS Code user dir was created"; _y_ok=0; }
+if ! echo "$_y_out" | grep -qi "vs code"; then
+    fail "cursor upsert (y): expected VS Code skip notice for absent user dir not printed"
+    _y_ok=0
+fi
+rm -rf "$_y_root"
+[[ $_y_ok -eq 1 ]] && ok "Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice"
+
+# Scenario (z): AC-011 VS Code registration. A pre-existing user-profile
+# mcp.json (via SDD_VSCODE_USER_DIR) containing a foreign entry and an unknown
+# top-level key keeps both; the two selected MCPs are upserted under
+# servers.<name> as { type: "stdio", command: "node", args: [...] }; a second
+# run is byte-identical. The Cursor dir is absent in this scenario, so Cursor
+# registration is skipped with a notice and the directory is never created.
+_z_root="$(mktemp -d)"
+_z_install="${_z_root}/installed"
+_z_bin="${_z_root}/bin"
+_z_log="${_z_root}/commands.log"
+_z_orig_path="$PATH"
+_z_orig_codex_home="${SDD_CODEX_HOME:-}"
+_z_orig_cursor_dir="${SDD_CURSOR_DIR:-}"
+_z_orig_vscode_dir="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_z_bin" "$_z_log"
+export PATH="${_z_bin}:${_z_orig_path}"
+export SDD_CODEX_HOME="${_z_root}/codex-home"
+mkdir -p "$SDD_CODEX_HOME"
+touch "${SDD_CODEX_HOME}/config.toml"
+export SDD_CURSOR_DIR="${_z_root}/cursor-missing"
+export SDD_VSCODE_USER_DIR="${_z_root}/vscode-user"
+mkdir -p "$SDD_VSCODE_USER_DIR"
+cat > "${_z_root}/vscode-user/mcp.json" <<'VSCODESEED'
+{
+  "servers": {
+    "user-defined-mcp": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/opt/user/mcp.py"]
+    }
+  },
+  "inputs": [{ "id": "keep-me", "type": "promptString" }]
+}
+VSCODESEED
+_z_failed=0
+_z_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_z_install" --target All --skip-agent-install 2>&1)" || _z_failed=1
+cp "${_z_root}/vscode-user/mcp.json" "${_z_root}/vscode-after-first.json" 2>/dev/null || true
+bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_z_install" --target All --skip-agent-install >/dev/null 2>&1 || _z_failed=1
+export PATH="$_z_orig_path"
+if [[ -z "$_z_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_z_orig_codex_home"; fi
+if [[ -z "$_z_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_z_orig_cursor_dir"; fi
+if [[ -z "$_z_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_z_orig_vscode_dir"; fi
+_z_ok=1
+[[ $_z_failed -eq 0 ]] || { fail "vscode upsert (z): installer exited non-zero"; _z_ok=0; }
+node -e '
+const c = require(process.argv[1]);
+const s = c.servers || {};
+const f = s["user-defined-mcp"];
+if (!f || f.command !== "python3" || !Array.isArray(f.args) || f.args[0] !== "/opt/user/mcp.py") process.exit(1);
+for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+  const e = s[n];
+  if (!e || e.type !== "stdio" || e.command !== "node" || !Array.isArray(e.args) || e.args.length !== 1) process.exit(1);
+  if (!e.args[0].endsWith("/mcp/" + n + "/dist/index.js")) process.exit(1);
+}
+if (!Array.isArray(c.inputs) || c.inputs.length !== 1 || c.inputs[0].id !== "keep-me") process.exit(1);
+' "${_z_root}/vscode-user/mcp.json" 2>/dev/null || { fail "vscode upsert (z): mcp.json missing managed entries, foreign entry, or unknown top-level key"; _z_ok=0; }
+cmp -s "${_z_root}/vscode-after-first.json" "${_z_root}/vscode-user/mcp.json" || { fail "vscode upsert (z): second run is not byte-identical (not idempotent)"; _z_ok=0; }
+[[ ! -e "${_z_root}/cursor-missing" ]] || { fail "vscode upsert (z): absent Cursor dir was created"; _z_ok=0; }
+if ! echo "$_z_out" | grep -qi "cursor"; then
+    fail "vscode upsert (z): expected Cursor skip notice for absent dir not printed"
+    _z_ok=0
+fi
+rm -rf "$_z_root"
+[[ $_z_ok -eq 1 ]] && ok "VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice"
+
+# Scenario (aa): AC-015 corrupted Cursor mcp.json. The installer must not
+# modify the corrupt file (byte-identical), must print an error notice, must
+# still register the OTHER client (VS Code), and must exit zero.
+_aa_root="$(mktemp -d)"
+_aa_install="${_aa_root}/installed"
+_aa_bin="${_aa_root}/bin"
+_aa_log="${_aa_root}/commands.log"
+_aa_orig_path="$PATH"
+_aa_orig_codex_home="${SDD_CODEX_HOME:-}"
+_aa_orig_cursor_dir="${SDD_CURSOR_DIR:-}"
+_aa_orig_vscode_dir="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_aa_bin" "$_aa_log"
+export PATH="${_aa_bin}:${_aa_orig_path}"
+export SDD_CODEX_HOME="${_aa_root}/codex-home"
+mkdir -p "$SDD_CODEX_HOME"
+touch "${SDD_CODEX_HOME}/config.toml"
+export SDD_CURSOR_DIR="${_aa_root}/cursor"
+export SDD_VSCODE_USER_DIR="${_aa_root}/vscode-user"
+mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
+printf '{ "mcpServers": { "broken"\n' > "${_aa_root}/cursor/mcp.json"
+cp "${_aa_root}/cursor/mcp.json" "${_aa_root}/cursor-before.json"
+_aa_failed=0
+_aa_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_aa_install" --target All --skip-agent-install 2>&1)" || _aa_failed=1
+export PATH="$_aa_orig_path"
+if [[ -z "$_aa_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_aa_orig_codex_home"; fi
+if [[ -z "$_aa_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_aa_orig_cursor_dir"; fi
+if [[ -z "$_aa_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_aa_orig_vscode_dir"; fi
+_aa_ok=1
+[[ $_aa_failed -eq 0 ]] || { fail "corrupt cursor JSON (aa): installer exited non-zero"; _aa_ok=0; }
+cmp -s "${_aa_root}/cursor-before.json" "${_aa_root}/cursor/mcp.json" || { fail "corrupt cursor JSON (aa): corrupt mcp.json was modified"; _aa_ok=0; }
+if ! echo "$_aa_out" | grep -qi "invalid"; then
+    fail "corrupt cursor JSON (aa): expected invalid-JSON error notice not printed"
+    _aa_ok=0
+fi
+node -e '
+const c = require(process.argv[1]);
+const s = c.servers || {};
+for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+  const e = s[n];
+  if (!e || e.type !== "stdio" || e.command !== "node") process.exit(1);
+}
+' "${_aa_root}/vscode-user/mcp.json" 2>/dev/null || { fail "corrupt cursor JSON (aa): VS Code registration did not continue"; _aa_ok=0; }
+rm -rf "$_aa_root"
+[[ $_aa_ok -eq 1 ]] && ok "corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues"
+
+# Scenario (ab): AC-015 corrupted VS Code mcp.json — symmetric to (aa): the
+# corrupt file is untouched, an error notice is printed, Cursor registration
+# continues, and the installer exits zero.
+_ab_root="$(mktemp -d)"
+_ab_install="${_ab_root}/installed"
+_ab_bin="${_ab_root}/bin"
+_ab_log="${_ab_root}/commands.log"
+_ab_orig_path="$PATH"
+_ab_orig_codex_home="${SDD_CODEX_HOME:-}"
+_ab_orig_cursor_dir="${SDD_CURSOR_DIR:-}"
+_ab_orig_vscode_dir="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_ab_bin" "$_ab_log"
+export PATH="${_ab_bin}:${_ab_orig_path}"
+export SDD_CODEX_HOME="${_ab_root}/codex-home"
+mkdir -p "$SDD_CODEX_HOME"
+touch "${SDD_CODEX_HOME}/config.toml"
+export SDD_CURSOR_DIR="${_ab_root}/cursor"
+export SDD_VSCODE_USER_DIR="${_ab_root}/vscode-user"
+mkdir -p "$SDD_CURSOR_DIR" "$SDD_VSCODE_USER_DIR"
+printf 'not json at all { ]\n' > "${_ab_root}/vscode-user/mcp.json"
+cp "${_ab_root}/vscode-user/mcp.json" "${_ab_root}/vscode-before.json"
+_ab_failed=0
+_ab_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_ab_install" --target All --skip-agent-install 2>&1)" || _ab_failed=1
+export PATH="$_ab_orig_path"
+if [[ -z "$_ab_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_ab_orig_codex_home"; fi
+if [[ -z "$_ab_orig_cursor_dir" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_ab_orig_cursor_dir"; fi
+if [[ -z "$_ab_orig_vscode_dir" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_ab_orig_vscode_dir"; fi
+_ab_ok=1
+[[ $_ab_failed -eq 0 ]] || { fail "corrupt vscode JSON (ab): installer exited non-zero"; _ab_ok=0; }
+cmp -s "${_ab_root}/vscode-before.json" "${_ab_root}/vscode-user/mcp.json" || { fail "corrupt vscode JSON (ab): corrupt mcp.json was modified"; _ab_ok=0; }
+if ! echo "$_ab_out" | grep -qi "invalid"; then
+    fail "corrupt vscode JSON (ab): expected invalid-JSON error notice not printed"
+    _ab_ok=0
+fi
+node -e '
+const c = require(process.argv[1]);
+const s = c.mcpServers || {};
+for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+  const e = s[n];
+  if (!e || e.command !== "node") process.exit(1);
+}
+' "${_ab_root}/cursor/mcp.json" 2>/dev/null || { fail "corrupt vscode JSON (ab): Cursor registration did not continue"; _ab_ok=0; }
+rm -rf "$_ab_root"
+[[ $_ab_ok -eq 1 ]] && ok "corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues"
 
 # ---------------------------------------------------------------------------
 # Summary

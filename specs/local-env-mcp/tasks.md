@@ -213,7 +213,7 @@ T-004
 ## T-007 install.sh Cursor / VS Code 冪等登録
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: ユーザーの IDE 設定ファイル(~/.cursor/mcp.json、VS Code user-profile mcp.json)を書き換えるデータ変異であり、欠陥はユーザーの既存 MCP 設定の破壊に直結する(REQ-008/REQ-009、security-spec.md B3、ADR-0005)。
 Required Workflow: tdd
