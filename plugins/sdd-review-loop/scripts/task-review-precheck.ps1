@@ -1,8 +1,10 @@
+# Usage: task-review-precheck.ps1 -Feature <feature-slug> -Attempt <attempt> -Round <round> [-VerifyInputs|-ProvenanceRereview]
 param(
   [Parameter(Mandatory = $true)][string]$Feature,
   [Parameter(Mandatory = $true)][string]$Attempt,
   [Parameter(Mandatory = $true)][string]$Round,
-  [switch]$VerifyInputs
+  [switch]$VerifyInputs,
+  [switch]$ProvenanceRereview
 )
 
 $ErrorActionPreference = 'Stop'
@@ -237,8 +239,32 @@ if ($VerifyInputs) {
 
 if (Test-Path -LiteralPath $report) { Fail 'round destination already exists (replay is forbidden)' }
 $powerShellExe = (Get-Process -Id $PID).Path
-& $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
-if ($LASTEXITCODE -ne 0) { Fail 'canonical workflow-state validation failed' }
+if ($ProvenanceRereview) {
+  $taskReviewRoot = Join-Path $root "reports/task-review/$Feature"
+  $priorPass = $false
+  if (Test-Path -LiteralPath $taskReviewRoot -PathType Container) {
+    foreach ($verdictFile in @(Get-ChildItem -LiteralPath $taskReviewRoot -Filter integrated-verdict.json -File -Recurse -ErrorAction SilentlyContinue)) {
+      try {
+        $verdictData = Get-Content -LiteralPath $verdictFile.FullName -Raw | ConvertFrom-Json
+      } catch {
+        continue
+      }
+      if ((Test-OrdinalEqual $verdictData.feature $Feature) -and (Test-OrdinalEqual $verdictData.stage 'task') -and (Test-OrdinalEqual $verdictData.verdict 'PASS')) {
+        $priorPass = $true
+        break
+      }
+    }
+  }
+  if (-not $priorPass) { Fail 'provenance re-review requires a prior persisted task-review PASS verdict' }
+  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
+  if ($LASTEXITCODE -ne 0) {
+    Write-Warning ('task-review-precheck: canonical workflow-state validation failed; ' +
+      'proceeding under -ProvenanceRereview (task-stage evidence re-binding in progress).')
+  }
+} else {
+  & $powerShellExe -NoProfile -File (Join-Path $root 'plugins/sdd-quality-loop/scripts/check-workflow-state.ps1') --feature $Feature
+  if ($LASTEXITCODE -ne 0) { Fail 'canonical workflow-state validation failed' }
+}
 foreach ($path in @($requirements, $design, $acceptance, $tasks)) { if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).LinkType) { Fail "missing required input: $path" } }
 if ($fullProfile) {
   foreach ($path in @($traceability) + @($layerNames | ForEach-Object { Join-Path $spec $_ })) {

@@ -2,6 +2,28 @@
 
 ## Unreleased
 
+### WFI-004 プラグイン側フォローアップ(Issue #86)
+
+- task-review-precheck に `--provenance-rereview` / `-ProvenanceRereview`
+  モードを追加: 実装後の provenance 再レビュー(新 attempt でのエビデンス
+  再バインド)時に、事前の persisted task-review PASS 実績を必須とした上で
+  canonical workflow-state 検証の失敗のみを許容する(他の precheck 検証は
+  従来どおり)。従来は「エビデンスが陳腐化しているから再レビューが必要」な
+  状況で precheck 自体が構造的に通過不能だった。
+- ADR-0007 を追加: controlled re-binding は「provenance 再レビュー(新
+  attempt)」で行い、バリデータ(check-workflow-state)には選択的再バインド
+  機構を追加しない決定を記録。
+- task レビュアーロールファイル(task-reviewer-a/b)と task-review-loop
+  SKILL.md の修正パッチを
+  `docs/workflow-improvements/issue-86-protected-gate-files.patch` として同梱
+  (enforcement-chain 保護ファイルのためエージェントは直接編集不可 —
+  人間が `git apply` で適用する): バリデータ正準の出力スキーマへの整合
+  (stage/role 文字列、manifest フィールド、checks[].status vs result、
+  findings 配列)、INITIAL-STATE への実装後 provenance 再レビュー条項
+  (lifecycle validity 評価)、full プロファイルのレイヤーマニフェスト要件の
+  明記、OBSERVABLE-DONE への凍結アーティファクト誘導ガイダンス、SKILL.md への
+  「Post-Implementation Provenance Re-Review」手順の新設。
+
 ## v1.9.0 (2026-07-06)
 
 ### local-env-mcp — ローカル環境情報 MCP サーバー(新規)
