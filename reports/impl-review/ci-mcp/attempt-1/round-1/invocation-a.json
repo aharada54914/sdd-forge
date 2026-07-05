@@ -1,0 +1,53 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "ci-mcp",
+  "run_id": "impl-a-cimcp-a1r1-20260706-d3ee",
+  "host_session_id": "hs-impl-a-8eee4773-0005",
+  "sequence": 59,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "76c77f94689d15195f60b993d70c375fc9aa5eecd24d2a646b3f9937a6108ff7",
+  "previous_record_sha256": "1aa53743d43a31a5f74e947bc58043ca7d0042edcebac7278f538fb84b3a38fd",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/ci-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "d6fec6737e79e8c41c568a715532c83a7688a4562311c8fdb147b86002e05454"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "9fbba826b19b0f38a940b8c335910baf6f7c42b36de8f8eef4dc99c73dd56b74"
+    },
+    {
+      "path": "specs/ci-mcp/frontend-spec.md",
+      "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"
+    },
+    {
+      "path": "specs/ci-mcp/infra-spec.md",
+      "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"
+    },
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "specs/ci-mcp/ux-spec.md",
+      "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"
+    }
+  ]
+}
