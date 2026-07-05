@@ -86,6 +86,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/bootstrap-interviewer-enhancement/`
 - `specs/agent-cost-context-isolation/`
 - `specs/local-env-mcp/`
+- `specs/ci-mcp/`
 
 ## Source Artifact Locations
 

@@ -276,6 +276,10 @@
     {
       "feature": "local-env-mcp",
       "profile": "full"
+    },
+    {
+      "feature": "ci-mcp",
+      "profile": "full"
     }
   ]
 }
