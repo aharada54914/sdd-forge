@@ -1,6 +1,6 @@
 # Design: local-env-mcp
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: api-only (read-only MCP server + installer 拡張; no frontend/UI)
 
 ## Technical Summary

@@ -306,6 +306,24 @@
       "host_session_id": "hs-spec-b-6503d1ba-0002",
       "previous_record_sha256": "67b70f55ff1efe144b56b987e6d851a2a35989acf8abd203c633a86d132e0c0b",
       "record_sha256": "69b47d7c1797cd6ea2468339d24010a908fc9f47a73a005cabefd35956d4c63a"
+    },
+    {
+      "sequence": 35,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-localenvmcp-a1r1-20260705-b0d0",
+      "host_session_id": "hs-impl-a-6503d1ba-0003",
+      "previous_record_sha256": "69b47d7c1797cd6ea2468339d24010a908fc9f47a73a005cabefd35956d4c63a",
+      "record_sha256": "b246194a3ad811ad86240d69bc69996304fd7ef3c6e2cc089bd098bc2affc028"
+    },
+    {
+      "sequence": 36,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "impl-b-localenvmcp-a1r1-20260705-b18b",
+      "host_session_id": "hs-impl-b-6503d1ba-0004",
+      "previous_record_sha256": "b246194a3ad811ad86240d69bc69996304fd7ef3c6e2cc089bd098bc2affc028",
+      "record_sha256": "1042abec3b7719572e3e9296b9dded9c1466536721fb8698df3aa548779713f1"
     }
   ]
 }
