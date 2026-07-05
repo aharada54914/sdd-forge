@@ -286,6 +286,54 @@ parity_check_in "$WORK" "impl-review-status: write Passed with PASS-with-warning
     "$IMPL_STATUS_PAYLOAD"
 
 # ---------------------------------------------------------------------------
+# Scenario 23: R-10 read-only cp FROM guard file allowed (allow — exit 0)
+# Issue #62: the protected file is the cp SOURCE; the write target is /tmp.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: cp guard file to /tmp allowed" 0 \
+    '{"tool_name":"bash","tool_input":{"command":"cp plugins/sdd-quality-loop/scripts/sdd-hook-guard.py /tmp/guard-backup.py"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 24: R-10 unrelated mv + read of protected file allowed (allow — exit 0)
+# Issue #62: mv writes /tmp/b; the protected path is only read by grep.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: mv in /tmp + grep settings allowed" 0 \
+    '{"tool_name":"bash","tool_input":{"command":"mv /tmp/a /tmp/b && grep foo .claude/settings.json"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 25: R-10 unrelated redirect + cat of protected file allowed (allow — exit 0)
+# Issue #62: the > redirect targets /tmp/log, not the protected file.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: redirect to /tmp + cat settings allowed" 0 \
+    '{"tool_name":"bash","tool_input":{"command":"echo done > /tmp/log; cat .claude/settings.local.json"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 26: R-10 grep of guard file with 2>/dev/null allowed (allow — exit 0)
+# Issue #62: the only redirect is stderr to /dev/null; the guard file is read.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: grep guard file with stderr redirect allowed" 0 \
+    '{"tool_name":"bash","tool_input":{"command":"grep -n R-10 plugins/sdd-quality-loop/scripts/sdd-hook-guard.py 2>/dev/null | head -30"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 27: R-10 redirect INTO guard file denied (deny — exit 2)
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: echo redirect into guard file denied" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"echo x > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 28: R-10 cp ONTO guard file denied (deny — exit 2)
+# The protected file is the cp DESTINATION (final argument).
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: cp onto guard file denied" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"cp /tmp/x plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 29: R-10 unresolvable write target fails closed (deny — exit 2)
+# $DST may expand to the protected path mentioned in the command — deny.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: variable write target fails closed" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"DST=plugins/sdd-quality-loop/scripts/sdd-hook-guard.py; cp /tmp/x $DST"}}'
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""
