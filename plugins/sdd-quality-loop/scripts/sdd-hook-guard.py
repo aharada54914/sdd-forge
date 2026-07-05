@@ -845,6 +845,17 @@ _GATE_PROTECT_MSG = (
 
 _SHELL_COMPOUND_RE = re.compile(r"&&|\|\||;|\|")
 
+# Issue #62: write-target analysis for shell commands that mention a protected
+# gate file. Verb sets and token patterns are kept identical to the JS twin
+# (guard-parity.tests.sh verifies exit-code parity).
+_SHELL_WRITE_ARG_CMDS = ("tee", "touch", "rm")
+_SHELL_WRITE_DEST_CMDS = ("cp", "mv")
+_SHELL_PS_WRITE_CMDS = ("set-content", "out-file", "new-item", "remove-item")
+_SHELL_INDIRECT_CMDS = ("eval", "xargs", "source", "sh", "bash", "zsh", "dash", "ksh")
+_SHELL_UNSAFE_TOKEN_CHARS = ("$", "`", "(", ")", "{", "}", "*", "?", "[", "]")
+_SHELL_REDIRECT_TOKEN_RE = re.compile(r"^(?:\d*|&)(>>?)([\s\S]*)$")
+_SHELL_FD_DUP_RE = re.compile(r"^&(?:\d+|-)$")
+
 
 def _is_protected_gate_file(file_path):
     """R-10: Return True if file_path matches a protected enforcement-chain file."""
@@ -863,13 +874,190 @@ def _is_protected_gate_file(file_path):
     return False
 
 
+def _tokenize_shell_command(cmd):
+    """Issue #62: simple shell tokenizer (same algorithm as the JS twin).
+    Splits on unquoted spaces/tabs; ';', '|', '&' and newlines become separator
+    tokens; single/double quotes group text (quote marks removed); '>&'/'&>'
+    stay attached to their redirect token. Returns a list of (kind, text)
+    tuples with kind 'word' or 'sep', or None when the command uses constructs
+    the tokenizer does not model (backslash escapes, unclosed quotes) —
+    callers must fail closed on None."""
+    tokens = []
+    cur = ""
+    pending = False
+    in_single = False
+    in_double = False
+    i = 0
+    n = len(cmd)
+    while i < n:
+        ch = cmd[i]
+        if in_single:
+            if ch == "'":
+                in_single = False
+            else:
+                cur += ch
+            i += 1
+            continue
+        if in_double:
+            if ch == '"':
+                in_double = False
+            elif ch == "\\":
+                return None
+            else:
+                cur += ch
+            i += 1
+            continue
+        if ch == "'":
+            in_single = True
+            pending = True
+        elif ch == '"':
+            in_double = True
+            pending = True
+        elif ch == "\\":
+            return None
+        elif ch in ("\n", "\r", ";", "|"):
+            if pending:
+                tokens.append(("word", cur))
+                cur = ""
+                pending = False
+            tokens.append(("sep", ch))
+        elif ch == "&":
+            if pending and cur.endswith(">"):
+                # 2>&1-style fd duplication stays inside the redirect token.
+                cur += ch
+            elif i + 1 < n and cmd[i + 1] == ">":
+                # &>-style redirect starts a new token.
+                if pending:
+                    tokens.append(("word", cur))
+                cur = "&"
+                pending = True
+            else:
+                if pending:
+                    tokens.append(("word", cur))
+                    cur = ""
+                pending = False
+                tokens.append(("sep", ch))
+        elif ch in (" ", "\t"):
+            if pending:
+                tokens.append(("word", cur))
+                cur = ""
+                pending = False
+        else:
+            cur += ch
+            pending = True
+        i += 1
+    if in_single or in_double:
+        return None
+    if pending:
+        tokens.append(("word", cur))
+    return tokens
+
+
+def _shell_token_basename(tok):
+    """Issue #62: lowercased final path component of a token (verb matching)."""
+    return tok.lower().replace("\\", "/").rsplit("/", 1)[-1]
+
+
+def _simple_shell_command_is_safe(words):
+    """Issue #62: check one separator-free simple command. Returns False when a
+    redirect or write verb in it targets (or may target) a protected gate file."""
+    plain = []
+    k = 0
+    n = len(words)
+    while k < n:
+        w = words[k]
+        if ">" in w:
+            m = _SHELL_REDIRECT_TOKEN_RE.match(w)
+            if not m:
+                return False
+            rest = m.group(2)
+            if rest == "":
+                # Detached target (`> file`): consume and check the next token.
+                k += 1
+                if k >= n or ">" in words[k]:
+                    return False
+                if _is_protected_gate_file(words[k]):
+                    return False
+            elif rest.startswith("&"):
+                # fd duplication (2>&1, >&2, >&-) is harmless; anything else
+                # (e.g. >&file) is not modeled — fail closed.
+                if not _SHELL_FD_DUP_RE.match(rest):
+                    return False
+            else:
+                if _is_protected_gate_file(rest):
+                    return False
+        else:
+            plain.append(w)
+        k += 1
+    write_at = -1
+    write_base = ""
+    for idx in range(len(plain)):
+        base = _shell_token_basename(plain[idx])
+        if base in _SHELL_WRITE_ARG_CMDS or base in _SHELL_WRITE_DEST_CMDS:
+            write_at = idx
+            write_base = base
+            break
+    if write_at < 0:
+        return True
+    args = plain[write_at + 1:]
+    non_flags = [a for a in args if not a.startswith("-")]
+    if write_base in _SHELL_WRITE_DEST_CMDS:
+        # cp/mv: only the final non-flag argument (the destination) is
+        # written; sources are reads. Fewer than two path arguments cannot
+        # be judged — fail closed.
+        if len(non_flags) < 2:
+            return False
+        return not _is_protected_gate_file(non_flags[-1])
+    # tee/touch/rm: every non-flag argument is written (or deleted).
+    for a in non_flags:
+        if _is_protected_gate_file(a):
+            return False
+    return True
+
+
+def _shell_write_targets_are_safe(cmd):
+    """Issue #62: True only when every write verb/redirect in cmd provably
+    targets a non-protected path. Constructs the analysis cannot model
+    (escapes, expansions, globs, subshells, eval/xargs/shell interpreters,
+    PowerShell write verbs) return False (fail-close)."""
+    tokens = _tokenize_shell_command(cmd)
+    if tokens is None:
+        return False
+    commands = []
+    words = []
+    for kind, text in tokens:
+        if kind == "sep":
+            if words:
+                commands.append(words)
+                words = []
+        else:
+            words.append(text)
+    if words:
+        commands.append(words)
+    for command in commands:
+        for w in command:
+            for c in _SHELL_UNSAFE_TOKEN_CHARS:
+                if c in w:
+                    return False
+            base = _shell_token_basename(w)
+            if base in _SHELL_INDIRECT_CMDS or base in _SHELL_PS_WRITE_CMDS:
+                return False
+        if not _simple_shell_command_is_safe(command):
+            return False
+    return True
+
+
 def _shell_targets_protected_gate_file(cmd):
-    """R-10: Deny shell commands targeting protected gate files.
-    Uses substring scan (path appears literally in command) combined with write-verb check.
+    """R-10: Deny shell commands that WRITE to protected gate files.
+    Uses substring scan (path appears literally in command) combined with
+    write-target analysis (issue #62): a write verb/redirect elsewhere in the
+    command no longer denies read-only access to a protected path.
     Read-only short-circuit only fires when ALL of the following hold:
       1. No compound operators (&&, ||, ;, |) — prevents `cat f && rm f`
       2. Command starts with a read-only verb (cat, grep, …)
-      3. No write verb/redirect appears anywhere — prevents `cat > f << EOF`"""
+      3. No write verb/redirect appears anywhere — prevents `cat > f << EOF`
+    Otherwise, deny only when a write target is (or cannot be proven not to
+    be) a protected gate file — fail-close on anything unmodeled."""
     if not isinstance(cmd, str):
         return False
     cmd_lower = cmd.lower()
@@ -881,7 +1069,9 @@ def _shell_targets_protected_gate_file(cmd):
     has_write = bool(SHELL_SUDO_WRITE_RE.search(cmd))
     if not _SHELL_COMPOUND_RE.search(cmd) and SHELL_SUDO_READ_ONLY_RE.match(cmd) and not has_write:
         return False
-    return has_write
+    if not has_write:
+        return False
+    return not _shell_write_targets_are_safe(cmd)
 
 
 def _shell_writes_agent_role(cmd):
