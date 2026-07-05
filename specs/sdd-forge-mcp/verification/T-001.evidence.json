@@ -6,8 +6,8 @@
   "spec_revision": "e01423e07bcd190897203ba69c89a86cfe4209a1eec97d885399444922f8b419",
   "quality_report": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-001.md",
   "verification_contract": "specs/sdd-forge-mcp/verification/T-001.contract.json",
-  "git_commit": "a4d6c3fc7b591cb5dc7d5ed6109366a12e65f171",
-  "git_generated_dirty": true,
+  "git_commit": "b72baa4f92f63f13db8129ad5e94bda69e4f032f",
+  "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
     "python": "3.14.5",
@@ -45,7 +45,7 @@
     },
     {
       "path": "specs/sdd-forge-mcp/verification/qg/check-task-state.log",
-      "sha256": "19bf17075a18d472522e19e21558ca0be3947372b69c56f2056f13dd345b7996"
+      "sha256": "5294d83a751355cfc63d89c38b3dd40575879bcf6bfb4c1eb67117e0a0af4857"
     },
     {
       "path": "specs/sdd-forge-mcp/verification/qg/check-traceability.log",

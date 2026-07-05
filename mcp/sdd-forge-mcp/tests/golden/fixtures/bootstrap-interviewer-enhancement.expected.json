@@ -1,6 +1,6 @@
 {
   "feature": "bootstrap-interviewer-enhancement",
-  "exitCode": 1,
-  "fileNotFound": true,
+  "exitCode": 0,
+  "fileNotFound": false,
   "ownFailureMessages": []
 }
