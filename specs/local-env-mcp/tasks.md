@@ -84,7 +84,7 @@ T-001
 ## T-003 stderr 診断ロガー(redaction)+ no-secrets 検査
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: 診断ログと応答の秘匿値混入は秘密情報・準 PII 漏えい(REQ-005)に直結する(security-spec.md B1/B2 の Information Disclosure)。
 Required Workflow: tdd
