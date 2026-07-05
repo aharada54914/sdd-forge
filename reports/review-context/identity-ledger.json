@@ -396,6 +396,96 @@
       "host_session_id": "hs-qg-e1-6503d1ba-0012",
       "previous_record_sha256": "3d7a0e31b3fde9cdc2d61c4558523e87876f2f45e05434c8f01ca7181a23f5bd",
       "record_sha256": "c56736ae4914512731d8782223143aa249e82ff63776b0a717f128d4cf48850e"
+    },
+    {
+      "sequence": 45,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t002-20260706-2b8c",
+      "host_session_id": "hs-qg-e2-6503d1ba-0013",
+      "previous_record_sha256": "c56736ae4914512731d8782223143aa249e82ff63776b0a717f128d4cf48850e",
+      "record_sha256": "2a1199e028e18b71c61d5dba7ae2e1ac45fdc6aafed21ce9e928a85bd65d3089"
+    },
+    {
+      "sequence": 46,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t003-20260706-8d41",
+      "host_session_id": "hs-qg-e3-6503d1ba-0014",
+      "previous_record_sha256": "2a1199e028e18b71c61d5dba7ae2e1ac45fdc6aafed21ce9e928a85bd65d3089",
+      "record_sha256": "03771d3912d41b3b9ddb30356ca76f8680b2c30f790c0923ed4afc03d2ef0f44"
+    },
+    {
+      "sequence": 47,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t004-20260706-6a95",
+      "host_session_id": "hs-qg-e4-6503d1ba-0015",
+      "previous_record_sha256": "03771d3912d41b3b9ddb30356ca76f8680b2c30f790c0923ed4afc03d2ef0f44",
+      "record_sha256": "dfb742d91ac1582389e85da45a15c392ff1097bd9b12a08e735617198d273150"
+    },
+    {
+      "sequence": 48,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t005-20260706-e37d",
+      "host_session_id": "hs-qg-e5-6503d1ba-0016",
+      "previous_record_sha256": "dfb742d91ac1582389e85da45a15c392ff1097bd9b12a08e735617198d273150",
+      "record_sha256": "bce886d82e02c81320cd040476173b7c17ab6d451c647dda1245f5706a12a1b7"
+    },
+    {
+      "sequence": 49,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t006-20260706-1cf2",
+      "host_session_id": "hs-qg-e6-6503d1ba-0017",
+      "previous_record_sha256": "bce886d82e02c81320cd040476173b7c17ab6d451c647dda1245f5706a12a1b7",
+      "record_sha256": "399d1f2ae5a115855bfd10254cd6bbe4bdadbec089b9eb3fee607a0eabc83c87"
+    },
+    {
+      "sequence": 50,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t007-20260706-b064",
+      "host_session_id": "hs-qg-e7-6503d1ba-0018",
+      "previous_record_sha256": "399d1f2ae5a115855bfd10254cd6bbe4bdadbec089b9eb3fee607a0eabc83c87",
+      "record_sha256": "697bf102d504f1ed74b90425016d7eb216a919dcab4bb344cadf39e7f5a1caaa"
+    },
+    {
+      "sequence": 51,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t008-20260706-59ae",
+      "host_session_id": "hs-qg-e8-6503d1ba-0019",
+      "previous_record_sha256": "697bf102d504f1ed74b90425016d7eb216a919dcab4bb344cadf39e7f5a1caaa",
+      "record_sha256": "fab703d9faf90b6da9776e2d148a9fb2a22a8b43501d838aa912fbfb07eb9f96"
+    },
+    {
+      "sequence": 52,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t009-20260706-f7d0",
+      "host_session_id": "hs-qg-e9-6503d1ba-0020",
+      "previous_record_sha256": "fab703d9faf90b6da9776e2d148a9fb2a22a8b43501d838aa912fbfb07eb9f96",
+      "record_sha256": "f7f591a7783095fb26fddc85ae16876c9f032833879d6fa509f304f331f664a2"
+    },
+    {
+      "sequence": 53,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t010-20260706-a4e8",
+      "host_session_id": "hs-qg-e10-6503d1ba-0021",
+      "previous_record_sha256": "f7f591a7783095fb26fddc85ae16876c9f032833879d6fa509f304f331f664a2",
+      "record_sha256": "9b1b37490c15cdb93557ce846323c6beee89bda5c0faa9e98a1bd713fe42f244"
+    },
+    {
+      "sequence": 54,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t010c2-20260706-c95b",
+      "host_session_id": "hs-qg-e11-6503d1ba-0022",
+      "previous_record_sha256": "9b1b37490c15cdb93557ce846323c6beee89bda5c0faa9e98a1bd713fe42f244",
+      "record_sha256": "ca0f03a06975b004222738e490c6def95ef06e0fe8b70648e17edba1e2585400"
     }
   ]
 }
