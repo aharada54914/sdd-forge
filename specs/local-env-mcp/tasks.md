@@ -9,7 +9,7 @@ Lifecycle: `Draft -> Approved -> In Progress -> Implementation Complete -> Done`
 
 ## T-001 local-env-mcp 基盤 + probe-engine + エラーエンベロープ
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: high
 Risk Rationale: probe-engine と allowlist は「実行機能を提供しない」境界(ADR-0004、REQ-003)の唯一のチョークポイントであり、欠陥は任意コマンド実行・リソース枯渇(DoS)に直結する(security-spec.md B2)。
@@ -48,7 +48,7 @@ None
 
 ## T-002 MCP ツール 3 種 + server/index + 契約・no-exec 検証
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: high
 Risk Rationale: ツール入力スキーマは B1 境界(REQ-003: コマンド/引数/パス系フィールド非提供、enum のみ)そのものであり、欠陥は injection 経路に直結する(security-spec.md B1)。
@@ -83,7 +83,7 @@ T-001
 
 ## T-003 stderr 診断ロガー(redaction)+ no-secrets 検査
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: high
 Risk Rationale: 診断ログと応答の秘匿値混入は秘密情報・準 PII 漏えい(REQ-005)に直結する(security-spec.md B1/B2 の Information Disclosure)。
@@ -116,7 +116,7 @@ T-002
 
 ## T-004 esbuild バンドル + dist コミット + CI dist-parity + Inspector スモーク
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: medium
 Risk Rationale: 配布物(dist)と CI 検証・スモークの追加。挙動面は既存 ADR-0003 パターンの踏襲で、欠陥は CI で検出可能(改竄検知は dist-parity 自体が担う)。
@@ -149,7 +149,7 @@ T-003
 
 ## T-005 OQ-001 解消: Cursor / VS Code 設定形式の確定(design.md 更新)
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: low
 Risk Rationale: 公式ドキュメント調査と design.md「API / Contract Plan」の更新のみで、コード・データ・セキュリティ制御への変更がない(実装への反映は T-007/T-008 が担う)。
@@ -180,7 +180,7 @@ None
 
 ## T-006 install.sh コア拡張: local-env-mcp 同梱・選択・Node<20 ゲート
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: high
 Risk Rationale: installer の MCP 配置経路の変更であり、欠陥は誤配置・意図しない登録(REQ-007)としてユーザー環境に影響する。Node<20 ゲートの退行は非対応環境への配置事故になる(requirements.md Edge Cases)。
@@ -212,7 +212,7 @@ T-004
 
 ## T-007 install.sh Cursor / VS Code 冪等登録
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: high
 Risk Rationale: ユーザーの IDE 設定ファイル(~/.cursor/mcp.json、VS Code user-profile mcp.json)を書き換えるデータ変異であり、欠陥はユーザーの既存 MCP 設定の破壊に直結する(REQ-008/REQ-009、security-spec.md B3、ADR-0005)。
@@ -245,7 +245,7 @@ T-005, T-006
 
 ## T-008 install.ps1 パリティ
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: high
 Risk Rationale: T-006/T-007 と同一の IDE 設定ファイル変異面を Windows/PowerShell 経路で持つ(REQ-007〜REQ-009、security-spec.md B3)。sh/ps1 の挙動差異は片系統でのみ設定破壊を起こす silent defect になる。
@@ -275,7 +275,7 @@ T-007
 
 ## T-009 uninstall(sh / ps1): 配置削除 + 4 クライアント登録解除
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: high
 Risk Rationale: uninstall は削除系操作であり、欠陥はユーザー定義の他 MCP エントリの誤削除(非可逆的なユーザーデータ喪失)に直結する(REQ-010、security-spec.md B3 の誤削除 STRIDE 行)。
@@ -307,7 +307,7 @@ T-007, T-008
 
 ## T-010 ドキュメント(README / USERGUIDE)+ traceability 最終化
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-05T10:33:11Z)
 Status: Planned
 Risk: low
 Risk Rationale: ドキュメント追記と traceability 表の Status 更新のみで、制御フロー・データ・セキュリティへの影響がない。
