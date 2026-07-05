@@ -150,7 +150,7 @@ T-003
 ## T-005 OQ-001 解消: Cursor / VS Code 設定形式の確定(design.md 更新)
 
 Approval: Approved (sudo 2026-07-05T10:33:11Z)
-Status: Implementation Complete
+Status: Done
 Risk: low
 Risk Rationale: 公式ドキュメント調査と design.md「API / Contract Plan」の更新のみで、コード・データ・セキュリティ制御への変更がない(実装への反映は T-007/T-008 が担う)。
 Required Workflow: test-after

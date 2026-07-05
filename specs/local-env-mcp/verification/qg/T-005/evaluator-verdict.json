@@ -1,0 +1,27 @@
+{
+ "schema": "evaluator-verdict/v1",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "local-env-mcp",
+ "task_id": "T-005",
+ "run_id": "qg-eval-localenvmcp-t005-20260706-e37d",
+ "host_session_id": "hs-qg-e5-6503d1ba-0016",
+ "invocation_manifest": "specs/local-env-mcp/verification/qg/T-005/invocation-evaluator.json",
+ "verdict": "PASS",
+ "summary": "Evaluated against the human-amended Done When (WFI-004 addenda). Evaluator verified all 19 manifest hashes; confirmed the OQ-001 resolution record (Cursor ~/.cursor/mcp.json mcpServers; VS Code user-profile mcp.json servers/type:stdio with OS paths) with source URLs and 2026-07-05 confirmation dates in the T-005 report addendum and consistent user-facing formats in USERGUIDE.md; three-way consistency with the frozen design.md installer format and REQ-008/009 exact; independently re-ran validate-layer-traceability (exit 0) and the scripted gates. design.md OQ-001 open in frozen bytes is expected under the freeze rule. Verdict PASS with two Minor.",
+ "findings": [
+  {
+   "severity": "Minor",
+   "classification": "Accepted",
+   "description": "Re-running check-placeholders against the final report bytes flags a self-referential false positive: the literal filename check-placeholders.log inside the gate-time Outputs provenance table. The original green log was valid at capture time; USERGUIDE has zero matches.",
+   "location": "reports/implementation/local-env-mcp/T-005.md:133"
+  },
+  {
+   "severity": "Minor",
+   "classification": "Accepted",
+   "description": "The report body still narrates editing design.md directly (stale pre-freeze narrative, incl. a design.md hash 909a21c...); under WFI-004 design.md is frozen and correctly NOT modified (manifest shows the frozen hash 0f02d6...). Stale-narrative inconsistency, not a substantive defect.",
+   "location": "reports/implementation/local-env-mcp/T-005.md:9"
+  }
+ ],
+ "note": "Full evaluator output (including the checked-verifications list) is preserved in the orchestrating session transcript."
+}
