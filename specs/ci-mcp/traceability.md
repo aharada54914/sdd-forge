@@ -37,13 +37,15 @@
 | T-002 | REQ-001, REQ-003, REQ-006 | github-client(GET 専用)+ error-normalizer(決定的写像) |
 | T-003 | REQ-005 | auth(トークン解決)+ スクラビング + no-secrets |
 | T-004 | REQ-007 | repo-resolve(owner/repo 解決、exec なし) |
-| T-005 | REQ-002, REQ-008 | 5 ツール実装 + ジョブログ truncation |
+| T-005 | REQ-002 | run 系 2 ツール実装(list_workflow_runs / get_workflow_run) |
 | T-006 | REQ-001, REQ-003 | read-only 静的検査 + no-write テスト(write 境界) |
 | T-007 | REQ-004 | 契約 schema(ci-mcp-tools.v1)+ ajv 検証 |
 | T-008 | REQ-009 | esbuild dist + dist-parity CI + Inspector スモーク |
 | T-009 | REQ-010 | installer 拡張(sh / ps1 パリティ) |
 | T-010 | REQ-011 | uninstall 登録解除・配置削除 |
 | T-011 | REQ-012 | ドキュメント + traceability 最終化 |
+| T-012 | REQ-002 | jobs / artifacts 系 2 ツール実装(list_run_jobs / list_run_artifacts) |
+| T-013 | REQ-002, REQ-008 | get_job_log 実装 + ジョブログ truncation |
 
 ## AC → REQ
 
@@ -75,9 +77,9 @@
 |-----|---|---|---|
 | AC-001 | TEST-001 | T-005 | mcp/ci-mcp/tests/tools/ |
 | AC-002 | TEST-002 | T-005 | mcp/ci-mcp/tests/tools/ |
-| AC-003 | TEST-003 | T-005 | mcp/ci-mcp/tests/tools/ |
-| AC-004 | TEST-004 | T-005 | mcp/ci-mcp/tests/tools/ |
-| AC-005 | TEST-005 | T-005 | mcp/ci-mcp/tests/tools/ |
+| AC-003 | TEST-003 | T-012 | mcp/ci-mcp/tests/tools/ |
+| AC-004 | TEST-004 | T-013 | mcp/ci-mcp/tests/tools/ |
+| AC-005 | TEST-005 | T-012 | mcp/ci-mcp/tests/tools/ |
 | AC-006 | TEST-006 | T-006 | mcp/ci-mcp/tests/no-write/ |
 | AC-007 | TEST-007 | T-006 | mcp/ci-mcp/tests/readonly/ |
 | AC-008 | TEST-008 | T-003 | mcp/ci-mcp/tests/auth/ |
