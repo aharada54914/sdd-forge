@@ -14,7 +14,7 @@ Progress/Blocked/Implementation Complete. Only `quality-gate` may set Done.
 ## T-001 Node 基盤 + path-guard + root 解決 + エラーエンベロープ
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: path-guard は allowlist/denylist・traversal 拒否の唯一のチョークポイントであり、欠陥は SDD_SUDO・署名鍵等の restricted 情報漏えいに直結する（REQ-006/REQ-007、security-spec.md B2）。
 Required Workflow: tdd
@@ -52,7 +52,7 @@ None
 ## T-002 tasks.md 状態機械パーサー + シェル等価ゴールデンテスト
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: get_task_state の判定は quality gate 判断の入力源であり、check-task-state.sh との不一致は品質ゲートの誤通過を招く（REQ-005、Issue #60 リスク欄）。
 Required Workflow: tdd
@@ -85,7 +85,7 @@ T-001
 ## T-003 SDD 状態系パーサー（AGENTS.md / review tickets / quality reports）
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: これらのパーサー出力（active specs、RT 状態、QG verdict）は quality gate 前処理・次コマンド判断の入力源であり、誤抽出は誤った状態認識に直結する（REQ-002 の入力層）。
 Required Workflow: tdd
@@ -117,7 +117,7 @@ T-001
 ## T-011 evidence 系パーサー（evidence bundle / verification contract / traceability）
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: evidence.json / contract.json / traceability.md のパーサー出力は evidence tools（T-005）の突合判断の入力源であり、誤抽出は evidence 不備の見落としに直結する（REQ-003 の入力層）。
 Required Workflow: tdd
@@ -149,7 +149,7 @@ T-001
 ## T-004 MCP サーバー本体 + core tools 8 種
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: サーバー本体が read-only 保証（REQ-001）と quality gate 判断入力の提供者であり、tool 応答の欠陥・書込み混入は品質ゲートの完全性を毀損する。
 Required Workflow: tdd
@@ -187,7 +187,7 @@ T-001, T-002, T-003
 ## T-009 resources 5 種
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: resources は quality gate 前処理の入力源（sdd:// URI 経由の状態読み取り）であり、誤った内容の返却は誤った状態認識に直結する（REQ-004）。
 Required Workflow: tdd
@@ -217,7 +217,7 @@ T-004
 ## T-010 next-command 決定論マッピング + Inspector smoke
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: get_next_sdd_command は次に実行すべき SDD コマンドの決定論的判断を提供し、誤マッピングはワークフロー誤誘導（未承認タスクの実装開始等）につながる（REQ-011）。
 Required Workflow: tdd
@@ -249,7 +249,7 @@ T-004, T-009
 ## T-005 evidence tools 5 種
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: evidence_find_missing / evidence_compare_to_traceability は Done 遷移前準備・品質判断の直接入力であり、不足の見落としは evidence 不備のまま Done を通す誘因になる（REQ-003）。
 Required Workflow: tdd
@@ -281,7 +281,7 @@ T-001, T-011, T-004
 ## T-006 installer / uninstaller 統合（--skip-mcp / --mcp、Claude/Codex 登録）
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: ユーザー環境の設定ファイル（MCP 登録）への書込みを伴うが、既存 installer の確立パターンの拡張であり、失敗モードは導入不全（回復可能）。bash 3.2 互換維持が主要リスク。
 Required Workflow: acceptance-first
@@ -315,7 +315,7 @@ T-005, T-009, T-010
 ## T-007 CI 統合（mcp-tests 3 OS + dist-parity + npm audit）
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: CI 追加は既存パイプラインの拡張で回復可能だが、dist-parity は dist 改ざん検出の唯一の保証であり、設定ミスは検出漏れにつながる（REQ-008/REQ-010）。
 Required Workflow: acceptance-first
@@ -346,7 +346,7 @@ T-005, T-009, T-010
 ## T-008 ドキュメント（USERGUIDE への MCP 節追加）
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: low
 Risk Rationale: ドキュメントのみの変更。コード・制御フロー・セキュリティへの影響なし。
 Required Workflow: test-after

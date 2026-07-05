@@ -1,0 +1,63 @@
+{
+  "task_id": "T-003",
+  "feature": "sdd-forge-mcp",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "e01423e07bcd190897203ba69c89a86cfe4209a1eec97d885399444922f8b419",
+  "quality_report": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-003.md",
+  "verification_contract": "specs/sdd-forge-mcp/verification/T-003.contract.json",
+  "git_commit": "a4d6c3fc7b591cb5dc7d5ed6109366a12e65f171",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 2,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/sdd-forge-mcp/verification/T-003.contract.json",
+      "sha256": "415128bc0c7906538a3580c3e8f3b093eea1caab076aba04b39ccbd410a228b1"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-003.md",
+      "sha256": "0f5c8e339c12f3e143357bceadd6bf62f3928c6b889f99ffd38e25ad5c6f3323"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/build.log",
+      "sha256": "e8946ef1c0a2560f506faea0c09a108bdad0eeccf7fc66ed7ee5ab384a3719f3"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/check-placeholders.log",
+      "sha256": "66ad093616b224d41873f49a9396509af2c1a1deccfef1bdd9bb9f6470829154"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/check-task-state.log",
+      "sha256": "19bf17075a18d472522e19e21558ca0be3947372b69c56f2056f13dd345b7996"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/check-traceability.log",
+      "sha256": "4d0de2d343bb93300880760f5d259301fc64c06b5476862f3176567c5b23824b"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/tests.log",
+      "sha256": "50418d8ac1fe9182f98ca70211df322b082d49c5f0e93809920d17b801300bae"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/verification/qg/typecheck.log",
+      "sha256": "be90961f9a2eae89051d3b23d5d41195832d4b59ecb8885eb87dd60dc6201ad2"
+    }
+  ]
+}
