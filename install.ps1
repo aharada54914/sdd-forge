@@ -12,8 +12,8 @@ param(
     [switch]$RequireClaude,
     [string]$SourceDirectory,
     [switch]$SkipMcp,
-    [ValidateSet("sdd-forge-mcp")]
-    [string[]]$Mcp = @("sdd-forge-mcp")
+    [ValidateSet("sdd-forge-mcp", "local-env-mcp")]
+    [string[]]$Mcp = @("sdd-forge-mcp", "local-env-mcp")
 )
 
 $ErrorActionPreference = "Stop"
@@ -174,7 +174,7 @@ function Install-CodexAgents {
 }
 
 # ---------------------------------------------------------------------------
-# MCP: Node version check, placement, and Claude/Codex registration
+# MCP: Node version check, placement, and Claude/Codex/Cursor/VS Code registration
 # ---------------------------------------------------------------------------
 function Test-NodeVersionOk {
     if (-not (Get-Command "node" -ErrorAction SilentlyContinue)) {
@@ -269,6 +269,119 @@ function Register-CodexMcp {
     }
 }
 
+function Update-McpJson {
+    # Shared idempotent JSON upsert for IDE client MCP configs (ADR-0005).
+    # Upserts <TopKey>.<name> for every selected MCP whose payload was placed,
+    # preserving all other entries and unknown top-level keys. The output is
+    # stable 2-space JSON, so re-running produces a byte-identical file. To
+    # guarantee byte-parity with install.sh, the JSON handling is done by the
+    # SAME Node one-liner install.sh uses (Node >= 20 is guaranteed here by the
+    # MCP gate / McpNodeOk). Fail-safes (security-spec B3): a present-but-invalid
+    # JSON file is never overwritten (error notice, installer continues with
+    # other clients).
+    param(
+        [Parameter(Mandatory)][string]$ClientLabel,
+        [Parameter(Mandatory)][string]$ConfigFile,
+        [Parameter(Mandatory)][string]$TopKey,
+        [Parameter(Mandatory)][string]$EntryKind,
+        [Parameter(Mandatory)][string]$InstallRootPath
+    )
+
+    $pairs = [System.Collections.Generic.List[string]]::new()
+    foreach ($name in $Mcp) {
+        $entryPoint = Join-Path (Join-Path (Join-Path $InstallRootPath "mcp") $name) "dist/index.js"
+        if (-not (Test-Path $entryPoint)) { continue }
+        # Normalise to forward slashes so the stored args match install.sh and
+        # are portable across the client's platform expectations.
+        $pairs.Add($name)
+        $pairs.Add(($entryPoint -replace '\\', '/'))
+    }
+    if ($pairs.Count -eq 0) { return }
+
+    $nodeScript = @'
+const fs = require("fs");
+const [file, topKey, kind, ...pairs] = process.argv.slice(1);
+let text = "";
+try { text = fs.readFileSync(file, "utf8"); } catch (err) { text = ""; }
+let root = {};
+if (text.trim() !== "") {
+  try { root = JSON.parse(text); } catch (err) { process.exit(3); }
+  if (root === null || typeof root !== "object" || Array.isArray(root)) process.exit(3);
+}
+if (root[topKey] === undefined) root[topKey] = {};
+const section = root[topKey];
+if (section === null || typeof section !== "object" || Array.isArray(section)) process.exit(3);
+for (let i = 0; i + 1 < pairs.length; i += 2) {
+  section[pairs[i]] = kind === "vscode"
+    ? { type: "stdio", command: "node", args: [pairs[i + 1]] }
+    : { command: "node", args: [pairs[i + 1]] };
+}
+const out = JSON.stringify(root, null, 2) + "\n";
+const tmp = file + ".sdd-forge.tmp";
+fs.writeFileSync(tmp, out);
+fs.renameSync(tmp, file);
+'@
+
+    & node -e $nodeScript $ConfigFile $TopKey $EntryKind @($pairs)
+    $rc = $LASTEXITCODE
+    if ($rc -eq 3) {
+        Write-Error "$ConfigFile contains invalid JSON. $ClientLabel MCP registration was skipped and the file was left unmodified. Fix or remove the file and re-run the installer." -ErrorAction Continue
+        return
+    }
+    if ($rc -ne 0) {
+        Write-Warning "Failed to update $ConfigFile. $ClientLabel MCP registration was skipped."
+        return
+    }
+}
+
+function Register-CursorMcp {
+    # Idempotently upserts mcpServers.<name> into ~/.cursor/mcp.json for each
+    # selected MCP. An absent ~/.cursor directory means Cursor is not installed:
+    # skip with a notice and never create the directory (creating mcp.json
+    # inside an EXISTING directory is fine). Override the directory via
+    # SDD_CURSOR_DIR (for testing; default is the user profile).
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+
+    $cursorDir = if ($env:SDD_CURSOR_DIR) { $env:SDD_CURSOR_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".cursor" }
+    if (-not (Test-Path $cursorDir)) {
+        Write-Warning "$cursorDir was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory)."
+        return
+    }
+    Update-McpJson -ClientLabel "Cursor" -ConfigFile (Join-Path $cursorDir "mcp.json") -TopKey "mcpServers" -EntryKind "cursor" -InstallRootPath $InstallRootPath
+}
+
+function Register-VSCodeMcp {
+    # Idempotently upserts servers.<name> into the VS Code user-profile mcp.json
+    # for each selected MCP (Windows %APPDATA%\Code\User, macOS
+    # ~/Library/Application Support/Code/User, Linux ~/.config/Code/User). An
+    # absent user directory means VS Code is not installed: skip with a notice
+    # and never create the directory. Override via SDD_VSCODE_USER_DIR (testing).
+    param([Parameter(Mandatory)][string]$InstallRootPath)
+
+    # Windows PowerShell 5.1 (Desktop) has no $IsWindows/$IsMacOS/$IsLinux
+    # automatic variables and always runs on Windows; PowerShell 7+ exposes
+    # them cross-platform. Detect accordingly.
+    $onWindows = ($PSVersionTable.PSEdition -eq 'Desktop') -or ((Get-Variable -Name IsWindows -ErrorAction SilentlyContinue) -and $IsWindows)
+    $onMac = (Get-Variable -Name IsMacOS -ErrorAction SilentlyContinue) -and $IsMacOS
+    if ($env:SDD_VSCODE_USER_DIR) {
+        $vscodeUserDir = $env:SDD_VSCODE_USER_DIR
+    }
+    elseif ($onWindows) {
+        $vscodeUserDir = Join-Path (Join-Path $env:APPDATA "Code") "User"
+    }
+    elseif ($onMac) {
+        $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) "Library/Application Support/Code/User"
+    }
+    else {
+        $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) ".config/Code/User"
+    }
+    if (-not (Test-Path $vscodeUserDir)) {
+        Write-Warning "$vscodeUserDir was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory)."
+        return
+    }
+    Update-McpJson -ClientLabel "VS Code" -ConfigFile (Join-Path $vscodeUserDir "mcp.json") -TopKey "servers" -EntryKind "vscode" -InstallRootPath $InstallRootPath
+}
+
 $script:McpNodeOk = $false
 
 function Install-McpServersIfSelected {
@@ -293,6 +406,15 @@ function Register-McpServers {
     }
     if ($Target -in @("All", "Codex")) {
         Register-CodexMcp -InstallRootPath $InstallRootPath
+    }
+    # Cursor has no dedicated -Target value, so it participates in All only.
+    if ($Target -eq "All") {
+        Register-CursorMcp -InstallRootPath $InstallRootPath
+    }
+    # VS Code consumes the MCP config through Copilot, so it participates in
+    # both All and Copilot.
+    if ($Target -in @("All", "Copilot")) {
+        Register-VSCodeMcp -InstallRootPath $InstallRootPath
     }
 }
 

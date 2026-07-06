@@ -288,6 +288,204 @@
       "host_session_id": "hs-qg-eval-7ea701ba-308",
       "previous_record_sha256": "31160ed31bea65d5dde22860fb9dab7d9a112e98ab4ceb512092a7b9757cb930",
       "record_sha256": "30a1bd3a373f0a8770087609a900b2222c26052f930d899aafe74c67c24878cc"
+    },
+    {
+      "sequence": 33,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "spec-a-localenvmcp-a1r1-20260705-3ba3",
+      "host_session_id": "hs-spec-a-6503d1ba-0001",
+      "previous_record_sha256": "30a1bd3a373f0a8770087609a900b2222c26052f930d899aafe74c67c24878cc",
+      "record_sha256": "67b70f55ff1efe144b56b987e6d851a2a35989acf8abd203c633a86d132e0c0b"
+    },
+    {
+      "sequence": 34,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "spec-b-localenvmcp-a1r1-20260705-0cc6",
+      "host_session_id": "hs-spec-b-6503d1ba-0002",
+      "previous_record_sha256": "67b70f55ff1efe144b56b987e6d851a2a35989acf8abd203c633a86d132e0c0b",
+      "record_sha256": "69b47d7c1797cd6ea2468339d24010a908fc9f47a73a005cabefd35956d4c63a"
+    },
+    {
+      "sequence": 35,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-localenvmcp-a1r1-20260705-b0d0",
+      "host_session_id": "hs-impl-a-6503d1ba-0003",
+      "previous_record_sha256": "69b47d7c1797cd6ea2468339d24010a908fc9f47a73a005cabefd35956d4c63a",
+      "record_sha256": "b246194a3ad811ad86240d69bc69996304fd7ef3c6e2cc089bd098bc2affc028"
+    },
+    {
+      "sequence": 36,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "impl-b-localenvmcp-a1r1-20260705-b18b",
+      "host_session_id": "hs-impl-b-6503d1ba-0004",
+      "previous_record_sha256": "b246194a3ad811ad86240d69bc69996304fd7ef3c6e2cc089bd098bc2affc028",
+      "record_sha256": "1042abec3b7719572e3e9296b9dded9c1466536721fb8698df3aa548779713f1"
+    },
+    {
+      "sequence": 37,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "task-a-localenvmcp-a1r1-20260705-a175",
+      "host_session_id": "hs-task-a-6503d1ba-0005",
+      "previous_record_sha256": "1042abec3b7719572e3e9296b9dded9c1466536721fb8698df3aa548779713f1",
+      "record_sha256": "b71506e4d840be0ff60b274fb13e95f71a3fe8738d0f1274bb7b7797708dc2b7"
+    },
+    {
+      "sequence": 38,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "task-b-localenvmcp-a1r1-20260705-6851",
+      "host_session_id": "hs-task-b-6503d1ba-0006",
+      "previous_record_sha256": "b71506e4d840be0ff60b274fb13e95f71a3fe8738d0f1274bb7b7797708dc2b7",
+      "record_sha256": "48eb170d07b4b2256b31a8f06b7b3e259a0a8901bca1baa715de087b99ec9c0e"
+    },
+    {
+      "sequence": 39,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "task-b2-localenvmcp-a1r1-20260705-8bd7",
+      "host_session_id": "hs-task-b2-6503d1ba-0007",
+      "previous_record_sha256": "48eb170d07b4b2256b31a8f06b7b3e259a0a8901bca1baa715de087b99ec9c0e",
+      "record_sha256": "29b2ee9defbf86c8f0bfa3346cc4344edbf814f8618c152a7584f3613aa39481"
+    },
+    {
+      "sequence": 40,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "task-a-localenvmcp-a1r2-20260705-ea0a",
+      "host_session_id": "hs-task-a2-6503d1ba-0008",
+      "previous_record_sha256": "29b2ee9defbf86c8f0bfa3346cc4344edbf814f8618c152a7584f3613aa39481",
+      "record_sha256": "af45319c882dedc2e611dd9e081646a3b5473da207554f94a328962058a6d290"
+    },
+    {
+      "sequence": 41,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "task-b-localenvmcp-a1r2-20260705-63ad",
+      "host_session_id": "hs-task-b3-6503d1ba-0009",
+      "previous_record_sha256": "af45319c882dedc2e611dd9e081646a3b5473da207554f94a328962058a6d290",
+      "record_sha256": "170d3644f4e0d699959438a0371df82005e1ae33a21ec8f6e3c3c29a3b29055b"
+    },
+    {
+      "sequence": 42,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "task-a-localenvmcp-a2r1-20260706-4c1e",
+      "host_session_id": "hs-task-a3-6503d1ba-0010",
+      "previous_record_sha256": "170d3644f4e0d699959438a0371df82005e1ae33a21ec8f6e3c3c29a3b29055b",
+      "record_sha256": "31ae34c2614f4c85c67a1343b7f61bd290767f96432d8a9ff38c4d5efd06543d"
+    },
+    {
+      "sequence": 43,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "task-b-localenvmcp-a2r1-20260706-9e7b",
+      "host_session_id": "hs-task-b4-6503d1ba-0011",
+      "previous_record_sha256": "31ae34c2614f4c85c67a1343b7f61bd290767f96432d8a9ff38c4d5efd06543d",
+      "record_sha256": "3d7a0e31b3fde9cdc2d61c4558523e87876f2f45e05434c8f01ca7181a23f5bd"
+    },
+    {
+      "sequence": 44,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t001-20260706-7f3a",
+      "host_session_id": "hs-qg-e1-6503d1ba-0012",
+      "previous_record_sha256": "3d7a0e31b3fde9cdc2d61c4558523e87876f2f45e05434c8f01ca7181a23f5bd",
+      "record_sha256": "c56736ae4914512731d8782223143aa249e82ff63776b0a717f128d4cf48850e"
+    },
+    {
+      "sequence": 45,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t002-20260706-2b8c",
+      "host_session_id": "hs-qg-e2-6503d1ba-0013",
+      "previous_record_sha256": "c56736ae4914512731d8782223143aa249e82ff63776b0a717f128d4cf48850e",
+      "record_sha256": "2a1199e028e18b71c61d5dba7ae2e1ac45fdc6aafed21ce9e928a85bd65d3089"
+    },
+    {
+      "sequence": 46,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t003-20260706-8d41",
+      "host_session_id": "hs-qg-e3-6503d1ba-0014",
+      "previous_record_sha256": "2a1199e028e18b71c61d5dba7ae2e1ac45fdc6aafed21ce9e928a85bd65d3089",
+      "record_sha256": "03771d3912d41b3b9ddb30356ca76f8680b2c30f790c0923ed4afc03d2ef0f44"
+    },
+    {
+      "sequence": 47,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t004-20260706-6a95",
+      "host_session_id": "hs-qg-e4-6503d1ba-0015",
+      "previous_record_sha256": "03771d3912d41b3b9ddb30356ca76f8680b2c30f790c0923ed4afc03d2ef0f44",
+      "record_sha256": "dfb742d91ac1582389e85da45a15c392ff1097bd9b12a08e735617198d273150"
+    },
+    {
+      "sequence": 48,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t005-20260706-e37d",
+      "host_session_id": "hs-qg-e5-6503d1ba-0016",
+      "previous_record_sha256": "dfb742d91ac1582389e85da45a15c392ff1097bd9b12a08e735617198d273150",
+      "record_sha256": "bce886d82e02c81320cd040476173b7c17ab6d451c647dda1245f5706a12a1b7"
+    },
+    {
+      "sequence": 49,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t006-20260706-1cf2",
+      "host_session_id": "hs-qg-e6-6503d1ba-0017",
+      "previous_record_sha256": "bce886d82e02c81320cd040476173b7c17ab6d451c647dda1245f5706a12a1b7",
+      "record_sha256": "399d1f2ae5a115855bfd10254cd6bbe4bdadbec089b9eb3fee607a0eabc83c87"
+    },
+    {
+      "sequence": 50,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t007-20260706-b064",
+      "host_session_id": "hs-qg-e7-6503d1ba-0018",
+      "previous_record_sha256": "399d1f2ae5a115855bfd10254cd6bbe4bdadbec089b9eb3fee607a0eabc83c87",
+      "record_sha256": "697bf102d504f1ed74b90425016d7eb216a919dcab4bb344cadf39e7f5a1caaa"
+    },
+    {
+      "sequence": 51,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t008-20260706-59ae",
+      "host_session_id": "hs-qg-e8-6503d1ba-0019",
+      "previous_record_sha256": "697bf102d504f1ed74b90425016d7eb216a919dcab4bb344cadf39e7f5a1caaa",
+      "record_sha256": "fab703d9faf90b6da9776e2d148a9fb2a22a8b43501d838aa912fbfb07eb9f96"
+    },
+    {
+      "sequence": 52,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t009-20260706-f7d0",
+      "host_session_id": "hs-qg-e9-6503d1ba-0020",
+      "previous_record_sha256": "fab703d9faf90b6da9776e2d148a9fb2a22a8b43501d838aa912fbfb07eb9f96",
+      "record_sha256": "f7f591a7783095fb26fddc85ae16876c9f032833879d6fa509f304f331f664a2"
+    },
+    {
+      "sequence": 53,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t010-20260706-a4e8",
+      "host_session_id": "hs-qg-e10-6503d1ba-0021",
+      "previous_record_sha256": "f7f591a7783095fb26fddc85ae16876c9f032833879d6fa509f304f331f664a2",
+      "record_sha256": "9b1b37490c15cdb93557ce846323c6beee89bda5c0faa9e98a1bd713fe42f244"
+    },
+    {
+      "sequence": 54,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-localenvmcp-t010c2-20260706-c95b",
+      "host_session_id": "hs-qg-e11-6503d1ba-0022",
+      "previous_record_sha256": "9b1b37490c15cdb93557ce846323c6beee89bda5c0faa9e98a1bd713fe42f244",
+      "record_sha256": "ca0f03a06975b004222738e490c6def95ef06e0fe8b70648e17edba1e2585400"
     }
   ]
 }

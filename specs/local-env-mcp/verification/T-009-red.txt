@@ -1,0 +1,79 @@
+########################################################################
+# T-009 RED evidence — failing runs BEFORE implementation
+# Captured: 2026-07-05T13:05:15Z
+########################################################################
+
+======================================================================
+== [sh] bash tests/uninstall.tests.sh (RED) ==
+======================================================================
+ok: full uninstall: unregisters all plugins+marketplace, removes files and only shipped agents
+ok: --keep-files preserves installed files while unregistering
+ok: --skip-agent-uninstall preserves shipped agent role files
+ok: subset --plugins unregisters only chosen plugins and keeps the marketplace
+ok: missing optional CLI tolerated under target All
+ok: target Codex with codex absent fails as required
+ok: --skip-plugin-uninstall proceeds when CLI is absent
+ok: idempotency: second uninstall exits 0
+ok: invalid plugin name rejected
+ok: invalid --target rejected
+ok: empty --install-root rejected
+ok: filesystem root rejected as --install-root
+ok: home directory rejected as --install-root
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: --mcp <list> selects MCP payload/registration removal
+ok: invalid --mcp name rejected
+ok: --mcp "" is rejected cleanly without an unbound variable crash
+ok: --plugins "" is rejected cleanly without an unbound variable crash
+FAIL: Cursor/VSCode (o): uninstaller exited non-zero
+FAIL: Cursor (o): managed sdd-forge-mcp key not removed
+FAIL: Cursor (o): managed local-env-mcp key not removed
+FAIL: VSCode (o): managed sdd-forge-mcp key not removed
+FAIL: VSCode (o): managed local-env-mcp key not removed
+FAIL: both-MCP removal (p): uninstaller exited non-zero
+FAIL: both-MCP removal (p): sdd-forge-mcp payload not removed
+FAIL: both-MCP removal (p): local-env-mcp payload not removed
+FAIL: both-MCP removal (p): claude mcp remove sdd-forge-mcp not invoked
+FAIL: both-MCP removal (p): claude mcp remove local-env-mcp not invoked
+FAIL: both-MCP removal (p): sdd-forge-mcp Codex block not removed
+FAIL: both-MCP removal (p): local-env-mcp Codex block not removed
+FAIL: corrupt JSON (q): uninstaller exited non-zero instead of continuing
+FAIL: corrupt JSON (q): no invalid-JSON error notice was emitted
+FAIL: corrupt JSON (q): VS Code managed key not removed (client continuation failed)
+FAIL: absent Cursor/VSCode dir (r): uninstaller exited non-zero
+FAIL: absent Cursor/VSCode dir (r): install root not removed
+ok: FilesOnly skips CLI calls but removes files
+
+Results: 20 passed, 17 failed.
+
+sh exit code: 0
+
+======================================================================
+== [ps1] pwsh -NoProfile -File tests/uninstall.tests.ps1 (RED) ==
+======================================================================
+ok: full uninstall unregisters all plugins+marketplace, removes files and only shipped agents
+ok: -KeepFiles preserves installed files while unregistering
+ok: -SkipAgentUninstall preserves shipped agent role files
+ok: subset -Plugins unregisters only chosen plugins and keeps the marketplace
+ok: missing optional CLI tolerated under target All
+ok: target Codex with codex absent fails as required
+ok: -SkipPluginUninstall proceeds when CLI is absent
+ok: idempotency: second uninstall succeeds
+ok: invalid plugin name rejected
+ok: invalid -Target rejected
+ok: empty -InstallRoot rejected
+ok: filesystem root rejected as -InstallRoot
+ok: home directory rejected as -InstallRoot
+ok: uninstall removes MCP payload and Codex config.toml marker block
+ok: uninstall with no MCP ever installed succeeds best-effort
+ok: -Mcp <list> selects MCP payload/registration removal
+ok: invalid -Mcp name rejected
+ok: -Mcp "" (empty) is rejected
+ok: -Plugins "" (empty) is rejected
+[31;1mException: [0m/Users/jrmag/Projects/active/sdd-forge/tests/uninstall.tests.ps1:533[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 533 | [0m     if ($oFailed) { [36;1mthrow "Cursor/VSCode (o): uninstaller threw"[0m }[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mCursor/VSCode (o): uninstaller threw[0m
+
+ps1 exit code: 0
