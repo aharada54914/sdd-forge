@@ -286,6 +286,93 @@ parity_check_in "$WORK" "impl-review-status: write Passed with PASS-with-warning
     "$IMPL_STATUS_PAYLOAD"
 
 # ---------------------------------------------------------------------------
+# T-006: domain-model approval guard (sdd-domain plugin)
+#
+# Mirrors the tasks.md Approval guard's net-increase counting logic EXACTLY
+# (same sudo-bypass behavior) -- this is explicitly NOT the never-sudo-
+# bypassable WFI/Second-Approval pattern. Field: "Domain-Model-Status:
+# Approved". Gated path: domain/context-map.md only.
+# ---------------------------------------------------------------------------
+mkdir -p "${WORK}/domain"
+CONTEXT_MAP="${WORK}/domain/context-map.md"
+printf 'Domain-Model-Status: Pending\n' > "$CONTEXT_MAP"
+
+# ---------------------------------------------------------------------------
+# Scenario 23: domain-model guard — Write sets Domain-Model-Status: Approved
+# (deny — exit 2). Agent-authored write with no sudo token active.
+# ---------------------------------------------------------------------------
+parity_check "domain-model-guard: Write sets Domain-Model-Status: Approved" 2 \
+    "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${CONTEXT_MAP}\",\"content\":\"Domain-Model-Status: Approved\"}}"
+
+# ---------------------------------------------------------------------------
+# Scenario 24: domain-model guard — Edit sets Domain-Model-Status: Approved
+# (deny — exit 2).
+# ---------------------------------------------------------------------------
+parity_check "domain-model-guard: Edit sets Domain-Model-Status: Approved" 2 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${CONTEXT_MAP}\",\"old_string\":\"Domain-Model-Status: Pending\",\"new_string\":\"Domain-Model-Status: Approved\"}}"
+
+# ---------------------------------------------------------------------------
+# Scenario 25: domain-model guard — apply_patch sets Domain-Model-Status:
+# Approved (deny — exit 2).
+# ---------------------------------------------------------------------------
+DOMAIN_PATCH_PAYLOAD='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: domain/context-map.md\n-Domain-Model-Status: Pending\n+Domain-Model-Status: Approved\n*** End Patch"}}'
+parity_check "domain-model-guard: apply_patch sets Domain-Model-Status: Approved" 2 "$DOMAIN_PATCH_PAYLOAD"
+
+# ---------------------------------------------------------------------------
+# Scenario 26: domain-model guard — bash command echoing the approved status
+# into context-map.md (deny — exit 2).
+# ---------------------------------------------------------------------------
+parity_check "domain-model-guard: bash echo Domain-Model-Status: Approved to context-map.md" 2 \
+    "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"echo 'Domain-Model-Status: Approved' >> ${CONTEXT_MAP}\"}}"
+
+# ---------------------------------------------------------------------------
+# Scenario 27: domain-model guard — a valid SDD_SUDO token PERMITS the same
+# write (allow — exit 0). This is the key distinction from the WFI/Second-
+# Approval guards: the domain-model guard is sudo-bypassable, same class as
+# the tasks.md Approval guard (Scenario 16 above).
+# ---------------------------------------------------------------------------
+if command -v python3 >/dev/null 2>&1; then
+    REAL_WORK=$(python3 -c "import os; print(os.path.realpath('${WORK}'))")
+    python3 - "${REAL_WORK}" >"${WORK}/SDD_SUDO" <<'PYEOF'
+import hmac, hashlib, time, sys
+
+key = b"parity-test-key-do-not-use"
+repo = sys.argv[1]
+now = int(time.time())
+expires = now + 3600
+nonce = "deadbeef" * 8  # 64 hex chars
+issuer = "sdd-forge-test"
+issued_str = str(now)
+expires_str = str(expires)
+canonical = "\n".join([issuer, nonce, repo, issued_str, expires_str])
+sig = hmac.new(key, canonical.encode("utf-8"), hashlib.sha256).hexdigest()
+print(f"issuer: {issuer}\nnonce: {nonce}\nrepo: {repo}\nissued-epoch: {issued_str}\nexpires-epoch: {expires_str}\nsig: {sig}", end="")
+PYEOF
+    parity_check "domain-model-guard: sudo-active bypass allowed" 0 \
+        "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${CONTEXT_MAP}\",\"content\":\"Domain-Model-Status: Approved\"}}"
+    rm -f "${WORK}/SDD_SUDO"
+else
+    echo "ok: parity [domain-model-guard: sudo-active bypass allowed] SKIP (no python3)"
+    PASS=$((PASS+1))
+fi
+
+# ---------------------------------------------------------------------------
+# Scenario 28: domain-model guard path precision — a DIFFERENT domain/ file
+# (not context-map.md) carrying the same marker text must NOT be denied by
+# this guard. The path gate is exact to domain/context-map.md.
+# ---------------------------------------------------------------------------
+parity_check "domain-model-guard: non-context-map domain/ file unaffected" 0 \
+    "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WORK}/domain/aggregate-order.md\",\"content\":\"Domain-Model-Status: Approved\"}}"
+
+# ---------------------------------------------------------------------------
+# Scenario 29: domain-model guard — a status change that is NOT to Approved
+# (e.g. Pending -> Reviewed) must be allowed (exit 0). Only a net increase in
+# the Approved marker is denied, matching the tasks.md guard's semantics.
+# ---------------------------------------------------------------------------
+parity_check "domain-model-guard: Pending to Reviewed transition allowed" 0 \
+    "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${CONTEXT_MAP}\",\"old_string\":\"Domain-Model-Status: Pending\",\"new_string\":\"Domain-Model-Status: Reviewed\"}}"
+
+# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 echo ""

@@ -245,6 +245,10 @@
           "Blocked"
         ]
       }
+    },
+    {
+      "feature": "sdd-domain",
+      "profile": "full"
     }
   ]
 }

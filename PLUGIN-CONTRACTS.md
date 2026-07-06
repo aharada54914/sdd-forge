@@ -110,6 +110,80 @@ Templates for all three artifacts live in
 
 ---
 
+## sdd-domain domain model → consumers (v1.8.0+)
+
+**Producer**: `plugins/sdd-domain` (domain-interviewer, domain-reverse, domain-review-loop, routed from the public `domain-model` entry skill)
+**Consumers**: `plugins/sdd-bootstrap` (sdd-bootstrap-interviewer, via domain-sync), `plugins/sdd-review-loop` (spec-reviewer-a/b, impl-reviewer-a/b), `plugins/sdd-quality-loop` (quality-gate, check-domain-conformance, workflow-retrospective)
+
+### What sdd-domain reads
+
+- `domain/` artifacts it owns and regenerates itself: `domain-story.md`,
+  `event-storming.md`, `ubiquitous-language.md`, `context-map.md`,
+  `aggregates/*.md`, `message-flow.md`, `c4-container.md`,
+  `domain-contract.json`.
+- `investigate-codebase`'s `specs/<feature>/investigation.md` output, read
+  only by `domain-reverse` to build a candidate seed — never written to.
+- `tasks.md`-mediated consent is not used for cross-model verification;
+  `domain-review-loop` invokes `prepare-panelist-input.sh` /
+  `check-cross-model.sh` directly under human (`SDD_SUDO`-style)
+  authorization instead.
+
+### What sdd-domain writes
+
+The target project owns a project-level `domain/` directory at its
+repository root (one per project, not per feature, distinct from
+per-feature `specs/<feature>/`):
+
+- `domain/domain-contract.json` — machine-readable contract. MUST validate
+  against `contracts/domain-contract.v1.schema.json` (`schema` const
+  `domain-contract/v1`). Regenerated from the approved Markdown artifacts
+  after every stage change.
+- `domain/domain-story.md`, `domain/event-storming.md`,
+  `domain/ubiquitous-language.md`, `domain/context-map.md`,
+  `domain/aggregates/*.md`, `domain/message-flow.md`,
+  `domain/c4-container.md` — the seven-stage Markdown artifact set, each
+  checkpointed to disk before the next stage begins (resumable on
+  interruption).
+- A `Domain-Model-Status` field (Pending / Approved) inside `domain/`,
+  gated on `domain/context-map.md`: only a human may set it to Approved;
+  `sdd-hook-guard` rejects an agent-authored write of the approved value
+  (a valid `SDD_SUDO` token permits it, matching the `tasks.md`
+  approval-guard pattern).
+
+### Handoff Rules
+
+- The producer creates `domain/` only via an explicit, opt-in
+  `/sdd-domain:domain-model` run; it is never created implicitly by
+  bootstrap or any other plugin.
+- Consumers read `domain/domain-contract.json` and the Markdown artifacts
+  and never create or rewrite them. `domain-sync` is the sole injection
+  point into `sdd-bootstrap-interviewer`'s Phase 1 output (a
+  `Bounded-Context:` field in generated `requirements.md`, aggregate-card
+  references in `design.md`) — the flow is strictly unidirectional
+  (domain model → downstream specs); feedback in the other direction
+  returns only via WFI/diagnose triggering a new `domain-model update` run,
+  never a direct write back into `domain/`.
+- `spec-reviewer-a/b` and `impl-reviewer-a/b` add a DOMAIN-CONFORMANCE
+  observation to their fixed check list; `check-domain-conformance`
+  (`plugins/sdd-quality-loop/scripts/check-domain-conformance.{sh,ps1}`) is
+  a warn-phase-only deterministic gate (`SDD_DOMAIN_ENFORCE=error`
+  escalates to failure; default flips to error two releases after
+  introduction, by human edit, mirroring `check-design-system`).
+  `workflow-retrospective` aggregates its warn findings into domain-drift
+  metrics (term-deviation count, boundary-violation count) when they have
+  been recorded in quality-gate reports.
+- Absence contract: when `domain/` does not exist, every hook, sync step,
+  and gate skips with exactly one recorded skip line — absence never
+  blocks a workflow, and existing workflows produce byte-identical
+  artifacts (AC-010).
+- Cross-plugin file ownership: sdd-domain never reads another plugin's
+  files by relative filesystem path at runtime. Where a technical-default
+  basis cites an existing file (e.g. `c4-container.template.md`),
+  sdd-domain ships its own adapted copy under its own skill's
+  `templates/` rather than reading across the plugin boundary.
+
+---
+
 ## Plugin Dependency Declarations
 
 | Plugin | Depends On | Notes |
@@ -117,8 +191,9 @@ Templates for all three artifacts live in
 | sdd-ship | sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-lite | orchestrates all implementation and verification phases |
 | sdd-implementation | sdd-quality-loop | quality-gate invocation |
 | sdd-lite | sdd-quality-loop | check-task-state-lite mirrors check-task-state logic |
-| sdd-bootstrap | (none) | standalone |
-| sdd-quality-loop | (none) | standalone |
+| sdd-bootstrap | (none) | standalone; optionally consumes `domain/` via domain-sync when present |
+| sdd-quality-loop | (none) | standalone; optionally reads `domain/domain-contract.json` via check-domain-conformance when present |
+| sdd-domain | (none) | standalone; produces `domain/` consumed optionally by sdd-bootstrap, sdd-review-loop, sdd-quality-loop |
 
 ---
 

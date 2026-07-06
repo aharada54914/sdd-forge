@@ -6,6 +6,9 @@
 #
 # Runs three checks: kill switch, approval guard (bypassed by valid SDD_SUDO flag),
 # and agent-role guard. Kill switch and agent-role guard are never bypassed.
+# (T-006: the delegated .py/.ps1 guards also carry a domain-model approval
+# check, same class as the tasks.md approval guard -- no dispatcher change
+# needed since this script has no guard logic of its own.)
 #
 # Usage: sdd-hook-guard.sh --emit exit|copilot   (default: exit)
 

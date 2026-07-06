@@ -118,6 +118,55 @@ Also derive dataset quality indicators:
   tasks; Low for single-task observations. Low-confidence observations may be
   reported but must not create a WFI.
 
+### Domain-drift metrics (when `domain/` exists)
+
+When the project carries a `domain/` directory, extend the metric roll-up
+with domain-drift counts sourced only from `check-domain-conformance`
+findings already recorded in `reports/quality-gate/*.md` (the retained
+reports selected by rule 3 above). Do not re-run `check-domain-conformance`
+and do not read `domain/` artifacts directly — this is a read-only rollup
+over already-recorded quality-gate text, not a new evidence-collection path.
+When `domain/` is absent, skip this subsection entirely and omit the Domain
+Drift Metrics table from the report (do not emit a zero-filled table).
+
+1. Within each retained quality-gate report's text, locate every
+   `check-domain-conformance WARN (<n> finding(s)):` or
+   `check-domain-conformance FAILED (<n> finding(s)):` block (the exact
+   output format produced by
+   `plugins/sdd-quality-loop/scripts/check-domain-conformance.{sh,ps1}`) and
+   collect its `- <finding text>` lines.
+2. Classify each finding line by matching its text against the fixed set of
+   messages the script can produce:
+   - **Term deviation** — lines matching `unrecognized term '...'`, or
+     `aggregate reference '...' not found in domain-contract.json
+     aggregates`, or `aggregate reference '...' has no domain/aggregates/
+     ....md card`. These all report a name/vocabulary the domain contract
+     does not recognize.
+   - **Boundary violation** — lines matching `Bounded-Context '...' not
+     found in domain-contract.json`, or `Bounded-Context lists two contexts
+     (...) with no declared relation in context map`. These report an
+     undeclared context or an undeclared cross-context relation (AC-015).
+   - A line matching neither pattern (e.g. a `requirements.md not found: ...`
+     / `design.md not found: ...` input error) is not a drift finding; do not
+     count it in either bucket.
+3. **Term-Deviation Count** — total term-deviation finding lines across all
+   retained quality-gate reports for the feature in this period.
+4. **Boundary-Violation Count** — total boundary-violation finding lines
+   across the same reports.
+5. **Domain-Drift Trend** — compare this period's combined
+   (Term-Deviation Count + Boundary-Violation Count) against the previous
+   retrospective's combined total (from its Domain Drift Metrics table, when
+   one exists). Report `N/A` when no previous retrospective recorded this
+   metric. A sustained increase across two or more consecutive retrospectives
+   is a friction pattern candidate under the Improvement Loop (Section 1),
+   subject to the same two-task recurrence and confidence rules as any other
+   friction pattern — never draft a WFI from a single period's counts alone.
+
+De-duplicate on the same `(task ID, Run ID)` quality-gate report selection
+already established in rule 3 of the Deterministic artifact rules above; a
+report excluded there (e.g. a duplicate `Run ID`) does not contribute
+domain-drift findings either.
+
 For spec-review, task-review, and impl-review metrics, scan the contract files
 and derive:
 
@@ -179,7 +228,7 @@ changed metric: grading artifacts can masquerade as effects.
 ## Output
 
 Generate `reports/retrospective/<timestamp>.md` using the structure below.
-Fill every section; do not leave placeholders unfilled.
+Fill every section; do not leave any `{{}}` field blank.
 
 ```markdown
 # Retrospective Report
@@ -203,6 +252,23 @@ Fill every section; do not leave placeholders unfilled.
 | **Total** | | | | | | | |
 
 _C = Critical, M = Major, Min = Minor_
+
+## Domain Drift Metrics
+
+_Include this section only when `domain/` exists; omit entirely otherwise._
+
+| Metric | This Period | Previous Period | Trend |
+|---|---|---|---|
+| Term-Deviation Count | {{term_deviation_count}} | {{prev_term_deviation_count}} | {{trend}} |
+| Boundary-Violation Count | {{boundary_violation_count}} | {{prev_boundary_violation_count}} | {{trend}} |
+| Combined Domain-Drift Count | {{combined_drift_count}} | {{prev_combined_drift_count}} | {{trend}} |
+
+Counts are sourced only from `check-domain-conformance` findings already
+recorded in the retained `reports/quality-gate/*.md` reports for this
+feature; see the Domain-drift metrics rules above. A sustained increase
+across two or more consecutive retrospectives is a friction-pattern
+candidate (see Friction Patterns / Improvement Loop below), not an automatic
+WFI trigger.
 
 ## Friction Patterns
 
