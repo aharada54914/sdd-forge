@@ -25,11 +25,26 @@ import type { AllowlistEntry } from "../../src/allowlist.js";
 
 let fixtureDir: string;
 
-/** Writes an executable POSIX shell shim named `name` into fixtureDir. */
+/**
+ * Writes an executable POSIX shell shim named `name` into fixtureDir.
+ *
+ * On win32, `execFile` resolves a bare command by searching each PATH
+ * directory for `PATHEXT` matches (`.EXE`, `.CMD`, ...); an extension-less
+ * file is invisible to that search and probing silently falls through to a
+ * same-named binary elsewhere on the real PATH. So on win32 we additionally
+ * drop a `<name>.cmd` launcher that PATHEXT resolution *can* find, which
+ * hands off to the CI-guaranteed Git-for-Windows `bash` to run the identical
+ * POSIX body — no shell-syntax translation, so cross-platform behavior stays
+ * byte-for-byte the same.
+ */
 function writeShim(name: string, body: string): void {
   const p = join(fixtureDir, name);
   writeFileSync(p, `#!/bin/sh\n${body}\n`, "utf-8");
   chmodSync(p, 0o755);
+  if (process.platform === "win32") {
+    const cmdPath = join(fixtureDir, `${name}.cmd`);
+    writeFileSync(cmdPath, `@echo off\r\nbash "%~dp0${name}" %*\r\n`, "utf-8");
+  }
 }
 
 before(() => {
