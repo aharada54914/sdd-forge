@@ -82,7 +82,10 @@ function Get-NormalizedHash([string]$Path, [string]$Stage) {
     }
     $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
     $sha = [Security.Cryptography.SHA256]::Create()
-    try { return ([Convert]::ToHexString($sha.ComputeHash($bytes))).ToLowerInvariant() }
+    # Convert.ToHexString is .NET 5+ only and does not exist under .NET
+    # Framework (Windows PowerShell 5.1); BitConverter.ToString is available
+    # on both.
+    try { return ([BitConverter]::ToString($sha.ComputeHash($bytes)).Replace('-', '')).ToLowerInvariant() }
     finally { $sha.Dispose() }
 }
 function Get-Header([string]$Path, [string]$Header) {
@@ -296,6 +299,58 @@ function Test-ManifestPaths(
     }
     return $true
 }
+# Test-Json requires PowerShell 6.1+ (pwsh) and is unavailable in Windows
+# PowerShell 5.1. Mirror check-workflow-state.sh's jq-based structural check
+# (bounded top-level shape, full/lite entry shape, exact-match legacy
+# entries) instead of depending on the cmdlet, keeping both twins in parity
+# without needing a generic JSON Schema engine.
+function Test-JsonValueEqual($Left, $Right) {
+    if ($null -eq $Left -or $null -eq $Right) { return ($null -eq $Left) -and ($null -eq $Right) }
+    if ($Left -is [string] -or $Right -is [string]) {
+        return ($Left -is [string]) -and ($Right -is [string]) -and ($Left -ceq $Right)
+    }
+    if ($Left -is [array] -or $Right -is [array]) {
+        if (-not (($Left -is [array]) -and ($Right -is [array]))) { return $false }
+        if ($Left.Count -ne $Right.Count) { return $false }
+        for ($i = 0; $i -lt $Left.Count; $i++) {
+            if (-not (Test-JsonValueEqual $Left[$i] $Right[$i])) { return $false }
+        }
+        return $true
+    }
+    if ($Left -is [System.Management.Automation.PSCustomObject] -or $Right -is [System.Management.Automation.PSCustomObject]) {
+        if (-not (($Left -is [System.Management.Automation.PSCustomObject]) -and ($Right -is [System.Management.Automation.PSCustomObject]))) { return $false }
+        $leftNames = @($Left.psobject.Properties.Name | Sort-Object)
+        $rightNames = @($Right.psobject.Properties.Name | Sort-Object)
+        if (($leftNames -join "`t") -cne ($rightNames -join "`t")) { return $false }
+        foreach ($name in $leftNames) {
+            if (-not (Test-JsonValueEqual $Left.$name $Right.$name)) { return $false }
+        }
+        return $true
+    }
+    return $Left -eq $Right
+}
+function Test-RegistrySchema($Registry, $Schema) {
+    $topKeys = @($Registry.psobject.Properties.Name | Sort-Object)
+    if (($topKeys -join ',') -cne 'entries,migration_baseline_commit,schema_version') { return $false }
+    if ($Registry.schema_version -ne $Schema.properties.schema_version.const) { return $false }
+    if ([string]$Registry.migration_baseline_commit -cne [string]$Schema.properties.migration_baseline_commit.const) { return $false }
+    $entries = @($Registry.entries)
+    if ($entries.Count -eq 0) { return $false }
+    $legacyConsts = @($Schema.definitions.legacyEntry.oneOf | ForEach-Object { $_.const })
+    foreach ($entry in $entries) {
+        if ([string]$entry.profile -eq 'full' -or [string]$entry.profile -eq 'lite') {
+            $entryKeys = @($entry.psobject.Properties.Name | Sort-Object)
+            if (($entryKeys -join ',') -cne 'feature,profile') { return $false }
+        } else {
+            $matched = $false
+            foreach ($const in $legacyConsts) {
+                if (Test-JsonValueEqual $entry $const) { $matched = $true; break }
+            }
+            if (-not $matched) { return $false }
+        }
+    }
+    return $true
+}
 
 $ScriptRoot = (Resolve-Path (Join-Path $PSScriptRoot "../../..")).Path
 $Registry = Join-Path $ScriptRoot "specs/workflow-state-registry.json"
@@ -338,11 +393,11 @@ if (-not (Test-Path -LiteralPath $Schema -PathType Leaf)) {
     Stop-WorkflowState "repository" "registry-schema" "registry schema is unavailable"
 }
 try {
-    $schemaOk = Test-Json -Json $RegistryText -SchemaFile $Schema -ErrorAction Stop
+    $SchemaData = Get-Content -Raw -LiteralPath $Schema | ConvertFrom-Json
 } catch {
-    $schemaOk = $false
+    Stop-WorkflowState "repository" "registry-schema" "registry schema is not valid JSON"
 }
-if (-not $schemaOk) {
+if (-not (Test-RegistrySchema -Registry $RegistryData -Schema $SchemaData)) {
     Stop-WorkflowState "repository" "registry-schema" "registry entry violates the bounded schema"
 }
 
@@ -393,7 +448,12 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         if ($file.LinkType -or -not (Test-Path -LiteralPath $file.FullName -PathType Leaf)) {
             Stop-WorkflowState $Feature "stage-provenance" "$Stage verdict evidence is linked or unreadable"
         }
-        $relative = [IO.Path]::GetRelativePath($root, $file.FullName).Replace("\", "/")
+        # Path.GetRelativePath is .NET Core-only and unavailable under .NET
+        # Framework (Windows PowerShell 5.1); $file was enumerated from
+        # under $root, so a literal prefix trim is equivalent here (same
+        # idiom as Get-RepositoryRelativePath elsewhere in this file).
+        $rootPrefix = $root.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+        $relative = $file.FullName.Substring($rootPrefix.Length).Replace("\", "/")
         if ($relative -notmatch "^attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/integrated-verdict\.json$") {
             Stop-WorkflowState $Feature "stage-provenance" "$Stage verdict has a noncanonical path"
         }

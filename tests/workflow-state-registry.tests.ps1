@@ -95,7 +95,18 @@ foreach ($path in @($registryPath, $schemaPath, $retrospectivePath)) {
   if (-not (Test-Path -LiteralPath $path -PathType Leaf)) { throw "not ok: missing $path" }
 }
 $raw = Get-Content -Raw -LiteralPath $registryPath
-if (-not (Test-Json -Json $raw -SchemaFile $schemaPath)) { throw 'not ok: canonical registry fails JSON schema' }
+# Test-Json requires PowerShell 6.1+ (pwsh); it does not exist in Windows
+# PowerShell 5.1, the only PowerShell on this repo's local Windows hosts.
+# Skip only the two assertions that need it rather than reimplementing JSON
+# Schema semantics here (that would just test our own validator against
+# itself) or skipping this whole file (the rest of it needs no schema
+# library and must keep running everywhere).
+$testJsonAvailable = [bool](Get-Command Test-Json -ErrorAction SilentlyContinue)
+if ($testJsonAvailable) {
+  if (-not (Test-Json -Json $raw -SchemaFile $schemaPath)) { throw 'not ok: canonical registry fails JSON schema' }
+} else {
+  Write-Output 'skip: Test-Json unavailable (requires PowerShell 6.1+/pwsh) - canonical registry schema conformance not exercised'
+}
 $registry = $raw | ConvertFrom-Json
 $features = @($registry.entries.feature | Sort-Object -CaseSensitive)
 $expected = @('agent-cost-context-isolation','bootstrap-interviewer-enhancement','claude-workflow-compatibility','cross-model-verification','p0-hardening','risk-adaptive-layer','sdd-diagnose','sdd-forge-mcp','sdd-forge-refactor','sdd-lite','uninstall-workflow','workflow-state-integrity')
@@ -106,10 +117,14 @@ if (@($registry.entries.feature | Sort-Object -Unique).Count -ne $registry.entri
 $directories = @(Get-ChildItem -LiteralPath (Join-Path $root specs) -Directory | Where-Object { -not $_.LinkType } | Select-Object -ExpandProperty Name | Sort-Object -CaseSensitive)
 if (($directories -join ',') -cne ($features -join ',')) { throw 'not ok: registry does not exactly cover specs directories' }
 Test-RegistryCoverage -Registry $registry -SpecsRoot (Join-Path $root specs)
-foreach ($fixture in Get-ChildItem -LiteralPath (Join-Path $root 'tests/fixtures/workflow-state') -Filter 'invalid-registry-*.json') {
-  if (Test-Json -Json (Get-Content -Raw -LiteralPath $fixture.FullName) -SchemaFile $schemaPath -ErrorAction SilentlyContinue) {
-    throw "not ok: $($fixture.Name) unexpectedly passes schema"
+if ($testJsonAvailable) {
+  foreach ($fixture in Get-ChildItem -LiteralPath (Join-Path $root 'tests/fixtures/workflow-state') -Filter 'invalid-registry-*.json') {
+    if (Test-Json -Json (Get-Content -Raw -LiteralPath $fixture.FullName) -SchemaFile $schemaPath -ErrorAction SilentlyContinue) {
+      throw "not ok: $($fixture.Name) unexpectedly passes schema"
+    }
   }
+} else {
+  Write-Output 'skip: Test-Json unavailable (requires PowerShell 6.1+/pwsh) - invalid-registry fixture schema rejection not exercised'
 }
 foreach ($fixture in @('duplicate','dangling','unregistered')) {
   $diagnostic = ''
@@ -129,6 +144,9 @@ if (-not $symlinkDiagnostic.StartsWith('workflow-state: escape: registry-path-es
 }
 $retrospective = Get-Content -Raw -LiteralPath $retrospectivePath
 foreach ($needle in @('277a79d','uninstall.sh','uninstall.ps1','uninstall.tests.sh','uninstall.tests.ps1','provenance is unavailable')) {
-  if (-not $retrospective.Contains($needle, [StringComparison]::OrdinalIgnoreCase)) { throw "not ok: retrospective omits $needle" }
+  # String.Contains(string, StringComparison) is a .NET Core-only overload,
+  # unavailable under .NET Framework (Windows PowerShell 5.1); IndexOf's
+  # overload is available on both.
+  if ($retrospective.IndexOf($needle, [StringComparison]::OrdinalIgnoreCase) -lt 0) { throw "not ok: retrospective omits $needle" }
 }
 Write-Output 'ok: PowerShell validates workflow-state registry and migration records'
