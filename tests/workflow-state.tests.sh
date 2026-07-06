@@ -285,6 +285,45 @@ jq '(.allowed_input_manifest) |=
 mv "$reviewer_manifest_shortfall/reviewer.tmp" "$reviewer_a_file"
 expect_rule "$reviewer_manifest_shortfall" stage-provenance
 
+# Reference-doc hash drift: plugins/ reference docs (risk-gate-matrix.md,
+# reviewer-calibration.md, etc.) are living documents that evolve as the
+# quality loop matures. The workflow-state-integrity task-review evidence
+# recorded plugins/sdd-quality-loop/references/risk-gate-matrix.md's sha256
+# from before commit cfe1d8d (unified-design-system) added a new row to that
+# matrix. The live file's current hash therefore no longer matches the
+# historical manifest. The checker must still PASS by resolving the file's
+# content as of the commit that produced this evidence (git show <pin>:path)
+# and confirming that historical content matches the recorded hash -- a
+# reference doc's later, legitimate evolution must not retroactively fail a
+# past feature's provenance. This exercises the same drift as the "valid"
+# fixture above, but makes the regression explicit and self-documenting.
+reference_doc_evolved="$(make_full_fixture reference-doc-evolved)"
+evolved_matrix="$reference_doc_evolved/plugins/sdd-quality-loop/references/risk-gate-matrix.md"
+recorded_matrix_hash="$(jq -r '
+  .reviewers[]?.allowed_input_manifest[]? |
+  select(.path | endswith("risk-gate-matrix.md")) | .sha256
+' "$reference_doc_evolved/reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json" | head -1)"
+current_matrix_hash="$(shasum -a 256 "$evolved_matrix" | awk '{print $1}')"
+[[ -n "$recorded_matrix_hash" && "$recorded_matrix_hash" != "$current_matrix_hash" ]] ||
+  fail "reference-doc-evolved fixture precondition not met: risk-gate-matrix.md is not actually drifted"
+expect_valid "$reference_doc_evolved"
+
+# A plugins/ manifest hash that matches neither the live file nor any
+# legitimate point-in-time content (i.e. a forged/tampered hash) must still
+# fail -- the pinned-commit fallback must not become a blanket bypass.
+reference_doc_forged="$(make_full_fixture reference-doc-forged)"
+forged_task_contract="$reference_doc_forged/reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json"
+jq '(.reviewers[].allowed_input_manifest[] |
+      select(.path | endswith("risk-gate-matrix.md")) | .sha256) = ("f" * 64)' \
+  "$forged_task_contract" > "$reference_doc_forged/contract.tmp"
+mv "$reference_doc_forged/contract.tmp" "$forged_task_contract"
+forged_reviewer_b="$reference_doc_forged/reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-b.json"
+jq '(.manifest.allowed_inputs[]? |
+      select(.path | endswith("risk-gate-matrix.md")) | .sha256) = ("f" * 64)' \
+  "$forged_reviewer_b" > "$reference_doc_forged/reviewer.tmp"
+mv "$reference_doc_forged/reviewer.tmp" "$forged_reviewer_b"
+expect_rule "$reference_doc_forged" stage-provenance
+
 wrong_stage="$(make_full_fixture wrong-stage)"
 jq '.stage = "task"' \
   "$wrong_stage/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \
