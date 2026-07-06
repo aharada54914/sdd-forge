@@ -333,16 +333,70 @@ foreach ($entry in @($RegistryData.entries)) {
         Stop-WorkflowState "repository" "registry-malformed" "registry shape or version is invalid"
     }
 }
+function Test-JsonValueEqual($Left, $Right) {
+    if ($null -eq $Left -or $null -eq $Right) { return ($null -eq $Left) -and ($null -eq $Right) }
+    $leftIsObject = $Left -is [Management.Automation.PSCustomObject]
+    $rightIsObject = $Right -is [Management.Automation.PSCustomObject]
+    if ($leftIsObject -or $rightIsObject) {
+        if (-not ($leftIsObject -and $rightIsObject)) { return $false }
+        $leftNames = @($Left.PSObject.Properties.Name | Sort-Object)
+        $rightNames = @($Right.PSObject.Properties.Name | Sort-Object)
+        if (($leftNames -join "`t") -cne ($rightNames -join "`t")) { return $false }
+        foreach ($name in $leftNames) {
+            if (-not (Test-JsonValueEqual $Left.$name $Right.$name)) { return $false }
+        }
+        return $true
+    }
+    $leftIsArray = $Left -is [array]
+    $rightIsArray = $Right -is [array]
+    if ($leftIsArray -or $rightIsArray) {
+        if (-not ($leftIsArray -and $rightIsArray) -or $Left.Count -ne $Right.Count) { return $false }
+        for ($i = 0; $i -lt $Left.Count; $i++) {
+            if (-not (Test-JsonValueEqual $Left[$i] $Right[$i])) { return $false }
+        }
+        return $true
+    }
+    return $Left -ceq $Right
+}
+# PS5.1-safe (no Test-Json, unavailable before PowerShell 6.1): mirrors the
+# hand-rolled structural check in the bash twin (check-workflow-state.sh)
+# rather than general JSON Schema validation, so both stay in parity and
+# neither depends on a cmdlet this repo's Windows hosts don't have.
+function Test-RegistrySchema($RegistryData, [string]$SchemaPath) {
+    try { $schema = Get-Content -LiteralPath $SchemaPath -Raw | ConvertFrom-Json }
+    catch { return $false }
+    $topKeys = @($RegistryData.PSObject.Properties.Name | Sort-Object)
+    if (($topKeys -join "`t") -cne (@("entries", "migration_baseline_commit", "schema_version") -join "`t")) {
+        return $false
+    }
+    if (-not (Test-JsonValueEqual $RegistryData.schema_version $schema.properties.schema_version.const) -or
+        -not (Test-JsonValueEqual $RegistryData.migration_baseline_commit $schema.properties.migration_baseline_commit.const)) {
+        return $false
+    }
+    $entries = @($RegistryData.entries)
+    if ($entries.Count -eq 0) { return $false }
+    $legacyConsts = @($schema.definitions.legacyEntry.oneOf | ForEach-Object { $_.const })
+    foreach ($entry in $entries) {
+        $profile = [string]$entry.profile
+        if ($profile -eq "full" -or $profile -eq "lite") {
+            $entryKeys = @($entry.PSObject.Properties.Name | Sort-Object)
+            if (($entryKeys -join "`t") -cne (@("feature", "profile") -join "`t")) { return $false }
+        } else {
+            $matched = $false
+            foreach ($candidate in $legacyConsts) {
+                if (Test-JsonValueEqual $entry $candidate) { $matched = $true; break }
+            }
+            if (-not $matched) { return $false }
+        }
+    }
+    return $true
+}
+
 $Schema = Join-Path $ScriptRoot "contracts/workflow-state-registry.schema.json"
 if (-not (Test-Path -LiteralPath $Schema -PathType Leaf)) {
     Stop-WorkflowState "repository" "registry-schema" "registry schema is unavailable"
 }
-try {
-    $schemaOk = Test-Json -Json $RegistryText -SchemaFile $Schema -ErrorAction Stop
-} catch {
-    $schemaOk = $false
-}
-if (-not $schemaOk) {
+if (-not (Test-RegistrySchema $RegistryData $Schema)) {
     Stop-WorkflowState "repository" "registry-schema" "registry entry violates the bounded schema"
 }
 
