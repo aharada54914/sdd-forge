@@ -58,6 +58,14 @@ jobs:
         shell: bash
         run: ./tests/repository-release-validation.tests.sh
 
+      - name: Test template-validator parity (bash)
+        shell: bash
+        run: ./tests/template-validator-parity.tests.sh
+
+      - name: Test template-validator parity (pwsh)
+        shell: pwsh
+        run: ./tests/template-validator-parity.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
