@@ -77,6 +77,18 @@ Run these checks:
 - `DOWNSTREAM-READINESS` (Major): the specification is ready to hand to
   implementation-policy review without requiring the design reviewer to invent
   missing product behavior.
+- `DOMAIN-CONFORMANCE` (Major, SKIP allowed): applies only when the target
+  project has a `domain/` directory with `domain/context-map.md` recording
+  `Domain-Model-Status: Approved` and a schema-valid
+  `domain/domain-contract.json`. When `domain/` is absent, or the status is
+  not `Approved`, or the contract is missing/invalid, record the check as
+  skipped in the finding and emit SKIP. Otherwise verify that a feature whose
+  `Bounded-Context:` field names two or more contexts declares (or the
+  context map declares) a relation between them, and that
+  `acceptance-tests.md` does not introduce ambiguity by mixing a canonical
+  term with one of its `forbidden_synonyms` for the same concept. An
+  undeclared relation between two named contexts, or mixed canonical/
+  forbidden-synonym usage for the same concept, is a Major finding.
 
 Classify a direct safety or workflow-boundary contradiction as Critical, an
 ambiguity that will cause downstream mismatch as Major, and non-blocking
@@ -100,4 +112,4 @@ Return only this JSON shape:
 Do not include another reviewer's raw finding in your output.
 
 The `checks` array must contain one entry per check ID in this order:
-`AMBIGUITY, CONTRADICTION, EDGE-CASE-COVERAGE, ASSUMPTIONS-RESOLVABLE, APPROVAL-BOUNDARY, DOWNSTREAM-READINESS.`
+`AMBIGUITY, CONTRADICTION, EDGE-CASE-COVERAGE, ASSUMPTIONS-RESOLVABLE, APPROVAL-BOUNDARY, DOWNSTREAM-READINESS, DOMAIN-CONFORMANCE.`

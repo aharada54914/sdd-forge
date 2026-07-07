@@ -29,6 +29,16 @@ Claude Code:
 ## Intake And Investigation
 
 1. Accept a GitHub/GitLab issue URL or supplied requirement text.
+1a. Run `domain-sync`'s detection logic (project root, feature slug) before
+    generating any Phase 1 artifact. If it reports a skip or warning line,
+    proceed exactly as if `domain/` were absent — record the line and
+    continue to step 2 with no other change to this flow. If it reports an
+    injection, carry its `Bounded-Context:` field text, canonical terms, and
+    `design.md` aggregate cross-references forward into the matching
+    generation steps under Required Outputs below. This step is additive: a
+    project with no `domain/` directory produces the exact same
+    `requirements.md`/`design.md` output as before this step existed
+    (AC-010).
 2. Attempt read-only URL retrieval when available; otherwise ask for issue text.
 3. Identify repository host as GitHub, GitLab, or local.
 4. In `feature`, `bugfix`, and `refactor` modes, inspect related code, tests,

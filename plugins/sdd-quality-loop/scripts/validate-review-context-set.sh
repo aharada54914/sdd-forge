@@ -108,6 +108,15 @@ path_is_authorized() {
         evaluator_output_is_declared \
           "$path" "$expected_hash" "$repository_root/$implementation_report_path"
       ;;
+    domain:domain-reviewer-a|domain:domain-reviewer-b)
+      [[ "$path" =~ ^domain/(domain-story|event-storming|ubiquitous-language|context-map|message-flow|c4-container)\.md$ ]] ||
+        [[ "$path" =~ ^domain/aggregates/[^/]+\.md$ ]] ||
+        [[ "$path" == domain/domain-contract.json ]] ||
+        [[ "$path" == plugins/sdd-domain/references/domain-review-calibration.md ]] ||
+        [[ "$path" =~ ^reports/domain-review/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json$ ]] ||
+        { [[ "$role" == domain-reviewer-b ]] &&
+          [[ "$path" =~ ^reports/domain-review/attempt-[1-9][0-9]*/round-[1-9][0-9]*/integrated-summary\.json$ ]]; }
+      ;;
     *) return 1 ;;
   esac
 }
@@ -172,7 +181,7 @@ task_id=''
 [[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest")
 
 case "$stage:$role" in
-  spec:spec-reviewer-a|spec:spec-reviewer-b|impl:impl-reviewer-a|impl:impl-reviewer-b|task:task-reviewer-a|task:task-reviewer-b|quality:sdd-evaluator) ;;
+  spec:spec-reviewer-a|spec:spec-reviewer-b|impl:impl-reviewer-a|impl:impl-reviewer-b|task:task-reviewer-a|task:task-reviewer-b|quality:sdd-evaluator|domain:domain-reviewer-a|domain:domain-reviewer-b) ;;
   *) fail CONTRACT 'stage and role are not an authorized invocation pair' ;;
 esac
 [[ "$run_id" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]*$ ]] ||

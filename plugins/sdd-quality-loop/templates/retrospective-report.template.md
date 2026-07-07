@@ -24,6 +24,20 @@ Counts use the workflow-retrospective deterministic artifact selection,
 task-association, ordering, tie-break, and de-duplication rules. Record excluded
 or conflicting artifacts in the Data Completeness explanation.
 
+## Domain Drift Metrics
+
+<!-- Include this section only when domain/ exists; omit entirely otherwise. -->
+
+| Metric | This Period | Previous Period | Trend |
+|---|---|---|---|
+| Term-Deviation Count | {{term_deviation_count}} | {{prev_term_deviation_count}} | {{trend}} |
+| Boundary-Violation Count | {{boundary_violation_count}} | {{prev_boundary_violation_count}} | {{trend}} |
+| Combined Domain-Drift Count | {{combined_drift_count}} | {{prev_combined_drift_count}} | {{trend}} |
+
+Counts are sourced only from `check-domain-conformance` findings already
+recorded in the retained `reports/quality-gate/*.md` reports for this
+feature.
+
 ## Friction Patterns
 
 Patterns observed across two or more tasks in this period.

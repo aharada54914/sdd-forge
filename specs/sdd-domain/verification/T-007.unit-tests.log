@@ -1,0 +1,61 @@
+
+
+
+
+
+Describing domain-sync SKILL.md contract
+ [+] exists as an internal, non-model-invocable skill 549ms
+ [+] documents the three-step detection order: domain/ existence, Domain-Model-Status, contract validation 144ms
+ [+] documents exactly one skip line when domain/ is absent (AC-010) 39ms
+ [+] documents exactly one skip line when context-map.md is missing 29ms
+ [+] documents the non-Approved-status warning per the Edge Case (warns and proceeds without injection) 33ms
+ [+] documents the corrupt/invalid contract warning per the Edge Case 33ms
+ [+] documents the Bounded-Context: field injection format for a single context 34ms
+ [+] documents the two-context Bounded-Context: field format with relation pattern (Edge Case) 33ms
+ [+] documents the undeclared-relation fallback note 32ms
+ [+] documents aggregate card cross-references injected into design.md 49ms
+ [+] documents the never-block guarantee 32ms
+ [+] documents it is never the writer of domain/ files (domain-interviewer owns that) 35ms
+ [+] documents no-matching-context outcome (feature has no domain overlap) 33ms
+Describing sdd-bootstrap-interviewer SKILL.md calls domain-sync at Phase 1 start
+ [+] references domain-sync in the Intake And Investigation section 176ms
+ [+] documents that absence of domain/ produces unchanged behavior (AC-010) 34ms
+ [+] the domain-sync call happens before any Phase 1 artifact is generated 40ms
+Describing Worked fixture: Approved domain/ model injects Bounded-Context into requirements.md
+ [+] domain-contract.json validates against contracts/domain-contract.v1.schema.json 155ms
+ [+] context-map.md carries Domain-Model-Status: Approved (precondition for injection) 35ms
+ [+] requirements.md contains a Bounded-Context: field 37ms
+ [+] the Bounded-Context: field names a context that actually exists in domain-contract.json 46ms
+ [+] the Bounded-Context: field is placed before ## Overview (metadata block convention) 33ms
+Describing Worked fixture: two-context feature with declared relation (Edge Case)
+ [+] the contract declares a relation between the two contexts 90ms
+ [+] SKILL.md documents composing the two-context field as '<a>, <b> (<pattern>)' 35ms
+ [+] a worked two-context Bounded-Context field matches the documented format 31ms
+Describing sanity: schema file used by domain-sync is present and parses
+ [+] schema file exists and parses 71ms
+Tests completed in 1.87s
+Passed: 25 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0
+---appending separator and second suite---
+
+
+
+
+
+Describing AC-010: sdd-bootstrap-interviewer edit is additive-only (git diff --numstat)
+ [+] git diff --numstat reports exactly one changed-file line for the bootstrap SKILL.md 771ms
+ [+] the numstat line reports zero deleted lines (additive-only) 95ms
+ [+] the numstat line reports at least one added line (the new step was actually inserted) 39ms
+ [+] the unified diff contains no removed content lines (lines starting with a single '-') 32ms
+ [+] the unified diff's added lines are contiguous and scoped to the Intake And Investigation section 34ms
+Describing AC-010: domain-sync single-skip-line contract (documented, cross-checked against the bootstrap edit)
+ [+] the inserted bootstrap step documents proceeding exactly as if domain/ were absent on skip/warning 122ms
+ [+] the inserted bootstrap step explicitly claims no other change to Phase 1 flow 30ms
+ [+] the inserted bootstrap step cites AC-010 directly 29ms
+ [+] domain-sync documents exactly one skip line for the absent-domain/ case 34ms
+ [+] domain-sync's detection logic runs its checks in order and stops at the first failing check (no double-skip) 31ms
+Describing Worked fixture: absence of domain/ produces the documented single skip line and no injection
+ [+] reports exactly the documented skip line when domain/ is absent 93ms
+ [+] performs no injection when domain/ is absent 34ms
+ [+] the fixture project genuinely has no domain/ directory (sanity check on the test setup) 34ms
+Tests completed in 1.39s
+Passed: 13 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0

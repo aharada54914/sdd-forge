@@ -1,0 +1,122 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "RUN-20260706T0530Z-task-reviewer-b-a2r2",
+  "host_session_id": "SESS-task-b-sdd-domain-a2r2",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain/requirements.md",
+      "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"
+    },
+    {
+      "path": "specs/sdd-domain/acceptance-tests.md",
+      "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"
+    },
+    {
+      "path": "specs/sdd-domain/design.md",
+      "sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb"
+    },
+    {
+      "path": "specs/sdd-domain/tasks.md",
+      "sha256": "82de1e27bc333bb59aacdde4e592e2382e010ddc513fb1b3acaf3a4268143e72"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.md",
+      "sha256": "dc92fdcf863091e3593e38e2ae6d66232f653ce786b448f099d1d81f64ef2298"
+    },
+    {
+      "path": "specs/sdd-domain/ux-spec.md",
+      "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"
+    },
+    {
+      "path": "specs/sdd-domain/frontend-spec.md",
+      "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"
+    },
+    {
+      "path": "specs/sdd-domain/infra-spec.md",
+      "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"
+    },
+    {
+      "path": "specs/sdd-domain/security-spec.md",
+      "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/sdd-domain/attempt-2/round-2/precheck-result.json",
+      "sha256": "9ea20920e2b7177df42e1f6ca287b565ef984ec60f0df2130bf37fed77560e9d"
+    },
+    {
+      "path": "reports/task-review/sdd-domain/attempt-2/round-2/integrated-summary.json",
+      "sha256": "70d869faa1ce8491c58d73a7fd5695af619a4bd752feba5d4aeb42354ecd9a33"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. T-005/T-006/T-011 (Risk: high) correctly touch review/approval-gate governance, an authorization hook-guard boundary, and external vendor data transmission respectively -- all sentinel surfaces per risk-classification-policy.md. T-001/T-009/T-010 (Risk: low) are inert scaffolding, read-only metric aggregation, and doc/test-expectation updates only. T-002/T-003/T-004/T-007/T-008 (Risk: medium) touch new generation logic, additive reviewer-check extensions, and a warn-phase-only script -- none independently meets the high-tier bar (no auth/authz grant, PII, migration, or externally-visible API contract change in their scope)."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. All three Risk: high tasks include both required Done When items: T-005 ('Red-Green evidence captured', 'Independent review verdict recorded'), T-006 (same pair), T-011 (same pair). No Risk: critical tasks exist in this task set, so the second-approver/signed-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Round-1 T-005 oversizing is fixed: T-005's Scope is now limited to domain-review-loop skill + two reviewer agents + calibration reference + the AC-014 drift precheck, with cross-model-verify wiring explicitly moved Out of Scope into new T-011, which is blocked on T-005. No task's Scope spans more than three distinct implementation areas."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Round-1 AC-004 gap is fixed: T-002's Done When now adds the error-path fixture (unreadable local seed path / unreachable seed URL) matching ux-spec.md Component States 'Error' row. Other functional tasks carry matching error-path coverage: T-001 corrupt/schema-invalid contract fixtures, T-005 BLOCKED-at-round-3 and drift-halt fixtures, T-006 agent-rejection fixture, T-008 SDD_DOMAIN_ENFORCE=error escalation and undeclared-relation warn, T-011 vendor-mismatch/panelist-unavailable fixtures. No functional task is left with only happy-path Done-When criteria."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Test types declared in acceptance-tests.md align with their scope: unit tests each target a single script/guard/schema boundary; integration tests each span multiple components. No test task's declared type mismatches its described scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Round-1 gap is fixed: T-005 now has an explicit Rollback field, T-006 now has one (revert of the four hook-guard twins via the scratchpad+human-cp procedure), and new task T-011 also carries one (revert of the cross-model invocation step, explicit fail-open semantics). All three Risk: high tasks have rollback evidence."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-005 creates domain-review-loop/SKILL.md and T-011 extends the same file -- a legitimate create-then-extend pattern, and T-011's Blockers correctly names T-005, enforcing ordering. T-001 and T-004 both list the three sdd-domain plugin.json files, but T-004 only adds a skill entry after T-001 creates the manifests, sequenced transitively. No uncoordinated parallel file-overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Both round-1 findings are fixed: T-003's Blockers is now 'None', correctly reflecting that T-003's only real input is the already-existing investigate-codebase skill. T-004's Blockers is now 'T-002, T-003', removing the spurious T-005 entry. The new T-011's Blockers ('T-005') is a genuine dependency, and T-010's Blockers correctly adds T-011."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 11 tasks (T-001..T-011) are new-feature implementation tasks for the sdd-domain plugin."
+    }
+  ]
+}

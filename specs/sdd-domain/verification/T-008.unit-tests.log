@@ -1,0 +1,27 @@
+
+
+
+
+
+Describing check-domain-conformance script exists and matches check-design-system conventions
+ [+] both script twins exist 502ms
+ [+] quality-gate SKILL.md registers check-domain-conformance immediately after check-design-system 104ms
+Describing TEST-009 / TEST-015: check-domain-conformance real script execution against fixtures
+   Context Scenario 1: conformant fixture -> 0 findings, exit 0
+    [+] exits 0 with no findings 848ms
+   Context Scenario 2: deviant-term fixture -> warn finding, exit 0
+    [+] exits 0 and reports a WARN finding naming the unrecognized context 641ms
+   Context Scenario 3: deviant-term fixture with SDD_DOMAIN_ENFORCE=error -> exit 1
+    [+] exits 1 and reports FAILED when SDD_DOMAIN_ENFORCE=error 919ms
+   Context Scenario 4: two-context fixture with a declared relation -> pass
+    [+] exits 0 with no findings when the relation is declared (AC-015) 619ms
+   Context Scenario 5: two-context fixture with an undeclared relation -> warn
+    [+] exits 0 but reports a WARN finding when no relation is declared (AC-015) 613ms
+   Context Scenario 6: no domain/ -> skip, exit 0
+    [+] exits 0 with exactly one skip line when domain/ is absent 526ms
+   Context Bad invocation
+    [+] exits 1 when the project root does not exist 589ms
+Describing check-domain-conformance.sh (bash twin) parity via WSL/Git-Bash if available
+ [+] the bash twin passes the conformant fixture when a bash/sh interpreter is available 1.72s
+Tests completed in 7.08s
+Passed: 10 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0

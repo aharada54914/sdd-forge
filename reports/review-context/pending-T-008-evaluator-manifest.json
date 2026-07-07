@@ -1,0 +1,66 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "sdd-domain",
+  "task_id": "T-008",
+  "run_id": "RUN-20260707T0556Z-sdd-evaluator-T-008",
+  "host_session_id": "SESS-quality-sdd-domain-T-008",
+  "sequence": 26,
+  "previous_record_sha256": "a277a566ce4ddf1b1e56b57fbacfca7aaeb3d674a95bf575d7785126f540a02c",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "fcba0379888ac25ca2d69d21db2637cd18533eb4a5f132044c7ba36cbb6243fe",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain/requirements.md",
+      "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"
+    },
+    {
+      "path": "specs/sdd-domain/acceptance-tests.md",
+      "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"
+    },
+    {
+      "path": "specs/sdd-domain/design.md",
+      "sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb"
+    },
+    {
+      "path": "specs/sdd-domain/tasks.md",
+      "sha256": "01d226758616bc64aab960fd2c44afd7f24cc2d4649e03ff50ab1bc9d65a73c2"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.md",
+      "sha256": "dc92fdcf863091e3593e38e2ae6d66232f653ce786b448f099d1d81f64ef2298"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.json",
+      "sha256": "68011f26c5eadb8ee27aea8c581ced46077b4ff64e5bd6e21611fec117701064"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/sdd-domain/T-008.md",
+      "sha256": "3d07015903696564fe131c282b2745feec31013dcd2adb4a15eaf0a3d6356989"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-domain-conformance.sh",
+      "sha256": "fd3297986a682b619fcfe45fc03e8b2eef12b29dfd86bacfc4c736212139a8c7"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/check-domain-conformance.ps1",
+      "sha256": "c322ef4c06c9951c53181c6e9efa1ae965fb9fbce4e27874d4aa92d4fce1127d"
+    },
+    {
+      "path": "tests/sdd-domain/check-domain-conformance.Tests.ps1",
+      "sha256": "2602fe6eeb23d48127598364af6375d64eb2f69eafb15db4184da83f1dbd138e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/skills/quality-gate/SKILL.md",
+      "sha256": "4ef9879898b9fb32304f79d72848dc1b9d41834bb791dac1e0d9114eb2854800"
+    }
+  ]
+}

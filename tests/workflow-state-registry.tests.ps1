@@ -109,7 +109,7 @@ if ($testJsonAvailable) {
 }
 $registry = $raw | ConvertFrom-Json
 $features = @($registry.entries.feature | Sort-Object -CaseSensitive)
-$expected = @('agent-cost-context-isolation','bootstrap-interviewer-enhancement','claude-workflow-compatibility','cross-model-verification','p0-hardening','risk-adaptive-layer','sdd-diagnose','sdd-forge-mcp','sdd-forge-refactor','sdd-lite','uninstall-workflow','workflow-state-integrity')
+$expected = @('agent-cost-context-isolation','bootstrap-interviewer-enhancement','claude-workflow-compatibility','cross-model-verification','local-env-mcp','p0-hardening','risk-adaptive-layer','sdd-diagnose','sdd-domain','sdd-forge-mcp','sdd-forge-refactor','sdd-lite','uninstall-workflow','workflow-state-integrity')
 if ($registry.schema_version -ne 1 -or $registry.migration_baseline_commit -cne $baseline -or ($features -join ',') -cne ($expected -join ',')) {
   throw 'not ok: canonical registry metadata or coverage is invalid'
 }

@@ -935,16 +935,29 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# check-placeholders.sh — lowercase todo flagged (case-insensitive)
+# check-placeholders.sh — marker case-sensitivity (RT-20260706-001)
+# Marker keywords match CASE-SENSITIVELY per the ALL-CAPS marker convention
+# (human-decided resolution, superseding the earlier case-insensitive scan):
+# lowercase "todo" is ordinary prose and must NOT be flagged; the uppercase
+# marker must still be flagged.
 # ---------------------------------------------------------------------------
 LOWER_TODO_FILE="${WORK}/todo-lower.py"
 printf 'def f():\n    pass  # todo implement this\n' > "$LOWER_TODO_FILE"
 PLACEHOLDER_CODE=0
 bash "${SCRIPTS_DIR}/check-placeholders.sh" "$LOWER_TODO_FILE" >/dev/null 2>&1 || PLACEHOLDER_CODE=$?
-if [[ $PLACEHOLDER_CODE -eq 1 ]]; then
-    ok "check-placeholders.sh: lowercase todo flagged"
+if [[ $PLACEHOLDER_CODE -eq 0 ]]; then
+    ok "check-placeholders.sh: lowercase todo passes (prose, RT-20260706-001)"
 else
-    fail "check-placeholders.sh: lowercase todo flagged (expected 1, got $PLACEHOLDER_CODE)"
+    fail "check-placeholders.sh: lowercase todo passes (expected 0, got $PLACEHOLDER_CODE)"
+fi
+UPPER_TODO_FILE="${WORK}/todo-upper.py"
+printf 'def f():\n    pass  # TODO implement this\n' > "$UPPER_TODO_FILE"
+PLACEHOLDER_CODE=0
+bash "${SCRIPTS_DIR}/check-placeholders.sh" "$UPPER_TODO_FILE" >/dev/null 2>&1 || PLACEHOLDER_CODE=$?
+if [[ $PLACEHOLDER_CODE -eq 1 ]]; then
+    ok "check-placeholders.sh: uppercase TODO flagged"
+else
+    fail "check-placeholders.sh: uppercase TODO flagged (expected 1, got $PLACEHOLDER_CODE)"
 fi
 
 # ---------------------------------------------------------------------------
