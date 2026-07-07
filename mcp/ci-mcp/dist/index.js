@@ -31148,6 +31148,46 @@ async function githubGet(request, fetchImpl = defaultFetch) {
     return err("upstream-error", "Failed to parse the GitHub API response body.");
   }
 }
+var TAIL_READ_CAP_BYTES = 262144;
+var TAIL_READ_MARGIN_BYTES = 65536;
+async function readBoundedTail(stream, capBytes, marginBytes) {
+  const threshold = capBytes + marginBytes;
+  const chunks = [];
+  let retainedBytes = 0;
+  let totalBytesRead = 0;
+  let maxRetainedBytes = 0;
+  const reader = stream.getReader();
+  try {
+    for (; ; ) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      if (value === void 0 || value.byteLength === 0) {
+        continue;
+      }
+      chunks.push(value);
+      retainedBytes += value.byteLength;
+      totalBytesRead += value.byteLength;
+      while (chunks.length > 0 && retainedBytes - chunks[0].byteLength >= threshold) {
+        const dropped = chunks.shift();
+        retainedBytes -= dropped.byteLength;
+      }
+      if (retainedBytes > maxRetainedBytes) {
+        maxRetainedBytes = retainedBytes;
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+  const bytes = new Uint8Array(retainedBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return { bytes, totalBytesRead, maxRetainedBytes };
+}
 var defaultTextFetch = (url2, init) => fetch(url2, init);
 async function githubGetText(request, fetchImpl = defaultTextFetch) {
   const url2 = buildGithubUrl(request.pathSegments, request.searchParams);
@@ -31169,8 +31209,16 @@ async function githubGetText(request, fetchImpl = defaultTextFetch) {
     return normalized;
   }
   try {
+    if (response.body != null) {
+      const { bytes, totalBytesRead } = await readBoundedTail(
+        response.body,
+        TAIL_READ_CAP_BYTES,
+        TAIL_READ_MARGIN_BYTES
+      );
+      return { ok: true, data: Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("utf-8"), totalBytesRead };
+    }
     const data = await response.text();
-    return { ok: true, data };
+    return { ok: true, data, totalBytesRead: Buffer.byteLength(data, "utf-8") };
   } catch {
     return err("upstream-error", "Failed to read the GitHub API response body.");
   }
@@ -31432,7 +31480,8 @@ async function getJobLog(input, options = {}) {
     if (!outcome.ok) {
       return outcome;
     }
-    const { log, truncated, returnedBytes } = truncateLogTail(outcome.data);
+    const { log, returnedBytes } = truncateLogTail(outcome.data);
+    const truncated = outcome.totalBytesRead > returnedBytes;
     return ok({ kind: "job-log", jobId, log, truncated, returnedBytes });
   });
 }
