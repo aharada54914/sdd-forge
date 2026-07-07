@@ -201,8 +201,11 @@ manifest_has_hash_for_file() {
 # (worktrees, CI fixtures, and renamed clones are all legal). Split them on
 # the repository's own structural top-level directories instead: every
 # canonical manifest path is repo-relative under specs/, reports/, or
-# plugins/, so the rightmost such segment marks the recorded repository root.
-# A wrong split cannot weaken tamper detection - the derived relative path
+# plugins/. A split candidate only counts when the suffix it produces
+# matches one of the canonical manifest shapes, so a feature slug that
+# happens to be named "specs", "reports", or "plugins" cannot be mistaken
+# for the repository root; a path with no unambiguous split is invalid. A
+# wrong split cannot weaken tamper detection - the derived relative path
 # must still match the canonical allowlist, its recorded sha256 must match
 # the live file, and every manifest entry must agree on a single recorded
 # root.
@@ -211,14 +214,19 @@ recorded_repo_root() {
   jq -r --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" '
     def normalized: gsub("\\\\"; "/");
     def rooted: test("^(/|[A-Za-z]:/)");
+    def canonical_suffix:
+      test("^specs/[a-z0-9][a-z0-9-]*/[^/]+$") or
+      test("^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$") or
+      test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$");
     [.reviewers[].allowed_input_manifest[].path |
       normalized |
       select(rooted and (startswith($repo) or startswith($alias) | not)) |
       . as $path |
-      ([$path | rindex("/specs/"), rindex("/reports/"), rindex("/plugins/")]
-        | map(. // -1) | max) as $index |
-      if $index < 0 then null
-      else $path[0:$index]
+      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")))[] |
+         . as $i | select($path[$i + 1:] | canonical_suffix) | $path[0:$i]]
+        | unique) as $candidates |
+      if ($candidates | length) == 1 then $candidates[0]
+      else null
       end] as $roots |
     if any($roots[]; . == null) or ($roots | map(select(. != null)) | unique | length) > 1
     then "__INVALID__"
