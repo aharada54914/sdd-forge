@@ -134,7 +134,7 @@ T-002
 ## T-004 repo-resolve.ts(owner/repo 解決、exec なし)
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: owner/repo の解決は B2 の SSRF 面(URL path 要素、ホスト差し替え不可)と入力ガード(REQ-007、security-spec.md B1/OWASP:Injection・SSRF)に直結する。exec による git remote 参照を誤って導入すると exec 回避方針(Non-goal、`child_process` 禁止の静的検査対象)が破綻する。OQ-001(指定方法の正準優先順位)を本タスク冒頭で確定する。
 Required Workflow: tdd
