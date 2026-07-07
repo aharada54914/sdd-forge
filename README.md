@@ -125,6 +125,20 @@ flowchart LR
 
 **自動登録**: installer は Cursor (`~/.cursor/mcp.json`) と VS Code（ユーザープロファイル `mcp.json`）への自動登録も行います。詳細は [USERGUIDE.md](USERGUIDE.md) を参照してください。
 
+#### ci-mcp
+
+`ci-mcp` は、GitHub Actions の CI 状態（ワークフロー実行・ジョブ・ジョブログ・成果物メタデータ）を読み取るための **read-only** MCP サーバーです。write API・write ツールは一切持たず、GitHub REST API へは `https://api.github.com` 固定ホストへの GET リクエストのみ発行します（サブプロセス実行なし）。以下の 5 ツールを提供します:
+
+- `list_workflow_runs`: ワークフロー実行一覧（branch/status/event/perPage 絞り込み対応）
+- `get_workflow_run`: 単一ワークフロー実行の詳細
+- `list_run_jobs`: ワークフロー実行のジョブ一覧
+- `list_run_artifacts`: 成果物メタデータ一覧（バイナリ本体は返さない）
+- `get_job_log`: ジョブのプレーンテキストログ（256 KiB 末尾優先 truncate 付き）
+
+**セキュリティ境界**: write 機能なし（GET 専用・ホスト固定で書き換え不可）・トークンは環境変数からのみ読み取り応答/ログに非出力・`git`/`gh` などの exec なし・上流エラーは決定論的に正規化し本文を転載しない。
+
+**トークン設定**: 実行時に read-only の GitHub PAT が必要です。`CI_MCP_GITHUB_TOKEN`（優先）→ `GH_READONLY_TOKEN` → `GITHUB_TOKEN` の順に最初に非空の値を採用します。installer はトークン値を一切保存・生成しません。詳細・`CI_MCP_REPO` の使い方・各クライアントへの自動/手動登録手順は [USERGUIDE.md](USERGUIDE.md#ci-mcp) を参照してください。
+
 導入オプション（詳細と トラブルシュート）は [USERGUIDE.md](USERGUIDE.md#mcp-サーバー) を参照してください。
 
 ## アンインストール

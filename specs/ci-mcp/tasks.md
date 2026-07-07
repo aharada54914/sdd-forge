@@ -451,7 +451,7 @@ T-009
 ## T-011 ドキュメント(README / USERGUIDE)+ traceability 最終化
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: low
 Risk Rationale: ドキュメント追記と traceability 表の Status 更新のみで、制御フロー・データ・セキュリティへの影響がない。
 Required Workflow: test-after
