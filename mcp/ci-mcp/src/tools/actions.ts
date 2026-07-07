@@ -30,12 +30,22 @@
  * `get_job_log` (T-013) reads its 2xx body via `github-client.ts`'s
  * `githubGetText` (a plain-text sibling of `githubGet`, added for this task
  * — see that module's doc comment for why: `githubGet` only supports JSON
- * bodies). The 256 KiB (262144 byte) tail-priority truncation is performed
- * HERE, in `truncateLogTail`, not in github-client.ts: it slices on a
- * UTF-8-safe byte boundary (never mid-multibyte-character) so the returned
- * tail always decodes cleanly and `returnedBytes` never exceeds the cap,
- * even if that means keeping a handful of bytes fewer than 262144 to land on
- * a valid character boundary.
+ * bodies). Since T-013 cycle-2 (evaluator Major, security-spec.md B2
+ * "リングバッファ + 256 KiB 上限(末尾優先)"), the memory-bounding itself
+ * lives in `github-client.ts` (`githubGetText`'s bounded streaming read,
+ * matching design.md's component table, which allocates job-log truncation
+ * to github-client) — `githubGetText`'s `data` is already reduced to a tail
+ * window bounded by `TAIL_READ_CAP_BYTES + TAIL_READ_MARGIN_BYTES` before it
+ * ever reaches this file. `truncateLogTail`, here, still owns the final,
+ * byte-exact cut down to the 256 KiB (262144 byte) contract cap: it slices
+ * on a UTF-8-safe byte boundary (never mid-multibyte-character) so the
+ * returned tail always decodes cleanly and `returnedBytes` never exceeds the
+ * cap, even if that means keeping a handful of bytes fewer than 262144 to
+ * land on a valid character boundary. `truncated` in the final envelope is
+ * derived by comparing `githubGetText`'s `totalBytesRead` (the true upstream
+ * body size) against the final `returnedBytes` — true iff the source was
+ * longer than what's returned, regardless of whether the reduction happened
+ * during streaming, during the final trim, or both.
  */
 
 import { z } from "zod";
@@ -570,9 +580,11 @@ export type GetJobLogInput = z.infer<typeof getJobLogInputSchema>;
 
 /**
  * AC-004: fetches a job's plain-text log, returning the contract's
- * `job-log` envelope. Applies 256 KiB tail-priority truncation
- * (`truncateLogTail`) — always `ok: true` regardless of whether truncation
- * happened.
+ * `job-log` envelope. `githubGetText` already bounds memory during the
+ * fetch itself (streaming tail read); `truncateLogTail` then applies the
+ * final, byte-exact 256 KiB tail-priority cut. `truncated` is true iff the
+ * upstream body (`outcome.totalBytesRead`) was longer than what is actually
+ * returned (`returnedBytes`) — always `ok: true` regardless.
  */
 export async function getJobLog(
   input: GetJobLogInput,
@@ -597,7 +609,8 @@ export async function getJobLog(
     if (!outcome.ok) {
       return outcome;
     }
-    const { log, truncated, returnedBytes } = truncateLogTail(outcome.data);
+    const { log, returnedBytes } = truncateLogTail(outcome.data);
+    const truncated = outcome.totalBytesRead > returnedBytes;
     return ok<JobLogData>({ kind: "job-log", jobId, log, truncated, returnedBytes });
   });
 }

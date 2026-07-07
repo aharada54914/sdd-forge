@@ -22,11 +22,27 @@
  * ci-mcp endpoint whose 2xx body is plain text, not JSON (`get_job_log`'s
  * upstream job-log endpoint). It mirrors `githubGet`'s host-fixing,
  * GET-only method, token-header attachment, and error-normalization
- * exactly, differing only in reading the 2xx body via `.text()` instead of
- * `.json()`. GitHub's actual job-log endpoint responds with a 302 redirect
- * to temporary blob storage; ordinary `fetch` follows redirects by default,
- * so the injected fetch-shaped function here is expected to already return
- * the final plain-text response, the same convention `GithubFetch` uses.
+ * exactly. GitHub's actual job-log endpoint responds with a 302 redirect to
+ * temporary blob storage; ordinary `fetch` follows redirects by default, so
+ * the injected fetch-shaped function here is expected to already return the
+ * final plain-text response, the same convention `GithubFetch` uses.
+ *
+ * T-013 cycle-2 (evaluator Major, security-spec.md B2 "リングバッファ +
+ * 256 KiB 上限(末尾優先)"): reading the whole upstream body via `.text()`
+ * before truncating materialized the entire job log in memory, unbounded.
+ * `githubGetText` now reads a 2xx body via `readBoundedTail`, a bounded
+ * streaming reader that consumes `response.body` (the Web ReadableStream
+ * every real `fetch` `Response` exposes) chunk-by-chunk and retains only a
+ * tail window bounded by `TAIL_READ_CAP_BYTES + TAIL_READ_MARGIN_BYTES` —
+ * memory never scales with the full upstream body size. The margin exists
+ * so `tools/actions.ts`'s `truncateLogTail` (which still owns the final,
+ * byte-exact, UTF-8-boundary-safe cut to <= 262144 bytes) always has enough
+ * slack above the cap to find a safe character boundary without needing to
+ * re-read anything. When a caller's `fetchImpl` returns a response with no
+ * `body` (e.g. some hand-written test fakes), `githubGetText` falls back to
+ * `.text()` — that fallback path is not memory-bounded, but it is only ever
+ * reachable when the injected fetch-shaped function itself did not provide a
+ * stream; the real `defaultTextFetch` (`fetch`) always does.
  */
 
 import { err, type ErrorEnvelope } from "./envelope.js";
@@ -123,11 +139,101 @@ export async function githubGet<T>(
   }
 }
 
-/** Minimal text-bodied response shape `githubGetText` needs; satisfied structurally by the global Fetch API's `Response`. */
+/**
+ * Minimal text-bodied response shape `githubGetText` needs; satisfied
+ * structurally by the global Fetch API's `Response`. `body` is optional so
+ * hand-written test fakes that only implement `.text()` still typecheck —
+ * `githubGetText` uses `body` (a Web `ReadableStream<Uint8Array>`) as its
+ * primary, memory-bounded read path and falls back to `.text()` only when
+ * `body` is absent.
+ */
 export interface GithubTextHttpResponse {
   readonly status: number;
   readonly headers: { get(name: string): string | null };
+  readonly body?: ReadableStream<Uint8Array> | null;
   text(): Promise<string>;
+}
+
+/** 256 KiB tail cap on a job log's returned bytes (security-spec.md B2, REQ-008 / AC-004). */
+export const TAIL_READ_CAP_BYTES = 262144;
+
+/**
+ * Extra slack retained above `TAIL_READ_CAP_BYTES` while streaming, so the
+ * downstream UTF-8-safe boundary trim (`tools/actions.ts`'s
+ * `truncateLogTail`) always has room to advance past a split multi-byte
+ * character without ever needing to read further bytes itself.
+ */
+export const TAIL_READ_MARGIN_BYTES = 65536;
+
+/** Result of a bounded tail read (see `readBoundedTail`). */
+export interface BoundedTailReadResult {
+  /** The retained tail bytes — bounded, never the full body for large inputs. */
+  readonly bytes: Uint8Array;
+  /** Total bytes actually consumed off the stream (may exceed `bytes.byteLength` when eviction occurred). */
+  readonly totalBytesRead: number;
+  /**
+   * The largest number of bytes ever held in the retention buffer at once
+   * during this read. Exposed (not just internally tracked) so regression
+   * tests can assert memory-boundedness directly instead of only inferring
+   * it from the final output size.
+   */
+  readonly maxRetainedBytes: number;
+}
+
+/**
+ * Reads `stream` chunk-by-chunk, retaining only a tail window: after each
+ * chunk is appended, whole chunks are evicted from the front of the
+ * retention deque as long as doing so would still leave at least
+ * `capBytes + marginBytes` retained. This bounds the retention buffer to
+ * roughly `capBytes + marginBytes` plus at most one extra chunk, regardless
+ * of how large `stream` is in total — peak memory does not scale with the
+ * full upstream body size (security-spec.md B2 ring-buffer mitigation;
+ * REQ-008 / AC-004 / TEST-004).
+ */
+export async function readBoundedTail(
+  stream: ReadableStream<Uint8Array>,
+  capBytes: number,
+  marginBytes: number,
+): Promise<BoundedTailReadResult> {
+  const threshold = capBytes + marginBytes;
+  const chunks: Uint8Array[] = [];
+  let retainedBytes = 0;
+  let totalBytesRead = 0;
+  let maxRetainedBytes = 0;
+
+  const reader = stream.getReader();
+  try {
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) {
+        break;
+      }
+      if (value === undefined || value.byteLength === 0) {
+        continue;
+      }
+      chunks.push(value);
+      retainedBytes += value.byteLength;
+      totalBytesRead += value.byteLength;
+      while (chunks.length > 0 && retainedBytes - chunks[0]!.byteLength >= threshold) {
+        const dropped = chunks.shift()!;
+        retainedBytes -= dropped.byteLength;
+      }
+      if (retainedBytes > maxRetainedBytes) {
+        maxRetainedBytes = retainedBytes;
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
+
+  const bytes = new Uint8Array(retainedBytes);
+  let offset = 0;
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+
+  return { bytes, totalBytesRead, maxRetainedBytes };
 }
 
 /** Fetch-shaped function `githubGetText` calls. Only ever invoked with `method: "GET"`. */
@@ -136,18 +242,38 @@ export type GithubTextFetch = (
   init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>> },
 ) => Promise<GithubTextHttpResponse>;
 
-export type GithubGetTextOutcome = { ok: true; data: string } | ErrorEnvelope;
+export type GithubGetTextOutcome =
+  | {
+      ok: true;
+      data: string;
+      /**
+       * Total bytes actually present in the upstream body, even when `data`
+       * itself was already reduced to a bounded tail window. Callers (e.g.
+       * `tools/actions.ts`'s `get_job_log`) compare this against their own
+       * final returned-byte count to determine `truncated` — the source was
+       * longer than what is returned iff `totalBytesRead > returnedBytes`.
+       */
+      totalBytesRead: number;
+    }
+  | ErrorEnvelope;
 
 const defaultTextFetch: GithubTextFetch = (url, init) => fetch(url, init);
 
 /**
  * Issues a single GET request against the GitHub Actions REST API and
- * resolves to either `{ ok: true, data }` (the plain-text 2xx body) or a
- * normalized error envelope (REQ-006). Identical host-fixing, GET-only,
- * token-header, and error-normalization behavior to `githubGet`; the only
- * difference is reading the successful body via `.text()` (for the one
- * ci-mcp endpoint — job logs — whose body is not JSON). The upstream
- * response body is discarded on every error path, same as `githubGet`.
+ * resolves to either `{ ok: true, data, totalBytesRead }` (a possibly
+ * tail-bounded slice of the 2xx body, plus how many bytes the upstream body
+ * actually had) or a normalized error envelope (REQ-006). Identical
+ * host-fixing, GET-only, token-header, and error-normalization behavior to
+ * `githubGet` — errors are detected from `status` before any body is read,
+ * exactly as before.
+ *
+ * The successful body is read via `readBoundedTail` against
+ * `response.body` (a Web `ReadableStream<Uint8Array>`) whenever the response
+ * exposes one — this is the primary, memory-bounded path (T-013 cycle-2; see
+ * module doc comment). Only when `response.body` is absent does this fall
+ * back to `.text()`. The upstream response body is discarded on every error
+ * path, same as `githubGet`.
  */
 export async function githubGetText(
   request: GithubGetRequest,
@@ -175,8 +301,16 @@ export async function githubGetText(
   }
 
   try {
+    if (response.body != null) {
+      const { bytes, totalBytesRead } = await readBoundedTail(
+        response.body,
+        TAIL_READ_CAP_BYTES,
+        TAIL_READ_MARGIN_BYTES,
+      );
+      return { ok: true, data: Buffer.from(bytes.buffer, bytes.byteOffset, bytes.byteLength).toString("utf-8"), totalBytesRead };
+    }
     const data = await response.text();
-    return { ok: true, data };
+    return { ok: true, data, totalBytesRead: Buffer.byteLength(data, "utf-8") };
   } catch {
     return err("upstream-error", "Failed to read the GitHub API response body.");
   }
