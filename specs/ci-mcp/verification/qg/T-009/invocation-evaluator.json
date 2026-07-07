@@ -1,0 +1,66 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "ci-mcp",
+  "task_id": "T-009",
+  "run_id": "qg-eval-cimcp-t009-20260708-e7a",
+  "host_session_id": "hs-qg-eval-cimcp-0111",
+  "sequence": 111,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "71ff727f14668d477ed143e2af456e1a49324ef86ec47f987da3b84cdcb0e7e2",
+  "previous_record_sha256": "b417096b239e02f7985cd9345e76ed13efff418a6e02a489a8866446fb944ff0",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/ci-mcp/T-009.md",
+      "sha256": "bd642e2e85500ffa4b22e880865c407eb14ea13a771b03a9ce5690a79667bb3c"
+    },
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+    },
+    {
+      "path": "specs/ci-mcp/tasks.md",
+      "sha256": "54cd5709161e7817832d9a34453890d6a70a32ca76d92dd4cf299fde93542df5"
+    },
+    {
+      "path": "specs/ci-mcp/traceability.json",
+      "sha256": "6f06c5691978c25ba88e16ee1d2978611e0922fc42925277c7726cb6ec1d7e2b"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "tests/install.tests.ps1",
+      "sha256": "4b33866496b97171868ca91f817b6b616e4448dfce81a0ea602aefa587f652a6"
+    },
+    {
+      "path": "tests/install.tests.sh",
+      "sha256": "1eaf55ed406190da5213c9e0cad327a95250c78fedaa8dc5d57ef14a79b5bceb"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-009-red.txt",
+      "sha256": "ffe357e3925941fbbd8fc71865454d3538cbb93326f20c4a5db806fdba4217ae"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-009-green.txt",
+      "sha256": "8e7b447969663b6e00d9e811133fd8d9c39ae0dd4923776f4881770ecb35c8b5"
+    }
+  ]
+}

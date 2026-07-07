@@ -16,7 +16,7 @@ Lifecycle: `Draft -> Approved -> In Progress -> Implementation Complete -> Done`
 ## T-001 ci-mcp サーバー基盤(scaffold)+ エンベロープ
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: TypeScript プロジェクト基盤(package.json / tsconfig / run-tests)と McpServer/stdio 骨組み・エラーエンベロープの新設。観察可能な挙動を持つ通常の内部ツール実装で、既存 2 MCP パターンの踏襲であり、機微面(write/トークン/上流連携)は後続タスクが担う。
 Required Workflow: acceptance-first
@@ -53,7 +53,7 @@ None
 ## T-002 github-client(GET 専用)+ error-normalizer(REQ-006 決定的写像)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: github-client は GitHub への唯一の外向き経路であり、HTTP メソッドが GET 固定でないと read/write 分離方針(REQ-003、B2)が破綻する。owner/repo の URL 組み立ては SSRF 面(security-spec.md OWASP:SSRF、ホスト固定 api.github.com)を持ち、上流エラー正規化の誤りは資格情報・内部情報の漏えい/誤マップ(REQ-006、B2 の Information Disclosure)に直結する。
 Required Workflow: tdd
@@ -94,7 +94,7 @@ T-001
 ## T-003 auth.ts(トークン解決)+ トークンスクラビング + no-secrets 検査
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: 認証は環境変数の read-only PAT を扱い、値の応答/stderr/エラー混入は資格情報流出に直結する(REQ-005、security-spec.md B2 の Information Disclosure、canary スクラビング必須)。トークン未設定時の非異常終了(`auth-missing`)の欠陥は DoS(security-spec.md B2)になる。OQ-004(変数名優先順位)を本タスク冒頭で確定する。
 Required Workflow: tdd
@@ -134,7 +134,7 @@ T-002
 ## T-004 repo-resolve.ts(owner/repo 解決、exec なし)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: owner/repo の解決は B2 の SSRF 面(URL path 要素、ホスト差し替え不可)と入力ガード(REQ-007、security-spec.md B1/OWASP:Injection・SSRF)に直結する。exec による git remote 参照を誤って導入すると exec 回避方針(Non-goal、`child_process` 禁止の静的検査対象)が破綻する。OQ-001(指定方法の正準優先順位)を本タスク冒頭で確定する。
 Required Workflow: tdd
@@ -168,7 +168,7 @@ T-001
 ## T-005 tools/actions.ts(run 系 2 ツール)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: `list_workflow_runs` / `get_workflow_run` の request/response 形は外部クライアント(Claude Code / Codex / Cursor / VS Code)が直接消費する公開 API 契約であり、risk-classification-policy.md の sentinel surface(public API contracts)に該当する。フィールド形状・error code enum の無言の欠陥は全クライアントのパース破綻に直結する。write 境界・トークン・SSRF の機微制御は T-002/T-003/T-004/T-006 が担う。
 Required Workflow: tdd
@@ -204,7 +204,7 @@ T-002, T-003, T-004
 ## T-012 tools/actions.ts(jobs / artifacts 系 2 ツール)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: `list_run_jobs` / `list_run_artifacts` の request/response 形は外部クライアント(Claude Code / Codex / Cursor / VS Code)が直接消費する公開 API 契約であり、risk-classification-policy.md の sentinel surface(public API contracts)に該当する。フィールド形状・error code enum の無言の欠陥は全クライアントのパース破綻に直結する。write 境界・トークン・SSRF の機微制御は T-002/T-003/T-004/T-006 が担う。
 Required Workflow: tdd
@@ -242,7 +242,7 @@ T-002, T-003, T-004, T-005
 ## T-013 tools/actions.ts(get_job_log + 256 KiB 末尾優先 truncation)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: `get_job_log` の request/response 形は外部クライアント(Claude Code / Codex / Cursor / VS Code)が直接消費する公開 API 契約であり、risk-classification-policy.md の sentinel surface(public API contracts)に該当する。フィールド形状・error code enum の無言の欠陥は全クライアントのパース破綻に直結する。加えてジョブログの 256 KiB 末尾優先 truncation の欠陥はログ欠損・応答肥大に直結する。write 境界・トークン・SSRF の機微制御は T-002/T-003/T-004/T-006 が担う。
 Required Workflow: tdd
@@ -277,7 +277,7 @@ T-002, T-003, T-004, T-012
 ## T-006 read-only 静的検査 + no-write テスト(write 境界)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: write ツール/write API の誤公開は read/write 分離方針の破綻に直結する(REQ-003、security-spec.md B1/B2 の Tampering/Elevation of Privilege、OWASP:Broken Access Control)。入力スキーマの write 誘発フィールド不在と、src の write メソッド/exec/fs 書込み/eval 不在の静的検査が唯一の機械的チョークポイント。
 Required Workflow: tdd
@@ -314,7 +314,7 @@ T-005, T-012, T-013
 ## T-007 契約 schema(ci-mcp-tools.v1)+ ajv 検証
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: `contracts/ci-mcp-tools.v1.schema.json` は全ツール応答の正準 JSON Schema 契約であり、risk-classification-policy.md の sentinel surface(public API contracts)に該当する。契約の欠陥(誤ったフィールド形状・error code enum の齟齬)は外部クライアントのエラー処理を無言で破綻させる。既存 2 MCP の v1 enum の上位互換拡張として扱う。
 Required Workflow: tdd
@@ -348,7 +348,7 @@ T-005, T-012, T-013
 ## T-008 esbuild dist + dist-parity CI + Inspector スモーク
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: 配布物(dist)と CI 検証・スモークの追加。挙動面は既存 ADR-0003 パターンの踏襲で、欠陥は CI で検出可能(改竄検知は dist-parity 自体が担う)。local-env-mcp T-004 と同型。
 Required Workflow: acceptance-first
@@ -382,7 +382,7 @@ T-006, T-007
 ## T-009 installer 拡張(install.sh / install.ps1 パリティ)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: installer は Cursor(`~/.cursor/mcp.json`)/ VS Code ユーザープロファイル `mcp.json` / Codex config.toml / Claude 設定を書き換えるデータ変異であり、欠陥はユーザーの既存 MCP 設定の破壊に直結する(REQ-010、security-spec.md B3、local-env-mcp ADR-0005 継承)。トークン値を設定ファイルに書き込む欠陥は資格情報流出(B3 の Information Disclosure)になる。sh/ps1 の挙動差異は片系統のみでの設定破壊 silent defect を招く。
 Required Workflow: tdd
@@ -420,7 +420,7 @@ T-008
 ## T-010 uninstall(uninstall.sh / uninstall.ps1): ci-mcp 登録解除 + 配置削除
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: uninstall は削除系操作であり、欠陥はユーザー定義の他 MCP エントリの誤削除(非可逆的なユーザーデータ喪失)に直結する(REQ-011、security-spec.md B3 の誤削除)。「installer 管理エントリのみ削除」の境界を破ると他クライアントのユーザー設定を破壊する。
 Required Workflow: tdd
@@ -451,7 +451,7 @@ T-009
 ## T-011 ドキュメント(README / USERGUIDE)+ traceability 最終化
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: low
 Risk Rationale: ドキュメント追記と traceability 表の Status 更新のみで、制御フロー・データ・セキュリティへの影響がない。
 Required Workflow: test-after
