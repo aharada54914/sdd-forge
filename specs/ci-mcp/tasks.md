@@ -382,7 +382,7 @@ T-006, T-007
 ## T-009 installer 拡張(install.sh / install.ps1 パリティ)
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: installer は Cursor(`~/.cursor/mcp.json`)/ VS Code ユーザープロファイル `mcp.json` / Codex config.toml / Claude 設定を書き換えるデータ変異であり、欠陥はユーザーの既存 MCP 設定の破壊に直結する(REQ-010、security-spec.md B3、local-env-mcp ADR-0005 継承)。トークン値を設定ファイルに書き込む欠陥は資格情報流出(B3 の Information Disclosure)になる。sh/ps1 の挙動差異は片系統のみでの設定破壊 silent defect を招く。
 Required Workflow: tdd
