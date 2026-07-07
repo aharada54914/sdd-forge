@@ -420,7 +420,7 @@ T-008
 ## T-010 uninstall(uninstall.sh / uninstall.ps1): ci-mcp 登録解除 + 配置削除
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: uninstall は削除系操作であり、欠陥はユーザー定義の他 MCP エントリの誤削除(非可逆的なユーザーデータ喪失)に直結する(REQ-011、security-spec.md B3 の誤削除)。「installer 管理エントリのみ削除」の境界を破ると他クライアントのユーザー設定を破壊する。
 Required Workflow: tdd

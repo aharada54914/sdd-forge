@@ -448,14 +448,14 @@ Write-Host "ok: -Plugins `"`" (empty) is rejected"
 # with a marker block per MCP plus an unrelated section, and Cursor / VS Code
 # mcp.json files each holding the two managed keys, a user-defined key, and an
 # unknown top-level key.
-function New-InstalledTwoMcpLayout {
+function New-InstalledManagedMcpsLayout {
     param(
         [Parameter(Mandatory)][string]$InstallRoot,
         [Parameter(Mandatory)][string]$CodexHome,
         [Parameter(Mandatory)][string]$CursorDir,
         [Parameter(Mandatory)][string]$VSCodeDir
     )
-    foreach ($name in @("sdd-forge-mcp", "local-env-mcp")) {
+    foreach ($name in @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")) {
         $distDir = Join-Path (Join-Path (Join-Path $InstallRoot "mcp") $name) "dist"
         New-Item -ItemType Directory -Path $distDir -Force | Out-Null
         Set-Content -Path (Join-Path $distDir "index.js") -Value "console.log('stub');" -Encoding Utf8NoBOM
@@ -464,6 +464,7 @@ function New-InstalledTwoMcpLayout {
     New-Item -ItemType Directory -Path $CodexHome -Force | Out-Null
     $forgeEntry = ((Join-Path (Join-Path (Join-Path (Join-Path $InstallRoot "mcp") "sdd-forge-mcp") "dist") "index.js") -replace '\\', '/')
     $localEntry = ((Join-Path (Join-Path (Join-Path (Join-Path $InstallRoot "mcp") "local-env-mcp") "dist") "index.js") -replace '\\', '/')
+    $ciEntry = ((Join-Path (Join-Path (Join-Path (Join-Path $InstallRoot "mcp") "ci-mcp") "dist") "index.js") -replace '\\', '/')
     $configLines = @(
         '[some_other_section]',
         'key = "value"',
@@ -478,7 +479,13 @@ function New-InstalledTwoMcpLayout {
         '[mcp_servers.local-env-mcp]',
         'command = "node"',
         "args = [`"$localEntry`"]",
-        '# <<< local-env-mcp <<<'
+        '# <<< local-env-mcp <<<',
+        '',
+        '# >>> ci-mcp (managed by sdd-forge installer; do not edit by hand) >>>',
+        '[mcp_servers.ci-mcp]',
+        'command = "node"',
+        "args = [`"$ciEntry`"]",
+        '# <<< ci-mcp <<<'
     )
     Set-Content -Path (Join-Path $CodexHome "config.toml") -Value $configLines -Encoding Utf8NoBOM
 
@@ -487,6 +494,7 @@ function New-InstalledTwoMcpLayout {
         mcpServers = [ordered]@{
             "sdd-forge-mcp" = [ordered]@{ command = "node"; args = @($forgeEntry) }
             "local-env-mcp" = [ordered]@{ command = "node"; args = @($localEntry) }
+            "ci-mcp"        = [ordered]@{ command = "node"; args = @($ciEntry) }
             "my-server"     = [ordered]@{ command = "node"; args = @("/home/user/my-server.js") }
         }
         telemetry = [ordered]@{ enabled = $false }
@@ -498,6 +506,7 @@ function New-InstalledTwoMcpLayout {
         servers = [ordered]@{
             "sdd-forge-mcp" = [ordered]@{ type = "stdio"; command = "node"; args = @($forgeEntry) }
             "local-env-mcp" = [ordered]@{ type = "stdio"; command = "node"; args = @($localEntry) }
+            "ci-mcp"        = [ordered]@{ type = "stdio"; command = "node"; args = @($ciEntry) }
             "my-server"     = [ordered]@{ type = "stdio"; command = "node"; args = @("/home/user/my-server.js") }
         }
         inputs = @()
@@ -521,29 +530,31 @@ $oOriginalVSCode = $env:SDD_VSCODE_USER_DIR
 try {
     New-FakeCommands -BinRoot $oBin -LogPath $oLog
     New-InstalledLayout -InstallRoot $oInstall -CodexHome $oCodexHome
-    New-InstalledTwoMcpLayout -InstallRoot $oInstall -CodexHome $oCodexHome -CursorDir $oCursor -VSCodeDir $oVSCode
+    New-InstalledManagedMcpsLayout -InstallRoot $oInstall -CodexHome $oCodexHome -CursorDir $oCursor -VSCodeDir $oVSCode
     $env:PATH = "$oBin$([System.IO.Path]::PathSeparator)$oOriginalPath"
     $env:SDD_CODEX_HOME = $oCodexHome
     $env:SDD_CURSOR_DIR = $oCursor
     $env:SDD_VSCODE_USER_DIR = $oVSCode
 
     $oFailed = $false
-    try { & $uninstaller -InstallRoot $oInstall -Target All -Mcp @("sdd-forge-mcp", "local-env-mcp") *>$null } catch { $oFailed = $true }
+    try { & $uninstaller -InstallRoot $oInstall -Target All -Mcp @("sdd-forge-mcp", "local-env-mcp", "ci-mcp") *>$null } catch { $oFailed = $true }
 
     if ($oFailed) { throw "Cursor/VSCode (o): uninstaller threw" }
     $oCur = Get-Content -Raw (Join-Path $oCursor "mcp.json")
     $oVsc = Get-Content -Raw (Join-Path $oVSCode "mcp.json")
     if ($oCur -match '"sdd-forge-mcp"') { throw "Cursor (o): managed sdd-forge-mcp key not removed" }
     if ($oCur -match '"local-env-mcp"') { throw "Cursor (o): managed local-env-mcp key not removed" }
+    if ($oCur -match '"ci-mcp"') { throw "Cursor (o): managed ci-mcp key not removed" }
     if ($oVsc -match '"sdd-forge-mcp"') { throw "VSCode (o): managed sdd-forge-mcp key not removed" }
     if ($oVsc -match '"local-env-mcp"') { throw "VSCode (o): managed local-env-mcp key not removed" }
+    if ($oVsc -match '"ci-mcp"') { throw "VSCode (o): managed ci-mcp key not removed" }
     if ($oCur -notmatch '"my-server"') { throw "Cursor (o): user-defined my-server key was removed" }
     if ($oCur -notmatch '"telemetry"') { throw "Cursor (o): unknown top-level telemetry key was removed" }
     if ($oVsc -notmatch '"my-server"') { throw "VSCode (o): user-defined my-server key was removed" }
     if ($oVsc -notmatch '"inputs"') { throw "VSCode (o): unknown top-level inputs key was removed" }
     $null = $oCur | ConvertFrom-Json
     $null = $oVsc | ConvertFrom-Json
-    Write-Host "ok: uninstall removes only managed Cursor/VS Code keys for both MCPs, preserves user + unknown keys"
+    Write-Host "ok: uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys"
 }
 finally {
     $env:PATH = $oOriginalPath
@@ -570,28 +581,31 @@ $pOriginalVSCode = $env:SDD_VSCODE_USER_DIR
 try {
     New-FakeCommands -BinRoot $pBin -LogPath $pLog
     New-InstalledLayout -InstallRoot $pInstall -CodexHome $pCodexHome
-    New-InstalledTwoMcpLayout -InstallRoot $pInstall -CodexHome $pCodexHome -CursorDir $pCursor -VSCodeDir $pVSCode
+    New-InstalledManagedMcpsLayout -InstallRoot $pInstall -CodexHome $pCodexHome -CursorDir $pCursor -VSCodeDir $pVSCode
     $env:PATH = "$pBin$([System.IO.Path]::PathSeparator)$pOriginalPath"
     $env:SDD_CODEX_HOME = $pCodexHome
     $env:SDD_CURSOR_DIR = $pCursor
     $env:SDD_VSCODE_USER_DIR = $pVSCode
 
     $pFailed = $false
-    try { & $uninstaller -InstallRoot $pInstall -Target All -Mcp @("sdd-forge-mcp", "local-env-mcp") *>$null } catch { $pFailed = $true }
+    try { & $uninstaller -InstallRoot $pInstall -Target All -Mcp @("sdd-forge-mcp", "local-env-mcp", "ci-mcp") *>$null } catch { $pFailed = $true }
 
     if ($pFailed) { throw "both-MCP removal (p): uninstaller threw" }
     # Both payloads must be gone (here via full install-root removal; scenario
     # (m) already covers payload selection semantics for a single MCP).
     if (Test-Path (Join-Path (Join-Path $pInstall "mcp") "sdd-forge-mcp")) { throw "both-MCP removal (p): sdd-forge-mcp payload not removed" }
     if (Test-Path (Join-Path (Join-Path $pInstall "mcp") "local-env-mcp")) { throw "both-MCP removal (p): local-env-mcp payload not removed" }
+    if (Test-Path (Join-Path (Join-Path $pInstall "mcp") "ci-mcp")) { throw "both-MCP removal (p): ci-mcp payload not removed" }
     $pLogContent = if (Test-Path $pLog) { Get-Content -Raw $pLog } else { "" }
     if ($pLogContent -notmatch [regex]::Escape("claude mcp remove sdd-forge-mcp")) { throw "both-MCP removal (p): claude mcp remove sdd-forge-mcp not invoked" }
     if ($pLogContent -notmatch [regex]::Escape("claude mcp remove local-env-mcp")) { throw "both-MCP removal (p): claude mcp remove local-env-mcp not invoked" }
+    if ($pLogContent -notmatch [regex]::Escape("claude mcp remove ci-mcp")) { throw "both-MCP removal (p): claude mcp remove ci-mcp not invoked" }
     $pConfig = Get-Content -Raw (Join-Path $pCodexHome "config.toml")
     if ($pConfig -match "sdd-forge-mcp") { throw "both-MCP removal (p): sdd-forge-mcp Codex block not removed" }
     if ($pConfig -match "local-env-mcp") { throw "both-MCP removal (p): local-env-mcp Codex block not removed" }
+    if ($pConfig -match "ci-mcp") { throw "both-MCP removal (p): ci-mcp Codex block not removed" }
     if ($pConfig -notmatch "some_other_section") { throw "both-MCP removal (p): unrelated Codex section removed" }
-    Write-Host "ok: uninstall removes both managed MCP payloads, Claude regs, and both Codex marker blocks"
+    Write-Host "ok: uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks"
 }
 finally {
     $env:PATH = $pOriginalPath
@@ -617,7 +631,7 @@ $qOriginalVSCode = $env:SDD_VSCODE_USER_DIR
 try {
     New-FakeCommands -BinRoot $qBin -LogPath $qLog
     New-InstalledLayout -InstallRoot $qInstall -CodexHome $qCodexHome
-    New-InstalledTwoMcpLayout -InstallRoot $qInstall -CodexHome $qCodexHome -CursorDir $qCursor -VSCodeDir $qVSCode
+    New-InstalledManagedMcpsLayout -InstallRoot $qInstall -CodexHome $qCodexHome -CursorDir $qCursor -VSCodeDir $qVSCode
     # Corrupt the Cursor file AFTER seeding (truncated / invalid JSON).
     Set-Content -Path (Join-Path $qCursor "mcp.json") -Value '{ "mcpServers": { "sdd-forge-mcp": { not valid json' -Encoding Utf8NoBOM -NoNewline
     $qCursorBefore = (Get-FileHash -Algorithm SHA256 (Join-Path $qCursor "mcp.json")).Hash
@@ -628,7 +642,7 @@ try {
 
     $qFailed = $false
     $qErr = $null
-    try { $qErr = (& $uninstaller -InstallRoot $qInstall -Target All -Mcp @("sdd-forge-mcp", "local-env-mcp") -KeepFiles 2>&1 | Out-String) } catch { $qFailed = $true }
+    try { $qErr = (& $uninstaller -InstallRoot $qInstall -Target All -Mcp @("sdd-forge-mcp", "local-env-mcp", "ci-mcp") -KeepFiles 2>&1 | Out-String) } catch { $qFailed = $true }
 
     if ($qFailed) { throw "corrupt JSON (q): uninstaller threw instead of continuing" }
     $qCursorAfter = (Get-FileHash -Algorithm SHA256 (Join-Path $qCursor "mcp.json")).Hash
@@ -668,7 +682,7 @@ try {
     $env:SDD_VSCODE_USER_DIR = $rNoVSCode
 
     $rFailed = $false
-    try { & $uninstaller -InstallRoot $rInstall -Target All -Mcp @("sdd-forge-mcp", "local-env-mcp") *>$null } catch { $rFailed = $true }
+    try { & $uninstaller -InstallRoot $rInstall -Target All -Mcp @("sdd-forge-mcp", "local-env-mcp", "ci-mcp") *>$null } catch { $rFailed = $true }
 
     if ($rFailed) { throw "absent Cursor/VSCode dir (r): uninstaller threw" }
     if (Test-Path $rInstall) { throw "absent Cursor/VSCode dir (r): install root not removed" }
