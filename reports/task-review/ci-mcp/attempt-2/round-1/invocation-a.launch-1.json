@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "feature": "ci-mcp",
+  "run_id": "task-a-cimcp-a2r1-20260707-4e1a",
+  "host_session_id": "hs-task-a-cimcp-0101",
+  "sequence": 101,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "87dd93a62341543ca561ec40dc039e39e8769a49ac02f0857fa55e507d76ce05",
+  "previous_record_sha256": "c00910aefa08ae9051283ab7095dfc469eec8023e98d2788800506d6d0400662",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+    },
+    {
+      "path": "specs/ci-mcp/tasks.md",
+      "sha256": "4bc2563e8703598a7b33050190bba3d2fce8f5263586b181b642c75d41cf53a4"
+    },
+    {
+      "path": "specs/ci-mcp/traceability.md",
+      "sha256": "5b4810d5d1c67ad5e6791cbac73b2a40b144be5784374ead9a108fbff614f2ac"
+    },
+    {
+      "path": "specs/ci-mcp/ux-spec.md",
+      "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"
+    },
+    {
+      "path": "specs/ci-mcp/frontend-spec.md",
+      "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"
+    },
+    {
+      "path": "specs/ci-mcp/infra-spec.md",
+      "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/ci-mcp/attempt-2/round-1/precheck-result.json",
+      "sha256": "f59d885997072d3ba6fe41062a2f8c1f9dd13b5cf1cf30bf2bb82a208f8602a2"
+    },
+    {
+      "path": "reports/task-review/ci-mcp/attempt-2/round-1/dependency-graph.json",
+      "sha256": "fdf856fb3a69d2691a988ed858001c82968799eb9fb0506ba4eba821b6ed5061"
+    }
+  ]
+}

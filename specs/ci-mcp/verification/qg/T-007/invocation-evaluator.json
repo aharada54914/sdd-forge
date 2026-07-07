@@ -1,0 +1,66 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "ci-mcp",
+  "task_id": "T-007",
+  "run_id": "qg-eval-cimcp-t007-20260708-e6a",
+  "host_session_id": "hs-qg-eval-cimcp-0110",
+  "sequence": 110,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "7094467f31a83c28fa058c99d10686e504f2f367d8b86804a36c8a6c010e9c0d",
+  "previous_record_sha256": "757e9b49853f979fc4a60441a5781cd1415c977eac876054b93e7455dbff22a2",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "reports/implementation/ci-mcp/T-007.md",
+      "sha256": "568b437260f8b469060eee256219ab39010a94a8ccae5ddce3961e91824ddb5d"
+    },
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+    },
+    {
+      "path": "specs/ci-mcp/tasks.md",
+      "sha256": "54cd5709161e7817832d9a34453890d6a70a32ca76d92dd4cf299fde93542df5"
+    },
+    {
+      "path": "specs/ci-mcp/traceability.json",
+      "sha256": "6f06c5691978c25ba88e16ee1d2978611e0922fc42925277c7726cb6ec1d7e2b"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/contract/ajv-contract.test.ts",
+      "sha256": "95ceedf9e111f3d0d5a4ad010864369bc6e0fa29f4d3387a857f90a07085b40b"
+    },
+    {
+      "path": "mcp/ci-mcp/tests/contract/test-helpers.ts",
+      "sha256": "54c5e3b0029aaa00f537fca02b497a9055806d7ec197c8e0891617cf92d30616"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-007-red.txt",
+      "sha256": "eb0d5c9fc058b3c99322a8db3e93533b2226d628f029070376952884df7b8ab5"
+    },
+    {
+      "path": "specs/ci-mcp/verification/T-007-green.txt",
+      "sha256": "9052cd7730131ef18e6988890abb5d797a8d4f2a30e5519401632487326070ee"
+    }
+  ]
+}

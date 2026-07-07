@@ -442,13 +442,13 @@ fi
 # <install_root>/mcp/<name>/, a Codex config.toml with a marker block per MCP
 # and an unrelated section, plus Cursor and VS Code mcp.json files each holding
 # the two managed keys, a user-defined key, and an unknown top-level key.
-seed_installed_two_mcps() {
+seed_installed_mcps() {
     local install_root="$1"
     local codex_home="$2"
     local cursor_dir="$3"
     local vscode_dir="$4"
     local name
-    for name in sdd-forge-mcp local-env-mcp; do
+    for name in sdd-forge-mcp local-env-mcp ci-mcp; do
         mkdir -p "${install_root}/mcp/${name}/dist"
         echo "console.log('stub')" > "${install_root}/mcp/${name}/dist/index.js"
         echo "{\"name\":\"${name}\"}" > "${install_root}/mcp/${name}/package.json"
@@ -469,26 +469,34 @@ args = ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"]
 command = "node"
 args = ["${install_root}/mcp/local-env-mcp/dist/index.js"]
 # <<< local-env-mcp <<<
+
+# >>> ci-mcp (managed by sdd-forge installer; do not edit by hand) >>>
+[mcp_servers.ci-mcp]
+command = "node"
+args = ["${install_root}/mcp/ci-mcp/dist/index.js"]
+# <<< ci-mcp <<<
 TOML
-    # Cursor mcp.json: two managed keys + a user-defined key + unknown top key.
+    # Cursor mcp.json: three managed keys + a user-defined key + unknown top key.
     mkdir -p "$cursor_dir"
     cat > "${cursor_dir}/mcp.json" <<JSON
 {
   "mcpServers": {
     "sdd-forge-mcp": { "command": "node", "args": ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"] },
     "local-env-mcp": { "command": "node", "args": ["${install_root}/mcp/local-env-mcp/dist/index.js"] },
+    "ci-mcp": { "command": "node", "args": ["${install_root}/mcp/ci-mcp/dist/index.js"] },
     "my-server": { "command": "node", "args": ["/home/user/my-server.js"] }
   },
   "telemetry": { "enabled": false }
 }
 JSON
-    # VS Code mcp.json: two managed keys (vscode entry shape) + user + unknown.
+    # VS Code mcp.json: three managed keys (vscode entry shape) + user + unknown.
     mkdir -p "$vscode_dir"
     cat > "${vscode_dir}/mcp.json" <<JSON
 {
   "servers": {
     "sdd-forge-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"] },
     "local-env-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/local-env-mcp/dist/index.js"] },
+    "ci-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/ci-mcp/dist/index.js"] },
     "my-server": { "type": "stdio", "command": "node", "args": ["/home/user/my-server.js"] }
   },
   "inputs": []
@@ -505,11 +513,11 @@ _o_orig_path="$PATH"; _o_orig_codex="${SDD_CODEX_HOME:-}"
 _o_orig_cursor="${SDD_CURSOR_DIR:-}"; _o_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
 make_fake_commands "$_o_bin" "$_o_log"
 seed_installed_layout "$_o_install" "$_o_codex"
-seed_installed_two_mcps "$_o_install" "$_o_codex" "$_o_cursor" "$_o_vscode"
+seed_installed_mcps "$_o_install" "$_o_codex" "$_o_cursor" "$_o_vscode"
 export PATH="${_o_bin}:${_o_orig_path}"; export SDD_CODEX_HOME="$_o_codex"
 export SDD_CURSOR_DIR="$_o_cursor"; export SDD_VSCODE_USER_DIR="$_o_vscode"
 _o_failed=0
-bash "$UNINSTALLER" --install-root "$_o_install" --target All --mcp "sdd-forge-mcp,local-env-mcp" >/dev/null 2>&1 || _o_failed=1
+bash "$UNINSTALLER" --install-root "$_o_install" --target All --mcp "sdd-forge-mcp,local-env-mcp,ci-mcp" >/dev/null 2>&1 || _o_failed=1
 export PATH="$_o_orig_path"
 if [[ -z "$_o_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_o_orig_codex"; fi
 if [[ -z "$_o_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_o_orig_cursor"; fi
@@ -520,8 +528,10 @@ _o_cur="${_o_cursor}/mcp.json"; _o_vsc="${_o_vscode}/mcp.json"
 # Managed keys must be gone from both files (grep on JSON key form).
 grep -qF '"sdd-forge-mcp"' "$_o_cur" && { fail "Cursor (o): managed sdd-forge-mcp key not removed"; _o_ok=0; }
 grep -qF '"local-env-mcp"' "$_o_cur" && { fail "Cursor (o): managed local-env-mcp key not removed"; _o_ok=0; }
+grep -qF '"ci-mcp"' "$_o_cur" && { fail "Cursor (o): managed ci-mcp key not removed"; _o_ok=0; }
 grep -qF '"sdd-forge-mcp"' "$_o_vsc" && { fail "VSCode (o): managed sdd-forge-mcp key not removed"; _o_ok=0; }
 grep -qF '"local-env-mcp"' "$_o_vsc" && { fail "VSCode (o): managed local-env-mcp key not removed"; _o_ok=0; }
+grep -qF '"ci-mcp"' "$_o_vsc" && { fail "VSCode (o): managed ci-mcp key not removed"; _o_ok=0; }
 # User-defined + unknown keys must survive.
 grep -qF '"my-server"' "$_o_cur" || { fail "Cursor (o): user-defined my-server key was removed"; _o_ok=0; }
 grep -qF '"telemetry"' "$_o_cur" || { fail "Cursor (o): unknown top-level telemetry key was removed"; _o_ok=0; }
@@ -531,7 +541,7 @@ grep -qF '"inputs"' "$_o_vsc" || { fail "VSCode (o): unknown top-level inputs ke
 node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$_o_cur" >/dev/null 2>&1 || { fail "Cursor (o): result is not valid JSON"; _o_ok=0; }
 node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$_o_vsc" >/dev/null 2>&1 || { fail "VSCode (o): result is not valid JSON"; _o_ok=0; }
 rm -rf "$_o_root"
-[[ $_o_ok -eq 1 ]] && ok "uninstall removes only managed Cursor/VS Code keys for both MCPs, preserves user + unknown keys"
+[[ $_o_ok -eq 1 ]] && ok "uninstall removes only managed Cursor/VS Code keys for all three MCPs, preserves user + unknown keys"
 
 # Scenario (p): both managed MCPs fully removed — payloads gone, claude mcp
 # remove invoked for each, both Codex marker blocks stripped, unrelated Codex
@@ -543,11 +553,11 @@ _p_orig_path="$PATH"; _p_orig_codex="${SDD_CODEX_HOME:-}"
 _p_orig_cursor="${SDD_CURSOR_DIR:-}"; _p_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
 make_fake_commands "$_p_bin" "$_p_log"
 seed_installed_layout "$_p_install" "$_p_codex"
-seed_installed_two_mcps "$_p_install" "$_p_codex" "$_p_cursor" "$_p_vscode"
+seed_installed_mcps "$_p_install" "$_p_codex" "$_p_cursor" "$_p_vscode"
 export PATH="${_p_bin}:${_p_orig_path}"; export SDD_CODEX_HOME="$_p_codex"
 export SDD_CURSOR_DIR="$_p_cursor"; export SDD_VSCODE_USER_DIR="$_p_vscode"
 _p_failed=0
-bash "$UNINSTALLER" --install-root "$_p_install" --target All --mcp "sdd-forge-mcp,local-env-mcp" >/dev/null 2>&1 || _p_failed=1
+bash "$UNINSTALLER" --install-root "$_p_install" --target All --mcp "sdd-forge-mcp,local-env-mcp,ci-mcp" >/dev/null 2>&1 || _p_failed=1
 export PATH="$_p_orig_path"
 if [[ -z "$_p_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_p_orig_codex"; fi
 if [[ -z "$_p_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_p_orig_cursor"; fi
@@ -558,15 +568,18 @@ _p_ok=1
 # already covers payload-only removal semantics for a single MCP).
 [[ ! -e "${_p_install}/mcp/sdd-forge-mcp" ]] || { fail "both-MCP removal (p): sdd-forge-mcp payload not removed"; _p_ok=0; }
 [[ ! -e "${_p_install}/mcp/local-env-mcp" ]] || { fail "both-MCP removal (p): local-env-mcp payload not removed"; _p_ok=0; }
+[[ ! -e "${_p_install}/mcp/ci-mcp" ]] || { fail "both-MCP removal (p): ci-mcp payload not removed"; _p_ok=0; }
 _p_logc=""; [[ -f "$_p_log" ]] && _p_logc="$(cat "$_p_log")"
 echo "$_p_logc" | grep -qF "claude mcp remove sdd-forge-mcp" || { fail "both-MCP removal (p): claude mcp remove sdd-forge-mcp not invoked"; _p_ok=0; }
 echo "$_p_logc" | grep -qF "claude mcp remove local-env-mcp" || { fail "both-MCP removal (p): claude mcp remove local-env-mcp not invoked"; _p_ok=0; }
+echo "$_p_logc" | grep -qF "claude mcp remove ci-mcp" || { fail "both-MCP removal (p): claude mcp remove ci-mcp not invoked"; _p_ok=0; }
 _p_conf="${_p_codex}/config.toml"
 grep -qF "sdd-forge-mcp" "$_p_conf" && { fail "both-MCP removal (p): sdd-forge-mcp Codex block not removed"; _p_ok=0; }
 grep -qF "local-env-mcp" "$_p_conf" && { fail "both-MCP removal (p): local-env-mcp Codex block not removed"; _p_ok=0; }
+grep -qF "ci-mcp" "$_p_conf" && { fail "both-MCP removal (p): ci-mcp Codex block not removed"; _p_ok=0; }
 grep -qF "some_other_section" "$_p_conf" || { fail "both-MCP removal (p): unrelated Codex section removed"; _p_ok=0; }
 rm -rf "$_p_root"
-[[ $_p_ok -eq 1 ]] && ok "uninstall removes both managed MCP payloads, Claude regs, and both Codex marker blocks"
+[[ $_p_ok -eq 1 ]] && ok "uninstall removes all three managed MCP payloads, Claude regs, and all Codex marker blocks"
 
 # Scenario (q): corrupt Cursor mcp.json is left BYTE-IDENTICAL (fail-safe) while
 # the VS Code client is still cleaned (per-client continuation).
@@ -577,14 +590,14 @@ _q_orig_path="$PATH"; _q_orig_codex="${SDD_CODEX_HOME:-}"
 _q_orig_cursor="${SDD_CURSOR_DIR:-}"; _q_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
 make_fake_commands "$_q_bin" "$_q_log"
 seed_installed_layout "$_q_install" "$_q_codex"
-seed_installed_two_mcps "$_q_install" "$_q_codex" "$_q_cursor" "$_q_vscode"
+seed_installed_mcps "$_q_install" "$_q_codex" "$_q_cursor" "$_q_vscode"
 # Corrupt the Cursor file AFTER seeding (truncated / invalid JSON).
 printf '{ "mcpServers": { "sdd-forge-mcp": { not valid json' > "${_q_cursor}/mcp.json"
 _q_cursor_before="$(shasum -a 256 "${_q_cursor}/mcp.json" | awk '{print $1}')"
 export PATH="${_q_bin}:${_q_orig_path}"; export SDD_CODEX_HOME="$_q_codex"
 export SDD_CURSOR_DIR="$_q_cursor"; export SDD_VSCODE_USER_DIR="$_q_vscode"
 _q_failed=0
-_q_out="$(bash "$UNINSTALLER" --install-root "$_q_install" --target All --mcp "sdd-forge-mcp,local-env-mcp" --keep-files 2>&1)" || _q_failed=1
+_q_out="$(bash "$UNINSTALLER" --install-root "$_q_install" --target All --mcp "sdd-forge-mcp,local-env-mcp,ci-mcp" --keep-files 2>&1)" || _q_failed=1
 export PATH="$_q_orig_path"
 if [[ -z "$_q_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_q_orig_codex"; fi
 if [[ -z "$_q_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_q_orig_cursor"; fi
@@ -612,7 +625,7 @@ seed_installed_layout "$_r_install" "$_r_codex"
 export PATH="${_r_bin}:${_r_orig_path}"; export SDD_CODEX_HOME="$_r_codex"
 export SDD_CURSOR_DIR="${_r_root}/no-such-cursor"; export SDD_VSCODE_USER_DIR="${_r_root}/no-such-vscode"
 _r_failed=0
-bash "$UNINSTALLER" --install-root "$_r_install" --target All --mcp "sdd-forge-mcp,local-env-mcp" >/dev/null 2>&1 || _r_failed=1
+bash "$UNINSTALLER" --install-root "$_r_install" --target All --mcp "sdd-forge-mcp,local-env-mcp,ci-mcp" >/dev/null 2>&1 || _r_failed=1
 export PATH="$_r_orig_path"
 if [[ -z "$_r_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_r_orig_codex"; fi
 if [[ -z "$_r_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_r_orig_cursor"; fi

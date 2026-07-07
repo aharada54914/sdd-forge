@@ -16,11 +16,11 @@ PLUGINS="sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd
 KEEP_FILES=0
 SKIP_PLUGIN_UNINSTALL=0
 SKIP_AGENT_UNINSTALL=0
-MCP_LIST="sdd-forge-mcp,local-env-mcp"
+MCP_LIST="sdd-forge-mcp,local-env-mcp,ci-mcp"
 SKIP_MCP_UNINSTALL=0
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
-VALID_MCPS="sdd-forge-mcp local-env-mcp"
+VALID_MCPS="sdd-forge-mcp local-env-mcp ci-mcp"
 # Role files this project installs into ~/.codex/agents. Used as a fallback when
 # the install root (the manifest source) is no longer present.
 SHIPPED_AGENTS="sdd-investigator.toml sdd-evaluator.toml sdd-panelist-gpt.toml sdd-panelist-gemini.toml"
@@ -41,8 +41,8 @@ Usage: uninstall.sh [options]
   --keep-files                   Unregister from CLI tools but keep the installed files
   --skip-plugin-uninstall        Skip unregistering plugins/marketplace from CLI tools
   --skip-agent-uninstall         Skip removing Codex agent TOML files
-  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp
-                                 Default: sdd-forge-mcp,local-env-mcp
+  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp,ci-mcp
+                                 Default: sdd-forge-mcp,local-env-mcp,ci-mcp
   --skip-mcp-uninstall           Skip removing MCP payloads/registrations
 
 Environment:
@@ -355,7 +355,7 @@ mcp_json_node_available() {
         return 0
     fi
     if [[ $MCP_JSON_NODE_NOTICE_PRINTED -eq 0 ]]; then
-        echo "Warning: Node.js was not found in PATH. Cursor / VS Code MCP registrations could not be removed (edit ~/.cursor/mcp.json and the VS Code user mcp.json by hand to remove the sdd-forge-mcp / local-env-mcp keys). Other uninstall steps continue." >&2
+        echo "Warning: Node.js was not found in PATH. Cursor / VS Code MCP registrations could not be removed (edit ~/.cursor/mcp.json and the VS Code user mcp.json by hand to remove the sdd-forge-mcp / local-env-mcp / ci-mcp keys). Other uninstall steps continue." >&2
         MCP_JSON_NODE_NOTICE_PRINTED=1
     fi
     return 1

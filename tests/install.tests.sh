@@ -103,6 +103,31 @@ echo "noise" > "${SOURCE_FIXTURE}/mcp/local-env-mcp/node_modules/should-not-copy
 echo "noise" > "${SOURCE_FIXTURE}/mcp/local-env-mcp/src/index.ts"
 echo "noise" > "${SOURCE_FIXTURE}/mcp/local-env-mcp/tests/index.test.ts"
 
+# ci-mcp (T-009): a third first-class MCP that ships by default. Seed a
+# minimal payload the same way as sdd-forge-mcp/local-env-mcp so the
+# installer's generic MCP_SELECTION machinery is exercised for all three.
+mkdir -p "${SOURCE_FIXTURE}/mcp/ci-mcp/dist"
+cat > "${SOURCE_FIXTURE}/mcp/ci-mcp/dist/index.js" <<'MCPJS3'
+#!/usr/bin/env node
+console.log("ci-mcp fixture stub");
+MCPJS3
+cat > "${SOURCE_FIXTURE}/mcp/ci-mcp/package.json" <<'MCPPKG3'
+{
+  "name": "ci-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" }
+}
+MCPPKG3
+# Files that must NOT be copied into the install root (node_modules/src/tests).
+mkdir -p "${SOURCE_FIXTURE}/mcp/ci-mcp/node_modules/should-not-copy" \
+    "${SOURCE_FIXTURE}/mcp/ci-mcp/src" \
+    "${SOURCE_FIXTURE}/mcp/ci-mcp/tests"
+echo "noise" > "${SOURCE_FIXTURE}/mcp/ci-mcp/node_modules/should-not-copy/index.js"
+echo "noise" > "${SOURCE_FIXTURE}/mcp/ci-mcp/src/index.ts"
+echo "noise" > "${SOURCE_FIXTURE}/mcp/ci-mcp/tests/index.test.ts"
+
 # T-007 (AC-010/011/015): install.sh registers MCP servers with Cursor and
 # VS Code via SDD_CURSOR_DIR / SDD_VSCODE_USER_DIR-overridable config paths.
 # Tests must NEVER touch the real user's client configs, so point both at
@@ -1170,7 +1195,7 @@ export SDD_CODEX_HOME="${_t_root}/codex-home"
 mkdir -p "$SDD_CODEX_HOME"
 touch "${SDD_CODEX_HOME}/config.toml"
 _t_failed=0
-bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_t_install" --target All --skip-agent-install 2>/dev/null || _t_failed=1
+_t_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_t_install" --target All --skip-agent-install 2>&1)" || _t_failed=1
 export PATH="$_t_orig_path"
 if [[ -z "$_t_orig_codex_home" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_t_orig_codex_home"; fi
 _t_ok=1
@@ -1186,9 +1211,17 @@ _t_ok=1
 [[ ! -e "${_t_install}/mcp/local-env-mcp/node_modules" ]] || { fail "default MCP install (t): local-env-mcp node_modules was copied"; _t_ok=0; }
 [[ ! -e "${_t_install}/mcp/local-env-mcp/src" ]] || { fail "default MCP install (t): local-env-mcp src/ was copied"; _t_ok=0; }
 [[ ! -e "${_t_install}/mcp/local-env-mcp/tests" ]] || { fail "default MCP install (t): local-env-mcp tests/ was copied"; _t_ok=0; }
+# AC-016 behavior: default install ALSO places the ci-mcp payload (default
+# bundled per T-009).
+[[ -f "${_t_install}/mcp/ci-mcp/dist/index.js" ]] || { fail "default MCP install (t): ci-mcp dist/index.js not placed"; _t_ok=0; }
+[[ -f "${_t_install}/mcp/ci-mcp/package.json" ]] || { fail "default MCP install (t): ci-mcp package.json not placed"; _t_ok=0; }
+[[ ! -e "${_t_install}/mcp/ci-mcp/node_modules" ]] || { fail "default MCP install (t): ci-mcp node_modules was copied"; _t_ok=0; }
+[[ ! -e "${_t_install}/mcp/ci-mcp/src" ]] || { fail "default MCP install (t): ci-mcp src/ was copied"; _t_ok=0; }
+[[ ! -e "${_t_install}/mcp/ci-mcp/tests" ]] || { fail "default MCP install (t): ci-mcp tests/ was copied"; _t_ok=0; }
 if [[ -f "$_t_log" ]]; then
     grep -qF "claude mcp add sdd-forge-mcp" "$_t_log" || { fail "default MCP install (t): claude mcp add not invoked for sdd-forge-mcp"; _t_ok=0; }
     grep -qF "claude mcp add local-env-mcp" "$_t_log" || { fail "default MCP install (t): claude mcp add not invoked for local-env-mcp"; _t_ok=0; }
+    grep -qF "claude mcp add ci-mcp" "$_t_log" || { fail "default MCP install (t): claude mcp add not invoked for ci-mcp"; _t_ok=0; }
 fi
 _t_toml="${SDD_CODEX_HOME:-}"
 if grep -q "sdd-forge-mcp" "${_t_root}/codex-home/config.toml" 2>/dev/null; then
@@ -1203,8 +1236,28 @@ else
     fail "default MCP install (t): Codex config.toml missing local-env-mcp entry"
     _t_ok=0
 fi
+if grep -q "ci-mcp" "${_t_root}/codex-home/config.toml" 2>/dev/null; then
+    :
+else
+    fail "default MCP install (t): Codex config.toml missing ci-mcp entry"
+    _t_ok=0
+fi
+# AC-016: the installer must guide the user to the read-only PAT env vars
+# ci-mcp needs, without ever writing a token value anywhere.
+if ! echo "$_t_out" | grep -qF "CI_MCP_GITHUB_TOKEN"; then
+    fail "default MCP install (t): missing ci-mcp token env var guidance (CI_MCP_GITHUB_TOKEN)"
+    _t_ok=0
+fi
+if ! echo "$_t_out" | grep -qF "GH_READONLY_TOKEN"; then
+    fail "default MCP install (t): missing ci-mcp token env var guidance (GH_READONLY_TOKEN)"
+    _t_ok=0
+fi
+if ! echo "$_t_out" | grep -qF "GITHUB_TOKEN"; then
+    fail "default MCP install (t): missing ci-mcp token env var guidance (GITHUB_TOKEN)"
+    _t_ok=0
+fi
 rm -rf "$_t_root"
-[[ $_t_ok -eq 1 ]] && ok "default install places and registers BOTH MCP servers"
+[[ $_t_ok -eq 1 ]] && ok "default install places and registers ALL THREE MCP servers, with ci-mcp token guidance"
 
 # Scenario (u): --skip-mcp skips both placement and registration.
 _u_root="$(mktemp -d)"
@@ -1266,6 +1319,8 @@ _v_ok=1
 [[ -f "${_v_install}/mcp/sdd-forge-mcp/dist/index.js" ]] || { fail "--mcp sdd-forge-mcp (v): dist/index.js not placed"; _v_ok=0; }
 # AC-009 behavior (2): selecting only sdd-forge-mcp must NOT place local-env-mcp.
 [[ ! -e "${_v_install}/mcp/local-env-mcp" ]] || { fail "--mcp sdd-forge-mcp (v): local-env-mcp was placed despite not being selected"; _v_ok=0; }
+# AC-016 behavior: selecting only sdd-forge-mcp must NOT place ci-mcp either.
+[[ ! -e "${_v_install}/mcp/ci-mcp" ]] || { fail "--mcp sdd-forge-mcp (v): ci-mcp was placed despite not being selected"; _v_ok=0; }
 rm -rf "$_v_root"
 
 # Scenario (v-le): --mcp local-env-mcp is a valid selection that places ONLY
@@ -1285,6 +1340,31 @@ export PATH="$_vle_orig_path"
 [[ -f "${_vle_install}/mcp/local-env-mcp/dist/index.js" ]] || { fail "--mcp local-env-mcp (v-le): local-env-mcp dist/index.js not placed"; _v_ok=0; }
 [[ ! -e "${_vle_install}/mcp/sdd-forge-mcp" ]] || { fail "--mcp local-env-mcp (v-le): sdd-forge-mcp was placed despite not being selected"; _v_ok=0; }
 rm -rf "$_vle_root"
+
+# Scenario (v-ci): --mcp ci-mcp is a valid selection that places ONLY ci-mcp
+# (sdd-forge-mcp / local-env-mcp absent). Confirms ci-mcp is in VALID_MCPS and
+# the machinery honours per-name selection in both directions (AC-016). The
+# token guidance notice must also appear (placement happens regardless of
+# --target=FilesOnly).
+_vci_root="$(mktemp -d)"
+_vci_install="${_vci_root}/installed"
+_vci_bin="${_vci_root}/bin"
+_vci_log="${_vci_root}/commands.log"
+_vci_orig_path="$PATH"
+make_fake_commands "$_vci_bin" "$_vci_log"
+export PATH="${_vci_bin}:${_vci_orig_path}"
+_vci_failed=0
+_vci_out="$(bash "$INSTALLER" --source-directory "$SOURCE_FIXTURE" --install-root "$_vci_install" --target FilesOnly --mcp "ci-mcp" 2>&1)" || _vci_failed=1
+export PATH="$_vci_orig_path"
+[[ $_vci_failed -eq 0 ]] || { fail "--mcp ci-mcp (v-ci): installer exited non-zero"; _v_ok=0; }
+[[ -f "${_vci_install}/mcp/ci-mcp/dist/index.js" ]] || { fail "--mcp ci-mcp (v-ci): ci-mcp dist/index.js not placed"; _v_ok=0; }
+[[ ! -e "${_vci_install}/mcp/sdd-forge-mcp" ]] || { fail "--mcp ci-mcp (v-ci): sdd-forge-mcp was placed despite not being selected"; _v_ok=0; }
+[[ ! -e "${_vci_install}/mcp/local-env-mcp" ]] || { fail "--mcp ci-mcp (v-ci): local-env-mcp was placed despite not being selected"; _v_ok=0; }
+if ! echo "$_vci_out" | grep -qF "CI_MCP_GITHUB_TOKEN"; then
+    fail "--mcp ci-mcp (v-ci): missing token env var guidance even with --target=FilesOnly"
+    _v_ok=0
+fi
+rm -rf "$_vci_root"
 
 _v2_root="$(mktemp -d)"
 _v2_failed=0
@@ -1426,7 +1506,7 @@ if [[ -f "$_w2_log" ]] && grep -qF "claude mcp add" "$_w2_log"; then
     fail "old Node v18 (w2): claude mcp add was invoked despite Node < 20"
     _w2_ok=0
 fi
-if grep -qE "sdd-forge-mcp|local-env-mcp" "${_w2_root}/codex-home/config.toml" 2>/dev/null; then
+if grep -qE "sdd-forge-mcp|local-env-mcp|ci-mcp" "${_w2_root}/codex-home/config.toml" 2>/dev/null; then
     fail "old Node v18 (w2): Codex config.toml was modified despite Node < 20"
     _w2_ok=0
 fi
@@ -1517,7 +1597,7 @@ const c = require(process.argv[1]);
 const s = c.mcpServers || {};
 const f = s["user-defined-mcp"];
 if (!f || f.command !== "python3" || !Array.isArray(f.args) || f.args[0] !== "/opt/user/mcp.py") process.exit(1);
-for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+for (const n of ["sdd-forge-mcp", "local-env-mcp", "ci-mcp"]) {
   const e = s[n];
   if (!e || e.command !== "node" || !Array.isArray(e.args) || e.args.length !== 1) process.exit(1);
   if (!e.args[0].endsWith("/mcp/" + n + "/dist/index.js")) process.exit(1);
@@ -1582,7 +1662,7 @@ const c = require(process.argv[1]);
 const s = c.servers || {};
 const f = s["user-defined-mcp"];
 if (!f || f.command !== "python3" || !Array.isArray(f.args) || f.args[0] !== "/opt/user/mcp.py") process.exit(1);
-for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+for (const n of ["sdd-forge-mcp", "local-env-mcp", "ci-mcp"]) {
   const e = s[n];
   if (!e || e.type !== "stdio" || e.command !== "node" || !Array.isArray(e.args) || e.args.length !== 1) process.exit(1);
   if (!e.args[0].endsWith("/mcp/" + n + "/dist/index.js")) process.exit(1);
@@ -1635,7 +1715,7 @@ fi
 node -e '
 const c = require(process.argv[1]);
 const s = c.servers || {};
-for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+for (const n of ["sdd-forge-mcp", "local-env-mcp", "ci-mcp"]) {
   const e = s[n];
   if (!e || e.type !== "stdio" || e.command !== "node") process.exit(1);
 }
@@ -1680,7 +1760,7 @@ fi
 node -e '
 const c = require(process.argv[1]);
 const s = c.mcpServers || {};
-for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+for (const n of ["sdd-forge-mcp", "local-env-mcp", "ci-mcp"]) {
   const e = s[n];
   if (!e || e.command !== "node") process.exit(1);
 }

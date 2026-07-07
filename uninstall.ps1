@@ -9,8 +9,8 @@ param(
     [switch]$KeepFiles,
     [switch]$SkipPluginUninstall,
     [switch]$SkipAgentUninstall,
-    [ValidateSet("sdd-forge-mcp", "local-env-mcp")]
-    [string[]]$Mcp = @("sdd-forge-mcp", "local-env-mcp"),
+    [ValidateSet("sdd-forge-mcp", "local-env-mcp", "ci-mcp")]
+    [string[]]$Mcp = @("sdd-forge-mcp", "local-env-mcp", "ci-mcp"),
     [switch]$SkipMcpUninstall
 )
 
@@ -176,7 +176,7 @@ function Test-McpJsonNodeAvailable {
     # Codex removals still run without it.
     if (Get-Command "node" -ErrorAction SilentlyContinue) { return $true }
     if (-not $script:McpJsonNodeNoticePrinted) {
-        Write-Warning "Node.js was not found in PATH. Cursor / VS Code MCP registrations could not be removed (edit ~/.cursor/mcp.json and the VS Code user mcp.json by hand to remove the sdd-forge-mcp / local-env-mcp keys). Other uninstall steps continue."
+        Write-Warning "Node.js was not found in PATH. Cursor / VS Code MCP registrations could not be removed (edit ~/.cursor/mcp.json and the VS Code user mcp.json by hand to remove the sdd-forge-mcp / local-env-mcp / ci-mcp keys). Other uninstall steps continue."
         $script:McpJsonNodeNoticePrinted = $true
     }
     return $false

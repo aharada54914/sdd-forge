@@ -1,0 +1,21 @@
+$ npm test
+# (pretest runs: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs)
+# Red phase: tests/contract/ajv-contract.test.ts was written first, importing
+# the ajv-validator helper module tests/contract/test-helpers.ts, which does
+# not exist yet. T-007 adds no new src/ code (the contract
+# contracts/ci-mcp-tools.v1.schema.json was already finalized in T-001/T-004/
+# T-005/T-012/T-013 and, per the audit performed at T-007's start, already
+# matches every implemented tool's output shape exactly — see T-007.md
+# addendum), so this compile-time module-not-found failure is the genuine
+# failing-first state, mirroring how T-002/T-004/T-006's red phases were
+# captured (tsc module-not-found, EXIT:2). `ajv` was added as a new
+# devDependency (mcp/ci-mcp/package.json) and installed before this run, so
+# this failure is purely the missing local helper module, not a missing
+# package.
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/contract/ajv-contract.test.ts(30,38): error TS2307: Cannot find module './test-helpers.js' or its corresponding type declarations.
+
+npm test exit code: 2
