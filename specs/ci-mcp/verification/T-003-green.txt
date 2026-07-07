@@ -1,0 +1,71 @@
+$ npm test
+# (pretest: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs enumerating dist-test/tests/**/*.test.js)
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> ci-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ AC-008: no token env set resolves to auth-missing
+✔ OQ-004: CI_MCP_GITHUB_TOKEN wins over GH_READONLY_TOKEN and GITHUB_TOKEN
+✔ OQ-004: GH_READONLY_TOKEN wins over GITHUB_TOKEN when CI_MCP_GITHUB_TOKEN is unset
+✔ OQ-004: GITHUB_TOKEN is used when it is the only variable set
+✔ OQ-004: an empty-string value is treated as unset and falls through to the next variable
+✔ resolveToken never throws regardless of env state
+✔ AC-008: withToken (the shared gate every future tool calls through) returns auth-missing and never invokes the handler when no token is resolvable
+✔ AC-008: withToken invokes the handler with the resolved token when one is set, and the process does not exit
+✔ ok() builds a success envelope
+✔ err() builds a failure envelope; details optional and secret-free
+✔ ErrorCode union matches the contract error.code enum exactly (10 codes)
+✔ the 7 pre-existing codes and the 3 ci-mcp additions are all present
+✔ buildServer() constructs a server with zero tools registered (T-001 scope)
+✔ buildServer() never reads a GitHub token env var during construction
+✔ 401 always maps to auth-missing with details.status:401, never upstream-error
+✔ 403 with x-ratelimit-remaining:0 maps to rate-limited
+✔ 403 with retry-after maps to rate-limited
+✔ 403 without any rate-limit indicator maps to upstream-error with details.status:403 (never path-denied)
+✔ 404 maps to not-found
+✔ 429 maps to rate-limited
+✔ 5xx maps to upstream-error
+✔ 2xx is not an error (returns undefined)
+✔ network failure maps to upstream-error
+✔ AC-011: rate-limited details carry only a non-sensitive reset time, never a token
+✔ AC-011: malformed x-ratelimit-reset header is ignored (details omits the field, still rate-limited)
+✔ error message strings are fixed and non-sensitive (never echo header/body content)
+✔ GET is the only HTTP method ever issued, host is fixed to api.github.com
+✔ path segments cannot change the host even when they look like a host or contain separators
+✔ no other HTTP method literal (POST/PUT/PATCH/DELETE) appears in github-client.ts source
+✔ Authorization header is attached only when a token is provided
+✔ successful 2xx response resolves to ok:true with the parsed body
+✔ AC-010: 401 maps deterministically to auth-missing and never leaks the upstream body
+✔ AC-010: 403 with rate-limit indicator maps deterministically to rate-limited and never leaks the upstream body
+✔ AC-010: 403 without indicator maps deterministically to upstream-error and never leaks the upstream body
+✔ AC-010: 404 maps deterministically to not-found and never leaks the upstream body
+✔ AC-010: 429 maps deterministically to rate-limited and never leaks the upstream body
+✔ AC-010: 500 maps deterministically to upstream-error and never leaks the upstream body
+✔ AC-010: 503 maps deterministically to upstream-error and never leaks the upstream body
+✔ AC-010: network failure (fetch throws) maps to upstream-error
+✔ a non-JSON upstream body on an otherwise-2xx response yields upstream-error (not a thrown exception)
+✔ AC-009: canary token resolved via auth.ts never appears in a githubGet error envelope
+✔ AC-009: canary token never appears in scrubbed stderr diagnostics even when it is live in process.env
+✔ logStartup emits exactly the allowlisted startup fields
+✔ logFatal emits exactly the allowlisted fatal fields
+✔ scrubber redacts the home directory, username, and hostname from a message
+✔ scrubber redacts a long environment-variable value from a message
+✔ ci-mcp-specific: scrubber redacts an `Authorization: Bearer <token>` pattern even without the raw token in process.env
+✔ logFatal scrubs a Bearer token pattern carried in the error message
+ℹ tests 48
+ℹ suites 0
+ℹ pass 48
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+
+npm test exit code: 0
+
+$ npx tsc --noEmit
+(no output)
+typecheck exit code: 0

@@ -94,7 +94,7 @@ T-001
 ## T-003 auth.ts(トークン解決)+ トークンスクラビング + no-secrets 検査
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: 認証は環境変数の read-only PAT を扱い、値の応答/stderr/エラー混入は資格情報流出に直結する(REQ-005、security-spec.md B2 の Information Disclosure、canary スクラビング必須)。トークン未設定時の非異常終了(`auth-missing`)の欠陥は DoS(security-spec.md B2)になる。OQ-004(変数名優先順位)を本タスク冒頭で確定する。
 Required Workflow: tdd
