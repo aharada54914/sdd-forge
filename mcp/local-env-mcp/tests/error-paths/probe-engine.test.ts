@@ -16,7 +16,7 @@
 
 import { test, before, after, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, chmodSync, rmSync } from "node:fs";
+import { mkdtempSync, writeFileSync, chmodSync, copyFileSync, linkSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
@@ -26,24 +26,26 @@ import type { AllowlistEntry } from "../../src/allowlist.js";
 let fixtureDir: string;
 
 /**
- * Writes an executable POSIX shell shim named `name` into fixtureDir.
+ * Places an executable fixture CLI named `name` into fixtureDir whose behavior
+ * is the given Node.js `jsBody` (run via a sibling `<name>.js` script passed as
+ * the probe args — see `entry()`).
  *
- * On win32, `execFile` resolves a bare command by searching each PATH
- * directory for `PATHEXT` matches (`.EXE`, `.CMD`, ...); an extension-less
- * file is invisible to that search and probing silently falls through to a
- * same-named binary elsewhere on the real PATH. So on win32 we additionally
- * drop a `<name>.cmd` launcher that PATHEXT resolution *can* find, which
- * hands off to the CI-guaranteed Git-for-Windows `bash` to run the identical
- * POSIX body — no shell-syntax translation, so cross-platform behavior stays
- * byte-for-byte the same.
+ * The fixture executable is the current Node runtime itself (hardlinked, or
+ * copied if linking fails), renamed to the fixture name. This is the only
+ * fixture shape that works on ALL THREE OSes with the engine's shell-less
+ * `execFile`: on win32 libuv's PATH search resolves bare names only to real
+ * executables (`.exe`/`.com` — never `.cmd`/`.bat`, which Node additionally
+ * refuses to spawn without a shell since the CVE-2024-27980 hardening), so
+ * POSIX shell shims and `.cmd` launchers are unreachable there.
  */
-function writeShim(name: string, body: string): void {
-  const p = join(fixtureDir, name);
-  writeFileSync(p, `#!/bin/sh\n${body}\n`, "utf-8");
-  chmodSync(p, 0o755);
-  if (process.platform === "win32") {
-    const cmdPath = join(fixtureDir, `${name}.cmd`);
-    writeFileSync(cmdPath, `@echo off\r\nbash "%~dp0${name}" %*\r\n`, "utf-8");
+function writeShim(name: string, jsBody: string): void {
+  writeFileSync(join(fixtureDir, `${name}.js`), `${jsBody}\n`, "utf-8");
+  const exePath = join(fixtureDir, process.platform === "win32" ? `${name}.exe` : name);
+  try {
+    linkSync(process.execPath, exePath);
+  } catch {
+    copyFileSync(process.execPath, exePath);
+    chmodSync(exePath, 0o755);
   }
 }
 
@@ -51,28 +53,28 @@ before(() => {
   fixtureDir = mkdtempSync(join(tmpdir(), "local-env-mcp-probe-"));
 
   // Fast, well-behaved CLI: prints a version line on stdout and exits 0.
-  writeShim("goodcli", 'echo "goodcli 9.9.9 (build abc)"');
+  writeShim("goodcli", 'console.log("goodcli 9.9.9 (build abc)")');
 
   // Multi-line output: only the first line, trimmed, <=200 chars, must be kept.
-  writeShim("multiline", 'printf "first-line 1.0.0\\nSECOND LINE SHOULD BE DROPPED\\n"');
+  writeShim("multiline", 'process.stdout.write("first-line 1.0.0\\nSECOND LINE SHOULD BE DROPPED\\n")');
 
   // stderr-only version output (mimics `java -version`).
-  writeShim("stderrcli", '>&2 echo "stderrcli 17.0.1"; exit 0');
+  writeShim("stderrcli", 'console.error("stderrcli 17.0.1")');
 
   // Slow CLI: sleeps well past the 2s timeout, then would print. Must be killed
   // and reported as probeError "timeout".
-  writeShim("slowcli", 'sleep 30; echo "too-late 1.0.0"');
+  writeShim("slowcli", 'setTimeout(() => console.log("too-late 1.0.0"), 30_000)');
 
   // Verbose CLI: emits far more than 8 KiB on stdout. Must be capped + killed
   // and reported as probeError "output-too-large".
   writeShim(
     "verbosecli",
     // ~50 KiB: 512 iterations of a 100-char line.
-    'i=0; line=$(printf "%0.sX" $(seq 1 100)); while [ "$i" -lt 512 ]; do echo "$line"; i=$((i+1)); done',
+    'const line = "X".repeat(100); for (let i = 0; i < 512; i += 1) console.log(line)',
   );
 
   // Nonzero-exit CLI: prints nothing useful and exits 3.
-  writeShim("failcli", 'exit 3');
+  writeShim("failcli", 'process.exit(3)');
 });
 
 after(() => {
@@ -85,9 +87,18 @@ beforeEach(() => {
   __clearProbeCache();
 });
 
-/** Builds a single-entry allowlist-shaped probe target for testing. */
+/**
+ * Builds a single-entry allowlist-shaped probe target for testing. The args
+ * point the fixture executable (a renamed Node runtime resolved through the
+ * pathOverride PATH prepend) at its `<command>.js` behavior script.
+ */
 function entry(name: string, command: string, versionStream: "stdout" | "stderr" = "stdout"): AllowlistEntry {
-  return { name: name as AllowlistEntry["name"], command, args: ["--version"], versionStream };
+  return {
+    name: name as AllowlistEntry["name"],
+    command,
+    args: [join(fixtureDir, `${command}.js`)],
+    versionStream,
+  };
 }
 
 test("AC-004: successful probe yields available + normalized first-line version", async () => {

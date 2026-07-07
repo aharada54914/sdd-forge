@@ -18,7 +18,7 @@
 
 import { test, before, after, beforeEach } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, writeFileSync, chmodSync, rmSync } from "node:fs";
+import { mkdtempSync, chmodSync, copyFileSync, linkSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -40,27 +40,31 @@ const CLI_NAME_ENUM: string[] = contract.$defs.cliName.enum;
 
 let fixtureDir: string;
 
-// See the sibling comment in tests/error-paths/probe-engine.test.ts: on win32,
-// PATHEXT-based resolution can't see an extension-less file, so probing an
-// override-only shim silently falls through to a same-named real binary
-// elsewhere on PATH. The `.cmd` launcher hands off to Git-for-Windows `bash`
-// to run the identical POSIX body, keeping behavior identical across OSes.
-function writeShim(name: string, body: string): void {
-  const p = join(fixtureDir, name);
-  writeFileSync(p, `#!/bin/sh\n${body}\n`, "utf-8");
-  chmodSync(p, 0o755);
-  if (process.platform === "win32") {
-    const cmdPath = join(fixtureDir, `${name}.cmd`);
-    writeFileSync(cmdPath, `@echo off\r\nbash "%~dp0${name}" %*\r\n`, "utf-8");
+// See the sibling comment in tests/error-paths/probe-engine.test.ts: with the
+// engine's shell-less `execFile`, the only fixture shape resolvable on all
+// three OSes is a real executable — on win32, libuv's PATH search never
+// resolves a bare name to a script or `.cmd` file. So each fixture CLI is the
+// current Node runtime itself (hardlinked, or copied if linking fails),
+// renamed to the allowlist command name. Probed with the allowlist's fixed
+// `--version` args it deterministically prints `process.version`, which is
+// what the assertions below pin.
+function placeFixtureCli(name: string): void {
+  const exePath = join(fixtureDir, process.platform === "win32" ? `${name}.exe` : name);
+  try {
+    linkSync(process.execPath, exePath);
+  } catch {
+    copyFileSync(process.execPath, exePath);
+    chmodSync(exePath, 0o755);
   }
 }
 
 before(() => {
   fixtureDir = mkdtempSync(join(tmpdir(), "local-env-mcp-tools-"));
-  // `node` resolves to a good shim printing a version line on stdout.
-  writeShim("node", 'echo "v20.11.0"');
-  // `git` also resolves (used to prove multiple availables).
-  writeShim("git", 'echo "git version 2.44.0"');
+  // `node` resolves to a fixture CLI printing process.version on stdout.
+  placeFixtureCli("node");
+  // `git` also resolves (used to prove multiple availables). It prints
+  // process.version too — proof the fixture shadowed any real `git` on PATH.
+  placeFixtureCli("git");
   // All OTHER allowlist commands (npm, bun, docker, ...) are absent from the
   // fixture dir. Because pathOverride is PREPENDED to PATH, real host binaries
   // could still resolve; the assertions below therefore only pin the ones we
@@ -88,7 +92,7 @@ test("AC-002: a resolvable CLI is available:true with a normalized version strin
   const node = result.data.entries.find((e) => e.name === "node");
   assert.ok(node, "node entry present");
   assert.equal(node!.available, true);
-  assert.equal(node!.version, "v20.11.0");
+  assert.equal(node!.version, process.version);
   assert.equal(node!.probeError, undefined);
 });
 
