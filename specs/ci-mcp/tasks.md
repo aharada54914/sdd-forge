@@ -277,7 +277,7 @@ T-002, T-003, T-004, T-012
 ## T-006 read-only 静的検査 + no-write テスト(write 境界)
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: write ツール/write API の誤公開は read/write 分離方針の破綻に直結する(REQ-003、security-spec.md B1/B2 の Tampering/Elevation of Privilege、OWASP:Broken Access Control)。入力スキーマの write 誘発フィールド不在と、src の write メソッド/exec/fs 書込み/eval 不在の静的検査が唯一の機械的チョークポイント。
 Required Workflow: tdd
