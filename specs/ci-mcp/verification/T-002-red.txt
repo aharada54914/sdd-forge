@@ -1,0 +1,18 @@
+$ npm test
+# (pretest runs: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs)
+# Red phase: src/github-client.ts and src/error-normalizer.ts not yet
+# implemented — the pretest compile fails, so no tests can run. This is the
+# genuine failing-first (Red) state for T-002
+# (tests/error-paths/error-normalizer.test.ts, tests/error-paths/github-client.test.ts).
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/error-paths/error-normalizer.test.ts(26,66): error TS2307: Cannot find module '../../src/error-normalizer.js' or its corresponding type declarations.
+tests/error-paths/error-normalizer.test.ts(27,43): error TS2307: Cannot find module '../../src/error-normalizer.js' or its corresponding type declarations.
+tests/error-paths/github-client.test.ts(15,27): error TS2307: Cannot find module '../../src/github-client.js' or its corresponding type declarations.
+tests/error-paths/github-client.test.ts(16,54): error TS2307: Cannot find module '../../src/github-client.js' or its corresponding type declarations.
+tests/error-paths/github-client.test.ts(44,41): error TS7006: Parameter 'url' implicitly has an 'any' type.
+tests/error-paths/github-client.test.ts(44,46): error TS7006: Parameter 'init' implicitly has an 'any' type.
+
+npm test exit code: 2

@@ -53,7 +53,7 @@ None
 ## T-002 github-client(GET 専用)+ error-normalizer(REQ-006 決定的写像)
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: github-client は GitHub への唯一の外向き経路であり、HTTP メソッドが GET 固定でないと read/write 分離方針(REQ-003、B2)が破綻する。owner/repo の URL 組み立ては SSRF 面(security-spec.md OWASP:SSRF、ホスト固定 api.github.com)を持ち、上流エラー正規化の誤りは資格情報・内部情報の漏えい/誤マップ(REQ-006、B2 の Information Disclosure)に直結する。
 Required Workflow: tdd
