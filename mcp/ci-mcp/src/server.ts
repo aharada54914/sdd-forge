@@ -1,13 +1,12 @@
 /**
  * MCP server construction for ci-mcp.
  *
- * Builds the `McpServer` and registers the read-only GitHub Actions tools
- * (`list_workflow_runs` / `get_workflow_run` / `list_run_jobs` /
- * `get_job_log` / `list_run_artifacts`) as they land: T-005 registers
- * `list_workflow_runs` and `get_workflow_run`; T-012 adds `list_run_jobs` and
- * `list_run_artifacts`; T-013 adds `get_job_log` (the final tool). Each
- * handler composes github-client (T-002), auth's `withToken` gate (T-003),
- * and repo-resolve's `resolveRepo` (T-004) via `tools/actions.ts`.
+ * Builds the `McpServer` and registers all 5 read-only GitHub Actions tools:
+ * `list_workflow_runs`, `get_workflow_run`, `list_run_jobs`,
+ * `list_run_artifacts`, and `get_job_log` (landed across T-005 / T-012 /
+ * T-013 respectively). Each handler composes github-client (T-002), auth's
+ * `withToken` gate (T-003), and repo-resolve's `resolveRepo` (T-004) via
+ * `tools/actions.ts`.
  *
  * Every tool response is the common `Result<T>` envelope
  * (contracts/ci-mcp-tools.v1.schema.json), serialized as JSON text into
@@ -24,10 +23,12 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 import type { Result } from "./envelope.js";
 import {
+  getJobLog,
   getWorkflowRun,
   listRunArtifacts,
   listRunJobs,
   listWorkflowRuns,
+  GET_JOB_LOG_INPUT_SHAPE,
   GET_WORKFLOW_RUN_INPUT_SHAPE,
   LIST_RUN_ARTIFACTS_INPUT_SHAPE,
   LIST_RUN_JOBS_INPUT_SHAPE,
@@ -102,6 +103,22 @@ export function buildServer(): McpServer {
       inputSchema: LIST_RUN_ARTIFACTS_INPUT_SHAPE,
     },
     async (args) => toCallToolResult(await listRunArtifacts(args)),
+  );
+
+  server.registerTool(
+    "get_job_log",
+    {
+      title: "Get job log",
+      description:
+        "Fetches a GitHub Actions job's plain-text log by job id. Logs over " +
+        "256 KiB (262144 bytes) are truncated to their TAIL (most recent " +
+        "bytes, best for failure diagnosis); `truncated` and `returnedBytes` " +
+        "report whether/how much was cut. Always returns ok:true regardless " +
+        "of truncation. Read-only: issues a single GET against the GitHub " +
+        "Actions REST API.",
+      inputSchema: GET_JOB_LOG_INPUT_SHAPE,
+    },
+    async (args) => toCallToolResult(await getJobLog(args)),
   );
 
   return server;

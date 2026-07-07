@@ -242,7 +242,7 @@ T-002, T-003, T-004, T-005
 ## T-013 tools/actions.ts(get_job_log + 256 KiB 末尾優先 truncation)
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: `get_job_log` の request/response 形は外部クライアント(Claude Code / Codex / Cursor / VS Code)が直接消費する公開 API 契約であり、risk-classification-policy.md の sentinel surface(public API contracts)に該当する。フィールド形状・error code enum の無言の欠陥は全クライアントのパース破綻に直結する。加えてジョブログの 256 KiB 末尾優先 truncation の欠陥はログ欠損・応答肥大に直結する。write 境界・トークン・SSRF の機微制御は T-002/T-003/T-004/T-006 が担う。
 Required Workflow: tdd

@@ -17,6 +17,16 @@
  * normalized via `error-normalizer.ts`; the upstream response BODY is never
  * read on an error path and is never copied into a returned envelope
  * (REQ-006).
+ *
+ * `githubGetText` (T-013 addition) is a sibling of `githubGet` for the one
+ * ci-mcp endpoint whose 2xx body is plain text, not JSON (`get_job_log`'s
+ * upstream job-log endpoint). It mirrors `githubGet`'s host-fixing,
+ * GET-only method, token-header attachment, and error-normalization
+ * exactly, differing only in reading the 2xx body via `.text()` instead of
+ * `.json()`. GitHub's actual job-log endpoint responds with a 302 redirect
+ * to temporary blob storage; ordinary `fetch` follows redirects by default,
+ * so the injected fetch-shaped function here is expected to already return
+ * the final plain-text response, the same convention `GithubFetch` uses.
  */
 
 import { err, type ErrorEnvelope } from "./envelope.js";
@@ -110,5 +120,64 @@ export async function githubGet<T>(
     return { ok: true, data };
   } catch {
     return err("upstream-error", "Failed to parse the GitHub API response body.");
+  }
+}
+
+/** Minimal text-bodied response shape `githubGetText` needs; satisfied structurally by the global Fetch API's `Response`. */
+export interface GithubTextHttpResponse {
+  readonly status: number;
+  readonly headers: { get(name: string): string | null };
+  text(): Promise<string>;
+}
+
+/** Fetch-shaped function `githubGetText` calls. Only ever invoked with `method: "GET"`. */
+export type GithubTextFetch = (
+  url: string,
+  init: { readonly method: "GET"; readonly headers: Readonly<Record<string, string>> },
+) => Promise<GithubTextHttpResponse>;
+
+export type GithubGetTextOutcome = { ok: true; data: string } | ErrorEnvelope;
+
+const defaultTextFetch: GithubTextFetch = (url, init) => fetch(url, init);
+
+/**
+ * Issues a single GET request against the GitHub Actions REST API and
+ * resolves to either `{ ok: true, data }` (the plain-text 2xx body) or a
+ * normalized error envelope (REQ-006). Identical host-fixing, GET-only,
+ * token-header, and error-normalization behavior to `githubGet`; the only
+ * difference is reading the successful body via `.text()` (for the one
+ * ci-mcp endpoint — job logs — whose body is not JSON). The upstream
+ * response body is discarded on every error path, same as `githubGet`.
+ */
+export async function githubGetText(
+  request: GithubGetRequest,
+  fetchImpl: GithubTextFetch = defaultTextFetch,
+): Promise<GithubGetTextOutcome> {
+  const url = buildGithubUrl(request.pathSegments, request.searchParams);
+  const headers: Record<string, string> = { accept: "text/plain" };
+  if (request.token !== undefined && request.token.length > 0) {
+    headers.authorization = `Bearer ${request.token}`;
+  }
+
+  let response: GithubTextHttpResponse;
+  try {
+    response = await fetchImpl(url, { method: "GET", headers });
+  } catch (error) {
+    return normalizeNetworkError(error);
+  }
+
+  const normalized = normalizeUpstreamResponse({
+    status: response.status,
+    getHeader: (name) => response.headers.get(name),
+  });
+  if (normalized !== undefined) {
+    return normalized;
+  }
+
+  try {
+    const data = await response.text();
+    return { ok: true, data };
+  } catch {
+    return err("upstream-error", "Failed to read the GitHub API response body.");
   }
 }

@@ -2,8 +2,8 @@
  * ci-mcp's 5 read-only GitHub Actions tools (design.md "API / Contract
  * Plan", contracts/ci-mcp-tools.v1.schema.json). Implemented incrementally:
  *   - T-005: list_workflow_runs, get_workflow_run
- *   - T-012: list_run_jobs, list_run_artifacts (this file's current scope)
- *   - T-013: get_job_log
+ *   - T-012: list_run_jobs, list_run_artifacts
+ *   - T-013: get_job_log (this file's current scope; all 5 tools now live here)
  *
  * Every tool follows the same composition: `withToken` (auth.ts) gates the
  * call so a missing token never reaches GitHub; `resolveRepo`
@@ -26,6 +26,16 @@
  * for internal consistency between `list_workflow_runs` and
  * `get_workflow_run` — this is a deliberate, documented shape choice, not a
  * literal transcription of GitHub's API docs.
+ *
+ * `get_job_log` (T-013) reads its 2xx body via `github-client.ts`'s
+ * `githubGetText` (a plain-text sibling of `githubGet`, added for this task
+ * — see that module's doc comment for why: `githubGet` only supports JSON
+ * bodies). The 256 KiB (262144 byte) tail-priority truncation is performed
+ * HERE, in `truncateLogTail`, not in github-client.ts: it slices on a
+ * UTF-8-safe byte boundary (never mid-multibyte-character) so the returned
+ * tail always decodes cleanly and `returnedBytes` never exceeds the cap,
+ * even if that means keeping a handful of bytes fewer than 262144 to land on
+ * a valid character boundary.
  */
 
 import { z } from "zod";
@@ -33,12 +43,14 @@ import { z } from "zod";
 import { err, ok, isOk, type Result } from "../envelope.js";
 import { withToken } from "../auth.js";
 import { resolveRepo, type RepoResolveArgs, type ResolvedRepo } from "../repo-resolve.js";
-import { githubGet, type GithubFetch } from "../github-client.js";
+import { githubGet, githubGetText, type GithubFetch, type GithubTextFetch } from "../github-client.js";
 
 /** Shared options every tool function accepts for test injection (fetch) and env override. */
 export interface ActionsToolOptions {
   env?: NodeJS.ProcessEnv;
   fetchImpl?: GithubFetch;
+  /** Text-fetch injection point for `get_job_log` (the one plain-text-bodied endpoint). */
+  textFetchImpl?: GithubTextFetch;
 }
 
 // ---------------------------------------------------------------------------
@@ -491,5 +503,101 @@ export async function listRunArtifacts(
       kind: "run-artifacts",
       artifacts: outcome.data.artifacts.map(mapUpstreamArtifact),
     });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// get_job_log (T-013)
+// ---------------------------------------------------------------------------
+
+/** `$defs/jobLogData` (`get_job_log` output). */
+export interface JobLogData {
+  kind: "job-log";
+  jobId: number;
+  log: string;
+  truncated: boolean;
+  returnedBytes: number;
+}
+
+/** 256 KiB cap on the returned log (contract `jobLogData.returnedBytes` maximum). */
+export const MAX_JOB_LOG_BYTES = 262144;
+
+/**
+ * Returns the index of the first byte at or after `startIndex` that is NOT a
+ * UTF-8 continuation byte (`10xxxxxx`), i.e. a safe place to start decoding
+ * without splitting a multi-byte character. At most 3 continuation bytes can
+ * precede a valid lead byte in well-formed UTF-8, so this always terminates
+ * quickly.
+ */
+function findSafeUtf8Boundary(buffer: Buffer, startIndex: number): number {
+  let index = startIndex;
+  while (index < buffer.byteLength && (buffer[index]! & 0xc0) === 0x80) {
+    index += 1;
+  }
+  return index;
+}
+
+/**
+ * AC-004: applies 256 KiB tail-priority truncation to a job log. When the
+ * log's UTF-8 byte length is within the cap, it is returned whole with
+ * `truncated: false`. Otherwise only the TAIL (most recent bytes — best for
+ * failure diagnosis) is kept: the cut point is advanced forward (never
+ * backward) to the next UTF-8 character boundary so the returned tail always
+ * decodes cleanly, which means `returnedBytes` can be a small amount under
+ * 262144 but never over it.
+ */
+export function truncateLogTail(log: string): { log: string; truncated: boolean; returnedBytes: number } {
+  const buffer = Buffer.from(log, "utf-8");
+  if (buffer.byteLength <= MAX_JOB_LOG_BYTES) {
+    return { log, truncated: false, returnedBytes: buffer.byteLength };
+  }
+  const rawStart = buffer.byteLength - MAX_JOB_LOG_BYTES;
+  const safeStart = findSafeUtf8Boundary(buffer, rawStart);
+  const tailBuffer = buffer.subarray(safeStart);
+  return { log: tailBuffer.toString("utf-8"), truncated: true, returnedBytes: tailBuffer.byteLength };
+}
+
+/** Raw shape registered with the MCP SDK's `registerTool` for `get_job_log`. */
+export const GET_JOB_LOG_INPUT_SHAPE = {
+  owner: z.string().optional().describe("Repository owner. Must be given together with `repo`."),
+  repo: z.string().optional().describe("Repository name. Must be given together with `owner`."),
+  jobId: z.number().int().min(1).describe("The job id whose log is fetched."),
+};
+
+const getJobLogInputSchema = z.object(GET_JOB_LOG_INPUT_SHAPE).strict();
+
+export type GetJobLogInput = z.infer<typeof getJobLogInputSchema>;
+
+/**
+ * AC-004: fetches a job's plain-text log, returning the contract's
+ * `job-log` envelope. Applies 256 KiB tail-priority truncation
+ * (`truncateLogTail`) — always `ok: true` regardless of whether truncation
+ * happened.
+ */
+export async function getJobLog(
+  input: GetJobLogInput,
+  options: ActionsToolOptions = {},
+): Promise<Result<JobLogData>> {
+  const parsed = getJobLogInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return err("invalid-input", "get_job_log: invalid input", {
+      rule: "jobId is required and must be a positive integer; owner/repo are optional strings",
+    });
+  }
+  const { owner, repo, jobId } = parsed.data;
+
+  return withRepoAndToken({ owner, repo }, options, async (token, resolvedRepo) => {
+    const outcome = await githubGetText(
+      {
+        pathSegments: ["repos", resolvedRepo.owner, resolvedRepo.repo, "actions", "jobs", String(jobId), "logs"],
+        token,
+      },
+      options.textFetchImpl,
+    );
+    if (!outcome.ok) {
+      return outcome;
+    }
+    const { log, truncated, returnedBytes } = truncateLogTail(outcome.data);
+    return ok<JobLogData>({ kind: "job-log", jobId, log, truncated, returnedBytes });
   });
 }

@@ -1,0 +1,111 @@
+$ npx tsc --noEmit
+(no output; exit code 0)
+
+$ npm test
+# (pretest: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs enumerating dist-test/tests/**/*.test.js)
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> ci-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ AC-008: no token env set resolves to auth-missing
+✔ OQ-004: CI_MCP_GITHUB_TOKEN wins over GH_READONLY_TOKEN and GITHUB_TOKEN
+✔ OQ-004: GH_READONLY_TOKEN wins over GITHUB_TOKEN when CI_MCP_GITHUB_TOKEN is unset
+✔ OQ-004: GITHUB_TOKEN is used when it is the only variable set
+✔ OQ-004: an empty-string value is treated as unset and falls through to the next variable
+✔ resolveToken never throws regardless of env state
+✔ AC-008: withToken (the shared gate every future tool calls through) returns auth-missing and never invokes the handler when no token is resolvable
+✔ AC-008: withToken invokes the handler with the resolved token when one is set, and the process does not exit
+✔ ok() builds a success envelope
+✔ err() builds a failure envelope; details optional and secret-free
+✔ ErrorCode union matches the contract error.code enum exactly (10 codes)
+✔ the 7 pre-existing codes and the 3 ci-mcp additions are all present
+✔ buildServer() constructs fast and registers all 5 read-only Actions tools (T-013 scope)
+✔ buildServer() never reads a GitHub token env var during construction
+✔ 401 always maps to auth-missing with details.status:401, never upstream-error
+✔ 403 with x-ratelimit-remaining:0 maps to rate-limited
+✔ 403 with retry-after maps to rate-limited
+✔ 403 without any rate-limit indicator maps to upstream-error with details.status:403 (never path-denied)
+✔ 404 maps to not-found
+✔ 429 maps to rate-limited
+✔ 5xx maps to upstream-error
+✔ 2xx is not an error (returns undefined)
+✔ network failure maps to upstream-error
+✔ AC-011: rate-limited details carry only a non-sensitive reset time, never a token
+✔ AC-011: malformed x-ratelimit-reset header is ignored (details omits the field, still rate-limited)
+✔ error message strings are fixed and non-sensitive (never echo header/body content)
+✔ GET is the only HTTP method ever issued, host is fixed to api.github.com
+✔ path segments cannot change the host even when they look like a host or contain separators
+✔ no other HTTP method literal (POST/PUT/PATCH/DELETE) appears in github-client.ts source
+✔ Authorization header is attached only when a token is provided
+✔ successful 2xx response resolves to ok:true with the parsed body
+✔ AC-010: 401 maps deterministically to auth-missing and never leaks the upstream body
+✔ AC-010: 403 with rate-limit indicator maps deterministically to rate-limited and never leaks the upstream body
+✔ AC-010: 403 without indicator maps deterministically to upstream-error and never leaks the upstream body
+✔ AC-010: 404 maps deterministically to not-found and never leaks the upstream body
+✔ AC-010: 429 maps deterministically to rate-limited and never leaks the upstream body
+✔ AC-010: 500 maps deterministically to upstream-error and never leaks the upstream body
+✔ AC-010: 503 maps deterministically to upstream-error and never leaks the upstream body
+✔ AC-010: network failure (fetch throws) maps to upstream-error
+✔ a non-JSON upstream body on an otherwise-2xx response yields upstream-error (not a thrown exception)
+✔ AC-009: canary token resolved via auth.ts never appears in a githubGet error envelope
+✔ AC-009: canary token never appears in scrubbed stderr diagnostics even when it is live in process.env
+✔ logStartup emits exactly the allowlisted startup fields
+✔ logFatal emits exactly the allowlisted fatal fields
+✔ scrubber redacts the home directory, username, and hostname from a message
+✔ scrubber redacts a long environment-variable value from a message
+✔ ci-mcp-specific: scrubber redacts an `Authorization: Bearer <token>` pattern even without the raw token in process.env
+✔ logFatal scrubs a Bearer token pattern carried in the error message
+✔ repo-resolve.ts source contains no child_process import
+✔ repo-resolve.ts source contains no exec/spawn/execFile call patterns
+✔ AC-012 / OQ-001: explicit owner+repo arguments resolve directly
+✔ AC-012 / OQ-001: explicit arguments take priority over CI_MCP_REPO even when both are set
+✔ AC-012 / OQ-001: CI_MCP_REPO is used when no explicit arguments are given
+✔ AC-012: neither explicit arguments nor CI_MCP_REPO set -> invalid-input
+✔ AC-012: CI_MCP_REPO set to an empty string is treated as unset -> invalid-input
+✔ AC-012: malformed CI_MCP_REPO without a slash -> invalid-input
+✔ AC-012: malformed CI_MCP_REPO with too many slashes -> invalid-input
+✔ AC-012: CI_MCP_REPO with an empty owner or repo segment -> invalid-input
+✔ AC-012: only owner explicit argument given (repo missing) -> invalid-input, no fallback to env
+✔ AC-012: only repo explicit argument given (owner missing) -> invalid-input, no fallback to env
+✔ AC-012: explicit owner/repo containing invalid characters (space) -> invalid-input
+✔ AC-012: explicit owner containing a path separator -> invalid-input (cannot smuggle an extra path segment)
+✔ AC-012: explicit repo containing a path separator -> invalid-input
+✔ AC-012: explicit owner/repo containing control characters -> invalid-input
+✔ AC-012: explicit repo of '.' or '..' -> invalid-input
+✔ AC-012: explicit owner/repo with invalid characters does not silently fall back to a valid CI_MCP_REPO
+✔ resolveRepo never throws for any input shape
+✔ AC-004: a small log is returned whole with truncated:false
+✔ AC-004: a log over 256 KiB is truncated to the tail, truncated:true, returnedBytes capped at 262144
+✔ AC-004: a log exactly at the 256 KiB cap is not truncated
+✔ jobId is required: missing jobId is rejected with invalid-input
+✔ AC-008: missing token short-circuits to auth-missing without calling GitHub
+✔ a non-existent job id yields not-found
+✔ AC-002: returns a workflow-run envelope with workflowName/headSha/runStartedAt mapped
+✔ AC-002: a non-existent run id yields not-found
+✔ runId is required: missing runId is rejected with invalid-input
+✔ AC-005: returns a run-artifacts envelope mapped from the upstream GitHub shape
+✔ AC-005: an expired artifact is returned as data with expired:true, not an error
+✔ AC-005: no binary content field is ever present in the response
+✔ runId is required: missing runId is rejected with invalid-input
+✔ AC-003: returns a run-jobs envelope, deriving failedStep from the first failed step
+✔ AC-003: a job with no steps at all yields failedStep: null
+✔ runId is required: missing runId is rejected with invalid-input
+✔ AC-008: missing token short-circuits to auth-missing without calling GitHub
+✔ AC-001: returns a workflow-runs envelope mapped from the upstream GitHub shape
+✔ AC-001: branch/status/event/perPage filters are forwarded as GitHub query params
+✔ AC-008: missing token short-circuits to auth-missing without calling GitHub
+✔ invalid input (extra field) is rejected with invalid-input before any GitHub call
+ℹ tests 88
+ℹ suites 0
+ℹ pass 88
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 134.520541
+
+npm test exit code: 0

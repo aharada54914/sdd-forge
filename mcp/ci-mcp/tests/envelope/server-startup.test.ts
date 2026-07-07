@@ -1,16 +1,14 @@
 /**
- * AC (acceptance, T-001, updated T-005/T-012): stdio server construction/
- * startup skeleton.
+ * AC (acceptance, T-001, updated T-005/T-012/T-013): stdio server
+ * construction/startup skeleton.
  *
  * `buildServer()` must construct a valid McpServer without making any
  * network call or reading any GitHub-token environment variable at
  * construction time — this test asserts construction is synchronous-fast and
  * that no `fetch` is triggered, which is the acceptance criterion for "起動時に
  * GitHub API 呼び出し・トークン検証を行わない" (design.md Architecture). As of
- * T-012, `list_workflow_runs` / `get_workflow_run` / `list_run_jobs` /
- * `list_run_artifacts` are registered (T-013 adds the 5th and final tool);
- * the tool-count assertion below is updated at each of those tasks to track
- * the current total.
+ * T-013, all 5 read-only Actions tools are registered: `list_workflow_runs`,
+ * `get_workflow_run`, `list_run_jobs`, `list_run_artifacts`, `get_job_log`.
  *
  * Uses the MCP SDK's in-memory Client/Transport pair (no real stdio process),
  * matching the pattern other ci-mcp/local-env-mcp tool-level tests use for
@@ -28,7 +26,7 @@ interface McpServerToolInternals {
   _registeredTools: Record<string, unknown>;
 }
 
-test("buildServer() constructs fast and registers exactly the tools implemented so far (T-012 scope)", () => {
+test("buildServer() constructs fast and registers all 5 read-only Actions tools (T-013 scope)", () => {
   const start = process.hrtime.bigint();
   const server = buildServer();
   const elapsedMs = Number(process.hrtime.bigint() - start) / 1e6;
@@ -36,15 +34,14 @@ test("buildServer() constructs fast and registers exactly the tools implemented 
   // Construction alone must stay well under the 1s startup SLO (design.md).
   assert.ok(elapsedMs < 1000, `buildServer() took ${elapsedMs}ms, expected < 1000ms`);
 
-  // As of T-012, `list_workflow_runs` / `get_workflow_run` / `list_run_jobs` /
-  // `list_run_artifacts` are registered (T-013 adds the 5th and final tool).
-  // Asserted directly (white-box) via the MCP SDK's internal tool map rather
-  // than a `tools/list` round-trip.
+  // As of T-013, all 5 read-only Actions tools are registered. Asserted
+  // directly (white-box) via the MCP SDK's internal tool map rather than a
+  // `tools/list` round-trip.
   const registeredToolNames = Object.keys((server as unknown as McpServerToolInternals)._registeredTools).sort();
   assert.deepEqual(
     registeredToolNames,
-    ["get_workflow_run", "list_run_artifacts", "list_run_jobs", "list_workflow_runs"],
-    "T-012 registers list_run_jobs and list_run_artifacts in addition to T-005's 2 tools; T-013 adds the 5th",
+    ["get_job_log", "get_workflow_run", "list_run_artifacts", "list_run_jobs", "list_workflow_runs"],
+    "T-013 registers get_job_log, the 5th and final tool",
   );
 });
 
