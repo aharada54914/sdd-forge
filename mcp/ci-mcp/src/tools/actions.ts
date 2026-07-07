@@ -187,13 +187,33 @@ function withRepoAndToken<T>(
 // list_workflow_runs
 // ---------------------------------------------------------------------------
 
-const RUN_STATUS_VALUES = [
+/**
+ * GitHub's "List workflow runs for a repository" REST endpoint documents
+ * `status` as accepting BOTH check-run status values ("Only GitHub can set a
+ * status of waiting, pending, or requested") AND conclusion values ("a
+ * conclusion can be success"). This is the full documented set (14 values) —
+ * intentionally broader than the contract's output-only `RunStatus` type
+ * above (`$defs/runStatus` in contracts/ci-mcp-tools.v1.schema.json), which
+ * shapes only what a *completed* run's `status` field can be, not what this
+ * *input* filter accepts as a passthrough GitHub REST query param. Rejecting
+ * e.g. `status: "failure"` here blocked the core "list failed runs"
+ * CI-diagnosis use case (Codex review, PR #98).
+ */
+const RUN_STATUS_FILTER_VALUES = [
   "queued",
   "in_progress",
   "completed",
   "waiting",
   "requested",
   "pending",
+  "action_required",
+  "cancelled",
+  "failure",
+  "neutral",
+  "skipped",
+  "stale",
+  "success",
+  "timed_out",
 ] as const;
 
 /** Raw shape registered with the MCP SDK's `registerTool` for `list_workflow_runs`. */
@@ -201,7 +221,12 @@ export const LIST_WORKFLOW_RUNS_INPUT_SHAPE = {
   owner: z.string().optional().describe("Repository owner. Must be given together with `repo`."),
   repo: z.string().optional().describe("Repository name. Must be given together with `owner`."),
   branch: z.string().optional().describe("Filter runs by branch name."),
-  status: z.enum(RUN_STATUS_VALUES).optional().describe("Filter runs by status."),
+  status: z
+    .enum(RUN_STATUS_FILTER_VALUES)
+    .optional()
+    .describe(
+      "Filter runs by check-run status OR conclusion (GitHub's status query param accepts both, e.g. \"completed\" or \"failure\").",
+    ),
   event: z.string().optional().describe("Filter runs by triggering event (e.g. push, pull_request)."),
   perPage: z.number().int().min(1).max(100).optional().describe("Max number of runs to return (1-100)."),
 };

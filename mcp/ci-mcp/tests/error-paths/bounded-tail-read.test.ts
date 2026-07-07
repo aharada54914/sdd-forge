@@ -15,6 +15,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import { readBoundedTail } from "../../src/github-client.js";
+import { truncateLogTail, MAX_JOB_LOG_BYTES } from "../../src/tools/actions.js";
 
 const CAP_BYTES = 262144;
 const MARGIN_BYTES = 65536;
@@ -102,4 +103,57 @@ test("T-013 cycle-2: a small stream under the cap is retained whole with no evic
   assert.equal(result.totalBytesRead, totalBytes);
   assert.equal(result.bytes.byteLength, totalBytes, "nothing should be evicted when the stream is under the cap");
   assert.equal(result.maxRetainedBytes, totalBytes);
+});
+
+test("Codex P2 (PR #98): a SINGLE chunk far larger than capBytes + marginBytes is still bounded (byte-level, not whole-chunk eviction)", async () => {
+  // A redirected log delivered as one big Uint8Array — the whole-chunk-only
+  // eviction bug retained this kind of chunk in full, since evicting the
+  // only chunk in the deque would have left 0 bytes (which whole-chunk
+  // eviction refuses to do), so the ring-buffer bound could still OOM.
+  const headByte = 0x41; // 'A' — must be evicted
+  const tailByte = 0x5a; // 'Z' — must survive (tail-priority)
+  const chunkSize = 2 * 1024 * 1024; // 2 MiB, delivered as ONE chunk
+  const tailBytes = 2000;
+  const bigChunk = new Uint8Array(chunkSize);
+  bigChunk.fill(headByte, 0, chunkSize - tailBytes);
+  bigChunk.fill(tailByte, chunkSize - tailBytes);
+
+  const stream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      controller.enqueue(bigChunk);
+      controller.close();
+    },
+  });
+
+  const result = await readBoundedTail(stream, CAP_BYTES, MARGIN_BYTES);
+
+  const streamingBound = CAP_BYTES + MARGIN_BYTES;
+  assert.equal(result.totalBytesRead, chunkSize, "totalBytesRead must reflect the full chunk even though most of it was evicted");
+  assert.ok(
+    result.bytes.byteLength <= streamingBound,
+    `a single oversized chunk must still be bounded to capBytes + marginBytes (${streamingBound}), got ${result.bytes.byteLength}`,
+  );
+  assert.ok(
+    result.maxRetainedBytes <= streamingBound,
+    `maxRetainedBytes (${result.maxRetainedBytes}) must never exceed capBytes + marginBytes (${streamingBound}) even for a single huge chunk`,
+  );
+  const retainedTailSlice = result.bytes.subarray(result.bytes.byteLength - tailBytes);
+  assert.ok(retainedTailSlice.every((b) => b === tailByte), "the tail of the oversized chunk must survive eviction");
+  const retainedHeadSlice = result.bytes.subarray(0, result.bytes.byteLength - tailBytes);
+  assert.ok(
+    retainedHeadSlice.every((b) => b === headByte) || retainedHeadSlice.byteLength === 0,
+    "only trailing bytes of the oversized chunk may survive",
+  );
+
+  // Compose with the final byte-exact cut (`tools/actions.ts`'s
+  // `truncateLogTail`) to prove the whole pipeline lands at the real
+  // 262144-byte contract cap, not just the streaming layer's cap+margin
+  // window.
+  const text = Buffer.from(result.bytes.buffer, result.bytes.byteOffset, result.bytes.byteLength).toString("utf-8");
+  const final = truncateLogTail(text);
+  assert.ok(
+    final.returnedBytes <= MAX_JOB_LOG_BYTES,
+    `final returned bytes (${final.returnedBytes}) must not exceed the contract cap (${MAX_JOB_LOG_BYTES})`,
+  );
+  assert.equal(final.truncated, true);
 });

@@ -101,6 +101,20 @@ test("AC-001: branch/status/event/perPage filters are forwarded as GitHub query 
   assert.ok(url.pathname.endsWith("/repos/acme/widgets/actions/runs"), `pathname was ${url.pathname}`);
 });
 
+test("Codex P2 (PR #98): a conclusion-value status filter (e.g. \"failure\") is accepted and forwarded, not rejected as invalid input", async () => {
+  const { fetchImpl, calls } = fakeFetch({ workflow_runs: [] });
+
+  const result = await listWorkflowRuns(
+    { owner: "acme", repo: "widgets", status: "failure" },
+    { env: TOKEN_ENV, fetchImpl },
+  );
+
+  assert.ok(isOk(result), "a conclusion value like \"failure\" must be a valid status filter, not invalid-input");
+  assert.equal(calls.length, 1);
+  const url = new URL(calls[0]!.url);
+  assert.equal(url.searchParams.get("status"), "failure");
+});
+
 test("AC-008: missing token short-circuits to auth-missing without calling GitHub", async () => {
   const { fetchImpl, calls } = fakeFetch({ workflow_runs: [] });
 

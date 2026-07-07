@@ -31166,12 +31166,25 @@ async function readBoundedTail(stream, capBytes, marginBytes) {
       if (value === void 0 || value.byteLength === 0) {
         continue;
       }
-      chunks.push(value);
-      retainedBytes += value.byteLength;
       totalBytesRead += value.byteLength;
-      while (chunks.length > 0 && retainedBytes - chunks[0].byteLength >= threshold) {
-        const dropped = chunks.shift();
-        retainedBytes -= dropped.byteLength;
+      let incoming = value;
+      if (incoming.byteLength > threshold) {
+        incoming = incoming.subarray(incoming.byteLength - threshold);
+        chunks.length = 0;
+        retainedBytes = 0;
+      }
+      chunks.push(incoming);
+      retainedBytes += incoming.byteLength;
+      while (retainedBytes > threshold && chunks.length > 0) {
+        const oldest = chunks[0];
+        const excess = retainedBytes - threshold;
+        if (excess >= oldest.byteLength) {
+          chunks.shift();
+          retainedBytes -= oldest.byteLength;
+        } else {
+          chunks[0] = oldest.subarray(excess);
+          retainedBytes -= excess;
+        }
       }
       if (retainedBytes > maxRetainedBytes) {
         maxRetainedBytes = retainedBytes;
@@ -31258,19 +31271,29 @@ function withRepoAndToken(args, options, handler) {
     return handler(token, repoResult.data);
   }, options.env);
 }
-var RUN_STATUS_VALUES = [
+var RUN_STATUS_FILTER_VALUES = [
   "queued",
   "in_progress",
   "completed",
   "waiting",
   "requested",
-  "pending"
+  "pending",
+  "action_required",
+  "cancelled",
+  "failure",
+  "neutral",
+  "skipped",
+  "stale",
+  "success",
+  "timed_out"
 ];
 var LIST_WORKFLOW_RUNS_INPUT_SHAPE = {
   owner: external_exports.string().optional().describe("Repository owner. Must be given together with `repo`."),
   repo: external_exports.string().optional().describe("Repository name. Must be given together with `owner`."),
   branch: external_exports.string().optional().describe("Filter runs by branch name."),
-  status: external_exports.enum(RUN_STATUS_VALUES).optional().describe("Filter runs by status."),
+  status: external_exports.enum(RUN_STATUS_FILTER_VALUES).optional().describe(
+    `Filter runs by check-run status OR conclusion (GitHub's status query param accepts both, e.g. "completed" or "failure").`
+  ),
   event: external_exports.string().optional().describe("Filter runs by triggering event (e.g. push, pull_request)."),
   perPage: external_exports.number().int().min(1).max(100).optional().describe("Max number of runs to return (1-100).")
 };

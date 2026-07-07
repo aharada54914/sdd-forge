@@ -181,14 +181,27 @@ export interface BoundedTailReadResult {
 }
 
 /**
- * Reads `stream` chunk-by-chunk, retaining only a tail window: after each
- * chunk is appended, whole chunks are evicted from the front of the
- * retention deque as long as doing so would still leave at least
- * `capBytes + marginBytes` retained. This bounds the retention buffer to
- * roughly `capBytes + marginBytes` plus at most one extra chunk, regardless
- * of how large `stream` is in total — peak memory does not scale with the
- * full upstream body size (security-spec.md B2 ring-buffer mitigation;
- * REQ-008 / AC-004 / TEST-004).
+ * Reads `stream` chunk-by-chunk, retaining only a tail window bounded by
+ * `capBytes + marginBytes` at the BYTE level, not just the whole-chunk
+ * level. Two eviction paths keep the retention buffer bounded regardless of
+ * how the upstream body happens to be chunked:
+ *
+ *   1. A chunk that is itself larger than `capBytes + marginBytes` (e.g. a
+ *      redirected log delivered as one big `Uint8Array`) is sliced down to
+ *      its own trailing `capBytes + marginBytes` bytes BEFORE it enters the
+ *      deque, and — since a chunk that large can only ever leave its own
+ *      tail standing — anything retained from earlier chunks is dropped at
+ *      the same time.
+ *   2. After every chunk is appended, the FRONT of the deque is trimmed at
+ *      the byte level (slicing the oldest remaining chunk when only part of
+ *      it needs to go, rather than only evicting whole chunks) until
+ *      `retainedBytes` is back at or under the threshold.
+ *
+ * Tail-priority is preserved throughout (the END of the stream always
+ * survives), `totalBytesRead` still counts the true total regardless of
+ * eviction, and `maxRetainedBytes` reflects the truly bounded peak — it
+ * never exceeds `capBytes + marginBytes` (security-spec.md B2 ring-buffer
+ * mitigation; REQ-008 / AC-004 / TEST-004; Codex review, PR #98).
  */
 export async function readBoundedTail(
   stream: ReadableStream<Uint8Array>,
@@ -211,13 +224,40 @@ export async function readBoundedTail(
       if (value === undefined || value.byteLength === 0) {
         continue;
       }
-      chunks.push(value);
-      retainedBytes += value.byteLength;
       totalBytesRead += value.byteLength;
-      while (chunks.length > 0 && retainedBytes - chunks[0]!.byteLength >= threshold) {
-        const dropped = chunks.shift()!;
-        retainedBytes -= dropped.byteLength;
+
+      // A single chunk larger than the whole retention window can never be
+      // fully retained no matter what else is evicted — slice it down to
+      // its own tail up front (tail-priority), and since it alone already
+      // fills (or exceeds) the window, everything retained so far is
+      // superseded.
+      let incoming = value;
+      if (incoming.byteLength > threshold) {
+        incoming = incoming.subarray(incoming.byteLength - threshold);
+        chunks.length = 0;
+        retainedBytes = 0;
       }
+
+      chunks.push(incoming);
+      retainedBytes += incoming.byteLength;
+
+      // Byte-level front trim: shrink or drop the oldest chunk(s) until the
+      // retained window is back at or under the threshold. This bounds
+      // `retainedBytes` exactly, instead of only bounding it to "at least
+      // one whole chunk over threshold" the way whole-chunk-only eviction
+      // does.
+      while (retainedBytes > threshold && chunks.length > 0) {
+        const oldest = chunks[0]!;
+        const excess = retainedBytes - threshold;
+        if (excess >= oldest.byteLength) {
+          chunks.shift();
+          retainedBytes -= oldest.byteLength;
+        } else {
+          chunks[0] = oldest.subarray(excess);
+          retainedBytes -= excess;
+        }
+      }
+
       if (retainedBytes > maxRetainedBytes) {
         maxRetainedBytes = retainedBytes;
       }
