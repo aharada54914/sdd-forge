@@ -348,7 +348,7 @@ T-005, T-012, T-013
 ## T-008 esbuild dist + dist-parity CI + Inspector スモーク
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: 配布物(dist)と CI 検証・スモークの追加。挙動面は既存 ADR-0003 パターンの踏襲で、欠陥は CI で検出可能(改竄検知は dist-parity 自体が担う)。local-env-mcp T-004 と同型。
 Required Workflow: acceptance-first
