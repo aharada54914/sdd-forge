@@ -1,0 +1,23 @@
+{
+  "name": "sdd-domain",
+  "version": "1.8.0",
+  "description": "Domain-Driven Design upstream lane producing a human-approved domain model (domain story, event storming, ubiquitous language, context map, aggregates, message flow, C4 container) ahead of sdd-forge Phase 1.",
+  "skills": "./skills/",
+  "author": {
+    "name": "Harada"
+  },
+  "interface": {
+    "displayName": "SDD Domain",
+    "shortDescription": "DDD upstream lane for domain modeling",
+    "longDescription": "Interview-driven, seven-stage Domain-Driven Design pipeline that produces a reviewed and human-approved domain model consumed by downstream sdd-forge specifications.",
+    "developerName": "Harada",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Seven-stage domain modeling interview",
+      "Independent domain review and cross-model verification",
+      "Human-approved domain contract",
+      "Downstream conformance sync for bootstrap specs"
+    ],
+    "defaultPrompt": "Use the domain-model skill to build or update the approved domain model."
+  }
+}

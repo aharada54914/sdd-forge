@@ -1,0 +1,82 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-20260706T0345Z-impl-reviewer-b-r2",
+  "host_session_id": "SESS-impl-b-sdd-domain-a1r2",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain/requirements.md", "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"},
+    {"path": "specs/sdd-domain/acceptance-tests.md", "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"},
+    {"path": "specs/sdd-domain/design.md", "sha256": "8aa854dd4994570358ba4f61644f334732b95500d50d31c3a2625354a6b695ac"},
+    {"path": "specs/sdd-domain/ux-spec.md", "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"},
+    {"path": "specs/sdd-domain/frontend-spec.md", "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"},
+    {"path": "specs/sdd-domain/infra-spec.md", "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"},
+    {"path": "specs/sdd-domain/security-spec.md", "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-domain/attempt-1/round-2/precheck-result.json", "sha256": "23517636e8b158969e98d824ba68b48ee72752a9240dbd67065c0b9c1f7d91c6"},
+    {"path": "reports/impl-review/sdd-domain/attempt-1/round-2/integrated-summary.json", "sha256": "cad8d01ef06197ebfcdb17cbd0941406012c232d77cb74e73239a51b2a3c817b"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Components table and Assumptions section state rationale for each material decision (e.g., cross-model-verify reuse justified by argument-parsing behavior citation in Assumptions; c4-container template reuse justified by its generic-placeholder structure; warn-first conformance justified in Constraint Compliance row 'Warn-first gates'). No inline decision found stated without a because/basis clause. No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "OQ-001 and OQ-002 (design.md lines 193-212) each declare Owner: human, Blocks Implementation: no, and a concrete Resolution Path ('confirm at task approval; revisit after first retrospective with drift metrics' / 'confirm at task approval; revisit via WFI'). No issues found."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Round-1 Major FAIL is resolved. design.md's rewritten Assumptions section (lines 163-190) now grounds both non-trivial assumptions in category-2 terms of this check ('reasonable technical default... cite the basis'): the cross-model-verify assumption cites plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh:27-59 (arg parsing/validation with no path-shape or task-existence check, verified: lines 27-61 show only non-empty checks), line 86 (default output path built by plain string interpolation, verified verbatim: `out_path=\"${spec_root}/${feature}/verification/${task_id}.panelist-input.txt\"`), and check-cross-model.sh:35 (target built by interpolation, verified: `aggregate_path=\"${verdict_dir}/${task_id}.cross-model.json\"` at line 35). The residual risk (consent gate at prepare-panelist-input.sh:91-95 reads tasks.md for 'Cross-Model: enabled', which sdd-domain does not produce) is verified accurate against source (lines 89-117: condition (a) scans tasks_file for the literal string 'Cross-Model: enabled', condition (b) is the SDD_SUDO token path) and is stated as an explicit human-accepted risk with a named invocation approach (direct script invocation under human SDD_SUDO-style authorization), satisfying category 3 ('explicitly marked as a risk that the human has accepted'). The c4-container assumption cites plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-container.template.md:1-21, verified: the template (27 lines total) contains only generic C4 placeholders ({{system_name}}, {{container_name}}, {{technology}}, {{db_name}}, {{external_system_1}}, etc.) with no feature- or sdd-forge-specific coupling. investigation.md remains absent, but the check's rule permits a stated technical-default basis with explicit citation as an alternative to INV-xxx grounding, and that basis is now present and independently verifiable against current source. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md contains a '## Constraint Compliance' section (lines 152-161) addressing all six constraints identifiable in requirements.md: visibility contract (AC-001/AC-011), unidirectional flow (Non-goals/Architecture), graceful degradation (AC-010), warn-first gates (AC-009), R-10 protected files (Risks R-1), and human-owned judgment (Roles and Permissions). No constraint found unaddressed. No issues found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. No numeric latency/throughput/concurrency thresholds or SLA statements appear; infra-spec.md Service Level Objectives table lists pass/fail CI gate targets (100% validate-job pass, 100% absence-regression), not response-time or load targets, and design.md Risks names cross-model panel cost/latency as a mitigated operational risk (run once per PASS, not per round), which is consistent with the absence of a hard performance requirement."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md '## Deployment / CI Plan' (lines 145-150) states the deployment target (no deployment; local harness + existing GitHub Actions validate job), required CI changes (updated validate-repository.ps1 expectations plus new Pester suites), and marketplace distribution pattern. Feature-flag strategy is the opt-in `domain/` directory presence itself (stated throughout design.md and Data Plan/Constraint Compliance 'Graceful degradation' row) rather than a separate flag, which is an adequate substitute for this additive, non-schema-changing feature. Data Plan states no schema changes, so migration-execution-order is not applicable (see MIGRATION-PLANNED). No issues found."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Data Plan (design.md lines 89-105) states 'Existing Data Affected: none (new `domain/` directory; additive `Bounded-Context:` field in future requirements.md files)' and 'Migration Strategy: none required.' No schema/column/table changes are declared, satisfying the check's own stated PASS condition ('If Data Plan states \"No data changes,\" emit PASS')."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The one external integration, cross-model-verify (GPT/Gemini vendor panel), is identified with purpose (blind multi-vendor verdict, Components table row and Architecture diagram), contract (existing review-contract.v1/cross-model-verdict/v1 in API/Contract Plan, plus the Assumptions section's verified script-interface citations), and failure behaviour (panelist-unavailable / requires_human_decision, AC-006/AC-017, security-spec.md B4 row and STRIDE entry, infra-spec.md failure-domains row). No integration is mentioned only in passing. No issues found."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every design.md component maps to a requirements.md Goal/User Story/AC (domain-model -> US-1/AC-001; domain-interviewer -> AC-002/AC-004; domain-reverse -> US-4/AC-004; domain-review-loop -> US-2/AC-005/AC-006/AC-017; domain-sync -> US-3/AC-008; domain-reviewer-a/b -> AC-005; check-domain-conformance -> AC-009/AC-015; hook guard extension -> AC-007/AC-014). No HTTP APIs, CQRS, or code-generation templates are introduced, consistent with stated Non-goals. All Goals/User Stories (US-1..US-4) have corresponding design coverage. No issues found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "High-risk surfaces present: authorization/approval-guard changes (B2) and external cross-service integration failure behaviour (B4). Both have concrete validation paths: B2 approval-guard rejection and post-approval-reset are verified by tests/hooks/domain-approval-guard.Tests.ps1 (TEST-007, TEST-014, cited in design.md Test Strategy and security-spec.md Security Tests table). B4 cross-model mismatch/panelist-unavailable behaviour is verified by tests/sdd-domain/cross-model-gate.Tests.ps1 (TEST-006/TEST-017, cited in design.md Test Strategy, security-spec.md, and acceptance-tests.md). No high-risk surface found lacking a named artifact."
+    }
+  ]
+}

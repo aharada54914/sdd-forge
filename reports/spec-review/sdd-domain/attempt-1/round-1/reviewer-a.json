@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-20260703T1015Z-spec-reviewer-a-r1",
+  "host_session_id": "SESS-spec-a-sdd-domain-a1r1",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain/requirements.md",
+      "sha256": "2384835eac632f2a47b5879c262ce19de108bb9f10ae7835c63ede3d939c01b2"
+    },
+    {
+      "path": "specs/sdd-domain/acceptance-tests.md",
+      "sha256": "5b7b8304b29b0cae885602673f58043f234d52be1aaaf597052bf88eb8c013a2"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain/attempt-1/round-1/precheck-result.json",
+      "sha256": "c39ca3d91ec4c61e0b9a75ec86d43a31525a4ff4e64915957cd32998309c21e4"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 14 acceptance criteria (AC-001..AC-014) each attach to a concrete requirement (REQ-001..REQ-011) and describe checkable conditions: file/artifact existence under domain/, schema validation against contracts/domain-contract.v1.schema.json, hook-guard rejection of agent-set Approved status, warn-vs-error escalation via SDD_DOMAIN_ENFORCE, and byte-identical regression when domain/ is absent. Downstream implementers and verifiers have concrete, observable pass/fail conditions for every in-scope requirement."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of the four stated Goals traces to at least one AC: (1) one opt-in entry point producing the seven-stage artifact set -> AC-001/AC-002; (2) independent two-reviewer plus cross-model verification before approval -> AC-005/AC-006; (3) deterministic downstream conformance -> AC-008/AC-009; (4) zero impact when domain/ is absent -> AC-010. No goal is left without a matching acceptance criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally observable artifacts and state rather than intent: specific file paths produced (AC-002), schema-validation outcome (AC-003), recorded verdicts under reports/domain-review/ (AC-005), a status-field value transition Pending->Approved with hook rejection (AC-007), a named field (Bounded-Context:) appearing in generated requirements.md (AC-008), and byte-identical output comparison (AC-010)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section explicitly excludes language-specific code-generation templates, CQRS/Event-Sourcing implementation support, DDD integration into the lite track, and C4 Component/Code levels (Container level only), bounding a feature area that could otherwise expand into implementation-generation or broader architectural modeling."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Security Boundaries table states auth/authz, PII/data-classification, and regulatory constraints for three trust boundaries (seed inputs, Domain-Model-Status writes, domain-contract.json consumption); the Roles and Permissions table bounds approval authority to the human owner only; Assumptions state the version-locked, sdd-forge v1.8.0-structure compatibility constraint; AC-010 and AC-011 make the backward-compatibility/migration constraint (byte-identical existing-workflow output, 7 version-locked plugins) explicit."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The highest-risk claims in this spec are the human-approval safety boundary and the cross-model mismatch-handling behavior; both have explicit validation surfaces: AC-007/AC-014 (hook-guard rejection of agent-set Approved and post-approval status reset, with TEST-007/TEST-014 unit fixtures) and AC-006 (cross-model mismatch sets requires_human_decision and blocks auto-continuation, with TEST-006 and an Edge Cases entry for panelist-unavailable fail-toward-human). R-3 (over-eager conformance blocking legitimate specs) is likewise covered by AC-009's warn-first introduction and the two-release escalation rule referenced in the calibration-relevant risk mitigation."
+    }
+  ]
+}

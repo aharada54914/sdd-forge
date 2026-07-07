@@ -1,0 +1,9 @@
+workflow-state: repository: registry-schema: registry entry violates the bounded schema
+Workflow-state validation failed with exit code 1.
+î≠ê∂èÍèä C:\dev\sdd-forge\tests\validate-repository.ps1:9 ï∂éö:5
++     throw "Workflow-state validation failed with exit code $LASTEXITC ...
++     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : OperationStopped: (Workflow-state ...th exit code 1.:String) [], RuntimeException
+    + FullyQualifiedErrorId : Workflow-state validation failed with exit code 1.
+ 
+EXIT:1

@@ -1,0 +1,8 @@
+Command: bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-domain/.claude-plugin/plugin.json plugins/sdd-domain/.codex-plugin/plugin.json plugins/sdd-domain/.plugin/plugin.json contracts/domain-contract.v1.schema.json
+Run from repo root: C:\dev\sdd-forge
+Scope: T-001's production files only (tests/sdd-domain/contract-schema.Tests.ps1 excluded, per deterministic-check-policy.md's check-placeholders scoping rule)
+
+Output:
+Placeholder scan passed.
+
+Exit code: 0

@@ -1,0 +1,23 @@
+{
+  "task_id": "T-001",
+  "feature": "sdd-domain",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "spec_revision": "",
+  "created": "2026-07-06T00:00:00Z",
+  "stack": "docs",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Markdown/JSON/shell/PowerShell only, per tasks.md Global Constraints) - no lint/typecheck/build toolchain applies.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Markdown/JSON/shell/PowerShell only, per tasks.md Global Constraints) - no lint/typecheck/build toolchain applies.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-001.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-009", "AC-003"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-001.unit-tests.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No integration surface exists yet: the sdd-domain plugin manifests register no skills at this task, and the schema has no consumer wired in (per tasks.md Out of Scope). Nothing to exercise beyond the unit-level schema tests.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (Markdown/JSON/shell/PowerShell only, per tasks.md Global Constraints) - no lint/typecheck/build toolchain applies.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-001.placeholder-scan.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-001.task-state.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "No dev server, Docker container, or CLI binary exists to start: this task only adds inert plugin manifests (no skills registered yet) and a JSON Schema with no consumer wired in. There is nothing runnable to smoke-run.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "No prior behavior exists to diff against: the sdd-domain plugin manifests and contract-schema test file are net-new files with no previous implementation or baseline output to compare.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No UI surface is introduced or touched by this task: plugin manifests, a JSON Schema, and a Pester test file only.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system directory or UI surface exists in this repository/task; not applicable.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

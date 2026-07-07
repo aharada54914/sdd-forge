@@ -8,11 +8,24 @@ if [ $# -eq 0 ]; then
   exit 1
 fi
 
-pattern='TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)|TODO_REPLACE_WITH_PROJECT_COMMANDS'
-out="$(grep -rEin --binary-files=without-match \
+# Marker keywords are matched CASE-SENSITIVELY: real stub markers follow the
+# ALL-CAPS convention (TODO:, FIXME, PLACEHOLDER), while lowercase occurrences
+# ("placeholders", "`todo`", "check-placeholders") are ordinary prose in docs
+# and skill files -- matching them case-insensitively produced false positives
+# that blocked quality gates (RT-20260706-001). NotImplemented keeps its exact
+# mixed case (Python/C# exception names). Multi-word phrases stay
+# case-insensitive: they are unambiguous in any casing.
+pattern_cs='TODO|FIXME|HACK\b|NotImplemented|PLACEHOLDER|TODO_REPLACE_WITH_PROJECT_COMMANDS'
+pattern_ci='not[ _-]implemented|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)'
+out_cs="$(grep -rEn --binary-files=without-match \
   --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bin \
   --exclude-dir=obj --exclude-dir=dist \
-  -e "$pattern" "$@" 2>/dev/null)"
+  -e "$pattern_cs" "$@" 2>/dev/null)"
+out_ci="$(grep -rEin --binary-files=without-match \
+  --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=bin \
+  --exclude-dir=obj --exclude-dir=dist \
+  -e "$pattern_ci" "$@" 2>/dev/null)"
+out="$(printf '%s\n%s\n' "$out_cs" "$out_ci" | grep -v '^$' | sort -u)"
 
 if [ -n "$out" ]; then
   count="$(printf '%s\n' "$out" | wc -l | tr -d ' ')"

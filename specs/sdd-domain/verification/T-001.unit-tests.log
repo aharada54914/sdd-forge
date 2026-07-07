@@ -1,0 +1,23 @@
+Command: powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Pester -Script tests/sdd-domain/contract-schema.Tests.ps1"
+Run from repo root: C:\dev\sdd-forge
+Pester version: 3.4.0 (Windows PowerShell 5.1)
+Note: -ExecutionPolicy Bypass was required for this single invocation only
+(the default policy on this machine is Restricted / AllSigned and blocks
+running unsigned .ps1 files); no system-wide execution policy was changed.
+
+Describing domain-contract.v1.schema.json
+ [+] the schema file itself parses as valid JSON 762ms
+ [+] declares the domain-contract/v1 schema const 178ms
+ [+] declares the full contextRelation pattern enum 52ms
+   Context valid fixture
+    [+] passes schema validation with zero errors 232ms
+   Context corrupt fixture: missing required field (meta)
+    [+] is rejected for missing meta 147ms
+   Context corrupt fixture: wrong schema const value
+    [+] is rejected for schema = domain-contract/v2 68ms
+   Context corrupt fixture: invalid pattern enum value
+    [+] is rejected for an unrecognized contextRelation pattern 55ms
+   Context corrupt fixture: missing required aggregate field
+    [+] is rejected when an aggregate is missing invariants 63ms
+Tests completed in 1.56s
+Passed: 8 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0

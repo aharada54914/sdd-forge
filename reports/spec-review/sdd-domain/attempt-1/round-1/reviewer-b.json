@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-20260703T1130Z-spec-reviewer-b-r1x2",
+  "host_session_id": "SESS-spec-b-sdd-domain-a1r1x2",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain/requirements.md",
+      "sha256": "2384835eac632f2a47b5879c262ce19de108bb9f10ae7835c63ede3d939c01b2"
+    },
+    {
+      "path": "specs/sdd-domain/acceptance-tests.md",
+      "sha256": "5b7b8304b29b0cae885602673f58043f234d52be1aaaf597052bf88eb8c013a2"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain/attempt-1/round-1/precheck-result.json",
+      "sha256": "c39ca3d91ec4c61e0b9a75ec86d43a31525a4ff4e64915957cd32998309c21e4"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain/attempt-1/round-1/integrated-summary.json",
+      "sha256": "b7d6b09080cfb337c63130b9efb751b237771fbbc4b692d694b5d2173f4333eb"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Actors (human owner, orchestrating agent, reviewer subagents, cross-model panelists), states (Domain-Model-Status: Pending|Reviewed|Approved), and inputs (text/Markdown path/issue URL seeds, investigation.md for reverse mode) are defined concretely enough in requirements.md Roles/Permissions and AC-004/AC-007 that two implementers would build the same observable behavior."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-008 (inject Bounded-Context/aggregate refs when Approved model exists) and AC-010 (byte-identical output, all hooks/gates skipped when domain/ absent) are consistent because they are gated on mutually exclusive preconditions (domain/ present+Approved vs. domain/ absent); the Edge Cases 'not Approved: warn and proceed without injection' entry is consistent with, not contradictory to, AC-008. No direct conflict found across goals, non-goals, ACs, or constraints in requirements.md."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Edge Cases (line 147-149) states: 'Cross-model panelist unavailable (offline/local env): record panelist-unavailable, set requires_human_decision (fail toward human, never silently pass).' This is a distinct failure mode from the cross-model mismatch path covered by AC-006/TEST-006 in acceptance-tests.md. Searching acceptance-tests.md for 'panelist' yields no matches — there is no AC or TEST-ID for the panelist-unavailable path. A test author cannot derive an observable acceptance criterion or fixture for this failure mode from acceptance-tests.md alone, and this belongs to spec review because acceptance-tests.md is a Phase 1 artifact under this gate's scope, not a later quality-gate concern. Severity is Major because it is a missing observable acceptance criterion for a named failure mode, not a contradiction that makes the spec unreviewable."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Open Questions OQ-R1 and OQ-R2 are explicitly marked non-blocking with an owner (human) and a stated v1 interim default, satisfying the resolvable-or-flagged pattern. The Assumptions section (v1.8.0 structure reuse, cross-model panelist reuse, version-locked plugin bump) contains narrow technical/infrastructure assumptions rather than unresolved product-behavior questions, so they do not block design or task decomposition."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "AC-007 and AC-014, backed by the Roles/Permissions table and Security Boundaries table, define a testable human-approval boundary: only a human sets Domain-Model-Status: Approved, a hook guard performs line-diff rejection of agent-set Approved lines (acceptance-tests.md UI Integration Checklist AC-007 bullet), and any post-approval edit under domain/ resets status to Pending pending re-review (AC-014, TEST-014). This boundary is concrete and testable, not merely asserted."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Because the panelist-unavailable failure mode (requirements.md lines 147-149) has no corresponding AC or TEST-ID, an implementation-policy/design reviewer inheriting this spec would have to invent the acceptance surface (what file records 'panelist-unavailable', what fixture proves requires_human_decision is set on this path) rather than trace it to a written acceptance criterion, which is exactly the invented-product-behavior risk this check screens for. This is the same root cause as the EDGE-CASE-COVERAGE finding but represents a distinct downstream failure mode (design/task readiness vs. test-fixture derivability), so it is reported separately per the check definitions."
+    }
+  ]
+}
