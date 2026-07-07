@@ -102,7 +102,9 @@ function probeOne(entry: AllowlistEntry, options: ProbeOptions): Promise<ProbeRe
     // maxBuffer enforces the 8 KiB cap: execFile kills the child and reports an
     // ERR_CHILD_PROCESS_STDIO_MAXBUFFER error once either stream exceeds it.
     // timeout enforces the 2s bound: execFile sends `killSignal` on expiry.
-    const child = execFile(
+    let child: ReturnType<typeof execFile>;
+    try {
+      child = execFile(
       entry.command,
       [...entry.args],
       {
@@ -147,7 +149,15 @@ function probeOne(entry: AllowlistEntry, options: ProbeOptions): Promise<ProbeRe
         }
         finish({ name: entry.name, available: true, version });
       },
-    );
+      );
+    } catch {
+      // On win32, spawn throws SYNCHRONOUSLY (EINVAL) when PATH resolution
+      // lands on a .bat/.cmd file and no shell is enabled (Node/libuv
+      // CVE-2024-27980 hardening; e.g. npm resolves to npm.cmd on Windows).
+      // Honor the per-entry contract: a probe failure is never thrown.
+      finish({ name: entry.name, available: false, probeError: "spawn-error" });
+      return;
+    }
 
     // Guarantee the child cannot outlive the timeout even if the callback path
     // is delayed: force-kill shortly after the timeout window as a backstop.
