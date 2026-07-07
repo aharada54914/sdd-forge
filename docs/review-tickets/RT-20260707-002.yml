@@ -1,5 +1,19 @@
 ticket_id: RT-20260707-002
 status: open
+resolution_progress: |
+  2026-07-07 (release-lane follow-up, human-directed): items 1 and 2 resolved.
+  1. check-domain-conformance.ps1 Check-2 now iterates indexed lines and
+     emits the 1-based "requirements.md:<lineno>:" prefix; verified
+     byte-identical finding text against the .sh twin on the same fixture
+     ("requirements.md:6: unrecognized term 'Basket' ...").
+  2. Two Pester contexts added to check-domain-conformance.Tests.ps1
+     (Scenario 7: unrecognized [[term:Name]] marker with line-number
+     assertion; Scenario 8: aggregate reference without a card), each
+     asserted in warn and SDD_DOMAIN_ENFORCE=error modes. Suite green:
+     14/14 passed.
+  Remaining scope is item 3 only: human confirmation of the [[term:Name]]
+  heading-marker convention when a domain/ directory is first adopted
+  (closes design.md OQ-001). Ticket stays open for that decision.
 type: deferred-minor-findings
 severity: minor
 target:

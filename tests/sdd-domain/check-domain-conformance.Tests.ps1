@@ -15,6 +15,12 @@
 #   4. two-context fixture with a declared relation -> pass
 #   5. two-context fixture with an undeclared relation -> warn
 #   6. no domain/ -> skip, exit 0
+# RT-20260707-002 additions (previously verified only by direct evaluator
+# execution during T-008's quality gate):
+#   7. unrecognized [[term:Name]] heading marker -> warn with line number,
+#      and exit 1 under SDD_DOMAIN_ENFORCE=error
+#   8. design.md aggregate reference with no aggregates/<name>.md card ->
+#      warn, and exit 1 under SDD_DOMAIN_ENFORCE=error
 #
 # ASCII-only: no non-ASCII literal characters appear anywhere in this file
 # (BOM-less .ps1 is read as ANSI on this Windows environment).
@@ -291,6 +297,74 @@ Test feature spanning two contexts.
                 -RequirementsMd (Join-Path $script:root "specs/demo/requirements.md")
             $result.ExitCode | Should Be 0
             $result.Output | Should Match "check-domain-conformance skipped: no domain/ directory\."
+        }
+    }
+
+    Context "Scenario 7: unrecognized [[term:Name]] heading marker -> warn with line number, exit 1 under enforce" {
+        BeforeAll {
+            $script:root = Join-Path $script:tmpRoot "term-marker"
+            $fixture = New-DomainFixture -FixtureRoot $script:root -ContextNames @("order-management")
+            Set-Content -LiteralPath (Join-Path $fixture.SpecsDir "requirements.md") -Encoding UTF8 -Value @'
+# Requirements: demo
+
+Spec-Review-Status: Passed
+Bounded-Context: order-management
+
+## Ship the [[term:Basket]] flow
+
+An unrecognized term marker; only 'Order' is canonical in this fixture.
+
+## Track each [[term:Order]] end to end
+
+A recognized canonical term must not produce a finding.
+'@
+        }
+
+        It "exits 0 and reports the unrecognized term with its source line number" {
+            $result = Invoke-CheckDomainConformance -ProjectRoot $script:root `
+                -RequirementsMd (Join-Path $script:root "specs/demo/requirements.md")
+            $result.ExitCode | Should Be 0
+            $result.Output | Should Match "check-domain-conformance WARN \(1 finding\(s\)\)"
+            $result.Output | Should Match "requirements\.md:6: unrecognized term 'Basket'"
+        }
+
+        It "exits 1 and reports FAILED for the same fixture when SDD_DOMAIN_ENFORCE=error" {
+            $result = Invoke-CheckDomainConformance -ProjectRoot $script:root `
+                -RequirementsMd (Join-Path $script:root "specs/demo/requirements.md") -Enforce
+            $result.ExitCode | Should Be 1
+            $result.Output | Should Match "check-domain-conformance FAILED"
+            $result.Output | Should Match "unrecognized term 'Basket'"
+        }
+    }
+
+    Context "Scenario 8: aggregate reference with no aggregate card -> warn, exit 1 under enforce" {
+        BeforeAll {
+            $script:root = Join-Path $script:tmpRoot "missing-agg-card"
+            # No -WithAggregateCard: the contract declares no aggregates and
+            # domain/aggregates/Order.md does not exist on disk.
+            $fixture = New-DomainFixture -FixtureRoot $script:root -ContextNames @("order-management")
+            Set-Content -LiteralPath (Join-Path $fixture.SpecsDir "design.md") -Encoding UTF8 -Value @'
+# Design: demo
+
+References [Order](../../domain/aggregates/Order.md) for invariants.
+'@
+        }
+
+        It "exits 0 and reports both the undeclared aggregate and the missing card" {
+            $result = Invoke-CheckDomainConformance -ProjectRoot $script:root `
+                -DesignMd (Join-Path $script:root "specs/demo/design.md")
+            $result.ExitCode | Should Be 0
+            $result.Output | Should Match "check-domain-conformance WARN"
+            $result.Output | Should Match "aggregate reference 'Order' not found in domain-contract\.json aggregates"
+            $result.Output | Should Match "has no domain/aggregates/Order\.md card"
+        }
+
+        It "exits 1 and reports FAILED for the same fixture when SDD_DOMAIN_ENFORCE=error" {
+            $result = Invoke-CheckDomainConformance -ProjectRoot $script:root `
+                -DesignMd (Join-Path $script:root "specs/demo/design.md") -Enforce
+            $result.ExitCode | Should Be 1
+            $result.Output | Should Match "check-domain-conformance FAILED"
+            $result.Output | Should Match "aggregate reference 'Order'"
         }
     }
 

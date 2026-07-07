@@ -110,14 +110,18 @@ if ($RequirementsMd -ne "") {
         }
 
         # --- Check 2: canonical-term structured-field usage (heading markers) ---
-        $headingMatches = [regex]::Matches($reqText, '(?m)^#{1,6}[ \t].*$')
-        foreach ($h in $headingMatches) {
-            $line = $h.Value
+        # Iterate indexed lines (not a multiline regex over the raw text) so the
+        # finding carries the 1-based source line number, matching the .sh twin's
+        # "requirements.md:<lineno>:" prefix (RT-20260707-002 parity fix).
+        $reqLines = $reqText -split "`r?`n"
+        for ($i = 0; $i -lt $reqLines.Count; $i++) {
+            $line = $reqLines[$i]
+            if ($line -notmatch '^#{1,6}[ \t]') { continue }
             $termMatches = [regex]::Matches($line, '\[\[term:([^\]]+)\]\]')
             foreach ($tm in $termMatches) {
                 $usedTerm = $tm.Groups[1].Value
                 if ($canonicalTerms -notcontains $usedTerm) {
-                    $findings += "requirements.md: unrecognized term '$usedTerm' (not a canonical term in domain-contract.json)"
+                    $findings += "requirements.md:$($i + 1): unrecognized term '$usedTerm' (not a canonical term in domain-contract.json)"
                 }
             }
         }
