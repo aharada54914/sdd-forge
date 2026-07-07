@@ -111,10 +111,10 @@ shell_schema_accepts() {
           has("allowed_task_approvals") and has("allowed_task_statuses") and
           # Legacy entries normally predate the shared migration baseline, but
           # an entry may instead be pinned to its own later commit (e.g.
-          # sdd-forge-mcp, grandfathered against a feature-branch commit).
-          # Exactness for every legacy entry -- baseline or override -- is
-          # enforced separately below via exact const-equality against the
-          # legacyEntry list in contracts/workflow-state-registry.schema.json.
+          # sdd-forge-mcp and sdd-domain, grandfathered against feature-branch
+          # commits). Exactness for every legacy entry -- baseline or override
+          # -- is enforced separately below via exact const-equality against
+          # the legacyEntry list in contracts/workflow-state-registry.schema.json.
           (.introduced_before_commit | type == "string" and test("^[0-9a-f]{40}$")) and
           (.reason | type == "string" and length > 0 and contains("*") | not) and
           (.owner | type == "string" and length > 0 and contains("*") | not) and
@@ -125,7 +125,7 @@ shell_schema_accepts() {
             all(.[]; string_array(["Pending", "Passed"]))) and
           (.allowed_task_approvals | string_array(["Draft", "Approved"])) and
           (.allowed_task_statuses |
-            string_array(["Planned", "In Progress", "Implementation Complete", "Done"])) and
+            string_array(["Planned", "In Progress", "Implementation Complete", "Done", "Blocked"])) and
           (if has("retrospective_sources") then
             .retrospective_sources | type == "array" and
             length == (unique | length) and
@@ -147,16 +147,18 @@ shell_schema_accepts() {
 jq -e --arg baseline "$BASELINE" '
   .schema_version == 1 and
   .migration_baseline_commit == $baseline and
-  (.entries | type == "array" and length == 12) and
+  (.entries | type == "array" and length == 14) and
   ([.entries[].feature] | length == (unique | length)) and
   ([.entries[].feature] | sort) == [
     "agent-cost-context-isolation",
     "bootstrap-interviewer-enhancement",
     "claude-workflow-compatibility",
     "cross-model-verification",
+    "local-env-mcp",
     "p0-hardening",
     "risk-adaptive-layer",
     "sdd-diagnose",
+    "sdd-domain",
     "sdd-forge-mcp",
     "sdd-forge-refactor",
     "sdd-lite",
@@ -169,8 +171,8 @@ jq -e --arg baseline "$BASELINE" '
     (if .profile == "legacy" then
       # See shell_schema_accepts() below: most legacy entries predate the
       # shared migration baseline, but an entry may instead be pinned to
-      # its own later commit (sdd-forge-mcp). Exactness is enforced via
-      # const-equality against the legacyEntry list in the schema.
+      # its own later commit (sdd-forge-mcp, sdd-domain). Exactness is
+      # enforced via const-equality against the legacyEntry list in the schema.
       (.legacy.introduced_before_commit | type == "string" and test("^[0-9a-f]{40}$")) and
       (.legacy.reason | type == "string" and length > 0) and
       (.legacy.owner | type == "string" and length > 0) and

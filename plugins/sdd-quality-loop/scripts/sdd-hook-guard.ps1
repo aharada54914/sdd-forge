@@ -15,6 +15,11 @@ Checks:
      file (path matching .codex/agents/[^/]+.toml) without a developer_instructions
      field. Such files are ignored by Codex at startup.
 
+T-006: also guards "Domain-Model-Status: Approved" in domain/context-map.md
+using the SAME net-increase counting logic and SAME sudo-bypass behavior as
+the tasks.md Approval guard above (check 2b-2) -- a different class of
+control than the never-sudo-bypassable WFI/Second-Approval guards.
+
 Payloads: Claude/Copilot Edit/Write, Codex apply_patch, Codex Bash/shell.
 Output: -Emit exit (default; allow=0, deny=stderr+exit 2) or
         -Emit copilot (always print {"permissionDecision":...} to stdout, exit 0).
@@ -39,6 +44,10 @@ $SecondApprovalMsg = "SDD決定論ゲート: エージェントは tasks.md に 
     "tasks.md. A second approval is an independent human judgment (like a Workflow " +
     "Improvement) and is never bypassed by sudo. Leave it for a second human " +
     "approver to record."
+$DomainModelApprovalMsg = "SDD決定論ゲート: エージェントは domain/context-map.md に 'Domain-Model-Status: Approved' を設定できません。ドメインモデルの承認は、ファイルを直接編集する人間のみが行えます。ステータスは Pending/Reviewed のままにし、人間に承認を依頼してください。" +
+    "`n[EN] SDD deterministic gate: agents must not set 'Domain-Model-Status: Approved' in " +
+    "domain/context-map.md. Only a human may approve the domain model by editing the " +
+    "file directly. Leave the status as Pending/Reviewed and ask the human to approve it."
 $SddSudoWriteMsg = "SDD決定論ゲート: エージェントは SDD_SUDO フラグファイルの作成・編集・削除を行えません。sudo モードの管理は人間のみが行えます。" +
     "`n[EN] SDD deterministic gate: agents must not create, edit, or delete the " +
     "SDD_SUDO flag file. Only a human may manage sudo mode."
@@ -81,6 +90,21 @@ function Get-WfiCount {
     param([string]$Text)
     if ([string]::IsNullOrEmpty($Text)) { return 0 }
     return ([regex]::Matches($Text, "Status:\s*Approved")).Count
+}
+
+function Test-DomainContextMapPath {
+    param([string]$Path)
+    # domain/context-map.md is the sdd-domain plugin's approval-line file.
+    # Case-insensitive match (matches Test-TasksMd/Test-WfiPath convention).
+    if ([string]::IsNullOrEmpty($Path)) { return $false }
+    $normalized = ($Path -replace "\\", "/").ToLower()
+    return $normalized.EndsWith("domain/context-map.md")
+}
+
+function Get-DomainModelCount {
+    param([string]$Text)
+    if ([string]::IsNullOrEmpty($Text)) { return 0 }
+    return ([regex]::Matches($Text, "Domain-Model-Status:\s*Approved")).Count
 }
 
 function Get-SecondApprovalCount {
@@ -326,6 +350,84 @@ function Test-PatchIncreases {
         }
     }
     return (($added - $removed) -gt 0)
+}
+
+# T-006: domain-model approval guard patch parser. Mirrors Test-PatchIncreases
+# EXACTLY (same net-increase counting logic, same sudo-bypass behavior) --
+# this is NOT the never-sudo-bypassable Test-WfiPatchIncreases pattern below.
+function Test-DomainModelPatchIncreases {
+    param([string]$Patch)
+    $currentIsDomainContextMap = $false
+    $added = 0
+    $removed = 0
+    foreach ($line in ($Patch -split "`n")) {
+        $line = $line -replace "`r$", ""
+        $m = [regex]::Match($line, "^\*\*\* (Update|Add|Delete) File: (.+)$")
+        if ($m.Success) {
+            $currentIsDomainContextMap = Test-DomainContextMapPath ($m.Groups[2].Value.Trim())
+            continue
+        }
+        if ($line.StartsWith("*** End Patch") -or $line.StartsWith("*** Begin Patch")) { continue }
+        if (-not $currentIsDomainContextMap) { continue }
+        if ($line.StartsWith("+") -and -not $line.StartsWith("+++")) {
+            $added += Get-DomainModelCount $line.Substring(1)
+        } elseif ($line.StartsWith("-") -and -not $line.StartsWith("---")) {
+            $removed += Get-DomainModelCount $line.Substring(1)
+        }
+    }
+    return (($added - $removed) -gt 0)
+}
+
+function Test-DomainModelWriteContentIncreases {
+    param([string]$FilePath, [string]$NewContent)
+    $oldContent = ""
+    if (Test-Path -LiteralPath $FilePath) {
+        $oldContent = Get-Content -Raw -Encoding Utf8 -LiteralPath $FilePath
+    }
+    return ((Get-DomainModelCount $NewContent) -gt (Get-DomainModelCount $oldContent))
+}
+
+function Test-DomainModelApprovalIncreases {
+    param($Payload)
+    $toolInput = $Payload.tool_input
+    if ($null -eq $toolInput) { return $false }
+    $toolName = ""
+    if ($Payload.PSObject.Properties["tool_name"]) { $toolName = ([string]$Payload.tool_name).ToLower() }
+
+    $command = $null
+    if ($toolInput.PSObject.Properties["command"]) { $command = [string]$toolInput.command }
+
+    # Codex apply_patch: raw patch envelope in tool_input.command.
+    if ($toolName -eq "apply_patch" -or ($command -and $command.Contains("*** Begin Patch"))) {
+        return Test-DomainModelPatchIncreases $command
+    }
+
+    # Codex Bash/shell: conservative heuristic.
+    if (@("bash", "shell", "exec_command", "exec") -contains $toolName -and $command) {
+        if ($command.ToLower().Contains("domain/context-map.md") -and [regex]::IsMatch($command, "Domain-Model-Status:\s*Approved")) {
+            return $true
+        }
+        return $false
+    }
+
+    # Claude / Copilot Edit / Write.
+    $filePath = [string]$toolInput.file_path
+    if (-not (Test-DomainContextMapPath $filePath)) { return $false }
+
+    if ($toolInput.PSObject.Properties["edits"] -and $null -ne $toolInput.edits) {
+        foreach ($edit in $toolInput.edits) {
+            if ((Get-DomainModelCount ([string]$edit.new_string)) -gt 0) {
+                return $true
+            }
+        }
+        return $false
+    } elseif ($toolInput.PSObject.Properties["new_string"]) {
+        return (Get-DomainModelCount ([string]$toolInput.new_string)) -gt 0
+    } elseif ($toolInput.PSObject.Properties["content"]) {
+        return Test-DomainModelWriteContentIncreases $filePath ([string]$toolInput.content)
+    } else {
+        return $false
+    }
 }
 
 function Test-WfiPatchIncreases {
@@ -703,6 +805,11 @@ try {
 
     # Check 2b: Approval guard (bypassed by valid sudo).
     if ((Test-ApprovalIncreases $payload) -and -not (Test-SudoActive)) { Emit-Decision "deny" $ApprovalMsg }
+
+    # Check 2b-2: Domain-model approval guard (bypassed by valid sudo, same
+    # class as the tasks.md Approval guard above -- NOT the never-bypassable
+    # WFI/Second-Approval pattern below).
+    if ((Test-DomainModelApprovalIncreases $payload) -and -not (Test-SudoActive)) { Emit-Decision "deny" $DomainModelApprovalMsg }
 
     # Check 2c: WFI approval guard (NEVER bypassed by sudo).
     if (Test-WfiApprovalIncreases $payload) { Emit-Decision "deny" $WfiApprovalMsg }

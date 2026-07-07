@@ -1,0 +1,58 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "sdd-domain",
+  "task_id": "T-011",
+  "run_id": "RUN-20260707T0004Z-sdd-evaluator-T-011",
+  "host_session_id": "SESS-quality-sdd-domain-T-011",
+  "sequence": 33,
+  "previous_record_sha256": "865a95be0625ba7a67f3f11ab46f588cb9450a548a1e42496256ceceaa546335",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "fd3ba2161f8214cde8883d819b12dbbe4436a6718e3b931d7c6b32fa1a2a3047",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain/requirements.md",
+      "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"
+    },
+    {
+      "path": "specs/sdd-domain/acceptance-tests.md",
+      "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"
+    },
+    {
+      "path": "specs/sdd-domain/design.md",
+      "sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb"
+    },
+    {
+      "path": "specs/sdd-domain/tasks.md",
+      "sha256": "aac69df4b08f68161e44aef2de3e8efc83601289adb55689710b2e5c19a9d7a1"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.md",
+      "sha256": "dc92fdcf863091e3593e38e2ae6d66232f653ce786b448f099d1d81f64ef2298"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.json",
+      "sha256": "68011f26c5eadb8ee27aea8c581ced46077b4ff64e5bd6e21611fec117701064"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/sdd-domain/T-011.md",
+      "sha256": "27454b986fc91ab83e17cd213f78319034a2b25523bcf9bab59ed0c93b6255cc"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-review-loop/SKILL.md",
+      "sha256": "c50730f5762944add5615704f2258f4bf076cc6fdf0dc0438f96ca9660df04e4"
+    },
+    {
+      "path": "tests/sdd-domain/cross-model-gate.Tests.ps1",
+      "sha256": "d2892c6b4b78ab3ef67aa99f30e09f5c7fd223118ecdc6a9ab8250b5802babc8"
+    }
+  ]
+}

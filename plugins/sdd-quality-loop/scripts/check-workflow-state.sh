@@ -18,6 +18,50 @@ sha256_stream() {
   if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'
   else shasum -a 256 | awk '{print $1}'; fi
 }
+# plugins/ reference docs (risk-gate-matrix.md, reviewer-calibration.md, etc.)
+# evolve normally over time, but historical review evidence under reports/
+# records the sha256 that was current when that evidence was produced. A
+# later, legitimate edit to a reference doc must not retroactively fail every
+# past feature's provenance. When a manifest-recorded hash for a plugins/
+# path does not match the live working-tree file, fall back to resolving the
+# file's content as of the commit that last touched the specific evidence
+# file being validated (the review contract JSON itself is immutable,
+# committed historical fact) and accept the match only if it is identical.
+# This keeps tamper detection intact: a forged hash that matches no
+# legitimate point-in-time content still fails.
+plugins_pin_commit() {
+  local evidence_file="$1" relative
+  command -v git >/dev/null 2>&1 || return 1
+  git -C "$SCRIPT_ROOT" rev-parse --is-inside-work-tree >/dev/null 2>&1 || return 1
+  case "$evidence_file" in
+    "$REPO_ROOT"/*) relative="${evidence_file#"$REPO_ROOT/"}" ;;
+    *) return 1 ;;
+  esac
+  git -C "$SCRIPT_ROOT" log -1 --format='%H' -- "$relative" 2>/dev/null
+}
+plugins_hash_at_pin() {
+  local pin="$1" plugins_relative="$2" hash
+  [[ -n "$pin" ]] || return 1
+  git -C "$SCRIPT_ROOT" merge-base --is-ancestor "$pin" HEAD 2>/dev/null || return 1
+  hash="$(git -C "$SCRIPT_ROOT" show "$pin:$plugins_relative" 2>/dev/null | sha256_stream)" || return 1
+  [[ -n "$hash" ]] || return 1
+  printf '%s\n' "$hash"
+}
+# Returns success if $plugins_file's content matches $expected either right
+# now, or as of the commit that produced $evidence_file (the review contract
+# JSON whose recorded manifest hash is being validated).
+plugins_hash_matches() {
+  local plugins_file="$1" expected="$2" evidence_file="$3" plugins_relative pin historical
+  [[ -f "$plugins_file" && ! -L "$plugins_file" ]] || return 1
+  [[ "$(sha256_file "$plugins_file")" == "$expected" ]] && return 0
+  case "$plugins_file" in
+    "$REPO_ROOT"/*) plugins_relative="${plugins_file#"$REPO_ROOT/"}" ;;
+    *) return 1 ;;
+  esac
+  pin="$(plugins_pin_commit "$evidence_file")" || return 1
+  historical="$(plugins_hash_at_pin "$pin" "$plugins_relative")" || return 1
+  [[ "$historical" == "$expected" ]]
+}
 
 while (($#)); do
   case "$1" in
@@ -134,20 +178,55 @@ manifest_has_hash() {
         (.path | type == "string" and relative_path == $target) and .sha256 == $expected))
   ' "$contract" >/dev/null
 }
+# Like manifest_has_hash, but for a live file: accepts a manifest entry that
+# matches either the file's current hash or (for plugins/ reference docs
+# only) its content as of the commit that produced $contract. This tolerates
+# legitimate later edits to plugins/ reference docs without weakening the
+# check for any other input.
+manifest_has_hash_for_file() {
+  local contract="$1" suffix="$2" file="$3" recorded_root="$4" current pin plugins_relative historical
+  current="$(sha256_file "$file")"
+  manifest_has_hash "$contract" "$suffix" "$current" "$recorded_root" && return 0
+  case "${suffix#/}" in
+    plugins/*) ;;
+    *) return 1 ;;
+  esac
+  pin="$(plugins_pin_commit "$contract")" || return 1
+  plugins_relative="${suffix#/}"
+  historical="$(plugins_hash_at_pin "$pin" "$plugins_relative")" || return 1
+  manifest_has_hash "$contract" "$suffix" "$historical" "$recorded_root"
+}
+# Recorded manifest paths are absolute paths from the clone that produced the
+# review evidence, whose directory name has no relation to this checkout's
+# (worktrees, CI fixtures, and renamed clones are all legal). Split them on
+# the repository's own structural top-level directories instead: every
+# canonical manifest path is repo-relative under specs/, reports/, or
+# plugins/. A split candidate only counts when the suffix it produces
+# matches one of the canonical manifest shapes, so a feature slug that
+# happens to be named "specs", "reports", or "plugins" cannot be mistaken
+# for the repository root; a path with no unambiguous split is invalid. A
+# wrong split cannot weaken tamper detection - the derived relative path
+# must still match the canonical allowlist, its recorded sha256 must match
+# the live file, and every manifest entry must agree on a single recorded
+# root.
 recorded_repo_root() {
-  local contract="$1" repo_name
-  repo_name="$(basename "$REPO_ROOT")"
-  jq -r --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
-    --arg marker "/$repo_name/" '
+  local contract="$1"
+  jq -r --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" '
     def normalized: gsub("\\\\"; "/");
     def rooted: test("^(/|[A-Za-z]:/)");
+    def canonical_suffix:
+      test("^specs/[a-z0-9][a-z0-9-]*/[^/]+$") or
+      test("^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$") or
+      test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$");
     [.reviewers[].allowed_input_manifest[].path |
       normalized |
       select(rooted and (startswith($repo) or startswith($alias) | not)) |
       . as $path |
-      ($path | rindex($marker)) as $index |
-      if $index == null then null
-      else $path[0:($index + ($marker | length) - 1)]
+      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")))[] |
+         . as $i | select($path[$i + 1:] | canonical_suffix) | $path[0:$i]]
+        | unique) as $candidates |
+      if ($candidates | length) == 1 then $candidates[0]
+      else null
       end] as $roots |
     if any($roots[]; . == null) or ($roots | map(select(. != null)) | unique | length) > 1
     then "__INVALID__"
@@ -298,8 +377,14 @@ validate_passed_stage() {
     esac
     [[ -f "$manifest_file" && ! -L "$manifest_file" && -r "$manifest_file" ]] ||
       diagnostic "$feature" stage-provenance "$stage reviewer manifest input is missing or unreadable"
-    [[ "$(sha256_file "$manifest_file")" == "$manifest_hash" ]] ||
-      diagnostic "$feature" stage-provenance "$stage reviewer manifest input hash is stale"
+    case "$manifest_relative" in
+      plugins/*)
+        plugins_hash_matches "$manifest_file" "$manifest_hash" "$contract" ||
+          diagnostic "$feature" stage-provenance "$stage reviewer manifest input hash is stale" ;;
+      *)
+        [[ "$(sha256_file "$manifest_file")" == "$manifest_hash" ]] ||
+          diagnostic "$feature" stage-provenance "$stage reviewer manifest input hash is stale" ;;
+    esac
   done < <(jq -r '.reviewers[].allowed_input_manifest[] | .path + "\t" + .sha256' "$contract")
   jq -e --slurpfile verdict "$best" --arg stage "$stage" '
     .attempt == $verdict[0].attempt and .round == $verdict[0].round and
@@ -461,7 +546,7 @@ validate_passed_stage() {
   precheck="$root/attempt-$best_attempt/round-$best_round/precheck-result.json"
   [[ -f "$calibration" && ! -L "$calibration" && -f "$precheck" && ! -L "$precheck" ]] ||
     diagnostic "$feature" stage-provenance "$stage required review inputs are missing"
-  manifest_has_hash "$contract" "/${calibration#"$REPO_ROOT/"}" "$(sha256_file "$calibration")" "$recorded_root" &&
+  manifest_has_hash_for_file "$contract" "/${calibration#"$REPO_ROOT/"}" "$calibration" "$recorded_root" &&
     manifest_has_hash "$contract" "/${precheck#"$REPO_ROOT/"}" "$(sha256_file "$precheck")" "$recorded_root" ||
     diagnostic "$feature" stage-provenance "$stage reviewer manifests omit required inputs"
   if [[ "$stage" == impl ]]; then

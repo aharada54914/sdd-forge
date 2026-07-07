@@ -1,0 +1,4 @@
+$ bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/sdd-domain/traceability.json .
+Traceability check passed for sdd-domain: 11 link(s).
+$ echo "exit code: $?"
+exit code: 0

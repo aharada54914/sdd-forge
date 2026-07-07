@@ -237,6 +237,32 @@ Otherwise the `## Design System Compliance` section of design.md must:
 A missing section while `design-system/` exists, a missing version reference,
 or an unexplained new component is a Major finding.
 
+## DOMAIN-CONFORMANCE (Major, TYPE-D)
+
+Applies only when the target project has a `domain/` directory with
+`domain/context-map.md` recording `Domain-Model-Status: Approved` and a
+schema-valid `domain/domain-contract.json`. When the project has no `domain/`
+directory, or `Domain-Model-Status` is not `Approved`, or
+`domain-contract.json` is missing or fails schema validation, record the
+check as skipped in the notes and emit PASS.
+
+Otherwise design.md must:
+1. Reference the aggregate card (`domain/aggregates/<name>.md`) for every
+   entity named in `## Data Plan` or `## Architecture` that matches an
+   `aggregates[].name` or `aggregates[].root_entity` value in the
+   `Bounded-Context:` field's named context(s) from requirements.md.
+2. Not contradict any referenced aggregate's stated invariants or
+   transaction boundary (e.g. a `## Data Plan` migration that would split an
+   aggregate's transaction boundary across two transactions without
+   discussion).
+3. Use each named context's canonical `terms[].canonical` values rather than
+   a listed `forbidden_synonyms` entry when describing the same concept.
+
+A design touching an approved-model entity with no aggregate-card reference,
+a design that contradicts an aggregate's documented invariants or
+transaction boundary without discussion, or use of a forbidden synonym in
+place of its canonical term is a Major finding.
+
 # Severity Reference
 
 - `Critical`: a structural defect that makes the design unimplementable or
@@ -280,7 +306,7 @@ Verdict rules:
 The `checks` array must contain one entry per check ID in this order:
 ARCH-COVERAGE, NO-CIRCULAR-DEPS, DATA-COVERAGE, API-COVERAGE, SECURITY-COVERAGE,
 FRONTEND-BACKEND-CONSISTENCY, TEST-STRATEGY-COVERAGE, NO-UNDEFINED-COMPONENT,
-ADR-PRESENT, DESIGN-SYSTEM-CONFORMANCE.
+ADR-PRESENT, DESIGN-SYSTEM-CONFORMANCE, DOMAIN-CONFORMANCE.
 
 FRONTEND-BACKEND-CONSISTENCY must be SKIP for non-fullstack feature types;
 include a finding explaining why it was skipped.

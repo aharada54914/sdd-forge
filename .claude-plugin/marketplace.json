@@ -62,6 +62,15 @@
       "author": {
         "name": "Harada"
       }
+    },
+    {
+      "name": "sdd-domain",
+      "source": "./plugins/sdd-domain",
+      "description": "Domain-Driven Design upstream lane producing a human-approved domain model ahead of sdd-forge Phase 1.",
+      "version": "1.9.0",
+      "author": {
+        "name": "Harada"
+      }
     }
   ]
 }

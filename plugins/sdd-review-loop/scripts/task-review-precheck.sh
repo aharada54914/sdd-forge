@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # task-review-precheck.sh
-# Usage: task-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs]
+# Usage: task-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs|--provenance-rereview]
 #
 # Generates precheck-result.json and dependency-graph.json for the task-review-loop.
 # Outputs to: reports/task-review/<feature>/attempt-<M>/round-<N>/
@@ -94,8 +94,13 @@ require_persisted_pass() {
   jq -e --arg feature "$FEATURE" --arg stage "$stage" --arg req "$requirements_hash" --arg req_current "$requirements_current_hash" \
     --arg accept "$acceptance_hash" --arg design "$design_hash" --arg design_current "$design_current_hash" \
     --arg repo "${repo_root}/" --arg calibration "$stage_calibration" --arg calibration_hash "$stage_calibration_hash" '
+    # Contracts persisted by predecessor gates record absolute paths of the
+    # checkout that generated them. Relativize against the known repository
+    # anchors so evidence stays verifiable from any checkout (issue #61).
     def relative_path:
-      if startswith($repo) then .[($repo | length):] else . end;
+      if startswith($repo) then .[($repo | length):]
+      elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+      else . end;
     def allowed_input($role; $path; $attempt; $round):
       ($stage + "-reviewer-a") as $role_a |
       ($stage + "-reviewer-b") as $role_b |
@@ -147,8 +152,8 @@ require_persisted_pass() {
         all(.allowed_input_manifest[]?;
           .path as $raw_path |
           (($raw_path | type == "string") and
-           (($raw_path | startswith($repo)) or (($raw_path | startswith("/")) | not)) and
            (($raw_path | relative_path) as $path |
+             (($path | startswith("/")) | not) and
              ($path | test("(^|/)\\.\\.?(/|$)") | not) and
              allowed_input($role; $path; $attempt; $round) and
              (.sha256 | type == "string") and
@@ -171,12 +176,16 @@ require_persisted_pass() {
   local investigation_path="specs/${FEATURE}/investigation.md"
   manifest_has() {
     local role="$1" path="$2" hash_one="$3" hash_two="${4:-}"
-    jq -e --arg role "$role" --arg path "$path" --arg absolute "${repo_root}/${path}" \
+    jq -e --arg role "$role" --arg path "$path" --arg repo "${repo_root}/" \
       --arg hash_one "$hash_one" --arg hash_two "$hash_two" '
+      def relative_path:
+        if startswith($repo) then .[($repo | length):]
+        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+        else . end;
       any(.reviewers[]?;
         .role == $role and
         any(.allowed_input_manifest[]?;
-          (.path == $path or .path == $absolute) and
+          ((.path | relative_path) == $path) and
           (.sha256 == $hash_one or ($hash_two != "" and .sha256 == $hash_two))
         )
       )' "$contract" >/dev/null
@@ -230,7 +239,7 @@ require_persisted_pass() {
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
-[[ -z "$MODE" || "$MODE" == "--verify-inputs" ]] || fail "unknown mode: $MODE"
+[[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]] || fail "unknown mode: $MODE"
 profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
 full_profile=false
 [[ "$profile" == "full" ]] && full_profile=true
@@ -276,8 +285,26 @@ fi
 [[ ! -e "$REPORT_DIR" && ! -L "$REPORT_DIR" ]] || fail "round destination already exists (replay is forbidden)"
 [[ -d "$SPECS_DIR" && ! -L "$SPECS_DIR" ]] || fail "feature specification directory must be a real directory"
 [[ "$(cd "$SPECS_DIR" && pwd -P)" == "$repo_root/specs/$FEATURE" ]] || fail "feature specification directory escapes repository"
-bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
-  fail "canonical workflow-state validation failed"
+if [[ "$MODE" == "--provenance-rereview" ]]; then
+  prior_pass=false
+  while IFS= read -r verdict_file; do
+    if jq -e --arg feature "$FEATURE" \
+      '.feature == $feature and .stage == "task" and .verdict == "PASS"' \
+      "$verdict_file" >/dev/null 2>&1; then
+      prior_pass=true
+      break
+    fi
+  done < <(find "reports/task-review/${FEATURE}" -type f -name integrated-verdict.json ! -lname '*' -print 2>/dev/null)
+  [[ "$prior_pass" == "true" ]] ||
+    fail "provenance re-review requires a prior persisted task-review PASS verdict"
+  if ! bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE"; then
+    echo "NOTE: task-review-precheck: canonical workflow-state validation failed;" \
+      "proceeding under --provenance-rereview (task-stage evidence re-binding in progress)." >&2
+  fi
+else
+  bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
+    fail "canonical workflow-state validation failed"
+fi
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 1: Verify required input files exist

@@ -40,11 +40,23 @@ const CLI_NAME_ENUM: string[] = contract.$defs.cliName.enum;
 
 let fixtureDir: string;
 
+// See the sibling comment in tests/error-paths/probe-engine.test.ts: the
+// engine launches probes with no-shell execFile, which on win32 can only run
+// PE executables — a POSIX script shim is unresolvable by design, and a .cmd
+// launcher cannot substitute (skipped or refused with EINVAL depending on
+// Node version). The one subtest that needs the shim to actually EXECUTE
+// skips on win32; every invariant-based subtest still runs there (`node` and
+// `git` then resolve to the runner's real binaries further down PATH).
 function writeShim(name: string, body: string): void {
   const p = join(fixtureDir, name);
   writeFileSync(p, `#!/bin/sh\n${body}\n`, "utf-8");
   chmodSync(p, 0o755);
 }
+
+/** Skip reason for subtests that need a shim to actually execute. */
+const WIN32_SKIP = process.platform === "win32"
+  ? "no-shell execFile only launches PE executables on win32; script shims are unresolvable by design"
+  : false;
 
 before(() => {
   fixtureDir = mkdtempSync(join(tmpdir(), "local-env-mcp-tools-"));
@@ -73,7 +85,7 @@ test("AC-002: get_toolchain_versions returns an ok envelope of kind toolchain-ve
   assert.ok(Array.isArray(result.data.entries));
 });
 
-test("AC-002: a resolvable CLI is available:true with a normalized version string", async () => {
+test("AC-002: a resolvable CLI is available:true with a normalized version string", { skip: WIN32_SKIP }, async () => {
   const result = await getToolchainVersions({ names: ["node"] }, { pathOverride: fixtureDir });
   assert.ok(isOk(result));
   const node = result.data.entries.find((e) => e.name === "node");

@@ -1,0 +1,47 @@
+
+
+
+
+
+Describing Environment: real bash + python3 availability for cross-model scripts
+ [+] bash.exe is available on this host 529ms
+ [+] a working (non-WindowsApps-stub) python3 interpreter was located for the shim 90ms
+Describing prepare-panelist-input.sh: real execution, consent gate (design.md Assumptions verification)
+ [+] REAL: denies consent when no tasks.md section and no SDD_SUDO exist (confirms design.md's cited residual risk) 362ms
+ [+] REAL: this confirms domain-review-loop cannot rely on a tasks.md Cross-Model flag -- there is no specs/sdd-domain-model/tasks.md at all 67ms
+ [+] REAL: grants consent and writes a sanitized bundle with a valid SDD_SUDO token (SDD_SUDO_SKIP_SIG test scaffolding) 1.75s
+ [+] REAL: the sanitized bundle never contains the literal SDD_SUDO signature value 2.48s
+Describing check-cross-model.sh: real execution against real panelist verdict fixtures
+ [+] REAL: clean two-vendor PASS -> result PASS, requires_human_decision false, exit 0 533ms
+ [+] REAL: only one vendor slot collected -> diversity FAIL, translated to panelist-unavailable + requires_human_decision, no auto-continue 386ms
+ [+] REAL: zero verdict files (every panelist unavailable) -> tool error exit 2, no aggregate written 369ms
+ [+] REAL: two-vendor consensus mismatch (one PASS, one NEEDS_WORK) -> vendor mismatch, requires_human_decision path 316ms
+ [+] REAL: digest mismatch -> vendor-mismatch-class FAIL, requires_human_decision path, no auto-continue 374ms
+Describing Get-CrossModelGateDecision: decision-table unit tests (real execution)
+ [+] clean PASS -> proceed, no human decision required 47ms
+ [+] diversity FAIL with vendors_distinct 0 (nothing collected) -> panelist-unavailable 64ms
+ [+] diversity FAIL with non_anthropic_count 0 (only anthropic collected) -> panelist-unavailable 36ms
+ [+] consensus FAIL with full diversity -> vendor mismatch, not panelist-unavailable 44ms
+ [+] NEEDS_HUMAN result (evaluator divergence) -> vendor mismatch path, requires human decision 37ms
+Describing domain-review-loop/SKILL.md: T-011 cross-model section (documented contract)
+ [+] exists and still declares itself an internal, non-model-invocable skill (T-005 frontmatter untouched) 75ms
+ [+] retains every T-005 structural section untouched (additive-only extension) 36ms
+ [+] documents the T-011 cross-model section header 33ms
+ [+] documents that the tasks.md-mediated consent flag cannot apply to domain/ and SDD_SUDO must be used instead 34ms
+ [+] cites the exact file:line evidence from design.md's Assumptions for both scripts 32ms
+ [+] documents the B4 bundle-sanitization exclusion rule (role/system names only, no real person or customer names) 33ms
+ [+] documents prepare-panelist-input.sh and check-cross-model.sh invocation with domain/ as input 34ms
+ [+] documents panelist-unavailable recording and requires_human_decision blocking auto-continuation 46ms
+ [+] documents vendor mismatch handling distinctly from panelist-unavailable 34ms
+ [+] documents that a clean cross-model PASS is required before inviting Domain-Model-Status: Approved 33ms
+ [+] documents cross-model verification runs once per review-loop PASS, not per round or on NEEDS_WORK/BLOCKED 32ms
+ [+] never instructs writing Domain-Model-Status: Approved anywhere in the new section (still human-only) 34ms
+ [+] documents the Boundaries section extension for cross-model never-auto-continue and SDD_SUDO-only consent 35ms
+ [+] still marks the reviewer sequence's own T-011 insert-point note, now pointing at the implemented section 35ms
+Describing Worked example: panelist agent invocation (documented contract validation, per Done-When)
+ [+] names the reused panelist agents from sdd-quality-loop 61ms
+ [+] documents blind, parallel, no-cross-talk invocation matching cross-model-verification-policy.md 34ms
+ [+] worked example: a vendor mismatch aggregate (hand-authored, mirrors the REAL fixture above) yields requires_human_decision true 68ms
+ [+] worked example: a panelist-unavailable aggregate (hand-authored, mirrors the REAL fixture above) records the unavailable slot 35ms
+Tests completed in 8.23s
+Passed: 34 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0

@@ -1,0 +1,164 @@
+{
+  "task_id": "T-011",
+  "feature": "sdd-domain",
+  "risk": "high",
+  "stack": "docs",
+  "required_workflow": "tdd",
+  "spec_revision": "",
+  "created": "2026-07-06T08:57:43Z",
+  "comment": "Default-FAIL verification contract for T-011 (cross-model-verify wiring). Non-code stack (Markdown skill extension plus one Pester test file) per specs/sdd-domain/tasks.md Global Constraints: lint/typecheck/build are waivable with waiver_reason instead of fabricated. placeholder-scan genuinely FAILS (passes:false) with 2 findings in plugins/sdd-domain/skills/domain-review-loop/SKILL.md, lines 69 and 106 -- both confirmed, on inspection, to be legitimate prose using the word 'placeholder' to describe real, fully-implemented logic (a normalized-hash substitution and a stable pseudo-feature-slug), not stub/TODO/NotImplementedError code, and both located inside T-005's original content (this task, T-011, only added lines ~224-467; the two findings are pre-existing, unrelated to this task's own additive section). This matches the false-positive scenario documented in deterministic-check-policy.md's 'check-placeholders Scope and Waivers' section, and mirrors T-005's own contract for this identical file/findings pair verbatim (specs/sdd-domain/verification/T-005.contract.json). However, that policy's only remedy (required:false + waiver_reason + human acceptance) is blocked at the high-risk tier: check-contract.py's RISK_TIERS/COMPILE_CHECKS logic only allows {lint, typecheck, build} to be waived (required:false) on a non-code stack; placeholder-scan is not in that set, and check-contract.py additionally rejects required:false for it at risk=high regardless of stack ('risk high requires check present and required:true'). This is left required:true/passes:false as the honest, real state; check-contract.sh therefore fails closed on this task as run. No plugins/ file was edited to resolve this (out of scope for this prep pass, and the findings are T-005's content, not T-011's) and no verdict is asserted here.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Non-code stack (docs/shell): no lint command configured for Markdown or PowerShell/Pester artifacts in this repository, per tasks.md Global Constraints.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Non-code stack (docs/shell): no statically typed build target exists for Markdown/PowerShell/Pester artifacts.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain/verification/T-011.unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "AC-006",
+        "AC-017"
+      ],
+      "red_evidence": "specs/sdd-domain/verification/T-011.red.log",
+      "green_evidence": "specs/sdd-domain/verification/T-011.green.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No separate integration-test tier exists for this task; unit-tests already exercises real end-to-end execution of prepare-panelist-input.sh and check-cross-model.sh via bash.exe against real fixture files, which is the integration-level surface for this task.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Non-code stack (docs/shell): no compiled-language build step applies to this task's files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain/verification/T-011.placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain/verification/T-011.task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No dev server, Docker container, or CLI binary entry point exists for this task -- domain-review-loop/SKILL.md is a Claude-Code-invoked skill procedure, not a runnable service; there is nothing to start and smoke-test as a standalone process.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No prior behavioral baseline exists to diff against -- this task adds a new, additive documentation section and a new test file; there is no previous numeric/behavioral output surface to compare before/after.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "This task has no UI surface -- it extends a Markdown skill procedure and a PowerShell test file, neither of which render any user interface.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "This task has no visual/design-system surface -- it extends a Markdown skill procedure and a PowerShell test file, not a rendered UI component.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain/verification/T-011.unit-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "AC-006",
+        "AC-017"
+      ],
+      "red_evidence": "specs/sdd-domain/verification/T-011.red.log",
+      "green_evidence": "specs/sdd-domain/verification/T-011.green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain/verification/T-011.regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/sdd-domain/verification/T-011.traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-004",
+        "AC-006",
+        "AC-017"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

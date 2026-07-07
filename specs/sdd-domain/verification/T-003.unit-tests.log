@@ -1,0 +1,26 @@
+Command: powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "Invoke-Pester -Script 'tests/sdd-domain/reverse-seed.Tests.ps1'"
+Environment: Windows 11 Enterprise 10.0.22631; PowerShell 5.1.22621.5697; Pester 3.4.0
+Run timestamp (UTC): 2026-07-06T08:55:42Z
+
+Describing domain-reverse SKILL.md contract
+ [+] exists as an internal, non-model-invocable skill 599ms
+ [+] documents invoking investigate-codebase as the seed source 102ms
+ [+] declares all five required candidate-seed sections 34ms
+ [+] documents the load-bearing field names for each section 33ms
+ [+] states domain-reverse never writes into domain/ 46ms
+ [+] requires every candidate to carry INV-NNN evidence 36ms
+Describing Fixture investigation.md -> worked-example candidate seed
+ [+] fixture investigation.md exists and contains an INV-NNN Findings table 165ms
+ [+] fixture contains at least one screen finding 31ms
+ [+] fixture contains at least one api finding 32ms
+ [+] fixture contains at least one business-rule finding 31ms
+ [+] worked seed has all five required sections present 35ms
+ [+] worked seed is non-empty: at least one candidate context (Done-When) 38ms
+ [+] worked seed is non-empty: at least one candidate term (Done-When) 31ms
+ [+] every candidate context name is kebab-case per domain-contract.v1 pattern 32ms
+ [+] every candidate aggregate hint name is PascalCase per domain-contract.v1 pattern 32ms
+ [+] every candidate carries at least one INV-NNN evidence reference 53ms
+ [+] every evidence INV-NNN id traces back to a row that actually exists in the fixture 37ms
+ [+] excludes non-domain categories (dependency, test-coverage) from the seed 32ms
+Tests completed in 1.41s
+Passed: 18 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0

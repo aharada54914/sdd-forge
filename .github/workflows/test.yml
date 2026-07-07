@@ -148,6 +148,7 @@ jobs:
         run: |
           bash tests/review-contract-foundation.tests.sh
           bash tests/review-contract-foundation-parity.tests.sh
+          bash tests/spec-review-loop.tests.sh
           bash tests/downstream-review-precheck.tests.sh
           bash tests/downstream-review-precheck-parity.tests.sh
           bash tests/impl-layer-review-inputs.tests.sh

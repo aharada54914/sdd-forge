@@ -124,10 +124,22 @@ criteria and is a Major finding.
 
 ## INITIAL-STATE (Major, TYPE-D)
 
-Every task must have `Approval: Draft` and `Status: Planned` in round 1 attempt 1.
-In subsequent rounds: `Approval:` must not be `Approved` (only humans approve).
-`Status:` must be one of: `Planned`, `In Progress`, `Blocked`. Tasks with missing
-or invalid status/approval fields are a Major finding.
+Pre-implementation reviews: every task must have `Approval: Draft` and
+`Status: Planned` in round 1 attempt 1. In subsequent rounds: `Approval:` must
+not be `Approved` (only humans approve). `Status:` must be one of: `Planned`,
+`In Progress`, `Blocked`.
+
+Post-implementation provenance re-review: when the orchestrator declares the
+invocation a post-implementation provenance re-review (task-stage review
+evidence is being re-bound after the implementation phase; see the
+task-review-loop skill), evaluate lifecycle validity instead of the
+pre-implementation rule: `Approval:` may be `Approved` or
+`Approved (<audit-mark>)` when the mark records a valid human or
+workflow-bypass-mode authorization, and `Status:` must be one of: `Planned`,
+`In Progress`, `Blocked`, `Implementation Complete`, `Done`.
+
+Tasks with missing or invalid status/approval fields under the applicable rule
+are a Major finding.
 
 ## RISK-WORKFLOW-FORMAT (Critical, TYPE-D)
 
@@ -199,6 +211,14 @@ When item that names a concrete verification command or evidence artifact. A
 documentation-only task may instead name the exact file and section whose change
 proves completion. Do not require the reviewer to execute the command.
 
+A Done When item that requires editing a review-frozen artifact (design.md
+after the impl review gate passes; the tasks.md body or traceability.md after
+the task review gate passes) is not satisfiable as written: those artifacts are
+content-frozen except for normalized status/approval fields once their gate
+passes. Such an item must instead name a non-frozen addendum record (an
+implementation report, `specs/<feature>/verification/`, or user documentation).
+A Done When item scoped to edit a frozen artifact is a Major finding.
+
 ## TRACEABILITY-SYNC (Major, TYPE-D)
 
 Every task ID in tasks.md must have a corresponding entry in traceability.md.
@@ -227,26 +247,55 @@ The JSON must be valid and match this schema exactly:
 ```json
 {
   "schema": "task-reviewer-a/v1",
-  "stage": "task",
-  "role": "task-reviewer-a",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "<feature-slug>",
+  "attempt": <M>,
+  "round": <N>,
   "run_id": "<fresh-run-id>",
   "host_session_id": "<distinct-host-session-id>",
-  "allowed_input_manifest": [{"path":"<canonical-allowed-path>","sha256":"<sha256>"}],
+  "manifest": [{"path":"<canonical-allowed-path>","sha256":"<sha256>"}],
   "verdict": "PASS|NEEDS_WORK|BLOCKED",
   "checks": [
     {
       "id": "PREREQ-AC-IDS",
-      "result": "PASS|FAIL|SKIP",
+      "status": "PASS|FAIL|SKIP",
       "severity": "Critical|Major|Minor",
       "finding": "Specific evidence or 'No issues found.'"
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "<CHECK-ID that FAILed>",
+      "severity": "Critical|Major|Minor",
+      "task_id": "<T-NNN or null>",
+      "finding": "<specific evidence>"
     }
   ]
 }
 ```
 
-Verdict rules:
-- PASS: all checks are PASS or SKIP, zero Critical, zero Major findings.
-- NEEDS_WORK: one or more Major findings, zero Critical.
+This is the persisted-state validator's canonical task-stage encoding
+(`plugins/sdd-quality-loop/scripts/check-workflow-state.sh`): top-level
+`feature`/`attempt`/`round`, `stage: "task-review"`, `role: "reviewer-a"`, a
+flat `manifest` array of path+sha256 pairs, `checks[].status`, and a `findings`
+array. Your agent name remains task-reviewer-a; only the emitted field values
+use these validator-canonical strings. Do not emit `allowed_input_manifest` or
+`checks[].result` — the validator rejects them for this role.
+
+- `findings` must contain exactly one entry per check whose `status` is FAIL,
+  each with severity Critical, Major, or Minor. When every check is PASS or
+  SKIP, `findings` must be `[]`.
+- `manifest` must list every input you actually read and must include every
+  entry of the orchestrator-provided allowed-input manifest. For a registered
+  full-profile feature this includes `design.md`, `traceability.md`, and all
+  four layer specs (`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,
+  `security-spec.md`) — the validator rejects task-stage evidence whose
+  reviewer manifests omit any layer input.
+
+Verdict rules (the validator recomputes the expected verdict from `findings`):
+- PASS: `findings` is empty (no check FAILed).
+- NEEDS_WORK: one or more findings, none Critical.
 - BLOCKED: one or more Critical findings.
 
 The `checks` array must contain one entry per check ID in this order:

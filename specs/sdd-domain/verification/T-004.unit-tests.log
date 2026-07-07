@@ -1,0 +1,68 @@
+
+
+
+
+
+Describing domain-model SKILL.md is the public entry point (AC-001)
+ [+] exists 454ms
+ [+] has parseable frontmatter 114ms
+ [+] carries disable-model-invocation: true 37ms
+ [+] omits user-invocable: false (it is the public entry) 39ms
+ [+] declares name: domain-model 32ms
+Describing sdd-bootstrap:bootstrap precedent confirms the public-entry convention
+ [+] bootstrap SKILL.md exists as the reference public-entry skill 108ms
+ [+] bootstrap carries disable-model-invocation: true 31ms
+ [+] bootstrap omits user-invocable: false, same as domain-model 31ms
+Describing Every other sdd-domain skill built so far is internal (contrast with domain-model)
+ [+] found at least the two internal skills known to be built (domain-interviewer, domain-reverse) 49ms
+   Context Skill: domain-interviewer
+    [+] SKILL.md exists 67ms
+    [+] carries user-invocable: false 31ms
+    [+] carries disable-model-invocation: true 30ms
+   Context Skill: domain-reverse
+    [+] SKILL.md exists 57ms
+    [+] carries user-invocable: false 31ms
+    [+] carries disable-model-invocation: true 27ms
+Describing Contrast assertion: domain-model differs from every other sdd-domain skill
+ [+] found at least three sdd-domain skill directories (domain-model plus at least two internal skills) 71ms
+ [+] domain-model is present among discovered skill directories 31ms
+ [+] exactly one sdd-domain skill (with a SKILL.md present) omits user-invocable: false (domain-model only) 46ms
+ [+] the one public sdd-domain skill is domain-model 30ms
+ [+] every non-domain-model sdd-domain skill with a SKILL.md present carries user-invocable: false 34ms
+Describing Fixture: editing stage 4 (Context Map) and re-running update
+ [+] pre-update fixture status is Approved (sanity check before reset) 233ms
+ [+] identifies stages 1-3 as upstream of edited stage 4 31ms
+ [+] identifies stages 4-7 as downstream (re-run) of edited stage 4 30ms
+ [+] stage 1 (upstream) is byte-identical before and after update 32ms
+ [+] stage 1 (upstream) hash matches the original pre-update fixture hash 30ms
+ [+] stage 2 (upstream) is byte-identical before and after update 28ms
+ [+] stage 2 (upstream) hash matches the original pre-update fixture hash 31ms
+ [+] stage 3 (upstream) is byte-identical before and after update 30ms
+ [+] stage 3 (upstream) hash matches the original pre-update fixture hash 31ms
+ [+] stage 4 (downstream) was re-run: content hash changed 33ms
+ [+] stage 4 (downstream) carries the confirmation-mode marker 35ms
+ [+] stage 6 (downstream) was re-run: content hash changed 34ms
+ [+] stage 6 (downstream) carries the confirmation-mode marker 55ms
+ [+] stage 7 (downstream) was re-run: content hash changed 32ms
+ [+] stage 7 (downstream) carries the confirmation-mode marker 34ms
+ [+] stage 5 (aggregates, downstream) was re-run: content hash changed 66ms
+ [+] stage 5 (aggregates, downstream) carries the confirmation-mode marker 32ms
+ [+] Domain-Model-Status is reset to Pending in context-map.md 34ms
+ [+] Domain-Model-Status is no longer Approved after update 33ms
+ [+] domain-contract.json meta.status was also reset to Pending 32ms
+ [+] domain-contract.json version was bumped (regeneration occurred) 33ms
+Describing Fixture: update mode resets status even when prior status was Reviewed (not just Approved)
+ [+] status resets to Pending from a prior Reviewed state 86ms
+Describing Fixture: editing stage 2 (Event Storming) leaves only stage 1 upstream
+ [+] only stage 1 is upstream of edited stage 2 109ms
+ [+] stage 1 remains byte-identical 33ms
+ [+] status is still reset to Pending even though the edited stage (2) is not the Context Map stage 37ms
+Describing domain-model SKILL.md documents the update algorithm this fixture simulates
+ [+] domain-model SKILL.md exists 61ms
+ [+] documents re-running the edited stage plus every downstream stage 31ms
+ [+] documents confirmation mode as re-presenting existing artifacts for approval 30ms
+ [+] documents verifying upstream stages remain byte-identical 29ms
+ [+] documents resetting Domain-Model-Status to Pending 34ms
+ [+] documents that only a human may set Approved, never this skill 33ms
+Tests completed in 2.79s
+Passed: 51 Failed: 0 Skipped: 0 Pending: 0 Inconclusive: 0

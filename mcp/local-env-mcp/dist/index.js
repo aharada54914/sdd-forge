@@ -31010,49 +31010,55 @@ function probeOne(entry, options) {
       settled = true;
       resolve(result);
     };
-    const child = execFile(
-      entry.command,
-      [...entry.args],
-      {
-        env,
-        timeout: TIMEOUT_MS,
-        killSignal: "SIGKILL",
-        maxBuffer: MAX_OUTPUT_BYTES,
-        windowsHide: true
-      },
-      (error51, stdout, stderr) => {
-        if (error51) {
-          const code = error51.code;
-          if (code === "ENOENT") {
-            finish({ name: entry.name, available: false, probeError: "not-found" });
+    let child;
+    try {
+      child = execFile(
+        entry.command,
+        [...entry.args],
+        {
+          env,
+          timeout: TIMEOUT_MS,
+          killSignal: "SIGKILL",
+          maxBuffer: MAX_OUTPUT_BYTES,
+          windowsHide: true
+        },
+        (error51, stdout, stderr) => {
+          if (error51) {
+            const code = error51.code;
+            if (code === "ENOENT") {
+              finish({ name: entry.name, available: false, probeError: "not-found" });
+              return;
+            }
+            if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") {
+              finish({ name: entry.name, available: false, probeError: "output-too-large" });
+              return;
+            }
+            const killed = error51.killed === true;
+            const signal = error51.signal;
+            if (killed || signal === "SIGKILL" || signal === "SIGTERM") {
+              finish({ name: entry.name, available: false, probeError: "timeout" });
+              return;
+            }
+            if (typeof error51.code === "number") {
+              finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
+              return;
+            }
+            finish({ name: entry.name, available: false, probeError: "spawn-error" });
             return;
           }
-          if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") {
-            finish({ name: entry.name, available: false, probeError: "output-too-large" });
-            return;
-          }
-          const killed = error51.killed === true;
-          const signal = error51.signal;
-          if (killed || signal === "SIGKILL" || signal === "SIGTERM") {
-            finish({ name: entry.name, available: false, probeError: "timeout" });
-            return;
-          }
-          if (typeof error51.code === "number") {
+          const raw = entry.versionStream === "stderr" ? stderr : stdout;
+          const version2 = normalizeVersion(String(raw));
+          if (version2.length === 0) {
             finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
             return;
           }
-          finish({ name: entry.name, available: false, probeError: "spawn-error" });
-          return;
+          finish({ name: entry.name, available: true, version: version2 });
         }
-        const raw = entry.versionStream === "stderr" ? stderr : stdout;
-        const version2 = normalizeVersion(String(raw));
-        if (version2.length === 0) {
-          finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
-          return;
-        }
-        finish({ name: entry.name, available: true, version: version2 });
-      }
-    );
+      );
+    } catch {
+      finish({ name: entry.name, available: false, probeError: "spawn-error" });
+      return;
+    }
     child.on("error", (error51) => {
       const code = error51.code;
       if (code === "ENOENT") {

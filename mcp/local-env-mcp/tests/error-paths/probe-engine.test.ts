@@ -25,12 +25,28 @@ import type { AllowlistEntry } from "../../src/allowlist.js";
 
 let fixtureDir: string;
 
-/** Writes an executable POSIX shell shim named `name` into fixtureDir. */
+/**
+ * Writes an executable POSIX shell shim named `name` into fixtureDir.
+ *
+ * win32 caveat: the engine launches probes with `execFile` and NO shell, so
+ * only PE executables (.exe/.com) can ever run there — a POSIX script shim is
+ * unresolvable by design, and a `.cmd` launcher cannot substitute for it
+ * (Node's no-shell spawn either skips it during PATH search or refuses it
+ * outright with EINVAL under the CVE-2024-27980 batch-file hardening,
+ * depending on Node version). Shim-execution-dependent subtests therefore
+ * skip on win32; the engine's process-handling logic they pin is
+ * OS-independent and stays covered by the POSIX CI legs.
+ */
 function writeShim(name: string, body: string): void {
   const p = join(fixtureDir, name);
   writeFileSync(p, `#!/bin/sh\n${body}\n`, "utf-8");
   chmodSync(p, 0o755);
 }
+
+/** Skip reason for subtests that need a shim to actually execute. */
+const WIN32_SKIP = process.platform === "win32"
+  ? "no-shell execFile only launches PE executables on win32; script shims are unresolvable by design"
+  : false;
 
 before(() => {
   fixtureDir = mkdtempSync(join(tmpdir(), "local-env-mcp-probe-"));
@@ -75,7 +91,7 @@ function entry(name: string, command: string, versionStream: "stdout" | "stderr"
   return { name: name as AllowlistEntry["name"], command, args: ["--version"], versionStream };
 }
 
-test("AC-004: successful probe yields available + normalized first-line version", async () => {
+test("AC-004: successful probe yields available + normalized first-line version", { skip: WIN32_SKIP }, async () => {
   const results = await probeEngine([entry("node", "goodcli")], { pathOverride: fixtureDir });
   assert.equal(results.length, 1);
   const r = results[0]!;
@@ -85,7 +101,7 @@ test("AC-004: successful probe yields available + normalized first-line version"
   assert.equal(r.probeError, undefined);
 });
 
-test("AC-004: multi-line output is normalized to first line only", async () => {
+test("AC-004: multi-line output is normalized to first line only", { skip: WIN32_SKIP }, async () => {
   const results = await probeEngine([entry("git", "multiline")], { pathOverride: fixtureDir });
   const r = results[0]!;
   assert.equal(r.available, true);
@@ -93,14 +109,14 @@ test("AC-004: multi-line output is normalized to first line only", async () => {
   assert.ok(!r.version!.includes("SECOND"), "second line must be dropped");
 });
 
-test("AC-004: stderr-stream CLI (java-style) reads version from stderr", async () => {
+test("AC-004: stderr-stream CLI (java-style) reads version from stderr", { skip: WIN32_SKIP }, async () => {
   const results = await probeEngine([entry("java", "stderrcli", "stderr")], { pathOverride: fixtureDir });
   const r = results[0]!;
   assert.equal(r.available, true);
   assert.equal(r.version, "stderrcli 17.0.1");
 });
 
-test("AC-004: timeout (>2s) kills the process and reports probeError=timeout", async () => {
+test("AC-004: timeout (>2s) kills the process and reports probeError=timeout", { skip: WIN32_SKIP }, async () => {
   const start = Date.now();
   const results = await probeEngine([entry("go", "slowcli")], { pathOverride: fixtureDir });
   const elapsed = Date.now() - start;
@@ -112,7 +128,7 @@ test("AC-004: timeout (>2s) kills the process and reports probeError=timeout", a
   assert.ok(elapsed < 10_000, `probe should be killed near timeout, took ${elapsed}ms`);
 });
 
-test("AC-004: output over 8 KiB is capped, process killed, probeError=output-too-large", async () => {
+test("AC-004: output over 8 KiB is capped, process killed, probeError=output-too-large", { skip: WIN32_SKIP }, async () => {
   const results = await probeEngine([entry("rustc", "verbosecli")], { pathOverride: fixtureDir });
   const r = results[0]!;
   assert.equal(r.available, false);
@@ -127,7 +143,26 @@ test("AC-004: missing CLI reports probeError=not-found (spawn ENOENT)", async ()
   assert.equal(r.probeError, "not-found");
 });
 
-test("AC-004: nonzero exit reports probeError=nonzero-exit", async () => {
+test("AC-004: a command resolvable only to a batch file yields a per-entry failure, never a rejection", async () => {
+  // On win32 with modern Node, no-shell spawn THROWS synchronously (EINVAL)
+  // when PATH resolution lands on a .cmd file (CVE-2024-27980 hardening) —
+  // exactly what happens probing `npm` on a real Windows host. Older Node
+  // skips the .cmd during resolution and reports ENOENT instead. Both must
+  // surface as a per-entry result (the engine's "never thrown" contract);
+  // on POSIX the name simply does not resolve, which is also per-entry.
+  writeFileSync(join(fixtureDir, "zzonlybatch.cmd"), `@echo off\r\necho "v1.2.3"\r\n`, "utf-8");
+  const results = await probeEngine([entry("npm", "zzonlybatch")], { pathOverride: fixtureDir });
+  assert.equal(results.length, 1);
+  const r = results[0]!;
+  assert.equal(r.available, false);
+  assert.equal(r.version, undefined);
+  assert.ok(
+    r.probeError === "not-found" || r.probeError === "spawn-error",
+    `batch-only command must map to not-found or spawn-error, got ${r.probeError}`,
+  );
+});
+
+test("AC-004: nonzero exit reports probeError=nonzero-exit", { skip: WIN32_SKIP }, async () => {
   const results = await probeEngine([entry("deno", "failcli")], { pathOverride: fixtureDir });
   const r = results[0]!;
   assert.equal(r.available, false);
@@ -159,7 +194,7 @@ test("AC-004: probeError values are all within the contract enum", async () => {
   }
 });
 
-test("AC-004: concurrency is bounded (many slow probes still all resolve, none hang the response)", async () => {
+test("AC-004: concurrency is bounded (many slow probes still all resolve, none hang the response)", { skip: WIN32_SKIP }, async () => {
   // Six slow probes with a concurrency cap of 4 must all still resolve to
   // per-entry timeout failures; the whole response stays well-formed.
   const entries = Array.from({ length: 6 }, (_, i) => entry(["node", "npm", "git", "gh", "go", "cargo"][i]!, "slowcli"));
@@ -171,7 +206,7 @@ test("AC-004: concurrency is bounded (many slow probes still all resolve, none h
   }
 });
 
-test("AC-004: TTL cache reuses a prior result within the window (no re-probe)", async () => {
+test("AC-004: TTL cache reuses a prior result within the window (no re-probe)", { skip: WIN32_SKIP }, async () => {
   const first = await probeEngine([entry("cargo", "goodcli")], { pathOverride: fixtureDir });
   assert.equal(first[0]!.available, true);
   // Second call within TTL: even pointing at a now-different shim path, the

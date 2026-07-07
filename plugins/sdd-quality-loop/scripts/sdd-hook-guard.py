@@ -14,6 +14,11 @@ Runs the same three checks for Claude Code, Codex CLI, and GitHub Copilot CLI:
      file (path matching ``.codex/agents/[^/]+.toml``) without a
      ``developer_instructions`` field. Such files are ignored by Codex at startup.
 
+T-006: also guards ``Domain-Model-Status: Approved`` in ``domain/context-map.md``
+using the SAME net-increase counting logic and SAME sudo-bypass behavior as the
+tasks.md Approval guard above (check 2b-2) -- a different class of control than
+the never-sudo-bypassable WFI/Second-Approval guards.
+
 Payload formats handled:
   - Claude / Copilot Edit/Write: ``tool_input.file_path`` plus
     ``old_string``/``new_string``, ``edits[]``, or ``content`` (the latter is
@@ -44,6 +49,7 @@ import time
 APPROVAL_RE = re.compile(r"Approval:\s*Approved")
 SECOND_APPROVAL_RE = re.compile(r"Second Approval:\s*Approved")
 WFI_APPROVAL_RE = re.compile(r"Status:\s*Approved")
+DOMAIN_MODEL_APPROVAL_RE = re.compile(r"Domain-Model-Status:\s*Approved")
 AGENT_ROLE_PATH_RE = re.compile(r"\.codex/agents/[^/]+\.toml$")
 TASK_SECTION_RE = re.compile(r"^##\s+(T-\S+)", re.MULTILINE)
 DEVELOPER_INSTRUCTIONS_RE = re.compile(r"(^|\n)[ \t]*developer_instructions[ \t]*=")
@@ -82,6 +88,12 @@ SECOND_APPROVAL_MSG = (
     "tasks.md. A second approval is an independent human judgment (like a Workflow "
     "Improvement) and is never bypassed by sudo. Leave it for a second human "
     "approver to record."
+)
+DOMAIN_MODEL_APPROVAL_MSG = (
+    "SDD決定論ゲート: エージェントは domain/context-map.md に 'Domain-Model-Status: Approved' を設定できません。ドメインモデルの承認は、ファイルを直接編集する人間のみが行えます。ステータスは Pending/Reviewed のままにし、人間に承認を依頼してください。"
+    "\n[EN] SDD deterministic gate: agents must not set 'Domain-Model-Status: Approved' in "
+    "domain/context-map.md. Only a human may approve the domain model by editing the "
+    "file directly. Leave the status as Pending/Reviewed and ask the human to approve it."
 )
 IMPL_REVIEW_STATUS_PASSED_RE = re.compile(r"Impl-Review-Status:\s*Passed")
 IMPL_REVIEW_STATUS_MSG = (
@@ -203,6 +215,21 @@ def wfi_count(text):
     if not text:
         return 0
     return len(WFI_APPROVAL_RE.findall(text))
+
+
+def is_domain_context_map_path(path):
+    """Return True if path is domain/context-map.md (case-insensitive), the
+    sdd-domain plugin's approval-line file."""
+    if not path:
+        return False
+    return str(path).replace("\\", "/").lower().endswith("domain/context-map.md")
+
+
+def domain_model_count(text):
+    """Count Domain-Model-Status: Approved occurrences in context-map.md content."""
+    if not text:
+        return 0
+    return len(DOMAIN_MODEL_APPROVAL_RE.findall(text))
 
 
 def count_second(text):
@@ -588,6 +615,77 @@ def _patch_increases(patch):
             removed += count(raw[1:])
     net_for_file = added - removed
     return net_for_file > 0
+
+
+def domain_model_approval_increases(payload):
+    """Return True if this tool call would add Domain-Model-Status: Approved
+    to domain/context-map.md.
+
+    T-006: mirrors the tasks.md approval_increases() net-increase counting
+    logic EXACTLY (same sudo-bypass behavior) -- this is NOT the never-sudo-
+    bypassable wfi_approval_increases()/second_approval_increases() pattern.
+    """
+    tool_input = payload.get("tool_input") or {}
+    tool_name = (payload.get("tool_name") or "").lower()
+
+    if tool_name == "apply_patch" or _looks_like_patch(tool_input.get("command")):
+        return _domain_model_patch_increases(tool_input.get("command") or "")
+
+    if tool_name in ("bash", "shell", "exec_command", "exec") and isinstance(
+        tool_input.get("command"), str
+    ):
+        cmd = tool_input["command"]
+        if "domain/context-map.md" in cmd.lower() and DOMAIN_MODEL_APPROVAL_RE.search(cmd):
+            return True
+        return False
+
+    file_path = tool_input.get("file_path") or ""
+    if not is_domain_context_map_path(file_path):
+        return False
+
+    if isinstance(tool_input.get("edits"), list):
+        for edit in tool_input["edits"]:
+            if domain_model_count((edit or {}).get("new_string")) > 0:
+                return True
+        return False
+    elif "new_string" in tool_input:
+        return domain_model_count(tool_input.get("new_string")) > 0
+    elif "content" in tool_input:
+        return _domain_model_write_content_increases(file_path, tool_input.get("content") or "")
+    else:
+        return False
+
+
+def _domain_model_write_content_increases(file_path, new_content):
+    """Return True if new_content raises the Domain-Model-Status: Approved
+    count compared to the file on disk."""
+    try:
+        with open(file_path, encoding="utf-8") as f:
+            old_content = f.read()
+    except OSError:
+        old_content = ""
+    return domain_model_count(new_content) > domain_model_count(old_content)
+
+
+def _domain_model_patch_increases(patch):
+    """Parse a Codex patch envelope; return True if net Domain-Model-Status:
+    Approved added to domain/context-map.md."""
+    current_is_domain_context_map = False
+    added = removed = 0
+    for raw in patch.splitlines():
+        m = re.match(r"\*\*\* (Update|Add|Delete) File: (.+)$", raw)
+        if m:
+            current_is_domain_context_map = is_domain_context_map_path(m.group(2).strip())
+            continue
+        if raw.startswith("*** End Patch") or raw.startswith("*** Begin Patch"):
+            continue
+        if not current_is_domain_context_map:
+            continue
+        if raw.startswith("+") and not raw.startswith("+++"):
+            added += domain_model_count(raw[1:])
+        elif raw.startswith("-") and not raw.startswith("---"):
+            removed += domain_model_count(raw[1:])
+    return (added - removed) > 0
 
 
 def wfi_approval_increases(payload):
@@ -1225,6 +1323,12 @@ def main():
         # Check 2b: Approval guard (bypassed by valid sudo).
         if approval_increases(payload) and not sudo_active():
             emit("deny", APPROVAL_MSG, mode)
+
+        # Check 2b-2: Domain-model approval guard (bypassed by valid sudo,
+        # same class as the tasks.md Approval guard above -- NOT the
+        # never-bypassable WFI/Second-Approval pattern below).
+        if domain_model_approval_increases(payload) and not sudo_active():
+            emit("deny", DOMAIN_MODEL_APPROVAL_MSG, mode)
 
         # Check 2c: WFI approval guard (NEVER bypassed by sudo).
         if wfi_approval_increases(payload):

@@ -7,7 +7,15 @@ param(
 )
 $ErrorActionPreference = "Stop"
 
-$pattern = 'TODO|FIXME|HACK\b|NotImplemented|not[ _-]implemented|PLACEHOLDER|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)|TODO_REPLACE_WITH_PROJECT_COMMANDS'
+# Marker keywords are matched CASE-SENSITIVELY: real stub markers follow the
+# ALL-CAPS convention (TODO:, FIXME, PLACEHOLDER), while lowercase occurrences
+# ("placeholders", "`todo`", "check-placeholders") are ordinary prose in docs
+# and skill files -- matching them case-insensitively produced false positives
+# that blocked quality gates (RT-20260706-001). NotImplemented keeps its exact
+# mixed case (Python/C# exception names). Multi-word phrases stay
+# case-insensitive: they are unambiguous in any casing.
+$patternCs = 'TODO|FIXME|HACK\b|NotImplemented|PLACEHOLDER|TODO_REPLACE_WITH_PROJECT_COMMANDS'
+$patternCi = 'not[ _-]implemented|lorem ipsum|coming soon|do not ship|temporary stub|dummy (data|value|response)'
 $findings = @()
 
 foreach ($path in $Paths) {
@@ -21,7 +29,10 @@ foreach ($path in $Paths) {
         Get-Item $path
     }
     foreach ($file in $files) {
-        $matched = Select-String -Path $file.FullName -Pattern $pattern -AllMatches -ErrorAction SilentlyContinue
+        $matched = @()
+        $matched += Select-String -Path $file.FullName -Pattern $patternCs -CaseSensitive -AllMatches -ErrorAction SilentlyContinue
+        $matched += Select-String -Path $file.FullName -Pattern $patternCi -AllMatches -ErrorAction SilentlyContinue
+        $matched = $matched | Sort-Object Path, LineNumber -Unique
         foreach ($m in $matched) {
             $findings += "$($m.Path):$($m.LineNumber): $($m.Line.Trim())"
         }
