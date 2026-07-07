@@ -44,18 +44,25 @@ let fixtureDir: string;
 // engine's shell-less `execFile`, the only fixture shape resolvable on all
 // three OSes is a real executable — on win32, libuv's PATH search never
 // resolves a bare name to a script or `.cmd` file. So each fixture CLI is the
-// current Node runtime itself (hardlinked, or copied if linking fails),
+// current Node runtime itself (copied on win32, hardlinked elsewhere),
 // renamed to the allowlist command name. Probed with the allowlist's fixed
 // `--version` args it deterministically prints `process.version`, which is
 // what the assertions below pin.
 function placeFixtureCli(name: string): void {
   const exePath = join(fixtureDir, process.platform === "win32" ? `${name}.exe` : name);
-  try {
-    linkSync(process.execPath, exePath);
-  } catch {
-    copyFileSync(process.execPath, exePath);
-    chmodSync(exePath, 0o755);
+  // win32 must COPY, never hardlink: a hardlink shares the running node.exe's
+  // file object, whose mapped image section makes every link name undeletable
+  // for as long as this test process lives — cleanup would always EPERM.
+  if (process.platform !== "win32") {
+    try {
+      linkSync(process.execPath, exePath);
+      return;
+    } catch {
+      // e.g. cross-device link — fall through to copying.
+    }
   }
+  copyFileSync(process.execPath, exePath);
+  chmodSync(exePath, 0o755);
 }
 
 before(() => {
@@ -72,7 +79,9 @@ before(() => {
 });
 
 after(() => {
-  rmSync(fixtureDir, { recursive: true, force: true });
+  // Retries absorb transient Windows EPERM/EBUSY (AV scan / just-exited child
+  // still holding the copied fixture exe).
+  rmSync(fixtureDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 });
 
 beforeEach(() => {

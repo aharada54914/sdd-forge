@@ -30,8 +30,8 @@ let fixtureDir: string;
  * is the given Node.js `jsBody` (run via a sibling `<name>.js` script passed as
  * the probe args — see `entry()`).
  *
- * The fixture executable is the current Node runtime itself (hardlinked, or
- * copied if linking fails), renamed to the fixture name. This is the only
+ * The fixture executable is the current Node runtime itself (copied on win32,
+ * hardlinked elsewhere), renamed to the fixture name. This is the only
  * fixture shape that works on ALL THREE OSes with the engine's shell-less
  * `execFile`: on win32 libuv's PATH search resolves bare names only to real
  * executables (`.exe`/`.com` — never `.cmd`/`.bat`, which Node additionally
@@ -41,12 +41,19 @@ let fixtureDir: string;
 function writeShim(name: string, jsBody: string): void {
   writeFileSync(join(fixtureDir, `${name}.js`), `${jsBody}\n`, "utf-8");
   const exePath = join(fixtureDir, process.platform === "win32" ? `${name}.exe` : name);
-  try {
-    linkSync(process.execPath, exePath);
-  } catch {
-    copyFileSync(process.execPath, exePath);
-    chmodSync(exePath, 0o755);
+  // win32 must COPY, never hardlink: a hardlink shares the running node.exe's
+  // file object, whose mapped image section makes every link name undeletable
+  // for as long as this test process lives — cleanup would always EPERM.
+  if (process.platform !== "win32") {
+    try {
+      linkSync(process.execPath, exePath);
+      return;
+    } catch {
+      // e.g. cross-device link — fall through to copying.
+    }
   }
+  copyFileSync(process.execPath, exePath);
+  chmodSync(exePath, 0o755);
 }
 
 before(() => {
@@ -78,7 +85,9 @@ before(() => {
 });
 
 after(() => {
-  rmSync(fixtureDir, { recursive: true, force: true });
+  // Retries absorb transient Windows EPERM/EBUSY (AV scan / just-exited child
+  // still holding the copied fixture exe).
+  rmSync(fixtureDir, { recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 });
 
 // The probe-engine cache is module-level; clear it before each test so results
