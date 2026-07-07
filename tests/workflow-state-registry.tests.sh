@@ -109,7 +109,7 @@ shell_schema_accepts() {
           has("introduced_before_commit") and has("reason") and has("owner") and
           has("allowed_missing_stages") and has("allowed_noncanonical_statuses") and
           has("allowed_task_approvals") and has("allowed_task_statuses") and
-          .introduced_before_commit == $baseline and
+          (.introduced_before_commit | type == "string" and test("^[0-9a-f]{40}$")) and
           (.reason | type == "string" and length > 0 and contains("*") | not) and
           (.owner | type == "string" and length > 0 and contains("*") | not) and
           (.allowed_missing_stages | string_array(["spec", "impl", "task"])) and
@@ -119,7 +119,7 @@ shell_schema_accepts() {
             all(.[]; string_array(["Pending", "Passed"]))) and
           (.allowed_task_approvals | string_array(["Draft", "Approved"])) and
           (.allowed_task_statuses |
-            string_array(["Planned", "In Progress", "Implementation Complete", "Done"])) and
+            string_array(["Planned", "In Progress", "Implementation Complete", "Done", "Blocked"])) and
           (if has("retrospective_sources") then
             .retrospective_sources | type == "array" and
             length == (unique | length) and
@@ -141,7 +141,7 @@ shell_schema_accepts() {
 jq -e --arg baseline "$BASELINE" '
   .schema_version == 1 and
   .migration_baseline_commit == $baseline and
-  (.entries | type == "array" and length == 11) and
+  (.entries | type == "array" and length == 12) and
   ([.entries[].feature] | length == (unique | length)) and
   ([.entries[].feature] | sort) == [
     "agent-cost-context-isolation",
@@ -151,6 +151,7 @@ jq -e --arg baseline "$BASELINE" '
     "p0-hardening",
     "risk-adaptive-layer",
     "sdd-diagnose",
+    "sdd-domain",
     "sdd-forge-refactor",
     "sdd-lite",
     "uninstall-workflow",
@@ -160,7 +161,7 @@ jq -e --arg baseline "$BASELINE" '
     (.feature | test("^[a-z0-9][a-z0-9-]*$")) and
     (.profile == "full" or .profile == "lite" or .profile == "legacy") and
     (if .profile == "legacy" then
-      .legacy.introduced_before_commit == $baseline and
+      (.legacy.introduced_before_commit | type == "string" and test("^[0-9a-f]{40}$")) and
       (.legacy.reason | type == "string" and length > 0) and
       (.legacy.owner | type == "string" and length > 0) and
       (.legacy.allowed_missing_stages | type == "array") and
