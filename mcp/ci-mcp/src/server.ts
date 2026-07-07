@@ -25,8 +25,12 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { Result } from "./envelope.js";
 import {
   getWorkflowRun,
+  listRunArtifacts,
+  listRunJobs,
   listWorkflowRuns,
   GET_WORKFLOW_RUN_INPUT_SHAPE,
+  LIST_RUN_ARTIFACTS_INPUT_SHAPE,
+  LIST_RUN_JOBS_INPUT_SHAPE,
   LIST_WORKFLOW_RUNS_INPUT_SHAPE,
 } from "./tools/actions.js";
 
@@ -69,6 +73,35 @@ export function buildServer(): McpServer {
       inputSchema: GET_WORKFLOW_RUN_INPUT_SHAPE,
     },
     async (args) => toCallToolResult(await getWorkflowRun(args)),
+  );
+
+  server.registerTool(
+    "list_run_jobs",
+    {
+      title: "List run jobs",
+      description:
+        "Lists the jobs for a GitHub Actions workflow run, including each " +
+        "job's status/conclusion/timestamps and the number of its first " +
+        "failed step (null if none failed). Read-only: issues a single GET " +
+        "against the GitHub Actions REST API.",
+      inputSchema: LIST_RUN_JOBS_INPUT_SHAPE,
+    },
+    async (args) => toCallToolResult(await listRunJobs(args)),
+  );
+
+  server.registerTool(
+    "list_run_artifacts",
+    {
+      title: "List run artifacts",
+      description:
+        "Lists artifact metadata (id/name/size/expired/expiresAt/createdAt) " +
+        "for a GitHub Actions workflow run. Never returns binary artifact " +
+        "content; expired artifacts are reported as expired:true, not an " +
+        "error. Read-only: issues a single GET against the GitHub Actions " +
+        "REST API.",
+      inputSchema: LIST_RUN_ARTIFACTS_INPUT_SHAPE,
+    },
+    async (args) => toCallToolResult(await listRunArtifacts(args)),
   );
 
   return server;

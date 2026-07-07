@@ -2,7 +2,7 @@
  * ci-mcp's 5 read-only GitHub Actions tools (design.md "API / Contract
  * Plan", contracts/ci-mcp-tools.v1.schema.json). Implemented incrementally:
  *   - T-005: list_workflow_runs, get_workflow_run
- *   - T-012: list_run_jobs, list_run_artifacts
+ *   - T-012: list_run_jobs, list_run_artifacts (this file's current scope)
  *   - T-013: get_job_log
  *
  * Every tool follows the same composition: `withToken` (auth.ts) gates the
@@ -269,5 +269,227 @@ export async function getWorkflowRun(
       return outcome;
     }
     return ok<WorkflowRunData>({ kind: "workflow-run", run: mapUpstreamRun(outcome.data) });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// list_run_jobs (T-012)
+// ---------------------------------------------------------------------------
+
+/** `$defs/runJobsData.jobs[]`. */
+export interface Job {
+  id: number;
+  name: string;
+  status: RunStatus;
+  conclusion: RunConclusion;
+  startedAt?: string | null;
+  completedAt?: string | null;
+  failedStep?: number | null;
+}
+
+/** `$defs/runJobsData` (`list_run_jobs` output). */
+export interface RunJobsData {
+  kind: "run-jobs";
+  jobs: Job[];
+}
+
+interface UpstreamJobStep {
+  number: number;
+  conclusion: string | null;
+}
+
+interface UpstreamJob {
+  id: number;
+  name: string;
+  status: string;
+  conclusion: string | null;
+  started_at?: string | null;
+  completed_at?: string | null;
+  steps?: UpstreamJobStep[];
+}
+
+interface UpstreamRunJobsResponse {
+  jobs: UpstreamJob[];
+}
+
+/** Derives the first failed step's number from a job's steps, or `null` when none failed. */
+function deriveFailedStep(steps: UpstreamJobStep[] | undefined): number | null {
+  if (steps === undefined) {
+    return null;
+  }
+  const failedStep = steps.find((step) => step.conclusion === "failure");
+  return failedStep === undefined ? null : failedStep.number;
+}
+
+/** Maps a raw upstream job object onto the contract's `Job` shape. */
+function mapUpstreamJob(raw: UpstreamJob): Job {
+  const job: Job = {
+    id: raw.id,
+    name: raw.name,
+    status: raw.status as RunStatus,
+    conclusion: raw.conclusion as RunConclusion,
+    failedStep: deriveFailedStep(raw.steps),
+  };
+  if (raw.started_at !== undefined) {
+    job.startedAt = raw.started_at;
+  }
+  if (raw.completed_at !== undefined) {
+    job.completedAt = raw.completed_at;
+  }
+  return job;
+}
+
+/** Raw shape registered with the MCP SDK's `registerTool` for `list_run_jobs`. */
+export const LIST_RUN_JOBS_INPUT_SHAPE = {
+  owner: z.string().optional().describe("Repository owner. Must be given together with `repo`."),
+  repo: z.string().optional().describe("Repository name. Must be given together with `owner`."),
+  runId: z.number().int().min(1).describe("The workflow run id whose jobs are listed."),
+};
+
+const listRunJobsInputSchema = z.object(LIST_RUN_JOBS_INPUT_SHAPE).strict();
+
+export type ListRunJobsInput = z.infer<typeof listRunJobsInputSchema>;
+
+/**
+ * AC-003: lists the jobs for a workflow run, returning the contract's
+ * `run-jobs` envelope. `failedStep` is derived as the number of the first
+ * step whose conclusion is "failure", or `null` when no step failed / no
+ * steps are reported.
+ */
+export async function listRunJobs(
+  input: ListRunJobsInput,
+  options: ActionsToolOptions = {},
+): Promise<Result<RunJobsData>> {
+  const parsed = listRunJobsInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return err("invalid-input", "list_run_jobs: invalid input", {
+      rule: "runId is required and must be a positive integer; owner/repo are optional strings",
+    });
+  }
+  const { owner, repo, runId } = parsed.data;
+
+  return withRepoAndToken({ owner, repo }, options, async (token, resolvedRepo) => {
+    const outcome = await githubGet<UpstreamRunJobsResponse>(
+      {
+        pathSegments: ["repos", resolvedRepo.owner, resolvedRepo.repo, "actions", "runs", String(runId), "jobs"],
+        token,
+      },
+      options.fetchImpl,
+    );
+    if (!outcome.ok) {
+      return outcome;
+    }
+    return ok<RunJobsData>({
+      kind: "run-jobs",
+      jobs: outcome.data.jobs.map(mapUpstreamJob),
+    });
+  });
+}
+
+// ---------------------------------------------------------------------------
+// list_run_artifacts (T-012)
+// ---------------------------------------------------------------------------
+
+/** `$defs/runArtifactsData.artifacts[]`. Metadata only — binary content is never returned. */
+export interface Artifact {
+  id: number;
+  name: string;
+  sizeBytes: number;
+  expired: boolean;
+  expiresAt?: string | null;
+  createdAt?: string | null;
+}
+
+/** `$defs/runArtifactsData` (`list_run_artifacts` output). */
+export interface RunArtifactsData {
+  kind: "run-artifacts";
+  artifacts: Artifact[];
+}
+
+interface UpstreamArtifact {
+  id: number;
+  name: string;
+  size_in_bytes: number;
+  expired: boolean;
+  expires_at?: string | null;
+  created_at?: string | null;
+}
+
+interface UpstreamRunArtifactsResponse {
+  artifacts: UpstreamArtifact[];
+}
+
+/**
+ * Maps a raw upstream artifact object onto the contract's `Artifact` shape.
+ * Only metadata fields are ever read/forwarded — no binary/archive-download
+ * field from the upstream object is copied (design.md OQ-002).
+ */
+function mapUpstreamArtifact(raw: UpstreamArtifact): Artifact {
+  const artifact: Artifact = {
+    id: raw.id,
+    name: raw.name,
+    sizeBytes: raw.size_in_bytes,
+    expired: raw.expired,
+  };
+  if (raw.expires_at !== undefined) {
+    artifact.expiresAt = raw.expires_at;
+  }
+  if (raw.created_at !== undefined) {
+    artifact.createdAt = raw.created_at;
+  }
+  return artifact;
+}
+
+/** Raw shape registered with the MCP SDK's `registerTool` for `list_run_artifacts`. */
+export const LIST_RUN_ARTIFACTS_INPUT_SHAPE = {
+  owner: z.string().optional().describe("Repository owner. Must be given together with `repo`."),
+  repo: z.string().optional().describe("Repository name. Must be given together with `owner`."),
+  runId: z.number().int().min(1).describe("The workflow run id whose artifacts are listed."),
+};
+
+const listRunArtifactsInputSchema = z.object(LIST_RUN_ARTIFACTS_INPUT_SHAPE).strict();
+
+export type ListRunArtifactsInput = z.infer<typeof listRunArtifactsInputSchema>;
+
+/**
+ * AC-005: lists artifact metadata for a workflow run, returning the
+ * contract's `run-artifacts` envelope. Never returns binary content; an
+ * `expired: true` artifact is ordinary data, not an error.
+ */
+export async function listRunArtifacts(
+  input: ListRunArtifactsInput,
+  options: ActionsToolOptions = {},
+): Promise<Result<RunArtifactsData>> {
+  const parsed = listRunArtifactsInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return err("invalid-input", "list_run_artifacts: invalid input", {
+      rule: "runId is required and must be a positive integer; owner/repo are optional strings",
+    });
+  }
+  const { owner, repo, runId } = parsed.data;
+
+  return withRepoAndToken({ owner, repo }, options, async (token, resolvedRepo) => {
+    const outcome = await githubGet<UpstreamRunArtifactsResponse>(
+      {
+        pathSegments: [
+          "repos",
+          resolvedRepo.owner,
+          resolvedRepo.repo,
+          "actions",
+          "runs",
+          String(runId),
+          "artifacts",
+        ],
+        token,
+      },
+      options.fetchImpl,
+    );
+    if (!outcome.ok) {
+      return outcome;
+    }
+    return ok<RunArtifactsData>({
+      kind: "run-artifacts",
+      artifacts: outcome.data.artifacts.map(mapUpstreamArtifact),
+    });
   });
 }
