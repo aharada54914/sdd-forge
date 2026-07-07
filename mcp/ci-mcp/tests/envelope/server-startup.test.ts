@@ -1,12 +1,15 @@
 /**
- * AC (acceptance, T-001): stdio server construction/startup skeleton.
+ * AC (acceptance, T-001, updated T-005): stdio server construction/startup
+ * skeleton.
  *
- * `buildServer()` must construct a valid McpServer with NO tools registered
- * yet (tools are added in later tasks: T-005/T-012/T-013) and must do so
- * without making any network call or reading any GitHub-token environment
- * variable — this test asserts construction is synchronous-fast and that no
- * `fetch` is triggered, which is the acceptance criterion for "起動時に GitHub
- * API 呼び出し・トークン検証を行わない" (design.md Architecture).
+ * `buildServer()` must construct a valid McpServer without making any
+ * network call or reading any GitHub-token environment variable at
+ * construction time — this test asserts construction is synchronous-fast and
+ * that no `fetch` is triggered, which is the acceptance criterion for "起動時に
+ * GitHub API 呼び出し・トークン検証を行わない" (design.md Architecture). As of
+ * T-005, `list_workflow_runs` and `get_workflow_run` are registered (T-012
+ * adds 2 more, T-013 adds the 5th and final tool); the tool-count assertion
+ * below is updated at each of those tasks to track the current total.
  *
  * Uses the MCP SDK's in-memory Client/Transport pair (no real stdio process),
  * matching the pattern other ci-mcp/local-env-mcp tool-level tests use for
@@ -24,7 +27,7 @@ interface McpServerToolInternals {
   _registeredTools: Record<string, unknown>;
 }
 
-test("buildServer() constructs a server with zero tools registered (T-001 scope)", () => {
+test("buildServer() constructs fast and registers exactly the tools implemented so far (T-005 scope)", () => {
   const start = process.hrtime.bigint();
   const server = buildServer();
   const elapsedMs = Number(process.hrtime.bigint() - start) / 1e6;
@@ -32,14 +35,16 @@ test("buildServer() constructs a server with zero tools registered (T-001 scope)
   // Construction alone must stay well under the 1s startup SLO (design.md).
   assert.ok(elapsedMs < 1000, `buildServer() took ${elapsedMs}ms, expected < 1000ms`);
 
-  // No `registerTool` call happened in T-001 scope, so the MCP SDK's internal
-  // tool map must be empty. The 5 read-only Actions tools are registered
-  // starting T-005; this is asserted directly (white-box) rather than via a
-  // tools/list round-trip, since a server with zero tools never declares the
-  // `tools` capability and a JSON-RPC tools/list would only prove that
-  // absence indirectly.
-  const registeredToolNames = Object.keys((server as unknown as McpServerToolInternals)._registeredTools);
-  assert.deepEqual(registeredToolNames, [], "T-001 registers no tools yet; tools are added starting T-005");
+  // As of T-005, exactly `list_workflow_runs` and `get_workflow_run` are
+  // registered (T-012/T-013 add the remaining 3). Asserted directly
+  // (white-box) via the MCP SDK's internal tool map rather than a
+  // `tools/list` round-trip.
+  const registeredToolNames = Object.keys((server as unknown as McpServerToolInternals)._registeredTools).sort();
+  assert.deepEqual(
+    registeredToolNames,
+    ["get_workflow_run", "list_workflow_runs"],
+    "T-005 registers list_workflow_runs and get_workflow_run; T-012/T-013 add the remaining 3",
+  );
 });
 
 test("buildServer() never reads a GitHub token env var during construction", () => {
