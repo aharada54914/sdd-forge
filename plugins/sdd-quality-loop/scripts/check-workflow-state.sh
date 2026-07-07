@@ -197,19 +197,26 @@ manifest_has_hash_for_file() {
   manifest_has_hash "$contract" "$suffix" "$historical" "$recorded_root"
 }
 recorded_repo_root() {
-  local contract="$1" repo_name
-  repo_name="$(basename "$REPO_ROOT")"
-  jq -r --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
-    --arg marker "/$repo_name/" '
+  # Derive the historical repository root recorded in absolute manifest
+  # paths from the paths themselves: the prefix before the first known
+  # top-level repository directory. Deriving it from the CURRENT root's
+  # basename (the previous approach) broke whenever the tree is validated
+  # from a differently-named directory -- e.g. repository-release-validation
+  # copies the repo into ".../repository/", so a recorded ".../sdd-forge/..."
+  # path could never match a "/repository/" marker and valid provenance was
+  # rejected as non-canonical.
+  local contract="$1"
+  jq -r --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" '
     def normalized: gsub("\\\\"; "/");
     def rooted: test("^(/|[A-Za-z]:/)");
+    def top_markers: ["/specs/", "/reports/", "/plugins/", "/contracts/", "/docs/", "/tests/"];
     [.reviewers[].allowed_input_manifest[].path |
       normalized |
       select(rooted and (startswith($repo) or startswith($alias) | not)) |
       . as $path |
-      ($path | rindex($marker)) as $index |
+      ([top_markers[] | . as $m | ($path | index($m))] | map(select(. != null)) | min) as $index |
       if $index == null then null
-      else $path[0:($index + ($marker | length) - 1)]
+      else $path[0:$index]
       end] as $roots |
     if any($roots[]; . == null) or ($roots | map(select(. != null)) | unique | length) > 1
     then "__INVALID__"

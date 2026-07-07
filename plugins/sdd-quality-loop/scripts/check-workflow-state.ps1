@@ -127,8 +127,14 @@ function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
     } elseif ($normalizedRoot.StartsWith("/var/")) {
         $currentRoots += "/private/var/" + $normalizedRoot.Substring("/var/".Length)
     }
-    $repositoryName = Split-Path -Leaf $normalizedRoot
-    $marker = "/$repositoryName/"
+    # Derive the historical root from the recorded paths themselves: the
+    # prefix before the first known top-level repository directory. Deriving
+    # it from the CURRENT root's leaf name (the previous approach) broke
+    # whenever the tree is validated from a differently-named directory --
+    # e.g. repository-release-validation copies the repo into
+    # ".../repository/", so a recorded ".../sdd-forge/..." path could never
+    # match a "/repository/" marker and valid provenance was rejected.
+    $topMarkers = @("/specs/", "/reports/", "/plugins/", "/contracts/", "/docs/", "/tests/")
     $recordedRoots = [Collections.Generic.HashSet[string]]::new(
         [StringComparer]::Ordinal)
     foreach ($reviewer in @($Contract.reviewers)) {
@@ -144,11 +150,17 @@ function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
                 }
             }
             if ($isCurrent) { continue }
-            $index = $normalizedPath.LastIndexOf($marker, [StringComparison]::OrdinalIgnoreCase)
+            $index = -1
+            foreach ($topMarker in $topMarkers) {
+                $markerIndex = $normalizedPath.IndexOf($topMarker, [StringComparison]::Ordinal)
+                if ($markerIndex -ge 0 -and ($index -lt 0 -or $markerIndex -lt $index)) {
+                    $index = $markerIndex
+                }
+            }
             if ($index -lt 0) {
                 return [pscustomobject]@{ Valid=$false; Root="" }
             }
-            [void]$recordedRoots.Add($normalizedPath.Substring(0, $index + $marker.Length - 1))
+            [void]$recordedRoots.Add($normalizedPath.Substring(0, $index))
             if ($recordedRoots.Count -gt 1) {
                 return [pscustomobject]@{ Valid=$false; Root="" }
             }
