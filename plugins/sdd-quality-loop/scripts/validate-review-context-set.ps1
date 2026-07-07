@@ -114,6 +114,17 @@ function Test-AuthorizedPath {
                 $EvaluatorOutputs.Contains("$Path`n$Sha256")
             )
         }
+        { $_ -in @('domain:domain-reviewer-a', 'domain:domain-reviewer-b') } {
+            if ($Path -cmatch '^domain/(domain-story|event-storming|ubiquitous-language|context-map|message-flow|c4-container)\.md$' -or
+                $Path -cmatch '^domain/aggregates/[^/]+\.md$' -or
+                $Path -ceq 'domain/domain-contract.json' -or
+                $Path -ceq 'plugins/sdd-domain/references/domain-review-calibration.md' -or
+                $Path -cmatch '^reports/domain-review/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json$') {
+                return $true
+            }
+            return ($Role -ceq 'domain-reviewer-b' -and
+                $Path -cmatch '^reports/domain-review/attempt-[1-9][0-9]*/round-[1-9][0-9]*/integrated-summary\.json$')
+        }
         default { return $false }
     }
 }
@@ -171,7 +182,8 @@ try {
         'spec:spec-reviewer-a', 'spec:spec-reviewer-b',
         'impl:impl-reviewer-a', 'impl:impl-reviewer-b',
         'task:task-reviewer-a', 'task:task-reviewer-b',
-        'quality:sdd-evaluator'
+        'quality:sdd-evaluator',
+        'domain:domain-reviewer-a', 'domain:domain-reviewer-b'
     )
     if ("$($document.stage):$($document.role)" -cnotin $validPairs) {
         Fail-ReviewContext 'CONTRACT' 'stage and role are not an authorized invocation pair'

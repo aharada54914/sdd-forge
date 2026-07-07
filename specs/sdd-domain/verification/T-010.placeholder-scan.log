@@ -1,0 +1,11 @@
+Placeholder scan FAILED (8 finding(s)):
+ - tests/validate-repository.ps1:222:foreach ($rule in @("Implementation Complete", "maximum of 3", "Done", "Playwright", "traceability", "check-contract", "check-evidence-bundle", "check-placeholders", "check-task-state", "sdd-evaluator")) {
+ - tests/validate-repository.ps1:229:foreach ($script in @("check-contract", "check-evidence-bundle", "check-placeholders", "check-task-state")) {
+ - tests/validate-repository.ps1:424:foreach ($checkId in @("lint", "unit-tests", "build", "placeholder-scan", "task-state-check")) {
+ - CHANGELOG.md:412:**outcome ベースの eval suite (H-05)**: `tests/eval.tests.sh` を新設。実際のゲート群（check-contract / check-placeholders / check-evidence-bundle / check-task-state / sdd-hook-guard）を good/completion-faking の 8 シナリオに対して実行し、Done 可否という**結末**を検証。CI (`test.yml`) に組み込み。
+ - CHANGELOG.md:458:**sudoモード**: 人間による明示的な `/sdd-sudo` 呼び出しで、人間承認ゲート（tasks.md の `Approval: Approved`、アーキテクチャ review 承認、quality-gate 判定）を期限付きで自動通過。AGENT_STOP kill switch と決定論的スクリプト（contract 検証、placeholder 検出、task-state 検証）は常に有効。audit trail には `(sudo <ISO8601>)` 記号で記録。使用は `/sdd-sudo [duration]`、`/sdd-sudo status`、`/sdd-sudo off`。詳細は `plugins/sdd-quality-loop/skills/sdd-sudo/SKILL.md` と `sudo-mode-policy.md` を参照。
+ - CHANGELOG.md:550:**CIテンプレートのフェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーにより未設定のまま CI が通過しない。
+ - CHANGELOG.md:560:| CIテンプレートがコマンドなしで通過 | **フェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定のまま通過しない |
+ - CHANGELOG.md:570:**決定論的検証ゲート**: Default-FAIL 契約 (`verification-contract.json`)、`check-contract` / `check-placeholders` / `check-task-state` スクリプト (.sh / .ps1) により、エージェント自己申告に依存しない機械検証を実施する。
+Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.
+EXIT:1

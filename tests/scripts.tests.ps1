@@ -161,11 +161,16 @@ Status: Done
     # guard-task-approval.ps1 was superseded by sdd-hook-guard; guard tests live in hooks.tests.ps1.
 
     # =========================================================
-    # check-placeholders case-insensitivity (Wave 2)
+    # check-placeholders marker case-sensitivity (RT-20260706-001)
     # =========================================================
-    # Lowercase "todo" must be flagged by the PS1 variant (grep -i added in Wave 1).
+    # Marker keywords match CASE-SENSITIVELY per the ALL-CAPS marker
+    # convention (human-decided resolution of RT-20260706-001, superseding
+    # the Wave 1 grep -i behavior): lowercase "todo" is ordinary prose and
+    # must NOT be flagged; the uppercase marker must still be flagged.
     "def f():`n    pass  # todo implement this" | Set-Content -Encoding Utf8 "src/todo-lower.py"
-    Assert-ExitCode "check-placeholders ps1 lowercase todo flagged" (Invoke-Gate "check-placeholders.ps1" @("src/todo-lower.py")) 1
+    Assert-ExitCode "check-placeholders ps1 lowercase todo passes (prose, RT-20260706-001)" (Invoke-Gate "check-placeholders.ps1" @("src/todo-lower.py")) 0
+    "def f():`n    pass  # TODO implement this" | Set-Content -Encoding Utf8 "src/todo-upper.py"
+    Assert-ExitCode "check-placeholders ps1 uppercase TODO flagged" (Invoke-Gate "check-placeholders.ps1" @("src/todo-upper.py")) 1
 
     # =========================================================
     # check-task-state header-only task (Wave 2)
@@ -1148,9 +1153,12 @@ Status: Done
         & bash (Join-Path $scriptsDir "check-placeholders.sh") "src/ci-placeholder.sh" *> $null
         Assert-ExitCode "check-placeholders.sh catches TODO_REPLACE_WITH_PROJECT_COMMANDS" $LASTEXITCODE 1
 
-        # check-placeholders.sh case-insensitivity: lowercase todo must be flagged
+        # check-placeholders.sh marker case-sensitivity (RT-20260706-001):
+        # lowercase todo is prose and passes; uppercase TODO is still flagged.
         & bash (Join-Path $scriptsDir "check-placeholders.sh") "src/todo-lower.py" *> $null
-        Assert-ExitCode "check-placeholders.sh lowercase todo flagged" $LASTEXITCODE 1
+        Assert-ExitCode "check-placeholders.sh lowercase todo passes (prose, RT-20260706-001)" $LASTEXITCODE 0
+        & bash (Join-Path $scriptsDir "check-placeholders.sh") "src/todo-upper.py" *> $null
+        Assert-ExitCode "check-placeholders.sh uppercase TODO flagged" $LASTEXITCODE 1
 
         # check-task-state.sh header-only task: per-field errors, NOT "no tasks found"
         $shHeaderOut = & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-header-only.md" 2>&1

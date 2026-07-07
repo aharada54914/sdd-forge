@@ -1,0 +1,25 @@
+{
+  "task_id": "T-007",
+  "feature": "sdd-domain",
+  "risk": "medium",
+  "stack": "docs",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "",
+  "created": "2026-07-06T08:57:07Z",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (stack: docs per Global Constraints): all task files are Markdown, JSON Schema, or Pester test scripts -- no linter is configured for this repository's Markdown/JSON content.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (stack: docs): no compiled or statically-typed language is used by this task's files; there is no typechecker to run.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-007.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-006", "REQ-008", "AC-008", "AC-010"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-007.unit-tests.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No integration surface: domain-sync is a Markdown skill consumed by agent judgment, not a service with an integration boundary; covered instead by the acceptance-tests and regression checks below.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (stack: docs): Markdown skills, JSON Schema, and Pester test scripts are shipped as source with no build/compile step.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-007.placeholder-scan.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-007.task-state.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "No startable process: domain-sync and the reviewer-agent checks are agent-invoked Markdown instructions, not a dev server, Docker container, or CLI binary that can be started and smoke-tested.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "Not a refactor/bugfix task with a baseline-behavior.md; differential-test-policy.md does not apply to this net-new additive feature task.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No user-facing UI surface: this task touches only internal skill/agent Markdown definitions and Pester tests, nothing rendered to an end user.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system/ directory involvement and no UI-layer files touched by this task.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-007.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-006", "REQ-008", "AC-008", "AC-010"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-007.unit-tests.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-007.regression.log", "waiver_reason": "", "requirement_ids": ["REQ-006", "REQ-008", "AC-008", "AC-010"], "red_evidence": "", "green_evidence": "specs/sdd-domain/verification/T-007.regression.log" }
+  ]
+}

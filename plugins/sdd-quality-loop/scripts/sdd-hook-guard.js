@@ -19,6 +19,11 @@
  *      file (path matching .codex/agents/[^/]+.toml) without a
  *      developer_instructions field. Such files are ignored by Codex at startup.
  *
+ * T-006: also guards "Domain-Model-Status: Approved" in domain/context-map.md
+ * using the SAME net-increase counting logic and SAME sudo-bypass behavior as
+ * the tasks.md Approval guard above (check 2b-2) -- this is a different class
+ * of control than the never-sudo-bypassable WFI/Second-Approval guards.
+ *
  * Payload formats handled:
  *   - Claude / Copilot Edit/Write: tool_input.file_path plus
  *     old_string/new_string, edits[], or content (the latter is compared
@@ -47,6 +52,7 @@ const path = require('path');
 const APPROVAL_RE = /Approval:\s*Approved/g;
 const SECOND_APPROVAL_RE = /Second Approval:\s*Approved/g;
 const WFI_APPROVAL_RE = /Status:\s*Approved/g;
+const DOMAIN_MODEL_APPROVAL_RE = /Domain-Model-Status:\s*Approved/g;
 const AGENT_ROLE_PATH_RE = /\.codex\/agents\/[^/]+\.toml$/i;
 const DEVELOPER_INSTRUCTIONS_RE = /(^|\n)[ \t]*developer_instructions[ \t]*=/;
 const SUDO_EPOCH_RE = /(^|\n)[ \t]*expires-epoch:[ \t]*(\d+)/;
@@ -79,6 +85,12 @@ const SECOND_APPROVAL_MSG =
   "tasks.md. A second approval is an independent human judgment (like a Workflow " +
   "Improvement) and is never bypassed by sudo. Leave it for a second human " +
   "approver to record.";
+
+const DOMAIN_MODEL_APPROVAL_MSG =
+  "SDD決定論ゲート: エージェントは domain/context-map.md に 'Domain-Model-Status: Approved' を設定できません。ドメインモデルの承認は、ファイルを直接編集する人間のみが行えます。ステータスは Pending/Reviewed のままにし、人間に承認を依頼してください。" +
+  "\n[EN] SDD deterministic gate: agents must not set 'Domain-Model-Status: Approved' in " +
+  "domain/context-map.md. Only a human may approve the domain model by editing the " +
+  "file directly. Leave the status as Pending/Reviewed and ask the human to approve it.";
 
 const SDD_SUDO_WRITE_MSG =
   "SDD決定論ゲート: エージェントは SDD_SUDO フラグファイルの作成・編集・削除を行えません。sudo モードの管理は人間のみが行えます。" +
@@ -399,6 +411,19 @@ function isWfiPath(filePath) {
 function wfiCount(text) {
   if (!text) return 0;
   const matches = text.match(WFI_APPROVAL_RE);
+  return matches ? matches.length : 0;
+}
+
+function isDomainContextMapPath(filePath) {
+  // domain/context-map.md is the sdd-domain plugin's approval-line file.
+  // Case-insensitive match (matches isTasksMd/isWfiPath convention).
+  if (!filePath) return false;
+  return String(filePath).replace(/\\/g, '/').toLowerCase().endsWith('domain/context-map.md');
+}
+
+function domainModelCount(text) {
+  if (!text) return 0;
+  const matches = text.match(DOMAIN_MODEL_APPROVAL_RE);
   return matches ? matches.length : 0;
 }
 
@@ -946,6 +971,81 @@ function wfiPatchIncreases(patch) {
   return (added - removed) > 0;
 }
 
+// T-006: domain-model approval guard. Mirrors the tasks.md Approval guard's
+// net-increase counting logic EXACTLY (same sudo-bypass behavior) -- this is
+// NOT the never-sudo-bypassable WFI-guard pattern. A valid SDD_SUDO token
+// permits the write, exactly like the tasks.md guard (see main()'s Check 2b
+// vs Check 2c for the bypass distinction).
+function domainModelApprovalIncreases(payload) {
+  const toolInput = payload.tool_input || {};
+  const toolName = String(payload.tool_name || '').toLowerCase();
+  const command = toolInput.command;
+
+  if (toolName === 'apply_patch' || looksLikePatch(command)) {
+    return domainModelPatchIncreases(command || '');
+  }
+
+  if (['bash', 'shell', 'exec_command', 'exec'].includes(toolName) && typeof command === 'string') {
+    if (command.toLowerCase().includes('domain/context-map.md') && domainModelCount(command) > 0) {
+      return true;
+    }
+    return false;
+  }
+
+  const filePath = toolInput.file_path || '';
+  if (!isDomainContextMapPath(filePath)) return false;
+
+  if (Array.isArray(toolInput.edits)) {
+    for (const edit of toolInput.edits) {
+      const e = edit || {};
+      if (domainModelCount(e.new_string) > 0) {
+        return true;
+      }
+    }
+    return false;
+  } else if ('new_string' in toolInput) {
+    return domainModelCount(toolInput.new_string) > 0;
+  } else if ('content' in toolInput) {
+    return domainModelWriteContentIncreases(filePath, toolInput.content || '');
+  } else {
+    return false;
+  }
+}
+
+function domainModelWriteContentIncreases(filePath, newContent) {
+  let oldContent = '';
+  try {
+    oldContent = fs.readFileSync(filePath, 'utf8');
+  } catch (e) {
+    oldContent = '';
+  }
+  return domainModelCount(newContent) > domainModelCount(oldContent);
+}
+
+function domainModelPatchIncreases(patch) {
+  let currentIsDomainContextMap = false;
+  let added = 0;
+  let removed = 0;
+  for (const raw of patch.split('\n')) {
+    const line = raw.replace(/\r$/, '');
+    const m = line.match(/^\*\*\* (Update|Add|Delete) File: (.+)$/);
+    if (m) {
+      currentIsDomainContextMap = isDomainContextMapPath(m[2].trim());
+      continue;
+    }
+    if (line.startsWith('*** End Patch') || line.startsWith('*** Begin Patch')) {
+      continue;
+    }
+    if (!currentIsDomainContextMap) continue;
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      added += domainModelCount(line.slice(1));
+    } else if (line.startsWith('-') && !line.startsWith('---')) {
+      removed += domainModelCount(line.slice(1));
+    }
+  }
+  return (added - removed) > 0;
+}
+
 function secondApprovalIncreases(payload) {
   // Second Approval is human-only and NEVER bypassed by sudo. Mirrors the tasks.md
   // approval guard but keyed on 'Second Approval: Approved' and scoped to tasks.md.
@@ -1253,6 +1353,14 @@ async function main() {
     APPROVAL_RE.lastIndex = 0;
     if (approvalIncreases(payload) && !sudoActive()) {
       emitDecision('deny', APPROVAL_MSG, mode);
+    }
+
+    // Check 2b-2: Domain-model approval guard (bypassed by valid sudo, same
+    // class as the tasks.md Approval guard above -- NOT the never-bypassable
+    // WFI/Second-Approval pattern below).
+    DOMAIN_MODEL_APPROVAL_RE.lastIndex = 0;
+    if (domainModelApprovalIncreases(payload) && !sudoActive()) {
+      emitDecision('deny', DOMAIN_MODEL_APPROVAL_MSG, mode);
     }
 
     // Check 2c: WFI approval guard (NEVER bypassed by sudo).

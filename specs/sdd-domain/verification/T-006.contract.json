@@ -1,0 +1,26 @@
+{
+  "task_id": "T-006",
+  "feature": "sdd-domain",
+  "risk": "high",
+  "stack": "shell",
+  "required_workflow": "tdd",
+  "spec_revision": "",
+  "created": "2026-07-06T08:59:07Z",
+  "comment": "Default-FAIL verification contract. Every check starts at passes=false. A check may be flipped to true only after its verification command ran and the evidence file (log, report, or screenshot path relative to the repository root) was inspected. check-contract.(sh|ps1) refuses Done while any required check fails. Checks with required:false that have passes=false must carry a non-empty waiver_reason explaining why the check does not apply.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack (JS/PY/PS1/SH guard scripts + bash test fixture) per Global Constraints 'Non-code stack' descriptor in specs/sdd-domain/tasks.md; no lint toolchain is configured for this cross-language script set. Waivable via stack: shell per risk-gate-matrix.md.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack; the four guard twins are untyped JS/Python/PowerShell/POSIX-shell scripts with no compiled/typed toolchain applicable. Waivable via stack: shell per risk-gate-matrix.md.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "Non-code stack; there is no build/compile step for the guard scripts or the bash test suite. Waivable via stack: shell per risk-gate-matrix.md.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-006.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-005", "AC-007"], "red_evidence": "reports/implementation/sdd-domain/T-006.md", "green_evidence": "reports/implementation/sdd-domain/T-006.md" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No integration-test layer exists for this feature; the hook guard is validated end-to-end via the guard-parity fixture suite (unit-tests/acceptance-tests/regression checks) directly invoking each language twin's CLI entry point.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-006.placeholder-scan.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-006.task-state.log", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "sdd-hook-guard is a PreToolUse hook script, not a startable dev server, Docker container, or CLI binary with an interactive entry point; its behavior is exercised directly by the guard-parity fixture suite instead.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "T-006 is an additive extension (new regex/path-matcher/net-increase check) to an existing guard with no documented baseline-behavior.md; differential-test-policy.md applies to refactor/bugfix tasks with a captured baseline, which does not apply here. The Red/Green tdd evidence on the unit-tests check serves the equivalent before/after purpose.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No browser-renderable UI surface is touched; this task changes only PreToolUse hook-guard scripts and their test fixtures.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "The repository's design-system/ contract governs UI-layer (rendered/visual) files; this task touches only backend guard scripts and shell test fixtures, not UI-layer files.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-006.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-005", "AC-007"], "red_evidence": "reports/implementation/sdd-domain/T-006.md", "green_evidence": "reports/implementation/sdd-domain/T-006.md" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-006.unit-tests.log", "waiver_reason": "", "requirement_ids": ["REQ-005", "AC-007"], "red_evidence": "", "green_evidence": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/sdd-domain/verification/T-006.traceability.log", "waiver_reason": "", "requirement_ids": ["REQ-005", "AC-007"], "red_evidence": "", "green_evidence": "" }
+  ]
+}

@@ -1,0 +1,7 @@
+13	0	.agents/plugins/marketplace.json
+9	0	.claude-plugin/marketplace.json
+36	0	CHANGELOG.md
+77	2	PLUGIN-CONTRACTS.md
+2	1	README.md
+66	0	docs/workflow-guide.md
+4	3	tests/validate-repository.ps1

@@ -76,6 +76,20 @@ Run these checks:
   planned validation surface such as an acceptance criterion, manual inspection
   target, or later quality-gate evidence path. SKIP only when no high-risk claim
   or risk surface is present.
+- `DOMAIN-CONFORMANCE` (Major, SKIP allowed): applies only when the target
+  project has a `domain/` directory with `domain/context-map.md` recording
+  `Domain-Model-Status: Approved` and a schema-valid
+  `domain/domain-contract.json`. When `domain/` is absent, or the status is
+  not `Approved`, or the contract is missing/invalid, record the check as
+  skipped in the finding and emit SKIP. Otherwise verify that
+  `requirements.md` carries a `Bounded-Context:` field naming a context
+  present in `domain-contract.json`, and that the terms used in `## User
+  Stories` and `## Acceptance Criteria` prefer each named context's
+  canonical `terms[].canonical` values over any listed
+  `forbidden_synonyms`. A missing `Bounded-Context:` field while an Approved
+  model exists, a `Bounded-Context:` value naming a context absent from
+  `domain-contract.json`, or use of a forbidden synonym in place of its
+  canonical term is a Major finding.
 
 Classify contradictions or missing safety/approval boundaries as Critical;
 missing specification detail that will cause downstream mismatch as Major; and
@@ -99,4 +113,4 @@ Return only this JSON shape:
 Do not include another reviewer's raw finding in your output.
 
 The `checks` array must contain one entry per check ID in this order:
-`REQ-TESTABILITY, GOAL-AC-TRACE, AC-OBSERVABLE, SCOPE-BOUNDARY, CONSTRAINTS-EXPLICIT, RISK-VALIDATION-SURFACE.`
+`REQ-TESTABILITY, GOAL-AC-TRACE, AC-OBSERVABLE, SCOPE-BOUNDARY, CONSTRAINTS-EXPLICIT, RISK-VALIDATION-SURFACE, DOMAIN-CONFORMANCE.`
