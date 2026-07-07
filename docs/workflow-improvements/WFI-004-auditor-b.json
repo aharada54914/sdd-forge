@@ -1,0 +1,69 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-004",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "PASS",
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 3,
+    "auditor_a_pass_count": 5,
+    "auditor_a_verdict": "NEEDS_REVISION"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four elements present. (1) Metric row named: 'Target-Metric: persisted-state validator exit code for the blocked feature (local-env-mcp)' -- a generic-instrument metric, not a retrospective template row, but explicitly named and traceable to the cited script. (2) Baseline/target stated: 'Baseline: 1 (fails with \"task reviewer manifests omit layer inputs\")' / 'Target: 0'. (3) Task-cycle horizon stated as a discrete event rather than a count of cycles: 'Horizon: immediately after the post-implementation provenance re-review (task decomposition review gate attempt 2) completes' -- appropriate given only one blocked feature exists; no averaging is claimed. (4) Threshold for improvement stated: 'the WFI is Verified when the exit code is 0 with no diagnostics for the feature,' plus a secondary check ('the quality verification gate for one task of the feature completes its scripted-gate step without the validator finding'). Verification Plan states 'No judgment calls are required; both checks are exit-code based.' No missing element."
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Evidence scale: RT-20260705-001 (severity major, requires_human_decision: true) documents all 10 tasks of one feature gate-blocked by five distinct contradictions spanning three plugin/spec artifacts (check-workflow-state.sh, task-reviewer-a.md, design.md/traceability.md hash-binding) -- a full-feature structural deadlock, not an isolated 1-round/1-feature friction. Change scope: two related rules added to a single file (AGENTS.md), each targeting one of the two root-cause contradiction classes identified in Root Cause Hypothesis (artifact-freeze vs. sanctioned edits; pre-implementation-only INITIAL-STATE vs. post-implementation re-review need). This is neither a multi-file restructuring for minor friction (over-scoped) nor a single sentence for a systemic problem (under-scoped); the two-rule, one-file change is proportional to the two-contradiction-class root cause."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Scanned docs/workflow-improvements/ for Status: Verified. grep -H '^Status:' on WFI-001.md, WFI-002.md, WFI-003.md returns 'Status: Applied' for all three -- none is Verified. No Verified WFIs found; no conflicts possible. (Noted for completeness, not required by the check: even substantively, WFI-001/002/003's Proposed Change rows -- a high-risk-task preflight rule, a review-gate precheck fallback note, and an evidence-report identity-fields rule, respectively -- do not touch the 'post-review artifact freeze' or 'post-implementation provenance re-review' concepts this WFI adds, so no latent contradiction exists even under Applied status.)"
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Verified on disk that the cited blocking diagnostic ('task reviewer manifests omit layer inputs', stage-provenance check, gate-script lines ~486-489) is resolvable by reviewers emitting complete layer manifests and the canonical output schema -- and the gate script already accepts that canonical schema for the task stage (schema handling for stage==\"task\" expecting stage:\"task-review\", role:\"reviewer-a\", manifest, checks[].status, findings[] is already present in the script's jq logic), so instructing reviewer invocation via AGENTS.md to supply the complete manifest and canonical fields is a plausible project-side fix for the actually-cited exit-1 diagnostic. Separately verified that the gate script's own task-lifecycle diagnostic (lines ~596-627) already tolerates 'Implementation Complete', 'Done', and an Approved approval field as valid lifecycle states for the exit-code path the WFI verifies -- the INITIAL-STATE contradiction described in Problem Evidence and RT-20260705-001 item 5 lives only in the role-file text (task-reviewer-a.md, a plugin file), not in the gate script this WFI's Verification Metric measures. Because the Verification Metric (check-workflow-state.sh exit code) does not itself enforce the role-file's INITIAL-STATE text, the AGENTS.md-only change is plausibly sufficient to reach exit 0, contingent on the reviewer agents' invocation actually being reframed per the new AGENTS.md rule at re-review time -- a residual operational dependency the WFI discloses honestly by routing the role-file text mismatch to a separate plugin-maintainer GitHub Issue rather than silently assuming it away. Standard is plausibility, not certainty; met."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Category: plugin-improvement. Grepped Root Cause Hypothesis (lines 83-95), Proposed Change (lines 97-101), and Expected Effect (lines 103-115) for every forbidden term in Section 2's table. All five term hits found in the file (sdd-quality-loop, task-reviewer-a x2, check-workflow-state.sh path) fall inside Problem Evidence (lines 44-81, explicitly exempt as direct evidence citation) or Verification Plan (line 132, not one of the three restricted sections). Within Proposed Change, the strings 'reviewer-a' / 'reviewer-b' appear only as literal schema field values being specified for the canonical output format (e.g. `role: \"reviewer-a\"`), consistent with the guide's own correct-usage pattern of referring to 'reviewer A' / 'reviewer B' as generic role labels -- these are not instances of the forbidden plugin-file identifiers `task-reviewer-a`/`task-reviewer-b` used as prose description of the plugin itself. No newly introduced or remaining forbidden term in the three restricted sections."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Target (exit 1 -> exit 0) is a binary/deterministic gate outcome tied to a single, specific, previously-diagnosed defect ('task reviewer manifests omit layer inputs'), not a statistical average being optimistically compressed against a persistent multi-round history. The Expected Effect explicitly disclaims any reduction in enforced checks ('zero reduction in the number of deterministic checks, gates, or hash bindings enforced'). No evidence of an implausibly optimistic target."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Category: plugin-improvement. Problem Evidence, Root Cause Hypothesis, and the single Proposed Change row are detailed enough to produce a non-vague 2-3 sentence generic summary (cross-plugin handoff friction between the task decomposition review gate's role definitions, the persisted-state validator, and the implementation phase over post-implementation evidence and artifact freezing). Proposed Change table is complete (Target File + full Change Description). Expected Effect states a quantitative target (validator exit code 1 -> 0). No empty or vague issue-body risk identified."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "Meta-Change: false is declared explicitly (not absent), with the WFI's own annotation confirming accuracy: 'No grader, threshold, retrospective, or run-record definition changes. The persisted-state validator script itself is NOT modified.' Verified against the Proposed Change: the only Target File is AGENTS.md; check-workflow-state.sh (the grader/validator script) is read and run for verification but never edited by this WFI's Proposed Change. The false declaration is honest, not a mislabeling of a graders/thresholds change. Per check definition: 'Meta-Change is not set; the strict lane does not apply' branch is the operative outcome (field is present and correctly false)."
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Rollback-Plan",
+      "change": "Add one sentence disclosing the residual feasibility dependency identified under FEASIBILITY-WITHOUT-PLUGINS: 'Because task-reviewer-a.md's own INITIAL-STATE check text is unchanged by this WFI, the re-review's success also depends on the orchestrator correctly invoking the reviewer per the new AGENTS.md lifecycle-validity rule at runtime; if the reviewer agent instead applies its literal role-file INITIAL-STATE text, the re-review will return NEEDS_WORK and the linked plugin-maintainer GitHub Issue becomes a hard blocker rather than a parallel-track improvement.'",
+      "rationale": "Makes explicit, for the human approver, that exit-0 success is plausible but not certain absent the plugin-side role-file fix -- supporting an informed approval decision without weakening any finding (this is a Minor advisory tied to FEASIBILITY-WITHOUT-PLUGINS's residual-risk disclosure, not a required blocking change since the check already resulted in PASS)."
+    }
+  ]
+}

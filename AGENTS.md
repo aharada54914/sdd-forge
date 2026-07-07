@@ -39,6 +39,43 @@ open; once the fix lands, the automated precheck path is again mandatory.
 - `traceability.md`: requirements, design, contracts, code, tests, and final status
 - `docs/review-tickets/*.yml`: unresolved quality findings
 
+### Post-review artifact freeze
+
+Once a review gate passes, its hash-bound artifacts (the design document
+after the design review gate; the task plan body and traceability document
+after the task decomposition review gate) are content-frozen except for the
+normalized status/approval fields. Sanctioned later updates — open-question
+resolutions, verification-status finalization — are recorded in non-frozen
+addenda (implementation reports, `specs/<feature>/verification/`, user
+documentation) instead of the frozen artifact, and task authors must scope
+Done When items accordingly. When an already-approved task's Done When names
+a frozen artifact, the Done When wording is amended to name the equivalent
+addendum record — a spec change requiring explicit human authorization,
+recorded in the task plan and re-bound by a post-implementation provenance
+re-review (human decision of 2026-07-05 for the blocked feature: wording
+amendment, not deemed satisfaction). (WFI-004)
+
+### Post-implementation provenance re-review
+
+When task-stage review evidence must be re-bound after the implementation
+phase (evidence-schema drift, incomplete reviewer input manifests), the task
+decomposition review gate runs a new attempt in which both reviewers receive
+the complete input set including all four layer specification files, emit
+the persisted-state validator's canonical task output schema (reviewer A:
+top-level `feature`/`attempt`/`round`, `stage: "task-review"`,
+`role: "reviewer-a"`, `manifest` array of path+sha256 pairs,
+`checks[].status`, and a `findings` array with one severity-bearing entry
+per FAIL; reviewer B: top-level `feature`/`attempt`/`round`,
+`manifest.allowed_inputs`, `checks[].result`, and the same `findings`
+array), and evaluate task state by lifecycle validity — an approved approval
+field bearing a valid human or workflow-bypass-mode audit mark and statuses
+{Planned, In Progress, Blocked, Implementation Complete, Done} are valid —
+instead of the pre-implementation initial-state rule. The mismatch between
+the review gate plugin's shipped role definitions and the validator's
+canonical schema is tracked in
+https://github.com/aharada54914/sdd-forge/issues/86; this rule does not
+authorize plugin-internal changes. (WFI-004)
+
 ## Active Spec Directories
 
 Update this list whenever a new spec directory is bootstrapped:
@@ -48,6 +85,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/workflow-state-integrity/`
 - `specs/bootstrap-interviewer-enhancement/`
 - `specs/agent-cost-context-isolation/`
+- `specs/local-env-mcp/`
 
 ## Source Artifact Locations
 

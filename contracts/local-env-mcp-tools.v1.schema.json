@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sdd-forge.dev/contracts/local-env-mcp-tools.v1.schema.json",
+  "title": "local-env-mcp tool response envelope (v1)",
+  "description": "All local-env-mcp tool responses conform to this envelope. Error code enum is shared with sdd-forge-mcp-tools.v1 for client compatibility; local-env-mcp emits primarily invalid-input and cannot-determine.",
+  "oneOf": [
+    { "$ref": "#/$defs/okEnvelope" },
+    { "$ref": "#/$defs/errorEnvelope" }
+  ],
+  "$defs": {
+    "okEnvelope": {
+      "type": "object",
+      "required": ["ok", "data"],
+      "additionalProperties": false,
+      "properties": {
+        "ok": { "const": true },
+        "data": {
+          "oneOf": [
+            { "$ref": "#/$defs/osInfoData" },
+            { "$ref": "#/$defs/toolchainVersionsData" },
+            { "$ref": "#/$defs/cliAvailabilityData" }
+          ]
+        }
+      }
+    },
+    "errorEnvelope": {
+      "type": "object",
+      "required": ["ok", "error"],
+      "additionalProperties": false,
+      "properties": {
+        "ok": { "const": false },
+        "error": {
+          "type": "object",
+          "required": ["code", "message"],
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "enum": [
+                "cannot-parse",
+                "cannot-determine",
+                "not-found",
+                "path-denied",
+                "not-sdd-root",
+                "too-large",
+                "invalid-input"
+              ]
+            },
+            "message": { "type": "string", "minLength": 1 },
+            "details": {
+              "type": "object",
+              "properties": {
+                "rule": { "type": "string" }
+              },
+              "additionalProperties": true
+            }
+          }
+        }
+      }
+    },
+    "cliName": {
+      "enum": [
+        "node",
+        "npm",
+        "pnpm",
+        "yarn",
+        "bun",
+        "deno",
+        "git",
+        "gh",
+        "python3",
+        "go",
+        "rustc",
+        "cargo",
+        "java",
+        "docker"
+      ]
+    },
+    "osInfoData": {
+      "type": "object",
+      "required": [
+        "kind",
+        "platform",
+        "arch",
+        "osType",
+        "osRelease",
+        "cpuCount",
+        "totalMemBytes",
+        "nodeRuntime"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "os-info" },
+        "platform": { "type": "string", "minLength": 1 },
+        "arch": { "type": "string", "minLength": 1 },
+        "osType": { "type": "string", "minLength": 1 },
+        "osRelease": { "type": "string", "minLength": 1 },
+        "cpuCount": { "type": "integer", "minimum": 1 },
+        "totalMemBytes": { "type": "integer", "minimum": 0 },
+        "nodeRuntime": { "type": "string", "minLength": 1 }
+      }
+    },
+    "toolchainVersionsData": {
+      "type": "object",
+      "required": ["kind", "entries"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "toolchain-versions" },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "available"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "$ref": "#/$defs/cliName" },
+              "available": { "type": "boolean" },
+              "version": { "type": "string", "maxLength": 200 },
+              "probeError": {
+                "enum": ["not-found", "timeout", "output-too-large", "nonzero-exit", "spawn-error"]
+              }
+            }
+          }
+        }
+      }
+    },
+    "cliAvailabilityData": {
+      "type": "object",
+      "required": ["kind", "entries"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "const": "cli-availability" },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["name", "available"],
+            "additionalProperties": false,
+            "properties": {
+              "name": { "$ref": "#/$defs/cliName" },
+              "available": { "type": "boolean" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

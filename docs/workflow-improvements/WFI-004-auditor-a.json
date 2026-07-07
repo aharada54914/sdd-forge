@@ -1,0 +1,74 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-004",
+  "category": "plugin-improvement",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All citations verified against on-disk artifacts. The review ticket at docs/review-tickets/RT-20260705-001.yml confirms feature local-env-mcp, severity: major, requires_human_decision: true, and the five contradictions (items 1-5) matching the WFI's Problem Evidence narrative. The persisted-state validator script (check-workflow-state.sh) lines 354-372 confirm the task-stage schema check (stage/role expectations for reviewer-a and reviewer-b), and lines 386-397 confirm the manifest / checks[].status / findings array logic cited in the WFI. Lines 471-474 confirm 'implementation design hash is stale' diagnostics; lines 503-505 confirm 'task traceability hash is stale'; line 595 confirms the tasks.md-requires-Spec-and-Impl-Passed gate-order rule. The task-reviewer-a role definition file lines 125-130 (INITIAL-STATE) confirm verbatim: \"Approval: must not be Approved (only humans approve)\" and Status restricted to Planned/In Progress/Blocked for rounds after round 1 attempt 1; lines 222-256 confirm the shipped schema (stage \"task\", role \"task-reviewer-a\", allowed_input_manifest, checks[].result) exactly as quoted in the WFI. specs/local-env-mcp/tasks.md confirms T-005 (line 150, OQ-001/design.md update) and T-010 (line 308, traceability finalization) with Approval: Approved (sudo 2026-07-05T10:33:11Z) and Status: Implementation Complete on all ten tasks. Commit a059524 is a real commit reverting the sanctioned edits, matching the WFI citation exactly."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Root Cause Hypothesis names a specific structural mechanism rather than restating the symptom: 'The full-profile persisted-state validation path was authored against a canonical task-stage evidence schema and post-implementation invariants that had never been exercised end-to-end... The task decomposition review gate's reviewer role definitions were written against an earlier evidence schema and only cover pre-implementation review states, and the stage-provenance design assumes review-bound artifacts never change after their gate passes -- an assumption the specification generator's own open-question resolution pattern and the task decomposition review gate's own approved task scopes contradict.' This identifies three concrete, independently falsifiable causal claims (untested code path, stale role-schema authoring, contradicted freeze assumption), not a circular restatement of 'the validator fails.'"
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Category field is present and valid: 'Category: plugin-improvement'. Scanned Root Cause Hypothesis and Expected Effect for forbidden terms from the category guide Section 2: no occurrences found. Both sections consistently use generic terms ('task decomposition review gate', 'specification generator', 'implementation phase', 'design review gate', 'validator', 'stage-provenance'). Problem Evidence citations of plugin-specific file paths and agent-role names are permitted direct evidence citations per the guide and are not flagged. Note: the Proposed Change Target File column names plugin-internal agent files directly; this is assessed under CHANGE-CONCRETE and NO-PLUGIN-SCOPE-CREEP rather than this check, since Target File paths are not part of the forbidden-term prose scan."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two of three Proposed Change rows name a Target File inside the plugins directory, which is a Major finding regardless of description quality per the explicit rule. Row 1 targets the task-reviewer-a role file (under plugins/sdd-review-loop/agents/) with description 'Align the documented output schema with the persisted-state validator's canonical task schema...'. Row 2 targets the task-reviewer-b role file (same directory) with description 'Align the documented output schema with the validator...'. The third row (AGENTS.md) is concrete and specific (names the exact rule to add under 'Sources Of Truth') and would pass in isolation."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The Expected Effect section contains no named metric paired with a quantitative target; it is entirely qualitative prose describing the validator becoming 'satisfiable' and converting 'a permanently failing validator run into a passing one'. No numbers (baseline/target values) appear in this section -- the exit-code numbers (1 to 0) only appear later in the separate Verification Metric section. Per the check, qualitative improvement language without a metric name and number in Expected Effect itself is a Major finding."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Exactly one primary metric named: persisted-state validator exit code for the blocked feature (local-env-mcp). Baseline given: 1 (fails with 'task reviewer manifests omit layer inputs'). Target given: 0. Checkpoint given: immediately after the post-implementation provenance re-review (task decomposition review gate attempt 2) completes. All four required elements present."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The Verification Plan names the specific script to re-run, the specific baseline/target exit codes (1 to 0), the specific feature (local-env-mcp) and attempt (task decomposition review gate attempt 2), and a secondary concrete check (quality verification gate for one task completing its scripted-gate step). This is not a generic 'we will check if things improved' plan."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two Target File entries in Proposed Change are inside the plugins directory: the task-reviewer-a role file (description: 'Align the documented output schema with the persisted-state validator's canonical task schema...') and the task-reviewer-b role file (description: 'Align the documented output schema with the validator...'), both under plugins/sdd-review-loop/agents/. Per the rule, every Target File in Proposed Change must be a project-side workflow file (AGENTS.md, CLAUDE.md, project-root workflow docs, specs/ templates); plugin agent-definition files are out of scope for WFI-driven changes."
+    }
+  ],
+  "findings_counts": {
+    "critical": 0,
+    "major": 3,
+    "minor": 0
+  },
+  "proposed_revisions": [
+    {
+      "section": "## Proposed Change",
+      "change": "Remove the two rows targeting the task-reviewer-a and task-reviewer-b role files from the Proposed Change table (these are plugin-internal agent definitions, out of scope for a WFI). If the schema/INITIAL-STATE misalignment must be fixed, route it through a separate plugin-maintainer change process (e.g., a GitHub Issue against the review-gate plugin) rather than this WFI's Proposed Change table. Retain only the AGENTS.md row, and consider whether the AGENTS.md 'Post-review artifact freeze' rule alone is sufficient to resolve the freeze-vs-sanctioned-edit contradiction, or whether the schema/role-definition fix needs to be tracked (not authored) by this WFI as a linked, separately-owned follow-up.",
+      "rationale": "Resolves both CHANGE-CONCRETE and NO-PLUGIN-SCOPE-CREEP Major findings: plugin agent files are out of scope for WFI-authored changes regardless of how concrete or well-specified the change description is."
+    },
+    {
+      "section": "## Expected Effect",
+      "change": "Add a quantitative statement naming the metric and its baseline/target numbers directly in this section, e.g.: 'Reduce the persisted-state validator exit code for local-env-mcp from 1 (failing with the layer-manifest diagnostic) to 0, without any decrease in the number of deterministic checks, gates, or hash bindings enforced.' Keep the existing qualitative explanation as supporting narrative after the quantitative statement.",
+      "rationale": "Resolves the EFFECT-MEASURABLE Major finding by giving Expected Effect its own explicit metric name and quantitative target, rather than deferring all numbers to the separate Verification Metric section."
+    }
+  ]
+}

@@ -2,6 +2,45 @@
 
 ## Unreleased
 
+## v1.9.0 (2026-07-06)
+
+### local-env-mcp — ローカル環境情報 MCP サーバー(新規)
+
+- 読み取り専用の環境情報 MCP サーバー `mcp/local-env-mcp` を新設
+  (`get_os_info` / `get_toolchain_versions` / `list_available_clis` の3ツール)。
+  実行機能なしの設計: execFile 限定(shell なし)・コンパイル時固定 14 CLI
+  allowlist・2秒タイムアウト・8KiB 出力上限・並列上限4・TTL 60秒キャッシュ・
+  秘匿情報 redaction(canary 検査で非漏えいを実証)。契約は
+  `contracts/local-env-mcp-tools.v1.schema.json`。esbuild 単一バンドルを
+  dist コミットし、CI に 3 OS マトリクス + dist-parity ジョブを追加。
+- installer 統合: `install.sh` / `install.ps1` が local-env-mcp を
+  デフォルト同梱(`--mcp <list>` 選択・`--skip-mcp`・Node >= 20 ゲート)。
+  Cursor(`~/.cursor/mcp.json` の `mcpServers`)/ VS Code(ユーザー
+  プロファイル `mcp.json` の `servers`、OS 別パス)への自動登録
+  (idempotent upsert・破損 JSON フェイルセーフ・`SDD_CURSOR_DIR` /
+  `SDD_VSCODE_USER_DIR` オーバーライド)。`uninstall.sh` / `uninstall.ps1`
+  は installer 管理エントリのみ削除し、ユーザーエントリを保全。
+- ドキュメント: README / USERGUIDE に概要・3ツール・セキュリティ境界
+  (実行機能なし)・Cursor / VS Code の自動/手動登録手順を追加。
+- 全 10 タスクが full プロファイルの品質ゲート(独立 evaluator +
+  evidence bundle)を PASS。TDD red/green 証跡・identity ledger 連鎖・
+  requirement traceability(12 links)を完備。
+
+### ワークフロー機構の修正と自己改善(WFI)
+
+- AGENTS.md に「Post-review artifact freeze」「Post-implementation
+  provenance re-review」の2規則を追加(WFI-004、人間承認済み)。実装後の
+  full プロファイル `check-workflow-state` が恒常的に green 化
+  (exit 1 → 0)。レビューゲートのプラグイン側ロール定義との不一致は
+  https://github.com/aharada54914/sdd-forge/issues/86 で追跡。
+- sdd-quality-loop / sdd-review-loop のゲート修正(issue #62 / #71 対応):
+  保護対象ゲートファイルを標的とする書込のみ拒否、impl-review manifest の
+  bounded superset 許容、任意チェックアウトからの spec 契約受理、weekly
+  self-improvement の fail-fast 化(#74)。
+- WFI-001(高リスクタスク preflight)・WFI-002(手動 precheck 逸脱記録)・
+  WFI-003(レポート識別フィールド)・WFI-004 の4件が retrospective で
+  Verified となり、retention-checklist に再発検知条件を登録。
+
 ## v1.8.0 (2026-07-03)
 
 ### デザイン駆動高速イテレーションレーン

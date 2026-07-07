@@ -1,0 +1,21 @@
+{
+ "schema": "evaluator-verdict/v1",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "local-env-mcp",
+ "task_id": "T-003",
+ "run_id": "qg-eval-localenvmcp-t003-20260706-8d41",
+ "host_session_id": "hs-qg-e3-6503d1ba-0014",
+ "invocation_manifest": "specs/local-env-mcp/verification/qg/T-003/invocation-evaluator.json",
+ "verdict": "PASS",
+ "summary": "Evaluator verified all 27 manifest hashes, drove the real compiled server under a canary env over stdio JSON-RPC (canary/username/hostname/homedir/full-PATH all absent from stdout+stderr while the server genuinely responded), proved the canary assertions non-vacuous, line-level reviewed diagnostics.ts (logStartup constants-only; logFatal {event,code,scrubbed message}; process.env read only to build the redaction set, never serialized), re-ran typecheck (exit 0) and the full suite (50/50), and confirmed genuine red->green (TS2307 on absent module -> 48/48). Verdict PASS with one Minor.",
+ "findings": [
+  {
+   "severity": "Minor",
+   "classification": "Deferred",
+   "description": "The fatal-message scrubber is verbatim-substring only (env values > 3 chars, homedir/username/hostname) and cannot catch transformed/encoded secrets; stack/cause dropped rather than scrubbed. Honestly documented; the fixed field allowlist is the primary control, scrubber is defense-in-depth.",
+   "location": "mcp/local-env-mcp/src/diagnostics.ts:95-103"
+  }
+ ],
+ "note": "Full evaluator output (including the checked-verifications list) is preserved in the orchestrating session transcript."
+}

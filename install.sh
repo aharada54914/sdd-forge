@@ -15,15 +15,15 @@ SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
 SKIP_MCP=0
-MCP_LIST="sdd-forge-mcp"
+MCP_LIST="sdd-forge-mcp,local-env-mcp"
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
-VALID_MCPS="sdd-forge-mcp"
-# Marker used to delimit the sdd-forge-mcp block inside ~/.codex/config.toml so
-# it can be idempotently added, replaced, or removed without touching any
-# other content a user has in that file.
-CODEX_MCP_MARKER_BEGIN="# >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>"
-CODEX_MCP_MARKER_END="# <<< sdd-forge-mcp <<<"
+VALID_MCPS="sdd-forge-mcp local-env-mcp"
+# The ~/.codex/config.toml block for each selected MCP is delimited by a
+# per-MCP marker pair built inside register_codex_mcp (using the MCP name), so
+# a block can be idempotently added, replaced, or removed without touching any
+# other content a user has in that file. No single-MCP marker constant is
+# defined here because the installer ships more than one MCP.
 
 # ---------------------------------------------------------------------------
 # Argument parsing
@@ -43,10 +43,14 @@ Usage: install.sh [options]
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
   --skip-mcp                     Skip placing and registering all MCP servers
-  --mcp <comma-separated>        Names from: sdd-forge-mcp
-                                 Default: sdd-forge-mcp
+  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp
+                                 Default: sdd-forge-mcp,local-env-mcp
 
-Environment: SDD_CODEX_HOME     Override ~/.codex destination for agent TOML files and config.toml
+Environment:
+  SDD_CODEX_HOME        Override ~/.codex destination for agent TOML files and config.toml
+  SDD_CURSOR_DIR        Override the ~/.cursor directory used for Cursor MCP registration
+  SDD_VSCODE_USER_DIR   Override the VS Code user-profile directory used for MCP registration
+
   Remote installs require a GitHub CLI-authenticated session (`gh auth login`).
 EOF
     exit 1
@@ -283,7 +287,7 @@ install_codex_agents() {
 }
 
 # ---------------------------------------------------------------------------
-# MCP: Node version check, placement, and Claude/Codex registration
+# MCP: Node version check, placement, and Claude/Codex/Cursor/VS Code registration
 # ---------------------------------------------------------------------------
 mcp_selected() {
     # Returns 0 if the given MCP name is in MCP_SELECTION.
@@ -391,6 +395,104 @@ register_codex_mcp() {
     done
 }
 
+upsert_mcp_json() {
+    # Shared idempotent JSON upsert for IDE client MCP configs (ADR-0005).
+    # Args: <client_label> <config_file> <top_key> <entry_kind> <install_root_path>
+    # Upserts <top_key>.<name> for every selected MCP whose payload was
+    # placed, preserving all other entries and unknown top-level keys. The
+    # output is stable 2-space JSON, so re-running produces a byte-identical
+    # file. Fail-safes (security-spec B3): a present-but-invalid JSON file is
+    # never overwritten (error notice, installer continues with other
+    # clients). Node >= 20 is guaranteed here by the MCP gate (MCP_NODE_OK).
+    local client_label="$1"
+    local config_file="$2"
+    local top_key="$3"
+    local entry_kind="$4"
+    local install_root_path="$5"
+    local name entry_point
+    local pairs=()
+    for name in "${MCP_SELECTION[@]}"; do
+        entry_point="${install_root_path}/mcp/${name}/dist/index.js"
+        [[ -f "$entry_point" ]] || continue
+        pairs+=("$name" "$entry_point")
+    done
+    # Guard the expansion: bash 3.2 treats a zero-element array as unset
+    # under set -u.
+    [[ ${#pairs[@]} -eq 0 ]] && return 0
+    local rc=0
+    node -e '
+const fs = require("fs");
+const [file, topKey, kind, ...pairs] = process.argv.slice(1);
+let text = "";
+try { text = fs.readFileSync(file, "utf8"); } catch (err) { text = ""; }
+let root = {};
+if (text.trim() !== "") {
+  try { root = JSON.parse(text); } catch (err) { process.exit(3); }
+  if (root === null || typeof root !== "object" || Array.isArray(root)) process.exit(3);
+}
+if (root[topKey] === undefined) root[topKey] = {};
+const section = root[topKey];
+if (section === null || typeof section !== "object" || Array.isArray(section)) process.exit(3);
+for (let i = 0; i + 1 < pairs.length; i += 2) {
+  section[pairs[i]] = kind === "vscode"
+    ? { type: "stdio", command: "node", args: [pairs[i + 1]] }
+    : { command: "node", args: [pairs[i + 1]] };
+}
+const out = JSON.stringify(root, null, 2) + "\n";
+const tmp = file + ".sdd-forge.tmp";
+fs.writeFileSync(tmp, out);
+fs.renameSync(tmp, file);
+' "$config_file" "$top_key" "$entry_kind" "${pairs[@]}" || rc=$?
+    if [[ $rc -eq 3 ]]; then
+        echo "Error: ${config_file} contains invalid JSON. ${client_label} MCP registration was skipped and the file was left unmodified. Fix or remove the file and re-run the installer." >&2
+        return 0
+    fi
+    if [[ $rc -ne 0 ]]; then
+        echo "Warning: Failed to update ${config_file}. ${client_label} MCP registration was skipped." >&2
+        return 0
+    fi
+    return 0
+}
+
+register_cursor_mcp() {
+    # Idempotently upserts mcpServers.<name> into ~/.cursor/mcp.json for each
+    # selected MCP. An absent ~/.cursor directory means Cursor is not
+    # installed: skip with a notice and never create the directory (creating
+    # mcp.json inside an EXISTING directory is fine). Override the directory
+    # via SDD_CURSOR_DIR (for testing; default is the user profile).
+    local install_root_path="$1"
+    local cursor_dir="${SDD_CURSOR_DIR:-$HOME/.cursor}"
+    if [[ ! -d "$cursor_dir" ]]; then
+        echo "Warning: ${cursor_dir} was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory)." >&2
+        return 0
+    fi
+    upsert_mcp_json "Cursor" "${cursor_dir}/mcp.json" "mcpServers" "cursor" "$install_root_path"
+}
+
+register_vscode_mcp() {
+    # Idempotently upserts servers.<name> into the VS Code user-profile
+    # mcp.json for each selected MCP (macOS:
+    # ~/Library/Application Support/Code/User, Linux: ~/.config/Code/User;
+    # Windows %APPDATA%\Code\User is handled by install.ps1). An absent user
+    # directory means VS Code is not installed: skip with a notice and never
+    # create the directory. Override via SDD_VSCODE_USER_DIR (for testing).
+    local install_root_path="$1"
+    local vscode_user_dir
+    if [[ -n "${SDD_VSCODE_USER_DIR:-}" ]]; then
+        vscode_user_dir="$SDD_VSCODE_USER_DIR"
+    else
+        case "$(uname -s)" in
+            Darwin) vscode_user_dir="$HOME/Library/Application Support/Code/User" ;;
+            *)      vscode_user_dir="$HOME/.config/Code/User" ;;
+        esac
+    fi
+    if [[ ! -d "$vscode_user_dir" ]]; then
+        echo "Warning: ${vscode_user_dir} was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory)." >&2
+        return 0
+    fi
+    upsert_mcp_json "VS Code" "${vscode_user_dir}/mcp.json" "servers" "vscode" "$install_root_path"
+}
+
 MCP_NODE_OK=0
 
 place_mcp_servers_if_selected() {
@@ -420,6 +522,15 @@ install_mcp_servers() {
     fi
     if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
         register_codex_mcp "$install_root_path" || return 1
+    fi
+    # Cursor has no dedicated --target value, so it participates in All only.
+    if [[ "$TARGET" == "All" ]]; then
+        register_cursor_mcp "$install_root_path" || return 1
+    fi
+    # VS Code consumes the MCP config through Copilot, so it participates in
+    # both All and Copilot.
+    if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
+        register_vscode_mcp "$install_root_path" || return 1
     fi
 }
 

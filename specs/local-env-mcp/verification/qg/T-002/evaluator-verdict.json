@@ -1,0 +1,27 @@
+{
+ "schema": "evaluator-verdict/v1",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "local-env-mcp",
+ "task_id": "T-002",
+ "run_id": "qg-eval-localenvmcp-t002-20260706-2b8c",
+ "host_session_id": "hs-qg-e2-6503d1ba-0013",
+ "invocation_manifest": "specs/local-env-mcp/verification/qg/T-002/invocation-evaluator.json",
+ "verdict": "PASS",
+ "summary": "Evaluator verified all 29 manifest hashes, line-level reviewed env.ts/server.ts/index.ts (strict names-only zod schema, exactly 3 tools, no exec/spawn/eval/fs-write surface), independently re-ran the 19 T-002 tests (19/19) and typecheck (exit 0), validated against the real repo contract (8-field osInfoData, 14-name cliName enum), and confirmed genuine red->green (compile-fail exit 2 -> 38 pass). Verdict PASS with two Minor, non-blocking observations.",
+ "findings": [
+  {
+   "severity": "Minor",
+   "classification": "Accepted",
+   "description": "Verification-hygiene drift: the gate-time tests.log (50 tests incl. T-003/T-004 surfaces) and manifest index.ts (imports T-003 diagnostics.js) show the gate ran over the fully-built feature tree, not a T-002-isolated state; git history confirms the T-002-only index.ts blob and that the later diff only swapped stderr logging. Evidence contamination, not faked completion.",
+   "location": "specs/local-env-mcp/verification/qg/T-002/tests.log:61"
+  },
+  {
+   "severity": "Minor",
+   "classification": "Accepted",
+   "description": "AC-002 missing-CLI test hedges (pathOverride prepends rather than isolates PATH), asserting the weaker invariant instead of a pinned available:false.",
+   "location": "mcp/local-env-mcp/tests/tools/toolchain.test.ts:86"
+  }
+ ],
+ "note": "Full evaluator output (including the checked-verifications list) is preserved in the orchestrating session transcript."
+}

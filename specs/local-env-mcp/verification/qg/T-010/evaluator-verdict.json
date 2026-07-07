@@ -1,0 +1,15 @@
+{
+ "schema": "evaluator-verdict/v1",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "local-env-mcp",
+ "task_id": "T-010",
+ "run_id": "qg-eval-localenvmcp-t010c2-20260706-c95b",
+ "host_session_id": "hs-qg-e11-6503d1ba-0022",
+ "invocation_manifest": "specs/local-env-mcp/verification/qg/T-010/invocation-evaluator-cycle2.json",
+ "verdict": "PASS",
+ "summary": "Cycle 1 (run qg-eval-localenvmcp-t010-20260706-a4e8, seq 53) verified AC-014 fully satisfied (README/USERGUIDE carry all four items, cross-checked line-level against design.md and security-spec.md, no overstatement) but returned NEEDS_WORK: one Major (the human-amended Done When item 2 requires the Verification Status finalization table as an addendum INSIDE the T-010 report; it was absent - the report only narrated adding it to the frozen traceability.md) and one Minor (stale traceability.md output-hash claim e43c978...). Fix applied by the orchestrator with disclosure: the table was recovered verbatim from commit 7a28241 (the freeze-rule-reverted appendix) and appended as a Traceability Finalization Addendum with a correction note. Cycle 2 (seq 54) verified: the 15-row addendum matches the frozen traceability.md AC->TEST->Task table exactly and traceability.json (12 links); all referenced evidence files exist; the disclosure honestly records the stale claim; traceability.md unchanged at frozen bytes 15921dfb; AC-014 content unchanged. Cycle-2 verdict PASS with zero remaining findings.",
+ "findings": [],
+ "note": "Full evaluator output (including the checked-verifications list) is preserved in the orchestrating session transcript.",
+ "cycles": "2 (cycle 1 NEEDS_WORK: Major addendum-missing -> fixed with disclosure; cycle 2 PASS)"
+}

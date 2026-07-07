@@ -1,0 +1,21 @@
+{
+ "schema": "evaluator-verdict/v1",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "local-env-mcp",
+ "task_id": "T-006",
+ "run_id": "qg-eval-localenvmcp-t006-20260706-1cf2",
+ "host_session_id": "hs-qg-e6-6503d1ba-0017",
+ "invocation_manifest": "specs/local-env-mcp/verification/qg/T-006/invocation-evaluator.json",
+ "verdict": "PASS",
+ "summary": "Evaluator verified all 24 manifest hashes, re-ran the full installer suite (35/0) and bash -n, confirmed genuine red->green (29/6 with failures confined to the new local-env-mcp scenarios -> 31/0), line-level reviewed the MCP path (VALID_MCPS/MCP_LIST, --mcp enum validation, MCP_NODE_OK Node<20 gate with robust version parsing; placement/registration gated by SKIP_MCP/selection/NODE_OK; destination paths only from validated enum names), and confirmed via git history that Cursor/VS Code registration is T-007 scope, not T-006 creep. Verdict PASS with one Minor.",
+ "findings": [
+  {
+   "severity": "Minor",
+   "classification": "Accepted",
+   "description": "Report's 'Output Paths And Hashes' section lists a stale install.sh SHA-256 (0ea7a63...) predating the gate-time Outputs table hash (a782bcf...) which matches the manifest-bound current file. Cosmetic inconsistency only.",
+   "location": "reports/implementation/local-env-mcp/T-006.md:104"
+  }
+ ],
+ "note": "Full evaluator output (including the checked-verifications list) is preserved in the orchestrating session transcript."
+}
