@@ -227,6 +227,103 @@ printf '{bad json\n' \
   > "$malformed_contract/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
 expect_rule "$malformed_contract" stage-provenance
 
+# Issue #71: an impl-review reviewer's allowed_input_manifest may legitimately
+# be a superset of the round contract's recorded manifest when the round
+# reviewed the four layer specs (ux/frontend/infra/security) but the contract
+# predates recording them. That superset must be accepted as long as every
+# extra entry is exactly one of the four layer-spec paths for this feature.
+layer_superset="$(make_full_fixture layer-superset)"
+for layer in ux-spec frontend-spec infra-spec security-spec; do
+  printf '# %s\n' "$layer" > "$layer_superset/specs/workflow-state-integrity/$layer.md"
+done
+for reviewer in a b; do
+  reviewer_file="$layer_superset/reports/impl-review/workflow-state-integrity/attempt-1/round-2/reviewer-$reviewer.json"
+  jq '
+    .allowed_input_manifest += [
+      {"path": "specs/workflow-state-integrity/ux-spec.md"},
+      {"path": "specs/workflow-state-integrity/frontend-spec.md"},
+      {"path": "specs/workflow-state-integrity/infra-spec.md"},
+      {"path": "specs/workflow-state-integrity/security-spec.md"}
+    ]' "$reviewer_file" > "$layer_superset/reviewer.tmp"
+  mv "$layer_superset/reviewer.tmp" "$reviewer_file"
+done
+for layer in ux-spec frontend-spec infra-spec security-spec; do
+  layer_path="$layer_superset/specs/workflow-state-integrity/$layer.md"
+  layer_hash="$(shasum -a 256 "$layer_path" | awk '{print $1}')"
+  layer_relative="specs/workflow-state-integrity/$layer.md"
+  for reviewer in a b; do
+    reviewer_file="$layer_superset/reports/impl-review/workflow-state-integrity/attempt-1/round-2/reviewer-$reviewer.json"
+    jq --arg path "$layer_relative" --arg hash "$layer_hash" '
+      (.allowed_input_manifest[] | select(.path == $path) | .sha256) = $hash
+    ' "$reviewer_file" > "$layer_superset/reviewer.tmp"
+    mv "$layer_superset/reviewer.tmp" "$reviewer_file"
+  done
+done
+expect_valid "$layer_superset"
+
+# A reviewer manifest superset entry that is NOT one of the four layer specs
+# must still be rejected -- unrestricted supersets would weaken provenance.
+disallowed_superset="$(make_full_fixture disallowed-superset)"
+printf '# unrelated extra input\n' > "$disallowed_superset/specs/workflow-state-integrity/extra-notes.md"
+extra_path="$disallowed_superset/specs/workflow-state-integrity/extra-notes.md"
+extra_hash="$(shasum -a 256 "$extra_path" | awk '{print $1}')"
+reviewer_a_file="$disallowed_superset/reports/impl-review/workflow-state-integrity/attempt-1/round-2/reviewer-a.json"
+jq --arg path "specs/workflow-state-integrity/extra-notes.md" --arg hash "$extra_hash" '
+  .allowed_input_manifest += [{"path": $path, "sha256": $hash}]' \
+  "$reviewer_a_file" > "$disallowed_superset/reviewer.tmp"
+mv "$disallowed_superset/reviewer.tmp" "$reviewer_a_file"
+expect_rule "$disallowed_superset" stage-provenance
+
+# A contract entry missing from the reviewer's own recorded manifest must
+# still fail -- the reviewer manifest must always be a superset of (i.e.
+# cover) everything the contract claims it reviewed.
+reviewer_manifest_shortfall="$(make_full_fixture reviewer-manifest-shortfall)"
+reviewer_a_file="$reviewer_manifest_shortfall/reports/impl-review/workflow-state-integrity/attempt-1/round-2/reviewer-a.json"
+jq '(.allowed_input_manifest) |=
+      map(select((.path | endswith("specs/workflow-state-integrity/design.md")) | not))' \
+  "$reviewer_a_file" > "$reviewer_manifest_shortfall/reviewer.tmp"
+mv "$reviewer_manifest_shortfall/reviewer.tmp" "$reviewer_a_file"
+expect_rule "$reviewer_manifest_shortfall" stage-provenance
+
+# Reference-doc hash drift: plugins/ reference docs (risk-gate-matrix.md,
+# reviewer-calibration.md, etc.) are living documents that evolve as the
+# quality loop matures. The workflow-state-integrity task-review evidence
+# recorded plugins/sdd-quality-loop/references/risk-gate-matrix.md's sha256
+# from before commit cfe1d8d (unified-design-system) added a new row to that
+# matrix. The live file's current hash therefore no longer matches the
+# historical manifest. The checker must still PASS by resolving the file's
+# content as of the commit that produced this evidence (git show <pin>:path)
+# and confirming that historical content matches the recorded hash -- a
+# reference doc's later, legitimate evolution must not retroactively fail a
+# past feature's provenance. This exercises the same drift as the "valid"
+# fixture above, but makes the regression explicit and self-documenting.
+reference_doc_evolved="$(make_full_fixture reference-doc-evolved)"
+evolved_matrix="$reference_doc_evolved/plugins/sdd-quality-loop/references/risk-gate-matrix.md"
+recorded_matrix_hash="$(jq -r '
+  .reviewers[]?.allowed_input_manifest[]? |
+  select(.path | endswith("risk-gate-matrix.md")) | .sha256
+' "$reference_doc_evolved/reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json" | head -1)"
+current_matrix_hash="$(shasum -a 256 "$evolved_matrix" | awk '{print $1}')"
+[[ -n "$recorded_matrix_hash" && "$recorded_matrix_hash" != "$current_matrix_hash" ]] ||
+  fail "reference-doc-evolved fixture precondition not met: risk-gate-matrix.md is not actually drifted"
+expect_valid "$reference_doc_evolved"
+
+# A plugins/ manifest hash that matches neither the live file nor any
+# legitimate point-in-time content (i.e. a forged/tampered hash) must still
+# fail -- the pinned-commit fallback must not become a blanket bypass.
+reference_doc_forged="$(make_full_fixture reference-doc-forged)"
+forged_task_contract="$reference_doc_forged/reports/task-review/workflow-state-integrity/attempt-4/round-2/task-review-contract.json"
+jq '(.reviewers[].allowed_input_manifest[] |
+      select(.path | endswith("risk-gate-matrix.md")) | .sha256) = ("f" * 64)' \
+  "$forged_task_contract" > "$reference_doc_forged/contract.tmp"
+mv "$reference_doc_forged/contract.tmp" "$forged_task_contract"
+forged_reviewer_b="$reference_doc_forged/reports/task-review/workflow-state-integrity/attempt-4/round-2/reviewer-b.json"
+jq '(.manifest.allowed_inputs[]? |
+      select(.path | endswith("risk-gate-matrix.md")) | .sha256) = ("f" * 64)' \
+  "$forged_reviewer_b" > "$reference_doc_forged/reviewer.tmp"
+mv "$reference_doc_forged/reviewer.tmp" "$forged_reviewer_b"
+expect_rule "$reference_doc_forged" stage-provenance
+
 wrong_stage="$(make_full_fixture wrong-stage)"
 jq '.stage = "task"' \
   "$wrong_stage/reports/impl-review/workflow-state-integrity/attempt-1/round-2/integrated-verdict.json" \

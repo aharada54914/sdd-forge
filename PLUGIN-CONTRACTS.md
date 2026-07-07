@@ -110,7 +110,7 @@ Templates for all three artifacts live in
 
 ---
 
-## sdd-domain domain model → consumers (v1.8.0+)
+## sdd-domain domain model → consumers (v1.9.0+)
 
 **Producer**: `plugins/sdd-domain` (domain-interviewer, domain-reverse, domain-review-loop, routed from the public `domain-model` entry skill)
 **Consumers**: `plugins/sdd-bootstrap` (sdd-bootstrap-interviewer, via domain-sync), `plugins/sdd-review-loop` (spec-reviewer-a/b, impl-reviewer-a/b), `plugins/sdd-quality-loop` (quality-gate, check-domain-conformance, workflow-retrospective)

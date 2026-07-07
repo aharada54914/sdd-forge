@@ -1,0 +1,77 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "impl-a-sddforgemcp-a1r1-20260704-d4c6",
+  "host_session_id": "hs-impl-a-7ea701ba-0008",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-forge-mcp/requirements.md", "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"},
+    {"path": "specs/sdd-forge-mcp/acceptance-tests.md", "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"},
+    {"path": "specs/sdd-forge-mcp/design.md", "sha256": "6ba8af5c583df52ab4f8bbb59bb86e7d2c4e6d9d235c0655efffd499d9a2ab54"},
+    {"path": "specs/sdd-forge-mcp/ux-spec.md", "sha256": "bfaa5928e621cac80fe91f37909b2b8f9fee9b6aed8d0df308b758a89654f29e"},
+    {"path": "specs/sdd-forge-mcp/frontend-spec.md", "sha256": "c71f3e10fadea077f659fe498da265691ddd4bba0c680401a3d41c28850c4332"},
+    {"path": "specs/sdd-forge-mcp/infra-spec.md", "sha256": "bfab047bd9dbbd04fe6c3fb6f1b2fd5bf5f28e6753cc4c9eeb6a3114a97f597b"},
+    {"path": "specs/sdd-forge-mcp/security-spec.md", "sha256": "beee4dbc119cafcda106e3d46353038886b6947d8b83ce5571f85d7a8b7f418c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json", "sha256": "79c529ad65e03647d34f32530cb3f2dffe88f7b583f9166aac6b87d6bf1d09d8"}
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "api-only",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 16-48) gives a file-tree with component boundaries (server/index, root, path-guard, parsers, tools/core, tools/evidence, resources, next-command), states integration context ('sdd-forge リポジトリ初の Node/TypeScript コンポーネント', path-guard as single choke-point for all reads, parser cannot-parse contract), and names technology per layer (Node>=20/TypeScript for backend, esbuild for build, no frontend layer per Feature Type: api-only). The ## Layer Specifications table records UX/Frontend as 'N/A recorded' with rationale. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency list is present in ## Architecture or ## Components; checked architecture narrative for circular import patterns — flow is linear/one-directional (index -> server -> tools/resources -> parsers -> path-guard as single terminal choke point at line 45), no cycle indicated."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (lines 89-109) specifies Data Entities (8-row table, each with Source/Parser), Existing Data Affected ('なし（読み取りのみ）。'), and Migration Strategy ('不要（新規コンポーネント、既存データ形式の変更なし）。'). All three required sub-fields present and explicit. No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan (lines 111-147) defines the common response envelope, lists representative tool data shapes, references the canonical schema contracts/sdd-forge-mcp-tools.v1.schema.json for full coverage of all 13 tools + 5 resources (enumerated in requirements.md REQ-002/REQ-003/REQ-004), and states versioning policy (v1, breaking changes require v2 + ADR). No existing endpoints deprecated (net-new feature). No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 166-173) names both trust boundaries (B1: client->server stdio, B2: server->filesystem), states auth/authz at each (B1: same-OS-user local stdio + JSON Schema input validation; B2: path-guard realpath->allowlist->denylist fail-closed), addresses data classification (internal / internal-restricted for denylist), and OWASP concerns (Injection at B1, Broken Access Control + Path Traversal at B2), with full STRIDE/OWASP detail present in security-spec.md. No PII handled (read-only SDD metadata). No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is api-only (design.md line 4), confirmed consistent with ux-spec.md and frontend-spec.md both stating 'N/A — no change: ... UI なし'."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy (lines 149-164) covers unit scope (parsers正常系/cannot-parse系, path-guard traversal/symlink/denylist, next-command fixture), integration scope (MCP SDK InMemory/stdio harness, installer *.tests.sh/*.tests.ps1), acceptance verification (golden test TEST-001 vs check-task-state.sh for AC-001), concrete tooling (node:test, tsc --noEmit, esbuild, grep-based static readonly check TEST-011), and named artifact paths. TEST-005 (MCP Inspector CLI smoke) serves as the named end-to-end verification path for this api-only feature. No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in ## Architecture and ## API / Contract Plan (server/index, root, path-guard, parsers, tools/core, tools/evidence, resources, next-command, installer 拡張, CI 拡張) is defined with a row in the ## Components table (design.md lines 51-62). No undefined component references found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## ADR Change Log (lines 82-87) references ADR-0002 and ADR-0003. Verified both exist as files: docs/adr/0002-sdd-forge-mcp-readonly-server.md and docs/adr/0003-mcp-dist-bundle-distribution.md. Both cover the feature's architectural departures. No undocumented architectural decision found."
+    }
+  ]
+}

@@ -17,6 +17,10 @@ workflow-retrospective が毎回全行を走査し、条件に合致する証跡
 
 | Source WFI | Verified 日 | 再発検知条件 |
 |---|---|---|
+| WFI-001 | 2026-07-06 | 高リスクタスクの quality-gate で persisted-evidence / traceability 不整合起因の修正チケットまたは 2 サイクル目以降の evidence 修正が発生したら再発 |
+| WFI-002 | 2026-07-06 | manual-precheck-note.md(逸脱記録)なしで手動 precheck / 手動レビューゲート実行が行われた証跡が reports/ に現れたら再発 |
+| WFI-003 | 2026-07-06 | retrospective Metrics 表に Run ID / Task Attempt Count 欠落起因の N/A セルが発生したら再発 |
+| WFI-004 | 2026-07-06 | check-workflow-state が実装後状態の feature で stage-provenance 矛盾(frozen-artifact drift・reviewer schema 不一致・INITIAL-STATE 拒否)により exit 1 を返す review-ticket / gate BLOCKED が発生したら再発 |
 
 <!-- 記入例（WFI が Verified になったら追加する）:                                    -->
 <!-- | WFI-001 | 2026-07-15 | 高リスクタスクの quality-gate で evidence-consistency -->

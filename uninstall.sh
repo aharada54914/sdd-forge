@@ -16,8 +16,11 @@ PLUGINS="sdd-bootstrap,sdd-ship,sdd-implementation,sdd-quality-loop,sdd-lite,sdd
 KEEP_FILES=0
 SKIP_PLUGIN_UNINSTALL=0
 SKIP_AGENT_UNINSTALL=0
+MCP_LIST="sdd-forge-mcp,local-env-mcp"
+SKIP_MCP_UNINSTALL=0
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+VALID_MCPS="sdd-forge-mcp local-env-mcp"
 # Role files this project installs into ~/.codex/agents. Used as a fallback when
 # the install root (the manifest source) is no longer present.
 SHIPPED_AGENTS="sdd-investigator.toml sdd-evaluator.toml sdd-panelist-gpt.toml sdd-panelist-gemini.toml"
@@ -38,8 +41,14 @@ Usage: uninstall.sh [options]
   --keep-files                   Unregister from CLI tools but keep the installed files
   --skip-plugin-uninstall        Skip unregistering plugins/marketplace from CLI tools
   --skip-agent-uninstall         Skip removing Codex agent TOML files
+  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp
+                                 Default: sdd-forge-mcp,local-env-mcp
+  --skip-mcp-uninstall           Skip removing MCP payloads/registrations
 
-Environment: SDD_CODEX_HOME      Override ~/.codex location for agent TOML files
+Environment:
+  SDD_CODEX_HOME      Override ~/.codex location for agent TOML files and config.toml
+  SDD_CURSOR_DIR      Override the ~/.cursor directory used for Cursor MCP unregistration
+  SDD_VSCODE_USER_DIR Override the VS Code user-profile directory used for MCP unregistration
   Unregistration is best-effort: a plugin or marketplace that is already absent
   is treated as success so the uninstaller is idempotent. The marketplace is only
   removed during a full uninstall (every plugin selected) because removing it
@@ -57,6 +66,8 @@ while [[ $# -gt 0 ]]; do
         --keep-files)           KEEP_FILES=1; shift ;;
         --skip-plugin-uninstall) SKIP_PLUGIN_UNINSTALL=1; shift ;;
         --skip-agent-uninstall)  SKIP_AGENT_UNINSTALL=1; shift ;;
+        --mcp)                  [[ $# -gt 1 ]] || usage; MCP_LIST="$2"; shift 2 ;;
+        --skip-mcp-uninstall)    SKIP_MCP_UNINSTALL=1; shift ;;
         *) echo "Unknown option: $1" >&2; usage ;;
     esac
 done
@@ -76,6 +87,12 @@ case "$TARGET" in
 esac
 
 # Validate --plugins
+# bash 3.2 treats the zero-element array produced by `read -ra` on an empty
+# string as unset under `set -u`, so reject an empty list before the read.
+if [[ -z "$PLUGINS" ]]; then
+    echo "Invalid plugin name: (empty) (must be one of: $VALID_PLUGINS)" >&2
+    exit 1
+fi
 IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
 for p in "${PLUGIN_LIST[@]}"; do
     valid=0
@@ -87,6 +104,26 @@ for p in "${PLUGIN_LIST[@]}"; do
         exit 1
     fi
 done
+
+# Validate --mcp
+MCP_SELECTION=()
+if [[ $SKIP_MCP_UNINSTALL -eq 0 ]]; then
+    if [[ -z "$MCP_LIST" ]]; then
+        echo "Invalid MCP name: (empty) (must be one of: $VALID_MCPS)" >&2
+        exit 1
+    fi
+    IFS=',' read -ra MCP_SELECTION <<< "$MCP_LIST"
+    for m in "${MCP_SELECTION[@]}"; do
+        valid=0
+        for v in $VALID_MCPS; do
+            [[ "$m" == "$v" ]] && valid=1 && break
+        done
+        if [[ $valid -eq 0 ]]; then
+            echo "Invalid MCP name: $m (must be one of: $VALID_MCPS)" >&2
+            exit 1
+        fi
+    done
+fi
 
 # A full uninstall selects every known plugin. Only then is it safe to remove the
 # marketplace, since removing it also uninstalls any plugins still registered
@@ -213,6 +250,172 @@ uninstall_codex_agents() {
 }
 
 # ---------------------------------------------------------------------------
+# MCP: unregister from Claude/Codex and remove the placed payload
+# (mirror install.sh's placement/registration split; all best-effort)
+# ---------------------------------------------------------------------------
+unregister_claude_mcp() {
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    if ! command -v claude >/dev/null 2>&1; then
+        echo "Warning: Claude Code CLI was not found. Claude MCP unregistration was skipped." >&2
+        return 0
+    fi
+    local name
+    for name in "${MCP_SELECTION[@]}"; do
+        try_plugin_command claude mcp remove "$name"
+    done
+}
+
+unregister_codex_mcp() {
+    # Remove the marker-delimited block for each selected MCP from
+    # ~/.codex/config.toml. Best-effort: a missing config.toml or a missing
+    # block for a given MCP is not an error (nothing to remove).
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local config_toml="${codex_home}/config.toml"
+    [[ -f "$config_toml" ]] || return 0
+    local name tmp_config
+    for name in "${MCP_SELECTION[@]}"; do
+        local marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
+        local marker_end="# <<< ${name} <<<"
+        tmp_config="$(mktemp)"
+        awk -v begin="$marker_begin" -v end="$marker_end" '
+            $0 == begin { skip = 1; next }
+            $0 == end { skip = 0; next }
+            skip { next }
+            { print }
+        ' "$config_toml" > "$tmp_config"
+        mv "$tmp_config" "$config_toml"
+    done
+    return 0
+}
+
+remove_mcp_json_keys() {
+    # Shared idempotent JSON key removal for IDE client MCP configs (ADR-0005),
+    # the inverse of install.sh's upsert_mcp_json. Deletes ONLY <top_key>.<name>
+    # for every selected MCP, preserving all other entries and unknown top-level
+    # keys. The output is stable 2-space JSON (matching the installer's upsert
+    # output). Fail-safes (security-spec B3): a present-but-invalid JSON file is
+    # never overwritten (error notice, uninstaller continues with other
+    # clients); an absent file is a silent skip. Node absence is handled by the
+    # caller (a notice is printed once and IDE unregistration is skipped) so the
+    # uninstaller never hard-requires Node.
+    # Args: <client_label> <config_file> <top_key>
+    local client_label="$1"
+    local config_file="$2"
+    local top_key="$3"
+    # Absent file: nothing was ever registered here — silent skip.
+    [[ -f "$config_file" ]] || return 0
+    # Guard the expansion: bash 3.2 treats a zero-element array as unset under
+    # set -u. MCP_SELECTION is always non-empty here (validated at parse time),
+    # but keep the guard for defensiveness.
+    [[ ${#MCP_SELECTION[@]} -eq 0 ]] && return 0
+    local rc=0
+    node -e '
+const fs = require("fs");
+const [file, topKey, ...names] = process.argv.slice(1);
+let text = "";
+try { text = fs.readFileSync(file, "utf8"); } catch (err) { process.exit(0); }
+if (text.trim() === "") process.exit(0);
+let root;
+try { root = JSON.parse(text); } catch (err) { process.exit(3); }
+if (root === null || typeof root !== "object" || Array.isArray(root)) process.exit(3);
+const section = root[topKey];
+// Nothing managed here (no top key): leave the file untouched.
+if (section === undefined) process.exit(0);
+if (section === null || typeof section !== "object" || Array.isArray(section)) process.exit(3);
+for (const name of names) {
+  if (Object.prototype.hasOwnProperty.call(section, name)) delete section[name];
+}
+const out = JSON.stringify(root, null, 2) + "\n";
+const tmp = file + ".sdd-forge.tmp";
+fs.writeFileSync(tmp, out);
+fs.renameSync(tmp, file);
+' "$config_file" "$top_key" "${MCP_SELECTION[@]}" || rc=$?
+    if [[ $rc -eq 3 ]]; then
+        echo "Error: ${config_file} contains invalid JSON. ${client_label} MCP unregistration was skipped and the file was left unmodified. Fix or remove the file manually." >&2
+        return 0
+    fi
+    if [[ $rc -ne 0 ]]; then
+        echo "Warning: Failed to update ${config_file}. ${client_label} MCP unregistration was skipped." >&2
+        return 0
+    fi
+    return 0
+}
+
+# Tracks whether the "Node not found" notice has been printed so it appears at
+# most once across the Cursor and VS Code unregistration attempts.
+MCP_JSON_NODE_NOTICE_PRINTED=0
+
+mcp_json_node_available() {
+    # Returns 0 if `node` is on PATH; otherwise prints a one-time notice that IDE
+    # (Cursor / VS Code) registrations could not be removed and returns 1. The
+    # uninstaller must not hard-require Node: the payload/Claude/Codex removals
+    # still run without it.
+    if command -v node >/dev/null 2>&1; then
+        return 0
+    fi
+    if [[ $MCP_JSON_NODE_NOTICE_PRINTED -eq 0 ]]; then
+        echo "Warning: Node.js was not found in PATH. Cursor / VS Code MCP registrations could not be removed (edit ~/.cursor/mcp.json and the VS Code user mcp.json by hand to remove the sdd-forge-mcp / local-env-mcp keys). Other uninstall steps continue." >&2
+        MCP_JSON_NODE_NOTICE_PRINTED=1
+    fi
+    return 1
+}
+
+unregister_cursor_mcp() {
+    # Removes only mcpServers.<name> from ~/.cursor/mcp.json for each selected
+    # MCP. An absent ~/.cursor directory means Cursor is not installed: skip
+    # with a notice and never create anything. Override via SDD_CURSOR_DIR.
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    local cursor_dir="${SDD_CURSOR_DIR:-$HOME/.cursor}"
+    if [[ ! -d "$cursor_dir" ]]; then
+        echo "Warning: ${cursor_dir} was not found. Cursor MCP unregistration was skipped (Cursor does not appear to be installed)." >&2
+        return 0
+    fi
+    mcp_json_node_available || return 0
+    remove_mcp_json_keys "Cursor" "${cursor_dir}/mcp.json" "mcpServers"
+}
+
+unregister_vscode_mcp() {
+    # Removes only servers.<name> from the VS Code user-profile mcp.json for each
+    # selected MCP (macOS: ~/Library/Application Support/Code/User, Linux:
+    # ~/.config/Code/User; Windows %APPDATA%\Code\User is handled by
+    # uninstall.ps1). An absent user directory means VS Code is not installed:
+    # skip with a notice and never create anything. Override via
+    # SDD_VSCODE_USER_DIR.
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    local vscode_user_dir
+    if [[ -n "${SDD_VSCODE_USER_DIR:-}" ]]; then
+        vscode_user_dir="$SDD_VSCODE_USER_DIR"
+    else
+        case "$(uname -s)" in
+            Darwin) vscode_user_dir="$HOME/Library/Application Support/Code/User" ;;
+            *)      vscode_user_dir="$HOME/.config/Code/User" ;;
+        esac
+    fi
+    if [[ ! -d "$vscode_user_dir" ]]; then
+        echo "Warning: ${vscode_user_dir} was not found. VS Code MCP unregistration was skipped (VS Code does not appear to be installed)." >&2
+        return 0
+    fi
+    mcp_json_node_available || return 0
+    remove_mcp_json_keys "VS Code" "${vscode_user_dir}/mcp.json" "servers"
+}
+
+remove_mcp_payload() {
+    # Removes the placed MCP directories under INSTALL_ROOT/mcp/<name>/.
+    # Best-effort: absence is success (idempotent, mirrors --keep-files logic
+    # for the rest of the install root).
+    [[ $SKIP_MCP_UNINSTALL -ne 0 ]] && return 0
+    [[ $KEEP_FILES -ne 0 ]] && return 0
+    local name
+    for name in "${MCP_SELECTION[@]}"; do
+        if [[ -d "${INSTALL_ROOT}/mcp/${name}" ]]; then
+            rm -rf "${INSTALL_ROOT}/mcp/${name}"
+        fi
+    done
+    return 0
+}
+
+# ---------------------------------------------------------------------------
 # Resolve install root and safety checks (mirror install.sh)
 # ---------------------------------------------------------------------------
 _canon_install_root() {
@@ -270,17 +473,34 @@ if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
     if [[ $SKIP_AGENT_UNINSTALL -eq 0 ]]; then
         uninstall_codex_agents
     fi
+    unregister_codex_mcp
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
     uninstall_claude_plugins || exit 1
+    unregister_claude_mcp
 fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
     uninstall_copilot_plugins || exit 1
+fi
+# IDE-client MCP unregistration mirrors install.sh's registration scoping:
+# Cursor has no dedicated --target value, so it participates in All only; VS
+# Code consumes the MCP config through Copilot, so it participates in All and
+# Copilot.
+if [[ "$TARGET" == "All" ]]; then
+    unregister_cursor_mcp
+fi
+if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
+    unregister_vscode_mcp
 fi
 
 # ---------------------------------------------------------------------------
 # Remove installed files
 # ---------------------------------------------------------------------------
+# MCP payload removal mirrors --keep-files semantics for the rest of the
+# install root; when the whole root is removed below, this is redundant but
+# harmless (already-removed directories are treated as success).
+remove_mcp_payload
+
 if [[ $KEEP_FILES -eq 1 ]]; then
     echo "Kept installed files at: ${INSTALL_ROOT} (--keep-files)."
 elif [[ -d "$INSTALL_ROOT" ]]; then

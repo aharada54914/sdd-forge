@@ -286,6 +286,54 @@ parity_check_in "$WORK" "impl-review-status: write Passed with PASS-with-warning
     "$IMPL_STATUS_PAYLOAD"
 
 # ---------------------------------------------------------------------------
+# Scenario 23: R-10 read-only cp FROM guard file allowed (allow — exit 0)
+# Issue #62: the protected file is the cp SOURCE; the write target is /tmp.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: cp guard file to /tmp allowed" 0 \
+    '{"tool_name":"bash","tool_input":{"command":"cp plugins/sdd-quality-loop/scripts/sdd-hook-guard.py /tmp/guard-backup.py"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 24: R-10 unrelated mv + read of protected file allowed (allow — exit 0)
+# Issue #62: mv writes /tmp/b; the protected path is only read by grep.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: mv in /tmp + grep settings allowed" 0 \
+    '{"tool_name":"bash","tool_input":{"command":"mv /tmp/a /tmp/b && grep foo .claude/settings.json"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 25: R-10 unrelated redirect + cat of protected file allowed (allow — exit 0)
+# Issue #62: the > redirect targets /tmp/log, not the protected file.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: redirect to /tmp + cat settings allowed" 0 \
+    '{"tool_name":"bash","tool_input":{"command":"echo done > /tmp/log; cat .claude/settings.local.json"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 26: R-10 grep of guard file with 2>/dev/null allowed (allow — exit 0)
+# Issue #62: the only redirect is stderr to /dev/null; the guard file is read.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: grep guard file with stderr redirect allowed" 0 \
+    '{"tool_name":"bash","tool_input":{"command":"grep -n R-10 plugins/sdd-quality-loop/scripts/sdd-hook-guard.py 2>/dev/null | head -30"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 27: R-10 redirect INTO guard file denied (deny — exit 2)
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: echo redirect into guard file denied" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"echo x > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 28: R-10 cp ONTO guard file denied (deny — exit 2)
+# The protected file is the cp DESTINATION (final argument).
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: cp onto guard file denied" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"cp /tmp/x plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
+
+# ---------------------------------------------------------------------------
+# Scenario 29: R-10 unresolvable write target fails closed (deny — exit 2)
+# $DST may expand to the protected path mentioned in the command — deny.
+# ---------------------------------------------------------------------------
+parity_check "r10-gate-protect: variable write target fails closed" 2 \
+    '{"tool_name":"bash","tool_input":{"command":"DST=plugins/sdd-quality-loop/scripts/sdd-hook-guard.py; cp /tmp/x $DST"}}'
+
+# ---------------------------------------------------------------------------
 # T-006: domain-model approval guard (sdd-domain plugin)
 #
 # Mirrors the tasks.md Approval guard's net-increase counting logic EXACTLY
@@ -298,35 +346,35 @@ CONTEXT_MAP="${WORK}/domain/context-map.md"
 printf 'Domain-Model-Status: Pending\n' > "$CONTEXT_MAP"
 
 # ---------------------------------------------------------------------------
-# Scenario 23: domain-model guard — Write sets Domain-Model-Status: Approved
+# Scenario 30: domain-model guard — Write sets Domain-Model-Status: Approved
 # (deny — exit 2). Agent-authored write with no sudo token active.
 # ---------------------------------------------------------------------------
 parity_check "domain-model-guard: Write sets Domain-Model-Status: Approved" 2 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${CONTEXT_MAP}\",\"content\":\"Domain-Model-Status: Approved\"}}"
 
 # ---------------------------------------------------------------------------
-# Scenario 24: domain-model guard — Edit sets Domain-Model-Status: Approved
+# Scenario 31: domain-model guard — Edit sets Domain-Model-Status: Approved
 # (deny — exit 2).
 # ---------------------------------------------------------------------------
 parity_check "domain-model-guard: Edit sets Domain-Model-Status: Approved" 2 \
     "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${CONTEXT_MAP}\",\"old_string\":\"Domain-Model-Status: Pending\",\"new_string\":\"Domain-Model-Status: Approved\"}}"
 
 # ---------------------------------------------------------------------------
-# Scenario 25: domain-model guard — apply_patch sets Domain-Model-Status:
+# Scenario 32: domain-model guard — apply_patch sets Domain-Model-Status:
 # Approved (deny — exit 2).
 # ---------------------------------------------------------------------------
 DOMAIN_PATCH_PAYLOAD='{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: domain/context-map.md\n-Domain-Model-Status: Pending\n+Domain-Model-Status: Approved\n*** End Patch"}}'
 parity_check "domain-model-guard: apply_patch sets Domain-Model-Status: Approved" 2 "$DOMAIN_PATCH_PAYLOAD"
 
 # ---------------------------------------------------------------------------
-# Scenario 26: domain-model guard — bash command echoing the approved status
+# Scenario 33: domain-model guard — bash command echoing the approved status
 # into context-map.md (deny — exit 2).
 # ---------------------------------------------------------------------------
 parity_check "domain-model-guard: bash echo Domain-Model-Status: Approved to context-map.md" 2 \
     "{\"tool_name\":\"bash\",\"tool_input\":{\"command\":\"echo 'Domain-Model-Status: Approved' >> ${CONTEXT_MAP}\"}}"
 
 # ---------------------------------------------------------------------------
-# Scenario 27: domain-model guard — a valid SDD_SUDO token PERMITS the same
+# Scenario 34: domain-model guard — a valid SDD_SUDO token PERMITS the same
 # write (allow — exit 0). This is the key distinction from the WFI/Second-
 # Approval guards: the domain-model guard is sudo-bypassable, same class as
 # the tasks.md Approval guard (Scenario 16 above).
@@ -357,7 +405,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# Scenario 28: domain-model guard path precision — a DIFFERENT domain/ file
+# Scenario 35: domain-model guard path precision — a DIFFERENT domain/ file
 # (not context-map.md) carrying the same marker text must NOT be denied by
 # this guard. The path gate is exact to domain/context-map.md.
 # ---------------------------------------------------------------------------
@@ -365,7 +413,7 @@ parity_check "domain-model-guard: non-context-map domain/ file unaffected" 0 \
     "{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WORK}/domain/aggregate-order.md\",\"content\":\"Domain-Model-Status: Approved\"}}"
 
 # ---------------------------------------------------------------------------
-# Scenario 29: domain-model guard — a status change that is NOT to Approved
+# Scenario 36: domain-model guard — a status change that is NOT to Approved
 # (e.g. Pending -> Reviewed) must be allowed (exit 0). Only a net increase in
 # the Approved marker is denied, matching the tasks.md guard's semantics.
 # ---------------------------------------------------------------------------

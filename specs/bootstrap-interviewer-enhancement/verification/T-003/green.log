@@ -1,0 +1,13 @@
+Command: ./tests/bootstrap-interview-guidance.tests.sh
+Exit: 0
+
+TEST-006, TEST-009, TEST-010, TEST-017, and TEST-018 passed. The eight
+categories each retain Japanese probes and include at least three English
+layer probes; the full workflow declares seven Phase 1 outputs, preserves
+existing hashes, handles unaffected layers, and cleanly skips absent mockups.
+
+PASS: 29
+FAIL: 0
+
+Regression: sh tests/workflow-documentation.tests.sh
+Result: ok — the three independent review stages remain ordered.

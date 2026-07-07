@@ -1,0 +1,42 @@
+{
+ "schema": "task-reviewer-a/v1",
+ "stage": "task-review",
+ "role": "reviewer-a",
+ "feature": "local-env-mcp",
+ "attempt": 2,
+ "round": 1,
+ "run_id": "task-a-localenvmcp-a2r1-20260706-4c1e",
+ "host_session_id": "hs-task-a3-6503d1ba-0010",
+ "manifest": [
+  {"path": "specs/local-env-mcp/requirements.md", "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d"},
+  {"path": "specs/local-env-mcp/acceptance-tests.md", "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"},
+  {"path": "specs/local-env-mcp/design.md", "sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b"},
+  {"path": "specs/local-env-mcp/tasks.md", "sha256": "720afc5a6a94eb5f5cca73dd6deee5dc9a73a974e65a91e119ef87f3f5709664"},
+  {"path": "specs/local-env-mcp/traceability.md", "sha256": "15921dfbb660ad169f7ae871a16807dba41a9a2f5205822b1f7f7e7f70cace47"},
+  {"path": "specs/local-env-mcp/ux-spec.md", "sha256": "8e5f29bc25c6e1b7f2a54c5f0a7d40724ef9a5eece8acf46380e0e580325e283"},
+  {"path": "specs/local-env-mcp/frontend-spec.md", "sha256": "f7445c74041893712af674557102112ff3f5eec05eab7324d2bf6889aac0788b"},
+  {"path": "specs/local-env-mcp/infra-spec.md", "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4"},
+  {"path": "specs/local-env-mcp/security-spec.md", "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5"},
+  {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+  {"path": "reports/task-review/local-env-mcp/attempt-2/round-1/precheck-result.json", "sha256": "d53dcb4bff3b96fb0163f3cbafbaec11909633d34f66fd6accd3936a80834099"},
+  {"path": "reports/task-review/local-env-mcp/attempt-2/round-1/dependency-graph.json", "sha256": "1dd2e8d2b8f3acd5f5bb0c49cd5adfc6174ecde41e6c055513721071b2fbab0c"}
+ ],
+ "verdict": "PASS",
+ "checks": [
+  {"id": "PREREQ-AC-IDS", "status": "PASS", "severity": "Minor", "finding": "Every AC-NNN referenced in tasks.md (AC-001..AC-015 across T-001..T-010 Done When items, e.g. T-001 AC-004/AC-006, T-007 AC-010/AC-011/AC-015, T-008 AC-013) resolves to a row in acceptance-tests.md, which defines AC-001 through AC-015."},
+  {"id": "BLOCKERS-FORMAT", "status": "PASS", "severity": "Minor", "finding": "Every Blockers value is 'None' or a comma-separated list of valid T-NNN ids (T-002:T-001; T-007:T-005, T-006; T-009:T-007, T-008; T-010:T-001..T-009); no ranges or prose. Consistent with precheck-result.json blockers_format_valid=true."},
+  {"id": "REQ-COVERAGE", "status": "PASS", "severity": "Minor", "finding": "All 12 requirements REQ-001..REQ-012 are covered by at least one task's Requirements field (e.g. REQ-005 by T-003, REQ-010 by T-009, REQ-011 by T-010, REQ-007 by T-006/T-008)."},
+  {"id": "AC-COVERAGE", "status": "PASS", "severity": "Minor", "finding": "All 15 acceptance tests AC-001..AC-015 are traceable to a task via traceability.md AC->TEST->Task (e.g. AC-004->T-001, AC-009->T-006, AC-013->T-008), consistent with tasks.md Done When references."},
+  {"id": "ORPHAN-TASK", "status": "PASS", "severity": "Minor", "finding": "Every task T-001..T-010 lists at least one valid REQ-NNN in its Requirements field (e.g. T-001 REQ-001/003/012, T-005 REQ-008/009, T-010 REQ-011)."},
+  {"id": "ORPHAN-TEST", "status": "PASS", "severity": "Minor", "finding": "No acceptance test is unmapped: the traceability AC->TEST->Task table maps every AC-001..AC-015 (via TEST-001..TEST-015) to a concrete task; no orphan rows."},
+  {"id": "INITIAL-STATE", "status": "PASS", "severity": "Minor", "finding": "Observed all 10 tasks with Approval='Approved (sudo 2026-07-05T10:33:11Z)' (parenthesized audit mark) and Status='Implementation Complete' (in the valid set); Implementation Complete requires an approved approval, which is satisfied. Lifecycle-consistent under the post-implementation lifecycle-validity rule (AGENTS.md, WFI-004)."},
+  {"id": "RISK-WORKFLOW-FORMAT", "status": "PASS", "severity": "Minor", "finding": "Re-evaluated against the corrected authoritative contract (vocabulary {test-after, acceptance-first, tdd}; risk-gate-matrix low->test-after, medium->acceptance-first, high/critical->tdd): all 10 tasks carry Risk + Risk Rationale + Required Workflow, and every pairing matches the matrix exactly - high-risk T-001/T-002/T-003/T-006/T-007/T-008/T-009 -> tdd, medium-risk T-004 -> acceptance-first (tasks.md line 123, the required pairing for medium), low-risk T-005/T-010 -> test-after. The FAIL in my prior emission was an artifact of the incomplete {tdd|test-after} enum in the orchestrator's paraphrase, not a defect in tasks.md; it is withdrawn."},
+  {"id": "NO-DUPLICATE-AC", "status": "PASS", "severity": "Minor", "finding": "acceptance-tests.md lists each AC-001..AC-015 exactly once (verified by count); traceability.md AC->TEST->Task lists each AC exactly once with no conflicting duplicate mappings."},
+  {"id": "DEPENDENCY-COMPLETE", "status": "PASS", "severity": "Minor", "finding": "Every Blockers reference points to an existing task (all in T-001..T-010). dependency-graph.json's 10 nodes and 18 edges faithfully represent tasks.md Blockers (e.g. T-007 blocked by T-005/T-006, T-009 by T-007/T-008, T-010 by T-001..T-009)."},
+  {"id": "DEPENDENCY-CYCLE", "status": "PASS", "severity": "Minor", "finding": "The dependency graph is acyclic; all edges respect the strict order T-001 < T-002 < T-003 < T-004 < {T-005,T-006} < T-007 < T-008 < T-009 < T-010, yielding a valid topological ordering."},
+  {"id": "SINGLE-CONCERN", "status": "PASS", "severity": "Minor", "finding": "Each task has a single coherent deliverable (T-001 server foundation/probe-engine/envelope, T-004 dist bundle+CI+smoke distribution, T-007 installer Cursor/VS Code register, T-009 uninstall). No task bundles unrelated concerns."},
+  {"id": "OBSERVABLE-DONE", "status": "PASS", "severity": "Minor", "finding": "Every Done When item is observable/verifiable (named test files, AC verifications, implementation reports), including the human-amended addenda references in T-005 (reports/implementation/local-env-mcp/T-005.md, USERGUIDE.md) and T-010 item 2 (reports/implementation/local-env-mcp/T-010.md), each naming a concrete artifact and verifiable condition."},
+  {"id": "TRACEABILITY-SYNC", "status": "PASS", "severity": "Minor", "finding": "Judged on task ids, REQ links, and AC mappings (not the frozen-artifact-vs-amended Done When prose): traceability.md Task->REQ matches every tasks.md Requirements field (e.g. T-005 REQ-008/009, T-008 REQ-007/008/009), and AC->TEST->Task task ids are consistent with tasks.md task ids."}
+ ],
+ "findings": []
+}

@@ -1,0 +1,65 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "local-env-mcp",
+  "run_id": "task-b-localenvmcp-a1r2-20260705-63ad",
+  "host_session_id": "hs-task-b3-6503d1ba-0009",
+  "sequence": 41,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "59b2bd697d11fa27fd260ad5e8791b5178cb6315516635aba840d4966bf3df9f",
+  "previous_record_sha256": "af45319c882dedc2e611dd9e081646a3b5473da207554f94a328962058a6d290",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/local-env-mcp/requirements.md",
+      "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d"
+    },
+    {
+      "path": "specs/local-env-mcp/acceptance-tests.md",
+      "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"
+    },
+    {
+      "path": "specs/local-env-mcp/design.md",
+      "sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b"
+    },
+    {
+      "path": "specs/local-env-mcp/tasks.md",
+      "sha256": "27ed19e9d7228a4a368399a140bff3dd0acd230be2065a2bcbefdd4f1da2fc15"
+    },
+    {
+      "path": "specs/local-env-mcp/traceability.md",
+      "sha256": "15921dfbb660ad169f7ae871a16807dba41a9a2f5205822b1f7f7e7f70cace47"
+    },
+    {
+      "path": "specs/local-env-mcp/security-spec.md",
+      "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5"
+    },
+    {
+      "path": "specs/local-env-mcp/infra-spec.md",
+      "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "reports/task-review/local-env-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "486814830c3645a5b874a014f54ed07f4c6217bbfecfcd5e5d3d63090202a421"
+    },
+    {
+      "path": "reports/task-review/local-env-mcp/attempt-1/round-2/integrated-summary.json",
+      "sha256": "4340e844f1c5bbd21a4eaa00dcb2a9241adf0e290d0730b258807366be1b5435"
+    }
+  ]
+}

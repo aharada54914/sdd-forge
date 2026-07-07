@@ -9,11 +9,21 @@ FEATURE="spec-review-fixture-$RANDOM-$$"
 SPEC_DIR="${ROOT}/specs/${FEATURE}"
 REPORT_ROOT="${ROOT}/reports/spec-review/${FEATURE}"
 IMPL_REPORT_ROOT="${ROOT}/reports/impl-review/${FEATURE}"
+REGISTRY="${ROOT}/specs/workflow-state-registry.json"
+REGISTRY_BACKUP="$(mktemp)"
+cp "${REGISTRY}" "${REGISTRY_BACKUP}"
+
+# cleanup is re-invoked mid-run to rebuild fixtures, so the registry restore
+# must stay out of it and run only once on EXIT.
+restore_registry() {
+  cp "${REGISTRY_BACKUP}" "${REGISTRY}"
+  rm -f "${REGISTRY_BACKUP}"
+}
 
 cleanup() {
   rm -rf "${SPEC_DIR}" "${REPORT_ROOT}" "${IMPL_REPORT_ROOT}"
 }
-trap cleanup EXIT
+trap 'cleanup; restore_registry' EXIT
 
 fail() {
   echo "FAIL: $*" >&2
@@ -87,6 +97,10 @@ write_contract() {
     ],run_id:"fixture-orchestrator",verdict:$verdict,warningCount:$warning}' \
     > "${directory}/spec-review-contract.json"
 }
+
+jq --arg feature "${FEATURE}" \
+  '.entries += [{feature:$feature,profile:"lite"}]' "${REGISTRY}" > "${REGISTRY}.tmp"
+mv "${REGISTRY}.tmp" "${REGISTRY}"
 
 mkdir -p "${SPEC_DIR}"
 cat > "${SPEC_DIR}/requirements.md" <<'EOF'
@@ -230,14 +244,14 @@ agent_a="${ROOT}/plugins/sdd-review-loop/agents/spec-reviewer-a.md"
 agent_b="${ROOT}/plugins/sdd-review-loop/agents/spec-reviewer-b.md"
 agent_names="$(sed -n 's/^name: //p' "${ROOT}"/plugins/sdd-review-loop/agents/*-reviewer-*.md | sort -u | wc -l | tr -d ' ')"
 [[ "${agent_names}" == 6 ]] || fail "expected six distinct review roles"
-rg -q '^name: spec-reviewer-a$' "${agent_a}" || fail "missing reviewer A identity"
-rg -q '^name: spec-reviewer-b$' "${agent_b}" || fail "missing reviewer B identity"
-rg -q '^tools: Read, Grep, Glob$' "${agent_a}" || fail "reviewer A is not read-only"
-rg -q '^tools: Read, Grep, Glob$' "${agent_b}" || fail "reviewer B is not read-only"
-rg -q 'host-session identifier' "${agent_a}" || fail "reviewer A lacks session contract"
-rg -q 'allowed-input manifest' "${agent_b}" || fail "reviewer B lacks input manifest contract"
-rg -q 'allowed_input_manifest' "${agent_a}" || fail "reviewer A does not persist its input manifest"
-rg -q 'allowed_input_manifest' "${agent_b}" || fail "reviewer B does not persist its input manifest"
-rg -q 'reviewer-a.json' "${agent_b}" || fail "reviewer B lacks raw-report denial"
+grep -q '^name: spec-reviewer-a$' "${agent_a}" || fail "missing reviewer A identity"
+grep -q '^name: spec-reviewer-b$' "${agent_b}" || fail "missing reviewer B identity"
+grep -q '^tools: Read, Grep, Glob$' "${agent_a}" || fail "reviewer A is not read-only"
+grep -q '^tools: Read, Grep, Glob$' "${agent_b}" || fail "reviewer B is not read-only"
+grep -q 'host-session identifier' "${agent_a}" || fail "reviewer A lacks session contract"
+grep -q 'allowed-input manifest' "${agent_b}" || fail "reviewer B lacks input manifest contract"
+grep -q 'allowed_input_manifest' "${agent_a}" || fail "reviewer A does not persist its input manifest"
+grep -q 'allowed_input_manifest' "${agent_b}" || fail "reviewer B does not persist its input manifest"
+grep -q 'reviewer-a.json' "${agent_b}" || fail "reviewer B lacks raw-report denial"
 
 echo "ok: spec review precheck enforces state, hashes, replay, reset, and safe paths"

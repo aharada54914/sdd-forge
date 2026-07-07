@@ -114,6 +114,19 @@ normalized_hash_of() {
 # rejects an *agent-authored* write of Approved; this step detects domain/
 # content that changed *after* a human already approved it, and halts until
 # the human resets the status field back to Pending.
+#
+# The hard-stop applies only while Domain-Model-Status is still Approved:
+# once a human has reset the field (to Pending, or the loop has moved it to
+# Reviewed), the model is no longer approved, the sanctioned re-review path
+# is exactly what should run, and the stale fingerprint is removed so the
+# next human Approval records a fresh one. Without this condition the
+# documented recovery ("reset to Pending, then re-review") could never
+# proceed: the non-status content still differs from the fingerprint, so
+# the precheck would fail forever.
+if [[ -f "$fingerprint_path" && ! -L "$fingerprint_path" && "$status" != "Approved" ]]; then
+  rm -f -- "$fingerprint_path"
+  printf 'domain-review-precheck: stale last-approved fingerprint cleared (Domain-Model-Status is %s, not Approved) -- re-review proceeds; the next human Approval records a fresh fingerprint\n' "$status" >&2
+fi
 if [[ -f "$fingerprint_path" && ! -L "$fingerprint_path" ]]; then
   jq -e 'type == "object" and (keys | sort) == ["files","schema"] and .schema == "domain-review-approved-fingerprint/v1" and (.files | type == "object")' \
     "$fingerprint_path" >/dev/null 2>&1 || fail "last-approved-fingerprint.json is malformed"

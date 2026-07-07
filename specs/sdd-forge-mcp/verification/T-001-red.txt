@@ -1,0 +1,303 @@
+=== T-001 RED evidence ===
+Date: 2026-07-04T15:11:52Z
+
+--- npx tsc --noEmit (src/) ---
+tsc exit: 0
+
+--- npx tsc -p tsconfig.test.json (build tests) ---
+test build exit: 0
+
+--- node --test (RED: implementation is intentionally unimplemented) ---
+✖ rejects a file larger than the 2 MiB limit with too-large (3.485125ms)
+✖ accepts a file exactly at the 2 MiB limit (3.394292ms)
+✖ isSddRoot is false for a root missing both AGENTS.md and specs/ (0.360541ms)
+✖ isSddRoot is false when only specs/ exists without AGENTS.md (0.528167ms)
+✖ isSddRoot is true for a properly-shaped SDD root (1.425167ms)
+✖ denies reads under a plugins/ directory that is not on the allowlist (1.806459ms)
+✖ denies reads under a .git/ directory (3.426666ms)
+✖ denies the SDD sudo flag file even when placed inside an allowlisted directory (2.499209ms)
+✖ denies .env files reached via an allowlisted directory (1.601833ms)
+✖ never includes file contents or the offending value in the denial message or details (1.16125ms)
+✖ rejects a relative path containing a parent traversal segment (2.26975ms)
+✖ rejects an absolute path argument outright (1.256333ms)
+✖ rejects an empty path as invalid input (1.291458ms)
+✖ rejects a path argument containing backslashes (1.148125ms)
+✖ rejects a symlink inside the allowlist that resolves outside it (2.040667ms)
+✖ resolveGuarded rejects the same traversal shapes without reading contents (1.403875ms)
+✖ allows a legitimate allowlisted file to be read (1.438875ms)
+✔ src/ contains no filesystem write API references (1.4145ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (1.212584ms)
+✔ resolved root is frozen and immutable after construction (1.819417ms)
+✖ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (3.763625ms)
+✖ changing cwd after resolution does not affect the already-resolved root (0.876083ms)
+✖ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (1.481208ms)
+✖ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (0.94075ms)
+✖ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (0.91075ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 3
+ℹ fail 22
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 59.162917
+
+✖ failing tests:
+
+test at dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:14:1
+✖ rejects a file larger than the 2 MiB limit with too-large (3.485125ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:19:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17)
+
+test at dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:29:1
+✖ accepts a file exactly at the 2 MiB limit (3.394292ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:34:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+
+test at dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:41:1
+✖ isSddRoot is false for a root missing both AGENTS.md and specs/ (0.360541ms)
+  Error: not implemented
+      at isSddRoot (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/root.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:45:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:51:1
+✖ isSddRoot is false when only specs/ exists without AGENTS.md (0.528167ms)
+  Error: not implemented
+      at isSddRoot (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/root.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:56:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:62:1
+✖ isSddRoot is true for a properly-shaped SDD root (1.425167ms)
+  Error: not implemented
+      at isSddRoot (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/root.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/error-paths/too-large-and-not-sdd-root.test.js:65:22)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/path-security/denylist.test.js:18:1
+✖ denies reads under a plugins/ directory that is not on the allowlist (1.806459ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/denylist.test.js:23:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17)
+
+test at dist-test/tests/path-security/denylist.test.js:33:1
+✖ denies reads under a .git/ directory (3.426666ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/denylist.test.js:38:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+
+test at dist-test/tests/path-security/denylist.test.js:48:1
+✖ denies the SDD sudo flag file even when placed inside an allowlisted directory (2.499209ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/denylist.test.js:52:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/path-security/denylist.test.js:64:1
+✖ denies .env files reached via an allowlisted directory (1.601833ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/denylist.test.js:68:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/path-security/denylist.test.js:80:1
+✖ never includes file contents or the offending value in the denial message or details (1.16125ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/denylist.test.js:84:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/path-security/traversal-and-symlink.test.js:12:1
+✖ rejects a relative path containing a parent traversal segment (2.26975ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/traversal-and-symlink.test.js:15:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17)
+
+test at dist-test/tests/path-security/traversal-and-symlink.test.js:25:1
+✖ rejects an absolute path argument outright (1.256333ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/traversal-and-symlink.test.js:28:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+
+test at dist-test/tests/path-security/traversal-and-symlink.test.js:38:1
+✖ rejects an empty path as invalid input (1.291458ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/traversal-and-symlink.test.js:41:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/path-security/traversal-and-symlink.test.js:51:1
+✖ rejects a path argument containing backslashes (1.148125ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/traversal-and-symlink.test.js:54:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/path-security/traversal-and-symlink.test.js:64:1
+✖ rejects a symlink inside the allowlist that resolves outside it (2.040667ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/traversal-and-symlink.test.js:72:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/path-security/traversal-and-symlink.test.js:83:1
+✖ resolveGuarded rejects the same traversal shapes without reading contents (1.403875ms)
+  Error: not implemented
+      at resolveGuarded (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:7:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/traversal-and-symlink.test.js:86:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/path-security/traversal-and-symlink.test.js:96:1
+✖ allows a legitimate allowlisted file to be read (1.438875ms)
+  Error: not implemented
+      at guardedRead (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/path-guard.js:10:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/path-security/traversal-and-symlink.test.js:101:24)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/root-immutable/root-immutable.test.js:24:1
+✖ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (3.763625ms)
+  Error: not implemented
+      at resolveRoot (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/root.js:7:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/root-immutable/root-immutable.test.js:28:26)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+
+test at dist-test/tests/root-immutable/root-immutable.test.js:51:1
+✖ changing cwd after resolution does not affect the already-resolved root (0.876083ms)
+  Error: not implemented
+      at resolveRoot (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/root.js:7:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/root-immutable/root-immutable.test.js:54:26)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/root-immutable/root-immutable.test.js:69:1
+✖ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (1.481208ms)
+  Error: not implemented
+      at resolveRoot (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/root.js:7:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/root-immutable/root-immutable.test.js:73:26)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/root-immutable/root-immutable.test.js:82:1
+✖ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (0.94075ms)
+  Error: not implemented
+      at resolveRoot (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/root.js:7:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/root-immutable/root-immutable.test.js:85:26)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/root-immutable/root-immutable.test.js:93:1
+✖ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (0.91075ms)
+  Error: not implemented
+      at resolveRoot (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/src/root.js:7:11)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge/mcp/sdd-forge-mcp/dist-test/tests/root-immutable/root-immutable.test.js:96:26)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)

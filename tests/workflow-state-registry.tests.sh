@@ -109,6 +109,12 @@ shell_schema_accepts() {
           has("introduced_before_commit") and has("reason") and has("owner") and
           has("allowed_missing_stages") and has("allowed_noncanonical_statuses") and
           has("allowed_task_approvals") and has("allowed_task_statuses") and
+          # Legacy entries normally predate the shared migration baseline, but
+          # an entry may instead be pinned to its own later commit (e.g.
+          # sdd-forge-mcp and sdd-domain, grandfathered against feature-branch
+          # commits). Exactness for every legacy entry -- baseline or override
+          # -- is enforced separately below via exact const-equality against
+          # the legacyEntry list in contracts/workflow-state-registry.schema.json.
           (.introduced_before_commit | type == "string" and test("^[0-9a-f]{40}$")) and
           (.reason | type == "string" and length > 0 and contains("*") | not) and
           (.owner | type == "string" and length > 0 and contains("*") | not) and
@@ -141,17 +147,19 @@ shell_schema_accepts() {
 jq -e --arg baseline "$BASELINE" '
   .schema_version == 1 and
   .migration_baseline_commit == $baseline and
-  (.entries | type == "array" and length == 12) and
+  (.entries | type == "array" and length == 14) and
   ([.entries[].feature] | length == (unique | length)) and
   ([.entries[].feature] | sort) == [
     "agent-cost-context-isolation",
     "bootstrap-interviewer-enhancement",
     "claude-workflow-compatibility",
     "cross-model-verification",
+    "local-env-mcp",
     "p0-hardening",
     "risk-adaptive-layer",
     "sdd-diagnose",
     "sdd-domain",
+    "sdd-forge-mcp",
     "sdd-forge-refactor",
     "sdd-lite",
     "uninstall-workflow",
@@ -161,6 +169,10 @@ jq -e --arg baseline "$BASELINE" '
     (.feature | test("^[a-z0-9][a-z0-9-]*$")) and
     (.profile == "full" or .profile == "lite" or .profile == "legacy") and
     (if .profile == "legacy" then
+      # See shell_schema_accepts() below: most legacy entries predate the
+      # shared migration baseline, but an entry may instead be pinned to
+      # its own later commit (sdd-forge-mcp, sdd-domain). Exactness is
+      # enforced via const-equality against the legacyEntry list in the schema.
       (.legacy.introduced_before_commit | type == "string" and test("^[0-9a-f]{40}$")) and
       (.legacy.reason | type == "string" and length > 0) and
       (.legacy.owner | type == "string" and length > 0) and
@@ -174,7 +186,8 @@ jq -e --arg baseline "$BASELINE" '
   (.entries[] | select(.feature == "sdd-lite") | .profile) == "lite" and
   (.entries[] | select(.feature == "bootstrap-interviewer-enhancement") | .profile) == "legacy" and
   (.entries[] | select(.feature == "workflow-state-integrity") | .profile) == "legacy" and
-  (.entries[] | select(.feature == "agent-cost-context-isolation") | .profile) == "legacy"
+  (.entries[] | select(.feature == "agent-cost-context-isolation") | .profile) == "legacy" and
+  (.entries[] | select(.feature == "sdd-forge-mcp") | .profile) == "legacy"
 ' "$REGISTRY" >/dev/null || fail "canonical registry contract is invalid"
 shell_schema_accepts "$REGISTRY" || fail "canonical registry fails independent Shell schema validation"
 

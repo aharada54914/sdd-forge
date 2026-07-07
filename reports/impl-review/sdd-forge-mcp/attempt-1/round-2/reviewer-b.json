@@ -1,0 +1,32 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "impl-b-sddforgemcp-a1r2-20260704-a3f8",
+  "host_session_id": "hs-impl-b-7ea701ba-0011",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-forge-mcp/requirements.md", "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"},
+    {"path": "specs/sdd-forge-mcp/acceptance-tests.md", "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"},
+    {"path": "specs/sdd-forge-mcp/design.md", "sha256": "b1667111b91af8f7834952ba8441e569de03d3d9600af6975755c22cb3ad1303"},
+    {"path": "specs/sdd-forge-mcp/ux-spec.md", "sha256": "bfaa5928e621cac80fe91f37909b2b8f9fee9b6aed8d0df308b758a89654f29e"},
+    {"path": "specs/sdd-forge-mcp/frontend-spec.md", "sha256": "c71f3e10fadea077f659fe498da265691ddd4bba0c680401a3d41c28850c4332"},
+    {"path": "specs/sdd-forge-mcp/infra-spec.md", "sha256": "bfab047bd9dbbd04fe6c3fb6f1b2fd5bf5f28e6753cc4c9eeb6a3114a97f597b"},
+    {"path": "specs/sdd-forge-mcp/security-spec.md", "sha256": "beee4dbc119cafcda106e3d46353038886b6947d8b83ce5571f85d7a8b7f418c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-2/precheck-result.json", "sha256": "031d0ee66900611dd97d43f1ea04175fde5d1a1c3c0653824a218fed5e9b7315"},
+    {"path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-2/integrated-summary.json", "sha256": "9b6fc8ee2fb7334eaec1b3f7f2468f54bad3f7e2ed2dd03f7e1128b17e789d82"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "DECISION-JUSTIFIED", "result": "PASS", "severity": "Minor", "finding": "No issues found. Technology choices in design.md Components and frontend-spec.md Technology Stack/Dependencies each carry a stated rationale (Node>=20, js-yaml with rejected alternative, esbuild justified by dist-commit distribution at REQ-008). ADR-0002/0003 carry the two architectural decisions with Accepted status."},
+    {"id": "OPEN-QUESTIONS-RESOLVABLE", "result": "PASS", "severity": "Minor", "finding": "No issues found. design.md OQ-001 states Owner: ai-implementer, Blocks Implementation: no, and a concrete Resolution Path. requirements.md OQ-R1 is non-blocking with owner human and a resolution trigger."},
+    {"id": "ASSUMPTIONS-VALID", "result": "PASS", "severity": "Minor", "finding": "investigation.md is absent, but each of the 3 Assumptions entries carries an inline grounding basis (existing CI configuration; installer's pre-existing Claude CLI requirement; stated MIT license classification cross-referenced in security-spec.md SBOM and frontend-spec.md Dependencies), satisfying the reasonable-technical-default-with-cited-basis criterion."},
+    {"id": "NO-REQ-CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "Round-1 Critical finding resolved. design.md ## Constraint Compliance (lines 195-206) now contains 8 rows covering every constraint in requirements.md, including the newly added row for the 2 MiB file-size limit (REQ-005/REQ-006, Edge Cases + AC-017) with Design Response citing path-guard size check, too-large error, DoS mitigation, and cross-reference to security-spec.md STRIDE DoS row and Data Plan's 2 MiB limit."},
+    {"id": "PERF-ADDRESSED", "result": "PASS", "severity": "Minor", "finding": "infra-spec.md Service Level Objectives states numeric targets (tool response p95 <= 500 ms; startup <= 1 s) measured via smoke test and node --test instrumentation, verified by AC-005 and referenced from design.md Layer Specifications and Test Strategy."},
+    {"id": "DEPLOYMENT-CONCRETE", "result": "PASS", "severity": "Minor", "finding": "design.md ## Deployment / CI Plan states deployment target (INSTALL_ROOT/mcp/sdd-forge-mcp/, local stdio process), CI pipeline changes (mcp-tests 3-OS job, dist-parity step, installer test additions), and installer flag gating (--skip-mcp/--mcp). Data Plan states no schema changes, so migration execution order is correctly not required."},
+    {"id": "MIGRATION-PLANNED", "result": "PASS", "severity": "Minor", "finding": "design.md Data Plan states 'Existing Data Affected: なし（読み取りのみ）' and 'Migration Strategy: 不要'. Per check rule, a No-data-changes statement yields PASS."},
+    {"id": "INTEGRATION-IDENTIFIED", "result": "PASS", "severity": "Minor", "finding": "The server makes no runtime cross-service API calls (stdio-only, no network). The only external touchpoints are installer-time CLI registrations, addressed with failure behavior (Node>=20 absent -> installer warns and skips MCP; Codex CLI handling via OQ-001 resolution path). No unaddressed external integration found."},
+    {"id": "DESIGN-WITHIN-SCOPE", "result": "PASS", "severity": "Minor", "finding": "tools/core.ts (8) and tools/evidence.ts (5) match REQ-002/REQ-003 exactly by name; resources.ts (5) matches REQ-004 URI list exactly. No additional endpoints, entities, or components beyond requirements; all Goals/User Stories are represented. No scope creep or omission detected."},
+    {"id": "VERIFICATION-PATH-CONCRETE", "result": "PASS", "severity": "Minor", "finding": "High-risk surfaces (path-guard authorization; oversized-input DoS; read-only guarantee) each have named validation paths: TEST-003/TEST-004 (Security Boundaries + security-spec.md Security Tests), TEST-002/TEST-004 (STRIDE DoS row), TEST-011 (static + snapshot check). No PII/payment/critical-journey surface exists (non-UI feature)."}
+  ]
+}

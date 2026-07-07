@@ -613,6 +613,42 @@ Describe "domain-review-precheck.sh: real execution against a real fixture tree"
             (Test-Path -LiteralPath $fingerprintPath) | Should Be $false
         }
     }
+
+    It "AC-014 recovery: drift halts while Approved, then a human reset to Pending clears the stale fingerprint and re-review proceeds (real bash execution)" {
+        # Regression test for the drift-recovery trap (PR #93 Codex P1): the
+        # drift hard-stop must apply only while Domain-Model-Status is still
+        # Approved. After the documented human reset to Pending, the precheck
+        # must clear the stale fingerprint and proceed -- previously the
+        # unchanged content hashes re-triggered the halt forever. The full
+        # sequence needs jq (fingerprint write + precheck-result emission);
+        # without jq the run fails closed at the jq wall before this logic.
+        $jqAvailable = $null -ne (Get-Command jq -ErrorAction SilentlyContinue)
+        if (-not $jqAvailable) { Set-TestInconclusive "jq unavailable; recovery sequence unreachable behind the jq wall" }
+
+        $contextMapPath = Join-Path $script:fixtureRoot "domain/context-map.md"
+        $aggregatePath = Join-Path $script:fixtureRoot "domain/aggregates/Order.md"
+        $fingerprintPath = Join-Path $script:fixtureRoot "reports/domain-review/last-approved-fingerprint.json"
+
+        # 1. Approve the model; first run records the fingerprint then halts.
+        (Get-Content -LiteralPath $contextMapPath -Raw) -replace "Pending", "Approved" | Set-Content -LiteralPath $contextMapPath -Encoding UTF8 -NoNewline
+        $first = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1")
+        $first.ExitCode | Should Not Be 0
+        (Test-Path -LiteralPath $fingerprintPath) | Should Be $true
+
+        # 2. Content drifts while still Approved: AC-014 hard halt.
+        Set-Content -LiteralPath $aggregatePath -Value "# Order aggregate`ninvariant CHANGED after approval`n" -Encoding UTF8 -NoNewline
+        $drifted = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1")
+        $drifted.ExitCode | Should Not Be 0
+        $drifted.Output | Should Match "drift detected"
+
+        # 3. Human resets to Pending: precheck clears the stale fingerprint
+        #    and completes (exit 0) instead of re-halting on the same drift.
+        (Get-Content -LiteralPath $contextMapPath -Raw) -replace "Approved", "Pending" | Set-Content -LiteralPath $contextMapPath -Encoding UTF8 -NoNewline
+        $reset = Invoke-DomainReviewPrecheck -Root $script:fixtureRoot -Arguments @("1", "1")
+        $reset.ExitCode | Should Be 0
+        $reset.Output | Should Match "stale last-approved fingerprint cleared"
+        (Test-Path -LiteralPath $fingerprintPath) | Should Be $false
+    }
 }
 
 Describe "Worked fixtures (documented contract validation, per Done-When)" {

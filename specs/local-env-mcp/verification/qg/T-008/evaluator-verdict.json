@@ -1,0 +1,21 @@
+{
+ "schema": "evaluator-verdict/v1",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "local-env-mcp",
+ "task_id": "T-008",
+ "run_id": "qg-eval-localenvmcp-t008-20260706-59ae",
+ "host_session_id": "hs-qg-e8-6503d1ba-0019",
+ "invocation_manifest": "specs/local-env-mcp/verification/qg/T-008/invocation-evaluator.json",
+ "verdict": "PASS",
+ "summary": "Evaluator verified all 24 manifest hashes, independently re-ran the pwsh suite twice (25 ok, exit 0, PowerShell 7.6.2), confirmed genuine red->green (red fails at the new local-env-mcp placement assertion, tests line 919), and line-level verified ps1/sh parity: identical Node -e JSON upsert one-liner (byte-parity), -Mcp default/ValidateSet covering both MCPs, Node>=20 gate over the whole selection, per-OS VS Code paths with overrides, and the corrupt-JSON fail-safe (Write-Error -ErrorAction Continue under Stop preference) leaving files byte-identical while the other client registers and the installer exits zero. Verdict PASS with one Minor.",
+ "findings": [
+  {
+   "severity": "Minor",
+   "classification": "Accepted",
+   "description": "Unrelated working-tree edit to docs/workflow-improvements/WFI-001.md (pre-existing orchestrator change, disclosed in Working Notes) is outside T-008 scope and not part of the task Outputs binding; noted for cleanliness only.",
+   "location": "docs/workflow-improvements/WFI-001.md"
+  }
+ ],
+ "note": "Full evaluator output (including the checked-verifications list) is preserved in the orchestrating session transcript."
+}

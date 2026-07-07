@@ -60,6 +60,48 @@ if ($stagedDiff) {
     if ($LASTEXITCODE -ne 0) { throw "Unable to commit installer source fixture." }
 }
 
+# The MCP server payload (mcp/sdd-forge-mcp/dist + package.json) is not yet
+# Git-tracked (dist/ is committed by a later task). The installer must copy
+# it from the filesystem regardless of Git tracking state, so seed a minimal
+# MCP payload directly on disk (untracked is fine).
+$mcpSourceDir = Join-Path $installerSourceRoot "mcp/sdd-forge-mcp"
+New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "dist") -Force | Out-Null
+Set-Content -Path (Join-Path $mcpSourceDir "dist/index.js") -Value "console.log('sdd-forge-mcp fixture stub');" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $mcpSourceDir "package.json") -Value '{"name":"sdd-forge-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=20"}}' -Encoding Utf8NoBOM
+# Files that must NOT be copied into the install root (node_modules/src/tests).
+New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "node_modules/should-not-copy") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "src") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $mcpSourceDir "tests") -Force | Out-Null
+Set-Content -Path (Join-Path $mcpSourceDir "node_modules/should-not-copy/index.js") -Value "noise" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $mcpSourceDir "src/index.ts") -Value "noise" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $mcpSourceDir "tests/index.test.ts") -Value "noise" -Encoding Utf8NoBOM
+
+# local-env-mcp (T-006/T-008): a second first-class MCP that ships by default.
+# Seed a minimal payload the same way as sdd-forge-mcp so the installer's
+# generic $Mcp selection machinery is exercised for BOTH servers.
+$localEnvMcpSourceDir = Join-Path $installerSourceRoot "mcp/local-env-mcp"
+New-Item -ItemType Directory -Path (Join-Path $localEnvMcpSourceDir "dist") -Force | Out-Null
+Set-Content -Path (Join-Path $localEnvMcpSourceDir "dist/index.js") -Value "console.log('local-env-mcp fixture stub');" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $localEnvMcpSourceDir "package.json") -Value '{"name":"local-env-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=20"}}' -Encoding Utf8NoBOM
+# Files that must NOT be copied into the install root (node_modules/src/tests).
+New-Item -ItemType Directory -Path (Join-Path $localEnvMcpSourceDir "node_modules/should-not-copy") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $localEnvMcpSourceDir "src") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $localEnvMcpSourceDir "tests") -Force | Out-Null
+Set-Content -Path (Join-Path $localEnvMcpSourceDir "node_modules/should-not-copy/index.js") -Value "noise" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $localEnvMcpSourceDir "src/index.ts") -Value "noise" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $localEnvMcpSourceDir "tests/index.test.ts") -Value "noise" -Encoding Utf8NoBOM
+
+# T-007/T-008 (AC-010/011/013/015): install.ps1 registers MCP servers with
+# Cursor and VS Code via SDD_CURSOR_DIR / SDD_VSCODE_USER_DIR-overridable config
+# paths. Tests must NEVER touch the real user's client configs, so point both at
+# non-existent directories inside an isolated root by default (an absent client
+# directory means "client not installed" and registration skips). Scenarios that
+# exercise the upsert override these per-scenario and restore them afterwards.
+$global:SddInstallerIdeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-ide-" + [guid]::NewGuid())
+New-Item -ItemType Directory -Path $global:SddInstallerIdeRoot -Force | Out-Null
+$env:SDD_CURSOR_DIR = Join-Path $global:SddInstallerIdeRoot "cursor-not-installed"
+$env:SDD_VSCODE_USER_DIR = Join-Path $global:SddInstallerIdeRoot "vscode-not-installed"
+
 function New-FakeCommands {
     param(
         [Parameter(Mandatory)][string]$BinRoot,
@@ -851,10 +893,645 @@ finally {
     if (Test-Path $smokeRoot) { Remove-Item -Path $smokeRoot -Recurse -Force -ErrorAction SilentlyContinue }
 }
 
+# ---------------------------------------------------------------------------
+# MCP scenarios (T-006): AC-007 / AC-008
+# ---------------------------------------------------------------------------
+
+# Scenario (t): default install places the MCP payload and registers it,
+# excluding node_modules/src/tests.
+$mcpDefaultRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-default-" + [guid]::NewGuid())
+$mcpDefaultInstall = Join-Path $mcpDefaultRoot "installed"
+$mcpDefaultBin = Join-Path $mcpDefaultRoot "bin"
+$mcpDefaultLog = Join-Path $mcpDefaultRoot "commands.log"
+$mcpDefaultOriginalPath = $env:PATH
+$mcpDefaultOriginalCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $mcpDefaultBin -LogPath $mcpDefaultLog
+    $env:PATH = "$mcpDefaultBin$([System.IO.Path]::PathSeparator)$mcpDefaultOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $mcpDefaultRoot "codex-home"
+    New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
+
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpDefaultInstall -Target All -SkipAgentInstall
+
+    foreach ($mcpName in @("sdd-forge-mcp", "local-env-mcp")) {
+        if (-not (Test-Path (Join-Path $mcpDefaultInstall "mcp/$mcpName/dist/index.js"))) {
+            throw "default MCP install (t): $mcpName dist/index.js not placed"
+        }
+        if (-not (Test-Path (Join-Path $mcpDefaultInstall "mcp/$mcpName/package.json"))) {
+            throw "default MCP install (t): $mcpName package.json not placed"
+        }
+        if (Test-Path (Join-Path $mcpDefaultInstall "mcp/$mcpName/node_modules")) {
+            throw "default MCP install (t): $mcpName node_modules was copied"
+        }
+        if (Test-Path (Join-Path $mcpDefaultInstall "mcp/$mcpName/src")) {
+            throw "default MCP install (t): $mcpName src/ was copied"
+        }
+        if (Test-Path (Join-Path $mcpDefaultInstall "mcp/$mcpName/tests")) {
+            throw "default MCP install (t): $mcpName tests/ was copied"
+        }
+    }
+    $mcpDefaultLogContent = Get-Content -Raw $mcpDefaultLog
+    if ($mcpDefaultLogContent -notmatch [regex]::Escape("claude mcp add sdd-forge-mcp")) {
+        throw "default MCP install (t): claude mcp add not invoked for sdd-forge-mcp"
+    }
+    if ($mcpDefaultLogContent -notmatch [regex]::Escape("claude mcp add local-env-mcp")) {
+        throw "default MCP install (t): claude mcp add not invoked for local-env-mcp"
+    }
+    $configTomlContent = Get-Content -Raw (Join-Path $env:SDD_CODEX_HOME "config.toml")
+    if ($configTomlContent -notmatch "sdd-forge-mcp") {
+        throw "default MCP install (t): Codex config.toml missing sdd-forge-mcp entry"
+    }
+    if ($configTomlContent -notmatch "local-env-mcp") {
+        throw "default MCP install (t): Codex config.toml missing local-env-mcp entry"
+    }
+    Write-Host "ok: default install places and registers BOTH MCP servers"
+}
+finally {
+    $env:PATH = $mcpDefaultOriginalPath
+    if ($null -eq $mcpDefaultOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $mcpDefaultOriginalCodexHome }
+    if (Test-Path $mcpDefaultRoot) { Remove-Item -Path $mcpDefaultRoot -Recurse -Force }
+}
+
+# Scenario (u): -SkipMcp skips both placement and registration, and leaves
+# seeded Cursor / VS Code configs untouched (T-007/T-008 gating parity).
+$mcpSkipRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-skip-" + [guid]::NewGuid())
+$mcpSkipInstall = Join-Path $mcpSkipRoot "installed"
+$mcpSkipBin = Join-Path $mcpSkipRoot "bin"
+$mcpSkipLog = Join-Path $mcpSkipRoot "commands.log"
+$mcpSkipOriginalPath = $env:PATH
+$mcpSkipOriginalCodexHome = $env:SDD_CODEX_HOME
+$mcpSkipOriginalCursorDir = $env:SDD_CURSOR_DIR
+$mcpSkipOriginalVSCodeDir = $env:SDD_VSCODE_USER_DIR
+try {
+    New-FakeCommands -BinRoot $mcpSkipBin -LogPath $mcpSkipLog
+    $env:PATH = "$mcpSkipBin$([System.IO.Path]::PathSeparator)$mcpSkipOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $mcpSkipRoot "codex-home"
+    New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
+    $env:SDD_CURSOR_DIR = Join-Path $mcpSkipRoot "cursor"
+    $env:SDD_VSCODE_USER_DIR = Join-Path $mcpSkipRoot "vscode-user"
+    New-Item -ItemType Directory -Path $env:SDD_CURSOR_DIR -Force | Out-Null
+    New-Item -ItemType Directory -Path $env:SDD_VSCODE_USER_DIR -Force | Out-Null
+    Set-Content -Path (Join-Path $env:SDD_CURSOR_DIR "mcp.json") -Value "{`n  `"mcpServers`": {}`n}`n" -Encoding Utf8NoBOM -NoNewline
+    Set-Content -Path (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json") -Value "{`n  `"servers`": {}`n}`n" -Encoding Utf8NoBOM -NoNewline
+    $cursorBefore = Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")
+    $vscodeBefore = Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")
+
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpSkipInstall -Target All -SkipAgentInstall -SkipMcp
+
+    if (Test-Path (Join-Path $mcpSkipInstall "mcp")) {
+        throw "-SkipMcp (u): mcp/ was placed despite -SkipMcp"
+    }
+    if (Test-Path $mcpSkipLog) {
+        $mcpSkipLogContent = Get-Content -Raw $mcpSkipLog
+        if ($mcpSkipLogContent -match [regex]::Escape("claude mcp add")) {
+            throw "-SkipMcp (u): claude mcp add was invoked despite -SkipMcp"
+        }
+    }
+    $configTomlContent = Get-Content -Raw (Join-Path $env:SDD_CODEX_HOME "config.toml")
+    if ($configTomlContent -match "sdd-forge-mcp") {
+        throw "-SkipMcp (u): Codex config.toml was modified despite -SkipMcp"
+    }
+    if ((Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")) -ne $cursorBefore) {
+        throw "-SkipMcp (u): Cursor mcp.json was modified despite -SkipMcp"
+    }
+    if ((Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")) -ne $vscodeBefore) {
+        throw "-SkipMcp (u): VS Code mcp.json was modified despite -SkipMcp"
+    }
+    Write-Host "ok: -SkipMcp skips both MCP placement and registration"
+}
+finally {
+    $env:PATH = $mcpSkipOriginalPath
+    if ($null -eq $mcpSkipOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $mcpSkipOriginalCodexHome }
+    $env:SDD_CURSOR_DIR = $mcpSkipOriginalCursorDir
+    $env:SDD_VSCODE_USER_DIR = $mcpSkipOriginalVSCodeDir
+    if (Test-Path $mcpSkipRoot) { Remove-Item -Path $mcpSkipRoot -Recurse -Force }
+}
+
+# Scenario (v): -Mcp sdd-forge-mcp installs ONLY sdd-forge-mcp (AC-013 single-MCP
+# selection); an invalid MCP name is rejected.
+$mcpValidRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-valid-" + [guid]::NewGuid())
+$mcpValidInstall = Join-Path $mcpValidRoot "installed"
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpValidInstall -Target FilesOnly -Mcp @("sdd-forge-mcp")
+    if (-not (Test-Path (Join-Path $mcpValidInstall "mcp/sdd-forge-mcp/dist/index.js"))) {
+        throw "-Mcp sdd-forge-mcp (v): dist/index.js not placed"
+    }
+    # AC-013 behavior: selecting only sdd-forge-mcp must NOT place local-env-mcp.
+    if (Test-Path (Join-Path $mcpValidInstall "mcp/local-env-mcp")) {
+        throw "-Mcp sdd-forge-mcp (v): local-env-mcp was placed despite not being selected"
+    }
+    Write-Host "ok: -Mcp sdd-forge-mcp installs only the selected MCP"
+}
+finally {
+    if (Test-Path $mcpValidRoot) { Remove-Item -Path $mcpValidRoot -Recurse -Force }
+}
+
+# Scenario (v-le): -Mcp local-env-mcp is a valid selection that places ONLY
+# local-env-mcp (sdd-forge-mcp absent). Confirms local-env-mcp is in the
+# ValidateSet and per-name selection is honoured in both directions (AC-013).
+$mcpLeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-le-" + [guid]::NewGuid())
+$mcpLeInstall = Join-Path $mcpLeRoot "installed"
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpLeInstall -Target FilesOnly -Mcp @("local-env-mcp")
+    if (-not (Test-Path (Join-Path $mcpLeInstall "mcp/local-env-mcp/dist/index.js"))) {
+        throw "-Mcp local-env-mcp (v-le): local-env-mcp dist/index.js not placed"
+    }
+    if (Test-Path (Join-Path $mcpLeInstall "mcp/sdd-forge-mcp")) {
+        throw "-Mcp local-env-mcp (v-le): sdd-forge-mcp was placed despite not being selected"
+    }
+    Write-Host "ok: -Mcp local-env-mcp installs only the selected MCP"
+}
+finally {
+    if (Test-Path $mcpLeRoot) { Remove-Item -Path $mcpLeRoot -Recurse -Force }
+}
+
+$mcpInvalidRejected = $false
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-bogus-" + [guid]::NewGuid())) -Target FilesOnly -Mcp @("bogus-mcp") 2>$null
+}
+catch {
+    $mcpInvalidRejected = $true
+}
+if (-not $mcpInvalidRejected) {
+    throw "-Mcp bogus-mcp (v2): installer accepted an invalid MCP name"
+}
+Write-Host "ok: -Mcp bogus-mcp is rejected"
+
+# Scenario (v3): -Mcp "" (empty value) is rejected cleanly by ValidateSet
+# parameter binding rather than being silently accepted as "no MCP selected".
+$mcpEmptyRejected = $false
+$mcpEmptyError = $null
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-empty-" + [guid]::NewGuid())) -Target FilesOnly -Mcp "" 2>$null
+}
+catch {
+    $mcpEmptyRejected = $true
+    $mcpEmptyError = $_
+}
+if (-not $mcpEmptyRejected) {
+    throw "-Mcp `"`" (v3): installer accepted an empty MCP value"
+}
+if ($mcpEmptyError -and ($mcpEmptyError.Exception.Message -match "unbound variable")) {
+    throw "-Mcp `"`" (v3): installer crashed with an unbound variable error"
+}
+Write-Host "ok: -Mcp `"`" (empty) is rejected"
+
+# Scenario (v4): -Plugins "" (empty value) is rejected cleanly by ValidateSet
+# parameter binding (mirrors install.sh's guard against bash 3.2's
+# unbound-variable crash on an empty --plugins list).
+$pluginsEmptyRejected = $false
+$pluginsEmptyError = $null
+try {
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot (Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-plugins-empty-" + [guid]::NewGuid())) -Target FilesOnly -Plugins "" 2>$null
+}
+catch {
+    $pluginsEmptyRejected = $true
+    $pluginsEmptyError = $_
+}
+if (-not $pluginsEmptyRejected) {
+    throw "-Plugins `"`" (v4): installer accepted an empty plugin value"
+}
+if ($pluginsEmptyError -and ($pluginsEmptyError.Exception.Message -match "unbound variable")) {
+    throw "-Plugins `"`" (v4): installer crashed with an unbound variable error"
+}
+Write-Host "ok: -Plugins `"`" (empty) is rejected"
+
+# Scenario (w): missing Node >= 20 warns and skips MCP only; plugins still
+# install. Shadow `node` with a fake old-version binary.
+$mcpOldNodeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-oldnode-" + [guid]::NewGuid())
+$mcpOldNodeInstall = Join-Path $mcpOldNodeRoot "installed"
+$mcpOldNodeBin = Join-Path $mcpOldNodeRoot "bin"
+$mcpOldNodeLog = Join-Path $mcpOldNodeRoot "commands.log"
+$mcpOldNodeOriginalPath = $env:PATH
+try {
+    New-FakeCommands -BinRoot $mcpOldNodeBin -LogPath $mcpOldNodeLog
+    if ($isWindowsPlatform) {
+        $nodeShimPath = Join-Path $mcpOldNodeBin "node.cmd"
+        "@if `"%~1`"==`"--version`" (echo v14.21.0`r`n) else (exit /b 0)`r`n" | Set-Content -Path $nodeShimPath -Encoding Ascii
+    }
+    else {
+        $nodeShimPath = Join-Path $mcpOldNodeBin "node"
+        "#!/bin/sh`nif [ `"`$1`" = --version ]; then echo v14.21.0; exit 0; fi`nexit 0`n" | Set-Content -Path $nodeShimPath -Encoding Utf8NoBOM
+        & chmod +x $nodeShimPath
+    }
+    $env:PATH = "$mcpOldNodeBin$([System.IO.Path]::PathSeparator)$mcpOldNodeOriginalPath"
+
+    $warnings = $null
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpOldNodeInstall -Target FilesOnly -WarningVariable warnings -WarningAction SilentlyContinue
+
+    if (Test-Path (Join-Path $mcpOldNodeInstall "mcp")) {
+        throw "old Node (w): MCP was placed despite Node < 20"
+    }
+    foreach ($plugin in $allPlugins) {
+        if (-not (Test-Path (Join-Path $mcpOldNodeInstall "plugins/$plugin/.codex-plugin/plugin.json"))) {
+            throw "old Node (w): plugin not copied despite MCP-only skip: $plugin"
+        }
+    }
+    if (-not ($warnings | Where-Object { $_.Message -match "(?i)node" })) {
+        throw "old Node (w): expected warning mentioning Node was not raised"
+    }
+    Write-Host "ok: Node < 20 warns and skips MCP only, plugin install continues"
+}
+finally {
+    $env:PATH = $mcpOldNodeOriginalPath
+    if (Test-Path $mcpOldNodeRoot) { Remove-Item -Path $mcpOldNodeRoot -Recurse -Force }
+}
+
+# Scenario (w2): Node < 20 boundary (v18.x) for the DEFAULT multi-MCP install
+# under -Target All. requirements.md Edge Case: "Node < 20 → 既存の MCP 配置
+# ゲート(MCP_NODE_OK)により配置・登録とも行わない". A v18.x node shim ahead of
+# the real node must cause NO placement of EITHER MCP and NO Claude/Codex/
+# Cursor/VS Code registration, while a warning mentioning Node is raised.
+$mcpV18Root = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-v18-" + [guid]::NewGuid())
+$mcpV18Install = Join-Path $mcpV18Root "installed"
+$mcpV18Bin = Join-Path $mcpV18Root "bin"
+$mcpV18Log = Join-Path $mcpV18Root "commands.log"
+$mcpV18OriginalPath = $env:PATH
+$mcpV18OriginalCodexHome = $env:SDD_CODEX_HOME
+$mcpV18OriginalCursorDir = $env:SDD_CURSOR_DIR
+$mcpV18OriginalVSCodeDir = $env:SDD_VSCODE_USER_DIR
+try {
+    New-FakeCommands -BinRoot $mcpV18Bin -LogPath $mcpV18Log
+    if ($isWindowsPlatform) {
+        $v18ShimPath = Join-Path $mcpV18Bin "node.cmd"
+        "@if `"%~1`"==`"--version`" (echo v18.19.0`r`n) else (exit /b 0)`r`n" | Set-Content -Path $v18ShimPath -Encoding Ascii
+    }
+    else {
+        $v18ShimPath = Join-Path $mcpV18Bin "node"
+        "#!/bin/sh`nif [ `"`$1`" = --version ]; then echo v18.19.0; exit 0; fi`nexit 0`n" | Set-Content -Path $v18ShimPath -Encoding Utf8NoBOM
+        & chmod +x $v18ShimPath
+    }
+    $env:PATH = "$mcpV18Bin$([System.IO.Path]::PathSeparator)$mcpV18OriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $mcpV18Root "codex-home"
+    New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
+    $env:SDD_CURSOR_DIR = Join-Path $mcpV18Root "cursor"
+    $env:SDD_VSCODE_USER_DIR = Join-Path $mcpV18Root "vscode-user"
+    New-Item -ItemType Directory -Path $env:SDD_CURSOR_DIR -Force | Out-Null
+    New-Item -ItemType Directory -Path $env:SDD_VSCODE_USER_DIR -Force | Out-Null
+    Set-Content -Path (Join-Path $env:SDD_CURSOR_DIR "mcp.json") -Value "{`n  `"mcpServers`": {}`n}`n" -Encoding Utf8NoBOM -NoNewline
+    Set-Content -Path (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json") -Value "{`n  `"servers`": {}`n}`n" -Encoding Utf8NoBOM -NoNewline
+    $v18CursorBefore = Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")
+    $v18VSCodeBefore = Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")
+
+    $warnings = $null
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpV18Install -Target All -SkipAgentInstall -WarningVariable warnings -WarningAction SilentlyContinue
+
+    if (Test-Path (Join-Path $mcpV18Install "mcp")) {
+        throw "old Node v18 (w2): MCP was placed despite Node < 20"
+    }
+    if (Test-Path $mcpV18Log) {
+        $v18LogContent = Get-Content -Raw $mcpV18Log
+        if ($v18LogContent -match [regex]::Escape("claude mcp add")) {
+            throw "old Node v18 (w2): claude mcp add was invoked despite Node < 20"
+        }
+    }
+    $v18ConfigToml = Get-Content -Raw (Join-Path $env:SDD_CODEX_HOME "config.toml")
+    if ($v18ConfigToml -match "sdd-forge-mcp" -or $v18ConfigToml -match "local-env-mcp") {
+        throw "old Node v18 (w2): Codex config.toml was modified despite Node < 20"
+    }
+    if ((Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")) -ne $v18CursorBefore) {
+        throw "old Node v18 (w2): Cursor mcp.json was modified despite Node < 20"
+    }
+    if ((Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")) -ne $v18VSCodeBefore) {
+        throw "old Node v18 (w2): VS Code mcp.json was modified despite Node < 20"
+    }
+    if (-not ($warnings | Where-Object { $_.Message -match "(?i)node" })) {
+        throw "old Node v18 (w2): expected warning mentioning Node was not raised"
+    }
+    Write-Host "ok: Node v18.x skips MCP placement and registration for both MCPs, with a warning"
+}
+finally {
+    $env:PATH = $mcpV18OriginalPath
+    if ($null -eq $mcpV18OriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $mcpV18OriginalCodexHome }
+    $env:SDD_CURSOR_DIR = $mcpV18OriginalCursorDir
+    $env:SDD_VSCODE_USER_DIR = $mcpV18OriginalVSCodeDir
+    if (Test-Path $mcpV18Root) { Remove-Item -Path $mcpV18Root -Recurse -Force }
+}
+
+# Scenario (x): Codex config.toml absent — MCP registration for Codex is
+# skipped with a warning rather than creating a new config.toml.
+$mcpNoConfigRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-noconfig-" + [guid]::NewGuid())
+$mcpNoConfigInstall = Join-Path $mcpNoConfigRoot "installed"
+$mcpNoConfigBin = Join-Path $mcpNoConfigRoot "bin"
+$mcpNoConfigLog = Join-Path $mcpNoConfigRoot "commands.log"
+$mcpNoConfigOriginalPath = $env:PATH
+$mcpNoConfigOriginalCodexHome = $env:SDD_CODEX_HOME
+try {
+    New-FakeCommands -BinRoot $mcpNoConfigBin -LogPath $mcpNoConfigLog
+    $env:PATH = "$mcpNoConfigBin$([System.IO.Path]::PathSeparator)$mcpNoConfigOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $mcpNoConfigRoot "codex-home-missing"
+
+    $warnings = $null
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpNoConfigInstall -Target All -SkipAgentInstall -WarningVariable warnings -WarningAction SilentlyContinue
+
+    if (Test-Path (Join-Path $env:SDD_CODEX_HOME "config.toml")) {
+        throw "missing config.toml (x): installer created a new config.toml"
+    }
+    if (-not ($warnings | Where-Object { $_.Message -match "(?i)config\.toml" })) {
+        throw "missing config.toml (x): expected warning about missing config.toml not raised"
+    }
+    Write-Host "ok: missing Codex config.toml skips Codex MCP registration with a warning"
+}
+finally {
+    $env:PATH = $mcpNoConfigOriginalPath
+    if ($null -eq $mcpNoConfigOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $mcpNoConfigOriginalCodexHome }
+    if (Test-Path $mcpNoConfigRoot) { Remove-Item -Path $mcpNoConfigRoot -Recurse -Force }
+}
+
+# ---------------------------------------------------------------------------
+# MCP scenarios (T-007/T-008): AC-010 / AC-011 / AC-013 / AC-015 —
+# Cursor / VS Code upsert parity in install.ps1
+# ---------------------------------------------------------------------------
+
+# Scenario (y): AC-010/AC-013 Cursor registration. A pre-existing
+# ~/.cursor/mcp.json (via SDD_CURSOR_DIR) containing a foreign entry and an
+# unknown top-level key keeps both; the two selected MCPs are upserted under
+# mcpServers.<name> as { command: "node", args: [<install-root>/mcp/<name>/dist/index.js] };
+# a second run is byte-identical (idempotent). The VS Code user dir is absent
+# here, so VS Code registration is skipped with a notice and never created.
+$cursorRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-cursor-" + [guid]::NewGuid())
+$cursorInstall = Join-Path $cursorRoot "installed"
+$cursorBin = Join-Path $cursorRoot "bin"
+$cursorLog = Join-Path $cursorRoot "commands.log"
+$cursorOriginalPath = $env:PATH
+$cursorOriginalCodexHome = $env:SDD_CODEX_HOME
+$cursorOriginalCursorDir = $env:SDD_CURSOR_DIR
+$cursorOriginalVSCodeDir = $env:SDD_VSCODE_USER_DIR
+try {
+    New-FakeCommands -BinRoot $cursorBin -LogPath $cursorLog
+    $env:PATH = "$cursorBin$([System.IO.Path]::PathSeparator)$cursorOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $cursorRoot "codex-home"
+    New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
+    $env:SDD_CURSOR_DIR = Join-Path $cursorRoot "cursor"
+    $env:SDD_VSCODE_USER_DIR = Join-Path $cursorRoot "vscode-user-missing"
+    New-Item -ItemType Directory -Path $env:SDD_CURSOR_DIR -Force | Out-Null
+    $cursorSeed = @'
+{
+  "mcpServers": {
+    "user-defined-mcp": {
+      "command": "python3",
+      "args": ["/opt/user/mcp.py"]
+    }
+  },
+  "unknownTopLevelKey": { "keep": true }
+}
+'@
+    Set-Content -Path (Join-Path $env:SDD_CURSOR_DIR "mcp.json") -Value $cursorSeed -Encoding Utf8NoBOM
+
+    $cursorWarnings = $null
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $cursorInstall -Target All -SkipAgentInstall -WarningVariable cursorWarnings -WarningAction SilentlyContinue
+    $cursorAfterFirst = Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $cursorInstall -Target All -SkipAgentInstall -WarningAction SilentlyContinue | Out-Null
+    $cursorAfterSecond = Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")
+
+    $cursorCheck = & node -e '
+const c = require(process.argv[1]);
+const s = c.mcpServers || {};
+const f = s["user-defined-mcp"];
+if (!f || f.command !== "python3" || !Array.isArray(f.args) || f.args[0] !== "/opt/user/mcp.py") process.exit(1);
+for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+  const e = s[n];
+  if (!e || e.command !== "node" || !Array.isArray(e.args) || e.args.length !== 1) process.exit(1);
+  if (!e.args[0].replace(/\\/g, "/").endsWith("/mcp/" + n + "/dist/index.js")) process.exit(1);
+}
+if (!c.unknownTopLevelKey || c.unknownTopLevelKey.keep !== true) process.exit(1);
+' (Join-Path $env:SDD_CURSOR_DIR "mcp.json") 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "cursor upsert (y): mcp.json missing managed entries, foreign entry, or unknown top-level key"
+    }
+    if ($cursorAfterFirst -ne $cursorAfterSecond) {
+        throw "cursor upsert (y): second run is not byte-identical (not idempotent)"
+    }
+    if (Test-Path (Join-Path $cursorRoot "vscode-user-missing")) {
+        throw "cursor upsert (y): absent VS Code user dir was created"
+    }
+    if (-not ($cursorWarnings | Where-Object { $_.Message -match "(?i)vs code" })) {
+        throw "cursor upsert (y): expected VS Code skip notice for absent user dir not raised"
+    }
+    Write-Host "ok: Cursor mcp.json upsert preserves foreign entries, is idempotent, and absent VS Code dir is skipped with a notice"
+}
+finally {
+    $env:PATH = $cursorOriginalPath
+    if ($null -eq $cursorOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $cursorOriginalCodexHome }
+    $env:SDD_CURSOR_DIR = $cursorOriginalCursorDir
+    $env:SDD_VSCODE_USER_DIR = $cursorOriginalVSCodeDir
+    if (Test-Path $cursorRoot) { Remove-Item -Path $cursorRoot -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
+# Scenario (z): AC-011/AC-013 VS Code registration. A pre-existing user-profile
+# mcp.json (via SDD_VSCODE_USER_DIR) containing a foreign entry and an unknown
+# top-level key keeps both; the two selected MCPs are upserted under
+# servers.<name> as { type: "stdio", command: "node", args: [...] }; a second
+# run is byte-identical. The Cursor dir is absent here, so Cursor registration
+# is skipped with a notice and never created.
+$vscodeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-vscode-" + [guid]::NewGuid())
+$vscodeInstall = Join-Path $vscodeRoot "installed"
+$vscodeBin = Join-Path $vscodeRoot "bin"
+$vscodeLog = Join-Path $vscodeRoot "commands.log"
+$vscodeOriginalPath = $env:PATH
+$vscodeOriginalCodexHome = $env:SDD_CODEX_HOME
+$vscodeOriginalCursorDir = $env:SDD_CURSOR_DIR
+$vscodeOriginalVSCodeDir = $env:SDD_VSCODE_USER_DIR
+try {
+    New-FakeCommands -BinRoot $vscodeBin -LogPath $vscodeLog
+    $env:PATH = "$vscodeBin$([System.IO.Path]::PathSeparator)$vscodeOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $vscodeRoot "codex-home"
+    New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
+    $env:SDD_CURSOR_DIR = Join-Path $vscodeRoot "cursor-missing"
+    $env:SDD_VSCODE_USER_DIR = Join-Path $vscodeRoot "vscode-user"
+    New-Item -ItemType Directory -Path $env:SDD_VSCODE_USER_DIR -Force | Out-Null
+    $vscodeSeed = @'
+{
+  "servers": {
+    "user-defined-mcp": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["/opt/user/mcp.py"]
+    }
+  },
+  "inputs": [{ "id": "keep-me", "type": "promptString" }]
+}
+'@
+    Set-Content -Path (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json") -Value $vscodeSeed -Encoding Utf8NoBOM
+
+    $vscodeWarnings = $null
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $vscodeInstall -Target All -SkipAgentInstall -WarningVariable vscodeWarnings -WarningAction SilentlyContinue
+    $vscodeAfterFirst = Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")
+    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $vscodeInstall -Target All -SkipAgentInstall -WarningAction SilentlyContinue | Out-Null
+    $vscodeAfterSecond = Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")
+
+    & node -e '
+const c = require(process.argv[1]);
+const s = c.servers || {};
+const f = s["user-defined-mcp"];
+if (!f || f.command !== "python3" || !Array.isArray(f.args) || f.args[0] !== "/opt/user/mcp.py") process.exit(1);
+for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+  const e = s[n];
+  if (!e || e.type !== "stdio" || e.command !== "node" || !Array.isArray(e.args) || e.args.length !== 1) process.exit(1);
+  if (!e.args[0].replace(/\\/g, "/").endsWith("/mcp/" + n + "/dist/index.js")) process.exit(1);
+}
+if (!Array.isArray(c.inputs) || c.inputs.length !== 1 || c.inputs[0].id !== "keep-me") process.exit(1);
+' (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json") 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "vscode upsert (z): mcp.json missing managed entries, foreign entry, or unknown top-level key"
+    }
+    if ($vscodeAfterFirst -ne $vscodeAfterSecond) {
+        throw "vscode upsert (z): second run is not byte-identical (not idempotent)"
+    }
+    if (Test-Path (Join-Path $vscodeRoot "cursor-missing")) {
+        throw "vscode upsert (z): absent Cursor dir was created"
+    }
+    if (-not ($vscodeWarnings | Where-Object { $_.Message -match "(?i)cursor" })) {
+        throw "vscode upsert (z): expected Cursor skip notice for absent dir not raised"
+    }
+    Write-Host "ok: VS Code mcp.json upsert preserves foreign entries, is idempotent, and absent Cursor dir is skipped with a notice"
+}
+finally {
+    $env:PATH = $vscodeOriginalPath
+    if ($null -eq $vscodeOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $vscodeOriginalCodexHome }
+    $env:SDD_CURSOR_DIR = $vscodeOriginalCursorDir
+    $env:SDD_VSCODE_USER_DIR = $vscodeOriginalVSCodeDir
+    if (Test-Path $vscodeRoot) { Remove-Item -Path $vscodeRoot -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
+# Scenario (aa): AC-015/AC-013 corrupted Cursor mcp.json. The installer must
+# NOT modify the corrupt file (byte-identical), must raise an error notice, must
+# still register the OTHER client (VS Code), and must exit zero.
+$corruptCursorRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-corrupt-cursor-" + [guid]::NewGuid())
+$corruptCursorInstall = Join-Path $corruptCursorRoot "installed"
+$corruptCursorBin = Join-Path $corruptCursorRoot "bin"
+$corruptCursorLog = Join-Path $corruptCursorRoot "commands.log"
+$corruptCursorOriginalPath = $env:PATH
+$corruptCursorOriginalCodexHome = $env:SDD_CODEX_HOME
+$corruptCursorOriginalCursorDir = $env:SDD_CURSOR_DIR
+$corruptCursorOriginalVSCodeDir = $env:SDD_VSCODE_USER_DIR
+try {
+    New-FakeCommands -BinRoot $corruptCursorBin -LogPath $corruptCursorLog
+    $env:PATH = "$corruptCursorBin$([System.IO.Path]::PathSeparator)$corruptCursorOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $corruptCursorRoot "codex-home"
+    New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
+    $env:SDD_CURSOR_DIR = Join-Path $corruptCursorRoot "cursor"
+    $env:SDD_VSCODE_USER_DIR = Join-Path $corruptCursorRoot "vscode-user"
+    New-Item -ItemType Directory -Path $env:SDD_CURSOR_DIR -Force | Out-Null
+    New-Item -ItemType Directory -Path $env:SDD_VSCODE_USER_DIR -Force | Out-Null
+    Set-Content -Path (Join-Path $env:SDD_CURSOR_DIR "mcp.json") -Value "{ `"mcpServers`": { `"broken`"`n" -Encoding Utf8NoBOM -NoNewline
+    $corruptCursorBefore = Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")
+
+    $corruptCursorFailed = $false
+    $corruptCursorOutput = ""
+    try {
+        $corruptCursorOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $corruptCursorInstall -Target All -SkipAgentInstall *>&1 | Out-String
+    }
+    catch {
+        $corruptCursorFailed = $true
+        $corruptCursorOutput = $_ | Out-String
+    }
+    if ($corruptCursorFailed) {
+        throw "corrupt cursor JSON (aa): installer exited non-zero"
+    }
+    if ((Get-Content -Raw (Join-Path $env:SDD_CURSOR_DIR "mcp.json")) -ne $corruptCursorBefore) {
+        throw "corrupt cursor JSON (aa): corrupt mcp.json was modified"
+    }
+    if ($corruptCursorOutput -notmatch "(?i)invalid") {
+        throw "corrupt cursor JSON (aa): expected invalid-JSON error notice not raised"
+    }
+    & node -e '
+const c = require(process.argv[1]);
+const s = c.servers || {};
+for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+  const e = s[n];
+  if (!e || e.type !== "stdio" || e.command !== "node") process.exit(1);
+}
+' (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json") 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "corrupt cursor JSON (aa): VS Code registration did not continue"
+    }
+    Write-Host "ok: corrupt Cursor mcp.json is left unmodified with an error notice and VS Code registration continues"
+}
+finally {
+    $env:PATH = $corruptCursorOriginalPath
+    if ($null -eq $corruptCursorOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $corruptCursorOriginalCodexHome }
+    $env:SDD_CURSOR_DIR = $corruptCursorOriginalCursorDir
+    $env:SDD_VSCODE_USER_DIR = $corruptCursorOriginalVSCodeDir
+    if (Test-Path $corruptCursorRoot) { Remove-Item -Path $corruptCursorRoot -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
+# Scenario (ab): AC-015/AC-013 corrupted VS Code mcp.json — symmetric to (aa):
+# the corrupt file is untouched, an error notice is raised, Cursor registration
+# continues, and the installer exits zero.
+$corruptVSCodeRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-corrupt-vscode-" + [guid]::NewGuid())
+$corruptVSCodeInstall = Join-Path $corruptVSCodeRoot "installed"
+$corruptVSCodeBin = Join-Path $corruptVSCodeRoot "bin"
+$corruptVSCodeLog = Join-Path $corruptVSCodeRoot "commands.log"
+$corruptVSCodeOriginalPath = $env:PATH
+$corruptVSCodeOriginalCodexHome = $env:SDD_CODEX_HOME
+$corruptVSCodeOriginalCursorDir = $env:SDD_CURSOR_DIR
+$corruptVSCodeOriginalVSCodeDir = $env:SDD_VSCODE_USER_DIR
+try {
+    New-FakeCommands -BinRoot $corruptVSCodeBin -LogPath $corruptVSCodeLog
+    $env:PATH = "$corruptVSCodeBin$([System.IO.Path]::PathSeparator)$corruptVSCodeOriginalPath"
+    $env:SDD_CODEX_HOME = Join-Path $corruptVSCodeRoot "codex-home"
+    New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
+    $env:SDD_CURSOR_DIR = Join-Path $corruptVSCodeRoot "cursor"
+    $env:SDD_VSCODE_USER_DIR = Join-Path $corruptVSCodeRoot "vscode-user"
+    New-Item -ItemType Directory -Path $env:SDD_CURSOR_DIR -Force | Out-Null
+    New-Item -ItemType Directory -Path $env:SDD_VSCODE_USER_DIR -Force | Out-Null
+    Set-Content -Path (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json") -Value "not json at all { ]`n" -Encoding Utf8NoBOM -NoNewline
+    $corruptVSCodeBefore = Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")
+
+    $corruptVSCodeFailed = $false
+    $corruptVSCodeOutput = ""
+    try {
+        $corruptVSCodeOutput = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $corruptVSCodeInstall -Target All -SkipAgentInstall *>&1 | Out-String
+    }
+    catch {
+        $corruptVSCodeFailed = $true
+        $corruptVSCodeOutput = $_ | Out-String
+    }
+    if ($corruptVSCodeFailed) {
+        throw "corrupt vscode JSON (ab): installer exited non-zero"
+    }
+    if ((Get-Content -Raw (Join-Path $env:SDD_VSCODE_USER_DIR "mcp.json")) -ne $corruptVSCodeBefore) {
+        throw "corrupt vscode JSON (ab): corrupt mcp.json was modified"
+    }
+    if ($corruptVSCodeOutput -notmatch "(?i)invalid") {
+        throw "corrupt vscode JSON (ab): expected invalid-JSON error notice not raised"
+    }
+    & node -e '
+const c = require(process.argv[1]);
+const s = c.mcpServers || {};
+for (const n of ["sdd-forge-mcp", "local-env-mcp"]) {
+  const e = s[n];
+  if (!e || e.command !== "node") process.exit(1);
+}
+' (Join-Path $env:SDD_CURSOR_DIR "mcp.json") 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "corrupt vscode JSON (ab): Cursor registration did not continue"
+    }
+    Write-Host "ok: corrupt VS Code mcp.json is left unmodified with an error notice and Cursor registration continues"
+}
+finally {
+    $env:PATH = $corruptVSCodeOriginalPath
+    if ($null -eq $corruptVSCodeOriginalCodexHome) { Remove-Item Env:SDD_CODEX_HOME -ErrorAction SilentlyContinue } else { $env:SDD_CODEX_HOME = $corruptVSCodeOriginalCodexHome }
+    $env:SDD_CURSOR_DIR = $corruptVSCodeOriginalCursorDir
+    $env:SDD_VSCODE_USER_DIR = $corruptVSCodeOriginalVSCodeDir
+    if (Test-Path $corruptVSCodeRoot) { Remove-Item -Path $corruptVSCodeRoot -Recurse -Force -ErrorAction SilentlyContinue }
+}
+
 Write-Host "Installer integration tests passed."
 
 if (Test-Path $installerSourceRoot) {
     Remove-Item -Path $installerSourceRoot -Recurse -Force -ErrorAction SilentlyContinue
+}
+if ($global:SddInstallerIdeRoot -and (Test-Path $global:SddInstallerIdeRoot)) {
+    Remove-Item -Path $global:SddInstallerIdeRoot -Recurse -Force -ErrorAction SilentlyContinue
 }
 
 # Explicit success exit: GitHub Actions pwsh appends "exit $LASTEXITCODE", which

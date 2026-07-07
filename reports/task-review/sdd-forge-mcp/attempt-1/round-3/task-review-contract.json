@@ -1,0 +1,98 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "sdd-forge-mcp",
+  "run_id": "task-orch-sddforgemcp-a1r3-20260704-c2a8",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 3,
+  "attempt": 1,
+  "workflow_match_precheck": "PASS",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "938d22bb0ddb78488c8700b19be824d19a593c8a3652724a8ac3b019c69b1067",
+  "requirements_sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e",
+  "acceptance_sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf",
+  "tasks_sha256": "59a2bda8323db8f07332fccd0f8f928b2fd1fbead53a7149c675c2a8bf215e98",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "task-a-sddforgemcp-a1r3-20260704-e5d9",
+      "host_session_id": "hs-task-a-7ea701ba-0016",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-forge-mcp/requirements.md",
+          "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+          "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/tasks.md",
+          "sha256": "59a2bda8323db8f07332fccd0f8f928b2fd1fbead53a7149c675c2a8bf215e98"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/traceability.md",
+          "sha256": "9c317fb6da2074dee4012bdcf532b3ec25538d6ad81b36a6e0eca2ed2b0ec76c"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/precheck-result.json",
+          "sha256": "58017dedc614d1f2d62bbe55830904ad78fddcb0e1c8b49dd8c1034d568f7e1e"
+        },
+        {
+          "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/dependency-graph.json",
+          "sha256": "0177ff96bf4d191015a54381a52f2780d8922c75bd8cbd76e180cd131de86088"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "task-b-sddforgemcp-a1r3-20260704-b9f6",
+      "host_session_id": "hs-task-b-7ea701ba-0017",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/sdd-forge-mcp/requirements.md",
+          "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+          "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+        },
+        {
+          "path": "specs/sdd-forge-mcp/tasks.md",
+          "sha256": "59a2bda8323db8f07332fccd0f8f928b2fd1fbead53a7149c675c2a8bf215e98"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "6f0411fa9c4d29357df1131901cdeac3560073b62cbaf21ae7a503967eed0623"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/precheck-result.json",
+          "sha256": "58017dedc614d1f2d62bbe55830904ad78fddcb0e1c8b49dd8c1034d568f7e1e"
+        },
+        {
+          "path": "reports/task-review/sdd-forge-mcp/attempt-1/round-3/integrated-summary.json",
+          "sha256": "01fd403f87709351ac8664bab81970edad4d97b94a81ddba6f10f173534e44d3"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "T-009 split into T-009 (resources) + T-010 (next-command + smoke); T-003 split into T-003 (3 SDD-state parsers) + T-011 (evidence/traceability parsers); Blockers DAG and traceability updated (11 tasks, 20 edges).",
+  "timestamp": "2026-07-04T14:49:17Z"
+}

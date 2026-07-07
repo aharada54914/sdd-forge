@@ -14,8 +14,16 @@ PLUGINS="sdd-bootstrap,sdd-ship"
 SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
+SKIP_MCP=0
+MCP_LIST="sdd-forge-mcp,local-env-mcp"
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
+VALID_MCPS="sdd-forge-mcp local-env-mcp"
+# The ~/.codex/config.toml block for each selected MCP is delimited by a
+# per-MCP marker pair built inside register_codex_mcp (using the MCP name), so
+# a block can be idempotently added, replaced, or removed without touching any
+# other content a user has in that file. No single-MCP marker constant is
+# defined here because the installer ships more than one MCP.
 
 # ---------------------------------------------------------------------------
 # Argument parsing
@@ -34,8 +42,15 @@ Usage: install.sh [options]
   --skip-plugin-install          Skip registering plugins with CLI tools
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
+  --skip-mcp                     Skip placing and registering all MCP servers
+  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp
+                                 Default: sdd-forge-mcp,local-env-mcp
 
-Environment: SDD_CODEX_HOME     Override ~/.codex destination for agent TOML files
+Environment:
+  SDD_CODEX_HOME        Override ~/.codex destination for agent TOML files and config.toml
+  SDD_CURSOR_DIR        Override the ~/.cursor directory used for Cursor MCP registration
+  SDD_VSCODE_USER_DIR   Override the VS Code user-profile directory used for MCP registration
+
   Remote installs require a GitHub CLI-authenticated session (`gh auth login`).
 EOF
     exit 1
@@ -51,6 +66,8 @@ while [[ $# -gt 0 ]]; do
         --skip-plugin-install) SKIP_PLUGIN_INSTALL=1; shift ;;
         --skip-agent-install)  SKIP_AGENT_INSTALL=1; shift ;;
         --source-directory) [[ $# -gt 1 ]] || usage; SOURCE_DIRECTORY="$2"; shift 2 ;;
+        --skip-mcp)         SKIP_MCP=1; shift ;;
+        --mcp)              [[ $# -gt 1 ]] || usage; MCP_LIST="$2"; shift 2 ;;
         *) echo "Unknown option: $1" >&2; usage ;;
     esac
 done
@@ -62,6 +79,12 @@ case "$TARGET" in
 esac
 
 # Validate --plugins
+# bash 3.2 treats the zero-element array produced by `read -ra` on an empty
+# string as unset under `set -u`, so reject an empty list before the read.
+if [[ -z "$PLUGINS" ]]; then
+    echo "Invalid plugin name: (empty) (must be one of: $VALID_PLUGINS)" >&2
+    exit 1
+fi
 IFS=',' read -ra PLUGIN_LIST <<< "$PLUGINS"
 for p in "${PLUGIN_LIST[@]}"; do
     valid=0
@@ -73,6 +96,26 @@ for p in "${PLUGIN_LIST[@]}"; do
         exit 1
     fi
 done
+
+# Validate --mcp
+MCP_SELECTION=()
+if [[ $SKIP_MCP -eq 0 ]]; then
+    if [[ -z "$MCP_LIST" ]]; then
+        echo "Invalid MCP name: (empty) (must be one of: $VALID_MCPS)" >&2
+        exit 1
+    fi
+    IFS=',' read -ra MCP_SELECTION <<< "$MCP_LIST"
+    for m in "${MCP_SELECTION[@]}"; do
+        valid=0
+        for v in $VALID_MCPS; do
+            [[ "$m" == "$v" ]] && valid=1 && break
+        done
+        if [[ $valid -eq 0 ]]; then
+            echo "Invalid MCP name: $m (must be one of: $VALID_MCPS)" >&2
+            exit 1
+        fi
+    done
+fi
 
 # Resolve dependencies to a fixed point. This is deliberately iterative: lite
 # adds bootstrap, and bootstrap then adds the internal review loop.
@@ -241,6 +284,254 @@ install_codex_agents() {
             echo "Warning: Codex will ignore malformed agent role file at startup ('Ignoring malformed agent role definition'): ${toml_file}. Add a developer_instructions entry or delete the file." >&2
         fi
     done
+}
+
+# ---------------------------------------------------------------------------
+# MCP: Node version check, placement, and Claude/Codex/Cursor/VS Code registration
+# ---------------------------------------------------------------------------
+mcp_selected() {
+    # Returns 0 if the given MCP name is in MCP_SELECTION.
+    local name="$1"
+    local m
+    for m in "${MCP_SELECTION[@]}"; do
+        [[ "$m" == "$name" ]] && return 0
+    done
+    return 1
+}
+
+node_version_ok() {
+    # Returns 0 if `node` is on PATH and its major version is >= 20.
+    if ! command -v node >/dev/null 2>&1; then
+        echo "Warning: Node.js was not found in PATH. MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    local version major
+    version="$(node --version 2>/dev/null)" || version=""
+    # Expected form: vNN.N.N
+    major="${version#v}"
+    major="${major%%.*}"
+    if [[ -z "$major" || ! "$major" =~ ^[0-9]+$ ]]; then
+        echo "Warning: Could not determine Node.js version (got '${version}'). MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    if [[ "$major" -lt 20 ]]; then
+        echo "Warning: Node.js >= 20 is required for MCP servers (found ${version}). MCP server installation was skipped (plugin installation continues)." >&2
+        return 1
+    fi
+    return 0
+}
+
+place_mcp_servers() {
+    # Copies the minimal MCP payload (dist/ + package.json) for each selected
+    # MCP from the source tree into INSTALL_ROOT/mcp/<name>/. This is
+    # independent of Git tracking state (unlike REQUIRED_PATHS) because the
+    # MCP dist/ bundle is not yet committed to the repository as of this task.
+    local source_root="$1"
+    local install_root_path="$2"
+    local name src_dir dest_dir
+    for name in "${MCP_SELECTION[@]}"; do
+        src_dir="${source_root}/mcp/${name}"
+        if [[ ! -f "${src_dir}/dist/index.js" || ! -f "${src_dir}/package.json" ]]; then
+            echo "Warning: MCP server '${name}' payload (dist/index.js, package.json) was not found under mcp/${name}. Skipping placement." >&2
+            continue
+        fi
+        dest_dir="${install_root_path}/mcp/${name}"
+        mkdir -p "${dest_dir}/dist"
+        cp -R "${src_dir}/dist/." "${dest_dir}/dist/"
+        cp -f "${src_dir}/package.json" "${dest_dir}/package.json"
+    done
+}
+
+register_claude_mcp() {
+    # Registers each selected MCP with Claude Code (user scope). Best-effort:
+    # a missing Claude CLI is a warning, mirroring install_claude_plugins.
+    local install_root_path="$1"
+    if ! command -v claude >/dev/null 2>&1; then
+        echo "Warning: Claude Code CLI was not found. Claude MCP registration was skipped." >&2
+        return 0
+    fi
+    local name entry_point
+    for name in "${MCP_SELECTION[@]}"; do
+        entry_point="${install_root_path}/mcp/${name}/dist/index.js"
+        [[ -f "$entry_point" ]] || continue
+        run_plugin_command claude mcp add "$name" --scope user -- node "$entry_point" || return 1
+    done
+}
+
+register_codex_mcp() {
+    # Idempotently adds/replaces a marker-delimited block in
+    # ~/.codex/config.toml for each selected MCP. If config.toml does not
+    # exist, registration is skipped with a warning (a new file is never
+    # created, per requirements).
+    local install_root_path="$1"
+    local codex_home="${SDD_CODEX_HOME:-$HOME/.codex}"
+    local config_toml="${codex_home}/config.toml"
+    if [[ ! -f "$config_toml" ]]; then
+        echo "Warning: ${config_toml} was not found. Codex MCP registration was skipped (the installer does not create a new config.toml)." >&2
+        return 0
+    fi
+    local name entry_point block_file tmp_config
+    for name in "${MCP_SELECTION[@]}"; do
+        entry_point="${install_root_path}/mcp/${name}/dist/index.js"
+        [[ -f "$entry_point" ]] || continue
+        local marker_begin="# >>> ${name} (managed by sdd-forge installer; do not edit by hand) >>>"
+        local marker_end="# <<< ${name} <<<"
+        tmp_config="$(mktemp)"
+        # Strip any prior block for this MCP (idempotent re-registration),
+        # then append a fresh block.
+        awk -v begin="$marker_begin" -v end="$marker_end" '
+            $0 == begin { skip = 1; next }
+            $0 == end { skip = 0; next }
+            skip { next }
+            { print }
+        ' "$config_toml" > "$tmp_config"
+        {
+            cat "$tmp_config"
+            printf '\n%s\n[mcp_servers.%s]\ncommand = "node"\nargs = ["%s"]\n%s\n' \
+                "$marker_begin" "$name" "$entry_point" "$marker_end"
+        } > "${tmp_config}.new"
+        mv "${tmp_config}.new" "$config_toml"
+        rm -f "$tmp_config"
+    done
+}
+
+upsert_mcp_json() {
+    # Shared idempotent JSON upsert for IDE client MCP configs (ADR-0005).
+    # Args: <client_label> <config_file> <top_key> <entry_kind> <install_root_path>
+    # Upserts <top_key>.<name> for every selected MCP whose payload was
+    # placed, preserving all other entries and unknown top-level keys. The
+    # output is stable 2-space JSON, so re-running produces a byte-identical
+    # file. Fail-safes (security-spec B3): a present-but-invalid JSON file is
+    # never overwritten (error notice, installer continues with other
+    # clients). Node >= 20 is guaranteed here by the MCP gate (MCP_NODE_OK).
+    local client_label="$1"
+    local config_file="$2"
+    local top_key="$3"
+    local entry_kind="$4"
+    local install_root_path="$5"
+    local name entry_point
+    local pairs=()
+    for name in "${MCP_SELECTION[@]}"; do
+        entry_point="${install_root_path}/mcp/${name}/dist/index.js"
+        [[ -f "$entry_point" ]] || continue
+        pairs+=("$name" "$entry_point")
+    done
+    # Guard the expansion: bash 3.2 treats a zero-element array as unset
+    # under set -u.
+    [[ ${#pairs[@]} -eq 0 ]] && return 0
+    local rc=0
+    node -e '
+const fs = require("fs");
+const [file, topKey, kind, ...pairs] = process.argv.slice(1);
+let text = "";
+try { text = fs.readFileSync(file, "utf8"); } catch (err) { text = ""; }
+let root = {};
+if (text.trim() !== "") {
+  try { root = JSON.parse(text); } catch (err) { process.exit(3); }
+  if (root === null || typeof root !== "object" || Array.isArray(root)) process.exit(3);
+}
+if (root[topKey] === undefined) root[topKey] = {};
+const section = root[topKey];
+if (section === null || typeof section !== "object" || Array.isArray(section)) process.exit(3);
+for (let i = 0; i + 1 < pairs.length; i += 2) {
+  section[pairs[i]] = kind === "vscode"
+    ? { type: "stdio", command: "node", args: [pairs[i + 1]] }
+    : { command: "node", args: [pairs[i + 1]] };
+}
+const out = JSON.stringify(root, null, 2) + "\n";
+const tmp = file + ".sdd-forge.tmp";
+fs.writeFileSync(tmp, out);
+fs.renameSync(tmp, file);
+' "$config_file" "$top_key" "$entry_kind" "${pairs[@]}" || rc=$?
+    if [[ $rc -eq 3 ]]; then
+        echo "Error: ${config_file} contains invalid JSON. ${client_label} MCP registration was skipped and the file was left unmodified. Fix or remove the file and re-run the installer." >&2
+        return 0
+    fi
+    if [[ $rc -ne 0 ]]; then
+        echo "Warning: Failed to update ${config_file}. ${client_label} MCP registration was skipped." >&2
+        return 0
+    fi
+    return 0
+}
+
+register_cursor_mcp() {
+    # Idempotently upserts mcpServers.<name> into ~/.cursor/mcp.json for each
+    # selected MCP. An absent ~/.cursor directory means Cursor is not
+    # installed: skip with a notice and never create the directory (creating
+    # mcp.json inside an EXISTING directory is fine). Override the directory
+    # via SDD_CURSOR_DIR (for testing; default is the user profile).
+    local install_root_path="$1"
+    local cursor_dir="${SDD_CURSOR_DIR:-$HOME/.cursor}"
+    if [[ ! -d "$cursor_dir" ]]; then
+        echo "Warning: ${cursor_dir} was not found. Cursor MCP registration was skipped (Cursor does not appear to be installed; the installer does not create the directory)." >&2
+        return 0
+    fi
+    upsert_mcp_json "Cursor" "${cursor_dir}/mcp.json" "mcpServers" "cursor" "$install_root_path"
+}
+
+register_vscode_mcp() {
+    # Idempotently upserts servers.<name> into the VS Code user-profile
+    # mcp.json for each selected MCP (macOS:
+    # ~/Library/Application Support/Code/User, Linux: ~/.config/Code/User;
+    # Windows %APPDATA%\Code\User is handled by install.ps1). An absent user
+    # directory means VS Code is not installed: skip with a notice and never
+    # create the directory. Override via SDD_VSCODE_USER_DIR (for testing).
+    local install_root_path="$1"
+    local vscode_user_dir
+    if [[ -n "${SDD_VSCODE_USER_DIR:-}" ]]; then
+        vscode_user_dir="$SDD_VSCODE_USER_DIR"
+    else
+        case "$(uname -s)" in
+            Darwin) vscode_user_dir="$HOME/Library/Application Support/Code/User" ;;
+            *)      vscode_user_dir="$HOME/.config/Code/User" ;;
+        esac
+    fi
+    if [[ ! -d "$vscode_user_dir" ]]; then
+        echo "Warning: ${vscode_user_dir} was not found. VS Code MCP registration was skipped (VS Code does not appear to be installed; the installer does not create the directory)." >&2
+        return 0
+    fi
+    upsert_mcp_json "VS Code" "${vscode_user_dir}/mcp.json" "servers" "vscode" "$install_root_path"
+}
+
+MCP_NODE_OK=0
+
+place_mcp_servers_if_selected() {
+    # Placement (like plugin files) happens regardless of --target; only
+    # registration is target-scoped. Sets MCP_NODE_OK for callers to check
+    # before attempting registration.
+    local source_root="$1"
+    local install_root_path="$2"
+    MCP_NODE_OK=0
+    if [[ $SKIP_MCP -eq 1 || ${#MCP_SELECTION[@]} -eq 0 ]]; then
+        return 0
+    fi
+    if ! node_version_ok; then
+        return 0
+    fi
+    MCP_NODE_OK=1
+    place_mcp_servers "$source_root" "$install_root_path"
+}
+
+install_mcp_servers() {
+    local install_root_path="$1"
+    if [[ $SKIP_MCP -eq 1 || ${#MCP_SELECTION[@]} -eq 0 || $MCP_NODE_OK -ne 1 ]]; then
+        return 0
+    fi
+    if [[ "$TARGET" == "All" || "$TARGET" == "Claude" ]]; then
+        register_claude_mcp "$install_root_path" || return 1
+    fi
+    if [[ "$TARGET" == "All" || "$TARGET" == "Codex" ]]; then
+        register_codex_mcp "$install_root_path" || return 1
+    fi
+    # Cursor has no dedicated --target value, so it participates in All only.
+    if [[ "$TARGET" == "All" ]]; then
+        register_cursor_mcp "$install_root_path" || return 1
+    fi
+    # VS Code consumes the MCP config through Copilot, so it participates in
+    # both All and Copilot.
+    if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
+        register_vscode_mcp "$install_root_path" || return 1
+    fi
 }
 
 # ---------------------------------------------------------------------------
@@ -539,16 +830,22 @@ STAGING_ROOT="$(mktemp -d "${INSTALL_PARENT}/sdd-plugins-staging-XXXXXX")"
 # A local worktree can contain credentials, caches, and nested untracked files.
 # Copy its Git index only. Downloaded archives are trusted release inputs and
 # have no local untracked state, so retain their complete archive layout.
+# The mcp/ tree is excluded here even though it is Git-tracked: MCP payload
+# placement is handled exclusively by place_mcp_servers (dist/ + package.json
+# only, gated by --skip-mcp / --mcp / the Node >= 20 check), so staging it
+# unconditionally here would bypass that gating.
 if [[ $SOURCE_IS_LOCAL -eq 1 ]]; then
     while IFS= read -r -d '' relative_path; do
         destination_path="${STAGING_ROOT}/${relative_path}"
         mkdir -p "$(dirname "$destination_path")"
         cp -P "${SOURCE_ROOT}/${relative_path}" "$destination_path"
-    done < <(git -C "$SOURCE_ROOT" ls-files -z)
+    done < <(git -C "$SOURCE_ROOT" ls-files -z -- . ':!mcp/**')
 else
     for entry in "${SOURCE_ROOT}"/* "${SOURCE_ROOT}"/.[!.]* "${SOURCE_ROOT}"/..?*; do
         [[ -e "$entry" ]] || continue
-        [[ "$(basename "$entry")" == ".git" ]] && continue
+        case "$(basename "$entry")" in
+            .git|mcp) continue ;;
+        esac
         cp -R "$entry" "${STAGING_ROOT}/"
     done
 fi
@@ -569,6 +866,10 @@ NEW_INSTALL_PLACED=1
 
 RESOLVED_INSTALL_ROOT="$(cd "$INSTALL_ROOT" && pwd)"
 
+# MCP placement mirrors plugin file placement: it happens regardless of
+# --target and is controlled only by --skip-mcp / --mcp.
+place_mcp_servers_if_selected "$SOURCE_ROOT" "$RESOLVED_INSTALL_ROOT"
+
 # ---------------------------------------------------------------------------
 # Registration
 # ---------------------------------------------------------------------------
@@ -587,6 +888,7 @@ fi
 if [[ "$TARGET" == "All" || "$TARGET" == "Copilot" ]]; then
     install_copilot_plugins "$RESOLVED_INSTALL_ROOT" || exit 1
 fi
+install_mcp_servers "$RESOLVED_INSTALL_ROOT" || exit 1
 
 # ---------------------------------------------------------------------------
 # Success

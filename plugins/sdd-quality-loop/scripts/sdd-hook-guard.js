@@ -170,6 +170,17 @@ const PROTECTED_GATE_SUFFIXES = [
 
 const SHELL_COMPOUND_RE = /&&|\|\||;|\|/;
 
+// Issue #62: write-target analysis for shell commands that mention a protected
+// gate file. Verb sets and token patterns are kept identical to the Python twin
+// (guard-parity.tests.sh verifies exit-code parity).
+const SHELL_WRITE_ARG_CMDS = ['tee', 'touch', 'rm'];
+const SHELL_WRITE_DEST_CMDS = ['cp', 'mv'];
+const SHELL_PS_WRITE_CMDS = ['set-content', 'out-file', 'new-item', 'remove-item'];
+const SHELL_INDIRECT_CMDS = ['eval', 'xargs', 'source', 'sh', 'bash', 'zsh', 'dash', 'ksh'];
+const SHELL_UNSAFE_TOKEN_CHARS = ['$', '`', '(', ')', '{', '}', '*', '?', '[', ']'];
+const SHELL_REDIRECT_TOKEN_RE = /^(?:\d*|&)(>>?)([\s\S]*)$/;
+const SHELL_FD_DUP_RE = /^&(?:\d+|-)$/;
+
 function isProtectedGateFile(filePath) {
   if (!filePath) return false;
   // posix.normalize collapses .. segments so ../../tests/gates.tests.sh is caught.
@@ -181,7 +192,180 @@ function isProtectedGateFile(filePath) {
   });
 }
 
+function tokenizeShellCommand(cmd) {
+  // Issue #62: simple shell tokenizer (same algorithm as the Python twin).
+  // Splits on unquoted spaces/tabs; ';', '|', '&' and newlines become separator
+  // tokens; single/double quotes group text (quote marks removed); '>&'/'&>'
+  // stay attached to their redirect token. Returns an array of [kind, text]
+  // pairs with kind 'word' or 'sep', or null when the command uses constructs
+  // the tokenizer does not model (backslash escapes, unclosed quotes) —
+  // callers must fail closed on null.
+  const tokens = [];
+  let cur = '';
+  let pending = false;
+  let inSingle = false;
+  let inDouble = false;
+  const n = cmd.length;
+  for (let i = 0; i < n; i++) {
+    const ch = cmd[i];
+    if (inSingle) {
+      if (ch === "'") inSingle = false;
+      else cur += ch;
+      continue;
+    }
+    if (inDouble) {
+      if (ch === '"') inDouble = false;
+      else if (ch === '\\') return null;
+      else cur += ch;
+      continue;
+    }
+    if (ch === "'") {
+      inSingle = true;
+      pending = true;
+    } else if (ch === '"') {
+      inDouble = true;
+      pending = true;
+    } else if (ch === '\\') {
+      return null;
+    } else if (ch === '\n' || ch === '\r' || ch === ';' || ch === '|') {
+      if (pending) {
+        tokens.push(['word', cur]);
+        cur = '';
+        pending = false;
+      }
+      tokens.push(['sep', ch]);
+    } else if (ch === '&') {
+      if (pending && cur.endsWith('>')) {
+        // 2>&1-style fd duplication stays inside the redirect token.
+        cur += ch;
+      } else if (i + 1 < n && cmd[i + 1] === '>') {
+        // &>-style redirect starts a new token.
+        if (pending) tokens.push(['word', cur]);
+        cur = '&';
+        pending = true;
+      } else {
+        if (pending) {
+          tokens.push(['word', cur]);
+          cur = '';
+        }
+        pending = false;
+        tokens.push(['sep', ch]);
+      }
+    } else if (ch === ' ' || ch === '\t') {
+      if (pending) {
+        tokens.push(['word', cur]);
+        cur = '';
+        pending = false;
+      }
+    } else {
+      cur += ch;
+      pending = true;
+    }
+  }
+  if (inSingle || inDouble) return null;
+  if (pending) tokens.push(['word', cur]);
+  return tokens;
+}
+
+function shellTokenBasename(tok) {
+  // Issue #62: lowercased final path component of a token (verb matching).
+  const t = tok.toLowerCase().replace(/\\/g, '/');
+  const idx = t.lastIndexOf('/');
+  return idx === -1 ? t : t.slice(idx + 1);
+}
+
+function simpleShellCommandIsSafe(words) {
+  // Issue #62: check one separator-free simple command. Returns false when a
+  // redirect or write verb in it targets (or may target) a protected gate file.
+  const plain = [];
+  const n = words.length;
+  let k = 0;
+  while (k < n) {
+    const w = words[k];
+    if (w.includes('>')) {
+      const m = w.match(SHELL_REDIRECT_TOKEN_RE);
+      if (!m) return false;
+      const rest = m[2];
+      if (rest === '') {
+        // Detached target (`> file`): consume and check the next token.
+        k += 1;
+        if (k >= n || words[k].includes('>')) return false;
+        if (isProtectedGateFile(words[k])) return false;
+      } else if (rest.startsWith('&')) {
+        // fd duplication (2>&1, >&2, >&-) is harmless; anything else
+        // (e.g. >&file) is not modeled — fail closed.
+        if (!SHELL_FD_DUP_RE.test(rest)) return false;
+      } else {
+        if (isProtectedGateFile(rest)) return false;
+      }
+    } else {
+      plain.push(w);
+    }
+    k += 1;
+  }
+  let writeAt = -1;
+  let writeBase = '';
+  for (let idx = 0; idx < plain.length; idx++) {
+    const base = shellTokenBasename(plain[idx]);
+    if (SHELL_WRITE_ARG_CMDS.includes(base) || SHELL_WRITE_DEST_CMDS.includes(base)) {
+      writeAt = idx;
+      writeBase = base;
+      break;
+    }
+  }
+  if (writeAt < 0) return true;
+  const args = plain.slice(writeAt + 1);
+  const nonFlags = args.filter(a => !a.startsWith('-'));
+  if (SHELL_WRITE_DEST_CMDS.includes(writeBase)) {
+    // cp/mv: only the final non-flag argument (the destination) is
+    // written; sources are reads. Fewer than two path arguments cannot
+    // be judged — fail closed.
+    if (nonFlags.length < 2) return false;
+    return !isProtectedGateFile(nonFlags[nonFlags.length - 1]);
+  }
+  // tee/touch/rm: every non-flag argument is written (or deleted).
+  for (const a of nonFlags) {
+    if (isProtectedGateFile(a)) return false;
+  }
+  return true;
+}
+
+function shellWriteTargetsAreSafe(cmd) {
+  // Issue #62: true only when every write verb/redirect in cmd provably
+  // targets a non-protected path. Constructs the analysis cannot model
+  // (escapes, expansions, globs, subshells, eval/xargs/shell interpreters,
+  // PowerShell write verbs) return false (fail-close).
+  const tokens = tokenizeShellCommand(cmd);
+  if (tokens === null) return false;
+  const commands = [];
+  let words = [];
+  for (const [kind, text] of tokens) {
+    if (kind === 'sep') {
+      if (words.length > 0) {
+        commands.push(words);
+        words = [];
+      }
+    } else {
+      words.push(text);
+    }
+  }
+  if (words.length > 0) commands.push(words);
+  for (const command of commands) {
+    for (const w of command) {
+      if (SHELL_UNSAFE_TOKEN_CHARS.some(c => w.includes(c))) return false;
+      const base = shellTokenBasename(w);
+      if (SHELL_INDIRECT_CMDS.includes(base) || SHELL_PS_WRITE_CMDS.includes(base)) return false;
+    }
+    if (!simpleShellCommandIsSafe(command)) return false;
+  }
+  return true;
+}
+
 function shellTargetsProtectedGateFile(cmd) {
+  // R-10: Deny shell commands that WRITE to protected gate files.
+  // Substring scan (path appears literally in command) combined with
+  // write-target analysis (issue #62): a write verb/redirect elsewhere in the
+  // command no longer denies read-only access to a protected path.
   if (typeof cmd !== 'string') return false;
   const cmdLower = cmd.toLowerCase();
   const hasProtectedPath = PROTECTED_GATE_SUFFIXES.some(s => {
@@ -194,7 +378,10 @@ function shellTargetsProtectedGateFile(cmd) {
   // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
   const hasWrite = SHELL_SUDO_WRITE_RE.test(cmd);
   if (!SHELL_COMPOUND_RE.test(cmd) && SHELL_SUDO_READ_ONLY_RE.test(cmd) && !hasWrite) return false;
-  return hasWrite;
+  if (!hasWrite) return false;
+  // Issue #62: deny only when a write target is (or cannot be proven not to
+  // be) a protected gate file — fail-close on anything unmodeled.
+  return !shellWriteTargetsAreSafe(cmd);
 }
 
 function countApprovals(text) {

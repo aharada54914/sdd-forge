@@ -586,6 +586,15 @@ Describe "domain-review-loop/SKILL.md: T-011 cross-model section (documented con
         $script:skillText | Should Match "--input domain/"
     }
 
+    It "documents the panelist verdict path inside the directory check-cross-model.sh actually reads (PR #93 Codex P1 regression)" {
+        # check-cross-model.sh line 34 joins <spec-root>/<feature>/verification;
+        # with --spec-root <round-dir> and --feature sdd-domain-model the
+        # verdicts must be written to .../<round>/sdd-domain-model/verification/
+        # -- NOT the bundle's cross-model/ directory, or the gate finds zero
+        # verdict files and a PASS round can never complete.
+        $script:skillText | Should Match "sdd-domain-model/verification/DM-001\.panelist-<vendor>\.verdict\.json"
+    }
+
     It "documents panelist-unavailable recording and requires_human_decision blocking auto-continuation" {
         $script:skillText | Should Match "panelist-unavailable"
         $script:skillText | Should Match "requires_human_decision"

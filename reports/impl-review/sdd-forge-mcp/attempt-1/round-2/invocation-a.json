@@ -1,0 +1,53 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "sdd-forge-mcp",
+  "run_id": "impl-a-sddforgemcp-a1r2-20260704-c7a5",
+  "host_session_id": "hs-impl-a-7ea701ba-0010",
+  "sequence": 10,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "f887d926bd8d7854867d39d7bddab4515bf4a24de119c51ecb0901354b3dee5f",
+  "previous_record_sha256": "dcbdb3588cbd8a61a69a931db69c87d4e11b07649396835da20c89e5962edcf4",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-forge-mcp/requirements.md",
+      "sha256": "e443119725c9fb3d31b381193d0b8399a467dcb7525039324324c55b6849545e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "a3f25130cbc21d097f741ed97375b059d01ab8ecd5fbce524303e9a634089ccf"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/design.md",
+      "sha256": "b1667111b91af8f7834952ba8441e569de03d3d9600af6975755c22cb3ad1303"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/ux-spec.md",
+      "sha256": "bfaa5928e621cac80fe91f37909b2b8f9fee9b6aed8d0df308b758a89654f29e"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/frontend-spec.md",
+      "sha256": "c71f3e10fadea077f659fe498da265691ddd4bba0c680401a3d41c28850c4332"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/infra-spec.md",
+      "sha256": "bfab047bd9dbbd04fe6c3fb6f1b2fd5bf5f28e6753cc4c9eeb6a3114a97f597b"
+    },
+    {
+      "path": "specs/sdd-forge-mcp/security-spec.md",
+      "sha256": "beee4dbc119cafcda106e3d46353038886b6947d8b83ce5571f85d7a8b7f418c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/sdd-forge-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "031d0ee66900611dd97d43f1ea04175fde5d1a1c3c0653824a218fed5e9b7315"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 # SDD Forge
 
-v1.8.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
+v1.9.0 — 仕様化・実装・品質保証を責務ごとに分離した SDD（仕様駆動開発）プラグインです。Codex CLI、Claude Code、Copilot CLI の 3 環境に対応します。
 
 ## クイックスタート（2コマンド）
 
@@ -104,6 +104,28 @@ flowchart LR
 
 プラグインのインストールと運用手順は [docs/workflow-guide.md](docs/workflow-guide.md) をご覧ください。
 **初めての方は workflow-guide.md の正常系フローからお読みください。**
+
+`install.sh` / `install.ps1` には read-only の MCP サーバーが同梱されており、既定で配置・登録されます。
+
+### MCP サーバー
+
+#### sdd-forge-mcp
+
+`sdd-forge-mcp` は、対象リポジトリの SDD 状態（spec / タスク / レビューチケット / 品質ゲート結果 / evidence）を構造化データとして読み取るための **read-only** MCP サーバーです。書き込み API は一切持たず、stdio 経由で MCP クライアント（Claude Code / Codex）から子プロセスとして起動されます。
+
+#### local-env-mcp
+
+`local-env-mcp` は、ローカル開発環境の情報を読み取るための **read-only** MCP サーバーです。実行機能を一切持たず、以下の 3 つの構造化 JSON ツールで環境情報を提供します:
+
+- `get_os_info`: プラットフォーム・CPU・メモリ・OS バージョン・Node.js ランタイムバージョン
+- `get_toolchain_versions`: コンパイル時に固定された 14 種の CLI（node/npm/pnpm/yarn/bun/deno/git/gh/python3/go/rustc/cargo/java/docker）のバージョン一括取得
+- `list_available_clis`: 上記 14 種の CLI の可用性を確認
+
+**セキュリティ境界**: 入力スキーマにコマンド・引数・パスを受け取るフィールドがなく、プローブ対象は外部入力から到達不可のコンパイル時固定リストのみです。環境変数値・ユーザー名・ホスト名は応答に含まれません。
+
+**自動登録**: installer は Cursor (`~/.cursor/mcp.json`) と VS Code（ユーザープロファイル `mcp.json`）への自動登録も行います。詳細は [USERGUIDE.md](USERGUIDE.md) を参照してください。
+
+導入オプション（詳細と トラブルシュート）は [USERGUIDE.md](USERGUIDE.md#mcp-サーバー) を参照してください。
 
 ## アンインストール
 

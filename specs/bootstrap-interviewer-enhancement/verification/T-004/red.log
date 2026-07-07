@@ -1,0 +1,11 @@
+COMMAND: sh tests/structure-check-feature-mode.tests.sh
+RESULT: FAIL (expected Red)
+PASS: 5
+FAIL: 14
+Missing-file and invalid-selector cases were incorrectly accepted in repository-only mode.
+
+COMMAND: pwsh -NoProfile -File tests/structure-check-feature-mode.tests.ps1
+RESULT: FAIL (expected Red)
+PASS: 3
+FAIL: 14
+Missing-file and invalid-selector cases were incorrectly accepted in repository-only mode.

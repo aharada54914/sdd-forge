@@ -1,0 +1,21 @@
+{
+ "schema": "evaluator-verdict/v1",
+ "stage": "quality",
+ "role": "sdd-evaluator",
+ "feature": "local-env-mcp",
+ "task_id": "T-007",
+ "run_id": "qg-eval-localenvmcp-t007-20260706-b064",
+ "host_session_id": "hs-qg-e7-6503d1ba-0018",
+ "invocation_manifest": "specs/local-env-mcp/verification/qg/T-007/invocation-evaluator.json",
+ "verdict": "PASS",
+ "summary": "Evaluator verified all 24 manifest hashes, reproduced the suite (35/0) and bash -n, confirmed genuine red->green (8 new assertions fail in red), and line-level verified the registration path: upsert_mcp_json preserves foreign entries and unknown keys, never overwrites present-but-invalid JSON (exit 3 -> skip+notice, byte-identical via cmp), writes atomically (temp+rename), passes paths as node argv (no shell interpolation), and matches the T-005-confirmed formats (Cursor mcpServers {command,args}; VS Code servers {type:stdio,...}). Verdict PASS with one Minor.",
+ "findings": [
+  {
+   "severity": "Minor",
+   "classification": "Deferred",
+   "description": "The atomic-write temp file (config_file + .sdd-forge.tmp) is not removed on a hard mid-write interruption (e.g. SIGKILL between write and rename); never corrupts the real config, but a stray temp file could linger after abnormal termination.",
+   "location": "install.sh:442"
+  }
+ ],
+ "note": "Full evaluator output (including the checked-verifications list) is preserved in the orchestrating session transcript."
+}

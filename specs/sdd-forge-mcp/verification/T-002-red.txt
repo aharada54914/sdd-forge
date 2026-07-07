@@ -1,0 +1,58 @@
+=== T-002 RED evidence ===
+Date: 2026-07-04T15:56:10Z
+
+Procedure: tests were written first (tests/parser/tasks-parser.test.ts,
+tests/parser/evidence-bundle.test.ts, tests/golden/task-state-golden.test.ts,
+tests/golden/shell-runner.ts). The five T-002 implementation modules
+(src/parsers/tasks.ts, src/parsers/task-validation.ts,
+src/parsers/task-types.ts, src/parsers/report-lookup.ts,
+src/parsers/evidence-bundle.ts) were then temporarily replaced with a stub
+(`throw new Error("not implemented"); export {};`) to capture a true RED
+state before restoring the real implementation byte-for-byte (verified via
+`diff` against a pre-stub backup — see the Green log for the identical
+tsc/test output that followed).
+
+--- npx tsc --noEmit (src/) ---
+tsc exit: 0
+(No error: nothing in src/ imports the stubbed parser modules yet — the
+current entrypoint, src/index.ts, only depends on root.ts/envelope.ts from
+T-001. The stub's `throw` is a top-level statement in an otherwise
+syntactically valid .ts file, so isolated compilation of src/ alone does not
+fail. The meaningful RED signal for this task is the test build below, which
+does import the stubbed modules.)
+
+--- npx tsc -p tsconfig.test.json (build tests) ---
+test build exit: 2
+tests/golden/task-state-golden.test.ts(20,10): error TS2305: Module '"../../src/parsers/tasks.js"' has no exported member 'parseTaskState'.
+tests/golden/task-state-golden.test.ts(79,58): error TS7006: Parameter 'f' implicitly has an 'any' type.
+tests/parser/evidence-bundle.test.ts(11,10): error TS2305: Module '"../../src/parsers/tasks.js"' has no exported member 'parseTaskState'.
+tests/parser/evidence-bundle.test.ts(11,31): error TS2305: Module '"../../src/parsers/tasks.js"' has no exported member 'TaskFailure'.
+tests/parser/tasks-parser.test.ts(18,10): error TS2305: Module '"../../src/parsers/tasks.js"' has no exported member 'parseTaskState'.
+tests/parser/tasks-parser.test.ts(18,31): error TS2305: Module '"../../src/parsers/tasks.js"' has no exported member 'TaskFailure'.
+tests/parser/tasks-parser.test.ts(162,42): error TS7006: Parameter 't' implicitly has an 'any' type.
+tests/parser/tasks-parser.test.ts(188,42): error TS7006: Parameter 't' implicitly has an 'any' type.
+tests/parser/tasks-parser.test.ts(655,42): error TS7006: Parameter 't' implicitly has an 'any' type.
+
+--- node --test (RED: could not run — test build failed above) ---
+`npm test` runs `pretest` (tsc -p tsconfig.test.json) before `node --test`;
+with the parser modules stubbed, the test build fails as shown above and
+`node --test` never executes. This is the RED state for T-002's 27 new
+tests (23 in tests/parser/tasks-parser.test.ts, 4 in
+tests/parser/evidence-bundle.test.ts) plus the 2 golden tests in
+tests/golden/task-state-golden.test.ts — all of which reference
+`parseTaskState` / `TaskFailure`, neither of which existed in the stub.
+
+RED summary: 0 of the 29 new T-002 tests could execute; the test build itself
+failed with 9 compile errors, all traceable to the five stubbed
+implementation modules exporting nothing.
+
+Post-RED note: after GREEN was captured, `tests/parser/tasks-parser.test.ts`
+(23 tests) was split for readability into
+tests/parser/field-validation.test.ts (6),
+tests/parser/done-state.test.ts (12), and
+tests/parser/baseline-and-io.test.ts (5), sharing a `findFailure` helper
+extracted to tests/parser/test-helpers.ts (a plain helper module, not a
+`*.test.ts` file, so `node --test`'s glob does not re-run its exports as
+tests). This is a pure test-file reorganization with no behavior change; the
+same 23 assertions still run today under their new file names, alongside the
+existing 4 in tests/parser/evidence-bundle.test.ts and the 2 golden tests.

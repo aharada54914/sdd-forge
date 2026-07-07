@@ -8,6 +8,11 @@
 #  - A high/critical task MUST declare `Required Workflow: tdd` (risk->workflow
 #    derivation, design.md:118; matrix red->green row). low/medium are not
 #    constrained here (stricter is allowed; absent risk = legacy, not reached).
+#  - Structured risk fields (Risk Impact / Risk Reversibility / Risk Surface)
+#    are optional (legacy tasks omit them). When present, each value maps to a
+#    minimum tier per risk-classification-policy.md and the declared Risk must
+#    be at or above the highest derived floor; unknown values and floor
+#    violations are policy-inconsistent and fail closed (REQ-001).
 #  - If task-id arg is given, validate only that task
 #  - Fail-closed; exit 1 on any validation failure
 tasks="$1"
@@ -26,6 +31,14 @@ awk \
   '
 BEGIN {
   task = ""; failures = 0; count = 0; found_filter = 0
+  RANK["low"] = 1; RANK["medium"] = 2; RANK["high"] = 3; RANK["critical"] = 4
+  TIER_NAME[1] = "low"; TIER_NAME[2] = "medium"; TIER_NAME[3] = "high"; TIER_NAME[4] = "critical"
+  # Minimum tier implied by each structured value (risk-classification-policy.md):
+  # material impact / difficult reversibility / sensitive surface describe the
+  # high tier; behavioral surface excludes low ("non-behavioral"), so medium.
+  IMPACT_FLOOR["limited"] = 1; IMPACT_FLOOR["material"] = 3
+  REVERSIBILITY_FLOOR["controlled"] = 1; REVERSIBILITY_FLOOR["difficult"] = 3
+  SURFACE_FLOOR["behavioral"] = 2; SURFACE_FLOOR["sensitive"] = 3
 }
 # Strip a trailing CR so a CRLF-encoded tasks.md parses identically to LF (cross-platform parity).
 { sub(/\r$/, "") }
@@ -33,12 +46,16 @@ BEGIN {
   if (task != "") finish()
   newid = $2
   task = newid; risk = ""; risk_rationale = ""; required_workflow = ""; count++
+  risk_impact = ""; risk_reversibility = ""; risk_surface = ""
 }
 /^Risk:/ { if (task != "") { risk = $0; sub(/^Risk:[ \t]*/, "", risk); gsub(/[ \t]+$/, "", risk) } }
+/^Risk Impact:/ { if (task != "") { risk_impact = $0; sub(/^Risk Impact:[ \t]*/, "", risk_impact); gsub(/[ \t]+$/, "", risk_impact) } }
+/^Risk Reversibility:/ { if (task != "") { risk_reversibility = $0; sub(/^Risk Reversibility:[ \t]*/, "", risk_reversibility); gsub(/[ \t]+$/, "", risk_reversibility) } }
+/^Risk Surface:/ { if (task != "") { risk_surface = $0; sub(/^Risk Surface:[ \t]*/, "", risk_surface); gsub(/[ \t]+$/, "", risk_surface) } }
 /^Risk Rationale:/ { if (task != "") { risk_rationale = $0; sub(/^Risk Rationale:[ \t]*/, "", risk_rationale); gsub(/[ \t]+$/, "", risk_rationale) } }
 /^Required Workflow:/ { if (task != "") { required_workflow = $0; sub(/^Required Workflow:[ \t]*/, "", required_workflow); gsub(/[ \t]+$/, "", required_workflow) } }
 
-function finish() {
+function finish(floor) {
   if (FILTER != "" && task != FILTER) return
   if (FILTER != "") found_filter = 1
 
@@ -50,6 +67,29 @@ function finish() {
 
   if (risk_rationale == "") {
     print " - " task " has empty Risk Rationale"; failures++
+  }
+
+  # Structured fields are optional; when present the declared Risk must not
+  # sit below the highest tier floor they derive. Only compared when risk is
+  # a valid tier, to avoid stacking on top of an "invalid Risk" report.
+  floor = 0
+  if (risk_impact != "") {
+    if (!(risk_impact in IMPACT_FLOOR)) {
+      print " - " task " has invalid Risk Impact: " risk_impact; failures++
+    } else if (IMPACT_FLOOR[risk_impact] > floor) floor = IMPACT_FLOOR[risk_impact]
+  }
+  if (risk_reversibility != "") {
+    if (!(risk_reversibility in REVERSIBILITY_FLOOR)) {
+      print " - " task " has invalid Risk Reversibility: " risk_reversibility; failures++
+    } else if (REVERSIBILITY_FLOOR[risk_reversibility] > floor) floor = REVERSIBILITY_FLOOR[risk_reversibility]
+  }
+  if (risk_surface != "") {
+    if (!(risk_surface in SURFACE_FLOOR)) {
+      print " - " task " has invalid Risk Surface: " risk_surface; failures++
+    } else if (SURFACE_FLOOR[risk_surface] > floor) floor = SURFACE_FLOOR[risk_surface]
+  }
+  if (floor > 0 && (risk in RANK) && RANK[risk] < floor) {
+    print " - " task " Risk: " risk " is inconsistent with its structured risk fields (policy floor: " TIER_NAME[floor] ")"; failures++
   }
 
   # high/critical risk must declare Required Workflow: tdd (design.md:118).

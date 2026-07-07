@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-sddforgemcp-a1r1-20260704-f7d3",
+  "host_session_id": "hs-spec-b-7ea701ba-0003",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-1/integrated-summary.json",
+      "sha256": "468fd97a89235217e8e5670e8948cd65207d23e0e0904a292cf3950a3bea01dc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/sdd-forge-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "95762a14ae3579024a7fbfe2fc58c36a020198a735a8c8d9521aa06b7a715261"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/acceptance-tests.md",
+      "sha256": "1cd8caf0111b6e5a0f4d0e22fe2f60d2329a4440d59edad63821fbffc932b6e7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/sdd-forge-mcp/requirements.md",
+      "sha256": "a7a94b361c8cec76237c5ea23f6e128803504ea6cbb80bc9308f0a1f9ec8e632"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Tool/resource enumerations (REQ-002/003/004), root-resolution priority (REQ-007), allowlist/denylist (REQ-006), and error-code semantics (cannot-parse/cannot-determine/not-found/not-sdd-root) are all stated concretely enough that two implementers would converge. Deferred specifics (e.g., exact size-limit numeric value, exact installer registration file format) are implementation-architecture detail explicitly out of scope for spec review per the calibration's false-positive guard, not blocking ambiguity."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No conflict found between REQ-001 (server is read-only) and REQ-009 (installer places/registers files, a distinct operator-run component); REQ-007 (no runtime root change) is consistent with the Roles table allowing operator-supplied --root/SDD_FORGE_ROOT at startup only; Non-goals excluding write tools is consistent with REQ-001/REQ-006 denylist. Requirements, acceptance criteria, constraints, and non-goals are mutually consistent."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Edge Cases (lines 142, 146-148) explicitly requires structured errors for three named paths: missing tasks.md for a feature -> not-found; SDD-structure-less root -> not-sdd-root; oversized/binary file -> size-limit structured error. acceptance-tests.md's AC-001..AC-014 table has no AC/TEST entry covering any of these three named error paths (only AC-002 covers the distinct cannot-parse case). A task author decomposing test tasks from acceptance-tests.md has no traceable acceptance criterion to implement or verify these three named negative paths, so they could be omitted from the test plan even though the requirement names them explicitly. This is a specification/acceptance-test traceability gap (not an implementation detail, since the error code and trigger are already named in the requirement) and is Major because it is a missing observable acceptance criterion for edge cases implied by the requirements, per calibration Major criteria."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Assumptions (Node>=20 present, target repo has SDD structure, stdio-only, check-task-state.sh as source-of-truth for parser equivalence) are either non-blocking operational preconditions or explicitly anchored to REQ-005/AC-001. The single Open Question OQ-R1 is explicitly marked owner: human, non-blocking, with a stated resolution point (tasks.md approval), satisfying the check's resolution requirement."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "No human-approval, governance, or irreversible-change boundary is in scope: the server is fully read-only (REQ-001/REQ-006), Non-goals explicitly excludes any approval-mutating tool, and Approval/Status fields are consumed only as read-only decision inputs for get_next_sdd_command/list_active_specs. Install/uninstall are standard, reversible file operations with their own observable AC-007/AC-009 criteria, not governance gates. Skip condition met: no such boundary is in scope."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Aside from the gap identified under EDGE-CASE-COVERAGE, the spec gives strong downstream readiness: golden-test equivalence anchor for the highest-risk logic (REQ-005/AC-001), explicit security boundary table (B1/B2) with allowlist/denylist, explicit distribution/CI verification (REQ-008/REQ-010/AC-010), and explicit installer CLI flag behavior (REQ-009/AC-007/AC-008/AC-009). However, the same missing AC/TEST linkage for not-found/not-sdd-root/oversized-binary error paths would force a downstream implementation-policy or task reviewer to invent the response contract and test plan for those three named error conditions themselves, which is exactly the product-behavior-invention risk this check guards against. This ties to the identical requirements.md/acceptance-tests.md evidence cited in EDGE-CASE-COVERAGE."
+    }
+  ]
+}

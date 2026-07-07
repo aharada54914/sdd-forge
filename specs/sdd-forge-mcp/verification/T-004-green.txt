@@ -1,0 +1,147 @@
+T-004 Green evidence
+====================
+
+Command: npx tsc --noEmit && npm run build && npm test (mcp/sdd-forge-mcp/)
+Context: src/tools/core.ts, src/server.ts implemented and src/index.ts wired
+to build the MCP server and connect it over stdio (T-004).
+
+--- npx tsc --noEmit ---
+(no output — exit 0)
+
+--- npm run build ---
+
+> sdd-forge-mcp@0.1.0 build
+> esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+
+  dist/index.js  1.2mb ⚠️
+
+⚡ Done in 91ms
+
+--- npm test ---
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> sdd-forge-mcp@0.1.0 test
+> node --test dist-test/tests/**/*.test.js
+
+✔ list_active_specs: schema-valid, flags feature-a active and feature-b inactive (377.668625ms)
+✔ get_spec_status: schema-valid, reports artifact existence and review-status headers (28.153333ms)
+✔ get_task_state: schema-valid, verdict fail with 1 blocked task in feature-a (12.101375ms)
+✔ get_task_state: not-found for a feature whose tasks.md does not exist (24.488542ms)
+✔ list_approved_tasks: schema-valid, only Approved-shaped tasks for feature-a (24.068416ms)
+✔ list_blocked_tasks: schema-valid, only Blocked-status tasks for feature-a (12.027792ms)
+✔ list_review_tickets: schema-valid, includes the seeded RT ticket (22.630916ms)
+✔ get_quality_gate_summary: schema-valid, includes the seeded PASS report (7.270916ms)
+✔ get_next_sdd_command: schema-valid cannot-determine stub (T-010 will replace it) (11.588ms)
+✔ get_next_sdd_command: schema-valid cannot-determine stub with no feature argument (26.253417ms)
+✔ every tool's input schema never declares a root parameter (20.2415ms)
+✔ invalid feature argument shape is rejected as invalid-input (17.554042ms)
+✔ rejects a file larger than the 2 MiB limit with too-large (21.783417ms)
+✔ accepts a file exactly at the 2 MiB limit (18.436833ms)
+✔ isSddRoot is false for a root missing both AGENTS.md and specs/ (0.540333ms)
+✔ isSddRoot is false when only specs/ exists without AGENTS.md (0.786416ms)
+✔ isSddRoot is true for a properly-shaped SDD root (1.937709ms)
+✔ live shell comparison: parseTaskState matches check-task-state.sh for every golden feature (10792.709959ms)
+✔ recorded fixture comparison: parseTaskState matches the committed golden fixtures (131.206666ms)
+✔ a well-formed tasks.md with a Planned task passes with an empty failures array (18.344459ms)
+✔ Approved (<annotation>) is accepted and the annotation is echoed back (8.966583ms)
+✔ a tasks.md with no ## T-NNN headers at all fails with no-tasks-found (7.557291ms)
+✔ a nonexistent tasks.md path propagates the path-guard not-found error (20.930833ms)
+✔ a tasks.md path outside the allowlist propagates path-denied (38.822917ms)
+✔ Done without a verification/<task-id>.evidence.json file fails (7.464875ms)
+✔ Done with evidence.json but missing contract.json fails (13.065875ms)
+✔ Done with an empty contract.json fails (46.383292ms)
+✔ Done with a contract.json whose task_id does not match fails (31.14975ms)
+✔ Done with no quality-gate report mentioning the task id fails (15.014167ms)
+✔ Done with a quality-gate report present but no VERDICT: PASS fails (114.756167ms)
+✔ Implementation Complete without a matching implementation report fails (28.612792ms)
+✔ Implementation Complete with a word-boundary match in an implementation report passes that rule (22.252917ms)
+✔ T-001 does not falsely match a report that only mentions T-0010 (word boundary) (24.401ms)
+✔ critical Done without a distinct Second Approval fails (18.906166ms)
+✔ critical Done where both approvals are the same person fails (8.810291ms)
+✔ critical Done where either approver is 'sudo' fails (9.633042ms)
+✔ high-risk Done bundle missing spec_revision fails provenance (140.320667ms)
+✔ high-risk Done bundle with full provenance and matching artifact hashes passes (65.364875ms)
+✔ an artifact sha256 mismatch fails the evidence bundle (110.942666ms)
+✔ critical risk Done bundle without a signature object fails (36.17725ms)
+✔ duplicate task ids are reported and the verdict is fail (13.338541ms)
+✔ an invalid Status value is reported and the verdict is fail (80.308625ms)
+✔ a missing Approval line is reported and the verdict is fail (13.012ms)
+✔ In Progress without Approval: Approved is reported and the verdict is fail (6.014042ms)
+✔ Blocked with Blockers: None is reported and the verdict is fail (6.545166ms)
+✔ Blocked with real blocker content passes the Blocked-specific rule (41.305709ms)
+✔ real repo: parseEvidenceBundle reads T-001.evidence.json for sdd-forge-refactor (7.45475ms)
+✔ real repo: parseVerificationContract reads T-001.contract.json for sdd-forge-refactor (1.365708ms)
+✔ real repo: every existing T-*.evidence.json under sdd-forge-refactor parses without throwing (3.383625ms)
+✔ real repo: every existing T-*.contract.json under sdd-forge-refactor parses without throwing (14.016125ms)
+✔ synthetic: parseEvidenceBundle echoes the signature value without verifying it (33.949125ms)
+✔ synthetic: parseEvidenceBundle rejects a task_id mismatch as cannot-parse (15.183042ms)
+✔ synthetic: parseEvidenceBundle rejects broken JSON as cannot-parse (17.100125ms)
+✔ synthetic: parseEvidenceBundle rejects a bundle missing required fields as cannot-parse (158.71475ms)
+✔ synthetic: parseEvidenceBundle propagates a not-found error unchanged (26.622167ms)
+✔ synthetic: parseVerificationContract converts checks[] into the contractChecksSummaryData shape (52.262ms)
+✔ synthetic: parseVerificationContract rejects a task_id mismatch as cannot-parse (12.807666ms)
+✔ synthetic: parseVerificationContract rejects broken JSON as cannot-parse (6.040458ms)
+✔ synthetic: parseVerificationContract rejects a non-array checks field as cannot-parse (6.922083ms)
+✔ real repo: sdd-forge-refactor/traceability.md yields REQ->Task and AC->REQ rows (10.042834ms)
+✔ real repo: sdd-forge-mcp/traceability.md yields REQ->Task, AC->REQ, and AC->TEST->Task rows (19.224292ms)
+✔ synthetic: a REQ->Task table with comma-separated Task-ID cells splits into multiple taskIds (19.705583ms)
+✔ synthetic: no tables at all in traceability.md yields empty arrays, not cannot-parse (15.747958ms)
+✔ synthetic: a REQ->Task table with a missing column in a data row is cannot-parse with a line number (156.752875ms)
+✔ synthetic: an AC->REQ table with an empty Task-ID-like required cell is cannot-parse (25.585791ms)
+✔ synthetic: propagates a not-found error when traceability.md is absent (20.832167ms)
+✔ real repo: Active Spec Directories has at least 3 entries with feature/path (3.380375ms)
+✔ real repo: Required Workflow has numbered steps with non-empty text (1.267541ms)
+✔ synthetic: well-formed Active Spec Directories bullets parse to feature/path pairs (12.868ms)
+✔ synthetic: well-formed Required Workflow numbered steps parse in order (23.088333ms)
+✔ cannot-determine: AGENTS.md with no Active Spec Directories section (26.378375ms)
+✔ cannot-determine: AGENTS.md with no Required Workflow section (4.497917ms)
+✔ cannot-parse: malformed Active Spec Directories bullet reports a line number (13.013583ms)
+✔ cannot-parse: Required Workflow section with no numbered steps (15.258083ms)
+✔ guardedRead failure (missing AGENTS.md) propagates unchanged as not-found (1.983792ms)
+✔ real repo: every reports/quality-gate/*.md file is scanned without throwing (137.98975ms)
+✔ real repo: at least one report has taskId, critical/major/minor counts, and a PASS-shaped verdict (13.4325ms)
+✔ synthetic: well-formed report with all fields parses every value (9.081125ms)
+✔ synthetic: VERDICT repeated later in the file uses the first occurrence (20.432958ms)
+✔ synthetic: report with no VERDICT line is reported as verdict-not-found, not cannot-parse (12.087084ms)
+✔ listQualityReports aggregates reports and failures across a directory (17.78525ms)
+✔ real repo: RT-20260623-001.yml parses into the reviewTicketsData entry shape (10.077ms)
+✔ real repo: listReviewTickets finds at least one ticket and no failures (53.64425ms)
+✔ synthetic: well-formed ticket parses all optional fields (133.279ms)
+✔ synthetic: minimal ticket (only required fields) parses without optional keys (9.496375ms)
+✔ cannot-parse: invalid YAML syntax (7.559625ms)
+✔ cannot-parse: missing required fields (4.52975ms)
+✔ cannot-parse: ticket_id does not match RT-YYYYMMDD-NNN (5.389292ms)
+✔ cannot-parse: YAML document is a scalar, not a mapping (2.821625ms)
+✔ listReviewTickets ignores non-yml files (e.g. .gitkeep) and reports per-file failures (4.061792ms)
+✔ denies reads under a plugins/ directory that is not on the allowlist (33.025458ms)
+✔ denies reads under a .git/ directory (25.648458ms)
+✔ denies the SDD sudo flag file even when placed inside an allowlisted directory (18.833459ms)
+✔ denies .env files reached via an allowlisted directory (3.722084ms)
+✔ never includes file contents or the offending value in the denial message or details (3.585917ms)
+✔ rejects a relative path containing a parent traversal segment (32.429084ms)
+✔ rejects an absolute path argument outright (15.419209ms)
+✔ rejects an empty path as invalid input (2.148ms)
+✔ rejects a path argument containing backslashes (2.139458ms)
+✔ rejects a symlink inside the allowlist that resolves outside it (8.57075ms)
+✔ resolveGuarded rejects the same traversal shapes without reading contents (2.486375ms)
+✔ allows a legitimate allowlisted file to be read (4.416917ms)
+✔ all 8 core tools leave the fixture repository byte-for-byte unchanged (191.519917ms)
+✔ src/ contains no filesystem write API references (9.224ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (3.091459ms)
+✔ resolved root is frozen and immutable after construction (12.916916ms)
+✔ changing SDD_FORGE_ROOT after resolution does not affect the already-resolved root (13.339209ms)
+✔ changing cwd after resolution does not affect the already-resolved root (2.033917ms)
+✔ CLI --root takes precedence over SDD_FORGE_ROOT and cwd (3.149833ms)
+✔ SDD_FORGE_ROOT takes precedence over cwd when no CLI flag is given (2.428083ms)
+✔ falls back to cwd when neither --root nor SDD_FORGE_ROOT is set (3.445792ms)
+ℹ tests 111
+ℹ suites 0
+ℹ pass 111
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11796.138625

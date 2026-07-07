@@ -1,0 +1,23 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-localenvmcp-a1r1-20260705-0cc6",
+  "host_session_id": "hs-spec-b-6503d1ba-0002",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/local-env-mcp/attempt-1/round-1/integrated-summary.json", "sha256": "c44a4a5c5a46c88337016324a8f51c8fd6b67d303ff8862f711c01a5843a7c02"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/local-env-mcp/attempt-1/round-1/precheck-result.json", "sha256": "b195a38347a6a08b8d5cf3f3b07fedf1077e65c4026103ea52a31dd8a97f1a68"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/acceptance-tests.md", "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/requirements.md", "sha256": "73cacf502da64422d56fc6f79f11c295d7dd9efae5858be11f3eb580aeaa754e"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major", "finding": "requirements.md REQ-002/REQ-003 enumerate the fixed 14-entry CLI allowlist, exact get_os_info fields, and per-entry available/version semantics; REQ-005 fixes version normalization to first line / 200 chars. acceptance-tests.md AC-001..AC-015 pin concrete expected outputs per tool and per error path. No requirement or AC leaves room for two reasonable implementers to diverge on behavior."},
+    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "Cross-checked REQ-003 timeout/output-limit/parallelism values (2s/8KiB/4) against AC-004 (same values); REQ-007..009 default-bundling language against AC-009's --mcp sdd-forge-mcp exclusion case; Non-goals (no execution, no env-var values) against REQ-002/REQ-003 tool surface (version-string-only, execFile-only, no user-controlled args). All are mutually consistent; no conflicting requirement, AC, or non-goal pair found."},
+    {"id": "EDGE-CASE-COVERAGE", "result": "PASS", "severity": "Major", "finding": "requirements.md 'Edge Cases' section lists missing CLI, hung/verbose probe, stderr-only version output, allowlist-external name, missing/corrupt IDE config file, and Node<20, each traced to AC-002, AC-004, AC-003, AC-010/AC-011, AC-015 with concrete expected behavior (per-entry available:false, kill+per-entry failure, invalid-input, skip+notify, error-without-overwrite). Material negative and boundary paths implied by the requirements are enumerated with expected behavior."},
+    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "requirements.md Assumptions section's config-path assumption is escalated to OQ-001 with explicit Owner ('実装タスク担当(Cursor / VS Code 登録タスク)'), 'Blocks Implementation: no', and a stated Resolution Path (confirm official docs, then update design.md). The execution-scope interpretation assumption is resolved by reference to a named decision record (ADR-0004) marked for human approval. Neither assumption silently blocks the specification."},
+    {"id": "APPROVAL-BOUNDARY", "result": "PASS", "severity": "Critical", "finding": "requirements.md Assumptions section states the allowlist/execution-scope interpretation is recorded as ADR-0004 and is subject to human approval -- a testable, named governance boundary. No other irreversible or governance boundary is implied by installer upsert/uninstall (REQ-008/009/010), which are reversible idempotent operations with their own AC coverage (AC-010/011/012/015), so no additional approval boundary is missing."},
+    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": "requirements.md names the contract artifact (contracts/local-env-mcp-tools.v1.schema.json), enumerates the error-code enum, tabulates Security Boundaries (B1-B3) with trust/PII/regulatory columns, and states Risks with a mitigation direction (static check + negative tests for allowlist injection). Non-goals bound scope precisely (no execution, no env-var values, no file reads). This gives implementation-policy review a bounded, concrete surface without requiring the specification to contain design or task-decomposition content."}
+  ]
+}

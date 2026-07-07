@@ -8,7 +8,10 @@ param(
     [string[]]$Plugins = @("sdd-bootstrap", "sdd-ship", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop"),
     [switch]$KeepFiles,
     [switch]$SkipPluginUninstall,
-    [switch]$SkipAgentUninstall
+    [switch]$SkipAgentUninstall,
+    [ValidateSet("sdd-forge-mcp", "local-env-mcp")]
+    [string[]]$Mcp = @("sdd-forge-mcp", "local-env-mcp"),
+    [switch]$SkipMcpUninstall
 )
 
 # uninstall.ps1 — SDD plugins uninstaller for Windows.
@@ -119,6 +122,159 @@ function Remove-CodexAgent {
 }
 
 # ---------------------------------------------------------------------------
+# MCP: unregister from Claude/Codex and remove the placed payload
+# (mirror install.ps1's placement/registration split; all best-effort)
+# ---------------------------------------------------------------------------
+function Unregister-ClaudeMcp {
+    if ($SkipMcpUninstall) { return }
+    if (-not (Get-Command "claude" -ErrorAction SilentlyContinue)) {
+        Write-Warning "Claude Code CLI was not found. Claude MCP unregistration was skipped."
+        return
+    }
+    foreach ($name in $Mcp) {
+        Invoke-BestEffortPluginCommand "claude" @("mcp", "remove", $name)
+    }
+}
+
+function Unregister-CodexMcp {
+    if ($SkipMcpUninstall) { return }
+    $codexHome = if ($env:SDD_CODEX_HOME) { $env:SDD_CODEX_HOME } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".codex" }
+    $configToml = Join-Path $codexHome "config.toml"
+    if (-not (Test-Path $configToml)) { return }
+    foreach ($name in $Mcp) {
+        $markerBegin = "# >>> $name (managed by sdd-forge installer; do not edit by hand) >>>"
+        $markerEnd = "# <<< $name <<<"
+        $existingLines = @(Get-Content -Path $configToml)
+        $filtered = [System.Collections.Generic.List[string]]::new()
+        $skip = $false
+        foreach ($line in $existingLines) {
+            if ($line -eq $markerBegin) { $skip = $true; continue }
+            if ($line -eq $markerEnd) { $skip = $false; continue }
+            if (-not $skip) { $filtered.Add($line) }
+        }
+        Set-Content -Path $configToml -Value $filtered
+    }
+}
+
+function Remove-McpPayload {
+    if ($SkipMcpUninstall) { return }
+    if ($KeepFiles) { return }
+    foreach ($name in $Mcp) {
+        $payloadDir = Join-Path (Join-Path $InstallRoot "mcp") $name
+        if (Test-Path $payloadDir) { Remove-Item -Path $payloadDir -Recurse -Force }
+    }
+}
+
+# Tracks whether the "Node not found" notice has been printed so it appears at
+# most once across the Cursor and VS Code unregistration attempts.
+$script:McpJsonNodeNoticePrinted = $false
+
+function Test-McpJsonNodeAvailable {
+    # Returns $true if `node` is on PATH; otherwise prints a one-time notice that
+    # IDE (Cursor / VS Code) registrations could not be removed and returns
+    # $false. The uninstaller must not hard-require Node: the payload / Claude /
+    # Codex removals still run without it.
+    if (Get-Command "node" -ErrorAction SilentlyContinue) { return $true }
+    if (-not $script:McpJsonNodeNoticePrinted) {
+        Write-Warning "Node.js was not found in PATH. Cursor / VS Code MCP registrations could not be removed (edit ~/.cursor/mcp.json and the VS Code user mcp.json by hand to remove the sdd-forge-mcp / local-env-mcp keys). Other uninstall steps continue."
+        $script:McpJsonNodeNoticePrinted = $true
+    }
+    return $false
+}
+
+function Remove-McpJsonKeys {
+    # Shared idempotent JSON key removal for IDE client MCP configs (ADR-0005),
+    # the inverse of install.ps1's Update-McpJson. Deletes ONLY <TopKey>.<name>
+    # for every selected MCP, preserving all other entries and unknown top-level
+    # keys. To guarantee byte-parity with uninstall.sh, the JSON handling is done
+    # by the SAME Node one-liner uninstall.sh uses. Fail-safes (security-spec
+    # B3): a present-but-invalid JSON file is never overwritten (error notice,
+    # uninstaller continues with other clients); an absent file is a silent skip.
+    param(
+        [Parameter(Mandatory)][string]$ClientLabel,
+        [Parameter(Mandatory)][string]$ConfigFile,
+        [Parameter(Mandatory)][string]$TopKey
+    )
+    # Absent file: nothing was ever registered here — silent skip.
+    if (-not (Test-Path $ConfigFile)) { return }
+
+    $nodeScript = @'
+const fs = require("fs");
+const [file, topKey, ...names] = process.argv.slice(1);
+let text = "";
+try { text = fs.readFileSync(file, "utf8"); } catch (err) { process.exit(0); }
+if (text.trim() === "") process.exit(0);
+let root;
+try { root = JSON.parse(text); } catch (err) { process.exit(3); }
+if (root === null || typeof root !== "object" || Array.isArray(root)) process.exit(3);
+const section = root[topKey];
+if (section === undefined) process.exit(0);
+if (section === null || typeof section !== "object" || Array.isArray(section)) process.exit(3);
+for (const name of names) {
+  if (Object.prototype.hasOwnProperty.call(section, name)) delete section[name];
+}
+const out = JSON.stringify(root, null, 2) + "\n";
+const tmp = file + ".sdd-forge.tmp";
+fs.writeFileSync(tmp, out);
+fs.renameSync(tmp, file);
+'@
+
+    & node -e $nodeScript $ConfigFile $TopKey @($Mcp)
+    $rc = $LASTEXITCODE
+    if ($rc -eq 3) {
+        Write-Error "$ConfigFile contains invalid JSON. $ClientLabel MCP unregistration was skipped and the file was left unmodified. Fix or remove the file manually." -ErrorAction Continue
+        return
+    }
+    if ($rc -ne 0) {
+        Write-Warning "Failed to update $ConfigFile. $ClientLabel MCP unregistration was skipped."
+        return
+    }
+}
+
+function Unregister-CursorMcp {
+    # Removes only mcpServers.<name> from ~/.cursor/mcp.json for each selected
+    # MCP. An absent ~/.cursor directory means Cursor is not installed: skip with
+    # a notice and never create anything. Override via SDD_CURSOR_DIR.
+    if ($SkipMcpUninstall) { return }
+    $cursorDir = if ($env:SDD_CURSOR_DIR) { $env:SDD_CURSOR_DIR } else { Join-Path ([Environment]::GetFolderPath("UserProfile")) ".cursor" }
+    if (-not (Test-Path $cursorDir)) {
+        Write-Warning "$cursorDir was not found. Cursor MCP unregistration was skipped (Cursor does not appear to be installed)."
+        return
+    }
+    if (-not (Test-McpJsonNodeAvailable)) { return }
+    Remove-McpJsonKeys -ClientLabel "Cursor" -ConfigFile (Join-Path $cursorDir "mcp.json") -TopKey "mcpServers"
+}
+
+function Unregister-VSCodeMcp {
+    # Removes only servers.<name> from the VS Code user-profile mcp.json for each
+    # selected MCP (Windows %APPDATA%\Code\User, macOS
+    # ~/Library/Application Support/Code/User, Linux ~/.config/Code/User). An
+    # absent user directory means VS Code is not installed: skip with a notice
+    # and never create anything. Override via SDD_VSCODE_USER_DIR.
+    if ($SkipMcpUninstall) { return }
+    $onWindows = ($PSVersionTable.PSEdition -eq 'Desktop') -or ((Get-Variable -Name IsWindows -ErrorAction SilentlyContinue) -and $IsWindows)
+    $onMac = (Get-Variable -Name IsMacOS -ErrorAction SilentlyContinue) -and $IsMacOS
+    if ($env:SDD_VSCODE_USER_DIR) {
+        $vscodeUserDir = $env:SDD_VSCODE_USER_DIR
+    }
+    elseif ($onWindows) {
+        $vscodeUserDir = Join-Path (Join-Path $env:APPDATA "Code") "User"
+    }
+    elseif ($onMac) {
+        $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) "Library/Application Support/Code/User"
+    }
+    else {
+        $vscodeUserDir = Join-Path ([Environment]::GetFolderPath("UserProfile")) ".config/Code/User"
+    }
+    if (-not (Test-Path $vscodeUserDir)) {
+        Write-Warning "$vscodeUserDir was not found. VS Code MCP unregistration was skipped (VS Code does not appear to be installed)."
+        return
+    }
+    if (-not (Test-McpJsonNodeAvailable)) { return }
+    Remove-McpJsonKeys -ClientLabel "VS Code" -ConfigFile (Join-Path $vscodeUserDir "mcp.json") -TopKey "servers"
+}
+
+# ---------------------------------------------------------------------------
 # Resolve install root and safety checks (mirror install.ps1)
 # ---------------------------------------------------------------------------
 $InstallRoot = [System.IO.Path]::GetFullPath($InstallRoot)
@@ -145,17 +301,33 @@ if ($Target -in @("All", "Codex")) {
     if (-not $SkipAgentUninstall) {
         Remove-CodexAgent
     }
+    Unregister-CodexMcp
 }
 if ($Target -in @("All", "Claude")) {
     Uninstall-ClaudePlugin
+    Unregister-ClaudeMcp
 }
 if ($Target -in @("All", "Copilot")) {
     Uninstall-CopilotPlugin
+}
+# IDE-client MCP unregistration mirrors install.ps1's registration scoping:
+# Cursor has no dedicated -Target value, so it participates in All only; VS Code
+# consumes the MCP config through Copilot, so it participates in All and Copilot.
+if ($Target -eq "All") {
+    Unregister-CursorMcp
+}
+if ($Target -in @("All", "Copilot")) {
+    Unregister-VSCodeMcp
 }
 
 # ---------------------------------------------------------------------------
 # Remove installed files
 # ---------------------------------------------------------------------------
+# MCP payload removal mirrors -KeepFiles semantics for the rest of the
+# install root; when the whole root is removed below, this is redundant but
+# harmless (already-removed directories are treated as success).
+Remove-McpPayload
+
 if ($KeepFiles) {
     Write-Host "Kept installed files at: $InstallRoot (-KeepFiles)."
 }

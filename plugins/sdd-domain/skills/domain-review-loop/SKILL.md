@@ -84,9 +84,14 @@ On every invocation (not only `--reset`), the precheck script:
    reset satisfies this halt, matching AC-014's requirement.
 
 Once a human has reset the status field to `Pending` and this script is
-invoked again, step 3's comparison naturally proceeds (the live status line
-is normalized out of the hash, so the reset itself never re-triggers drift
-detection) and review proceeds as a normal new attempt.
+invoked again, the precheck observes that `Domain-Model-Status` is no longer
+`Approved`, deletes the now-stale fingerprint file (logging one line to
+stderr), and proceeds as a normal new attempt — the drift hard-stop applies
+only while the status is still `Approved`. The content changes that
+triggered the halt still exist, so the fingerprint must be cleared rather
+than re-compared (normalizing the status line alone would not make the
+other changed artifacts match); the next human Approval records a fresh
+fingerprint for the re-reviewed model.
 
 ## Sequential launch boundary
 
@@ -348,7 +353,13 @@ cross-model-verification-policy.md contract: blind, parallel, no cross-talk,
 no visibility into the other panelist's verdict, the evaluator's verdict, or
 prior review-ticket history. Each panelist reads only the sanitized bundle
 and writes its own `cross-model-verdict/v1` JSON to
-`reports/domain-review/attempt-<M>/round-<N>/cross-model/DM-001.panelist-<vendor>.verdict.json`.
+`reports/domain-review/attempt-<M>/round-<N>/sdd-domain-model/verification/DM-001.panelist-<vendor>.verdict.json`
+-- this is `<spec-root>/<feature>/verification/`, the exact directory
+`check-cross-model.sh` discovers verdicts in (its line 34 joins
+`${spec_root}/${feature}/verification`), given the `--spec-root` and
+`--feature` values used in the gate step below. The bundle input stays
+under `cross-model/`; the verdict files must NOT go there, or the gate
+would find zero verdicts.
 
 If a configured panelist's host context cannot be started, errors before
 producing a verdict JSON, or produces no file within the invocation, record
