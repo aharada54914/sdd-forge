@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "ci-mcp",
+  "attempt": 1,
+  "round": 2,
+  "reviewer_a_run_id": "spec-a-cimcp-a1r2-20260706-8c37",
+  "reviewer_b_run_id": "spec-b-cimcp-a1r2-20260706-48ea",
+  "reviewer_a_host_session_id": "hs-spec-a-8eee4773-0003",
+  "reviewer_b_host_session_id": "hs-spec-b-8eee4773-0004",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

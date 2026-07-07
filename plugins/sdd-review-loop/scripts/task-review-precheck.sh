@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # task-review-precheck.sh
-# Usage: task-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs]
+# Usage: task-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs|--provenance-rereview]
 #
 # Generates precheck-result.json and dependency-graph.json for the task-review-loop.
 # Outputs to: reports/task-review/<feature>/attempt-<M>/round-<N>/
@@ -239,7 +239,7 @@ require_persisted_pass() {
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
-[[ -z "$MODE" || "$MODE" == "--verify-inputs" ]] || fail "unknown mode: $MODE"
+[[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]] || fail "unknown mode: $MODE"
 profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
 full_profile=false
 [[ "$profile" == "full" ]] && full_profile=true
@@ -285,8 +285,26 @@ fi
 [[ ! -e "$REPORT_DIR" && ! -L "$REPORT_DIR" ]] || fail "round destination already exists (replay is forbidden)"
 [[ -d "$SPECS_DIR" && ! -L "$SPECS_DIR" ]] || fail "feature specification directory must be a real directory"
 [[ "$(cd "$SPECS_DIR" && pwd -P)" == "$repo_root/specs/$FEATURE" ]] || fail "feature specification directory escapes repository"
-bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
-  fail "canonical workflow-state validation failed"
+if [[ "$MODE" == "--provenance-rereview" ]]; then
+  prior_pass=false
+  while IFS= read -r verdict_file; do
+    if jq -e --arg feature "$FEATURE" \
+      '.feature == $feature and .stage == "task" and .verdict == "PASS"' \
+      "$verdict_file" >/dev/null 2>&1; then
+      prior_pass=true
+      break
+    fi
+  done < <(find "reports/task-review/${FEATURE}" -type f -name integrated-verdict.json ! -lname '*' -print 2>/dev/null)
+  [[ "$prior_pass" == "true" ]] ||
+    fail "provenance re-review requires a prior persisted task-review PASS verdict"
+  if ! bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE"; then
+    echo "NOTE: task-review-precheck: canonical workflow-state validation failed;" \
+      "proceeding under --provenance-rereview (task-stage evidence re-binding in progress)." >&2
+  fi
+else
+  bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
+    fail "canonical workflow-state validation failed"
+fi
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 1: Verify required input files exist

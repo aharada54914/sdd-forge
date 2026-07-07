@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "ci-mcp",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "22eb877c4d1b266c7f737345e87a63f055e68f0367335d5c66570f2f667efdd5",
+  "acceptance_sha256": "160da7026c73416472e619946dd24e236b56b766c27ae4f935aa775dc2273550",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "5dbfebc6959b22f56bab4bb23ffc420ed83566353d1dd70a1456821d50aa3d0e",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-05T22:53:37Z"
+}

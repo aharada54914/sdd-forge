@@ -57,7 +57,9 @@ attempt-1/round-1.
 
 ### STEP 1 — Precheck
 
-Run `plugins/sdd-review-loop/scripts/task-review-precheck.sh <feature> <attempt> <round>`.
+Run `plugins/sdd-review-loop/scripts/task-review-precheck.sh <feature> <attempt> <round>`
+(add `--provenance-rereview` / `-ProvenanceRereview` only for a
+post-implementation provenance re-review; see the section below).
 
 This script produces:
 - `reports/task-review/<feature>/attempt-<M>/round-<N>/precheck-result.json`
@@ -80,8 +82,13 @@ Spawn task-reviewer-a as a fresh agent (no shared context) with:
 - Feature slug, attempt number, round number.
 - Path to precheck-result.json.
 - Hash-verified allowed-input manifest including
-  `design.md`, all four layer specs, `traceability.md`, and
-  `plugins/sdd-review-loop/references/reviewer-calibration.md`.
+  `design.md`, `traceability.md`, and
+  `plugins/sdd-review-loop/references/reviewer-calibration.md`. For a
+  registered full-profile feature the manifest MUST additionally include all
+  four layer specs (`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,
+  `security-spec.md`) with current hashes: the persisted-state validator
+  (`check-workflow-state.sh`) rejects task-stage evidence whose reviewer
+  manifests omit any layer input.
 
 The agent reads inputs itself and writes:
 `reports/task-review/<feature>/attempt-<M>/round-<N>/reviewer-a.json`
@@ -125,8 +132,13 @@ Spawn task-reviewer-b as a fresh agent (no shared context) with:
 - Path to precheck-result.json.
 - Path to integrated-summary.json.
 - Hash-verified allowed-input manifest including
-  `design.md`, all four layer specs, `traceability.md`, and
-  `plugins/sdd-review-loop/references/reviewer-calibration.md`.
+  `design.md`, `traceability.md`, and
+  `plugins/sdd-review-loop/references/reviewer-calibration.md`. For a
+  registered full-profile feature the manifest MUST additionally include all
+  four layer specs (`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,
+  `security-spec.md`) with current hashes: the persisted-state validator
+  (`check-workflow-state.sh`) rejects task-stage evidence whose reviewer
+  manifests omit any layer input.
 
 task-reviewer-b has `disallowedPaths` covering reviewer-a.json. The agent reads
 its own inputs and writes:
@@ -235,6 +247,42 @@ When the human edits tasks.md and re-invokes without `--reset`:
   "task-review-loop: --edit-summary is required when re-invoking in round 2 or 3.
   Provide a brief description of the changes made to tasks.md."
 - Proceed from STEP 1 with the incremented round.
+
+## Post-Implementation Provenance Re-Review
+
+When task-stage review evidence must be re-bound after the implementation
+phase (evidence-schema drift, incomplete reviewer input manifests) under the
+AGENTS.md "post-implementation provenance re-review" rule, run a new attempt
+as follows. This is a re-binding of existing PASS evidence, never a first-time
+review or a findings waiver.
+
+1. Start a new attempt: attempt = M+1, round = 1. Do NOT clear
+   `Task-Review-Status:` from tasks.md — it stays `Passed`. (Setting it to
+   `Pending` would violate the validator's pending-review lifecycle rule once
+   tasks carry approved/advanced states.)
+2. Run the precheck with the re-review flag:
+   `task-review-precheck.sh <feature> <M+1> 1 --provenance-rereview`
+   (PowerShell: `-ProvenanceRereview`). The flag requires at least one prior
+   persisted task-review PASS verdict for the feature and tolerates a failing
+   canonical workflow-state validation — the stale evidence being re-bound is
+   the reason the re-review runs. Every other precheck enforcement is
+   unchanged.
+3. Invoke both reviewers per STEP 2–4 with the complete input set: for a
+   full-profile feature this includes `design.md`, `traceability.md`, and all
+   four layer specs in each reviewer manifest. Declare the invocation a
+   post-implementation provenance re-review so task-reviewer-a evaluates
+   INITIAL-STATE by lifecycle validity (approved audit-marked approvals and
+   `Implementation Complete`/`Done` statuses are valid).
+4. Reviewers emit the validator-canonical output schemas exactly as documented
+   in their role files. Merge verdicts and write the contract per STEP 5.
+5. After the contract is persisted, run
+   `plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature <slug>`
+   and require exit 0 before reporting completion.
+
+Controlled re-binding boundary: a provenance re-review re-binds review
+evidence to the current artifact hashes; it does not license content changes
+to frozen artifacts. Sanctioned post-review updates go to non-frozen addenda
+per AGENTS.md (see ADR 0007).
 
 ## Boundaries
 

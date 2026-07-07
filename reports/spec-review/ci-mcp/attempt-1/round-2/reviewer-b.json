@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-cimcp-a1r2-20260706-48ea",
+  "host_session_id": "hs-spec-b-8eee4773-0004",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/ci-mcp/attempt-1/round-2/integrated-summary.json",
+      "sha256": "18715d9500c71c810798f19fe5331a3ebc3bb764ff214d5ab93e551cf613de9d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/ci-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "5ad64469e53ca94689cea649c9423fa412a5a7e75ec2ca3a3b086221d914ecca"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/ci-mcp/requirements.md",
+      "sha256": "5d7709f64d8f9e95325efe65701a19ca32f8f298bfeb6d6a6514aa8904af4bd1"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms, tools, and states are concretely defined: 5 tool names with explicit field lists (REQ-002), error code enum (REQ-004/REQ-006), truncation size (256 KiB, REQ-008), and the previously ambiguous 401/403 mapping is now fully disambiguated in REQ-006 (401 always auth-missing; 403 rate-limited only with x-ratelimit-remaining:0 or retry-after; headerless 403 upstream-error; path-denied reserved for local input guard only). Remaining open items (OQ-001 owner/repo resolution priority, OQ-004 token env var name) are explicitly flagged as open questions with owners and resolution paths rather than left as silent ambiguity, so two implementers would not diverge without a flagged decision point."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-006 and AC-010 now state an identical, mutually exclusive error-mapping table (401->auth-missing always; 403 with indicator->rate-limited; 403 without indicator->upstream-error; 404->not-found; 429->rate-limited; 5xx/network->upstream-error), resolving the round-1 401/403 disjunction. path-denied is explicitly scoped to REQ-007/AC-012 local input-guard use only and is never applied to upstream 403, removing the prior overlap. No other conflicts found between Goals, Non-goals, Requirements, and Acceptance Criteria (e.g., write-exclusion in Non-goals is consistently reinforced by REQ-003/AC-006/AC-007 with no contradicting requirement)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases section and AC-008 through AC-012 cover: missing token (auth-missing), unresolvable owner/repo (invalid-input), not-found run/job ids, rate limit via both 429 and indicator-bearing 403, headerless 403 (upstream-error) now explicitly required to be tested per AC-010, log truncation boundary (AC-004), expired artifacts (non-error, AC-005), 5xx/network failure (upstream-error), and empty result set returning ok:true with empty array. This is a materially complete set of negative/boundary/failure paths implied by the requirements."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Assumptions section states target scope (github.com REST v3, read-only fine-grained PAT, three-OS installer support) as accepted premises, and OQ-001/OQ-002/OQ-003/OQ-004 each carry Owner, Blocks Implementation status, and Resolution Path, explicitly marking product decisions needed before final contract lock rather than leaving them as unstated assumptions baked into requirements text."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The write-exclusion boundary is explicit and testable: Non-goals lists all excluded write operations, REQ-003/AC-006/AC-007 require static/unit tests enforcing GET-only HTTP methods and absence of write-inducing input fields, and the Assumptions section states this boundary is recorded as ADR-0006 'and is subject to human approval.' Security Boundaries table (B1-B3) further specifies auth/trust boundaries. This gives a concrete, verifiable approval/governance boundary rather than an aspirational statement."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Requirements and acceptance tests give design/implementation-policy review sufficient concrete detail (tool contracts, error enum incl. resolved 401/403 mapping, size limits, static-check obligations, installer parity requirements) without requiring invention of missing product behavior. The remaining product-decision points (OQ-001, OQ-004) are correctly scoped as pre-design/pre-implementation blockers rather than gaps silently left for the design reviewer to resolve unilaterally."
+    }
+  ]
+}

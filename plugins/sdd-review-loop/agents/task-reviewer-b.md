@@ -218,9 +218,12 @@ The JSON must be valid and match this schema exactly:
   "schema": "task-reviewer-b/v1",
   "stage": "task",
   "role": "task-reviewer-b",
+  "feature": "<feature-slug>",
+  "attempt": <M>,
+  "round": <N>,
   "run_id": "<fresh-run-id>",
   "host_session_id": "<distinct-host-session-id>",
-  "allowed_input_manifest": [{"path":"<canonical-allowed-path>","sha256":"<sha256>"}],
+  "manifest": {"allowed_inputs": [{"path":"<canonical-allowed-path>","sha256":"<sha256>"}]},
   "verdict": "PASS|NEEDS_WORK|BLOCKED",
   "checks": [
     {
@@ -229,13 +232,38 @@ The JSON must be valid and match this schema exactly:
       "severity": "Critical|Major|Minor",
       "finding": "Specific evidence or 'No issues found.'"
     }
+  ],
+  "findings": [
+    {
+      "check_id": "<CHECK-ID that FAILed>",
+      "severity": "Critical|Major|Minor",
+      "task_id": "<T-NNN or null>",
+      "finding": "<specific evidence>"
+    }
   ]
 }
 ```
 
-Verdict rules:
-- PASS: all checks are PASS or SKIP, zero Critical, zero Major findings.
-- NEEDS_WORK: one or more Major findings, zero Critical.
+This is the persisted-state validator's canonical task-stage encoding for this
+role (`plugins/sdd-quality-loop/scripts/check-workflow-state.sh`): top-level
+`feature`/`attempt`/`round`, `stage: "task"`, `role: "task-reviewer-b"`, the
+allowed-input list wrapped as `manifest.allowed_inputs`, `checks[].result`, and
+a `findings` array. Do not emit a top-level `allowed_input_manifest` field —
+the validator rejects it for this role.
+
+- `findings` must contain exactly one entry per check whose `result` is FAIL,
+  each with severity Critical, Major, or Minor. When every check is PASS or
+  SKIP, `findings` must be `[]`.
+- `manifest.allowed_inputs` must list every input you actually read and must
+  include every entry of the orchestrator-provided allowed-input manifest. For
+  a registered full-profile feature this includes `design.md`,
+  `traceability.md`, and all four layer specs (`ux-spec.md`,
+  `frontend-spec.md`, `infra-spec.md`, `security-spec.md`) — the validator
+  rejects task-stage evidence whose reviewer manifests omit any layer input.
+
+Verdict rules (the validator recomputes the expected verdict from `findings`):
+- PASS: `findings` is empty (no check FAILed).
+- NEEDS_WORK: one or more findings, none Critical.
 - BLOCKED: one or more Critical findings.
 
 The `checks` array must contain one entry per check ID in this order:
