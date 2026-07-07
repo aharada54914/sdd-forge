@@ -196,20 +196,29 @@ manifest_has_hash_for_file() {
   historical="$(plugins_hash_at_pin "$pin" "$plugins_relative")" || return 1
   manifest_has_hash "$contract" "$suffix" "$historical" "$recorded_root"
 }
+# Recorded manifest paths are absolute paths from the clone that produced the
+# review evidence, whose directory name has no relation to this checkout's
+# (worktrees, CI fixtures, and renamed clones are all legal). Split them on
+# the repository's own structural top-level directories instead: every
+# canonical manifest path is repo-relative under specs/, reports/, or
+# plugins/, so the rightmost such segment marks the recorded repository root.
+# A wrong split cannot weaken tamper detection - the derived relative path
+# must still match the canonical allowlist, its recorded sha256 must match
+# the live file, and every manifest entry must agree on a single recorded
+# root.
 recorded_repo_root() {
-  local contract="$1" repo_name
-  repo_name="$(basename "$REPO_ROOT")"
-  jq -r --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" \
-    --arg marker "/$repo_name/" '
+  local contract="$1"
+  jq -r --arg repo "$REPO_ROOT/" --arg alias "$REPO_ROOT_ALIAS/" '
     def normalized: gsub("\\\\"; "/");
     def rooted: test("^(/|[A-Za-z]:/)");
     [.reviewers[].allowed_input_manifest[].path |
       normalized |
       select(rooted and (startswith($repo) or startswith($alias) | not)) |
       . as $path |
-      ($path | rindex($marker)) as $index |
-      if $index == null then null
-      else $path[0:($index + ($marker | length) - 1)]
+      ([$path | rindex("/specs/"), rindex("/reports/"), rindex("/plugins/")]
+        | map(. // -1) | max) as $index |
+      if $index < 0 then null
+      else $path[0:$index]
       end] as $roots |
     if any($roots[]; . == null) or ($roots | map(select(. != null)) | unique | length) > 1
     then "__INVALID__"

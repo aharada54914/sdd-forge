@@ -82,7 +82,8 @@ function Get-NormalizedHash([string]$Path, [string]$Stage) {
     }
     $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
     $sha = [Security.Cryptography.SHA256]::Create()
-    try { return ([Convert]::ToHexString($sha.ComputeHash($bytes))).ToLowerInvariant() }
+    # PS5.1-safe (no [Convert]::ToHexString, .NET 5+ only).
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
     finally { $sha.Dispose() }
 }
 function Get-Header([string]$Path, [string]$Header) {
@@ -127,8 +128,16 @@ function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
     } elseif ($normalizedRoot.StartsWith("/var/")) {
         $currentRoots += "/private/var/" + $normalizedRoot.Substring("/var/".Length)
     }
-    $repositoryName = Split-Path -Leaf $normalizedRoot
-    $marker = "/$repositoryName/"
+    # Recorded manifest paths are absolute paths from the clone that produced
+    # the review evidence, whose directory name has no relation to this
+    # checkout's (worktrees, CI fixtures, and renamed clones are all legal).
+    # Split them on the repository's own structural top-level directories
+    # instead: every canonical manifest path is repo-relative under specs/,
+    # reports/, or plugins/, so the rightmost such segment marks the recorded
+    # repository root. A wrong split cannot weaken tamper detection - the
+    # derived relative path must still match the canonical allowlist, its
+    # recorded sha256 must match the live file, and every manifest entry must
+    # agree on a single recorded root.
     $recordedRoots = [Collections.Generic.HashSet[string]]::new(
         [StringComparer]::Ordinal)
     foreach ($reviewer in @($Contract.reviewers)) {
@@ -144,11 +153,15 @@ function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
                 }
             }
             if ($isCurrent) { continue }
-            $index = $normalizedPath.LastIndexOf($marker, [StringComparison]::OrdinalIgnoreCase)
+            $index = -1
+            foreach ($marker in @("/specs/", "/reports/", "/plugins/")) {
+                $candidate = $normalizedPath.LastIndexOf($marker, [StringComparison]::Ordinal)
+                if ($candidate -gt $index) { $index = $candidate }
+            }
             if ($index -lt 0) {
                 return [pscustomobject]@{ Valid=$false; Root="" }
             }
-            [void]$recordedRoots.Add($normalizedPath.Substring(0, $index + $marker.Length - 1))
+            [void]$recordedRoots.Add($normalizedPath.Substring(0, $index))
             if ($recordedRoots.Count -gt 1) {
                 return [pscustomobject]@{ Valid=$false; Root="" }
             }
@@ -447,7 +460,15 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         if ($file.LinkType -or -not (Test-Path -LiteralPath $file.FullName -PathType Leaf)) {
             Stop-WorkflowState $Feature "stage-provenance" "$Stage verdict evidence is linked or unreadable"
         }
-        $relative = [IO.Path]::GetRelativePath($root, $file.FullName).Replace("\", "/")
+        # PS5.1-safe (no [IO.Path]::GetRelativePath, .NET Core only): the file
+        # comes from Get-ChildItem -Recurse under $root, so its normalized
+        # full name always carries $root as a literal prefix.
+        $rootPrefix = $root.Replace("\", "/").TrimEnd("/") + "/"
+        $fullName = $file.FullName.Replace("\", "/")
+        if (-not $fullName.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+            Stop-WorkflowState $Feature "stage-provenance" "$Stage verdict has a noncanonical path"
+        }
+        $relative = $fullName.Substring($rootPrefix.Length)
         if ($relative -notmatch "^attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/integrated-verdict\.json$") {
             Stop-WorkflowState $Feature "stage-provenance" "$Stage verdict has a noncanonical path"
         }
