@@ -9,3 +9,7 @@ AGENT_STOP
 # check-contract / check-evidence-bundle reference these paths, so they have to
 # survive a fresh clone. Re-include them despite the blanket *.log rule above.
 !specs/**/verification/*.log
+
+# R-10 scratchpad handoff leftovers (human-cp staging areas; never commit)
+scratchpad-T006/
+scratchpad-T007/

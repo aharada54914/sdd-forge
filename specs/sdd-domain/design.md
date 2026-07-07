@@ -203,6 +203,32 @@ Blocks Implementation: no
 Resolution Path: confirm at task approval; revisit after first retrospective
 with drift metrics.
 
+**RESOLVED (2026-07-07, sign-off per repository owner's direction; closes
+RT-20260707-002 item 3):** the `[[term:Name]]` heading-marker convention
+introduced by T-008's check-domain-conformance Check-2 is confirmed as the
+v1 mechanism for declaring heading-level canonical-term usage in
+requirements.md. Rationale:
+
+- **Opt-in and explicit** -- a heading without the marker is never checked,
+  so brownfield prose can never false-positive (the exact failure class
+  RT-20260706-001 documented for keyword-based scanning). All existing
+  features' specs pass conformance untouched.
+- **Deterministic** -- exact string match against
+  `domain-contract.json` `contexts[].terms[].canonical`; no lexical
+  heuristics, greppable, and pinned by a Pester scenario
+  (check-domain-conformance.Tests.ps1 Scenario 7, including the
+  `requirements.md:<lineno>:` finding format).
+- **Collision-safe** -- the `term:` prefix inside `[[...]]` is disjoint from
+  wiki-style `[[link]]` conventions.
+- **Accepted cost** -- the marker renders literally in Markdown; acceptable
+  in spec headings, which are working artifacts rather than published docs.
+- **Alternatives rejected**: bare-name fuzzy matching (false-positive-prone,
+  contradicts the deterministic-gate principle) and front-matter term lists
+  (detach the claim from its usage site).
+
+The marker remains optional until a project adopts a `domain/` directory;
+lexical-variant matching stays deferred per the original v1 scope.
+
 ### OQ-002: Re-approval granularity
 
 v1 resets the whole model to Pending on any `domain/` edit. Per-context

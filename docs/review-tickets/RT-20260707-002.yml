@@ -1,5 +1,14 @@
 ticket_id: RT-20260707-002
-status: open
+status: resolved
+resolution: |
+  2026-07-07: item 3 signed off per repository owner's explicit direction
+  ("do yourself", delegating the sign-off decision). The [[term:Name]]
+  heading-marker convention is confirmed as the v1 heading-level
+  canonical-term mechanism; full rationale (opt-in/no-false-positives,
+  deterministic exact matching, collision-safe prefix, accepted rendering
+  cost, rejected alternatives) is recorded in specs/sdd-domain/design.md
+  under "OQ-001: Conformance matching strategy" -> RESOLVED. With items
+  1-2 already applied (see resolution_progress), the ticket is closed.
 resolution_progress: |
   2026-07-07 (release-lane follow-up, human-directed): items 1 and 2 resolved.
   1. check-domain-conformance.ps1 Check-2 now iterates indexed lines and
