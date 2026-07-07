@@ -28,8 +28,8 @@
   "reviewers": [
     {
       "role": "task-reviewer-a",
-      "run_id": "task-a-cimcp-a2r1-20260707-5d3c",
-      "host_session_id": "hs-task-a-cimcp-0103",
+      "run_id": "task-a-cimcp-a2r1-20260707-4e1a",
+      "host_session_id": "hs-task-a-cimcp-0101",
       "allowed_input_manifest": [
         {
           "path": "specs/ci-mcp/requirements.md",
@@ -83,8 +83,8 @@
     },
     {
       "role": "task-reviewer-b",
-      "run_id": "task-b-cimcp-a2r1-20260707-9e4d",
-      "host_session_id": "hs-task-b-cimcp-0104",
+      "run_id": "task-b-cimcp-a2r1-20260707-7c2b",
+      "host_session_id": "hs-task-b-cimcp-0102",
       "allowed_input_manifest": [
         {
           "path": "specs/ci-mcp/requirements.md",
@@ -132,7 +132,7 @@
         },
         {
           "path": "reports/task-review/ci-mcp/attempt-2/round-1/integrated-summary.json",
-          "sha256": "b3b537788b85ce89fd171ab3bba824c6922479c8ec80380e9e2020809be1ee12"
+          "sha256": "f75edecfdb540c1be0b61c81f4e1cf872d5e8555ada2b20e2e961af7c54efe99"
         },
         {
           "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
@@ -145,6 +145,6 @@
       ]
     }
   ],
-  "human_edit_summary": "Reset attempt after attempt-1 round-3 BLOCKED. Fixes pre-applied to tasks.md at end of attempt-1 (commit 05b0613): serial Blockers chain T-005 -> T-012 -> T-013 for the shared actions.ts/server.ts writers; 13 tasks after the round-2 T-005 split. No further human edits in attempt-2. Launch-2 note: first reviewer launch (ledger seq 101/102) emitted a non-canonical output schema and was archived as *.launch-1.json; reviewers relaunched as seq 103/104 with the role-file canonical schema.",
-  "timestamp": "2026-07-07T16:05:00Z"
+  "human_edit_summary": "Reset attempt after attempt-1 round-3 BLOCKED. The recommended fixes were pre-applied to tasks.md at the end of attempt-1 (commit 05b0613): serial Blockers chain T-005 -> T-012 -> T-013 for the shared actions.ts/server.ts writers; 13 tasks total after the round-2 T-005 split. No further human edits in attempt-2.",
+  "timestamp": "2026-07-07T14:55:00Z"
 }

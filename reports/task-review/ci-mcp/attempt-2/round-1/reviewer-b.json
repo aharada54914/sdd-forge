@@ -2,79 +2,85 @@
   "schema": "task-reviewer-b/v1",
   "stage": "task",
   "role": "task-reviewer-b",
-  "run_id": "task-b-cimcp-a2r1-20260707-7c2b",
-  "host_session_id": "hs-task-b-cimcp-0102",
-  "allowed_input_manifest": [
-    {"path": "specs/ci-mcp/requirements.md", "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"},
-    {"path": "specs/ci-mcp/acceptance-tests.md", "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"},
-    {"path": "specs/ci-mcp/design.md", "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"},
-    {"path": "specs/ci-mcp/tasks.md", "sha256": "4bc2563e8703598a7b33050190bba3d2fce8f5263586b181b642c75d41cf53a4"},
-    {"path": "specs/ci-mcp/traceability.md", "sha256": "5b4810d5d1c67ad5e6791cbac73b2a40b144be5784374ead9a108fbff614f2ac"},
-    {"path": "specs/ci-mcp/ux-spec.md", "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"},
-    {"path": "specs/ci-mcp/frontend-spec.md", "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"},
-    {"path": "specs/ci-mcp/infra-spec.md", "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"},
-    {"path": "specs/ci-mcp/security-spec.md", "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"},
-    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
-    {"path": "reports/task-review/ci-mcp/attempt-2/round-1/precheck-result.json", "sha256": "f59d885997072d3ba6fe41062a2f8c1f9dd13b5cf1cf30bf2bb82a208f8602a2"},
-    {"path": "reports/task-review/ci-mcp/attempt-2/round-1/integrated-summary.json", "sha256": "f75edecfdb540c1be0b61c81f4e1cf872d5e8555ada2b20e2e961af7c54efe99"},
-    {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
-    {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
-  ],
+  "feature": "ci-mcp",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "task-b-cimcp-a2r1-20260707-9e4d",
+  "host_session_id": "hs-task-b-cimcp-0104",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/ci-mcp/requirements.md", "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"},
+      {"path": "specs/ci-mcp/acceptance-tests.md", "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"},
+      {"path": "specs/ci-mcp/design.md", "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"},
+      {"path": "specs/ci-mcp/tasks.md", "sha256": "4bc2563e8703598a7b33050190bba3d2fce8f5263586b181b642c75d41cf53a4"},
+      {"path": "specs/ci-mcp/traceability.md", "sha256": "5b4810d5d1c67ad5e6791cbac73b2a40b144be5784374ead9a108fbff614f2ac"},
+      {"path": "specs/ci-mcp/ux-spec.md", "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"},
+      {"path": "specs/ci-mcp/frontend-spec.md", "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"},
+      {"path": "specs/ci-mcp/infra-spec.md", "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"},
+      {"path": "specs/ci-mcp/security-spec.md", "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "reports/task-review/ci-mcp/attempt-2/round-1/precheck-result.json", "sha256": "f59d885997072d3ba6fe41062a2f8c1f9dd13b5cf1cf30bf2bb82a208f8602a2"},
+      {"path": "reports/task-review/ci-mcp/attempt-2/round-1/integrated-summary.json", "sha256": "b3b537788b85ce89fd171ab3bba824c6922479c8ec80380e9e2020809be1ee12"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+    ]
+  },
   "verdict": "PASS",
   "checks": [
     {
       "id": "RISK-APPROPRIATE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "All 13 tiers consistent with scope per risk-classification-policy.md sentinel surfaces. High: T-002 (github-client/error-normalizer: SSRF+secrets handling+upstream normalization), T-003 (auth: secrets handling/scrubbing), T-004 (repo-resolve: SSRF/input guard), T-005/T-012/T-013 (5 MCP tools = public API contract), T-006 (write-boundary/access-control static gate), T-007 (contract JSON Schema = public API contract), T-009/T-010 (installer/uninstaller mutate+delete user IDE config = data mutation). Medium: T-001 (scaffold/envelope, sensitive surfaces deferred to blocked successors), T-008 (dist/CI/smoke distribution). Low: T-011 (docs + traceability status only, no control/data/security impact). No under- or over-classification. Required Workflow matches tier for all 13 (low->test-after, medium->acceptance-first, high->tdd) per risk-gate-matrix.md."
+      "finding": "All 13 tasks' Risk tiers match their scope per risk-classification-policy.md. Sensitive-surface tasks are high: T-002 (github-client SSRF/error-normalization), T-003 (auth/token scrubbing/secrets), T-004 (repo-resolve SSRF/input guard), T-005/T-012/T-013 (public API contract = sentinel surface), T-006 (read/write-separation static gate; access control), T-007 (public contract schema), T-009/T-010 (installer data mutation/deletion of user config). Non-sensitive tasks are correctly lower: T-001 (scaffold/envelope, sensitive parts deferred to blocked successors) medium, T-008 (dist/CI/smoke) medium, T-011 (docs/traceability) low. No under-classification of a sentinel surface. T-006's scope is test/static files only, but it is not over-classification: security-spec.md STRIDE/OWASP (TEST-006/TEST-007, Broken Access Control) designates it the mechanical chokepoint enforcing REQ-003 read/write separation, so tdd Red->Green (write injected -> check fails; clean src -> passes) is meaningful assurance, not wasted effort."
     },
     {
       "id": "HIGH-CRITICAL-EVIDENCE",
       "result": "PASS",
       "severity": "Critical",
-      "finding": "All 10 high tasks (T-002,T-003,T-004,T-005,T-006,T-007,T-009,T-010,T-012,T-013) carry Done When items 'Red->Green evidence 記録(tdd)' and '独立レビュー verdict PASS が evidence に記録される' plus provenance evidence bundle. No critical-tier task exists, so signature/second-approver items are not required (risk-gate-matrix.md: signature+two-person are critical-only)."
+      "finding": "No issues found. Every high task (T-002,T-003,T-004,T-005,T-012,T-013,T-006,T-007,T-009,T-010) includes both mandatory Done When items: 'Red->Green evidence 記録(tdd)' and '独立レビュー verdict PASS が evidence に記録される' (plus provenance/spec_revision evidence bundle). No task is Risk: critical, so second-approver/signed-bundle items are not required."
     },
     {
       "id": "TASK-SIZE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "No oversizing: every task Scope stays within a single coherent module boundary and no Done When list exceeds 8 verifiable items (max = 8 at T-002/T-003/T-005/T-012). No multi-phase titles. r2 split holds: T-005 (list_workflow_runs/get_workflow_run), T-012 (list_run_jobs/list_run_artifacts), T-013 (get_job_log+256KiB truncation) each carry a distinct integration concern (contract-envelope conformance + error/edge path), so they are not trivial single-function fragmentation."
+      "finding": "No issues found. All tasks have <=8 Done When items and <=3 distinct implementation areas; no multi-phase titles. The attempt-2 r2 split (oversized T-005 -> T-005 run-tools / T-012 jobs+artifacts / T-013 get_job_log+256KiB truncation) yields three right-sized, coherent tool-implementation units with genuine integration concerns (server.ts registration, github-client/auth/repo-resolve wiring, ring-buffer truncation), not fragmentation. No rename-only or single-function-edit fragmented tasks."
     },
     {
       "id": "EDGE-CASE-COVERAGE",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Every functional task has bound error/edge-path ACs: T-005->AC-002 (nonexistent run id -> not-found), T-012->AC-005 (expired artifact -> expired:true, not error), T-013->AC-004 (>256KiB tail-priority truncation), T-002->AC-010/AC-011 (401/403-indicator/403-no-indicator/404/429/5xx/network all-branch + non-sensitive details), T-003->AC-008/AC-009 (auth-missing without process exit + canary scrubbing), T-004->AC-012 (unresolvable owner/repo -> invalid-input). T-001 envelope scope inherently covers the 10-code error enum."
+      "finding": "No issues found. Every functional task maps to an error-path/edge-case AC: T-002->AC-010 (401/403/404/429/5xx/network all branches, no upstream-body relay) + AC-011; T-003->AC-008 (token-unset auth-missing) + AC-009 (canary no-leak); T-004->AC-012 (unresolvable owner/repo -> invalid-input); T-005->AC-002 (nonexistent run id -> not-found); T-012->AC-005 (expired artifact edge case); T-013->AC-004 (>256 KiB tail-priority truncation). T-001 (scaffold) error-envelope branch is exercised by downstream error-path ACs (AC-010/AC-013)."
     },
     {
       "id": "TEST-TYPE-MATCH",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Declared test types match scope in acceptance-tests.md: TEST-001..005/008..011 are integration (tool+github-client+fake HTTP server, 2+ components); TEST-006 unit+static and TEST-007 static(grep) target single input-schema/src surfaces; TEST-012 unit+static (repo-resolve module); TEST-013 unit (ajv schema-validation boundary); TEST-015 smoke (Inspector stdio startup + tools/list); TEST-016..018 integration (installer harness over multiple config files); TEST-014 CI dist-parity; TEST-019 doc review. No type/scope mismatch."
+      "finding": "No issues found. Declared test types match scope: AC-001..005/008..011/016..018 integration (tool+fake GitHub API or installer+config = >=2 components); AC-007 static (grep) src-wide scan; AC-006/AC-012 unit+static (single-module/input-schema boundary + static exec check); AC-013 unit (schema/ajv single contract boundary); AC-014 CI (dist-parity); AC-015 smoke (stdio startup + tools/list enumeration); AC-019 doc review. No e2e/acceptance mislabeling."
     },
     {
       "id": "ROLLBACK-PLAN",
       "result": "PASS",
       "severity": "Major",
-      "finding": "All 10 high tasks carry an explicit Rollback: field with commit-revert plus residual-safety notes. The highest-blast-radius mutators are additionally hardened: T-009 (installer) notes broken-JSON failsafe preventing irreversible config destruction; T-010 (uninstall) notes 'installer-managed name (ci-mcp) only' delete boundary with test coverage. Rollback consideration present for every high task."
+      "finding": "No issues found. Every high task carries an explicit Rollback: field. Config-mutating tasks add design-level safety beyond commit revert: T-009 notes broken-JSON fail-safe preventing irreversible config damage; T-010 notes 'only installer-managed ci-mcp entry deleted' misdelete guard. Revert-commit rollback is appropriate for this pre-release, unshipped MCP; successors are gated by Blockers so reverting has no downstream impact."
     },
     {
       "id": "SCOPE-DISJOINT",
       "result": "PASS",
       "severity": "Major",
-      "finding": "The attempt-1 r3 BLOCKER (T-005/T-012/T-013 sharing tools/actions.ts + server.ts with no ordering) is resolved: serial Blockers chain enforces T-005 -> T-012 (Blockers include T-005) -> T-013 (Blockers include T-012), so the three shared-file writers execute in strict sequence. server.ts is created by T-001 (Blockers None) and all three registrants sit transitively after T-001. No other file has uncoordinated parallel writers (github-client.ts=T-002, auth.ts/diagnostics.ts=T-003, repo-resolve.ts=T-004, contract schema=T-007, install.sh/ps1=T-009, uninstall=T-010, workflow yml=T-008 each single-owner)."
+      "finding": "No issues found. The r3 fix holds: T-005/T-012/T-013 share src/tools/actions.ts and src/server.ts but run under a strict serial chain (T-005 <- T-012 <- T-013 via Blockers), so no uncoordinated parallel overlap. Other shared files are create-then-extend with transitive ordering: package.json (T-001 creates, T-008 adds build script; T-008 transitively after T-001), tests/install.tests.ps1 (T-009 install cases, T-010 uninstall cases; T-010 <- T-009). All other src modules are owned by a single task."
     },
     {
       "id": "DEPENDENCY-OVERLAP",
       "result": "PASS",
       "severity": "Major",
-      "finding": "Blockers match logical implementation order: T-002<-T-001, T-003<-T-002, T-004<-T-001 (repo-resolve independent of client/auth; the attempt-1 false T-004 dependency stays removed), T-005<-{T-002,T-003,T-004} (tools consume all three modules), T-006/T-007<-{T-005,T-012,T-013} (write-boundary static scan and contract validation need all 5 tools present), T-008<-{T-006,T-007} (CI runs their tests + builds full src), T-009<-T-008 (installer places built dist), T-010<-T-009, T-011<-all. No spurious blocker (each cited predecessor produces a consumed artifact); no missing blocker that would cause integration failure. The explicit {T-002,T-003,T-004} entries on T-012/T-013 are genuine (redundant-but-real transitive module deps), not spurious."
+      "finding": "No issues found. Blockers match logical artifact dependencies: T-002<-T-001 (envelope), T-003<-T-002 (auth wires token into github-client), T-004<-T-001 only (repo-resolve independent of client/auth; attempt-1 false dependency correctly removed), T-005/T-012/T-013 depend on github-client+auth+repo-resolve, T-006/T-007 depend on all 5 tools, T-008<-T-006/T-007, T-009<-T-008 (needs built dist), T-010<-T-009, T-011<-all. Explicit T-002/T-003/T-004 blockers on T-012/T-013 are transitively-true (not spurious) and do not inflate the critical path. No missing blockers that would cause integration failure."
     },
     {
       "id": "BUGFIX-DIAGNOSTIC-PATH",
       "result": "SKIP",
       "severity": "Major",
-      "finding": "SKIP: no bugfix or debugging task in scope. All 13 tasks are greenfield implementation of the new read-only ci-mcp server (scaffold, modules, tools, gates, installer, docs); none is scoped as bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+      "finding": "SKIP: no bugfix or debugging task in scope. All 13 tasks are new-implementation, distribution, installer, or documentation work; none is scoped as a bugfix, regression fix, debugging, flaky-test, or incident-remediation task."
     }
-  ]
+  ],
+  "findings": []
 }

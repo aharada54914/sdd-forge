@@ -1,14 +1,14 @@
 {
   "schema": "review-context-invocation/v2",
   "stage": "task",
-  "role": "task-reviewer-b",
+  "role": "task-reviewer-a",
   "feature": "ci-mcp",
-  "run_id": "task-b-cimcp-a2r1-20260707-9e4d",
-  "host_session_id": "hs-task-b-cimcp-0104",
-  "sequence": 104,
+  "run_id": "task-a-cimcp-a2r1-20260707-4e1a",
+  "host_session_id": "hs-task-a-cimcp-0101",
+  "sequence": 101,
   "identity_ledger_path": "reports/review-context/identity-ledger.json",
-  "identity_ledger_sha256": "ceb5189ea368b82a5591d118647cc4081b3b5813ee67d73ae7e8c8daabb1ed83",
-  "previous_record_sha256": "4160fe8a744079d5b4c59217df28b3b0547d9b9230ce285307df8085cc1c6498",
+  "identity_ledger_sha256": "87dd93a62341543ca561ec40dc039e39e8769a49ac02f0857fa55e507d76ce05",
+  "previous_record_sha256": "c00910aefa08ae9051283ab7095dfc469eec8023e98d2788800506d6d0400662",
   "input_mode": "file-manifest",
   "fallback_mode": "none",
   "read_only": true,
@@ -58,16 +58,8 @@
       "sha256": "f59d885997072d3ba6fe41062a2f8c1f9dd13b5cf1cf30bf2bb82a208f8602a2"
     },
     {
-      "path": "reports/task-review/ci-mcp/attempt-2/round-1/integrated-summary.json",
-      "sha256": "b3b537788b85ce89fd171ab3bba824c6922479c8ec80380e9e2020809be1ee12"
-    },
-    {
-      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
-      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
-    },
-    {
-      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
-      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      "path": "reports/task-review/ci-mcp/attempt-2/round-1/dependency-graph.json",
+      "sha256": "fdf856fb3a69d2691a988ed858001c82968799eb9fb0506ba4eba821b6ed5061"
     }
   ]
 }
