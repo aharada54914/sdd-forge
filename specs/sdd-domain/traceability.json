@@ -1,0 +1,89 @@
+{
+  "feature": "sdd-domain",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": ["AC-001", "AC-011"],
+      "tests": [
+        "tests/hooks/domain-model-visibility.Tests.ps1",
+        "tests/validate-repository.ps1"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": ["AC-002", "AC-003"],
+      "tests": [
+        "tests/sdd-domain/contract-schema.Tests.ps1",
+        "tests/sdd-domain/artifact-set.Tests.ps1",
+        "tests/sdd-domain/update-mode.Tests.ps1"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": ["AC-004"],
+      "tests": [
+        "tests/sdd-domain/artifact-set.Tests.ps1",
+        "tests/sdd-domain/reverse-seed.Tests.ps1"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": ["AC-005", "AC-006", "AC-017"],
+      "tests": [
+        "tests/sdd-domain/domain-review-loop.Tests.ps1",
+        "tests/sdd-domain/cross-model-gate.Tests.ps1"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": ["AC-007", "AC-014"],
+      "tests": [
+        "tests/sdd-domain/domain-review-loop.Tests.ps1",
+        "tests/guard-parity.tests.sh"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": ["AC-008"],
+      "tests": [
+        "tests/sdd-domain/domain-sync.Tests.ps1"
+      ]
+    },
+    {
+      "req": "REQ-007",
+      "acs": ["AC-009", "AC-015"],
+      "tests": [
+        "tests/sdd-domain/check-domain-conformance.Tests.ps1"
+      ]
+    },
+    {
+      "req": "REQ-008",
+      "acs": ["AC-010"],
+      "tests": [
+        "tests/sdd-domain/absence-regression.Tests.ps1"
+      ]
+    },
+    {
+      "req": "REQ-009",
+      "acs": ["AC-011"],
+      "tests": [
+        "tests/sdd-domain/contract-schema.Tests.ps1",
+        "tests/validate-repository.ps1"
+      ]
+    },
+    {
+      "req": "REQ-010",
+      "acs": ["AC-012"],
+      "tests": [
+        "tests/sdd-domain/drift-metrics.Tests.ps1"
+      ]
+    },
+    {
+      "req": "REQ-011",
+      "acs": ["AC-013"],
+      "tests": [
+        "tests/sdd-domain/template-language.Tests.ps1"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-20260703T1200Z-spec-reviewer-a-r2",
+  "host_session_id": "SESS-spec-a-sdd-domain-a1r2",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain/requirements.md",
+      "sha256": "c649a227a6d30599a2292771e9c0e2a7326c39010c18b2f3f3130e00a08e4bf1"
+    },
+    {
+      "path": "specs/sdd-domain/acceptance-tests.md",
+      "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/sdd-domain/attempt-1/round-2/precheck-result.json",
+      "sha256": "a714d6e0fc41b103f82f5184a83846d0e4b66241840630a3bbaa0855fa909307"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All in-scope requirements (REQ-001 through REQ-011) map to at least one AC with concrete, checkable outcomes and a listed test target in acceptance-tests.md. AC-005's aggregation rule is now fully quantified (PASS requires both reviewers free of Critical/Major FAIL; NEEDS_WORK before round 3; BLOCKED at round 3; round-3 Minor-only yields PASS with nonzero warningCount), resolving the round-1 ambiguity. AC-016 (update-mode: edited stage plus downstream stages re-run in confirmation mode, upstream byte-identical, status reset to Pending) and AC-017 (panelist-unavailable recorded, requires_human_decision set, no auto-continue) are both concretely observable via named test files (TEST-016, TEST-017)."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of the four Goals traces to at least one AC: opt-in public entry point -> AC-001; independent two-reviewer review plus cross-model verification -> AC-005, AC-006, AC-017; deterministic downstream conformance -> AC-008, AC-009, AC-015; zero impact when domain/ absent -> AC-010. No orphaned goal found."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 17 ACs describe externally observable outcomes: specific file paths produced (AC-002), schema validation result (AC-003), field values and status transitions (AC-007, AC-014, AC-016), report contents and gate verdicts (AC-005, AC-006, AC-009, AC-017), and pass/warn conditions tied to fixtures in acceptance-tests.md (AC-015 two-context fixtures). No AC states only intent without an observable artifact or state change."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes language-specific code generation templates, CQRS/Event Sourcing support, lite-track integration, and C4 Component/Code levels (Container level only). Given the seven-stage pipeline and reverse-generation are pulled in-scope per the interview deltas noted in Overview, the corresponding Main Workflows (1-3) and Edge Cases define their boundaries (e.g., reverse mode only seeds an interview, still requires the same review path; update mode leaves upstream stages untouched)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table specifies auth/authz, data classification, and regulatory constraints for the three trust boundaries (seed inputs, Domain-Model-Status guard, domain-contract.json consumption). R-10 protected-file constraint is called out in Risks (R-1) with the scratchpad-to-human-copy procedure. Enforcement-level constraint (warn-by-default, SDD_DOMAIN_ENFORCE=error to escalate) is explicit in AC-009. Version-lock constraint across all seven plugins is stated in Assumptions and AC-011."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each listed risk has a validation surface: R-1 (guard-script edits touching protected files) is validated via AC-007/AC-014 hook-guard tests; R-2 (cross-model verification cost) mitigation of running once per review-loop PASS is consistent with AC-006's placement before the approval gate; R-3 (over-eager conformance blocking specs) is validated by AC-009's warn-first default and AC-015's precise declared-relation matching test; R-4 (interview fatigue) mitigation of stage checkpointing is consistent with AC-016's update-mode re-run semantics leaving upstream stages byte-identical."
+    }
+  ]
+}

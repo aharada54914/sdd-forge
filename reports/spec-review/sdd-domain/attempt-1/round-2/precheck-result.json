@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "sdd-domain",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "c649a227a6d30599a2292771e9c0e2a7326c39010c18b2f3f3130e00a08e4bf1",
+  "acceptance_sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "53393b7c99df39797df763eeaad83d0eea2e2a270fb797e28ccdc51087e8057f",
+  "edit_summary": "Round-1 findings addressed: (1) AC-005 now states the two-reviewer aggregation rule (both reviewers must be free of Critical/Major FAIL; NEEDS_WORK before round 3, BLOCKED at round 3, round-3 Minor-only passes with warningCount); (2) added AC-015/TEST-015 multi-context conformance coverage and AC-016/TEST-016 update-mode semantics with clarified Main Workflow item 2; (3) added AC-017/TEST-017 covering the panelist-unavailable failure mode (panelist-unavailable recorded, requires_human_decision set, no auto-continue)",
+  "reset": false,
+  "generated_at": "2026-07-03T10:57:52Z"
+}

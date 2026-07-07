@@ -1,0 +1,79 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "RUN-20260706T0510Z-task-reviewer-b-r1",
+  "host_session_id": "SESS-task-b-sdd-domain-a1r1",
+  "allowed_input_manifest": [
+    {"path": "specs/sdd-domain/requirements.md", "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"},
+    {"path": "specs/sdd-domain/acceptance-tests.md", "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"},
+    {"path": "specs/sdd-domain/design.md", "sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb"},
+    {"path": "specs/sdd-domain/tasks.md", "sha256": "9748491fb86b5584432c3b057b6472f54f5c58594a13e59de639498f4e579865"},
+    {"path": "specs/sdd-domain/traceability.md", "sha256": "c09d6656c9877db7f5381ce08279695e904521e44fbe6e9c61108952f722e5d4"},
+    {"path": "specs/sdd-domain/ux-spec.md", "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"},
+    {"path": "specs/sdd-domain/frontend-spec.md", "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"},
+    {"path": "specs/sdd-domain/infra-spec.md", "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"},
+    {"path": "specs/sdd-domain/security-spec.md", "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"},
+    {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+    {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/sdd-domain/attempt-1/round-1/precheck-result.json", "sha256": "af196271bcf484824b9b90ca8d355630f326f901cea3df4f8cd8cf971d33f0a2"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. T-001/T-009/T-010 (low) touch only inert scaffolding, read-only metric aggregation, and doc/test-expectation sync respectively -- no sentinel surface. T-002/T-003/T-004/T-007/T-008 (medium) touch generation logic, agent-file additions, and warn-only gates with no auth/payment/PII/migration/externally-visible-API-contract surface; T-004's status-field reset is an internal state transition without approval authority, consistent with its Risk Rationale. T-005/T-006 (high) correctly reflect authorization/approval-gate surfaces (T-005: review/approval-adjacent governance infrastructure; T-006: hook-guard authorization boundary) per risk-classification-policy.md's 'high' tier definition."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. The two Risk: high tasks (T-005, T-006) both list 'Red-Green evidence captured' and 'Independent review verdict recorded' as explicit Done When items. No Risk: critical task exists in tasks.md, so the second-approver/signed-evidence-bundle requirement does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-005 ('domain-review-loop, domain-reviewer-a/b, and cross-model-verify wiring') spans more than three distinct implementation areas in its Scope paragraph: (1) the domain-review-loop state machine, (2) two independent reviewer agent definitions plus a calibration reference (3 separate files), (3) the cross-model-verify invocation with mismatch/unavailable handling, and (4) the AC-014 drift-detection precheck. The task title itself names three separate subsystems ('domain-review-loop, domain-reviewer-a/b, and cross-model-verify'), matching the oversizing indicator of a title implying multiple sequential/parallel build phases. Splitting the drift-precheck (AC-014) and/or the cross-model-verify wiring (AC-006/AC-017) into a separate task from the core two-reviewer round loop (AC-005) would keep each task within one coherent implementation area."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-004 (seed intake for domain-interviewer, owned by T-002) has only a happy-path test in acceptance-tests.md: TEST-004 covers 'seeds: text, Markdown path, issue URL; reverse consumes investigation.md' with no error-path case, even though ux-spec.md's Component States table explicitly documents an Error state for this same component ('seed unreadable / URL unreachable' -> 'plain-language error + which seed failed' -> 're-supply seed; never invent content', REQ-003/AC-004). T-002's Done When list also contains no fixture or test task item covering an unreadable seed or unreachable URL -- only the eight-artifact-path fixture and the stage-resume fixture. The documented error path in ux-spec.md has no corresponding acceptance-test or task-level verification evidence."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. Unit tests (TEST-001, TEST-003, TEST-007, TEST-009, TEST-011, TEST-013, TEST-014, TEST-015) each target a single script/module boundary (schema validator, hook guard, conformance script, template set, validate-repository expectations). Integration tests (TEST-002, TEST-004, TEST-005, TEST-006, TEST-008, TEST-010, TEST-012, TEST-016, TEST-017) each involve at least two components (interviewer+templates+contract, interviewer+reverse+investigate-codebase, two reviewer agents+aggregation, cross-model panel wiring, domain-sync+bootstrap Phase 1, whole-workflow absence regression, quality-gate report+retrospective aggregation, multi-stage update-mode re-run). No AC-NNN-labeled acceptance-type test is missing its AC reference; all 17 rows cite an AC-NNN."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Neither Risk: high task (T-005, T-006) contains a `Rollback:` field or a Done When item addressing safe reversion. tasks.md has zero occurrences of 'Rollback', 'revert', or 'feature flag' anywhere in the document. infra-spec.md's Rollback section only covers a whole-plugin-directory revert at the repository level and does not address T-005 (review-loop/cross-model gate state) or T-006 (hook-guard authorization extension shared with the existing tasks.md/WFI guard code paths) individually as required at the task level; neither task's Done When references that spec-level plan or names a task-specific reversion mechanism (e.g., a flag to disable the new guard regex, or a documented-and-tested rollback step for the review-loop wiring)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. The only file shared across tasks' Planned Files is the three sdd-domain plugin manifests, created by T-001 and later amended (skill entry added) by T-004; this ordering is enforced transitively via Blockers (T-004 -> T-002 -> T-001, and T-004 -> T-003 -> T-002 -> T-001). No two tasks claim to modify the same primary implementation file for the same purpose without a Blockers relationship."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two spurious/inconsistent blockers found. (1) T-003's Blockers lists 'T-002', but T-003's own Goal and Scope state it 'produces a seed structure consumable by T-002's interviewer' -- i.e. T-002 is the downstream consumer of T-003's output (matching design.md Architecture's DR -> DI edge), not a prerequisite T-003 depends on; T-003's only real input is the already-existing `investigate-codebase` skill. Blocking T-003 on T-002 inverts the actual data-dependency direction and inflates the critical path. (2) T-004's Blockers lists 'T-005', but T-004's own Out of Scope section explicitly states 'The review/approval gate (T-005) ... ' is excluded from this task, and neither of T-004's Done When test items (`domain-model-visibility.Tests.ps1`, `update-mode.Tests.ps1`) exercises domain-review-loop. Declaring T-005 both out of scope and a hard blocker for T-004 is an internal contradiction that inflates the critical path without a demonstrated artifact dependency."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All ten tasks (T-001 through T-010) are new-feature build tasks for the sdd-domain plugin; none is scoped as a bugfix, regression fix, debugging, failure-diagnosis, flaky-test-resolution, or incident-remediation task by title, Goal, Scope, or Done When text."
+    }
+  ]
+}

@@ -1,0 +1,4 @@
+$ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/sdd-domain/tasks.md
+Task state check passed for 11 task(s).
+$ echo "exit code: $?"
+exit code: 0

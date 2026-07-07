@@ -226,6 +226,37 @@ If no high-risk design claim or risk surface is present, emit SKIP with finding
 verification path." Do not require live execution or a specific framework.
 Missing validation path for an applicable high-risk surface is a Major finding.
 
+## DOMAIN-CONFORMANCE (Major, TYPE-D)
+
+Applies only when the target project has a `domain/` directory with
+`domain/context-map.md` recording `Domain-Model-Status: Approved` and a
+schema-valid `domain/domain-contract.json`. When the project has no `domain/`
+directory, or `Domain-Model-Status` is not `Approved`, or
+`domain-contract.json` is missing or fails schema validation, record the
+check as skipped in the finding and emit SKIP.
+
+Otherwise verify that:
+1. requirements.md carries a `Bounded-Context:` field naming a context
+   present in `domain-contract.json`. A design built against requirements
+   that omit this field while an Approved model exists is a Major finding
+   (cite the missing field in requirements.md, not design.md, but record the
+   finding here since this reviewer covers requirement-consistency checks).
+2. Any assumption or decision in design.md that departs from the named
+   context's aggregate invariants, transaction boundary, or context-relation
+   pattern (as recorded in `domain-contract.json` and the matching
+   `domain/aggregates/<name>.md` card) states an explicit rationale, the same
+   bar DECISION-JUSTIFIED applies to any other design decision.
+3. When the `Bounded-Context:` field names two or more contexts, the design
+   does not assume a direct integration between them beyond the relation
+   `pattern` declared in `domain-contract.json`'s `relations[]` (e.g.
+   assuming shared-kernel data access when the declared pattern is
+   customer-supplier is a contradiction of the approved model).
+
+A missing `Bounded-Context:` field on an Approved-model project, an
+unjustified departure from a named aggregate's invariants or transaction
+boundary, or a design assuming an undeclared or contradicted context relation
+is a Major finding.
+
 # Severity Reference
 
 - `Critical`: a constraint directly contradicted by or absent from the design.
@@ -267,7 +298,8 @@ Verdict rules:
 The `checks` array must contain one entry per check ID in this order:
 DECISION-JUSTIFIED, OPEN-QUESTIONS-RESOLVABLE, ASSUMPTIONS-VALID,
 NO-REQ-CONTRADICTION, PERF-ADDRESSED, DEPLOYMENT-CONCRETE, MIGRATION-PLANNED,
-INTEGRATION-IDENTIFIED, DESIGN-WITHIN-SCOPE, VERIFICATION-PATH-CONCRETE.
+INTEGRATION-IDENTIFIED, DESIGN-WITHIN-SCOPE, VERIFICATION-PATH-CONCRETE,
+DOMAIN-CONFORMANCE.
 
 # Hard Rules
 

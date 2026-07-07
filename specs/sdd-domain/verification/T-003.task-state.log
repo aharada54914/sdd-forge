@@ -1,0 +1,6 @@
+Command: bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/sdd-domain/tasks.md
+Environment: Windows 11 Enterprise 10.0.22631 (Git Bash / MSYS)
+Run timestamp (UTC): 2026-07-06T08:55:42Z
+
+Task state check passed for 11 task(s).
+EXIT:0

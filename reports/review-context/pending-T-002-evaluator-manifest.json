@@ -1,0 +1,90 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "sdd-domain",
+  "task_id": "T-002",
+  "run_id": "RUN-20260707T0004Z-sdd-evaluator-T-002",
+  "host_session_id": "SESS-quality-sdd-domain-T-002",
+  "sequence": 30,
+  "previous_record_sha256": "a78ae6bbd86b7d44da42713132ec5743d891f03de4ef3d781ce9b78c4ce0a344",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "06179be2ae268fa18325105f5a4000ccf4f5be0b861cb052971c9d7f8abd9a5e",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain/requirements.md",
+      "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"
+    },
+    {
+      "path": "specs/sdd-domain/acceptance-tests.md",
+      "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"
+    },
+    {
+      "path": "specs/sdd-domain/design.md",
+      "sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb"
+    },
+    {
+      "path": "specs/sdd-domain/tasks.md",
+      "sha256": "aac69df4b08f68161e44aef2de3e8efc83601289adb55689710b2e5c19a9d7a1"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.md",
+      "sha256": "dc92fdcf863091e3593e38e2ae6d66232f653ce786b448f099d1d81f64ef2298"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.json",
+      "sha256": "68011f26c5eadb8ee27aea8c581ced46077b4ff64e5bd6e21611fec117701064"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/sdd-domain/T-002.md",
+      "sha256": "63dd72b93a8566cf783da28d288c78e94890f661f2e2a0baa15652258e6fa8fb"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/SKILL.md",
+      "sha256": "084253c1461bcf60f0aaad5262e9147fdce250a0f2e9ab0627e01355b8fd4616"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/domain-story.template.md",
+      "sha256": "389e157c79cbca67091b86b55ba552b23e165a5d371af7e429badf11cc2c4ef4"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/event-storming.template.md",
+      "sha256": "9f5b9e3d035b269a2c8d04bb7f4854d51d091408d82293aa917ec8f4b60fe9f5"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/ubiquitous-language.template.md",
+      "sha256": "a6609e9b562133e95f79c47b9c896256dd9ce213bcdf7be4921ae597b21ea509"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/context-map.template.md",
+      "sha256": "a42ad79ed44a267e11851b5d5037831c47627a4b6f08066b491b5bfd378066a3"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/aggregate.template.md",
+      "sha256": "3d676fb4e3d38d2338c3a0323201439a730e262b5d87c7260e4c2f20f6ef79b8"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/message-flow.template.md",
+      "sha256": "2042b1e225c4177b2a4d77c933e0aec2bef44d20890f29b807ab9a33404e82c6"
+    },
+    {
+      "path": "plugins/sdd-domain/skills/domain-interviewer/templates/c4-container.template.md",
+      "sha256": "a12b4e18a493c57fbc739b0375ae2e0830c73891a08c62b642e13f2226997b12"
+    },
+    {
+      "path": "tests/sdd-domain/artifact-set.Tests.ps1",
+      "sha256": "ee24f175650ff345fc56ea700619d3de73020676a6e5887067afe12135b8d6da"
+    },
+    {
+      "path": "tests/sdd-domain/template-language.Tests.ps1",
+      "sha256": "4d63791675c96d35de179adc04c7d08c6c3fec96a7d97635764594d3f822b330"
+    }
+  ]
+}

@@ -4,6 +4,42 @@
 
 ## v1.9.0 (2026-07-06)
 
+### DDD アップストリームレーン（sdd-domain、7番目のプラグイン）
+
+- 新プラグイン `sdd-domain` を追加（`sdd-bootstrap` / `sdd-implementation` /
+  `sdd-quality-loop` / `sdd-lite` / `sdd-review-loop` / `sdd-ship` に続く
+  7番目）。Phase 1 のさらに前段で、公開スキル `/sdd-domain:domain-model`
+  （`new` / `update` / `reverse` の3モード）が七段階インタビュー
+  （Domain Story → Event Storming → Ubiquitous Language → Context Map →
+  Domain Model (aggregates) → Domain Message Flow → C4 Container）を実施し、
+  人間承認済みの `domain/` 配下のドメインモデルと `domain-contract.json` を
+  生成します。可視性契約は公開スキル5→6（新規は `domain-model` のみ）で
+  維持され、内部スキル `domain-interviewer` / `domain-reverse` /
+  `domain-review-loop` / `domain-sync` はすべて `user-invocable: false`
+  です。
+- **独立レビュー**: `domain-review-loop` が `domain-reviewer-a`（戦略:
+  コンテキスト境界・関係パターン・イベント網羅性・用語の一意性）と
+  `domain-reviewer-b`（戦術: 不変条件の検証可能性・トランザクション境界の
+  現実性・god-aggregate/anemic-model リスク）による最大3ラウンドの独立
+  レビューを実施し、承認後は cross-model-verify のスクリプトを人間権限
+  （`SDD_SUDO`）下で直接呼び出してクロスモデル検証まで行います。承認後の
+  `domain/` ドリフトはレビュー前提条件チェックが検知し、人間によるステータス
+  リセットを要求します。
+- **下流同期**: 承認済みモデルが存在する場合、`domain-sync` が
+  `sdd-bootstrap-interviewer` の Phase 1 出力に正準コンテキストと用語を注入
+  し（`requirements.md` に `Bounded-Context:` フィールドを追加）、
+  `spec-reviewer-a/b` / `impl-reviewer-a/b` に DOMAIN-CONFORMANCE 観点を追加
+  します。決定論ゲート `check-domain-conformance.(sh|ps1)` は
+  `requirements.md`/`design.md` を `domain-contract.json` と照合し、未知の
+  用語・未宣言の `Bounded-Context:`・未登録の集約参照を warn で報告します
+  （`SDD_DOMAIN_ENFORCE=error` で昇格）。`workflow-retrospective` はこれらの
+  warn 所見から用語逸脱数・境界違反数を集計します。
+- **絶対的な不可侵**: `domain/` が存在しないプロジェクトでは全フック・
+  同期・ゲートがスキップされ、1行のスキップ記録のみを残して既存ワークフロー
+  はバイト同一の成果物を生成します（AC-010）。
+- `tests/validate-repository.ps1` の期待値を更新（プラグイン数 6→7、
+  スキル数 21→26、公開スキル5→6）。
+
 ### local-env-mcp — ローカル環境情報 MCP サーバー(新規)
 
 - 読み取り専用の環境情報 MCP サーバー `mcp/local-env-mcp` を新設
@@ -42,6 +78,7 @@
   Verified となり、retention-checklist に再発検知条件を登録。
 
 ## v1.8.0 (2026-07-03)
+
 
 ### デザイン駆動高速イテレーションレーン
 

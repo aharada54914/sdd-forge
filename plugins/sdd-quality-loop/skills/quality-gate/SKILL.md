@@ -51,6 +51,16 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
      contract's `design-system` check but do not block until the error
      promotion (`SDD_DESIGN_SYSTEM_ENFORCE=error`); when `design-system/` is
      absent the script skips with a note.
+   - `check-domain-conformance` on the task's `requirements.md`/`design.md`
+     when the project carries a `domain/` directory: validates the
+     `Bounded-Context:` field's context name(s) against
+     `domain/domain-contract.json`, structured-field canonical-term usage,
+     and `design.md` aggregate references against `domain/aggregates/`; for
+     a two-context `Bounded-Context:`, passes only when the context map
+     declares a relation between them. Warn-phase: findings are recorded in
+     the report but do not block until the error promotion
+     (`SDD_DOMAIN_ENFORCE=error`); when `domain/` is absent the script skips
+     with a note.
    - `check-workflow-state` without `--feature`: validates the canonical
      persisted-state invariant for every registered specification.
    - `check-task-state` on tasks.md.

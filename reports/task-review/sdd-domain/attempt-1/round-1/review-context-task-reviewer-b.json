@@ -1,0 +1,69 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "sdd-domain",
+  "run_id": "RUN-20260706T0510Z-task-reviewer-b-r1",
+  "host_session_id": "SESS-task-b-sdd-domain-a1r1",
+  "sequence": 17,
+  "previous_record_sha256": "617ea7ad7751439fc25b9f5f5bb5e35ca0212314a12d46169a5deac5ac15aca5",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "98a4d4f144763d2bb8475e3c4fac6b9bf4c0e6aa149e28e661b1f07bd454c27d",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/sdd-domain/requirements.md",
+      "sha256": "b4b586cf86bbe33daecfabed2c835ad8c3c016ee83324623b42e1fdcea329b20"
+    },
+    {
+      "path": "specs/sdd-domain/acceptance-tests.md",
+      "sha256": "7796934d4ee6438f998f2b9bba331aa511654b45346d290a9b8f973d3a75e2b7"
+    },
+    {
+      "path": "specs/sdd-domain/design.md",
+      "sha256": "55bed28c8d6bfcb6b8eab85fe834de15692bb1633f0a9dacde813b557a749cbb"
+    },
+    {
+      "path": "specs/sdd-domain/tasks.md",
+      "sha256": "9748491fb86b5584432c3b057b6472f54f5c58594a13e59de639498f4e579865"
+    },
+    {
+      "path": "specs/sdd-domain/traceability.md",
+      "sha256": "c09d6656c9877db7f5381ce08279695e904521e44fbe6e9c61108952f722e5d4"
+    },
+    {
+      "path": "specs/sdd-domain/ux-spec.md",
+      "sha256": "187cbafd2858954da20919e7bbfa85f979103cd0afdd99c26f8c02804dcf5466"
+    },
+    {
+      "path": "specs/sdd-domain/frontend-spec.md",
+      "sha256": "70e3e5e0349dd7f8b0b3e0cf468ea372027155c799fd3d51fe92335a195f9d39"
+    },
+    {
+      "path": "specs/sdd-domain/infra-spec.md",
+      "sha256": "ea0fd278e4a511913c0f8a2aae9585dd6d7b74a22b48d9022a1263c75b93c33a"
+    },
+    {
+      "path": "specs/sdd-domain/security-spec.md",
+      "sha256": "bc20df5ee242f5ec3cf52cc73d52f817355b91b129d787da3c247b1e6ea0266e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/sdd-domain/attempt-1/round-1/precheck-result.json",
+      "sha256": "af196271bcf484824b9b90ca8d355630f326f901cea3df4f8cd8cf971d33f0a2"
+    }
+  ]
+}

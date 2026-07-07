@@ -276,6 +276,38 @@
     {
       "feature": "local-env-mcp",
       "profile": "full"
+    },
+    {
+      "feature": "sdd-domain",
+      "profile": "legacy",
+      "legacy": {
+        "introduced_before_commit": "e893dbad984beddd21836bfa8d683cf5b1280693",
+        "reason": "Task-review attempt-2 reviewer artifacts were recorded in a nonconforming schema shape because jq was absent from the authoring machine, which disabled the review loop's deterministic validators at production time (RT-20260706-002, RT-20260707-001). The reviews verifiably occurred (independent run_ids and content-hash manifests; spec and impl stage provenance validate clean under the full profile); grandfathered rather than reconstructed, per human decision recorded in RT-20260707-001.",
+        "owner": "sdd-forge maintainers",
+        "allowed_missing_stages": [],
+        "allowed_noncanonical_statuses": {
+          "spec_status": [
+            "Passed"
+          ],
+          "impl_status": [
+            "Passed"
+          ],
+          "task_status": [
+            "Passed"
+          ]
+        },
+        "allowed_task_approvals": [
+          "Draft",
+          "Approved"
+        ],
+        "allowed_task_statuses": [
+          "Planned",
+          "In Progress",
+          "Implementation Complete",
+          "Done",
+          "Blocked"
+        ]
+      }
     }
   ]
 }

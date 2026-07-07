@@ -1,0 +1,72 @@
+ticket_id: RT-20260707-002
+status: resolved
+resolution: |
+  2026-07-07: item 3 signed off per repository owner's explicit direction
+  ("do yourself", delegating the sign-off decision). The [[term:Name]]
+  heading-marker convention is confirmed as the v1 heading-level
+  canonical-term mechanism; full rationale (opt-in/no-false-positives,
+  deterministic exact matching, collision-safe prefix, accepted rendering
+  cost, rejected alternatives) is recorded in specs/sdd-domain/design.md
+  under "OQ-001: Conformance matching strategy" -> RESOLVED. With items
+  1-2 already applied (see resolution_progress), the ticket is closed.
+resolution_progress: |
+  2026-07-07 (release-lane follow-up, human-directed): items 1 and 2 resolved.
+  1. check-domain-conformance.ps1 Check-2 now iterates indexed lines and
+     emits the 1-based "requirements.md:<lineno>:" prefix; verified
+     byte-identical finding text against the .sh twin on the same fixture
+     ("requirements.md:6: unrecognized term 'Basket' ...").
+  2. Two Pester contexts added to check-domain-conformance.Tests.ps1
+     (Scenario 7: unrecognized [[term:Name]] marker with line-number
+     assertion; Scenario 8: aggregate reference without a card), each
+     asserted in warn and SDD_DOMAIN_ENFORCE=error modes. Suite green:
+     14/14 passed.
+  Remaining scope is item 3 only: human confirmation of the [[term:Name]]
+  heading-marker convention when a domain/ directory is first adopted
+  (closes design.md OQ-001). Ticket stays open for that decision.
+type: deferred-minor-findings
+severity: minor
+target:
+  feature: sdd-domain
+  task: T-008
+  files:
+    - plugins/sdd-quality-loop/scripts/check-domain-conformance.ps1
+    - tests/sdd-domain/check-domain-conformance.Tests.ps1
+    - specs/sdd-domain/design.md
+summary: Three non-blocking Minor findings from T-008's PASS critical review, deferred for follow-up (T-008 is Done; none of these block it).
+problem: |
+  The isolated sdd-evaluator (RUN-20260707T0556Z-sdd-evaluator-T-008) returned
+  VERDICT: PASS for T-008 with three deferrable Minor findings:
+  1. Message-parity gap: for Check-2 (unrecognized term) findings, the .sh
+     twin prefixes the source line number ("requirements.md:4: unrecognized
+     term...") while the .ps1 twin omits it ("requirements.md: unrecognized
+     term..."). Finding counts, WARN/FAILED verbs, and exit codes are
+     identical; only the location prefix differs.
+  2. Test-coverage gap: no Pester scenario exercises Check-2 (unrecognized
+     [[term:Name]] heading marker) or Check-3's missing-aggregate-card path,
+     although AC-009 names term/aggregate violations as in-scope. The
+     evaluator verified both paths behave correctly (including
+     SDD_DOMAIN_ENFORCE=error escalation) by direct execution against its
+     own fixtures, so this is a coverage gap, not a behavior defect.
+  3. Convention confirmation: the [[term:Name]] heading-marker convention
+     that Check-2 consumes is introduced by the implementation and is not
+     defined in any spec artifact (design.md OQ-001 / requirements.md OQ-R1
+     left term-matching scope open). It is opt-in -- files without the marker
+     never trigger Check-2 -- so there are no false positives against current
+     specs, and the implementation report flags it for human confirmation.
+expected_fix: |
+  1. Add the line-number prefix to the .ps1 twin's Check-2 finding text to
+     restore byte parity with the .sh twin (gate-script edit: apply via the
+     established scratchpad -> human cp procedure).
+  2. Add two Pester scenarios to tests/sdd-domain/check-domain-conformance.
+     Tests.ps1: an unrecognized [[term:Name]] marker fixture and a
+     design.md-references-missing-aggregate fixture, each asserted in both
+     warn and SDD_DOMAIN_ENFORCE=error modes.
+  3. When a domain/ directory is first adopted in a real project, have a
+     human confirm (or replace) the [[term:Name]] heading-marker convention
+     and record it in design.md, closing OQ-001.
+references:
+  - reports/quality-gate/T-008-sdd-domain.md
+  - reports/implementation/sdd-domain/T-008.md
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1
