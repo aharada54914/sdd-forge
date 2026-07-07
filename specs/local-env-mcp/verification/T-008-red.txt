@@ -1,0 +1,149 @@
+$ pwsh tests/install.tests.ps1  (RED — before install.ps1 changes)
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-0d7bcf27-d251-4d57-a5ff-e78b67d2a6a3/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-0d7bcf27-d251-4d57-a5ff-e78b67d2a6a3/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop.[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-09e34e85-fb6b-41e7-965e-5f7bf1cb218b/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-09e34e85-fb6b-41e7-965e-5f7bf1cb218b/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+[33;1mWARNING: Dependency resolution auto-included: sdd-bootstrap, sdd-implementation, sdd-quality-loop, sdd-review-loop.[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-bd4bf092-bde7-4a80-a7b5-ef0ebcafb41d/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-test-bd4bf092-bde7-4a80-a7b5-ef0ebcafb41d/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-filesonly-edb548da-5988-40f7-a722-aa4adef7a01f/installed
+Plugin registration was skipped because Target=FilesOnly.
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-tracked-only-1484bf0a-3df0-4598-a66d-ac9b0c2d7863/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: local source installs Git-tracked files only
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+ok: untracked required release file is rejected before deployment
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-idempotency-a0c05e0b-2062-4e56-a64a-203a9b1f613c/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-idempotency-a0c05e0b-2062-4e56-a64a-203a9b1f613c/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-idempotency-a0c05e0b-2062-4e56-a64a-203a9b1f613c/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-idempotency-a0c05e0b-2062-4e56-a64a-203a9b1f613c/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: idempotency: second install exits 0, state consistent
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-nonest-6dd3167e-4cf4-49f2-afe0-1d68d7e7a38d/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-nonest-6dd3167e-4cf4-49f2-afe0-1d68d7e7a38d/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: no-nesting: layout correct after install
+ok: codex agent install + malformed-role diagnostic
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+ok: malformed source agent TOML rejected before deployment
+Downloading authenticated archive from https://api.github.com/repos/aharada54914/sdd-forge/tarball/main
+[33;1mWARNING: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-remote-1bfdad73-93c3-4d08-b99d-675506459f9a/codex-home/config.toml was not found. Codex MCP registration was skipped (the installer does not create a new config.toml).[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-remote-1bfdad73-93c3-4d08-b99d-675506459f9a/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+ok: authenticated remote install uses GitHub token flow
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-lock-49914725-82dc-40a5-a14e-210d8016134b/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: concurrent install blocked, succeeds after mutex released
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-locksucc-917e3543-84b5-4e50-95ca-edd230523a47/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: lock: released on success — mutex acquirable after install
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-smoke-31cf9701-d48f-4656-b4bd-cddc921face7/installed
+Plugin registration was skipped because Target=FilesOnly.
+ok: smoke (D): installed gate exits 0 for well-formed high+tdd task
+ok: smoke (D): installed gate exits non-zero for high task missing Required Workflow: tdd
+[33;1mWARNING: Dependency resolution auto-included: sdd-review-loop, sdd-implementation, sdd-quality-loop, sdd-lite.[0m
+
+SDD plugins installed at: /var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/sdd-installer-mcp-default-59b7f49a-d544-43ea-b599-094b75ffb7f8/installed
+
+Registration summary:
+  Codex : registered
+  Claude: registered
+  Copilot: registered
+
+Claude Code next step: run /reload-plugins or restart Claude Code.
+Expected slash commands after reload:
+  /sdd-bootstrap:bootstrap
+  /sdd-ship:ship
+[31;1mException: [0m/Users/jrmag/Projects/active/sdd-forge/tests/install.tests.ps1:919[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 919 | [0m             [36;1mthrow "default MCP install (t): $mcpName dist/index.js no[0m …[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mdefault MCP install (t): local-env-mcp dist/index.js not placed[0m
+EXIT=1

@@ -1,0 +1,67 @@
+# Command: npm run typecheck && npm test  (from mcp/local-env-mcp)
+# Captured: 2026-07-05T11:08:05Z
+# TDD GREEN phase: all T-002 tests (AC-001/AC-002/AC-003) pass; T-001 regression tests included and still green.
+# ---------------------------------------------------------------------------
+## typecheck (tsc --noEmit):
+
+> local-env-mcp@0.1.0 typecheck
+> tsc --noEmit
+
+## typecheck exit code: 0
+# ---------------------------------------------------------------------------
+## test suite (node --test over dist-test/tests/**):
+
+> local-env-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> local-env-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ AC-004: successful probe yields available + normalized first-line version (143.6515ms)
+✔ AC-004: multi-line output is normalized to first line only (294.638709ms)
+✔ AC-004: stderr-stream CLI (java-style) reads version from stderr (216.111416ms)
+✔ AC-004: timeout (>2s) kills the process and reports probeError=timeout (2003.185041ms)
+✔ AC-004: output over 8 KiB is capped, process killed, probeError=output-too-large (265.100667ms)
+✔ AC-004: missing CLI reports probeError=not-found (spawn ENOENT) (4.20475ms)
+✔ AC-004: nonzero exit reports probeError=nonzero-exit (138.601833ms)
+✔ AC-004: probeError values are all within the contract enum (2004.767167ms)
+✔ AC-004: concurrency is bounded (many slow probes still all resolve, none hang the response) (4008.331583ms)
+✔ AC-004: TTL cache reuses a prior result within the window (no re-probe) (11.020417ms)
+✔ AC-003: exposed input JSON schema has only `names`, additionalProperties:false (1.103875ms)
+✔ AC-003: input schema exposes NO command / args / path / exec-style field (0.159333ms)
+✔ AC-003: `names` enum accepts ONLY the 14 allowlist names (0.632334ms)
+✔ AC-003: out-of-enum name -> invalid-input envelope, no probe run (0.156125ms)
+✔ AC-003: extra property -> invalid-input envelope (0.120458ms)
+✔ AC-003: path/command string fields -> invalid-input envelope (0.157583ms)
+✔ AC-003: `names` must be an array (a bare string is rejected) (0.105292ms)
+✔ AC-003: invalid input never produces an entries array (no probe executed) (0.085917ms)
+✔ ok() builds a success envelope (0.55725ms)
+✔ err() builds a failure envelope; details optional and secret-free (0.197959ms)
+✔ ErrorCode union matches the contract error.code enum exactly (0.366334ms)
+✔ allowlist has exactly the 14 required CLIs in order (0.128709ms)
+✔ every allowlist entry has name/command/args/versionStream; java uses -version+stderr (0.240459ms)
+✔ allowlist command names contain no shell metacharacters or path separators (0.185041ms)
+✔ src/ contains no filesystem write API references (1.991084ms)
+✔ src/ uses no child_process.exec / spawn / fork / eval (execFile only) (0.778583ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (0.316125ms)
+✔ AC-001: get_os_info returns an ok envelope (0.42075ms)
+✔ AC-001: get_os_info data conforms to the contract osInfoData schema (0.331375ms)
+✔ AC-001: get_os_info exposes exactly the 8 contract fields, no more (0.097125ms)
+✔ AC-001: get_os_info never leaks hostname / username / home directory values (1.177334ms)
+✔ AC-001: get_os_info values match the process/os APIs it reports on (0.075542ms)
+✔ AC-002: get_toolchain_versions returns an ok envelope of kind toolchain-versions (255.845041ms)
+✔ AC-002: a resolvable CLI is available:true with a normalized version string (9.551917ms)
+✔ AC-002: a deterministically-missing CLI is available:false; response still ok:true (255.674541ms)
+✔ AC-002: every entry name is within the contract cliName enum (9.091375ms)
+✔ AC-002: get_toolchain_versions with no names probes the full 14-CLI allowlist (43.993209ms)
+✔ AC-002: list_available_clis returns kind cli-availability with name+available only (33.625417ms)
+ℹ tests 38
+ℹ suites 0
+ℹ pass 38
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9136.009291
+# --- test exit code: 0 ---

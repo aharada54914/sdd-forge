@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "local-env-mcp",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_run_id": "spec-a-localenvmcp-a1r1-20260705-3ba3",
+  "reviewer_b_run_id": "spec-b-localenvmcp-a1r1-20260705-0cc6",
+  "reviewer_a_host_session_id": "hs-spec-a-6503d1ba-0001",
+  "reviewer_b_host_session_id": "hs-spec-b-6503d1ba-0002",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

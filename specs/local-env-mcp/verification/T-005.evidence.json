@@ -1,0 +1,51 @@
+{
+  "task_id": "T-005",
+  "feature": "local-env-mcp",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "spec_revision": "01281b86060b58ce7a1da24d765f1182b84e861f9d4ac0b2a5b50819458e65b1",
+  "quality_report": "reports/quality-gate/2026-07-05T171242Z-local-env-mcp-T-005.md",
+  "verification_contract": "specs/local-env-mcp/verification/T-005.contract.json",
+  "git_commit": "c6dd6caaa79838037a38e3a615f09b97f8eeed73",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 2,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/local-env-mcp/verification/T-005.contract.json",
+      "sha256": "2a63dd5b2a6a94fe5c5b6d2b44f3e744874348ba2984f990187f8a26946745a0"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-05T171242Z-local-env-mcp-T-005.md",
+      "sha256": "137a7e967f2ee89cbe1d659254027be78eb9912f6a99a5c6134eb3093e743d6c"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-005/check-placeholders.log",
+      "sha256": "aea91b638188d9326ae1ccfb6ab7c4f668b56bb3b427bf0e8860213d1a4e1d00"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-005/check-task-state.log",
+      "sha256": "e9bc6ff6b4c93de74b07c2e33e327e0b7d2069686d9414230d8c6730e9cf5282"
+    },
+    {
+      "path": "specs/local-env-mcp/verification/qg/T-005/check-traceability.log",
+      "sha256": "4af3496af5dd9e70695f301ee4997ff782410062990bd2b75408dc23b534379e"
+    }
+  ]
+}

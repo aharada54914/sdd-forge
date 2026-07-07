@@ -432,6 +432,200 @@ fi
 [[ $_n3_ok -eq 1 ]] && ok "--plugins \"\" is rejected cleanly without an unbound variable crash"
 
 # ---------------------------------------------------------------------------
+# MCP scenarios (T-009): AC-012 — remove BOTH managed MCPs and the Cursor /
+# VS Code managed keys, while preserving user-defined entries and unknown
+# top-level keys. Uses SDD_CURSOR_DIR / SDD_VSCODE_USER_DIR overrides so the
+# real user profile is never touched.
+# ---------------------------------------------------------------------------
+
+# Seed an installed layout for BOTH managed MCPs: payloads under
+# <install_root>/mcp/<name>/, a Codex config.toml with a marker block per MCP
+# and an unrelated section, plus Cursor and VS Code mcp.json files each holding
+# the two managed keys, a user-defined key, and an unknown top-level key.
+seed_installed_two_mcps() {
+    local install_root="$1"
+    local codex_home="$2"
+    local cursor_dir="$3"
+    local vscode_dir="$4"
+    local name
+    for name in sdd-forge-mcp local-env-mcp; do
+        mkdir -p "${install_root}/mcp/${name}/dist"
+        echo "console.log('stub')" > "${install_root}/mcp/${name}/dist/index.js"
+        echo "{\"name\":\"${name}\"}" > "${install_root}/mcp/${name}/package.json"
+    done
+    mkdir -p "$codex_home"
+    cat > "${codex_home}/config.toml" <<TOML
+[some_other_section]
+key = "value"
+
+# >>> sdd-forge-mcp (managed by sdd-forge installer; do not edit by hand) >>>
+[mcp_servers.sdd-forge-mcp]
+command = "node"
+args = ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"]
+# <<< sdd-forge-mcp <<<
+
+# >>> local-env-mcp (managed by sdd-forge installer; do not edit by hand) >>>
+[mcp_servers.local-env-mcp]
+command = "node"
+args = ["${install_root}/mcp/local-env-mcp/dist/index.js"]
+# <<< local-env-mcp <<<
+TOML
+    # Cursor mcp.json: two managed keys + a user-defined key + unknown top key.
+    mkdir -p "$cursor_dir"
+    cat > "${cursor_dir}/mcp.json" <<JSON
+{
+  "mcpServers": {
+    "sdd-forge-mcp": { "command": "node", "args": ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"] },
+    "local-env-mcp": { "command": "node", "args": ["${install_root}/mcp/local-env-mcp/dist/index.js"] },
+    "my-server": { "command": "node", "args": ["/home/user/my-server.js"] }
+  },
+  "telemetry": { "enabled": false }
+}
+JSON
+    # VS Code mcp.json: two managed keys (vscode entry shape) + user + unknown.
+    mkdir -p "$vscode_dir"
+    cat > "${vscode_dir}/mcp.json" <<JSON
+{
+  "servers": {
+    "sdd-forge-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/sdd-forge-mcp/dist/index.js"] },
+    "local-env-mcp": { "type": "stdio", "command": "node", "args": ["${install_root}/mcp/local-env-mcp/dist/index.js"] },
+    "my-server": { "type": "stdio", "command": "node", "args": ["/home/user/my-server.js"] }
+  },
+  "inputs": []
+}
+JSON
+}
+
+# Scenario (o): uninstall removes ONLY the managed Cursor/VS Code keys for both
+# MCPs; the user-defined key and unknown top-level keys survive.
+_o_root="$(mktemp -d)"; _o_install="${_o_root}/installed"; _o_codex="${_o_root}/codex-home"
+_o_cursor="${_o_root}/cursor"; _o_vscode="${_o_root}/vscode-user"
+_o_bin="${_o_root}/bin"; _o_log="${_o_root}/commands.log"
+_o_orig_path="$PATH"; _o_orig_codex="${SDD_CODEX_HOME:-}"
+_o_orig_cursor="${SDD_CURSOR_DIR:-}"; _o_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_o_bin" "$_o_log"
+seed_installed_layout "$_o_install" "$_o_codex"
+seed_installed_two_mcps "$_o_install" "$_o_codex" "$_o_cursor" "$_o_vscode"
+export PATH="${_o_bin}:${_o_orig_path}"; export SDD_CODEX_HOME="$_o_codex"
+export SDD_CURSOR_DIR="$_o_cursor"; export SDD_VSCODE_USER_DIR="$_o_vscode"
+_o_failed=0
+bash "$UNINSTALLER" --install-root "$_o_install" --target All --mcp "sdd-forge-mcp,local-env-mcp" >/dev/null 2>&1 || _o_failed=1
+export PATH="$_o_orig_path"
+if [[ -z "$_o_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_o_orig_codex"; fi
+if [[ -z "$_o_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_o_orig_cursor"; fi
+if [[ -z "$_o_orig_vscode" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_o_orig_vscode"; fi
+_o_ok=1
+[[ $_o_failed -eq 0 ]] || { fail "Cursor/VSCode (o): uninstaller exited non-zero"; _o_ok=0; }
+_o_cur="${_o_cursor}/mcp.json"; _o_vsc="${_o_vscode}/mcp.json"
+# Managed keys must be gone from both files (grep on JSON key form).
+grep -qF '"sdd-forge-mcp"' "$_o_cur" && { fail "Cursor (o): managed sdd-forge-mcp key not removed"; _o_ok=0; }
+grep -qF '"local-env-mcp"' "$_o_cur" && { fail "Cursor (o): managed local-env-mcp key not removed"; _o_ok=0; }
+grep -qF '"sdd-forge-mcp"' "$_o_vsc" && { fail "VSCode (o): managed sdd-forge-mcp key not removed"; _o_ok=0; }
+grep -qF '"local-env-mcp"' "$_o_vsc" && { fail "VSCode (o): managed local-env-mcp key not removed"; _o_ok=0; }
+# User-defined + unknown keys must survive.
+grep -qF '"my-server"' "$_o_cur" || { fail "Cursor (o): user-defined my-server key was removed"; _o_ok=0; }
+grep -qF '"telemetry"' "$_o_cur" || { fail "Cursor (o): unknown top-level telemetry key was removed"; _o_ok=0; }
+grep -qF '"my-server"' "$_o_vsc" || { fail "VSCode (o): user-defined my-server key was removed"; _o_ok=0; }
+grep -qF '"inputs"' "$_o_vsc" || { fail "VSCode (o): unknown top-level inputs key was removed"; _o_ok=0; }
+# The surviving files must still be valid JSON.
+node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$_o_cur" >/dev/null 2>&1 || { fail "Cursor (o): result is not valid JSON"; _o_ok=0; }
+node -e 'JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"))' "$_o_vsc" >/dev/null 2>&1 || { fail "VSCode (o): result is not valid JSON"; _o_ok=0; }
+rm -rf "$_o_root"
+[[ $_o_ok -eq 1 ]] && ok "uninstall removes only managed Cursor/VS Code keys for both MCPs, preserves user + unknown keys"
+
+# Scenario (p): both managed MCPs fully removed — payloads gone, claude mcp
+# remove invoked for each, both Codex marker blocks stripped, unrelated Codex
+# section preserved.
+_p_root="$(mktemp -d)"; _p_install="${_p_root}/installed"; _p_codex="${_p_root}/codex-home"
+_p_cursor="${_p_root}/cursor"; _p_vscode="${_p_root}/vscode-user"
+_p_bin="${_p_root}/bin"; _p_log="${_p_root}/commands.log"
+_p_orig_path="$PATH"; _p_orig_codex="${SDD_CODEX_HOME:-}"
+_p_orig_cursor="${SDD_CURSOR_DIR:-}"; _p_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_p_bin" "$_p_log"
+seed_installed_layout "$_p_install" "$_p_codex"
+seed_installed_two_mcps "$_p_install" "$_p_codex" "$_p_cursor" "$_p_vscode"
+export PATH="${_p_bin}:${_p_orig_path}"; export SDD_CODEX_HOME="$_p_codex"
+export SDD_CURSOR_DIR="$_p_cursor"; export SDD_VSCODE_USER_DIR="$_p_vscode"
+_p_failed=0
+bash "$UNINSTALLER" --install-root "$_p_install" --target All --mcp "sdd-forge-mcp,local-env-mcp" >/dev/null 2>&1 || _p_failed=1
+export PATH="$_p_orig_path"
+if [[ -z "$_p_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_p_orig_codex"; fi
+if [[ -z "$_p_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_p_orig_cursor"; fi
+if [[ -z "$_p_orig_vscode" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_p_orig_vscode"; fi
+_p_ok=1
+[[ $_p_failed -eq 0 ]] || { fail "both-MCP removal (p): uninstaller exited non-zero"; _p_ok=0; }
+# Both payloads must be gone (here via full install-root removal; scenario (m)
+# already covers payload-only removal semantics for a single MCP).
+[[ ! -e "${_p_install}/mcp/sdd-forge-mcp" ]] || { fail "both-MCP removal (p): sdd-forge-mcp payload not removed"; _p_ok=0; }
+[[ ! -e "${_p_install}/mcp/local-env-mcp" ]] || { fail "both-MCP removal (p): local-env-mcp payload not removed"; _p_ok=0; }
+_p_logc=""; [[ -f "$_p_log" ]] && _p_logc="$(cat "$_p_log")"
+echo "$_p_logc" | grep -qF "claude mcp remove sdd-forge-mcp" || { fail "both-MCP removal (p): claude mcp remove sdd-forge-mcp not invoked"; _p_ok=0; }
+echo "$_p_logc" | grep -qF "claude mcp remove local-env-mcp" || { fail "both-MCP removal (p): claude mcp remove local-env-mcp not invoked"; _p_ok=0; }
+_p_conf="${_p_codex}/config.toml"
+grep -qF "sdd-forge-mcp" "$_p_conf" && { fail "both-MCP removal (p): sdd-forge-mcp Codex block not removed"; _p_ok=0; }
+grep -qF "local-env-mcp" "$_p_conf" && { fail "both-MCP removal (p): local-env-mcp Codex block not removed"; _p_ok=0; }
+grep -qF "some_other_section" "$_p_conf" || { fail "both-MCP removal (p): unrelated Codex section removed"; _p_ok=0; }
+rm -rf "$_p_root"
+[[ $_p_ok -eq 1 ]] && ok "uninstall removes both managed MCP payloads, Claude regs, and both Codex marker blocks"
+
+# Scenario (q): corrupt Cursor mcp.json is left BYTE-IDENTICAL (fail-safe) while
+# the VS Code client is still cleaned (per-client continuation).
+_q_root="$(mktemp -d)"; _q_install="${_q_root}/installed"; _q_codex="${_q_root}/codex-home"
+_q_cursor="${_q_root}/cursor"; _q_vscode="${_q_root}/vscode-user"
+_q_bin="${_q_root}/bin"; _q_log="${_q_root}/commands.log"
+_q_orig_path="$PATH"; _q_orig_codex="${SDD_CODEX_HOME:-}"
+_q_orig_cursor="${SDD_CURSOR_DIR:-}"; _q_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_q_bin" "$_q_log"
+seed_installed_layout "$_q_install" "$_q_codex"
+seed_installed_two_mcps "$_q_install" "$_q_codex" "$_q_cursor" "$_q_vscode"
+# Corrupt the Cursor file AFTER seeding (truncated / invalid JSON).
+printf '{ "mcpServers": { "sdd-forge-mcp": { not valid json' > "${_q_cursor}/mcp.json"
+_q_cursor_before="$(shasum -a 256 "${_q_cursor}/mcp.json" | awk '{print $1}')"
+export PATH="${_q_bin}:${_q_orig_path}"; export SDD_CODEX_HOME="$_q_codex"
+export SDD_CURSOR_DIR="$_q_cursor"; export SDD_VSCODE_USER_DIR="$_q_vscode"
+_q_failed=0
+_q_out="$(bash "$UNINSTALLER" --install-root "$_q_install" --target All --mcp "sdd-forge-mcp,local-env-mcp" --keep-files 2>&1)" || _q_failed=1
+export PATH="$_q_orig_path"
+if [[ -z "$_q_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_q_orig_codex"; fi
+if [[ -z "$_q_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_q_orig_cursor"; fi
+if [[ -z "$_q_orig_vscode" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_q_orig_vscode"; fi
+_q_ok=1
+# Uninstaller must not abort on the corrupt file.
+[[ $_q_failed -eq 0 ]] || { fail "corrupt JSON (q): uninstaller exited non-zero instead of continuing"; _q_ok=0; }
+_q_cursor_after="$(shasum -a 256 "${_q_cursor}/mcp.json" | awk '{print $1}')"
+[[ "$_q_cursor_before" == "$_q_cursor_after" ]] || { fail "corrupt JSON (q): corrupt Cursor mcp.json was modified"; _q_ok=0; }
+echo "$_q_out" | grep -qi "invalid JSON" || { fail "corrupt JSON (q): no invalid-JSON error notice was emitted"; _q_ok=0; }
+# VS Code (valid) must still have its managed keys removed.
+grep -qF '"sdd-forge-mcp"' "${_q_vscode}/mcp.json" && { fail "corrupt JSON (q): VS Code managed key not removed (client continuation failed)"; _q_ok=0; }
+rm -rf "$_q_root"
+[[ $_q_ok -eq 1 ]] && ok "corrupt Cursor mcp.json left unmodified with error notice; VS Code still cleaned"
+
+# Scenario (r): absent Cursor/VS Code dirs → silent skip (no error), and the
+# rest of the uninstall (payloads, Codex) still completes.
+_r_root="$(mktemp -d)"; _r_install="${_r_root}/installed"; _r_codex="${_r_root}/codex-home"
+_r_bin="${_r_root}/bin"; _r_log="${_r_root}/commands.log"
+_r_orig_path="$PATH"; _r_orig_codex="${SDD_CODEX_HOME:-}"
+_r_orig_cursor="${SDD_CURSOR_DIR:-}"; _r_orig_vscode="${SDD_VSCODE_USER_DIR:-}"
+make_fake_commands "$_r_bin" "$_r_log"
+seed_installed_layout "$_r_install" "$_r_codex"
+# Point the overrides at non-existent dirs (Cursor/VS Code not installed).
+export PATH="${_r_bin}:${_r_orig_path}"; export SDD_CODEX_HOME="$_r_codex"
+export SDD_CURSOR_DIR="${_r_root}/no-such-cursor"; export SDD_VSCODE_USER_DIR="${_r_root}/no-such-vscode"
+_r_failed=0
+bash "$UNINSTALLER" --install-root "$_r_install" --target All --mcp "sdd-forge-mcp,local-env-mcp" >/dev/null 2>&1 || _r_failed=1
+export PATH="$_r_orig_path"
+if [[ -z "$_r_orig_codex" ]]; then unset SDD_CODEX_HOME; else export SDD_CODEX_HOME="$_r_orig_codex"; fi
+if [[ -z "$_r_orig_cursor" ]]; then unset SDD_CURSOR_DIR; else export SDD_CURSOR_DIR="$_r_orig_cursor"; fi
+if [[ -z "$_r_orig_vscode" ]]; then unset SDD_VSCODE_USER_DIR; else export SDD_VSCODE_USER_DIR="$_r_orig_vscode"; fi
+_r_ok=1
+[[ $_r_failed -eq 0 ]] || { fail "absent Cursor/VSCode dir (r): uninstaller exited non-zero"; _r_ok=0; }
+[[ ! -d "$_r_install" ]] || { fail "absent Cursor/VSCode dir (r): install root not removed"; _r_ok=0; }
+[[ ! -e "${_r_root}/no-such-cursor" ]] || { fail "absent Cursor/VSCode dir (r): uninstaller created the Cursor dir"; _r_ok=0; }
+[[ ! -e "${_r_root}/no-such-vscode" ]] || { fail "absent Cursor/VSCode dir (r): uninstaller created the VS Code dir"; _r_ok=0; }
+rm -rf "$_r_root"
+[[ $_r_ok -eq 1 ]] && ok "absent Cursor/VS Code dirs are skipped without error and without directory creation"
+
+# ---------------------------------------------------------------------------
 # Scenario (j): FilesOnly skips CLI calls but still removes files
 # ---------------------------------------------------------------------------
 _j_root="$(mktemp -d)"; _j_install="${_j_root}/installed"; _j_codex="${_j_root}/codex-home"

@@ -1,0 +1,82 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "impl-b-localenvmcp-a1r1-20260705-b18b",
+  "host_session_id": "hs-impl-b-6503d1ba-0004",
+  "allowed_input_manifest": [
+    { "path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851" },
+    { "path": "reports/impl-review/local-env-mcp/attempt-1/round-1/integrated-summary.json", "sha256": "d4e4ea43c9dcbb7f5415ebd543b1081264909b9123d201a7462e66dd154caa41" },
+    { "path": "reports/impl-review/local-env-mcp/attempt-1/round-1/precheck-result.json", "sha256": "d5cc8fa973a6c1bf22a12342551978bc898a3e15ce0f4806c9bf6cf65c868760" },
+    { "path": "specs/local-env-mcp/acceptance-tests.md", "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259" },
+    { "path": "specs/local-env-mcp/design.md", "sha256": "d6f01d094c0e17b402ea21284b95fdd5f123189be679cdc6d0210be128aeb762" },
+    { "path": "specs/local-env-mcp/frontend-spec.md", "sha256": "f7445c74041893712af674557102112ff3f5eec05eab7324d2bf6889aac0788b" },
+    { "path": "specs/local-env-mcp/infra-spec.md", "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4" },
+    { "path": "specs/local-env-mcp/requirements.md", "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d" },
+    { "path": "specs/local-env-mcp/security-spec.md", "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5" },
+    { "path": "specs/local-env-mcp/ux-spec.md", "sha256": "8e5f29bc25c6e1b7f2a54c5f0a7d40724ef9a5eece8acf46380e0e580325e283" }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md and frontend-spec.md state rationale for every significant decision: esbuild single-bundle distribution is tied to ADR-0003 ('ADR-0003 と同一' in Deployment/CI Plan); execFile-over-shell is justified by the no-execution-capability boundary (Architecture, Security Boundaries B2, Constraint Compliance row 1); TTL cache (60s) is justified by '連続呼び出しでの多重プロセス起動を抑制する' (Architecture section). frontend-spec.md Technology Stack table carries an explicit Rationale column populated for every row (Node>=20, TypeScript^5.9, MCP SDK^1.29, zod^4, esbuild^0.28, node:test), and the Dependencies table states rejected alternatives with reasons (e.g. '自前 JSON-RPC(却下: 保守コスト)', 'ajv 直接(却下: SDK 統合性)', 'tsc のみ(却下: 単一ファイル配布不可)'). No unjustified 'we will use X' statement found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Open Questions has one entry, OQ-001 (Cursor/VS Code config file path and schema), with all three required fields present: Owner: 'installer 拡張タスク担当' (a role, not TBD); Blocks Implementation: no (explicitly scoped to not block server-implementation tasks); Resolution Path: 'Cursor / VS Code 公式ドキュメント確認 → 本節更新 → 実装' (concrete action). requirements.md's OQ-001 mirrors the same three fields identically. No open question lacks an owner or resolution path."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "investigation.md is absent for this feature, and design.md's Assumptions section (line 179-185) has two non-trivial entries beyond the OQ-001 cross-reference: (1) the 'no-execution-capability' interpretation, which is explicitly tied to ADR-0004 and flagged for human approval (not a bare unverified assumption but a recorded, owned decision); (2) the installer MCP-selection-mechanism extensibility assumption, which cites concrete evidence — verified against install.sh:18-21 (MCP_LIST/VALID_MCPS), install.sh:288-296 (mcp_selected()), and install.sh:318-339 (place_mcp_servers() looping over MCP_SELECTION[@] generically, not hardcoded to a single MCP name). Read install.sh directly and confirmed these line citations are accurate and substantiate the assumption. Both entries meet the validity bar (grounded in cited existing source or explicitly owned as a human-approved risk/decision)."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a ## Constraint Compliance section (line 169-177) with 5 rows covering: no-execution-capability (Issue #64 decision), read-only/no-fs-write, ADR-0003 distribution, install-time-selectable/default-bundled, and no-secrets-leakage. Cross-checked against requirements.md REQ-001 through REQ-012 and the AC table: no contradiction found. Error code enum in design.md API/Contract Plan matches REQ-004's 7-code enum exactly. Probe budget (2s timeout / 8KiB / parallelism 4, REQ-003) is addressed in Architecture and Risks sections even though not duplicated as its own Constraint Compliance row; it is not contradicted anywhere. TTL cache does not contradict the no-filesystem-read constraint (cache is explicitly in-memory only, Data Plan line 87-88)."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "infra-spec.md Service Level Objectives table gives three numeric targets: server startup <= 1s (AC-007, smoke test), tool response p95 with cache <= 100ms (AC-001, unit test), and cold full-probe upper bound <= 10s (AC-002/AC-004, integration test). design.md Architecture section states the startup SLO explicitly ('起動 <= 1 s SLO 維持') and names the mitigating design: probes run lazily (not at startup) plus a 60s in-process TTL cache to avoid redundant process spawns on repeated calls. Parallelism cap of 4 and per-probe 2s timeout (REQ-003) bound worst-case latency. This satisfies the caching-strategy + explicit target + test-mapping evidence bar."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md ## Deployment / CI Plan states: deployment target (installer places dist/*+package.json under <install-root>/mcp/local-env-mcp/, matching infra-spec.md Deployment Topology diagram); CI pipeline changes (new local-env-mcp job in .github/workflows/test.yml for typecheck/test/dist-parity, matching infra-spec.md CI/CD Sequence); rollback (single PR revert including dist, ADR-0003 pattern, plus installer re-run — also detailed with a 10-minute max rollback time and verification step in infra-spec.md Rollback section). No feature-flag strategy is stated, but none is required: infra-spec.md Environments table explicitly marks staging/production as N/A ('ローカル専用'), and this is a local dev-tool CLI installer with no staged/canary rollout model anywhere in requirements.md. No schema changes exist (see MIGRATION-PLANNED), so migration-execution-order relative to deploy is correctly not applicable."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan states 'Data Entities: なし' and 'Migration Strategy: 不要(新規 feature)', which alone would qualify for the 'No data changes' PASS condition. Beyond that minimum, the same section correctly identifies 'Existing Data Affected' as the IDE config files (~/.cursor/mcp.json, VS Code user-profile mcp.json, ~/.codex/config.toml) that the installer mutates, and specifies fail-safe handling: idempotent upsert preserving all pre-existing entries (verified by AC-010/AC-011/AC-012) and no-overwrite-on-malformed-JSON with error notification (AC-015). This is the check's own named equivalent of migration handling for non-schema existing-data mutation, and it is planned with concrete fail-safe behavior, not left silent."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Four integration points are identified with name, contract, and failure behavior: (1) Claude Code via 'claude mcp add' (Components table, Architecture diagram); (2) Codex via config.toml marker block (existing mechanism, extended); (3) Cursor via ~/.cursor/mcp.json idempotent upsert with exact JSON shape given in API/Contract Plan; (4) VS Code via user-profile mcp.json (OS-specific paths enumerated for macOS/Linux/Windows) with exact JSON shape given. Failure behavior per integration: config directory absent -> skip + notify (requirements.md Edge Cases, AC-010/AC-011); malformed JSON -> no overwrite + error notify + other clients continue (AC-015, security-spec.md B3 STRIDE row). Each integration has a named verification test (TEST-009 through TEST-013, TEST-015)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's 3 tools (get_os_info, get_toolchain_versions, list_available_clis) match requirements.md REQ-002 and User Stories exactly with no additional tools introduced. No execution-capability tool, no env-var-value tool, and no filesystem-read tool appear anywhere in design.md's Components/API plan, consistent with requirements.md Non-goals. Installer/uninstaller extensions (Cursor, VS Code, uninstall parity) map 1:1 to REQ-007 through REQ-010 with no extra capability added (e.g. no support for VS Code Insiders/Cursor nightly, consistent with the explicit Non-goal). All Goals and User Stories in requirements.md have a corresponding design element (read-only env info via 2 data paths, zero-execution-capability boundary via allowlist+execFile, installer selectable/default-bundled registration)."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "High-risk surfaces identified: (1) command-injection-adjacent execFile probing -> TEST-003 (static + unit, no-exec) and TEST-006 (static grep for fs-write/exec/spawn-shell/eval, mcp/local-env-mcp/tests/readonly/); (2) PII/secrets non-leakage -> TEST-005 named canary-env grep test (mcp/local-env-mcp/tests/no-secrets/, AC-005); (3) IDE config file destructive-write risk -> TEST-010/011/015 named installer harness tests with HOME isolation (tests/install.tests.sh). Each risk surface names a concrete file-path-level verification artifact, not just a general claim of testing intent."
+    }
+  ]
+}

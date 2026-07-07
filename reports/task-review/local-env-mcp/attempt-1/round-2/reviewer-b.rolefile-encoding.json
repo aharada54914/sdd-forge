@@ -1,0 +1,114 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "task-b-localenvmcp-a1r2-20260705-63ad",
+  "host_session_id": "hs-task-b3-6503d1ba-0009",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/local-env-mcp/attempt-1/round-2/integrated-summary.json",
+      "sha256": "4340e844f1c5bbd21a4eaa00dcb2a9241adf0e290d0730b258807366be1b5435"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/local-env-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "486814830c3645a5b874a014f54ed07f4c6217bbfecfcd5e5d3d63090202a421"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/acceptance-tests.md",
+      "sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/design.md",
+      "sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/infra-spec.md",
+      "sha256": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/requirements.md",
+      "sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/security-spec.md",
+      "sha256": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/tasks.md",
+      "sha256": "27ed19e9d7228a4a368399a140bff3dd0acd230be2065a2bcbefdd4f1da2fc15"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/local-env-mcp/traceability.md",
+      "sha256": "15921dfbb660ad169f7ae871a16807dba41a9a2f5205822b1f7f7e7f70cace47"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All 10 tasks' Risk tiers match risk-classification-policy.md surfaces. T-001 (probe-engine/allowlist chokepoint, security-spec.md B2), T-002 (input-schema no-exec boundary B1), T-003 (secrets/PII redaction REQ-005), T-006/T-007/T-008 (installer + IDE-config mutation B3, ADR-0005), T-009 (destructive uninstall/deregistration) are all Risk: high, consistent with sensitive auth/data-mutation/external-contract surfaces. T-004 (dist bundling + CI + Inspector smoke) is Risk: medium with no sensitive surface touched — correctly not over-classified. T-005 (design.md doc update only, no code/data/security change) and T-010 (README/USERGUIDE/traceability doc-only) are Risk: low, correctly not under- or over-classified. No mismatch found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 7 high-risk tasks (T-001, T-002, T-003, T-006, T-007, T-008, T-009) declare 'Required Workflow: tdd' and their Done When sections each carry all three matrix-mandated items verbatim: 'Red→Green evidence 記録(tdd)', '独立レビュー verdict PASS が evidence に記録される', 'provenance(spec_revision 含む)付き evidence bundle 生成' (tasks.md lines 40-42, 75-77, 108-110, 204-206, 237-239, 267-269, 299-301). No task in tasks.md carries Risk: critical, so the additional signed-bundle + second-approver requirement does not apply to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1 oversizing (T-002/T-004 with >8 Done When items and multiple concerns) is resolved by re-decomposition into 10 single-concern tasks. Current Done-When counts per task: T-001=7, T-002=8, T-003=6, T-004=6, T-005=5, T-006=7, T-007=8, T-008=6, T-009=6, T-010=4 — none exceeds 8. Scope areas per task range 1-5 distinct files/dirs, each coherent with the task's single Goal (e.g. T-001 = base project + probe-engine + envelope as one cohesive substrate; T-002 = the 3-tool surface + server/index + contract tests as one cohesive tool-layer unit). No task title implies multiple sequential phases. No fragmentation signal (no 3+ single-function-only tasks, no bare rename-only task) is present."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1 gap (Node<20 MCP_NODE_OK edge case claimed by no task) is resolved. T-006 Done When now explicitly states 'Node < 20 フェイク環境(PATH 制御)で local-env-mcp を含む MCP の配置・登録が行われず警告が出る(requirements.md Edge Cases 対応、tests/install.tests.sh)' (tasks.md line 203), and T-008 Done When AC-013 explicitly includes 'Node<20 ゲート' parity for ps1 (line 266), with T-008 Scope citing 'Node<20 相当の ps1 ケース' (line 263). Remaining requirements.md Edge Cases are each claimed: hung/oversized-output probe kill -> AC-004/T-001 (tests/error-paths/); allowlist-outside name -> AC-003/T-002 (tests/no-exec/); absent client config dirs -> skip-notify in AC-010/AC-011/T-007 Done When; corrupt JSON -> AC-015/T-007 Done When (line 236)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md test types align with the scope each owning task builds: TEST-001 'unit (snapshot)' targets the single get_os_info module boundary (T-002); TEST-002/004/005/009/010/011/013/015 are declared 'integration' and each genuinely crosses >=2 components (tool+probe-engine, server+fake-CLI fixture, tool+stderr logger, installer+CLI-flag+client registration, installer+HOME-isolated mcp.json); TEST-003 'unit + static' matches the schema-boundary + static-scan scope (T-002); TEST-006 'static (grep)' matches the src-wide static scan (T-001); TEST-007 'smoke' traverses the full stdio-startup-to-tools/list workflow (T-004); TEST-008 'CI (dist-parity)' matches its CI-rebuild-diff scope (T-004); TEST-014 'doc review' explicitly references AC-014 and its 4-item doc checklist (T-010). No mismatched test-type/scope pairing found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 10 tasks carry an explicit `Rollback:` field (tasks.md lines 18, 57, 92, 125, 158, 189, 221, 254, 284, 316), consistent with infra-spec.md's 'Rollback' section (single-PR revert restoring dist+installer together, uninstall.sh/.ps1 for manual entry removal, max rollback time <=10 min). High-risk installer tasks additionally note concrete safety nets: T-007 cites the corrupt-JSON fail-safe preventing irreversible config destruction; T-009 cites the 'installer-managed-name-only deletion' design/test guard."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (Scope: src/{server.ts,index.ts,tools/env.ts}) and T-003 (Scope: src/diagnostics.ts, src/index.ts diagnostic-logger wiring) both list src/index.ts, but T-003's Blockers field is 'T-002' (tasks.md line 115), enforcing sequential ordering (T-003 wires into the index.ts T-002 creates) -- the legitimate create-then-extend pattern, not uncoordinated overlap. T-006 (Scope: install.sh VALID_MCPS/MCP_LIST + tests/install.tests.sh) and T-007 (Scope: install.sh register_cursor_mcp/register_vscode_mcp + tests/install.tests.sh) both list install.sh and tests/install.tests.sh, but T-007's Blockers field is 'T-005, T-006' (line 244), enforcing that T-006's core extension lands before T-007 adds registration functions to the same file. Both flagged overlaps are Blockers-ordered, not parallel-uncoordinated."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Blockers edge matches a genuine artifact dependency: T-002<-T-001 (tools import envelope/allowlist/probe-engine from T-001); T-003<-T-002 (diagnostics wiring extends index.ts from T-002); T-004<-T-003 (bundling/CI packages the full src tree incl. diagnostics); T-006<-T-004 (installer places the dist/ artifact T-004 produces); T-007<-T-005,T-006 (Cursor/VS Code registration needs T-005's confirmed config schema and T-006's VALID_MCPS/MCP_LIST extension already present); T-008<-T-007 (ps1 must mirror the completed sh reference behavior); T-009<-T-007,T-008 (uninstall must know the final sh+ps1 registration surface to remove); T-010<-all (doc/traceability finalization legitimately needs all functional work settled). T-005 has no blockers and is correctly independent/parallelizable early. No spurious blocker (no pair lacking a genuine artifact dependency) and no missing blocker (e.g. T-004 does not depend on T-005's IDE-config-format research) was found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. local-env-mcp is a new-feature decomposition (Issue #64 Phase 1); no task title, Goal, Scope, or Done When text in tasks.md describes a bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ]
+}

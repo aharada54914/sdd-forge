@@ -1,0 +1,21 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "local-env-mcp",
+  "attempt": 2,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "13ab5116eb78e086d39d56d70766df1a598c4f2ca396cd4a987c6b3332bd9206",
+  "requirements_sha256": "d42a1d8e30bf0a67e3393e90040834459f41f1df53f6bd820e5789397cc0e84d",
+  "acceptance_sha256": "1d360febbac8e8854a0ff92a1f6c51188cbd05e4ccc219d68169da5d2779b259",
+  "design_sha256": "0f02d6683ab1c9d2606461647d34c932844c7dd7eddbb783aaa2edc1b458af6b",
+  "traceability_sha256": "15921dfbb660ad169f7ae871a16807dba41a9a2f5205822b1f7f7e7f70cace47",
+  "layer_sha256": {
+    "ux-spec.md": "8e5f29bc25c6e1b7f2a54c5f0a7d40724ef9a5eece8acf46380e0e580325e283",
+    "frontend-spec.md": "f7445c74041893712af674557102112ff3f5eec05eab7324d2bf6889aac0788b",
+    "infra-spec.md": "dd1ea75cfb364baa954f6b4dbe6aaf570676d5cb553cd2ae6318b2a0958f8cf4",
+    "security-spec.md": "83afa7169d9a754998eaac97bc92dbb0a0e07b3d210d2bcbff6e576bae0a2ee5"
+  },
+  "input_sha256": "ce2aeaea7b42479ba07786d29db84f28b4a41ef451f706caf2b50f576c7b9f8d",
+  "generated_at": "2026-07-05T16:07:23Z"
+}
