@@ -82,7 +82,8 @@ function Get-NormalizedHash([string]$Path, [string]$Stage) {
     }
     $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
     $sha = [Security.Cryptography.SHA256]::Create()
-    try { return ([Convert]::ToHexString($sha.ComputeHash($bytes))).ToLowerInvariant() }
+    # PS5.1-safe (no [Convert]::ToHexString, .NET 5+ only).
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
     finally { $sha.Dispose() }
 }
 function Get-Header([string]$Path, [string]$Header) {
@@ -127,8 +128,19 @@ function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
     } elseif ($normalizedRoot.StartsWith("/var/")) {
         $currentRoots += "/private/var/" + $normalizedRoot.Substring("/var/".Length)
     }
-    $repositoryName = Split-Path -Leaf $normalizedRoot
-    $marker = "/$repositoryName/"
+    # Recorded manifest paths are absolute paths from the clone that produced
+    # the review evidence, whose directory name has no relation to this
+    # checkout's (worktrees, CI fixtures, and renamed clones are all legal).
+    # Split them on the repository's own structural top-level directories
+    # instead: every canonical manifest path is repo-relative under specs/,
+    # reports/, or plugins/. A split candidate only counts when the suffix it
+    # produces matches one of the canonical manifest shapes, so a feature
+    # slug that happens to be named "specs", "reports", or "plugins" cannot
+    # be mistaken for the repository root; a path with no unambiguous split
+    # is invalid. A wrong split cannot weaken tamper detection - the derived
+    # relative path must still match the canonical allowlist, its recorded
+    # sha256 must match the live file, and every manifest entry must agree
+    # on a single recorded root.
     $recordedRoots = [Collections.Generic.HashSet[string]]::new(
         [StringComparer]::Ordinal)
     foreach ($reviewer in @($Contract.reviewers)) {
@@ -144,11 +156,23 @@ function Get-RecordedRepositoryRoot($Contract, [string]$RepositoryRoot) {
                 }
             }
             if ($isCurrent) { continue }
-            $index = $normalizedPath.LastIndexOf($marker, [StringComparison]::OrdinalIgnoreCase)
-            if ($index -lt 0) {
+            $candidateRoots = [Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+            foreach ($marker in @("/specs/", "/reports/", "/plugins/")) {
+                $index = $normalizedPath.IndexOf($marker, [StringComparison]::Ordinal)
+                while ($index -ge 0) {
+                    $suffix = $normalizedPath.Substring($index + 1)
+                    if ($suffix -cmatch '^specs/[a-z0-9][a-z0-9-]*/[^/]+$' -or
+                        $suffix -cmatch '^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$' -or
+                        $suffix -cmatch '^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$') {
+                        [void]$candidateRoots.Add($normalizedPath.Substring(0, $index))
+                    }
+                    $index = $normalizedPath.IndexOf($marker, $index + 1, [StringComparison]::Ordinal)
+                }
+            }
+            if ($candidateRoots.Count -ne 1) {
                 return [pscustomobject]@{ Valid=$false; Root="" }
             }
-            [void]$recordedRoots.Add($normalizedPath.Substring(0, $index + $marker.Length - 1))
+            [void]$recordedRoots.Add(@($candidateRoots)[0])
             if ($recordedRoots.Count -gt 1) {
                 return [pscustomobject]@{ Valid=$false; Root="" }
             }
@@ -333,16 +357,73 @@ foreach ($entry in @($RegistryData.entries)) {
         Stop-WorkflowState "repository" "registry-malformed" "registry shape or version is invalid"
     }
 }
+function Test-JsonValueEqual($Left, $Right) {
+    if ($null -eq $Left -or $null -eq $Right) { return ($null -eq $Left) -and ($null -eq $Right) }
+    $leftIsObject = $Left -is [Management.Automation.PSCustomObject]
+    $rightIsObject = $Right -is [Management.Automation.PSCustomObject]
+    if ($leftIsObject -or $rightIsObject) {
+        if (-not ($leftIsObject -and $rightIsObject)) { return $false }
+        $leftNames = @($Left.PSObject.Properties.Name | Sort-Object)
+        $rightNames = @($Right.PSObject.Properties.Name | Sort-Object)
+        if (($leftNames -join "`t") -cne ($rightNames -join "`t")) { return $false }
+        foreach ($name in $leftNames) {
+            if (-not (Test-JsonValueEqual $Left.$name $Right.$name)) { return $false }
+        }
+        return $true
+    }
+    $leftIsArray = $Left -is [array]
+    $rightIsArray = $Right -is [array]
+    if ($leftIsArray -or $rightIsArray) {
+        if (-not ($leftIsArray -and $rightIsArray) -or $Left.Count -ne $Right.Count) { return $false }
+        for ($i = 0; $i -lt $Left.Count; $i++) {
+            if (-not (Test-JsonValueEqual $Left[$i] $Right[$i])) { return $false }
+        }
+        return $true
+    }
+    return $Left -ceq $Right
+}
+# PS5.1-safe (no Test-Json, unavailable before PowerShell 6.1): mirrors the
+# hand-rolled structural check in the bash twin (check-workflow-state.sh)
+# rather than general JSON Schema validation, so both stay in parity and
+# neither depends on a cmdlet this repo's Windows hosts don't have.
+function Test-RegistrySchema($RegistryData, [string]$SchemaPath) {
+    try { $schema = Get-Content -LiteralPath $SchemaPath -Raw | ConvertFrom-Json }
+    catch { return $false }
+    $topKeys = @($RegistryData.PSObject.Properties.Name | Sort-Object)
+    if (($topKeys -join "`t") -cne (@("entries", "migration_baseline_commit", "schema_version") -join "`t")) {
+        return $false
+    }
+    if (-not (Test-JsonValueEqual $RegistryData.schema_version $schema.properties.schema_version.const) -or
+        -not (Test-JsonValueEqual $RegistryData.migration_baseline_commit $schema.properties.migration_baseline_commit.const)) {
+        return $false
+    }
+    # The jq twin requires .entries to be a JSON array; @() coercion alone
+    # would let a scalar entries object pass as a one-item list.
+    if ($RegistryData.entries -isnot [array]) { return $false }
+    $entries = @($RegistryData.entries)
+    if ($entries.Count -eq 0) { return $false }
+    $legacyConsts = @($schema.definitions.legacyEntry.oneOf | ForEach-Object { $_.const })
+    foreach ($entry in $entries) {
+        $entryProfile = [string]$entry.profile
+        if ($entryProfile -eq "full" -or $entryProfile -eq "lite") {
+            $entryKeys = @($entry.PSObject.Properties.Name | Sort-Object)
+            if (($entryKeys -join "`t") -cne (@("feature", "profile") -join "`t")) { return $false }
+        } else {
+            $matched = $false
+            foreach ($candidate in $legacyConsts) {
+                if (Test-JsonValueEqual $entry $candidate) { $matched = $true; break }
+            }
+            if (-not $matched) { return $false }
+        }
+    }
+    return $true
+}
+
 $Schema = Join-Path $ScriptRoot "contracts/workflow-state-registry.schema.json"
 if (-not (Test-Path -LiteralPath $Schema -PathType Leaf)) {
     Stop-WorkflowState "repository" "registry-schema" "registry schema is unavailable"
 }
-try {
-    $schemaOk = Test-Json -Json $RegistryText -SchemaFile $Schema -ErrorAction Stop
-} catch {
-    $schemaOk = $false
-}
-if (-not $schemaOk) {
+if (-not (Test-RegistrySchema $RegistryData $Schema)) {
     Stop-WorkflowState "repository" "registry-schema" "registry entry violates the bounded schema"
 }
 
@@ -393,7 +474,15 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         if ($file.LinkType -or -not (Test-Path -LiteralPath $file.FullName -PathType Leaf)) {
             Stop-WorkflowState $Feature "stage-provenance" "$Stage verdict evidence is linked or unreadable"
         }
-        $relative = [IO.Path]::GetRelativePath($root, $file.FullName).Replace("\", "/")
+        # PS5.1-safe (no [IO.Path]::GetRelativePath, .NET Core only): the file
+        # comes from Get-ChildItem -Recurse under $root, so its normalized
+        # full name always carries $root as a literal prefix.
+        $rootPrefix = $root.Replace("\", "/").TrimEnd("/") + "/"
+        $fullName = $file.FullName.Replace("\", "/")
+        if (-not $fullName.StartsWith($rootPrefix, [StringComparison]::OrdinalIgnoreCase)) {
+            Stop-WorkflowState $Feature "stage-provenance" "$Stage verdict has a noncanonical path"
+        }
+        $relative = $fullName.Substring($rootPrefix.Length)
         if ($relative -notmatch "^attempt-([1-9][0-9]*)/round-([1-9][0-9]*)/integrated-verdict\.json$") {
             Stop-WorkflowState $Feature "stage-provenance" "$Stage verdict has a noncanonical path"
         }
