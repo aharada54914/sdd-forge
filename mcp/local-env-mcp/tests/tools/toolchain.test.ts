@@ -41,10 +41,11 @@ const CLI_NAME_ENUM: string[] = contract.$defs.cliName.enum;
 let fixtureDir: string;
 
 // See the sibling comment in tests/error-paths/probe-engine.test.ts: on win32,
-// PATHEXT-based resolution can't see an extension-less file, so probing an
-// override-only shim silently falls through to a same-named real binary
-// elsewhere on PATH. The `.cmd` launcher hands off to Git-for-Windows `bash`
-// to run the identical POSIX body, keeping behavior identical across OSes.
+// command resolution can't see an extension-less file, so probing an
+// override-only shim would silently fall through to a same-named real binary
+// elsewhere on PATH. The `.cmd` launcher (resolved and run through the
+// engine's %ComSpec% batch path) hands off to Git-for-Windows `bash` to run
+// the identical POSIX body, keeping behavior identical across OSes.
 function writeShim(name: string, body: string): void {
   const p = join(fixtureDir, name);
   writeFileSync(p, `#!/bin/sh\n${body}\n`, "utf-8");

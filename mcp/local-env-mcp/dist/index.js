@@ -30984,83 +30984,165 @@ var ALLOWLIST_NAMES = new Set(ALLOWLIST.map((e) => e.name));
 
 // src/probe-engine.ts
 import { execFile } from "node:child_process";
+import { statSync } from "node:fs";
 import path from "node:path";
 var TIMEOUT_MS = 2e3;
 var MAX_OUTPUT_BYTES = 8 * 1024;
 var CONCURRENCY_LIMIT = 4;
 var CACHE_TTL_MS = 6e4;
 var MAX_VERSION_CHARS = 200;
+var BACKSTOP_GRACE_MS = 500;
+var WINDOWS_EXECUTABLE_EXTENSIONS = [".com", ".exe", ".bat", ".cmd"];
+var WINDOWS_BATCH_EXTENSIONS = /* @__PURE__ */ new Set([".bat", ".cmd"]);
+var UNSAFE_CMD_PATH_CHARS = /[\r\n"%]/;
 var cache = /* @__PURE__ */ new Map();
 function normalizeVersion(raw) {
   const firstLine = raw.split(/\r?\n/, 1)[0] ?? "";
   return firstLine.trim().slice(0, MAX_VERSION_CHARS);
 }
+function findPathKey(env) {
+  return Object.keys(env).find((key) => key.toUpperCase() === "PATH");
+}
+function buildProbeEnv(options) {
+  const env = { ...process.env };
+  if (options.pathOverride !== void 0) {
+    const inherited = process.env.PATH ?? "";
+    const merged = inherited.length > 0 ? `${options.pathOverride}${path.delimiter}${inherited}` : options.pathOverride;
+    env[findPathKey(env) ?? "PATH"] = merged;
+  }
+  return env;
+}
+function effectivePath(env) {
+  const key = findPathKey(env);
+  return key === void 0 ? "" : env[key] ?? "";
+}
+function resolveWindowsCommand(command, searchPath) {
+  for (const rawDir of searchPath.split(path.delimiter)) {
+    const dir = rawDir.replace(/"/g, "");
+    if (dir.length === 0) {
+      continue;
+    }
+    for (const extension of WINDOWS_EXECUTABLE_EXTENSIONS) {
+      const candidate = path.join(dir, `${command}${extension}`);
+      try {
+        if (statSync(candidate, { throwIfNoEntry: false })?.isFile() === true) {
+          return candidate;
+        }
+      } catch {
+      }
+    }
+  }
+  return void 0;
+}
 function probeOne(entry, options) {
   return new Promise((resolve) => {
-    const env = { ...process.env };
-    if (options.pathOverride !== void 0) {
-      const inherited = process.env.PATH ?? "";
-      env.PATH = inherited.length > 0 ? `${options.pathOverride}${path.delimiter}${inherited}` : options.pathOverride;
-    }
+    const env = buildProbeEnv(options);
     let settled = false;
+    let backstop;
     const finish = (result) => {
       if (settled) {
         return;
       }
       settled = true;
+      if (backstop !== void 0) {
+        clearTimeout(backstop);
+      }
       resolve(result);
     };
-    const child = execFile(
-      entry.command,
-      [...entry.args],
-      {
-        env,
-        timeout: TIMEOUT_MS,
-        killSignal: "SIGKILL",
-        maxBuffer: MAX_OUTPUT_BYTES,
-        windowsHide: true
-      },
-      (error51, stdout, stderr) => {
+    const fail = (probeError) => {
+      finish({ name: entry.name, available: false, probeError });
+    };
+    const runAttempt = (file2, args, useVerbatimArgs, onLaunchFailure) => {
+      const handleResult2 = (error51, stdout, stderr) => {
         if (error51) {
           const code = error51.code;
-          if (code === "ENOENT") {
-            finish({ name: entry.name, available: false, probeError: "not-found" });
+          if (code === "ENOENT" || code === "EINVAL") {
+            onLaunchFailure(code);
             return;
           }
           if (code === "ERR_CHILD_PROCESS_STDIO_MAXBUFFER") {
-            finish({ name: entry.name, available: false, probeError: "output-too-large" });
+            fail("output-too-large");
             return;
           }
           const killed = error51.killed === true;
           const signal = error51.signal;
           if (killed || signal === "SIGKILL" || signal === "SIGTERM") {
-            finish({ name: entry.name, available: false, probeError: "timeout" });
+            fail("timeout");
             return;
           }
           if (typeof error51.code === "number") {
-            finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
+            fail("nonzero-exit");
             return;
           }
-          finish({ name: entry.name, available: false, probeError: "spawn-error" });
+          fail("spawn-error");
           return;
         }
         const raw = entry.versionStream === "stderr" ? stderr : stdout;
         const version2 = normalizeVersion(String(raw));
         if (version2.length === 0) {
-          finish({ name: entry.name, available: false, probeError: "nonzero-exit" });
+          fail("nonzero-exit");
           return;
         }
         finish({ name: entry.name, available: true, version: version2 });
+      };
+      let child;
+      try {
+        child = execFile(
+          file2,
+          [...args],
+          {
+            env,
+            timeout: TIMEOUT_MS,
+            killSignal: "SIGKILL",
+            maxBuffer: MAX_OUTPUT_BYTES,
+            windowsHide: true,
+            windowsVerbatimArguments: useVerbatimArgs
+          },
+          handleResult2
+        );
+      } catch (error51) {
+        onLaunchFailure(error51.code);
+        return;
       }
-    );
-    child.on("error", (error51) => {
-      const code = error51.code;
-      if (code === "ENOENT") {
-        finish({ name: entry.name, available: false, probeError: "not-found" });
-      } else {
-        finish({ name: entry.name, available: false, probeError: "spawn-error" });
-      }
-    });
+      backstop = setTimeout(() => {
+        child.kill("SIGKILL");
+        child.stdout?.destroy();
+        child.stderr?.destroy();
+        fail("timeout");
+      }, TIMEOUT_MS + BACKSTOP_GRACE_MS);
+      child.on("error", (error51) => {
+        const code = error51.code;
+        if (code === "ENOENT" || code === "EINVAL") {
+          onLaunchFailure(code);
+        } else {
+          fail("spawn-error");
+        }
+      });
+    };
+    const onDirectLaunchFailure = (code) => {
+      fail(code === "ENOENT" ? "not-found" : "spawn-error");
+    };
+    if (process.platform !== "win32") {
+      runAttempt(entry.command, entry.args, false, onDirectLaunchFailure);
+      return;
+    }
+    const resolved = resolveWindowsCommand(entry.command, effectivePath(env));
+    if (resolved === void 0) {
+      fail("not-found");
+      return;
+    }
+    if (!WINDOWS_BATCH_EXTENSIONS.has(path.extname(resolved).toLowerCase())) {
+      runAttempt(resolved, entry.args, false, onDirectLaunchFailure);
+      return;
+    }
+    if (UNSAFE_CMD_PATH_CHARS.test(resolved)) {
+      fail("spawn-error");
+      return;
+    }
+    const comSpec = process.env.ComSpec ?? "cmd.exe";
+    const joinedArgs = entry.args.join(" ");
+    const commandLine = joinedArgs.length > 0 ? `""${resolved}" ${joinedArgs}"` : `""${resolved}""`;
+    runAttempt(comSpec, ["/d", "/s", "/c", commandLine], true, () => fail("spawn-error"));
   });
 }
 async function probeEngine(entries, options = {}) {

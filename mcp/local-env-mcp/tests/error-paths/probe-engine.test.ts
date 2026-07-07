@@ -28,14 +28,15 @@ let fixtureDir: string;
 /**
  * Writes an executable POSIX shell shim named `name` into fixtureDir.
  *
- * On win32, `execFile` resolves a bare command by searching each PATH
- * directory for `PATHEXT` matches (`.EXE`, `.CMD`, ...); an extension-less
- * file is invisible to that search and probing silently falls through to a
- * same-named binary elsewhere on the real PATH. So on win32 we additionally
- * drop a `<name>.cmd` launcher that PATHEXT resolution *can* find, which
- * hands off to the CI-guaranteed Git-for-Windows `bash` to run the identical
- * POSIX body — no shell-syntax translation, so cross-platform behavior stays
- * byte-for-byte the same.
+ * On win32, an extension-less file is invisible to command resolution (the
+ * probe-engine's own resolver only considers `.com` / `.exe` / `.bat` /
+ * `.cmd`), so probing would silently fall through to a same-named binary
+ * elsewhere on the real PATH. So on win32 we additionally drop a `<name>.cmd`
+ * launcher — which the engine resolves and runs via its `%ComSpec%` batch
+ * path — that hands off to the CI-guaranteed Git-for-Windows `bash` to run
+ * the identical POSIX body: no shell-syntax translation, so cross-platform
+ * behavior stays byte-for-byte the same. (Native-batch fallback semantics are
+ * pinned separately in windows-cmd-shim.test.ts.)
  */
 function writeShim(name: string, body: string): void {
   const p = join(fixtureDir, name);
