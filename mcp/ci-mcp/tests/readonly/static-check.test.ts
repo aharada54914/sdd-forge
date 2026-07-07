@@ -199,3 +199,59 @@ test("the only scheme://host literal anywhere in src/ is the fixed GitHub API ba
   }
   assert.deepEqual(violations, [], `unexpected host literal found in src/:\n${violations.join("\n")}`);
 });
+
+/**
+ * Cycle 2 (evaluator finding fix, T-006): regression tests proving
+ * `stripComments` is string-aware, using the evaluator's exact
+ * reproductions on synthetic source strings. Before the fix, the naive
+ * `/\/\*...\*\//` + `/\/\/.*$/gm` regex pair truncated string literals at
+ * their first embedded `//`, which (a) made the host-literal enforcement
+ * above vacuously true (a rogue `http://` host inside a string literal was
+ * silently chopped down to `"http:` before the host-literal regex ever ran)
+ * and (b) hid same-line code that followed a `//`-containing string literal
+ * from every denylist check. These tests exercise `stripComments` directly
+ * on synthetic text, independent of the real src/ tree, so they keep
+ * failing red if the scanner regresses to a non-string-aware implementation
+ * even if src/ itself never grows an actual violation.
+ */
+test("Cycle 2: a rogue host literal embedded in a string is preserved (not truncated at its own //) and is caught by the host-literal scan", () => {
+  const synthetic = 'const BAD = "http://attacker.example.com/x";\n';
+  const stripped = stripComments(synthetic);
+  const matches = [...stripped.matchAll(/["'](https?:\/\/[^"'/]+)/g)].map((match) => match[1]);
+  assert.ok(
+    matches.includes("http://attacker.example.com"),
+    `expected the rogue host literal to survive stripComments intact, got stripped text: ${JSON.stringify(stripped)}`,
+  );
+  const nonGithubHosts = matches.filter((host) => host !== FIXED_GITHUB_API_BASE_URL);
+  assert.ok(
+    nonGithubHosts.length > 0,
+    "expected the host-literal scan to detect a non-GitHub host in the synthetic source",
+  );
+});
+
+test("Cycle 2: same-line code after a string containing // is not swallowed as a false comment", () => {
+  const synthetic = 'const u = "sc://y"; writeFileSync(p, d);\n';
+  const stripped = stripComments(synthetic);
+  assert.ok(
+    /\bwriteFileSync\s*\(/.test(stripped),
+    `expected writeFileSync(...) to survive stripComments on the same line as a "//"-bearing string, got: ${JSON.stringify(stripped)}`,
+  );
+  // The string literal's contents must also survive verbatim (not be
+  // truncated at its embedded //).
+  assert.ok(stripped.includes('"sc://y"'), `expected the string literal to survive intact, got: ${JSON.stringify(stripped)}`);
+});
+
+test("Cycle 2: genuine // and /* */ comments are still stripped (no false positive from real comments)", () => {
+  const synthetic = '// writeFileSync(x)\nconst y = 1;\n/* http://evil.com */\nconst z = 2;\n';
+  const stripped = stripComments(synthetic);
+  assert.ok(
+    !/writeFileSync/.test(stripped),
+    `expected the line-commented writeFileSync mention to be stripped, got: ${JSON.stringify(stripped)}`,
+  );
+  assert.ok(
+    !/evil\.com/.test(stripped),
+    `expected the block-commented host mention to be stripped, got: ${JSON.stringify(stripped)}`,
+  );
+  assert.ok(stripped.includes("const y = 1;"), "expected surrounding real code to survive");
+  assert.ok(stripped.includes("const z = 2;"), "expected surrounding real code to survive");
+});
