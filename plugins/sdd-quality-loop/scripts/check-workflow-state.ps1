@@ -377,8 +377,8 @@ function Test-RegistrySchema($RegistryData, [string]$SchemaPath) {
     if ($entries.Count -eq 0) { return $false }
     $legacyConsts = @($schema.definitions.legacyEntry.oneOf | ForEach-Object { $_.const })
     foreach ($entry in $entries) {
-        $profile = [string]$entry.profile
-        if ($profile -eq "full" -or $profile -eq "lite") {
+        $entryProfile = [string]$entry.profile
+        if ($entryProfile -eq "full" -or $entryProfile -eq "lite") {
             $entryKeys = @($entry.PSObject.Properties.Name | Sort-Object)
             if (($entryKeys -join "`t") -cne (@("feature", "profile") -join "`t")) { return $false }
         } else {
