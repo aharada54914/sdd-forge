@@ -314,7 +314,7 @@ T-005, T-012, T-013
 ## T-007 契約 schema(ci-mcp-tools.v1)+ ajv 検証
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: `contracts/ci-mcp-tools.v1.schema.json` は全ツール応答の正準 JSON Schema 契約であり、risk-classification-policy.md の sentinel surface(public API contracts)に該当する。契約の欠陥(誤ったフィールド形状・error code enum の齟齬)は外部クライアントのエラー処理を無言で破綻させる。既存 2 MCP の v1 enum の上位互換拡張として扱う。
 Required Workflow: tdd
