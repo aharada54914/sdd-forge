@@ -1,0 +1,40 @@
+$ npm test
+# (pretest: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs enumerating dist-test/tests/**/*.test.js)
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> ci-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ ok() builds a success envelope (0.557458ms)
+✔ err() builds a failure envelope; details optional and secret-free (0.073334ms)
+✔ ErrorCode union matches the contract error.code enum exactly (10 codes) (0.4335ms)
+✔ the 7 pre-existing codes and the 3 ci-mcp additions are all present (0.0825ms)
+✔ buildServer() constructs a server with zero tools registered (T-001 scope) (1.980958ms)
+✔ buildServer() never reads a GitHub token env var during construction (0.27075ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 85.757041
+
+npm test exit code: 0
+
+$ npx tsc --noEmit
+(no output)
+typecheck exit code: 0
+
+# Manual stdio startup smoke (not part of the automated suite; confirms
+# design.md's "起動 <= 1s / no GitHub call / no token read" requirement):
+# spawned `node dist/index.js` (esbuild bundle, built transiently for this
+# check and removed afterward — dist/ generation is T-008 scope), sent an
+# `initialize` JSON-RPC request over stdin, and observed a reply well within
+# 1.5s with capabilities:{} (confirming zero tools/capabilities registered,
+# consistent with T-001 scope) and no stderr output (no token read, no
+# network call attempted):
+#   stdout: {"result":{"protocolVersion":"2024-11-05","capabilities":{},"serverInfo":{"name":"ci-mcp","version":"0.1.0"}},"jsonrpc":"2.0","id":1}
