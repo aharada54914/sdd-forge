@@ -900,6 +900,24 @@
       "host_session_id": "hs-task-b-8eee4773-0012",
       "previous_record_sha256": "89efafb85c8b6af3639a2e98196dc24c69f2a3f2effa0ff11efbf160f092abfe",
       "record_sha256": "c00910aefa08ae9051283ab7095dfc469eec8023e98d2788800506d6d0400662"
+    },
+    {
+      "sequence": 101,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "task-a-cimcp-a2r1-20260707-4e1a",
+      "host_session_id": "hs-task-a-cimcp-0101",
+      "previous_record_sha256": "c00910aefa08ae9051283ab7095dfc469eec8023e98d2788800506d6d0400662",
+      "record_sha256": "d7d3e1653b2bc7689bc83c7be6d28884a64248cbf1ba6777f359c7b1837b6603"
+    },
+    {
+      "sequence": 102,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "task-b-cimcp-a2r1-20260707-7c2b",
+      "host_session_id": "hs-task-b-cimcp-0102",
+      "previous_record_sha256": "d7d3e1653b2bc7689bc83c7be6d28884a64248cbf1ba6777f359c7b1837b6603",
+      "record_sha256": "8cc8aab9b61436406a4448a8e08f077de9a6a7a48a5181a271794a9234cb30ea"
     }
   ]
 }

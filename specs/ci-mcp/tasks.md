@@ -1,6 +1,6 @@
 # Tasks: ci-mcp
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: specs/ci-mcp/requirements.md (Spec-Review-Status: Passed) /
 design.md (Impl-Review-Status: Passed) / Issue #67
