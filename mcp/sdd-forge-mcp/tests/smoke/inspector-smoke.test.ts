@@ -115,12 +115,13 @@ function runInspector(extraArgs: readonly string[]): InspectorInvocation {
   return { stdout: result.stdout, status: result.status };
 }
 
-test("inspector CLI: tools/list reports all 8 core tools + 5 evidence tools", () => {
+test("inspector CLI: tools/list reports all 8 core tools + 6 evidence tools", () => {
   const { stdout } = runInspector(["--method", "tools/list"]);
   const parsed = JSON.parse(stdout) as { tools: Array<{ name: string }> };
   const names = parsed.tools.map((t) => t.name).sort();
   assert.deepEqual(names, [
     "evidence_compare_to_traceability",
+    "evidence_deep_verify",
     "evidence_find_missing",
     "evidence_get_bundle",
     "evidence_summarize_contract_checks",
@@ -134,6 +135,30 @@ test("inspector CLI: tools/list reports all 8 core tools + 5 evidence tools", ()
     "list_blocked_tasks",
     "list_review_tickets",
   ]);
+});
+
+// AC-016 (REQ-001, REQ-013): `evidence_deep_verify` is registered in
+// server.ts (T-004) after the other 5 evidence tools (`evidence_get_bundle`,
+// `evidence_validate_paths`, `evidence_find_missing`,
+// `evidence_summarize_contract_checks`, `evidence_compare_to_traceability`),
+// so it is the *6th* evidence tool in registration order. This is checked
+// against `tools/list`'s response order directly (not the alphabetically
+// `.sort()`-ed list used above, which would put `evidence_deep_verify` 2nd)
+// to faithfully assert the design.md wording ("evidence 6 番目").
+test("inspector CLI: tools/list lists evidence_deep_verify as the 6th evidence tool (registration order)", () => {
+  const { stdout } = runInspector(["--method", "tools/list"]);
+  const parsed = JSON.parse(stdout) as { tools: Array<{ name: string }> };
+  const evidenceToolNames = parsed.tools.map((t) => t.name).filter((name) => name.startsWith("evidence_"));
+  assert.deepEqual(evidenceToolNames, [
+    "evidence_get_bundle",
+    "evidence_validate_paths",
+    "evidence_find_missing",
+    "evidence_summarize_contract_checks",
+    "evidence_compare_to_traceability",
+    "evidence_deep_verify",
+  ]);
+  assert.equal(evidenceToolNames.length, 6);
+  assert.equal(evidenceToolNames[5], "evidence_deep_verify");
 });
 
 test("inspector CLI: resources/list + resources/templates/list report 3 static + 2 template resources", () => {

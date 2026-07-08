@@ -282,6 +282,10 @@
       "profile": "full"
     },
     {
+      "feature": "evidence-deep-verify",
+      "profile": "full"
+    },
+    {
       "feature": "sdd-domain",
       "profile": "legacy",
       "legacy": {

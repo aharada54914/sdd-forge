@@ -1,0 +1,77 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "impl-a-evdeepverify-a1r1-20260708-5c1e",
+  "host_session_id": "hs-impl-a-evdeepverify-0121",
+  "legacy_design": false,
+  "feature_type": "api-only",
+  "allowed_input_manifest": [
+    {"path": "specs/evidence-deep-verify/design.md", "sha256": "b9ef1f7fca5427b2adcb6543b9b54b18237e227ac23e97b20ef6bb692e62d044"},
+    {"path": "specs/evidence-deep-verify/requirements.md", "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791"},
+    {"path": "specs/evidence-deep-verify/acceptance-tests.md", "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"},
+    {"path": "specs/evidence-deep-verify/ux-spec.md", "sha256": "39e21e8075f94dc5e47e145154dce689c28e7449734c66837fe53e5a62c8e272"},
+    {"path": "specs/evidence-deep-verify/frontend-spec.md", "sha256": "f540e1365d51ed36df38d1ad5cbed6548c095bca6eeb0227739b762f3010b4b8"},
+    {"path": "specs/evidence-deep-verify/infra-spec.md", "sha256": "87d868f5f92bc5c52cd731eab173801b8344677f012b384d35fd91265491ad5c"},
+    {"path": "specs/evidence-deep-verify/security-spec.md", "sha256": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json", "sha256": "5eba3e1739c25aefb89c7375859dea431561949b9219718e509809960ffe4831"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "## Architecture (design.md L20-38) provides all three required elements: (1) top-level component boundaries via mermaid flowchart (MCP client -> server.ts tool registration -> tools/evidence.ts evidenceDeepVerify -> parseEvidenceBundle/parseVerificationContract -> path-guard guardedRead -> envelope); (2) integration with existing components stated ('既存 5 ツールと同型', reuse of parseEvidenceBundle/parseVerificationContract/path-guard/envelope, key denylist node); (3) per-layer technology in the Components table (L40-51: TypeScript, @modelcontextprotocol/sdk, node:crypto SHA-256, JSON Schema). Interactions (per-artifact recompute, invariant recompute, denylist) are described, not merely named."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Explicit dependency declarations exist in the Architecture mermaid (L22-34) and Components table (L40-51). The directed graph server.ts -> evidence.ts -> {parseEvidenceBundle, parseVerificationContract, path-guard, envelope}, with path-guard/envelope as leaves, is acyclic; no component depends back on a predecessor. No cycle detected."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (design.md L78-89) specifies all three sub-fields: Data Entities ('なし / 永続データを持たない', with read targets enumerated: <feature>/verification/<taskId>.evidence.json, artifacts[].path, quality_report, verification_contract, spec files); Existing Data Affected ('なし / 書込みなし'); Migration Strategy ('不要 / read-only ツール追加', additive v1 contract, backward-compatible). Explicit 'no data changes' rationale present per sub-field."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "## API / Contract Plan (design.md L91-194) fully specifies the single new interface: tool evidence_deep_verify with input schema {feature: string, taskId: string} (zod, L95), complete response schema evidenceDeepVerifyData (L99-118: verdict, artifacts[] statuses, invariants, signature, failures), error envelope mapping (invalid-input/not-found/cannot-parse, L123-124), and explicit backward-compat/non-breaking statement (additive to okEnvelope.data.oneOf, v1 maintained, L88-89, L235). Deprecation/breaking-change status is addressed ('破壊的変更でない')."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Security boundaries are expressed. design.md delegates to the normative security-spec.md via its Layer Specifications table (L60, Security -> security-spec.md#trust-boundaries, owner+status Planned) and carries inline controls: Architecture (L36-38 no-exec/no-write/no-net, key denylist node L32), the '署名の扱い(REQ-008 の中心統制)' subsection (L188-194), and Constraint Compliance security row (L230). Treating security-spec.md as a normative refinement, all four required items are present: every trust boundary named (B1 client->tool, B2 tool->filesystem, B3 tool->key material; security-spec.md Trust Boundaries table L20-24); auth/authz per boundary (OS user boundary, path-guard allowlist/denylist, key read-forbidden; L22-24, Authorization table L45-50); PII/data classification (internal for bundle data, restricted for key material 'not handled'; Data Classification table L54-58); and OWASP Top 10 coverage (Cryptographic Failures, Broken Access Control, Injection, Software & Data Integrity Failures, Logging; OWASP Mapping L62-68). No coverage gap."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is api-only (design.md L4). This is a read-only MCP tool server with no frontend surface (ux-spec.md and frontend-spec.md are N/A/minimal-by-design; Layer Specifications L57-58 mark UX/Frontend 'N/A — no change'). No frontend plan to reconcile against the API contract."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (design.md L196-213) covers all test levels with concrete planned evidence: unit (determinism byte-equal, contract ajv), integration (tamper: 1-byte/recorded-sha/spec-drift; error-path: missing/too-large/invalid-recorded-sha), acceptance/host-parity (golden parity mapping to AC-012), plus named tooling and artifacts (node:test, ajv against contracts/sdd-forge-mcp-tools.v1.schema.json, static readonly checks in tests/readonly, tests/golden, MCP Inspector CLI tools/list smoke, dist-parity CI in .github/workflows/test.yml). acceptance-tests.md maps every AC-001..AC-019 to a TEST-NNN and concrete test target directory. For this api-only feature the equivalent of a journey path is the host-script parity golden (AC-012) and the tools/list smoke (AC-016)."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every component referenced in Architecture and API/Contract Plan is defined in the ## Components table (design.md L40-51): tools/evidence.ts (evidenceDeepVerify), server.ts, parsers/evidence.ts (parseEvidenceBundle/parseVerificationContract), parsers/evidence-bundle.ts (EvidenceBundle/EvidenceArtifact types), path-guard.ts (guardedRead/resolveGuarded), envelope.ts (ok/err/Result), and contracts/sdd-forge-mcp-tools.v1.schema.json. The ~/.sdd/evidence-key node is a denylist target (asset), not an implementation component requiring definition. All referenced components are either defined here or are established existing sdd-forge-mcp modules identifiable from requirements.md context (Issue #60 baseline)."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "## ADR Change Log (design.md L71-76) references ADR-0008 and ADR-0009; both exist as files: docs/adr/0008-evidence-deep-verify-no-signature-crypto.md and docs/adr/0009-evidence-deep-verify-match-host-canonical-formulas.md (verified present). The two new architectural decisions this feature introduces — no-signature-crypto / host-deferred git ancestry (ADR-0008) and verbatim match of host canonical formulas (ADR-0009) — are each covered by a corresponding new ADR. No uncovered architectural departure."
+    }
+  ]
+}

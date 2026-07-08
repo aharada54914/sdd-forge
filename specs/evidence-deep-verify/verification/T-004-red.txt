@@ -1,0 +1,60 @@
+✖ AC-001: evidence_deep_verify tool returns an ok pass envelope for a consistent bundle (8.399208ms)
+✖ error envelope: an invalid taskId maps to invalid-input through the tool (2.142167ms)
+✖ error envelope: an invalid feature maps to invalid-input through the tool (1.887167ms)
+✖ error envelope: a missing bundle maps to not-found through the tool (1.922334ms)
+✖ error envelope: a malformed-JSON bundle maps to cannot-parse through the tool (2.007667ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 100.282667
+
+✖ failing tests:
+
+test at dist-test/tests/tools/deep-verify-tool.test.js:25:1
+✖ AC-001: evidence_deep_verify tool returns an ok pass envelope for a consistent bundle (8.399208ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-tool.test.js:33:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3)
+
+test at dist-test/tests/tools/deep-verify-tool.test.js:54:1
+✖ error envelope: an invalid taskId maps to invalid-input through the tool (2.142167ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-tool.test.js:62:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/tools/deep-verify-tool.test.js:71:1
+✖ error envelope: an invalid feature maps to invalid-input through the tool (1.887167ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-tool.test.js:79:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/tools/deep-verify-tool.test.js:88:1
+✖ error envelope: a missing bundle maps to not-found through the tool (1.922334ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-tool.test.js:97:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)
+
+test at dist-test/tests/tools/deep-verify-tool.test.js:106:1
+✖ error envelope: a malformed-JSON bundle maps to cannot-parse through the tool (2.007667ms)
+  SyntaxError: Unexpected token 'M', "MCP error "... is not valid JSON
+      at JSON.parse (<anonymous>)
+      at parseEnvelope (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/evidence/test-helpers.js:81:17)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-tool.test.js:116:26)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7)

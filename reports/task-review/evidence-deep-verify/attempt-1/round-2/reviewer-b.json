@@ -1,0 +1,93 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "evidence-deep-verify",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "task-b-evdeepverify-a1r2-20260708-3639",
+  "host_session_id": "hs-task-b-evdeepverify-0126",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/evidence-deep-verify/requirements.md", "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791"},
+      {"path": "specs/evidence-deep-verify/acceptance-tests.md", "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"},
+      {"path": "specs/evidence-deep-verify/design.md", "sha256": "ec11cb926263502d55205a4f2c8039c0e1c18b5d89a3d60a2d59ad0935cf56a1"},
+      {"path": "specs/evidence-deep-verify/tasks.md", "sha256": "a6a00c68975a6d95238ca4b4baa60ad87d34c12cec7aa626e33748144f389f0a"},
+      {"path": "specs/evidence-deep-verify/traceability.md", "sha256": "8a3a3a7ab79466d1bd36f66d59f1a9622aaaca8d85703de531077ad9766faa94"},
+      {"path": "specs/evidence-deep-verify/ux-spec.md", "sha256": "39e21e8075f94dc5e47e145154dce689c28e7449734c66837fe53e5a62c8e272"},
+      {"path": "specs/evidence-deep-verify/frontend-spec.md", "sha256": "f540e1365d51ed36df38d1ad5cbed6548c095bca6eeb0227739b762f3010b4b8"},
+      {"path": "specs/evidence-deep-verify/infra-spec.md", "sha256": "87d868f5f92bc5c52cd731eab173801b8344677f012b384d35fd91265491ad5c"},
+      {"path": "specs/evidence-deep-verify/security-spec.md", "sha256": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "reports/task-review/evidence-deep-verify/attempt-1/round-2/precheck-result.json", "sha256": "7cb6fb3466beee7ff5dbecc32dda21cd9c053d64172544d97e6c2cd2b801f229"},
+      {"path": "reports/task-review/evidence-deep-verify/attempt-1/round-2/integrated-summary.json", "sha256": "c135fbe094af221dfdf1e70daa78973f00b1105d240870e23c2b56c9d28ff621"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "T-001..T-004 declare Risk: high with rationale citing security-spec.md boundaries (B2/B3), REQ-002/004/007/008/009/012, and path-guard/public-API-contract proximity (T-004 modifies contracts/sdd-forge-mcp-tools.v1.schema.json, an externally-visible API contract sentinel surface per risk-classification-policy.md). None of the high tasks are UI-copy/CSS/docs/test-only. T-005 (medium, test/golden-only, acceptance-first) and T-006 (low, docs/traceability-only) are consistent with their Scope/Done When. No over- or under-classification found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "T-001, T-002, T-003, T-004 (all Risk: high) each include in Done When: 'Red→Green evidence 記録(tdd)' and '独立レビュー verdict PASS が evidence に記録される' (independent review verdict recorded). No Risk: critical tasks are present, so the second-approver/signed-bundle requirement does not apply. No high task is missing either required item."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-004's Scope section spans 6 distinct implementation areas (mcp/sdd-forge-mcp/src/server.ts, src/tools/evidence.ts, contracts/sdd-forge-mcp-tools.v1.schema.json, dist/, tests/tools/, tests/smoke/), exceeding the 3-area oversized-task threshold, and its title joins 4 concerns with '+' ('ツール登録 + 契約(evidenceDeepVerifyData) + 決定論 + スモーク'), matching the multi-phase-title indicator. This risks the task being split mid-implementation across unrelated concerns (registration, contract schema, dist rebuild, smoke test) in a single focused session."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "T-001 covers AC-004/AC-005/AC-017 (missing/too-large/path-denied/invalid-recorded-sha error paths); T-002 covers AC-006/AC-007/AC-008/AC-009/AC-010/AC-019 (drift, malformed git_commit, cross-binding mismatch, absent-specs edge cases); T-004 covers AC-015 (invalid-input/not-found/cannot-parse error envelopes) alongside its happy-path AC-001. No functional task relies on happy-path-only ACs."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "TEST-007 and TEST-013 are declared 'unit' and target a single function boundary each (git_commit shape regex; determinism of one function call) — correct. TEST-001..006, 008-010, 017-019 are declared 'integration' and each involves ≥2 components (tool logic + path-guard + filesystem fixtures, or tool + spec files, or tool + contract/report files) — correct. TEST-012 (golden, host-script parity) and TEST-016 (smoke, MCP Inspector CLI) use established project-specific labels consistent with existing sdd-forge-mcp test suite conventions (tests/golden/, tests/smoke/) and reference the relevant AC (AC-012, AC-016) — no mismatch between declared type and scope width found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "T-001, T-002, T-003, T-004 (all Risk: high) each carry a 'Rollback:' field specifying commit revert as the recovery path (T-001/T-004 additionally reference design.md 'Deployment / CI Plan'). No high/critical task lacks rollback consideration."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "mcp/sdd-forge-mcp/src/tools/evidence.ts is claimed by T-001, T-002, T-003, and T-004, and mcp/sdd-forge-mcp/tests/tools/ is claimed by T-001, T-002, and T-004, but Blockers strictly chain them (T-002 blocked by T-001; T-003 blocked by T-001,T-002; T-004 blocked by T-001,T-002,T-003), matching the check's accepted incremental-same-file pattern. No uncoordinated parallel overlap: reviewer-a's DEPENDENCY-CYCLE check (integrated-summary.json) also reports PASS for the same dependency graph."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "T-002 depends on T-001's per-artifact/verdict skeleton (same evidence.ts); T-003 depends on T-001/T-002 to avoid uncoordinated edits to the same file and because static/no-secrets tests scope the code added so far; T-004 depends on T-001-T-003 because its Goal explicitly states it integrates their judgment cores into the complete evidenceDeepVerifyData response (no single function returns the full shape before T-004); T-005 depends on T-004 because its golden parity check (AC-012) exercises the fully integrated tool; T-006 depends on T-001-T-005 for accurate final documentation/traceability. No blocker lacks a corresponding scope dependency and no missing blocker was found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "Scope spans 6 distinct implementation areas (server.ts, evidence.ts, contracts schema, dist/, tests/tools/, tests/smoke/) exceeding the 3-area single-coherent-unit threshold; title joins 4 concerns with '+' (tool registration + contract + determinism + smoke), matching the multi-phase-title oversized indicator. Consider splitting the contract/schema addition and dist-parity rebuild from the server registration + integration-assembly + smoke-test work."
+    }
+  ]
+}

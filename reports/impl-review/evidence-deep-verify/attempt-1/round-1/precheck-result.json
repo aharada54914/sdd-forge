@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "evidence-deep-verify",
+  "attempt": 1,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "b9ef1f7fca5427b2adcb6543b9b54b18237e227ac23e97b20ef6bb692e62d044",
+  "requirements_sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791",
+  "acceptance_sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59",
+  "layer_sha256": {"ux-spec.md":"39e21e8075f94dc5e47e145154dce689c28e7449734c66837fe53e5a62c8e272","frontend-spec.md":"f540e1365d51ed36df38d1ad5cbed6548c095bca6eeb0227739b762f3010b4b8","infra-spec.md":"87d868f5f92bc5c52cd731eab173801b8344677f012b384d35fd91265491ad5c","security-spec.md":"ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"},
+  "input_sha256": "b453d9d1e2af19c8ed5c4f0bce7a914a9cc4270536a230c8a528d418cf198934",
+  "generated_at": "2026-07-08T00:57:54Z"
+}

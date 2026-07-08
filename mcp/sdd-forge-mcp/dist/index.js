@@ -35729,6 +35729,9 @@ function registerResources(server, root) {
   );
 }
 
+// src/tools/evidence.ts
+import { createHash as createHash2 } from "node:crypto";
+
 // src/parsers/evidence.ts
 var REQUIRED_BUNDLE_FIELDS = [
   "task_id",
@@ -36296,6 +36299,223 @@ function evidenceCompareToTraceability(root, feature) {
     mismatches
   });
 }
+var RECORDED_SHA256_PATTERN = /^[a-f0-9]{64}$/;
+var GIT_COMMIT_PATTERN = /^[0-9a-f]{40}$/;
+function sha256OfContents(contents) {
+  return createHash2("sha256").update(contents, "utf-8").digest("hex");
+}
+function escapeRegExp2(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+function canonicalArtifactsDigest(pairs2) {
+  const lines = pairs2.map((pair) => `${pair.path}\0${pair.sha256}`);
+  lines.sort();
+  return sha256OfContents(lines.join("\n"));
+}
+function classifyArtifact(root, artifact) {
+  const path = String(artifact.path ?? "").trim();
+  const recordedSha256 = String(artifact.sha256 ?? "").trim().toLowerCase();
+  if (!RECORDED_SHA256_PATTERN.test(recordedSha256)) {
+    return {
+      path,
+      recordedSha256,
+      status: "invalid-recorded-sha",
+      reason: "recorded sha256 is not 64-char lowercase hex"
+    };
+  }
+  const read = guardedRead(root, path);
+  if (!read.ok) {
+    const status = read.error.code === "too-large" ? "too-large" : read.error.code === "path-denied" ? "path-denied" : "missing";
+    return { path, recordedSha256, status, reason: read.error.message };
+  }
+  const computedSha256 = sha256OfContents(read.data.contents);
+  if (computedSha256 === recordedSha256) {
+    return { path, recordedSha256, computedSha256, status: "match" };
+  }
+  return {
+    path,
+    recordedSha256,
+    computedSha256,
+    status: "mismatch",
+    reason: "on-disk sha256 does not match recorded sha256"
+  };
+}
+function recomputeSpecRevision(root, feature, bundle) {
+  const specFiles = [
+    `specs/${feature}/requirements.md`,
+    `specs/${feature}/design.md`,
+    `specs/${feature}/acceptance-tests.md`
+  ];
+  const hasher = createHash2("sha256");
+  const filesHashed = [];
+  let foundAny = false;
+  for (const relPath of specFiles) {
+    const read = guardedRead(root, relPath);
+    if (read.ok) {
+      hasher.update(read.data.contents, "utf-8");
+      filesHashed.push(relPath);
+      foundAny = true;
+    }
+  }
+  const computed = foundAny ? hasher.digest("hex") : "";
+  const recorded = String(bundle.spec_revision ?? "");
+  return {
+    recorded,
+    computed,
+    status: recorded === computed ? "match" : "mismatch",
+    filesHashed
+  };
+}
+function verifyGitCommit(bundle) {
+  const value = String(bundle.git_commit ?? "");
+  const shapeValid = GIT_COMMIT_PATTERN.test(value);
+  return {
+    value,
+    shapeValid,
+    ancestryVerified: false,
+    reason: shapeValid ? "git_commit shape is valid (40 lowercase hex); HEAD/ancestor verification is host-deferred (no git subprocess in-process)" : "git_commit is not 40 lowercase hex; HEAD/ancestor verification is host-deferred"
+  };
+}
+function verifyContractBinding(root, bundle) {
+  const subject = "verification_contract";
+  const contractPath = String(bundle.verification_contract ?? "").trim();
+  if (contractPath.length === 0) {
+    return { subject, status: "mismatch", detail: "verification_contract path is missing" };
+  }
+  const read = guardedRead(root, contractPath);
+  if (!read.ok) {
+    return { subject, status: "mismatch", detail: `verification_contract unreadable: ${read.error.message}` };
+  }
+  let contract;
+  try {
+    contract = JSON.parse(read.data.contents);
+  } catch {
+    return { subject, status: "mismatch", detail: "verification_contract is not valid JSON" };
+  }
+  const contractTaskId = String(contract.task_id ?? "").trim();
+  const contractFeature = String(contract.feature ?? "").trim();
+  const bundleTaskId = String(bundle.task_id ?? "").trim();
+  const bundleFeature = String(bundle.feature ?? "").trim();
+  if (contractTaskId !== bundleTaskId) {
+    return {
+      subject,
+      status: "mismatch",
+      detail: `contract task_id '${contractTaskId}' != bundle task_id '${bundleTaskId}'`
+    };
+  }
+  if (contractFeature !== bundleFeature) {
+    return {
+      subject,
+      status: "mismatch",
+      detail: `contract feature '${contractFeature}' != bundle feature '${bundleFeature}'`
+    };
+  }
+  return { subject, status: "match", detail: "contract task_id and feature match the bundle" };
+}
+function verifyReportBinding(root, bundle) {
+  const subject = "quality_report";
+  const reportPath = String(bundle.quality_report ?? "").trim();
+  const bundleTaskId = String(bundle.task_id ?? "").trim();
+  const bundleFeature = String(bundle.feature ?? "").trim();
+  if (reportPath.length === 0) {
+    return { subject, status: "mismatch", detail: "quality_report path is missing" };
+  }
+  const read = guardedRead(root, reportPath);
+  if (!read.ok) {
+    return { subject, status: "mismatch", detail: `quality_report unreadable: ${read.error.message}` };
+  }
+  const text = read.data.contents;
+  const taskIdMatches = new RegExp(`^Task ID:\\s*${escapeRegExp2(bundleTaskId)}\\s*$`, "m").test(text);
+  if (!taskIdMatches) {
+    return { subject, status: "mismatch", detail: `quality_report is missing 'Task ID: ${bundleTaskId}'` };
+  }
+  if (bundleFeature.length > 0) {
+    const featureMatches = new RegExp(`^Feature:\\s*${escapeRegExp2(bundleFeature)}\\s*$`, "m").test(text);
+    if (!featureMatches) {
+      return { subject, status: "mismatch", detail: `quality_report Feature does not match '${bundleFeature}'` };
+    }
+  }
+  return { subject, status: "match", detail: "quality_report Task ID and Feature match the bundle" };
+}
+function echoSignature(bundle) {
+  const signature = bundle.signature;
+  const present = signature !== void 0 && signature !== null;
+  const note = "signature is echoed only; no signing key is read and no HMAC/crypto verification is performed (host responsibility, ADR-0008)";
+  if (present && typeof signature.alg === "string") {
+    return { present, alg: signature.alg, verified: false, note };
+  }
+  return { present, verified: false, note };
+}
+function evidenceDeepVerify(root, feature, taskId) {
+  const featureResult = validateFeature(feature);
+  if (!featureResult.ok) {
+    return featureResult;
+  }
+  const taskIdResult = validateTaskId(taskId);
+  if (!taskIdResult.ok) {
+    return taskIdResult;
+  }
+  const bundleResult = parseEvidenceBundle(root, feature, taskId);
+  if (!bundleResult.ok) {
+    return bundleResult;
+  }
+  const bundle = bundleResult.data;
+  const recordedArtifacts = Array.isArray(bundle.artifacts) ? bundle.artifacts : [];
+  const artifacts = recordedArtifacts.map((artifact) => classifyArtifact(root, artifact));
+  const recordedDigest = canonicalArtifactsDigest(
+    recordedArtifacts.map((artifact) => ({
+      path: String(artifact.path ?? "").trim(),
+      sha256: String(artifact.sha256 ?? "").trim().toLowerCase()
+    }))
+  );
+  const onDiskDigest = canonicalArtifactsDigest(
+    artifacts.map((result) => ({ path: result.path, sha256: result.computedSha256 ?? "" }))
+  );
+  const artifactsDigest = {
+    recorded: recordedDigest,
+    onDisk: onDiskDigest,
+    status: recordedDigest === onDiskDigest ? "match" : "mismatch"
+  };
+  const specRevision = recomputeSpecRevision(root, feature, bundle);
+  const gitCommit = verifyGitCommit(bundle);
+  const crossBindings = [verifyContractBinding(root, bundle), verifyReportBinding(root, bundle)];
+  const failures = [];
+  for (const result of artifacts) {
+    if (result.status !== "match") {
+      failures.push(
+        `artifact ${result.path}: ${result.status}${result.reason ? ` (${result.reason})` : ""}`
+      );
+    }
+  }
+  if (artifactsDigest.status !== "match") {
+    failures.push(
+      `artifacts digest mismatch: recorded ${artifactsDigest.recorded} != on-disk ${artifactsDigest.onDisk}`
+    );
+  }
+  if (specRevision.status !== "match") {
+    failures.push(
+      `spec_revision mismatch: recorded ${specRevision.recorded || "(empty)"} != computed ${specRevision.computed || "(empty)"}`
+    );
+  }
+  if (!gitCommit.shapeValid) {
+    failures.push(`git_commit shape invalid: ${gitCommit.value || "(missing)"}`);
+  }
+  for (const binding of crossBindings) {
+    if (binding.status !== "match") {
+      failures.push(`cross-binding ${binding.subject}: ${binding.detail}`);
+    }
+  }
+  return ok({
+    kind: "evidence-deep-verify",
+    feature,
+    taskId,
+    verdict: failures.length === 0 ? "pass" : "fail",
+    artifacts,
+    invariants: { artifactsDigest, specRevision, gitCommit, crossBindings },
+    signature: echoSignature(bundle),
+    failures
+  });
+}
 
 // src/server.ts
 var FEATURE_ARG = external_exports.string().describe("Feature directory name under specs/ (e.g. 'sdd-forge-mcp').");
@@ -36423,6 +36643,15 @@ function buildServer(root) {
       inputSchema: { feature: FEATURE_ARG }
     },
     ({ feature }) => toCallToolResult(evidenceCompareToTraceability(root, feature))
+  );
+  server.registerTool(
+    "evidence_deep_verify",
+    {
+      title: "Deep-verify an evidence bundle",
+      description: "Reads <taskId>.evidence.json and recomputes every artifact's sha256 from disk, the canonical artifacts digest, spec_revision, git_commit shape, and contract/report cross-bindings, reducing them to a deterministic pass/fail verdict with a failures list. Never reads a signing key, never verifies a signature (echoed with verified:false), and never spawns git \u2014 HEAD/ancestor checks are host-deferred.",
+      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG }
+    },
+    ({ feature, taskId }) => toCallToolResult(evidenceDeepVerify(root, feature, taskId))
   );
   registerResources(server, root);
   return server;

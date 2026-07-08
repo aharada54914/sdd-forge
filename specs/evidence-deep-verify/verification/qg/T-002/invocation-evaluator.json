@@ -1,0 +1,62 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "evidence-deep-verify",
+  "task_id": "T-002",
+  "run_id": "qg-eval-evidence-deep-verify-T-002-20260709-6909",
+  "host_session_id": "hs-qg-eval-T-002-0130",
+  "sequence": 130,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "38e4d7e3d0149cfd219d736ff6f42ac627cc3701188aea722838456c25c40104",
+  "previous_record_sha256": "f32e5b1e676229cae9590d3c6057493fe5ca15d86f882e3e0266dbb1aab4ab15",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/evidence-deep-verify/T-002.md",
+      "sha256": "4f82cb55a9bc8ab8b4ff41d6b937b53c68500d59f19870065f3ee89077964d62"
+    },
+    {
+      "path": "specs/evidence-deep-verify/acceptance-tests.md",
+      "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"
+    },
+    {
+      "path": "specs/evidence-deep-verify/design.md",
+      "sha256": "ec11cb926263502d55205a4f2c8039c0e1c18b5d89a3d60a2d59ad0935cf56a1"
+    },
+    {
+      "path": "specs/evidence-deep-verify/requirements.md",
+      "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791"
+    },
+    {
+      "path": "specs/evidence-deep-verify/security-spec.md",
+      "sha256": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"
+    },
+    {
+      "path": "specs/evidence-deep-verify/tasks.md",
+      "sha256": "b36ed730533adbffe3186e99d5c8b2c4b0c5b895daa805d0538bb765e62dcd5d"
+    },
+    {
+      "path": "specs/evidence-deep-verify/traceability.json",
+      "sha256": "7b2d3148b0c3b3dabbacce5f7a9c619753e5b0c34f31e20f3cc1479815003201"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify-invariants.test.ts",
+      "sha256": "0fcff6c24403358a4a960e31d23de7ddac379f71111a55abef284f0cf8a5f6b9"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/T-002-red.txt",
+      "sha256": "0452e06ecbee7c590cc9cc72e5b6e1e7e076a8e2710fdba24d485f566d1d609f"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/T-002-green.txt",
+      "sha256": "a7f884e242a02d736959c782094c2554cfab0e221b8fa1ef98dade31d0ca4078"
+    }
+  ]
+}

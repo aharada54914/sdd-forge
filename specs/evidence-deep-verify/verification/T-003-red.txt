@@ -1,0 +1,98 @@
+# T-003 RED evidence — evidence-deep-verify signature boundary (REQ-008 / AC-011 / AC-014)
+# Run: node --test tests/no-secrets/deep-verify-signature.test.js tests/readonly/deep-verify-static-check.test.js
+#
+# TDD note: T-001 already implemented echoSignature() satisfying REQ-008/ADR-0008,
+# so the 5 NEW guard tests PASS against the real implementation (see T-003-green.txt).
+# To prove the tests have teeth, echoSignature() was TEMPORARILY weakened to interpolate
+# process.env.SDD_EVIDENCE_KEY into the signature note (a deliberate key leak). The run
+# below is against that weakened implementation and is the RED baseline. The weakening
+# was reverted immediately afterward (git diff on src/tools/evidence.ts is empty).
+#
+# Expected RED: the two AC-011 behavioral tests (canary-in-response + key-invariance) and
+# the AC-014 static no-key scan fail; the error-path test (parse fails before echoSignature)
+# and the positive path-guard-import control stay green.
+
+=== RED RUN (echoSignature deliberately weakened to leak SDD_EVIDENCE_KEY) ===
+✖ AC-011: signature is echoed as present/verified:false without reading any signing key (4.322041ms)
+✖ AC-011: signing key material has zero effect on the output (behavioral proof it is never read) (2.713375ms)
+✔ AC-011: a thrown path (unreadable bundle) never carries the canary key value (1.742792ms)
+✖ src/tools/evidence.ts has zero write/subprocess/network/eval/key-read references (2.122292ms)
+✔ src/tools/evidence.ts reaches the disk only through path-guard's guarded helpers (0.177375ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 48.421666
+
+✖ failing tests:
+
+test at dist-test/tests/no-secrets/deep-verify-signature.test.js:92:1
+✖ AC-011: signature is echoed as present/verified:false without reading any signing key (4.322041ms)
+  AssertionError [ERR_ASSERTION]: canary signing key must not appear anywhere in the response
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/no-secrets/deep-verify-signature.test.js:114:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/no-secrets/deep-verify-signature.test.js:125:1
+✖ AC-011: signing key material has zero effect on the output (behavioral proof it is never read) (2.713375ms)
+  AssertionError [ERR_ASSERTION]: signing key material must not influence the deep-verify output
+  + actual - expected
+  
+  + '{"kind":"evidence-deep-verify","feature":"demo","taskId":"T-001","verdict":"pass","artifacts":[{"path":"reports/quality-gate/demo-T-001.md","recordedSha256":"2260e3ca0f8a5dce8df72572a9daa1c606f03d923646f9800c4e48dfe6feaa80","computedSha256":"2260e3ca0f8a5dce8df72572a9daa1c606f03d923646f9800c4e48dfe6feaa80","status":"match"},{"path":"specs/demo/verification/T-001.contract.json","recordedSha256":"33a7d9518eceac9b7cfee7d3618fa85d7c00e56e52c67bedb88cafceccc09b1c","computedSha256":"33a7d9518eceac9b7cfee7d3618fa85d7c00e56e52c67bedb88cafceccc09b1c","status":"match"},{"path":"specs/demo/artifact.md","recordedSha256":"3049558ad6ce79867d7d7dde237adf22a751dcf445c99afdfd6d18c44fc3e7d9","computedSha256":"3049558ad6ce79867d7d7dde237adf22a751dcf445c99afdfd6d18c44fc3e7d9","status":"match"}],"invariants":{"artifactsDigest":{"recorded":"01445641385e430b2a1db1a539e03c765c9871a147939b3c8184e9244072cb0f","onDisk":"01445641385e430b2a1db1a539e03c765c9871a147939b3c8184e9244072cb0f","status":"match"},"specRevision":{"recorded":"","computed":"","status":"match","filesHashed":[]},"gitCommit":{"value":"0000000000000000000000000000000000000000","shapeValid":true,"ancestryVerified":false,"reason":"git_commit shape is valid (40 lowercase hex); HEAD/ancestor verification is host-deferred (no git subprocess in-process)"},"crossBindings":[{"subject":"verification_contract","status":"match","detail":"contract task_id and feature match the bundle"},{"subject":"quality_report","status":"match","detail":"quality_report Task ID and Feature match the bundle"}]},"signature":{"present":true,"alg":"hmac-sha256","verified":false,"note":"signature is echoed only; no signing key is read and no HMAC/crypto verification is performed (host responsibility, ADR-0008) CANARY-SIGNING-KEY-a1b2c3d4e5f6a1b2c3d4e5f6-DO-NOT-LEAK"},"failures":[]}'
+  - '{"kind":"evidence-deep-verify","feature":"demo","taskId":"T-001","verdict":"pass","artifacts":[{"path":"reports/quality-gate/demo-T-001.md","recordedSha256":"2260e3ca0f8a5dce8df72572a9daa1c606f03d923646f9800c4e48dfe6feaa80","computedSha256":"2260e3ca0f8a5dce8df72572a9daa1c606f03d923646f9800c4e48dfe6feaa80","status":"match"},{"path":"specs/demo/verification/T-001.contract.json","recordedSha256":"33a7d9518eceac9b7cfee7d3618fa85d7c00e56e52c67bedb88cafceccc09b1c","computedSha256":"33a7d9518eceac9b7cfee7d3618fa85d7c00e56e52c67bedb88cafceccc09b1c","status":"match"},{"path":"specs/demo/artifact.md","recordedSha256":"3049558ad6ce79867d7d7dde237adf22a751dcf445c99afdfd6d18c44fc3e7d9","computedSha256":"3049558ad6ce79867d7d7dde237adf22a751dcf445c99afdfd6d18c44fc3e7d9","status":"match"}],"invariants":{"artifactsDigest":{"recorded":"01445641385e430b2a1db1a539e03c765c9871a147939b3c8184e9244072cb0f","onDisk":"01445641385e430b2a1db1a539e03c765c9871a147939b3c8184e9244072cb0f","status":"match"},"specRevision":{"recorded":"","computed":"","status":"match","filesHashed":[]},"gitCommit":{"value":"0000000000000000000000000000000000000000","shapeValid":true,"ancestryVerified":false,"reason":"git_commit shape is valid (40 lowercase hex); HEAD/ancestor verification is host-deferred (no git subprocess in-process)"},"crossBindings":[{"subject":"verification_contract","status":"match","detail":"contract task_id and feature match the bundle"},{"subject":"quality_report","status":"match","detail":"quality_report Task ID and Feature match the bundle"}]},"signature":{"present":true,"alg":"hmac-sha256","verified":false,"note":"signature is echoed only; no signing key is read and no HMAC/crypto verification is performed (host responsibility, ADR-0008) "},"failures":[]}'
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/no-secrets/deep-verify-signature.test.js:146:16)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:788:18)
+      at Test.postRun (node:internal/test_runner/test:1235:19)
+      at Test.run (node:internal/test_runner/test:1163:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: '{"kind":"evidence-deep-verify","feature":"demo","taskId":"T-001","verdict":"pass","artifacts":[{"path":"reports/quality-gate/demo-T-001.md","recordedSha256":"2260e3ca0f8a5dce8df72572a9daa1c606f03d923646f9800c4e48dfe6feaa80","computedSha256":"2260e3ca0f8a5dce8df72572a9daa1c606f03d923646f9800c4e48dfe6feaa80","status":"match"},{"path":"specs/demo/verification/T-001.contract.json","recordedSha256":"33a7d9518eceac9b7cfee7d3618fa85d7c00e56e52c67bedb88cafceccc09b1c","computedSha256":"33a7d9518eceac9b7cfee7d3618fa85d7c00e56e52c67bedb88cafceccc09b1c","status":"match"},{"path":"specs/demo/artifact.md","recordedSha256":"3049558ad6ce79867d7d7dde237adf22a751dcf445c99afdfd6d18c44fc3e7d9","computedSha256":"3049558ad6ce79867d7d7dde237adf22a751dcf445c99afdfd6d18c44fc3e7d9","status":"match"}],"invariants":{"artifactsDigest":{"recorded":"01445641385e430b2a1db1a539e03c765c9871a147939b3c8184e9244072cb0f","onDisk":"01445641385e430b2a1db1a539e03c765c9871a147939b3c8184e9244072cb0f","status":"match"},"specRevision":{"recorded":"","computed":"","status":"match","filesHashed":[]},"gitCommit":{"value":"0000000000000000000000000000000000000000","shapeValid":true,"ancestryVerified":false,"reason":"git_commit shape is valid (40 lowercase hex); HEAD/ancestor verification is host-deferred (no git subprocess in-process)"},"crossBindings":[{"subject":"verification_contract","status":"match","detail":"contract task_id and feature match the bundle"},{"subject":"quality_report","status":"match","detail":"quality_report Task ID and Feature match the bundle"}]},"signature":{"present":true,"alg":"hmac-sha256","verified":false,"note":"signature is echoed only; no signing key is read and no HMAC/crypto verification is performed (host responsibility, ADR-0008) CANARY-SIGNING-KEY-a1b2c3d4e5f6a1b2c3d4e5f6-DO-NOT-LEAK"},"failures":[]}',
+    expected: '{"kind":"evidence-deep-verify","feature":"demo","taskId":"T-001","verdict":"pass","artifacts":[{"path":"reports/quality-gate/demo-T-001.md","recordedSha256":"2260e3ca0f8a5dce8df72572a9daa1c606f03d923646f9800c4e48dfe6feaa80","computedSha256":"2260e3ca0f8a5dce8df72572a9daa1c606f03d923646f9800c4e48dfe6feaa80","status":"match"},{"path":"specs/demo/verification/T-001.contract.json","recordedSha256":"33a7d9518eceac9b7cfee7d3618fa85d7c00e56e52c67bedb88cafceccc09b1c","computedSha256":"33a7d9518eceac9b7cfee7d3618fa85d7c00e56e52c67bedb88cafceccc09b1c","status":"match"},{"path":"specs/demo/artifact.md","recordedSha256":"3049558ad6ce79867d7d7dde237adf22a751dcf445c99afdfd6d18c44fc3e7d9","computedSha256":"3049558ad6ce79867d7d7dde237adf22a751dcf445c99afdfd6d18c44fc3e7d9","status":"match"}],"invariants":{"artifactsDigest":{"recorded":"01445641385e430b2a1db1a539e03c765c9871a147939b3c8184e9244072cb0f","onDisk":"01445641385e430b2a1db1a539e03c765c9871a147939b3c8184e9244072cb0f","status":"match"},"specRevision":{"recorded":"","computed":"","status":"match","filesHashed":[]},"gitCommit":{"value":"0000000000000000000000000000000000000000","shapeValid":true,"ancestryVerified":false,"reason":"git_commit shape is valid (40 lowercase hex); HEAD/ancestor verification is host-deferred (no git subprocess in-process)"},"crossBindings":[{"subject":"verification_contract","status":"match","detail":"contract task_id and feature match the bundle"},{"subject":"quality_report","status":"match","detail":"quality_report Task ID and Feature match the bundle"}]},"signature":{"present":true,"alg":"hmac-sha256","verified":false,"note":"signature is echoed only; no signing key is read and no HMAC/crypto verification is performed (host responsibility, ADR-0008) "},"failures":[]}',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/readonly/deep-verify-static-check.test.js:149:1
+✖ src/tools/evidence.ts has zero write/subprocess/network/eval/key-read references (2.122292ms)
+  AssertionError [ERR_ASSERTION]: read-only / no-exec / no-key violation(s) in src/tools/evidence.ts:
+  signing-key acquisition reference: matched /SDD_EVIDENCE_KEY/
+  signing-key acquisition reference: matched /\bprocess\.env\b/
+  + actual - expected
+  
+  + [
+  +   'signing-key acquisition reference: matched /SDD_EVIDENCE_KEY/',
+  +   'signing-key acquisition reference: matched /\\bprocess\\.env\\b/'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/readonly/deep-verify-static-check.test.js:159:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at Test.start (node:internal/test_runner/test:1003:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:358:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'signing-key acquisition reference: matched /SDD_EVIDENCE_KEY/', 'signing-key acquisition reference: matched /\\bprocess\\.env\\b/' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

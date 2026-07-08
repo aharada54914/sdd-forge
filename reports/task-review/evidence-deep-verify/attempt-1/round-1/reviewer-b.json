@@ -1,0 +1,105 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "evidence-deep-verify",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "task-b-evdeepverify-a1r1-20260708-2198",
+  "host_session_id": "hs-task-b-evdeepverify-0124",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/evidence-deep-verify/requirements.md", "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791"},
+      {"path": "specs/evidence-deep-verify/acceptance-tests.md", "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"},
+      {"path": "specs/evidence-deep-verify/design.md", "sha256": "ec11cb926263502d55205a4f2c8039c0e1c18b5d89a3d60a2d59ad0935cf56a1"},
+      {"path": "specs/evidence-deep-verify/tasks.md", "sha256": "6afa2585320d6affb1c0027bf0e1a0ea5d809ac475b85603135d471352ed7211"},
+      {"path": "specs/evidence-deep-verify/traceability.md", "sha256": "8a3a3a7ab79466d1bd36f66d59f1a9622aaaca8d85703de531077ad9766faa94"},
+      {"path": "specs/evidence-deep-verify/ux-spec.md", "sha256": "39e21e8075f94dc5e47e145154dce689c28e7449734c66837fe53e5a62c8e272"},
+      {"path": "specs/evidence-deep-verify/frontend-spec.md", "sha256": "f540e1365d51ed36df38d1ad5cbed6548c095bca6eeb0227739b762f3010b4b8"},
+      {"path": "specs/evidence-deep-verify/infra-spec.md", "sha256": "87d868f5f92bc5c52cd731eab173801b8344677f012b384d35fd91265491ad5c"},
+      {"path": "specs/evidence-deep-verify/security-spec.md", "sha256": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "reports/task-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json", "sha256": "a0d5bb8aa72c93d1981d90fda35ad80440645edcb75c02570fd2162abb736432"},
+      {"path": "reports/task-review/evidence-deep-verify/attempt-1/round-1/integrated-summary.json", "sha256": "801b56ced8551500bbe809939cd6af6e6255ff3b42d0c63b0dba95858e4a9e1b"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-004 (tasks.md) is declared Risk: medium but its Scope explicitly includes 'mcp/sdd-forge-mcp/contracts/sdd-forge-mcp-tools.v1.schema.json(evidenceDeepVerifyData 加算)' and 'mcp/sdd-forge-mcp/src/server.ts(evidence_deep_verify 登録)' -- i.e. it registers a new externally-callable MCP tool and extends the externally-visible API contract consumed by AI clients (REQ-012). risk-classification-policy.md lists 'public API contracts' as a sensitive surface requiring Risk: high, and the RISK-APPROPRIATE proximity rule treats externally-visible API contract changes the same way. T-004's own Risk Rationale even concedes '契約の加算が後方互換を破ると既存クライアントに影響するため low ではない' but stops at medium instead of high. Because of this under-classification, risk-gate-matrix.md's high-tier minimum (tdd Red→Green evidence, independent-review verdict, requirement-traceability) is not mandated for the task that actually ships the contract change, leaving a silent-contract-break risk under-assured."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three Risk: high tasks (T-001, T-002, T-003 in tasks.md) carry Required Workflow: tdd and each Done When list includes 'Red→Green evidence 記録(tdd)' and '独立レビュー verdict PASS が evidence に記録される'. No task is declared Risk: critical, so the additional second-approver/signed-evidence-bundle requirement does not apply. No issues found."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001's Done When list (tasks.md lines 44-55) has 11 distinct verifiable items (AC-002/003, AC-004, AC-005, AC-017, AC-018, canonical-digest formula match, Red→Green evidence, independent review verdict, provenance bundle, implementation report, quality gate pass), and T-002's Done When list (lines 86-96) likewise has 11 items (AC-006, AC-007, AC-008, AC-009/010, AC-019, spec_revision formula match, Red→Green evidence, independent review verdict, provenance bundle, implementation report, quality gate pass). Both exceed the '>8 distinct verifiable items' oversized-task indicator. By contrast T-003 (7), T-004 (8), T-005 (4), and T-006 (4) stay within bounds, showing T-001/T-002 concentrate too many acceptance criteria (5-6 ACs each) plus the full process checklist into a single task."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md pairs every functional task with explicit error/edge-path ACs, not just happy-path AC-001: T-001 covers AC-002 (1-byte tamper), AC-003 (recorded-hash tamper), AC-004 (missing artifact), AC-005 (oversize/path-denied), AC-017 (invalid-recorded-sha), AC-018 (empty artifacts[]); T-002 covers AC-006 (spec drift), AC-007 (malformed git_commit), AC-008 (external commit), AC-009/AC-010 (cross-binding mismatch), AC-019 (absent specs); T-004's happy-path AC-001/AC-013/AC-016 is paired with AC-015's explicit invalid-input/not-found/cannot-parse error-envelope coverage. No functional task is left with happy-path-only coverage. No issues found."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Declared test types in acceptance-tests.md match their described scope: TEST-007 (AC-007, unit) targets a single pure format-validation boundary (`^[0-9a-f]{40}$`); TEST-001/002/003/006/009/010 (integration) each exercise bundle-parsing + path-guard disk reads + invariant recomputation, i.e. >=2 components; TEST-012 (golden, AC-012) explicitly compares tool output against host-script judgments across committed fixtures; TEST-014 (static, AC-014) is a grep-based source scan; TEST-016 (smoke, AC-016) drives the MCP Inspector CLI end-to-end tools/list workflow. No mismatched type/scope pairing found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Risk: high task carries an explicit Rollback field: T-001 'コミットを revert(既存 5 ツールは無変更で残置可能)。design.md「Deployment / CI Plan」参照。'; T-002 'コミットを revert(T-001 の per-artifact 判定は独立して残置可能)。'; T-003 'コミットを revert(署名エコーは parseEvidenceBundle 既存挙動へ戻る)。' All reference the additive/revertible nature of the change consistent with infra-spec.md's Rollback section (single-PR revert, ADR-0003). No issues found."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-002 Scope and T-003 Scope (tasks.md) both list the same primary implementation file 'mcp/sdd-forge-mcp/src/tools/evidence.ts' (T-002: 'invariants: specRevision / gitCommit / crossBinding'; T-003: 'signature エコー・verified:false 固定'), but T-002's Blockers is 'T-001' and T-003's Blockers is 'T-001' -- neither task blocks the other. Under the stated dependency graph both could be worked in parallel once T-001 lands, causing uncoordinated concurrent edits to the same source file before T-004 integrates them. This is not the 'create file / add tests for it' exception the check allows (both are production-source edits, not test-only), so it is an uncoordinated parallel scope overlap."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Blockers are logically justified given task scopes: T-002/T-003 -> T-001 (both extend the per-artifact/verdict skeleton T-001 establishes); T-004 -> T-001, T-002, T-003 (T-004's Goal explicitly states it 'T-001〜T-003 の判定核を統合して完全な evidenceDeepVerifyData 応答' -- integration genuinely needs all three); T-005 -> T-004 (golden parity in T-005 needs the fully assembled evidenceDeepVerifyData response T-004 produces, per T-004's Goal); T-006 -> T-001..T-005 (documentation/traceability finalization needs all prior work complete). No spurious or missing blockers identified beyond the SCOPE-DISJOINT finding already raised for T-002/T-003's file-level (not logical-dependency) overlap."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 6 tasks in tasks.md (T-001..T-006) are net-new feature-addition tasks for evidence_deep_verify; none is scoped as bugfix, regression fix, debugging, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "RISK-APPROPRIATE",
+      "severity": "Major",
+      "task_id": "T-004",
+      "finding": "T-004 is Risk: medium but its Scope modifies the externally-visible MCP tool contract (contracts/sdd-forge-mcp-tools.v1.schema.json, evidenceDeepVerifyData) and registers a new externally-callable tool in server.ts (REQ-012). risk-classification-policy.md lists 'public API contracts' as a high-tier sensitive surface; T-004's own Risk Rationale acknowledges client-facing impact but stops short of Risk: high, leaving the high-tier tdd/independent-review/requirement-traceability minimum unmandated for the task that ships the contract change."
+    },
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "T-001's Done When list has 11 distinct verifiable items (AC-002/003, AC-004, AC-005, AC-017, AC-018, canonical-digest formula match, Red→Green evidence, independent review verdict, provenance bundle, implementation report, quality gate pass), exceeding the '>8 distinct verifiable items' oversized-task indicator. T-002's Done When list is likewise 11 items (AC-006, AC-007, AC-008, AC-009/010, AC-019, spec_revision formula match, plus the same 5 process items), same defect."
+    },
+    {
+      "check_id": "SCOPE-DISJOINT",
+      "severity": "Major",
+      "task_id": "T-002",
+      "finding": "T-002 and T-003 both list 'mcp/sdd-forge-mcp/src/tools/evidence.ts' as scope but neither blocks the other (both Blockers: T-001 only), permitting uncoordinated parallel edits to the same production source file."
+    }
+  ]
+}

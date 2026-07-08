@@ -1,0 +1,63 @@
+{
+  "task_id": "T-001",
+  "feature": "evidence-deep-verify",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "334b3aba9c6cd195a342dad3bc86db554bdbe95b9ba919f8c8477efc03f3068d",
+  "quality_report": "reports/quality-gate/2026-07-09T013000Z-evidence-deep-verify-T-001.md",
+  "verification_contract": "specs/evidence-deep-verify/verification/T-001.contract.json",
+  "git_commit": "564e80fdeb46e4a1b48b6a6c02b2d76634256104",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 1,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/evidence-deep-verify/verification/T-001.contract.json",
+      "sha256": "f7fa8685a44ee15db684fd9bbaf219a1096434e2ac00b2c96f9059af4c40d444"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-09T013000Z-evidence-deep-verify-T-001.md",
+      "sha256": "9b226be4d40757d68f0db98543e96d86cf1960f7efb844781899963dbf4b33bb"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/qg/T-001/build.log",
+      "sha256": "8f45d27edd9a01cee3ee3bc88caea829c9654602efb6177253b20dba54700559"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/qg/T-001/check-placeholders.log",
+      "sha256": "66d486327ef04cca8dcaf961a6040db54cb33bbaa8598cc0a28e0cc868fcf79f"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/qg/T-001/check-task-state.log",
+      "sha256": "51e1b488b73a4d1d61b4a923aab100260654563e714c1fda04bbe5dd38abe2dc"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/qg/T-001/check-traceability.log",
+      "sha256": "24031c09a7555a3369e9a3adaa4c3d68ae4c94ac0068edd5cfeef2c036b2f005"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/qg/T-001/tests.log",
+      "sha256": "9fc5699dcf1246ff173704bf139a2dd0b01666f3d9dbdf96c2f92f853a7ec8f6"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/qg/T-001/typecheck.log",
+      "sha256": "d60aa1cfa33b4ef37cda7a2bc1f792d9888ff7b4780a39226ac7848d7c3332a1"
+    }
+  ]
+}

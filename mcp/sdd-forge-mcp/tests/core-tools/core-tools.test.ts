@@ -232,8 +232,8 @@ test("every tool's input schema never declares a root parameter", async () => {
   const fixture = await makeCoreToolsFixture("core-tools-no-root-param");
   try {
     const { tools } = await fixture.client.listTools();
-    // 8 core tools (T-004) + 5 evidence tools (T-005).
-    assert.ok(tools.length === 13, `expected 13 tools, got ${tools.length}`);
+    // 8 core tools (T-004) + 5 evidence tools (T-005) + evidence_deep_verify (evidence-deep-verify T-004).
+    assert.ok(tools.length === 14, `expected 14 tools, got ${tools.length}`);
     for (const tool of tools) {
       const properties = (tool.inputSchema as { properties?: Record<string, unknown> }).properties ?? {};
       assert.ok(!("root" in properties), `tool ${tool.name} must not declare a root input parameter`);
