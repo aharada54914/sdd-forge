@@ -1,0 +1,22 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-evdeepverify-a1r2-20260708-4d2b",
+  "host_session_id": "hs-spec-a-evdeepverify-0119",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/requirements.md", "sha256": "6dc431fea935016fabb45e69410305fe5be66b67b5a617e23b2a4d47a4a2bf29"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/acceptance-tests.md", "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-p5/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-p5/reports/spec-review/evidence-deep-verify/attempt-1/round-2/precheck-result.json", "sha256": "63741a59095267c6e0846be995af3785ff448955ae25e69c1dbf1473a8967621"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "REQ-TESTABILITY", "result": "PASS", "severity": "Critical", "finding": "All 13 requirements (REQ-001..REQ-013) are observable/measurable via concrete output fields and enumerated statuses. Each has at least one mapped executable AC: REQ-002 per-artifact status enum fully exercised by AC-002/003/004/005/017; REQ-005 spec_revision by AC-006/019; REQ-006 git_commit 40-hex shape by AC-007/008; REQ-008 no-key/no-sig-verify boundary by AC-011 + AC-014; REQ-009 host parity by AC-012; REQ-010 determinism by AC-013. No requirement is unverifiable intent."},
+    {"id": "GOAL-AC-TRACE", "result": "PASS", "severity": "Major", "finding": "Each Goal has a matching AC. Read-only deterministic re-verification -> AC-001 + AC-013. Exact parity with host canonical formulas -> golden AC-012. Maintain no-key-read/no-signature-verify boundary -> AC-011 + AC-014. No goal is left without observable coverage."},
+    {"id": "AC-OBSERVABLE", "result": "PASS", "severity": "Major", "finding": "All 19 ACs describe externally observable output with a Test ID/type/target each. The three round-1 gap-closers are observable and non-vacuous: AC-017 asserts status invalid-recorded-sha with an explicit no-misclassify-to-mismatch guard and no-throw fail; AC-018 asserts empty-set canonical-digest comparison with vacuous-truth pass unless another invariant fails; AC-019 asserts spec_revision recompute to '' with match/mismatch branches and no throw. Each maps to REQs and a distinct TEST (017/018/019)."},
+    {"id": "SCOPE-BOUNDARY", "result": "PASS", "severity": "Major", "finding": "Non-goals are explicit and bound the plausible expansion surface: HMAC signature crypto verify (host-deferred), git_commit HEAD/ancestry verify (no-exec boundary, OQ-001/ADR-0008), bundle rewrite/repair/signature-generation, contract self re-verification, new network/subprocess/fs-write, identity-ledger involvement. Edge Cases and Security Boundaries reinforce the deferred-vs-in-process split."},
+    {"id": "CONSTRAINTS-EXPLICIT", "result": "PASS", "severity": "Major", "finding": "Material constraints are stated: the central no-key-read/no-signature-verify control (REQ-008, B3), path-guard allowlist/denylist with allowlist-external -> path-denied (REQ-011), 2 MiB -> too-large, additive back-compatible v1 contract (REQ-012), determinism (REQ-010), verbatim reuse of host canonical formulas. Auth/authz delegation to OS-user boundary is explicit."},
+    {"id": "RISK-VALIDATION-SURFACE", "result": "PASS", "severity": "Major", "finding": "High-risk claims each carry a validation surface: canonical formula divergence -> golden parity AC-012; signature-key read leakage -> AC-011 + AC-014; exception on missing/oversize artifact -> exception-safety AC-004/005/017. No high-risk claim lacks a validation path, so SKIP does not apply."}
+  ]
+}

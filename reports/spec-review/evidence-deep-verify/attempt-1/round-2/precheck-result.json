@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "evidence-deep-verify",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "6dc431fea935016fabb45e69410305fe5be66b67b5a617e23b2a4d47a4a2bf29",
+  "acceptance_sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "9902033ca333b761705243d704a673555ed4c1423c4b6ac5b4d67d0086e5341b",
+  "edit_summary": "Added AC-017/018/019 + TESTs (invalid-recorded-sha, empty artifacts[], absent-specs spec_revision) per reviewer-b EDGE-CASE-COVERAGE",
+  "reset": false,
+  "generated_at": "2026-07-08T00:22:46Z"
+}
