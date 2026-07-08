@@ -56,7 +56,7 @@ None
 ## T-002 内部不変条件再計算(spec_revision / git_commit 形状 / cross-binding)
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: spec_revision の再計算式(specs/<feature>/{requirements,design,acceptance-tests}.md 連結の SHA-256)が host の compute_spec_revision と 1 バイトでもずれると REQ-009(判定一致)が破綻し、ゴールデン(AC-012)以前に検証体系全体の信頼を毀損する(ADR-0009)。git_commit 検証は 40-hex 形状のみで git を起動しない(no-exec 境界、ADR-0008)——ここで subprocess を導入すると B2/B3 境界違反となる。contract/report クロスバインドの欠陥は task_id/feature の取り違え(別タスクの証拠で Done を通す攻撃面)に直結する(REQ-007)。
 Required Workflow: tdd
