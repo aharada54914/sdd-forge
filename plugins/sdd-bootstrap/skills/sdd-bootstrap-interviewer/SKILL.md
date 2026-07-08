@@ -42,7 +42,9 @@ Claude Code:
 2. Attempt read-only URL retrieval when available; otherwise ask for issue text.
 3. Identify repository host as GitHub, GitLab, or local.
 4. In `feature`, `bugfix`, and `refactor` modes, inspect related code, tests,
-   contracts, and established patterns. Parallel agents may be used only for
+   contracts, and established patterns. If `specs/<feature>/codemap.md`
+   exists, read it first and limit fresh code exploration to areas it does
+   not cover. Parallel agents may be used only for
    investigation and independent pre-implementation review.
 5. If `specs/<feature>/investigation.md` exists, read it and carry all INV-xxx
    and BL-xxx IDs forward into requirements and traceability.
