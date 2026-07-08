@@ -89,7 +89,9 @@ import sys
 
 path = Path(sys.argv[1])
 content = path.read_text(encoding="utf-8")
-path.write_text(content.replace("## Unreleased", "## Unreleased\n\n## v1.10.0 duplicate", 1), encoding="utf-8")
+# Anchor on the changelog title (always present) rather than "## Unreleased",
+# which disappears right after a release bump and would make this a no-op.
+path.write_text(content.replace("# Changelog", "# Changelog\n\n## v1.10.0 duplicate", 1), encoding="utf-8")
 PY
 for validator in "${validators[@]}"; do
     expect_failure "mutated-changelog" "CHANGELOG.md must contain exactly one v1.10.0 release heading." "$validator"
