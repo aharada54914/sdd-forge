@@ -56,31 +56,56 @@ done
 tasks_done="$(sed 's/\r$//' "$tasks" | grep -c '^Status:[ \t]*Done[ \t]*$' || true)"
 tasks_blocked="$(sed 's/\r$//' "$tasks" | grep -c '^Status:[ \t]*Blocked[ \t]*$' || true)"
 
-# --- Quality-gate reports per task ----------------------------------------
+# --- Quality-gate reports per task (scoped to this feature) ----------------
+# Task IDs (T-NNN) restart per feature, so the same bare id lives in every
+# feature's reports. Restrict counting to reports whose own "Feature:" line
+# names this feature -- the same per-feature identity the evidence-bundle
+# validator keys on -- or T-002 from ci-mcp, sdd-domain, local-env-mcp, ...
+# would all be folded into one feature's totals. Trailing-space class tolerates
+# a CRLF carriage return on the Feature line.
 gate_total=0
 gate_blocked=0
 first_pass_tasks=0
 max_gate_runs=0
 if [ -d "reports/quality-gate" ]; then
+  feature_gate_files="$(grep -rlE "^Feature:[[:space:]]*${feature}[[:space:]]*$" reports/quality-gate 2>/dev/null || true)"
   for tid in $task_ids; do
-    n="$(grep -rl "Task: ${tid}\b" reports/quality-gate 2>/dev/null | wc -l | tr -d ' ')"
+    n=0
+    for gf in $feature_gate_files; do
+      grep -q "Task: ${tid}\b" "$gf" 2>/dev/null && n=$((n + 1))
+    done
     gate_total=$((gate_total + n))
     [ "$n" -gt "$max_gate_runs" ] && max_gate_runs="$n"
     if [ "$n" -eq 1 ]; then
       first_pass_tasks=$((first_pass_tasks + 1))
     fi
   done
-  gate_blocked="$(grep -rl 'BLOCKED' reports/quality-gate 2>/dev/null | wc -l | tr -d ' ')"
+  for gf in $feature_gate_files; do
+    grep -q 'BLOCKED' "$gf" 2>/dev/null && gate_blocked=$((gate_blocked + 1))
+  done
 fi
 
-# --- Review tickets by severity --------------------------------------------
+# --- Review tickets by severity (scoped to this feature) -------------------
+# The ticket schema (references/review-ticket-rules.md) keys a ticket to its
+# subject via target.feature. Without that scope every open ticket in the repo,
+# regardless of which feature it targets, is charged to this run record.
 tickets_critical=0
 tickets_major=0
 tickets_minor=0
 if [ -d "docs/review-tickets" ]; then
-  tickets_critical="$(grep -rl 'severity:[ \t]*critical' docs/review-tickets 2>/dev/null | wc -l | tr -d ' ')"
-  tickets_major="$(grep -rl 'severity:[ \t]*major' docs/review-tickets 2>/dev/null | wc -l | tr -d ' ')"
-  tickets_minor="$(grep -rl 'severity:[ \t]*minor' docs/review-tickets 2>/dev/null | wc -l | tr -d ' ')"
+  feature_ticket_files="$(grep -rlE "^[[:space:]]*feature:[[:space:]]*${feature}[[:space:]]*$" docs/review-tickets 2>/dev/null || true)"
+  for tf in $feature_ticket_files; do
+    # Anchor to the top-level severity field (like ^Status: above); an
+    # unanchored match would also pick up the word in free-text prose
+    # (e.g. a resolution_record) and misclassify the ticket.
+    if grep -qE '^severity:[ \t]*critical[ \t]*$' "$tf" 2>/dev/null; then
+      tickets_critical=$((tickets_critical + 1))
+    elif grep -qE '^severity:[ \t]*major[ \t]*$' "$tf" 2>/dev/null; then
+      tickets_major=$((tickets_major + 1))
+    elif grep -qE '^severity:[ \t]*minor[ \t]*$' "$tf" 2>/dev/null; then
+      tickets_minor=$((tickets_minor + 1))
+    fi
+  done
 fi
 
 # --- Active (Applied) WFIs --------------------------------------------------
