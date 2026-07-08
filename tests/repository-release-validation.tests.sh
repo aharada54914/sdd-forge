@@ -76,10 +76,10 @@ import sys
 
 path = Path(sys.argv[1])
 content = path.read_text(encoding="utf-8")
-path.write_text(content.replace("v1.9.0 —", "v9.9.9 —", 1), encoding="utf-8")
+path.write_text(content.replace("v1.10.0 —", "v9.9.9 —", 1), encoding="utf-8")
 PY
 for validator in "${validators[@]}"; do
-    expect_failure "mutated-readme" "README.md current release must be v1.9.0." "$validator"
+    expect_failure "mutated-readme" "README.md current release must be v1.10.0." "$validator"
 done
 
 cp "$temporary_root/README.md" "$fixture_root/README.md"
@@ -89,10 +89,10 @@ import sys
 
 path = Path(sys.argv[1])
 content = path.read_text(encoding="utf-8")
-path.write_text(content.replace("## Unreleased", "## Unreleased\n\n## v1.9.0 duplicate", 1), encoding="utf-8")
+path.write_text(content.replace("## Unreleased", "## Unreleased\n\n## v1.10.0 duplicate", 1), encoding="utf-8")
 PY
 for validator in "${validators[@]}"; do
-    expect_failure "mutated-changelog" "CHANGELOG.md must contain exactly one v1.9.0 release heading." "$validator"
+    expect_failure "mutated-changelog" "CHANGELOG.md must contain exactly one v1.10.0 release heading." "$validator"
 done
 
 cp "$temporary_root/CHANGELOG.md" "$fixture_root/CHANGELOG.md"

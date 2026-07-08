@@ -4,6 +4,13 @@
 
 Report Schema: implementation-report/v2
 
+**Snapshot Notice**: The numbers, statuses, and paths recorded below reflect
+the state at this report's own authoring run only. A later same-feature
+event -- another task's edit to the same surface, or a gate-phase artifact
+normalization such as a path move -- may supersede them. The quality
+verification gate's own report is the authority for the gate-time state;
+this report is not edited after the fact to reconcile it.
+
 ## Target
 
 {{target}}

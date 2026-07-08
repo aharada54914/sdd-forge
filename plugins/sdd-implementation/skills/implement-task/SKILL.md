@@ -97,7 +97,7 @@ resume, re-read `tasks.md` and the report before taking any action.
    advisory and non-blocking: record its screenshots and findings in the
    implementation report's Visual Evidence section; when it is skipped,
    record the skip reason instead.
-7. Create `reports/implementation/<task-id>.md` from the bundled template.
+7. Create `reports/implementation/<feature>/<task-id>.md` from the bundled template.
 8. Set the task to `Implementation Complete` only when implementation, required
    tests, related regression tests, and the report are complete.
 

@@ -1,6 +1,47 @@
 # Changelog
 
-## Unreleased
+## v1.10.0 (2026-07-09)
+
+### evidence deep-verify — 6番目の read-only evidence ツール(Issue #68 / Phase 5)
+
+- `sdd-forge-mcp` に `evidence_deep_verify` を追加(PR #106): evidence bundle の
+  深層再検証を MCP 経由で提供します。per-artifact SHA-256 再計算と 6 値ステータス
+  分類(match / mismatch / missing / too-large / path-denied /
+  invalid-recorded-sha、全読取 path-guard 経由・throw なし)、正準 artifacts
+  ダイジェストと spec_revision の host スクリプト逐語一致(ADR-0009)、
+  git_commit の 40-hex 形状検証(git 不起動、ancestry は host-deferred、
+  ADR-0008)、contract/report クロスバインド検証、署名の echo-only 境界
+  (`verified: false` 固定・署名鍵非読取)。契約 v1 に evidenceDeepVerifyData を
+  加算(後方互換)。host スクリプトとの判定一致ゴールデン(4 fixture 双方向)と
+  決定論・スモーク検証付き。全 8 タスクが独立 evaluator / light gate を
+  first-pass 8/8 で通過。
+
+### 修正
+
+- `emit-run-record` の gate_reports / review_tickets 集計を対象 feature に
+  スコープ(PR #103): タスク ID(T-NNN)は feature ごとに再利用されるため、
+  素の `Task: T-NNN` 一致では全 feature の実行が合算されていた。レポート自身の
+  `Feature:` 行 / チケットの `feature:` 行での絞り込みに変更し、feature slug の
+  正規表現エスケープと CRLF 耐性(severity 行)も追加。sh/ps1 パリティ回帰
+  テスト同梱。
+- DS-010 契約テストの ordered-checks 終端を DOMAIN-CONFORMANCE 追加後の実装に
+  整合(PR #100)。
+
+### 追加
+
+- スタンドアロン `adversarial-review` スキル(PR #102、plugins/ 外・可視性契約
+  非干渉): 2 レビュアーのブラインド並列レビュー → 相互批評 → 統合 →
+  fresh-context 修正検証のプロトコル。
+
+### ワークフロー改善(WFI-006 / WFI-007)
+
+- WFI-006(Issue #104): 実装レポートの散文陳腐化(4機能連続の friction)への
+  対応 — 実装レポートテンプレートに Snapshot Notice 欄を追加し、quality-gate
+  に「散文とゲート実測の乖離はゲートレポートに現時点値を記録する(凍結レポート
+  本文は改変しない)」手順を追記。
+- WFI-007(Issue #105): プラグイン文書 7 箇所の実装レポートパス記載を正準形式
+  `reports/implementation/<feature>/<task-id>.md` に統一(evaluator 起動境界の
+  要求パターンとの乖離解消。lite トラックは grep ベース探索のため対象外と判定)。
 
 ### WFI-004 プラグイン側フォローアップ(Issue #86)
 

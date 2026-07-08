@@ -1,7 +1,7 @@
 {
   "name": "sdd-domain",
   "description": "Domain-Driven Design upstream lane producing a human-approved domain model (domain story, event storming, ubiquitous language, context map, aggregates, message flow, C4 container) ahead of sdd-forge Phase 1.",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "author": {
     "name": "Harada"
   },
