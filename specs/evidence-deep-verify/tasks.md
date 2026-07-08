@@ -1,6 +1,6 @@
 # Tasks: evidence-deep-verify
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: specs/evidence-deep-verify/requirements.md (Spec-Review-Status: Passed) /
 design.md (Impl-Review-Status: Passed — integrated-verdict.json PASS,
