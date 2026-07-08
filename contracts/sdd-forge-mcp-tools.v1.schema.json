@@ -27,7 +27,8 @@
             { "$ref": "#/$defs/evidencePathsData" },
             { "$ref": "#/$defs/evidenceMissingData" },
             { "$ref": "#/$defs/contractChecksSummaryData" },
-            { "$ref": "#/$defs/traceabilityComparisonData" }
+            { "$ref": "#/$defs/traceabilityComparisonData" },
+            { "$ref": "#/$defs/evidenceDeepVerifyData" }
           ]
         }
       }
@@ -341,6 +342,99 @@
             }
           }
         }
+      }
+    },
+    "evidenceDeepVerifyData": {
+      "type": "object",
+      "description": "evidence_deep_verify: re-verifies a T-NNN.evidence.json bundle by recomputing each artifact's SHA-256 from disk (via path-guard) and recomputing the bundle's internal invariants using the exact host-script canonical formulas (evidence_canonical artifacts digest, compute_spec_revision, git_commit 40-hex shape, task_id/feature cross-bindings). The tool NEVER reads signing key material and NEVER verifies the HMAC/sigstore signature: signature is echoed (present + alg) with verified always false, and git HEAD/ancestor is host-deferred (ancestryVerified always false). Neither affects verdict.",
+      "additionalProperties": false,
+      "required": ["kind", "feature", "taskId", "verdict", "artifacts", "invariants", "signature", "failures"],
+      "properties": {
+        "kind": { "const": "evidence-deep-verify" },
+        "feature": { "$ref": "#/$defs/feature" },
+        "taskId": { "$ref": "#/$defs/taskId" },
+        "verdict": { "enum": ["pass", "fail"] },
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "recordedSha256", "status"],
+            "properties": {
+              "path": { "type": "string" },
+              "recordedSha256": { "type": "string" },
+              "computedSha256": { "type": "string" },
+              "status": {
+                "enum": ["match", "mismatch", "missing", "too-large", "path-denied", "invalid-recorded-sha"]
+              },
+              "reason": { "type": "string" }
+            }
+          }
+        },
+        "invariants": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["artifactsDigest", "specRevision", "gitCommit", "crossBindings"],
+          "properties": {
+            "artifactsDigest": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["recorded", "onDisk", "status"],
+              "properties": {
+                "recorded": { "type": "string" },
+                "onDisk": { "type": "string" },
+                "status": { "enum": ["match", "mismatch"] }
+              }
+            },
+            "specRevision": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["recorded", "computed", "status", "filesHashed"],
+              "properties": {
+                "recorded": { "type": "string" },
+                "computed": { "type": "string" },
+                "status": { "enum": ["match", "mismatch"] },
+                "filesHashed": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "gitCommit": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["value", "shapeValid", "ancestryVerified", "reason"],
+              "properties": {
+                "value": { "type": "string" },
+                "shapeValid": { "type": "boolean" },
+                "ancestryVerified": { "const": false },
+                "reason": { "type": "string" }
+              }
+            },
+            "crossBindings": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["subject", "status", "detail"],
+                "properties": {
+                  "subject": { "type": "string" },
+                  "status": { "enum": ["match", "mismatch"] },
+                  "detail": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "signature": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["present", "verified", "note"],
+          "properties": {
+            "present": { "type": "boolean" },
+            "alg": { "type": "string" },
+            "verified": { "const": false },
+            "note": { "type": "string" }
+          }
+        },
+        "failures": { "type": "array", "items": { "type": "string" } }
       }
     }
   }

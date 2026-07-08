@@ -1,0 +1,70 @@
+{
+  "feature": "evidence-deep-verify",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": ["AC-001", "AC-016"],
+      "tests": ["TEST-001", "TEST-016"]
+    },
+    {
+      "req": "REQ-002",
+      "acs": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005"],
+      "tests": ["TEST-001", "TEST-002", "TEST-003", "TEST-004", "TEST-005"]
+    },
+    {
+      "req": "REQ-003",
+      "acs": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-006", "AC-007", "AC-009", "AC-010"],
+      "tests": ["TEST-001", "TEST-002", "TEST-003", "TEST-004", "TEST-006", "TEST-007", "TEST-009", "TEST-010"]
+    },
+    {
+      "req": "REQ-004",
+      "acs": ["AC-001", "AC-002"],
+      "tests": ["TEST-001", "TEST-002"]
+    },
+    {
+      "req": "REQ-005",
+      "acs": ["AC-001", "AC-006"],
+      "tests": ["TEST-001", "TEST-006"]
+    },
+    {
+      "req": "REQ-006",
+      "acs": ["AC-007", "AC-008"],
+      "tests": ["TEST-007", "TEST-008"]
+    },
+    {
+      "req": "REQ-007",
+      "acs": ["AC-001", "AC-009", "AC-010"],
+      "tests": ["TEST-001", "TEST-009", "TEST-010"]
+    },
+    {
+      "req": "REQ-008",
+      "acs": ["AC-008", "AC-011", "AC-014"],
+      "tests": ["TEST-008", "TEST-011", "TEST-014"]
+    },
+    {
+      "req": "REQ-009",
+      "acs": ["AC-012"],
+      "tests": ["TEST-012"]
+    },
+    {
+      "req": "REQ-010",
+      "acs": ["AC-013"],
+      "tests": ["TEST-013"]
+    },
+    {
+      "req": "REQ-011",
+      "acs": ["AC-004", "AC-005", "AC-014"],
+      "tests": ["TEST-004", "TEST-005", "TEST-014"]
+    },
+    {
+      "req": "REQ-012",
+      "acs": ["AC-015"],
+      "tests": ["TEST-015"]
+    },
+    {
+      "req": "REQ-013",
+      "acs": ["AC-016"],
+      "tests": ["TEST-016"]
+    }
+  ]
+}
