@@ -141,6 +141,7 @@ $requiredFiles = @(
     "plugins/sdd-bootstrap/skills/investigate-codebase/SKILL.md",
     "plugins/sdd-bootstrap/skills/investigate-codebase/templates/investigation.template.md",
     "plugins/sdd-bootstrap/skills/investigate-codebase/templates/baseline-behavior.template.md",
+    "plugins/sdd-bootstrap/skills/investigate-codebase/templates/codemap.template.md",
     "plugins/sdd-bootstrap/agents/investigator.md",
     "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/architecture-review-checklist.md",
     "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/c4-context.template.md",

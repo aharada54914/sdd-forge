@@ -74,8 +74,8 @@ Stop after sdd-adopt completes. Remind the user to run
 ### `investigate` mode
 
 Delegate entirely to `/sdd-bootstrap:investigate-codebase <mode> <source>`.
-Stop after investigation completes. Outputs: `specs/<feature>/investigation.md`
-and `specs/<feature>/baseline-behavior.md`.
+Stop after investigation completes. Outputs: `specs/<feature>/investigation.md`,
+`specs/<feature>/codemap.md`, and `specs/<feature>/baseline-behavior.md`.
 
 ### Track selection
 
@@ -130,6 +130,24 @@ no ADR). LITE produces zero layer outputs: no `ux-spec.md`,
 the same.
 
 Next step after approval: `/sdd-ship:ship --lite specs/<slug>/tasks.md`
+
+## Context Compaction
+
+Bootstrap sessions are long. Every phase output is persisted on disk
+(`specs/<feature>/*.md` and the review reports), so a compacted or fresh
+context can resume from any gate boundary by re-reading those files.
+
+Compact (or accept auto-compaction) only at phase boundaries:
+
+- after `investigate-codebase` completes — findings persist in
+  `investigation.md`, `codemap.md`, and `baseline-behavior.md`
+- after a review gate returns PASS (spec-review, impl-review, task-review)
+- at the Approval Gate, before handing off to `/sdd-ship:ship`
+
+Do not compact in the middle of an interviewer phase or an active review
+round: interview answers and reviewer context not yet written to disk are
+lost. If context pressure forces it, have the interviewer write its current
+outputs to `specs/<feature>/` first, then compact.
 
 ## Handoff
 

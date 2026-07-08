@@ -44,6 +44,9 @@ carries a `design-system/` directory, also read
 `design-system/design-system.md` and `design-system/ui-patterns.md`; for
 other tasks do not load them.
 
+If `specs/<feature>/codemap.md` exists, read it before any repository
+exploration and limit fresh searches to areas it does not cover.
+
 ### Sudo Mode
 
 If a valid `SDD_SUDO` flag file exists at the project root (see

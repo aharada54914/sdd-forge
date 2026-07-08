@@ -54,6 +54,12 @@ Always produce:
 - `specs/<feature>/investigation.md` — populated from
   `templates/investigation.template.md`. Each finding carries an `INV-NNN` ID
   and an evidence reference (`file:line`).
+- `specs/<feature>/codemap.md` — populated from
+  `templates/codemap.template.md`. A token-lean architecture map (entry
+  points, module topology, key symbols, external dependencies, test map)
+  derived from the INV-NNN findings. Downstream skills read this file first
+  and limit fresh repository exploration to areas it does not cover.
+  Regenerate it whenever `investigation.md` changes.
 
 For `bugfix` and `refactor` modes also produce:
 
@@ -81,10 +87,12 @@ continuing.
 
 ## Handoff
 
-Pass `specs/<feature>/investigation.md` and (when present)
-`specs/<feature>/baseline-behavior.md` to `sdd-bootstrap-interviewer` as
-context. INV-xxx and BL-xxx IDs must be carried forward into requirements,
-design, tasks, and traceability.
+Pass `specs/<feature>/investigation.md`, `specs/<feature>/codemap.md`, and
+(when present) `specs/<feature>/baseline-behavior.md` to
+`sdd-bootstrap-interviewer` as context. INV-xxx and BL-xxx IDs must be
+carried forward into requirements, design, tasks, and traceability.
+Downstream skills treat `codemap.md` as the first-stop map of the repository
+so they do not repeat the exploration this skill already performed.
 
 ## References
 
