@@ -94,7 +94,7 @@ T-001
 ## T-003 署名境界(no-key / no-verify)+ 静的 read-only 検査
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: 本タスクは Issue #68 の最重要セキュリティ不変条件(REQ-008、ADR-0008、security-spec.md B3)を担う。署名鍵(~/.sdd/evidence-key 等)の読取経路が 1 つでも入ると、MCP ツール経由の鍵流出(Information Disclosure)と、ツール側での署名検証という誤った信頼委譲(host 検証の形骸化)に直結する。canary 検査・静的検査の穴は資格情報流出の検知漏れとなる。
 Required Workflow: tdd
