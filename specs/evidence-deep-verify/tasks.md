@@ -164,7 +164,7 @@ T-001, T-002, T-003
 ## T-007 evidenceDeepVerifyData 契約加算(v1 後方互換)
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: 本タスクは外部可視の公開 API 契約(contracts/sdd-forge-mcp-tools.v1.schema.json)へ evidenceDeepVerifyData を加算する(REQ-012)。risk-classification-policy.md は公開 API 契約を high tier の sentinel surface に列挙しており、加算が後方互換を破ると既存クライアント全体に波及する。契約を出荷するタスクとして high の証跡最低線(tdd Red→Green・独立レビュー・provenance bundle)を課す。
 Required Workflow: tdd

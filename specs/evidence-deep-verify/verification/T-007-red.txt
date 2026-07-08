@@ -1,0 +1,52 @@
+# T-007 RED — AC-015 contract conformance
+# evidenceDeepVerifyData branch removed from contracts/sdd-forge-mcp-tools.v1.schema.json
+# (branch was authored in Phase 1 spec commit 9a15828; backed out here to establish the TDD red baseline)
+# Command: node --test dist-test/tests/tools/deep-verify-contract-conformance.test.js
+# Date: 2026-07-08T16:28:41Z
+# ----------------------------------------------------------------------
+✖ AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv) (37.147167ms)
+✖ AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv) (3.237417ms)
+✔ AC-015: an invalid-input error envelope conforms to the v1 contract (ajv) (2.143167ms)
+✔ AC-015: a not-found error envelope conforms to the v1 contract (ajv) (1.9735ms)
+✔ AC-015: a cannot-parse error envelope conforms to the v1 contract (ajv) (2.058583ms)
+✔ AC-015 additivity: the existing five evidence tool responses still conform to the v1 contract (6.551167ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 4
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 136.334375
+
+✖ failing tests:
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:32:1
+✖ AC-015: a passing evidence_deep_verify response conforms to the v1 contract (ajv) (37.147167ms)
+  AssertionError [ERR_ASSERTION]: passing evidence_deep_verify envelope does not conform to the v1 contract: [{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasksFile"},"message":"must have required property 'tasksFile'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"specs"},"message":"must have required property 'specs'"},{"instancePath":"/data","schemaPath":"#/additionalProperties","keyword":"additionalProperties","params":{"additionalProperty":"taskId"},"message":"must NOT have additional properties"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasks"},"message":"must have required property 'tasks'"},{"instancePath":"/data","schemaPath":"#/$defs/reviewTicketsData/required","keyword":"required","params":{"missingProperty":"tickets"},"message":"must have required property 'tickets'"},{"instancePath":"/data","schemaPath":"#/$defs/qualityGateSummaryData/required","keyword":"required","params":{"missingProperty":"reports"},"message":"must have required property 'reports'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"phase"},"message":"must have required property 'phase'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"bundle"},"message":"must have required property 'bundle'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"results"},"message":"must have required property 'results'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"required"},"message":"must have required property 'required'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"checks"},"message":"must have required property 'checks'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"matches"},"message":"must have required property 'matches'"},{"instancePath":"/data","schemaPath":"#/properties/data/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"},{"instancePath":"","schemaPath":"#/$defs/errorEnvelope/required","keyword":"required","params":{"missingProperty":"error"},"message":"must have required property 'error'"},{"instancePath":"","schemaPath":"#/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"}]
+      at assertConforms (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-contract-conformance.test.js:30:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-contract-conformance.test.js:43:9)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/tools/deep-verify-contract-conformance.test.js:49:1
+✖ AC-015: a failing evidence_deep_verify response (mixed statuses) conforms to the v1 contract (ajv) (3.237417ms)
+  AssertionError [ERR_ASSERTION]: failing evidence_deep_verify envelope does not conform to the v1 contract: [{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasksFile"},"message":"must have required property 'tasksFile'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"specs"},"message":"must have required property 'specs'"},{"instancePath":"/data","schemaPath":"#/additionalProperties","keyword":"additionalProperties","params":{"additionalProperty":"taskId"},"message":"must NOT have additional properties"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"tasks"},"message":"must have required property 'tasks'"},{"instancePath":"/data","schemaPath":"#/$defs/reviewTicketsData/required","keyword":"required","params":{"missingProperty":"tickets"},"message":"must have required property 'tickets'"},{"instancePath":"/data","schemaPath":"#/$defs/qualityGateSummaryData/required","keyword":"required","params":{"missingProperty":"reports"},"message":"must have required property 'reports'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"phase"},"message":"must have required property 'phase'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"bundle"},"message":"must have required property 'bundle'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"results"},"message":"must have required property 'results'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"required"},"message":"must have required property 'required'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"checks"},"message":"must have required property 'checks'"},{"instancePath":"/data","schemaPath":"#/required","keyword":"required","params":{"missingProperty":"matches"},"message":"must have required property 'matches'"},{"instancePath":"/data","schemaPath":"#/properties/data/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"},{"instancePath":"","schemaPath":"#/$defs/errorEnvelope/required","keyword":"required","params":{"missingProperty":"error"},"message":"must have required property 'error'"},{"instancePath":"","schemaPath":"#/oneOf","keyword":"oneOf","params":{"passingSchemas":null},"message":"must match exactly one schema in oneOf"}]
+      at assertConforms (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-contract-conformance.test.js:30:12)
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/tools/deep-verify-contract-conformance.test.js:79:9)
+      at async Test.run (node:internal/test_runner/test:1113:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
