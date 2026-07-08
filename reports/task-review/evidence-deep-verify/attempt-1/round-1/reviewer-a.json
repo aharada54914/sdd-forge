@@ -1,0 +1,112 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "evidence-deep-verify",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "task-a-evdeepverify-a1r1-20260708-2868",
+  "host_session_id": "hs-task-a-evdeepverify-0123",
+  "manifest": [
+    {"path": "specs/evidence-deep-verify/requirements.md", "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791"},
+    {"path": "specs/evidence-deep-verify/acceptance-tests.md", "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"},
+    {"path": "specs/evidence-deep-verify/design.md", "sha256": "ec11cb926263502d55205a4f2c8039c0e1c18b5d89a3d60a2d59ad0935cf56a1"},
+    {"path": "specs/evidence-deep-verify/tasks.md", "sha256": "6afa2585320d6affb1c0027bf0e1a0ea5d809ac475b85603135d471352ed7211"},
+    {"path": "specs/evidence-deep-verify/traceability.md", "sha256": "8a3a3a7ab79466d1bd36f66d59f1a9622aaaca8d85703de531077ad9766faa94"},
+    {"path": "specs/evidence-deep-verify/ux-spec.md", "sha256": "39e21e8075f94dc5e47e145154dce689c28e7449734c66837fe53e5a62c8e272"},
+    {"path": "specs/evidence-deep-verify/frontend-spec.md", "sha256": "f540e1365d51ed36df38d1ad5cbed6548c095bca6eeb0227739b762f3010b4b8"},
+    {"path": "specs/evidence-deep-verify/infra-spec.md", "sha256": "87d868f5f92bc5c52cd731eab173801b8344677f012b384d35fd91265491ad5c"},
+    {"path": "specs/evidence-deep-verify/security-spec.md", "sha256": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"},
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/task-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json", "sha256": "a0d5bb8aa72c93d1981d90fda35ad80440645edcb75c02570fd2162abb736432"},
+    {"path": "reports/task-review/evidence-deep-verify/attempt-1/round-1/dependency-graph.json", "sha256": "afbad64fddb3bb8b8626d94cd4d62ef15392ff8986cf3146c4e1cc677cbaab46"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "tasks.md `Requirements:` fields contain only REQ-NNN identifiers (e.g. T-001 Requirements: REQ-002, REQ-003, REQ-004, REQ-011); no AC-NNN identifiers appear in any Requirements field, so no dangling AC reference exists there. All AC-NNN identifiers that appear elsewhere in tasks.md (in Done When lists, e.g. T-001's AC-002/003/004/005/017/018) resolve to real criteria AC-001..AC-019 defined in acceptance-tests.md."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 6 tasks use valid Blockers format: T-001 'None'; T-002 'T-001'; T-003 'T-001'; T-004 'T-001, T-002, T-003'; T-005 'T-004'; T-006 'T-001, T-002, T-003, T-004, T-005'. No range notation or prose. Confirms precheck-result.json blockers_format_valid: true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md defines REQ-001..REQ-013. Union of tasks.md Requirements fields (T-001: REQ-002/003/004/011; T-002: REQ-005/006/007; T-003: REQ-008; T-004: REQ-001/010/012/013; T-005: REQ-009; T-006: REQ-001/013) covers REQ-001 through REQ-013 with no gaps."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "acceptance-tests.md defines AC-001..AC-019. traceability.md's 'AC → TEST → Task' table maps every AC-001..AC-019 to exactly one Task-ID (e.g. AC-001→T-004, AC-012→T-005, AC-019→T-002), and tasks.md Done When lists explicitly cite the same AC-NNN per task (e.g. T-001 cites AC-002/003/004/005/017/018; T-005 cites AC-012). No AC is left uncovered."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task (T-001..T-006) has a non-empty `Requirements:` field referencing real REQ-NNN IDs (verified above under REQ-COVERAGE). No task references only INFRA/HOUSEKEEPING or omits Requirements."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-005 ('host スクリプト判定一致ゴールデン(parity)') has scope exclusively in mcp/sdd-forge-mcp/tests/golden/ and qualifies as a test task by scope; its Done When explicitly cites AC-012, so it is not orphaned. T-003's title contains the substring 'verify' (in 'no-verify'); its Done When explicitly cites AC-011 and AC-014, so it is not orphaned either. No test task lacks an AC reference."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All 6 tasks (T-001..T-006) show 'Approval: Draft' and 'Status: Planned', matching the round-1/attempt-1 pre-implementation requirement."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Every task declares both Risk and Required Workflow, and pairings match the risk-gate-matrix: T-001 high/tdd, T-002 high/tdd, T-003 high/tdd, T-004 medium/acceptance-first, T-005 medium/acceptance-first, T-006 low/test-after. precheck-result.json workflow_match_precheck: PASS confirms no mismatch."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md's AC→TEST→Task table assigns each AC-001..AC-019 to exactly one Task-ID with no duplicate primary-test-target assignment (e.g. AC-002/003/004/005/017/018 → T-001 only; AC-006/007/008/009/010/019 → T-002 only). tasks.md Done When lists mirror this 1:1 mapping with no AC repeated across tasks."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "dependency-graph.json nodes = [T-001..T-006]. Every Blockers reference in tasks.md (T-001, T-002, T-003, T-004, T-005) resolves to an existing node; no dangling task ID references."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json edges form a DAG: T-001 (no deps) -> {T-002, T-003} -> T-004 -> T-005 -> T-006. Following edges from any node terminates without revisiting a node; no cycle detected."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No task title or scope connects two distinct feature concerns with 'and'. T-001/T-002/T-003 scopes pair core logic with directly-tied tests (exception 1). T-004 bundles tool registration + contract addition + dist rebuild + tests as one coherent 'wire the tool end-to-end' integration concern (mirrors design.md's single Components grouping, and Rollback states a single revert undoes all of it together). T-005 scope is exclusively tests/golden/ (single concern). T-006 bundles README/USERGUIDE updates with traceability-addendum finalization as mandatory housekeeping tied to WFI-004 post-review artifact freeze (exception 2)."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No Done When item uses the forbidden vague verbs/phrases (ensure/consider/update-without-target/verify-is-correct/works-correctly/review-without-outcome/confirm-without-result). Each Done When item names an observable status value tied to an AC (e.g. T-001: 'AC-004: 成果物欠落が missing(throw なし)+ verdict fail に写像される'; T-002: 'AC-008: ...形状 pass + ancestryVerified: false、git プロセスを起動しない'). Every task (including documentation-only T-006, which names exact files README.md/USERGUIDE.md and an addendum artifact) includes at least one item naming a concrete artifact: '実装レポート作成(reports/implementation/evidence-deep-verify-T-NNN.md)' names an exact file in all 6 tasks, and T-001/T-002 additionally require the canonical digest/spec_revision formulas to verbatim-match host scripts (code-inspectable)."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md 'Task → REQ' table lists T-001..T-006, matching all task IDs in tasks.md exactly. All REQ-001..REQ-013 cited in traceability.md exist in requirements.md. For this full-profile feature, every REQ row in traceability.md's 'REQ → 根拠 / Layer Spec' table has either a canonical `<layer>-spec.md#<section>` anchor (e.g. REQ-002/005/011 → security-spec.md#trust-boundaries; REQ-006 → security-spec.md#stride-analysis; REQ-008 → security-spec.md#trust-boundaries;security-spec.md#secrets-management; REQ-009 → security-spec.md#security-tests; REQ-010 → infra-spec.md#service-level-objectives; REQ-013 → frontend-spec.md#testing) or a reasoned 'N/A — cross-layer only: <reason>' value (REQ-001, REQ-003, REQ-004, REQ-007, REQ-012). All cited anchors correspond to real section headers verified present in the hash-bound layer documents (e.g. security-spec.md has '## Trust Boundaries', '## STRIDE Analysis', '## Secrets Management', '## Security Tests'; infra-spec.md has '## Service Level Objectives'; frontend-spec.md has '## Testing')."
+    }
+  ],
+  "findings": []
+}
