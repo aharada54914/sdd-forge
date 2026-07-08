@@ -256,7 +256,7 @@ T-008
 ## T-006 ドキュメント + traceability 最終化
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: low
 Risk Rationale: README / USERGUIDE への追記と traceability の Verification Status 最終化のみで、制御フロー・データ・セキュリティへの影響がない。
 Required Workflow: test-after
