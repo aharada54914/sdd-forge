@@ -1,0 +1,66 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "evidence-deep-verify",
+  "task_id": "T-007",
+  "run_id": "qg-eval-evidence-deep-verify-T-007-20260709-b403",
+  "host_session_id": "hs-qg-eval-T-007-0133",
+  "sequence": 133,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "84d77506ed4a1904ed06bd6d2ed1bf7e6f85ea1bf39f874effa99e8296f540a9",
+  "previous_record_sha256": "6609473f276044653109674c8797b6293e29d18b38a8252b2b2a23a0a0e143c1",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/evidence-deep-verify/T-007.md",
+      "sha256": "8cbc803424d264711874c63e28cf9c21419cc0d93512431b52f64b199df09e6b"
+    },
+    {
+      "path": "specs/evidence-deep-verify/acceptance-tests.md",
+      "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"
+    },
+    {
+      "path": "specs/evidence-deep-verify/design.md",
+      "sha256": "ec11cb926263502d55205a4f2c8039c0e1c18b5d89a3d60a2d59ad0935cf56a1"
+    },
+    {
+      "path": "specs/evidence-deep-verify/requirements.md",
+      "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791"
+    },
+    {
+      "path": "specs/evidence-deep-verify/security-spec.md",
+      "sha256": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"
+    },
+    {
+      "path": "specs/evidence-deep-verify/tasks.md",
+      "sha256": "d7004ef86fa3ca4cdd36cf35825a286e2868ff3f69b0dcfca589cefa90437b29"
+    },
+    {
+      "path": "specs/evidence-deep-verify/traceability.json",
+      "sha256": "7b2d3148b0c3b3dabbacce5f7a9c619753e5b0c34f31e20f3cc1479815003201"
+    },
+    {
+      "path": "mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts",
+      "sha256": "7a6bcbce64bbe22cc308af6e866dc4fc350e1ba31461bee9bd7bb2b7dd90cb6b"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/T-007-red.txt",
+      "sha256": "44970e078d0a7e0e75ba2716a833fd63fdaa4fb603ce73b00aad22af1f23ea13"
+    },
+    {
+      "path": "specs/evidence-deep-verify/verification/T-007-green.txt",
+      "sha256": "6e345c66230071655f5899d2ba9fc5038a7799c1ade1fbf5e87113cdef06c8ce"
+    },
+    {
+      "path": "contracts/sdd-forge-mcp-tools.v1.schema.json",
+      "sha256": "e83e23500556057b59b9311b0b24bbe1fe94287d2925e5bbba1095cb0d2767dd"
+    }
+  ]
+}

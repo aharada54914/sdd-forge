@@ -17,7 +17,7 @@ Lifecycle: `Draft -> Approved -> In Progress -> Implementation Complete -> Done`
 ## T-001 per-artifact 再計算エンジン(6 ステータス分類 + 正準 artifacts ダイジェスト)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: 本タスクは deep-verify の判定核であり、per-artifact ステータス分類の誤りは改竄の見逃し(mismatch を match と誤判定)または誤検知に直結する(REQ-002/003、security-spec.md B2)。invalid-recorded-sha の誤分類・例外送出は AC-017 で明示的に禁止された欠陥クラスであり、正準 artifacts ダイジェスト式(ADR-0009)のずれは host スクリプトとの判定不一致(REQ-009 破綻)を引き起こす。全読取は path-guard 経由(REQ-011)で、境界の破れは鍵ファイル読取(B3)への入口になる。
 Required Workflow: tdd
@@ -56,7 +56,7 @@ None
 ## T-002 内部不変条件再計算(spec_revision / git_commit 形状 / cross-binding)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: spec_revision の再計算式(specs/<feature>/{requirements,design,acceptance-tests}.md 連結の SHA-256)が host の compute_spec_revision と 1 バイトでもずれると REQ-009(判定一致)が破綻し、ゴールデン(AC-012)以前に検証体系全体の信頼を毀損する(ADR-0009)。git_commit 検証は 40-hex 形状のみで git を起動しない(no-exec 境界、ADR-0008)——ここで subprocess を導入すると B2/B3 境界違反となる。contract/report クロスバインドの欠陥は task_id/feature の取り違え(別タスクの証拠で Done を通す攻撃面)に直結する(REQ-007)。
 Required Workflow: tdd
@@ -94,7 +94,7 @@ T-001
 ## T-003 署名境界(no-key / no-verify)+ 静的 read-only 検査
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: 本タスクは Issue #68 の最重要セキュリティ不変条件(REQ-008、ADR-0008、security-spec.md B3)を担う。署名鍵(~/.sdd/evidence-key 等)の読取経路が 1 つでも入ると、MCP ツール経由の鍵流出(Information Disclosure)と、ツール側での署名検証という誤った信頼委譲(host 検証の形骸化)に直結する。canary 検査・静的検査の穴は資格情報流出の検知漏れとなる。
 Required Workflow: tdd
@@ -130,7 +130,7 @@ T-001, T-002
 ## T-004 evidence_deep_verify ツール登録と統合応答
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: server.ts に外部呼出可能な 6 番目ツールを登録し、T-001〜T-003 の判定核を統合した完全応答を組み立てる。外部呼出可能なツールの登録・応答組み立ての欠陥は誤 verdict の外部露出に直結する(REQ-001)。risk-classification-policy.md の外部可視 API 面に該当するため high とし、証跡最低線(tdd Red→Green・独立レビュー・provenance bundle)を課す。契約スキーマ自体の加算は T-007、決定論/スモーク/dist は T-008 が担う。
 Required Workflow: tdd
@@ -164,7 +164,7 @@ T-001, T-002, T-003
 ## T-007 evidenceDeepVerifyData 契約加算(v1 後方互換)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: high
 Risk Rationale: 本タスクは外部可視の公開 API 契約(contracts/sdd-forge-mcp-tools.v1.schema.json)へ evidenceDeepVerifyData を加算する(REQ-012)。risk-classification-policy.md は公開 API 契約を high tier の sentinel surface に列挙しており、加算が後方互換を破ると既存クライアント全体に波及する。契約を出荷するタスクとして high の証跡最低線(tdd Red→Green・独立レビュー・provenance bundle)を課す。
 Required Workflow: tdd
@@ -194,7 +194,7 @@ T-004
 ## T-008 統合検証(決定論・tools/list スモーク)と dist 再ビルド
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: 決定論検証(REQ-010)・tools/list スモーク(REQ-013)・esbuild dist 再ビルド(ADR-0003)は、契約面・機微判定核を変更しない検証と必須 housekeeping(dist-parity CI)である。検証の穴は出荷品質の見逃しにつながるため low ではないが、新規セキュリティ面・契約面を持たないため medium とする。
 Required Workflow: acceptance-first
@@ -224,7 +224,7 @@ T-007
 ## T-005 host スクリプト判定一致ゴールデン(parity)
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: medium
 Risk Rationale: ゴールデン検証は実装コードを変更しないテスト追加だが、REQ-009(host スクリプトとの判定一致、ADR-0009)は本 feature の中核保証であり、fixture 設計の穴(pass 系のみ・改竄系欠落)は「一致している」という誤った確信を生む。検証専用タスクであるため tdd は要求せず acceptance-first とする。
 Required Workflow: acceptance-first
@@ -256,7 +256,7 @@ T-008
 ## T-006 ドキュメント + traceability 最終化
 
 Approval: Approved
-Status: Implementation Complete
+Status: Done
 Risk: low
 Risk Rationale: README / USERGUIDE への追記と traceability の Verification Status 最終化のみで、制御フロー・データ・セキュリティへの影響がない。
 Required Workflow: test-after

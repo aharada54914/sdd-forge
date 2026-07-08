@@ -1152,6 +1152,51 @@
       "host_session_id": "hs-task-b-evdeepverify-0128",
       "previous_record_sha256": "49d0b1d801b67f1e822c73e2f4feec52025b0ff5638cf0dd12468d76205a028e",
       "record_sha256": "c336acd7e20dcd2eca95a29fda54fe82cab6ff34989cd0fff386ae2266f3b90d"
+    },
+    {
+      "sequence": 129,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-evidence-deep-verify-T-001-20260709-076b",
+      "host_session_id": "hs-qg-eval-T-001-0129",
+      "previous_record_sha256": "c336acd7e20dcd2eca95a29fda54fe82cab6ff34989cd0fff386ae2266f3b90d",
+      "record_sha256": "f32e5b1e676229cae9590d3c6057493fe5ca15d86f882e3e0266dbb1aab4ab15"
+    },
+    {
+      "sequence": 130,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-evidence-deep-verify-T-002-20260709-6909",
+      "host_session_id": "hs-qg-eval-T-002-0130",
+      "previous_record_sha256": "f32e5b1e676229cae9590d3c6057493fe5ca15d86f882e3e0266dbb1aab4ab15",
+      "record_sha256": "7836a2690be2d480e4be9422858c54286964a24b32d1625e787fef24f7ed7937"
+    },
+    {
+      "sequence": 131,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-evidence-deep-verify-T-003-20260709-eda4",
+      "host_session_id": "hs-qg-eval-T-003-0131",
+      "previous_record_sha256": "7836a2690be2d480e4be9422858c54286964a24b32d1625e787fef24f7ed7937",
+      "record_sha256": "cfb8feed280b60d0dadaa96cd7f6b1c07b3b019273a3a3e439ff622ab6cff088"
+    },
+    {
+      "sequence": 132,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-evidence-deep-verify-T-004-20260709-961a",
+      "host_session_id": "hs-qg-eval-T-004-0132",
+      "previous_record_sha256": "cfb8feed280b60d0dadaa96cd7f6b1c07b3b019273a3a3e439ff622ab6cff088",
+      "record_sha256": "6609473f276044653109674c8797b6293e29d18b38a8252b2b2a23a0a0e143c1"
+    },
+    {
+      "sequence": 133,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "qg-eval-evidence-deep-verify-T-007-20260709-b403",
+      "host_session_id": "hs-qg-eval-T-007-0133",
+      "previous_record_sha256": "6609473f276044653109674c8797b6293e29d18b38a8252b2b2a23a0a0e143c1",
+      "record_sha256": "2cc03eb215c84dd91c656817b80c80d48a7b69247dc17bc7aaa21ce70bca613f"
     }
   ]
 }
