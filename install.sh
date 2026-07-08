@@ -15,10 +15,10 @@ SKIP_PLUGIN_INSTALL=0
 SKIP_AGENT_INSTALL=0
 SOURCE_DIRECTORY=""
 SKIP_MCP=0
-MCP_LIST="sdd-forge-mcp,local-env-mcp"
+MCP_LIST="sdd-forge-mcp,local-env-mcp,ci-mcp"
 
 VALID_PLUGINS="sdd-bootstrap sdd-ship sdd-implementation sdd-quality-loop sdd-lite sdd-review-loop"
-VALID_MCPS="sdd-forge-mcp local-env-mcp"
+VALID_MCPS="sdd-forge-mcp local-env-mcp ci-mcp"
 # The ~/.codex/config.toml block for each selected MCP is delimited by a
 # per-MCP marker pair built inside register_codex_mcp (using the MCP name), so
 # a block can be idempotently added, replaced, or removed without touching any
@@ -43,8 +43,8 @@ Usage: install.sh [options]
   --skip-agent-install           Skip copying Codex agent TOML files
   --source-directory <path>      Use a local directory instead of downloading
   --skip-mcp                     Skip placing and registering all MCP servers
-  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp
-                                 Default: sdd-forge-mcp,local-env-mcp
+  --mcp <comma-separated>        Names from: sdd-forge-mcp,local-env-mcp,ci-mcp
+                                 Default: sdd-forge-mcp,local-env-mcp,ci-mcp
 
 Environment:
   SDD_CODEX_HOME        Override ~/.codex destination for agent TOML files and config.toml
@@ -897,6 +897,14 @@ echo ""
 echo "SDD plugins installed at: ${RESOLVED_INSTALL_ROOT}"
 if [[ "$TARGET" == "FilesOnly" ]]; then
     echo "Plugin registration was skipped because --target=FilesOnly."
+fi
+# ci-mcp needs a read-only GitHub token at runtime. The installer never
+# stores a token value (REQ-010, security-spec B3); it only names the
+# environment variables the user must set for their MCP client (AC-016).
+if mcp_selected "ci-mcp" && [[ $MCP_NODE_OK -eq 1 ]]; then
+    echo ""
+    echo "ci-mcp needs a read-only GitHub token to call the GitHub Actions API."
+    echo "Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN."
 fi
 if [[ $CODEX_AGENTS_FAILED -eq 1 ]]; then
     echo "" >&2

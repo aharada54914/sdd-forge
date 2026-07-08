@@ -91,6 +91,21 @@ Set-Content -Path (Join-Path $localEnvMcpSourceDir "node_modules/should-not-copy
 Set-Content -Path (Join-Path $localEnvMcpSourceDir "src/index.ts") -Value "noise" -Encoding Utf8NoBOM
 Set-Content -Path (Join-Path $localEnvMcpSourceDir "tests/index.test.ts") -Value "noise" -Encoding Utf8NoBOM
 
+# ci-mcp (T-009): a third first-class MCP that ships by default. Seed a
+# minimal payload the same way as sdd-forge-mcp/local-env-mcp so the
+# installer's generic $Mcp selection machinery is exercised for all three.
+$ciMcpSourceDir = Join-Path $installerSourceRoot "mcp/ci-mcp"
+New-Item -ItemType Directory -Path (Join-Path $ciMcpSourceDir "dist") -Force | Out-Null
+Set-Content -Path (Join-Path $ciMcpSourceDir "dist/index.js") -Value "console.log('ci-mcp fixture stub');" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $ciMcpSourceDir "package.json") -Value '{"name":"ci-mcp","version":"0.1.0","private":true,"type":"module","engines":{"node":">=20"}}' -Encoding Utf8NoBOM
+# Files that must NOT be copied into the install root (node_modules/src/tests).
+New-Item -ItemType Directory -Path (Join-Path $ciMcpSourceDir "node_modules/should-not-copy") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $ciMcpSourceDir "src") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $ciMcpSourceDir "tests") -Force | Out-Null
+Set-Content -Path (Join-Path $ciMcpSourceDir "node_modules/should-not-copy/index.js") -Value "noise" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $ciMcpSourceDir "src/index.ts") -Value "noise" -Encoding Utf8NoBOM
+Set-Content -Path (Join-Path $ciMcpSourceDir "tests/index.test.ts") -Value "noise" -Encoding Utf8NoBOM
+
 # T-007/T-008 (AC-010/011/013/015): install.ps1 registers MCP servers with
 # Cursor and VS Code via SDD_CURSOR_DIR / SDD_VSCODE_USER_DIR-overridable config
 # paths. Tests must NEVER touch the real user's client configs, so point both at
@@ -912,9 +927,10 @@ try {
     New-Item -ItemType Directory -Path $env:SDD_CODEX_HOME -Force | Out-Null
     New-Item -ItemType File -Path (Join-Path $env:SDD_CODEX_HOME "config.toml") -Force | Out-Null
 
-    & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpDefaultInstall -Target All -SkipAgentInstall
+    # *>&1 also merges the information stream; 2>&1 alone would miss Write-Host.
+    $mcpDefaultOut = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpDefaultInstall -Target All -SkipAgentInstall *>&1 | Out-String
 
-    foreach ($mcpName in @("sdd-forge-mcp", "local-env-mcp")) {
+    foreach ($mcpName in @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")) {
         if (-not (Test-Path (Join-Path $mcpDefaultInstall "mcp/$mcpName/dist/index.js"))) {
             throw "default MCP install (t): $mcpName dist/index.js not placed"
         }
@@ -938,6 +954,9 @@ try {
     if ($mcpDefaultLogContent -notmatch [regex]::Escape("claude mcp add local-env-mcp")) {
         throw "default MCP install (t): claude mcp add not invoked for local-env-mcp"
     }
+    if ($mcpDefaultLogContent -notmatch [regex]::Escape("claude mcp add ci-mcp")) {
+        throw "default MCP install (t): claude mcp add not invoked for ci-mcp"
+    }
     $configTomlContent = Get-Content -Raw (Join-Path $env:SDD_CODEX_HOME "config.toml")
     if ($configTomlContent -notmatch "sdd-forge-mcp") {
         throw "default MCP install (t): Codex config.toml missing sdd-forge-mcp entry"
@@ -945,7 +964,21 @@ try {
     if ($configTomlContent -notmatch "local-env-mcp") {
         throw "default MCP install (t): Codex config.toml missing local-env-mcp entry"
     }
-    Write-Host "ok: default install places and registers BOTH MCP servers"
+    if ($configTomlContent -notmatch "ci-mcp") {
+        throw "default MCP install (t): Codex config.toml missing ci-mcp entry"
+    }
+    # AC-017: the installer must guide the user to the read-only PAT env vars
+    # ci-mcp needs, without ever writing a token value anywhere.
+    if ($mcpDefaultOut -notmatch "CI_MCP_GITHUB_TOKEN") {
+        throw "default MCP install (t): missing ci-mcp token env var guidance (CI_MCP_GITHUB_TOKEN)"
+    }
+    if ($mcpDefaultOut -notmatch "GH_READONLY_TOKEN") {
+        throw "default MCP install (t): missing ci-mcp token env var guidance (GH_READONLY_TOKEN)"
+    }
+    if ($mcpDefaultOut -notmatch "GITHUB_TOKEN") {
+        throw "default MCP install (t): missing ci-mcp token env var guidance (GITHUB_TOKEN)"
+    }
+    Write-Host "ok: default install places and registers ALL THREE MCP servers, with ci-mcp token guidance"
 }
 finally {
     $env:PATH = $mcpDefaultOriginalPath
@@ -1022,6 +1055,10 @@ try {
     if (Test-Path (Join-Path $mcpValidInstall "mcp/local-env-mcp")) {
         throw "-Mcp sdd-forge-mcp (v): local-env-mcp was placed despite not being selected"
     }
+    # AC-016 behavior: selecting only sdd-forge-mcp must NOT place ci-mcp either.
+    if (Test-Path (Join-Path $mcpValidInstall "mcp/ci-mcp")) {
+        throw "-Mcp sdd-forge-mcp (v): ci-mcp was placed despite not being selected"
+    }
     Write-Host "ok: -Mcp sdd-forge-mcp installs only the selected MCP"
 }
 finally {
@@ -1045,6 +1082,34 @@ try {
 }
 finally {
     if (Test-Path $mcpLeRoot) { Remove-Item -Path $mcpLeRoot -Recurse -Force }
+}
+
+# Scenario (v-ci): -Mcp ci-mcp is a valid selection that places ONLY ci-mcp
+# (sdd-forge-mcp / local-env-mcp absent). Confirms ci-mcp is in the
+# ValidateSet, per-name selection is honoured in both directions (AC-016), and
+# the token guidance notice appears even with -Target FilesOnly (placement
+# happens regardless of -Target).
+$mcpCiRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-mcp-ci-" + [guid]::NewGuid())
+$mcpCiInstall = Join-Path $mcpCiRoot "installed"
+try {
+    # *>&1 also merges the information stream; 2>&1 alone would miss Write-Host.
+    $mcpCiOut = & (Join-Path $repositoryRoot "install.ps1") -SourceDirectory $installerSourceRoot -InstallRoot $mcpCiInstall -Target FilesOnly -Mcp @("ci-mcp") *>&1 | Out-String
+    if (-not (Test-Path (Join-Path $mcpCiInstall "mcp/ci-mcp/dist/index.js"))) {
+        throw "-Mcp ci-mcp (v-ci): ci-mcp dist/index.js not placed"
+    }
+    if (Test-Path (Join-Path $mcpCiInstall "mcp/sdd-forge-mcp")) {
+        throw "-Mcp ci-mcp (v-ci): sdd-forge-mcp was placed despite not being selected"
+    }
+    if (Test-Path (Join-Path $mcpCiInstall "mcp/local-env-mcp")) {
+        throw "-Mcp ci-mcp (v-ci): local-env-mcp was placed despite not being selected"
+    }
+    if ($mcpCiOut -notmatch "CI_MCP_GITHUB_TOKEN") {
+        throw "-Mcp ci-mcp (v-ci): missing token env var guidance even with -Target FilesOnly"
+    }
+    Write-Host "ok: -Mcp ci-mcp installs only the selected MCP, with token guidance"
+}
+finally {
+    if (Test-Path $mcpCiRoot) { Remove-Item -Path $mcpCiRoot -Recurse -Force }
 }
 
 $mcpInvalidRejected = $false

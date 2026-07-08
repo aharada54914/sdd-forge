@@ -1,0 +1,23 @@
+$ npm test
+# (pretest runs: tsc -p tsconfig.test.json; then node scripts/run-tests.mjs)
+# Red phase: src/auth.ts and src/diagnostics.ts not yet implemented — the
+# pretest compile fails, so no tests can run. This is the genuine
+# failing-first (Red) state for T-003 (tests/auth/auth.test.ts,
+# tests/no-secrets/diagnostics.test.ts, tests/no-secrets/canary.test.ts).
+
+> ci-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/auth/auth.test.ts(19,41): error TS2307: Cannot find module '../../src/auth.js' or its corresponding type declarations.
+tests/auth/auth.test.ts(63,20): error TS18046: 'resolved.data' is of type 'unknown'.
+tests/auth/auth.test.ts(75,20): error TS18046: 'resolved.data' is of type 'unknown'.
+tests/auth/auth.test.ts(86,20): error TS18046: 'resolved.data' is of type 'unknown'.
+tests/auth/auth.test.ts(99,20): error TS18046: 'resolved.data' is of type 'unknown'.
+tests/auth/auth.test.ts(113,43): error TS7006: Parameter '_token' implicitly has an 'any' type.
+tests/auth/auth.test.ts(128,43): error TS7006: Parameter 'token' implicitly has an 'any' type.
+tests/no-secrets/canary.test.ts(17,30): error TS2307: Cannot find module '../../src/auth.js' or its corresponding type declarations.
+tests/no-secrets/canary.test.ts(18,26): error TS2307: Cannot find module '../../src/diagnostics.js' or its corresponding type declarations.
+tests/no-secrets/canary.test.ts(39,36): error TS18046: 'resolved.data' is of type 'unknown'.
+tests/no-secrets/diagnostics.test.ts(16,52): error TS2307: Cannot find module '../../src/diagnostics.js' or its corresponding type declarations.
+
+npm test exit code: 2

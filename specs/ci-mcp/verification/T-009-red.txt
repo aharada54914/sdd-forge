@@ -1,0 +1,67 @@
+T-009 installer 拡張(install.sh / install.ps1 パリティ) — RED evidence
+Required Workflow: tdd
+
+Deviation disclosure
+---------------------
+The source edits (install.sh / install.ps1: VALID_MCPS / MCP_LIST += ci-mcp,
+usage text, token-guidance notice) were authored before the new/extended test
+scenarios were written in the same working session (not a literal red-first
+commit sequence). To produce GENUINE red evidence rather than a fabricated
+transcript, the two source files were reverted to their last-committed
+(pre-ci-mcp) content while the NEW ci-mcp test scenarios (fixture seeding,
+scenario (t) ci-mcp assertions + token-notice assertions, new scenario
+(v-ci), scenario (v) ci-mcp-exclusion assertion, (w2)/(y)/(z)/(aa)/(ab)
+ci-mcp array extensions) were kept in place, and both suites were re-run.
+This is the same content the eventual green run exercises — only install.sh /
+install.ps1 differ (committed HEAD versions, i.e. without ci-mcp support).
+Command used to revert (non-destructive, no working tree loss): `git show
+HEAD:install.sh > install.sh` / `git show HEAD:install.ps1 > install.ps1`,
+with the ci-mcp-edited versions backed up first and restored immediately
+after this red capture (see T-009-green.txt).
+
+=== bash: tests/install.tests.sh (against reverted install.sh) ===
+Command: bash tests/install.tests.sh
+Exit code: 1 (non-zero — genuine failure)
+
+... [full scenario log elided; only the ci-mcp-related failures shown below,
+     all other pre-existing scenarios still pass since they are unaffected] ...
+
+FAIL: default MCP install (t): ci-mcp dist/index.js not placed
+FAIL: default MCP install (t): ci-mcp package.json not placed
+FAIL: default MCP install (t): claude mcp add not invoked for ci-mcp
+FAIL: default MCP install (t): Codex config.toml missing ci-mcp entry
+FAIL: default MCP install (t): missing ci-mcp token env var guidance (CI_MCP_GITHUB_TOKEN)
+FAIL: default MCP install (t): missing ci-mcp token env var guidance (GH_READONLY_TOKEN)
+FAIL: default MCP install (t): missing ci-mcp token env var guidance (GITHUB_TOKEN)
+FAIL: --mcp ci-mcp (v-ci): installer exited non-zero
+FAIL: --mcp ci-mcp (v-ci): ci-mcp dist/index.js not placed
+FAIL: --mcp ci-mcp (v-ci): missing token env var guidance even with --target=FilesOnly
+FAIL: cursor upsert (y): mcp.json missing managed entries, foreign entry, or unknown top-level key
+FAIL: vscode upsert (z): mcp.json missing managed entries, foreign entry, or unknown top-level key
+FAIL: corrupt cursor JSON (aa): VS Code registration did not continue
+FAIL: corrupt vscode JSON (ab): Cursor registration did not continue
+
+Results: 29 passed, 14 failed.
+SH_EXIT:1
+
+All 14 failures are exactly the ci-mcp-specific assertions added for this
+task (VALID_MCPS/MCP_LIST rejection of "ci-mcp" propagates through Claude
+registration, Codex config.toml, token-notice text, --mcp ci-mcp selection,
+and the Cursor/VS Code upsert arrays that now also expect a ci-mcp key). No
+pre-existing (sdd-forge-mcp / local-env-mcp) scenario regressed.
+
+=== pwsh: tests/install.tests.ps1 (against reverted install.ps1) ===
+Command: pwsh -NoProfile -NonInteractive -File tests/install.tests.ps1
+Exit code: 1 (non-zero — genuine failure; PowerShell script fails fast on
+the first `throw`, unlike the bash harness which accumulates failures)
+
+Exception: /Users/jrmag/Projects/active/sdd-forge-p4/tests/install.tests.ps1:935
+Line |
+ 935 |              throw "default MCP install (t): $mcpName dist/index.js no …
+     |              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | default MCP install (t): ci-mcp dist/index.js not placed
+PS1_EXIT:1
+
+This is the ps1-mirror of the same scenario (t) failure: ci-mcp is not yet in
+the -Mcp ValidateSet / default array, so its payload is never placed and the
+first ci-mcp assertion throws (fail-fast per the .ps1 harness's convention).

@@ -79,18 +79,21 @@ therefore responsible for invoking it on **only the production files the task
 changed**; passing a whole directory would also scan pre-existing markers in
 untouched files and could block the task. Keep the caller scoped to changed files.
 
-The scan is intentionally conservative: it flags `TODO`/`FIXME`/stub markers and
-`raise NotImplementedError` / `panic("TODO")`-style bodies. On a brownfield repo
-a changed file may legitimately contain such a pattern — e.g. an abstract method
-whose body is `raise NotImplementedError`, or a long-standing `# TODO` unrelated
-to the task. This is not a defect in the gate. To let such a task proceed, the
-operator must do **both**: (a) set the contract's `placeholder-scan` check to
-`"required": false` with a non-empty `waiver_reason` (per the Default-FAIL rules
-above), and (b) record the human acceptance in the quality-gate report.
-`check-contract` does not read the report — it fails any required check left at
-`passes: false` — so it is the `required: false` + `waiver_reason` contract edit
-that actually unblocks the gate. Do not weaken the scan itself to silence the
-prompt.
+The scan is intentionally conservative: it flags ALL-CAPS `TODO`/`FIXME`/stub
+markers and `raise NotImplementedError` / `panic("TODO")`-style bodies (marker
+keywords match case-sensitively per RT-20260706-001; multi-word phrases stay
+case-insensitive). `placeholder-scan` is **required at every risk tier and
+cannot be waived** — `check-contract` enforces this: only the compile-check
+set (`lint`, `typecheck`, `build`) may be `required: false` on a non-code
+stack, and a `placeholder-scan` left at `passes: false` fails the contract
+unconditionally (WFI-005 resolved the earlier waiver wording in this stricter
+direction; the tool behavior itself never permitted the waiver). The remedy
+for a finding — including a genuine false positive on a changed line, such as
+prose that quotes a marker keyword — is to fix or reword the flagged content,
+with that edit reviewed like any other change and the resolution recorded in
+the quality-gate report. Pre-existing markers in files the task did NOT
+change are handled by scoping (previous paragraph), not by waiving the check.
+Do not weaken the scan itself to silence the prompt.
 
 ## Smoke Run
 

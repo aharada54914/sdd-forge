@@ -1,6 +1,7 @@
 # Quality Gate Report
 
 Task ID: {{task_id}}
+Feature: {{feature}}
 VERDICT: {{verdict}}
 
 ## Target

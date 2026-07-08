@@ -1,0 +1,73 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "ci-mcp",
+  "run_id": "task-b-cimcp-a2r1-20260707-9e4d",
+  "host_session_id": "hs-task-b-cimcp-0104",
+  "sequence": 104,
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "ceb5189ea368b82a5591d118647cc4081b3b5813ee67d73ae7e8c8daabb1ed83",
+  "previous_record_sha256": "4160fe8a744079d5b4c59217df28b3b0547d9b9230ce285307df8085cc1c6498",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/ci-mcp/requirements.md",
+      "sha256": "129941ed81acf5801b9da6caecb6e0338241205ded882513b2d023df81b78044"
+    },
+    {
+      "path": "specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "specs/ci-mcp/design.md",
+      "sha256": "c413c9092bb475cc74202361efc707ddb490c28b3dbadad7a4b184702f2c5af7"
+    },
+    {
+      "path": "specs/ci-mcp/tasks.md",
+      "sha256": "4bc2563e8703598a7b33050190bba3d2fce8f5263586b181b642c75d41cf53a4"
+    },
+    {
+      "path": "specs/ci-mcp/traceability.md",
+      "sha256": "5b4810d5d1c67ad5e6791cbac73b2a40b144be5784374ead9a108fbff614f2ac"
+    },
+    {
+      "path": "specs/ci-mcp/ux-spec.md",
+      "sha256": "618628b7f8627ec3e63fc649a2029e003efeb1adc97acad5766958b633023a3e"
+    },
+    {
+      "path": "specs/ci-mcp/frontend-spec.md",
+      "sha256": "6e21da5b898f5c2eb9041c015f4530d2c0eb47192d60fd2ab5c160ac55686870"
+    },
+    {
+      "path": "specs/ci-mcp/infra-spec.md",
+      "sha256": "6489c9892fbb7adb94b9c284c5127fd92e7260730950b112a150f255815e1e16"
+    },
+    {
+      "path": "specs/ci-mcp/security-spec.md",
+      "sha256": "1c142f4a550aea957289a9afdaaf519d98a2df3da816434656174f7f64839568"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/ci-mcp/attempt-2/round-1/precheck-result.json",
+      "sha256": "f59d885997072d3ba6fe41062a2f8c1f9dd13b5cf1cf30bf2bb82a208f8602a2"
+    },
+    {
+      "path": "reports/task-review/ci-mcp/attempt-2/round-1/integrated-summary.json",
+      "sha256": "b3b537788b85ce89fd171ab3bba824c6922479c8ec80380e9e2020809be1ee12"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    }
+  ]
+}

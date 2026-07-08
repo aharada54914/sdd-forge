@@ -1,0 +1,28 @@
+{
+  "name": "ci-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Read-only MCP server exposing GitHub Actions CI state (workflow runs, jobs, job logs, artifacts metadata). GET-only against api.github.com; no write capability.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js",
+    "typecheck": "tsc --noEmit",
+    "test:compile": "tsc -p tsconfig.test.json",
+    "pretest": "tsc -p tsconfig.test.json",
+    "test": "node scripts/run-tests.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/inspector": "0.22.0",
+    "@types/node": "^20.19.0",
+    "ajv": "^8.20.0",
+    "esbuild": "^0.28.1",
+    "typescript": "^5.9.0"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-cimcp-a1r2-20260706-8c37",
+  "host_session_id": "hs-spec-a-8eee4773-0003",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/ci-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "5ad64469e53ca94689cea649c9423fa412a5a7e75ec2ca3a3b086221d914ecca"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/ci-mcp/acceptance-tests.md",
+      "sha256": "ab234bec8274ea5ad28f815017ef31cc8fba04cb1af5af165aa9fb5d44b56759"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/ci-mcp/requirements.md",
+      "sha256": "5d7709f64d8f9e95325efe65701a19ca32f8f298bfeb6d6a6514aa8904af4bd1"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 13 requirements are observable: REQ-002 tool response fields are enumerated field-by-field (e.g. list_workflow_runs returns id/name/status/conclusion/branch/event/created/updated/run number/html_url), REQ-003/REQ-006 write-exclusion and error-mapping are deterministic and machine-checkable via static grep (AC-007) and fake-HTTP integration tests (AC-010), REQ-008's 256 KiB truncation with truncated flag and returnedBytes is a concrete measurable threshold, REQ-009 dist-parity and REQ-010/011 installer behavior are verifiable via existing harnesses. No in-scope requirement relies on unmeasurable intent language."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Goal in requirements.md maps to acceptance criteria: read-only CI info retrieval -> AC-001..AC-005/AC-015; zero-write safety -> AC-006/AC-007; token non-leakage -> AC-008/AC-009; upstream error/rate-limit normalization -> AC-010/AC-011; installer distribution/idempotent registration -> AC-016/AC-017/AC-018. No stated goal lacks a corresponding AC row."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete externally observable outputs: exact response fields (AC-001..AC-005), exact error codes and details.status values per branch (AC-010), exact truncation flags and byte counts (AC-004), grep-detectable absence of write methods/child_process/eval (AC-007), and installer file-placement/registration behavior under isolated HOME (AC-016..AC-018). None rely on vague intent phrasing."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section explicitly excludes GitHub write operations, artifact binary download (deferred to OQ-002), non-Actions GitHub features, GitHub Enterprise Server base-URL support (deferred to OQ-003), gh CLI token exec, and knowledge-mcp/repo-mirror. Boundaries are explicit rather than left to expand implicitly."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are explicit: read-only PAT via env var only with scrubbing requirement (REQ-005), GET-only HTTP method enforcement (REQ-003), 256 KiB log truncation with tail-priority retention (REQ-008), Node.js >=20 runtime requirement and ADR-0003 bundling (REQ-009), Security Boundaries table defining trust boundaries B1-B3 with auth/authz and data classification, and Assumptions section stating read-only PAT provisioning and platform support. Open product decisions (OQ-001 repo resolution precedence, OQ-004 token env var name) are flagged as open questions with owners and resolution paths rather than silently assumed, which is appropriate at Phase 1 rather than a specification gap."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section identifies three high-risk claims (write-tool/write-API leakage, token leakage, upstream API/rate-limit variance, and log-size memory exhaustion) and each has a stated validation surface: write-leakage -> static GET-only + write-method-absence checks and negative tests (AC-006/AC-007); token leakage -> mandatory canary scrubbing test (AC-009); upstream variance -> fake-HTTP error-path tests covering all branches including headerless-403 (AC-010/AC-011); log memory exhaustion -> streaming + 256 KiB tail-priority cap (REQ-008, AC-004). No high-risk claim is left without a planned validation surface."
+    }
+  ]
+}

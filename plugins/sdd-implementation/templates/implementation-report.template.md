@@ -1,5 +1,7 @@
 # Implementation Report: {{task_id}}
 
+- Task ID: {{task_id}}
+
 Report Schema: implementation-report/v2
 
 ## Target
@@ -18,13 +20,17 @@ Report Schema: implementation-report/v2
 
 {{tests_changed}}
 
-## Output Paths And Hashes
+## Outputs
 
-Use one entry per output. Paths MUST be canonical repository-relative paths:
-forward slashes only, with no absolute/drive prefix, backslash, empty segment,
-`.` segment, or `..` segment.
+One table row per produced file. Paths MUST be canonical repository-relative
+paths: forward slashes only, with no absolute/drive prefix, backslash, empty
+segment, `.` segment, or `..` segment. The independent evaluator launch
+boundary authorizes changed/test/contract inputs ONLY from rows in exactly
+this two-column, backtick-quoted form — keep the shape byte-precise.
 
-- **Path**: `{{output_path}}`; **SHA-256**: `{{output_sha256}}`
+| Path | SHA-256 |
+|---|---|
+| `{{output_path}}` | `{{output_sha256}}` |
 
 ## Test Evidence
 

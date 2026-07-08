@@ -12,8 +12,8 @@ param(
     [switch]$RequireClaude,
     [string]$SourceDirectory,
     [switch]$SkipMcp,
-    [ValidateSet("sdd-forge-mcp", "local-env-mcp")]
-    [string[]]$Mcp = @("sdd-forge-mcp", "local-env-mcp")
+    [ValidateSet("sdd-forge-mcp", "local-env-mcp", "ci-mcp")]
+    [string[]]$Mcp = @("sdd-forge-mcp", "local-env-mcp", "ci-mcp")
 )
 
 $ErrorActionPreference = "Stop"
@@ -474,6 +474,14 @@ function Write-InstallSummary {
 
     Write-Host ""
     Write-Host "SDD plugins installed at: $ResolvedInstallRoot"
+    # ci-mcp needs a read-only GitHub token at runtime. The installer never
+    # stores a token value (REQ-010, security-spec B3); it only names the
+    # environment variables the user must set for their MCP client (AC-017).
+    if (($Mcp -contains "ci-mcp") -and $script:McpNodeOk) {
+        Write-Host ""
+        Write-Host "ci-mcp needs a read-only GitHub token to call the GitHub Actions API."
+        Write-Host "Set one of these environment variables for your MCP client before it starts ci-mcp: CI_MCP_GITHUB_TOKEN (preferred), GH_READONLY_TOKEN, or GITHUB_TOKEN."
+    }
     if ($Target -eq "FilesOnly") {
         Write-Host "Plugin registration was skipped because Target=FilesOnly."
         return

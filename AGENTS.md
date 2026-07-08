@@ -87,6 +87,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/agent-cost-context-isolation/`
 - `specs/sdd-domain/`
 - `specs/local-env-mcp/`
+- `specs/ci-mcp/`
 
 ## Source Artifact Locations
 

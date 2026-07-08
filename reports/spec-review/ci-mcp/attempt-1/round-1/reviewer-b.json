@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-cimcp-a1r1-20260706-6a62",
+  "host_session_id": "hs-spec-b-8eee4773-0002",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/ci-mcp/attempt-1/round-1/integrated-summary.json",
+      "sha256": "7cbe25ce4f7fe75d40d4cca987db61cf6350a3db6a55af1c02b930f8c497ca24"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/ci-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "8710fc6a621042781869201ba60ad5ad9f0dc5f17a46773f871d293672c9a690"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/ci-mcp/acceptance-tests.md",
+      "sha256": "160da7026c73416472e619946dd24e236b56b766c27ae4f935aa775dc2273550"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/ci-mcp/requirements.md",
+      "sha256": "22eb877c4d1b266c7f737345e87a63f055e68f0367335d5c66570f2f667efdd5"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-006 (requirements.md line 140) states the 401 upstream status maps to `auth-missing`(または `upstream-error`) and the 403 status maps to `path-denied` または rate-limit-header判定で `rate-limited` — both mappings present an explicit disjunction with no disambiguation rule for which branch applies when. AC-010 (acceptance-tests.md line 14) restates the same disjunctive language for 401/403 without adding a deterministic rule, and does not include a test case for a plain 403 lacking rate-limit headers. Two implementers would reasonably choose different mapping rules (e.g., one always emits `upstream-error` for 401, another emits `auth-missing`; one treats headerless 403 as `path-denied`, another as `rate-limited`), producing divergent error codes for the same upstream response — a downstream implementer/verifier cannot derive one behavior from the text. This is a specification-level ambiguity because the disjunction is written directly into the requirement and its paired acceptance criterion, not left open as a flagged design decision (unlike OQ-001/002/003/004, which are explicitly marked as open questions with owners and resolution paths). Major severity: this affects an observable error-mapping contract that downstream contract/task authors need to encode precisely, but it is a bounded mapping-rule gap rather than a workflow-safety or goal-level contradiction."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflicts found between Goals, Non-goals, Requirements, and Acceptance Criteria. The read-only boundary (Non-goals: no write operations; REQ-003: GET-only, no write-inducing fields) is consistently reinforced across Requirements, Edge Cases, Security Boundaries, and AC-006/AC-007 without any requirement implying a write path. The reused legacy error-code enum (path-denied, cannot-parse, etc., REQ-004) is explicitly noted as retained 'for contract compatibility' rather than semantically contradicting ci-mcp's read-only scope."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases section (requirements.md lines 194-204) enumerates missing token, unresolvable owner/repo, 404 run/job id, rate limit, oversized job log, expired artifact, upstream 5xx/network failure, and empty result set. Each is mirrored by a corresponding acceptance test (AC-008 auth-missing, AC-012 invalid-input, AC-002/AC-010 not-found, AC-010/AC-011 rate-limited, AC-004 truncation, AC-005 expired flag, AC-010 upstream-error). Material negative and boundary paths implied by the requirements are covered with observable, testable outcomes."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four open questions (OQ-001 owner/repo resolution precedence, OQ-002 artifact download necessity, OQ-003 GHES base URL, OQ-004 token env var name/priority) are explicitly recorded with Owner, Blocks Implementation status, and Resolution Path (requirements.md lines 230-271), rather than being silently assumed. The Assumptions section (lines 216-226) lists only claims that do not require further decision (target platform is github.com, PAT type expected, OS support, ADR-0006 read-only boundary requiring human approval). This satisfies the check's requirement that assumptions be either resolved or explicitly marked as decisions needed before design/task decomposition."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The specification implies a human-approval boundary for the read-only guarantee: requirements.md line 224-226 states the read-only definition and its static-check enforcement are to be recorded as ADR-0006 and are '人間の承認対象' (subject to human approval). This is testable via a concrete, static, automatable check (AC-007/TEST-007: grep-based verification that no write-inducing fetch methods, fs-write APIs, child_process, or eval exist in src) that gates the safety boundary rather than relying on unverifiable review judgment. OQ-001 and OQ-004, which affect the tool-input contract, are also explicitly assigned to human/product-owner approval before implementation can proceed on those specific facets."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-006's unresolved 401/403 mapping disjunction (see AMBIGUITY finding) would force the downstream design reviewer or implementer to invent the missing decision rule (e.g., choosing when 401 yields auth-missing vs upstream-error, and when headerless 403 yields path-denied vs rate-limited) rather than finding it specified. This differs from the properly-flagged OQs (OQ-001/002/003/004), which are called out for human/product decision before or during design; the 401/403 mapping ambiguity is not flagged as an open question and would silently pass into design.md's 'API / Contract Plan' as an assumed rule invented by the reviewer or implementer, which is exactly the downstream-readiness failure mode this check targets. Major severity: it is a contained mapping-rule gap in one requirement, not a full contradiction of goals or an unreviewable specification, but it does require the design reviewer to invent product behavior on a testable error-contract detail."
+    }
+  ]
+}

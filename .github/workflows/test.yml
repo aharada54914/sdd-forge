@@ -58,6 +58,16 @@ jobs:
         shell: bash
         run: ./tests/repository-release-validation.tests.sh
 
+      - name: Test template-validator parity (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/template-validator-parity.tests.sh
+
+      - name: Test template-validator parity (pwsh)
+        shell: pwsh
+        run: ./tests/template-validator-parity.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
@@ -292,6 +302,61 @@ jobs:
         run: npm test
 
       # dist-parity (AC-008): rebuild the esbuild bundle and confirm the
+      # working tree's committed dist/index.js is reproducible from source.
+      # Runs once on Linux to keep the check OS-agnostic and fast; esbuild
+      # output is deterministic across platforms for this bundle (verified
+      # locally: two independent builds produced an identical SHA-256).
+      - name: Rebuild dist and verify parity
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run build
+          git diff --exit-code -- dist/
+
+      - name: Audit production dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: npm audit --omit=dev --audit-level=high
+
+  # ci-mcp-tests — ci-mcp (mcp/ci-mcp/) is a read-only MCP server exposing
+  # GitHub Actions CI state (workflow runs, jobs, job logs, artifacts
+  # metadata) over a GET-only api.github.com client (ADR-0003 pattern, same
+  # shape as sdd-forge-mcp / local-env-mcp). Exercised across the same 3-OS
+  # matrix; its own test suite (fake GitHub API fixtures) makes no real
+  # network call, so CI stays outbound-connection-free (design.md
+  # "Deployment / CI Plan").
+  ci-mcp-tests:
+    name: ci-mcp-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: mcp/ci-mcp
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: mcp/ci-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      # Includes the AC-015 Inspector CLI smoke test (tests/smoke/), which
+      # spawns the bundled dist/index.js over real stdio — its before()
+      # hook builds dist/ on demand if absent, so this step alone is
+      # sufficient even before the parity step below runs.
+      - name: Run tests
+        run: npm test
+
+      # dist-parity (AC-014): rebuild the esbuild bundle and confirm the
       # working tree's committed dist/index.js is reproducible from source.
       # Runs once on Linux to keep the check OS-agnostic and fast; esbuild
       # output is deterministic across platforms for this bundle (verified
