@@ -61,6 +61,11 @@ target:
   task: T-002
 "@
 
+    # feat-a: CRLF ticket -- severity must still be counted despite `r`n endings.
+    [System.IO.File]::WriteAllText(
+        (Join-Path $work "docs/review-tickets/RT-c.yml"),
+        "ticket_id: RT-c`r`nstatus: open`r`nseverity: minor`r`ntarget:`r`n  feature: feat-a`r`n  task: T-001`r`n")
+
     # --- Run the emitter from the fixture repo root --------------------------
     Push-Location $work
     try {
@@ -87,7 +92,7 @@ target:
         AssertEq $m.first_pass_gate.passed_first_try  1 "only feat-a T-002 passed on a single gate run"
         AssertEq $m.review_tickets.major              1 "review_tickets.major counts only feat-a tickets"
         AssertEq $m.review_tickets.critical           0 "feat-b's critical ticket is not counted for feat-a"
-        AssertEq $m.review_tickets.minor              0 "no feat-a minor tickets"
+        AssertEq $m.review_tickets.minor              1 "CRLF feat-a ticket severity is counted"
     }
 } finally {
     Remove-Item -Recurse -Force $work -ErrorAction SilentlyContinue

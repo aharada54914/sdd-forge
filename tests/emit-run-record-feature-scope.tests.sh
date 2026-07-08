@@ -76,6 +76,10 @@ target:
   task: T-002
 EOF
 
+# feat-a: CRLF ticket -- severity must still be counted despite \r\n endings.
+printf 'ticket_id: RT-c\r\nstatus: open\r\nseverity: minor\r\ntarget:\r\n  feature: feat-a\r\n  task: T-001\r\n' \
+  > "$WORK/docs/review-tickets/RT-c.yml"
+
 # --- Run the emitter from the fixture repo root ----------------------------
 ( cd "$WORK" && sh "$SCRIPT" feat-a --track lite >/dev/null )
 OUT="$(find "$WORK/reports/runs" -name 'RUN-*-feat-a.json' | head -n 1)"
@@ -101,7 +105,7 @@ assert_eq '.metrics.gate_reports.max_runs_single_task' 2 'max_runs_single_task r
 assert_eq '.metrics.first_pass_gate.passed_first_try'  1 'only feat-a T-002 passed on a single gate run'
 assert_eq '.metrics.review_tickets.major'              1 'review_tickets.major counts only feat-a tickets'
 assert_eq '.metrics.review_tickets.critical'           0 "feat-b's critical ticket is not counted for feat-a"
-assert_eq '.metrics.review_tickets.minor'              0 'no feat-a minor tickets'
+assert_eq '.metrics.review_tickets.minor'              1 'CRLF feat-a ticket severity is counted'
 
 printf '\nemit-run-record-feature-scope.tests.sh: %d passed, %d failed\n' "$PASS_COUNT" "$FAIL_COUNT"
 [ "$FAIL_COUNT" -eq 0 ]

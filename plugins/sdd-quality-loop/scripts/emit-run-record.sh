@@ -67,8 +67,11 @@ gate_total=0
 gate_blocked=0
 first_pass_tasks=0
 max_gate_runs=0
+# Escape ERE metacharacters in the slug (parity with the PowerShell
+# [regex]::Escape) so a feature like "v2.0" cannot match unintended lines.
+feature_re="$(printf '%s\n' "$feature" | sed 's/[][\\.^$*+?(){}|]/\\&/g')"
 if [ -d "reports/quality-gate" ]; then
-  feature_gate_files="$(grep -rlE "^Feature:[[:space:]]*${feature}[[:space:]]*$" reports/quality-gate 2>/dev/null || true)"
+  feature_gate_files="$(grep -rlE "^Feature:[[:space:]]*${feature_re}[[:space:]]*$" reports/quality-gate 2>/dev/null || true)"
   for tid in $task_ids; do
     n=0
     for gf in $feature_gate_files; do
@@ -93,16 +96,16 @@ tickets_critical=0
 tickets_major=0
 tickets_minor=0
 if [ -d "docs/review-tickets" ]; then
-  feature_ticket_files="$(grep -rlE "^[[:space:]]*feature:[[:space:]]*${feature}[[:space:]]*$" docs/review-tickets 2>/dev/null || true)"
+  feature_ticket_files="$(grep -rlE "^[[:space:]]*feature:[[:space:]]*${feature_re}[[:space:]]*$" docs/review-tickets 2>/dev/null || true)"
   for tf in $feature_ticket_files; do
     # Anchor to the top-level severity field (like ^Status: above); an
     # unanchored match would also pick up the word in free-text prose
     # (e.g. a resolution_record) and misclassify the ticket.
-    if grep -qE '^severity:[ \t]*critical[ \t]*$' "$tf" 2>/dev/null; then
+    if grep -qE '^severity:[[:space:]]*critical[[:space:]]*$' "$tf" 2>/dev/null; then
       tickets_critical=$((tickets_critical + 1))
-    elif grep -qE '^severity:[ \t]*major[ \t]*$' "$tf" 2>/dev/null; then
+    elif grep -qE '^severity:[[:space:]]*major[[:space:]]*$' "$tf" 2>/dev/null; then
       tickets_major=$((tickets_major + 1))
-    elif grep -qE '^severity:[ \t]*minor[ \t]*$' "$tf" 2>/dev/null; then
+    elif grep -qE '^severity:[[:space:]]*minor[[:space:]]*$' "$tf" 2>/dev/null; then
       tickets_minor=$((tickets_minor + 1))
     fi
   done
