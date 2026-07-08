@@ -178,6 +178,26 @@ IDLE
    └── yes → [--retro or all-Done] RETROSPECTIVE → DONE
 ```
 
+## Context Compaction
+
+Ship sessions span many tasks. All loop state is persisted on disk (tasks.md
+Status fields, `reports/quality-gate/`, review tickets), and both the Resume
+behaviour (Step 3) and the disk-based cycle limit (Step 4) are designed to
+survive re-invocation — compaction at a task boundary loses nothing.
+
+Compact (or accept auto-compaction) only at task boundaries:
+
+- after a task reaches Done (quality gate PASS)
+- after a BLOCKED stop, before starting fix-by-review-ticket
+- between Step 3 and Step 4, when all targeted tasks are at
+  Implementation Complete
+
+Do not compact while a task is In Progress or a quality-gate cycle is
+running: the implementing agent's working context (file paths, partial
+changes, verification state) is not yet reflected on disk. After compacting,
+re-invoke `/sdd-ship:ship` and rely on Resume behaviour to continue from the
+first eligible task.
+
 ## Security Boundaries
 
 - **Never** invoke `sdd-sudo` or create/modify the `SDD_SUDO` file.

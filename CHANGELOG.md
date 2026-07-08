@@ -24,6 +24,19 @@
   明記、OBSERVABLE-DONE への凍結アーティファクト誘導ガイダンス、SKILL.md への
   「Post-Implementation Provenance Re-Review」手順の新設。
 
+### コンテキスト最適化（トークン削減）
+
+- `investigate-codebase` が `specs/<feature>/codemap.md`（トークン節約型の
+  アーキテクチャマップ）を常時生成するようになりました。新テンプレート
+  `templates/codemap.template.md` を追加。`sdd-bootstrap-interviewer` と
+  `implement-task` は codemap が存在する場合それを先に読み、リポジトリの
+  再探索を codemap がカバーしない範囲に限定します（下流エージェントの
+  重複探索によるトークン消費を削減）。
+- `bootstrap` / `ship` オーケストレータにコンテキスト圧縮（compaction）
+  ガイダンスを追加。全状態がディスクに永続化されるフェーズ境界・タスク
+  境界でのみ圧縮を行い、インタビュー中・タスク実装中・品質ゲート実行中の
+  圧縮を避けます。
+
 ## v1.9.0 (2026-07-06)
 
 ### DDD アップストリームレーン（sdd-domain、7番目のプラグイン）

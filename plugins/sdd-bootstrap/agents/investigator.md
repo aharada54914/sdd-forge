@@ -39,8 +39,12 @@ is ambiguous, record the ambiguity as an Open Question.
 ## Output Format
 
 Return results as Markdown structured according to
-`templates/investigation.template.md`. For `bugfix` and `refactor` modes also
-return `templates/baseline-behavior.template.md` content.
+`templates/investigation.template.md`, plus a codemap structured according
+to `templates/codemap.template.md` — a token-lean architecture map (entry
+points, module topology, key symbols, external dependencies, test map)
+derived from the same findings, for reuse by downstream skills. For `bugfix`
+and `refactor` modes also return `templates/baseline-behavior.template.md`
+content.
 
 Assign sequential INV-NNN IDs to each finding and BL-NNN IDs to each baseline
 behavior, starting at `001`. Follow the rules in
