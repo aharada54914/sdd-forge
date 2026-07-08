@@ -1,6 +1,6 @@
 /**
  * MCP server construction: builds the `McpServer` and registers the 8 core
- * tools, 5 evidence tools, and 5 resources (design.md "Architecture" /
+ * tools, 6 evidence tools, and 5 resources (design.md "Architecture" /
  * "API / Contract Plan").
  *
  * Every tool response is the common `Result<T>` envelope
@@ -34,6 +34,7 @@ import {
 } from "./tools/core.js";
 import {
   evidenceCompareToTraceability,
+  evidenceDeepVerify,
   evidenceFindMissing,
   evidenceGetBundle,
   evidenceSummarizeContractChecks,
@@ -212,6 +213,22 @@ export function buildServer(root: SddRoot): McpServer {
       inputSchema: { feature: FEATURE_ARG },
     },
     ({ feature }) => toCallToolResult(evidenceCompareToTraceability(root, feature)),
+  );
+
+  server.registerTool(
+    "evidence_deep_verify",
+    {
+      title: "Deep-verify an evidence bundle",
+      description:
+        "Reads <taskId>.evidence.json and recomputes every artifact's sha256 " +
+        "from disk, the canonical artifacts digest, spec_revision, git_commit " +
+        "shape, and contract/report cross-bindings, reducing them to a " +
+        "deterministic pass/fail verdict with a failures list. Never reads a " +
+        "signing key, never verifies a signature (echoed with verified:false), " +
+        "and never spawns git — HEAD/ancestor checks are host-deferred.",
+      inputSchema: { feature: FEATURE_ARG, taskId: TASK_ID_ARG },
+    },
+    ({ feature, taskId }) => toCallToolResult(evidenceDeepVerify(root, feature, taskId)),
   );
 
   registerResources(server, root);

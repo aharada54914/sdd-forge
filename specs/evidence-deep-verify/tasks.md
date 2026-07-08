@@ -130,7 +130,7 @@ T-001, T-002
 ## T-004 evidence_deep_verify ツール登録と統合応答
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: high
 Risk Rationale: server.ts に外部呼出可能な 6 番目ツールを登録し、T-001〜T-003 の判定核を統合した完全応答を組み立てる。外部呼出可能なツールの登録・応答組み立ての欠陥は誤 verdict の外部露出に直結する(REQ-001)。risk-classification-policy.md の外部可視 API 面に該当するため high とし、証跡最低線(tdd Red→Green・独立レビュー・provenance bundle)を課す。契約スキーマ自体の加算は T-007、決定論/スモーク/dist は T-008 が担う。
 Required Workflow: tdd
