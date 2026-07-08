@@ -22,7 +22,8 @@ $tests = @(
     'tests/workflow-state-registry.tests.ps1',
     'tests/workflow-state.tests.ps1',
     'tests/workflow-state-repository-integration.tests.ps1',
-    'tests/structure-check-feature-mode.tests.ps1'
+    'tests/structure-check-feature-mode.tests.ps1',
+    'tests/emit-run-record-feature-scope.tests.ps1'
 )
 
 Push-Location $root
