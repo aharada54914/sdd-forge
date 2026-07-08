@@ -1,0 +1,63 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "evidence-deep-verify",
+  "run_id": "impl-orch-evdeepverify-a1r1-20260708-3e6b",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "api-only",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791",
+  "acceptance_sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59",
+  "design_sha256": "b9ef1f7fca5427b2adcb6543b9b54b18237e227ac23e97b20ef6bb692e62d044",
+  "layer_sha256": {
+    "ux-spec.md": "39e21e8075f94dc5e47e145154dce689c28e7449734c66837fe53e5a62c8e272",
+    "frontend-spec.md": "f540e1365d51ed36df38d1ad5cbed6548c095bca6eeb0227739b762f3010b4b8",
+    "infra-spec.md": "87d868f5f92bc5c52cd731eab173801b8344677f012b384d35fd91265491ad5c",
+    "security-spec.md": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-evdeepverify-a1r1-20260708-5c1e",
+      "host_session_id": "hs-impl-a-evdeepverify-0121",
+      "allowed_input_manifest": [
+        {"path": "specs/evidence-deep-verify/design.md", "sha256": "b9ef1f7fca5427b2adcb6543b9b54b18237e227ac23e97b20ef6bb692e62d044"},
+        {"path": "specs/evidence-deep-verify/requirements.md", "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791"},
+        {"path": "specs/evidence-deep-verify/acceptance-tests.md", "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"},
+        {"path": "specs/evidence-deep-verify/ux-spec.md", "sha256": "39e21e8075f94dc5e47e145154dce689c28e7449734c66837fe53e5a62c8e272"},
+        {"path": "specs/evidence-deep-verify/frontend-spec.md", "sha256": "f540e1365d51ed36df38d1ad5cbed6548c095bca6eeb0227739b762f3010b4b8"},
+        {"path": "specs/evidence-deep-verify/infra-spec.md", "sha256": "87d868f5f92bc5c52cd731eab173801b8344677f012b384d35fd91265491ad5c"},
+        {"path": "specs/evidence-deep-verify/security-spec.md", "sha256": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"},
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "reports/impl-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json", "sha256": "5eba3e1739c25aefb89c7375859dea431561949b9219718e509809960ffe4831"}
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "impl-b-evdeepverify-a1r1-20260708-7f9a",
+      "host_session_id": "hs-impl-b-evdeepverify-0122",
+      "allowed_input_manifest": [
+        {"path": "specs/evidence-deep-verify/design.md", "sha256": "b9ef1f7fca5427b2adcb6543b9b54b18237e227ac23e97b20ef6bb692e62d044"},
+        {"path": "specs/evidence-deep-verify/requirements.md", "sha256": "3c5f1f93ad2db7613b730193169dfbb8c2bce90b4e94b0e65f09c82a56b59791"},
+        {"path": "specs/evidence-deep-verify/acceptance-tests.md", "sha256": "e777cb8a7b1938d4f037d54690cc6211a47eeb261ae8ef234de2df773682bf59"},
+        {"path": "specs/evidence-deep-verify/ux-spec.md", "sha256": "39e21e8075f94dc5e47e145154dce689c28e7449734c66837fe53e5a62c8e272"},
+        {"path": "specs/evidence-deep-verify/frontend-spec.md", "sha256": "f540e1365d51ed36df38d1ad5cbed6548c095bca6eeb0227739b762f3010b4b8"},
+        {"path": "specs/evidence-deep-verify/infra-spec.md", "sha256": "87d868f5f92bc5c52cd731eab173801b8344677f012b384d35fd91265491ad5c"},
+        {"path": "specs/evidence-deep-verify/security-spec.md", "sha256": "ecfbcaccea594b1bbe81737f0d1727520d0dd399e1e83d0e6813ad25b96960e1"},
+        {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "reports/impl-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json", "sha256": "5eba3e1739c25aefb89c7375859dea431561949b9219718e509809960ffe4831"},
+        {"path": "reports/impl-review/evidence-deep-verify/attempt-1/round-1/integrated-summary.json", "sha256": "4a42f01994aad3a56006d54a44d00c68bdcb3d80fc3a311331646a09e59b94a4"}
+      ]
+    }
+  ]
+}

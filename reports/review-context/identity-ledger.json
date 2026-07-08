@@ -1080,6 +1080,24 @@
       "host_session_id": "hs-spec-b-evdeepverify-0120",
       "previous_record_sha256": "d00dc37d097d8f9dbabc9e778c31151c161fbf88443f87ff61b6f88076ec9a09",
       "record_sha256": "58f7626440100fb36df238a77e091388ce2eecac2c5aa495cf74da0be11b3b2c"
+    },
+    {
+      "sequence": 121,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-evdeepverify-a1r1-20260708-5c1e",
+      "host_session_id": "hs-impl-a-evdeepverify-0121",
+      "previous_record_sha256": "58f7626440100fb36df238a77e091388ce2eecac2c5aa495cf74da0be11b3b2c",
+      "record_sha256": "dcbf9671354f518ce3e30e53fbf827830ce96e4c17751304a3288b0087339bd1"
+    },
+    {
+      "sequence": 122,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "impl-b-evdeepverify-a1r1-20260708-7f9a",
+      "host_session_id": "hs-impl-b-evdeepverify-0122",
+      "previous_record_sha256": "dcbf9671354f518ce3e30e53fbf827830ce96e4c17751304a3288b0087339bd1",
+      "record_sha256": "30745234b9d6960f730de78ef802978e608607e13bfd2cff59546415028eb3d2"
     }
   ]
 }
