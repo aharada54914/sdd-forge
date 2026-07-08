@@ -60,7 +60,9 @@ jobs:
 
       - name: Test template-validator parity (bash)
         shell: bash
-        run: ./tests/template-validator-parity.tests.sh
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/template-validator-parity.tests.sh
 
       - name: Test template-validator parity (pwsh)
         shell: pwsh
