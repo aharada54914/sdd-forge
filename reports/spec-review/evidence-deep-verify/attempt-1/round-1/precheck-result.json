@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "evidence-deep-verify",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "6dc431fea935016fabb45e69410305fe5be66b67b5a617e23b2a4d47a4a2bf29",
+  "acceptance_sha256": "7aab8fda5934516fcb7f3f4fa10d4d78233ffe8da3023b42a7830c5b0dcb11c1",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "3cc80c6e411bc1c68de89c1e0e8a928990da7b30e2367ff239bbcee584f0f818",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-08T00:03:21Z"
+}

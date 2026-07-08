@@ -18,6 +18,9 @@
 | AC-014 静的 read-only / no-exec 検査: 追加コードに fs 書込み API(writeFile/appendFile/mkdir/rm 等)・`child_process` / `exec` / `spawn` / `eval`・署名鍵読取経路が 0 件で、ディスク読取が全て path-guard 経由であることが PASS | REQ-011, REQ-008 | TEST-014 | static (grep) | mcp/sdd-forge-mcp/tests/readonly/ | Planned |
 | AC-015 応答が `contracts/sdd-forge-mcp-tools.v1.schema.json` の `evidenceDeepVerifyData` に適合し、既存 5 応答形状の適合が不変。不正 feature/taskId → `invalid-input`、バンドル欠落 → `not-found`、JSON 不正 → `cannot-parse` | REQ-012 | TEST-015 | unit + contract (ajv) | mcp/sdd-forge-mcp/tests/tools/ | Planned |
 | AC-016 MCP Inspector CLI スモーク: `tools/list` に `evidence_deep_verify` が evidence の 6 番目のツールとして現れる | REQ-001, REQ-013 | TEST-016 | smoke | mcp/sdd-forge-mcp/tests/smoke/ | Planned |
+| AC-017 バンドルの記録 `artifacts[].sha256` が 64 桁小文字 16 進でない(短い・非 hex・空)場合、ディスクファイルの実在に関わらず当該成果物 `status: "invalid-recorded-sha"` を報告し(mismatch へ誤分類せず)、throw せず `verdict: "fail"` を返す。他条件と同時発生(例: 非 64-hex かつ missing)でも verdict は `fail` に収束する | REQ-002, REQ-003, REQ-011 | TEST-017 | integration (tamper, malformed recorded sha) | mcp/sdd-forge-mcp/tests/error-paths/ | Planned |
+| AC-018 `artifacts[]` が空配列のバンドルに対し、per-artifact 判定は空・artifactsDigest は「空集合の canonical digest」を recorded と比較し、他 in-process 不変条件(spec_revision・git_commit 形状・crossBindings)が全て満たされれば `verdict: "pass"`(REQ-003 の全称条件が空真)、いずれか不一致なら `fail`。throw しない | REQ-002, REQ-003, REQ-004, REQ-011 | TEST-018 | integration (empty-artifacts fixture) | mcp/sdd-forge-mcp/tests/tools/ | Planned |
+| AC-019 `specs/<feature>/{requirements,design,acceptance-tests}.md` が 3 つとも不在で spec_revision の再計算値が空文字列 `""` になる場合、bundle の記録 `spec_revision` が同じく `""` なら `specRevision.status: "match"`、非空なら `"mismatch"` で `verdict: "fail"`。ファイル不在で throw しない | REQ-005, REQ-003, REQ-011 | TEST-019 | integration (absent-specs fixture) | mcp/sdd-forge-mcp/tests/tools/ | Planned |
 
 ## UI Integration Checklist
 

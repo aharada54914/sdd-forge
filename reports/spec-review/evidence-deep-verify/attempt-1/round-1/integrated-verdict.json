@@ -1,0 +1,17 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "evidence-deep-verify",
+  "run_id": "spec-orch-evdeepverify-a1r1-20260708-8a2c",
+  "verdict": "NEEDS_WORK",
+  "round": 1,
+  "attempt": 1,
+  "warningCount": 0,
+  "finding_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  },
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}
