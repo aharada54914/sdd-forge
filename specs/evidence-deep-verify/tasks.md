@@ -224,7 +224,7 @@ T-007
 ## T-005 host スクリプト判定一致ゴールデン(parity)
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: ゴールデン検証は実装コードを変更しないテスト追加だが、REQ-009(host スクリプトとの判定一致、ADR-0009)は本 feature の中核保証であり、fixture 設計の穴(pass 系のみ・改竄系欠落)は「一致している」という誤った確信を生む。検証専用タスクであるため tdd は要求せず acceptance-first とする。
 Required Workflow: acceptance-first
