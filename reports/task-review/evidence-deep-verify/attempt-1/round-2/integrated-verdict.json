@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "task",
+  "feature": "evidence-deep-verify",
+  "run_id": "task-orch-evdeepverify-a1r2-20260708-d16d",
+  "verdict": "NEEDS_WORK",
+  "round": 2,
+  "attempt": 1,
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK"
+}

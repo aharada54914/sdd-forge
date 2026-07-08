@@ -1116,6 +1116,24 @@
       "host_session_id": "hs-task-b-evdeepverify-0124",
       "previous_record_sha256": "6271a12b2ebad18e15c2b92a7e7258bcab6a84c057b9a0931ef2897fcc0cb886",
       "record_sha256": "efa7dbb83a37e69ee71cfce8e4226fb3bb5c54d41035e908b8b5847791282895"
+    },
+    {
+      "sequence": 125,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "task-a-evdeepverify-a1r2-20260708-c032",
+      "host_session_id": "hs-task-a-evdeepverify-0125",
+      "previous_record_sha256": "efa7dbb83a37e69ee71cfce8e4226fb3bb5c54d41035e908b8b5847791282895",
+      "record_sha256": "94e815070122a88b3ebcb4c8252b2bf4e396b23303d3c6a18f4cdc4512522381"
+    },
+    {
+      "sequence": 126,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "task-b-evdeepverify-a1r2-20260708-3639",
+      "host_session_id": "hs-task-b-evdeepverify-0126",
+      "previous_record_sha256": "94e815070122a88b3ebcb4c8252b2bf4e396b23303d3c6a18f4cdc4512522381",
+      "record_sha256": "69f3b5d70b284d400e93089b8ab344d274135cf7639c827fdbd497b7ff6788f0"
     }
   ]
 }

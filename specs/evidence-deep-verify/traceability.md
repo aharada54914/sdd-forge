@@ -31,14 +31,16 @@
 
 ## Task → REQ
 
-Phase 2(タスク分解)で確定。tasks.md の 6 タスクに対応する。
+Phase 2(タスク分解)で確定。tasks.md の 8 タスクに対応する。
 
 | Task | REQ-ID | 内容 |
 |---|-----|---|
 | T-001 | REQ-002, REQ-003, REQ-004, REQ-011 | per-artifact 再計算エンジン(6 ステータス分類 + 正準 artifacts ダイジェスト) |
 | T-002 | REQ-005, REQ-006, REQ-007 | 内部不変条件再計算(spec_revision / git_commit 形状 / cross-binding) |
 | T-003 | REQ-008 | 署名境界(no-key / no-verify)+ 静的 read-only 検査 |
-| T-004 | REQ-001, REQ-010, REQ-012, REQ-013 | ツール登録 + 契約(evidenceDeepVerifyData)+ 決定論 + スモーク |
+| T-004 | REQ-001, REQ-012 | evidence_deep_verify ツール登録と統合応答(エラーエンベロープ写像含む) |
+| T-007 | REQ-012 | evidenceDeepVerifyData 契約加算(v1 後方互換) |
+| T-008 | REQ-010, REQ-013 | 統合検証(決定論・tools/list スモーク)と dist 再ビルド |
 | T-005 | REQ-009 | host スクリプト判定一致ゴールデン(parity) |
 | T-006 | REQ-001, REQ-013 | ドキュメント + traceability 最終化 |
 
@@ -85,10 +87,10 @@ Task-ID は Phase 2(タスク分解)で確定済み。Test Target は
 | AC-010 | TEST-010 | T-002 | mcp/sdd-forge-mcp/tests/tools/ |
 | AC-011 | TEST-011 | T-003 | mcp/sdd-forge-mcp/tests/no-secrets/ |
 | AC-012 | TEST-012 | T-005 | mcp/sdd-forge-mcp/tests/golden/ |
-| AC-013 | TEST-013 | T-004 | mcp/sdd-forge-mcp/tests/tools/ |
+| AC-013 | TEST-013 | T-008 | mcp/sdd-forge-mcp/tests/tools/ |
 | AC-014 | TEST-014 | T-003 | mcp/sdd-forge-mcp/tests/readonly/ |
-| AC-015 | TEST-015 | T-004 | mcp/sdd-forge-mcp/tests/tools/ |
-| AC-016 | TEST-016 | T-004 | mcp/sdd-forge-mcp/tests/smoke/ |
+| AC-015 | TEST-015 | T-007 | mcp/sdd-forge-mcp/tests/tools/ |
+| AC-016 | TEST-016 | T-008 | mcp/sdd-forge-mcp/tests/smoke/ |
 | AC-017 | TEST-017 | T-001 | mcp/sdd-forge-mcp/tests/error-paths/ |
 | AC-018 | TEST-018 | T-001 | mcp/sdd-forge-mcp/tests/tools/ |
 | AC-019 | TEST-019 | T-002 | mcp/sdd-forge-mcp/tests/tools/ |
