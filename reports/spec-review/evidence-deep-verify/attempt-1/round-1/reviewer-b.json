@@ -5,19 +5,64 @@
   "run_id": "spec-b-evdeepverify-a1r1-20260708-7c2b",
   "host_session_id": "hs-spec-b-evdeepverify-0118",
   "allowed_input_manifest": [
-    {"path": "specs/evidence-deep-verify/requirements.md", "sha256": "6dc431fea935016fabb45e69410305fe5be66b67b5a617e23b2a4d47a4a2bf29"},
-    {"path": "specs/evidence-deep-verify/acceptance-tests.md", "sha256": "7aab8fda5934516fcb7f3f4fa10d4d78233ffe8da3023b42a7830c5b0dcb11c1"},
-    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
-    {"path": "reports/spec-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json", "sha256": "013cceb168af545a494c0a2bd3fb286e5e405962da58646799e7cba6f870f3da"},
-    {"path": "reports/spec-review/evidence-deep-verify/attempt-1/round-1/integrated-summary.json", "sha256": "bdd0c6862f7fa4aa71c706a733dd134e1c064ed4989eaaa53d0beaf2574dc542"}
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/requirements.md",
+      "sha256": "6dc431fea935016fabb45e69410305fe5be66b67b5a617e23b2a4d47a4a2bf29"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/acceptance-tests.md",
+      "sha256": "7aab8fda5934516fcb7f3f4fa10d4d78233ffe8da3023b42a7830c5b0dcb11c1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-p5/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-p5/reports/spec-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json",
+      "sha256": "013cceb168af545a494c0a2bd3fb286e5e405962da58646799e7cba6f870f3da"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-p5/reports/spec-review/evidence-deep-verify/attempt-1/round-1/integrated-summary.json",
+      "sha256": "bdd0c6862f7fa4aa71c706a733dd134e1c064ed4989eaaa53d0beaf2574dc542"
+    }
   ],
   "verdict": "NEEDS_WORK",
   "checks": [
-    {"id": "AMBIGUITY", "result": "PASS", "severity": "Major", "finding": "Terms, actors, states, inputs, and outputs are concrete enough that two implementers would build the same observable behavior: per-artifact status enum (REQ-002), verdict rule (REQ-003), structured outputs, 2 MiB bound, and 40-hex regex are all pinned. Residual items are Minor and self-resolving via the existing 5-tool convention (root = ambient repo root; co-occurring per-artifact conditions both resolve to verdict fail so observable behavior does not diverge)."},
-    {"id": "CONTRADICTION", "result": "PASS", "severity": "Critical", "finding": "No direct conflict among requirements, acceptance criteria, constraints, and non-goals. The no-key/no-signature-verify invariant is consistent across REQ-008, Goals, Non-goals, Security Boundary B3, and AC-011. The git ancestry non-goal is consistent with REQ-006 and AC-008. The contract-cross-bind scope (REQ-007) is explicitly narrower than contract re-verification (Non-goal). Every AC-001..016 maps to at least one REQ and none asserts an outcome another REQ forbids."},
-    {"id": "EDGE-CASE-COVERAGE", "result": "FAIL", "severity": "Major", "finding": "REQ-002 enumerates six per-artifact statuses (match/mismatch/missing/too-large/path-denied/invalid-recorded-sha) and Edge Cases (requirements line 188) specifies non-64-hex recorded artifacts[].sha256 -> 'invalid-recorded-sha' with verdict fail. acceptance-tests.md covers five of six (AC-001 match; AC-002/003 mismatch; AC-004 missing; AC-005 too-large + path-denied) but has NO acceptance test for 'invalid-recorded-sha' -- AC-003 rewrites the recorded hash to a DIFFERENT 64-hex value (mismatch), not a malformed one. A verifier cannot confirm the tool maps a malformed recorded sha to invalid-recorded-sha+fail (versus throwing, which REQ-011 forbids, or misclassifying as mismatch). Major per calibration. Secondary uncovered boundaries of the same class: empty artifacts[] array (no AC) and the all-specs-absent spec_revision=='' case (Edge Cases line 189, no dedicated AC)."},
-    {"id": "ASSUMPTIONS-RESOLVABLE", "result": "PASS", "severity": "Major", "finding": "Assumptions (requirements lines 211-221) are each grounded in existing source-of-truth or elevated to an explicit decision. Canonical-formula / spec_revision / git 40-hex assumptions are pinned to the host scripts with an obligation to quote them verbatim in design.md. The 'without external tools => git ancestry out of scope' interpretation is raised as OQ-001, resolved with an adopted Default, recorded as ADR-0008, and flagged Blocks-Implementation:no. No assumption is left both unresolved and undecided in a blocking way."},
-    {"id": "APPROVAL-BOUNDARY", "result": "SKIP", "severity": "Critical", "finding": "SKIP condition met: no human-approval/governance/irreversible-change boundary is in this feature's implementation scope. The tool is strictly read-only (no rewrite/repair/signing, no fs writes, no ledger, no exec/network), so it performs no irreversible action to gate. Its verdict is advisory input to a Done-transition decided elsewhere. The ADR-0008 human approval is a spec-process governance step, not a runtime behavior."},
-    {"id": "DOWNSTREAM-READINESS", "result": "PASS", "severity": "Major", "finding": "Ready for design review without inventing product behavior: tool contract, no-key control (REQ-008), determinism (REQ-010), exception-safety (REQ-011), additive contract change (REQ-012) all specified. The one forward dependency (verbatim host-formula quotation) is correctly deferred to the design gate; the summarized formula is present in REQ-004/005. The EDGE-CASE-COVERAGE gap is a test-coverage omission, not a missing behavior definition."}
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms, actors, states, inputs, and outputs are concrete enough that two implementers would build the same observable behavior: per-artifact status enum (REQ-002), verdict rule (REQ-003), structured outputs, 2 MiB bound, and 40-hex regex are all pinned. Residual items are Minor and self-resolving via the existing 5-tool convention (root = ambient repo root; co-occurring per-artifact conditions both resolve to verdict fail so observable behavior does not diverge)."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict among requirements, acceptance criteria, constraints, and non-goals. The no-key/no-signature-verify invariant is consistent across REQ-008, Goals, Non-goals, Security Boundary B3, and AC-011. The git ancestry non-goal is consistent with REQ-006 and AC-008. The contract-cross-bind scope (REQ-007) is explicitly narrower than contract re-verification (Non-goal). Every AC-001..016 maps to at least one REQ and none asserts an outcome another REQ forbids."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-002 enumerates six per-artifact statuses (match/mismatch/missing/too-large/path-denied/invalid-recorded-sha) and Edge Cases (requirements line 188) specifies non-64-hex recorded artifacts[].sha256 -> 'invalid-recorded-sha' with verdict fail. acceptance-tests.md covers five of six (AC-001 match; AC-002/003 mismatch; AC-004 missing; AC-005 too-large + path-denied) but has NO acceptance test for 'invalid-recorded-sha' -- AC-003 rewrites the recorded hash to a DIFFERENT 64-hex value (mismatch), not a malformed one. A verifier cannot confirm the tool maps a malformed recorded sha to invalid-recorded-sha+fail (versus throwing, which REQ-011 forbids, or misclassifying as mismatch). Major per calibration. Secondary uncovered boundaries of the same class: empty artifacts[] array (no AC) and the all-specs-absent spec_revision=='' case (Edge Cases line 189, no dedicated AC)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Assumptions (requirements lines 211-221) are each grounded in existing source-of-truth or elevated to an explicit decision. Canonical-formula / spec_revision / git 40-hex assumptions are pinned to the host scripts with an obligation to quote them verbatim in design.md. The 'without external tools => git ancestry out of scope' interpretation is raised as OQ-001, resolved with an adopted Default, recorded as ADR-0008, and flagged Blocks-Implementation:no. No assumption is left both unresolved and undecided in a blocking way."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "SKIP condition met: no human-approval/governance/irreversible-change boundary is in this feature's implementation scope. The tool is strictly read-only (no rewrite/repair/signing, no fs writes, no ledger, no exec/network), so it performs no irreversible action to gate. Its verdict is advisory input to a Done-transition decided elsewhere. The ADR-0008 human approval is a spec-process governance step, not a runtime behavior."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Ready for design review without inventing product behavior: tool contract, no-key control (REQ-008), determinism (REQ-010), exception-safety (REQ-011), additive contract change (REQ-012) all specified. The one forward dependency (verbatim host-formula quotation) is correctly deferred to the design gate; the summarized formula is present in REQ-004/005. The EDGE-CASE-COVERAGE gap is a test-coverage omission, not a missing behavior definition."
+    }
   ]
 }

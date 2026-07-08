@@ -5,18 +5,60 @@
   "run_id": "spec-a-evdeepverify-a1r1-20260708-3f1a",
   "host_session_id": "hs-spec-a-evdeepverify-0117",
   "allowed_input_manifest": [
-    {"path": "specs/evidence-deep-verify/requirements.md", "sha256": "6dc431fea935016fabb45e69410305fe5be66b67b5a617e23b2a4d47a4a2bf29"},
-    {"path": "specs/evidence-deep-verify/acceptance-tests.md", "sha256": "7aab8fda5934516fcb7f3f4fa10d4d78233ffe8da3023b42a7830c5b0dcb11c1"},
-    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
-    {"path": "reports/spec-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json", "sha256": "013cceb168af545a494c0a2bd3fb286e5e405962da58646799e7cba6f870f3da"}
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/requirements.md",
+      "sha256": "6dc431fea935016fabb45e69410305fe5be66b67b5a617e23b2a4d47a4a2bf29"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/acceptance-tests.md",
+      "sha256": "7aab8fda5934516fcb7f3f4fa10d4d78233ffe8da3023b42a7830c5b0dcb11c1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-p5/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-p5/reports/spec-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json",
+      "sha256": "013cceb168af545a494c0a2bd3fb286e5e405962da58646799e7cba6f870f3da"
+    }
   ],
   "verdict": "PASS",
   "checks": [
-    {"id": "REQ-TESTABILITY", "result": "PASS", "severity": "Critical", "finding": "All 13 requirements are atomic and observable. Each yields concrete, machine-checkable outputs: REQ-002 enumerates a closed per-artifact status set (match/mismatch/missing/too-large/path-denied/invalid-recorded-sha); REQ-003 defines verdict pass/fail from named invariants; REQ-004/005/006/007 give recompute-and-compare formulas with named result fields; REQ-008 asserts no-key/verified:false; REQ-009 pins host-script parity; REQ-010 byte-equal determinism; REQ-011 exception-safety; REQ-012/013 contract+test surfaces. No requirement rests on unmeasurable intent."},
-    {"id": "GOAL-AC-TRACE", "result": "PASS", "severity": "Major", "finding": "Each of the three goals maps to acceptance coverage. Goal 1 (read-only deterministic re-verify: disk-hash match + internal invariants) -> AC-001..AC-010, AC-013. Goal 2 (in-process implementation exactly matching host canonical artifacts-digest/spec_revision/git 40-hex formulas, signature/ancestry excluded) -> AC-012 host-script parity golden. Goal 3 (no-key-read / no-signature-verify boundary preserved) -> AC-011 no-secret + AC-014 static grep. No orphan goal."},
-    {"id": "AC-OBSERVABLE", "result": "PASS", "severity": "Major", "finding": "All 16 ACs describe externally observable outcomes: verdict pass/fail, closed status enums, digest match/mismatch, echoed gitCommit fields with ancestryVerified:false, signature present/verified:false with canary-grep of response+stderr, byte-equal data, ajv contract conformance, and tools/list presence. Every AC carries a Requirement, Test ID, Test Type, and Test Target column; no vague-intent criteria."},
-    {"id": "SCOPE-BOUNDARY", "result": "PASS", "severity": "Major", "finding": "Non-goals are explicit and enumerated (HMAC crypto verify, git HEAD/ancestry verify, bundle rewrite/repair/signing, contract self re-verification, new network/subprocess/fs-write, identity-ledger involvement). The primary expansion risk (git ancestry) is bounded to shape-only via OQ-001/ADR-0008 with a host-deferred report contract, coherently reflected in Non-goals, Edge Cases, REQ-006, and AC-008."},
-    {"id": "CONSTRAINTS-EXPLICIT", "result": "PASS", "severity": "Major", "finding": "Material constraints are stated: no-exec/read-only boundary; path-guard allowlist (specs/, reports/, docs/review-tickets/, docs/workflow-improvements/, AGENTS.md) and key-file denylist; 2 MiB read cap; determinism (no time/random/network/process); v1 schema additive/backward-compatible (REQ-012); and the central security invariant (no key material read, no signature crypto verify) with a Security Boundaries table (B1/B2/B3). The security invariant is a clear, testable requirement (REQ-008 + AC-011/AC-014)."},
-    {"id": "RISK-VALIDATION-SURFACE", "result": "PASS", "severity": "Major", "finding": "The three high-risk claims each have a planned validation surface: canonical-formula divergence from host (Risk: high) -> verbatim quote + golden parity AC-012; key-read leakage (Risk: high) -> denylist reuse + no-key AC-011 + static grep AC-014 (triple control); read exceptions on missing/oversize artifacts -> exception-safety AC-004/AC-005. No high-risk claim lacks a validation path, so SKIP does not apply."}
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 13 requirements are atomic and observable. Each yields concrete, machine-checkable outputs: REQ-002 enumerates a closed per-artifact status set (match/mismatch/missing/too-large/path-denied/invalid-recorded-sha); REQ-003 defines verdict pass/fail from named invariants; REQ-004/005/006/007 give recompute-and-compare formulas with named result fields; REQ-008 asserts no-key/verified:false; REQ-009 pins host-script parity; REQ-010 byte-equal determinism; REQ-011 exception-safety; REQ-012/013 contract+test surfaces. No requirement rests on unmeasurable intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of the three goals maps to acceptance coverage. Goal 1 (read-only deterministic re-verify: disk-hash match + internal invariants) -> AC-001..AC-010, AC-013. Goal 2 (in-process implementation exactly matching host canonical artifacts-digest/spec_revision/git 40-hex formulas, signature/ancestry excluded) -> AC-012 host-script parity golden. Goal 3 (no-key-read / no-signature-verify boundary preserved) -> AC-011 no-secret + AC-014 static grep. No orphan goal."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 16 ACs describe externally observable outcomes: verdict pass/fail, closed status enums, digest match/mismatch, echoed gitCommit fields with ancestryVerified:false, signature present/verified:false with canary-grep of response+stderr, byte-equal data, ajv contract conformance, and tools/list presence. Every AC carries a Requirement, Test ID, Test Type, and Test Target column; no vague-intent criteria."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals are explicit and enumerated (HMAC crypto verify, git HEAD/ancestry verify, bundle rewrite/repair/signing, contract self re-verification, new network/subprocess/fs-write, identity-ledger involvement). The primary expansion risk (git ancestry) is bounded to shape-only via OQ-001/ADR-0008 with a host-deferred report contract, coherently reflected in Non-goals, Edge Cases, REQ-006, and AC-008."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated: no-exec/read-only boundary; path-guard allowlist (specs/, reports/, docs/review-tickets/, docs/workflow-improvements/, AGENTS.md) and key-file denylist; 2 MiB read cap; determinism (no time/random/network/process); v1 schema additive/backward-compatible (REQ-012); and the central security invariant (no key material read, no signature crypto verify) with a Security Boundaries table (B1/B2/B3). The security invariant is a clear, testable requirement (REQ-008 + AC-011/AC-014)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The three high-risk claims each have a planned validation surface: canonical-formula divergence from host (Risk: high) -> verbatim quote + golden parity AC-012; key-read leakage (Risk: high) -> denylist reuse + no-key AC-011 + static grep AC-014 (triple control); read exceptions on missing/oversize artifacts -> exception-safety AC-004/AC-005. No high-risk claim lacks a validation path, so SKIP does not apply."
+    }
   ]
 }

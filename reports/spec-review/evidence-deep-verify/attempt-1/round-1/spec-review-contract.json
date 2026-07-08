@@ -16,19 +16,19 @@
       "host_session_id": "hs-spec-a-evdeepverify-0117",
       "allowed_input_manifest": [
         {
-          "path": "specs/evidence-deep-verify/requirements.md",
+          "path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/requirements.md",
           "sha256": "6dc431fea935016fabb45e69410305fe5be66b67b5a617e23b2a4d47a4a2bf29"
         },
         {
-          "path": "specs/evidence-deep-verify/acceptance-tests.md",
+          "path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/acceptance-tests.md",
           "sha256": "7aab8fda5934516fcb7f3f4fa10d4d78233ffe8da3023b42a7830c5b0dcb11c1"
         },
         {
-          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "path": "/Users/jrmag/Projects/active/sdd-forge-p5/plugins/sdd-review-loop/references/spec-review-calibration.md",
           "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
         },
         {
-          "path": "reports/spec-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json",
+          "path": "/Users/jrmag/Projects/active/sdd-forge-p5/reports/spec-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json",
           "sha256": "013cceb168af545a494c0a2bd3fb286e5e405962da58646799e7cba6f870f3da"
         }
       ]
@@ -39,23 +39,23 @@
       "host_session_id": "hs-spec-b-evdeepverify-0118",
       "allowed_input_manifest": [
         {
-          "path": "specs/evidence-deep-verify/requirements.md",
+          "path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/requirements.md",
           "sha256": "6dc431fea935016fabb45e69410305fe5be66b67b5a617e23b2a4d47a4a2bf29"
         },
         {
-          "path": "specs/evidence-deep-verify/acceptance-tests.md",
+          "path": "/Users/jrmag/Projects/active/sdd-forge-p5/specs/evidence-deep-verify/acceptance-tests.md",
           "sha256": "7aab8fda5934516fcb7f3f4fa10d4d78233ffe8da3023b42a7830c5b0dcb11c1"
         },
         {
-          "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "path": "/Users/jrmag/Projects/active/sdd-forge-p5/plugins/sdd-review-loop/references/spec-review-calibration.md",
           "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
         },
         {
-          "path": "reports/spec-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json",
+          "path": "/Users/jrmag/Projects/active/sdd-forge-p5/reports/spec-review/evidence-deep-verify/attempt-1/round-1/precheck-result.json",
           "sha256": "013cceb168af545a494c0a2bd3fb286e5e405962da58646799e7cba6f870f3da"
         },
         {
-          "path": "reports/spec-review/evidence-deep-verify/attempt-1/round-1/integrated-summary.json",
+          "path": "/Users/jrmag/Projects/active/sdd-forge-p5/reports/spec-review/evidence-deep-verify/attempt-1/round-1/integrated-summary.json",
           "sha256": "bdd0c6862f7fa4aa71c706a733dd134e1c064ed4989eaaa53d0beaf2574dc542"
         }
       ]

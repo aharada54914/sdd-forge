@@ -1,17 +1,18 @@
 {
-  "schema": "integrated-verdict/v1",
+  "schema": "spec-review-integrated-verdict/v1",
   "stage": "spec",
   "feature": "evidence-deep-verify",
-  "run_id": "spec-orch-evdeepverify-a1r1-20260708-8a2c",
-  "verdict": "NEEDS_WORK",
-  "round": 1,
   "attempt": 1,
+  "round": 1,
+  "verdict": "NEEDS_WORK",
   "warningCount": 0,
+  "reviewer_a_run_id": "spec-a-evdeepverify-a1r1-20260708-3f1a",
+  "reviewer_a_host_session_id": "hs-spec-a-evdeepverify-0117",
+  "reviewer_b_run_id": "spec-b-evdeepverify-a1r1-20260708-7c2b",
+  "reviewer_b_host_session_id": "hs-spec-b-evdeepverify-0118",
   "finding_counts": {
     "critical": 0,
     "major": 1,
     "minor": 0
-  },
-  "reviewer_a_verdict": "PASS",
-  "reviewer_b_verdict": "NEEDS_WORK"
+  }
 }
