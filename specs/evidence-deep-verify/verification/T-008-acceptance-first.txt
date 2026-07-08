@@ -1,0 +1,69 @@
+✖ inspector CLI: tools/list reports all 8 core tools + 6 evidence tools (210.52375ms)
+✖ inspector CLI: tools/list lists evidence_deep_verify as the 6th evidence tool (registration order) (198.292958ms)
+✔ inspector CLI: resources/list + resources/templates/list report 3 static + 2 template resources (395.14525ms)
+✔ inspector CLI: tools/call list_active_specs returns a schema-shaped envelope for the real repo (778.083625ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two calls, same connection (11.440416ms)
+✔ AC-013: evidence_deep_verify (pass verdict) is byte-identical across two independently seeded, independently connected servers (5.477459ms)
+✔ AC-013: an error envelope (not-found) is byte-identical across two calls with identical input (2.203875ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 5
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1618.614416
+
+✖ failing tests:
+
+test at dist-test/tests/smoke/inspector-smoke.test.js:87:1
+✖ inspector CLI: tools/list reports all 8 core tools + 6 evidence tools (210.52375ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'evidence_compare_to_traceability',
+  -   'evidence_deep_verify',
+      'evidence_find_missing',
+      'evidence_get_bundle',
+      'evidence_summarize_contract_checks',
+      'evidence_validate_paths',
+      'get_next_sdd_command',
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/smoke/inspector-smoke.test.js:91:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:358:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'evidence_compare_to_traceability', 'evidence_find_missing', 'evidence_get_bundle', 'evidence_summarize_contract_checks', 'evidence_validate_paths', 'get_next_sdd_command', 'get_quality_gate_summary', 'get_spec_status', 'get_task_state', 'list_active_specs', 'list_approved_tasks', 'list_blocked_tasks', 'list_review_tickets' ],
+    expected: [ 'evidence_compare_to_traceability', 'evidence_deep_verify', 'evidence_find_missing', 'evidence_get_bundle', 'evidence_summarize_contract_checks', 'evidence_validate_paths', 'get_next_sdd_command', 'get_quality_gate_summary', 'get_spec_status', 'get_task_state', 'list_active_specs', 'list_approved_tasks', 'list_blocked_tasks', 'list_review_tickets' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at dist-test/tests/smoke/inspector-smoke.test.js:116:1
+✖ inspector CLI: tools/list lists evidence_deep_verify as the 6th evidence tool (registration order) (198.292958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'evidence_get_bundle',
+      'evidence_validate_paths',
+      'evidence_find_missing',
+      'evidence_summarize_contract_checks',
+      'evidence_compare_to_traceability',
+  -   'evidence_deep_verify'
+    ]
+  
+      at TestContext.<anonymous> (file:///Users/jrmag/Projects/active/sdd-forge-p5/mcp/sdd-forge-mcp/dist-test/tests/smoke/inspector-smoke.test.js:120:12)
+      at Test.runInAsyncScope (node:async_hooks:214:14)
+      at Test.run (node:internal/test_runner/test:1106:25)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:788:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'evidence_get_bundle', 'evidence_validate_paths', 'evidence_find_missing', 'evidence_summarize_contract_checks', 'evidence_compare_to_traceability' ],
+    expected: [ 'evidence_get_bundle', 'evidence_validate_paths', 'evidence_find_missing', 'evidence_summarize_contract_checks', 'evidence_compare_to_traceability', 'evidence_deep_verify' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

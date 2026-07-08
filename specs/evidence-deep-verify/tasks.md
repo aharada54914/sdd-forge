@@ -194,7 +194,7 @@ T-004
 ## T-008 統合検証(決定論・tools/list スモーク)と dist 再ビルド
 
 Approval: Approved
-Status: Planned
+Status: Implementation Complete
 Risk: medium
 Risk Rationale: 決定論検証(REQ-010)・tools/list スモーク(REQ-013)・esbuild dist 再ビルド(ADR-0003)は、契約面・機微判定核を変更しない検証と必須 housekeeping(dist-parity CI)である。検証の穴は出荷品質の見逃しにつながるため low ではないが、新規セキュリティ面・契約面を持たないため medium とする。
 Required Workflow: acceptance-first
