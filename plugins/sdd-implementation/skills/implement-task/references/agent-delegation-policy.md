@@ -27,7 +27,7 @@ approved task scope.
 - When neither agent mechanism is available, run the investigation unit in a
   fresh session.
 - Record the conclusion in the Working Notes section of
-  `reports/implementation/<task-id>.md` before returning to the main task.
+  `reports/implementation/<feature>/<task-id>.md` before returning to the main task.
 - Treat each agent invocation or fresh session as a single-purpose unit; do
   not carry prior conversation state into it.
 

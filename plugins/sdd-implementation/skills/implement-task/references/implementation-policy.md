@@ -35,7 +35,7 @@ implementation report — the absence never blocks the task.
 - `tasks.md` and the implementation report are the source of truth for work
   status; do not rely on conversation memory.
 - When resuming after a break or session boundary, re-read `tasks.md` and
-  `reports/implementation/<task-id>.md` before taking any action.
+  `reports/implementation/<feature>/<task-id>.md` before taking any action.
 - Record delegation conclusions in the Working Notes section of the report
   immediately after receiving them; do not keep them only in memory.
 - If the session has grown long or compaction has occurred, write the current

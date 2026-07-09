@@ -55,7 +55,7 @@ implementation report and return:
 
 - Save the final screenshots to `reports/visual-evidence/<task-id>/`
   (one file per view and state, e.g. `login-default.png`).
-- Add a `Visual Evidence` section to `reports/implementation/<task-id>.md`
+- Add a `Visual Evidence` section to `reports/implementation/<feature>/<task-id>.md`
   listing each screenshot, the mockup or spec state it was compared
   against, and any remaining mismatches as findings.
 

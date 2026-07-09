@@ -188,7 +188,7 @@ For each task in the set (run these concurrently across the set):
 12. Delegate large-scope surveys following
    `references/agent-delegation-policy.md`. Record delegation conclusions in
    the Working Notes section of the implementation report immediately.
-13. Persist `reports/implementation/<task-id>.md` from the bundled template,
+13. Persist `reports/implementation/<feature>/<task-id>.md` from the bundled template,
     validate that all produced files are inside `allowed_outputs`, and return
     only those file-backed artifacts to the batch orchestrator.
 14. Set the task to `Implementation Complete` only when implementation,

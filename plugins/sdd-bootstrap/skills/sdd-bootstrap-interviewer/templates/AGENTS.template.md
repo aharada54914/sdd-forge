@@ -31,7 +31,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `docs/adr/NNNN-*.md` — all ADRs; no other ADR location is valid
 - `contracts/` — API and data contracts
 - `docs/architecture/` — architecture diagrams and context documents
-- `reports/implementation/<task-id>.md`
+- `reports/implementation/<feature>/<task-id>.md`
 - `reports/quality-gate/<timestamp>.md` (names the task id)
 - `docs/review-tickets/*.yml`
 

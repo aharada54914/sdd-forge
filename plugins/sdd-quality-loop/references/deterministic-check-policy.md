@@ -137,7 +137,7 @@ forbid self-approval. The deterministic scripts are the final defense.
 
 - Duplicate task IDs within a `tasks.md` file are rejected.
 - A task in `Implementation Complete` state must have a corresponding
-  `reports/implementation/<task-id>.md` file.
+  `reports/implementation/<feature>/<task-id>.md` file.
 - A task in `Blocked` state must have a non-empty `Blockers` field.
 - A task in `Done` state must have a corresponding
   `specs/<feature>/verification/<task-id>.evidence.json` file.

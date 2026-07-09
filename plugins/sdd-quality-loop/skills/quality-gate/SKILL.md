@@ -130,7 +130,13 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    For `high`/`critical` tasks, record
    the evaluator's verdict as `review_verdict` in the evidence bundle;
    `check-evidence-bundle` requires `review_verdict.verdict == PASS`.
-9. Classify findings as `Accepted`, `Rejected`, or `Deferred`.
+9. Classify findings as `Accepted`, `Rejected`, or `Deferred`. When a finding
+   is that the implementation report's narrative (counts, statuses, or
+   paths) diverges from the gate-time measured reality -- e.g. a later
+   same-feature task's edit, or a gate-phase artifact move, superseded what
+   the report described -- record the current values directly in this
+   quality-gate report and classify the finding `Accepted`; do not edit the
+   frozen implementation report to reconcile it.
 10. Apply only safe fixes allowed by `auto-fix-policy.md`.
 11. Repeat critical review for a maximum of 3 cycles.
     Stop earlier when the remaining issue requires human decision, missing

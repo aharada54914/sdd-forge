@@ -1,0 +1,63 @@
+{
+  "schema": "wfi-auditor-b/v1",
+  "wfi_id": "WFI-007",
+  "category": "plugin-improvement",
+  "cycle": 2,
+  "verdict": "PASS",
+  "cycle_1_summary": {
+    "auditor_a_fail_count": 2,
+    "auditor_a_pass_count": 6,
+    "auditor_a_verdict": "NEEDS_REVISION"
+  },
+  "checks": [
+    {
+      "id": "VERIFICATION-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four elements present. (1) Metric row named: Target-Metric: implementation-report artifacts requiring a gate-phase path move/rename before the independent-evaluator launch boundary accepts them, per feature (count). (2) Baseline and target: Baseline: 9 (evidence-deep-verify, 2026-07-09: 8 task reports + 1 traceability addendum); Target: 0. (3) Cycle count: Horizon: next completed feature retrospective (one cycle). (4) Threshold: 'the proposal succeeds only if that count is 0', plus a secondary specific check (grep all 8 corrected plugin files for the flat-path pattern, confirm zero remaining occurrences outside the confirmed-excluded lite-gate/SKILL.md). No missing element."
+    },
+    {
+      "id": "SCOPE-PROPORTIONAL",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Evidence scale: structural and systemic -- 8 installed plugin skill/reference/template locations (spanning 3 plugins: sdd-implementation, sdd-quality-loop, sdd-bootstrap) document the pre-canonicalization flat path, causing a bulk 9-file gate-phase rename this period alone (commit e3c148e). Change scope: 7 of the 8 flagged locations receive an identical one-line path correction each, and the 8th (sdd-lite/lite-gate) is confirmed out of scope with a specific stated reason (path-agnostic validator, no launch-boundary invocation) rather than silently omitted. Change scope matches evidence scope 1:1 (every flagged location addressed, none left unexplained). Proportional."
+    },
+    {
+      "id": "UNINTENDED-CONSEQUENCES",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Scanned docs/workflow-improvements/ for Status: Verified WFIs: WFI-001, WFI-002, WFI-003, WFI-004 (all Verified). All four Proposed Change tables target only AGENTS.md subsections (high-risk-task preflight; review-gate precheck fallback; evidence report identity fields; post-review artifact freeze / provenance re-review). None touch any of the 7 plugins/sdd-implementation, sdd-quality-loop, or sdd-bootstrap files WFI-007 corrects. No overlap, no conflict. (WFI-005, Status: Applied not Verified and thus excluded by definition, touches deterministic-check-policy.md's placeholder-scan waiver text -- a different paragraph of the same file WFI-007 edits at line 140 for the report-path pattern; confirmed via git diff these are non-overlapping line ranges within the file, so even under a broader reading there is no textual conflict.)"
+    },
+    {
+      "id": "FEASIBILITY-WITHOUT-PLUGINS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Category is plugin-improvement (correctly classified: cross-plugin handoff gap between the implementation-phase plugin's own documented convention and the quality-loop plugin's independent-evaluator launch boundary). The WFI declares zero direct project-side Proposed Change ('WFI Direct Target (project-side): None') and routes the fix through the sanctioned GitHub-Issue lane, the designed mechanism for this category, not a misclassification. The root cause -- 8 plugin-internal files instructing implementers to write to a flat path the launch-boundary validator (plugins/sdd-quality-loop/scripts/validate-review-context-set.sh:265, confirmed unchanged in this diff) already rejects -- is baked into the plugin files' own instruction text; no AGENTS.md-level rule could correct 8 separate skill/reference/template files read verbatim by implementation-phase workers. Confirmed via `git diff origin/main -- plugins/`: all 7 corrected files match the 7 'Same path correction' rows one-for-one, and the 8th row's 'No change' claim for lite-gate/SKILL.md is confirmed (not in the diff), demonstrating the fix is concretely achievable and already applied through the declared mechanism."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-SECOND-PASS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Scanned Root Cause Hypothesis, Proposed Change Change Description column, and Expected Effect against every forbidden term in wfi-category-guide.md Section 2. All matches for plugin-specific strings (implement-task/SKILL.md, agent-delegation-policy.md, implementation-policy.md, implement-tasks/SKILL.md, visual-verify-loop/SKILL.md, deterministic-check-policy.md, AGENTS.template.md, lite-gate/SKILL.md) fall exclusively inside the Target File column, matching the WFI-005 precedent for literal path citations. Prose uses only generic terms ('independent-evaluator launch boundary', 'implementation-phase plugin', 'lightweight track' -- the correct required substitution for sdd-lite). No forbidden term newly introduced by the Cycle 1 restructuring; the new 'WFI Direct Target' / 'GitHub-Issue Lane' subheadings and surrounding prose use only 'plugins/' as a generic directory noun and cross-references to WFI-004 and the category guide."
+    },
+    {
+      "id": "EFFECT-CONSISTENT-WITH-EVIDENCE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Target is 0 path-move renames next feature, against a baseline of 9 this period. The friction is a deterministic documentation-vs-validator mismatch, not a probabilistic behavioral pattern: once all 8 flagged locations are corrected to match the launch boundary's existing (unchanged) requirement, there is no remaining mechanism that would produce a mismatch, since the validator itself is confirmed unchanged. Driving a purely documentation-caused defect to 0 after the documentation is fixed is plausible, not optimistic. No advisory needed."
+    },
+    {
+      "id": "ISSUE-BODY-QUALITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Category: plugin-improvement, so this check applies. Problem Evidence summarizes cleanly in 2-3 generic sentences (documentation/validator path contradiction causing bulk gate-phase renames). The GitHub-Issue Lane Proposed Change table has 8 rows (7 corrections + 1 explicit out-of-scope confirmation) with concrete, generic, non-vague Change Description text sufficient to populate the Section 4 issue template verbatim. Expected Effect states a quantitative target (9 to 0) plus an explicit non-decreasing-guard statement. No row would produce an empty or vague issue body."
+    },
+    {
+      "id": "META-CHANGE-ANTI-GOODHART",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Meta-Change: true, strict lane applies. (1) Easier-to-satisfy: NO. Confirmed via `git diff origin/main -- plugins/sdd-quality-loop/scripts/validate-review-context-set.sh`: the launch-boundary script is byte-for-byte unchanged (empty diff). The 7 corrected files only align documentation prose with the boundary's existing, already-stricter requirement; no gate, grader, or threshold is loosened -- if anything, path-matching failures should become rarer, tightening observed compliance, not loosening it. (2) Non-decreasing guard: the full plugins/ diff touches no script, hook, or validator logic in any of the 7 files -- deterministic-check-policy.md's edit is a documentation-only path-pattern correction (confirmed: no script parses this file by name; check-task-state.sh uses its own directory-default logic, not this markdown text). 0 gates/checks added, 0 removed; count unchanged, consistent with the WFI's own claim. (3) Target-Metric independence: Target-Metric (path-move-rename count, observed via git rename-commit history and gate-report PATH-failure records at the next retrospective) is computed by external observation of git history and gate reports, not by any of the 7 files this WFI modifies or by the unmodified validator script. The instrument that computes the Target-Metric is untouched by this change."
+    }
+  ],
+  "proposed_revisions": []
+}
