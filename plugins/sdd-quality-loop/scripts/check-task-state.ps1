@@ -184,9 +184,11 @@ foreach ($task in $allTasks) {
     }
     if ($s -eq "Implementation Complete") {
         $hasImplReport = $false
+        # C-07: word-boundary match to prevent T-001 matching T-0010 (parity with grep -w in .sh)
+        $taskWordPattern = "\b" + [regex]::Escape($task) + "\b"
         if (Test-Path -LiteralPath $ImplReportsDir) {
             $hasImplReport = [bool](Get-ChildItem $ImplReportsDir -File -Recurse |
-                Where-Object { Select-String -Path $_.FullName -Pattern $task -Quiet })
+                Where-Object { Select-String -Path $_.FullName -Pattern $taskWordPattern -Quiet })
         }
         if (-not $hasImplReport) {
             $failures += "$task is Implementation Complete but no implementation report in $ImplReportsDir mentions it"
