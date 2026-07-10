@@ -20,8 +20,13 @@ $findings = @()
 
 foreach ($path in $Paths) {
     if (-not (Test-Path $path)) {
-        Write-Host "check-placeholders: path not found, skipping: $path"
-        continue
+        # issue #127 parity: a missing scan target must fail closed, not be
+        # silently skipped. Skipping reported a false pass when the caller
+        # passed a bad or moved path -- the PowerShell twin of the .sh grep
+        # exit-2 fail-open bug.
+        [Console]::Error.WriteLine("check-placeholders: FATAL path not found: $path")
+        [Console]::Error.WriteLine("check-placeholders: cannot scan a nonexistent path; failing closed instead of reporting a false pass.")
+        exit 2
     }
     $files = if ((Get-Item $path).PSIsContainer) {
         Get-ChildItem $path -Recurse -File | Where-Object { $_.FullName -notmatch '[\\/](\.git|node_modules|bin|obj|dist)[\\/]' }
@@ -30,8 +35,17 @@ foreach ($path in $Paths) {
     }
     foreach ($file in $files) {
         $matched = @()
-        $matched += Select-String -Path $file.FullName -Pattern $patternCs -CaseSensitive -AllMatches -ErrorAction SilentlyContinue
-        $matched += Select-String -Path $file.FullName -Pattern $patternCi -AllMatches -ErrorAction SilentlyContinue
+        # Do NOT swallow read errors: an unreadable file previously slipped
+        # through -ErrorAction SilentlyContinue and was reported clean. Surface
+        # it and fail closed, mirroring the .sh grep exit>=2 handling.
+        try {
+            $matched += Select-String -Path $file.FullName -Pattern $patternCs -CaseSensitive -AllMatches -ErrorAction Stop
+            $matched += Select-String -Path $file.FullName -Pattern $patternCi -AllMatches -ErrorAction Stop
+        } catch {
+            [Console]::Error.WriteLine("check-placeholders: FATAL could not scan file: $($file.FullName)")
+            [Console]::Error.WriteLine("check-placeholders: $($_.Exception.Message)")
+            exit 2
+        }
         $matched = $matched | Sort-Object Path, LineNumber -Unique
         foreach ($m in $matched) {
             $findings += "$($m.Path):$($m.LineNumber): $($m.Line.Trim())"
