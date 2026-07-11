@@ -399,6 +399,26 @@ if command -v pwsh >/dev/null 2>&1; then
     fail 'PowerShell did not persist the complete chronological identity chain'
 fi
 
+# Issue #143: impl-reviewer-a must be authorized to read the previous round's
+# integrated-summary.json. impl-review-precheck.sh requires reviewer-a's manifest
+# to carry it when round > 1, but this validator previously authorized the
+# summary for reviewer-b only, so every round > 1 impl review was rejected with
+# REVIEW_CONTEXT_PATH and impl-review could never pass past round 1.
+issue143_repository="$tmp/issue143-repository"
+make_repository "$issue143_repository"
+issue143_summary='reports/impl-review/f/attempt-1/round-1/integrated-summary.json'
+printf '{"schema":"integrated-summary/v1"}\n' > "$issue143_repository/$issue143_summary"
+make_manifest "$issue143_repository" impl-reviewer-a "$candidate"
+jq --arg path "$issue143_summary" \
+   --arg hash "$(sha256 "$issue143_repository/$issue143_summary")" \
+  '.allowed_input_manifest += [{path:$path,sha256:$hash}]' "$candidate" > "$tmp/issue143.json"
+run_bash "$tmp/issue143.json" "$issue143_repository" >/dev/null ||
+  fail 'issue #143: Bash rejected impl-reviewer-a previous-round integrated summary'
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/issue143.json" "$issue143_repository" >/dev/null ||
+    fail 'issue #143: PowerShell rejected impl-reviewer-a previous-round integrated summary'
+fi
+
 # Real rollback proof: restore only the pinned 1.4.0 boundary from 7df7318.
 # Files introduced after that commit must be deleted, and all surviving files
 # must be byte-identical to the archived baseline.

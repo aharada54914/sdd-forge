@@ -84,13 +84,18 @@ function Test-AuthorizedPath {
                 $Path -cmatch "^reports/spec-review/$escapedFeature/attempt-[1-9][0-9]*/round-[1-9][0-9]*/integrated-summary\.json$")
         }
         { $_ -in @('impl:impl-reviewer-a', 'impl:impl-reviewer-b') } {
+            # Issue #143: impl-review-precheck requires impl-reviewer-a to carry
+            # the PREVIOUS round's integrated-summary.json when round > 1, so the
+            # summary must be authorized for both reviewer roles. Without this,
+            # reviewer-a's required input is rejected as role-unlisted and
+            # impl-review can never pass at round > 1. The precheck contract still
+            # pins reviewer-a to the exact previous round (defense-in-depth).
             if ($Path -cmatch "^specs/$escapedFeature/(requirements|acceptance-tests|design|investigation|ux-spec|frontend-spec|infra-spec|security-spec)\.md$" -or
                 $Path -ceq 'plugins/sdd-review-loop/references/reviewer-calibration.md' -or
                 $Path -cmatch "^reports/impl-review/$escapedFeature/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json$") {
                 return $true
             }
-            return ($Role -ceq 'impl-reviewer-b' -and
-                $Path -cmatch "^reports/impl-review/$escapedFeature/attempt-[1-9][0-9]*/round-[1-9][0-9]*/integrated-summary\.json$")
+            return ($Path -cmatch "^reports/impl-review/$escapedFeature/attempt-[1-9][0-9]*/round-[1-9][0-9]*/integrated-summary\.json$")
         }
         { $_ -in @('task:task-reviewer-a', 'task:task-reviewer-b') } {
             if ($Path -cmatch "^specs/$escapedFeature/(requirements|acceptance-tests|design|tasks|traceability|ux-spec|frontend-spec|infra-spec|security-spec)\.md$" -or
