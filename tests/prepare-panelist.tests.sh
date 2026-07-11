@@ -604,7 +604,9 @@ else
 
     D13="${WORK}/pp013"; mkdir -p "$D13"; write_tasks_no_consent "${D13}/tasks.md"; write_clean_input "${D13}/input.txt"
     REPO13="$(cd "$D13" && pwd -P)"; WRONG_REPO="${REPO13}-wrong"; SIG13="$(hmac_sig "$KEY" "$ISSUER8" "$NONCE" "$WRONG_REPO" "$ISSUED" "$EXPIRES")"
-    write_sudo_token "$D13" "$ISSUER8" "$SIG13" "$NONCE" "$ISSUED" "$EXPIRES"; sed -i "s|^repo: .*|repo: ${WRONG_REPO}|" "${D13}/SDD_SUDO"
+    write_sudo_token "$D13" "$ISSUER8" "$SIG13" "$NONCE" "$ISSUED" "$EXPIRES"
+    sed "s|^repo: .*|repo: ${WRONG_REPO}|" "${D13}/SDD_SUDO" > "${D13}/SDD_SUDO.tmp"
+    mv "${D13}/SDD_SUDO.tmp" "${D13}/SDD_SUDO"
     SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D13}/input.txt" --tasks-file "${D13}/tasks.md" --project-root "$D13" --out "${D13}/out.txt" >/dev/null 2>&1 && PP13_RC=0 || PP13_RC=$?
     if [ "$PP13_RC" -ne 0 ] && [ ! -e "${D13}/out.txt" ]; then ok "PP-013: correctly signed wrong repository is denied"; else fail "PP-013: wrong repository must be denied"; fi
 fi
