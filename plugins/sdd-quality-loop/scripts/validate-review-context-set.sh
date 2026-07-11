@@ -84,11 +84,17 @@ path_is_authorized() {
           [[ "$path" =~ ^reports/spec-review/"$feature"/attempt-[1-9][0-9]*/round-[1-9][0-9]*/integrated-summary\.json$ ]]; }
       ;;
     impl:impl-reviewer-a|impl:impl-reviewer-b)
+      # Issue #143: impl-review-precheck requires impl-reviewer-a to carry the
+      # PREVIOUS round's integrated-summary.json when round > 1 (see
+      # impl-review-precheck.sh allowed_input + require_persisted_pass), so the
+      # summary must be authorized for both reviewer roles here. Without this,
+      # reviewer-a's required input is rejected as role-unlisted and impl-review
+      # can never pass at round > 1. The precheck contract still pins reviewer-a
+      # to the exact previous round, so this remains defense-in-depth.
       [[ "$path" =~ ^specs/"$feature"/(requirements|acceptance-tests|design|investigation|ux-spec|frontend-spec|infra-spec|security-spec)\.md$ ]] ||
         [[ "$path" == plugins/sdd-review-loop/references/reviewer-calibration.md ]] ||
         [[ "$path" =~ ^reports/impl-review/"$feature"/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json$ ]] ||
-        { [[ "$role" == impl-reviewer-b ]] &&
-          [[ "$path" =~ ^reports/impl-review/"$feature"/attempt-[1-9][0-9]*/round-[1-9][0-9]*/integrated-summary\.json$ ]]; }
+        [[ "$path" =~ ^reports/impl-review/"$feature"/attempt-[1-9][0-9]*/round-[1-9][0-9]*/integrated-summary\.json$ ]]
       ;;
     task:task-reviewer-a|task:task-reviewer-b)
       [[ "$path" =~ ^specs/"$feature"/(requirements|acceptance-tests|design|tasks|traceability|ux-spec|frontend-spec|infra-spec|security-spec)\.md$ ]] ||

@@ -1,0 +1,18 @@
+{
+  "schema":"spec-reviewer-a/v1","stage":"spec","role":"spec-reviewer-a","run_id":"spec-a-epic136rce-a1r2-20260710-0004","host_session_id":"hs-spec-a-epic136rce-0136",
+  "allowed_input_manifest":[
+    {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/requirements.md","sha256":"57d21b51140436f462910eaaa46cd4d6f69292de676f3c960a992d357fa8bae7"},
+    {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/acceptance-tests.md","sha256":"c97c9673f2be0ea76304eb1c5f9517a822eff202d7b68bece635a3289f40787c"},
+    {"path":"/c/dev/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path":"/c/dev/sdd-forge/reports/spec-review/epic-136-phase1-rce/attempt-1/round-2/precheck-result.json","sha256":"0236c10ef2744667084f1e0db71791ccf9242a6f50bacdbd9f1670d6d07c026c"}
+  ],
+  "verdict":"PASS",
+  "checks":[
+    {"id":"REQ-TESTABILITY","result":"PASS","severity":"Critical","finding":"REQ-001 through REQ-005 define testable security, consent, parity, and isolation outcomes."},
+    {"id":"GOAL-AC-TRACE","result":"PASS","severity":"Major","finding":"Each stated goal is covered by one or more mapped acceptance criteria and planned tests."},
+    {"id":"AC-OBSERVABLE","result":"PASS","severity":"Major","finding":"AC-001 through AC-007 state observable invocation, exit, bundle, consent, fixture, and isolation outcomes."},
+    {"id":"SCOPE-BOUNDARY","result":"PASS","severity":"Major","finding":"Non-goals explicitly retain token policy and exclude panelist, sanitization, evidence, UI, network, and persistence changes."},
+    {"id":"CONSTRAINTS-EXPLICIT","result":"PASS","severity":"Major","finding":"The requirements explicitly constrain quoted data transfer, canonical HMAC behavior, independent validation conditions, test-only fixtures, and PowerShell parity."},
+    {"id":"RISK-VALIDATION-SURFACE","result":"PASS","severity":"Major","finding":"The critical injection and invalid-consent risks have planned shell and PowerShell validation surfaces, including adversarial operands and independently invalid signed tokens."}
+  ]
+}

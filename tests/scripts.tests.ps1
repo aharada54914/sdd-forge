@@ -173,6 +173,14 @@ Status: Done
     Assert-ExitCode "check-placeholders ps1 uppercase TODO flagged" (Invoke-Gate "check-placeholders.ps1" @("src/todo-upper.py")) 1
 
     # =========================================================
+    # check-placeholders fail-closed on a real scan error (issue #127)
+    # A nonexistent scan target cannot be scanned; the gate must fail closed
+    # (exit 2) rather than swallow the error and report a false "passed"
+    # (the historical grep exit>=2 / Test-Path skip fail-open bug).
+    # =========================================================
+    Assert-ExitCode "check-placeholders ps1 missing path fails closed (issue #127)" (Invoke-Gate "check-placeholders.ps1" @("src/does-not-exist.py")) 2
+
+    # =========================================================
     # check-task-state header-only task (Wave 2)
     # =========================================================
     # A '## T-1' header with no Approval:/Status: lines must produce per-field errors
@@ -826,6 +834,35 @@ Status: Implementation Complete
     "implementation report for T-020" | Set-Content -Encoding Utf8 "reports/implementation/impl-T-020.md"
     Assert-ExitCode "check-task-state impl-complete with-report passes" (Invoke-Gate "check-task-state.ps1" @("tasks-impl-no-report.md", "-ReportsDir", "reports/quality-gate", "-ImplReportsDir", "reports/implementation")) 0
 
+    # -- Word-boundary task-id match (issue #111): T-900 must NOT be satisfied by a T-9000 report --
+    # The longer id T-9000 contains "T-900" as a substring; a substring match would wrongly pass.
+    New-Item -ItemType Directory -Path "reports/impl-wb-substr" -Force | Out-Null
+    "implementation report for T-9000 only" | Set-Content -Encoding Utf8 "reports/impl-wb-substr/impl-T-9000.md"
+    @"
+## T-900 WordBoundary
+Approval: Approved
+Status: Implementation Complete
+"@ | Set-Content -Encoding Utf8 "tasks-wb-substr.md"
+    Assert-ExitCode "check-task-state impl-complete T-900 not matched by T-9000 report (word boundary)" (Invoke-Gate "check-task-state.ps1" @("tasks-wb-substr.md", "-ReportsDir", "reports/quality-gate", "-ImplReportsDir", "reports/impl-wb-substr")) 1
+
+    # -- T-900 and T-9000 coexist: distinct tasks, no false 'duplicate', each resolves its own report -> exit 0 --
+    New-Item -ItemType Directory -Path "reports/impl-wb-both" -Force | Out-Null
+    "implementation report for T-900" | Set-Content -Encoding Utf8 "reports/impl-wb-both/impl-T-900.md"
+    "implementation report for T-9000" | Set-Content -Encoding Utf8 "reports/impl-wb-both/impl-T-9000.md"
+    @"
+## T-900 First
+Approval: Approved
+Status: Implementation Complete
+## T-9000 Second
+Approval: Approved
+Status: Implementation Complete
+"@ | Set-Content -Encoding Utf8 "tasks-wb-both.md"
+    $wbBothExit = Invoke-Gate "check-task-state.ps1" @("tasks-wb-both.md", "-ReportsDir", "reports/quality-gate", "-ImplReportsDir", "reports/impl-wb-both")
+    if (($script:gateOutput | Out-String) -match "duplicate task id") {
+        throw "check-task-state must not report T-900/T-9000 as duplicate task ids"
+    }
+    Assert-ExitCode "check-task-state T-900 and T-9000 coexist, each matches own report" $wbBothExit 0
+
     # -- Blocked with None → exit 1 --
     @"
 ## T-030 Blocked
@@ -1076,6 +1113,19 @@ Status: Implementation Complete
         & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-impl-no-report-sh.md" "reports/quality-gate" "reports/implementation" *> $null
         Assert-ExitCode "check-task-state.sh impl-complete with-report passes" $LASTEXITCODE 0
 
+        # Word-boundary task-id match (issue #111): parity with .ps1, reusing the same fixtures.
+        # T-900 must NOT be satisfied by a report mentioning only the longer id T-9000.
+        & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-wb-substr.md" "reports/quality-gate" "reports/impl-wb-substr" *> $null
+        Assert-ExitCode "check-task-state.sh T-900 not matched by T-9000 report (word boundary)" $LASTEXITCODE 1
+
+        # T-900 and T-9000 coexist: no false duplicate, each resolves its own report -> exit 0
+        $shWbBothOut = & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-wb-both.md" "reports/quality-gate" "reports/impl-wb-both" 2>&1
+        $shWbBothExit = $LASTEXITCODE
+        if (($shWbBothOut | Out-String) -match "duplicate task id") {
+            throw "check-task-state.sh must not report T-900/T-9000 as duplicate task ids"
+        }
+        Assert-ExitCode "check-task-state.sh T-900 and T-9000 coexist, each matches own report" $shWbBothExit 0
+
         # Blocked with None
         & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-blocked-none.md" *> $null
         Assert-ExitCode "check-task-state.sh blocked None fails" $LASTEXITCODE 1
@@ -1159,6 +1209,12 @@ Status: Done
         Assert-ExitCode "check-placeholders.sh lowercase todo passes (prose, RT-20260706-001)" $LASTEXITCODE 0
         & bash (Join-Path $scriptsDir "check-placeholders.sh") "src/todo-upper.py" *> $null
         Assert-ExitCode "check-placeholders.sh uppercase TODO flagged" $LASTEXITCODE 1
+
+        # check-placeholders.sh fail-closed on a real grep error (issue #127):
+        # a nonexistent path makes grep exit >=2; the gate must not swallow it
+        # and report a false pass.
+        & bash (Join-Path $scriptsDir "check-placeholders.sh") "src/does-not-exist.py" *> $null
+        Assert-ExitCode "check-placeholders.sh missing path fails closed (issue #127)" $LASTEXITCODE 2
 
         # check-task-state.sh header-only task: per-field errors, NOT "no tasks found"
         $shHeaderOut = & bash (Join-Path $scriptsDir "check-task-state.sh") "tasks-header-only.md" 2>&1

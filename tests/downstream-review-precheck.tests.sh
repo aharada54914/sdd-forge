@@ -25,6 +25,31 @@ for precheck in impl-review-precheck.sh task-review-precheck.sh; do
     "$ROOT/plugins/sdd-review-loop/scripts/$precheck" ||
     fail "$precheck must invoke scoped workflow-state validation"
 done
+
+# Issue #120: prechecks must fail fast with a clear runtime error when jq is
+# absent, before touching any specification, report, or registry state. Run each
+# precheck under an isolated PATH that provides the coreutils the guard path
+# needs but deliberately omits jq, so we exercise the absent-jq branch rather
+# than a confusing mid-pipeline "jq: command not found" failure downstream.
+JQ_ABSENT_BIN="$(mktemp -d)"
+ln -sf "$(command -v dirname)" "$JQ_ABSENT_BIN/dirname"
+JQ_GUARD_BASH="$(command -v bash)"
+assert_jq_guard() {
+  local precheck="$1" out rc
+  set +e
+  out="$(env -i PATH="$JQ_ABSENT_BIN" "$JQ_GUARD_BASH" \
+    "$ROOT/plugins/sdd-review-loop/scripts/$precheck" jq-guard-fixture 1 1 2>&1)"
+  rc=$?
+  set -e
+  [[ "$rc" -ne 0 ]] ||
+    fail "$precheck must exit non-zero when jq is absent"
+  grep -q 'jq is required' <<<"$out" ||
+    fail "$precheck must report 'jq is required' when jq is absent (got: $out)"
+}
+assert_jq_guard impl-review-precheck.sh
+assert_jq_guard task-review-precheck.sh
+rm -rf "$JQ_ABSENT_BIN"
+
 jq --arg feature "$FEATURE" \
   '.entries += [{feature:$feature,profile:"lite"}]' "$REGISTRY" > "$REGISTRY.tmp"
 mv "$REGISTRY.tmp" "$REGISTRY"

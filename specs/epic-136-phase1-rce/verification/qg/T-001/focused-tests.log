@@ -1,0 +1,19 @@
+Command: bash tests/prepare-panelist.tests.sh
+
+Results: 28 passed, 0 failed
+- PP-008: correctly signed SDD_SUDO grants consent → exit 0
+- PP-009: tampered SDD_SUDO signature is rejected → consent denied
+- PP-010: adversarial issuer field did not execute code (no RCE)
+- PP-010: adversarial token is denied (invalid signature)
+- PP-011: correctly signed invalid nonce is denied
+- PP-012: correctly signed expired TTL is denied
+- PP-013: correctly signed wrong repository is denied
+
+Command: powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File tests/prepare-panelist.tests.ps1
+
+Results: 26 passed, 0 failed
+- PP-008: real-HMAC token grants consent
+- PP-009: tampered signed field is denied
+- PP-010: correctly signed invalid nonce is denied
+- PP-011: correctly signed expired token is denied
+- PP-012: correctly signed wrong repository is denied

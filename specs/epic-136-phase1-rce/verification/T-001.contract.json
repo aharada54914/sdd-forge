@@ -1,0 +1,26 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-136-phase1-rce",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "d0ef52994aee23c3f378be8f22b352d461dab348d24025f5db62e133cf883263",
+  "created": "2026-07-11T01:02:11Z",
+  "comment": "Default-FAIL verification contract for T-001. It is populated only after quality-gate commands run and their output is saved under verification/qg/T-001. This pure shell task has no configured lint, static type, or build toolchain; those compile-oriented checks are explicitly waived under the shell stack rule.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "No shell lint tool is configured for this repository; bash -n is recorded as focused static syntax evidence instead.", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "Bash and Windows PowerShell scripts have no configured static type-check command; PowerShell parsing and bash -n are recorded as focused static syntax evidence instead.", "requirement_ids": ["REQ-001", "REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005"], "red_evidence": "specs/epic-136-phase1-rce/verification/T-001/red.log", "green_evidence": "specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "The acceptance and regression checks directly exercise the shell and PowerShell script entry points with isolated filesystem fixtures; no separate service integration surface exists.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005"], "red_evidence": "specs/epic-136-phase1-rce/verification/T-001/red.log", "green_evidence": "specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/epic-136-phase1-rce/verification/qg/T-001/focused-tests-cycle2.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "No build artifact is produced by the changed Bash and PowerShell scripts, and the repository root has no build command for this shell-only surface.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/epic-136-phase1-rce/verification/qg/T-001/scripted-gates-cycle2.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/epic-136-phase1-rce/verification/qg/T-001/scripted-gates-cycle2.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/epic-136-phase1-rce/verification/qg/T-001/scripted-gates-cycle2.log", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002", "REQ-003", "REQ-004", "REQ-005"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "No long-running application or browser surface exists; the focused scripts are exercised directly by the acceptance suite.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "No baseline-behavior.md exists for this direct security bugfix; approved acceptance and regression tests provide the required behavior evidence.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "The task changes local shell and PowerShell scripts only; it has no user-facing UI.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system directory or UI-layer file is in scope.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

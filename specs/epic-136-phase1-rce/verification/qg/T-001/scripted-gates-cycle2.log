@@ -1,0 +1,20 @@
+Command: powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-quality-loop/scripts/check-risk.ps1 specs/epic-136-phase1-rce/tasks.md -TaskId T-001
+Risk check passed for task T-001.
+
+Command: powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-quality-loop/scripts/check-placeholders.ps1 plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1
+Placeholder scan passed.
+
+Command: powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+workflow-state: ok
+
+Command: powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-quality-loop/scripts/check-task-state.ps1 specs/epic-136-phase1-rce/tasks.md -RepoRoot .
+Task state check passed for 1 task(s).
+
+Command: powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-quality-loop/scripts/check-traceability.ps1 -TracePath specs/epic-136-phase1-rce/traceability.json -RepoRoot . -RequireEvidence
+Traceability check passed for epic-136-phase1-rce: 5 link(s).
+
+Command: bash plugins/sdd-quality-loop/scripts/check-contract.sh specs/epic-136-phase1-rce/verification/T-001.contract.json .
+Verification contract passed for task T-001.
+
+Command: git diff --check
+Cycle 2 deterministic gates passed.

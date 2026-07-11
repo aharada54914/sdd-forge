@@ -1,0 +1,4 @@
+Command: powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File tests/prepare-panelist.tests.ps1
+Exit code: 1
+Result: 4 passed, 7 failed.
+Cause: Invoke-Prepare invoked unavailable pwsh, so functional assertions received exit 99 instead of running prepare-panelist-input.ps1.

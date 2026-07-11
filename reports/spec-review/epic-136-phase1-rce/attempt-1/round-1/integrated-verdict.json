@@ -1,0 +1,14 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-rce",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_run_id": "spec-a-epic136rce-a1r1-20260710-0001",
+  "reviewer_b_run_id": "spec-b-epic136rce-a1r1-20260710-0002",
+  "reviewer_a_host_session_id": "hs-spec-a-epic136rce-0134",
+  "reviewer_b_host_session_id": "hs-spec-b-epic136rce-0135",
+  "finding_counts": {"critical": 0, "major": 2, "minor": 0},
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

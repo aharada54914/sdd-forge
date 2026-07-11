@@ -5,6 +5,11 @@ $ErrorActionPreference = "Stop"
 
 $RepoRoot   = Split-Path -Parent $PSScriptRoot
 $ScriptsDir = Join-Path $RepoRoot "plugins/sdd-quality-loop/scripts"
+$PowerShellHost = if ($null -ne (Get-Command pwsh -ErrorAction SilentlyContinue)) {
+    (Get-Command pwsh).Source
+} else {
+    Join-Path $PSHOME "powershell.exe"
+}
 
 $Pass = 0
 $Fail = 0
@@ -26,7 +31,7 @@ function Invoke-Prepare {
     $script:PP_Exit   = 0
     $script:PP_Output = ""
     try {
-        $out = & pwsh -NoLogo -NoProfile -File (Join-Path $ScriptsDir "prepare-panelist-input.ps1") @ArgList 2>&1
+        $out = & $PowerShellHost -NoLogo -NoProfile -File (Join-Path $ScriptsDir "prepare-panelist-input.ps1") @ArgList 2>&1
         $script:PP_Exit   = $LASTEXITCODE
         $script:PP_Output = ($out -join "`n")
     } catch {
@@ -118,6 +123,22 @@ This feature implements a consent gate for panelist input preparation.
 The implementation uses sha256 for digest computation.
 All panelists receive the same sanitized input bundle.
 '@
+}
+
+function Get-SudoSignature {
+    param([string]$Key, [string]$Issuer, [string]$Nonce, [string]$Repo, [long]$Issued, [long]$Expires)
+    $message = @($Issuer, $Nonce, $Repo, [string]$Issued, [string]$Expires) -join "`n"
+    $hmac = [System.Security.Cryptography.HMACSHA256]::new([Text.Encoding]::UTF8.GetBytes($Key))
+    try { return -join ($hmac.ComputeHash([Text.Encoding]::UTF8.GetBytes($message)) | ForEach-Object { $_.ToString("x2") }) }
+    finally { $hmac.Dispose() }
+}
+
+function Write-SudoToken {
+    param([string]$Directory, [string]$Issuer, [string]$Nonce, [string]$Repo, [long]$Issued, [long]$Expires, [string]$Signature)
+    [IO.File]::WriteAllText((Join-Path $Directory "SDD_SUDO"), (@(
+        "enabled-by: test", "issuer: $Issuer", "nonce: $Nonce", "repo: $Repo",
+        "issued-epoch: $Issued", "expires-epoch: $Expires", "sig: $Signature"
+    ) -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
 }
 
 # ============================================================================
@@ -421,6 +442,58 @@ if (-not $sudoCreated) {
     } else {
         fail "PP-007: SDD_SUDO path: consent gate failed. Output: $($script:PP_Output)"
     }
+}
+
+# ============================================================================
+# PP-008 through PP-012: real-HMAC and independently invalid signed fields
+# ============================================================================
+
+Write-Host "=== PP-008/009/010/011/012: real SDD_SUDO HMAC verification ==="
+
+$d = Join-Path $Work "pp008"
+New-Item -ItemType Directory -Path $d -Force | Out-Null
+Write-TasksNoConsent -Path (Join-Path $d "tasks.md")
+Write-CleanInput -Path (Join-Path $d "input.txt")
+$key = "issue-108-powershell-test-key"
+$issuer = "test@example"
+$nonce = "aabbccddeeff00112233445566778899"
+$issued = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds()
+$expires = $issued + 3600
+$repo = (Resolve-Path $d).Path
+$signature = Get-SudoSignature $key $issuer $nonce $repo $issued $expires
+$previousKey = $env:SDD_SUDO_KEY
+$env:SDD_SUDO_KEY = $key
+try {
+    Write-SudoToken $d $issuer $nonce $repo $issued $expires $signature
+    Invoke-Prepare @("--task", "T-004", "--feature", "cross-model-verification", "--input", (Join-Path $d "input.txt"), "--tasks-file", (Join-Path $d "tasks.md"), "--project-root", $d, "--out", (Join-Path $d "out.txt"))
+    if ($script:PP_Exit -eq 0 -and (Test-Path (Join-Path $d "out.txt"))) { ok "PP-008: real-HMAC token grants consent" } else { fail "PP-008: valid real-HMAC token denied: $($script:PP_Output)" }
+
+    Write-SudoToken $d "$issuer-tampered" $nonce $repo $issued $expires $signature
+    Remove-Item (Join-Path $d "out.txt") -ErrorAction SilentlyContinue
+    Invoke-Prepare @("--task", "T-004", "--feature", "cross-model-verification", "--input", (Join-Path $d "input.txt"), "--tasks-file", (Join-Path $d "tasks.md"), "--project-root", $d, "--out", (Join-Path $d "out.txt"))
+    if ($script:PP_Exit -ne 0 -and -not (Test-Path (Join-Path $d "out.txt"))) { ok "PP-009: tampered signed field is denied" } else { fail "PP-009: tampered field must be denied" }
+
+    $badNonce = "not-hex"; $badSig = Get-SudoSignature $key $issuer $badNonce $repo $issued $expires
+    Write-SudoToken $d $issuer $badNonce $repo $issued $expires $badSig
+    Invoke-Prepare @("--task", "T-004", "--feature", "cross-model-verification", "--input", (Join-Path $d "input.txt"), "--tasks-file", (Join-Path $d "tasks.md"), "--project-root", $d, "--out", (Join-Path $d "out.txt"))
+    if ($script:PP_Exit -ne 0 -and -not (Test-Path (Join-Path $d "out.txt"))) { ok "PP-010: correctly signed invalid nonce is denied with no bundle" } else { fail "PP-010: invalid nonce must be denied with no bundle" }
+
+    $expired = $issued - 1; $expiredIssued = $issued - 7200; $expiredSig = Get-SudoSignature $key $issuer $nonce $repo $expiredIssued $expired
+    Write-SudoToken $d $issuer $nonce $repo $expiredIssued $expired $expiredSig
+    Invoke-Prepare @("--task", "T-004", "--feature", "cross-model-verification", "--input", (Join-Path $d "input.txt"), "--tasks-file", (Join-Path $d "tasks.md"), "--project-root", $d, "--out", (Join-Path $d "out.txt"))
+    if ($script:PP_Exit -ne 0 -and -not (Test-Path (Join-Path $d "out.txt"))) { ok "PP-011: correctly signed expired token is denied with no bundle" } else { fail "PP-011: expired token must be denied with no bundle" }
+
+    $overlongExpires = $issued + 86401; $overlongSig = Get-SudoSignature $key $issuer $nonce $repo $issued $overlongExpires
+    Write-SudoToken $d $issuer $nonce $repo $issued $overlongExpires $overlongSig
+    Invoke-Prepare @("--task", "T-004", "--feature", "cross-model-verification", "--input", (Join-Path $d "input.txt"), "--tasks-file", (Join-Path $d "tasks.md"), "--project-root", $d, "--out", (Join-Path $d "out.txt"))
+    if ($script:PP_Exit -ne 0 -and -not (Test-Path (Join-Path $d "out.txt"))) { ok "PP-012: correctly signed overlong TTL is denied with no bundle" } else { fail "PP-012: overlong TTL must be denied with no bundle" }
+
+    $wrongRepo = "$repo-wrong"; $wrongSig = Get-SudoSignature $key $issuer $nonce $wrongRepo $issued $expires
+    Write-SudoToken $d $issuer $nonce $wrongRepo $issued $expires $wrongSig
+    Invoke-Prepare @("--task", "T-004", "--feature", "cross-model-verification", "--input", (Join-Path $d "input.txt"), "--tasks-file", (Join-Path $d "tasks.md"), "--project-root", $d, "--out", (Join-Path $d "out.txt"))
+    if ($script:PP_Exit -ne 0 -and -not (Test-Path (Join-Path $d "out.txt"))) { ok "PP-013: correctly signed wrong repository is denied with no bundle" } else { fail "PP-013: wrong repository must be denied with no bundle" }
+} finally {
+    if ($null -eq $previousKey) { Remove-Item Env:SDD_SUDO_KEY -ErrorAction SilentlyContinue } else { $env:SDD_SUDO_KEY = $previousKey }
 }
 
 } finally {

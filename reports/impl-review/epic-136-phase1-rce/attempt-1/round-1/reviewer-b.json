@@ -1,0 +1,33 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "impl-b-epic136rce-a1r1-20260710-0009",
+  "host_session_id": "hs-impl-b-epic136rce-0140",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-136-phase1-rce/attempt-1/round-1/integrated-summary.json", "sha256": "f3b0c23c7f0a58ae261b85069fe82be705bad312ff10387ab3bf9ca44b3f2dc7"},
+    {"path": "reports/impl-review/epic-136-phase1-rce/attempt-1/round-1/precheck-result.json", "sha256": "98a5f95f6cc7b39bcb3081a8563d32e4bb9beac76ab723a18f0fa45da65f0a6a"},
+    {"path": "specs/epic-136-phase1-rce/acceptance-tests.md", "sha256": "c97c9673f2be0ea76304eb1c5f9517a822eff202d7b68bece635a3289f40787c"},
+    {"path": "specs/epic-136-phase1-rce/design.md", "sha256": "36fbc556a330e58dd61df651d35a37a55276d99ee8dd87edb4b891e189cf3d57"},
+    {"path": "specs/epic-136-phase1-rce/frontend-spec.md", "sha256": "de17579acda97884c1e01bfcd526e0ef9c1170878778007cb96e5fa57a31f790"},
+    {"path": "specs/epic-136-phase1-rce/infra-spec.md", "sha256": "b413d79dc1aae0c2583f5a0c14fc1e637cd9e58ffbedf169d7e3c655e70f6d26"},
+    {"path": "specs/epic-136-phase1-rce/requirements.md", "sha256": "2dfe9251c83b705ccdde14fb6bdfca15e1481d147ff31a15b5df02a057622e59"},
+    {"path": "specs/epic-136-phase1-rce/security-spec.md", "sha256": "e2bd04248a586a60fca15751dd6987ce4ad2f419febbe4e9ccb8bfafa41f5393"},
+    {"path": "specs/epic-136-phase1-rce/ux-spec.md", "sha256": "72fb9e5c57b37580fa870598435da9973e9f2a53aec511bc5ff33d359f4b9d7d"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "DECISION-JUSTIFIED", "result": "PASS", "severity": "Minor", "finding": "The design decision to preserve the existing consent contract while changing the Python source boundary is justified by the injection risk and the no-contract-change constraint."},
+    {"id": "OPEN-QUESTIONS-RESOLVABLE", "result": "PASS", "severity": "Minor", "finding": "The specification has no open questions."},
+    {"id": "ASSUMPTIONS-VALID", "result": "PASS", "severity": "Minor", "finding": "The Python and PowerShell runtime assumptions are bounded to existing repository-supported execution paths."},
+    {"id": "NO-REQ-CONTRADICTION", "result": "FAIL", "severity": "Major", "finding": "REQ-005 makes security-spec.md the canonical description of the PowerShell .NET HMACSHA256 byte-array safety difference, and the design delegates that detail there. The reviewed security specification did not yet state the byte-array conversion or prohibition on source interpolation, leaving AC-005 unsupported."},
+    {"id": "PERF-ADDRESSED", "result": "PASS", "severity": "Minor", "finding": "No performance requirement applies to this local, constant-size consent check."},
+    {"id": "DEPLOYMENT-CONCRETE", "result": "PASS", "severity": "Minor", "finding": "The change is local to existing scripts and focused tests; it introduces no deployment topology or dependency change."},
+    {"id": "MIGRATION-PLANNED", "result": "PASS", "severity": "Minor", "finding": "No persisted data or migration is involved."},
+    {"id": "INTEGRATION-IDENTIFIED", "result": "PASS", "severity": "Minor", "finding": "The shell and PowerShell consent paths and their focused test suites are identified, with no external runtime integration."},
+    {"id": "DESIGN-WITHIN-SCOPE", "result": "PASS", "severity": "Minor", "finding": "The plan corrects the source-construction boundary and adds regression coverage without expanding the consent contract."},
+    {"id": "VERIFICATION-PATH-CONCRETE", "result": "PASS", "severity": "Minor", "finding": "TEST-001 through TEST-007 name concrete shell and PowerShell test targets for acceptance, tamper denial, invalid conditions, hostile operands, and isolation."},
+    {"id": "DOMAIN-CONFORMANCE", "result": "PASS", "severity": "Minor", "finding": "No persisted business-domain model is introduced or changed."}
+  ]
+}

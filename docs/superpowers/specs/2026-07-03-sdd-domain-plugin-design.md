@@ -95,7 +95,7 @@ workflow-retrospective（既存）
 | spec/impl review-loop の reviewer 指示 | domain/ 存在時のみ DOMAIN-CONFORMANCE 観点を追加 |
 | quality-gate SKILL.md / scripted gates | check-domain-conformance を warn で追加 |
 | workflow-retrospective SKILL.md | domain drift メトリクス（用語逸脱数・境界違反数）を集計対象に追加 |
-| tests/validate-repository.ps1 | プラグイン数 6→7、スキル数 21→27、公開スキル 5→6 の期待値更新 |
+| tests/validate-repository.ps1 | プラグイン数 6→7、スキル数 21→26、公開スキル 5→6 の期待値更新 |
 | PLUGIN-CONTRACTS.md / README.md / docs/workflow-guide.md | 上流レーンの文書化 |
 | contracts/ | `domain-contract.v1.schema.json` 追加 |
 

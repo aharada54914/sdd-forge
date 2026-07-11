@@ -223,6 +223,8 @@ require_persisted_pass() {
   ' "$contract" >/dev/null || fail "persisted ${stage} verdict and contract contradict each other"
 }
 
+command -v jq >/dev/null 2>&1 || fail "jq is required"
+
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
