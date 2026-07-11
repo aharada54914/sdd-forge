@@ -1,5 +1,45 @@
 # Changelog
 
+## Unreleased
+
+### セキュリティ修正
+
+- **prepare-panelist-input.sh の HMAC 検証における任意コード実行 (Issue #108)**:
+  SDD_SUDO トークンのフィールド(issuer / nonce / repo / issued-epoch /
+  expires-epoch / sig / 署名鍵)を未クオートの `python3 - <<PYEOF` ヒアドキュメントへ
+  直接展開していたため、`"""` を含むフィールドで HMAC 比較の前に任意の Python が
+  実行できた。クオート済みヒアドキュメント(`<<'PYEOF'`)＋ `os.environ` 経由の
+  受け渡しに変更し、データとコードを分離。実 HMAC 正常系・改竄検知・敵対的
+  フィールド無害化(コード実行なし)の回帰テストを追加し、これまで CI 未接続だった
+  `tests/prepare-panelist.tests.sh` を run-all.sh と CI の Bash/PowerShell ステップに接続。
+  .ps1 ツインは .NET HMAC を直接使用しており本脆弱性の影響なし。
+
+### 修正
+
+- **impl-review が round > 1 で構造的に不通過だった問題 (Issue #143)**:
+  impl-review-precheck は round > 1 で impl-reviewer-a のマニフェストに前ラウンドの
+  `integrated-summary.json` を要求するが、validate-review-context-set は同ファイルを
+  reviewer-b にのみ許可していたため、reviewer-a の必須入力が role-unlisted として
+  拒否され impl-review が round 1 以降に進めなかった。両ツイン(.sh/.ps1)で
+  impl-reviewer-a にも許可(precheck 契約が前ラウンドに固定するため多層防御は維持)。
+  review-agent-isolation に回帰テストを追加。
+- **check-task-state.ps1 のタスク ID 部分一致 (Issue #111)**: `Select-String` の
+  部分一致で `T-001` が `T-0010` のレポートにも一致していたのを単語境界一致に修正
+  (`.sh` ツインは `grep -rlw` で既に正しかった)。
+- **レビュー前チェックの jq 欠如時フェイルファスト (Issue #120)**:
+  impl / task-review-precheck.sh に `command -v jq` の存在確認を追加し、パイプライン
+  途中の不明瞭な失敗ではなく明確なエラーで停止(spec-review-precheck.sh /
+  review-contract-validate.sh には既存)。
+- **check-placeholders の grep 実エラー握り潰し (Issue #127)**: grep の終了コードを
+  区別し(0=一致 / 1=不一致 / >=2=致命的エラー)、品質ゲートでのフェイルオープンを
+  解消。.sh / .ps1 双方を fail-closed に統一。
+
+### ドキュメント
+
+- **プラグイン数・スキル数の陳腐化修正 (Issue #115)**: skill-reference.md を
+  「7 プラグイン / 26 スキル」に更新(sdd-domain を反映)、sdd-domain-plugin-design.md の
+  「スキル数 21→27」を「21→26」に訂正。
+
 ## v1.10.0 (2026-07-09)
 
 ### evidence deep-verify — 6番目の read-only evidence ツール(Issue #68 / Phase 5)
