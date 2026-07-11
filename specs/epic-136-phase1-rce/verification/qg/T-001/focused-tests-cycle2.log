@@ -1,0 +1,23 @@
+Command: bash tests/prepare-panelist.tests.sh
+
+Results: 32 passed, 0 failed
+- PP-008a: TEST-001 HMAC operands use quoted-heredoc environment data
+- PP-008: correctly signed SDD_SUDO grants consent and creates bundle
+- PP-009: tampered SDD_SUDO signature is rejected with no bundle
+- PP-010: adversarial issuer field did not execute code and creates no bundle
+- PP-010: backslash/newline HMAC key remains inert data
+- PP-010: triple-quote HMAC key cannot execute or create a bundle
+- PP-011: correctly signed invalid nonce is denied
+- PP-012: correctly signed expired TTL is denied
+- PP-012: correctly signed overlong TTL is denied
+- PP-013: correctly signed wrong repository is denied
+
+Command: powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File tests/prepare-panelist.tests.ps1
+
+Results: 27 passed, 0 failed
+- PP-008: real-HMAC token grants consent
+- PP-009: tampered signed field is denied
+- PP-010: correctly signed invalid nonce is denied with no bundle
+- PP-011: correctly signed expired token is denied with no bundle
+- PP-012: correctly signed overlong TTL is denied with no bundle
+- PP-013: correctly signed wrong repository is denied with no bundle

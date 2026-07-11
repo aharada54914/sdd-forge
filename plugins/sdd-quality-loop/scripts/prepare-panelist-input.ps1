@@ -154,8 +154,8 @@ if (-not $ConsentKind) {
                     $keyBytes = [System.Text.Encoding]::UTF8.GetBytes(
                         (Get-Content -Raw $env:SDD_SUDO_KEY_FILE).TrimEnd())
                 } else {
-                    $home = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
-                    $keyFile = Join-Path $home ".sdd/sudo-key"
+                    $homeDir = if ($env:HOME) { $env:HOME } else { $env:USERPROFILE }
+                    $keyFile = Join-Path $homeDir ".sdd/sudo-key"
                     if (Test-Path $keyFile) {
                         $keyBytes = [System.Text.Encoding]::UTF8.GetBytes(
                             (Get-Content -Raw $keyFile).TrimEnd())

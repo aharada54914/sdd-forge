@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-136-phase1-rce",
+  "attempt": 1,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "36fbc556a330e58dd61df651d35a37a55276d99ee8dd87edb4b891e189cf3d57",
+  "requirements_sha256": "2dfe9251c83b705ccdde14fb6bdfca15e1481d147ff31a15b5df02a057622e59",
+  "acceptance_sha256": "c97c9673f2be0ea76304eb1c5f9517a822eff202d7b68bece635a3289f40787c",
+  "layer_sha256": {"ux-spec.md":"72fb9e5c57b37580fa870598435da9973e9f2a53aec511bc5ff33d359f4b9d7d","frontend-spec.md":"de17579acda97884c1e01bfcd526e0ef9c1170878778007cb96e5fa57a31f790","infra-spec.md":"b413d79dc1aae0c2583f5a0c14fc1e637cd9e58ffbedf169d7e3c655e70f6d26","security-spec.md":"e2bd04248a586a60fca15751dd6987ce4ad2f419febbe4e9ccb8bfafa41f5393"},
+  "input_sha256": "d5c66d9d867c185a2157ad0b4acb4abc32cdcc2744d2b114ed394f6c90d996c7",
+  "generated_at": "2026-07-10T06:16:28Z"
+}

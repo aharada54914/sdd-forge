@@ -1,0 +1,6 @@
+Command: bash -n plugins/sdd-quality-loop/scripts/prepare-panelist-input.sh
+Command: bash -n tests/prepare-panelist.tests.sh
+Command: PowerShell Parser::ParseFile on plugins/sdd-quality-loop/scripts/prepare-panelist-input.ps1 and tests/prepare-panelist.tests.ps1
+Command: source scan rejecting `python3 - <<PYEOF` and `b"""` in prepare-panelist-input.sh
+
+Static syntax and source-boundary checks passed.

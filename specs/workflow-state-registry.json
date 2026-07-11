@@ -286,6 +286,10 @@
       "profile": "full"
     },
     {
+      "feature": "epic-136-phase1-rce",
+      "profile": "full"
+    },
+    {
       "feature": "sdd-domain",
       "profile": "legacy",
       "legacy": {

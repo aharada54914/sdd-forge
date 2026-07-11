@@ -1,0 +1,22 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-epic136rce-a1r1-20260710-0001",
+  "host_session_id": "hs-spec-a-epic136rce-0134",
+  "allowed_input_manifest": [
+    {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/requirements.md","sha256":"3cd1dd5420e6c923a6954f7fe251f370a660099c90c1153ce070908eb764ae6f"},
+    {"path":"/c/dev/sdd-forge/specs/epic-136-phase1-rce/acceptance-tests.md","sha256":"481fe9ba4793efe9891b2ef0ef1a4931312579ef2355c462f6c742a2ba5fe38c"},
+    {"path":"/c/dev/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md","sha256":"1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path":"/c/dev/sdd-forge/reports/spec-review/epic-136-phase1-rce/attempt-1/round-1/precheck-result.json","sha256":"b368668cf832c5401a3fe23787e505e57c5890f0fbb88be7ae399f9d6d1a9ecd"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id":"REQ-TESTABILITY","result":"PASS","severity":"Critical","finding":"REQ-001 through REQ-005 define observable shell, HMAC, denial, adversarial-data, isolation, and PowerShell-parity outcomes, with planned TEST-001 through TEST-005."},
+    {"id":"GOAL-AC-TRACE","result":"PASS","severity":"Major","finding":"REQ-001 maps to AC-001; REQ-002 to AC-002 and AC-003; REQ-003 to AC-004; and REQ-004 plus REQ-005 to AC-005."},
+    {"id":"AC-OBSERVABLE","result":"PASS","severity":"Major","finding":"AC-001 through AC-005 specify inspectable code-boundary, valid-token, tampering-denial, adversarial-payload, fixture-isolation, and parity outcomes."},
+    {"id":"SCOPE-BOUNDARY","result":"PASS","severity":"Major","finding":"The non-goals explicitly preserve token semantics and exclude panelist execution, sanitization, evidence contracts, consensus changes, UI, network calls, and persistent storage."},
+    {"id":"CONSTRAINTS-EXPLICIT","result":"PASS","severity":"Major","finding":"The specification fixes the quoted-heredoc/environment-data boundary, canonical HMAC-SHA256 message, constant-time comparison, fail-closed behavior, no-secret/no-network fixtures, and PowerShell parity constraint."},
+    {"id":"RISK-VALIDATION-SURFACE","result":"PASS","severity":"Major","finding":"The critical code-execution and invalid-consent risks have planned validation through real-HMAC acceptance, tampering denial, adversarial operand testing, static boundary inspection, and PowerShell parity coverage."}
+  ]
+}

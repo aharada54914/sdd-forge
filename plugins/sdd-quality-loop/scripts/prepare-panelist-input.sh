@@ -193,11 +193,31 @@ if [ -z "$consent_kind" ]; then
                 fi
 
                 if [ -n "$_key" ]; then
-                    _hmac_result=$(python3 - <<PYEOF
-import hmac, hashlib, sys
-key    = b"""${_key}"""
-msg    = "${_issuer}\n${_nonce}\n${_repo}\n${_issued_epoch}\n${_expires_epoch}"
-sig    = "${_sig}".lower()
+                    # Issue #108: token fields are attacker-controlled. Pass them
+                    # as environment variables into a QUOTED heredoc so the shell
+                    # never interpolates them into Python source. An unquoted
+                    # heredoc (or literal interpolation) would let a field like
+                    # issuer=`");import os;...#` execute arbitrary code before the
+                    # HMAC comparison. os.environ carries the values as inert data.
+                    _hmac_result=$(
+                        SDD_HMAC_KEY="$_key" \
+                        SDD_HMAC_ISSUER="$_issuer" \
+                        SDD_HMAC_NONCE="$_nonce" \
+                        SDD_HMAC_REPO="$_repo" \
+                        SDD_HMAC_ISSUED="$_issued_epoch" \
+                        SDD_HMAC_EXPIRES="$_expires_epoch" \
+                        SDD_HMAC_SIG="$_sig" \
+                        python3 - <<'PYEOF'
+import hmac, hashlib, os
+key = os.environ["SDD_HMAC_KEY"].encode()
+msg = "\n".join([
+    os.environ["SDD_HMAC_ISSUER"],
+    os.environ["SDD_HMAC_NONCE"],
+    os.environ["SDD_HMAC_REPO"],
+    os.environ["SDD_HMAC_ISSUED"],
+    os.environ["SDD_HMAC_EXPIRES"],
+])
+sig = os.environ["SDD_HMAC_SIG"].lower()
 computed = hmac.new(key, msg.encode(), hashlib.sha256).hexdigest()
 print("ok" if hmac.compare_digest(computed, sig) else "fail")
 PYEOF

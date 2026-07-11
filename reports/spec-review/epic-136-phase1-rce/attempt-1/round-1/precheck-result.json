@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-rce",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "3cd1dd5420e6c923a6954f7fe251f370a660099c90c1153ce070908eb764ae6f",
+  "acceptance_sha256": "481fe9ba4793efe9891b2ef0ef1a4931312579ef2355c462f6c742a2ba5fe38c",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "dbca0de9a61aff0b415a3ad17e876c0264bcf9a46012dc2a1e0d4bec14232c86",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-10T05:42:11Z"
+}

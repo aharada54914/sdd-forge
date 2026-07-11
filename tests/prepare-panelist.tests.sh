@@ -425,6 +425,191 @@ else
 fi
 
 # ============================================================================
+# PP-008/009/010: SDD_SUDO HMAC verification with a REAL signature (issue #108).
+#
+# PP-007 only exercises SDD_SUDO_SKIP_SIG=1, so the real HMAC branch — which
+# used to interpolate token fields into an unquoted `python3 - <<PYEOF` heredoc —
+# was never executed by the suite. These cases drive that branch directly:
+#   PP-008  a correctly signed token grants consent (refactor preserves behavior)
+#   PP-009  a tampered signature is rejected (HMAC still enforced)
+#   PP-010  an adversarial issuer field cannot execute code (RCE regression)
+# ============================================================================
+
+# Compute HMAC-SHA256 hex over the canonical SDD_SUDO message
+# (issuer\nnonce\nrepo\nissued\nexpires), matching prepare-panelist-input.sh.
+hmac_sig() {
+    SDD_HMAC_KEY="$1" H_ISS="$2" H_NON="$3" H_REPO="$4" H_IAT="$5" H_EXP="$6" \
+    python3 - <<'PYEOF'
+import hmac, hashlib, os
+key = os.environ["SDD_HMAC_KEY"].encode()
+msg = "\n".join([os.environ["H_ISS"], os.environ["H_NON"],
+                 os.environ["H_REPO"], os.environ["H_IAT"], os.environ["H_EXP"]])
+print(hmac.new(key, msg.encode(), hashlib.sha256).hexdigest())
+PYEOF
+}
+
+# Write an SDD_SUDO token whose fields are taken verbatim (no shell/interpreter
+# interpretation), mirroring how a real token is parsed by the script.
+write_sudo_token() {
+    local dir="$1" issuer="$2" sig="$3" nonce="$4" issued="$5" expires="$6"
+    local repo
+    repo="$(cd "$dir" && pwd -P)"
+    cat > "${dir}/SDD_SUDO" <<EOF
+enabled-by: human via /sdd-sudo
+issuer: ${issuer}
+nonce: ${nonce}
+repo: ${repo}
+issued-epoch: ${issued}
+expires-epoch: ${expires}
+sig: ${sig}
+EOF
+}
+
+echo "=== PP-008/009/010: SDD_SUDO real-HMAC verification (issue #108) ==="
+
+if ! command -v python3 >/dev/null 2>&1; then
+    ok "PP-008/009/010: python3 unavailable — HMAC branch inactive, skipped (runs in CI)"
+else
+    KEY="issue-108-regression-signing-key"
+    NONCE="aabbccddeeff00112233445566778899"
+    NOW="$(date +%s)"; ISSUED="$NOW"; EXPIRES="$((NOW + 3600))"
+
+    # TEST-001: every HMAC operand must cross the shell/Python boundary as
+    # named environment data. This static check complements the hostile runtime
+    # fixtures below; nonce/timestamps are intentionally format-constrained
+    # before the HMAC branch, so they cannot carry an executable fixture.
+    SOURCE_FILE="${SCRIPTS_DIR}/prepare-panelist-input.sh"
+    SOURCE_OK=1
+    grep -Fq "python3 - <<'PYEOF'" "$SOURCE_FILE" || SOURCE_OK=0
+    grep -Fq 'hmac.compare_digest' "$SOURCE_FILE" || SOURCE_OK=0
+    if grep -Fq 'b"""' "$SOURCE_FILE" || grep -Fq 'python3 - <<PYEOF' "$SOURCE_FILE"; then
+        SOURCE_OK=0
+    fi
+    for OPERAND in KEY ISSUER NONCE REPO ISSUED EXPIRES SIG; do
+        grep -Fq "SDD_HMAC_${OPERAND}=" "$SOURCE_FILE" || SOURCE_OK=0
+        grep -Fq "os.environ[\"SDD_HMAC_${OPERAND}\"]" "$SOURCE_FILE" || SOURCE_OK=0
+    done
+    if [ "$SOURCE_OK" -eq 1 ]; then
+        ok "PP-008a: TEST-001 HMAC operands use quoted-heredoc environment data"
+    else
+        fail "PP-008a: TEST-001 found an unsafe or incomplete HMAC source boundary"
+    fi
+
+    # ---- PP-008: correctly signed token → consent granted (exit 0) ----
+    D8="${WORK}/pp008"; mkdir -p "$D8"
+    write_tasks_no_consent "${D8}/tasks.md"
+    write_clean_input "${D8}/input.txt"
+    REPO8="$(cd "$D8" && pwd -P)"
+    ISSUER8="alice@example-host"
+    SIG8="$(hmac_sig "$KEY" "$ISSUER8" "$NONCE" "$REPO8" "$ISSUED" "$EXPIRES")"
+    write_sudo_token "$D8" "$ISSUER8" "$SIG8" "$NONCE" "$ISSUED" "$EXPIRES"
+    PP8_RC=0
+    PP8_OUT="$(SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" \
+        --task T-004 --feature cross-model-verification \
+        --input "${D8}/input.txt" --tasks-file "${D8}/tasks.md" \
+        --project-root "$D8" --out "${D8}/out.txt" 2>&1)" || PP8_RC=$?
+    if [ "$PP8_RC" -eq 0 ] && [ -f "${D8}/out.txt" ]; then
+        ok "PP-008: correctly signed SDD_SUDO grants consent → exit 0"
+    else
+        fail "PP-008: valid HMAC token should grant consent. rc=${PP8_RC} out=${PP8_OUT}"
+    fi
+
+    # ---- PP-009: tampered signature → consent denied (exit non-zero) ----
+    D9="${WORK}/pp009"; mkdir -p "$D9"
+    write_tasks_no_consent "${D9}/tasks.md"
+    write_clean_input "${D9}/input.txt"
+    REPO9="$(cd "$D9" && pwd -P)"
+    ISSUER9="bob@example-host"
+    SIG9="$(hmac_sig "$KEY" "$ISSUER9" "$NONCE" "$REPO9" "$ISSUED" "$EXPIRES")"
+    # Flip the first hex nibble so the signature no longer matches.
+    case "$SIG9" in
+        0*) BAD9="1${SIG9#0}" ;;
+        *)  BAD9="0${SIG9#?}" ;;
+    esac
+    write_sudo_token "$D9" "$ISSUER9" "$BAD9" "$NONCE" "$ISSUED" "$EXPIRES"
+    PP9_RC=0
+    PP9_OUT="$(SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" \
+        --task T-004 --feature cross-model-verification \
+        --input "${D9}/input.txt" --tasks-file "${D9}/tasks.md" \
+        --project-root "$D9" --out "${D9}/out.txt" 2>&1)" || PP9_RC=$?
+    if [ "$PP9_RC" -ne 0 ] && [ ! -e "${D9}/out.txt" ]; then
+        ok "PP-009: tampered SDD_SUDO signature is rejected → consent denied"
+    else
+        fail "PP-009: tampered signature must be denied, got exit 0. out=${PP9_OUT}"
+    fi
+
+    # ---- PP-010: adversarial issuer field must not execute code (RCE regression) ----
+    D10="${WORK}/pp010"; mkdir -p "$D10"
+    write_tasks_no_consent "${D10}/tasks.md"
+    write_clean_input "${D10}/input.txt"
+    # Payload tries to break out of a Python string literal and write a marker.
+    # A relative path lands in the process CWD on every platform, so we run the
+    # script from within the fixture directory and check there.
+    INJ='x";import os;open("PWNED.txt","w").write("owned")#'
+    ZEROSIG="0000000000000000000000000000000000000000000000000000000000000000"
+    write_sudo_token "$D10" "$INJ" "$ZEROSIG" "$NONCE" "$ISSUED" "$EXPIRES"
+    rm -f "${D10}/PWNED.txt"
+    PP10_RC=0
+    PP10_OUT="$( (cd "$D10" && SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" \
+        --task T-004 --feature cross-model-verification \
+        --input "${D10}/input.txt" --tasks-file "${D10}/tasks.md" \
+        --project-root "$D10" --out "${D10}/out.txt" 2>&1) )" || PP10_RC=$?
+    if [ ! -f "${D10}/PWNED.txt" ]; then
+        ok "PP-010: adversarial issuer field did not execute code (no RCE)"
+    else
+        fail "PP-010: RCE — injected code executed via issuer field (marker created)"
+    fi
+    if [ "$PP10_RC" -ne 0 ] && [ ! -e "${D10}/out.txt" ]; then
+        ok "PP-010: adversarial token is denied (invalid signature)"
+    else
+        fail "PP-010: adversarial token must be denied, got exit 0. out=${PP10_OUT}"
+    fi
+
+    # A valid key containing backslash/newline data must remain data, and a
+    # triple-quote source-injection payload in the key must never run. Together
+    # with the issuer fixture above and TEST-001's all-operand source check,
+    # this covers the HMAC operands that can reach the Python invocation.
+    D10K="${WORK}/pp010-key"; mkdir -p "$D10K"; write_tasks_no_consent "${D10K}/tasks.md"; write_clean_input "${D10K}/input.txt"
+    REPO10K="$(cd "$D10K" && pwd -P)"; DATA_KEY=$'line-one\\line-two\nline-three'; DATA_SIG="$(hmac_sig "$DATA_KEY" "$ISSUER8" "$NONCE" "$REPO10K" "$ISSUED" "$EXPIRES")"
+    write_sudo_token "$D10K" "$ISSUER8" "$DATA_SIG" "$NONCE" "$ISSUED" "$EXPIRES"
+    SDD_SUDO_KEY="$DATA_KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D10K}/input.txt" --tasks-file "${D10K}/tasks.md" --project-root "$D10K" --out "${D10K}/out.txt" >/dev/null 2>&1 && PP10K_RC=0 || PP10K_RC=$?
+    if [ "$PP10K_RC" -eq 0 ] && [ -f "${D10K}/out.txt" ]; then ok "PP-010: backslash/newline HMAC key remains inert data"; else fail "PP-010: data key should grant valid consent"; fi
+
+    D10I="${WORK}/pp010-injected-key"; mkdir -p "$D10I"; write_tasks_no_consent "${D10I}/tasks.md"; write_clean_input "${D10I}/input.txt"
+    REPO10I="$(cd "$D10I" && pwd -P)"; INJECT_KEY='x""";import os;open("PWNED_KEY.txt","w").write("owned");#'
+    write_sudo_token "$D10I" "$ISSUER8" "$ZEROSIG" "$NONCE" "$ISSUED" "$EXPIRES"; rm -f "${D10I}/PWNED_KEY.txt"
+    PP10I_RC=0
+    PP10I_OUT="$( (cd "$D10I" && SDD_SUDO_KEY="$INJECT_KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D10I}/input.txt" --tasks-file "${D10I}/tasks.md" --project-root "$D10I" --out "${D10I}/out.txt" 2>&1) )" || PP10I_RC=$?
+    if [ "$PP10I_RC" -ne 0 ] && [ ! -e "${D10I}/out.txt" ] && [ ! -e "${D10I}/PWNED_KEY.txt" ]; then ok "PP-010: triple-quote HMAC key cannot execute or create a bundle"; else fail "PP-010: injected key must remain data. out=${PP10I_OUT}"; fi
+
+    # TEST-006: each non-signature consent condition must deny a correctly
+    # signed fixture independently of the HMAC result.
+    D11="${WORK}/pp011"; mkdir -p "$D11"; write_tasks_no_consent "${D11}/tasks.md"; write_clean_input "${D11}/input.txt"
+    REPO11="$(cd "$D11" && pwd -P)"; BAD_NONCE="not-hex"; SIG11="$(hmac_sig "$KEY" "$ISSUER8" "$BAD_NONCE" "$REPO11" "$ISSUED" "$EXPIRES")"
+    write_sudo_token "$D11" "$ISSUER8" "$SIG11" "$BAD_NONCE" "$ISSUED" "$EXPIRES"
+    SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D11}/input.txt" --tasks-file "${D11}/tasks.md" --project-root "$D11" --out "${D11}/out.txt" >/dev/null 2>&1 && PP11_RC=0 || PP11_RC=$?
+    if [ "$PP11_RC" -ne 0 ] && [ ! -e "${D11}/out.txt" ]; then ok "PP-011: correctly signed invalid nonce is denied"; else fail "PP-011: invalid nonce must be denied"; fi
+
+    D12="${WORK}/pp012"; mkdir -p "$D12"; write_tasks_no_consent "${D12}/tasks.md"; write_clean_input "${D12}/input.txt"
+    REPO12="$(cd "$D12" && pwd -P)"; OLD_ISSUED="$((NOW - 7200))"; OLD_EXPIRES="$((NOW - 3600))"; SIG12="$(hmac_sig "$KEY" "$ISSUER8" "$NONCE" "$REPO12" "$OLD_ISSUED" "$OLD_EXPIRES")"
+    write_sudo_token "$D12" "$ISSUER8" "$SIG12" "$NONCE" "$OLD_ISSUED" "$OLD_EXPIRES"
+    SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D12}/input.txt" --tasks-file "${D12}/tasks.md" --project-root "$D12" --out "${D12}/out.txt" >/dev/null 2>&1 && PP12_RC=0 || PP12_RC=$?
+    if [ "$PP12_RC" -ne 0 ] && [ ! -e "${D12}/out.txt" ]; then ok "PP-012: correctly signed expired TTL is denied"; else fail "PP-012: expired TTL must be denied"; fi
+
+    D12L="${WORK}/pp012-overlong"; mkdir -p "$D12L"; write_tasks_no_consent "${D12L}/tasks.md"; write_clean_input "${D12L}/input.txt"
+    REPO12L="$(cd "$D12L" && pwd -P)"; LONG_EXPIRES="$((ISSUED + 86401))"; SIG12L="$(hmac_sig "$KEY" "$ISSUER8" "$NONCE" "$REPO12L" "$ISSUED" "$LONG_EXPIRES")"
+    write_sudo_token "$D12L" "$ISSUER8" "$SIG12L" "$NONCE" "$ISSUED" "$LONG_EXPIRES"
+    SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D12L}/input.txt" --tasks-file "${D12L}/tasks.md" --project-root "$D12L" --out "${D12L}/out.txt" >/dev/null 2>&1 && PP12L_RC=0 || PP12L_RC=$?
+    if [ "$PP12L_RC" -ne 0 ] && [ ! -e "${D12L}/out.txt" ]; then ok "PP-012: correctly signed overlong TTL is denied"; else fail "PP-012: overlong TTL must be denied"; fi
+
+    D13="${WORK}/pp013"; mkdir -p "$D13"; write_tasks_no_consent "${D13}/tasks.md"; write_clean_input "${D13}/input.txt"
+    REPO13="$(cd "$D13" && pwd -P)"; WRONG_REPO="${REPO13}-wrong"; SIG13="$(hmac_sig "$KEY" "$ISSUER8" "$NONCE" "$WRONG_REPO" "$ISSUED" "$EXPIRES")"
+    write_sudo_token "$D13" "$ISSUER8" "$SIG13" "$NONCE" "$ISSUED" "$EXPIRES"; sed -i "s|^repo: .*|repo: ${WRONG_REPO}|" "${D13}/SDD_SUDO"
+    SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D13}/input.txt" --tasks-file "${D13}/tasks.md" --project-root "$D13" --out "${D13}/out.txt" >/dev/null 2>&1 && PP13_RC=0 || PP13_RC=$?
+    if [ "$PP13_RC" -ne 0 ] && [ ! -e "${D13}/out.txt" ]; then ok "PP-013: correctly signed wrong repository is denied"; else fail "PP-013: wrong repository must be denied"; fi
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 

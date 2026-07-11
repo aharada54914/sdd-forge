@@ -1,0 +1,10 @@
+{
+  "run_id": "qg-eval-epic136rce-t001-20260711-0017",
+  "host_session_id": "hs-qg-eval-epic136rce-0146",
+  "cycle": 2,
+  "verdict": "PASS",
+  "critical": 0,
+  "major": 0,
+  "minor": 0,
+  "findings": []
+}
