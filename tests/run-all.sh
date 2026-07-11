@@ -12,6 +12,7 @@ tests=(
   tests/approval-boundary.tests.sh
   tests/gates.tests.sh
   tests/check-placeholders.tests.sh
+  tests/prepare-panelist.tests.sh
   tests/review-contract-foundation.tests.sh
   tests/review-contract-foundation-parity.tests.sh
   tests/downstream-review-precheck.tests.sh
