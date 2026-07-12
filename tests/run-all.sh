@@ -39,6 +39,7 @@ tests=(
   tests/workflow-state-parity.tests.sh
   tests/workflow-state-ci-integration.tests.sh
   tests/structure-check-feature-mode.tests.sh
+  tests/quality-gate-cycle-limit.tests.sh
 )
 
 for test_file in "${tests[@]}"; do
