@@ -120,36 +120,7 @@ Execute after all targeted tasks reach `Implementation Complete`.
 
 For each task at `Implementation Complete`, in tasks.md document order:
 
-1. **Cross-model verification runs before the gate.** A task whose tasks.md
-   entry carries `Risk: critical` or `Security-Sensitive: true` MUST have
-   cross-model verification run in this same ship invocation before it reaches
-   the quality gate, **regardless of whether `--verify` was passed**. For each
-   such task, invoke
-   `/sdd-quality-loop:cross-model-verify specs/<feature>/tasks.md#T-NNN` before
-   the gate.
-   - **Human-gated waiver.** Skip the required cross-model run for such a task
-     only when its tasks.md entry records a `Cross-Model-Waiver:` that is VALID.
-     A waiver is valid only when the SAME task also carries a human
-     `Approval: Approved` audit mark naming a second distinct human approver
-     (the human-only mark the deterministic guard already prevents an agent from
-     writing, and the same distinct-approver rule already mandated for critical
-     tasks). A `Cross-Model-Waiver:` that lacks that co-located human-approval
-     context is treated as ABSENT (fail-closed) and cross-model verification
-     remains required. An agent cannot grant itself a waiver, because it cannot
-     produce the human approval mark the waiver depends on. Guard-level
-     enforcement of the waiver token itself is out of scope here (future
-     hardening); the waiver is inert without the human approval context.
-   - **Fail-closed stop.** If such a task has neither a completed cross-model
-     run in this invocation nor a valid waiver, STOP the ship flow before the
-     quality gate and print a diagnostic naming the task:
-     `[sdd-ship] Cross-model verification required for T-NNN (Risk: critical or
-     Security-Sensitive: true), but it neither ran this invocation nor carries a
-     valid Cross-Model-Waiver: (a valid waiver needs a co-located human
-     Approval: Approved mark naming a second distinct approver). Run cross-model
-     verification or record a valid waiver, then re-invoke.`
-
-   Independently of the requirement above, if the `--verify` flag was passed and
-   the task has `Cross-Model: enabled` in its
+1. If `--verify` flag was passed and the task has `Cross-Model: enabled` in its
    tasks.md entry: invoke `/sdd-quality-loop:cross-model-verify specs/<feature>/tasks.md#T-NNN`
    before the gate.
    - If no task in the batch has `Cross-Model: enabled`, print a warning:
@@ -195,44 +166,9 @@ For each task at `Implementation Complete`, in tasks.md document order:
 ### Lite track
 
 For each task at `Implementation Complete`:
-- **Ineligibility check (before the lite gate).** If the task's tasks.md entry
-  carries `Risk: critical` or `Security-Sensitive: true`, it is INELIGIBLE for
-  the lite track, because the lite track has no cross-model step. The lite gate
-  rejects it: STOP and print a diagnostic naming the task and directing the
-  human to the full track, e.g.
-  `[sdd-ship] T-NNN is Risk: critical or Security-Sensitive: true and is
-  ineligible for the lite track (no cross-model step). Re-run on the full track:
-  /sdd-ship:ship --full specs/<feature>/tasks.md`
-  Do not admit such a task to the lite gate.
 Invoke `/sdd-lite:lite-gate specs/<feature>/tasks.md#T-NNN`.
 - PASS: task is Done.
 - FAIL: stop, surface the report, and instruct the user to fix and re-run.
-
-## Field Definitions
-
-These optional per-task fields live in a tasks.md task entry. They are additive;
-existing consumers ignore unknown fields.
-
-- `Security-Sensitive:` — optional per-task boolean trigger. `true` marks the
-  task as requiring cross-model verification regardless of its `Risk:` tier (see
-  Step 4). The task author proposes it; the human confirms it at approval.
-  Absent or `false` means the field does not force cross-model verification (the
-  `Risk:` tier still may).
-- `Cross-Model-Waiver:` — optional per-task field recording an explicit decision
-  to skip the cross-model verification a task would otherwise require. Who may
-  set it: a human only. Its audit value is a short human-authored reason. It is
-  honored only when the SAME task also carries a human `Approval: Approved`
-  audit mark naming a second distinct human approver — the human-only approval
-  context that makes the waiver valid; without that context the waiver is
-  ignored and cross-model verification remains required (fail-closed). Because
-  an agent cannot produce the human approval mark, an agent-written waiver has
-  no effect.
-- Lite-track rule for critical/security-sensitive tasks: a task with
-  `Risk: critical` or `Security-Sensitive: true` is INELIGIBLE for the lite
-  track, because the lite track has no cross-model step. The lite gate rejects
-  such a task with a diagnostic naming the task and directing the human to the
-  full track (see Step 4, Lite track), rather than admitting it to a track that
-  would silently drop the cross-model requirement.
 
 ## Step 5 — Completion Check
 
