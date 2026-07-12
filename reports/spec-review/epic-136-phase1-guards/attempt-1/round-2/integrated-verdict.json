@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 2,
+  "reviewer_a_run_id": "spec-a-epic136guards-a1r2-20260711-a2b3",
+  "reviewer_b_run_id": "spec-b-epic136guards-a1r2-20260711-c4d5",
+  "reviewer_a_host_session_id": "hs-spec-a-epic136guards-0150",
+  "reviewer_b_host_session_id": "hs-spec-b-epic136guards-0151",
+  "finding_counts": {
+    "critical": 0,
+    "major": 1,
+    "minor": 0
+  },
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

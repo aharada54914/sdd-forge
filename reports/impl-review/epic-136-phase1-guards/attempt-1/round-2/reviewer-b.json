@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "impl-b-epic136guards-a1r2-20260712-b5c6",
+  "host_session_id": "hs-impl-b-epic136guards-0159",
+  "feature_type": "security hardening / workflow enforcement (mixed fix + feat)",
+  "legacy_design": false,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/design.md",
+      "sha256": "ed82a3f73a999be7e8a32fde259e4588d5216233fd687fc2cbe7ff7a17a516f4"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/ux-spec.md",
+      "sha256": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/frontend-spec.md",
+      "sha256": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/infra-spec.md",
+      "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/security-spec.md",
+      "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase1-guards/attempt-1/round-2/precheck-result.json",
+      "sha256": "db834e6f4e3367a00aa279d2c650a294dbfa200a65c600aaae0b0fb65b9edf63"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase1-guards/attempt-1/round-2/integrated-summary.json",
+      "sha256": "af99dccded1066380c8ee911ce2622cfb27173c7c3478d26c30e2f4b6da5248c"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Inline decisions carry rationale: .ps1 ASCII-only for PS 5.1; id-token:write handling verified against the pinned SHA (External Integrations); guard-step placement because prompt text cannot be the trust boundary; Cross-Model-Waiver inert-by-design."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Open Questions is None with owner maintainers, Blocks Implementation: no; the two prior-open decisions are stated as fixed in requirements.md and reflected in design.md."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of the three Assumptions restates a spec-approved existing-system fact from requirements.md (dispatcher order, PROTECTED_GATE_SUFFIXES authority, pinned-action OIDC), the last elaborated with a concrete verification method in External Integrations; no ungrounded assumption."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "## Constraint Compliance (5 rows) covers every standalone constraint (PS 5.1 ASCII, protected human-copy immutability, 1-issue-1-commit, no-prose-boundary, version-bump); regulatory 'none identified'; the two must-not edge cases are functional REQ-002/003 behaviors tracked via Test Strategy."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No numeric performance requirement; the qualitative matcher-latency note is addressed in frontend-spec Performance and restated as an accepted Medium risk."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Deployment / CI Plan names the surface (self-improvement.yml + 3-OS test.yml), the pipeline change, and rollback; no migration; no incremental feature-flag rollout implied, so flag-strategy omission is not a gap."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan states Data Entities: none, Existing Data Affected: none persisted, Migration Strategy: none -- the no-data-change PASS condition."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The new ## External Integrations table lists claude-code-action (pinned SHA/v1.0.165, boundary B2, OIDC contract verified against the pinned action.yml, fail-fast/fail-closed failure behaviors) and GITHUB_TOKEN (scoped by permissions, fail-closed on missing scope); no other external integration appears; CLAUDE_CODE_OAUTH_TOKEN is the credential of the listed action, not a separate integration."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Components row traces to REQ-001..006; ADR Change Log states no new ADR/no boundary changes; all three User Stories map to design elements; no under/over-scoped element."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces (guard write-denial, CI privilege, integration failure behavior) each name a concrete verification path (guard-r10-port/guard-cwd-bypass/claude-bash-matcher/guard-ps1-ascii tests; self-improvement-guard + empty-created-ref fixtures); no PII/fullstack journey present."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory; CLI/CI hardening batch with no domain-model surface."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-epic136guards-a2r1-20260711-d0e1",
+  "host_session_id": "hs-spec-a-epic136guards-0154",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "ded7cd2486984ce60ecac3e63376887cf712bd9cb86d89ddf137154382775859"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-2/round-1/precheck-result.json",
+      "sha256": "0d69952f768cc3f42a488ca5055dfe7bdba7f3c846a24322854d6b2dad993243"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Each REQ-001..REQ-006 resolves to concrete checkable conditions mapped to AC/TEST rows with observable pass/fail outcomes; no requirement is stated only as intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every goal covered: REQ-001->AC-001/002/003/015, REQ-002->AC-004/005, REQ-003->AC-006/007, REQ-004->AC-008/009/016, REQ-005->AC-010/011/014, REQ-006->AC-012/013."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "ACs specify externally checkable outcomes: guard decisions, exit-code contracts, byte-level encoding check, diff-fixture pass/fail; document-conformance rows name the artifact and absence condition."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals exclude table consolidation (SEC-15), a complete Bash interpreter, SDD_SUDO/kill-switch/WFI/contract changes, prompt/schedule rewrite, and a cross-model step on the lite track."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "B1-B3 security table, human-only copy/approval (agent cannot write live protected paths, waiver needs a second distinct human approver), PS 5.1 ASCII, dispatcher fallback, and pinned action version are all stated."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Critical incomplete-.ps1-port -> AC-001/TEST-001 per-suffix parity; High cwd-tracking -> AC-003/005 read-only corpus. Both high-severity risks have a planned surface."
+    }
+  ]
+}
