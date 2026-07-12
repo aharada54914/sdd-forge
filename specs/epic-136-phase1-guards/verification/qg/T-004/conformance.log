@@ -1,0 +1,31 @@
+# T-004 document-conformance re-check against applied live ship/SKILL.md
+--- AC-008 cross-model requirement for critical/security-sensitive ---
+124:   entry carries `Risk: critical` or `Security-Sensitive: true` MUST have
+131:     only when its tasks.md entry records a `Cross-Model-Waiver:` that is VALID.
+133:     `Approval: Approved` audit mark naming a second distinct human approver
+136:     tasks). A `Cross-Model-Waiver:` that lacks that co-located human-approval
+145:     `[sdd-ship] Cross-model verification required for T-NNN (Risk: critical or
+146:     Security-Sensitive: true), but it neither ran this invocation nor carries a
+147:     valid Cross-Model-Waiver: (a valid waiver needs a co-located human
+148:     Approval: Approved mark naming a second distinct approver). Run cross-model
+199:  carries `Risk: critical` or `Security-Sensitive: true`, it is INELIGIBLE for
+203:  `[sdd-ship] T-NNN is Risk: critical or Security-Sensitive: true and is
+--- AC-009 Field Definitions ---
+124:   entry carries `Risk: critical` or `Security-Sensitive: true` MUST have
+131:     only when its tasks.md entry records a `Cross-Model-Waiver:` that is VALID.
+136:     tasks). A `Cross-Model-Waiver:` that lacks that co-located human-approval
+146:     Security-Sensitive: true), but it neither ran this invocation nor carries a
+147:     valid Cross-Model-Waiver: (a valid waiver needs a co-located human
+199:  carries `Risk: critical` or `Security-Sensitive: true`, it is INELIGIBLE for
+203:  `[sdd-ship] T-NNN is Risk: critical or Security-Sensitive: true and is
+211:## Field Definitions
+216:- `Security-Sensitive:` — optional per-task boolean trigger. `true` marks the
+221:- `Cross-Model-Waiver:` — optional per-task field recording an explicit decision
+--- AC-016 lite-gate rejection ---
+38:| `--full` | Force full track (quality-gate); verifies acceptance-tests.md + traceability.md exist |
+202:  human to the full track, e.g.
+204:  ineligible for the lite track (no cross-model step). Re-run on the full track:
+234:  full track (see Step 4, Lite track), rather than admitting it to a track that
+--- T-003 cycle-limit call still present ---
+171:   plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh T-NNN
+177:   pwsh plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1 T-NNN
