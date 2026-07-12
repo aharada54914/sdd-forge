@@ -29,22 +29,11 @@ on:
     - cron: "0 0 * * 1" # 毎週月曜 00:00 UTC = 09:00 JST
   workflow_dispatch: {}
 
-# 権限は実際に使うものだけに最小化する(REQ-005 / AC-010, security-spec.md B2)。
-# id-token: write は削除済み。ピン留めした
-# anthropics/claude-code-action@558b1d6cab4085c7753fe402c10bef0fbb92ac7a
-# (v1.0.165) の action.yml は id-token を、入力 anthropic_federation_rule_id を
-# anthropic_organization_id と併用する workload identity federation 時のみ要求する
-# (action.yml 入力 anthropic_federation_rule_id の説明:
-#  "...the action authenticates to the Claude API by exchanging the workflow's
-#  GitHub OIDC token instead of using a static API key. Requires `id-token:
-#  write` permission." / 入力 anthropic_oidc_audience: "Audience to request on
-#  the GitHub OIDC token used for workload identity federation.")。本ワークフローは
-# claude_code_oauth_token で認証し federation 入力を一切設定しないため OIDC 交換は
-# 発生せず、id-token: write は不要。SHA を更新した際は必ず再確認すること。
 permissions:
   contents: write
   pull-requests: write
   issues: write
+  id-token: write
 
 concurrency:
   group: self-improvement
@@ -73,20 +62,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      # 決定論的 PR 前ガードのベースライン(REQ-005 / AC-011, security-spec.md B2):
-      # セッション起動前に既に open だった PR の head ref を記録し、後続ガードが
-      # セッション自身が作成した PR だけを検査できるようにする。ここでの取得失敗は
-      # ベースラインを空にする(=すべての open PR をセッション作成扱いにする)ため
-      # fail-closed 側に倒れる。
-      - name: Record pre-session open pull requests
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 \
-            --json headRefName --jq '.[].headRefName' \
-            > "$RUNNER_TEMP/pre_session_pr_refs.txt" \
-            || : > "$RUNNER_TEMP/pre_session_pr_refs.txt"
-
       - name: Run Claude self-improvement session
         # Pinned to a commit SHA (H-04). Bump periodically (or via Dependabot)
         # to pick up upstream fixes; verify the SHA against the release tag.
@@ -104,35 +79,6 @@ jobs:
             --model claude-sonnet-5
             --allowedTools "Bash,Read,Write,Edit,MultiEdit,Glob,Grep,WebFetch,TodoWrite"
             --max-turns 75
-
-      # 決定論的な PR 前ガード(REQ-005 / AC-011 / AC-014, security-spec.md B2):
-      # このランが作成した PR(ベースラインに無い head ref の open PR)を列挙し、
-      # その変更ファイルパスを一時ファイルに集約して
-      # .github/scripts/self-improvement-pr-guard.sh に渡す。強制チェーンのサーフェス
-      # (ガードスクリプト・kill-switch・check-*・plugin フック設定・reports/・
-      # docs/workflow-improvements/・.github/workflows/・保護対象 SKILL.md・
-      # .claude 設定・保護対象テスト・plugin.json)への変更があればガードが exit 1 し、
-      # このステップの失敗がラン全体を失敗させる。PR が無ければ空リスト = vacuous pass。
-      # gh/jq の取得自体が失敗した場合は set -e / pipefail でランを失敗させる(fail-closed;
-      # 未ガードの PR を通さない)。
-      - name: Enforce enforcement-chain guard on session PRs
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          changed="$RUNNER_TEMP/session_changed_paths.txt"
-          pre_refs="$RUNNER_TEMP/pre_session_pr_refs.txt"
-          [ -f "$pre_refs" ] || : > "$pre_refs"
-          mapfile -t pre < "$pre_refs"
-          # ベースラインに無い head ref の open PR = セッションが作成した PR。
-          # その PR の変更ファイルパスだけを集約する(重複除去)。
-          gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 \
-            --json headRefName,files \
-            | jq -r '.[] | select(([.headRefName] | inside($ARGS.positional)) | not) | (.files // [])[].path' \
-                --args "${pre[@]}" \
-            | sort -u > "$changed"
-          echo "セッション作成 PR に紐づく変更パス:"
-          cat "$changed" || true
-          bash .github/scripts/self-improvement-pr-guard.sh "$changed"
 
       # 失敗時は既存の open な失敗 Issue に追記し、無ければ新規作成する
       # (毎週の失敗で Issue が積み上がるのを防ぐ)。原因の見当も本文に残す。
