@@ -1,0 +1,33 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "second-approval-mask",
+  "run_id": "RUN-second-approval-mask-spec-spec-reviewer-a-seq0170",
+  "host_session_id": "SESS-spec-spec-reviewer-a-second-approval-mask-0170",
+  "sequence": 170,
+  "previous_record_sha256": "41024efc5067ee783402203570991e6df3ce4cb5df8154f0e8208a622d3724c8",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "64cdc68f900b2c92035ba2bd4282b5272c0fd7bb56808aa19e14f597ed2fd148",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/second-approval-mask/requirements.md",
+      "sha256": "49faa858c8df0a4a4a8ac63247cbe6e01aa3f37c467c01260c73f23494300ed3"
+    },
+    {
+      "path": "specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "9f05a83675ea68923fdfccf1868bce49104ffff6ad02325511580749cd2f22df"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/second-approval-mask/attempt-1/round-1/precheck-result.json",
+      "sha256": "35244f9e76ebfa5b1e5c94884c969a7830e3ba4a9780425cce44499679d1378f"
+    }
+  ]
+}
