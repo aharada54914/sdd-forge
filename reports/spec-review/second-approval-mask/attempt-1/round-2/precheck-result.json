@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "second-approval-mask",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "c1c20adbaa74737821a60e6b2ad186743a017fb413d3e572882c626ddc25a197",
+  "acceptance_sha256": "c7bab1fc4b7fd1197e8ca263a46c6b68a1539fbe49a6ebdcadceee43546a9be0",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "a44b9a61cebe39c81368268fb7745448cb75cc6fb3e44b34cf2df2203f125fdb",
+  "edit_summary": "Round-1 reviewer-b Major fixes: (1) acceptance-tests table restructured with a separate Doc Status metadata column and an explicit non-oracle note (AMBIGUITY); (2) TEST-002 gains sub-case (c) indented/bulleted field mention as the column-0 anchoring negative control, TEST-003 gains the final-line-without-trailing-newline byte-identity fixture (EDGE-CASE-COVERAGE); (3) new AC-005/TEST-005 gate-phase live==staged hash evidence with the R-10 hook-guard rule cited as the delivery-boundary enforcement mechanism in Roles and Permissions and Risks (APPROVAL-BOUNDARY).",
+  "reset": false,
+  "generated_at": "2026-07-12T09:28:00Z"
+}

@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-second-approval-mask-spec-spec-reviewer-a-seq0172",
+  "host_session_id": "SESS-spec-spec-reviewer-a-second-approval-mask-0172",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/requirements.md",
+      "sha256": "c1c20adbaa74737821a60e6b2ad186743a017fb413d3e572882c626ddc25a197"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "c7bab1fc4b7fd1197e8ca263a46c6b68a1539fbe49a6ebdcadceee43546a9be0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-2/precheck-result.json",
+      "sha256": "f9d8b364ccfffbf4b2e2f33fb8fd939e023638719feea8a4a18518a888dd513a"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001 (requirements.md:46-58) specifies exact deletion mechanism, scope (task stage only), LF/CRLF handling, and sh/ps1 byte-for-byte and decision-for-decision parity, directly measurable via AC-001..AC-004."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The single Goals entry REQ-001 is covered by AC-001 through AC-005 (requirements.md:82-114), spanning masking effect, negative controls, CRLF/no-trailing-newline, sh/ps1 parity, and delivery-boundary evidence; no orphan goal."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each AC (requirements.md:82-114) states an observable outcome (exit code, literal output string, byte-identical hash, identical diagnostic rule ID, or SHA-256 equality) rather than vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:60-69) explicitly exclude check-task-state content validation, hook-guard changes, other-stage normalization/registry/identity-ledger changes, and retroactive re-hashing."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries (requirements.md:162-170) and Roles and Permissions (requirements.md:124-132) state the integrity/authorization constraints; the round-2 edit added AC-005/TEST-005 and the R-10 hook-guard citation as the delivery-boundary enforcement mechanism, closing the round-1 approval-boundary gap per the precheck edit_summary."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks (requirements.md:185-197) lists three high-risk claims each mapped to a named mitigation/validation surface (AC-002; AC-003/AC-004; AC-005 plus staged-copy TDD and suite re-run)."
+    }
+  ]
+}

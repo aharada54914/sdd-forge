@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-second-approval-mask-spec-spec-reviewer-b-seq0171",
+  "host_session_id": "SESS-spec-spec-reviewer-b-second-approval-mask-0171",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/requirements.md",
+      "sha256": "49faa858c8df0a4a4a8ac63247cbe6e01aa3f37c467c01260c73f23494300ed3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/second-approval-mask/acceptance-tests.md",
+      "sha256": "9f05a83675ea68923fdfccf1868bce49104ffff6ad02325511580749cd2f22df"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-1/precheck-result.json",
+      "sha256": "35244f9e76ebfa5b1e5c94884c969a7830e3ba4a9780425cce44499679d1378f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/second-approval-mask/attempt-1/round-1/integrated-summary.json",
+      "sha256": "67b854647a94735f5588726b2e5a9aa10837e52f0088ce5ca2b4791908d61149"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "acceptance-tests.md test table: every 'Expected' cell for TEST-001..TEST-004 ends with the identical literal 'Status: Planned' with no explanation of whether it is a test assertion or document-tracking metadata, creating a real risk that implementers build divergent RED/GREEN fixtures."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Goals, Non-goals, Edge Cases, and AC-001/AC-002 are mutually consistent on close reading; the quoted-text and multiple-lines edge cases are explicit, reconciled extensions of the masking rule, not conflicts with the 'other modifications still trip staleness' rule."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md Edge Case #2 (indented/bulleted 'Second Approval' mentions must NOT be deleted) has no corresponding negative-control test in TEST-002/acceptance-tests.md, despite Risks marking over-broad masking as a Critical mitigation target; Edge Case #5 (final line without trailing newline) also has no fixture despite being flagged as an sh/ps1 byte-identity risk."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both listed Assumptions (pwsh 7.x availability, --registry entry point) cite existing repo precedent/usage, and Open Questions is explicitly closed with justification tied to Problems #2 and the Non-goals scope."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Roles and Permissions/Risks name a human-copy-only delivery boundary for applying the fix to protected gate scripts ('a botched live apply would break every gate'), but unlike the parallel write-restriction ('enforced by the hook guard; unchanged'), no enforcement mechanism is cited and no acceptance criterion verifies compliance with the human-copy/SHA-256-manifest mitigation."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The acceptance-table ambiguity, the missing security-relevant negative control, and the unverifiable delivery-safety mitigation together require a downstream design/task reviewer to invent product/process decisions rather than execute an unambiguous handoff."
+    }
+  ]
+}

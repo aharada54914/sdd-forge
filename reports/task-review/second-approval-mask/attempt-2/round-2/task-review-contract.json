@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "second-approval-mask",
+  "run_id": "RUN-second-approval-mask-task-a2round2-host",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 2,
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "b63f9c1bc197fba6f6fca25e55f538bd5072d99d23f529671b3595037b260cce",
+  "requirements_sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41",
+  "acceptance_sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e",
+  "design_sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58",
+  "tasks_sha256": "e1eb81f49a66ef8248f6efbdfb4eef4ba4b9f4c3c4fea76c50e8992cabf9358d",
+  "traceability_sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482",
+  "layer_sha256": {
+    "ux-spec.md": "984eb59d59f1d3b228a2c5b2faf3ee186a4802db113f04048cc5d18c23853fff",
+    "frontend-spec.md": "fd376e65b5342b0369f1c639b5b456dab7adbdc2f12a450c6104f14c83797833",
+    "infra-spec.md": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e",
+    "security-spec.md": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+  },
+  "workflow_match_precheck": "PASS",
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-second-approval-mask-task-task-reviewer-a-seq0182",
+      "host_session_id": "SESS-task-task-reviewer-a-second-approval-mask-0182",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/second-approval-mask/requirements.md",
+          "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+        },
+        {
+          "path": "specs/second-approval-mask/acceptance-tests.md",
+          "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+        },
+        {
+          "path": "specs/second-approval-mask/design.md",
+          "sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58"
+        },
+        {
+          "path": "specs/second-approval-mask/tasks.md",
+          "sha256": "e1eb81f49a66ef8248f6efbdfb4eef4ba4b9f4c3c4fea76c50e8992cabf9358d"
+        },
+        {
+          "path": "specs/second-approval-mask/traceability.md",
+          "sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482"
+        },
+        {
+          "path": "specs/second-approval-mask/security-spec.md",
+          "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+        },
+        {
+          "path": "specs/second-approval-mask/infra-spec.md",
+          "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+        },
+        {
+          "path": "specs/second-approval-mask/ux-spec.md",
+          "sha256": "984eb59d59f1d3b228a2c5b2faf3ee186a4802db113f04048cc5d18c23853fff"
+        },
+        {
+          "path": "specs/second-approval-mask/frontend-spec.md",
+          "sha256": "fd376e65b5342b0369f1c639b5b456dab7adbdc2f12a450c6104f14c83797833"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/task-review/second-approval-mask/attempt-2/round-2/precheck-result.json",
+          "sha256": "ce8eb9da03cf1a93f0d28c9f9c0ad304c416ec025de70b31f232249ae1e8f436"
+        },
+        {
+          "path": "reports/task-review/second-approval-mask/attempt-2/round-2/dependency-graph.json",
+          "sha256": "967b4cb7255b256a8e423d66a0c5a57ed5cad98972ee87fa8f6147d5152b196b"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-second-approval-mask-task-task-reviewer-b-seq0183",
+      "host_session_id": "SESS-task-task-reviewer-b-second-approval-mask-0183",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/second-approval-mask/requirements.md",
+          "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+        },
+        {
+          "path": "specs/second-approval-mask/acceptance-tests.md",
+          "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+        },
+        {
+          "path": "specs/second-approval-mask/design.md",
+          "sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58"
+        },
+        {
+          "path": "specs/second-approval-mask/tasks.md",
+          "sha256": "e1eb81f49a66ef8248f6efbdfb4eef4ba4b9f4c3c4fea76c50e8992cabf9358d"
+        },
+        {
+          "path": "specs/second-approval-mask/traceability.md",
+          "sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482"
+        },
+        {
+          "path": "specs/second-approval-mask/security-spec.md",
+          "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+        },
+        {
+          "path": "specs/second-approval-mask/infra-spec.md",
+          "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+        },
+        {
+          "path": "specs/second-approval-mask/ux-spec.md",
+          "sha256": "984eb59d59f1d3b228a2c5b2faf3ee186a4802db113f04048cc5d18c23853fff"
+        },
+        {
+          "path": "specs/second-approval-mask/frontend-spec.md",
+          "sha256": "fd376e65b5342b0369f1c639b5b456dab7adbdc2f12a450c6104f14c83797833"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "reports/task-review/second-approval-mask/attempt-2/round-2/precheck-result.json",
+          "sha256": "ce8eb9da03cf1a93f0d28c9f9c0ad304c416ec025de70b31f232249ae1e8f436"
+        },
+        {
+          "path": "reports/task-review/second-approval-mask/attempt-2/round-2/integrated-summary.json",
+          "sha256": "9489f367685008c02889ea97dc8ec3388455f31503b545a3cd411f07e9fe4325"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "Round-1 OBSERVABLE-DONE Major resolved: the gate Done When item now names the exact focused-suite command, the full-registry check-workflow-state runs with their expected 'workflow-state: ok' output, and the three named workflow-state regression suites.",
+  "timestamp": "2026-07-12T10:54:52Z"
+}

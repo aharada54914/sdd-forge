@@ -1,0 +1,120 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "second-approval-mask",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-second-approval-mask-task-task-reviewer-b-seq0179",
+  "host_session_id": "SESS-task-task-reviewer-b-second-approval-mask-0179",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/second-approval-mask/requirements.md",
+        "sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41"
+      },
+      {
+        "path": "specs/second-approval-mask/acceptance-tests.md",
+        "sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e"
+      },
+      {
+        "path": "specs/second-approval-mask/design.md",
+        "sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58"
+      },
+      {
+        "path": "specs/second-approval-mask/tasks.md",
+        "sha256": "96331955ad035945310c593ad0775da04cc5e5389800596a23731f736fc51dc5"
+      },
+      {
+        "path": "specs/second-approval-mask/traceability.md",
+        "sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482"
+      },
+      {
+        "path": "specs/second-approval-mask/security-spec.md",
+        "sha256": "24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"
+      },
+      {
+        "path": "specs/second-approval-mask/infra-spec.md",
+        "sha256": "677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "reports/task-review/second-approval-mask/attempt-1/round-1/precheck-result.json",
+        "sha256": "74d63c6b7bab409bbc5bb2d4e5829995609b135979f1b0bbf7f1a58a0f966f50"
+      },
+      {
+        "path": "reports/task-review/second-approval-mask/attempt-1/round-1/integrated-summary.json",
+        "sha256": "e1daef9e72da942aea8223265986b47edd87f3b6dd6f2c8b75940375f3c97584"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "findings": [],
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Risk: high is consistent with scope: modifies the protected tamper-evidence gate scripts for all registered features; Risk Rationale and Security Boundaries name repo-wide silent-harm exposure; not over-classified since scope is live validator code, not UI/CSS/docs/test-only."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Done When includes 'Red->Green evidence recorded in the implementation report' and 'An independent quality-gate verdict records PASS with traceability and high-risk provenance'; Risk is high (not critical) so second-approver/signed-bundle items are correctly not required."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Scope = 3 areas (not >3); title is single-phase. Done When = 9 items but 5 map 1:1 to registered AC-001..AC-005 and 4 are risk-tier-mandated evidence bookkeeping rather than added implementation scope; design.md calls the change a 'Single-point change... No new components, files, or data flows.'"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-002 (tamper negative controls incl. column-0-anchor false-positive guard) and AC-003 (CRLF / no-trailing-newline) provide edge-case/error-path coverage beyond AC-001's happy path, both reflected in T-001 Done When."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md TEST-001..TEST-005 each reference a specific AC-NNN in the Test ID/AC table; TEST-005 is explicitly marked 'NOT a shell-suite case' (gate-phase evidence), avoiding a type mismatch."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001 declares 'Rollback: human re-copies the prior check-workflow-state.{sh,ps1} from git history; revert the test commit', matching infra-spec.md's Operational Notes."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md contains a single task (T-001); no second task exists to create an uncoordinated file-scope collision."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 declares Depends On: none and Blockers: None; single-task file, no cross-task ordering to misalign."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 fixes RT-20260712-003. Reproduction evidence: exact diagnostic string plus TEST-001 as the required RED anchor against pre-fix live twins. Diagnostic-before-fix ordering: Scope writes TEST-001..004 (RED) before the deletion-rule change. Regression evidence: Done When focused-suite/gate pass plus AC-001's GREEN outcome."
+    }
+  ]
+}

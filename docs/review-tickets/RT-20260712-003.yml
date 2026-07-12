@@ -1,0 +1,37 @@
+ticket_id: RT-20260712-003
+status: open
+type: design-gap
+severity: major
+target:
+  feature: epic-136-phase1-guards
+  task: T-001
+  files:
+    - plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+    - plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+summary: The task-stage normalized hash masks only Task-Review-Status/Approval/Status lines, so recording the critical-tier "Second Approval:" line after task-review freezes the plan makes check-workflow-state report "task plan hash is stale" repository-wide — the two-person critical flow is structurally impossible to complete.
+problem: |
+  check-workflow-state.{sh,ps1} freeze each registered feature's tasks.md via
+  a normalized hash whose task-stage normalization masks exactly three line
+  prefixes (Task-Review-Status:, Approval:, Status:). check-task-state
+  requires critical-tier Done to carry "Second Approval: Approved (<id> <ISO>)"
+  by a second distinct named human, and the hook guard (correctly) forbids
+  agents from writing that line — a human must add it AFTER task-review has
+  frozen the plan. Because the line does not exist at freeze time and is not
+  masked, adding it changes the normalized hash and trips
+  "stage-provenance: task plan hash is stale" for the feature (fail-fast:
+  blocks the repository-wide workflow-state gate). No feature has ever
+  completed the critical two-person flow, so this surfaced first when
+  epic-136-phase1-guards T-001/T-002 reached the approval step (2026-07-12).
+expected_fix: |
+  Teach the task-stage normalization in BOTH twins to DELETE column-0
+  "Second Approval:" lines (deletion, not value masking — the line is absent
+  at freeze time, so pre-freeze absence and post-recording presence must
+  normalize identically). Keep every other freeze property intact. Fix is
+  tracked as its own full-track SDD feature specs/second-approval-mask/
+  (protected gate scripts -> TDD + human-copy + independent gate).
+references:
+  - specs/second-approval-mask/requirements.md
+  - reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-003.md
+auto_fix_allowed: false
+requires_human_decision: false
+review_cycles: 1

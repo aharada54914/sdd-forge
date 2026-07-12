@@ -37,6 +37,7 @@ tests=(
   tests/workflow-state-registry-parity.tests.sh
   tests/workflow-state.tests.sh
   tests/workflow-state-parity.tests.sh
+  tests/second-approval-mask.tests.sh
   tests/workflow-state-ci-integration.tests.sh
   tests/structure-check-feature-mode.tests.sh
   tests/quality-gate-cycle-limit.tests.sh
