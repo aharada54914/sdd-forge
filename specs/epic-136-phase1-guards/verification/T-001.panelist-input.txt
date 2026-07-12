@@ -1,36 +1,62 @@
 # Panelist Input Bundle
 # task_id: T-001
 # feature: epic-136-phase1-guards
-# input_digest: 29c7ab73b32dd013118c20ee541072caf562dd566e857afbc756cb1e9c03f154
+# input_digest: 8a8a9f1ed1e7de4628c277a37b639329a634e827747d39d15da9421ac4798c72
 # consent: human-flag
 # WARNING: This file is sanitized for external LLM review.
 #          Do not include secrets, absolute paths, or private URLs.
 
-# Panel Input Bundle Manifest — T-001 (epic-136-phase1-guards)
+# Panel Input Bundle Manifest — T-001 ATTEMPT 2 (epic-136-phase1-guards)
 
 This bundle contains the feature specification documents followed by the
-ACTUAL implementation artifacts for T-001. Each artifact section begins with a
-marker line `===== artifact: <repo-relative path> (sha256: ...) =====`.
+ACTUAL implementation artifacts for T-001, attempt 2. Each artifact section
+begins with a marker line `===== artifact: <repo-relative path> (sha256: ...) =====`.
+
+Attempt-2 context: the attempt-1 blind panel returned unanimous NEEDS_WORK for
+evidence-coverage gaps (recorded in the included review ticket
+RT-20260712-002). This attempt is a TEST-ONLY remediation: the staged guard
+`.ps1` and the live guard twins are byte-unchanged (see the MANIFEST artifact);
+what changed is the evidence set — the parity corpus now exercises every entry
+of BOTH protected-suffix tables (30 ProtectedGateSuffixes entries incl. guard
+self-protection, plus all 3 ProtectedGatePluginJsonSuffixes entries in relative
+and absolute forms with a non-dot-dir negative), adds Impl-Review-Status
+forgery fixtures for the edit/multiedit payload branches, adds copilot
+emit-mode decision parity, registers both suites in tests/run-all.sh, and
+defaults the ASCII check to the live plugins path (GUARD_PS1 override kept).
+Attempt-2 RED (12/46 vs the pre-port .ps1) proves the new fixtures detect the
+original defect; attempt-2 GREEN is 58/0 against the live twins.
 
 Included implementation artifacts:
 - `specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.ps1` (sha256 `d01c0d70f73b1d173339845c0547d5f7dcb6628fc9e2717a97d88acaf3b0e652`)
 - `specs/epic-136-phase1-guards/human-copy/T-001.MANIFEST.sha256` (sha256 `3b7ab614159468faefb3d07e6e7dc18f0f3770b18a651d7d98d3ea97a77595d6`)
-- `tests/guard-r10-port.tests.ps1` (sha256 `4b895890079168acfad9b0ba0f6f1d19d8bc1695a761489d617e2c1ec478d4ca`)
-- `tests/guard-ps1-ascii.tests.sh` (sha256 `6f0dbea24059b900a321b0c3f86ae17e4788d0bf89d1f466a6eb91782dd04dfb`)
+- `tests/guard-r10-port.tests.ps1` (sha256 `f8c6459d7fc97cce8df31bb1cb3b145bd5ad94f84d346ee3fda28f3323f702cd`)
+- `tests/guard-ps1-ascii.tests.sh` (sha256 `36c417f70d210ef04f98db07a5108bd268af91fddd1792f802ed81eea88cd287`)
+- `tests/run-all.sh` (sha256 `f5c8bdaadbb5c17a6c10f8af56eea659c73b967ca895dfef848d2b29bb7035c7`)
 - `specs/epic-136-phase1-guards/verification/T-001/red.log` (sha256 `8f49eef17433d2f7d0e69e772a4ff1b4e16c4cf2768579f84f12464868734912`)
 - `specs/epic-136-phase1-guards/verification/T-001/green.log` (sha256 `cd70b677dfb7538df752bfdf76c264381825b87017d24a135dcfbbae1d3ac726`)
+- `specs/epic-136-phase1-guards/verification/T-001/red-attempt2.log` (sha256 `4cdc451e3f94ea6a6d1c75c32272e07ff309cbcc37cef27f2e281944dca15413`)
+- `specs/epic-136-phase1-guards/verification/T-001/green-attempt2.log` (sha256 `1c9e7c451ab19de8876d832da3523c50e5dd760a5194248735fd77363403c542`)
+- `specs/epic-136-phase1-guards/verification/T-001/ascii-attempt2.log` (sha256 `e95d9d302f4ebb9faf9a65856f12cecb4efe23429c72d72dffee97c9cd13a0e2`)
+- `specs/epic-136-phase1-guards/verification/T-001/runall-registration.log` (sha256 `deccf91938236ad7244e65ab9c7373469c56cb58fa1fed6717422a1d0cbe90b6`)
+- `specs/epic-136-phase1-guards/verification/T-001/regression-attempt2.log` (sha256 `9a107550edfd14533bcbfc55c0df4a99d7cdfa1d3bb9be3c6d966e89d4d81f72`)
+- `reports/implementation/epic-136-phase1-guards/T-001.md` (sha256 `d8319e4c4a33ba38255a60976b209a4ff86f8729a32c24492977d9d0a593dae1`)
+- `docs/review-tickets/RT-20260712-002.yml` (sha256 `98371873f12f82e3d0d73e42c9bbeb4897f049c41a1f0a0c9044f0d26c52afa4`)
 
 Workflow-state note (pre-gate semantics): this cross-model panel runs BEFORE
 the independent quality gate, as an input to it. By design at this point:
-tasks.md shows `Status: Implementation Complete`; the Done When items for the
-independent quality-gate PASS, the cross-model consensus, and the
-critical-tier second human approval are intentionally still open (the second
-approval is a human-only action recorded after this panel); traceability.md
-Status remains `Planned` until the gate records its report. These are
-process-state facts, not evidence gaps: judge the implementation evidence in
-the artifact set above (staged guard twin(s), test sources, RED log, GREEN
-log). The live protected files were applied by a human from the staged
-copies; the MANIFEST artifact records the exact applied hashes.
+tasks.md shows `Status: Implementation Complete` for T-001; the primary and
+second human approvals for T-001 are ALREADY recorded in tasks.md (they were
+recorded by humans after the attempt-1 panel; T-002 of this feature is already
+Done). The Done When items for the independent quality-gate PASS and the
+cross-model consensus are intentionally still open, and traceability.md keeps
+its task-review-time byte-frozen state until the gate records its report.
+These are process-state facts, not evidence gaps: judge the implementation
+evidence in the artifact set above (staged guard twin, test sources, RED/GREEN
+logs for both attempts, regression log, run-all registration proof,
+implementation report). The live protected files were applied by a human from
+the staged copies; the MANIFEST artifact records the exact applied hashes. The
+`rollback-1.5.0` failure in the regression log is a documented pre-existing
+defect with a clean-HEAD differential included in that log.
 # Requirements: epic-136-phase1-guards
 
 Spec-Review-Status: Passed
@@ -932,7 +958,8 @@ live protected path.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/109
 
-Approval: Approved (sudo 2026-07-12T05:13:11Z)
+Approval: Approved (aharada54914 2026-07-12T12:00:10Z)
+Second Approval: Approved (Harada2 2026-07-12T12:00:10Z)
 
 Status: Implementation Complete
 
@@ -1028,9 +1055,10 @@ T-002
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/110
 
-Approval: Approved (sudo 2026-07-12T05:13:11Z)
+Approval: Approved (aharada54914 2026-07-12T12:00:10Z)
+Second Approval: Approved (Harada2 2026-07-12T12:00:10Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: critical
 
@@ -3003,7 +3031,7 @@ Emit-Decision "allow" $null
 d01c0d70f73b1d173339845c0547d5f7dcb6628fc9e2717a97d88acaf3b0e652  sdd-hook-guard.ps1 -> plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
 
 
-===== artifact: tests/guard-r10-port.tests.ps1 (sha256: 4b895890079168acfad9b0ba0f6f1d19d8bc1695a761489d617e2c1ec478d4ca) =====
+===== artifact: tests/guard-r10-port.tests.ps1 (sha256: f8c6459d7fc97cce8df31bb1cb3b145bd5ad94f84d346ee3fda28f3323f702cd) =====
 
 $ErrorActionPreference = "Stop"
 Set-StrictMode -Version Latest
@@ -3015,14 +3043,15 @@ Set-StrictMode -Version Latest
 # (.ps1 == .py == .js) AND the expected exit code for every scenario, per the
 # PowerShell Parity Note in security-spec.md (decisions, not message bytes).
 #
-# Guard paths are parameterized via environment variables so the same suite
-# captures RED (live .ps1 without R-10 -> diverges from the .py/.js twins) and
-# GREEN (staged .ps1 with R-10 -> converges):
+# Guard paths are parameterized via environment variables. All three default to
+# the LIVE twins (the T-001/T-002 fixes were human-applied via the human-copy
+# procedure), so this suite doubles as the CI parity regression registered in
+# tests/run-all.sh:
 #   GUARD_PS1  default: live plugins/.../sdd-hook-guard.ps1
-#   GUARD_PY   default: staged human-copy/sdd-hook-guard.py (T-002 cwd-fixed)
-#   GUARD_JS   default: staged human-copy/sdd-hook-guard.js (T-002 cwd-fixed)
-# The .py/.js default to the T-002 staged fixed twins so the corpus is consistent
-# across RED and GREEN (only the .ps1 target changes between the two runs).
+#   GUARD_PY   default: live plugins/.../sdd-hook-guard.py
+#   GUARD_JS   default: live plugins/.../sdd-hook-guard.js
+# Point GUARD_PS1 at a staged human-copy or historical .ps1 to reproduce the
+# RED (no R-10 port -> diverges) / GREEN (ported -> converges) differential.
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 
@@ -3034,8 +3063,8 @@ function Get-EnvOrDefault {
 }
 
 $guardPs1 = Get-EnvOrDefault "GUARD_PS1" (Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1")
-$guardPy  = Get-EnvOrDefault "GUARD_PY"  (Join-Path $repositoryRoot "specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.py")
-$guardJs  = Get-EnvOrDefault "GUARD_JS"  (Join-Path $repositoryRoot "specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.js")
+$guardPy  = Get-EnvOrDefault "GUARD_PY"  (Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/sdd-hook-guard.py")
+$guardJs  = Get-EnvOrDefault "GUARD_JS"  (Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts/sdd-hook-guard.js")
 
 Write-Host "guard-r10-port.tests.ps1"
 Write-Host "  PS1: $guardPs1"
@@ -3119,6 +3148,59 @@ function Assert-Parity {
     }
 }
 
+# Run one guard twin in copilot emit mode; returns @(permissionDecision, exitCode).
+# Copilot mode always exits 0 and reports the decision as JSON on stdout, so the
+# parity assertion is on the decision string, not the exit code.
+function Invoke-GuardCopilot {
+    param([string]$Runtime, [string]$GuardPath, [string]$Payload)
+    $savedDirCwd = [System.IO.Directory]::GetCurrentDirectory()
+    $savedLoc = (Get-Location).Path
+    $savedProjDir = $env:CLAUDE_PROJECT_DIR
+    try {
+        [System.IO.Directory]::SetCurrentDirectory($workDir)
+        Set-Location -LiteralPath $workDir
+        $env:CLAUDE_PROJECT_DIR = $workDir
+        $env:PAYLOAD = $Payload
+        $out = ""
+        switch ($Runtime) {
+            "ps1" { $out = & pwsh -NoProfile -ExecutionPolicy Bypass -File $GuardPath -Emit copilot 2>$null }
+            "py"  { $out = & python3 $GuardPath --emit copilot 2>$null }
+            "js"  { $out = & node $GuardPath --emit copilot 2>$null }
+        }
+        $code = $LASTEXITCODE
+        $decision = "parse-error"
+        try {
+            $obj = ($out | Out-String).Trim() | ConvertFrom-Json
+            if ($null -ne $obj.permissionDecision) { $decision = [string]$obj.permissionDecision }
+        } catch { }
+        return ,@($decision, $code)
+    } finally {
+        Remove-Item Env:PAYLOAD -ErrorAction SilentlyContinue
+        if ($null -eq $savedProjDir) { Remove-Item Env:CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue }
+        else { $env:CLAUDE_PROJECT_DIR = $savedProjDir }
+        [System.IO.Directory]::SetCurrentDirectory($savedDirCwd)
+        Set-Location -LiteralPath $savedLoc
+    }
+}
+
+# Assert copilot-mode parity: every twin prints permissionDecision == expected
+# and exits 0.
+function Assert-CopilotParity {
+    param([string]$Name, [string]$Expected, [string]$Payload)
+    $ps1 = Invoke-GuardCopilot "ps1" $guardPs1 $Payload
+    $py  = Invoke-GuardCopilot "py"  $guardPy  $Payload
+    $js  = Invoke-GuardCopilot "js"  $guardJs  $Payload
+    $decisionsOk = ($ps1[0] -eq $Expected -and $py[0] -eq $Expected -and $js[0] -eq $Expected)
+    $exitsOk = ($ps1[1] -eq 0 -and $py[1] -eq 0 -and $js[1] -eq 0)
+    if ($decisionsOk -and $exitsOk) {
+        Write-Host "ok: $Name (all $Expected, exit 0)"
+        $script:passCount++
+    } else {
+        Write-Host "FAIL: $Name expected=$Expected ps1=$($ps1[0])/$($ps1[1]) py=$($py[0])/$($py[1]) js=$($js[0])/$($js[1])"
+        $script:failCount++
+    }
+}
+
 # --- Corpus (payloads live inside this file so the runner's command line never
 #     pairs a protected path with a write verb) ---
 
@@ -3132,6 +3214,51 @@ Assert-Parity "r10 multiedit: check-contract.ps1"          2 '{"tool_name":"mult
 Assert-Parity "r10 file-write: claude-hooks.json"          2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/hooks/claude-hooks.json","content":"x"}}'
 Assert-Parity "r10 apply_patch: sdd-hook-guard.py"         2 '{"tool_name":"apply_patch","tool_input":{"command":"*** Begin Patch\n*** Update File: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\n+x\n*** End Patch"}}'
 Assert-Parity "r10 file-write: ../ traversal to guard"     2 '{"tool_name":"write","tool_input":{"file_path":"foo/../plugins/sdd-quality-loop/scripts/sdd-hook-guard.py","content":"x"}}'
+
+# R-10 exhaustive protected-table coverage (RT-20260712-002): one write-denial
+# fixture for every ProtectedGateSuffixes entry not already covered above, so
+# the corpus exercises every protected suffix class rather than a sample
+# (requirements.md Risks / design.md Test Strategy #2).
+# hook guard twins (self-protection; .py covered above)
+Assert-Parity "r10 file-write: sdd-hook-guard.js"          2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/sdd-hook-guard.js","content":"x"}}'
+Assert-Parity "r10 file-write: sdd-hook-guard.ps1"         2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1","content":"x"}}'
+Assert-Parity "r10 edit: sdd-hook-guard.sh"                2 '{"tool_name":"edit","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh","old_string":"a","new_string":"b"}}'
+# kill-switch scripts
+Assert-Parity "r10 file-write: kill-switch.js"             2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/kill-switch.js","content":"x"}}'
+Assert-Parity "r10 file-write: kill-switch.sh"             2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/kill-switch.sh","content":"x"}}'
+Assert-Parity "r10 file-write: kill-switch.ps1"            2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/kill-switch.ps1","content":"x"}}'
+# hook registration files (claude-hooks.json covered above)
+Assert-Parity "r10 file-write: hooks.json"                 2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/hooks/hooks.json","content":"x"}}'
+Assert-Parity "r10 file-write: copilot-hooks.json"         2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/hooks/copilot-hooks.json","content":"x"}}'
+# gate scripts (check-contract.ps1 covered above)
+Assert-Parity "r10 file-write: check-contract.sh"          2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/check-contract.sh","content":"x"}}'
+Assert-Parity "r10 file-write: check-contract.py"          2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/check-contract.py","content":"x"}}'
+Assert-Parity "r10 file-write: check-evidence-bundle.sh"   2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh","content":"x"}}'
+Assert-Parity "r10 file-write: check-evidence-bundle.ps1"  2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1","content":"x"}}'
+Assert-Parity "r10 file-write: check-evidence-bundle.py"   2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/check-evidence-bundle.py","content":"x"}}'
+# shared path-validation utility (R-01)
+Assert-Parity "r10 file-write: validate_path.py"           2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/validate_path.py","content":"x"}}'
+# Claude Code hook-loading config (settings.json covered above)
+Assert-Parity "r10 file-write: settings.local.json"        2 '{"tool_name":"write","tool_input":{"file_path":".claude/settings.local.json","content":"x"}}'
+# critical test files (gates.tests.sh covered above)
+Assert-Parity "r10 file-write: tests/eval.tests.sh"        2 '{"tool_name":"write","tool_input":{"file_path":"tests/eval.tests.sh","content":"x"}}'
+Assert-Parity "r10 file-write: tests/guard-parity.tests.sh" 2 '{"tool_name":"write","tool_input":{"file_path":"tests/guard-parity.tests.sh","content":"x"}}'
+Assert-Parity "r10 file-write: tests/constant-parity.tests.sh" 2 '{"tool_name":"write","tool_input":{"file_path":"tests/constant-parity.tests.sh","content":"x"}}'
+# review-loop agent role files
+Assert-Parity "r10 edit: impl-reviewer-a.md"               2 '{"tool_name":"edit","tool_input":{"file_path":"plugins/sdd-review-loop/agents/impl-reviewer-a.md","old_string":"a","new_string":"b"}}'
+Assert-Parity "r10 edit: impl-reviewer-b.md"               2 '{"tool_name":"edit","tool_input":{"file_path":"plugins/sdd-review-loop/agents/impl-reviewer-b.md","old_string":"a","new_string":"b"}}'
+Assert-Parity "r10 multiedit: task-reviewer-a.md"          2 '{"tool_name":"multiedit","tool_input":{"file_path":"plugins/sdd-review-loop/agents/task-reviewer-a.md","edits":[{"old_string":"a","new_string":"b"}]}}'
+Assert-Parity "r10 multiedit: task-reviewer-b.md"          2 '{"tool_name":"multiedit","tool_input":{"file_path":"plugins/sdd-review-loop/agents/task-reviewer-b.md","edits":[{"old_string":"a","new_string":"b"}]}}'
+# review-loop skills (impl-review-loop + ship SKILL.md covered above)
+Assert-Parity "r10 file-write: task-review-loop SKILL.md"  2 '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-review-loop/skills/task-review-loop/SKILL.md","content":"x"}}'
+
+# ProtectedGatePluginJsonSuffixes branch (distinct matching loop): relative and
+# absolute path forms across all three dot-dir entries, plus a non-dot-dir
+# negative proving the branch matches the directory component, not the basename.
+Assert-Parity "r10 plugin.json: .plugin relative"          2 '{"tool_name":"write","tool_input":{"file_path":"vendor/tool/.plugin/plugin.json","content":"x"}}'
+Assert-Parity "r10 plugin.json: .claude-plugin relative"   2 '{"tool_name":"write","tool_input":{"file_path":"plugins/demo/.claude-plugin/plugin.json","content":"x"}}'
+Assert-Parity "r10 plugin.json: .codex-plugin absolute"    2 '{"tool_name":"write","tool_input":{"file_path":"[PATH_REDACTED]","content":"x"}}'
+Assert-Parity "allow: src/plugin.json (no plugin dot-dir)" 0 '{"tool_name":"write","tool_input":{"file_path":"src/plugin.json","content":"x"}}'
 
 # R-10 protected writes via Bash, incl. the cwd/pushd forms (deny 2).
 Assert-Parity "r10 bash redirect into guard"               2 '{"tool_name":"bash","tool_input":{"command":"echo x > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py"}}'
@@ -3149,6 +3276,18 @@ Assert-Parity "r10 read-only cp FROM guard to /tmp"        0 '{"tool_name":"bash
 Assert-Parity "impl-review forgery: no verdict -> deny"    2 '{"tool_name":"write","tool_input":{"file_path":"specs/feat-noverdict/design.md","content":"Impl-Review-Status: Passed\n"}}'
 Assert-Parity "impl-review: PASS verdict -> allow"         0 '{"tool_name":"write","tool_input":{"file_path":"specs/feat-pass/design.md","content":"Impl-Review-Status: Passed\n"}}'
 Assert-Parity "impl-review: FAIL verdict -> deny"          2 '{"tool_name":"write","tool_input":{"file_path":"specs/feat-fail/design.md","content":"Impl-Review-Status: Passed\n"}}'
+
+# Impl-Review-Status forgery via the edit/multiedit payload branches
+# (RT-20260712-002: the write branch above left new_string/edits[] untested).
+Assert-Parity "impl-review forgery edit: no verdict -> deny"        2 '{"tool_name":"edit","tool_input":{"file_path":"specs/feat-noverdict/design.md","old_string":"a","new_string":"Impl-Review-Status: Passed\n"}}'
+Assert-Parity "impl-review forgery multiedit: FAIL verdict -> deny" 2 '{"tool_name":"multiedit","tool_input":{"file_path":"specs/feat-fail/design.md","edits":[{"old_string":"a","new_string":"Impl-Review-Status: Passed\n"}]}}'
+Assert-Parity "impl-review edit: PASS verdict -> allow"             0 '{"tool_name":"edit","tool_input":{"file_path":"specs/feat-pass/design.md","old_string":"a","new_string":"Impl-Review-Status: Passed\n"}}'
+
+# Copilot emit mode (RT-20260712-002): the new denials must surface as
+# permissionDecision=deny with exit 0 in every twin, and an allow stays allow.
+Assert-CopilotParity "copilot-emit: r10 write to guard -> deny" "deny"  '{"tool_name":"write","tool_input":{"file_path":"plugins/sdd-quality-loop/scripts/sdd-hook-guard.py","content":"x"}}'
+Assert-CopilotParity "copilot-emit: cd+rm guard -> deny"        "deny"  '{"tool_name":"bash","tool_input":{"command":"cd plugins/sdd-quality-loop/scripts && rm sdd-hook-guard.py"}}'
+Assert-CopilotParity "copilot-emit: write src/main.py -> allow" "allow" '{"tool_name":"write","tool_input":{"file_path":"src/main.py","content":"print(1)"}}'
 
 # Non-protected writes (allow 0).
 Assert-Parity "allow: write src/main.py"                   0 '{"tool_name":"write","tool_input":{"file_path":"src/main.py","content":"print(1)"}}'
@@ -3168,21 +3307,22 @@ if ($failCount -ne 0) { exit 1 }
 exit 0
 
 
-===== artifact: tests/guard-ps1-ascii.tests.sh (sha256: 6f0dbea24059b900a321b0c3f86ae17e4788d0bf89d1f466a6eb91782dd04dfb) =====
+===== artifact: tests/guard-ps1-ascii.tests.sh (sha256: 36c417f70d210ef04f98db07a5108bd268af91fddd1792f802ed81eea88cd287) =====
 
 #![PATH_REDACTED] bash
 # TEST-015 (AC-015): sdd-hook-guard.ps1 must contain only ASCII bytes (0x00-0x7F)
 # and carry no UTF-8 BOM, so it parses correctly under Windows PowerShell 5.1
 # (which reads a BOM-less non-ASCII .ps1 as ANSI and corrupts the deny reasons).
 #
-# The target defaults to the staged human-copy .ps1 (this task's deliverable);
-# override with GUARD_PS1 to check the live path once a human has copied it in.
+# The target defaults to the LIVE guard .ps1 (the human-copy staged deliverable
+# was applied by a human, so CI must watch the enforcing copy); override with
+# GUARD_PS1 to check a staged human-copy before it is applied.
 # The non-ASCII scan mirrors `LC_ALL=C grep -P '[^\x00-\x7F]'`; on hosts whose
 # grep lacks -P (e.g. BSD/macOS) it falls back to an equivalent python3 byte scan.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-TARGET="${GUARD_PS1:-${REPO_ROOT}/specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.ps1}"
+TARGET="${GUARD_PS1:-${REPO_ROOT}/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1}"
 
 PASS=0
 FAIL=0
@@ -3235,6 +3375,71 @@ fi
 echo ""
 echo "guard-ps1-ascii.tests.sh: $PASS passed, $FAIL failed"
 [ "$FAIL" -eq 0 ] || exit 1
+
+
+===== artifact: tests/run-all.sh (sha256: f5c8bdaadbb5c17a6c10f8af56eea659c73b967ca895dfef848d2b29bb7035c7) =====
+
+#![PATH_REDACTED] bash
+# Run the local, deterministic POSIX regression suite in CI order.
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
+cd "$ROOT"
+
+tests=(
+  tests/install.tests.sh
+  tests/uninstall.tests.sh
+  tests/guards.tests.sh
+  tests/approval-boundary.tests.sh
+  tests/gates.tests.sh
+  tests/check-placeholders.tests.sh
+  tests/prepare-panelist.tests.sh
+  tests/review-contract-foundation.tests.sh
+  tests/review-contract-foundation-parity.tests.sh
+  tests/downstream-review-precheck.tests.sh
+  tests/impl-layer-review-inputs.tests.sh
+  tests/task-layer-review-inputs.tests.sh
+  tests/task-layer-full-profile.tests.sh
+  tests/downstream-review-precheck-parity.tests.sh
+  tests/task-review-precheck.tests.sh
+  tests/review-agent-isolation.tests.sh
+  tests/agent-model-routing.tests.sh
+  tests/task-context-isolation.tests.sh
+  tests/turn-first-workflow.tests.sh
+  tests/retrospective-loop.tests.sh
+  tests/emit-run-record-feature-scope.tests.sh
+  tests/rollback-1.5.0.tests.sh
+  tests/cross-model.tests.sh
+  tests/eval.tests.sh
+  tests/crlf-parity.tests.sh
+  tests/scenario.tests.sh
+  tests/apply-branch-protection.tests.sh
+  tests/workflow-state-registry.tests.sh
+  tests/workflow-state-registry-parity.tests.sh
+  tests/workflow-state.tests.sh
+  tests/workflow-state-parity.tests.sh
+  tests/second-approval-mask.tests.sh
+  tests/workflow-state-ci-integration.tests.sh
+  tests/structure-check-feature-mode.tests.sh
+  tests/quality-gate-cycle-limit.tests.sh
+  tests/guard-ps1-ascii.tests.sh
+)
+
+for test_file in "${tests[@]}"; do
+  printf '==> %s\n' "$test_file"
+  bash "$test_file"
+done
+
+# Cross-runtime guard parity (PowerShell host suite; itself self-skips when
+# python3 or node is absent). Skip only when pwsh is not installed.
+printf '==> %s\n' "tests/guard-r10-port.tests.ps1"
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -ExecutionPolicy Bypass -File tests/guard-r10-port.tests.ps1
+else
+  printf 'SKIP: pwsh not found; guard-r10-port.tests.ps1 not run\n'
+fi
+
+printf 'All POSIX regression tests passed.\n'
 
 
 ===== artifact: specs/epic-136-phase1-guards/verification/T-001/red.log (sha256: 8f49eef17433d2f7d0e69e772a4ff1b4e16c4cf2768579f84f12464868734912) =====
@@ -3380,3 +3585,572 @@ GREEN interpretation: the staged .ps1 is pure ASCII (0 bytes > 0x7F) with no
 UTF-8 BOM, satisfying AC-015 for Windows PowerShell 5.1. The bilingual runtime
 deny reasons are preserved byte-for-byte via the Expand-Unicode \uXXXX decoder
 (verified separately; a benign deny prints the exact JP+EN message).
+
+
+===== artifact: specs/epic-136-phase1-guards/verification/T-001/red-attempt2.log (sha256: 4cdc451e3f94ea6a6d1c75c32272e07ff309cbcc37cef27f2e281944dca15413) =====
+
+guard-r10-port.tests.ps1
+  PS1: [PATH_REDACTED]
+  PY : [PATH_REDACTED]
+  JS : [PATH_REDACTED]
+FAIL: r10 file-write: sdd-hook-guard.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: .claude/settings.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: tests/gates.tests.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 edit: ship/SKILL.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: impl-review-loop SKILL.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 multiedit: check-contract.ps1 expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: claude-hooks.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 apply_patch: sdd-hook-guard.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: ../ traversal to guard expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: sdd-hook-guard.js expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: sdd-hook-guard.ps1 expected=2 ps1=0 py=2 js=2
+FAIL: r10 edit: sdd-hook-guard.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: kill-switch.js expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: kill-switch.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: kill-switch.ps1 expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: hooks.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: copilot-hooks.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-contract.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-contract.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-evidence-bundle.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-evidence-bundle.ps1 expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: check-evidence-bundle.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: validate_path.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: settings.local.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: tests/eval.tests.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: tests/guard-parity.tests.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: tests/constant-parity.tests.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 edit: impl-reviewer-a.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 edit: impl-reviewer-b.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 multiedit: task-reviewer-a.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 multiedit: task-reviewer-b.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: task-review-loop SKILL.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 plugin.json: .plugin relative expected=2 ps1=0 py=2 js=2
+FAIL: r10 plugin.json: .claude-plugin relative expected=2 ps1=0 py=2 js=2
+FAIL: r10 plugin.json: .codex-plugin absolute expected=2 ps1=0 py=2 js=2
+ok: allow: src/plugin.json (no plugin dot-dir) (all exit 0)
+FAIL: r10 bash redirect into guard expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash cd <dir> && rm <basename> expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash pushd <dir> && rm <basename> expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash cp onto guard expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash compound cat && rm guard expected=2 ps1=0 py=2 js=2
+ok: r10 read-only grep of guard (all exit 0)
+ok: r10 read-only cat settings (all exit 0)
+ok: r10 read-only cp FROM guard to /tmp (all exit 0)
+FAIL: impl-review forgery: no verdict -> deny expected=2 ps1=0 py=2 js=2
+ok: impl-review: PASS verdict -> allow (all exit 0)
+FAIL: impl-review: FAIL verdict -> deny expected=2 ps1=0 py=2 js=2
+FAIL: impl-review forgery edit: no verdict -> deny expected=2 ps1=0 py=2 js=2
+FAIL: impl-review forgery multiedit: FAIL verdict -> deny expected=2 ps1=0 py=2 js=2
+ok: impl-review edit: PASS verdict -> allow (all exit 0)
+FAIL: copilot-emit: r10 write to guard -> deny expected=deny ps1=allow/0 py=deny/0 js=deny/0
+FAIL: copilot-emit: cd+rm guard -> deny expected=deny ps1=allow/0 py=deny/0 js=deny/0
+ok: copilot-emit: write src/main.py -> allow (all allow, exit 0)
+ok: allow: write src/main.py (all exit 0)
+ok: allow: edit README.md (all exit 0)
+ok: malformed: empty object (all exit 2)
+ok: malformed: write missing file_path (all exit 2)
+ok: malformed: empty payload string (all exit 2)
+
+guard-r10-port.tests.ps1: 12 passed, 46 failed
+
+
+===== artifact: specs/epic-136-phase1-guards/verification/T-001/green-attempt2.log (sha256: 1c9e7c451ab19de8876d832da3523c50e5dd760a5194248735fd77363403c542) =====
+
+guard-r10-port.tests.ps1
+  PS1: [PATH_REDACTED]
+  PY : [PATH_REDACTED]
+  JS : [PATH_REDACTED]
+ok: r10 file-write: sdd-hook-guard.py (all exit 2)
+ok: r10 file-write: .claude/settings.json (all exit 2)
+ok: r10 file-write: tests/gates.tests.sh (all exit 2)
+ok: r10 edit: ship/SKILL.md (all exit 2)
+ok: r10 file-write: impl-review-loop SKILL.md (all exit 2)
+ok: r10 multiedit: check-contract.ps1 (all exit 2)
+ok: r10 file-write: claude-hooks.json (all exit 2)
+ok: r10 apply_patch: sdd-hook-guard.py (all exit 2)
+ok: r10 file-write: ../ traversal to guard (all exit 2)
+ok: r10 file-write: sdd-hook-guard.js (all exit 2)
+ok: r10 file-write: sdd-hook-guard.ps1 (all exit 2)
+ok: r10 edit: sdd-hook-guard.sh (all exit 2)
+ok: r10 file-write: kill-switch.js (all exit 2)
+ok: r10 file-write: kill-switch.sh (all exit 2)
+ok: r10 file-write: kill-switch.ps1 (all exit 2)
+ok: r10 file-write: hooks.json (all exit 2)
+ok: r10 file-write: copilot-hooks.json (all exit 2)
+ok: r10 file-write: check-contract.sh (all exit 2)
+ok: r10 file-write: check-contract.py (all exit 2)
+ok: r10 file-write: check-evidence-bundle.sh (all exit 2)
+ok: r10 file-write: check-evidence-bundle.ps1 (all exit 2)
+ok: r10 file-write: check-evidence-bundle.py (all exit 2)
+ok: r10 file-write: validate_path.py (all exit 2)
+ok: r10 file-write: settings.local.json (all exit 2)
+ok: r10 file-write: tests/eval.tests.sh (all exit 2)
+ok: r10 file-write: tests/guard-parity.tests.sh (all exit 2)
+ok: r10 file-write: tests/constant-parity.tests.sh (all exit 2)
+ok: r10 edit: impl-reviewer-a.md (all exit 2)
+ok: r10 edit: impl-reviewer-b.md (all exit 2)
+ok: r10 multiedit: task-reviewer-a.md (all exit 2)
+ok: r10 multiedit: task-reviewer-b.md (all exit 2)
+ok: r10 file-write: task-review-loop SKILL.md (all exit 2)
+ok: r10 plugin.json: .plugin relative (all exit 2)
+ok: r10 plugin.json: .claude-plugin relative (all exit 2)
+ok: r10 plugin.json: .codex-plugin absolute (all exit 2)
+ok: allow: src/plugin.json (no plugin dot-dir) (all exit 0)
+ok: r10 bash redirect into guard (all exit 2)
+ok: r10 bash cd <dir> && rm <basename> (all exit 2)
+ok: r10 bash pushd <dir> && rm <basename> (all exit 2)
+ok: r10 bash cp onto guard (all exit 2)
+ok: r10 bash compound cat && rm guard (all exit 2)
+ok: r10 read-only grep of guard (all exit 0)
+ok: r10 read-only cat settings (all exit 0)
+ok: r10 read-only cp FROM guard to /tmp (all exit 0)
+ok: impl-review forgery: no verdict -> deny (all exit 2)
+ok: impl-review: PASS verdict -> allow (all exit 0)
+ok: impl-review: FAIL verdict -> deny (all exit 2)
+ok: impl-review forgery edit: no verdict -> deny (all exit 2)
+ok: impl-review forgery multiedit: FAIL verdict -> deny (all exit 2)
+ok: impl-review edit: PASS verdict -> allow (all exit 0)
+ok: copilot-emit: r10 write to guard -> deny (all deny, exit 0)
+ok: copilot-emit: cd+rm guard -> deny (all deny, exit 0)
+ok: copilot-emit: write src/main.py -> allow (all allow, exit 0)
+ok: allow: write src/main.py (all exit 0)
+ok: allow: edit README.md (all exit 0)
+ok: malformed: empty object (all exit 2)
+ok: malformed: write missing file_path (all exit 2)
+ok: malformed: empty payload string (all exit 2)
+
+guard-r10-port.tests.ps1: 58 passed, 0 failed
+
+
+===== artifact: specs/epic-136-phase1-guards/verification/T-001/ascii-attempt2.log (sha256: e95d9d302f4ebb9faf9a65856f12cecb4efe23429c72d72dffee97c9cd13a0e2) =====
+
+guard-ps1-ascii.tests.sh
+  target: [PATH_REDACTED]
+ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+
+guard-ps1-ascii.tests.sh: 2 passed, 0 failed
+
+
+===== artifact: specs/epic-136-phase1-guards/verification/T-001/runall-registration.log (sha256: deccf91938236ad7244e65ab9c7373469c56cb58fa1fed6717422a1d0cbe90b6) =====
+
+# bash -n tests/run-all.sh
+syntax ok
+# registered entries:
+44:  tests/guard-ps1-ascii.tests.sh
+54:printf '==> %s\n' "tests/guard-r10-port.tests.ps1"
+56:  pwsh -NoProfile -ExecutionPolicy Bypass -File tests/guard-r10-port.tests.ps1
+58:  printf 'SKIP: pwsh not found; guard-r10-port.tests.ps1 not run\n'
+
+
+===== artifact: specs/epic-136-phase1-guards/verification/T-001/regression-attempt2.log (sha256: 9a107550edfd14533bcbfc55c0df4a99d7cdfa1d3bb9be3c6d966e89d4d81f72) =====
+
+# T-001 attempt-2 regression over live guards + run-all-adjacent suites
+## guard-parity
+guard-parity.tests.sh: 36 passed, 0 failed
+## guards
+Results: 133 passed, 0 failed.
+## constant-parity
+constant-parity.tests.sh: 2 passed, 0 failed
+## second-approval-mask
+ok: second-approval-mask suite passed (39 checks, 0 skipped)
+## rollback-1.5.0
+ROLLBACK_HASH: current hash mismatch: .agents/plugins/marketplace.json
+
+## rollback-1.5.0 differential (pre-existing TEST-006 defect, NOT caused by this fix)
+- clean worktree at HEAD 87bc29d (this fix absent): suite exit=1, aborts in TEST-006 at
+  `git commit -qm t008-release` ("nothing to commit, working tree clean") because the
+  canonical-release fixture copies working-tree files identical to HEAD.
+- this working tree (fix present): the copied modified tests/run-all.sh lets that commit
+  succeed, so TEST-006 proceeds to the pinned inventory and fails one step later at
+  `ROLLBACK_HASH: current hash mismatch: .agents/plugins/marketplace.json` — the
+  rollback-1.5.0 contract pins v1.5.0-era hashes while the repository is at v1.10.0.
+- both failure modes exist without this change; the known fix is pending on branch
+  claude/jovial-matsumoto-0ef83b (main run-all regressions + TEST-006).
+
+
+===== artifact: reports/implementation/epic-136-phase1-guards/T-001.md (sha256: d8319e4c4a33ba38255a60976b209a4ff86f8729a32c24492977d9d0a593dae1) =====
+
+# Implementation Report: T-001
+
+- Task ID: T-001
+
+Report Schema: implementation-report/v2
+
+- Run ID: epic136guards-t-001-run-01 (attempt 2: epic136guards-t-001-run-02)
+- Task Attempt Count: 2
+
+**Snapshot Notice**: The numbers, statuses, and paths recorded below reflect
+the state at this report's own authoring run only. A later same-feature event
+may supersede them. The quality verification gate's own report is the authority
+for the gate-time state.
+
+## Target
+
+Port the R-10 protected-gate-file write denial (protected-suffix table +
+working-directory-aware shell write-target analysis + read-only short-circuit)
+and the Impl-Review-Status forgery denial from `sdd-hook-guard.py` / `.js` to
+`sdd-hook-guard.ps1`, so all three guard twins produce identical decisions on a
+shared corpus, keeping `.ps1` ASCII-only for Windows PowerShell 5.1 (REQ-001;
+security-spec.md B1 + PowerShell Parity Note).
+
+## Summary
+
+The live `sdd-hook-guard.ps1` had no R-10 protected-path table, no shell
+write-target analysis, and no Impl-Review-Status forgery check: on a Windows
+host without python3/node the dispatcher falls back to `.ps1`, letting an agent
+overwrite gate scripts / hook config / critical tests or self-declare
+`Impl-Review-Status: Passed`.
+
+This change stages a corrected `.ps1` that ports, faithfully from the T-002
+staged `.py`/`.js` twins:
+
+1. `$ProtectedGateSuffixes` / `$ProtectedGatePluginJsonSuffixes` /
+   `$ProtectedBasenames` and `Test-IsProtectedGateFile` (normpath-collapsing,
+   case-insensitive suffix match) -- denies Edit/Write/MultiEdit writes to a
+   protected gate file (Check 2a-R10).
+2. The full shell write-target analysis: `Tokenize-ShellCommand`,
+   `Test-SimpleShellCommandIsSafe`, `Test-ShellWriteTargetsAreSafe`, the
+   read-only short-circuit, and the REQ-002 working-directory-aware pass
+   (`Apply-CdTransition` / `Test-CwdWriteTargetIsProtected` /
+   `Test-SegmentWriteHitsProtected` / `Test-ShellCwdWriteHitsProtected`) that
+   closes the `cd <protected-dir> && rm <basename>` and `pushd` bypasses --
+   denies Bash writes while allowing read-only shell over protected paths.
+3. apply_patch protected-target denial (Check 2a-R10).
+4. `Test-DesignMd` / `Test-ImplReviewVerdictExists` /
+   `Test-ImplReviewStatusPassedIncreases` -- denies introducing
+   `Impl-Review-Status: Passed` to `design.md` without a PASS /
+   PASS-with-warnings `integrated-verdict.json` (Check 2e).
+
+The existing kill-switch, SDD_SUDO C-02 protection, approval / WFI /
+Second-Approval / domain-model guards, and agent-role guard are carried over
+verbatim (logic unchanged); only their message constants were re-encoded.
+
+ASCII-only source (AC-015) is achieved with an `Expand-Unicode` decoder: every
+non-ASCII byte in the bilingual deny messages is written as a `\uXXXX` escape
+and reconstructed at load, so the runtime message bytes stay byte-identical to
+the twins (verified by round-trip) while the source file is pure ASCII with no
+BOM. No test in the repo compares guard message bytes across twins
+(`guard-parity.tests.sh` and `constant-parity.tests.sh` assert exit-code /
+constant parity only), so this preserves decision parity, which is what AC-001
+through AC-003 and the PowerShell Parity Note require.
+
+## Files Changed
+
+- `specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.ps1` (staged corrected
+  guard; protected live path is human-copied, never written by the agent)
+
+## Tests Added Or Updated
+
+- `tests/guard-r10-port.tests.ps1` (new) -- drives all three guard twins on a
+  25-scenario shared corpus and asserts DECISION EQUALITY (`.ps1 == .py == .js`)
+  plus the expected exit code; guard paths parameterized via `GUARD_PS1` /
+  `GUARD_PY` / `GUARD_JS` for RED (live `.ps1`) vs GREEN (staged `.ps1`).
+- `tests/guard-ps1-ascii.tests.sh` (new) -- asserts the target `.ps1` is
+  ASCII-only (no byte > 0x7F) and has no UTF-8 BOM.
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `tests/guard-r10-port.tests.ps1` | `4b895890079168acfad9b0ba0f6f1d19d8bc1695a761489d617e2c1ec478d4ca` |
+| `tests/guard-ps1-ascii.tests.sh` | `6f0dbea24059b900a321b0c3f86ae17e4788d0bf89d1f466a6eb91782dd04dfb` |
+| `specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.ps1` | `d01c0d70f73b1d173339845c0547d5f7dcb6628fc9e2717a97d88acaf3b0e652` |
+| `specs/epic-136-phase1-guards/human-copy/T-001.MANIFEST.sha256` | `3b7ab614159468faefb3d07e6e7dc18f0f3770b18a651d7d98d3ea97a77595d6` |
+| `specs/epic-136-phase1-guards/verification/T-001/red.log` | `8f49eef17433d2f7d0e69e772a4ff1b4e16c4cf2768579f84f12464868734912` |
+| `specs/epic-136-phase1-guards/verification/T-001/green.log` | `cd70b677dfb7538df752bfdf76c264381825b87017d24a135dcfbbae1d3ac726` |
+
+## Test Evidence
+
+- **Test Command**: `pwsh -NoProfile -File tests/guard-r10-port.tests.ps1` (GREEN with `GUARD_PS1` = staged `.ps1`; `GUARD_PY` / `GUARD_JS` = T-002 staged fixed twins) and `bash tests/guard-ps1-ascii.tests.sh`
+- **Test Result**: PASS
+- **Test Evidence Path**: `specs/epic-136-phase1-guards/verification/T-001/green.log`
+
+RED evidence (pre-port live `.ps1`) is at
+`specs/epic-136-phase1-guards/verification/T-001/red.log`.
+
+- RED `guard-r10-port.tests.ps1`: 9 passed, 16 failed -- every R-10 protected-write
+  class (file tool, shell incl. `cd`/`pushd` cwd forms, apply_patch, `../`
+  traversal) and the Impl-Review-Status forgery (no-verdict, FAIL-verdict) showed
+  `ps1=0` (allow) while `py=2 js=2` (deny). Read-only, non-protected,
+  PASS-verdict, and malformed cases already agreed, isolating the divergence to
+  the missing R-10 + forgery logic.
+- RED `guard-ps1-ascii.tests.sh` (live `.ps1`): FAIL -- 1992 non-ASCII bytes.
+- GREEN `guard-r10-port.tests.ps1`: 25 passed, 0 failed -- `.ps1 == .py == .js`
+  on all 25 scenarios.
+- GREEN `guard-ps1-ascii.tests.sh` (staged `.ps1`): 2 passed, 0 failed --
+  ASCII-only, no BOM.
+
+## High-Risk Preflight
+
+Each persisted evidence field, its specification counterpart, and the failing
+mismatch test that would catch a regression:
+
+| Persisted evidence field | Counterpart | Failing mismatch test |
+|---|---|---|
+| protected-write denial (Edit/Write/MultiEdit + shell cwd-aware + apply_patch) matches `.py`/`.js` | REQ-001 / AC-001; security-spec.md B1 (Authorization: agent -> enforcement-chain files -> deny) | `tests/guard-r10-port.tests.ps1` "r10 ..." scenarios (RED: `ps1=0` vs `py=2 js=2`) |
+| Impl-Review-Status forgery denial without a PASS verdict matches `.py`/`.js` | REQ-001 / AC-002; security-spec.md B1 (Authorization: design.md Impl-Review-Status -> deny without PASS verdict) | `tests/guard-r10-port.tests.ps1` "impl-review forgery: no verdict / FAIL verdict" (RED: `ps1=0` vs `py=2 js=2`) |
+| read-only shell over protected paths stays allowed (short-circuit parity) | REQ-001 / AC-003 | `tests/guard-r10-port.tests.ps1` "r10 read-only grep / cat / cp FROM" (all twins must exit 0) |
+| `.ps1` is ASCII-only with no BOM | REQ-001 / AC-015; security-spec.md PowerShell Parity Note | `tests/guard-ps1-ascii.tests.sh` (RED live: 1992 non-ASCII bytes -> FAIL) |
+
+Provenance: spec_revision = requirements.md `Spec-Review-Status: Passed`,
+design.md `Impl-Review-Status: Passed`, tasks.md `Task-Review-Status: Passed`;
+env = pwsh 7.6.2 / python3 3.14.5 / node v24.13.0 on darwin (CI additionally
+runs Windows PowerShell 5.1 on the 3-OS matrix, for which the ASCII/no-BOM check
+is the guard).
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Run ID**: epic136guards-t-001-run-01
+- **Session ID**: epic136guards-t-001-session-01
+- **Agent Instance ID**: epic136guards-t-001-agent-01
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Regression Tests Run
+
+- The GREEN `guard-r10-port.tests.ps1` run exercises the staged `.ps1` main()
+  control flow end-to-end (malformed / fail-closed, non-protected allow, and all
+  deny paths) with decision parity against the twins.
+- The existing kill-switch, SDD_SUDO C-02, approval / WFI / Second-Approval /
+  domain-model, and agent-role guard functions were ported verbatim (byte-for-
+  byte logic); message constants were re-encoded to runtime-identical values
+  (round-trip verified). No live `.py` / `.js` was changed, so
+  `guard-parity.tests.sh` (.py/.js exit-code parity) and `constant-parity.tests.sh`
+  are unaffected by this task.
+
+## Specification Differences
+
+- The `.ps1` deny messages are now built from ASCII `\uXXXX` escapes via
+  `Expand-Unicode` instead of literal Japanese. This is mandated by AC-015
+  (ASCII-only source) and is behavior-preserving: the reconstructed runtime
+  strings are byte-identical to the previous `.ps1` and to the `.py`/`.js`
+  twins (round-trip verified; a benign deny prints the exact JP+EN reason). No
+  repo test compares guard message bytes, so decision parity is unaffected.
+- Out of scope, left unchanged: the `.ps1` kill-switch retains its existing
+  `@($root, ".")` check (it does not walk to the git root as `.py`/`.js` do);
+  the protected-suffix tables are not consolidated across twins (SEC-15); no
+  `.py`/`.js` change (T-002).
+
+## Unresolved Items
+
+None.
+
+## Quality Gate Focus
+
+This task is critical-tier and security-sensitive. Per tasks.md "Done When", the
+quality gate must additionally record: (1) an independent quality-gate PASS
+verdict with requirement traceability and high-risk provenance
+(`spec_revision` + env); (2) cross-model verification consensus (Cross-Model:
+enabled); (3) an HMAC-signed evidence bundle; and (4) a second, distinct named
+human approver. Focus review on decision parity across the three twins for every
+protected-suffix class and the cwd/pushd forms, the read-only short-circuit not
+over-denying, and the ASCII/no-BOM guarantee for Windows PowerShell 5.1.
+
+## Human Copy Required
+
+The live `plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1` is enforcement-
+chain protected (the deterministic guard denies agent writes). A human copies
+the staged file into place after verifying its SHA-256:
+
+```
+# Verify the staged guard against the manifest, then copy into place.
+sha256sum -c specs/epic-136-phase1-guards/human-copy/T-001.MANIFEST.sha256   # (see manifest)
+cp specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.ps1 \
+   plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+```
+
+Manifest line (`specs/epic-136-phase1-guards/human-copy/T-001.MANIFEST.sha256`):
+
+```
+d01c0d70f73b1d173339845c0547d5f7dcb6628fc9e2717a97d88acaf3b0e652  sdd-hook-guard.ps1 -> plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+```
+
+IMPORTANT -- corpus consistency: this `.ps1` was validated against T-002's staged
+fixed `.py`/`.js` (which carry the working-directory fix the port incorporates).
+T-002's `sdd-hook-guard.py` and `sdd-hook-guard.js` human-copies must be applied
+FIRST or TOGETHER with this `.ps1`, so that all three live twins agree on the
+`cd`/`pushd` cwd-bypass scenarios. Copying this `.ps1` alone against a still-
+unfixed live `.py`/`.js` would leave the twins divergent on those forms.
+
+After copying, re-run: `pwsh tests/guard-r10-port.tests.ps1` (with no
+`GUARD_PS1` override, so it targets the now-live `.ps1`) and
+`GUARD_PS1=plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1 bash tests/guard-ps1-ascii.tests.sh`.
+
+## Working Notes
+
+- Message escapes were generated by parsing the T-002 staged `.py` with `ast`
+  (source of truth) and emitting `\uXXXX`-escaped PowerShell single-quoted
+  literals; a round-trip decode confirmed all 12 messages match the `.py`
+  runtime values byte-for-byte before embedding.
+- Guard paths in `guard-r10-port.tests.ps1` are env-parameterized so the same
+  file produced both RED (live `.ps1`) and GREEN (staged `.ps1`) against a fixed
+  `.py`/`.js` reference corpus.
+
+## Attempt 2 (RT-20260712-002: evidence-coverage extension)
+
+- Run ID: epic136guards-t-001-run-02
+- Trigger: blind cross-model panel consensus FAIL (3x NEEDS_WORK) on attempt 1 —
+  the parity corpus sampled ~7 of the protected-table entries instead of
+  exercising every protected suffix class, and the suites were not wired into
+  `tests/run-all.sh`. The isolated evaluator (ledger seq 168) had PASSed the
+  implementation itself; this attempt changes TESTS ONLY. The staged
+  `human-copy/sdd-hook-guard.ps1` (already human-applied; live == staged) and
+  the live guard twins are byte-unchanged, so no human-copy step is needed.
+
+### Changes
+
+1. `tests/guard-r10-port.tests.ps1` — corpus extended from 25 to 58 scenarios:
+   - one write-denial fixture for EVERY `ProtectedGateSuffixes` entry (all 30:
+     guard self-protection `.js`/`.ps1`/`.sh` added to the existing `.py`,
+     kill-switch x3, hooks.json + copilot-hooks.json, check-contract `.sh`/`.py`,
+     check-evidence-bundle x3, validate_path.py, settings.local.json,
+     eval/guard-parity/constant-parity critical tests, four review-loop agent
+     `.md` files, task-review-loop SKILL.md), spread across write/edit/multiedit
+     tool shapes;
+   - the entire `ProtectedGatePluginJsonSuffixes` branch: relative and absolute
+     path forms across all three dot-dir entries plus a non-dot-dir negative
+     (`src/plugin.json` stays allowed);
+   - Impl-Review-Status forgery via the `edit`/`multiedit` payload branches
+     (no-verdict deny, FAIL-verdict deny, PASS-verdict allow);
+   - copilot emit mode (`Assert-CopilotParity`): denials surface as
+     `permissionDecision=deny` with exit 0 in every twin, allow stays allow.
+   - Defaults now point all three twins at the LIVE guards (human-copy applied),
+     so the suite doubles as the CI parity regression; `GUARD_PS1`/`GUARD_PY`/
+     `GUARD_JS` overrides retained for staged/historical runs.
+2. `tests/guard-ps1-ascii.tests.sh` — default `TARGET` moved from the frozen
+   staged human-copy to the live `plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1`
+   (AC-015 "runs in the test suite" must watch the enforcing copy);
+   `GUARD_PS1` override retained.
+3. `tests/run-all.sh` — registered `tests/guard-ps1-ascii.tests.sh` in the POSIX
+   array and `tests/guard-r10-port.tests.ps1` via a `pwsh` block that SKIPs only
+   when pwsh is absent (the suite itself self-skips without python3/node).
+
+### Outputs (attempt 2)
+
+| Path | SHA-256 |
+|---|---|
+| `tests/guard-r10-port.tests.ps1` | `f8c6459d7fc97cce8df31bb1cb3b145bd5ad94f84d346ee3fda28f3323f702cd` |
+| `tests/guard-ps1-ascii.tests.sh` | `36c417f70d210ef04f98db07a5108bd268af91fddd1792f802ed81eea88cd287` |
+| `tests/run-all.sh` | `f5c8bdaadbb5c17a6c10f8af56eea659c73b967ca895dfef848d2b29bb7035c7` |
+| `specs/epic-136-phase1-guards/verification/T-001/red-attempt2.log` | `4cdc451e3f94ea6a6d1c75c32272e07ff309cbcc37cef27f2e281944dca15413` |
+| `specs/epic-136-phase1-guards/verification/T-001/green-attempt2.log` | `1c9e7c451ab19de8876d832da3523c50e5dd760a5194248735fd77363403c542` |
+| `specs/epic-136-phase1-guards/verification/T-001/ascii-attempt2.log` | `e95d9d302f4ebb9faf9a65856f12cecb4efe23429c72d72dffee97c9cd13a0e2` |
+| `specs/epic-136-phase1-guards/verification/T-001/runall-registration.log` | `deccf91938236ad7244e65ab9c7373469c56cb58fa1fed6717422a1d0cbe90b6` |
+| `specs/epic-136-phase1-guards/verification/T-001/regression-attempt2.log` | `9a107550edfd14533bcbfc55c0df4a99d7cdfa1d3bb9be3c6d966e89d4d81f72` |
+
+The staged `human-copy/sdd-hook-guard.ps1` and `T-001.MANIFEST.sha256` hashes
+are unchanged from attempt 1 (see the Outputs table above).
+
+### Test Evidence (attempt 2)
+
+- RED (`red-attempt2.log`): extended corpus vs the pre-T-001 live `.ps1`
+  (extracted from session-start commit `e3507a2`) — 12 passed, 46 failed; every
+  new protected-suffix-class fixture, plugin.json-branch fixture, forgery
+  edit/multiedit fixture, and copilot deny diverged (`ps1` allow vs `py`/`js`
+  deny), proving the new fixtures detect the original defect.
+- GREEN (`green-attempt2.log`): extended corpus vs the live twins (defaults) —
+  58 passed, 0 failed.
+- ASCII (`ascii-attempt2.log`): live default target — 2 passed, 0 failed.
+- run-all registration (`runall-registration.log`): `bash -n` syntax ok; both
+  suites present (array entry + pwsh block).
+- Regression (`regression-attempt2.log`): guard-parity 36/0, guards 133/0,
+  constant-parity 2/0, second-approval-mask 39 checks ok. rollback-1.5.0 fails
+  identically with and without this change (differential in the log: clean
+  HEAD worktree also exits 1 in TEST-006 — pre-existing defect, fix pending on
+  branch claude/jovial-matsumoto-0ef83b); not caused by this attempt.
+
+### Isolation (attempt 2)
+
+- Isolation Mode: orchestrator-inline per `fix-by-review-ticket`
+  (RT-20260712-002 is `auto_fix_allowed: true`, "missing tests for clear
+  requirements"); the fix is test-only, guard logic untouched.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete (attempt 2 — RT-20260712-002
+  applied; awaiting fresh blind cross-model panel + isolated evaluator +
+  critical-tier quality gate)
+- **Next Action**: Rebuild the sanitized panel bundle over the attempt-2
+  artifacts, re-run the blind three-vendor panel and the isolated evaluator,
+  then the critical-tier quality gate (signed evidence bundle; the second
+  distinct human approver is already recorded in tasks.md).
+- **Unresolved Items**: None
+
+
+===== artifact: docs/review-tickets/RT-20260712-002.yml (sha256: 98371873f12f82e3d0d73e42c9bbeb4897f049c41a1f0a0c9044f0d26c52afa4) =====
+
+ticket_id: RT-20260712-002
+status: open
+type: test-coverage-gap
+severity: major
+target:
+  feature: epic-136-phase1-guards
+  task: T-001
+  files:
+    - tests/guard-r10-port.tests.ps1
+    - tests/guard-ps1-ascii.tests.sh
+    - tests/run-all.sh
+summary: T-001 cross-model panel unanimous NEEDS_WORK — the ps1 parity corpus covers only ~7 of 31 protected-table entries although requirements.md flags "parity fixtures must exercise every protected suffix class, not a sample" as the Critical-risk mitigation; the ProtectedGatePluginJsonSuffixes branch has zero fixtures and the ASCII suite is not wired into run-all.
+problem: |
+  Blind three-vendor cross-model verification for T-001 (2026-07-12, input
+  digest 29c7ab73...) returned NEEDS_WORK from all three panelists;
+  check-cross-model recorded consensus FAIL
+  (specs/epic-136-phase1-guards/verification/T-001.cross-model.json).
+  Converged Major findings:
+  1. TEST-001 parity corpus samples the protected table (7 groups) instead of
+     exercising EVERY protected-suffix class as required by requirements.md
+     Risks (Critical), T-001 Scope, and design.md Test Strategy #2. Untested:
+     kill-switch.{js,sh,ps1}, check-evidence-bundle.{sh,ps1,py},
+     validate_path.py, .claude/settings.local.json, three protected test
+     files, the four review-loop agent .md files, task-review-loop SKILL.md,
+     hooks.json/copilot-hooks.json, the guard's own self-protection entry,
+     and — structurally most significant — the entire
+     ProtectedGatePluginJsonSuffixes branch (distinct matching loop), which
+     has zero fixtures.
+  2. AC-015's "runs in the test suite" clause: neither guard-ps1-ascii.tests.sh
+     nor guard-r10-port.tests.ps1 is registered in tests/run-all.sh, and the
+     ASCII check's default TARGET is the frozen staged human-copy rather than
+     the live guard path.
+  Panel Minors worth folding in: forgery corpus covers only the write-tool
+  payload shape (edit/multiedit branches untested); no copilot-emit-mode
+  scenario for the new denials.
+  IMPORTANT CONTEXT: the independent isolated evaluator (ledger seq 168)
+  returned PASS for the implementation itself, verifying the staged .ps1
+  with an out-of-corpus 13-case adversarial harness that included the
+  plugin.json/copilot-hooks suffix branch — all three twins agreed. The
+  defect is spec-mandated EVIDENCE COVERAGE, not any known behavioral
+  divergence. Status remains Implementation Complete; Done is blocked by the
+  cross-model consensus FAIL.
+expected_fix: |
+  Extend tests/guard-r10-port.tests.ps1 so the write-denial parity corpus
+  exercises every protected-suffix class (both suffix tables, including all
+  ProtectedGatePluginJsonSuffixes entries and the guard self-protection
+  entries), add edit/multiedit forgery-branch scenarios and one
+  copilot-emit-mode denial scenario; register guard-r10-port.tests.ps1 and
+  guard-ps1-ascii.tests.sh in tests/run-all.sh; default the ASCII check's
+  TARGET to the live plugins path (keep GUARD_PS1 override for staged runs).
+  This is "missing tests for clear requirements" (auto-fix allowed). Then
+  produce an attempt-2 implementation report for T-001 (updated Outputs
+  table), re-run the blind panel on a rebuilt sanitized bundle, and re-run
+  the isolated evaluator before the quality gate resumes.
+references:
+  - specs/epic-136-phase1-guards/verification/T-001.cross-model.json
+  - specs/epic-136-phase1-guards/verification/T-001.panelist-anthropic.verdict.json
+  - specs/epic-136-phase1-guards/verification/T-001.panelist-openai.verdict.json
+  - specs/epic-136-phase1-guards/verification/T-001.panelist-google.verdict.json
+  - specs/epic-136-phase1-guards/requirements.md
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1

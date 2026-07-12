@@ -1,0 +1,22 @@
+# T-001 attempt-2 regression over live guards + run-all-adjacent suites
+## guard-parity
+guard-parity.tests.sh: 36 passed, 0 failed
+## guards
+Results: 133 passed, 0 failed.
+## constant-parity
+constant-parity.tests.sh: 2 passed, 0 failed
+## second-approval-mask
+ok: second-approval-mask suite passed (39 checks, 0 skipped)
+## rollback-1.5.0
+ROLLBACK_HASH: current hash mismatch: .agents/plugins/marketplace.json
+
+## rollback-1.5.0 differential (pre-existing TEST-006 defect, NOT caused by this fix)
+- clean worktree at HEAD 87bc29d (this fix absent): suite exit=1, aborts in TEST-006 at
+  `git commit -qm t008-release` ("nothing to commit, working tree clean") because the
+  canonical-release fixture copies working-tree files identical to HEAD.
+- this working tree (fix present): the copied modified tests/run-all.sh lets that commit
+  succeed, so TEST-006 proceeds to the pinned inventory and fails one step later at
+  `ROLLBACK_HASH: current hash mismatch: .agents/plugins/marketplace.json` — the
+  rollback-1.5.0 contract pins v1.5.0-era hashes while the repository is at v1.10.0.
+- both failure modes exist without this change; the known fix is pending on branch
+  claude/jovial-matsumoto-0ef83b (main run-all regressions + TEST-006).

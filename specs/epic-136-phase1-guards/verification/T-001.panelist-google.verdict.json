@@ -1,1 +1,36 @@
-{"schema":"cross-model-verdict/v1","task_id":"T-001","feature":"epic-136-phase1-guards","vendor":"google","model":"claude-via-panelist-gemini-slot","verdict":"NEEDS_WORK","findings":[{"severity":"Major","ref":"tests/guard-r10-port.tests.ps1 (parity corpus) vs requirements.md Risks / design.md Test Strategy item 2","note":"AC-001 verification does not meet the spec's own stated bar. requirements.md Risks declares the Critical risk for this task as 'parity fixtures must exercise every protected suffix class, not a sample', and design.md mandates fixtures 'across every protected-suffix class'. The delivered corpus exercises only 7 protected-table entries. Zero parity coverage exists for: the ProtectedGatePluginJsonSuffixes set (a structurally distinct matching branch); the four review-loop agent .md files; kill-switch.{js,sh,ps1}; check-evidence-bundle.{sh,ps1,py}; validate_path.py; .claude/settings.local.json; three of four protected test files; task-review-loop SKILL.md; hooks.json and copilot-hooks.json; and the .ps1 guard's own self-protection entry. An incomplete port over an untested class would silently narrow Windows enforcement, which is exactly the failure mode the spec flags."},{"severity":"Major","ref":"tests/guard-ps1-ascii.tests.sh (TARGET default / suite integration) vs AC-015, acceptance-tests.md TEST-015","note":"AC-015 requires the ASCII/no-BOM check to run 'in the test suite so a non-ASCII character introduced during the REQ-001 port cannot ship undetected'. The bundle contains no evidence that guard-ps1-ascii.tests.sh (or guard-r10-port.tests.ps1) is wired into tests/run-all.sh or the CI matrix. Additionally, the check's default TARGET is the staged human-copy file, not the live plugins/sdd-quality-loop/scripts path; without a GUARD_PS1 override the shipped live guard is not continuously covered after the staging copy is applied, weakening the AC's stated protection for Windows PowerShell 5.1 hosts."},{"severity":"Minor","ref":"human-copy/sdd-hook-guard.ps1 Test-ShellCwdWriteHitsProtected / Tokenize-ShellCommand","note":"Residual evasion in the ported cwd-aware analysis: the tokenizer returns $null on backslash escapes and the fallback substring pass fires only when the full protected path appears literally. This appears parity-faithful to the .py/.js twins and sits within the documented best-effort non-goal, but should be recorded as known residual risk."},{"severity":"Minor","ref":"tests/guard-r10-port.tests.ps1 Invoke-GuardExit (exit mode only)","note":"The parity corpus drives all three twins only in exit-emit mode. The design architecture routes the Copilot hook path to the .ps1 twin in copilot-emit mode, but no scenario asserts the copilot JSON decision for the new R-10/forgery denials; decision logic is shared, so risk is low, but the emission path added by this port is unexercised in this task's evidence."}],"blind":true,"input_digest":"29c7ab73b32dd013118c20ee541072caf562dd566e857afbc756cb1e9c03f154","consent":{"kind":"human-flag","ref":"tasks.md T-001 Cross-Model: enabled"}}
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-001",
+  "feature": "epic-136-phase1-guards",
+  "vendor": "google",
+  "model": "claude-via-panelist-gemini-slot",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "tests/guard-r10-port.tests.ps1 plugin.json corpus (bundle lines 3255-3261)",
+      "note": "All three ProtectedGatePluginJsonSuffixes entries are now exercised, but every fixture path carries a parent directory, so only the leading-slash EndsWith arm of Test-IsProtectedGateFile is hit; the TrimStart arm (a file_path exactly equal to a bare dot-dir suffix with no parent prefix) has no fixture. The bundle/report phrasing 'relative and absolute path forms across all three dot-dir entries' overstates: each entry is exercised in exactly one form (2 relative, 1 absolute). Every table entry is still covered, so this is non-blocking."
+    },
+    {
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-136-phase1-guards/T-001.md 'Iteration And Escalation'",
+      "note": "Stale field: the section still records 'Task Attempt Count: 1' while the report header and the appended 'Attempt 2' section record attempt 2 (Run ID epic136guards-t-001-run-02)."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/guard-r10-port.tests.ps1 copilot section (bundle lines 3286-3290)",
+      "note": "Copilot emit-mode parity covers a protected write deny, a cd+rm deny, and an allow, but no malformed-payload (fail-closed) copilot scenario; malformed payloads are exercised only in exit-emit mode."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/guard-r10-port.tests.ps1 shell corpus",
+      "note": "All shell scenarios use tool_name 'bash'; the aliases 'shell'/'exec_command'/'exec' share the same membership list in every twin but have no direct fixture."
+    }
+  ],
+  "blind": true,
+  "input_digest": "8a8a9f1ed1e7de4628c277a37b639329a634e827747d39d15da9421ac4798c72",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "tasks.md T-001 Cross-Model: enabled"
+  }
+}

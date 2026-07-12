@@ -1656,6 +1656,15 @@
       "host_session_id": "SESS-qg-second-approval-mask-T-001-0184",
       "previous_record_sha256": "ce9fe03f83880d1e5ac80d7d3fc62d243b5d732db2151b2379a7c9265c0ad9fc",
       "record_sha256": "8fc56a8ad0d8708c6acce5f504976c7d4150ef5171cc9130ead7ff6fae5a7931"
+    },
+    {
+      "sequence": 185,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic136guards-qg-T-001-seq0185",
+      "host_session_id": "SESS-qg-epic136guards-T-001-0185",
+      "previous_record_sha256": "8fc56a8ad0d8708c6acce5f504976c7d4150ef5171cc9130ead7ff6fae5a7931",
+      "record_sha256": "5205d271958ab9bfa55ab6a137ad7a16a31e26572b874d2910fd4dcb805c5f44"
     }
   ]
 }

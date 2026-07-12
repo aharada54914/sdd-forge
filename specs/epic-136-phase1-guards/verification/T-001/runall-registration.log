@@ -1,0 +1,7 @@
+# bash -n tests/run-all.sh
+syntax ok
+# registered entries:
+44:  tests/guard-ps1-ascii.tests.sh
+54:printf '==> %s\n' "tests/guard-r10-port.tests.ps1"
+56:  pwsh -NoProfile -ExecutionPolicy Bypass -File tests/guard-r10-port.tests.ps1
+58:  printf 'SKIP: pwsh not found; guard-r10-port.tests.ps1 not run\n'

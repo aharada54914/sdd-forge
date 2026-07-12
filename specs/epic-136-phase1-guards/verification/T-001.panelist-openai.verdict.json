@@ -1,1 +1,31 @@
-{"schema":"cross-model-verdict/v1","task_id":"T-001","feature":"epic-136-phase1-guards","vendor":"openai","model":"claude-via-panelist-gpt-slot","verdict":"NEEDS_WORK","findings":[{"severity":"Major","ref":"tests/guard-r10-port.tests.ps1 (corpus) vs requirements.md Risks / design.md Test Strategy #2","note":"The parity corpus does not exercise every protected-suffix class, which requirements.md designates as the mandatory mitigation for the Critical incomplete-port risk and design.md promises ('decision equality with .py/.js across every protected-suffix class'). Zero fixtures exist for: kill-switch.{js,sh,ps1}; the reviewer-agent files; validate_path.py; check-evidence-bundle.*; .claude/settings.local.json; and, most importantly, all three ProtectedGatePluginJsonSuffixes entries, which are matched by a distinct code branch in Test-IsProtectedGateFile (leading-slash/TrimStart handling) and feed the ProtectedBasenames fail-closed fallback, so an error in that branch of the staged .ps1 would ship undetected on Windows. AC-001 ('any path in the protected table') is evidenced for only ~7 of 31 table entries."},{"severity":"Minor","ref":"tests/guard-r10-port.tests.ps1 impl-review scenarios (AC-002)","note":"The Impl-Review-Status forgery corpus exercises only the write-tool content path. The edit (new_string) and multiedit (edits[]) branches of Test-ImplReviewStatusPassedIncreases in the staged .ps1 are untested, and no shell/apply_patch forgery scenario establishes parity with the .py/.js twins for those payload shapes."},{"severity":"Minor","ref":"tests/guard-ps1-ascii.tests.sh TARGET default (AC-015)","note":"The ASCII/no-BOM check defaults to the staged human-copy artifact; the live enforcement path is checked only when GUARD_PS1 is explicitly set. The bundle also carries no evidence that the check is registered in the repository test suite (tests/run-all.sh is not in the artifact set), so the AC-015 clause 'runs in the test suite' cannot be verified from the bundle alone. Mitigated at copy time by the SHA-256 manifest, so Minor."},{"severity":"Minor","ref":"human-copy/sdd-hook-guard.ps1 Test-SimpleShellCommandIsSafe / Test-SegmentWriteHitsProtected (cp/mv handling)","note":"For mv, only the final non-flag argument (destination) is treated as a write; the mv SOURCE is treated as a read even though mv destroys it at the source path. If this mirrors the .py/.js twins it is a shared pre-existing heuristic gap rather than a port divergence, but twin behavior for this case is not verifiable from the bundle."},{"severity":"Minor","ref":"human-copy/sdd-hook-guard.ps1 lines with [REDACTED]","note":"Sanitization redacted load-bearing security constants and several regex literals in the staged guard source, so exact parity of these values with the .py/.js twins cannot be reviewed from the bundle; assurance for those code paths rests entirely on the 25-scenario decision-parity corpus and the RED/GREEN logs. Future bundles should escape rather than redact these values."}],"blind":true,"input_digest":"29c7ab73b32dd013118c20ee541072caf562dd566e857afbc756cb1e9c03f154","consent":{"kind":"human-flag","ref":"tasks.md T-001 Cross-Model: enabled"}}
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-001",
+  "feature": "epic-136-phase1-guards",
+  "vendor": "openai",
+  "model": "claude-via-panelist-gpt-slot",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "tests/run-all.sh (suite ordering)",
+      "note": "rollback-1.5.0.tests.sh precedes guard-ps1-ascii.tests.sh in the POSIX array and currently fails (documented pre-existing defect with clean-HEAD differential in regression-attempt2.log), so a full run-all aborts before the AC-015 ASCII check executes. Failure is loud/fail-closed and not caused by this change, but AC-015's in-suite execution is effectively blocked until the rollback defect is fixed."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/guard-r10-port.tests.ps1 (plugin.json fixtures)",
+      "note": "Each ProtectedGatePluginJsonSuffixes entry is covered once with mixed relative/absolute forms plus a non-dot-dir negative; the bare relative form (no parent directory, exercising the TrimStart fallback sub-branch of Test-IsProtectedGateFile) is untested, and the bundle manifest's 'relative and absolute forms' phrasing slightly overstates per-entry coverage. Branch coverage nonetheless meets the RT-20260712-002 / requirements.md Risks bar."
+    },
+    {
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-136-phase1-guards/T-001.md (Iteration And Escalation)",
+      "note": "Report header records 'Task Attempt Count: 2' but the Iteration And Escalation section still says 'Task Attempt Count: 1' - a stale attempt-1 field not updated during the attempt-2 revision."
+    }
+  ],
+  "blind": true,
+  "input_digest": "8a8a9f1ed1e7de4628c277a37b639329a634e827747d39d15da9421ac4798c72",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "tasks.md T-001 Cross-Model: enabled"
+  }
+}

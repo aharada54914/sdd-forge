@@ -4,12 +4,12 @@
   "role": "sdd-evaluator",
   "feature": "epic-136-phase1-guards",
   "task_id": "T-001",
-  "run_id": "RUN-epic136guards-qg-T-001-seq0168",
-  "host_session_id": "SESS-qg-epic136guards-T-001-0168",
-  "sequence": 168,
-  "previous_record_sha256": "94ced2e5f6eeaa2662f981e5f1a5ce42c8b73658ae459393d2f20948a1069597",
+  "run_id": "RUN-epic136guards-qg-T-001-seq0185",
+  "host_session_id": "SESS-qg-epic136guards-T-001-0185",
+  "sequence": 185,
+  "previous_record_sha256": "8fc56a8ad0d8708c6acce5f504976c7d4150ef5171cc9130ead7ff6fae5a7931",
   "identity_ledger_path": "reports/review-context/identity-ledger.json",
-  "identity_ledger_sha256": "529f208c9220a2b7c0176d090d5103be85a39263c8559cc4d1f25df1de91bde6",
+  "identity_ledger_sha256": "03791f1e1d2a51c8f153c5354d4bc3fd8fe56a77f4b1964fea0f4238e56e0d11",
   "input_mode": "file-manifest",
   "fallback_mode": "none",
   "read_only": true,
@@ -36,7 +36,7 @@
     },
     {
       "path": "specs/epic-136-phase1-guards/tasks.md",
-      "sha256": "9dfc7e75b7b3ba5730600855ae2f96ad156ab64fd3fc61b21e4da3c08c6daefa"
+      "sha256": "8d7eab4cec4e5a255506fcffdfccb8d442fa5e5514687ff8f1c0676539118e4b"
     },
     {
       "path": "specs/epic-136-phase1-guards/traceability.md",
@@ -52,15 +52,19 @@
     },
     {
       "path": "reports/implementation/epic-136-phase1-guards/T-001.md",
-      "sha256": "29af26eadb80ec658ef82311a24c50571665dd7536569d975cc716974d0e86be"
+      "sha256": "06bc3a6cfc25ad3d5e9e7c8af723fc4fa99b205a261d193daa8f813b967f5e11"
     },
     {
       "path": "tests/guard-r10-port.tests.ps1",
-      "sha256": "4b895890079168acfad9b0ba0f6f1d19d8bc1695a761489d617e2c1ec478d4ca"
+      "sha256": "f8c6459d7fc97cce8df31bb1cb3b145bd5ad94f84d346ee3fda28f3323f702cd"
     },
     {
       "path": "tests/guard-ps1-ascii.tests.sh",
-      "sha256": "6f0dbea24059b900a321b0c3f86ae17e4788d0bf89d1f466a6eb91782dd04dfb"
+      "sha256": "36c417f70d210ef04f98db07a5108bd268af91fddd1792f802ed81eea88cd287"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "f5c8bdaadbb5c17a6c10f8af56eea659c73b967ca895dfef848d2b29bb7035c7"
     },
     {
       "path": "specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.ps1",
@@ -77,6 +81,26 @@
     {
       "path": "specs/epic-136-phase1-guards/verification/T-001/green.log",
       "sha256": "cd70b677dfb7538df752bfdf76c264381825b87017d24a135dcfbbae1d3ac726"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/T-001/red-attempt2.log",
+      "sha256": "4cdc451e3f94ea6a6d1c75c32272e07ff309cbcc37cef27f2e281944dca15413"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/T-001/green-attempt2.log",
+      "sha256": "1c9e7c451ab19de8876d832da3523c50e5dd760a5194248735fd77363403c542"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/T-001/ascii-attempt2.log",
+      "sha256": "e95d9d302f4ebb9faf9a65856f12cecb4efe23429c72d72dffee97c9cd13a0e2"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/T-001/runall-registration.log",
+      "sha256": "deccf91938236ad7244e65ab9c7373469c56cb58fa1fed6717422a1d0cbe90b6"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/T-001/regression-attempt2.log",
+      "sha256": "9a107550edfd14533bcbfc55c0df4a99d7cdfa1d3bb9be3c6d966e89d4d81f72"
     }
   ]
 }

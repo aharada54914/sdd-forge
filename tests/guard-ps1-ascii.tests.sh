@@ -3,14 +3,15 @@
 # and carry no UTF-8 BOM, so it parses correctly under Windows PowerShell 5.1
 # (which reads a BOM-less non-ASCII .ps1 as ANSI and corrupts the deny reasons).
 #
-# The target defaults to the staged human-copy .ps1 (this task's deliverable);
-# override with GUARD_PS1 to check the live path once a human has copied it in.
+# The target defaults to the LIVE guard .ps1 (the human-copy staged deliverable
+# was applied by a human, so CI must watch the enforcing copy); override with
+# GUARD_PS1 to check a staged human-copy before it is applied.
 # The non-ASCII scan mirrors `LC_ALL=C grep -P '[^\x00-\x7F]'`; on hosts whose
 # grep lacks -P (e.g. BSD/macOS) it falls back to an equivalent python3 byte scan.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-TARGET="${GUARD_PS1:-${REPO_ROOT}/specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.ps1}"
+TARGET="${GUARD_PS1:-${REPO_ROOT}/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1}"
 
 PASS=0
 FAIL=0

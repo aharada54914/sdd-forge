@@ -1,5 +1,23 @@
 ticket_id: RT-20260712-002
-status: open
+status: resolved
+resolution: |
+  Resolved 2026-07-12 via fix-by-review-ticket (test-only remediation; guard
+  twins byte-unchanged). tests/guard-r10-port.tests.ps1 extended 25 -> 58
+  scenarios: one write-denial fixture for every ProtectedGateSuffixes entry
+  (all 30, incl. guard self-protection and the previously untested classes)
+  plus the entire ProtectedGatePluginJsonSuffixes branch (relative + absolute
+  forms for all three dot-dir entries and a non-dot-dir negative), forgery
+  fixtures for the edit/multiedit payload branches, and copilot emit-mode
+  decision parity. tests/run-all.sh now runs guard-ps1-ascii.tests.sh (POSIX
+  array) and guard-r10-port.tests.ps1 (pwsh block, SKIP only when pwsh is
+  absent). The ASCII check's default TARGET is the live plugins path
+  (GUARD_PS1 override kept). Attempt-2 RED 12/46 vs the pre-port .ps1
+  (red-attempt2.log), GREEN 58/0 vs the live twins (green-attempt2.log).
+  Attempt-2 implementation report recorded (T-001.md, Task Attempt Count: 2).
+  Fresh blind panel on rebuilt bundle (input_digest 8a8a9f1e...): 3x PASS,
+  check-cross-model consensus PASS (3 distinct vendors). Isolated evaluator
+  re-run (ledger seq 185): PASS with independent corpus-completeness
+  verification. Quality gate resumes for T-001 Done.
 type: test-coverage-gap
 severity: major
 target:
