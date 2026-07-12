@@ -9,6 +9,9 @@ AGENT_STOP
 # check-contract / check-evidence-bundle reference these paths, so they have to
 # survive a fresh clone. Re-include them despite the blanket *.log rule above.
 !specs/**/verification/*.log
+# ... including per-task and gate-phase subdirectories (verification/T-NNN/,
+# verification/qg/T-NNN/) whose red/green and gate logs are bundle-referenced.
+!specs/**/verification/**/*.log
 
 # R-10 scratchpad handoff leftovers (human-cp staging areas; never commit)
 scratchpad-T006/

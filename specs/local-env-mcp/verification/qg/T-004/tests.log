@@ -1,0 +1,70 @@
+# collected 2026-07-05T16:48:52Z (quality-gate T-004, fresh run this session)
+$ npm test
+
+> local-env-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+
+> local-env-mcp@0.1.0 test
+> node scripts/run-tests.mjs
+
+✔ AC-004: successful probe yields available + normalized first-line version (580.5795ms)
+✔ AC-004: multi-line output is normalized to first line only (772.800041ms)
+✔ AC-004: stderr-stream CLI (java-style) reads version from stderr (1086.52775ms)
+✔ AC-004: timeout (>2s) kills the process and reports probeError=timeout (2005.42625ms)
+✔ AC-004: output over 8 KiB is capped, process killed, probeError=output-too-large (563.80075ms)
+✔ AC-004: missing CLI reports probeError=not-found (spawn ENOENT) (3.730084ms)
+✔ AC-004: nonzero exit reports probeError=nonzero-exit (385.297333ms)
+✔ AC-004: probeError values are all within the contract enum (2005.910208ms)
+✔ AC-004: concurrency is bounded (many slow probes still all resolve, none hang the response) (4012.0585ms)
+✔ AC-004: TTL cache reuses a prior result within the window (no re-probe) (10.929583ms)
+✔ AC-003: exposed input JSON schema has only `names`, additionalProperties:false (1.128ms)
+✔ AC-003: input schema exposes NO command / args / path / exec-style field (0.175708ms)
+✔ AC-003: `names` enum accepts ONLY the 14 allowlist names (0.684166ms)
+✔ AC-003: out-of-enum name -> invalid-input envelope, no probe run (0.155459ms)
+✔ AC-003: extra property -> invalid-input envelope (0.125208ms)
+✔ AC-003: path/command string fields -> invalid-input envelope (0.168209ms)
+✔ AC-003: `names` must be an array (a bare string is rejected) (0.10575ms)
+✔ AC-003: invalid input never produces an entries array (no probe executed) (0.08075ms)
+✔ AC-005: logStartup emits exactly the allowlisted startup fields (1.29775ms)
+✔ AC-005: logStartup output is a single JSON line terminated by exactly one newline (0.18925ms)
+✔ AC-005: logFatal emits exactly the allowlisted fatal fields (2.643833ms)
+✔ AC-005: logFatal accepts a non-Error value without leaking its structure (0.342917ms)
+✔ AC-005: scrubber redacts the home directory path from a fatal message (0.391708ms)
+✔ AC-005: scrubber redacts the username from a fatal message (0.26125ms)
+✔ AC-005: scrubber redacts the hostname from a fatal message (0.267583ms)
+✔ AC-005: scrubber redacts a long environment-variable value from a fatal message (0.25925ms)
+✔ AC-005: logFatal scrubs secrets carried in the error message (0.27325ms)
+✔ AC-005: server startup + all three tools leak no secrets to stdout or stderr (2521.814292ms)
+✔ ok() builds a success envelope (0.552333ms)
+✔ err() builds a failure envelope; details optional and secret-free (0.232083ms)
+✔ ErrorCode union matches the contract error.code enum exactly (0.332333ms)
+✔ allowlist has exactly the 14 required CLIs in order (0.077709ms)
+✔ every allowlist entry has name/command/args/versionStream; java uses -version+stderr (0.103125ms)
+✔ allowlist command names contain no shell metacharacters or path separators (0.09275ms)
+✔ src/ contains no filesystem write API references (5.806917ms)
+✔ src/ uses no child_process.exec / spawn / fork / eval (execFile only) (1.793625ms)
+✔ src/ contains no TODO/FIXME/stub/placeholder markers (0.8855ms)
+✔ inspector CLI: server starts over stdio and tools/list reports exactly the 3 local-env-mcp tools (281.612584ms)
+✔ inspector CLI: tools/call get_os_info returns a schema-shaped ok envelope (195.341291ms)
+✔ AC-001: get_os_info returns an ok envelope (0.421083ms)
+✔ AC-001: get_os_info data conforms to the contract osInfoData schema (0.795666ms)
+✔ AC-001: get_os_info exposes exactly the 8 contract fields, no more (0.196625ms)
+✔ AC-001: get_os_info never leaks hostname / username / home directory values (2.0245ms)
+✔ AC-001: get_os_info values match the process/os APIs it reports on (0.281916ms)
+✔ AC-002: get_toolchain_versions returns an ok envelope of kind toolchain-versions (901.859792ms)
+✔ AC-002: a resolvable CLI is available:true with a normalized version string (9.167833ms)
+✔ AC-002: a deterministically-missing CLI is available:false; response still ok:true (917.392875ms)
+✔ AC-002: every entry name is within the contract cliName enum (9.118125ms)
+✔ AC-002: get_toolchain_versions with no names probes the full 14-CLI allowlist (44.7565ms)
+✔ AC-002: list_available_clis returns kind cli-availability with name+available only (38.637875ms)
+ℹ tests 50
+ℹ suites 0
+ℹ pass 50
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 11478.605958
+
+exit 0
