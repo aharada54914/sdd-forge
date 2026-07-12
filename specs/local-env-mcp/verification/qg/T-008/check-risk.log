@@ -1,0 +1,5 @@
+# collected 2026-07-05T16:48:52Z (quality-gate T-008, fresh run this session)
+$ bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/local-env-mcp/tasks.md
+Risk check passed for 10 task(s).
+
+exit 0
