@@ -1,0 +1,67 @@
+RED evidence -- T-001 (Run ID epic136guards-t-001-run-01, Task Attempt Count 1)
+Captured against the PRE-PORT live sdd-hook-guard.ps1 (no R-10 protected-write
+denial, no Impl-Review-Status forgery check, non-ASCII deny messages).
+
+Corpus reference twins (consistent across RED and GREEN):
+  PY = specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.py  (T-002 cwd-fixed)
+  JS = specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.js  (T-002 cwd-fixed)
+RED target:
+  PS1 = plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1        (live, no R-10)
+
+Commands:
+  pwsh -NoProfile -File tests/guard-r10-port.tests.ps1
+  GUARD_PS1="$PWD/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1" \
+      bash tests/guard-ps1-ascii.tests.sh
+
+===== RED: guard-r10-port.tests.ps1 (GUARD_PS1=live pre-R10, PY/JS=staged-fixed T-002) =====
+guard-r10-port.tests.ps1
+  PS1: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+  PY : /Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.py
+  JS : /Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.js
+FAIL: r10 file-write: sdd-hook-guard.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: .claude/settings.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: tests/gates.tests.sh expected=2 ps1=0 py=2 js=2
+FAIL: r10 edit: ship/SKILL.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: impl-review-loop SKILL.md expected=2 ps1=0 py=2 js=2
+FAIL: r10 multiedit: check-contract.ps1 expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: claude-hooks.json expected=2 ps1=0 py=2 js=2
+FAIL: r10 apply_patch: sdd-hook-guard.py expected=2 ps1=0 py=2 js=2
+FAIL: r10 file-write: ../ traversal to guard expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash redirect into guard expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash cd <dir> && rm <basename> expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash pushd <dir> && rm <basename> expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash cp onto guard expected=2 ps1=0 py=2 js=2
+FAIL: r10 bash compound cat && rm guard expected=2 ps1=0 py=2 js=2
+ok: r10 read-only grep of guard (all exit 0)
+ok: r10 read-only cat settings (all exit 0)
+ok: r10 read-only cp FROM guard to /tmp (all exit 0)
+FAIL: impl-review forgery: no verdict -> deny expected=2 ps1=0 py=2 js=2
+ok: impl-review: PASS verdict -> allow (all exit 0)
+FAIL: impl-review: FAIL verdict -> deny expected=2 ps1=0 py=2 js=2
+ok: allow: write src/main.py (all exit 0)
+ok: allow: edit README.md (all exit 0)
+ok: malformed: empty object (all exit 2)
+ok: malformed: write missing file_path (all exit 2)
+ok: malformed: empty payload string (all exit 2)
+
+guard-r10-port.tests.ps1: 9 passed, 16 failed
+r10-exit=1
+
+RED interpretation: every R-10 protected-write class (file tool, shell incl. the
+cd/pushd cwd forms, apply_patch, ../ traversal) and the Impl-Review-Status forgery
+(no-verdict and FAIL-verdict) DIVERGE -- the live .ps1 ALLOWS (ps1=0) what the
+.py/.js twins DENY (py=2 js=2). Read-only, non-protected, PASS-verdict, and
+malformed cases already agree, confirming the divergence is exactly the missing
+R-10 + forgery logic and not a corpus artifact.
+
+===== RED: guard-ps1-ascii.tests.sh against LIVE pre-port .ps1 (expected non-ASCII FAIL) =====
+guard-ps1-ascii.tests.sh
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+FAIL: sdd-hook-guard.ps1 contains 1992 non-ASCII byte(s)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+
+guard-ps1-ascii.tests.sh: 1 passed, 1 failed
+ascii-exit=1
+
+RED interpretation: the live .ps1 carries 1992 non-ASCII bytes (literal Japanese
+deny messages) -- it would fail AC-015 on a Windows PowerShell 5.1 host.
