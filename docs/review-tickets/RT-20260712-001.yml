@@ -1,0 +1,48 @@
+ticket_id: RT-20260712-001
+status: open
+type: design-gap
+severity: major
+target:
+  feature: epic-136-phase1-guards
+  task: T-003
+  files:
+    - plugins/sdd-ship/skills/ship/SKILL.md
+    - plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh
+    - plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1
+summary: The quality-gate cycle-limit rule counts task-id references across ALL features' gate reports, so reused task ids (T-001..T-011 appear in every feature) trip Escalate-Human as a false positive for any new feature once three or more features exist.
+problem: |
+  The ship SKILL.md Step 4 cycle-limit rule (pre-existing prose, made
+  deterministic by T-003's check-quality-gate-cycle-limit.{sh,ps1}) counts the
+  files in reports/quality-gate/ whose contents reference the task id with
+  word-boundary matching, NOT scoped to the current feature. Task ids are only
+  unique per feature; this repository already carries gate reports for
+  sdd-forge-refactor, sdd-forge-mcp, local-env-mcp, and ci-mcp that all
+  reference T-003/T-004/T-005/T-006. Measured at gate time (2026-07-12):
+    check-quality-gate-cycle-limit.sh T-003  -> Escalate-Human (exit 1)
+    (same for T-004, T-005, T-006)
+  while the feature-scoped count of epic-136-phase1-guards gate reports for
+  each of those tasks was 0. The failure direction is fail-closed (blocks
+  progress; never lets a task skip the gate), so this is an availability
+  defect, not a security hole.
+  Scope note: T-003's approved requirement (REQ-003 / AC-006) was to make the
+  EXISTING prose rule deterministic with identical semantics, which it did
+  (verified 36/36 by the focused suite and an independent evaluator with fresh
+  fixtures). The unscoped-count semantics predate T-003; three review gates,
+  the task decomposition, and the evaluator all tested same-feature corpora
+  only, so the cross-feature collision surfaced first in this quality gate.
+expected_fix: |
+  Upstream spec change (not auto-fixable; ship/SKILL.md is a protected file and
+  the script contract "task id + repo root" would gain a feature dimension):
+  scope the count to the current feature, e.g. count only reports that
+  reference BOTH the task id and the feature slug (grep -lw "$task" over
+  grep -l "$feature" matches), or move per-feature gate reports under
+  reports/quality-gate/<feature>/. Requires a small follow-up spec + TDD task;
+  until then, humans hitting Escalate-Human on a fresh feature should verify
+  the feature-scoped count (documented in the epic-136-phase1-guards
+  quality-gate reports) before overriding.
+references:
+  - reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-003.md
+  - specs/epic-136-phase1-guards/requirements.md
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

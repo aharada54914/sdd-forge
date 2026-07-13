@@ -1,0 +1,36 @@
+GUARD_PY=/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+GUARD_JS=/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+=== AC-004: working-directory bypass MUST be denied (RED before fix) ===
+FAIL: cwd: cd protected && rm basename (.py): both exit 0 but expected 2
+FAIL: cwd: pushd protected && rm basename (.js): both exit 0 but expected 2
+FAIL: cwd: cd protected; echo x > basename: both exit 0 but expected 2
+FAIL: cwd: cd protected hooks && rm claude-hooks.json: both exit 0 but expected 2
+FAIL: cwd: cd protected && cp /tmp/x basename: both exit 0 but expected 2
+FAIL: cwd: rm via .. path segment: both exit 0 but expected 2
+=== AC-004: unknown cd transition + write on protected basename fails closed ===
+FAIL: cwd: cd - && rm protected basename (fail-closed): both exit 0 but expected 2
+=== AC-004/AC-005: read-only over protected paths MUST stay allowed ===
+ok: read-only: grep full protected path: both exit 0 (expected)
+ok: read-only: cd protected && cat basename: both exit 0 (expected)
+ok: read-only: pushd protected && cat basename: both exit 0 (expected)
+ok: read-only: plain cd into protected dir: both exit 0 (expected)
+=== AC-005: direct protected write still denied (regression) ===
+ok: regression: rm full protected path: both exit 2 (expected)
+=== AC-005: non-protected cd + write stays allowed ===
+ok: allow: cd /tmp && rm somefile: both exit 0 (expected)
+ok: allow: cd protected && rm unrelated file in it: both exit 0 (expected)
+=== AC-005: malformed payload denied (fail-closed preserved) ===
+ok: malformed: non-JSON stdin denied: both exit 2 (expected)
+ok: malformed: missing tool_input denied: both exit 2 (expected)
+=== AC-005: existing guard-parity shell corpus decisions unchanged ===
+ok: corpus: cat guard && rm guard (compound) denied: both exit 2 (expected)
+ok: corpus: cat heredoc redirect into guard denied: both exit 2 (expected)
+ok: corpus: cp guard SOURCE to /tmp allowed: both exit 0 (expected)
+ok: corpus: mv in /tmp + grep settings allowed: both exit 0 (expected)
+ok: corpus: redirect to /tmp + cat settings allowed: both exit 0 (expected)
+ok: corpus: grep guard with stderr redirect allowed: both exit 0 (expected)
+ok: corpus: echo redirect into guard denied: both exit 2 (expected)
+ok: corpus: cp ONTO guard (destination) denied: both exit 2 (expected)
+ok: corpus: variable write target fails closed (denied): both exit 2 (expected)
+
+guard-cwd-bypass.tests.sh: 18 passed, 7 failed

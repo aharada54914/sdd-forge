@@ -1,0 +1,64 @@
+{
+  "task_id": "T-002",
+  "feature": "epic-136-phase1-guards",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "spec_revision": "77c560fc6f9657c6de11cb4351f568c005bb392a6504744314669af19197b231",
+  "quality_report": "reports/quality-gate/2026-07-12T121500Z-epic-136-phase1-guards-T-002.md",
+  "verification_contract": "specs/epic-136-phase1-guards/verification/T-002.contract.json",
+  "git_commit": "dbc0d643442d0196e12cb1d5917ebe20e6e6b950",
+  "git_generated_dirty": false,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 2,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-136-phase1-guards/verification/T-002.contract.json",
+      "sha256": "94ccd7116fae0598984594896f30b10a123f2fa155a1c2a7f8ab017c5dfaf41e"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-12T121500Z-epic-136-phase1-guards-T-002.md",
+      "sha256": "b37e843fef333fe2c700ca29644588445d1fdf2189313b18ff130ebf5b47ea04"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/qg/T-002/focused-tests.log",
+      "sha256": "c66a88421eaeb157ac23b429506582b019b5f6d1191745c667ebbe6f66209287"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/qg/T-002/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/qg/T-002/regression.log",
+      "sha256": "f405d4170ff3ce093b0b62a25f3a13e46c01c6ac6848403c54604645c7c37087"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/qg/T-002/task-state.log",
+      "sha256": "21d0935928f872b9ccd8169a8c49cdeae07aae71d84c37ae71b23009b1c4e5b2"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/qg/T-002/traceability.log",
+      "sha256": "b635766ddca5ca7d7ae41cf4f25646dd171ad7459efcbc530e15249e6d926d38"
+    }
+  ],
+  "signature": {
+    "alg": "hmac-sha256",
+    "value": "befc4a64f9ea1b8c9093e59e1e920766b86237a7dbf73c04bea0a01e9c082f00",
+    "key_ref": "file:~/.sdd/evidence-key"
+  }
+}

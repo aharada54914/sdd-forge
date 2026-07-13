@@ -1,0 +1,8 @@
+# collected 2026-07-05T16:48:52Z (quality-gate T-007, fresh run this session)
+$ sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/local-env-mcp/tasks.md
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+Task state check passed for 10 task(s).
+
+exit 0

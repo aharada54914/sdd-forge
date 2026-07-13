@@ -1,0 +1,122 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-136-phase1-guards",
+  "run_id": "impl-orch-epic136guards-a1r1-20260712-e5f6",
+  "verdict": "NEEDS_WORK",
+  "pass_type": "none",
+  "round": 1,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "security hardening / workflow enforcement (mixed fix + feat)",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "",
+  "requirements_sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24",
+  "acceptance_sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312",
+  "design_sha256": "905988d76b20f46b72705825021e6e4f34ae77e663d98be86e591e4f4ea8d4ea",
+  "layer_sha256": {
+    "ux-spec.md": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035",
+    "frontend-spec.md": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b",
+    "infra-spec.md": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2",
+    "security-spec.md": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "impl-a-epic136guards-a1r1-20260712-a1b2",
+      "host_session_id": "hs-impl-a-epic136guards-0156",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-136-phase1-guards/requirements.md",
+          "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+          "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/design.md",
+          "sha256": "905988d76b20f46b72705825021e6e4f34ae77e663d98be86e591e4f4ea8d4ea"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/ux-spec.md",
+          "sha256": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/frontend-spec.md",
+          "sha256": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/infra-spec.md",
+          "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/security-spec.md",
+          "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-136-phase1-guards/attempt-1/round-1/precheck-result.json",
+          "sha256": "3a8ec3f8e715137d0ffc8fbc6f6e40fb7a728738a668ffdfc9760244ff4607d5"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "impl-b-epic136guards-a1r1-20260712-c3d4",
+      "host_session_id": "hs-impl-b-epic136guards-0157",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-136-phase1-guards/requirements.md",
+          "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+          "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/design.md",
+          "sha256": "905988d76b20f46b72705825021e6e4f34ae77e663d98be86e591e4f4ea8d4ea"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/ux-spec.md",
+          "sha256": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/frontend-spec.md",
+          "sha256": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/infra-spec.md",
+          "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+        },
+        {
+          "path": "specs/epic-136-phase1-guards/security-spec.md",
+          "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-136-phase1-guards/attempt-1/round-1/precheck-result.json",
+          "sha256": "3a8ec3f8e715137d0ffc8fbc6f6e40fb7a728738a668ffdfc9760244ff4607d5"
+        },
+        {
+          "path": "reports/impl-review/epic-136-phase1-guards/attempt-1/round-1/integrated-summary.json",
+          "sha256": "d894470aa7e98308f676471b4d8ac7bf28826d6a372b0e45200f3b2f5c612eb9"
+        }
+      ]
+    }
+  ],
+  "human_edit_summary": "",
+  "timestamp": "2026-07-12T00:50:00Z"
+}

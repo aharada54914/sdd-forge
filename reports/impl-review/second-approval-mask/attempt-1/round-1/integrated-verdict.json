@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "second-approval-mask",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-second-approval-mask-impl-round1-host",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "PASS"
+}

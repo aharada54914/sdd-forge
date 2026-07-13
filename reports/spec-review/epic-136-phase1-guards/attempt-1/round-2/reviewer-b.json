@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-epic136guards-a1r2-20260711-c4d5",
+  "host_session_id": "hs-spec-b-epic136guards-0151",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "f545c01f4996c16971ba11d75be5bcccd826a1bff44102241010a0ebd5719b4d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "47624c4a190fb3c503c491a6e8b8c641452dda11b2c392a83644af168ea46f62"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-1/round-2/precheck-result.json",
+      "sha256": "02ee96c0686edc1421628087aa844b90d6ea33acf649a200cdb7f7bf3d81a0a1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-1/round-2/integrated-summary.json",
+      "sha256": "cd6da21a6e314167ec6328248f3a3882470e88b2af9e7b56fec2fe7d5af6de3e"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-2 edits resolved the round-1 gaps: REQ-004/Field Definitions name Security-Sensitive:true exactly and pin Cross-Model-Waiver validity to a co-located human Approval:Approved mark naming a second distinct approver. No term where two implementers would plausibly diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict between goals, acceptance criteria, constraints, or non-goals. The fail-closed waiver logic reuses the existing WFI/Second-Approval human-only rule rather than altering it."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-001 and Edge Cases state every .ps1 change must remain ASCII-only for Windows PowerShell 5.1, but no acceptance criterion (AC-001..AC-014) verifies ASCII-only encoding of the modified sdd-hook-guard.ps1; TEST-001/002/003 check decision parity and short-circuit only. A non-ASCII character could ship undetected and corrupt the guard on a Windows PS 5.1 host. Missing observable acceptance criterion for an explicitly-stated hard constraint."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Assumptions are established facts or tied to an explicit actionable resolution (REQ-005 OIDC check anchored to pinned SHA v1.0.165). Open Questions is None with recorded resolutions."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Governance boundaries are stated with testable fail-closed contracts (B1-B3; AC-008 fail-closed default and waiver-validity condition; AC-011 CI-to-PR; AC-013 malformed-payload). The waiver grounds safety in the already-existing guard; the enforcement-mechanism choice is implementation architecture, excluded by calibration."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions, 14 ACs each mapped to a named test, an enumerated Edge Cases list, a resolved Assumptions section, and a closed Open Questions section. The one gap (ASCII-only coverage) requires adding a coverage item for a stated constraint, not inventing product behavior."
+    }
+  ]
+}

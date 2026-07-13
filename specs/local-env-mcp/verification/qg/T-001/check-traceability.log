@@ -1,0 +1,5 @@
+# collected 2026-07-05T16:36:17Z (quality-gate T-001)
+$ sh plugins/sdd-quality-loop/scripts/check-traceability.sh specs/local-env-mcp/traceability.json
+Traceability check passed for local-env-mcp: 12 link(s).
+
+exit 0

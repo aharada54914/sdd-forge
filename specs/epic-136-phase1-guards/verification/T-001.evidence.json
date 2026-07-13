@@ -1,0 +1,64 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-136-phase1-guards",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "spec_revision": "77c560fc6f9657c6de11cb4351f568c005bb392a6504744314669af19197b231",
+  "quality_report": "reports/quality-gate/2026-07-12T143000Z-epic-136-phase1-guards-T-001.md",
+  "verification_contract": "specs/epic-136-phase1-guards/verification/T-001.contract.json",
+  "git_commit": "4f037a22ad118951f43e3dbb5c8a639f394134c6",
+  "git_generated_dirty": false,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 4,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-136-phase1-guards/verification/T-001.contract.json",
+      "sha256": "5bce570962d0c9184b8373a6947279a65e842d7cca747248a17f182e3d8e56dd"
+    },
+    {
+      "path": "reports/quality-gate/2026-07-12T143000Z-epic-136-phase1-guards-T-001.md",
+      "sha256": "a07a3ed53e931a0750af6c63f0d07b50a7d98ab2cd3a3e76695387726d06d7fb"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/T-001/regression-attempt2.log",
+      "sha256": "9a107550edfd14533bcbfc55c0df4a99d7cdfa1d3bb9be3c6d966e89d4d81f72"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/qg/T-001/focused-tests.log",
+      "sha256": "1c9e7c451ab19de8876d832da3523c50e5dd760a5194248735fd77363403c542"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/qg/T-001/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/qg/T-001/task-state.log",
+      "sha256": "2492faae746a994e3b3031bb2d68671cd3f94722a0879ce149bc3518ff3e8187"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/verification/qg/T-001/traceability.log",
+      "sha256": "b635766ddca5ca7d7ae41cf4f25646dd171ad7459efcbc530e15249e6d926d38"
+    }
+  ],
+  "signature": {
+    "alg": "hmac-sha256",
+    "value": "ca1dc8af74cd7b8be047a056994520a79028e13b27786de37a7b16d410d36679",
+    "key_ref": "file:~/.sdd/evidence-key"
+  }
+}

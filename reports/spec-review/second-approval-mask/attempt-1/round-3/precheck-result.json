@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "second-approval-mask",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "3122c740d5cad179117f85206775f64c991546e3fdced56e92be8785e853f28f",
+  "acceptance_sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "c6c8f86545aa71388bbb4e110d00815e0eaada15da2fc43f288585ee47769ab3",
+  "edit_summary": "Round-2 reviewer-b EDGE-CASE-COVERAGE fix: AC-001/TEST-001 gain an explicit MULTI-OCCURRENCE variant — a fixture tasks.md with TWO critical tasks (the RT-20260712-003 originating shape, epic-136-phase1-guards T-001/T-002) gaining one Second Approval line under each after the freeze, expected ok under both twins.",
+  "reset": false,
+  "generated_at": "2026-07-12T09:37:48Z"
+}

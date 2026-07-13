@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 3,
+  "reviewer_a_run_id": "spec-a-epic136guards-a1r3-20260711-f0a1",
+  "reviewer_b_run_id": "spec-b-epic136guards-a1r3-20260711-b2c3",
+  "reviewer_a_host_session_id": "hs-spec-a-epic136guards-0152",
+  "reviewer_b_host_session_id": "hs-spec-b-epic136guards-0153",
+  "finding_counts": {
+    "critical": 1,
+    "major": 2,
+    "minor": 0
+  },
+  "verdict": "BLOCKED",
+  "warningCount": 0
+}

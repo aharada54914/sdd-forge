@@ -1,0 +1,166 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-136-phase1-guards",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "77c560fc6f9657c6de11cb4351f568c005bb392a6504744314669af19197b231",
+  "created": "2026-07-12T14:20:00Z",
+  "comment": "Default-FAIL verification contract for T-001 (critical, attempt 2 after RT-20260712-002); populated after the quality gate reran the extended 58-scenario cross-runtime parity suite, the live-target ASCII suite, and the live guard regression corpus. Shell stack waives compile-oriented checks. Critical tier additionally carries a second distinct named human approver (recorded in tasks.md) and an HMAC-signed evidence bundle over a clean tree.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No PowerShell/shell lint tool configured; pwsh parse and bash -n results are recorded in the gate logs instead.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "PowerShell/shell test scripts have no configured static type-check command.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "specs/epic-136-phase1-guards/verification/T-001/red-attempt2.log",
+      "green_evidence": "specs/epic-136-phase1-guards/verification/qg/T-001/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The focused suite drives all three guard twins directly with isolated fixtures via the hook decision protocol; no separate service integration surface.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "specs/epic-136-phase1-guards/verification/T-001/red-attempt2.log",
+      "green_evidence": "specs/epic-136-phase1-guards/verification/qg/T-001/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/T-001/regression-attempt2.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "specs/epic-136-phase1-guards/verification/T-001/red-attempt2.log",
+      "green_evidence": "specs/epic-136-phase1-guards/verification/T-001/regression-attempt2.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for PowerShell/shell test scripts.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-001/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-001/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-001/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; deterministic guard-decision parity is fully covered by the 58-scenario focused suite and the live regression corpus.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Port verified RED-first against the pre-port live .ps1 (red-attempt2.log differential from commit e3507a2); no baseline-behavior.md is required by the task.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface (CLI guard hooks).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

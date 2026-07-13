@@ -1,0 +1,58 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-005",
+  "run_id": "epic136guards-t-005-run-01",
+  "session_id": "epic136guards-t-005-session-01",
+  "agent_instance_id": "epic136guards-t-005-agent-01",
+  "model_tier": "strong",
+  "provider": "anthropic",
+  "model": "opus",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-cost-unavailable",
+  "cost_estimate_timestamp": "2026-07-12T05:20:00Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/design.md",
+      "sha256": "b098d46d3ad06edd9a4987e82eb0fbe7379d20559cec791782fdc0ead4d35fca"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/tasks.md",
+      "sha256": "0a4360a8104826fabfb597a23b6678940564e32c538e1ffcaecdfe97ed7d6c6d"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/traceability.md",
+      "sha256": "3121a7f72cac3132faa19098a271a043938355ff363d4a69b56ea29de41beb96"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/security-spec.md",
+      "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/infra-spec.md",
+      "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/staging/current-self-improvement.yml",
+      "sha256": "e7915e578e4d6023a4896eaebe6634beb46019e5c8fe4fca6566a3c0b4663bd2"
+    }
+  ],
+  "allowed_outputs": [
+    "specs/epic-136-phase1-guards/staging/self-improvement.yml",
+    "specs/epic-136-phase1-guards/staging/self-improvement-pr-guard.sh",
+    "tests/self-improvement-guard.tests.sh",
+    "specs/epic-136-phase1-guards/verification/T-005/red.log",
+    "specs/epic-136-phase1-guards/verification/T-005/green.log",
+    "reports/implementation/epic-136-phase1-guards/T-005.md"
+  ]
+}

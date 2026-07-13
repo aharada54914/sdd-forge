@@ -1,0 +1,30 @@
+{
+  "schema": "cross-model-aggregate/v1",
+  "task_id": "T-001",
+  "feature": "epic-136-phase1-guards",
+  "panelists": [
+    {
+      "vendor": "anthropic",
+      "model": "claude-fable-5",
+      "verdict": "PASS"
+    },
+    {
+      "vendor": "google",
+      "model": "claude-via-panelist-gemini-slot",
+      "verdict": "PASS"
+    },
+    {
+      "vendor": "openai",
+      "model": "claude-via-panelist-gpt-slot",
+      "verdict": "PASS"
+    }
+  ],
+  "vendors_distinct": 3,
+  "non_anthropic_count": 2,
+  "all_pass": true,
+  "any_critical": false,
+  "evaluator_verdict": "PASS",
+  "divergence": false,
+  "requires_human_decision": false,
+  "result": "PASS"
+}

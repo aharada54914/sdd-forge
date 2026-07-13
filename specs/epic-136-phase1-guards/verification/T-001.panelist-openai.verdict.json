@@ -1,0 +1,31 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-001",
+  "feature": "epic-136-phase1-guards",
+  "vendor": "openai",
+  "model": "claude-via-panelist-gpt-slot",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "tests/run-all.sh (suite ordering)",
+      "note": "rollback-1.5.0.tests.sh precedes guard-ps1-ascii.tests.sh in the POSIX array and currently fails (documented pre-existing defect with clean-HEAD differential in regression-attempt2.log), so a full run-all aborts before the AC-015 ASCII check executes. Failure is loud/fail-closed and not caused by this change, but AC-015's in-suite execution is effectively blocked until the rollback defect is fixed."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/guard-r10-port.tests.ps1 (plugin.json fixtures)",
+      "note": "Each ProtectedGatePluginJsonSuffixes entry is covered once with mixed relative/absolute forms plus a non-dot-dir negative; the bare relative form (no parent directory, exercising the TrimStart fallback sub-branch of Test-IsProtectedGateFile) is untested, and the bundle manifest's 'relative and absolute forms' phrasing slightly overstates per-entry coverage. Branch coverage nonetheless meets the RT-20260712-002 / requirements.md Risks bar."
+    },
+    {
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-136-phase1-guards/T-001.md (Iteration And Escalation)",
+      "note": "Report header records 'Task Attempt Count: 2' but the Iteration And Escalation section still says 'Task Attempt Count: 1' - a stale attempt-1 field not updated during the attempt-2 revision."
+    }
+  ],
+  "blind": true,
+  "input_digest": "8a8a9f1ed1e7de4628c277a37b639329a634e827747d39d15da9421ac4798c72",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "tasks.md T-001 Cross-Model: enabled"
+  }
+}

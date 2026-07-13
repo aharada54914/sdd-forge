@@ -1,0 +1,4 @@
+# ship Step 4.5 cycle-limit precheck for T-001 (second-approval-mask) — 2026-07-12T11:52:46Z
+check-quality-gate-cycle-limit.sh T-001: Escalate-Human
+exit=1
+feature-scoped gate-report count for second-approval-mask T-001: 0 (false positive per RT-20260712-001: matches are other features' reports reusing the id T-001)

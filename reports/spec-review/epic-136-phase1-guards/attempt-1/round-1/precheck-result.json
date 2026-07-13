@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "73bd0a31e6298d3ce7893d8056a648833f7d7cef97714d1e53b47ebf4c972351",
+  "acceptance_sha256": "dbacfa5593b7477237b7ba35547058ed140eaec8166f84d3884407381e4c83ff",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "2e0ab9953bd9e6a2c8c62d987019346616328e0574651f78c26c299237d2b35d",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-11T14:16:09Z"
+}

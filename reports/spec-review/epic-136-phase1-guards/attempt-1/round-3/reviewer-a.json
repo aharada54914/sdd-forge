@@ -1,0 +1,64 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "spec-a-epic136guards-a1r3-20260711-f0a1",
+  "host_session_id": "hs-spec-a-epic136guards-0152",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "0b9ee4c5729054bdd15185e2463ff4c36ac3486ecfd2fa4c639bb1e1dedbc1c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "d149a4e00b8b04f3a5143dfcd56acc0edeb93cae8a9e4e20acc5285e32fd40ea"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-1/round-3/precheck-result.json",
+      "sha256": "cfec75e51d76c9c556809af27a834cd6a4375d838955c33d6c938c1939306a0c"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All six requirements resolve to concrete checkable behavior incl. AC-015 ASCII-only; no unmeasurable intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ-00x traced to an AC (REQ-001->AC-001/002/003/015); no orphan AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "ACs describe observable outcomes incl. byte-level encoding check (AC-015) and task-naming diagnostic (AC-008)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals exclude table consolidation, complete interpreter, SDD_SUDO/kill-switch/WFI/contract changes, prompt/schedule rewrite, lite-track cross-model."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "ASCII-only/no-BOM in Goals/Edge Cases/AC-015; B1-B3 table; waiver human-gate; agent cannot write live protected paths; parity tests protected."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Four risks each with a validation surface: incomplete-port->AC-001/005; cwd-tracking->AC-003/005; id-token->AC-010; matcher-latency accepted cost."
+    }
+  ]
+}

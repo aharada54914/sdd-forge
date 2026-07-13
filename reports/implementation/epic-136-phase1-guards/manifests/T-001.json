@@ -1,0 +1,63 @@
+{
+  "schema": "task-input-manifest/v1",
+  "task_id": "T-001",
+  "run_id": "epic136guards-t-001-run-01",
+  "session_id": "epic136guards-t-001-session-01",
+  "agent_instance_id": "epic136guards-t-001-agent-01",
+  "model_tier": "strong",
+  "provider": "anthropic",
+  "model": "opus",
+  "estimated_cost_per_attempt_usd": "0",
+  "cost_estimate_source": "host-cost-unavailable",
+  "cost_estimate_timestamp": "2026-07-12T05:55:00Z",
+  "isolation_mode": "fresh-agent",
+  "fallback_reason": "",
+  "handoff_reload_evidence_hash": "",
+  "allowed_inputs": [
+    {
+      "path": "specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/design.md",
+      "sha256": "b098d46d3ad06edd9a4987e82eb0fbe7379d20559cec791782fdc0ead4d35fca"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/tasks.md",
+      "sha256": "faf5d95a5b18a745fb22edf1e3eaeb580aaab83f7c9cc04b5905658d050b1fb5"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/traceability.md",
+      "sha256": "3121a7f72cac3132faa19098a271a043938355ff363d4a69b56ea29de41beb96"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/security-spec.md",
+      "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1",
+      "sha256": "f99660996dd973bb8cc60efc3c118856b47e04d5e459c7e108740a7feffa79a6"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.py",
+      "sha256": "4be25ea52ec851733c8a7bc15892cf06bfa75e1714673c2e56a65be38abf6056"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.js",
+      "sha256": "add3dafeb4e563ea1ffe8bc3c9a8831959f728b2074447839e11a633e22a7884"
+    }
+  ],
+  "allowed_outputs": [
+    "tests/guard-r10-port.tests.ps1",
+    "tests/guard-ps1-ascii.tests.sh",
+    "specs/epic-136-phase1-guards/human-copy/sdd-hook-guard.ps1",
+    "specs/epic-136-phase1-guards/human-copy/T-001.MANIFEST.sha256",
+    "specs/epic-136-phase1-guards/verification/T-001/red.log",
+    "specs/epic-136-phase1-guards/verification/T-001/green.log",
+    "reports/implementation/epic-136-phase1-guards/T-001.md"
+  ]
+}
