@@ -1,6 +1,6 @@
 # Requirements: epic-159-pillar-a
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/141,
 https://github.com/aharada54914/sdd-forge/issues/142,
 https://github.com/aharada54914/sdd-forge/issues/143,
@@ -69,8 +69,11 @@ driving at all (INV-022). That gap is the acceptance surface of this feature.
   single machine-readable registry of loop state machines, plus a
   registration-forcing suite `tests/loop-inventory.tests.sh` / `.ps1`.
   - Inventory entries carry: `id`, `kind`, `cap`, `cap_source`
-    (`script` | `skill-instruction`), `driver_scripts`, `cross_gates`,
-    `artifact_schemas`, `terminal`, `fixture_profiles`. Initial entries:
+    (`script` | `skill-instruction`), `cap_kind` (`numeric` | `state`;
+    required for `cap_source: script` entries, absent for
+    `skill-instruction` — see Field Definitions), `driver_scripts`,
+    `cross_gates`, `artifact_schemas`, `terminal`, `fixture_profiles`.
+    Initial entries:
     spec-review, impl-review, task-review, domain-review, quality-gate,
     terminal-tier (script-enforced, INV-001) plus wfi-audit and
     hitl-diagnosis (`cap_source: skill-instruction`, `driver_scripts: []`,
@@ -79,8 +82,14 @@ driving at all (INV-022). That gap is the acceptance surface of this feature.
     inventory: every `plugins/**/scripts/*-review-precheck.sh` appears in
     some entry's `driver_scripts` (INV-002); every stage:role authorization
     pair in `validate-review-context-set.sh` maps to an entry (INV-002);
-    every `cap` with `cap_source: script` matches the value grep-able from
-    its driver source (INV-003) — drift in either direction turns red.
+    every `cap` with `cap_source: script` AND `cap_kind: numeric` matches
+    the value grep-able from its driver source (INV-003) — drift in either
+    direction turns red. terminal-tier is the one `cap_kind: state` entry:
+    its cap ("strong-tier recurrence → permanent BLOCK") has no numeric
+    grep target, so its drift lock is behavioral — the escalation leg
+    (AC-011) drives the recurrence condition on fixtures and
+    `assert_terminal` compares the observed end state against the
+    inventory's `terminal` field.
   - `fixture_profiles` defines the vocabulary `greenfield` | `brownfield`
     that #125 must adopt (INV-019; ADR-0010).
 - REQ-002 (A2, issue #142; INV-005..INV-010): Create the shared loop driver
@@ -204,10 +213,13 @@ competing one.
   suite's negative self-check proves that removing a registered entry from a
   temporary inventory copy makes the verification fail (registration
   forcing). (REQ-001)
-- AC-002: For every entry with `cap_source: script`, the `cap` value
-  matches the limit grep-able from the entry's driver source; the negative
-  self-check proves a mutated cap value in a temporary inventory copy turns
-  the check red (cap-drift lock, both directions). (REQ-001)
+- AC-002: For every entry with `cap_source: script` and
+  `cap_kind: numeric`, the `cap` value matches the limit grep-able from the
+  entry's driver source; the negative self-check proves a mutated cap value
+  in a temporary inventory copy turns the check red (cap-drift lock, both
+  directions). The single `cap_kind: state` entry (terminal-tier) is
+  excluded from the numeric grep and is drift-locked behaviorally by AC-011
+  + `assert_terminal`. (REQ-001)
 - AC-003: wfi-audit and hitl-diagnosis are registered with
   `cap_source: skill-instruction` and `driver_scripts: []` and produce no
   false red; `fixture_profiles` values are restricted to
@@ -284,11 +296,51 @@ competing one.
   `driver_scripts: []`, and is exempt from the script-grep drift check while
   still being registration-forced. (OQ-1 resolution; design.md defines the
   full schema.)
+- `cap_kind` — per-entry enum qualifying how the `cap` value is verified:
+  `numeric` (a threshold literally grep-able from the driver source —
+  `round <= 3` guards, `count >= 3`; drift-checked by AC-002) or `state` (a
+  qualitative terminal condition with no numeric grep target). The only
+  `state` entry is terminal-tier, whose cap is "strong-tier recurrence →
+  permanent BLOCK" (INV-001): its drift lock is the behavioral AC-011 leg
+  driving the recurrence condition end-to-end plus `assert_terminal`
+  against the inventory `terminal` field, which is strictly stronger than a
+  string grep. `cap_kind` is required for `cap_source: script` entries and
+  absent for `skill-instruction` entries.
 - `fixture_profiles` — per-entry list drawn from the closed vocabulary
   `greenfield` (fixture synthesized from nothing under mktemp) and
   `brownfield` (fixture initialized from a seed of pre-existing artifacts).
   Orthogonal to the `lite`/`full` registry profile (INV-019). This
   vocabulary is the contract #125 must adopt (ADR-0010).
+- `cross_gates` — per-entry list of repository-relative paths of the
+  deterministic gate scripts OUTSIDE the loop's own `driver_scripts` whose
+  authorization or validation decisions the loop depends on at runtime
+  (e.g. every review loop lists
+  `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh`;
+  quality-gate lists `check-task-state`/`check-evidence-bundle`). Each listed
+  path must exist in the repository — the registration-forcing suite verifies
+  existence (AC-001), and the bidirectional-invariant leg (AC-010) uses this
+  list to know which authorization surface to check a loop's required inputs
+  against. May be empty only for `cap_source: skill-instruction` entries.
+- `artifact_schemas` — per-entry list of the exact `schema` field strings of
+  the JSON artifacts the loop emits per round (e.g. spec-review:
+  `spec-review-precheck/v1`, `integrated-summary/v1`,
+  `spec-review-integrated-verdict/v1`, `spec-review-contract/v1`). Values are
+  opaque identifiers matched by string equality: `assert_artifacts_schema`
+  (AC-007) validates that every artifact a driven round emits carries a
+  `schema` value present in this list, and the registration-forcing suite
+  fails an entry whose list is empty while its `driver_scripts` emit
+  schema-carrying artifacts (AC-001).
+- Domain-review terminal disambiguation — investigation.md INV-001's
+  domain-review row mentions "post-approval drift detection (AC-014)"; that
+  `AC-014` is the domain-review loop's OWN contract numbering inside
+  `specs/sdd-domain/`, NOT this feature's acceptance-tests.md AC-014
+  (twin/parity audit). For this feature, the authoritative `terminal` value
+  of the domain-review inventory entry is the round-cap behavior (round 3 →
+  BLOCKED), which is what AC-008's `assert_terminal` compares against;
+  post-approval drift detection is out of scope here (it has no
+  round-driving surface) and is NOT encoded in the inventory `terminal`
+  field. (investigation.md is hash-frozen by the round-1 review contract, so
+  this clarification lives here rather than editing that file.)
 
 ## Roles and Permissions
 
@@ -334,7 +386,8 @@ competing one.
   treats absence as zero reports (epic-136 AC precedent); fixtures cover the
   0-report case.
 - Task-ID prefix collisions (`T-001` vs `T-0010`) must not inflate
-  escalation counts (word-boundary precedent from #111/#112 fixtures).
+  escalation counts (word-boundary precedent from #111/#112 fixtures);
+  verified by a dedicated fixture in the escalation counting leg (AC-018).
 - The suite must never place a protected basename together with a write
   verb on a Bash command line (hook-guard basename fallback denies it even
   for fixture paths — epic-136 lesson); all fixture writes happen inside
@@ -404,8 +457,9 @@ Details: [Security specification](security-spec.md#trust-boundaries).
 - High: suite runtime cost in CI — four new suites driving multi-round
   loops on a 3-OS × 2-lane matrix. Mitigation: one fixture per suite reused
   across legs, deterministic-lane placement (#126 note in infra-spec), and
-  a runtime measurement recorded at implementation with a budget assertion
-  if it exceeds the existing suite median.
+  an in-suite runtime budget assertion (AC-017): each new suite measures its
+  own wall-clock and fails itself when it exceeds 300 seconds, printing the
+  measured value in its summary line so CI logs record the trend.
 - Medium: the RED differential depends on checking out `2d8c6a5^`; a
   history rewrite would break the procedure. Mitigation: the procedure is
   evidence-recorded once at implementation time; CI runs only the HEAD-green

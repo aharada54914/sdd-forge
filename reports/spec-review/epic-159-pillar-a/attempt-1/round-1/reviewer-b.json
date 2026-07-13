@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0188",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0188",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/requirements.md",
+      "sha256": "2116ae4f13d2350594854976e20817af2f2a5fa7b1cff54e8fe4fbbb404d4278"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/acceptance-tests.md",
+      "sha256": "539f05b2296f3f3865277f730ed2aaec1b7e36970f3e788b616d6faf040a2200"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/investigation.md",
+      "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-1/precheck-result.json",
+      "sha256": "6620592fe2b162dfe817ca0f68c84df7351f18cabed74010f15dd6813c756588"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-1/integrated-summary.json",
+      "sha256": "d3653babee097166e034dba6e08c0a59c78cf4030b810fad328c6aadcf4b644f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-001 requires each loop-inventory/v1 entry to carry nine fields ('id, kind, cap, cap_source..., driver_scripts, cross_gates, artifact_schemas, terminal, fixture_profiles'), but the Field Definitions section only defines two (cap_source, fixture_profiles); 'cross_gates' and 'artifact_schemas' have no definition anywhere in requirements.md or investigation.md and are never constrained by any AC-001..AC-016/TEST-001..TEST-016 row. Two implementers building the A1 schema would reasonably populate these fields with different shapes (or omit them), with no negative self-check able to catch the divergence, undermining AC-001's 'inventory validates against loop-inventory/v1' claim. Separately, investigation.md INV-001's domain-review row cites 'post-approval drift detection (AC-014)' as part of that loop's terminal state, but acceptance-tests.md's actual AC-014 is an unrelated twin/parity-audit criterion, and 'post-approval drift detection' appears nowhere else in requirements.md -- leaving that capability's in/out-of-scope status undefined for the A3 domain-review leg AC-008 requires to match 'the inventory terminal field'. Both are unresolved product/field-definition gaps belonging to spec review (not implementation architecture); Major per calibration ('missing constraint... high-risk claim with no planned validation surface'), not Critical since neither creates an unsafe or impossible boundary."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No requirement, acceptance criterion, constraint, or non-goal directly conflicts with another. Checked overlaps resolve cleanly: domain-review is explicitly in-scope for the A3 bash lane (AC-008, OQ-3 RESOLVED) while its PowerShell lane separately degrades via a named SKIP citing #147, so the A7/#147 non-goal does not conflict with AC-008's bash-lane coverage; and the 'terminal-tier' loop driven by REQ-004/AC-011 (check-terminal-tier-resume.sh, select-agent-model.sh) is a distinct inventory entry from the 'HITL/WFI terminal-behavior' loops (wfi-audit, hitl-diagnosis) excluded by the A5/#145 non-goal, per INV-001's loop taxonomy and INV-004's skill-instruction cap_source distinction -- no scope clash despite the shared 'terminal' terminology."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md's Edge Cases section states: 'Task-ID prefix collisions (T-001 vs T-0010) must not inflate escalation counts (word-boundary precedent from #111/#112 fixtures)' -- a named regression risk with a cited prior production incident. No acceptance criterion or test row requires a Task-ID-collision fixture; AC-011/TEST-011 (the escalation-leg criterion) only enumerates 0/1/2/3-report counting, next_tier, blocked-state schema validation, and resume-record behavior, and the acceptance-tests.md Notes list of suites with embedded negative self-checks (TEST-001/002/007/010/012) omits this scenario entirely. The A4 task/test author therefore has no acceptance criterion compelling a fixture for the exact previously-observed bug class, so the suite could ship green while leaving that regression path unverified. This is a gap between a requirement-stated risk and its acceptance-criteria coverage (spec-review scope), not an implementation-command demand; Major per calibration ('missing observable acceptance criterion')."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four listed Assumptions are resolved or paired with explicit fallback: 2d8c6a5 mainline ancestry is 'ORCHESTRATOR-VERIFIED (2026-07-14)' per investigation.md INV-013; check-quality-gate-cycle-limit.sh/.ps1 (#112) landing is 'confirmed at HEAD'; the missing canonical brownfield seed (#146) has an explicit interim behavior ('exercised with a minimal synthetic seed supplied by the A2 suite'); run-all.sh/run-all.ps1/test.yml being outside the protected-gate table is cross-checked against sdd-hook-guard.py:886-927 in Roles and Permissions. Of five Open Questions, OQ-1/2/3/4 are marked RESOLVED with a cited design decision and investigation evidence each; OQ-5 is explicitly OPEN but classified 'human-verify item, non-blocking for spec approval' with an assigned owner (the A3 task's implementation report) and a defined interim behavior -- meeting the resolved-or-explicitly-deferred bar."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "A governance boundary is in scope, so SKIP does not apply. AC-011 makes the terminal-tier resume approval boundary directly testable in binary terms: check-terminal-tier-resume.sh 'denying resume without a human approval record and permitting it with one.' Roles and Permissions assigns explicit human ownership ('Human maintainer: approves specs and tasks, reviews the RED-differential evidence, and owns OQ-5 resolution sign-off'), and AC-009 requires RED-differential evidence to be recorded in the owning task's implementation report for that review. AC-016 further constrains the irreversible release-version-bump boundary to 'exclusively through scripts/bump-version.sh.' These give concrete, observable pass/fail behavior for every approval/governance boundary this spec puts in scope."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The spec supplies 22 investigation items with file:line evidence backing every REQ/AC, Field Definitions resolving the two vocabulary items design.md must build on (cap_source/OQ-1, fixture_profiles/OQ-2), explicit Non-goals delineating scope against four sibling epic issues (#145-#148), a Risks section with named mitigations, a Security Boundaries trust-boundary table, Roles/Permissions cross-checked against the protected-gate table, and Main Workflows sequencing A1->A2->{A3,A4}->docs. This is sufficient for handoff to implementation-policy/design review without inventing overall product behavior; the two narrower field-level gaps (cross_gates/artifact_schemas semantics; the orphaned domain-review post-approval-drift reference) are already captured as their own AMBIGUITY/EDGE-CASE-COVERAGE findings rather than blocking the whole handoff."
+    }
+  ]
+}

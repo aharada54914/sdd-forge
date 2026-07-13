@@ -1665,6 +1665,87 @@
       "host_session_id": "SESS-qg-epic136guards-T-001-0185",
       "previous_record_sha256": "8fc56a8ad0d8708c6acce5f504976c7d4150ef5171cc9130ead7ff6fae5a7931",
       "record_sha256": "5205d271958ab9bfa55ab6a137ad7a16a31e26572b874d2910fd4dcb805c5f44"
+    },
+    {
+      "sequence": 186,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-a-seq0186",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-a-0186",
+      "previous_record_sha256": "5205d271958ab9bfa55ab6a137ad7a16a31e26572b874d2910fd4dcb805c5f44",
+      "record_sha256": "8626e2f7795aebbe7ab2fb98d8b002642afd5e16cf38aeb34ade23f2f46e7bf2"
+    },
+    {
+      "sequence": 187,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0187",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0187",
+      "previous_record_sha256": "8626e2f7795aebbe7ab2fb98d8b002642afd5e16cf38aeb34ade23f2f46e7bf2",
+      "record_sha256": "6d79b74bab4519ef8692dc6a25129c608873eab859d50ffc21505db1d0ad8edf"
+    },
+    {
+      "sequence": 188,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0188",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0188",
+      "previous_record_sha256": "6d79b74bab4519ef8692dc6a25129c608873eab859d50ffc21505db1d0ad8edf",
+      "record_sha256": "e487f4823b98e155b0e265e3f9053f02b27e89e2bb90579c6f38c5daf58a6133"
+    },
+    {
+      "sequence": 189,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-a-seq0189",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-a-0189",
+      "previous_record_sha256": "e487f4823b98e155b0e265e3f9053f02b27e89e2bb90579c6f38c5daf58a6133",
+      "record_sha256": "89c02ad84d7fb9c3fda2206b2ff4323885a690499605355587bdd627ec03207d"
+    },
+    {
+      "sequence": 190,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0190",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0190",
+      "previous_record_sha256": "89c02ad84d7fb9c3fda2206b2ff4323885a690499605355587bdd627ec03207d",
+      "record_sha256": "063a969b6d44d981d9b7d06cb49a8c2ef9151ae7401ff4ddec3383ced3b66e08"
+    },
+    {
+      "sequence": 191,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-a-seq0191",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-a-0191",
+      "previous_record_sha256": "063a969b6d44d981d9b7d06cb49a8c2ef9151ae7401ff4ddec3383ced3b66e08",
+      "record_sha256": "d8978ded8462daef71ed6e85543102b9ace7013f7874512ec46e9cfe5b986a8d"
+    },
+    {
+      "sequence": 192,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0192",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0192",
+      "previous_record_sha256": "d8978ded8462daef71ed6e85543102b9ace7013f7874512ec46e9cfe5b986a8d",
+      "record_sha256": "d276a2c7704baeee01ba945e64fdd732fad83e062bd7e149895916bcf494d0f4"
+    },
+    {
+      "sequence": 193,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-a-seq0193",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-a-0193",
+      "previous_record_sha256": "d276a2c7704baeee01ba945e64fdd732fad83e062bd7e149895916bcf494d0f4",
+      "record_sha256": "bbba5d8b9b3d418a6e7d32fd3aac6f16b7de6c00956bec55f43ecaaec400f290"
+    },
+    {
+      "sequence": 194,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0194",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0194",
+      "previous_record_sha256": "bbba5d8b9b3d418a6e7d32fd3aac6f16b7de6c00956bec55f43ecaaec400f290",
+      "record_sha256": "9aa0381dbd162a82e8710c36dd315adf142721d6533ec85a22f14c66de4c382a"
     }
   ]
 }
