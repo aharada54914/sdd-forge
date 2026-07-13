@@ -43,6 +43,7 @@ expected_fix: |
 references:
   - reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-003.md
   - specs/epic-136-phase1-guards/requirements.md
+  - https://github.com/aharada54914/sdd-forge/issues/167  # upstream fix tracking (filed 2026-07-13 after the epic-136 retrospective; ticket stays open until the fix lands)
 auto_fix_allowed: false
 requires_human_decision: true
 review_cycles: 1
