@@ -1,5 +1,24 @@
 ticket_id: RT-20260712-003
-status: open
+status: resolved
+resolution: |
+  Resolved 2026-07-12 by the dedicated full-track SDD feature
+  specs/second-approval-mask/ (T-001 Done; commits 505ca01 + 355fc52).
+  Both check-workflow-state twins' task-stage normalization now DELETES
+  column-0 "Second Approval:" lines (sh: sed '/^Second Approval:/d' in
+  normalized_hash; ps1: regex removal in Get-NormalizedHash), so pre-freeze
+  absence and post-recording presence normalize identically; all other freeze
+  properties are unchanged (second-approval-mask.tests.sh, 39 checks, wired
+  into tests/run-all.sh). Protected gate scripts were staged under human-copy
+  and applied by a human (live == staged recorded).
+  Verified in production the same day: a human recorded
+  "Second Approval: Approved (Harada2 ...)" on epic-136-phase1-guards
+  T-001/T-002 after the task-review freeze and check-workflow-state kept
+  reporting "workflow-state: ok"; both critical tasks then completed the
+  repository's first two-person critical Done flow (T-002 at 87bc29d,
+  T-001 at e81fd6a) with check-task-state and check-evidence-bundle passing.
+  Evidence: reports/quality-gate/2026-07-12T115300Z-second-approval-mask-T-001.md,
+  reports/quality-gate/2026-07-12T121500Z-epic-136-phase1-guards-T-002.md,
+  reports/quality-gate/2026-07-12T143000Z-epic-136-phase1-guards-T-001.md.
 type: design-gap
 severity: major
 target:

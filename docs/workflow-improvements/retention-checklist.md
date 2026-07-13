@@ -20,10 +20,17 @@ workflow-retrospective が毎回全行を走査し、条件に合致する証跡
 | WFI-001 | 2026-07-06 | 高リスクタスクの quality-gate で persisted-evidence / traceability 不整合起因の修正チケットまたは 2 サイクル目以降の evidence 修正が発生したら再発 |
 | WFI-002 | 2026-07-06 | manual-precheck-note.md(逸脱記録)なしで手動 precheck / 手動レビューゲート実行が行われた証跡が reports/ に現れたら再発 |
 | WFI-003 | 2026-07-06 | retrospective Metrics 表に Run ID / Task Attempt Count 欠落起因の N/A セルが発生したら再発 |
-| WFI-004 | 2026-07-06 | check-workflow-state が実装後状態の feature で stage-provenance 矛盾(frozen-artifact drift・reviewer schema 不一致・INITIAL-STATE 拒否)により exit 1 を返す review-ticket / gate BLOCKED が発生したら再発 |
+| WFI-005 | 2026-07-12 | 実装レポート/ゲートレポートが deterministic consumer(evaluator 起動境界・check-evidence-bundle)に受理されるために書式後付け修正(retrofit)を要した証跡、または placeholder-scan の waiver 試行が contract に現れたら再発 |
+| WFI-006 | 2026-07-12 | 1 feature の quality-gate レポートに stale-narrative-vs-current-state クラスの Minor 所見が 2 件以上記録される、または凍結済み実装レポートの stale 値をレビュアーが書き換えた/書き換え要求した証跡が現れたら再発 |
+| WFI-007 | 2026-07-12 | 実装レポートが canonical パス(reports/implementation/<feature>/<task-id>.md)以外で first-commit され gate 段階で move/rename された、または evaluator 起動境界がレポートパス起因の PATH 失敗を返したら再発 |
 
 <!-- 記入例（WFI が Verified になったら追加する）:                                    -->
 <!-- | WFI-001 | 2026-07-15 | 高リスクタスクの quality-gate で evidence-consistency -->
 <!--   修正チケットが再び発生したら再発                                        | -->
 
-現在、Verified 状態の WFI はありません（WFI-001 は Human-Pending）。
+註: WFI-004 の行は 2026-07-12 の retention check で再発検知（RT-20260712-003 =
+Second Approval 行による frozen-artifact drift 偽陽性）により削除し、WFI-004 を
+Status: Regressed とした。同欠陥の恒久修正は specs/second-approval-mask/（Done、
+2026-07-12）で出荷済みであり、再発監視は同 feature の
+tests/second-approval-mask.tests.sh（tests/run-all.sh 登録済み、39 checks）が
+決定論的に担う。
