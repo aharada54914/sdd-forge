@@ -1,0 +1,16 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "second-approval-mask",
+  "attempt": 1,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "96331955ad035945310c593ad0775da04cc5e5389800596a23731f736fc51dc5",
+  "requirements_sha256": "0b6f904281c6a95ce97ef16ecd8415418afaa7c0491fbb06e7771a40b3aeaa41",
+  "acceptance_sha256": "b186946b83077e06529a71e8f73b06eb7afb075b6f7f5b47a9b473ed02ee618e",
+  "design_sha256": "101294642beca29b373d9e5ecc2828c7d2169f1d952bc1defe1c7199bb5a2a58",
+  "traceability_sha256": "1c6cb2970725a3428dcbe97c9f53c3ea58e23ed4330011a1047480a7ec1e9482",
+  "layer_sha256": {"ux-spec.md":"984eb59d59f1d3b228a2c5b2faf3ee186a4802db113f04048cc5d18c23853fff","frontend-spec.md":"fd376e65b5342b0369f1c639b5b456dab7adbdc2f12a450c6104f14c83797833","infra-spec.md":"677640b9c00cd3507ba974278e0c133f73b90a28f8c098e2ab7de9912250fe5e","security-spec.md":"24889a02fc64265b2055269899d673ff90230fff6a27781352d0a75dcd8362e3"},
+  "input_sha256": "8b7d71ab872d6803b8a97b0c1901c8a5214c9aba93901e243f460d875866d768",
+  "generated_at": "2026-07-12T10:05:32Z"
+}

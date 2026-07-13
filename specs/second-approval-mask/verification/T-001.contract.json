@@ -1,0 +1,166 @@
+{
+  "task_id": "T-001",
+  "feature": "second-approval-mask",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "0e8750adffe5444003c4d039a89398391ae907271dc0f1e7a854763eef3b5189",
+  "created": "2026-07-12T11:35:00Z",
+  "comment": "Default-FAIL verification contract for T-001; populated after the quality gate reran the focused suite (staged twins) and deterministic gates. Shell stack waives compile-oriented checks. AC-005 live==staged evidence is recorded at gate completion after the human applies the staged twins.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No shell lint tool configured; bash -n / pwsh parse checks recorded in the implementation report instead.",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Shell/PowerShell have no configured static type-check command.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/second-approval-mask/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "specs/second-approval-mask/verification/T-001/red.log",
+      "green_evidence": "specs/second-approval-mask/verification/qg/T-001/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The fixture suite drives both validator twins end-to-end via their public --registry entry point; no separate service integration surface.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/second-approval-mask/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "specs/second-approval-mask/verification/T-001/red.log",
+      "green_evidence": "specs/second-approval-mask/verification/qg/T-001/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/second-approval-mask/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "specs/second-approval-mask/verification/T-001/red.log",
+      "green_evidence": "specs/second-approval-mask/verification/qg/T-001/focused-tests.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell scripts (shell stack).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/second-approval-mask/verification/qg/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/second-approval-mask/verification/qg/T-001/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/second-approval-mask/verification/qg/T-001/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; deterministic validator behavior is fully covered by the fixture suite and full-registry runs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Defect fix verified RED-first against the pre-fix twins (red.log); no baseline-behavior.md is required by the task.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface (CLI validators).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

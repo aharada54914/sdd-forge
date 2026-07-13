@@ -1,0 +1,29 @@
+# gate reports mentioning the string T-001 (cross-feature/task-id collisions included):
+reports/quality-gate/2026-06-24T120000Z-T-003.md
+reports/quality-gate/2026-07-05T021549Z-sdd-forge-mcp-T-001.md
+reports/quality-gate/2026-07-05T164426Z-local-env-mcp-T-001.md
+reports/quality-gate/2026-07-08T030000Z-ci-mcp-T-001.md
+reports/quality-gate/2026-07-08T030000Z-ci-mcp-T-002.md
+reports/quality-gate/2026-07-09T013000Z-evidence-deep-verify-T-001.md
+reports/quality-gate/2026-07-09T014500Z-evidence-deep-verify-T-002.md
+reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-003.md
+reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-004.md
+reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-005.md
+reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-006.md
+reports/quality-gate/2026-07-12T115300Z-second-approval-mask-T-001.md
+reports/quality-gate/2026-07-12T121500Z-epic-136-phase1-guards-T-002.md
+reports/quality-gate/20260627T083626Z.md
+reports/quality-gate/20260628T155629Z.md
+reports/quality-gate/20260629T111150Z.md
+reports/quality-gate/20260711T012306Z-T-001.md
+reports/quality-gate/bootstrap-interviewer-enhancement-T-001.md
+reports/quality-gate/claude-workflow-compatibility-T-001.md
+reports/quality-gate/sdd-forge-refactor-T-001.md
+reports/quality-gate/sdd-forge-refactor-T-002.md
+reports/quality-gate/T-001-sdd-domain.md
+reports/quality-gate/T-001.md
+reports/quality-gate/T-002-sdd-domain.md
+reports/quality-gate/T-004-sdd-domain.md
+reports/quality-gate/T-010-sdd-domain.md
+# feature-scoped: reports whose Feature line is epic-136-phase1-guards AND Task ID is T-001:
+# feature-scoped T-001 gate-report count: 0

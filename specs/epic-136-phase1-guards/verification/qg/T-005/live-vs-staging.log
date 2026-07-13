@@ -1,0 +1,9 @@
+# T-005 gate-time live-vs-staging confirmation (2026-07-12T07:36:14Z)
+48a5fc8a8e88a70085280ae3424b32cb9746887556e452fb5cc663981b75dd68  .github/workflows/self-improvement.yml
+48a5fc8a8e88a70085280ae3424b32cb9746887556e452fb5cc663981b75dd68  specs/epic-136-phase1-guards/staging/self-improvement.yml
+523e3479ba067fbe9feaa665531d2f4bb07ea9503273471fd036032d86cdccf6  .github/scripts/self-improvement-pr-guard.sh
+523e3479ba067fbe9feaa665531d2f4bb07ea9503273471fd036032d86cdccf6  specs/epic-136-phase1-guards/staging/self-improvement-pr-guard.sh
+workflow: live == staging
+guard: live == staging
+## live guard executable bit
+-rwxr-xr-x .github/scripts/self-improvement-pr-guard.sh

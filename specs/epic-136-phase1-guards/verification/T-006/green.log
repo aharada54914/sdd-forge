@@ -1,0 +1,26 @@
+== T-006 claude-bash-matcher tests ==
+REPO_ROOT:  /Users/jrmag/Projects/active/sdd-forge
+HOOKS_JSON: /Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/human-copy/claude-hooks.json
+
+-- (a) matcher coverage (/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/human-copy/claude-hooks.json) --
+ok: claude-hooks.json is valid JSON
+ok: extracted sdd-hook-guard matcher: Edit|Write|MultiEdit|apply_patch|Bash|bash|shell|exec_command|exec
+ok: matcher covers tool name Bash (anchored alternation)
+ok: matcher still covers Edit
+ok: matcher still covers Write
+ok: matcher still covers MultiEdit
+ok: matcher still covers apply_patch
+ok: kill-switch PreToolUse entry intact (matcher '*')
+-- (b) guard decisions (Claude .js twin) --
+ok: Bash write to protected file -> deny (exit 2)
+ok: Bash read-only over protected path -> allow (exit 0)
+ok: malformed Bash payload (missing tool_input) -> deny (exit 2)
+ok: non-JSON payload -> deny (exit 2, fail-closed)
+-- (c) cross-runtime parity (Claude / Codex / Copilot) --
+ok: parity[write-deny]: js=deny sh=deny copilot=deny (all == deny)
+ok: parity[read-allow]: js=allow sh=allow copilot=allow (all == allow)
+ok: parity[missing-input-deny]: js=deny sh=deny copilot=deny (all == deny)
+ok: parity[nonjson-deny]: js=deny sh=deny copilot=deny (all == deny)
+
+== summary: passed=16 failed=0 ==
+RESULT: PASS

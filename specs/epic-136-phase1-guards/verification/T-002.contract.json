@@ -1,0 +1,166 @@
+{
+  "task_id": "T-002",
+  "feature": "epic-136-phase1-guards",
+  "risk": "critical",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "77c560fc6f9657c6de11cb4351f568c005bb392a6504744314669af19197b231",
+  "created": "2026-07-12T12:10:00Z",
+  "comment": "Default-FAIL verification contract for T-002 (critical); populated after the quality gate reran the focused suite and the live guard regression corpus. Shell stack waives compile-oriented checks. Critical tier additionally carries a second distinct named human approver (recorded in tasks.md) and an HMAC-signed evidence bundle over a clean tree.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No shell lint tool configured; py_compile / node --check parse results recorded in the implementation report instead.",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Python/Node guard twins have no configured static type-check command.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-002/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "specs/epic-136-phase1-guards/verification/T-002/red.log",
+      "green_evidence": "specs/epic-136-phase1-guards/verification/qg/T-002/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The focused suite drives the guard twins directly with isolated fixtures via the hook decision protocol; no separate service integration surface.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-002/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "specs/epic-136-phase1-guards/verification/T-002/red.log",
+      "green_evidence": "specs/epic-136-phase1-guards/verification/qg/T-002/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-002/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "specs/epic-136-phase1-guards/verification/T-002/red.log",
+      "green_evidence": "specs/epic-136-phase1-guards/verification/qg/T-002/regression.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for Python/Node guard scripts (shell stack).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-002/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-002/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase1-guards/verification/qg/T-002/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-002"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; deterministic guard-decision behavior is fully covered by the focused suite and the live regression corpus.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "Defect fix verified RED-first against the pre-fix guard twins (red.log); no baseline-behavior.md is required by the task.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface (CLI guard hooks).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

@@ -37,13 +37,25 @@ tests=(
   tests/workflow-state-registry-parity.tests.sh
   tests/workflow-state.tests.sh
   tests/workflow-state-parity.tests.sh
+  tests/second-approval-mask.tests.sh
   tests/workflow-state-ci-integration.tests.sh
   tests/structure-check-feature-mode.tests.sh
+  tests/quality-gate-cycle-limit.tests.sh
+  tests/guard-ps1-ascii.tests.sh
 )
 
 for test_file in "${tests[@]}"; do
   printf '==> %s\n' "$test_file"
   bash "$test_file"
 done
+
+# Cross-runtime guard parity (PowerShell host suite; itself self-skips when
+# python3 or node is absent). Skip only when pwsh is not installed.
+printf '==> %s\n' "tests/guard-r10-port.tests.ps1"
+if command -v pwsh >/dev/null 2>&1; then
+  pwsh -NoProfile -ExecutionPolicy Bypass -File tests/guard-r10-port.tests.ps1
+else
+  printf 'SKIP: pwsh not found; guard-r10-port.tests.ps1 not run\n'
+fi
 
 printf 'All POSIX regression tests passed.\n'

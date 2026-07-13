@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "spec-b-epic136guards-a2r1-20260711-f2a3",
+  "host_session_id": "hs-spec-b-epic136guards-0155",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "ded7cd2486984ce60ecac3e63376887cf712bd9cb86d89ddf137154382775859"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-2/round-1/precheck-result.json",
+      "sha256": "0d69952f768cc3f42a488ca5055dfe7bdba7f3c846a24322854d6b2dad993243"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-2/round-1/integrated-summary.json",
+      "sha256": "07301c67cbb00c2cfe08b690a1efdf245b66287a8f5ded4ecaa0abd28435e95a"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions pin Security-Sensitive:/Cross-Model-Waiver: names, setters, validity, and audit semantics; enforcement-chain surfaces enumerated identically in REQ-005 and AC-011; Edge Cases give concrete expected behavior."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The attempt-1 lite-track/critical contradiction is reconciled: REQ-004 and Non-goals both make Risk:critical/Security-Sensitive:true tasks ineligible for the lite track (rejected toward the full track), matched by AC-009/AC-016; Open Questions (3) records why. No other conflicts."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Edge Cases entry maps to an AC: ASCII/BOM->AC-015; prefix collision and absent dir->AC-006; vacuous no-PR->AC-014; read-only Bash over protected path->AC-012; malformed->AC-013; cwd false-denials->AC-005 + Risks; REQ-004 negative path->AC-008."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Open Questions is None with all four decisions resolved and rationale; the OIDC investigatory assumption is operationalized by REQ-005/AC-010 with a concrete resolution path either way."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Human-only boundaries are testable: R-10 gate deny (AC-001/002), Cross-Model-Waiver honored only with a co-located human Approval:Approved second-approver mark else fail-closed (AC-008), human-copy staging (B3), and REQ-005 post-session guard with fail and vacuous-pass paths (AC-011/AC-014)."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions, Roles, Main Workflows, Security Boundaries, Edge Cases, Risks, and a resolved Open Questions give the impl-policy reviewer the exact fields, waiver rule, lite-track rejection, cycle-limit contract, vacuous-pass, and ASCII constraint; remaining items are implementation architecture excluded by calibration."
+    }
+  ]
+}

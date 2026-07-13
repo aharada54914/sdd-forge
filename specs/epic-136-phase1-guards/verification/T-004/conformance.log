@@ -1,0 +1,88 @@
+T-004 document-conformance evidence
+Task: T-004 (epic-136-phase1-guards) — Require cross-model verification for
+      critical/security-sensitive tasks with a human-gated waiver (REQ-004)
+Run ID: epic136guards-t-004-run-01
+Workflow: tdd -> document-conformance evidence (no executable code changed;
+          the deliverable is a Markdown skill contract, so RED->GREEN is
+          expressed as document-conformance grep assertions)
+
+Subject file (staged, combined T-003 + T-004, not protected):
+  specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+Base (T-003 already-applied ship/SKILL.md, starting point):
+  handoffs/epic-136-phase1-guards/T-004b/snapshot/specs/epic-136-phase1-guards/staging/ship-SKILL-base.md
+
+Diff shape (base -> combined): purely additive. Three insertion blocks
+(Step 4 Full-track item 1 mandatory-cross-model preamble; Step 4 Lite-track
+ineligibility check; new "## Field Definitions" section). Base line 123's
+opt-in sentence and its two warning bullets are preserved verbatim (they
+reappear under "Independently of the requirement above ..."); every other line,
+including T-003's cycle-limit script block, is byte-identical. Base 241 lines ->
+combined 305 lines (+64, all additions).
+
+------------------------------------------------------------------------------
+RED (assertions against the T-003 base, before the T-004 edits) — all ABSENT:
+------------------------------------------------------------------------------
+$ grep -n "MUST have" <base>                                  -> (no match)
+$ grep -n "Cross-model verification required for T-NNN" <base> -> (no match)
+$ grep -n "^## Field Definitions" <base>                      -> (no match)
+$ grep -c "Security-Sensitive:" <base>                        -> 0
+$ grep -c "Cross-Model-Waiver:" <base>                        -> 0
+$ grep -n "ineligible for the lite track" <base>              -> (no match)
+These are the gate behaviors REQ-004/AC-008/AC-009/AC-016 require; their
+absence in the base is the RED baseline. (The base already carried T-003's
+cycle-limit script, which is the only pre-existing Step-4 addition.)
+
+------------------------------------------------------------------------------
+GREEN (assertions against the combined human-copy) — all PRESENT:
+------------------------------------------------------------------------------
+
+# CHECK 1 (AC-008) — Step 4 requires cross-model for critical/security-sensitive
+#                    tasks regardless of --verify.
+$ grep -n "MUST have" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+124:   entry carries `Risk: critical` or `Security-Sensitive: true` MUST have
+$ grep -n "regardless of whether" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+126:   the quality gate, **regardless of whether `--verify` was passed**. For each
+
+# CHECK 2 (AC-008) — fail-closed waiver validity (requires a co-located human
+#                    approval mark naming a second distinct approver) and a
+#                    diagnostic that NAMES the task on the fail-closed stop.
+$ grep -n "treated as ABSENT (fail-closed)" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+137:     context is treated as ABSENT (fail-closed) and cross-model verification
+$ grep -n "second distinct human approver" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+133:     `Approval: Approved` audit mark naming a second distinct human approver
+225:  audit mark naming a second distinct human approver — the human-only approval
+$ grep -n "Cross-model verification required for T-NNN" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+145:     `[sdd-ship] Cross-model verification required for T-NNN (Risk: critical or
+
+# CHECK 3 (AC-009) — Field Definitions document Security-Sensitive: and
+#                    Cross-Model-Waiver: (name, who sets it, validity context,
+#                    audit value) plus the lite-track rule.
+$ grep -n "^## Field Definitions" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+211:## Field Definitions
+$ grep -n "^- \`Security-Sensitive:\`" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+216:- `Security-Sensitive:` — optional per-task boolean trigger. `true` marks the
+$ grep -n "^- \`Cross-Model-Waiver:\`" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+221:- `Cross-Model-Waiver:` — optional per-task field recording an explicit decision
+$ grep -n "Lite-track rule for critical" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+232:- Lite-track rule for critical/security-sensitive tasks: a task with
+
+# CHECK 4 (AC-016) — Lite gate rejects a critical/security-sensitive task with a
+#                    task-naming diagnostic directing the human to the full track.
+$ grep -ni "ineligible for the lite track" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+199:  carries `Risk: critical` or `Security-Sensitive: true`, it is INELIGIBLE for
+204:  ineligible for the lite track (no cross-model step). Re-run on the full track:
+$ grep -n "Re-run on the full track" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+204:  ineligible for the lite track (no cross-model step). Re-run on the full track:
+$ grep -n "T-NNN is Risk: critical" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+203:  `[sdd-ship] T-NNN is Risk: critical or Security-Sensitive: true and is
+
+# CHECK 5 (T-003 preserved) — cycle-limit script call NOT clobbered.
+$ grep -n "check-quality-gate-cycle-limit.sh" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+171:   plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh T-NNN
+$ grep -n "check-quality-gate-cycle-limit.ps1" specs/epic-136-phase1-guards/human-copy/ship-SKILL.md
+177:   pwsh plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1 T-NNN
+
+------------------------------------------------------------------------------
+RESULT: PASS. All AC-008 / AC-009 / AC-016 conformance assertions are GREEN on
+the combined human-copy; T-003's REQ-003 cycle-limit script call is intact.
+------------------------------------------------------------------------------

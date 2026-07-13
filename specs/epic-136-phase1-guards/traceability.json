@@ -1,0 +1,98 @@
+{
+  "feature": "epic-136-phase1-guards",
+  "generated_by": "quality-gate machine-readable companion; frozen traceability.md unchanged",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": [
+        "AC-001",
+        "AC-002",
+        "AC-003",
+        "AC-015"
+      ],
+      "tests": [
+        "TEST-001",
+        "TEST-002",
+        "TEST-003",
+        "TEST-015"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/T-001/green.log"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": [
+        "AC-004",
+        "AC-005"
+      ],
+      "tests": [
+        "TEST-004",
+        "TEST-005"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/T-002/green.log"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": [
+        "AC-006",
+        "AC-007"
+      ],
+      "tests": [
+        "TEST-006"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/qg/T-003/focused-tests.log"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": [
+        "AC-008",
+        "AC-009",
+        "AC-016"
+      ],
+      "tests": [
+        "TEST-008",
+        "TEST-009",
+        "TEST-016"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/qg/T-004/conformance.log"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": [
+        "AC-010",
+        "AC-011",
+        "AC-014"
+      ],
+      "tests": [
+        "TEST-010",
+        "TEST-011",
+        "TEST-014"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/qg/T-005/focused-tests.log"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": [
+        "AC-012",
+        "AC-013"
+      ],
+      "tests": [
+        "TEST-012",
+        "TEST-013"
+      ],
+      "evidence": [
+        "specs/epic-136-phase1-guards/verification/qg/T-006/focused-tests.log"
+      ]
+    }
+  ]
+}

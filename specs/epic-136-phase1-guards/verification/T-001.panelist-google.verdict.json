@@ -1,0 +1,36 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-001",
+  "feature": "epic-136-phase1-guards",
+  "vendor": "google",
+  "model": "claude-via-panelist-gemini-slot",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "severity": "Minor",
+      "ref": "tests/guard-r10-port.tests.ps1 plugin.json corpus (bundle lines 3255-3261)",
+      "note": "All three ProtectedGatePluginJsonSuffixes entries are now exercised, but every fixture path carries a parent directory, so only the leading-slash EndsWith arm of Test-IsProtectedGateFile is hit; the TrimStart arm (a file_path exactly equal to a bare dot-dir suffix with no parent prefix) has no fixture. The bundle/report phrasing 'relative and absolute path forms across all three dot-dir entries' overstates: each entry is exercised in exactly one form (2 relative, 1 absolute). Every table entry is still covered, so this is non-blocking."
+    },
+    {
+      "severity": "Minor",
+      "ref": "reports/implementation/epic-136-phase1-guards/T-001.md 'Iteration And Escalation'",
+      "note": "Stale field: the section still records 'Task Attempt Count: 1' while the report header and the appended 'Attempt 2' section record attempt 2 (Run ID epic136guards-t-001-run-02)."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/guard-r10-port.tests.ps1 copilot section (bundle lines 3286-3290)",
+      "note": "Copilot emit-mode parity covers a protected write deny, a cd+rm deny, and an allow, but no malformed-payload (fail-closed) copilot scenario; malformed payloads are exercised only in exit-emit mode."
+    },
+    {
+      "severity": "Minor",
+      "ref": "tests/guard-r10-port.tests.ps1 shell corpus",
+      "note": "All shell scenarios use tool_name 'bash'; the aliases 'shell'/'exec_command'/'exec' share the same membership list in every twin but have no direct fixture."
+    }
+  ],
+  "blind": true,
+  "input_digest": "8a8a9f1ed1e7de4628c277a37b639329a634e827747d39d15da9421ac4798c72",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "tasks.md T-001 Cross-Model: enabled"
+  }
+}

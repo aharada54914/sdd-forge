@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "impl-b-epic136guards-a1r1-20260712-c3d4",
+  "host_session_id": "hs-impl-b-epic136guards-0157",
+  "feature_type": "security hardening / workflow enforcement (mixed fix + feat)",
+  "legacy_design": false,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-136-phase1-guards/requirements.md",
+      "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+      "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/design.md",
+      "sha256": "905988d76b20f46b72705825021e6e4f34ae77e663d98be86e591e4f4ea8d4ea"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/ux-spec.md",
+      "sha256": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/frontend-spec.md",
+      "sha256": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/infra-spec.md",
+      "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+    },
+    {
+      "path": "specs/epic-136-phase1-guards/security-spec.md",
+      "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase1-guards/attempt-1/round-1/precheck-result.json",
+      "sha256": "3a8ec3f8e715137d0ffc8fbc6f6e40fb7a728738a668ffdfc9760244ff4607d5"
+    },
+    {
+      "path": "reports/impl-review/epic-136-phase1-guards/attempt-1/round-1/integrated-summary.json",
+      "sha256": "d894470aa7e98308f676471b4d8ac7bf28826d6a372b0e45200f3b2f5c612eb9"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each stated decision has a rationale: no-new-ADR justified, the deterministic-script principle answers requirements.md Problems, pwsh choice states its basis (CI provides pwsh); guard-twin/cycle-limit choices continue the established multi-runtime pattern."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Open Questions is 'None. Owner: maintainers. Blocks Implementation: no.' with resolution path for the two prior-open decisions; all layer specs mirror the owner + non-blocking pattern."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Assumptions are grounded in requirements.md's file/line-cited evidence (sdd-hook-guard.py:1161-1164; pinned v1.0.165), describing established facts about the existing gate chain, not empirical unknowns; no investigation.md needed."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Constraint Compliance (5 rows) covers every explicit requirements.md constraint (.ps1 ASCII, protected-not-writable, 1-issue-1-commit, no-prose-boundary, version-bump); regulatory 'none identified'; fail-closed documented."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No numeric performance requirement in requirements.md; the only related note is an acknowledged Medium matcher-latency risk with no numeric target."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Deployment / CI Plan states the target (self-improvement.yml + 3-OS test.yml), the pipeline change, and rollback; each item is a direct always-on change via one reviewed commit, so feature-flag rollout does not apply; no schema migration."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan states Data Entities: none, Existing Data Affected: none persisted, Migration Strategy: none -- the explicit no-data-change skip condition."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The pinned claude-code-action third-party integration underpins trust boundary B2 and is referenced in Assumptions and Risks, but design.md has no dedicated integration record naming the action's OIDC contract (claims/audience, where verified in its action.yml/release docs) or the failure behavior when the id-token:write assumption is wrong versus when the action is unavailable during a run; infra-spec/security-spec name the token but omit the action's version/contract and unavailability failure mode, leaving REQ-005 with only the circular assumption statement."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Components map 1:1 onto the six REQs; no extra component/data model/endpoint; API/Contract Plan preserves every Non-goal; all Goals and User Stories covered."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces (B1 write-denial, B2 CI-to-PR) each have a named validation path in ## Test Strategy (TEST-001..005/012/013, self-improvement-guard fixtures for AC-011/014, cross-model conformance for AC-008/009/016)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory; CLI/CI hardening batch with no domain-model surface."
+    }
+  ]
+}

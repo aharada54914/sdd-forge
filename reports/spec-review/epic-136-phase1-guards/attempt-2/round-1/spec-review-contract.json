@@ -1,0 +1,64 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 2,
+  "round": 1,
+  "requirements_sha256": "ded7cd2486984ce60ecac3e63376887cf712bd9cb86d89ddf137154382775859",
+  "acceptance_sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "spec-a-epic136guards-a2r1-20260711-d0e1",
+      "host_session_id": "hs-spec-a-epic136guards-0154",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/requirements.md",
+          "sha256": "ded7cd2486984ce60ecac3e63376887cf712bd9cb86d89ddf137154382775859"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/acceptance-tests.md",
+          "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-2/round-1/precheck-result.json",
+          "sha256": "0d69952f768cc3f42a488ca5055dfe7bdba7f3c846a24322854d6b2dad993243"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "spec-b-epic136guards-a2r1-20260711-f2a3",
+      "host_session_id": "hs-spec-b-epic136guards-0155",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/requirements.md",
+          "sha256": "ded7cd2486984ce60ecac3e63376887cf712bd9cb86d89ddf137154382775859"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase1-guards/acceptance-tests.md",
+          "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-2/round-1/precheck-result.json",
+          "sha256": "0d69952f768cc3f42a488ca5055dfe7bdba7f3c846a24322854d6b2dad993243"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase1-guards/attempt-2/round-1/integrated-summary.json",
+          "sha256": "07301c67cbb00c2cfe08b690a1efdf245b66287a8f5ded4ecaa0abd28435e95a"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-epic136guards-a2r1-20260711-a4b5",
+  "verdict": "PASS",
+  "warningCount": 0
+}

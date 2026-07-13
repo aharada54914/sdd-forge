@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "task-b-epic136guards-a1r2-20260712-d8e9",
+  "host_session_id": "hs-task-b-epic136guards-0163",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "specs/epic-136-phase1-guards/requirements.md",
+        "sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/acceptance-tests.md",
+        "sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/design.md",
+        "sha256": "b098d46d3ad06edd9a4987e82eb0fbe7379d20559cec791782fdc0ead4d35fca"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/tasks.md",
+        "sha256": "dc33045db132bdcb2e33aa283c951eb5bf65b4e0ffc6eab894cb80e4bd64b50d"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/traceability.md",
+        "sha256": "3121a7f72cac3132faa19098a271a043938355ff363d4a69b56ea29de41beb96"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/ux-spec.md",
+        "sha256": "2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/frontend-spec.md",
+        "sha256": "8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/infra-spec.md",
+        "sha256": "6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2"
+      },
+      {
+        "path": "specs/epic-136-phase1-guards/security-spec.md",
+        "sha256": "fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"
+      },
+      {
+        "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "reports/task-review/epic-136-phase1-guards/attempt-1/round-2/precheck-result.json",
+        "sha256": "38a3fc5a0819dcfc45173e6d58c79c188db760e58b94cffa1f555e86417d1744"
+      },
+      {
+        "path": "reports/task-review/epic-136-phase1-guards/attempt-1/round-2/integrated-summary.json",
+        "sha256": "80802970f63c73eff229f3a21b86d6f97003a15182863c2ceb8f15120e629b86"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      }
+    ]
+  },
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All six tasks touch access-control/authorization surfaces and are critical (T-001/T-002) or high (T-003..T-006), meeting the proximity floor; no over-classification."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every high/critical Done When includes Red->Green and an independent quality-gate verdict; T-001/T-002 also record a second distinct named approver and an HMAC-signed evidence bundle."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done When lists range 5-7 items, all <=8; the T-001 consolidation holds; no fragmentation."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task pairs a happy-path AC with an error/edge-path AC (forgery/short-circuit; bypass; prefix-collision/absent-dir; invalid-waiver/lite-gate; no-PR vacuous; malformed fail-closed)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Test-type labels match scope (cross-runtime/parity across runtimes; integration >=2 components; unit/parity single script; encoding/static honestly labeled)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All six high/critical tasks carry an explicit Rollback field (re-copy prior protected file / revert commit)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Only ship/SKILL.md is shared (T-003, T-004); T-004 Blockers: T-003 with a matching shared-file ordering note in both tasks, satisfying the legitimate-overlap exception. No other Planned Files overlap."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001->T-002 (must incorporate the cwd fix) and T-004->T-003 (shared ship/SKILL.md staging order) are justified; T-002/T-003/T-005/T-006 correctly Blockers: None."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (RED-first bugfix) names the reproduction command, diagnoses root cause before the fix (substring match), and requires TEST-004 RED->GREEN plus TEST-005 regression/parity."
+    }
+  ],
+  "findings": [],
+  "verdict": "PASS"
+}

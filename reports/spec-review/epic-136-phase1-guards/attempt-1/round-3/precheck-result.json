@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "0b9ee4c5729054bdd15185e2463ff4c36ac3486ecfd2fa4c639bb1e1dedbc1c2",
+  "acceptance_sha256": "d149a4e00b8b04f3a5143dfcd56acc0edeb93cae8a9e4e20acc5285e32fd40ea",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "6667c5a585646e9e31d478c170db82dfe443b666b8d6b9b8cc37fb58ad3eb7d7",
+  "edit_summary": "Round 2 NEEDS_WORK resolved: added AC-015/TEST-015 (new tests/guard-ps1-ascii.tests.sh) verifying sdd-hook-guard.ps1 is ASCII-only with no BOM, closing the missing coverage for the explicitly-stated Windows PowerShell 5.1 ASCII constraint (REQ-001).",
+  "reset": false,
+  "generated_at": "2026-07-11T14:46:41Z"
+}

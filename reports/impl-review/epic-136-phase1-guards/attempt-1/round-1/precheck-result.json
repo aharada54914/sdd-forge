@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-136-phase1-guards",
+  "attempt": 1,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "905988d76b20f46b72705825021e6e4f34ae77e663d98be86e591e4f4ea8d4ea",
+  "requirements_sha256": "b108e6c958baba5f952c7a3af205ab27b213d1f41dce5ca0daf48861ad6a5c24",
+  "acceptance_sha256": "b0e4982019966ee5ad3ec6a1712a7b0dd443914c6e9725e7ef5763401aa14312",
+  "layer_sha256": {"ux-spec.md":"2db293352089b6e77dcdfce82c63e89d4cb2765361534734eb413ca689091035","frontend-spec.md":"8f20f835afab6b576bb4cdf20a4216ec4ca8f038f908998a0f258917a83d7c1b","infra-spec.md":"6d5f6e418384b6e51a9b3bdd5fcec9cb0263d5adf43f6273f412fbb089726ed2","security-spec.md":"fe818f3418cec6a101d835dc484c97442e1a33b63872f14bc363b15c5ebfb6fd"},
+  "input_sha256": "bff00dc5c78f62be04c07ab325d0ffbb4a7712ed0c9b987b7fb65e62c8fea7d2",
+  "generated_at": "2026-07-11T15:09:33Z"
+}

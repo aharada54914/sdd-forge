@@ -1,0 +1,2 @@
+9884b6241bf50fcf0d4162de70bff1cdf7299688b46d603965c4082e0b3a41ee  specs/second-approval-mask/human-copy/check-workflow-state.sh -> plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+2b8c5e34a5603315b112f1c8bd4841582b73b8b4e692a176d4d5c36f9a5fa222  specs/second-approval-mask/human-copy/check-workflow-state.ps1 -> plugins/sdd-quality-loop/scripts/check-workflow-state.ps1

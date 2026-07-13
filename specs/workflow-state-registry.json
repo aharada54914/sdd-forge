@@ -320,6 +320,14 @@
           "Blocked"
         ]
       }
+    },
+    {
+      "feature": "epic-136-phase1-guards",
+      "profile": "full"
+    },
+    {
+      "feature": "second-approval-mask",
+      "profile": "full"
     }
   ]
 }
