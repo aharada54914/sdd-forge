@@ -90,6 +90,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/ci-mcp/`
 - `specs/epic-136-phase1-rce/`
 - `specs/epic-136-phase1-guards/`
+- `specs/epic-159-pillar-a/`
 
 ## Source Artifact Locations
 
