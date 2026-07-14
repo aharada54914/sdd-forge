@@ -1,0 +1,2 @@
+tests/loop-driver.tests.sh: 行 29: /Users/jrmag/Projects/active/sdd-forge/tests/lib/loop-driver.sh: No such file or directory
+exit:1

@@ -25,6 +25,29 @@
   `reports/implementation/epic-159-pillar-a/T-001.md`)。
   `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md`(Status Proposed)
   にこの発見を反映。
+- **共有ループドライバとスモークスイート (Issue #142, epic-159-pillar-a
+  T-002)**: `tests/lib/loop-driver.sh` / `.ps1`(source 専用、実行不可)を、
+  spec/impl/task/domain の各レビューループを駆動する共有ハーネスとして追加。
+  `loop_fixture_init`(greenfield は mktemp 上でゼロから合成、brownfield は
+  呼び出し元供給の synthetic seed からコピー)は `specs/<feature>/`
+  成果物・1エントリの workflow-state レジストリ・正準ハッシュ式
+  (`sha256(sequence|stage|role|run_id|host_session_id|previous_record_sha256)`)
+  による identity-ledger genesis チェーンを、リポジトリ作業ツリー外の
+  fixture root に合成する。`drive_review_round` は REAL な
+  `<stage>-review-precheck.sh` → 前ラウンドの実際の成果物一覧のみから構成
+  した manifest → REAL な `validate-review-context-set.sh --reserve` →
+  `tests/spec-review-loop.tests.sh` の `write_contract()` 形状(INV-008)に
+  倣ったレビュワー成果物、の順で駆動する。`assert_artifacts_schema` /
+  `assert_terminal` / `assert_runtime_budget`(`LOOP_SUITE_BUDGET_SECONDS=300`)
+  を提供。新スモークスイート `tests/loop-driver.tests.sh` / `.ps1` が
+  spec-review のラウンド1→3を実際に駆動して green を証明し、
+  `tests/run-all.sh` / `tests/run-all.ps1` / `.github/workflows/test.yml`
+  へ登録。**実装時の発見**: `spec-review-precheck.ps1` はリポジトリ上に
+  存在しない(`.sh` のみ)ため、pwsh レーンの TEST-006(spec-review 駆動)
+  は理由付きの named SKIP として記録(既存の domain-review pwsh 欠落パターン
+  を踏襲)。`drive_review_round` は spec-review のみを完全実装し、
+  impl/task/domain は明示的なエラーで拒否(A3/#143 スコープ、詳細は
+  `reports/implementation/epic-159-pillar-a/T-002.md`)。
 
 ### セキュリティ修正
 

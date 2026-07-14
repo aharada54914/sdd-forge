@@ -24,7 +24,8 @@ $tests = @(
     'tests/workflow-state-repository-integration.tests.ps1',
     'tests/structure-check-feature-mode.tests.ps1',
     'tests/emit-run-record-feature-scope.tests.ps1',
-    'tests/loop-inventory.tests.ps1'
+    'tests/loop-inventory.tests.ps1',
+    'tests/loop-driver.tests.ps1'
 )
 
 Push-Location $root

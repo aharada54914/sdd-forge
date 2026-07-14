@@ -78,6 +78,16 @@ jobs:
         shell: pwsh
         run: ./tests/loop-inventory.tests.ps1
 
+      - name: Test loop driver smoke suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-driver.tests.sh
+
+      - name: Test loop driver smoke suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-driver.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
