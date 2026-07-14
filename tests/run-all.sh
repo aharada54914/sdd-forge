@@ -45,6 +45,7 @@ tests=(
   tests/loop-inventory.tests.sh
   tests/loop-driver.tests.sh
   tests/loop-consistency.tests.sh
+  tests/loop-escalation.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

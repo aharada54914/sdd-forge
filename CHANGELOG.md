@@ -81,6 +81,37 @@
   task-review 前提条件の検証としてタスクレビューの独立な深層検証(defense-
   in-depth)であるとの所見を記録(詳細は
   `reports/implementation/epic-159-pillar-a/T-003.md`)。
+- **quality-gate エスカレーションチェーンと template⇔gate parity 拡張
+  (Issue #144, epic-159-pillar-a T-004)**: 新スイート
+  `tests/loop-escalation.tests.sh` / `.ps1` が、gate-report 件数 0/1/2 →
+  `continue`、3 → `Escalate-Human`(`check-quality-gate-cycle-limit.sh`、
+  `reports/quality-gate/` 不在時は 0 件扱い)、`select-agent-model.sh` の
+  tier エスカレーション(lightweight→standard→strong→strong-tier
+  recurrence で `BLOCKED terminal-tier-recurrence`、`next_tier` 値を検証)、
+  その結果生成される terminal-tier-recurrence blocked-state artifact の
+  `contracts/terminal-tier-blocked-state.schema.json` 準拠、
+  `check-terminal-tier-resume.sh` が人間承認記録なしで拒否・ありで許可する
+  ことを、fixture 上で end-to-end に駆動する(TEST-011、OQ-4 解消: 本スイート
+  が同スクリプトの初の直接ドライバ)。`T-001` vs `T-0010` の接頭辞衝突
+  fixture で word-boundary マッチが件数を汚染しないことと、その
+  word-boundary を除去した一時コピーで fixture が red化することを確認
+  (TEST-018、#111/#112 の前例)。parity 拡張(TEST-012)は
+  `implementation-report.template.md` を実タスク ID でレンダリングして
+  loop-driver fixture に配置し、REAL な `validate-review-context-set.sh` の
+  quality:sdd-evaluator identity checks(厳密パス・見出し・full-line
+  `- Task ID:`・`## Outputs` セクション走査 — INV-014/INV-015)へ通し、
+  `- Task ID:` 行削除で red化・`## Outputs` セクション境界外の decoy 行が
+  認可されないことを確認する negative self-check を伴う
+  (`tests/template-validator-parity.tests.sh` を拡張・複製せず参照のみ、
+  INV-016)。python3 不在(制限 PATH)時は `deterministic-runtime-unavailable`
+  を named SKIP として記録(TEST-013、INV-017; pwsh レーンでは
+  `check-terminal-tier-resume.ps1` が python3 非依存の純 PowerShell 実装で
+  あることを確認し、`select-agent-model.ps1` は
+  `-DeterministicRuntimeCommand` 上書きで同等の劣化経路を駆動)。
+  **実装時の発見**: `select-agent-model.sh` は実行ビットなしでコミットされて
+  いるため(mode 100644)、`bash "$SCRIPT" ...` 経由で駆動(test.yml の既存
+  注記と同じ回避策)。詳細は
+  `reports/implementation/epic-159-pillar-a/T-004.md`。
 
 ### セキュリティ修正
 

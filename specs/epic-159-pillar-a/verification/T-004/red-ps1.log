@@ -1,0 +1,46 @@
+=== TEST-011: quality-gate cycle-limit / select-agent-model escalation / terminal-tier / resume ===
+ok: TEST-011.1: 0 gate reports (absent reports/quality-gate/ dir) -> continue
+ok: TEST-011.2: 1 gate report -> continue
+ok: TEST-011.3: 2 gate reports -> continue
+ok: TEST-011.4: 3 gate reports -> Escalate-Human/exit1
+FAIL: TEST-011.5: select-agent-model.ps1 did not escalate lightweight->standard as expected (rc=1, out={"model":"modelB","canonical_tier":"standard","effort":null,"estimated_cost_per_attempt_usd":"2","available_candidates":["modelA","modelB","modelC"],"xhigh_reason":null,"escalation":{"prior_tier":"lightweight","next_tier":"standard","failure_class":"test","attempt_number":2,"reason":"same-classified-failure-twice"}})
+FAIL: TEST-011.6: select-agent-model.ps1 did not escalate standard->strong as expected (rc=1, out={"model":"modelC","canonical_tier":"strong","effort":null,"estimated_cost_per_attempt_usd":"3","available_candidates":["modelA","modelB","modelC"],"xhigh_reason":null,"escalation":{"prior_tier":"standard","next_tier":"strong","failure_class":"lint","attempt_number":3,"reason":"same-classified-failure-twice"}})
+ok: TEST-011.7: select-agent-model.ps1 reports BLOCKED terminal-tier-recurrence on a strong-tier repeat (next_tier null)
+ok: TEST-011.8: terminal-tier-recurrence blocked-state artifact validates against contracts/terminal-tier-blocked-state.schema.json
+ok: TEST-011.9: Test-LoopTerminal confirms terminal-tier's BLOCKED end state matches the loop-inventory terminal
+ok: TEST-011.10: check-terminal-tier-resume.ps1 denies resume when tasks.md carries no human-approval record
+ok: TEST-011.11: check-terminal-tier-resume.ps1 permits resume once tasks.md carries a matching human-approval record
+=== TEST-018: task-ID prefix collision (T-001 vs T-0010) + substring-grep mutation ===
+ok: TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)
+FAIL: TEST-018.2: could not construct the substring-match mutated temp copy
+Where-Object: /var/folders/.../loop-escalation-work.../check-quality-gate-cycle-limit.mutated.ps1:40
+Line |
+  40 |          Where-Object { Select-String -LiteralPath $_.FullName -Patter ...
+     |          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+     | Cannot bind argument to parameter 'Pattern' because it is null.
+
+--- RED cause analysis (acceptance-first first run, before fixes) ---
+TEST-011.5/.6: select-agent-model.ps1's successful (non-BLOCKED escalation)
+path performs no native/external command and never calls an explicit
+`exit N`, so $LASTEXITCODE after `& $selectModelPs1 ...` is stale (left over
+from an earlier native command in this suite, e.g. the cycle-limit
+Escalate-Human leg's exit 1) and is not a meaningful signal for this call
+shape -- matching the existing tests/agent-model-routing.tests.ps1
+convention, which likewise never checks $LASTEXITCODE for this script's
+successful/JSON-emitting path. Fix: assert on the JSON content only for
+these two legs (dropped the $rc dependency).
+TEST-018.2: the intended mutation ("remove the \b word-boundary anchors from
+the Select-String pattern in a temp copy") was implemented with a broken
+[regex]::Escape(...) double-escaping bug that produced an invalid/empty
+search pattern, so the .Replace() call silently matched nothing and the
+subsequently-invoked mutated script crashed with a null Pattern argument.
+Fix: replaced the regex-based approach with a plain literal
+[string]::Replace() substitution of the exact source snippet
+`"\b" + [regex]::Escape($TaskId) + "\b"` -> `[regex]::Escape($TaskId)`.
+
+(This suite has no separate genuine RED run before its own file existed --
+unlike T-002's tests/lib/loop-driver.sh, T-004 introduces no new shared
+library; the acceptance-first RED state for this task is this suite's own
+first, unfixed run against the already-correct, already-committed driven
+scripts above, per plugins/sdd-implementation/skills/implement-task/SKILL.md
+Implementation Process step 3.)
