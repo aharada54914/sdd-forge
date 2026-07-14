@@ -1,0 +1,50 @@
+{
+  "schema": "evaluator-verdict/v1",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-159-pillar-a",
+  "task_id": "T-004",
+  "run_id": "RUN-epic159pillara-qg-T-004-seq0206",
+  "host_session_id": "SESS-qg-epic159pillara-T-004-0206",
+  "manifest_path": "reports/review-context/pending-epic-159-pillar-a-evaluator-T-004-seq0206-manifest.json",
+  "manifest_sha256": "821f991ee9a3eea5a0c95b94b6ccf2185f5119df2f00fbe98af910b1e1deaef1",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "severity": "Minor",
+      "surface": "reports/implementation/epic-159-pillar-a/T-004.md:118",
+      "description": "Outputs table records tests/loop-escalation.tests.sh sha256 as 37056156032bc180aed0a3ea07babbd6e7b0ffa131c5ee7d00c78a950fff6ee4, but the actual committed/working-tree file is a572dbc91fe821ca7ab9e5a996aa3220612a8dcc72cf7f0cf2b8b1d617aa8b78. This misrecord excluded the core deliverable from the deterministic manifest and required an orchestrator exception. Underlying artifact is correct and its provenance was independently confirmed; only the recorded hash is wrong.",
+      "evidence": "shasum -a 256 tests/loop-escalation.tests.sh -> a572dbc9...; git show f279536:tests/loop-escalation.tests.sh -> a572dbc9... (byte-identical, empty git diff); report row shows 37056156...",
+      "requires_human_decision": false
+    },
+    {
+      "id": "F-2",
+      "severity": "Minor",
+      "surface": "tests/loop-escalation.tests.sh:259-282 (and .ps1 twin)",
+      "description": "TEST-011.8 validates a hand-built blocked-state fixture against jq/PowerShell-transcribed schema constraints rather than loading contracts/terminal-tier-blocked-state.schema.json or validating select-agent-model's real terminal-tier output. Follows the established assert_artifacts_schema convention (no JSON-schema validator in-repo) and asserts the schema file's existence, but schema-file fidelity to the transcription is not independently verifiable within the read boundary, and real-file drift would not be caught by this leg.",
+      "evidence": "Line-inspected TEST-011.8: hardcoded jq key-set/pattern/enum/range checks on a jq -n fixture; SCHEMA_JSON only existence-checked at lines 83-85; report Specification Differences acknowledges the jq-replicated approach.",
+      "requires_human_decision": false
+    },
+    {
+      "id": "F-3",
+      "severity": "Minor",
+      "surface": "specs/epic-159-pillar-a/tasks.md:529 (also requirements.md/design.md OQ-4)",
+      "description": "Spec carries the factually-inaccurate premise that this suite becomes check-terminal-tier-resume.sh's 'first direct driver'. tests/agent-model-routing.tests.sh already drives that script directly (positive complete-evidence pass plus unchanged-contract rejection). The implementer correctly surfaced this as a spec defect and recorded the correction instead of silently editing the hash-frozen spec; the suite's genuinely-new coverage (tasks.md-side reapproval deny/permit, TEST-011.10/.11) is real. Recorded as spec drift for the spec owner to reconcile; not an implementation defect.",
+      "evidence": "grep -n check-terminal-tier-resume tests/agent-model-routing.tests.sh -> lines 35,36,68; lines 458/463 run bash/pwsh RESUME drives with positive+negative cases.",
+      "requires_human_decision": false
+    }
+  ],
+  "checked": [
+    "Verified manifest self-hash = 821f991e...; all 20 manifest-listed file content hashes recomputed and matched except identity-ledger.json.",
+    "Resolved the identity-ledger hash gap: reconstructed the pre-reservation ledger (seq 1..205 + trailing newline) and hashed it to exactly the manifest identity_ledger_sha256; current ledger = that state plus the atomically-appended seq206 record. run_id/host_session_id appear exactly once; chain intact, identity not reused.",
+    "Validated the orchestrator .sh exception: current file hash = git show f279536 blob hash = asserted value; then read the current file.",
+    "Re-ran bash tests/loop-escalation.tests.sh -> 22 passed, 0 failed, exit 0.",
+    "Re-ran pwsh tests/loop-escalation.tests.ps1 -> 21 passed, 0 failed, exit 0.",
+    "Line-inspected all 7 mandated items in the .sh (spot-checked the .ps1 twin): cycle-limit 0/1/2/3 with absent dir = 0 driving the real script; T-001-vs-T-0010 prefix collision + substring-grep mutation on a mktemp copy with live negative self-check; select-agent-model next_tier chain via real script; terminal-tier blocked-state structural check (see F-2); check-terminal-tier-resume deny/permit pair on the real script; TEST-012 drives the REAL validate-review-context-set.sh with two genuine negative self-checks; TEST-013 restricted-PATH degradation as named SKIP with a fail() guard.",
+    "Confirmed no completion-faking / test-nerfing / real-gate writes: git status clean after running both suites; git diff empty for the driven scripts, the contracts schema, and tests/template-validator-parity.tests.sh (referenced, unedited).",
+    "Corroborated OQ-4 correction factuality via grep of tests/agent-model-routing.tests.sh.",
+    "Verified registration: tests/run-all.sh:48, tests/run-all.ps1:30, .github/workflows/test.yml:105/109; CHANGELOG.md:85 cites Issue #144; crlf-parity 8 passed, 0 failed."
+  ],
+  "summary": "T-004's loop-escalation suite is genuinely implemented and verified: both lanes run green independently (bash 22/0, pwsh 21/0), all acceptance criteria are exercised by real checks driving the real scripts read-only with authentic negative self-checks and mktemp-scoped fixtures, and no gate/script/contract/parity-suite file is modified. Three non-blocking Minor findings (misrecorded .sh hash with independently-confirmed provenance, convention-based transcribed schema check, correctly-surfaced upstream OQ-4 spec defect). Zero Critical and zero Major: PASS."
+}

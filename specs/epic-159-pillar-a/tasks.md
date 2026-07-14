@@ -54,7 +54,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/141
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: medium
 
@@ -200,7 +200,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/142
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: medium
 
@@ -332,7 +332,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/143
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: medium
 
@@ -475,7 +475,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/144
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: medium
 

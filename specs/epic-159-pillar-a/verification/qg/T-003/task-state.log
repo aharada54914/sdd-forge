@@ -1,5 +1,17 @@
-+ bash /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-task-state.sh /Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/tasks.md
-== start: 2026-07-14T18:53:40Z ==
++ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-159-pillar-a/tasks.md
+== start: 2026-07-14T19:27:28Z ==
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+Verification contract passed for task T-002.
+WARNING: evidence bundle for task T-002 was generated with a dirty working tree
+Evidence bundle passed for task T-002.
+Verification contract passed for task T-003.
+WARNING: evidence bundle for task T-003 was generated with a dirty working tree
+Evidence bundle passed for task T-003.
+Verification contract passed for task T-004.
+WARNING: evidence bundle for task T-004 was generated with a dirty working tree
+Evidence bundle passed for task T-004.
 Task state check passed for 4 task(s).
-== end: 2026-07-14T18:53:40Z ==
+== end: 2026-07-14T19:27:28Z ==
 EXIT_CODE: 0

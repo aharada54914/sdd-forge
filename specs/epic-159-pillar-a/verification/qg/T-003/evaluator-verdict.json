@@ -1,0 +1,51 @@
+{
+  "schema": "evaluator-verdict/v1",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-159-pillar-a",
+  "task_id": "T-003",
+  "run_id": "RUN-epic159pillara-qg-T-003-seq0205",
+  "host_session_id": "SESS-qg-epic159pillara-T-003-0205",
+  "manifest_path": "reports/review-context/pending-epic-159-pillar-a-evaluator-T-003-seq0205-manifest.json",
+  "manifest_sha256": "47379861e9a192e398f9099252abd582a08af4a82ee47f5a6eacb6fe305b2984",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "severity": "Minor",
+      "surface": "specs/epic-159-pillar-a/verification/T-003/red-differential.log:8",
+      "description": "The recorded RED log's fixture-name suffix (loop-consistency-red-42092) differs from what any later reproduction shows, because the feature name is PID-derived (FEATURE=loop-consistency-red-$$). This is expected and confirms authenticity, but a reader unaware of the $$ derivation could misread it as a mismatch.",
+      "evidence": "Independent reproduction produced loop-consistency-red-87907 with an identical exit code (1) and identical failure reason; the number differing per-run is the PID, matching tests/loop-consistency.tests.sh:69.",
+      "requires_human_decision": false
+    },
+    {
+      "id": "F-2",
+      "severity": "Minor",
+      "surface": "reports/implementation/epic-159-pillar-a/T-003.md:422-455 (OQ-5 finding)",
+      "description": "The OQ-5 defense-in-depth finding cites task-review-precheck.sh:219-222 verbatim. That gate file is outside the authorized manifest, so the evaluator could not line-verify the exact line numbers/quoted code. The behavioral conclusion, however, is independently verified.",
+      "evidence": "The pre-fix RED (role-unlisted rejection) and the HEAD task leg driving genuinely to PASS (TEST-008.9, run green) empirically confirm task-review-precheck.sh re-verifies genuine impl-review evidence via require_persisted_pass(stage=impl) rather than trusting the status text; the 2d8c6a5 diff on validate-review-context-set.sh corroborates the mechanism.",
+      "requires_human_decision": false
+    },
+    {
+      "id": "F-3",
+      "severity": "Minor",
+      "surface": "reports/review-context/pending-epic-159-pillar-a-evaluator-T-003-seq0205-manifest.json:12",
+      "description": "The manifest's embedded identity_ledger_sha256 is stale versus the current ledger. This is legitimate append-only drift from the later seq0206/T-004 reservation, not tampering.",
+      "evidence": "Hash-chain continuity holds: seq0205.record_sha256 equals seq0206.previous_record_sha256; seq0205.previous_record_sha256 matches the manifest field; the reserved run_id/session appear exactly once in the ledger and nowhere in any impl/review/eval record.",
+      "requires_human_decision": false
+    }
+  ],
+  "checked": [
+    "Verified manifest SHA-256 matches the reserved identity and all 15 manifest files' SHA-256 before reading; re-confirmed manifest immutability at end.",
+    "Launch gate: reserved run_id/host_session_id occur exactly once in the append-only hash-chained identity ledger and in no other reports/ record; hash chain seq0204->0205->0206 continuous; read_only=true, fallback_mode=none.",
+    "Ran bash tests/loop-consistency.tests.sh at HEAD: 24 passed, 0 failed, 11s, exit 0 -- matches the report's claim exactly.",
+    "Independently reproduced the RED differential: detached worktree at 2d8c6a5^ + SDD_LOOP_REPO_ROOT override -> exit 1 with 'REVIEW_CONTEXT_PATH: impl-reviewer-a contains a real but role-unlisted path: .../round-1/integrated-summary.json'; same command at HEAD -> exit 0.",
+    "Confirmed the failure mechanism via git diff 2d8c6a5^ 2d8c6a5: pre-fix validator authorized integrated-summary.json only for impl-reviewer-b; the fix removed the guard -- exactly the INV-011/INV-012 prediction.",
+    "Line-level read: drive_review_round invokes REAL prechecks and REAL validate-review-context-set.sh via SDD_LOOP_REPO_ROOT; assert_bidirectional_invariant runs mode=check (read-only); assert_terminal checks each leg against inventory terminal fields (spec/impl/task=PASS, domain=BLOCKED).",
+    "Observed TEST-010.5 negative self-check produce a genuine role-unlisted rejection from the real validator on both lanes.",
+    "T-002 non-breakage: bash tests/loop-driver.tests.sh -> 22 passed, 0 failed.",
+    "pwsh-lane judgment: pwsh tests/loop-consistency.tests.ps1 -> 9 passed, 0 failed with named/reasoned SKIPs; spec-review-precheck.ps1 and domain-review-precheck.ps1 genuinely absent while impl/task twins exist; the security-critical TEST-010 invariant + negative self-check run for real on pwsh; SKIPs are runtime-self-healing legitimate degradation, not evasion.",
+    "Confirmed evaluation was fully read-only (git status --porcelain empty over tests/ and verification/); pre-fix worktree removed."
+  ],
+  "summary": "T-003 genuinely creates the loop-consistency regression suite (24/0 green at HEAD, reproduced) driving spec/impl/task/domain loops through real gate scripts read-only, asserting terminal states against the inventory, and enforcing the bidirectional invariant with real positive+negative validator checks. The 2d8c6a5 RED differential was independently reproduced (exit 1, exact role-unlisted reason) and corroborated against the actual fix diff -- authentic, not fabricated. The driver extension is orchestrator-adjudicated in-scope and does not regress T-002 (22/0); pwsh SKIPs are legitimate host-gap degradations. No Critical or Major findings: PASS."
+}
