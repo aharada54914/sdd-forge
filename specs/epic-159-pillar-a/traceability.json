@@ -20,7 +20,7 @@
         "TEST-017"
       ],
       "evidence": [
-        "specs/epic-159-pillar-a/verification/T-001/green.log"
+        "specs/epic-159-pillar-a/verification/T-001/green-sh.log"
       ]
     },
     {
@@ -38,7 +38,7 @@
         "TEST-017"
       ],
       "evidence": [
-        "specs/epic-159-pillar-a/verification/T-002/green.log"
+        "specs/epic-159-pillar-a/verification/T-002/green-sh.log"
       ]
     },
     {
@@ -56,7 +56,7 @@
         "TEST-017"
       ],
       "evidence": [
-        "specs/epic-159-pillar-a/verification/T-003/green.log",
+        "specs/epic-159-pillar-a/verification/qg/T-003/focused-tests.log",
         "specs/epic-159-pillar-a/verification/T-003/red-differential.log"
       ]
     },
@@ -77,7 +77,7 @@
         "TEST-018"
       ],
       "evidence": [
-        "specs/epic-159-pillar-a/verification/T-004/green.log"
+        "specs/epic-159-pillar-a/verification/T-004/green-sh.log"
       ]
     },
     {
@@ -97,10 +97,10 @@
         "TEST-015"
       ],
       "evidence": [
-        "specs/epic-159-pillar-a/verification/T-001/green.log",
-        "specs/epic-159-pillar-a/verification/T-002/green.log",
-        "specs/epic-159-pillar-a/verification/T-003/green.log",
-        "specs/epic-159-pillar-a/verification/T-004/green.log"
+        "specs/epic-159-pillar-a/verification/T-001/green-sh.log",
+        "specs/epic-159-pillar-a/verification/T-002/green-sh.log",
+        "specs/epic-159-pillar-a/verification/qg/T-003/focused-tests.log",
+        "specs/epic-159-pillar-a/verification/T-004/green-sh.log"
       ]
     },
     {
@@ -112,10 +112,10 @@
         "TEST-016"
       ],
       "evidence": [
-        "specs/epic-159-pillar-a/verification/T-001/green.log",
-        "specs/epic-159-pillar-a/verification/T-002/green.log",
-        "specs/epic-159-pillar-a/verification/T-003/green.log",
-        "specs/epic-159-pillar-a/verification/T-004/green.log"
+        "specs/epic-159-pillar-a/verification/T-001/green-sh.log",
+        "specs/epic-159-pillar-a/verification/T-002/green-sh.log",
+        "specs/epic-159-pillar-a/verification/qg/T-003/focused-tests.log",
+        "specs/epic-159-pillar-a/verification/T-004/green-sh.log"
       ]
     }
   ]
