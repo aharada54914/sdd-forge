@@ -52,7 +52,7 @@ the epic-136-phase1-guards human-copy procedure applies verbatim.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/141
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -198,7 +198,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/142
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -330,7 +330,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/143
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -473,7 +473,7 @@ T-001, T-002
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/144
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
