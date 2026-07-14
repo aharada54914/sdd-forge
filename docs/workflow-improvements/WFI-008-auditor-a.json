@@ -1,0 +1,59 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-008",
+  "category": "app-dev-efficiency",
+  "cycle": 1,
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Problem Evidence is drawn from direct 2026-07-12 repository inspection rather than the supplied retrospective report (which predates the discovery), and every checkable claim was independently reproduced: `git log --all --diff-filter=A -- 'specs/ci-mcp/verification/qg/*.log'` and the evidence-deep-verify equivalent both return empty (verified via Bash); `find specs/ci-mcp/verification/qg -name '*.log'` and the evidence-deep-verify equivalent both return 0 files; the working `.gitignore` at HEAD contains only the flat re-include `!specs/**/verification/*.log` (line 11), while the nested re-include `!specs/**/verification/**/*.log` exists only on commit `fcd13ff` (`git merge-base --is-ancestor fcd13ff HEAD` returns non-ancestor); commit `7d0ea44` exists on branch `chore/track-verification-evidence-logs` and is likewise not an ancestor of HEAD; `sh plugins/sdd-quality-loop/scripts/check-task-state.sh specs/ci-mcp/tasks.md` reproduces the exact cited failure class ('evidence file missing: specs/ci-mcp/verification/qg/T-001/typecheck.log' etc.) and the embedded 'Evidence bundle FAILED for task T-001' block; `grep -c '^Status: Done'` confirms 13 Done tasks in specs/ci-mcp/tasks.md and 8 in specs/evidence-deep-verify/tasks.md (13+8=21 bundles, matching the cited count and the 13+8 evidence.json file counts on disk); and `mcp/sdd-forge-mcp/tests/golden/fixtures/sdd-forge-refactor.expected.json` was read directly and contains exactly `\"exitCode\": 1` with five 'evidence bundle failed validation' messages, matching the cited precedent verbatim. The '116 unique artifact paths / risk tiers: high 15, medium 4, low 2, critical 0' figure could not be independently recomputed because `check-evidence-bundle.sh` execution is blocked for this auditor by the repo's sdd-hook-guard, but this is consistent with and not contradicted by every other independently reproduced fact."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. The hypothesis names a specific two-part mechanism rather than restating the symptom: '(1) Tracking gap ... the quality verification gate writes its raw logs one level deeper under verification/qg/T-NNN/ ... Every gate log ... was therefore silently ignored at commit time, while the evidence bundles that reference those logs ... were committed. check-evidence-bundle passed at generation time because the files existed on disk in the working worktree — nothing verifies that referenced artifacts are actually git-tracked. (2) Ephemeral storage. The only copies lived in throwaway worktrees (sdd-forge-p4 / sdd-forge-p5) that were deleted after feature completion, converting the tracking gap into permanent loss.' This identifies a causal chain (gitignore depth mismatch + generation-time validation blind spot + worktree deletion), independently verified in part via the .gitignore diff between HEAD and fcd13ff."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Category field is present and valid (`Category: app-dev-efficiency`). Per wfi-category-guide.md Section 3, this category requires project-specific concrete detail (feature slug, task ID, or review ticket ID) in Root Cause Hypothesis and Proposed Change. Root Cause Hypothesis names feature slugs `ci-mcp` and `evidence-deep-verify`, worktree names `sdd-forge-p4`/`sdd-forge-p5`, and commit hashes `fcd13ff`/`7d0ea44`. Proposed Change table cites concrete file paths (`specs/ci-mcp/verification/EVIDENCE-LOSS.md`, `mcp/sdd-forge-mcp/tests/golden/task-state-golden.test.ts`, etc.), task-ID ranges (`T-001..T-013`, `T-001..T-008`), and a specific existing fixture (`sdd-forge-refactor.expected.json`) as precedent. This satisfies the specificity bar; no generic-only language present."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every row in the Proposed Change table names a specific file path (none are directories) and a non-vague description: e.g. `specs/ci-mcp/verification/EVIDENCE-LOSS.md (new)` / 'Record the loss for ci-mcp T-001..T-013: what is missing (per-task qg log list), why (gitignore nesting gap + p4/p5 worktree deletion) ...'; `mcp/sdd-forge-mcp/tests/golden/task-state-golden.test.ts` / 'Add \"ci-mcp\" and \"evidence-deep-verify\" to the GOLDEN_FEATURES array' (verified this array exists at line 30 of that file with exactly the six features named in the WFI's precedent list, none matching the two new entries yet). No row targets a path inside plugins/."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Expected Effect names specific project-terminology metrics with quantitative before/after targets: '1. Misdiagnosis of the known loss as a new regression drops from 1 investigation this period (2026-07-12) to 0' and '2. Bundle-referenced verification artifacts missing from a fresh clone for newly completed features drops from 116 unique paths accumulated this period ... to 0'. Both name a specific metric and a specific number-to-number target, consistent with app-dev-efficiency's requirement to use the project's own terminology with specific numbers."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Verification Metric names exactly one primary Target-Metric ('bundle-referenced verification artifacts missing from a fresh clone, per newly completed feature (count of unique paths)'), a Baseline ('116 unique missing paths ... (ci-mcp: 71, evidence-deep-verify: 45; measured 2026-07-12)' — arithmetic checks out, 71+45=116), a Target ('0 for the next completed feature'), and a checkpoint/Horizon ('next completed feature retrospective'). All four required elements are present."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No issues found. The Verification Plan names exact scripts and file paths to re-run/check at the next checkpoint (`check-evidence-bundle.sh` over every `specs/<new-feature>/verification/T-*.evidence.json`, `git ls-files --error-unmatch`, the two named golden fixture files, `npm test` under mcp/sdd-forge-mcp, and a grep of `docs/review-tickets/` and 'the retrospective report' for misattributed regressions), and explicitly ties step 4 to confirming the `.gitignore` dependency landed. This is materially more specific than a generic 'check if things improved' plan, and step 3 explicitly references the retrospective report as one of the two sources to check for misattribution tickets."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. All six Target File paths are project-side: two new specs/ files (specs/ci-mcp/verification/EVIDENCE-LOSS.md, specs/evidence-deep-verify/verification/EVIDENCE-LOSS.md) and four mcp/sdd-forge-mcp/ test-scaffolding files (mcp/sdd-forge-mcp/tests/golden/task-state-golden.test.ts, mcp/sdd-forge-mcp/scripts/record-golden-fixtures.ts, and two new fixtures under mcp/sdd-forge-mcp/tests/golden/fixtures/). None reference a path under plugins/, consistent with the WFI's own scope-axis rationale comment ('All target files are project-side (specs/, mcp/sdd-forge-mcp/ tests, docs/); no plugins/ file changes')."
+    }
+  ],
+  "findings": [],
+  "proposed_revisions": []
+}
