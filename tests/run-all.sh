@@ -42,6 +42,7 @@ tests=(
   tests/structure-check-feature-mode.tests.sh
   tests/quality-gate-cycle-limit.tests.sh
   tests/guard-ps1-ascii.tests.sh
+  tests/loop-inventory.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

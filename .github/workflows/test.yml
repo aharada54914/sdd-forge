@@ -68,6 +68,16 @@ jobs:
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
 
+      - name: Test loop inventory registration forcing (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-inventory.tests.sh
+
+      - name: Test loop inventory registration forcing (pwsh)
+        shell: pwsh
+        run: ./tests/loop-inventory.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

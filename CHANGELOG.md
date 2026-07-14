@@ -2,6 +2,30 @@
 
 ## Unreleased
 
+### 追加
+
+- **ループインベントリと登録強制スイート (Issue #141, epic-159-pillar-a T-001)**:
+  `tests/loops/loop-inventory.json`(schema `loop-inventory/v1`)を、8つの
+  レビュー/ゲートループ(spec-review / impl-review / task-review /
+  domain-review / quality-gate / terminal-tier / wfi-audit /
+  hitl-diagnosis)の唯一の機械可読レジストリとして追加。新スイート
+  `tests/loop-inventory.tests.sh` / `.ps1` が、リポジトリから実際のループ面
+  (`plugins/**/scripts/*-review-precheck.sh`、
+  `validate-review-context-set.sh` の stage:role 認可ペア)を導出して
+  インベントリと双方向に突合し、cap_source:script なエントリの数値上限を
+  driver ソースへ grep 照合し(terminal-tier は cap_kind:state として除外)、
+  skill-instruction 強制のループ(wfi-audit / hitl-diagnosis)が偽陽性を
+  出さないことを確認し、`tests/run-all.sh` / `tests/run-all.ps1` /
+  `.github/workflows/test.yml` への自スイート登録を強制する。各チェックは
+  mktemp コピーに対する negative self-check を伴い、300秒の実行時間予算
+  (`LOOP_SUITE_BUDGET_SECONDS`)を自己計測・自己 FAIL する。実装時の grep
+  実測により、impl-review / task-review の round<=3 上限は precheck
+  スクリプトではなく SKILL.md 文面でのみ強制されると判明したため、両ループ
+  も `cap_source: skill-instruction` として登録(ADR-0010 参照、詳細は
+  `reports/implementation/epic-159-pillar-a/T-001.md`)。
+  `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md`(Status Proposed)
+  にこの発見を反映。
+
 ### セキュリティ修正
 
 - **prepare-panelist-input.sh の HMAC 検証における任意コード実行 (Issue #108)**:

@@ -1,0 +1,43 @@
+=== TEST-001: inventory schema + registration forcing ===
+FAIL: TEST-001.0: loop-inventory.json missing at /Users/jrmag/Projects/active/sdd-forge/tests/loops/loop-inventory.json
+FAIL: TEST-001.1: schema field is not loop-inventory/v1
+FAIL: TEST-001.2: inventory does not carry exactly eight loop entries
+FAIL: TEST-001.3: plugins/sdd-domain/scripts/domain-review-precheck.sh is NOT registered in any entry's driver_scripts
+FAIL: TEST-001.3: plugins/sdd-review-loop/scripts/impl-review-precheck.sh is NOT registered in any entry's driver_scripts
+FAIL: TEST-001.3: plugins/sdd-review-loop/scripts/spec-review-precheck.sh is NOT registered in any entry's driver_scripts
+FAIL: TEST-001.3: plugins/sdd-review-loop/scripts/task-review-precheck.sh is NOT registered in any entry's driver_scripts
+FAIL: TEST-001.4: stage:role pair spec:spec-reviewer-a does not map to an inventory entry
+FAIL: TEST-001.4: stage:role pair spec:spec-reviewer-b does not map to an inventory entry
+FAIL: TEST-001.4: stage:role pair impl:impl-reviewer-a does not map to an inventory entry
+FAIL: TEST-001.4: stage:role pair impl:impl-reviewer-b does not map to an inventory entry
+FAIL: TEST-001.4: stage:role pair task:task-reviewer-a does not map to an inventory entry
+FAIL: TEST-001.4: stage:role pair task:task-reviewer-b does not map to an inventory entry
+FAIL: TEST-001.4: stage:role pair quality:sdd-evaluator does not map to an inventory entry
+FAIL: TEST-001.4: stage:role pair domain:domain-reviewer-a does not map to an inventory entry
+FAIL: TEST-001.4: stage:role pair domain:domain-reviewer-b does not map to an inventory entry
+FAIL: TEST-001.6 (negative self-check): could not build the mutated mktemp copy
+=== TEST-002: numeric cap-drift lock (cap_source:script + cap_kind:numeric) ===
+FAIL: TEST-002.0: no cap_source:script + cap_kind:numeric entries found to drift-lock
+FAIL: TEST-002.2: terminal-tier is not registered as the sole cap_kind:state entry
+FAIL: TEST-002.3: more than one (or zero) cap_kind:state entries exist
+FAIL: TEST-002.4 (negative self-check): could not build the mutated mktemp copy
+=== TEST-003: skill-instruction exemption + fixture_profiles vocabulary lock ===
+FAIL: TEST-003.0: no cap_source:skill-instruction entries found
+FAIL: TEST-003.2: wfi-audit does not carry cap_source:skill-instruction with driver_scripts: []
+FAIL: TEST-003.2: hitl-diagnosis does not carry cap_source:skill-instruction with driver_scripts: []
+FAIL: TEST-003.3: a fixture_profiles value outside the closed vocabulary was found
+FAIL: TEST-003.4: an entry declares an empty fixture_profiles list
+=== TEST-004: registration forcing (run-all.sh / run-all.ps1 / test.yml) ===
+FAIL: TEST-004.1: loop-inventory.tests.sh exists but is NOT registered in run-all.sh and/or test.yml
+FAIL: TEST-004.2: loop-inventory.tests.ps1 exists but is NOT registered in run-all.ps1 and/or test.yml
+SKIP: TEST-004.1 loop-driver.tests.sh not yet on disk (later Pillar-A task)
+SKIP: TEST-004.2 loop-driver.tests.ps1 not yet on disk (later Pillar-A task)
+SKIP: TEST-004.1 loop-consistency.tests.sh not yet on disk (later Pillar-A task)
+SKIP: TEST-004.2 loop-consistency.tests.ps1 not yet on disk (later Pillar-A task)
+SKIP: TEST-004.1 loop-escalation.tests.sh not yet on disk (later Pillar-A task)
+SKIP: TEST-004.2 loop-escalation.tests.ps1 not yet on disk (later Pillar-A task)
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-inventory.tests.ps1: 2 passed, 28 failed, 0s elapsed
