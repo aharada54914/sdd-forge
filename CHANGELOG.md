@@ -4,6 +4,15 @@
 
 ### セキュリティ修正
 
+- **sdd-hook-guard.ps1 のキルスイッチが入れ子 cwd から AGENT_STOP を検出できない (週次セルフ改善監査)**:
+  `Test-KillSwitch` は `CLAUDE_PROJECT_DIR` 未設定時に `@(".", ".")` 相当のカレント
+  ディレクトリしか見ておらず、`.py`/`.js`/`kill-switch.ps1` が実装する「git ルートまで
+  最大21階層親を辿って `AGENT_STOP` を探す」(C-08) ロジックが欠落していた。ネストした
+  作業ディレクトリから実行された場合、プロジェクトルートに置いた `AGENT_STOP` が
+  無視され、ps1 ランタイムだけツール使用を止められない片側リグレッションになって
+  いた(py/js は正しく deny、ps1 のみ allow で分岐することを再現テストで確認)。
+  `kill-switch.ps1` と同じ親ディレクトリ走査を `Test-KillSwitch` に移植。
+  `tests/guard-r10-port.tests.ps1` に .ps1/.py/.js 三者パリティの回帰テストを追加。
 - **prepare-panelist-input.sh の HMAC 検証における任意コード実行 (Issue #108)**:
   SDD_SUDO トークンのフィールド(issuer / nonce / repo / issued-epoch /
   expires-epoch / sig / 署名鍵)を未クオートの `python3 - <<PYEOF` ヒアドキュメントへ
