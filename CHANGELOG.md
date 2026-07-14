@@ -25,6 +25,14 @@
 
 ### 修正
 
+- **self-improvement workflow が GitHub App トークン交換の OIDC で失敗する問題 (Issue #48)**:
+  `CLAUDE_CODE_OAUTH_TOKEN` secret 登録後も、ピン留めした claude-code-action
+  (v1.0.165) が `github_token` 入力未指定時に GitHub App トークン取得のため
+  OIDC 交換 (`core.getIDToken()`) を実行し、`id-token: write` 不在(AC-010 で
+  意図的に除外)のため "Could not fetch an OIDC token" で失敗していた
+  (run 29262507406 で実証)。`with: github_token: secrets.GITHUB_TOKEN` を明示して
+  App トークン交換をスキップさせ、セッション内 gh CLI と同一の最小権限 workflow
+  トークンに統一。permissions は不変(TEST-010 の id-token 不在 assert も維持)。
 - **impl-review が round > 1 で構造的に不通過だった問題 (Issue #143)**:
   impl-review-precheck は round > 1 で impl-reviewer-a のマニフェストに前ラウンドの
   `integrated-summary.json` を要求するが、validate-review-context-set は同ファイルを

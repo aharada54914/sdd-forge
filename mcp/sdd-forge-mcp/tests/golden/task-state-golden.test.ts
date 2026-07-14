@@ -29,8 +29,10 @@ import {
 
 const GOLDEN_FEATURES = [
   "bootstrap-interviewer-enhancement",
+  "ci-mcp",
   "claude-workflow-compatibility",
   "cross-model-verification",
+  "evidence-deep-verify",
   "risk-adaptive-layer",
   "sdd-forge-refactor",
   "sdd-lite",

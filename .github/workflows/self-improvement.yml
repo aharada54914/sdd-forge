@@ -39,8 +39,16 @@ on:
 #  GitHub OIDC token instead of using a static API key. Requires `id-token:
 #  write` permission." / 入力 anthropic_oidc_audience: "Audience to request on
 #  the GitHub OIDC token used for workload identity federation.")。本ワークフローは
-# claude_code_oauth_token で認証し federation 入力を一切設定しないため OIDC 交換は
-# 発生せず、id-token: write は不要。SHA を更新した際は必ず再確認すること。
+# claude_code_oauth_token で認証し federation 入力を一切設定しないため、Anthropic 側の
+# OIDC 交換は発生しない。ただし action には第二の OIDC 経路がある: `github_token` 入力を
+# 渡さない場合、action は GitHub App トークン取得のため core.getIDToken() を実行し、
+# id-token: write が無いと "Could not fetch an OIDC token" で失敗する
+# (2026-07-13 の run 29262507406 で実証、issue #48)。そのため下の with: で
+# `github_token: secrets.GITHUB_TOKEN` を明示的に渡して App トークン交換自体をスキップ
+# させる。これで id-token: write は permissions から除外したまま
+# (AC-010 / tests/self-improvement-guard.tests.sh TEST-010 が不在を強制)、
+# セッション内 gh CLI と同一の最小権限 workflow トークンに統一される。
+# SHA を更新した際は必ず再確認すること。
 permissions:
   contents: write
   pull-requests: write
@@ -97,6 +105,10 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # GitHub App トークン交換(第二の OIDC 経路)をスキップするため workflow の
+          # 最小権限トークンを明示。id-token: write 不要の設計を成立させる要
+          # (permissions ブロックの解説と issue #48 を参照)。
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           prompt: |
             このリポジトリの .github/self-improvement-prompt.md を読み、
             そこに書かれた手順と制約に厳密に従って週次セルフ改善を実行してください。
