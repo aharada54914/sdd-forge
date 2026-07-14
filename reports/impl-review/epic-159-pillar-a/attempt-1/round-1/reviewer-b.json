@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-a-impl-impl-reviewer-b-seq0196",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-159-pillar-a-0196",
+  "feature_type": "test-infrastructure",
+  "legacy_design": false,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a/requirements.md",
+      "sha256": "8ccde8e23951c34f2dd5ed6cb15ebf4f4f10920f5d8d26f81ed4d0c388fc2635"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/acceptance-tests.md",
+      "sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/design.md",
+      "sha256": "d2454610839a76e25fcd3e160507cfba480d31d7f86f2cd5242172e5f2ba0fcc"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/investigation.md",
+      "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/ux-spec.md",
+      "sha256": "db7f3063f654b450d105f638247d88cf3f612fabde8dd18f9bfa799f1cfb4b9e"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/frontend-spec.md",
+      "sha256": "2ac3e05f17a25ab56273905463133ebb59e850c78462dcc04f32fa448a28b803"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/infra-spec.md",
+      "sha256": "5bb4329b54c110ab9d8b88773246e45e43d27752dc464e3a1f3b3e9c6d1306c4"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/security-spec.md",
+      "sha256": "18c93aff50923036f55e5b61a26d786b5a7ee5178f1ab359004611c006de7069"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a/attempt-1/round-1/precheck-result.json",
+      "sha256": "e6fd52d76924228646217959a3bc01c672ad2514e5582657572e6431f7e2cb0f"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a/attempt-1/round-1/integrated-summary.json",
+      "sha256": "b53890d9b8091b89ef6072b6ac3847cd0758fa8eef05bf9191efbc952353c6d1"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every architectural/technology decision in design.md carries a stated rationale: the A4 parity-extension placement decision (design.md lines 200-213) gives an explicit three-part 'Justification: (a)...(b)...(c)...'; each OQ resolution in '## Design Decisions' (lines 241-258) cites the deciding INV-xxx evidence; technology choices are justified in frontend-spec.md's Technology Stack table Rationale column (JSON registry = 'machine-readable single registry'; Bash/PowerShell twins = 'cross-host determinism (INV-021)'; jq = 'already a repository dependency'; GitHub Actions = existing 3-OS matrix/deterministic lane). A grep for bare decision-language patterns ('we will use', 'selected', 'chosen because', 'decided to use') in design.md returned zero matches."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md's '## Open Questions' (lines 315-323) contains one entry, OQ-5, with Owner: 'maintainers + the A3 implementing task' (a role, not TBD), an explicit 'Blocks Implementation: no' field, and a concrete Resolution Path ('code inspection during implementation of the task-review leg; finding recorded in that task's implementation report; the leg asserts only HEAD-observable behavior until then')."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. investigation.md is present (not absent), so the absent-investigation fallback does not apply. design.md's '## Assumptions' (lines 304-313) lists three assumptions, each grounded: (1) '2d8c6a5 stays in mainline ancestry' cited as 'verified at spec time', matching investigation.md INV-013 ('ORCHESTRATOR-VERIFIED (2026-07-14)... git log shows 2d8c6a5 in ancestry'); (2) the cycle-limit/select-agent-model/terminal-tier script paths are marked 'verified, correcting the INV-001 table's terminal-tier driver path'; (3) the write_contract() 5-JSON fixture shape cites tests/spec-review-loop.tests.sh:39-99, matching investigation.md INV-008."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found (Primary/TYPE-D branch applies: design.md has a '## Constraint Compliance' section, lines 293-302). Every constraint category present in requirements.md is addressed: protected-file non-modification (Non-goals) -> 'no protected file modified' row; .sh/.ps1 twin mandate + cross-host (REQ-005) -> corresponding rows; 'no false green' (Risks 'Critical' item) -> corresponding row; doc-following/CHANGELOG/version-bump (REQ-006) -> corresponding rows. requirements.md's Security Boundaries B1-B3 (fixture isolation, non-decreasing gate guarantee, hook-guard command-line constraint from Edge Cases 'must never place a protected basename together with a write verb') are addressed by design.md's own parallel '## Security Boundaries' table (B1/B2/B3, lines 268-276) plus the explicit security-spec.md cross-reference in the Layer Specifications table (line 84); requirements.md's own Security Boundaries table states 'Regulatory Constraints: none identified' for all three boundaries, so no regulatory constraint is left unaddressed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md's AC-017 (acceptance-tests.md line 21, tied to REQ-001..004) is a numeric runtime SLA: 'each new suite ... measures its own wall-clock ... and FAILS itself when elapsed > 300 seconds; negative self-check: forcing the threshold to 0 in a temp copy turns the suite red, proving the assertion is live.' design.md never names AC-017 or TEST-017 anywhere (verified by grep: no '300 seconds'/'AC-017'/'Runtime Budget' string in design.md). design.md's Test Strategy item 1 (lines 217-221) explicitly enumerates which TEST-IDs carry negative self-checks (TEST-001/002/007/010/012) and TEST-017 is absent from that list. design.md's Risks section (lines 325-333) mitigation for runtime cost is only 'a measured runtime recorded at implementation (infra-spec)' -- a human-recorded step, not an in-suite self-fail assertion. The layer document design.md designates as canonical detail for this concern (Layer Specifications table, Infrastructure row), infra-spec.md's '## Runtime Budget' section (lines 66-74), describes a materially different and weaker mechanism: 'if any single suite exceeds the median runtime of the existing run-all entries by more than an order of magnitude, the implementer must split or slim the fixture before Done' -- an implementer-judgment, post-hoc review gate, not the suite self-asserting failure at a hard 300-second threshold with a live negative self-check. An implementer following design.md and infra-spec.md alone would not build the AC-017/TEST-017 self-fail assertion or its negative self-check, causing TEST-017 verification to fail. Missing design element: an explicit in-suite wall-clock self-check per suite that fails at >300s, named by AC-017/TEST-017, added to the Test Strategy's negative-self-check list."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. design.md's '## Deployment / CI Plan' (lines 284-291) states deployment target (no runtime deployment; CI: existing 3-OS GitHub Actions matrix, deterministic lane per #126), CI pipeline changes (four suites join tests/run-all.sh/.ps1 and .github/workflows/test.yml, detailed further in infra-spec.md's CI/CD Sequence with exact array/line precedents), and rollback (reviewed revert per item; no human-copy step since nothing protected is touched). No database/schema migration exists (Data Plan: 'Migration Strategy: none'), so the migration-execution-order sub-requirement does not apply. Feature-flag strategy is inapplicable: internal test infrastructure with no incremental user-facing rollout (confirmed by ux-spec.md: no GUI/user-facing surface)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Data Plan' (lines 108-118) states 'Existing Data Affected: none' and 'Migration Strategy: none' -- equivalent to 'No data changes.' Per this check's rule, PASS is emitted."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## External Integrations' section (lines 278-282) states: 'None. No network calls, no new services, no third-party actions,' and lists the only runtime dependencies (bash, pwsh, jq, python3-with-degradation) as pre-existing repository requirements, cross-referencing infra-spec.md's Runtime Dependencies table (lines 47-56) which documents absence-behavior for each. No external system, third-party service, or cross-service API call is referenced anywhere else in design.md without this treatment -- the REAL scripts driven (precheck/validator/cycle-limit/terminal-tier scripts) are internal repository tooling, not external integrations."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every design.md component (Components table, lines 42-51: loop-inventory.json, loop-inventory.tests.sh/.ps1, loop-driver.sh/.ps1, loop-driver.tests.sh/.ps1, loop-consistency.tests.sh/.ps1, loop-escalation.tests.sh/.ps1, run-all.sh/.ps1 edits, test.yml edits) maps directly to REQ-001..REQ-005 in requirements.md's Goals; no extra component, data model, or endpoint is introduced. Conversely every Goal (REQ-001..REQ-006) and User Story (maintainer registration-forcing, contributor drift test, release-operator round 1-3 completion, #125 fixture-vocabulary inheritance) has a corresponding design element: REQ-006 doc-following is covered by Constraint Compliance rows ('doc-following in same PR', 'version bump via scripts/bump-version.sh only'); AC-018 task-ID prefix-collision is covered by design.md Test Strategy item 3."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "A high-risk surface is present: the harness drives the real authorization validator and hook-guard boundaries (security/authorization-adjacent surface per security-spec.md Trust Boundaries B1-B3). design.md names concrete validation paths not already covered by PERF-ADDRESSED/DEPLOYMENT-CONCRETE/MIGRATION-PLANNED: per-suite negative self-checks (Test Strategy item 1, TEST-001/002/007/010/012) that mutate a temp copy and assert failure; the RED-differential procedure (Test Strategy item 2) with exact git-worktree commands and expected non-zero exit, evidence captured in the owning task's implementation report; and the bidirectional-invariant synthetic-violation fixture (AC-010/TEST-010). These are concrete, named acceptance-test artifacts, not vague promises."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: the repository has no domain/ directory (verified: `ls domain/` and `find domain -maxdepth 2` both report 'No such file or directory' at the repository root), so no domain/context-map.md, Domain-Model-Status, or domain-contract.json exists. Per this check's own scope condition, DOMAIN-CONFORMANCE is skipped when there is no domain/ directory."
+    }
+  ]
+}

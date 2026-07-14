@@ -1,0 +1,134 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-159-pillar-a",
+  "attempt": 1,
+  "round": 2,
+  "feature_type": "deterministic test infrastructure (loop-cap consistency harness)",
+  "legacy_design": false,
+  "requirements_sha256": "8ccde8e23951c34f2dd5ed6cb15ebf4f4f10920f5d8d26f81ed4d0c388fc2635",
+  "acceptance_sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813",
+  "design_sha256": "05c930885f05d10f0c1e546615639875802e60311da76c209325ae287c82abe9",
+  "layer_sha256": {
+    "ux-spec.md": "db7f3063f654b450d105f638247d88cf3f612fabde8dd18f9bfa799f1cfb4b9e",
+    "frontend-spec.md": "2ac3e05f17a25ab56273905463133ebb59e850c78462dcc04f32fa448a28b803",
+    "infra-spec.md": "82294422f8d5c9a9b40fbcb7fa2304bcdbce739eda0fc31af95d43049a79f947",
+    "security-spec.md": "18c93aff50923036f55e5b61a26d786b5a7ee5178f1ab359004611c006de7069"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "Round-1 PERF-ADDRESSED Major applied: design.md Test Strategy item 1b defines the AC-017/TEST-017 in-suite runtime budget (assert_runtime_budget, LOOP_SUITE_BUDGET_SECONDS=300, measured seconds printed, self-FAIL above 300s, threshold-0 negative self-check); item 1's negative-self-check list now names TEST-017/018; the Risks mitigation cites the in-suite assertion; infra-spec.md Runtime Budget replaces the implementer-judgment median heuristic with the same deterministic in-suite enforcement.",
+  "prior_round_contract_sha256": "6c1107a847a54adcf5445d0855753fc7670d7134258568cac5d8a0d2b4b094e6",
+  "pass_type": "clean",
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-159-pillar-a-impl-impl-reviewer-a-seq0197",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-a-0197",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-159-pillar-a/requirements.md",
+          "sha256": "8ccde8e23951c34f2dd5ed6cb15ebf4f4f10920f5d8d26f81ed4d0c388fc2635"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/acceptance-tests.md",
+          "sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/design.md",
+          "sha256": "05c930885f05d10f0c1e546615639875802e60311da76c209325ae287c82abe9"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/investigation.md",
+          "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/ux-spec.md",
+          "sha256": "db7f3063f654b450d105f638247d88cf3f612fabde8dd18f9bfa799f1cfb4b9e"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/frontend-spec.md",
+          "sha256": "2ac3e05f17a25ab56273905463133ebb59e850c78462dcc04f32fa448a28b803"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/infra-spec.md",
+          "sha256": "82294422f8d5c9a9b40fbcb7fa2304bcdbce739eda0fc31af95d43049a79f947"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/security-spec.md",
+          "sha256": "18c93aff50923036f55e5b61a26d786b5a7ee5178f1ab359004611c006de7069"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-159-pillar-a/attempt-1/round-2/precheck-result.json",
+          "sha256": "969ab9eb3404ec0e507ac4e3265a46c0d8ec473b1ff9cbef8a71c33de0d46f58"
+        },
+        {
+          "path": "reports/impl-review/epic-159-pillar-a/attempt-1/round-1/integrated-summary.json",
+          "sha256": "b53890d9b8091b89ef6072b6ac3847cd0758fa8eef05bf9191efbc952353c6d1"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-a-impl-impl-reviewer-b-seq0198",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-159-pillar-a-0198",
+      "allowed_input_manifest": [
+        {
+          "path": "specs/epic-159-pillar-a/requirements.md",
+          "sha256": "8ccde8e23951c34f2dd5ed6cb15ebf4f4f10920f5d8d26f81ed4d0c388fc2635"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/acceptance-tests.md",
+          "sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/design.md",
+          "sha256": "05c930885f05d10f0c1e546615639875802e60311da76c209325ae287c82abe9"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/investigation.md",
+          "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/ux-spec.md",
+          "sha256": "db7f3063f654b450d105f638247d88cf3f612fabde8dd18f9bfa799f1cfb4b9e"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/frontend-spec.md",
+          "sha256": "2ac3e05f17a25ab56273905463133ebb59e850c78462dcc04f32fa448a28b803"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/infra-spec.md",
+          "sha256": "82294422f8d5c9a9b40fbcb7fa2304bcdbce739eda0fc31af95d43049a79f947"
+        },
+        {
+          "path": "specs/epic-159-pillar-a/security-spec.md",
+          "sha256": "18c93aff50923036f55e5b61a26d786b5a7ee5178f1ab359004611c006de7069"
+        },
+        {
+          "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "reports/impl-review/epic-159-pillar-a/attempt-1/round-2/precheck-result.json",
+          "sha256": "969ab9eb3404ec0e507ac4e3265a46c0d8ec473b1ff9cbef8a71c33de0d46f58"
+        },
+        {
+          "path": "reports/impl-review/epic-159-pillar-a/attempt-1/round-2/integrated-summary.json",
+          "sha256": "25b1bde5b6c067bc2d166ed934386b5dd3fa392e651c4526b8adbe60d0491a91"
+        }
+      ]
+    }
+  ],
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "verdict": "PASS",
+  "run_id": "impl-orch-epic159pillara-a1r2",
+  "timestamp": "2026-07-14T04:45:00Z"
+}

@@ -1,6 +1,6 @@
 # Design: epic-159-pillar-a
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: deterministic test infrastructure (loop-cap consistency harness)
 
 ## Technical Summary
@@ -214,11 +214,22 @@ future duplication (INV-016).
 
 ## Test Strategy
 
-1. Every suite is red-demonstrable. TEST-001/002/007/010/012 embed negative
-   self-checks: the verification function is re-run against a mutated
-   mktemp copy (inventory entry removed, cap altered, artifact
-   schema-broken, manifest entry unauthorized, `- Task ID:` line deleted)
-   and MUST fail; the self-check passing is part of the green run.
+1. Every suite is red-demonstrable. TEST-001/002/007/010/012/017/018 embed
+   negative self-checks: the verification function is re-run against a
+   mutated mktemp copy (inventory entry removed, cap altered, artifact
+   schema-broken, manifest entry unauthorized, `- Task ID:` line deleted,
+   runtime threshold forced to 0, word-boundary grep replaced with a
+   substring grep) and MUST fail; the self-check passing is part of the
+   green run.
+1b. Runtime budget (AC-017/TEST-017): each of the four new suites measures
+   its own wall-clock via a shared loop-driver helper
+   (`assert_runtime_budget <start_epoch>`, threshold constant
+   `LOOP_SUITE_BUDGET_SECONDS=300` overridable only downward for the
+   negative self-check), prints the measured seconds in its final summary
+   line, and FAILS itself when elapsed > 300 seconds. The negative
+   self-check re-runs the assertion with the threshold forced to 0 in a
+   temp copy and requires red — proving the assertion is live, not
+   decorative.
 2. RED differential procedure (AC-009, one-time recorded evidence):
    (1) `git worktree add "$(mktemp -d)/pre-fix" 2d8c6a5^` — an isolated
    worktree, never a checkout of the shared tree; (2) run
@@ -328,6 +339,9 @@ Principal risk is a fixture that satisfies the real validators for the wrong
 reason (false green); mitigation is composing manifests solely from real
 outputs plus per-suite negative self-checks. Secondary risk is CI runtime
 growth from multi-round driving; mitigation is one fixture per suite reused
-across legs and a measured runtime recorded at implementation (infra-spec).
+across legs plus the AC-017/TEST-017 in-suite runtime budget (Test Strategy
+1b: per-suite wall-clock self-fail at > 300 seconds with a threshold-0
+negative self-check; measured seconds printed in each summary line so CI
+logs record the trend — see infra-spec.md Runtime Budget).
 Tertiary risk is vocabulary divergence with #125; mitigation is ADR-0010 as
 the single contract plus the closed-vocabulary check in TEST-003.

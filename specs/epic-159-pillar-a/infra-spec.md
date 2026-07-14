@@ -65,13 +65,18 @@ No new services, containers, package installations, or network access.
 
 ## Runtime Budget
 
-Risk flagged in requirements.md (suite runtime cost). Controls: one mktemp
-fixture per suite reused across legs; rounds driven only to their caps
-(≤ 3 rounds per dual-reviewer leg, ≤ 3 reports for the cycle-limit table);
-no sleeps or polling. The implementing tasks record measured wall-clock per
-suite per OS in their implementation reports; if any single suite exceeds
-the median runtime of the existing run-all entries by more than an order of
-magnitude, the implementer must split or slim the fixture before Done.
+Risk flagged in requirements.md (suite runtime cost); operationalized as
+AC-017/TEST-017. Controls: one mktemp fixture per suite reused across legs;
+rounds driven only to their caps (≤ 3 rounds per dual-reviewer leg, ≤ 3
+reports for the cycle-limit table); no sleeps or polling. Enforcement is
+IN-SUITE, not implementer judgment: each of the four new suites measures its
+own wall-clock (loop-driver `assert_runtime_budget`, threshold constant
+`LOOP_SUITE_BUDGET_SECONDS=300`), prints the measured seconds in its final
+summary line (so 3-OS CI logs record the trend per run), and FAILS itself
+when elapsed > 300 seconds. The threshold-0 negative self-check (design.md
+Test Strategy 1b) proves the assertion is live. The implementing tasks
+additionally record the measured per-OS wall-clock in their implementation
+reports.
 
 ## Infrastructure as Code, Scaling, SLOs, and Residency
 
