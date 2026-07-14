@@ -1,6 +1,6 @@
 # Tasks: epic-159-pillar-a
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issues #141, #142, #143, #144 (epic #159, Pillar A items A1-A4) /
 requirements.md (Spec-Review-Status: Passed) /
@@ -32,9 +32,12 @@ the epic-136-phase1-guards human-copy procedure applies verbatim.
 - Shared registration files: each task appends only its OWN suite's
   registration lines to `tests/run-all.sh`, `tests/run-all.ps1`, and
   `.github/workflows/test.yml`. The edits are line-additive and disjoint, and
-  commits on the single feature branch are serialized in task-ID order
-  (T-003's registration commit lands before T-004's), so no two tasks modify
-  the same line.
+  the ordering on these shared files is STRUCTURALLY enforced by the task
+  graph: T-004 lists T-003 in its Blockers, so T-003's registration commit
+  lands before T-004's and no two tasks modify the same line. (design.md's
+  "A3 and A4 in parallel" note concerns fixture non-collision only; the
+  shared-file commit order is a decomposition-level constraint encoded
+  here.)
 - Fixture writes happen inside script files only; no test places a protected
   basename together with a write verb on a Bash command line, and fixture
   filenames never reuse protected basenames (requirements.md Edge Cases;
@@ -168,8 +171,11 @@ against their driver sources, and greps the run-all/CI registrations.
 - [ ] `tests/crlf-parity.tests.sh` and `tests/constant-parity.tests.sh` pass
   over this task's new files, and any host/runtime gap in this suite is a
   recorded SKIP-with-reason (AC-014/AC-015 for this task's twins).
-- [ ] `CHANGELOG.md` `## Unreleased` contains an entry citing #141, the
-  REQ-006 documents affected by this task are updated in the same PR, and
+- [ ] `CHANGELOG.md` `## Unreleased` contains an entry citing #141, the REQ-006
+  candidate documents (README/USERGUIDE/workflow-guide/skill-reference/
+  agent-capability-matrix/PLUGIN-CONTRACTS/troubleshooting/docs/contributor)
+  require NO update for this task — verified: none references the surfaces
+  this task touches (internal test infrastructure only) — and
   `tests/validate-repository.sh` exits 0 (AC-016 share for this task).
 - [ ] Acceptance-first evidence (acceptance and regression runs) is recorded
   in the implementation report and an independent quality-gate verdict
@@ -298,8 +304,11 @@ green.
 - [ ] `tests/crlf-parity.tests.sh` and `tests/constant-parity.tests.sh` pass
   over this task's new files, and any host/runtime gap in this suite is a
   recorded SKIP-with-reason (AC-014/AC-015 for this task's twins).
-- [ ] `CHANGELOG.md` `## Unreleased` contains an entry citing #142, the
-  REQ-006 documents affected by this task are updated in the same PR, and
+- [ ] `CHANGELOG.md` `## Unreleased` contains an entry citing #142, the REQ-006
+  candidate documents (README/USERGUIDE/workflow-guide/skill-reference/
+  agent-capability-matrix/PLUGIN-CONTRACTS/troubleshooting/docs/contributor)
+  require NO update for this task — verified: none references the surfaces
+  this task touches (internal test infrastructure only) — and
   `tests/validate-repository.sh` exits 0 (AC-016 share for this task).
 - [ ] Acceptance-first evidence (acceptance and regression runs) is recorded
   in the implementation report and an independent quality-gate verdict
@@ -436,8 +445,11 @@ INV-013) and is NOT re-implemented here.
 - [ ] `tests/crlf-parity.tests.sh` and `tests/constant-parity.tests.sh` pass
   over this task's new files, and any host/runtime gap in this suite is a
   recorded SKIP-with-reason (AC-014/AC-015 for this task's twins).
-- [ ] `CHANGELOG.md` `## Unreleased` contains an entry citing #143, the
-  REQ-006 documents affected by this task are updated in the same PR, and
+- [ ] `CHANGELOG.md` `## Unreleased` contains an entry citing #143, the REQ-006
+  candidate documents (README/USERGUIDE/workflow-guide/skill-reference/
+  agent-capability-matrix/PLUGIN-CONTRACTS/troubleshooting/docs/contributor)
+  require NO update for this task — verified: none references the surfaces
+  this task touches (internal test infrastructure only) — and
   `tests/validate-repository.sh` exits 0 (AC-016 share for this task).
 - [ ] Acceptance-first evidence (acceptance and regression runs) is recorded
   in the implementation report and an independent quality-gate verdict
@@ -480,9 +492,12 @@ Cross-Model: not enabled
 
 Requirements: REQ-004, REQ-005, REQ-006
 
-Depends On: T-001, T-002 (consumes the inventory and the loop driver's
+Depends On: T-001, T-002, T-003 (consumes the inventory and the loop driver's
 fixture and assert functions; A3/A4 fixtures are disjoint at runtime per
 design.md Dependency Order)
+  T-003 is additionally blocked-on solely to serialize the shared
+  registration-file commits (run-all.sh/.ps1, test.yml) — see Global
+  Constraints; T-004's test content itself depends only on T-001/T-002.
 
 Planned Files:
 - `tests/loop-escalation.tests.sh` (new, agent-editable)
@@ -581,8 +596,11 @@ and the explicit python3-absent degradation path.
 - [ ] `tests/crlf-parity.tests.sh` and `tests/constant-parity.tests.sh` pass
   over this task's new files, and any host/runtime gap in this suite is a
   recorded SKIP-with-reason (AC-014/AC-015 for this task's twins).
-- [ ] `CHANGELOG.md` `## Unreleased` contains an entry citing #144, the
-  REQ-006 documents affected by this task are updated in the same PR, and
+- [ ] `CHANGELOG.md` `## Unreleased` contains an entry citing #144, the REQ-006
+  candidate documents (README/USERGUIDE/workflow-guide/skill-reference/
+  agent-capability-matrix/PLUGIN-CONTRACTS/troubleshooting/docs/contributor)
+  require NO update for this task — verified: none references the surfaces
+  this task touches (internal test infrastructure only) — and
   `tests/validate-repository.sh` exits 0 (AC-016 share for this task).
 - [ ] Acceptance-first evidence (acceptance and regression runs) is recorded
   in the implementation report and an independent quality-gate verdict
@@ -597,4 +615,4 @@ and the explicit python3-absent degradation path.
 
 ### Blockers
 
-T-001, T-002
+T-001, T-002, T-003
