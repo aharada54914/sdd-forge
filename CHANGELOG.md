@@ -48,6 +48,39 @@
   を踏襲)。`drive_review_round` は spec-review のみを完全実装し、
   impl/task/domain は明示的なエラーで拒否(A3/#143 スコープ、詳細は
   `reports/implementation/epic-159-pillar-a/T-002.md`)。
+- **ループ整合性スイートと 2d8c6a5 RED differential 記録 (Issue #143,
+  epic-159-pillar-a T-003)**: 新スイート `tests/loop-consistency.tests.sh` /
+  `.ps1` が、spec / impl / task / domain の各レビューループをラウンド1→3
+  (ラウンド1-2は NEEDS_WORK、ラウンド3は各ループの inventory `terminal`
+  へ到達: spec/impl/task は PASS、domain は cap-reached BLOCKED)で駆動し、
+  観測終了状態を loop-inventory の `terminal` と照合する(TEST-008)。
+  impl-review ラウンド2レグが HEAD で green であることを毎回確認し
+  (TEST-009)、`2d8c6a5^`(修正前の親コミット)に対する一度限りの RED 証跡を
+  `specs/epic-159-pillar-a/verification/T-003/red-differential.log` に記録
+  (`git worktree` 隔離 + `SDD_LOOP_REPO_ROOT` 上書きで、pre-fix
+  `validate-review-context-set.sh` が impl-reviewer-a の前ラウンド
+  `integrated-summary.json` manifest エントリを拒否する非ゼロ終了を実証)。
+  各駆動ラウンドについて双方向不変条件(下流ゲートが要求する入力は上流ゲートが
+  認可する入力である)を、REAL な `validate-review-context-set.sh` への
+  read-only 再検証(`assert_bidirectional_invariant`、`--reserve` なし)で
+  確認し、認可されない合成 manifest エントリで red化する negative
+  self-check を伴う(TEST-010)。**スコープ裁定**:
+  `tests/lib/loop-driver.sh` / `.ps1` の `drive_review_round` ディスパッチを
+  impl/task/domain の3レビューステージへ拡張(T-002 の Out of Scope が
+  この駆動を T-003/T-004 に割り当てており、T-003 の Goal 達成に必須。
+  escalation chain の駆動は対象外、T-004 のまま)。`loop_fixture_init` を
+  design.md・4レイヤー仕様・traceability.md・domain/ ツリーの合成へ拡張
+  (harmless な追加のみ、T-002 の既存契約は無変更、
+  `tests/loop-driver.tests.sh` / `.ps1` の green を再確認済み)。**実装時の
+  発見**: pwsh レーンでは `spec-review-precheck.ps1` 欠落(T-002 既知)が
+  impl/task レグへ推移的に伝播する(両者とも spec-review の実成果物を前提と
+  するため)。`domain-review-precheck.ps1` も個別に欠落(#147)。両欠落とも
+  理由付きの named SKIP として記録、TEST-010/TEST-017 は両レーンで実際に
+  green。OQ-5(`task-review-precheck.sh:219-222` の `require_persisted_pass`
+  が stage "impl" で impl-review 成果物を読む箇所)を読み取り専用で調査し、
+  task-review 前提条件の検証としてタスクレビューの独立な深層検証(defense-
+  in-depth)であるとの所見を記録(詳細は
+  `reports/implementation/epic-159-pillar-a/T-003.md`)。
 
 ### セキュリティ修正
 

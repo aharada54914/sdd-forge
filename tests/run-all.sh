@@ -44,6 +44,7 @@ tests=(
   tests/guard-ps1-ascii.tests.sh
   tests/loop-inventory.tests.sh
   tests/loop-driver.tests.sh
+  tests/loop-consistency.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

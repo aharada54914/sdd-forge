@@ -88,6 +88,16 @@ jobs:
         shell: pwsh
         run: ./tests/loop-driver.tests.ps1
 
+      - name: Test loop consistency suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-consistency.tests.sh
+
+      - name: Test loop consistency suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-consistency.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

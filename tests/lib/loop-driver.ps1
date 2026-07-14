@@ -126,7 +126,7 @@ Spec-Review-Status: Pending
 
 ## Goals
 
-- loop-driver $Profile fixture for feature $Feature (A2 / Issue #142).
+- REQ-001: loop-driver $Profile fixture for feature $Feature (A2 / Issue #142; A3 / Issue #143).
 "@ | Set-Content -LiteralPath (Join-Path $root "specs/$Feature/requirements.md") -NoNewline -Encoding utf8
     @"
 # Acceptance tests
@@ -135,6 +135,51 @@ Spec-Review-Status: Pending
 |---|---|---|
 | AC-001 | REQ-001 | Planned |
 "@ | Set-Content -LiteralPath (Join-Path $root "specs/$Feature/acceptance-tests.md") -NoNewline -Encoding utf8
+
+    # impl/task-review full-profile inputs (A3 / Issue #143). See the bash
+    # twin (tests/lib/loop-driver.sh) for the full rationale: design.md and
+    # the four layer specs are synthesized unconditionally (harmless to
+    # stages that never read them); tasks.md is deliberately NOT created
+    # here (Initialize-LoopTaskFixture creates it lazily, only after both
+    # upstream statuses are genuinely Passed).
+    @"
+# Design
+
+Impl-Review-Status: Pending
+
+## Components
+
+- loop-driver $Profile fixture component for feature $Feature (A3 / Issue #143).
+
+Feature Type: internal-tooling
+
+Data Entities: none
+
+Existing Data Affected: none
+
+## Security Boundaries
+
+- none (synthetic loop-driver fixture; no real security surface).
+"@ | Set-Content -LiteralPath (Join-Path $root "specs/$Feature/design.md") -NoNewline -Encoding utf8
+    @"
+# Traceability
+
+| REQ-ID | Description | Layer Spec |
+|---|---|---|
+| REQ-001 | loop-driver fixture requirement | ux-spec.md#req-001 |
+"@ | Set-Content -LiteralPath (Join-Path $root "specs/$Feature/traceability.md") -NoNewline -Encoding utf8
+    foreach ($layerName in @("ux", "frontend", "infra", "security")) {
+        @"
+# $layerName spec
+
+<a id="req-001"></a>
+## req-001
+
+Synthetic $layerName layer content for loop-driver fixture REQ-001.
+"@ | Set-Content -LiteralPath (Join-Path $root "specs/$Feature/$layerName-spec.md") -NoNewline -Encoding utf8
+    }
+
+    Initialize-LoopFixtureDomain $root
 
     New-Item -ItemType Directory -Path (Join-Path $root "reports") -Force | Out-Null
 
@@ -162,7 +207,10 @@ function Copy-LoopFixtureScripts([string]$Root) {
         "plugins/sdd-review-loop/scripts/review-contract-validate.ps1",
         "plugins/sdd-review-loop/scripts/impl-review-precheck.ps1",
         "plugins/sdd-review-loop/scripts/task-review-precheck.ps1",
-        "plugins/sdd-domain/scripts/domain-review-precheck.ps1"
+        "plugins/sdd-review-loop/scripts/validate-layer-traceability.ps1",
+        "plugins/sdd-domain/scripts/domain-review-precheck.ps1",
+        "plugins/sdd-quality-loop/scripts/check-workflow-state.ps1",
+        "plugins/sdd-quality-loop/scripts/check-risk.ps1"
     )
     foreach ($rel in $rels) {
         $src = Join-Path $script:SddLoopRepoRoot $rel
@@ -187,7 +235,8 @@ function Copy-LoopFixtureReferences([string]$Root) {
     $rels = @(
         "plugins/sdd-review-loop/references/spec-review-calibration.md",
         "plugins/sdd-review-loop/references/reviewer-calibration.md",
-        "plugins/sdd-domain/references/domain-review-calibration.md"
+        "plugins/sdd-domain/references/domain-review-calibration.md",
+        "contracts/workflow-state-registry.schema.json"
     )
     foreach ($rel in $rels) {
         $src = Join-Path $script:SddLoopRepoRoot $rel
@@ -197,6 +246,76 @@ function Copy-LoopFixtureReferences([string]$Root) {
         Copy-Item -LiteralPath $src -Destination (Join-Path $Root $rel) -Force
     }
     return $true
+}
+
+# Initialize-LoopFixtureDomain -- synthesizes the canonical domain/ tree
+# (domain-review-precheck's fixed, repo-root-relative input set; A3 / Issue
+# #143) once per fixture, unconditionally, since domain-review is not
+# feature-scoped.
+function Initialize-LoopFixtureDomain([string]$Root) {
+    $domainDir = Join-Path $Root "domain"
+    New-Item -ItemType Directory -Path (Join-Path $domainDir "aggregates") -Force | Out-Null
+    @"
+# Context map
+
+Domain-Model-Status: Pending
+
+## Contexts
+
+- loop-driver-fixture-context: synthetic bounded context for the loop-driver domain fixture.
+"@ | Set-Content -LiteralPath (Join-Path $domainDir "context-map.md") -NoNewline -Encoding utf8
+    foreach ($name in @("domain-story", "event-storming", "ubiquitous-language", "message-flow", "c4-container")) {
+        @"
+# $name
+
+Synthetic $name content for the loop-driver domain fixture (A3 / Issue #143).
+"@ | Set-Content -LiteralPath (Join-Path $domainDir "$name.md") -NoNewline -Encoding utf8
+    }
+    & jq -n '{schema: "domain-contract/v1", contexts: ["loop-driver-fixture-context"]}' |
+        Set-Content -LiteralPath (Join-Path $domainDir "domain-contract.json") -Encoding utf8
+    @"
+# loop-driver-fixture aggregate
+
+Synthetic aggregate card for the loop-driver domain fixture.
+"@ | Set-Content -LiteralPath (Join-Path $domainDir "aggregates/loop-driver-fixture.md") -NoNewline -Encoding utf8
+}
+
+# Initialize-LoopTaskFixture -Feature <name> -- lazily synthesizes tasks.md,
+# called by Invoke-LoopDriveTaskRound immediately before the first task
+# round it drives. Deferred for the same reason as the bash twin: tasks.md
+# merely existing forces check-workflow-state.ps1's task-lifecycle gate to
+# require both Spec-Review-Status and Impl-Review-Status to already read
+# Passed.
+function Initialize-LoopTaskFixture([string]$Feature) {
+    $tasksPath = Join-Path $script:LoopFixtureRoot "specs/$Feature/tasks.md"
+    if (Test-Path -LiteralPath $tasksPath -PathType Leaf) { return $true }
+    @"
+# Tasks
+
+Task-Review-Status: Pending
+
+## T-001 loop-driver fixture task
+
+Approval: Draft
+
+Status: Planned
+
+Risk: low
+
+Risk Rationale: synthetic loop-driver fixture task; no real change surface.
+
+Blockers: None
+"@ | Set-Content -LiteralPath $tasksPath -NoNewline -Encoding utf8
+    return $true
+}
+
+# Set-LoopStatusField -File <path> -Field <name> -Value <value> -- flips a
+# canonical status header field (e.g. "Spec-Review-Status") in place.
+function Set-LoopStatusField([string]$File, [string]$Field, [string]$Value) {
+    $content = Get-Content -LiteralPath $File -Raw
+    $pattern = "(?m)^${Field}:[ \t]*.*$"
+    $replacement = "${Field}: ${Value}"
+    ($content -replace $pattern, $replacement) | Set-Content -LiteralPath $File -NoNewline -Encoding utf8
 }
 
 # ---------------------------------------------------------------------------
@@ -230,11 +349,11 @@ function Get-LoopPreviousHash {
     return (Invoke-LoopJq @("-r", '.records[-1].record_sha256') (Join-Path $script:LoopFixtureRoot "reports/review-context/identity-ledger.json"))
 }
 
-function Invoke-LoopReserveReviewContext {
-    param([string]$Stage, [string]$Role, [string]$Feature, [string]$ManifestEntries)
+function Invoke-LoopReviewContextCall {
+    param([string]$Stage, [string]$Role, [string]$Feature, [string]$ManifestEntries, [string]$Mode = "reserve")
     $validator = Join-Path $script:SddLoopRepoRoot "plugins/sdd-quality-loop/scripts/validate-review-context-set.ps1"
     if (-not (Test-Path -LiteralPath $validator -PathType Leaf)) {
-        Write-Error "Invoke-LoopReserveReviewContext: validator missing: $validator"
+        Write-Error "Invoke-LoopReviewContextCall: validator missing: $validator"
         return $false
     }
     $ledger = Join-Path $script:LoopFixtureRoot "reports/review-context/identity-ledger.json"
@@ -253,10 +372,29 @@ function Invoke-LoopReserveReviewContext {
         Set-Content -LiteralPath $manifestPath -Encoding utf8
     if ($LASTEXITCODE -ne 0) { Remove-Item -LiteralPath $manifestPath -ErrorAction SilentlyContinue; return $false }
 
-    & $validator -Manifest $manifestPath -RepositoryRoot $script:LoopFixtureRoot -Reserve | Out-Null
+    if ($Mode -eq "check") {
+        & $validator -Manifest $manifestPath -RepositoryRoot $script:LoopFixtureRoot | Out-Null
+    } else {
+        & $validator -Manifest $manifestPath -RepositoryRoot $script:LoopFixtureRoot -Reserve | Out-Null
+    }
     $rc = $LASTEXITCODE
     Remove-Item -LiteralPath $manifestPath -ErrorAction SilentlyContinue
     return ($rc -eq 0)
+}
+
+function Invoke-LoopReserveReviewContext {
+    param([string]$Stage, [string]$Role, [string]$Feature, [string]$ManifestEntries)
+    return (Invoke-LoopReviewContextCall $Stage $Role $Feature $ManifestEntries "reserve")
+}
+
+# Test-LoopBidirectionalInvariant -Stage <s> -Role <r> -Feature <f> -ManifestEntries <json>
+# A3 / Issue #143, AC-010: read-only re-validation (no -Reserve) of the
+# manifest against the REAL validate-review-context-set.ps1 (this loop's
+# cross_gates script). See tests/lib/loop-driver.sh's
+# assert_bidirectional_invariant for the full rationale.
+function Test-LoopBidirectionalInvariant {
+    param([string]$Stage, [string]$Role, [string]$Feature, [string]$ManifestEntries)
+    return (Invoke-LoopReviewContextCall $Stage $Role $Feature $ManifestEntries "check")
 }
 
 # ---------------------------------------------------------------------------
@@ -265,6 +403,9 @@ function Invoke-LoopReserveReviewContext {
 function Get-LoopRequiredRoundFiles([string]$Stage) {
     switch ($Stage) {
         "spec" { return @("precheck-result.json", "integrated-summary.json", "reviewer-a.json", "reviewer-b.json", "integrated-verdict.json", "spec-review-contract.json") }
+        "impl" { return @("precheck-result.json", "integrated-summary.json", "reviewer-a.json", "reviewer-b.json", "integrated-verdict.json", "impl-review-contract.json") }
+        "task" { return @("precheck-result.json", "dependency-graph.json", "integrated-summary.json", "reviewer-a.json", "reviewer-b.json", "integrated-verdict.json", "task-review-contract.json") }
+        "domain" { return @("precheck-result.json", "integrated-summary.json", "reviewer-a.json", "reviewer-b.json", "integrated-verdict.json", "domain-review-contract.json") }
         default { return $null }
     }
 }
@@ -442,6 +583,548 @@ function Invoke-LoopDriveSpecRound {
     return $true
 }
 
+# =============================================================================
+# A3 / Issue #143 stage dispatch extension: impl/task/domain review rounds.
+# See tests/lib/loop-driver.sh for the full scope-adjudication rationale;
+# this is the byte-equivalent PowerShell twin of that extension.
+# =============================================================================
+
+function Get-LoopImplLayerNames { return @("ux-spec", "frontend-spec", "infra-spec", "security-spec") }
+
+function Get-LoopImplLayerShaJson([string]$Feature) {
+    $obj = [ordered]@{}
+    foreach ($name in (Get-LoopImplLayerNames)) {
+        $path = Join-Path $script:LoopFixtureRoot "specs/$Feature/$name.md"
+        $obj["$name.md"] = Get-LoopSha256 $path
+    }
+    return ($obj | ConvertTo-Json -Compress)
+}
+
+function Publish-LoopImplRoundA {
+    param([string]$RoundDir, [string]$Severity)
+    $feature = $script:LoopFixtureFeature
+    $round = [int](Invoke-LoopJq @("-r", ".round") (Join-Path $RoundDir "precheck-result.json"))
+    switch ($Severity) {
+        "none"     { $aVerdict = "PASS";       $aResult = "PASS"; $aFails = 0; $aPasses = 6 }
+        "Critical" { $aVerdict = "BLOCKED";    $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        "Major"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        "Minor"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        default { Write-Error "Publish-LoopImplRoundA: unknown severity: $Severity"; return $false }
+    }
+    $checkSeverity = if ($Severity -eq "none") { "Minor" } else { $Severity }
+
+    $summaryJq = '["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids | {schema:"integrated-summary/v1",attempt:$attempt,round:$round,reviewer_a_check_ids:$ids,reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}'
+    & jq -n --argjson attempt 1 --argjson round $round --argjson fail_count $aFails --argjson pass_count $aPasses $summaryJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "integrated-summary.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $requirementsPath = Join-Path $script:LoopFixtureRoot "specs/$feature/requirements.md"
+    $acceptancePath = Join-Path $script:LoopFixtureRoot "specs/$feature/acceptance-tests.md"
+    $designPath = Join-Path $script:LoopFixtureRoot "specs/$feature/design.md"
+    $precheckPath = Join-Path $RoundDir "precheck-result.json"
+    $calibrationPath = Join-Path $script:LoopFixtureRoot "plugins/sdd-review-loop/references/reviewer-calibration.md"
+    $requirementsSha = Get-LoopSha256 $requirementsPath
+    $acceptanceSha = Get-LoopSha256 $acceptancePath
+    $designSha = Get-LoopSha256 $designPath
+    $precheckSha = Get-LoopSha256 $precheckPath
+    $calibrationSha = Get-LoopSha256 $calibrationPath
+
+    $manifestJq = '[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$design,sha256:$design_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}]'
+    $manifestJson = & jq -n --arg requirements $requirementsPath --arg requirements_sha $requirementsSha `
+        --arg acceptance $acceptancePath --arg acceptance_sha $acceptanceSha `
+        --arg design $designPath --arg design_sha $designSha `
+        --arg precheck $precheckPath --arg precheck_sha $precheckSha `
+        --arg calibration $calibrationPath --arg calibration_sha $calibrationSha $manifestJq
+    foreach ($name in (Get-LoopImplLayerNames)) {
+        $lpath = Join-Path $script:LoopFixtureRoot "specs/$feature/$name.md"
+        $lsha = Get-LoopSha256 $lpath
+        $manifestJson = $manifestJson | & jq -c --arg p $lpath --arg s $lsha '. + [{path:$p,sha256:$s}]'
+    }
+    if ($round -gt 1) {
+        $priorSummary = Join-Path $script:LoopFixtureRoot "reports/impl-review/$feature/attempt-1/round-$($round - 1)/integrated-summary.json"
+        $priorSha = Get-LoopSha256 $priorSummary
+        $manifestJson = $manifestJson | & jq -c --arg p $priorSummary --arg s $priorSha '. + [{path:$p,sha256:$s}]'
+    }
+
+    $reviewerAJq = '["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids | {schema:"impl-reviewer-a/v1",stage:"impl",role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest,verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
+    & jq -n --arg verdict $aVerdict --argjson manifest $manifestJson --arg result $aResult --arg severity $checkSeverity $reviewerAJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-a.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+    return $true
+}
+
+function Publish-LoopImplRoundBContract {
+    param([string]$RoundDir, [string]$Verdict, [string]$Severity)
+    $feature = $script:LoopFixtureFeature
+    $round = [int](Invoke-LoopJq @("-r", ".round") (Join-Path $RoundDir "precheck-result.json"))
+    switch ($Severity) {
+        "none"     { $critical = 0; $major = 0; $minor = 0 }
+        "Critical" { $critical = 1; $major = 0; $minor = 0 }
+        "Major"    { $critical = 0; $major = 1; $minor = 0 }
+        "Minor"    { $critical = 0; $major = 0; $minor = 1 }
+        default { Write-Error "Publish-LoopImplRoundBContract: unknown severity: $Severity"; return $false }
+    }
+    $aVerdict = if ($critical -gt 0) { "BLOCKED" } elseif (($major + $minor) -gt 0) { "NEEDS_WORK" } else { "PASS" }
+
+    $requirementsPath = Join-Path $script:LoopFixtureRoot "specs/$feature/requirements.md"
+    $acceptancePath = Join-Path $script:LoopFixtureRoot "specs/$feature/acceptance-tests.md"
+    $designPath = Join-Path $script:LoopFixtureRoot "specs/$feature/design.md"
+    $precheckPath = Join-Path $RoundDir "precheck-result.json"
+    $calibrationPath = Join-Path $script:LoopFixtureRoot "plugins/sdd-review-loop/references/reviewer-calibration.md"
+    $summaryPath = Join-Path $RoundDir "integrated-summary.json"
+    $requirementsSha = Get-LoopSha256 $requirementsPath
+    $acceptanceSha = Get-LoopSha256 $acceptancePath
+    $designSha = Get-LoopSha256 $designPath
+    $precheckSha = Get-LoopSha256 $precheckPath
+    $calibrationSha = Get-LoopSha256 $calibrationPath
+    $summarySha = Get-LoopSha256 $summaryPath
+    $layerSha = Get-LoopImplLayerShaJson $feature
+
+    $verdictJq = '{schema:"integrated-verdict/v1",stage:"impl",feature:$feature,attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor}'
+    & jq -n --arg feature $feature --arg verdict $Verdict --argjson round $round `
+        --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict $verdictJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "integrated-verdict.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $manifestBJq = '[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$design,sha256:$design_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}]'
+    $manifestBJson = & jq -n --arg requirements $requirementsPath --arg requirements_sha $requirementsSha `
+        --arg acceptance $acceptancePath --arg acceptance_sha $acceptanceSha `
+        --arg design $designPath --arg design_sha $designSha `
+        --arg precheck $precheckPath --arg precheck_sha $precheckSha `
+        --arg calibration $calibrationPath --arg calibration_sha $calibrationSha `
+        --arg summary $summaryPath --arg summary_sha $summarySha $manifestBJq
+    foreach ($name in (Get-LoopImplLayerNames)) {
+        $lpath = Join-Path $script:LoopFixtureRoot "specs/$feature/$name.md"
+        $lsha = Get-LoopSha256 $lpath
+        $manifestBJson = $manifestBJson | & jq -c --arg p $lpath --arg s $lsha '. + [{path:$p,sha256:$s}]'
+    }
+    $reviewerBJq = '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids | {schema:"impl-reviewer-b/v1",stage:"impl",role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest,verdict:"PASS",checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}'
+    & jq -n --argjson manifest $manifestBJson $reviewerBJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-b.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $manifestAJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")
+    $contractJq = '{schema:"impl-review-contract/v1",stage:"impl",feature:$feature,attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,design_sha256:$design_sha256,layer_sha256:$layer_sha256,reviewers:[{role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},{role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}]}'
+    & jq -n --arg feature $feature --arg verdict $Verdict --argjson round $round `
+        --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict `
+        --arg requirements_sha256 $requirementsSha --arg acceptance_sha256 $acceptanceSha `
+        --arg design_sha256 $designSha --argjson layer_sha256 $layerSha `
+        --argjson manifest_a $manifestAJson --argjson manifest_b $manifestBJson $contractJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "impl-review-contract.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+    return $true
+}
+
+function Get-LoopImplManifestA([string]$RoundDir, [int]$Round, [string]$Feature) {
+    $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
+    $rels = [System.Collections.Generic.List[string]]::new()
+    $rels.Add("specs/$Feature/requirements.md")
+    $rels.Add("specs/$Feature/acceptance-tests.md")
+    $rels.Add("specs/$Feature/design.md")
+    $rels.Add("plugins/sdd-review-loop/references/reviewer-calibration.md")
+    $rels.Add("$roundRel/precheck-result.json")
+    foreach ($name in (Get-LoopImplLayerNames)) { $rels.Add("specs/$Feature/$name.md") }
+    if ($Round -gt 1) { $rels.Add("reports/impl-review/$Feature/attempt-1/round-$($Round - 1)/integrated-summary.json") }
+    return (Get-LoopManifestArray $rels.ToArray())
+}
+function Get-LoopImplManifestB([string]$RoundDir, [string]$Feature) {
+    $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
+    $rels = [System.Collections.Generic.List[string]]::new()
+    $rels.Add("specs/$Feature/requirements.md")
+    $rels.Add("specs/$Feature/acceptance-tests.md")
+    $rels.Add("specs/$Feature/design.md")
+    $rels.Add("plugins/sdd-review-loop/references/reviewer-calibration.md")
+    $rels.Add("$roundRel/precheck-result.json")
+    $rels.Add("$roundRel/integrated-summary.json")
+    foreach ($name in (Get-LoopImplLayerNames)) { $rels.Add("specs/$Feature/$name.md") }
+    return (Get-LoopManifestArray $rels.ToArray())
+}
+
+# Initialize-LoopImplPrereqs -Feature <name> -- drives spec rounds 1->3 to a
+# genuine PASS (reusing Invoke-LoopDriveSpecRound unmodified) and flips
+# Spec-Review-Status to Passed.
+function Initialize-LoopImplPrereqs([string]$Feature) {
+    if (-not (Invoke-LoopDriveSpecRound -Attempt 1 -Round 1 -Verdict "NEEDS_WORK" -Severity "Major")) { return $false }
+    if (-not (Invoke-LoopDriveSpecRound -Attempt 1 -Round 2 -Verdict "NEEDS_WORK" -Severity "Major")) { return $false }
+    if (-not (Invoke-LoopDriveSpecRound -Attempt 1 -Round 3 -Verdict "PASS" -Severity "Minor")) { return $false }
+    Set-LoopStatusField (Join-Path $script:LoopFixtureRoot "specs/$Feature/requirements.md") "Spec-Review-Status" "Passed"
+    return $true
+}
+
+# Initialize-LoopTaskPrereqs -Feature <name> -- additionally drives impl
+# rounds 1->3 to a genuine PASS, flips Impl-Review-Status to Passed, then
+# lazily synthesizes tasks.md.
+function Initialize-LoopTaskPrereqs([string]$Feature) {
+    if (-not (Initialize-LoopImplPrereqs $Feature)) { return $false }
+    if (-not (Invoke-DriveReviewRound -Stage "impl" -Attempt 1 -Round 1 -Verdict "NEEDS_WORK" -Severity "Major")) { return $false }
+    if (-not (Invoke-DriveReviewRound -Stage "impl" -Attempt 1 -Round 2 -Verdict "NEEDS_WORK" -Severity "Major")) { return $false }
+    if (-not (Invoke-DriveReviewRound -Stage "impl" -Attempt 1 -Round 3 -Verdict "PASS" -Severity "none")) { return $false }
+    Set-LoopStatusField (Join-Path $script:LoopFixtureRoot "specs/$Feature/design.md") "Impl-Review-Status" "Passed"
+    Initialize-LoopTaskFixture $Feature | Out-Null
+    return $true
+}
+
+function Invoke-LoopDriveImplRound {
+    param([int]$Attempt, [int]$Round, [string]$Verdict, [string]$Severity)
+    $feature = $script:LoopFixtureFeature
+    if ([string]::IsNullOrEmpty($feature)) { Write-Error "Invoke-LoopDriveImplRound requires a fixture"; return $false }
+    $scriptRel = Get-LoopDriverScript "impl"
+    if ([string]::IsNullOrEmpty($scriptRel)) { Write-Error "drive_review_round: impl-review driver script not registered in the inventory"; return $false }
+    $scriptRelPs1 = $scriptRel -replace '\.sh$', '.ps1'
+    $scriptPath = Join-Path $script:LoopFixtureRoot $scriptRelPs1
+    if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
+        Write-Error "drive_review_round: precheck script missing at $scriptPath"
+        return $false
+    }
+
+    $design = Join-Path $script:LoopFixtureRoot "specs/$feature/design.md"
+    if ($Round -gt 1) {
+        $priorDir = Join-Path $script:LoopFixtureRoot "reports/impl-review/$feature/attempt-$Attempt/round-$($Round - 1)"
+        if (-not (Test-PriorRoundComplete "impl" $priorDir)) {
+            Write-Error "drive_review_round: round-$($Round - 1) output set is incomplete on disk; refusing to start round $Round"
+            return $false
+        }
+        Add-Content -LiteralPath $design -Value "`n<!-- loop-driver round $Round edit -->`n"
+    }
+
+    & $scriptPath $feature $Attempt $Round | Out-Null
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $roundDir = Join-Path $script:LoopFixtureRoot "reports/impl-review/$feature/attempt-$Attempt/round-$Round"
+    if (-not (Test-Path -LiteralPath (Join-Path $roundDir "precheck-result.json") -PathType Leaf)) {
+        Write-Error "drive_review_round: precheck-result.json missing after a successful precheck run"
+        return $false
+    }
+
+    $manifestA = Get-LoopImplManifestA $roundDir $Round $feature
+    if ($null -eq $manifestA) { return $false }
+    if (-not (Invoke-LoopReserveReviewContext "impl" "impl-reviewer-a" $feature $manifestA)) { return $false }
+    if (-not (Publish-LoopImplRoundA $roundDir $Severity)) { return $false }
+
+    $manifestB = Get-LoopImplManifestB $roundDir $feature
+    if ($null -eq $manifestB) { return $false }
+    if (-not (Invoke-LoopReserveReviewContext "impl" "impl-reviewer-b" $feature $manifestB)) { return $false }
+    if (-not (Publish-LoopImplRoundBContract $roundDir $Verdict $Severity)) { return $false }
+
+    return $true
+}
+
+# ---------------------------------------------------------------------------
+# task-review round emission
+# ---------------------------------------------------------------------------
+function Publish-LoopTaskRoundA {
+    param([string]$RoundDir, [string]$Severity)
+    $feature = $script:LoopFixtureFeature
+    $round = [int](Invoke-LoopJq @("-r", ".round") (Join-Path $RoundDir "precheck-result.json"))
+    switch ($Severity) {
+        "none"     { $aVerdict = "PASS";       $aResult = "PASS"; $aFails = 0; $aPasses = 6 }
+        "Critical" { $aVerdict = "BLOCKED";    $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        "Major"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        "Minor"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        default { Write-Error "Publish-LoopTaskRoundA: unknown severity: $Severity"; return $false }
+    }
+    $checkSeverity = if ($Severity -eq "none") { "Minor" } else { $Severity }
+
+    $summaryJq = '["DEPENDENCY-GRAPH-VALID","TASK-AC-TRACE","RISK-WORKFLOW-MATCH","SCOPE-DISJOINT","ROLLBACK-PLANNED","SIZE-APPROPRIATE"] as $ids | {schema:"integrated-summary/v1",attempt:$attempt,round:$round,reviewer_a_check_ids:$ids,reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}'
+    & jq -n --argjson attempt 1 --argjson round $round --argjson fail_count $aFails --argjson pass_count $aPasses $summaryJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "integrated-summary.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $tasksPath = Join-Path $script:LoopFixtureRoot "specs/$feature/tasks.md"
+    $requirementsPath = Join-Path $script:LoopFixtureRoot "specs/$feature/requirements.md"
+    $acceptancePath = Join-Path $script:LoopFixtureRoot "specs/$feature/acceptance-tests.md"
+    $designPath = Join-Path $script:LoopFixtureRoot "specs/$feature/design.md"
+    $precheckPath = Join-Path $RoundDir "precheck-result.json"
+    $depPath = Join-Path $RoundDir "dependency-graph.json"
+    $calibrationPath = Join-Path $script:LoopFixtureRoot "plugins/sdd-review-loop/references/reviewer-calibration.md"
+    $tasksSha = Get-LoopSha256 $tasksPath
+    $requirementsSha = Get-LoopSha256 $requirementsPath
+    $acceptanceSha = Get-LoopSha256 $acceptancePath
+    $designSha = Get-LoopSha256 $designPath
+    $precheckSha = Get-LoopSha256 $precheckPath
+    $depSha = Get-LoopSha256 $depPath
+    $calibrationSha = Get-LoopSha256 $calibrationPath
+
+    $reviewerAJq = '["DEPENDENCY-GRAPH-VALID","TASK-AC-TRACE","RISK-WORKFLOW-MATCH","SCOPE-DISJOINT","ROLLBACK-PLANNED","SIZE-APPROPRIATE"] as $ids | {schema:"task-reviewer-a/v1",stage:"task",role:"task-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[{path:$tasks,sha256:$tasks_sha},{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$design,sha256:$design_sha},{path:$precheck,sha256:$precheck_sha},{path:$dep,sha256:$dep_sha},{path:$calibration,sha256:$calibration_sha}],verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
+    & jq -n --arg verdict $aVerdict --arg result $aResult --arg severity $checkSeverity `
+        --arg tasks $tasksPath --arg tasks_sha $tasksSha `
+        --arg requirements $requirementsPath --arg requirements_sha $requirementsSha `
+        --arg acceptance $acceptancePath --arg acceptance_sha $acceptanceSha `
+        --arg design $designPath --arg design_sha $designSha `
+        --arg precheck $precheckPath --arg precheck_sha $precheckSha `
+        --arg dep $depPath --arg dep_sha $depSha `
+        --arg calibration $calibrationPath --arg calibration_sha $calibrationSha $reviewerAJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-a.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+    return $true
+}
+
+function Publish-LoopTaskRoundBContract {
+    param([string]$RoundDir, [string]$Verdict, [string]$Severity)
+    $feature = $script:LoopFixtureFeature
+    $round = [int](Invoke-LoopJq @("-r", ".round") (Join-Path $RoundDir "precheck-result.json"))
+    switch ($Severity) {
+        "none"     { $critical = 0; $major = 0; $minor = 0 }
+        "Critical" { $critical = 1; $major = 0; $minor = 0 }
+        "Major"    { $critical = 0; $major = 1; $minor = 0 }
+        "Minor"    { $critical = 0; $major = 0; $minor = 1 }
+        default { Write-Error "Publish-LoopTaskRoundBContract: unknown severity: $Severity"; return $false }
+    }
+    $aVerdict = if ($critical -gt 0) { "BLOCKED" } elseif (($major + $minor) -gt 0) { "NEEDS_WORK" } else { "PASS" }
+
+    $tasksPath = Join-Path $script:LoopFixtureRoot "specs/$feature/tasks.md"
+    $requirementsPath = Join-Path $script:LoopFixtureRoot "specs/$feature/requirements.md"
+    $acceptancePath = Join-Path $script:LoopFixtureRoot "specs/$feature/acceptance-tests.md"
+    $designPath = Join-Path $script:LoopFixtureRoot "specs/$feature/design.md"
+    $precheckPath = Join-Path $RoundDir "precheck-result.json"
+    $calibrationPath = Join-Path $script:LoopFixtureRoot "plugins/sdd-review-loop/references/reviewer-calibration.md"
+    $summaryPath = Join-Path $RoundDir "integrated-summary.json"
+    $tasksSha = Get-LoopSha256 $tasksPath
+    $requirementsSha = Get-LoopSha256 $requirementsPath
+    $acceptanceSha = Get-LoopSha256 $acceptancePath
+    $designSha = Get-LoopSha256 $designPath
+    $precheckSha = Get-LoopSha256 $precheckPath
+    $calibrationSha = Get-LoopSha256 $calibrationPath
+    $summarySha = Get-LoopSha256 $summaryPath
+
+    $verdictJq = '{schema:"integrated-verdict/v1",stage:"task",feature:$feature,attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor}'
+    & jq -n --arg feature $feature --arg verdict $Verdict --argjson round $round `
+        --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict $verdictJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "integrated-verdict.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $reviewerBJq = '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids | {schema:"task-reviewer-b/v1",stage:"task",role:"task-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:[{path:$tasks,sha256:$tasks_sha},{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$design,sha256:$design_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}],verdict:"PASS",checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}'
+    & jq -n --arg tasks $tasksPath --arg tasks_sha $tasksSha `
+        --arg requirements $requirementsPath --arg requirements_sha $requirementsSha `
+        --arg acceptance $acceptancePath --arg acceptance_sha $acceptanceSha `
+        --arg design $designPath --arg design_sha $designSha `
+        --arg precheck $precheckPath --arg precheck_sha $precheckSha `
+        --arg calibration $calibrationPath --arg calibration_sha $calibrationSha `
+        --arg summary $summaryPath --arg summary_sha $summarySha $reviewerBJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-b.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $manifestAJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")
+    $manifestBJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-b.json")
+    $contractJq = '{schema:"task-review-contract/v1",stage:"task",feature:$feature,attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor,tasks_sha256:$tasks_sha256,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[{role:"task-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},{role:"task-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}]}'
+    & jq -n --arg feature $feature --arg verdict $Verdict --argjson round $round `
+        --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict `
+        --arg tasks_sha256 $tasksSha --arg requirements_sha256 $requirementsSha --arg acceptance_sha256 $acceptanceSha `
+        --argjson manifest_a $manifestAJson --argjson manifest_b $manifestBJson $contractJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "task-review-contract.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+    return $true
+}
+
+function Get-LoopTaskManifestA([string]$RoundDir, [string]$Feature) {
+    $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
+    return (Get-LoopManifestArray @(
+        "specs/$Feature/tasks.md", "specs/$Feature/requirements.md", "specs/$Feature/acceptance-tests.md",
+        "specs/$Feature/design.md", "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "$roundRel/precheck-result.json", "$roundRel/dependency-graph.json"
+    ))
+}
+function Get-LoopTaskManifestB([string]$RoundDir, [string]$Feature) {
+    $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
+    return (Get-LoopManifestArray @(
+        "specs/$Feature/tasks.md", "specs/$Feature/requirements.md", "specs/$Feature/acceptance-tests.md",
+        "specs/$Feature/design.md", "plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "$roundRel/precheck-result.json", "$roundRel/integrated-summary.json"
+    ))
+}
+
+function Invoke-LoopDriveTaskRound {
+    param([int]$Attempt, [int]$Round, [string]$Verdict, [string]$Severity)
+    $feature = $script:LoopFixtureFeature
+    if ([string]::IsNullOrEmpty($feature)) { Write-Error "Invoke-LoopDriveTaskRound requires a fixture"; return $false }
+    $scriptRel = Get-LoopDriverScript "task"
+    if ([string]::IsNullOrEmpty($scriptRel)) { Write-Error "drive_review_round: task-review driver script not registered in the inventory"; return $false }
+    $scriptRelPs1 = $scriptRel -replace '\.sh$', '.ps1'
+    $scriptPath = Join-Path $script:LoopFixtureRoot $scriptRelPs1
+    if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
+        Write-Error "drive_review_round: precheck script missing at $scriptPath"
+        return $false
+    }
+
+    $tasks = Join-Path $script:LoopFixtureRoot "specs/$feature/tasks.md"
+    if (-not (Test-Path -LiteralPath $tasks -PathType Leaf)) {
+        Write-Error "drive_review_round: tasks.md missing; call Initialize-LoopTaskPrereqs first"
+        return $false
+    }
+    if ($Round -gt 1) {
+        $priorDir = Join-Path $script:LoopFixtureRoot "reports/task-review/$feature/attempt-$Attempt/round-$($Round - 1)"
+        if (-not (Test-PriorRoundComplete "task" $priorDir)) {
+            Write-Error "drive_review_round: round-$($Round - 1) output set is incomplete on disk; refusing to start round $Round"
+            return $false
+        }
+        Add-Content -LiteralPath $tasks -Value "`n<!-- loop-driver round $Round edit -->`n"
+    }
+
+    & $scriptPath $feature $Attempt $Round | Out-Null
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $roundDir = Join-Path $script:LoopFixtureRoot "reports/task-review/$feature/attempt-$Attempt/round-$Round"
+    if (-not (Test-Path -LiteralPath (Join-Path $roundDir "precheck-result.json") -PathType Leaf)) {
+        Write-Error "drive_review_round: precheck-result.json missing after a successful precheck run"
+        return $false
+    }
+
+    $manifestA = Get-LoopTaskManifestA $roundDir $feature
+    if ($null -eq $manifestA) { return $false }
+    if (-not (Invoke-LoopReserveReviewContext "task" "task-reviewer-a" $feature $manifestA)) { return $false }
+    if (-not (Publish-LoopTaskRoundA $roundDir $Severity)) { return $false }
+
+    $manifestB = Get-LoopTaskManifestB $roundDir $feature
+    if ($null -eq $manifestB) { return $false }
+    if (-not (Invoke-LoopReserveReviewContext "task" "task-reviewer-b" $feature $manifestB)) { return $false }
+    if (-not (Publish-LoopTaskRoundBContract $roundDir $Verdict $Severity)) { return $false }
+
+    return $true
+}
+
+# ---------------------------------------------------------------------------
+# domain-review round emission (not feature-scoped)
+# ---------------------------------------------------------------------------
+function Publish-LoopDomainRoundA {
+    param([string]$RoundDir, [string]$Severity)
+    $round = [int](Invoke-LoopJq @("-r", ".round") (Join-Path $RoundDir "precheck-result.json"))
+    switch ($Severity) {
+        "none"     { $aVerdict = "PASS";       $aResult = "PASS"; $aFails = 0; $aPasses = 6 }
+        "Critical" { $aVerdict = "BLOCKED";    $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        "Major"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        "Minor"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5 }
+        default { Write-Error "Publish-LoopDomainRoundA: unknown severity: $Severity"; return $false }
+    }
+    $checkSeverity = if ($Severity -eq "none") { "Minor" } else { $Severity }
+
+    $summaryJq = '["MODEL-CONSISTENCY","UBIQUITOUS-LANGUAGE","CONTEXT-BOUNDARY","AGGREGATE-INTEGRITY","EVENT-COVERAGE","C4-ALIGNMENT"] as $ids | {schema:"integrated-summary/v1",attempt:$attempt,round:$round,reviewer_a_check_ids:$ids,reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}'
+    & jq -n --argjson attempt 1 --argjson round $round --argjson fail_count $aFails --argjson pass_count $aPasses $summaryJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "integrated-summary.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $contextPath = Join-Path $script:LoopFixtureRoot "domain/context-map.md"
+    $precheckPath = Join-Path $RoundDir "precheck-result.json"
+    $calibrationPath = Join-Path $script:LoopFixtureRoot "plugins/sdd-domain/references/domain-review-calibration.md"
+    $contextSha = Get-LoopSha256 $contextPath
+    $precheckSha = Get-LoopSha256 $precheckPath
+    $calibrationSha = Get-LoopSha256 $calibrationPath
+
+    $reviewerAJq = '["MODEL-CONSISTENCY","UBIQUITOUS-LANGUAGE","CONTEXT-BOUNDARY","AGGREGATE-INTEGRITY","EVENT-COVERAGE","C4-ALIGNMENT"] as $ids | {schema:"domain-reviewer-a/v1",stage:"domain",role:"domain-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[{path:$context,sha256:$context_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}],verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
+    & jq -n --arg verdict $aVerdict --arg result $aResult --arg severity $checkSeverity `
+        --arg context $contextPath --arg context_sha $contextSha `
+        --arg precheck $precheckPath --arg precheck_sha $precheckSha `
+        --arg calibration $calibrationPath --arg calibration_sha $calibrationSha $reviewerAJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-a.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+    return $true
+}
+
+function Publish-LoopDomainRoundBContract {
+    param([string]$RoundDir, [string]$Verdict, [string]$Severity)
+    $round = [int](Invoke-LoopJq @("-r", ".round") (Join-Path $RoundDir "precheck-result.json"))
+    switch ($Severity) {
+        "none"     { $critical = 0; $major = 0; $minor = 0 }
+        "Critical" { $critical = 1; $major = 0; $minor = 0 }
+        "Major"    { $critical = 0; $major = 1; $minor = 0 }
+        "Minor"    { $critical = 0; $major = 0; $minor = 1 }
+        default { Write-Error "Publish-LoopDomainRoundBContract: unknown severity: $Severity"; return $false }
+    }
+    $aVerdict = if ($critical -gt 0) { "BLOCKED" } elseif (($major + $minor) -gt 0) { "NEEDS_WORK" } else { "PASS" }
+
+    $contextPath = Join-Path $script:LoopFixtureRoot "domain/context-map.md"
+    $precheckPath = Join-Path $RoundDir "precheck-result.json"
+    $calibrationPath = Join-Path $script:LoopFixtureRoot "plugins/sdd-domain/references/domain-review-calibration.md"
+    $summaryPath = Join-Path $RoundDir "integrated-summary.json"
+    $contextSha = Get-LoopSha256 $contextPath
+    $precheckSha = Get-LoopSha256 $precheckPath
+    $calibrationSha = Get-LoopSha256 $calibrationPath
+    $summarySha = Get-LoopSha256 $summaryPath
+
+    $verdictJq = '{schema:"integrated-verdict/v1",stage:"domain",attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor}'
+    & jq -n --arg verdict $Verdict --argjson round $round `
+        --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict $verdictJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "integrated-verdict.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $reviewerBJq = '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids | {schema:"domain-reviewer-b/v1",stage:"domain",role:"domain-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:[{path:$context,sha256:$context_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}],verdict:"PASS",checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}'
+    & jq -n --arg context $contextPath --arg context_sha $contextSha `
+        --arg precheck $precheckPath --arg precheck_sha $precheckSha `
+        --arg calibration $calibrationPath --arg calibration_sha $calibrationSha `
+        --arg summary $summaryPath --arg summary_sha $summarySha $reviewerBJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-b.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $manifestAJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")
+    $manifestBJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-b.json")
+    $contractJq = '{schema:"domain-review-contract/v1",stage:"domain",attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor,reviewers:[{role:"domain-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},{role:"domain-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}]}'
+    & jq -n --arg verdict $Verdict --argjson round $round `
+        --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict `
+        --argjson manifest_a $manifestAJson --argjson manifest_b $manifestBJson $contractJq |
+        Set-Content -LiteralPath (Join-Path $RoundDir "domain-review-contract.json") -Encoding utf8
+    if ($LASTEXITCODE -ne 0) { return $false }
+    return $true
+}
+
+function Get-LoopDomainManifestA([string]$RoundDir) {
+    $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
+    return (Get-LoopManifestArray @(
+        "domain/context-map.md", "plugins/sdd-domain/references/domain-review-calibration.md",
+        "$roundRel/precheck-result.json"
+    ))
+}
+function Get-LoopDomainManifestB([string]$RoundDir) {
+    $roundRel = $RoundDir.Substring($script:LoopFixtureRoot.Length + 1) -replace '\\', '/'
+    return (Get-LoopManifestArray @(
+        "domain/context-map.md", "plugins/sdd-domain/references/domain-review-calibration.md",
+        "$roundRel/precheck-result.json", "$roundRel/integrated-summary.json"
+    ))
+}
+
+function Invoke-LoopDriveDomainRound {
+    param([int]$Attempt, [int]$Round, [string]$Verdict, [string]$Severity)
+    $scriptRel = Get-LoopDriverScript "domain"
+    if ([string]::IsNullOrEmpty($scriptRel)) { Write-Error "drive_review_round: domain-review driver script not registered in the inventory"; return $false }
+    $scriptRelPs1 = $scriptRel -replace '\.sh$', '.ps1'
+    $scriptPath = Join-Path $script:LoopFixtureRoot $scriptRelPs1
+    if (-not (Test-Path -LiteralPath $scriptPath -PathType Leaf)) {
+        Write-Error "drive_review_round: precheck script missing at $scriptPath (domain-review-precheck.ps1 does not exist upstream; see #147 and this task's implementation report)"
+        return $false
+    }
+
+    $storyMd = Join-Path $script:LoopFixtureRoot "domain/domain-story.md"
+    $precheckArgs = @([string]$Attempt, [string]$Round)
+    if ($Round -gt 1) {
+        $priorDir = Join-Path $script:LoopFixtureRoot "reports/domain-review/attempt-$Attempt/round-$($Round - 1)"
+        if (-not (Test-PriorRoundComplete "domain" $priorDir)) {
+            Write-Error "drive_review_round: round-$($Round - 1) output set is incomplete on disk; refusing to start round $Round"
+            return $false
+        }
+        Add-Content -LiteralPath $storyMd -Value "`n<!-- loop-driver round $Round edit -->`n"
+        $precheckArgs += "--edit-summary=round-$Round-edit"
+    }
+
+    & $scriptPath @precheckArgs | Out-Null
+    if ($LASTEXITCODE -ne 0) { return $false }
+
+    $roundDir = Join-Path $script:LoopFixtureRoot "reports/domain-review/attempt-$Attempt/round-$Round"
+    if (-not (Test-Path -LiteralPath (Join-Path $roundDir "precheck-result.json") -PathType Leaf)) {
+        Write-Error "drive_review_round: precheck-result.json missing after a successful precheck run"
+        return $false
+    }
+
+    $manifestA = Get-LoopDomainManifestA $roundDir
+    if ($null -eq $manifestA) { return $false }
+    if (-not (Invoke-LoopReserveReviewContext "domain" "domain-reviewer-a" "loop-driver-domain" $manifestA)) { return $false }
+    if (-not (Publish-LoopDomainRoundA $roundDir $Severity)) { return $false }
+
+    $manifestB = Get-LoopDomainManifestB $roundDir
+    if ($null -eq $manifestB) { return $false }
+    if (-not (Invoke-LoopReserveReviewContext "domain" "domain-reviewer-b" "loop-driver-domain" $manifestB)) { return $false }
+    if (-not (Publish-LoopDomainRoundBContract $roundDir $Verdict $Severity)) { return $false }
+
+    return $true
+}
+
 # ---------------------------------------------------------------------------
 # Invoke-DriveReviewRound -Stage <s> -Attempt <n> -Round <n> -Verdict <v> [-Severity <s>]
 # ---------------------------------------------------------------------------
@@ -463,10 +1146,9 @@ function Invoke-DriveReviewRound {
     }
     switch ($Stage) {
         "spec" { return (Invoke-LoopDriveSpecRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
-        { $_ -in @("impl", "task", "domain") } {
-            Write-Error "Invoke-DriveReviewRound: stage '$Stage' is not implemented by A2/#142 (spec-review only; driving impl/task/domain is A3/#143 scope)"
-            return $false
-        }
+        "impl" { return (Invoke-LoopDriveImplRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
+        "task" { return (Invoke-LoopDriveTaskRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
+        "domain" { return (Invoke-LoopDriveDomainRound -Attempt $Attempt -Round $Round -Verdict $Verdict -Severity $Severity) }
         default {
             Write-Error "Invoke-DriveReviewRound: unknown stage: $Stage"
             return $false

@@ -70,6 +70,18 @@ _loop_sha256_text() {
   else shasum -a 256 | awk '{print $1}'; fi
 }
 
+# _loop_set_status_field <file> <field> <value> — flips a canonical status
+# header field (e.g. "Spec-Review-Status") in place, mirroring the same
+# human/skill action the real workflow takes after a genuine terminal PASS
+# (A3 / Issue #143: impl/task-review preconditions read these fields as
+# plain text, independent of the review evidence chain itself).
+_loop_set_status_field() {
+  local file="$1" field="$2" value="$3" tmp
+  tmp="$(mktemp "${TMPDIR:-/tmp}/loop-status-field.XXXXXX")" || return 1
+  sed "s/^${field}:[[:space:]]*.*/${field}: ${value}/" "$file" > "$tmp" || { rm -f "$tmp"; return 1; }
+  mv "$tmp" "$file"
+}
+
 _loop_id_for_stage() {
   case "$1" in
     spec) echo spec-review ;;
@@ -136,7 +148,7 @@ Spec-Review-Status: Pending
 
 ## Goals
 
-- loop-driver ${profile} fixture for feature ${feature} (A2 / Issue #142).
+- REQ-001: loop-driver ${profile} fixture for feature ${feature} (A2 / Issue #142; A3 / Issue #143).
 EOF
   cat > "${LOOP_FIXTURE_ROOT}/specs/${feature}/acceptance-tests.md" <<'EOF'
 # Acceptance tests
@@ -145,6 +157,60 @@ EOF
 |---|---|---|
 | AC-001 | REQ-001 | Planned |
 EOF
+
+  # impl/task-review full-profile inputs (A3 / Issue #143): impl-review-precheck.sh
+  # and task-review-precheck.sh both run under the fixture's unconditional
+  # "full" workflow-state-registry profile (see the registry write below), so
+  # both require design.md and the four layer specs to exist regardless of
+  # which stage a given fixture ends up driving. These are synthesized here
+  # (once, per fixture) rather than lazily per stage because their presence
+  # is harmless to stages that never read them (spec-review-precheck.sh does
+  # not touch design.md or the layer files). tasks.md/traceability.md are
+  # deliberately NOT created here -- see _loop_task_fixture_prepare: a
+  # tasks.md file existing at all makes check-workflow-state.sh require BOTH
+  # Spec-Review-Status and Impl-Review-Status to already read Passed
+  # (task-lifecycle gate), which would break a fixture mid-drive of the impl
+  # leg itself, so tasks.md is synthesized lazily by the task-leg driver only
+  # after both upstream statuses are genuinely Passed.
+  cat > "${LOOP_FIXTURE_ROOT}/specs/${feature}/design.md" <<EOF
+# Design
+
+Impl-Review-Status: Pending
+
+## Components
+
+- loop-driver ${profile} fixture component for feature ${feature} (A3 / Issue #143).
+
+Feature Type: internal-tooling
+
+Data Entities: none
+
+Existing Data Affected: none
+
+## Security Boundaries
+
+- none (synthetic loop-driver fixture; no real security surface).
+EOF
+  cat > "${LOOP_FIXTURE_ROOT}/specs/${feature}/traceability.md" <<'EOF'
+# Traceability
+
+| REQ-ID | Description | Layer Spec |
+|---|---|---|
+| REQ-001 | loop-driver fixture requirement | ux-spec.md#req-001 |
+EOF
+  local layer_name
+  for layer_name in ux frontend infra security; do
+    cat > "${LOOP_FIXTURE_ROOT}/specs/${feature}/${layer_name}-spec.md" <<EOF
+# ${layer_name} spec
+
+<a id="req-001"></a>
+## req-001
+
+Synthetic ${layer_name} layer content for loop-driver fixture REQ-001.
+EOF
+  done
+
+  _loop_fixture_init_domain || return 1
 
   mkdir -p "${LOOP_FIXTURE_ROOT}/reports"
 
@@ -180,7 +246,9 @@ _loop_fixture_link_scripts() {
     plugins/sdd-review-loop/scripts/review-contract-validate.sh \
     plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
     plugins/sdd-review-loop/scripts/task-review-precheck.sh \
-    plugins/sdd-domain/scripts/domain-review-precheck.sh
+    plugins/sdd-domain/scripts/domain-review-precheck.sh \
+    plugins/sdd-quality-loop/scripts/check-workflow-state.sh \
+    plugins/sdd-review-loop/scripts/validate-layer-traceability.py
   do
     src="${SDD_LOOP_REPO_ROOT}/${rel}"
     [[ -f "$src" ]] || continue
@@ -200,13 +268,79 @@ _loop_fixture_copy_references() {
   for rel in \
     plugins/sdd-review-loop/references/spec-review-calibration.md \
     plugins/sdd-review-loop/references/reviewer-calibration.md \
-    plugins/sdd-domain/references/domain-review-calibration.md
+    plugins/sdd-domain/references/domain-review-calibration.md \
+    contracts/workflow-state-registry.schema.json
   do
     src="${SDD_LOOP_REPO_ROOT}/${rel}"
     [[ -f "$src" ]] || continue
     mkdir -p "${LOOP_FIXTURE_ROOT}/$(dirname "$rel")" || return 1
     cp "$src" "${LOOP_FIXTURE_ROOT}/${rel}" || return 1
   done
+  return 0
+}
+
+# _loop_fixture_init_domain — synthesizes the canonical domain/ tree
+# (domain-review-precheck.sh's fixed, repo-root-relative input set; A3 /
+# Issue #143) once per fixture, unconditionally, since domain-review is not
+# feature-scoped and driving it never depends on which other stage(s) a
+# given fixture also drives.
+_loop_fixture_init_domain() {
+  local domain_dir="${LOOP_FIXTURE_ROOT}/domain" name
+  mkdir -p "${domain_dir}/aggregates" || return 1
+  cat > "${domain_dir}/context-map.md" <<'EOF'
+# Context map
+
+Domain-Model-Status: Pending
+
+## Contexts
+
+- loop-driver-fixture-context: synthetic bounded context for the loop-driver domain fixture.
+EOF
+  for name in domain-story event-storming ubiquitous-language message-flow c4-container; do
+    cat > "${domain_dir}/${name}.md" <<EOF
+# ${name}
+
+Synthetic ${name} content for the loop-driver domain fixture (A3 / Issue #143).
+EOF
+  done
+  jq -n '{schema: "domain-contract/v1", contexts: ["loop-driver-fixture-context"]}' \
+    > "${domain_dir}/domain-contract.json" || return 1
+  cat > "${domain_dir}/aggregates/loop-driver-fixture.md" <<'EOF'
+# loop-driver-fixture aggregate
+
+Synthetic aggregate card for the loop-driver domain fixture.
+EOF
+  return 0
+}
+
+# _loop_task_fixture_prepare <feature> — lazily synthesizes tasks.md, called
+# by _loop_drive_task_round immediately before the first task round it
+# drives. Deferred (not part of loop_fixture_init) because tasks.md merely
+# existing forces check-workflow-state.sh's task-lifecycle gate to require
+# both Spec-Review-Status and Impl-Review-Status to already read Passed
+# (see loop_fixture_init's comment); the caller is responsible for having
+# already driven and flipped those two stages to Passed first.
+_loop_task_fixture_prepare() {
+  local feature="$1"
+  local tasks_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/tasks.md"
+  [[ -f "$tasks_path" ]] && return 0
+  cat > "$tasks_path" <<'EOF'
+# Tasks
+
+Task-Review-Status: Pending
+
+## T-001 loop-driver fixture task
+
+Approval: Draft
+
+Status: Planned
+
+Risk: low
+
+Risk Rationale: synthetic loop-driver fixture task; no real change surface.
+
+Blockers: None
+EOF
   return 0
 }
 
@@ -242,14 +376,16 @@ _loop_previous_hash() {
   jq -r '.records[-1].record_sha256' "${LOOP_FIXTURE_ROOT}/reports/review-context/identity-ledger.json"
 }
 
-# _loop_reserve_review_context <stage> <role> <feature> <manifest-json-array>
-# Runs the REAL validate-review-context-set.sh --reserve against
-# $LOOP_FIXTURE_ROOT (passed as repository-root data, not a symlink target),
-# extending the fixture's identity-ledger chain.
-_loop_reserve_review_context() {
-  local stage="$1" role="$2" feature="$3" manifest_entries="$4"
+# _loop_review_context_call <stage> <role> <feature> <manifest-json-array> [reserve|check]
+# Runs the REAL validate-review-context-set.sh against $LOOP_FIXTURE_ROOT
+# (passed as repository-root data, not a symlink target). Mode "reserve"
+# (default) extends the fixture's identity-ledger chain; mode "check" omits
+# --reserve so the call is read-only and never advances the ledger -- safe
+# to re-run any number of times (security-spec.md B1/B2).
+_loop_review_context_call() {
+  local stage="$1" role="$2" feature="$3" manifest_entries="$4" mode="${5:-reserve}"
   local validator="${SDD_LOOP_REPO_ROOT}/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
-  [[ -f "$validator" ]] || { echo "_loop_reserve_review_context: validator missing: ${validator}" >&2; return 1; }
+  [[ -f "$validator" ]] || { echo "_loop_review_context_call: validator missing: ${validator}" >&2; return 1; }
   local ledger="${LOOP_FIXTURE_ROOT}/reports/review-context/identity-ledger.json"
   local ledger_sha sequence previous run_id session manifest_path rc
   ledger_sha="$(_loop_sha256 "$ledger")"
@@ -268,10 +404,37 @@ _loop_reserve_review_context() {
      identity_ledger_path: $ledger_path, identity_ledger_sha256: $ledger_sha,
      input_mode: "file-manifest", fallback_mode: "none", read_only: true,
      allowed_input_manifest: $manifest}' > "$manifest_path" || { rm -f "$manifest_path"; return 1; }
-  "$validator" "$manifest_path" "${LOOP_FIXTURE_ROOT}" --reserve >/dev/null
+  if [[ "$mode" == check ]]; then
+    "$validator" "$manifest_path" "${LOOP_FIXTURE_ROOT}" >/dev/null
+  else
+    "$validator" "$manifest_path" "${LOOP_FIXTURE_ROOT}" --reserve >/dev/null
+  fi
   rc=$?
   rm -f "$manifest_path"
   return $rc
+}
+
+# _loop_reserve_review_context <stage> <role> <feature> <manifest-json-array>
+# Unchanged public contract from A2/#142: always reserves (extends the
+# identity-ledger chain).
+_loop_reserve_review_context() {
+  _loop_review_context_call "$1" "$2" "$3" "$4" reserve
+}
+
+# ---------------------------------------------------------------------------
+# assert_bidirectional_invariant <stage> <role> <feature> <manifest-json-array>
+# ---------------------------------------------------------------------------
+# A3 / Issue #143, AC-010: re-validates (READ-ONLY, no --reserve) the exact
+# manifest a downstream gate composed as its round requirement against the
+# REAL validate-review-context-set.sh cross_gate script -- the same script
+# drive_review_round already called with --reserve to actually advance the
+# round, so a successful drive already proves the invariant once; this
+# function makes the assertion explicit and independently re-checkable
+# (including by the negative self-check below) without mutating the ledger.
+# Returns 0 iff every input the downstream gate's manifest requires is an
+# input the upstream gate (cross_gates) authorizes.
+assert_bidirectional_invariant() {
+  _loop_review_context_call "$1" "$2" "$3" "$4" check
 }
 
 # ---------------------------------------------------------------------------
@@ -280,6 +443,9 @@ _loop_reserve_review_context() {
 _loop_required_round_files() {
   case "$1" in
     spec) printf '%s\n' precheck-result.json integrated-summary.json reviewer-a.json reviewer-b.json integrated-verdict.json spec-review-contract.json ;;
+    impl) printf '%s\n' precheck-result.json integrated-summary.json reviewer-a.json reviewer-b.json integrated-verdict.json impl-review-contract.json ;;
+    task) printf '%s\n' precheck-result.json dependency-graph.json integrated-summary.json reviewer-a.json reviewer-b.json integrated-verdict.json task-review-contract.json ;;
+    domain) printf '%s\n' precheck-result.json integrated-summary.json reviewer-a.json reviewer-b.json integrated-verdict.json domain-review-contract.json ;;
     *) return 1 ;;
   esac
 }
@@ -469,6 +635,670 @@ _loop_drive_spec_round() {
   return 0
 }
 
+# =============================================================================
+# A3 / Issue #143 stage dispatch extension: impl/task/domain review rounds.
+# Orchestrator scope adjudication (recorded in tasks.md T-003 and this task's
+# implementation report Specification Differences): T-002's Out of Scope note
+# assigned "driving impl/task/domain loops" to T-003/T-004, and T-003's own
+# Goal cannot be achieved without extending drive_review_round's dispatcher,
+# so this addition is in scope for T-003. It is a REVIEW-STAGE dispatch
+# extension only -- the escalation chain (quality-gate/terminal-tier) stays
+# T-004 scope and is not touched here. The existing "spec" stage function,
+# the public function contract, and T-002's smoke suite are unmodified.
+# =============================================================================
+
+# ---------------------------------------------------------------------------
+# impl-review round emission
+# ---------------------------------------------------------------------------
+_loop_impl_layer_names() { printf '%s\n' ux-spec frontend-spec infra-spec security-spec; }
+
+_loop_impl_layer_sha_json() {
+  local feature="$1" name path json='{}'
+  for name in $(_loop_impl_layer_names); do
+    path="${LOOP_FIXTURE_ROOT}/specs/${feature}/${name}.md"
+    json="$(jq -c --arg k "${name}.md" --arg v "$(_loop_sha256 "$path")" '. + {($k): $v}' <<<"$json")"
+  done
+  printf '%s' "$json"
+}
+
+_loop_emit_impl_round_a() {
+  local round_dir="$1" severity="$2"
+  local round a_verdict a_result a_fails a_passes check_severity feature
+  feature="$LOOP_FIXTURE_FEATURE"
+  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  case "$severity" in
+    none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=6; check_severity="Minor" ;;
+    Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Critical" ;;
+    Major)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Major" ;;
+    Minor)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Minor" ;;
+    *) echo "_loop_emit_impl_round_a: unknown severity: ${severity}" >&2; return 1 ;;
+  esac
+
+  jq -n --argjson attempt 1 --argjson round "$round" \
+    --argjson fail_count "$a_fails" --argjson pass_count "$a_passes" '
+    ["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids |
+    {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
+     reviewer_a_check_ids:$ids,
+     reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
+    > "${round_dir}/integrated-summary.json" || return 1
+
+  local requirements_path acceptance_path design_path precheck_path calibration_path
+  local requirements_sha acceptance_sha design_sha precheck_sha calibration_sha layer_sha
+  requirements_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/requirements.md"
+  acceptance_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/acceptance-tests.md"
+  design_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/design.md"
+  precheck_path="${round_dir}/precheck-result.json"
+  calibration_path="${LOOP_FIXTURE_ROOT}/plugins/sdd-review-loop/references/reviewer-calibration.md"
+  requirements_sha="$(_loop_sha256 "$requirements_path")"
+  acceptance_sha="$(_loop_sha256 "$acceptance_path")"
+  design_sha="$(_loop_sha256 "$design_path")"
+  precheck_sha="$(_loop_sha256 "$precheck_path")"
+  calibration_sha="$(_loop_sha256 "$calibration_path")"
+  layer_sha="$(_loop_impl_layer_sha_json "$feature")"
+
+  local manifest_json name lname lpath lsha
+  manifest_json="$(jq -n --arg requirements "$requirements_path" --arg requirements_sha "$requirements_sha" \
+    --arg acceptance "$acceptance_path" --arg acceptance_sha "$acceptance_sha" \
+    --arg design "$design_path" --arg design_sha "$design_sha" \
+    --arg precheck "$precheck_path" --arg precheck_sha "$precheck_sha" \
+    --arg calibration "$calibration_path" --arg calibration_sha "$calibration_sha" '
+    [{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},
+     {path:$design,sha256:$design_sha},{path:$precheck,sha256:$precheck_sha},
+     {path:$calibration,sha256:$calibration_sha}]')"
+  for name in $(_loop_impl_layer_names); do
+    lpath="${LOOP_FIXTURE_ROOT}/specs/${feature}/${name}.md"
+    lsha="$(_loop_sha256 "$lpath")"
+    manifest_json="$(jq -c --arg p "$lpath" --arg s "$lsha" '. + [{path:$p,sha256:$s}]' <<<"$manifest_json")"
+  done
+  # INV-012/2d8c6a5 fix regression lock: round>1 carries the PREVIOUS round's
+  # integrated-summary.json on impl-reviewer-a's own manifest (the exact
+  # entry the pre-fix validator rejected -- see the RED differential).
+  if [[ "$round" -gt 1 ]]; then
+    local prior_summary="${LOOP_FIXTURE_ROOT}/reports/impl-review/${feature}/attempt-1/round-$((round - 1))/integrated-summary.json"
+    manifest_json="$(jq -c --arg p "$prior_summary" --arg s "$(_loop_sha256 "$prior_summary")" '. + [{path:$p,sha256:$s}]' <<<"$manifest_json")"
+  fi
+
+  jq -n --arg verdict "$a_verdict" --argjson manifest "$manifest_json" \
+    --arg result "$a_result" --arg severity "$check_severity" '
+    ["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids |
+    {schema:"impl-reviewer-a/v1",stage:"impl",role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
+     allowed_input_manifest:$manifest, verdict:$verdict,
+     checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
+    > "${round_dir}/reviewer-a.json" || return 1
+
+  return 0
+}
+
+_loop_emit_impl_round_b_contract() {
+  local round_dir="$1" verdict="$2" severity="$3"
+  local round critical major minor feature
+  feature="$LOOP_FIXTURE_FEATURE"
+  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  case "$severity" in
+    none)     critical=0; major=0; minor=0 ;;
+    Critical) critical=1; major=0; minor=0 ;;
+    Major)    critical=0; major=1; minor=0 ;;
+    Minor)    critical=0; major=0; minor=1 ;;
+    *) echo "_loop_emit_impl_round_b_contract: unknown severity: ${severity}" >&2; return 1 ;;
+  esac
+  local a_verdict
+  if [[ "$critical" -gt 0 ]]; then a_verdict=BLOCKED
+  elif [[ "$((major + minor))" -gt 0 ]]; then a_verdict=NEEDS_WORK
+  else a_verdict=PASS; fi
+
+  local requirements_path acceptance_path design_path precheck_path calibration_path summary_path
+  local requirements_sha acceptance_sha design_sha precheck_sha calibration_sha summary_sha layer_sha
+  requirements_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/requirements.md"
+  acceptance_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/acceptance-tests.md"
+  design_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/design.md"
+  precheck_path="${round_dir}/precheck-result.json"
+  calibration_path="${LOOP_FIXTURE_ROOT}/plugins/sdd-review-loop/references/reviewer-calibration.md"
+  summary_path="${round_dir}/integrated-summary.json"
+  requirements_sha="$(_loop_sha256 "$requirements_path")"
+  acceptance_sha="$(_loop_sha256 "$acceptance_path")"
+  design_sha="$(_loop_sha256 "$design_path")"
+  precheck_sha="$(_loop_sha256 "$precheck_path")"
+  calibration_sha="$(_loop_sha256 "$calibration_path")"
+  summary_sha="$(_loop_sha256 "$summary_path")"
+  layer_sha="$(_loop_impl_layer_sha_json "$feature")"
+
+  jq -n --arg feature "$feature" --arg verdict "$verdict" --argjson round "$round" \
+    --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
+    --arg a_verdict "$a_verdict" '
+    {schema:"integrated-verdict/v1",stage:"impl",feature:$feature,attempt:1,round:$round,
+     run_id:"fixture-orchestrator",verdict:$verdict,
+     reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",
+     findings_critical:$critical,findings_major:$major,findings_minor:$minor}' \
+    > "${round_dir}/integrated-verdict.json" || return 1
+
+  local manifest_b_json name lpath lsha
+  manifest_b_json="$(jq -n --arg requirements "$requirements_path" --arg requirements_sha "$requirements_sha" \
+    --arg acceptance "$acceptance_path" --arg acceptance_sha "$acceptance_sha" \
+    --arg design "$design_path" --arg design_sha "$design_sha" \
+    --arg precheck "$precheck_path" --arg precheck_sha "$precheck_sha" \
+    --arg calibration "$calibration_path" --arg calibration_sha "$calibration_sha" \
+    --arg summary "$summary_path" --arg summary_sha "$summary_sha" '
+    [{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},
+     {path:$design,sha256:$design_sha},{path:$precheck,sha256:$precheck_sha},
+     {path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}]')"
+  for name in $(_loop_impl_layer_names); do
+    lpath="${LOOP_FIXTURE_ROOT}/specs/${feature}/${name}.md"
+    lsha="$(_loop_sha256 "$lpath")"
+    manifest_b_json="$(jq -c --arg p "$lpath" --arg s "$lsha" '. + [{path:$p,sha256:$s}]' <<<"$manifest_b_json")"
+  done
+  jq -n --arg result PASS --arg severity Minor '
+    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    {schema:"impl-reviewer-b/v1",stage:"impl",role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
+     allowed_input_manifest:'"$manifest_b_json"',verdict:"PASS",
+     checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
+    > "${round_dir}/reviewer-b.json" || return 1
+
+  local manifest_a_json
+  manifest_a_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-a.json")"
+  jq -n --arg feature "$feature" --arg verdict "$verdict" --argjson round "$round" \
+    --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
+    --arg a_verdict "$a_verdict" --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" \
+    --arg design_sha256 "$design_sha" --argjson layer_sha256 "$layer_sha" \
+    --argjson manifest_a "$manifest_a_json" --argjson manifest_b "$manifest_b_json" '
+    {schema:"impl-review-contract/v1",stage:"impl",feature:$feature,attempt:1,round:$round,
+     run_id:"fixture-orchestrator",verdict:$verdict,
+     reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",
+     findings_critical:$critical,findings_major:$major,findings_minor:$minor,
+     requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,
+     design_sha256:$design_sha256,layer_sha256:$layer_sha256,
+     reviewers:[
+       {role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},
+       {role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}
+     ]}' \
+    > "${round_dir}/impl-review-contract.json" || return 1
+
+  return 0
+}
+
+_loop_impl_manifest_a() {
+  local round_dir="$1" round="$2" feature="$3" round_rel name
+  round_rel="${round_dir#"${LOOP_FIXTURE_ROOT}"/}"
+  local rels=(
+    "specs/${feature}/requirements.md"
+    "specs/${feature}/acceptance-tests.md"
+    "specs/${feature}/design.md"
+    "plugins/sdd-review-loop/references/reviewer-calibration.md"
+    "${round_rel}/precheck-result.json"
+  )
+  for name in $(_loop_impl_layer_names); do rels+=("specs/${feature}/${name}.md"); done
+  if [[ "$round" -gt 1 ]]; then
+    rels+=("reports/impl-review/${feature}/attempt-1/round-$((round - 1))/integrated-summary.json")
+  fi
+  _loop_manifest_array "${rels[@]}"
+}
+_loop_impl_manifest_b() {
+  local round_dir="$1" feature="$2" round_rel name
+  round_rel="${round_dir#"${LOOP_FIXTURE_ROOT}"/}"
+  local rels=(
+    "specs/${feature}/requirements.md"
+    "specs/${feature}/acceptance-tests.md"
+    "specs/${feature}/design.md"
+    "plugins/sdd-review-loop/references/reviewer-calibration.md"
+    "${round_rel}/precheck-result.json"
+    "${round_rel}/integrated-summary.json"
+  )
+  for name in $(_loop_impl_layer_names); do rels+=("specs/${feature}/${name}.md"); done
+  _loop_manifest_array "${rels[@]}"
+}
+
+# loop_prepare_impl_prereqs <feature> — drives spec rounds 1->3 to a genuine
+# PASS on <feature> (reusing _loop_drive_spec_round unmodified) and flips
+# Spec-Review-Status to Passed, so impl-review-precheck.sh's own
+# unconditional precondition (require_persisted_pass + the literal
+# "Spec-Review-Status: Passed" field check) is satisfied by real, on-disk
+# evidence -- never a hand-written shortcut.
+loop_prepare_impl_prereqs() {
+  local feature="$1"
+  _loop_drive_spec_round 1 1 NEEDS_WORK Major || return 1
+  _loop_drive_spec_round 1 2 NEEDS_WORK Major || return 1
+  _loop_drive_spec_round 1 3 PASS Minor || return 1
+  _loop_set_status_field "${LOOP_FIXTURE_ROOT}/specs/${feature}/requirements.md" "Spec-Review-Status" "Passed" || return 1
+  return 0
+}
+
+# loop_prepare_task_prereqs <feature> — additionally drives impl rounds 1->3
+# to a genuine PASS and flips Impl-Review-Status to Passed (after
+# loop_prepare_impl_prereqs), then lazily synthesizes tasks.md, satisfying
+# task-review-precheck.sh's own unconditional preconditions (both status
+# fields plus require_persisted_pass for both spec and impl -- OQ-5 subject).
+loop_prepare_task_prereqs() {
+  local feature="$1"
+  loop_prepare_impl_prereqs "$feature" || return 1
+  drive_review_round impl 1 1 NEEDS_WORK Major || return 1
+  drive_review_round impl 1 2 NEEDS_WORK Major || return 1
+  drive_review_round impl 1 3 PASS none || return 1
+  _loop_set_status_field "${LOOP_FIXTURE_ROOT}/specs/${feature}/design.md" "Impl-Review-Status" "Passed" || return 1
+  _loop_task_fixture_prepare "$feature" || return 1
+  return 0
+}
+
+_loop_drive_impl_round() {
+  local attempt="$1" round="$2" verdict="$3" severity="$4"
+  local feature script_rel script design precheck_args
+  feature="${LOOP_FIXTURE_FEATURE:?_loop_drive_impl_round requires LOOP_FIXTURE_FEATURE (set by loop_fixture_init)}"
+  script_rel="$(_loop_driver_script impl)" || return 1
+  [[ -n "$script_rel" ]] || { echo "drive_review_round: impl-review driver script not registered in the inventory" >&2; return 1; }
+  script="${LOOP_FIXTURE_ROOT}/${script_rel}"
+  [[ -f "$script" ]] || { echo "drive_review_round: precheck script missing at ${script}" >&2; return 1; }
+
+  design="${LOOP_FIXTURE_ROOT}/specs/${feature}/design.md"
+  precheck_args=("$feature" "$attempt" "$round")
+  if [[ "$round" -gt 1 ]]; then
+    local prior_dir="${LOOP_FIXTURE_ROOT}/reports/impl-review/${feature}/attempt-${attempt}/round-$((round - 1))"
+    assert_prior_round_complete impl "$prior_dir" || {
+      echo "drive_review_round: round-$((round - 1)) output set is incomplete on disk; refusing to start round ${round}" >&2
+      return 1
+    }
+    printf '\n<!-- loop-driver round %s edit -->\n' "$round" >> "$design"
+  fi
+
+  ( cd "${LOOP_FIXTURE_ROOT}" && bash "$script" "${precheck_args[@]}" ) >/dev/null || return 1
+
+  local round_dir="${LOOP_FIXTURE_ROOT}/reports/impl-review/${feature}/attempt-${attempt}/round-${round}"
+  [[ -f "${round_dir}/precheck-result.json" ]] || {
+    echo "drive_review_round: precheck-result.json missing after a successful precheck run" >&2
+    return 1
+  }
+
+  local manifest_a manifest_b
+  manifest_a="$(_loop_impl_manifest_a "$round_dir" "$round" "$feature")" || return 1
+  _loop_reserve_review_context impl impl-reviewer-a "$feature" "$manifest_a" || return 1
+  _loop_emit_impl_round_a "$round_dir" "$severity" || return 1
+
+  manifest_b="$(_loop_impl_manifest_b "$round_dir" "$feature")" || return 1
+  _loop_reserve_review_context impl impl-reviewer-b "$feature" "$manifest_b" || return 1
+  _loop_emit_impl_round_b_contract "$round_dir" "$verdict" "$severity" || return 1
+
+  return 0
+}
+
+# ---------------------------------------------------------------------------
+# task-review round emission
+# ---------------------------------------------------------------------------
+_loop_emit_task_round_a() {
+  local round_dir="$1" severity="$2"
+  local round a_verdict a_result a_fails a_passes check_severity feature
+  feature="$LOOP_FIXTURE_FEATURE"
+  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  case "$severity" in
+    none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=6; check_severity="Minor" ;;
+    Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Critical" ;;
+    Major)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Major" ;;
+    Minor)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Minor" ;;
+    *) echo "_loop_emit_task_round_a: unknown severity: ${severity}" >&2; return 1 ;;
+  esac
+
+  jq -n --argjson attempt 1 --argjson round "$round" \
+    --argjson fail_count "$a_fails" --argjson pass_count "$a_passes" '
+    ["DEPENDENCY-GRAPH-VALID","TASK-AC-TRACE","RISK-WORKFLOW-MATCH","SCOPE-DISJOINT","ROLLBACK-PLANNED","SIZE-APPROPRIATE"] as $ids |
+    {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
+     reviewer_a_check_ids:$ids,
+     reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
+    > "${round_dir}/integrated-summary.json" || return 1
+
+  local tasks_path requirements_path acceptance_path design_path precheck_path dep_path calibration_path
+  local tasks_sha requirements_sha acceptance_sha design_sha precheck_sha dep_sha calibration_sha
+  tasks_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/tasks.md"
+  requirements_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/requirements.md"
+  acceptance_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/acceptance-tests.md"
+  design_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/design.md"
+  precheck_path="${round_dir}/precheck-result.json"
+  dep_path="${round_dir}/dependency-graph.json"
+  calibration_path="${LOOP_FIXTURE_ROOT}/plugins/sdd-review-loop/references/reviewer-calibration.md"
+  tasks_sha="$(_loop_sha256 "$tasks_path")"
+  requirements_sha="$(_loop_sha256 "$requirements_path")"
+  acceptance_sha="$(_loop_sha256 "$acceptance_path")"
+  design_sha="$(_loop_sha256 "$design_path")"
+  precheck_sha="$(_loop_sha256 "$precheck_path")"
+  dep_sha="$(_loop_sha256 "$dep_path")"
+  calibration_sha="$(_loop_sha256 "$calibration_path")"
+
+  jq -n --arg verdict "$a_verdict" --arg result "$a_result" --arg severity "$check_severity" \
+    --arg tasks "$tasks_path" --arg tasks_sha "$tasks_sha" \
+    --arg requirements "$requirements_path" --arg requirements_sha "$requirements_sha" \
+    --arg acceptance "$acceptance_path" --arg acceptance_sha "$acceptance_sha" \
+    --arg design "$design_path" --arg design_sha "$design_sha" \
+    --arg precheck "$precheck_path" --arg precheck_sha "$precheck_sha" \
+    --arg dep "$dep_path" --arg dep_sha "$dep_sha" \
+    --arg calibration "$calibration_path" --arg calibration_sha "$calibration_sha" '
+    ["DEPENDENCY-GRAPH-VALID","TASK-AC-TRACE","RISK-WORKFLOW-MATCH","SCOPE-DISJOINT","ROLLBACK-PLANNED","SIZE-APPROPRIATE"] as $ids |
+    {schema:"task-reviewer-a/v1",stage:"task",role:"task-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
+     allowed_input_manifest:[
+       {path:$tasks,sha256:$tasks_sha},{path:$requirements,sha256:$requirements_sha},
+       {path:$acceptance,sha256:$acceptance_sha},{path:$design,sha256:$design_sha},
+       {path:$precheck,sha256:$precheck_sha},{path:$dep,sha256:$dep_sha},
+       {path:$calibration,sha256:$calibration_sha}
+     ],
+     verdict:$verdict,
+     checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
+    > "${round_dir}/reviewer-a.json" || return 1
+
+  return 0
+}
+
+_loop_emit_task_round_b_contract() {
+  local round_dir="$1" verdict="$2" severity="$3"
+  local round critical major minor feature
+  feature="$LOOP_FIXTURE_FEATURE"
+  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  case "$severity" in
+    none)     critical=0; major=0; minor=0 ;;
+    Critical) critical=1; major=0; minor=0 ;;
+    Major)    critical=0; major=1; minor=0 ;;
+    Minor)    critical=0; major=0; minor=1 ;;
+    *) echo "_loop_emit_task_round_b_contract: unknown severity: ${severity}" >&2; return 1 ;;
+  esac
+  local a_verdict
+  if [[ "$critical" -gt 0 ]]; then a_verdict=BLOCKED
+  elif [[ "$((major + minor))" -gt 0 ]]; then a_verdict=NEEDS_WORK
+  else a_verdict=PASS; fi
+
+  local tasks_path requirements_path acceptance_path design_path precheck_path dep_path calibration_path summary_path
+  local tasks_sha requirements_sha acceptance_sha design_sha precheck_sha dep_sha calibration_sha summary_sha
+  tasks_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/tasks.md"
+  requirements_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/requirements.md"
+  acceptance_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/acceptance-tests.md"
+  design_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/design.md"
+  precheck_path="${round_dir}/precheck-result.json"
+  dep_path="${round_dir}/dependency-graph.json"
+  calibration_path="${LOOP_FIXTURE_ROOT}/plugins/sdd-review-loop/references/reviewer-calibration.md"
+  summary_path="${round_dir}/integrated-summary.json"
+  tasks_sha="$(_loop_sha256 "$tasks_path")"
+  requirements_sha="$(_loop_sha256 "$requirements_path")"
+  acceptance_sha="$(_loop_sha256 "$acceptance_path")"
+  design_sha="$(_loop_sha256 "$design_path")"
+  precheck_sha="$(_loop_sha256 "$precheck_path")"
+  dep_sha="$(_loop_sha256 "$dep_path")"
+  calibration_sha="$(_loop_sha256 "$calibration_path")"
+  summary_sha="$(_loop_sha256 "$summary_path")"
+
+  jq -n --arg feature "$feature" --arg verdict "$verdict" --argjson round "$round" \
+    --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
+    --arg a_verdict "$a_verdict" '
+    {schema:"integrated-verdict/v1",stage:"task",feature:$feature,attempt:1,round:$round,
+     run_id:"fixture-orchestrator",verdict:$verdict,
+     reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",
+     findings_critical:$critical,findings_major:$major,findings_minor:$minor}' \
+    > "${round_dir}/integrated-verdict.json" || return 1
+
+  jq -n --arg tasks "$tasks_path" --arg tasks_sha "$tasks_sha" \
+    --arg requirements "$requirements_path" --arg requirements_sha "$requirements_sha" \
+    --arg acceptance "$acceptance_path" --arg acceptance_sha "$acceptance_sha" \
+    --arg design "$design_path" --arg design_sha "$design_sha" \
+    --arg precheck "$precheck_path" --arg precheck_sha "$precheck_sha" \
+    --arg calibration "$calibration_path" --arg calibration_sha "$calibration_sha" \
+    --arg summary "$summary_path" --arg summary_sha "$summary_sha" '
+    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    {schema:"task-reviewer-b/v1",stage:"task",role:"task-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
+     allowed_input_manifest:[
+       {path:$tasks,sha256:$tasks_sha},{path:$requirements,sha256:$requirements_sha},
+       {path:$acceptance,sha256:$acceptance_sha},{path:$design,sha256:$design_sha},
+       {path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},
+       {path:$summary,sha256:$summary_sha}
+     ],
+     verdict:"PASS",
+     checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
+    > "${round_dir}/reviewer-b.json" || return 1
+
+  local manifest_a_json manifest_b_json
+  manifest_a_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-a.json")"
+  manifest_b_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-b.json")"
+  jq -n --arg feature "$feature" --arg verdict "$verdict" --argjson round "$round" \
+    --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
+    --arg a_verdict "$a_verdict" --arg tasks_sha256 "$tasks_sha" \
+    --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" \
+    --argjson manifest_a "$manifest_a_json" --argjson manifest_b "$manifest_b_json" '
+    {schema:"task-review-contract/v1",stage:"task",feature:$feature,attempt:1,round:$round,
+     run_id:"fixture-orchestrator",verdict:$verdict,
+     reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",
+     findings_critical:$critical,findings_major:$major,findings_minor:$minor,
+     tasks_sha256:$tasks_sha256,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,
+     reviewers:[
+       {role:"task-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},
+       {role:"task-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}
+     ]}' \
+    > "${round_dir}/task-review-contract.json" || return 1
+
+  return 0
+}
+
+_loop_task_manifest_a() {
+  local round_dir="$1" feature="$2" round_rel
+  round_rel="${round_dir#"${LOOP_FIXTURE_ROOT}"/}"
+  _loop_manifest_array \
+    "specs/${feature}/tasks.md" "specs/${feature}/requirements.md" "specs/${feature}/acceptance-tests.md" \
+    "specs/${feature}/design.md" "plugins/sdd-review-loop/references/reviewer-calibration.md" \
+    "${round_rel}/precheck-result.json" "${round_rel}/dependency-graph.json"
+}
+_loop_task_manifest_b() {
+  local round_dir="$1" feature="$2" round_rel
+  round_rel="${round_dir#"${LOOP_FIXTURE_ROOT}"/}"
+  _loop_manifest_array \
+    "specs/${feature}/tasks.md" "specs/${feature}/requirements.md" "specs/${feature}/acceptance-tests.md" \
+    "specs/${feature}/design.md" "plugins/sdd-review-loop/references/reviewer-calibration.md" \
+    "${round_rel}/precheck-result.json" "${round_rel}/integrated-summary.json"
+}
+
+_loop_drive_task_round() {
+  local attempt="$1" round="$2" verdict="$3" severity="$4"
+  local feature script_rel script tasks precheck_args
+  feature="${LOOP_FIXTURE_FEATURE:?_loop_drive_task_round requires LOOP_FIXTURE_FEATURE (set by loop_fixture_init)}"
+  script_rel="$(_loop_driver_script task)" || return 1
+  [[ -n "$script_rel" ]] || { echo "drive_review_round: task-review driver script not registered in the inventory" >&2; return 1; }
+  script="${LOOP_FIXTURE_ROOT}/${script_rel}"
+  [[ -f "$script" ]] || { echo "drive_review_round: precheck script missing at ${script}" >&2; return 1; }
+
+  tasks="${LOOP_FIXTURE_ROOT}/specs/${feature}/tasks.md"
+  [[ -f "$tasks" ]] || { echo "drive_review_round: tasks.md missing; call loop_prepare_task_prereqs first" >&2; return 1; }
+  precheck_args=("$feature" "$attempt" "$round")
+  if [[ "$round" -gt 1 ]]; then
+    local prior_dir="${LOOP_FIXTURE_ROOT}/reports/task-review/${feature}/attempt-${attempt}/round-$((round - 1))"
+    assert_prior_round_complete task "$prior_dir" || {
+      echo "drive_review_round: round-$((round - 1)) output set is incomplete on disk; refusing to start round ${round}" >&2
+      return 1
+    }
+    printf '\n<!-- loop-driver round %s edit -->\n' "$round" >> "$tasks"
+  fi
+
+  ( cd "${LOOP_FIXTURE_ROOT}" && bash "$script" "${precheck_args[@]}" ) >/dev/null || return 1
+
+  local round_dir="${LOOP_FIXTURE_ROOT}/reports/task-review/${feature}/attempt-${attempt}/round-${round}"
+  [[ -f "${round_dir}/precheck-result.json" ]] || {
+    echo "drive_review_round: precheck-result.json missing after a successful precheck run" >&2
+    return 1
+  }
+
+  local manifest_a manifest_b
+  manifest_a="$(_loop_task_manifest_a "$round_dir" "$feature")" || return 1
+  _loop_reserve_review_context task task-reviewer-a "$feature" "$manifest_a" || return 1
+  _loop_emit_task_round_a "$round_dir" "$severity" || return 1
+
+  manifest_b="$(_loop_task_manifest_b "$round_dir" "$feature")" || return 1
+  _loop_reserve_review_context task task-reviewer-b "$feature" "$manifest_b" || return 1
+  _loop_emit_task_round_b_contract "$round_dir" "$verdict" "$severity" || return 1
+
+  return 0
+}
+
+# ---------------------------------------------------------------------------
+# domain-review round emission (not feature-scoped; operates on the
+# fixture's single domain/ tree synthesized by _loop_fixture_init_domain)
+# ---------------------------------------------------------------------------
+_loop_emit_domain_round_a() {
+  local round_dir="$1" severity="$2"
+  local round a_verdict a_result a_fails a_passes check_severity
+  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  case "$severity" in
+    none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=6; check_severity="Minor" ;;
+    Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Critical" ;;
+    Major)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Major" ;;
+    Minor)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Minor" ;;
+    *) echo "_loop_emit_domain_round_a: unknown severity: ${severity}" >&2; return 1 ;;
+  esac
+
+  jq -n --argjson attempt 1 --argjson round "$round" \
+    --argjson fail_count "$a_fails" --argjson pass_count "$a_passes" '
+    ["MODEL-CONSISTENCY","UBIQUITOUS-LANGUAGE","CONTEXT-BOUNDARY","AGGREGATE-INTEGRITY","EVENT-COVERAGE","C4-ALIGNMENT"] as $ids |
+    {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
+     reviewer_a_check_ids:$ids,
+     reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
+    > "${round_dir}/integrated-summary.json" || return 1
+
+  local context_path precheck_path calibration_path
+  local context_sha precheck_sha calibration_sha
+  context_path="${LOOP_FIXTURE_ROOT}/domain/context-map.md"
+  precheck_path="${round_dir}/precheck-result.json"
+  calibration_path="${LOOP_FIXTURE_ROOT}/plugins/sdd-domain/references/domain-review-calibration.md"
+  context_sha="$(_loop_sha256 "$context_path")"
+  precheck_sha="$(_loop_sha256 "$precheck_path")"
+  calibration_sha="$(_loop_sha256 "$calibration_path")"
+
+  jq -n --arg verdict "$a_verdict" --arg result "$a_result" --arg severity "$check_severity" \
+    --arg context "$context_path" --arg context_sha "$context_sha" \
+    --arg precheck "$precheck_path" --arg precheck_sha "$precheck_sha" \
+    --arg calibration "$calibration_path" --arg calibration_sha "$calibration_sha" '
+    ["MODEL-CONSISTENCY","UBIQUITOUS-LANGUAGE","CONTEXT-BOUNDARY","AGGREGATE-INTEGRITY","EVENT-COVERAGE","C4-ALIGNMENT"] as $ids |
+    {schema:"domain-reviewer-a/v1",stage:"domain",role:"domain-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
+     allowed_input_manifest:[
+       {path:$context,sha256:$context_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}
+     ],
+     verdict:$verdict,
+     checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}' \
+    > "${round_dir}/reviewer-a.json" || return 1
+
+  return 0
+}
+
+_loop_emit_domain_round_b_contract() {
+  local round_dir="$1" verdict="$2" severity="$3"
+  local round critical major minor
+  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  case "$severity" in
+    none)     critical=0; major=0; minor=0 ;;
+    Critical) critical=1; major=0; minor=0 ;;
+    Major)    critical=0; major=1; minor=0 ;;
+    Minor)    critical=0; major=0; minor=1 ;;
+    *) echo "_loop_emit_domain_round_b_contract: unknown severity: ${severity}" >&2; return 1 ;;
+  esac
+  local a_verdict
+  if [[ "$critical" -gt 0 ]]; then a_verdict=BLOCKED
+  elif [[ "$((major + minor))" -gt 0 ]]; then a_verdict=NEEDS_WORK
+  else a_verdict=PASS; fi
+
+  local context_path precheck_path calibration_path summary_path
+  local context_sha precheck_sha calibration_sha summary_sha
+  context_path="${LOOP_FIXTURE_ROOT}/domain/context-map.md"
+  precheck_path="${round_dir}/precheck-result.json"
+  calibration_path="${LOOP_FIXTURE_ROOT}/plugins/sdd-domain/references/domain-review-calibration.md"
+  summary_path="${round_dir}/integrated-summary.json"
+  context_sha="$(_loop_sha256 "$context_path")"
+  precheck_sha="$(_loop_sha256 "$precheck_path")"
+  calibration_sha="$(_loop_sha256 "$calibration_path")"
+  summary_sha="$(_loop_sha256 "$summary_path")"
+
+  jq -n --arg verdict "$verdict" --argjson round "$round" \
+    --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
+    --arg a_verdict "$a_verdict" '
+    {schema:"integrated-verdict/v1",stage:"domain",attempt:1,round:$round,
+     run_id:"fixture-orchestrator",verdict:$verdict,
+     reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",
+     findings_critical:$critical,findings_major:$major,findings_minor:$minor}' \
+    > "${round_dir}/integrated-verdict.json" || return 1
+
+  jq -n --arg context "$context_path" --arg context_sha "$context_sha" \
+    --arg precheck "$precheck_path" --arg precheck_sha "$precheck_sha" \
+    --arg calibration "$calibration_path" --arg calibration_sha "$calibration_sha" \
+    --arg summary "$summary_path" --arg summary_sha "$summary_sha" '
+    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    {schema:"domain-reviewer-b/v1",stage:"domain",role:"domain-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
+     allowed_input_manifest:[
+       {path:$context,sha256:$context_sha},{path:$precheck,sha256:$precheck_sha},
+       {path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}
+     ],
+     verdict:"PASS",
+     checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
+    > "${round_dir}/reviewer-b.json" || return 1
+
+  local manifest_a_json manifest_b_json
+  manifest_a_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-a.json")"
+  manifest_b_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-b.json")"
+  jq -n --arg verdict "$verdict" --argjson round "$round" \
+    --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
+    --arg a_verdict "$a_verdict" \
+    --argjson manifest_a "$manifest_a_json" --argjson manifest_b "$manifest_b_json" '
+    {schema:"domain-review-contract/v1",stage:"domain",attempt:1,round:$round,
+     run_id:"fixture-orchestrator",verdict:$verdict,
+     reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",
+     findings_critical:$critical,findings_major:$major,findings_minor:$minor,
+     reviewers:[
+       {role:"domain-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},
+       {role:"domain-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}
+     ]}' \
+    > "${round_dir}/domain-review-contract.json" || return 1
+
+  return 0
+}
+
+_loop_domain_manifest_a() {
+  local round_dir="$1" round_rel
+  round_rel="${round_dir#"${LOOP_FIXTURE_ROOT}"/}"
+  _loop_manifest_array \
+    "domain/context-map.md" "plugins/sdd-domain/references/domain-review-calibration.md" \
+    "${round_rel}/precheck-result.json"
+}
+_loop_domain_manifest_b() {
+  local round_dir="$1" round_rel
+  round_rel="${round_dir#"${LOOP_FIXTURE_ROOT}"/}"
+  _loop_manifest_array \
+    "domain/context-map.md" "plugins/sdd-domain/references/domain-review-calibration.md" \
+    "${round_rel}/precheck-result.json" "${round_rel}/integrated-summary.json"
+}
+
+_loop_drive_domain_round() {
+  local attempt="$1" round="$2" verdict="$3" severity="$4"
+  local script_rel script story_md precheck_args
+  script_rel="$(_loop_driver_script domain)" || return 1
+  [[ -n "$script_rel" ]] || { echo "drive_review_round: domain-review driver script not registered in the inventory" >&2; return 1; }
+  script="${LOOP_FIXTURE_ROOT}/${script_rel}"
+  [[ -f "$script" ]] || { echo "drive_review_round: precheck script missing at ${script}" >&2; return 1; }
+
+  story_md="${LOOP_FIXTURE_ROOT}/domain/domain-story.md"
+  precheck_args=("$attempt" "$round")
+  if [[ "$round" -gt 1 ]]; then
+    local prior_dir="${LOOP_FIXTURE_ROOT}/reports/domain-review/attempt-${attempt}/round-$((round - 1))"
+    assert_prior_round_complete domain "$prior_dir" || {
+      echo "drive_review_round: round-$((round - 1)) output set is incomplete on disk; refusing to start round ${round}" >&2
+      return 1
+    }
+    printf '\n<!-- loop-driver round %s edit -->\n' "$round" >> "$story_md"
+    precheck_args+=("--edit-summary=round-${round}-edit")
+  fi
+
+  ( cd "${LOOP_FIXTURE_ROOT}" && bash "$script" "${precheck_args[@]}" ) >/dev/null || return 1
+
+  local round_dir="${LOOP_FIXTURE_ROOT}/reports/domain-review/attempt-${attempt}/round-${round}"
+  [[ -f "${round_dir}/precheck-result.json" ]] || {
+    echo "drive_review_round: precheck-result.json missing after a successful precheck run" >&2
+    return 1
+  }
+
+  local manifest_a manifest_b
+  manifest_a="$(_loop_domain_manifest_a "$round_dir")" || return 1
+  _loop_reserve_review_context domain domain-reviewer-a "loop-driver-domain" "$manifest_a" || return 1
+  _loop_emit_domain_round_a "$round_dir" "$severity" || return 1
+
+  manifest_b="$(_loop_domain_manifest_b "$round_dir")" || return 1
+  _loop_reserve_review_context domain domain-reviewer-b "loop-driver-domain" "$manifest_b" || return 1
+  _loop_emit_domain_round_b_contract "$round_dir" "$verdict" "$severity" || return 1
+
+  return 0
+}
+
 # ---------------------------------------------------------------------------
 # drive_review_round <stage> <attempt> <round> <verdict> [<severity>]
 # ---------------------------------------------------------------------------
@@ -484,10 +1314,9 @@ drive_review_round() {
   fi
   case "$stage" in
     spec) _loop_drive_spec_round "$attempt" "$round" "$verdict" "$severity" ;;
-    impl|task|domain)
-      echo "drive_review_round: stage '${stage}' is not implemented by A2/#142 (spec-review only; driving impl/task/domain is A3/#143 scope — see specs/epic-159-pillar-a/tasks.md T-002 Out of Scope and this task's implementation report)" >&2
-      return 1
-      ;;
+    impl) _loop_drive_impl_round "$attempt" "$round" "$verdict" "$severity" ;;
+    task) _loop_drive_task_round "$attempt" "$round" "$verdict" "$severity" ;;
+    domain) _loop_drive_domain_round "$attempt" "$round" "$verdict" "$severity" ;;
     *)
       echo "drive_review_round: unknown stage: ${stage}" >&2
       return 1
