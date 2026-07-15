@@ -1,0 +1,116 @@
+Slice 1 GREEN command: bash tests/phase2-guard-invariants.tests.sh; powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1
+
+Shell result: 11 passed, 0 failed.
+- `--check` accepts committed native output.
+- Two independent write-mode renders are byte-identical.
+- `--check` rejects stale and missing output without writing.
+- `--check` rejects invalid array type and unsupported schema version.
+
+PowerShell result: 10 passed, 0 failed.
+- Python, Node, and PowerShell generated modules export the exact v1 key set.
+- Schema version is 1 and the signature length is 64.
+
+Exit status: bash=0; powershell.exe=0.
+
+Slice 3 bootstrap-validation GREEN addendum
+-------------------------------------------
+Commands:
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+`bash tests/phase2-guard-invariants.tests.sh`
+
+- PowerShell: 33 passed, 0 failed (exit 0). The isolated fixture accepted the
+  literal ordered bootstrap inventory and a strict 18-line lowercase GNU
+  manifest, rejected expansion, malformed grammar, hash mismatch, omission,
+  and duplicate cases, and proved the runner stops before copying its sentinel.
+- Shell: 24 passed, 0 failed (exit 0).
+- Staged runner SHA-256:
+  `a0c2d16d41ede2fffbbc2afff13bd35a1fa0ff5100332f331ac97c9fba4bb2e7`.
+- This narrow slice deliberately has no normal-update authority, reparse-point
+  handling, CI candidate, final manifest, or actual-copy behavior.
+
+Slice 3b normal-update validation GREEN addendum
+------------------------------------------------
+Commands:
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+`bash tests/phase2-guard-invariants.tests.sh`
+
+- PowerShell: 37 passed, 0 failed (exit 0). All normal-update fixtures use a
+  unique system temporary directory supplied through `-RepositoryRoot`; they
+  prove installed-live canonical success and absent, invalid, and staged-order
+  mismatch denials.
+- Shell: 24 passed, 0 failed (exit 0).
+- Runner SHA-256:
+  `9feb1a71433cc757f0d2a46a8b57e71f68ac725f2db375552a6f42cdb3f2757d`.
+- This increment remains validation-only: no `Copy-Item` or
+  `[IO.File]::Copy` call is present, and no fixture or live target was copied.
+
+Slice 3c containment and reparse GREEN addendum
+------------------------------------------------
+Command: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+
+- PowerShell: 44 passed, 0 failed (exit 0).
+- `GetFullPath` containment is separator-bounded for fixed
+  `human-copy/<T>` sources and `<T>` destinations. The runner validates only
+  that binding, regular files, and all existing path components with
+  `FileAttributes.ReparsePoint`.
+- Absolute, traversal, and remap manifest cases deny. Staged-source final link
+  and intermediate junction plus target final link and parent junction deny in
+  GUID system-temp fixtures outside the workspace.
+- Runner SHA-256:
+  `2b3d6fbaca91b8d622138e7fa443b8080be5f491cc66c58dff3b0e6d6133b3d6`.
+- The runner has no copy API, `Resolve-Path`, or `LinkType` reference.
+
+Slice 3d isolated installation GREEN addendum
+---------------------------------------------
+Commands:
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+`bash tests/phase2-guard-invariants.tests.sh`
+
+- Runner parser: passed. PowerShell: 47 passed, 0 failed (exit 0). Shell: 24
+  passed, 0 failed (exit 0).
+- A GUID system-temp repository fixture completed the staged installation:
+  each of the 18 inventory targets matches its staged source bytes. The
+  fixture's post-install verification also passed generator `--check` and the
+  named focused suites; the live guard denied a protected workflow write.
+- A late manifest hash mismatch leaves an earlier sentinel target unchanged,
+  proving validation completes before copying starts.
+- Runner SHA-256:
+  `b028c15e90d1be93ea2ed3165ba1756478e9a96742a2e9b4c5a25b5d8771c2af`.
+- The runner was invoked only with isolated GUID system-temp `-RepositoryRoot`
+  fixtures; no actual workspace target was copied.
+
+Slice 4 final staged assembly GREEN addendum
+--------------------------------------------
+Commands:
+`python.exe specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py`
+`python.exe specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check`
+`bash tests/phase2-guard-invariants.tests.sh`
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+
+- Generator write mode and the final non-mutating `--check` both passed.
+- The staged CI candidate runs the Python generator check immediately after
+  checkout, before the first existing validation and all guard suites.
+- `MANIFEST.sha256` has exactly 18 ordered lowercase GNU-style entries. Its
+  SHA-256 is `a46c6ad94c95d4bdbec6ba7407ead4dd66b8b196baffa72f7532606506d4001a`.
+- Shell focused suite: 27 passed, 0 failed. PowerShell focused suite: 50
+  passed, 0 failed. Both independently verify each staged candidate, exact
+  manifest count/order/hash binding, and CI placement.
+
+Slice A portability and dynamic fail-closed GREEN addendum
+----------------------------------------------------------
+Commands:
+`python.exe specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check`
+`bash tests/phase2-guard-invariants.tests.sh`
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+
+- The staged workflow now executes the PowerShell invariant suite only on
+  Windows, while macOS/Linux run the Bash suite. Generator checks run
+  immediately after checkout as Windows `python`/`pwsh` and POSIX
+  `python3`/`bash` steps.
+- TEST-011 now covers malformed canonical JSON and a copied-tree canonical
+  read I/O failure. TEST-012 dynamically proves missing and unconsumed-export
+  poisoned fixed modules fail closed in copied Python, Node, and PowerShell
+  trees.
+- Generator `--check` passed. Shell: 33 passed, 0 failed. PowerShell: 58
+  passed, 0 failed. `MANIFEST.sha256` retains exactly 18 entries and now has
+  SHA-256 `c7e7db17294157043995f633aa570bbd0f648fc7b6c087bbfafda347be7beb0a`.

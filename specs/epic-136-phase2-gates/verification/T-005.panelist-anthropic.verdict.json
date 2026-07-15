@@ -1,0 +1,26 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-005",
+  "feature": "epic-136-phase2-gates",
+  "vendor": "anthropic",
+  "model": "claude-sonnet",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "critical",
+      "ref": "T-005 status and acceptance evidence",
+      "note": "T-005 is In Progress; TEST-010 through TEST-013 are Planned, and no implementation, test, or human-copy verification evidence is included."
+    },
+    {
+      "severity": "high",
+      "ref": "T-005 Done When",
+      "note": "Required critical-tier preflight, RED/GREEN evidence, signed evidence bundle, second human approval, and independent quality-gate PASS are not present."
+    }
+  ],
+  "blind": true,
+  "input_digest": "7713ff841e32176e8874ca6be6340adb45543ffb6f34c0e4885a53a187201776",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "SDD_SUDO"
+  }
+}

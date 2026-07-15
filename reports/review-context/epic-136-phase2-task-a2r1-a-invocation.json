@@ -1,0 +1,13 @@
+{"schema":"review-context-invocation/v2","stage":"task","role":"task-reviewer-a","feature":"epic-136-phase2-gates","run_id":"RUN-epic136phase2-task-a2r1-a-seq0234","host_session_id":"SESS-task-a2r1-a-epic136phase2-0234","read_only":true,"input_mode":"file-manifest","fallback_mode":"none","identity_ledger_path":"reports/review-context/identity-ledger.json","identity_ledger_sha256":"86d5971b044671704e83ace5a97c56c9bc58090aaa6f5fca32a9edf40a697255","previous_record_sha256":"c1128aaffb6c947b6d2d7a6d45931cdb0c84d8e53126c010792f11a2b78c9b84","sequence":234,"allowed_input_manifest":[
+{"path":"specs/epic-136-phase2-gates/requirements.md","sha256":"bf84e34670a03f6df85f5e2a185430450da6f0fcf5fbd2c8e1c2799643b5f9dd"},
+{"path":"specs/epic-136-phase2-gates/acceptance-tests.md","sha256":"3568a38e584a71610c006c77bf6a647a2e12f91217649aed610189b1fd87cbd1"},
+{"path":"specs/epic-136-phase2-gates/design.md","sha256":"2db4b773edfd3f5c889d47d58f7336c875986de0435213d77f4c6669d0cec0be"},
+{"path":"specs/epic-136-phase2-gates/tasks.md","sha256":"dd23dbdf358374e0202fdfdf96f9c261f67ce47aa5aae6a0bd5893b49923642d"},
+{"path":"specs/epic-136-phase2-gates/traceability.md","sha256":"174b7dae5ba593f9146137a8915e78cfd928d96f9264b82805a8aebeee74fe3f"},
+{"path":"specs/epic-136-phase2-gates/ux-spec.md","sha256":"4d6bd35f07521191150a0085b2a8b4c35466f427fa420799ea5dee56686b1225"},
+{"path":"specs/epic-136-phase2-gates/frontend-spec.md","sha256":"4f788250b6130c4198c755598b673f0fb41bfc8086b98a3f0f3c66d0ade38bf0"},
+{"path":"specs/epic-136-phase2-gates/infra-spec.md","sha256":"085f3b42507fa44571ad3f4565b6f8660c55e48b02ed4b80cb3b9004e26ddd16"},
+{"path":"specs/epic-136-phase2-gates/security-spec.md","sha256":"f5ba37552f92a3e1de027ee215999cf69227f2ee654b122a28e87cf91ed91423"},
+{"path":"plugins/sdd-review-loop/references/reviewer-calibration.md","sha256":"85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+{"path":"reports/task-review/epic-136-phase2-gates/attempt-2/round-1/precheck-result.json","sha256":"63843cb00f03b2676c6d92764485fb7ff21b11e786df21a14887e1931bcd86a6"},
+{"path":"reports/task-review/epic-136-phase2-gates/attempt-2/round-1/dependency-graph.json","sha256":"dad86f6fd35fa92512ec45b96cdd5809839287549172dd284a58a507a1027538"}]}

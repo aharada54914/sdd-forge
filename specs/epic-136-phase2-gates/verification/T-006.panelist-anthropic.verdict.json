@@ -1,0 +1,26 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-006",
+  "feature": "epic-136-phase2-gates",
+  "vendor": "anthropic",
+  "model": "claude-panelist",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Critical",
+      "ref": "sanitized panelist input bundle",
+      "note": "The bundle specifies AC-013 but does not include the staged runner, TEST-013 source, or deterministic execution evidence needed to establish implementation correctness."
+    },
+    {
+      "severity": "Critical",
+      "ref": "T-006 Done When",
+      "note": "The bundle does not establish the required signed evidence bundle, cross-model consensus, distinct second human approval, or independent quality-gate PASS."
+    }
+  ],
+  "blind": true,
+  "input_digest": "1063471f75bd74b141b0b59322ee9038dda766c99f1f54dea3108829e2638b37",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "tasks.md T-006 Cross-Model: enabled"
+  }
+}

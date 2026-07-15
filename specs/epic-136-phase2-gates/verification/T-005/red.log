@@ -1,0 +1,96 @@
+Slice 1 RED command: bash tests/phase2-guard-invariants.tests.sh; powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1
+Result: expected failure before the staged canonical source, stdlib generator,
+and generated native modules existed.
+
+Shell result: 3 passed, 6 failed.
+- Missing canonical guard-invariants.json.
+- Missing generate-guard-invariants.py.
+- Missing guard_invariants.py, guard-invariants.generated.js,
+  guard-invariants.generated.ps1, and guard-invariants.generated.sh.
+
+PowerShell result: 11 passed, 15 failed.
+- The staged generated outputs were absent, and the initial batch was not yet
+  complete. The Slice 1 focused test was subsequently narrowed to generation
+  and v1-export assertions before implementation.
+
+Exit status: bash=1; powershell.exe=1.
+
+Slice 2 RED addendum
+-------------------
+Command: `bash tests/phase2-guard-invariants.tests.sh; powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+
+- Shell: 16 passed, 8 failed (exit 1).
+- PowerShell: 16 passed, 8 failed (exit 1).
+- Both suites failed exactly for absent Python/Node/PowerShell fixed-module
+  loader references and the absent staged shell dispatcher. Existing guards
+  still preserved the alternate-CWD read-only corpus; this isolated RED to the
+  yet-unimplemented module-loading boundary.
+
+Slice 3 RED addendum
+-------------------
+Command: `bash tests/phase2-guard-invariants.tests.sh; powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+
+- Shell: 24 passed, 5 failed (exit 1).
+- PowerShell: 24 passed, 3 failed (exit 1).
+- The failures were limited to the not-yet-staged immutable bootstrap/update
+  runner, staged CI workflow candidate, and exact 18-line manifest. This
+  records TEST-013 before any of those protected candidates were added.
+
+Slice 3b normal-update RED addendum
+-----------------------------------
+Command: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+
+- PowerShell: 36 passed, 1 failed (exit 1).
+- The new success fixture supplied a unique temporary repository root and an
+  installed live canonical file, but normal update mode was still unavailable.
+  Missing-live, invalid-live, and staged/live ordered-array mismatch fixtures
+  already denied, isolating RED to the absent normal-update validation path.
+
+Slice 3c containment and reparse RED addendum
+----------------------------------------------
+Command: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+
+- PowerShell: 40 passed, 4 failed (exit 1).
+- Manifest absolute, traversal, and remap cases already denied. The four
+  remaining failures were staged-source final symbolic link, staged-source
+  intermediate junction, destination final symbolic link, and destination
+  parent junction. All fixtures used GUID directories below the system temp
+  directory and cleanup rejected any workspace-contained path.
+
+Slice 3d isolated installation RED addendum
+-------------------------------------------
+Command: `powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+
+- PowerShell: 46 passed, 2 failed (exit 1).
+- The full validation fixture itself returned success because the runner still
+  stopped before copying. The two failures isolate the missing deterministic
+  batch copy and therefore the absent post-install guard denial. A corrupted
+  last manifest hash already left the earlier destination sentinel unchanged.
+
+Slice 4 final staged assembly RED addendum
+------------------------------------------
+Commands:
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+`bash tests/phase2-guard-invariants.tests.sh`
+
+- PowerShell: 45 passed, 5 failed (exit 1). Shell: 25 passed, 2 failed (exit
+  1).
+- Both independent static contracts failed for the incomplete three-line
+  manifest and for the staged CI generator check being after existing
+  validation. The PowerShell fixture executes the same static CI ordering
+  assertion post-install, which accounts for its three dependent fixture
+  failures.
+
+Slice A portability and dynamic fail-closed RED addendum
+--------------------------------------------------------
+Commands:
+`bash tests/phase2-guard-invariants.tests.sh`
+`powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1`
+
+- Shell: 32 passed, 1 failed (exit 1). PowerShell: 54 passed, 4 failed (exit
+  1). The direct failure in both lanes is the absent platform-specific CI
+  generator/invariant-test split. The PowerShell installation fixture reruns
+  that same static contract after copying, producing three dependent failures.
+- The newly added malformed JSON, canonical-read I/O error, and copied-tree
+  missing/poisoned native-module checks already passed; this RED isolates the
+  review remediation to staged CI portability.

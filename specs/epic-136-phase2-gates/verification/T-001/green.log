@@ -1,0 +1,12 @@
+Command: candidate syntax/encoding checks, then the focused corpus with
+GUARD_PY, GUARD_JS, and GUARD_PS1 bound to the three staged candidates.
+Result: GREEN (exit 0)
+
+candidate syntax and ASCII/no-BOM: passed
+phase2-guard-tokenizer.tests.ps1: 12 passed, 0 failed
+phase2-guard-tokenizer.tests.sh: 4 passed, 0 failed
+
+The corpus allowed the sole newly legal balanced quoted regex (`\\` or `\|`)
+with standalone `2>&1`, plus the already-legal read-only inspection forms.
+It denied all unquoted/dangling/unclosed ambiguity, protected redirects, tee,
+cp, and rm forms identically in Python, Node, and Windows PowerShell 5.1.

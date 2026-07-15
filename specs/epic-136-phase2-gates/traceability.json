@@ -1,0 +1,53 @@
+{
+  "feature": "epic-136-phase2-gates",
+  "generated_by": "quality-gate machine-readable companion; frozen traceability.md unchanged",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": ["AC-001", "AC-002"],
+      "tests": ["TEST-001", "TEST-002"],
+      "evidence": [
+        "specs/epic-136-phase2-gates/verification/T-001/green.log",
+        "specs/epic-136-phase2-gates/verification/live-publication-addendum.md"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": ["AC-003", "AC-004"],
+      "tests": ["TEST-003", "TEST-004"],
+      "evidence": [
+        "specs/epic-136-phase2-gates/verification/T-002/green.log",
+        "specs/epic-136-phase2-gates/verification/live-publication-addendum.md"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": ["AC-005", "AC-006"],
+      "tests": ["TEST-005", "TEST-006"],
+      "evidence": [
+        "specs/epic-136-phase2-gates/verification/T-003/green.log",
+        "specs/epic-136-phase2-gates/verification/live-publication-addendum.md"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": ["AC-007", "AC-008", "AC-009"],
+      "tests": ["TEST-007", "TEST-008", "TEST-009"],
+      "evidence": [
+        "specs/epic-136-phase2-gates/verification/T-004/green.log",
+        "specs/epic-136-phase2-gates/verification/live-publication-addendum.md"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": ["AC-010", "AC-011", "AC-012", "AC-013"],
+      "tests": ["TEST-010", "TEST-011", "TEST-012", "TEST-013"],
+      "evidence": [
+        "specs/epic-136-phase2-gates/verification/T-005/green.log",
+        "specs/epic-136-phase2-gates/verification/T-006/green.log",
+        "specs/epic-136-phase2-gates/verification/live-publication-addendum.md"
+      ]
+    }
+  ]
+}

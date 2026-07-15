@@ -1,0 +1,26 @@
+Command: powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-contract-path-helper.tests.ps1
+Result: GREEN (exit 0)
+
+The Windows PowerShell 5.1 candidate parses successfully and uses
+FileAttributes.ReparsePoint without a LinkType dependency. All 30 frozen
+baseline field/case golden fixtures still match exactly after LF normalization
+(exit, stdout, and stderr).
+
+The focused suite created and verified FileAttributes.ReparsePoint fixtures for
+both an intermediate junction and a final file symbolic link for each field:
+
+- evidence/{intermediate-junction,final-file-reparse}
+- red_evidence/{intermediate-junction,final-file-reparse}
+- green_evidence/{intermediate-junction,final-file-reparse}
+
+Each fixture is rejected with its exact field-specific
+`<field> path contains a reparse point: <evidence>` diagnostic. Compound
+red-evidence parity with the unchanged live baseline also passed for every
+pre-existing early-stop branch: POSIX absolute, Windows-drive absolute, UNC
+absolute, traversal, and unresolvable.
+
+Syntax command:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -Command "[void][scriptblock]::Create([IO.File]::ReadAllText('specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/check-contract.ps1',[Text.Encoding]::ASCII)); 'SYNTAX_OK'"
+Result: SYNTAX_OK (exit 0)
+
+phase2-contract-path-helper.tests.ps1: 138 passed, 0 failed

@@ -1,0 +1,25 @@
+﻿{
+    "schema":  "cross-model-aggregate/v1",
+    "task_id":  "T-005",
+    "feature":  "epic-136-phase2-gates",
+    "panelists":  [
+                      {
+                          "verdict":  "NEEDS_WORK",
+                          "vendor":  "anthropic",
+                          "model":  "claude-sonnet"
+                      },
+                      {
+                          "verdict":  "PASS",
+                          "vendor":  "openai",
+                          "model":  "codex-cli-default"
+                      }
+                  ],
+    "vendors_distinct":  2,
+    "non_anthropic_count":  1,
+    "all_pass":  false,
+    "any_critical":  true,
+    "evaluator_verdict":  null,
+    "divergence":  false,
+    "requires_human_decision":  false,
+    "result":  "FAIL"
+}
