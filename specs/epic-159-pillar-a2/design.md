@@ -151,7 +151,8 @@ fixtures (HITL template copy, WFI-NNN.md field-mutation copies, brownfield
 seed copies driven through the loop driver). Two real files are read but
 never written: `docs/workflow-improvements/WFI-010.md`,
 `docs/workflow-improvements/WFI-011.md` (copied into a fixture before any
-assertion touches them).
+assertion touches them; the suite additionally asserts their SHA-256 is
+unchanged before vs. after the run — AC-005).
 
 Existing Data Affected: none. Real `reports/`, `specs/`,
 `specs/workflow-state-registry.json`, and
@@ -196,36 +197,62 @@ No script exists to drive (`driver_scripts: []`,
 `tests/loops/loop-inventory.json:144`). The suite instead implements a
 small, explicitly-labeled reference function —
 `assert_wfi_audit_transition <audit-attempt-before> <verdict> <expected-audit-attempt-after> <expected-audit-status>`
-— whose entire logic is the two-line rule transcribed from
+— transcribed from
 `plugins/sdd-quality-loop/skills/wfi-audit-cycle/SKILL.md:44-50` (precondition
-4) and `SKILL.md:119-135`/`SKILL.md:186-203` (STEP 4 / STEP 7):
+4) and `SKILL.md:119-135`/`SKILL.md:186-203` (STEP 4 / STEP 7). Two layers
+are deliberately distinguished (requirements.md AC-003/AC-005):
+
+- The INVARIANT the suite asserts is one-directional:
+  `Audit-Attempt >= 3` implies `Audit-Status == Human-Blocked`, and
+  `Audit-Attempt < 3` implies `Audit-Status != Human-Blocked` — below the
+  threshold any legitimate non-Human-Blocked state
+  (`Not-Started`/`Cycle-1-In-Progress`/`Cycle-2-In-Progress`/`Human-Pending`,
+  full state machine SKILL.md:34-43, 61-65, INV-005/INV-006) is valid.
+- The SYNTHETIC SWEEP applies the BLOCKED-verdict mutation STEP 4/7
+  literally prescribe:
 
 ```
-if verdict == BLOCKED:
+on verdict == BLOCKED:
   audit_attempt += 1
-  audit_status = "Human-Blocked" if audit_attempt >= 3 else "Not-Started"
+  audit_status = "Human-Blocked" if audit_attempt >= 3
+                 else "Not-Started"   # the specific below-threshold state
+                                      # STEP 4/7 prescribe; the sweep
+                                      # generates and asserts exactly this
+                                      # state, while the invariant above
+                                      # accepts any non-Human-Blocked state
 ```
 
-The function is applied to a fixture-scoped copy of a minimal WFI-NNN.md
+The sweep runs against a fixture-scoped copy of a minimal WFI-NNN.md
 (front-matter fields only: `Audit-Status:`, `Audit-Attempt:`,
 `Category: process` — deliberately not `plugin-improvement`, so STEP 8 is
 inapplicable by construction, AC-004) across the sequence 0→1→2→3, and each
-resulting `Audit-Status` field is asserted. A negative self-check mutates
+resulting `Audit-Status` field is asserted. Parser rule: an absent
+`Audit-Attempt:` field is treated as 0 (real precedent:
+`docs/workflow-improvements/WFI-011.md` carries `Audit-Status:
+Human-Pending` with no `Audit-Attempt:` field at all — verified during
+spec review; requirements.md AC-005). A negative self-check mutates
 the `>= 3` threshold to `>= 4` in a temp copy of the function and asserts
-the attempt-3 case now wrongly reports `Not-Started`, proving the check is
-live (AC-003). Because the entire leg touches only files inside
-`$LOOP_FIXTURE_ROOT` and never sources or invokes anything under
-`plugins/sdd-quality-loop/skills/`, a plain
+the attempt-3 case now wrongly reports a non-`Human-Blocked` state,
+proving the check is live (AC-003). Because the entire leg touches only
+files inside `$LOOP_FIXTURE_ROOT` and never sources or invokes anything
+under `plugins/sdd-quality-loop/skills/`, a plain
 `grep -rn 'gh ' tests/hitl-wfi-terminal.tests.sh tests/hitl-wfi-terminal.tests.ps1`
 returning empty is sufficient evidence for AC-004 — no runtime stub needed.
 
-The AC-005 reference smoke check copies
-`docs/workflow-improvements/WFI-010.md` and `WFI-011.md` (read-only) into
-the same fixture root and parses their `Audit-Status:`/`Audit-Attempt:`
-fields with the same field-extraction logic the reference function uses,
-asserting the recorded values are internally consistent with the rule
-(e.g. WFI-010.md's recorded Audit-Attempt: 1 with a non-Human-Blocked
-status per investigation.md INV-007).
+The AC-005 reference smoke check records the SHA-256 of the real
+`docs/workflow-improvements/WFI-010.md` and `WFI-011.md`, copies both into
+the fixture root, parses the copies' `Audit-Status:`/`Audit-Attempt:`
+fields with the same field-extraction logic the reference function uses
+(absent `Audit-Attempt:` = 0), asserts each pair satisfies the
+one-directional invariant above (e.g. WFI-010.md records `Audit-Attempt: 1`
+with `Audit-Status: Human-Pending` at
+`docs/workflow-improvements/WFI-010.md:46,48`, a legitimate below-threshold
+state — INV-007), and finally re-hashes the two real files, asserting the
+SHA-256 values are unchanged before vs. after the suite run
+(requirements.md AC-005). The real documents can only ever exercise the
+`attempt < 3` direction (no `Audit-Attempt >= 3` document exists at spec
+time); the `Human-Blocked` direction is covered by the synthetic sweep
+(requirements.md Non-goals).
 
 ### Canonical brownfield seed layout (T-002)
 
@@ -234,11 +261,12 @@ status per investigation.md INV-007).
 ```
 brownfield-seed/
   src/
-    base.py            # abstract base class; raise NotImplementedError (legitimate)
-    legacy_util.py      # pre-existing, task-unrelated `# TODO: revisit encoding` marker
+    base.py            # abstract base class; raise NotImplementedError (legitimate marker, NEVER "changed")
+    legacy_util.py      # pre-existing, task-unrelated `# TODO: revisit encoding` marker (NEVER "changed")
+    service.py           # marker-free implementation file (a legitimate "changed file" candidate)
   specs/brownfield-seed-demo/
-    tasks.md             # bootstrap-complete shape (Status/Risk/Required Workflow fields present)
-  CHANGED_FILES.txt      # the "changed files" subset the AC-008 case passes (excludes legacy_util.py)
+    tasks.md             # bootstrap-complete per requirements.md Field Definitions (tasks.template.md:1,3,13,19-25,61 structure; no unresolved {{...}} placeholders)
+  CHANGED_FILES.txt      # the "changed files" subset the AC-008 case passes: marker-free files only (src/service.py, specs/brownfield-seed-demo/tasks.md); excludes BOTH marker-bearing files (src/base.py, src/legacy_util.py)
 ```
 
 `CHANGED_FILES.txt` is a fixture-local manifest (never a real quality-gate
@@ -248,6 +276,10 @@ artifact) listing the paths the AC-008 lock case passes to
 manifest file); the test suite reads it to build the argv list, keeping the
 "changed vs. full directory" distinction traceable to one committed file
 rather than duplicated inline in both the `.sh` and `.ps1` test twins.
+Per requirements.md REQ-002/Edge Cases, BOTH marker-bearing files —
+`src/base.py` (NotImplementedError) and `src/legacy_util.py` (TODO) — never
+appear in this manifest; the two lock cases differ ONLY in whether the
+caller passes this marker-free subset or the whole directory.
 
 ### `tests/check-placeholders-brownfield.tests.sh` / `.ps1` contract (T-002)
 
@@ -255,9 +287,13 @@ Two cases, mirroring `tests/check-placeholders.tests.sh`'s existing
 `run_cp()` helper pattern (`tests/check-placeholders.tests.sh:21-24`):
 
 - Case A (AC-008): `run_cp $(cat CHANGED_FILES.txt)` against the seed →
-  exit 0.
+  exit 0 (the manifest lists only the marker-free files `src/service.py`
+  and `specs/brownfield-seed-demo/tasks.md`; neither marker-bearing file is
+  ever passed).
 - Case B (AC-009): `run_cp brownfield-seed/` (the whole directory) → exit 1,
-  output contains the `legacy_util.py` `TODO` finding.
+  output contains BOTH pre-existing marker findings — the `base.py`
+  `NotImplementedError` hit (`pattern_cs` includes `NotImplemented`,
+  `check-placeholders.sh:18`) and the `legacy_util.py` `TODO` hit.
 
 No `loop_fixture_init`/loop-driver overhead (OQ-4 resolution) — these are
 direct, mktemp-local invocations of the real
@@ -294,9 +330,11 @@ $Message"`; SHA-256 via `[Security.Cryptography.SHA256]::HashData(...)` +
   matching the `.sh` original's feature-less signature
   (`domain-review-precheck.sh:9`). Implements the attempt/round bounds
   (`domain-review-precheck.sh:37-39`), the round-1 `--edit-summary`
-  restriction (`domain-review-precheck.sh:40`), and the AC-014
-  post-approval drift detection the `.sh` header comment describes
-  (`domain-review-precheck.sh:5`).
+  restriction (`domain-review-precheck.sh:40`), and the post-approval
+  drift detection the `.sh` header comment describes
+  (`domain-review-precheck.sh:5`) — documented as the sdd-domain feature's
+  own AC-014 (`specs/sdd-domain/requirements.md:120`), not this feature's
+  AC-014.
 - `spec-review-precheck.ps1`: `param([string]$Feature, [string]$Attempt,
   [string]$Round, [string]$EditSummary, [switch]$Reset)`. Implements the
   feature-slug validation (`spec-review-precheck.sh:32`), attempt/round
