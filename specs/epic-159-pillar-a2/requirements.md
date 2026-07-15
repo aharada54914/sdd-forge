@@ -103,21 +103,29 @@ edits to either suite (self-healing, INV-023).
     prose, not an executable script — `driver_scripts: []`, INV-004), the
     suite does not and cannot invoke the skill itself. Instead it applies
     the documented, purely deterministic field-mutation rule — precondition
-    4 (SKILL.md:44-50) and STEP 4 / STEP 7 (SKILL.md:119-135, 186-203):
-    `Audit-Attempt >= 3 -> Audit-Status: Human-Blocked`, otherwise
-    `Not-Started` — to fixture-scoped copies of a WFI-NNN.md file (never the
-    real `docs/workflow-improvements/` tree) across the Audit-Attempt
-    sequence 0→1→2→3, and asserts the resulting `Audit-Status` field at each
-    step against the documented rule. Because the suite never invokes the
+    4 (SKILL.md:44-50) and STEP 4 / STEP 7 (SKILL.md:119-135, 186-203). The
+    rule body is one-directional: `Audit-Attempt >= 3 -> Audit-Status:
+    Human-Blocked`; below the threshold, any legitimate non-Human-Blocked
+    state is valid (the full state machine is SKILL.md:34-43, 61-65 —
+    INV-005/INV-006). The synthetic sweep applies the BLOCKED-verdict
+    mutation (increment Audit-Attempt; STEP 4/7 literally prescribe
+    `Not-Started` below the threshold, which is therefore the state the
+    sweep implementation generates and asserts) to fixture-scoped copies of
+    a WFI-NNN.md file (never the real `docs/workflow-improvements/` tree)
+    across the Audit-Attempt sequence 0→1→2→3, and asserts the resulting
+    `Audit-Status` field at each step. Because the suite never invokes the
     skill, STEP 8's `gh issue create` (SKILL.md:210-235) is categorically
     unreachable — asserted by a self-check that no new file in this feature
     invokes `gh`, not by runtime stubbing (OQ-2 resolution).
   - A read-only reference smoke check parses fixture-scoped copies of
     `docs/workflow-improvements/WFI-010.md` and `WFI-011.md` (real files
     read, never written) and confirms their recorded Audit-Attempt /
-    Audit-Status values are consistent with the same documented rule
-    (INV-007), as a non-synthetic cross-check alongside the synthetic
-    fixtures.
+    Audit-Status pairs satisfy the one-directional invariant (AC-005;
+    INV-007 — e.g. WFI-010.md records `Audit-Attempt: 1` with
+    `Audit-Status: Human-Pending` at
+    `docs/workflow-improvements/WFI-010.md:46,48`, a legitimate
+    below-threshold state), as a non-synthetic cross-check alongside the
+    synthetic fixtures.
   - The suite self-registers in `tests/run-all.sh`, `tests/run-all.ps1`, and
     `.github/workflows/test.yml` (self-registration-forcing check, mirroring
     `tests/second-approval-mask.tests.sh:285-289`) and measures its own
@@ -156,9 +164,11 @@ edits to either suite (self-healing, INV-023).
     arbitrary `LOOP_FIXTURE_SEED` directory).
 - REQ-003 (T-003, issue #147; INV-013, INV-014, INV-016, INV-018..INV-020):
   Author `plugins/sdd-domain/scripts/domain-review-precheck.ps1` as a
-  full-parity port of `domain-review-precheck.sh` (240 lines at HEAD:
-  attempt/round validation, `--edit-summary`/`--reset` handling, AC-014
-  post-approval drift detection), following the
+  full-parity port of `domain-review-precheck.sh` (attempt/round
+  validation, `--edit-summary`/`--reset` handling, and the post-approval
+  drift detection documented as the sdd-domain feature's own AC-014 —
+  `specs/sdd-domain/requirements.md:120`, referenced by the `.sh` header at
+  `domain-review-precheck.sh:5`; NOT this feature's AC-014), following the
   `task-review-precheck.ps1` translation pattern (INV-016). Extend
   `tests/guard-ps1-ascii.tests.sh`'s target list (currently
   `sdd-hook-guard.ps1` only, `tests/guard-ps1-ascii.tests.sh:14`) to include
@@ -167,9 +177,9 @@ edits to either suite (self-healing, INV-023).
   CI-verified, not merely author-asserted.
 - REQ-004 (T-004, issue #174; INV-013, INV-015, INV-016, INV-021): Author
   `plugins/sdd-review-loop/scripts/spec-review-precheck.ps1` as a
-  full-parity port of `spec-review-precheck.sh` (264 lines at HEAD:
-  feature-slug validation, attempt/round validation, the rounds-2/3
-  non-empty `--edit-summary` rule at `spec-review-precheck.sh:32-38`).
+  full-parity port of `spec-review-precheck.sh` (feature-slug validation,
+  attempt/round validation, the rounds-2/3 non-empty `--edit-summary` rule
+  at `spec-review-precheck.sh:32-38`).
   Extend `tests/guard-ps1-ascii.tests.sh`'s target list to include this file
   as well (same hygiene requirement as REQ-003). Both #147 and #174 land
   their `.ps1` file at the exact path the existing self-healing dispatch
@@ -201,6 +211,15 @@ edits to either suite (self-healing, INV-023).
 - Driving the WFI-audit-cycle skill end-to-end through an LLM agent, or
   exercising `gh issue create` against a real or mocked GitHub endpoint: out
   of scope by construction (REQ-001; the suite never invokes the skill).
+- Exercising the `Audit-Attempt >= 3` direction of the AC-005 invariant on
+  the two real documents: TEST-005 can only exercise the `attempt < 3`
+  direction on WFI-010.md/WFI-011.md, because no real document with
+  `Audit-Attempt >= 3` exists in `docs/workflow-improvements/` at spec time
+  (WFI-010.md records `Audit-Attempt: 1`,
+  `docs/workflow-improvements/WFI-010.md:48`; WFI-011.md records no
+  Audit-Attempt field at all, which the check treats as 0 — INV-007). The
+  `Human-Blocked` direction is covered by AC-003's synthetic sweep, not by
+  the real-document smoke check.
 - Re-litigating or re-fixing issue #127 (check-placeholders grep exit-code
   distinction): already landed at HEAD (`check-placeholders.sh:28-49`
   contains the `rc_cs`/`rc_ci` branching); REQ-002 locks the current,
@@ -243,19 +262,29 @@ anyone having edited those suites.
   1 immediately and prints `RED: symptom reproduced on iteration 3`,
   proving the harness observes the non-terminal branch. (REQ-001)
 - AC-003: A deterministic reference check applies the documented WFI-audit
-  precondition rule (`Audit-Attempt >= 3 -> Human-Blocked`, else
-  `Not-Started`) to fixture-scoped WFI-NNN.md copies across Audit-Attempt
-  0→1→2→3; the resulting `Audit-Status` at each step matches the rule; a
-  negative self-check mutates the rule's threshold in a temp copy and
-  proves it turns red. (REQ-001)
+  BLOCKED-verdict mutation (increment Audit-Attempt; one-directional rule
+  `Audit-Attempt >= 3 -> Audit-Status: Human-Blocked`, below the threshold
+  a legitimate non-Human-Blocked state — the synthetic sweep asserts
+  `Not-Started`, the state STEP 4/7 literally prescribe) to fixture-scoped
+  WFI-NNN.md copies across Audit-Attempt 0→1→2→3; the resulting
+  `Audit-Status` at each step matches; a negative self-check mutates the
+  rule's threshold in a temp copy and proves it turns red. (REQ-001)
 - AC-004: No file added by this feature invokes `gh` anywhere (asserted by
   a grep-based self-check over the new files); the WFI-audit leg's design
   makes STEP 8 (`gh issue create`) categorically unreachable rather than
   runtime-stubbed. (REQ-001)
 - AC-005: Fixture-scoped, read-only copies of `docs/workflow-improvements/WFI-010.md`
   and `WFI-011.md` are parsed and their recorded Audit-Attempt/Audit-Status
-  values are asserted consistent with the AC-003 rule; the real files under
-  `docs/workflow-improvements/` are never written by the suite. (REQ-001)
+  pairs (an absent `Audit-Attempt:` field is treated as 0) are asserted to
+  satisfy the one-directional invariant: if
+  `Audit-Attempt >= 3` then `Audit-Status == Human-Blocked`; if
+  `Audit-Attempt < 3` then `Audit-Status != Human-Blocked` (any of
+  `Not-Started`/`Cycle-1-In-Progress`/`Cycle-2-In-Progress`/`Human-Pending`
+  is permitted — full state machine per SKILL.md:34-43, 61-65,
+  INV-005/INV-006). The suite asserts the SHA-256 of the real
+  `docs/workflow-improvements/WFI-010.md` and `WFI-011.md` is unchanged
+  before vs. after the suite run — the real files are never written.
+  (REQ-001)
 - AC-006: `tests/hitl-wfi-terminal.tests.sh`/`.ps1` is registered in
   `tests/run-all.sh`, `tests/run-all.ps1`, and
   `.github/workflows/test.yml` (self-registration-forcing check); the suite
@@ -283,8 +312,10 @@ anyone having edited those suites.
   the `.sh` original's positional/flag arguments (no feature parameter,
   matching `domain-review-precheck.sh:9`), and implements every
   precondition the `.sh` original implements (attempt/round bounds,
-  `--edit-summary` round-1 restriction, AC-014 post-approval drift
-  detection). (REQ-003)
+  `--edit-summary` round-1 restriction, and the post-approval
+  drift-detection precondition documented as the sdd-domain feature's own
+  AC-014 in `specs/sdd-domain/requirements.md:120` — not this feature's
+  AC-014). (REQ-003)
 - AC-012: `domain-review-precheck.ps1` is added to
   `tests/guard-ps1-ascii.tests.sh`'s target list and passes: zero bytes
   outside 0x00-0x7F, no UTF-8 BOM, no CR bytes. (REQ-003)
@@ -346,6 +377,18 @@ anyone having edited those suites.
   in the windows-latest CI job's `loop-driver.tests.ps1` and
   `loop-consistency.tests.ps1` output across the two tasks that land a
   `.ps1` twin.
+- `bootstrap-complete tasks.md` (REQ-002, AC-007) — a tasks.md whose
+  structure matches what the bootstrap interviewer's template emits after a
+  completed bootstrap, with no unresolved `{{...}}` template placeholders:
+  a `# Tasks: <feature>` header and a `Task-Review-Status:` field
+  (`plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/tasks.template.md:1,3`),
+  at least one `## T-NNN <title>` task block carrying the `Status:`,
+  `Risk:`, `Risk Rationale:`, and `Required Workflow:` fields
+  (`tasks.template.md:13,19-25`) and a `### Blockers` section
+  (`tasks.template.md:61`). The seed's tasks.md is inert fixture data (it
+  is scanned and copied, never driven through a review loop by the AC-008/
+  AC-009 lock cases), so field VALUES need only be plausible constants —
+  the definition constrains structure, not workflow state.
 - gh-non-invocation (REQ-001; OQ-2 resolution) — the WFI-audit leg's design
   guarantee that no code path added by this feature can reach GitHub. This
   is achieved by construction (the suite never invokes the
