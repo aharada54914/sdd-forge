@@ -139,8 +139,12 @@ edits to either suite (self-healing, INV-023).
   - `tests/fixtures/loops/brownfield-seed/`: a committed, minimal existing
     "project" containing (i) an abstract base class with legitimate
     `raise NotImplementedError` methods, (ii) an existing, task-unrelated
-    `# TODO` marker in a file the fixture never lists as "changed", and
-    (iii) a bootstrap-complete `tasks.md`.
+    `# TODO` marker, and (iii) a bootstrap-complete `tasks.md`. BOTH
+    marker-bearing files — the `NotImplementedError` base-class file (i) and
+    the `TODO` file (ii) — are files the fixture never lists as "changed":
+    the case-(a) changed-files input excludes both (see Edge Cases), so the
+    seed's `tasks.md` and any other marker-free content are the only
+    legitimate "changed files" candidates.
   - `tests/check-placeholders-brownfield.tests.sh` / `.ps1`: two
     behavior-lock cases against the seed — (a) `check-placeholders.sh`/`.ps1`
     invoked with only the changed files (excluding the marker-bearing files)
@@ -447,11 +451,13 @@ anyone having edited those suites.
   skip branch (SKILL.md:235, `GitHub Issue: N/A remains unchanged`); any
   other category value keeps STEP 8 a documented no-op by construction
   (AC-004).
-- The canonical brownfield seed's unrelated `TODO` file must never appear in
-  the "changed files" list either lock case passes to `check-placeholders`
-  — the two AC-008/AC-009 cases differ ONLY in whether the caller passes the
-  changed-files subset or the whole directory, exactly mirroring
-  docs/troubleshooting.md's documented caller responsibility (INV-011).
+- BOTH of the canonical brownfield seed's marker-bearing files — the
+  `NotImplementedError` base-class file and the unrelated `TODO` file — must
+  never appear in the "changed files" list either lock case passes to
+  `check-placeholders` — the two AC-008/AC-009 cases differ ONLY in whether
+  the caller passes the (marker-free) changed-files subset or the whole
+  directory, exactly mirroring docs/troubleshooting.md's documented caller
+  responsibility (INV-011).
 - `domain-review-precheck.ps1` and `spec-review-precheck.ps1` must land at
   the exact paths the existing self-healing dispatch expects
   (`plugins/sdd-domain/scripts/domain-review-precheck.ps1`,
