@@ -1,0 +1,22 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase2-spec-a2r2-a-seq0227",
+  "host_session_id": "SESS-spec-a2r2-a-epic136phase2-0227",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-136-phase2-gates/requirements.md", "sha256": "7d869ad2bee5848be0aa71252a4bcf52823ad487f4392eb61ad089c9391abe92"},
+    {"path": "specs/epic-136-phase2-gates/acceptance-tests.md", "sha256": "3568a38e584a71610c006c77bf6a647a2e12f91217649aed610189b1fd87cbd1"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-136-phase2-gates/attempt-2/round-2/precheck-result.json", "sha256": "f9a7f5ab4e832e6653a9a339185e506aa7516b9ad06c61dc2c7eb76b42672d25"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {"id": "REQ-TESTABILITY", "result": "PASS", "severity": "Major", "finding": "REQ-001 through REQ-005 state deterministic inputs, decisions, failure behavior, compatibility constraints, and integrity outcomes that TEST-001 through TEST-013 can verify."},
+    {"id": "GOAL-AC-TRACE", "result": "PASS", "severity": "Major", "finding": "Every requirement is explicitly traced to acceptance criteria AC-001 through AC-013."},
+    {"id": "AC-OBSERVABLE", "result": "PASS", "severity": "Major", "finding": "The acceptance criteria define observable decisions, exact output preservation, exit codes, generated-byte equality, fail-closed behavior, digest states, and post-install outcomes."},
+    {"id": "SCOPE-BOUNDARY", "result": "PASS", "severity": "Major", "finding": "Non-goals, the normative 18-target inventory, roles, and build-time/runtime separation bound the scope."},
+    {"id": "CONSTRAINTS-EXPLICIT", "result": "PASS", "severity": "Major", "finding": "Security, runtime, platform, encoding, matching-order, protected-copy, compatibility, and approval constraints are explicit."},
+    {"id": "RISK-VALIDATION-SURFACE", "result": "PASS", "severity": "Major", "finding": "The prior partial-install gap is resolved by fixed-index failure injection, exact prefix/suffix digests, exit 2, complete rollback, all prior digests restored, and post-install verification."}
+  ]
+}

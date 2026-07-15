@@ -1,0 +1,22 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase2-spec-a2-a-seq0225",
+  "host_session_id": "SESS-spec-a2-a-epic136phase2-0225",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-136-phase2-gates/requirements.md", "sha256": "f65a828955160e6bb66443051122eead704927e7e2c470248d978d53996ecc2b"},
+    {"path": "specs/epic-136-phase2-gates/acceptance-tests.md", "sha256": "5dd38f58dc3280f8f6a24ff163bcf88b96b5d7ada552693a9ea9080201175f17"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-136-phase2-gates/attempt-2/round-1/precheck-result.json", "sha256": "46228de1a315791f7875d9f3e20791928fa7a090249a6375bfb851a999281522"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {"id": "REQ-TESTABILITY", "result": "PASS", "severity": "Minor", "finding": "The requirements state deterministic inputs, outputs, failure behavior, compatibility constraints, and testable security invariants."},
+    {"id": "GOAL-AC-TRACE", "result": "PASS", "severity": "Minor", "finding": "REQ-001 through REQ-005 each map to one or more identified acceptance criteria and planned tests."},
+    {"id": "AC-OBSERVABLE", "result": "PASS", "severity": "Minor", "finding": "The acceptance criteria define observable decisions, diagnostics, exit behavior, byte equality, drift failures, runtime parity, and copy-integrity outcomes."},
+    {"id": "SCOPE-BOUNDARY", "result": "PASS", "severity": "Minor", "finding": "The protected target inventory, non-goals, roles, prerequisite baseline, and workflow boundaries constrain the feature scope."},
+    {"id": "CONSTRAINTS-EXPLICIT", "result": "PASS", "severity": "Minor", "finding": "Security, compatibility, runtime-loading, fail-closed, human-approval, and filesystem constraints are explicit."},
+    {"id": "RISK-VALIDATION-SURFACE", "result": "FAIL", "severity": "Major", "finding": "The Risks section states that the 18 live entry renames are only individually atomic, that a rename-time OS failure can leave an installed inventory prefix, and that this condition requires a documented reviewed rollback batch. AC-013 requires preparation before replacement and temporary-file cleanup on failure, but it does not require a fault injected after one or more successful live replacements, an observable definition of the resulting prefix state, or validation of the required rollback batch. Consequently, the verifier and task author cannot determine how partial installation and recovery are to be demonstrated."}
+  ]
+}
