@@ -6,8 +6,8 @@
   "spec_revision": "77c560fc6f9657c6de11cb4351f568c005bb392a6504744314669af19197b231",
   "quality_report": "reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-004.md",
   "verification_contract": "specs/epic-136-phase1-guards/verification/T-004.contract.json",
-  "git_commit": "cf4337bdbf487485ba5490d3e8d0f0a8869a90bc",
-  "git_generated_dirty": true,
+  "git_commit": "4eab83c7d78c06f6e626390d8c6be2a00fb0c007",
+  "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
     "python": "3.14.5",
@@ -33,7 +33,7 @@
     },
     {
       "path": "reports/quality-gate/2026-07-12T073627Z-epic-136-phase1-guards-T-004.md",
-      "sha256": "0c63813dca5c5a9e4aad85de2031e04b0f861035f56a96bbed639306e8617e9c"
+      "sha256": "444b1cead4b76a3346a49fbb75b7b393e2e2da96384976c49680b07dad3b322c"
     },
     {
       "path": "specs/epic-136-phase1-guards/verification/qg/T-004/conformance.log",
