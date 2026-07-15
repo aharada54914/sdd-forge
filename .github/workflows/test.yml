@@ -68,6 +68,46 @@ jobs:
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
 
+      - name: Test loop inventory registration forcing (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-inventory.tests.sh
+
+      - name: Test loop inventory registration forcing (pwsh)
+        shell: pwsh
+        run: ./tests/loop-inventory.tests.ps1
+
+      - name: Test loop driver smoke suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-driver.tests.sh
+
+      - name: Test loop driver smoke suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-driver.tests.ps1
+
+      - name: Test loop consistency suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-consistency.tests.sh
+
+      - name: Test loop consistency suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-consistency.tests.ps1
+
+      - name: Test loop escalation suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-escalation.tests.sh
+
+      - name: Test loop escalation suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-escalation.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

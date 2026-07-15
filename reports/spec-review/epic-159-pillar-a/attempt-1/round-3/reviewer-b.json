@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0192",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0192",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/requirements.md",
+      "sha256": "acd9e136da1b6aa535a0302270f5a75aa3b9a6eb6e4df4c57514bc6f58261b72"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/acceptance-tests.md",
+      "sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/investigation.md",
+      "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-3/precheck-result.json",
+      "sha256": "dbf6508c12e28067e480622522ba2f7b36c5c523c9cb86b41f482e40449008b7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-3/integrated-summary.json",
+      "sha256": "809d23f8f44ed799c1e3cf732bd00513e4c4f7eb146ce0161d4f0791ab74c78b"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-001's canonical entry-field enumeration ('Inventory entries carry: id, kind, cap, cap_source (script | skill-instruction), driver_scripts, cross_gates, artifact_schemas, terminal, fixture_profiles') omits `cap_kind`, yet `cap_kind` is required per the Field Definitions section ('cap_kind is required for cap_source: script entries and absent for skill-instruction entries'), is used in REQ-001's own third bullet ('every cap with cap_source: script AND cap_kind: numeric...matches...'; 'terminal-tier is the one cap_kind: state entry'), and drives acceptance-tests.md AC-002 ('for each cap_source: script + cap_kind: numeric entry, cap value greps to the driver source limit... the sole cap_kind: state entry...is excluded') and AC-003. A reader treating REQ-001's 'entries carry: X, Y, Z' list as the exhaustive field set (the common reading of such enumerations) versus a reader following Field Definitions would author different loop-inventory/v1 JSON Schemas -- one omitting cap_kind (risking an additionalProperties conflict with the AC-002/AC-003 assertions that require reading cap_kind off entries), one including it. This is a specification data-contract completeness gap, not an implementation-architecture detail (the schema fields are acceptance-criteria-relevant, per AC-001's 'inventory validates against loop-inventory/v1' and AC-002/AC-003's direct dependence on cap_kind), so it belongs to spec review rather than design review. Severity is Major, not Critical: Field Definitions already fully specifies cap_kind's semantics (enum values, required/absent conditions) and the cap_source Field Definition notes 'design.md defines the full schema', so the gap is mechanically fixable at design time rather than requiring invented product behavior or making any acceptance criterion strictly impossible."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found among requirements, acceptance criteria, constraints, or non-goals in the current round-3 artifacts. Cross-checked candidates all resolve cleanly: the domain-review in-scope/out-of-scope split (OQ-3 'domain-review IS in scope' vs Non-goals excluding 'domain-review-precheck.ps1 parity (#147)') is explicitly reconciled by the Edge Cases bullet ('domain-review-precheck.ps1 does not exist until A7/#147; the pwsh domain leg must degrade explicitly, not fail or silently pass') and AC-008's matching pwsh-SKIP clause; the AC-014 numbering collision between investigation.md's domain-review-internal numbering and this feature's acceptance-tests.md AC-014 is explicitly disambiguated in the requirements.md 'Domain-review terminal disambiguation' Field Definitions entry; the #143 fix-status claims (INV-012/INV-013, Non-goals 'the fix is already at HEAD') are consistent across requirements.md and investigation.md."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md embeds negative self-checks and boundary/empty-state coverage tied to every Edge Cases bullet in requirements.md: the skill-only-loop exemption (AC-003, 'without producing a red'), pwsh domain-review-precheck.ps1 absence (AC-008, 'pwsh domain leg emits recorded SKIP naming #147'), python3 absence (AC-013), the exact '## Outputs' section-scan boundary (AC-012, 'INV-014/INV-015'), the zero-report empty state (AC-011, '0/1/2 gate reports -> continue'), and the T-001/T-0010 prefix-collision boundary (AC-018), plus generic registration/drift/schema/runtime-budget negative self-checks (AC-001, AC-002, AC-007, AC-010, AC-017) explicitly called out in the acceptance-tests.md Notes as red-demonstrable. This covers the material negative paths, empty states, and failure modes the requirements imply."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Assumptions entries in requirements.md are either verified at spec time (2d8c6a5 ancestry for the RED differential, check-quality-gate-cycle-limit.sh landed and stable, run-all.sh/.ps1/test.yml outside the protected-gate table) or given an explicit interim fallback (canonical brownfield seed deferred to A6/#146, 'exercised meanwhile with a minimal synthetic seed supplied by the A2 suite'). Of the five Open Questions, OQ-1 through OQ-4 are marked RESOLVED with recorded design decisions (cap_source field, greenfield/brownfield vocabulary + ADR-0010, domain-review in-scope, terminal-tier resume in-scope); OQ-5 is explicitly marked 'OPEN (human-verify item, non-blocking for spec approval)' with a bounded fallback defined ('the task-review leg encodes only the behavior observable at HEAD and does not assert intent beyond it') and a named owning task ('the owning A3 task records the finding in its implementation report') -- satisfying the calibration requirement that unresolved items be explicitly marked as decisions needed rather than silently assumed."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "A human-approval/irreversible-change boundary is in scope and testable: AC-011 requires 'check-terminal-tier-resume.sh denying resume without a human approval record and permitting it with one', and the Roles and Permissions section assigns 'Human maintainer: approves specs and tasks, reviews the RED-differential evidence, and owns OQ-5 resolution sign-off.' The deny/permit assertion in AC-011 is concrete because it exercises a real, pre-existing gate script read-only (Non-goals: 'The harness exercises real gates read-only; it never edits them'), so the approval-record semantics are inherited from the existing gate contract rather than left undefined by this specification -- no SKIP applies since a boundary is in scope."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Apart from the cap_kind field-enumeration gap captured under AMBIGUITY (mechanically resolvable from the already-detailed Field Definitions section, not requiring invented product behavior), the specification gives file:line-anchored investigation evidence (INV-001..INV-022), a full acceptance-criteria-to-requirement traceability table (AC-001..AC-018 mapped to REQ-001..REQ-006), explicit Non-goals/Assumptions/Risks/Security-Boundaries sections, and resolved open questions with a defined fallback for the one still-open item (OQ-5). Behavior that depends on pre-existing gate scripts (select-agent-model.sh tiers, check-terminal-tier-resume.sh approval-record format) is correctly left to those real scripts rather than redefined here, consistent with the read-only, non-decreasing-guard non-goal. This is sufficient for implementation-policy/design review to proceed without inventing missing product behavior."
+    }
+  ]
+}

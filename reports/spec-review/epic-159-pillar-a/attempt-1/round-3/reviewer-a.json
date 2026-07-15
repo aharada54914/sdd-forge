@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-a-seq0191",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-a-0191",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/requirements.md",
+      "sha256": "acd9e136da1b6aa535a0302270f5a75aa3b9a6eb6e4df4c57514bc6f58261b72"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/acceptance-tests.md",
+      "sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/investigation.md",
+      "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-3/precheck-result.json",
+      "sha256": "dbf6508c12e28067e480622522ba2f7b36c5c523c9cb86b41f482e40449008b7"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-006 each carry concrete, grep-able or schema-checkable success conditions mapped to specific AC-IDs (e.g. REQ-001's registration/cap-drift clauses -> AC-001/AC-002 negative self-checks; REQ-004's escalation/parity/degradation clauses -> AC-011/AC-012/AC-013). The round-2 fix adding cap_kind (numeric|state) resolves the prior terminal-tier ambiguity: terminal-tier is the sole cap_kind:state entry with a defined behavioral drift lock (AC-011 + assert_terminal), and all other script-enforced entries are cap_kind:numeric by the Field Definitions' exhaustive statement ('the only state entry is terminal-tier'), which AC-002's round<=3/count>=3 grep pattern already covers. OQ-5 (task-review cross-stage semantics) is explicitly scoped non-blocking with a defined fallback test behavior, so it does not remove testability from REQ-003."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal REQ-001..REQ-006 is tagged with its matching AC-IDs in acceptance-tests.md's Requirement column (REQ-001->AC-001..004,017; REQ-002->AC-005..007,017; REQ-003->AC-008..010,017; REQ-004->AC-011..013,017,018; REQ-005->AC-004,008,013..015; REQ-006->AC-016), and every AC-ID cited inline in requirements.md (AC-001,002,007,010,011,012,014,017,018) exists in acceptance-tests.md with no dangling references in either direction."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 18 acceptance-tests.md rows specify externally observable checks: exact file/line grep targets (e.g. check-quality-gate-cycle-limit.sh:14-15), schema validation against named schema strings, negative self-checks that mutate a temp copy and assert red, and named SKIP-with-reason conditions (AC-008 pwsh domain leg, AC-013 python3-absent). No row relies on unmeasurable intent language."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section explicitly excludes re-fixing #143 (fix already at HEAD), editing any protected gate/precheck/validator/guard/hook file or protected test, A5-A7 and Pillar B issues (#145/#146/#147/#148), building the #125 harness itself, and Phase-2 tasks.md/traceability.md -- bounding the feature against the most likely expansion vectors given the six-loop, four-issue epic surface."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "A Security Boundaries table enumerates three trust boundaries (B1 fixture/repo isolation, B2 real-gate read-only non-weakening, B3 hook-guard command-line safety) with auth/data-classification/regulatory columns; Roles and Permissions states the human-approval boundary (spec/task approval, RED-differential review, OQ-5 sign-off, terminal-tier resume human approval record); REQ-005/REQ-006 state explicit compatibility (cross-host twin + 3-OS matrix) and versioning (bump-version.sh only) constraints."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section lists two Critical, one High, and two Medium risks, each with a mitigation tied to a concrete validation surface: cap-drift narrowing -> bidirectional AC-002 check; fixture/gate-semantics divergence -> real-binary driving plus negative self-checks AC-001/002/007/010/012; CI runtime cost -> AC-017 runtime-budget self-check; RED-differential history dependency -> AC-009's evidence-recorded procedure; brownfield-before-seed -> AC-005's synthetic-seed test plus ADR-0010 vocabulary lock."
+    }
+  ]
+}

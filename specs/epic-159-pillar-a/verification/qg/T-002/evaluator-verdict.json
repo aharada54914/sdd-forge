@@ -1,0 +1,39 @@
+{
+  "schema": "evaluator-verdict/v1",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-159-pillar-a",
+  "task_id": "T-002",
+  "run_id": "RUN-epic159pillara-qg-T-002-seq0204",
+  "host_session_id": "SESS-qg-epic159pillara-T-002-0204",
+  "manifest_path": "reports/review-context/pending-epic-159-pillar-a-evaluator-T-002-seq0204-manifest.json",
+  "manifest_sha256": "206b6e43357fdc61613e0164119f666212ed8a83fdf86bc149fa02cd22a26b5d",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "severity": "Minor",
+      "surface": "tests/lib/loop-driver.sh:411-429 (git show 2e7e71a) vs specs/epic-159-pillar-a/design.md:181-185 / tasks.md:293-297",
+      "description": "The round manifest is composed from the CURRENT round's precheck-result plus the spec inputs, not literally the 'round-(N-1) artifact directory' as the design/tasks phrasing reads; prior-round completeness is instead enforced by assert_prior_round_complete before the round starts.",
+      "evidence": "Dictated by the REAL validate-review-context-set.sh spec-reviewer path-authorization (only requirements/acceptance-tests/investigation + calibration + current-round precheck-result.json are authorized). The anti-faking intent is preserved: every _loop_manifest_entry fails on absence and hashes the actual on-disk file (loop-driver.sh:220-227). Transparently documented as Specification Difference #3; TEST-006.7 exercises the nonexistent-artifact negative path.",
+      "requires_human_decision": false
+    },
+    {
+      "id": "F-2",
+      "severity": "Minor",
+      "surface": "tests/loop-driver.tests.ps1 TEST-006 (named SKIP)",
+      "description": "AC-006's cross-lane (pwsh) proof of drive_review_round is carried by the bash lane only, because spec-review-precheck.ps1 does not exist upstream; the pwsh lane runs a named recorded SKIP for the seven spec-review-driving checks (TEST-005/007/017 still run fully on both lanes).",
+      "evidence": "Confirmed spec-review-precheck.ps1 and domain-review-precheck.ps1 are genuinely ABSENT upstream while impl/task .ps1 twins exist. This is a real upstream gap handled per the AC-015 recorded-SKIP-with-reason convention, not test-nullification; already flagged for humans in the report. No spec twin issue is yet tracked (domain twin is #147).",
+      "requires_human_decision": false
+    }
+  ],
+  "checked": [
+    "Verified manifest SHA-256 equals the declared value and hash-matched all 16 allowed inputs immediately before reading.",
+    "Recomputed the entire 206-record identity ledger: continuous sequence, valid previous-record linkage, every record_sha256 recomputes correctly; seq-204 record hash matches and the run_id/host_session_id appear exactly once, proving a fresh non-reused reservation. The --reserve re-run returning 'stale ledger' is the expected artifact of the one-shot atomic reserve after seq 205/206 were appended, not an identity breach.",
+    "git show 2e7e71a: driver blobs re-hash exactly to the implementation report Outputs values; 2e7e71a confirmed as the T-002 commit for #142.",
+    "Executed bash tests/loop-driver.tests.sh -> 22 passed, 0 failed, exit 0; pwsh tests/loop-driver.tests.ps1 -> 15 passed, 0 failed, exit 0 with the justified named TEST-006 SKIP.",
+    "Line-level review of the T-002 driver blob: loop_fixture_init builds a pwd -P mktemp root asserted outside SDD_LOOP_REPO_ROOT with a canonical INV-006 genesis ledger and full-profile registry; drive_review_round runs the REAL precheck then the REAL validate-review-context-set.sh --reserve against the fixture root, with manifests built solely from existence-asserted on-disk files, and refuses impl/task/domain explicitly; assert_* helpers and LOOP_SUITE_BUDGET_SECONDS=300 conform to design.md:168-198; all fixture writes stay under LOOP_FIXTURE_ROOT (security-spec B1/B2).",
+    "Confirmed the RED logs are authentic library-absent failures (exit 1) and the negative self-checks genuinely turn red (jq-mutated schema, contradicted terminal state, budget-0, missing prior-round artifact); crlf-parity 8/0; validate-repository passed; tasks.md T-002 Out of Scope explicitly excludes driving impl/task/domain, confirming the spec-only boundary is declared, not under-delivery."
+  ],
+  "summary": "T-002's shared loop driver and spec-review smoke suite genuinely drive the REAL spec-review-precheck and REAL validate-review-context-set --reserve against mktemp-isolated fixtures with a canonically hash-chained genesis ledger, proven by 22/0 bash and 15/0 pwsh runs plus line-level review of the hash-verified 2e7e71a blob; negative self-checks are real, no completion-faking, and the two Specification Differences (spec-only dispatcher, pwsh spec-precheck SKIP) are declared-scope, transparently documented, and non-blocking. Zero Critical, zero Major: PASS."
+}

@@ -1,0 +1,5 @@
++ bash /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-placeholders.sh /Users/jrmag/Projects/active/sdd-forge/tests/loop-escalation.tests.sh /Users/jrmag/Projects/active/sdd-forge/tests/loop-escalation.tests.ps1
+== start: 2026-07-14T18:53:27Z ==
+Placeholder scan passed.
+== end: 2026-07-14T18:53:27Z ==
+EXIT_CODE: 0

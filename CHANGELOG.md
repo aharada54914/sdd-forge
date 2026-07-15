@@ -2,6 +2,117 @@
 
 ## Unreleased
 
+### 追加
+
+- **ループインベントリと登録強制スイート (Issue #141, epic-159-pillar-a T-001)**:
+  `tests/loops/loop-inventory.json`(schema `loop-inventory/v1`)を、8つの
+  レビュー/ゲートループ(spec-review / impl-review / task-review /
+  domain-review / quality-gate / terminal-tier / wfi-audit /
+  hitl-diagnosis)の唯一の機械可読レジストリとして追加。新スイート
+  `tests/loop-inventory.tests.sh` / `.ps1` が、リポジトリから実際のループ面
+  (`plugins/**/scripts/*-review-precheck.sh`、
+  `validate-review-context-set.sh` の stage:role 認可ペア)を導出して
+  インベントリと双方向に突合し、cap_source:script なエントリの数値上限を
+  driver ソースへ grep 照合し(terminal-tier は cap_kind:state として除外)、
+  skill-instruction 強制のループ(wfi-audit / hitl-diagnosis)が偽陽性を
+  出さないことを確認し、`tests/run-all.sh` / `tests/run-all.ps1` /
+  `.github/workflows/test.yml` への自スイート登録を強制する。各チェックは
+  mktemp コピーに対する negative self-check を伴い、300秒の実行時間予算
+  (`LOOP_SUITE_BUDGET_SECONDS`)を自己計測・自己 FAIL する。実装時の grep
+  実測により、impl-review / task-review の round<=3 上限は precheck
+  スクリプトではなく SKILL.md 文面でのみ強制されると判明したため、両ループ
+  も `cap_source: skill-instruction` として登録(ADR-0010 参照、詳細は
+  `reports/implementation/epic-159-pillar-a/T-001.md`)。
+  `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md`(Status Proposed)
+  にこの発見を反映。
+- **共有ループドライバとスモークスイート (Issue #142, epic-159-pillar-a
+  T-002)**: `tests/lib/loop-driver.sh` / `.ps1`(source 専用、実行不可)を、
+  spec/impl/task/domain の各レビューループを駆動する共有ハーネスとして追加。
+  `loop_fixture_init`(greenfield は mktemp 上でゼロから合成、brownfield は
+  呼び出し元供給の synthetic seed からコピー)は `specs/<feature>/`
+  成果物・1エントリの workflow-state レジストリ・正準ハッシュ式
+  (`sha256(sequence|stage|role|run_id|host_session_id|previous_record_sha256)`)
+  による identity-ledger genesis チェーンを、リポジトリ作業ツリー外の
+  fixture root に合成する。`drive_review_round` は REAL な
+  `<stage>-review-precheck.sh` → 前ラウンドの実際の成果物一覧のみから構成
+  した manifest → REAL な `validate-review-context-set.sh --reserve` →
+  `tests/spec-review-loop.tests.sh` の `write_contract()` 形状(INV-008)に
+  倣ったレビュワー成果物、の順で駆動する。`assert_artifacts_schema` /
+  `assert_terminal` / `assert_runtime_budget`(`LOOP_SUITE_BUDGET_SECONDS=300`)
+  を提供。新スモークスイート `tests/loop-driver.tests.sh` / `.ps1` が
+  spec-review のラウンド1→3を実際に駆動して green を証明し、
+  `tests/run-all.sh` / `tests/run-all.ps1` / `.github/workflows/test.yml`
+  へ登録。**実装時の発見**: `spec-review-precheck.ps1` はリポジトリ上に
+  存在しない(`.sh` のみ)ため、pwsh レーンの TEST-006(spec-review 駆動)
+  は理由付きの named SKIP として記録(既存の domain-review pwsh 欠落パターン
+  を踏襲)。`drive_review_round` は spec-review のみを完全実装し、
+  impl/task/domain は明示的なエラーで拒否(A3/#143 スコープ、詳細は
+  `reports/implementation/epic-159-pillar-a/T-002.md`)。
+- **ループ整合性スイートと 2d8c6a5 RED differential 記録 (Issue #143,
+  epic-159-pillar-a T-003)**: 新スイート `tests/loop-consistency.tests.sh` /
+  `.ps1` が、spec / impl / task / domain の各レビューループをラウンド1→3
+  (ラウンド1-2は NEEDS_WORK、ラウンド3は各ループの inventory `terminal`
+  へ到達: spec/impl/task は PASS、domain は cap-reached BLOCKED)で駆動し、
+  観測終了状態を loop-inventory の `terminal` と照合する(TEST-008)。
+  impl-review ラウンド2レグが HEAD で green であることを毎回確認し
+  (TEST-009)、`2d8c6a5^`(修正前の親コミット)に対する一度限りの RED 証跡を
+  `specs/epic-159-pillar-a/verification/T-003/red-differential.log` に記録
+  (`git worktree` 隔離 + `SDD_LOOP_REPO_ROOT` 上書きで、pre-fix
+  `validate-review-context-set.sh` が impl-reviewer-a の前ラウンド
+  `integrated-summary.json` manifest エントリを拒否する非ゼロ終了を実証)。
+  各駆動ラウンドについて双方向不変条件(下流ゲートが要求する入力は上流ゲートが
+  認可する入力である)を、REAL な `validate-review-context-set.sh` への
+  read-only 再検証(`assert_bidirectional_invariant`、`--reserve` なし)で
+  確認し、認可されない合成 manifest エントリで red化する negative
+  self-check を伴う(TEST-010)。**スコープ裁定**:
+  `tests/lib/loop-driver.sh` / `.ps1` の `drive_review_round` ディスパッチを
+  impl/task/domain の3レビューステージへ拡張(T-002 の Out of Scope が
+  この駆動を T-003/T-004 に割り当てており、T-003 の Goal 達成に必須。
+  escalation chain の駆動は対象外、T-004 のまま)。`loop_fixture_init` を
+  design.md・4レイヤー仕様・traceability.md・domain/ ツリーの合成へ拡張
+  (harmless な追加のみ、T-002 の既存契約は無変更、
+  `tests/loop-driver.tests.sh` / `.ps1` の green を再確認済み)。**実装時の
+  発見**: pwsh レーンでは `spec-review-precheck.ps1` 欠落(T-002 既知)が
+  impl/task レグへ推移的に伝播する(両者とも spec-review の実成果物を前提と
+  するため)。`domain-review-precheck.ps1` も個別に欠落(#147)。両欠落とも
+  理由付きの named SKIP として記録、TEST-010/TEST-017 は両レーンで実際に
+  green。OQ-5(`task-review-precheck.sh:219-222` の `require_persisted_pass`
+  が stage "impl" で impl-review 成果物を読む箇所)を読み取り専用で調査し、
+  task-review 前提条件の検証としてタスクレビューの独立な深層検証(defense-
+  in-depth)であるとの所見を記録(詳細は
+  `reports/implementation/epic-159-pillar-a/T-003.md`)。
+- **quality-gate エスカレーションチェーンと template⇔gate parity 拡張
+  (Issue #144, epic-159-pillar-a T-004)**: 新スイート
+  `tests/loop-escalation.tests.sh` / `.ps1` が、gate-report 件数 0/1/2 →
+  `continue`、3 → `Escalate-Human`(`check-quality-gate-cycle-limit.sh`、
+  `reports/quality-gate/` 不在時は 0 件扱い)、`select-agent-model.sh` の
+  tier エスカレーション(lightweight→standard→strong→strong-tier
+  recurrence で `BLOCKED terminal-tier-recurrence`、`next_tier` 値を検証)、
+  その結果生成される terminal-tier-recurrence blocked-state artifact の
+  `contracts/terminal-tier-blocked-state.schema.json` 準拠、
+  `check-terminal-tier-resume.sh` が人間承認記録なしで拒否・ありで許可する
+  ことを、fixture 上で end-to-end に駆動する(TEST-011、OQ-4 解消: 本スイート
+  が同スクリプトの初の直接ドライバ)。`T-001` vs `T-0010` の接頭辞衝突
+  fixture で word-boundary マッチが件数を汚染しないことと、その
+  word-boundary を除去した一時コピーで fixture が red化することを確認
+  (TEST-018、#111/#112 の前例)。parity 拡張(TEST-012)は
+  `implementation-report.template.md` を実タスク ID でレンダリングして
+  loop-driver fixture に配置し、REAL な `validate-review-context-set.sh` の
+  quality:sdd-evaluator identity checks(厳密パス・見出し・full-line
+  `- Task ID:`・`## Outputs` セクション走査 — INV-014/INV-015)へ通し、
+  `- Task ID:` 行削除で red化・`## Outputs` セクション境界外の decoy 行が
+  認可されないことを確認する negative self-check を伴う
+  (`tests/template-validator-parity.tests.sh` を拡張・複製せず参照のみ、
+  INV-016)。python3 不在(制限 PATH)時は `deterministic-runtime-unavailable`
+  を named SKIP として記録(TEST-013、INV-017; pwsh レーンでは
+  `check-terminal-tier-resume.ps1` が python3 非依存の純 PowerShell 実装で
+  あることを確認し、`select-agent-model.ps1` は
+  `-DeterministicRuntimeCommand` 上書きで同等の劣化経路を駆動)。
+  **実装時の発見**: `select-agent-model.sh` は実行ビットなしでコミットされて
+  いるため(mode 100644)、`bash "$SCRIPT" ...` 経由で駆動(test.yml の既存
+  注記と同じ回避策)。詳細は
+  `reports/implementation/epic-159-pillar-a/T-004.md`。
+
 ### セキュリティ修正
 
 - **sdd-hook-guard.ps1 のキルスイッチが入れ子 cwd から AGENT_STOP を検出できない (週次セルフ改善監査)**:

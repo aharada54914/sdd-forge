@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-a-impl-impl-reviewer-b-seq0198",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-159-pillar-a-0198",
+  "feature_type": "deterministic test infrastructure (loop-cap consistency harness)",
+  "legacy_design": false,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a/requirements.md",
+      "sha256": "8ccde8e23951c34f2dd5ed6cb15ebf4f4f10920f5d8d26f81ed4d0c388fc2635"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/acceptance-tests.md",
+      "sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/design.md",
+      "sha256": "05c930885f05d10f0c1e546615639875802e60311da76c209325ae287c82abe9"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/investigation.md",
+      "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/ux-spec.md",
+      "sha256": "db7f3063f654b450d105f638247d88cf3f612fabde8dd18f9bfa799f1cfb4b9e"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/frontend-spec.md",
+      "sha256": "2ac3e05f17a25ab56273905463133ebb59e850c78462dcc04f32fa448a28b803"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/infra-spec.md",
+      "sha256": "82294422f8d5c9a9b40fbcb7fa2304bcdbce739eda0fc31af95d43049a79f947"
+    },
+    {
+      "path": "specs/epic-159-pillar-a/security-spec.md",
+      "sha256": "18c93aff50923036f55e5b61a26d786b5a7ee5178f1ab359004611c006de7069"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a/attempt-1/round-2/precheck-result.json",
+      "sha256": "969ab9eb3404ec0e507ac4e3265a46c0d8ec473b1ff9cbef8a71c33de0d46f58"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a/attempt-1/round-2/integrated-summary.json",
+      "sha256": "25b1bde5b6c067bc2d166ed934386b5dd3fa392e651c4526b8adbe60d0491a91"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Inline decisions carry rationale: OQ-1 cap_source field is justified 'so skill-instruction-enforced caps ... are registered and inventoried without demanding nonexistent driver scripts ... (INV-004)' (design.md Design Decisions section); OQ-2 fixture_profiles vocabulary is justified via INV-019/ADR-0010; the 'A4 parity-extension placement (decision)' section (design.md lines 200-213) gives an explicit three-part Justification (a)(b)(c) for keeping the parity extension inside loop-escalation.tests.sh instead of editing tests/template-validator-parity.tests.sh; frontend-spec.md's Technology Stack table (lines 9-14) carries a Rationale column for every technology row (cross-host determinism INV-021 for Bash/PowerShell twins; 'already a repository dependency' for jq). No inline technology or architectural statement lacks a because/since-equivalent clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Open Questions (lines 326-334) carries a single entry, OQ-5, with an explicit owner ('maintainers + the A3 implementing task', not TBD), an explicit 'Blocks Implementation: no' field, and a concrete Resolution Path ('code inspection during implementation of the task-review leg; finding recorded in that task's implementation report; the leg asserts only HEAD-observable behavior until then'). All three required fields are present."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-022), so the absent-investigation branch does not apply. design.md ## Assumptions (lines 315-324) contains three statements, each grounded: '2d8c6a5 stays in mainline ancestry (verified at spec time on feature/epic-159-pillar-a)' traces to INV-012/INV-013; the script-path assumption is explicitly marked '(verified, correcting the INV-001 table's terminal-tier driver path ...)'; the write_contract() fixture-shape assumption cites INV-008 (tests/spec-review-loop.tests.sh:39-99). No ungrounded non-trivial assumption found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Primary/TYPE-D path applies: design.md ## Constraint Compliance (lines 304-313) is present with six rows covering no-protected-file-modification (Non-goals), .sh/.ps1 twin mandate and cross-host support (REQ-005), no-false-green (harness Risks), doc-following (REQ-006), and version-bump-only-via-script (REQ-006). Security boundaries B1 (fixture isolation / no real repo path written) and B3 (protected-basename+write-verb confinement) from requirements.md's Security Boundaries table are not separate rows in that table but ARE addressed elsewhere in the same document (design.md Security Boundaries section lines 279-287; Data Plan lines 108-118: 'Existing Data Affected: none. Real reports/, specs/ ... are never written by the harness'), so no constraint is contradicted or absent from the design as a whole. The task-ID prefix-collision edge case (AC-018) is addressed at Test Strategy item 3 (design.md lines 244-245)."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's only numeric performance requirement is AC-017/TEST-017 (each new suite self-fails past a 300-second wall-clock budget). design.md Test Strategy item 1b (lines 224-232) now defines the concrete mechanism: 'assert_runtime_budget <start_epoch>', threshold constant 'LOOP_SUITE_BUDGET_SECONDS=300', measured-seconds printed in the summary line, in-suite self-fail at >300s, and a threshold-0 negative self-check proving the assertion is live. infra-spec.md's Runtime Budget section (lines 66-79) reiterates the identical mechanism and enforcement point and adds per-OS wall-clock recording in implementation reports. design.md Risks (lines 340-345) cross-references both. This resolves round 1's Major finding."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Deployment / CI Plan (lines 295-302) states the deployment target ('No runtime deployment ... existing 3-OS matrix', deterministic-lane placement per infra-spec.md's #126 note), the required CI pipeline changes (four suites join tests/run-all.sh/.ps1 and .github/workflows/test.yml), and rollback ('reviewed revert of that item's commit; no human-copy re-copy step'). Feature-flag strategy is not applicable (no incrementally-rolled-out runtime feature \u2014 the deliverable is a CI-only test harness). Migration execution order is not applicable because Data Plan states 'Migration Strategy: none' (no schema changes)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan (lines 108-118) states 'Existing Data Affected: none' and 'Migration Strategy: none' \u2014 no schema, column, or table changes are declared, satisfying the check's stated PASS condition."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## External Integrations (lines 289-293) states 'None. No network calls, no new services, no third-party actions,' consistent with the rest of the design \u2014 every cited script (validate-review-context-set.sh, check-quality-gate-cycle-limit.sh, select-agent-model.sh, check-terminal-tier-resume.sh) is an internal repository script driven read-only, not an external/third-party integration. The runtime dependencies that could actually fail (bash, pwsh, jq, python3, git) are each named with explicit absence/failure behavior in infra-spec.md's Runtime Dependencies table (lines 47-56)."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every component in design.md's Components table (lines 42-51) \u2014 loop-inventory.json, loop-inventory.tests.sh/.ps1, loop-driver.sh/.ps1 + smoke suite, loop-consistency.tests.sh/.ps1, loop-escalation.tests.sh/.ps1, run-all.sh/.ps1 + test.yml edits \u2014 traces to REQ-001..REQ-005 via the Cross-Layer Dependencies table (lines 93-98). Every requirements.md Goal (REQ-001..REQ-006) has a corresponding design element (REQ-006 is covered by Constraint Compliance rows 5-6). No component, data model, or endpoint appears without a requirements.md anchor, and no Goal or User Story capability is omitted."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The high-risk surfaces actually present are the two Critical risks in requirements.md (false-green harness drift, cap-drift narrowing) \u2014 not security/PII/payment/cross-service surfaces, none of which apply to this read-only, network-free test harness. design.md names concrete validation paths for each: Test Strategy item 1 (TEST-001/002/007/010/012/017/018 negative self-checks that re-run the verification against a mutated mktemp copy and assert red), Test Strategy item 2 (the RED-differential procedure against 2d8c6a5^ with an explicit git-worktree command sequence, AC-009/TEST-009), and security-spec.md's Security Tests table (TEST-005/002/010/011/013/012 mapped to each STRIDE boundary)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: DOMAIN-CONFORMANCE is not part of impl-reviewer-b's defined check catalog per this role's instructions, which enumerate exactly ten checks ending at VERIFICATION-PATH-CONCRETE and define no DOMAIN-CONFORMANCE criteria. reports/impl-review/epic-159-pillar-a/attempt-1/round-2/integrated-summary.json lists DOMAIN-CONFORMANCE among impl-reviewer-a's owned check IDs (reviewer_a_check_ids), already evaluated this round (reviewer_a_fail_count: 0). This role must never read reviewer-a.json, so no independent judgment for this check is fabricated or duplicated; the discrepancy between the requested output schema and this role's defined check catalog is flagged to the orchestrator."
+    }
+  ]
+}

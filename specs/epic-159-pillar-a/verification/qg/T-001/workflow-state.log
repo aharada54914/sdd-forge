@@ -1,0 +1,5 @@
++ bash /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+== start: 2026-07-14T18:53:51Z ==
+workflow-state: ok
+== end: 2026-07-14T18:53:54Z ==
+EXIT_CODE: 0

@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-159-pillar-a",
+  "attempt": 1,
+  "round": 2,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "05c930885f05d10f0c1e546615639875802e60311da76c209325ae287c82abe9",
+  "requirements_sha256": "8ccde8e23951c34f2dd5ed6cb15ebf4f4f10920f5d8d26f81ed4d0c388fc2635",
+  "acceptance_sha256": "b23612e6d5309ed289c406d3ab6dec18b34aa67334d0a4c1b7731b5387bee813",
+  "layer_sha256": {"ux-spec.md":"db7f3063f654b450d105f638247d88cf3f612fabde8dd18f9bfa799f1cfb4b9e","frontend-spec.md":"2ac3e05f17a25ab56273905463133ebb59e850c78462dcc04f32fa448a28b803","infra-spec.md":"82294422f8d5c9a9b40fbcb7fa2304bcdbce739eda0fc31af95d43049a79f947","security-spec.md":"18c93aff50923036f55e5b61a26d786b5a7ee5178f1ab359004611c006de7069"},
+  "input_sha256": "c3353abea622c01e308e6e3e071ce6d0585c26ac2b29c5f70e61ddd0a608e20f",
+  "generated_at": "2026-07-13T23:42:56Z"
+}

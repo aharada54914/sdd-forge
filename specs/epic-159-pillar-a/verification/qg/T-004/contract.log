@@ -1,0 +1,5 @@
++ bash /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-contract.sh /Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/verification/T-004.contract.json /Users/jrmag/Projects/active/sdd-forge
+== start: 2026-07-14T18:57:51Z ==
+Verification contract passed for task T-004.
+== end: 2026-07-14T18:57:51Z ==
+EXIT_CODE: 0
