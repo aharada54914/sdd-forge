@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-a2",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "71b0de493a81526f3f3cae9195270e5707056b2c88c6ee7e609ab0785d1fd4d6",
+  "acceptance_sha256": "7d32962c31f0ebbc6d09417648b974b1299c63f227eefbbf89e8e89b71e04f99",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "d1491dd5f6c82ad1c426f02a3cfe1b43ce0f1e5a56a61cbacf085fff09bba811",
+  "edit_summary": "Round-1 fixes: AC-003/AC-005 rewritten as one-directional invariant against the real 5-state Audit-Status machine (B-1 Major); TEST-005 gains SHA-256 before/after immutability assertion on the two real WFI files and absent-Audit-Attempt=0 semantics (B-2); bootstrap-complete tasks.md defined in Field Definitions with template citations (B-3); uncited line-count claims dropped from REQ-003/REQ-004 (A-1); AC-014 cross-reference disambiguated to sdd-domain's own AC-014 at specs/sdd-domain/requirements.md:120 (A-2).",
+  "reset": false,
+  "generated_at": "2026-07-15T23:16:27Z"
+}
