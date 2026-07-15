@@ -1,6 +1,6 @@
 # Requirements: epic-159-pillar-a2
 
-Spec-Review-Status: Draft
+Spec-Review-Status: Pending
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/145,
 https://github.com/aharada54914/sdd-forge/issues/146,
 https://github.com/aharada54914/sdd-forge/issues/147,
