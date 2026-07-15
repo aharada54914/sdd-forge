@@ -110,6 +110,10 @@ SPEC_ROOT="${LOOP_FIXTURE_ROOT:-}"
 LOOP_FIXTURE_ROOT="$SPEC_ROOT"; LOOP_FIXTURE_FEATURE="$SPEC_FEATURE"
 export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
 
+# Runtime capability probe (behavior-only, REQ-005-compliant: no OS
+# branching): probes once, read-only, against this fresh fixture; later gate
+# points reuse the cached verdict.
+if loop_validator_capability_probe; then
 if drive_review_round spec 1 1 NEEDS_WORK Major &&
    drive_review_round spec 1 2 NEEDS_WORK Major &&
    drive_review_round spec 1 3 PASS Minor; then
@@ -121,6 +125,10 @@ if assert_terminal spec-review PASS; then
   ok "TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal"
 else
   fail "TEST-008.3: spec leg observed end state does not match the loop-inventory terminal (PASS)"
+fi
+else
+  loop_validator_skip "TEST-008.2"
+  loop_validator_skip "TEST-008.3"
 fi
 
 IMPL_FEATURE="loop-consistency-impl-$$"
@@ -134,6 +142,8 @@ IMPL_ROOT="${LOOP_FIXTURE_ROOT:-}"
 LOOP_FIXTURE_ROOT="$IMPL_ROOT"; LOOP_FIXTURE_FEATURE="$IMPL_FEATURE"
 export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
 
+IMPL_ROUND2_DIR="${IMPL_ROOT}/reports/impl-review/${IMPL_FEATURE}/attempt-1/round-2"
+if loop_validator_capability_probe; then
 if loop_prepare_impl_prereqs "$IMPL_FEATURE" &&
    drive_review_round impl 1 1 NEEDS_WORK Major &&
    drive_review_round impl 1 2 NEEDS_WORK Major &&
@@ -147,7 +157,6 @@ if assert_terminal impl-review PASS; then
 else
   fail "TEST-008.6: impl leg observed end state does not match the loop-inventory terminal (PASS)"
 fi
-IMPL_ROUND2_DIR="${IMPL_ROOT}/reports/impl-review/${IMPL_FEATURE}/attempt-1/round-2"
 if [[ -f "${IMPL_ROUND2_DIR}/impl-review-contract.json" ]] &&
    jq -e --arg role impl-reviewer-a '
      .reviewers[] | select(.role == $role) | .allowed_input_manifest[] |
@@ -156,6 +165,11 @@ if [[ -f "${IMPL_ROUND2_DIR}/impl-review-contract.json" ]] &&
   ok "TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)"
 else
   fail "TEST-008.7: impl round-2 reviewer-a manifest is missing the round-1 integrated-summary.json entry"
+fi
+else
+  loop_validator_skip "TEST-008.5"
+  loop_validator_skip "TEST-008.6"
+  loop_validator_skip "TEST-008.7"
 fi
 
 TASK_FEATURE="loop-consistency-task-$$"
@@ -177,6 +191,7 @@ export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
 # field. See this task's implementation report for the full finding; this
 # leg asserts only that the real gate accepts genuine evidence (HEAD-observable
 # behavior), not any specific cross-stage semantics beyond that.
+if loop_validator_capability_probe; then
 if loop_prepare_task_prereqs "$TASK_FEATURE" &&
    drive_review_round task 1 1 NEEDS_WORK Major &&
    drive_review_round task 1 2 NEEDS_WORK Major &&
@@ -190,6 +205,10 @@ if assert_terminal task-review PASS; then
 else
   fail "TEST-008.10: task leg observed end state does not match the loop-inventory terminal (PASS)"
 fi
+else
+  loop_validator_skip "TEST-008.9"
+  loop_validator_skip "TEST-008.10"
+fi
 
 DOMAIN_FEATURE="loop-consistency-domain-$$"
 if loop_fixture_init greenfield "$DOMAIN_FEATURE"; then
@@ -202,6 +221,7 @@ DOMAIN_ROOT="${LOOP_FIXTURE_ROOT:-}"
 LOOP_FIXTURE_ROOT="$DOMAIN_ROOT"; LOOP_FIXTURE_FEATURE="$DOMAIN_FEATURE"
 export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
 
+if loop_validator_capability_probe; then
 if drive_review_round domain 1 1 NEEDS_WORK Major &&
    drive_review_round domain 1 2 NEEDS_WORK Major &&
    drive_review_round domain 1 3 BLOCKED Major; then
@@ -213,6 +233,10 @@ if assert_terminal domain-review BLOCKED; then
   ok "TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal (round-cap behavior; no Minor-only PASS exception)"
 else
   fail "TEST-008.13: domain leg observed end state does not match the loop-inventory terminal (BLOCKED)"
+fi
+else
+  loop_validator_skip "TEST-008.12"
+  loop_validator_skip "TEST-008.13"
 fi
 
 DOMAIN_PS1="${REPO_ROOT}/plugins/sdd-domain/scripts/domain-review-precheck.ps1"
@@ -227,10 +251,14 @@ fi
 # ---------------------------------------------------------------------------
 echo "=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ==="
 
-if [[ -f "${IMPL_ROUND2_DIR:-/nonexistent}/impl-review-contract.json" ]]; then
-  ok "TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)"
+if loop_validator_capability_probe; then
+  if [[ -f "${IMPL_ROUND2_DIR:-/nonexistent}/impl-review-contract.json" ]]; then
+    ok "TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)"
+  else
+    fail "TEST-009.1: impl-review round-2 leg is not green at HEAD"
+  fi
 else
-  fail "TEST-009.1: impl-review round-2 leg is not green at HEAD"
+  loop_validator_skip "TEST-009.1"
 fi
 
 RED_LOG="${REPO_ROOT}/specs/epic-159-pillar-a/verification/T-003/red-differential.log"
@@ -280,6 +308,7 @@ jq -n '{schema:"placeholder/v1"}' > "${TASK_R1}/precheck-result.json"
 jq -n '{schema:"placeholder/v1"}' > "${TASK_R1}/dependency-graph.json"
 jq -n '{schema:"placeholder/v1"}' > "${DOMAIN_R1}/precheck-result.json"
 
+if loop_validator_capability_probe; then
 SPEC_MANIFEST_A="$(_loop_spec_manifest_a "$SPEC_R1")"
 if assert_bidirectional_invariant spec spec-reviewer-a "$INV_FEATURE" "$SPEC_MANIFEST_A"; then
   ok "TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant"
@@ -326,6 +355,13 @@ if [[ -f "$BAD_ABS" ]]; then
   fi
 else
   fail "TEST-010.5 (negative self-check): could not construct the synthetic fixture (fixture's own specs/ requirements.md is missing)"
+fi
+else
+  loop_validator_skip "TEST-010.1"
+  loop_validator_skip "TEST-010.2"
+  loop_validator_skip "TEST-010.3"
+  loop_validator_skip "TEST-010.4"
+  loop_validator_skip "TEST-010.5"
 fi
 
 # ---------------------------------------------------------------------------

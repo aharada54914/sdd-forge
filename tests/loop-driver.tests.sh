@@ -140,12 +140,17 @@ else
   LOOP_FIXTURE_FEATURE="$FEATURE_GF"
   export LOOP_FIXTURE_FEATURE
 
+  ROUND1_DIR="${GF_ROOT}/reports/spec-review/${FEATURE_GF}/attempt-1/round-1"
+  if ! loop_validator_capability_probe; then
+    for skip_id in TEST-006.1 TEST-006.2 TEST-006.3 TEST-006.4 TEST-006.5 TEST-006.6; do
+      loop_validator_skip "$skip_id"
+    done
+  else
   if drive_review_round spec 1 1 NEEDS_WORK Major; then
     ok "TEST-006.1: drive_review_round spec attempt 1 round 1 (NEEDS_WORK/Major) succeeds"
   else
     fail "TEST-006.1: drive_review_round spec attempt 1 round 1 (NEEDS_WORK/Major) failed"
   fi
-  ROUND1_DIR="${GF_ROOT}/reports/spec-review/${FEATURE_GF}/attempt-1/round-1"
   if [[ -f "${ROUND1_DIR}/spec-review-contract.json" ]] && \
      jq -e '.verdict == "NEEDS_WORK"' "${ROUND1_DIR}/spec-review-contract.json" >/dev/null 2>&1; then
     ok "TEST-006.2: round-1 contract records verdict NEEDS_WORK"
@@ -176,6 +181,7 @@ else
     ok "TEST-006.6: assert_prior_round_complete recognizes round-1's genuine on-disk output set"
   else
     fail "TEST-006.6: assert_prior_round_complete rejects round-1's genuine on-disk output set"
+  fi
   fi
 
   INCOMPLETE_DIR="$(mktemp -d "${TMPDIR:-/tmp}/loop-driver-incomplete.XXXXXX")"

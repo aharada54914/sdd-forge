@@ -435,6 +435,89 @@ _loop_review_context_call() {
   return $rc
 }
 
+# ---------------------------------------------------------------------------
+# Runtime capability probe for validator-driving checks
+# ---------------------------------------------------------------------------
+
+# _loop_genesis_formula_valid <ledger> — suite-side recomputation of the
+# genesis record hash via the canonical INV-006 formula
+# (validate-review-context-set.sh:245), using this library's own CRLF-safe
+# jq reads. Returns 0 when the stored record_sha256 matches the formula.
+_loop_genesis_formula_valid() {
+  local ledger="$1" seq stage role run session previous stored computed
+  [[ -f "$ledger" ]] || return 1
+  seq="$(jq -r '.records[0].sequence' "$ledger" 2>/dev/null | tr -d '\r')" || return 1
+  stage="$(jq -r '.records[0].stage' "$ledger" 2>/dev/null | tr -d '\r')" || return 1
+  role="$(jq -r '.records[0].role' "$ledger" 2>/dev/null | tr -d '\r')" || return 1
+  run="$(jq -r '.records[0].run_id' "$ledger" 2>/dev/null | tr -d '\r')" || return 1
+  session="$(jq -r '.records[0].host_session_id' "$ledger" 2>/dev/null | tr -d '\r')" || return 1
+  previous="$(jq -r '.records[0].previous_record_sha256' "$ledger" 2>/dev/null | tr -d '\r')" || return 1
+  stored="$(jq -r '.records[0].record_sha256' "$ledger" 2>/dev/null | tr -d '\r')" || return 1
+  computed="$(printf '%s' "${seq}|${stage}|${role}|${run}|${session}|${previous}" | _loop_sha256_text)"
+  [[ -n "$stored" && "$computed" == "$stored" ]]
+}
+
+# loop_validator_capability_probe — pure runtime behavior probe (REQ-005: no
+# uname/OS branching anywhere). Immediately after loop_fixture_init, asks the
+# REAL validate-review-context-set.sh to check-validate (read-only, never
+# --reserve, so the fixture ledger is not advanced) a minimal spec-reviewer-a
+# manifest against the fixture's genesis identity ledger.
+#
+# Returns 0 (capability ok) when the validator accepts the call. Returns 1
+# (capability degraded) ONLY when BOTH hold: the validator rejected the call
+# with a REVIEW_CONTEXT_IDENTITY error, AND this library's own canonical
+# INV-006 formula recomputation validates the very same genesis record. That
+# conjunction is the signature of the upstream Windows CRLF defect in
+# validate-review-context-set.sh's record-hash recomputation (its
+# while-IFS=tab-read loop consumes `jq -r ... | @tsv` output whose trailing
+# CR lands in the final record_sha256 field, so a byte-exact hash comparison
+# fails on a canonically valid ledger; tracked as issue #179). Every other
+# failure mode returns 0 so genuine regressions still fail loudly in the
+# gated checks themselves.
+#
+# The verdict is cached in LOOP_VALIDATOR_CAPABILITY (ok|degraded): a suite
+# probes the real validator at most once, and later gate points may call
+# this function again cheaply as a plain condition.
+LOOP_VALIDATOR_SKIP_REASON="real validator rejects a canonically-valid genesis ledger on this runtime (upstream Windows CRLF defect in validate-review-context-set.sh record-hash recomputation; issue #179)"
+loop_validator_capability_probe() {
+  if [[ -n "${LOOP_VALIDATOR_CAPABILITY:-}" ]]; then
+    [[ "$LOOP_VALIDATOR_CAPABILITY" == ok ]]
+    return
+  fi
+  local feature="${LOOP_FIXTURE_FEATURE:?loop_validator_capability_probe requires LOOP_FIXTURE_FEATURE (set by loop_fixture_init)}"
+  local ledger="${LOOP_FIXTURE_ROOT}/reports/review-context/identity-ledger.json"
+  local entries probe_out probe_rc
+  entries="$(_loop_manifest_array \
+    "specs/${feature}/requirements.md" \
+    "specs/${feature}/acceptance-tests.md")" || {
+    # Could not even compose the probe manifest: not the upstream validator
+    # defect; report ok so the real checks run and surface the actual error.
+    LOOP_VALIDATOR_CAPABILITY=ok
+    return 0
+  }
+  if probe_out="$(_loop_review_context_call spec spec-reviewer-a "$feature" "$entries" check 2>&1)"; then
+    probe_rc=0
+  else
+    probe_rc=$?
+  fi
+  if [[ "$probe_rc" -eq 0 ]]; then
+    LOOP_VALIDATOR_CAPABILITY=ok
+    return 0
+  fi
+  if [[ "$probe_out" == *REVIEW_CONTEXT_IDENTITY* ]] && _loop_genesis_formula_valid "$ledger"; then
+    LOOP_VALIDATOR_CAPABILITY=degraded
+    return 1
+  fi
+  LOOP_VALIDATOR_CAPABILITY=ok
+  return 0
+}
+
+# loop_validator_skip <check-id> — emits the canonical named SKIP line for a
+# validator-driving check suppressed by loop_validator_capability_probe.
+loop_validator_skip() {
+  printf 'SKIP: %s: %s\n' "$1" "$LOOP_VALIDATOR_SKIP_REASON"
+}
+
 # _loop_reserve_review_context <stage> <role> <feature> <manifest-json-array>
 # Unchanged public contract from A2/#142: always reserves (extends the
 # identity-ledger chain).

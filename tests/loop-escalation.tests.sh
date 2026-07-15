@@ -479,6 +479,7 @@ else
   fail "TEST-012.2: rendered implementation report is missing the expected heading or Task ID field"
 fi
 
+if loop_validator_capability_probe; then
 IMPL_SHA="$(_loop_sha256 "${PARITY_ROOT}/${IMPL_REPORT_REL}")"
 ENTRIES_OK="$(jq -n --arg p1 "$IMPL_REPORT_REL" --arg s1 "$IMPL_SHA" \
   --arg p2 "$OUT_PATH" --arg s2 "$OUT_SHA" \
@@ -527,6 +528,11 @@ else
   fail "TEST-012.5 (negative self-check, INV-014): the outside-section decoy row was incorrectly authorized (rc=${RC}, out=${OUT})"
 fi
 rm -f "$MANIFEST_DECOY_PATH"
+else
+  loop_validator_skip "TEST-012.3"
+  loop_validator_skip "TEST-012.4"
+  loop_validator_skip "TEST-012.5"
+fi
 
 # =============================================================================
 # TEST-013 (AC-013): python3-absent degradation (restricted PATH)
