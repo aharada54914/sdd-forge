@@ -79,7 +79,7 @@ else
 fi
 
 genesis_expected="$(printf '%s' "1|genesis|loop-driver-fixture|fixture-genesis-run|fixture-genesis-session|" | { command -v sha256sum >/dev/null 2>&1 && sha256sum || shasum -a 256; } | awk '{print $1}')"
-genesis_actual="$(jq -r '.records[0].record_sha256' "$LEDGER" 2>/dev/null || true)"
+genesis_actual="$(jq -r '.records[0].record_sha256' "$LEDGER" 2>/dev/null | tr -d '\r' || true)"
 if [[ -n "$genesis_actual" && "$genesis_actual" == "$genesis_expected" ]]; then
   ok "TEST-005.4: genesis record hash matches the canonical INV-006 formula (validate-review-context-set.sh:245)"
 else

@@ -104,7 +104,7 @@ validate_registration() {
   while IFS= read -r gate; do
     [[ -n "$gate" ]] || continue
     [[ -f "${REPO_ROOT}/${gate}" ]] || return 1
-  done < <(jq -r '.loops[].cross_gates[]?' "$inv")
+  done < <(jq -r '.loops[].cross_gates[]?' "$inv" | tr -d '\r')
 
   return 0
 }
@@ -176,7 +176,7 @@ while IFS= read -r gate; do
     fail "TEST-001.5: cross_gates path does not exist: ${gate}"
     gate_gap=1
   fi
-done < <(jq -r '.loops[].cross_gates[]?' "$INVENTORY_PATH" 2>/dev/null)
+done < <(jq -r '.loops[].cross_gates[]?' "$INVENTORY_PATH" 2>/dev/null | tr -d '\r')
 
 # Negative self-check: remove one registered entry from a mktemp copy and
 # assert validate_registration turns red.
@@ -220,11 +220,11 @@ extract_source_cap() {
 cap_drift_check() {
   local id="$1" inv="$2" source_val inv_val
   source_val="$(extract_source_cap "$id")"
-  inv_val="$(jq -r --arg id "$id" '.loops[] | select(.id == $id) | .cap.value' "$inv" 2>/dev/null)"
+  inv_val="$(jq -r --arg id "$id" '.loops[] | select(.id == $id) | .cap.value' "$inv" 2>/dev/null | tr -d '\r')"
   [[ -n "$source_val" && "$source_val" == "$inv_val" ]]
 }
 
-numeric_ids="$(jq -r '.loops[] | select(.cap_source == "script" and .cap_kind == "numeric") | .id' "$INVENTORY_PATH" 2>/dev/null || true)"
+numeric_ids="$(jq -r '.loops[] | select(.cap_source == "script" and .cap_kind == "numeric") | .id' "$INVENTORY_PATH" 2>/dev/null | tr -d '\r' || true)"
 if [[ -z "$numeric_ids" ]]; then
   fail "TEST-002.0: no cap_source:script + cap_kind:numeric entries found to drift-lock"
 fi
@@ -266,7 +266,7 @@ fi
 # ---------------------------------------------------------------------------
 echo "=== TEST-003: skill-instruction exemption + fixture_profiles vocabulary lock ==="
 
-skill_ids="$(jq -r '.loops[] | select(.cap_source == "skill-instruction") | .id' "$INVENTORY_PATH" 2>/dev/null || true)"
+skill_ids="$(jq -r '.loops[] | select(.cap_source == "skill-instruction") | .id' "$INVENTORY_PATH" 2>/dev/null | tr -d '\r' || true)"
 if [[ -z "$skill_ids" ]]; then
   fail "TEST-003.0: no cap_source:skill-instruction entries found"
 fi

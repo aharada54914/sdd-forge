@@ -97,7 +97,7 @@ _loop_id_for_stage() {
 _loop_driver_script() {
   local stage="$1" id
   id="$(_loop_id_for_stage "$stage")" || return 1
-  jq -r --arg id "$id" '.loops[] | select(.id == $id) | .driver_scripts[0] // empty' "$LOOP_INVENTORY_PATH"
+  jq -r --arg id "$id" '.loops[] | select(.id == $id) | .driver_scripts[0] // empty' "$LOOP_INVENTORY_PATH" | tr -d '\r'
 }
 
 # ---------------------------------------------------------------------------
@@ -320,6 +320,15 @@ EOF
 # both Spec-Review-Status and Impl-Review-Status to already read Passed
 # (see loop_fixture_init's comment); the caller is responsible for having
 # already driven and flipped those two stages to Passed first.
+#
+# Two tasks (T-002 Blockers: T-001) rather than one: task-review-precheck.sh
+# builds graph_edges_to by parsing every Blockers field, and a single task
+# with "Blockers: None" never appends to that array. Under bash 3.2 (macOS
+# CI's default /bin/bash) `"${graph_edges_to[@]}"` on a declared-but-never-
+# appended-to array is an unbound-variable error with `set -u`, even though
+# bash 4.4+ treats it as an empty expansion. Keeping a real (non-cyclic)
+# dependency edge in the fixture keeps that array non-empty on every bash
+# version without branching on host OS.
 _loop_task_fixture_prepare() {
   local feature="$1"
   local tasks_path="${LOOP_FIXTURE_ROOT}/specs/${feature}/tasks.md"
@@ -340,6 +349,18 @@ Risk: low
 Risk Rationale: synthetic loop-driver fixture task; no real change surface.
 
 Blockers: None
+
+## T-002 loop-driver fixture dependent task
+
+Approval: Draft
+
+Status: Planned
+
+Risk: low
+
+Risk Rationale: synthetic loop-driver fixture task; no real change surface.
+
+Blockers: T-001
 EOF
   return 0
 }
@@ -370,10 +391,10 @@ _loop_manifest_array() {
 }
 
 _loop_next_sequence() {
-  jq -r '(.records | length) + 1' "${LOOP_FIXTURE_ROOT}/reports/review-context/identity-ledger.json"
+  jq -r '(.records | length) + 1' "${LOOP_FIXTURE_ROOT}/reports/review-context/identity-ledger.json" | tr -d '\r'
 }
 _loop_previous_hash() {
-  jq -r '.records[-1].record_sha256' "${LOOP_FIXTURE_ROOT}/reports/review-context/identity-ledger.json"
+  jq -r '.records[-1].record_sha256' "${LOOP_FIXTURE_ROOT}/reports/review-context/identity-ledger.json" | tr -d '\r'
 }
 
 # _loop_review_context_call <stage> <role> <feature> <manifest-json-array> [reserve|check]
@@ -469,7 +490,7 @@ assert_prior_round_complete() {
 _loop_emit_spec_round_a() {
   local round_dir="$1" severity="$2"
   local round a_verdict a_result a_fails a_passes check_severity warning
-  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   case "$severity" in
     none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=6; check_severity="Minor" ;;
     Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Critical" ;;
@@ -515,7 +536,7 @@ _loop_emit_spec_round_a() {
 _loop_emit_spec_round_b_contract() {
   local round_dir="$1" verdict="$2" severity="$3"
   local round warning critical major minor
-  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   warning=0
   [[ "$round" == 3 && "$severity" == Minor ]] && warning=1
   case "$severity" in
@@ -665,7 +686,7 @@ _loop_emit_impl_round_a() {
   local round_dir="$1" severity="$2"
   local round a_verdict a_result a_fails a_passes check_severity feature
   feature="$LOOP_FIXTURE_FEATURE"
-  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   case "$severity" in
     none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=6; check_severity="Minor" ;;
     Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Critical" ;;
@@ -733,7 +754,7 @@ _loop_emit_impl_round_b_contract() {
   local round_dir="$1" verdict="$2" severity="$3"
   local round critical major minor feature
   feature="$LOOP_FIXTURE_FEATURE"
-  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   case "$severity" in
     none)     critical=0; major=0; minor=0 ;;
     Critical) critical=1; major=0; minor=0 ;;
@@ -794,7 +815,7 @@ _loop_emit_impl_round_b_contract() {
     > "${round_dir}/reviewer-b.json" || return 1
 
   local manifest_a_json
-  manifest_a_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-a.json")"
+  manifest_a_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-a.json" | tr -d '\r')"
   jq -n --arg feature "$feature" --arg verdict "$verdict" --argjson round "$round" \
     --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
     --arg a_verdict "$a_verdict" --arg requirements_sha256 "$requirements_sha" --arg acceptance_sha256 "$acceptance_sha" \
@@ -924,7 +945,7 @@ _loop_emit_task_round_a() {
   local round_dir="$1" severity="$2"
   local round a_verdict a_result a_fails a_passes check_severity feature
   feature="$LOOP_FIXTURE_FEATURE"
-  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   case "$severity" in
     none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=6; check_severity="Minor" ;;
     Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Critical" ;;
@@ -985,7 +1006,7 @@ _loop_emit_task_round_b_contract() {
   local round_dir="$1" verdict="$2" severity="$3"
   local round critical major minor feature
   feature="$LOOP_FIXTURE_FEATURE"
-  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   case "$severity" in
     none)     critical=0; major=0; minor=0 ;;
     Critical) critical=1; major=0; minor=0 ;;
@@ -1046,8 +1067,8 @@ _loop_emit_task_round_b_contract() {
     > "${round_dir}/reviewer-b.json" || return 1
 
   local manifest_a_json manifest_b_json
-  manifest_a_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-a.json")"
-  manifest_b_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-b.json")"
+  manifest_a_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-a.json" | tr -d '\r')"
+  manifest_b_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-b.json" | tr -d '\r')"
   jq -n --arg feature "$feature" --arg verdict "$verdict" --argjson round "$round" \
     --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
     --arg a_verdict "$a_verdict" --arg tasks_sha256 "$tasks_sha" \
@@ -1132,7 +1153,7 @@ _loop_drive_task_round() {
 _loop_emit_domain_round_a() {
   local round_dir="$1" severity="$2"
   local round a_verdict a_result a_fails a_passes check_severity
-  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   case "$severity" in
     none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=6; check_severity="Minor" ;;
     Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Critical" ;;
@@ -1177,7 +1198,7 @@ _loop_emit_domain_round_a() {
 _loop_emit_domain_round_b_contract() {
   local round_dir="$1" verdict="$2" severity="$3"
   local round critical major minor
-  round="$(jq -r .round "${round_dir}/precheck-result.json")" || return 1
+  round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   case "$severity" in
     none)     critical=0; major=0; minor=0 ;;
     Critical) critical=1; major=0; minor=0 ;;
@@ -1225,8 +1246,8 @@ _loop_emit_domain_round_b_contract() {
     > "${round_dir}/reviewer-b.json" || return 1
 
   local manifest_a_json manifest_b_json
-  manifest_a_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-a.json")"
-  manifest_b_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-b.json")"
+  manifest_a_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-a.json" | tr -d '\r')"
+  manifest_b_json="$(jq -r '.allowed_input_manifest' "${round_dir}/reviewer-b.json" | tr -d '\r')"
   jq -n --arg verdict "$verdict" --argjson round "$round" \
     --argjson critical "$critical" --argjson major "$major" --argjson minor "$minor" \
     --arg a_verdict "$a_verdict" \
@@ -1334,9 +1355,9 @@ assert_artifacts_schema() {
   for f in "$dir"/*.json; do
     [[ -f "$f" ]] || continue
     any=1
-    schema="$(jq -r '.schema? // empty' "$f" 2>/dev/null)" || return 1
+    schema="$(jq -r '.schema? // empty' "$f" 2>/dev/null | tr -d '\r')" || return 1
     [[ -n "$schema" ]] || return 1
-    found="$(printf '%s' "$known_json" | jq -r --arg s "$schema" 'index($s) != null')"
+    found="$(printf '%s' "$known_json" | jq -r --arg s "$schema" 'index($s) != null' | tr -d '\r')"
     [[ "$found" == "true" ]] || return 1
   done
   [[ "$any" -eq 1 ]] || return 1
@@ -1349,7 +1370,7 @@ assert_artifacts_schema() {
 assert_terminal() {
   local loop_id="$1" observed="$2" exit_code="${3:-0}" expected
   [[ "$exit_code" -eq 0 ]] || return 1
-  expected="$(jq -r --arg id "$loop_id" '.loops[] | select(.id == $id) | .terminal.state // empty' "$LOOP_INVENTORY_PATH")" || return 1
+  expected="$(jq -r --arg id "$loop_id" '.loops[] | select(.id == $id) | .terminal.state // empty' "$LOOP_INVENTORY_PATH" | tr -d '\r')" || return 1
   [[ -n "$expected" ]] || return 1
   [[ "$expected" == "$observed" ]]
 }
