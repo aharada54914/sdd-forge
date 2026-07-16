@@ -52,9 +52,20 @@ verbatim.
   generalization first and T-004's diff is a pure one-line addition
   (design.md Global Constraints). The `GUARD_PS1` single-target override
   semantics for the protected hook-guard entry are preserved unchanged.
-- T-003/T-004 are materially independent of T-001/T-002 (no shared file, no
-  shared fixture — investigation.md INV-033/INV-034/INV-035); no cross-chain
-  Blockers exist beyond the two serialization chains above.
+- Shared documentation file (`CHANGELOG.md`): the `## Unreleased` section is
+  appended to by ALL FOUR tasks. Recorded low-risk judgment: the additions
+  are line-number-independent, self-contained blocks that Git normally
+  auto-merges. Within each serialization chain (T-001→T-002, T-003→T-004)
+  collisions are structurally excluded by the Blockers ordering; if the two
+  chains collide across each other, the later-landing task resolves
+  mechanically by rebase — no content duplication or overwrite can occur
+  (each block cites only its own issue number).
+- T-003/T-004 are materially independent of T-001/T-002 (no shared
+  *code/test* file, no shared fixture — investigation.md
+  INV-033/INV-034/INV-035; `CHANGELOG.md`'s `## Unreleased` and the
+  conditionally-touched `docs/troubleshooting.md` follow the append-type
+  sharing rule above); no cross-chain Blockers exist beyond the two
+  serialization chains above.
 - `tests/loop-consistency.tests.sh`/`.ps1` is edited ONLY by T-002 in this
   feature; T-003/T-004 must land their `.ps1` files WITHOUT editing that
   suite or `tests/loop-driver.tests.ps1` (the self-healing acceptance signal
@@ -209,17 +220,16 @@ gh-non-invocation self-check.
   (self-registration grep), prints its measured wall-clock in the summary
   line via the sourced `assert_runtime_budget`, fails itself above 300
   seconds, and the threshold-0 negative self-check turns red (AC-006).
-- [ ] TEST-017 share: this task's `.sh`/`.ps1` twin exists from creation,
-  `tests/crlf-parity.tests.sh` and `tests/constant-parity.tests.sh` pass
-  over the new files, and any host/runtime gap is a recorded
-  SKIP-with-reason (AC-017 for this task's twins).
-- [ ] TEST-018 share: INV-029/INV-030/INV-031 conformance verified for this
-  suite as scoped above; INV-032 recorded as not-applicable (no validator
-  driving in either leg) (AC-018 for this task).
-- [ ] TEST-019 share: `CHANGELOG.md` `## Unreleased` contains an entry
-  citing #145, the REQ-006 candidate documents are checked and updated or
-  verified-unaffected, and `tests/validate-repository.sh` exits 0 (AC-019
-  share for this task).
+- [ ] Cross-cutting shares, each independently verifiable: TEST-017 — this
+  task's `.sh`/`.ps1` twin exists from creation, `tests/crlf-parity.tests.sh`
+  and `tests/constant-parity.tests.sh` pass over the new files, and any
+  host/runtime gap is a recorded SKIP-with-reason (AC-017 for this task's
+  twins); TEST-018 — INV-029/INV-030/INV-031 conformance demonstrated
+  in-suite as scoped above, with INV-032 recorded as not-applicable (no
+  validator driving in either leg) (AC-018 for this task); TEST-019 —
+  `CHANGELOG.md` `## Unreleased` contains an entry citing #145, the REQ-006
+  candidate documents are checked and updated or verified-unaffected, and
+  `tests/validate-repository.sh` exits 0 (AC-019 share for this task).
 - [ ] Acceptance-first evidence (red run before the suite exists in final
   form, green run after) is recorded in the implementation report and an
   independent quality-gate verdict records PASS for this task.
@@ -420,10 +430,19 @@ Risk: medium
 Risk Rationale: One new PowerShell script that is a full-parity translation
 of an existing, unchanged `.sh` gate script, plus a target-list extension
 to an unprotected hygiene suite; no protected-file edit (the precheck
-scripts are NOT in `_PROTECTED_GATE_SUFFIXES` — investigation.md INV-018)
-and no behavior change to any existing gate. Correctness is proven
-externally by the wave-1 pwsh suites flipping from named SKIP to green with
-zero edits (REQ-003; security-spec.md B2).
+scripts are NOT in `_PROTECTED_GATE_SUFFIXES` — investigation.md INV-018).
+medium (not high) is justified on three grounds: (1) this task is a
+MECHANICAL full-parity port of the unedited `.sh` original and changes no
+existing behavior — the high-classified precedent
+(`specs/workflow-state-integrity/tasks.md:23-26`) was high precisely
+because it CHANGED predecessor review-gate validation logic, a behavior
+change this task does not contain; (2) TEST-013's self-healing external
+observation — the unmodified wave-1 suites driving REAL review rounds
+through the port to green — is an independent correctness verification
+outside this task's own assertions; (3) TEST-011's explicit reject-path
+assertions (out-of-range Round, round-1 non-empty EditSummary) detect a
+degraded or loosened port automatically (REQ-003; security-spec.md B2
+weakened-port threat row).
 
 Required Workflow: acceptance-first
 
@@ -510,7 +529,12 @@ not this feature's AC-014) — following the
   exists at the exact expected path and implements every precondition the
   `.sh` original implements — attempt/round bounds, round-1
   `--edit-summary` restriction, and the sdd-domain-AC-014 post-approval
-  drift detection (AC-011).
+  drift detection — INCLUDING explicit reject-path assertions: at least
+  (i) an out-of-range Round value and (ii) a non-empty `-EditSummary` at
+  round 1 are each rejected with the same exit code and error message as
+  the `.sh` original (AC-011's "implements every precondition the `.sh`
+  original implements" subsumes these reject paths; this bullet is their
+  task-level concretization — acceptance-tests.md is unchanged) (AC-011).
 - [ ] TEST-012 proves the file is in `tests/guard-ps1-ascii.tests.sh`'s
   TARGETS and passes: zero non-ASCII bytes, no UTF-8 BOM, no CR bytes
   (AC-012).
@@ -527,10 +551,13 @@ not this feature's AC-014) — following the
   `docs/troubleshooting.md` if it names the missing-twin degradation) are
   updated or verified-unaffected, and `tests/validate-repository.sh` exits
   0 (AC-019 share for this task).
-- [ ] Acceptance-first evidence (the pre-landing named-SKIP state is the
-  recorded red side; the post-landing green run is the green side) is
-  recorded in the implementation report and an independent quality-gate
-  verdict records PASS for this task.
+- [ ] Acceptance-first evidence is recorded in the implementation report
+  with a two-part red side: (a) the recorded pre-landing named-SKIP state
+  of the wave-1 suites, AND (b) an execution log showing this task's own
+  TEST-011/TEST-012 checks failing for a meaningful reason (or explicitly
+  detecting the absent target) while `domain-review-precheck.ps1` does not
+  yet exist; the post-landing green runs are the green side. An
+  independent quality-gate verdict records PASS for this task.
 
 ### Out of Scope
 
@@ -562,10 +589,19 @@ Risk: medium
 Risk Rationale: One new PowerShell script that is a full-parity translation
 of an existing, unchanged `.sh` gate script, plus a one-line TARGETS
 addition to the hygiene suite T-003 already generalized; no protected-file
-edit (INV-018) and no behavior change to any existing gate. Correctness is
-proven externally by TWO wave-1 pwsh suites flipping from named SKIPs to
-green with zero edits, including the transitively-blocked impl/task legs
-(REQ-004; security-spec.md B2).
+edit (INV-018). medium (not high) is justified on three grounds: (1) this
+task is a MECHANICAL full-parity port of the unedited `.sh` original and
+changes no existing behavior — the high-classified precedent
+(`specs/workflow-state-integrity/tasks.md:23-26`) was high precisely
+because it CHANGED predecessor review-gate validation logic, a behavior
+change this task does not contain; (2) TEST-016's self-healing external
+observation — TWO unmodified wave-1 suites driving REAL review rounds
+through the port to green, including the transitively-blocked impl/task
+legs — is an independent correctness verification outside this task's own
+assertions; (3) TEST-014's explicit reject-path assertions (out-of-range
+Round, round-1 non-empty EditSummary, `--reset` precondition violation)
+detect a degraded or loosened port automatically (REQ-004;
+security-spec.md B2 weakened-port threat row).
 
 Required Workflow: acceptance-first
 
@@ -653,7 +689,15 @@ chain — issue #174; `tests/loop-consistency.tests.ps1:6-16`).
 - [ ] TEST-014 proves `plugins/sdd-review-loop/scripts/spec-review-precheck.ps1`
   exists at the exact expected path and implements every precondition the
   `.sh` original implements — feature-slug validation, attempt/round
-  bounds, and the rounds-2/3 non-empty `--edit-summary` rule (AC-014).
+  bounds, and the rounds-2/3 non-empty `--edit-summary` rule — INCLUDING
+  explicit reject-path assertions: at least (i) an out-of-range Round
+  value, (ii) a non-empty `-EditSummary` at round 1, and (iii) a `--reset`
+  precondition violation (`--reset` outside attempt N+1 round 1, or a new
+  attempt without `--reset` — `spec-review-precheck.sh:40-44`) are each
+  rejected with the same exit code and error message as the `.sh` original
+  (AC-014's "implements every precondition the `.sh` original implements"
+  subsumes these reject paths; this bullet is their task-level
+  concretization — acceptance-tests.md is unchanged) (AC-014).
 - [ ] TEST-015 proves the file is in `tests/guard-ps1-ascii.tests.sh`'s
   TARGETS and passes: zero non-ASCII bytes, no UTF-8 BOM, no CR bytes
   (AC-015).
@@ -670,10 +714,13 @@ chain — issue #174; `tests/loop-consistency.tests.ps1:6-16`).
   citing #174, the REQ-006 candidate documents are updated or
   verified-unaffected, and `tests/validate-repository.sh` exits 0 (AC-019
   share for this task).
-- [ ] Acceptance-first evidence (the pre-landing named-SKIP states are the
-  recorded red side; the post-landing green runs are the green side) is
-  recorded in the implementation report and an independent quality-gate
-  verdict records PASS for this task.
+- [ ] Acceptance-first evidence is recorded in the implementation report
+  with a two-part red side: (a) the recorded pre-landing named-SKIP states
+  across both wave-1 suites, AND (b) an execution log showing this task's
+  own TEST-014/TEST-015 checks failing for a meaningful reason (or
+  explicitly detecting the absent target) while `spec-review-precheck.ps1`
+  does not yet exist; the post-landing green runs are the green side. An
+  independent quality-gate verdict records PASS for this task.
 
 ### Out of Scope
 
