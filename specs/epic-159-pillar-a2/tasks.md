@@ -92,7 +92,7 @@ verbatim.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/145
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T01:44:15Z)
 
 Status: Planned
 
@@ -253,7 +253,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/146
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T01:44:15Z)
 
 Status: Planned
 
@@ -421,7 +421,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/147
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T01:44:15Z)
 
 Status: Planned
 
@@ -580,7 +580,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/174
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T01:44:15Z)
 
 Status: Planned
 
