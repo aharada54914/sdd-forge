@@ -145,6 +145,40 @@
   unbound-variable エラーとなり iteration 1 で誤って red 化する
   バグを実装時に検出・修正(`export COUNTER_FILE=...`)。詳細は
   `reports/implementation/epic-159-pillar-a2-T-001.md`。
+- **正準 brownfield seed と check-placeholders brownfield ロック (Issue #146,
+  epic-159-pillar-a2 T-002)**: `tests/fixtures/loops/brownfield-seed/` を
+  新規追加。ADR-0010 の brownfield 語彙を実体化する、正当な
+  `raise NotImplementedError` を持つ抽象基底クラス(`src/base.py`)、
+  タスク無関係の既存 `# TODO` マーカー(`src/legacy_util.py`)、マーカーの無い
+  実装ファイル(`src/service.py`)、bootstrap-complete な
+  `specs/brownfield-seed-demo/tasks.md`、変更ファイルのみを列挙する
+  `CHANGED_FILES.txt`(両マーカー保有ファイルを恒久的に除外)からなる3カテゴリ
+  すべてを含む不活性フィクスチャ。新スイート
+  `tests/check-placeholders-brownfield.tests.sh` / `.ps1` が、実 gate
+  `check-placeholders.sh`/`.ps1` を mktemp コピーへ READ-ONLY 駆動し、
+  Case A(`CHANGED_FILES.txt` のマーカーフリー部分集合のみ渡す)は exit 0、
+  Case B(seed ディレクトリ全体を渡す)は exit 1 かつ両マーカー
+  (base.py の NotImplementedError、legacy_util.py の TODO)を報告し、
+  マーカーフリーな2ファイルは決して所見に現れないことをロック(TEST-008/
+  TEST-009)。`tests/loop-consistency.tests.sh` / `.ps1` の既存 TEST-008 に
+  brownfield-profile leg を追加し、`loop_fixture_init brownfield` が
+  正準 seed から `$LOOP_FIXTURE_ROOT` 配下へ verbatim にコピーされることを
+  確認したうえで spec-review round 1 を駆動し、観測終了状態が greenfield
+  leg と同じ inventory `terminal`(PASS)に一致することを検証
+  (TEST-008.15〜18、AC-007/AC-010)。pwsh レーンは既存の greenfield spec leg
+  と同じ `spec-review-precheck.ps1` 欠落理由で round 駆動部分のみ named
+  SKIP に degrade(fixture 初期化と verbatim コピー検証は両レーンとも green)。
+  `tests/run-all.sh` / `tests/run-all.ps1` /
+  `.github/workflows/test.yml` へ自スイート登録。CI resilience
+  (AC-018): mktemp 作業ディレクトリを `pwd -P` で正規化(INV-030)、
+  jq 不使用(INV-031 non-use 宣言 — check-placeholders-brownfield
+  スイート自体は exit code とゲートのプレーンテキスト所見のみを検査し、
+  `loop_fixture_init` 経由の AC-007 検証は既に jq に依存する
+  `tests/loop-consistency.tests.sh`/`.ps1` 側に配置して新規 jq 依存を
+  導入しない設計とした)、brownfield leg の validator 駆動は既存の
+  `loop_validator_capability_probe`/`loop_validator_skip` ゲートを
+  そのまま継承(INV-032)。詳細は
+  `reports/implementation/epic-159-pillar-a2-T-002.md`。
 
 ### セキュリティ修正
 

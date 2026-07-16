@@ -118,6 +118,16 @@ jobs:
         shell: pwsh
         run: ./tests/hitl-wfi-terminal.tests.ps1
 
+      - name: Test check-placeholders brownfield behavior lock (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-placeholders-brownfield.tests.sh
+
+      - name: Test check-placeholders brownfield behavior lock (pwsh)
+        shell: pwsh
+        run: ./tests/check-placeholders-brownfield.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

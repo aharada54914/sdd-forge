@@ -47,6 +47,7 @@ tests=(
   tests/loop-consistency.tests.sh
   tests/loop-escalation.tests.sh
   tests/hitl-wfi-terminal.tests.sh
+  tests/check-placeholders-brownfield.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

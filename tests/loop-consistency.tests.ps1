@@ -202,6 +202,60 @@ try {
     }
 
     # -------------------------------------------------------------------
+    # TEST-008 brownfield-profile leg (T-002 / Issue #146 / epic-159-pillar-a2
+    # REQ-002, AC-007/AC-010): loop_fixture_init brownfield seeded from the
+    # canonical tests/fixtures/loops/brownfield-seed/ drives spec-review
+    # round 1 and matches the same inventory terminal the greenfield leg
+    # above already asserts. See the bash twin for the full AC-007 split
+    # rationale (the seed-existence + three-category half lives in
+    # tests/check-placeholders-brownfield.tests.sh/.ps1 instead).
+    # No validator-capability-probe wrapping here: unlike the bash lane, the
+    # pwsh loop-driver's review-context call path does not go through the
+    # bash @tsv/while-read parsing INV-032 documents, so no probe/skip gate
+    # exists in tests/lib/loop-driver.ps1 for this leg to inherit.
+    # -------------------------------------------------------------------
+    Write-Host "=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ==="
+
+    $brownfieldSeed = Join-Path $repoRoot "tests/fixtures/loops/brownfield-seed"
+    $brownfieldFeature = "loop-consistency-brownfield-$PID"
+    $env:LOOP_FIXTURE_SEED = $brownfieldSeed
+    if (Initialize-LoopFixture -Profile "brownfield" -Feature $brownfieldFeature) {
+        Test-Ok "TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed"
+        $cleanupRoots.Add($script:LoopFixtureRoot)
+    } else {
+        Test-Fail "TEST-008.15 (AC-007): loop_fixture_init brownfield failed with LOOP_FIXTURE_SEED pointed at the canonical seed"
+    }
+    Remove-Item Env:\LOOP_FIXTURE_SEED -ErrorAction SilentlyContinue
+    $brownfieldRoot = $script:LoopFixtureRoot
+
+    $brownfieldVerbatim = $brownfieldRoot -and
+        ((Get-LoopSha256 (Join-Path $brownfieldSeed "src/base.py")) -eq (Get-LoopSha256 (Join-Path $brownfieldRoot "src/base.py"))) -and
+        ((Get-LoopSha256 (Join-Path $brownfieldSeed "src/legacy_util.py")) -eq (Get-LoopSha256 (Join-Path $brownfieldRoot "src/legacy_util.py"))) -and
+        ((Get-LoopSha256 (Join-Path $brownfieldSeed "src/service.py")) -eq (Get-LoopSha256 (Join-Path $brownfieldRoot "src/service.py"))) -and
+        ((Get-LoopSha256 (Join-Path $brownfieldSeed "specs/brownfield-seed-demo/tasks.md")) -eq (Get-LoopSha256 (Join-Path $brownfieldRoot "specs/brownfield-seed-demo/tasks.md"))) -and
+        ((Get-LoopSha256 (Join-Path $brownfieldSeed "CHANGED_FILES.txt")) -eq (Get-LoopSha256 (Join-Path $brownfieldRoot "CHANGED_FILES.txt")))
+    if ($brownfieldVerbatim) {
+        Test-Ok "TEST-008.16 (AC-007): the canonical seed content is present verbatim under `$LoopFixtureRoot"
+    } else {
+        Test-Fail "TEST-008.16 (AC-007): the canonical seed content is NOT present verbatim under `$LoopFixtureRoot"
+    }
+
+    if (-not (Test-Path -LiteralPath $specPrecheckPs1 -PathType Leaf)) {
+        Write-Host "SKIP: TEST-008 brownfield-profile leg (round drive): spec-review-precheck.ps1 not found at $specPrecheckPs1 (same gap as the greenfield spec leg above)"
+    } else {
+        if (Invoke-DriveReviewRound -Stage "spec" -Attempt 1 -Round 1 -Verdict "PASS" -Severity "Minor") {
+            Test-Ok "TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green"
+        } else {
+            Test-Fail "TEST-008.17 (AC-010): brownfield-profile leg failed to drive spec-review round 1"
+        }
+        if (Test-LoopTerminal -LoopId "spec-review" -Observed "PASS") {
+            Test-Ok "TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts"
+        } else {
+            Test-Fail "TEST-008.18 (AC-010): brownfield-profile leg observed end state does not match the loop-inventory terminal (PASS)"
+        }
+    }
+
+    # -------------------------------------------------------------------
     # TEST-009 (AC-009): impl-review round-2 RED differential regression lock
     # -------------------------------------------------------------------
     Write-Host "=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ==="
