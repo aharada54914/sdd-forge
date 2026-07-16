@@ -162,17 +162,42 @@ C2, C3 notation in each issue body) and investigation.md's task numbering
   in a separate release); `--requested-effort <e>` (explicit override,
   still clamped to the winning model's `supported_efforts` and still
   requiring `--xhigh-reason` for `xhigh`, per the existing gate at
-  `select-agent-model.sh:237`); `--role <role>` (seeds `--minimum-tier` and
-  a default effort from v2 `role_defaults`); `--host claude-code|codex-cli`
+  `select-agent-model.sh:237`); `--role <role>` (always seeds
+  `--minimum-tier`, and additionally seeds a fallback default effort from
+  v2 `role_defaults` — see the effort-resolution priority order below);
+  `--host claude-code|codex-cli`
   (default `claude-code`; resolves the winning model's `effort_control` for
   that host and surfaces it in JSON output). `welded` mode reproduces
   today's v1-equivalent effort selection exactly — this is the byte-identical
   golden baseline REQ-005/T-005 locks. `matrix` mode selects an effort from
   `risk_effort_matrix[risk]`, applies the escalation bump when an escalation
   event fires, and clamps the result to the winning model's
-  `supported_efforts`. JSON output gains two new keys, additively:
-  `effort_source` (`risk-matrix` / `requested` / `model-default` /
-  `welded`) and `effort_control`; every existing key
+  `supported_efforts`.
+
+  **Effort-resolution priority** (clarification; resolves round-1 review's
+  Major-1 ambiguity finding between `--role`'s default effort and
+  `--effort-policy`): under `--effort-policy welded`, effort is ALWAYS the
+  welded/v1-equivalent value described above — `role_defaults`'
+  default-effort component is INERT for effort selection in this mode
+  (only its minimum-tier component is consulted, to seed
+  `--minimum-tier`), preserving AC-007's byte-identical golden output
+  regardless of whether `--role` is also supplied. Under
+  `--effort-policy matrix`, effort resolves in this strict order: (1)
+  `--requested-effort`, if supplied, always wins (`effort_source:
+  "requested"`); (2) otherwise, if the registry's `risk_effort_matrix` has
+  an entry for the supplied `--risk` value (the normal case for any
+  schema-compliant v2 registry carrying all four canonical risk keys,
+  including this feature's own shipped file — AC-002), that entry (plus
+  escalation bump) wins (`effort_source: "risk-matrix"`); (3) otherwise —
+  a `risk_effort_matrix` missing an entry for the supplied risk, a
+  registry-content edge case a general-purpose `--registry` caller could
+  still present — if `--role` is supplied, `role_defaults[role].default_effort`
+  is used (`effort_source: "role-default"`); (4) otherwise, the winning
+  model's own `default_effort` is used (`effort_source: "model-default"`).
+
+  JSON output gains two new keys, additively:
+  `effort_source` (`requested` / `risk-matrix` / `role-default` /
+  `model-default` / `welded`) and `effort_control`; every existing key
   (`model`, `canonical_tier`, `effort`,
   `estimated_cost_per_attempt_usd`, `available_candidates`, `xhigh_reason`,
   `escalation`) is unchanged in name, type, and semantics. A v2
@@ -234,7 +259,12 @@ C2, C3 notation in each issue body) and investigation.md's task numbering
   every other case (`frontmatter` or `none` control, or Claude Code's
   categorical absence of an effort mechanism — REQ-008) `effort_applied` is
   `null` and `effort_degraded_reason` records the specific reason (e.g.
-  `"host-no-effort-control"`). `effort_degraded_reason` is populated if and
+  `"host-no-effort-control"`). This field-population rule is keyed on the
+  resolved `effort_control` value, not on host identity — a Codex-host
+  invocation that happens to select a model whose `effort_control.codex-cli`
+  is `frontmatter` or `none` degrades identically to a Claude Code
+  invocation, never differently merely because the host is Codex (AC-051).
+  `effort_degraded_reason` is populated if and
   only if `effort_applied` is `null` and an `--effort-*` flag was supplied
   (no vacuous reason field when effort tracking was not requested at all).
   v1 records remain valid under the same validator — no migration, schema
@@ -251,7 +281,8 @@ C2, C3 notation in each issue body) and investigation.md's task numbering
   template; the only template SKILL.md references is
   `templates/verification-contract.template.json`, SKILL.md:34).
   `tests/emit-run-record-feature-scope.tests.sh`/`.ps1` is extended to cover
-  the new fields.
+  the new fields, including the Codex-host non-`flag`-control degradation
+  case (AC-051).
 - REQ-005 (T-005, issue #154; INV-002's twin gap): Author
   `tests/agent-model-routing.tests.ps1` as a NEW file (closing the twin gap
   the Problems section documents) alongside extending
@@ -291,6 +322,13 @@ C2, C3 notation in each issue body) and investigation.md's task numbering
   record). Verification is command-composition-level (the assembled `codex`
   argv is asserted to contain the expected `--model`/`--effort` pair) — no
   live LLM invocation is required or performed by any test in this task.
+  The same argv-assembly step rejects any `--model`/`--effort` value
+  outside the registry's enumerated vocabulary — including
+  whitespace-containing, flag-shaped (leading `-`/`--`), or
+  command-separator-shaped (`;`) values simulating task/spec-content
+  contamination — with a non-zero exit and no `codex` invocation attempted
+  (AC-052), giving Security Boundaries B3's injection-prevention claim an
+  executable verification surface.
 - REQ-007 (T-007, issue #155; INV-009, INV-010, INV-011; OQ-003): Flip
   `select-agent-model`'s `--effort-policy` default from `welded` to
   `matrix`. Perform the first production `role_defaults` frontmatter render
@@ -434,14 +472,27 @@ ships as its own release.
 - AC-010: `--requested-effort <e>` overrides the policy-selected effort,
   still clamped to `supported_efforts` and still requiring `--xhigh-reason`
   for `xhigh`. (REQ-002)
-- AC-011: `--role <role>` seeds `--minimum-tier` and a default effort from
-  v2 `role_defaults` for that role. (REQ-002)
+- AC-011: `--role <role>` always seeds `--minimum-tier` from v2
+  `role_defaults[role].minimum_tier`, in both `welded` and `matrix` policy.
+  Under `--effort-policy matrix`, if the registry's `risk_effort_matrix`
+  has no entry for the supplied `--risk`, `--role` additionally seeds a
+  fallback effort from `role_defaults[role].default_effort`
+  (`effort_source: "role-default"`); under `--effort-policy welded`,
+  `role_defaults[role].default_effort` is NEVER consulted for effort
+  selection — `--role`'s effort component is structurally inert in welded
+  mode, verified by a case that supplies `--role` under `welded` and
+  asserts the AC-007 golden output is unchanged. (REQ-002)
 - AC-012: `--host claude-code|codex-cli` (default `claude-code`) resolves
   the winning model's `effort_control` for that host into the JSON output's
   new `effort_control` key; the new `effort_source` key
-  (`risk-matrix`/`requested`/`model-default`/`welded`) is present and
-  correctly attributed per case; every pre-existing JSON key is unchanged in
-  name and type. (REQ-002)
+  (`requested`/`risk-matrix`/`role-default`/`model-default`/`welded`) is
+  present and correctly attributed per the REQ-002 effort-resolution
+  priority order for each of the five cases — including a `role-default`
+  case (matrix policy, `--role` supplied, `risk_effort_matrix` missing the
+  supplied risk's entry) and a `model-default` case (matrix policy,
+  neither `--role` nor a resolvable `risk_effort_matrix` entry) — not
+  merely the two cases the pre-clarification wording covered; every
+  pre-existing JSON key is unchanged in name and type. (REQ-002)
 - AC-013: A v2 `--candidates-file` entry may omit `effort` (the selector
   fills it); a v1 `--candidates-file` still requires `effort` present and
   rejects its absence exactly as today. (REQ-002)
@@ -555,6 +606,24 @@ ships as its own release.
   `scripts/bump-version.sh`; T-007/#155's release is sequenced as its own,
   separate `scripts/bump-version.sh` invocation, distinct from any
   T-001..T-006 release. (REQ-009)
+- AC-051: On a Codex host, selecting a model whose `effort_control.codex-cli`
+  resolves to `frontmatter` or `none` (rather than `flag`) still records
+  `effort_applied=null` and a populated `effort_degraded_reason` in the
+  resulting run record — the same host-independent field-population rule
+  AC-023/AC-024 state applies uniformly by resolved `effort_control` value,
+  not by host name; a model/host pairing that happens to run on Codex but
+  carries non-`flag` `effort_control` degrades exactly like a Claude Code
+  invocation would, never differently. (REQ-004)
+- AC-052: `run-panelist-gpt.sh`/`.ps1` and the Codex-host evaluator/
+  investigator startup path reject (non-zero exit, diagnostic message, no
+  `codex` invocation attempted) any `--model`/`--effort` value that is not
+  a member of the registry's own enumerated model names /
+  `supported_efforts` values — specifically rejecting values containing
+  whitespace, a leading `-`/`--` (flag-injection shape), a `;`
+  (command-separator shape), or any effort string outside
+  `{low, medium, high, xhigh}` — giving Security Boundaries B3's
+  CLI-argument-injection claim an executable verification surface rather
+  than a construction-only assertion. (REQ-006)
 
 ## Field Definitions
 
@@ -574,7 +643,28 @@ ships as its own release.
 - `role_defaults` (REQ-001, REQ-003) — the v2 registry's per-role minimum
   tier + default effort table, consumed both by `--role` (REQ-002) and by
   `render-agent-frontmatter` (REQ-003) as the single source of truth for
-  what each generated agent-definition file should contain.
+  what each generated agent-definition file should contain (see
+  `default_effort`'s dual-scope clarification below for the priority order
+  governing its default-effort component under `--effort-policy matrix`).
+- `default_effort` (REQ-001, REQ-002; two distinct scopes sharing one field
+  name — clarification resolving round-1 review's Major-1 finding) — this
+  feature defines TWO fields named `default_effort` at different scopes,
+  never interchangeable: (1) each v2 MODEL entry's own `default_effort`
+  (REQ-001) is that model's baseline effort, consulted as the
+  LAST-priority fallback under `matrix` policy (`effort_source:
+  "model-default"`) and as the effective source of `welded` policy's
+  byte-identical output (via the same tiebreak logic v1 already uses); (2)
+  each `role_defaults[role].default_effort` (REQ-001, REQ-003) is that
+  ROLE's preferred effort, consulted only under `matrix` policy — as a
+  higher-priority fallback than the model's own `default_effort`, used
+  when `--role` is supplied and the registry's `risk_effort_matrix` has no
+  entry for the supplied `--risk` — and is otherwise INERT for effort
+  selection (in particular, always inert under `welded` policy, regardless
+  of whether `--role` is supplied). The full effort-resolution priority
+  order under `matrix` policy is: `--requested-effort` >
+  `risk_effort_matrix[risk]` (+ escalation bump) >
+  `role_defaults[role].default_effort` > the winning model's own
+  `default_effort` (REQ-002 Goals, above).
 - `human-copy procedure` (REQ-003; epic-136 precedent, INV-011) — the
   established workaround for R-10 protected files: an agent renders
   corrected content to a scratchpad location under
@@ -699,7 +789,7 @@ ships as its own release.
 |---|---|---|---|
 | B1: registry/selector inputs to routing decisions | `--registry`/`--candidates-file` schema and field validation unchanged in strictness from v1 (`select-agent-model.sh:192-230`); v2 parsing rejects malformed `supported_efforts`/`effort_control`/`risk_effort_matrix` the same way v1 rejects malformed `efforts` | internal source only | none identified |
 | B2: render output to R-10 protected gate files | protected basenames never receive a direct write from `render-agent-frontmatter`; scratchpad + SHA-256 manifest + human `cp` for the four protected reviewer files; `--check` is read-only against them | internal source only | none identified |
-| B3: Codex CLI invocation argument construction | `--model`/`--effort` values passed to `codex` are sourced only from the registry/selector, never from unsanitized task or spec text, preventing CLI-argument injection via task content | internal source only | none identified |
+| B3: Codex CLI invocation argument construction | `--model`/`--effort` values passed to `codex` are sourced only from the registry/selector, never from unsanitized task or spec text, preventing CLI-argument injection via task content; enumerated-vocabulary rejection of out-of-registry, whitespace-, flag-, or separator-shaped values is executably verified, not merely asserted by construction (AC-052) | internal source only | none identified |
 | B4: run-record effort fields vs. real invocation outcome | `effort_applied` is set to a real value only on confirmed application (Codex `flag` control); every other path is `null` + a named `effort_degraded_reason` — no path can report a false "applied" | internal source only | none identified |
 
 Details: [Security specification](security-spec.md#trust-boundaries).

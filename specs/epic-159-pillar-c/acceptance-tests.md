@@ -1,10 +1,14 @@
 # Acceptance Tests: epic-159-pillar-c
 
-TEST IDs (TEST-001..TEST-050) are namespaced to this feature
-(`specs/epic-159-pillar-c/`) and map 1:1 to AC-001..AC-050 in
+TEST IDs (TEST-001..TEST-052) are namespaced to this feature
+(`specs/epic-159-pillar-c/`) and map 1:1 to AC-001..AC-052 in
 requirements.md; they do not collide with any other epic-159 pillar's own
 TEST numbering (different spec folder, different suite files, different CI
-step names — design.md Test Strategy).
+step names — design.md Test Strategy). TEST-051/TEST-052 (round-1
+spec-review Major-2 remedy) were added to close two negative-path gaps:
+Codex-host degradation when a selected model's `effort_control.codex-cli`
+is not `flag`, and CLI-argument-injection resistance in the
+`run-panelist`/Codex-startup argv-assembly step.
 
 | Acceptance Criterion | Requirement | Test ID | Test Type | Test Target | Status |
 |---|---|---|---|---|---|
@@ -18,8 +22,8 @@ step names — design.md Test Strategy).
 | AC-008 | REQ-002 | TEST-008 | behavior lock | same suite: `--effort-policy matrix --risk high --required-tier standard` → `sonnet` + `high` | Planned |
 | AC-009 | REQ-002 | TEST-009 | behavior lock (clamp + gate) | same suite: matrix-selected effort outside `supported_efforts` clamps; escalation-bumped `xhigh` still requires `--xhigh-reason` | Planned |
 | AC-010 | REQ-002 | TEST-010 | behavior lock | same suite: `--requested-effort <e>` overrides policy selection, still clamped, still `xhigh`-gated | Planned |
-| AC-011 | REQ-002 | TEST-011 | behavior lock | same suite: `--role <role>` seeds `--minimum-tier` + default effort from `role_defaults` | Planned |
-| AC-012 | REQ-002 | TEST-012 | JSON contract (additive) | same suite: `--host` resolves `effort_control`; `effort_source` correctly attributed per case; all pre-existing JSON keys unchanged | Planned |
+| AC-011 | REQ-002 | TEST-011 | behavior lock (priority order) | same suite: `--role <role>` always seeds `--minimum-tier`; under `matrix` with a `risk_effort_matrix` entry missing for the supplied `--risk`, `--role` seeds a fallback effort (`effort_source: "role-default"`); under `welded`, `--role`'s effort component is asserted inert (golden output unchanged with `--role` supplied vs. omitted) | Planned |
+| AC-012 | REQ-002 | TEST-012 | JSON contract (additive, 5-way attribution) | same suite: `--host` resolves `effort_control`; `effort_source` correctly attributed across all five cases (`requested`, `risk-matrix`, `role-default`, `model-default`, `welded`), including a constructed fixture registry whose `risk_effort_matrix` omits the supplied risk's entry (drives both the `role-default` and, with no `--role`, the `model-default` case); all pre-existing JSON keys unchanged | Planned |
 | AC-013 | REQ-002 | TEST-013 | behavior lock (v1/v2 divergence) | same suite: v2 `--candidates-file` entry with omitted `effort` succeeds; v1 `--candidates-file` with omitted `effort` still rejects | Planned |
 | AC-014 | REQ-003 | TEST-014 | render correctness | `tests/render-agent-frontmatter.tests.sh`/`.ps1`: unprotected Claude `.md` targets get only the `model:` line rewritten + `x-sdd-effort:` inserted/refreshed, sourced from `role_defaults` | Planned |
 | AC-015 | REQ-003 | TEST-015 | render correctness | same suite: Codex `.toml` targets get `# x-sdd-model:`/`# x-sdd-effort:` comment lines | Planned |
@@ -58,23 +62,34 @@ step names — design.md Test Strategy).
 | AC-048 | REQ-008 | TEST-048 | non-failure proof | same audit: no suite in this feature reports FAIL/SKIP-as-failure solely due to Claude Code's absent effort mechanism — the degraded-reason path is a PASS outcome | Planned |
 | AC-049 | REQ-009 | TEST-049 | document conformance | per-task grep check: applicable REQ-009 docs updated same-PR; `CHANGELOG.md` `## Unreleased` entry present per issue (#149/#150/#151/#153/#154/#152); `validate-repository` and skill-reference count sync green | Planned |
 | AC-050 | REQ-009 | TEST-050 | version-bump conformance | grep-based self-check: no version string mutation anywhere in this feature's diff outside a `scripts/bump-version.sh` invocation; T-007's release is a separate invocation from any T-001..T-006 release | Planned |
+| AC-051 | REQ-004 | TEST-051 | degradation lock (host-independent) | `tests/emit-run-record-feature-scope.tests.sh`/`.ps1`: a Codex-host invocation selecting a model whose `effort_control.codex-cli` is `frontmatter` or `none` records `effort_applied=null` + a populated `effort_degraded_reason`, identical in shape to the Claude Code case (TEST-024/TEST-039) — asserted by resolved `effort_control` value, not by host name | Planned |
+| AC-052 | REQ-006 | TEST-052 | injection resistance (negative) | `tests/run-panelist-effort.tests.sh`/`.ps1`: `run-panelist-gpt.sh`/`.ps1` and the Codex-host startup path, given a `--model`/`--effort` value outside the registry's enumerated vocabulary (whitespace-containing, leading `-`/`--`, containing `;`, or an effort string outside `{low, medium, high, xhigh}`), exit non-zero with a diagnostic and make zero `codex` invocations | Planned |
 
 Notes:
 
 - Every suite this feature adds or extends is red-demonstrable at the
   granularity that applies to it: TEST-004/TEST-007/TEST-028 embed explicit
-  mutation-based negative self-checks; TEST-009/TEST-013/TEST-024/TEST-039
-  are positive/negative field-population pairs; TEST-019/TEST-020 form a
+  mutation-based negative self-checks; TEST-009/TEST-013/TEST-024/TEST-039/
+  TEST-051 are positive/negative field-population pairs (TEST-051
+  generalizes TEST-024/TEST-039's null/reason-population pair to a
+  Codex-host, non-`flag`-control case, proving the rule is keyed on
+  `effort_control`, not host identity); TEST-019/TEST-020 form a
   write-boundary positive/read-boundary proof pair rather than a single
   assertion, because "never writes" and "may read" are independently
-  falsifiable claims.
+  falsifiable claims; TEST-052 is a negative-only rejection lock (its
+  positive counterpart — well-formed argv composition — is already
+  TEST-035..TEST-037).
 - `tests/gates.tests.sh`, `tests/eval.tests.sh`, `tests/guard-parity.tests.sh`,
   and `tests/constant-parity.tests.sh` are enforcement-chain protected
   files; nothing in this feature touches them.
 - TEST-001..TEST-034 (REQ-001, REQ-002, REQ-005) are fully deterministic,
   fixture-driven, and require no LLM invocation, no network call, and no
-  `gh` invocation. TEST-035..TEST-040 (REQ-006) assert only assembled CLI
-  argv/JSON composition — no real `codex`/LLM call is made. TEST-041..
+  `gh` invocation; TEST-051 (REQ-004) is the same deterministic, fixture-driven
+  class, numbered outside that range only because it was added in round 1's
+  remedy pass. TEST-035..TEST-040 and TEST-052 (REQ-006) assert only
+  assembled CLI argv/JSON composition, including TEST-052's rejection of
+  out-of-vocabulary argv values — no real `codex`/LLM call is made by any of
+  them. TEST-041..
   TEST-046 (REQ-007) are the one place a real Codex-host smoke run (TEST-044)
   is exercised, gated to T-007's own implementation-time verification, not
   to CI's deterministic lane.
