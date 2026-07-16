@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-d-spec-spec-reviewer-b-seq0287",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-d-0287",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1's two AMBIGUITY items are resolved with consistent, single-source phrasing. Human-copy timing ('applies the staged candidate as a commit on the feature PR branch BEFORE merge... until that commit exists the PR's CI stays red -- the designed fail-closed gate, with no staged-candidate fallback') is repeated identically in requirements.md Overview, REQ-002, AC-011, Roles and Permissions, Main Workflows T-003, and Edge Cases with no divergent wording. The dedup marker is now the literal `[model-freshness-divergence]` (Field Definitions), cited verbatim and identically from REQ-001/AC-002 (D1 manual path) and REQ-002/AC-007 (D2 automated path), and locked as document-conformance by acceptance-tests.md TEST-002."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflicts found. Human-copy timing statements across Overview, REQ-002, AC-011, Roles and Permissions, Main Workflows T-003, and Edge Cases agree exactly. AC-006's fail-soft language and the Edge Cases' explicit fail-soft-vs-fail-closed distinction do not conflict with REQ-002's no-bypass-on-genuine-drift constraint, which the spec itself frames as 'the mirror image' of the opposite failure mode rather than an overlapping rule."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md AC-006 requires fail-soft behavior 'when either the Anthropic or the OpenAI fetch fails' (REQ-002: 'on ANY fetch failure'), but acceptance-tests.md TEST-006 scopes its fixture only to 'both vendor sources' failing together. No AC/TEST fixture exercises the asymmetric case (one vendor succeeds, the other fails), which per AC-006's own wording must still take the fail-soft path rather than diffing on the successful vendor's partial data alone. This is REQ-002's explicitly-designated central, non-negotiable edge case (Edge Cases: 'the one place in this spec where fail-soft... is the correct and required behavior'), so a test author following acceptance-tests.md's literal fixture description would not build the asymmetric-failure scenario, and an implementation that only fail-softs on total dual-vendor failure would violate AC-006 with no test to catch it. This belongs to spec review because it is a Phase 1 acceptance-test completeness gap for a state the requirement text itself creates, not an implementation-detail question; Major matches the calibration bar for a high-risk, non-negotiable behavior with an incomplete validation surface."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md Assumptions section's four items (C1 schema shape, self-improvement-pr-guard.sh denylist scope, guard_invariants.py protected_gate_suffixes, agent-model-routing.tests.sh assert_literal matching) each carry an explicit contingency ('if C1's landed schema differs, T-002/T-003 re-verify against the landed file before implementing,' 'if a future edit removes .github/workflows/test.yml from that list... the carve-out becomes unnecessary but harmless to keep'), leaving nothing unresolved for design/task decomposition."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-copy protected-file boundary (AC-011) is now concretely testable: TEST-011 verifies the staged candidate + MANIFEST.sha256 and confirms the live file is unmodified at staging time, and TEST-009's live-file self-check is explicitly designed to stay red until the human's pre-merge commit lands on the feature PR branch, with no staged-candidate fallback -- CI itself is the observable proof mechanism for the human's approval action, resolving round-1's timing ambiguity that previously blocked testability."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The two previously-inventable behaviors from round 1 (human-copy timing, dedup marker sharing) are now explicit, single-source spec decisions requiring no downstream invention. The newly-identified AC-006/TEST-006 asymmetric-fetch-failure gap does not force a design reviewer to invent product behavior -- AC-006's 'either' wording already unambiguously defines the required behavior; only test-scenario coverage is incomplete, which is captured independently under EDGE-CASE-COVERAGE rather than requiring the design gate to author new behavior."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/spec-review/epic-159-pillar-d/attempt-1/round-2/integrated-summary.json",
+      "sha256": "43a96c5c8cec92dc440df8c72f4901647a0c01cde75f629ff2d903480d8f2bee"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/spec-review/epic-159-pillar-d/attempt-1/round-2/precheck-result.json",
+      "sha256": "b92cfb52b585b3137ebb8ae4102ffce29fb537164c3125b1640d49cd9597b5cc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/acceptance-tests.md",
+      "sha256": "1bb7c38ee880a87a1aa48ffeb2e7e2a304682a34efc0a4582fbaa588002757cb"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/investigation.md",
+      "sha256": "1410e9a742bd73017acdac7a11e8979468ab89d419d0e7ef58b4d4558dc231e7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/requirements.md",
+      "sha256": "a18a2d4d1938e4d2df45313ccb36f5773d6b4069b7ddb7b818553462fad5adf6"
+    }
+  ]
+}
