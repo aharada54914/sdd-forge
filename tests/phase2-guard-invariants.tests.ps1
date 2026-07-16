@@ -925,3 +925,4 @@ if ((Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) -and ($env:SDD_PHAS
 
 Write-Host "phase2-guard-invariants.tests.ps1: $passCount passed, $failCount failed"
 if ($failCount -gt 0) { exit 1 }
+exit 0
