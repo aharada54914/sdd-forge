@@ -1,0 +1,42 @@
+=== RED evidence: hitl-wfi-terminal suite absent (pre-T-001) ===
+--- ls tests/hitl-wfi-terminal.tests.* ---
+ls: tests/hitl-wfi-terminal.tests.ps1: No such file or directory
+ls: tests/hitl-wfi-terminal.tests.sh: No such file or directory
+
+--- attempt to run the suite directly ---
+bash: tests/hitl-wfi-terminal.tests.sh: No such file or directory
+exit=127
+
+--- registration grep across run-all.sh / run-all.ps1 / test.yml ---
+0
+tests/run-all.sh: 0 matches
+0
+tests/run-all.ps1: 0 matches
+0
+.github/workflows/test.yml: 0 matches
+
+=== RED evidence part 2: suite content written, NOT YET registered in run-all.sh/.ps1/test.yml ===
+=== TEST-001/TEST-002: HITL cap-5 terminal behavior (real template, fixture copy) ===
+ok: TEST-001 (AC-001): never-reproducing CHECK completes exactly 5 iterations, exits 0, prints the terminal string
+ok: TEST-002 (AC-002): CHECK returning true on iteration 3 exits 1 immediately with the RED canary message
+=== TEST-003: WFI-audit one-directional sweep (Audit-Attempt 0 -> 1 -> 2 -> 3) ===
+ok: TEST-003.1 (AC-003): Audit-Attempt absent (=0), BLOCKED -> Audit-Attempt 1, Audit-Status Not-Started
+ok: TEST-003.2 (AC-003): Audit-Attempt 1, BLOCKED -> Audit-Attempt 2, Audit-Status Not-Started
+ok: TEST-003.3 (AC-003): Audit-Attempt 2, BLOCKED -> Audit-Attempt 3, Audit-Status Human-Blocked (convergence guard)
+ok: TEST-003.4 (AC-003, negative self-check): mutating the threshold to 4 turns the attempt-3 assertion red, proving the check is live
+=== TEST-004: no remote-CLI invocation + Category construction proof ===
+ok: TEST-004.1 (AC-004): neither new file in this feature invokes the remote issue-tracker CLI
+ok: TEST-004.2 (AC-004): WFI-audit fixture Category is process, keeping SKILL.md STEP 8 a documented no-op by construction
+=== TEST-005: WFI-010.md / WFI-011.md read-only smoke ===
+ok: TEST-005 (AC-005): WFI-010.md Audit-Attempt=1 (<3) and Audit-Status=Human-Pending -- invariant holds
+ok: TEST-005 (AC-005): WFI-011.md Audit-Attempt=0 (<3) and Audit-Status=Human-Pending -- invariant holds
+ok: TEST-005 (AC-005): WFI-010.md SHA-256 unchanged before vs. after this suite run
+ok: TEST-005 (AC-005): WFI-011.md SHA-256 unchanged before vs. after this suite run
+=== TEST-006: self-registration + runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+FAIL: TEST-006.1 (AC-006): hitl-wfi-terminal.tests.sh is NOT registered in run-all.sh and/or test.yml
+FAIL: TEST-006.2 (AC-006): hitl-wfi-terminal.tests.ps1 is NOT registered in run-all.ps1 and/or test.yml
+ok: TEST-006.3 (AC-006, negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-006.4 (AC-006): suite completed within the 300s runtime budget
+
+hitl-wfi-terminal.tests.sh: 14 passed, 2 failed, 0s elapsed
+EXIT=1

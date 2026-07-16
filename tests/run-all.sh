@@ -46,6 +46,7 @@ tests=(
   tests/loop-driver.tests.sh
   tests/loop-consistency.tests.sh
   tests/loop-escalation.tests.sh
+  tests/hitl-wfi-terminal.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

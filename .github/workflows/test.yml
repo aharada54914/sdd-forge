@@ -108,6 +108,16 @@ jobs:
         shell: pwsh
         run: ./tests/loop-escalation.tests.ps1
 
+      - name: Test HITL/WFI-audit terminal-behavior suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/hitl-wfi-terminal.tests.sh
+
+      - name: Test HITL/WFI-audit terminal-behavior suite (pwsh)
+        shell: pwsh
+        run: ./tests/hitl-wfi-terminal.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

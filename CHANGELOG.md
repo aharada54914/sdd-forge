@@ -112,6 +112,39 @@
   いるため(mode 100644)、`bash "$SCRIPT" ...` 経由で駆動(test.yml の既存
   注記と同じ回避策)。詳細は
   `reports/implementation/epic-159-pillar-a/T-004.md`。
+- **HITL / WFI-audit 終端動作スイート (Issue #145, epic-159-pillar-a2
+  T-001)**: 新スイート `tests/hitl-wfi-terminal.tests.sh` / `.ps1` を追加。
+  HITL leg は REAL な
+  `plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh`
+  のフィクスチャコピーを `CHECK` スタブとモック stdin で駆動し、
+  never-reproduces(5 iteration 完走・exit 0・終端文字列)と
+  iteration-3-reproduces(即時 exit 1・RED canary)の両方を検証
+  (TEST-001/TEST-002、`export -f CHECK` により exit 127 false-green
+  経路を防止)。WFI-audit leg は `wfi-audit-cycle/SKILL.md` の一方向規則
+  `Audit-Attempt >= 3 -> Audit-Status: Human-Blocked`(precondition 4、
+  STEP 4/7)をフィクスチャスコープの WFI-NNN.md コピーへ Audit-Attempt
+  0→1→2→3 で適用する参照チェックとして固定し、閾値を書き換える
+  negative self-check で red 化することを確認(TEST-003、skill 自体は
+  一切起動しない)。新規ファイルが remote issue-tracker CLI を一切
+  呼び出さないことと WFI-audit フィクスチャの Category が常に
+  `process` であることを構成的に証明し(TEST-004)、実ファイル
+  `docs/workflow-improvements/WFI-010.md` / `WFI-011.md` の
+  読み取り専用コピーが同じ不変条件を満たすことと、実ファイル自体の
+  SHA-256 が実行前後で不変であることを確認(TEST-005)。
+  `tests/run-all.sh` / `tests/run-all.ps1` /
+  `.github/workflows/test.yml` への自スイート登録と、
+  `tests/lib/loop-driver.sh` の `assert_runtime_budget`
+  (`LOOP_SUITE_BUDGET_SECONDS=300`)による実行時間予算の自己計測・
+  閾値 0 の negative self-check を実施(TEST-006)。CI resilience
+  (AC-018): 両フィクスチャルートを直接 mktemp 後に `pwd -P` で正規化
+  (INV-030)、0→1→2→3 sweep と 5-iteration drive はリテラル整数の
+  カウントループのみで possibly-empty 配列展開なし(INV-029)、jq
+  不使用(INV-031 non-use 宣言)。**実装時の発見**: pwsh ツインの
+  reproduces-on-iteration-3 ラッパースクリプトで `COUNTER_FILE` を
+  `export` せずに `exec bash` していたため、`set -u` 下で
+  unbound-variable エラーとなり iteration 1 で誤って red 化する
+  バグを実装時に検出・修正(`export COUNTER_FILE=...`)。詳細は
+  `reports/implementation/epic-159-pillar-a2-T-001.md`。
 
 ### セキュリティ修正
 
