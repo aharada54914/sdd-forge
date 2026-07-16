@@ -104,7 +104,7 @@ verified absent from `_PROTECTED_GATE_SUFFIXES` and agent-editable
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/156
 
-Approval: Pending
+Approval: Draft
 
 Status: Planned
 
@@ -266,7 +266,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/158
 
-Approval: Pending
+Approval: Draft
 
 Status: Planned
 
@@ -425,9 +425,12 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 
 ### Blockers
 
-External — Pillar C's T-001 (#149, C1) landed on `main`, RE-VERIFIED at
-this task's actual start (Main Workflows item 2; this task cannot enter
-`In Progress` before that verification). No in-spec blocker.
+None
+
+(External precondition, not an in-spec blocker: Pillar C's T-001 (#149,
+C1) landed on `main`, RE-VERIFIED at this task's actual start — Main
+Workflows item 2; this task cannot enter `In Progress` before that
+verification.)
 
 ---
 
@@ -435,7 +438,7 @@ this task's actual start (Main Workflows item 2; this task cannot enter
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/157
 
-Approval: Pending
+Approval: Draft
 
 Status: Planned
 
@@ -676,7 +679,9 @@ Human-copy application (HUMAN-authored commit, after commit A/B, before merge):
 
 ### Blockers
 
-T-001 (in-spec — shared canonical-source list + marker literal) AND
-External — Pillar C's T-001 (#149, C1) landed on `main`, RE-VERIFIED at
-this task's actual start (Main Workflows item 3; this task cannot enter
-`In Progress` before that verification).
+T-001
+
+(In-spec rationale: shared canonical-source list + marker literal.
+Additional external precondition: Pillar C's T-001 (#149, C1) landed on
+`main`, RE-VERIFIED at this task's actual start — Main Workflows item 3;
+this task cannot enter `In Progress` before that verification.)
