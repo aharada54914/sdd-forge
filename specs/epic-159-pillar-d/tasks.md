@@ -561,38 +561,63 @@ human-copy procedure.
 
 ### Scope
 
-Commit A (implementation — workflow + script + suite twin + registration + staging):
+Commit A is a single focused implementation session, deliberately NOT
+split: the five stages below execute strictly in order, each yields one
+small artifact, and the fixture/stub harness built once in stage (i) is
+shared by every script-driving assertion (TEST-006/007/020/021 all drive
+the same stubbed-`gh` + fixture-source harness — no per-test
+infrastructure). Stage (v) is a mechanical `cp` + SHA-256 hash of one
+file, and AC-008 is not code work at all — a single recorded dispatch
+execution. Commit A implementation begins only AFTER the stage-(i) RED
+evidence is recorded, and at commit-A completion every suite-verifiable
+Done-When bundle below must be green (TEST-009's live-file half excepted
+per AC-011's designed red window) — independently re-verified by the
+quality gate, so a stalled Red, a partial landing, or a skipped bundle
+cannot pass.
 
-- TDD Red first: author `tests/model-freshness-check.tests.sh`/`.ps1`
-  (TEST-005 text-marker; TEST-006 three fetch-failure scenarios — both
-  fail / Anthropic-only fails / OpenAI-only fails — each exit 0 +
-  "取得不能" comment + zero issue-creates + no partial-data diff; TEST-007
+Commit A (implementation — one focused session, stages in order):
+
+- Stage (i) — TDD RED: author the full suite twin
+  `tests/model-freshness-check.tests.sh`/`.ps1` — the shared
+  fixture-source + stubbed-`gh` harness plus every assertion (TEST-005
+  text-marker; TEST-006 three fetch-failure scenarios — both fail /
+  Anthropic-only fails / OpenAI-only fails — each exit 0 + "取得不能"
+  comment + zero issue-creates + no partial-data diff; TEST-007
   divergence + dedup second invocation; TEST-009 CI-resilience +
   self-registration; TEST-010 weekly-session-denial grep; TEST-016
   non-twin/twin-pair conformance; TEST-020 no-diff zero-invocation;
-  TEST-021 adversarial issue-body allowlist) and record them failing
-  meaningfully against the pre-landing tree.
-- Author `.github/scripts/check-model-freshness.sh` with the three
-  separable functions design.md specifies: fixture-injectable fetch
+  TEST-021 adversarial issue-body allowlist) — and record it failing
+  meaningfully against the pre-landing tree. No implementation stage
+  starts before this RED recording exists.
+- Stage (ii) — GREEN, script: author
+  `.github/scripts/check-model-freshness.sh` with the three separable
+  functions design.md specifies — fixture-injectable fetch
   (`$<VENDOR>_FIXTURE_SOURCE` env override), pure allowlist-validated
   (`[A-Za-z0-9.\-]`) divergence computation, marker-literal dedup filing
   (`[model-freshness-divergence]` / `[model-freshness-fetch-unavailable]`),
   fail-soft exits, no `contracts/` write path, no bypass conditional on
-  the divergence branch.
-- Author `.github/workflows/model-freshness-check.yml` per the design.md
+  the divergence branch — until the script-driving assertions
+  (TEST-006/007/020/021) pass.
+- Stage (iii) — GREEN, workflow: author
+  `.github/workflows/model-freshness-check.yml` per the design.md
   planned shape (schedule + dispatch, `ubuntu-latest`,
   `contents: read`/`issues: write` only, own concurrency group, pinned
-  checkout SHA, `timeout-minutes: 10`).
-- Register the suite in `tests/run-all.sh`/`.ps1` directly; STAGE the
-  `.github/workflows/test.yml` registration candidate +
-  `MANIFEST.sha256` under `specs/epic-159-pillar-d/human-copy/` (never
-  write the live file).
-- CI resilience per Global Constraints (pwd -P, set -u array safety, jq
-  non-use, validator non-use).
-- Perform AC-008's ONE-TIME manual `workflow_dispatch` verification
-  against a disposable fixture branch with an intentionally stale registry
-  entry; capture the filed issue in the implementation report (never
-  CI-repeated).
+  checkout SHA, `timeout-minutes: 10`) — until TEST-005's text-markers
+  and TEST-010's denial grep pass.
+- Stage (iv) — registration: add the suite to `tests/run-all.sh`/`.ps1`
+  directly (the agent-editable half of TEST-009's self-registration).
+  CI resilience per Global Constraints (pwd -P, set -u array safety, jq
+  non-use, validator non-use) is woven through stage (i)'s harness, not
+  a separate build step.
+- Stage (v) — human-copy staging (mechanical, lightweight): copy the
+  `.github/workflows/test.yml` registration candidate to
+  `specs/epic-159-pillar-d/human-copy/.github/workflows/test.yml` and
+  write `MANIFEST.sha256` — a `cp` + hash step, not new implementation;
+  the live protected file is never written.
+- AC-008's verification is NOT a code stage: one recorded manual
+  `workflow_dispatch` execution against a disposable fixture branch with
+  an intentionally stale registry entry, its filed issue captured in the
+  implementation report (never CI-repeated).
 
 Commit B (documentation — CHANGELOG + doc-surface verification):
 
@@ -612,55 +637,59 @@ Human-copy application (HUMAN-authored commit, after commit A/B, before merge):
 
 ### Done When
 
-- [ ] TEST-005 proves `model-freshness-check.yml` declares the weekly
-  `schedule:` + `workflow_dispatch:` triggers, `runs-on: ubuntu-latest`,
-  and a `permissions:` block containing only `contents: read` and
-  `issues: write` (AC-005).
-- [ ] TEST-006 proves all THREE fetch-failure scenarios (both-fail,
-  Anthropic-only-fail, OpenAI-only-fail) exit 0 with a "取得不能" comment
-  call, zero issue-creates, and — in the asymmetric scenarios — no
-  divergence computed from the surviving vendor's partial data (AC-006).
-- [ ] TEST-007 proves a genuine, previously-unfiled divergence records an
-  issue-create call labeled `workflow-improvement`, and a second
-  invocation against a stubbed already-open `[model-freshness-divergence]`
-  issue records zero additional creates (AC-007).
-- [ ] TEST-008's one-time manual `workflow_dispatch` run against the
-  fixture branch demonstrably files an issue, captured in the
-  implementation report (AC-008 — not CI-repeated).
-- [ ] TEST-009 proves the suite's CI-resilience conformance (pwd -P /
-  set -u / jq non-use / validator non-use) and the self-registration
-  grep-check against `tests/run-all.sh`/`.ps1` and the LIVE
-  `.github/workflows/test.yml` — green in the PR's own CI only after the
-  human-copy application commit lands (AC-009; red before it is the
-  designed state, AC-011).
-- [ ] TEST-010 proves `self-improvement-pr-guard.sh`'s
-  `.github/workflows/*` pattern still matches
-  `.github/workflows/model-freshness-check.yml` (AC-010).
-- [ ] TEST-011 proves the staged candidate + `MANIFEST.sha256` exist and
-  match, the live `test.yml` is unmodified by the agent at staging time,
-  and the human-copy application lands as a pre-merge commit on this
-  feature PR branch that turns TEST-009's live-file self-check green
-  (AC-011).
-- [ ] TEST-016 proves `.github/scripts/check-model-freshness.ps1` does NOT
+- [ ] Fixture-driven fail-soft/divergence bundle: TEST-005 proves
+  `model-freshness-check.yml` declares the weekly `schedule:` +
+  `workflow_dispatch:` triggers, `runs-on: ubuntu-latest`, and a
+  `permissions:` block containing only `contents: read` and
+  `issues: write` (AC-005); TEST-006 proves all THREE fetch-failure
+  scenarios (both-fail, Anthropic-only-fail, OpenAI-only-fail) exit 0
+  with a "取得不能" comment call, zero issue-creates, and — in the
+  asymmetric scenarios — no divergence computed from the surviving
+  vendor's partial data (AC-006); TEST-007 proves a genuine,
+  previously-unfiled divergence records an issue-create call labeled
+  `workflow-improvement`, and a second invocation against a stubbed
+  already-open `[model-freshness-divergence]` issue records zero
+  additional creates (AC-007).
+- [ ] Branch-completeness bundle: TEST-020 proves the no-diff branch
+  (fetch success, registry current) exits 0 with ZERO stubbed-`gh`
+  invocations of any kind (AC-020); TEST-021 proves an adversarial
+  fixture payload (markdown injection, instruction text, script
+  fragments) never reaches the recorded issue body verbatim — only
+  allowlist-validated (`[A-Za-z0-9.\-]`) model-ID tokens do (AC-021).
+- [ ] Self-consistency bundle: TEST-009 proves the suite's CI-resilience
+  conformance (pwd -P / set -u / jq non-use / validator non-use) and the
+  self-registration grep-check against `tests/run-all.sh`/`.ps1` and the
+  LIVE `.github/workflows/test.yml` — green in the PR's own CI only
+  after the human-copy application commit lands; red before it is the
+  designed state (AC-009, AC-011); TEST-010 proves
+  `self-improvement-pr-guard.sh`'s `.github/workflows/*` pattern still
+  matches `.github/workflows/model-freshness-check.yml` (AC-010);
+  TEST-016 proves `.github/scripts/check-model-freshness.ps1` does NOT
   exist (recorded non-twin) while BOTH suite twins exist and register in
   `tests/run-all.sh`/`.ps1` (AC-016).
-- [ ] TEST-020 proves the no-diff branch (fetch success, registry current)
-  exits 0 with ZERO stubbed-`gh` invocations of any kind (AC-020).
-- [ ] TEST-021 proves an adversarial fixture payload (markdown injection,
-  instruction text, script fragments) never reaches the recorded issue
-  body verbatim — only allowlist-validated model-ID tokens do (AC-021).
-- [ ] TEST-018's #157 leg: `CHANGELOG.md` `## Unreleased` gains this
-  task's OWN entry citing #157; doc surfaces verified (AC-018 share).
-- [ ] TEST-019's #157 leg: `validate-repository` and the skill-reference
-  count sync green; no version-literal edit (AC-019 share).
+- [ ] Protected-file boundary bundle: TEST-011 proves the staged
+  candidate + `MANIFEST.sha256` exist and match, the live `test.yml` is
+  unmodified by the agent at staging time, and the human-copy
+  application lands as a pre-merge commit on this feature PR branch that
+  turns TEST-009's live-file self-check green (AC-011).
+- [ ] One-time manual verification: TEST-008's single recorded
+  `workflow_dispatch` run against the disposable fixture branch
+  demonstrably files an issue, captured in the implementation report —
+  never CI-repeated (AC-008).
+- [ ] Shared legs bundle: TEST-018's #157 leg — `CHANGELOG.md`
+  `## Unreleased` gains this task's OWN entry citing #157 with doc
+  surfaces verified, edits only where a genuine reference exists
+  (AC-018 share); TEST-019's #157 leg — `validate-repository` and the
+  skill-reference count sync green, no version-literal edit outside
+  `scripts/bump-version.sh` (AC-019 share).
 - [ ] TDD evidence is recorded in the implementation report with Red and
   Green explicitly separated: RED — the authored suite run against the
   pre-landing tree (no workflow to text-mark, no script for the fixtures
   to drive, no registration to self-find) failing meaningfully; GREEN —
-  the post-commit-A run of TEST-005..007/009/010/016/020/021 passing
-  (TEST-009's live-file half green only after the human-copy commit),
-  re-confirmed after commit B. An independent quality-gate verdict
-  records PASS for this task.
+  the post-commit-A run of every bundle above passing (TEST-009's
+  live-file half green only after the human-copy commit), re-confirmed
+  after commit B. An independent quality-gate verdict records PASS for
+  this task.
 
 ### Out of Scope
 
