@@ -1,0 +1,142 @@
+{
+  "task_id": "T-002",
+  "feature": "epic-159-pillar-a2",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "488c237f5fdd7f357c9e072b31fc869710d1f6f74eef782ac05069521758d97c",
+  "created": "2026-07-16T04:19:35Z",
+  "comment": "Default-FAIL verification contract for T-002 (medium, acceptance-first). Populated after the quality gate reran tests/check-placeholders-brownfield.tests.sh/.ps1 (14/14 passed both lanes) plus tests/loop-consistency.tests.sh/.ps1 (27/27 passed both lanes, 0 SKIP -- the brownfield-profile leg is green) and the epic-159-pillar-a2 regression set (all green, 0 failed suites). Shell stack waives the three compile-oriented checks (lint/typecheck/build). RESOLVED FINDING: an earlier gate-time placeholder-scan of this task's own lock-suite files reported 27 findings, all self-referential (the suite's source literally quoted the case-sensitive marker vocabulary -- NotImplementedError, TODO -- it exists to detect). Commit 0438a52 fixed this structurally by assembling both marker substrings at runtime from adjacent quoted literals (bash MARKER_NIE/MARKER_TD, pwsh $MarkerNie/$MarkerTodo) so neither literal is contiguous in source, while both suites still print byte-identical ok/fail text (14/14 each, unchanged). Gate-time placeholder-scan at HEAD 0438a52 now reports 0 findings; see specs/epic-159-pillar-a2/verification/qg/T-002/placeholder-scan.log.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell/JSON/fixture test-infrastructure files (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell/JSON/fixture test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-002/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "specs/epic-159-pillar-a2/verification/T-002/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a2/verification/qg/T-002/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The lock suite drives the real check-placeholders.sh/.ps1 CLI read-only against the committed inert seed, and the loop-consistency brownfield-profile leg drives the real loop-driver dispatch against isolated mktemp fixtures; no separate service-integration surface exists beyond what unit/acceptance already exercise.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-002/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "specs/epic-159-pillar-a2/verification/T-002/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a2/verification/qg/T-002/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-002/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "specs/epic-159-pillar-a2/verification/T-002/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a2/verification/qg/T-002/regression.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/JSON/fixture test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-002/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-002/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; this task adds only test-infrastructure (a committed inert fixture seed plus the lock suite), fully covered by the focused and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md; this is not a refactor/bugfix task (differential-test-policy.md does not apply).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task adds only tests/fixtures/loops/brownfield-seed/, tests/check-placeholders-brownfield.tests.{sh,ps1}, and the loop-consistency brownfield-profile leg.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}
