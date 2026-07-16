@@ -281,8 +281,8 @@
   フィールド無害化(コード実行なし)の回帰テストを追加し、これまで CI 未接続だった
   `tests/prepare-panelist.tests.sh` を run-all.sh と CI の Bash/PowerShell ステップに接続。
   .ps1 ツインは .NET HMAC を直接使用しており本脆弱性の影響なし。
-- **リリースパスのループスイート・ゲート化: bump-version.sh 側 (Issue #148,
-  epic-159-pillar-b T-001)**: `scripts/bump-version.sh` に、既存の CHANGELOG
+- **リリースパスのループスイート・ゲート化 (Issue #148, epic-159-pillar-b
+  T-001 + T-002)**: `scripts/bump-version.sh` に、既存の CHANGELOG
   見出しチェックの直後・全ミューテーションステップ(プラグインマニフェスト・
   README・validate-repository.ps1 等の書き換え)より前の位置で、
   `tests/loop-consistency.tests.sh` と `tests/loop-inventory.tests.sh` を
@@ -309,6 +309,34 @@
   発見。本タスクの範囲外(該当セクションは design.md により不変更)として記録し、
   当該ホストでは capability probe による named SKIP に度数低下する
   (`tests/bump-version-gate.tests.sh`/`.ps1` TEST-001 のみ、影響)。
+  CI 脚(T-002)として `.github/workflows/release.yml` に新規 `loop-gate`
+  ジョブ(`ubuntu-latest`)を追加し、`tests/loop-consistency.tests.sh` と
+  `tests/loop-inventory.tests.sh` を実行。既存のビルドジョブ(`release:`)に
+  `needs: loop-gate` を追加し、tarball/SBOM/checksum/sigstore attestation/
+  アップロードチェーンが両スイート合格なしには一切実行されないようにした。
+  `loop-gate` ジョブには明示的に `permissions: contents: read` を指定し、
+  ワークフロー全体の `contents: write` / `id-token: write` /
+  `attestations: write`(既存ビルドジョブのスコープ)を暗黙に継承しないよう
+  昇格権限を要求しない設計とした。新スイート `tests/release-loop-gate.tests.sh`
+  / `.ps1` が、実 `release.yml` に対するテキストマーカー構造チェック
+  (`tests/workflow-state-ci-integration.tests.sh` の技法を踏襲)をロック:
+  `loop-gate:` ジョブスライスへの両スイート呼び出し文字列の存在、`release:`
+  ジョブスライスへの `needs: loop-gate` の存在と両ジョブスライスからの
+  `continue-on-error: true` / `if: always()` / `if: success() || failure()`
+  エスケープハッチ不在のネガティブスキャン、`needs:` 行をテキストで除去した
+  mktemp フィクスチャコピーに対する同一チェック関数の再適用によるネガティブ
+  ブランチ・カナリア(このアサーションが空虚でないことの証明)、
+  `runs-on: ubuntu-latest` 限定・`strategy:`/`matrix:` キー不在・自己登録の
+  適合性をロック。`tests/run-all.sh` / `.ps1` / `.github/workflows/test.yml`
+  に登録。ジョブキー検索は `jobs:` トップレベルキーより後の行に限定
+  (本ワークフローの `on: release: types: [published]` トリガーセクション自身が
+  持つ2スペースインデントの `release:` キーをジョブ境界と誤認識しないため)。
+  実装時に、本スイート自身の green path 構築中、BSD/macOS 標準 `mktemp` が
+  `XXXXXX` の直後にリテラルなサフィックスを持つテンプレートを乱数化せず
+  2回目以降の実行が "File exists" で失敗するという、無関係な既存の互換性
+  ギャップを発見。`mktemp -d` でディレクトリを作成しその中に固定名のスクリプト
+  ファイルを置く方式に変更して修正(このスイート自身の実装のみに影響、
+  release.yml やその他の既存スクリプトは不変更)。
 
 ### 修正
 
