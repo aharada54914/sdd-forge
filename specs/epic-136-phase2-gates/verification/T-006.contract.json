@@ -3,7 +3,7 @@
   "feature": "epic-136-phase2-gates",
   "risk": "critical",
   "required_workflow": "tdd",
-  "stack": "powershell",
+  "stack": "shell",
   "cross_model": "required",
   "spec_revision": "7467fd75ec4a6e8b00cff32f6e1870e708673fe13cdc7e4f630e04b951647bae",
   "created": "2026-07-16T00:20:00Z",

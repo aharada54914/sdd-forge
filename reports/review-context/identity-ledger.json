@@ -2249,6 +2249,15 @@
       "host_session_id": "SESS-epic136phase2-quality-T006-a2r1-0250",
       "previous_record_sha256": "3d3c2dae6bc8c0d6f3874ca7146645b56b05ec106e5bcf465fe755f22f0515ff",
       "record_sha256": "078b6e8ee857f4d36bb7f5c0eaed28364055e7f2f5d32e5304361e220ab4fdc5"
+    },
+    {
+      "sequence": 251,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic136phase2-quality-T006-a2r2-20260716-0002",
+      "host_session_id": "SESS-epic136phase2-quality-T006-a2r2-0251",
+      "previous_record_sha256": "078b6e8ee857f4d36bb7f5c0eaed28364055e7f2f5d32e5304361e220ab4fdc5",
+      "record_sha256": "a20b32f05333bdd5a6168a239bb812deb134ee5ef851bac7eb2a74f028e70b0e"
     }
   ],
   "schema": "review-identity-ledger/v1"
