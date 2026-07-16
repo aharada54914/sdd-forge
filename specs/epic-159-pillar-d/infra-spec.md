@@ -51,7 +51,11 @@ design.md Protected-File Statement), this registration is staged under
 `specs/epic-159-pillar-d/human-copy/.github/workflows/test.yml` with a
 `MANIFEST.sha256` and applied only by a human, following
 `epic-136-phase2-gates/tasks.md:16-25`'s established Human-Copy Procedure
-verbatim.
+verbatim. The application is a commit the human pushes onto the feature
+PR branch BEFORE merge (requirements.md AC-011): until it lands, the PR's
+own CI is red on the suite's live-file self-check (AC-009) — the designed
+fail-closed state, with no staged-candidate fallback — and turns green in
+the PR's own CI once the commit exists (design.md Deployment / CI Plan).
 
 `.github/workflows/model-freshness-check.yml` (T-003) is NOT part of
 `test.yml`'s matrix — it runs only on its own weekly `schedule:` trigger or
@@ -133,7 +137,7 @@ GitHub-hosted `ubuntu-latest` runners already provide.
 | Environment | URL | Auth | Trigger | Classification | Promotion Rule |
 |---|---|---|---|---|---|
 | local | repository checkout | none / synthetic fixtures | `bash tests/run-all.sh` / `pwsh tests/run-all.ps1` | internal fixtures only | `model-freshness-check.tests` green |
-| CI matrix (`test.yml`) | no network use by the new suite beyond checkout | scoped `GITHUB_TOKEN` (unchanged) | push / PR / merge_group | synthetic fixtures | all required checks green on 3 OSes, once the human-copied `test.yml` registration is live |
+| CI matrix (`test.yml`) | no network use by the new suite beyond checkout | scoped `GITHUB_TOKEN` (unchanged) | push / PR / merge_group | synthetic fixtures | all required checks green on 3 OSes, once the human-copied `test.yml` registration is live (applied as a pre-merge commit on the feature PR branch, AC-011) |
 | freshness-check schedule/dispatch (`model-freshness-check.yml`) | best-effort outbound fetch to public vendor documentation; `gh` calls scoped to `issues: write` only | workflow's own `github.token` (`issues: write`, `contents: read` — AC-005) | `schedule: cron "0 3 * * 1"` / `workflow_dispatch` | public documentation (read) + repository issues (write) | job green is not a merge gate for anything — it has no `needs:` consumer anywhere in this repository |
 
 ## Runtime Budget
@@ -161,7 +165,7 @@ added via human-copy).
 
 | Logs | Traces | Metrics | Alert | Owner | Runbook |
 |---|---|---|---|---|---|
-| `check-model-freshness.sh`'s stdout/stderr per run (fetch attempt outcomes, divergence summary or "no divergence", issue-create/comment/dedup decision); GitHub Actions job status for `freshness-check`; the filed issue or "取得不能" comment itself is the primary durable observability artifact (not a log file) | N/A | pass/fail per suite per OS per lane (`test.yml`, unchanged mechanism); `freshness-check` job pass/fail per weekly run or manual dispatch (`model-freshness-check.yml`) — note per External Dependency Fail-Soft Handling, "pass" here means "ran to completion," not "no divergence found" | none — this job intentionally has no `needs:` consumer and blocks no merge; its only "alert" is the filed issue/comment itself, triaged like any other `workflow-improvement`-labeled issue | maintainers | re-run `bash .github/scripts/check-model-freshness.sh` locally (with fixture env vars unset, to exercise the real fetch) before re-dispatching the workflow, if a filed issue's diagnosis needs reproduction |
+| `check-model-freshness.sh`'s stdout/stderr per run (fetch attempt outcomes, divergence summary or "no divergence" — the no-diff branch performs zero `gh` invocations, AC-020; issue-create/comment/dedup decision); GitHub Actions job status for `freshness-check`; the filed issue or "取得不能" comment itself is the primary durable observability artifact (not a log file) | N/A | pass/fail per suite per OS per lane (`test.yml`, unchanged mechanism); `freshness-check` job pass/fail per weekly run or manual dispatch (`model-freshness-check.yml`) — note per External Dependency Fail-Soft Handling, "pass" here means "ran to completion," not "no divergence found" | none — this job intentionally has no `needs:` consumer and blocks no merge; its only "alert" is the filed issue/comment itself, triaged like any other `workflow-improvement`-labeled issue | maintainers | re-run `bash .github/scripts/check-model-freshness.sh` locally (with fixture env vars unset, to exercise the real fetch) before re-dispatching the workflow, if a filed issue's diagnosis needs reproduction |
 
 ## Rollback
 

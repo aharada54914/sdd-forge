@@ -115,7 +115,11 @@ Protected-File Statement) — D1 and D3 do not.
   availability; effort/tool-support changes; divergence from the v2
   registry), and the connection to D2's automated issue-filing flow (#157)
   as the fallback path when a divergence is found outside a scheduled
-  D2 run. Add a "最終確認日" (last-confirmed date) and "参照ソース"
+  D2 run — any such manually-filed issue MUST carry the same stable title
+  marker (Field Definitions) in its title that REQ-002's dedup matching
+  uses, and the checklist text states that marker string verbatim so D2's
+  weekly run recognizes the manual issue as already filed. Add a
+  "最終確認日" (last-confirmed date) and "参照ソース"
   (reference source) trailing column pair to
   `docs/agent-capability-matrix.md`'s Provider Tier Mapping table
   (`docs/agent-capability-matrix.md:127-136`), appended after each row's
@@ -143,12 +147,18 @@ Protected-File Statement) — D1 and D3 do not.
   files a new GitHub issue labeled `workflow-improvement` describing the
   divergence and citing the same canonical-source list REQ-001 documents —
   deduplicated against any already-open issue matching a stable title
-  marker, never creating a duplicate. `check-model-freshness.sh` never
+  marker (Field Definitions — the same literal marker string REQ-001's
+  manual filing path must carry), never creating a duplicate.
+  `check-model-freshness.sh` never
   writes to `contracts/` or any other release surface — it only reads the
-  registry and creates/comments on issues (Security Boundaries B2). A new
+  registry and creates/comments on issues (Security Boundaries B2) — and
+  any issue body it produces embeds only model-ID tokens validated against
+  a charset allowlist (`[A-Za-z0-9.\-]`); fetched content never reaches an
+  issue body verbatim (Security Boundaries B1, AC-021). A new
   `tests/model-freshness-check.tests.sh`/`.ps1` pair locks the fetch-failure,
   diff-detected, no-diff, and dedup branches against the real script with
-  injectable fixture source files (no live network call in CI).
+  injectable fixture source files (no live network call in CI), each branch
+  mapped to its own named acceptance test (AC-009, AC-020).
 - REQ-003 (T-002, #158; INV-005, INV-006, INV-008, INV-013, OQ-001, OQ-004):
   Once Pillar C's C1 lands `contracts/agent-model-capabilities.v2.json`
   on `main` (external Blocker, Main Workflows below), update its
@@ -262,7 +272,11 @@ which source each entry was last confirmed.
   model/feature availability; effort/tool-support changes; divergence from
   the v2 registry — and states that a divergence found outside a scheduled
   D2 run is filed as a manual issue or connects to D2's automated flow
-  (#157). (REQ-001)
+  (#157); the step states the stable title marker string
+  (`[model-freshness-divergence]`, Field Definitions) verbatim and requires
+  any manually-filed issue's title to carry it, so D2's dedup matching
+  (AC-007) recognizes the manual issue and never files a duplicate.
+  (REQ-001)
 - AC-003: `docs/agent-capability-matrix.md`'s Provider Tier Mapping table
   (`docs/agent-capability-matrix.md:127-136`) gains "最終確認日" and "参照
   ソース" as trailing columns appended after each row's existing last
@@ -296,8 +310,10 @@ which source each entry was last confirmed.
   とを確認"), recorded once in the implementation report rather than
   re-run on every CI pass. (REQ-002)
 - AC-009: `tests/model-freshness-check.tests.sh`/`.ps1` locks the
-  fetch-failure (AC-006), diff-detected (AC-007), no-diff, and dedup
-  branches against the real `check-model-freshness.sh` using injectable
+  fetch-failure (AC-006 → TEST-006), diff-detected (AC-007 → TEST-007),
+  no-diff (AC-020 → TEST-020), and dedup (AC-007's second-invocation
+  negative branch → TEST-007) branches against the real
+  `check-model-freshness.sh` using injectable
   fixture source files (no live network call in CI); conforms to the same
   CI-resilience bar this repository's other new `.sh` suites meet
   (`pwd -P` fixture-root normalization, no possibly-empty bash array under
@@ -320,7 +336,12 @@ which source each entry was last confirmed.
   directly, because `.github/workflows/test.yml` is an enforcement-chain
   protected file (`plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`
   `protected_gate_suffixes`); its registration in `tests/run-all.sh`/`.ps1`
-  (unprotected) is written directly by the agent. (REQ-002)
+  (unprotected) is written directly by the agent. The human maintainer
+  applies the staged candidate as a commit on the feature PR branch BEFORE
+  merge, so AC-009's live-file self-check turns green in the PR's own CI;
+  until that commit exists the PR's CI stays red — the designed
+  fail-closed gate, with no staged-candidate fallback or other special
+  case. (REQ-002)
 - AC-012: `contracts/agent-model-capabilities.v2.json`'s `models[]` array
   (once C1 lands it) is updated to current-generation Anthropic (Claude 5
   family alias policy) and OpenAI (`gpt-5.4`/`5.5`/`5.6` family) entries
@@ -356,6 +377,17 @@ which source each entry was last confirmed.
 - AC-019: `validate-repository` and the skill-reference count sync stay
   green after each task; no version-literal edit exists outside
   `scripts/bump-version.sh` for any of the three tasks. (REQ-005)
+- AC-020: `check-model-freshness.sh`, when both fetches succeed and NO
+  divergence against `contracts/agent-model-capabilities.v2.json` is
+  detected, creates no issue, posts no comment, performs no other side
+  effect, and exits 0 — proven fixture-driven, with the suite's stubbed
+  `gh` wrapper recording ZERO invocations for the run. (REQ-002)
+- AC-021: any issue body `check-model-freshness.sh` produces embeds only
+  model-ID tokens validated against a charset allowlist
+  (`[A-Za-z0-9.\-]`); a malformed or adversarial fetch payload (markdown
+  injection, instruction-like text, script fragments) never reaches an
+  issue body verbatim — Security Boundaries B1 covers issue bodies, not
+  only repository files. (REQ-002)
 
 ## Field Definitions
 
@@ -378,6 +410,15 @@ which source each entry was last confirmed.
   (epic-159-pillar-c's T-001/#149) on a different branch; recorded as a
   Blocker on T-002 and T-003 distinct from the in-spec `Depends On: T-001`
   relationship T-003 also carries.
+- `stable title marker` (REQ-001, REQ-002) — the literal, dedup-bearing
+  title substring every model-freshness issue carries regardless of filing
+  path: `[model-freshness-divergence]` for divergence reports (D2's
+  automated filings and D1's manual filings alike — AC-002, AC-007) and
+  `[model-freshness-fetch-unavailable]` for D2's dedicated fail-soft
+  tracking issue (AC-006). D2's dedup matching searches open-issue titles
+  for exactly this substring; a manual issue missing the marker would
+  escape that matching, which is why AC-002 requires the checklist text to
+  state the string verbatim.
 
 ## Roles and Permissions
 
@@ -396,7 +437,10 @@ which source each entry was last confirmed.
   one `.github/workflows/test.yml` line explicitly carved out above.
 - Human maintainer: approves the spec and tasks; copies the staged
   `.github/workflows/test.yml` candidate into place per the human-copy
-  procedure (T-003); merges Pillar C's C1 PR to `main` (the external
+  procedure, committing it onto the feature PR branch BEFORE merge so
+  AC-009's live-file self-check is green in the PR's own CI — until that
+  commit exists the PR's CI stays red, by design (fail-closed, no special
+  case) (T-003); merges Pillar C's C1 PR to `main` (the external
   Blocker T-002/T-003 wait on); reviews and closes/merges the filed
   freshness-divergence issues D2 produces.
 - CI: runs the new `model-freshness-check.tests` suite pair on the
@@ -430,7 +474,11 @@ which source each entry was last confirmed.
    `.ps1`; register the suite in `tests/run-all.sh`/`.ps1` directly and
    stage the `.github/workflows/test.yml` registration under
    `specs/epic-159-pillar-d/human-copy/` (protected-file carve-out,
-   Overview); CREATE the `CHANGELOG.md` `## Unreleased` entry citing #157.
+   Overview); the human maintainer then applies that staged candidate as a
+   pre-merge commit on the same feature PR branch (AC-011), turning
+   AC-009's live-file self-check green in the PR's own CI — the PR merges
+   only after this application; CREATE the `CHANGELOG.md` `## Unreleased`
+   entry citing #157.
    Blockers: T-001 (in-spec — D2's filed-issue body cites the SAME
    canonical-source list T-001 documents, so that content must exist
    first to avoid two divergent source lists, mirroring
@@ -473,7 +521,10 @@ which source each entry was last confirmed.
   protected-file touch anywhere in this spec. Every other deliverable —
   including the new workflow file itself, `.github/scripts/`, and
   `tests/run-all.sh`/`.ps1` — is agent-editable, verified directly against
-  `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`.
+  `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`. The
+  staged candidate is applied by the human as a pre-merge commit on the
+  feature PR branch (AC-011); a red PR CI before that commit is the
+  designed fail-closed state, not an error to special-case.
 - External Blocker vs. in-spec Blocker (Main Workflows): T-002 and T-003
   each carry an External Blocker (Pillar C's #149 landing on `main`) that
   this spec's own task graph cannot resolve or track completion of —
@@ -490,7 +541,7 @@ which source each entry was last confirmed.
 
 | Trust Boundary | Auth/Authz Requirement | PII / Data Classification | Regulatory Constraints |
 |---|---|---|---|
-| B1: external official-source fetch vs. repository state | `check-model-freshness.sh` treats fetched content as untrusted diff input only — never executed, never written verbatim into any repository file; fetch failures degrade to a comment, never a repository write | public vendor documentation only, no credentials | none identified |
+| B1: external official-source fetch vs. repository state | `check-model-freshness.sh` treats fetched content as untrusted diff input only — never executed, never written verbatim into any repository file; fetch failures degrade to a comment, never a repository write; issue bodies are inside this boundary — only model-ID tokens validated against a charset allowlist reach an issue body, never verbatim fetched content (AC-021) | public vendor documentation only, no credentials | none identified |
 | B2: freshness-check job vs. registry/release surfaces | `check-model-freshness.sh` and `model-freshness-check.yml` hold no write path to `contracts/`, `scripts/bump-version.sh`, or any plugin manifest — `issues: write` is the only elevated scope requested (AC-005) | internal source only | none identified |
 | B3: protected `.github/workflows/test.yml` vs. agent-direct edits | T-003's registration line is staged under `specs/epic-159-pillar-d/human-copy/` with a SHA-256 manifest; only a human copies it into the live protected target (AC-011) | internal source only | none identified |
 | B4: fixture world vs. real repository state | `tests/model-freshness-check.tests.sh`/`.ps1`'s injectable fixture source files are mktemp-scoped and never the real repository's registry or network state; no suite in this feature makes a live network call | synthetic fixtures only | none identified |

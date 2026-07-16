@@ -83,7 +83,7 @@ flowchart TB
 | `docs/agent-capability-matrix.md` | +trailing confirmation-date/source columns | Markdown | existing, edited (T-001) | no (verified) |
 | `.github/workflows/model-freshness-check.yml` | weekly + manual-dispatch freshness check job | GitHub Actions YAML | new (T-003) | no (verified — not `.github/workflows/test.yml`) |
 | `.github/scripts/check-model-freshness.sh` | fetch, diff, fail-soft comment, dedup-file issue | Bash | new (T-003), bash-only (no `.ps1` twin, REQ-004) | no (verified — `.github/scripts/*` absent from protected list) |
-| `tests/model-freshness-check.tests.sh` / `.ps1` | fetch-failure/diff-detected/no-diff/dedup lock + CI-resilience + self-registration + weekly-session-denial proof | Bash / PowerShell twins | new (T-003) | no |
+| `tests/model-freshness-check.tests.sh` / `.ps1` | fetch-failure/diff-detected/no-diff/dedup lock (each branch → its own TEST, AC-009/AC-020) + issue-body allowlist lock (AC-021) + CI-resilience + self-registration + weekly-session-denial proof | Bash / PowerShell twins | new (T-003) | no |
 | `tests/run-all.sh` / `.ps1` | suite registration | Bash / PowerShell | existing, edited (T-003) | no (verified) |
 | `.github/workflows/test.yml` | suite registration (this feature's ONE protected-file touch) | GitHub Actions YAML | existing, edited via human-copy (T-003) | YES — `protected_gate_suffixes` |
 | `contracts/agent-model-capabilities.v2.json` | current-generation model data | JSON | existing-once-C1-lands, edited (T-002) | no (verified) |
@@ -156,12 +156,12 @@ visualization skipped.
 | From | To | Contract / Decision | REQ | AC | Verification |
 |---|---|---|---|---|---|
 | requirements.md | design.md | capability-refresh step + confirmation-date columns | REQ-001 | AC-001..004 | TEST-001..004 |
-| requirements.md | design.md | weekly freshness-check workflow + script + fail-soft/dedup | REQ-002 | AC-005..011 | TEST-005..011 |
+| requirements.md | design.md | weekly freshness-check workflow + script + fail-soft/dedup + no-diff/no-side-effect branch + issue-body allowlist | REQ-002 | AC-005..011, AC-020..021 | TEST-005..011, TEST-020..021 |
 | requirements.md | design.md | v2 registry current-generation data | REQ-003 | AC-012..014 | TEST-012..014 |
 | requirements.md | design.md | cross-host recording (docs-neutral, script non-twin, per-host registry fields) | REQ-004 | AC-015..017 | TEST-015..017 |
 | requirements.md | design.md | doc-follow + version-bump (three independent entries) | REQ-005 | AC-018..019 | TEST-018..019 |
 | requirements.md | infra-spec.md | weekly `cron` schedule; `ubuntu-latest`-only; external-dependency fail-soft handling | REQ-002 | AC-005..008 | TEST-005..008; [infra-spec.md#weekly-schedule](infra-spec.md#weekly-schedule), [infra-spec.md#external-dependency-fail-soft-handling](infra-spec.md#external-dependency-fail-soft-handling) |
-| requirements.md | security-spec.md | external-fetch trust boundary; registry write-boundary; protected-file carve-out | REQ-002 | AC-006, AC-007, AC-011 | TEST-006, TEST-007, TEST-011; [security-spec.md#trust-boundaries](security-spec.md#trust-boundaries) |
+| requirements.md | security-spec.md | external-fetch trust boundary (including issue bodies); registry write-boundary; protected-file carve-out | REQ-002 | AC-006, AC-007, AC-011, AC-020, AC-021 | TEST-006, TEST-007, TEST-011, TEST-020, TEST-021; [security-spec.md#trust-boundaries](security-spec.md#trust-boundaries) |
 
 ## ADR Change Log
 
@@ -227,7 +227,10 @@ Planned shape (implementation detail, authored at task time):
 - 乖離を見つけたら: 定期実行中の D2 起票フロー
   (`.github/workflows/model-freshness-check.yml`) が既に検出・起票済みで
   ないか `workflow-improvement` ラベルの open issue を確認し、無ければ手
-  動で issue を起票する
+  動で issue を起票する。手動起票する issue のタイトルには必ず
+  `[model-freshness-divergence]` をそのまま含める（D2 の自動起票と重複判
+  定用マーカーが同一文字列であることが必須 — 無いと次回の D2 定期実行が
+  同じ乖離を重複起票する）
 ```
 
 This text is a checklist-style reminder (AC-004's "WFI テンプレートのチェ
@@ -316,15 +319,26 @@ fetch_source_or_unavailable() {
 compute_divergence() {
   # Pure function: takes fetched text + the v2 registry's models[].name
   # list; returns a divergence description or empty. No network, no gh.
+  # The description is built EXCLUSIVELY from model-ID tokens matching
+  # the charset allowlist [A-Za-z0-9.\-]; any fetched token failing the
+  # allowlist is discarded, never propagated — so no adversarial payload
+  # (markdown injection, instruction text, script fragments) can traverse
+  # into an issue body (AC-021, Security Boundaries B1).
 }
 
 file_or_dedupe_issue() {
-  # Searches `gh issue list --search '"<stable title marker>" in:title'
-  # --state open`; comments "取得不能" on fetch failure (a DIFFERENT,
-  # dedicated tracking issue from the divergence-report issue — Design
-  # Decisions); creates a NEW issue labeled workflow-improvement on a
-  # genuine, previously-unfiled divergence; does nothing if a matching
-  # open issue already exists (dedup).
+  # Searches `gh issue list --search
+  # '"[model-freshness-divergence]" in:title' --state open` (the stable
+  # title marker, requirements.md Field Definitions — the SAME literal
+  # string D1's manual checklist requires in manually-filed issue titles,
+  # AC-002); comments "取得不能" on fetch failure (a DIFFERENT, dedicated
+  # tracking issue carrying the [model-freshness-fetch-unavailable]
+  # marker — Design Decisions); creates a NEW issue labeled
+  # workflow-improvement on a genuine, previously-unfiled divergence,
+  # whose title carries [model-freshness-divergence] and whose body is
+  # fixed template text plus compute_divergence's allowlist-validated
+  # tokens only (AC-021); does nothing if a matching open issue already
+  # exists (dedup).
 }
 
 main() {
@@ -364,15 +378,27 @@ this script opens a file under `contracts/` for writing).
    fixture source text contains; assert `main` exits 0 and the stubbed
    `gh` recorded an issue-create call labeled `workflow-improvement`.
 5. Dedup case (same test, second invocation): stub `gh issue list` to
-   return an already-open matching issue; assert zero additional
-   issue-create calls.
-6. CI-resilience + self-registration (AC-009/TEST-009): as in
+   return an already-open matching issue (title carrying
+   `[model-freshness-divergence]`); assert zero additional issue-create
+   calls.
+6. No-diff case (AC-020/TEST-020): both fixture files present; the
+   fixture-scoped v2 registry copy contains EVERY model token the fixture
+   source texts contain; assert `main` exits 0 and the stubbed `gh`
+   recorded ZERO invocations of any kind (no create, no comment, no list —
+   `main` returns before `file_or_dedupe_issue` on an empty divergence).
+7. Issue-body trust-boundary case (AC-021/TEST-021): a fixture source
+   containing markdown injection, instruction-like text, and script
+   fragments PLUS one genuinely-missing model token; assert the recorded
+   issue-create body argument contains the allowlist-validated missing
+   token, contains NO adversarial fixture substring verbatim, and that
+   every embedded token matches `[A-Za-z0-9.\-]`.
+8. CI-resilience + self-registration (AC-009/TEST-009): as in
    epic-159-pillar-b's established convention — `pwd -P` fixture-root
    normalization, no possibly-empty array under `set -u`, no jq
    consumption (non-use declaration), no real-validator invocation
    (non-use declaration), grep-based self-check of own basename in
    `tests/run-all.sh`/`.ps1` and `.github/workflows/test.yml`.
-7. Weekly-session-denial proof (AC-010/TEST-010): grep the real
+9. Weekly-session-denial proof (AC-010/TEST-010): grep the real
    `self-improvement-pr-guard.sh` source for its `.github/workflows/*`
    case pattern (`self-improvement-pr-guard.sh:34`) and assert it still
    matches the literal string
@@ -417,8 +443,12 @@ it authors no new test suite of its own (Non-goals).
    pair (fail-soft vs. divergence-detected), mirroring
    epic-159-pillar-b's AC-002/AC-003 pairing convention, adapted to this
    feature's fail-soft/fail-closed split (requirements.md Edge Cases).
-   TEST-005's text-marker check on the workflow YAML mirrors
-   `tests/release-loop-gate.tests.sh`'s established technique.
+   TEST-020 completes the branch quartet AC-009 names (no-diff → zero
+   side effects, guarding against unconditional-filing bugs), and
+   TEST-021 locks the issue-body half of trust boundary B1 (adversarial
+   payload never reaches an issue body verbatim; only allowlist-validated
+   model-ID tokens do). TEST-005's text-marker check on the workflow YAML
+   mirrors `tests/release-loop-gate.tests.sh`'s established technique.
 3. T-002 authors no new suite; its RED-demonstrable proof is external —
    Pillar C's own `tests/agent-capabilities-v2.tests.sh` already proves the
    parity invariant; T-002's own contribution (TEST-012/TEST-013) is
@@ -436,10 +466,13 @@ it authors no new test suite of its own (Non-goals).
 6. Self-registration: `tests/model-freshness-check.tests.sh` greps
    `tests/run-all.sh`/`.ps1`/`.github/workflows/test.yml` for its own
    basename, mirroring `tests/second-approval-mask.tests.sh:285-289`'s
-   established pattern (TEST-009) — note the `.github/workflows/test.yml`
-   half of this self-check reads the STAGED human-copy candidate at
-   authoring time and the LIVE file after a human applies it, not the
-   live file before that point (Protected-File Statement).
+   established pattern (TEST-009) — the `.github/workflows/test.yml` half
+   of this self-check greps the LIVE file only, with no staged-candidate
+   fallback: it is expected RED until the human maintainer applies the
+   staged human-copy candidate as a pre-merge commit on the feature PR
+   branch (AC-011), and green in the PR's own CI from that commit onward.
+   The red window is the designed fail-closed gate, not a special case
+   (Protected-File Statement; Deployment / CI Plan).
 
 ## Design Decisions (resolving open questions)
 
@@ -487,7 +520,12 @@ it authors no new test suite of its own (Non-goals).
 - New decision: where D2 posts its "取得不能" fail-soft comment. Decided:
   a SEPARATE, dedicated tracking issue from the divergence-report issue
   (both labeled `workflow-improvement` but with distinct, stable title
-  markers) — mirroring `self-improvement.yml`'s own established
+  markers: `[model-freshness-divergence]` for divergence reports,
+  `[model-freshness-fetch-unavailable]` for the fetch-failure tracking
+  issue — requirements.md Field Definitions; D1's manual filing path uses
+  the SAME divergence marker string so manual and automated issues dedup
+  against each other, AC-002/AC-007) — mirroring `self-improvement.yml`'s
+  own established
   search-existing-or-create failure-issue pattern
   (`self-improvement.yml:205-228`) but kept as a DIFFERENT issue thread
   from a genuine divergence report, because "the official source was
@@ -499,6 +537,15 @@ it authors no new test suite of its own (Non-goals).
   checklist is the primary defense), false positives human-triaged via the
   filed issue, never auto-applied to the registry (Security Boundaries
   B2).
+- New decision: WHEN the human-copy candidate is applied. Decided: the
+  human maintainer applies the staged `.github/workflows/test.yml`
+  candidate as a commit on the feature PR branch BEFORE merge, never as a
+  post-merge follow-up. Rationale: AC-009's live-file self-check then
+  passes in the PR's own CI run, so the merge gate itself proves the
+  registration landed; until that commit exists the PR's CI is red — the
+  designed fail-closed state — and no staged-candidate fallback or other
+  special case is added to make it green earlier (requirements.md AC-011,
+  Roles and Permissions, Main Workflows T-003).
 
 ## Global Constraints
 
@@ -524,7 +571,7 @@ it authors no new test suite of its own (Non-goals).
 
 | Trust Boundary | Auth/Authz Mechanism | Data Classification | OWASP Concerns |
 |---|---|---|---|
-| B1: external official-source fetch vs. repository state | fetched content is diff input only, never executed or written verbatim into any repository file; `fetch_source_or_unavailable` returns a failure code on any fetch error, never raises an unhandled exception that could propagate untrusted content further | public vendor documentation only, no credentials | Untrusted Input Handling |
+| B1: external official-source fetch vs. repository state | fetched content is diff input only, never executed or written verbatim into any repository file OR issue body — only charset-allowlist-validated (`[A-Za-z0-9.\-]`) model-ID tokens reach an issue body (AC-021); `fetch_source_or_unavailable` returns a failure code on any fetch error, never raises an unhandled exception that could propagate untrusted content further | public vendor documentation only, no credentials | Untrusted Input Handling |
 | B2: freshness-check job vs. registry/release surfaces | `check-model-freshness.sh` and `model-freshness-check.yml` request no write scope beyond `issues: write`; no function in the script opens `contracts/` for writing (API/Contract Plan) | internal source | Broken Access Control (prevented by design) |
 | B3: protected `.github/workflows/test.yml` vs. agent-direct edits | staged under `specs/epic-159-pillar-d/human-copy/` with `MANIFEST.sha256`; only a human applies it (Protected-File Statement) | internal source | Security Misconfiguration (prevented by process) |
 | B4: fixture world vs. real repository/network state | mktemp-scoped, `pwd -P`-normalized fixture source files and a stubbed `gh` wrapper; no suite in this feature makes a live network call or invokes the real `gh` CLI | synthetic fixtures only | Supply Chain / Test Isolation |
@@ -558,7 +605,12 @@ T-002 and T-003 each carry an External Blocker (Pillar C's #149 landing on
 `main`), this spec's single feature branch/PR (OQ-003) may land T-001
 first and independently, with T-002/T-003's commits following once the
 external landing clears — the branch is not required to hold all three
-tasks' commits simultaneously before opening a PR. Rollback for T-001 is a
+tasks' commits simultaneously before opening a PR. T-003's human-copy
+application is itself a pre-merge commit on this same PR branch (AC-011,
+Design Decisions): the PR is expected red on AC-009's live-file
+self-check until the human maintainer pushes that commit, and must be
+green — staged candidate applied, suite registered in the live
+`test.yml` — before merge. Rollback for T-001 is a
 reviewed revert (docs-only, nothing protected). Rollback for T-003 is a
 reviewed revert of its commits PLUS a second human-copy application
 reverting `.github/workflows/test.yml`'s registration line (the same
@@ -576,7 +628,8 @@ consumer-facing rollback risk exists there.
 | CI resilience: macOS `$TMPDIR` symlink normalization (`pwd -P` convention) | the suite's fixture root and any negative-branch fixture copy are normalized with `pwd -P` immediately after creation, mirroring `tests/lib/loop-driver.sh:124` |
 | CI resilience: Windows jq CRLF stripping | the suite consumes no jq output (non-use declaration IS the compliance — fixture files are plain text/JSON read via native shell/PowerShell parsing, not piped through jq) |
 | CI resilience: real-validator capability probe | the suite drives no real validator (non-use declaration) |
-| protected file — `.github/workflows/test.yml` (Protected-File Statement) | T-003's registration line is staged under `specs/epic-159-pillar-d/human-copy/` with `MANIFEST.sha256`; every other deliverable in this feature is agent-editable and verified absent from `_PROTECTED_GATE_SUFFIXES` |
+| protected file — `.github/workflows/test.yml` (Protected-File Statement) | T-003's registration line is staged under `specs/epic-159-pillar-d/human-copy/` with `MANIFEST.sha256`; the human applies it as a pre-merge commit on the feature PR branch (AC-011), bounding the fail-closed red window inside the PR itself; every other deliverable in this feature is agent-editable and verified absent from `_PROTECTED_GATE_SUFFIXES` |
+| untrusted fetched content never reaches an issue body verbatim (REQ-002, AC-021; Security Boundaries B1) | `compute_divergence` emits only charset-allowlist-validated (`[A-Za-z0-9.\-]`) model-ID tokens, discarding any token that fails the allowlist; `file_or_dedupe_issue` builds issue bodies from those tokens plus fixed template text only — locked by TEST-021's adversarial-fixture positive/negative assertion |
 | `.sh`/`.ps1` twin pairs mandatory (for test suites) | `model-freshness-check.tests` ships as a twin pair from the start; `check-model-freshness.sh` itself is the recorded, explicit non-twin (REQ-004 row below) |
 | cross-host (Claude Code / Codex) | D1's docs are host-neutral prose (no branch); D2 is GitHub-Actions-only CI, recorded as such, not silently assumed; D3 populates BOTH hosts' `effort_control` paths per model entry (issue #149's schema) |
 | doc-following in same PR | REQ-005's per-task doc-surface verification; three independent `CHANGELOG.md` entries (#156/#157/#158), never merged into one |
@@ -603,15 +656,17 @@ analysis alone.
 ## Open Questions
 
 None blocking. All investigation.md OQ-001..OQ-005 are resolved above with
-design decisions; the four additional decisions this design makes (new
+design decisions; the five additional decisions this design makes (new
 standalone `model-freshness-check.yml` rather than extending
 `self-improvement.yml`; WFI-lifecycle-prose placement for the "WFI
 checklist" Done condition rather than a new template artifact; a separate
-tracking issue for "取得不能" vs. a genuine divergence report; a
-conservative divergence heuristic rather than a precise parser) are stated
-as resolved decisions, not left open, because all four are reversible,
-low-risk, additive choices a future issue could revisit without touching
-this feature's other deliverables.
+tracking issue for "取得不能" vs. a genuine divergence report, with the
+two literal stable title markers pinned and shared with D1's manual
+filing path; a conservative divergence heuristic rather than a precise
+parser; pre-merge human-copy application on the feature PR branch) are
+stated as resolved decisions, not left open, because all five are
+reversible, low-risk, additive choices a future issue could revisit
+without touching this feature's other deliverables.
 
 ## Risks
 
