@@ -214,6 +214,13 @@ REQ-004 bash-only degradation note.
 
 ### Scope
 
+These four surfaces (script edit, suite authoring, CI wiring, documentation)
+are the minimal set the frozen requirements.md Main Workflows item 1
+assigns to T-001 — the CHANGELOG/runbook CREATE ownership cannot be moved
+by task splitting without re-gating the spec (requirements.md Main
+Workflows; Global Constraints). The two-commit landing plan below keeps
+each individually-reviewable unit at single-area scope.
+
 Commit A (implementation — script edit + suite + CI wiring):
 
 - Write the acceptance checks first (TEST-001..TEST-006): the green path
@@ -277,31 +284,29 @@ Commit B (documentation — CHANGELOG + runbook + README verification):
   real-validator invocation) and self-registers in `tests/run-all.sh`/
   `.ps1`/`.github/workflows/test.yml` (grep self-check, mirroring
   `tests/second-approval-mask.tests.sh:285-289`) (AC-006).
-- [ ] Commit B, bullet 1 (TEST-011 share): `CHANGELOG.md`'s `## Unreleased`
-  section contains a NEW entry citing #148 with the bump-version.sh leg's
-  content (AC-011 share).
-- [ ] Commit B, bullet 2 (TEST-012 share): `docs/contributor/release-runbook.md`
-  exists and documents the CLI leg (the loop-gate prerequisite's behavior
-  and its no-bypass guarantee) (AC-012 share).
-- [ ] Commit B, bullet 3 (TEST-013/TEST-014, AC-013/AC-014): `scripts/`
-  contains no `bump-version.ps1`, AND the runbook states the REQ-004
-  bash-only degradation and points to the `release.yml` job (T-002) as the
-  Windows-host equivalent guarantee.
-- [ ] Commit B, bullet 4: `README.md` is verified for release-procedure
-  references with no edit expected (INV-014), and `tests/validate-repository.sh`
-  exits 0 after both commits land.
-- [ ] Acceptance-first evidence is recorded in the implementation report,
-  with red and green explicitly separated: RED (two parts) — (a) the
-  recorded pre-landing behavior of `scripts/bump-version.sh` (its only
-  precondition is the CHANGELOG heading check; no loop-gate exists,
-  INV-001), AND (b) an execution log showing TEST-002/TEST-003 failing
-  meaningfully against that pre-landing script (the stubbed-failing suite
-  cannot stop a script that has no loop-gate to trigger, so the fixture
-  mutates despite the stub — the precise failure this task's suite is
-  built to prevent); GREEN — the post-commit-A run of TEST-001..TEST-006
-  all passing, re-confirmed green after commit B lands (no regression from
-  the documentation-only commit). An independent quality-gate verdict
-  records PASS for this task.
+- [ ] Commit B documentation, each independently verifiable: (a)
+  `CHANGELOG.md`'s `## Unreleased` section gains a NEW entry citing #148
+  with the bump-version.sh leg's content (AC-011 share, TEST-011 share);
+  (b) `docs/contributor/release-runbook.md` is CREATEd and documents the
+  CLI leg — the loop-gate prerequisite's behavior and its no-bypass
+  guarantee (AC-012 share, TEST-012 share); (c) `scripts/` contains no
+  `bump-version.ps1`, and the runbook states the REQ-004 bash-only
+  degradation and points to the `release.yml` job (T-002) as the
+  Windows-host equivalent guarantee (AC-013/TEST-013, AC-014/TEST-014);
+  (d) `README.md` is verified for release-procedure references with no
+  edit expected (INV-014), and `tests/validate-repository.sh` exits 0
+  after both commits land (AC-011 share's verification leg).
+- [ ] Acceptance-first evidence is recorded in the implementation report
+  with a two-part red side: (a) the recorded pre-landing behavior of
+  `scripts/bump-version.sh` — its only precondition is the CHANGELOG
+  heading check; no loop-gate exists (INV-001); AND (b) an execution log
+  showing TEST-002/TEST-003 failing meaningfully against that pre-landing
+  script (the stubbed-failing suite cannot stop a script that has no
+  loop-gate to trigger, so the fixture mutates despite the stub — the
+  precise failure this task's suite is built to prevent); the post-commit-A
+  green runs of TEST-001..TEST-006 are the green side, re-confirmed green
+  after commit B lands. An independent quality-gate verdict records PASS
+  for this task.
 
 ### Out of Scope
 

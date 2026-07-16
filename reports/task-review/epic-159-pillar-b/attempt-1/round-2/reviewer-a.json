@@ -1,0 +1,144 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task",
+  "role": "task-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-b-task-task-reviewer-a-seq0243",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-159-pillar-b-0243",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-b/requirements.md",
+      "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+      "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/design.md",
+      "sha256": "76c0f49409a81e32238c901523191552d72e89a9f00deaf9cb7c58a33cb09b16"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/tasks.md",
+      "sha256": "407eb3af1984e2b1c48645bd71843a7a5eac9b2630dd071604ccb5201cc5311c"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/traceability.md",
+      "sha256": "595b3f4f588386b09e5f113c4787ace62b97ffb38da9de454586abd76e0b8c28"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/ux-spec.md",
+      "sha256": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/frontend-spec.md",
+      "sha256": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/infra-spec.md",
+      "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/security-spec.md",
+      "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-2/precheck-result.json",
+      "sha256": "d4b2d6a48d7335e952c70982e5e4a79fc81cf81056e48bdd0efeca9900ed5a7b"
+    },
+    {
+      "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-2/dependency-graph.json",
+      "sha256": "ccb7eeafa0f36424e8c5ecd308a654cc4c7993c84bea0446b17b8dae5ff1ad68"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All AC-NNN identifiers cited in tasks.md (AC-001..AC-014, appearing in T-001/T-002 Done When items) resolve exactly to the AC-001..AC-014 identifiers defined in acceptance-tests.md; no dangling ID found (verified via full-file AC-NNN diff, both files enumerate the identical 14-member set)."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Blockers: 'None' (literal). T-002 Blockers: 'T-001' (single valid T-\\d{3} ID). No range notation or prose found. Consistent with precheck-result.json's blockers_format_valid: true. blockers_format_valid = true."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md Goals define REQ-001..REQ-004; all four appear in tasks.md Requirements fields (T-001: 'REQ-001, REQ-003 (share), REQ-004'; T-002: 'REQ-002, REQ-003 (share)'). REQ-006 is cited only in requirements.md prose (REQ-003 body, Assumptions) as a sibling-feature (epic-159-pillar-a) rule this feature does not implement; traceability.md's REQ-006 row records this as an explicit, reasoned N/A ('not a goal of this feature ... no task, test, or deliverable of this feature implements it'), matching the round-1-established intentional-deferral treatment. No uncovered own-requirement found."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "acceptance-tests.md defines AC-001..AC-014; every one is traced to a task via Done When items with explicit AC-NNN citations (AC-001..006 -> T-001; AC-007..010 -> T-002; AC-011/AC-012 -> both T-001 (CREATE, 'share') and T-002 (APPEND, 'share'); AC-013/AC-014 -> T-001). traceability.md's Acceptance Mapping table independently corroborates the identical mapping. No uncovered AC found."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 Requirements: 'REQ-001, REQ-003 (share), REQ-004'. T-002 Requirements: 'REQ-002, REQ-003 (share)'. Both tasks reference at least one REQ-NNN; no orphan task found."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No task in tasks.md qualifies as a 'test task' under the check definition: T-001's title is 'Add the bump-version.sh loop-gate prerequisite' and T-002's is 'Add the release.yml required loop-gate job' -- neither contains 'test'/'spec'/'verify', and neither task's scope is exclusively test-file changes (each Commit A bundles a script/workflow edit with its test-suite twin and CI wiring, and each Commit B is documentation). The scoped surface this check targets does not exist, matching the calibration's Cannot-Verify SKIP guidance (analogous to 'a bugfix diagnostic check when no task is a bugfix task')."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Attempt 1, round 2 (not round 1): both T-001 and T-002 declare 'Approval: Draft' (not 'Approved') and 'Status: Planned' (a valid member of {Planned, In Progress, Blocked}). Compliant with the subsequent-round rule."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-001: Risk: medium / Required Workflow: acceptance-first -- matches risk-gate-matrix (medium -> acceptance-first). T-002: Risk: medium / Required Workflow: acceptance-first -- matches. precheck-result.json records workflow_match_precheck: 'PASS', consistent with this independent verification. No mismatch or missing field."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-011 and AC-012 are each referenced by both T-001 and T-002, but with explicit, non-redundant scope differentiation: T-001's Done When items are labeled '(TEST-011 share)'/'(AC-011 share)' and '(TEST-012 share)'/'(AC-012 share)' and require CREATE-scoped content (new CHANGELOG entry; new runbook file+CLI section); T-002's corresponding items require APPEND-scoped content (extend the same CHANGELOG entry; append the release.yml runbook section) and explicitly state 'not duplicated as a second block'. traceability.md's Acceptance Mapping table documents the same split ('T-001 (CREATE ...), T-002 (APPEND ...)'). This is a distinct-scope shared reference, not two tasks claiming the identical primary test target -- no other AC-NNN appears in more than one task's Done When."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002's sole Blockers entry ('T-001') resolves to an existing task; dependency-graph.json nodes = ['T-001','T-002'] confirms both task IDs exist. No dangling task reference."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Runs because BLOCKERS-FORMAT = PASS. dependency-graph.json edges = [{'from':'T-002','to':'T-001'}] -- a single edge over two nodes; following it from T-002 to T-001 never revisits a node. No cycle exists."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Neither task title uses 'and' to join distinct feature concerns. Each task's Goal/Scope bundles one prerequisite-feature edit with its own locking test-suite twin (SINGLE-CONCERN exception 1: verification work directly tied to the first clause) plus CI-registration and same-PR documentation (exception 2: mandatory housekeeping per design.md's 'doc-following in same PR' Constraint Compliance row and the Global Constraints CREATE/APPEND convention). T-001 = the bump-version.sh loop-gate leg only; T-002 = the release.yml loop-gate leg only -- no unrelated second feature concern is bundled into either task."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 has 11 Done When bullets, T-002 has 7 (18 total, verified by direct count), matching the round-2 remediation's stated expansion. A grep scan for forbidden vague verbs ('ensure', 'consider', 'works correctly', 'verify is correct', bare 'confirm'/'review') across tasks.md found only 'confirm it still exits 0' (T-001 bullet 10, T-002 bullet 6) -- paired with a specific observable result (exit 0 of tests/validate-repository.sh), not a bare unqualified confirm. Every bullet names a concrete TEST-NNN id with its exact assertion (exit code, git status --porcelain empty, grep self-check, line-number comparison, text-marker slice check), a concrete file+content requirement (CHANGELOG.md '## Unreleased' entry citing #148; docs/contributor/release-runbook.md content), or a concrete command result (tests/validate-repository.sh exits 0). Both non-documentation-only tasks (T-001, T-002) each include multiple Done When items naming a concrete verification command or evidence artifact (e.g., TEST-001..010, tests/validate-repository.sh exit 0, implementation-report RED/GREEN evidence)."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both T-001 and T-002 have entries in traceability.md's Task Mapping and Deliverables tables. Every requirement ID in traceability.md (REQ-001, REQ-002, REQ-003, REQ-004, REQ-006) appears in requirements.md -- REQ-006 appears there as a cited sibling-feature rule (REQ-003 body, Assumptions) with traceability.md recording a reasoned N/A deferral row for it. Full-profile layer-spec anchors verified as canonical and resolvable against the hash-bound layer documents: REQ-001 -> security-spec.md#trust-boundaries (matches security-spec.md's '## Trust Boundaries' heading) and infra-spec.md#runtime-budget (matches infra-spec.md's '## Runtime Budget' heading); REQ-002 -> security-spec.md#trust-boundaries and infra-spec.md#cicd-sequence (matches '## CI/CD Sequence'); REQ-003 -> reasoned 'N/A -- cross-layer only' with a stated rationale; REQ-004 -> infra-spec.md#observability (matches '## Observability'). No dangling reference or unresolvable anchor found."
+    }
+  ]
+}
