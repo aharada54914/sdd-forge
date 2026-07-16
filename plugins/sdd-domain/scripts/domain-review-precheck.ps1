@@ -134,7 +134,7 @@ if (Test-Path -LiteralPath $reportsBase) {
 
 $statusMatch = Select-String -LiteralPath $contextMap -Pattern '^Domain-Model-Status:\s*(.*)$' | Select-Object -First 1
 $status = if ($statusMatch) { ($statusMatch.Matches[0].Groups[1].Value -replace '\s', '') } else { '' }
-if ($status -notmatch '^(Pending|Reviewed|Approved)$') { Fail 'context-map.md must declare a recognized Domain-Model-Status' }
+if ($status -cnotmatch '^(Pending|Reviewed|Approved)$') { Fail 'context-map.md must declare a recognized Domain-Model-Status' }
 
 # --- Normalized-hash helper (mirrors spec-review-precheck.sh's pattern of
 # substituting the mutable status field before hashing, applied here to
@@ -252,8 +252,8 @@ if ($roundInt -gt 1) {
 if ($Reset) {
   $previousAttempt = Join-Path $reportsBase "attempt-$($attemptInt - 1)"
   if (-not (Test-Path -LiteralPath $previousAttempt -PathType Container) -or (Test-IsSymlink $previousAttempt)) { Fail 'previous attempt is required before reset' }
-  $roundDirs = @(Get-ChildItem -LiteralPath $previousAttempt -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^round-[1-3]$' })
-  $previousRoundNumbers = @($roundDirs | ForEach-Object { [int]($_.Name -replace '^round-', '') } | Sort-Object)
+  $roundDirs = @(Get-ChildItem -LiteralPath $previousAttempt -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -cmatch '^round-[1-3]$' })
+  $previousRoundNumbers = @($roundDirs | ForEach-Object { [int]($_.Name -creplace '^round-', '') } | Sort-Object)
   if ($previousRoundNumbers.Count -eq 0) { Fail 'previous attempt has no terminal round' }
   $previousRound = $previousRoundNumbers[-1]
   $previousDir = Join-Path $previousAttempt "round-$previousRound"

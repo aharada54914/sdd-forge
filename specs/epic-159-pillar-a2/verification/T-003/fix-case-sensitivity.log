@@ -1,0 +1,146 @@
+=== fix-case-sensitivity.log: domain-review-precheck.ps1 case-insensitive
+    comparison sweep and fix (gate-cycle finding, security-spec B2
+    weakened-port defect class, sibling of T-004/#174's 12-site fix in
+    2a7eef5) ===
+
+--- 0. Sweep methodology ---
+
+grep -n -- '-match|-notmatch|-replace|-eq |-ne |-contains|-notcontains|
+-like|-notlike|switch' plugins/sdd-domain/scripts/domain-review-precheck.ps1
+
+Every hit was cross-checked against domain-review-precheck.sh's actual
+bash/jq case-sensitivity semantics (bash `[[ =~ ]]`/`==` and jq `==`/test()
+are always case-sensitive; no nocasematch anywhere in the .sh original).
+
+--- 1. Sweep result list (all -match/-notmatch/-replace/-eq/-ne sites) ---
+
+| Line (pre-fix) | Code | Verdict | Reason |
+|---|---|---|---|
+| 17 | `[switch]$Reset` | not applicable | grep false-positive (param declaration keyword, not a comparison) |
+| 43 | `$null -eq $item` | SAFE | null comparison, no string/case concern |
+| 59 | `$Attempt -notmatch '^[1-9][0-9]*$'` | SAFE | digit-only pattern, no letters |
+| 60 | `$Round -notmatch '^[1-9][0-9]*$'` | SAFE | digit-only pattern, no letters |
+| 66 | `$EditSummary -replace '\s', ''` | SAFE | whitespace-only pattern, no letters |
+| 69 | `$roundInt -eq 1` | SAFE | integer comparison |
+| 71 | `$attemptInt -eq 1` | SAFE | integer comparison |
+| 136 | `... -replace '\s', ''` | SAFE | whitespace-only pattern, no letters |
+| **137** | `$status -notmatch '^(Pending\|Reviewed\|Approved)$'` | **FIXED** | letters present; .sh `[[ =~ ]]` is case-sensitive (domain-review-precheck.sh:96) -> **`-cnotmatch`** |
+| 178 | `$propNames.Count -eq 2` | SAFE | integer comparison |
+| **255** | `$_.Name -match '^round-[1-3]$'` | **FIXED** | letters present; .sh `find -name 'round-*'` + case-sensitive sed extraction -> **`-cmatch`** |
+| **256** | `$_.Name -replace '^round-', ''` | **HARDENED** | letters present; provably safe post-fix (only ever receives names that already passed the now-case-sensitive line-255 filter), but converted to **`-creplace`** for defense-in-depth / consistency, removing any ambiguity for a future refactor |
+
+Additional broad sweeps confirming no other candidates:
+- `grep -n -- '-eq\|-ne\|-ceq\|-cne\|-ieq\|-ine'` -- only the 4 numeric/null
+  sites above; every raw string-identity comparison in this file already
+  routes through the file's own `Test-OrdinalEqual` helper (ordinal,
+  always case-sensitive by construction) -- confirmed by inspection of
+  every `Test-OrdinalEqual` call site (lines 108, 129, 132, 143, 166, 178,
+  179, 192, 198, 207, 223, 228, 230, 249, 265).
+- `grep -n -- '-contains\|-notcontains\|-like\|-notlike\|-in \|-notin'` --
+  zero hits.
+
+Conclusion: exactly 2 genuine case-sensitivity weakenings (lines 137, 255,
+matching the host's diagnosis) plus 1 additional defensive hardening (line
+256, not a live divergence but converted for consistency). All other
+`-match`/`-notmatch`/`-replace`/`-eq`/`-ne` sites are safe by construction
+(digit-only or whitespace-only patterns, or numeric/null comparisons).
+
+--- 2. Fixes applied (via Edit tool only) ---
+
+Line 137: `-notmatch` -> `-cnotmatch`
+Line 255: `-match` -> `-cmatch`
+Line 256: `-replace` -> `-creplace` (defensive hardening)
+
+--- 3. Parity verification (3a): mismatched-case status rejection ---
+
+Built two full domain/ fixtures (via Initialize-LoopFixture -Profile
+greenfield, mutating only Domain-Model-Status) plus a read-only copy of the
+unedited domain-review-precheck.sh into each (never modifying the real
+repo path or the real .sh file).
+
+3a-i. Domain-Model-Status: pending (lowercase)
+  .sh original:              ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+  .ps1 port (named params):  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+  .ps1 port (array-splat):   ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+  Result: exit code MATCH (1), stderr text byte-identical MATCH.
+
+3a-ii. Domain-Model-Status: APPROVED (uppercase)
+  .sh original:              ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+  .ps1 port (named params):  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+  .ps1 port (array-splat):   ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+  Result: exit code MATCH (1), stderr text byte-identical MATCH.
+
+Counterfactual confirmation (isolated regex probe, no file I/O):
+  "pending" -notmatch '^(Pending|Reviewed|Approved)$'  => False (pre-fix operator would have INCORRECTLY ACCEPTED "pending")
+  "pending" -cnotmatch '^(Pending|Reviewed|Approved)$' => True  (fixed operator correctly rejects)
+  "APPROVED" -notmatch '^(Pending|Reviewed|Approved)$'  => False (pre-fix operator would have INCORRECTLY ACCEPTED "APPROVED")
+  "APPROVED" -cnotmatch '^(Pending|Reviewed|Approved)$' => True  (fixed operator correctly rejects)
+
+--- 3b. Parity verification: mismatched-case previous-round directory
+    (the --reset scan fix, line 255) ---
+
+Built a --reset scenario: attempt-1 with ONLY a mixed-case "ROUND-3"
+subdirectory (containing a domain-review-contract.json with verdict PASS),
+then invoked `--attempt 2 --round 1 --reset`.
+
+  .sh original:              ERROR: domain-review-precheck: previous attempt has no terminal round   EXIT:1
+  .ps1 port (named, -Reset): ERROR: domain-review-precheck: previous attempt has no terminal round   EXIT:1
+  Result: exit code MATCH (1), stderr text byte-identical MATCH -- the
+  mixed-case "ROUND-3" directory is correctly NOT recognized as a valid
+  round-N terminal directory by either tool, matching the .sh original's
+  case-sensitive `find -name 'round-*'` + sed extraction semantics.
+
+Counterfactual confirmation (isolated regex probe):
+  "ROUND-1" -match '^round-[1-3]$'  => True  (pre-fix operator would have INCORRECTLY matched "ROUND-1")
+  "ROUND-1" -cmatch '^round-[1-3]$' => False (fixed operator correctly excludes it)
+  "round-2" -cmatch '^round-[1-3]$' => True  (fixed operator still correctly matches the real, correctly-cased name)
+
+--- 4. Regression checks ---
+
+(b) Existing reject-path pair (out-of-range Round; non-empty -EditSummary
+    at round 1), re-run post-fix against the live repo file:
+  pwsh -File domain-review-precheck.ps1 -Attempt 1 -Round 4
+    -> ERROR: domain-review-precheck: round must be between 1 and 3   EXIT:1
+  pwsh -File domain-review-precheck.ps1 -Attempt 1 -Round 1 -EditSummary hello
+    -> ERROR: domain-review-precheck: --edit-summary is valid only after round 1   EXIT:1
+  Both unchanged from the T-003 original green-ps1.log baseline -- no
+  regression.
+
+(c) pwsh tests/loop-consistency.tests.ps1 (full run, live repo, unmodified
+    suite):
+    loop-consistency.tests.ps1: 27 passed, 0 failed, 26s elapsed
+    SKIP count: 0
+  Matches the coordinator's expected 27/0/0-SKIP exactly. (Context: commit
+  9ca31bb, landed between this task's original session and this fix cycle,
+  independently resolved the tests/lib/loop-driver.ps1
+  Publish-LoopDomainRoundBContract --argjson multi-line-array defect this
+  task's original implementation report flagged as a Specification
+  Difference/discovered pre-existing defect -- that defect is unrelated to
+  and not reintroduced by this case-sensitivity fix.)
+
+(d) bash tests/guard-ps1-ascii.tests.sh (live repo, unmodified suite):
+    guard-ps1-ascii.tests.sh: 9 passed, 0 failed
+  (3 targets x 3 checks: sdd-hook-guard.ps1, domain-review-precheck.ps1,
+  spec-review-precheck.ps1 -- the third target reflects T-004's own
+  registration, landed independently of this fix.)
+
+(e) bash tests/crlf-parity.tests.sh: Results: 8 passed, 0 failed.
+    bash tests/validate-repository.sh: Repository validation passed. EXIT:0
+
+--- 5. Hygiene re-check on the fixed file ---
+
+[System.Management.Automation.Language.Parser]::ParseFile -> PARSE OK
+Non-ASCII bytes: 0
+CR bytes: 0
+First 3 bytes: 23 20 55 (no BOM)
+
+--- Summary ---
+
+2 genuine case-sensitivity weakenings confirmed and fixed (lines 137, 255),
+1 additional site hardened defensively (line 256), all other -match/
+-notmatch/-replace/-eq/-ne sites in the file swept and confirmed safe.
+Parity with the .sh original re-established and verified end-to-end for
+both defect classes (named parameters AND array-splat calling convention
+for the status check; named parameters for the --reset scan). All
+regression checks (b)-(e) pass with zero failures and match the
+coordinator's stated expected counts exactly.
