@@ -703,7 +703,7 @@ function Publish-LoopImplRoundBContract {
         Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-b.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
 
-    $manifestAJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")
+    $manifestAJson = @(Invoke-LoopJq @("-c", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")) -join "`n"
     $contractJq = '{schema:"impl-review-contract/v1",stage:"impl",feature:$feature,attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,design_sha256:$design_sha256,layer_sha256:$layer_sha256,reviewers:[{role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},{role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}]}'
     & jq -n --arg feature $feature --arg verdict $Verdict --argjson round $round `
         --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict `
@@ -904,8 +904,8 @@ function Publish-LoopTaskRoundBContract {
         Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-b.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
 
-    $manifestAJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")
-    $manifestBJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-b.json")
+    $manifestAJson = @(Invoke-LoopJq @("-c", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")) -join "`n"
+    $manifestBJson = @(Invoke-LoopJq @("-c", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-b.json")) -join "`n"
     $contractJq = '{schema:"task-review-contract/v1",stage:"task",feature:$feature,attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor,tasks_sha256:$tasks_sha256,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[{role:"task-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},{role:"task-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}]}'
     & jq -n --arg feature $feature --arg verdict $Verdict --argjson round $round `
         --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict `
@@ -1054,8 +1054,8 @@ function Publish-LoopDomainRoundBContract {
         Set-Content -LiteralPath (Join-Path $RoundDir "reviewer-b.json") -Encoding utf8
     if ($LASTEXITCODE -ne 0) { return $false }
 
-    $manifestAJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")
-    $manifestBJson = Invoke-LoopJq @("-r", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-b.json")
+    $manifestAJson = @(Invoke-LoopJq @("-c", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-a.json")) -join "`n"
+    $manifestBJson = @(Invoke-LoopJq @("-c", ".allowed_input_manifest") (Join-Path $RoundDir "reviewer-b.json")) -join "`n"
     $contractJq = '{schema:"domain-review-contract/v1",stage:"domain",attempt:1,round:$round,run_id:"fixture-orchestrator",verdict:$verdict,reviewer_a_verdict:$a_verdict,reviewer_b_verdict:"PASS",findings_critical:$critical,findings_major:$major,findings_minor:$minor,reviewers:[{role:"domain-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest_a},{role:"domain-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",allowed_input_manifest:$manifest_b}]}'
     & jq -n --arg verdict $Verdict --argjson round $round `
         --argjson critical $critical --argjson major $major --argjson minor $minor --arg a_verdict $aVerdict `
