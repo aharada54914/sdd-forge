@@ -128,6 +128,16 @@ jobs:
         shell: pwsh
         run: ./tests/check-placeholders-brownfield.tests.ps1
 
+      - name: Test bump-version.sh loop-gate prerequisite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/bump-version-gate.tests.sh
+
+      - name: Test bump-version.sh loop-gate prerequisite (pwsh)
+        shell: pwsh
+        run: ./tests/bump-version-gate.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
