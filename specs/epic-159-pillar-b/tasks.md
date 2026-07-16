@@ -29,11 +29,24 @@ human-copy procedure applies verbatim.
 
 ## Global Constraints
 
-- One task = one commit; both tasks below share Source Issue #148
-  (task-level decomposition within a single size-S issue, matching
-  investigation.md's Estimated decomposition — unlike epic-159-pillar-a2's
-  four independent GH issues, T-001 and T-002 here are two tasks under one
-  issue).
+- Each task lands in TWO sequential commits, not one: commit A =
+  implementation (the script/workflow edit + the new test-suite twin +
+  `tests/run-all.sh`/`.ps1` + `.github/workflows/test.yml` wiring); commit
+  B = documentation (the `CHANGELOG.md` entry + the
+  `docs/contributor/release-runbook.md` section + the
+  `README.md`/`docs/troubleshooting.md` verification). Commit A must land
+  before commit B within the same task; the existing Blockers field
+  additionally serializes ACROSS tasks (T-002's commit A and commit B both
+  land after T-001's commit A and commit B — Blockers field, unchanged
+  below). This two-commit split structurally resolves the task-review
+  round-1 oversizing finding (Reviewer B, Major 1/TASK-SIZE): the bash
+  surgery / test-harness authoring / CI wiring (commit A) and the
+  technical-documentation authoring (commit B) no longer land as one
+  cross-area diff, so each can be reviewed at its own, smaller scope.
+  Both tasks below share Source Issue #148 (task-level decomposition
+  within a single size-S issue, matching investigation.md's Estimated
+  decomposition — unlike epic-159-pillar-a2's four independent GH issues,
+  T-001 and T-002 here are two tasks under one issue).
 - Version bumps only via `scripts/bump-version.sh`; never hand-edit
   versions. This feature ADDS a precondition to that exact script — it
   does not bypass or duplicate the rule (requirements.md Constraint
@@ -118,7 +131,11 @@ threat row). This is a release-path change, so it does not default to
 logic is modified (contrast the `high`-classified precedent at
 `specs/workflow-state-integrity/tasks.md:23-26`, which CHANGED predecessor
 review-gate validation logic — this task changes nothing that already
-exists).
+exists). The two-commit landing plan below (commit A: script edit + suite
++ CI wiring; commit B: CHANGELOG/runbook/README documentation)
+structurally partitions the cross-area diff risk task-review round-1
+flagged (Reviewer B, Major 1/TASK-SIZE), rather than resting on a
+single-commit assertion of care.
 
 Required Workflow: acceptance-first
 
@@ -152,10 +169,13 @@ no existing script behavior — the CHANGELOG-heading check and every
 mutation step (`scripts/bump-version.sh:38-70`) are unedited (design.md
 API/Contract Plan). No existing script, gate, or artifact format changes.
 
-Rollback: revert this task's commit; nothing protected is touched
-(design.md Protected-File Statement), so no human-copy re-copy step exists
-in the rollback path (design.md Deployment/CI Plan). Reverting restores
-today's CHANGELOG-heading-only precondition.
+Rollback: revert this task's two commits (commit B then commit A, or both
+together); nothing protected is touched (design.md Protected-File
+Statement), so no human-copy re-copy step exists in the rollback path
+(design.md Deployment/CI Plan). Reverting commit A alone (leaving commit B)
+is not a valid intermediate state — the documentation would then describe
+a loop-gate prerequisite that no longer exists — so both commits revert
+together. Reverting restores today's CHANGELOG-heading-only precondition.
 
 ### Goal
 
@@ -194,6 +214,8 @@ REQ-004 bash-only degradation note.
 
 ### Scope
 
+Commit A (implementation — script edit + suite + CI wiring):
+
 - Write the acceptance checks first (TEST-001..TEST-006): the green path
   (passing stubs or real suites, CHANGELOG heading pre-satisfied in the
   fixture); the two independent red paths (loop-consistency stubbed
@@ -213,10 +235,21 @@ REQ-004 bash-only degradation note.
   so the fixture-copied script's own `$ROOT` resolves inside the fixture.
 - Register the suite (`.sh` and `.ps1`) in run-all and test.yml; commits
   serialize before T-002's registration lines (Global Constraints).
+- Commit A lands before commit B starts (Global Constraints two-commit
+  convention); commit A alone must already satisfy TEST-001..TEST-006.
+
+Commit B (documentation — CHANGELOG + runbook + README verification):
+
 - CREATE `CHANGELOG.md`'s `## Unreleased` entry citing #148 (bump-version.sh
-  leg content) and CREATE `docs/contributor/release-runbook.md` (bump-version
-  section + REQ-004 degradation note); verify `README.md` for
-  release-procedure references (no edit expected).
+  leg content).
+- CREATE `docs/contributor/release-runbook.md` with the bump-version.sh
+  section and the REQ-004 cross-host degradation note (bash-only CLI leg;
+  the `release.yml` job, T-002, is the Windows-host equivalent guarantee).
+- Verify `scripts/` contains no `bump-version.ps1` (record the check, no
+  edit expected — REQ-004, OQ-003).
+- Verify `README.md` for release-procedure references (no edit expected,
+  INV-014); re-run `tests/validate-repository.sh` and confirm it still
+  exits 0 after both commits.
 
 ### Done When
 
@@ -244,24 +277,30 @@ REQ-004 bash-only degradation note.
   real-validator invocation) and self-registers in `tests/run-all.sh`/
   `.ps1`/`.github/workflows/test.yml` (grep self-check, mirroring
   `tests/second-approval-mask.tests.sh:285-289`) (AC-006).
-- [ ] Cross-cutting shares, each independently verifiable: `CHANGELOG.md`
-  `## Unreleased` contains a NEW entry citing #148 with the bump-version.sh
-  leg's content (TEST-011 share); `docs/contributor/release-runbook.md`
-  exists and documents the CLI leg (TEST-012 share); `scripts/` contains no
-  `bump-version.ps1` (TEST-013, AC-013); the runbook states the REQ-004
-  bash-only degradation and points to the `release.yml` job as the
-  Windows-host equivalent guarantee (TEST-014, AC-014); `README.md` is
-  verified for release-procedure references with no edit expected
-  (INV-014); `tests/validate-repository.sh` exits 0.
-- [ ] Acceptance-first evidence is recorded in the implementation report
-  with a two-part red side: (a) the recorded pre-landing behavior of
-  `scripts/bump-version.sh` — its only precondition is the CHANGELOG
-  heading check, no loop-gate exists (INV-001) — AND (b) an execution log
-  showing TEST-002/TEST-003 failing meaningfully against that pre-landing
-  script (the stubbed-failing suite cannot stop a script that has no
-  loop-gate to trigger, so the fixture mutates despite the stub — the
-  precise failure this task's suite is built to prevent); the post-landing
-  green runs are the green side. An independent quality-gate verdict
+- [ ] Commit B, bullet 1 (TEST-011 share): `CHANGELOG.md`'s `## Unreleased`
+  section contains a NEW entry citing #148 with the bump-version.sh leg's
+  content (AC-011 share).
+- [ ] Commit B, bullet 2 (TEST-012 share): `docs/contributor/release-runbook.md`
+  exists and documents the CLI leg (the loop-gate prerequisite's behavior
+  and its no-bypass guarantee) (AC-012 share).
+- [ ] Commit B, bullet 3 (TEST-013/TEST-014, AC-013/AC-014): `scripts/`
+  contains no `bump-version.ps1`, AND the runbook states the REQ-004
+  bash-only degradation and points to the `release.yml` job (T-002) as the
+  Windows-host equivalent guarantee.
+- [ ] Commit B, bullet 4: `README.md` is verified for release-procedure
+  references with no edit expected (INV-014), and `tests/validate-repository.sh`
+  exits 0 after both commits land.
+- [ ] Acceptance-first evidence is recorded in the implementation report,
+  with red and green explicitly separated: RED (two parts) — (a) the
+  recorded pre-landing behavior of `scripts/bump-version.sh` (its only
+  precondition is the CHANGELOG heading check; no loop-gate exists,
+  INV-001), AND (b) an execution log showing TEST-002/TEST-003 failing
+  meaningfully against that pre-landing script (the stubbed-failing suite
+  cannot stop a script that has no loop-gate to trigger, so the fixture
+  mutates despite the stub — the precise failure this task's suite is
+  built to prevent); GREEN — the post-commit-A run of TEST-001..TEST-006
+  all passing, re-confirmed green after commit B lands (no regression from
+  the documentation-only commit). An independent quality-gate verdict
   records PASS for this task.
 
 ### Out of Scope
@@ -309,7 +348,12 @@ requests no elevated permissions (no `contents: write`/`id-token: write`/
 `release.yml:25-29`), narrowing rather than widening the release path's
 privilege surface (REQ-002; security-spec.md B4). This is a release-path
 change, so it does not default to `low`; it does not reach `high` because
-no existing artifact-producing step is modified.
+no existing artifact-producing step is modified. The two-commit landing
+plan below (commit A: workflow edit + suite + CI wiring; commit B:
+CHANGELOG/runbook/troubleshooting documentation) structurally partitions
+the cross-area diff risk task-review round-1 flagged as a mild, same-pattern
+instance in this task (Reviewer B, Major 1/TASK-SIZE), rather than resting
+on a single-commit assertion of care.
 
 Required Workflow: acceptance-first
 
@@ -348,9 +392,12 @@ no existing workflow step — the tarball/SBOM/checksum/attestation/upload
 steps (`release.yml:38-99`) are unedited (design.md API/Contract Plan). No
 existing script, gate, or artifact format changes.
 
-Rollback: revert this task's commit; nothing protected is touched
-(design.md Protected-File Statement), so no human-copy re-copy step exists
-in the rollback path. Reverting restores today's ungated release workflow.
+Rollback: revert this task's two commits (commit B then commit A, or both
+together); nothing protected is touched (design.md Protected-File
+Statement), so no human-copy re-copy step exists in the rollback path.
+Both commits revert together for the same reason as T-001 (commit B's
+documentation would otherwise describe a job that no longer exists).
+Reverting restores today's ungated release workflow.
 
 ### Goal
 
@@ -386,6 +433,8 @@ check is not vacuous, and append the `release.yml` section to
 
 ### Scope
 
+Commit A (implementation — workflow edit + suite + CI wiring):
+
 - Write the acceptance checks first (TEST-007..TEST-010): the `loop-gate`
   job's existence with both suite invocations inside its own text slice;
   the `needs: loop-gate` presence in the build job's slice PLUS the
@@ -404,10 +453,18 @@ check is not vacuous, and append the `release.yml` section to
   elevated permissions.
 - Register the suite (`.sh` and `.ps1`) in run-all and test.yml; commits
   serialize after T-001's registration lines (Global Constraints).
+- Commit A lands before commit B starts (Global Constraints two-commit
+  convention); commit A alone must already satisfy TEST-007..TEST-010.
+
+Commit B (documentation — CHANGELOG append + runbook append + troubleshooting verification):
+
 - APPEND to the SAME `CHANGELOG.md` `## Unreleased` entry T-001 created
-  (release.yml leg content) and APPEND the release.yml section to
-  `docs/contributor/release-runbook.md`; verify `docs/troubleshooting.md`
-  for release-procedure references (no edit expected).
+  (release.yml leg content) — not a second block.
+- APPEND the release.yml section to `docs/contributor/release-runbook.md`
+  (T-001's CREATE).
+- Verify `docs/troubleshooting.md` for release-procedure references (no
+  edit expected, INV-014); re-run `tests/validate-repository.sh` and
+  confirm it still exits 0 after both commits.
 
 ### Done When
 
@@ -428,21 +485,23 @@ check is not vacuous, and append the `release.yml` section to
   `tests/release-loop-gate.tests.sh`/`.ps1` self-registers in
   `tests/run-all.sh`/`.ps1`/`.github/workflows/test.yml` (grep self-check)
   (AC-010).
-- [ ] Cross-cutting shares, each independently verifiable: `CHANGELOG.md`
-  `## Unreleased`'s existing #148 entry (created by T-001) is APPENDED
-  with the release.yml leg's content, not duplicated as a second block
-  (TEST-011 share); `docs/contributor/release-runbook.md`'s release.yml
-  section is appended, and `docs/troubleshooting.md` is verified for
-  release-procedure references with no edit expected (TEST-012 share,
-  INV-014); `tests/validate-repository.sh` exits 0.
-- [ ] Acceptance-first evidence is recorded in the implementation report
-  with a two-part red side: (a) the recorded pre-landing state of
-  `.github/workflows/release.yml` — no `loop-gate` job, no `needs:`
-  dependency on the build job (INV-006, INV-007) — AND (b) an execution
-  log showing TEST-007/TEST-008 failing meaningfully against that
-  pre-landing file (no `loop-gate:` job slice to find, no `needs:` entry
-  to find); the post-landing green runs are the green side. An
-  independent quality-gate verdict records PASS for this task.
+- [ ] Commit B, bullet 1 (TEST-011 share): `CHANGELOG.md`'s `## Unreleased`
+  existing #148 entry (created by T-001) is APPENDED with the release.yml
+  leg's content, not duplicated as a second block (AC-011 share).
+- [ ] Commit B, bullet 2 (TEST-012 share): `docs/contributor/release-runbook.md`'s
+  release.yml section is appended, `docs/troubleshooting.md` is verified
+  for release-procedure references with no edit expected (INV-014), and
+  `tests/validate-repository.sh` exits 0 after both commits land
+  (AC-012 share).
+- [ ] Acceptance-first evidence is recorded in the implementation report,
+  with red and green explicitly separated: RED (two parts) — (a) the
+  recorded pre-landing state of `.github/workflows/release.yml` (no
+  `loop-gate` job, no `needs:` dependency on the build job — INV-006,
+  INV-007), AND (b) an execution log showing TEST-007/TEST-008 failing
+  meaningfully against that pre-landing file (no `loop-gate:` job slice to
+  find, no `needs:` entry to find); GREEN — the post-commit-A run of
+  TEST-007..TEST-010 all passing, re-confirmed green after commit B lands.
+  An independent quality-gate verdict records PASS for this task.
 
 ### Out of Scope
 
