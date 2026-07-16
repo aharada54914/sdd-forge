@@ -9,4 +9,7 @@ descriptor, and the reserved manifest binds the staged
 `apply-protected-files.ps1` runner by SHA-256. The independent evaluator
 returned PASS after checking 19/19 hashes, the full deterministic test set,
 and the two-vendor cross-model aggregate. The signed clean-tree evidence
-bundle and distinct second-human approval are still required before Done.
+bundle now passes `check-evidence-bundle.ps1`, and the authorized distinct
+second human approval is recorded in `tasks.md` as
+`Approved (aharada-b 2026-07-16T01:59:21Z)`. T-006 satisfies the critical-tier
+Done decision.
