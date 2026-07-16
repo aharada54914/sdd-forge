@@ -629,21 +629,24 @@ function Publish-LoopImplRoundA {
     $precheckSha = Get-LoopSha256 $precheckPath
     $calibrationSha = Get-LoopSha256 $calibrationPath
 
+    # Manifest path VALUES must use forward slashes on every host: Windows
+    # Join-Path yields backslashes, which the forward-slash assertions (e.g.
+    # loop-consistency TEST-008.7) and any suffix matching never accept.
     $manifestJq = '[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$design,sha256:$design_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}]'
-    $manifestJson = & jq -n --arg requirements $requirementsPath --arg requirements_sha $requirementsSha `
-        --arg acceptance $acceptancePath --arg acceptance_sha $acceptanceSha `
-        --arg design $designPath --arg design_sha $designSha `
-        --arg precheck $precheckPath --arg precheck_sha $precheckSha `
-        --arg calibration $calibrationPath --arg calibration_sha $calibrationSha $manifestJq
+    $manifestJson = & jq -n --arg requirements ($requirementsPath -replace '\\', '/') --arg requirements_sha $requirementsSha `
+        --arg acceptance ($acceptancePath -replace '\\', '/') --arg acceptance_sha $acceptanceSha `
+        --arg design ($designPath -replace '\\', '/') --arg design_sha $designSha `
+        --arg precheck ($precheckPath -replace '\\', '/') --arg precheck_sha $precheckSha `
+        --arg calibration ($calibrationPath -replace '\\', '/') --arg calibration_sha $calibrationSha $manifestJq
     foreach ($name in (Get-LoopImplLayerNames)) {
         $lpath = Join-Path $script:LoopFixtureRoot "specs/$feature/$name.md"
         $lsha = Get-LoopSha256 $lpath
-        $manifestJson = $manifestJson | & jq -c --arg p $lpath --arg s $lsha '. + [{path:$p,sha256:$s}]'
+        $manifestJson = $manifestJson | & jq -c --arg p ($lpath -replace '\\', '/') --arg s $lsha '. + [{path:$p,sha256:$s}]'
     }
     if ($round -gt 1) {
         $priorSummary = Join-Path $script:LoopFixtureRoot "reports/impl-review/$feature/attempt-1/round-$($round - 1)/integrated-summary.json"
         $priorSha = Get-LoopSha256 $priorSummary
-        $manifestJson = $manifestJson | & jq -c --arg p $priorSummary --arg s $priorSha '. + [{path:$p,sha256:$s}]'
+        $manifestJson = $manifestJson | & jq -c --arg p ($priorSummary -replace '\\', '/') --arg s $priorSha '. + [{path:$p,sha256:$s}]'
     }
 
     $reviewerAJq = '["INPUT-COMPLETENESS","DESIGN-ALIGNMENT","LAYER-COVERAGE","RISK-SURFACE","IMPLEMENTABILITY","SCOPE-BOUNDARY"] as $ids | {schema:"impl-reviewer-a/v1",stage:"impl",role:"impl-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:$manifest,verdict:$verdict,checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end),finding:(if .key == 0 and $result == "FAIL" then "fixture finding" else "No issues found." end)}))}'
