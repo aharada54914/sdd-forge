@@ -525,3 +525,18 @@ report); out of scope for this deterministic-phase gate, recorded only.
 TOTAL_FAILED_SUITES: 0
 == end: 2026-07-16T04:16:23Z ==
 EXIT_CODE: 0
+
+###### post-fix-cycle addendum (HEAD 69cda39): tests/validate-repository.sh re-check ######
++ bash tests/validate-repository.sh
+== start: 2026-07-16T05:30:14Z ==
+workflow-state: ok
+Repository validation passed.
+== end: 2026-07-16T05:30:16Z ==
+EXIT_CODE: 0
+NOTE: shared regression set (loop-inventory/loop-driver/loop-consistency/loop-escalation
+sh+ps1, check-placeholders.tests.sh, template-validator-parity.tests.sh, crlf-parity,
+constant-parity, guard-ps1-ascii, second-approval-mask, validate-repository) is otherwise
+unchanged from the full run above -- loop-driver.tests.ps1 and loop-consistency.tests.ps1
+were already re-run at HEAD 69cda39 in this task's own focused-tests.log (0 SKIP, 0 FAIL
+both lanes), and the fix commits (2a7eef5, 69cda39) touch only
+spec-review-precheck.ps1/domain-review-precheck.ps1, outside every other suite's target set.
