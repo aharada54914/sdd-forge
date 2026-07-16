@@ -1,6 +1,6 @@
 # Tasks: epic-159-pillar-d
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issues #156 (D1 — capability refresh process step), #157 (D2 —
 weekly freshness-check automation), #158 (D3 — v2 registry
