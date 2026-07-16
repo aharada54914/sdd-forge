@@ -88,6 +88,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/sdd-domain/`
 - `specs/local-env-mcp/`
 - `specs/ci-mcp/`
+- `specs/epic-136-phase2-gates/`
 - `specs/epic-136-phase1-rce/`
 - `specs/epic-136-phase1-guards/`
 - `specs/epic-159-pillar-a/`

@@ -326,6 +326,10 @@
       "profile": "full"
     },
     {
+      "feature": "epic-136-phase2-gates",
+      "profile": "full"
+    },
+    {
       "feature": "second-approval-mask",
       "profile": "full"
     },

@@ -1,0 +1,2239 @@
+# Panelist Input Bundle
+# task_id: T-006
+# feature: epic-136-phase2-gates
+# input_digest: cd3c5d65606f0c809a6616ef91ac785d4e2eba00bb4464ae54210567a0c3afe6
+# consent: human-flag
+# WARNING: This file is sanitized for external LLM review.
+#          Do not include secrets, absolute paths, or private URLs.
+
+# Requirements: epic-136-phase2-gates
+
+Spec-Review-Status: Passed
+Source Issues: https://github.com/aharada54914/sdd-forge/issues/117,
+https://github.com/aharada54914/sdd-forge/issues/118,
+https://github.com/aharada54914/sdd-forge/issues/119,
+https://github.com/aharada54914/sdd-forge/issues/121,
+https://github.com/aharada54914/sdd-forge/issues/122
+Epic: https://github.com/aharada54914/sdd-forge/issues/136 (Phase 2)
+
+## Overview
+
+Complete the Phase 2 consistency and security work in Epic #136. The work
+corrects cross-runtime false denials without weakening write protection,
+removes a timing-leaking PowerShell signature comparison, extracts duplicated
+PowerShell path validation, prevents a risky task from selecting the lite
+track even with `--lite`, and makes guard constants generated from one
+protected canonical data source.
+
+The verified Phase 1 guard prerequisite branch
+`feature/epic-136-phase1-guards` is a required baseline: its #109/#110 guard
+parity and CWD resolution are incorporated before this feature starts.
+
+## Target Users
+
+- Maintainers and agents operating the deterministic guard through Codex,
+  Claude Code, GitHub Copilot, or the PowerShell fallback.
+- Windows PowerShell 5.1 operators who use signed `SDD_SUDO` tokens.
+- Authors of small internal changes who need a deterministic escalation before
+  lite SDD omits full review and traceability artifacts.
+- CI reviewers who need generated guard modules to be reproducible and stale
+  generated files to fail the build.
+
+## Problems
+
+- The shared guard tokenizer treats an escaped read-only pattern as unknown and
+  a harmless stderr redirect as a write, denying legitimate inspection. It can
+  lead operators to avoid the guard rather than trust its real denials (#117).
+- The PowerShell fallback compares an HMAC hex string with `-ne`, whose
+  duration can depend on the first different character (#118).
+- `check-contract.ps1` repeats evidence-path safety checks for ordinary, red,
+  and green evidence, so security fixes can drift across the three sites
+  (#119).
+- Lite selection is based only on flags/profile. A task involving auth,
+  tokens, MCP, external APIs, secrets, or GitHub Actions can choose `--lite`
+  and evade the full workflow (#121).
+- The Python, JavaScript, and PowerShell guards duplicate the protected-path
+  and shell-classification invariants. Manual parallel edits have already
+  caused parity regressions (#122).
+
+## Goals
+
+- REQ-001: In the Python, JavaScript, and PowerShell guard twins, permit a
+  genuinely read-only command containing a literal backslash inside a balanced
+  quoted regular expression (for example `grep -n "R-10\\|R-11" <path>`) or
+  a stderr-only redirect such as `2>&1`; also permit read-only inspection
+  (`ls`, `cat`, `find`) of a protected path. Unquoted backslash escapes that
+  alter token boundaries, unclosed quotes, a redirect mixed with an unresolved
+  target, and every ambiguous command remain denied. An actual write to a
+  protected target remains denied. Decisions must remain cross-runtime equal.
+  (Issue #117)
+- REQ-002: In `sdd-hook-guard.ps1`, validate the supplied `sig` as exactly
+  64 hexadecimal characters, decode both expected and supplied HMACs to 32
+  bytes, and perform a full byte-wise XOR accumulation before deciding. The
+  helper must not use `CryptographicOperations.FixedTimeEquals`, which is not
+  available in Windows PowerShell 5.1. Invalid signatures, malformed tokens,
+  and any XOR difference must fail closed without leaking token material.
+  (Issue #118; human decision 2026-07-13)
+- REQ-003: Replace all three inline evidence-path validators in
+  `check-contract.ps1` with one internal helper that receives the field label,
+  path, and repository root and returns a structured validity/failure result.
+  Preserve byte-for-byte-equivalent failure wording for `evidence`,
+  `red_evidence`, and `green_evidence`, including POSIX absolute, Windows/UNC
+  absolute, unresolvable, traversal, and missing-file failures. Before the
+  refactor, capture reviewed golden fixtures containing complete stdout/stderr
+  and exit status for every field-by-case pair; after the refactor, TEST-005
+  and TEST-006 compare those fixtures exactly after LF normalization. (Issue
+  #119)
+- REQ-004: Define one deterministic risk-upgrade policy specified in the
+  [Risk-upgrade policy contract](#ri[REDACTED]). If the
+  requested source or task-scoped metadata concerns authentication/
+  authorization, credentials or access tokens, MCP, an external/third-party
+  API, a secret, or GitHub Actions, lite specification creation must stop
+  before writing a lite spec and ship must force the **full** track. This
+  escalation takes precedence over `--lite`; an incomplete lite feature then
+  fails closed with a bootstrap instruction instead of silently running lite.
+  (Issue #121; human decision 2026-07-13)
+- REQ-005: Store the minimal common guard invariants in one protected,
+  versioned canonical data file and generate deterministic native modules for
+  Python, JavaScript, PowerShell, and the shell dispatcher. Runtime guards
+  must import/source only their generated native module and must not parse the
+  canonical data at runtime. A build-time generator `--check` mode must
+  compare every generated module with its expected output and CI must fail
+  closed on any difference. The canonical data, generator, generated modules,
+  and human-copy procedure itself must be R-10 protected. The complete
+  protected candidate set is the normative inventory in
+  [Protected Phase 2 target inventory](#protected-phase-2-target-inventory).
+  The Windows human-copy runner must read its canonical authority, manifest,
+  and every staged source through no-follow handles anchored at an opened
+  repository root; hash and later copy each source from the same held handle;
+  and publish each verified temporary file by a destination-parent-handle-
+  relative atomic rename. It must never overwrite a live target by following
+  its path, symbolic link, reparse point, or hard-link alias. Unsupported
+  Windows, filesystem, PowerShell language mode, or native API conditions fail
+  before the first live replacement. TEST-013 must also inject a rename-phase
+  failure after a fixed inventory index in an isolated fixture-only instrumented
+  runner, prove the resulting live state is exactly the new candidate prefix
+  followed by the recorded previous suffix, and apply a reviewed complete
+  rollback batch that restores every pre-install digest and passes post-install
+  verification. (Issue #122; human decisions 2026-07-13 and 2026-07-14)
+
+## Risk-upgrade policy contract
+
+The policy is deterministic, local, ASCII-case-insensitive, and does no remote
+issue retrieval. The checker decodes UTF-8 source text, rejects NUL or invalid
+UTF-8, converts CRLF/CR to LF, and applies the ordered trigger matrix below to
+word/token boundaries. The first matching ID is the primary diagnostic; all
+matching IDs are emitted in this same order. A policy match prints
+`full-required: <primary-id>; triggers=<comma-separated-ids>` and returns exit
+10. No match prints `lite-eligible` and returns 0. Missing, unreadable, or
+malformed input prints `risk-upgrade: input unavailable` and returns exit 2.
+
+| Order | ID | Normalized lexical rule | Exclusion / boundary |
+|---:|---|---|---|
+| 1 | `AUTH_BOUNDARY` | `auth`, `authentication`, `authorization`, `oauth`, or `oidc` as whole tokens | No substring match (`author`, `oauthless`). |
+| 2 | `TOKEN_CREDENTIAL` | `token` or `tokens` as a whole token, or `credential`/`credentials`, `password`/`passwords`, `private key`/`private keys` | An occurrence wholly inside `design token` or `design tokens` is removed before matching; any other token still matches. |
+| 3 | `MCP` | `mcp` as a whole token | No substring match (`mcpish`). |
+| 4 | `EXTERNAL_API` | `external api`/`external apis` or `third-party API(s)` / `third party API(s)` with whitespace/hyphen normalization | `API design` alone never matches because an external/third-party qualifier is required. |
+| 5 | `SECRET` | `secret` or `secrets` as a whole token | No substring match (`secretion`). |
+| 6 | `GITHUB_ACTIONS` | `github actions` with one or more normalized whitespace characters | No substring match (`github-actionable`). |
+
+For `lite-spec`, the input is the full user-supplied requirement/source body
+resolved before any file is created. An opaque URL without readable source text
+is input-unavailable and therefore stops the lite flow. For `ship`, the input
+is the selected task's complete `## T-NNN` block followed by that feature's
+`requirements.md`; both files are mandatory whenever lite could otherwise be
+selected. If one is absent or unreadable, the selected task is full-required
+with an input-unavailable diagnostic. `--full` remains valid without scanning;
+every default/profile/`--lite` route invokes the checker before lite selection.
+
+## Protected Phase 2 target inventory
+
+The canonical `phase2_human_copy_targets` array contains this exact normalized,
+unique, repository-relative set. No manifest entry may omit, add, or duplicate
+a target. It is also generated into the R-10 protected suffix table before the
+human-copy run completes:
+
+1. `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py`
+2. `plugins/sdd-quality-loop/scripts/sdd-hook-guard.js`
+3. `plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1`
+4. `plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh`
+5. `plugins/sdd-quality-loop/scripts/check-contract.ps1`
+6. `plugins/sdd-lite/references/risk-upgrade-policy.md`
+7. `plugins/sdd-lite/scripts/check-risk-upgrade.sh`
+8. `plugins/sdd-lite/scripts/check-risk-upgrade.ps1`
+9. `plugins/sdd-lite/skills/lite-spec/SKILL.md`
+10. `plugins/sdd-ship/skills/ship/SKILL.md`
+11. `plugins/sdd-quality-loop/references/guard-invariants.json`
+12. `plugins/sdd-quality-loop/scripts/generate-guard-invariants.py`
+13. `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py`
+14. `plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js`
+15. `plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1`
+16. `plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh`
+17. `.github/workflows/test.yml`
+18. `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`
+
+`MANIFEST.sha256` is deliberately not an R-10 live target: it is a disposable,
+human-reviewed batch input next to staged candidates and is never copied into a
+live enforcement path. The immutable R-10 copy runner validates the current
+batch manifest against the canonical allowlist, but an agent may prepare a new
+candidate manifest for human inspection. The manifest cannot add, omit, or
+remap live targets because the runner derives the allowed set and paths from
+the protected canonical data.
+
+## Non-goals
+
+- Building a full shell interpreter or allowing unclassifiable command text.
+- Changing the signed-token format, its 24-hour TTL limit, or key handling.
+- Treating all uses of the words `token` or `API` as risky; the policy uses the
+  exact documented phrases and exclusions.
+- Loading JSON or another mutable data source during a guard decision.
+- Bypassing R-10 protection or replacing the human copy authority with sudo.
+
+## User Stories
+
+- As an operator, I can run a grep with an escaped expression and redirect
+  stderr without a false denial, while a write to the same protected file is
+  still denied.
+- As a PowerShell 5.1 operator, I know that a forged sudo signature is checked
+  without early character comparison.
+- As a lite-task author, I am automatically placed on the full track when the
+  task crosses a security or external-system boundary, even if `--lite` was
+  requested.
+- As a maintainer, I edit one canonical guard-invariants document, generate
+  native modules, and rely on CI to reject stale or hand-edited output.
+
+## Acceptance Criteria
+
+See [acceptance-tests.md](acceptance-tests.md). Each criterion is tied to a
+deterministic suite and a saved quality-gate report before it may be marked
+Done.
+
+## Roles and Permissions
+
+| Role | Permission | Constraint |
+|---|---|---|
+| Agent | Stage tests, specifications, generator, and human-copy candidates | Cannot write protected live enforcement-chain files. |
+| Human maintainer | Verify hashes and copy staged protected files | Must run the supplied copy script and named suites. |
+| CI | Regenerate in check-only mode | Fails on any generated-diff or failed test. |
+
+## Main Workflows
+
+1. A maintainer stages a protected source candidate under `human-copy/`, runs
+   the manifest verifier, and uses the PS5.1-compatible anchored-copy runner.
+   The runner opens the repository root, canonical authority, manifest,
+   sources, and destination parents without following reparse points; prepares
+   and hashes every same-directory temporary file before any live replacement;
+   atomically replaces live directory entries in inventory order; and then
+   runs focused tests.
+2. The generator reads canonical data only during build/test time, writes each
+   native module deterministically, and `--check` detects stale output without
+   mutating the worktree.
+3. Ship scans policy text before selecting a track. A risk match wins over
+   `--lite`, selects full, and validates full-track artifacts.
+
+## Edge Cases
+
+- A backslash in a read-only regex is permitted only after the command is
+  conclusively classified as read-only; ambiguous escapes remain denied.
+- `2>&1` is not a write target, while `>` or `>>` to a protected path remains
+  a denial.
+- A non-hex, short, long, or mixed invalid signature never reaches byte
+  comparison and returns inactive.
+- An absent generated module, malformed canonical data, unsupported schema
+  version, or generator error fails check mode.
+- A policy hit with missing full artifacts fails before implementation; it
+  never falls back to lite.
+- A pre-existing target reparse point is rejected. A hard-linked target is
+  replaced as a directory entry, so another hard-link name outside the target
+  inventory remains byte-for-byte unchanged.
+- A source or destination-parent rename/delete/substitution attempt after
+  validation fails while the runner retains non-delete-sharing handles. A
+  native API, Add-Type, local-drive, or supported-filesystem check failure
+  exits before any live target is replaced.
+
+## Security Boundaries
+
+| Trust Boundary | Auth/Authz Requirement | PII / Data Classification | Regulatory Constraints |
+|---|---|---|---|
+| Agent shell payload to guard | R-10 deny-by-default and cross-runtime parity | Integrity-critical internal source | None |
+| `SDD_SUDO` token to PowerShell verifier | HMAC-SHA256; full XOR comparison after shape validation | Restricted ephemeral credential | None |
+| Canonical invariant data to generated runtime module | Human-copy authority plus deterministic generator and CI diff check; root-handle-relative no-follow reads and atomic entry replacement | Integrity-critical internal source | None |
+| Lite request to ship selection | Risk-upgrade policy before flag/profile selection | Internal task metadata | None |
+
+## Assumptions
+
+- The generator can use Python at build/test time; Python is already the
+  primary dispatcher runtime and no dependency is introduced.
+- `sdd-hook-guard.sh` is a dispatcher, not a guard evaluator; its generated
+  module is sourced for schema/provenance parity, while Python/JS/PS consume
+  the decision constants.
+- The user-approved `sdd-sudo` session is an approval bypass only; deterministic
+  review, test, and quality gates remain mandatory.
+- The protected-copy runner is executed only by Windows PowerShell 5.1 in Full
+  Language mode on a local drive and a filesystem accepted by its native
+  capability preflight. The reviewed minimum is NTFS; every other condition is
+  rejected before live replacement.
+
+## Open Questions
+
+None. The user selected the PowerShell algorithm, forced full escalation, and
+the generated-module architecture on 2026-07-13, then authorized the
+root-handle-relative no-follow copy architecture on 2026-07-14.
+
+## Risks
+
+- Incorrectly relaxing tokenization could turn a false-denial fix into a write
+  bypass. Cross-runtime positive and negative corpus tests are required.
+- A generator that is not itself protected would make the canonical data model
+  cosmetic. It is included in the generated protected suffix set.
+- Broad policy matching could disrupt ordinary lite work. Exact fixtures and
+  documented negative cases constrain it.
+- Windows native handle semantics and structure layout are security-critical.
+  Static API-contract tests, hard-link and namespace-substitution tests, and an
+  independent security review constrain the embedded C# implementation.
+- The 18 live entry renames are individually atomic, not transactionally atomic
+  as a batch. All sources and temporary outputs are verified before the first
+  rename; a rename-time OS failure can leave an installed inventory prefix and
+  requires the documented reviewed complete rollback batch. An isolated
+  fixture injects that failure after a fixed index, verifies the exact
+  prefix/suffix digest state, then proves the rollback restores all 18 recorded
+  pre-install digests and post-install verification.
+# Design: epic-136-phase2-gates
+
+Impl-Review-Status: Passed
+Feature Type: enforcement-chain security and workflow hardening
+
+## Technical Summary
+
+Phase 2 retains fail-closed defaults while narrowing only proven read-only
+false positives. It introduces a PS5.1-compatible full-scan HMAC comparator,
+a single PowerShell evidence-path validator, deterministic lite risk
+escalation, and build-time generated guard-invariant modules. All live
+enforcement-chain modifications are staged first and applied only by the
+human-copy verifier.
+
+## Architecture
+
+```mermaid
+flowchart LR
+  D["guard-invariants.json\nprotected canonical data"] --> G["generate-guard-invariants.py\nbuild time only"]
+  G --> PY["guard_invariants.py"]
+  G --> JS["guard-invariants.generated.js"]
+  G --> PS["guard-invariants.generated.ps1"]
+  G --> SH["guard-invariants.generated.sh"]
+  PY --> GPY["Python guard"]
+  JS --> GJS["Node guard"]
+  PS --> GPS["PowerShell guard"]
+  SH --> DSH["shell dispatcher"]
+  G --> CK["--check"]
+  CK --> CI["CI fail-closed generated diff"]
+  HC["human-copy manifest + copy script"] --> LIVE["protected live files"]
+```
+
+Canonical data is a schema-versioned JSON document containing only values that
+must agree across runtimes: protected suffixes, protected plugin suffixes,
+shell classification arrays/regular-expression sources, the fixed HMAC hex
+length, and the exact human-copy target inventory. It does not contain
+executable policy or a secret. The Python generator validates schema and types,
+renders four native-language modules in a fixed order and newline convention,
+and supports write mode and non-mutating `--check` mode. Runtime code
+imports/sources generated modules; it never opens or parses the JSON data file.
+
+### Native module loading contract
+
+The generated targets and loading path are fixed, legal language identifiers:
+
+| Runtime | Generated target | Load rule | Required exports |
+|---|---|---|---|
+| Python | `scripts/generated/guard_invariants.py` | `importlib.util.spec_from_file_location` over `Path(__file__).resolve().parent / "generated" / "guard_invariants.py"`; never normal `import` | `SCHEMA_VERSION`, `PROTECTED_GATE_SUFFIXES`, `PROTECTED_GATE_PLUGIN_JSON_SUFFIXES`, shell arrays/regex sources, `SUDO_SIGNATURE_HEX_LENGTH`, `PHASE2_HUMAN_COPY_TARGETS` |
+| Node | `scripts/generated/guard-invariants.generated.js` | `require(path.join(__dirname, "generated", "guard-invariants.generated.js"))`; no CWD resolution | frozen object with the same uppercase keys |
+| PowerShell | `scripts/generated/guard-invariants.generated.ps1` | dot-source exactly from `$PSScriptRoot/generated`; no `$PWD` resolution | `$GuardInvariants` ordered dictionary with the same keys |
+| POSIX dispatcher | `scripts/generated/guard-invariants.generated.sh` | source exactly from `$dir/generated` before dispatch; no `PATH` resolution | `GUARD_INVARIANTS_SCHEMA_VERSION=1` and `GUARD_INVARIANTS_SOURCE_SHA256`; this dispatcher has no guard-decision constants |
+
+Python, Node, and PowerShell export exactly these uppercase keys:
+`SCHEMA_VERSION`, `PROTECTED_GATE_SUFFIXES`,
+`PROTECTED_GATE_PLUGIN_JSON_SUFFIXES`, `SHELL_COMPOUND_RE`,
+`SHELL_WRITE_ARG_CMDS`, `SHELL_WRITE_DEST_CMDS`, `SHELL_PS_WRITE_CMDS`,
+`SHELL_INDIRECT_CMDS`, `SHELL_UNSAFE_TOKEN_CHARS`,
+`SHELL_REDIRECT_TOKEN_RE`, `SHELL_FD_DUP_RE`, `SHELL_CD_CMDS`,
+`SHELL_SUDO_WRITE_RE`, `SHELL_READ_ONLY_START_RE`,
+`SUDO_SIGNATURE_HEX_LENGTH`, and `PHASE2_HUMAN_COPY_TARGETS`. Every loader
+validates schema version and required keys/types before a guard decision.
+The fixed script-directory module being missing, unreadable, or wrong-version
+produces the existing fail-closed guard decision. A same-name module shadowed
+from CWD or `PYTHONPATH` is not loaded and must not change the normal shared
+corpus decision made from the fixed script-directory module. “Poisoned” in
+TEST-012 means that ignored shadowing case. Runtime modules are not
+independently digested at every guard
+invocation; R-10 protection plus CI generated-diff verification supplies that
+integrity boundary. TEST-012 runs guards from a different CWD with a poisoned
+same-name module and checks that canonical JSON is absent from runtime
+file-open/parse paths.
+
+## Components
+
+| Component | Responsibility | Technology | New/Existing |
+|---|---|---|---|
+| Guard tokenizer changes | Classify read-only escapes/redirects without relaxing protected writes | Python, Node, PowerShell | Existing |
+| PS HMAC helper | Validate fixed 64-hex then XOR all 32 bytes | Windows PowerShell 5.1 APIs | Existing |
+| Evidence path helper | One structured validation result used at three contract fields | PowerShell | Existing |
+| Risk-upgrade checker | Return no-match or named trigger deterministically | sh and PowerShell | New |
+| Risk policy reference | Exact trigger and exclusion language | Markdown | New |
+| Canonical invariants + generator | Render native constant modules, verify no stale output | JSON + Python | New |
+| Human-copy runner | Anchor the repository with Windows handles, no-follow open and hash every fixed source, prepare verified same-parent temporaries, and atomically replace listed entries | PowerShell 5.1 + embedded C#/.NET P/Invoke | New |
+| CI generated-diff step | Run generator `--check` before tests | GitHub Actions | Existing |
+
+## Layer Specifications
+
+| Layer | Summary | Canonical Detail | Owner | Status |
+|---|---|---|---|---|
+| UX | N/A - no rendered or interactive surface | [UX specification](ux-spec.md#scope-and-user-journeys) | maintainers | N/A |
+| Frontend | N/A - no browser/frontend bundle | [Frontend specification](frontend-spec.md#technology-stack) | maintainers | N/A |
+| Infrastructure | CI runs generated-diff and runtime suites | [Infrastructure specification](infra-spec.md#ci-cd-sequence) | maintainers | Planned |
+| Security | Guard invariants, HMAC compare, and policy escalation | [Security specification](security-spec.md#trust-boundaries) | maintainers | Planned |
+
+## Design System Compliance
+
+N/A - ds_profile: none.
+
+## Cross-Layer Dependencies
+
+| From | To | Contract / Decision | REQ | AC | Verification |
+|---|---|---|---|---|---|
+| requirements.md | security-spec.md | Read-only classification must preserve protected-write denial | REQ-001 | AC-001, AC-002 | TEST-001, TEST-002 |
+| requirements.md | security-spec.md | 64-hex shape check then 32-byte XOR full scan | REQ-002 | AC-003, AC-004 | TEST-003, TEST-004 |
+| requirements.md | infra-spec.md | Generator check compares all native outputs without writing | REQ-005 | AC-010, AC-011 | TEST-010, TEST-011 |
+| security-spec.md | infra-spec.md | Generated source and generator remain protected and copied by human procedure | REQ-005 | AC-012, AC-013 | TEST-012, TEST-013 |
+| requirements.md | security-spec.md | Risk policy overrides `--lite` before track selection | REQ-004 | AC-007..009 | TEST-007..009 |
+
+## ADR Change Log
+
+| ADR | Decision | Status | Layer Impact | Supersedes | Date |
+|---|---|---|---|---|---|
+| [ADR 0011](../../docs/adr/0011-phase2-handle-relative-protected-copy.md) | Use a PS5.1-compatible embedded native helper for root-handle-relative, no-follow source reads and destination-parent-relative atomic publication; reject path-based copy fallback | Accepted | security, infrastructure | None | 2026-07-14 |
+
+## Data Plan
+
+Data Entities: `guard-invariants.json` only; it is static integrity-critical
+configuration, not runtime data.
+
+Existing Data Affected: duplicated guard constant arrays and regex sources.
+
+Migration Strategy: add canonical source and generated modules, replace live
+runtime declarations through human-copy, then require CI `--check`. No stored
+user data migration exists.
+
+The canonical schema uses `schema_version: 1` and has required fields
+`schema_version` (integer), `protected_gate_suffixes` (non-empty unique array
+of normalized repository-relative strings), `protected_gate_plugin_json_suffixes`
+(unique string array), `shell` (object containing named unique string arrays
+and regex-source strings), `sudo_signature_hex_length` (integer exactly 64),
+and `phase2_human_copy_targets` (the exact inventory in requirements.md).
+Unknown versions, duplicate paths, non-string array members, missing fields,
+wrong types, or an illegal generated target cause generator failure. Rendering
+uses UTF-8 LF-only text, a stable field order, sorted object keys, canonical
+array order, and a generated-from schema/source header. The PS output is
+ASCII/no-BOM. The protected suffix list includes every inventory target,
+including `test.yml`, risk policy/checkers, canonical source, generator,
+outputs, and the immutable human-copy script so the mechanism protects itself
+after deployment.
+
+`shell` has these required v1 keys; missing, additional, or wrongly typed keys
+fail generation. Array order is preserved in every native export and each regex
+is rendered with the current case-sensitive source semantics (no generated
+flag may broaden it):
+
+| Canonical key | Type | Native export identifier |
+|---|---|---|
+| `compound_re` | string regex source | `SHELL_COMPOUND_RE` |
+| `write_arg_cmds` | unique string array | `SHELL_WRITE_ARG_CMDS` |
+| `write_dest_cmds` | unique string array | `SHELL_WRITE_DEST_CMDS` |
+| `ps_write_cmds` | unique string array | `SHELL_PS_WRITE_CMDS` |
+| `indirect_cmds` | unique string array | `SHELL_INDIRECT_CMDS` |
+| `unsafe_token_chars` | unique one-character string array | `SHELL_UNSAFE_TOKEN_CHARS` |
+| `redirect_token_re` | string regex source | `SHELL_REDIRECT_TOKEN_RE` |
+| `fd_dup_re` | string regex source | `SHELL_FD_DUP_RE` |
+| `cd_cmds` | unique string array | `SHELL_CD_CMDS` |
+| `sudo_write_re` | string regex source | `SHELL_SUDO_WRITE_RE` |
+| `read_only_start_re` | string regex source | `SHELL_READ_ONLY_START_RE` |
+
+### Human-copy integrity contract
+
+The human-run copy script is itself an immutable R-10 target. It has two
+deliberately different modes so a staged candidate never becomes the authority
+that selects protected files.
+
+- `-Bootstrap` embeds the literal Phase 2 inventory from requirements.md in
+  the runner candidate. It accepts a staged canonical file only when its
+  `phase2_human_copy_targets` array is exactly equal, in the same order, to
+  that embedded inventory. It verifies the manifest against that fixed set,
+  then copies the complete batch. An inventory expansion is not an update: it
+  requires a new reviewed specification and a newly inspected bootstrap
+  runner.
+- Normal update mode derives the target list and source-to-target binding only
+  from the already-installed, R-10 protected canonical file at
+  `<repo-root>/plugins/sdd-quality-loop/references/guard-invariants.json`.
+  This is build-time tooling, not a guard runtime path. A staged canonical
+  file may be syntax-validated and hash-checked, but cannot
+  add, omit, reorder, or remap any copied target. The staged list must exactly
+  equal the live generated list. If that live module is missing or invalid,
+  the runner refuses to copy.
+
+For every fixed inventory target `T`, the one and only permitted staged source
+is `specs/epic-136-phase2-gates/human-copy/<T>` and the one and only live
+target is repository-relative `<T>`. `MANIFEST.sha256` is a disposable,
+human-reviewed batch input and is never copied to a live target or added to the
+R-10 target inventory. It uses exactly one GNU-style line per target,
+`<lowercase-64-hex><two spaces><T>`; that digest is calculated over the staged
+source bytes at the canonical staged path, never over the live target or an
+arbitrary staging map. The runner normalizes every source and target against
+the repository root, rejects an absolute path, `..` escape, duplicate,
+non-inventory target, source-to-target mismatch, or any symbolic link/reparse
+point in a staged source, target, or traversed target parent. It requires exact
+set equality: one SHA-256 entry for each and only each fixed inventory target.
+It verifies all staged hashes and containment/link conditions before copying
+any file; a validation or preparation failure leaves live targets untouched.
+
+The runner supports only Windows PowerShell 5.1 Full Language mode on a local
+drive whose filesystem passes the native capability preflight (minimum reviewed
+filesystem: NTFS). It compiles one ASCII, C# 5-compatible embedded helper named
+`AnchoredCopySession`; failure to compile or load the required native APIs is a
+pre-replacement denial. The helper opens the volume/repository directory and
+walks every repository-relative path one segment at a time with `NtCreateFile`,
+`OBJECT_ATTRIBUTES.RootDirectory`, and `FILE_OPEN_REPARSE_POINT`. Each opened
+component is verified with `GetFileInformationByHandleEx` and held without
+delete sharing until installation ends. Canonical JSON and `MANIFEST.sha256`
+are decoded only from bytes read through those anchored, no-follow handles.
+
+All fixed staged source leaves are opened as regular non-reparse files, hashed
+through their open streams, and retained without write/delete sharing. The
+copy phase rewinds and reads those same handles; it never reopens a source path
+and never uses path-based `Get-FileHash` or `[IO.File]::Copy`. Only after every
+source digest has passed may missing destination directories be created one
+segment at a time relative to a verified parent handle. Existing destination
+parents are held without delete sharing, and an existing destination leaf is
+opened no-follow and rejected if it is a directory or reparse point.
+
+For every target, the helper creates an unpredictable, exclusive temporary leaf
+in the same held destination parent, copies from the held source, flushes it,
+and re-hashes the temporary handle. All 18 temporaries must pass before the
+first live name changes. Publishing uses
+`SetFileInformationByHandle(FileRenameInfo)` with the held parent handle as
+`FILE_RENAME_INFO.RootDirectory`, a single-segment target leaf, and
+`ReplaceIfExists=true`. This replaces the directory entry without following a
+target symlink or hard-link alias. Temporary handles are deleted on failure.
+Each rename is atomic but the ordered 18-file batch is not transactional: a
+rename-time OS error may leave a deterministic installed prefix, which is
+reported fail-closed and recovered only with a reviewed full rollback batch.
+After all renames, the script reopens and hashes every live leaf relative to
+its held parent, then runs generator `--check` and the named focused suites.
+TEST-013 instruments only an isolated runner copy to fail after a fixed rename
+index. It records every old digest first, asserts the exact new-prefix/old-
+suffix state and exit 2, then supplies the recorded old bytes as a complete
+reviewed rollback batch and requires all old digests plus post-install checks.
+
+### Protected-suffix preservation
+
+Generation begins from the complete existing R-10 suffix baseline below and
+adds the Phase 2 inventory as a set union. A generated result that omits any
+baseline path, adds duplicate normalized paths, or lacks any Phase 2 target
+fails generation and `--check`; no Phase 2 change may weaken an existing
+protected path.
+
+```text
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
+plugins/sdd-quality-loop/scripts/kill-switch.js
+plugins/sdd-quality-loop/scripts/kill-switch.sh
+plugins/sdd-quality-loop/scripts/kill-switch.ps1
+plugins/sdd-quality-loop/hooks/claude-hooks.json
+plugins/sdd-quality-loop/hooks/hooks.json
+plugins/sdd-quality-loop/hooks/copilot-hooks.json
+plugins/sdd-quality-loop/scripts/check-contract.sh
+plugins/sdd-quality-loop/scripts/check-contract.ps1
+plugins/sdd-quality-loop/scripts/check-contract.py
+plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh
+plugins/sdd-quality-loop/scripts/check-evidence-bundle.ps1
+plugins/sdd-quality-loop/scripts/check-evidence-bundle.py
+plugins/sdd-quality-loop/scripts/validate_path.py
+.claude/settings.json
+.claude/settings.local.json
+tests/gates.tests.sh
+tests/eval.tests.sh
+tests/guard-parity.tests.sh
+tests/constant-parity.tests.sh
+plugins/sdd-review-loop/agents/impl-reviewer-a.md
+plugins/sdd-review-loop/agents/impl-reviewer-b.md
+plugins/sdd-review-loop/agents/task-reviewer-a.md
+plugins/sdd-review-loop/agents/task-reviewer-b.md
+plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md
+plugins/sdd-review-loop/skills/task-review-loop/SKILL.md
+plugins/sdd-ship/skills/ship/SKILL.md
+```
+
+### Risk-policy lexical implementation contract
+
+Both checkers must use exactly this ASCII lexical grammar before applying the
+requirements.md trigger matrix. Decode UTF-8; invalid UTF-8 or NUL is
+`risk-upgrade: input unavailable` (exit 2). Keep valid non-ASCII text intact:
+only ASCII `A..Z` is lowercased, and only ASCII CRLF/CR, space, tab, and LF are
+normalized (CRLF/CR becomes LF; an ASCII space/tab/LF run becomes one ASCII
+space for multiword matching). The grammar considers every non-ASCII code
+point a boundary, but it does not itself cause escalation or an unavailable
+result. A token boundary is start/end or a character outside `[a-z0-9_]`:
+hyphen and a non-ASCII character are boundaries; underscore is not. Before
+matching, replace only bounded normalized phrases `design token` and `design
+tokens` with spaces; this never suppresses any separate trigger. Consequently
+`token-value`, `design-token`, and `token値` match; `token_value` does not;
+valid Japanese-only ordinary text remains `lite-eligible`; and malformed
+UTF-8/NUL fails closed. TEST-007 has these fixtures and requires identical
+sh/PowerShell stdout and exit status.
+
+## API / Contract Plan
+
+This feature adds, changes, deprecates, and removes no network endpoint, RPC,
+webhook, message/event schema, or browser/service API. It has no API-versioning
+or client-compatibility impact; every contract below is repository-local.
+
+- `Test-SudoSignatureConstantTime(expectedHex, suppliedHex)` is an internal PS
+  boolean helper. Inputs are exactly 64 hex characters; it decodes 32 bytes and
+  accumulates `xor` across all indexes before returning equality.
+- `Test-EvidencePath -FieldName -Evidence -RepoRoot` returns an object with
+  `IsValid`, `ResolvedPath`, and `Failure`. Callers retain their existing
+  field-specific error output.
+- `check-risk-upgrade.{sh,ps1}` implements the exact source, normalization,
+  trigger order, exit codes, and diagnostics in
+  [requirements.md](requirements.md#ri[REDACTED]). Ship treats
+  exit 10 as full-track precedence, including `--lite`, and exit 2 as a
+  fail-closed full-required stop.
+- `generate-guard-invariants.py [--check]` is build-time only. Write mode
+  rewrites generated files atomically; `--check` never writes and returns
+  non-zero on any difference.
+- Embedded `AnchoredCopySession` accepts only normalized single-segment walks
+  below one opened repository root. Its contract comprises `NtCreateFile`
+  relative opens with `FILE_OPEN_REPARSE_POINT`, handle-attribute validation,
+  held-source SHA-256/copy, same-parent temporary preparation, and
+  `SetFileInformationByHandle(FileRenameInfo)` publication. Native errors,
+  unsupported capabilities, or cleanup failures return a runner error before
+  post-install verification; no path-based copy fallback exists.
+
+## Test Strategy
+
+Use TDD for every task. First capture a focused failing false-denial, direct
+comparison, duplicate validator, unsafe lite selection, or stale-output case;
+then implement the smallest parity-preserving change. Each high-risk report
+records the required preflight field/counterpart/mismatch-test checklist.
+
+- Cross-runtime fixture suites exercise legal read-only forms and write/ambiguous
+  negative controls.
+- The PS comparator suite mutates the first, middle, and final byte and has a
+  static helper-body oracle requiring exactly 32 iterations, `Substring` plus
+  `[Convert]::ToByte` decoding, XOR accumulation, no `FromHexString`, no
+  `return`/`break`/short-circuit in the loop, and final decision only after the
+  loop.
+- Contract fixtures first capture complete pre-refactor stdout/stderr plus exit
+  codes for every field x absolute/traversal/unresolvable/missing case in a
+  reviewed golden fixture; refactored output compares exactly after LF line-end
+  normalization for host portability.
+- Risk checker sh/PS parity tests cover exact positive and exclusion phrases,
+  ASCII normalization/boundary adversaries, and malformed Unicode input; ship
+  document/workflow conformance proves forced full selection.
+- Generator tests run write, check, stale/missing output, malformed/type/
+  version failures, R-10 baseline preservation, no-runtime-JSON-read,
+  poisoned-loader, and human-copy inventory cases. The human-copy suite proves
+  that a bootstrap staged canonical expansion is rejected before copying and
+  that normal mode derives the identical list from live protected canonical
+  data. CI uses `--check` before guard suites on every PR.
+- Human-copy static tests reject a path-based copy/hash implementation and bind
+  the exact no-follow/root-handle/atomic-rename API surface. Dynamic fixtures
+  prove canonical/manifest anchored reads, source and destination-parent
+  substitution resistance, hard-link-alias preservation, prepared-temp digest
+  verification and cleanup, no live replacement after a preparation failure,
+  exact prefix state plus complete rollback after an injected rename failure,
+  and fail-closed behavior when native capability checks are unavailable.
+
+## Security Boundaries
+
+| Trust Boundary | Auth/Authz Mechanism | Data Classification | OWASP Concerns |
+|---|---|---|---|
+| Shell command to guard | R-10 target resolution; ambiguity denies | Integrity-critical | Broken access control, injection |
+| Signed sudo token to PS guard | 64-hex validation plus XOR full scan | Restricted credential | Cryptographic failures |
+| Canonical data to live guard | Human SHA-256 verification through held no-follow source handles; destination-parent-relative atomic entry replacement; CI generator diff | Integrity-critical | Supply-chain and filesystem-namespace tampering |
+| Lite request to workflow track | Deterministic exact-match escalation | Internal task metadata | Security misconfiguration |
+
+## Deployment / CI Plan
+
+The repository has no service deployment. The test workflow invokes the
+generator `--check` before guard suites. Any stale native output, malformed
+canonical source, or failed focused test blocks the PR. Human copy is required
+locally before the protected files can be committed; its manifest is validated
+again in the test suite.
+
+## Constraint Compliance
+
+| Requirement Constraint | Design Response |
+|---|---|
+| REQ-001 cross-runtime equality and ambiguous/write denial | All three guard twins consume generated shared invariants, run the same positive/negative corpus, and preserve denial for unquoted boundary-changing escapes, unclosed quotes, unresolved redirects, ambiguity, and protected writes. |
+| PowerShell 5.1 lacks `FixedTimeEquals` | Validate 64-hex then decode and XOR all bytes manually. |
+| REQ-002 malformed or unequal HMAC must fail closed without token disclosure | The helper validates shape before decode, scans all 32 decoded bytes, returns only a boolean, and diagnostics never include the signature or expected HMAC. |
+| REQ-003 evidence diagnostics and exit behavior are byte-equivalent | A single structured helper is exercised against reviewed per-field/per-case golden stdout, stderr, and status fixtures after LF normalization, including POSIX, Windows/UNC, traversal, unresolvable, and missing-file failures. |
+| `--lite` must not bypass escalation | Risk check runs before all flag/profile track rules. |
+| REQ-004 deterministic local lexical policy | Both runtime checkers use ordered ASCII-case-insensitive triggers, normalize CRLF/CR to LF, reject NUL and invalid UTF-8 with exit 2, emit ordered trigger IDs, and never retrieve remote issue data. |
+| No runtime canonical JSON loading | Each guard receives a generated native module only. |
+| REQ-005 deterministic generation and fail-closed drift | The versioned canonical schema renders stable UTF-8/LF native modules for four runtimes; `--check` is read-only and CI fails on any byte difference or invalid canonical input. |
+| Protected files cannot be agent-edited | Stage exact copies plus manifest and a human-run, root-handle-relative no-follow copy script. |
+| REQ-005 runner capability floor | Before replacement, require Windows PowerShell 5.1 Full Language mode, `Add-Type` and required native APIs, a local accepted filesystem with NTFS as the reviewed minimum, and a regular non-reparse repository root. |
+| REQ-005 namespace and hard-link safety | Anchor canonical, manifest, and every source below a held root handle; hash and copy each source through the same handle; hold destination parents; prepare and verify all temporaries; publish with parent-handle-relative atomic rename so an outside hard-link alias is not overwritten. |
+| REQ-005 partial-install recovery | Fixture-only fixed-index injection must produce exactly the candidate prefix plus recorded previous suffix with exit 2; a reviewed complete rollback restores every pre-install digest and post-install verification passes. |
+| One issue per commit | Five task commits map one-to-one to #117/#118/#119/#121/#122. |
+
+## Assumptions
+
+- Human-accepted repository constraint (2026-07-14): existing
+  `constant-parity.tests.sh` remains an R-10-protected regression suite, so new
+  feature coverage is placed in unprotected focused suites. If that protection
+  state or suite becomes unavailable, Phase 2 verification fails closed and no
+  alternate agent edit of the protected suite is authorized.
+- Generated files are committed source artifacts, never release-time outputs.
+- The reviewed runner host is Windows PowerShell 5.1 Full Language mode on a
+  local NTFS volume. Constrained Language mode, missing `Add-Type`/native APIs,
+  UNC paths, or an unaccepted filesystem fail before the first replacement.
+
+## Open Questions
+
+None. The human selected the anchored no-follow design on 2026-07-14.
+
+## Risks
+
+See [security-spec.md](security-spec.md#stride-analysis). The highest risks are
+accidentally admitting a protected write or allowing a hand-modified generated
+module; both have explicit negative tests and fail-closed CI checks. The copy
+runner additionally risks native-structure/layout defects, hard-link content
+overwrite, and namespace substitution; held safe handles, atomic entry rename,
+and Windows-specific adversarial tests are mandatory. Atomicity is per target,
+not across all 18 replacements.
+# Tasks: epic-136-phase2-gates
+
+Task-Review-Status: Passed
+
+Source: Issues #117, #118, #119, #121, #122 / requirements.md
+(Spec-Review-Status: Passed) / design.md (Impl-Review-Status: Passed)
+
+## Lifecycle
+
+`Draft -> Approved -> In Progress -> Implementation Complete -> Done`
+
+A task may enter `Blocked` from any active state. Humans approve tasks.
+`implement-task` may set `In Progress`, `Blocked`, or `Implementation Complete`.
+Only `quality-gate` may set `Done`.
+
+## Human-Copy Procedure (protected enforcement-chain files)
+
+Every task below changes at least one R-10 protected enforcement-chain file.
+The agent stages the exact candidate under
+`specs/epic-136-phase2-gates/human-copy/<repository-relative-target>` and
+prepares `MANIFEST.sha256`; it never writes the live protected target. Until
+T-006 installs the immutable runner, the human validates target identity and
+SHA-256, then copies only the listed candidates and runs the named suites. T-006
+introduces the bootstrap/update runner specified in design.md; its staged
+candidate is itself subject to the same human inspection.
+
+## Global Constraints
+
+- One issue = one commit. Implement in the listed order; no task is Done until
+  its independent quality gate PASS is saved.
+- `.ps1` sources remain ASCII-only with no BOM and must run under Windows
+  PowerShell 5.1.
+- Each high/critical risk implementation report begins with the AGENTS.md
+  preflight: persisted evidence field, sibling contract/traceability
+  counterpart, and a failing mismatch test for every recorded field.
+- Preserve unrelated changes and re-run the shared guard corpus after any
+  generated-module import change.
+
+---
+
+## T-001 Narrow read-only token classification without relaxing protected writes
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/117
+
+Approval: Approved (sudo 2026-07-13T05:53:16.481Z)
+
+Status: Done
+
+Risk: high
+
+Risk Rationale: This changes the R-10 guard's command-token classification in
+all three decision runtimes. An over-broad exception could turn an ambiguous or
+write payload into an allowed protected-file modification (REQ-001).
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Requirements: REQ-001
+
+Depends On: none
+
+Planned Files:
+
+- `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py` (protected — human-copy)
+- `plugins/sdd-quality-loop/scripts/sdd-hook-guard.js` (protected — human-copy)
+- `plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1` (protected — human-copy)
+- `tests/phase2-guard-tokenizer.tests.sh` (new, agent-editable)
+- `tests/phase2-guard-tokenizer.tests.ps1` (new, agent-editable)
+
+Data Migration: none
+
+Breaking API: no; preserve hook protocol, existing corpus decisions, and all
+protected-write denials.
+
+Rollback: human re-copies the prior three guard twins and re-runs the named
+focused and parity suites.
+
+### Goal
+
+Make the three tokenizers accept only the proven legal read-only forms from
+REQ-001: balanced quoted regex backslashes, standalone `2>&1`, and `ls`/`cat`/
+`find` inspection of protected paths. Keep unquoted boundary-changing escapes,
+unclosed quotes, unresolved redirect targets, writes, and every ambiguous form
+fail-closed and cross-runtime equal.
+
+### Must Read
+
+- `specs/epic-136-phase2-gates/requirements.md`
+- `specs/epic-136-phase2-gates/design.md`
+- `specs/epic-136-phase2-gates/acceptance-tests.md`
+- `specs/epic-136-phase2-gates/security-spec.md`
+- `specs/epic-136-phase2-gates/traceability.md`
+- `plugins/sdd-quality-loop/references/ri[REDACTED].md`
+
+### Scope
+
+- Capture a failing cross-runtime fixture before changing a guard.
+- Stage all three complete guard candidates under `human-copy/` and do not
+  alter the live paths.
+- Preflight must bind each saved decision fixture to the corresponding
+  Python/Node/PowerShell verdict and include a failing parity-mismatch test.
+
+### Done When
+
+- [ ] TEST-001 proves the legal quoted-regex, `2>&1`, and read-only inspection
+  fixtures are allowed identically in Python, Node, and PowerShell (AC-001).
+- [ ] TEST-002 proves redirects with unresolved targets, `tee`, `cp`, `rm`,
+  unquoted boundary-changing backslashes, unclosed quotes, and protected writes
+  remain denied identically (AC-002).
+- [ ] The implementation report contains RED/GREEN evidence and the required
+  high-risk preflight; focused guard, PowerShell 5.1, and parity suites pass.
+- [ ] An independent quality-gate report records PASS; the non-frozen
+  `specs/epic-136-phase2-gates/verification/T-001/quality-gate-addendum.md`
+  records the final requirement and acceptance conclusion.
+
+### Out of Scope
+
+- A complete shell interpreter or permission for an unclassifiable command.
+
+### Blockers
+
+None
+
+---
+
+## T-002 Replace PowerShell HMAC string comparison with a PS5.1-compatible full XOR scan
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/118
+
+Approval: Approved (sudo 2026-07-13T08:49:33.453Z)
+
+Status: Done
+
+Risk: high
+
+Risk Rationale: Sudo token verification is a credential boundary. A malformed
+decoder or early comparison can leak information or accept a forged signature
+(REQ-002; security-spec.md signed-token boundary).
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Requirements: REQ-002
+
+Depends On: T-001 (both stage the complete PowerShell guard; T-002's candidate
+must start from the human-applied T-001 version)
+
+Planned Files:
+
+- `plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1` (protected — human-copy)
+- `tests/phase2-sudo-signature.tests.ps1` (new, agent-editable)
+- `tests/phase2-sudo-signature-static.tests.sh` (new, agent-editable)
+
+Data Migration: none
+
+Breaking API: no; preserve the signed-token wire format, TTL, and fail-closed
+hook behavior.
+
+Rollback: human re-copies the prior PowerShell guard and re-runs the PowerShell
+and guard parity suites.
+
+### Goal
+
+Add one internal comparator that first requires exactly 64 hexadecimal
+characters, decodes both 32-byte values with two-character `Substring` and
+`[Convert]::ToByte(...,16)`, XORs every position, and decides only after the
+fixed full scan. `FixedTimeEquals`, `FromHexString`, and direct `sig` string
+comparison are forbidden.
+
+### Scope
+
+- Write valid, malformed, and first/middle/final-byte mutation fixtures before
+  the protected candidate is staged.
+- Add the static body oracle stated in TEST-004 and retain ASCII/no-BOM source.
+- Preflight binds the saved comparator verdict to its static loop/body oracle
+  and includes a failing mismatch test for each persisted result.
+
+### Done When
+
+- [ ] TEST-003 accepts the valid HMAC and rejects malformed, first-, middle-,
+  and final-byte changes using the full 32-byte comparator (AC-003).
+- [ ] TEST-004 proves fixed 32-iteration XOR structure, PS5.1 decoding APIs,
+  no early loop exit/direct string comparison/`FixedTimeEquals`/`FromHexString`,
+  and ASCII/no-BOM source (AC-004).
+- [ ] The report records RED/GREEN and the required high-risk preflight; the
+  focused PowerShell suite and relevant guard suites pass.
+- [ ] An independent quality-gate report records PASS; the non-frozen
+  `specs/epic-136-phase2-gates/verification/T-002/quality-gate-addendum.md`
+  records the final requirement and acceptance conclusion.
+
+### Out of Scope
+
+- Changing HMAC key management, token payload fields, or TTL.
+
+### Blockers
+
+T-001
+
+---
+
+## T-003 Extract the three PowerShell evidence-path checks into one compatibility-preserving helper
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/119
+
+Approval: Approved (sudo 2026-07-13T06:27:16.932Z)
+
+Status: Done
+
+Risk: high
+
+Risk Rationale: Evidence-path validation protects quality-gate provenance.
+Refactoring three copies without exact output regression coverage can make one
+field accept traversal or lose an automation-visible diagnostic (REQ-003).
+
+Required Workflow: tdd
+
+Requirements: REQ-003
+
+Depends On: none
+
+Planned Files:
+
+- `plugins/sdd-quality-loop/scripts/check-contract.ps1` (protected — human-copy)
+- `tests/phase2-contract-path-helper.tests.ps1` (new, agent-editable)
+- `tests/fixtures/phase2-contract-path-golden/` (new reviewed fixtures,
+  agent-editable)
+
+Data Migration: none
+
+Breaking API: no; exact existing output and exit behavior remains the contract.
+
+Rollback: human re-copies the prior `check-contract.ps1`; revert helper and
+fixture additions.
+
+### Goal
+
+Capture complete pre-refactor output for every ordinary/red/green evidence
+field and path case, then replace the three inline validators with one
+structured helper while callers preserve the exact field-specific diagnostics.
+
+### Scope
+
+- Capture golden stdout, stderr, and exit code before the refactor, LF-normalize
+  only for cross-host fixture comparison.
+- Cover POSIX/Windows/UNC absolute paths, traversal, unresolvable paths,
+  missing files, and valid in-root files for all three fields.
+- Preflight binds each persisted golden result to the helper result and a
+  failing exact-output mismatch test.
+
+### Done When
+
+- [ ] TEST-005 exactly compares each absolute/traversal/unresolvable golden
+  case for `evidence`, `red_evidence`, and `green_evidence` after LF
+  normalization (AC-005).
+- [ ] TEST-006 proves valid in-root and missing-file behavior retains its
+  prior contract for all three fields (AC-006).
+- [ ] The report records RED/GREEN and high-risk preflight; focused PowerShell
+  tests pass.
+- [ ] An independent quality-gate report records PASS; the non-frozen
+  `specs/epic-136-phase2-gates/verification/T-003/quality-gate-addendum.md`
+  records the final requirement and acceptance conclusion.
+
+### Out of Scope
+
+- Changing the contract schema or relaxing evidence containment rules.
+
+### Blockers
+
+None
+
+---
+
+## T-004 Force the full workflow when deterministic risk policy matches, including `--lite`
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/121
+
+Approval: Approved (sudo 2026-07-13T06:47:18.468Z)
+
+Status: Done
+
+Risk: high
+
+Risk Rationale: This controls whether security- and integration-sensitive work
+can evade the full SDD review chain. A lexical mismatch or an incorrectly
+ordered `--lite` branch could silently downgrade a risky task (REQ-004).
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Requirements: REQ-004
+
+Depends On: none
+
+Planned Files:
+
+- `plugins/sdd-lite/references/risk-upgrade-policy.md` (protected — human-copy)
+- `plugins/sdd-lite/scripts/check-risk-upgrade.sh` (protected — human-copy)
+- `plugins/sdd-lite/scripts/check-risk-upgrade.ps1` (protected — human-copy)
+- `plugins/sdd-lite/skills/lite-spec/SKILL.md` (protected — human-copy)
+- `plugins/sdd-ship/skills/ship/SKILL.md` (protected — human-copy)
+- `tests/phase2-risk-upgrade.tests.sh` (new, agent-editable)
+- `tests/phase2-risk-upgrade.tests.ps1` (new, agent-editable)
+
+Data Migration: none
+
+Breaking API: intentional safety behavior: a risk hit now selects full even
+when `--lite` is requested; no-match lite behavior is preserved.
+
+Rollback: human re-copies the prior policy/checkers/skills and re-runs checker
+parity and workflow conformance suites.
+
+### Goal
+
+Implement the ordered local checker and invoke it before every lite-selection
+path. A match emits its primary and ordered triggers, makes lite-spec stop
+before any lite artifact, and makes ship select full despite `--lite`; missing
+full inputs fail closed with a bootstrap diagnostic.
+
+### Scope
+
+- Implement the reviewed exact trigger/exclusion matrix in sh and PowerShell,
+  including valid UTF-8 non-ASCII boundary behavior and malformed-input exit 2.
+- Test the same stdout and exit code in both runtimes, then stage the policy,
+  both checkers, and skill updates for human copy.
+- Exercise every selection ordering boundary: `--full` bypasses the risk scan;
+  default, profile, and `--lite` requests scan before any lite selection;
+  opaque or unreadable lite-spec input fails before any artifact write; and
+  ship fails closed when either its task block or requirements input is absent.
+- Preflight binds each persisted risk verdict to the corresponding sh/PS
+  result and ship/lite selection outcome, with a failing parity or track
+  mismatch test.
+
+### Done When
+
+- [ ] TEST-007 proves required positive terms force full; exclusions and
+  ordinary valid UTF-8 text remain lite eligible; non-ASCII boundary, NUL, and
+  invalid-UTF-8 fixtures have the reviewed sh/PS parity; and default, profile,
+  and `--lite` scan before any lite selection while `--full` bypasses the scan
+  (AC-007).
+- [ ] TEST-008 proves lite-spec writes nothing for a policy hit or an opaque/
+  unreadable input, and ship forces full even with `--lite` (AC-008).
+- [ ] TEST-009 proves an incomplete risk-hit full feature, a missing ship task
+  block, and absent requirements stop with their bootstrap/full-track
+  diagnostic before invoking the lite gate (AC-009).
+- [ ] The report records RED/GREEN and high-risk preflight; focused parity and
+  workflow conformance suites pass.
+- [ ] An independent quality-gate report records PASS; the non-frozen
+  `specs/epic-136-phase2-gates/verification/T-004/quality-gate-addendum.md`
+  records the final requirement and acceptance conclusion.
+
+### Out of Scope
+
+- Remote issue retrieval, semantic natural-language classification, or a
+  bypass to retain lite after a match.
+
+### Blockers
+
+None
+
+---
+
+## T-005 Generate runtime-native guard-invariant modules from protected canonical data
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/122
+
+Approval: Approved (sudo 2026-07-13T09:09:09.7597219Z)
+
+Status: Implementation Complete
+
+Risk: critical
+
+Risk Rationale: This changes the R-10 protection source of truth, all guard
+runtime imports, and a CI trust anchor. An incorrect generator or module
+loader could weaken protection or make runtimes diverge (REQ-005;
+security-spec.md canonical-to-runtime boundary).
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Cross-Model: enabled
+
+Requirements: REQ-005
+
+Depends On: T-001, T-002 (the generated guard loaders consume the completed
+Python/JavaScript/PowerShell guard candidates and T-002's final PowerShell
+candidate already includes T-001)
+
+Planned Files:
+
+- Canonical data, generator, four native modules, guard loader candidates, and
+  `test.yml` from `requirements.md#protected-phase-2-target-inventory` (all
+  protected changes staged under `human-copy/`)
+- `tests/phase2-guard-invariants.tests.sh` (new, agent-editable)
+- `tests/phase2-guard-invariants.tests.ps1` (new, agent-editable)
+
+Data Migration: replace duplicated in-source invariants with committed native
+generated modules; no user or service data migration.
+
+Breaking API: no external API change; guard decisions retain the existing
+protocol. Generated module exports are an internal versioned contract.
+
+Rollback: human restores the prior reviewed canonical/module/loader/CI
+candidates as one #122 batch, then re-runs generator check and guard suites.
+
+### Goal
+
+Add protected canonical `guard-invariants.json`, deterministic Python generator,
+four committed native outputs, fixed-directory runtime loaders, and CI
+`--check`. Preserve every existing R-10 suffix as a union and add every Phase 2
+target to the generated protected inventory. T-006 owns protected publication
+of these completed candidates.
+
+### Scope
+
+- Start with generator tests and a stale/missing/type/version RED case before
+  staging a protected output.
+- Prove Python/Node/PowerShell export every required key; the POSIX dispatcher
+  exports only schema/provenance and makes no guard decision.
+- Prove fixed-directory loaders ignore CWD/PYTHONPATH shadow modules, fail
+  closed only when their own module is missing/invalid, and never parse
+  canonical JSON at runtime.
+- Prove all baseline R-10 paths and every Phase 2 target remain protected.
+- Preflight binds canonical fields to every native export and generated source
+  digest/schema to CI check; each has a failing stale/parity mismatch test.
+
+### Done When
+
+- [ ] TEST-010 proves deterministic generation of all four native modules,
+  complete v1 exports, schema/provenance headers, and canonical schema
+  validation (AC-010).
+- [ ] TEST-011 proves non-mutating `--check` fails on stale/missing output,
+  malformed/type/version input, and generator error; test.yml runs it before
+  guard suites (AC-011).
+- [ ] TEST-012 proves fixed loader resolution, ignored CWD/PYTHONPATH shadow,
+  fail-closed missing/invalid fixed module, no runtime JSON parse, and the
+  shared decision corpus from another CWD (AC-012).
+- [ ] TEST-001 through TEST-004 are rerun after generated imports; their saved
+  results remain PASS and cross-runtime decisions remain equal.
+- [ ] The report records RED/GREEN and critical-tier preflight; cross-model
+  consensus, signed evidence bundle, and a distinct second human approver are
+  recorded before Done.
+- [ ] An independent quality-gate report records PASS; the non-frozen
+  `specs/epic-136-phase2-gates/verification/T-005/quality-gate-addendum.md`
+  records the generation/loading conclusion for AC-010 through AC-012.
+
+### Out of Scope
+
+- Runtime parsing of canonical JSON, dynamic inventory expansion, or making
+  the POSIX dispatcher a second guard-decision implementation. Protected
+  publication and rollback are T-006.
+
+### Blockers
+
+T-001, T-002
+
+---
+
+## T-006 Publish the protected #122 batch with handle-relative Windows semantics
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/122
+
+Approval: Approved (sudo 2026-07-14T01:20:00Z)
+
+Status: Implementation Complete
+
+Risk: critical
+
+Risk Rationale: This task publishes the complete protected #122 batch and
+defines failure/rollback behavior across R-10 trust anchors. Namespace
+substitution, hard-link overwrite, or partial recovery could weaken live
+enforcement even when generated candidates are correct (REQ-005;
+security-spec.md canonical-to-runtime boundary).
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Cross-Model: enabled
+
+Requirements: REQ-005
+
+Depends On: T-003, T-004, T-005 (publication consumes the completed evidence-
+path, risk-policy, canonical, generated, loader, guard, CI, and immutable
+runner candidate set)
+
+Planned Files:
+
+- `specs/epic-136-phase2-gates/human-copy/specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`
+  (staged protected candidate only)
+- `specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256`
+- `tests/phase2-guard-invariants.tests.ps1`
+- `reports/implementation/epic-136-phase2-gates/T-006.md`
+
+Data Migration: none; this publishes committed source artifacts and records
+pre-install digests, not user or service data.
+
+Breaking API: none; the runner is a human-operated repository-local boundary.
+
+Rollback: the human uses the reviewed complete prior batch; the runner refuses
+partial, remapped, or digest-mismatched rollback input and re-runs post-install
+verification after restoring every recorded pre-install digest.
+
+### Goal
+
+Replace path-based protected publication with a Windows PowerShell 5.1
+`AnchoredCopySession` that reads authority, manifest, and sources through held
+root-relative no-follow handles, prepares all verified same-parent temporaries,
+and publishes each directory entry by parent-handle-relative atomic rename.
+
+### Scope
+
+- Start with failing static/native-contract, source/parent substitution,
+  hard-link-alias, preparation-cleanup, and injected rename/rollback fixtures.
+- Reject unsupported Windows, language mode, filesystem, native API, reparse,
+  link, remap, duplicate, omission, expansion, and digest conditions before the
+  first live replacement whenever the failure occurs before publication.
+- Hold and re-use each verified source handle; hold destination parents; verify
+  every temporary before publication; leave an exact candidate-prefix/previous-
+  suffix state on injected rename failure; then prove complete rollback.
+
+### Done When
+
+- [ ] TEST-013 proves bootstrap/update inventory binding, anchored authority and
+  source reads, same-handle copy, parent substitution resistance, hard-link-
+  alias-safe atomic rename, all-temporary verification, cleanup, unsupported-
+  capability denial, fixed-index prefix state, complete rollback, and final
+  R-10 denial including `test.yml` (AC-013).
+- [ ] The implementation report records failing RED evidence before runner
+  changes, GREEN evidence, critical preflight, cross-model consensus, a signed
+  evidence bundle, and a distinct second human approver before Done.
+- [ ] An independent quality-gate report records PASS; the non-frozen
+  `specs/epic-136-phase2-gates/verification/T-006/quality-gate-addendum.md`
+  records the AC-013 publication and rollback conclusion.
+
+### Out of Scope
+
+- Canonical schema, generator, native exports, runtime loader behavior, or CI
+  drift policy, which are completed by T-005.
+
+### Blockers
+
+T-003, T-004, T-005
+# Acceptance Tests: epic-136-phase2-gates
+
+| Acceptance Criterion | Requirement | Test ID | Test Type | Test Target | Status |
+|---|---|---|---|---|---|
+| AC-001 | REQ-001 | TEST-001 | cross-runtime regression | Escaped `grep` expression, `2>&1`, `ls`/`cat`/`find` inspection of protected paths are allowed by `.py`/`.js`/`.ps1` | Planned |
+| AC-002 | REQ-001 | TEST-002 | security regression | Redirect, `tee`, `cp`, `rm`, and ambiguous payloads still deny protected writes in every guard runtime | Planned |
+| AC-003 | REQ-002 | TEST-003 | unit / security | 64-hex validation plus full 32-byte XOR helper accepts a valid HMAC and rejects first-, middle-, and last-byte changes | Planned |
+| AC-004 | REQ-002 | TEST-004 | static compatibility | The PS helper has a fixed 32-iteration compare loop, accumulates XOR, has no `return`/`break`/short-circuit in that loop, decides only after it, has no `FixedTimeEquals` or direct signature string comparator, and remains ASCII/no-BOM PS5.1 compatible | Planned |
+| AC-005 | REQ-003 | TEST-005 | regression | `evidence`, `red_evidence`, and `green_evidence` reject absolute/traversal/unresolvable cases with complete field-specific output exactly matching pre-refactor golden fixtures | Planned |
+| AC-006 | REQ-003 | TEST-006 | unit / regression | Valid in-root evidence for all three fields and missing-file failure preserve previous contract behavior | Planned |
+| AC-007 | REQ-004 | TEST-007 | policy unit / parity | Auth, access token(s), credential(s), MCP, external/third-party API(s), secret(s), and GitHub Actions fixtures force full; `design token(s)`, `API design`, and ordinary text do not | Planned |
+| AC-008 | REQ-004 | TEST-008 | workflow conformance | lite-spec stops before writing a lite spec on a policy hit, and ship chooses full even when invoked with `--lite` | Planned |
+| AC-009 | REQ-004 | TEST-009 | fail-closed workflow | A risk-hit feature missing full artifacts stops with a bootstrap/full-track diagnostic and never invokes the lite gate | Planned |
+| AC-010 | REQ-005 | TEST-010 | generator determinism | Canonical data generates byte-identical `.py`, `.js`, `.ps1`, and `.sh` modules with every required v1 shell key/export; generated modules contain the declared schema version and constants | Planned |
+| AC-011 | REQ-005 | TEST-011 | CI drift / security | `generate-guard-invariants.py --check` fails without writing on stale output, missing output, invalid schema/type, unsupported version, or generator error; CI runs it before guard suites | Planned |
+| AC-012 | REQ-005 | TEST-012 | static/runtime parity | Guard runtimes fixed-resolve native generated modules from their own script directory, reject missing/poisoned modules or an unconsumed v1 shell export, do not read/parse canonical JSON at runtime, and retain the shared decision corpus from a different CWD | Planned |
+| AC-013 | REQ-005 | TEST-013 | human-copy integrity | A disposable human-reviewed batch manifest has exact set equality with the canonical target inventory and canonical source-to-target binding; the immutable R-10 runner reads canonical/manifest/source bytes through root-handle-relative no-follow opens, hashes and copies each source through the same held handle, holds destination parents against substitution, prepares and verifies all same-parent temporaries before replacement, atomically replaces entries without following hard-link aliases, rejects hash/mapping/omission/duplicate/escape/link/reparse/native-capability cases, and cleans temporary files on a pre-replacement failure. A fixture-only instrumented copy injects rename failure after a fixed inventory index, proves exit 2 and the exact candidate-prefix/previous-suffix digest state, then a reviewed complete rollback batch restores all recorded pre-install digests and passes post-install verification; normal install preserves protected-write denial including CI workflow | Planned |
+
+Notes:
+
+- This is CLI/CI enforcement work with no user-facing UI; the UI integration
+  checklist is not applicable.
+- The normative protected target set is
+  [requirements.md#protected-phase-2-target-inventory](requirements.md#protected-phase-2-target-inventory).
+  Tests are authored outside the protected test set; live protected changes are
+  staged under `human-copy/` for a human copy.
+- TEST-001 through TEST-004 and TEST-010 through TEST-013 run on Windows and
+  POSIX CI lanes as applicable. The PowerShell source check explicitly targets
+  Windows PowerShell 5.1 compatibility.
+# Traceability: epic-136-phase2-gates
+
+Every layer-spec cell contains canonical anchors or a reasoned N/A. Requirement
+status changes only from saved deterministic test evidence and independent
+quality-gate reports; implementation reports are claims, not verification.
+
+| Requirement | Investigation | Layer Spec | Design | API/Schema | Code Target | Test ID | Evidence | Status |
+|---|---|---|---|---|---|---|---|---|
+| REQ-001 | N/A — observed guard behavior is specified in requirements.md | security-spec.md#trust-boundaries; security-spec.md#security-tests | design.md#components; design.md#test-strategy | Existing guard decision protocol | Guard twins (.py/.js/.ps1) | TEST-001, TEST-002 | reports/quality-gate/ for T-001 | Planned |
+| REQ-002 | N/A — observed guard behavior is specified in requirements.md | security-spec.md#trust-boundaries; security-spec.md#stride-analysis | design.md#api--contract-plan; design.md#test-strategy | Internal `Test-SudoSignatureConstantTime` helper | sdd-hook-guard.ps1 | TEST-003, TEST-004 | reports/quality-gate/ for T-002 | Planned |
+| REQ-003 | N/A — observed contract behavior is specified in requirements.md | security-spec.md#security-tests; infra-spec.md#ci-cd-sequence | design.md#api--contract-plan; design.md#test-strategy | Internal structured `Test-EvidencePath` result | check-contract.ps1 | TEST-005, TEST-006 | reports/quality-gate/ for T-003 | Planned |
+| REQ-004 | N/A — policy and user decision are specified in requirements.md | security-spec.md#trust-boundaries; infra-spec.md#ci-cd-sequence | design.md#ri[REDACTED]; design.md#api--contract-plan | Risk-checker exit/diagnostic contract | risk policy/checkers; lite-spec and ship skills | TEST-007, TEST-008, TEST-009 | reports/quality-gate/ for T-004 | Planned |
+| REQ-005 | N/A — existing duplicate invariants are specified in requirements.md | security-spec.md#trust-boundaries; infra-spec.md#ci-cd-sequence | design.md#native-module-loading-contract; design.md#human-copy-integrity-contract; design.md#protected-suffix-preservation | Canonical schema v1, generated module exports, human-copy manifest, embedded `AnchoredCopySession` native-handle contract | T-005 canonical/generator/modules/guard twins/test.yml; T-006 root-handle-relative copy runner | TEST-010, TEST-011, TEST-012, TEST-013; regression TEST-001..004 | reports/quality-gate/ for T-005 and T-006 | Planned |
+
+## Layer Coverage
+
+| Layer | Applicable Requirements | Acceptance Criteria | Primary Sections | Gaps / Reasoned N/A |
+|---|---|---|---|---|
+| UX | N/A | N/A | ux-spec.md#scope-and-user-journeys | No rendered or interactive surface. |
+| Frontend | N/A | N/A | frontend-spec.md#technology-stack | CLI/CI scripts are not a browser frontend. |
+| Infrastructure | REQ-004, REQ-005 | AC-007..013 | infra-spec.md#ci-cd-sequence | CI generator check and workflow trust-anchor protection; no service deployment. |
+| Security | REQ-001, REQ-002, REQ-003, REQ-004, REQ-005 | AC-001..013 | security-spec.md#trust-boundaries; security-spec.md#stride-analysis | None. |
+
+## Task Mapping
+
+| Task | Requirement | Acceptance Tests | Planned Verification Evidence |
+|---|---|---|---|
+| T-001 | REQ-001 | TEST-001, TEST-002 | High-risk preflight, RED/GREEN parity evidence, independent quality-gate report |
+| T-002 | REQ-002 | TEST-003, TEST-004 | High-risk preflight, RED/GREEN PS5.1 evidence, independent quality-gate report |
+| T-003 | REQ-003 | TEST-005, TEST-006 | High-risk preflight, reviewed golden fixtures, independent quality-gate report |
+| T-004 | REQ-004 | TEST-007, TEST-008, TEST-009 | High-risk preflight, sh/PS parity and workflow evidence, independent quality-gate report |
+| T-005 | REQ-005 | TEST-010, TEST-011, TEST-012; TEST-001..004 regression | Critical generation/loading preflight, cross-model consensus, signed bundle, second approver, independent quality-gate report |
+| T-006 | REQ-005 | TEST-013 | Critical publication/rollback preflight, cross-model consensus, signed bundle, second approver, independent quality-gate report |
+
+## Acceptance Mapping
+
+| Acceptance Criterion | Test ID | Task |
+|---|---|---|
+| AC-001 | TEST-001 | T-001 |
+| AC-002 | TEST-002 | T-001 |
+| AC-003 | TEST-003 | T-002 |
+| AC-004 | TEST-004 | T-002 |
+| AC-005 | TEST-005 | T-003 |
+| AC-006 | TEST-006 | T-003 |
+| AC-007 | TEST-007 | T-004 |
+| AC-008 | TEST-008 | T-004 |
+| AC-009 | TEST-009 | T-004 |
+| AC-010 | TEST-010 | T-005 |
+| AC-011 | TEST-011 | T-005 |
+| AC-012 | TEST-012 | T-005 |
+| AC-013 | TEST-013 | T-006 |
+
+## Final Status
+
+Update each row only from the corresponding saved quality-gate report and
+deterministic test evidence.
+# Implementation Report: T-006
+
+- Task ID: T-006
+- Feature: epic-136-phase2-gates
+- Run ID: RUN-epic136phase2-T006-implementation-a1
+
+- Task Attempt Count: 1
+
+Preflight Status: Complete
+
+## Critical Preflight: Anchored No-Follow Publication
+
+Human Decision: Option A authorized on 2026-07-14. ADR 0011 and the security
+decision addendum define the sanctioned handle-relative architecture. No
+protected live path may be edited by the agent.
+
+| Persisted evidence field | Sibling contract / traceability counterpart | Failing mismatch test before implementation |
+|---|---|---|
+| Native capability and filesystem preflight result | REQ-005; design Human-copy integrity contract; ADR 0011 | TEST-013 rejects the current runner because it lacks Full Language/local NTFS/native-API preflight. |
+| Canonical and manifest bytes read from an anchored no-follow repository-root walk | REQ-005; AC-013; security B3; traceability T-006 | Static TEST-013 fails while the runner uses path-based reads and lacks `NtCreateFile`, `RootDirectory`, and `FILE_OPEN_REPARSE_POINT`. |
+| Each staged source digest and copied bytes originate from the same retained handle | REQ-005; AC-013; ADR 0011 | TEST-013 fails while `[IO.File]::Copy` and copy-time path hashing remain; a barrier attempts source substitution after validation. |
+| Destination parent identity remains held through publication | REQ-005; AC-013; security namespace-substitution row | A fixture barrier substitutes a destination parent under the current path-based runner and fails the anchored-parent assertion. |
+| Every same-parent temporary passes before the first replacement and cleanup succeeds | REQ-005; design publication contract; AC-013 | Controlled preparation failure has no verified-temp phase, so no-live-change and no-orphan assertions fail. |
+| Atomic entry replacement does not modify an outside hard-link alias | REQ-005; AC-013; security hard-link row; ADR 0011 | A hard-link fixture fails with the current overwrite because the outside alias bytes change. |
+| Post-rename digest and ordered-prefix failure/rollback semantics | design human-copy integrity contract; infra rollback; ADR 0011 | Fixed-index injection fails while no handle-relative reopen/hash, prefix-state assertion, or complete rollback exists. |
+
+Implementation starts only after the task provenance re-review passes and all
+listed TEST-013 assertions have been captured RED against the staged runner.
+
+## RED to GREEN implementation
+
+- RED: the previous path-based runner failed 13 new TEST-013 assertions
+  (55 passed / 13 failed), recorded in
+  `specs/epic-136-phase2-gates/verification/T-006/red.log`.
+- Replaced only the staged runner candidate with an ASCII C#5-compatible
+  `AnchoredCopySession`. It requires Windows PowerShell 5.1 Full Language mode
+  and local NTFS, walks one normalized segment at a time through `NtCreateFile`
+  with held root/parent/source handles and `FILE_OPEN_REPARSE_POINT`, hashes and
+  copies from retained source handles, prepares and verifies every same-parent
+  temporary, then verifies post-publication handles.
+- Publication first uses `SetFileInformationByHandle(FileRenameInfo)`. The
+  reviewed host returns Win32 87 for the documented parent-handle relative form,
+  so only that error uses `NtSetInformationFile(FileRenameInformation)` with
+  the same handles and leaf buffer; see the T-006 native rename API addendum.
+  There is no path-based copy or rename fallback.
+- GREEN: PowerShell TEST-013 passed 68/68, Bash focused verification passed
+  33/33, staged generator `--check` passed without writing, and
+  `check-workflow-state.ps1 --feature epic-136-phase2-gates` returned
+  `workflow-state: ok`. Full evidence is in
+  `specs/epic-136-phase2-gates/verification/T-006/green.log`.
+- The staged candidate only was changed. No protected live enforcement file was
+  edited or copied.
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `specs/epic-136-phase2-gates/human-copy/specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1` | `0a9f9fe235f98398bc76042d649fd241b683aefc9257275b8c90a374203c084a` |
+| `tests/phase2-guard-invariants.tests.ps1` | `a351212a06614bd2c7b3b691880db8f6ad9df8e27db90f4189276c52004e3fa6` |
+| `tests/phase2-guard-invariants.tests.sh` | `279c53874a61681063d02e448bf6184617e3edd0be6f885ab83ba01996dd72df` |
+| `specs/epic-136-phase2-gates/verification/T-006/red.log` | `7332a9d05dd1f9e85b0386870d827d657540a7d79127fb3a15ecb64742318f32` |
+| `specs/epic-136-phase2-gates/verification/T-006/green.log` | `265a96df4693742719434481874270fae78da8b596f3593dc3cb42db52806e1a` |
+| `specs/epic-136-phase2-gates/verification/T-006/native-rename-api-addendum.md` | `e9a84269da77ff030bdb67473759a87bcc0d7aa411a6cbf44dd9118779b0c559` |
+| `specs/epic-136-phase2-gates/verification/T-006/security-review.md` | `5cd10b4d47d79ed0ddf225ee3c7f156cdf823a505e5336849dcb098d1dc642f8` |
+| `docs/adr/0011-phase2-handle-relative-protected-copy.md` | `a14070ac6a4461a2d73c8222c9d94a346d5dddb016a35f18755f5b6b1c0550eb` |
+| `specs/epic-136-phase2-gates/verification/live-publication-addendum.md` | `88da21180947b378dbc94a19e466865e421b66074a81eb8cbc4875f1ed40624f` |
+
+The final staged runner and all source/test evidence remain subject to human
+publication, cross-model consensus, critical-tier signing and second approval,
+and an independent quality gate.
+
+Status: Implementation Complete
+T-006 TEST-013 RED - 2026-07-15
+
+Command:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1
+
+Result: exit 1; 55 passed, 13 failed.
+
+Expected failing contracts against the prior path-based runner:
+- anchored NtCreateFile/root-handle/no-follow API contract absent
+- path-based File.Copy/Get-FileHash fallback still present
+- FullLanguage/local-NTFS capability floor absent
+- inert isolated-fixture patch markers absent
+- out-of-inventory hard-link alias bytes changed by overwrite
+- source and destination-parent substitution barriers unavailable
+- all-temporary preparation/cleanup phase unavailable
+- fixed-index rename prefix and complete rollback contract unavailable
+- missing native API pre-replacement denial unavailable
+
+Several pre-existing successful-install assertions also fail in this RED run
+because the runner's post-install child suite now enforces the new TEST-013
+native contract. No protected live path was changed.
+T-006 TEST-013 GREEN - 2026-07-15
+
+Commands:
+- powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1
+- bash tests/phase2-guard-invariants.tests.sh
+- python generate-guard-invariants.py --check
+- check-workflow-state.ps1 --feature epic-136-phase2-gates
+
+Results:
+- PowerShell focused suite: 68 passed, 0 failed.
+- Bash focused suite: 33 passed, 0 failed.
+- Generator --check: pass without writes.
+- Workflow state: workflow-state: ok.
+
+TEST-013 passed static native-contract checks and isolated NTFS fixtures for
+bootstrap/update binding, anchored canonical/manifest/source reads, retained
+source and destination-parent substitution denial, alias-safe hard-link entry
+replacement, verified temporary cleanup, injected preparation failure,
+fixed-index rename prefix, complete reviewed rollback, native API denial, and
+the post-install R-10 test.yml denial.
+# T-006 Security Review
+
+Date: 2026-07-15
+
+Scope: staged candidate `human-copy/specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1`, TEST-013 fixture coverage, and its staged manifest binding. No protected live file was reviewed as changed.
+
+## Result
+
+PASS for the staged implementation, subject to the task's independent critical-tier gates.
+
+## Verified controls
+
+- The runner accepts only normalized, repository-relative inventory paths and validates canonical data, manifest membership, ordering, and lowercase SHA-256 digests before publication.
+- Windows PowerShell 5.1 FullLanguage, local fixed NTFS, and native API availability are required before a live replacement; unsupported capability fails closed.
+- Canonical data, manifest, and each staged source are opened by a root-handle-relative, no-follow walk. Each source is hashed and copied from the same retained handle; no path-based copy or source-hash fallback remains.
+- Destination parent handles are retained during preparation and publication. Every same-parent temporary is flushed and re-hashed before the first replacement.
+- Publication uses handle-relative rename. The only `SetFileInformationByHandle` fallback is Win32 error 87 to `NtSetInformationFile` with the same parent and temporary handles; any other failure aborts without a path fallback.
+- TEST-013 covers path escape, final/intermediate reparse, hard-link preservation, late source and namespace substitution, preparation cleanup, fixed-index rename failure, full rollback, native API absence, and post-install protected-write denial.
+- Targeted secret scan found no credential, token, private key, or API-key literal in the staged runner, TEST-013 test source, or T-006 evidence.
+
+## Residual operational constraints
+
+- The runner is intentionally Windows/NTFS/PowerShell-5.1 specific and must be executed only by the human-copy procedure.
+- It replaces file contents only; it does not claim to preserve unrelated ACL or alternate-data-stream metadata.
+- Cross-model consensus, signed evidence, a distinct second human approval, human execution of the reviewed protected copy, and an independent quality-gate PASS remain mandatory before T-006 can become Done.
+# T-006 Native rename API addendum
+
+Date: 2026-07-15
+
+The approved security property remains unchanged: publish a verified temporary
+to a held destination parent by a single leaf-name, parent-handle-relative
+atomic rename. The staged runner first calls
+`SetFileInformationByHandle(FileRenameInfo)` with the reviewed
+`FILE_RENAME_INFO` buffer. On the reviewed Windows PowerShell 5.1 / NTFS host,
+that call returns `ERROR_INVALID_PARAMETER` (87) when `RootDirectory` is
+non-null, even though the current API reference describes the relative-handle
+form.
+
+Only for that specific native API incompatibility, the runner calls the
+equivalent user-mode native operation
+`NtSetInformationFile(FileRenameInformation)` with the same temporary handle,
+held parent handle, leaf name, replacement flag, and buffer. It does not use a
+path name, current-directory lookup, or path-based copy fallback. Any other
+`SetFileInformationByHandle` error, an `NtSetInformationFile` failure, or an
+unavailable entry point fails before post-install verification.
+
+The TEST-013 static contract and isolated fixtures bind both APIs and prove the
+same hard-link, namespace-substitution, prefix-state, and rollback outcomes.
+This non-frozen addendum records the host-compatibility correction without
+altering the passed design artifact.
+# ADR 0011: Handle-relative protected-file publication
+
+Status: Accepted
+
+Date: 2026-07-14
+
+## Context
+
+The Phase 2 human-copy runner originally rechecked source and destination paths
+immediately before `[IO.File]::Copy`. A filesystem namespace could still change
+between the final check and the path-based open. Path overwrite also follows a
+destination hard-link alias and can change bytes visible through another name
+outside the protected inventory.
+
+## Decision
+
+Embed an ASCII, C# 5-compatible `AnchoredCopySession` in the immutable Windows
+PowerShell 5.1 runner. It opens a local accepted-filesystem repository root and
+walks normalized relative names one segment at a time with `NtCreateFile`, an
+`OBJECT_ATTRIBUTES.RootDirectory` directory handle, and
+`FILE_OPEN_REPARSE_POINT`. It validates handle attributes and retains source
+and destination-parent handles without write/delete sharing.
+
+Canonical authority, manifest, and source bytes are read through anchored
+handles. Every source is hashed and later copied through the same held handle.
+After all source validation, the helper prepares, flushes, and re-hashes an
+exclusive temporary file in each held destination parent. Only after every
+temporary passes does it publish each target using
+`SetFileInformationByHandle(FileRenameInfo)` with the destination parent handle
+as `FILE_RENAME_INFO.RootDirectory` and a single leaf name. No path-based copy
+fallback is permitted.
+
+## Consequences
+
+- Late source or destination-parent rename/delete/substitution cannot redirect
+  the copy.
+- Replacing a hard-linked destination changes the intended directory entry but
+  not the other hard-link alias.
+- A validation, preparation, capability, or cleanup failure occurs before any
+  live replacement. All temporary handles are cleaned up.
+- Each target rename is atomic, but the 18-target batch is not one transaction.
+  A rename-time OS failure may leave a deterministic installed prefix and must
+  be recovered with a reviewed full rollback batch. An isolated, fixture-only
+  fixed-index failure test must prove the exact candidate-prefix/previous-
+  suffix state and then prove rollback restores every recorded pre-install
+  digest.
+- The runner is intentionally limited to Windows PowerShell 5.1 Full Language
+  mode on a local drive and a filesystem accepted by its native capability
+  preflight; the reviewed minimum is NTFS.
+- Existing per-file ACLs, alternate streams, and file identity are not promised
+  to survive entry replacement. Git content and R-10 protection remain the
+  integrity authority for these repository files.
+
+## Verification
+
+TEST-013 includes static native-contract checks, pre-existing link/reparse
+denials, hard-link-alias preservation, held-source and destination-parent
+substitution attempts, verified-temporary cleanup, no-live-change preparation
+failure, and isolated post-install R-10 denial.
+[CmdletBinding()]
+param(
+    [switch]$Bootstrap,
+    [Alias('RepoRoot')]
+    [string]$RepositoryRoot
+)
+
+$ErrorActionPreference = 'Stop'
+Set-StrictMode -Version Latest
+
+$BootstrapTargets = @(
+    'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py',
+    'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js',
+    'plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1',
+    'plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh',
+    'plugins/sdd-quality-loop/scripts/check-contract.ps1',
+    'plugins/sdd-lite/references/risk-upgrade-policy.md',
+    'plugins/sdd-lite/scripts/check-risk-upgrade.sh',
+    'plugins/sdd-lite/scripts/check-risk-upgrade.ps1',
+    'plugins/sdd-lite/skills/lite-spec/SKILL.md',
+    'plugins/sdd-ship/skills/ship/SKILL.md',
+    'plugins/sdd-quality-loop/references/guard-invariants.json',
+    'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard_invariants.py',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
+    'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh',
+    '.github/workflows/test.yml',
+    'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
+)
+$HumanCopyPrefix = 'specs/epic-136-phase2-gates/human-copy'
+
+function Fail([string]$Message) { throw "apply-protected-files: $Message" }
+
+function Get-RepositoryRoot {
+    $current = Split-Path -Parent $PSCommandPath
+    while (-not [string]::IsNullOrWhiteSpace($current)) {
+        if (Test-Path -LiteralPath (Join-Path $current 'plugins/sdd-quality-loop/references/guard-invariants.json') -PathType Leaf) {
+            $featureRoot = Split-Path -Parent $current
+            $specsRoot = Split-Path -Parent $featureRoot
+            return [IO.Path]::GetFullPath((Split-Path -Parent $specsRoot))
+        }
+        $parent = Split-Path -Parent $current
+        if ($parent -eq $current) { break }
+        $current = $parent
+    }
+    Fail 'unable to locate the staged canonical file from the runner path'
+}
+
+function Get-ExecutionRoot {
+    $candidate = if ([string]::IsNullOrWhiteSpace($RepositoryRoot)) { Get-RepositoryRoot } else { $RepositoryRoot }
+    if (-not (Test-Path -LiteralPath $candidate -PathType Container)) { Fail 'RepositoryRoot must be an existing directory' }
+    return [IO.Path]::GetFullPath($candidate).TrimEnd('\', '/')
+}
+
+function Assert-NormalizedRelativePath([string]$Path, [string]$Label) {
+    if ([string]::IsNullOrWhiteSpace($Path) -or [IO.Path]::IsPathRooted($Path) -or $Path.Contains('\') -or $Path.Contains(':')) { Fail "$Label is not repository-relative" }
+    if (@($Path.Split('/') | Where-Object { $_ -eq '' -or $_ -eq '.' -or $_ -eq '..' }).Count -ne 0) { Fail "$Label contains traversal or an empty segment" }
+}
+
+function Assert-SameOrder([string[]]$Expected, [string[]]$Actual, [string]$Label) {
+    if ($Actual.Count -ne $Expected.Count) { Fail "$Label target count differs" }
+    for ($index = 0; $index -lt $Expected.Count; $index++) {
+        if ($Actual[$index] -isnot [string] -or -not $Expected[$index].Equals($Actual[$index], [StringComparison]::Ordinal)) { Fail "$Label target order differs" }
+    }
+}
+
+function Get-CanonicalTargets([string]$Content, [string]$Label) {
+    try { $canonical = $Content | ConvertFrom-Json } catch { Fail "$Label is not valid JSON" }
+    if ($null -eq $canonical -or $null -eq $canonical.PSObject.Properties['schema_version'] -or $canonical.schema_version -ne 1 -or $null -eq $canonical.PSObject.Properties['phase2_human_copy_targets']) { Fail "$Label has an invalid schema" }
+    $targets = @($canonical.phase2_human_copy_targets)
+    if ($targets.Count -eq 0) { Fail "$Label has no targets" }
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::OrdinalIgnoreCase)
+    foreach ($target in $targets) {
+        Assert-NormalizedRelativePath $target "$Label target"
+        if (-not $seen.Add($target)) { Fail "$Label has a duplicate target" }
+    }
+    return $targets
+}
+
+function Get-ManifestDigests([string]$Content, [string[]]$Targets) {
+    if ($Content.Contains("`r")) { $Content = $Content.Replace("`r`n", "`n") }
+    if ($Content.Contains("`r")) { Fail 'manifest contains a bare carriage return' }
+    $lines = @($Content -split "`n")
+    if ($lines.Count -gt 0 -and $lines[$lines.Count - 1] -eq '') { $lines = @($lines | Select-Object -First ($lines.Count - 1)) }
+    if ($lines.Count -ne $Targets.Count) { Fail 'manifest must have exactly one line per target' }
+    $allowed = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+    $digests = @{}
+    foreach ($target in $Targets) { [void]$allowed.Add($target) }
+    foreach ($line in $lines) {
+        if ($line -notmatch '^([0-9a-f]{64})  (.+)$') { Fail 'manifest is not lowercase GNU sha256 format' }
+        $digest = $matches[1]
+        $target = $matches[2]
+        Assert-NormalizedRelativePath $target 'manifest target'
+        if (-not $allowed.Contains($target)) { Fail 'manifest includes a non-inventory target' }
+        if (-not $seen.Add($target)) { Fail 'manifest includes a duplicate target' }
+        $digests[$target] = $digest
+    }
+    foreach ($target in $Targets) { if (-not $seen.Contains($target)) { Fail 'manifest omits an inventory target' } }
+    return $digests
+}
+
+function Assert-CapabilityFloor([string]$Root) {
+    if ([Environment]::OSVersion.Platform -ne [PlatformID]::Win32NT) { Fail 'Windows is required' }
+    if ($PSVersionTable.PSVersion.Major -ne 5 -or $PSVersionTable.PSVersion.Minor -lt 1) { Fail 'Windows PowerShell 5.1 is required' }
+    if ($ExecutionContext.SessionState.LanguageMode -ne 'FullLanguage') { Fail 'FullLanguage mode is required' }
+    if ($Root.StartsWith('\\', [StringComparison]::Ordinal)) { Fail 'UNC repository roots are not supported' }
+    $drive = New-Object IO.DriveInfo ([IO.Path]::GetPathRoot($Root))
+    if ($drive.DriveType -ne [IO.DriveType]::Fixed) { Fail 'repository root must be on a fixed local drive' }
+    if ($drive.DriveFormat -ne 'NTFS') { Fail 'repository root filesystem must be NTFS' }
+}
+
+$NativeSource = @'
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
+using Microsoft.Win32.SafeHandles;
+
+public sealed class AnchoredCopySession : IDisposable
+{
+    private const uint FILE_READ_DATA = 0x0001;
+    private const uint FILE_WRITE_DATA = 0x0002;
+    private const uint FILE_APPEND_DATA = 0x0004;
+    private const uint FILE_LIST_DIRECTORY = 0x0001;
+    private const uint FILE_ADD_FILE = 0x0002;
+    private const uint FILE_ADD_SUBDIRECTORY = 0x0004;
+    private const uint FILE_READ_ATTRIBUTES = 0x0080;
+    private const uint DELETE = 0x00010000;
+    private const uint SYNCHRONIZE = 0x00100000;
+    private const uint FILE_SHARE_READ = 0x00000001;
+    private const uint FILE_SHARE_WRITE = 0x00000002;
+    private const uint FILE_OPEN = 0x00000001;
+    private const uint FILE_CREATE = 0x00000002;
+    private const uint FILE_OPEN_IF = 0x00000003;
+    private const uint FILE_DIRECTORY_FILE = 0x00000001;
+    private const uint FILE_NON_DIRECTORY_FILE = 0x00000040;
+    private const uint FILE_SYNCHRONOUS_IO_NONALERT = 0x00000020;
+    private const uint FILE_OPEN_REPARSE_POINT = 0x00200000;
+    private const uint FILE_ATTRIBUTE_NORMAL = 0x00000080;
+    private const uint FILE_ATTRIBUTE_DIRECTORY = 0x00000010;
+    private const uint FILE_ATTRIBUTE_REPARSE_POINT = 0x00000400;
+    private const uint OBJ_CASE_INSENSITIVE = 0x00000040;
+    private const uint OPEN_EXISTING = 3;
+    private const uint FILE_FLAG_BACKUP_SEMANTICS = 0x02000000;
+    private const uint FILE_FLAG_OPEN_REPARSE_POINT = 0x00200000;
+    private const int FileAttributeTagInfo = 9;
+    private const int FileRenameInfo = 3;
+    private const int FileDispositionInfo = 4;
+    private const int FileRenameInformation = 10;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct UNICODE_STRING
+    {
+        public ushort Length;
+        public ushort MaximumLength;
+        public IntPtr Buffer;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct OBJECT_ATTRIBUTES
+    {
+        public int Length;
+        public IntPtr RootDirectory;
+        public IntPtr ObjectName;
+        public uint Attributes;
+        public IntPtr SecurityDescriptor;
+        public IntPtr SecurityQualityOfService;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct IO_STATUS_BLOCK
+    {
+        public IntPtr Status;
+        public UIntPtr Information;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct FILE_ATTRIBUTE_TAG_INFO
+    {
+        public uint FileAttributes;
+        public uint ReparseTag;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct FILE_DISPOSITION_INFO
+    {
+        [MarshalAs(UnmanagedType.Bool)] public bool DeleteFile;
+    }
+
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern SafeFileHandle CreateFileW(string name, uint access, uint share, IntPtr security, uint disposition, uint flags, IntPtr template);
+
+    [DllImport("ntdll.dll", EntryPoint = "NtCreateFile")]
+    private static extern int NtCreateFile(out SafeFileHandle handle, uint access, ref OBJECT_ATTRIBUTES attributes, out IO_STATUS_BLOCK status, IntPtr allocationSize, uint fileAttributes, uint share, uint disposition, uint options, IntPtr eaBuffer, uint eaLength);
+
+    [DllImport("ntdll.dll")]
+    private static extern uint RtlNtStatusToDosError(int status);
+
+    [DllImport("ntdll.dll", EntryPoint = "NtSetInformationFile")]
+    private static extern int NtSetInformationFile(SafeFileHandle handle, out IO_STATUS_BLOCK status, IntPtr information, uint length, int informationClass);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool GetFileInformationByHandleEx(SafeFileHandle handle, int informationClass, out FILE_ATTRIBUTE_TAG_INFO info, uint size);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    private static extern bool SetFileInformationByHandle(SafeFileHandle handle, int informationClass, IntPtr info, uint size);
+
+    private sealed class CopyPlan
+    {
+        public int Index;
+        public string SourceRelative;
+        public string DestinationRelative;
+        public string DestinationParentRelative;
+        public string DestinationLeaf;
+        public string Digest;
+        public SafeFileHandle SourceHandle;
+        public SafeFileHandle ParentHandle;
+        public SafeFileHandle TemporaryHandle;
+        public string TemporaryLeaf;
+        public bool Published;
+    }
+
+    private readonly string _repositoryPath;
+    private readonly SafeFileHandle _rootHandle;
+    private readonly List<CopyPlan> _plans = new List<CopyPlan>();
+    private bool _disposed;
+
+    public AnchoredCopySession(string repositoryPath)
+    {
+        if (String.IsNullOrWhiteSpace(repositoryPath)) throw new ArgumentException("repository path is required");
+        _repositoryPath = Path.GetFullPath(repositoryPath).TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        _rootHandle = CreateFileW(_repositoryPath, FILE_LIST_DIRECTORY | FILE_ADD_FILE | FILE_ADD_SUBDIRECTORY | FILE_READ_ATTRIBUTES | SYNCHRONIZE, FILE_SHARE_READ | FILE_SHARE_WRITE, IntPtr.Zero, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT, IntPtr.Zero);
+        if (_rootHandle == null || _rootHandle.IsInvalid) throw Win32("open repository root");
+        ValidateHandle(_rootHandle, true, "repository root");
+    }
+
+    public string ReadUtf8File(string relativePath)
+    {
+        ValidateRelativePath(relativePath);
+        using (SafeFileHandle handle = OpenFilePath(relativePath, FILE_READ_DATA | FILE_READ_ATTRIBUTES | SYNCHRONIZE, FILE_SHARE_READ))
+        using (FileStream stream = BorrowedStream(handle, FileAccess.Read))
+        using (MemoryStream memory = new MemoryStream())
+        {
+            byte[] buffer = new byte[65536];
+            int count;
+            while ((count = stream.Read(buffer, 0, buffer.Length)) != 0)
+            {
+                if (memory.Length + count > 16777216) throw new InvalidDataException("anchored input is too large");
+                memory.Write(buffer, 0, count);
+            }
+            return new UTF8Encoding(false, true).GetString(memory.ToArray());
+        }
+    }
+
+    public void AddPlan(int index, string sourceRelative, string destinationRelative, string digest)
+    {
+        ValidateRelativePath(sourceRelative);
+        ValidateRelativePath(destinationRelative);
+        if (!Regex.IsMatch(digest ?? String.Empty, "^[0-9a-f]{64}$")) throw new InvalidDataException("invalid plan digest");
+        int slash = destinationRelative.LastIndexOf('/');
+        if (slash <= 0 || slash == destinationRelative.Length - 1) throw new InvalidDataException("destination requires a parent and leaf");
+        _plans.Add(new CopyPlan {
+            Index = index,
+            SourceRelative = sourceRelative,
+            DestinationRelative = destinationRelative,
+            DestinationParentRelative = destinationRelative.Substring(0, slash),
+            DestinationLeaf = destinationRelative.Substring(slash + 1),
+            Digest = digest
+        });
+    }
+
+    public void ValidateSourcesAndParents()
+    {
+        foreach (CopyPlan plan in _plans)
+        {
+            plan.SourceHandle = OpenFilePath(plan.SourceRelative, FILE_READ_DATA | FILE_READ_ATTRIBUTES | SYNCHRONIZE, FILE_SHARE_READ);
+            string actual = HashHandle(plan.SourceHandle);
+            if (!String.Equals(actual, plan.Digest, StringComparison.Ordinal)) throw new InvalidDataException("staged source digest mismatch: " + plan.SourceRelative);
+            // TEST_FIXTURE_SOURCE_SUBSTITUTION
+        }
+        foreach (CopyPlan plan in _plans)
+        {
+            plan.ParentHandle = OpenDirectoryPath(plan.DestinationParentRelative, true);
+            SafeFileHandle existing = TryOpenRelativeFile(plan.ParentHandle, plan.DestinationLeaf, FILE_READ_ATTRIBUTES | SYNCHRONIZE, FILE_SHARE_READ | FILE_SHARE_WRITE);
+            if (existing != null) existing.Dispose();
+            // TEST_FIXTURE_PARENT_SUBSTITUTION
+        }
+    }
+
+    public void PrepareAll()
+    {
+        try
+        {
+            foreach (CopyPlan plan in _plans)
+            {
+                plan.TemporaryLeaf = ".sdd-phase2-" + Guid.NewGuid().ToString("N") + ".tmp";
+                plan.TemporaryHandle = OpenRelative(plan.ParentHandle, plan.TemporaryLeaf, FILE_READ_DATA | FILE_WRITE_DATA | FILE_APPEND_DATA | FILE_READ_ATTRIBUTES | DELETE | SYNCHRONIZE, 0, FILE_CREATE, FILE_NON_DIRECTORY_FILE | FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT, false, "create temporary");
+                CopyHandle(plan.SourceHandle, plan.TemporaryHandle);
+                string actual = HashHandle(plan.TemporaryHandle);
+                if (!String.Equals(actual, plan.Digest, StringComparison.Ordinal)) throw new InvalidDataException("temporary digest mismatch: " + plan.DestinationRelative);
+                // TEST_FIXTURE_AFTER_PREPARE_ITEM
+            }
+        }
+        catch
+        {
+            CleanupUnpublished();
+            throw;
+        }
+    }
+
+    public void PublishAll()
+    {
+        try
+        {
+            for (int index = 0; index < _plans.Count; index++)
+            {
+                CopyPlan plan = _plans[index];
+                // TEST_FIXTURE_BEFORE_RENAME
+                RenameRelative(plan.TemporaryHandle, plan.ParentHandle, plan.DestinationLeaf);
+                plan.Published = true;
+                plan.TemporaryHandle.Dispose();
+                plan.TemporaryHandle = null;
+            }
+        }
+        catch
+        {
+            CleanupUnpublished();
+            throw;
+        }
+    }
+
+    public void VerifyPublished()
+    {
+        foreach (CopyPlan plan in _plans)
+        {
+            using (SafeFileHandle handle = OpenRelative(plan.ParentHandle, plan.DestinationLeaf, FILE_READ_DATA | FILE_READ_ATTRIBUTES | SYNCHRONIZE, FILE_SHARE_READ, FILE_OPEN, FILE_NON_DIRECTORY_FILE | FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT, false, "verify published target"))
+            {
+                string actual = HashHandle(handle);
+                if (!String.Equals(actual, plan.Digest, StringComparison.Ordinal)) throw new InvalidDataException("published digest mismatch: " + plan.DestinationRelative);
+            }
+        }
+    }
+
+    private SafeFileHandle OpenFilePath(string relativePath, uint access, uint share)
+    {
+        int slash = relativePath.LastIndexOf('/');
+        if (slash <= 0 || slash == relativePath.Length - 1) throw new InvalidDataException("file path requires parent and leaf");
+        using (SafeFileHandle parent = OpenDirectoryPath(relativePath.Substring(0, slash), false))
+        {
+            return OpenRelative(parent, relativePath.Substring(slash + 1), access, share, FILE_OPEN, FILE_NON_DIRECTORY_FILE | FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT, false, "open anchored file");
+        }
+    }
+
+    private SafeFileHandle OpenDirectoryPath(string relativePath, bool createMissing)
+    {
+        ValidateRelativePath(relativePath);
+        string[] segments = relativePath.Split('/');
+        SafeFileHandle current = _rootHandle;
+        bool ownsCurrent = false;
+        try
+        {
+            foreach (string segment in segments)
+            {
+                SafeFileHandle next = OpenRelative(current, segment, FILE_LIST_DIRECTORY | FILE_ADD_FILE | FILE_ADD_SUBDIRECTORY | FILE_READ_ATTRIBUTES | SYNCHRONIZE, FILE_SHARE_READ | FILE_SHARE_WRITE, createMissing ? FILE_OPEN_IF : FILE_OPEN, FILE_DIRECTORY_FILE | FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT, true, "open anchored directory");
+                if (ownsCurrent) current.Dispose();
+                current = next;
+                ownsCurrent = true;
+            }
+            ownsCurrent = false;
+            return current;
+        }
+        finally { if (ownsCurrent) current.Dispose(); }
+    }
+
+    private static SafeFileHandle TryOpenRelativeFile(SafeFileHandle parent, string leaf, uint access, uint share)
+    {
+        int status;
+        SafeFileHandle handle = OpenRelativeStatus(parent, leaf, access, share, FILE_OPEN, FILE_NON_DIRECTORY_FILE | FILE_OPEN_REPARSE_POINT | FILE_SYNCHRONOUS_IO_NONALERT, out status);
+        if (status == unchecked((int)0xC0000034) || status == unchecked((int)0xC000003A)) { if (handle != null) handle.Dispose(); return null; }
+        if (status < 0) { if (handle != null) handle.Dispose(); ThrowNt(status, "open existing destination"); }
+        ValidateHandle(handle, false, "existing destination");
+        return handle;
+    }
+
+    private static SafeFileHandle OpenRelative(SafeFileHandle root, string leaf, uint access, uint share, uint disposition, uint options, bool directory, string context)
+    {
+        int status;
+        SafeFileHandle handle = OpenRelativeStatus(root, leaf, access, share, disposition, options, out status);
+        if (status < 0) { if (handle != null) handle.Dispose(); ThrowNt(status, context); }
+        ValidateHandle(handle, directory, context);
+        return handle;
+    }
+
+    private static SafeFileHandle OpenRelativeStatus(SafeFileHandle root, string leaf, uint access, uint share, uint disposition, uint options, out int status)
+    {
+        ValidateLeaf(leaf);
+        IntPtr nameBuffer = IntPtr.Zero;
+        IntPtr unicodePointer = IntPtr.Zero;
+        bool added = false;
+        SafeFileHandle handle;
+        try
+        {
+            nameBuffer = Marshal.StringToHGlobalUni(leaf);
+            UNICODE_STRING unicode = new UNICODE_STRING { Length = checked((ushort)(leaf.Length * 2)), MaximumLength = checked((ushort)((leaf.Length + 1) * 2)), Buffer = nameBuffer };
+            unicodePointer = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(UNICODE_STRING)));
+            Marshal.StructureToPtr(unicode, unicodePointer, false);
+            root.DangerousAddRef(ref added);
+            OBJECT_ATTRIBUTES attributes = new OBJECT_ATTRIBUTES {
+                Length = Marshal.SizeOf(typeof(OBJECT_ATTRIBUTES)),
+                RootDirectory = root.DangerousGetHandle(),
+                ObjectName = unicodePointer,
+                Attributes = OBJ_CASE_INSENSITIVE,
+                SecurityDescriptor = IntPtr.Zero,
+                SecurityQualityOfService = IntPtr.Zero
+            };
+            IO_STATUS_BLOCK io;
+            status = NtCreateFile(out handle, access, ref attributes, out io, IntPtr.Zero, FILE_ATTRIBUTE_NORMAL, share, disposition, options, IntPtr.Zero, 0);
+            return handle;
+        }
+        finally
+        {
+            if (added) root.DangerousRelease();
+            if (unicodePointer != IntPtr.Zero) Marshal.FreeHGlobal(unicodePointer);
+            if (nameBuffer != IntPtr.Zero) Marshal.FreeHGlobal(nameBuffer);
+        }
+    }
+
+    private static void ValidateHandle(SafeFileHandle handle, bool directory, string context)
+    {
+        if (handle == null || handle.IsInvalid) throw new IOException(context + " returned an invalid handle");
+        FILE_ATTRIBUTE_TAG_INFO info;
+        if (!GetFileInformationByHandleEx(handle, FileAttributeTagInfo, out info, (uint)Marshal.SizeOf(typeof(FILE_ATTRIBUTE_TAG_INFO)))) throw Win32("inspect " + context);
+        if ((info.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != 0) throw new IOException(context + " is a reparse point");
+        bool actualDirectory = (info.FileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
+        if (actualDirectory != directory) throw new IOException(context + (directory ? " is not a directory" : " is not a regular file"));
+    }
+
+    private static void CopyHandle(SafeFileHandle source, SafeFileHandle destination)
+    {
+        using (FileStream input = BorrowedStream(source, FileAccess.Read))
+        using (FileStream output = BorrowedStream(destination, FileAccess.ReadWrite))
+        {
+            input.Position = 0;
+            output.Position = 0;
+            output.SetLength(0);
+            input.CopyTo(output, 65536);
+            output.Flush(true);
+            input.Position = 0;
+            output.Position = 0;
+        }
+    }
+
+    private static string HashHandle(SafeFileHandle handle)
+    {
+        using (FileStream stream = BorrowedStream(handle, FileAccess.Read))
+        using (SHA256 sha = SHA256.Create())
+        {
+            stream.Position = 0;
+            byte[] digest = sha.ComputeHash(stream);
+            stream.Position = 0;
+            return BitConverter.ToString(digest).Replace("-", String.Empty).ToLowerInvariant();
+        }
+    }
+
+    private static FileStream BorrowedStream(SafeFileHandle handle, FileAccess access)
+    {
+        bool added = false;
+        try
+        {
+            handle.DangerousAddRef(ref added);
+            SafeFileHandle borrowed = new SafeFileHandle(handle.DangerousGetHandle(), false);
+            return new FileStream(borrowed, access, 65536, false);
+        }
+        finally { if (added) handle.DangerousRelease(); }
+    }
+
+    private static void RenameRelative(SafeFileHandle source, SafeFileHandle parent, string leaf)
+    {
+        ValidateLeaf(leaf);
+        byte[] name = Encoding.Unicode.GetBytes(leaf);
+        int rootOffset = IntPtr.Size == 8 ? 8 : 4;
+        int lengthOffset = rootOffset + IntPtr.Size;
+        int nameOffset = lengthOffset + 4;
+        // The API requires at least sizeof(FILE_RENAME_INFO) plus the name
+        // bytes, not merely the offset of FileName plus those bytes.
+        int structureSize = IntPtr.Size == 8 ? 24 : 16;
+        int size = checked(structureSize + name.Length);
+        IntPtr buffer = Marshal.AllocHGlobal(size);
+        bool added = false;
+        try
+        {
+            for (int index = 0; index < size; index++) Marshal.WriteByte(buffer, index, 0);
+            Marshal.WriteInt32(buffer, 0, 1); // ReplaceIfExists
+            parent.DangerousAddRef(ref added);
+            Marshal.WriteIntPtr(buffer, rootOffset, parent.DangerousGetHandle()); // RootDirectory
+            Marshal.WriteInt32(buffer, lengthOffset, name.Length);
+            Marshal.Copy(name, 0, IntPtr.Add(buffer, nameOffset), name.Length);
+            if (!SetFileInformationByHandle(source, FileRenameInfo, buffer, (uint)size))
+            {
+                int win32 = Marshal.GetLastWin32Error();
+                if (win32 != 87) throw Win32Code("publish temporary by FileRenameInfo", win32);
+                IO_STATUS_BLOCK io;
+                int status = NtSetInformationFile(source, out io, buffer, (uint)size, FileRenameInformation);
+                if (status < 0) ThrowNt(status, "publish temporary by FileRenameInformation");
+            }
+        }
+        finally
+        {
+            if (added) parent.DangerousRelease();
+            Marshal.FreeHGlobal(buffer);
+        }
+    }
+
+    private void CleanupUnpublished()
+    {
+        Exception cleanupFailure = null;
+        foreach (CopyPlan plan in _plans)
+        {
+            if (plan.Published || plan.TemporaryHandle == null) continue;
+            IntPtr buffer = Marshal.AllocHGlobal(Marshal.SizeOf(typeof(FILE_DISPOSITION_INFO)));
+            try
+            {
+                FILE_DISPOSITION_INFO info = new FILE_DISPOSITION_INFO { DeleteFile = true };
+                Marshal.StructureToPtr(info, buffer, false);
+                if (!SetFileInformationByHandle(plan.TemporaryHandle, FileDispositionInfo, buffer, (uint)Marshal.SizeOf(typeof(FILE_DISPOSITION_INFO)))) cleanupFailure = Win32("delete unpublished temporary");
+            }
+            catch (Exception error) { cleanupFailure = error; }
+            finally
+            {
+                Marshal.FreeHGlobal(buffer);
+                plan.TemporaryHandle.Dispose();
+                plan.TemporaryHandle = null;
+            }
+        }
+        if (cleanupFailure != null) throw new IOException("temporary cleanup failed", cleanupFailure);
+    }
+
+    private static void ValidateRelativePath(string path)
+    {
+        if (String.IsNullOrWhiteSpace(path) || path.IndexOf('\\') >= 0 || path.IndexOf(':') >= 0 || Path.IsPathRooted(path)) throw new InvalidDataException("path is not normalized repository-relative");
+        string[] parts = path.Split('/');
+        foreach (string part in parts) ValidateLeaf(part);
+    }
+
+    private static void ValidateLeaf(string leaf)
+    {
+        if (String.IsNullOrWhiteSpace(leaf) || leaf == "." || leaf == ".." || leaf.IndexOf('/') >= 0 || leaf.IndexOf('\\') >= 0 || leaf.IndexOf(':') >= 0) throw new InvalidDataException("invalid relative path segment");
+    }
+
+    private static IOException Win32(string context)
+    {
+        int error = Marshal.GetLastWin32Error();
+        return Win32Code(context, error);
+    }
+
+    private static IOException Win32Code(string context, int error)
+    {
+        Win32Exception detail = new Win32Exception(error);
+        return new IOException(context + " failed (win32 " + error.ToString() + ": " + detail.Message + ")", detail);
+    }
+
+    private static void ThrowNt(int status, string context)
+    {
+        uint error = RtlNtStatusToDosError(status);
+        throw new IOException(context + " failed", new Win32Exception(unchecked((int)error)));
+    }
+
+    public void Dispose()
+    {
+        if (_disposed) return;
+        _disposed = true;
+        Exception failure = null;
+        try { CleanupUnpublished(); } catch (Exception error) { failure = error; }
+        foreach (CopyPlan plan in _plans)
+        {
+            if (plan.SourceHandle != null) plan.SourceHandle.Dispose();
+            if (plan.ParentHandle != null) plan.ParentHandle.Dispose();
+        }
+        if (_rootHandle != null) _rootHandle.Dispose();
+        if (failure != null) throw failure;
+    }
+}
+'@
+
+function Get-PythonCommand {
+    $python = Get-Command python.exe -ErrorAction SilentlyContinue
+    if ($null -eq $python) { $python = Get-Command python3 -ErrorAction SilentlyContinue }
+    if ($null -eq $python) { Fail 'python is required for generator verification' }
+    return $python.Source
+}
+
+function Invoke-PostInstallVerification([string]$Root) {
+    $python = Get-PythonCommand
+    & $python (Join-Path $Root 'plugins/sdd-quality-loop/scripts/generate-guard-invariants.py') --check
+    if ($LASTEXITCODE -ne 0) { Fail 'generator --check failed after installation' }
+    $previousChild = $env:SDD_PHASE2_RUNNER_CHILD
+    $env:SDD_PHASE2_RUNNER_CHILD = '1'
+    try {
+        & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Root 'tests/phase2-guard-invariants.tests.ps1')
+        if ($LASTEXITCODE -ne 0) { Fail 'PowerShell focused suite failed after installation' }
+        & bash (Join-Path $Root 'tests/phase2-guard-invariants.tests.sh')
+        if ($LASTEXITCODE -ne 0) { Fail 'POSIX focused suite failed after installation' }
+    } finally {
+        if ($null -eq $previousChild) { Remove-Item Env:SDD_PHASE2_RUNNER_CHILD -ErrorAction SilentlyContinue } else { $env:SDD_PHASE2_RUNNER_CHILD = $previousChild }
+    }
+}
+
+$session = $null
+try {
+    $repositoryRoot = Get-ExecutionRoot
+    Assert-CapabilityFloor $repositoryRoot
+    try { Add-Type -TypeDefinition $NativeSource -Language CSharp -ErrorAction Stop } catch { Fail ('native helper compilation failed: ' + $_.Exception.Message) }
+    $session = New-Object AnchoredCopySession $repositoryRoot
+
+    $stagedCanonicalRelative = $HumanCopyPrefix + '/plugins/sdd-quality-loop/references/guard-invariants.json'
+    $stagedTargets = @(Get-CanonicalTargets ($session.ReadUtf8File($stagedCanonicalRelative)) 'staged canonical file')
+    if ($Bootstrap) {
+        Assert-SameOrder $BootstrapTargets $stagedTargets 'staged canonical bootstrap inventory'
+        $targets = $BootstrapTargets
+    } else {
+        $liveTargets = @(Get-CanonicalTargets ($session.ReadUtf8File('plugins/sdd-quality-loop/references/guard-invariants.json')) 'installed live canonical file')
+        Assert-SameOrder $liveTargets $stagedTargets 'staged/live canonical update inventory'
+        $targets = $liveTargets
+    }
+
+    $digests = Get-ManifestDigests ($session.ReadUtf8File($HumanCopyPrefix + '/MANIFEST.sha256')) $targets
+    for ($index = 0; $index -lt $targets.Count; $index++) {
+        $target = $targets[$index]
+        $session.AddPlan($index, $HumanCopyPrefix + '/' + $target, $target, [string]$digests[$target])
+    }
+    $session.ValidateSourcesAndParents()
+    $session.PrepareAll()
+    $session.PublishAll()
+    $session.VerifyPublished()
+    $session.Dispose()
+    $session = $null
+    Invoke-PostInstallVerification $repositoryRoot
+    Write-Host 'apply-protected-files: complete'
+} catch {
+    [Console]::Error.WriteLine($_.Exception.Message)
+    exit 2
+} finally {
+    if ($null -ne $session) {
+        try { $session.Dispose() } catch { [Console]::Error.WriteLine($_.Exception.Message) }
+    }
+}
+f67de9b05dde848e8a0fd4c72c27f075837d042d7e2ca70f0dc39847c284734e  plugins/sdd-quality-loop/scripts/sdd-hook-guard.py
+edc7cd292dd3e01836660eb86dd3ee6c9d156f0ac203c59e63c564f0618937e1  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+8ba49d5f670ede45c42b7d14078fac9af5a75d57f464fc36b74b921d4d137883  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840  plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
+4d79bf32f9911623215258510ee3289af5b1f56dff9956ffff33189d94ba1420  plugins/sdd-quality-loop/scripts/check-contract.ps1
+afc7b0738e83bf55dd49a7f66a27a7b45209f4ace524d34ccfa2f9259b4a3e03  plugins/sdd-lite/references/risk-upgrade-policy.md
+192fc9887883e30e4ab8ff2f512ca7169ce7dea3149ab7cd60efb36312d8ba45  plugins/sdd-lite/scripts/check-risk-upgrade.sh
+d1ac00563adecf9906516b7aa29d98b36ac5a485ba245532adf3ed00f14c4b38  plugins/sdd-lite/scripts/check-risk-upgrade.ps1
+40fdba6f1849effb06a8439a09b92a192a36b42a708c3cf1a253d7d48a50fc74  plugins/sdd-lite/skills/lite-spec/SKILL.md
+5748a0928443bc63307bf3ab7bdb75c158bdfbef9cde72e3b3f5354bac063e91  plugins/sdd-ship/skills/ship/SKILL.md
+fde0a57e33fb6b1a21e11af120cbf946e14ce53d0313d77c14e22538dfd422ad  plugins/sdd-quality-loop/references/guard-invariants.json
+827d154754599f6231445fad6056c17700bb371e72f01346b56d0147ce4facc7  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+121818ba4c6d60c4abb081a652ef5b7e22c1fae8ee2d1efefa50fddddde115ad  plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+16c05a8c56cd2b1befd33c8ac405916123da551876e5de56b6f4b1989d82a1d6  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+52de1d386b94787898dc02dc47c1bbb25ecc57f1d713b8a9ea417e61c7281b1b  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+30eaddedbc5837d0684f13fdedd67aab66a2e0f471d35fd376196727ac17ca88  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+094c9dd8ed743958867f043e2887a4c533c86031c4a4124823bf14153785e82b  .github/workflows/test.yml
+0a9f9fe235f98398bc76042d649fd241b683aefc9257275b8c90a374203c084a  specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1

@@ -1,0 +1,20 @@
+T-006 TEST-013 GREEN - 2026-07-15
+
+Commands:
+- powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-invariants.tests.ps1
+- bash tests/phase2-guard-invariants.tests.sh
+- python generate-guard-invariants.py --check
+- check-workflow-state.ps1 --feature epic-136-phase2-gates
+
+Results:
+- PowerShell focused suite: 68 passed, 0 failed.
+- Bash focused suite: 33 passed, 0 failed.
+- Generator --check: pass without writes.
+- Workflow state: workflow-state: ok.
+
+TEST-013 passed static native-contract checks and isolated NTFS fixtures for
+bootstrap/update binding, anchored canonical/manifest/source reads, retained
+source and destination-parent substitution denial, alias-safe hard-link entry
+replacement, verified temporary cleanup, injected preparation failure,
+fixed-index rename prefix, complete reviewed rollback, native API denial, and
+the post-install R-10 test.yml denial.

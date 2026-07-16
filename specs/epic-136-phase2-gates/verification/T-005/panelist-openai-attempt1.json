@@ -1,0 +1,26 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-005",
+  "feature": "epic-136-phase2-gates",
+  "vendor": "openai",
+  "model": "codex-cli-default",
+  "verdict": "NEEDS_WORK",
+  "findings": [
+    {
+      "severity": "Major",
+      "ref": "AC-012 / Native module loading contract",
+      "note": "AC-012 says poisoned modules reject, while the loading contract defines CWD/PYTHONPATH poisoned shadows as ignored and requires the normal decision to remain unchanged. Define separate expectations for invalid fixed-directory modules versus ignored shadow modules."
+    },
+    {
+      "severity": "Major",
+      "ref": "Acceptance Tests / T-005 Done When",
+      "note": "All relevant tests are marked Planned, and the bundle contains no implementation or deterministic test evidence for AC-010 through AC-012; compliance cannot be verified."
+    }
+  ],
+  "blind": true,
+  "input_digest": "d5d3d3a4a819b5dbabec98399518ca0f768333aee642b0cde7c6f3ba61d3df52",
+  "consent": {
+    "kind": "human-flag",
+    "ref": "tasks.md T-005 Cross-Model: enabled"
+  }
+}

@@ -1,0 +1,29 @@
+Command: powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-contract-path-helper.tests.ps1
+Result: expected RED (exit 1 against the staged candidate before reparse-point containment is implemented)
+
+The original 30 frozen field/case golden fixtures all matched exactly after LF
+normalization. The new Windows PowerShell 5.1 reparse fixtures established
+both an intermediate directory junction and a final file symbolic link with
+the FileAttributes.ReparsePoint bit set for every evidence field.
+
+FAIL: the staged candidate lacks the required PS5.1
+      FileAttributes.ReparsePoint containment check.
+FAIL: evidence/intermediate-junction accepts an in-root lexical path whose
+      intermediate junction resolves outside the repository.
+FAIL: evidence/final-file-reparse does not report the required field-specific
+      reparse diagnostic (the prior candidate reported the link as empty).
+FAIL: red_evidence/intermediate-junction accepts an in-root lexical path whose
+      intermediate junction resolves outside the repository.
+FAIL: red_evidence/final-file-reparse does not report the required
+      field-specific reparse diagnostic.
+FAIL: green_evidence/intermediate-junction accepts an in-root lexical path
+      whose intermediate junction resolves outside the repository.
+FAIL: green_evidence/final-file-reparse does not report the required
+      field-specific reparse diagnostic.
+
+The focused suite also compared the staged candidate with the unchanged live
+baseline for every existing red-evidence early-stop branch: POSIX absolute,
+Windows-drive absolute, UNC absolute, traversal, and unresolvable. All five
+compound parity cases matched before the implementation change.
+
+phase2-contract-path-helper.tests.ps1: 128 passed, 10 failed

@@ -1,0 +1,345 @@
+# Deterministic gate: verify a Default-FAIL verification contract.
+# Usage: check-contract.ps1 <path-to-contract.json> [-RepoRoot <path>]
+# Fails (exit 1) while any required check has passes=false, or any passing
+# check has empty or missing evidence. quality-gate must run this before Done.
+# Additional rules enforced:
+#  - Duplicate check ids → fail, listing them.
+#  - Evidence path safety → fail if absolute (POSIX, Windows drive, UNC) or
+#    contains traversal that escapes the repo root.
+#  - Waiver enforcement → required:false + passes:false must have non-empty
+#    waiver_reason; otherwise operator must run the check or record why it
+#    does not apply.
+#  - Required-set protection → baseline ids (lint, typecheck, unit-tests, build,
+#    placeholder-scan, task-state-check) must be present; if present but
+#    required:false, waiver_reason must be non-empty.
+param(
+    [Parameter(Mandatory)][string]$ContractPath,
+    [string]$RepoRoot = "."
+)
+$ErrorActionPreference = "Stop"
+
+if (-not (Test-Path -LiteralPath $ContractPath)) {
+    Write-Error "Contract file not found: $ContractPath"
+    exit 1
+}
+$contract = Get-Content -Raw -Encoding Utf8 $ContractPath | ConvertFrom-Json
+$failures = @()
+
+$BASELINE_IDS = @("lint", "typecheck", "unit-tests", "build", "placeholder-scan", "task-state-check")
+
+# Risk tier required-id sets (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
+$RISK_TIERS = @{
+    "low"      = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check")
+    "medium"   = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression")
+    "high"     = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
+    "critical" = @("lint", "typecheck", "build", "placeholder-scan", "task-state-check", "unit-tests", "acceptance-tests", "regression", "requirement-traceability")
+}
+
+# Stack descriptor (source: risk-gate-matrix.md). Compile-oriented checks are
+# toolchain-dependent: on a non-code stack (shell/docs/spec) they may be waived
+# (required:false + waiver_reason, enforced by Pass 2/3) instead of forced to
+# required:true. Test/trace/placeholder/task-state checks are NEVER waivable this
+# way. Absent/empty stack == "code" == legacy behavior (fully backward compatible).
+$COMPILE_CHECKS = @("lint", "typecheck", "build")
+$KNOWN_STACKS = @("code", "shell", "docs", "spec")
+$NONCODE_STACKS = @("shell", "docs", "spec")
+
+# Resolve repo root to an absolute path for traversal checks
+$absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+
+function Test-PathContainsReparsePoint {
+    param(
+        [Parameter(Mandatory)][string]$Path
+    )
+
+    # GetFullPath is lexical: an intermediate junction can still redirect a
+    # path that lexically begins under RepoRoot. Inspect each existing path
+    # component with the Windows PowerShell 5.1-compatible attribute flag.
+    $pathRoot = [System.IO.Path]::GetPathRoot($Path)
+    if ([string]::IsNullOrEmpty($pathRoot)) {
+        return $false
+    }
+
+    $current = $pathRoot
+    $relativePath = $Path.Substring($pathRoot.Length)
+    foreach ($component in ($relativePath -split '[\\/]+')) {
+        if ([string]::IsNullOrEmpty($component)) {
+            continue
+        }
+
+        $current = [System.IO.Path]::Combine($current, $component)
+        try {
+            $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+        } catch {
+            # Preserve the existing missing-file diagnostic when traversal
+            # reaches a component that does not exist.
+            return $false
+        }
+
+        if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Test-EvidencePath {
+    param(
+        [Parameter(Mandatory)][string]$FieldName,
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Evidence,
+        [Parameter(Mandatory)][string]$RepoRoot
+    )
+
+    # Keep the three original validation orders and diagnostic fragments in one
+    # place. StopsCurrentCheck preserves the existing red-evidence behavior:
+    # malformed/escaping paths skip green validation, while missing, directory,
+    # and empty paths still let the caller collect a green-evidence failure.
+    $result = [ordered]@{
+        IsValid = $false
+        ResolvedPath = $null
+        Failure = ""
+        StopsCurrentCheck = $false
+    }
+
+    if ($Evidence.StartsWith("/")) {
+        $result.Failure = "$FieldName is an absolute path: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+    if (($Evidence.Length -ge 2 -and $Evidence[1] -eq ':') -or $Evidence.StartsWith("\\")) {
+        $result.Failure = "$FieldName is an absolute path: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+
+    try {
+        $joined = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($RepoRoot, $Evidence))
+    } catch {
+        $result.Failure = "$FieldName path could not be resolved: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+    $sep = [System.IO.Path]::DirectorySeparatorChar
+    if (-not ($joined.StartsWith($RepoRoot + $sep) -or $joined -eq $RepoRoot)) {
+        $result.Failure = "$FieldName path escapes repo root: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+    if (Test-PathContainsReparsePoint -Path $joined) {
+        $result.Failure = "$FieldName path contains a reparse point: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+    $result.ResolvedPath = $joined
+    if (-not (Test-Path -LiteralPath $joined)) {
+        $result.Failure = "$FieldName file missing: $Evidence"
+    } elseif ((Test-Path -LiteralPath $joined -PathType Container)) {
+        $result.Failure = "$FieldName is not a regular file: $Evidence"
+    } else {
+        $fileInfo = Get-Item -LiteralPath $joined -ErrorAction SilentlyContinue
+        if ($fileInfo -and $fileInfo.Length -eq 0) {
+            $result.Failure = "$FieldName file is empty: $Evidence"
+        } else {
+            $result.IsValid = $true
+        }
+    }
+    return [pscustomobject]$result
+}
+
+# Pass 1: duplicate id detection
+$seenIds = @{}
+foreach ($check in $contract.checks) {
+    $id = $check.id
+    if ($seenIds.ContainsKey($id)) {
+        $failures += "duplicate check id '$id'"
+    } else {
+        $seenIds[$id] = $true
+    }
+}
+
+# Pass 2: per-check rules
+foreach ($check in $contract.checks) {
+    $id = $check.id
+
+    # Type strictness: required and passes must be JSON boolean (not string, number, null)
+    $required = $check.required
+    if ($null -eq $required -or $required -isnot [bool]) {
+        $failures += "check '$id' has invalid type for required: $($required.GetType().Name) (expected bool)"
+        continue
+    }
+
+    $passes = $check.passes
+    if ($null -eq $passes -or $passes -isnot [bool]) {
+        $failures += "check '$id' has invalid type for passes: $($passes.GetType().Name) (expected bool)"
+        continue
+    }
+
+    $evidence = ([string]($check.evidence)).Trim()
+    $waiverReason = ([string]($check.waiver_reason)).Trim()
+
+    # Waiver enforcement: required:false + passes:false needs waiver_reason
+    if (-not $required -and -not $passes) {
+        if ([string]::IsNullOrWhiteSpace($waiverReason)) {
+            $failures += "check '$id' is optional and has passes=false but waiver_reason is empty; " +
+                "either run the check or record why it does not apply in waiver_reason"
+        }
+    }
+
+    if ($required -and -not $passes) {
+        $failures += "required check '$id' has passes=false"
+        continue
+    }
+
+    if ($passes) {
+        if ([string]::IsNullOrWhiteSpace($evidence)) {
+            $failures += "check '$id' passes without evidence"
+            continue
+        }
+
+        $evidenceResult = Test-EvidencePath -FieldName "evidence" -Evidence $evidence -RepoRoot $absRoot
+        if (-not $evidenceResult.IsValid) {
+            $failures += "check '$id' $($evidenceResult.Failure)"
+            continue
+        }
+    }
+}
+
+# Pass 3: required-set protection
+$presentIds = $contract.checks | ForEach-Object { $_.id }
+foreach ($bid in $BASELINE_IDS) {
+    if ($bid -notin $presentIds) {
+        $failures += "check removed from contract: '$bid' is a required baseline check id"
+        continue
+    }
+    $check = $contract.checks | Where-Object { $_.id -eq $bid } | Select-Object -First 1
+    if (-not [bool]$check.required) {
+        $waiver = ([string]($check.waiver_reason)).Trim()
+        if ([string]::IsNullOrWhiteSpace($waiver)) {
+            $failures += "baseline check '$bid' is downgraded to required:false without waiver_reason; " +
+                "downgrading a baseline check requires justification recorded in the quality-gate report " +
+                "(set a non-empty waiver_reason)"
+        }
+    }
+}
+
+# Pass 4: risk-tier enforcement (source: plugins/sdd-quality-loop/references/risk-gate-matrix.md)
+$risk = ([string]($contract.risk)).Trim()
+$stack = ([string]($contract.stack)).Trim()
+if (-not $stack) { $stack = "code" }  # absent/empty == code (legacy)
+if ($risk) {  # LEGACY mode: if risk is absent or empty string, skip this pass
+    # Validate stack value; unknown -> fail and fall back to strictest (code).
+    if ($stack -notin $KNOWN_STACKS) {
+        $failures += "contract stack is invalid: $stack"
+        $stack = "code"
+    }
+    # Validate risk tier value
+    if ($risk -notin $RISK_TIERS.Keys) {
+        $failures += "contract risk is invalid: $risk"
+    } else {
+        # Enforce tier's required-id set
+        $requiredIds = $RISK_TIERS[$risk]
+        $presentIdSet = $contract.checks | ForEach-Object { $_.id }
+        $compileWaivable = ($stack -in $NONCODE_STACKS)
+
+        foreach ($reqId in ($requiredIds | Sort-Object)) {
+            if ($reqId -notin $presentIdSet) {
+                $failures += "risk $risk requires check '$reqId' present and required:true (missing)"
+            } else {
+                # Find the check and verify required:true
+                $check = $contract.checks | Where-Object { $_.id -eq $reqId } | Select-Object -First 1
+                if (-not [bool]$check.required) {
+                    # Non-code stack: compile-oriented checks are waivable (required:false).
+                    # The waiver_reason itself is enforced by Pass 2/3. Everything else stays mandatory.
+                    if ($compileWaivable -and ($reqId -in $COMPILE_CHECKS)) {
+                        # accepted as N/A for this stack
+                    } else {
+                        $failures += "risk $risk requires check '$reqId' to be required:true"
+                    }
+                }
+            }
+        }
+    }
+}
+
+# Pass 5: Red→Green evidence enforcement (only when required_workflow == "tdd")
+$requiredWorkflow = ([string]($contract.required_workflow)).Trim()
+if ($requiredWorkflow -eq "tdd") {
+    # TDD test-check ids that require red_evidence and green_evidence when required=true
+    $tddTestIds = @("unit-tests", "acceptance-tests")
+
+    foreach ($check in $contract.checks) {
+        $id = $check.id
+        $required = $check.required
+
+        # Only enforce red/green for test-type checks that are required:true
+        if ($id -in $tddTestIds -and $required) {
+            $redEvidence = ([string]($check.red_evidence)).Trim()
+            $greenEvidence = ([string]($check.green_evidence)).Trim()
+
+            # Rule 2a: must not be empty/missing
+            if ([string]::IsNullOrWhiteSpace($redEvidence)) {
+                $failures += "check '$id' required_workflow tdd needs non-empty red_evidence"
+                continue
+            }
+            if ([string]::IsNullOrWhiteSpace($greenEvidence)) {
+                $failures += "check '$id' required_workflow tdd needs non-empty green_evidence"
+                continue
+            }
+
+            $redResult = Test-EvidencePath -FieldName "red_evidence" -Evidence $redEvidence -RepoRoot $absRoot
+            if (-not $redResult.IsValid) {
+                $failures += "check '$id' $($redResult.Failure)"
+                if ($redResult.StopsCurrentCheck) {
+                    continue
+                }
+            }
+
+            $greenResult = Test-EvidencePath -FieldName "green_evidence" -Evidence $greenEvidence -RepoRoot $absRoot
+            if (-not $greenResult.IsValid) {
+                $failures += "check '$id' $($greenResult.Failure)"
+            }
+        }
+    }
+}
+
+# Pass 5b: Risk→Workflow consistency (only when BOTH risk AND required_workflow are present)
+if ($risk -and $requiredWorkflow) {  # Enforce only if both fields are present and non-empty
+    if ($risk -in @("high", "critical")) {
+        if ($requiredWorkflow -ne "tdd") {
+            $failures += "risk $risk requires required_workflow: tdd (got '$requiredWorkflow')"
+        }
+    }
+}
+
+# Pass 6: cross-model verification descriptor (conditional control, like signature/two-person).
+# Enforced ONLY when the contract opts in via `cross_model`. Absent/empty/"legacy" =>
+# no enforcement (backward compatible). NOT part of the machine-form RISK_TIERS set.
+$crossModel = ([string]($contract.cross_model)).Trim()
+if ($crossModel -and $crossModel -ne "legacy") {
+    if ($crossModel -notin @("required", "waived")) {
+        $failures += "contract cross_model is invalid: $crossModel"
+    } else {
+        $cmCheck = $contract.checks | Where-Object { $_.id -eq "cross-model-verification" } | Select-Object -First 1
+        if ($crossModel -eq "required") {
+            if (-not $cmCheck) {
+                $failures += "cross_model:required needs a 'cross-model-verification' check present and required:true with evidence"
+            } elseif (-not [bool]$cmCheck.required) {
+                $failures += "cross_model:required needs 'cross-model-verification' to be required:true"
+            }
+        } elseif ($crossModel -eq "waived") {
+            if (-not $cmCheck) {
+                $failures += "cross_model:waived needs a 'cross-model-verification' check present with a non-empty waiver_reason"
+            } elseif ([string]::IsNullOrWhiteSpace(([string]($cmCheck.waiver_reason)).Trim())) {
+                $failures += "cross_model:waived needs a non-empty waiver_reason on 'cross-model-verification'"
+            }
+        }
+    }
+}
+
+if ($failures.Count -gt 0) {
+    Write-Host "Verification contract FAILED for task $($contract.task_id):"
+    $failures | ForEach-Object { Write-Host " - $_" }
+    exit 1
+}
+Write-Host "Verification contract passed for task $($contract.task_id)."
+exit 0

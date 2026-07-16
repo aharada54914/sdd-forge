@@ -1,0 +1,26 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-136-phase2-gates",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "7467fd75ec4a6e8b00cff32f6e1870e708673fe13cdc7e4f630e04b951647bae",
+  "created": "2026-07-15T06:16:37Z",
+  "comment": "Default-FAIL verification contract updated only after the recorded commands completed successfully.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "This shell/PowerShell guard task has no repository lint command; focused syntax and behavioral suites were executed instead.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "This shell/PowerShell guard task has no static typecheck command; focused syntax and behavioral suites were executed instead.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-001/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002"], "red_evidence": "specs/epic-136-phase2-gates/verification/T-001/review-fix-red.log", "green_evidence": "specs/epic-136-phase2-gates/verification/T-001/review-fix-green.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No separate service or integration boundary is in scope; the cross-runtime corpus exercises the installed runtime twins.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "This shell/PowerShell guard task has no compile/build artifact; parser and runtime checks are covered by the focused suites.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-001/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-001"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-001/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-001/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002"], "red_evidence": "specs/epic-136-phase2-gates/verification/T-001/review-fix-red.log", "green_evidence": "specs/epic-136-phase2-gates/verification/T-001/review-fix-green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-001/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002"], "red_evidence": "", "green_evidence": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-001/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-001", "REQ-002"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "No independently startable application or service is touched by this hook parser change.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "No baseline-behavior.md exists for this feature; focused regression corpus provides the applicable behavioral comparison.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No user interface is in scope.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system directory or UI-layer file is in scope.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

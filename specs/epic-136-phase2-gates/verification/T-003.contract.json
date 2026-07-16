@@ -1,0 +1,26 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-136-phase2-gates",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "7467fd75ec4a6e8b00cff32f6e1870e708673fe13cdc7e4f630e04b951647bae",
+  "created": "2026-07-15T06:50:00Z",
+  "comment": "Default-FAIL verification contract updated only after the recorded commands completed successfully.",
+  "checks": [
+    { "id": "lint", "required": false, "passes": false, "evidence": "", "waiver_reason": "No repository lint command applies to this PowerShell script helper task.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "typecheck", "required": false, "passes": false, "evidence": "", "waiver_reason": "No static typecheck command applies; the PS5.1 parser and focused suite execute the helper.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "unit-tests", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-003/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-003"], "red_evidence": "specs/epic-136-phase2-gates/verification/T-003/red.log", "green_evidence": "specs/epic-136-phase2-gates/verification/T-003/green.log" },
+    { "id": "integration-tests", "required": false, "passes": false, "evidence": "", "waiver_reason": "No service boundary is in scope; the real script process and golden corpus are exercised.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "build", "required": false, "passes": false, "evidence": "", "waiver_reason": "No compiled artifact applies; parser and behavior tests cover this script.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "placeholder-scan", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-003/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-003"], "red_evidence": "", "green_evidence": "" },
+    { "id": "task-state-check", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-003/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "acceptance-tests", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-003/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-003"], "red_evidence": "specs/epic-136-phase2-gates/verification/T-003/red.log", "green_evidence": "specs/epic-136-phase2-gates/verification/T-003/green.log" },
+    { "id": "regression", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-003/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-003"], "red_evidence": "", "green_evidence": "" },
+    { "id": "requirement-traceability", "required": true, "passes": true, "evidence": "specs/epic-136-phase2-gates/verification/T-003/quality-gate-evidence.md", "waiver_reason": "", "requirement_ids": ["REQ-003"], "red_evidence": "", "green_evidence": "" },
+    { "id": "smoke-run", "required": false, "passes": false, "evidence": "", "waiver_reason": "No independently startable application is touched.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "differential-baseline", "required": false, "passes": false, "evidence": "", "waiver_reason": "No baseline-behavior.md exists; all 30 frozen tuples and reparse fixtures provide the applicable comparison.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "ui-verification", "required": false, "passes": false, "evidence": "", "waiver_reason": "No UI is in scope.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" },
+    { "id": "design-system", "required": false, "passes": false, "evidence": "", "waiver_reason": "No design-system/UI file is in scope.", "requirement_ids": [], "red_evidence": "", "green_evidence": "" }
+  ]
+}

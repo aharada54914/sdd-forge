@@ -1,0 +1,8 @@
+{
+    "schema":  "phase2-contract-path-golden/v1",
+    "field":  "green_evidence",
+    "case":  "blank",
+    "expected_exit":  1,
+    "stdout":  "Verification contract FAILED for task T-003-FIXTURE:\n - check \u0027unit-tests\u0027 required_workflow tdd needs non-empty green_evidence\n",
+    "stderr":  ""
+}
