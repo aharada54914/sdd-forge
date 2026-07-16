@@ -130,8 +130,8 @@ function Test-ChecksArrayValid([object]$Checks) {
   foreach ($c in $arr) {
     if (-not (Test-KeysExact $c @('finding', 'id', 'result', 'severity'))) { return $false }
     if (-not (Test-NonEmptyString $c.id)) { return $false }
-    if (@('PASS', 'FAIL', 'SKIP') -notcontains $c.result) { return $false }
-    if (@('Critical', 'Major', 'Minor') -notcontains $c.severity) { return $false }
+    if (@('PASS', 'FAIL', 'SKIP') -cnotcontains $c.result) { return $false }
+    if (@('Critical', 'Major', 'Minor') -cnotcontains $c.severity) { return $false }
     if ($c.finding -isnot [string]) { return $false }
   }
   return $true
@@ -143,7 +143,7 @@ function Test-ChecksArrayValid([object]$Checks) {
 if ($EditSummary -cmatch '^--edit-summary=(.*)$') { $EditSummary = $Matches[1] }
 if (Test-OrdinalEqual $EditSummary '--reset') { $EditSummary = ''; $Reset = $true }
 
-if ($Feature -notmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
+if ($Feature -cnotmatch '^[a-z0-9][a-z0-9-]*$') { Fail 'invalid feature slug' }
 if ($Attempt -notmatch '^[1-9][0-9]*$') { Fail 'attempt must be a positive integer' }
 if ($Round -notmatch '^[1-9][0-9]*$') { Fail 'round must be a positive integer' }
 $attemptInt = [int64]$Attempt
@@ -218,7 +218,7 @@ function Test-ValidateReviewerOutput(
   if (-not (Test-OrdinalEqual $data.host_session_id $HostSessionId)) { return $false }
   if (-not (Test-ManifestArrayValid $data.allowed_input_manifest)) { return $false }
   if (-not (Test-ChecksArrayValid $data.checks)) { return $false }
-  if (@('PASS', 'NEEDS_WORK', 'BLOCKED') -notcontains $data.verdict) { return $false }
+  if (@('PASS', 'NEEDS_WORK', 'BLOCKED') -cnotcontains $data.verdict) { return $false }
 
   $actualManifest = @($data.allowed_input_manifest | Sort-Object path)
   if (-not (Test-ManifestArraysEqual $actualManifest $ExpectedManifestSorted)) { return $false }
@@ -230,10 +230,10 @@ function Test-ValidateReviewerOutput(
     default { return $false }
   }
   $actualIds = @($data.checks | ForEach-Object { $_.id })
-  if (($actualIds -join ',') -ne ($expectedIds -join ',')) { return $false }
+  if (($actualIds -join ',') -cne ($expectedIds -join ',')) { return $false }
 
-  $criticalFail = @($data.checks | Where-Object { $_.result -eq 'FAIL' -and $_.severity -eq 'Critical' })
-  $anyFail = @($data.checks | Where-Object { $_.result -eq 'FAIL' })
+  $criticalFail = @($data.checks | Where-Object { $_.result -ceq 'FAIL' -and $_.severity -ceq 'Critical' })
+  $anyFail = @($data.checks | Where-Object { $_.result -ceq 'FAIL' })
   $expectedVerdict = if ($criticalFail.Count -gt 0) { 'BLOCKED' } elseif ($anyFail.Count -gt 0) { 'NEEDS_WORK' } else { 'PASS' }
   return (Test-OrdinalEqual $data.verdict $expectedVerdict)
 }
@@ -305,8 +305,8 @@ function Test-ValidateContract(
   foreach ($c in $summaryChecks) {
     if (-not (Test-KeysExact $c @('id', 'result', 'severity'))) { return $false }
     if (-not (Test-NonEmptyString $c.id)) { return $false }
-    if (@('PASS', 'FAIL', 'SKIP') -notcontains $c.result) { return $false }
-    if (@('Critical', 'Major', 'Minor') -notcontains $c.severity) { return $false }
+    if (@('PASS', 'FAIL', 'SKIP') -cnotcontains $c.result) { return $false }
+    if (@('Critical', 'Major', 'Minor') -cnotcontains $c.severity) { return $false }
   }
   if (-not (Test-IsJsonNumberGte0 $summary.reviewer_a_fail_count)) { return $false }
   if (-not (Test-IsJsonNumberGte0 $summary.reviewer_a_pass_count)) { return $false }
@@ -375,9 +375,9 @@ function Test-ValidateContract(
     if (-not (Test-OrdinalEqual $reviewerAChecks[$i].result $summaryChecks[$i].result)) { return $false }
     if (-not (Test-OrdinalEqual $reviewerAChecks[$i].severity $summaryChecks[$i].severity)) { return $false }
   }
-  $reviewerAFailCount = @($reviewerAChecks | Where-Object { $_.result -eq 'FAIL' }).Count
-  $reviewerAPassCount = @($reviewerAChecks | Where-Object { $_.result -eq 'PASS' }).Count
-  $reviewerASkipCount = @($reviewerAChecks | Where-Object { $_.result -eq 'SKIP' }).Count
+  $reviewerAFailCount = @($reviewerAChecks | Where-Object { $_.result -ceq 'FAIL' }).Count
+  $reviewerAPassCount = @($reviewerAChecks | Where-Object { $_.result -ceq 'PASS' }).Count
+  $reviewerASkipCount = @($reviewerAChecks | Where-Object { $_.result -ceq 'SKIP' }).Count
   if (-not (Test-JsonIntegerEquals $summary.reviewer_a_fail_count $reviewerAFailCount)) { return $false }
   if (-not (Test-JsonIntegerEquals $summary.reviewer_a_pass_count $reviewerAPassCount)) { return $false }
   if (-not (Test-JsonIntegerEquals $summary.reviewer_a_skip_count $reviewerASkipCount)) { return $false }
@@ -385,9 +385,9 @@ function Test-ValidateContract(
   $reviewerBData = Get-Content -LiteralPath $reviewerBPath -Raw | ConvertFrom-Json
   $reviewerBChecks = @($reviewerBData.checks)
   $allChecks = @($reviewerAChecks) + @($reviewerBChecks)
-  $critical = @($allChecks | Where-Object { $_.result -eq 'FAIL' -and $_.severity -eq 'Critical' }).Count
-  $major = @($allChecks | Where-Object { $_.result -eq 'FAIL' -and $_.severity -eq 'Major' }).Count
-  $minor = @($allChecks | Where-Object { $_.result -eq 'FAIL' -and $_.severity -eq 'Minor' }).Count
+  $critical = @($allChecks | Where-Object { $_.result -ceq 'FAIL' -and $_.severity -ceq 'Critical' }).Count
+  $major = @($allChecks | Where-Object { $_.result -ceq 'FAIL' -and $_.severity -ceq 'Major' }).Count
+  $minor = @($allChecks | Where-Object { $_.result -ceq 'FAIL' -and $_.severity -ceq 'Minor' }).Count
 
   if ($critical -gt 0 -or $major -gt 0) {
     $expectedMerged = if ($ExpectedRound -eq 3) { 'BLOCKED' } else { 'NEEDS_WORK' }
@@ -444,7 +444,7 @@ if ($roundInt -gt 1) {
 if ($Reset) {
   $previousAttempt = Join-Path $reportRoot "attempt-$($attemptInt - 1)"
   if (-not (Test-RealDirectory $previousAttempt)) { Fail 'previous attempt is required before reset' }
-  $roundDirs = @(Get-ChildItem -LiteralPath $previousAttempt -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -match '^round-[1-3]$' })
+  $roundDirs = @(Get-ChildItem -LiteralPath $previousAttempt -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -cmatch '^round-[1-3]$' })
   $previousRoundNumbers = @($roundDirs | ForEach-Object { [int]($_.Name -replace '^round-', '') } | Sort-Object)
   if ($previousRoundNumbers.Count -eq 0) { Fail 'previous attempt has no terminal round' }
   $previousRound = $previousRoundNumbers[-1]

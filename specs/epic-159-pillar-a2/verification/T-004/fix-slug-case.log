@@ -1,0 +1,190 @@
+=== Amendment: gate cycle 1 Critical finding fix (case-sensitive feature-slug
+validation) ===
+
+Finding: `plugins/sdd-review-loop/scripts/spec-review-precheck.ps1:146`'s
+feature-slug check used PowerShell's default CASE-INSENSITIVE `-notmatch`,
+so `^[a-z0-9][a-z0-9-]*$` also matched uppercase-containing slugs
+(`Test-Feature`, `NOFEATURE`, `Epic-159-Pillar-A2`) that the `.sh` original
+(bash `=~`, always case-sensitive, no `nocasematch`) rejects with
+`invalid feature slug`. On a case-sensitive filesystem (Linux CI) this would
+let evidence be written under a differently-cased path
+(`reports/spec-review/Epic-159-Pillar-A2/...`), breaking the replay-forbidden
+guarantee the case-sensitive slug gate exists to protect (security-spec.md
+B2, weakened-port threat row).
+
+Fix: `-notmatch` -> `-cnotmatch` at line 146 (single-token fix, as reported).
+
+=== Full-file sweep: -match / -notmatch / -replace occurrences ===
+
+| Line | Code | .sh original semantics | Verdict |
+|---|---|---|---|
+| 58 | `Test-IsSha256`: `-match '^[0-9a-fA-F]{64}$'` | bash `=~` same pattern, always case-sensitive | Safe -- pattern already enumerates both cases (`a-f` AND `A-F`) explicitly; case-insensitivity adds no additional acceptance. No fix. |
+| 62 | `Test-NonEmptyString`: `-match '\S'` | jq `test("\\S")`, case-sensitive but pattern has no letters | Safe -- `\S` (non-whitespace) has no case component. No fix. |
+| 143 | `-cmatch '^--edit-summary=(.*)$'` | bash `case` literal-prefix match, case-sensitive | Already correct (uses `-cmatch`). No fix needed. |
+| 146 | `Feature -notmatch '^[a-z0-9][a-z0-9-]*$'` | bash `=~` same pattern, case-sensitive, lowercase-only class | **DIVERGENCE (the reported Critical).** Fixed: `-notmatch` -> `-cnotmatch`. |
+| 147 | `Attempt -notmatch '^[1-9][0-9]*$'` | bash `=~` same pattern, digits only | Safe -- no letters in pattern, case-insensitivity irrelevant. No fix. |
+| 148 | `Round -notmatch '^[1-9][0-9]*$'` | same as 147 | Safe. No fix. |
+| 154 | `EditSummary -replace '\s', ''` | bash `${var//[[:space:]]/}` | Safe -- `\s` has no case component. No fix. |
+| 188 | `status = (... -replace '\s', '')` | bash `tr -d '[:space:]'` | Safe -- same as above. No fix. |
+| 447 | `Get-ChildItem ... Where-Object { Name -match '^round-[1-3]$' }` | `.sh` original: `find ... \| sed -n 's#.*/round-\([1-3]\)$#\1#p'` -- sed BRE literal "round-" is case-sensitive | **DIVERGENCE (found during this sweep).** PowerShell's default case-insensitive `-match` would also accept a directory literally named e.g. `ROUND-2`/`Round-3` under a prior attempt's report tree, letting `--reset` select a wrong "previous terminal round" the `.sh` original's case-sensitive sed would never see. Lower severity than the reported Critical (requires an already-writable `reports/` tree, not attacker-supplied CLI input), but the same vulnerability class -- this script itself only ever creates lowercase `round-N` directories, so legitimate fixtures are unaffected by the fix. Fixed: `-match` -> `-cmatch`. |
+| 448 | `($_.Name -replace '^round-', '')` | `.sh` sed capture group extraction | Safe once line 447 is fixed -- only genuinely lowercase `round-1`/`round-2`/`round-3` strings (already filtered by the now-case-sensitive line 447) ever reach this replace, so there is no longer any case ambiguity for it to resolve differently. No fix needed. |
+
+Conclusion: 2 genuine divergences found in the `-match`/`-notmatch`/`-replace`
+class (lines 146, 447); both fixed to their `-c` (case-sensitive) variant.
+The remaining 6 occurrences were reviewed and confirmed safe by construction
+(digit-only patterns, whitespace-only patterns, or patterns that already
+enumerate both letter cases explicitly).
+
+=== Extended sweep: -eq / -ne / -contains / -notcontains on JSON-sourced
+string values (same vulnerability class, beyond the literally-named
+operator set, found while sweeping "the entire file" per the amendment
+request) ===
+
+Every raw (non-`Test-OrdinalEqual`) string equality/membership check against
+a value PARSED FROM an on-disk evidence file (`reviewer-a.json`,
+`reviewer-b.json`, `integrated-summary.json`) is, by the same PowerShell
+default-case-insensitivity rule, a potential weakened-port gap relative to
+`jq`'s always-case-sensitive `==`. Swept and fixed:
+
+| Lines | Code (before) | .sh original | Fix |
+|---|---|---|---|
+| 133-134, 308-309 | `@('PASS','FAIL','SKIP') -notcontains $c.result`; `@('Critical','Major','Minor') -notcontains $c.severity` (two call sites: `Test-ChecksArrayValid`, and the `summaryChecks` loop in `Test-ValidateContract`) | `validate_reviewer_output`/`validate_contract`: `.result == "PASS" or ... ` / `.severity == "Critical" or ...` (jq, case-sensitive) | `-notcontains` -> `-cnotcontains` |
+| 221 | `@('PASS','NEEDS_WORK','BLOCKED') -notcontains $data.verdict` | `(.verdict == "PASS" or .verdict == "NEEDS_WORK" or .verdict == "BLOCKED")` | `-notcontains` -> `-cnotcontains` |
+| 233 | `($actualIds -join ',') -ne ($expectedIds -join ',')` | `[[ "$actual_ids" == "$expected_ids" ]]` (bash, case-sensitive) | `-ne` -> `-cne` |
+| 235-236 | `$_.result -eq 'FAIL' -and $_.severity -eq 'Critical'`; `$_.result -eq 'FAIL'` | `select(.result == "FAIL" and .severity == "Critical")` | `-eq` -> `-ceq` (both) |
+| 378-380 | `$_.result -eq 'FAIL'\|'PASS'\|'SKIP'` (three counts) | `[.checks[] \| select(.result == "FAIL")] \| length` etc. | `-eq` -> `-ceq` (all three) |
+| 388-390 | `$_.result -eq 'FAIL' -and $_.severity -eq 'Critical'\|'Major'\|'Minor'` | `select(.result == "FAIL" and .severity == "Critical")` etc. | `-eq` -> `-ceq` (all three) |
+
+Reviewed and confirmed NOT a divergence (no fix): the `switch ($Role)` block
+inside `Test-ValidateReviewerOutput` (PowerShell `switch` string matching is
+also case-insensitive by default) compares `$Role`, which is ALWAYS an
+internal literal (`'spec-reviewer-a'`/`'spec-reviewer-b'`) supplied by this
+script's own call sites, never a value parsed from JSON -- the field that
+actually validates JSON-sourced role data (`$data.role`) already goes through
+`Test-OrdinalEqual` (line 216, ordinal/case-sensitive). Not exploitable.
+All other `-eq`/`-ne` occurrences in the file (`.Count -eq/-ne`,
+`$ExpectedRound -eq 3`, `$null -eq ...`) compare non-string types (integers,
+null); case-sensitivity has no meaning for them.
+
+This extended set (10 additional call sites) is beyond the literally-named
+`-match`/`-notmatch`/`-replace` operator class the amendment request
+specified, but is the identical vulnerability class (PowerShell's
+case-insensitive-by-default string comparison silently accepting evidence
+`jq`'s case-sensitive `==` would reject) applied to a different set of
+PowerShell operators, discovered while sweeping "the entire file" as
+instructed. Fixed in the same commit since every fix is a single-character
+`-c` prefix that can only NARROW acceptance (never widen it, and never
+affects any real fixture, which always emits canonical-case literals) --
+leaving a self-discovered, same-class Critical-adjacent gap unfixed in the
+very file already open for this exact remediation would very likely surface
+as a follow-up gate finding.
+
+=== Diagnosis-only: plugins/sdd-domain/scripts/domain-review-precheck.ps1
+(T-003's file; NOT edited by this task) ===
+
+Swept for the same vulnerability class. Findings (report only, per the
+amendment request -- fix decision deferred to the host / a separate task):
+
+| Line | Code | .sh original (`domain-review-precheck.sh`) | Assessment |
+|---|---|---|---|
+| 59-60 | `Attempt`/`Round -notmatch '^[1-9][0-9]*$'` | same pattern, digits only | Safe -- no letters. |
+| 66, 136 | `-replace '\s', ''` (x2) | `[[:space:]]` stripping | Safe -- no case component. |
+| 137 | `$status -notmatch '^(Pending\|Reviewed\|Approved)$'` | `domain-review-precheck.sh:96`: `[[ "$status" =~ ^(Pending\|Reviewed\|Approved)$ ]]` (bash, case-sensitive) | **DIVERGENCE (same class as the reported Critical, NOT fixed here).** PowerShell's default case-insensitive `-notmatch` would accept `pending`/`PENDING`/`reviewed`/`approved` etc., which the `.sh` original's case-sensitive bash regex rejects with "context-map.md must declare a recognized Domain-Model-Status". Lower severity than the spec-slug finding (`domain/context-map.md`'s `Domain-Model-Status:` field is repo content, not direct attacker-supplied CLI input), but the same structural weakness. |
+| 255 | `$_.Name -match '^round-[1-3]$'` (the `--reset` previous-round-directory scan) | same sed-based pattern as spec's line 447 | **DIVERGENCE (same class, NOT fixed here).** Identical shape and identical (lower) severity rationale as spec's line 447 finding above. |
+| (whole file) | All other string equality checks | -- | Domain's port consistently routes every other string-identity check through the file's own `Test-OrdinalEqual` helper (verified via full-file grep: every `-eq`/status comparison in the file is `Test-OrdinalEqual(...)`, never a raw `-eq`/`-contains` on a JSON-sourced string) -- no equivalent of spec's extended `-eq`/`-contains` finding exists in `domain-review-precheck.ps1`. |
+
+Per the amendment request, no edit was made to `domain-review-precheck.ps1`
+(T-003's own deliverable, out of this task's scope); this diagnosis is
+reported for the host to route as a follow-up (e.g. a new issue against
+T-003's file, or amend it directly if desired).
+
+=== Verification (a): case-variant slugs rejected identically by .sh and
+.ps1, named-parameter AND array-splat, for all three slugs the evaluator
+named ===
+
+--- Test-Feature ---
+.sh:  ERROR: spec-review-precheck: invalid feature slug (exit 1)
+.ps1 (named):        ERROR: spec-review-precheck: invalid feature slug (exit 1)
+.ps1 (array-splat):  ERROR: spec-review-precheck: invalid feature slug (exit 1)
+
+--- NOFEATURE ---
+.sh:  ERROR: spec-review-precheck: invalid feature slug (exit 1)
+.ps1 (named):        ERROR: spec-review-precheck: invalid feature slug (exit 1)
+.ps1 (array-splat):  ERROR: spec-review-precheck: invalid feature slug (exit 1)
+
+--- Epic-159-Pillar-A2 ---
+.sh:  ERROR: spec-review-precheck: invalid feature slug (exit 1)
+.ps1 (named):        ERROR: spec-review-precheck: invalid feature slug (exit 1)
+.ps1 (array-splat):  ERROR: spec-review-precheck: invalid feature slug (exit 1)
+
+Byte-identical stderr text and exit code (1) confirmed for all three slugs,
+both invocation styles.
+
+=== Verification (b): normal-path slug (all-lowercase, `epic-159-pillar-a2`
+shape) unaffected ===
+
+Driven end-to-end through `tests/lib/loop-driver.ps1`'s
+`Invoke-DriveReviewRound -Stage spec` (which uses exactly this canonical
+lowercase-hyphenated shape for every fixture feature slug it generates) --
+see Verification (d) below: 27/0/0-SKIP in `loop-consistency.tests.ps1`
+confirms every spec-review round drive still succeeds post-fix.
+Additionally verified the `--reset` transition directly (not exercised by
+either wave-1 suite): drove a clean round-1 PASS via
+`Invoke-DriveReviewRound -Severity none`, then invoked
+`spec-review-precheck.ps1 -Feature <slug> -Attempt 2 -Round 1 -Reset`
+directly -- exit 0, `attempt-2/round-1/precheck-result.json` created, and
+`requirements.md`'s `Spec-Review-Status:` field correctly rewritten from
+`Passed` to `Pending`. This exercises line 447's fixed `-cmatch` against a
+genuinely lowercase `round-1` directory the script itself created, proving
+the fix does not affect legitimate fixtures.
+
+=== Verification (c): existing 4 reject-path conditions, no parity
+regression ===
+
+--- (i) out-of-range round ---
+.sh:  ERROR: spec-review-precheck: round must be between 1 and 3 (exit 1)
+.ps1: ERROR: spec-review-precheck: round must be between 1 and 3 (exit 1)
+
+--- (ii) round-1 non-empty edit-summary ---
+.sh:  ERROR: spec-review-precheck: --edit-summary is valid only after round 1 (exit 1)
+.ps1: ERROR: spec-review-precheck: --edit-summary is valid only after round 1 (exit 1)
+
+--- (iii-a) reset outside attempt N+1 round1 ---
+.sh:  ERROR: spec-review-precheck: --reset starts only attempt N+1 round 1 (exit 1)
+.ps1: ERROR: spec-review-precheck: --reset starts only attempt N+1 round 1 (exit 1)
+
+--- (iii-b) new attempt without --reset ---
+.sh:  ERROR: spec-review-precheck: a new attempt requires --reset (exit 1)
+.ps1: ERROR: spec-review-precheck: a new attempt requires --reset (exit 1)
+
+All four unchanged from the pre-fix state recorded in green-sh.log.
+
+=== Verification (d): pwsh tests/loop-driver.tests.ps1 and
+tests/loop-consistency.tests.ps1, no regression ===
+
+pwsh tests/loop-driver.tests.ps1:
+loop-driver.tests.ps1: 22 passed, 0 failed, 3s elapsed
+(0 SKIP; matches the T-004 GREEN baseline exactly)
+
+pwsh tests/loop-consistency.tests.ps1:
+loop-consistency.tests.ps1: 27 passed, 0 failed, 25s elapsed
+(0 SKIP; matches the T-004 GREEN baseline exactly)
+
+=== Verification (e): tests/guard-ps1-ascii.tests.sh ===
+
+guard-ps1-ascii.tests.sh: 9 passed, 0 failed (all 3 targets: sdd-hook-guard.ps1,
+domain-review-precheck.ps1, spec-review-precheck.ps1)
+
+=== Additional regression checks (unaffected) ===
+
+tests/crlf-parity.tests.sh: 8 passed, 0 failed
+tests/constant-parity.tests.sh (PROTECTED, read-only): 2 passed, 0 failed
+tests/validate-repository.sh: exit 0, "Repository validation passed."
+
+Byte-level hygiene of the fixed file (independent cross-check):
+zero bytes outside 0x00-0x7F, no UTF-8 BOM, no CR bytes.
+[System.Management.Automation.Language.Parser]::ParseFile -> PARSE OK, zero
+syntax errors.
+
+New SHA-256 of plugins/sdd-review-loop/scripts/spec-review-precheck.ps1:
+a6bb5780f7b4d6b1870dd84179c1e47dc1dc08d1bac1e78fb0309f8d1939e2ed
