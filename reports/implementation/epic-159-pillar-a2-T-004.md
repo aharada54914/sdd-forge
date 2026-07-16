@@ -1,0 +1,378 @@
+# Implementation Report: T-004
+
+- Task ID: T-004
+
+Report Schema: implementation-report/v2
+
+**Snapshot Notice**: The numbers, statuses, and paths recorded below reflect
+the state at this report's own authoring run only. A later same-feature
+event -- another task's edit to the same surface, or a gate-phase artifact
+normalization such as a path move -- may supersede them. The quality
+verification gate's own report is the authority for the gate-time state;
+this report is not edited after the fact to reconcile it.
+
+## Target
+
+Feature: epic-159-pillar-a2 -- T-004 "Author spec-review-precheck.ps1
+(full-parity port) and complete the ps1 hygiene targets" (Issue #174,
+REQ-004 / REQ-005 / REQ-006; AC-014/AC-015/AC-016, AC-017/AC-019 shares
+scoped to this task).
+
+## Summary
+
+Authored `plugins/sdd-review-loop/scripts/spec-review-precheck.ps1` as a
+full-parity PowerShell port of the unedited `spec-review-precheck.sh`:
+feature-slug validation, attempt/round bounds, the round-1 `--edit-summary`
+restriction, the rounds-2/3 non-empty `--edit-summary` requirement, and the
+`--reset` preconditions (mirroring T-003's `domain-review-precheck.ps1`
+translation idioms, INV-016). Unlike `domain-review-precheck.sh`, the spec
+original also implements a full own-stage prior-round/reset re-validation
+(`validate_contract()`/`validate_reviewer_output()`, `spec-review-precheck.sh`
+lines 85-195) -- since spec is the first stage in the review chain, this is
+NOT the same shape as `impl-review-precheck.ps1`/`task-review-precheck.ps1`'s
+`Require-Pass` (which validates a PREDECESSOR stage's persisted PASS); it
+validates THIS stage's own prior-round (round > 1) or reset-target
+terminal-round evidence set in full: `spec-review-contract.json`,
+`precheck-result.json`, `integrated-summary.json`, `reviewer-a.json`,
+`reviewer-b.json`, and `integrated-verdict.json` -- schema shape, SHA-256
+manifest cross-checks against the script's own canonical paths, and
+finding-count-driven verdict/warningCount recomputation. This logic was
+translated fresh (no PowerShell precedent existed for it in this repository)
+following the same idioms as the shared helpers (`Fail`, `Test-OrdinalEqual`,
+`Get-Sha256File`/`Get-Sha256Text`, `Test-IsSymlink`/`Test-RealDirectory`/
+`Get-CanonicalDir`). The `.sh` original was read but never edited (1 byte
+unchanged). The shared portable-foundation call
+(`review-contract-validate.ps1 -Stage spec`) and the `--reset`-time
+`Spec-Review-Status: Passed` -> `Pending` real-file rewrite were also ported
+(neither exists in `domain-review-precheck.sh`).
+
+`tests/lib/loop-driver.ps1`'s `Invoke-LoopDriveSpecRound` invokes this
+script positionally via array splat (`$precheckArgs = @($feature, $Attempt,
+$Round)`, `+= "--edit-summary=round-$Round-edit"` for round > 1); the port's
+`-EditSummary` parameter accepts and strips the raw `--edit-summary=<text>`
+token when it lands there via array splat (same mechanism T-003 verified),
+while also accepting a bare value via direct named invocation
+(`-EditSummary <text>`) for test/CLI use. Both invocation styles were
+exercised and verified for all three required reject-path scenarios.
+
+Added `spec-review-precheck.ps1` as the third entry to
+`tests/guard-ps1-ascii.tests.sh`'s `TARGETS` array (T-003's generalization,
+a pure one-line addition per Global Constraints).
+
+Acceptance-first order was followed: RED evidence was captured directly in
+this working tree BEFORE the file existed (no `git worktree` isolation
+needed, unlike T-003, since this session never had the file present at any
+point before creating it) -- (a) the wave-1 suites' named-SKIP state in both
+`tests/loop-driver.tests.ps1` and `tests/loop-consistency.tests.ps1`; (b) the
+port's own absence confirmed via `git log --all`/`git show HEAD:...` and a
+failed `pwsh -File` invocation, plus the `.sh` original's exact reject-path
+baseline text/exit codes recorded for later byte-for-byte comparison.
+
+**Specification Difference / discovered PowerShell parser quirk (fixed
+inside this task's own file, not left unresolved)**: the initial
+`Test-ValidateContract` translation failed round-2/round-3 driving with
+`ERROR: spec-review-precheck: prior round contract is malformed or does not
+require work`. Root-caused via an instrumented copy of the function run
+against the real loop-driver-produced fixture (see Working Notes): PowerShell
+7's `ConvertFrom-Json` auto-coerces ISO-8601-looking JSON string values (e.g.
+`integrated-summary.json`'s `generated_at`) into `[DateTime]`, unlike `jq`,
+which never performs implicit type coercion. Fixed with a `Test-IsStringLike`
+helper (`[string]` OR `[DateTime]`) applied only at that one call site. After
+the fix, BOTH `tests/loop-driver.tests.ps1` TEST-006 and
+`tests/loop-consistency.tests.ps1` TEST-008's spec/impl/task legs (plus the
+brownfield-profile leg and TEST-009.1) converted fully to green with ZERO
+residual SKIP or FAIL -- unlike T-003's domain leg, which hit an independent,
+pre-existing `tests/lib/loop-driver.ps1` defect (already fixed by the host
+separately, commit 9ca31bb, before this task began; see Assumptions
+Verified below).
+
+## Files Changed
+
+- `plugins/sdd-review-loop/scripts/spec-review-precheck.ps1` (new) --
+  full-parity port; ASCII-only, no BOM, LF-only (verified byte-level below).
+- `tests/guard-ps1-ascii.tests.sh` (edited) -- one-line `TARGETS` addition
+  (`spec-review-precheck.ps1` as the third entry). `GUARD_PS1` override
+  behavior unchanged (verified: overriding it to a missing path fails only
+  the first target; the two unprotected precheck-port targets still pass).
+- `CHANGELOG.md` (edited) -- `## Unreleased` entry citing #174, appended
+  directly after T-003's #147 entry (both under `### 追加`), including the
+  discovered PowerShell `ConvertFrom-Json` DateTime-coercion quirk and its
+  fix.
+- `specs/epic-159-pillar-a2/tasks.md` (edited) -- T-004 `Status:` transition
+  (Planned -> In Progress -> Implementation Complete) only.
+- `specs/epic-159-pillar-a2/verification/T-004/{red-sh,red-ps1,green-sh,green-ps1}.log`
+  (new) -- acceptance-first RED and GREEN run evidence.
+
+No edit to `spec-review-precheck.sh`, `tests/loop-driver.tests.ps1`,
+`tests/loop-consistency.tests.ps1`, or `tests/lib/loop-driver.ps1` (confirmed
+via `git status` -- only the five paths above are touched, matching
+`tasks.md`'s Protected Files statement and this task's Out of Scope list).
+
+## Tests Added Or Updated
+
+No new permanent test-suite file was added. `specs/epic-159-pillar-a2/tasks.md`
+T-004's own Planned Files list does not include one (mirroring T-003's own
+precedent exactly -- neither #147 nor #174's Planned Files list a new
+`tests/*.tests.sh`/`.ps1` pair); design.md's Test Strategy item 3 explicitly
+documents this task's acceptance signal as externally observable (a wave-1
+suite's SKIP-to-green transition recorded in this report), not a newly
+authored assertion file. TEST-014/TEST-015/TEST-016 were therefore verified
+via ad hoc, recorded command invocations (below), not via a committed suite:
+
+- TEST-014 (reject-path parity, all three required systems): `-Attempt 1
+  -Round 4` (out-of-range Round), `-Attempt 1 -Round 1 -EditSummary hello`
+  (round-1 non-empty `--edit-summary`), `-Attempt 1 -Round 1 -Reset`
+  (`--reset` outside attempt N+1 round 1) and `-Attempt 2 -Round 1` (new
+  attempt without `--reset`) -- each run via BOTH named parameters AND the
+  production array-splat calling convention (`& $scriptPath @($feature,
+  $attempt, $round[, "--edit-summary=<text>"|"--reset"])`), each compared
+  byte-for-byte against `spec-review-precheck.sh`'s own stderr and exit code
+  for the same conditions.
+- TEST-015 (hygiene): `bash tests/guard-ps1-ascii.tests.sh` (post-edit) --
+  9 passed, 0 failed, across all three targets.
+- TEST-016 (self-healing observable, broad): `pwsh tests/loop-driver.tests.ps1`
+  and `pwsh tests/loop-consistency.tests.ps1` run in this working tree before
+  the file existed (RED) and after landing it (GREEN); SKIP counts and every
+  individual leg's outcome recorded in both logs.
+
+## Outputs
+
+One table row per produced file. Paths MUST be canonical repository-relative
+paths: forward slashes only, with no absolute/drive prefix, backslash, empty
+segment, `.` segment, or `..` segment. The independent evaluator launch
+boundary authorizes changed/test/contract inputs ONLY from rows in exactly
+this two-column, backtick-quoted form -- keep the shape byte-precise.
+
+| Path | SHA-256 |
+|---|---|
+| `plugins/sdd-review-loop/scripts/spec-review-precheck.ps1` | `e3f7369efbdaf14c27eff932db704af8bc7c4e81e53a186b1bb6f0c6c6517332` |
+| `tests/guard-ps1-ascii.tests.sh` | `b4bc3f019a0534e9b61fc44eeb23f550f392488473746c80b44bd9da85b0d9a7` |
+| `CHANGELOG.md` | `fb30ba8701c78da78229caac9c480c897c06504ff0c892c1b6df5fc10633bbfc` |
+| `specs/epic-159-pillar-a2/tasks.md` | `4fc479be52c63bcc766604e15dac4897c7c080fc533cf182bb0e4a625a322d5e` |
+| `specs/epic-159-pillar-a2/verification/T-004/red-sh.log` | `42722fe96cbc3cd549beba059ac180199b0c6611c894119274c0a947a3f7ed26` |
+| `specs/epic-159-pillar-a2/verification/T-004/red-ps1.log` | `d06024cf9aa143f943e87d28d836e8477e5ddd26241de5a4f9f5a5c71271736d` |
+| `specs/epic-159-pillar-a2/verification/T-004/green-sh.log` | `e78739121ea535942189250fb21137d780d7b0e9275bc83ff46543a78dedeb76` |
+| `specs/epic-159-pillar-a2/verification/T-004/green-ps1.log` | `568e3d21557266b406c6e93c1dd46c431db3cf71d576c55d37bc49a2dc67f497` |
+
+## Test Evidence
+
+- **Test Command**: `bash tests/guard-ps1-ascii.tests.sh`; `pwsh -NoProfile
+  -File plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 -Feature
+  test-feature -Attempt 1|2 -Round 1|4 [-EditSummary ...|-Reset]`; `pwsh
+  -NoProfile -File tests/loop-driver.tests.ps1`; `pwsh -NoProfile -File
+  tests/loop-consistency.tests.ps1`
+- **Test Result**: FULL PASS -- TEST-014, TEST-015, and TEST-016 all pass
+  completely; unlike T-003's domain leg, no residual FAIL remains after this
+  task's fix (the round-driving path is fully healthy end to end).
+- **Test Evidence Path**: specs/epic-159-pillar-a2/verification/T-004/green-ps1.log
+
+Acceptance-first evidence chain (logs under
+`specs/epic-159-pillar-a2/verification/T-004/`):
+
+- RED (`red-sh.log`, `red-ps1.log`): before the port existed -- file absence
+  confirmed (`ls` fails, `git log --all --oneline -- <path>` empty, `git show
+  HEAD:...` fatal "does not exist in HEAD"); a `pwsh -File` invocation of the
+  not-yet-existing path fails with PowerShell's own "not recognized as the
+  name of a script file" error (exit 64); `spec-review-precheck.sh`'s
+  reject-path baseline recorded for all three required systems (out-of-range
+  Round, round-1 non-empty `--edit-summary`, both `--reset`-precondition
+  variants) -- all exit 1 with `ERROR: spec-review-precheck: ...`;
+  `tests/guard-ps1-ascii.tests.sh` pre-edit TARGETS still shows only the
+  protected hook-guard entry and T-003's domain port (2 entries); `pwsh
+  tests/loop-driver.tests.ps1` -- 15 passed, 0 failed, 1 named SKIP (TEST-006
+  citing the structural gap this task closes); `pwsh
+  tests/loop-consistency.tests.ps1` -- 14 passed, 0 failed, 3 named SKIP
+  (TEST-008 spec/impl/task legs, the brownfield-profile leg's round drive,
+  and TEST-009.1, all citing the same gap).
+- GREEN (`green-sh.log`, `green-ps1.log`): `tests/guard-ps1-ascii.tests.sh`
+  post-edit -- 9 passed, 0 failed across all three targets (ASCII, no-BOM,
+  no-CR for `sdd-hook-guard.ps1`, `domain-review-precheck.ps1`, and
+  `spec-review-precheck.ps1`); `GUARD_PS1` override regression check confirms
+  it affects only the first target; all four named-parameter AND all four
+  array-splat reject-path invocations match the `.sh` original's exact exit
+  code (1) and stderr text; `tests/crlf-parity.tests.sh` (8/0) and the
+  PROTECTED `tests/constant-parity.tests.sh` (2/0, run read-only/unmodified)
+  both unaffected; `pwsh tests/loop-driver.tests.ps1` post-landing -- 22
+  passed, 0 failed, 0 SKIP (TEST-006 fully drives rounds 1->3 for real, round
+  3 records verdict PASS with warningCount 1); `pwsh
+  tests/loop-consistency.tests.ps1` post-landing -- 27 passed, 0 failed, 0
+  SKIP (spec/impl/task legs all drive rounds 1->3 green, the brownfield leg
+  drives round 1 green, TEST-009.1 runs for real and is green).
+  `tests/validate-repository.sh` exits 0.
+
+### SKIP-to-green differential (AC-016 / TEST-016)
+
+| Suite | RED | GREEN | delta |
+|---|---|---|---|
+| `tests/loop-driver.tests.ps1` | 15 passed, 0 failed, 1 SKIP | 22 passed, 0 failed, 0 SKIP | +7 passed, -1 SKIP |
+| `tests/loop-consistency.tests.ps1` | 14 passed, 0 failed, 3 SKIP | 27 passed, 0 failed, 0 SKIP | +13 passed, -3 SKIP |
+
+Zero edits to either suite (confirmed via `git status`). Every named SKIP
+citing #174 is gone; no new FAIL was introduced.
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Run ID**: Not reserved -- this implementation was authored directly by a
+  coder sub-agent in this session, without a separate identity-ledger
+  reservation call for its own run.
+- **Session ID**: 34212325-74b2-4d93-b1da-679455f12b8b
+- **Agent Instance ID**: Not reserved (see Run ID note above).
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Regression Tests Run
+
+`tests/loop-driver.tests.ps1` (22/0/0-SKIP), `tests/loop-consistency.tests.ps1`
+(27/0/0-SKIP), `tests/crlf-parity.tests.sh` (8/0), `tests/constant-parity.tests.sh`
+(protected, read-only, 2/0), `tests/guard-ps1-ascii.tests.sh` (post-edit,
+9/0, all three targets), `tests/validate-repository.sh` (pass). All pass with
+zero failures.
+
+`.ps1` hygiene (verified byte-level, independent of `guard-ps1-ascii.tests.sh`
+itself as a cross-check): zero bytes outside `0x00-0x7F`, no UTF-8 BOM (first
+three bytes `23 20 55` = `# U`), no CR bytes, for
+`plugins/sdd-review-loop/scripts/spec-review-precheck.ps1`. Parsed
+successfully via `[System.Management.Automation.Language.Parser]::ParseFile`
+with zero syntax errors.
+
+`tests/gates.tests.sh` (PROTECTED, read-only, run for completeness only --
+not in this task's Planned Files, not driven end-to-end for this task):
+124 passed, 2 failed. The 2 failures (`T-007a.6`, `T-007a.8`, evidence-bundle
+signing-key checks) are the same pre-existing, machine-local
+evidence-key/dirty-working-tree finding T-001/T-002/T-003 already recorded as
+out of scope for this feature; unrelated to `spec-review-precheck.ps1` or
+`guard-ps1-ascii.tests.sh`, and not re-investigated here.
+
+## Specification Differences
+
+- **Discovered and FIXED: PowerShell 7 `ConvertFrom-Json` auto-coerces
+  ISO-8601-looking JSON string values to `[DateTime]`** -- see Summary and
+  Working Notes for the full root-cause chain. Fixed inside this task's own
+  file (a new `Test-IsStringLike` helper), applied at the single call site
+  affected (`integrated-summary.json`'s `generated_at` field inside
+  `Test-ValidateContract`). No other field in this port's schema checks holds
+  a value PS7 could similarly misclassify (sha256 hex digests, feature
+  slugs, role/schema literals, and UUIDs do not parse as dates). This is a
+  translation-layer accommodation for a `jq`-vs-`ConvertFrom-Json` type-system
+  difference, not a behavior change relative to the `.sh` original: a
+  `[DateTime]` result is only ever produced when the underlying JSON value
+  WAS a string, so the fix preserves (rather than weakens) the original
+  check's intent.
+- **No new permanent test suite authored** -- `specs/epic-159-pillar-a2/tasks.md`
+  T-004's own Planned Files list (authoritative per this task's brief) does
+  not include one, mirroring T-003's own precedent; design.md's Test
+  Strategy item 3 explicitly documents this task's acceptance signal as
+  externally observable (SKIP-to-green in the wave-1 suites), not internally
+  asserted. TEST-014/015/016 were verified via recorded ad hoc invocations
+  instead (see Tests Added Or Updated).
+- **`Test-ValidateContract`/`Test-ValidateReviewerOutput` translated fresh,
+  with no direct PowerShell precedent in this repository** -- these
+  functions port `spec-review-precheck.sh`'s `validate_contract()`/
+  `validate_reviewer_output()` (lines 85-195), which have no equivalent in
+  `domain-review-precheck.sh` (spec is the only precheck stage with its own
+  round>1/`--reset` re-validation against its OWN prior evidence, as opposed
+  to `impl-review-precheck.ps1`/`task-review-precheck.ps1`'s `Require-Pass`,
+  which validates a PREDECESSOR stage's persisted PASS). The translation
+  follows the shared idioms already established (PSCustomObject property
+  inspection via `Test-KeysExact`, `Test-OrdinalEqual` for all string
+  comparison, `[Convert]::ToHexString`/`Get-FileHash` for SHA-256) and was
+  verified end-to-end by driving real spec-review rounds 1->3 through the
+  loop driver (TEST-006, TEST-008), which exercises round > 1's prior-round
+  re-validation path for real on both round 2 and round 3.
+- No other specification difference. The port's argument validation,
+  feature-slug/path/symlink/escape checks, status handling, and the
+  `--reset`-time status-field rewrite were implemented exactly as
+  `spec-review-precheck.sh` and design.md's "`domain-review-precheck.ps1`/
+  `spec-review-precheck.ps1` contract (T-003, T-004)" section describe.
+
+## Unresolved Items
+
+- The pre-existing `tests/gates.tests.sh` machine-local evidence-key finding
+  (T-007a.6/T-007a.8, same finding T-001/T-002/T-003 already recorded) was
+  not re-investigated here (out of scope -- protected file, not in this
+  task's Planned Files).
+
+## Quality Gate Focus
+
+- AC-014 (port completeness, INCLUDING the three explicit reject-path
+  systems): confirm all four named-parameter AND all four array-splat
+  reject-path invocations in `green-sh.log` match `red-sh.log`'s `.sh`-
+  original baseline byte-for-byte (exit code 1, identical `ERROR:
+  spec-review-precheck: ...` stderr text).
+- AC-015 (hygiene): confirm `green-sh.log`'s `guard-ps1-ascii.tests.sh` run
+  shows 9/0 across all three `TARGETS` entries, and the `GUARD_PS1`-override
+  regression check confirms the protected-entry-only override scope is
+  preserved.
+- AC-016 (self-healing, broad): confirm the SKIP-count differentials in
+  `red-ps1.log`/`green-ps1.log` for BOTH `tests/loop-driver.tests.ps1`
+  TEST-006 (1 SKIP -> 0) AND `tests/loop-consistency.tests.ps1` TEST-008's
+  spec/impl/task legs plus TEST-009.1 (3 SKIP -> 0), with zero residual FAIL
+  in either suite -- this task reaches full green, unlike T-003's documented
+  partial result.
+- REQ-006/AC-019: `CHANGELOG.md` `## Unreleased` cites #174; REQ-006
+  candidate documents were grep-checked for `spec-review-precheck` (zero
+  hits outside this task's own new file) -- no update required;
+  `tests/validate-repository.sh` exits 0.
+
+## Working Notes
+
+- The initial `Test-ValidateContract` port failed round 2's precheck call
+  with `prior round contract is malformed or does not require work`. Because
+  the .sh original's `validate_contract()` has ~15 distinct jq-based
+  assertions with no single obvious failure point, debugging via ad hoc
+  `pwsh -Command` probes against the real fixture (mktemp-scoped, driven
+  through `tests/lib/loop-driver.ps1`'s own `Initialize-LoopFixture`/
+  `Invoke-DriveReviewRound` functions -- never a real repository path) was
+  insufficient on its own. Built an instrumented copy of the extracted
+  function-definitions block (never the real `*-precheck.*` file itself,
+  which the protected-basename write-verb/redirect rule forbids combining
+  with Bash pipes/redirects) with a `Write-Host` inside every `{ return
+  $false }` branch, confirmed via the PowerShell AST parser that the
+  instrumentation preserved valid syntax, then ran it against the real
+  round-1 contract/precheck fixture files with the exact parameters round-2's
+  call site uses. First instrumentation attempt printed the marker text
+  UNCONDITIONALLY (a Python string-insertion bug placed the diagnostic
+  BEFORE the `if` statement rather than inside its brace block), producing a
+  misleading trace; corrected to insert strictly inside the `{ ... }` block,
+  after which the trace pinpointed the exact failing line:
+  `if ($summary.generated_at -isnot [string]) { return $false }`. Confirmed
+  via `$summary.generated_at.GetType().FullName` that PowerShell 7's
+  `ConvertFrom-Json` had silently parsed the ISO-8601 `generated_at` value as
+  `[System.DateTime]`, not `[string]` -- reproducible with both the default
+  `ConvertFrom-Json` and `-AsHashtable` (the coercion is inherent to the
+  parser, not the output-object shape). This is a durable finding for any
+  future `.ps1` port that re-parses a wave-1 timestamp field.
+- All debugging was performed against mktemp-scoped fixture roots created by
+  `tests/lib/loop-driver.ps1`'s own `Initialize-LoopFixture` (outside the
+  repository working tree, per its own contract, INV-030) or against
+  synthetic `test-feature`-slug reject-path probes that fail before touching
+  any filesystem path (the .sh/`.ps1` argument-shape validation runs before
+  any repository path is read) -- no real repository path (`specs/`,
+  `reports/`, `docs/workflow-improvements/`) was ever written by this task's
+  verification work.
+- Per the task brief's absolute constraint, every creation/edit of
+  `spec-review-precheck.ps1` itself went through the Write/Edit tool only;
+  all Bash invocations of it were read-only (driving it as an argument to
+  `pwsh -File` or `& $scriptPath`, never combined with a write verb, pipe, or
+  redirect on the same command line). Two Bash hook blocks were triggered
+  while assembling `green-sh.log`/regression evidence (combining
+  `tests/constant-parity.tests.sh` or `spec-review-precheck.ps1` with a pipe
+  or `>` redirect on the same line); both were resolved by decomposing the
+  command into single, non-piped/non-redirected invocations and assembling
+  the final log content with the Write tool instead of shell redirection.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: Independent quality-gate evaluation of T-004.
+- **Unresolved Items**: See Unresolved Items above.

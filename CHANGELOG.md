@@ -217,6 +217,49 @@
   `specs/epic-159-pillar-a2/verification/T-003/green-ps1.log` に全証跡と
   共に記録し、修正は将来の別タスクへ委ねる。詳細は
   `reports/implementation/epic-159-pillar-a2-T-003.md`。
+- **spec-review-precheck.ps1 full-parity port と ps1 hygiene ターゲット完了
+  (Issue #174, epic-159-pillar-a2 T-004)**:
+  `plugins/sdd-review-loop/scripts/spec-review-precheck.ps1` を新規追加。
+  未編集の `spec-review-precheck.sh` を 1 対 1 移植し、feature-slug 検証・
+  attempt/round 境界・round-1 での `--edit-summary` 拒否・rounds 2-3 の
+  非空 `--edit-summary` 要求・`--reset` 前提条件に加え、他の precheck
+  ポートには存在しない spec 固有の自ステージ own-round 再検証ロジック
+  (`.sh` 原本の `validate_contract`/`validate_reviewer_output`: 前ラウンドの
+  `spec-review-contract.json`・`precheck-result.json`・
+  `integrated-summary.json`・`reviewer-a.json`/`reviewer-b.json`・
+  `integrated-verdict.json` を横断してスキーマ・ハッシュ・
+  reviewer 別 allowed_input_manifest・finding_counts からの
+  verdict/warningCount 再計算までを再検証)を全て実装。round > 1 と
+  `--reset` の双方がこの再検証を経由する。`review-contract-validate.ps1`
+  への共通ポータブル基盤呼び出しと、`--reset` 時の
+  `Spec-Review-Status: Passed` → `Pending` への実ファイル書き戻しも移植。
+  `tests/guard-ps1-ascii.tests.sh` の `TARGETS` 配列(T-003 が一般化済み)に
+  このファイルを 1 行追加(TEST-015/AC-015、9 passed 0 failed)。
+  reject-path 検証(TEST-014): 範囲外 Round・round-1 での非空
+  `--edit-summary`・`--reset` 前提条件違反(attempt N+1 round 1 以外での
+  `--reset`、および `--reset` なしの新 attempt)の 3 系統を、named 呼び出しと
+  loop-driver 相当の positional array-splat 呼び出しの両方で、`.sh` 原本と
+  同一の exit code(1)・エラーメッセージ(`ERROR: spec-review-precheck: ...`)
+  で拒否することを確認。self-healing 確認(TEST-016): `pwsh
+  tests/loop-driver.tests.ps1` TEST-006(15 passed/1 SKIP → 22 passed/0
+  SKIP)と `pwsh tests/loop-consistency.tests.ps1` TEST-008 の spec/impl/task
+  レグおよび brownfield-profile レグ・TEST-009.1(14 passed/3 SKIP → 27
+  passed/0 SKIP)が、いずれも #174 を引く named SKIP から実行・green へ
+  完全に転換(残存 FAIL・SKIP ゼロ)。impl/task レグは
+  `task-review-precheck.ps1`/`impl-review-precheck.ps1` 自身の無編集のまま、
+  実在する spec-review PASS チェーンへの推移的依存だけで復旧することを確認
+  (両スイートとも無編集)。**実装時の発見(PowerShell パーサ差異、本タスク内で
+  修正済み)**: `Test-ValidateContract` の own-round 再検証実装時、PowerShell
+  7 の `ConvertFrom-Json` が ISO-8601 形式の JSON 文字列値(例:
+  `integrated-summary.json` の `generated_at`)を `[DateTime]` へ自動変換して
+  しまい、`jq` の `type == "string"` 相当チェックが誤って red 化する差異を
+  発見。`Test-IsStringLike`(`[string]` または `[DateTime]` のいずれかを
+  許容)ヘルパーを追加してこの 1 箇所のみに適用し解消(他フィールドは
+  日付として解釈され得ない値のため影響なし)。ホスト側修正 9ca31bb
+  (`tests/lib/loop-driver.ps1` の `--argjson` manifest 複数行展開バグ、
+  T-003 発見分の全ステージ修正)により、round 駆動自体は spec/impl/task/
+  domain 全レグで健全であることも確認。詳細は
+  `reports/implementation/epic-159-pillar-a2-T-004.md`。
 
 ### セキュリティ修正
 

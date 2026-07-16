@@ -1,0 +1,155 @@
+=== GREEN (sh side): reject-path parity, named-parameter invocation ===
+
+--- (i) out-of-range round: .sh vs .ps1 ---
+.sh:
+ERROR: spec-review-precheck: round must be between 1 and 3
+EXIT=1
+.ps1:
+ERROR: spec-review-precheck: round must be between 1 and 3
+EXIT=1
+
+--- (ii) round-1 non-empty edit-summary: .sh vs .ps1 ---
+.sh:
+ERROR: spec-review-precheck: --edit-summary is valid only after round 1
+EXIT=1
+.ps1:
+ERROR: spec-review-precheck: --edit-summary is valid only after round 1
+EXIT=1
+
+--- (iii-a) reset outside attempt N+1 round1: .sh vs .ps1 ---
+.sh:
+ERROR: spec-review-precheck: --reset starts only attempt N+1 round 1
+EXIT=1
+.ps1:
+ERROR: spec-review-precheck: --reset starts only attempt N+1 round 1
+EXIT=1
+
+--- (iii-b) new attempt without --reset: .sh vs .ps1 ---
+.sh:
+ERROR: spec-review-precheck: a new attempt requires --reset
+EXIT=1
+.ps1:
+ERROR: spec-review-precheck: a new attempt requires --reset
+EXIT=1
+
+Conclusion: all four named-parameter reject-path invocations match the .sh
+original's exact exit code (1) and stderr text, byte-for-byte.
+
+=== GREEN (sh side): reject-path parity, array-splat invocation
+(loop-driver.ps1 calling convention: & $scriptPath @($feature, $attempt,
+$round[, "--edit-summary=<text>"|"--reset"])) ===
+
+--- (i) array-splat out-of-range round ---
+ERROR: spec-review-precheck: round must be between 1 and 3
+EXIT=1
+
+--- (ii) array-splat round-1 non-empty edit-summary via raw token ---
+ERROR: spec-review-precheck: --edit-summary is valid only after round 1
+EXIT=1
+
+--- (iii-a) array-splat reset outside attempt N+1 round1 via raw token ---
+ERROR: spec-review-precheck: --reset starts only attempt N+1 round 1
+EXIT=1
+
+--- (iii-b) array-splat new attempt without --reset ---
+ERROR: spec-review-precheck: a new attempt requires --reset
+EXIT=1
+
+Conclusion: all four array-splat invocations (the production loop-driver.ps1
+calling convention -- positional Feature/Attempt/Round plus a raw
+"--edit-summary=<text>" or "--reset" token in the fourth slot) match the .sh
+original's exact exit code and stderr text too. This exercises the same
+argument-normalization path (`-cmatch '^--edit-summary=(.*)$'` /
+Test-OrdinalEqual '--reset') that T-003's domain-review-precheck.ps1
+established and verified (INV-016).
+
+=== GREEN: tests/guard-ps1-ascii.tests.sh (post-edit, 3 targets) ===
+
+guard-ps1-ascii.tests.sh
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+ok: sdd-hook-guard.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+ok: spec-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: spec-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: spec-review-precheck.ps1 has no CR bytes (LF-only)
+
+guard-ps1-ascii.tests.sh: 9 passed, 0 failed
+
+=== GREEN: GUARD_PS1 override regression check (scoped to the first,
+protected entry only -- must not affect the two unprotected precheck
+targets) ===
+
+$ GUARD_PS1=/nonexistent/path.ps1 bash tests/guard-ps1-ascii.tests.sh
+guard-ps1-ascii.tests.sh
+  target: /nonexistent/path.ps1
+FAIL: target .ps1 not found: /nonexistent/path.ps1
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+ok: spec-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: spec-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: spec-review-precheck.ps1 has no CR bytes (LF-only)
+
+guard-ps1-ascii.tests.sh: 6 passed, 1 failed
+(exit 1)
+
+Conclusion: overriding GUARD_PS1 to a missing path fails ONLY the first
+(protected hook-guard) target; both new precheck-port targets (T-003's
+domain-review-precheck.ps1 and this task's spec-review-precheck.ps1) still
+pass unaffected. GUARD_PS1 override semantics preserved.
+
+=== GREEN: byte-level hygiene of the new file (independent cross-check,
+outside guard-ps1-ascii.tests.sh itself) ===
+
+python3 -c "d = open('plugins/sdd-review-loop/scripts/spec-review-precheck.ps1','rb').read(); ..."
+non_ascii: 0
+cr_bytes: 0
+bom: False (first 3 bytes: b'# U' = 0x23 0x20 0x55)
+
+=== GREEN: pwsh parser validation ===
+
+[System.Management.Automation.Language.Parser]::ParseFile(...) -> PARSE OK,
+zero syntax errors.
+
+=== GREEN: tests/crlf-parity.tests.sh (regression check, unaffected by this
+task) ===
+
+=== CRLF-1: check-risk with CRLF tasks.md ===
+ok: CRLF-1.1: high task with CRLF endings passes check-risk (exit 0)
+ok: CRLF-1.2: fixture file confirmed to contain CR bytes (not already stripped)
+=== CRLF-2: check-risk with LF tasks.md (control) ===
+ok: CRLF-2.1: high task with LF endings passes check-risk (control)
+=== CRLF-3: check-risk critical+CRLF ===
+ok: CRLF-3.1: critical task with CRLF endings passes check-risk
+=== CRLF-4: check-risk CRLF bad-value still fails ===
+ok: CRLF-4.1: CRLF file with invalid Risk value still fails correctly (gate not neutered)
+=== CRLF-5: check-task-state with CRLF tasks.md ===
+ok: CRLF-5.1: Approved In-Progress task with CRLF endings passes check-task-state
+=== CRLF-6: check-task-state with LF tasks.md (control) ===
+ok: CRLF-6.1: LF tasks.md passes check-task-state (control)
+=== CRLF-7: check-task-state CRLF Draft+InProgress still fails ===
+ok: CRLF-7.1: CRLF Draft+InProgress still fails check-task-state (gate not neutered)
+
+Results: 8 passed, 0 failed.
+
+=== GREEN: tests/constant-parity.tests.sh (PROTECTED, read-only, regression
+check unaffected by this task) ===
+
+ok: BASELINE_IDS: sh and ps1 are identical (       6 entries)
+ok: RISK_TIERS tier:id pairs: sh and ps1 are identical (      31 pairs)
+
+constant-parity.tests.sh: 2 passed, 0 failed
+
+=== GREEN: tests/validate-repository.sh ===
+
+workflow-state: ok
+Repository validation passed.
+EXIT=0

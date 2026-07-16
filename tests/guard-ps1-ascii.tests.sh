@@ -21,6 +21,7 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 TARGETS=(
     "${GUARD_PS1:-${REPO_ROOT}/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1}"
     "${REPO_ROOT}/plugins/sdd-domain/scripts/domain-review-precheck.ps1"
+    "${REPO_ROOT}/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1"
 )
 
 PASS=0
