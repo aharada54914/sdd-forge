@@ -1,5 +1,11 @@
 + bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-159-pillar-b/tasks.md
-== start: 2026-07-16T13:38:34Z ==
+== start: 2026-07-16T13:57:11Z ==
+Verification contract passed for task T-001.
+WARNING: evidence bundle for task T-001 was generated with a dirty working tree
+Evidence bundle passed for task T-001.
+Verification contract passed for task T-002.
+WARNING: evidence bundle for task T-002 was generated with a dirty working tree
+Evidence bundle passed for task T-002.
 Task state check passed for 2 task(s).
-== end: 2026-07-16T13:38:34Z ==
+== end: 2026-07-16T13:57:11Z ==
 EXIT_CODE: 0

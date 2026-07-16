@@ -1,0 +1,7 @@
++ bash plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh specs/epic-159-pillar-b/verification/T-002.evidence.json
+== start: 2026-07-16T13:57:12Z ==
+Verification contract passed for task T-002.
+WARNING: evidence bundle for task T-002 was generated with a dirty working tree
+Evidence bundle passed for task T-002.
+== end: 2026-07-16T13:57:12Z ==
+EXIT_CODE: 0
