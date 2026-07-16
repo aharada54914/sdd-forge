@@ -2646,6 +2646,15 @@
       "host_session_id": "SESS-task-task-reviewer-a-epic-159-pillar-c-0294",
       "previous_record_sha256": "f7f17838cc1f920631c7be9ff313c41fa9686c37d7585108b03e4e1b00bb670b",
       "record_sha256": "f7a8dc81728fa3c810de9c6841bbfaeb2b2e0b43d59ffd98d63ba28391440805"
+    },
+    {
+      "sequence": 295,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-c-task-task-reviewer-b-seq0295",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-159-pillar-c-0295",
+      "previous_record_sha256": "f7a8dc81728fa3c810de9c6841bbfaeb2b2e0b43d59ffd98d63ba28391440805",
+      "record_sha256": "091ec837a450086ccad19c31df285f4cd76761d9f7ba642ea1d4fa1d90c0aaae"
     }
   ]
 }
