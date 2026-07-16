@@ -198,7 +198,11 @@ visualization skipped.
 
 ## ADR Change Log
 
-**New ADR**: `docs/adr/0011-effort-tier-decoupling.md`. ADR-0003
+**New ADR**: `docs/adr/0012-effort-tier-decoupling.md` (round-2 impl-review
+correction: renumbered from `0011` — `docs/adr/0011-phase2-handle-relative-protected-copy.md`
+already occupies `0011`, landed by the concurrently-merged epic-136 Phase 2
+work; verified via `ls docs/adr/` at remedy time that `0012` is the next
+free number). ADR-0003
 ("Turn-First Agent Routing", `docs/adr/0003-turn-first-agent-routing.md`)
 currently states the canonical tier table as welding effort to tier
 ("strong | Opus | `gpt-5.2-codex` with high or xhigh effort") — a decision
@@ -216,6 +220,20 @@ each explicitly declared "No new ADR" for changes that only extended
 existing, unchanged vocabulary. The `greenfield`/`brownfield` fixture
 vocabulary (ADR-0010) and the turn-first tier-selection algorithm
 (ADR-0003's non-weld portions) are unaffected and not restated.
+
+**Drafting ownership** (round-2 impl-review remedy — previously
+unassigned): ADR-0012 is drafted as part of T-002's own implementation
+commit (`select-agent-model`'s `--effort-policy` implementation is the
+change that actually introduces the tier/effort decoupling this ADR
+records), and `docs/adr/0012-effort-tier-decoupling.md` is added to the
+repository in that SAME commit — not as a separate task, and not deferred
+to T-001 or T-007. The number is NOT assumed fixed at spec-authoring time:
+T-002's implementer re-verifies via `ls docs/adr/` at drafting time and, if
+a concurrent merge has occupied `0012` in the interim (the same class of
+collision that made this round-2 correction necessary), renumbers to the
+next free number, updating both the ADR's own filename and every
+`docs/adr/00NN-effort-tier-decoupling.md` / `ADR-00NN` reference in this
+design document in the same commit.
 
 ## Data Plan
 
@@ -530,7 +548,7 @@ startup wiring) supplies one.
   frozen (never edited, never deleted) and remains the schema every
   pre-existing v1 consumer reads; v2 becomes the sole consulted registry
   only when T-007/#155 flips the selector default (requirements.md Goals
-  REQ-001, REQ-007; new ADR-0011).
+  REQ-001, REQ-007; new ADR-0012).
 - OQ-002 → Codex `.toml` `# x-sdd-model:`/`# x-sdd-effort:` comments are
   documentation-only, verified against the current, comment-free
   `.codex/agents/sdd-evaluator.toml`; the actual runtime effort application
@@ -558,10 +576,10 @@ startup wiring) supplies one.
   Plan above) — a bare `none`-vs-absent string sentinel would be more
   fragile across the `.sh` (POSIX empty-string) and `.ps1` (native `$null`)
   twins than an explicit, typed second flag.
-- New decision: whether the new ADR (ADR-0011) supersedes ADR-0003 outright
+- New decision: whether the new ADR (ADR-0012) supersedes ADR-0003 outright
   or amends it in place. Decided: new ADR that narrows ADR-0003's scope
   (tier selection remains ADR-0003's domain; effort selection moves to
-  ADR-0011) rather than editing ADR-0003's already-Accepted text, following
+  ADR-0012) rather than editing ADR-0003's already-Accepted text, following
   this repository's established append-only ADR convention (no existing
   ADR in `docs/adr/` is observed to have been retroactively rewritten
   rather than superseded by a later-numbered ADR).
@@ -701,7 +719,7 @@ into.
 
 None blocking. All investigation.md OQ-001..OQ-004 are resolved above with
 design decisions; the two additional decisions this design makes (the
-`--effort-control-*` disambiguating flag; ADR-0011 as a new, narrowing ADR
+`--effort-control-*` disambiguating flag; ADR-0012 as a new, narrowing ADR
 rather than an ADR-0003 rewrite) are stated as resolved decisions, not left
 open, because both are reversible, low-risk, additive choices a future
 issue could revisit without touching this feature's deliverables.
