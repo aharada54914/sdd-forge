@@ -6,7 +6,7 @@
   "spec_revision": "77c560fc6f9657c6de11cb4351f568c005bb392a6504744314669af19197b231",
   "quality_report": "reports/quality-gate/2026-07-12T121500Z-epic-136-phase1-guards-T-002.md",
   "verification_contract": "specs/epic-136-phase1-guards/verification/T-002.contract.json",
-  "git_commit": "dbc0d643442d0196e12cb1d5917ebe20e6e6b950",
+  "git_commit": "56a0f8652e4c951da8cae3200d90e3eb333573a9",
   "git_generated_dirty": false,
   "build_env": {
     "os": "darwin",
@@ -33,7 +33,7 @@
     },
     {
       "path": "reports/quality-gate/2026-07-12T121500Z-epic-136-phase1-guards-T-002.md",
-      "sha256": "b37e843fef333fe2c700ca29644588445d1fdf2189313b18ff130ebf5b47ea04"
+      "sha256": "f38c36bc2fe0657bc32f62fd4ca3ce2759faa28fef3fa23581ec289564adea7c"
     },
     {
       "path": "specs/epic-136-phase1-guards/verification/qg/T-002/focused-tests.log",
@@ -58,7 +58,7 @@
   ],
   "signature": {
     "alg": "hmac-sha256",
-    "value": "befc4a64f9ea1b8c9093e59e1e920766b86237a7dbf73c04bea0a01e9c082f00",
+    "value": "d6cefbffb5db7ce7cbc8aa94012c8f020977df5a0c07b2554e7e977db0f698a4",
     "key_ref": "file:~/.sdd/evidence-key"
   }
 }

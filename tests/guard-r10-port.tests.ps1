@@ -49,6 +49,7 @@ foreach ($g in @($guardPs1, $guardPy, $guardJs)) {
         exit 1
     }
 }
+$gitAvailable = [bool](Get-Command git -ErrorAction SilentlyContinue)
 
 # Isolated working directory: kill-switch / sudo / impl-review verdict lookups all
 # resolve relative to this clean root, keeping the corpus deterministic.
@@ -262,6 +263,60 @@ Assert-Parity "allow: edit README.md"                      0 '{"tool_name":"edit
 Assert-Parity "malformed: empty object"                    2 '{}'
 Assert-Parity "malformed: write missing file_path"         2 '{"tool_name":"write","tool_input":{"content":"x"}}'
 Assert-Parity "malformed: empty payload string"            2 ''
+
+# Kill-switch parent-directory walk-up (C-08): AGENT_STOP placed at the git
+# root must stop tool use even when invoked from a nested cwd with
+# CLAUDE_PROJECT_DIR unset. Regression coverage for a one-sided fix: the .py/
+# .js twins and the standalone kill-switch.ps1 already walk up to the git
+# root, but sdd-hook-guard.ps1's own Test-KillSwitch only checked
+# CLAUDE_PROJECT_DIR (or ".") and silently missed AGENT_STOP from any nested
+# directory when the env var was unset.
+function Test-KillSwitchWalkup {
+    param([string]$Name, [bool]$PlaceAgentStop, [int]$Expected)
+    $ksRoot = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-ks-walkup-" + [guid]::NewGuid())
+    $ksNested = Join-Path $ksRoot "sub/nested"
+    New-Item -ItemType Directory -Path $ksNested -Force | Out-Null
+    & git -C $ksRoot init -q 2>$null | Out-Null
+    if ($PlaceAgentStop) {
+        New-Item -ItemType File -Path (Join-Path $ksRoot "AGENT_STOP") | Out-Null
+    }
+    $savedDirCwd = [System.IO.Directory]::GetCurrentDirectory()
+    $savedLoc = (Get-Location).Path
+    $savedProjDir = $env:CLAUDE_PROJECT_DIR
+    try {
+        Remove-Item Env:CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue
+        [System.IO.Directory]::SetCurrentDirectory($ksNested)
+        Set-Location -LiteralPath $ksNested
+        $env:PAYLOAD = '{"tool_name":"Read","tool_input":{"file_path":"/tmp/foo.txt"}}'
+        & pwsh -NoProfile -ExecutionPolicy Bypass -File $guardPs1 -Emit exit *> $null
+        $ps1Code = $LASTEXITCODE
+        & python3 $guardPy --emit exit *> $null
+        $pyCode = $LASTEXITCODE
+        & node $guardJs --emit exit *> $null
+        $jsCode = $LASTEXITCODE
+        if ($ps1Code -eq $Expected -and $pyCode -eq $Expected -and $jsCode -eq $Expected) {
+            Write-Host "ok: $Name (all exit $Expected)"
+            $script:passCount++
+        } else {
+            Write-Host "FAIL: $Name expected=$Expected ps1=$ps1Code py=$pyCode js=$jsCode"
+            $script:failCount++
+        }
+    } finally {
+        Remove-Item Env:PAYLOAD -ErrorAction SilentlyContinue
+        if ($null -eq $savedProjDir) { Remove-Item Env:CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue }
+        else { $env:CLAUDE_PROJECT_DIR = $savedProjDir }
+        [System.IO.Directory]::SetCurrentDirectory($savedDirCwd)
+        Set-Location -LiteralPath $savedLoc
+        try { Remove-Item -LiteralPath $ksRoot -Recurse -Force -ErrorAction SilentlyContinue } catch { }
+    }
+}
+
+if ($gitAvailable) {
+    Test-KillSwitchWalkup "kill-switch: AGENT_STOP at git root, nested cwd, no CLAUDE_PROJECT_DIR -> deny" $true 2
+    Test-KillSwitchWalkup "kill-switch: no AGENT_STOP, nested cwd, no CLAUDE_PROJECT_DIR -> allow" $false 0
+} else {
+    Write-Host "SKIP: kill-switch walk-up scenarios require git (not found)"
+}
 
 # --- Cleanup + summary ---
 try { Remove-Item -LiteralPath $workDir -Recurse -Force -ErrorAction SilentlyContinue } catch { }

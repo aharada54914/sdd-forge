@@ -92,6 +92,8 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/epic-136-phase1-rce/`
 - `specs/epic-136-phase1-guards/`
 - `specs/slide-generator/`
+- `specs/epic-159-pillar-a/`
+- `specs/epic-159-pillar-a2/`
 
 ## Source Artifact Locations
 
@@ -129,6 +131,16 @@ These fields are additive: existing consumers (check-task-state,
 evidence-bundle generation) ignore them and are unaffected. They exist so
 that retrospective analysis and run-record emission can associate evidence
 with tasks deterministically. (WFI-003)
+
+### Spec factual-claim evidence citations
+
+When `investigation.md`, `requirements.md`, or `design.md` asserts a
+specific, checkable factual claim about existing repository behavior (e.g.,
+"N scripts enforce X", "script Y has no existing test driver", "script Z
+contains a numeric limit"), the assertion must cite the specific
+grep/file:line evidence it rests on in the document itself. Spec-review and
+task-review treat an uncited factual claim of this kind as a structural gap
+— it is not accepted on the strength of prose alone. (WFI-011)
 
 ### High-risk task preflight
 

@@ -1,0 +1,142 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-159-pillar-a2",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "488c237f5fdd7f357c9e072b31fc869710d1f6f74eef782ac05069521758d97c",
+  "created": "2026-07-16T04:19:35Z",
+  "comment": "Default-FAIL verification contract for T-004 (medium, acceptance-first). Populated after the quality gate reran tests/guard-ps1-ascii.tests.sh (9/9, all three TARGETS entries) and re-verified spec-review-precheck.ps1's three required reject-path systems (out-of-range Round; round-1 non-empty --edit-summary; --reset precondition violation in both sub-forms) byte-for-byte against the unedited spec-review-precheck.sh original, across named-parameter AND production array-splat calling conventions (4/4 conditions, all parity checks pass) -- and pwsh tests/loop-driver.tests.ps1 (22/22, 0 SKIP) plus tests/loop-consistency.tests.ps1 (27/27, 0 SKIP, 0 FAIL). Confirms the implementation report's FULL PASS / 0-residual-SKIP finding still holds at gate time. Shell stack waives the three compile-oriented checks (lint/typecheck/build); this task ships one new PowerShell script (a full-parity port of an unedited .sh original) plus a one-line hygiene-suite addition, no compiled toolchain.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell test-infrastructure files (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-004/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "specs/epic-159-pillar-a2/verification/T-004/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a2/verification/qg/T-004/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The port is exercised end to end through the REAL loop-driver dispatch and the REAL loop-consistency spec/impl/task/brownfield legs against isolated mktemp fixtures; no separate service-integration surface exists beyond what unit/acceptance already exercise.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-004/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "specs/epic-159-pillar-a2/verification/T-004/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a2/verification/qg/T-004/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-004/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "specs/epic-159-pillar-a2/verification/T-004/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-a2/verification/qg/T-004/regression.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-004/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-004/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-004"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; this task adds only a full-parity PowerShell port plus a one-line hygiene-suite TARGETS addition, fully covered by the focused and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "specs/epic-159-pillar-a2/verification/qg/T-004/focused-tests.log",
+      "waiver_reason": "No baseline-behavior.md; this is not a formally classified refactor/bugfix task so differential-test-policy.md does not apply verbatim. Left required:false, but the task's own byte-for-byte reject-path comparison against the unedited .sh original across all three required systems (recorded in focused-tests.log) is the functionally closest analog to a baseline diff -- it detects any degraded or loosened port automatically.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task adds only plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 plus a tests/guard-ps1-ascii.tests.sh TARGETS entry.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

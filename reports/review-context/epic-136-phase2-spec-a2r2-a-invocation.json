@@ -10,8 +10,8 @@
   "fallback_mode": "none",
   "identity_ledger_path": "reports/review-context/identity-ledger.json",
   "identity_ledger_sha256": "e3f1d2e89a09cc5d5d2dd8c4a7ba6c876069bd63a4250c53d4e8c8a6edd3c80a",
-  "previous_record_sha256": "b9a31f4c251e0e20b08555460b390432ba8160e6ce6efcf4ebb9f0bf38b246b4",
-  "sequence": 227,
+  "previous_record_sha256": "55d00d1a95815ec95370072610460e63aab6d71a1179c7da3fbfdc94e2ee6cae",
+  "sequence": 244,
   "allowed_input_manifest": [
     {"path": "specs/epic-136-phase2-gates/requirements.md", "sha256": "7d869ad2bee5848be0aa71252a4bcf52823ad487f4392eb61ad089c9391abe92"},
     {"path": "specs/epic-136-phase2-gates/acceptance-tests.md", "sha256": "3568a38e584a71610c006c77bf6a647a2e12f91217649aed610189b1fd87cbd1"},

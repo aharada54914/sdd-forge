@@ -1,0 +1,78 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-159-pillar-a2",
+  "task_id": "T-001",
+  "run_id": "RUN-epic159pillara2-qg-T-001-seq0222",
+  "host_session_id": "SESS-qg-epic159pillara2-T-001-0222",
+  "sequence": 222,
+  "previous_record_sha256": "daf3f73cf8c19f27ee3c2c5ec658b962f77c0c3b076c11f49cabe0af2684b704",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "4d617d34ca2b16a8a27bef975f4f4515e1921efa249c8ae2cd9c2ccca1666eee",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a2/requirements.md",
+      "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/design.md",
+      "sha256": "3b63c5f8c33018919fce66ef3550a0bdb5fcfee33e48f61a731b9684fab8c105"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+      "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/security-spec.md",
+      "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/infra-spec.md",
+      "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/tasks.md",
+      "sha256": "4fc479be52c63bcc766604e15dac4897c7c080fc533cf182bb0e4a625a322d5e"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/traceability.md",
+      "sha256": "130278dce748abd258f8b865671f5b52a8f3a7fc788eec3d6f54556640e0ea7a"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/traceability.json",
+      "sha256": "7857a034fc461578a7dc0d7eb56acf3a74a47de27223c82085b96f0df4bea18e"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/epic-159-pillar-a2/T-001.md",
+      "sha256": "ad06abe5ffbf7c207e126e8d25850de185b76ee1c5aa92c2338a74368192d52e"
+    },
+    {
+      "path": "tests/hitl-wfi-terminal.tests.sh",
+      "sha256": "512589151250c476701fe78a64f4e60398d875ddb5ac7739420c8c118ed4e3f9"
+    },
+    {
+      "path": "tests/hitl-wfi-terminal.tests.ps1",
+      "sha256": "0cd825c08114f1c572e64e7d65aa3c362405d372401a4a949fd17506429ac2dd"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/verification/T-001/red-sh.log",
+      "sha256": "eb5b6ea4d2b8f63bf12d6489ed6a0ee9e27c44f571a00fe12353711906bce21e"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/verification/T-001/green-sh.log",
+      "sha256": "1e247310444ca24b6449a829b070fffb939be7b24e718a196662a9ace53aabef"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/verification/T-001/green-ps1.log",
+      "sha256": "029163bad22da9ce6e5919495b2f0ca9d11084507dd4885ab5f12738fc237697"
+    }
+  ]
+}

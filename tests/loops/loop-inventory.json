@@ -1,0 +1,168 @@
+{
+  "schema": "loop-inventory/v1",
+  "loops": [
+    {
+      "id": "spec-review",
+      "kind": "dual-reviewer",
+      "cap": { "type": "round", "value": 3 },
+      "cap_source": "script",
+      "cap_kind": "numeric",
+      "driver_scripts": [
+        "plugins/sdd-review-loop/scripts/spec-review-precheck.sh"
+      ],
+      "cross_gates": [
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+      ],
+      "artifact_schemas": [
+        "spec-review-precheck/v1",
+        "spec-review-integrated-verdict/v1",
+        "spec-review-contract/v1"
+      ],
+      "terminal": {
+        "state": "PASS",
+        "condition": "round-3 Minor-only merges to PASS with warningCount > 0; Major/Critical -> BLOCKED"
+      },
+      "fixture_profiles": ["greenfield", "brownfield"]
+    },
+    {
+      "id": "impl-review",
+      "kind": "dual-reviewer",
+      "cap": { "type": "round", "value": 3 },
+      "cap_source": "skill-instruction",
+      "driver_scripts": [
+        "plugins/sdd-review-loop/scripts/impl-review-precheck.sh"
+      ],
+      "cross_gates": [
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+      ],
+      "artifact_schemas": [
+        "impl-review-precheck/v1",
+        "integrated-verdict/v1",
+        "impl-review-contract/v1"
+      ],
+      "terminal": {
+        "state": "PASS",
+        "condition": "round-3 Minor-only merges to PASS-with-warnings; Major/Critical -> BLOCKED; round>1 requires the previous round's persisted integrated-summary.json (2d8c6a5 fix, INV-013). Round ceiling is enforced by impl-review-loop/SKILL.md, not impl-review-precheck.sh -- see this task's implementation report deviation note."
+      },
+      "fixture_profiles": ["greenfield", "brownfield"]
+    },
+    {
+      "id": "task-review",
+      "kind": "dual-reviewer",
+      "cap": { "type": "round", "value": 3 },
+      "cap_source": "skill-instruction",
+      "driver_scripts": [
+        "plugins/sdd-review-loop/scripts/task-review-precheck.sh"
+      ],
+      "cross_gates": [
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+      ],
+      "artifact_schemas": [
+        "task-review-precheck/v1",
+        "integrated-verdict/v1",
+        "task-review-contract/v1",
+        "dependency-graph/v1"
+      ],
+      "terminal": {
+        "state": "PASS",
+        "condition": "round-3 Minor-only merges to PASS-with-warnings; Major/Critical -> BLOCKED; escalation continues via quality-gate. Round ceiling is enforced by task-review-loop/SKILL.md, not task-review-precheck.sh -- see this task's implementation report deviation note."
+      },
+      "fixture_profiles": ["greenfield", "brownfield"]
+    },
+    {
+      "id": "domain-review",
+      "kind": "dual-reviewer",
+      "cap": { "type": "round", "value": 3 },
+      "cap_source": "script",
+      "cap_kind": "numeric",
+      "driver_scripts": [
+        "plugins/sdd-domain/scripts/domain-review-precheck.sh"
+      ],
+      "cross_gates": [
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
+      ],
+      "artifact_schemas": [
+        "domain-review-precheck/v1",
+        "integrated-verdict/v1",
+        "domain-review-contract/v1",
+        "domain-review-approved-fingerprint/v1"
+      ],
+      "terminal": {
+        "state": "BLOCKED",
+        "condition": "round 3 -> BLOCKED (round-cap behavior only; post-approval drift detection is domain-review's own AC-014 in specs/sdd-domain/ and is out of scope for this field per requirements.md Field Definitions)"
+      },
+      "fixture_profiles": ["greenfield", "brownfield"]
+    },
+    {
+      "id": "quality-gate",
+      "kind": "evaluator-escalation",
+      "cap": { "type": "gate-report-count", "value": 3 },
+      "cap_source": "script",
+      "cap_kind": "numeric",
+      "driver_scripts": [
+        "plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh"
+      ],
+      "cross_gates": [
+        "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh",
+        "plugins/sdd-quality-loop/scripts/check-task-state.sh",
+        "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+      ],
+      "artifact_schemas": [],
+      "terminal": {
+        "state": "Escalate-Human",
+        "condition": "gate-report count >= 3 -> Escalate-Human; 0/1/2 -> continue (check-quality-gate-cycle-limit.sh:14-15)"
+      },
+      "fixture_profiles": ["greenfield", "brownfield"]
+    },
+    {
+      "id": "terminal-tier",
+      "kind": "resume-gate",
+      "cap": { "type": "recurrence", "value": null },
+      "cap_source": "script",
+      "cap_kind": "state",
+      "driver_scripts": [
+        "plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh"
+      ],
+      "cross_gates": [
+        "plugins/sdd-implementation/scripts/select-agent-model.sh"
+      ],
+      "artifact_schemas": [
+        "terminal-tier-blocked-state/v1",
+        "terminal-tier-resume/v1"
+      ],
+      "terminal": {
+        "state": "BLOCKED",
+        "condition": "strong-tier recurrence -> permanent BLOCK; resume requires a human approval record"
+      },
+      "fixture_profiles": ["greenfield", "brownfield"]
+    },
+    {
+      "id": "wfi-audit",
+      "kind": "audit-cycle",
+      "cap": { "type": "audit-attempt", "value": 3 },
+      "cap_source": "skill-instruction",
+      "driver_scripts": [],
+      "cross_gates": [],
+      "artifact_schemas": [],
+      "terminal": {
+        "state": "BLOCKED",
+        "condition": "Audit-Attempt >= 3 -> Audit-Status: Human-Blocked (wfi-audit-cycle SKILL.md preconditions 4)"
+      },
+      "fixture_profiles": ["greenfield", "brownfield"]
+    },
+    {
+      "id": "hitl-diagnosis",
+      "kind": "hitl",
+      "cap": { "type": "hitl-attempt", "value": 5 },
+      "cap_source": "skill-instruction",
+      "driver_scripts": [],
+      "cross_gates": [],
+      "artifact_schemas": [],
+      "terminal": {
+        "state": "BLOCKED",
+        "condition": "hitl-loop attempts >= 5 (max iterations) -> Human-Blocked (diagnose skill hitl-loop.template.sh:10)"
+      },
+      "fixture_profiles": ["greenfield", "brownfield"]
+    }
+  ]
+}

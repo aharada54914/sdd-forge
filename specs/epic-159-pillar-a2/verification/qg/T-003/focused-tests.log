@@ -1,0 +1,184 @@
++ gate-time reverification (post-fix HEAD b5eba54): guard-ps1-ascii + domain-review-precheck reject-path parity + case-sensitivity parity (operator + cmdlet level) + loop-consistency self-healing state
+== start: 2026-07-16T06:04:18Z ==
+
+###### bash tests/guard-ps1-ascii.tests.sh ######
+guard-ps1-ascii.tests.sh
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+ok: sdd-hook-guard.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1
+ok: spec-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: spec-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: spec-review-precheck.ps1 has no CR bytes (LF-only)
+
+guard-ps1-ascii.tests.sh: 9 passed, 0 failed
+---- exit: 0 ----
+
+###### reject-path re-verification: plugins/sdd-domain/scripts/domain-review-precheck.sh vs plugins/sdd-domain/scripts/domain-review-precheck.ps1 ######
+
+--- Condition A: out-of-range Round (attempt=1, round=4) ---
++ bash plugins/sdd-domain/scripts/domain-review-precheck.sh 1 4
+ERROR: domain-review-precheck: round must be between 1 and 3
+(exit: 1)
++ pwsh -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-domain/scripts/domain-review-precheck.ps1 -Attempt 1 -Round 4 (named)
+ERROR: domain-review-precheck: round must be between 1 and 3
+(exit: 1)
++ pwsh -NoProfile -Command splat: & 'plugins/sdd-domain/scripts/domain-review-precheck.ps1' @('1','4')
+ERROR: domain-review-precheck: round must be between 1 and 3
+(exit: 1)
+ok: Condition A byte-for-byte parity (exit code + stderr text) across .sh, .ps1 named, .ps1 splat
+
+--- Condition B: round-1 non-empty --edit-summary (attempt=1, round=1, edit-summary=hello) ---
++ bash plugins/sdd-domain/scripts/domain-review-precheck.sh 1 1 --edit-summary=hello
+ERROR: domain-review-precheck: --edit-summary is valid only after round 1
+(exit: 1)
++ pwsh -NoProfile -ExecutionPolicy Bypass -File plugins/sdd-domain/scripts/domain-review-precheck.ps1 -Attempt 1 -Round 1 -EditSummary hello (named)
+ERROR: domain-review-precheck: --edit-summary is valid only after round 1
+(exit: 1)
++ pwsh -NoProfile -Command splat: & 'plugins/sdd-domain/scripts/domain-review-precheck.ps1' @('1','1','--edit-summary=hello')
+ERROR: domain-review-precheck: --edit-summary is valid only after round 1
+(exit: 1)
+ok: Condition B byte-for-byte parity (exit code + stderr text) across .sh, .ps1 named, .ps1 splat
+
+reject-path-parity: PASS
+---- exit: 0 ----
+
+###### case-sensitivity parity re-verification (fix commit 69cda39, domain-review-precheck.ps1:137,255) ######
+
+--- 3a: mismatched-case Domain-Model-Status rejection ---
+  Domain-Model-Status: pending
+    .sh:  exit=1  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status
+    .ps1: exit=1  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status
+    ok: status=pending byte-for-byte parity (exit code + stderr text)
+  Domain-Model-Status: APPROVED
+    .sh:  exit=1  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status
+    .ps1: exit=1  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status
+    ok: status=APPROVED byte-for-byte parity (exit code + stderr text)
+
+--- 3b: mismatched-case previous-round directory (--reset scan) rejection ---
+    .sh:  exit=1  ERROR: domain-review-precheck: previous attempt has no terminal round
+    .ps1: exit=1  ERROR: domain-review-precheck: previous attempt has no terminal round
+    ok: mixed-case ROUND-3 directory byte-for-byte parity (exit code + stderr text)
+
+--- 3c: mis-cased Domain-Model-Status FIELD NAME rejection (cmdlet-level fix, Select-String -CaseSensitive) ---
+  field line: domain-model-status: Pending
+    .sh:  exit=1  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status
+    .ps1: exit=1  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status
+    ok: field="domain-model-status: Pending" byte-for-byte parity (exit code + stderr text)
+  field line: DOMAIN-MODEL-STATUS: Pending
+    .sh:  exit=1  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status
+    .ps1: exit=1  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status
+    ok: field="DOMAIN-MODEL-STATUS: Pending" byte-for-byte parity (exit code + stderr text)
+
+--- 3d: aggregates *.md extension case (cmdlet-level fix, Get-ChildItem -Filter -> -cmatch '\.md$') ---
+  aggregates/ contains ONLY card.MD
+    .sh:  exit=1  ERROR: domain-review-precheck: domain/aggregates/ must contain at least one aggregate card
+    .ps1: exit=1  ERROR: domain-review-precheck: domain/aggregates/ must contain at least one aggregate card
+    ok: card.MD-only byte-for-byte parity (exit code + stderr text)
+  aggregates/ contains ONLY card.md (control) -- two INDEPENDENT fresh fixtures
+  (attempt-1/round-1 is replay-forbidden once claimed, so .sh and .ps1 each need
+  their own isolated fixture to independently reach a genuine exit 0, not a shared one)
+    .sh:  exit=0  domain-review-precheck: complete. Output written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.hvjvnO/reports/domain-review/attempt-1/round-1/
+    .ps1: exit=0  domain-review-precheck: complete. Output written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/loop-fixture.5vOaPX/reports/domain-review/attempt-1/round-1/
+    ok: card.md control -- both .sh and .ps1 independently succeed (exit 0)
+
+case-sensitivity-parity: PASS
+---- exit: 0 ----
+
+###### pwsh -NoProfile -ExecutionPolicy Bypass -File tests/loop-consistency.tests.ps1 (self-healing state) ######
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+ok: TEST-008.1: loop_fixture_init (spec leg fixture) succeeds
+REVIEW_CONTEXT_OK 52a6086dbee4d93531d387718b4c66ea795a99addbfed9781acb7cc28d892aba
+REVIEW_CONTEXT_OK e63121b37abe7269e33987545341e066a71527ebc5e89f8c333be430f580eac8
+REVIEW_CONTEXT_OK 6b52be8c69643b4c482f840eea9684045c6677df5d6515219935ccae14df07cb
+REVIEW_CONTEXT_OK 4a84ff7527060334db0f3a61d34bdb64994813e05030ea1b8dbeebf53b836d58
+REVIEW_CONTEXT_OK c51ec1384d2735b70b3043e678259a1517cc3d475ea8836c15592cf3d2013792
+REVIEW_CONTEXT_OK aac7cbcebef94b3d98d2796ef78bf9191486ebb7011404c96f6ff169d2978c82
+ok: TEST-008.2: spec leg drives rounds 1->3 green
+ok: TEST-008.3: spec leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.4: loop_fixture_init (impl leg fixture) succeeds
+REVIEW_CONTEXT_OK b3b09115ecc7128c5d0757e889dbb902f9a9bec111c1fa40263d7c82ef289119
+REVIEW_CONTEXT_OK f921f98eacd4ca105e20dba2a3188022f4056ad20905f590b087c5fcc11a82d8
+REVIEW_CONTEXT_OK 289e823c429b374cdeb0c479603537a9c6ecf42844c826586116db89229cbdff
+REVIEW_CONTEXT_OK c4104bc1f6a9aa5e55a8dad05b8a83871c7dfa6d5c1bada7aced7a31058e5273
+REVIEW_CONTEXT_OK 04836e8a0490225365c3c60dcb04b1a67518f6d65bf6480c95b85bc24b3759c2
+REVIEW_CONTEXT_OK 7b2a425bc521a18b2499399d068b7c0b4cc01ae89e263f0f613e751f8611ca49
+REVIEW_CONTEXT_OK 6f0c3c30606ec56cf776a9abf6cf22894e7f11babba026e5822bac7d925abe29
+REVIEW_CONTEXT_OK 5c8a98773532d9b0a4384002749114d91a7d9c93ff739098c06e7086e87fe15b
+REVIEW_CONTEXT_OK a4d426f1e719bb3b2d934269362dc6beb7ef3d5d0d4797d31e088a40465cbc78
+REVIEW_CONTEXT_OK c797d2a3c797d3b2bf7e5594e66cdea84353f3963fe791699628f02cc4ccefc9
+REVIEW_CONTEXT_OK 1aef11ff49aee4cf3974e5e80173cbd03adcd78da13141538de42ca1b6076173
+REVIEW_CONTEXT_OK 9f5418aa5eabc8fc2b643b304f0727fdcaec0ca80379ffb4e496770446155d11
+ok: TEST-008.5: impl leg drives (genuine spec PASS prereq, then) rounds 1->3 green
+ok: TEST-008.6: impl leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.7: impl round-2 reviewer-a manifest carries round-1's integrated-summary.json (INV-012/2d8c6a5 fix in effect)
+ok: TEST-008.8: loop_fixture_init (task leg fixture) succeeds
+REVIEW_CONTEXT_OK 4a3f185ce977b0851b718a43210a5e8e2b7c83ee33da212fa2b020a18ee42117
+REVIEW_CONTEXT_OK 521c44793c1e86947089a59eeaf95c4872a18bd35199fc01446c5b856d393408
+REVIEW_CONTEXT_OK f6dec70cd3739001f83ca05c9ee175507461e0fb04f17e610a5201e1780ca9d1
+REVIEW_CONTEXT_OK 25d5f90f0217d8a102b37a933a526f2290c6ac029f0e047a498469aa4d2f1ed2
+REVIEW_CONTEXT_OK fbc06d43aeed926da69bea55045aace87640b28ecd23ea86d59d49adaf40f1b7
+REVIEW_CONTEXT_OK 99b39002c9edaa89321423425f760b8958863212f610ce2c49f00ed4b02c9a4f
+REVIEW_CONTEXT_OK 3b139ff3edc35763c07137834fdc279cc0910c0a72757aea4a238d41b77c2729
+REVIEW_CONTEXT_OK 961b5a4a8c75c3dd0738891b47424757978d60ee6656c78a6a886f8b476ab73b
+REVIEW_CONTEXT_OK 58e48325a80a140e01218d3f5443dcf327a1afb643588eb8334416e2262c6834
+REVIEW_CONTEXT_OK c934823f42fba014c16c7aa249bbbf5fcecbae9d6ff4b3cf3a1c6b103b845994
+REVIEW_CONTEXT_OK 3e7a52a0a0ba0bc6acf4349df5c62625712142b92878d1720da1eae9264eb209
+REVIEW_CONTEXT_OK 73e89fb1fa5019ee6f53d0bf4658b684c4ed41bd7c536137e00e0c756c5e8f51
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK c6b7990f7f969a74b96121aeceb8d436086f2670c695c5ba69f5d2a7b62b851e
+REVIEW_CONTEXT_OK 3f7f7971982629e1b0d5a39600c84f43490f870ada8706da6f322ceed48e131e
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK 1eb3286637568e99031d02be6638098120c4148edc7fe3c6359f2761a3067976
+REVIEW_CONTEXT_OK 636f55045301960ae0b15366086004db235d05855d902bd1f165972f3993f077
+Risk check passed for 1 task(s).
+REVIEW_CONTEXT_OK 80942706a16b9c33ea4d8c583eda3556e85e7564cba6e0d451331337241e05e3
+REVIEW_CONTEXT_OK eabfc8515d4ed9b4e7c25c3a9b3091ff459cc14bc374163ad8d6cf6acb62e818
+ok: TEST-008.9: task leg drives (genuine spec+impl PASS prereqs, then) rounds 1->3 green
+ok: TEST-008.10: task leg observed end state PASS matches the loop-inventory terminal
+ok: TEST-008.11: loop_fixture_init (domain leg fixture) succeeds
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+REVIEW_CONTEXT_OK 764b2099f1fdbd6e41ecf708d943f2dd2e33c1a24149b13307c065a6acc562d5
+REVIEW_CONTEXT_OK ebab1fdfb411edb00391d350d148c21f3c92d4e7b56dc9483a65d457af8cdbce
+REVIEW_CONTEXT_OK 60fc080ad6c184749e2bad663d22ee04cbb2dc4bb836a0b47e15c5de759f4ad6
+REVIEW_CONTEXT_OK f2dddf314c9674cb8419d5246f4281a84b88c646340313dab9e5af7739147585
+REVIEW_CONTEXT_OK 876a5e17d31ffeae08bda32a8c655bb1cb1115718fb8ef3decb71c009e623e64
+ok: TEST-008.12: domain leg drives rounds 1->3 (cap-reached BLOCKED) green
+ok: TEST-008.13: domain leg observed end state BLOCKED matches the loop-inventory terminal
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LoopFixtureRoot
+REVIEW_CONTEXT_OK 9f0c12864085bff6d6a32525a7ea9df61e3717d4e1b269b38a53799f8c78a27f
+REVIEW_CONTEXT_OK b6cd026afe2b7b5cb21ab28ce66ec249eaf93afe735e0d9494a50644fe2046ca
+ok: TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green
+ok: TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+ok: TEST-009.1: impl-review round-2 leg is green at HEAD (2d8c6a5/INV-012 fix in effect; see TEST-008.5/.7 above)
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+REVIEW_CONTEXT_OK fa9391ee9206a5fddfb756214136a1a4fa0bd532b8e04d82c21546680f97fce4
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK c287f71d68710a2b63fa49f19982b7cfff4c5ac678bb6f5291c026c9c1b5fb4e
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK cc9d55a8c6ed88d3e346893b8d0ee63af9f54c88fc7fe9e177ce4f353c66dc14
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-81039/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns Test-LoopBidirectionalInvariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.ps1: 27 passed, 0 failed, 24s elapsed
+---- exit: 0 ----
+
+SUMMARY: guard_ps1_ascii_exit=0 reject_path_parity_exit=0 case_sensitivity_parity_exit=0 loop_consistency_ps1_exit=0
+== end: 2026-07-16T06:04:48Z ==
+EXIT_CODE: 0

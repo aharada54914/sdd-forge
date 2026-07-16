@@ -295,9 +295,34 @@ function Emit-Decision {
 }
 
 function Test-KillSwitch {
-    $root = $env:CLAUDE_PROJECT_DIR
-    if ([string]::IsNullOrEmpty($root)) { $root = "." }
-    foreach ($base in @($root, ".")) {
+    # C-08: walk parents up to git root checking for AGENT_STOP (matches the
+    # .py/.js/kill-switch.ps1 twins; a nested cwd without CLAUDE_PROJECT_DIR
+    # must still see AGENT_STOP placed at the project root).
+    $envRoot = $env:CLAUDE_PROJECT_DIR
+    if (-not [string]::IsNullOrEmpty($envRoot)) {
+        $bases = @($envRoot, ".")
+    } else {
+        $bases = @()
+        $current = (Get-Location).Path
+        $gitRootFound = $null
+        for ($i = 0; $i -lt 21; $i++) {
+            $bases += $current
+            $gitCandidate = Join-Path $current ".git"
+            try {
+                if (Test-Path -LiteralPath $gitCandidate) {
+                    $gitRootFound = $current
+                    break
+                }
+            } catch { }
+            $parent = Split-Path -Parent $current
+            if ([string]::IsNullOrEmpty($parent) -or $parent -eq $current) { break }
+            $current = $parent
+        }
+        if (-not $gitRootFound -and "." -notin $bases) {
+            $bases += "."
+        }
+    }
+    foreach ($base in $bases) {
         try {
             if (Test-Path -LiteralPath (Join-Path $base "AGENT_STOP") -PathType Leaf) { return $true }
         } catch { }

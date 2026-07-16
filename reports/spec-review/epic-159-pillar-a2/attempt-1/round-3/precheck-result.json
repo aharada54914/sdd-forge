@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-a2",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "b88ee346cdddf94a9c947592e6e6dadf72c1097f026d43f30701be38b4ba0434",
+  "acceptance_sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "2e7fd4323b9500034649b6fa2a2ddae92ad9d32197f95966d78124ea7738bcbf",
+  "edit_summary": "Round-2 fix (B AMBIGUITY Major): the changed-files input-composition contract for AC-008 now explicitly excludes BOTH marker-bearing seed files (the NotImplementedError base-class file and the TODO file) - stated in REQ-002's seed description, the Edge Cases bullet, and the AC-008 table row, removing the implementer fork between excluding only the TODO file vs both.",
+  "reset": false,
+  "generated_at": "2026-07-15T23:31:05Z"
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0190",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0190",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/requirements.md",
+      "sha256": "17454e7ee0968019c412d861ad51741502953041f937b4240277e26646972f63"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/acceptance-tests.md",
+      "sha256": "8e26cb6ce7857c498cdfa18f07ba332641bad5fb35de961a181c1787d633547a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/investigation.md",
+      "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-2/precheck-result.json",
+      "sha256": "ea6525df19ec4dfb42829e1adc2158a0a5b5a2108362ed5978e08c218cc1bb82"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-2/integrated-summary.json",
+      "sha256": "b9a34680cc36f711f73b24c05b938cb3cf4d7665d33caada9152950fc53d2f00"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md REQ-001 lists terminal-tier as one of the six cap_source:script inventory entries, but investigation.md INV-001's table records its cap as the qualitative state condition 'strong-tier recurrence \u2192 permanent BLOCK' (driver check-terminal-tier-resume.sh:1-184), unlike the other five script-enforced entries whose caps are all simple numeric thresholds (round<=3 x3/task-review terminal, count>=3 x1). acceptance-tests.md AC-002/TEST-002 defines the cap-drift lock only in terms of 'the cap value matches the limit grep-able from the entry's driver source,' citing only numeric examples (round<=3 guards; count>=3 in check-quality-gate-cycle-limit.sh:14-15). Neither artifact specifies what a grep-able value or a valid drift mutation is for terminal-tier's qualitative recurrence-state cap, so two implementers could reasonably diverge (one skipping the drift check for terminal-tier, violating AC-002's 'every cap_source:script entry' universality; another inventing an arbitrary proxy value with no clear grep target). This is a gap in a named, in-scope Phase-1 acceptance criterion (AC-002 as written is not obviously satisfiable for terminal-tier), not a deferred implementation-architecture detail, so it belongs to spec review; severity is Major because it causes a downstream authoring/testing mismatch without making the spec internally contradictory or unreviewable."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Cross-checked Non-goals against Goals/Main Workflows/Roles: the domain-review AC-014 numbering collision (investigation.md INV-001 vs this feature's own AC-014) is explicitly disambiguated in requirements.md's Field Definitions; the A4 terminal-tier-resume scope (REQ-004, OQ-4 resolved) is distinct from the A5/#145 'HITL/WFI terminal-behavior driving' non-goal (terminal-tier is one of the six script-enforced loops, separate from the wfi-audit/hitl-diagnosis skill-instruction loops); and the Non-goals' protected-file prohibition is consistent with Roles and Permissions' explicit verification that tests/run-all.sh, tests/run-all.ps1, and .github/workflows/test.yml are outside _PROTECTED_GATE_SUFFIXES. No direct conflict found among requirements, acceptance criteria, constraints, or non-goals."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of requirements.md's seven Edge Cases entries maps to a concrete acceptance criterion/test: skill-instruction caps -> AC-003/TEST-003; pwsh domain-review-precheck.ps1 absence -> AC-008/TEST-008; python3 absence -> AC-013/TEST-013; exact '## Outputs' section scan -> AC-012/TEST-012; reports/ directory absence (zero-report case) -> AC-011/TEST-011; T-001/T-0010 prefix collision -> AC-018/TEST-018 (added in the round-2 edit per precheck-result.json edit_summary). The remaining edge case (protected-basename+write-verb-on-command-line avoidance) is an authoring constraint enforced by the existing hook-guard infrastructure rather than an observable acceptance behavior of the harness, so it does not require its own AC under the calibration's false-positive guard."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Assumptions bullets are confirmed-at-spec-time statements (2d8c6a5 ancestry, check-quality-gate-cycle-limit.sh landed, brownfield synthetic-seed fallback, protected-gate-table exclusion), not open questions. Open Questions OQ-1 through OQ-4 are marked RESOLVED with concrete design decisions cited to investigation.md (INV-004, INV-019, INV-022) and to design.md/ADR-0010. OQ-5 is explicitly marked OPEN and non-blocking, with a bounded fallback behavior specified ('the task-review leg encodes only the behavior observable at HEAD and does not assert intent beyond it') and a named owner (the A3 task records the finding in its implementation report) plus a Roles and Permissions sign-off owner (human maintainer)."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The terminal-tier resume contract is the concrete, in-scope approval boundary: AC-011 requires check-terminal-tier-resume.sh to deny resume without a human approval record and permit it with one, driven end-to-end on fixtures -- a testable governance boundary. Other governance items (release version bump exclusively via scripts/bump-version.sh, CHANGELOG Unreleased entries, human maintainer spec/task approval and RED-differential evidence review) are scoped in REQ-006/AC-016 and Roles and Permissions and are enforced via named existing repository tooling (validate-repository, skill-reference count sync, scripts/bump-version.sh), consistent with the calibration's guidance not to require new quality-gate verification commands at spec-review stage."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The specification gives exhaustive, line-cited field definitions (cap_source, fixture_profiles, cross_gates, artifact_schemas), full AC-to-REQ traceability (AC-001..AC-018 each map to a REQ and a TEST id), explicit non-goals, and a resolved open-question set, so an implementation-policy/design reviewer would not need to invent missing product behavior for the feature as a whole. The narrow terminal-tier cap-representation gap identified under AMBIGUITY is a scoped, design-resolvable schema detail for one inventory entry rather than a systemic readiness blocker."
+    }
+  ]
+}

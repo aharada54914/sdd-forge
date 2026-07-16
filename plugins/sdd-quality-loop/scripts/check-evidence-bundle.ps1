@@ -126,7 +126,8 @@ function Resolve-EvidenceKey {
     $userHome = $env:HOME
     if ([string]::IsNullOrWhiteSpace($userHome)) { $userHome = $env:USERPROFILE }
     if (-not [string]::IsNullOrWhiteSpace($userHome)) {
-        $keyPath = Join-Path $userHome ".sdd" "evidence-key"
+        # Windows PowerShell 5.1 accepts only Path and ChildPath for Join-Path.
+        $keyPath = Join-Path (Join-Path $userHome ".sdd") "evidence-key"
         if (Test-Path -LiteralPath $keyPath) {
             try {
                 $raw = [System.IO.File]::ReadAllBytes($keyPath)

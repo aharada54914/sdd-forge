@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-a",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "17454e7ee0968019c412d861ad51741502953041f937b4240277e26646972f63",
+  "acceptance_sha256": "8e26cb6ce7857c498cdfa18f07ba332641bad5fb35de961a181c1787d633547a",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "fa61e487c3be9de035157f16cd4d8e036d084f3f0ce6d9ca77514bdfb955045a",
+  "edit_summary": "Round-1 findings applied (both reviewer-B Majors plus one hardening item): (1) AMBIGUITY — Field Definitions now define cross_gates (repo-relative gate-script paths outside driver_scripts; existence verified by AC-001; consumed by the AC-010 invariant leg; empty only for skill-instruction entries) and artifact_schemas (exact schema strings matched by equality; consumed by assert_artifacts_schema/AC-007 and registration-forcing/AC-001), and a Domain-review terminal disambiguation entry resolves the INV-001 '(AC-014)' cross-reference (it names the domain-review loop's own contract, not this feature's AC-014; the inventory terminal for domain-review is round-3 BLOCKED; investigation.md stays hash-frozen so the clarification lives in requirements.md). (2) EDGE-CASE-COVERAGE — new AC-018/TEST-018: escalation counting fixture with T-0010-referencing reports counted against T-001 stays 0 (word-boundary), with a substring-grep negative self-check; the Edge Cases entry now cites it. (3) Hardening: the suite-runtime-cost risk mitigation is operationalized as AC-017/TEST-017 (each new suite self-measures wall-clock, prints seconds in its summary, fails above a fixed 300s ceiling; threshold-0 negative self-check), replacing the ambiguous 'existing suite median' wording.",
+  "reset": false,
+  "generated_at": "2026-07-13T22:02:44Z"
+}

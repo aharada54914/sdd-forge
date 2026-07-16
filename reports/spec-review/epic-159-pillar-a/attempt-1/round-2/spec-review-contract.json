@@ -1,0 +1,72 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-a",
+  "attempt": 1,
+  "round": 2,
+  "requirements_sha256": "17454e7ee0968019c412d861ad51741502953041f937b4240277e26646972f63",
+  "acceptance_sha256": "8e26cb6ce7857c498cdfa18f07ba332641bad5fb35de961a181c1787d633547a",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-a-seq0189",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-a-0189",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-2/precheck-result.json",
+          "sha256": "ea6525df19ec4dfb42829e1adc2158a0a5b5a2108362ed5978e08c218cc1bb82"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/acceptance-tests.md",
+          "sha256": "8e26cb6ce7857c498cdfa18f07ba332641bad5fb35de961a181c1787d633547a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/investigation.md",
+          "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/requirements.md",
+          "sha256": "17454e7ee0968019c412d861ad51741502953041f937b4240277e26646972f63"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-a-spec-spec-reviewer-b-seq0190",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-a-0190",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-2/integrated-summary.json",
+          "sha256": "b9a34680cc36f711f73b24c05b938cb3cf4d7665d33caada9152950fc53d2f00"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a/attempt-1/round-2/precheck-result.json",
+          "sha256": "ea6525df19ec4dfb42829e1adc2158a0a5b5a2108362ed5978e08c218cc1bb82"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/acceptance-tests.md",
+          "sha256": "8e26cb6ce7857c498cdfa18f07ba332641bad5fb35de961a181c1787d633547a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/investigation.md",
+          "sha256": "3ef9addb686291c6ffea98a722b3a49f033f8b4369afe296092fb340641534d2"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a/requirements.md",
+          "sha256": "17454e7ee0968019c412d861ad51741502953041f937b4240277e26646972f63"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-epic159pillara-a1r2",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

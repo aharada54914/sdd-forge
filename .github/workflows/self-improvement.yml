@@ -19,10 +19,16 @@ name: Weekly Self-Improvement
 # セットアップ漏れは Preflight ステップが検出し、失敗 Issue に原因を明記する。
 # 動作確認は workflow_dispatch(Actions タブ → Run workflow)で随時実行できる。
 #
-# 既知の制限: 既定の GITHUB_TOKEN で作成された PR では CI (test.yml) が
-# 自動起動しない。代わりに本ワークフロー内で Linux 実行可能なテストを
-# 実行し、結果を PR 本文に貼る。完全な 3 OS CI が必要なら GitHub App
-# トークン方式に移行する(docs 参照)。
+# セッション PR の CI トリガー(issue #173 remedy (b)+(c)):
+#   既定の GITHUB_TOKEN で作成された PR では CI (test.yml) が自動起動しない
+#   (GitHub の再帰防止)。そのため PR 作成には fine-grained PAT を使う:
+#   3. contents:write + pull_requests:write スコープの fine-grained PAT を
+#      SDD_SESSION_PR_TOKEN としてリポジトリ Secrets に登録
+#      例: gh secret set SDD_SESSION_PR_TOKEN --repo <owner>/<repo>
+#      PAT 作成の PR は人間作成と同じ扱いになり 3 OS CI が正常に走る。
+#   未登録/失効時は既定トークンにフォールバックし(ワークフローは止めない)、
+#   後段のセーフティネットステップが「CI ゼロのセッション PR」に needs-ci
+#   ラベルと警告コメントを付けて無検証マージ待ちを防ぐ(remedy (c))。
 
 on:
   schedule:
@@ -31,7 +37,7 @@ on:
 
 # 権限は実際に使うものだけに最小化する(REQ-005 / AC-010, security-spec.md B2)。
 # id-token: write は削除済み。ピン留めした
-# anthropics/claude-code-action@558b1d6cab4085c7753fe402c10bef0fbb92ac7a
+# anthropics/claude-code-action@f1bd27ca5b54584506e40e17884d90bdaaa1a9b3
 # (v1.0.165) の action.yml は id-token を、入力 anthropic_federation_rule_id を
 # anthropic_organization_id と併用する workload identity federation 時のみ要求する
 # (action.yml 入力 anthropic_federation_rule_id の説明:
@@ -39,8 +45,16 @@ on:
 #  GitHub OIDC token instead of using a static API key. Requires `id-token:
 #  write` permission." / 入力 anthropic_oidc_audience: "Audience to request on
 #  the GitHub OIDC token used for workload identity federation.")。本ワークフローは
-# claude_code_oauth_token で認証し federation 入力を一切設定しないため OIDC 交換は
-# 発生せず、id-token: write は不要。SHA を更新した際は必ず再確認すること。
+# claude_code_oauth_token で認証し federation 入力を一切設定しないため、Anthropic 側の
+# OIDC 交換は発生しない。ただし action には第二の OIDC 経路がある: `github_token` 入力を
+# 渡さない場合、action は GitHub App トークン取得のため core.getIDToken() を実行し、
+# id-token: write が無いと "Could not fetch an OIDC token" で失敗する
+# (2026-07-13 の run 29262507406 で実証、issue #48)。そのため下の with: で
+# `github_token: secrets.GITHUB_TOKEN` を明示的に渡して App トークン交換自体をスキップ
+# させる。これで id-token: write は permissions から除外したまま
+# (AC-010 / tests/self-improvement-guard.tests.sh TEST-010 が不在を強制)、
+# セッション内 gh CLI と同一の最小権限 workflow トークンに統一される。
+# SHA を更新した際は必ず再確認すること。
 permissions:
   contents: write
   pull-requests: write
@@ -61,11 +75,15 @@ jobs:
         id: preflight
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          SDD_SESSION_PR_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN }}
         run: |
           if [ -z "$CLAUDE_CODE_OAUTH_TOKEN" ]; then
             echo "failure_reason=CLAUDE_CODE_OAUTH_TOKEN secret が未登録です。ローカルで 'claude setup-token' を実行し、'gh secret set CLAUDE_CODE_OAUTH_TOKEN' で登録してください。" >> "$GITHUB_OUTPUT"
             echo "::error::CLAUDE_CODE_OAUTH_TOKEN secret is not set. Run 'claude setup-token' locally, then 'gh secret set CLAUDE_CODE_OAUTH_TOKEN'."
             exit 1
+          fi
+          if [ -z "$SDD_SESSION_PR_TOKEN" ]; then
+            echo "::warning::SDD_SESSION_PR_TOKEN secret is not set. Session PRs will be created with the default GITHUB_TOKEN and will NOT trigger CI (issue #173 remedy (b)); the needs-ci safety net (remedy (c)) will label them."
           fi
 
       - name: Checkout repository
@@ -92,11 +110,19 @@ jobs:
         # to pick up upstream fixes; verify the SHA against the release tag.
         # NOTE: Generated PRs will be gated by required-checks from test.yml;
         # no auto-merge will bypass CI. Manual review & approval is required.
-        uses: anthropics/claude-code-action@558b1d6cab4085c7753fe402c10bef0fbb92ac7a # v1.0.165
+        uses: anthropics/claude-code-action@f1bd27ca5b54584506e40e17884d90bdaaa1a9b3 # v1.0.173
         env:
-          GH_TOKEN: ${{ github.token }}
+          # セッション内の gh CLI も PAT を使う(issue #173 remedy (b))。
+          GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # GitHub App トークン交換(第二の OIDC 経路)をスキップするためトークンを
+          # 明示。id-token: write 不要の設計を成立させる要(permissions ブロックの
+          # 解説と issue #48 を参照)。SDD_SESSION_PR_TOKEN(fine-grained PAT)が
+          # 登録されていればそれを使い、セッション PR が CI (test.yml) を正常に
+          # トリガーする(issue #173 remedy (b))。未登録時は既定トークンに
+          # フォールバックし、後段の needs-ci セーフティネットが検出する。
+          github_token: ${{ secrets.SDD_SESSION_PR_TOKEN || secrets.GITHUB_TOKEN }}
           prompt: |
             このリポジトリの .github/self-improvement-prompt.md を読み、
             そこに書かれた手順と制約に厳密に従って週次セルフ改善を実行してください。
@@ -133,6 +159,46 @@ jobs:
           echo "セッション作成 PR に紐づく変更パス:"
           cat "$changed" || true
           bash .github/scripts/self-improvement-pr-guard.sh "$changed"
+
+      # CI 未起動セッション PR のセーフティネット(issue #173 remedy (c)):
+      # remedy (b) の PAT が未登録/失効のまま既定トークンで PR が作成され CI が
+      # 走らなかった場合に、needs-ci ラベルと警告コメントを付けて「無検証の PR が
+      # 静かにレビュー待ちに並ぶ」ことを防ぐ。警告のみで exit 1 しない(強制チェーン
+      # 検査は上のガードステップの責務)。ベースラインが無い場合は誤ラベルを避ける
+      # ため何もしない(ラベルは警告用途なので fail-open で良い)。PR 番号は jq の
+      # .number(整数)のみを使い、外部由来文字列をシェルに補間しない。
+      - name: Label session PRs that triggered no CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          pre_refs="$RUNNER_TEMP/pre_session_pr_refs.txt"
+          [ -f "$pre_refs" ] || { echo "ベースライン無し: スキップ"; exit 0; }
+          mapfile -t pre < "$pre_refs"
+          session_prs="$(gh pr list --repo "$GITHUB_REPOSITORY" --state open --limit 200 \
+            --json number,headRefName \
+            | jq -r '.[] | select(([.headRefName] | inside($ARGS.positional)) | not) | .number' \
+                --args "${pre[@]}")"
+          if [ -z "$session_prs" ]; then
+            echo "セッション作成 PR なし"
+            exit 0
+          fi
+          # (b) 経由なら CI トリガーまで数秒〜数十秒かかるため猶予を置く。
+          sleep 60
+          gh label create needs-ci --color D93F0B \
+            --description "session-created PR with no CI runs; trigger CI before merging (issue #173)" \
+            2>/dev/null || true
+          for n in $session_prs; do
+            checks="$(gh pr view "$n" --repo "$GITHUB_REPOSITORY" \
+              --json statusCheckRollup --jq '.statusCheckRollup | length' || echo 0)"
+            if [ "${checks:-0}" -eq 0 ]; then
+              gh pr edit "$n" --repo "$GITHUB_REPOSITORY" --add-label needs-ci
+              gh pr comment "$n" --repo "$GITHUB_REPOSITORY" \
+                --body "⚠ この PR には CI が 1 本も走っていません (issue #173)。SDD_SESSION_PR_TOKEN の登録/有効期限を確認し、空コミットの push などで test.yml をトリガーして required checks を green にしてからレビュー・マージしてください。"
+              echo "PR #$n に needs-ci を付与"
+            else
+              echo "PR #$n: checks=$checks (CI トリガー済み)"
+            fi
+          done
 
       # 失敗時は既存の open な失敗 Issue に追記し、無ければ新規作成する
       # (毎週の失敗で Issue が積み上がるのを防ぐ)。原因の見当も本文に残す。

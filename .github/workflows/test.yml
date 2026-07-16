@@ -78,6 +78,66 @@ jobs:
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
 
+      - name: Test loop inventory registration forcing (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-inventory.tests.sh
+
+      - name: Test loop inventory registration forcing (pwsh)
+        shell: pwsh
+        run: ./tests/loop-inventory.tests.ps1
+
+      - name: Test loop driver smoke suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-driver.tests.sh
+
+      - name: Test loop driver smoke suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-driver.tests.ps1
+
+      - name: Test loop consistency suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-consistency.tests.sh
+
+      - name: Test loop consistency suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-consistency.tests.ps1
+
+      - name: Test loop escalation suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-escalation.tests.sh
+
+      - name: Test loop escalation suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-escalation.tests.ps1
+
+      - name: Test HITL/WFI-audit terminal-behavior suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/hitl-wfi-terminal.tests.sh
+
+      - name: Test HITL/WFI-audit terminal-behavior suite (pwsh)
+        shell: pwsh
+        run: ./tests/hitl-wfi-terminal.tests.ps1
+
+      - name: Test check-placeholders brownfield behavior lock (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-placeholders-brownfield.tests.sh
+
+      - name: Test check-placeholders brownfield behavior lock (pwsh)
+        shell: pwsh
+        run: ./tests/check-placeholders-brownfield.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
@@ -262,7 +322,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "20"
           cache: npm
@@ -317,7 +377,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Set up Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "20"
           cache: npm
@@ -368,7 +428,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Set up Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "20"
           cache: npm
