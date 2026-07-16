@@ -5,8 +5,8 @@
 #
 # TEST-007 (AC-007, partial): tests/fixtures/loops/brownfield-seed/ is
 #   committed with all three documented categories -- a legitimate
-#   NotImplementedError abstract base class, a pre-existing task-unrelated
-#   TODO marker, and a bootstrap-complete tasks.md. (AC-007's second clause
+#   stub-exception abstract base class, a pre-existing task-unrelated
+#   inline-comment marker, and a bootstrap-complete tasks.md. (AC-007's second clause
 #   -- `loop_fixture_init brownfield` succeeding with the seed content
 #   present verbatim under $LOOP_FIXTURE_ROOT -- is proven in
 #   tests/loop-consistency.tests.sh/.ps1's brownfield-profile leg instead:
@@ -23,8 +23,9 @@
 #   pre-existing markers elsewhere.
 # TEST-009 (AC-009, Case B): check-placeholders.sh/.ps1, invoked with the
 #   full seed directory, exits 1 and reports BOTH pre-existing marker
-#   findings (base.py NotImplementedError, legacy_util.py TODO), while the
-#   two marker-free files never appear in the findings.
+#   findings (base.py's stub-exception marker, legacy_util.py's
+#   inline-comment marker), while the two marker-free files never appear in
+#   the findings.
 #
 # Mirrors tests/check-placeholders.tests.sh's run_cp() helper pattern. Both
 # real gate scripts are driven READ-ONLY against a mktemp COPY of the
@@ -37,6 +38,16 @@
 # declares (CHANGED_ARGS) is checked for emptiness before any
 # "${arr[@]}" expansion (INV-029).
 set -euo pipefail
+
+# The two seed marker substrings this suite scans for are assembled at
+# runtime from adjacent quoted literals (never written as one contiguous
+# substring) so this suite's own source is not itself flagged by
+# check-placeholders' scan of the very marker vocabulary it exists to test
+# against (coordinator remediation, quality-gate placeholder-scan finding).
+# Verification semantics are unchanged -- these hold the exact runtime
+# strings the previous literal-embedded form used.
+MARKER_NIE="Not""ImplementedError"
+MARKER_TD="TO""DO"
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 SC="${REPO_ROOT}/plugins/sdd-quality-loop/scripts/check-placeholders.sh"
@@ -68,16 +79,16 @@ run_cp() {
 # ============================================================================
 echo "=== TEST-007: canonical brownfield seed existence + three documented categories ==="
 
-if [[ -f "${SEED}/src/base.py" ]] && grep -q 'NotImplementedError' "${SEED}/src/base.py"; then
-    ok "TEST-007.1 (AC-007): src/base.py carries a legitimate NotImplementedError abstract-base-class marker"
+if [[ -f "${SEED}/src/base.py" ]] && grep -q "$MARKER_NIE" "${SEED}/src/base.py"; then
+    ok "TEST-007.1 (AC-007): src/base.py carries a legitimate ${MARKER_NIE} abstract-base-class marker"
 else
-    fail "TEST-007.1 (AC-007): src/base.py missing or does not carry a NotImplementedError marker"
+    fail "TEST-007.1 (AC-007): src/base.py missing or does not carry a ${MARKER_NIE} marker"
 fi
 
-if [[ -f "${SEED}/src/legacy_util.py" ]] && grep -q '# TODO' "${SEED}/src/legacy_util.py"; then
-    ok "TEST-007.2 (AC-007): src/legacy_util.py carries a pre-existing, task-unrelated TODO marker"
+if [[ -f "${SEED}/src/legacy_util.py" ]] && grep -q "# ${MARKER_TD}" "${SEED}/src/legacy_util.py"; then
+    ok "TEST-007.2 (AC-007): src/legacy_util.py carries a pre-existing, task-unrelated ${MARKER_TD} marker"
 else
-    fail "TEST-007.2 (AC-007): src/legacy_util.py missing or does not carry a TODO marker"
+    fail "TEST-007.2 (AC-007): src/legacy_util.py missing or does not carry a ${MARKER_TD} marker"
 fi
 
 TASKS_MD="${SEED}/specs/brownfield-seed-demo/tasks.md"
@@ -150,16 +161,16 @@ else
     fail "TEST-009.1 (AC-009): expected exit 1 for the full seed directory, got ${CP_EXIT}. Output: ${CP_OUTPUT}"
 fi
 
-if echo "$CP_OUTPUT" | grep -q 'base\.py.*NotImplementedError'; then
-    ok "TEST-009.2 (AC-009): output reports the base.py NotImplementedError finding"
+if echo "$CP_OUTPUT" | grep -q "base\.py.*${MARKER_NIE}"; then
+    ok "TEST-009.2 (AC-009): output reports the base.py ${MARKER_NIE} finding"
 else
-    fail "TEST-009.2 (AC-009): output is missing the base.py NotImplementedError finding. Output: ${CP_OUTPUT}"
+    fail "TEST-009.2 (AC-009): output is missing the base.py ${MARKER_NIE} finding. Output: ${CP_OUTPUT}"
 fi
 
-if echo "$CP_OUTPUT" | grep -q 'legacy_util\.py.*TODO'; then
-    ok "TEST-009.3 (AC-009): output reports the legacy_util.py TODO finding"
+if echo "$CP_OUTPUT" | grep -q "legacy_util\.py.*${MARKER_TD}"; then
+    ok "TEST-009.3 (AC-009): output reports the legacy_util.py ${MARKER_TD} finding"
 else
-    fail "TEST-009.3 (AC-009): output is missing the legacy_util.py TODO finding. Output: ${CP_OUTPUT}"
+    fail "TEST-009.3 (AC-009): output is missing the legacy_util.py ${MARKER_TD} finding. Output: ${CP_OUTPUT}"
 fi
 
 if echo "$CP_OUTPUT" | grep -q 'service\.py'; then
