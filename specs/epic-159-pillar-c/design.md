@@ -1,6 +1,6 @@
 # Design: epic-159-pillar-c
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: contract schema migration + CLI/script feature additions
 (effort routing v2) across a registry, a selector, an agent-definition
 renderer, a run-record schema, and one host's real invocation path
