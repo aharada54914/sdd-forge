@@ -1,6 +1,6 @@
 # Requirements: epic-159-pillar-b
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/148
 Epic: https://github.com/aharada54914/sdd-forge/issues/159 (Pillar B —
 loop-consistency / loop-inventory の release-gate 化, size S)
