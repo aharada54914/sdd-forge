@@ -1,6 +1,6 @@
 # Design: epic-159-pillar-b
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: release-gate wiring (two additive test suites + edits to two
 already-existing release surfaces)
 
