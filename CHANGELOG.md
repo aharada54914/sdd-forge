@@ -281,6 +281,34 @@
   フィールド無害化(コード実行なし)の回帰テストを追加し、これまで CI 未接続だった
   `tests/prepare-panelist.tests.sh` を run-all.sh と CI の Bash/PowerShell ステップに接続。
   .ps1 ツインは .NET HMAC を直接使用しており本脆弱性の影響なし。
+- **リリースパスのループスイート・ゲート化: bump-version.sh 側 (Issue #148,
+  epic-159-pillar-b T-001)**: `scripts/bump-version.sh` に、既存の CHANGELOG
+  見出しチェックの直後・全ミューテーションステップ(プラグインマニフェスト・
+  README・validate-repository.ps1 等の書き換え)より前の位置で、
+  `tests/loop-consistency.tests.sh` と `tests/loop-inventory.tests.sh` を
+  実行するループゲート前提条件を追加。いずれかのスイートが非 0 終了した場合は
+  fail-closed(exit 1、リリース面を一切変更しない)で停止し、環境変数・CLI
+  フラグによるバイパスは存在しない。新スイート `tests/bump-version-gate.tests.sh`
+  / `.ps1` が、tar-copy + ローカル `git init` によるフィクスチャリポジトリコピー
+  上で実 `bump-version.sh` を読み取り専用で駆動し、green path(両スイートを
+  トリビアルに合格するスタブへ差し替え)、独立した2つの red path(各スイートを
+  個別に失敗するスタブへ差し替え、`git status --porcelain` がゼロ差分であること
+  を確認 — 両スイートが独立にゲートすることの証明)、実スクリプトソースへの
+  no-bypass grep 自己チェック、ゲート呼び出し行が最初のミューテーション行より
+  前にあることを検証する行番号順序アサーション、CI-resilience(`pwd -P` 正規化・
+  `set -u` 下での空配列非展開・jq 非使用・実 validator 非使用)と自己登録の
+  適合性をロック。`tests/run-all.sh` / `.ps1` / `.github/workflows/test.yml` に
+  登録。`scripts/bump-version.ps1` ツインは意図的に存在せず(release-operator
+  CLI であり、テストスイートの `.sh`/`.ps1` ツイン義務の対象外という設計判断)、
+  Windows ホストおよび CI は `.github/workflows/release.yml` 側の必須
+  `loop-gate` ジョブ(Issue #148, epic-159-pillar-b T-002)が同等の保証を提供する
+  — 詳細は `docs/contributor/release-runbook.md`。実装時に、本スイート自身の
+  green path が BSD/macOS 標準 `sed`(GNU 専用構文の `sed -i "<script>" <file>`
+  に非対応)では `scripts/bump-version.sh` の既存(本タスクでは不変更)
+  ミューテーションセクションで失敗するという、無関係な既存の互換性ギャップを
+  発見。本タスクの範囲外(該当セクションは design.md により不変更)として記録し、
+  当該ホストでは capability probe による named SKIP に度数低下する
+  (`tests/bump-version-gate.tests.sh`/`.ps1` TEST-001 のみ、影響)。
 
 ### 修正
 
