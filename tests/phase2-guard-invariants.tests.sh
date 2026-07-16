@@ -68,7 +68,10 @@ candidate_ok=1
 if [[ ! -f "$manifest" ]]; then
   manifest_ok=0
 else
-  mapfile -t manifest_lines < <(sed 's/\r$//' "$manifest")
+  manifest_lines=()
+  while IFS= read -r manifest_line || [[ -n "$manifest_line" ]]; do
+    manifest_lines+=("$manifest_line")
+  done < <(sed 's/\r$//' "$manifest")
   [[ ${#manifest_lines[@]} -eq ${#phase2_targets[@]} ]] || manifest_ok=0
 fi
 for index in "${!phase2_targets[@]}"; do
