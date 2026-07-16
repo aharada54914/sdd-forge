@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-a2-impl-impl-reviewer-b-seq0217",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-159-pillar-a2-0217",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All decisions in design.md carry inline rationale: Bash/PowerShell twin tech justified by cross-host determinism (frontend-spec.md Technology Stack Rationale column); the two precheck .ps1 ports follow the established twin idiom precedent (design.md:340-345); OQ-3's seed category set adopted-and-closed with explicit deferral rationale (design.md:430-432); the CANONICAL_BASENAMES and downstream-review-precheck-parity non-extensions each carry an explicit 'Decided NO' + reasoning (design.md:446-464). No bare 'we will use X' without a because/since/following clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md Open Questions (lines 550-558) contains zero open entries: 'None blocking. All investigation.md OQ-1..OQ-7 are resolved above with design decisions,' plus the two additional design-time decisions stated as resolved. Check satisfied vacuously."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 3 Assumptions entries (lines 536-548) valid: loop-driver.ps1 dispatch stability grounded in INV-016/INV-017 and re-verified line-by-line; grep-exit-code branching stability grounded in INV-012 (issue #127 landed); the line-citation staleness caveat is a reasonable self-aware footnote. investigation.md present, so the auto-Major trigger does not apply."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md Constraint Compliance table (lines 521-535) now has 10 rows (verified: 12 pipe-prefixed lines = header + separator + 10 data rows), resolving the round-1 Critical gap: all four CI-resilience constraints from requirements.md AC-018/Edge Cases now have explicit named rows citing INV-029 (bash 3.2 set -u empty-array), INV-030 (macOS pwd -P normalization), INV-031 (Windows jq CRLF stripping, explicit non-use declaration), and INV-032 (validator capability-probe gating), each tagged AC-018/TEST-018. The T-001 HITL leg (lines 172-176) and WFI-audit leg (lines 235-238) now explicitly state pwd -P normalization for their independently-created mktemp roots, closing the round-1 gap. No other requirements.md constraint is left unaddressed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-006's numeric runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) is addressed by Test Strategy item 4 (lines 406-411): sources the existing assert_runtime_budget helper rather than reimplementing, plus a threshold-0 negative self-check; infra-spec.md corroborates. No other numeric performance requirement exists."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Deployment / CI Plan (lines 509-519) states the target (no runtime deployment; suites join the existing 3-OS matrix), the CI changes (two suite-array entries; no new steps for the .ps1 ports thanks to existence-guard dispatch), and rollback (per-item reviewed revert). Feature flags and migration order correctly absent."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan states Existing Data Affected: none / Migration Strategy: none \u2014 only a new committed fixture directory and mktemp-scoped synthetic copies. PASS per the no-data-changes rule."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "External Integrations states None (lines 503-507), independently enforced by TEST-004's grep self-check that no new file invokes gh (AC-004; security-spec.md B4). gh/GitHub is the only external system named anywhere and is declared categorically unreachable by construction."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Components-table component traces to a requirements REQ/T-ID (REQ-001..REQ-005 mapping verified; CHANGED_FILES.txt is fixture-manifest support for AC-008, not a new feature). Every Goal and User Story has a corresponding design element. No under- or over-scoped gap found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces each have a concrete named verification path: security-spec.md's STRIDE table names TEST-013/TEST-016 for the weakened-precheck-port risk, TEST-005 for WFI-audit reference-check drift, TEST-002 for broken CHECK wiring, and TEST-004 for gh-reaches-GitHub \u2014 each cross-referenced to acceptance-tests.md TEST-IDs and design.md sections."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a2/requirements.md",
+      "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+      "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/design.md",
+      "sha256": "87c4016830773c656014d17f69eef838a0fcbb0c29d1a62d65565b7bd729d5b0"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/investigation.md",
+      "sha256": "25fa1fa0e7b8eb67c02d1b21907eb837b24a26bf4014c45c0c7968f55e9c123f"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/ux-spec.md",
+      "sha256": "f9de83a6913ca426e7eaa2fb900ba2d89bd8401ebbda174c275db626cd8970bb"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/frontend-spec.md",
+      "sha256": "bd57c6d06854bc14a2478032efbf985aa3c52ec2d8c203ecedbd71c0871fa6e4"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/infra-spec.md",
+      "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/security-spec.md",
+      "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-2/precheck-result.json",
+      "sha256": "c1f744e653c2139a7784f004d05b3bd92b84bbc74cfe7c77fd68e208612a7dfd"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-2/integrated-summary.json",
+      "sha256": "80ee4d8d971de28cff10b7882e9d52aa9f667908616a818c05744f8648a8abb4"
+    }
+  ]
+}
