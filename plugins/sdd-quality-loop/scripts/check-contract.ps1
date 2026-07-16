@@ -47,6 +47,110 @@ $NONCODE_STACKS = @("shell", "docs", "spec")
 # Resolve repo root to an absolute path for traversal checks
 $absRoot = (Resolve-Path $RepoRoot).Path.TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
 
+function Test-PathContainsReparsePoint {
+    param(
+        [Parameter(Mandatory)][string]$Path,
+        [Parameter(Mandatory)][string]$TrustedRoot
+    )
+
+    # The runner's parent directories may themselves be symlinks (notably
+    # macOS /var and hosted workspace mounts). They are outside the trust
+    # boundary; inspect only components introduced below the trusted repo
+    # root. This keeps the guard fail-closed for in-repo junctions/symlinks
+    # without rejecting a legitimate symlinked workspace location.
+    $rootFull = [System.IO.Path]::GetFullPath($TrustedRoot).TrimEnd([System.IO.Path]::DirectorySeparatorChar, '/')
+    $pathFull = [System.IO.Path]::GetFullPath($Path)
+    $separator = [System.IO.Path]::DirectorySeparatorChar
+    if (-not ($pathFull.StartsWith($rootFull + $separator) -or $pathFull -eq $rootFull)) {
+        return $false
+    }
+
+    $current = $rootFull
+    $relativePath = $pathFull.Substring($rootFull.Length)
+    foreach ($component in ($relativePath -split '[\\/]+')) {
+        if ([string]::IsNullOrEmpty($component)) {
+            continue
+        }
+
+        $current = [System.IO.Path]::Combine($current, $component)
+        try {
+            $item = Get-Item -LiteralPath $current -Force -ErrorAction Stop
+        } catch {
+            # Preserve the existing missing-file diagnostic when traversal
+            # reaches a component that does not exist.
+            return $false
+        }
+
+        if (($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Test-EvidencePath {
+    param(
+        [Parameter(Mandatory)][string]$FieldName,
+        [Parameter(Mandatory)][AllowEmptyString()][string]$Evidence,
+        [Parameter(Mandatory)][string]$RepoRoot
+    )
+
+    # Keep the three original validation orders and diagnostic fragments in one
+    # place. StopsCurrentCheck preserves the existing red-evidence behavior:
+    # malformed/escaping paths skip green validation, while missing, directory,
+    # and empty paths still let the caller collect a green-evidence failure.
+    $result = [ordered]@{
+        IsValid = $false
+        ResolvedPath = $null
+        Failure = ""
+        StopsCurrentCheck = $false
+    }
+
+    if ($Evidence.StartsWith("/")) {
+        $result.Failure = "$FieldName is an absolute path: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+    if (($Evidence.Length -ge 2 -and $Evidence[1] -eq ':') -or $Evidence.StartsWith("\\")) {
+        $result.Failure = "$FieldName is an absolute path: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+
+    try {
+        $joined = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($RepoRoot, $Evidence))
+    } catch {
+        $result.Failure = "$FieldName path could not be resolved: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+    $sep = [System.IO.Path]::DirectorySeparatorChar
+    if (-not ($joined.StartsWith($RepoRoot + $sep) -or $joined -eq $RepoRoot)) {
+        $result.Failure = "$FieldName path escapes repo root: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+    if (Test-PathContainsReparsePoint -Path $joined -TrustedRoot $RepoRoot) {
+        $result.Failure = "$FieldName path contains a reparse point: $Evidence"
+        $result.StopsCurrentCheck = $true
+        return [pscustomobject]$result
+    }
+    $result.ResolvedPath = $joined
+    if (-not (Test-Path -LiteralPath $joined)) {
+        $result.Failure = "$FieldName file missing: $Evidence"
+    } elseif ((Test-Path -LiteralPath $joined -PathType Container)) {
+        $result.Failure = "$FieldName is not a regular file: $Evidence"
+    } else {
+        $fileInfo = Get-Item -LiteralPath $joined -ErrorAction SilentlyContinue
+        if ($fileInfo -and $fileInfo.Length -eq 0) {
+            $result.Failure = "$FieldName file is empty: $Evidence"
+        } else {
+            $result.IsValid = $true
+        }
+    }
+    return [pscustomobject]$result
+}
+
 # Pass 1: duplicate id detection
 $seenIds = @{}
 foreach ($check in $contract.checks) {
@@ -97,40 +201,10 @@ foreach ($check in $contract.checks) {
             continue
         }
 
-        # Evidence path safety: reject absolute POSIX paths
-        if ($evidence.StartsWith("/")) {
-            $failures += "check '$id' evidence is an absolute path: $evidence"
+        $evidenceResult = Test-EvidencePath -FieldName "evidence" -Evidence $evidence -RepoRoot $absRoot
+        if (-not $evidenceResult.IsValid) {
+            $failures += "check '$id' $($evidenceResult.Failure)"
             continue
-        }
-        # Reject Windows drive paths (C:\...) and UNC (\\...)
-        if (($evidence.Length -ge 2 -and $evidence[1] -eq ':') -or $evidence.StartsWith("\\")) {
-            $failures += "check '$id' evidence is an absolute path: $evidence"
-            continue
-        }
-
-        # Resolve and check for traversal outside root
-        try {
-            $joined = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absRoot, $evidence))
-        } catch {
-            $failures += "check '$id' evidence path could not be resolved: $evidence"
-            continue
-        }
-        $sep = [System.IO.Path]::DirectorySeparatorChar
-        if (-not ($joined.StartsWith($absRoot + $sep) -or $joined -eq $absRoot)) {
-            $failures += "check '$id' evidence path escapes repo root: $evidence"
-            continue
-        }
-
-        # Evidence must exist, be a regular file (not directory), and have size > 0
-        if (-not (Test-Path -LiteralPath $joined)) {
-            $failures += "check '$id' evidence file missing: $evidence"
-        } elseif ((Test-Path -LiteralPath $joined -PathType Container)) {
-            $failures += "check '$id' evidence is not a regular file: $evidence"
-        } else {
-            $fileInfo = Get-Item -LiteralPath $joined -ErrorAction SilentlyContinue
-            if ($fileInfo -and $fileInfo.Length -eq 0) {
-                $failures += "check '$id' evidence file is empty: $evidence"
-            }
         }
     }
 }
@@ -217,77 +291,17 @@ if ($requiredWorkflow -eq "tdd") {
                 continue
             }
 
-            # Rule 2b: validate red_evidence path (same as evidence in Pass 2)
-            # Reject absolute POSIX paths
-            if ($redEvidence.StartsWith("/")) {
-                $failures += "check '$id' red_evidence is an absolute path: $redEvidence"
-                continue
-            }
-            # Reject Windows drive paths and UNC
-            if (($redEvidence.Length -ge 2 -and $redEvidence[1] -eq ':') -or $redEvidence.StartsWith("\\")) {
-                $failures += "check '$id' red_evidence is an absolute path: $redEvidence"
-                continue
-            }
-
-            # Check for traversal outside root
-            try {
-                $joinedRed = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absRoot, $redEvidence))
-            } catch {
-                $failures += "check '$id' red_evidence path could not be resolved: $redEvidence"
-                continue
-            }
-            $sep = [System.IO.Path]::DirectorySeparatorChar
-            if (-not ($joinedRed.StartsWith($absRoot + $sep) -or $joinedRed -eq $absRoot)) {
-                $failures += "check '$id' red_evidence path escapes repo root: $redEvidence"
-                continue
-            }
-
-            # File must exist, be regular file (not directory), and have size > 0
-            if (-not (Test-Path -LiteralPath $joinedRed)) {
-                $failures += "check '$id' red_evidence file missing: $redEvidence"
-            } elseif ((Test-Path -LiteralPath $joinedRed -PathType Container)) {
-                $failures += "check '$id' red_evidence is not a regular file: $redEvidence"
-            } else {
-                $fileInfo = Get-Item -LiteralPath $joinedRed -ErrorAction SilentlyContinue
-                if ($fileInfo -and $fileInfo.Length -eq 0) {
-                    $failures += "check '$id' red_evidence file is empty: $redEvidence"
+            $redResult = Test-EvidencePath -FieldName "red_evidence" -Evidence $redEvidence -RepoRoot $absRoot
+            if (-not $redResult.IsValid) {
+                $failures += "check '$id' $($redResult.Failure)"
+                if ($redResult.StopsCurrentCheck) {
+                    continue
                 }
             }
 
-            # Rule 2b: validate green_evidence path (same as evidence in Pass 2)
-            # Reject absolute POSIX paths
-            if ($greenEvidence.StartsWith("/")) {
-                $failures += "check '$id' green_evidence is an absolute path: $greenEvidence"
-                continue
-            }
-            # Reject Windows drive paths and UNC
-            if (($greenEvidence.Length -ge 2 -and $greenEvidence[1] -eq ':') -or $greenEvidence.StartsWith("\\")) {
-                $failures += "check '$id' green_evidence is an absolute path: $greenEvidence"
-                continue
-            }
-
-            # Check for traversal outside root
-            try {
-                $joinedGreen = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($absRoot, $greenEvidence))
-            } catch {
-                $failures += "check '$id' green_evidence path could not be resolved: $greenEvidence"
-                continue
-            }
-            if (-not ($joinedGreen.StartsWith($absRoot + $sep) -or $joinedGreen -eq $absRoot)) {
-                $failures += "check '$id' green_evidence path escapes repo root: $greenEvidence"
-                continue
-            }
-
-            # File must exist, be regular file (not directory), and have size > 0
-            if (-not (Test-Path -LiteralPath $joinedGreen)) {
-                $failures += "check '$id' green_evidence file missing: $greenEvidence"
-            } elseif ((Test-Path -LiteralPath $joinedGreen -PathType Container)) {
-                $failures += "check '$id' green_evidence is not a regular file: $greenEvidence"
-            } else {
-                $fileInfo = Get-Item -LiteralPath $joinedGreen -ErrorAction SilentlyContinue
-                if ($fileInfo -and $fileInfo.Length -eq 0) {
-                    $failures += "check '$id' green_evidence file is empty: $greenEvidence"
-                }
+            $greenResult = Test-EvidencePath -FieldName "green_evidence" -Evidence $greenEvidence -RepoRoot $absRoot
+            if (-not $greenResult.IsValid) {
+                $failures += "check '$id' $($greenResult.Failure)"
             }
         }
     }

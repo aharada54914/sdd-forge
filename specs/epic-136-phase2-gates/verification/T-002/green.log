@@ -1,0 +1,12 @@
+PS51_PARSE_EXIT=0
+DYNAMIC_EXIT=0
+ok: valid 64-hex HMAC activates sudo (exit 0)
+ok: 63-character signature stays inactive (exit 2)
+ok: 65-character signature stays inactive (exit 2)
+ok: malformed 64-character non-hex signature stays inactive (exit 2)
+ok: first-byte signature mutation stays inactive (exit 2)
+ok: middle-byte signature mutation stays inactive (exit 2)
+ok: last-byte signature mutation stays inactive (exit 2)
+phase2-sudo-signature.tests.ps1: 7 passed, 0 failed
+STATIC_EXIT=0
+ok: candidate is ASCII/no-BOM and uses the PS5.1 64-hex full-XOR comparator

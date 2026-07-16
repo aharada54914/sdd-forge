@@ -1,0 +1,148 @@
+﻿{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-136-phase2-gates",
+  "attempt": 2,
+  "round": 3,
+  "run_id": "RUN-epic136phase2-task-a2r3-a-seq0239",
+  "host_session_id": "SESS-task-a2r3-a-epic136phase2-0239",
+  "manifest": [
+    {
+      "path": "specs/epic-136-phase2-gates/requirements.md",
+      "sha256": "bf84e34670a03f6df85f5e2a185430450da6f0fcf5fbd2c8e1c2799643b5f9dd"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/acceptance-tests.md",
+      "sha256": "3568a38e584a71610c006c77bf6a647a2e12f91217649aed610189b1fd87cbd1"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/design.md",
+      "sha256": "2db4b773edfd3f5c889d47d58f7336c875986de0435213d77f4c6669d0cec0be"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/tasks.md",
+      "sha256": "5e4a0e37885e86f1bcb2e1d3629e246b759d108c3565898b824f43157de574e7"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/traceability.md",
+      "sha256": "853979063360d4291387dfacc5acb9e39e0cc49132337a6cd67db358b1759042"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/ux-spec.md",
+      "sha256": "4d6bd35f07521191150a0085b2a8b4c35466f427fa420799ea5dee56686b1225"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/frontend-spec.md",
+      "sha256": "4f788250b6130c4198c755598b673f0fb41bfc8086b98a3f0f3c66d0ade38bf0"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/infra-spec.md",
+      "sha256": "085f3b42507fa44571ad3f4565b6f8660c55e48b02ed4b80cb3b9004e26ddd16"
+    },
+    {
+      "path": "specs/epic-136-phase2-gates/security-spec.md",
+      "sha256": "f5ba37552f92a3e1de027ee215999cf69227f2ee654b122a28e87cf91ed91423"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase2-gates/attempt-2/round-3/precheck-result.json",
+      "sha256": "2e733001dae3d86242cb2c23d680b9dc9eedf8ad10a25370c6056d9c2c6777f8"
+    },
+    {
+      "path": "reports/task-review/epic-136-phase2-gates/attempt-2/round-3/dependency-graph.json",
+      "sha256": "4c491adc07df53451610f9bb911b1085c72b49327b838a53743275f348445d27"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All task references resolve to REQ-001..005 and AC-001..013."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All Blockers values are canonical; precheck agrees."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All requirements are covered; T-005/T-006 split REQ-005."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "All ACs have one task owner; T-006 owns AC-013."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Every task references a requirement."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "No test-only orphan exists."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Approvals/statuses are valid under provenance re-review."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "High/critical tasks all use tdd."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each AC has one primary owner."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "T-005 waits T-001/T-002; T-006 waits T-003/T-004/T-005."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Critical",
+      "finding": "Final dependency graph is acyclic."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Each task has one coherent concern."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "All Done When items name concrete evidence/addenda."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Major",
+      "finding": "Traceability is synchronized across six tasks and five requirements."
+    }
+  ],
+  "findings": []
+}

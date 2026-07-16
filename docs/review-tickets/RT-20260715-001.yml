@@ -1,0 +1,45 @@
+ticket_id: RT-20260715-001
+status: resolved
+approval: Approved (sudo 2026-07-15T06:25:00Z)
+type: cross-runtime-tokenizer-parity
+severity: major
+target:
+  feature: epic-136-phase2-gates
+  task: T-001
+  files:
+    - specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
+    - tests/phase2-guard-tokenizer.tests.ps1
+    - tests/phase2-guard-tokenizer.tests.sh
+    - specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256
+summary: Restore JavaScript tokenizer parity for a terminal escaped pipe inside a balanced quoted regex.
+problem: |
+  The JavaScript tokenizer advances its for-loop index twice after accepting a
+  backslash-plus-pipe pair. For `grep -n "\\|" <protected-path> 2>&1`, that
+  extra advance skips the balanced closing quote and returns an unclosed-quote
+  denial, while the Python and PowerShell twins allow the same read-only form.
+  The original focused corpus covered a double-backslash form but not the
+  terminal single-backslash escaped-pipe form, so REQ-001 cross-runtime parity
+  was incomplete.
+expected_fix:
+  - In the staged JavaScript candidate, consume exactly the escape pair and let
+    the loop increment advance to the following character once.
+  - Add a RED/GREEN three-runtime parity assertion for the terminal `"\\|"`
+    read-only regex and preserve all protected-write denials.
+  - Regenerate the immutable manifest, run the staged publication verifier,
+    and have a human apply the updated manifest-bound candidate before rerunning
+    the independent T-001 quality gate.
+references:
+  - reports/review-context/epic-136-phase2-t001-quality-a1r1-invocation.json
+  - specs/epic-136-phase2-gates/requirements.md
+  - specs/epic-136-phase2-gates/acceptance-tests.md
+  - reports/implementation/epic-136-phase2-gates/T-001.md
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1
+resolution:
+  resolved_at: 2026-07-15T06:31:00Z
+  implemented_by: /root
+  evidence:
+    - The staged JavaScript tokenizer now consumes only the backslash-plus-pipe pair, matching the Python and PowerShell loop semantics.
+    - The human publication runner installed the manifest-bound JavaScript candidate; all 18 installed targets match the current manifest.
+    - The new terminal escaped-pipe regression passes across all three runtimes; focused PowerShell is 13/13 and Bash is 19/19.

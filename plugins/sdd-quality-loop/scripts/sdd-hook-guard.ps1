@@ -42,6 +42,34 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$InvariantLoadError = $false
+$GuardInvariants = $null
+try {
+    $generatedPath = Join-Path $PSScriptRoot 'generated\guard-invariants.generated.ps1'
+    if (-not (Test-Path -LiteralPath $generatedPath -PathType Leaf)) { throw 'generated module missing' }
+    . $generatedPath
+    $requiredInvariantKeys = @(
+        'SCHEMA_VERSION', 'PROTECTED_GATE_SUFFIXES', 'PROTECTED_GATE_PLUGIN_JSON_SUFFIXES',
+        'SHELL_COMPOUND_RE', 'SHELL_WRITE_ARG_CMDS', 'SHELL_WRITE_DEST_CMDS',
+        'SHELL_PS_WRITE_CMDS', 'SHELL_INDIRECT_CMDS', 'SHELL_UNSAFE_TOKEN_CHARS',
+        'SHELL_REDIRECT_TOKEN_RE', 'SHELL_FD_DUP_RE', 'SHELL_CD_CMDS',
+        'SHELL_SUDO_WRITE_RE', 'SHELL_READ_ONLY_START_RE', 'SUDO_SIGNATURE_HEX_LENGTH',
+        'PHASE2_HUMAN_COPY_TARGETS'
+    )
+    if ($GuardInvariants -isnot [System.Collections.IDictionary] -or $GuardInvariants.Keys.Count -ne $requiredInvariantKeys.Count) { throw 'invalid generated export set' }
+    foreach ($key in $requiredInvariantKeys) { if (-not $GuardInvariants.Contains($key)) { throw 'missing generated export' } }
+    if ($GuardInvariants.SCHEMA_VERSION -ne 1 -or $GuardInvariants.SUDO_SIGNATURE_HEX_LENGTH -ne 64) { throw 'invalid generated schema' }
+    foreach ($key in @('PROTECTED_GATE_SUFFIXES', 'PROTECTED_GATE_PLUGIN_JSON_SUFFIXES', 'SHELL_WRITE_ARG_CMDS', 'SHELL_WRITE_DEST_CMDS', 'SHELL_PS_WRITE_CMDS', 'SHELL_INDIRECT_CMDS', 'SHELL_UNSAFE_TOKEN_CHARS', 'SHELL_CD_CMDS', 'PHASE2_HUMAN_COPY_TARGETS')) {
+        if ($GuardInvariants[$key] -isnot [array] -or @($GuardInvariants[$key] | Where-Object { $_ -isnot [string] }).Count -ne 0) { throw 'invalid generated array export' }
+    }
+    foreach ($key in @('SHELL_COMPOUND_RE', 'SHELL_REDIRECT_TOKEN_RE', 'SHELL_FD_DUP_RE', 'SHELL_SUDO_WRITE_RE', 'SHELL_READ_ONLY_START_RE')) {
+        if ($GuardInvariants[$key] -isnot [string]) { throw 'invalid generated regex export' }
+    }
+} catch {
+    $InvariantLoadError = $true
+    $GuardInvariants = [ordered]@{}
+}
+
 # Reconstruct a message string from an ASCII-safe source literal: every \uXXXX
 # escape (4 hex digits) becomes its Unicode character. Keeps this .ps1 ASCII-only
 # (AC-015) while preserving the exact bilingual runtime reasons of the twins.
@@ -134,6 +162,28 @@ $ShellFdDupRe          = '^&(?:\d+|-)$'
 $ShellCompoundRe       = '&&|\|\||;|\|'
 $ShellSudoWriteRe      = "(?:>|>>|\btee\b|\btouch\b|\bcp\b|\bmv\b|\brm\b|\bSet-Content\b|\bOut-File\b|\bNew-Item\b|\bRemove-Item\b)"
 $ShellReadOnlyStartRe  = '^\s*(?:cat|ls|test|grep|stat|head|tail|rg)\b'
+
+if (-not $InvariantLoadError) {
+    $ProtectedGateSuffixes = @($GuardInvariants.PROTECTED_GATE_SUFFIXES)
+    $ProtectedGatePluginJsonSuffixes = @($GuardInvariants.PROTECTED_GATE_PLUGIN_JSON_SUFFIXES)
+    $ProtectedBasenames = New-Object System.Collections.Generic.List[string]
+    foreach ($s in ($ProtectedGateSuffixes + ($ProtectedGatePluginJsonSuffixes | ForEach-Object { $_.TrimStart('/') }))) {
+        $bn = (($s.ToLower()) -replace '\\', '/').Split('/')[-1]
+        if (-not $ProtectedBasenames.Contains($bn)) { $ProtectedBasenames.Add($bn) }
+    }
+    $ShellWriteArgCmds = @($GuardInvariants.SHELL_WRITE_ARG_CMDS)
+    $ShellWriteDestCmds = @($GuardInvariants.SHELL_WRITE_DEST_CMDS)
+    $ShellPsWriteCmds = @($GuardInvariants.SHELL_PS_WRITE_CMDS)
+    $ShellIndirectCmds = @($GuardInvariants.SHELL_INDIRECT_CMDS)
+    $ShellUnsafeTokenChars = @($GuardInvariants.SHELL_UNSAFE_TOKEN_CHARS)
+    $ShellCdCmds = @($GuardInvariants.SHELL_CD_CMDS)
+    $ShellRedirectTokenRe = $GuardInvariants.SHELL_REDIRECT_TOKEN_RE
+    $ShellFdDupRe = $GuardInvariants.SHELL_FD_DUP_RE
+    $ShellCompoundRe = $GuardInvariants.SHELL_COMPOUND_RE
+    $ShellSudoWriteRe = $GuardInvariants.SHELL_SUDO_WRITE_RE
+    $ShellReadOnlyStartRe = $GuardInvariants.SHELL_READ_ONLY_START_RE
+    $SudoSignatureHexLength = $GuardInvariants.SUDO_SIGNATURE_HEX_LENGTH
+}
 
 function Get-Count {
     param([string]$Text)
@@ -367,6 +417,23 @@ function Get-SudoCanonical {
     return ($issuer, $nonce, $repo, $issuedStr, $expiresStr) -join "`n"
 }
 
+function Test-SudoSignatureConstantTime {
+    param(
+        [string]$ExpectedHex,
+        [string]$SuppliedHex
+    )
+    if (-not [regex]::IsMatch($ExpectedHex, "\A[0-9a-fA-F]{$SudoSignatureHexLength}\z")) { return $false }
+    if (-not [regex]::IsMatch($SuppliedHex, "\A[0-9a-fA-F]{$SudoSignatureHexLength}\z")) { return $false }
+
+    $difference = 0
+    for ($i = 0; $i -lt 32; $i++) {
+        $expectedByte = [Convert]::ToByte($ExpectedHex.Substring($i * 2, 2), 16)
+        $suppliedByte = [Convert]::ToByte($SuppliedHex.Substring($i * 2, 2), 16)
+        $difference = $difference -bor ($expectedByte -bxor $suppliedByte)
+    }
+    return ($difference -eq 0)
+}
+
 function Test-SudoActive {
     # C-02/C-04/C-08: True if valid, signed, unexpired SDD_SUDO flag exists at project root only.
     # Validates: not a symlink, required fields present, nonce format, epoch ranges,
@@ -417,10 +484,8 @@ function Test-SudoActive {
         $macBytes = $hmacObj.ComputeHash($canonicalBytes)
         $hmacObj.Dispose()
         $expectedHex = -join ($macBytes | ForEach-Object { $_.ToString("x2") })
-        $sigField = $fields["sig"].ToLower()
 
-        # String comparison (acceptable in ps1 per spec)
-        if ($expectedHex -ne $sigField) { return $false }
+        if (-not (Test-SudoSignatureConstantTime -ExpectedHex $expectedHex -SuppliedHex ([string]$fields["sig"]))) { return $false }
 
         return $true
     } catch { }
@@ -497,7 +562,17 @@ function Tokenize-ShellCommand {
         }
         if ($inDouble) {
             if ($ch -eq '"') { $inDouble = $false }
-            elseif ($ch -eq '\') { return $null }
+            elseif ($ch -eq '\') {
+                # #117: only a balanced quoted regex escape is modeled. Do
+                # not admit shell quoting, expansion, or line-continuation
+                # escapes; every other backslash remains fail-closed.
+                if (($i + 1) -ge $n) { return $null }
+                $next = $Cmd.Substring($i + 1, 1)
+                if ($next -ne '\' -and $next -ne '|') { return $null }
+                $cur += $ch + $next
+                $i += 2
+                continue
+            }
             else { $cur += $ch }
             $i++
             continue
@@ -1301,6 +1376,7 @@ function Test-ApprovalIncreases {
 }
 
 # --- Check 1: kill switch (runs regardless of payload validity) ---
+if ($InvariantLoadError) { Emit-Decision "deny" 'SDD deterministic gate: generated guard invariants unavailable; guard denied.' }
 if (Test-KillSwitch) { Emit-Decision "deny" $KillMsg }
 
 # --- Read payload ---

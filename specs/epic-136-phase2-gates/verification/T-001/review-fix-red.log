@@ -1,0 +1,20 @@
+RT-20260715-001 RED reproduction, 2026-07-15T06:25:00Z
+
+Command:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/phase2-guard-tokenizer.tests.ps1
+
+Observed result (exit 1):
+ok: legal: quoted regex escaped alternation plus standalone fd duplicate (all exit 0)
+FAIL: legal: terminal quoted escaped pipe plus standalone fd duplicate expected=0 ps1=0 py=0 js=2
+ok: legal: fd duplicate on protected inspection (all exit 0)
+ok: legal: ls protected inspection (all exit 0)
+ok: legal: cat protected inspection (all exit 0)
+ok: legal: find protected inspection (all exit 0)
+ok: deny: unquoted backslash changes token boundary (all exit 2)
+ok: deny: unclosed quoted regex (all exit 2)
+ok: deny: regex plus protected redirect (all exit 2)
+ok: deny: tee writes protected target (all exit 2)
+ok: deny: cp writes protected target (all exit 2)
+ok: deny: rm protected target (all exit 2)
+ok: PowerShell candidate is ASCII-only without BOM
+phase2-guard-tokenizer.tests.ps1: 12 passed, 1 failed

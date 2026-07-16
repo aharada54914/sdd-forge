@@ -1,0 +1,18 @@
+{
+  "schema": "cross-model-verdict/v1",
+  "task_id": "T-006",
+  "feature": "epic-136-phase2-gates",
+  "vendor": "openai",
+  "model": "codex-cli-default",
+  "verdict": "PASS",
+  "findings": [
+    {
+      "id": "F-001",
+      "severity": "info",
+      "summary": "The supplied implementation, RED/GREEN results, security review, native-API addendum, manifest, and runner source provide sufficient evidence for AC-013: anchored no-follow authority and source reads, retained-handle hashing/copying, held destination parents, verified same-parent temporaries, handle-relative atomic publication, hard-link-alias preservation, fail-closed capability checks, deterministic partial-install state, complete rollback, and post-install verification are covered without relying on downstream quality-gate artifacts."
+    }
+  ],
+  "blind": true,
+  "input_digest": "cd3c5d65606f0c809a6616ef91ac785d4e2eba00bb4464ae54210567a0c3afe6",
+  "consent": {"kind":"human-flag","ref":"tasks.md T-006 Cross-Model: enabled"}
+}

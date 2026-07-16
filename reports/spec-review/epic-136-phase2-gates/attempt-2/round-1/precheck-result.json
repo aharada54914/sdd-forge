@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase2-gates",
+  "attempt": 2,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "f65a828955160e6bb66443051122eead704927e7e2c470248d978d53996ecc2b",
+  "acceptance_sha256": "5dd38f58dc3280f8f6a24ff163bcf88b96b5d7ada552693a9ea9080201175f17",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "0ab5d8054ab4c15e07aa9cb39f5cccc8a09e9bc994bd05eb5ceda59b78a48864",
+  "edit_summary": "Authorized anchored no-follow human-copy requirements and AC-013 amendment",
+  "reset": true,
+  "generated_at": "2026-07-13T23:29:45Z"
+}

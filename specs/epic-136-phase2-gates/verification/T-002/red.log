@@ -1,0 +1,23 @@
+DYNAMIC_EXIT=0
+ok: valid 64-hex HMAC activates sudo (exit 0)
+ok: malformed 64-character non-hex signature stays inactive (exit 2)
+ok: first-byte signature mutation stays inactive (exit 2)
+ok: middle-byte signature mutation stays inactive (exit 2)
+ok: last-byte signature mutation stays inactive (exit 2)
+phase2-sudo-signature.tests.ps1: 5 passed, 0 failed
+STATIC_EXIT=1
+FAIL: direct supplied-signature string comparison is present
+FAIL: missing Test-SudoSignatureConstantTime helper
+
+SECOND_RED_DYNAMIC_EXIT=0
+ok: valid 64-hex HMAC activates sudo (exit 0)
+ok: 63-character signature stays inactive (exit 2)
+ok: 65-character signature stays inactive (exit 2)
+ok: malformed 64-character non-hex signature stays inactive (exit 2)
+ok: first-byte signature mutation stays inactive (exit 2)
+ok: middle-byte signature mutation stays inactive (exit 2)
+ok: last-byte signature mutation stays inactive (exit 2)
+phase2-sudo-signature.tests.ps1: 7 passed, 0 failed
+SECOND_RED_STATIC_EXIT=1
+FAIL: ExpectedHex lacks exact 64-hex validation
+FAIL: SuppliedHex lacks exact 64-hex validation
