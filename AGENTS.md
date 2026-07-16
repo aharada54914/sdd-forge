@@ -91,6 +91,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/epic-136-phase1-rce/`
 - `specs/epic-136-phase1-guards/`
 - `specs/epic-159-pillar-a/`
+- `specs/epic-159-pillar-a2/`
 
 ## Source Artifact Locations
 

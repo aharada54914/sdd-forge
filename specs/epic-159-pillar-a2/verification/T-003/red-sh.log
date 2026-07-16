@@ -1,0 +1,20 @@
+=== RED (sh side) evidence for T-003 / #147 ===
+
+--- 1. domain-review-precheck.sh original: baseline reject-path outputs (the .ps1 port must match these) ---
+$ bash plugins/sdd-domain/scripts/domain-review-precheck.sh 1 4
+EXIT:1
+
+$ bash plugins/sdd-domain/scripts/domain-review-precheck.sh 1 1 --edit-summary=hello
+EXIT:1
+
+--- 2. tests/guard-ps1-ascii.tests.sh BEFORE the TARGET->TARGETS generalization: single TARGET only (sdd-hook-guard.ps1), domain-review-precheck.ps1 not yet in scope ---
+guard-ps1-ascii.tests.sh
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+
+guard-ps1-ascii.tests.sh: 2 passed, 0 failed
+EXIT:0
+
+--- 3. git proof: domain-review-precheck.ps1 absent at HEAD (never existed in history) ---
+fatal: path 'plugins/sdd-domain/scripts/domain-review-precheck.ps1' exists on disk, but not in 'HEAD'

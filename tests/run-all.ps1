@@ -27,7 +27,9 @@ $tests = @(
     'tests/loop-inventory.tests.ps1',
     'tests/loop-driver.tests.ps1',
     'tests/loop-consistency.tests.ps1',
-    'tests/loop-escalation.tests.ps1'
+    'tests/loop-escalation.tests.ps1',
+    'tests/hitl-wfi-terminal.tests.ps1',
+    'tests/check-placeholders-brownfield.tests.ps1'
 )
 
 Push-Location $root

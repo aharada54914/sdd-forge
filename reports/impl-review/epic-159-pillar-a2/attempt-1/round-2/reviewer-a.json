@@ -1,0 +1,110 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-a2-impl-impl-reviewer-a-seq0216",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-a2-0216",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture mermaid names top-level component boundaries and integration edges into existing components (hitl-loop.template.sh, check-placeholders.sh/.ps1, tests/lib/loop-driver.*, loop-driver.tests.ps1, loop-consistency.tests.ps1, run-all.sh/.ps1, test.yml); ## Components Technology column + ## Layer Specifications table cover tech choices per applicable layer (Bash/PowerShell scripts, GitHub Actions YAML; Frontend/UX explicitly N/A, matching ux-spec.md/frontend-spec.md)."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Directed edges in design.md ## Architecture (HWT->HLT/WFISKILL/WFIDOCS; SEED->CPB->CP; SEED->LC->LD; DP/SP->GPA; DP/SP-.->LDR->LDT/LCT; RA->HWT&CPB) form a DAG; no cycle found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Data Plan carries all three required sub-fields with explicit content: 'Data Entities:' (new fixture dir + mktemp fixtures + two read-only real WFI files), 'Existing Data Affected: none.', 'Migration Strategy: none.'"
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## API / Contract Plan documents every new script/suite contract (HITL driving technique, assert_wfi_audit_transition reference-check contract, brownfield seed layout, the brownfield lock suite's two-case contract, loop-consistency brownfield leg, and full param() surfaces for the two new precheck .ps1 ports), the CLI-contract equivalent of endpoint coverage for this non-HTTP feature; round-2 addition confirmed: pwd -P normalization (INV-030/AC-018) and jq non-use (INV-031/AC-018) now explicit in the HITL/WFI-audit leg steps."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries table names 4 trust boundaries (B1-B4) with Auth/Authz Mechanism, Data Classification (no PII; internal/synthetic data only), and OWASP Concerns columns; security-spec.md elaborates with a full STRIDE table and OWASP mapping."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is 'deterministic test infrastructure + two precheck script ports (Pillar A completion)' - non-fullstack. design.md has no ## Frontend Plan or ## Backend Plan sections; ux-spec.md and frontend-spec.md both declare N/A with no GUI/browser surface. Matches round-1's own SKIP for this check."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Test Strategy covers unit-level red/green pairs (item 1-2), integration/self-healing observables against existing suites (item 3), runtime-budget verification (item 4), self-registration checks (item 5), and concrete named commands (bash tests/run-all.sh, pwsh tests/run-all.ps1, 3-OS CI matrix - item 6); acceptance-tests.md maps every AC-NNN to a TEST-NNN with concrete assertions."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every Architecture-diagram node is either a ## Components table row, described in the 'Real surfaces exercised READ-ONLY' paragraph (hitl-loop.template.sh, check-placeholders.sh/.ps1, tests/lib/loop-driver.sh/.ps1, wfi-audit-cycle/SKILL.md), or an established pre-existing system component identifiable from investigation.md (tests/loop-driver.tests.ps1, tests/loop-consistency.tests.ps1 - INV-013/014/021)."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## ADR Change Log states 'No new ADR' and cites docs/adr/0010-loop-inventory-and-fixture-vocabulary.md:46-47; verified this file exists at that path and lines 46-47 contain the cited greenfield/brownfield vocabulary text. No undeclared new architectural decision identified."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a2/requirements.md",
+      "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+      "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/design.md",
+      "sha256": "87c4016830773c656014d17f69eef838a0fcbb0c29d1a62d65565b7bd729d5b0"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/investigation.md",
+      "sha256": "25fa1fa0e7b8eb67c02d1b21907eb837b24a26bf4014c45c0c7968f55e9c123f"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/ux-spec.md",
+      "sha256": "f9de83a6913ca426e7eaa2fb900ba2d89bd8401ebbda174c275db626cd8970bb"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/frontend-spec.md",
+      "sha256": "bd57c6d06854bc14a2478032efbf985aa3c52ec2d8c203ecedbd71c0871fa6e4"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/infra-spec.md",
+      "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/security-spec.md",
+      "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-2/precheck-result.json",
+      "sha256": "c1f744e653c2139a7784f004d05b3bd92b84bbc74cfe7c77fd68e208612a7dfd"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-a2/attempt-1/round-1/integrated-summary.json",
+      "sha256": "f5fba8a8a0db165e3cb739ce68f375ca3fee5a186269e13e04cf1d6e983bf903"
+    }
+  ]
+}

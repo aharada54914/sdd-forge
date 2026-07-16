@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "epic-159-pillar-a2",
+  "attempt": 1,
+  "round": 1,
+  "nodes": ["T-001","T-002","T-003","T-004"],
+  "edges": [{"from":"T-002","to":"T-001"},{"from":"T-004","to":"T-003"}],
+  "generated_at": "2026-07-16T00:47:13Z"
+}

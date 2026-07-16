@@ -1,0 +1,48 @@
+=== RED (a): file existence check ===
+ls: plugins/sdd-review-loop/scripts/spec-review-precheck.ps1: No such file or directory
+fatal: path 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1' does not exist in 'HEAD'
+
+=== RED (a): guard-ps1-ascii.tests.sh TARGETS pre-generalization state (post-T-003) ===
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+TARGETS=(
+    "${GUARD_PS1:-${REPO_ROOT}/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1}"
+    "${REPO_ROOT}/plugins/sdd-domain/scripts/domain-review-precheck.ps1"
+)
+
+
+=== RED (b): attempted invocation of the not-yet-existing .ps1 port ===
+The argument 'plugins/sdd-review-loop/scripts/spec-review-precheck.ps1' is not recognized as the name of a script file. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.
+
+Usage: pwsh[.exe] [-Login] [[-File] <filePath> [args]]
+                  [-Command { - | <script-block> [-args <arg-array>]
+                                | <string> [<CommandParameters>] } ]
+                  [-CommandWithArgs <string> [<CommandParameters>]
+                  [-ConfigurationName <string>] [-ConfigurationFile <filePath>]
+                  [-CustomPipeName <string>] [-EncodedCommand <Base64EncodedCommand>]
+                  [-ExecutionPolicy <ExecutionPolicy>] [-InputFormat {Text | XML}]
+                  [-Interactive] [-MTA] [-NoExit] [-NoLogo] [-NonInteractive] [-NoProfile]
+                  [-NoProfileLoadTime] [-OutputFormat {Text | XML}]
+                  [-SettingsFile <filePath>] [-SSHServerMode] [-STA]
+                  [-Version] [-WindowStyle <style>]
+                  [-WorkingDirectory <directoryPath>]
+
+       pwsh[.exe] -h | -Help | -? | /?
+
+PowerShell Online Help https://aka.ms/powershell-docs
+
+All parameters are case-insensitive.
+EXIT=64
+
+=== RED (baseline): .sh original reject-path outputs (the values the port must match byte-for-byte) ===
+--- (i) out-of-range round ---
+ERROR: spec-review-precheck: round must be between 1 and 3
+EXIT=1
+--- (ii) round-1 non-empty edit-summary ---
+ERROR: spec-review-precheck: --edit-summary is valid only after round 1
+EXIT=1
+--- (iii-a) reset outside attempt N+1 round1 ---
+ERROR: spec-review-precheck: --reset starts only attempt N+1 round 1
+EXIT=1
+--- (iii-b) new attempt without --reset ---
+ERROR: spec-review-precheck: a new attempt requires --reset
+EXIT=1

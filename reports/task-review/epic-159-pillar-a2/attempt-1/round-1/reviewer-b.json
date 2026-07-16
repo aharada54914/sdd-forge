@@ -1,0 +1,122 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-a2-task-task-reviewer-b-seq0219",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-159-pillar-a2-0219",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-a2/requirements.md",
+      "sha256": "8ef643d32074ff274b24fcf0351fa9c8756026fbadb77ff90d8096d69cf8f9b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/acceptance-tests.md",
+      "sha256": "a8f03e7f26b3b0533be7b885832d8222dd8573feb36263b836031491c8052d47"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/design.md",
+      "sha256": "3b63c5f8c33018919fce66ef3550a0bdb5fcfee33e48f61a731b9684fab8c105"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/tasks.md",
+      "sha256": "ee2a501e9fbcddee950e6e5cbe6bcc03275599eb5c5c9ba49ddf3f62c4da0e79"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/traceability.md",
+      "sha256": "130278dce748abd258f8b865671f5b52a8f3a7fc788eec3d6f54556640e0ea7a"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/ux-spec.md",
+      "sha256": "f9de83a6913ca426e7eaa2fb900ba2d89bd8401ebbda174c275db626cd8970bb"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/frontend-spec.md",
+      "sha256": "bd57c6d06854bc14a2478032efbf985aa3c52ec2d8c203ecedbd71c0871fa6e4"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/infra-spec.md",
+      "sha256": "0032db8c9119e6a8666bc3fdd54d023d5943eed6cc207555e97408460a4118b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-a2/security-spec.md",
+      "sha256": "62d2e332b69a85e9749558c853fe2619d7817cfa7d80bfd11b57d9d7775aa6a0"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "reports/task-review/epic-159-pillar-a2/attempt-1/round-1/precheck-result.json",
+      "sha256": "374b4d7c017e74fc857fb0df326132438603a0786977f740fbb34017e6a72182"
+    },
+    {
+      "path": "reports/task-review/epic-159-pillar-a2/attempt-1/round-1/integrated-summary.json",
+      "sha256": "97fd5e14b59a11b560e15610a65760cb33fb0b792d12ac912e9bf1063df6064f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-003(tasks.md:418 Risk: medium)とT-004(tasks.md:560 Risk: medium)は、domain-review-precheck.ps1/spec-review-precheck.ps1というレビューゲート自体のattempt/round境界・edit-summaryルール・(T-003は)ポストアプローバルdrift検出を実装するプリチェックスクリプトの新規ポートである。risk-classification-policy.md:16のhigh層定義は「access control...or anything where a silent defect causes material harm」を挙げており該当し得る。本feature自身のsecurity-spec.md:43(STRIDE表B2行)も、コントリビューターがWindows障害を『直す』ために.ps1側の前提条件を緩めてしまうシナリオをTampering/Elevation of Privilege脅威として明示している。さらに同一リポジトリの具体的先例として specs/workflow-state-integrity/tasks.md:23-26 T-001は、まさに同じimpl-review-precheck.ps1/task-review-precheck.ps1系ファイルのpredecessor検証ロジック変更をRisk: high(Rationale: 'an incorrect normalization could bypass or deadlock mandatory review transitions')に分類している。full-parity port(既存.sh原本は無編集)という緩和要因はあるが、EDGE-CASE-COVERAGEで指摘する通りAC-011/AC-014には明示的なreject-pathテストが無く、downstream-review-precheck-parity.tests.shのcontradictory-artifact検証もspec/domainには拡張されない設計判断のため、劣化ポートを検出する自動否定パス証跡が薄い。是正案: (a) T-003/T-004をRisk: highに再分類しRequired Workflow: tdd(Red->Green証跡・独立レビューverdict記録)を適用する、または(b) mediumを維持するならRisk Rationaleにworkflow-state-integrity T-001先例との相違点(無編集.sh原本の機械的移植であること、TEST-013/016のself-healing外部観測が独立した正当性の裏付けになること)を明記した上で、EDGE-CASE-COVERAGEで指摘する否定パステストを追加し劣化ポートを検出できる自動証跡を用意すること。"
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "tasks.md T-001(line 88)・T-002(line 250)・T-003(line 418)・T-004(line 560)は全てRisk: mediumであり、Risk: high/criticalのタスクは現時点で存在しないため本チェックの適用対象がない。RISK-APPROPRIATEの指摘(T-003/T-004の再分類検討)が採用されhigh以上に変更される場合、本チェックを再実行しRed->Green証跡・独立レビューverdict記録の要件充足を確認する必要がある。"
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001(tasks.md:184-225)のDone Whenチェックリストは TEST-001〜TEST-006、TEST-017/018/019 share、Acceptance-first evidenceの計10項目(grep実測で確認)で、チェック定義の閾値である『Done When list has more than eight distinct verifiable items』(8超)を超える。同一リポジトリの先行feature specs/epic-159-pillar-a/tasks.mdのT-001〜T-004は全てDone When 7〜8項目に収まっている(grep実測: T-001=8, T-002=7, T-003=8, T-004=8)ため、本featureのT-001だけが既存の慣行密度を上回る。T-001はHITL leg(実スクリプト駆動+CHECKスタブ)とWFI-audit leg(skill非実行のreference-check)という構造的に異なる2種類の検証技法を1タスクに同居させている点も肥大化の一因。是正案: TEST-005(実WFIドキュメントのread-only smoke, AC-005)とTEST-006(self-registration + runtime budget, AC-006)のいずれかを独立タスクに切り出すか、WFI-audit legのTEST-003/004/005を別タスクとして分離し、T-001本体をwave-1同等の8項目以下に収めることを検討すること。"
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-003のAC-011/TEST-011(acceptance-tests.md:20)とT-004のAC-014/TEST-014(acceptance-tests.md:23)は『implements every precondition the .sh original implements』という記述のみで、AC-002(tasks.md:190-193『RED: symptom reproduced』)やAC-009(tasks.md:370-372『full seed directory...exit 1』)のような明示的な否定/エラーパスのアサーション(無効なRound値やround-1での非空--edit-summaryが実際に拒否されることを示す具体的な期待値)が記載されていない。design.mdのDesign Decisions(design.md:457-464)は、impl/taskに対して否定パスの意味論的パリティを検証している既存のtests/downstream-review-precheck-parity.tests.sh(実ファイル確認: 'contradictory predecessor artifacts'がshell/PowerShell双方で拒否されることを検証する明示的なnegative-pathテストを含む)をspec/domainには拡張しないと明記しており、劣化したプリチェックポート(本feature自身のsecurity-spec.md:43が挙げるTampering/EoP脅威)を検出する自動テストが計画されていない。さらにT-003 Done When(tasks.md:530-533)・T-004 Done When(tasks.md:673-676)の『Acceptance-first evidence』は、red sideを『新規に書くTEST-011/012/014/015自体が失敗すること』ではなく『既存wave-1スイートの事前のnamed SKIP状態』と定義しており、SKIPは未実行(assertion自体を一度も実行していない)であるため新規テストが不正な入力を検出できることを一度も証明しない。是正案: TEST-011/TEST-014に、少なくとも1つの無効な入力(例: 範囲外のRound、round-1での非空-EditSummary、ドリフト検出条件)に対する明示的なreject-pathアサーション(.sh原本と同じexit code/エラーメッセージになること)を追加し、acceptance-tests.mdのAC-011/AC-014行にもその否定パスシナリオを明記すること。あわせてAcceptance-first evidenceのred sideを、TEST-011/012(TEST-014/015)自身が.ps1不在時に意味のある理由で失敗する状態として定義し直すこと。"
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.mdの全19行(TEST-001〜TEST-019)は各行に対応するAC-NNNを明記しており一意に紐付いている(例: TEST-001→AC-001, TEST-013→AC-013)。Test Type欄は本feature独自の記述ラベル(integration (real script), reference-check / drift lock, port completeness, self-healing (external observable) 等)を用いているが、実スコープと整合している: TEST-001/007/010は複数コンポーネント(フィクスチャ+実スクリプト+loop-driver)を横断しintegration相当のスコープを正しく反映し、TEST-011/012/014/015は単一.ps1ファイルの構造/前提条件チェックでunit相当のスコープと整合し、TEST-013/016は新ファイル+既存loop-driver+既存wave-1スイートを横断する外部観測でintegration/end-to-end相当のスコープと整合している。ラベルと実スコープの不整合は確認されなかった。"
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "本feature4タスクは全てRisk: mediumであり、チェック定義上のhigh/critical必須要件は発動しない。それでも4タスク全てが明示的な`Rollback:`フィールドを備えている: T-001 tasks.md:123-125、T-002 tasks.md:304-305、T-003 tasks.md:457-459、T-004 tasks.md:600-602。いずれも『revert this task's commit』に加え、T-003/T-004は『既存のexistence-guard dispatchにより自動的に元のnamed-SKIP状態へ戻る』という具体的な復旧手順を記述しており、mediumティアの最低要件を上回る証跡を提供している。"
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "tasks.mdの4タスク全てのPlanned Filesが`CHANGELOG.md`を編集対象として列挙している(T-001: tasks.md:114、T-002: tasks.md:295、T-003: tasks.md:446、T-004: tasks.md:590; 各TEST-019 shareもCHANGELOG.mdの`## Unreleased`エントリ追記を要求: tasks.md:219,385,525,669)。しかしGlobal Constraints(tasks.md:33-77)はrun-all.sh/.ps1・test.yml・guard-ps1-ascii.tests.sh・loop-consistency.tests.shの4ファイルについてのみ直列化のためのBlockers関係を明記しており、CHANGELOG.mdには一切言及していない。それどころかtasks.md:55-57は『T-003/T-004 are materially independent of T-001/T-002 (no shared file...)』と明記しており、これはCHANGELOG.mdが両チェーンから編集される事実と矛盾する。T-002<-T-001、T-004<-T-003という直列化チェーンはそれぞれのチェーン内では成立するが、{T-001,T-002}チェーンと{T-003,T-004}チェーンの間にBlockers関係が無いため、例えばT-002とT-004が並行実装された場合に両方が同時に`## Unreleased`セクションへの追記コミットを作ろうとして衝突しうる(同種のリスクはrun-all.sh等では明示的に直列化で回避されているのに、CHANGELOG.mdだけ対応漏れ)。副次的に、T-002のTEST-019(tasks.md:386-388 docs/troubleshooting.md follow-up)とT-003のTEST-019(tasks.md:526-527 docs/troubleshooting.mdへの条件付き言及)も同一ドキュメントに条件付きで触れうる。是正案: Global Constraintsに`CHANGELOG.md`の`## Unreleased`セクションを追記型の共有ファイルとして明記し、4タスク全体を跨ぐ直列化ルール(例:2つの直列化チェーンを1本につなげる、またはCHANGELOG追記のみ別コミットでレビュー前に人間/エージェントがコンフリクト解消する旨)を追加するか、少なくとも『CHANGELOG.mdへの追記は行番号非依存の独立ブロックでありGitが通常自動マージできる』という明示的な低リスク判断を記録すること。"
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "既存の2つのBlockersチェーン(T-002<-T-001, tasks.md:404-406/267-270; T-004<-T-003, tasks.md:687-689/578-582)はいずれも『機能的な出力依存』ではなく『共有登録ファイルへのコミット順序を直列化するため』と明示的に理由付けられており(tasks.md:41-54、design.mdのGlobal Constraints)、wave-1(epic-159-pillar-a design.md)の同種の先例に倣った正当なBlockersである。spurious(不要)と判定する根拠はない。逆方向の懸念(本来必要なBlockersの欠落)については、CHANGELOG.mdの4タスク横断編集がSCOPE-DISJOINT側で詳述した通り座標付けの欠落として存在するが、これは『T-BがT-Aの成果物に依存する』という出力依存の欠落ではなく同一ファイルへの並行追記という別種のリスクであるため、DEPENDENCY-OVERLAPとしては二重計上せずSCOPE-DISJOINTの指摘を参照する。T-001/T-003は共にBlockers: Noneで、それぞれ新規ファイルの単独作成であり他タスクの成果物に依存しないため妥当。"
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-001〜T-004は全て新規追加のテストインフラ/スクリプトポートであり、bugfix・regression fix・debugging・failure diagnosis・flaky-test resolution・incident remediationのいずれにも該当しない(tasks.md T-001〜T-004のGoal/Scope/Done Whenいずれも新規作成が主眼)。"
+    }
+  ]
+}

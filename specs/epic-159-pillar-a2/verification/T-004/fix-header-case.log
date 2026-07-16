@@ -1,0 +1,161 @@
+=== Amendment: gate cycle 2 Major finding fix (case-sensitive Select-String
+for the Spec-Review-Status header field) ===
+
+Finding: `plugins/sdd-review-loop/scripts/spec-review-precheck.ps1:187`'s
+`Select-String -Pattern '^Spec-Review-Status:\s*(.*)$'` used PowerShell's
+default CASE-INSENSITIVE matching (a cmdlet-level default, not an operator
+this task's cycle-1 sweep covered), so it also matched a header field
+written as `SPEC-REVIEW-STATUS:` or `spec-review-status:` -- values the
+`.sh` original's `sed -n 's/^Spec-Review-Status:[[:space:]]*//p'` (sed BRE,
+always case-sensitive) never matches, leaving `$status` empty and
+`requirements.md must declare Spec-Review-Status: Pending` firing for the
+WRONG reason on a genuinely-cased header, or -- worse -- silently accepting
+a differently-cased header as if it correctly declared the field. Cycle 1's
+sweep instruction and this task's own follow-on sweep were scoped to
+PowerShell comparison OPERATORS (`-match`/`-eq`/`-contains`/etc.); this is
+the first cmdlet/language-feature-level gap found, confirming the vulnerability
+class is broader than the operator set alone.
+
+Fix: added `-CaseSensitive` to the `Select-String` call at line 187
+(single-parameter fix, no other change to that line).
+
+=== Cmdlet/feature-level sweep (NOT operator-level -- the class explicitly
+requested this cycle): every case-insensitive-by-default PowerShell
+mechanism in the file ===
+
+| Mechanism | Occurrence(s) | .sh original semantics | Verdict |
+|---|---|---|---|
+| `Select-String` (all uses) | Line 187 only (single call site in the whole file) | `sed -n 's/^Spec-Review-Status:[[:space:]]*//p'` -- sed BRE, always case-sensitive (no `sed` case-insensitive flag used) | **DIVERGENCE (the reported Major).** Fixed: added `-CaseSensitive`. |
+| `Get-ChildItem -Filter`/`-Include`/`-Exclude` | Line 447: `Get-ChildItem -LiteralPath $previousAttempt -Directory -ErrorAction SilentlyContinue` | `.sh` original: `find "$previous_attempt" -maxdepth 1 -type d -name 'round-*'` | Safe -- no `-Filter`/`-Include`/`-Exclude` parameter is used at all; `Get-ChildItem -Directory` here enumerates every subdirectory unconditionally (verified empirically: a probe directory containing both `round-1` and `ROUND-2` returns BOTH names from `Get-ChildItem -Directory` with no filtering). The actual case enforcement happens entirely downstream, in the already-fixed (gate cycle 1) `-cmatch '^round-[1-3]$'` `Where-Object` clause immediately after. No cmdlet-level gap here; already covered. |
+| `-like`/`-notlike` | none | -- | N/A -- operator not used anywhere in this file. |
+| `-split`/`-isplit`/`-csplit` | none | -- | N/A -- operator not used anywhere in this file (the evaluator's warning that regex `-split` defaults to case-insensitive is correct in general, but moot here since this file never splits a string via a regex-based pattern -- all field extraction goes through `Select-String`/`ConvertFrom-Json`/`.Groups[...]`). |
+| `[regex]::Match`/`[regex]::IsMatch`/`[Text.RegularExpressions.Regex]::Replace` | Line 505-509: `[Text.RegularExpressions.Regex]::Replace($content, '(?m)^Spec-Review-Status:[ \t]*Passed[ \t]*(\r?)$', 'Spec-Review-Status: Pending$1')` (the `--reset`-time status-field rewrite) | `.sh` original: `sed 's/^Spec-Review-Status:[[:space:]]*Passed[[:space:]]*$/Spec-Review-Status: Pending/'` -- sed BRE, case-sensitive | Verified SAFE empirically, not just by documentation: the static `[regex]::Replace(string, pattern, replacement)` overload used here takes no `RegexOptions` argument, and .NET's `Regex` class is case-sensitive by default (`RegexOptions.None`), UNLIKE PowerShell's `-replace` operator (which defaults to case-insensitive). Confirmed with a live probe: `[Text.RegularExpressions.Regex]::Replace("SPEC-REVIEW-STATUS: Passed`n", '(?m)^Spec-Review-Status:[ \t]*Passed[ \t]*(\r?)$', 'Spec-Review-Status: Pending$1')` left the uppercase-header input UNCHANGED (`changed: False`) -- exactly matching `sed`'s case-sensitive behavior. No fix needed. |
+| String instance methods (`.StartsWith`/`.EndsWith`/`.Equals`/`.IndexOf`/`.Contains`/`.Replace`) | none used directly (grep for `\.StartsWith\|\.EndsWith\|\.Equals(\|\.IndexOf\|\.Contains(\|\.Replace(` returns zero matches) | -- | N/A -- the file never calls a raw .NET string instance method for comparison; every string-identity check goes through the file's own `Test-OrdinalEqual` helper (`[string]::Equals($Left, $Right, [StringComparison]::Ordinal)`, explicitly ordinal/case-sensitive by construction), and the two SHA-256 helpers use `.ToLower()` only for canonicalizing HEX OUTPUT (not for a comparison), which introduces no case-sensitivity gap since both sides of every hash comparison are independently lower-cased the same way before an ordinal compare. |
+| `Sort-Object` (case-insensitive, culture-aware, by default) | 9 call sites: lines 96, 97 (`Test-KeysExact` property-name sets), 223, 343, 347, 355, 356 (manifest-entry arrays sorted by `path`), 274 (reviewer `role` values), 448 (`--reset` round-number integers) | `.sh` original: `jq`'s `sort_by(...)`/`sort` -- byte-wise/codepoint order, always case-sensitive | Reviewed individually, no functional divergence found (documented per-site below); no fix applied. |
+| `switch (...)` (plain, no `-wildcard`/`-regex`; case-insensitive by default) | Line 227: `switch ($Role) { 'spec-reviewer-a' {...} 'spec-reviewer-b' {...} default {...} }` inside `Test-ValidateReviewerOutput` | `.sh` original: `case "$role" in spec-reviewer-a) ...;; spec-reviewer-b) ...;; *) return 1;; esac` -- bash `case` glob matching, case-sensitive (no `shopt -s nocasematch`) | Confirmed case-insensitive empirically (`switch ($Role)` with `$Role = 'SPEC-REVIEWER-A'` matched the `'spec-reviewer-a'` branch). NOT exploitable: `$Role` is ALWAYS an internal literal (`'spec-reviewer-a'`/`'spec-reviewer-b'`) supplied by this script's own two call sites (`Test-ValidateContract` lines 367-368), never a value parsed from JSON evidence. The JSON-sourced field that this function actually validates against untrusted input, `$data.role`, is separately checked via `Test-OrdinalEqual $data.role $Role` (line 216, ordinal/case-sensitive) before the `switch` is ever reached. No fix applied (not a real gap); documented for completeness per the amendment's explicit request to report every mechanism checked, not only the ones fixed. |
+| `-in`/`-notin`/`-ilike`/`-inotmatch`/`-ireplace` (explicit case-insensitive variants) | none | -- | N/A -- not used. |
+
+=== Sort-Object per-site review (why no functional divergence exists) ===
+
+`Sort-Object`'s default comparer is case-insensitive and culture-aware,
+unlike `jq`'s `sort`/`sort_by` (byte-wise, case-sensitive). This IS a
+different comparer than the `.sh` original uses, but a different comparer
+only produces an OBSERVABLE divergence if it changes the pass/fail OUTCOME
+of a subsequent check. Reviewed each site:
+
+- Lines 96-97 (`Test-KeysExact`): sorts two sets of JSON PROPERTY NAMES,
+  then compares them index-by-index via `Test-OrdinalEqual` (ordinal). This
+  is a SET-equality check implemented as "sort both consistently, then
+  compare pairwise" -- since both arrays are sorted by the SAME comparer
+  (whichever one `Sort-Object` uses), any two equal sets of strings always
+  land in identical index order, and any two UNEQUAL sets always produce a
+  mismatch somewhere in the pairwise ordinal comparison, regardless of which
+  total-order comparer was used for sorting. This schema's key names are
+  also all mutually distinct even case-insensitively (e.g. no key differs
+  from another ONLY by case), so there is no comparer-dependent grouping
+  ambiguity either. Safe by construction.
+- Lines 223, 343, 347, 355-356 (manifest-entry arrays sorted by `.path`,
+  compared via `Test-ManifestArraysEqual`'s ordinal per-element check): same
+  "sort both sides with the same comparer, then compare pairwise ordinally"
+  shape as above -- the comparer choice affects sort ORDER, not the ordinal
+  EQUALITY verdict at each resulting position, and the canonical path set
+  compared here is fixed and mutually case-distinct (`requirements.md`,
+  `acceptance-tests.md`, the precheck file, the calibration file, optionally
+  `investigation.md`, optionally the round's `integrated-summary.json`) so
+  no two entries could ever collide or reorder ambiguously due to a
+  case-insensitive vs. case-sensitive comparer. Safe.
+- Line 274 (`$roles = @($reviewers | ForEach-Object { $_.role } | Sort-Object)`,
+  then compared against the LITERAL strings `'spec-reviewer-a'`/
+  `'spec-reviewer-b'` via `Test-OrdinalEqual`): the two canonical role
+  strings differ only in their final character (`a` vs `b`, both already
+  lowercase), so case-insensitive and case-sensitive sort orders coincide
+  for legitimate data. For adversarial/malformed data (e.g. a role value
+  actually written as `SPEC-REVIEWER-A`), sort placement may differ from
+  what `jq sort` would produce, but the FINAL enforcement is
+  `Test-OrdinalEqual $roles[0] 'spec-reviewer-a'` (ordinal) -- a
+  differently-cased role value fails this check regardless of which sort
+  order placed it at index 0 or 1, so the case-sensitivity of the actual
+  security-relevant comparison is unaffected by the sort comparer. Safe.
+- Line 448 (`Sort-Object` on `[int]`-converted round numbers): sorts
+  integers, not strings; case has no meaning for numeric comparison. Safe,
+  not applicable.
+
+Conclusion: `Sort-Object`'s case-insensitive default is a REAL semantic
+difference from `jq sort`/`sort_by`, but in every one of this file's 9 call
+sites the actual accept/reject decision is enforced by a SEPARATE ordinal
+comparison (`Test-OrdinalEqual`) applied after sorting, not by the sort
+order itself -- so no site was found where the comparer choice can change
+the script's accept/reject verdict. No fix applied to any `Sort-Object`
+call site.
+
+=== Verification (a): mis-cased header field rejected identically by .sh
+and .ps1, named-parameter AND array-splat, for both variants the evaluator
+named ===
+
+Fixture: an isolated, non-repository mktemp-style directory
+(`$TMPDIR/.../header-case-fixture-<pid>/`) containing a copy of the real
+`plugins/` tree (read-only source, never edited) plus a synthetic
+`specs/hdr-case-feature/{requirements.md,acceptance-tests.md}` pair -- no
+real repository path (`specs/`, `reports/`, `docs/`) was ever written by
+this verification.
+
+--- Variant 1: `SPEC-REVIEW-STATUS: Pending` (all-uppercase header key) ---
+.sh:  ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending (exit 1)
+.ps1 (named):       ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending (exit 1)
+.ps1 (array-splat): ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending (exit 1)
+
+--- Variant 2: `spec-review-status: Pending` (all-lowercase header key) ---
+.sh:  ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending (exit 1)
+.ps1 (named):       ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending (exit 1)
+.ps1 (array-splat): ERROR: spec-review-precheck: requirements.md must declare Spec-Review-Status: Pending (exit 1)
+
+Byte-identical stderr text and exit code (1) confirmed for both mis-cased
+variants, both invocation styles. (The genuinely-cased `Spec-Review-Status:`
+header continues to be accepted normally -- see Verification (b).)
+
+=== Verification (b): normal-path (correctly-cased) behavior unaffected ===
+
+`pwsh tests/loop-consistency.tests.ps1`'s 27/0/0-SKIP result below drives
+every spec-review round through the real, canonically-cased
+`Spec-Review-Status:` header the loop-driver fixture always writes,
+confirming the `-CaseSensitive` addition does not reject legitimate,
+correctly-cased evidence.
+
+=== Verification (c): all prior parity checks re-run, no regression ===
+
+Cycle-1 slug case-variant fix (`Test-Feature`/`NOFEATURE`/`Epic-159-Pillar-A2`,
+named-parameter): all three still rejected with
+`ERROR: spec-review-precheck: invalid feature slug` (exit 1), matching the
+`.sh` original -- 6/6 lines identical between `.sh` and `.ps1` runs.
+
+Existing 4 reject-path conditions (out-of-range Round, round-1 non-empty
+`--edit-summary`, both `--reset`-precondition variants): all four
+unchanged, `.sh` and `.ps1` byte-identical, exit code 1 in every case.
+
+=== Verification (d): pwsh tests/loop-driver.tests.ps1 and
+tests/loop-consistency.tests.ps1, no regression ===
+
+pwsh tests/loop-driver.tests.ps1:
+loop-driver.tests.ps1: 22 passed, 0 failed, 3s elapsed
+(0 SKIP; matches the T-004 GREEN baseline and the gate-cycle-1 fix baseline
+exactly)
+
+pwsh tests/loop-consistency.tests.ps1:
+loop-consistency.tests.ps1: 27 passed, 0 failed, 24s elapsed
+(0 SKIP; matches the T-004 GREEN baseline and the gate-cycle-1 fix baseline
+exactly)
+
+=== Verification (e): tests/guard-ps1-ascii.tests.sh ===
+
+guard-ps1-ascii.tests.sh: 9 passed, 0 failed (all 3 targets)
+
+=== Additional regression checks (unaffected) ===
+
+tests/crlf-parity.tests.sh: 8 passed, 0 failed
+tests/constant-parity.tests.sh (PROTECTED, read-only): 2 passed, 0 failed
+tests/validate-repository.sh: exit 0, "Repository validation passed."
+
+Byte-level hygiene of the twice-amended file: zero bytes outside 0x00-0x7F,
+no UTF-8 BOM, no CR bytes.
+[System.Management.Automation.Language.Parser]::ParseFile -> PARSE OK, zero
+syntax errors.

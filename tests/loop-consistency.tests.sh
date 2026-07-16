@@ -247,6 +247,67 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# TEST-008 brownfield-profile leg (T-002 / Issue #146 / epic-159-pillar-a2
+# REQ-002, AC-007/AC-010): loop_fixture_init brownfield seeded from the
+# canonical tests/fixtures/loops/brownfield-seed/ drives spec-review round 1
+# and matches the same inventory `terminal` the greenfield leg above already
+# asserts (AC-010) -- one profile-parity leg is sufficient to satisfy issue
+# #146's Done condition; it does not repeat the full rounds-1->3 sweep
+# already covered on the greenfield profile (design.md API/Contract Plan).
+# The loop_fixture_init-succeeds + verbatim-seed-copy checks below also
+# close AC-007's loop-driver integration clause: the seed-existence +
+# three-category half of AC-007 is separately proven, jq-free, in
+# tests/check-placeholders-brownfield.tests.sh/.ps1 (design.md Constraint
+# Compliance declares that suite jq-free by design; loop_fixture_init calls
+# jq internally, so the verbatim-copy proof lives here instead, where jq is
+# already a pre-existing suite dependency -- see this suite's `command -v
+# jq` guard above).
+# ---------------------------------------------------------------------------
+echo "=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ==="
+
+BROWNFIELD_SEED="${REPO_ROOT}/tests/fixtures/loops/brownfield-seed"
+BROWNFIELD_FEATURE="loop-consistency-brownfield-$$"
+LOOP_FIXTURE_SEED="$BROWNFIELD_SEED"
+export LOOP_FIXTURE_SEED
+if loop_fixture_init brownfield "$BROWNFIELD_FEATURE"; then
+  ok "TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed"
+  CLEANUP_ROOTS+=("$LOOP_FIXTURE_ROOT")
+else
+  fail "TEST-008.15 (AC-007): loop_fixture_init brownfield failed with LOOP_FIXTURE_SEED pointed at the canonical seed"
+fi
+unset LOOP_FIXTURE_SEED
+BROWNFIELD_ROOT="${LOOP_FIXTURE_ROOT:-}"
+LOOP_FIXTURE_ROOT="$BROWNFIELD_ROOT"; LOOP_FIXTURE_FEATURE="$BROWNFIELD_FEATURE"
+export LOOP_FIXTURE_ROOT LOOP_FIXTURE_FEATURE
+
+if [[ -n "$BROWNFIELD_ROOT" ]] \
+   && cmp -s "${BROWNFIELD_SEED}/src/base.py" "${BROWNFIELD_ROOT}/src/base.py" \
+   && cmp -s "${BROWNFIELD_SEED}/src/legacy_util.py" "${BROWNFIELD_ROOT}/src/legacy_util.py" \
+   && cmp -s "${BROWNFIELD_SEED}/src/service.py" "${BROWNFIELD_ROOT}/src/service.py" \
+   && cmp -s "${BROWNFIELD_SEED}/specs/brownfield-seed-demo/tasks.md" "${BROWNFIELD_ROOT}/specs/brownfield-seed-demo/tasks.md" \
+   && cmp -s "${BROWNFIELD_SEED}/CHANGED_FILES.txt" "${BROWNFIELD_ROOT}/CHANGED_FILES.txt"; then
+  ok "TEST-008.16 (AC-007): the canonical seed content is present verbatim under \$LOOP_FIXTURE_ROOT"
+else
+  fail "TEST-008.16 (AC-007): the canonical seed content is NOT present verbatim under \$LOOP_FIXTURE_ROOT"
+fi
+
+if loop_validator_capability_probe; then
+if drive_review_round spec 1 1 PASS Minor; then
+  ok "TEST-008.17 (AC-010): brownfield-profile leg drives spec-review round 1 (PASS/Minor) green"
+else
+  fail "TEST-008.17 (AC-010): brownfield-profile leg failed to drive spec-review round 1"
+fi
+if assert_terminal spec-review PASS; then
+  ok "TEST-008.18 (AC-010): brownfield-profile leg observed end state PASS matches the same inventory terminal the greenfield leg (TEST-008.3) already asserts"
+else
+  fail "TEST-008.18 (AC-010): brownfield-profile leg observed end state does not match the loop-inventory terminal (PASS)"
+fi
+else
+  loop_validator_skip "TEST-008.17"
+  loop_validator_skip "TEST-008.18"
+fi
+
+# ---------------------------------------------------------------------------
 # TEST-009 (AC-009): impl-review round-2 RED differential regression lock
 # ---------------------------------------------------------------------------
 echo "=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ==="

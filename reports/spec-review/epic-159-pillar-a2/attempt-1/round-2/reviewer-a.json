@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-a2-spec-spec-reviewer-a-seq0210",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-a2-0210",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-004 each name literal terminal strings, exit codes, iteration counts, and byte-level checks (e.g. AC-001 'loop finished without reproducing (5 iterations)', AC-012/AC-015 zero-non-ASCII/no-BOM/no-CR). REQ-002's check-placeholders lock (AC-008/AC-009) asserts concrete exit 0 vs exit 1 on the same fixture. REQ-005's twin/degrade claim is measurable via AC-017's SKIP-with-reason requirement. REQ-006 resolves to concrete gates in AC-019 (validate-repository green, CHANGELOG entry citing issue numbers, no manual version bump). No in-scope requirement is left as unmeasurable intent."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Goal has direct AC coverage: REQ-001->AC-001..AC-006+AC-018; REQ-002->AC-007..AC-010+AC-018; REQ-003->AC-011..AC-013; REQ-004->AC-014..AC-016; REQ-005->AC-006/AC-010/AC-013/AC-016/AC-017; REQ-006->AC-019. acceptance-tests.md's Requirement column confirms the same mapping for all 19 ACs; no goal is left without a matching row."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "ACs specify externally observable artifacts throughout: literal exit codes/strings (AC-001/AC-002), SHA-256 before/after equality on real files (AC-005, round-2 fix), byte-level ASCII/BOM/CR scans (AC-012/AC-015), and inventory-terminal-value equality across profiles (AC-010). The round-2 rewrite of AC-003/AC-005 against the real 5-state Audit-Status machine (Not-Started/Cycle-1-In-Progress/Cycle-2-In-Progress/Human-Pending/Human-Blocked, SKILL.md:34-43,61-65 per investigation INV-006) removes the prior state-machine mismatch and is now internally consistent with investigation.md INV-005..INV-007 (e.g. WFI-010.md's Audit-Attempt:1/Human-Pending pair is a valid permitted below-threshold state under the rewritten invariant)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section is explicit and now includes the round-1-added directional limit: 'TEST-005 can only exercise the attempt < 3 direction on WFI-010.md/WFI-011.md... The Human-Blocked direction is covered by AC-003's synthetic sweep, not by the real-document smoke check.' Combined with existing exclusions (no loop-inventory re-registration, no live skill/gh invocation, no re-litigating #127, no protected-gate edits, tasks.md/traceability.md deferred to Phase 2, Pillar B/#125 out), the feature boundary is unambiguous for a downstream task author."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table (B1-B4) states mktemp isolation, real-tree-never-written, and no-network guarantees. Edge Cases enumerate CI-resilience constraints with file:line citations (bash 3.2 empty-array handling INV-029, macOS TMPDIR pwd -P INV-030, Windows jq CRLF INV-031, real-validator Windows-CRLF fragility INV-032) plus the guard-ps1-ascii shared-file override-must-keep-working constraint and the exact-path landing constraint for both new .ps1 scripts. Roles and Permissions confirms none of the touched files are protected-gate (cited against sdd-hook-guard.py:886-927). No material constraint is left implicit."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Risks section names a Critical risk (skill-logic drift blessing a narrowed/widened cap) with mitigation mapped to AC-003's exact-line-cited reference check plus AC-005's real-document cross-check, and a High risk (mis-wired CHECK stub silently reporting false-positive) mitigated by AC-002 as a mandatory (not optional) canary. Medium/Low risks (shared guard-ps1-ascii file, loop-consistency.tests.sh edit, self-healing dependency) each cite a concrete AC or design.md precedent as validation surface. No high-risk claim is left without a planned check."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a2/requirements.md",
+      "sha256": "71b0de493a81526f3f3cae9195270e5707056b2c88c6ee7e609ab0785d1fd4d6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a2/acceptance-tests.md",
+      "sha256": "7d32962c31f0ebbc6d09417648b974b1299c63f227eefbbf89e8e89b71e04f99"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-a2/investigation.md",
+      "sha256": "25fa1fa0e7b8eb67c02d1b21907eb837b24a26bf4014c45c0c7968f55e9c123f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-a2/attempt-1/round-2/precheck-result.json",
+      "sha256": "2c4350996f8fbff151811942358933f79ac1eb5d697935873d36f91fe2907545"
+    }
+  ]
+}
