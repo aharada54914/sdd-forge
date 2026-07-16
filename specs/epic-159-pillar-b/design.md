@@ -134,14 +134,21 @@ CI-content-assertion precedent (`tests/workflow-state-ci-integration.tests.sh`).
 
 ## Data Plan
 
-None. No data entity is introduced, stored, or migrated. The only
-filesystem artifacts this feature creates are mktemp-scoped fixture-repo
-copies (deleted via `trap ... EXIT`) and one new committed documentation
-file (`docs/contributor/release-runbook.md`). Existing Data Affected: none
-— the real `README.md`, `CHANGELOG.md`, plugin manifests, and
-`tests/validate-repository.ps1` are never written by either new suite;
-only a genuine `scripts/bump-version.sh <version>` invocation against the
-real repository (unchanged, human-run) writes them, exactly as today.
+Data Entities: none. No data entity is introduced, stored, or migrated.
+The only filesystem artifacts this feature creates are mktemp-scoped
+fixture-repo copies (deleted via `trap ... EXIT`) and one new committed
+documentation file (`docs/contributor/release-runbook.md`).
+
+Existing Data Affected: none — the real `README.md`, `CHANGELOG.md`,
+plugin manifests, and `tests/validate-repository.ps1` are never written by
+either new suite; only a genuine `scripts/bump-version.sh <version>`
+invocation against the real repository (unchanged, human-run) writes them,
+exactly as today.
+
+Migration Strategy: none. No schema, stored format, or persisted artifact
+changes shape, so there is nothing to migrate (same explicit no-migration
+statement convention as `specs/epic-159-pillar-a/design.md:118` and
+epic-159-pillar-a2's Data Plan).
 
 ## API / Contract Plan
 
@@ -437,6 +444,7 @@ CHANGELOG-heading-only precondition.
 
 | Requirement Constraint | Design Response |
 |---|---|
+| no bypass / no weakened-gate escape hatch (REQ-001, AC-004; REQ-002, AC-008/AC-009; Security Boundaries B2; OQ-007) | the `bump-version.sh` loop-gate block contains no environment-variable or CLI-flag conditional around either suite invocation — locked by TEST-004's grep-based self-check on the real script; the `release.yml` loop-gate job and `release` job carry no `continue-on-error: true` and no `if: always()`/`if: success() || failure()` escape hatch — locked by TEST-008's text-marker scan with TEST-009's negative-branch canary proving the scan is not vacuous. This row tracks the requirements' most-repeated constraint (also the Risks section's High item) so future edits cannot weaken either leg without a Constraint Compliance mismatch |
 | no protected file modified | all deliverables are new files or edits to unprotected registration/release surfaces (verified above) |
 | `.sh`/`.ps1` twin pairs mandatory | `bump-version-gate` and `release-loop-gate` ship as twins from the start, following epic-159-pillar-a2's REQ-005 cross-host convention |
 | cross-host (Claude Code / Codex) | host-neutral twins + CI matrix; the `bump-version.sh` non-twin degradation (REQ-004) is explicit and recorded, never silent |
