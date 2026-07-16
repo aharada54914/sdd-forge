@@ -4,7 +4,7 @@
   "role": "spec-reviewer-b",
   "run_id": "RUN-epic-159-pillar-c-spec-spec-reviewer-b-seq0287",
   "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-c-0287",
-  "verdict": "NEEDS_WORK",
+  "verdict": "BLOCKED",
   "checks": [
     {
       "id": "AMBIGUITY",

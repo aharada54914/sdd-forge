@@ -4,17 +4,26 @@ Contract/CLI/script infrastructure work, new CI drift-checking, and one
 production-file-writing generator (`render-agent-frontmatter`). No cloud
 service, deployment target, IaC resource, network route, or data store is
 added or changed. The infrastructure-facing edits are: the suite arrays in
-`tests/run-all.sh`/`.ps1`; the suite/drift-check steps in
-`.github/workflows/test.yml`; and a new `render-agent-frontmatter --check`
-invocation inside `tests/validate-repository.ps1` — none of which are
-protected-gate files (verified in design.md's Protected-File Statement).
+`tests/run-all.sh`/`.ps1` (UNPROTECTED, agent-edited directly); the
+suite/drift-check steps in `.github/workflows/test.yml` (**round-2
+correction**: confirmed R-10 PROTECTED at
+`plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4` — this
+supersedes this document's round-1 statement that it was unprotected; every
+`test.yml`-touching task, T-001/T-003/T-005/T-006, stages its registration
+addition via the epic-136 human-copy procedure instead of a direct edit);
+and a new `render-agent-frontmatter --check` invocation inside
+`tests/validate-repository.ps1` (UNPROTECTED, agent-edited directly) —
+verified in design.md's Protected-File Statement.
 
 ## Deployment Topology
 
 ```mermaid
 flowchart LR
-  DEV["Maintainer checkout"] --> RA["tests/run-all.sh / run-all.ps1"]
-  CI["test.yml 3-OS matrix (windows / macos / ubuntu)"] --> BL["bash lane"]
+  DEV["Maintainer checkout"] --> RA["tests/run-all.sh / run-all.ps1 (unprotected, direct edit)"]
+  STAGE["T-001/T-003/T-005/T-006 stage full test.yml candidate + MANIFEST.sha256"] --> HC["specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml"]
+  HC -->|human cp, round-2 protected-file procedure| REALYML[".github/workflows/test.yml (R-10 PROTECTED, guard_invariants.py:4)"]
+  REALYML --> CI["test.yml 3-OS matrix (windows / macos / ubuntu)"]
+  CI --> BL["bash lane"]
   CI --> PL["pwsh lane"]
   BL & PL --> S1["agent-capabilities-v2 (T-001, new)"]
   BL & PL --> S2["render-agent-frontmatter tests (T-003, new)"]
@@ -40,15 +49,29 @@ registered at `tests/run-all.sh:25` and gains new cases in place; only the
 and a new `run-panelist-effort` suite (T-006) are extended/added the same
 way.
 
+**Round-2 CI-registration procedure correction**: `.github/workflows/test.yml`
+is R-10 PROTECTED (`guard_invariants.py:4`), so NONE of T-001/T-003/T-005/T-006
+edits it directly — each stages its own full corrected copy under
+`specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml`, updates the
+shared `MANIFEST.sha256`, and waits for a human maintainer to run the `cp`
+before that task's step becomes live in CI. `tests/run-all.sh`/`.ps1` (the
+other registration surface) remains a direct, unprotected agent edit — only
+`test.yml` itself requires staging. A given task is not eligible for Done
+until CI has actually run its newly-registered step at least once
+post-human-copy (the observable proof that the staged candidate was applied
+correctly).
+
 `render-agent-frontmatter --check` gains its own CI step (bash and pwsh
-lanes, matching every other dual-lane step in this workflow) AND a call
-site inside `tests/validate-repository.ps1`, so drift is caught both by the
-standard push/PR matrix and by the repository-wide validation surface
-already invoked elsewhere in this repository's CI/release tooling. The
-`--check` step's scope includes the four R-10 protected reviewer `.md`
-targets (a read-only comparison, not a write — design.md Protected-File
-Statement) so drift on those files is CI-visible even though only a human
-can remediate it via the `cp` step.
+lanes, matching every other dual-lane step in this workflow — its
+REGISTRATION follows the same human-copy staging as every other new step
+this feature adds to `test.yml`) AND a call site inside
+`tests/validate-repository.ps1` (unprotected, direct edit), so drift is
+caught both by the standard push/PR matrix and by the repository-wide
+validation surface already invoked elsewhere in this repository's CI/release
+tooling. The `--check` step's scope includes the four R-10 protected
+reviewer `.md` targets (a read-only comparison, not a write — design.md
+Protected-File Statement) so drift on those files is CI-visible even though
+only a human can remediate it via the `cp` step.
 
 T-007/#155's default-flip is NOT a new CI/CD step — it is a code-default
 change plus a one-time production render, verified by its own
@@ -113,14 +136,18 @@ steps.
 ## Rollback
 
 Per-item reviewed revert (one issue = one task = one commit). T-001..T-006
-are each independently revertible without a human-copy re-copy step for any
-NEW file (the four protected `.md` targets are read, never written, by
-anything except a human's own `cp`, so reverting a task's commit does not
-undo any human-applied protected-file change — that remains the
-maintainer's own action to revert separately if ever needed). Reverting
+are each independently revertible; for the five protected targets (round 2:
+the four reviewer `.md` files AND `.github/workflows/test.yml`), reverting
+a task's own agent-authored commit does NOT automatically undo any
+human-applied protected-file change, because that change was never part of
+the agent's commit in the first place — a revert PR must separately state
+whether the corresponding protected-file content (including the
+`test.yml` step) should also be hand-reverted, and by whom. Reverting
 T-003's renderer causes `render-agent-frontmatter --check` to disappear
-from CI along with its own suite, with no residual drift-detection gap
-(the check and its registration are removed together). T-007's revert
+from CI once its own `test.yml` step is (separately, by a human) removed —
+the check's own suite removal and its CI step's removal are no longer a
+single atomic action post-round-2, since the step lives in a protected
+file. T-007's revert
 restores the `welded` default and is itself a one-line change plus a
 follow-up documentation revert — no data migration exists to unwind
 (design.md Data Plan: run-record v2 is additive-only, so no v1 record is

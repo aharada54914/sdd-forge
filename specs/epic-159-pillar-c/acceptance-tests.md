@@ -1,14 +1,21 @@
 # Acceptance Tests: epic-159-pillar-c
 
-TEST IDs (TEST-001..TEST-052) are namespaced to this feature
-(`specs/epic-159-pillar-c/`) and map 1:1 to AC-001..AC-052 in
+TEST IDs (TEST-001..TEST-054) are namespaced to this feature
+(`specs/epic-159-pillar-c/`) and map 1:1 to AC-001..AC-054 in
 requirements.md; they do not collide with any other epic-159 pillar's own
 TEST numbering (different spec folder, different suite files, different CI
 step names — design.md Test Strategy). TEST-051/TEST-052 (round-1
 spec-review Major-2 remedy) were added to close two negative-path gaps:
 Codex-host degradation when a selected model's `effort_control.codex-cli`
 is not `flag`, and CLI-argument-injection resistance in the
-`run-panelist`/Codex-startup argv-assembly step.
+`run-panelist`/Codex-startup argv-assembly step. TEST-027 was rewritten
+(round-2 spec-review Critical remedy) into a three-part staged/live/applied
+verification after `.github/workflows/test.yml` was confirmed R-10
+protected between round 1 and round 2 (concurrently-merged epic-136 Phase 2
+work). TEST-053/TEST-054 (round-2 Major-1/Major-2 remedy) close the
+`--requested-effort`-under-`welded` carve-out gap and add executable
+verification for Security Boundaries B1's malformed-v2-registry rejection
+claim.
 
 | Acceptance Criterion | Requirement | Test ID | Test Type | Test Target | Status |
 |---|---|---|---|---|---|
@@ -21,7 +28,7 @@ is not `flag`, and CLI-argument-injection resistance in the
 | AC-007 | REQ-002 | TEST-007 | byte-identical golden + negative canary | same suite: v2-registry, no/`welded` `--effort-policy`, output identical to pre-feature baseline; mutated golden fixture proves comparison is live | Planned |
 | AC-008 | REQ-002 | TEST-008 | behavior lock | same suite: `--effort-policy matrix --risk high --required-tier standard` → `sonnet` + `high` | Planned |
 | AC-009 | REQ-002 | TEST-009 | behavior lock (clamp + gate) | same suite: matrix-selected effort outside `supported_efforts` clamps; escalation-bumped `xhigh` still requires `--xhigh-reason` | Planned |
-| AC-010 | REQ-002 | TEST-010 | behavior lock | same suite: `--requested-effort <e>` overrides policy selection, still clamped, still `xhigh`-gated | Planned |
+| AC-010 | REQ-002 | TEST-010 | behavior lock | same suite: under `matrix` policy, `--requested-effort <e>` overrides policy selection, still clamped, still `xhigh`-gated (see TEST-053 for the `welded`-policy override case, added round 2) | Planned |
 | AC-011 | REQ-002 | TEST-011 | behavior lock (priority order) | same suite: `--role <role>` always seeds `--minimum-tier`; under `matrix` with a `risk_effort_matrix` entry missing for the supplied `--risk`, `--role` seeds a fallback effort (`effort_source: "role-default"`); under `welded`, `--role`'s effort component is asserted inert (golden output unchanged with `--role` supplied vs. omitted) | Planned |
 | AC-012 | REQ-002 | TEST-012 | JSON contract (additive, 5-way attribution) | same suite: `--host` resolves `effort_control`; `effort_source` correctly attributed across all five cases (`requested`, `risk-matrix`, `role-default`, `model-default`, `welded`), including a constructed fixture registry whose `risk_effort_matrix` omits the supplied risk's entry (drives both the `role-default` and, with no `--role`, the `model-default` case); all pre-existing JSON keys unchanged | Planned |
 | AC-013 | REQ-002 | TEST-013 | behavior lock (v1/v2 divergence) | same suite: v2 `--candidates-file` entry with omitted `effort` succeeds; v1 `--candidates-file` with omitted `effort` still rejects | Planned |
@@ -38,7 +45,7 @@ is not `flag`, and CLI-argument-injection resistance in the
 | AC-024 | REQ-004 | TEST-024 | field-population lock (both directions) | same suite: `effort_degraded_reason` populated iff `effort_applied` is null AND a flag was supplied; never populated when `effort_applied` has a value; never empty when it should be populated | Planned |
 | AC-025 | REQ-004 | TEST-025 | backward compatibility | same suite: a pre-feature v1 record validates successfully under the post-feature validator | Planned |
 | AC-026 | REQ-004 | TEST-026 | document conformance | same suite / grep check: `implementation-report.template.md` contains `- Model:`/`- Effort:` lines; `validate-implementation-report.sh` checks presence/format only; quality-gate SKILL.md documents the same two-line requirement | Planned |
-| AC-027 | REQ-005 | TEST-027 | twin existence + registration | `tests/agent-model-routing.tests.ps1` (new file) exists; both twins registered in `tests/run-all.sh`/`.ps1` and `.github/workflows/test.yml` (self-registration grep) | Planned |
+| AC-027 | REQ-005 | TEST-027 | twin existence + protected-file 3-part registration | `tests/agent-model-routing.tests.ps1` (new file) exists; both twins registered directly in `tests/run-all.sh`/`.ps1` (unprotected, self-registration grep); THREE-PART `test.yml` check (`.github/workflows/test.yml` is R-10 protected, `guard_invariants.py:4`): (a) staged candidate exists at `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` with a correct `MANIFEST.sha256` entry; (b) the live `.github/workflows/test.yml`'s SHA-256 is unchanged before/after T-005's work; (c) post-human-`cp` self-registration grep against the live file confirms both twins' steps are present | Planned |
 | AC-028 | REQ-005 | TEST-028 | byte-identical golden + negative canary | both twins: welded-golden assertion (mirrors TEST-007) with mutation-based negative self-check | Planned |
 | AC-029 | REQ-005 | TEST-029 | behavior lock | both twins: matrix `--risk high --required-tier standard` → `sonnet` + `high` | Planned |
 | AC-030 | REQ-005 | TEST-030 | behavior lock | both twins: clamp case (mirrors TEST-009's clamp half) | Planned |
@@ -64,6 +71,8 @@ is not `flag`, and CLI-argument-injection resistance in the
 | AC-050 | REQ-009 | TEST-050 | version-bump conformance | grep-based self-check: no version string mutation anywhere in this feature's diff outside a `scripts/bump-version.sh` invocation; T-007's release is a separate invocation from any T-001..T-006 release | Planned |
 | AC-051 | REQ-004 | TEST-051 | degradation lock (host-independent) | `tests/emit-run-record-feature-scope.tests.sh`/`.ps1`: a Codex-host invocation selecting a model whose `effort_control.codex-cli` is `frontmatter` or `none` records `effort_applied=null` + a populated `effort_degraded_reason`, identical in shape to the Claude Code case (TEST-024/TEST-039) — asserted by resolved `effort_control` value, not by host name | Planned |
 | AC-052 | REQ-006 | TEST-052 | injection resistance (negative) | `tests/run-panelist-effort.tests.sh`/`.ps1`: `run-panelist-gpt.sh`/`.ps1` and the Codex-host startup path, given a `--model`/`--effort` value outside the registry's enumerated vocabulary (whitespace-containing, leading `-`/`--`, containing `;`, or an effort string outside `{low, medium, high, xhigh}`), exit non-zero with a diagnostic and make zero `codex` invocations | Planned |
+| AC-053 | REQ-002 | TEST-053 | behavior lock (welded carve-out) | `tests/agent-model-routing.tests.sh`/`.ps1`: `--effort-policy welded` (or no `--effort-policy` flag) combined with `--requested-effort <e>` applies the requested value (clamped, `--xhigh-reason`-gated for `xhigh`), `effort_source: "requested"`; a second case confirms this fixture invocation is NOT part of AC-007/TEST-007's golden-comparison set (the golden fixture list never includes a `--requested-effort` invocation) | Planned |
+| AC-054 | REQ-001, REQ-002 | TEST-054 | schema-rejection lock (negative, per-category) | `tests/agent-capabilities-v2.tests.sh`/`.ps1` and/or `tests/agent-model-routing.tests.sh`/`.ps1`: a v2 registry fixture with (i) empty/non-array `supported_efforts`, (ii) an `effort_control` value outside `{flag, frontmatter, none}`, or (iii) a structurally malformed `risk_effort_matrix` (missing key / non-string value / value outside the model's `supported_efforts`) each independently causes `select-agent-model` to exit non-zero with a `MODEL_SELECTION_ERROR`-class diagnostic and select no candidate | Planned |
 
 Notes:
 
@@ -76,27 +85,43 @@ Notes:
   `effort_control`, not host identity); TEST-019/TEST-020 form a
   write-boundary positive/read-boundary proof pair rather than a single
   assertion, because "never writes" and "may read" are independently
-  falsifiable claims; TEST-052 is a negative-only rejection lock (its
-  positive counterpart — well-formed argv composition — is already
-  TEST-035..TEST-037).
+  falsifiable claims; TEST-027 (round-2 rewrite) is a three-part
+  staged-candidate/live-unchanged/post-copy-registered proof, the same
+  write-boundary-plus-eventual-effect shape TEST-019/TEST-020 established
+  for the four protected reviewer files, now applied to
+  `.github/workflows/test.yml`; TEST-052 is a negative-only rejection lock
+  (its positive counterpart — well-formed argv composition — is already
+  TEST-035..TEST-037); TEST-053 is a positive behavior lock scoped
+  specifically to stay outside TEST-007's golden-comparison set (a
+  golden-scope-exclusion proof, not merely a new case); TEST-054 is a
+  three-category negative rejection lock, one fixture per malformed-field
+  category (`supported_efforts`, `effort_control`, `risk_effort_matrix`),
+  mirroring TEST-052's per-category negative structure.
 - `tests/gates.tests.sh`, `tests/eval.tests.sh`, `tests/guard-parity.tests.sh`,
   and `tests/constant-parity.tests.sh` are enforcement-chain protected
   files; nothing in this feature touches them.
 - TEST-001..TEST-034 (REQ-001, REQ-002, REQ-005) are fully deterministic,
   fixture-driven, and require no LLM invocation, no network call, and no
-  `gh` invocation; TEST-051 (REQ-004) is the same deterministic, fixture-driven
-  class, numbered outside that range only because it was added in round 1's
-  remedy pass. TEST-035..TEST-040 and TEST-052 (REQ-006) assert only
-  assembled CLI argv/JSON composition, including TEST-052's rejection of
-  out-of-vocabulary argv values — no real `codex`/LLM call is made by any of
-  them. TEST-041..
+  `gh` invocation; TEST-051, TEST-053, and TEST-054 (REQ-004, REQ-002,
+  REQ-001/REQ-002) are the same deterministic, fixture-driven class,
+  numbered outside that range only because they were added in the round-1/
+  round-2 remedy passes. TEST-035..TEST-040 and TEST-052 (REQ-006) assert
+  only assembled CLI argv/JSON composition, including TEST-052's rejection
+  of out-of-vocabulary argv values — no real `codex`/LLM call is made by
+  any of them. TEST-027 (REQ-005) is deterministic and fixture-driven for
+  parts (a) and (c) (staged-candidate and post-copy-registration checks);
+  part (b) (live-file-unchanged) is a SHA-256 comparison against the real
+  repository file, not a fixture, mirroring TEST-004's real-file SHA-256
+  check for the v1 registry. TEST-041..
   TEST-046 (REQ-007) are the one place a real Codex-host smoke run (TEST-044)
   is exercised, gated to T-007's own implementation-time verification, not
   to CI's deterministic lane.
 - No test writes a real repository path outside its own new/edited files,
   invokes `gh`, invokes `sdd-sudo`, or emits an approval string
   (security-spec.md); the four protected reviewer `.md` files are read-only
-  inputs to TEST-019/TEST-020, never write targets.
+  inputs to TEST-019/TEST-020, never write targets; `.github/workflows/test.yml`
+  is a read-only input to TEST-027 part (b) and a human-applied (not
+  agent-applied) write target for parts (a)/(c)'s eventual effect.
 - This is contract/script/test-infrastructure work with one narrow
   documentation surface (`PLUGIN-CONTRACTS.md`, `docs/agent-capability-matrix.md`,
   `USERGUIDE.md`) and no GUI entry point; the UI integration checklist is

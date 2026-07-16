@@ -92,11 +92,13 @@ flowchart TB
 | `tests/agent-model-routing.tests.sh` | extended: welded golden, matrix cases, clamp, xhigh gate, terminal-tier invariance, role floor, v1↔v2 projection | Bash | existing, edited (T-005) | no |
 | `tests/agent-model-routing.tests.ps1` | same case list, NEW twin (closes the pre-existing gap) | PowerShell | new (T-005) | no |
 | `run-panelist-gpt.sh` / `.ps1` | +`--effort <e>`, forwarded to `codex` CLI | POSIX sh / PowerShell | existing, edited (T-006) | no |
+| `tests/run-panelist-effort.tests.sh` / `.ps1` | argv-composition lock (AC-035..040), injection-rejection lock (AC-052) | Bash / PowerShell | new (T-006) | no |
 | `prepare-panelist-input.sh` / `.ps1` | threads selector-derived effort to the panelist runner | POSIX sh / PowerShell | existing, edited (T-006) | no |
 | `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` (Codex startup instructions) | evaluator/investigator Codex launch supplies `--host codex-cli` output | Markdown (skill) | existing, edited (T-006) | no |
 | `.codex/agents/sdd-evaluator.toml`, `sdd-investigator.toml` | gain `# x-sdd-model:`/`# x-sdd-effort:` reference comments (via render, T-003); consumed by T-006's cross-check | TOML | existing, edited (T-003 render target) | no |
 | `plugins/sdd-review-loop/agents/impl-reviewer-a.md`, `impl-reviewer-b.md`, `task-reviewer-a.md`, `task-reviewer-b.md` | R-10 PROTECTED render targets — human-copy only | Markdown (agent frontmatter) | existing, human-applied (T-003) | **YES** |
-| `tests/run-all.sh` / `.ps1`, `.github/workflows/test.yml` | suite registration (T-001, T-003, T-005 suites) | Bash / PowerShell / YAML | existing, edited | no (verified) |
+| `tests/run-all.sh` / `.ps1` | suite registration (T-001, T-003, T-005, T-006 suites) — agent-edited directly | Bash / PowerShell | existing, edited | no (verified) |
+| `.github/workflows/test.yml` | suite/step registration (T-001, T-003, T-005, T-006) | YAML | existing, human-applied via staged candidate + `MANIFEST.sha256` | **YES** (`plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`, round-2 remedy) |
 | `tests/validate-repository.ps1` | +`render-agent-frontmatter --check` invocation | PowerShell | existing, edited (T-003) | no (verified) |
 | `PLUGIN-CONTRACTS.md`, `docs/agent-capability-matrix.md`, `USERGUIDE.md`, `CHANGELOG.md` | doc-following surfaces (REQ-009) + T-007's default-policy documentation | Markdown | existing, edited | no |
 
@@ -107,38 +109,62 @@ flags compose with it, they do not replace it).
 
 ## Protected-File Statement
 
-Verified directly against `_PROTECTED_GATE_SUFFIXES`
-(`plugins/sdd-quality-loop/scripts/sdd-hook-guard.py:886-927`, confirmed at
-lines 906-910 for the review-loop entries): exactly four files this
-feature's T-003 render targets are protected —
+**Round-2 CRITICAL correction**: verified directly against the CURRENT
+`PROTECTED_GATE_SUFFIXES` tuple at
+`plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4` (the
+module `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py:891`'s
+`_load_guard_invariants()` function loads) — this SUPERSEDES this design's
+round-1 statement that exactly four files were protected.
+`.github/workflows/test.yml` IS now present in `PROTECTED_GATE_SUFFIXES`
+(landed between round 1 and round 2 via the concurrently-merged epic-136
+Phase 2 work, commit lineage `2b8a52f`, outside this feature's control),
+making the total FIVE protected files this feature's tasks touch: the four
+review-loop reviewer files —
 `plugins/sdd-review-loop/agents/impl-reviewer-a.md`, `impl-reviewer-b.md`,
-`task-reviewer-a.md`, `task-reviewer-b.md`. No other file this feature
-creates or edits appears in `_PROTECTED_GATE_SUFFIXES` or
-`_PROTECTED_GATE_PLUGIN_JSON_SUFFIXES` — not
+`task-reviewer-a.md`, `task-reviewer-b.md` (T-003 render targets) — PLUS
+`.github/workflows/test.yml` itself (T-001, T-003, T-005, T-006's shared
+registration surface). No other file this feature creates or edits appears
+in `PROTECTED_GATE_SUFFIXES` or `PROTECTED_GATE_PLUGIN_JSON_SUFFIXES` — not
 `contracts/agent-model-capabilities.v2.json`, not
 `select-agent-model.sh`/`.ps1`, not `render-agent-frontmatter.sh`/`.ps1`
 itself, not `emit-run-record.sh`/`.ps1`, not `run-panelist-gpt.sh`/`.ps1`,
-not `prepare-panelist-input.sh`/`.ps1`, not
+not `prepare-panelist-input.sh`/`.ps1`, not `tests/run-all.sh`/`.ps1`, not
+`tests/validate-repository.ps1`, not
 `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` (the protected
 sdd-review-loop `SKILL.md` entries are specifically
 `impl-review-loop/SKILL.md` and `task-review-loop/SKILL.md` —
 `sdd-hook-guard.py:917-919` — a different plugin's `SKILL.md` entirely from
 `sdd-quality-loop/skills/quality-gate/SKILL.md`), and not the `.codex/agents/`
-TOML files (verified: no `.codex/agents/*.toml` entry appears in
-`_PROTECTED_GATE_SUFFIXES`).
+TOML files (re-verified: no `.codex/agents/*.toml` entry appears in the
+current `PROTECTED_GATE_SUFFIXES` tuple). Per requirements.md's Assumptions
+discipline, this is a live-repository snapshot re-verified at round-2
+remedy time, not a permanent guarantee — each of T-001, T-003, T-005, and
+T-006 re-verifies `PROTECTED_GATE_SUFFIXES`'s then-current contents at its
+own implementation-start time.
 
-**Procedure for the four protected targets** (epic-136 human-copy pattern,
+**Procedure for the five protected targets** (epic-136 human-copy pattern,
 requirements.md Field Definitions): `render-agent-frontmatter` writes
-corrected content to `specs/epic-159-pillar-c/human-copy/<basename>` plus a
+corrected content for the four reviewer files to
+`specs/epic-159-pillar-c/human-copy/<basename>` plus a
 `specs/epic-159-pillar-c/human-copy/MANIFEST.sha256` entry per file, and
-never opens the real protected path for write. A human maintainer runs
-`cp specs/epic-159-pillar-c/human-copy/<basename> plugins/sdd-review-loop/agents/<basename>`
-themselves, then verifies the copied file's SHA-256 matches the manifest.
-`--check` mode is exempt from this restriction: it opens the four protected
-files for READ only (to compare against expected rendered content), which
-is not a write and does not trigger the R-10 guard — this is the one
-intentional place this feature reads protected-file content, and it is
-wired unattended into CI (AC-020).
+never opens the real protected path for write. For
+`.github/workflows/test.yml`, each of T-001/T-003/T-005/T-006 stages the
+FULL corrected file content (its own step addition applied on top of
+whatever the file already contains at that task's start) to
+`specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml`, updating
+the same `MANIFEST.sha256` with that file's new SHA-256, again never
+opening the real path for write. A human maintainer runs
+`cp specs/epic-159-pillar-c/human-copy/<staged-path> <real-path>`
+for each staged file, then verifies the copied file's SHA-256 matches the
+manifest, before that task can be marked Done. `--check` mode is exempt
+from this restriction for the four reviewer files: it opens them for READ
+only (to compare against expected rendered content), which is not a write
+and does not trigger the R-10 guard — this is the one intentional place
+this feature reads protected-file content, and it is wired unattended into
+CI (AC-020). `.github/workflows/test.yml`'s own registration presence is
+likewise verified read-only, post-human-copy, by AC-027's part (c)
+self-registration grep — no script in this feature ever attempts to WRITE
+`.github/workflows/test.yml`.
 
 ## Layer Specifications
 
@@ -146,8 +172,8 @@ wired unattended into CI (AC-020).
 |---|---|---|---|---|
 | UX | N/A — no change: no GUI or user-facing surface | [UX specification](ux-spec.md#scope-and-user-journeys) | maintainers | N/A |
 | Frontend | N/A — no change: JSON contract, shell/PowerShell scripts, Markdown/TOML generation only | [Frontend specification](frontend-spec.md#technology-stack) | maintainers | N/A |
-| Infrastructure | CI drift-check job; 3-OS suite registration; `.codex-plugin` manifest + `.codex/agents/*.toml` role path unchanged in structure | [Infrastructure specification](infra-spec.md#cicd-sequence) | maintainers | Planned |
-| Security | protected-file write boundary; CLI-argument injection prevention; run-record truthfulness (`effort_applied` never falsely non-null) | [Security specification](security-spec.md#trust-boundaries) | maintainers | Planned |
+| Infrastructure | CI drift-check job; 3-OS suite registration via human-copy staging for `.github/workflows/test.yml` (round-2 correction); `.codex-plugin` manifest + `.codex/agents/*.toml` role path unchanged in structure | [Infrastructure specification](infra-spec.md#cicd-sequence) | maintainers | Planned |
+| Security | protected-file write boundary (4 reviewer `.md` + `.github/workflows/test.yml`, round 2); CLI-argument injection prevention + rejection lock; run-record truthfulness (`effort_applied` never falsely non-null, host-independent); malformed-registry rejection | [Security specification](security-spec.md#trust-boundaries) | maintainers | Planned |
 
 ## Design System Compliance
 
@@ -158,17 +184,17 @@ visualization skipped.
 
 | From | To | Contract / Decision | REQ | AC | Verification |
 |---|---|---|---|---|---|
-| requirements.md | design.md | v2 registry schema, v1 frozen, two-directional parity | REQ-001 | AC-001..005 | TEST-001..005 |
-| requirements.md | design.md | selector schema auto-detect + 4 new flags, welded golden | REQ-002 | AC-006..013 | TEST-006..013 |
-| requirements.md | design.md | render-agent-frontmatter (Claude/Codex), `--check`, protected-file procedure | REQ-003 | AC-014..020 | TEST-014..020 |
-| requirements.md | design.md | run-record v2, 3-subfield effort tracking, template lines | REQ-004 | AC-021..026 | TEST-021..026 |
-| requirements.md | design.md | routing test expansion, new `.ps1` twin | REQ-005 | AC-027..034 | TEST-027..034 |
-| requirements.md | design.md | Codex host real effort application, cross-check | REQ-006 | AC-035..040 | TEST-035..040 |
+| requirements.md | design.md | v2 registry schema, v1 frozen, two-directional parity, malformed-field rejection | REQ-001 | AC-001..005, AC-054 | TEST-001..005, TEST-054 |
+| requirements.md | design.md | selector schema auto-detect + 4 new flags, welded golden, welded+requested-effort carve-out, malformed-field rejection | REQ-002 | AC-006..013, AC-053, AC-054 | TEST-006..013, TEST-053, TEST-054 |
+| requirements.md | design.md | render-agent-frontmatter (Claude/Codex), `--check`, protected-file procedure (4 reviewer `.md` + `.github/workflows/test.yml`, round-2) | REQ-003 | AC-014..020 | TEST-014..020 |
+| requirements.md | design.md | run-record v2, 3-subfield effort tracking, template lines, Codex-host non-flag-control degradation | REQ-004 | AC-021..026, AC-051 | TEST-021..026, TEST-051 |
+| requirements.md | design.md | routing test expansion, new `.ps1` twin, protected-`test.yml` 3-part registration | REQ-005 | AC-027..034 | TEST-027..034 |
+| requirements.md | design.md | Codex host real effort application, cross-check, CLI-argument-injection rejection | REQ-006 | AC-035..040, AC-052 | TEST-035..040, TEST-052 |
 | requirements.md | design.md | Phase 2 flip, prerequisite gate, separate release | REQ-007 | AC-041..046 | TEST-041..046 |
 | requirements.md | design.md | cross-host degradation coverage | REQ-008 | AC-047..048 | TEST-047..048 |
 | requirements.md | design.md | doc-following + version-bump discipline | REQ-009 | AC-049..050 | TEST-049..050 |
-| requirements.md | security-spec.md | protected-file write boundary; CLI-argument injection; run-record truthfulness | REQ-003, REQ-004, REQ-006 | AC-019, AC-020, AC-023, AC-024, AC-038 | TEST-019, TEST-020, TEST-023, TEST-024, TEST-038 + security tests |
-| requirements.md | infra-spec.md | 3-OS × bash/pwsh wiring; `--check` CI job; deterministic lane except T-007's smoke | REQ-003, REQ-005 | AC-016, AC-027, AC-044 | TEST-016, TEST-027, TEST-044 |
+| requirements.md | security-spec.md | protected-file write boundary (incl. `.github/workflows/test.yml`, round-2); CLI-argument injection + rejection lock; run-record truthfulness + host-independent degradation; malformed-registry rejection | REQ-001, REQ-003, REQ-004, REQ-005, REQ-006 | AC-019, AC-020, AC-023, AC-024, AC-027, AC-038, AC-051, AC-052, AC-054 | TEST-019, TEST-020, TEST-023, TEST-024, TEST-027, TEST-038, TEST-051, TEST-052, TEST-054 + security tests |
+| requirements.md | infra-spec.md | 3-OS × bash/pwsh wiring; `--check` CI job; `.github/workflows/test.yml` human-copy CI-registration procedure (round-2); deterministic lane except T-007's smoke | REQ-003, REQ-005 | AC-016, AC-027, AC-044 | TEST-016, TEST-027, TEST-044 |
 
 ## ADR Change Log
 
@@ -480,12 +506,19 @@ startup wiring) supplies one.
    --is-ancestor` check against the actual release commit, not a manual
    attestation — already demonstrated satisfiable at spec time (Assumptions
    below).
-7. Self-registration: `tests/agent-capabilities-v2.tests.sh`,
-   `tests/render-agent-frontmatter.tests.sh`, and
-   `tests/agent-model-routing.tests.ps1` (the new twin) each grep
-   `tests/run-all.sh`/`.ps1`/`.github/workflows/test.yml` for their own
+7. Self-registration (round-2 split, following `.github/workflows/test.yml`'s
+   protected-file status): `tests/agent-capabilities-v2.tests.sh`,
+   `tests/render-agent-frontmatter.tests.sh`,
+   `tests/agent-model-routing.tests.ps1` (the new twin), and
+   `tests/run-panelist-effort.tests.sh` each grep `tests/run-all.sh`/`.ps1`
+   (unprotected, checked directly at agent-commit time) for their own
    basename, mirroring `tests/second-approval-mask.tests.sh:285-289`'s
-   established pattern.
+   established pattern. Each suite's `.github/workflows/test.yml`
+   registration cannot be self-checked the same way pre-human-copy (the
+   agent never writes that file) — its presence is instead verified by the
+   three-part staged/live/applied check AC-027 states for T-005's suite,
+   which generalizes to every `test.yml`-touching task in this feature
+   (T-001, T-003, T-006 included).
 8. Full suite: `bash tests/run-all.sh` and `pwsh tests/run-all.ps1` locally;
    the 3-OS CI matrix is authoritative for TEST-001..TEST-040; TEST-041..
    TEST-046 (T-007) run only at T-007 implementation/release time, gated on
@@ -539,13 +572,23 @@ Files edited by more than one task in this feature, mirroring
 epic-159-pillar-a2's and epic-159-pillar-b's established commit-serialization
 precedent:
 
-- `tests/run-all.sh` / `tests/run-all.ps1` — T-001 adds
-  `agent-capabilities-v2.tests`; T-003 adds
+- `tests/run-all.sh` / `tests/run-all.ps1` (UNPROTECTED, direct agent edit)
+  — T-001 adds `agent-capabilities-v2.tests`; T-003 adds
   `render-agent-frontmatter.tests`; T-005 adds
   `agent-model-routing.tests.ps1` (new twin registration) and touches the
   existing `agent-model-routing.tests.sh` entry only to confirm it remains
-  registered. Land each task's array entry in its own, serialized commit.
-- `.github/workflows/test.yml` — same additions, same serialization note.
+  registered; T-006 adds `run-panelist-effort.tests`. Land each task's
+  array entry in its own, serialized commit.
+- `.github/workflows/test.yml` (**R-10 PROTECTED, round-2 correction** —
+  `guard_invariants.py:4`) — same four tasks' same additions, but NEVER
+  direct-written: each of T-001/T-003/T-005/T-006 stages its own full
+  corrected copy under
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+  `MANIFEST.sha256` update, in its own serialized commit, for a human to
+  `cp` — the same serialization discipline as the unprotected file above,
+  PLUS the protected-file write boundary (Protected-File Statement, above).
+  A task whose commit stages this file is not Done until the human-copy
+  step is confirmed applied.
 - `select-agent-model.sh` / `.ps1` — T-002 is the sole editor within this
   feature; flagged because it is a wave-1/turn-first-routing shared file a
   concurrent, unrelated session could also be editing (same shared-worktree
@@ -587,17 +630,26 @@ feature.
 No runtime deployment. Three new suite pairs
 (`agent-capabilities-v2`, `render-agent-frontmatter`,
 `agent-model-routing.tests.ps1` as a new twin registration) join
-`tests/run-all.sh`/`.ps1` and `.github/workflows/test.yml` on the existing
-3-OS matrix. `render-agent-frontmatter --check` additionally joins
+`tests/run-all.sh`/`.ps1` directly (unprotected); the corresponding
+`.github/workflows/test.yml` registration for each is staged via human-copy
+(round-2 correction, Protected-File Statement above) rather than joining
+the file directly. `render-agent-frontmatter --check` additionally joins
 `tests/validate-repository.ps1`'s existing check sequence. Deterministic
 lane (#126 note, carried from every prior epic-159-pillar spec): TEST-001..
-TEST-040 (T-001 through T-006) require no LLM invocation; TEST-041..
+TEST-040 plus TEST-051..TEST-054 (T-001 through T-006) require no LLM
+invocation; TEST-041..
 TEST-046 (T-007's Phase 2 smoke check, AC-044) is the one place a real
 Codex-host run is exercised, scoped to T-007's own implementation-time
 verification, never to the standard CI matrix. Rollback: T-001..T-006 are
 each independently revertible (registry, selector flags, renderer, run-record
 fields, tests, and effort threading are additive; reverting any one leaves
-`welded` mode and v1 consumers fully functional). T-007's revert restores
+`welded` mode and v1 consumers fully functional). Reverting any of
+T-001/T-003/T-005/T-006's agent-authored commits does NOT automatically
+revert its human-applied `.github/workflows/test.yml` change (round-2
+addition) — the revert PR's own description must separately note whether
+the corresponding `test.yml` step should be hand-reverted by a human
+maintainer, since that step never entered git history via an agent commit
+in the first place. T-007's revert restores
 the `welded` default; because T-007 changes exactly one default value plus
 documentation, its rollback is a single-line revert, not a data migration.
 
@@ -606,13 +658,16 @@ documentation, its rollback is a single-line revert, not a data migration.
 | Requirement Constraint | Design Response |
 |---|---|
 | v1 registry frozen / byte-identical (REQ-001, AC-004) | `contracts/agent-model-capabilities.json` is never opened for write by any script in this feature; TEST-004 asserts its SHA-256 unchanged before/after the full suite run, not merely "the parity test passed" |
-| welded-mode Phase-1 byte-identical golden baseline, no silent behavior change (REQ-002, REQ-005, AC-007, AC-028) | the v2 selector branch computes welded effort using the SAME tiebreak ordinal map the v1 branch already uses (`select-agent-model.sh:110`), against the SAME fixture inputs; TEST-007/TEST-028's mutation-based negative self-check proves the byte-identical comparison is live, not vacuously true |
+| welded-mode Phase-1 byte-identical golden baseline, no silent behavior change, `--requested-effort` carve-out stays outside golden scope (REQ-002, REQ-005, AC-007, AC-028, AC-053) | the v2 selector branch computes welded effort using the SAME tiebreak ordinal map the v1 branch already uses (`select-agent-model.sh:110`), against the SAME fixture inputs; TEST-007/TEST-028's mutation-based negative self-check proves the byte-identical comparison is live, not vacuously true; the golden fixture set structurally never includes a `--requested-effort` invocation, so AC-053's carve-out case (TEST-053) is provably disjoint from AC-007/AC-028's comparison set, not a silent narrowing of it |
 | `xhigh` justification gate preserved under matrix mode and escalation bump (REQ-001, REQ-002, REQ-005, AC-002, AC-009, AC-031) | the existing `--xhigh-reason` eligibility filter (`select-agent-model.sh:237`) is evaluated AFTER matrix selection and escalation bump, not before — a bump that lands on `xhigh` without a reason drops the candidate rather than silently downgrading; TEST-002/TEST-009/TEST-031 each independently exercise this |
-| no protected file modified (REQ-003, AC-019) | the four protected reviewer `.md` files are structurally excluded from `render-agent-frontmatter`'s write-target resolution function (never merely guarded by a runtime check); TEST-019 asserts the resolution function itself returns the scratchpad path for those four basenames |
+| malformed v2 registry fields rejected fail-closed (REQ-001, REQ-002, AC-054) | `supported_efforts`/`effort_control`/`risk_effort_matrix` schema validation mirrors v1's existing malformed-`efforts` rejection (`select-agent-model.sh:207-215`) — one negative fixture per malformed-field category; TEST-054 gives Security Boundaries B1's construction-only claim (design.md Security Boundaries, below) an executable per-category proof |
+| no protected file modified — R-10 reviewer `.md` files (REQ-003, AC-019) | the four protected reviewer `.md` files are structurally excluded from `render-agent-frontmatter`'s write-target resolution function (never merely guarded by a runtime check); TEST-019 asserts the resolution function itself returns the scratchpad path for those four basenames |
 | protected-file read boundary is permitted and CI-unattended (REQ-003, AC-020) | `--check` mode's comparison logic opens the four protected files for READ only, which does not trigger the R-10 write guard; TEST-020 runs this unattended in CI and asserts correct drift reporting without any guard error |
-| `.sh`/`.ps1` twin pairs mandatory (all REQs) | `agent-capabilities-v2`, `render-agent-frontmatter` ship as twins from creation; `agent-model-routing.tests.ps1` is authored as a NEW file specifically to close the pre-existing twin gap (REQ-005); every edited existing script (`select-agent-model`, `emit-run-record`, `run-panelist-gpt`, `prepare-panelist-input`) already has a twin and both sides of each twin are edited together |
-| cross-host (Claude Code / Codex) degradation, never silent (REQ-006, REQ-008, AC-039, AC-047, AC-048) | every effort-consuming surface has a demonstrated Claude Code case: `effort_control` resolves to `frontmatter` for every Claude-side model, `effort_applied` is structurally `null` with a populated `effort_degraded_reason` on that path (not merely a convention — the run-record's field-population logic makes non-null `effort_applied` impossible when `effort_control != "flag"`), and TEST-039/TEST-047/TEST-048 assert this as a PASS outcome, never a FAIL/SKIP |
+| protected `.github/workflows/test.yml` via human-copy staging (round-2 CRITICAL remedy; REQ-005, AC-027; Protected-File Statement, above) | `.github/workflows/test.yml` is confirmed R-10 protected at `guard_invariants.py:4` — no task (T-001, T-003, T-005, T-006) ever opens it for write; each stages its full corrected copy under `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` + `MANIFEST.sha256` instead; TEST-027 verifies all three parts independently — staged-candidate existence/manifest-consistency, live-file byte-identity (agent never wrote it), and post-human-`cp` self-registration — so no single assertion could pass "by accident" if any one part were violated |
+| `.sh`/`.ps1` twin pairs mandatory (all REQs) | `agent-capabilities-v2`, `render-agent-frontmatter`, `run-panelist-effort` ship as twins from creation; `agent-model-routing.tests.ps1` is authored as a NEW file specifically to close the pre-existing twin gap (REQ-005); every edited existing script (`select-agent-model`, `emit-run-record`, `run-panelist-gpt`, `prepare-panelist-input`) already has a twin and both sides of each twin are edited together |
+| cross-host (Claude Code / Codex) degradation, never silent, keyed on `effort_control` not host name (REQ-004, REQ-006, REQ-008, AC-039, AC-047, AC-048, AC-051) | every effort-consuming surface has a demonstrated Claude Code case: `effort_control` resolves to `frontmatter` for every Claude-side model, `effort_applied` is structurally `null` with a populated `effort_degraded_reason` on that path (not merely a convention — the run-record's field-population logic makes non-null `effort_applied` impossible when `effort_control != "flag"`); the SAME structural rule additionally covers a Codex-host invocation that selects a non-`flag`-control model (AC-051, TEST-051), proving the rule is host-independent, not Claude-Code-specific; TEST-039/TEST-047/TEST-048/TEST-051 assert this as a PASS outcome, never a FAIL/SKIP |
 | run-record truthfulness: `effort_applied` never false-positive (REQ-004, REQ-006, AC-023, AC-038) | `effort_applied` is populated only by T-006's confirmed-application code path (the actual `codex --effort` invocation succeeding), never by the selector's mere INTENT to apply; TEST-023/TEST-038 assert both the positive (Codex, confirmed) and negative (every other) cases |
+| CLI-argument-injection resistance is executably verified, not construction-only (REQ-006, Security Boundaries B3, AC-052) | `run-panelist-gpt`/Codex-startup argv assembly rejects any `--model`/`--effort` value outside the registry's enumerated vocabulary (whitespace, leading `-`/`--`, `;`, out-of-enum effort) with a non-zero exit and zero `codex` invocations; TEST-052 exercises each rejected-value shape independently |
 | release-ordering gate for T-007 (REQ-007, AC-045, AC-046) | T-007's implementation report contains a `git merge-base --is-ancestor` check against BOTH the A3 commit and each of T-001..T-006's merge commits, re-run against the actual release commit rather than relying on the spec-time verification alone (Assumptions below) |
 | doc-following in same PR (REQ-009, AC-049) | each of T-001..T-006 lists its own applicable-doc subset in Main Workflows (requirements.md); `CHANGELOG.md` gets one entry per issue, not a shared entry |
 | version bump via `scripts/bump-version.sh` only (REQ-009, AC-050) | this feature introduces no alternate version-mutation path; T-007's release is explicitly its OWN, separate invocation of the same script, sequenced after Phase 1's own (if any) release |

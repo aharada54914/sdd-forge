@@ -176,15 +176,26 @@ C2, C3 notation in each issue body) and investigation.md's task numbering
 
   **Effort-resolution priority** (clarification; resolves round-1 review's
   Major-1 ambiguity finding between `--role`'s default effort and
-  `--effort-policy`): under `--effort-policy welded`, effort is ALWAYS the
-  welded/v1-equivalent value described above — `role_defaults`'
-  default-effort component is INERT for effort selection in this mode
-  (only its minimum-tier component is consulted, to seed
-  `--minimum-tier`), preserving AC-007's byte-identical golden output
-  regardless of whether `--role` is also supplied. Under
-  `--effort-policy matrix`, effort resolves in this strict order: (1)
-  `--requested-effort`, if supplied, always wins (`effort_source:
-  "requested"`); (2) otherwise, if the registry's `risk_effort_matrix` has
+  `--effort-policy`): `--requested-effort` is an explicit override that
+  wins under BOTH policies (round-2 remedy: welded's "ALWAYS" carve-out
+  below — explicit user intent takes precedence over either policy's
+  implicit default). Under `--effort-policy welded`, effort is the
+  welded/v1-equivalent value described above WHENEVER `--requested-effort`
+  is ABSENT — `role_defaults`' default-effort component is INERT for
+  effort selection in this mode regardless (only its minimum-tier
+  component is consulted, to seed `--minimum-tier`); WHEN
+  `--requested-effort` IS supplied, even under `welded`, it wins
+  (`effort_source: "requested"`), subject to the same clamp and
+  `--xhigh-reason` gate as the matrix-mode case (AC-053). AC-007's
+  byte-identical golden baseline covers only the default, no-override
+  invocation shape (no `--requested-effort` flag) and is therefore
+  UNCHANGED by this carve-out — a golden-comparison case never supplies
+  `--requested-effort`, so the carve-out branch is exercised exclusively
+  by AC-053's own, separate case. Under `--effort-policy matrix`, effort
+  resolves in this strict order: (1) `--requested-effort`, if supplied,
+  always wins (`effort_source: "requested"`) — the same explicit-override
+  rule stated above, not a policy-specific special case; (2) otherwise, if
+  the registry's `risk_effort_matrix` has
   an entry for the supplied `--risk` value (the normal case for any
   schema-compliant v2 registry carrying all four canonical risk keys,
   including this feature's own shipped file — AC-002), that entry (plus
@@ -194,6 +205,11 @@ C2, C3 notation in each issue body) and investigation.md's task numbering
   still present — if `--role` is supplied, `role_defaults[role].default_effort`
   is used (`effort_source: "role-default"`); (4) otherwise, the winning
   model's own `default_effort` is used (`effort_source: "model-default"`).
+  Restated as one table: `--requested-effort` (present, either policy) >
+  `welded` (present, `welded` policy, no `--requested-effort`) >
+  `risk_effort_matrix[risk]` (`matrix` policy) >
+  `role_defaults[role].default_effort` (`matrix` policy fallback) >
+  winning model's own `default_effort` (`matrix` policy final fallback).
 
   JSON output gains two new keys, additively:
   `effort_source` (`requested` / `risk-matrix` / `role-default` /
@@ -469,9 +485,12 @@ ships as its own release.
   `supported_efforts` clamps to the nearest supported value; `xhigh` remains
   reachable only via `--xhigh-reason`, including via an escalation-bumped
   matrix selection. (REQ-002)
-- AC-010: `--requested-effort <e>` overrides the policy-selected effort,
-  still clamped to `supported_efforts` and still requiring `--xhigh-reason`
-  for `xhigh`. (REQ-002)
+- AC-010: `--requested-effort <e>` overrides the policy-selected effort
+  under `--effort-policy matrix`, still clamped to `supported_efforts` and
+  still requiring `--xhigh-reason` for `xhigh`. (REQ-002; the `welded`-policy
+  carve-out for `--requested-effort` is AC-053, kept as a distinct case so
+  AC-007's golden-baseline scope — no-override invocations only — is
+  never conflated with the override behavior.)
 - AC-011: `--role <role>` always seeds `--minimum-tier` from v2
   `role_defaults[role].minimum_tier`, in both `welded` and `matrix` policy.
   Under `--effort-policy matrix`, if the registry's `risk_effort_matrix`
@@ -541,9 +560,22 @@ ships as its own release.
   section documents the same two-line requirement for gate reports.
   (REQ-004)
 - AC-027: `tests/agent-model-routing.tests.ps1` exists as a new file,
-  closing the twin gap; both `tests/agent-model-routing.tests.sh` and the
-  new `.ps1` are registered in `tests/run-all.sh`/`.ps1` and
-  `.github/workflows/test.yml`. (REQ-005)
+  closing the twin gap; both twins are registered directly by the agent in
+  `tests/run-all.sh`/`.ps1` (unprotected). Because
+  `.github/workflows/test.yml` is an R-10 enforcement-chain protected file
+  (`plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`,
+  loaded by `sdd-hook-guard.py:891`'s `_load_guard_invariants()`), its own
+  registration is verified in three parts rather than by a single direct
+  assertion: (a) a staged candidate exists at
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml`
+  containing the new pwsh-lane step for `agent-model-routing.tests.ps1`,
+  with a matching `MANIFEST.sha256` entry (SHA-256 of the staged candidate
+  recorded correctly); (b) the LIVE `.github/workflows/test.yml` is
+  byte-identical before and after the agent's T-005 work — never written
+  directly, asserted by a SHA-256 comparison of the real file; (c) after a
+  human applies the staged candidate via `cp`, a self-registration grep
+  against the now-updated live file confirms both twins' steps are
+  present. (REQ-005)
 - AC-028: Both twins assert the AC-007 welded-golden byte-identical output
   and its negative self-check. (REQ-005)
 - AC-029: Both twins assert `--effort-policy matrix --risk high
@@ -624,12 +656,36 @@ ships as its own release.
   `{low, medium, high, xhigh}` — giving Security Boundaries B3's
   CLI-argument-injection claim an executable verification surface rather
   than a construction-only assertion. (REQ-006)
+- AC-053: `--requested-effort <e>`, supplied together with
+  `--effort-policy welded` (or with no `--effort-policy` flag, since
+  `welded` is the Phase-1 default), causes the requested value to be
+  applied — clamped to `supported_efforts` and still requiring
+  `--xhigh-reason` for `xhigh`, identically to the `matrix`-policy case —
+  with `effort_source: "requested"` in JSON output; this case is
+  explicitly OUTSIDE AC-007's golden-baseline scope (the golden fixture
+  set never supplies `--requested-effort`), so this AC does not alter or
+  narrow AC-007's byte-identical guarantee. (REQ-002)
+- AC-054: `select-agent-model.sh`/`.ps1`, given a v2 `--registry` file with
+  a malformed `supported_efforts` (empty array or a non-array value), a
+  `effort_control` value outside `{flag, frontmatter, none}`, or a
+  structurally malformed `risk_effort_matrix` (missing a required key,
+  non-string value, or a value outside the model's own `supported_efforts`
+  vocabulary), exits non-zero with a `MODEL_SELECTION_ERROR`-class
+  diagnostic and selects no candidate — mirroring v1's existing
+  malformed-`efforts` rejection posture (`select-agent-model.sh:207-215`)
+  — verified by one fixture-driven case per malformed-field category.
+  (REQ-001, REQ-002)
 
 ## Field Definitions
 
 - `welded` (REQ-002; issue #150 body) — the Phase 1 default `--effort-policy`
   value: effort selection reproduces today's v1 tier-welded behavior
-  byte-for-byte, regardless of whether the invoked registry is v1 or v2.
+  byte-for-byte, regardless of whether the invoked registry is v1 or v2,
+  WHENEVER `--requested-effort` is not separately supplied. An explicit
+  `--requested-effort` always overrides this (both policies — AC-053), so
+  "welded" describes the DEFAULT effort source under this policy, not an
+  unconditional one; AC-007's golden baseline is scoped to the no-override
+  invocation shape exclusively (round-2 remedy, Major-1).
 - `matrix` (REQ-002, REQ-007; issue #150/#155 bodies) — the Phase 2
   `--effort-policy` value: effort is selected from
   `risk_effort_matrix[risk]`, escalation-bumped one step when an escalation
@@ -680,28 +736,45 @@ ships as its own release.
 
 - Agent: authors all new files in T-001..T-006 directly — the v2 registry,
   the new/extended selector flags, `render-agent-frontmatter.sh`/`.ps1`, the
-  run-record schema edits, the two new/extended test suites, the
+  run-record schema edits, the new/extended test suites, the
   panelist/prepare-input effort threading — plus edits to
-  `tests/run-all.sh`/`.ps1`, `.github/workflows/test.yml`,
-  `tests/validate-repository.ps1`, `PLUGIN-CONTRACTS.md`, and the REQ-009
-  documentation surfaces, none of which are protected-gate files. The agent
-  does NOT write the four protected reviewer `.md` files directly — it
-  stages corrected content under `specs/epic-159-pillar-c/human-copy/` only
-  (REQ-003).
+  `tests/run-all.sh`/`.ps1`, `tests/validate-repository.ps1`,
+  `PLUGIN-CONTRACTS.md`, and the REQ-009 documentation surfaces, none of
+  which are protected-gate files. The agent does NOT write the four
+  protected reviewer `.md` files directly — it stages corrected content
+  under `specs/epic-159-pillar-c/human-copy/` only (REQ-003). **Round-2
+  addition**: the agent likewise does NOT write `.github/workflows/test.yml`
+  directly for any task (T-001, T-003, T-005, T-006) that needs to add or
+  change a step in it — `.github/workflows/test.yml` is confirmed R-10
+  protected (`guard_invariants.py:4` — Assumptions, above), so its
+  registration lines are staged the same way: the agent renders the full,
+  corrected `.github/workflows/test.yml` content to
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` plus a
+  `MANIFEST.sha256` entry, for that task's own commit.
 - Human maintainer: approves specs and tasks; runs the `cp` step for the
   four protected reviewer files whenever `render-agent-frontmatter`
-  produces a non-empty diff for them; verifies and executes T-007/#155's
-  prerequisite gate and its separate release.
-- CI: runs all new/extended suites on the 3-OS matrix; runs
+  produces a non-empty diff for them; runs the `cp` step for
+  `.github/workflows/test.yml` whenever T-001, T-003, T-005, or T-006
+  stages a new registration line for it (round-2 addition), verifying the
+  copied file's SHA-256 against the manifest before the corresponding
+  task can be marked Done; verifies and executes T-007/#155's prerequisite
+  gate and its separate release.
+- CI: runs all new/extended suites on the 3-OS matrix (once the
+  human-applied `.github/workflows/test.yml` registers them); runs
   `render-agent-frontmatter --check` and `tests/validate-repository.ps1`
   read-only against the current repository state, including the four
-  protected reviewer files (AC-020).
+  protected reviewer files (AC-020) and, for `--check`'s own registration
+  presence, `.github/workflows/test.yml` itself (read-only).
 
 ## Main Workflows
 
 1. T-001 (#149): author `contracts/agent-model-capabilities.v2.json`;
    author `tests/agent-capabilities-v2.tests.sh`/`.ps1`; extend
-   `PLUGIN-CONTRACTS.md`; wire into `run-all`/`test.yml`; CREATE the
+   `PLUGIN-CONTRACTS.md`; register directly in `tests/run-all.sh`/`.ps1`
+   (unprotected); stage the new `test.yml` step under
+   `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+   `MANIFEST.sha256` for human `cp` (`.github/workflows/test.yml` is R-10
+   protected — Roles and Permissions, above); CREATE the
    `CHANGELOG.md` `## Unreleased` entry for #149.
 2. T-002 (#150): add schema auto-detection and the four new flags to
    `select-agent-model.sh`/`.ps1`; extend
@@ -710,10 +783,15 @@ ships as its own release.
    surfaces this leg touches; APPEND to the shared `#150` `CHANGELOG.md`
    entry (own entry, distinct issue number from T-001's).
 3. T-003 (#151): author `render-agent-frontmatter.sh`/`.ps1`; seed
-   `role_defaults` from current values; wire `--check` into CI and
-   `tests/validate-repository.ps1`; stage the four protected reviewer files'
-   corrected content under `specs/epic-159-pillar-c/human-copy/` with a
-   SHA-256 manifest for human `cp`; extend REQ-009 doc surfaces; own
+   `role_defaults` from current values; author
+   `tests/render-agent-frontmatter.tests.sh`/`.ps1` and register directly
+   in `tests/run-all.sh`/`.ps1` (unprotected); wire `--check` into
+   `tests/validate-repository.ps1` (unprotected, direct edit); stage BOTH
+   the `--check` CI step's `test.yml` addition AND the four protected
+   reviewer files' corrected content under
+   `specs/epic-159-pillar-c/human-copy/` (`.github/workflows/test.yml` and
+   the four reviewer `.md` files, each with its own `MANIFEST.sha256`
+   entry) for human `cp`; extend REQ-009 doc surfaces; own
    `CHANGELOG.md` entry for #151.
 4. T-004 (#153): add the four `--effort-*` flags and `sdd-run-record/v2`
    fields to `emit-run-record.sh`/`.ps1`; add the two report-template lines;
@@ -723,12 +801,21 @@ ships as its own release.
 5. T-005 (#154): author `tests/agent-model-routing.tests.ps1`; extend
    `tests/agent-model-routing.tests.sh` with the full REQ-002/REQ-005 case
    list (welded golden, matrix cases, clamp, xhigh gate, terminal-tier
-   invariance, role floor, v1↔v2 projection); own `CHANGELOG.md` entry for
-   #154.
+   invariance, role floor, v1↔v2 projection, and the AC-053 welded +
+   `--requested-effort` carve-out case); register both twins directly in
+   `tests/run-all.sh`/`.ps1` (unprotected); stage the new pwsh-lane
+   `test.yml` step (registering `agent-model-routing.tests.ps1`) under
+   `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+   `MANIFEST.sha256` for human `cp` (AC-027's three-part verification); own
+   `CHANGELOG.md` entry for #154.
 6. T-006 (#152): add `--effort` to `run-panelist-gpt.sh`/`.ps1`; thread it
    through `prepare-panelist-input.sh`/`.ps1`; wire the Codex-host
    evaluator/investigator startup path; add the render/selector
-   cross-check; own `CHANGELOG.md` entry for #152.
+   cross-check; author `tests/run-panelist-effort.tests.sh`/`.ps1`
+   (AC-035..040, AC-052) and register directly in `tests/run-all.sh`/`.ps1`
+   (unprotected); stage the new `test.yml` step under
+   `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+   `MANIFEST.sha256` for human `cp`; own `CHANGELOG.md` entry for #152.
 7. T-007 (#155), **separate PR, separate release, after T-001..T-006 are
    merged AND A3 is confirmed in `main`**: flip the `--effort-policy`
    default to `matrix`; perform and verify the first production
@@ -769,6 +856,15 @@ ships as its own release.
   comparison against those same four files is explicitly permitted (it is
   not a write) and is the one place this feature intentionally inspects
   protected-file content.
+- `.github/workflows/test.yml` protected-file boundary (round-2 addition):
+  no task in this feature (T-001, T-003, T-005, T-006) writes
+  `.github/workflows/test.yml` directly — each stages its registration
+  addition under `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml`
+  with a `MANIFEST.sha256` entry instead, mirroring the four-protected-reviewer-file
+  procedure exactly (Roles and Permissions, above); a self-check analogous
+  to the render-target-resolution check above (this one over each task's
+  own file-write-target list, not `render-agent-frontmatter`'s) confirms
+  no task's write path resolves to the live protected path.
 - `effort_degraded_reason` vacuity: the field must never be populated when
   `effort_applied` carries a real value, and must never be left empty when
   `effort_applied` is `null` and an `--effort-*` flag was supplied — both
@@ -787,7 +883,7 @@ ships as its own release.
 
 | Trust Boundary | Auth/Authz Requirement | PII / Data Classification | Regulatory Constraints |
 |---|---|---|---|
-| B1: registry/selector inputs to routing decisions | `--registry`/`--candidates-file` schema and field validation unchanged in strictness from v1 (`select-agent-model.sh:192-230`); v2 parsing rejects malformed `supported_efforts`/`effort_control`/`risk_effort_matrix` the same way v1 rejects malformed `efforts` | internal source only | none identified |
+| B1: registry/selector inputs to routing decisions | `--registry`/`--candidates-file` schema and field validation unchanged in strictness from v1 (`select-agent-model.sh:192-230`); v2 parsing rejects malformed `supported_efforts`/`effort_control`/`risk_effort_matrix` the same way v1 rejects malformed `efforts`; this rejection is executably verified per malformed-field category, not merely asserted by construction (AC-054) | internal source only | none identified |
 | B2: render output to R-10 protected gate files | protected basenames never receive a direct write from `render-agent-frontmatter`; scratchpad + SHA-256 manifest + human `cp` for the four protected reviewer files; `--check` is read-only against them | internal source only | none identified |
 | B3: Codex CLI invocation argument construction | `--model`/`--effort` values passed to `codex` are sourced only from the registry/selector, never from unsanitized task or spec text, preventing CLI-argument injection via task content; enumerated-vocabulary rejection of out-of-registry, whitespace-, flag-, or separator-shaped values is executably verified, not merely asserted by construction (AC-052) | internal source only | none identified |
 | B4: run-record effort fields vs. real invocation outcome | `effort_applied` is set to a real value only on confirmed application (Codex `flag` control); every other path is `null` + a named `effort_degraded_reason` — no path can report a false "applied" | internal source only | none identified |
@@ -819,9 +915,28 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   future, unrelated Codex CLI upgrade begins consuming such a key, REQ-003's
   "documentation-only comment" design (OQ-002) would need re-verification,
   but no such change is in scope or expected here.
-- `tests/run-all.sh`, `tests/run-all.ps1`, `.github/workflows/test.yml`,
+- **Re-verified at round-2 remedy time (2026-07-17) against current HEAD,
+  superseding this feature's round-1 assumption**: `.github/workflows/test.yml`
+  IS now an R-10 enforcement-chain protected file — confirmed present in
+  `PROTECTED_GATE_SUFFIXES` at
+  `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`, the
+  module `sdd-hook-guard.py:891`'s `_load_guard_invariants()` function
+  loads. This landed between round 1 and round 2 via the concurrently
+  merged epic-136 Phase 2 work (commit lineage `2b8a52f`), outside this
+  feature's own control. `tests/run-all.sh`, `tests/run-all.ps1`,
   `tests/validate-repository.ps1`, and `tests/workflow-documentation.tests.sh`
-  remain outside the protected-gate table for the duration of this feature.
+  are RE-VERIFIED, against the same current `PROTECTED_GATE_SUFFIXES`
+  tuple, to remain OUTSIDE it (their exact paths are absent from a direct
+  read of the generated file's contents). Per the same discipline already
+  applied to REQ-007's A3 prerequisite (Assumptions, above): this is a
+  live-repository snapshot, not a permanent guarantee. Each of T-001,
+  T-003, T-005, and T-006 — the four tasks whose Main Workflows entry
+  touches `.github/workflows/test.yml`'s registration (Roles and
+  Permissions, Main Workflows, AC-027, below) — re-verifies
+  `PROTECTED_GATE_SUFFIXES`'s then-current contents at that task's own
+  implementation-start time, before relying on the human-copy procedure
+  (in case the file becomes unprotected again, or a different registration
+  surface becomes protected).
 
 ## Open Questions
 
@@ -875,9 +990,20 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   quality-gate time, not left as an informal convention.
 - Medium: shared registration surfaces (`tests/run-all.sh`/`.ps1`,
   `.github/workflows/test.yml`, `CHANGELOG.md`'s `## Unreleased` section)
-  are touched by six of the seven tasks. Mitigation: design.md's Global
-  Constraints section (serialized, per-task commits, matching
-  epic-159-pillar-a2/b's established precedent).
+  are touched by six of the seven tasks; `.github/workflows/test.yml`
+  specifically is now confirmed R-10 protected
+  (`guard_invariants.py:4` — Assumptions, above), so a task that
+  (re)introduces a direct-write attempt against it would be hard-blocked
+  by the hook guard at implementation time — a fail-safe outcome, but a
+  wasted implementation attempt if not caught at task-authoring time.
+  Mitigation: design.md's Global Constraints section (serialized, per-task
+  commits, matching epic-159-pillar-a2/b's established precedent) PLUS the
+  human-copy staging procedure (Roles and Permissions, AC-027) for every
+  `test.yml`-touching task (T-001, T-003, T-005, T-006) — each stages its
+  own registration addition under
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` with an
+  updated `MANIFEST.sha256`, so no task's implementation attempt can
+  trigger the guard in the first place.
 - Medium: the Codex `.toml` comment format (REQ-003) and the selector's
   live output (REQ-006) could drift apart if a caller script is updated
   without re-running `render-agent-frontmatter --check`. Mitigation:
