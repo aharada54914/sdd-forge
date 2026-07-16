@@ -115,7 +115,7 @@ $aggregatesDir = Join-Path $domainDir 'aggregates'
 if (-not (Test-Path -LiteralPath $aggregatesDir -PathType Container) -or (Test-IsSymlink $aggregatesDir)) {
   Fail 'domain/aggregates/ must exist and not be a symlink'
 }
-$aggregateFiles = @(Get-ChildItem -LiteralPath $aggregatesDir -Filter '*.md' -File -ErrorAction SilentlyContinue)
+$aggregateFiles = @(Get-ChildItem -LiteralPath $aggregatesDir -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -cmatch '\.md$' })
 if ($aggregateFiles.Count -lt 1) { Fail 'domain/aggregates/ must contain at least one aggregate card' }
 $aggregateFilePaths = @()
 foreach ($f in $aggregateFiles) {
@@ -132,7 +132,7 @@ if (Test-Path -LiteralPath $reportsBase) {
   if (-not (Test-OrdinalEqual (Get-CanonicalDir $reportsBase) $reportsBase)) { Fail 'domain-review report base escapes reports root' }
 }
 
-$statusMatch = Select-String -LiteralPath $contextMap -Pattern '^Domain-Model-Status:\s*(.*)$' | Select-Object -First 1
+$statusMatch = Select-String -LiteralPath $contextMap -Pattern '^Domain-Model-Status:\s*(.*)$' -CaseSensitive | Select-Object -First 1
 $status = if ($statusMatch) { ($statusMatch.Matches[0].Groups[1].Value -replace '\s', '') } else { '' }
 if ($status -cnotmatch '^(Pending|Reviewed|Approved)$') { Fail 'context-map.md must declare a recognized Domain-Model-Status' }
 

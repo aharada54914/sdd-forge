@@ -134,7 +134,7 @@ Non-ASCII bytes: 0
 CR bytes: 0
 First 3 bytes: 23 20 55 (no BOM)
 
---- Summary ---
+--- Summary (Cycle 1, operator-level sweep only) ---
 
 2 genuine case-sensitivity weakenings confirmed and fixed (lines 137, 255),
 1 additional site hardened defensively (line 256), all other -match/
@@ -144,3 +144,152 @@ both defect classes (named parameters AND array-splat calling convention
 for the status check; named parameters for the --reset scan). All
 regression checks (b)-(e) pass with zero failures and match the
 coordinator's stated expected counts exactly.
+
+*** CORRECTION (Cycle 2): the above "all other sites safe" conclusion was
+INCOMPLETE. The Cycle-1 sweep grepped only PowerShell COMPARISON OPERATORS
+(-match/-notmatch/-replace/-eq/-ne/-contains/-like) and missed that several
+CMDLETS/language features carry their OWN independent, non-operator
+case-(in)sensitivity defaults that a pure operator-grep cannot see. A
+gate-cycle-2 evaluator found 2 more genuine sites of this broader class
+(Critical + Major). See section 6 below for the full cmdlet-level sweep,
+the 2 additional fixes, and their independent parity verification. ***
+
+=== Cycle 2: cmdlet/language-feature-level case-sensitivity sweep ===
+
+--- 6. Sweep methodology (cmdlet/feature level, distinct from Cycle 1's
+    operator-level sweep) ---
+
+Cycle 1 only checked comparison OPERATORS. This cycle greps every CMDLET or
+language construct known to carry an independent case-sensitivity default
+in PowerShell, cross-checked against the .sh original's actual bash/find/
+sed/.NET-equivalent semantics:
+
+  grep -n "Select-String" ...
+  grep -n "Get-ChildItem" ...              (-Filter/-Include/-Exclude)
+  grep -n -- '-like|-notlike' ...
+  grep -n -- '-split|\.Split(' ...
+  grep -n '\[regex\]::|\[Text.RegularExpressions.Regex\]::' ...
+  grep -n "switch " ...                    (-wildcard/-regex switch statements)
+  grep -n '\.StartsWith(|\.EndsWith(|\.Contains(|\.IndexOf(|\.Equals(|\.Replace(|\.CompareTo(|\.ToLower(|\.ToUpper(' ...
+
+--- 7. Cycle-2 sweep result list ---
+
+| Site | Feature | Verdict | Reason |
+|---|---|---|---|
+| **:135 (pre-fix)** `Select-String -Pattern '^Domain-Model-Status:\s*(.*)$'` | `Select-String` (no `-CaseSensitive`) | **FIXED (Critical)** | `Select-String` is case-insensitive by default; the .sh original's `sed -n 's/^Domain-Model-Status:.../p'` is case-sensitive (no `I` flag) -- confirmed live: a `domain-model-status:`/`DOMAIN-MODEL-STATUS:` field name was INCORRECTLY matched pre-fix -> added **`-CaseSensitive`** |
+| **:118 (pre-fix)** `Get-ChildItem -Filter '*.md' -File` | `Get-ChildItem -Filter` | **FIXED (Major)** | `-Filter` on a case-insensitive filesystem (macOS APFS/HFS+ default, the AC-017 CI matrix's `macos-latest` runner) performs case-insensitive glob matching at the .NET/OS layer; the .sh original's bash filename glob (`for p in "$aggregates_dir"/*.md`) is ALWAYS case-sensitive regardless of filesystem, since bash does its own in-memory pattern matching on `readdir()` entries -- confirmed live: a file literally named `card.MD` was INCORRECTLY matched by `-Filter '*.md'` on this macOS dev machine -> replaced with `Get-ChildItem -File \| Where-Object { $_.Name -cmatch '\.md$' }` (evaluator-proposed form) |
+| `Get-ChildItem -Directory` (line 255, `--reset` scan) | `Get-ChildItem` with only a TYPE filter (`-Directory`), no name-pattern `-Filter`/`-Include`/`-Exclude` | SAFE | name filtering is done entirely by the already-fixed `-cmatch` in the adjacent `Where-Object`, not by `Get-ChildItem` itself |
+| `-like`/`-notlike` | n/a | SAFE | zero occurrences in the file |
+| `-split` / `.Split(` | n/a | SAFE | zero occurrences in the file (note for future ports: PowerShell's `-split` operator with a regex pattern is case-INSENSITIVE by default, same class as `-match`; this file simply never uses it) |
+| `:145` `[Text.RegularExpressions.Regex]::Replace($content, '(?m)^Domain-Model-Status:[^\r\n]*(\r?)$', ...)` | static `[regex]::Replace()` (no explicit `RegexOptions`) | SAFE | .NET's `Regex` class methods are CASE-SENSITIVE by default when no `RegexOptions.IgnoreCase` is passed -- this is the OPPOSITE default from PowerShell's `-match`/`-replace` OPERATORS, and was confirmed live: a `domain-model-status:` (lowercase) line was correctly left un-normalized by this call while `Domain-Model-Status: Pending` was correctly normalized. No fix needed; this line was already correct by construction (same idiom already used, unfixed, in the sibling `task-review-precheck.ps1`/`impl-review-precheck.ps1` `Get-ReviewedHash` helper) |
+| `switch -wildcard`/`switch -regex` | n/a | SAFE | zero `switch` STATEMENTS in the file at all (the only `switch` token is the `[switch]$Reset` parameter type, a grep false-positive already noted in Cycle 1) |
+| `:32,:38` `.ToLower()` on SHA-256 hex digest strings | `String.ToLower()` | SAFE | intentional output normalization (hex digest lowercasing), not a security-relevant identity comparison; matches `sha256sum`/`shasum` lowercase-hex convention the .sh original also produces |
+| `:86` `$rel.StartsWith($root, [StringComparison]::Ordinal)` | `String.StartsWith` with explicit `StringComparison` | SAFE | already explicitly Ordinal (case-sensitive) |
+| `:89` `.Replace('\', '/')` | `String.Replace(string,string)` | SAFE | replacing path-separator characters, which have no case |
+
+No `.Contains(`, `.IndexOf(`, `.Equals(`, `.CompareTo(`, `.EndsWith(` calls exist in the file at all (zero hits).
+
+Conclusion: exactly 2 genuine cmdlet/feature-level case-sensitivity
+weakenings (`:135` `Select-String`, `:118` `Get-ChildItem -Filter`),
+matching the gate-cycle-2 evaluator's Critical+Major diagnosis exactly. All
+other cmdlet/feature-level sites are safe by construction or (for
+`[regex]::Replace`) already correct because .NET's static Regex API
+defaults to case-sensitive, unlike PowerShell's own operators.
+
+--- 8. Fixes applied (Cycle 2, via Edit tool only) ---
+
+Line 118: `Get-ChildItem -LiteralPath $aggregatesDir -Filter '*.md' -File -ErrorAction SilentlyContinue`
+       -> `Get-ChildItem -LiteralPath $aggregatesDir -File -ErrorAction SilentlyContinue | Where-Object { $_.Name -cmatch '\.md$' }`
+Line 135: `Select-String -LiteralPath $contextMap -Pattern '^Domain-Model-Status:\s*(.*)$'`
+       -> `Select-String -LiteralPath $contextMap -Pattern '^Domain-Model-Status:\s*(.*)$' -CaseSensitive`
+
+--- 9. Parity verification (Cycle 2) ---
+
+9a. Mis-cased field name (Select-String fix, :135), full end-to-end
+    fixtures (Initialize-LoopFixture greenfield + read-only .sh copy):
+
+  9a-i. field name mutated to `domain-model-status:` (lowercase):
+    .sh original:              ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+    .ps1 port (named params):  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+    .ps1 port (array-splat):   ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+    Result: exit code MATCH (1), stderr text byte-identical MATCH.
+
+  9a-ii. field name mutated to `DOMAIN-MODEL-STATUS:` (uppercase):
+    .sh original:              ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+    .ps1 port (named params):  ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+    .ps1 port (array-splat):   ERROR: domain-review-precheck: context-map.md must declare a recognized Domain-Model-Status   EXIT:1
+    Result: exit code MATCH (1), stderr text byte-identical MATCH.
+
+  Counterfactual (isolated probe, no file I/O): pre-fix
+  `Select-String -Pattern '^Domain-Model-Status:\s*(.*)\$'` (no
+  `-CaseSensitive`) MATCHED a `domain-model-status: lowercase` line;
+  post-fix `-CaseSensitive` correctly returns no match.
+
+9b. `card.MD` aggregate file (Get-ChildItem -Filter fix, :118), full
+    end-to-end fixtures:
+
+  9b-i. `domain/aggregates/` contains ONLY `card.MD` (uppercase extension):
+    .sh original:  ERROR: domain-review-precheck: domain/aggregates/ must contain at least one aggregate card   EXIT:1
+    .ps1 port:     ERROR: domain-review-precheck: domain/aggregates/ must contain at least one aggregate card   EXIT:1
+    Result: exit code MATCH (1) -- both correctly reject; `card.MD` is not
+    recognized as a valid aggregate card by either tool.
+
+  9b-ii. `domain/aggregates/` contains `card.md` (lowercase extension,
+    control), verified on SEPARATE fresh fixture copies per tool (a shared
+    single fixture would let the first-run tool's precheck-result.json
+    make the SECOND tool's run correctly hit the unrelated
+    "round destination already exists (replay is forbidden)" guard --
+    a test-harness sequencing artifact, not a behavioral divergence; both
+    tools were confirmed independently instead):
+    .sh original (own fixture copy): exit 0, "domain-review-precheck: complete. ..."
+    .ps1 port (own fixture copy):    exit 0, "domain-review-precheck: complete. ..."
+    Result: both succeed (exit 0) as expected for the correctly-cased file.
+
+  Counterfactual (isolated probe, no file I/O): pre-fix
+  `Get-ChildItem -Filter '*.md'` matched a real on-disk `card.MD` file on
+  this macOS (case-insensitive FS) dev machine; the fixed
+  `Where-Object { $_.Name -cmatch '\.md$' }` correctly excludes it while a
+  parallel `card.md` control file is correctly retained.
+
+--- 10. Regression checks (Cycle 2, full re-run against the Cycle-2-fixed
+    file) ---
+
+- Reject-path pair (out-of-range Round; non-empty -EditSummary at round 1):
+  unchanged, both exit 1 with the original exact messages -- no regression.
+- Status-value 3-case set (re-verified fresh, since the Cycle-1 fixtures
+  had been mutated in-place by later tests and were no longer representative):
+    status='pending' (lowercase)  -> both .sh/.ps1 exit 1, message MATCH.
+    status='APPROVED' (uppercase) -> both .sh/.ps1 exit 1, message MATCH.
+    status='Pending' (valid)      -> both .sh/.ps1 independently exit 0.
+- ROUND-3 mixed-case --reset scan (re-verified fresh): both .sh/.ps1
+  exit 1, "previous attempt has no terminal round", message MATCH.
+- `pwsh tests/loop-consistency.tests.ps1` (unmodified suite, full run):
+    loop-consistency.tests.ps1: 27 passed, 0 failed, 27s elapsed. SKIP: 0.
+- `bash tests/guard-ps1-ascii.tests.sh` (unmodified suite):
+    guard-ps1-ascii.tests.sh: 9 passed, 0 failed (all 3 targets).
+
+--- 11. Hygiene re-check (Cycle 2) ---
+
+[System.Management.Automation.Language.Parser]::ParseFile -> PARSE OK
+Non-ASCII bytes: 0
+CR bytes: 0
+First 3 bytes: 23 20 55 (no BOM)
+New SHA-256: a965d00979ca579450301520b1d7741de29d52f57b0681e88c891fbb80ccaf4c
+
+--- Summary (Cycle 2, supersedes the Cycle-1 summary above) ---
+
+Cycle 1's operator-level sweep found and fixed 2 sites but its "all other
+sites safe" conclusion did not extend to cmdlets/language features with
+their own independent case-sensitivity defaults (`Select-String`,
+`Get-ChildItem -Filter`, `-split`, `[regex]::`, `switch -wildcard/-regex`).
+A dedicated Cycle-2 cmdlet-level sweep found exactly 2 more genuine sites
+(`:135` `Select-String`, `:118` `Get-ChildItem -Filter`, matching the
+gate-cycle-2 evaluator's Critical+Major diagnosis exactly) and confirmed
+every other cmdlet/feature site is safe by construction, including one
+site (`[regex]::Replace`, `:145`) that is safe precisely BECAUSE .NET's
+static Regex API's case-sensitivity default is the OPPOSITE of PowerShell's
+own comparison operators. Both new fixes verified end-to-end against the
+unedited .sh original (named parameters and array-splat calling
+convention), with zero regression across the reject-path pair, all 3
+status-value cases, the ROUND-3 reset scan, and both wave-1/hygiene
+suites.
