@@ -1,6 +1,6 @@
 # Tasks: epic-159-pillar-a2
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issues #145, #146, #147, #174 (epic #159, Pillar A items A5-A7 plus
 the #174 spec-precheck twin gap) /
