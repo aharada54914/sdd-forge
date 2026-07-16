@@ -269,15 +269,22 @@ that the `release.yml` job is my host's equivalent guarantee.
 
 1. T-001: add the loop-gate prerequisite to `scripts/bump-version.sh`;
    author `tests/bump-version-gate.tests.sh`/`.ps1`; wire into
-   `run-all.sh`/`.ps1` and `test.yml`.
+   `run-all.sh`/`.ps1` and `test.yml`; CREATE the single `CHANGELOG.md`
+   `## Unreleased` entry citing #148 (describing the T-001 leg) and the
+   REQ-003 doc surfaces this leg touches
+   (`docs/contributor/release-runbook.md` bump-version section).
 2. T-002: add the required loop-gate job to
    `.github/workflows/release.yml`; author
    `tests/release-loop-gate.tests.sh`/`.ps1`; wire into `run-all.sh`/`.ps1`
-   and `test.yml`.
-3. Docs (`docs/contributor/release-runbook.md`, `README.md`,
-   `docs/troubleshooting.md` where applicable) + `CHANGELOG.md` follow in
-   the same PR per REQ-003; quality gate evaluates each task with the
-   standard evidence chain.
+   and `test.yml`; APPEND the T-002 leg's lines to the SAME #148
+   `CHANGELOG.md` entry T-001 created, and extend the REQ-003 doc surfaces
+   this leg touches (release-runbook release.yml section; `README.md`/
+   `docs/troubleshooting.md` where applicable).
+3. Verification: each task lands with `validate-repository` and the
+   skill-reference count sync green; the quality gate evaluates each task
+   with the standard evidence chain. The net REQ-003 end-state (one #148
+   entry covering both legs; the full runbook) is asserted by AC-011/AC-012
+   after T-002 lands.
 
 ## Edge Cases
 
@@ -309,10 +316,14 @@ that the `release.yml` job is my host's equivalent guarantee.
   against an older ref) still gets the loop-gate job's own, independent
   execution — this is precisely why OQ-001 resolved to both legs rather
   than relying on `test.yml` alone.
-- Global-Constraint shared files: `tests/run-all.sh`/`.ps1`,
-  `.github/workflows/test.yml`, and `CHANGELOG.md`'s `## Unreleased`
-  section are each edited by both T-001 and T-002; see design.md's Global
-  Constraints section for the serialization convention.
+- Global-Constraint shared files: `tests/run-all.sh`/`.ps1` and
+  `.github/workflows/test.yml` are each edited by both T-001 and T-002
+  (own registration lines only). `CHANGELOG.md`'s `## Unreleased` #148
+  entry is CREATED by T-001 (its leg) and APPENDED to by T-002 (its leg) —
+  a single shared entry, never two parallel entries, matching Main
+  Workflows items 1-2. All of these are serialized by T-002's Blocker on
+  T-001; see design.md's Global Constraints section for the serialization
+  convention.
 
 ## Security Boundaries
 
