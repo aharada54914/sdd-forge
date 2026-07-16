@@ -2574,6 +2574,15 @@
       "host_session_id": "SESS-spec-spec-reviewer-a-epic-159-pillar-d-0286",
       "previous_record_sha256": "9fe10a710878db8bf86d43992222cb52646c58ff7b89a8a9c1d2d8626dda3b9f",
       "record_sha256": "7b34c43499324d25bc0a7c2771500ccd3938d2499b7dc73f8615ff526dc92d3f"
+    },
+    {
+      "sequence": 287,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-159-pillar-d-spec-spec-reviewer-b-seq0287",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-d-0287",
+      "previous_record_sha256": "7b34c43499324d25bc0a7c2771500ccd3938d2499b7dc73f8615ff526dc92d3f",
+      "record_sha256": "d52b45eb18170dcc0044d8d5e51cb3513c7a7b92438fbb21ed9707eb45225643"
     }
   ]
 }
