@@ -368,10 +368,18 @@ this script opens a file under `contracts/` for writing).
    invocation arguments to a file instead of calling the network, mirroring
    the read-only/no-live-call convention this repository already applies
    to its other fixture-driven suites.
-3. Fetch-failure case (AC-006/TEST-006): omit one fixture file (or point
-   it at a nonexistent path) so `fetch_source_or_unavailable` returns
-   non-zero; assert `main` exits 0 and the stubbed `gh` recorded a comment
-   call containing "取得不能".
+3. Fetch-failure cases (AC-006/TEST-006), three scenarios: (i) BOTH
+   fixture files omitted (or pointed at nonexistent paths); (ii) only the
+   Anthropic fixture failing while the OpenAI fixture is present and
+   valid; (iii) the inverse — Anthropic present and valid, OpenAI failing.
+   In each scenario `fetch_source_or_unavailable` returns non-zero for the
+   failing vendor(s); assert `main` exits 0, the stubbed `gh` recorded a
+   comment call containing "取得不能", and ZERO issue-create calls were
+   recorded — the asymmetric scenarios (ii)/(iii) additionally prove
+   `main` never computes a divergence from the surviving vendor's partial
+   data alone (by construction, `main` takes its fail-soft exit on the
+   first fetch failure, before `compute_divergence` ever runs —
+   API/Contract Plan above).
 4. Divergence case (AC-007/TEST-007): both fixture files present; a
    fixture-scoped copy of the v2 registry (never the real
    `contracts/agent-model-capabilities.v2.json`) omits a model token the
@@ -442,7 +450,11 @@ it authors no new test suite of its own (Non-goals).
 2. T-003's RED-demonstrable proof is the TEST-006/TEST-007 positive/negative
    pair (fail-soft vs. divergence-detected), mirroring
    epic-159-pillar-b's AC-002/AC-003 pairing convention, adapted to this
-   feature's fail-soft/fail-closed split (requirements.md Edge Cases).
+   feature's fail-soft/fail-closed split (requirements.md Edge Cases);
+   TEST-006 covers all three fetch-failure shapes AC-006's "either"
+   wording implies — both-fail plus the two asymmetric single-vendor
+   failures, neither of which may diff the surviving vendor's partial
+   data.
    TEST-020 completes the branch quartet AC-009 names (no-diff → zero
    side effects, guarding against unconditional-filing bugs), and
    TEST-021 locks the issue-body half of trust boundary B1 (adversarial

@@ -110,7 +110,7 @@ epic-159-pillar-b's security-spec.md applied to its own `git status
 
 | Test | Boundary | Attack / Control | Expected Result | Evidence | AC |
 |---|---|---|---|---|---|
-| TEST-006 | B1 | both vendor fetches stubbed to fail | `main` exits 0; a "取得不能" comment call is recorded; no CI failure | `tests/model-freshness-check.tests.sh` | AC-006 |
+| TEST-006 | B1 | fetch failure stubbed in three shapes: both vendors fail; Anthropic-only fails (OpenAI succeeds); OpenAI-only fails (Anthropic succeeds) | in all three: `main` exits 0, a "取得不能" comment call is recorded, zero issue-create calls, no CI failure; the asymmetric shapes additionally prove no divergence is computed from the surviving vendor's partial data | `tests/model-freshness-check.tests.sh` | AC-006 |
 | TEST-007 | B1/B2 | fetch succeeds with a fixture containing a model token absent from a fixture-scoped v2 registry copy | an issue-create call labeled `workflow-improvement` is recorded; a second run with a stubbed already-open matching issue records zero additional creates | `tests/model-freshness-check.tests.sh` | AC-007 |
 | TEST-005 | B2 | text-marker scan for `permissions:` block content in `model-freshness-check.yml` | only `contents: read` and `issues: write` present; no `pull-requests: write`/`contents: write` | `tests/model-freshness-check.tests.sh` | AC-005 |
 | TEST-010 | B3 | grep the real `self-improvement-pr-guard.sh` source for its `.github/workflows/*` case pattern | the pattern still matches `.github/workflows/model-freshness-check.yml` as a literal path | `tests/model-freshness-check.tests.sh` | AC-010 |
