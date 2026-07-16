@@ -101,6 +101,10 @@
     {
       "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-159-pillar-c/attempt-1/round-2/precheck-result.json",
       "sha256": "230026ddb5a2865a23842991c110f0b4369bdb54a74af9ff09c7d658b9cd9bbc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-159-pillar-c/attempt-1/round-1/integrated-summary.json",
+      "sha256": "23321da059ee37298a88ef1e5faf0f828a2aaa2b31097ca3ef3508237402f5cf"
     }
   ]
 }

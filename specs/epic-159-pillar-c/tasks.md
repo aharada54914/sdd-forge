@@ -1327,5 +1327,7 @@ execute the separate release via `scripts/bump-version.sh`.
 
 ### Blockers
 
-T-001, T-002, T-003, T-004, T-005, T-006 (plus the external A3
-commit-ancestry fact — see Depends On)
+T-001, T-002, T-003, T-004, T-005, T-006
+
+(Additional external precondition, not an in-spec blocker: the A3
+commit-ancestry fact — see Depends On.)
