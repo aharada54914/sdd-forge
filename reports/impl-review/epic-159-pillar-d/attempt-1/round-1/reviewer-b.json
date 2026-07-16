@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-d-impl-impl-reviewer-b-seq0291",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-159-pillar-d-0291",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every inline decision carries an explicit rationale. Design Decisions section (design.md:489-560) justifies each of the five new decisions with 'Decided: ... Rationale:' clauses (e.g. new standalone model-freshness-check.yml vs extending self-improvement.yml, justified by permission-scope minimization and session-budget decoupling; conservative heuristic vs precise parser, justified by false-negative/false-positive triage tradeoff; pre-merge human-copy application timing, justified by AC-009's live-file self-check). Technology choices (bash-only script, .sh/.ps1 twin test suite, weekly cron offset 0 3 * * 1) are each justified against a named precedent (self-improvement-pr-guard.sh non-twin precedent; existing 3-OS matrix convention; avoiding runner contention with self-improvement.yml's 0 0 * * 1). No unjustified 'we will use X' statement found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Open Questions section (lines 668-681) contains no live entries requiring owner/Blocks-Implementation/Resolution-Path fields: it states 'None blocking. All investigation.md OQ-001..OQ-005 are resolved above with design decisions' and enumerates five additional design-time decisions as resolved (not left open), each with a stated rationale for why it is reversible/low-risk/additive. No unresolved question with a missing owner or missing resolution path exists."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (specs/epic-159-pillar-d/investigation.md, INV-001..INV-013). design.md's ## Assumptions section (lines 650-666) has three entries, each grounded: (1) C1's schema-shape assumption cites requirements.md Assumptions and is grounded in INV-013's C1-prerequisite finding, with an explicit re-verification instruction rather than a blind carry-forward; (2) self-improvement-pr-guard.sh denylist scope is grounded directly in INV-004; (3) tests/agent-model-routing.tests.sh's grep -F substring-match behavior is grounded in design-time direct code citation (tests/agent-model-routing.tests.sh:79-97) inside the same document's API/Contract Plan Compatibility proof, with an explicit re-verify-at-implementation-time fallback. All three meet criterion 1 (INV-xxx grounded) or are independently re-verified against cited source lines."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md contains a ## Constraint Compliance section (lines 633-649, primary/TYPE-D path applies). Its 12 rows cover REQ-002's no-bypass (AC-007), fail-soft (AC-006), the four INV-008 CI-resilience items, the protected-file carve-out (AC-011), the issue-body allowlist (AC-021), the .sh/.ps1 twin mandate (AC-016), cross-host recording (REQ-004), doc-following (REQ-005/AC-018), and version-bump discipline (REQ-005/AC-019). Five requirements.md-derived constraints are not restated as their own row in that table (AC-005 minimal-permission grant, AC-010 weekly-session denial, AC-013 v1-registry-frozen, AC-020 no-diff/zero-side-effect, and Security Boundaries B2's registry-write-boundary) but each is independently, explicitly addressed elsewhere in the same design.md document: AC-005 in the API/Contract Plan YAML + prose ('No pull-requests: write scope... this job never opens a PR, only issues and comments'); AC-010 in Design Decisions' self-improvement-pr-guard.sh citation; AC-013 in Data Plan ('v1 remains frozen and byte-for-byte unchanged (AC-013)') immediately preceding Constraint Compliance; AC-020 in Test Strategy item 2 and the Cross-Layer Dependencies table; B2 in Non-goals-equivalent API/Contract Plan text ('no function in this script opens a file under contracts/ for writing') and the Security Boundaries table. No requirements.md constraint is silently dropped or contradicted; the gap is table-consolidation only, not missing coverage."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. No numeric response-time/throughput/concurrency/latency threshold or SLA statement appears anywhere in requirements.md; the weekly cron cadence and the job's timeout-minutes: 10 budget (design.md API/Contract Plan; infra-spec.md Runtime Budget) are scheduling/CI-cost concerns, not requirements-sourced performance targets."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Deployment / CI Plan (lines 605-632) states the deployment target ('No runtime deployment... 3-OS matrix... ubuntu-latest' schedule/dispatch-only job), CI pipeline changes (new suite pair joining tests/run-all.sh/.ps1 and, once human-copied, the protected workflow registration on the existing 3-OS matrix; no new secrets -- github.token only per security-spec.md Secrets Management), and an incremental-landing strategy in lieu of a runtime feature flag (T-001 may land independently of T-002/T-003 given the external Blocker, OQ-003). No schema/DB migration exists in this feature (Data Plan: 'Migration Strategy: none'), so the migrate-before/deploy-before-migrate ordering requirement does not apply; rollback per task is separately stated (revert for T-001/T-002; revert + second human-copy application for T-003)."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Data Plan states 'Migration Strategy: none' explicitly, with rationale: the v2 schema is owned and shipped by Pillar C's C1, not this feature; T-002 only populates data values within an already-defined schema (no column/table/schema structural change). This matches the check's 'No data changes' pass condition in substance. A rollback strategy is nonetheless stated in Deployment / CI Plan ('Rollback for T-002 is a reviewed revert of the JSON data edit; v1 was never touched, so no consumer-facing rollback risk exists there')."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## External Integrations section (lines 593-603) names the one new outbound network dependency (best-effort HTTPS fetch of Anthropic/OpenAI official docs/blog) with purpose, contract (best-effort GET, no credentials, charset-allowlist-validated output), and failure behaviour (fail-soft comment, exit 0, locked by TEST-006's three fetch-failure scenarios). The same section names the GitHub Issues API call (gh issue create/comment) with purpose and contract (workflow's own scoped github.token, issues: write only, AC-005, TEST-005); its own-call failure consequence is covered by infra-spec.md Observability ('job pass/fail... has no needs: consumer and blocks no merge'), i.e. a gh-call failure degrades to a red, non-blocking scheduled-job run retried at the next weekly cadence or manual dispatch, not a silent or ambiguous outcome."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every component in design.md's Components table (lines 80-90) traces to a REQ: docs/contributor/workflow-detail.md and docs/agent-capability-matrix.md edits to REQ-001; model-freshness-check.yml, check-model-freshness.sh, tests/model-freshness-check.tests.sh/.ps1, tests/run-all.sh/.ps1, and the staged protected-workflow registration to REQ-002; contracts/agent-model-capabilities.v2.json data edits to REQ-003; CHANGELOG.md edits to REQ-005. No component, data model, or endpoint appears without a requirements.md anchor. Conversely, all three Goals/User Stories (D1 contributor checklist, D2 weekly maintainer signal, D3 current-generation registry data with provenance) are covered by the T-001/T-002/T-003 design sections; REQ-004's cross-host recording requirement is satisfied via the explicit non-twin script decision plus the mandatory .sh/.ps1 test-suite twin pair, with no gap identified."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: security/authorization scope (issues: write grant, AC-005), external-fetch trust boundary / untrusted-input handling (B1, AC-021), cross-service integration failure behaviour (vendor fetch fail-soft, AC-006/AC-020), and the protected-file write-boundary carve-out (B3, AC-010/AC-011). Each names a concrete, already-existing acceptance-test artifact as its verification path: TEST-005 (permissions text-marker), TEST-021 (adversarial-payload issue-body allowlist proof), TEST-006/TEST-020 (fetch-failure and no-diff fixture-driven proofs), TEST-010/TEST-011 (weekly-session-denial grep proof and human-copy staging conformance). No high-risk surface is left without a named verification artifact."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/requirements.md",
+      "sha256": "c475ba2bbfce03dd5279cdd1f1a1aca4affc8c7ff1a666817174b34a0058d5b4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/acceptance-tests.md",
+      "sha256": "95dfd0ab0a75d887da9d803bbc293bd32c202a03b00d79c82cf10cdaaa977d27"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/design.md",
+      "sha256": "6aa704f8e01eba15dcf4a52f1ae2c483ea0fe12b9a2f7055ca91bd7b4ad14d01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/investigation.md",
+      "sha256": "1410e9a742bd73017acdac7a11e8979468ab89d419d0e7ef58b4d4558dc231e7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/ux-spec.md",
+      "sha256": "068445c632103f85e92a8674c335037ae7d1d60156c7a4c5d05d49ae38c47153"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/frontend-spec.md",
+      "sha256": "9f88e8206a2da16fda80764a8135455f5041038ea0fa5d355d07f588abe52837"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/infra-spec.md",
+      "sha256": "a8645f6f2d7b0b06e10c5c97274310643b2ab7c7be3eae31f711205471e72a90"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/security-spec.md",
+      "sha256": "59f5b92e879ec8e1a8cbfa5ed46e4ce72d88e90ec4f2c21fb0dbc58998f4bfa5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/impl-review/epic-159-pillar-d/attempt-1/round-1/precheck-result.json",
+      "sha256": "39b6b634b8dd74e64c7baa3749e18ac59ab1fb579c7b940c465a22c32088caaf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/impl-review/epic-159-pillar-d/attempt-1/round-1/integrated-summary.json",
+      "sha256": "a5be9977f73706fc4aeaf7b7e9e664a0d7842984630e19a689d43ac094b3e095"
+    }
+  ]
+}
