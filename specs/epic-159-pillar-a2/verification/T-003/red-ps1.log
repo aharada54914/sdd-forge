@@ -1,0 +1,34 @@
+=== RED (ps1 side) evidence for T-003 / #147 ===
+
+--- 1. Captured via isolated git worktree at HEAD (5176315, before this task's file lands) ---
+    plugins/sdd-domain/scripts/ contents in that worktree:
+    domain-review-precheck.sh   (only the .sh form; .ps1 absent)
+
+--- 2. pwsh tests/loop-consistency.tests.ps1 run in that isolated worktree ---
+=== TEST-008: drive spec/impl/task/domain rounds 1->3 ===
+SKIP: TEST-008 spec/impl/task legs: spec-review-precheck.ps1 not found at /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/t003-red-worktree/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 (same gap as tests/loop-driver.tests.ps1 TEST-006; impl/task both require a genuine on-disk spec-review PASS first, so they degrade transitively even though impl-review-precheck.ps1 and task-review-precheck.ps1 themselves exist)
+SKIP: TEST-008 domain leg: domain-review-precheck.ps1 not found at /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/t003-red-worktree/plugins/sdd-domain/scripts/domain-review-precheck.ps1 (#147)
+=== TEST-008 brownfield-profile leg: canonical seed drives spec-review round 1 (AC-007, AC-010) ===
+ok: TEST-008.15 (AC-007): loop_fixture_init brownfield succeeds with LOOP_FIXTURE_SEED pointed at the canonical seed
+ok: TEST-008.16 (AC-007): the canonical seed content is present verbatim under $LoopFixtureRoot
+SKIP: TEST-008 brownfield-profile leg (round drive): spec-review-precheck.ps1 not found at /private/tmp/claude-501/-Users-jrmag-Projects-active-sdd-forge/34212325-74b2-4d93-b1da-679455f12b8b/scratchpad/t003-red-worktree/plugins/sdd-review-loop/scripts/spec-review-precheck.ps1 (same gap as the greenfield spec leg above)
+=== TEST-009: impl-review round-2 leg green at HEAD (RED differential regression lock) ===
+SKIP: TEST-009.1: spec-review-precheck.ps1 absent upstream blocks driving this lane (see TEST-008 SKIP note); the one-time RED/GREEN differential evidence is recorded bash-only
+ok: TEST-009.2: the one-time RED differential evidence against 2d8c6a5^ is recorded at specs/epic-159-pillar-a/verification/T-003/red-differential.log
+=== TEST-010: bidirectional invariant (downstream-required inputs are upstream-authorized) ===
+ok: TEST-010.0: loop_fixture_init (bidirectional-invariant fixture) succeeds
+REVIEW_CONTEXT_OK 6d4c6335c79e1dd8a632c983b77c84b2a19a686a8c9db025ae177f7e6c1cb788
+ok: TEST-010.1: spec-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 7ed71a103c69ba0a5df8fc7cbc098bca9cb23d2bd3b3bb14db7fbc4af82d4a37
+ok: TEST-010.2: impl-review round-2 reviewer-a manifest (carrying round-1's integrated-summary.json) satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK 56751b2eeefdad62c99ce7e2c6acfe8a5a0e8d0f2a5c5f1115b488260ab1afc2
+ok: TEST-010.3: task-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_OK f3a662b1ebfaaa9d96d8eeb21cab36bfdc06c59becb214dd3a9cd64725f2dfb3
+ok: TEST-010.4: domain-review reviewer-a manifest satisfies the bidirectional invariant
+REVIEW_CONTEXT_PATH: domain-reviewer-a contains a real but role-unlisted path: specs/loop-consistency-inv-7415/requirements.md
+ok: TEST-010.5 (negative self-check): a synthetic required-but-unauthorized manifest entry (specs/.../requirements.md for a domain reviewer) turns Test-LoopBidirectionalInvariant red
+=== TEST-017: runtime budget (LOOP_SUITE_BUDGET_SECONDS=300) ===
+ok: TEST-017.1 (negative self-check): forcing the runtime budget to 0 turns the assertion red
+ok: TEST-017.2: suite completed within the 300s runtime budget
+
+loop-consistency.tests.ps1: 11 passed, 0 failed, 2s elapsed

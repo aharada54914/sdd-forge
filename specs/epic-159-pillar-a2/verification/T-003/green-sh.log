@@ -1,0 +1,46 @@
+=== GREEN (sh side) evidence for T-003 / #147 ===
+
+--- tests/guard-ps1-ascii.tests.sh AFTER TARGET->TARGETS generalization (TEST-012/AC-012) ---
+guard-ps1-ascii.tests.sh
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
+ok: sdd-hook-guard.ps1 is ASCII-only (no byte > 0x7F)
+ok: sdd-hook-guard.ps1 has no UTF-8 BOM (first bytes: 3c230a)
+ok: sdd-hook-guard.ps1 has no CR bytes (LF-only)
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
+
+guard-ps1-ascii.tests.sh: 6 passed, 0 failed
+EXIT:0
+
+--- GUARD_PS1 override still scoped to the protected hook-guard entry only (regression check) ---
+guard-ps1-ascii.tests.sh
+  target: /tmp/does-not-exist.ps1
+FAIL: target .ps1 not found: /tmp/does-not-exist.ps1
+  target: /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-domain/scripts/domain-review-precheck.ps1
+ok: domain-review-precheck.ps1 is ASCII-only (no byte > 0x7F)
+ok: domain-review-precheck.ps1 has no UTF-8 BOM (first bytes: 232055)
+ok: domain-review-precheck.ps1 has no CR bytes (LF-only)
+
+guard-ps1-ascii.tests.sh: 3 passed, 1 failed
+EXIT (expect 1, first target missing, second target still green): 1
+(Confirms GUARD_PS1 overrides ONLY the first/protected TARGETS entry;
+the newly-added domain-review-precheck.ps1 entry is unaffected.)
+
+--- tests/crlf-parity.tests.sh (unaffected regression smoke; this suite
+    checks check-risk.sh/check-task-state.sh, unrelated to this task's
+    files, and must continue to pass unchanged) ---
+ok: CRLF-6.1: LF tasks.md passes check-task-state (control)
+=== CRLF-7: check-task-state CRLF Draft+InProgress still fails ===
+ok: CRLF-7.1: CRLF Draft+InProgress still fails check-task-state (gate not neutered)
+
+Results: 8 passed, 0 failed.
+
+--- tests/constant-parity.tests.sh (PROTECTED file, run read-only and
+    unmodified; regression smoke confirming this task's changes do not
+    affect it) ---
+ok: BASELINE_IDS: sh and ps1 are identical (       6 entries)
+ok: RISK_TIERS tier:id pairs: sh and ps1 are identical (      31 pairs)
+
+constant-parity.tests.sh: 2 passed, 0 failed

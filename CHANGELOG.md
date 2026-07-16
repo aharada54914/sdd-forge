@@ -179,6 +179,44 @@
   `loop_validator_capability_probe`/`loop_validator_skip` ゲートを
   そのまま継承(INV-032)。詳細は
   `reports/implementation/epic-159-pillar-a2-T-002.md`。
+- **domain-review-precheck.ps1 の full-parity port と guard-ps1-ascii
+  TARGETS 一般化 (Issue #147, epic-159-pillar-a2 T-003)**:
+  `plugins/sdd-domain/scripts/domain-review-precheck.ps1` を新規追加。
+  未編集の `domain-review-precheck.sh` を 1 対 1 移植し、attempt/round
+  境界・round-1 での `--edit-summary` 拒否・rounds 2-3 の非空
+  `--edit-summary` 要求・`--reset` 前提条件・domain/ 正準アーティファクト
+  (7 ファイル + aggregates/*.md)の存在/symlink 検査・AC-014
+  post-approval drift 検出(sdd-domain 機能自身の AC-014、
+  `specs/sdd-domain/requirements.md:120`)を全て実装。
+  `tests/lib/loop-driver.ps1` が splat 経由でこのスクリプトを渡す
+  `<attempt> <round> [--edit-summary=<text>]` の positional 呼び出し規約
+  (`--edit-summary=` プレフィックス込みの生トークンが `-EditSummary` の
+  3 番目の位置引数として届く)と、直接の named パラメータ呼び出し
+  (`-Attempt`/`-Round`/`-EditSummary`/`-Reset`)の両方をサポート。
+  `tests/guard-ps1-ascii.tests.sh` を単一 `TARGET` から `TARGETS` 配列へ
+  一般化し(`GUARD_PS1` の保護 hook-guard 単一ターゲット上書き semantics は
+  不変更)、CR バイトスキャンを追加した上でこのファイルを登録
+  (TEST-012/AC-012)。reject-path 検証(TEST-011): 範囲外 Round と
+  round-1 での非空 `--edit-summary` を、named 呼び出しと
+  loop-driver 相当の positional array-splat 呼び出しの両方で、
+  `.sh` 原本と同一の exit code(1)・エラーメッセージ
+  (`ERROR: domain-review-precheck: ...`)で拒否することを確認。
+  **実装時の発見(Specification Difference)**: self-healing 確認
+  (TEST-013)で `pwsh tests/loop-consistency.tests.ps1` の domain leg named
+  SKIP は解消した(4→3、#147 を引く SKIP はゼロ)が、round 駆動自体は
+  `tests/lib/loop-driver.ps1` 側の未編集・既存の
+  `Publish-LoopDomainRoundBContract` 関数に潜在していた PowerShell の
+  配列展開バグ(`Invoke-LoopJq -r ".allowed_input_manifest"` が複数行
+  JSON を返し、それを別の `& jq ... --argjson` へ再埋め込みする際に
+  PowerShell が配列要素を個別の外部プロセス引数として展開してしまい、jq
+  が不完全な JSON を受け取る)により FAIL する。domain-review-precheck.sh
+  が今まで存在しなかったため domain leg は一度も実行されたことがなく、
+  spec/impl/task の contract 構築(manifest をリテラルに jq フィルタ内で
+  組み立てる方式)には存在しないパターン固有の欠陥と判明。本タスクの
+  制約により `tests/lib/loop-driver.ps1` は無編集のまま、この発見を
+  `specs/epic-159-pillar-a2/verification/T-003/green-ps1.log` に全証跡と
+  共に記録し、修正は将来の別タスクへ委ねる。詳細は
+  `reports/implementation/epic-159-pillar-a2-T-003.md`。
 
 ### セキュリティ修正
 
