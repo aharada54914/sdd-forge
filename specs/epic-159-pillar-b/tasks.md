@@ -102,7 +102,7 @@ human-copy procedure applies verbatim.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/148
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T11:15:00Z)
 
 Status: Planned
 
@@ -329,7 +329,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/148
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T11:15:00Z)
 
 Status: Planned
 
