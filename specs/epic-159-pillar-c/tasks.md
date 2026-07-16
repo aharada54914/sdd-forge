@@ -1188,7 +1188,7 @@ Commit B (documentation):
 
 ### Blockers
 
-T-001, T-002, T-003, T-005
+T-001, T-002, T-003, T-004, T-005
 
 ---
 
