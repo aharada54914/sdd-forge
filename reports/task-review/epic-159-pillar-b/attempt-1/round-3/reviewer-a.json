@@ -1,10 +1,13 @@
 {
   "schema": "task-reviewer-a/v1",
-  "stage": "task",
-  "role": "task-reviewer-a",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-159-pillar-b",
+  "attempt": 1,
+  "round": 3,
   "run_id": "RUN-epic-159-pillar-b-task-task-reviewer-a-seq0245",
   "host_session_id": "SESS-task-task-reviewer-a-epic-159-pillar-b-0245",
-  "allowed_input_manifest": [
+  "manifest": [
     {
       "path": "specs/epic-159-pillar-b/requirements.md",
       "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
@@ -58,87 +61,88 @@
   "checks": [
     {
       "id": "PREREQ-AC-IDS",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Critical",
       "finding": "All AC-NNN references in tasks.md (AC-001..AC-014, cited throughout T-001/T-002 Done When items) resolve to matching AC-NNN rows in acceptance-tests.md (verified: identical AC-001..AC-014 sets via grep on both files). Neither task's Requirements: field contains an AC-NNN token (T-001: 'REQ-001, REQ-003 (share), REQ-004'; T-002: 'REQ-002, REQ-003 (share)'), so no dangling ID exists in that field either."
     },
     {
       "id": "BLOCKERS-FORMAT",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Major",
       "finding": "T-001 Blockers: 'None' (tasks.md line 324); T-002 Blockers: 'T-001' (tasks.md line 526), a valid T-\\d{3} reference. No range notation or prose. Matches precheck-result.json blockers_format_valid: true."
     },
     {
       "id": "REQ-COVERAGE",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Critical",
       "finding": "REQ-001 -> T-001 (line 146), REQ-002 -> T-002 (line 369), REQ-003 -> T-001+T-002 (share, lines 146/369), REQ-004 -> T-001 (line 146). REQ-006 is the only requirements.md REQ-NNN token absent from any task's Requirements field; traceability.md line 12 records it as an explicit intentional deferral with rationale ('not a goal of this feature ... no task, test, or deliverable of this feature implements it'), the established round-3 exclusion row."
     },
     {
       "id": "AC-COVERAGE",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Critical",
       "finding": "AC-001..AC-014 are each explicitly cited in a task Done When item: AC-001..AC-006/AC-013/AC-014 in T-001 (tasks.md lines 263-298), AC-007..AC-010 in T-002 (lines 476-492), AC-011/AC-012 shared with distinct CREATE (T-001, lines 287-296) vs APPEND (T-002, lines 493-500) scopes. No AC is left uncovered and no traceability.md deferral was needed for any AC."
     },
     {
       "id": "ORPHAN-TASK",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Major",
       "finding": "T-001 Requirements: REQ-001, REQ-003 (share), REQ-004 (line 146). T-002 Requirements: REQ-002, REQ-003 (share) (line 369). Both tasks carry at least one REQ-NNN reference; no orphan task exists."
     },
     {
       "id": "ORPHAN-TEST",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Major",
       "finding": "Neither T-001 ('Add the bump-version.sh loop-gate prerequisite') nor T-002 ('Add the release.yml required loop-gate job') has a title containing 'test', 'spec', or 'verify', and neither task's scope is exclusively test-file changes (T-001 also edits scripts/bump-version.sh, CHANGELOG.md, docs/contributor/release-runbook.md; T-002 also edits .github/workflows/release.yml and the same shared doc surfaces per the Planned Files lists, lines 150-163 and 377-391). No task qualifies as a 'test task' under this check's definition, so no orphaned-from-AC test task exists."
     },
     {
       "id": "INITIAL-STATE",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Major",
       "finding": "This is attempt 1, round 3 (subsequent round, not round 1). T-001: Approval: Draft, Status: Planned (lines 105-107). T-002: Approval: Draft, Status: Planned (lines 332-334). Neither Approval is 'Approved' (only humans approve) and both Status values are within the allowed {Planned, In Progress, Blocked} set for subsequent rounds."
     },
     {
       "id": "RISK-WORKFLOW-FORMAT",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Critical",
       "finding": "T-001: Risk: medium / Required Workflow: acceptance-first (lines 109-140). T-002: Risk: medium / Required Workflow: acceptance-first (lines 336-363). Both pairings match the risk-gate-matrix (medium -> acceptance-first). precheck-result.json records workflow_match_precheck: PASS, consistent with this independent verification."
     },
     {
       "id": "NO-DUPLICATE-AC",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Major",
       "finding": "AC-011 and AC-012 are the only ACs referenced by both tasks, and both are explicitly differentiated: AC-011 — T-001 CREATEs the CHANGELOG.md #148 Unreleased entry with bump-version.sh-leg content (line 287-289) while T-002 APPENDs release.yml-leg content to the SAME entry, 'not duplicated as a second block' (lines 493-495); AC-012 — T-001 CREATEs docs/contributor/release-runbook.md's bump-version section (lines 290-292) while T-002 APPENDs the release.yml section (lines 496-498). This is the distinct-scope exception, mirrored explicitly in traceability.md's Acceptance Mapping table (lines 44-45). All other ACs (AC-001..010, AC-013, AC-014) are claimed by exactly one task."
     },
     {
       "id": "DEPENDENCY-COMPLETE",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Major",
       "finding": "T-002's sole Blockers reference, T-001 (tasks.md line 526), exists both in tasks.md (T-001 section, line 101) and in dependency-graph.json's nodes array (['T-001','T-002']). No dangling task reference."
     },
     {
       "id": "DEPENDENCY-CYCLE",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Critical",
       "finding": "BLOCKERS-FORMAT is PASS, so this check runs. dependency-graph.json edges: [{'from':'T-002','to':'T-001'}] — a single edge with T-001 having no outgoing edge. No cycle is reachable; execution order T-001 then T-002 is well-defined."
     },
     {
       "id": "SINGLE-CONCERN",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Major",
       "finding": "Neither task title ('Add the bump-version.sh loop-gate prerequisite' / 'Add the release.yml required loop-gate job') contains 'and' connecting distinct concerns. Each task's Goal/Scope bundles exactly one feature leg (CLI loop-gate for T-001, CI loop-gate job for T-002) plus (1) its directly-tied test-suite authoring and (2) REQ-003-mandated same-PR documentation (CHANGELOG/runbook), the latter being mandatory housekeeping that requirements.md's frozen Main Workflows items 1-2 (lines 270-282) assign as non-decouplable per-leg ownership. No two independent feature concerns are bundled in either task."
     },
     {
       "id": "OBSERVABLE-DONE",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Major",
       "finding": "T-001's 8 Done When items (tasks.md lines 263-309) and T-002's 7 items (lines 476-509) each name a concrete artifact/command/result: exit codes (TEST-001/002/003), grep self-check zero-matches (TEST-004), line-number comparisons (TEST-005), CI-resilience + self-registration grep checks (TEST-006), file/section-scoped CHANGELOG and runbook content plus `tests/validate-repository.sh` exit 0 (Commit B composite bullet (a)-(d)), and execution-log/quality-gate-report artifacts for the acceptance-first evidence bullet. A grep for forbidden vague verbs ('ensure', 'consider', 'works correctly', 'verify is correct') across tasks.md returned zero matches; both 'confirm' occurrences ('confirm it still exits 0') name a specific observable result (command exit code), not a bare 'confirm <X>'. Both non-documentation-only tasks include multiple Done When items naming concrete verification commands/artifacts (e.g., grep self-checks, `git status --porcelain`, `tests/validate-repository.sh` exit 0)."
     },
     {
       "id": "TRACEABILITY-SYNC",
-      "result": "PASS",
+      "status": "PASS",
       "severity": "Major",
       "finding": "Both T-001 and T-002 appear in traceability.md's Task Mapping table (lines 27-28) and Acceptance Mapping table (lines 34-47). Every REQ-NNN in traceability.md (REQ-001, REQ-002, REQ-003, REQ-004, REQ-006) exists in requirements.md. Each traceability.md requirement row's Layer Spec cell cites a valid canonical anchor confirmed present as a heading in the hash-bound layer file (security-spec.md '## Trust Boundaries' -> #trust-boundaries; infra-spec.md '## Runtime Budget' -> #runtime-budget, '## CI/CD Sequence' -> #cicd-sequence, '## Observability' -> #observability) or a reasoned 'N/A — cross-layer only: <reason>' (REQ-003, REQ-006). No dangling reference in either direction."
     }
-  ]
+  ],
+  "findings": []
 }
