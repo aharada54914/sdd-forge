@@ -1,0 +1,57 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "feature": "epic-159-pillar-d",
+  "run_id": "RUN-epic-159-pillar-d-impl-impl-reviewer-a-seq0290",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-d-0290",
+  "sequence": 290,
+  "previous_record_sha256": "6dd61afc15cc560b8771d8a6b6f55104e998ac68cf994ed75eccadb8c94c1e20",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "b75412d6bf5c9128a60b95347a5b098dec44abeb0868f4fbb0053b389a577263",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-d/requirements.md",
+      "sha256": "c475ba2bbfce03dd5279cdd1f1a1aca4affc8c7ff1a666817174b34a0058d5b4"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/acceptance-tests.md",
+      "sha256": "95dfd0ab0a75d887da9d803bbc293bd32c202a03b00d79c82cf10cdaaa977d27"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/design.md",
+      "sha256": "6aa704f8e01eba15dcf4a52f1ae2c483ea0fe12b9a2f7055ca91bd7b4ad14d01"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/investigation.md",
+      "sha256": "1410e9a742bd73017acdac7a11e8979468ab89d419d0e7ef58b4d4558dc231e7"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/ux-spec.md",
+      "sha256": "068445c632103f85e92a8674c335037ae7d1d60156c7a4c5d05d49ae38c47153"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/frontend-spec.md",
+      "sha256": "9f88e8206a2da16fda80764a8135455f5041038ea0fa5d355d07f588abe52837"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/infra-spec.md",
+      "sha256": "a8645f6f2d7b0b06e10c5c97274310643b2ab7c7be3eae31f711205471e72a90"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/security-spec.md",
+      "sha256": "59f5b92e879ec8e1a8cbfa5ed46e4ce72d88e90ec4f2c21fb0dbc58998f4bfa5"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/impl-review/epic-159-pillar-d/attempt-1/round-1/precheck-result.json",
+      "sha256": "39b6b634b8dd74e64c7baa3749e18ac59ab1fb579c7b940c465a22c32088caaf"
+    }
+  ]
+}
