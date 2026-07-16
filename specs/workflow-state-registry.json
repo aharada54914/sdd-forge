@@ -340,6 +340,10 @@
     {
       "feature": "epic-159-pillar-a2",
       "profile": "full"
+    },
+    {
+      "feature": "epic-159-pillar-b",
+      "profile": "full"
     }
   ]
 }

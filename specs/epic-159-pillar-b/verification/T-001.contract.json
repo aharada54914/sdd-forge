@@ -1,0 +1,142 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-159-pillar-b",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "08a7daae8948fc6aac3835b4ec2e2dfbb4c7594088cf5302bb27872015bd3597",
+  "created": "2026-07-16T13:39:04Z",
+  "comment": "Default-FAIL verification contract for T-001 (medium, acceptance-first). Populated after the quality gate reran tests/bump-version-gate.tests.sh/.ps1 (13/13 and 12/12 passed on this host, 0 failed both lanes) and the epic-159-pillar-b regression set (loop-consistency, loop-inventory, crlf-parity, constant-parity, cross-suite regression against T-002's release-loop-gate suite, and validate-repository.sh, all green, 0 failed suites). Shell stack waives the three compile-oriented checks (lint/typecheck/build). Disclosed implementation-time deviations, recorded here as fact per the implementation report: (1) this dev host's native sed is BSD-style, so TEST-001's four mutation-success assertions degrade to a named SKIP via the suite's own sed --version capability probe (GNU sed accepts --version; BSD sed does not) -- not a regression, and reproduced identically at gate time (2 SKIP lines, one per lane); canonical GNU-sed-parity RED/GREEN evidence for those same assertions was captured under a temporary, non-committed gsed-as-sed PATH shim and lives at specs/epic-159-pillar-b/verification/T-001/{red,green}-sh.log and *-ps1.log (supplementary *-macos-native.log files show the native-host SKIP path); (2) a bug in the suite's own CLEANUP_ROOTS array (mutated inside a command-substitution subshell, never propagating to the parent shell, which under set -e inside the EXIT trap forced a spurious exit 1 regardless of actual pass/fail counts) was found and fixed during implementation by moving the append to each calling test function's own non-subshell scope.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell test-infrastructure files (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "specs/epic-159-pillar-b/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-b/verification/qg/T-001/focused-tests.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "The suite drives a real, fixture-copied scripts/bump-version.sh (tar-copy + local git init baseline, never the real repository) through the REAL loop-consistency/loop-inventory suites (stubbed per case) to prove fail-closed/zero-mutation behavior; no separate service-integration surface exists beyond what unit/acceptance already exercise.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "specs/epic-159-pillar-b/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-b/verification/qg/T-001/focused-tests.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-001/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "specs/epic-159-pillar-b/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-b/verification/qg/T-001/regression.log"
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-001/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-b/verification/qg/T-001/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No runnable UI/service; this task adds a CLI-invoked loop-gate prerequisite plus its fixture-driven lock suite, fully covered by the focused and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md; this is not a refactor/bugfix task (differential-test-policy.md does not apply). The change is strictly additive and fail-closed-only (design.md API/Contract Plan): it inserts a new precondition ahead of existing, unedited logic and can only narrow, never widen, what previously succeeded.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task adds only scripts/bump-version.sh's loop-gate block plus tests/bump-version-gate.tests.{sh,ps1}.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

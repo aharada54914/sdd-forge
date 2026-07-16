@@ -41,6 +41,19 @@ if ! grep -Eq "^## v${NEW//./\\.}( |\$)" "${ROOT}/CHANGELOG.md"; then
     exit 1
 fi
 
+# Loop-suite prerequisite (issue #148): both suites must pass before any
+# release surface is mutated. Fail closed; no bypass.
+for suite in tests/loop-consistency.tests.sh tests/loop-inventory.tests.sh; do
+    suite_log="$(mktemp)"
+    if ! "${ROOT}/${suite}" >"${suite_log}" 2>&1; then
+        echo "Error: ${suite} failed; no release surface was modified." >&2
+        cat "${suite_log}" >&2
+        rm -f "${suite_log}"
+        exit 1
+    fi
+    rm -f "${suite_log}"
+done
+
 # Version strings appear in two syntactic forms:
 #   plain     1.6.0      (JSON fields, PowerShell hashtable values, prose, messages)
 #   escaped   1\.6\.0    (regex literals inside the validator)

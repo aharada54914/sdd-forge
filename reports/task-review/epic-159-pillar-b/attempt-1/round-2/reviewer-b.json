@@ -1,0 +1,122 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-b-task-task-reviewer-b-seq0244",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-159-pillar-b-0244",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-159-pillar-b/requirements.md",
+      "sha256": "92f6177383ece3b4a76f540e37c886311ebf3082c3b557932386a7bf3817c2e2"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/acceptance-tests.md",
+      "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/design.md",
+      "sha256": "76c0f49409a81e32238c901523191552d72e89a9f00deaf9cb7c58a33cb09b16"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/tasks.md",
+      "sha256": "407eb3af1984e2b1c48645bd71843a7a5eac9b2630dd071604ccb5201cc5311c"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/traceability.md",
+      "sha256": "595b3f4f588386b09e5f113c4787ace62b97ffb38da9de454586abd76e0b8c28"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/ux-spec.md",
+      "sha256": "367dcbf71e6452840ad622cd8cb72441fa368fc3471290ccb691feb2b9a45e1e"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/frontend-spec.md",
+      "sha256": "6678e1b9b74e2c0ca98cdfb4f0d5c88b305007ac1fb32e1f5586296e9654da2a"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/infra-spec.md",
+      "sha256": "823a91fc9f19531201cb8543c0dac22407c28040e8c4f29b094f9b1cfac919b5"
+    },
+    {
+      "path": "specs/epic-159-pillar-b/security-spec.md",
+      "sha256": "b70bfa66c8b2194b977d93bf7cf2e04073a01545aa376137540d627dee4341f8"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-2/precheck-result.json",
+      "sha256": "d4b2d6a48d7335e952c70982e5e4a79fc81cf81056e48bdd0efeca9900ed5a7b"
+    },
+    {
+      "path": "reports/task-review/epic-159-pillar-b/attempt-1/round-2/integrated-summary.json",
+      "sha256": "1048e944f125892cfe42cac96db5ddd6093b4bfcb239927c0bb3230230259960"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-001 (Risk: medium) edits scripts/bump-version.sh with a strictly additive, fail-closed precondition (design.md API/Contract Plan) and T-002 (Risk: medium) adds .github/workflows/release.yml's loop-gate job with no elevated permissions (security-spec.md B4). Neither task's Scope/Done When/Goal touches authentication, authorization, payment, PII storage, data migration, or an externally-visible API contract per risk-classification-policy.md's sensitive-surface list; both Risk Rationale sections (tasks.md T-001/T-002) argue medium correctly (additive-only, no existing mutation/validation logic modified, no elevated permission grant). No over-classification concern since neither task is high/critical."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "SKIP",
+      "severity": "Critical",
+      "finding": "SKIP: no Risk: high or Risk: critical task exists in tasks.md -- T-001 and T-002 are both Risk: medium, so this check's scoped surface is absent."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001's Done When section (tasks.md, T-001) lists 11 distinct '- [ ]' checkbox items (TEST-001..TEST-006, Commit B bullets 1-4, and the acceptance-first evidence item), exceeding the '>8 distinct verifiable items' oversizing indicator. Two bullets each bundle two claims via 'AND' (Commit B bullet 3: 'scripts/ contains no bump-version.ps1, AND the runbook states...'; Commit B bullet 4: 'README.md is verified..., and tests/validate-repository.sh exits 0...'), pushing the true atomic-claim count to ~13 and undercutting the round-2 remedy's own stated goal ('1 bullet = 1 verifiable claim'). The round-1 finding (Reviewer B, TASK-SIZE Major) targeted a different oversizing symptom (Scope spanning 4 implementation areas in a single commit); the round-2 two-commit split reduced single-diff review risk but did not reduce T-001's total verification surface -- it remains one task ID, one Approval gate, one Risk tier, evaluated as a whole by quality-gate. T-001's ### Scope section (containing both Commit A and Commit B under one heading) also still spans 4 distinct implementation areas (bash script edit, new .sh/.ps1 test-suite authoring, CI registration in run-all.sh/.ps1 + test.yml, and documentation across CHANGELOG.md/release-runbook.md/README.md). T-002's Done When list has 7 items (under the 8-item threshold) and is not flagged."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-001's functional scope has associated error-path acceptance criteria AC-002/AC-003 (loop-consistency and loop-inventory each independently stubbed to fail, asserting exit 1 and zero mutation) and AC-004 (no-bypass negative grep check), acceptance-tests.md. T-002's functional scope has AC-008 (escape-hatch/`continue-on-error`/`if: always()` absence scan) and AC-009 (negative-branch canary on a `needs:`-stripped fixture). Both functional tasks have edge-case/error-path coverage beyond the happy path (AC-001, AC-007)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Each TEST-NNN's declared type matches its described scope: TEST-001 ('integration (fixture-driven, real script)') drives the real bump-version.sh against real/stub loop suites inside a git-init'ed fixture -- at least two system components; TEST-002/TEST-003 are the red-path variants of the same multi-component fixture; TEST-004/TEST-005 are single-file (scripts/bump-version.sh) static checks, appropriately unit-scoped; TEST-007/TEST-008/TEST-010 are single-file (release.yml) structural checks; TEST-009 tests the marker-check function's discriminating power on a mutated fixture; TEST-011/TEST-012/TEST-014 ('document conformance') each map to a specific AC-NNN (AC-011/AC-012/AC-014, acceptance-tests.md table) as the acceptance-type check requires. No declared type contradicts its described scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no Risk: high or Risk: critical task exists (T-001, T-002 both Risk: medium), so this check's mandated surface is absent. Both tasks voluntarily carry a Rollback: field (two-commit joint revert), but this is not required by the check for medium-risk tasks."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-001 and T-002 share five Planned Files (tests/run-all.sh, tests/run-all.ps1, .github/workflows/test.yml, CHANGELOG.md, docs/contributor/release-runbook.md), but every overlap is coordinated: T-002's Blockers field names T-001, and Global Constraints (tasks.md/design.md) specify line-additive, disjoint registration edits plus an explicit CREATE (T-001) / APPEND (T-002) convention for CHANGELOG.md and release-runbook.md, matching the check's Blockers-enforced exemption. No uncoordinated parallel overlap exists."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-002's Blockers: T-001 is not spurious: although T-002's own 'Depends On' note concedes its release.yml text-marker test content has no functional dependency on T-001's script edit, the blocker is justified by genuine shared-artifact collision risk -- the CHANGELOG.md/release-runbook.md create-then-append ordering (T-002 cannot append to an entry T-001 has not yet created) and the run-all.sh/.ps1 + test.yml array-registration serialization Global Constraints calls out to avoid a merge collision. No missing-blocker gap: T-001 correctly declares 'Depends On: none' / 'Blockers: None'."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix, regression-fix, debugging, flaky-test-resolution, or incident-remediation task exists in tasks.md -- T-001 and T-002 are both net-new feature/wiring additions."
+    }
+  ]
+}

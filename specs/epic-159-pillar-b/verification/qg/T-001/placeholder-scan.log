@@ -1,0 +1,5 @@
++ bash /Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/scripts/check-placeholders.sh /Users/jrmag/Projects/active/sdd-forge/scripts/bump-version.sh /Users/jrmag/Projects/active/sdd-forge/tests/bump-version-gate.tests.sh /Users/jrmag/Projects/active/sdd-forge/tests/bump-version-gate.tests.ps1
+== start: 2026-07-16T13:38:30Z ==
+Placeholder scan passed.
+== end: 2026-07-16T13:38:30Z ==
+EXIT_CODE: 0

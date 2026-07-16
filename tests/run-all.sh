@@ -48,6 +48,8 @@ tests=(
   tests/loop-escalation.tests.sh
   tests/hitl-wfi-terminal.tests.sh
   tests/check-placeholders-brownfield.tests.sh
+  tests/bump-version-gate.tests.sh
+  tests/release-loop-gate.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

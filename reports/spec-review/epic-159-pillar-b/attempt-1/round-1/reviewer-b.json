@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-b-spec-spec-reviewer-b-seq0232",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-b-0232",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions precisely bind 'loop-gate' and 'build job'; REQ-001/REQ-002 anchor behavior to exact file:line locations (bump-version.sh:51/58, release.yml:32); OQ-001..OQ-007 are all RESOLVED with explicit decisions; AC-004/AC-005 specify mechanically testable (grep, line-number-comparison) criteria. No term, actor, or boundary was found where two implementers would plausibly diverge on core gate behavior."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md 'Main Workflows' item 3 assigns CHANGELOG.md edits to a distinct 'Docs... + CHANGELOG.md follow in the same PR per REQ-003' step, separate from T-001's and T-002's own listed wiring scope ('wire into run-all.sh/.ps1 and test.yml' — CHANGELOG.md is absent from either bullet). The 'Edge Cases' section's 'Global-Constraint shared files' paragraph instead states: 'tests/run-all.sh/.ps1, .github/workflows/test.yml, and CHANGELOG.md's ## Unreleased section are each edited by both T-001 and T-002' — directly attributing the CHANGELOG.md edit to T-001 and T-002 themselves, contradicting the Main-Workflows framing. Downstream failure mode: a task-decomposition author following only the Edge Cases paragraph would assign CHANGELOG.md ownership (and the Risks section's 'Medium' collision-mitigation, which cites this same paragraph) to T-001+T-002; a reader following only Main Workflows would assign it to a separate docs task — the two readings yield different task boundaries and different serialization/collision-mitigation targets, risking a duplicated or missing '## Unreleased' entry depending on which task(s) actually execute the edit. This belongs to specification review, not task review: both conflicting claims already live in requirements.md itself (a Phase-1 artifact) — this is not a gap in as-yet-unwritten task decomposition, but two existing, mutually exclusive claims about task-file ownership that a Phase-2 task author would have to guess between rather than being told. Severity Major, not Critical: it is not a safety or approval/workflow-boundary contradiction (AC-011 already pins the functional end-state as exactly 'one entry citing #148'), but it will cause a genuine task-ownership/collision-mitigation mismatch downstream if left unresolved before tasks.md is authored."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-001/AC-002/AC-003 form a positive-plus-two-independent-negative triple proving both loop suites gate independently and fail closed with zero mutation (git status --porcelain check); AC-008/AC-009 form a weakened-gate negative-branch canary proving the needs:/no-continue-on-error assertion is not vacuous; acceptance-tests.md's closing note specifies TEST-001..006 degrade to a named SKIP (not a silent pass) when bash is absent from the .ps1-host PATH; AC-013 asserts non-existence of bump-version.ps1 rather than leaving the REQ-004 degradation untested. Together these cover happy path, per-suite failure, structural bypass, environment-absence, and non-existence edge cases material to REQ-001/REQ-002/REQ-004."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "OQ-001 through OQ-007 in requirements.md are each marked RESOLVED with an explicit decision and rationale, cross-referenced to investigation.md's own OQ entries. The four remaining Assumptions-section items (suite fail-closed behavior INV-003/004; _PROTECTED_GATE_SUFFIXES stability INV-005; text-marker precedent validity; epic-159-pillar-a REQ-006 remaining in force) describe already-observed, investigation-anchored facts rather than open decisions awaiting resolution; none requires a design/task-decomposition-stage judgment call that isn't already made."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "A human-triggered irreversible boundary is in scope: a maintainer's GitHub Release publish (or workflow_dispatch) feeds a tarball/SBOM/checksum/sigstore-attestation/upload chain (Security Boundaries row B4; Roles and Permissions). The spec makes this boundary testable rather than aspirational: AC-008 asserts no continue-on-error:true/if:-always()/if:-success()-or-failure() escape hatch exists on either the loop-gate job's steps or the build job, and AC-009 is an explicit negative-branch canary (needs: entry textually stripped from a fixture copy) proving that assertion is not vacuously true. This matches the Risks section's 'High' bypass-risk entry and its cited mitigation, so the boundary is locked and reviewable, not merely asserted."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Roles and Permissions, Field Definitions, Non-goals (explicit protected-gate-file exclusion cross-checked against sdd-hook-guard.py:886-927; explicit risk-adaptive-layer scope exclusion INV-015), and the Security Boundaries table together give a design/implementation reviewer concrete, file:line-anchored constraints sufficient to proceed without inventing product behavior. The one internal inconsistency identified under CONTRADICTION (CHANGELOG.md task-ownership between Main Workflows and Edge Cases) is narrow in scope — it affects task sequencing/ownership, not product behavior or acceptance-criteria content (AC-011's functional end-state is unambiguous) — and does not by itself block handoff to implementation-policy review, though it should be resolved before tasks.md authoring."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-b/attempt-1/round-1/integrated-summary.json",
+      "sha256": "5742ea2a612eb4b7f7f3b7aef0407bd0c1fbe72f2c92592ee512061ce9cf7a68"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-b/attempt-1/round-1/precheck-result.json",
+      "sha256": "9bb0b8eeecdbfca14f5d6870c58576ce5aa587dc7fe8a22ba6202da8600fddee"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-b/acceptance-tests.md",
+      "sha256": "4d7446618ee4cab66a0ef1a8648271543122610792a40f4d263c5f1e447d4aa5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-b/investigation.md",
+      "sha256": "f1a71be18532189bbb2d68b5ca92b52b493eae0bf7e7ebf3ed1cc6358f4a95dc"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-b/requirements.md",
+      "sha256": "05f28b5f1dd70e75159e7d5deade8e8f70e4bf73e1b116ab94a84bc19e0e0cfa"
+    }
+  ]
+}
