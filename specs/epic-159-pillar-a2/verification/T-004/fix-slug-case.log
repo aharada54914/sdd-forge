@@ -1,3 +1,17 @@
+=== CORRECTION (recorded during gate cycle 2, 2026-07-16): this log's sweep
+was OPERATOR-LEVEL ONLY (`-match`/`-notmatch`/`-replace`/`-eq`/`-ne`/
+`-contains`/`-notcontains`). It did NOT check cmdlet/language-feature-level
+case-insensitive-by-default mechanisms (`Select-String`, `switch`,
+`Get-ChildItem -Filter`, `-split`, etc.). Gate cycle 2 found one more
+genuine divergence at the cmdlet level (`Select-String` at line 187,
+missing `-CaseSensitive`) that this log's sweep did not cover and therefore
+could not have found. Any statement below implying the case-sensitivity
+sweep was exhaustive after this log's fixes should be read as scoped to
+"every operator-level occurrence," not "every case-sensitivity-relevant
+mechanism in the file." See
+`specs/epic-159-pillar-a2/verification/T-004/fix-header-case.log` for the
+cmdlet-level sweep and its fix. ===
+
 === Amendment: gate cycle 1 Critical finding fix (case-sensitive feature-slug
 validation) ===
 

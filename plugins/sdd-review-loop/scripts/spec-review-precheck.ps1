@@ -184,7 +184,7 @@ if (Test-Path -LiteralPath $reportsBase) {
   if (-not (Test-OrdinalEqual (Get-CanonicalDir $reportsBase) $reportsBase)) { Fail 'spec-review report base escapes reports root' }
 }
 
-$statusMatch = Select-String -LiteralPath $requirements -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1
+$statusMatch = Select-String -LiteralPath $requirements -CaseSensitive -Pattern '^Spec-Review-Status:\s*(.*)$' | Select-Object -First 1
 $status = if ($statusMatch) { ($statusMatch.Matches[0].Groups[1].Value -replace '\s', '') } else { '' }
 if ($Reset) {
   if (-not (Test-OrdinalEqual $status 'Pending') -and -not (Test-OrdinalEqual $status 'Passed')) { Fail 'requirements.md must declare a resettable Spec-Review-Status' }
