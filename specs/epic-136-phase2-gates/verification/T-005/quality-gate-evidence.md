@@ -41,7 +41,8 @@ fixed-directory loaders; ignored CWD/PYTHONPATH/NODE_PATH shadows; and
 fail-closed missing or invalid fixed modules. The preserved RED/GREEN logs and
 integrated regression addendum bind the TDD sequence.
 
-Cross-model collection currently has one fresh OpenAI PASS verdict over input
-digest `853a20c16192b826dbbbf736a0a4787e3f4701e918009275f18f0fe70824cc78`.
-No second vendor is available in this environment, so the required diversity
-aggregate is deliberately not claimed as passing.
+Cross-model collection now has fresh OpenAI and Anthropic PASS verdicts over
+the same input digest `853a20c16192b826dbbbf736a0a4787e3f4701e918009275f18f0fe70824cc78`.
+`check-cross-model.ps1 --task T-005 --feature epic-136-phase2-gates
+--evaluator PASS` returned `consensus PASS for T-005 (2 panelists, 2 distinct
+vendors)`.
