@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/epic-159-pillar-b/tasks.md
+== start: 2026-07-16T13:38:34Z ==
+Task state check passed for 2 task(s).
+== end: 2026-07-16T13:38:34Z ==
+EXIT_CODE: 0
