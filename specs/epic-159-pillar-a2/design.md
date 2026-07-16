@@ -168,9 +168,15 @@ Migration Strategy: none.
 `hitl-loop.template.sh` is a `#!/usr/bin/env bash` script (not `sh`), so
 `export -f CHECK` is available. The suite:
 
-1. Copies `plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh`
-   into a mktemp fixture directory (never editing the real template in
-   place, matching its own "do not commit the copy" instruction at line 7).
+1. Creates a mktemp fixture directory and immediately normalizes it to its
+   physical path (`FIXTURE="$(cd "$FIXTURE" && pwd -P)"`) before any use —
+   this root is created directly, NOT via `loop_fixture_init`, so the
+   macOS `$TMPDIR`-symlink normalization the loop driver performs at
+   `tests/lib/loop-driver.sh:124` must be replicated here (INV-030,
+   requirements.md AC-018). Then copies
+   `plugins/sdd-implementation/skills/diagnose/scripts/hitl-loop.template.sh`
+   into it (never editing the real template in place, matching its own
+   "do not commit the copy" instruction at line 7).
 2. Defines a `CHECK` shell function per case:
    - never-reproduces case: `CHECK() { return 1; }`.
    - reproduces-on-iteration-3 case: `CHECK() { [ "$(cat "$COUNTER_FILE")" = 3 ]; }`
@@ -226,7 +232,16 @@ The sweep runs against a fixture-scoped copy of a minimal WFI-NNN.md
 (front-matter fields only: `Audit-Status:`, `Audit-Attempt:`,
 `Category: process` — deliberately not `plugin-improvement`, so STEP 8 is
 inapplicable by construction, AC-004) across the sequence 0→1→2→3, and each
-resulting `Audit-Status` field is asserted. Parser rule: an absent
+resulting `Audit-Status` field is asserted. The WFI-audit fixture root is
+likewise a directly-created mktemp directory normalized with `pwd -P`
+immediately after creation (INV-030 — same replication of
+`tests/lib/loop-driver.sh:124` as the HITL leg; neither T-001 leg goes
+through `loop_fixture_init`). The 0→1→2→3 sweep is implemented as a plain
+counted `while`/`for` loop over literal integers — no bash array is
+declared for it, and any array the suite does declare is either
+initialized non-empty or has every `"${arr[@]}"` expansion guarded, per
+the bash-3.2 `set -u` empty-array hazard documented at
+`tests/lib/loop-driver.sh:326-330` (INV-029, requirements.md AC-018). Parser rule: an absent
 `Audit-Attempt:` field is treated as 0 (real precedent:
 `docs/workflow-improvements/WFI-011.md` carries `Audit-Status:
 Human-Pending` with no `Audit-Attempt:` field at all — verified during
@@ -298,7 +313,11 @@ Two cases, mirroring `tests/check-placeholders.tests.sh`'s existing
 No `loop_fixture_init`/loop-driver overhead (OQ-4 resolution) — these are
 direct, mktemp-local invocations of the real
 `check-placeholders.sh`/`.ps1`, exactly like the existing
-`tests/check-placeholders.tests.sh`.
+`tests/check-placeholders.tests.sh`. The suite's mktemp work directory is
+normalized with `pwd -P` immediately after creation (INV-030), and the
+suite consumes no jq output (INV-031 non-use declaration — it inspects
+exit codes and the gate's plain-text findings only); see the CI-resilience
+rows in Constraint Compliance (AC-018/TEST-018).
 
 ### `tests/loop-consistency.tests.sh`/`.ps1` brownfield-profile leg (T-002)
 
@@ -509,6 +528,10 @@ human-copy re-copy step exists in the rollback path.
 | no false green | HITL leg drives the real template; check-placeholders leg drives the real gate; WFI-audit leg is explicitly labeled as a reference check, never claimed to be the skill; domain/spec precheck ports are proven by the existing suites flipping from SKIP to green, not by a self-referential new assertion |
 | doc-following in same PR | REQ-006 surface list; CHANGELOG Unreleased entries per issue |
 | version bump via `scripts/bump-version.sh` only | release step delegated to the human per epic policy |
+| CI resilience: bash 3.2 `set -u` empty-array safety (INV-029; requirements.md Edge Cases, AC-018/TEST-018) | the WFI-audit 0→1→2→3 sweep and the HITL 5-iteration drive are counted loops over literal integers, not array expansions; any array a new suite declares is initialized non-empty or has every `"${arr[@]}"` expansion guarded — wave-1 precedent `tests/lib/loop-driver.sh:326-330` |
+| CI resilience: macOS `$TMPDIR` symlink normalization (INV-030; AC-018/TEST-018) | both T-001 legs create their own mktemp roots WITHOUT `loop_fixture_init`, so each normalizes with `pwd -P` immediately after creation (contract steps above), replicating `tests/lib/loop-driver.sh:124`; `check-placeholders-brownfield`'s mktemp work dir gets the same normalization; the T-002 loop-consistency leg goes through `loop_fixture_init`, which already normalizes |
+| CI resilience: Windows jq CRLF stripping (INV-031; AC-018/TEST-018) | the two new suites use NO jq by design — `hitl-wfi-terminal` parses WFI fields with plain shell string extraction, `check-placeholders-brownfield` only inspects exit codes and grep output (this non-use declaration IS the compliance); if a future edit ever adds jq consumption to either suite, every site must pipe through unconditional `tr -d '\r'` (commit c756a5a precedent, all 25 wave-1 sites) |
+| CI resilience: real-validator CRLF fragility gated by capability probe (INV-032; AC-018/TEST-018) | T-001's HITL and WFI-audit legs never drive `validate-review-context-set.sh` (no probe needed); the only validator-driving surface this feature touches is T-002's brownfield leg inside wave-1's `tests/loop-consistency.tests.sh`/`.ps1`, which inherits the existing `loop_validator_capability_probe`/`loop_validator_skip` gate (`tests/lib/loop-driver.sh:460-520`) unchanged |
 
 ## Assumptions
 
