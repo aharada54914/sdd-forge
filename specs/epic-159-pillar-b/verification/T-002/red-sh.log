@@ -1,0 +1,20 @@
+# T-002 RED evidence (bash) — captured 2026-07-16T13:13:01Z
+# Pre-landing .github/workflows/release.yml SHA-256: 0cbdac719a61d129bf05853a22c2bbc81697e4756aa94f4cf44e1d98ddd3a48d
+# Pre-landing state (INV-006/INV-007): single job 'release:' at .github/workflows/release.yml:31; no 'loop-gate:' job; no 'needs:' dependency anywhere in jobs:.
+# Command: bash tests/release-loop-gate.tests.sh
+
+=== TEST-007 (AC-007): loop-gate job slice contains both suite invocations ===
+FAIL: TEST-007 (AC-007): no loop-gate: job slice found in release.yml
+=== TEST-008 (AC-008): release job needs: loop-gate + no escape hatch ===
+FAIL: TEST-008 (AC-008): release job slice does not carry a needs: loop-gate entry
+ok: TEST-008 (AC-008): loop-gate job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+ok: TEST-008 (AC-008): release job slice carries no continue-on-error:true / if:always() / if:success()||failure() escape hatch
+=== TEST-009 (AC-009): negative-branch canary (needs: stripped) ===
+ok: TEST-009 (AC-009): the needs:-stripped fixture copy is reported non-compliant (release_has_needs=False), proving TEST-008's assertion is not vacuously true
+=== TEST-010 (AC-010): ubuntu-latest only + self-registration ===
+FAIL: TEST-010 (AC-010): loop-gate job slice does not declare runs-on: ubuntu-latest
+ok: TEST-010 (AC-010): loop-gate job slice carries no strategy:/matrix: key (single-OS, matching release.yml's existing scope)
+FAIL: TEST-010 (AC-010): release-loop-gate.tests.sh is NOT registered in tests/run-all.sh and/or .github/workflows/test.yml
+---- summary: pass=4 fail=4 ----
+not ok: release-loop-gate suite FAILED (4 failures)
+EXIT_CODE=1

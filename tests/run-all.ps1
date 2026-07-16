@@ -30,7 +30,8 @@ $tests = @(
     'tests/loop-escalation.tests.ps1',
     'tests/hitl-wfi-terminal.tests.ps1',
     'tests/check-placeholders-brownfield.tests.ps1',
-    'tests/bump-version-gate.tests.ps1'
+    'tests/bump-version-gate.tests.ps1',
+    'tests/release-loop-gate.tests.ps1'
 )
 
 Push-Location $root

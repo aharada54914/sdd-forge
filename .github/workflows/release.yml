@@ -28,7 +28,27 @@ permissions:
   attestations: write  # store build-provenance attestations
 
 jobs:
+  loop-gate:
+    # No elevated GitHub Actions permissions requested (REQ-002;
+    # security-spec.md B4/OWASP "Elevation of Privilege" row): without this
+    # override the job would silently inherit the workflow-level
+    # contents:write / id-token:write / attestations:write block above
+    # (release.yml:25-28), which it does not need -- it only checks out the
+    # repository and runs local scripts.
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: Test loop consistency suite
+        shell: bash
+        run: bash ./tests/loop-consistency.tests.sh
+      - name: Test loop inventory suite
+        shell: bash
+        run: bash ./tests/loop-inventory.tests.sh
+
   release:
+    needs: loop-gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
