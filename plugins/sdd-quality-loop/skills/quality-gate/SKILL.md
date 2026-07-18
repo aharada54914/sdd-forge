@@ -93,10 +93,56 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
    `design-system-checklist.md` (user-facing UI in projects carrying a
    `design-system/` contract).
    Load a checklist only when its domain is in scope, to keep review context lean.
-   On Claude Code use the `sdd-evaluator` subagent. On Codex use the shipped
-   `sdd-evaluator` TOML agent; do not create new agent role files under
-   `~/.codex/agents/`. Elsewhere, perform the review in a fresh session or a
-   clearly separated critical-review pass.
+   On Claude Code use the `sdd-evaluator` subagent. Claude Code has no
+   per-invocation effort control (REQ-008, INV-013): the evaluator's effort
+   stays whatever `render-agent-frontmatter` last recorded in
+   `evaluator.md`'s `x-sdd-effort:` comment (record-only,
+   `effort_applied=null`); any `emit-run-record` call for this run passes
+   `--effort-control-main frontmatter` (no `--effort-applied-main`) so the
+   resulting run record shows the degradation explicitly, keyed on the
+   resolved `effort_control` value, never as a silent drop (AC-039, sharing
+   the AC-024/AC-051 field-population rule).
+
+   On Codex use the shipped `sdd-evaluator` (or `sdd-investigator`) TOML
+   agent; do not create new agent role files under `~/.codex/agents/`.
+   Codex-host startup wiring (REQ-006, T-006): before launching `codex`,
+   resolve `--model`/`--effort` from the live registry — never from
+   unsanitized task or spec text (security-spec.md B3) — via:
+
+   ```sh
+   plugins/sdd-implementation/scripts/select-agent-model.sh \
+     --risk <risk> --registry contracts/agent-model-capabilities.v2.json \
+     --candidates-file <codex-candidates.json> \
+     --role sdd-evaluator --host codex-cli --json
+   ```
+
+   (substitute `--role sdd-investigator` for the investigator; `--host
+   codex-cli` resolves each candidate's `effort_control.codex-cli`, and
+   `--role` seeds the role's `minimum_tier`/fallback effort from
+   `role_defaults`). Cross-check the resolved `model`/`effort` against the
+   `# x-sdd-model:`/`# x-sdd-effort:` reference comments T-003's renderer
+   wrote into `.codex/agents/sdd-evaluator.toml` (or
+   `sdd-investigator.toml`): when they diverge, report the divergence
+   (`DRIFT: <toml-path> toml=<model>/<effort> live=<model>/<effort>`)
+   rather than silently preferring either value — the live selector output
+   is always what launches `codex`, the stale reference comment is never
+   silently substituted in either direction (AC-038). Reject any resolved
+   `--model`/`--effort` value that is not a member of the registry's own
+   enumerated vocabulary: a whitespace-containing value, a value with a
+   leading `-`/`--` (flag-injection shape), a value containing `;`
+   (command-separator shape), or an effort string outside the set
+   `{low, medium, high, xhigh}`. On rejection: non-zero exit, a diagnostic
+   message, and no `codex` invocation attempted (AC-052;
+   `run-panelist-gpt.sh`/`.ps1` implement this same rejection for their own
+   `--model`/`--effort` arguments — `tests/run-panelist-effort.tests.sh`/
+   `.ps1` TEST-052). Launch `codex` with the resolved, validated flags:
+
+   ```sh
+   codex --model <live-model> --effort <live-effort> ...
+   ```
+
+   Elsewhere, perform the review in a fresh session or a clearly separated
+   critical-review pass.
    Before launch, persist a canonical allowed-input manifest containing exactly
    one `reports/implementation/<feature>/T-NNN.md`, the task's required
    specification and calibration files, and only those changed, test, contract,

@@ -191,6 +191,17 @@ jobs:
         shell: pwsh
         run: ./tests/release-loop-gate.tests.ps1
 
+      - name: Test run-panelist-effort suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/run-panelist-effort.tests.sh
+
+      - name: Test run-panelist-effort suite (pwsh)
+        shell: pwsh
+        run: ./tests/run-panelist-effort.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

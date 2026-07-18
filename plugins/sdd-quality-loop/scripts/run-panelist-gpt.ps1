@@ -2,6 +2,7 @@
 # Usage:
 #   run-panelist-gpt.ps1 --task T-NNN --feature <f> --input <bundle-path>
 #                        [--spec-root <dir>] [--model <model-id>]
+#                        [--effort <low|medium|high|xhigh>]
 #                        [--digest <64-hex>] [--consent <kind>]
 #
 # Writes verdict JSON to:
@@ -11,7 +12,22 @@
 # Scratch dir always cleaned up via try/finally.
 # Key isolation: SDD_EVIDENCE_KEY / SDD_SUDO_KEY never passed to panelist.
 #
-# Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args
+# --effort (epic-159-pillar-c T-006, REQ-006/AC-035): optional, forwarded
+# verbatim to the codex invocation alongside --model. Omitted entirely
+# preserves today's exact invocation (design.md API/Contract Plan; Breaking
+# API: no).
+#
+# Injection rejection (REQ-006 AC-052; security-spec.md B3): --model and
+# --effort are validated BEFORE the codex ArgumentList is assembled. Values
+# containing whitespace, a leading "-"/"--" (flag-injection shape), or a
+# ";" (command-separator shape) are rejected fail-closed; --effort is
+# additionally rejected when it is not one of the ordinal-checked
+# {low, medium, high, xhigh} values (mirrors emit-run-record.ps1's
+# established 2-layer PowerShell case-sensitivity discipline: an ordinal
+# HashSet entry gate here, since there is no branch-dispatch layer 2 to
+# pair it with in this script).
+#
+# Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args/rejected value
 param()
 $ErrorActionPreference = "Stop"
 
@@ -20,6 +36,7 @@ $Feature     = ""
 $InputPath   = ""
 $SpecRoot    = "specs"
 $Model       = "gpt-4o"
+$Effort      = ""
 $InputDigest = ""
 $ConsentKind = "human-flag"
 
@@ -32,12 +49,44 @@ while ($argIdx -lt $passedArgs.Count) {
         "--input"     { $InputPath   = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--spec-root" { $SpecRoot    = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--model"     { $Model       = $passedArgs[$argIdx+1]; $argIdx += 2 }
+        "--effort"    { $Effort      = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--digest"    { $InputDigest = $passedArgs[$argIdx+1]; $argIdx += 2 }
         "--consent"   { $ConsentKind = $passedArgs[$argIdx+1]; $argIdx += 2 }
         default {
             [Console]::Error.WriteLine("run-panelist-gpt: unknown argument: $($passedArgs[$argIdx])")
             exit 2
         }
+    }
+}
+
+# ── Reject argv-injection-shaped --model/--effort values (AC-052) ───────────
+# Runs BEFORE any other validation or the codex ArgumentList is assembled,
+# so a rejected value never reaches the codex command line.
+$validEfforts = [System.Collections.Generic.HashSet[string]]::new(
+    [string[]]@("low", "medium", "high", "xhigh"),
+    [System.StringComparer]::Ordinal)
+
+function Assert-NotInjectionShaped([string]$FlagName, [string]$Value) {
+    if ($Value -cmatch '\s') {
+        [Console]::Error.WriteLine("run-panelist-gpt: $FlagName contains whitespace (rejected, argv-injection shape): $Value")
+        exit 2
+    }
+    if ($Value.StartsWith('-', [StringComparison]::Ordinal)) {
+        [Console]::Error.WriteLine("run-panelist-gpt: $FlagName has a leading ""-"" (rejected, flag-injection shape): $Value")
+        exit 2
+    }
+    if ($Value.Contains(';', [StringComparison]::Ordinal)) {
+        [Console]::Error.WriteLine("run-panelist-gpt: $FlagName contains "";"" (rejected, command-separator shape): $Value")
+        exit 2
+    }
+}
+
+if ($Model) { Assert-NotInjectionShaped "--model" $Model }
+if ($Effort) {
+    Assert-NotInjectionShaped "--effort" $Effort
+    if (-not $validEfforts.Contains($Effort)) {
+        [Console]::Error.WriteLine("run-panelist-gpt: --effort must be one of low|medium|high|xhigh (got: $Effort)")
+        exit 2
     }
 }
 
@@ -118,12 +167,23 @@ Rules:
     $combinedFile = Join-Path $scratch "combined.txt"
     Set-Content -Encoding Utf8 -Path $combinedFile -Value $combined
 
-    [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd --model $Model (task=$TaskId feature=$Feature)")
+    # Codex ArgumentList: --model, [--effort <e>] (only when supplied,
+    # AC-035), --no-project-doc -- omitted entirely preserves today's exact
+    # invocation order/shape (Breaking API: no).
+    $codexArgs = @("--model", $Model)
+    if ($Effort) { $codexArgs += @("--effort", $Effort) }
+    $codexArgs += @("--no-project-doc")
+
+    if ($Effort) {
+        [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd --model $Model --effort $Effort (task=$TaskId feature=$Feature)")
+    } else {
+        [Console]::Error.WriteLine("run-panelist-gpt: invoking $CodexCmd --model $Model (task=$TaskId feature=$Feature)")
+    }
 
     $rawOutput = Join-Path $scratch "raw-output.txt"
     try {
         $proc = Start-Process -FilePath $CodexCmd `
-            -ArgumentList "--model", $Model, "--no-project-doc" `
+            -ArgumentList $codexArgs `
             -RedirectStandardInput  $combinedFile `
             -RedirectStandardOutput $rawOutput `
             -RedirectStandardError  (Join-Path $scratch "stderr.txt") `

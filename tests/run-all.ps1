@@ -34,7 +34,8 @@ $tests = @(
     'tests/hitl-wfi-terminal.tests.ps1',
     'tests/check-placeholders-brownfield.tests.ps1',
     'tests/bump-version-gate.tests.ps1',
-    'tests/release-loop-gate.tests.ps1'
+    'tests/release-loop-gate.tests.ps1',
+    'tests/run-panelist-effort.tests.ps1'
 )
 
 Push-Location $root
