@@ -129,6 +129,17 @@ jobs:
         shell: pwsh
         run: ./tests/agent-capabilities-v2.tests.ps1
 
+      - name: Test render-agent-frontmatter suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/render-agent-frontmatter.tests.sh
+
+      - name: Test render-agent-frontmatter suite (pwsh)
+        shell: pwsh
+        run: ./tests/render-agent-frontmatter.tests.ps1
+
       - name: Test HITL/WFI-audit terminal-behavior suite (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the

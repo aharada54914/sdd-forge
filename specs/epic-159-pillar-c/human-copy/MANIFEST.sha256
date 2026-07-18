@@ -1,1 +1,5 @@
-6eb65a204bedb3f58dd39152a8e91ca41d1bc0314d9f78ad0f1f16930e7e088b  .github/workflows/test.yml
+a552ba446d9851a2236993b708690a04caff196767139a3731a059c3e2ac1d7c  .github/workflows/test.yml
+f20d22fee5e99bb1defdadbbc75c4e72302d0fd93e96817c4b7ab1cd24ec097e  plugins/sdd-review-loop/agents/impl-reviewer-a.md
+37a4dcd6ea9433bafb5460cdf8c5c135a4ff0562ec82c4701654cb526d508cd6  plugins/sdd-review-loop/agents/impl-reviewer-b.md
+ed4f264b1e00182ee2778cd767e76499bc213de1f5c57d6b8516ee7081e31e0d  plugins/sdd-review-loop/agents/task-reviewer-a.md
+f2bb5acf3c3d8261b8e2b5c7be2a2f9f00e4cc0c19e8a6e537b690e26fbaaede  plugins/sdd-review-loop/agents/task-reviewer-b.md

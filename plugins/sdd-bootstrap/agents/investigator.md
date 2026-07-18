@@ -5,6 +5,7 @@ tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 model: haiku
 ---
+<!-- x-sdd-effort: low -->
 
 # SDD Investigator
 
