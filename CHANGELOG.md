@@ -75,6 +75,57 @@
   フラグが未知引数として拒否される)→ GREEN
   (`specs/epic-159-pillar-c/verification/T-002/green-sh.log`)の順で実装、
   詳細は `reports/implementation/epic-159-pillar-c/T-002.md` を参照。
+- **render-agent-frontmatter・--check・R-10 保護ファイル human-copy 手順
+  (Issue #151, epic-159-pillar-c T-003)**: 新規 `render-agent-frontmatter.sh` /
+  `.ps1` を追加。v2 レジストリの `role_defaults` を単一の真実源として、
+  ロール→ファイルの固定 `TARGETS` マップ(`sdd-evaluator`/`sdd-investigator`/
+  `spec-reviewer`/`impl-reviewer`/`task-reviewer` の5ロール、Claude `.md` と
+  Codex `.toml` の双方)に沿って描画する。Claude 側は保護対象外の `.md`
+  エージェントファイルの `model:` frontmatter 行のみを書き換え(既に
+  `role_defaults` と一致していれば無変更)、frontmatter の閉じ `---` 直後に
+  `<!-- x-sdd-effort: <e> -->` コメント行を挿入/更新する(YAML
+  frontmatter キーではなく単なるコメントなので、エージェントローダーの
+  frontmatter パースには一切参加しない)。Codex 側は `.codex/agents/*.toml`
+  の先頭に `# x-sdd-model: <m>` / `# x-sdd-effort: <e>` の2行の参照コメントを
+  挿入/更新し、`name`/`description`/`sandbox_mode`/`developer_instructions`
+  など既存の TOML キーはバイト単位で不変(このコメントはドキュメント専用で
+  Codex CLI にパースされない、OQ-002 の解決どおり)。R-10 保護される4つの
+  レビューループ reviewer `.md` ファイル(`impl-reviewer-{a,b}.md`、
+  `task-reviewer-{a,b}.md`)は書き込み先解決関数自体が構造的に実パスへ
+  絶対に解決しない(AC-019、`--resolve-target-raw`/`--resolve-target` で
+  関数そのものを直接テスト可能)。補正内容は
+  `specs/epic-159-pillar-c/human-copy/<リポジトリ相対パス>` に4ファイル
+  ステージし、`MANIFEST.sha256` に SHA-256 エントリを追記、実パスは一切
+  書き込まない。`--check` モードは全ターゲット(4保護ファイル含む)を
+  読み取り専用で比較し、ドリフト検出時は非ゼロ終了(AC-016)。保護
+  ファイルへの読み取りは書き込みではないため R-10 ガードを一切踏まず、
+  CI 無人実行が可能(AC-020)。`role_defaults` は現行の本番値からシードして
+  あるため、実ファイルへの初回描画は `model:` 値に関して zero-diff no-op
+  (AC-017、6つの保護対象外ターゲットで検証済み・実際に本番描画を実行し
+  `plugins/sdd-quality-loop/agents/evaluator.md` ほか5ファイルへ
+  `x-sdd-effort` 行のみを追加)。`model: inherit` のエージェントとロール
+  マップに存在しないエージェント(`domain-reviewer-*` 等)は描画対象から
+  構造的に除外(AC-018)。`--check` は `tests/validate-repository.ps1` の
+  既存チェック列と `.github/workflows/test.yml`(T-001 がステージ済みの
+  候補に本タスクの新規ステップを追記、bash/pwsh 両レーン)に配線。
+  リスク `high`(このタスクだけが本番の Claude/Codex エージェント定義
+  ファイル群と R-10 保護境界そのものに書き込む)につき Required Workflow
+  は `tdd`: 書き込み境界(AC-019)と読み取り境界(AC-020)を独立した
+  RED/GREEN ペアとして分離記録(`specs/epic-159-pillar-c/verification/T-003/`
+  配下、`red-sh.log`/`green-sh.log`、`red-ps1.log`/`green-ps1.log`;
+  AC-019 は書き込み先解決関数を意図的に誤分類した widened map で実パスへ
+  解決することを示す負例と、正しい既定マップでの正例のペア、AC-020 は
+  同期済みフィクスチャで OK・x-sdd-effort 値をミューテートしたフィクスチャで
+  再度 DRIFT になる negative self-check のペア)。PowerShell twin は
+  T-002 で確立した2層の case-sensitivity 規律(`-ceq`/`-cne`/`-cmatch` の
+  明示的使用、`role_defaults` キーは `.PSObject.Properties` 列挙+`-ceq`で
+  照合し PSObject のドット参照の大小文字非依存性を回避)を踏襲し、
+  role_defaults キーと `canonical_tier` 値それぞれの mis-cased
+  negative fixture で両 twin が拒否することを検証。新スイート
+  `tests/render-agent-frontmatter.tests.sh` / `.ps1` は本番ファイルの
+  コピーのみを操作し(ライブファイルへは一切書き込まない)、`tests/run-all.sh` /
+  `tests/run-all.ps1` へ自スイートを直接登録(grep 自己検査つき)。詳細は
+  `reports/implementation/epic-159-pillar-c/T-003.md` を参照。
 - **ループインベントリと登録強制スイート (Issue #141, epic-159-pillar-a T-001)**:
   `tests/loops/loop-inventory.json`(schema `loop-inventory/v1`)を、8つの
   レビュー/ゲートループ(spec-review / impl-review / task-review /

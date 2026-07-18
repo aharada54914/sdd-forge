@@ -279,6 +279,59 @@ mutation-based negative self-check (a scratch copy of v2 with a
 v1-required effort stripped from one model's `supported_efforts`) proving
 the parity assertion is live rather than vacuously true.
 
+## `render-agent-frontmatter` script contract (epic-159-pillar-c T-003)
+
+**Source**: `render-agent-frontmatter.sh`/`.ps1` (repository root)
+**Reads**: `contracts/agent-model-capabilities.v2.json`'s `role_defaults`
+(above)
+**Writes**: the six unprotected Claude `.md`/Codex `.toml` role-mapped
+agent files directly; the four R-10 protected review-loop reviewer `.md`
+files ONLY under `specs/epic-159-pillar-c/human-copy/<repository-relative
+path>` + a `MANIFEST.sha256` SHA-256 entry, never their real path
+**Consumers**: `tests/validate-repository.ps1` (`--check`, wired into the
+existing check sequence); `.github/workflows/test.yml` (this suite's own
+bash/pwsh CI steps, staged the same human-copy way as `.github/workflows/test.yml`
+itself is R-10 protected); `run-panelist-gpt`/Codex-startup argv assembly
+(a future task's cross-check against the rendered `# x-sdd-model:`/
+`# x-sdd-effort:` reference comments, AC-038)
+
+For each `role -> { kind: claude|codex, path, protected }` entry in the
+script's built-in `TARGETS` table (10 entries: `sdd-evaluator`/
+`sdd-investigator` each with one Claude `.md` + one Codex `.toml` target;
+`spec-reviewer` with two unprotected Claude `.md` targets; `impl-reviewer`/
+`task-reviewer` each with two PROTECTED Claude `.md` targets):
+
+- **Claude `.md` targets**: rewrites ONLY the `model:` frontmatter line
+  (sourced from `role_defaults[role].minimum_tier`'s paired `anthropic/*`
+  registry model name) and inserts/refreshes a trailing
+  `<!-- x-sdd-effort: <role_defaults[role].default_effort> -->` comment
+  line immediately after the frontmatter's closing `---` — a Markdown
+  comment outside the YAML frontmatter block, so it never participates in
+  the agent-loader's frontmatter parsing. A `model: inherit` target is left
+  completely untouched (structural exclusion, not merely skipped-by-value).
+- **Codex `.toml` targets**: inserts/refreshes two `# x-sdd-model: <m>` /
+  `# x-sdd-effort: <e>` comment lines at the top of the file, sourced from
+  the first `codex-cli`-`flag`-controlled registry model matching
+  `role_defaults[role].minimum_tier`. These are documentation-only
+  reference markers, never a Codex-CLI-parsed configuration surface — every
+  existing TOML key (`name`, `description`, `sandbox_mode`,
+  `developer_instructions`) is left byte-unchanged.
+- **Protected targets**: the identical corrected content is computed but
+  written ONLY to the human-copy staging path; the real protected path is
+  never opened for write. The write-target resolution FUNCTION itself
+  (exercised directly via `--resolve-target-raw`/`--resolve-target` on the
+  `.sh` twin, `-ResolveTargetRawPath`/`-ResolveTargetRole` on the `.ps1`
+  twin) makes this a structural guarantee, independent of and in addition
+  to the R-10 `sdd-hook-guard` enforcement.
+
+`--check` performs the identical read-and-compute step but never writes
+anywhere: it diffs computed content against on-disk content at every
+target's real path — including the four protected targets' real paths (a
+read, not a write) — and exits non-zero if any target has drifted. A
+non-zero exit against only the four protected targets means a human
+maintainer has not yet applied the staged `specs/epic-159-pillar-c/human-copy/`
+candidates, not that the script attempted an illegal write.
+
 ---
 
 ## Plugin Dependency Declarations
