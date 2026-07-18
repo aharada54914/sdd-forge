@@ -4,6 +4,38 @@
 
 ### 追加
 
+- **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
+  T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
+  `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接
+  (`haiku`→`low`、`sonnet`→`medium`、`opus`→`high`)を解消し、モデルごとに
+  `supported_efforts`(非空配列)・`default_effort`(`supported_efforts` の
+  要素)・`effort_control`(`claude-code`/`codex-cli` それぞれ
+  `flag`/`frontmatter`/`none`)を表現可能にした。トップレベルの
+  `risk_effort_matrix` は `low`→`low`・`medium`→`medium`・`high`→`high`・
+  `critical`→`high` を厳密にマップし `escalation_bump: true` を持つ
+  (`xhigh` は直接値として一切出力されない)。`role_defaults` は
+  `spec-reviewer`/`impl-reviewer`/`task-reviewer`/`sdd-evaluator`/
+  `sdd-investigator` の5ロール全てに `minimum_tier` + `default_effort` を
+  定義。v1 (`contracts/agent-model-capabilities.json`) はバイト単位で凍結
+  (SHA-256 不変、本タスクでは一切書き込まない)。新スイート
+  `tests/agent-capabilities-v2.tests.sh` / `.ps1` が、v1⇔v2
+  双方向パリティ(v1 の全モデル名が同一 `canonical_tier` で v2 に存在し、
+  v1 の `efforts` 配列が v2 `supported_efforts` の部分集合であること)を
+  ロックし、v2 コピーからv1必須effortを剥奪した mutation-based negative
+  self-check でロックが恒常的に有効であることを自己証明する。
+  `tests/run-all.sh` / `tests/run-all.ps1` へ自スイートを直接登録
+  (grep 自己検査つき)。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CIステップ
+  (bash/pwsh 両レーン)を反映した完全な補正版を
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+  `MANIFEST.sha256` としてステージし、人間の `cp` 適用を待つ
+  (適用前後でライブファイルの SHA-256 は不変)。`PLUGIN-CONTRACTS.md` に
+  `agent-model-capabilities/v2` スキーマの新セクションを追加(AC-005)。
+  受け入れ先行(acceptance-first)で RED
+  (`specs/epic-159-pillar-c/verification/T-001/red-sh.log`: v2 ファイル
+  不在によりスイートが fail)→ GREEN
+  (`specs/epic-159-pillar-c/verification/T-001/green-sh.log`)の順で実装、
+  詳細は `reports/implementation/epic-159-pillar-c/T-001.md` を参照。
 - **ループインベントリと登録強制スイート (Issue #141, epic-159-pillar-a T-001)**:
   `tests/loops/loop-inventory.json`(schema `loop-inventory/v1`)を、8つの
   レビュー/ゲートループ(spec-review / impl-review / task-review /

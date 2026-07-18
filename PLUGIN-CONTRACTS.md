@@ -184,6 +184,103 @@ per-feature `specs/<feature>/`):
 
 ---
 
+## `agent-model-capabilities/v2` registry schema (epic-159-pillar-c T-001)
+
+**Source**: `contracts/agent-model-capabilities.v2.json`
+**Consumers**: `plugins/sdd-implementation/scripts/select-agent-model.sh`/`.ps1`
+(T-002, schema auto-detection), `render-agent-frontmatter.sh`/`.ps1` (T-003,
+`role_defaults` seed), `tests/agent-capabilities-v2.tests.sh`/`.ps1` (the
+parity lock below).
+
+`contracts/agent-model-capabilities.v2.json` (schema
+`agent-model-capabilities/v2`) decouples effort from canonical tier — the
+v1 registry (`contracts/agent-model-capabilities.json`, schema
+`agent-model-capabilities/v1`) welds each model to exactly one effort
+value (`haiku`→`low`, `sonnet`→`medium`, `opus`→`high`); v2 lets a model
+support several efforts and lets a caller select among them per
+invocation. v1 remains FROZEN — byte-identical for the duration of this
+feature — and both files coexist; v2 becomes the sole consulted registry
+only once a future, separately-released task flips the selector's default
+policy.
+
+### Top-level shape
+
+```json
+{
+  "schema": "agent-model-capabilities/v2",
+  "models": [
+    {
+      "name": "anthropic/opus",
+      "canonical_tier": "strong",
+      "supported_efforts": ["high"],
+      "default_effort": "high",
+      "effort_control": { "claude-code": "frontmatter", "codex-cli": "none" }
+    },
+    {
+      "name": "openai/gpt-5.2-codex",
+      "canonical_tier": "strong",
+      "supported_efforts": ["high", "xhigh"],
+      "default_effort": "high",
+      "effort_control": { "claude-code": "none", "codex-cli": "flag" }
+    }
+  ],
+  "risk_effort_matrix": {
+    "low": "low",
+    "medium": "medium",
+    "high": "high",
+    "critical": "high",
+    "escalation_bump": true
+  },
+  "role_defaults": {
+    "sdd-evaluator": { "minimum_tier": "strong", "default_effort": "high" },
+    "sdd-investigator": { "minimum_tier": "lightweight", "default_effort": "low" },
+    "spec-reviewer": { "minimum_tier": "standard", "default_effort": "medium" },
+    "impl-reviewer": { "minimum_tier": "standard", "default_effort": "medium" },
+    "task-reviewer": { "minimum_tier": "standard", "default_effort": "medium" }
+  }
+}
+```
+
+### Field semantics
+
+- `models[].supported_efforts` — a non-empty array of efforts (`low` /
+  `medium` / `high` / `xhigh`) the model may be invoked at; supersedes v1's
+  single-element `efforts` array.
+- `models[].default_effort` — must be a member of that model's
+  `supported_efforts`; the value `welded`-policy selection resolves to and
+  the last-priority fallback under `matrix`-policy selection.
+- `models[].effort_control` — a per-host map (`claude-code`, `codex-cli`
+  keys), each one of `flag` (the host accepts a CLI effort argument a
+  caller can apply), `frontmatter` (the host can only record effort as
+  documentation), or `none` (no effort concept for that model/host pairing
+  at all).
+- `risk_effort_matrix` — maps `low`→`low`, `medium`→`medium`, `high`→`high`,
+  `critical`→`high`, and carries `escalation_bump: true`. `xhigh` never
+  appears as a direct mapped value — only reachable via an explicit
+  `--requested-effort xhigh` override or an escalation bump, both still
+  gated by the selector's existing `--xhigh-reason` requirement.
+- `role_defaults` — a per-role table (`spec-reviewer`, `impl-reviewer`,
+  `task-reviewer`, `sdd-evaluator`, `sdd-investigator`), each entry naming
+  a `minimum_tier` and a `default_effort`. Consumed both by
+  `select-agent-model --role` and by `render-agent-frontmatter` as the
+  single source of truth for generated agent-definition files.
+
+### Parity lock
+
+`tests/agent-capabilities-v2.tests.sh`/`.ps1` asserts a two-directional
+parity invariant between v1 and v2: every v1 model name exists in v2 with
+the identical `canonical_tier`, and every effort in that v1 model's
+`efforts` array is a member of its v2 `supported_efforts` array (v1 ⊆ v2,
+not equality — v2 may add efforts a v1 model did not carry, e.g.
+`openai/gpt-5.1-codex-max`'s v1 `efforts` already includes both `high` and
+`xhigh`). The same suite asserts `contracts/agent-model-capabilities.json`
+(v1)'s SHA-256 is unchanged before and after its own run, and includes a
+mutation-based negative self-check (a scratch copy of v2 with a
+v1-required effort stripped from one model's `supported_efforts`) proving
+the parity assertion is live rather than vacuously true.
+
+---
+
 ## Plugin Dependency Declarations
 
 | Plugin | Depends On | Notes |
