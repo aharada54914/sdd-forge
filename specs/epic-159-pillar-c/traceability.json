@@ -1,0 +1,88 @@
+{
+  "feature": "epic-159-pillar-c",
+  "generated_by": "Machine-readable companion to traceability.md, populated at quality-gate contract-authoring time for T-001..T-006 (T-007 remains Planned/Draft and carries no evidence yet); schema validated by scripts/check-traceability.{sh,ps1}",
+  "schema": "REQ -> AC -> TEST -> evidence; validated by scripts/check-traceability.{sh,ps1}",
+  "links": [
+    {
+      "req": "REQ-001",
+      "acs": ["AC-001", "AC-002", "AC-003", "AC-004", "AC-005"],
+      "tests": ["TEST-001", "TEST-002", "TEST-003", "TEST-004", "TEST-005", "TEST-054"],
+      "evidence": [
+        "specs/epic-159-pillar-c/verification/T-001/red-sh.log",
+        "specs/epic-159-pillar-c/verification/T-001/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-002",
+      "acs": ["AC-006", "AC-007", "AC-008", "AC-009", "AC-010", "AC-011", "AC-012", "AC-013", "AC-053"],
+      "tests": ["TEST-006", "TEST-007", "TEST-008", "TEST-009", "TEST-010", "TEST-011", "TEST-012", "TEST-013", "TEST-053", "TEST-054"],
+      "evidence": [
+        "specs/epic-159-pillar-c/verification/T-002/red-sh.log",
+        "specs/epic-159-pillar-c/verification/T-002/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-003",
+      "acs": ["AC-014", "AC-015", "AC-016", "AC-017", "AC-018", "AC-019", "AC-020"],
+      "tests": ["TEST-014", "TEST-015", "TEST-016", "TEST-017", "TEST-018", "TEST-019", "TEST-020"],
+      "evidence": [
+        "specs/epic-159-pillar-c/verification/T-003/red-sh.log",
+        "specs/epic-159-pillar-c/verification/T-003/green-sh.log",
+        "specs/epic-159-pillar-c/verification/T-003/red-ps1.log",
+        "specs/epic-159-pillar-c/verification/T-003/green-ps1.log"
+      ]
+    },
+    {
+      "req": "REQ-004",
+      "acs": ["AC-021", "AC-022", "AC-023", "AC-024", "AC-025", "AC-026", "AC-051"],
+      "tests": ["TEST-021", "TEST-022", "TEST-023", "TEST-024", "TEST-025", "TEST-026", "TEST-051"],
+      "evidence": [
+        "specs/epic-159-pillar-c/verification/T-004/red-sh.log",
+        "specs/epic-159-pillar-c/verification/T-004/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-005",
+      "acs": ["AC-027", "AC-028", "AC-029", "AC-030", "AC-031", "AC-032", "AC-033", "AC-034"],
+      "tests": ["TEST-027", "TEST-028", "TEST-029", "TEST-030", "TEST-031", "TEST-032", "TEST-033", "TEST-034"],
+      "evidence": [
+        "specs/epic-159-pillar-c/verification/T-005/red-twin-absent.log",
+        "specs/epic-159-pillar-c/verification/T-005/red-mutated-golden.log",
+        "specs/epic-159-pillar-c/verification/T-005/green-sh.log",
+        "specs/epic-159-pillar-c/verification/T-005/green-ps1.log"
+      ]
+    },
+    {
+      "req": "REQ-006",
+      "acs": ["AC-035", "AC-036", "AC-037", "AC-038", "AC-039", "AC-040", "AC-052"],
+      "tests": ["TEST-035", "TEST-036", "TEST-037", "TEST-038", "TEST-039", "TEST-040", "TEST-052"],
+      "evidence": [
+        "specs/epic-159-pillar-c/verification/T-006/red-sh.log",
+        "specs/epic-159-pillar-c/verification/T-006/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-007",
+      "acs": ["AC-041", "AC-042", "AC-043", "AC-044", "AC-045", "AC-046"],
+      "tests": ["TEST-041", "TEST-042", "TEST-043", "TEST-044", "TEST-045", "TEST-046"],
+      "evidence": []
+    },
+    {
+      "req": "REQ-008",
+      "acs": ["AC-047", "AC-048"],
+      "tests": ["TEST-047", "TEST-048"],
+      "evidence": [
+        "specs/epic-159-pillar-c/verification/T-006/red-sh.log",
+        "specs/epic-159-pillar-c/verification/T-006/green-sh.log"
+      ]
+    },
+    {
+      "req": "REQ-009",
+      "acs": ["AC-049", "AC-050"],
+      "tests": ["TEST-049", "TEST-050"],
+      "evidence": [
+        "CHANGELOG.md"
+      ]
+    }
+  ]
+}
