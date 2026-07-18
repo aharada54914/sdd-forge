@@ -23,6 +23,24 @@ assert_literal() {
   grep -Fq "$text" "$file" || fail "$message"
 }
 
+# Portable SHA-256 (mirrors tests/agent-capabilities-v2.tests.sh's
+# established sha256_of helper): sha256sum first (Linux/Windows git-bash),
+# shasum -a 256 fallback (macOS).
+sha256_of() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  else
+    shasum -a 256 "$1" | awk '{print $1}'
+  fi
+}
+
+# TEST-027 part (b): the LIVE .github/workflows/test.yml SHA-256 captured
+# BEFORE this suite does anything, compared again at the very end of this
+# file -- this suite never opens the real, R-10 protected path for write
+# (Protected Files, tasks.md).
+LIVE_TEST_YML="$ROOT/.github/workflows/test.yml"
+LIVE_TEST_YML_SHA_BEFORE="$(sha256_of "$LIVE_TEST_YML")"
+
 MATRIX="$ROOT/docs/agent-capability-matrix.md"
 ADR="$ROOT/docs/adr/0003-turn-first-agent-routing.md"
 POLICY="$ROOT/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md"
@@ -838,6 +856,33 @@ if bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
   fail "shell selector case-insensitively matched a mis-cased candidate model name (Anthropic/Haiku) against the registry's anthropic/haiku"
 fi
 
+# --- T-005 (#154): REQ-005 case (h) not already covered by T-002's
+# Phase-1-scoped smoke above -------------------------------------------
+# TEST-034 (AC-034): v1<->v2 projection invariant -- the SAME candidate set
+# and risk/tier input, run against the REAL v1 registry and the REAL v2
+# registry (welded, the Phase-1 default), select the identical winning
+# model and canonical_tier, with effort_source correctly attributed
+# "welded" (shares fixtures with tests/agent-capabilities-v2.tests.sh's
+# TEST-004 registry-content parity lock; this is the same invariant
+# re-asserted at the select-agent-model.sh OUTPUT level).
+for risk_and_tier in "low lightweight" "medium standard" "high strong"; do
+  read -r proj_risk proj_tier <<<"$risk_and_tier"
+  v1_projection="$(
+    bash "$SELECTOR_SH" --risk "$proj_risk" --registry "$REGISTRY" \
+      --candidates-file "$TMP/all-tiers.json" --required-tier "$proj_tier" --json
+  )"
+  v2_projection="$(
+    bash "$SELECTOR_SH" --risk "$proj_risk" --registry "$REGISTRY_V2" \
+      --candidates-file "$TMP/all-tiers.json" --required-tier "$proj_tier" --json
+  )"
+  v1_model="$(jq -r '.model' <<<"$v1_projection")"
+  v1_tier="$(jq -r '.canonical_tier' <<<"$v1_projection")"
+  jq -e --arg model "$v1_model" --arg tier "$v1_tier" \
+    '.model == $model and .canonical_tier == $tier and .effort_source == "welded"' \
+    <<<"$v2_projection" >/dev/null ||
+    fail "TEST-034 v1<->v2 projection diverged for risk=$proj_risk tier=$proj_tier (v1=$v1_model/$v1_tier v2=$(jq -r '.model' <<<"$v2_projection")/$(jq -r '.canonical_tier' <<<"$v2_projection"))"
+done
+
 mkdir -p "$TMP/resume-repo/diagnostics"
 cat > "$TMP/resume-repo/diagnostics/T-900.md" <<'EOF'
 # Diagnosis
@@ -1028,5 +1073,38 @@ if pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume.json" \
   -ExpectedTask T-900 >/dev/null 2>&1; then
   fail "PowerShell terminal-resume validator accepted a forged diagnosis hash"
 fi
+
+# --- TEST-027 (AC-027): twin existence + self-registration + staged
+# .github/workflows/test.yml candidate/manifest consistency + live-file
+# byte-identity during this suite's own run (three-part protected-file
+# registration proof). Part (c) -- the post-human-copy self-registration
+# grep against the now-updated LIVE file -- can only hold true after a
+# human applies the staged candidate via cp; it is recorded as a report
+# note in reports/implementation/epic-159-pillar-c/T-005.md, not asserted
+# here (this suite never writes .github/workflows/test.yml). -------------
+[[ -f "$ROOT/tests/agent-model-routing.tests.ps1" ]] ||
+  fail "TEST-027 tests/agent-model-routing.tests.ps1 twin does not exist"
+grep -q 'tests/agent-model-routing\.tests\.sh' "$ROOT/tests/run-all.sh" ||
+  fail "TEST-027 tests/agent-model-routing.tests.sh not registered in tests/run-all.sh"
+grep -q 'tests/agent-model-routing\.tests\.ps1' "$ROOT/tests/run-all.ps1" ||
+  fail "TEST-027 tests/agent-model-routing.tests.ps1 not registered in tests/run-all.ps1"
+
+STAGED_TEST_YML="$ROOT/specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml"
+MANIFEST="$ROOT/specs/epic-159-pillar-c/human-copy/MANIFEST.sha256"
+if [[ -f "$STAGED_TEST_YML" ]] && [[ -f "$MANIFEST" ]]; then
+  staged_sha="$(sha256_of "$STAGED_TEST_YML")"
+  grep -Fq "$staged_sha  .github/workflows/test.yml" "$MANIFEST" ||
+    fail "TEST-027(a) staged test.yml candidate SHA-256 does not match MANIFEST.sha256"
+  grep -q 'agent-model-routing\.tests\.sh' "$STAGED_TEST_YML" ||
+    fail "TEST-027(a) staged test.yml candidate does not register agent-model-routing.tests.sh"
+  grep -q 'agent-model-routing\.tests\.ps1' "$STAGED_TEST_YML" ||
+    fail "TEST-027(a) staged test.yml candidate does not register agent-model-routing.tests.ps1"
+else
+  fail "TEST-027(a) staged test.yml candidate or MANIFEST.sha256 is missing"
+fi
+
+LIVE_TEST_YML_SHA_AFTER="$(sha256_of "$LIVE_TEST_YML")"
+[[ "$LIVE_TEST_YML_SHA_AFTER" == "$LIVE_TEST_YML_SHA_BEFORE" ]] ||
+  fail "TEST-027(b) live .github/workflows/test.yml SHA-256 CHANGED during this suite's own run (before=$LIVE_TEST_YML_SHA_BEFORE after=$LIVE_TEST_YML_SHA_AFTER)"
 
 printf 'ok: turn-first model routing structure is defined\n'
