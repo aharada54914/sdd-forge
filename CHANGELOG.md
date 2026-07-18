@@ -126,6 +126,52 @@
   コピーのみを操作し(ライブファイルへは一切書き込まない)、`tests/run-all.sh` /
   `tests/run-all.ps1` へ自スイートを直接登録(grep 自己検査つき)。詳細は
   `reports/implementation/epic-159-pillar-c/T-003.md` を参照。
+- **run-record v2: effort attribution + degradation lock (Issue #153,
+  epic-159-pillar-c T-004)**: `emit-run-record.sh` / `.ps1` へ
+  `--effort-main` / `--effort-reviewers` / `--effort-control-main` /
+  `--effort-control-reviewers` / `--effort-applied-main` /
+  `--effort-applied-reviewers` の6フラグを追加。いずれか1つでも指定されると
+  `schema` が `sdd-run-record/v2` へ昇格し、`model_ids` に隣接する
+  `effort` オブジェクト(`main`/`reviewers` 各キーに
+  `effort_requested`/`effort_applied`/`effort_degraded_reason` の3
+  サブフィールド)が加法的に出現する。フラグが一切指定されない場合の経路は
+  v1 の heredoc / レコード構築部分を一切変更せず未加工のまま複製した分岐で
+  処理するため、byte 単位で従来と不変(AC-025、`git diff` によるソース
+  レベル比較と既存のコミット済み v1 レコード
+  `reports/runs/RUN-20260705T023011Z-sdd-forge-mcp.json` の読み取り専用
+  検証の両方で確認)。`effort_applied` は「ペアの
+  `--effort-control-*` が `flag` に解決され、かつ適用が確認された」経路
+  以外では絶対に非 null にならない構造的保証(security-spec.md B4)を実装:
+  `--effort-applied-*` に非 `none` 値が渡されたのに対応する
+  `--effort-control-*` が `flag` でない場合は fail-closed で拒否
+  (受理して黙って握りつぶすことはしない)。`effort_degraded_reason` は
+  `effort_applied` が null かつそのロールスロットの `--effort-*` が
+  指定された場合にのみ非空(AC-024、両方向を
+  `tests/emit-run-record-feature-scope.tests.sh`/`.ps1` の
+  TEST-021..026/TEST-051 でロック)。reason 文字列は解決済み
+  `effort_control` 値をキーにする(`effort-control-frontmatter`/
+  `effort-control-none`/`effort-application-declined`/
+  `effort-application-not-confirmed`)ため、Codex ホストが
+  `effort_control.codex-cli` が `frontmatter`/`none` のモデルを選択した
+  ケースも Claude Code のケースと完全に同一形状で劣化することを構造的に
+  証明(AC-051、host 名ではなく effort_control 値そのものに基づく)。
+  PowerShell twin は T-002/T-003 で確立した2層 case-sensitivity 規律を
+  継承: layer 1 は `--effort-control-*` 値に対する ordinal
+  `HashSet[string]` メンバーシップ検査(`[System.StringComparer]::Ordinal`)、
+  layer 2 は `Resolve-EffortSlot` 内の分岐ディスパッチにおける `-ceq` の
+  明示使用。mis-cased negative fixture(`Flag`)が両 twin で fail-closed に
+  拒否されることを検証。pwsh 7 のデフォルト ConciseView エラー整形が
+  部分文字列マッチによるテストアサーションを壊す問題(T-003 で発見)を
+  回避するため、新規エラーパスは `[Console]::Error.WriteLine()` による
+  プレーンテキスト出力を用いる。`implementation-report.template.md` に
+  `- Model:` / `- Effort:` の2行を追加し、
+  `validate-implementation-report.sh` が存在チェックとフォーマットのみを
+  検証(値の正しさは検証しない、既存スコープに合わせる)。
+  `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` の Process
+  手順15にも同じ2行要件を明記。テストスイートの各シナリオは同一秒内の
+  ファイル名衝突を避けるため専用の feature slug を使用し、jq 出力は
+  `tr -d '\r'` を経由(CI resilience)。詳細は
+  `reports/implementation/epic-159-pillar-c/T-004.md` を参照。
 - **ループインベントリと登録強制スイート (Issue #141, epic-159-pillar-a T-001)**:
   `tests/loops/loop-inventory.json`(schema `loop-inventory/v1`)を、8つの
   レビュー/ゲートループ(spec-review / impl-review / task-review /
