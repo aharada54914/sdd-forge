@@ -172,6 +172,39 @@
   ファイル名衝突を避けるため専用の feature slug を使用し、jq 出力は
   `tr -d '\r'` を経由(CI resilience)。詳細は
   `reports/implementation/epic-159-pillar-c/T-004.md` を参照。
+- **routing テストの full ケース化 + PowerShell twin 新設 + test.yml 登録ギャップ
+  閉鎖 (Issue #154, epic-159-pillar-c T-005)**:
+  `tests/agent-model-routing.tests.sh` を REQ-002/REQ-005 の全ケースへ拡張
+  (TEST-027: 三部構成の保護 `test.yml` 登録証明 -- (a)
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` への
+  ステージ済み候補 + `MANIFEST.sha256` 整合、(b) ライブ
+  `.github/workflows/test.yml` の SHA-256 不変(本タスク前後で
+  `3099a2a8e9ddc61b38fa5ef6b76be7b6181c5aa383225341f304330b88f65716`
+  のまま)、(c) human-copy 適用後の自己登録 grep は適用後に初めて成立する
+  性質として実装レポートに記載; TEST-034: v1↔v2 selector 出力レベルでの
+  投影不変量、`tests/agent-capabilities-v2.tests.sh` の TEST-004 と
+  フィクスチャ共有)。新規 `tests/agent-model-routing.tests.ps1` を追加し、
+  requirements.md の Problems 節が指摘していた事前存在の twin ギャップを
+  解消。`.sh` の全ケースリストを 1 対 1 移植しつつ、Windows CI レーンで
+  bash/jq への依存を持たないよう各二重ランタイムケースの PowerShell
+  ネイティブ半分のみを移植。PowerShell 固有の regression ケース(sv-SE
+  スレッドカルチャ下でも select-agent-model.ps1 内部の
+  `[StringComparer]::Ordinal` タイブレークが揺らがないことの証明)と、
+  T-002/T-003 で確立した2層 case-sensitivity 規律(`-ceq`/`-cne`/
+  `-ccontains` 演算子 + registry/candidate 文字列に対する ordinal
+  Dictionary、mis-cased negative fixture ペア)を継承。`tests/run-all.ps1`
+  へ新 twin を直接登録(`tests/run-all.sh` の既存登録行は不変を再確認)。
+  `.github/workflows/test.yml` は R-10 保護ファイルであり直接編集せず、
+  両 twin の CI ステップ(bash/pwsh 両レーン)を追記した完全な補正版を
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+  `MANIFEST.sha256` としてステージ。`tdd` ワークフロー(Risk: high)で RED
+  (`specs/epic-159-pillar-c/verification/T-005/red-twin-absent.log`:
+  twin 不在によりスイートが fail、`red-mutated-golden.log`: 変異させた
+  golden フィクスチャに対する比較が red 化することで TEST-028 の
+  mutation-based negative self-check が discriminating であることを
+  証明)→ GREEN (`specs/epic-159-pillar-c/verification/T-005/green-sh.log`
+  / `green-ps1.log`)の順で実装、詳細は
+  `reports/implementation/epic-159-pillar-c/T-005.md` を参照。
 - **ループインベントリと登録強制スイート (Issue #141, epic-159-pillar-a T-001)**:
   `tests/loops/loop-inventory.json`(schema `loop-inventory/v1`)を、8つの
   レビュー/ゲートループ(spec-review / impl-review / task-review /
