@@ -147,7 +147,13 @@ traceability, contracts, ADRs, Git diff, and all bundled references, including
     run described in `deterministic-check-policy.md`.
 13. Create review-ticket YAML for unresolved or non-auto-fixable findings.
 14. Update traceability and detect drift using `integrity-policy.md`.
-15. Create `reports/quality-gate/<timestamp>.md` naming the task id.
+15. Create `reports/quality-gate/<timestamp>.md` naming the task id. Record
+    the same `- Model:` / `- Effort:` two-line requirement the
+    implementation report carries (`implementation-report.template.md`,
+    `validate-implementation-report.sh` present-and-format-only check):
+    name the model and effort the gate's own critical-review pass ran
+    under, freely-authored (no separate template file exists for this
+    report).
 
 ### Sudo Mode
 
