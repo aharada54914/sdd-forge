@@ -36,6 +36,45 @@
   不在によりスイートが fail)→ GREEN
   (`specs/epic-159-pillar-c/verification/T-001/green-sh.log`)の順で実装、
   詳細は `reports/implementation/epic-159-pillar-c/T-001.md` を参照。
+- **selector v2 対応・effort-resolution 優先順位・ADR-0012 (Issue #150,
+  epic-159-pillar-c T-002)**: `select-agent-model.sh` / `.ps1` が
+  `--registry` の `schema` フィールドから v1/v2 を自動判別するように
+  なった。v1 レジストリ(レガシー位置引数 `--candidate name:tier:cost` 含む)
+  の経路は完全にバイト不変(AC-006、差分ファズ 32/32・29/29 件一致で検証)。
+  新規4フラグ: `--effort-policy welded|matrix`(既定 `welded`、Phase 1 全体
+  でこの既定を維持)・`--requested-effort <e>`(明示オーバーライド、両
+  policy で勝つ・`supported_efforts` へクランプ・`xhigh` は
+  `--xhigh-reason` 必須)・`--role <role>`(常に `--minimum-tier` を
+  シード、`matrix` かつ `risk_effort_matrix` に該当 risk が無い場合のみ
+  役割既定 effort もシード、`welded` 下では effort 成分は完全に不活性)・
+  `--host claude-code|codex-cli`(既定 `claude-code`、勝者モデルの
+  `effort_control` を JSON へ解決)。JSON 出力へ加法的キー
+  `effort_source`(`requested`/`risk-matrix`/`role-default`/
+  `model-default`/`welded` の5値)・`effort_control` を追加、既存7キーは
+  名前・型とも不変。`welded` は v2 でも v1 相当のバイト同一出力を再現し
+  (AC-007、意図的にゴールデン対象から外した候補ファイルの可用性を
+  ミューテートする negative self-check で比較が生きていることを証明)、
+  `--requested-effort` が `welded` 下でも常に勝つ carve-out(AC-053)は
+  この golden 比較対象外であることを構造的に保証。`matrix` は
+  `risk_effort_matrix[risk]` → escalation bump →
+  `supported_efforts` への最近傍クランプの順で解決し、bump 後に
+  `xhigh` へ着地した場合も `--xhigh-reason` ゲートを再適用(AC-008/
+  AC-009)。v2 `--candidates-file` の各エントリは `effort` を省略可能
+  (省略時は policy が補完)だが v1 は従来どおり必須のまま拒否
+  (AC-013)。v2 レジストリの `supported_efforts`(空/非配列)・
+  `effort_control`(列挙外値)・`risk_effort_matrix`(非文字列値)の
+  各カテゴリを fail-closed で `MODEL_SELECTION_ERROR` 診断とともに
+  拒否(AC-054、カテゴリごとに1フィクスチャで検証)。
+  `docs/adr/0012-effort-tier-decoupling.md` を新規起草(`ls docs/adr/` で
+  `0012` の空きを再検証済み、ADR-0003 の tier↔effort 溶接部分のみを
+  narrow し、tier 選択アルゴリズム自体は変更しない)。
+  `tests/agent-model-routing.tests.sh` を拡張し TEST-006..013/053/054 の
+  Phase-1-scoped smoke を追加(bash 側フル + pwsh 側スポットチェック、
+  完全な twin 網羅は T-005 の所掌)。受け入れ先行(acceptance-first)で
+  RED(`specs/epic-159-pillar-c/verification/T-002/red-sh.log`: 新規
+  フラグが未知引数として拒否される)→ GREEN
+  (`specs/epic-159-pillar-c/verification/T-002/green-sh.log`)の順で実装、
+  詳細は `reports/implementation/epic-159-pillar-c/T-002.md` を参照。
 - **ループインベントリと登録強制スイート (Issue #141, epic-159-pillar-a T-001)**:
   `tests/loops/loop-inventory.json`(schema `loop-inventory/v1`)を、8つの
   レビュー/ゲートループ(spec-review / impl-review / task-review /
