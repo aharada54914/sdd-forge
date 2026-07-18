@@ -127,7 +127,7 @@ still required.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/149
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T11:59:28Z)
 
 Status: Planned
 
@@ -305,7 +305,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/150
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T11:59:28Z)
 
 Status: Planned
 
@@ -492,7 +492,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/151
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T11:59:28Z)
 
 Status: Planned
 
@@ -701,7 +701,7 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/153
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T11:59:28Z)
 
 Status: Planned
 
@@ -861,7 +861,7 @@ T-001, T-002
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/154
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T11:59:28Z)
 
 Status: Planned
 
@@ -1027,7 +1027,7 @@ T-002, T-003
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/152
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-16T11:59:28Z)
 
 Status: Planned
 
