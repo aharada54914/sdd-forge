@@ -104,7 +104,7 @@ verified absent from `_PROTECTED_GATE_SUFFIXES` and agent-editable
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/156
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -266,7 +266,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/158
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -438,7 +438,7 @@ verification.)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/157
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
