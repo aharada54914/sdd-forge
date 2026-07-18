@@ -205,6 +205,55 @@
   証明)→ GREEN (`specs/epic-159-pillar-c/verification/T-005/green-sh.log`
   / `green-ps1.log`)の順で実装、詳細は
   `reports/implementation/epic-159-pillar-c/T-005.md` を参照。
+- **Codex ホストへの effort 実適用 + argv injection 拒否 + REQ-008 締めくくり監査
+  (Issue #152, epic-159-pillar-c T-006)**: `run-panelist-gpt.sh` / `.ps1` に
+  `--effort <e>` / `-Effort <e>` を追加し、指定時のみ既存の `codex --model ...`
+  呼び出し(`run-panelist-gpt.sh:146` 相当)に `--effort <e>` を追記(未指定なら
+  従来どおりバイト単位で不変、AC-035)。`prepare-panelist-input.sh` / `.ps1` に
+  同名のパススルーフラグを追加し、selector 由来の effort 値を stdout の
+  第2行(`effort=<e>`)経由で呼び出し側の `run-panelist-gpt --effort <e>` へ
+  橋渡し(AC-036、両スクリプトは別プロセスで直接連結されないため verbatim な
+  受け渡しとして実装)。`plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`
+  に Codex ホストでの `sdd-evaluator`/`sdd-investigator` 起動手順を明記:
+  `select-agent-model.sh --host codex-cli --role <role> --json` の
+  model+effort 出力を `codex` の CLI フラグとして供給し(AC-037、実際に
+  `contracts/agent-model-capabilities.v2.json` の実レジストリと
+  `.codex/agents/sdd-evaluator.toml` / `sdd-investigator.toml` の
+  `# x-sdd-model:` / `# x-sdd-effort:` 参照コメント(T-003 が描画)を突き合わせて
+  一致することを確認済み)、その値をT-003の描画済み参照コメントと突き合わせる
+  cross-check が乖離を `DRIFT: <toml> toml=<m>/<e> live=<m>/<e>` として
+  検出可能な形で報告する(AC-038、どちらの値も無言で優先しない)。Claude Code
+  経路は `select-agent-model --host claude-code` が全 Anthropic モデルで
+  `effort_control: frontmatter` に解決することを利用し、`emit-run-record
+  --effort-control-main frontmatter` を通じて `effort_applied=null` +
+  `effort_degraded_reason=effort-control-frontmatter` を実レコードに記録
+  (AC-039、REQ-008、T-004 の AC-024/AC-051 と同一の field-population
+  ルールを共有)。**AC-052 (security-spec.md B3)**: `--model`/`--effort` の
+  語彙外形状(空白混入・先頭 `-`/`--`・`;` 区切り、及び `--effort` は
+  `{low, medium, high, xhigh}` 外の文字列)を argv 構成前に拒否し、非ゼロ
+  exit・診断メッセージ・`codex` 呼び出し 0 回を保証(検証は実 `codex` の
+  代わりにスタブ実行体を使った argv/呼び出しマーカー記録方式、実LLM呼び出しは
+  一切行わない、AC-040)。新規 `tests/run-panelist-effort.tests.sh` / `.ps1`
+  (TEST-035..040/052、`tests/run-all.sh`/`.ps1` へ自スイート登録済み)を追加。
+  **REQ-008 締めくくり監査(AC-047/AC-048)**: このフェーズが追加した
+  effort 消費面は T-004 の run-record(AC-024: frontmatter/none 制御での
+  null+reason 記録、AC-051: Codex ホストでも非 flag 制御なら host 名でなく
+  解決済み `effort_control` 値で同一形状に劣化)と T-006 自身の panelist
+  経路(AC-039)の2面のみで、いずれも Claude Code(または非 `flag` 制御)側の
+  劣化ケースが実証済み、かつどのスイートも Claude Code の effort 機構欠如を
+  理由に FAIL/SKIP とせず PASS 扱いであることを確認(実装レポートに
+  面ごとのチェックリストとして記録)。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CIステップ
+  (bash/pwsh 両レーン)を T-005 の既存ステージ済み内容に追記する形で
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+  `MANIFEST.sha256` としてステージ(適用前後でライブファイルの SHA-256 は
+  `3099a2a8e9ddc61b38fa5ef6b76be7b6181c5aa383225341f304330b88f65716`
+  のまま不変)。受け入れ先行(acceptance-first)で RED
+  (`specs/epic-159-pillar-c/verification/T-006/red-sh.log`: `--effort` が
+  両スクリプトで未知引数として拒否される)→ GREEN
+  (`specs/epic-159-pillar-c/verification/T-006/green-sh.log` /
+  `green-ps1.log`)の順で実装、詳細は
+  `reports/implementation/epic-159-pillar-c/T-006.md` を参照。
 - **ループインベントリと登録強制スイート (Issue #141, epic-159-pillar-a T-001)**:
   `tests/loops/loop-inventory.json`(schema `loop-inventory/v1`)を、8つの
   レビュー/ゲートループ(spec-review / impl-review / task-review /
