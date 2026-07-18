@@ -260,6 +260,26 @@
   T-003 発見分の全ステージ修正)により、round 駆動自体は spec/impl/task/
   domain 全レグで健全であることも確認。詳細は
   `reports/implementation/epic-159-pillar-a2-T-004.md`。
+- **能力リフレッシュ手順とマトリクス確認列の追加 (Issue #156, epic-159-pillar-d
+  T-001)**: `docs/contributor/workflow-detail.md` の WFI (Workflow
+  Improvement) ライフサイクル節に、既存の Draft ステップと人間承認ステップの
+  間へ「能力リフレッシュチェック」ステップを新設。`Mechanism: model-routing`
+  の WFI を Draft する前に確認する正典ソース一覧(Anthropic 公式
+  docs/blog、OpenAI developers docs/blog、Claude Code / Codex CLI /
+  Copilot CLI の各リリースノート)、4つのチェック項目(モデル ID の有効性 /
+  新モデル・新機能の有無 / effort・ツール対応の変化 / v2 レジストリとの乖離)、
+  週次自動起票フロー(`.github/workflows/model-freshness-check.yml`、
+  epic-159-pillar-d T-003)への接続と手動起票フォールバックを明記し、手動
+  起票する issue のタイトルには自動起票と重複判定を揃えるための安定タイトル
+  マーカー `[model-freshness-divergence]` を必ず含めることを規定。
+  `docs/agent-capability-matrix.md` の Provider Tier Mapping 表には
+  「最終確認日」「参照ソース」の末尾2列を全6行に追加(既存セルは無変更、
+  `未確認` で初期化し次回リフレッシュ実施時に更新される想定)。
+  `tests/agent-model-routing.tests.sh`(無編集)を再実行し green を確認
+  (`assert_literal` の固定文字列一致は各行の追記前プレフィックスに対する
+  部分一致であるため、末尾列の追加後も成立)。ホスト中立(Claude Code /
+  Codex どちらにも偏らない単一プローズブロック)。詳細は
+  `reports/implementation/epic-159-pillar-d/T-001.md`。
 
 ### セキュリティ修正
 
