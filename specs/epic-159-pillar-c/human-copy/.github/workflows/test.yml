@@ -1,0 +1,542 @@
+name: Test installers and gates
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Full history: review-loop prechecks and provenance tests resolve
+          # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
+          fetch-depth: 0
+
+      - name: Verify generated guard invariants (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+
+      - name: Verify generated guard invariants (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+
+      - name: Install recorded Claude Code CLI
+        shell: bash
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate Claude plugin manifests (real CLI)
+        shell: pwsh
+        run: ./tests/claude-manifest-validation.tests.ps1
+
+      # pwsh steps run the test scripts directly: piping through tee changes
+      # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
+      # log already captures their output.
+      - name: Validate workflow state (PowerShell)
+        shell: pwsh
+        run: ./plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+
+      - name: Validate workflow state (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./plugins/sdd-quality-loop/scripts/check-workflow-state.sh
+
+      - name: Validate repository
+        shell: pwsh
+        run: ./tests/validate-repository.ps1
+
+      - name: Validate repository (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: ./tests/validate-repository.sh
+
+      - name: Test repository release validation parity
+        if: runner.os != 'Windows'
+        shell: bash
+        run: ./tests/repository-release-validation.tests.sh
+
+      - name: Test template-validator parity (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/template-validator-parity.tests.sh
+
+      - name: Test template-validator parity (pwsh)
+        shell: pwsh
+        run: ./tests/template-validator-parity.tests.ps1
+
+      - name: Test loop inventory registration forcing (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-inventory.tests.sh
+
+      - name: Test loop inventory registration forcing (pwsh)
+        shell: pwsh
+        run: ./tests/loop-inventory.tests.ps1
+
+      - name: Test loop driver smoke suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-driver.tests.sh
+
+      - name: Test loop driver smoke suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-driver.tests.ps1
+
+      - name: Test loop consistency suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-consistency.tests.sh
+
+      - name: Test loop consistency suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-consistency.tests.ps1
+
+      - name: Test loop escalation suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-escalation.tests.sh
+
+      - name: Test loop escalation suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-escalation.tests.ps1
+
+      - name: Test agent-model-capabilities v2 registry parity lock (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/agent-capabilities-v2.tests.sh
+
+      - name: Test agent-model-capabilities v2 registry parity lock (pwsh)
+        shell: pwsh
+        run: ./tests/agent-capabilities-v2.tests.ps1
+
+      - name: Test HITL/WFI-audit terminal-behavior suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/hitl-wfi-terminal.tests.sh
+
+      - name: Test HITL/WFI-audit terminal-behavior suite (pwsh)
+        shell: pwsh
+        run: ./tests/hitl-wfi-terminal.tests.ps1
+
+      - name: Test check-placeholders brownfield behavior lock (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-placeholders-brownfield.tests.sh
+
+      - name: Test check-placeholders brownfield behavior lock (pwsh)
+        shell: pwsh
+        run: ./tests/check-placeholders-brownfield.tests.ps1
+
+      - name: Test bump-version.sh loop-gate prerequisite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/bump-version-gate.tests.sh
+
+      - name: Test bump-version.sh loop-gate prerequisite (pwsh)
+        shell: pwsh
+        run: ./tests/bump-version-gate.tests.ps1
+
+      - name: Test release.yml required loop-gate job (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/release-loop-gate.tests.sh
+
+      - name: Test release.yml required loop-gate job (pwsh)
+        shell: pwsh
+        run: ./tests/release-loop-gate.tests.ps1
+
+      - name: Test deterministic gate scripts
+        shell: pwsh
+        run: ./tests/scripts.tests.ps1
+
+      - name: Test selected-feature structure validation
+        shell: pwsh
+        run: ./tests/structure-check-feature-mode.tests.ps1
+
+      - name: Test portable review-loop prechecks (pwsh)
+        shell: pwsh
+        run: |
+          ./tests/review-contract-foundation.tests.ps1
+          ./tests/downstream-review-precheck.tests.ps1
+          ./tests/impl-layer-review-inputs.tests.ps1
+          ./tests/task-layer-review-inputs.tests.ps1
+
+      - name: Test cross-model gate (pwsh)
+        shell: pwsh
+        run: ./tests/cross-model.tests.ps1
+
+      - name: Test Phase 2 guard invariants (pwsh)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/phase2-guard-invariants.tests.ps1
+
+      - name: Test Phase 2 guard invariants (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/phase2-guard-invariants.tests.sh
+
+      - name: Test hook guards
+        shell: pwsh
+        run: ./tests/hooks.tests.ps1
+
+      - name: Test cross-runtime scenario suite (pwsh)
+        shell: pwsh
+        run: ./tests/scenario.tests.ps1
+
+      - name: Test installer (pwsh)
+        shell: pwsh
+        run: ./tests/install.tests.ps1
+
+      - name: Test uninstaller (pwsh)
+        shell: pwsh
+        run: ./tests/uninstall.tests.ps1
+
+      - name: Test Claude registration (pwsh)
+        shell: pwsh
+        run: ./tests/claude-registration.tests.ps1
+
+      - name: Test authenticated remote installer (pwsh)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./install.ps1 -Ref $env:GITHUB_SHA -InstallRoot (Join-Path $env:RUNNER_TEMP "sdd-remote-pwsh") -Target FilesOnly
+
+      - name: Test POSIX installer
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash -n ./tests/release-host-smoke.sh
+          ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
+
+      - name: Test POSIX uninstaller
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/uninstall.tests.sh 2>&1 | tee "${{ runner.temp }}/uninstall-tests-sh.log"
+
+      - name: Test authenticated remote installer (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./install.sh --ref "$GITHUB_SHA" --install-root "${RUNNER_TEMP}/sdd-remote-bash" --target FilesOnly
+
+      - name: Test guards (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
+
+      - name: Test approval boundary (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
+
+      - name: Test deterministic gates (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
+
+      - name: Test panelist-input consent gate (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
+
+      - name: Test panelist-input consent gate (pwsh)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/prepare-panelist.tests.ps1
+
+      - name: Test portable review-loop prechecks (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/review-contract-foundation.tests.sh
+          bash tests/review-contract-foundation-parity.tests.sh
+          bash tests/spec-review-loop.tests.sh
+          bash tests/downstream-review-precheck.tests.sh
+          bash tests/downstream-review-precheck-parity.tests.sh
+          bash tests/impl-layer-review-inputs.tests.sh
+          bash tests/task-layer-review-inputs.tests.sh
+          bash tests/task-layer-full-profile.tests.sh
+          bash tests/task-review-precheck.tests.sh
+          bash tests/review-agent-isolation.tests.sh
+
+      - name: Test cross-model gate (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/cross-model.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-model-tests.log"
+
+      - name: Test outcome-based eval suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
+
+      - name: Test CRLF line-ending parity (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
+
+      - name: Test cross-runtime scenario suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
+
+      - name: Test branch-protection script (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
+
+      - name: Upload test logs
+        if: failure()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: test-logs-${{ matrix.os }}
+          path: ${{ runner.temp }}/*.log
+          if-no-files-found: ignore
+
+  # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
+  # Node/TypeScript component: a read-only MCP server exposing SDD workflow
+  # state. Its tasks.md state-machine parser must stay shell-equivalent with
+  # check-task-state.sh (golden tests), so it is exercised across the same
+  # 3-OS matrix as the rest of the suite. On POSIX runners the golden tests
+  # execute the real shell scripts; on Windows they compare against recorded
+  # fixtures (process.platform branch inside the test suite itself).
+  mcp-tests:
+    name: mcp-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: mcp/sdd-forge-mcp
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          # Full history: the golden task-state tests exercise
+          # check-evidence-bundle, which resolves each bundle's recorded
+          # git_commit binding via git; a shallow clone cannot see them.
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: mcp/sdd-forge-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test
+
+      # dist-parity (AC-010): rebuild the esbuild bundle and confirm the
+      # working tree's committed dist/index.js is reproducible from source.
+      # Runs once on Linux to keep the check OS-agnostic and fast; esbuild
+      # output is deterministic across platforms for this bundle.
+      - name: Rebuild dist and verify parity
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run build
+          git diff --exit-code -- dist/
+
+      - name: Audit production dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: npm audit --omit=dev --audit-level=high
+
+  # B2 — exercise the SDD hook guard with the REAL CLI toolchains installed on
+  # each OS, through the exact command line each CLI's hook config invokes. This
+  # closes the gap that the unit/scenario suites only run the guard scripts in
+  # isolation; here Claude Code / Codex / Copilot binaries are actually present.
+  # (A live agent session that fires the hook needs an API-key secret and is
+  # non-deterministic, so it is not gated here — the deterministic enforcement
+  # below is what protects the branch.)
+  # local-env-mcp-tests — local-env-mcp (mcp/local-env-mcp/) is a read-only
+  # MCP server exposing local environment info (OS, toolchain versions, CLI
+  # availability) with no execution capability (ADR-0003/ADR-0004 pattern,
+  # same shape as sdd-forge-mcp). Exercised across the same 3-OS matrix as
+  # sdd-forge-mcp's mcp-tests job.
+  local-env-mcp-tests:
+    name: local-env-mcp-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: mcp/local-env-mcp
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: mcp/local-env-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Run tests
+        run: npm test
+
+      # dist-parity (AC-008): rebuild the esbuild bundle and confirm the
+      # working tree's committed dist/index.js is reproducible from source.
+      # Runs once on Linux to keep the check OS-agnostic and fast; esbuild
+      # output is deterministic across platforms for this bundle (verified
+      # locally: two independent builds produced an identical SHA-256).
+      - name: Rebuild dist and verify parity
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run build
+          git diff --exit-code -- dist/
+
+      - name: Audit production dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: npm audit --omit=dev --audit-level=high
+
+  # ci-mcp-tests — ci-mcp (mcp/ci-mcp/) is a read-only MCP server exposing
+  # GitHub Actions CI state (workflow runs, jobs, job logs, artifacts
+  # metadata) over a GET-only api.github.com client (ADR-0003 pattern, same
+  # shape as sdd-forge-mcp / local-env-mcp). Exercised across the same 3-OS
+  # matrix; its own test suite (fake GitHub API fixtures) makes no real
+  # network call, so CI stays outbound-connection-free (design.md
+  # "Deployment / CI Plan").
+  ci-mcp-tests:
+    name: ci-mcp-tests
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: mcp/ci-mcp
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: mcp/ci-mcp/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      # Includes the AC-015 Inspector CLI smoke test (tests/smoke/), which
+      # spawns the bundled dist/index.js over real stdio — its before()
+      # hook builds dist/ on demand if absent, so this step alone is
+      # sufficient even before the parity step below runs.
+      - name: Run tests
+        run: npm test
+
+      # dist-parity (AC-014): rebuild the esbuild bundle and confirm the
+      # working tree's committed dist/index.js is reproducible from source.
+      # Runs once on Linux to keep the check OS-agnostic and fast; esbuild
+      # output is deterministic across platforms for this bundle (verified
+      # locally: two independent builds produced an identical SHA-256).
+      - name: Rebuild dist and verify parity
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          npm run build
+          git diff --exit-code -- dist/
+
+      - name: Audit production dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: npm audit --omit=dev --audit-level=high
+
+  cli-hook-enforcement:
+    name: cli-hook-enforcement
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Install Claude Code CLI
+        shell: bash
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Install Codex CLI (best-effort)
+        shell: bash
+        continue-on-error: true
+        run: npm install -g @openai/codex
+
+      - name: Install Copilot CLI (best-effort)
+        shell: bash
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh extension install github/gh-copilot
+
+      - name: CLI hook enforcement (real toolchain present)
+        shell: pwsh
+        run: ./tests/cli-hook-enforcement.ps1
+
+  required-checks:
+    name: required-checks
+    if: always()
+    needs: [test, cli-hook-enforcement]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check all required tests passed
+        run: |
+          if [ "${{ needs.test.result }}" != "success" ]; then
+            echo "test job failed"
+            exit 1
+          fi
+          if [ "${{ needs.cli-hook-enforcement.result }}" != "success" ]; then
+            echo "cli-hook-enforcement job failed"
+            exit 1
+          fi
+          echo "all required checks passed"
