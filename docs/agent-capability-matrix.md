@@ -126,14 +126,14 @@ identifier, written as the lexicographically smaller `provider/model`.
 
 ### Provider Tier Mapping
 
-| Tier | Provider | Model family | Reasoning effort |
-|---|---|---|---|
-| lightweight | Anthropic | Haiku | low |
-| standard | Anthropic | Sonnet | medium |
-| strong | Anthropic | Opus | high |
-| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low |
-| standard | OpenAI/Codex | `gpt-5.1-codex` | medium |
-| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh |
+| Tier | Provider | Model family | Reasoning effort | 最終確認日 | 参照ソース |
+|---|---|---|---|---|---|
+| lightweight | Anthropic | Haiku | low | 未確認 | Anthropic official docs (models overview) |
+| standard | Anthropic | Sonnet | medium | 未確認 | Anthropic official docs (models overview) |
+| strong | Anthropic | Opus | high | 未確認 | Anthropic official docs (models overview) |
+| lightweight | OpenAI/Codex | `gpt-5.1-codex-mini` | low | 未確認 | OpenAI developers docs (Codex) |
+| standard | OpenAI/Codex | `gpt-5.1-codex` | medium | 未確認 | OpenAI developers docs (Codex) |
+| strong | OpenAI/Codex | `gpt-5.2-codex` (`gpt-5.1-codex-max` fallback) | high or xhigh | 未確認 | OpenAI developers docs (Codex) |
 
 Codex agent model selection is a runtime control (`--model` / `--effort` flags
 passed to the Codex CLI at invocation), not a field in the role TOML. The
