@@ -2511,9 +2511,17 @@ else
 fi
 
 # Test T-007a.6: critical bundle with valid signature, but verify with NO key → FAIL
+# "No key" must neutralize the full fallback chain (SDD_EVIDENCE_KEY env ->
+# SDD_EVIDENCE_KEY_FILE -> ~/.sdd/evidence-key): dev hosts may have a real
+# ~/.sdd/evidence-key, so run these calls with HOME/USERPROFILE pointing at an
+# empty directory and SDD_EVIDENCE_KEY_FILE cleared.
 unset SDD_EVIDENCE_KEY
-t007a_6_out=$(run_check_bundle "$critical_bundle" "${T007A_REPO}")
-if ! check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
+T007A_NOKEY_HOME="${WORK}/t007a_nokey_home"
+mkdir -p "$T007A_NOKEY_HOME"
+t007a_6_out=$(HOME="$T007A_NOKEY_HOME" USERPROFILE="$T007A_NOKEY_HOME" SDD_EVIDENCE_KEY_FILE="" \
+    run_check_bundle "$critical_bundle" "${T007A_REPO}")
+if ! HOME="$T007A_NOKEY_HOME" USERPROFILE="$T007A_NOKEY_HOME" SDD_EVIDENCE_KEY_FILE="" \
+        check_bundle_passes "$critical_bundle" "${T007A_REPO}" && \
    echo "$t007a_6_out" | grep -q "no evidence key"; then
     ok "T-007a.6: verify without key fails"
 else
@@ -2551,14 +2559,17 @@ else
 fi
 
 # Test T-007a.8: generate critical bundle with NO key → generate fails
+# (evidence-key fallback chain neutralized again — see T-007a.6)
 unset SDD_EVIDENCE_KEY
-if generate_bundle_passes \
+if HOME="$T007A_NOKEY_HOME" USERPROFILE="$T007A_NOKEY_HOME" SDD_EVIDENCE_KEY_FILE="" \
+    generate_bundle_passes \
     "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
     "${T007A_REPO}/reports/quality-gate/T-200.md" \
     "${T007A_REPO}"; then
     fail "T-007a.8: generate critical without key should fail"
 else
-    t007a_8_out=$(run_generate_bundle \
+    t007a_8_out=$(HOME="$T007A_NOKEY_HOME" USERPROFILE="$T007A_NOKEY_HOME" SDD_EVIDENCE_KEY_FILE="" \
+        run_generate_bundle \
         "${T007A_REPO}/specs/test-feature/verification/T-200.contract.json" \
         "${T007A_REPO}/reports/quality-gate/T-200.md" \
         "${T007A_REPO}")
