@@ -1,0 +1,71 @@
+=== GREEN evidence: tests/prepare-panelist.tests.ps1 against FIXED prepare-panelist-input.ps1 ===
+Captured: 2026-07-19T16:57:47Z
+Fixed SHA-256 (ps1): 516bd6e8737ff0f3bb3ca9f16117f063e26b79c5812b4088001467fdbf0b9fe8
+
+=== PP-001: Fail closed — no consent ===
+FAIL: PP-001a: no consent should exit non-zero, got 0
+FAIL: PP-001b: output file must NOT be created without consent
+FAIL: PP-001c: error message should mention 'consent', got: ac72346c8140308a526ec901403156a5b0c6c74ece139d4153aaf2493e2fccf6
+=== PP-002: Consent via tasks.md flag + secret sanitization ===
+ok: PP-002a: consent present → exit 0
+ok: PP-002b: output file created
+ok: PP-002c: AWS_SECRET_ACCESS_KEY value stripped
+ok: PP-002d: OPENAI_API_KEY value stripped
+ok: PP-002e: AWS_ACCESS_KEY_ID value stripped
+ok: PP-002f: GitHub PAT stripped
+ok: PP-002g: DB_PASSWORD value stripped
+ok: PP-002h: absolute Unix path /Users/... stripped
+ok: PP-002i: absolute Unix path /home/... stripped
+ok: PP-002j: private URL stripped
+ok: PP-002k: private IP URL stripped
+ok: PP-002l: normal content preserved
+=== PP-003: input_digest deterministic and 64-hex ===
+ok: PP-003a: input_digest is 64-hex: ac72346c8140308a526ec901403156a5b0c6c74ece139d4153aaf2493e2fccf6
+=== PP-004: Digest is deterministic ===
+ok: PP-004: same input → same digest (ac72346c8140308a526ec901403156a5b0c6c74ece139d4153aaf2493e2fccf6)
+=== PP-005: Default output path ===
+ok: PP-005: default output path created at verification/T-004.panelist-input.txt
+=== PP-006: Required args validation ===
+ok: PP-006a: missing --task → non-zero exit
+ok: PP-006b: missing --feature → non-zero exit
+=== PP-007: SDD_SUDO consent path ===
+ok: PP-007: SDD_SUDO (skip-sig test mode) grants consent → exit 0
+=== PP-008/009/010/011/012: real SDD_SUDO HMAC verification ===
+ok: PP-008: real-HMAC token grants consent
+ok: PP-009: tampered signed field is denied
+ok: PP-010: correctly signed invalid nonce is denied with no bundle
+ok: PP-011: correctly signed expired token is denied with no bundle
+ok: PP-012: correctly signed overlong TTL is denied with no bundle
+ok: PP-013: correctly signed wrong repository is denied with no bundle
+=== TEST-013: recursion — subdirectory file included in bundle (AC-013) ===
+ok: TEST-013a: recursive collection succeeds (exit 0)
+ok: TEST-013b: subdirectory file content included in bundle (recursion)
+=== TEST-014: completeness positive baseline (AC-014) ===
+ok: TEST-014a: complete declared-outputs bundle → exit 0
+ok: TEST-014b: digest printed on completeness success
+=== TEST-015: missing declared output → fail closed (AC-015) ===
+ok: TEST-015a: missing declared output → nonzero exit
+ok: TEST-015b: gap (missing path) printed to stderr
+ok: TEST-015c: no digest line printed on completeness gap
+ok: TEST-015d: bundle file not written on completeness gap
+=== TEST-016: hash-mismatch declared output → fail closed (AC-016) ===
+ok: TEST-016a: hash-mismatch declared output → nonzero exit
+ok: TEST-016b: gap (hash mismatch) printed to stderr
+ok: TEST-016c: no digest line printed on hash-mismatch gap
+=== TEST-017: subdirectory declared output located + verified (AC-017) ===
+ok: TEST-017a: subdirectory declared output found + hash-verified → exit 0
+ok: TEST-017b: digest printed (completeness passed for subdirectory path)
+ok: TEST-017c: nested artifact content collected into bundle (recursion)
+=== TEST-032: path-traversal declared output → fail closed (AC-032, B1) ===
+ok: TEST-032a: path-traversal declared output → nonzero exit
+ok: TEST-032b: out-of-root violation reported on stderr
+ok: TEST-032c: no digest line printed on path-traversal gap
+ok: TEST-032d: sentinel content does not appear anywhere in stdout/stderr
+ok: TEST-032e: bundle file not written on path-traversal gap
+
+Results: 43 passed, 3 failed
+EXIT=1
+
+NOTE: PP-001a/b/c fail above -- same pre-existing, environment-only ambient
+sudo-mode consent-token flake documented in green-sh.log / red-ps1.log,
+unrelated to and unaffected by this task's diff.

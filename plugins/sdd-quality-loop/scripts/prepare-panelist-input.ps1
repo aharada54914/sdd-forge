@@ -199,6 +199,9 @@ if (-not $ConsentKind) {
 }
 
 # ── Collect input content ────────────────────────────────────────────────────
+# -Recurse -File (native re-implementation, never a shell-out to the .sh
+# twin) so subdirectories of --input are visited too (REQ-003/AC-013);
+# sorted for determinism.
 
 if (-not (Test-Path $InputPath)) {
     [Console]::Error.WriteLine("prepare-panelist-input: input not found: $InputPath")
@@ -207,13 +210,116 @@ if (-not (Test-Path $InputPath)) {
 
 if ((Get-Item $InputPath).PSIsContainer) {
     $rawLines = @()
-    foreach ($f in (Get-ChildItem $InputPath -File)) {
+    foreach ($f in (Get-ChildItem $InputPath -File -Recurse | Sort-Object FullName)) {
         $rawLines += Get-Content -Raw -Encoding Utf8 $f.FullName
     }
     $rawContent = $rawLines -join "`n"
 } else {
     $rawContent = Get-Content -Raw -Encoding Utf8 $InputPath
 }
+
+# ── Declared-outputs completeness check (REQ-003/AC-014..017/AC-032) ────────
+# Security Boundary B1 (security-spec.md): verifies every path the
+# implementation report's own "## Outputs" table declares is present in the
+# bundle's --input root with a matching SHA-256, BEFORE sanitization/digest
+# computation ever runs — a completeness gap means no digest line can ever
+# print (a structural property: the sanitize/write/print code below is
+# simply never reached on a gap, not a conditional guard around it).
+#
+# Native re-implementation of the same "## Outputs" heading + "| `path` |
+# `hash` |" row shape validate-review-context-set.sh:63-74's
+# evaluator_output_is_declared already establishes, applied in the OPPOSITE
+# direction: instead of checking one caller-supplied path against the
+# table, this iterates every row and containment-checks each declared path
+# against the bundle's OWN --input root FIRST — reusing that same site's
+# path_is_authorized containment discipline — a path that would resolve
+# outside is a gap, NEVER read (never opened, never hashed), before
+# existence/hash is verified for paths that pass containment.
+#
+# Convention, not a new flag (Breaking API: no — CLI flags are unchanged):
+# the implementation report path is derived from --task/--feature/
+# --project-root as reports/implementation/<feature>/<task_id>.md, the same
+# convention validate-review-context-set.sh:267-282 already uses to locate
+# an sdd-evaluator's implementation report. If no report exists at that
+# conventional path, there is no declared-outputs table to check against —
+# the completeness check is a no-op (preserves BL-007/BL-008/BL-009 for
+# every caller that predates this convention, e.g. this script's own
+# existing test fixtures).
+
+function Test-DeclaredOutputCanonicalPath {
+    param([string]$Path)
+    if ([string]::IsNullOrEmpty($Path)) { return $false }
+    if ($Path.StartsWith("/")) { return $false }
+    if ($Path -match "^[A-Za-z]:") { return $false }
+    if ($Path.Contains("\")) { return $false }
+    if ($Path -match "(^|/)\.\.?(/|$)") { return $false }
+    return $true
+}
+
+function Invoke-DeclaredOutputsCompletenessCheck {
+    param([string]$ProjectRoot, [string]$Feature, [string]$TaskId, [string]$InputRoot)
+
+    $implReportPath = Join-Path $ProjectRoot (Join-Path "reports" (Join-Path "implementation" (Join-Path $Feature "$TaskId.md")))
+    if (-not (Test-Path -LiteralPath $implReportPath)) { return }
+
+    $gaps = New-Object System.Collections.Generic.List[string]
+    $inOutputs = $false
+    foreach ($rawLine in (Get-Content -Encoding Utf8 $implReportPath)) {
+        $line = $rawLine.TrimEnd("`r")
+        if ($line -eq "## Outputs") { $inOutputs = $true; continue }
+        if ($line -match "^## ") {
+            if ($inOutputs) { break }
+            continue
+        }
+        if (-not $inOutputs) { continue }
+
+        $m = [regex]::Match($line, '^\| `([^`]*)` \| `([^`]*)` \|\s*$')
+        if (-not $m.Success) { continue }
+        $rowPath = $m.Groups[1].Value
+        $rowHash = $m.Groups[2].Value.ToLower()
+        if ([string]::IsNullOrEmpty($rowPath)) { continue }
+
+        if (-not (Test-DeclaredOutputCanonicalPath $rowPath)) {
+            $gaps.Add("declared output resolves outside input root: $rowPath")
+            continue
+        }
+
+        # Component-walk containment: no symbolic link anywhere between the
+        # bundle root and the candidate may be followed (mirrors
+        # validate-review-context-set.sh's own symlink-component-walk).
+        $current = $InputRoot.TrimEnd('/', '\')
+        $outsideRoot = $false
+        foreach ($component in ($rowPath -split '/')) {
+            $current = "$current/$component"
+            $item = Get-Item -LiteralPath $current -ErrorAction SilentlyContinue
+            if ($item -and $item.LinkType) { $outsideRoot = $true }
+        }
+        if ($outsideRoot) {
+            $gaps.Add("declared output resolves outside input root: $rowPath")
+            continue
+        }
+
+        $candidate = Join-Path $InputRoot $rowPath
+        $candidateItem = Get-Item -LiteralPath $candidate -ErrorAction SilentlyContinue
+        if ($candidateItem -and (-not $candidateItem.PSIsContainer) -and (-not $candidateItem.LinkType)) {
+            $actualHash = (Get-FileHash -LiteralPath $candidate -Algorithm SHA256).Hash.ToLower()
+            if ($actualHash -ne $rowHash) {
+                $gaps.Add("declared output hash mismatch: $rowPath")
+            }
+        } else {
+            $gaps.Add("declared output missing from bundle: $rowPath")
+        }
+    }
+
+    if ($gaps.Count -gt 0) {
+        foreach ($g in $gaps) {
+            [Console]::Error.WriteLine("prepare-panelist-input: $g")
+        }
+        exit 1
+    }
+}
+
+Invoke-DeclaredOutputsCompletenessCheck -ProjectRoot $ProjectRoot -Feature $Feature -TaskId $TaskId -InputRoot $InputPath
 
 # ── Sanitize content ─────────────────────────────────────────────────────────
 # Secret patterns (reusing check-ph patterns + common key detection):
