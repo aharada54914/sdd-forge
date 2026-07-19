@@ -804,6 +804,36 @@
   (サニタイズ)・BL-009(`--effort` 出力契約)は無改変で green を維持。
   WFI-009 の Status を Approved → Applied に更新。詳細は
   `reports/implementation/quality-loop-fixes/T-003.md` を参照。
+- **validate-review-context-set.sh が Windows Git Bash (jq.exe) 上で正当な
+  identity ledger を拒否していた問題 (Issue #179)**:
+  `validate-review-context-set.sh` のレコードハッシュ再計算経路にある全
+  `jq -r` 消費箇所(マニフェスト単一値読み取り9箇所+条件付き `task_id`
+  読み取り1箇所、`@tsv` 形式の ledger バッチ読み取り1箇所、
+  `allowed_input_manifest` 読み取り2箇所、計12箇所)が jq 出力の末尾 `\r`
+  を除去していなかったため、Windows の `jq.exe` が emit する CRLF 改行が
+  `while IFS=$'\t' read` ループの最終フィールド(`record_sha256`)に混入し、
+  正当な genesis ledger に対してもバイト完全一致比較が失敗し
+  `REVIEW_CONTEXT_IDENTITY: canonical identity ledger record hash is
+  invalid` を誤って返していた(`tests/lib/loop-driver.sh:460-481` の
+  `loop_validator_capability_probe` が `degraded` として長期間吸収)。
+  コミット `c756a5a` で確立済みの `tr -d '\r'`(`uname`/OS 分岐なし)を
+  該当12箇所すべてに機械的に追加。`validate-review-context-set.ps1` は
+  `ConvertFrom-Json` ベースで本来この欠陥の対象外のため無改変(INV-019)。
+  `tests/review-contract-foundation.tests.sh` に、対象の jq プログラム文字列
+  にのみ末尾 `\r` を付与する PATH 差し込み型 jq シム(1箇所ずつ分離適用、
+  全体一括だと stage/role の CONTRACT チェックが先に失敗してしまうため)
+  を用いたフィクスチャスイートを追加し、未修正スクリプトに対して先に RED
+  記録(genesis ledger が `canonical identity ledger record hash is
+  invalid` で拒否される実測)してから修正後に GREEN(`REVIEW_CONTEXT_OK`)
+  を確認する TDD 手順(高リスクタスクの必須要件)で実装。BL-010 の
+  真正な改ざんケース(sequence 不正・previous_record_sha256 不正・
+  シンボリックリンクトラバーサル・run/session ID 重複)は shim 適用有無の
+  両レーンで修正後も fail-closed のままであることを再確認し、本タスクの
+  変更が改ざん検知を弱めていないことを証明(security-spec.md Security
+  Boundary B2)。フィクスチャは mktemp スコープの ledger コピーのみを使用し
+  実 `reports/review-context/identity-ledger.json` には一切書き込まない
+  (実施前後で当該ファイルの SHA-256 が不変であることを確認済み)。詳細は
+  `reports/implementation/quality-loop-fixes/T-004.md` を参照。
 
 ### ドキュメント
 
