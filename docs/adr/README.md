@@ -64,3 +64,12 @@ the tombstones are historical-compatibility only, not live content.
 | 0013 | read-only MCP サーバー sdd-forge-mcp を repo 内 mcp/ に置き Evidence 機能を統合する | Accepted |
 | 0014 | MCP サーバーはバンドル済み dist/ をコミットして配布し、installer が登録まで行う | Accepted |
 | 0015 | DDD upstream domain lane as a seventh plugin | Accepted |
+| 0016 | Workflow Axes Separation | Accepted |
+| 0017 | Gate Stage Model | Accepted |
+| 0018 | Provider Binding Separation | Accepted |
+| 0019 | Approval Sidecar Protection | Accepted |
+| 0020 | Conditional Predicate DSL | Accepted |
+| 0021 | Context Projection Staleness | Accepted |
+| 0022 | Lite Capability Upgrade | Accepted |
+| 0023 | Track Selection Contract Migration | Accepted |
+| 0024 | Workflow State Registry vs. Project Context | Accepted |
