@@ -1,5 +1,7 @@
 # Design: quality-loop-fixes
 
+Impl-Review-Status: Pending
+
 Feature Type: 4 independent deterministic-script/skill-prose bugfixes
 inside `plugins/sdd-quality-loop/` (+ one `plugins/sdd-ship/skills/ship/SKILL.md`
 prose reference), no in-spec or external dependency between streams
