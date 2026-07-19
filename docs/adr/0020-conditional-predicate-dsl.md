@@ -46,9 +46,12 @@ framework otherwise avoids.
 4. **Evaluation semantics (new in v2)**, adopted as normative so that
    results do not diverge across runtimes; this ADR is the DSL ADR referred
    to by decision document v2 §11:
-   - A **missing path, a `null` value, or a type mismatch means "this
-     predicate does not match" (fail-closed)**, and is recorded as a
-     `WARN` in Resolver Evidence. No exception is ever thrown.
+   - **A missing path, a `null` value, or a type mismatch means "this
+     predicate does not match" (fail-closed)** for `equals`, `not_equals`,
+     `contains`, and `in` — recorded as a `WARN` in Resolver Evidence, with
+     no exception ever thrown. **This general rule does not apply to
+     `exists`**, which has its own rule (below) that always takes
+     priority for that operator.
    - `equals` and `not_equals` compare same-typed scalars only. On a type
      mismatch — the same trigger condition as a missing path or a `null`
      value — **the predicate as a whole evaluates to `false` (does not
@@ -56,10 +59,17 @@ framework otherwise avoids.
      never evaluates to `true` merely because the compared values have
      different types.
    - `contains`: "array ∋ scalar" only. It is not usable for substring
-     matching (determinism is prioritized over convenience).
-   - `in`: "scalar ∈ array literal" only.
-   - `exists`: tests only whether the path exists (a `null` value still
-     counts as existing).
+     matching (determinism is prioritized over convenience). A missing
+     path, a `null` value, or a non-array value is `false` plus a `WARN`.
+   - `in`: "scalar ∈ array literal" only. A missing path, a `null` value,
+     or the array literal being malformed is `false` plus a `WARN`.
+   - **`exists` (the explicit exception to the general rule above)**:
+     tests only whether the path exists. **If the path exists, the
+     predicate is `true` even when the value is `null`** — this
+     overrides the general rule's null handling. If the path does not
+     exist, the predicate is `false` plus a `WARN` (the missing-path
+     handling is the same as the general rule). A type mismatch is
+     irrelevant to `exists`, since it never inspects the value's type.
    - `all` of an empty list is `true`; `any` of an empty list is `false`.
      There is no short-circuit evaluation — every predicate is evaluated
      and every result is recorded in Evidence.

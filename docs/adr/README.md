@@ -36,7 +36,7 @@ numbers at the time of resolution:
 - `0003-mcp-dist-bundle-distribution.md` → **`0014-mcp-dist-bundle-distribution.md`**
 - `0004-ddd-upstream-domain-lane.md` → **`0015-ddd-upstream-domain-lane.md`**
 
-The three old paths remain in place as permanent tombstone stubs (10 lines
+The three old paths remain in place as permanent tombstone stubs (15 lines
 or fewer, pointing at the new number) rather than being deleted, because
 frozen `specs/` and `reports/` artifacts historically reference those
 paths and must keep resolving. New work must reference the new numbers;
@@ -52,15 +52,31 @@ renumbering — at the time those artifacts were written, three numbers
 (0002/0003/0004) each had two ADRs assigned, so a bare number alone is
 ambiguous. Disambiguation is by **the subject matter of the surrounding
 reference context** (what decision the artifact's text is actually
-describing), not by the number alone. The known frozen-artifact families
-and how their bare references resolve:
+describing), not by the number alone.
+
+**General rule**: any frozen artifact written before 2026-07-19 that
+references ADR-0002, ADR-0003, or ADR-0004 in the sense of the topic
+that was renumbered (read-only MCP server / dist-bundle distribution /
+DDD upstream domain lane, respectively) resolves to ADR-0013, ADR-0014,
+or ADR-0015 respectively — regardless of which `specs/` or `reports/`
+directory it appears in, and regardless of whether the citing text is a
+spec, a report, or a CI comment. The table below lists the
+frozen-artifact families known to contain such references as of this
+writing; it is a **representative enumeration, not an exhaustive one** —
+any other frozen artifact found later that references one of these
+numbers in the same renumbered sense resolves the same way under the
+general rule above, without requiring a table update first.
 
 | Frozen artifact family | Bare reference | Resolves to |
 |---|---|---|
 | `specs/sdd-forge-mcp/**` and its related `reports/` | `ADR-0002` (read-only MCP server) | ADR-0013 |
 | `specs/sdd-forge-mcp/**` and its related `reports/` | `ADR-0003` (dist-bundle distribution) | ADR-0014 |
+| `specs/ci-mcp/**` and its related `reports/` | `ADR-0003` (dist-bundle distribution) | ADR-0014 |
+| `specs/local-env-mcp/**` and its related `reports/`, where the reference is to the dist-bundle distribution pattern (not to local-env-mcp's own decision) | `ADR-0003` (dist-bundle distribution) | ADR-0014 |
+| `specs/evidence-deep-verify/**` and its related `reports/` | `ADR-0003` (dist-bundle distribution) | ADR-0014 |
+| `.github/workflows/test.yml` comments (e.g. the `local-env-mcp-tests` and `ci-mcp-tests` job headers) | `ADR-0003` (dist-bundle distribution) | ADR-0014 |
 | `specs/sdd-domain/**` and its related `reports/` | `ADR-0004` (DDD upstream domain lane) | ADR-0015 |
-| `specs/local-env-mcp/**` and other artifacts referencing the no-exec probe allowlist | `ADR-0004` | ADR-0004 (unchanged — the first-mover at this number keeps it) |
+| `specs/local-env-mcp/**` and other artifacts referencing the no-exec probe allowlist (local-env-mcp's own decision) | `ADR-0004` | ADR-0004 (unchanged — the first-mover at this number keeps it) |
 
 New work must always cite the current number or filename directly and
 must never rely on a bare legacy number.

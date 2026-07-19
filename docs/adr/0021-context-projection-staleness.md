@@ -57,13 +57,23 @@ ownership drift matters.
    the Facet Manifest, comparing the *whole* Manifest for change makes
    any digest update trivially "change the output" — that would make the
    unchanged-output branch below unreachable. To keep that branch
-   reachable, **semantic output** is defined as the resolved
-   required/conditional facets, their N/A reasons, gate IDs, and the
-   capability set — i.e. everything in the Facet Manifest *except* the
-   `context_binding` and `resolver` blocks, which are binding/provenance
-   metadata, not output. Only semantic output is compared when deciding
-   whether a Feature becomes stale; a digest-only update is never by
-   itself a semantic-output change.
+   reachable, **semantic output** is defined as: the resolved
+   required/conditional facets, their N/A reasons, the **resolved gate
+   set (each gate's ID, `stage`, and `blocking` value)**, the **effective
+   minimum enforcement applying to the Feature** (the Registry-derived
+   input to the effective-enforcement computation, decision document v2
+   §10, Q9), the capability set, and the **lite eligibility
+   determination** — i.e.
+   everything in the Facet Manifest *except* the `context_binding` and
+   `resolver` blocks, which are binding/provenance metadata, not output.
+   Only semantic output is compared when deciding whether a Feature
+   becomes stale; a digest-only update is never by itself a
+   semantic-output change. **A Registry edit that changes a gate's
+   `stage` or `blocking` value while its gate ID stays the same, or that
+   tightens the minimum enforcement applying to the Feature, is a
+   semantic-output change** — comparing gate IDs alone would silently
+   miss both, which would defeat this ADR's purpose of binding staleness
+   to every Registry change that affects Gate behavior.
 
 3. **Unified change handling** across Context, Registry, and ownership:
    - If **none** of the three digests (projection / registry / ownership)
