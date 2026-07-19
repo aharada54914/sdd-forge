@@ -2943,6 +2943,24 @@
       "host_session_id": "SESS-impl-a1r1-b-qualityloopfixes-0327",
       "previous_record_sha256": "561c4b3023960c5c45386160787aa0a19306716b21b0bdb8ae08457abd44a6ba",
       "record_sha256": "5b754994a6bf818d67a1797d2910a2e0681293a1f3d98eb2f944f0a3b0cb3a5e"
+    },
+    {
+      "sequence": 328,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-qualityloopfixes-impl-a2r1-a-seq0328",
+      "host_session_id": "SESS-impl-a2r1-a-qualityloopfixes-0328",
+      "previous_record_sha256": "5b754994a6bf818d67a1797d2910a2e0681293a1f3d98eb2f944f0a3b0cb3a5e",
+      "record_sha256": "4b0736e37f0ac4cae7b58427ff2e736acb5b3cec74935cde6e3ba2f821aa64cd"
+    },
+    {
+      "sequence": 329,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-qualityloopfixes-impl-a2r1-b-seq0329",
+      "host_session_id": "SESS-impl-a2r1-b-qualityloopfixes-0329",
+      "previous_record_sha256": "4b0736e37f0ac4cae7b58427ff2e736acb5b3cec74935cde6e3ba2f821aa64cd",
+      "record_sha256": "a44c462c78009477a1d8eaf767252396d31fef0dff7a403752c4430b8113a165"
     }
   ]
 }
