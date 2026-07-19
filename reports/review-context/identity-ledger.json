@@ -3006,6 +3006,15 @@
       "host_session_id": "SESS-qg-quality-loop-fixes-T-003-0334",
       "previous_record_sha256": "bcee2a3541166b339d9e3b052a2dcf445a5d718af38f8335b88b78d5166783ff",
       "record_sha256": "77f17dcafa27626c33d41fc2f7f4e28c37ef211cd414a0ac0cffde628e27a3de"
+    },
+    {
+      "sequence": 335,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-quality-loop-fixes-qg-T-004-seq0335",
+      "host_session_id": "SESS-qg-quality-loop-fixes-T-004-0335",
+      "previous_record_sha256": "77f17dcafa27626c33d41fc2f7f4e28c37ef211cd414a0ac0cffde628e27a3de",
+      "record_sha256": "a8770da1c7ecada80b7796499e219f6f5d8d8c9261b0667fcb477a7d2fee3c5e"
     }
   ]
 }
