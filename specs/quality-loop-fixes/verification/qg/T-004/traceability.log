@@ -1,0 +1,15 @@
++ bash plugins/sdd-quality-loop/scripts/check-traceability.sh specs/quality-loop-fixes/traceability.json .
+== start: 2026-07-19T17:41:05Z ==
+Traceability check passed for quality-loop-fixes: 7 link(s).
+== end: 2026-07-19T17:41:05Z ==
+EXIT_CODE: 0
+
+Note: traceability.json's own header records evidence arrays as
+intentionally omitted at spec-authoring time and populated per task at
+quality-gate time (deterministic-check-policy.md); check-traceability.sh
+only validates evidence entries when the evidence key is present, so the 7
+links (REQ-001..REQ-007) pass structurally (req/acs/tests all non-empty) on
+this run. This task's own REQ-005 link carries 5 ACs (AC-022..026) with
+matching TEST ids (TEST-022..026), cross-checked directly against
+acceptance-tests.md and this gate's own focused-tests.log/regression.log
+evidence above.
