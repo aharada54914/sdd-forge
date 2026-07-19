@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-c",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "816537366a4b0a10e63e50b8bf0d342530cf6994ca803e192e058f21934ab296",
+  "acceptance_sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "137780770cabecc20c5b93f25bcbe60a6b3386f5182a65f9f2094b1eed23b30e",
+  "edit_summary": "Resolved reviewer-B round-2 Critical and 4 Majors: (1) verified against guard_invariants.py:4 that .github/workflows/test.yml became an enforcement-chain protected-gate file via the concurrent epic-136 Phase 2 merge, and rewrote Assumptions bullet 4 (protection fact plus per-task re-verification discipline mirroring A3), Roles and Permissions, Main Workflows T-001/T-003/T-005/T-006, and the Risks/Edge Cases entries so test.yml registration now flows through the epic-136 human-copy staging procedure (specs/epic-159-pillar-c/human-copy/ plus MANIFEST.sha256, human maintainer applies the copy); AC-027 rewritten into a 3-part staged/live-untouched/applied-state check; (2) gave --requested-effort an explicit carve-out: it wins as an explicit override under BOTH effort policies, welded's ALWAYS wording is now scoped to invocations absent --requested-effort, AC-010 updated and new AC-053/TEST-053 exercises welded+requested (effort_source=requested, outside the AC-007 golden scope); (3) Security Boundary B1's malformed-v2-field rejection claim now has an executable surface via new AC-054/TEST-054 (fixture-driven rejection of malformed supported_efforts/effort_control/risk_effort_matrix with non-zero exit); design.md/security-spec.md/infra-spec.md updated for consistency; AC/TEST table verified gap-free and 1:1 at 54 pairs.",
+  "reset": false,
+  "generated_at": "2026-07-16T15:44:58Z"
+}

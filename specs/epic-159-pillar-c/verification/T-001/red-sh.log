@@ -1,0 +1,10 @@
+Command: bash tests/agent-capabilities-v2.tests.sh
+Context: pre-implementation tree -- contracts/agent-model-capabilities.v2.json does not exist yet.
+Date: 2026-07-18T01:02:00Z
+Git HEAD: 9d8b22347af9a7a6aa13073ddb4bfc54eb994cbb
+---
+not ok: TEST-001: contracts/agent-model-capabilities.v2.json does not exist
+---- summary: pass=0 fail=1 ----
+not ok: agent-capabilities-v2 suite FAILED (1 failures)
+---
+Exit code: 1 (RED confirmed: suite fails because the v2 registry file does not exist)

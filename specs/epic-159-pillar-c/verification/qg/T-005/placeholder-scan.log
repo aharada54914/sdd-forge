@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh tests/agent-model-routing.tests.sh tests/agent-model-routing.tests.ps1
+== start: 2026-07-18T05:52:07Z ==
+Placeholder scan passed.
+== end: 2026-07-18T05:52:07Z ==
+EXIT_CODE: 0

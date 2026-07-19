@@ -23,6 +23,8 @@ tests=(
   tests/task-review-precheck.tests.sh
   tests/review-agent-isolation.tests.sh
   tests/agent-model-routing.tests.sh
+  tests/agent-capabilities-v2.tests.sh
+  tests/render-agent-frontmatter.tests.sh
   tests/task-context-isolation.tests.sh
   tests/turn-first-workflow.tests.sh
   tests/retrospective-loop.tests.sh
@@ -50,6 +52,7 @@ tests=(
   tests/check-placeholders-brownfield.tests.sh
   tests/bump-version-gate.tests.sh
   tests/release-loop-gate.tests.sh
+  tests/run-panelist-effort.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

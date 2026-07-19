@@ -6,6 +6,7 @@
 #                             [--out <path>]
 #                             [--spec-root <dir>]
 #                             [--project-root <dir>]
+#                             [--effort <low|medium|high|xhigh>]
 #
 # Security (design.md §6):
 #   • Fail-closed consent gate: exits non-zero without writing output unless
@@ -17,6 +18,18 @@
 #   • Key isolation: SDD_EVIDENCE_KEY / sudo key are never included in output.
 #
 # Exit codes: 0=success  1=consent denied / input error  2=tool error (bad args)
+#
+# --effort (epic-159-pillar-c T-006, REQ-006/AC-036): optional pass-through.
+# This script prepares ONE shared sanitized bundle consumed by every
+# panelist vendor (Claude/GPT/Gemini) — it never invokes a vendor CLI
+# itself — so a selector-derived effort value cannot be "forwarded" via a
+# direct function call here. Instead, when --effort is supplied, its value
+# is threaded through by being ECHOED on a second stdout line
+# ("effort=<e>", after the existing digest line), so the caller (the
+# cross-model-verify skill / T-006's Codex-host startup wiring) can read it
+# back out and pass it verbatim as `run-panelist-gpt --effort <e>` in its
+# own next step. Omitted entirely preserves today's exact single-line
+# stdout output (Breaking API: no).
 #
 # Simplification note (HMAC): Full HMAC-SHA256 verification of SDD_SUDO requires
 # the key from ~/.sdd/sudo-key or SDD_SUDO_KEY env var. We perform complete
@@ -31,6 +44,7 @@ tasks_file=""
 out_path=""
 spec_root="specs"
 project_root=""
+effort=""
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -41,6 +55,7 @@ while [ $# -gt 0 ]; do
         --out)          out_path="$2";      shift 2 ;;
         --spec-root)    spec_root="$2";     shift 2 ;;
         --project-root) project_root="$2";  shift 2 ;;
+        --effort)       effort="$2";        shift 2 ;;
         *) printf 'prepare-panelist-input: unknown argument: %s\n' "$1" >&2; exit 2 ;;
     esac
 done
@@ -383,7 +398,13 @@ mkdir -p "$out_dir" || {
     printf '%s\n' "$sanitized_content"
 } > "$out_path"
 
-# ── Emit digest to stdout ────────────────────────────────────────────────────
+# ── Emit digest (and threaded effort, if supplied) to stdout ────────────────
+# AC-036: --effort is threaded through verbatim on a second stdout line, so
+# the caller can lift it into `run-panelist-gpt --effort <e>` in its own
+# next step. Omitted entirely preserves today's exact single-line output.
 
 printf '%s\n' "$input_digest"
+if [ -n "$effort" ]; then
+    printf 'effort=%s\n' "$effort"
+fi
 exit 0

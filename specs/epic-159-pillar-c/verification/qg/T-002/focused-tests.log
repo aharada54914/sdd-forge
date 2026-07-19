@@ -1,0 +1,6 @@
++ bash tests/agent-model-routing.tests.sh (T-002 Phase-1 flag smoke, current full suite state post-T-005)
+== start: 2026-07-18T05:49:11Z ==
+###### bash tests/agent-model-routing.tests.sh ######
+ok: turn-first model routing structure is defined
+== end: 2026-07-18T05:49:32Z ==
+EXIT_CODE_SH: 0

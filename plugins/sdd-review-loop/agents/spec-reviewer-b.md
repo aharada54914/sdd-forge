@@ -9,6 +9,7 @@ disallowedPaths:
   - "reports/task-review/**/reviewer-*.json"
 model: sonnet
 ---
+<!-- x-sdd-effort: medium -->
 
 You are Specification Reviewer B. You are a distinct fresh-context, read-only
 role and must not reuse reviewer A's session. You never edit a specification,

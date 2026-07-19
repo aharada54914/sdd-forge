@@ -1,0 +1,12 @@
+=== RED: emit-run-record.ps1 rejects new -Effort* params (pre-implementation baseline) ===
+$ pwsh emit-run-record.ps1 -Feature feat-red -Track lite -EffortMain high
+[31;1memit-run-record.ps1: [31;1mA parameter cannot be found that matches parameter name 'EffortMain'.[0m
+EXIT:1
+
+$ pwsh emit-run-record.ps1 -Feature feat-red -Track lite -EffortReviewers medium
+[31;1memit-run-record.ps1: [31;1mA parameter cannot be found that matches parameter name 'EffortReviewers'.[0m
+EXIT:1
+
+$ pwsh emit-run-record.ps1 -Feature feat-red -Track lite -EffortControlMain flag
+[31;1memit-run-record.ps1: [31;1mA parameter cannot be found that matches parameter name 'EffortControlMain'.[0m
+EXIT:1

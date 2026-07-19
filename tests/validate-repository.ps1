@@ -9,6 +9,22 @@ if ($LASTEXITCODE -ne 0) {
     throw "Workflow-state validation failed with exit code $LASTEXITCODE."
 }
 
+# render-agent-frontmatter --check (T-003, #151, AC-016/AC-020): read-only
+# drift detection between rendered Claude .md/Codex .toml agent targets and
+# the current contracts/agent-model-capabilities.v2.json role_defaults,
+# including (read-only) the four R-10 protected review-loop reviewer
+# targets. A non-zero exit here means either an unprotected target has
+# drifted from role_defaults (a real defect) or a human maintainer has not
+# yet applied the staged specs/epic-159-pillar-c/human-copy/ candidates for
+# the four protected reviewer files (an expected, documented pending-action
+# state until that human step occurs -- design.md Protected-File Statement).
+$renderAgentFrontmatterValidator = Join-Path $repositoryRoot "render-agent-frontmatter.ps1"
+$renderAgentFrontmatterArguments = @("-NoProfile", "-File", $renderAgentFrontmatterValidator, "-Check")
+& (Get-Process -Id $PID).Path @renderAgentFrontmatterArguments
+if ($LASTEXITCODE -ne 0) {
+    throw "render-agent-frontmatter --check reported drift with exit code $LASTEXITCODE (see output above; if this is only the four protected reviewer targets, a human maintainer has not yet applied specs/epic-159-pillar-c/human-copy/)."
+}
+
 $expectedPlugins = @("sdd-bootstrap", "sdd-implementation", "sdd-quality-loop", "sdd-lite", "sdd-review-loop", "sdd-ship", "sdd-domain")
 $expectedSkills = @("sdd-bootstrap-interviewer", "investigate-codebase", "implement-task", "quality-gate", "fix-by-review-ticket", "workflow-retrospective", "sdd-adopt", "sdd-sudo", "cross-model-verify", "lite-spec", "lite-gate", "implement-tasks", "diagnose", "spec-review-loop", "impl-review-loop", "task-review-loop", "wfi-audit-cycle", "bootstrap", "ship", "design-sync-loop", "visual-verify-loop", "domain-model", "domain-interviewer", "domain-reverse", "domain-review-loop", "domain-sync")
 $expectedVersions = @{
