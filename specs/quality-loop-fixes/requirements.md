@@ -352,6 +352,12 @@ never touched.
 - AC-030: `validate-repository` and the skill-reference count sync stay
   green after each stream; no version-literal edit exists outside
   `scripts/bump-version.sh` for any of the 4 streams. (REQ-007)
+- AC-031: for a task whose specification DOES flag an enumerable coverage
+  requirement and whose bundle's coverage manifest maps every enumerated
+  element, the readiness step's text states explicitly that the check
+  passes and execution proceeds to Step 2 / panelist invocation — the
+  positive continuation branch, completing REQ-004's branch set alongside
+  AC-020 (failure branch) and AC-021 (no-op branch). (REQ-004)
 
 ## Field Definitions
 

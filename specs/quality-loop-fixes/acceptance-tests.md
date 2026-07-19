@@ -1,6 +1,6 @@
 # Acceptance Tests: quality-loop-fixes
 
-TEST IDs (TEST-001..TEST-030) are namespaced to this feature
+TEST IDs (TEST-001..TEST-031) are namespaced to this feature
 (`specs/quality-loop-fixes/`) and do not collide with any other spec
 folder's own TEST numbering (different suite files — design.md Test
 Strategy). TEST-NNN numbers match their AC-NNN counterpart 1:1
@@ -38,6 +38,7 @@ Strategy). TEST-NNN numbers match their AC-NNN counterpart 1:1
 | AC-028 | REQ-006 | TEST-028 | CI resilience conformance (grep/review) | every `.sh` file any stream changes: grep-based self-check confirms no `declare -A` and no unguarded array expansion under `set -u`; every `.ps1` file any stream touches: confirmed to end with an explicit `exit N` (review-time check, mirrors `install.sh:82-83` idiom) | Planned |
 | AC-029 | REQ-007 | TEST-029 | document conformance | `CHANGELOG.md`'s `## Unreleased` section contains four independent entries citing #167, #176, #166, and #179 respectively (one per stream's own commit set, not a shared block) | Planned |
 | AC-030 | REQ-007 | TEST-030 | document conformance | existing `validate-repository`/skill-reference count sync CI steps (unchanged by this feature) stay green for each stream; review-time check confirms no version-literal edit exists outside a `scripts/bump-version.sh` invocation | Planned |
+| AC-031 | REQ-004 | TEST-031 | document/skill conformance | same file as TEST-019: the new step's text states explicitly that when the task's specification flags an enumerable coverage requirement AND the bundle's coverage manifest maps every enumerated element, the readiness check passes and execution proceeds to Step 2 (panelist invocation) — the positive continuation branch completing AC-020 (failure) / AC-021 (no-op); reviewed against the exact wording at PR time (same class as TEST-019..021) | Planned |
 
 Notes:
 
@@ -76,7 +77,7 @@ Notes:
   UI integration checklist is not applicable (ux-spec.md,
   frontend-spec.md — both N/A stubs, mirroring epic-159-pillar-d's own
   convention for non-UI features).
-- TEST-019..021 are reviewed at PR time (grep/manual inspection against
+- TEST-019..021 and TEST-031 are reviewed at PR time (grep/manual inspection against
   the exact wording design.md's API/Contract Plan specifies for the new
   `cross-model-verify/SKILL.md` step), matching epic-159-pillar-d's own
   precedent for documentation/skill-prose-only deliverables (verified by
