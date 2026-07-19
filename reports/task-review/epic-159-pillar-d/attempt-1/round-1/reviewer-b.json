@@ -1,0 +1,122 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-d-task-task-reviewer-b-seq0293",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-159-pillar-d-0293",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. T-001 (tasks.md ~111-125): Risk: low, docs-only WFI-lifecycle-prose + trailing-column append, no control-flow/data/security impact -- matches risk-classification-policy.md low tier. T-002 (tasks.md ~273-292): Risk: medium; DATA-ONLY population of contracts/agent-model-capabilities.v2.json within Pillar C's already-defined schema, verification is external/mechanical (Pillar C's parity suite + agent-model-routing.tests.sh re-run green, AC-014); no sentinel surface (auth/authz/payment/PII/migration/external-API) is touched -- consistent with medium. T-003 (tasks.md ~445-466): Risk: high; creates a new scheduled GitHub Actions workflow holding issues:write processing untrusted external content that can reach a publicly-posted issue body (AC-021), plus this spec's one protected enforcement-chain-file touch (test.yml via human-copy, AC-011) -- matches the high-tier 'sensitive surface... or anything where a silent defect causes material harm' bucket; Required Workflow: tdd correctly derived. No over- or under-classification found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-003 is the spec's only Risk: high/critical task. Its Done When section (tasks.md ~656-663) states: 'TDD evidence is recorded in the implementation report with Red and Green explicitly separated: RED -- the authored suite run against the pre-landing tree ... failing meaningfully; GREEN -- the post-commit-A run of TEST-005..007/009/010/016/020/021 passing ..., re-confirmed after commit B,' satisfying Red->Green evidence, and closes with 'An independent quality-gate verdict records PASS for this task,' matching this repo's independent-review convention (tasks.md Lifecycle: 'Only quality-gate may set Done', a role distinct from implement-task). No critical-tier task exists, so second-approver/signed-bundle requirements do not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-003 ('Add the weekly model-freshness-check automation', tasks.md ~437-687) is oversized on two independent indicators. (1) Its Done When list (tasks.md ~613-663) contains 13 distinct verifiable items (TEST-005, TEST-006, TEST-007, TEST-008, TEST-009, TEST-010, TEST-011, TEST-016, TEST-020, TEST-021, TEST-018's #157 leg, TEST-019's #157 leg, and the TDD-evidence bullet), exceeding the 'more than eight distinct verifiable items' threshold by 5. (2) Commit A's Scope spans at least six distinct implementation areas bundled into one task: the TDD-Red-first fixture-driven test-suite twin (.sh AND .ps1, design.md API/Contract Plan steps 1-9), the three-function check-model-freshness.sh script, the model-freshness-check.yml workflow, tests/run-all.sh/.ps1 registration, human-copy staging of the protected test.yml candidate + MANIFEST.sha256, and AC-008's one-time manual workflow_dispatch verification against a disposable fixture branch. Failure mode: a task this large is unlikely to be completable in a single focused implementation session, raising the risk of a stalled Red state, partial landing, or a skipped Done-When item under time pressure. Recommend splitting (e.g., extracting human-copy staging + AC-008 manual verification into a follow-on task, or separating workflow+script authoring from test-suite-twin authoring)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002 (functional, medium-risk): AC-013/TEST-013 is a negative/hygiene assertion (v1 registry byte-for-byte unchanged, hash comparison) and AC-014/TEST-014 requires Pillar C's parity suite plus tests/agent-model-routing.tests.sh to stay green after the edit, serving as regression/error-path protection against a malformed data edit. T-003 (functional, high-risk) has extensive edge-case coverage: AC-006/TEST-006 (three fetch-failure scenarios, fail-soft), AC-007/TEST-007 (dedup negative branch), AC-020/TEST-020 (no-diff/zero-side-effect branch), AC-021/TEST-021 (adversarial-payload allowlist trust-boundary). T-001 is documentation-only with no control-flow; acceptance-tests.md Notes classify TEST-001..004/015 as 'document conformance' reviewed by inspection, consistent with design.md Test Strategy item 1's own stated rationale, and is outside this check's 'functional task' scope."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Test Type column uses a finer-grained taxonomy (document conformance / configuration conformance / integration (fixture-driven) / hygiene-non-mutation / existing-suite regression / construction proof / review-time conformance / protected-file staging conformance / recorded manual verification) but every entry's declared technique matches its described scope, and all 21 TEST-IDs are anchored to a specific AC-NNN. Fixture-driven entries invoking the real check-model-freshness.sh against multiple components (script + stubbed gh wrapper + fixture files) are correctly labeled 'integration' (TEST-006/007/020/021); single-artifact checks (TEST-005 permissions text-marker, TEST-010 grep self-check, TEST-013 hash comparison) are correctly scoped rather than mislabeled integration/e2e; TEST-008 is correctly labeled a one-time recorded manual verification, not a CI-repeated automated test. No mismatch found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-003 (Risk: high) carries an explicit Rollback field (tasks.md ~510-514): 'reviewed revert of this task's commits PLUS a second human-copy application reverting .github/workflows/test.yml's registration line ... the same human-in-the-loop mechanism that added it, never a direct agent revert of the live protected file,' cross-referenced to infra-spec.md Rollback. This satisfies the rollback-plan requirement for the spec's only high/critical task."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "CHANGELOG.md appears in all three tasks' Planned Files with no pairwise Blockers between T-001 and T-002; however design.md Global Constraints explicitly addresses this: each task creates its OWN independent ## Unreleased entry citing a different issue (#156/#158/#157) -- 'no create-then-append serialization across tasks... is needed (unlike epic-159-pillar-b's single shared-issue two-task entry)' -- and tasks.md Global Constraints mandates 'implement one task at a time,' removing the simultaneous-edit collision risk. docs/agent-capability-matrix.md is primarily owned by T-001 and conditionally touched by T-002's Commit B only 'if T-001 has landed and a genuine reference exists' (tasks.md ~382-384) -- a self-conditional, ordering-safe edit embedded in T-002's own scope text, not an uncoordinated collision. No two tasks claim the same primary file for the same purpose without either a Blockers relationship or an explicit, reasoned coordination mechanism."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-003's Blockers: T-001 is a genuine content dependency: design.md Global Constraints and requirements.md Main Workflows state T-003's filed-issue body must cite the SAME canonical-source list T-001 documents, and design.md External Integrations notes the actual reference URLs are 'recorded in the task's implementation report' at task-implementation time (not fully pinned by requirements.md, which pins only the source NAMES) -- so a real risk of two divergent source-list copies exists absent the ordering. T-002's dependency on Pillar C's C1 (#149) landing on main is correctly recorded as an External Blocker in prose within the Blockers section (tasks.md ~430-433), matching requirements.md Field Definitions' explicit external-Blocker-vs-in-spec-Depends-On distinction, not a spurious or missing entry. T-002's conditional edit to docs/agent-capability-matrix.md (only if T-001 has landed) is self-guarded in its own scope text and does not require a formal Blockers entry."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no bugfix or debugging task in scope. All three tasks (T-001 docs addition, T-002 data population, T-003 new automation feature) are net-new feature work per their Goal/Scope/Done-When text, not a bugfix, regression fix, debugging, failure-diagnosis, flaky-test-resolution, or incident-remediation task."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/requirements.md",
+      "sha256": "c475ba2bbfce03dd5279cdd1f1a1aca4affc8c7ff1a666817174b34a0058d5b4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/acceptance-tests.md",
+      "sha256": "95dfd0ab0a75d887da9d803bbc293bd32c202a03b00d79c82cf10cdaaa977d27"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/design.md",
+      "sha256": "94b475116c1e72dd8175d580bbcd32b99602860953ee41bd67c886a8e898a301"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/tasks.md",
+      "sha256": "839bc3acac882f940cb0cf798dca127aecd0de5f2bf39d813b0f6505de59bc60"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/traceability.md",
+      "sha256": "e1f4702cf9760d567e265e42e2cc6c5a512b0dedeaf99daa8ebf2287a0ea1f79"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/ux-spec.md",
+      "sha256": "068445c632103f85e92a8674c335037ae7d1d60156c7a4c5d05d49ae38c47153"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/frontend-spec.md",
+      "sha256": "9f88e8206a2da16fda80764a8135455f5041038ea0fa5d355d07f588abe52837"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/infra-spec.md",
+      "sha256": "a8645f6f2d7b0b06e10c5c97274310643b2ab7c7be3eae31f711205471e72a90"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/security-spec.md",
+      "sha256": "59f5b92e879ec8e1a8cbfa5ed46e4ce72d88e90ec4f2c21fb0dbc58998f4bfa5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/task-review/epic-159-pillar-d/attempt-1/round-1/precheck-result.json",
+      "sha256": "a3ff1d2dedf40ebf6a44a87e381784b1931460341ef9c490b613dae4ef653049"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/task-review/epic-159-pillar-d/attempt-1/round-1/integrated-summary.json",
+      "sha256": "c2d3d21ef3c8fe4d507ccf6ce79360dd93a9b87746fcff9a736ecfdc0dffcbcc"
+    }
+  ]
+}

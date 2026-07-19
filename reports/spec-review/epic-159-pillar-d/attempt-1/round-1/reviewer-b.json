@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-d-spec-spec-reviewer-b-seq0285",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-d-0285",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two concrete ambiguities two implementers would resolve differently. (a) requirements.md Roles-and-Permissions states 'Human maintainer: ... copies the staged .github/workflows/test.yml candidate into place per the human-copy procedure (T-003)' but neither Main Workflows T-003 nor AC-011 states WHEN relative to PR merge this happens, while AC-009 requires the locking suite's self-check to 'confirm its own basename appears in ... .github/workflows/test.yml' (the LIVE file) as a merge-gating condition (REQ-005/AC-019 'stay green'). One implementer could have the human commit the copy onto the same PR branch pre-merge (self-check passes at gating time); another could treat the copy as a post-merge follow-up (self-check would fail on the PR's own CI run, requiring an unspecified special case). Downstream: a task-decomposition author would have to invent this PR-workflow sequencing rather than trace it to the spec. Belongs to spec review because it is a gap in stated acceptance-criteria ordering, not an implementation-architecture choice. (b) REQ-001/AC-002 says a divergence found outside a scheduled D2 run 'is filed as a manual issue or connects to D2's automated flow (#157)', and REQ-002/AC-007 guarantees D2 'never creat[es] a duplicate' via a 'stable title marker' match -- but nothing states that D1's manually-filed issue must use that same title-marker convention. If a contributor manually files a divergence issue in free-form language, D2's later weekly run would not recognize it as a dedup match and could file a duplicate, weakening AC-007's guarantee in exactly the case AC-002 introduces. Downstream: D1's process-documentation author would have to invent whether to prescribe the exact marker text; a design/task reviewer cannot resolve this from the spec alone."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found across requirements, acceptance criteria, constraints, or non-goals. Checked and confirmed the spec pre-empts several plausible contradictions explicitly: fail-soft (fetch-unavailable, AC-006) vs. fail-closed/no-bypass (genuine drift, Edge Cases 'External-dependency fail-soft' / 'No-bypass on genuine drift') are stated as two distinct, non-overlapping trigger conditions (fetch success/failure is a clean binary) rather than competing rules; self-improvement-pr-guard.sh's workflow denylist (INV-004) is explicitly scoped in Assumptions to 'the WEEKLY SESSION's own self-authored PRs only, not ... normal, human-reviewed PR flow', reconciling it with REQ-002 authoring model-freshness-check.yml via normal PR; the v1 registry frozen-byte-identical requirement (AC-013) and the v2 registry current-generation update requirement (AC-012) target different files and are both independently testable without overlap; and 'external Blocker' vs. in-spec 'Depends On' are explicitly distinguished in Field Definitions and Main Workflows. No two stated requirements/ACs assert mutually exclusive outcomes."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md's AC-009 explicitly claims: the locking suite 'locks the fetch-failure (AC-006), diff-detected (AC-007), no-diff, and dedup branches' -- four named branches. acceptance-tests.md's TEST-009 (the sole TEST-ID mapped to AC-009) describes only CI-resilience assertions (pwd -P normalization, set -u array safety, jq non-use, real-validator non-use) and the self-registration grep-check; it contains no assertion for the 'no-diff' branch (fetch succeeds, no divergence vs. the v2 registry, therefore no issue created / no side effect). TEST-006 covers fetch-failure only; TEST-007 covers diff-detected plus its own dedup negative-branch only. No TEST-ID in the table anywhere exercises 'successful fetch, no divergence -> no issue filed.' Downstream failure mode: an implementation bug causing the script to file an issue unconditionally regardless of divergence (false-positive spam, defeating AC-007's dedup/no-duplicate framing in the ordinary case) would ship with all stated acceptance tests green. This is a spec-review-stage gap because it is an inconsistency between requirements.md's own claim (AC-009) and acceptance-tests.md's actual test-table coverage, not a downstream implementation choice. Secondary, lower-weight evidence: Security Boundary B1 frames fetched vendor content as 'untrusted diff input' that must 'never [be] written verbatim into any repository file,' and REQ-002(c) narrows the diff to 'model-ID tokens,' but no AC/TEST asserts that a malformed or adversarial fetch payload cannot reach the issue body GitHub publicly posts (issue comments/bodies are outside B1's 'repository file' framing), leaving this stated trust boundary partially untested."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four listed Assumptions carry either an investigation-grounded current-state citation or an explicit contingency/re-verification path, meeting the 'resolved or explicitly marked as decision needed' bar: the C1 schema-shape assumption states 're-verify against the landed file before implementing, not against this spec's description alone' if it differs; the self-improvement-pr-guard.sh scope assumption is resolved with a citation (self-improvement-pr-guard.sh:34) and an explicit non-blocking conclusion; the guard_invariants.py protected_gate_suffixes assumption states the human-copy carve-out becomes 'unnecessary but harmless to keep' if the protection is later removed; and the assert_literal fixed-string-match assumption is grounded in a specific line citation (tests/agent-model-routing.tests.sh:79-97) with a verified compatibility claim (AC-003). The exact mechanics of the referenced 'epic-136 human-copy procedure' are deferred to design.md's Protected-File Statement, which is within the calibration's Gate Responsibility scope (implementation/design detail, not a Phase 1 spec-review requirement) rather than an unresolved assumption; the resulting sequencing gap is captured under AMBIGUITY instead to avoid double-counting the same evidence under a different check."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The one human-approval/irreversible-change boundary this spec carries (T-003's .github/workflows/test.yml protected-file touch) is testable within the scope this spec covers. AC-010 asserts a grep-based self-check over the real self-improvement-pr-guard.sh confirming its .github/workflows/* denylist pattern still matches this feature's new workflow file, proving the weekly self-improvement session specifically could never have authored it. AC-011 asserts the staged candidate (specs/epic-159-pillar-d/human-copy/.github/workflows/test.yml) plus its MANIFEST.sha256 exist and that the LIVE protected file is diff-empty against pre-staging content at staging time -- i.e., the agent-side half of the boundary (never touch the live protected file; produce a reviewable staged artifact instead) is concretely, observably testable. Security Boundary B3 and Roles-and-Permissions consistently assign the live-file copy action to 'Human maintainer' only. This satisfies APPROVAL-BOUNDARY's testability bar for the boundary as scoped by this spec; the separate, narrower question of exact PR-merge sequencing relative to AC-009's self-check is already captured as a Major AMBIGUITY finding rather than treated as a second failure of this boundary's core testability."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two items force a downstream (design-phase) reviewer to invent product/process behavior not traceable to an explicit decision in this spec, rather than merely filling in implementation architecture (which would be acceptable per the calibration's Gate Responsibility/False-Positive Guard). First, the unresolved human-copy-vs-merge-gating sequencing (AMBIGUITY finding (a)) requires a design reviewer to decide the actual PR workflow shape for satisfying AC-009's self-check under AC-011's protected-file constraint -- a product-behavior decision, not an implementation detail, since it determines whether/when the feature can actually merge. Second, the AC-009/TEST-009 no-diff coverage gap (EDGE-CASE-COVERAGE finding) means the design/task reviewer must invent the missing acceptance assertion's shape themselves (what fixture, what assertion) to fulfill requirements.md's own claim that this branch is 'locked,' since acceptance-tests.md does not supply it. Both gaps sit squarely in Phase 1's remit (acceptance-criteria completeness and cross-artifact consistency between requirements.md and acceptance-tests.md) and were not addressed by investigation.md or resolved elsewhere in this spec."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/spec-review/epic-159-pillar-d/attempt-1/round-1/integrated-summary.json",
+      "sha256": "0f00fff260e4528a2aa47a151d2c2c40bd77c46f9f8d1e6edfa8ee2b8dec9282"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/reports/spec-review/epic-159-pillar-d/attempt-1/round-1/precheck-result.json",
+      "sha256": "1c366180c9741a732cd74105f2d1e81f666022dd9452cde11f8a3cdbf5890373"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/acceptance-tests.md",
+      "sha256": "ccce6b9fcf23804bda995f4b66b9e81778611e4381394467834f5a808b63aaa6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/investigation.md",
+      "sha256": "1410e9a742bd73017acdac7a11e8979468ab89d419d0e7ef58b4d4558dc231e7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-pillar-c/specs/epic-159-pillar-d/requirements.md",
+      "sha256": "c983567f674d3308ddc2c3d3e79c4eb08e08165b2c29e30a87d5718c2f55c3a0"
+    }
+  ]
+}

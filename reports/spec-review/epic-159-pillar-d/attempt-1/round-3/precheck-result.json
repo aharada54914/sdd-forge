@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-d",
+  "attempt": 1,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "a18a2d4d1938e4d2df45313ccb36f5773d6b4069b7ddb7b818553462fad5adf6",
+  "acceptance_sha256": "95dfd0ab0a75d887da9d803bbc293bd32c202a03b00d79c82cf10cdaaa977d27",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "d7aec797e5fb9c69dae8ae0b30ca99f46852634c88f82483944cb7cd9a981b4f",
+  "edit_summary": "Round-2 Reviewer B's single new Major (EDGE-CASE-COVERAGE: AC-006's asymmetric fetch-failure cases were outside TEST-006's fixture scope) is resolved by rewriting the TEST-006 row in acceptance-tests.md from a single both-vendors-fail fixture into three explicit scenarios — both vendors fail, Anthropic fails while OpenAI succeeds, and OpenAI fails while Anthropic succeeds — each asserting exit 0, a recorded fetch-unavailable comment call, and zero issue-create calls, with the two asymmetric scenarios additionally asserting that the fail-soft path is taken without computing a divergence from the surviving vendor's partial data alone (no partial-data issue filing); the existing stubbed-gh/no-live-network CI-resilience wording is preserved unchanged. Matching consistency updates were made in design.md (test-technique step 3 expanded to the same three scenarios with the by-construction proof that main exits fail-soft on the first fetch failure before compute_divergence runs; Test Strategy item 2 notes TEST-006 now covers all three shapes AC-006's either wording implies) and in security-spec.md's Security Tests TEST-006 row. requirements.md's AC-006 wording was already correct (either) and is unchanged, no AC or TEST IDs were added, removed, or renumbered, and the AC/TEST mapping remains 1:1 at 21 pairs (grep-verified); infra-spec.md already stated a fetch failure for EITHER vendor and needed no change.",
+  "reset": false,
+  "generated_at": "2026-07-16T16:06:18Z"
+}

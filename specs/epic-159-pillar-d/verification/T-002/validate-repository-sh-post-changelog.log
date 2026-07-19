@@ -1,0 +1,13 @@
+workflow-state: ok
+OK: plugins/sdd-quality-loop/agents/evaluator.md
+OK: .codex/agents/sdd-evaluator.toml
+OK: plugins/sdd-bootstrap/agents/investigator.md
+OK: .codex/agents/sdd-investigator.toml
+OK: plugins/sdd-review-loop/agents/spec-reviewer-a.md
+OK: plugins/sdd-review-loop/agents/spec-reviewer-b.md
+OK: plugins/sdd-review-loop/agents/impl-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/impl-reviewer-b.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-b.md (protected, read-only)
+---- check summary: 10 targets, 0 drift ----
+Repository validation passed.

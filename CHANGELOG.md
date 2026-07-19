@@ -510,6 +510,108 @@
   T-003 発見分の全ステージ修正)により、round 駆動自体は spec/impl/task/
   domain 全レグで健全であることも確認。詳細は
   `reports/implementation/epic-159-pillar-a2-T-004.md`。
+- **能力リフレッシュ手順とマトリクス確認列の追加 (Issue #156, epic-159-pillar-d
+  T-001)**: `docs/contributor/workflow-detail.md` の WFI (Workflow
+  Improvement) ライフサイクル節に、既存の Draft ステップと人間承認ステップの
+  間へ「能力リフレッシュチェック」ステップを新設。`Mechanism: model-routing`
+  の WFI を Draft する前に確認する正典ソース一覧(Anthropic 公式
+  docs/blog、OpenAI developers docs/blog、Claude Code / Codex CLI /
+  Copilot CLI の各リリースノート)、4つのチェック項目(モデル ID の有効性 /
+  新モデル・新機能の有無 / effort・ツール対応の変化 / v2 レジストリとの乖離)、
+  週次自動起票フロー(`.github/workflows/model-freshness-check.yml`、
+  epic-159-pillar-d T-003)への接続と手動起票フォールバックを明記し、手動
+  起票する issue のタイトルには自動起票と重複判定を揃えるための安定タイトル
+  マーカー `[model-freshness-divergence]` を必ず含めることを規定。
+  `docs/agent-capability-matrix.md` の Provider Tier Mapping 表には
+  「最終確認日」「参照ソース」の末尾2列を全6行に追加(既存セルは無変更、
+  `未確認` で初期化し次回リフレッシュ実施時に更新される想定)。
+  `tests/agent-model-routing.tests.sh`(無編集)を再実行し green を確認
+  (`assert_literal` の固定文字列一致は各行の追記前プレフィックスに対する
+  部分一致であるため、末尾列の追加後も成立)。ホスト中立(Claude Code /
+  Codex どちらにも偏らない単一プローズブロック)。詳細は
+  `reports/implementation/epic-159-pillar-d/T-001.md`。
+- **v2 レジストリへの現行世代モデルデータ投入 (Issue #158, epic-159-pillar-d
+  T-002)**: Pillar C の C1 (#149) が `main` へ着地させた
+  `contracts/agent-model-capabilities.v2.json` へ、OpenAI の現行世代
+  (`gpt-5.4`/`5.5`/`5.6` 系)を表す新規3エントリを tier ごとに追加
+  (`openai/gpt-5.4-codex-mini`/lightweight、`openai/gpt-5.5-codex`/
+  standard、`openai/gpt-5.6-codex`/strong)、各エントリで Claude Code /
+  Codex 両ホストの `effort_control` を充足。既存7エントリはバイト単位で
+  無変更 — `tests/agent-capabilities-v2.tests.sh` の名前キー v1⇔v2
+  パリティロックと `tests/agent-model-routing.tests.sh` の実レジストリ
+  直読アサーション(`:415-421`、TEST-034 `:868-884`)が、この7エントリの
+  改名・削除を red 化することをソース調査で直接確認したため
+  (両スイートとも「無編集のまま再実行して green」= AC-014 の対象)、
+  リネームではなく新規追加という手段を選択。Anthropic 側の3エイリアス
+  (`anthropic/haiku`/`sonnet`/`opus`)は無改名 — issue #158 の「Claude 5
+  系のエイリアス方針」自体がバージョン番号を含まない命名を意味するため、
+  既存名がそのまま現行世代データとして正しい。確認日
+  (2026-07-19)と参照ソースは新規サイドカー文書
+  `contracts/agent-model-capabilities.v2.md` に記録(ネットワーク取得は
+  実施せず、T-001 が確立した正典ソース一覧と issue #158 自身の確定済み
+  ファミリー記述を根拠とする)。v1 レジストリは SHA-256 比較で編集前後
+  バイト同一を証明(AC-013)。`tests/agent-capabilities-v2.tests.sh`/
+  `.ps1`(Pillar C のパリティスイート)と
+  `tests/agent-model-routing.tests.sh`/`.ps1` を無編集のまま再実行し
+  green を確認(AC-014)。`docs/agent-capability-matrix.md` の
+  最終確認日列は本タスクでは記入せず `未確認` のまま維持(同表の
+  モデルファミリー値は `tests/agent-model-routing.tests.sh` の
+  `assert_literal` で固定されたルーティング用ピン留め値であり、本タスクが
+  更新する v2 レジストリの現行世代カタログとは別物であるため — REQ-005 の
+  「genuine reference がある場合のみ」の条件が今回は不成立と判断)。
+  受け入れ先行(acceptance-first)で RED
+  (`specs/epic-159-pillar-d/verification/T-002/acceptance-first-red.md` +
+  `red-baseline-*.log`: 確認記録が存在せず OpenAI 側が2世代遅れという
+  事前状態を記録)→ GREEN
+  (`specs/epic-159-pillar-d/verification/T-002/green-*.log`)の順で実装、
+  詳細は `reports/implementation/epic-159-pillar-d/T-002.md` を参照。
+- **週次 model-freshness-check 自動化の追加 (Issue #157, epic-159-pillar-d
+  T-003)**: 新規 `.github/workflows/model-freshness-check.yml`(週次
+  `cron: "0 3 * * 1"` + `workflow_dispatch`、`ubuntu-latest`、
+  `permissions: contents: read` / `issues: write` のみ、
+  `pull-requests: write` は持たない)が新規
+  `.github/scripts/check-model-freshness.sh` を実行し、Anthropic/OpenAI
+  公式ソースを best-effort 取得して
+  `contracts/agent-model-capabilities.v2.json` の `models[].name` との
+  乖離を検出する。取得失敗時(いずれかのベンダーで発生)は
+  `[model-freshness-fetch-unavailable]` マーカー付き専用 issue へ
+  「取得不能」コメントを残して exit 0(fail-soft, INV-009 — 外部ソース
+  障害でこの CI ジョブ自体を失敗させない。非対称失敗時も残存側の部分
+  データから乖離計算しない)。乖離検出時は charset allowlist
+  `[A-Za-z0-9.-]` 検証済みモデル ID トークンのみを本文に埋め込んだ
+  `[model-freshness-divergence]` マーカー付き issue を起票
+  (`workflow-improvement` ラベル、重複排除つき — このマーカー文字列は
+  T-001(#156)の手動起票チェックリストと同一のものを使用)。
+  `check-model-freshness.sh` は `contracts/` への書き込み経路を一切持たず
+  (Security Boundaries B2)、`.ps1` twin は持たない(記録済み non-twin
+  設計判断、`self-improvement-pr-guard.sh` の既存 non-twin 前例に倣う、
+  AC-016)。新規スイート `tests/model-freshness-check.tests.sh` / `.ps1`
+  が、fetch 失敗3シナリオ(両方/Anthropic のみ/OpenAI のみ)・乖離検出+
+  重複排除・no-diff ゼロ副作用・adversarial issue-body allowlist
+  (markdown injection / instruction-like text / script fragments が
+  issue 本文に verbatim で漏れないことの陽性/陰性ペア証明)を、実スクリプト
+  + PATH 上書き `gh` スタブ + 注入可能フィクスチャで直接ロック(実ネット
+  ワーク・実 `gh` 呼び出しは一切なし)。`.ps1` twin は
+  `check-model-freshness.sh` 自体をシェルアウトせず、同一アルゴリズムを
+  ネイティブ PowerShell として独立再実装した上で同じフィクスチャ群を駆動
+  (`tests/release-loop-gate.tests.ps1` の full-parity-port 踏襲)。
+  `tests/run-all.sh` / `.ps1` へ自スイートを直接登録
+  (grep 自己検査つき、TEST-009/TEST-016)。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CIステップ
+  (bash/pwsh 両レーン)を反映した完全な補正版を
+  `specs/epic-159-pillar-d/human-copy/.github/workflows/test.yml` +
+  `MANIFEST.sha256` としてステージし、人間の適用を待つ(適用前後で
+  ライブファイルの SHA-256 は不変)— 人間適用コミットが着地するまで
+  `tests/model-freshness-check.tests.sh`/`.ps1` 自身の TEST-009
+  ライブファイル自己検査は意図的に red のまま(AC-011 の fail-closed
+  設計、stagedによる代替なし)。受け入れ先行の TDD で RED
+  (`specs/epic-159-pillar-d/verification/T-003/red-sh.log` /
+  `red-ps1.log`: スクリプト・ワークフロー・登録のいずれも未着地の状態で
+  スイート自身が意味のある失敗をすることを確認)→ GREEN
+  (`specs/epic-159-pillar-d/verification/T-003/green-sh.log` /
+  `green-ps1.log`: TEST-009 のライブファイル半分を除く全アサーションが
+  green)の順で実装、詳細は
+  `reports/implementation/epic-159-pillar-d/T-003.md` を参照。
 
 ### セキュリティ修正
 
