@@ -747,6 +747,27 @@
   この変更がなければ実際に壊れる既存 CI 登録済みスイート)にも feature 引数を
   追加し、両レーンとも無回帰(green)を確認。詳細は
   `reports/implementation/quality-loop-fixes/T-001.md` を参照。
+- **emit-run-record の gate_reports.blocked が VERDICT 行以外の本文中の
+  "BLOCKED" 文字列も誤カウントしていた問題 (Issue #176 / WFI-010)**:
+  `emit-run-record.{sh,ps1}` の `gate_blocked` 集計はレポート全文に対する
+  無アンカーの `grep -q 'BLOCKED'` / `-match "BLOCKED"` スキャンだったため、
+  レポート自身の `VERDICT:` 行が `PASS` でも本文中に「BLOCKED」という語が
+  出現するだけで誤カウントされていた(実例:
+  `reports/quality-gate/T-008.md`、WFI-010 が記録した epic-159-pillar-a の
+  実測値 baseline=1・真値=0)。レポート自身のアンカー付き
+  `^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$` /
+  `(?m)^VERDICT:\s*BLOCKED\s*$` 行のみを読む方式に変更(`VERDICT:` 行が
+  存在しないレポートは fail-open でカウントされない、OQ-4)。
+  `emit-run-record.ps1` にはファイル末尾の明示的な `exit 0` も追加
+  (従来は暗黙の終了コードのみ)。`tests/emit-run-record-feature-scope.tests.sh`
+  / `.ps1` に、同一フィーチャー内で `VERDICT: PASS` かつ本文に "BLOCKED" を
+  含むレポートを含む新規フィクスチャ(feature `feat-t002`)を追加し、
+  未修正スクリプトに対して先に RED 記録(誤って2件カウント)してから修正後に
+  GREEN(正しく1件カウント)を確認する受け入れ先行(acceptance-first)手順で
+  実装、既存の feat-a/feat-b フィクスチャとそのアサーションは無改変
+  (INV-010 のカバレッジギャップを解消)。WFI-010 の Status を
+  Approved → Applied に更新。詳細は
+  `reports/implementation/quality-loop-fixes/T-002.md` を参照。
 
 ### ドキュメント
 
