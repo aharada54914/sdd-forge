@@ -717,6 +717,36 @@
 - **check-placeholders の grep 実エラー握り潰し (Issue #127)**: grep の終了コードを
   区別し(0=一致 / 1=不一致 / >=2=致命的エラー)、品質ゲートでのフェイルオープンを
   解消。.sh / .ps1 双方を fail-closed に統一。
+- **quality-gate cycle-limit がタスク ID を全フィーチャー横断でカウントしていた問題
+  (Issue #167 / RT-20260712-001)**: `check-quality-gate-cycle-limit.{sh,ps1}` は
+  タスク ID(`T-NNN`)が `reports/quality-gate/` 配下のどのフィーチャーのレポートに
+  現れても単語境界一致でカウントしていたため、3 フィーチャー以上が同じ裸のタスク
+  ID を共有すると、対象フィーチャー自身のレポート件数が 0 でも偽の
+  `Escalate-Human` を返していた(epic-136-phase1-guards の T-003〜T-006 で実測)。
+  CLI 契約を `<task-id> <feature> [reports-dir]` に変更し(`feature` は必須第2
+  位置引数、文法 `^[a-z0-9][a-z0-9-]*$`、欠落・不正は使用法エラー exit 2)、
+  カウント述語を「単語境界一致のタスク ID」AND「同一ファイル内のアンカー付き
+  `^Feature:[[:space:]]*<feature>[[:space:]]*$` 行」の二条件に変更
+  (`emit-run-record.sh:123,125` が既に確立した二述語形状を再利用)。
+  RT-20260712-001 の実測シナリオ(他フィーチャー3件+対象フィーチャー0/1/2件)を
+  未修正スクリプトに対して先に RED 記録してから修正後に GREEN 確認する
+  受け入れ先行(acceptance-first)手順で実装。本スイートの新規 CI 登録ステップ
+  (bash 単一レーン、combined-suite 慣習に準拠)を反映した R-10 保護ファイル
+  `.github/workflows/test.yml` の完全な補正版を
+  `specs/quality-loop-fixes/human-copy/.github/workflows/test.yml` としてステージ
+  (人間の適用待ち、適用前後でライブファイルの SHA-256 は不変)。
+  `plugins/sdd-ship/skills/ship/SKILL.md` Step 4 のプロセ・呼び出し例2箇所も
+  同様に補正版を用意したが、同ファイルの human-copy ステージング書き込みが
+  R-10 ガードの suffix 判定(`specs/*/human-copy/` 配下の待避パスにも
+  ライブ保護パスと同一の exact-suffix match が誤って適用される既知のギャップ)
+  により本セッションのツールから完了できなかったため、完成済みの補正内容・
+  SHA-256・ライブ差分を実装レポートに記録し、人間が直接適用する運びとした
+  (AC-006 は本レポートで "blocked — 人間ステージング待ち" と正直に記録)。
+  CLI 契約変更に伴い、旧 2 引数契約でスクリプトを直接駆動していた
+  `tests/loop-escalation.tests.sh` / `.ps1`(T-001 の計画ファイル外だが、
+  この変更がなければ実際に壊れる既存 CI 登録済みスイート)にも feature 引数を
+  追加し、両レーンとも無回帰(green)を確認。詳細は
+  `reports/implementation/quality-loop-fixes/T-001.md` を参照。
 
 ### ドキュメント
 
