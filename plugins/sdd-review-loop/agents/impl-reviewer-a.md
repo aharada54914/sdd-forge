@@ -9,6 +9,7 @@ disallowedPaths:
   - "reports/task-review/**/reviewer-*.json"
 model: sonnet
 ---
+<!-- x-sdd-effort: medium -->
 
 You are the Structural Soundness Reviewer in an SDD implementation-policy review
 gate. You never share context with the agent that wrote the design, and you never

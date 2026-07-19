@@ -118,6 +118,39 @@ jobs:
         shell: pwsh
         run: ./tests/loop-escalation.tests.ps1
 
+      - name: Test agent-model-capabilities v2 registry parity lock (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/agent-capabilities-v2.tests.sh
+
+      - name: Test agent-model-capabilities v2 registry parity lock (pwsh)
+        shell: pwsh
+        run: ./tests/agent-capabilities-v2.tests.ps1
+
+      - name: Test render-agent-frontmatter suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/render-agent-frontmatter.tests.sh
+
+      - name: Test render-agent-frontmatter suite (pwsh)
+        shell: pwsh
+        run: ./tests/render-agent-frontmatter.tests.ps1
+
+      - name: Test turn-first agent-model routing suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/agent-model-routing.tests.sh
+
+      - name: Test turn-first agent-model routing suite (pwsh)
+        shell: pwsh
+        run: ./tests/agent-model-routing.tests.ps1
+
       - name: Test HITL/WFI-audit terminal-behavior suite (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
@@ -157,6 +190,17 @@ jobs:
       - name: Test release.yml required loop-gate job (pwsh)
         shell: pwsh
         run: ./tests/release-loop-gate.tests.ps1
+
+      - name: Test run-panelist-effort suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/run-panelist-effort.tests.sh
+
+      - name: Test run-panelist-effort suite (pwsh)
+        shell: pwsh
+        run: ./tests/run-panelist-effort.tests.ps1
 
       - name: Test deterministic gate scripts
         shell: pwsh
