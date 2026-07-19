@@ -157,11 +157,11 @@ visualization skipped.
 | requirements.md | design.md | feature-scoped cycle-limit CLI contract + ship/SKILL.md + CI registration | REQ-001 | AC-001..007 | TEST-001..007 |
 | requirements.md | design.md | anchored VERDICT blocked-count + coverage-gap closure | REQ-002 | AC-008..012 | TEST-008..012 |
 | requirements.md | design.md | recursive collection + declared-outputs completeness | REQ-003 | AC-013..018 | TEST-013..018 |
-| requirements.md | design.md | cross-model-verify pre-panel readiness step | REQ-004 | AC-019..021 | TEST-019..021 |
+| requirements.md | design.md | cross-model-verify pre-panel readiness step | REQ-004 | AC-019..021, AC-031 | TEST-019..021, TEST-031 |
 | requirements.md | design.md | unconditional `tr -d '\r'` on every jq -r site | REQ-005 | AC-022..026 | TEST-022..026 |
 | requirements.md | design.md | baseline preservation + cross-host parity | REQ-006 | AC-027..028 | TEST-027..028 |
 | requirements.md | design.md | doc-follow + CHANGELOG (four independent entries) | REQ-007 | AC-029..030 | TEST-029..030 |
-| requirements.md | security-spec.md | declared-outputs path containment; identity-chain tamper non-regression; protected-file carve-outs (x2) | REQ-003, REQ-005, REQ-001 | AC-014..017, AC-026, AC-006..007 | TEST-014..017, TEST-026, TEST-006..007; [security-spec.md#trust-boundaries](security-spec.md#trust-boundaries) |
+| requirements.md | security-spec.md | declared-outputs path containment; identity-chain tamper non-regression; protected-file carve-outs (x2) | REQ-003, REQ-005, REQ-001 | AC-014..017, AC-032, AC-026, AC-006..007 | TEST-014..017, TEST-032, TEST-026, TEST-006..007; [security-spec.md#trust-boundaries](security-spec.md#trust-boundaries) |
 | requirements.md | infra-spec.md | human-copy staging for `.github/workflows/test.yml`; combined-suite `run-all.ps1` exclusion convention | REQ-001 | AC-007 | TEST-007; [infra-spec.md#cicd-sequence](infra-spec.md#cicd-sequence) |
 
 ## ADR Change Log
