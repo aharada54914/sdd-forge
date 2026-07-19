@@ -107,11 +107,14 @@ if [[ -z "$deterministic_runtime_command" ]] ||
   exit 0
 fi
 
+# bash 3.2 (macOS CI runner's /bin/bash) errors on `"${arr[@]}"` for an empty
+# array under `set -u`; `${arr[@]+"${arr[@]}"}` expands to the identical word
+# list when non-empty and to zero words when empty on every bash >= 3.2.
 python3 - "$risk" "$failure_class" "$previous_tier" "$consecutive_failures" \
   "$registry" "$candidates_file" "$required_tier" "$minimum_tier" \
   "$json_output" "$xhigh_reason" "$failure_history" "$attempt_number" \
   "$effort_policy" "$requested_effort" "$role" "$host" \
-  "${candidates[@]}" <<'PY'
+  ${candidates[@]+"${candidates[@]}"} <<'PY'
 import decimal
 import json
 import re
