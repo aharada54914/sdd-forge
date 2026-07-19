@@ -184,6 +184,156 @@ per-feature `specs/<feature>/`):
 
 ---
 
+## `agent-model-capabilities/v2` registry schema (epic-159-pillar-c T-001)
+
+**Source**: `contracts/agent-model-capabilities.v2.json`
+**Consumers**: `plugins/sdd-implementation/scripts/select-agent-model.sh`/`.ps1`
+(T-002, schema auto-detection), `render-agent-frontmatter.sh`/`.ps1` (T-003,
+`role_defaults` seed), `tests/agent-capabilities-v2.tests.sh`/`.ps1` (the
+parity lock below).
+
+`contracts/agent-model-capabilities.v2.json` (schema
+`agent-model-capabilities/v2`) decouples effort from canonical tier — the
+v1 registry (`contracts/agent-model-capabilities.json`, schema
+`agent-model-capabilities/v1`) welds each model to exactly one effort
+value (`haiku`→`low`, `sonnet`→`medium`, `opus`→`high`); v2 lets a model
+support several efforts and lets a caller select among them per
+invocation. v1 remains FROZEN — byte-identical for the duration of this
+feature — and both files coexist; v2 becomes the sole consulted registry
+only once a future, separately-released task flips the selector's default
+policy.
+
+### Top-level shape
+
+```json
+{
+  "schema": "agent-model-capabilities/v2",
+  "models": [
+    {
+      "name": "anthropic/opus",
+      "canonical_tier": "strong",
+      "supported_efforts": ["high"],
+      "default_effort": "high",
+      "effort_control": { "claude-code": "frontmatter", "codex-cli": "none" }
+    },
+    {
+      "name": "openai/gpt-5.2-codex",
+      "canonical_tier": "strong",
+      "supported_efforts": ["high", "xhigh"],
+      "default_effort": "high",
+      "effort_control": { "claude-code": "none", "codex-cli": "flag" }
+    }
+  ],
+  "risk_effort_matrix": {
+    "low": "low",
+    "medium": "medium",
+    "high": "high",
+    "critical": "high",
+    "escalation_bump": true
+  },
+  "role_defaults": {
+    "sdd-evaluator": { "minimum_tier": "strong", "default_effort": "high" },
+    "sdd-investigator": { "minimum_tier": "lightweight", "default_effort": "low" },
+    "spec-reviewer": { "minimum_tier": "standard", "default_effort": "medium" },
+    "impl-reviewer": { "minimum_tier": "standard", "default_effort": "medium" },
+    "task-reviewer": { "minimum_tier": "standard", "default_effort": "medium" }
+  }
+}
+```
+
+### Field semantics
+
+- `models[].supported_efforts` — a non-empty array of efforts (`low` /
+  `medium` / `high` / `xhigh`) the model may be invoked at; supersedes v1's
+  single-element `efforts` array.
+- `models[].default_effort` — must be a member of that model's
+  `supported_efforts`; the value `welded`-policy selection resolves to and
+  the last-priority fallback under `matrix`-policy selection.
+- `models[].effort_control` — a per-host map (`claude-code`, `codex-cli`
+  keys), each one of `flag` (the host accepts a CLI effort argument a
+  caller can apply), `frontmatter` (the host can only record effort as
+  documentation), or `none` (no effort concept for that model/host pairing
+  at all).
+- `risk_effort_matrix` — maps `low`→`low`, `medium`→`medium`, `high`→`high`,
+  `critical`→`high`, and carries `escalation_bump: true`. `xhigh` never
+  appears as a direct mapped value — only reachable via an explicit
+  `--requested-effort xhigh` override or an escalation bump, both still
+  gated by the selector's existing `--xhigh-reason` requirement.
+- `role_defaults` — a per-role table (`spec-reviewer`, `impl-reviewer`,
+  `task-reviewer`, `sdd-evaluator`, `sdd-investigator`), each entry naming
+  a `minimum_tier` and a `default_effort`. Consumed both by
+  `select-agent-model --role` and by `render-agent-frontmatter` as the
+  single source of truth for generated agent-definition files.
+
+### Parity lock
+
+`tests/agent-capabilities-v2.tests.sh`/`.ps1` asserts a two-directional
+parity invariant between v1 and v2: every v1 model name exists in v2 with
+the identical `canonical_tier`, and every effort in that v1 model's
+`efforts` array is a member of its v2 `supported_efforts` array (v1 ⊆ v2,
+not equality — v2 may add efforts a v1 model did not carry, e.g.
+`openai/gpt-5.1-codex-max`'s v1 `efforts` already includes both `high` and
+`xhigh`). The same suite asserts `contracts/agent-model-capabilities.json`
+(v1)'s SHA-256 is unchanged before and after its own run, and includes a
+mutation-based negative self-check (a scratch copy of v2 with a
+v1-required effort stripped from one model's `supported_efforts`) proving
+the parity assertion is live rather than vacuously true.
+
+## `render-agent-frontmatter` script contract (epic-159-pillar-c T-003)
+
+**Source**: `render-agent-frontmatter.sh`/`.ps1` (repository root)
+**Reads**: `contracts/agent-model-capabilities.v2.json`'s `role_defaults`
+(above)
+**Writes**: the six unprotected Claude `.md`/Codex `.toml` role-mapped
+agent files directly; the four R-10 protected review-loop reviewer `.md`
+files ONLY under `specs/epic-159-pillar-c/human-copy/<repository-relative
+path>` + a `MANIFEST.sha256` SHA-256 entry, never their real path
+**Consumers**: `tests/validate-repository.ps1` (`--check`, wired into the
+existing check sequence); `.github/workflows/test.yml` (this suite's own
+bash/pwsh CI steps, staged the same human-copy way as `.github/workflows/test.yml`
+itself is R-10 protected); `run-panelist-gpt`/Codex-startup argv assembly
+(a future task's cross-check against the rendered `# x-sdd-model:`/
+`# x-sdd-effort:` reference comments, AC-038)
+
+For each `role -> { kind: claude|codex, path, protected }` entry in the
+script's built-in `TARGETS` table (10 entries: `sdd-evaluator`/
+`sdd-investigator` each with one Claude `.md` + one Codex `.toml` target;
+`spec-reviewer` with two unprotected Claude `.md` targets; `impl-reviewer`/
+`task-reviewer` each with two PROTECTED Claude `.md` targets):
+
+- **Claude `.md` targets**: rewrites ONLY the `model:` frontmatter line
+  (sourced from `role_defaults[role].minimum_tier`'s paired `anthropic/*`
+  registry model name) and inserts/refreshes a trailing
+  `<!-- x-sdd-effort: <role_defaults[role].default_effort> -->` comment
+  line immediately after the frontmatter's closing `---` — a Markdown
+  comment outside the YAML frontmatter block, so it never participates in
+  the agent-loader's frontmatter parsing. A `model: inherit` target is left
+  completely untouched (structural exclusion, not merely skipped-by-value).
+- **Codex `.toml` targets**: inserts/refreshes two `# x-sdd-model: <m>` /
+  `# x-sdd-effort: <e>` comment lines at the top of the file, sourced from
+  the first `codex-cli`-`flag`-controlled registry model matching
+  `role_defaults[role].minimum_tier`. These are documentation-only
+  reference markers, never a Codex-CLI-parsed configuration surface — every
+  existing TOML key (`name`, `description`, `sandbox_mode`,
+  `developer_instructions`) is left byte-unchanged.
+- **Protected targets**: the identical corrected content is computed but
+  written ONLY to the human-copy staging path; the real protected path is
+  never opened for write. The write-target resolution FUNCTION itself
+  (exercised directly via `--resolve-target-raw`/`--resolve-target` on the
+  `.sh` twin, `-ResolveTargetRawPath`/`-ResolveTargetRole` on the `.ps1`
+  twin) makes this a structural guarantee, independent of and in addition
+  to the R-10 `sdd-hook-guard` enforcement.
+
+`--check` performs the identical read-and-compute step but never writes
+anywhere: it diffs computed content against on-disk content at every
+target's real path — including the four protected targets' real paths (a
+read, not a write) — and exits non-zero if any target has drifted. A
+non-zero exit against only the four protected targets means a human
+maintainer has not yet applied the staged `specs/epic-159-pillar-c/human-copy/`
+candidates, not that the script attempted an illegal write.
+
+---
+
 ## Plugin Dependency Declarations
 
 | Plugin | Depends On | Notes |

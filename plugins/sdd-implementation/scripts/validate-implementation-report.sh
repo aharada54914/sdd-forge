@@ -75,6 +75,16 @@ def is_unfilled(value):
     stripped = value.strip()
     return not stripped or "{{" in stripped or "}}" in stripped
 
+# Present-and-format-only checks for the top-level "- Model:"/"- Effort:"
+# lines (epic-159-pillar-c REQ-004/AC-026): exactly one occurrence each,
+# non-empty, no unfilled template placeholder. No value-correctness check
+# (e.g. no enumerated-effort-vocabulary check) -- matching this validator's
+# existing scope for every other field.
+for top_level_label in ("Model", "Effort"):
+    matches = re.findall(rf"(?m)^- {top_level_label}: ([^\n]+)$", text)
+    if len(matches) != 1 or is_unfilled(matches[0]):
+        fail(f"missing or invalid {top_level_label}")
+
 def label(section_name, label_name):
     body = sections[section_name][0]
     matches = re.findall(

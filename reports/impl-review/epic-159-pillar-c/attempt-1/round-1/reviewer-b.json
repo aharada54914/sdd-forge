@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-c-impl-impl-reviewer-b-seq0291",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-159-pillar-c-0291",
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every inline decision carries a stated rationale: Design Decisions section resolves OQ-001..OQ-004 each tied to a REQ/ADR reason (e.g. OQ-003 'building such a mechanism is explicitly out of scope... remains an open automation gap'); the two new decisions (design.md lines 554-567) state explicit 'Decided:' rationale ('a bare none-vs-absent string sentinel would be more fragile... than an explicit, typed second flag'; 'following this repository's established append-only ADR convention'). Technology choices (Bash+PowerShell twins, python3 heredoc, JSON contract) carry rationale in frontend-spec.md's Technology Stack table (Rationale column, e.g. 'cross-host determinism, matches select-agent-model.sh's existing implementation technique'). No unjustified 'we will use X' statement found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Open Questions' section (lines 700-707) contains no unresolved entries: 'None blocking. All investigation.md OQ-001..OQ-004 are resolved above with design decisions.' Each of OQ-001..OQ-004 is independently resolved in the Design Decisions section with an owning rationale, and requirements.md's own Open Questions section (lines 941-965) marks OQ-001/002/004 RESOLVED and OQ-003 PARTIALLY RESOLVED with an explicit non-blocking Non-goals disposition (documented procedure, automation gap explicitly deferred). No entry lacks an owner or resolution path because no blocking entry exists."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-001..INV-014, OQ-001..OQ-004), so the absent-investigation Major rule does not apply. Each of design.md's '## Assumptions' entries (lines 679-698) is grounded: select-agent-model.sh's eligibility/escalation logic stability cites exact lines (select-agent-model.sh:232-247, :155-184); the Codex .toml comment-free state is 'verified directly'; A3 ancestor status is grounded in a stated git merge-base check matching investigation.md's own Assumptions (lines 904-912); the round-2 PROTECTED_GATE_SUFFIXES re-verification (lines 694-698) cites guard_invariants.py:4 directly. All four qualify as either investigation-grounded or directly file:line-verified technical facts."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (lines 656-677, Primary/TYPE-D path used). It addresses every constraint identifiable in requirements.md: v1-frozen byte-identity (REQ-001/AC-004), welded golden baseline (REQ-002/005), xhigh gate preservation, malformed-registry fail-closed rejection (AC-054), the four-plus-one protected-file write boundary (REQ-003/005, round-2 test.yml correction), twin-pair mandate, host-independent cross-host degradation (REQ-004/006/008), run-record truthfulness (REQ-004/006), CLI-injection resistance (REQ-006/AC-052), T-007's release-ordering gate (REQ-007), doc-following/version-bump discipline (REQ-009), and the three CI-resilience edge cases (bash 3.2 set -u, macOS $TMPDIR, Windows jq CRLF) from requirements.md's Edge Cases section. No requirements.md constraint was found unaddressed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. Grep across requirements.md/acceptance-tests.md/infra-spec.md for latency/throughput/response-time/SLA/ms/concurrency keywords returned no numeric threshold or SLA statement; infra-spec.md's Runtime Budget section explicitly states 'no new LOOP_SUITE_BUDGET_SECONDS-style runtime-budget constant is introduced,' confirming this feature carries no performance SLA."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' section (lines 628-654) states the deployment target ('No runtime deployment'), the feature-flag-equivalent rollout mechanism ('--effort-policy welded -> matrix' default flip, hardcoded in select-agent-model, changed by exactly one code edit in T-007, welded remains explicitly available indefinitely), and concrete CI pipeline changes (three new suite pairs joining tests/run-all.sh/.ps1 directly plus human-copy-staged .github/workflows/test.yml registration, render-agent-frontmatter --check joining tests/validate-repository.ps1). No database migration execution order applies because Data Plan (lines 265-269) states 'Migration Strategy: none... v1/v2 coexist, no in-place migration,' so the migrate-before/after-deploy requirement is not triggered."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Data Plan' Migration Strategy subsection (lines 265-269) states: 'none for the registry (v1/v2 coexist, no in-place migration). Run-record v2 is additive-only; no v1 record is rewritten or migrated -- emit-run-record simply emits v1 shape when no --effort-* flag is supplied and v2 shape when one is, and the validator accepts both shapes keyed off the schema field.' This is functionally equivalent to a 'No data changes' declaration with explicit rationale (additive-only schema evolution, no destructive rewrite, no >10k-row table involved), satisfying the check's no-migration-needed condition; rollback is additionally covered in Deployment/CI Plan's Rollback paragraph (each of T-001..T-006 independently revertible, additive by construction)."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## External Integrations' section (lines 621-626) names the sole external system this feature touches -- the pre-existing 'codex CLI' invocation at run-panelist-gpt.sh:146 -- states it is extended with one additional flag and that 'no new network call, service, or third-party action is introduced.' The integration's contract (exact CLI flags --model/--effort/--no-project-doc) is detailed in API/Contract Plan's T-006 subsection (lines 463-475), and its failure behaviour is documented in infra-spec.md's Runtime Dependencies table ('codex CLI... graceful degrade already established at run-panelist-gpt.sh:62-69 (absent CLI -> exit 1, non-zero, not a tool error)'), which design.md's Layer Specifications table (line 175) points to as the canonical Infrastructure detail. No new, undocumented integration was found referenced elsewhere in design.md."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Components table and API/Contract Plan map 1:1 onto requirements.md's REQ-001..REQ-009 (T-001..T-007): v2 registry (REQ-001), selector flags (REQ-002), render-agent-frontmatter (REQ-003), run-record v2 (REQ-004), routing test expansion + test.yml registration (REQ-005), Codex effort application (REQ-006), Phase-2 flip (REQ-007), cross-host degradation (REQ-008, Constraint Compliance row), and doc/version-bump discipline (REQ-009, Global Constraints CHANGELOG fan-out). No component, data entity, or CLI flag was found in design.md without a traceable REQ/AC in the Cross-Layer Dependencies table (lines 185-197); no Goal or User Story in requirements.md was found uncovered."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces are present (protected-file write-boundary/authorization change spanning five R-10 protected files; CLI-argument-injection prevention for the codex invocation; run-record truthfulness/repudiation risk) and each names a concrete acceptance-test artifact: TEST-019/TEST-020 (write-boundary positive/read-boundary proof), TEST-027 (three-part staged/live/applied test.yml registration proof), TEST-035..038/TEST-052 (argv-composition and injection-rejection proof), TEST-023/TEST-051 (run-record truthfulness field-population proof) -- all cited by ID in design.md's Constraint Compliance table and cross-referenced in security-spec.md's Security Tests table. No applicable high-risk surface was found without a named verification path."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/requirements.md",
+      "sha256": "37f69e8a83aa34969d75d2c01d7253bfe196cba1ba9b7e238d8cc85a4fadff1c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/acceptance-tests.md",
+      "sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/design.md",
+      "sha256": "fb619660fadb770b7b1d32b60adaf37d2bef51f4a5dca51d8c0403966ed60ae9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/investigation.md",
+      "sha256": "7dc3aed9ec140339b24c15e1f1387febace04f024c98b88d4534cf7d032105b1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/ux-spec.md",
+      "sha256": "49c26780ccc91392b961d39396733f12e561feb4cf577dd6b0bc7e4920c92d11"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/frontend-spec.md",
+      "sha256": "91e909bbbe15b9bcfc4012024fcfeecd01d7bea68d4eda5fe52f9164857bd093"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/infra-spec.md",
+      "sha256": "d3a43818130b1b516fe87ef2af1b9f19a24382ea121beaa166e785af29ae4be8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/security-spec.md",
+      "sha256": "1f4a6efa2152a7ca2c74308e2ebf3ca20eea942c0ba7dbe53277df68699329be"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-159-pillar-c/attempt-1/round-1/precheck-result.json",
+      "sha256": "e4bbaf1f5b5b46bf0e0404a45124c2710ac100a164431772209ba1ec800b0d1e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-159-pillar-c/attempt-1/round-1/integrated-summary.json",
+      "sha256": "23321da059ee37298a88ef1e5faf0f828a2aaa2b31097ca3ef3508237402f5cf"
+    }
+  ]
+}

@@ -1,0 +1,160 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-159-pillar-c",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "9f1a674687933dc2e31668c2bdb5b1243e55f1d3be9b269d5553a4547a2bf919",
+  "created": "2026-07-18T05:53:00Z",
+  "comment": "Default-FAIL verification contract for T-001 (medium, acceptance-first). Populated after the quality gate reran tests/agent-capabilities-v2.tests.sh/.ps1 (10/10 passed both lanes, specs/epic-159-pillar-c/verification/qg/T-001/focused-tests.log) and the epic-159-pillar-c cross-suite regression set (all six T-001..T-006 suites, both bash and pwsh lanes, run back-to-back with zero fixture collisions, 0 failed suites; specs/epic-159-pillar-c/verification/qg/T-001/regression.log). Shell stack waives the three compile-oriented checks (lint/typecheck/build) for this task's JSON contract file plus shell/PowerShell test-infrastructure files. Per the implementation report (reports/implementation/epic-159-pillar-c/T-001.md): no specification differences beyond one seeding note (the shipped v2 registry carries all seven v1 models, not the two-entry illustrative example in design.md, because the two-directional parity invariant requires every v1 name present). One documented, non-blocking scope limit carried into this gate: the human-copy step for this task's staged .github/workflows/test.yml candidate (specs/epic-159-pillar-c/human-copy/, MANIFEST.sha256 entry 6eb65a204bedb3f58dd39152a8e91ca41d1bc0314d9f78ad0f1f16930e7e088b) has not yet been applied by a human maintainer -- CI does not run the new suite on the 3-OS matrix until then; tests/run-all.sh/.ps1 already run it locally and are what this gate exercised. tests/validate-repository.sh currently exits non-zero solely because the four protected review-loop reviewer files (owned by T-003, also pending human-copy) still drift from their staged candidates -- a known, documented, cross-task condition, not a T-001 defect; it is therefore not cited as passing evidence for any check in this contract.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's JSON contract file plus shell/PowerShell test-infrastructure files (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for JSON contract file plus shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/epic-159-pillar-c/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-c/verification/T-001/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration is in scope beyond what unit/acceptance already exercise against the real, fixture-copied or fixture-driven scripts this task edits; no separate service-integration surface exists.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/epic-159-pillar-c/verification/T-001/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-c/verification/T-001/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-001/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for JSON contract file plus shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-001/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-001/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-001",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's suite fully covers its own CLI/script surface via the focused and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task (differential-test-policy.md does not apply). The change is additive per design.md's API/Contract Plan; the saved red/green evidence and cross-suite regression set provide the applicable behavior comparison.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are contract/script/test/doc files only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

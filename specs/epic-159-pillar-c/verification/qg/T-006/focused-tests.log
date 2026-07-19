@@ -1,0 +1,79 @@
++ bash tests/run-panelist-effort.tests.sh && pwsh -NoProfile -ExecutionPolicy Bypass -File tests/run-panelist-effort.tests.ps1
+== start: 2026-07-18T05:51:27Z ==
+###### bash tests/run-panelist-effort.tests.sh ######
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-035 feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.RdSUsQyEWv/specroot/stub-feat/verification/T-035.panelist-openai.verdict.json
+ok: TEST-035: --effort <e> is forwarded into the assembled codex argv, positioned after --model
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex (task=T-035b feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.RdSUsQyEWv/specroot/stub-feat/verification/T-035b.panelist-openai.verdict.json
+ok: TEST-035: omitting --effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)
+ok: TEST-036: prepare-panelist-input.sh threads --effort onto a second stdout line, verbatim
+ok: TEST-036: omitting --effort preserves the exact pre-T-006 single-line stdout output (Breaking API: no)
+run-panelist-gpt: invoking codex --model openai/gpt-5.1-codex --effort medium (task=T-036 feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.RdSUsQyEWv/specroot/stub-feat/verification/T-036.panelist-openai.verdict.json
+ok: TEST-036: the value threaded by prepare-panelist-input.sh reaches run-panelist-gpt's assembled codex argv unchanged
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-037-sdd-evaluator feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.RdSUsQyEWv/specroot/stub-feat/verification/T-037-sdd-evaluator.panelist-openai.verdict.json
+run-panelist-gpt: invoking codex --model openai/gpt-5.1-codex-mini --effort low (task=T-037-sdd-investigator feature=stub-feat)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.RdSUsQyEWv/specroot/stub-feat/verification/T-037-sdd-investigator.panelist-openai.verdict.json
+ok: TEST-037: select-agent-model --host codex-cli's model+effort output (sdd-evaluator and sdd-investigator roles, real registry) is supplied as CLI flags to the launching codex command
+ok: TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree
+ok: TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report
+ok: TEST-038: OK and DRIFT outcomes are structurally distinguishable, never silently collapsed to one shape
+ok: TEST-039 sanity: select-agent-model --host claude-code resolves effort_control to frontmatter for the winning Anthropic model (INV-013, REQ-008)
+ok: TEST-039: Claude Code path records effort_applied=null + effort_degraded_reason=effort-control-frontmatter in the run record, never a silent drop
+ok: TEST-052 (model whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading double-dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort out of vocabulary): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+run-panelist-gpt: invoking codex --model openai/gpt-5.2-codex --effort high (task=T-052-control feature=f)
+run-panelist-gpt: verdict written to /private/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/tmp.RdSUsQyEWv/specroot/f/verification/T-052-control.panelist-openai.verdict.json
+ok: TEST-052 positive control: a well-formed --model/--effort pair is accepted and reaches codex (rejection is discriminating, not vacuous)
+ok: TEST-052: SKILL.md documents the same enumerated-vocabulary rejection categories for the Codex-host startup path
+ok: TEST-040: no live network client or vendor API endpoint is referenced anywhere in this suite
+ok: TEST-040: every codex invocation in this suite goes through the run_gpt() wrapper, which unconditionally overrides PATH to the stub codex (7 call sites)
+ok: human-copy: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: human-copy: MANIFEST.sha256 entry for the staged test.yml candidate matches its current content
+ok: self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+---- summary: pass=28 fail=0 ----
+ok: run-panelist-effort suite passed (28 checks)
+EXIT_CODE_SH: 0
+###### pwsh tests/run-panelist-effort.tests.ps1 ######
+ok: TEST-035: -Effort is forwarded into the assembled codex argv, positioned after -Model
+ok: TEST-035: omitting -Effort preserves the exact pre-T-006 codex argv byte-for-byte (Breaking API: no)
+ok: TEST-036: prepare-panelist-input.ps1 threads -Effort onto a second stdout line, verbatim
+ok: TEST-036: omitting -Effort preserves the exact pre-T-006 single-line stdout output (Breaking API: no)
+ok: TEST-036: the value threaded by prepare-panelist-input.ps1 reaches run-panelist-gpt's assembled codex argv unchanged
+ok: TEST-037: select-agent-model -HostName codex-cli's model+effort output (sdd-evaluator and sdd-investigator roles, real registry) is supplied as CLI flags to the launching codex command
+ok: TEST-038 GREEN: cross-check reports OK when the rendered .toml reference comments and live selector output agree
+ok: TEST-038 RED (negative self-check): a deliberately diverged live effort value turns the cross-check to a distinguishable DRIFT report
+ok: TEST-038: OK and DRIFT outcomes are structurally distinguishable, never silently collapsed to one shape
+ok: TEST-039 sanity: select-agent-model -HostName claude-code resolves effort_control to frontmatter for the winning Anthropic model (INV-013, REQ-008)
+ok: TEST-039: Claude Code path records effort_applied=null + effort_degraded_reason=effort-control-frontmatter in the run record, never a silent drop
+ok: TEST-052 (model whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model leading double-dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (model semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort whitespace): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort leading dash): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort semicolon): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 (effort out of vocabulary): rejected non-zero (exit 2), diagnostic present, zero codex invocations
+ok: TEST-052 positive control: a well-formed -Model/-Effort pair is accepted and reaches codex (rejection is discriminating, not vacuous)
+ok: TEST-052: SKILL.md documents the same enumerated-vocabulary rejection categories for the Codex-host startup path
+ok: TEST-040: no live network client or vendor API endpoint is referenced anywhere in this suite
+ok: TEST-040: every codex invocation in this suite goes through the Invoke-RunGpt wrapper, which unconditionally overrides $env:PATH to the stub codex (11 call sites)
+ok: human-copy: the staged .github/workflows/test.yml candidate registers this suite's CI step(s)
+ok: human-copy: MANIFEST.sha256 entry for the staged test.yml candidate matches its current content
+ok: self-registration: run-panelist-effort.tests.sh registered in tests/run-all.sh
+ok: self-registration: run-panelist-effort.tests.ps1 registered in tests/run-all.ps1
+ok: AC-038 boundary: this suite's own run left both real .codex/agents/*.toml reference-comment files byte-unchanged
+
+run-panelist-effort.tests.ps1: 28 passed, 0 failed
+EXIT_CODE_PS1: 0
+== end: 2026-07-18T05:51:43Z ==

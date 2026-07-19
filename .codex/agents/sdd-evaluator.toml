@@ -1,3 +1,5 @@
+# x-sdd-model: openai/gpt-5.2-codex
+# x-sdd-effort: high
 name = "sdd-evaluator"
 description = "Independent skeptical evaluator for SDD quality gates. Reviews one Implementation Complete task against the approved specification in a fresh context. Read-only; returns PASS or NEEDS_WORK with classified findings."
 sandbox_mode = "read-only"

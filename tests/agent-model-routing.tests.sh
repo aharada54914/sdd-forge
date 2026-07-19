@@ -23,6 +23,24 @@ assert_literal() {
   grep -Fq "$text" "$file" || fail "$message"
 }
 
+# Portable SHA-256 (mirrors tests/agent-capabilities-v2.tests.sh's
+# established sha256_of helper): sha256sum first (Linux/Windows git-bash),
+# shasum -a 256 fallback (macOS).
+sha256_of() {
+  if command -v sha256sum >/dev/null 2>&1; then
+    sha256sum "$1" | awk '{print $1}'
+  else
+    shasum -a 256 "$1" | awk '{print $1}'
+  fi
+}
+
+# TEST-027 part (b): the LIVE .github/workflows/test.yml SHA-256 captured
+# BEFORE this suite does anything, compared again at the very end of this
+# file -- this suite never opens the real, R-10 protected path for write
+# (Protected Files, tasks.md).
+LIVE_TEST_YML="$ROOT/.github/workflows/test.yml"
+LIVE_TEST_YML_SHA_BEFORE="$(sha256_of "$LIVE_TEST_YML")"
+
 MATRIX="$ROOT/docs/agent-capability-matrix.md"
 ADR="$ROOT/docs/adr/0003-turn-first-agent-routing.md"
 POLICY="$ROOT/plugins/sdd-implementation/skills/implement-task/references/agent-delegation-policy.md"
@@ -30,6 +48,7 @@ INVESTIGATOR="$ROOT/plugins/sdd-bootstrap/agents/investigator.md"
 COPILOT_INVESTIGATOR="$ROOT/plugins/sdd-bootstrap/copilot-agents/sdd-investigator.agent.md"
 EVALUATOR="$ROOT/plugins/sdd-quality-loop/agents/evaluator.md"
 REGISTRY="$ROOT/contracts/agent-model-capabilities.json"
+REGISTRY_V2="$ROOT/contracts/agent-model-capabilities.v2.json"
 SELECTOR_SH="$ROOT/plugins/sdd-implementation/scripts/select-agent-model.sh"
 SELECTOR_PS="$ROOT/plugins/sdd-implementation/scripts/select-agent-model.ps1"
 RESUME_SH="$ROOT/plugins/sdd-implementation/scripts/check-terminal-tier-resume.sh"
@@ -39,7 +58,7 @@ RISK_SH="$ROOT/plugins/sdd-quality-loop/scripts/check-risk.sh"
 RISK_PS="$ROOT/plugins/sdd-quality-loop/scripts/check-risk.ps1"
 
 for file in "$MATRIX" "$ADR" "$POLICY" "$INVESTIGATOR" "$COPILOT_INVESTIGATOR" \
-  "$EVALUATOR" "$REGISTRY" "$SELECTOR_SH" "$SELECTOR_PS" "$RESUME_SH" \
+  "$EVALUATOR" "$REGISTRY" "$REGISTRY_V2" "$SELECTOR_SH" "$SELECTOR_PS" "$RESUME_SH" \
   "$RESUME_PS" "$BLOCKED_STATE_SCHEMA"; do
   [[ -f "$file" ]] || fail "missing required routing artifact: ${file#$ROOT/}"
 done
@@ -385,6 +404,485 @@ for runtime in shell powershell; do
     fail "$runtime selector omitted non-JSON terminal recurrence audit fields"
 done
 
+# --- T-002: selector v2 registry support, effort-resolution priority ---
+# Phase-1-scoped smoke of --effort-policy/--requested-effort/--role/--host
+# (TEST-006..013, TEST-053, TEST-054); the full REQ-002/REQ-005 case list is
+# T-005's own suite (tests/agent-model-routing.tests.ps1 + this file's
+# extension there).
+
+# Sanity: schema auto-detection recognizes the REAL, shipped v2 registry
+# (not just the synthetic fixtures below).
+real_v2="$(
+  bash "$SELECTOR_SH" --risk low --registry "$REGISTRY_V2" \
+    --candidates-file "$TMP/all-tiers.json" --required-tier lightweight --json
+)"
+jq -e '.model == "openai/gpt-5.1-codex-mini" and .effort_source == "welded"' \
+  <<<"$real_v2" >/dev/null ||
+  fail "shell selector did not auto-detect the real v2 registry schema"
+
+cat > "$TMP/v2-registry.json" <<'JSON'
+{
+  "schema": "agent-model-capabilities/v2",
+  "models": [
+    {"name":"openai/gpt-5.1-codex-mini","canonical_tier":"lightweight","supported_efforts":["low"],"default_effort":"low","effort_control":{"claude-code":"none","codex-cli":"flag"}},
+    {"name":"openai/gpt-5.1-codex","canonical_tier":"standard","supported_efforts":["medium"],"default_effort":"medium","effort_control":{"claude-code":"none","codex-cli":"flag"}},
+    {"name":"openai/gpt-5.2-codex","canonical_tier":"strong","supported_efforts":["high","xhigh"],"default_effort":"high","effort_control":{"claude-code":"none","codex-cli":"flag"}},
+    {"name":"anthropic/haiku","canonical_tier":"lightweight","supported_efforts":["low","medium"],"default_effort":"low","effort_control":{"claude-code":"frontmatter","codex-cli":"none"}},
+    {"name":"anthropic/sonnet","canonical_tier":"standard","supported_efforts":["medium","high"],"default_effort":"medium","effort_control":{"claude-code":"frontmatter","codex-cli":"none"}},
+    {"name":"anthropic/opus","canonical_tier":"strong","supported_efforts":["high","xhigh"],"default_effort":"high","effort_control":{"claude-code":"frontmatter","codex-cli":"none"}}
+  ],
+  "risk_effort_matrix": {"low":"low","medium":"medium","high":"high","critical":"high","escalation_bump":true},
+  "role_defaults": {
+    "sdd-evaluator": {"minimum_tier":"strong","default_effort":"high"},
+    "sdd-investigator": {"minimum_tier":"lightweight","default_effort":"low"}
+  }
+}
+JSON
+cat > "$TMP/v2-partial-matrix-registry.json" <<'JSON'
+{
+  "schema": "agent-model-capabilities/v2",
+  "models": [
+    {"name":"anthropic/haiku","canonical_tier":"lightweight","supported_efforts":["low","medium"],"default_effort":"low","effort_control":{"claude-code":"frontmatter","codex-cli":"none"}}
+  ],
+  "risk_effort_matrix": {"low":"low","medium":"medium","critical":"high","escalation_bump":true},
+  "role_defaults": {
+    "sdd-investigator": {"minimum_tier":"lightweight","default_effort":"low"}
+  }
+}
+JSON
+cat > "$TMP/v2-malformed-supported-efforts.json" <<'JSON'
+{
+  "schema": "agent-model-capabilities/v2",
+  "models": [
+    {"name":"anthropic/haiku","canonical_tier":"lightweight","supported_efforts":[],"default_effort":"low","effort_control":{"claude-code":"frontmatter","codex-cli":"none"}}
+  ],
+  "risk_effort_matrix": {"low":"low","medium":"medium","high":"high","critical":"high","escalation_bump":true},
+  "role_defaults": {}
+}
+JSON
+cat > "$TMP/v2-malformed-effort-control.json" <<'JSON'
+{
+  "schema": "agent-model-capabilities/v2",
+  "models": [
+    {"name":"anthropic/haiku","canonical_tier":"lightweight","supported_efforts":["low"],"default_effort":"low","effort_control":{"claude-code":"sometimes","codex-cli":"none"}}
+  ],
+  "risk_effort_matrix": {"low":"low","medium":"medium","high":"high","critical":"high","escalation_bump":true},
+  "role_defaults": {}
+}
+JSON
+cat > "$TMP/v2-malformed-risk-matrix.json" <<'JSON'
+{
+  "schema": "agent-model-capabilities/v2",
+  "models": [
+    {"name":"anthropic/haiku","canonical_tier":"lightweight","supported_efforts":["low"],"default_effort":"low","effort_control":{"claude-code":"frontmatter","codex-cli":"none"}}
+  ],
+  "risk_effort_matrix": {"low":"low","medium":"medium","high":3,"critical":"high","escalation_bump":true},
+  "role_defaults": {}
+}
+JSON
+cat > "$TMP/v2-golden-candidates.json" <<'JSON'
+[
+  {"name":"openai/gpt-5.1-codex-mini","cost":"0.01","available":true,"effort":"low"},
+  {"name":"openai/gpt-5.1-codex","cost":"0.02","available":true,"effort":"medium"},
+  {"name":"openai/gpt-5.2-codex","cost":"0.03","available":true,"effort":"high"}
+]
+JSON
+cat > "$TMP/v2-matrix-standard-candidates.json" <<'JSON'
+[
+  {"name":"anthropic/sonnet","cost":"0.02","available":true},
+  {"name":"openai/gpt-5.1-codex","cost":"0.02","available":true}
+]
+JSON
+cat > "$TMP/v2-clamp-standard-candidate.json" <<'JSON'
+[
+  {"name":"openai/gpt-5.1-codex","cost":"0.02","available":true}
+]
+JSON
+cat > "$TMP/v2-escalation-strong-candidate.json" <<'JSON'
+[
+  {"name":"anthropic/opus","cost":"0.09","available":true}
+]
+JSON
+cat > "$TMP/v2-role-min-tier-candidates.json" <<'JSON'
+[
+  {"name":"openai/gpt-5.1-codex-mini","cost":"0.01","available":true},
+  {"name":"openai/gpt-5.1-codex","cost":"0.02","available":true},
+  {"name":"anthropic/opus","cost":"0.09","available":true}
+]
+JSON
+cat > "$TMP/v2-role-fallback-candidate.json" <<'JSON'
+[
+  {"name":"anthropic/haiku","cost":"0.01","available":true}
+]
+JSON
+cat > "$TMP/v2-requested-override-candidate.json" <<'JSON'
+[
+  {"name":"anthropic/sonnet","cost":"0.02","available":true}
+]
+JSON
+cat > "$TMP/v2-requested-clamp-candidate.json" <<'JSON'
+[
+  {"name":"openai/gpt-5.1-codex","cost":"0.02","available":true}
+]
+JSON
+cat > "$TMP/v2-requested-xhigh-candidate.json" <<'JSON'
+[
+  {"name":"anthropic/opus","cost":"0.09","available":true}
+]
+JSON
+cat > "$TMP/v1-omit-effort-candidate.json" <<'JSON'
+[
+  {"name":"anthropic/haiku","cost":"0.01","available":true}
+]
+JSON
+
+# TEST-006 (AC-006): v1 registry, incl. legacy positional --candidate, is
+# byte-identical to the pre-feature baseline (literal strings captured
+# from the pre-T-002 script, before any of this task's edits landed).
+legacy_text="$(
+  bash "$SELECTOR_SH" --risk low --registry "$REGISTRY" \
+    --candidate anthropic/haiku:lightweight:0.01 \
+    --candidate openai/gpt-5.1-codex-mini:lightweight:0.02
+)"
+[[ "$legacy_text" == "anthropic/haiku lightweight" ]] ||
+  fail "TEST-006 legacy positional text output drifted from the pre-feature baseline"
+legacy_json="$(
+  bash "$SELECTOR_SH" --risk low --registry "$REGISTRY" \
+    --candidate anthropic/haiku:lightweight:0.01 \
+    --candidate openai/gpt-5.1-codex-mini:lightweight:0.02 --json
+)"
+[[ "$legacy_json" == '{"available_candidates":["anthropic/haiku","openai/gpt-5.1-codex-mini"],"canonical_tier":"lightweight","effort":null,"escalation":null,"estimated_cost_per_attempt_usd":"0.01","model":"anthropic/haiku","xhigh_reason":null}' ]] ||
+  fail "TEST-006 legacy positional JSON output drifted from the pre-feature baseline (no new keys allowed for v1)"
+for runtime in shell powershell; do
+  if [[ "$runtime" == shell ]]; then
+    v1_golden_text="$(
+      bash "$SELECTOR_SH" --risk high --registry "$REGISTRY" \
+        --candidates-file "$TMP/all-tiers.json"
+    )"
+  else
+    v1_golden_text="$(
+      pwsh -NoProfile -File "$SELECTOR_PS" -Risk high -Registry "$REGISTRY" \
+        -CandidatesFile "$TMP/all-tiers.json"
+    )"
+  fi
+  [[ "$v1_golden_text" == "openai/gpt-5.2-codex strong" ]] ||
+    fail "$runtime TEST-006 v1 candidates-file text output drifted from the pre-feature baseline"
+done
+
+# TEST-007 (AC-007): v2 registry, welded (default, and explicit), is
+# byte-identical (TEXT-mode, which never carries the additive JSON-only
+# keys) to the SAME pre-feature baseline TEST-006 just proved for v1; JSON
+# mode separately proves the two new keys are present and correctly
+# attributed (effort_source: "welded"), which is why the comparison
+# granularity here is TEXT-mode byte-identity, not raw-JSON-string
+# identity (design.md API/Contract Plan: the two new keys are additive to
+# JSON output only, never to the non-JSON text format).
+default_policy_text="$(
+  bash "$SELECTOR_SH" --risk high --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-golden-candidates.json"
+)"
+explicit_welded_text="$(
+  bash "$SELECTOR_SH" --risk high --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-golden-candidates.json" --effort-policy welded
+)"
+[[ "$default_policy_text" == "openai/gpt-5.2-codex strong" ]] ||
+  fail "TEST-007 v2 welded (default policy) text output diverged from the v1 golden baseline"
+[[ "$explicit_welded_text" == "openai/gpt-5.2-codex strong" ]] ||
+  fail "TEST-007 v2 welded (explicit policy) text output diverged from the v1 golden baseline"
+welded_json="$(
+  bash "$SELECTOR_SH" --risk high --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-golden-candidates.json" --json
+)"
+jq -e '.model == "openai/gpt-5.2-codex" and .canonical_tier == "strong" and
+  .effort == "high" and .estimated_cost_per_attempt_usd == "0.03" and
+  .effort_source == "welded" and .effort_control == "none" and
+  .xhigh_reason == null and .escalation == null' <<<"$welded_json" >/dev/null ||
+  fail "TEST-007/TEST-012 v2 welded JSON output missing correct additive keys or mutated an existing key"
+
+# Negative canary (round-2 mutation-based self-check): mutate the golden
+# fixture (make the previous winner unavailable) and confirm the TEXT-mode
+# comparison actually goes red, proving TEST-007's byte-identical
+# assertion above is discriminating, not vacuously true.
+sed -e 's#"cost":"0.03","available":true#"cost":"0.03","available":false#' \
+  "$TMP/v2-golden-candidates.json" > "$TMP/v2-golden-candidates-mutated.json"
+mutated_text="$(
+  bash "$SELECTOR_SH" --risk high --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-golden-candidates-mutated.json"
+)"
+[[ "$mutated_text" != "$default_policy_text" ]] ||
+  fail "TEST-007 negative canary: mutated golden fixture did not change output (comparison is vacuous)"
+[[ "$mutated_text" == "openai/gpt-5.1-codex standard" ]] ||
+  fail "TEST-007 negative canary produced an unexpected fallback winner"
+
+# TEST-008 (AC-008): matrix policy risk-based selection picks sonnet at
+# high effort (lexicographic tiebreak among equal-tier, equal-cost
+# candidates once the pre-existing effort ordinal tiebreak is neutralized
+# by both candidates omitting a declared effort, per design.md's
+# composition of the unmodified sort key).
+matrix_json="$(
+  bash "$SELECTOR_SH" --risk high --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-matrix-standard-candidates.json" \
+    --effort-policy matrix --required-tier standard --json
+)"
+jq -e '.model == "anthropic/sonnet" and .effort == "high" and
+  .effort_source == "risk-matrix"' <<<"$matrix_json" >/dev/null ||
+  fail "TEST-008 matrix policy did not select sonnet at high effort"
+
+# TEST-009 (AC-009): a matrix-selected effort outside the winning model's
+# supported_efforts clamps to the nearest supported value.
+clamp_json="$(
+  bash "$SELECTOR_SH" --risk critical --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-clamp-standard-candidate.json" \
+    --effort-policy matrix --required-tier standard --json
+)"
+jq -e '.model == "openai/gpt-5.1-codex" and .effort == "medium" and
+  .effort_source == "risk-matrix"' <<<"$clamp_json" >/dev/null ||
+  fail "TEST-009 matrix-selected effort outside supported_efforts did not clamp"
+
+# TEST-009 (AC-009, escalation half): an escalation-bumped matrix
+# selection that lands on xhigh still requires --xhigh-reason.
+escalation_blocked="$(
+  bash "$SELECTOR_SH" --risk critical --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-escalation-strong-candidate.json" \
+    --effort-policy matrix --previous-tier standard \
+    --failure-history review-major,review-major --attempt-number 3
+)"
+[[ "$escalation_blocked" == "BLOCKED model-tier-unavailable" ]] ||
+  fail "TEST-009 escalation-bumped xhigh selection was not gated without --xhigh-reason"
+escalation_json="$(
+  bash "$SELECTOR_SH" --risk critical --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-escalation-strong-candidate.json" \
+    --effort-policy matrix --previous-tier standard \
+    --failure-history review-major,review-major --attempt-number 3 \
+    --xhigh-reason escalation-bump-accepted --json
+)"
+jq -e '.model == "anthropic/opus" and .effort == "xhigh" and
+  .effort_source == "risk-matrix" and .xhigh_reason == "escalation-bump-accepted"' \
+  <<<"$escalation_json" >/dev/null ||
+  fail "TEST-009 escalation-bumped xhigh selection did not succeed with --xhigh-reason"
+
+# TEST-010 (AC-010): --requested-effort overrides the policy-selected
+# effort under matrix, still clamped, still xhigh-gated.
+requested_override_json="$(
+  bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-requested-override-candidate.json" \
+    --effort-policy matrix --requested-effort high --json
+)"
+jq -e '.model == "anthropic/sonnet" and .effort == "high" and
+  .effort_source == "requested"' <<<"$requested_override_json" >/dev/null ||
+  fail "TEST-010 --requested-effort did not override matrix policy selection"
+requested_clamp_json="$(
+  bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-requested-clamp-candidate.json" \
+    --effort-policy matrix --requested-effort xhigh --json
+)"
+jq -e '.model == "openai/gpt-5.1-codex" and .effort == "medium" and
+  .effort_source == "requested"' <<<"$requested_clamp_json" >/dev/null ||
+  fail "TEST-010 --requested-effort was not clamped to supported_efforts"
+requested_xhigh_blocked="$(
+  bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-requested-xhigh-candidate.json" \
+    --effort-policy matrix --requested-effort xhigh
+)"
+[[ "$requested_xhigh_blocked" == "BLOCKED model-tier-unavailable" ]] ||
+  fail "TEST-010 --requested-effort xhigh was not gated without --xhigh-reason"
+
+# TEST-011 (AC-011): --role always seeds --minimum-tier (both policies);
+# under matrix with a risk_effort_matrix gap, --role additionally seeds a
+# role-default effort; under welded, --role's effort component is inert.
+role_min_tier_json="$(
+  bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-role-min-tier-candidates.json" \
+    --effort-policy matrix --role sdd-evaluator --json
+)"
+jq -e '.model == "anthropic/opus" and .canonical_tier == "strong" and
+  .effort == "high"' <<<"$role_min_tier_json" >/dev/null ||
+  fail "TEST-011 --role did not seed --minimum-tier"
+role_default_json="$(
+  bash "$SELECTOR_SH" --risk high --registry "$TMP/v2-partial-matrix-registry.json" \
+    --candidates-file "$TMP/v2-role-fallback-candidate.json" \
+    --effort-policy matrix --role sdd-investigator --json
+)"
+jq -e '.model == "anthropic/haiku" and .effort == "low" and
+  .effort_source == "role-default"' <<<"$role_default_json" >/dev/null ||
+  fail "TEST-011 --role did not seed a role-default fallback effort when risk_effort_matrix had no entry"
+welded_with_role_text="$(
+  bash "$SELECTOR_SH" --risk high --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-golden-candidates.json" --role sdd-investigator
+)"
+[[ "$welded_with_role_text" == "$default_policy_text" ]] ||
+  fail "TEST-011 --role's effort component was not inert under welded policy"
+
+# TEST-012 (AC-012): --host resolves effort_control; effort_source
+# 5-way attribution (welded/risk-matrix/role-default already proven above
+# via TEST-007/TEST-008/TEST-011; requested proven via TEST-010;
+# model-default proven below); every pre-existing JSON key stays present
+# and correctly typed alongside the two additive keys.
+model_default_json="$(
+  bash "$SELECTOR_SH" --risk high --registry "$TMP/v2-partial-matrix-registry.json" \
+    --candidates-file "$TMP/v2-role-fallback-candidate.json" \
+    --effort-policy matrix --json
+)"
+jq -e '.model == "anthropic/haiku" and .effort == "low" and
+  .effort_source == "model-default"' <<<"$model_default_json" >/dev/null ||
+  fail "TEST-012 matrix policy did not fall back to the winning model's own default_effort"
+host_codex_json="$(
+  bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-requested-clamp-candidate.json" \
+    --host codex-cli --json
+)"
+jq -e '.effort_control == "flag"' <<<"$host_codex_json" >/dev/null ||
+  fail "TEST-012 --host codex-cli did not resolve the flag effort_control"
+jq -e 'has("model") and has("canonical_tier") and has("effort") and
+  has("estimated_cost_per_attempt_usd") and has("available_candidates") and
+  has("xhigh_reason") and has("escalation") and has("effort_source") and
+  has("effort_control") and (.available_candidates | type) == "array"' \
+  <<<"$host_codex_json" >/dev/null ||
+  fail "TEST-012 v2 JSON output is missing a pre-existing or additive key"
+
+# TEST-013 (AC-013): a v2 --candidates-file entry may omit effort (the
+# selector fills it via policy); a v1 --candidates-file still requires
+# effort and rejects its absence exactly as today.
+if bash "$SELECTOR_SH" --risk low --registry "$REGISTRY" \
+  --candidates-file "$TMP/v1-omit-effort-candidate.json" --json >/dev/null 2>&1; then
+  fail "TEST-013 v1 --candidates-file accepted a candidate omitting effort"
+fi
+v2_omit_json="$(
+  bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v1-omit-effort-candidate.json" --json
+)"
+jq -e '.model == "anthropic/haiku" and .effort == "low" and
+  .effort_source == "welded"' <<<"$v2_omit_json" >/dev/null ||
+  fail "TEST-013 v2 --candidates-file did not fill an omitted effort via policy"
+
+# TEST-053 (AC-053): --requested-effort under welded (or no policy flag)
+# applies the requested value, effort_source: "requested" — provably
+# outside TEST-007's golden-comparison set: none of the golden invocations
+# above ever supply --requested-effort, so this case is structurally
+# disjoint from that comparison, not a narrowing of it.
+welded_requested_json="$(
+  bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
+    --candidates-file "$TMP/v2-requested-override-candidate.json" \
+    --requested-effort high --json
+)"
+jq -e '.model == "anthropic/sonnet" and .effort == "high" and
+  .effort_source == "requested"' <<<"$welded_requested_json" >/dev/null ||
+  fail "TEST-053 --requested-effort under welded did not apply the requested value"
+
+# TEST-054 (AC-054): each malformed v2 field category is rejected
+# fail-closed with a MODEL_SELECTION_ERROR-class diagnostic and no
+# candidate selected.
+for malformed in v2-malformed-supported-efforts v2-malformed-effort-control \
+  v2-malformed-risk-matrix; do
+  if bash "$SELECTOR_SH" --risk low --registry "$TMP/$malformed.json" \
+    --candidates-file "$TMP/v1-omit-effort-candidate.json" --json \
+    >/dev/null 2>&1; then
+    fail "TEST-054 $malformed did not exit non-zero"
+  fi
+  malformed_stderr="$(
+    bash "$SELECTOR_SH" --risk low --registry "$TMP/$malformed.json" \
+      --candidates-file "$TMP/v1-omit-effort-candidate.json" --json \
+      2>&1 >/dev/null || true
+  )"
+  [[ "$malformed_stderr" == MODEL_SELECTION_ERROR:* ]] ||
+    fail "TEST-054 $malformed did not emit a MODEL_SELECTION_ERROR-class diagnostic"
+done
+
+# PowerShell twin spot-check: prove the .ps1 twin implements the same v2
+# schema auto-detection, matrix selection, and malformed-field rejection
+# (full twin parity is T-005's own suite).
+ps_matrix_json="$(
+  pwsh -NoProfile -File "$SELECTOR_PS" -Risk high -Registry "$TMP/v2-registry.json" \
+    -CandidatesFile "$TMP/v2-matrix-standard-candidates.json" \
+    -EffortPolicy matrix -RequiredTier standard -Json
+)"
+jq -e '.model == "anthropic/sonnet" and .effort == "high" and
+  .effort_source == "risk-matrix"' <<<"$ps_matrix_json" >/dev/null ||
+  fail "PowerShell selector did not select sonnet at high effort under matrix policy"
+ps_host_json="$(
+  pwsh -NoProfile -File "$SELECTOR_PS" -Risk low -Registry "$TMP/v2-registry.json" \
+    -CandidatesFile "$TMP/v2-requested-clamp-candidate.json" -HostName codex-cli -Json
+)"
+jq -e '.effort_control == "flag"' <<<"$ps_host_json" >/dev/null ||
+  fail "PowerShell selector -HostName codex-cli did not resolve the flag effort_control"
+ps_welded_text="$(
+  pwsh -NoProfile -File "$SELECTOR_PS" -Risk high -Registry "$TMP/v2-registry.json" \
+    -CandidatesFile "$TMP/v2-golden-candidates.json"
+)"
+[[ "$ps_welded_text" == "openai/gpt-5.2-codex strong" ]] ||
+  fail "PowerShell selector v2 welded text output diverged from the v1 golden baseline"
+if pwsh -NoProfile -File "$SELECTOR_PS" -Risk low -Registry "$TMP/v2-malformed-supported-efforts.json" \
+  -CandidatesFile "$TMP/v1-omit-effort-candidate.json" -Json >/dev/null 2>&1; then
+  fail "PowerShell selector accepted a malformed empty supported_efforts array"
+fi
+
+# PowerShell case-sensitivity hazard guard (2 layers): layer 1 is every
+# comparison above using -ceq/-cne/-cin/-cnotin/-ccontains plus ordinal
+# (case-sensitive) Dictionary lookups for untrusted model-name/risk-key
+# strings, rather than a bare `@{}` hashtable (which PowerShell resolves
+# case-INSENSITIVELY by default and would let a mis-cased value silently
+# alias a correctly-cased one); layer 2 is this mis-cased negative
+# fixture pair, proving the guard is live, not merely asserted by
+# construction.
+cat > "$TMP/v2-mis-cased-effort-control.json" <<'JSON'
+{
+  "schema": "agent-model-capabilities/v2",
+  "models": [
+    {"name":"anthropic/haiku","canonical_tier":"lightweight","supported_efforts":["low"],"default_effort":"low","effort_control":{"claude-code":"Frontmatter","codex-cli":"none"}}
+  ],
+  "risk_effort_matrix": {"low":"low","medium":"medium","high":"high","critical":"high","escalation_bump":true},
+  "role_defaults": {}
+}
+JSON
+cat > "$TMP/v2-mis-cased-candidate.json" <<'JSON'
+[
+  {"name":"Anthropic/Haiku","cost":"0.01","available":true}
+]
+JSON
+if pwsh -NoProfile -File "$SELECTOR_PS" -Risk low -Registry "$TMP/v2-mis-cased-effort-control.json" \
+  -CandidatesFile "$TMP/v1-omit-effort-candidate.json" -Json >/dev/null 2>&1; then
+  fail "PowerShell selector accepted a mis-cased effort_control value (Frontmatter, not frontmatter)"
+fi
+if pwsh -NoProfile -File "$SELECTOR_PS" -Risk low -Registry "$TMP/v2-registry.json" \
+  -CandidatesFile "$TMP/v2-mis-cased-candidate.json" -Json >/dev/null 2>&1; then
+  fail "PowerShell selector case-insensitively matched a mis-cased candidate model name (Anthropic/Haiku) against the registry's anthropic/haiku"
+fi
+if bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-mis-cased-effort-control.json" \
+  --candidates-file "$TMP/v1-omit-effort-candidate.json" --json >/dev/null 2>&1; then
+  fail "shell selector accepted a mis-cased effort_control value (Frontmatter, not frontmatter)"
+fi
+if bash "$SELECTOR_SH" --risk low --registry "$TMP/v2-registry.json" \
+  --candidates-file "$TMP/v2-mis-cased-candidate.json" --json >/dev/null 2>&1; then
+  fail "shell selector case-insensitively matched a mis-cased candidate model name (Anthropic/Haiku) against the registry's anthropic/haiku"
+fi
+
+# --- T-005 (#154): REQ-005 case (h) not already covered by T-002's
+# Phase-1-scoped smoke above -------------------------------------------
+# TEST-034 (AC-034): v1<->v2 projection invariant -- the SAME candidate set
+# and risk/tier input, run against the REAL v1 registry and the REAL v2
+# registry (welded, the Phase-1 default), select the identical winning
+# model and canonical_tier, with effort_source correctly attributed
+# "welded" (shares fixtures with tests/agent-capabilities-v2.tests.sh's
+# TEST-004 registry-content parity lock; this is the same invariant
+# re-asserted at the select-agent-model.sh OUTPUT level).
+for risk_and_tier in "low lightweight" "medium standard" "high strong"; do
+  read -r proj_risk proj_tier <<<"$risk_and_tier"
+  v1_projection="$(
+    bash "$SELECTOR_SH" --risk "$proj_risk" --registry "$REGISTRY" \
+      --candidates-file "$TMP/all-tiers.json" --required-tier "$proj_tier" --json
+  )"
+  v2_projection="$(
+    bash "$SELECTOR_SH" --risk "$proj_risk" --registry "$REGISTRY_V2" \
+      --candidates-file "$TMP/all-tiers.json" --required-tier "$proj_tier" --json
+  )"
+  v1_model="$(jq -r '.model' <<<"$v1_projection")"
+  v1_tier="$(jq -r '.canonical_tier' <<<"$v1_projection")"
+  jq -e --arg model "$v1_model" --arg tier "$v1_tier" \
+    '.model == $model and .canonical_tier == $tier and .effort_source == "welded"' \
+    <<<"$v2_projection" >/dev/null ||
+    fail "TEST-034 v1<->v2 projection diverged for risk=$proj_risk tier=$proj_tier (v1=$v1_model/$v1_tier v2=$(jq -r '.model' <<<"$v2_projection")/$(jq -r '.canonical_tier' <<<"$v2_projection"))"
+done
+
 mkdir -p "$TMP/resume-repo/diagnostics"
 cat > "$TMP/resume-repo/diagnostics/T-900.md" <<'EOF'
 # Diagnosis
@@ -575,5 +1073,38 @@ if pwsh -NoProfile -File "$RESUME_PS" -Evidence "$TMP/resume.json" \
   -ExpectedTask T-900 >/dev/null 2>&1; then
   fail "PowerShell terminal-resume validator accepted a forged diagnosis hash"
 fi
+
+# --- TEST-027 (AC-027): twin existence + self-registration + staged
+# .github/workflows/test.yml candidate/manifest consistency + live-file
+# byte-identity during this suite's own run (three-part protected-file
+# registration proof). Part (c) -- the post-human-copy self-registration
+# grep against the now-updated LIVE file -- can only hold true after a
+# human applies the staged candidate via cp; it is recorded as a report
+# note in reports/implementation/epic-159-pillar-c/T-005.md, not asserted
+# here (this suite never writes .github/workflows/test.yml). -------------
+[[ -f "$ROOT/tests/agent-model-routing.tests.ps1" ]] ||
+  fail "TEST-027 tests/agent-model-routing.tests.ps1 twin does not exist"
+grep -q 'tests/agent-model-routing\.tests\.sh' "$ROOT/tests/run-all.sh" ||
+  fail "TEST-027 tests/agent-model-routing.tests.sh not registered in tests/run-all.sh"
+grep -q 'tests/agent-model-routing\.tests\.ps1' "$ROOT/tests/run-all.ps1" ||
+  fail "TEST-027 tests/agent-model-routing.tests.ps1 not registered in tests/run-all.ps1"
+
+STAGED_TEST_YML="$ROOT/specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml"
+MANIFEST="$ROOT/specs/epic-159-pillar-c/human-copy/MANIFEST.sha256"
+if [[ -f "$STAGED_TEST_YML" ]] && [[ -f "$MANIFEST" ]]; then
+  staged_sha="$(sha256_of "$STAGED_TEST_YML")"
+  grep -Fq "$staged_sha  .github/workflows/test.yml" "$MANIFEST" ||
+    fail "TEST-027(a) staged test.yml candidate SHA-256 does not match MANIFEST.sha256"
+  grep -q 'agent-model-routing\.tests\.sh' "$STAGED_TEST_YML" ||
+    fail "TEST-027(a) staged test.yml candidate does not register agent-model-routing.tests.sh"
+  grep -q 'agent-model-routing\.tests\.ps1' "$STAGED_TEST_YML" ||
+    fail "TEST-027(a) staged test.yml candidate does not register agent-model-routing.tests.ps1"
+else
+  fail "TEST-027(a) staged test.yml candidate or MANIFEST.sha256 is missing"
+fi
+
+LIVE_TEST_YML_SHA_AFTER="$(sha256_of "$LIVE_TEST_YML")"
+[[ "$LIVE_TEST_YML_SHA_AFTER" == "$LIVE_TEST_YML_SHA_BEFORE" ]] ||
+  fail "TEST-027(b) live .github/workflows/test.yml SHA-256 CHANGED during this suite's own run (before=$LIVE_TEST_YML_SHA_BEFORE after=$LIVE_TEST_YML_SHA_AFTER)"
 
 printf 'ok: turn-first model routing structure is defined\n'

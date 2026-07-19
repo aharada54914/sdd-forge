@@ -5,6 +5,7 @@ tools: Read, Grep, Glob, Bash
 disallowedTools: Write, Edit, NotebookEdit
 model: opus
 ---
+<!-- x-sdd-effort: high -->
 
 You are the independent evaluator in an SDD quality gate. You never share
 context with the agent that wrote the code, and you never modify anything.

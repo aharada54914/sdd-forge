@@ -4,6 +4,256 @@
 
 ### 追加
 
+- **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
+  T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
+  `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接
+  (`haiku`→`low`、`sonnet`→`medium`、`opus`→`high`)を解消し、モデルごとに
+  `supported_efforts`(非空配列)・`default_effort`(`supported_efforts` の
+  要素)・`effort_control`(`claude-code`/`codex-cli` それぞれ
+  `flag`/`frontmatter`/`none`)を表現可能にした。トップレベルの
+  `risk_effort_matrix` は `low`→`low`・`medium`→`medium`・`high`→`high`・
+  `critical`→`high` を厳密にマップし `escalation_bump: true` を持つ
+  (`xhigh` は直接値として一切出力されない)。`role_defaults` は
+  `spec-reviewer`/`impl-reviewer`/`task-reviewer`/`sdd-evaluator`/
+  `sdd-investigator` の5ロール全てに `minimum_tier` + `default_effort` を
+  定義。v1 (`contracts/agent-model-capabilities.json`) はバイト単位で凍結
+  (SHA-256 不変、本タスクでは一切書き込まない)。新スイート
+  `tests/agent-capabilities-v2.tests.sh` / `.ps1` が、v1⇔v2
+  双方向パリティ(v1 の全モデル名が同一 `canonical_tier` で v2 に存在し、
+  v1 の `efforts` 配列が v2 `supported_efforts` の部分集合であること)を
+  ロックし、v2 コピーからv1必須effortを剥奪した mutation-based negative
+  self-check でロックが恒常的に有効であることを自己証明する。
+  `tests/run-all.sh` / `tests/run-all.ps1` へ自スイートを直接登録
+  (grep 自己検査つき)。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CIステップ
+  (bash/pwsh 両レーン)を反映した完全な補正版を
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+  `MANIFEST.sha256` としてステージし、人間の `cp` 適用を待つ
+  (適用前後でライブファイルの SHA-256 は不変)。`PLUGIN-CONTRACTS.md` に
+  `agent-model-capabilities/v2` スキーマの新セクションを追加(AC-005)。
+  受け入れ先行(acceptance-first)で RED
+  (`specs/epic-159-pillar-c/verification/T-001/red-sh.log`: v2 ファイル
+  不在によりスイートが fail)→ GREEN
+  (`specs/epic-159-pillar-c/verification/T-001/green-sh.log`)の順で実装、
+  詳細は `reports/implementation/epic-159-pillar-c/T-001.md` を参照。
+- **selector v2 対応・effort-resolution 優先順位・ADR-0012 (Issue #150,
+  epic-159-pillar-c T-002)**: `select-agent-model.sh` / `.ps1` が
+  `--registry` の `schema` フィールドから v1/v2 を自動判別するように
+  なった。v1 レジストリ(レガシー位置引数 `--candidate name:tier:cost` 含む)
+  の経路は完全にバイト不変(AC-006、差分ファズ 32/32・29/29 件一致で検証)。
+  新規4フラグ: `--effort-policy welded|matrix`(既定 `welded`、Phase 1 全体
+  でこの既定を維持)・`--requested-effort <e>`(明示オーバーライド、両
+  policy で勝つ・`supported_efforts` へクランプ・`xhigh` は
+  `--xhigh-reason` 必須)・`--role <role>`(常に `--minimum-tier` を
+  シード、`matrix` かつ `risk_effort_matrix` に該当 risk が無い場合のみ
+  役割既定 effort もシード、`welded` 下では effort 成分は完全に不活性)・
+  `--host claude-code|codex-cli`(既定 `claude-code`、勝者モデルの
+  `effort_control` を JSON へ解決)。JSON 出力へ加法的キー
+  `effort_source`(`requested`/`risk-matrix`/`role-default`/
+  `model-default`/`welded` の5値)・`effort_control` を追加、既存7キーは
+  名前・型とも不変。`welded` は v2 でも v1 相当のバイト同一出力を再現し
+  (AC-007、意図的にゴールデン対象から外した候補ファイルの可用性を
+  ミューテートする negative self-check で比較が生きていることを証明)、
+  `--requested-effort` が `welded` 下でも常に勝つ carve-out(AC-053)は
+  この golden 比較対象外であることを構造的に保証。`matrix` は
+  `risk_effort_matrix[risk]` → escalation bump →
+  `supported_efforts` への最近傍クランプの順で解決し、bump 後に
+  `xhigh` へ着地した場合も `--xhigh-reason` ゲートを再適用(AC-008/
+  AC-009)。v2 `--candidates-file` の各エントリは `effort` を省略可能
+  (省略時は policy が補完)だが v1 は従来どおり必須のまま拒否
+  (AC-013)。v2 レジストリの `supported_efforts`(空/非配列)・
+  `effort_control`(列挙外値)・`risk_effort_matrix`(非文字列値)の
+  各カテゴリを fail-closed で `MODEL_SELECTION_ERROR` 診断とともに
+  拒否(AC-054、カテゴリごとに1フィクスチャで検証)。
+  `docs/adr/0012-effort-tier-decoupling.md` を新規起草(`ls docs/adr/` で
+  `0012` の空きを再検証済み、ADR-0003 の tier↔effort 溶接部分のみを
+  narrow し、tier 選択アルゴリズム自体は変更しない)。
+  `tests/agent-model-routing.tests.sh` を拡張し TEST-006..013/053/054 の
+  Phase-1-scoped smoke を追加(bash 側フル + pwsh 側スポットチェック、
+  完全な twin 網羅は T-005 の所掌)。受け入れ先行(acceptance-first)で
+  RED(`specs/epic-159-pillar-c/verification/T-002/red-sh.log`: 新規
+  フラグが未知引数として拒否される)→ GREEN
+  (`specs/epic-159-pillar-c/verification/T-002/green-sh.log`)の順で実装、
+  詳細は `reports/implementation/epic-159-pillar-c/T-002.md` を参照。
+- **render-agent-frontmatter・--check・R-10 保護ファイル human-copy 手順
+  (Issue #151, epic-159-pillar-c T-003)**: 新規 `render-agent-frontmatter.sh` /
+  `.ps1` を追加。v2 レジストリの `role_defaults` を単一の真実源として、
+  ロール→ファイルの固定 `TARGETS` マップ(`sdd-evaluator`/`sdd-investigator`/
+  `spec-reviewer`/`impl-reviewer`/`task-reviewer` の5ロール、Claude `.md` と
+  Codex `.toml` の双方)に沿って描画する。Claude 側は保護対象外の `.md`
+  エージェントファイルの `model:` frontmatter 行のみを書き換え(既に
+  `role_defaults` と一致していれば無変更)、frontmatter の閉じ `---` 直後に
+  `<!-- x-sdd-effort: <e> -->` コメント行を挿入/更新する(YAML
+  frontmatter キーではなく単なるコメントなので、エージェントローダーの
+  frontmatter パースには一切参加しない)。Codex 側は `.codex/agents/*.toml`
+  の先頭に `# x-sdd-model: <m>` / `# x-sdd-effort: <e>` の2行の参照コメントを
+  挿入/更新し、`name`/`description`/`sandbox_mode`/`developer_instructions`
+  など既存の TOML キーはバイト単位で不変(このコメントはドキュメント専用で
+  Codex CLI にパースされない、OQ-002 の解決どおり)。R-10 保護される4つの
+  レビューループ reviewer `.md` ファイル(`impl-reviewer-{a,b}.md`、
+  `task-reviewer-{a,b}.md`)は書き込み先解決関数自体が構造的に実パスへ
+  絶対に解決しない(AC-019、`--resolve-target-raw`/`--resolve-target` で
+  関数そのものを直接テスト可能)。補正内容は
+  `specs/epic-159-pillar-c/human-copy/<リポジトリ相対パス>` に4ファイル
+  ステージし、`MANIFEST.sha256` に SHA-256 エントリを追記、実パスは一切
+  書き込まない。`--check` モードは全ターゲット(4保護ファイル含む)を
+  読み取り専用で比較し、ドリフト検出時は非ゼロ終了(AC-016)。保護
+  ファイルへの読み取りは書き込みではないため R-10 ガードを一切踏まず、
+  CI 無人実行が可能(AC-020)。`role_defaults` は現行の本番値からシードして
+  あるため、実ファイルへの初回描画は `model:` 値に関して zero-diff no-op
+  (AC-017、6つの保護対象外ターゲットで検証済み・実際に本番描画を実行し
+  `plugins/sdd-quality-loop/agents/evaluator.md` ほか5ファイルへ
+  `x-sdd-effort` 行のみを追加)。`model: inherit` のエージェントとロール
+  マップに存在しないエージェント(`domain-reviewer-*` 等)は描画対象から
+  構造的に除外(AC-018)。`--check` は `tests/validate-repository.ps1` の
+  既存チェック列と `.github/workflows/test.yml`(T-001 がステージ済みの
+  候補に本タスクの新規ステップを追記、bash/pwsh 両レーン)に配線。
+  リスク `high`(このタスクだけが本番の Claude/Codex エージェント定義
+  ファイル群と R-10 保護境界そのものに書き込む)につき Required Workflow
+  は `tdd`: 書き込み境界(AC-019)と読み取り境界(AC-020)を独立した
+  RED/GREEN ペアとして分離記録(`specs/epic-159-pillar-c/verification/T-003/`
+  配下、`red-sh.log`/`green-sh.log`、`red-ps1.log`/`green-ps1.log`;
+  AC-019 は書き込み先解決関数を意図的に誤分類した widened map で実パスへ
+  解決することを示す負例と、正しい既定マップでの正例のペア、AC-020 は
+  同期済みフィクスチャで OK・x-sdd-effort 値をミューテートしたフィクスチャで
+  再度 DRIFT になる negative self-check のペア)。PowerShell twin は
+  T-002 で確立した2層の case-sensitivity 規律(`-ceq`/`-cne`/`-cmatch` の
+  明示的使用、`role_defaults` キーは `.PSObject.Properties` 列挙+`-ceq`で
+  照合し PSObject のドット参照の大小文字非依存性を回避)を踏襲し、
+  role_defaults キーと `canonical_tier` 値それぞれの mis-cased
+  negative fixture で両 twin が拒否することを検証。新スイート
+  `tests/render-agent-frontmatter.tests.sh` / `.ps1` は本番ファイルの
+  コピーのみを操作し(ライブファイルへは一切書き込まない)、`tests/run-all.sh` /
+  `tests/run-all.ps1` へ自スイートを直接登録(grep 自己検査つき)。詳細は
+  `reports/implementation/epic-159-pillar-c/T-003.md` を参照。
+- **run-record v2: effort attribution + degradation lock (Issue #153,
+  epic-159-pillar-c T-004)**: `emit-run-record.sh` / `.ps1` へ
+  `--effort-main` / `--effort-reviewers` / `--effort-control-main` /
+  `--effort-control-reviewers` / `--effort-applied-main` /
+  `--effort-applied-reviewers` の6フラグを追加。いずれか1つでも指定されると
+  `schema` が `sdd-run-record/v2` へ昇格し、`model_ids` に隣接する
+  `effort` オブジェクト(`main`/`reviewers` 各キーに
+  `effort_requested`/`effort_applied`/`effort_degraded_reason` の3
+  サブフィールド)が加法的に出現する。フラグが一切指定されない場合の経路は
+  v1 の heredoc / レコード構築部分を一切変更せず未加工のまま複製した分岐で
+  処理するため、byte 単位で従来と不変(AC-025、`git diff` によるソース
+  レベル比較と既存のコミット済み v1 レコード
+  `reports/runs/RUN-20260705T023011Z-sdd-forge-mcp.json` の読み取り専用
+  検証の両方で確認)。`effort_applied` は「ペアの
+  `--effort-control-*` が `flag` に解決され、かつ適用が確認された」経路
+  以外では絶対に非 null にならない構造的保証(security-spec.md B4)を実装:
+  `--effort-applied-*` に非 `none` 値が渡されたのに対応する
+  `--effort-control-*` が `flag` でない場合は fail-closed で拒否
+  (受理して黙って握りつぶすことはしない)。`effort_degraded_reason` は
+  `effort_applied` が null かつそのロールスロットの `--effort-*` が
+  指定された場合にのみ非空(AC-024、両方向を
+  `tests/emit-run-record-feature-scope.tests.sh`/`.ps1` の
+  TEST-021..026/TEST-051 でロック)。reason 文字列は解決済み
+  `effort_control` 値をキーにする(`effort-control-frontmatter`/
+  `effort-control-none`/`effort-application-declined`/
+  `effort-application-not-confirmed`)ため、Codex ホストが
+  `effort_control.codex-cli` が `frontmatter`/`none` のモデルを選択した
+  ケースも Claude Code のケースと完全に同一形状で劣化することを構造的に
+  証明(AC-051、host 名ではなく effort_control 値そのものに基づく)。
+  PowerShell twin は T-002/T-003 で確立した2層 case-sensitivity 規律を
+  継承: layer 1 は `--effort-control-*` 値に対する ordinal
+  `HashSet[string]` メンバーシップ検査(`[System.StringComparer]::Ordinal`)、
+  layer 2 は `Resolve-EffortSlot` 内の分岐ディスパッチにおける `-ceq` の
+  明示使用。mis-cased negative fixture(`Flag`)が両 twin で fail-closed に
+  拒否されることを検証。pwsh 7 のデフォルト ConciseView エラー整形が
+  部分文字列マッチによるテストアサーションを壊す問題(T-003 で発見)を
+  回避するため、新規エラーパスは `[Console]::Error.WriteLine()` による
+  プレーンテキスト出力を用いる。`implementation-report.template.md` に
+  `- Model:` / `- Effort:` の2行を追加し、
+  `validate-implementation-report.sh` が存在チェックとフォーマットのみを
+  検証(値の正しさは検証しない、既存スコープに合わせる)。
+  `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` の Process
+  手順15にも同じ2行要件を明記。テストスイートの各シナリオは同一秒内の
+  ファイル名衝突を避けるため専用の feature slug を使用し、jq 出力は
+  `tr -d '\r'` を経由(CI resilience)。詳細は
+  `reports/implementation/epic-159-pillar-c/T-004.md` を参照。
+- **routing テストの full ケース化 + PowerShell twin 新設 + test.yml 登録ギャップ
+  閉鎖 (Issue #154, epic-159-pillar-c T-005)**:
+  `tests/agent-model-routing.tests.sh` を REQ-002/REQ-005 の全ケースへ拡張
+  (TEST-027: 三部構成の保護 `test.yml` 登録証明 -- (a)
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` への
+  ステージ済み候補 + `MANIFEST.sha256` 整合、(b) ライブ
+  `.github/workflows/test.yml` の SHA-256 不変(本タスク前後で
+  `3099a2a8e9ddc61b38fa5ef6b76be7b6181c5aa383225341f304330b88f65716`
+  のまま)、(c) human-copy 適用後の自己登録 grep は適用後に初めて成立する
+  性質として実装レポートに記載; TEST-034: v1↔v2 selector 出力レベルでの
+  投影不変量、`tests/agent-capabilities-v2.tests.sh` の TEST-004 と
+  フィクスチャ共有)。新規 `tests/agent-model-routing.tests.ps1` を追加し、
+  requirements.md の Problems 節が指摘していた事前存在の twin ギャップを
+  解消。`.sh` の全ケースリストを 1 対 1 移植しつつ、Windows CI レーンで
+  bash/jq への依存を持たないよう各二重ランタイムケースの PowerShell
+  ネイティブ半分のみを移植。PowerShell 固有の regression ケース(sv-SE
+  スレッドカルチャ下でも select-agent-model.ps1 内部の
+  `[StringComparer]::Ordinal` タイブレークが揺らがないことの証明)と、
+  T-002/T-003 で確立した2層 case-sensitivity 規律(`-ceq`/`-cne`/
+  `-ccontains` 演算子 + registry/candidate 文字列に対する ordinal
+  Dictionary、mis-cased negative fixture ペア)を継承。`tests/run-all.ps1`
+  へ新 twin を直接登録(`tests/run-all.sh` の既存登録行は不変を再確認)。
+  `.github/workflows/test.yml` は R-10 保護ファイルであり直接編集せず、
+  両 twin の CI ステップ(bash/pwsh 両レーン)を追記した完全な補正版を
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+  `MANIFEST.sha256` としてステージ。`tdd` ワークフロー(Risk: high)で RED
+  (`specs/epic-159-pillar-c/verification/T-005/red-twin-absent.log`:
+  twin 不在によりスイートが fail、`red-mutated-golden.log`: 変異させた
+  golden フィクスチャに対する比較が red 化することで TEST-028 の
+  mutation-based negative self-check が discriminating であることを
+  証明)→ GREEN (`specs/epic-159-pillar-c/verification/T-005/green-sh.log`
+  / `green-ps1.log`)の順で実装、詳細は
+  `reports/implementation/epic-159-pillar-c/T-005.md` を参照。
+- **Codex ホストへの effort 実適用 + argv injection 拒否 + REQ-008 締めくくり監査
+  (Issue #152, epic-159-pillar-c T-006)**: `run-panelist-gpt.sh` / `.ps1` に
+  `--effort <e>` / `-Effort <e>` を追加し、指定時のみ既存の `codex --model ...`
+  呼び出し(`run-panelist-gpt.sh:146` 相当)に `--effort <e>` を追記(未指定なら
+  従来どおりバイト単位で不変、AC-035)。`prepare-panelist-input.sh` / `.ps1` に
+  同名のパススルーフラグを追加し、selector 由来の effort 値を stdout の
+  第2行(`effort=<e>`)経由で呼び出し側の `run-panelist-gpt --effort <e>` へ
+  橋渡し(AC-036、両スクリプトは別プロセスで直接連結されないため verbatim な
+  受け渡しとして実装)。`plugins/sdd-quality-loop/skills/quality-gate/SKILL.md`
+  に Codex ホストでの `sdd-evaluator`/`sdd-investigator` 起動手順を明記:
+  `select-agent-model.sh --host codex-cli --role <role> --json` の
+  model+effort 出力を `codex` の CLI フラグとして供給し(AC-037、実際に
+  `contracts/agent-model-capabilities.v2.json` の実レジストリと
+  `.codex/agents/sdd-evaluator.toml` / `sdd-investigator.toml` の
+  `# x-sdd-model:` / `# x-sdd-effort:` 参照コメント(T-003 が描画)を突き合わせて
+  一致することを確認済み)、その値をT-003の描画済み参照コメントと突き合わせる
+  cross-check が乖離を `DRIFT: <toml> toml=<m>/<e> live=<m>/<e>` として
+  検出可能な形で報告する(AC-038、どちらの値も無言で優先しない)。Claude Code
+  経路は `select-agent-model --host claude-code` が全 Anthropic モデルで
+  `effort_control: frontmatter` に解決することを利用し、`emit-run-record
+  --effort-control-main frontmatter` を通じて `effort_applied=null` +
+  `effort_degraded_reason=effort-control-frontmatter` を実レコードに記録
+  (AC-039、REQ-008、T-004 の AC-024/AC-051 と同一の field-population
+  ルールを共有)。**AC-052 (security-spec.md B3)**: `--model`/`--effort` の
+  語彙外形状(空白混入・先頭 `-`/`--`・`;` 区切り、及び `--effort` は
+  `{low, medium, high, xhigh}` 外の文字列)を argv 構成前に拒否し、非ゼロ
+  exit・診断メッセージ・`codex` 呼び出し 0 回を保証(検証は実 `codex` の
+  代わりにスタブ実行体を使った argv/呼び出しマーカー記録方式、実LLM呼び出しは
+  一切行わない、AC-040)。新規 `tests/run-panelist-effort.tests.sh` / `.ps1`
+  (TEST-035..040/052、`tests/run-all.sh`/`.ps1` へ自スイート登録済み)を追加。
+  **REQ-008 締めくくり監査(AC-047/AC-048)**: このフェーズが追加した
+  effort 消費面は T-004 の run-record(AC-024: frontmatter/none 制御での
+  null+reason 記録、AC-051: Codex ホストでも非 flag 制御なら host 名でなく
+  解決済み `effort_control` 値で同一形状に劣化)と T-006 自身の panelist
+  経路(AC-039)の2面のみで、いずれも Claude Code(または非 `flag` 制御)側の
+  劣化ケースが実証済み、かつどのスイートも Claude Code の effort 機構欠如を
+  理由に FAIL/SKIP とせず PASS 扱いであることを確認(実装レポートに
+  面ごとのチェックリストとして記録)。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CIステップ
+  (bash/pwsh 両レーン)を T-005 の既存ステージ済み内容に追記する形で
+  `specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml` +
+  `MANIFEST.sha256` としてステージ(適用前後でライブファイルの SHA-256 は
+  `3099a2a8e9ddc61b38fa5ef6b76be7b6181c5aa383225341f304330b88f65716`
+  のまま不変)。受け入れ先行(acceptance-first)で RED
+  (`specs/epic-159-pillar-c/verification/T-006/red-sh.log`: `--effort` が
+  両スクリプトで未知引数として拒否される)→ GREEN
+  (`specs/epic-159-pillar-c/verification/T-006/green-sh.log` /
+  `green-ps1.log`)の順で実装、詳細は
+  `reports/implementation/epic-159-pillar-c/T-006.md` を参照。
 - **ループインベントリと登録強制スイート (Issue #141, epic-159-pillar-a T-001)**:
   `tests/loops/loop-inventory.json`(schema `loop-inventory/v1`)を、8つの
   レビュー/ゲートループ(spec-review / impl-review / task-review /

@@ -1,0 +1,7 @@
+== RED: run-panelist-gpt.sh rejects --effort as unknown argument (pre-implementation) ==
+run-panelist-gpt: unknown argument: --effort
+exit_code=2
+
+== RED: prepare-panelist-input.sh rejects --effort as unknown argument (pre-implementation) ==
+prepare-panelist-input: unknown argument: --effort
+exit_code=2

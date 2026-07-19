@@ -1,0 +1,122 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-c-task-task-reviewer-b-seq0295",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-159-pillar-c-0295",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 7 tasks' Risk tiers are consistent with actual scope per risk-classification-policy.md's sentinel-surface proximity rule. T-003 (Risk: high) touches production Claude .md/Codex .toml agent-definition files consumed as system prompts by downstream review/evaluation gates plus the R-10 protected-file boundary (tasks.md T-003 Risk Rationale) -- correctly high, not merely UI/doc/test-only scope. T-005 (Risk: high) is test-file-only in its Planned Files (tests/agent-model-routing.tests.sh/.ps1, tests/run-all.ps1, human-copy staging, CHANGELOG.md) but its Risk Rationale invokes risk-classification-policy.md's 'anything where a silent defect causes material harm' high-tier criterion for its golden-baseline mutation-based negative self-check (the sole mechanism proving Phase 1's behavior-preservation claim -- design.md Risks 'Principal risk') plus its interaction with the newly-protected .github/workflows/test.yml registration surface -- a substantively grounded exception to the test-only over-classification heuristic, explicitly precedented by 'the same task-review round-1 TASK-SIZE precedent epic-159-pillar-b established' (tasks.md Global Constraints). T-007 (Risk: high) changes a release-path default governing every future Codex-host effort selection and is an explicit release-gating change -- correctly high. No task touches authentication, authorization, payment, PII storage, or an externally-visible public API contract (Data Migration is explicitly 'none' on every task); T-001/T-002/T-004/T-006 (Risk: medium) are each strictly additive with narrowing-only (fail-closed) validation changes, correctly not elevated to high."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All three high-risk tasks (T-003, T-005, T-007) declare Required Workflow: tdd and their Done When sections include explicit Red->Green evidence items: T-003 ('RED... GREEN... for AC-019; RED/GREEN likewise for the --check read/write-boundary pair (AC-020)'); T-005 ('RED (the pre-landing absence of tests/agent-model-routing.tests.ps1... running them against a deliberately mutated golden fixture to confirm red) and GREEN...'); T-007 ('RED (the pre-flip default resolving to welded...) and GREEN (the post-flip default resolving to matrix...)'). Each of the three also records 'An independent quality-gate verdict records PASS' in the same Done-When bullet, satisfying the independent-review-verdict requirement via this repository's established quality-gate process convention. No task in this set is Risk: critical, so the second-approver/signed-evidence-bundle requirement is not applicable to any task."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Done-When item counts exceed the >8 'oversized' indicator for T-001 (10 items), T-002 (14), T-003 (11), T-004 (10), T-005 (11), T-006 (11) -- scrutinized specifically. Each item maps 1:1 to a single, previously-verified, non-duplicate, non-orphaned AC-NNN/TEST-NNN (traceability.md Acceptance Mapping; integrated-summary.json reviewer_a AC-COVERAGE/NO-DUPLICATE-AC/ORPHAN-TASK/SINGLE-CONCERN all PASS) for ONE cohesive component per task (T-001=registry, T-002=selector, T-003=renderer, T-004=run-record, T-005=routing tests, T-006=panelist effort), not multiple unrelated implementation areas. Further splitting would violate SCOPE-DISJOINT (e.g. select-agent-model.sh is explicitly single-editor per Global Constraints) without reducing genuine complexity. design.md explicitly cites this exact two-commit-split/dense-per-AC-checklist pattern as the established epic-159-pillar-b precedent. No fragmentation found: no 3+ tasks scoped to a single function/file edit, no 'rename X to Y'-only task exists."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task has at least one associated negative/edge-case AC in acceptance-tests.md: T-001/AC-004 mutation-based negative parity self-check + AC-002 no-direct-xhigh case; T-002/AC-009 clamp+escalation-xhigh-gate, AC-054 three-category malformed-field rejection; T-003/AC-018 exclusion lock, AC-019/AC-020 protected-file write/read-boundary pair; T-004/AC-024 both-directions field-population lock, AC-025 backward-compat, AC-051 Codex-host non-flag-control degradation; T-005/AC-028 mutation-based negative self-check, AC-030/AC-031 clamp+xhigh-gate-under-escalation; T-006/AC-052 injection-rejection per malformed-shape category; T-007/AC-042 non-zero-diff-documented edge case, AC-045 prerequisite-gate proof. acceptance-tests.md's own header notes record that TEST-051/052/053/054 were added specifically in round-1/round-2 spec-review remedies to close negative-path gaps."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every TEST-NNN in acceptance-tests.md's table references exactly one AC-NNN in the same row (54/54 rows), satisfying the acceptance-test AC-NNN-reference requirement for all test tasks. The suite does not use generic 'unit'/'integration'/'end-to-end' labels; it uses feature-specific labels (schema conformance, behavior lock, parity lock, argv composition, drift detection, degradation lock, smoke, etc.). Spot-checked the two most integration/e2e-like cases for scope-to-label consistency: TEST-038 ('drift detection', AC-038) genuinely spans two components (T-003's rendered .toml comments + T-006's live selector-output cross-check); TEST-044 ('smoke (real run-record)', AC-044) genuinely exercises a full real Codex-host invocation, correctly distinguished from the deterministic-fixture-only tests per infra-spec.md's Runtime Budget and acceptance-tests.md's Notes. No mislabeled test found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All three high-risk tasks carry an explicit Rollback: field: T-003 (revert two commits; explicit statement that protected files are human-applied-only and a revert PR must separately state whether to hand-revert them); T-005 (revert two commits; explicit note the .ps1 twin's removal reopens the twin gap, and a revert PR must state whether the corresponding test.yml step needs hand-reverting); T-007 (single-line default-value revert plus documentation revert, no data migration to unwind)."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All identified same-file multi-task touches are correctly serialized via Blockers: tests/run-all.sh/.ps1 and the .github/workflows/test.yml human-copy staging candidate are touched by T-001/T-003/T-005/T-006, whose Blockers chain (T-003 blocks:T-001; T-005 blocks:T-002,T-003; T-006 blocks:T-001,T-002,T-003,T-005) exactly implements the Global Constraints-declared serialization order 'T-001 -> T-003 -> T-005 -> T-006'. tests/agent-model-routing.tests.sh is edited by both T-002 (Phase-1-scoped smoke) and T-005 (full case list); T-005's Blockers explicitly includes T-002, the legitimate create-then-extend pattern this check permits. .codex/agents/*.toml is written by T-003 and only read (never edited) by T-006 -- no write collision. CHANGELOG.md's '## Unreleased' section is touched by T-001..T-006 but each adds its OWN, non-overlapping, per-issue-numbered subsection -- non-colliding content, and design.md's own Risks section already names the residual merge-churn risk with an accepted serialized-commit mitigation. No uncoordinated overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-006's Blockers field lists only 'T-001, T-002, T-003, T-005' -- T-004 is absent. But T-006's own Scope and Done When explicitly require auditing T-004's already-landed deliverable: Goal states 'Close the feature with the REQ-008 cross-host-degradation AUDIT (AC-047/048) across every effort-consuming surface T-001..T-006 added'; Scope's Commit A states 'Perform the closing REQ-008 audit: confirm every effort-consuming surface T-001..T-006 added (T-004's run-record, T-006's own panelist path) has a demonstrated Claude Code (or non-flag-control) degradation case'; Done When states 'The REQ-008 closing audit (AC-047, AC-048) confirms every effort-consuming surface has a demonstrated degradation case... recorded explicitly in the implementation report with a per-surface checklist (T-004's AC-024/AC-051, T-006's own AC-039)'. This makes T-004's completed AC-024/AC-051 evidence a genuine prerequisite for T-006's own Done-When item, yet no Blockers entry (nor any transitive path -- T-004's own Blockers are T-001,T-002 only, neither of which is downstream of T-006's other blockers T-003/T-005) guarantees T-004 is Done before T-006 starts or finishes. requirements.md's Overview dependency summary ('T-006 additionally depends on T-003... T-007 depends on all of T-001..T-006') likewise omits a T-006->T-004 dependency despite traceability.md's Task Mapping assigning T-006 ownership of the REQ-008 closing audit ('TEST-047, TEST-048 (REQ-008 closing audit)'). Concrete failure mode: an implementer following the declared Blockers graph could legitimately start and complete T-006 while T-004 is still unmerged, producing an incomplete or fabricated closing-audit checklist for AC-047/048 since the surface it must audit (T-004's degradation evidence) would not yet exist. Fix: add T-004 to T-006's Blockers list."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All seven tasks (T-001..T-007) are feature-addition tasks for the effort-routing-v2 capability (new registry, new selector flags, new renderer, run-record schema extension, test suite extension, Codex-host effort application, and a policy-default flip) -- no task's title, Goal, Scope, or Done When describes a bugfix, regression fix, debugging session, failure diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/requirements.md",
+      "sha256": "37f69e8a83aa34969d75d2c01d7253bfe196cba1ba9b7e238d8cc85a4fadff1c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/acceptance-tests.md",
+      "sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/design.md",
+      "sha256": "765e55773376c6c3e3a6cb17b916610da261589e362424461ecfd0a88c44079b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/tasks.md",
+      "sha256": "47a4753cac72c7a0d3cd88559b3142c950676f039ea34567c7777dffc94415e9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/traceability.md",
+      "sha256": "66dfd81f07a0fcfd92750ba102b872b46c9be1a066e73ba0a8ade130e954e244"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/ux-spec.md",
+      "sha256": "49c26780ccc91392b961d39396733f12e561feb4cf577dd6b0bc7e4920c92d11"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/frontend-spec.md",
+      "sha256": "91e909bbbe15b9bcfc4012024fcfeecd01d7bea68d4eda5fe52f9164857bd093"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/infra-spec.md",
+      "sha256": "d3a43818130b1b516fe87ef2af1b9f19a24382ea121beaa166e785af29ae4be8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/security-spec.md",
+      "sha256": "1f4a6efa2152a7ca2c74308e2ebf3ca20eea942c0ba7dbe53277df68699329be"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/epic-159-pillar-c/attempt-1/round-1/precheck-result.json",
+      "sha256": "1b9ca59d17f91d4cea7ef36ac14e45fff38fbed32e097f67061887a14eb995ae"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/epic-159-pillar-c/attempt-1/round-1/integrated-summary.json",
+      "sha256": "7530d4351bc0df57da916a48bd9e0c69e2928c66da860571a8b61339d7b20955"
+    }
+  ]
+}
