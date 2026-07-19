@@ -68,6 +68,35 @@ sha256_of() {
   fi
 }
 
+# bash 3.2 (macOS CI runner's /bin/bash) has no associative arrays
+# (`declare -A`). Every associative-array use in this suite is emulated with
+# a parallel keys/values indexed-array pair (`<PREFIX>_KEYS` / `<PREFIX>_VALS`)
+# plus these two helpers. `set -u` safe: every prefix used below is kv_set at
+# least once (from a known-non-empty relpath array) before any kv_get on that
+# same prefix, so `${<PREFIX>_KEYS[@]}` / `${#<PREFIX>_KEYS[@]}` are never
+# evaluated while the underlying array is completely undeclared.
+kv_set() {
+  local __kv_prefix="$1" __kv_key="$2" __kv_val="$3"
+  eval "${__kv_prefix}_KEYS+=(\"\${__kv_key}\")"
+  eval "${__kv_prefix}_VALS+=(\"\${__kv_val}\")"
+}
+
+kv_get() {
+  local __kv_prefix="$1" __kv_key="$2"
+  local __kv_n __kv_i __kv_k
+  eval "__kv_n=\${#${__kv_prefix}_KEYS[@]}"
+  __kv_i=0
+  while [[ "$__kv_i" -lt "$__kv_n" ]]; do
+    eval "__kv_k=\${${__kv_prefix}_KEYS[$__kv_i]}"
+    if [[ "$__kv_k" == "$__kv_key" ]]; then
+      eval "printf '%s' \"\${${__kv_prefix}_VALS[$__kv_i]}\""
+      return 0
+    fi
+    __kv_i=$((__kv_i + 1))
+  done
+  return 1
+}
+
 if [[ ! -x "$RENDER_SH" ]] && [[ ! -f "$RENDER_SH" ]]; then
   printf 'not ok: render-agent-frontmatter.sh does not exist at %s\n' "$RENDER_SH" >&2
   exit 1
@@ -79,9 +108,10 @@ trap 'rm -rf "$TMP"' EXIT
 
 # --- Suite-wide safety proof: this suite never touches the LIVE protected
 # reviewer files (captured before AND after every check below) ------------
-declare -A LIVE_PROTECTED_SHA_BEFORE=()
+LIVE_PROTECTED_SHA_BEFORE_KEYS=()
+LIVE_PROTECTED_SHA_BEFORE_VALS=()
 for rel in "${PROTECTED_RELPATHS[@]}"; do
-  LIVE_PROTECTED_SHA_BEFORE["$rel"]="$(sha256_of "$ROOT/$rel")"
+  kv_set LIVE_PROTECTED_SHA_BEFORE "$rel" "$(sha256_of "$ROOT/$rel")"
 done
 
 # --- Build a scratch mirror of the real production targets ---------------
@@ -154,16 +184,16 @@ PY
 # path, since the real unprotected targets are themselves already rendered
 # by this task's one-time production render), and sha256 of every scratch
 # target (TEST-016/019 no-write proof).
-declare -A MODEL_BEFORE=()
-declare -A SHA_BEFORE=()
-declare -A LINE_COUNT_BEFORE=()
+MODEL_BEFORE_KEYS=(); MODEL_BEFORE_VALS=()
+SHA_BEFORE_KEYS=(); SHA_BEFORE_VALS=()
+LINE_COUNT_BEFORE_KEYS=(); LINE_COUNT_BEFORE_VALS=()
 for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${PROTECTED_RELPATHS[@]}"; do
-  MODEL_BEFORE["$rel"]="$(grep -m1 '^model:' "$TMP/$rel" | sed 's/^model:[[:space:]]*//')"
-  SHA_BEFORE["$rel"]="$(sha256_of "$TMP/$rel")"
-  LINE_COUNT_BEFORE["$rel"]="$(grep -c '' "$TMP/$rel")"
+  kv_set MODEL_BEFORE "$rel" "$(grep -m1 '^model:' "$TMP/$rel" | sed 's/^model:[[:space:]]*//')"
+  kv_set SHA_BEFORE "$rel" "$(sha256_of "$TMP/$rel")"
+  kv_set LINE_COUNT_BEFORE "$rel" "$(grep -c '' "$TMP/$rel")"
 done
 for rel in "${CODEX_RELPATHS[@]}"; do
-  SHA_BEFORE["$rel"]="$(sha256_of "$TMP/$rel")"
+  kv_set SHA_BEFORE "$rel" "$(sha256_of "$TMP/$rel")"
 done
 
 # ===========================================================================
@@ -200,7 +230,7 @@ fi
 no_write_during_check=1
 for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}" "${CODEX_RELPATHS[@]}" "${PROTECTED_RELPATHS[@]}"; do
   after="$(sha256_of "$TMP/$rel")"
-  if [[ "$after" != "${SHA_BEFORE[$rel]}" ]]; then
+  if [[ "$after" != "$(kv_get SHA_BEFORE "$rel")" ]]; then
     no_write_during_check=0
   fi
 done
@@ -286,15 +316,15 @@ fi
 # GREEN (default table): the shipped, built-in target table classifies the
 # four real basenames as protected -- looked up via role+kind+relpath, not
 # an override flag.
-declare -A ROLE_FOR_RELPATH=(
-  ["plugins/sdd-review-loop/agents/impl-reviewer-a.md"]="impl-reviewer"
-  ["plugins/sdd-review-loop/agents/impl-reviewer-b.md"]="impl-reviewer"
-  ["plugins/sdd-review-loop/agents/task-reviewer-a.md"]="task-reviewer"
-  ["plugins/sdd-review-loop/agents/task-reviewer-b.md"]="task-reviewer"
-)
+ROLE_FOR_RELPATH_KEYS=()
+ROLE_FOR_RELPATH_VALS=()
+kv_set ROLE_FOR_RELPATH "plugins/sdd-review-loop/agents/impl-reviewer-a.md" "impl-reviewer"
+kv_set ROLE_FOR_RELPATH "plugins/sdd-review-loop/agents/impl-reviewer-b.md" "impl-reviewer"
+kv_set ROLE_FOR_RELPATH "plugins/sdd-review-loop/agents/task-reviewer-a.md" "task-reviewer"
+kv_set ROLE_FOR_RELPATH "plugins/sdd-review-loop/agents/task-reviewer-b.md" "task-reviewer"
 green019_table_ok=1
 for rel in "${PROTECTED_RELPATHS[@]}"; do
-  role="${ROLE_FOR_RELPATH[$rel]}"
+  role="$(kv_get ROLE_FOR_RELPATH "$rel")"
   resolved="$("$RENDER_SH" --resolve-target "$role" claude "$rel")"
   case "$resolved" in
     "$ROOT/specs/epic-159-pillar-c/human-copy/$rel") : ;;
@@ -333,24 +363,24 @@ RENDER_LOG="$TMP/render.log"
 # TEST-014: unprotected Claude .md targets get only the model: line
 # rewritten (here: left as-is, since role_defaults was seeded from these
 # exact current values) + x-sdd-effort inserted/refreshed.
-declare -A EXPECTED_EFFORT=(
-  ["plugins/sdd-quality-loop/agents/evaluator.md"]="high"
-  ["plugins/sdd-bootstrap/agents/investigator.md"]="low"
-  ["plugins/sdd-review-loop/agents/spec-reviewer-a.md"]="medium"
-  ["plugins/sdd-review-loop/agents/spec-reviewer-b.md"]="medium"
-)
+EXPECTED_EFFORT_KEYS=()
+EXPECTED_EFFORT_VALS=()
+kv_set EXPECTED_EFFORT "plugins/sdd-quality-loop/agents/evaluator.md" "high"
+kv_set EXPECTED_EFFORT "plugins/sdd-bootstrap/agents/investigator.md" "low"
+kv_set EXPECTED_EFFORT "plugins/sdd-review-loop/agents/spec-reviewer-a.md" "medium"
+kv_set EXPECTED_EFFORT "plugins/sdd-review-loop/agents/spec-reviewer-b.md" "medium"
 test014_ok=1
 for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}"; do
   model_line="$(grep -m1 '^model:' "$TMP/$rel" | sed 's/^model:[[:space:]]*//')"
-  if [[ "$model_line" != "${MODEL_BEFORE[$rel]}" ]]; then
+  if [[ "$model_line" != "$(kv_get MODEL_BEFORE "$rel")" ]]; then
     test014_ok=0
   fi
-  if ! grep -Fq "<!-- x-sdd-effort: ${EXPECTED_EFFORT[$rel]} -->" "$TMP/$rel"; then
+  if ! grep -Fq "<!-- x-sdd-effort: $(kv_get EXPECTED_EFFORT "$rel") -->" "$TMP/$rel"; then
     test014_ok=0
   fi
   # No OTHER frontmatter field touched: exactly one line was added (the
   # x-sdd-effort comment); every other line is byte-identical in position.
-  before_count="${LINE_COUNT_BEFORE[$rel]}"
+  before_count="$(kv_get LINE_COUNT_BEFORE "$rel")"
   after_count="$(grep -c '' "$TMP/$rel")"
   if [[ $((after_count - before_count)) -ne 1 ]]; then
     test014_ok=0
@@ -364,22 +394,22 @@ fi
 
 # TEST-015: Codex .toml targets get the two reference comment lines,
 # existing keys untouched.
-declare -A EXPECTED_CODEX_MODEL=(
-  [".codex/agents/sdd-evaluator.toml"]="openai/gpt-5.2-codex"
-  [".codex/agents/sdd-investigator.toml"]="openai/gpt-5.1-codex-mini"
-)
-declare -A EXPECTED_CODEX_EFFORT=(
-  [".codex/agents/sdd-evaluator.toml"]="high"
-  [".codex/agents/sdd-investigator.toml"]="low"
-)
+EXPECTED_CODEX_MODEL_KEYS=()
+EXPECTED_CODEX_MODEL_VALS=()
+kv_set EXPECTED_CODEX_MODEL ".codex/agents/sdd-evaluator.toml" "openai/gpt-5.2-codex"
+kv_set EXPECTED_CODEX_MODEL ".codex/agents/sdd-investigator.toml" "openai/gpt-5.1-codex-mini"
+EXPECTED_CODEX_EFFORT_KEYS=()
+EXPECTED_CODEX_EFFORT_VALS=()
+kv_set EXPECTED_CODEX_EFFORT ".codex/agents/sdd-evaluator.toml" "high"
+kv_set EXPECTED_CODEX_EFFORT ".codex/agents/sdd-investigator.toml" "low"
 test015_ok=1
 for rel in "${CODEX_RELPATHS[@]}"; do
   first_line="$(sed -n '1p' "$TMP/$rel")"
   second_line="$(sed -n '2p' "$TMP/$rel")"
-  if [[ "$first_line" != "# x-sdd-model: ${EXPECTED_CODEX_MODEL[$rel]}" ]]; then
+  if [[ "$first_line" != "# x-sdd-model: $(kv_get EXPECTED_CODEX_MODEL "$rel")" ]]; then
     test015_ok=0
   fi
-  if [[ "$second_line" != "# x-sdd-effort: ${EXPECTED_CODEX_EFFORT[$rel]}" ]]; then
+  if [[ "$second_line" != "# x-sdd-effort: $(kv_get EXPECTED_CODEX_EFFORT "$rel")" ]]; then
     test015_ok=0
   fi
   for key in 'name = ' 'description = ' 'sandbox_mode = ' 'developer_instructions = '; do
@@ -400,7 +430,7 @@ fi
 test017_ok=1
 for rel in "${UNPROTECTED_CLAUDE_RELPATHS[@]}"; do
   model_after="$(grep -m1 '^model:' "$TMP/$rel" | sed 's/^model:[[:space:]]*//')"
-  if [[ "$model_after" != "${MODEL_BEFORE[$rel]}" ]]; then
+  if [[ "$model_after" != "$(kv_get MODEL_BEFORE "$rel")" ]]; then
     test017_ok=0
   fi
 done
@@ -415,7 +445,7 @@ fi
 test019_write_ok=1
 for rel in "${PROTECTED_RELPATHS[@]}"; do
   after="$(sha256_of "$TMP/$rel")"
-  if [[ "$after" != "${SHA_BEFORE[$rel]}" ]]; then
+  if [[ "$after" != "$(kv_get SHA_BEFORE "$rel")" ]]; then
     test019_write_ok=0
   fi
 done
@@ -609,7 +639,7 @@ fi
 live_protected_unchanged=1
 for rel in "${PROTECTED_RELPATHS[@]}"; do
   after="$(sha256_of "$ROOT/$rel")"
-  if [[ "$after" != "${LIVE_PROTECTED_SHA_BEFORE[$rel]}" ]]; then
+  if [[ "$after" != "$(kv_get LIVE_PROTECTED_SHA_BEFORE "$rel")" ]]; then
     live_protected_unchanged=0
   fi
 done

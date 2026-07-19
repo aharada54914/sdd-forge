@@ -387,3 +387,4 @@ None.
 Write-Output ""
 Write-Output "emit-run-record-feature-scope.tests.ps1: $($script:passCount) passed, $($script:failCount) failed"
 if ($script:failCount -ne 0) { exit 1 }
+exit 0

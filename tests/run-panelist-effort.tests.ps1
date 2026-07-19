@@ -466,3 +466,4 @@ if (($evaluatorTomlShaAfter -ceq $evaluatorTomlShaBefore) -and ($investigatorTom
 Write-Output ""
 Write-Output "run-panelist-effort.tests.ps1: $($script:passCount) passed, $($script:failCount) failed"
 if ($script:failCount -ne 0) { exit 1 }
+exit 0

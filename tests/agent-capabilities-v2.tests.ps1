@@ -280,3 +280,4 @@ if ($v1ShaBefore -ceq $v1ShaAfter) {
 Write-Output ""
 Write-Output "agent-capabilities-v2.tests.ps1: $($script:passCount) passed, $($script:failCount) failed"
 if ($script:failCount -ne 0) { exit 1 }
+exit 0
