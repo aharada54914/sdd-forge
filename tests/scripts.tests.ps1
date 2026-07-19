@@ -2173,9 +2173,32 @@ Quality gate report for T-201.
     }
 
     # Test T-007a.6: critical bundle with valid signature, but verify with NO key → FAIL
+    # "No key" must neutralize the full fallback chain (SDD_EVIDENCE_KEY env ->
+    # SDD_EVIDENCE_KEY_FILE -> ~/.sdd/evidence-key): dev hosts may have a real
+    # ~/.sdd/evidence-key, so run these calls with HOME/USERPROFILE pointing at
+    # an empty directory and SDD_EVIDENCE_KEY_FILE cleared.
     Remove-Item Env:SDD_EVIDENCE_KEY -ErrorAction SilentlyContinue
+    $t007aNoKeyHome = Join-Path $workDir "t007a_nokey_home"
+    New-Item -ItemType Directory -Force -Path $t007aNoKeyHome | Out-Null
+    $t007aSavedHome = $env:HOME
+    $t007aSavedUserProfile = $env:USERPROFILE
+    $t007aSavedKeyFile = $env:SDD_EVIDENCE_KEY_FILE
+    function Set-NoEvidenceKeyEnv {
+        $env:HOME = $t007aNoKeyHome
+        $env:USERPROFILE = $t007aNoKeyHome
+        Remove-Item Env:SDD_EVIDENCE_KEY_FILE -ErrorAction SilentlyContinue
+    }
+    function Restore-EvidenceKeyEnv {
+        # Assigning $null to an env: variable removes it, so this also restores
+        # the "originally unset" case correctly.
+        $env:HOME = $t007aSavedHome
+        $env:USERPROFILE = $t007aSavedUserProfile
+        $env:SDD_EVIDENCE_KEY_FILE = $t007aSavedKeyFile
+    }
+    Set-NoEvidenceKeyEnv
     $t007a_check_6_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "check-evidence-bundle.ps1") $t007a_critical_bundle -RepoRoot "$t007aRepo" 2>&1
     $t007a_check_6_exit = $LASTEXITCODE
+    Restore-EvidenceKeyEnv
     $t007a_check_6_str = ($t007a_check_6_output | Out-String)
     if ($t007a_check_6_exit -eq 0 -or $t007a_check_6_str -notmatch "no evidence key") {
         throw "T-007a.6: should fail without key. Got exit $t007a_check_6_exit. Output: $t007a_check_6_str"
@@ -2205,9 +2228,12 @@ Quality gate report for T-201.
     }
 
     # Test T-007a.8: generate critical bundle with NO key → generate fails
+    # (evidence-key fallback chain neutralized again — see T-007a.6)
     Remove-Item Env:SDD_EVIDENCE_KEY -ErrorAction SilentlyContinue
+    Set-NoEvidenceKeyEnv
     $t007a_gen_8_output = & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "generate-evidence-bundle.ps1") -ContractPath "$t007aRepo/specs/test-feature/verification/T-200.contract.json" -QualityReport "$t007aRepo/reports/quality-gate/T-200.md" -RepoRoot "$t007aRepo" 2>&1
     $t007a_gen_8_exit = $LASTEXITCODE
+    Restore-EvidenceKeyEnv
     $t007a_gen_8_str = ($t007a_gen_8_output | Out-String)
     if ($t007a_gen_8_exit -eq 0) {
         throw "T-007a.8: generate critical without key should fail"
