@@ -565,6 +565,53 @@
   事前状態を記録)→ GREEN
   (`specs/epic-159-pillar-d/verification/T-002/green-*.log`)の順で実装、
   詳細は `reports/implementation/epic-159-pillar-d/T-002.md` を参照。
+- **週次 model-freshness-check 自動化の追加 (Issue #157, epic-159-pillar-d
+  T-003)**: 新規 `.github/workflows/model-freshness-check.yml`(週次
+  `cron: "0 3 * * 1"` + `workflow_dispatch`、`ubuntu-latest`、
+  `permissions: contents: read` / `issues: write` のみ、
+  `pull-requests: write` は持たない)が新規
+  `.github/scripts/check-model-freshness.sh` を実行し、Anthropic/OpenAI
+  公式ソースを best-effort 取得して
+  `contracts/agent-model-capabilities.v2.json` の `models[].name` との
+  乖離を検出する。取得失敗時(いずれかのベンダーで発生)は
+  `[model-freshness-fetch-unavailable]` マーカー付き専用 issue へ
+  「取得不能」コメントを残して exit 0(fail-soft, INV-009 — 外部ソース
+  障害でこの CI ジョブ自体を失敗させない。非対称失敗時も残存側の部分
+  データから乖離計算しない)。乖離検出時は charset allowlist
+  `[A-Za-z0-9.-]` 検証済みモデル ID トークンのみを本文に埋め込んだ
+  `[model-freshness-divergence]` マーカー付き issue を起票
+  (`workflow-improvement` ラベル、重複排除つき — このマーカー文字列は
+  T-001(#156)の手動起票チェックリストと同一のものを使用)。
+  `check-model-freshness.sh` は `contracts/` への書き込み経路を一切持たず
+  (Security Boundaries B2)、`.ps1` twin は持たない(記録済み non-twin
+  設計判断、`self-improvement-pr-guard.sh` の既存 non-twin 前例に倣う、
+  AC-016)。新規スイート `tests/model-freshness-check.tests.sh` / `.ps1`
+  が、fetch 失敗3シナリオ(両方/Anthropic のみ/OpenAI のみ)・乖離検出+
+  重複排除・no-diff ゼロ副作用・adversarial issue-body allowlist
+  (markdown injection / instruction-like text / script fragments が
+  issue 本文に verbatim で漏れないことの陽性/陰性ペア証明)を、実スクリプト
+  + PATH 上書き `gh` スタブ + 注入可能フィクスチャで直接ロック(実ネット
+  ワーク・実 `gh` 呼び出しは一切なし)。`.ps1` twin は
+  `check-model-freshness.sh` 自体をシェルアウトせず、同一アルゴリズムを
+  ネイティブ PowerShell として独立再実装した上で同じフィクスチャ群を駆動
+  (`tests/release-loop-gate.tests.ps1` の full-parity-port 踏襲)。
+  `tests/run-all.sh` / `.ps1` へ自スイートを直接登録
+  (grep 自己検査つき、TEST-009/TEST-016)。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CIステップ
+  (bash/pwsh 両レーン)を反映した完全な補正版を
+  `specs/epic-159-pillar-d/human-copy/.github/workflows/test.yml` +
+  `MANIFEST.sha256` としてステージし、人間の適用を待つ(適用前後で
+  ライブファイルの SHA-256 は不変)— 人間適用コミットが着地するまで
+  `tests/model-freshness-check.tests.sh`/`.ps1` 自身の TEST-009
+  ライブファイル自己検査は意図的に red のまま(AC-011 の fail-closed
+  設計、stagedによる代替なし)。受け入れ先行の TDD で RED
+  (`specs/epic-159-pillar-d/verification/T-003/red-sh.log` /
+  `red-ps1.log`: スクリプト・ワークフロー・登録のいずれも未着地の状態で
+  スイート自身が意味のある失敗をすることを確認)→ GREEN
+  (`specs/epic-159-pillar-d/verification/T-003/green-sh.log` /
+  `green-ps1.log`: TEST-009 のライブファイル半分を除く全アサーションが
+  green)の順で実装、詳細は
+  `reports/implementation/epic-159-pillar-d/T-003.md` を参照。
 
 ### セキュリティ修正
 
