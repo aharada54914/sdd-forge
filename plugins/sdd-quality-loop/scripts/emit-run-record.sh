@@ -135,7 +135,7 @@ if [ -d "reports/quality-gate" ]; then
     fi
   done
   for gf in $feature_gate_files; do
-    grep -q 'BLOCKED' "$gf" 2>/dev/null && gate_blocked=$((gate_blocked + 1))
+    grep -qE '^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$' "$gf" 2>/dev/null && gate_blocked=$((gate_blocked + 1))
   done
 fi
 
