@@ -530,6 +530,41 @@
   部分一致であるため、末尾列の追加後も成立)。ホスト中立(Claude Code /
   Codex どちらにも偏らない単一プローズブロック)。詳細は
   `reports/implementation/epic-159-pillar-d/T-001.md`。
+- **v2 レジストリへの現行世代モデルデータ投入 (Issue #158, epic-159-pillar-d
+  T-002)**: Pillar C の C1 (#149) が `main` へ着地させた
+  `contracts/agent-model-capabilities.v2.json` へ、OpenAI の現行世代
+  (`gpt-5.4`/`5.5`/`5.6` 系)を表す新規3エントリを tier ごとに追加
+  (`openai/gpt-5.4-codex-mini`/lightweight、`openai/gpt-5.5-codex`/
+  standard、`openai/gpt-5.6-codex`/strong)、各エントリで Claude Code /
+  Codex 両ホストの `effort_control` を充足。既存7エントリはバイト単位で
+  無変更 — `tests/agent-capabilities-v2.tests.sh` の名前キー v1⇔v2
+  パリティロックと `tests/agent-model-routing.tests.sh` の実レジストリ
+  直読アサーション(`:415-421`、TEST-034 `:868-884`)が、この7エントリの
+  改名・削除を red 化することをソース調査で直接確認したため
+  (両スイートとも「無編集のまま再実行して green」= AC-014 の対象)、
+  リネームではなく新規追加という手段を選択。Anthropic 側の3エイリアス
+  (`anthropic/haiku`/`sonnet`/`opus`)は無改名 — issue #158 の「Claude 5
+  系のエイリアス方針」自体がバージョン番号を含まない命名を意味するため、
+  既存名がそのまま現行世代データとして正しい。確認日
+  (2026-07-19)と参照ソースは新規サイドカー文書
+  `contracts/agent-model-capabilities.v2.md` に記録(ネットワーク取得は
+  実施せず、T-001 が確立した正典ソース一覧と issue #158 自身の確定済み
+  ファミリー記述を根拠とする)。v1 レジストリは SHA-256 比較で編集前後
+  バイト同一を証明(AC-013)。`tests/agent-capabilities-v2.tests.sh`/
+  `.ps1`(Pillar C のパリティスイート)と
+  `tests/agent-model-routing.tests.sh`/`.ps1` を無編集のまま再実行し
+  green を確認(AC-014)。`docs/agent-capability-matrix.md` の
+  最終確認日列は本タスクでは記入せず `未確認` のまま維持(同表の
+  モデルファミリー値は `tests/agent-model-routing.tests.sh` の
+  `assert_literal` で固定されたルーティング用ピン留め値であり、本タスクが
+  更新する v2 レジストリの現行世代カタログとは別物であるため — REQ-005 の
+  「genuine reference がある場合のみ」の条件が今回は不成立と判断)。
+  受け入れ先行(acceptance-first)で RED
+  (`specs/epic-159-pillar-d/verification/T-002/acceptance-first-red.md` +
+  `red-baseline-*.log`: 確認記録が存在せず OpenAI 側が2世代遅れという
+  事前状態を記録)→ GREEN
+  (`specs/epic-159-pillar-d/verification/T-002/green-*.log`)の順で実装、
+  詳細は `reports/implementation/epic-159-pillar-d/T-002.md` を参照。
 
 ### セキュリティ修正
 
