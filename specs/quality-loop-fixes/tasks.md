@@ -1,6 +1,6 @@
 # Tasks: quality-loop-fixes
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issues #167 (Stream 1 — quality-gate cycle-limit feature scoping;
 `docs/review-tickets/RT-20260712-001.yml`), #176 (Stream 2 — emit-run-record
