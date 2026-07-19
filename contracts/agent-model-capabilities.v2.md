@@ -42,8 +42,16 @@ names in `models[]` therefore already correctly represent
   Anthropic blog (per the canonical source list,
   `docs/contributor/workflow-detail.md`'s capability-refresh step,
   T-001/#156).
-- No specific dated URL is cited — no live fetch was performed this task;
-  see the constraint statement above.
+- Reference URLs (canonical entry points per vendor, AC-012):
+  - <https://docs.anthropic.com/en/docs/about-claude/models> — Anthropic
+    official docs, models overview
+  - <https://www.anthropic.com/news> — Anthropic blog
+- These are canonical entry-point URLs, recorded without live fetch — not
+  fetched or content-verified at record time (the no-network-fetch
+  constraint above; recording a URL requires no fetch). The weekly D2
+  automation (T-003/#157, once landed) and future manual
+  capability-refresh passes verify against the live sources starting from
+  these URLs.
 
 ## OpenAI — `gpt-5.4`/`5.5`/`5.6` family
 
@@ -80,11 +88,19 @@ every other OpenAI entry).
   release notes for Codex CLI (per the canonical source list,
   `docs/contributor/workflow-detail.md`'s capability-refresh step,
   T-001/#156).
-- No specific dated URL is cited — no live fetch was performed this task;
-  see the constraint statement above. The specific version numbers
-  (`5.4`/`5.5`/`5.6`) and tier assignment are taken directly from issue
-  #158's own fixed body text ("OpenAI 現行世代（5.4/5.5/5.6 系）"), not
-  independently verified against a live OpenAI source.
+- Reference URLs (canonical entry points per vendor, AC-012):
+  - <https://developers.openai.com/codex> — OpenAI developers docs
+    (Codex)
+  - <https://openai.com/news> — OpenAI blog / release notes
+- These are canonical entry-point URLs, recorded without live fetch — not
+  fetched or content-verified at record time (the no-network-fetch
+  constraint above; recording a URL requires no fetch). The weekly D2
+  automation (T-003/#157, once landed) and future manual
+  capability-refresh passes verify against the live sources starting from
+  these URLs. The specific version numbers (`5.4`/`5.5`/`5.6`) and tier
+  assignment are taken directly from issue #158's own fixed body text
+  ("OpenAI 現行世代（5.4/5.5/5.6 系）"), not independently verified
+  against a live OpenAI source at record time.
 
 ## Follow-up
 
