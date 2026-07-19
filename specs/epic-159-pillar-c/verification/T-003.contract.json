@@ -1,0 +1,173 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-159-pillar-c",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "9f1a674687933dc2e31668c2bdb5b1243e55f1d3be9b269d5553a4547a2bf919",
+  "created": "2026-07-18T05:53:00Z",
+  "comment": "Default-FAIL verification contract for T-003 (high, tdd -- risk-gate-matrix.md:26 requires tdd at high/critical). Populated after the quality gate reran tests/render-agent-frontmatter.tests.sh/.ps1 (23/23 passed both lanes; specs/epic-159-pillar-c/verification/qg/T-003/focused-tests.log), the epic-159-pillar-c cross-suite regression set (all six T-001..T-006 suites, both lanes, 0 failed; specs/epic-159-pillar-c/verification/qg/T-003/regression.log), and check-traceability.sh against specs/epic-159-pillar-c/traceability.json (9 REQ links, all with acs/tests present and existing evidence files; specs/epic-159-pillar-c/verification/qg/T-003/traceability.log) to satisfy the high-risk requirement-traceability check. Shell stack waives the three compile-oriented checks (lint/typecheck/build) for shell/PowerShell test-infrastructure files plus the Markdown/TOML render targets this task edits. TDD red/green evidence for unit-tests/acceptance-tests is specs/epic-159-pillar-c/verification/T-003/{red,green}-sh.log (bash lane); the .ps1-lane pair (red-ps1.log/green-ps1.log) exists alongside as supplementary cross-runtime evidence. Per the implementation report (reports/implementation/epic-159-pillar-c/T-003.md): tests/validate-repository.ps1 exiting non-zero at commit-B time is an EXPECTED, documented state, not a defect -- the four protected review-loop reviewer files remain drifted from their staged human-copy candidates until a human maintainer applies specs/epic-159-pillar-c/human-copy/ (five staged candidates: four reviewer .md files + test.yml) and verifies each SHA-256 against MANIFEST.sha256; this task's own commits cannot perform that cp (R-10 protected). This gate run does not cite validate-repository output as passing evidence for any check in this contract for that reason. TEST-019 (write-target resolution function excludes all five protected basenames) and TEST-020 (--check read-only boundary in CI) both pass as independently falsifiable claims per the suite output above.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell test-infrastructure files plus the Markdown/TOML render targets this task edits (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell test-infrastructure files plus the Markdown/TOML render targets this task edits.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-003/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/epic-159-pillar-c/verification/T-003/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-c/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration is in scope beyond what unit/acceptance already exercise against the real, fixture-copied or fixture-driven scripts this task edits; no separate service-integration surface exists.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-003/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-009"
+      ],
+      "red_evidence": "specs/epic-159-pillar-c/verification/T-003/red-sh.log",
+      "green_evidence": "specs/epic-159-pillar-c/verification/T-003/green-sh.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-003/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell test-infrastructure files plus the Markdown/TOML render targets this task edits.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-003/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-003/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-c/verification/qg/T-003/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-003",
+        "REQ-009"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's suite fully covers its own CLI/script surface via the focused and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task (differential-test-policy.md does not apply). The change is additive per design.md's API/Contract Plan; the saved red/green evidence and cross-suite regression set provide the applicable behavior comparison.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are contract/script/test/doc files only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

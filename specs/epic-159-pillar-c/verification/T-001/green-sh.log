@@ -1,0 +1,33 @@
+Command: bash tests/agent-capabilities-v2.tests.sh
+Context: post-implementation tree -- v2 registry + PLUGIN-CONTRACTS.md section + run-all registration + human-copy staging all present.
+Date: 2026-07-18T01:29:29Z
+--- bash ---
+ok: TEST-001: v2 schema field + per-model supported_efforts/default_effort/effort_control shape
+ok: TEST-002: risk_effort_matrix exact mapping, escalation_bump true, no direct xhigh
+ok: TEST-003: role_defaults present for all five roles with minimum_tier + default_effort
+ok: TEST-004: two-directional v1<->v2 parity (model names, canonical_tier, efforts subset)
+ok: TEST-004 (negative self-check): a mutated v2 copy missing a v1-required effort correctly turns the parity assertion red
+ok: TEST-005: PLUGIN-CONTRACTS.md documents the agent-model-capabilities/v2 schema
+ok: self-registration: agent-capabilities-v2.tests.sh registered in tests/run-all.sh
+ok: self-registration: agent-capabilities-v2.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged .github/workflows/test.yml candidate matches its MANIFEST.sha256 entry
+ok: AC-004: v1 registry SHA-256 unchanged before/after this suite's run (6cc5a9dbefaee26a887900520e8e7274c361550f07289605a7ac76a4db85da1c)
+---- summary: pass=10 fail=0 ----
+ok: agent-capabilities-v2 suite passed (10 checks)
+Exit code: 0
+--- pwsh twin (tests/agent-capabilities-v2.tests.ps1) ---
+ok: TEST-001: v2 schema field + per-model supported_efforts/default_effort/effort_control shape
+ok: TEST-002: risk_effort_matrix exact mapping, escalation_bump true, no direct xhigh
+ok: TEST-003: role_defaults present for all five roles with minimum_tier + default_effort
+ok: TEST-004: two-directional v1<->v2 parity (model names, canonical_tier, efforts subset)
+ok: TEST-004 (negative self-check): a mutated v2 copy missing a v1-required effort correctly turns the parity assertion red
+ok: TEST-005: PLUGIN-CONTRACTS.md documents the agent-model-capabilities/v2 schema
+ok: self-registration: agent-capabilities-v2.tests.sh registered in tests/run-all.sh
+ok: self-registration: agent-capabilities-v2.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged .github/workflows/test.yml candidate matches its MANIFEST.sha256 entry
+ok: AC-004: v1 registry SHA-256 unchanged before/after this suite's run (6CC5A9DBEFAEE26A887900520E8E7274C361550F07289605A7AC76A4DB85DA1C)
+
+agent-capabilities-v2.tests.ps1: 10 passed, 0 failed
+Exit code: 0
+---
+GREEN confirmed: both twins pass with 10/10 checks (schema shape, risk matrix, role_defaults, two-directional parity + mutation-based negative self-check, PLUGIN-CONTRACTS.md doc presence, self-registration in tests/run-all.sh/.ps1, human-copy staged test.yml candidate + manifest match, v1 SHA-256 unchanged before/after).

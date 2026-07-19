@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-159-pillar-c-spec-spec-reviewer-b-seq0285",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-159-pillar-c-0285",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-002/AC-011 state '--role <role> seeds --minimum-tier and a default effort from v2 role_defaults' but never define whether that role-seeded 'default effort' is (a) a mere floor/documentation value used only for --minimum-tier the way --minimum-tier itself filters candidates, or (b) an active effort SELECTION that competes with --effort-policy welded/matrix output. AC-012's effort_source enum is exactly {risk-matrix, requested, model-default, welded} -- there is no 'role-default' value -- and REQ-001 separately defines a per-MODEL 'default_effort' field distinct from role_defaults' per-ROLE 'default effort', so it is unclear which (if either) effort_source bucket a role-seeded selection would report, or whether it would instead silently break the AC-007/REQ-002 welded byte-identical golden baseline by asserting itself over the welded value. Two implementers building AC-011/TEST-011 and AC-012/TEST-012 ('effort_source correctly attributed per case') would reasonably diverge: one lets --role's default effort win outright absent --requested-effort (risking a golden-baseline break under --effort-policy welded), the other treats it as inert beyond seeding --minimum-tier. This is a definitional/precedence gap between two named-but-undistinguished concepts inside requirements.md itself -- squarely spec-review's job, not an implementation-architecture choice -- and it is Major because it can produce divergent, non-interoperable selector output for a flag with its own dedicated acceptance criteria, without rising to a workflow-safety or approval-boundary conflict."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked the candidate conflict points a large multi-REQ spec like this would most likely surface -- v1-freeze vs. v2-canonization sequencing (resolved by OQ-001's in-line resolution and the Phase 1/Phase 2 Field Definitions entry), welded-default-during-Phase-1 vs. matrix-becomes-default-at-T-007 (REQ-002/REQ-007/Non-goals all state the same single flip point), escalation-bump clamp vs. --xhigh-reason gate (Edge Cases' 'Escalation-bump interaction with xhigh' plus AC-009 resolve the clamp-vs-gate ordering: clamp only applies when xhigh is outside supported_efforts, the reason-gate applies when it is reachable), and protected-file write-ban vs. --check read-exemption (Non-goals' direct-edit ban vs. AC-020's explicit 'comparison is not a write' carve-out). Each pair is resolved by an explicit disambiguating clause rather than left as two mutually exclusive claims. No requirement, acceptance criterion, constraint, or non-goal directly conflicts with another."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two material negative/boundary paths implied by the requirements have no corresponding AC/TEST: (1) REQ-001 defines effort_control as a PER-MODEL map where claude-code and codex-cli keys are each independently one of flag/frontmatter/none -- the schema explicitly permits a Codex-hosted model whose effort_control.codex-cli is frontmatter or none, and REQ-004's degradation rule ('in every other case -- frontmatter or none control, or Claude Code's categorical absence...') is written host-agnostically -- yet every degradation AC/TEST (AC-024/TEST-024, AC-039/TEST-039, AC-047/TEST-047, AC-048/TEST-048) is scoped exclusively to the Claude-Code case; no AC/TEST exercises a Codex-host model with non-flag effort_control, so an implementer could wire degradation logic reachable only via host==claude-code and no criterion would catch it. (2) Security Boundaries row B3 asserts '--model/--effort values passed to codex are sourced only from the registry/selector, never from unsanitized task or spec text, preventing CLI-argument injection via task content' -- a security-relevant negative path stated directly in requirements.md -- but no AC-XXX/TEST-XXX in the 1:1 table asserts this claim; REQ-006's own tests (AC-035..040) verify argv composition only for well-formed selector output, not resistance to tainted/injected content, so a verifier has no acceptance criterion to check the stated boundary against. Both are Major: missing observable acceptance criteria for state values and a security claim the requirements themselves define."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Assumptions entries (escalation-logic stability, _PROTECTED_GATE_SUFFIXES stability, A3-ancestry fact, registration-surface exclusion) cite concrete file:line or commit-hash evidence traceable to investigation.md (INV-006, INV-009, INV-010) and are either verified facts with a defined re-verification step (A3's git-merge-base check, re-executed at AC-045/TEST-045) or stable-state observations grounded in cited code paths. Open Questions OQ-001/OQ-002/OQ-004 are marked RESOLVED with the resolution text present in-line; OQ-003 is PARTIALLY RESOLVED but its unresolved portion (an automated CI ordering gate) is explicitly and permanently deferred via the Non-goals section, not left as a dangling pre-design decision. No assumption lacks either investigation grounding or an explicit deferral marker."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-approval boundary for the four R-10 protected reviewer files is defined with observable pass/fail conditions: AC-019/TEST-019 requires a self-check asserting the render script's write-target RESOLUTION FUNCTION itself (not merely guard behavior) never resolves to the four protected basenames, with corrected content instead staged under specs/epic-159-pillar-c/human-copy/ plus a SHA-256 manifest for a human to cp; AC-020/TEST-020 separately and independently tests the read-only --check exemption (unattended in CI, no guard trip, drift-status-based exit). Roles and Permissions assigns the cp action exclusively to 'Human maintainer,' and the T-007/#155 release-prerequisite gate is likewise assigned to human verification with a git-ancestry-checkable definition of both 'T-001..T-006 merged' and 'A3 present' (AC-045/046, TEST-045/046). The Critical Risks entry for this boundary states its own mitigation rationale (the self-check is designed to fail even under a hypothetical guard regression). This is a testable, non-SKIP boundary."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Aside from the narrow --role/effort_source precedence gap already captured under AMBIGUITY and the two coverage gaps under EDGE-CASE-COVERAGE, the specification is otherwise self-contained for implementation-policy handoff: Main Workflows sequences all seven tasks with per-task deliverables consistent with the Overview's stated dependency graph (T-004/T-005 depend on T-001/T-002; T-006 additionally on T-003; T-007 on all of T-001..T-006 plus A3); the Field Definitions section disambiguates every load-bearing term (welded, matrix, effort_control, role_defaults, human-copy procedure, Phase 1/Phase 2); Edge Cases, Security Boundaries, Assumptions, and Risks-with-mitigations sections carry concrete, investigation-grounded content rather than placeholders; Non-goals explicitly fences off automated CI gating, protected-file direct edits, and out-of-scope test suites. A downstream implementation-policy reviewer would need to resolve the two flagged gaps but would not need to invent unstated product behavior across the remainder of the spec's 50 acceptance criteria."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-c/attempt-1/round-1/integrated-summary.json",
+      "sha256": "ce95971c7cfa2f58eb800f612662d83ca0e0a51906d6ec6cb8f86197735a6141"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-159-pillar-c/attempt-1/round-1/precheck-result.json",
+      "sha256": "8150d5b32b9279ab672cb8420d187048499be48ec7c87c6accb8ca70def2664b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/acceptance-tests.md",
+      "sha256": "bddcf7781b5dfd3f40607b8198666e220f03cfd9e7b2da63125c9460acb5e993"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/investigation.md",
+      "sha256": "7dc3aed9ec140339b24c15e1f1387febace04f024c98b88d4534cf7d032105b1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/requirements.md",
+      "sha256": "05894d0f83286492cd65f137eb9426b479fcdce29b99c1eb7fb957fb22667bbc"
+    }
+  ]
+}

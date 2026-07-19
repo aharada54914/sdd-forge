@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-159-pillar-c",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "05894d0f83286492cd65f137eb9426b479fcdce29b99c1eb7fb957fb22667bbc",
+  "acceptance_sha256": "bddcf7781b5dfd3f40607b8198666e220f03cfd9e7b2da63125c9460acb5e993",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "9bdf123246caba4d62143d55e5ab260d1cae804c722b9c73ddf989e4f8e04d5c",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-16T14:49:09Z"
+}

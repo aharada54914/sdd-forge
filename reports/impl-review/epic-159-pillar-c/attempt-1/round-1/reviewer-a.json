@@ -1,0 +1,106 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic-159-pillar-c-impl-impl-reviewer-a-seq0290",
+  "host_session_id": "SESS-impl-impl-reviewer-a-epic-159-pillar-c-0290",
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md lines 30-77 (Architecture mermaid) describe top-level component boundaries (v1/v2 registry, selector, renderer, run-record, Codex invocation path, Phase-2 flip) and integration with existing components (V1 --> SEL as 'legacy schema path, byte-identical'; SEL is 'existing, edited'; RECORD/PANEL are existing scripts edited additively). Lines 79-108 (Components table) carry a Technology column for every component (JSON, Bash/PowerShell, Markdown, YAML, TOML). Lines 169-177 (Layer Specifications) explicitly mark Frontend/UX as N/A with rationale ('no GUI or user-facing surface') and Infrastructure/Security as Planned with cross-references. This is a multi-paragraph, multi-diagram description, not a one-sentence summary; all three required elements are present."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Traced the explicit dependency graph in design.md's Architecture mermaid (lines 32-77): V1/V2 -> PARITY; V1/V2 -> SEL -> {ROUTE, RENDER, PREP->PANEL, STARTUP, RECORD}; RENDER -> {CLAUDEMD, CODEXTOML, PROTECTED, CHECK -> CI}; PANEL/CLAUDEMD -> RECORD; SEL -.-> FLIP -.-> RELEASE. No downstream node has an edge back into V1, V2, or SEL. The graph is a strict DAG rooted at the registry files; no cycle exists."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Data Plan section (design.md lines 220-269) supplies all three required sub-fields: Data Entities (v2 registry field list; sdd-run-record/v2's new 'effort' sibling object with 6 enumerated subfields; specs/epic-159-pillar-c/human-copy/ directory), Existing Data Affected (v1 registry read-only with SHA-256 lock per AC-004; real plugins/**/agents/*.md and .codex/agents/*.toml files ARE written in production, explicitly flagged as new for this epic-159-pillar series), and Migration Strategy ('none for the registry... Run-record v2 is additive-only; no v1 record is rewritten or migrated')."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (design.md lines 271-475) enumerates every new/changed CLI-script surface (v2 registry schema T-001; select-agent-model.sh/.ps1 new flags + 2 new additive JSON output keys T-002; render-agent-frontmatter.sh/.ps1 T-003; emit-run-record.sh/.ps1 sdd-run-record/v2 T-004; run-panelist-gpt.sh/.ps1 --effort T-006), each with concrete input (flag/JSON schema) and output (JSON schema, file-diff shape) specification -- the request/response equivalent for a feature with no HTTP endpoints (ux-spec.md and frontend-spec.md both explicitly confirm no GUI/API surface exists). No breaking change is disclosed as unstated: v1 registry frozen byte-identical (AC-004), v1 selector path byte-identical (AC-006), emit-run-record backward-compatible under the same validator (AC-025) are each explicitly stated."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## Security Boundaries (lines 610-619) plus security-spec.md's Trust Boundaries/STRIDE/Authorization/Data Classification/OWASP Mapping sections define four boundaries (B1 registry/candidates-file input, B2 render output vs R-10 protected files, B3 selector output vs codex CLI argv, B4 run-record effort-field truthfulness), each with an Auth/Authz Mechanism column, a Data Classification column (all 'internal source' -- correctly reflecting no PII, cross-checked against requirements.md's User Stories which name no PII-adjacent keywords), and an OWASP Concerns column populated for every row (Injection, Broken Access Control, Repudiation/false-positive telemetry)."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's 'Feature Type:' field reads 'contract schema migration + CLI/script feature additions (effort routing v2)...' -- non-enum free text, but ux-spec.md (lines 1-12) and frontend-spec.md (lines 1-6, 18-21) both explicitly declare N/A: no GUI, browser, view, component tree, or API client exists anywhere in this feature. Treated as equivalent to Feature Type 'cli'; frontend-backend consistency does not apply."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (design.md lines 477-525) covers unit-level scope (items 1-3: golden-baseline red/green pairing, field-population pairing, protected-file write/read boundary pairing, each naming exact suite files), integration-level scope (item 5: Codex argv-composition proof; item 7: self-registration grep against tests/run-all.sh/.ps1), acceptance-level AC-to-TEST traceability (acceptance-tests.md's full 54-row AC/TEST table plus design.md's Cross-Layer Dependencies table), and concrete planned verification commands (item 8: 'bash tests/run-all.sh and pwsh tests/run-all.ps1 locally; the 3-OS CI matrix is authoritative for TEST-001..TEST-040'). No GUI/E2E user journey applies to this non-GUI feature; T-007's AC-044 real Codex-host smoke check is the named equivalent for the one place a real invocation is exercised."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component node in the Architecture mermaid and every path named in API / Contract Plan resolves to either an explicit row in the ## Components table (design.md lines 81-103) or a concretely-named, investigation.md-verified existing file (e.g. plugins/sdd-quality-loop/agents/evaluator.md, .codex/agents/sdd-evaluator.toml -- INV-003, INV-004, INV-012; codex CLI -- INV-004, INV-007; scripts/bump-version.sh -- requirements.md REQ-009). No dangling or undefined reference found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's 'ADR Change Log' section (line 201 -- this repository's established heading for the ADR-listing section per the identical convention used at specs/epic-159-pillar-a2/design.md:133 and specs/epic-159-pillar-b/design.md:125) declares '**New ADR**: `docs/adr/0011-effort-tier-decoupling.md`', justified because this feature 'changes a previously-Accepted architectural decision's stated behavior' (ADR-0003's tier-effort weld). Verified against the live repository: (a) `docs/adr/0011-effort-tier-decoupling.md` does not exist -- `docs/adr/` already contains a DIFFERENT, unrelated ADR at exactly that number, `docs/adr/0011-phase2-handle-relative-protected-copy.md` (epic-136 Phase 2 protected-copy handling); and (b) no task in requirements.md's Main Workflows (T-001..T-007) assigns ownership of authoring this new ADR file (`grep -i adr specs/epic-159-pillar-c/requirements.md` returns zero matches). Implementing this design as written would either collide with/overwrite the existing, unrelated 0011 ADR or leave the new ADR's number and authoring task undefined at implementation time -- a concrete implementation-misalignment risk, not a cosmetic gap."
+    }
+  ],
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/requirements.md",
+      "sha256": "37f69e8a83aa34969d75d2c01d7253bfe196cba1ba9b7e238d8cc85a4fadff1c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/acceptance-tests.md",
+      "sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/design.md",
+      "sha256": "fb619660fadb770b7b1d32b60adaf37d2bef51f4a5dca51d8c0403966ed60ae9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/investigation.md",
+      "sha256": "7dc3aed9ec140339b24c15e1f1387febace04f024c98b88d4534cf7d032105b1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/ux-spec.md",
+      "sha256": "49c26780ccc91392b961d39396733f12e561feb4cf577dd6b0bc7e4920c92d11"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/frontend-spec.md",
+      "sha256": "91e909bbbe15b9bcfc4012024fcfeecd01d7bea68d4eda5fe52f9164857bd093"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/infra-spec.md",
+      "sha256": "d3a43818130b1b516fe87ef2af1b9f19a24382ea121beaa166e785af29ae4be8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-159-pillar-c/security-spec.md",
+      "sha256": "1f4a6efa2152a7ca2c74308e2ebf3ca20eea942c0ba7dbe53277df68699329be"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-159-pillar-c/attempt-1/round-1/precheck-result.json",
+      "sha256": "e4bbaf1f5b5b46bf0e0404a45124c2710ac100a164431772209ba1ec800b0d1e"
+    }
+  ]
+}

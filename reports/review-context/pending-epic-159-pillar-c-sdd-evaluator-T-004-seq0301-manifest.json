@@ -1,0 +1,106 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "epic-159-pillar-c",
+  "task_id": "T-004",
+  "run_id": "RUN-epic-159-pillar-c-qg-T-004-seq0301",
+  "host_session_id": "SESS-qg-epic-159-pillar-c-T-004-0301",
+  "sequence": 301,
+  "previous_record_sha256": "5c97019225f36245121999cc7bedf01141555635ec2b7289034aae3ccfc8b97b",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "fbc0e70017a43747a85506cdc991b647d3c2981c442db8a628e6cd144bb64d7a",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-implementation/scripts/validate-implementation-report.sh",
+      "sha256": "899cc19e2c65213fb23bbeea93de8f04aca76b331b6e7971b058413d566c83cd"
+    },
+    {
+      "path": "plugins/sdd-implementation/templates/implementation-report.template.md",
+      "sha256": "51f3f742caf3d4b4e5fc44934d802047750ba5de0a7a7ce538af6631b8f91e68"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.ps1",
+      "sha256": "ff78183396b2a1f73ff7761d72303bc3367effae1ebedd261349b31fb73a3600"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/scripts/emit-run-record.sh",
+      "sha256": "3985c86e319ca7d4a3e6bf9f5f6f13e81da6c96f1fbf95bbe0e24d9a1b536bc5"
+    },
+    {
+      "path": "reports/implementation/epic-159-pillar-c/T-004.md",
+      "sha256": "1c126b839970e66507931bc4006eb8ec057c25f15252b277670e9907ef5ed9f4"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/acceptance-tests.md",
+      "sha256": "8a51512f3cd248a8dc6a092e334e5387aca64d16c00a16abc94ad66f7e12671d"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/design.md",
+      "sha256": "765e55773376c6c3e3a6cb17b916610da261589e362424461ecfd0a88c44079b"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/frontend-spec.md",
+      "sha256": "91e909bbbe15b9bcfc4012024fcfeecd01d7bea68d4eda5fe52f9164857bd093"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/infra-spec.md",
+      "sha256": "d3a43818130b1b516fe87ef2af1b9f19a24382ea121beaa166e785af29ae4be8"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/requirements.md",
+      "sha256": "37f69e8a83aa34969d75d2c01d7253bfe196cba1ba9b7e238d8cc85a4fadff1c"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/security-spec.md",
+      "sha256": "1f4a6efa2152a7ca2c74308e2ebf3ca20eea942c0ba7dbe53277df68699329be"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/tasks.md",
+      "sha256": "f63272ff738e77bed3d6a6e8dc3b9d56e3f5fa9546c9e3f2557191164422157b"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/traceability.json",
+      "sha256": "587db818c550fda6e0764af2c91ad3fe90bfcf336f6b29ab4d2bebeb851e096b"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/traceability.md",
+      "sha256": "66dfd81f07a0fcfd92750ba102b872b46c9be1a066e73ba0a8ade130e954e244"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/ux-spec.md",
+      "sha256": "49c26780ccc91392b961d39396733f12e561feb4cf577dd6b0bc7e4920c92d11"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-004/green-ps1.log",
+      "sha256": "7167b1dbaf79abc3f4b903f588c8d487291cb52fd027aa3a1f63e0a28061cdc5"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-004/green-sh.log",
+      "sha256": "97bdfd66d08aac0fb3e28a5bb99708c18783fadbfffab00268c547473baf3930"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-004/red-ps1.log",
+      "sha256": "3d3ad2a84f71d4b58cf9f142a98683f2ef7f400ab75b0ea6c9bf23678242e1e5"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-004/red-sh.log",
+      "sha256": "dda19a73fafa9f857cf47654c87521198ba1642463addb91d0e7fd176b95111f"
+    },
+    {
+      "path": "tests/emit-run-record-feature-scope.tests.ps1",
+      "sha256": "cf76d4a4c77ecae3e710dc78bd360ef7165336d706fd971039691465ed5be984"
+    },
+    {
+      "path": "tests/emit-run-record-feature-scope.tests.sh",
+      "sha256": "e83e137af57e15a3dda54815813d0fbdfb3e5528db7b627fba070aea8c4fc044"
+    }
+  ]
+}

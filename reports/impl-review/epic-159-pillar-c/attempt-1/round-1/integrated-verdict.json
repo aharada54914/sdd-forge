@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-159-pillar-c",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "impl-orch-epic159pillarc-a1r1"
+}

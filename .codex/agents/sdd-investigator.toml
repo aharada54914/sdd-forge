@@ -1,3 +1,5 @@
+# x-sdd-model: openai/gpt-5.1-codex-mini
+# x-sdd-effort: low
 name = "sdd-investigator"
 description = "Read-only codebase investigator for SDD. Extracts screens, APIs, business rules, dependencies, and test coverage with file:line evidence. Never writes code."
 sandbox_mode = "read-only"

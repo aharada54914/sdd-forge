@@ -1,6 +1,8 @@
 # Implementation Report: {{task_id}}
 
 - Task ID: {{task_id}}
+- Model: {{model}}
+- Effort: {{effort}}
 
 Report Schema: implementation-report/v2
 

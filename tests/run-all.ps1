@@ -24,6 +24,9 @@ $tests = @(
     'tests/workflow-state-repository-integration.tests.ps1',
     'tests/structure-check-feature-mode.tests.ps1',
     'tests/emit-run-record-feature-scope.tests.ps1',
+    'tests/agent-capabilities-v2.tests.ps1',
+    'tests/render-agent-frontmatter.tests.ps1',
+    'tests/agent-model-routing.tests.ps1',
     'tests/loop-inventory.tests.ps1',
     'tests/loop-driver.tests.ps1',
     'tests/loop-consistency.tests.ps1',
@@ -31,7 +34,8 @@ $tests = @(
     'tests/hitl-wfi-terminal.tests.ps1',
     'tests/check-placeholders-brownfield.tests.ps1',
     'tests/bump-version-gate.tests.ps1',
-    'tests/release-loop-gate.tests.ps1'
+    'tests/release-loop-gate.tests.ps1',
+    'tests/run-panelist-effort.tests.ps1'
 )
 
 Push-Location $root
