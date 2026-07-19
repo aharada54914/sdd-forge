@@ -52,25 +52,41 @@ ownership drift matters.
    artifacts. Staleness must bind to everything the Resolver actually
    consumed.
 
-2. **Unified change handling** across Context, Registry, and ownership:
+2. **Semantic output, defined for comparison purposes.** Because
+   `context_binding` (which carries the digests themselves) is part of
+   the Facet Manifest, comparing the *whole* Manifest for change makes
+   any digest update trivially "change the output" — that would make the
+   unchanged-output branch below unreachable. To keep that branch
+   reachable, **semantic output** is defined as the resolved
+   required/conditional facets, their N/A reasons, gate IDs, and the
+   capability set — i.e. everything in the Facet Manifest *except* the
+   `context_binding` and `resolver` blocks, which are binding/provenance
+   metadata, not output. Only semantic output is compared when deciding
+   whether a Feature becomes stale; a digest-only update is never by
+   itself a semantic-output change.
+
+3. **Unified change handling** across Context, Registry, and ownership:
    - If **none** of the three digests (projection / registry / ownership)
      changed, the Feature continues; only a `WARN` is recorded.
    - If **any** digest changed, the Resolver is re-run for the affected
-     Feature(s), and **only Features whose output (Facet Manifest) actually
-     changes are selectively marked stale**. If the output is unchanged,
-     the digest is updated and the Feature continues. There is no
-     blanket stop-all-Features behavior.
+     Feature(s), and its **semantic output** (as defined above) is
+     recomputed and compared to the previous semantic output. **Only
+     Features whose semantic output actually changes are selectively
+     marked stale.** If the semantic output is unchanged, the
+     `context_binding`/`resolver` metadata (including the digests) is
+     updated and the Feature continues without becoming stale. There is
+     no blanket stop-all-Features behavior.
    - A **Policy Weakening** change (as scoped in ADR-0019 §6) blocks every
      affected Feature, requires Project Context re-approval, and forces
      those Features to re-resolve.
 
-3. **Resolves the Q11/Q15 inconsistency**: because ownership changes are
+4. **Resolves the Q11/Q15 inconsistency**: because ownership changes are
    now detected via `ownership_digest`, only the Features whose Reverse
    Coverage result actually changes are required to re-resolve — the
    Reverse Coverage Gate (`check-component-coverage`, decision document
    v2 §12) and the Facet Manifest staleness binding now agree.
 
-4. **Completed tasks are not retroactively invalidated.** A past `Done` is
+5. **Completed tasks are not retroactively invalidated.** A past `Done` is
    never revoked. However, at Delivery time the current Context is
    re-checked for compatibility:
 
@@ -79,12 +95,23 @@ ownership drift matters.
    current production policy → Delivery Blocked
    ```
 
+6. **Resolver version rule** (transcribed from decision document v2
+   §18.2): `resolver.version`'s semver component governs how a version
+   bump interacts with staleness. A **patch** bump requires no
+   regeneration if the semantic output is unchanged. A **minor** bump
+   requires running the impact assessment (item 3 above); the Feature is
+   marked stale only if the projection's semantic output actually
+   changes. A **major** bump requires a mandatory re-resolve for every
+   Feature that used the affected Resolver version, regardless of
+   whether the semantic output would change.
+
 ## Consequences
 
 - Resolver re-execution becomes a normal, expected event on ordinary
   Registry or ownership edits, not just on Project Context edits; Epic A5
-  (Capability Resolver) must be cheap enough to re-run per affected
-  Feature without becoming a bottleneck.
+  (Capability Resolver) is expected to be cheap enough to re-run per
+  affected Feature without becoming a bottleneck, though this ADR does
+  not fix a measurable performance threshold.
 - Only Features whose resolved output actually differs are stale; this
   avoids the blast-radius problem of "one Registry typo invalidates every
   in-flight Feature" while still closing the staleness gap.

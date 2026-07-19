@@ -56,7 +56,13 @@ from its approval record: `sdd/project-context.yaml` (content) and
    `SDD_SUDO` precedent, the **entire approval record is signed with an
    external-key HMAC**, unreadable by any agent. Hash comparison
    establishes "content matches record"; HMAC establishes "a human issued
-   this record" — neither substitutes for the other.
+   this record" — neither substitutes for the other. The **HMAC preimage
+   is defined as**: the approval object with the `hmac` field excluded,
+   canonicalized per decision-document v2 §18.3 (YAML/JSON parse → NFC
+   normalization → JCS) — i.e. the UTF-8 byte sequence produced by
+   applying that canonicalization to the field-excluded object. This
+   avoids the self-reference that would otherwise result from signing a
+   record that contains its own signature.
 3. **The verification machinery itself is protected**: the canonicalizer,
    hash generator, approval validator, policy-weakening detector,
    resolver, and any generated projection are added to `guard-invariants`
@@ -90,8 +96,11 @@ from its approval record: `sdd/project-context.yaml` (content) and
 ## Consequences
 
 - The Blocker attack (hash recomputation without an approval-count
-  increase) is closed: no agent-context write to `*.approval.json` is
-  possible at all.
+  increase) is closed at the tool-mediated layer: direct agent writes
+  through guarded tool paths are denied entirely; adversarial resistance
+  additionally relies on the external boundary (HMAC, branch protection,
+  human review) per the two-tier scope, not on the guarded-tool-path
+  denial alone.
 - Every legitimate approval-record change now requires the human-copy
   procedure, heavier than the previous guard — an accepted cost given the
   Blocker severity.

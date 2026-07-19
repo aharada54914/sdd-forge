@@ -24,7 +24,7 @@ currently realizes it.
 
 ## Decision
 
-1. **`target_platforms` (component characteristics) is separated from
+1. **`platform_targets` (component characteristics) is separated from
    provider identity.** Project Context components carry only
    provider-neutral properties:
 

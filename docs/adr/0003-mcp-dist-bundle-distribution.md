@@ -8,3 +8,7 @@ moved to **ADR-0014** (`docs/adr/0014-mcp-dist-bundle-distribution.md`) on
 This stub is a permanent tombstone: it is not deleted so that frozen
 `specs/` and `reports/` artifacts that historically reference this path
 keep resolving. Do not restore content here; edit ADR-0014 instead.
+
+A bare `ADR-0003` reference inside a frozen artifact may refer to this
+decision (now ADR-0014) rather than the current occupant of that number;
+see `docs/adr/README.md` § Legacy bare-number references.

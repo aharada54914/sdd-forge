@@ -42,6 +42,29 @@ frozen `specs/` and `reports/` artifacts historically reference those
 paths and must keep resolving. New work must reference the new numbers;
 the tombstones are historical-compatibility only, not live content.
 
+## Legacy bare-number references
+
+Tombstone stubs resolve a *path* reference (e.g.
+`0002-sdd-forge-mcp-readonly-server.md`) to its new number. They do not by
+themselves resolve a **bare** `ADR-NNNN` reference (no filename) written
+inside a frozen `specs/` or `reports/` artifact before the 2026-07-19
+renumbering — at the time those artifacts were written, three numbers
+(0002/0003/0004) each had two ADRs assigned, so a bare number alone is
+ambiguous. Disambiguation is by **the subject matter of the surrounding
+reference context** (what decision the artifact's text is actually
+describing), not by the number alone. The known frozen-artifact families
+and how their bare references resolve:
+
+| Frozen artifact family | Bare reference | Resolves to |
+|---|---|---|
+| `specs/sdd-forge-mcp/**` and its related `reports/` | `ADR-0002` (read-only MCP server) | ADR-0013 |
+| `specs/sdd-forge-mcp/**` and its related `reports/` | `ADR-0003` (dist-bundle distribution) | ADR-0014 |
+| `specs/sdd-domain/**` and its related `reports/` | `ADR-0004` (DDD upstream domain lane) | ADR-0015 |
+| `specs/local-env-mcp/**` and other artifacts referencing the no-exec probe allowlist | `ADR-0004` | ADR-0004 (unchanged — the first-mover at this number keeps it) |
+
+New work must always cite the current number or filename directly and
+must never rely on a bare legacy number.
+
 ## Index
 
 | Number | Title | Status |

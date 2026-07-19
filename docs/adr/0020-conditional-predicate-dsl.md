@@ -44,13 +44,17 @@ framework otherwise avoids.
    conditions, and network-dependent conditions.
 
 4. **Evaluation semantics (new in v2)**, adopted as normative so that
-   result do not diverge across runtimes; this ADR is the DSL ADR referred
+   results do not diverge across runtimes; this ADR is the DSL ADR referred
    to by decision document v2 §11:
    - A **missing path, a `null` value, or a type mismatch means "this
      predicate does not match" (fail-closed)**, and is recorded as a
      `WARN` in Resolver Evidence. No exception is ever thrown.
-   - `equals` / `not_equals`: compare same-typed scalars only; a type
-     mismatch is treated as non-equal plus a `WARN`.
+   - `equals` and `not_equals` compare same-typed scalars only. On a type
+     mismatch — the same trigger condition as a missing path or a `null`
+     value — **the predicate as a whole evaluates to `false` (does not
+     match) plus a `WARN`, uniformly for both operators**; `not_equals`
+     never evaluates to `true` merely because the compared values have
+     different types.
    - `contains`: "array ∋ scalar" only. It is not usable for substring
      matching (determinism is prioritized over convenience).
    - `in`: "scalar ∈ array literal" only.
@@ -67,8 +71,9 @@ framework otherwise avoids.
 5. **Field allowlist**: only dotted paths explicitly allowlisted by schema
    may appear in a predicate: `artifact_kinds`, `runtime_classes`,
    `characteristics.pii`, `characteristics.ui`,
-   `characteristics.auto_update`, `distribution_channels`,
-   `data_classification`. The allowlist's source of truth (new in v2) is
+   `characteristics.auto_update`, `characteristics.local_persistence`,
+   `distribution_channels`, `data_classification`. The allowlist's source
+   of truth (new in v2) is
    the Project Context schema itself: `distribution_channels` and
    `data_classification` are added as first-class fields under a
    component in the Project Context schema (Epic A1), because in v1 they
@@ -84,9 +89,9 @@ framework otherwise avoids.
   the network, or invoke a provider API.
 - Fail-closed-plus-`WARN` semantics mean a schema drift or an
   incompletely-populated component never silently *includes* a Facet it
-  should not; at worst it silently *excludes* one, which is visible as a
-  `WARN` in Resolver Evidence rather than a hard failure — Epic A2 must
-  ensure that Evidence is actually surfaced to the reviewer's attention.
+  should not; at worst it silently *excludes* one, which is recorded as a
+  `WARN` in Resolver Evidence — an Epic A5 output (ADR-0021 dependency),
+  not an Epic A2 one — rather than causing a hard failure.
 - Because `trigger` reuses the same DSL and allowlist as Conditional
   Facets, there is exactly one condition-evaluation implementation to test
   and no second, looser dialect that could be used to smuggle logic the

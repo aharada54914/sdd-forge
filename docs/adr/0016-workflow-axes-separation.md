@@ -20,9 +20,10 @@ implicit mode-selection variable. That conflates three logically distinct
 concerns — how strict the review/evidence workflow must be, how
 specification artifacts are laid out on disk, and how strictly
 capability-specific gates are enforced — into a single axis, which makes
-partial adoption (e.g. lite review discipline with facet-native layout)
-inexpressible and makes mode detection depend on accidents of what
-happens to exist on disk.
+staged migration (e.g. moving `artifact_layout` from `legacy-seven-layer`
+to `facet-hybrid` while `spec_profile` stays `full`) inexpressible and
+makes mode detection depend on accidents of what happens to exist on
+disk.
 
 ## Decision
 
@@ -80,7 +81,12 @@ happens to exist on disk.
 - Consumers branch on three independent values instead of one composite
   "mode," which is a larger but more precise combinatorial surface;
   ADR-0022's Lite Capability Upgrade matrix defines the valid combinations
-  explicitly rather than leaving them implicit.
+  explicitly rather than leaving them implicit. This ADR establishes only
+  that the three axes are independently defined — it does not itself
+  authorize every combination of their values; which combinations are
+  valid, invalid, or a compatibility fallback is governed entirely by
+  ADR-0022's matrix, and no example in this ADR should be read as
+  overriding it.
 - Any component that consults `capability_enforcement` (the effective
   enforcement computation, Registry-driven gates) must first check whether
   the capability pipeline is in the `disabled-legacy` derived state before
