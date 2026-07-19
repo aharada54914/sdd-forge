@@ -285,7 +285,10 @@ never touched.
   (`| \`path\` | \`hash\` |` row shape, INV-015) is verified present in
   the collected bundle with a matching content hash, reusing the parser
   shape `validate-review-context-set.sh:63-74`'s `evaluator_output_is_declared`
-  already establishes for the identical table format. (REQ-003)
+  already establishes for the identical table format, AND reusing the
+  same site's `path_is_authorized` containment discipline (INV-015): a
+  declared path is resolved and containment-checked against the bundle's
+  own input root BEFORE any read is attempted. (REQ-003)
 - AC-015: a declared path MISSING from the collected bundle causes a
   fail-closed exit (nonzero), the list of gaps is printed, and NO input
   digest line is printed. (REQ-003)
@@ -358,6 +361,14 @@ never touched.
   passes and execution proceeds to Step 2 / panelist invocation — the
   positive continuation branch, completing REQ-004's branch set alongside
   AC-020 (failure branch) and AC-021 (no-op branch). (REQ-004)
+- AC-032: a crafted `## Outputs` row whose path resolves OUTSIDE the
+  bundle's own input root (e.g. a `../`-traversal or absolute path
+  escaping the root) is rejected fail-closed by the completeness check —
+  the out-of-root path is reported as a violation, NO content outside the
+  input root is read (observable via a sentinel file outside the root
+  remaining unread/unreferenced in the bundle), and NO input digest line
+  is printed — operationalizing Security Boundary B1 as its own
+  acceptance criterion. (REQ-003)
 
 ## Field Definitions
 
