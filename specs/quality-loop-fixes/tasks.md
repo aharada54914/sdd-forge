@@ -162,7 +162,7 @@ agent-editable (design.md Protected-File Statement, INV-021).
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/167
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-19T15:39:07Z)
 
 Status: Planned
 
@@ -409,7 +409,7 @@ independent"; investigation.md Recommended Next Steps item 3.)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/176
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-19T15:39:07Z)
 
 Status: Planned
 
@@ -601,7 +601,7 @@ independent".)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/166
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-19T15:39:07Z)
 
 Status: Planned
 
@@ -861,7 +861,7 @@ independent".)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/179
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-19T15:39:07Z)
 
 Status: Planned
 
