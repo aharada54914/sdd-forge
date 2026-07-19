@@ -768,6 +768,42 @@
   (INV-010 のカバレッジギャップを解消)。WFI-010 の Status を
   Approved → Applied に更新。詳細は
   `reports/implementation/quality-loop-fixes/T-002.md` を参照。
+- **prepare-panelist-input のバンドル収集が単一階層のみで、実装レポートの
+  宣言済み成果物との整合性検証もなかった問題 (Issue #166 / WFI-009)**:
+  `prepare-panelist-input.{sh,ps1}` の `--input` 収集ロジックは単一階層の
+  glob(`for f in "$input_path"/*` / 非 `-Recurse` の `Get-ChildItem`)で、
+  サブディレクトリのファイルを収集しなかった。さらに収集後、実装レポートの
+  `## Outputs` テーブルが宣言する成果物パス・SHA-256 と実際に収集した
+  バンドルとの整合性を一切検証していなかった
+  (epic-136-phase1-guards レトロスペクティブが記録した2件の
+  evidence-completeness による盲検パネル NEEDS_WORK の根本原因、WFI-009)。
+  `find "$input_path" -type f | sort` ベースの再帰走査(`.ps1` は
+  `Get-ChildItem -Recurse -File` のネイティブ実装、ソート済みで決定的)に
+  置き換え、コンセントゲート直後・サニタイズ/ダイジェスト計算前に宣言済み
+  成果物の整合性検証を追加: `validate-review-context-set.sh:63-74` の
+  `## Outputs` テーブルパーサ形状を逆方向に再利用し、各宣言パスをバンドル
+  自身の `--input` ルート配下に収まるかコンテインメント検証してから
+  (root 外に解決されるパスは読み取らず即座にギャップとして扱う、
+  Security Boundary B1)存在・SHA-256 一致を確認、ギャップが1件でも
+  あればサニタイズ/ダイジェスト計算に到達する前に非ゼロ終了しギャップ
+  一覧を stderr に出力・ダイジェスト行は一切印字しない(構造的性質であり
+  条件分岐によるガードではない)。実装レポートのパスは新規フラグを追加
+  せず(Breaking API: no、CLI フラグ不変)、`--task`/`--feature`/
+  `--project-root` から `reports/implementation/<feature>/<task_id>.md`
+  という既存の規約(`validate-review-context-set.sh:267-282` が同一規約を
+  使用)で導出。`cross-model-verify/SKILL.md` の Step 1 と Step 2 の間に
+  "Step 1.5 — Pre-Panel Readiness" を新設し、仕様が列挙可能なカバレッジ
+  要件を明示するタスクについてのみ、機械検証可能なカバレッジマニフェスト
+  の全要素がマッピングされていることをパネリスト起動前に検証、未マッピング
+  要素があれば起動前に停止する(通常タスクは no-op で従来どおり Step 2 に
+  進む)。`tests/prepare-panelist.tests.{sh,ps1}` に再帰・整合性チェックの
+  陽性/欠落/ハッシュ不一致/サブディレクトリ/パストラバーサル
+  (センチネルファイル使用)の6ケースを追加し、未修正コレクタに対して
+  先に RED 記録してから修正後に GREEN を確認する TDD 手順で実装
+  (高リスクタスクの必須要件)。BL-007(コンセントゲート)・BL-008
+  (サニタイズ)・BL-009(`--effort` 出力契約)は無改変で green を維持。
+  WFI-009 の Status を Approved → Applied に更新。詳細は
+  `reports/implementation/quality-loop-fixes/T-003.md` を参照。
 
 ### ドキュメント
 
