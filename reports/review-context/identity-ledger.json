@@ -2871,6 +2871,24 @@
       "host_session_id": "SESS-qg-epic-159-pillar-d-T-003-0319",
       "previous_record_sha256": "960602481525f5edfa235574b26f24be0121217ef6730d3ce5db5377ed29e6a1",
       "record_sha256": "1a4bfebc4c72e911ac823f24f39d74262e21520552ccde320567357b6fcaa441"
+    },
+    {
+      "sequence": 320,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-qualityloopfixes-spec-a1r1-a-seq0320",
+      "host_session_id": "SESS-spec-a1r1-a-qualityloopfixes-0320",
+      "previous_record_sha256": "1a4bfebc4c72e911ac823f24f39d74262e21520552ccde320567357b6fcaa441",
+      "record_sha256": "805beded894dbef29f29d756b7c1fad45c8eb1f960319278adb20a77b56953bb"
+    },
+    {
+      "sequence": 321,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-qualityloopfixes-spec-a1r1-b-seq0321",
+      "host_session_id": "SESS-spec-a1r1-b-qualityloopfixes-0321",
+      "previous_record_sha256": "805beded894dbef29f29d756b7c1fad45c8eb1f960319278adb20a77b56953bb",
+      "record_sha256": "09ad2c15076d92b3bc699b62c7d5d3a36b0555adee2b860e73da57828ba04c3d"
     }
   ]
 }

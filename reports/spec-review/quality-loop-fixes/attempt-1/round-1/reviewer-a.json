@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-qualityloopfixes-spec-a1r1-a-seq0320",
+  "host_session_id": "SESS-spec-a1r1-a-qualityloopfixes-0320",
+  "allowed_input_manifest": [
+    {
+      "path": "specs/quality-loop-fixes/requirements.md",
+      "sha256": "d95fe8c13309ace7fe37ea8b47fdb97d77ba6604f9c5de43ed99c50863201c71"
+    },
+    {
+      "path": "specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "34b11186fea61722d6a7a1e2057c8250a6c84ccebd23877fff56d62a7558ebe4"
+    },
+    {
+      "path": "specs/quality-loop-fixes/investigation.md",
+      "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/quality-loop-fixes/attempt-1/round-1/precheck-result.json",
+      "sha256": "ec0e94910c31b8b77e545d67fb13633dc18a95ee9416d8646a514b7d3d8bc069"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All 7 goals (REQ-001..REQ-007) state observable, measurable contracts: REQ-001/AC-001-005 give an exact CLI arg grammar (^[a-z0-9][a-z0-9-]*$), exit codes (0/1/2), and a grep-both anchor pattern reused verbatim from emit-run-record.sh:125; REQ-002/AC-008-011 give an exact anchored regex (^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$) and a named coverage-gap fixture (AC-011, closing INV-010); REQ-003/AC-013-018 give exact fail-closed/gap-list/no-digest contracts (AC-015/016) and reuse a named existing parser (validate-review-context-set.sh:63-74); REQ-005/AC-022-026 enumerate every jq -r call site by line number (178-187, 250-258, 275, 305) with a portable CRLF-shim test design (AC-025) plus a named corroborating manual signal (loop_validator_capability_probe). REQ-004/AC-019-021 (cross-model-verify/SKILL.md pre-panel readiness) is the one requirement whose trigger condition ('the task's specification flags an enumerable coverage requirement') is not further defined in requirements.md or the Field Definitions section beyond restating the phrase; acceptance-tests.md classifies AC-019/020/021 as document/skill conformance 'reviewed against the exact wording at PR time' rather than an automated assertion, so a human PR-time checkpoint exists to catch drift before merge, and per calibration this gate does not require concrete implementation architecture for a documentation-only deliverable. This residual ambiguity does not block downstream task decomposition for the other 6 requirements and is noted as a non-blocking clarification under CONSTRAINTS-EXPLICIT rather than failing this check."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's table gives a complete, unambiguous 1:1 REQ-to-AC trace: REQ-001->AC-001..AC-007 (TEST-001..007), REQ-002->AC-008..AC-012 (TEST-008..012), REQ-003->AC-013..AC-018 (TEST-013..018), REQ-004->AC-019..AC-021 (TEST-019..021), REQ-005->AC-022..AC-026 (TEST-022..026), REQ-006->AC-027..AC-028 (TEST-027..028), REQ-007->AC-029..AC-030 (TEST-029..030). Every stated goal in requirements.md's Goals section has at least one matching acceptance criterion; no goal is left untraced."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete externally observable outcomes: exit codes (AC-001 exit 2, AC-003 exit 0/1), counts (AC-002/AC-008/AC-009/AC-010), stdout/stderr contracts (AC-015/AC-016 'no digest line', AC-018 exact stdout contract), file-diff/hash checks (AC-006 'diff against pre-staging content is empty', AC-026 'confirmed byte-for-byte unmodified'), and grep-based self-checks (AC-007, AC-028). Even the document-conformance criteria (AC-019/020/021, AC-029/030) specify an observable artifact: presence and wording of specific text in a named file, checked against design.md's stated wording at PR time (acceptance-tests.md TEST-020/021 notes) rather than vague intent."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals section (requirements.md lines 169-199) is explicit and enumerates 7 distinct out-of-scope boundaries: the directory-move remedy for Stream 1 (blast radius ~121 files, explicitly rejected per OQ-3), restoring the WFI-010 header-association concern (already resolved elsewhere), a general-purpose Markdown table parser (reuses an existing exact row shape instead), a general coverage-manifest schema outside cross-model-verify, extending guard protection (PROTECTED_GATE_SUFFIXES) to validate-review-context-set.sh (OQ-1's rejected option (a)), a .ps1 twin for Stream 4 (INV-019 -- .ps1 does not share the jq defect), and tasks.md/traceability.md (explicitly deferred to Phase 2, with a stated reason it is not pre-constrained by this spec)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated: a Security Boundaries table (B1-B4) covers path-containment for the declared-outputs check (B1, explicit STRIDE cross-reference), scope-limiting the tr -d '\\r' normalization to jq output only, never the ledger's own persisted content (B2), the protected-file human-copy approval boundary for ship/SKILL.md and .github/workflows/test.yml with a shared MANIFEST.sha256 (B3), and fixture isolation (no live network/ledger writes, B4). Roles and Permissions explicitly separates agent-direct-edit authority from human-maintainer approval/apply authority for the two protected-file carve-outs. Field Definitions pins the feature-slug grammar and flags its narrower-than-schema scoping as an explicit Assumption. One residual gap, Minor and non-blocking: REQ-004/AC-019-021's trigger phrase 'the task's specification flags an enumerable coverage requirement' has no worked example or concrete detection rule in this spec (the Field Definitions entry for 'pre-panel readiness' restates rather than defines the phrase); since AC-019-021 are reviewed manually against design.md's exact wording at PR time (acceptance-tests.md notes) rather than machine-asserted, this does not block Phase 2 task decomposition for Stream 3b and can be resolved when design.md specifies the manifest schema, consistent with this gate's calibration not to require design-level detail in Phase 1."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Risks section documents 5 risk claims, each with an explicit validation/mitigation surface: Stream 1's breaking CLI-contract change is mitigated via AC-006's human-copy-staged, single-pass reviewer-visible prose+script update; Stream 2's INV-010 coverage-gap risk is mitigated via the separately-tracked AC-011 fixture; Stream 3's path-traversal risk is mitigated via AC-014's reuse of the already-path-validated parser plus security-spec.md's STRIDE analysis (also echoed in Security Boundary B1 and Edge Cases); .sh/.ps1 parity drift risk is mitigated via REQ-006/AC-028's grep-based self-check; the dual protected-file carve-out risk is mitigated via the shared single MANIFEST.sha256 review pass. No risk claim in this specification is left without a named acceptance criterion, security-spec cross-reference, or documented mitigation."
+    }
+  ]
+}
