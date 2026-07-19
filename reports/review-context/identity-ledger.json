@@ -2691,6 +2691,15 @@
       "host_session_id": "SESS-qg-epic-159-pillar-c-T-002-0299",
       "previous_record_sha256": "7269cd2baede8f179ef2d2b81da06f4d7553fa995b043ff85aa525185db26b56",
       "record_sha256": "a5cf61d517d6266891d86380dfec3dc601a4dcd535a563854b2dbfeafc3aa83f"
+    },
+    {
+      "sequence": 300,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-159-pillar-c-qg-T-003-seq0300",
+      "host_session_id": "SESS-qg-epic-159-pillar-c-T-003-0300",
+      "previous_record_sha256": "a5cf61d517d6266891d86380dfec3dc601a4dcd535a563854b2dbfeafc3aa83f",
+      "record_sha256": "5c97019225f36245121999cc7bedf01141555635ec2b7289034aae3ccfc8b97b"
     }
   ]
 }
