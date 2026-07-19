@@ -1,0 +1,27 @@
+=== TEST-005 (AC-005): model-freshness-check.yml text markers ===
+FAIL: TEST-005 (AC-005): .github/workflows/model-freshness-check.yml does not exist
+=== TEST-006 (AC-006): fetch-failure fail-soft, 3 scenarios ===
+FAIL: TEST-006 (AC-006): .github/scripts/check-model-freshness.sh does not exist
+=== TEST-007 (AC-007): divergence detected + dedup ===
+FAIL: TEST-007 (AC-007): .github/scripts/check-model-freshness.sh does not exist
+=== TEST-009 (AC-009): CI resilience + self-registration ===
+ok: TEST-009 (AC-009, CI-resilience): fixture-root normalization uses pwd -P
+ok: TEST-009 (AC-009, CI-resilience): this suite declares no bash array anywhere -- no possibly-empty array can be expanded under set -u
+ok: TEST-009 (AC-009, CI-resilience): this suite consumes no JSON-query-tool output (non-use declaration)
+ok: TEST-009 (AC-009, CI-resilience): this suite drives no real validator (non-use declaration)
+FAIL: TEST-009 (AC-009): NOT registered in tests/run-all.sh
+FAIL: TEST-009 (AC-009): NOT registered in tests/run-all.ps1
+FAIL: TEST-009 (AC-011, DESIGNED-RED pre-human-copy): NOT YET registered in the LIVE .github/workflows/test.yml -- expected until the human-copy pre-merge commit lands
+=== TEST-010 (AC-010): self-improvement-pr-guard.sh denial proof ===
+ok: TEST-010 (AC-010): self-improvement-pr-guard.sh still contains the .github/workflows/* case pattern
+ok: TEST-010 (AC-010): .github/workflows/model-freshness-check.yml matches the .github/workflows/* case pattern (real glob semantics)
+=== TEST-016 (AC-016): non-twin + twin-pair conformance ===
+ok: TEST-016 (AC-016): .github/scripts/check-model-freshness.ps1 does not exist (recorded non-twin)
+FAIL: TEST-016 (AC-016): .github/scripts/check-model-freshness.sh does not exist
+FAIL: TEST-016 (AC-016): tests/model-freshness-check.tests.ps1 does not exist
+=== TEST-020 (AC-020): no-diff branch, zero gh invocations ===
+FAIL: TEST-020 (AC-020): .github/scripts/check-model-freshness.sh does not exist
+=== TEST-021 (AC-021): adversarial fixture, issue-body allowlist ===
+FAIL: TEST-021 (AC-021): .github/scripts/check-model-freshness.sh does not exist
+---- summary: pass=7 fail=10 ----
+not ok: model-freshness-check suite FAILED (10 failures)

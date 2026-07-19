@@ -53,6 +53,7 @@ tests=(
   tests/bump-version-gate.tests.sh
   tests/release-loop-gate.tests.sh
   tests/run-panelist-effort.tests.sh
+  tests/model-freshness-check.tests.sh
 )
 
 for test_file in "${tests[@]}"; do
