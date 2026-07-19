@@ -352,6 +352,10 @@
     {
       "feature": "epic-159-pillar-d",
       "profile": "full"
+    },
+    {
+      "feature": "quality-loop-fixes",
+      "profile": "full"
     }
   ]
 }
