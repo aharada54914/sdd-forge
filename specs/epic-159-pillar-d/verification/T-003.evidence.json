@@ -1,0 +1,59 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-159-pillar-d",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "1e5d744b0cbc76e80ecf3ea4cffe142f9367384cca6c3afdce6eb44886bd28d7",
+  "quality_report": "reports/quality-gate/20260719T105921Z-epic-159-pillar-d-T-003.md",
+  "verification_contract": "specs/epic-159-pillar-d/verification/T-003.contract.json",
+  "git_commit": "7e279fa35bfde6b70ceeebb6009eeea8da87fff4",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-159-pillar-d/verification/T-003.contract.json",
+      "sha256": "e3a4df51bc26492b81e4ddb701f1f1d130ccee9e7722cb97cb7d0e3a277220f2"
+    },
+    {
+      "path": "reports/quality-gate/20260719T105921Z-epic-159-pillar-d-T-003.md",
+      "sha256": "f0e9f66663fcc60b55c11101b16c7aed5b0e91484497ad000147d547928a0fd4"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/verification/qg/T-003/focused-tests.log",
+      "sha256": "ced665d31465fc00e45fe9d545274a1409a8882d3b1e583c38da5120d21d67d9"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/verification/qg/T-003/placeholder-scan.log",
+      "sha256": "9e4142d9c4542ac9ac046d43935b8c6e8a4a3368e1a8ad43d27cddf3103a756f"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/verification/qg/T-003/regression.log",
+      "sha256": "7378740c03e07da2c5bf9afdf25f402241fda32ec52feb521f68c21c2f232a8b"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/verification/qg/T-003/task-state.log",
+      "sha256": "1f99f1d96a7b81e3253b8d026ec91d86cd6799be5c8e8b2b573696eea4943589"
+    },
+    {
+      "path": "specs/epic-159-pillar-d/verification/qg/T-003/traceability.log",
+      "sha256": "d1290f95dcb77d3ecb9515500b696b4a01b223a73282c55b51b64f25e10be1da"
+    }
+  ]
+}

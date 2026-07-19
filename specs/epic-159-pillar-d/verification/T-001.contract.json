@@ -1,0 +1,142 @@
+{
+  "task_id": "T-001",
+  "feature": "epic-159-pillar-d",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "stack": "docs",
+  "spec_revision": "1e5d744b0cbc76e80ecf3ea4cffe142f9367384cca6c3afdce6eb44886bd28d7",
+  "created": "2026-07-19T09:30:00Z",
+  "comment": "Default-FAIL verification contract for T-001 (low, test-after). Populated after the quality gate reran the document-conformance checks recorded in specs/epic-159-pillar-d/verification/T-001/conformance-checks.log (TEST-001..004 / AC-001..004: canonical-source-list, four-check-item, matrix-trailing-column, and checklist-reminder assertions, plus a git-diff proof that existing agent-capability-matrix.md cells are unchanged) together with a fresh re-run of the one unedited suite this task's AC-003 depends on, tests/agent-model-routing.tests.sh (0 failed), both recorded in specs/epic-159-pillar-d/verification/qg/T-001/focused-tests.log, and the epic-159-pillar-d cross-suite regression set (tests/agent-model-routing.tests.sh, tests/agent-capabilities-v2.tests.sh, and tests/model-freshness-check.tests.sh, both bash and pwsh lanes; specs/epic-159-pillar-d/verification/qg/T-001/regression.log). Docs stack waives the three compile-oriented checks (lint/typecheck/build) for this task's Markdown-only Planned Files. Per the implementation report (reports/implementation/epic-159-pillar-d/T-001.md), this task's change is a checklist-style capability-refresh step inside docs/contributor/workflow-detail.md's WFI lifecycle prose plus two trailing confirmation columns on docs/agent-capability-matrix.md's Provider Tier Mapping table; TEST-015 (AC-015) confirms the capability-refresh step is host-neutral prose with no host-specific conditional branch. KNOWN, DOCUMENTED, NON-BLOCKING CONDITION (not a T-001 defect): the epic-159-pillar-d cross-suite regression set's tests/model-freshness-check.tests.sh/.ps1 lanes each show exactly one failure -- TEST-009's AC-011 live-registration assertion. tasks.md's own Commit-A Definition of Done for T-003 explicitly excepts this one assertion as a designed-red condition until a human applies specs/epic-159-pillar-d/human-copy/.github/workflows/test.yml per the epic-136 human-copy procedure (T-003's own verification contract documents this in full); it is unrelated to and unaffected by this task's own docs-only change, and is not cited here as a basis for withholding any of this contract's checks.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool is configured for this repository's Markdown-only Planned Files (docs/contributor/workflow-detail.md, docs/agent-capability-matrix.md; stack: docs).",
+      "requirement_ids": ["REQ-001", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for Markdown documentation files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface; this task only edits static contributor-process documentation.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-001/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for Markdown documentation files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-001/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-159-pillar-d/verification/qg/T-001/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-004", "REQ-005"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's document-conformance checks and the unedited tests/agent-model-routing.tests.sh re-run fully cover its own surface.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task. The change is additive prose plus two trailing table columns; the saved conformance log and unedited-suite re-run provide the applicable behavior comparison.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; Planned Files are Markdown documentation only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

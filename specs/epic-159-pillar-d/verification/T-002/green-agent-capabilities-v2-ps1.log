@@ -1,0 +1,12 @@
+ok: TEST-001: v2 schema field + per-model supported_efforts/default_effort/effort_control shape
+ok: TEST-002: risk_effort_matrix exact mapping, escalation_bump true, no direct xhigh
+ok: TEST-003: role_defaults present for all five roles with minimum_tier + default_effort
+ok: TEST-004: two-directional v1<->v2 parity (model names, canonical_tier, efforts subset)
+ok: TEST-004 (negative self-check): a mutated v2 copy missing a v1-required effort correctly turns the parity assertion red
+ok: TEST-005: PLUGIN-CONTRACTS.md documents the agent-model-capabilities/v2 schema
+ok: self-registration: agent-capabilities-v2.tests.sh registered in tests/run-all.sh
+ok: self-registration: agent-capabilities-v2.tests.ps1 registered in tests/run-all.ps1
+ok: human-copy: staged .github/workflows/test.yml candidate matches its MANIFEST.sha256 entry
+ok: AC-004: v1 registry SHA-256 unchanged before/after this suite's run (6CC5A9DBEFAEE26A887900520E8E7274C361550F07289605A7AC76A4DB85DA1C)
+
+agent-capabilities-v2.tests.ps1: 10 passed, 0 failed

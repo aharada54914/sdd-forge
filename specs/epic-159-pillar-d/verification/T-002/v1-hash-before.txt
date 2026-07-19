@@ -1,0 +1,1 @@
+6cc5a9dbefaee26a887900520e8e7274c361550f07289605a7ac76a4db85da1c  contracts/agent-model-capabilities.json

@@ -491,16 +491,36 @@ review_cycles: <実施済みサイクル数>
    ```
    Status は `Status: <値>` 形式で記録します（許容値: `Draft | Approved | Applied | Verified | Rejected`）。`Approved` に設定できるのは人間のみで、AI は `Draft` / `Applied` / `Verified` を設定します。フックガードが `docs/workflow-improvements/WFI-*.md` への `Status: Approved` のエージェント書き込みを拒否します（sudo でも解除されません）。
 
-2. **人間が Approved に変更**
+2. **能力リフレッシュチェック**: `Mechanism: model-routing` の WFI を Draft する前に確認する
+
+   **Mechanism: model-routing の WFI を起票する前に — 能力リフレッシュ
+   チェックリスト**
+
+   `Mechanism: model-routing` の WFI を Draft する前に、以下を確認する:
+
+   - 参照する正典ソース: Anthropic 公式 docs（models overview）/ Anthropic
+     blog、OpenAI developers docs（Codex）/ OpenAI blog、各 CLI（Claude Code /
+     Codex CLI / Copilot CLI）のリリースノート
+   - チェック項目: モデル ID の有効性 / 新モデル・新機能の有無 /
+     effort・ツール対応の変化 / v2 レジストリとの乖離
+   - 乖離を見つけたら: 定期実行中の D2 起票フロー
+     (`.github/workflows/model-freshness-check.yml`) が既に検出・起票済みで
+     ないか `workflow-improvement` ラベルの open issue を確認し、無ければ手
+     動で issue を起票する。手動起票する issue のタイトルには必ず
+     `[model-freshness-divergence]` をそのまま含める（D2 の自動起票と重複判
+     定用マーカーが同一文字列であることが必須 — 無いと次回の D2 定期実行が
+     同じ乖離を重複起票する）
+
+3. **人間が Approved に変更**
    - 改善内容に同意 → 適用
 
-3. **適用**: プロジェクト側ファイルのみ修正
+4. **適用**: プロジェクト側ファイルのみ修正
    - `AGENTS.md` / `CLAUDE.md` 更新
    - `specs/` template 更新
    - task-splitting guideline 更新
    - **プラグイン本体は変更しない**
 
-4. **効果検証**: 次フィーチャーの retrospective で結果セクションを追加
+5. **効果検証**: 次フィーチャーの retrospective で結果セクションを追加
    ```markdown
    ## Result (WFI-001 適用後)
    - Blocked count: 3 → 0 (改善)

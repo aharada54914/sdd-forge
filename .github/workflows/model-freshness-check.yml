@@ -1,0 +1,42 @@
+name: Model Freshness Check
+
+# 週次モデル鮮度チェック (T-003 / Issue #157 / epic-159-pillar-d REQ-002)。
+# .github/scripts/check-model-freshness.sh を実行し、Anthropic/OpenAI の
+# 公式ソースを best-effort で取得して contracts/agent-model-capabilities.v2.json
+# との乖離を検出する。取得失敗時は "取得不能" issue コメントを残して
+# exit 0 (fail-soft, INV-009) -- 外部ソース障害でこの CI ジョブ自体を
+# 失敗させることはない。乖離検出時は [model-freshness-divergence] マーカー
+# 付き issue を起票(重複排除つき、AC-007)。self-improvement.yml とは
+# 意図的に別ファイル: 決定論的な fetch-diff-file ジョブに
+# self-improvement.yml の 45分セッション予算/PAT フォールバック/
+# pull-requests: write スコープは不要 (design.md Design Decisions)。
+on:
+  schedule:
+    - cron: "0 3 * * 1" # 毎週月曜 03:00 UTC
+                         # (self-improvement.yml の 00:00 UTC からずらし、
+                         # ランナー競合を避ける)
+  workflow_dispatch: {}
+
+# 権限は実際に使うものだけに最小化する (AC-005, Security Boundaries B2):
+# self-improvement.yml と異なり pull-requests: write は持たない -- この
+# ジョブは PR を一切開かず、issue の起票・コメントのみ行う。
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: model-freshness-check
+  cancel-in-progress: false
+
+jobs:
+  freshness-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Check model registry freshness
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash .github/scripts/check-model-freshness.sh

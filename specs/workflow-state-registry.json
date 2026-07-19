@@ -348,6 +348,10 @@
     {
       "feature": "epic-159-pillar-c",
       "profile": "full"
+    },
+    {
+      "feature": "epic-159-pillar-d",
+      "profile": "full"
     }
   ]
 }
