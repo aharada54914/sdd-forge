@@ -1,0 +1,142 @@
+{
+  "task_id": "T-001",
+  "feature": "quality-loop-fixes",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "d3ce2bccbe2fd0534358a26d45e5fb34c9fb1540f966dfdced5400ca38354c3a",
+  "created": "2026-07-19T17:48:19Z",
+  "comment": "Default-FAIL verification contract for T-001 (medium, acceptance-first -- risk-classification-policy.md's own Risk Rationale in tasks.md gives medium/acceptance-first directly). Populated after the quality gate reran tests/quality-gate-cycle-limit.tests.sh fresh (59 passed, 2 failed -- both known, designed, non-blocking -- specs/quality-loop-fixes/verification/qg/T-001/focused-tests.log) and the quality-loop-fixes cross-suite regression set (the other three tasks' suites plus validate-repository.sh/.ps1, check-sdd-structure.sh, check-risk.sh; specs/quality-loop-fixes/verification/qg/T-001/regression.log). Shell stack waives the three compile-oriented checks (lint/typecheck/build) for this task's shell/PowerShell scripts and test-infrastructure file. TWO KNOWN, DOCUMENTED, NON-BLOCKING CONDITIONS carried forward honestly from the implementation report (reports/implementation/quality-loop-fixes/T-001.md, Unresolved Items), mirroring how epic-159-pillar-c's own T-001 contract worded its pending-human-copy condition rather than silently passing around it: (1) AC-006/TEST-006 (QGCL-015) -- the staged ship/SKILL.md human-copy candidate at specs/quality-loop-fixes/human-copy/plugins/sdd-ship/skills/ship/SKILL.md was never written. Every write path available to the implementing agent was denied: first by sdd-hook-guard.sh's R-10 protected-suffix check (a pure path.endswith() test with no exemption for specs/*/human-copy/ staging paths ending in the protected ship/SKILL.md suffix), then, on a Python-indirection retry, by the Claude Code harness's own auto-mode action classifier -- this quality-gate preparation pass independently re-confirmed the same denial pattern and did not attempt to work around it. The composed content (verified byte-identical to the intended live-file diff) is preserved at the scratchpad path the report cites, SHA-256 6e9d9c44641171c2934178cb8fa1bda4a4e10f156a349189e2ed3a2df050ec43, with a 4-step human remedy recorded in full (copy content to the staging path, append the MANIFEST.sha256 entry, commit / apply to the live file). classifier-blocked, not a code defect in check-quality-gate-cycle-limit.{sh,ps1} itself. (2) AC-007/TEST-007 (QGCL-016) -- the staged .github/workflows/test.yml CI-registration candidate IS present and its SHA-256 matches its MANIFEST.sha256 entry (verified green in the same focused-tests.log run), but applying it to the live, protected workflow file is a human pre-merge action per the epic-136 Human-Copy Procedure (R-10 protected) that no agent commit -- including this one -- may perform; this is the designed fail-closed state until that human commit lands, exactly as tasks.md's own Global Constraints section states ('the PR's own CI is expected red on TEST-007's live-file self-check until that human commit lands'). Neither condition is a regression introduced by this quality-gate preparation pass; both are re-verified, not newly discovered, and are why unit-tests/acceptance-tests below are marked passing on 59/61 evidence per tasks.md's own Done-When framing, which treats these two excepted assertions as not blocking.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool is configured for this repository's shell/PowerShell scripts (check-quality-gate-cycle-limit.sh/.ps1) plus the test-infrastructure file this task touches (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell scripts or test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007"],
+      "red_evidence": "specs/quality-loop-fixes/verification/qg/T-001/red.log",
+      "green_evidence": "specs/quality-loop-fixes/verification/qg/T-001/green.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface; this task's counting logic only reads repository-local report files under reports/quality-gate/, fully covered by the fixture-driven suite.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-001/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007"],
+      "red_evidence": "specs/quality-loop-fixes/verification/qg/T-001/red.log",
+      "green_evidence": "specs/quality-loop-fixes/verification/qg/T-001/green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-001/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell scripts or test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-001/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-001/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-001", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's CLI-contract change is fully covered by the direct script invocations in the fixture-driven suite.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task in that sense. The saved RED (specs/quality-loop-fixes/verification/qg/T-001/red.log) versus GREEN (green.log) evidence pair IS the applicable before/after behavior comparison for the RT-20260712-001 false-positive fix.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; Planned Files are shell/PowerShell scripts, a test suite, staged human-copy candidates, and CHANGELOG.md only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

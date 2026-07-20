@@ -1,0 +1,120 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "quality-loop-fixes",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-quality-loop-fixes-task-task-reviewer-b-seq0331",
+  "host_session_id": "SESS-task-task-reviewer-b-quality-loop-fixes-0331",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/quality-loop-fixes/attempt-1/round-1/integrated-summary.json",
+        "sha256": "3310fa8f8375ef4c700c60929960ab87fae625b194977eb71f832f296ad4a3cc"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/reports/task-review/quality-loop-fixes/attempt-1/round-1/precheck-result.json",
+        "sha256": "14bcdaea1701b18934822525716d7ee0b6c62723d7f3d232e2d31ab224028556"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+        "sha256": "22aef714ea5d40617d6cf275d0f51bede25bebdab566ba5b0b0cb7cb71c9ce01"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/design.md",
+        "sha256": "4bd6183cd6ba303e9712482963def96e9dc9c7be169d18033da058777f42e1ff"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/frontend-spec.md",
+        "sha256": "c7e207dfc4eabab554f7aa6e986f6b2ea29a9e7f8f9e480db7823c9e3b20674a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/infra-spec.md",
+        "sha256": "40478e507bb7a6796d98d2ddff23391c94e1c98eb4ab641c2154c0f828267f4e"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+        "sha256": "508fd039e064674796e6cd9e17a4c2912792ac0318cd55d6133235535f433a0c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/security-spec.md",
+        "sha256": "7bc4662bcd1d9249f7b2dc52fc52e0d51ade1cc7483438ab642794ef65b5cb68"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/tasks.md",
+        "sha256": "034b92dd1fe43d29cb9d2eb2c219bdd97487e6d5e25745ca1efd079d86cef99f"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/traceability.md",
+        "sha256": "6da5362782e952139f8373d126a67c90fbaaa6dbeda2f34372fa450d830c5cfa"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/ux-spec.md",
+        "sha256": "0904ea7b08fcf60d46df8a32bc9ff649de9d8cb8366941a837c27010ca536b15"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (Risk: medium) and T-002 (Risk: medium) touch only internal, repository-local CLI/counting-logic surfaces (check-quality-gate-cycle-limit.{sh,ps1}, emit-run-record.{sh,ps1}); neither modifies authentication, authorization, payment, PII storage, data migration, or an externally-visible (public-facing) API contract -- their CLI-contract/count-logic changes are internal enforcement tooling consumed only by ship/SKILL.md and CI, consistent with security-spec.md's own Impact Assessment ('Streams 1 and 2 carry materially lower risk (no new trust boundary...)'). T-003 (Risk: high, Security-Sensitive: true) correctly escalates because its declared-outputs completeness check resolves agent-authored paths against a bundle root -- a path-traversal-adjacent surface named directly in security-spec.md Boundary B1/STRIDE. T-004 (Risk: high, Security-Sensitive: true) correctly escalates because it modifies byte-handling inside the identity-ledger tamper-detection comparison (security-spec.md Boundary B2). No task shows over-classification (no high/critical task whose scope is only UI copy/CSS/docs/test-only). Note: risk-classification-policy.md and risk-gate-matrix.md are not in this round's allowed_input_manifest; this assessment applies the sentinel-surface criteria given directly in this check's own definition rather than reading those files, per the read-only allowlist restriction."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Both Risk:high tasks include the required Done When evidence. T-003 Done When: 'TDD evidence is recorded in the implementation report with Red and Green explicitly separated: RED -- every TEST-013..017/TEST-032 assertion authored and run against the pre-fix... GREEN...' plus 'An independent quality-gate verdict, plus an independent review verdict distinct from the implementing agent, records PASS for this task (high-risk requirement).' T-004 Done When carries the identical structure ('RED -- every shim-driven case run against the UNFIXED script... GREEN...'; 'An independent quality-gate verdict, plus an independent review verdict distinct from the implementing agent, records PASS...'). Neither task is Risk:critical, so the second-approver/signed-evidence-bundle requirement does not apply (T-001/T-002 are medium risk and are correctly exempt from this check)."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No task exceeds 8 distinct Done-When checkbox items (T-001: 7, T-002: 7, T-003: 7, T-004: 7). T-003 is the closest to an oversizing concern -- it bundles Stream 3a (declared-outputs completeness, REQ-003) and Stream 3b (pre-panel readiness, REQ-004) into one task, spanning recursion + completeness-check-function + cross-model-verify/SKILL.md Step 1.5 (3 core implementation areas, plus routine CHANGELOG/doc hygiene shared by every task in this spec) -- but this combination is explicitly authorized in design.md/requirements.md ('may land together or as two sub-workflows within this one stream -- Phase 2 task decomposition decides the split') with a stated coherence rationale (same cross-model-verify evidence-completeness gap; splitting would fragment one coherent unit into two undersized tasks). No task shows fragmentation indicators (no 3+ single-function/single-file-edit tasks, no bare 'rename X to Y' task)."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each functional task has edge-case/error-path AC coverage in acceptance-tests.md, not just happy-path: T-001 -- AC-001 (malformed/missing feature arg usage error, exit 2) and AC-004 (cross-feature collision regression); T-002 -- AC-009 (no VERDICT: line -> not counted) and AC-010 (body-text-'BLOCKED' false-positive regression); T-003 -- AC-015 (missing declared path), AC-016 (hash mismatch), AC-032 (path-traversal negative case, adversarial); T-004 -- AC-023 (RED-demonstrable CRLF corruption) and AC-026 (BL-010 tampered-ledger non-regression)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md's Test Type column labels are consistent with what each test actually exercises: fixture-driven, real-script invocations (TEST-001..018, TEST-022..024, TEST-032) are labeled 'unit (fixture-driven, real script)', matching this codebase's established shell-test convention of one script-under-test per suite; TEST-025 (real windows-latest CI capability-probe flip) is correctly labeled 'integration-level, recorded manual verification', not unit; TEST-006/007/019-021/031 are correctly labeled 'document/skill conformance' or 'CI/registration conformance' rather than forced into a unit/integration/e2e template, since they verify prose/hash/grep-registration state, not executable logic; TEST-027 ('existing-suite regression, full baseline re-run') correctly reflects a cross-suite regression sweep rather than a single-module unit test. No test's declared type misrepresents its actual scope (no true multi-component test mislabeled unit, no single-script test mislabeled e2e)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both Risk:high tasks carry an explicit `Rollback:` field. T-003: 'reviewed revert of this task's two commits (together); restores the non-recursive collector and removes the completeness check and the cross-model-verify/SKILL.md Step 1.5 insertion... WFI-009's Applied flip, if landed, reverts to Approved as part of the same revert.' T-004: 'reviewed revert of this task's two commits (together); restores the untreated jq -r reads... validate-review-context-set.ps1 was never touched, so its rollback surface is empty by construction.' (T-001 and T-002, though only medium risk, also carry their own explicit Rollback fields.)"
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each task's Planned Files targets a distinct primary implementation surface: T-001 check-quality-gate-cycle-limit.{sh,ps1}; T-002 emit-run-record.{sh,ps1}; T-003 prepare-panelist-input.{sh,ps1} + cross-model-verify/SKILL.md; T-004 validate-review-context-set.sh. No two tasks list the same primary script/skill file. CHANGELOG.md is listed in all 4 tasks' Planned Files, but tasks.md's Global Constraints explicitly addresses this as legitimate, non-conflicting sharing: 'FOUR independent entries land here, one per task citing its own issue... no create-then-append serialization across tasks is needed because the ## Unreleased header is never (re)created by any of these 4 tasks' -- combined with the same section's 'implement one task at a time' discipline, this is coordinated append-only sharing, not uncoordinated parallel overlap. T-003's Must-Read reference to validate-review-context-set.sh:63-74 (the Outputs-table parser shape) is read-only reuse, not a Planned File edit, and does not overlap T-004's edit sites (lines 178-185, 187, 250-258, 275, 305)."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 4 tasks declare `Blockers: None`, and each Blockers section cites requirements.md Main Workflows' explicit independence statement. Cross-checked against actual scope: none of T-001..T-004's outputs feed another task's inputs (each targets a disjoint script/skill file per SCOPE-DISJOINT), so zero declared blockers is logically consistent -- no spurious blocker exists (there are none to be spurious) and no missing blocker is evident (no task's Scope depends on another's Planned Files output)."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 4 tasks are bugfix/defect-fix tasks (feature-wide: 'quality-loop-fixes', each task closing a documented BL-101..BL-105 defect) and each includes the required elements. T-001: reproduction is RT-20260712-001's measured false positive (INV-001), root-cause investigation is cited (Must Read: INV-001..005, INV-020..023; check-quality-gate-cycle-limit.sh:1-61 current logic), regression evidence is TEST-004 ('run against the UNMODIFIED pre-fix script first to record Escalate-Human (RED), then the fixed script to record continue (GREEN)'). T-002: reproduction is the WFI-010 miscount (INV-006, baseline 1/true 0), diagnostic citations INV-006..010, regression evidence TEST-010 (RED->GREEN body-text-BLOCKED pair). T-003: reproduction/diagnostic citations INV-011..015 (epic-136-phase1-guards retrospective gap), regression/verification evidence TEST-013..017/TEST-032 run RED against the pre-fix collector before GREEN. T-004: reproduction is the exact Windows Git-Bash CRLF symptom ('REVIEW_CONTEXT_IDENTITY: canonical identity ledger record hash is invalid' on a canonically valid ledger), diagnostic citations INV-016..019/INV-024, regression evidence TEST-023 (RED->GREEN CRLF-shim pair) plus TEST-026 (BL-010 non-regression re-run)."
+    }
+  ],
+  "findings": []
+}

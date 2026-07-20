@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1 tests/quality-gate-cycle-limit.tests.sh
+== start: 2026-07-19T17:40:02Z ==
+Placeholder scan passed.
+== end: 2026-07-19T17:40:02Z ==
+EXIT_CODE: 0

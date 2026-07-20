@@ -1,0 +1,152 @@
+{
+  "task_id": "T-004",
+  "feature": "quality-loop-fixes",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "d3ce2bccbe2fd0534358a26d45e5fb34c9fb1540f966dfdced5400ca38354c3a",
+  "created": "2026-07-19T17:48:19Z",
+  "comment": "Default-FAIL verification contract for T-004 (high, tdd -- risk-classification-policy.md requires tdd at high/critical, matching tasks.md's own 'Required Workflow: tdd' line; security-spec.md Security Boundary B2 names the identity-ledger tamper-detection non-regression surface directly -- a silent defect here would defeat fail-closed tamper detection without failing any build). Populated after the quality gate reran tests/review-contract-foundation.tests.sh fresh, both the default bash lane and the real bash 3.2.57(1) lane (23 PASS / 0 FAIL each -- 1 pre-existing ok: line from the untouched review-contract-validate.sh coverage plus 22 new T-004 assertions), plus tests/review-contract-foundation-parity.tests.sh (1/1 passed; specs/quality-loop-fixes/verification/qg/T-004/focused-tests.log), the quality-loop-fixes cross-suite regression set (the other three tasks' suites plus validate-repository.sh/.ps1, check-sdd-structure.sh, check-risk.sh; specs/quality-loop-fixes/verification/qg/T-004/regression.log), and check-traceability.sh against specs/quality-loop-fixes/traceability.json (7 REQ links -- REQ-001..REQ-007, all with acs/tests present; specs/quality-loop-fixes/verification/qg/T-004/traceability.log) to satisfy the high-risk requirement-traceability check. Shell stack waives the three compile-oriented checks (lint/typecheck/build) for this task's single shell script and the test-infrastructure file it extends; validate-review-context-set.ps1 is untouched by construction (INV-019, confirmed byte-for-byte unmodified). TDD red/green evidence for unit-tests/acceptance-tests is specs/quality-loop-fixes/verification/qg/T-004/{red,green}.log -- RED against the UNFIXED script under the CRLF jq shim (16 assertion failures, the exact historical defect shape), GREEN against the fixed script (all pass, both bash lanes). Per the implementation report (reports/implementation/quality-loop-fixes/T-004.md), the suite's own site-scoped shim design was itself proven necessary by a documented negative control: a naive GLOBAL shim (corrupting every jq -r call in one invocation, the literal reading a plain-English gloss of design.md's Test Strategy item 3 might suggest) was tried first and found unable to reach TEST-023's specific defect in isolation, directly by running the unfixed script under a naive global shim before authoring any assertion -- the suite therefore shims exactly ONE targeted jq -r call site per assertion (a PATH-prepended, mktemp-scoped shim script, never a separate committed file), which is what makes TEST-023 (the @tsv ledger-batch site) the RED-demonstrable pair distinct from TEST-022/024's baseline-equality assertions. KNOWN, DOCUMENTED, NOT-YET-CI-CONFIRMED CONDITION (not a defect, not fabricated): AC-025 (the real windows-latest CI capability-probe flip for tests/lib/loop-driver.sh's loop_validator_capability_probe, from degraded to ok) is integration-level, recorded-manual verification at PR CI time, not exercisable from this local macOS session -- recorded as pending-CI. This session's own tests/loop-driver.tests.sh run (macOS, real local jq, which already emits LF-only output) shows the probe already reporting ok with no named SKIP: lines in the 22-assertion run, a no-regression confirmation, not the AC-025 signal itself, which the host must capture on real Windows CI before this contract's evidence can be called complete for AC-025 specifically.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool is configured for this repository's single shell script (validate-review-context-set.sh) plus the test-infrastructure file this task extends (stack: shell); bash -n parse validity is exercised implicitly by every green run recorded in focused-tests.log.",
+      "requirement_ids": ["REQ-005", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell scripts or test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-004/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005", "REQ-006", "REQ-007"],
+      "red_evidence": "specs/quality-loop-fixes/verification/qg/T-004/red.log",
+      "green_evidence": "specs/quality-loop-fixes/verification/qg/T-004/green.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration surface; this task's fix touches only how jq -r output bytes are read into shell variables from repository-local fixture files, fully covered by the mktemp-scoped shim + fixture-driven suite.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-004/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005", "REQ-006", "REQ-007"],
+      "red_evidence": "specs/quality-loop-fixes/verification/qg/T-004/red.log",
+      "green_evidence": "specs/quality-loop-fixes/verification/qg/T-004/green.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-004/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell scripts or test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-004/placeholder-scan.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-004/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/quality-loop-fixes/verification/qg/T-004/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-005", "REQ-006", "REQ-007"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; validate-review-context-set.sh is invoked directly by the fixture-driven suite, which is the applicable verification surface. The real windows-latest CI capability-probe confirmation (AC-025) is a one-time, non-repeated corroborating signal, not a smoke-run in this check's sense.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "baseline-behavior.md exists for this feature (BL-010/BL-011/BL-012, this task's own Must-Preserve set) and is re-verified directly by TEST-026 inside focused-tests.log/regression.log, not as a separate differential-baseline artifact; the saved RED (specs/quality-loop-fixes/verification/qg/T-004/red.log) versus GREEN (green.log) evidence pair is the applicable before/after behavior comparison for the CRLF fix itself.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; Planned Files are one shell script, a test-infrastructure file, and CHANGELOG.md only.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

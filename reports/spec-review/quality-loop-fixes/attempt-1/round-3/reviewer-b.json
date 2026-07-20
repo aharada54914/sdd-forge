@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-qualityloopfixes-spec-a1r3-b-seq0325",
+  "host_session_id": "SESS-spec-a1r3-b-qualityloopfixes-0325",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-3/integrated-summary.json",
+      "sha256": "d635cd0df90b83bf47149fee36c74d0e85e889a502d0355533cfa77419efd316"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-3/precheck-result.json",
+      "sha256": "567d39d90416e45d1d02fc18c26da266ffb81332a10e2f3733cf44c8e20cf7f6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "22aef714ea5d40617d6cf275d0f51bede25bebdab566ba5b0b0cb7cb71c9ce01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/investigation.md",
+      "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+      "sha256": "9c0a4d9a6a374f181a071944a608cd805b68ebcdbf71d62c54123fe100e9d667"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Minor",
+      "finding": "requirements.md Field Definitions, 'feature-slug grammar' bullet, states the `^[a-z0-9][a-z0-9-]*$` grammar is 'stricter than the general review-context-invocation/v2 manifest schema's feature field... see Assumptions for the scoping note.' No such note exists anywhere in the Assumptions section (the 5 present bullets cover OQ-1 re-verification, run-all.ps1 convention, run-all.sh registration, identity-ledger tail, and the emit-run-record.sh anchor pattern only) or elsewhere in the document. This is a dangling internal cross-reference a task author/design reviewer could waste time chasing or misread as an unresolved scoping question. It belongs to spec review because it is a self-contained Phase-1 document defect (Field Definitions <-> Assumptions), not an implementation concern. Severity is Minor, not Major: the actual behavioral term (the regex itself, plus AC-001's exit-2 usage-error contract) is fully concrete and independently unambiguous, so no implementer is actually unable to decide correct behavior -- only the promised cross-reference is missing."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflicts found among REQ-001..007, AC-001..032, non-goals, or constraints. Fail-open (AC-009, missing-VERDICT) vs. fail-closed (AC-015/016/026/032) outcomes are explicitly and consistently distinguished in the Edge Cases section rather than left to infer. AC-032's new fail-closed path-traversal contract is consistent with AC-014's amended containment-discipline mandate and Security Boundary B1; Stream 4's REQ-005/AC-022-026 .sh-only scope is consistent with AC-026's/INV-019's .ps1-unmodified statement. The Non-goals section (directory-move rejection, no general table parser, no general coverage-manifest schema, no guard-list extension) does not conflict with any Goal or AC."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-2 gap (no negative path-traversal case for Stream 3's declared-outputs completeness check against Security Boundary B1) is now closed: AC-032/TEST-032 add a crafted `../`-traversal and absolute-path Outputs row resolving outside `--input`, asserting nonzero exit, a stderr violation report, a sentinel file outside the root that never appears in any produced bundle output (not merely an error-message check but an observable non-read assertion), and no digest line -- directly operationalizing B1 as its own acceptance criterion. Combined with the existing boundary/failure-mode coverage (AC-003/004 cross-feature collision; AC-009/010 missing-VERDICT and body-text-false-positive; AC-015/016/017 missing/mismatched/subdirectory declared-outputs; AC-022-026 CRLF shim across all jq -r sites plus BL-010 tamper non-regression), the material negative paths, boundary states, and failure modes implied by requirements.md are covered."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 6 Open Questions (OQ-1..OQ-6) are marked RESOLVED with recorded rationale and a specific chosen remedy, leaving no open human decision blocking design/task decomposition. The 5 Assumptions are each about shared, git-tracked, potentially-drifting state (protected-file list, run-all.ps1 convention, run-all.sh/test.yml registration state, identity-ledger tail, emit-run-record.sh anchor form) and each carries an explicit, concrete re-verification instruction (WFI-013 discipline) rather than being left as unresolved risk -- this is a legitimate resolution pattern distinct from 'decision needed,' since investigation.md (INV-020..026) already establishes the current-state answer for each."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Security Boundary B3 (protected `ship/SKILL.md` and `.github/workflows/test.yml` vs. agent-direct edits) is in scope and testable: AC-006/AC-007 require human-copy staging under `specs/quality-loop-fixes/human-copy/` with a shared `MANIFEST.sha256`, and TEST-006/TEST-007 assert both that the staged candidate's hash matches its manifest entry AND that the live protected file is confirmed unmodified by the agent (diff against pre-staging content is empty) -- a concrete, automatable approval-boundary check, not merely a stated policy. OQ-1's resolution correctly keeps the other 8 target files (confirmed not R-10-protected, INV-021) outside this boundary, so no additional untested approval gate is implied."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The spec is ready for implementation-policy/design review without requiring invented product behavior: every stream cites exact file:line evidence and reuses named existing functions/patterns (`path_is_authorized`/`evaluator_output_is_declared` shape, the `emit-run-record.sh:125` anchor, the `tr -d '\\r'` pattern from commit c756a5a) rather than leaving mechanism choices open. REQ-004's prose-only pre-panel readiness step (Stream 3b) intentionally defers exact SKILL.md wording and coverage-manifest schema detail to design.md per the explicit acceptance-tests.md note (TEST-019..021/031 reviewed against design.md's wording at PR time) -- this mirrors the cited epic-159-pillar-d precedent for skill-prose deliverables and is a legitimate Phase 2 design decision, not a spec gap, per the calibration's guard against requiring concrete implementation architecture in Phase 1."
+    }
+  ]
+}

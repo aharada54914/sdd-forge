@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-task-state.sh specs/quality-loop-fixes/tasks.md
+== start: 2026-07-19T17:40:20Z ==
+Task state check passed for 4 task(s).
+== end: 2026-07-19T17:40:20Z ==
+EXIT_CODE: 0

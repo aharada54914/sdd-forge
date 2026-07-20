@@ -159,9 +159,16 @@ CLEANUP_ROOTS+=("$WORK")
 # Escalate-Human. Absent reports/quality-gate/ directory counts as 0
 # (epic-136 AC precedent; requirements.md Edge Cases).
 # -----------------------------------------------------------------------
+# issue #167 / RT-20260712-001 / quality-loop-fixes T-001: the cycle-limit
+# script's CLI contract gained a REQUIRED feature 2nd positional and its
+# counting logic now requires an anchored `Feature:` header line matching
+# the invoked feature (same two-predicate shape emit-run-record.sh already
+# uses) -- both every invocation below and every fixture report this suite
+# writes must carry that feature slug, or every count silently reads 0.
 CL_TASK="T-511"
+CL_FEATURE="loop-escalation-fixture"
 CL_ABSENT_DIR="${WORK}/cycle-limit-absent-dir-does-not-exist"
-if OUT="$(bash "$CYCLE_LIMIT_SH" "$CL_TASK" "$CL_ABSENT_DIR" 2>&1)"; then RC=0; else RC=$?; fi
+if OUT="$(bash "$CYCLE_LIMIT_SH" "$CL_TASK" "$CL_FEATURE" "$CL_ABSENT_DIR" 2>&1)"; then RC=0; else RC=$?; fi
 if [[ "$RC" -eq 0 && "$OUT" == "continue" ]]; then
   ok "TEST-011.1: 0 gate reports (absent reports/quality-gate/ dir) -> continue"
 else
@@ -171,18 +178,19 @@ fi
 CL_DIR="${WORK}/cycle-limit-reports"
 mkdir -p "$CL_DIR"
 write_gate_report() {
-  local path="$1" task="$2"
+  local path="$1" task="$2" feature="${3:-$CL_FEATURE}"
   cat > "$path" <<EOF
 # Quality Gate Report
 
 Task ID: ${task}
+Feature: ${feature}
 
 VERDICT: NEEDS_WORK
 EOF
 }
 
 write_gate_report "${CL_DIR}/q1.md" "$CL_TASK"
-if OUT="$(bash "$CYCLE_LIMIT_SH" "$CL_TASK" "$CL_DIR" 2>&1)"; then RC=0; else RC=$?; fi
+if OUT="$(bash "$CYCLE_LIMIT_SH" "$CL_TASK" "$CL_FEATURE" "$CL_DIR" 2>&1)"; then RC=0; else RC=$?; fi
 if [[ "$RC" -eq 0 && "$OUT" == "continue" ]]; then
   ok "TEST-011.2: 1 gate report -> continue"
 else
@@ -190,7 +198,7 @@ else
 fi
 
 write_gate_report "${CL_DIR}/q2.md" "$CL_TASK"
-if OUT="$(bash "$CYCLE_LIMIT_SH" "$CL_TASK" "$CL_DIR" 2>&1)"; then RC=0; else RC=$?; fi
+if OUT="$(bash "$CYCLE_LIMIT_SH" "$CL_TASK" "$CL_FEATURE" "$CL_DIR" 2>&1)"; then RC=0; else RC=$?; fi
 if [[ "$RC" -eq 0 && "$OUT" == "continue" ]]; then
   ok "TEST-011.3: 2 gate reports -> continue"
 else
@@ -198,7 +206,7 @@ else
 fi
 
 write_gate_report "${CL_DIR}/q3.md" "$CL_TASK"
-if OUT="$(bash "$CYCLE_LIMIT_SH" "$CL_TASK" "$CL_DIR" 2>&1)"; then RC=0; else RC=$?; fi
+if OUT="$(bash "$CYCLE_LIMIT_SH" "$CL_TASK" "$CL_FEATURE" "$CL_DIR" 2>&1)"; then RC=0; else RC=$?; fi
 if [[ "$RC" -eq 1 && "$OUT" == "Escalate-Human" ]]; then
   ok "TEST-011.4: 3 gate reports -> Escalate-Human/exit1"
 else
@@ -404,7 +412,7 @@ write_gate_report "${COLLISION_DIR}/c1.md" "T-0010"
 write_gate_report "${COLLISION_DIR}/c2.md" "T-0010"
 write_gate_report "${COLLISION_DIR}/c3.md" "T-0010"
 
-if OUT="$(bash "$CYCLE_LIMIT_SH" "T-001" "$COLLISION_DIR" 2>&1)"; then RC=0; else RC=$?; fi
+if OUT="$(bash "$CYCLE_LIMIT_SH" "T-001" "$CL_FEATURE" "$COLLISION_DIR" 2>&1)"; then RC=0; else RC=$?; fi
 if [[ "$RC" -eq 0 && "$OUT" == "continue" ]]; then
   ok "TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)"
 else
@@ -419,7 +427,7 @@ else
   fail "TEST-018.2: could not construct the substring-grep mutated temp copy"
 fi
 
-if OUT="$(bash "$MUTATED_CYCLE_LIMIT" "T-001" "$COLLISION_DIR" 2>&1)"; then RC=0; else RC=$?; fi
+if OUT="$(bash "$MUTATED_CYCLE_LIMIT" "T-001" "$CL_FEATURE" "$COLLISION_DIR" 2>&1)"; then RC=0; else RC=$?; fi
 if [[ "$RC" -eq 1 && "$OUT" == "Escalate-Human" ]]; then
   ok "TEST-018.3 (negative self-check): the substring-grep mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)"
 else

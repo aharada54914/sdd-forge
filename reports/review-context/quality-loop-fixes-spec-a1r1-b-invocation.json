@@ -1,0 +1,41 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "feature": "quality-loop-fixes",
+  "run_id": "RUN-qualityloopfixes-spec-a1r1-b-seq0321",
+  "host_session_id": "SESS-spec-a1r1-b-qualityloopfixes-0321",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "63c39c0d3ab3b9de85ae0cb62bd52c44bb5fb5d6e0a807026d766f0eaa87dbde",
+  "previous_record_sha256": "805beded894dbef29f29d756b7c1fad45c8eb1f960319278adb20a77b56953bb",
+  "sequence": 321,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/quality-loop-fixes/requirements.md",
+      "sha256": "d95fe8c13309ace7fe37ea8b47fdb97d77ba6604f9c5de43ed99c50863201c71"
+    },
+    {
+      "path": "specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "34b11186fea61722d6a7a1e2057c8250a6c84ccebd23877fff56d62a7558ebe4"
+    },
+    {
+      "path": "specs/quality-loop-fixes/investigation.md",
+      "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/quality-loop-fixes/attempt-1/round-1/precheck-result.json",
+      "sha256": "ec0e94910c31b8b77e545d67fb13633dc18a95ee9416d8646a514b7d3d8bc069"
+    },
+    {
+      "path": "reports/spec-review/quality-loop-fixes/attempt-1/round-1/integrated-summary.json",
+      "sha256": "d09c1aa44b71a6c430451d1f8acc4edb86e21308b742c37d6b9932eaf33b18e6"
+    }
+  ]
+}

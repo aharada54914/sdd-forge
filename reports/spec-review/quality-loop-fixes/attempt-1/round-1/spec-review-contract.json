@@ -1,0 +1,72 @@
+{
+  "schema": "spec-review-contract/v1",
+  "stage": "spec",
+  "feature": "quality-loop-fixes",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "d95fe8c13309ace7fe37ea8b47fdb97d77ba6604f9c5de43ed99c50863201c71",
+  "acceptance_sha256": "34b11186fea61722d6a7a1e2057c8250a6c84ccebd23877fff56d62a7558ebe4",
+  "reviewers": [
+    {
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-qualityloopfixes-spec-a1r1-a-seq0320",
+      "host_session_id": "SESS-spec-a1r1-a-qualityloopfixes-0320",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-1/precheck-result.json",
+          "sha256": "ec0e94910c31b8b77e545d67fb13633dc18a95ee9416d8646a514b7d3d8bc069"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+          "sha256": "34b11186fea61722d6a7a1e2057c8250a6c84ccebd23877fff56d62a7558ebe4"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/investigation.md",
+          "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+          "sha256": "d95fe8c13309ace7fe37ea8b47fdb97d77ba6604f9c5de43ed99c50863201c71"
+        }
+      ]
+    },
+    {
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-qualityloopfixes-spec-a1r1-b-seq0321",
+      "host_session_id": "SESS-spec-a1r1-b-qualityloopfixes-0321",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+          "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-1/integrated-summary.json",
+          "sha256": "d09c1aa44b71a6c430451d1f8acc4edb86e21308b742c37d6b9932eaf33b18e6"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-1/precheck-result.json",
+          "sha256": "ec0e94910c31b8b77e545d67fb13633dc18a95ee9416d8646a514b7d3d8bc069"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+          "sha256": "34b11186fea61722d6a7a1e2057c8250a6c84ccebd23877fff56d62a7558ebe4"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/investigation.md",
+          "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+          "sha256": "d95fe8c13309ace7fe37ea8b47fdb97d77ba6604f9c5de43ed99c50863201c71"
+        }
+      ]
+    }
+  ],
+  "run_id": "spec-orch-qualityloopfixes-a1r1",
+  "verdict": "NEEDS_WORK",
+  "warningCount": 0
+}

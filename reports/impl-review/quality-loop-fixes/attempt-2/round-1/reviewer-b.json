@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-qualityloopfixes-impl-a2r1-b-seq0329",
+  "host_session_id": "SESS-impl-a2r1-b-qualityloopfixes-0329",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/quality-loop-fixes/attempt-2/round-1/integrated-summary.json",
+      "sha256": "26041366d467170d5d9004ddc5c587b0b482d7499fdaf60be97bbbfb8d82607f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/quality-loop-fixes/attempt-2/round-1/precheck-result.json",
+      "sha256": "4ec35b24e45a5b651a2101292d2846fa554993396429cfaa7c7e9db1f0fc1d01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "22aef714ea5d40617d6cf275d0f51bede25bebdab566ba5b0b0cb7cb71c9ce01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/design.md",
+      "sha256": "7f0794f002efa2608fd10bef6a9c193d7db412571e110bc56fb52d544ac55214"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/frontend-spec.md",
+      "sha256": "c7e207dfc4eabab554f7aa6e986f6b2ea29a9e7f8f9e480db7823c9e3b20674a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/infra-spec.md",
+      "sha256": "40478e507bb7a6796d98d2ddff23391c94e1c98eb4ab641c2154c0f828267f4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/investigation.md",
+      "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+      "sha256": "508fd039e064674796e6cd9e17a4c2912792ac0318cd55d6133235535f433a0c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/security-spec.md",
+      "sha256": "7bc4662bcd1d9249f7b2dc52fc52e0d51ade1cc7483438ab642794ef65b5cb68"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/ux-spec.md",
+      "sha256": "0904ea7b08fcf60d46df8a32bc9ff649de9d8cb8366941a837c27010ca536b15"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every inline decision in design.md carries an explicit rationale: Design Decisions section justifies OQ-1..OQ-6 resolutions with cited evidence (e.g. OQ-3 'the two-predicate word-bounded-task-id AND anchored-Feature-line remedy is adopted, reusing emit-run-record.sh:125's already-landed anchor shape rather than inventing a new one'); the two new (non-OQ-carried) decisions state explicit rationale ('Rationale: this makes AC-015/AC-016's no-digest-on-gap behavior a structural property...' for completeness-check placement; 'matching this repository's own established full-parity-port idiom' for native .ps1 recursion). API/Contract Plan's CI-step shape choice states rationale ('matching the combined-suite convention... NOT a (bash)/(pwsh) pair, since the suite already drives both target scripts internally'). No technology choice is new (all components are existing Bash/PowerShell/Markdown/YAML edits per Components table), so no unjustified stack-selection claim exists. No issues found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Open Questions' section reads in full: 'None blocking. All investigation.md OQ-1..OQ-6 are resolved above with design decisions; the two additional decisions this design makes (declared-outputs check insertion point relative to sanitization; native .ps1 re-implementation of recursion rather than a shell-out) are stated as resolved decisions, not left open, because both are reversible, low-risk, additive choices scoped entirely within Stream 3's own files.' There are zero unresolved entries requiring owner/Blocks-Implementation/Resolution-Path fields; each of OQ-1..OQ-6 is instead carried into the '## Design Decisions' section with a stated resolution and cited basis (e.g. OQ-1 cites guard_invariants.py:4,18 direct verification). No issues found."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (specs/quality-loop-fixes/investigation.md, INV-001..INV-028). design.md's '## Assumptions' section carries forward exactly 5 assumptions from requirements.md, each grounded in a cited INV-xxx: OQ-1's protected-file finding (INV-020..022), the run-all.ps1 combined-suite exclusion convention (confirmed against tests/second-approval-mask.tests.sh et al., requirements.md Assumptions), the run-all.sh-present/test.yml-absent registration state (INV-005, INV-025), the identity-ledger tail sequence 319 (INV-024), and emit-run-record.sh:125's anchor form (INV-007). Each assumption additionally carries an explicit WFI-013 re-verify-at-implementation-time instruction rather than being asserted as permanently true, which is itself the correct treatment for shared, git-tracked state that could drift between spec-authoring and implementation (independently confirmed stale in this re-gate: the real ledger tail is now sequence 329, not 319 -- exactly the drift design.md's own re-verification instruction anticipates). No non-trivial, empirically ungrounded assumption exists. No issues found."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md contains a '## Constraint Compliance' section (Primary/TYPE-D path applies) with 10 rows. Cross-checked against requirements.md's constraint-bearing content: REQ-006 (bash 3.2 set -u/declare -A avoidance, .ps1 explicit exit, BL-001..BL-012 Must-Preserve) is addressed by rows 1-3; REQ-007 (per-stream CHANGELOG entries, no version-literal edit outside scripts/bump-version.sh) is addressed by rows 9-10; Security Boundaries B1-B4 (requirements.md) map 1:1 to Constraint Compliance rows 4-6 and design.md's own Security Boundaries table. One nuance: requirements.md AC-030's 'validate-repository/skill-reference count sync stay green' clause has no dedicated named row, but is implicitly covered by row 1's 'no adjacent, unrelated logic in any of the 5 touched scripts is altered' framing (validate-repository is an existing, unaffected CI check outside this feature's edit surface) plus row 10's version-literal constraint -- not a distinct, unaddressed constraint. No requirements.md constraint is contradicted or left without a compliance statement. No issues found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. Scanned Goals, Acceptance Criteria, and Non-goals for numeric thresholds, SLA statements, throughput, or latency language -- none present. This is corroborated by infra-spec.md's explicit 'Runtime Budget' section ('No stream's suite requires a runtime-budget assertion... no live network call, no subprocess-loop-driving beyond what existing suites already do') and design.md Test Strategy item 4 ('No runtime-budget assertion is added to any of the 4 streams' suites'), both consistent with the absence of any performance requirement in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Deployment / CI Plan' section is present and concrete: deployment target is explicit ('No runtime deployment... existing 3-OS CI matrix'; Stream 1's gap between tests/run-all.sh registration and .github/workflows/test.yml absence, INV-005/INV-025, is named and closed via human-copy); CI pipeline changes are described with the exact new YAML step (API/Contract Plan: 'Test quality-gate cycle-limit suite (bash)'); rollback is stated per-stream including the human-copy round-trip requirement for Stream 1's two protected-file carve-outs. No schema change exists (Data Plan: 'Migration Strategy: none'), so migration-execution-order is correctly not required here. Feature-flag strategy is not applicable -- this is a direct-edit bugfix feature with no incremental rollout, consistent with infra-spec.md's Deployment Topology and CI/CD Sequence sections, which mirror design.md's plan without contradiction. No issues found."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## Data Plan' states: 'Data Entities: none new... Existing Data Affected: none of the 4 streams writes a new field into any existing report or ledger schema... Migration Strategy: none. No schema changes; the identity ledger's own append-only, sequence-chained shape... is untouched by Stream 4 -- the fix changes how bytes are READ from jq -r output, never what is WRITTEN to the ledger.' This is functionally equivalent to 'No data changes' (schema-level), satisfying the stated PASS condition for this check. No issues found."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md '## External Integrations' section states: 'None. All 4 streams operate entirely on repository-local files (gate reports, run records, panelist-input bundles, the identity ledger) -- no new network call, external API, or credential is introduced by any stream.' No external system, third-party service, or cross-service API call is referenced in passing anywhere else in design.md; the only runtime dependencies mentioned (bash, pwsh, jq, python3, git -- infra-spec.md Runtime Dependencies table) are pre-existing local toolchain dependencies, each with an explicit 'Absence behavior' column, not third-party integrations requiring the INTEGRATION-IDENTIFIED contract/failure-behavior table. No issues found."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Components table (11 rows) and API/Contract Plan sections map 1:1 to requirements.md's REQ-001..REQ-007: Stream 1 components (check-quality-gate-cycle-limit.{sh,ps1}, its test suite, ship/SKILL.md, test.yml) implement REQ-001; Stream 2 (emit-run-record.{sh,ps1} + tests) implements REQ-002; Stream 3a (prepare-panelist-input.{sh,ps1} + tests) implements REQ-003; Stream 3b (cross-model-verify/SKILL.md) implements REQ-004; Stream 4 (validate-review-context-set.sh) implements REQ-005; Global Constraints/Constraint Compliance rows implement REQ-006/REQ-007. No component, data model, or API endpoint appears in design.md without a corresponding requirement -- Cross-Layer Dependencies table explicitly traces every REQ to design.md and downstream AC/TEST IDs. Conversely, every Goal (REQ-001..REQ-007) and every User Story (ship-skill caller, run-record reader, panelist, Windows Git Bash user) has a corresponding design element; no capability described in requirements.md Goals/User Stories is omitted. No issues found."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces are present: security-relevant path-containment logic (Security Boundary B1, Stream 3's declared-outputs check) and identity-chain tamper-detection non-regression (Security Boundary B2, Stream 4's tr -d '\\r' fix). Each names a concrete acceptance-test artifact as its validation path: B1 is verified by TEST-014..017 (positive/missing/mismatch/subdirectory) plus TEST-032, acceptance-tests.md's dedicated path-traversal negative case ('a ../-traversal path... plus a sentinel file... NO content outside the input root is read... grep for a unique sentinel token returns nothing... operationalizes Security Boundary B1 as its own acceptance criterion'); B2 is verified by TEST-026 ('BL-010's tampered-ledger cases... still fail closed... after the fix'), cited directly in design.md's Constraint Compliance row 5. Security Boundary B3 (protected-file bypass) is verified by TEST-006/TEST-007 plus sdd-hook-guard.py PreToolUse enforcement (security-spec.md STRIDE table). No high-risk claim lacks a named TEST-ID or review artifact. No issues found."
+    }
+  ]
+}

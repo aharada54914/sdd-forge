@@ -1,0 +1,58 @@
+=== GREEN evidence: emit-run-record blocked-count (FIXED, anchored `^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$` / `(?m)^VERDICT:\s*BLOCKED\s*$` read) ===
+=== proves WFI-010's remaining defect / AC-008..011 / TEST-008..011 resolved: a same-feature report whose VERDICT: line says PASS but whose BODY prose separately contains "BLOCKED" is no longer counted, while a true VERDICT: BLOCKED report still is ===
+Script SHA-256 (fixed .sh):  b5bf9d999202bbc054fbfe5188b7098068df3cc0e16d5496274d338592e36e02
+Script SHA-256 (fixed .ps1): 2778c4151acaf630ad4796a726d8a87925de50708ca459caba9dede223844752
+
+--- Same fixture as red.log: 5 feat-t002 gate reports, one feature, one run ---
+[sh]  emit-run-record.sh feat-t002 --track lite
+      gate_reports.blocked=1 gate_reports.total=1
+[ps1] emit-run-record.ps1 -Feature feat-t002 -Track lite
+      gate_reports.blocked=1 gate_reports.total=1
+
+=== ACTUAL (GREEN): both lanes now correctly report gate_reports.blocked=1 -- only t002-blocked.md (anchored VERDICT: BLOCKED header) is counted; t002-bodyblocked.md's body-text "BLOCKED" substring, t002-pass.md, t002-needswork.md, and t002-noverdict.md (no VERDICT: line at all, AC-009 fail-open) are all correctly excluded ===
+
+=== Full tests/emit-run-record-feature-scope.tests.sh run (post-fix), bash 5 lane ===
+ok: gate_reports.total counts only feat-a reports (.metrics.gate_reports.total = 3)
+ok: feat-b's BLOCKED report is not counted for feat-a (.metrics.gate_reports.blocked = 0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (.metrics.gate_reports.max_runs_single_task = 2)
+ok: only feat-a T-002 passed on a single gate run (.metrics.first_pass_gate.passed_first_try = 1)
+ok: review_tickets.major counts only feat-a tickets (.metrics.review_tickets.major = 1)
+ok: feat-b's critical ticket is not counted for feat-a (.metrics.review_tickets.critical = 0)
+ok: CRLF feat-a ticket severity is counted (.metrics.review_tickets.minor = 1)
+ok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (.metrics.gate_reports.total = 1)
+ok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report -- the VERDICT: PASS report with body-text "BLOCKED" (AC-010), the VERDICT: NEEDS_WORK report (AC-008 negative), and the no-VERDICT-line report (AC-009) are all correctly excluded (.metrics.gate_reports.blocked = 1)
+[... AC-021..026/AC-051 v2-effort assertions unchanged, all ok ...]
+emit-run-record-feature-scope.tests.sh: 38 passed, 0 failed
+
+=== Same suite under real /bin/bash 3.2.57(1) (bash 3.2 compatibility, PATH=/bin:/usr/bin:/usr/sbin) ===
+emit-run-record-feature-scope.tests.sh: 38 passed, 0 failed
+
+=== Full tests/emit-run-record-feature-scope.tests.ps1 run (post-fix), pwsh lane ===
+ok: gate_reports.total counts only feat-a reports (3)
+ok: feat-b's BLOCKED report is not counted for feat-a (0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (2)
+ok: only feat-a T-002 passed on a single gate run (1)
+ok: review_tickets.major counts only feat-a tickets (1)
+ok: feat-b's critical ticket is not counted for feat-a (0)
+ok: CRLF feat-a ticket severity is counted (1)
+ok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (1)
+ok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report (VERDICT: PASS + body-text BLOCKED, VERDICT: NEEDS_WORK, and no-VERDICT-line reports all correctly excluded) (1)
+[... AC-021..026/AC-051 v2-effort assertions unchanged, all ok ...]
+emit-run-record-feature-scope.tests.ps1: 38 passed, 0 failed
+
+=== AC-012 non-regression: pre-existing feat-a/feat-b assertions (lines 33-57/AC-012 above) and the gate_total/max_gate_runs/first_pass_tasks/severity-count assertions all stayed green, UNEDITED (only the new feat-t002 block was inserted; the feat-a/feat-b fixture and its own assertions are byte-unchanged) ===
+
+=== Adjacent-suite regression sweep (suites that also drive emit-run-record.sh/.ps1) ===
+bash tests/loop-escalation.tests.sh          -> 22 passed, 0 failed, 0s elapsed
+bash tests/run-panelist-effort.tests.sh      -> pass=28 fail=0
+
+=== bash tests/quality-gate-cycle-limit.tests.sh (T-001's own suite, confirms no collateral damage from this task) ===
+Results: 59 passed, 2 failed
+  - QGCL-015 (AC-006): staged ship/SKILL.md human-copy candidate still missing -- T-001's pre-existing, already-documented BLOCKED item (Unresolved Items, T-001 report), unrelated to and unaffected by this task
+  - QGCL-016 (AC-007, DESIGNED-RED pre-human-copy): live .github/workflows/test.yml still lacks the staged CI-registration step -- T-001's pre-existing, designed-red state pending the human-copy pre-merge commit, unrelated to and unaffected by this task
+  Both failures are EXACTLY the two T-001 already documented as expected/blocked (reports/implementation/quality-loop-fixes/T-001.md, Test Evidence) -- no new failure introduced by this task's emit-run-record.{sh,ps1} change.
+
+=== bash scripts/check-sdd-structure.sh -> check-sdd-structure: OK ===
+=== bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/quality-loop-fixes/tasks.md -> Risk check passed for 4 task(s). ===
+=== bash tests/validate-repository.sh -> Repository validation passed. (10 targets, 0 drift) ===
+=== pwsh tests/validate-repository.ps1 -> Repository validation passed. (10 targets, 0 drift) ===

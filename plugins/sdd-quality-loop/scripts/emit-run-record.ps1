@@ -147,7 +147,7 @@ if (Test-Path "reports/quality-gate") {
         if ($n -eq 1) { $firstPassTasks++ }
     }
     $gateBlocked = @($featureGateFiles | Where-Object {
-        (Get-Content -Raw -Encoding Utf8 $_.FullName) -match "BLOCKED"
+        (Get-Content -Raw -Encoding Utf8 $_.FullName) -match "(?m)^VERDICT:\s*BLOCKED\s*$"
     }).Count
 }
 
@@ -240,3 +240,4 @@ if ($emitV2) {
 
 $record | ConvertTo-Json -Depth 6 | Set-Content -Encoding Utf8 $out
 Write-Host "emit-run-record: wrote $out"
+exit 0
