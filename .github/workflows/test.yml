@@ -221,6 +221,10 @@ jobs:
         shell: pwsh
         run: ./tests/structure-check-feature-mode.tests.ps1
 
+      - name: Test quality-gate cycle-limit suite (bash)
+        shell: bash
+        run: bash ./tests/quality-gate-cycle-limit.tests.sh
+
       - name: Test portable review-loop prechecks (pwsh)
         shell: pwsh
         run: |
