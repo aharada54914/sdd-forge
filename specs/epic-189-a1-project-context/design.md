@@ -267,18 +267,34 @@ sidecar-signature publication included, REQ-004 revised — B7).
 
 ## ADR Change Log
 
-No new ADR. Every design decision this epic makes is already recorded in
+One new ADR this epic introduces: `docs/adr/0025-human-copy-transactional-bundle.md`.
+Round-1 impl-review determined that the "Human-copy publisher transactional
+bundle contract" (REQ-007, multi-target atomicity; above) is a materially
+new integration pattern not covered by
+`docs/adr/0011-phase2-handle-relative-protected-copy.md` — ADR-0011's own
+Consequences section explicitly disclaims the exact multi-target atomicity
+guarantee this design provides: "Each target rename is atomic, but the
+18-target batch is not one transaction. A rename-time OS failure may leave
+a deterministic installed prefix and must be recovered with a reviewed
+full rollback batch." This design's journaled prepare/journal/commit/
+complete/crash-recovery/reader-check protocol closes that accepted
+residual specifically for Epic A1's multi-target batches (REQ-004's
+sidecar+anchor publish, REQ-007's six-file guard-invariants batch, and
+REQ-007's self-protection batch) and is now recorded in ADR-0025, rather
+than left as an undocumented extension of ADR-0011.
+
+Every other design decision this epic makes is already recorded in
 `docs/adr/0016-workflow-axes-separation.md`, `0018-provider-binding-separation.md`,
 `0019-approval-sidecar-protection.md`, `0020-conditional-predicate-dsl.md`,
 and `0023-track-selection-contract-migration.md` — this design implements
-those five ADRs' decisions, it does not make a new one requiring its own
-ADR. The one genuinely new artifact this design introduces without a
-direct ADR citation — `sdd/approver-registry.yaml` (REQ-006/OQ-001) — is a
-necessary supporting file for ADR-0019 item 6's already-Accepted
-"approver registry" concept, not an independent architectural decision; if
-impl-review disagrees, promoting it to its own ADR is a low-cost follow-up
-(Design Decisions, below, records this as a resolved-but-revisitable
-choice, not a gap).
+those five ADRs' decisions (plus the new ADR-0025, above), it does not make
+any other new decision requiring its own ADR. The one genuinely new
+artifact this design introduces without a direct ADR citation —
+`sdd/approver-registry.yaml` (REQ-006/OQ-001) — is a necessary supporting
+file for ADR-0019 item 6's already-Accepted "approver registry" concept,
+not an independent architectural decision; if impl-review disagrees,
+promoting it to its own ADR is a low-cost follow-up (Design Decisions,
+below, records this as a resolved-but-revisitable choice, not a gap).
 
 ## Data Plan
 
