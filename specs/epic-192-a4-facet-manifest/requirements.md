@@ -8,7 +8,7 @@ Foundation tracking) — Epic A4 (Facet Manifest), issue #192, per
 `docs/ai-dlc-foundation-decision-v2.md` §19 ("旧A5と順序入替": schema is
 fixed before the Capability Resolver, Epic A5, is built)
 Investigation: specs/epic-192-a4-facet-manifest/investigation.md
-(INV-001..INV-018, OQ-001..OQ-002)
+(INV-001..INV-019; OQ-001 retired into Non-goals, OQ-002 open)
 
 ## Overview
 
@@ -25,15 +25,17 @@ read contract for `facet-manifest.affected_components`
 committed dependency** on this epic; and Epic A1 (Project Context) reserved
 the Resolver script name and the Context Projection's generated-artifact
 path as a protected, forced-handoff placeholder. This feature (Epic A4)
-delivers: the Facet Manifest schema itself (REQ-001); the Capability
-Summary schema and its lite/full relationship (REQ-002); the Context
-Projection's canonical shape and the `dependency_pointers` JSON Pointer
-contract (REQ-003); the staleness/"semantic output" comparison contract
+delivers: the Facet Manifest schema itself (REQ-001); the Lite Capability
+Summary schema (REQ-002 — a full-track shape, if one is ever needed, is
+deferred to a future ADR, Non-goals); the Context Projection's canonical
+shape and the `dependency_pointers` JSON Pointer contract (REQ-003); the
+staleness/"semantic output" comparison contract and its normative CLI
 (REQ-004, transcribing ADR-0021); the resolver-version policy (REQ-005,
 transcribing ADR-0021 item 6); three deterministic schema-validation
-scripts plus their fixtures and tests (REQ-006); the Manifest/Summary
-storage location and naming convention (REQ-007); and the documentation/
-versioning discipline every Foundation epic's tasks share (REQ-008).
+scripts plus one staleness-comparator script, plus their fixtures and
+tests (REQ-006); the Manifest/Summary storage location and naming
+convention (REQ-007); and the documentation/versioning discipline every
+Foundation epic's tasks share (REQ-008).
 
 This feature does **not** build the Capability Resolver, does not produce
 any live Facet Manifest, Capability Summary, or Context Projection instance
@@ -50,8 +52,10 @@ not renegotiable, inputs.
   generating script it introduces, against the contracts this feature
   fixes (decision document v2 §19 Epic A5).
 - **Epic A3's `check-component-coverage`**, which already reads
-  `facet-manifest.affected_components` via a structurally required
-  `--facet-manifest <path>` flag (INV-006) and needs this feature's schema
+  `facet-manifest.affected_components` via a `--facet-manifest <path>` flag
+  that is structurally required only in the `advisory`/`required` derived
+  states — in the `disabled-legacy` derived state the flag is accepted but
+  never consulted for existence (INV-006) — and needs this feature's schema
   to land with the exact shape A3 already assumed, not a different one.
 - **A human or agent reviewing a Feature's Facet Manifest** to understand
   why a Facet was or was not included, which Gates apply, and whether the
@@ -62,10 +66,11 @@ not renegotiable, inputs.
   and without re-running the Resolver, whether a committed Facet Manifest
   is even well-formed (REQ-006's validators) before trusting its content.
 - **Maintainers extending this schema in a future epic** (e.g. a Registry-
-  or ownership-scoped Policy Weakening detector, OQ-001's Capability
-  Summary consumer) — Field Definitions and Design Decisions record *why*
-  each field has the shape it has, not only what the shape is, so a later
-  change can tell whether it is compatible or a breaking schema revision.
+  or ownership-scoped Policy Weakening detector, or the future ADR deciding
+  whether a full-track Capability Summary is needed — Non-goals) — Field
+  Definitions and Design Decisions record *why* each field has the shape it
+  has, not only what the shape is, so a later change can tell whether it
+  is compatible or a breaking schema revision.
 
 ## Problems
 
@@ -76,28 +81,34 @@ not renegotiable, inputs.
   field (`affected_components`) whose type is currently unfixed anywhere
   but a prose sentence in Epic A3's own Assumptions section.
 - ADR-0021 fixes the `context_binding`/`resolver` block and the semantic-
-  output *definition* precisely, but does not itself specify a testable
-  comparison *algorithm*, does not specify which parts of a
-  `conditional_facets[]` entry participate in that comparison (its
-  `evidence` sub-tree is provenance detail the ADR never explicitly
-  addresses), and does not specify field-level array-ordering rules needed
-  to make "compare two Facet Manifests" a well-defined structural
-  operation rather than a semantically-fuzzy one (Dependencies,
-  ADR-0021 items 2-3).
+  output *definition* precisely (everything except those two blocks — item
+  2), but does not itself specify a testable comparison *algorithm*, and
+  does not specify field-level array-ordering rules needed to make "compare
+  two Facet Manifests" a well-defined structural operation rather than a
+  semantically-fuzzy one (Dependencies, ADR-0021 items 2-3).
 - Decision document v2 §16's own prose ("Policy Weakening → 全影響Feature
-  をBlock") reads as applying uniformly across the Context/Registry/
-  ownership axes, but only 3 of ADR-0019's 9 named weakening categories are
-  actually detected by any landed epic, and all 3 are Project-Context-
-  scoped only (INV-012) — a schema/contract that silently assumes a
-  Registry- or ownership-scoped weakening detector exists would describe a
-  mechanism no epic currently builds, and would leave REQ-004's staleness
-  contract unimplementable as literally written.
+  をBlock") and ADR-0021 item 3 apply the Policy-Weakening rule uniformly
+  across the Context/Registry/ownership axes, but only 3 of ADR-0019's 9
+  named weakening categories are actually detected by any landed epic, and
+  all 3 are Project-Context-scoped only (INV-012) — a schema/contract that
+  silently routes every Registry- or ownership-axis digest change through
+  the ordinary semantic-output comparison, on the theory that "no detector
+  exists yet," would fail open exactly where ADR-0021/decision v2 §16
+  demand a hard Block, and would let a real Registry- or ownership-scoped
+  weakening (e.g. a required Gate silently removed, `minimum_enforcement`
+  silently loosened) pass through undetected. REQ-004's fail-closed
+  contract (Goals, below) resolves this without waiting for a Registry- or
+  ownership-scoped detector to exist: a changed axis with an indeterminate
+  verdict Blocks, the same outcome a real weakening would produce, until a
+  future epic supplies that axis's detector.
 - Decision document v2 §6 fixes the Lite Capability Summary's exact field
-  set but names Capability Summary as a fourth, distinct Epic A5 output
-  even in the full track, without specifying what a full-track Capability
-  Summary contains — an ambiguity that would otherwise reach Epic A5
-  unresolved and force an implementation-time schema decision without
-  spec-phase review (INV-010).
+  set; §19 lists Capability Summary as a distinct Epic A5 output but
+  specifies no separate full-track shape, and no sibling epic names a
+  concrete consumer for one — an ambiguity an earlier revision of this spec
+  resolved by inventing a full-track schema and a `facet_manifest_ref`
+  compressed view, which adversarial review found out of REQ-002's own
+  schema-fixing scope (INV-010). This revision fixes only the Lite shape
+  and defers the full-track question to a future ADR (Non-goals).
 - No storage location or file-naming convention for a per-Feature Facet
   Manifest or Capability Summary exists; `specs/<feature>/` already holds
   seven- or four-file conventions (legacy-seven-layer, lite-three-file) but
@@ -140,6 +151,18 @@ not renegotiable, inputs.
   enforcement` fields resolve into. This feature introduces no new Gate-
   stage enum value, no new predicate operator, and no new Evidence shape —
   it structurally reuses Epic A2's, by reference (Field Definitions).
+- **Epic A2's `registry_digest` primitive — fragment-selection policy
+  (hard dependency, this feature's own binding decision)**: Epic A2's
+  `generate-registry-digest` accepts `--capability-ids`/`--gate-ids`
+  (an explicit fragment) or `--whole` (the entire Registry), and explicitly
+  leaves *which* to use as "Epic A5's Resolver concern, not Epic A2's"
+  (INV-019). Because this feature, not Epic A5, fixes what
+  `context_binding.registry_digest` binds to, REQ-004 fixes that choice as
+  `--whole` — the identical full-input-binding argument Epic A3's own
+  `ownership_digest` (REQ-005) already establishes: a Capability's
+  `trigger` match/no-match outcome is a function of the current Context
+  Projection, so no proper subset of "currently-matched capabilities" can
+  be soundly treated as "not consumed" by a given resolve (INV-019).
 - **Epic A3 (Component Path Ownership) — read contract on
   `affected_components` (hard, reverse dependency)**: Epic A3's
   `check-component-coverage` already ships (in its own, currently-Pending
@@ -150,16 +173,37 @@ not renegotiable, inputs.
   already-specified sibling epic, not merely an internal Epic A4 choice.
 - **ADR-0021 (Context Projection Staleness) and ADR-0020 (Conditional
   Predicate DSL)** are Accepted, not proposed by this feature; REQ-004/
-  REQ-005 transcribe them into testable schema/comparison contracts and
-  close two gaps ADR-0021 leaves implicit (whether `evidence` participates
-  in the semantic-output comparison; array-ordering determinism) rather
-  than re-deciding anything ADR-0021 already fixed.
+  REQ-005 transcribe them into testable schema/comparison contracts. ADR-0021
+  item 2 defines semantic output as everything in the Facet Manifest
+  *except* the `context_binding` and `resolver` blocks — REQ-004 implements
+  that boundary literally (an earlier revision of this spec additionally
+  excluded `schema`, `feature`, and `conditional_facets[].evidence`, which
+  adversarial review ["B1"] identified as a narrower exclusion than
+  ADR-0021 actually fixes; this revision reverts that narrowing). REQ-004
+  closes one gap ADR-0021 leaves genuinely implicit — array-ordering
+  determinism, needed to make "compare two Facet Manifests" a well-defined
+  structural-equality operation rather than a semantically-fuzzy one — but
+  does not re-decide, or narrow, anything ADR-0021 already fixes.
 - **ADR-0019 (Approval Sidecar Protection) — Policy Weakening category
-  scope (hard dependency, scope-narrowing)**: only 3 of ADR-0019's 9 named
-  weakening categories are live in Epic A1's schema; the other 6 are
-  `const: "n/a"`, reserved (INV-012). REQ-004 depends on this fact to scope
-  its own Policy-Weakening-short-circuit clause correctly; it is not a
-  choice this feature is free to make differently.
+  scope (hard dependency, detector-availability boundary, not a scope-
+  narrowing of REQ-004 itself)**: only 3 of ADR-0019's 9 named weakening
+  categories have a live detector, and that detector is Project-Context-
+  scoped only (Epic A1's `weakening_verdict`); the other 6 categories are
+  `const: "n/a"`, reserved, and no epic in current build scope implements a
+  Registry- or ownership-scoped weakening detector at all (INV-012). Unlike
+  an earlier revision of this spec, REQ-004 does **not** read this as
+  license to route every Registry/ownership digest change through the
+  ordinary semantic-output comparison unconditionally — ADR-0021 item 3 and
+  decision document v2 §16's own prose apply the Policy-Weakening rule
+  uniformly across all three axes (projection/registry/ownership), and a
+  missing detector is an availability gap, not a decision that a Registry
+  or ownership edit can never be a weakening. REQ-004 instead requires a
+  weakening verdict as input for **all three** axes and fails closed
+  (Block) whenever a changed axis's verdict is indeterminate — see REQ-004
+  below for the full contract, and Non-goals for the still-true fact that
+  this feature does not itself build a Registry- or ownership-scoped
+  detector; it only defines what the staleness comparator does in that
+  detector's absence.
 
 ## Goals
 
@@ -176,7 +220,13 @@ not renegotiable, inputs.
   `{facet, applied (boolean), reason (required iff `applied == false`,
   forbidden iff `applied == true` — schema-level `if`/`then`, matching
   Epic A2's own `exists`-operator `if`/`then` pattern), evidence (Epic A2's
-  Evidence JSON Schema, embedded by structural reference, INV-004)}`),
+  own `evaluate-predicate` output shape verbatim — an **array** of Evidence
+  JSON Schema elements, `{result, evidence: [...]}`'s `evidence` array, not
+  a single node — embedded by structural reference, INV-004; a
+  `conditional_facets[]` entry's `evidence` is exactly the array
+  `evaluate-predicate --predicate <this facet's Capability trigger or
+  facet-condition predicate>` returned, so no root-extraction or
+  single-node-selection rule is needed)}`),
   `resolved_gates` (array of `{id, stage (enum: implementation/artifact/
   promotion, copy-consistent with `gates[].stage`), blocking (boolean)}`),
   `capabilities` (array of unique resolved Capability-id strings),
@@ -184,7 +234,9 @@ not renegotiable, inputs.
   other value — matching Epic A2's own `minimum_enforcement` field exactly,
   Field Definitions explains why this is *not* the full "effective
   enforcement" of decision v2 §10), `lite_eligibility` (`{eligible
-  (boolean, required), upgrade_reasons (array of strings, default `[]`)}`,
+  (boolean, required), upgrade_reasons (array of strings, always present —
+  `[]` when there are none, materialized by the Resolver, never merely a
+  JSON Schema `default` annotation, which does not alter instance data)}`,
   matching the per-Capability `lite_policy` shape but representing the
   Feature-level aggregate), `context_binding` (`{full_context_revision,
   dependency_pointers, projection_sha256, registry_digest,
@@ -199,18 +251,23 @@ not renegotiable, inputs.
   extends to array order, not only set membership, and REQ-004's
   comparison can be a plain structural-equality check rather than a
   defensively-re-sorting one.
-- **REQ-002** (Capability Summary schema — decision v2 §6, §19): Define
-  `contracts/capability-summary.schema.json` with a `track` discriminator
-  (`enum: ["lite","full"]`) and a schema-level `if`/`then`/`else` on that
-  discriminator: when `track == "lite"`, require exactly decision v2 §6's
-  fields (`capabilities`, `required_lite_checks`, `full_upgrade_required`);
-  when `track == "full"`, require `capabilities` plus a `facet_manifest_
-  ref` object (`{path, sha256}`) pointing back at this Feature's own
-  `facet-manifest.yaml` (design.md Design Decisions records the reasoning:
-  a full-track Capability Summary is a compact, capability-set-only
-  companion to the Facet Manifest, never a duplicate of its facet-level
-  reasoning — INV-010/OQ-001). `capabilities` is required and shaped
-  identically (array of unique strings) in both tracks.
+- **REQ-002** (Capability Summary schema, Lite track only — decision v2 §6):
+  Define `contracts/capability-summary.schema.json` fixing exactly decision
+  v2 §6's own literal Lite Capability Summary shape, plus this feature's
+  usual `schema`/`feature` envelope fields: `schema` (`const:
+  "sdd-capability-summary/v1"`), `feature` (string, `^[a-z0-9][a-z0-9-]*$`),
+  `track` (`const: "lite"` — a single-valued, constant discriminator kept
+  for forward-compatible parsing by a future consumer, not for any
+  branching schema logic; **this feature defines no `track: "full"` shape**
+  — see Non-goals), `capabilities` (array of unique strings, required),
+  `required_lite_checks` (array of unique strings, required),
+  `full_upgrade_required` (boolean, required). `additionalProperties: false`
+  at the top level — no `facet_manifest_ref` or other full-track-only field
+  exists in this schema at all, since this feature ships no full-track
+  shape (Non-goals, "M full Summary" adversarial-review finding). Whether,
+  and in what shape, a full-track Capability Summary is needed is left to a
+  future ADR (Non-goals) — this feature's own scope is limited to fixing
+  the shape decision v2 §6 already gives verbatim.
 - **REQ-003** (Context Projection canonical shape — decision v2 §19 item 1
   "context projection hash", §18.3, ADR-0021's `dependency_pointers`):
   Define `contracts/context-projection.schema.json` for the artifact at
@@ -221,16 +278,35 @@ not renegotiable, inputs.
   context_binding.full_context_revision), provider_bindings_sha256
   (optional), workflow (verbatim from project-context.yaml), components
   (object, re-keyed from project-context.yaml's `components[]` array by
-  each entry's own `id`, `id` itself omitted since it is now the key),
-  shared_paths (array, as-is, addressed by numeric RFC 6901 index)}`.
+  each entry's own `id`; `id` itself omitted since it is now the key; key
+  vocabulary is any non-empty string — **identical** to Epic A1's own
+  `components[].id` constraint, `{"type":"string","minLength":1}` with no
+  character-set restriction, INV-009 — this feature imposes no narrower
+  slug-shaped pattern of its own, correcting an earlier revision that did),
+  shared_paths (array, as-is, addressed by numeric RFC 6901 index)}`. If
+  the source `project-context.yaml` omits `components` and/or
+  `shared_paths` (both optional at Epic A1's schema level, INV-009), the
+  generation procedure below materializes `components: {}` and/or
+  `shared_paths: []` respectively — Context Projection's own `components`/
+  `shared_paths` fields remain **required** regardless of what the source
+  document omits.
   Fix the generation procedure (for Epic A5 to implement, not for this
-  feature to build): canonicalize `project-context.yaml` via `canonicalize-
-  sdd-yaml` (YAML input mode) to obtain its NFC-normalized parsed
-  structure; re-key `components[]` into the `id`-keyed object (sound only
-  because Epic A1 already guarantees `id` uniqueness upstream, INV-009);
-  feed the transformed structure back through `canonicalize-sdd-yaml` a
-  second time (JSON input mode) to obtain final JCS-canonical bytes, whose
-  sha256 is `projection_sha256`. Fix `dependency_pointers` as RFC 6901 JSON
+  feature to build) as an explicit two-pass canonicalizer invocation, never
+  a single call that hands back a ready-to-manipulate parsed structure —
+  Epic A1's canonicalizer contract is a stdin/stdout CLI whose only output
+  is canonical-JSON *bytes* (or a hash), never a parsed-structure API
+  (INV-008; an earlier revision of this spec assumed the latter): (1) run
+  `canonicalize-sdd-yaml` in YAML input mode over `project-context.yaml`;
+  its canonical-JSON stdout bytes are both hashed (`source_sha256`, equal
+  to `context_binding.full_context_revision`) and, separately, parsed by
+  the *caller* via a stdlib JSON parser (never a second, independent YAML
+  parse) into a manipulable structure; (2) substitute `components: []`/
+  `shared_paths: []` for either key that is absent from that structure;
+  re-key `components` into the `id`-keyed object (sound only because Epic
+  A1 already guarantees `id` uniqueness upstream, INV-009); (3) feed the
+  transformed structure back through `canonicalize-sdd-yaml` a **second**
+  time, JSON input mode, to obtain final JCS-canonical bytes, whose sha256
+  is `projection_sha256`. Fix `dependency_pointers` as RFC 6901 JSON
   Pointer strings addressing into this re-keyed projection (e.g.
   `/components/desktop-client/artifact_kinds`,
   `/workflow/capability_enforcement` — decision v2 §16's own literal
@@ -243,34 +319,71 @@ not renegotiable, inputs.
   narrower, structurally-derived allowlist-root check, not the DSL's own
   8-field predicate allowlist (ADR-0020 item 5), and Field Definitions
   states explicitly that these are two different, non-substitutable scopes.
+  This root-allowlist check **is** schema-expressible (a `pattern` regex
+  combining RFC 6901 syntax with a first-segment alternation, AC-017/
+  AC-018) — this feature's schema enforces it directly, not as a separate
+  semantic (REQ-006 validator) check; what remains genuinely
+  semantic-validator territory, and not schema-expressible, is whether a
+  given pointer actually *resolves* to a real value inside a concrete
+  Context Projection instance (AC-016).
 - **REQ-004** (stale detection contract — decision v2 §16, ADR-0021 items
   2-4): Fix **semantic output**, closed and field-enumerated (not merely
-  prose), as exactly: `affected_components`, `required_facets`,
-  `conditional_facets` compared on `{facet, applied, reason}` **only**
-  (`evidence` is explicitly excluded — Field Definitions states this is a
-  deliberate closing of a gap ADR-0021's prose leaves implicit, reasoning
-  by analogy to `context_binding`/`resolver` being "binding/provenance
-  metadata, not output"), `resolved_gates`, `capability_minimum_
-  enforcement`, `capabilities`, and `lite_eligibility` — i.e. every REQ-001
-  field **except** `schema`, `feature`, `context_binding`, and `resolver`.
-  Fix the comparison as field-by-field structural equality over two Facet
-  Manifest instances (old vs. new), safe as a plain equality check because
-  REQ-001 already mandates stable-sorted arrays. Fix the **Policy
-  Weakening short-circuit**, correctly scoped per INV-012: when Epic A1's
-  Project-Context-scoped weakening detector (the 3 live categories) reports
-  `weakening_verdict.policy_weakening: true` for the transition a Feature's
-  `context_binding.full_context_revision` is bound to, that Feature is
-  Blocked unconditionally (no semantic-output comparison is even
-  attempted) and requires re-approval and re-resolve, per ADR-0021 item 3.
-  For a `registry_digest` or `ownership_digest` change, **no** weakening-
-  style short-circuit applies — every such change goes through the
-  ordinary re-run-and-compare-semantic-output path, because no epic in
-  this Foundation's current scope builds Registry- or ownership-scoped
-  weakening detection (INV-012, explicitly closing an ambiguity decision
-  document v2 §16's prose leaves open). Unchanged digests → continue,
-  WARN-only. Changed digest(s), unchanged semantic output → metadata-only
-  refresh, not stale. Changed digest(s), changed semantic output →
-  selectively stale for that Feature only.
+  prose), as **every REQ-001 field except `context_binding` and
+  `resolver`** — ADR-0021 item 2's own boundary, applied literally:
+  `schema`, `feature`, `affected_components`, `required_facets`,
+  `conditional_facets` (compared on `{facet, applied, reason, evidence}` in
+  full, `evidence`'s array included — Field Definitions records that an
+  earlier revision of this spec excluded `schema`/`feature`/`evidence` as a
+  narrower reading than ADR-0021 fixes; that narrowing is reverted, per
+  adversarial review "B1"), `resolved_gates`, `capability_minimum_
+  enforcement`, `capabilities`, and `lite_eligibility`. Fix the comparison
+  as field-by-field structural equality over two Facet Manifest instances
+  (old vs. new), safe as a plain equality check because REQ-001 already
+  mandates stable-sorted arrays and `lite_eligibility.upgrade_reasons` is
+  always-present (never merely defaulted).
+
+  Fix the **Policy Weakening short-circuit**, unified across all three
+  axes per ADR-0021 item 3 and decision document v2 §16's own prose (both
+  apply "Policy Weakening → Block" uniformly to projection/registry/
+  ownership, not to the projection axis alone — reverting an earlier
+  revision's narrower reading, per adversarial review "B2"): the staleness
+  comparator (design.md's `compare-facet-manifest-staleness` CLI contract)
+  takes a **weakening verdict for each of the three axes** as required
+  input — `not-weakened`, `weakened`, or **indeterminate** (the axis's
+  digest changed but no detector supplied a verdict for it at all).
+  - Any axis reporting `weakened` → Block unconditionally (no
+    semantic-output comparison attempted), re-approval and re-resolve
+    required, per ADR-0021 item 3.
+  - Any axis whose digest **changed** but whose verdict is
+    **indeterminate** → **fail-closed Block** — the same outcome a real
+    weakening would produce, until a detector for that axis exists.
+    Today, only Epic A1's Project-Context-scoped detector exists (the 3
+    live categories, INV-012); no epic in current build scope builds a
+    Registry- or ownership-scoped detector (Non-goals, unchanged), so **in
+    practice every `registry_digest`- or `ownership_digest`-changing
+    transition Blocks under this rule until a future epic supplies that
+    axis's verdict** — this is the intended, safety-first consequence of
+    closing the fail-open gap "B2" identified, not an oversight. A future
+    Registry- or ownership-scoped detector Epic supplies that axis's
+    verdict as this comparator's input; it does not need to change this
+    contract's shape, only start supplying a non-indeterminate value
+    (Assumptions). Concretely, a required Gate silently removed from a
+    matching Capability, or a Capability's `minimum_enforcement` silently
+    loosened, are the kind of Registry-scoped edits ADR-0019's named
+    categories ("removing a required Gate," "weakening enforcement")
+    already anticipate as weakening — this feature does not build the
+    detector that would classify them, but its fail-closed default is what
+    keeps them from silently passing through in the meantime.
+  - An axis whose digest is **unchanged** needs no verdict for that axis
+    (nothing to have weakened).
+  - If **no** axis's digest changed at all → continue, WARN-only (`fresh`,
+    the same status the metadata-only-refresh branch below also reports,
+    distinguished only by the WARN diagnostic).
+  - If every changed axis reports `not-weakened` (explicitly, not merely
+    "not indeterminate") → ordinary path: recompute and compare semantic
+    output. Unchanged semantic output → metadata-only refresh (`context_
+    binding`/`resolver` updated, not stale). Changed semantic output →
+    selectively stale for that Feature only.
 - **REQ-005** (resolver version policy — decision v2 §18.2, ADR-0021 item
   6): Fix the three-way `resolver.version` semver-component rule verbatim:
   **patch** → no regeneration required when semantic output is unchanged;
@@ -278,9 +391,17 @@ not renegotiable, inputs.
   output changes; **major** → mandatory re-resolve for every Feature that
   used the affected Resolver version, regardless of whether semantic
   output would change (the one case that skips the semantic-output
-  comparison entirely, INV-011). `resolver.version` is schema-validated as
-  a three-component semver string (`^\d+\.\d+\.\d+$`); `rule_set_revision`
-  is a `sha256:<hex>` digest.
+  comparison entirely, INV-011) — unless REQ-004's Policy-Weakening
+  short-circuit already Blocked the transition, in which case Block takes
+  precedence over the major-tier's forced-stale outcome (both are
+  safety-directed, but Block additionally requires re-approval, a stronger
+  outcome than a forced re-resolve). `resolver.version` is schema-validated
+  as a three-component semver string (`^\d+\.\d+\.\d+$`); `rule_set_
+  revision` is a `sha256:<hex>` digest. A `rule_set_revision` change with
+  `resolver.version` unchanged (a same-version rule-table edit) is treated
+  as a **minor**-tier transition (run the impact assessment; stale only if
+  semantic output changes) — never as a silent patch-tier no-op, and never
+  as an unconditional major-tier force.
 - **REQ-006** (schema validation scripts, fixtures, tests — decision v2
   §19 item "schema"): Design three deterministic, stdlib-only-Python-
   master-plus-`sh`/`ps1`-wrapper scripts under
@@ -289,35 +410,68 @@ not renegotiable, inputs.
   projection.{py,sh,ps1}` (no `.js` wrapper — these are structural
   validators, not cross-runtime-hashed digest primitives, matching Epic
   A2's own `validate-capability-registry`/`generate-gate-capabilities`
-  precedent of `.py`+`.sh`+`.ps1` only, INV-018). Each validates its
-  target instance's schema conformance plus a small, closed set of
-  semantic checks not expressible in JSON Schema draft-07 alone (Field
-  Definitions/design.md enumerate the exact check-id table per script,
-  mirroring `validate-capability-registry.py`'s `registry: <check-id>:
-  <detail>` diagnostic style). Each script locates its `contracts/*`
-  artifact via Epic A2's already-fixed script-relative-then-git-root-
-  fallback discovery contract (INV-018) — no new discovery algorithm is
-  invented. Author `tests/*.tests.sh`+`.tests.ps1` pairs and fixture data
-  under `tests/fixtures/facet-manifest/` covering schema-conformance
-  positive/negative fixtures per required field, each REQ-006 semantic
-  check's positive/negative fixture, REQ-004's semantic-output comparison
-  (unchanged/changed-metadata-only/changed-and-stale/major-version-forced
-  cases), REQ-005's three version-bump tiers, and REQ-003's `dependency_
-  pointers` allowlist-root and RFC-6901-well-formedness checks. Every new
-  suite is registered in `tests/run-all.sh`/`.ps1` directly (unprotected,
-  matching INV-018's precedent) and staged for `.github/workflows/test.yml`
-  registration via human-copy (protected, matching INV-018's precedent for
-  CI-registration edits specifically, not for the validator scripts
-  themselves, which this feature does not protect — Protected-File
-  Statement, design.md).
+  precedent of `.py`+`.sh`+`.ps1` only, INV-018), plus a fourth script,
+  `compare-facet-manifest-staleness.{py,sh,ps1}`, implementing REQ-004's
+  comparator contract (design.md API / Contract Plan gives its full
+  normative CLI: inputs, output status enum, exit codes, diagnostics).
+  `validate-facet-manifest`/`validate-capability-summary` target `.yaml`
+  files (REQ-007); `validate-context-projection` targets the `.json`
+  Context Projection artifact directly (stdlib `json.load`, no YAML
+  involved). **YAML parse contract (fixing "B4"):** the two YAML-reading
+  validators parse their input by exactly one path — invoking Epic A1's
+  `canonicalize-sdd-yaml` as a subprocess (YAML input mode) and
+  `json.loads()`-ing its canonical-JSON stdout — never a hand-rolled YAML
+  parser of any kind; a non-zero canonicalizer exit is surfaced as this
+  validator's own diagnostic (design.md), not silently swallowed. This
+  makes REQ-006's two YAML-reading validators, like REQ-003, blocked until
+  Epic A1's canonicalizer contract is finalized (Dependencies).
+
+  Each script validates its target instance's schema conformance plus a
+  small, closed set of semantic checks not expressible in JSON Schema
+  draft-07 alone (Field Definitions/design.md enumerate the exact check-id
+  table per script, mirroring `validate-capability-registry.py`'s
+  `registry: <check-id>: <detail>` diagnostic style). The schema-
+  conformance check's own hand-rolled draft-07 subset (design.md) covers
+  every keyword this feature's three schemas actually use, including `not`,
+  `oneOf`, boolean (`true`/`false`) subschema values, array-form (union)
+  `type`, and `propertyNames` — an earlier revision's implemented-keyword
+  list omitted all four despite the committed schemas using at least three
+  of them (adversarial review "B5"). Each of the three committed schema
+  documents is additionally validated once, at spec-authoring/registration
+  time (not by an automated `tests/*.tests.sh` regression suite — a
+  general draft-07-metaschema-conformant validator is out of this
+  hand-rolled subset's closed scope, INV-014), against the official
+  draft-07 metaschema, and the result recorded in the Spec-Authoring-Time
+  Manual Review Record (acceptance-tests.md).
+
+  Each script locates its `contracts/*` artifact via Epic A2's already-fixed
+  script-relative-then-git-root-fallback discovery contract (INV-018) — no
+  new discovery algorithm is invented. Author `tests/*.tests.sh`+
+  `.tests.ps1` pairs and fixture data under `tests/fixtures/facet-manifest/`
+  covering schema-conformance positive/negative fixtures per required
+  field, each REQ-006 semantic check's positive/negative fixture, REQ-004's
+  full staleness-comparator branch table (design.md), REQ-005's three
+  version-bump tiers, and REQ-003's `dependency_pointers` root-allowlist
+  (now schema-level, AC-017/AC-018) and RFC-6901-well-formedness checks.
+  Diagnostic output across all four scripts follows one determinism
+  contract (design.md): a fixed `(check-id, JSON-Pointer-path)` sort order,
+  RFC 6901 path representation (never dotted/bracket notation), UTF-8
+  encoding, LF-only line endings on every runtime including the `.ps1`
+  wrapper on Windows, and a fixed `0`/`1` exit-code convention (no
+  per-check-id exit code). Every new suite is registered in
+  `tests/run-all.sh`/`.ps1` directly (unprotected, matching INV-018's
+  precedent) and staged for `.github/workflows/test.yml` registration via
+  human-copy (protected, matching INV-018's precedent for CI-registration
+  edits specifically, not for the validator scripts themselves, which this
+  feature does not protect — Protected-File Statement, design.md).
 - **REQ-007** (Manifest/Summary storage location and naming — decision v2
   §19 item "Manifest の保存場所・命名"): Fix `specs/<feature>/facet-
   manifest.yaml` and `specs/<feature>/capability-summary.yaml` as the
   per-Feature storage location, directly alongside `requirements.md`/
   `design.md`/etc. — the exact naming/placement decision document v2 §6
-  already fixes for the lite-track `capability-summary.yaml` (INV-010),
-  extended consistently to the full track and to the new `facet-manifest.
-  yaml` sibling (Design Decisions records why `.yaml`, not `.json`, is
+  already fixes for `capability-summary.yaml` (INV-010), extended
+  consistently to the new `facet-manifest.yaml` sibling (Design Decisions
+  records why `.yaml`, not `.json`, is
   chosen for a Resolver-*generated* artifact: for git-diff-reviewability by
   a human reading a PR, the same reason `project-context.yaml`/`provider-
   bindings.yaml` are YAML despite also being schema-validated machine
@@ -348,22 +502,36 @@ not renegotiable, inputs.
   this name/path (INV-007); this feature fixes only what the file it
   eventually produces must contain (REQ-003).
 - Implementing a Registry- or ownership-scoped Policy Weakening detector —
-  REQ-004 explicitly scopes the weakening short-circuit to the 3 currently-
-  live, Project-Context-scoped categories only (INV-012); building
-  detection for any of ADR-0019's other 6 named-but-reserved categories is
-  a future epic's own spec.
+  no epic in current build scope builds detection for any of ADR-0019's 6
+  named-but-reserved categories (INV-012); that remains a future epic's own
+  spec. REQ-004's fail-closed contract (Goals) means this feature does not
+  need that detector to exist in order to be safe in its absence — a
+  changed Registry/ownership axis Blocks (fail-closed) until a future
+  epic's detector supplies a non-indeterminate verdict; this feature only
+  fixes what the comparator does with that verdict once supplied, it does
+  not build the detector itself.
+- Defining a full-track Capability Summary shape, or any artifact
+  referencing a Facet Manifest by digest from within a Capability Summary
+  — REQ-002 fixes only the Lite Capability Summary shape decision v2 §6
+  already gives verbatim. Whether a full-track Capability Summary is needed
+  at all, what it would contain, and who would consume it are questions
+  left to a future ADR, not resolved by this feature (an earlier revision
+  of this spec resolved them itself; adversarial review "M full Summary"
+  found that out of REQ-002's own schema-fixing scope, and finding "M
+  facet_manifest_ref" — a full-track compressed-view integrity gap —
+  is retired as a consequence, since the artifact it critiqued no longer
+  exists in this spec).
 - Modifying `contracts/capability-registry.schema.json`,
   `contracts/project-context.schema.json`,
   `contracts/approval-sidecar.schema.json`, or any other Epic A1/A2/A3
   contract file — this feature only *reads* their already-fixed shapes
-  (Dependencies) and adds three wholly new contract files of its own.
+  (Dependencies) and adds new contract files of its own.
 - Authoring a new ADR — ADR-0020 and ADR-0021 already normatively cover
   this feature's DSL-reuse and staleness surface; this feature transcribes
   them into schemas and testable contracts, it does not re-decide them.
 - Deciding *when* Context Projection is regenerated (CI cadence,
-  on-demand, etc. — OQ-002) or which future consumer reads a full-track
-  Capability Summary (OQ-001) — both are Epic A5-or-later wiring decisions
-  this feature's schema work does not need to resolve to be complete.
+  on-demand, etc. — OQ-002) — an Epic A5-or-later wiring decision this
+  feature's schema work does not need to resolve to be complete.
 - Running `spec-review-loop`/`impl-review-loop` against this package, or
   authoring `tasks.md`/`traceability.md` — this spec package is Phase 1
   only (`Spec-Review-Status: Pending`, `Impl-Review-Status: Pending`,
@@ -421,13 +589,17 @@ not renegotiable, inputs.
   `not: {required: ["reason"]}` under the `applied == true` branch)
   rejects `reason`'s presence when `applied == true`; both branches have a
   positive and a negative fixture.
-- AC-005 (REQ-001): `conditional_facets[].evidence` validates against Epic
-  A2's own Evidence JSON Schema, embedded verbatim (by `$ref` to a local
-  copy or by structural duplication with an explicit provenance comment
-  citing `specs/epic-190-a2-capability-registry/design.md`'s "Predicate
-  DSL evaluator contract" section — design.md fixes which); a fixture
-  using an `operator` value outside Epic A2's fixed 8-operator enum is
-  rejected.
+- AC-005 (REQ-001): `conditional_facets[].evidence` is an **array**,
+  validating element-wise against Epic A2's own `evaluate-predicate`
+  Evidence JSON Schema, embedded verbatim (by `$ref` to a local copy or by
+  structural duplication with an explicit provenance comment citing
+  `specs/epic-190-a2-capability-registry/design.md`'s "Predicate DSL
+  evaluator contract" section — design.md fixes which) — the exact array
+  shape `{result, evidence: [...]}`'s `evidence` member has, not a single
+  node (an earlier revision of this spec used a single-node shape,
+  adversarial review "M Evidence array"); a fixture whose array contains an
+  element with an `operator` value outside Epic A2's fixed 8-operator enum
+  is rejected.
 - AC-006 (REQ-001): `resolved_gates[]` items are `{id (string, same
   pattern as Epic A2's `gates[].id`), stage (enum: implementation/
   artifact/promotion), blocking (boolean)}`, `additionalProperties:
@@ -436,11 +608,22 @@ not renegotiable, inputs.
 - AC-007 (REQ-001): `capability_minimum_enforcement`, when present, is
   `const: "required"` — no other value validates; a fixture with any other
   string value is rejected; a fixture with the field entirely absent is
-  accepted.
+  accepted. An aggregate fixture confirms the Feature-level rule this field
+  represents: across every resolved Capability, if every one's own
+  `minimum_enforcement` is absent, the Feature-level field is absent; if at
+  least one reports `required`, the Feature-level field is `required`.
 - AC-008 (REQ-001): `lite_eligibility` is `{eligible (boolean, required),
-  upgrade_reasons (array of non-empty strings, default `[]`)}`,
+  upgrade_reasons (array of non-empty strings, required)}`,
   `additionalProperties: false`; a fixture missing `eligible` is rejected;
-  a fixture with `upgrade_reasons` absent defaults to `[]` and is accepted.
+  a fixture missing `upgrade_reasons` entirely is now **rejected** (an
+  earlier revision of this spec made it optional-with-a-schema-`default`,
+  which does not materialize `[]` on an absent instance — adversarial
+  review "M default"); a fixture with `upgrade_reasons: []` explicitly
+  present is accepted; an equivalence-test fixture confirms a
+  Resolver-written manifest with `upgrade_reasons: []` and a
+  (schema-invalid, rejected) manifest omitting the field entirely are
+  *not* treated as equal by REQ-004's structural-equality comparator —
+  they cannot both be valid inputs to it in the first place.
 - AC-009 (REQ-001): `context_binding` is `{full_context_revision,
   projection_sha256, registry_digest, ownership_digest: each
   "^sha256:[0-9a-f]{64}$", dependency_pointers: array of RFC-6901-pattern
@@ -453,97 +636,140 @@ not renegotiable, inputs.
   `additionalProperties: false`; a fixture with a two-component version
   string (e.g. `"1.1"`) is rejected.
 - AC-011 (REQ-001): A fixture representing decision document v2 §16's own
-  literal `context_binding`/`resolver` example
-  (`full_context_revision: sha256:...`, `dependency_pointers:
-  [/components/desktop-client/artifact_kinds,
-  /workflow/capability_enforcement]`, `resolver.version: 1.1.0`) validates
+  `context_binding`/`resolver` example, with its illustrative `sha256:...`
+  ellipsis replaced by a shape-equivalent, real 64-hex-digit sha256 value
+  in each digest field (`full_context_revision: sha256:<64 hex chars>`,
+  `dependency_pointers: [/components/desktop-client/artifact_kinds,
+  /workflow/capability_enforcement]`, `resolver.version: 1.1.0`,
+  `resolver.rule_set_revision: sha256:<64 hex chars>`) validates
   successfully against `contracts/facet-manifest.schema.json` once
   embedded in an otherwise-minimal-valid Facet Manifest — proving this
-  schema does not silently diverge from the decision document's own
-  worked example.
-- AC-012 (REQ-002): `contracts/capability-summary.schema.json` exists,
-  `track` is `enum: ["lite","full"]` and required; a schema-level `if`/
-  `then`/`else` on `track` enforces `required_lite_checks`+`full_upgrade_
-  required` present-and-required only when `track == "lite"`, and
-  `facet_manifest_ref` present-and-required only when `track == "full"`;
-  `capabilities` is required in both branches.
+  schema does not silently diverge from the decision document's own worked
+  example (an earlier revision of this fixture used the literal
+  `sha256:...` ellipsis itself, which cannot satisfy the schema's
+  `^sha256:[0-9a-f]{64}$` pattern — adversarial review "B6").
+- AC-012 (REQ-002): `contracts/capability-summary.schema.json` exists;
+  `required` at the top level is exactly `["schema","feature","track",
+  "capabilities","required_lite_checks","full_upgrade_required"]`, and
+  `track` is `const: "lite"` (this feature ships no other track value's
+  shape — Non-goals); a fixture missing any required field is rejected.
 - AC-013 (REQ-002): A fixture matching decision document v2 §6's literal
   example (`capabilities: [desktop-local]`, `required_lite_checks: [build,
   test, installer-dry-run]`, `full_upgrade_required: false`) validates
-  successfully once `track: lite` and `schema` are added (the two fields
-  this schema adds beyond decision v2's own prose example, since v2's
-  example predates this feature's `schema`/`track` discriminator).
-- AC-014 (REQ-002): A `track: full` fixture with `facet_manifest_ref:
-  {path: "specs/<feature>/facet-manifest.yaml", sha256: "sha256:..."}`
-  validates; a `track: full` fixture carrying `required_lite_checks` (a
-  lite-only field) is rejected by the `if`/`then`/`else`'s `else`-branch
-  `additionalProperties: false`.
+  successfully once `schema`, `feature`, and `track: "lite"` are added —
+  the three fields this schema adds beyond decision v2's own prose example
+  (an earlier revision of this AC named only two of the three required
+  additions, omitting `feature`, adversarial review "B6").
+- AC-014 (REQ-002): A fixture carrying an extra, undefined property (e.g.
+  a `facet_manifest_ref` object, or any other field outside this schema's
+  fixed six-field set) is rejected by `additionalProperties: false` — a
+  regression lock against reintroducing the full-track fields an earlier
+  revision of this schema defined (Non-goals) without an explicit,
+  future-ADR-authorized schema revision.
 - AC-015 (REQ-003): `contracts/context-projection.schema.json` exists;
-  `components` is `type: object` with `patternProperties` keyed on the
-  same `id` pattern REQ-001/Epic A2 already use
-  (`^[a-z0-9][a-z0-9-]*$`), each value shaped identically to Epic A1's
-  `components[]` item minus the now-redundant `id` field; a fixture
+  `components` is `type: object` with `propertyNames: {"minLength": 1}`
+  and `additionalProperties: {"$ref": "#/definitions/projectedComponent"}`
+  — a non-empty-string key vocabulary **identical** to Epic A1's own
+  `components[].id` constraint, no character-set restriction (an earlier
+  revision instead used `patternProperties` keyed on a slug-shaped regex
+  that rejected A1-valid ids like `Desktop/App`/`Desktop_Client`,
+  adversarial review "B3") — each value shaped identically to Epic A1's
+  `components[]` item minus the now-redundant `id` field. A fixture
   representing a raw `project-context.yaml` with two components,
+  **one of them using a non-slug-shaped id** (e.g. `Desktop/App`),
   transformed per REQ-003's procedure, produces an object with exactly two
-  keys equal to those components' `id` values, and each value's own `id`
-  key is absent (proving the re-keying step, not merely a copy).
+  keys equal to those components' `id` values verbatim (including the
+  non-slug one), and each value's own `id` key is absent (proving the
+  re-keying step, not merely a copy). A second fixture, representing a raw
+  `project-context.yaml` that omits `components` and/or `shared_paths`
+  entirely (both optional at Epic A1's schema level), transformed per
+  REQ-003's procedure, produces `components: {}` and/or `shared_paths: []`
+  respectively (B8's source-omission normalization rule, Goals).
 - AC-016 (REQ-003): A fixture where `dependency_pointers` contains
   `/components/desktop-client/artifact_kinds` (decision document v2 §16's
   own example) resolves, via RFC 6901 pointer resolution, to a real value
   inside a fixture Context Projection instance shaped per AC-015 — an
   end-to-end proof the re-keyed shape is what the decision document's own
   pointer syntax actually requires, not merely schema-shape-compatible by
-  coincidence.
+  coincidence. This remains the one genuinely semantic (non-schema-
+  expressible) check in the `dependency_pointers` area: whether a pointer
+  *resolves* to a real value inside a concrete Context Projection instance.
 - AC-017 (REQ-003): A `dependency_pointers` entry whose first path segment
-  is not one of `workflow`/`components`/`shared_paths` (e.g.
-  `/schema` or `/nonexistent`) is rejected by REQ-006's validator with a
-  named diagnostic (`dependency-pointer-root-not-allowlisted`) — a schema-
-  level `pattern` alone cannot express this (it constrains syntax, not the
-  first-segment vocabulary), so this is one of REQ-006's semantic (not
-  pure-schema) checks.
+  is not one of `workflow`/`components`/`shared_paths` (e.g. `/schema` or
+  `/nonexistent`) is rejected at the **schema** level, by the same combined
+  syntax-plus-root-vocabulary `pattern` AC-018 exercises — not by a
+  separate REQ-006 semantic check. An earlier revision of this AC claimed
+  first-segment vocabulary could not be schema-expressed and required a
+  named semantic diagnostic (`dependency-pointer-root-not-allowlisted`);
+  adversarial review (Minor finding) showed a regex combining syntax and
+  root constraint (`^/(workflow|components|shared_paths)(/([^/~]|~0|~1)*)*
+  $`) is expressible in draft-07 directly, so this feature's schema now
+  enforces it there, and REQ-006's semantic-check budget is reserved for
+  the genuinely non-schema-expressible existence-resolution check (AC-016).
 - AC-018 (REQ-003): A `dependency_pointers` entry that is syntactically
   malformed RFC 6901 (e.g. `components/desktop-client` with no leading
-  `/`, or containing an unescaped bare `~`) is rejected — this one *is*
-  expressible via the schema's own `pattern` keyword on
-  `dependency_pointers[].items`, and AC-018's fixture is a pure schema-
-  level rejection, distinct from AC-017's semantic-level one.
+  `/`, or containing an unescaped bare `~`), **or** that is well-formed
+  RFC 6901 but whose first segment is outside the `workflow`/`components`/
+  `shared_paths` allowlist, is rejected by the schema's own `pattern`
+  keyword on `dependency_pointers[].items` — both are pure schema-level
+  rejections now (AC-017's case folded into this same mechanism).
 - AC-019 (REQ-004): A fixture pair of Facet Manifest instances differing
   only in `context_binding.registry_digest` (all other fields, including
-  every REQ-004-scoped semantic-output field, byte-identical) is classified
-  by the design's documented comparison contract as **not stale**
+  every REQ-004-scoped semantic-output field, byte-identical), **with an
+  explicit `not-weakened` registry-axis weakening verdict supplied**
+  (REQ-004 requires one whenever that axis's digest changes — without it
+  this fixture would Block under the fail-closed rule instead, AC-024), is
+  classified by `compare-facet-manifest-staleness` as **not stale**
   (metadata-only refresh) — the direct AC-021-of-ADR-0021 analog this
   feature's own contract must reproduce.
 - AC-020 (REQ-004): A fixture pair differing in `context_binding.registry_
   digest` **and** in `resolved_gates[]`'s `blocking` value for a gate whose
   `id` is unchanged (ADR-0021 item 2's explicit "stage/blocking changes on
-  the same gate ID" clause) is classified as **stale** — proving the
-  comparison contract implements ADR-0021's specific same-ID/changed-
-  attribute clause, not merely a naive set-membership diff over gate IDs.
-- AC-021 (REQ-004): A fixture pair differing only in `conditional_facets[
-  ].evidence` (identical `facet`/`applied`/`reason` for every entry) is
-  classified as **not stale** — the fixture that proves REQ-004's
-  explicit, closed-gap decision to exclude `evidence` from semantic-output
-  comparison (Goals/Field Definitions) is actually implemented, not merely
-  documented.
+  the same gate ID" clause), with an explicit `not-weakened` registry-axis
+  verdict supplied, is classified as **stale** — proving the comparison
+  contract implements ADR-0021's specific same-ID/changed-attribute
+  clause, not merely a naive set-membership diff over gate IDs.
+- AC-021 (REQ-004): A fixture pair with an explicit `not-weakened`
+  registry-axis verdict supplied (triggering the ordinary comparison path)
+  where the only semantic-output field-level difference is
+  `conditional_facets[].evidence` (identical `facet`/`applied`/`reason`
+  for every entry) is classified as **stale** — the fixture that proves
+  REQ-004's reversal of an earlier revision's `evidence`-exclusion decision
+  (Goals/Field Definitions, adversarial review "B1") is actually
+  implemented, not merely documented. (An earlier revision of this AC
+  asserted the opposite outcome — not-stale — as proof of the exclusion
+  this revision reverts.)
 - AC-022 (REQ-004): A fixture pair differing only in `capability_minimum_
   enforcement` going from absent to `"required"` (a tightening, ADR-0021
-  item 2's explicit minimum-enforcement-tightening clause) is classified
-  as **stale**.
-- AC-023 (REQ-004): A fixture representing an Epic-A1-reported
-  `weakening_verdict.policy_weakening: true` transition short-circuits to
+  item 2's explicit minimum-enforcement-tightening clause), with an
+  explicit `not-weakened` registry-axis verdict supplied, is classified as
+  **stale**.
+- AC-023 (REQ-004): A fixture representing a `weakened` verdict on **any**
+  one axis (the concrete fixture uses the projection axis, since Epic A1's
+  is the only axis with a live detector today, INV-012) short-circuits to
   Block **without** evaluating the semantic-output comparison at all (a
   fixture whose semantic-output fields are, deliberately, byte-identical
   old-vs-new still results in Block, proving the short-circuit precedes,
-  and does not depend on, the comparison outcome).
-- AC-024 (REQ-004): A fixture representing a `registry_digest` change with
-  no corresponding Epic-A1 weakening verdict (the ordinary case, since no
-  Registry-scoped weakening detector exists, INV-012) goes through the
-  ordinary semantic-output comparison path, never the Block short-circuit
-  — even when the underlying Registry edit would, informally, "look like"
-  a weakening (e.g. a `minimum_enforcement` field being removed from a
-  Capability) — proving REQ-004's scope-narrowing decision (Goals) is
-  actually implemented as a hard boundary, not a judgment call left to the
-  comparator.
+  and does not depend on, the comparison outcome) — REQ-004's Goals record
+  this as a uniform, three-axis rule, not a projection-only one; the
+  fixture is projection-axis only because no other axis has a detector to
+  produce a `weakened` verdict with yet.
+- AC-024 (REQ-004, fail-closed lock, reversing an earlier revision's
+  fail-open reading — adversarial review "B2"): two sub-case fixtures over
+  a `registry_digest` change (a `minimum_enforcement` field removed from a
+  Capability — informally "looks like" a weakening — is used as the
+  concrete edit for both sub-cases): (1) **no** registry-axis weakening
+  verdict is supplied (the ordinary case today, since no Registry-scoped
+  detector exists, INV-012) → the comparator returns **Block**
+  (`weakening-verdict-indeterminate:registry`), never proceeding to the
+  ordinary semantic-output comparison path — proving the fail-closed rule
+  is a hard boundary, not a judgment call left to the comparator; (2) an
+  explicit `not-weakened` registry-axis verdict *is* supplied (simulating
+  a future Registry-scoped detector) → the comparator proceeds to the
+  ordinary semantic-output comparison path and classifies the Feature per
+  its actual output difference — proving the contract is forward-
+  compatible with a future detector without needing its own shape to
+  change once one exists.
 - AC-025 (REQ-005): A `resolver.version` patch-only bump (e.g. `1.1.0` →
   `1.1.1`) with byte-identical semantic output requires no regeneration
   (no Stale marking, no forced re-resolve) — a positive fixture proving the
@@ -561,34 +787,63 @@ not renegotiable, inputs.
   on a fully schema-conformant, semantically-consistent fixture, and
   non-zero with a `facet-manifest: <check-id>: <detail>` diagnostic line
   (matching `validate-capability-registry.py`'s own diagnostic style,
-  INV-005/design.md) for each of: schema-invalid, `resolved-gate-id-
+  INV-005/design.md) for each of: `schema-invalid`, `resolved-gate-id-
   duplicate` (two `resolved_gates[]` entries sharing an `id`),
   `facet-classification-conflict` (a facet name present in both
-  `required_facets` and `conditional_facets`), and `dependency-pointer-
-  root-not-allowlisted` (AC-017's check).
+  `required_facets` and `conditional_facets`), and `array-not-stable-
+  sorted` (one fixture per REQ-001 stable-sort-mandated array, each
+  submitted out of lexicographic order — an earlier revision of this AC
+  omitted this diagnostic despite design.md's own diagnostic-id table
+  listing it, adversarial review "M suite/1:1"; `dependency-pointer-
+  root-not-allowlisted` is retired from this table, folded into the schema
+  level, AC-017).
 - AC-029 (REQ-006): `validate-capability-summary.py --summary <path>`
-  exits 0 on both a valid `track: lite` and a valid `track: full` fixture,
-  and non-zero on a fixture mixing lite-only and full-only fields (AC-014).
+  exits 0 on a valid Lite Capability Summary fixture (AC-013's own worked
+  example) and non-zero — `capability-summary: schema-invalid: <detail>`
+  — on a fixture missing any required field, and on a fixture carrying an
+  extra/unknown property (AC-014).
 - AC-030 (REQ-006): `validate-context-projection.py --projection <path>`
-  exits 0 on a valid re-keyed fixture and non-zero on a fixture where
-  `components` is still array-shaped (not re-keyed) — proving the
-  validator actually enforces the re-keying transform, not merely generic
-  JSON-Schema `type: object` conformance.
-- AC-031 (REQ-006): All three scripts' `.py`/`.sh`/`.ps1` wrapper
+  exits 0 on a valid re-keyed fixture, **including one whose `components`
+  keys include a non-slug-shaped id** (AC-015's `Desktop/App` fixture,
+  proving B3's relaxation is enforced by the validator, not merely the
+  schema file), and non-zero on a fixture where `components` is still
+  array-shaped (not re-keyed) — proving the validator actually enforces
+  the re-keying transform, not merely generic JSON-Schema `type: object`
+  conformance. (An earlier revision of this AC additionally named a
+  `component-key-pattern-invalid` check; that check is retired as a direct
+  consequence of B3 — with no character-set restriction left to check,
+  `propertyNames: {"minLength": 1}` at the schema level is the only
+  remaining constraint, and it is already exercised by AC-015/AC-029's
+  positive fixtures.)
+- AC-031 (REQ-006): All four scripts' (`validate-facet-manifest`,
+  `validate-capability-summary`, `validate-context-projection`,
+  `compare-facet-manifest-staleness`) `.py`/`.sh`/`.ps1` wrapper
   invocations produce identical exit codes and identical diagnostic
   output for every fixture in the suite (dual/triple-runtime parity,
-  matching Epic A2's own parity discipline, INV-018).
+  matching Epic A2's own parity discipline, INV-018), following the fixed
+  diagnostic-determinism contract (design.md): identical sort order,
+  identical RFC 6901 path representation, UTF-8/LF-only output on every
+  runtime including the `.ps1` wrapper on Windows. The fixture set
+  includes at least one Windows-style path argument (e.g. a backslash-
+  separated `--manifest` value) and confirms the `.ps1` wrapper's own
+  output remains LF-only and byte-identical to the `.py`/`.sh` outputs for
+  that same fixture (adversarial review "M parity決定論").
 - AC-032 (REQ-006): Each script's discovery contract, when only the
   script-relative packaged copy of its `contracts/*` artifact is present
   (no monorepo `contracts/`, no reachable `.git`), still resolves and
   validates correctly — one fixture per script per runtime, matching Epic
   A2's own three-fixture, per-runtime discovery proof (INV-018).
 - AC-033 (REQ-006): Every new `tests/*.tests.sh`/`.tests.ps1` pair this
-  feature adds is registered in `tests/run-all.sh`/`.ps1` directly; the
-  corresponding `.github/workflows/test.yml` registration is staged under
-  `specs/epic-192-a4-facet-manifest/human-copy/` (a Phase 2 artifact,
-  scheduled by this feature's future `tasks.md`, not committed by this
-  spec-phase package).
+  feature adds — **six** in total (`facet-manifest-schema`,
+  `facet-manifest-semantics`, `capability-summary-schema`,
+  `context-projection-schema`, `facet-manifest-staleness`,
+  `facet-manifest-parity`; an earlier revision's design.md said "four" in
+  one place while listing five-then-six suites elsewhere, adversarial
+  review "M suite/1:1") — is registered in `tests/run-all.sh`/`.ps1`
+  directly; the corresponding `.github/workflows/test.yml` registration is
+  staged under `specs/epic-192-a4-facet-manifest/human-copy/` (a Phase 2
+  artifact, scheduled by this feature's future `tasks.md`, not committed
+  by this spec-phase package).
 - AC-034 (REQ-007): A fixture directory tree with `specs/<feature>/
   facet-manifest.yaml` and `specs/<feature>/capability-summary.yaml`
   present alongside `requirements.md`/`design.md`/`acceptance-tests.md`
@@ -598,9 +853,12 @@ not renegotiable, inputs.
   regression against an already-fixed validator.
 - AC-035 (REQ-008): a grep-based self-check confirms no version string is
   mutated anywhere in this feature's diff outside a
-  `scripts/bump-version.sh` invocation (matching Epic A3's AC-049); no new
-  `docs/adr/00NN-*.md` file is added by this feature's future tasks
-  (Non-goals).
+  `scripts/bump-version.sh` invocation (matching Epic A3's AC-049); every
+  implementation task this feature's future `tasks.md` schedules lands its
+  own `CHANGELOG.md` `## Unreleased` entry citing #192 (REQ-008, an earlier
+  revision of this AC checked only the version-mutation half of REQ-008,
+  adversarial review "M suite/1:1"); no new `docs/adr/00NN-*.md` file is
+  added by this feature's future tasks (Non-goals).
 - AC-036 (Global): This spec package's own `requirements.md` carries
   `Spec-Review-Status: Pending`, `design.md` carries `Impl-Review-Status:
   Pending`, and no `tasks.md`/`traceability.md` file exists in this
@@ -615,18 +873,67 @@ not renegotiable, inputs.
   "epic-192-a4-facet-manifest", "profile": "full"}` — no additional keys —
   and the file continues to validate against
   `contracts/workflow-state-registry.schema.json` (INV-017).
+- AC-039 (REQ-004, new — adversarial review "M suite/1:1"): A fixture pair
+  where **none** of the three `context_binding` digests (`projection_
+  sha256`, `registry_digest`, `ownership_digest`) changed is classified
+  `fresh` with a `WARN`-only diagnostic, and the comparator does not
+  attempt to recompute or compare semantic output at all (distinct from
+  the metadata-only-refresh branch, AC-019, which *does* run the
+  comparison and finds it unchanged) — the "no axis changed" branch REQ-004
+  names but an earlier revision left untested.
+- AC-040 (REQ-004, new — adversarial review "M suite/1:1"): the
+  `ownership_digest` axis's own parity with AC-019/AC-024's
+  `registry_digest` fixtures: (1) a fixture pair differing only in
+  `context_binding.ownership_digest`, with an explicit `not-weakened`
+  ownership-axis verdict supplied, is classified **not stale**
+  (metadata-only refresh); (2) the same digest change with **no**
+  ownership-axis verdict supplied is classified **Block**
+  (`weakening-verdict-indeterminate:ownership`) — proving the fail-closed
+  rule (REQ-004) applies uniformly to the ownership axis, not only the
+  registry axis.
+- AC-041 (REQ-001/REQ-006, new — adversarial review "M suite/1:1"): An
+  `evidenceNode` array element with `outcome: "warn"` and no `reason` is
+  rejected (the embedded Evidence schema's own `if`/`then` branch,
+  AC-005); the identical element with a non-empty `reason` present is
+  accepted.
+- AC-042 (REQ-003, new — adversarial review "M suite/1:1"): `shared_paths[]`
+  items' `oneOf` branch: a fixture entry with `pattern` plus `components`
+  (a bounded entry) validates; a fixture entry with `pattern` plus
+  `classification: "cross-cutting"` (an unbounded entry) validates; a
+  fixture entry carrying **both** `components` and `classification`, and a
+  fixture entry carrying **neither**, are each rejected by the `oneOf`'s
+  exactly-one-branch requirement.
+- AC-043 (Security Boundaries, new — adversarial review "M suite/1:1"): a
+  repository-scan fixture confirms none of this feature's three schema
+  files or four validator/comparator scripts contains a cloud-provider,
+  distribution-channel, or workflow-runtime-product name from the same
+  provider-neutrality allowlist Epic A2's own scan already uses (ADR-0018);
+  a clean fixture proves the scan does not false-positive on provider-
+  neutral vocabulary already present in this feature's own schemas (e.g.
+  `distribution_channels` as a field name).
+- AC-044 (REQ-006, new — adversarial review "B7"): `compare-facet-
+  manifest-staleness`'s own CLI contract exists as design.md specifies:
+  invoked with `--old-manifest`/`--new-manifest`/the three
+  `--*-weakening` flags (each optional except where a digest changed,
+  AC-019/AC-024/AC-039/AC-040)/`--resolver-version-bump`, it emits exactly
+  one of `fresh`/`stale`/`blocked` on stdout and exits `0`/`1`/`2`
+  respectively — a fixture per exit code proves the exit-code-to-status
+  mapping is fixed, not merely the status string.
 
 ## Field Definitions
 
 - **Facet Manifest**: the per-Feature artifact at `specs/<feature>/
   facet-manifest.yaml`, schema `sdd-facet-manifest/v1`. Its content, minus
-  `schema`/`feature`/`context_binding`/`resolver`, is exactly ADR-0021's
-  "semantic output" (REQ-004).
+  only `context_binding`/`resolver`, is exactly ADR-0021's "semantic
+  output" (REQ-004) — `schema`, `feature`, and `conditional_facets[
+  ].evidence` are part of that comparison too (adversarial review "B1"
+  reverted an earlier, narrower exclusion of all three).
 - **Capability Summary**: the per-Feature artifact at `specs/<feature>/
-  capability-summary.yaml`, schema `sdd-capability-summary/v1`, `track`-
-  discriminated between the lite track (decision v2 §6's own shape) and
-  the full track (this feature's own, explicitly-scoped decision, INV-010/
-  OQ-001).
+  capability-summary.yaml`, schema `sdd-capability-summary/v1`, Lite track
+  only — decision v2 §6's own shape verbatim. This feature defines no
+  full-track shape (Non-goals; an earlier revision's `track`-discriminated,
+  full-track-including schema is retired, adversarial review "M full
+  Summary").
 - **Context Projection**: the single, repository-wide (not per-Feature)
   generated artifact at `plugins/sdd-quality-loop/scripts/generated/
   project-context.resolved.json` (Epic A1's reserved path, INV-007),
@@ -646,6 +953,14 @@ not renegotiable, inputs.
   different concept that only shares the same three top-level roots
   (`workflow`/`components`/`shared_paths`) by virtue of both being scoped
   to Project Context, not by definitional identity.
+- **`context_binding.registry_digest`**: bound via Epic A2's
+  `generate-registry-digest --whole` (the entire Registry), never a
+  `--capability-ids`/`--gate-ids` fragment of only the currently-matched
+  Capabilities — the same full-input-binding soundness argument Epic A3's
+  own `ownership_digest` already establishes (INV-019): a Capability's
+  `trigger` match outcome is a function of the current Context Projection,
+  so no proper subset of "currently-matched capabilities" can be soundly
+  treated as "not consumed" by a given resolve.
 - **`capability_minimum_enforcement`**: the `max()` of every resolved
   Capability's `minimum_enforcement` field (Epic A2 schema) — i.e. "the
   Registry-derived input to the effective-enforcement computation"
@@ -670,19 +985,30 @@ not renegotiable, inputs.
   Manifest because its owning Capability's `trigger` matched (a Capability
   whose trigger does not match contributes none of its facets, required or
   conditional, to the Manifest at all — Edge Cases).
-- **Semantic output** (REQ-004, ADR-0021 item 2, this feature's exact
-  field enumeration): `affected_components`, `required_facets`,
-  `conditional_facets` (on `{facet, applied, reason}` only — `evidence`
-  excluded), `resolved_gates`, `capability_minimum_enforcement`,
-  `capabilities`, `lite_eligibility`. Everything else in a Facet Manifest
-  (`schema`, `feature`, `context_binding`, `resolver`) is binding/
-  provenance metadata, excluded from comparison.
-- **Policy Weakening (as scoped by this feature)**: the Epic-A1-reported
-  transition-level `weakening_verdict.policy_weakening: true` outcome for
-  the 3 currently-live categories only (`capability_enforcement_weakened`,
-  `component_path_narrowed`, `spec_profile_full_to_lite`) — never a
-  Registry- or ownership-scoped concept in this Foundation's current
-  build scope (INV-012).
+- **Semantic output** (REQ-004, ADR-0021 item 2's own boundary, applied
+  literally): every REQ-001 field except `context_binding` and
+  `resolver` — `schema`, `feature`, `affected_components`,
+  `required_facets`, `conditional_facets` (on the full `{facet, applied,
+  reason, evidence}` shape, `evidence`'s array included), `resolved_gates`,
+  `capability_minimum_enforcement`, `capabilities`, `lite_eligibility`.
+  Only `context_binding` and `resolver` are binding/provenance metadata,
+  excluded from comparison (an earlier revision additionally excluded
+  `schema`, `feature`, and `evidence`; adversarial review "B1" reverted
+  that narrowing as inconsistent with ADR-0021's own text).
+- **Policy Weakening (as scoped by this feature)**: the *concept* is
+  three-axis (projection/registry/ownership), matching ADR-0021 item 3 and
+  decision document v2 §16's own uniform "Policy Weakening → Block" rule —
+  not projection-only, as an earlier revision of this spec read it. What
+  is currently *detected* is narrower: only Epic A1's Project-Context-
+  scoped `weakening_verdict.policy_weakening: true` outcome, for the 3
+  currently-live categories (`capability_enforcement_weakened`,
+  `component_path_narrowed`, `spec_profile_full_to_lite`), exists as a
+  real detector today (INV-012); no Registry- or ownership-scoped detector
+  exists in this Foundation's current build scope (Non-goals, unchanged).
+  REQ-004's fail-closed contract is precisely what lets this feature state
+  a uniform three-axis *rule* without yet having three-axis detector
+  *coverage*: an axis with no detector Blocks (fail-closed) instead of
+  silently passing, whenever that axis's digest changes.
 
 ## Roles and Permissions
 
@@ -714,22 +1040,25 @@ not renegotiable, inputs.
    `specs/<feature>/facet-manifest.yaml` conforming to
    `contracts/facet-manifest.schema.json` (REQ-001).
 2. In the lite track, the Resolver instead writes only `specs/<feature>/
-   capability-summary.yaml` with `track: lite` (REQ-002); in the full
-   track, it writes both `facet-manifest.yaml` and a `track: full`
-   `capability-summary.yaml` referencing the former by digest.
+   capability-summary.yaml` (`track: "lite"`, REQ-002) — this feature ships
+   no other track's shape; whether a full-track project needs a separate
+   Capability Summary is a future ADR's question (Non-goals).
 3. A reviewer or CI process runs `validate-facet-manifest.py --manifest
    specs/<feature>/facet-manifest.yaml` (REQ-006) before trusting the
    Manifest's content for any downstream Gate reasoning.
 4. When `project-context.yaml`, `contracts/capability-registry.json`, or
    the path-ownership declaration changes, Epic A5's Resolver (out of
    scope here) re-runs for every potentially-affected Feature, recomputes
-   the three digests plus a fresh semantic output, and applies REQ-004's
-   comparison to decide, per Feature, whether to selectively mark it
-   Stale, refresh metadata only, or (if Epic A1 reports a live-category
-   weakening verdict) Block unconditionally.
+   the three digests, and calls `compare-facet-manifest-staleness`
+   (REQ-004/REQ-006) with a weakening verdict for each changed axis. Any
+   `weakened` or indeterminate (no detector yet) verdict on a changed axis
+   Blocks the Feature unconditionally; otherwise a fresh semantic output is
+   computed and compared to decide, per Feature, whether to selectively
+   mark it Stale or refresh metadata only.
 5. A `resolver.version` bump follows REQ-005's three-tier rule to decide
    whether re-resolution is required at all, and if so, whether the
-   REQ-004 comparison or an unconditional re-resolve applies.
+   REQ-004 comparison or an unconditional re-resolve applies (subject to
+   the same Policy-Weakening precedence, REQ-005).
 
 ## Edge Cases
 
@@ -766,14 +1095,36 @@ not renegotiable, inputs.
   way `components[]` entries do (`pattern` is not guaranteed unique), so
   numeric-index addressing is the only sound RFC-6901 form available for
   this one root.
+- A component `id` containing a literal `/` or `~` (schema-valid under
+  B3's relaxed, A1-identical `components` key vocabulary — Field
+  Definitions) requires the standard RFC 6901 escaping (`~1`/`~0`
+  respectively) when it appears as a `dependency_pointers[]` token — e.g.
+  a component id `Desktop/App` is addressed as
+  `/components/Desktop~1App/artifact_kinds`, never a raw, unescaped `/`
+  inside the token. This is the existing `dependency_pointers[].pattern`'s
+  own escaping grammar (design.md), not a new rule B3 introduces; it is
+  noted here because B3 makes such ids schema-valid for the first time.
+- A `registry_digest` or `ownership_digest` change with an indeterminate
+  weakening verdict for that axis (no detector supplies one) Blocks under
+  REQ-004's fail-closed rule *even when the underlying edit is, in fact, a
+  tightening* (e.g. a `minimum_enforcement` field newly added) — the
+  comparator has no way to distinguish a tightening from a weakening
+  without a real detector, so it treats every indeterminate, changed axis
+  identically regardless of the edit's actual direction; this is the
+  accepted cost of fail-closed safety (Goals), not a bug to route around
+  case-by-case.
 - A `resolver.version` **major** bump landing in the same transition as a
   `registry_digest` change whose semantic output would *not* otherwise
   have changed — REQ-005's major-tier rule (AC-027) still forces re-
   resolve; the two triggers are independent, not mutually exclusive, and
-  the major-version rule always wins when both are present in the same
-  transition (design.md's Design Decisions states this explicitly as the
-  intended precedence, since ADR-0021 item 6 places no condition on the
-  major tier's applicability).
+  the major-version rule always wins over the ordinary comparison path
+  when both are present in the same transition, *unless* REQ-004's
+  Policy-Weakening short-circuit (including its fail-closed branch) has
+  already Blocked the transition, in which case Block takes precedence
+  over the major tier's forced-stale outcome (design.md's Design
+  Decisions states this precedence explicitly, since ADR-0021 item 6
+  places no condition on the major tier's applicability, but also never
+  contemplates it overriding a Block).
 
 ## Security Boundaries
 
@@ -802,45 +1153,56 @@ not renegotiable, inputs.
   field name or enum value anywhere in `facet-manifest.schema.json`,
   `capability-summary.schema.json`, or `context-projection.schema.json`
   names a cloud provider, product, or distribution channel) — a fixture
-  in REQ-006's test suite asserts this directly (a scan of every string
-  literal in all three committed schema files against the same allowlist
+  in REQ-006's test suite (AC-043) asserts this directly (a scan of every
+  string literal in all three committed schema files, plus the four
+  validator/comparator scripts' own source, against the same allowlist
   Epic A2's provider-contamination check already uses).
 
 ## Assumptions
 
 - Epic A1's canonicalizer (`canonicalize-sdd-yaml.{py,sh,ps1,js}`) lands
   with the exact CLI/library shape `specs/epic-189-a1-project-context/
-  design.md` already fixes (stdin/stdout, YAML-or-JSON input mode,
-  `--hash-only`); REQ-003's two-pass canonicalization procedure is written
-  against that fixed shape, not a placeholder.
-- Epic A2's `contracts/capability-registry.schema.json` and its Evidence
-  JSON Schema land unchanged from `specs/epic-190-a2-capability-registry/
-  design.md`'s already-`Passed` shape; if either changes before Epic A2
-  reaches implementation, this feature's REQ-001 `conditional_facets[
-  ].evidence` and `resolved_gates[].stage` fields would need a
-  corresponding follow-up revision (out of this spec's own scope to
-  predict).
-- Epic A3's `--facet-manifest <path>` read contract (INV-006) lands
-  unchanged from `specs/epic-191-a3-path-ownership/requirements.md`'s
-  current, still-`Pending` shape; this feature treats that shape as fixed
-  because it is already committed prose in a sibling spec, not because
-  Epic A3 has itself passed review yet.
+  design.md` already fixes — a stdin/stdout CLI whose only output is
+  canonical-JSON bytes (or a hash), never a parsed-structure library API
+  (INV-008; an earlier revision of REQ-003 assumed the latter, adversarial
+  review "M canonicalizer API"). REQ-003's two-pass canonicalization
+  procedure, and REQ-006's YAML-reading validators' own single canonicalizer-
+  subprocess parse path (B4), are both written against that stdout-bytes
+  shape, not a placeholder or a richer API.
+- Epic A2's `contracts/capability-registry.schema.json` and its
+  `evaluate-predicate` Evidence JSON Schema (an array-of-nodes output
+  shape, `{result, evidence: [...]}`) land unchanged from
+  `specs/epic-190-a2-capability-registry/design.md`'s already-`Passed`
+  shape; if either changes before Epic A2 reaches implementation, this
+  feature's REQ-001 `conditional_facets[].evidence` and `resolved_gates[
+  ].stage` fields would need a corresponding follow-up revision (out of
+  this spec's own scope to predict).
+- Epic A3's `--facet-manifest <path>` read contract (INV-006) — structurally
+  required in the `advisory`/`required` derived states, accepted-if-present-
+  but-never-consulted in `disabled-legacy` — lands unchanged from
+  `specs/epic-191-a3-path-ownership/requirements.md`'s current, still-
+  `Pending` shape; this feature treats that shape as fixed because it is
+  already committed prose in a sibling spec, not because Epic A3 has itself
+  passed review yet.
 - A future epic (not this one) will eventually build Registry- or
-  ownership-scoped Policy Weakening detection; REQ-004's scope-narrowing
-  decision (INV-012) is written to be forward-compatible with that
-  addition (a new weakening category being promoted from `const: "n/a"`
-  to a live `enum` value in Epic A1's schema would extend REQ-004's
-  short-circuit condition, not contradict it), but this feature does not
-  itself build or schedule that work.
+  ownership-scoped Policy Weakening detection. REQ-004's fail-closed
+  contract (Goals) does not depend on this happening to be safe in the
+  meantime — it Blocks a changed, indeterminate-verdict axis today — but it
+  is written to compose cleanly once that detector exists: the detector
+  only needs to start supplying a `weakened`/`not-weakened` verdict for its
+  axis (in place of today's indeterminate default) for the ordinary
+  semantic-output comparison path to become reachable for that axis again
+  (a new weakening category being promoted from `const: "n/a"` to a live
+  `enum` value in Epic A1's schema is the identical mechanism for the
+  Project-Context axis's own 6 reserved categories).
 
 ## Open Questions
 
-- OQ-001 (REQ-002): which future consumer reads a full-track Capability
-  Summary instead of its source Facet Manifest — left to whichever future
-  epic introduces that consumer (INV-010).
 - OQ-002 (REQ-003): Context Projection's regeneration cadence (CI-gated
   drift check vs. on-demand) — an Epic A5 CI-wiring decision, not a schema
-  decision (INV-007's investigation entry).
+  decision (INV-007's investigation entry). (OQ-001, whether/what shape a
+  full-track Capability Summary needs, is retired into Non-goals —
+  investigation.md.)
 
 ## Risks
 
@@ -853,14 +1215,19 @@ not renegotiable, inputs.
   line-level sources for every borrowed shape (Dependencies, Field
   Definitions) so a future diff against the landed shape is mechanical,
   not archaeological.
-- **Ambiguity-resolution risk**: REQ-002's full-track Capability Summary
-  shape and REQ-004's `evidence`-exclusion-from-semantic-output decision
-  are this feature's own, explicitly-flagged resolutions of gaps the
-  decision document and ADR-0021 leave implicit, not literal transcriptions
-  — a future adversarial review could reasonably propose a different
+- **Ambiguity-resolution risk**: REQ-004's fail-closed treatment of an
+  indeterminate weakening verdict, and REQ-004's `registry_digest --whole`
+  binding policy, are this feature's own, explicitly-flagged resolutions of
+  gaps ADR-0021/Epic A2 leave implicit, not literal transcriptions — a
+  future adversarial review could reasonably propose a different
   resolution; this spec records the reasoning behind each (Design
   Decisions, design.md) precisely so that disagreement, if it comes, can
-  be evaluated against a stated rationale rather than a bare assertion.
+  be evaluated against a stated rationale rather than a bare assertion. (An
+  earlier revision carried this same risk for REQ-002's full-track
+  Capability Summary shape and REQ-004's `evidence`-exclusion decision;
+  both are retired — the former into Non-goals, the latter reverted to
+  ADR-0021's literal boundary — so neither is a live ambiguity-resolution
+  risk in this revision.)
 - **Reserved-path risk**: REQ-003 fixes Context Projection's schema at
   Epic A1's already-reserved path
   (`plugins/sdd-quality-loop/scripts/generated/project-context.resolved.

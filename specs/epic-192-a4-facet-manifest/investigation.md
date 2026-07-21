@@ -204,7 +204,7 @@ overwrites a component) only because Epic A1 already guarantees `id`
 uniqueness upstream, at content-validation time, before the Context
 Projection generator (Epic A5) ever runs.
 
-## INV-010: Decision document §6 already fixes the Lite Capability Summary's exact field set, but says nothing about a full-track Capability Summary's fields
+## INV-010: Decision document §6 fixes the Lite Capability Summary's exact field set; a full-track Capability Summary's fields are undecided anywhere and out of this feature's scope (revised per adversarial review, "M full Summary")
 
 `docs/ai-dlc-foundation-decision-v2.md` §6 (Q5) fixes: "liteでは個別Facet
 ファイルを生成せず `specs/<feature>/capability-summary.yaml` だけを生成す
@@ -214,12 +214,22 @@ matrix (lite/full × spec_profile/artifact_layout/enforcement →
 verdict) and the per-Capability `lite_policy: {eligible, upgrade_reasons}`
 Registry field. §19 Epic A5's own output list ("Facet Manifest / Capability
 Summary / Context Projection / Resolver Evidence") names Capability Summary
-as a **fourth, distinct** output even in the full track — i.e., not merely
-the lite-track artifact under a different name. Decision v2 does not show a
-full-track Capability Summary example. REQ-002/Design Decisions resolve
-this gap as this spec's own, explicitly-scoped decision (not attributed to
-the decision document) — see requirements.md Dependencies and design.md
-Design Decisions.
+as a distinct Epic A5 output, but neither §6 nor §19 specifies a *separate*
+full-track shape, and no sibling epic's spec names a concrete consumer for
+one. An earlier revision of this spec resolved that silence by inventing a
+`track`-discriminated schema with a full-track `facet_manifest_ref`
+compressed view — adversarial review (finding "M full Summary") correctly
+identified this as inventing an output-type decision beyond REQ-002's
+schema-fixing scope, unsupported by anything §6 or §19 actually specifies.
+REQ-002 now fixes **only** the Lite Capability Summary shape §6 already
+gives verbatim (`schema`, `feature`, `track: "lite"` — a single-valued,
+constant discriminator retained for forward-compatible parsing, not for any
+branching schema logic — `capabilities`, `required_lite_checks`,
+`full_upgrade_required`). Whether a full-track Capability Summary is needed
+at all, and if so what it contains, is deferred to a future ADR (Non-goals,
+requirements.md) — this investigation's own evidence (no named consumer, no
+decision-document shape) is exactly why that deferral, not a spec-phase
+invention, is the correct resolution.
 
 ## INV-011: §18.2/ADR-0021 item 6 fix the resolver-version rule as a closed three-way switch
 
@@ -392,19 +402,54 @@ second discovery algorithm — this keeps `plugins/sdd-quality-loop/scripts/`
 internally consistent for whichever epic (A2, now A4) adds a new schema
 artifact requiring 3-runtime, installed-plugin-context discovery.
 
-## OQ-001: Full-track Capability Summary's exact consumer
+## INV-019: Epic A2's `registry_digest` primitive supports `--whole`, and Epic A3's `ownership_digest` already establishes the "no sound fragment" precedent this feature's own binding choice follows
+
+`specs/epic-190-a2-capability-registry/requirements.md` REQ-004: the
+`registry_digest` generation script "accepts an explicit `--capability-ids`
+list, an explicit `--gate-ids` list, or both (at least one required, or
+`--whole` for the entire Registry) as its fragment-selection input,"
+explicitly leaving "the fragment selection itself" as "Epic A5's Resolver
+concern, not Epic A2's." This feature (Epic A4), not Epic A5, is the one
+that fixes what a Facet Manifest's `context_binding.registry_digest`
+*binds to* — REQ-004 must therefore pick a fragment-selection policy,
+because leaving it to each future Resolver implementation would let
+`registry_digest` diverge across implementations for the identical Registry
+state. `specs/epic-191-a3-path-ownership/requirements.md` REQ-005 already
+faced the structurally identical question for `ownership_digest` and
+resolved it as **full-input binding**, with an explicit soundness argument:
+"deciding EXCLUSIVE requires checking every other component's residual
+match too... so no proper subset of the ownership input can be soundly
+labeled 'unconsumed' by a given resolve — a selective, evaluated-subset
+binding is not a scoping refinement, it is unsound" (line ~543-546). The
+identical argument applies to `registry_digest`: a Capability's `trigger`
+match/no-match outcome is a function of the current Context Projection, and
+a Registry edit to a Capability's `trigger` that does not currently match
+could start matching (or vice versa) on the very next resolve without any
+other input changing — so no proper subset of "the capabilities whose
+trigger currently matches" can be soundly treated as "not consumed" by a
+given resolve; the Resolver necessarily evaluates every Capability's
+`trigger` to determine the matching set in the first place. This feature's
+REQ-004 therefore binds `registry_digest` via `generate-registry-digest
+--whole`, by the same soundness reasoning A3 already established for
+`ownership_digest`, not a `--capability-ids`/`--gate-ids` fragment of only
+the currently-matched set.
+
+## OQ-001 (retired, folded into Non-goals): whether, and in what shape, a full-track Capability Summary exists at all
 
 Decision document v2 §19 lists Capability Summary as a distinct Epic A5
-output even in the full track, but no epic's spec (A1/A2/A3, this one
-included) names a concrete *consumer* that reads a full-track Capability
-Summary instead of the Facet Manifest it is derived from. REQ-002 fixes
-the *schema* (a deliberately compact, capability-set-only projection
-referencing its source Facet Manifest by digest — design.md Design
-Decisions) so the artifact exists and is well-formed the moment Epic A5
-needs it, but which future consumer (a dashboard, the Capability
-Interviewer's "already resolved" check, Epic A6's lite-upgrade tooling)
-actually reads it is left to whichever epic introduces that consumer
-(Non-goals).
+output, but no epic's spec (A1/A2/A3, this one included) names a concrete
+*consumer* that would read a full-track Capability Summary instead of the
+Facet Manifest it would be derived from, and neither §6 nor §19 specifies
+what such an artifact would contain. An earlier revision of this spec
+treated this as a narrow "which consumer" open question and answered the
+larger "what shape" question itself by inventing a `facet_manifest_ref`
+compressed view — adversarial review ("M full Summary") found that
+resolution out of REQ-002's own scope (schema-fixing for an already-decided
+artifact, not deciding whether a second artifact should exist). This is no
+longer an open question this spec carries forward: REQ-002 now fixes only
+the Lite Capability Summary (INV-010), and whether a full-track counterpart
+is needed, by whom, and in what shape is recorded as a Non-goal — a future
+epic's own spec, not this feature's Open Question to resolve later.
 
 ## OQ-002: Context Projection regeneration cadence
 
