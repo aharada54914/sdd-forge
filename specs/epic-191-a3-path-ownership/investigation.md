@@ -369,6 +369,68 @@ fixed) and reserve a hard block for T-003 (needs Epic A1's canonicalizer
 *utility*, which has no shape-only substitute) and part of T-004 (needs
 Epic A4's Facet Manifest to exist as an artifact, not merely a shape).
 
+## INV-018: `check-contract.py`'s tier-minimum mechanism has no capability-state axis
+
+`grep -n "capability\|disabled-legacy\|project-context\|workflow\."
+plugins/sdd-quality-loop/scripts/check-contract.py` returns no match —
+`RISK_TIERS` (`:37-42`) and `_pass4_risk_tier()` (`:127-157`) key
+required-check-set membership purely off a contract's own `risk`/`stack`
+fields, never off `project-context.yaml`'s `workflow.capability_enforcement`
+or any capability-pipeline state. Registering `check-component-coverage`
+into this tier-minimum set without making the check itself
+capability-state-aware would therefore either require a `disabled-legacy`
+`high`/`critical` task to fabricate `passes:true` evidence for a check
+that never evaluated anything, or force every `high`/`critical` task in
+`disabled-legacy` to be permanently unable to satisfy `check-contract` —
+grounding the NEW-001 verification finding and this feature's REQ-004
+state-aware Gate design (requirements.md Problems, Goals REQ-004).
+
+## INV-019: `emit-run-record` establishes this repository's existing run-record schema convention
+
+`plugins/sdd-quality-loop/scripts/emit-run-record.sh:19-21,247,285` emits
+a `"schema": "sdd-run-record/v1"` (or `"sdd-run-record/v2"` with an
+additive `effort` sibling object) literal field as part of every run
+record it writes to `reports/runs/RUN-<...>.json` — an established,
+versioned schema-tagging convention this feature's
+`check-component-coverage` evidence record reuses (`schema_version`,
+design.md Data Plan) rather than inventing an unrelated shape, and the
+precedent for treating a script's own output as a versioned,
+self-describing record rather than an untyped blob.
+
+## INV-020: ADR-0019's two-tier defense-claim scope is the existing precedent this feature's reachability claims must not exceed
+
+`docs/adr/0019-approval-sidecar-protection.md:70-77,96-103` states its own
+claim in exactly two tiers: "hook layer + deterministic validator"
+prevents misoperation and simple self-approval (a footgun guard), while
+"adversarial-agent resistance comes from the protected file, the
+external-key HMAC, branch protection/CODEOWNERS, and human review as the
+external boundary" — explicitly declining to claim an unconditional
+"defended across all three runtimes" guarantee.
+`plugins/sdd-quality-loop/references/deterministic-check-policy.md:62-67`
+separately confirms `high`/`critical` tier's own evidence-bundle
+provenance and HMAC-signature requirements are the mechanism that scope
+references. This feature's AC-035/AC-055 producer-digest and
+required-check-set claims are deliberately scoped to the same two tiers,
+not a broader unconditional reachability guarantee — correcting an
+earlier draft's unqualified reachability language (Problems; formerly a
+NOT_RESOLVED verification finding).
+
+## INV-021: Epic A1's `contracts/project-context.template.yaml` does not exist yet, but is the assigned single source of the default cross-cutting seed inventory
+
+`find . -iname "*project-context*" -not -path "./.git/*"` (INV-002)
+confirms no `project-context.yaml`, schema, or template artifact exists in
+this repository yet. Per the orchestrator's separate cross-epic
+instruction to Epic A1, `contracts/project-context.template.yaml`'s
+`shared_paths` section is assigned as the sole canonical source of the
+default cross-cutting seed list (`specs/**`, `reports/**`, `docs/**`,
+`.github/**`, `tests/fixtures/**`, `CHANGELOG.md`) — this feature (A3)
+does not author a competing or duplicate list (REQ-006, Dependencies);
+REQ-007's day-one integration fixture is written to read that artifact
+directly once it lands, and to FAIL closed (never skip) against a
+documented stand-in shape before then, mirroring the same discipline
+AC-011's schema-conformance fixture already established for Epic A1's
+`project-context.yaml` schema itself.
+
 ## Summary of Evidence References
 
 | Finding | File | Lines |
@@ -393,3 +455,7 @@ Epic A4's Facet Manifest to exist as an artifact, not merely a shape).
 | INV-015 generator exact-match forces edit + epic-136 already staged it | `plugins/sdd-quality-loop/scripts/generate-guard-invariants.py`; `specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256` | 37-88, 129-147, 271-291; generate-guard-invariants.py line |
 | INV-016 ADR-0016 axis derivation, not file presence | `docs/adr/0016-workflow-axes-separation.md` | 17-26, 30-39, 56-75, 90-93 |
 | INV-017 protected required-check-set closes SKILL.md reachability gap | `plugins/sdd-quality-loop/references/risk-gate-matrix.md`; `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` | 80-92, 9-11; 30-75 |
+| INV-018 check-contract has no capability-state axis | `plugins/sdd-quality-loop/scripts/check-contract.py` | 37-42, 127-157 |
+| INV-019 emit-run-record schema-tagging convention | `plugins/sdd-quality-loop/scripts/emit-run-record.sh` | 19-21, 247, 285 |
+| INV-020 ADR-0019 two-tier defense-claim scope precedent | `docs/adr/0019-approval-sidecar-protection.md`; `plugins/sdd-quality-loop/references/deterministic-check-policy.md` | 70-77, 96-103; 62-67 |
+| INV-021 no project-context template yet; A1-assigned single seed source | `find . -iname "*project-context*"` | N/A (no match, per INV-002) |

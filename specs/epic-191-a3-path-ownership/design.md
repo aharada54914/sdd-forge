@@ -14,21 +14,33 @@ Six deliverables land in dependency order: a component path resolver
 configuration shaped per decision-document v2 §12; a git-diff collector
 (T-002) that wraps the resolver with the real baseline/NUL-framing/rename/
 submodule-symlink/single-writer rules §12's "v2 新設" section fixes; an
-`ownership_digest` emitter (T-003) that binds *every* evaluated
-component/shared-path entry (matched or not) and depends on Epic A1's
-canonicalizer; the Reverse Coverage Gate `check-component-coverage`
-(T-004) that wires the resolver+diff collector into `quality-gate`'s
-Implementation Gate, derives its own applicability from
+`ownership_digest` emitter (T-003) that binds the *entire* declared
+ownership input (every component's paths, every `shared_paths` entry,
+unconditionally — not a per-resolve-scoped subset, since per-path
+classification is a function of every declared entry simultaneously) and
+depends on Epic A1's canonicalizer; the Reverse Coverage Gate
+`check-component-coverage` (T-004) that wires the resolver+diff collector
+into `quality-gate`'s Implementation Gate, derives one of three states
+(`disabled-legacy`/`advisory`/`required`) from
 `workflow.capability_enforcement`/`disabled-legacy` (ADR-0016) rather than
-Facet Manifest file presence, and is registered both as a protected script
-(content) and as a protected required-check-set member (reachability); a
-cross-cutting path pre-registration reference doc (T-005) that Epic A1's
-bootstrap flow is expected to consume, now backed by a fixture/integration
-proof; and a dual-runtime parity harness (T-006) that proves the `sh`/`ps1`
-twins are behaviorally, not just nominally, identical. These T-00N labels
-are a forward-looking plan for this feature's Phase 2 task decomposition
-(not yet authored — see requirements.md Dependencies, investigation.md
-INV-012); they organize this design document only.
+Facet Manifest file presence — always running, always emitting a real,
+producer-digest-bound evidence record regardless of state (NEW-001) — and
+is registered both as a protected script (content) and as a protected
+required-check-set member whose evidence is producer-digest-verified
+(reachability + tamper-evidence); a cross-epic seed-inventory validation
+(T-005) that treats Epic A1's `contracts/project-context.template.yaml`
+as the single canonical source of the default cross-cutting seed list
+(a cross-epic instruction already assigned to Epic A1 by the
+orchestrator; A3 authors no competing list of its own) and proves that
+inventory both matches exactly and is effective via a fixture/integration
+test reading that template directly; and a dual-runtime parity harness
+(T-006) that feeds
+identical fixture+argv directly to the two product wrapper pairs
+(`resolve-component-paths.{sh,ps1}`, `check-component-coverage.{sh,ps1}`)
+and proves them behaviorally, not just nominally, identical. These T-00N
+labels are a forward-looking plan for this feature's Phase 2 task
+decomposition (not yet authored — see requirements.md Dependencies,
+investigation.md INV-012); they organize this design document only.
 
 The guiding principle is the same one `docs/ai-dlc-foundation-decision-v2.md`
 already applies elsewhere in Foundation: no security property is asserted
@@ -61,37 +73,60 @@ git-diff collector (T-002, invoked by the .sh/.ps1 wrappers)
    ├─ rename-follow (pinned threshold/limit, old + new independently classified)
    ├─ submodule/symlink → reference-only evaluation (4-case contract)
    └─ single-writer snapshot check (HEAD/index/worktree fingerprint, retry-once)
-        │  resolver's own affected_components list + full ownership fragment
+        │  resolver's own affected_components list + full ownership input
         ▼
-ownership_digest emitter (T-003; binds every evaluated component/shared
-   entry — matched or not — + matcher semantics version; calls Epic A1
-   canonicalizer — not reimplemented; BLOCKED until that utility exists)
-        │  ownership_digest (ADR-0021 context_binding field)
+ownership_digest emitter (T-003; binds the ENTIRE declared ownership
+   input — every component's paths + every shared_paths entry,
+   unconditionally, never a per-resolve-scoped subset — + matcher
+   semantics version; calls Epic A1 canonicalizer — not reimplemented;
+   BLOCKED until that utility exists)
+        │  ownership_digest (ADR-0021 context_binding field; identical for
+        │  every Feature sharing a config — selectivity moves entirely to
+        │  ADR-0021's downstream semantic-output comparison)
         ▼
-check-component-coverage (T-004, stage: implementation)
-   ├─ reads workflow.capability_enforcement/disabled-legacy (ADR-0016)
-   │    ├─ disabled-legacy  → NOT invoked (no verdict emitted at all)
-   │    └─ capability-active → invoked, Facet Manifest REQUIRED
-   │         ├─ manifest present  → full Fail-1..Fail-6 evaluation
-   │         └─ manifest missing/unreadable → HARD ERROR (distinct exit)
-   └─ registered in check-contract's protected required-check-set
-        (reachability, independent of the SKILL.md text below)
+check-component-coverage (T-004, stage: implementation; ALWAYS RUNS)
+   ├─ reads workflow.capability_enforcement/disabled-legacy (ADR-0016) to
+   │    derive one of three states (NEW-001: state-aware, not a static
+   │    required-check-set assumption):
+   │    ├─ disabled-legacy → zero ownership evaluation; emits a real,
+   │    │     producer-digest-bound evidence record, state:
+   │    │     "not-applicable (disabled-legacy)"; exit 0
+   │    ├─ advisory → Facet Manifest REQUIRED; full Fail-1..Fail-6
+   │    │     evaluation + evidence; ALWAYS exit 0 (non-blocking)
+   │    └─ required → identical evaluation to advisory; exit non-zero iff
+   │          a Fail condition triggers (blocking)
+   │    (both advisory/required: manifest missing/unreadable → HARD ERROR,
+   │    distinct exit code, in either state)
+   └─ registered in check-contract's protected required-check-set, which
+        ALSO verifies the evidence's producer.sha256 against the live
+        check-component-coverage.py (reachability + tamper-evidence,
+        independent of the SKILL.md text below)
         │
         ▼
 quality-gate ## Process (documents the new check; unprotected edit, INV-005)
-   + check-contract required-check-set entry (protected, INV-017)
+   + check-contract required-check-set entry + producer-digest pass
+     (protected, INV-017, NEW-001)
 
 resolve-component-paths --diagnose (T-004, independent of the Gate above):
    Fail-1/3/5/6(cond.)-only diagnostics, any time, never Gate-blocking.
 
-(T-005, independent of the pipeline above): reference doc enumerating the
-default cross-cutting shared_paths seed list (contracts/** excluded — it
-stays bounded shared), for Epic A1's bootstrap flow — backed by a
-fixture/integration proof (REQ-007) that the seed list is effective.
+(T-005, independent of the pipeline above): NO new reference document —
+Epic A1's contracts/project-context.template.yaml shared_paths section IS
+the sole canonical default cross-cutting seed list (specs/**, reports/**,
+docs/**, .github/**, tests/fixtures/**, CHANGELOG.md; contracts/**
+excluded — stays bounded shared), embedded there per a cross-epic
+instruction already assigned to Epic A1 by the orchestrator; A3's only
+artifact is a fixture/integration test (REQ-007, AC-042, AC-044) that
+reads that template directly and proves the inventory matches exactly and
+is effective.
 
 (T-006, independent of the pipeline above): dual-runtime parity harness —
-feeds identical fixture+argv to every sh/ps1 twin, compares normalized
-stdout JSON / exit code / WARN category / argv pass-through directly.
+feeds identical fixture+argv DIRECTLY to the two product wrapper pairs
+(resolve-component-paths.{sh,ps1}, check-component-coverage.{sh,ps1}; T-002/
+T-003 are internal stages of the former, not separate wrapper pairs),
+compares canonical normalized stdout JSON / exit code / WARN category /
+argv pass-through (incl. $LASTEXITCODE) directly between the two runtimes
+of each wrapper — never a suite-twin-to-suite-twin comparison.
 ```
 
 ## Components
@@ -101,21 +136,21 @@ stdout JSON / exit code / WARN category / argv pass-through directly.
 | `resolve-component-paths.py` | glob compiler (incl. zero-segment, unsupported-meta rejection, NFC+raw-identity), include/exclude/shared classification, `EXCLUDED_MATCH` evidence, NUL-framed diff collector, rename/submodule/symlink/single-writer contract | Python | new | no |
 | `resolve-component-paths.sh` / `.ps1` | thin wrappers invoking the Python master (INV-008 convention) | Bash / PowerShell | new | no |
 | `resolve-component-paths --diagnose` (same script, distinct subcommand/flag) | resolver-only diagnostics (Fail-1/3/5/6-cond.), never invoked by quality-gate, never Gate-blocking | Python (same wrappers) | new | no |
-| `check-component-coverage.py` | Reverse Coverage Gate: reads `workflow.capability_enforcement`/`disabled-legacy`; not-invoked / full-mode-only-when-active-and-manifest-present / hard-error-when-active-and-manifest-missing; Fail-1..Fail-6 | Python | new | **yes, once registered (T-004)** |
+| `check-component-coverage.py` | Reverse Coverage Gate: reads `workflow.capability_enforcement`/`disabled-legacy` to derive `disabled-legacy` (zero evaluation, real N/A evidence) / `advisory` (full evaluation, evidence recorded, always exit 0) / `required` (full evaluation, blocking exit); every emitted evidence record carries an `emit-run-record`-conformant `producer.sha256` (NEW-001) | Python | new | **yes, once registered (T-004)** |
 | `check-component-coverage.sh` / `.ps1` | thin wrappers | Bash / PowerShell | new | **yes, once registered (T-004)** |
 | `plugins/sdd-quality-loop/references/guard-invariants.json` | gains **three** new `PROTECTED_GATE_SUFFIXES` entries (the three coverage-gate files — not four, corrected) | JSON | existing, human-applied | **yes (pre-existing)** |
 | `plugins/sdd-quality-loop/scripts/generate-guard-invariants.py` | **edited** — its own fixed `PHASE2_TARGETS` tuple gains the identical three entries; without this edit its `load_and_validate()` exact-match check rejects the edited `guard-invariants.json` before `--check` ever runs (INV-015) | Python | existing, **edited**, human-applied (corrects this feature's own earlier "unchanged, read-only" mischaracterization) | **yes (pre-existing)** |
 | `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py` + 3 generated siblings | regenerated output reflecting the new protected entries; parity with the edited generator + JSON verified via `--check` against the staged tree | generated Python/JS/PS1/sh | existing, human-applied | **yes (pre-existing)** |
 | `plugins/sdd-quality-loop/references/risk-gate-matrix.md` | gains `check-component-coverage` as a required contract-check id at `high`/`critical` tier (reachability, INV-017) | Markdown | existing, edited (unprotected, direct edit) | no |
-| `plugins/sdd-quality-loop/scripts/check-contract.{sh,ps1,py}` | protected hardcoded tier-minimum set gains `check-component-coverage` at `high`/`critical`, kept equal to `risk-gate-matrix.md`'s text per `tests/gates.tests.sh` T-003's existing invariant | Bash/PowerShell/Python | existing, edited, human-applied | **yes (pre-existing)** |
+| `plugins/sdd-quality-loop/scripts/check-contract.{sh,ps1,py}` | protected hardcoded tier-minimum set gains `check-component-coverage` at `high`/`critical`, kept equal to `risk-gate-matrix.md`'s text per `tests/gates.tests.sh` T-003's existing invariant; **additionally gains a producer-digest verification pass** that recomputes `check-component-coverage.py`'s live sha256 and rejects a `passes:true` evidence entry whose `producer.sha256` does not match (NEW-001; two-tier defense scope, ADR-0019) | Bash/PowerShell/Python | existing, edited, human-applied | **yes (pre-existing)** |
 | `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` | `## Process` gains a documented `check-component-coverage` step (defense-in-depth; the required-check-set registration above is the actual reachability guarantee) | Markdown (skill) | existing, edited | no (verified, INV-005) |
-| `plugins/sdd-quality-loop/references/default-shared-paths.md` | default cross-cutting `shared_paths` seed list (excludes `contracts/**`) for Epic A1's bootstrap flow | Markdown | new | no |
-| `tests/fixtures/component-path-ownership/` | monorepo fixture: ≥2 components, overlapping candidate paths, nested excluded subtree, bounded `contracts/**`-shaped `shared_paths` entry, 4 submodule/symlink fixtures, NFC-collision fixture, one fixture per glob clause id | fixture tree | new | no |
+| ~~`plugins/sdd-quality-loop/references/default-shared-paths.md`~~ | **withdrawn** — the default cross-cutting seed list's sole canonical source is Epic A1's own `contracts/project-context.template.yaml`; A3 authors no competing reference document (REQ-006, Dependencies) | N/A | **removed from scope** | n/a |
+| `tests/fixtures/component-path-ownership/` | monorepo fixture: ≥2 components, overlapping candidate paths, nested excluded subtree, bounded `contracts/**`-shaped `shared_paths` entry, 4 submodule/symlink fixtures, NFC-collision fixture, one fixture per glob clause id, a day-one cross-epic fixture reading (or standing in for) Epic A1's `contracts/project-context.template.yaml` | fixture tree | new | no |
 | `tests/component-path-resolver.tests.sh` / `.ps1` | glob-semantics (incl. clause ids), overlap, unowned, exclude-misuse + `EXCLUDED_MATCH` evidence, NFC-collision cases | Bash / PowerShell | new | no |
 | `tests/component-path-diff-basis.tests.sh` / `.ps1` | baseline/rev-resolution, NUL-framing, rename contract, 4 submodule/symlink cases, single-writer/TOCTOU cases | Bash / PowerShell | new | no |
-| `tests/check-component-coverage.tests.sh` / `.ps1` | applicability derivation (disabled-legacy no-op, manifest-required hard error), full-mode Fail-1..6, Fail-2/4 mutual-exclusivity, Fail-5 Gate-level reachability, Fail-6 adapter_paths, reachability (required-check-set) proof, protected-registration proof | Bash / PowerShell | new | no |
-| `tests/ownership-digest.tests.sh` / `.ps1` | full consumed-input digest binding, non-match stale regression, selective-stale positive/negative matrix incl. semantic-output comparison | Bash / PowerShell | new | no |
-| `tests/component-path-ownership-parity.tests.sh` / `.ps1` | dual-runtime parity harness across all four suites above | Bash / PowerShell | new | no |
+| `tests/check-component-coverage.tests.sh` / `.ps1` | applicability derivation (`disabled-legacy` truthful non-evaluation, manifest-required hard error), full evaluation identical across `advisory`/`required` (only exit code/blocking differs), Fail-2/4 mutual-exclusivity, Fail-5 Gate-level reachability, Fail-6 adapter_paths, reachability (required-check-set) + producer-digest verification proof, protected-registration proof | Bash / PowerShell | new | no |
+| `tests/ownership-digest.tests.sh` / `.ps1` | full ownership-input digest binding (unconditional, not a per-resolve-scoped subset), non-match stale regression, selective-stale positive/negative matrix incl. semantic-output comparison | Bash / PowerShell | new | no |
+| `tests/component-path-ownership-parity.tests.sh` / `.ps1` | dual-runtime parity harness feeding identical fixture+argv DIRECTLY to the two product wrapper pairs (`resolve-component-paths.{sh,ps1}`, `check-component-coverage.{sh,ps1}`), diffing canonical normalized stdout JSON / exit code / WARN category / argv pass-through (incl. `$LASTEXITCODE`) — not a suite-twin comparison | Bash / PowerShell | new | no |
 | `tests/run-all.sh` / `.ps1` | suite registration for the five new suites | Bash / PowerShell | existing, edited | no (verified) |
 | `.github/workflows/test.yml` | CI step registration for the five new suites | YAML | existing, human-applied via staged candidate + `MANIFEST.sha256` | **yes** (INV-010) |
 | `docs/adr/0025-component-path-ownership-resolver-semantics.md` (provisional number, re-verified at drafting time) | records glob semantics, precedence rules, six Fail-condition definitions, applicability-derivation decision, reachability-registration decision | Markdown (ADR) | new | no |
@@ -167,7 +202,22 @@ conflated:
    by itself, stop an agent from deleting or renaming the unprotected
    `quality-gate/SKILL.md` line that invokes it (INV-017) — registering
    `check-component-coverage` as a required contract-check id closes that
-   gap independently of SKILL.md's own text.
+   gap independently of SKILL.md's own text. The **same** staged edit
+   additionally adds a producer-digest verification pass to
+   `check-contract.{sh,ps1,py}` (NEW-001; formerly a NOT_RESOLVED
+   verification finding): it independently recomputes
+   `check-component-coverage.py`'s live sha256 and rejects a `passes:true`
+   evidence entry whose recorded `producer.sha256` field does not match —
+   no additional protected file is introduced by this, only an additional
+   validation pass inside the same three-file edit already staged here.
+   Per the two-tier defense-claim scope this mirrors
+   (`docs/adr/0019-approval-sidecar-protection.md:70-77,96-103`), this
+   closes footgun/tamper-evidence exposure (an unprotected caller replaced
+   and paired with a fabricated same-id `passes:true` evidence entry), not
+   an unconditional adversarial-agent-proof reachability guarantee — that
+   additionally depends on the protected files, the `high`/`critical`
+   HMAC-signed evidence bundle, branch protection/CODEOWNERS, and human
+   review as the external boundary.
 
 3. **New files this feature creates that BECOME protected as a design
    decision, not a pre-existing fact**: `check-component-coverage.{sh,ps1,py}`
@@ -181,7 +231,7 @@ conflated:
    way, never written directly.
 
 No other file this feature creates or edits (`resolve-component-paths.*`,
-its test suites, the fixture tree, `default-shared-paths.md`,
+its test suites, the fixture tree,
 `risk-gate-matrix.md`, the new ADR, `CHANGELOG.md`) appears in
 `PROTECTED_GATE_SUFFIXES` or `PROTECTED_GATE_PLUGIN_JSON_SUFFIXES`, and
 each is agent-editable directly — `risk-gate-matrix.md` is unprotected
@@ -230,15 +280,15 @@ N/A — `ds_profile: none`. No UI application, no mockup, no visualization.
 | requirements.md | design.md | glob compiler semantics (`**`/`*`/zero-segment/unsupported-meta, NFC + raw identity, separator, case, empty-set clauses, NFC collision) | REQ-001 | AC-001..011 |
 | requirements.md | design.md | shared/exclusive/overlap/unowned classification + exclude-misuse invariant + `EXCLUDED_MATCH` evidence | REQ-002 | AC-012..018 |
 | requirements.md | design.md | git-diff basis (rev-resolution, merge-base, NUL framing, rename contract, submodule/symlink 4-case, single-writer/TOCTOU) | REQ-003 | AC-019..025 |
-| requirements.md | design.md | Reverse Coverage Gate: capability-derived applicability, Fail-1..6 (incl. mutual-exclusivity, Gate-level Fail-5, Fail-6 adapter_paths), reachability + protected-suffix registration | REQ-004 | AC-026..036 |
-| requirements.md | design.md | `ownership_digest` full-input binding, ADR-0021 binding, selective-stale matrix, suite wiring | REQ-005 | AC-037..041 |
-| requirements.md | design.md | cross-cutting pre-registration reference doc + bootstrap integration proof + `contracts/**` exclusion | REQ-006 | AC-042..044 |
+| requirements.md | design.md | Reverse Coverage Gate: 3-state (`disabled-legacy`/`advisory`/`required`) derived applicability, Fail-1..6 (incl. mutual-exclusivity, Gate-level Fail-5, Fail-6 adapter_paths), reachability + protected-suffix registration + evidence producer binding | REQ-004 | AC-026..036, AC-052..055 |
+| requirements.md | design.md | `ownership_digest` full-input (unconditional, not per-resolve-scoped) binding, ADR-0021 binding, selective-stale matrix, suite wiring | REQ-005 | AC-037..041 |
+| requirements.md | design.md | cross-epic seed-inventory single-source-of-truth (Epic A1's `contracts/project-context.template.yaml`, no A3-authored competing list) + inventory-conformance and day-one integration proof + `contracts/**` exclusion | REQ-006 | AC-042..044 |
 | requirements.md | design.md | monorepo fixture + sh/ps1 suites (incl. contracts bounded-shared, submodule/symlink, NFC-collision, glob-clause fixtures) | REQ-007 | AC-045..047 |
 | requirements.md | design.md | ADR authorship, CHANGELOG, version-bump discipline, single-source count discipline | REQ-008 | AC-048..049 |
-| requirements.md | design.md | dual-runtime parity harness + its own CI registration | REQ-009 | AC-050..051 |
+| requirements.md | design.md | dual-runtime parity harness (product-wrapper-direct comparison) + its own CI registration | REQ-009 | AC-050..051 |
 | requirements.md | ADR-0021 | `ownership_digest` context_binding shape + semantic-output exclusion + full-input binding | REQ-005 | AC-037, AC-038 |
 | requirements.md | ADR-0017 | Gate stage classification (`stage: implementation`) | REQ-004 | AC-030 |
-| requirements.md | ADR-0016 | applicability derivation from `capability_enforcement`/`disabled-legacy`, never file presence | REQ-004 | AC-026, AC-027, AC-028, AC-029 |
+| requirements.md | ADR-0016 | 3-state derivation (`disabled-legacy`/`advisory`/`required`) from `capability_enforcement`, never file presence | REQ-004 | AC-026, AC-027, AC-028, AC-029, AC-052, AC-053 |
 
 ## ADR Change Log
 
@@ -257,20 +307,30 @@ Fail-condition definitions (Fail-1 through Fail-6), including the Fail-2/
 Fail-4 mutual-exclusivity fix, Fail-5's `EXCLUDED_MATCH`-driven Gate-level
 reachability, and Fail-6's `adapter_paths` rule, as this feature's
 authoritative, unambiguous formalization of decision-document v2 §12's
-one-line list; (d) `check-component-coverage`'s applicability derivation
-from `workflow.capability_enforcement`/`disabled-legacy` (ADR-0016) instead
-of Facet Manifest file presence, and why the earlier file-presence-driven
-design was rejected; (e) the decision to register
-`check-component-coverage.{sh,ps1,py}` as a new protected-gate-suffix
-entry *and* as a required contract-check id in `check-contract`'s
+one-line list; (d) `check-component-coverage`'s three-state applicability
+derivation (`disabled-legacy`/`advisory`/`required`) from
+`workflow.capability_enforcement`/`disabled-legacy` (ADR-0016) instead of
+Facet Manifest file presence, why the earlier file-presence-driven design
+was rejected, and why an earlier two-bucket ("capability-active" merging
+`advisory` and `required`) draft was also rejected as silently promoting
+`advisory` to `required`'s blocking strength (NEW-001); (e) the decision to
+register `check-component-coverage.{sh,ps1,py}` as a new protected-gate-
+suffix entry *and* as a required contract-check id in `check-contract`'s
 protected tier-minimum set (two independent registrations, one for
-content, one for reachability). No existing ADR currently states any of
-these — ADR-0021 fixes `ownership_digest`'s *binding* shape (which this ADR
-references, not restates) but not the resolver's own matching algorithm;
-ADR-0017 fixes the Gate *stage* model (`stage: implementation`, referenced
-not restated) but not this Gate's specific Fail conditions; ADR-0016 fixes
-the *axis* model (referenced, not restated) but not this Gate's own
-consumption of it.
+content, one for reachability); (f) the evidence producer-binding decision
+(NEW-001, formerly a NOT_RESOLVED verification finding): every
+`check-component-coverage` evidence record, in any state, is an
+`emit-run-record`-conformant record carrying a `producer.sha256`
+`check-contract` independently verifies against the live script, and why
+this is scoped as footgun-prevention/tamper-evidence rather than an
+unconditional adversarial-agent-proof reachability claim (two-tier defense
+scope, ADR-0019). No existing ADR currently states any of these — ADR-0021
+fixes `ownership_digest`'s *binding* shape (which this ADR references, not
+restates) but not the resolver's own matching algorithm; ADR-0017 fixes
+the Gate *stage* model (`stage: implementation`, referenced not restated)
+but not this Gate's specific Fail conditions; ADR-0016 fixes the *axis*
+model (referenced, not restated) but not this Gate's own three-state
+consumption of it, nor the evidence producer-binding mechanism.
 
 **Drafting ownership**: authored as part of the Phase 2 task that
 implements T-001 (the resolver's matching algorithm is the change this ADR
@@ -297,23 +357,38 @@ Data Entities:
   bytes (stable, deterministic even under an NFC-collision, AC-010); plus
   a top-level `affected_components: string[]` (the union of all EXCLUSIVE
   owners and all bounded-`shared_paths` declared components actually
-  touched) and `ownership_fragment` (**every** component/`shared_paths`
-  entry actually evaluated for this resolve, matched or not, plus the
-  matcher semantics/rule-set version — input to `ownership_digest`,
-  REQ-005).
+  touched) and `ownership_input` (**every** component's `paths` entries and
+  **every** `shared_paths` entry declared in the config, unconditionally —
+  not a per-resolve-scoped subset of what this particular diff touched —
+  plus the matcher semantics/rule-set version; input to `ownership_digest`,
+  REQ-005; identical across every resolve against the same config).
 - `ownership_digest` (new, ADR-0021 `context_binding` field, T-003):
-  `sha256:...`, computed over the canonicalized, *full* `ownership_fragment`
-  (matched and non-matched entries alike) via Epic A1's canonicalizer.
-- Gate verdict (new, `check-component-coverage`'s own output, consumed by
-  `quality-gate`'s evidence bundle): when invoked (capability-active
-  state), `{mode: "active", manifest_status: "present"|"missing"|
+  `sha256:...`, computed over the canonicalized, *complete*
+  `ownership_input` (every declared entry, matched or not, for this or any
+  other resolve against the same config) via Epic A1's canonicalizer —
+  identical for every Feature sharing a config, changing only when the
+  config's ownership section (or the matcher semantics version) itself
+  changes.
+- Gate verdict / evidence record (new, `check-component-coverage`'s own
+  output, consumed by `quality-gate`'s evidence bundle; emitted in **every**
+  derived state, NEW-001): `{schema: "check-component-coverage-verdict/v1",
+  check_id: "check-component-coverage", producer: {script:
+  "plugins/sdd-quality-loop/scripts/check-component-coverage.py", sha256:
+  "<hex>"}, state: "not-applicable (disabled-legacy)"|"advisory"|
+  "required", manifest_status: "not-consulted"|"present"|"missing"|
   "unreadable", fail_conditions: [{id: "Fail-1".."Fail-6", triggered: bool,
-  detail}], warnings: string[]}`; when `manifest_status != "present"`,
-  `fail_conditions` is empty/absent and a top-level `error` field carries
-  the hard-error diagnostic instead (distinct exit code from an ordinary
-  Fail-condition trigger). No verdict object is emitted at all in the
-  `disabled-legacy` state — the script exits 0 with a logged skip line
-  before ever constructing a verdict.
+  detail}], warnings: string[]}`. In `disabled-legacy`,
+  `manifest_status: "not-consulted"` and `fail_conditions: []` — a real,
+  truthful record of a genuine no-op execution, not an absent object and
+  not a fabricated pass. In `advisory`/`required` with
+  `manifest_status != "present"`, `fail_conditions` is empty/absent and a
+  top-level `error` field carries the hard-error diagnostic instead
+  (distinct exit code from an ordinary Fail-condition trigger). In
+  `advisory`, exit is always 0 regardless of `fail_conditions`; in
+  `required`, exit is non-zero iff any `fail_conditions[].triggered` is
+  true. The `producer.sha256` field is what `check-contract`'s producer-
+  digest verification pass (Dependencies, AC-055) independently
+  recomputes and compares against the live `check-component-coverage.py`.
 - `specs/epic-191-a3-path-ownership/human-copy/` (new, committed as a
   review artifact — never deleted by any test): staged corrected
   `guard-invariants.json`, `generate-guard-invariants.py`, the four
@@ -355,23 +430,33 @@ Implementation Gate meaning.
 
 Invocation shape: `check-component-coverage --config <project-context.yaml>
 [--source-rev HEAD] --target-rev main --facet-manifest <path>`. The script
-first reads `workflow.capability_enforcement`/the ADR-0016 file-absence
-fallback from `--config`:
+**always runs to completion and always emits an evidence record** (Data
+Plan) with a `producer.sha256` binding — never a bare skip line with no
+evidence artifact (NEW-001). It first reads
+`workflow.capability_enforcement`/the ADR-0016 file-absence fallback from
+`--config` to derive one of three states:
 
-- `disabled-legacy` → exit 0 immediately with a logged skip line; no
-  Fail-condition evaluation occurs; `--facet-manifest` is not consulted at
-  all in this state (accepted but ignored, never validated for
-  existence).
-- capability-active → `--facet-manifest` is structurally required (its
-  absence from the invocation is a usage error, distinct from the
+- `disabled-legacy` → zero ownership Fail-condition evaluation;
+  `--facet-manifest` is not consulted at all in this state (accepted but
+  ignored, never validated for existence); emits the evidence record with
+  `state: "not-applicable (disabled-legacy)"`, `manifest_status:
+  "not-consulted"`, `fail_conditions: []`; exit 0.
+- `advisory` → `--facet-manifest` is structurally required (its absence
+  from the invocation is a usage error, distinct from the
   manifest-unreadable case below); when the supplied path is missing or
   unreadable, exit with a **hard-error** code (distinct from an ordinary
   Fail-condition exit) and an `error` diagnostic (Data Plan) — never a
   WARN + exit 0. When present and readable, all six Fail conditions are
-  evaluated and exit code is non-zero iff at least one triggers;
-  WARN-only conditions (N/A Fail-6 with no Provider Bindings file; WARN
-  "evaluation not possible" Fail-6 when a binding lacks `adapter_paths`)
-  never affect exit code by themselves.
+  evaluated and recorded in the evidence output, but exit is **always 0**
+  regardless of any `fail_conditions[].triggered` value — evaluated and
+  recorded, never blocking.
+- `required` → identical Facet-Manifest-required/hard-error behavior and
+  full six-Fail-condition evaluation as `advisory`, but exit is non-zero
+  **iff** at least one Fail condition triggers.
+
+In both `advisory` and `required`, WARN-only conditions (N/A Fail-6 with
+no Provider Bindings file; WARN "evaluation not possible" Fail-6 when a
+binding lacks `adapter_paths`) never affect exit code by themselves.
 
 ### `plugins/sdd-quality-loop/references/guard-invariants.json` (human-applied)
 
@@ -398,7 +483,16 @@ superset rule) tier set, alongside `requirement-traceability`. The
 identical id is added to `check-contract`'s own hardcoded machine-form
 set, kept equal per `tests/gates.tests.sh` T-003's existing invariant. This
 registration is independent of, and does not replace, the
-`quality-gate/SKILL.md` `## Process` documentation edit.
+`quality-gate/SKILL.md` `## Process` documentation edit. **New in this
+feature (NEW-001, AC-054/AC-055)**: `check-contract`'s validation for the
+`check-component-coverage` check id is extended with a producer-digest
+pass — when that check's `passes:true`, `check-contract` reads its
+`evidence` path's JSON, requires a `producer.sha256` field, independently
+computes the live sha256 of `check-component-coverage.py`, and fails the
+contract if the two do not match (or if `producer` is absent). This is an
+addition to the same staged human-copy edit `check-contract.{sh,ps1,py}`
+already receives above — no new protected-file family, only a new
+validation pass within it.
 
 ## Test Strategy
 
@@ -409,12 +503,15 @@ against `tests/fixtures/component-path-ownership/`, deterministic, and
 requires no LLM invocation, no network call, and no `gh` invocation.
 
 - `component-path-resolver.tests.sh`/`.ps1`: glob semantics incl. every
-  clause id (AC-001..009), the NFC-collision + raw-identity/stable-sort
-  case (AC-010), the A1 schema-conformance fixture (AC-011),
-  exclusive/shared/overlap/unowned classification (AC-012, AC-015..017),
-  the exclude-misuse invariant and its `EXCLUDED_MATCH` evidence
-  (AC-013, AC-014), and the `shared_paths` config-shape fail-closed check
-  (AC-018).
+  clause id (AC-001..009, the shared zero-match clause AC-009 fixing no
+  Fail-4 trigger without implying any `ownership_digest` scope exemption),
+  the NFC-collision + raw-identity/stable-sort case (AC-010), the A1
+  schema-conformance fixture (AC-011, **FAIL-closed on schema absence** —
+  never a skip or conditional pass, so this suite fails deterministically
+  while Epic A1's schema is unlanded or divergent), exclusive/shared/
+  overlap/unowned classification (AC-012, AC-015..017), the exclude-misuse
+  invariant and its `EXCLUDED_MATCH` evidence (AC-013, AC-014), and the
+  `shared_paths` config-shape fail-closed check (AC-018).
 - `component-path-diff-basis.tests.sh`/`.ps1`: rev-resolution + merge-base
   baseline and its fail-closed unattainable case (AC-019), untracked+
   staged+unstaged collection without double counting (AC-020), NUL-safe
@@ -424,42 +521,72 @@ requires no LLM invocation, no network call, and no `gh` invocation.
   (AC-024), and the single-writer/TOCTOU retry-then-fail-closed case
   (AC-025).
 - `check-component-coverage.tests.sh`/`.ps1`: applicability derivation
-  (disabled-legacy no-op regardless of manifest-file presence, AC-026,
-  AC-027; manifest-required hard error, AC-028; resolver-only diagnostics
-  never Gate-invoked, AC-029), one dedicated fixture per Fail-1..Fail-6 in
-  the capability-active/manifest-present state (AC-030), the Fail-2/
-  Fail-4 mutual-exclusivity boundary fixture (AC-031), Fail-5's Gate-level
-  `EXCLUDED_MATCH`-driven reachability fixture (AC-032), Fail-6's
-  `adapter_paths` rule and its own N/A-when-absent case (AC-033, AC-034),
-  the reachability/required-check-set fixture (SKILL.md-deletion /
-  script-rename still fails the Gate, AC-035), and the protected-suffix +
-  generator-inventory registration proof (staged six-file candidate set
-  with a correct manifest; `generate-guard-invariants.py --check` exits 0
-  against the staged tree; the live files are byte-unchanged before/after;
-  a post-human-copy self-registration grep confirms the three
-  `check-component-coverage.*` entries are present) mirroring
-  `specs/epic-159-pillar-c/acceptance-tests.md`'s TEST-027 multi-part
-  shape (AC-036).
-- `ownership-digest.tests.sh`/`.ps1`: full consumed-input digest binding
-  incl. non-matching entries and the matcher-semantics-version component
-  (AC-037), presence in `context_binding` and semantic-output exclusion
-  (AC-038), the non-match stale regression (AC-039), and the full
-  selective-stale positive/negative matrix with semantic-output/
-  metadata-update verification (AC-040) — this suite's own registration
+  (`disabled-legacy` runs, evaluates nothing, and emits a real, truthful
+  `state: "not-applicable (disabled-legacy)"` evidence record regardless
+  of manifest-file presence, AC-026, AC-027; manifest-required hard error
+  in `advisory` or `required`, AC-028; resolver-only diagnostics never
+  Gate-invoked, AC-029), one dedicated fixture per Fail-1..Fail-6,
+  identically evaluated in both `advisory` and `required` (AC-030), the
+  Fail-2/Fail-4 mutual-exclusivity boundary fixture (AC-031), Fail-5's
+  Gate-level `EXCLUDED_MATCH`-driven reachability fixture (AC-032),
+  Fail-6's `adapter_paths` rule and its own N/A-when-absent case (AC-033,
+  AC-034), `advisory` non-blocking exit-0-despite-Fail-trigger (AC-052),
+  `required` blocking exit-non-zero-iff-Fail-trigger (AC-053), the
+  reachability/required-check-set fixture (SKILL.md-deletion /
+  script-rename still fails the Gate, AC-035, scoped to the two-tier
+  footgun/tamper-evidence claim, not unconditional adversarial-agent
+  reachability), the evidence producer-binding + `emit-run-record`
+  conformance fixture across all three states (AC-054), the
+  `check-contract` producer-digest verification fixture (a substituted
+  script + stale/unrelated evidence fails the contract, AC-055), and the
+  protected-suffix + generator-inventory registration proof (staged
+  six-file candidate set with a correct manifest;
+  `generate-guard-invariants.py --check` exits 0 against the staged tree;
+  the live files are byte-unchanged before/after; a post-human-copy
+  self-registration grep confirms the three `check-component-coverage.*`
+  entries are present) mirroring `specs/epic-159-pillar-c/acceptance-tests.md`'s
+  TEST-027 multi-part shape (AC-036).
+- `ownership-digest.tests.sh`/`.ps1`: full ownership-**input** digest
+  binding — the entire declared config, unconditionally, never a
+  per-resolve-scoped subset — incl. non-matching entries and the
+  matcher-semantics-version component (AC-037), presence in
+  `context_binding` and semantic-output exclusion (AC-038), the non-match
+  stale regression as a specific instance of the full-input guarantee
+  (AC-039), and the full selective-stale positive/negative matrix proving
+  selectivity now lives entirely in ADR-0021's semantic-output comparison,
+  never in the digest's own scope (AC-040) — this suite's own registration
   in `tests/run-all.sh`/`.ps1`, `.github/workflows/test.yml`, and this
   design document's own Components table is itself self-tested (AC-041),
   closing the gap where an earlier draft assigned TEST-021/022 to a suite
   pair this design never wired in.
 - `component-path-ownership-parity.tests.sh`/`.ps1`: feeds identical
-  fixture+argv to every other suite's `.sh`/`.ps1` twin and diffs
-  normalized stdout JSON, exit code, WARN/error category, and argv
-  pass-through directly (AC-050); its own registration is likewise
+  fixture+argv **directly to each product wrapper pair**
+  (`resolve-component-paths.{sh,ps1}`, `check-component-coverage.{sh,ps1}`
+  — the only two product wrapper pairs this feature ships) and diffs the
+  **canonical normalized stdout JSON** form (defined below), exit code,
+  WARN/error category, and argv pass-through (incl. `$LASTEXITCODE`)
+  directly between each wrapper's two runtimes — never a suite-twin-to-
+  suite-twin comparison (AC-050); its own registration is likewise
   verified (AC-051).
-- REQ-006's fixture (default cross-cutting entries never trip Fail-1,
-  AC-043, and the bootstrap-integration proof, AC-044) and REQ-007's
-  overall fixture-tree shape (AC-045, AC-046, AC-047), including the
-  `contracts/**` bounded-shared Fail-4 fixture (AC-046), are shared across
-  the suites above rather than owned by a sixth.
+
+**Canonical normalized stdout JSON form** (REQ-009, used by the parity
+harness only): parse each wrapper's stdout as JSON — a parse failure is
+itself a parity-harness failure — then re-serialize with object keys
+sorted lexicographically at every nesting level, arrays left in their
+original order (order is itself semantically meaningful, e.g. the
+resolver's raw-path stable sort, AC-010), numbers in canonical minimal
+form, and no trailing whitespace or newline; the two wrappers'
+re-serialized forms are then compared byte-for-byte. This single
+definition is what makes "byte-for-byte identical" unambiguous across
+both wrapper pairs.
+- REQ-006's fixtures — the cross-epic inventory-conformance fixture that
+  reads Epic A1's `contracts/project-context.template.yaml` directly and
+  asserts its six-entry cross-cutting set matches exactly (AC-042), the
+  no-op proof that a diff confined to those entries never trips Fail-1
+  (AC-043), and the day-one cross-epic integration proof (AC-044) — and
+  REQ-007's overall fixture-tree shape (AC-045, AC-046, AC-047), including
+  the `contracts/**` bounded-shared Fail-4 fixture (AC-046), are shared
+  across the suites above rather than owned by a sixth.
 
 CI resilience (mirroring `specs/epic-159-pillar-c/tasks.md` Global
 Constraints' own convention): no possibly-empty array expanded under
@@ -541,22 +668,36 @@ unconditionally; no suite drives a real validator gate directly.
   (Dependencies), not defined by this feature. A binding lacking
   `adapter_paths` is WARN "evaluation not possible," distinct from the
   file-absent N/A case, so the gap in evaluability is always visible.
-- **Capability-derived Gate applicability, not file-presence-derived
-  degraded mode** (REQ-004, ADR-0016): rejects an earlier draft's
-  degraded/resolver-only mode keyed off Facet Manifest file presence —
-  the exact anti-pattern ADR-0016 forbids (INV-016). Instead,
-  `check-component-coverage`'s own invocation is derived from
-  `workflow.capability_enforcement`/`disabled-legacy`: not invoked at all
-  in `disabled-legacy`; invoked and manifest-required (hard error if
-  missing/unreadable) when capability-active. The Fail-1/3/5/6-conditional
-  resolver-only checks are retained but repackaged as an independent,
-  non-Gate diagnostic command, never a Gate mode. This resolves the Epic
-  A4 forward dependency (INV-003) by construction: a project only sets
-  `capability_enforcement` active once the pipeline it depends on
-  (Facet Manifest generation, Epic A4/A5) is operational (epic sequencing,
-  §19), so the "Gate active but manifest genuinely unavailable" case is a
-  visible, intentional hard error, not a steady-state mode requiring a
-  silent WARN-and-continue design.
+- **Capability-derived, three-state Gate applicability — always running,
+  never file-presence-derived** (REQ-004, ADR-0016, NEW-001): rejects an
+  earlier draft's degraded/resolver-only mode keyed off Facet Manifest
+  file presence — the exact anti-pattern ADR-0016 forbids (INV-016) — and
+  a *later* draft's two-bucket "capability-active" model that merged
+  `advisory` and `required` into identical blocking behavior, silently
+  promoting `advisory` to `required`'s enforcement strength (NEW-001,
+  INV-018; contrary to ADR-0016's own "governs whether capability-specific
+  gates are advisory or required" distinction,
+  `docs/adr/0016-workflow-axes-separation.md:44-45`). Instead,
+  `check-component-coverage` **always runs to completion and always emits
+  a real, producer-digest-bound evidence record** (Data Plan), deriving
+  one of three states from `workflow.capability_enforcement`/
+  `disabled-legacy`: `disabled-legacy` (zero evaluation, a truthful
+  `state: "not-applicable (disabled-legacy)"` record, exit 0); `advisory`
+  (Facet Manifest required, hard error if missing/unreadable, full
+  six-Fail-condition evaluation and recording, but always exit 0 —
+  non-blocking); `required` (identical evaluation, exit non-zero iff a
+  Fail condition triggers — blocking). Always running and always emitting
+  evidence, rather than "not invoked at all" in `disabled-legacy`, is what
+  keeps `check-contract`'s required-check-set satisfiable with genuine,
+  non-fabricated evidence in every state (NEW-001). The Fail-1/3/5/6-
+  conditional resolver-only checks are retained but repackaged as an
+  independent, non-Gate diagnostic command, never a Gate mode. This
+  resolves the Epic A4 forward dependency (INV-003) by construction: a
+  project only sets `capability_enforcement` to `advisory` or `required`
+  once the pipeline it depends on (Facet Manifest generation, Epic A4/A5)
+  is operational (epic sequencing, §19), so the "evaluating but manifest
+  genuinely unavailable" case is a visible, intentional hard error, not a
+  steady-state mode requiring a silent WARN-and-continue design.
 - **Protected-gate-suffix registration + generator-inventory parity**
   (REQ-004, INV-006, INV-015): chosen by direct precedent
   (`check-contract.*`/`check-evidence-bundle.*`, INV-006) — a
@@ -593,17 +734,35 @@ unconditionally; no suite drives a real validator gate directly.
   way to catch a `.ps1`-only argument-handling or `$LASTEXITCODE` defect
   that each suite's own separately-authored assertions could miss.
 - **T-001/T-002 not hard-blocked on Epic A1 landing, but T-001's Done
-  state gains a conformance gate** (OQ-002, Dependencies): the resolver's
-  fixtures are authored against decision-document v2 §12's already-fixed
-  field shape, and implementation may proceed now (unblocked); T-001's own
-  **Done** state additionally requires the schema-conformance fixture
-  (requirements.md AC-011) to pass once Epic A1's schema lands — a middle
-  path between "fully blocked" and "reconciliation is a mere follow-up
-  with no enforcement," corrected from an earlier draft that left
-  divergence-reconciliation untracked by any actual test. T-003
-  (canonicalizer) and part of T-004 (Facet Manifest artifact, not merely
-  shape) remain hard-blocked on their respective epics landing as
-  artifacts.
+  state gains a FAIL-closed conformance gate** (OQ-002, Dependencies): the
+  resolver's fixtures are authored against decision-document v2 §12's
+  already-fixed field shape, and implementation may proceed now
+  (unblocked); T-001's own **Done** state additionally requires the
+  schema-conformance fixture (requirements.md AC-011), authored as part of
+  T-001's own test suite from the start, to FAIL deterministically — never
+  skip or conditionally pass — while Epic A1's schema is unlanded or
+  divergent, and only then to pass once it actually lands and matches — a
+  middle path between "fully blocked from starting implementation" and
+  "reconciliation is a mere follow-up with no enforcement," corrected from
+  an earlier draft whose conditional "once Epic A1's schema lands" phrasing
+  left the FAIL-on-absence behavior ambiguous and untracked by any actual
+  test. T-003 (canonicalizer) and part of T-004 (Facet Manifest artifact,
+  not merely shape) remain hard-blocked on their respective epics landing
+  as artifacts.
+- **Cross-cutting seed inventory: single canonical source, no A3-authored
+  copy** (REQ-006, new): an earlier draft had A3 author its own reference
+  document (`plugins/sdd-quality-loop/references/default-shared-paths.md`)
+  as the canonical seed list for Epic A1's template to embed — this
+  created two documents (A3's list, A1's embedded copy) that could
+  silently drift apart. This design instead treats Epic A1's shipped
+  `contracts/project-context.template.yaml` `shared_paths` section as the
+  **sole** canonical source (`specs/**`, `reports/**`, `docs/**`,
+  `.github/**`, `tests/fixtures/**`, `CHANGELOG.md`, all cross-cutting;
+  `docs/**` subsumes the narrower `docs/adr/**`); A3 authors no competing
+  list, and REQ-007's day-one fixture reads that template artifact
+  directly (or a documented stand-in before it lands) rather than a
+  fixture built from A3's own now-withdrawn document — closing the
+  divergence risk by construction rather than by a periodic manual sync.
 
 ## Global Constraints
 
@@ -640,6 +799,14 @@ smuggling sensitive file content into a report artifact. Suffix-protecting
 `check-component-coverage.*`'s content (situation 1, Protected-File
 Statement) and registering it as a required contract-check id (situation
 2) are two independent boundaries; neither alone is sufficient (INV-017).
+The producer-digest verification pass (NEW-001, situation 2, Data Plan)
+adds a third: it does not by itself make either boundary unconditionally
+adversarial-agent-proof (that additionally requires the external boundary
+— protected files, HMAC-signed evidence bundle, branch protection,
+human review, per the two-tier defense scope this mirrors from
+ADR-0019) — it closes the specific, narrower gap where a same-id
+`passes:true` evidence entry could point at any pre-existing file
+regardless of which script actually produced it.
 
 ## External Integrations
 
