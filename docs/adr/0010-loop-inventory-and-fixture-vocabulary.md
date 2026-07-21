@@ -2,8 +2,10 @@
 
 ## Status
 
-Proposed(人間承認待ち — epic #159 Pillar A の spec 承認と併行。Issue #141 /
-#125 の語彙契約に関わる決定)
+Accepted(人間決定 2026-07-22 — チャットセッションで人間メンテナが「ADR-0010 の
+Accepted 昇格可能である」と明示承認。epic-136-phase3 Stream C(#125)の唯一の
+ブロック解除条件。旧: Proposed、人間承認待ち — epic #159 Pillar A の spec 承認と
+併行。Issue #141 / #125 の語彙契約に関わる決定)
 
 ## Context
 
