@@ -455,13 +455,17 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   - **Fail-6** (Provider Adapter / Provider Binding drift): evaluated only
     when `sdd/provider-bindings.yaml` exists. A binding that declares the
     Dependencies-scoped `adapter_paths` field and whose glob (REQ-001
-    semantics) matches an EXCLUSIVE-owned changed path without the
-    corresponding binding facet/binding revision also present in the same
-    diff triggers Fail-6. A binding that exists but does not declare
-    `adapter_paths` records Fail-6 as WARN "evaluation not possible"
-    (evidence-logged) rather than silently passing. When
-    `sdd/provider-bindings.yaml` itself is absent, Fail-6 is recorded N/A
-    with a WARN.
+    semantics) matches an EXCLUSIVE-owned changed path triggers Fail-6 —
+    the `adapter_paths` glob match against the changed path is the sole
+    trigger condition; no additional per-binding "facet" or "revision"
+    field is defined by this feature or by Epic A1's Dependencies-scoped
+    schema addition (see Design Decisions "Fail-6 scope" in design.md). A
+    binding whose declared `adapter_paths` glob does not match any
+    EXCLUSIVE-owned changed path does not trigger Fail-6. A binding that
+    exists but does not declare `adapter_paths` records Fail-6 as WARN
+    "evaluation not possible" (evidence-logged) rather than silently
+    passing. When `sdd/provider-bindings.yaml` itself is absent, Fail-6 is
+    recorded N/A with a WARN.
   - **Resolver-only diagnostics are not a Gate mode.** The subset of
     checks that need only the resolver's own output (Fail-1/3/5/6-
     conditional) is retained, but repackaged as an independent, non-Gate
@@ -926,9 +930,11 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   mutation/invariant test.
 - AC-033 (REQ-004, Fail-6 adapter-path rule): a binding declaring
   `adapter_paths` whose glob matches an EXCLUSIVE-owned changed path
-  without the corresponding binding facet/revision also present in the
-  diff triggers Fail-6; a binding lacking `adapter_paths` records Fail-6
-  as WARN "evaluation not possible" (not N/A, not a silent pass).
+  triggers Fail-6 — the `adapter_paths` glob match is the sole trigger
+  condition; a binding whose declared `adapter_paths` glob does not match
+  any EXCLUSIVE-owned changed path does not trigger Fail-6. A binding
+  lacking `adapter_paths` records Fail-6 as WARN "evaluation not possible"
+  (not N/A, not a silent pass).
 - AC-034 (REQ-004): with no `sdd/provider-bindings.yaml` present, Fail-6 is
   recorded N/A with a WARN, never silently omitted without a trace.
 - AC-035 (REQ-004, reachability registration — two-tier defense scope):
