@@ -348,13 +348,11 @@ engine) field per binding entry in `sdd/provider-bindings.yaml` — a schema
 addition attributed to Epic A1 (this feature consumes it, does not define
 the file's schema, consistent with Non-goals) and tracked as a named,
 required Dependency rather than an indefinitely deferred follow-up. A
-binding that declares `adapter_paths` and whose glob matches an
-EXCLUSIVE-owned changed path (REQ-001 semantics) triggers Fail-6 — the
-`adapter_paths` glob match is itself the sole join condition; no
-additional per-binding "facet" or "revision" field is defined by this
-feature or by Epic A1's schema addition. A binding that exists but does
-not declare `adapter_paths` records Fail-6 as WARN "evaluation not
-possible" (not a silent pass) rather than N/A.
+binding that declares `adapter_paths` and whose glob matches a diff path
+without the corresponding binding facet/revision also present in the diff
+triggers Fail-6; a binding that exists but does not declare
+`adapter_paths` records Fail-6 as WARN "evaluation not possible" (not a
+silent pass) rather than N/A.
 
 ## OQ-002: Whether T-001/T-002 should hard-block on Epic A1 landing
 
