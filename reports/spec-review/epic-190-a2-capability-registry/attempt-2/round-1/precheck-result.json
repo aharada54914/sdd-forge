@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-190-a2-capability-registry",
+  "attempt": 2,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "704313265ee92a7eb81f842dc967ef9452ff52a34c3a8ff7b43f81a748d8be78",
+  "acceptance_sha256": "ce543ba950a65466f9c2a016929ee64e688d340612015f49361e41868418eeee",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "f4bdaa2f88e25b5ecea0009f09edcdb1c2e74f602e9870b6e572fbe0eddfafef",
+  "edit_summary": "",
+  "reset": true,
+  "generated_at": "2026-07-21T16:44:16Z"
+}
