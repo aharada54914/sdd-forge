@@ -31,8 +31,17 @@ This is a **spec-only** package: eleven requirements (REQ-001..REQ-011)
 covering schema, canonicalization, the approval sidecar, its validator and
 weakening detector, protected-file registration, hook-guard extension, the
 track-selection migration, the runtime handshake, and three-environment test
-coverage. No implementation code is produced by this package; `tasks.md`
-below is a Draft plan for a future implementation session.
+coverage. No implementation code is produced by this package. Per this
+repository's Phase model (`plugins/sdd-bootstrap/skills/bootstrap/SKILL.md:88-112`;
+`plugins/sdd-quality-loop/scripts/check-workflow-state.sh:681-682`;
+investigation.md INV-008), `tasks.md` and `traceability.md` are Phase 2
+outputs, generated only after `Impl-Review-Status: Passed` — this package
+does not include them. A Draft task decomposition was authored during this
+spec-authoring session and is preserved outside the repository (coordinator
+decision, 2026-07-22) for reintroduction once the Phase 1 review gates
+(`spec-review-loop`, `impl-review-loop`) actually pass against this
+package; REQ↔Test correspondence in the interim is carried by
+`acceptance-tests.md`'s own Requirement/Test-ID columns.
 
 ## Target Users
 
@@ -396,12 +405,21 @@ below is a Draft plan for a future implementation session.
 - Actually running `spec-review-loop`, `impl-review-loop`, or
   `task-review-loop` against this package — that is a separate, human-gated
   workflow step this spec-authoring session does not perform (see
-  investigation.md INV-008/OQ-003 for the resulting, honestly-reported
-  `check-workflow-state.sh` tension).
+  investigation.md INV-008 for the `check-workflow-state.sh` rule this
+  drives; OQ-003 records how it was resolved).
+- Authoring `tasks.md`/`traceability.md` in this package — per the Phase
+  model (`plugins/sdd-bootstrap/skills/bootstrap/SKILL.md:88-112`,
+  investigation.md INV-008), both are Phase 2 outputs, generated only after
+  `Impl-Review-Status: Passed`. A Draft task decomposition was authored
+  during this spec-authoring session and is preserved outside the
+  repository (coordinator decision, 2026-07-22), for reintroduction once
+  the Phase 1 gates pass — it is a Non-goal of THIS package's committed
+  content, not of the epic overall.
 - Modifying `plugins/**`, `scripts/**`, `.github/**`, `tests/**`, or
   `contracts/**` directly in this spec-authoring session — every concrete
   script, schema, and test file this package specifies is Draft design for
-  a future implementation session (`tasks.md`), not code produced now.
+  a future implementation session (task decomposition deferred to Phase 2,
+  above), not code produced now.
 
 ## User Stories
 
@@ -774,22 +792,26 @@ as a required output for this package).
   read for a track-selection reference during this investigation (only its
   protection status was checked); REQ-009's implementer confirms at task
   start whether it needs edits at all.
-- The registry-entry conflict INV-008 documents (tasks.md's mere existence
+- The registry-entry rule INV-008 documents (`tasks.md`'s mere existence
   requiring `Spec-Review-Status: Passed` and `Impl-Review-Status: Passed`)
   is a property of `plugins/sdd-quality-loop/scripts/check-workflow-state.sh`
-  as it exists today; this assumption is re-verified, not silently
-  worked around, at Task 2 registration time.
+  as it exists today; this package follows that rule (deferring `tasks.md`/
+  `traceability.md` to Phase 2, per the coordinator's 2026-07-22 decision)
+  rather than working around it.
 
 ## Open Questions
 
-See investigation.md's Open Questions (OQ-001..OQ-003) for the three
-unresolved items this requirements pass surfaces: the approver-registry file
-location (OQ-001, resolved provisionally by REQ-006's own definition, subject
-to impl-review confirmation), the `distribution_channels`/
+See investigation.md's Open Questions (OQ-001..OQ-003): the approver-registry
+file location (OQ-001, resolved provisionally by REQ-006's own definition,
+subject to impl-review confirmation), the `distribution_channels`/
 `data_classification` array-vs-scalar shape (OQ-002, resolved provisionally
-by REQ-001's array choice), and the `tasks.md`/`check-workflow-state.sh`
-registration tension (OQ-003, deliberately left for human decision at Task 2
-of the parent instruction, not resolved by this requirements pass).
+by REQ-001's array choice), and the `tasks.md`/`traceability.md`
+Phase-2-deferral question (OQ-003) — RESOLVED by coordinator decision
+(2026-07-22): this package follows the repository's Phase model exactly
+(`tasks.md`/`traceability.md` are Phase 2 outputs, generated only after
+`Impl-Review-Status: Passed`); a Draft task decomposition authored during
+this session is preserved outside the repository for reintroduction at that
+time, rather than committed alongside Phase-1-Pending status headers.
 
 ## Risks
 
@@ -831,9 +853,11 @@ of the parent instruction, not resolved by this requirements pass).
   (AC-013) as an executable proof, not merely a documented convention;
   design.md records this as a candidate for future de-duplication, out of
   this epic's own scope.
-- Low: `tasks.md`'s inclusion in this spec package (INV-008/OQ-003) is known
-  to make `check-workflow-state.sh` fail at registration time until the real
-  review gates run. Mitigation: honestly reported, not hidden, in this
-  package's final report; does not block Task 1's artifact creation, since
-  the parent instruction explicitly requests `tasks.md` as a Task 1
-  deliverable.
+- Low: a future implementation session must remember to reintroduce the
+  preserved Draft `tasks.md`/`traceability.md` (investigation.md INV-008,
+  OQ-003) rather than re-authoring task decomposition from scratch, and
+  must re-verify it still matches this requirements.md/design.md pair
+  (which may have changed during the intervening spec-review/impl-review
+  rounds) before recommitting it. Mitigation: the preserved draft's
+  location and provenance are recorded in investigation.md and in this
+  package's commit history, not left as tribal knowledge.

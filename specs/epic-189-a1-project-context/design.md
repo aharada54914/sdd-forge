@@ -151,7 +151,8 @@ approval sidecar schema instances' runtime paths
 authoring time (they do not exist yet); they become protected only once
 REQ-007's human-copy-applied `guard-invariants.json`/
 `generate-guard-invariants.py` update lands. The implementation sequencing
-this implies (tasks.md, below): author the scripts UNPROTECTED first
+this implies (recorded here for the Phase 2 task decomposition that will
+consume it): author the scripts UNPROTECTED first
 (agent-editable, fully testable), THEN stage the guard-invariants
 registration that protects them going forward — never the reverse, since
 staging protection for a file that does not exist yet would fail
@@ -522,10 +523,14 @@ such in the detector's diagnostic output, never silently omitted.
   `contains`/`in` against these fields, and both operators are meaningless
   against a scalar (`contains`: "array ∋ scalar"; `in`: "scalar ∈ array
   literal") — API/Contract Plan's schema reflects this choice.
-- OQ-003 (`tasks.md`/`check-workflow-state.sh` tension, investigation.md) →
-  NOT resolved by design; explicitly deferred to human decision at Task 2
-  registration time (parent instruction), reported honestly in the final
-  report rather than worked around by mislabeling review status.
+- OQ-003 (`tasks.md`/`traceability.md` Phase-2-deferral question,
+  investigation.md) → RESOLVED by coordinator decision (2026-07-22): this
+  package follows the repository's Phase model exactly — `tasks.md`/
+  `traceability.md` are Phase 2 outputs and are not part of this package's
+  committed content; a Draft task decomposition authored during this
+  spec-authoring session is preserved outside the repository for
+  reintroduction once the impl-review gate passes and this document's
+  header is updated accordingly by that later session.
 - New decision: whether `canonicalize-sdd-yaml`'s YAML parser is a
   hand-rolled 1.2-core-schema parser or a widely available library
   constrained to core-schema-only behavior (e.g. Python's `PyYAML` with
@@ -645,9 +650,9 @@ adds no new call site, it relies on the existing ones.
 
 None blocking. OQ-001 and OQ-002 (investigation.md) are resolved above with
 design decisions, both explicitly revisitable at low cost. OQ-003
-(investigation.md — the `tasks.md`/`check-workflow-state.sh` tension) is
-deliberately left open for human decision at Task 2 of the parent
-instruction; it does not block this design's own content.
+(investigation.md — the `tasks.md`/`traceability.md` Phase-2-deferral
+question) is resolved above (Design Decisions) by following the
+repository's Phase model; it does not block this design's own content.
 
 ## Risks
 
@@ -663,7 +668,9 @@ key-material handling discipline for `SDD_CONTEXT_KEY` depending on human
 operational practice the design cannot enforce technically (Constraint
 Compliance, above) — mitigated by documenting the constraint explicitly
 rather than presenting the script as a stronger guarantee than it is.
-Quaternary risk is the known `tasks.md`/`check-workflow-state.sh` tension
-(Open Questions, above) surfacing as a CI-visible failure once this
-package is registered — mitigated by honest reporting rather than a
-disguised workaround.
+Quaternary risk is a future implementation session reintroducing
+`tasks.md`/`traceability.md` from the preserved Draft (Open Questions,
+above) without re-verifying it still matches this requirements.md/design.md
+pair after any intervening spec-review/impl-review edits — mitigated by
+recording the preserved draft's location and provenance in
+investigation.md rather than leaving it as tribal knowledge.

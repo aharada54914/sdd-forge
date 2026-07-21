@@ -230,16 +230,23 @@ approval)" (`specs/epic-159-pillar-c/requirements.md:423-424`).
 `check-workflow-state.sh` (verified: no `traceability` string appears in the
 file), so its presence does not trigger this rule.
 
-**Known tension for this spec package**: the parent task instructs this
-package to include `tasks.md` (with `Spec-Review-Status: Pending` and
-`Impl-Review-Status: Pending`, since no review gate has actually run yet).
-Per this INV, that combination will make
+**Resolution (coordinator decision, 2026-07-22)**: this package originally
+included a Draft `tasks.md`/`traceability.md` alongside
+`Spec-Review-Status: Pending`/`Impl-Review-Status: Pending`, which made
 `plugins/sdd-quality-loop/scripts/check-workflow-state.sh` (and its `.ps1`
-twin) fail once `epic-189-a1-project-context` is registered with
-`profile: full` in `specs/workflow-state-registry.json`, until a human
-actually runs `spec-review-loop` and `impl-review-loop` to `Passed`. This is
-recorded as a known, honestly-reported verification gap (not silently
-worked around) — see the top-level task's Final Report.
+twin, and `tests/validate-repository.ps1`, which calls it) fail once
+`epic-189-a1-project-context` was registered with `profile: full` in
+`specs/workflow-state-registry.json` — exactly as this INV predicted. The
+coordinator ruled to follow the repository's Phase model rather than work
+around it: `tasks.md` and `traceability.md` were removed from this
+package's committed content (their Draft content preserved outside the
+repository, at
+`/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/a1-tasks-draft.md`
+and `a1-traceability-draft.md`, for reintroduction once
+`spec-review-loop`/`impl-review-loop` actually reach `Passed` against this
+package — a future implementation session's Phase 2 step). REQ↔Test
+correspondence in the interim is carried by `acceptance-tests.md`'s own
+Requirement/Test-ID columns, which needs no `tasks.md` to exist.
 
 ## INV-009: Task lifecycle field syntax `check-workflow-state.sh` enforces
 
@@ -358,6 +365,8 @@ add new `.gitattributes` rules.
   scalar field could only ever use `equals`/`not_equals`). REQ-001
   resolves this as arrays-of-string, to keep both operators meaningful — see
   design.md Design Decisions.
-- OQ-003 — INV-008's tension (tasks.md vs. `check-workflow-state.sh`) is not
-  resolved by this spec package; it is surfaced for human decision at
-  registration time (Task 2 of the parent instruction).
+- OQ-003 — INV-008's tension (`tasks.md` vs. `check-workflow-state.sh`) —
+  RESOLVED by coordinator decision (2026-07-22): follow the repository's
+  Phase model exactly; `tasks.md`/`traceability.md` are deferred to Phase 2
+  and removed from this package's committed content (Draft preserved
+  outside the repository, INV-008 above).
