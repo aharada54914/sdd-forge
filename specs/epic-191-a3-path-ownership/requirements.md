@@ -169,8 +169,11 @@ schemas this feature now treats as a hard (not follow-up) dependency.
 - **Epic A1's Provider Bindings schema addition — `adapter_paths`**: Fail-6
   (REQ-004) requires Epic A1 to add an optional `adapter_paths: string[]`
   (glob array) field per binding entry to `sdd/provider-bindings.yaml`'s
-  schema (OQ-001, resolved; investigation.md OQ-001). This feature
-  consumes that field (matched via REQ-001's own glob engine against the
+  schema (OQ-001, resolved). The Fail-6 adapter_paths trigger rule stated
+  above (Fail-condition definitions) and AC-033 are the current normative
+  statement of the join rule; investigation.md OQ-001 records only the
+  historical decision trail that produced it, not an independently
+  restated rule. This feature consumes that field (matched via REQ-001's own glob engine against the
   binding's declared `provider_binding_ids` join key already fixed by
   decision-document v2 §5/§12) — it does not otherwise define or
   redefine the Provider Bindings file schema (Non-goals).
@@ -1395,8 +1398,11 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   T-001 cannot reach Done in that window without relying on a
   documented-but-unenforced blocker note.
 
-OQ-001 (Fail-6 exact matching rule) is resolved — see Dependencies and
-investigation.md OQ-001.
+OQ-001 (Fail-6 exact matching rule) is resolved — see the Fail-6
+adapter_paths trigger rule in Fail-condition definitions and AC-033 above
+for the current normative statement; Dependencies and investigation.md
+OQ-001 record the historical decision trail, not an independently
+restated rule.
 
 ## Risks
 
