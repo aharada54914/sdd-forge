@@ -401,6 +401,17 @@ and its generated siblings, `check-contract.{sh,ps1,py}`, and
 `.github/workflows/test.yml` are read but never written by any agent-run
 script in this feature (Protected-File Statement).
 
+Migration Strategy: none. No database, no runtime storage, and no schema
+migration exists anywhere in this feature (infra-spec.md's Data Residency
+and Retention section: "No database, no migration, no runtime storage
+anywhere in this feature"). The three new data shapes this feature
+introduces — the resolver output structure, `ownership_digest`, and the
+`check-component-coverage-verdict/v1` Gate evidence record — are each a
+net-new, additive artifact with no prior version to migrate from or
+reconcile against; they are consumed by `quality-gate`'s existing evidence
+bundle under that bundle's own already-established conventions, not a new
+storage or compatibility mechanism this feature defines.
+
 ## API / Contract Plan
 
 ### `resolve-component-paths.sh`/`.ps1` (T-001/T-002)
@@ -829,6 +840,23 @@ job/matrix dimension is introduced — the new suites run in the existing
 deterministic, 3-OS lane alongside `agent-model-routing`,
 `render-agent-frontmatter`, etc.
 
+This feature's own rollout is staged, not all-or-nothing: `check-component-
+coverage`'s three-state capability-derived applicability model
+(`disabled-legacy`/`advisory`/`required`, REQ-004, ADR-0016 — see
+Architecture and Design Decisions "Capability-derived, three-state Gate
+applicability") is the mechanism that governs whether the newly-registered
+required-check-set entry actually blocks a consuming project's
+Implementation Gate. This repository's own immediate adoption of this CI
+registration resolves to the safe, non-blocking `disabled-legacy` path via
+the ADR-0016 file-absence fallback, because no `project-context.yaml`
+exists in this repository yet (investigation.md INV-002) and
+`check-contract`'s tier-minimum set has no capability-state axis of its own
+to consult (investigation.md INV-018) — the Gate still runs and records a
+real `state: "not-applicable (disabled-legacy)"` evidence entry (Data Plan,
+NEW-001) rather than an unexpected block. No separate feature-flag
+mechanism, canary stage, or phased CI rollout beyond this existing
+capability axis is introduced by this feature (Security Boundaries B5).
+
 ## Constraint Compliance
 
 | Constraint | How this feature complies |
@@ -839,6 +867,9 @@ deterministic, 3-OS lane alongside `agent-model-routing`,
 | Version-bump discipline | Global Constraints |
 | No Registry/Epic A2 coupling | Architecture — Gate wired directly into `quality-gate`'s `## Process` (+ required-check-set), no Registry projection dependency |
 | No file-presence mode selection | ADR-0016 — Design Decisions "Capability-derived Gate applicability" |
+| Cross-OS path semantics (requirements.md Target Users, lines 64-69: "path and case semantics must not depend on host OS") | Design Decisions "Glob semantics" and "Path/case normalization and raw-identity preservation"; REQ-009's dual-runtime parity harness proves the `.sh`/`.ps1` wrappers behaviorally identical, not merely both present |
+| Submodule/symlink reference-only boundary (requirements.md Security Boundaries) | Architecture (git-diff collector's "submodule/symlink → reference-only evaluation"); Security Boundaries; security-spec.md Trust Boundaries B4 |
+| Fail-6 credential exclusion (requirements.md Security Boundaries) | Security Boundaries; security-spec.md Secrets Management — Fail-6 never reads `sdd/provider-bindings.yaml`'s `credentials` block |
 
 ## Assumptions
 
