@@ -13,7 +13,7 @@ param(
   [string]$XhighReason = '',
   [int]$AttemptNumber = 0,
   [string]$DeterministicRuntimeCommand = 'pwsh',
-  [ValidateSet('welded','matrix')][string]$EffortPolicy = 'welded',
+  [ValidateSet('welded','matrix')][string]$EffortPolicy = 'matrix',
   [ValidateSet('','low','medium','high','xhigh')][string]$RequestedEffort = '',
   [string]$Role = '',
   # Named HostName, not Host: `$Host` is a PowerShell read-only automatic
