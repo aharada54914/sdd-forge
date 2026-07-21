@@ -1,0 +1,68 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-191-a3-path-ownership",
+  "run_id": "RUN-epic-191-a3-path-ownership-impl-orchestrator-a1r2",
+  "verdict": "PASS",
+  "pass_type": "clean",
+  "round": 2,
+  "attempt": 1,
+  "legacy_design": false,
+  "feature_type": "Deterministic CLI script + CI Implementation Gate check + reference/ADR documentation for git-diff-based component path ownership resolution (no UI, no runtime service, no external integrations)",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 0,
+  "findings_minor": 0,
+  "prior_round_contract_sha256": "ee9d62124474783390101832b3c9824e747493778fce523eb98e2ce2168161b1",
+  "requirements_sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348",
+  "acceptance_sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5",
+  "design_sha256": "b4a23ecea16b293231c0e3c869e1478030e9751b5bd5c6538de56d0dd7985fec",
+  "layer_sha256": {
+    "ux-spec.md": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6",
+    "frontend-spec.md": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8",
+    "infra-spec.md": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0",
+    "security-spec.md": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"
+  },
+  "design_req_drift": false,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-191-a3-path-ownership-impl-impl-reviewer-a-a1r2-seq0328",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-191-a3-path-ownership-a1r2-0328",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/requirements.md", "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/design.md", "sha256": "b4a23ecea16b293231c0e3c869e1478030e9751b5bd5c6538de56d0dd7985fec"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/ux-spec.md", "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/frontend-spec.md", "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/infra-spec.md", "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/security-spec.md", "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/impl-review/epic-191-a3-path-ownership/attempt-1/round-2/precheck-result.json", "sha256": "1b4657fd4e1710f49c561adb97f079823dc4efa5332cadff89421375fab5a453"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/impl-review/epic-191-a3-path-ownership/attempt-1/round-1/integrated-summary.json", "sha256": "0eccc33173e1a8ca410204a3861fa7d750e06fb40e89c39722174c24f28d9ad6"}
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-191-a3-path-ownership-impl-impl-reviewer-b-a1r2-seq0329",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-191-a3-path-ownership-a1r2-0329",
+      "allowed_input_manifest": [
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/requirements.md", "sha256": "688c96f2bc9ea0c7b938addc830ec5931d13bf38999242ba9ef9e879f48d9348"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/acceptance-tests.md", "sha256": "cb577b7f86364b505bb258c747058f39f458b60c862f3fd3d122f69652cd10d5"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/design.md", "sha256": "b4a23ecea16b293231c0e3c869e1478030e9751b5bd5c6538de56d0dd7985fec"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/investigation.md", "sha256": "7ad9ca34cc1681322cbc12f0a09ece546dc608c603fd9f81d8af7688156347f7"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/ux-spec.md", "sha256": "b4a61af3bc2ce443d493cdbe2dc48a6cc971d9e14e89eab1657b8e33c4fc94f6"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/frontend-spec.md", "sha256": "4202f0715e5a762843d0160d75f58b379a057c3d3e191ef135a28866f9366ae8"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/infra-spec.md", "sha256": "759d7a1bd04bc961678b83c49b3d427347cbd429cc2a72f663429910f9cea0e0"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/specs/epic-191-a3-path-ownership/security-spec.md", "sha256": "3e6786328714d0602214c8bc2364ba54281b5784d4a04b9494427005da3dba66"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/impl-review/epic-191-a3-path-ownership/attempt-1/round-2/precheck-result.json", "sha256": "1b4657fd4e1710f49c561adb97f079823dc4efa5332cadff89421375fab5a453"},
+        {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-191/reports/impl-review/epic-191-a3-path-ownership/attempt-1/round-2/integrated-summary.json", "sha256": "c1343352c2676bc0090b6de70f32ab081b6d20dfb55ce3e57362ff4361b33a2f"}
+      ]
+    }
+  ],
+  "human_edit_summary": "added Migration Strategy sub-field to Data Plan; added three Constraint Compliance rows (cross-OS path semantics, submodule/symlink reference-only boundary, Fail-6 credential exclusion); added staged-rollout cross-reference paragraph to Deployment / CI Plan",
+  "timestamp": "2026-07-21T23:24:13Z"
+}

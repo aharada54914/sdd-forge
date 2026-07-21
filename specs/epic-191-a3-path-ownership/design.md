@@ -1,6 +1,6 @@
 # Design: epic-191-a3-path-ownership
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: deterministic script + Implementation Gate check + reference
 documentation (component path resolver, git-diff basis, Reverse Coverage
 Gate, `ownership_digest`, cross-cutting pre-registration rule, fixtures,
