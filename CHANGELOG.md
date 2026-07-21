@@ -612,6 +612,38 @@
   `green-ps1.log`: TEST-009 のライブファイル半分を除く全アサーションが
   green)の順で実装、詳細は
   `reports/implementation/epic-159-pillar-d/T-003.md` を参照。
+- **`--effort-policy` の既定値を `matrix` に変更 (Issue #155,
+  epic-159-pillar-c T-007, Phase 2 / REQ-007)**: `select-agent-model.sh` /
+  `.ps1` の `--effort-policy` 既定値を `welded` から `matrix` へ1行変更
+  (`select-agent-model.sh:18`、`select-agent-model.ps1:16` の
+  `ValidateSet` 既定値)。フラグを付けない全呼び出しが
+  `risk_effort_matrix[risk]` ベースのリスク連動 effort 選択(escalation
+  bump・`supported_efforts` へのクランプを含む)に切り替わる。`welded`
+  (effort を tier に溶接した Phase 1 の既定挙動)は
+  `--effort-policy welded` を明示すれば無期限にフルサポートされ続ける
+  (非推奨化タイマーなし、OQ-004)。T-003 が `role_defaults` を現行値から
+  事前シードしていたため、フリップ後最初の本番 `role_defaults` レンダーは
+  ゼロ差分(`render-agent-frontmatter.sh --check`: 10 targets, 0 drift、
+  AC-042)。`USERGUIDE.md` / `docs/agent-capability-matrix.md` を matrix
+  既定の説明で更新。**前提ゲート(AC-045)**: `git merge-base
+  --is-ancestor` で T-001..T-006 の Phase 1 マージコミット
+  (825d6c6、PR #185)と A3 コミット(2d8c6a5、#143)の双方が実装時点の
+  HEAD の祖先であることを再検証済み
+  (`specs/epic-159-pillar-c/verification/T-007/prereq-gate.log`)。TDD で
+  RED(`specs/epic-159-pillar-c/verification/T-007/red-sh.log`: フリップ前は
+  既定 `welded` のまま解決し `risk_effort_matrix` 値と食い違う)→ GREEN
+  (`specs/epic-159-pillar-c/verification/T-007/green-sh.log`)の順で実装。
+  **TEST-044(実 Codex ホストでの smoke 実行、AC-044)**: 本実装セッションでは
+  意図的に見送った — 正直な理由(実 `codex` CLI はこのリポジトリに対して
+  自律的にファイル書き込み・コマンド実行が可能な agentic ツールであり、
+  無人の自動スイート実行から無条件で起動するのは安全でないと判断)は
+  `reports/implementation/epic-159-pillar-c/T-007.md` の Unresolved Items
+  を参照。スイート内の TEST-044 は SKIP(named-reason、フィクション化なし、
+  `SDD_ALLOW_REAL_CODEX_SMOKE=1` を明示した運用者のみ実行可能)。この
+  タスクは T-001..T-006 とは別 PR・別リリースとして着地し、
+  `scripts/bump-version.sh` の実行は本実装セッションの範囲外(呼び出し元が
+  別途実施、AC-046)。詳細は
+  `reports/implementation/epic-159-pillar-c/T-007.md` を参照。
 
 ### セキュリティ修正
 
