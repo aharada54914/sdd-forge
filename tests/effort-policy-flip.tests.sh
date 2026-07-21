@@ -185,7 +185,7 @@ else
   TEST_044_CAND="$TMP/candidates-044.json"
   cat > "$TEST_044_CAND" <<'JSON'
 [
-  {"name": "openai/gpt-5.1-codex-mini", "cost": "0.1", "available": true}
+  {"name": "openai/gpt-5.6-codex", "cost": "0.1", "available": true}
 ]
 JSON
   TEST_044_SEL_OUT="$(bash "$SELECT_SH" --risk low --host codex-cli --role sdd-investigator \
@@ -201,9 +201,28 @@ JSON
   # that let the model execute shell commands) -- the smoke prompt below
   # needs no tool access at all, so the smoke run is pinned to read-only
   # regardless of the operator's own global codex config.
+  TEST_044_RUN_OK=0
+  TEST_044_MODEL_NOTE=""
   if codex exec --sandbox read-only --model "$TEST_044_MODEL_SHORT" \
       -c "model_reasoning_effort=\"$TEST_044_EFFORT\"" \
       "$(cat "$TEST_044_PROMPT_FILE")" >"$TEST_044_RAW" 2>&1; then
+    TEST_044_RUN_OK=1
+  elif grep -q "not supported when using Codex with a ChatGPT account" "$TEST_044_RAW"; then
+    # Observed live during T-007 implementation: ChatGPT-account codex auth
+    # rejects the registry's entire API-model vocabulary (400
+    # invalid_request_error for gpt-5.1-codex-mini AND gpt-5.6-codex). The
+    # host-side effort-application mechanism (-c model_reasoning_effort=...)
+    # is model-independent, so the smoke's REAL-run leg falls back to the
+    # operator account's own default model while KEEPING the selected
+    # effort — the substitution is disclosed in the ok line and the raw log.
+    if codex exec --sandbox read-only \
+        -c "model_reasoning_effort=\"$TEST_044_EFFORT\"" \
+        "$(cat "$TEST_044_PROMPT_FILE")" >>"$TEST_044_RAW" 2>&1; then
+      TEST_044_RUN_OK=1
+      TEST_044_MODEL_NOTE=" [invoked model substituted with the operator account's default: ChatGPT-account codex auth rejects registry API models; selected effort ($TEST_044_EFFORT) kept]"
+    fi
+  fi
+  if [[ "$TEST_044_RUN_OK" -eq 1 ]]; then
     # emit-run-record.sh's own interface (plugins/sdd-quality-loop/scripts/
     # emit-run-record.sh:3): positional feature-slug + --model-main/--track/
     # --effort-* flags; it WRITES reports/runs/RUN-<ts>-<feature>.json and
@@ -215,7 +234,7 @@ JSON
     TEST_044_RECORD_PATH="$(printf '%s\n' "$TEST_044_EMIT_OUT" | sed -n 's/^emit-run-record: wrote //p')"
     if [[ -n "$TEST_044_RECORD_PATH" && -f "$ROOT/$TEST_044_RECORD_PATH" ]] &&
         grep -q '"effort_applied": *"'"$TEST_044_EFFORT"'"' "$ROOT/$TEST_044_RECORD_PATH"; then
-      ok "TEST-044: real Codex-host run's run-record ($TEST_044_RECORD_PATH) shows non-null effort_applied ($TEST_044_EFFORT)"
+      ok "TEST-044: real Codex-host run's run-record ($TEST_044_RECORD_PATH) shows non-null effort_applied ($TEST_044_EFFORT)$TEST_044_MODEL_NOTE"
     else
       bad "TEST-044: real Codex-host run completed but the run-record did not show the expected non-null effort_applied -- emit output: $TEST_044_EMIT_OUT"
     fi
