@@ -304,12 +304,14 @@ Top-level required properties: `schema` (`const: "capability-registry/v1"`),
   expressed via a schema-level `if`/`then` — matching JSON Schema draft-07's
   conditional-subschema feature, avoiding a hand-rolled cross-field check
   where the schema language already provides one). A `stage: artifact`/
-  `promotion` entry with no `implementation_ref` and no `minimum_enforcement`
-  passes schema validation and is exempt from every completeness check
-  (reserved-stage inertness, AC-005) — a dedicated positive fixture
-  (`stage: implementation` + valid `implementation_ref` passes) and negative
-  fixture (`minimum_enforcement` set to any value other than `"required"` is
-  rejected) both exist in Test Strategy item 5.
+  `promotion` entry with no `implementation_ref` passes schema validation and
+  is exempt from every completeness check (reserved-stage inertness, AC-002)
+  — a dedicated positive fixture (`stage: implementation` + valid
+  `implementation_ref` passes) and negative fixture (`stage: implementation`
+  + missing `implementation_ref` is rejected) both exist in Test Strategy
+  item 5. `minimum_enforcement` is a separate, `capabilities[]`-level
+  optional field (AC-005) with its own positive/negative/optionality
+  fixtures, unrelated to `gates[].stage`.
 
 `capabilities[]` item (`additionalProperties: false`, **`required`:
 `["id", "trigger", "required_facets", "conditional_facets",
@@ -687,10 +689,14 @@ data under `tests/fixtures/capability-registry/`:
    `delivery_strategy` object present but with no `kind` key, a non-boolean
    `lite_policy.eligible`, an extra `conditions` key on a `capabilities[]`
    entry); a `minimum_enforcement` positive fixture
-   (`"required"` accepted) and negative fixture (any other value rejected);
-   a reserved-stage inertness fixture (`stage: artifact`/`promotion`, no
-   `implementation_ref`, no `minimum_enforcement`, passes and is exempt from
-   every completeness check).
+   (`"required"` accepted), negative fixture (any other value rejected), and
+   optionality fixture (a `capabilities[]` entry with no `minimum_enforcement`
+   key at all also passes); a reserved-stage inertness fixture (`stage:
+   artifact`/`promotion` `gates[]` entry, no `implementation_ref`, passes
+   and is exempt from every completeness check); a `required_facets`/
+   `conditional_facets[]` entry-shape fixture (AC-037: a non-string
+   `required_facets` element and a malformed `conditional_facets[]` entry
+   are each rejected; an empty-array fixture for both passes).
 6. Provider-name-contamination — one fixture per allowlisted term category
    (cloud provider, distribution channel, workflow-runtime product name)
    confirming each is caught, plus a clean fixture proving the scan does not

@@ -166,7 +166,11 @@ that check for a `profile: full` entry (Non-goals, below).
   a `capabilities` array (`id`, `trigger`, `required_facets`,
   `conditional_facets`, `review_check_ids`, `gate_ids`, `lite_policy`,
   `minimum_enforcement`, `delivery_strategy`) and a top-level `gates` array
-  (`id`, `stage`, `blocking`, `implementation_ref`). Every `capabilities[]`
+  (`id`, `stage`, `blocking`, `implementation_ref`). `required_facets` is an
+  array of Facet-ID strings (`uniqueItems: true`; may be `[]`);
+  `conditional_facets` is an array of objects, each exactly `{facet: <Facet-ID
+  string>, when: <Predicate DSL expression>}` (`additionalProperties: false`;
+  may be `[]`) — see Field Definitions. Every `capabilities[]`
   entry's `required` list is `id`, `trigger`, `required_facets`,
   `conditional_facets`, `review_check_ids`, `gate_ids`, and
   `delivery_strategy`; only `lite_policy` and `minimum_enforcement` are
@@ -490,9 +494,9 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   stays open). (REQ-001, OQ-003)
 - AC-005: `minimum_enforcement` has a positive schema test (`"required"`
   accepted) and a negative test (any other string value rejected); a
-  `stage: artifact`/`promotion` `gates[]` entry with no `implementation_ref`
-  and no `minimum_enforcement` passes schema validation and is exempt from
-  every Foundation-time completeness check (reserved-stage inertness).
+  `capabilities[]` entry with no `minimum_enforcement` key at all also
+  passes schema validation, confirming its optionality (REQ-001's
+  `required` list omits it, unlike `delivery_strategy`, AC-004).
   (REQ-001)
 - AC-006: The schema defines the Predicate DSL in exactly two locations —
   `capabilities[].trigger` and `capabilities[].conditional_facets[].when` —
@@ -681,6 +685,12 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   deferred to Phase 2, once `traceability.md` exists; its target is
   `traceability.md` itself, which does not exist during this Phase 1
   package. (User Stories, Dependencies)
+- AC-037: `required_facets` and `conditional_facets[]` have a schema-tested
+  shape: a `required_facets` array containing a non-string element is
+  rejected; a `conditional_facets[]` entry missing `when`, missing `facet`,
+  or carrying an extra key beyond `{facet, when}` is rejected by
+  `additionalProperties: false`; a fixture with both arrays empty (`[]`)
+  passes schema validation. (REQ-001)
 
 ## Field Definitions
 
@@ -688,6 +698,14 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   evaluated against an affected component's properties, that decides whether
   a Capability applies to that component at all. Uses the same evaluator and
   field allowlist as `conditional_facets[].when`.
+- `required_facets` (REQ-001) — an array of Facet-ID strings (`uniqueItems:
+  true`; may be `[]`), each naming a Capability Pack Facet (question/
+  template/checklist content, decision v2 §13) that is unconditionally
+  included once this Capability has triggered.
+- `conditional_facets[]` (REQ-001) — an array of objects, each exactly
+  `{facet: <Facet-ID string>, when: <Predicate DSL expression>}`
+  (`additionalProperties: false`; may be `[]`); `facet` names the Facet
+  included when `when` matches. AC-037 makes this shape schema-testable.
 - `conditional_facets[].when` (REQ-002; ADR-0020) — a Predicate DSL
   expression, evaluated per affected component, deciding whether a specific
   Facet is included once its owning Capability has already been triggered.
