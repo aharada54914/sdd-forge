@@ -270,7 +270,28 @@ Not applicable — no UI surface.
 
 No new ADR is proposed by this spec. Every design decision below traces to
 an existing ADR (0017, 0018, 0020, 0021, 0022) or decision v2 §§3, 6, 10, 11,
-13, 16, 18.3, 19. Two judgment calls this spec's first draft made were
+13, 16, 18.3, 19, **except** the Registry discovery contract and the Gate
+implementation identity mechanism (Design Decisions, below), which this
+spec's own text already flags as its own proposal rather than a quoted
+requirement. Both are deliberately kept as design-level decisions, not
+promoted to a standalone ADR, for the same reason: each is fully scoped to
+this Epic's own deliverables today (the discovery contract governs how
+*this Epic's* four scripts and their generated projection locate *this
+Epic's* Registry artifacts; the Gate implementation identity mechanism
+governs exactly one, concretely named scan root,
+`plugins/sdd-quality-loop/scripts/`), so there is no cross-Epic contract
+surface yet for an ADR to fix. Epic A5's Resolver is named in Cross-Layer
+Dependencies as a *future* consumer of the same discovery contract, but
+that consumption has not been designed or agreed by Epic A5 itself — an ADR
+written now would be speculating on Epic A5's own needs rather than
+recording an agreed cross-Epic contract, the opposite of what an ADR is for
+in this repository's convention. If Epic A5's implementation later adopts
+this discovery contract verbatim (rather than defining its own), promoting
+it to an ADR at that point — once a second, real consumer exists — is
+implementation-phase or Epic-A5-phase work, tracked via the Gate
+implementation identity mechanism's own residual risk entry (Risks, below),
+not this spec's own task list (Non-goals: this spec does not implement
+Epic A5's Resolver). Two judgment calls this spec's first draft made were
 corrected by orchestrator ruling (2026-07-22, adversarial spec review) rather
 than left as open design decisions: (1) `delivery_strategy.kind` is now an
 open, non-empty string with no inferred vocabulary (was: a closed four/five-
@@ -962,6 +983,25 @@ in the DSL, ADR-0020 item 3).
   diff.
 - No new plugin is introduced (Design Decisions) — every script this spec
   designs is added to `plugins/sdd-quality-loop/`'s existing manifest.
+- Every operator forbidden by ADR-0020 (regex, arbitrary JSONPath, shell,
+  JS, Python, dynamic code, Provider API calls, time-/network-dependent
+  conditions) is structurally inexpressible in the DSL's own grammar
+  (REQ-002): the schema-level closed `oneOf` in API / Contract Plan
+  `#/definitions/predicate` admits only the fixed 8-operator set, so no
+  forbidden operator can even parse, let alone execute — satisfied by
+  Global Constraints' first bullet and Security Boundary B2, tested by
+  TEST-011/TEST-040.
+- No Capability entry may name a real provider (ADR-0018; REQ-003(g)):
+  `references/provider-terms.json`'s case-insensitive scan over every
+  string-valued field enforces this before an entry can be trusted as a
+  source of truth — satisfied by Global Constraints' third bullet and
+  Security Boundary B1, tested by TEST-020.
+- The evaluator, validator, and digest generator must each produce
+  byte-identical output for identical input across `.sh`, `.ps1`, and (for
+  the digest generator) `.js` invocations of the same Python master
+  (decision v2 §18.3's dual-runtime fixture requirement) — satisfied by
+  Global Constraints' second bullet, tested by Test Strategy items 1, 3,
+  and 7 (AC-031/AC-032/AC-033).
 
 ## Assumptions
 
@@ -990,23 +1030,49 @@ in the DSL, ADR-0020 item 3).
 ## Open Questions
 
 Carried forward from investigation.md (not re-litigated here, only indexed
-for a reviewer's convenience): OQ-001 (`lite_policy.upgrade_reasons`
-catalog's own vocabulary — still Epic A6's decision, ADR-0022 item 4) and
-OQ-004 (Gate implementation identity mechanism — this spec's own proposal,
-now materially expanded, still not found verbatim in an ADR). OQ-002
-("conditions" vs. `trigger` field semantics) and OQ-003
+for a reviewer's convenience):
+
+- **OQ-001** (`lite_policy.upgrade_reasons` catalog's own vocabulary).
+  Owner: Epic A6 (ADR-0022 item 4). Blocks Implementation: no — REQ-003(h)'s
+  catalog-membership check is fail-closed and functions today against
+  whatever vocabulary the catalog currently holds; Epic A2's implementation
+  phase is not blocked on the catalog's final membership. Resolution Path:
+  Epic A6 (or a human, ahead of Epic A6) extends
+  `contracts/lite-upgrade-reason-catalog.json` with a new `catalog_version`.
+- **OQ-004** (Gate implementation identity mechanism). Owner: this spec's
+  own author/reviewers (not an external Epic). Blocks Implementation: no —
+  **closed** by orchestrator ruling P8 (2026-07-22; investigation.md's Open
+  Questions section and Adversarial Spec Review Response), which fixed all
+  four dimensions (canonical `.py` reference, the single concrete scan root,
+  the `check-` prefix rule, and wrapper grouping) concretely. Resolution
+  status is closed as a **design decision**; a separate, still-open
+  question is whether that decision is ever promoted into a standalone ADR
+  (ADR Change Log, above) — that promotion, not the mechanism's shape, is
+  what remains outstanding.
+
+OQ-002 ("conditions" vs. `trigger` field semantics) and OQ-003
 (`delivery_strategy.kind` vocabulary) are **resolved** by orchestrator ruling
 2026-07-22 (investigation.md's Open Questions section) and are not reopened
-by this document. A fifth, design-only question, unchanged from this spec's
-first draft: whether the generated projection should mirror guard-
-invariants' full four-language generation (`.py`, `.js`, `.sh`, `.ps1`) or
-ship only the JSON projection `sdd-quality-loop` actually reads (API /
-Contract Plan proposes JSON-only, since no consumer for a `.py`/`.js`/`.sh`/
-`.ps1` *rendering* of the Registry has been identified anywhere in decision
-v2 or the ADRs — guard-invariants needs four languages because
-`sdd-hook-guard` itself ships in four languages; `gate-capabilities.json`
-has exactly one identified consumer, `sdd-quality-loop`'s own gate skill,
-which decision v2 does not require to exist in four languages itself).
+by this document.
+
+- **A fifth, design-only question**, unchanged from this spec's first
+  draft: whether the generated projection should mirror guard-invariants'
+  full four-language generation (`.py`, `.js`, `.sh`, `.ps1`) or ship only
+  the JSON projection `sdd-quality-loop` actually reads (API / Contract
+  Plan proposes JSON-only, since no consumer for a `.py`/`.js`/`.sh`/`.ps1`
+  *rendering* of the Registry has been identified anywhere in decision v2
+  or the ADRs — guard-invariants needs four languages because
+  `sdd-hook-guard` itself ships in four languages; `gate-capabilities.json`
+  has exactly one identified consumer, `sdd-quality-loop`'s own gate skill,
+  which decision v2 does not require to exist in four languages itself).
+  Owner: implementation task owner for REQ-005's projection-generator task
+  (a repo-local judgment call, not an Epic-external dependency). Blocks
+  Implementation: no — API / Contract Plan already states a JSON-only
+  default with its supporting rationale above; that default stands unless a
+  human maintainer overrides it. Resolution Path: proceed with the
+  JSON-only default recorded in API / Contract Plan; a human maintainer may
+  override before or during REQ-005's implementation task if a `.py`/`.js`/
+  `.sh`/`.ps1` rendering consumer is identified later.
 
 ## Risks
 
@@ -1044,3 +1110,18 @@ which decision v2 does not require to exist in four languages itself).
   into `scripts/bump-version.sh` is implementation-phase work, so a task
   that adds a version bump without also running this check would still slip
   through until that wiring lands.
+- **No ADR yet for the Registry discovery contract or the Gate
+  implementation identity mechanism (ADR Change Log, above).** Both remain
+  this spec's own design-level decisions rather than repository-wide ADRs.
+  For the Gate implementation identity mechanism this is the same
+  maintenance-cost risk as the entry above. For the Registry discovery
+  contract specifically: Cross-Layer Dependencies names Epic A5's Resolver
+  as a future consumer of the same script-relative → git-root → fail-closed
+  pattern; if Epic A5 instead designs its own, materially different
+  discovery convention, the two Epics would carry two undocumented,
+  divergent patterns for the same problem with no ADR recording either as
+  canonical. Mitigation: once a second real consumer (Epic A5's own
+  implementation, or any other) actually adopts this contract, promoting it
+  to an ADR at that point is the concrete resolution path — tracked here so
+  it is not silently forgotten, not scheduled as this spec's own task
+  (Non-goals: this spec does not implement Epic A5's Resolver).

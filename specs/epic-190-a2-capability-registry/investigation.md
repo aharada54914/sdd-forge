@@ -348,8 +348,15 @@ reviewer.
   `delivery_strategy.kind` is a reserved, **open, non-empty string** field
   with no defined vocabulary in Foundation; its semantics are determined by a
   real-case ADR after Epic A2 ships, not inferred here.
-- **OQ-004 — unregistered-script detection mechanism.** Status: **open,
-  materially expanded (orchestrator ruling 2026-07-22)**. "未登録 script なし"
+- **OQ-004 — unregistered-script detection mechanism.** Status: **closed
+  (orchestrator ruling P8, 2026-07-22)**. The line below records the
+  intermediate "materially expanded" state this bullet was first drafted
+  against; the Adversarial Spec Review Response section (below) records the
+  same-day P8 ruling that fully closed it by fixing all four dimensions
+  (canonical `.py` reference, the single concrete scan root, the `check-`
+  prefix gate-shaped-script rule, and same-basename wrapper grouping)
+  concretely rather than by example — this line is updated to match rather
+  than left at its pre-P8 wording. "未登録 script なし"
   (no unregistered script) needs a discovery convention to check both
   directions (every `stage: implementation` Gate has exactly one implementing
   script; every gate-shaped script is registered). No such enumeration
