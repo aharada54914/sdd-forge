@@ -1196,9 +1196,9 @@ T-001, T-002, T-003, T-004, T-005
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/155
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-21T14:23:36Z)
 
-Status: Planned
+Status: In Progress
 
 Risk: high
 
