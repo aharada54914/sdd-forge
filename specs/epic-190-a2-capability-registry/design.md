@@ -268,30 +268,40 @@ Not applicable — no UI surface.
 
 ## ADR Change Log
 
-No new ADR is proposed by this spec. Every design decision below traces to
-an existing ADR (0017, 0018, 0020, 0021, 0022) or decision v2 §§3, 6, 10, 11,
-13, 16, 18.3, 19, **except** the Registry discovery contract and the Gate
+**One new ADR is proposed by this spec: ADR-0025 (Registry Discovery
+Contract, `docs/adr/0025-registry-discovery-contract.md`), Accepted
+2026-07-21.** It promotes the Registry discovery contract (API / Contract
+Plan, below) to a formal, citable, cross-Epic standard, unchanged in
+substance from this spec's own design of it — no new design judgment, only
+formal promotion. This directly closes the round-2 impl-review finding
+(ADR-PRESENT, Major) that recording this pattern only as this spec's own
+inline prose left a self-acknowledged, concrete implementation-misalignment
+risk: Cross-Layer Dependencies names Epic A5's Resolver as a specific,
+anticipated future consumer of this same discovery path, and without a
+formal ADR, Epic A5 would have no citable standard to adopt or diverge from
+on record. ADR-0025 does not obligate Epic A5 to adopt the pattern — it
+makes the pattern citable so that *if* Epic A5's own design intends to
+reuse it (as this spec's own Cross-Layer Dependencies section already
+anticipates), that design can reference ADR-0025 by number.
+
+Every other design decision below traces to an existing ADR (0017, 0018,
+0020, 0021, 0022, and now 0025 for the discovery contract specifically) or
+decision v2 §§3, 6, 10, 11, 13, 16, 18.3, 19, **except** the Gate
 implementation identity mechanism (Design Decisions, below), which this
-spec's own text already flags as its own proposal rather than a quoted
-requirement. Both are deliberately kept as design-level decisions, not
-promoted to a standalone ADR, for the same reason: each is fully scoped to
-this Epic's own deliverables today (the discovery contract governs how
-*this Epic's* four scripts and their generated projection locate *this
-Epic's* Registry artifacts; the Gate implementation identity mechanism
-governs exactly one, concretely named scan root,
-`plugins/sdd-quality-loop/scripts/`), so there is no cross-Epic contract
-surface yet for an ADR to fix. Epic A5's Resolver is named in Cross-Layer
-Dependencies as a *future* consumer of the same discovery contract, but
-that consumption has not been designed or agreed by Epic A5 itself — an ADR
-written now would be speculating on Epic A5's own needs rather than
-recording an agreed cross-Epic contract, the opposite of what an ADR is for
-in this repository's convention. If Epic A5's implementation later adopts
-this discovery contract verbatim (rather than defining its own), promoting
-it to an ADR at that point — once a second, real consumer exists — is
-implementation-phase or Epic-A5-phase work, tracked via the Gate
-implementation identity mechanism's own residual risk entry (Risks, below),
-not this spec's own task list (Non-goals: this spec does not implement
-Epic A5's Resolver). Two judgment calls this spec's first draft made were
+spec's own text still flags as its own proposal rather than a quoted
+requirement or a promoted ADR. Unlike the discovery contract, no other Epic
+or script is named anywhere in this package as an intended future consumer
+of this specific mechanism — its scan root is one concrete literal scoped
+only to this Epic's own validator
+(`plugins/sdd-quality-loop/scripts/`) — so it remains a design-level
+decision, not promoted to a standalone ADR, per the same reasoning ADR-0025
+itself now documents as the threshold for promotion (a real, named
+cross-Epic consumer). If a second concrete consumer of the Gate
+implementation identity mechanism is later identified (e.g. a future plugin
+that also ships Gate scripts, Risks below), promoting it to an ADR at that
+point is the concrete resolution path, tracked via its own residual risk
+entry (Risks, below), not this spec's own task list. Two judgment calls
+this spec's first draft made were
 corrected by orchestrator ruling (2026-07-22, adversarial spec review) rather
 than left as open design decisions: (1) `delivery_strategy.kind` is now an
 open, non-empty string with no inferred vocabulary (was: a closed four/five-
@@ -1110,18 +1120,26 @@ by this document.
   into `scripts/bump-version.sh` is implementation-phase work, so a task
   that adds a version bump without also running this check would still slip
   through until that wiring lands.
-- **No ADR yet for the Registry discovery contract or the Gate
-  implementation identity mechanism (ADR Change Log, above).** Both remain
-  this spec's own design-level decisions rather than repository-wide ADRs.
-  For the Gate implementation identity mechanism this is the same
-  maintenance-cost risk as the entry above. For the Registry discovery
-  contract specifically: Cross-Layer Dependencies names Epic A5's Resolver
-  as a future consumer of the same script-relative → git-root → fail-closed
-  pattern; if Epic A5 instead designs its own, materially different
-  discovery convention, the two Epics would carry two undocumented,
-  divergent patterns for the same problem with no ADR recording either as
-  canonical. Mitigation: once a second real consumer (Epic A5's own
-  implementation, or any other) actually adopts this contract, promoting it
-  to an ADR at that point is the concrete resolution path — tracked here so
-  it is not silently forgotten, not scheduled as this spec's own task
-  (Non-goals: this spec does not implement Epic A5's Resolver).
+- **Registry discovery contract ADR promotion (closed 2026-07-21 — ADR
+  Change Log, above).** Cross-Layer Dependencies names Epic A5's Resolver
+  as a future consumer of the script-relative → git-root → fail-closed
+  discovery pattern; leaving that pattern as this spec's own inline design
+  decision would have let Epic A5 design its own, materially different
+  discovery convention independently, leaving two Epics with two
+  undocumented, divergent patterns for the same problem. This is now
+  closed by promoting the pattern to ADR-0025 (`docs/adr/
+  0025-registry-discovery-contract.md`), which does not itself obligate
+  Epic A5 to adopt it, but gives it a citable, canonical standard to adopt
+  or explicitly diverge from on record, rather than no record at all.
+- **No ADR yet for the Gate implementation identity mechanism (ADR Change
+  Log, above; distinct from the Registry discovery contract entry above,
+  now closed via ADR-0025).** This remains this spec's own design-level
+  decision — the same maintenance-cost risk as the entry above (revisiting
+  once a real Capability Pack exists). Unlike the discovery contract, no
+  other Epic or script is named anywhere in this package as an intended
+  future consumer of this specific mechanism today, so ADR promotion is not
+  yet warranted under the same real-named-consumer threshold ADR-0025
+  itself documents. Mitigation: if a second concrete consumer is later
+  identified (e.g. a future plugin that also ships Gate scripts), promoting
+  it to an ADR at that point is the concrete resolution path — tracked here
+  so it is not silently forgotten, not scheduled as this spec's own task.
