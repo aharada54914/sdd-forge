@@ -352,6 +352,10 @@
     {
       "feature": "epic-159-pillar-d",
       "profile": "full"
+    },
+    {
+      "feature": "epic-192-a4-facet-manifest",
+      "profile": "full"
     }
   ]
 }
