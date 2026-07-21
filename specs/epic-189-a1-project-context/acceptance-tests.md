@@ -1,15 +1,20 @@
 # Acceptance Tests: epic-189-a1-project-context
 
-TEST IDs (TEST-001..TEST-043) are namespaced to this feature
-(`specs/epic-189-a1-project-context/`) and map 1:1 to AC-001..AC-043 in
+TEST IDs (TEST-001..TEST-046) are namespaced to this feature
+(`specs/epic-189-a1-project-context/`) and map 1:1 to AC-001..AC-046 in
 requirements.md. All tests are Draft/Planned — none has run, since no
 implementation exists yet (this is a spec-only package). AC-030..AC-042/
 TEST-030..TEST-042 were introduced in an earlier revision (adversarial
-spec-review remediation); AC-043/TEST-043 is new in THIS revision
-(verification-finding closure, below); several AC-00x/TEST-00x pairs below
-(AC-001, AC-003, AC-014, AC-016, AC-019, AC-021, AC-022, AC-023, AC-025,
-AC-026, AC-027 from the earlier revision, PLUS AC-021, AC-032, AC-033,
-AC-036 further revised in THIS revision) are revised
+spec-review remediation); AC-043/TEST-043 was new in that same earlier
+revision (verification-finding closure); AC-044..AC-046/
+TEST-044..TEST-046 are new in THIS revision (spec-review round-1
+remediation: approver-registry schema conformance, duplicate-`id`
+rejection, and the zero-identity boundary — closes reviewer B's
+AMBIGUITY/EDGE-CASE-COVERAGE/DOWNSTREAM-READINESS round-1 findings);
+several AC-00x/TEST-00x pairs below (AC-001, AC-003, AC-014, AC-016,
+AC-019, AC-021, AC-022, AC-023, AC-025, AC-026, AC-027 from an earlier
+revision, PLUS AC-021, AC-032, AC-033, AC-036 further revised in an
+earlier revision) are revised
 in place — their Test Target column states the current, authoritative
 scope; do not rely on any prior draft's wording for these rows.
 
@@ -58,6 +63,9 @@ scope; do not rely on any prior draft's wording for these rows.
 | AC-041 (NEW) | REQ-002 | TEST-041 | `adapter_paths` optional-field passthrough | a `bindings[]` entry declaring `adapter_paths` as an array of glob strings validates; a `bindings[]` entry declaring no `adapter_paths` also validates | Planned |
 | AC-042 (revised — closes NEW-001, single-source seed inventory) | REQ-001 | TEST-042 | cross-cutting seed-list scaffold conformance, single-source inventory | `contracts/project-context.template.yaml` validates against the schema; a per-pattern presence check confirms `shared_paths` contains all SIX seed patterns — `specs/**`, `reports/**`, `docs/**`, `.github/**`, `tests/fixtures/**`, `CHANGELOG.md` — each `classification: cross-cutting` (this template IS the single canonical inventory; `docs/**` already subsumes `docs/adr/**`, so no separate `docs/adr/**` entry is needed); Epic A3's day-one integration fixture reads this shipped artifact DIRECTLY and validates the complete six-pattern inventory as a cross-epic test (A3's own spec is separately aligned to this identical set, closing the two-epic seed-inventory divergence) | Planned |
 | AC-043 (NEW — historical weakening re-provability, closes the "anchor becomes the new normal, losing the paper trail" gap) | REQ-004, REQ-006 | TEST-043 | post-publish provenance re-provability + underapproval rejection | a LIVE sidecar fixture with `weakening_verdict.policy_weakening: true` and `weakening_verdict.two_person_required: true`, its predecessor anchor deleted/never-materialized (simulating post-publish), still PASSES `validate-approval-sidecar --verify-provenance` when `second_approval` carries a distinct approver id, and still FAILS (`WEAKENING_PROVENANCE_UNDERAPPROVED`) — despite an otherwise perfectly-valid hash/HMAC — when `second_approval` is `null` or duplicates `primary_approval.approver`; a bootstrap-case fixture (`approval_epoch: 1`, `predecessor_context_sha256: null`, `weakening_verdict: null`) independently passes with no second-approval requirement implied; a reader-side fixture asserts `detect-policy-weakening`/`validate-approval-sidecar` fail closed (`HUMAN_COPY_PUBLISH_IN_PROGRESS`) when a live `TRANSACTION.json` journal names the path being read | Planned |
+| AC-044 (NEW — approver-registry schema conformance, spec-review round-1 remediation) | REQ-006 | TEST-044 | parameterized schema conformance (positive + negative) | `contracts/approver-registry.schema.json`: a fixture exercising every field (`schema`, an `approvers` entry with `id`+`name`) validates; a PARAMETERIZED fixture set, one per REQUIRED field (`id`, `name`) deleted independently on an entry, is rejected; a fixture with `approvers` as a non-array value is rejected; a zero-entry `approvers: []` fixture VALIDATES (not rejected — AC-046 covers its downstream classification) | Planned |
+| AC-045 (NEW — approver-registry duplicate-`id` semantic-validator rejection, spec-review round-1 remediation) | REQ-005, REQ-006 | TEST-045 | duplicate-`id` semantic-validator rejection | an `approvers[]` fixture with two entries sharing the same `id` is rejected (`DUPLICATE_APPROVER_REGISTRY_ID`) at the semantic-validator layer, not the JSON Schema — the same layer AC-040 proves for `components[].id`/`bindings[].id` — asserted to run BEFORE REQ-006's distinct-identity count (AC-018) | Planned |
+| AC-046 (NEW — zero-identity approver-registry boundary, spec-review round-1 remediation) | REQ-004, REQ-005, REQ-006 | TEST-046 | zero-identity boundary verdict + structural fail-closed-signing proof | given a policy-weakening change and a schema-valid `approvers: []` fixture, the detector emits `two_person_required: false, cooldown_hours: 24` (identical to AC-018's 1-identity case); a SEPARATE fixture confirms `generate-approval-sidecar.py`/`validate-approval-sidecar.py` refuse to sign/validate against this same zero-entry registry since no `id` can ever resolve | Planned |
 
 Notes:
 
@@ -128,3 +136,14 @@ Notes:
   agent session — the live, cross-runtime proof is Epic A8's own MANDATORY
   Done condition, an explicit forced handoff, not merely a designated
   future regression target (REQ-010, requirements.md Non-goals).
+- TEST-044/TEST-045/TEST-046 (spec-review round-1 remediation) close
+  reviewer B's three round-1 findings: `sdd/approver-registry.yaml`
+  previously had no field-level schema anywhere in requirements.md
+  (AMBIGUITY/DOWNSTREAM-READINESS) and no acceptance criterion for a
+  zero-identity, structurally malformed, or duplicate-`id` registry
+  (EDGE-CASE-COVERAGE). TEST-044 proves schema conformance, including the
+  malformed-registry rejection path; TEST-045 proves the duplicate-`id`
+  semantic rejection (the registry-side analogue of TEST-040); TEST-046
+  proves the zero-identity registry's classification verdict AND the
+  pre-existing registered-id requirement's structural fail-closed-signing
+  consequence for that same empty registry.

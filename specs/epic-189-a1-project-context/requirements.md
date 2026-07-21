@@ -619,6 +619,34 @@ package; REQ↔Test correspondence in the interim is carried by
   live sidecar alone, never lost merely because the anchor "became the new
   normal" (REQ-004, above; AC-043).
 
+  **Approver registry schema (NEW — closes the missing field-level schema
+  gap, spec-review round-1 remediation; AC-044/AC-045/AC-046)**: define
+  `contracts/approver-registry.schema.json` for `sdd/approver-registry.yaml`,
+  schema id `sdd-approver-registry/v1`. Top level: `schema` (const),
+  `approvers` (array, `minItems: 0` — a zero-entry array is schema-valid,
+  below; each entry: `id` required unique string — the **immutable identity
+  key** every `approval.approver` field (REQ-004) MUST reference, never the
+  entry's `name` (Field Definitions, below); `name` required non-empty
+  string, a mutable display label, never load-bearing for identity
+  comparison). Uniqueness of `id` across the array is, like REQ-001's
+  `components[].id` and REQ-002's `bindings[].id`, not expressible in JSON
+  Schema draft-07 alone, so this REQ requires the identical kind of
+  schema-external semantic check: reject an `approvers` array containing
+  two entries with the same `id` (case-sensitive, exact string match,
+  checked pairwise across every entry) with a distinct, named diagnostic
+  (`DUPLICATE_APPROVER_REGISTRY_ID`), run as part of REQ-005's
+  content-schema validation step, BEFORE the distinct-identity count below
+  ever runs. **Zero-entry registry**: an `approvers` array with no entries
+  is schema-valid, not a violation — the distinct-identity count below
+  classifies it identically to a 1-identity registry
+  (`two_person_required: false, cooldown_hours: 24`); this is a deliberate,
+  non-error bootstrap state, not a special case — REQ-004/REQ-005 already
+  independently require every `approval.approver` to resolve to a
+  registered `id` (above), so a zero-entry registry structurally blocks
+  every future signing attempt for that schema until at least one identity
+  is registered, without this schema itself needing a `minItems: 1`
+  constraint to express that downstream fact.
+
   For a change classified as policy-weakening (any ONE of the three
   implemented categories), the
   detector additionally reads `sdd/approver-registry.yaml` (REQ-007,
@@ -1673,6 +1701,42 @@ named, diagnosable error instead.
   above) independently proves `predecessor_context_sha256`/
   `weakening_verdict`/`approval_epoch` cannot be edited after signing
   without invalidating the HMAC. (REQ-004, REQ-006)
+- AC-044 (NEW — approver-registry schema conformance, closes the missing
+  field-level schema gap, spec-review round-1 remediation):
+  `contracts/approver-registry.schema.json` validates a fixture
+  `sdd/approver-registry.yaml` exercising every REQ-006 field (`schema`
+  const, an `approvers` entry with `id`/`name` both present) and rejects a
+  fixture missing `id` or missing `name` on any entry, and a fixture whose
+  `approvers` value is not an array at all — a PARAMETERIZED negative test,
+  one fixture per REQUIRED field, mirroring AC-001's/AC-003's own
+  parameterized-deletion shape; a zero-entry `approvers: []` fixture
+  VALIDATES (schema-valid, not rejected — AC-046, below, covers its
+  downstream classification). (REQ-006)
+- AC-045 (NEW — approver-registry duplicate-`id` semantic-validator
+  rejection, closes the missing edge-case-coverage gap, spec-review
+  round-1 remediation): an `approvers[]` fixture with two entries sharing
+  the same `id` is rejected (`DUPLICATE_APPROVER_REGISTRY_ID`) at the
+  semantic-validator layer (REQ-005's content-schema validation step), the
+  identical kind of check AC-040 proves for `components[].id`/
+  `bindings[].id` — checked BEFORE REQ-006's distinct-identity count (AC-018)
+  ever runs, so a registry that would otherwise inflate its distinct-identity
+  count via a duplicated `id` is rejected outright rather than silently
+  mis-counted. (REQ-005, REQ-006)
+- AC-046 (NEW — zero-identity approver-registry boundary, closes the
+  missing edge-case-coverage gap, spec-review round-1 remediation): given a
+  policy-weakening change and a schema-valid, zero-entry
+  `sdd/approver-registry.yaml` fixture (`approvers: []`), the detector
+  emits `two_person_required: false, cooldown_hours: 24` — the identical
+  verdict AC-018 asserts for a 1-identity registry (fewer than 2 distinct
+  identities either way, no special-cased "empty" branch); a SEPARATE
+  fixture independently confirms `generate-approval-sidecar.py`/
+  `validate-approval-sidecar.py` already refuse to sign or validate ANY
+  sidecar whose `primary_approval.approver` fails to resolve to a
+  registered `id` in this same zero-entry registry (REQ-004/REQ-005's
+  existing registered-id requirement, unchanged by this AC), proving the
+  zero-entry state is structurally fail-closed for signing purposes without
+  requiring a dedicated "registry is empty" error path. (REQ-004, REQ-005,
+  REQ-006)
 
 ## Field Definitions
 
@@ -1718,7 +1782,13 @@ named, diagnosable error instead.
   comparison). its own integrity is load-bearing for REQ-006's two-person/solo-cooldown
   branch, so it is added to `guard-invariants` alongside the sidecars, not
   left agent-writable (an agent-writable registry would let an agent shrink
-  it to defeat the two-person requirement).
+  it to defeat the two-person requirement). Field-level shape (NEW, closes
+  the missing field-level schema gap, spec-review round-1 remediation):
+  `contracts/approver-registry.schema.json`, schema id
+  `sdd-approver-registry/v1` — `schema` (const), `approvers` (array of
+  `{id, name}`, `minItems: 0`; duplicate `id` values rejected as
+  `DUPLICATE_APPROVER_REGISTRY_ID`, below) — full definition under REQ-006,
+  above.
 - `human-copy procedure` (REQ-007, REQ-009, REQ-011; ADR-0011; INV-011) —
   the epic-159-pillar-c-precedent staging shape, GENERALIZED by this epic
   to an anchored-publisher-equivalent guarantee (REQ-007's
@@ -1811,6 +1881,14 @@ named, diagnosable error instead.
   `provider-bindings.yaml`'s `bindings[]` contains two entries sharing the
   same `id` — a check JSON Schema draft-07 cannot express natively, so
   REQ-005 performs it as a semantic (non-schema) validation step.
+- `DUPLICATE_APPROVER_REGISTRY_ID` (REQ-005, REQ-006; NEW, closes the
+  missing edge-case-coverage gap, spec-review round-1 remediation) — the
+  named diagnostic the content-schema validation step (REQ-005) emits when
+  `sdd/approver-registry.yaml`'s `approvers[]` contains two entries sharing
+  the same `id` — the identical kind of semantic (non-schema) check as
+  `DUPLICATE_COMPONENT_ID`/`DUPLICATE_BINDING_ID`, above, applied to the
+  registry REQ-006's two-person/solo-cooldown distinct-identity count
+  reads (AC-045).
 - `contracts/project-context.template.yaml` (REQ-001; revised — closes
   NEW-001, single-source seed inventory) — a generic, unprotected,
   schema-conformant starter scaffold
@@ -1954,6 +2032,25 @@ named, diagnosable error instead.
   validate time, never trusted from a cached verdict recorded at generation
   time (REQ-006's "re-derived from the same registry, never trusted from the
   sidecar's own claim").
+- A zero-entry `sdd/approver-registry.yaml` (`approvers: []`) is
+  schema-valid, not rejected as malformed (NEW, closes the missing
+  edge-case-coverage gap, spec-review round-1 remediation) — REQ-006
+  classifies it identically to a 1-identity registry
+  (`two_person_required: false, cooldown_hours: 24`), and REQ-004/REQ-005's
+  existing registered-`id`-resolution requirement (above) already
+  structurally blocks every signing attempt until at least one identity is
+  registered, without a special-cased "empty registry" error path
+  (AC-046). A structurally malformed registry (missing `approvers` key,
+  non-array `approvers`, or an entry missing `id`/`name`) fails the
+  ordinary content-schema validation step (REQ-005) against
+  `contracts/approver-registry.schema.json`, the same path as any other
+  schema-conformance failure, never a distinct, registry-specific error
+  class (AC-044). Two `approvers` entries sharing the same `id` are
+  rejected (`DUPLICATE_APPROVER_REGISTRY_ID`, Field Definitions, above) at
+  that same validation step, before REQ-006's distinct-identity count ever
+  runs (AC-045) — closing, for the registry's own entries, the same class
+  of same-identity-inflation risk `DUPLICATE_APPROVER_IDENTITY` (above)
+  closes for a single sidecar's own two approval slots.
 - A Project Context that is syntactically valid per REQ-001's schema but
   whose sidecar does not exist AT ALL (never signed) is a validation
   FAILURE (REQ-005) — and, because the CONTENT file itself is physically
