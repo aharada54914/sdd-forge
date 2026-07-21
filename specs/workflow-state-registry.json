@@ -352,6 +352,10 @@
     {
       "feature": "epic-159-pillar-d",
       "profile": "full"
+    },
+    {
+      "feature": "epic-189-a1-project-context",
+      "profile": "full"
     }
   ]
 }

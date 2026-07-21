@@ -96,6 +96,7 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/epic-159-pillar-b/`
 - `specs/epic-159-pillar-c/`
 - `specs/epic-159-pillar-d/`
+- `specs/epic-189-a1-project-context/`
 
 ## Source Artifact Locations
 
