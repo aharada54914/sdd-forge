@@ -2871,6 +2871,42 @@
       "host_session_id": "SESS-qg-epic-159-pillar-d-T-003-0319",
       "previous_record_sha256": "960602481525f5edfa235574b26f24be0121217ef6730d3ce5db5377ed29e6a1",
       "record_sha256": "1a4bfebc4c72e911ac823f24f39d74262e21520552ccde320567357b6fcaa441"
+    },
+    {
+      "sequence": 320,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-189-a1-project-context-spec-spec-reviewer-a-seq0320",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-189-a1-project-context-0320",
+      "previous_record_sha256": "1a4bfebc4c72e911ac823f24f39d74262e21520552ccde320567357b6fcaa441",
+      "record_sha256": "bd2dd0d46bf37f7c18ad2db87be697beeac3934cfc82b178bcb8376df3f27e09"
+    },
+    {
+      "sequence": 321,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-189-a1-project-context-spec-spec-reviewer-b-seq0321",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-189-a1-project-context-0321",
+      "previous_record_sha256": "bd2dd0d46bf37f7c18ad2db87be697beeac3934cfc82b178bcb8376df3f27e09",
+      "record_sha256": "939733a4323422c371a6aeee19586a7fbd5adf70dcdeed97c21e5e76f576a080"
+    },
+    {
+      "sequence": 322,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-189-a1-project-context-spec-spec-reviewer-a-seq0322",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-189-a1-project-context-0322",
+      "previous_record_sha256": "939733a4323422c371a6aeee19586a7fbd5adf70dcdeed97c21e5e76f576a080",
+      "record_sha256": "37caae20d52d888526d1ab2c3e5fcc461bacd51435243db4260b357508da47ab"
+    },
+    {
+      "sequence": 323,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-189-a1-project-context-spec-spec-reviewer-b-seq0323",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-189-a1-project-context-0323",
+      "previous_record_sha256": "37caae20d52d888526d1ab2c3e5fcc461bacd51435243db4260b357508da47ab",
+      "record_sha256": "2ccb173856be49fe2ec458a37e3550c7ca5df99f854369c58b408216e8102477"
     }
   ]
 }
