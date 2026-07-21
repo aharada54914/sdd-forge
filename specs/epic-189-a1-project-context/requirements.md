@@ -297,7 +297,29 @@ package; REQ↔Test correspondence in the interim is carried by
   `effective_at` (`null` or an ISO 8601 string — populated only when REQ-006's
   solo-maintainer-cooldown path is taken; decision doc §9 v2 "発効予定時刻を
   HMAC 署名し、期限前の適用を validator が拒否する" places this inside the
-  signed record, not a side channel), `hmac` (string, 64 lowercase hex
+  signed record, not a side channel), **`predecessor_context_sha256` /
+  `weakening_verdict` / `approval_epoch` (NEW, revised — closes the
+  historical weakening-binding gap)**: `predecessor_context_sha256`
+  (`null`, or `sha256:<64-hex>` — the anchor's own hash immediately BEFORE
+  this publish, i.e. the currently-live sidecar's `context_sha256` at the
+  moment this candidate is generated; `null` only for the first-ever
+  publish of this schema); `weakening_verdict` (`null`, or an object
+  recording the EXACT verdict `detect-policy-weakening` (REQ-006) computed
+  for this transition — `policy_weakening` boolean, a `categories` map
+  over the nine canonical categories (REQ-006, below), `two_person_required`
+  boolean, `cooldown_hours` — `null` only alongside a `null`
+  `predecessor_context_sha256`, the same first-ever-publish bootstrap
+  case); `approval_epoch` (integer ≥ 1 — `1` for the first-ever publish of
+  this schema, else the predecessor sidecar's own `approval_epoch + 1`) —
+  these three fields bind this sidecar, durably and HMAC-covered, to the
+  specific predecessor→candidate transition it represents, so a human or
+  tool inspecting the LIVE sidecar at any LATER point can still determine
+  whether THIS revision was a weakening transition and whether the
+  two-person/cooldown requirement it implied was honored, even after the
+  predecessor anchor's own bytes have been overwritten by this same
+  publish (design.md's Weakening-detector approved-context anchor CLI
+  contract section, "Post-publish historical weakening re-provability").
+  `hmac` (string, 64 lowercase hex
   characters, matching the existing `SUDO_SIGNATURE_HEX_LENGTH = 64`
   convention at `guard_invariants.py:3`). **`approver` identity binding
   (closes a same-identity two-person bypass)**: `primary_approval.approver`
@@ -318,7 +340,9 @@ package; REQ↔Test correspondence in the interim is carried by
   a UTF-8 byte sequence; the HMAC-SHA256 of that byte sequence, keyed by the
   resolved external key, is the `hmac` field's value — this preimage
   includes EVERY other field (`schema`, `context_sha256`, both approval
-  objects' every sub-field, `effective_at`), not merely the fields REQ-011's
+  objects' every sub-field, `effective_at`, and — NEW, closes the
+  historical weakening-binding gap — `predecessor_context_sha256`,
+  `weakening_verdict`, `approval_epoch`), not merely the fields REQ-011's
   existing round-trip test happens to vary; REQ-011 requires a golden known-
   answer vector plus a per-field mutation proof (AC-036/TEST-036) that
   omitting or altering any one non-`hmac` field changes the computed HMAC,
@@ -337,7 +361,17 @@ package; REQ↔Test correspondence in the interim is carried by
   (+ `.sh`/`.ps1` wrappers) is the human/CI-invoked tool that computes
   `context_sha256` (via REQ-003 against the live content file), accepts
   `--approver`, `--second-approver` (registry ids), `--status`, and (only
-  for the solo-cooldown path) an `--effective-at` value, and signs — but it
+  for the solo-cooldown path) an `--effective-at` value, and signs. **Before
+  signing (NEW, revised — closes the historical weakening-binding gap)**,
+  it also resolves `predecessor_context_sha256` (the CURRENTLY-live
+  sidecar's own `context_sha256` for this schema, or `null` if none
+  exists), `approval_epoch` (that live sidecar's `approval_epoch + 1`, or
+  `1` if none exists), and `weakening_verdict` (the exact verdict
+  `detect-policy-weakening` computes for the candidate content against the
+  CURRENTLY-live approved-context anchor — the same invocation this REQ
+  already makes to decide whether a second approval is required, now
+  recorded rather than discarded once that decision is made; `null` only
+  alongside a `null` predecessor). It
   **NEVER writes to the live `sdd/*.approval.json` path** (that path is
   itself `PROTECTED_GATE_SUFFIXES`-denied to every write source, REQ-007/
   REQ-008, including the signer's own process, which runs as an
@@ -364,10 +398,16 @@ package; REQ↔Test correspondence in the interim is carried by
   claims the live sidecar or approved-context anchor has been updated.
   **Publishing the staged
   candidates to their live paths is REQ-007's human-copy-applied anchored
-  publisher (see REQ-007's generalization of ADR-0011), run only after**:
+  publisher (see REQ-007's generalization of ADR-0011), applied as ONE
+  journaled, multi-target atomic transaction (revised, NEW — closes the
+  "anchor advances alone" partial-publish gap; REQ-007's transactional
+  bundle contract, below), run only after**:
   (i) `validate-approval-sidecar.py` (REQ-005) independently verifies the
   STAGED sidecar candidate against the STAGED approved-context snapshot
-  (hash match, HMAC, approver identities, `effective_at`)
+  (hash match, HMAC, approver identities, `effective_at`, AND — NEW —
+  re-derives `predecessor_context_sha256`/`weakening_verdict`/
+  `approval_epoch` against the STILL-live, about-to-be-superseded anchor
+  and sidecar, rejecting the staged candidate if it disagrees)
   — the publisher refuses to apply a staged candidate that fails REQ-005's
   own validator, closing the gap where "signed" and "valid" could
   silently diverge; (ii) the human/CI operator visually confirms the
@@ -423,7 +463,26 @@ package; REQ↔Test correspondence in the interim is carried by
   Provider Binding (a future Epic A2/A4/A5 concern; A1 ships the validator
   itself, not its call sites in those gates) must call this validator and
   treat any of the four failure modes identically — a failed validation
-  blocks, it never degrades to "advisory."
+  blocks, it never degrades to "advisory." **`--verify-provenance` mode
+  (NEW, revised — closes the historical weakening-binding gap)**: given a
+  LIVE sidecar (no accompanying predecessor anchor required — the whole
+  point is this check works even after the predecessor's bytes are gone),
+  the validator recomputes the sidecar's own HMAC (proving
+  `predecessor_context_sha256`/`weakening_verdict`/`approval_epoch` were
+  not edited after signing) and asserts internal consistency: IF
+  `weakening_verdict.policy_weakening` is `true` AND
+  `weakening_verdict.two_person_required` is `true`, THEN `second_approval`
+  must be present with an `approver` distinct from
+  `primary_approval.approver` — a live, hash/HMAC-valid sidecar failing
+  this cross-check (a weakening transition that required two-person review
+  but was only ever solo-approved) is reported as a distinct diagnostic
+  (`WEAKENING_PROVENANCE_UNDERAPPROVED`), never silently accepted; the
+  bootstrap case (`approval_epoch: 1`, `weakening_verdict: null`) is
+  exempt (AC-043). **Reader-side generation-consistency check**: before
+  trusting a LIVE sidecar+anchor pair, the validator performs the identical
+  in-progress-publish check REQ-006's detector performs (above) — a live
+  human-copy transaction journal naming either path fails the read closed
+  (`HUMAN_COPY_PUBLISH_IN_PROGRESS`).
 - **REQ-006** (policy-weakening detector; decision doc §9 (Q8) v2 "二者承認:
   条件付き活性化"): `plugins/sdd-quality-loop/scripts/detect-policy-weakening.py`
   (+ `.sh`/`.ps1`) compares a baseline and a candidate `project-context.yaml`
@@ -524,7 +583,16 @@ package; REQ↔Test correspondence in the interim is carried by
   `policy_weakening: false` for every category — every capability, path,
   and enforcement setting in the candidate is a NEW addition, not a
   weakening of anything previously approved — this is a documented rule
-  (`NO_APPROVED_CONTEXT_ANCHOR`), not a silent default. **Deletion** (a
+  (`NO_APPROVED_CONTEXT_ANCHOR`), not a silent default. **Reader-side
+  generation-consistency check (NEW, revised — closes the read-during-
+  publish race)**: before trusting the anchor snapshot it just read, the
+  detector checks for a live human-copy transaction journal
+  (`sdd/.staging/*/TRANSACTION.json`, REQ-007's transactional bundle
+  contract, above) naming either the anchor path it read or the
+  accompanying sidecar path — if found, the read is discarded and the
+  tool exits non-zero (`HUMAN_COPY_PUBLISH_IN_PROGRESS`) rather than
+  proceeding on a possibly torn cross-file state; `validate-approval-
+  sidecar` (REQ-005) performs the identical check. **Deletion** (a
   candidate that does not exist, or is empty) is OUT OF SCOPE for this
   detector — REQ-007/REQ-008's protected-file guard governs whether a
   content file may be deleted at all; this detector's `--candidate` must
@@ -539,7 +607,17 @@ package; REQ↔Test correspondence in the interim is carried by
   anchor snapshot described above, at the moment it needs the verdict
   (generation time and validation time respectively) — never reading a
   verdict, or an anchor path, a prior, potentially-stale or forged
-  invocation supplied.
+  invocation supplied. **Historical weakening binding (NEW, revised —
+  closes the "anchor becomes the new normal, losing the paper trail"
+  gap)**: `generate-approval-sidecar.py` (REQ-004) records the verdict
+  computed here, at generation time, into the candidate sidecar's own
+  `predecessor_context_sha256`/`weakening_verdict`/`approval_epoch`
+  fields, HMAC-covered and published in the SAME transaction as the
+  anchor it was computed against — so once the anchor this verdict was
+  computed against is superseded (its bytes overwritten by the NEXT
+  publish), the verdict itself remains checkable indefinitely from the
+  live sidecar alone, never lost merely because the anchor "became the new
+  normal" (REQ-004, above; AC-043).
 
   For a change classified as policy-weakening (any ONE of the three
   implemented categories), the
@@ -598,6 +676,19 @@ package; REQ↔Test correspondence in the interim is carried by
     `project-context.yaml`/`provider-bindings.yaml`, since
     `_is_protected_gate_file`'s suffix-match would otherwise also protect
     those, breaking B1's "content stays freely agent-editable" guarantee).
+  - **Human-copy publisher (2, NEW — closes the "publisher itself stays
+    agent-writable" gap)**: `apply-human-copy.sh`, `apply-human-copy.ps1`
+    — the anchored-publisher-equivalent tool this REQ's own batch is
+    published through is itself a CONCRETE manifest entry, never an
+    entity exempted from its own inventory. Its first-ever application
+    (publishing this SAME batch, which includes its own two basenames) is
+    bootstrapped by a one-time, human-verified plain `cp` + SHA-256 check,
+    matching how `apply-protected-files.ps1` was itself originally
+    installed (INV-011; design.md's Global Constraints records this
+    ordering); every subsequent human-copy application — including of any
+    later revision of `apply-human-copy` itself — goes through the tool
+    while it is already protected, so the core of the approval-publishing
+    mechanism never remains agent-writable once this REQ lands.
   - **Resolver (reserved, 3) and generated projection (reserved, 1) —
     NEW, closes the "guard-invariants has no entry for the two categories
     ADR-0019 item 3 also names" gap**: A1 does not build a Capability
@@ -621,9 +712,11 @@ package; REQ↔Test correspondence in the interim is carried by
     resolver/projection file and treat this reservation as satisfied by
     proximity alone.
 
-  The manifest's total entry count (**22 concrete + 4 reserved = 26**, at
+  The manifest's total entry count (**24 concrete + 4 reserved = 28**, at
   spec-authoring time — revised to include the two approved-context anchor
-  snapshots, closing B3) is a DERIVED value the manifest itself enumerates,
+  snapshots (closing B3) and the human-copy publisher's own two concrete
+  entries (closing the publisher-self-protection gap)) is a DERIVED value
+  the manifest itself enumerates,
   never a separately-asserted literal elsewhere in this package (a prior
   draft's "five new protected files"/"sixteen `EPIC_A1_TARGETS`"/"nineteen
   paths" language, each independently wrong, is retired — every other
@@ -672,14 +765,38 @@ package; REQ↔Test correspondence in the interim is carried by
   validation, preparation, or capability-preflight failure occurs BEFORE
   any live replacement, with every held temporary handle cleaned up on
   failure — mirroring ADR-0011's Consequences section's rollback
-  discipline generalized to the sh/ps1 pair. REQ-011 requires an executable
+  discipline generalized to the sh/ps1 pair; (e) **multi-target atomic
+  transaction (NEW, revised — closes the "anchor advances alone"
+  partial-publish gap; design.md's Human-copy publisher transactional
+  bundle contract carries the full protocol)**: for any batch of 2+ live
+  targets (the sidecar+anchor pair REQ-004 stages at minimum, and REQ-007's
+  own larger guard-invariants/self-protection batches), the publisher
+  re-hashes every staged candidate together immediately before committing,
+  writes a durable transaction journal (recording every target's live
+  path, pre-transaction hash, and post-transaction hash, plus a byte-exact
+  pre-transaction backup of any target with existing live content) BEFORE
+  any rename, commits each target's atomic rename in the journal's
+  recorded order, and deletes the journal only once every rename has
+  succeeded; a crash at ANY point is recovered automatically at the START
+  of the NEXT `apply-human-copy` invocation by comparing every journaled
+  target's current live hash against its recorded pre/post values and
+  driving the whole batch to exactly one of two terminal states — every
+  target reverted to pre-transaction bytes, or every target advanced to
+  post-transaction bytes — NEVER a standing mix where some targets (e.g.
+  the approved-context anchor) have advanced while others (e.g. the
+  accompanying sidecar) have not. REQ-011 requires an executable
   `.sh`+`.ps1` test twin for `apply-human-copy` proving: pre-existing
   symlink/reparse-point denial at both the repo-root and destination-parent
   handles, hard-link-alias non-propagation (replacing one hard-linked name
   does not mutate content visible through the other), held-handle
   substitution resistance (renaming/deleting the source or destination
-  parent between validation and publish does not redirect the copy), and
-  no live-path mutation on any preparation-stage failure (AC-033/TEST-033).
+  parent between validation and publish does not redirect the copy),
+  no live-path mutation on any preparation-stage failure, AND (revised,
+  NEW) a simulated crash injected between two targets' renames within a
+  single transaction recovers, on the next invocation, to one of the two
+  terminal states above, never a partial one — including a second crash
+  injected mid-recovery itself, still converging correctly on the
+  following invocation (AC-033/TEST-033).
 - **REQ-008** (hook-guard extension — sidecar full-write-deny; ADR-0019 item
   1): `sdd-hook-guard.py`'s `_is_protected_gate_file` already denies writes
   to any suffix in `_PROTECTED_GATE_SUFFIXES` (INV-006), so once REQ-007's
@@ -870,6 +987,55 @@ package; REQ↔Test correspondence in the interim is carried by
     v2, restated verbatim: "legacy modeへ黙ってフォールバックしてはならな
     い").
 
+  **Sentinel cleanup contract (revised — mandatory success confirmation +
+  stale-start recovery, closes the "cleanup attempted but never confirmed"
+  gap)**: when `--verify-response` reports the non-`HOOK_ACTIVE` branch
+  (the write executed, so the sentinel now exists), the calling skill's
+  required follow-up is no longer merely "attempt one cleanup tool-call" —
+  the cleanup's OWN result must be recorded and checked, exactly like the
+  original probe's result was: the calling skill records the raw result of
+  its delete/remove attempt against `sdd/.hook-canary-sentinel` to a plain
+  evidence file, and `--verify-response` (or a distinct
+  `--confirm-cleanup --nonce <nonce> --recorded-cleanup-result <path>`
+  invocation, made immediately after) inspects it. Three outcomes:
+  (a) the cleanup result shows the sentinel was successfully removed —
+  the branch resolves cleanly, absent-after is confirmed, not merely
+  assumed; (b) no cleanup-result evidence is recorded at all (the calling
+  skill never attempted or never reported it) — a distinct diagnostic
+  (`SENTINEL_CLEANUP_UNCONFIRMED`) is reported ALONGSIDE
+  `CAPABILITY_RUNTIME_UNAVAILABLE` (the two are independent: the PRIMARY
+  hook-inactivity verdict from the original probe stands regardless — a
+  later cleanup outcome cannot retroactively change what the ORIGINAL
+  write attempt already proved — but the sentinel's own lingering
+  existence is now a recorded, surfaced condition, never silently
+  ignored); (c) the cleanup's own delete attempt is ITSELF denied — the
+  **race case**: the hook became active BETWEEN the sentinel's creation
+  and the cleanup attempt (e.g. a mid-session hook install/reload). This
+  is reported identically to (b) (`SENTINEL_CLEANUP_UNCONFIRMED` alongside
+  `CAPABILITY_RUNTIME_UNAVAILABLE` for THIS invocation's own, still-valid
+  verdict) — the handshake never attempts a privileged/`sudo`-mediated
+  force-delete to "fix" this, since that would defeat the same
+  guard-mediation premise the whole handshake relies on; the sentinel is
+  left as a genuinely stuck, but explicitly recorded, condition for the
+  NEXT invocation to resolve.
+  **Stale-start contract (NEW)**: at the START of every subsequent
+  `--emit-challenge` invocation, BEFORE issuing a new nonce/challenge, the
+  calling skill checks whether `sdd/.hook-canary-sentinel` already exists.
+  Its existence is treated as evidence of a PREVIOUS invocation's abnormal
+  termination (a crash between create and delete, or an unconfirmed/denied
+  cleanup per above) — the skill performs and records ONE cleanup attempt
+  against the STALE sentinel FIRST, before proceeding to the new
+  challenge; the stale-cleanup attempt's own outcome (success, or a denial
+  indicating the hook is NOW active — informative, and consistent with a
+  fail-closed posture, never treated as a handshake malfunction) is
+  recorded in the tool's diagnostic output either way, and the new
+  challenge/probe proceeds regardless (a permanently-stuck sentinel from a
+  genuinely-reactivated hook must not itself become an availability
+  failure for the NEW probe — it is a documented, rare operational
+  condition a human resolves out-of-band if the hook remains active
+  indefinitely, mirroring this design's existing acknowledgment elsewhere
+  that some conditions require human, not agent-mediated, recovery).
+
   **Entry-point wiring (revised — was scoped to "the ONE call site
   REQ-009 touches"; now covers every A1-time bootstrap/track/gate entry
   point, closing the "loud claim, one narrow test" gap)**: this handshake
@@ -902,7 +1068,7 @@ package; REQ↔Test correspondence in the interim is carried by
   (protected, INV-011). Mandatory cases across the suites (expanded — this
   list supersedes any prior draft's shorter list; each bullet is its own
   independent fixture/assertion, not a shared "one case covers the
-  category" shortcut; new AC/TEST numbers AC-030..AC-041/TEST-030..TEST-041
+  category" shortcut; new AC/TEST numbers AC-030..AC-043/TEST-030..TEST-043
   are introduced below alongside revisions to several existing AC-00x/
   TEST-00x pairs — Acceptance Criteria, below, is the authoritative
   numbering):
@@ -948,8 +1114,13 @@ package; REQ↔Test correspondence in the interim is carried by
   `guard-invariants.json` candidate) (AC-038/TEST-038); REQ-007's
   human-copy anchored-publisher (`apply-human-copy`) proof (held-handle
   traversal, hard-link-alias non-propagation, temp-rehash-then-atomic-
-  rename, no path-copy fallback, no live mutation on preparation failure)
-  (AC-033/TEST-033); REQ-008's full 4-basename × 12-call-site × sudo-state
+  rename, no path-copy fallback, no live mutation on preparation failure,
+  PLUS a multi-target crash-recovery proof converging every batch to one
+  of exactly two terminal states, revised, NEW)
+  (AC-033/TEST-033); REQ-004/REQ-006's historical weakening
+  re-provability proof (a live sidecar's `weakening_verdict` remains
+  checkable, and its two-person requirement remains enforceable, after its
+  predecessor anchor is gone) (AC-043/TEST-043); REQ-008's full 4-basename × 12-call-site × sudo-state
   matrix (96 independent assertions, against design.md's explicit
   surface/argv/expected-denial table, never a per-basename spot check,
   extends AC-023/TEST-023); REQ-001/REQ-002's component/binding duplicate-
@@ -1215,8 +1386,9 @@ named, diagnosable error instead.
   applying that sidecar's approval before `effective_at` (AC-014's fourth
   case) and accepts it after. (REQ-004, REQ-005, REQ-006)
 - AC-021: every path enumerated in REQ-007's canonical
-  `PROTECTED-MANIFEST.md` (the 22 concrete + 4 reserved paths, including the
-  two approved-context anchor snapshots — a count
+  `PROTECTED-MANIFEST.md` (the 24 concrete + 4 reserved paths, including the
+  two approved-context anchor snapshots and `apply-human-copy.{sh,ps1}`'s
+  own two concrete entries — a count
   DERIVED from the manifest itself, never independently re-asserted) is
   present in the staged
   `specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json`
@@ -1331,16 +1503,34 @@ named, diagnosable error instead.
   no other change (does NOT narrow — classified `policy_weakening: false`
   for this category, proving the algorithm is not "any change is
   weakening" in disguise). (REQ-006)
-- AC-032 (NEW — sentinel-path deny-only, non-mutating proof, B5):
-  `sdd/.hook-canary-sentinel` (and, separately, the live
+- AC-032 (revised — sentinel-path deny-only, non-mutating proof, B5,
+  extended to mandatory cleanup-success observation + stale-start recovery
+  — closes the "cleanup attempted but never confirmed" gap): the live
   `sdd/project-context.approval.json`/`sdd/provider-bindings.approval.json`
-  sidecars, which the redesigned handshake never targets at all) are
-  byte-identical (or, if absent before, still absent after) across every
+  sidecars (which the redesigned handshake never targets at all) are
+  byte-identical across every
   `check-hook-activation-handshake.py --emit-challenge`/`--verify-response`
-  invocation this epic's tests exercise, whether the simulated hook fires
-  or not — the handshake causes NO persistent-state change under any
-  outcome. (REQ-010)
-- AC-033 (NEW — human-copy anchored-publisher contract, B6):
+  invocation this epic's tests exercise, unconditionally. For
+  `sdd/.hook-canary-sentinel`, considered end-to-end across a FULL
+  handshake invocation (challenge → tool call → verify-response → cleanup
+  → cleanup-result observation): (a) hook FIRES — absent-before AND
+  absent-after, the write never executed, no cleanup step is even
+  triggered; (b) hook does NOT fire, cleanup SUCCEEDS — the sentinel is
+  created (host-side, an observed, recorded fact, not merely inferred),
+  THEN a recorded cleanup delete result showing success is REQUIRED before
+  the branch is considered resolved — absent-after is CONFIRMED, never
+  assumed from a bare "cleanup was attempted"; (c) hook does NOT fire,
+  cleanup FAILS or is unconfirmed (no recorded cleanup result, or the
+  create-to-delete race — the hook becomes active before cleanup, denying
+  the delete) — `SENTINEL_CLEANUP_UNCONFIRMED` is reported alongside
+  `CAPABILITY_RUNTIME_UNAVAILABLE`, and a SEPARATE fixture proves the NEXT
+  `--emit-challenge` invocation detects the pre-existing stale sentinel at
+  START, performs and records its own cleanup attempt BEFORE issuing the
+  new challenge, and the new challenge/probe still proceeds and resolves
+  correctly regardless of that stale-cleanup attempt's own outcome. (REQ-010)
+- AC-033 (revised — human-copy anchored-publisher contract, B6, extended to
+  multi-target atomicity — closes the "anchor advances alone"
+  partial-publish gap):
   `apply-human-copy.{sh,ps1}` denies a pre-existing symlink/reparse point
   at either the repository-root handle or a destination-parent handle;
   preserves hard-link-alias non-propagation (replacing one hard-linked
@@ -1350,7 +1540,19 @@ named, diagnosable error instead.
   handle substitution resistance); performs the actual publish step only
   via an atomic rename (never a path-based copy); and leaves the live
   target UNCHANGED if any validation/preparation/capability-preflight step
-  fails, with every held temporary handle cleaned up. (REQ-007)
+  fails, with every held temporary handle cleaned up. **Multi-target
+  transaction proof (NEW)**: for a 2+ target batch, a simulated crash
+  injected between the first and second target's rename, recovered on the
+  next `apply-human-copy` invocation, converges to exactly one of two
+  terminal states — every target back at its pre-transaction bytes, or
+  every target advanced to its post-transaction bytes — NEVER a mix (the
+  sidecar+anchor pair is the minimal fixture; the larger REQ-007
+  guard-invariants/self-protection batch is a second, independent
+  fixture); a crash injected before the first rename (during journal
+  write) recovers to all-pre; a crash injected after the last rename but
+  before journal deletion recovers to all-post; a second, injected crash
+  during recovery ITSELF still converges correctly on the following
+  invocation (recovery idempotence). (REQ-007)
 - AC-034 (NEW — sidecar signer staging-only contract + rollback, B7):
   `generate-approval-sidecar.py` never opens the live `sdd/*.approval.json`
   path for writing under any invocation (asserted via a fixture that
@@ -1372,11 +1574,16 @@ named, diagnosable error instead.
   contract (REQ-010) is documented in a form a LATER epic's own spec-
   review can check against (a named, quotable requirement, not prose
   buried in a Non-goal). (REQ-010)
-- AC-036 (NEW — HMAC golden vector + per-field mutation proof, M9): a
+- AC-036 (revised — HMAC golden vector + per-field mutation proof, M9,
+  extended to the provenance fields): a
   fixed, committed sidecar fixture with every field populated (non-null
-  `second_approval`, non-null `effective_at`) has a documented, hand-
-  verified canonical-bytes-and-HMAC golden pair; twelve additional
-  fixtures, each identical to the golden fixture except for ONE non-`hmac`
+  `second_approval`, non-null `effective_at`, non-null
+  `predecessor_context_sha256`/`weakening_verdict`, `approval_epoch: 2`)
+  has a documented, hand-
+  verified canonical-bytes-and-HMAC golden pair; fifteen additional
+  fixtures (extended from twelve — three new variants cover
+  `predecessor_context_sha256`, `weakening_verdict`, `approval_epoch`),
+  each identical to the golden fixture except for ONE non-`hmac`
   field changed (or, for optional-shape fields, omitted), each produce a
   DIFFERENT computed HMAC than the golden pair's — proving the preimage
   construction actually includes every field the schema defines, not
@@ -1449,6 +1656,23 @@ named, diagnosable error instead.
   ONE canonical seed inventory; Epic A3's day-one integration fixture reads
   it directly and validates the complete six-pattern set as a cross-epic
   test (A3's own spec is separately aligned to this identical set). (REQ-001)
+- AC-043 (NEW — historical weakening re-provability, closes the "anchor
+  becomes the new normal, losing the paper trail" gap): a LIVE sidecar
+  fixture whose `weakening_verdict.policy_weakening` is `true` and
+  `weakening_verdict.two_person_required` is `true`, with the fixture's
+  predecessor anchor DELETED/never-materialized (simulating post-publish,
+  after a later publish has overwritten it), still passes
+  `validate-approval-sidecar --verify-provenance` when `second_approval`
+  carries a distinct approver id, and still FAILS
+  (`WEAKENING_PROVENANCE_UNDERAPPROVED`) — despite an otherwise
+  perfectly-valid hash/HMAC — when `second_approval` is `null` or
+  duplicates `primary_approval.approver`; a bootstrap-case fixture
+  (`approval_epoch: 1`, `predecessor_context_sha256: null`,
+  `weakening_verdict: null`) independently passes with no second-approval
+  requirement implied; the HMAC golden-vector/mutation proof (AC-036,
+  above) independently proves `predecessor_context_sha256`/
+  `weakening_verdict`/`approval_epoch` cannot be edited after signing
+  without invalidating the HMAC. (REQ-004, REQ-006)
 
 ## Field Definitions
 
@@ -1469,6 +1693,19 @@ named, diagnosable error instead.
   validator can compare against "now" (the direct sidecar-level analogue of
   `SDD_SUDO`'s `issued-epoch`/`expires-epoch` fields, INV-003). Null when no
   cooldown applies (two-person path, or a non-policy-weakening change).
+- `predecessor_context_sha256` / `weakening_verdict` / `approval_epoch`
+  (REQ-004, REQ-006, NEW — closes the historical weakening-binding gap) —
+  not present in ADR-0019's literal JSON example; introduced so a LIVE
+  sidecar durably carries the provenance of its own predecessor→candidate
+  transition (the prior anchor's hash, the exact weakening verdict
+  computed against it, and a monotonic per-schema sequence number), HMAC-
+  covered like every other field, so a human or `validate-approval-sidecar
+  --verify-provenance` can still determine whether THIS revision was a
+  weakening transition — and whether it received the two-person review
+  such a transition requires — after the predecessor anchor's own bytes
+  are gone (overwritten by a later publish). All three are `null`/`1`
+  respectively ONLY for the first-ever publish of a given schema
+  (bootstrap; no predecessor exists).
 - `two_person_required` / `cooldown_hours` (REQ-006) — the detector's
   machine-readable verdict fields; `cooldown_hours` is always `24` when
   present (decision doc §9 v2's stated constant, reusing `SDD_SUDO`'s TTL
@@ -1490,10 +1727,27 @@ named, diagnosable error instead.
   content to `specs/epic-189-a1-project-context/human-copy/<path>` with a
   `MANIFEST.sha256` entry; a human runs `apply-human-copy` (bootstrapped
   once via a human-verified plain `cp` + SHA-256 check, then self-hosting
-  thereafter, REQ-007) rather than a bare `cp`, and verifies the SHA-256.
-  This
+  thereafter, REQ-007) rather than a bare `cp`, and verifies the SHA-256. A
+  batch of 2+ live targets is applied as ONE journaled, crash-recoverable
+  transaction (revised, NEW — closes the "anchor advances alone"
+  partial-publish gap), never as independent per-target renames. This
   epic does NOT extend or reuse `apply-protected-files.ps1`
   (INV-011 — that tool is pinned to its own frozen bootstrap inventory).
+- `TRANSACTION.json` (REQ-007, NEW) — the unprotected, staging-area-scoped
+  journal `apply-human-copy` writes before any live rename in a 2+ target
+  batch, and consults automatically at the start of every subsequent
+  invocation to recover a crash-interrupted publish to one of exactly two
+  terminal states (Human-copy publisher transactional bundle contract,
+  design.md).
+- `HUMAN_COPY_PUBLISH_IN_PROGRESS` (REQ-005/REQ-006, NEW) — the fail-closed
+  diagnostic `detect-policy-weakening`/`validate-approval-sidecar` report
+  when a live `TRANSACTION.json` journal names a path they were about to
+  read, rather than proceeding on a possibly torn cross-file state.
+- `WEAKENING_PROVENANCE_UNDERAPPROVED` (REQ-004/REQ-005/REQ-006, NEW) — the
+  diagnostic `validate-approval-sidecar --verify-provenance` reports for a
+  live, hash/HMAC-valid sidecar whose `weakening_verdict` records a
+  two-person-required transition but whose `second_approval` is absent or
+  duplicates `primary_approval.approver`.
 - `CAPABILITY_RUNTIME_UNAVAILABLE` (REQ-010; decision doc §7 v2) — the
   named stop condition when the hook-activation handshake cannot observe a
   DENIAL matching the runtime-specific expected signature (a fresh,
@@ -1501,6 +1755,14 @@ named, diagnosable error instead.
   under test; distinct from any Capability-mode-inactive state (ADR-0016's
   `disabled-legacy`), which is a normal, expected condition for a project
   with no Project Context, not an error.
+- `SENTINEL_CLEANUP_UNCONFIRMED` (REQ-010, NEW — closes the "cleanup
+  attempted but never confirmed" gap) — reported ALONGSIDE
+  `CAPABILITY_RUNTIME_UNAVAILABLE` when the sentinel's post-write cleanup
+  delete attempt has no recorded result, or is itself denied (the
+  create-to-delete race, REQ-010's Sentinel cleanup contract) — never
+  changes the original invocation's own hook-inactivity verdict, but
+  records that the sentinel may still exist for the NEXT invocation's
+  Stale-start contract to resolve.
 - `PROJECT_CONTEXT_INVALID` (REQ-009; NEW, closes B1) — the named stop
   condition every migrated track-selection consumer reports when
   `sdd/project-context.yaml` is PHYSICALLY PRESENT on disk but fails
@@ -1728,7 +1990,8 @@ named, diagnosable error instead.
   DEDICATED sentinel path (`sdd/.hook-canary-sentinel`), never the live
   approval sidecar, which stays untouched in every branch. The sentinel
   itself is never created when the hook fires (deny), and is created only
-  transiently — then immediately cleaned up before the handshake
+  transiently — then cleaned up, with the cleanup's OWN success explicitly
+  confirmed (revised, NEW — never merely attempted), before the handshake
   completes — when the hook does not fire (write executes,
   `CAPABILITY_RUNTIME_UNAVAILABLE`): absent-before/absent-after end-to-end
   in both branches, never a lasting mutation (B5, resolved). The
@@ -1741,6 +2004,49 @@ named, diagnosable error instead.
   extend to proving a live host's hook actually fires for a real,
   unscripted agent action — that adversarial-tier, live-host proof is Epic
   A8's own mandatory Done condition (B4, scoped — see REQ-010).
+- A cleanup delete attempt that fails to confirm (no recorded cleanup
+  result, or the delete itself denied — the hook became active BETWEEN the
+  sentinel's creation and the cleanup attempt) must report
+  `SENTINEL_CLEANUP_UNCONFIRMED` alongside the original invocation's own
+  `CAPABILITY_RUNTIME_UNAVAILABLE` verdict, never silently treat the branch
+  as fully resolved (NEW, closes the "cleanup attempted but never
+  confirmed" gap; REQ-010's Sentinel cleanup contract). A sentinel already
+  present at the START of a LATER `--emit-challenge` invocation (evidence
+  of a prior invocation's abnormal termination) is cleaned up FIRST, with
+  its own outcome recorded, before that invocation's new challenge
+  proceeds — the handshake never force-deletes via a privileged bypass; a
+  sentinel left stuck because the hook is now genuinely, persistently
+  active is a documented, rare condition requiring human, not
+  agent-mediated, resolution (REQ-010's Stale-start contract).
+- A crash (process kill, host reboot, disk-full) landing between the
+  sidecar's rename and the accompanying anchor's rename during
+  `apply-human-copy`'s publish of a 2+ target batch must NEVER be
+  observable, after recovery, as one target advanced while the other is
+  not — REQ-007's journaled multi-target transaction always drives
+  recovery to exactly one of two terminal states (all-pre or all-post),
+  never a standing mix (NEW, closes the "anchor advances alone"
+  partial-publish gap). A second crash injected DURING recovery itself
+  must also converge correctly on the next invocation — recovery is
+  idempotent and re-entrant, never assuming it starts from a fresh state.
+- `detect-policy-weakening` or `validate-approval-sidecar` invoked WHILE a
+  human-copy transaction journal exists naming the anchor or sidecar path
+  they are about to read must fail closed
+  (`HUMAN_COPY_PUBLISH_IN_PROGRESS`), never silently proceed on a
+  possibly-torn cross-file state where one of the pair has already been
+  renamed to its new bytes and the other has not (NEW, closes the
+  read-during-publish race).
+- A live sidecar recording a weakening transition
+  (`weakening_verdict.policy_weakening: true`,
+  `two_person_required: true`) that was ONLY ever solo-approved (a
+  `second_approval` that is `null`, or that duplicates
+  `primary_approval.approver`) must be rejected by
+  `validate-approval-sidecar --verify-provenance`
+  (`WEAKENING_PROVENANCE_UNDERAPPROVED`) even when its hash and HMAC are
+  otherwise perfectly valid, and EVEN AFTER the predecessor anchor this
+  verdict was originally computed against has been overwritten by a later
+  publish — the embedded, HMAC-covered provenance fields are what make
+  this checkable without the predecessor's bytes still existing (NEW,
+  closes the historical weakening-binding gap; B4, extended).
 
 ## Security Boundaries
 
@@ -1749,9 +2055,11 @@ named, diagnosable error instead.
 | B1: agent write access to `project-context.yaml`/`provider-bindings.yaml` content | agent may edit content freely (REQ-001/REQ-002 are content schemas, not protected files); every content change requires a FRESH sidecar signature (REQ-004) before any consumer trusts it (REQ-005) — content editability is intentionally unrestricted, approval is not | internal source only | none identified |
 | B2: agent write access to the approval sidecars and approver registry | full deny, no partial permission, no `sudo` bypass (REQ-007/REQ-008/ADR-0019 item 1/item 5); human-copy is the only legitimate change path | internal source only | none identified |
 | B3: HMAC key custody | `SDD_CONTEXT_KEY`/`SDD_CONTEXT_KEY_FILE`/`~/.sdd/context-key` are never read by an agent-driven signing operation — signing is human/CI-only (Roles and Permissions); an agent may read a PUBLIC sidecar's `hmac` field (verification-only, no key needed) but never the signing key itself | internal source only | none identified |
-| B4: policy-weakening self-approval | the detector's `two_person_required`/`cooldown_hours` verdict is re-derived from the protected approver registry at BOTH generation and validation time (Edge Cases, above), from an approved-context anchor the detector resolves ITSELF from a protected snapshot (`sdd/.approved-context/*.approved.yaml`, never an externally supplied or candidate-as-anchor value, and never movable by an ordinary commit) — an agent cannot manufacture a favorable verdict by controlling only the content file, and cannot satisfy a two-person requirement with one identity presented twice (`DUPLICATE_APPROVER_IDENTITY`) | internal source only | none identified |
+| B4: policy-weakening self-approval | the detector's `two_person_required`/`cooldown_hours` verdict is re-derived from the protected approver registry at BOTH generation and validation time (Edge Cases, above), from an approved-context anchor the detector resolves ITSELF from a protected snapshot (`sdd/.approved-context/*.approved.yaml`, never an externally supplied or candidate-as-anchor value, and never movable by an ordinary commit) — an agent cannot manufacture a favorable verdict by controlling only the content file, and cannot satisfy a two-person requirement with one identity presented twice (`DUPLICATE_APPROVER_IDENTITY`); the verdict, once computed, is additionally bound into the live sidecar's own HMAC-covered `predecessor_context_sha256`/`weakening_verdict`/`approval_epoch` (revised, NEW — closes the historical weakening-binding gap), so the two-person requirement's having-been-honored for a given transition remains checkable indefinitely from the live artifact alone, not only in the narrow window before the predecessor anchor is overwritten | internal source only | none identified |
 | B5: track-selection fail-open/fail-open-via-tampering risk | a Project Context PHYSICALLY ABSENT from disk uses the compatibility fallback (unchanged); a Project Context PHYSICALLY PRESENT that fails REQ-005 validation for ANY reason (including one an attacker could induce — sidecar tampering, replay, key-rotation-window exploitation) STOPS with the named `PROJECT_CONTEXT_INVALID` error (REQ-009, revised) — never treated as absent, never an implicit `full` or `lite` grant | internal source only | none identified |
 | B6: hook-activation handshake integrity | the redesigned handshake never targets the live approval sidecar (a dedicated sentinel path only, REQ-007/REQ-010; the sentinel itself is created only transiently, then cleaned up, in the hook-inactive branch — never a lasting mutation) and never performs a write attempt from the standalone script itself (only a real, host-intercepted agent tool call counts as evidence, REQ-010) — closes "canary corrupts live state" and the standalone-script blind spot for A1's OWN footgun-guard scope; it does NOT extend to proving a live host's hook fires for a real, unscripted agent action, which is Epic A8's own mandatory Done condition, not A1's | internal source only | none identified |
+| B7: human-copy publish atomicity | a 2+ target human-copy publish (sidecar+anchor at minimum) is applied as ONE journaled transaction; a crash at any point recovers, on the next `apply-human-copy` invocation, to exactly one of two terminal states (all-pre or all-post), never a standing partial-publish mix where one protected target has advanced without its accompanying target(s) (NEW — closes the "anchor advances alone" gap); readers fail closed (`HUMAN_COPY_PUBLISH_IN_PROGRESS`) rather than reading a torn state while a transaction journal is live | internal source only | none identified |
+| B8: publisher self-protection | `apply-human-copy.{sh,ps1}` is itself a CONCRETE `PROTECTED-MANIFEST.md` entry, registered protected in the SAME batch it is used to publish, after exactly one human-verified bootstrap `cp` (NEW — closes the "publisher itself stays agent-writable" gap) — an agent cannot modify the publisher, once bootstrapped, to weaken its own atomicity or verification guarantees | internal source only | none identified |
 
 Details deferred to a future `security-spec.md` if the impl-review gate
 requests one (parent task's Task 1 file list does not name `security-spec.md`
