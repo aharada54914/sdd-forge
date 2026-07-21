@@ -5,12 +5,12 @@
   "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0321",
   "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0321",
   "allowed_input_manifest": [
-    {"path": "specs/epic-190-a2-capability-registry/requirements.md", "sha256": "4862e4d930af03159ff9e6eb550b0d37c60be2d5514bac8654b03382b731a0a0"},
-    {"path": "specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "0f2f2e8891d26e066d64fcf28e2a523f3acbe95401550d22d651e8c60e78a964"},
-    {"path": "specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
-    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
-    {"path": "reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-1/precheck-result.json", "sha256": "0c500a89b1dbf2844c96f63b2adbf1566d473505ce48200a37f6a31532967228"},
-    {"path": "reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-1/integrated-summary.json", "sha256": "4da6396e66a7a942bd566cd938a762496e42d30aba49797b365dd730acbe54c9"}
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/requirements.md", "sha256": "4862e4d930af03159ff9e6eb550b0d37c60be2d5514bac8654b03382b731a0a0"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "0f2f2e8891d26e066d64fcf28e2a523f3acbe95401550d22d651e8c60e78a964"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-1/precheck-result.json", "sha256": "0c500a89b1dbf2844c96f63b2adbf1566d473505ce48200a37f6a31532967228"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-190/reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-1/integrated-summary.json", "sha256": "4da6396e66a7a942bd566cd938a762496e42d30aba49797b365dd730acbe54c9"}
   ],
   "verdict": "BLOCKED",
   "checks": [
