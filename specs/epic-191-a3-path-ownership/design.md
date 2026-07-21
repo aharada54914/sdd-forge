@@ -256,18 +256,18 @@ own `MANIFEST.sha256` entry.
 
 | Layer | Summary | Canonical Detail | Owner | Status |
 |---|---|---|---|---|
-| UX | N/A — no user-facing surface; CLI/script + gate + reference doc only | N/A (Non-goals; no ux-spec.md authored, INV-013) | maintainers | N/A |
-| Frontend | N/A — no browser/frontend surface | N/A | maintainers | N/A |
-| Infrastructure | CI suite registration for five new test pairs (incl. ownership-digest and the parity harness); `.github/workflows/test.yml` human-copy staging (T-004/T-005/T-006 share) | design.md Deployment/CI Plan | maintainers | Planned |
-| Security | protected-file write boundary (guard-invariants.json + generator + generated siblings + test.yml; check-contract.* required-check-set); new-script protection registration; reachability registration; submodule/symlink reference-only boundary; Provider Binding credential exclusion | design.md Security Boundaries; requirements.md Security Boundaries | maintainers | Planned |
+| UX | N/A — no user-facing surface; CLI/script + gate + reference doc only | ux-spec.md (N/A content — no UI to specify) | maintainers | N/A |
+| Frontend | N/A — no browser/frontend surface | frontend-spec.md (N/A content — no browser/frontend surface) | maintainers | N/A |
+| Infrastructure | CI suite registration for five new test pairs (incl. ownership-digest and the parity harness); `.github/workflows/test.yml` human-copy staging (T-004/T-005/T-006 share) | infra-spec.md (expands design.md Deployment/CI Plan) | maintainers | Planned |
+| Security | protected-file write boundary (guard-invariants.json + generator + generated siblings + test.yml; check-contract.* required-check-set); new-script protection registration; reachability registration; submodule/symlink reference-only boundary; Provider Binding credential exclusion | security-spec.md (expands design.md Security Boundaries / Protected-File Statement) | maintainers | Planned |
 
-This feature's spec package intentionally omits `ux-spec.md`/
-`frontend-spec.md`/`infra-spec.md`/`security-spec.md` — `check-sdd-structure.sh`
-only requires them in `--feature` mode (INV-013), which the task's
-specified verification commands do not invoke for this directory, and this
-feature has no UI/frontend surface to specify. Infrastructure and Security
-concerns are instead captured directly in this design document's own
-Deployment/CI Plan and Security Boundaries sections.
+This feature's spec package includes all four layer-spec files
+(`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`, `security-spec.md`)
+under this feature's directory, each expanding the relevant section of this
+design document (Design System Compliance, Components/Architecture,
+Deployment/CI Plan, and Security Boundaries/Protected-File Statement,
+respectively), consistent with the repository's other `profile: full`
+features.
 
 ## Design System Compliance
 
