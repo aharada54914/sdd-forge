@@ -392,10 +392,10 @@ a `"schema": "sdd-run-record/v1"` (or `"sdd-run-record/v2"` with an
 additive `effort` sibling object) literal field as part of every run
 record it writes to `reports/runs/RUN-<...>.json` — an established,
 versioned schema-tagging convention this feature's
-`check-component-coverage` evidence record reuses (`schema_version`,
-design.md Data Plan) rather than inventing an unrelated shape, and the
-precedent for treating a script's own output as a versioned,
-self-describing record rather than an untyped blob.
+`check-component-coverage` evidence record reuses (the `schema` key —
+not `schema_version` — design.md Data Plan) rather than inventing an
+unrelated shape, and the precedent for treating a script's own output as
+a versioned, self-describing record rather than an untyped blob.
 
 ## INV-020: ADR-0019's two-tier defense-claim scope is the existing precedent this feature's reachability claims must not exceed
 

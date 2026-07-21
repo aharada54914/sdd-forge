@@ -51,7 +51,8 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   feature is the first place those semantics are pinned down, since Epic
   A1 only fixes the field *shape*, not the matching *algorithm*).
 - ADR-0021's staleness mechanism, which needs `ownership_digest` to bind a
-  Feature's Facet Manifest to the ownership fragment it actually consumed
+  Feature's Facet Manifest to the entire declared ownership input, not the
+  fragment a given resolve happened to consume or evaluate
   (`docs/adr/0021-context-projection-staleness.md` lines 41-42, 78-88).
 - Epic A1's `contracts/project-context.template.yaml`, whose
   `shared_paths` section is the single canonical source of the default
@@ -190,9 +191,9 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   lands) and verifies (a) its `shared_paths` section's cross-cutting
   entries exactly match the six-entry set above, and (b) a
   `project-context.yaml` shaped like that template does not trip Fail-1 on
-  an ordinary day-one `specs/**`/`reports/**` change — before A1 lands,
-  the same fixture stands in using a fixture matching that template's
-  documented shape (Non-goals still excludes implementing A1's own
+  an ordinary day-one `specs/**`/`reports/**` change — while A1's template
+  is absent from the repository, this fixture FAILS closed (block), never
+  passing via a stand-in (Non-goals still excludes implementing A1's own
   bootstrap flow).
 - **Epic A4 (Facet Manifest)** owns the schema for
   `facet-manifest.affected_components`, the field Fail-2 and Fail-4 (REQ-004)
@@ -594,10 +595,10 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   proves both that its `shared_paths` section's cross-cutting entries
   exactly match the six-entry set above and that a Project Context shaped
   like that template does not trip Fail-1 on an ordinary day-one
-  `specs/**`/`reports/**` change — before A1 lands, the same fixture
-  stands in using a fixture matching that template's documented shape
-  (see Non-goals for the narrower scope that remains genuinely out of
-  bounds).
+  `specs/**`/`reports/**` change — while A1's template is absent from the
+  repository, this fixture FAILS closed (block), never passing via a
+  stand-in (see Non-goals for the narrower scope that remains genuinely
+  out of bounds).
 
 - REQ-007 (monorepo fixture + `.sh`/`.ps1` test pairs; §19 Epic A3): A
   fixture monorepo under `tests/fixtures/component-path-ownership/`
@@ -1037,21 +1038,22 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   it remains a bounded shared example, REQ-006, REQ-007); a missing entry,
   an unexpected extra entry, or a wrong classification each fail this
   fixture, since A1's template is the sole canonical source and A3 defines
-  no competing list of its own (before A1's template lands, this fixture
-  runs against a stand-in fixture matching that template's documented
-  shape, per the same FAIL-closed discipline AC-011 established, never a
-  skip).
+  no competing list of its own; while A1's template is absent from the
+  repository, this fixture FAILS closed (non-zero, red, block) — never a
+  skip and never a pass via a stand-in — mirroring the same FAIL-closed
+  discipline AC-011 established for schema conformance.
 - AC-043 (REQ-006): a fixture diff confined to the six-entry set above,
   with zero components declared to own them, never triggers Fail-1.
 - AC-044 (REQ-006, day-one cross-epic integration proof): a fixture/
   integration test builds a `project-context.yaml` shaped exactly like
-  Epic A1's shipped `contracts/project-context.template.yaml` (read
-  directly, once it lands; a documented stand-in fixture before then) and
-  proves an ordinary day-one `specs/**`/`reports/**` change against it does
-  not trip Fail-1 immediately after the Gate is introduced — the
-  canonical inventory's effectiveness is proven, not only documented, and
-  is proven against A1's own artifact, not a copy A3 maintains
-  independently.
+  Epic A1's shipped `contracts/project-context.template.yaml`, read
+  directly once it lands, and proves an ordinary day-one
+  `specs/**`/`reports/**` change against it does not trip Fail-1
+  immediately after the Gate is introduced — the canonical inventory's
+  effectiveness is proven, not only documented, and is proven against A1's
+  own artifact, not a copy A3 maintains independently; while that artifact
+  is absent from the repository, this test FAILS closed (block), never
+  passing via a stand-in.
 - AC-045 (REQ-007, fixture shape): the fixture tree under
   `tests/fixtures/component-path-ownership/` has at least two components
   with overlapping candidate owned paths, a nested excluded subtree, and a
@@ -1116,11 +1118,11 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   conformance): every `check-component-coverage` evidence record —
   regardless of derived state (`disabled-legacy`/`advisory`/`required`) —
   is an `emit-run-record`-conformant record (Data Plan) carrying a
-  `schema_version`, a `check_id` matching the id registered in
-  `check-contract`'s required-check-set, and a `producer.sha256` field
-  computed over the actual, currently-invoked `check-component-coverage.py`;
-  a fixture with a mismatched or missing `producer.sha256` is rejected by
-  the suite's own self-check.
+  `schema: "check-component-coverage-verdict/v1"` field, a `check_id`
+  matching the id registered in `check-contract`'s required-check-set, and
+  a `producer.sha256` field computed over the actual, currently-invoked
+  `check-component-coverage.py`; a fixture with a mismatched or missing
+  `producer.sha256` is rejected by the suite's own self-check.
 - AC-055 (REQ-004, `check-contract` producer-digest verification): the
   staged `check-contract.{sh,ps1,py}` human-copy candidate independently
   recomputes `check-component-coverage.py`'s live sha256 at verification
@@ -1359,12 +1361,13 @@ schemas this feature now treats as a hard (not follow-up) dependency.
   landing (Dependencies).
 - Epic A1 ships `contracts/project-context.template.yaml` at that fixed
   path with a `shared_paths` section shaped per decision-document v2 §12
-  (Dependencies, REQ-006) — before it lands, REQ-007's day-one fixture
-  (AC-042, AC-044) stands in with a fixture matching that documented
-  shape and path; once it lands, the same fixture reads the real artifact
-  directly, under the same FAIL-closed discipline AC-011 established for
-  the schema-conformance fixture (a missing artifact or a diverging
-  inventory is this fixture's ordinary red state, never a skip).
+  (Dependencies, REQ-006) — while it is absent, REQ-007's day-one fixture
+  (AC-042, AC-044) FAILS closed (block), never passing via a stand-in;
+  once it lands, the same fixture reads the real artifact directly and
+  validates the full inventory against it, under the same FAIL-closed
+  discipline AC-011 established for the schema-conformance fixture (a
+  missing artifact or a diverging inventory is this fixture's ordinary red
+  state, never a skip).
 - A project only sets `capability_enforcement` to `advisory`/`required`
   once the capability pipeline it depends on (including Facet Manifest
   generation, Epic A4/A5) is genuinely operational for that project — the
@@ -1437,9 +1440,9 @@ investigation.md OQ-001.
   (REQ-006), couples REQ-007's day-one fixture to an artifact this feature
   does not own and that does not exist in the repository yet (INV-002) —
   mitigated the same way AC-011's schema-conformance fixture already
-  handles this class of risk: the fixture is written to FAIL closed (never
-  skip) against a documented stand-in shape before A1's template lands,
-  and against the real artifact once it does, so a divergence between
-  A1's shipped inventory and the six-entry set this spec fixes is always a
+  handles this class of risk: the fixture is written to FAIL closed
+  (block, never skip, never a stand-in) while A1's template is absent, and
+  against the real artifact once it lands, so a divergence between A1's
+  shipped inventory and the six-entry set this spec fixes is always a
   visible, deterministic test failure, never a silent, independently-
   drifting A3 copy.

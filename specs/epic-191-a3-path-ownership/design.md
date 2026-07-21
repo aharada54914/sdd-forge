@@ -145,7 +145,7 @@ of each wrapper — never a suite-twin-to-suite-twin comparison.
 | `plugins/sdd-quality-loop/scripts/check-contract.{sh,ps1,py}` | protected hardcoded tier-minimum set gains `check-component-coverage` at `high`/`critical`, kept equal to `risk-gate-matrix.md`'s text per `tests/gates.tests.sh` T-003's existing invariant; **additionally gains a producer-digest verification pass** that recomputes `check-component-coverage.py`'s live sha256 and rejects a `passes:true` evidence entry whose `producer.sha256` does not match (NEW-001; two-tier defense scope, ADR-0019) | Bash/PowerShell/Python | existing, edited, human-applied | **yes (pre-existing)** |
 | `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` | `## Process` gains a documented `check-component-coverage` step (defense-in-depth; the required-check-set registration above is the actual reachability guarantee) | Markdown (skill) | existing, edited | no (verified, INV-005) |
 | ~~`plugins/sdd-quality-loop/references/default-shared-paths.md`~~ | **withdrawn** — the default cross-cutting seed list's sole canonical source is Epic A1's own `contracts/project-context.template.yaml`; A3 authors no competing reference document (REQ-006, Dependencies) | N/A | **removed from scope** | n/a |
-| `tests/fixtures/component-path-ownership/` | monorepo fixture: ≥2 components, overlapping candidate paths, nested excluded subtree, bounded `contracts/**`-shaped `shared_paths` entry, 4 submodule/symlink fixtures, NFC-collision fixture, one fixture per glob clause id, a day-one cross-epic fixture reading (or standing in for) Epic A1's `contracts/project-context.template.yaml` | fixture tree | new | no |
+| `tests/fixtures/component-path-ownership/` | monorepo fixture: ≥2 components, overlapping candidate paths, nested excluded subtree, bounded `contracts/**`-shaped `shared_paths` entry, 4 submodule/symlink fixtures, NFC-collision fixture, one fixture per glob clause id, a day-one cross-epic fixture reading Epic A1's `contracts/project-context.template.yaml` directly (FAILS closed/block while absent, never a stand-in) | fixture tree | new | no |
 | `tests/component-path-resolver.tests.sh` / `.ps1` | glob-semantics (incl. clause ids), overlap, unowned, exclude-misuse + `EXCLUDED_MATCH` evidence, NFC-collision cases | Bash / PowerShell | new | no |
 | `tests/component-path-diff-basis.tests.sh` / `.ps1` | baseline/rev-resolution, NUL-framing, rename contract, 4 submodule/symlink cases, single-writer/TOCTOU cases | Bash / PowerShell | new | no |
 | `tests/check-component-coverage.tests.sh` / `.ps1` | applicability derivation (`disabled-legacy` truthful non-evaluation, manifest-required hard error), full evaluation identical across `advisory`/`required` (only exit code/blocking differs), Fail-2/4 mutual-exclusivity, Fail-5 Gate-level reachability, Fail-6 adapter_paths, reachability (required-check-set) + producer-digest verification proof, protected-registration proof | Bash / PowerShell | new | no |
@@ -719,13 +719,16 @@ unconditionally; no suite drives a real validator gate directly.
   `tests/gates.tests.sh` T-003's existing invariant) gives this Gate the
   same reachability guarantee every tier-minimum-registered check already
   has, independent of SKILL.md's own text.
-- **`ownership_digest` binds every evaluated entry, matched or not**
-  (REQ-005): corrected from an earlier draft that bound only the matched
+- **`ownership_digest` binds the entire declared ownership input（宣言され
+  た全 ownership 入力）, never a consumed/evaluated subset** (REQ-005):
+  corrected from an earlier draft that bound only the matched
   component/shared-path entries, which left a blind spot where a
   previously non-matching pattern's edit (now matching the same
   changed-path set) would not change the digest — defeating ADR-0021's
-  own "staleness must bind to everything the Resolver actually consumed"
-  rationale (`docs/adr/0021-context-projection-staleness.md` lines 48-53).
+  own staleness rationale, which requires the digest to widen to the
+  complete declared ownership input rather than only what a given resolve
+  happened to consume or evaluate
+  (`docs/adr/0021-context-projection-staleness.md` lines 48-53).
 - **Dual-runtime parity harness, independent of each suite's own
   same-language assertions** (REQ-009): chosen because "both `.sh` and
   `.ps1` files exist and each independently passes" does not prove the two
@@ -760,9 +763,10 @@ unconditionally; no suite drives a real validator gate directly.
   `.github/**`, `tests/fixtures/**`, `CHANGELOG.md`, all cross-cutting;
   `docs/**` subsumes the narrower `docs/adr/**`); A3 authors no competing
   list, and REQ-007's day-one fixture reads that template artifact
-  directly (or a documented stand-in before it lands) rather than a
-  fixture built from A3's own now-withdrawn document — closing the
-  divergence risk by construction rather than by a periodic manual sync.
+  directly once it lands — FAILING closed (block), never passing via a
+  stand-in, while it is absent — rather than a fixture built from A3's own
+  now-withdrawn document — closing the divergence risk by construction
+  rather than by a periodic manual sync.
 
 ## Global Constraints
 
