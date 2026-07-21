@@ -352,6 +352,10 @@
     {
       "feature": "epic-159-pillar-d",
       "profile": "full"
+    },
+    {
+      "feature": "epic-190-a2-capability-registry",
+      "profile": "full"
     }
   ]
 }
