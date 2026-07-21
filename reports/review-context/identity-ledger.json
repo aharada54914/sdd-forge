@@ -2943,6 +2943,24 @@
       "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0327",
       "previous_record_sha256": "c25846efab71e1341661135e0141665a5b473c72349a24965bdbf5ddc2eb7583",
       "record_sha256": "6f21bc5293fa4d06e196c401f8646f17d671a3388263c4ece92affc82aa2662c"
+    },
+    {
+      "sequence": 328,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-a-seq0328",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-190-a2-capability-registry-0328",
+      "previous_record_sha256": "6f21bc5293fa4d06e196c401f8646f17d671a3388263c4ece92affc82aa2662c",
+      "record_sha256": "6842007c2d0a74a354e47004f943bdf3230d5aea64e56955bf3375e216b3865a"
+    },
+    {
+      "sequence": 329,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0329",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0329",
+      "previous_record_sha256": "6842007c2d0a74a354e47004f943bdf3230d5aea64e56955bf3375e216b3865a",
+      "record_sha256": "52ca102e9f577838fd3604debdd9395644888b98acfad7d0acec69c3a91d3414"
     }
   ]
 }

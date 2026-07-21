@@ -1,6 +1,6 @@
 # Requirements: epic-190-a2-capability-registry
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/190,
 https://github.com/aharada54914/sdd-forge/issues/187
 Epic: https://github.com/aharada54914/sdd-forge/issues/190 (Epic A2 —
