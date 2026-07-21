@@ -303,10 +303,26 @@ package's registration follows.
   (`generate-guard-invariants.py:55`), i.e. it is pinned to the specific
   18-file Phase-2 bootstrap inventory (`$BootstrapTargets`,
   `apply-protected-files.ps1:11-30`) — it is not a generic per-PR human-copy
-  applier and is out of this epic's edit scope. Epic A1's own tasks use the
-  simpler, per-spec staging shape (first bullet), matching
-  epic-159-pillar-c's precedent, for every file this epic needs a human to
-  apply.
+  applier and is out of this epic's edit scope.
+
+**Revision (closes B6 — resolves the contradiction between this INV's prior
+"Epic A1 uses the simpler per-spec staging shape" conclusion and REQ-007's
+anchored-publisher requirement)**: Epic A1's own tasks do NOT use the first
+bullet's bare-`cp`, per-spec staging shape for APPLYING staged candidates.
+REQ-007 generalizes that precedent into an anchored-publisher-equivalent
+tool, `apply-human-copy.{sh,ps1}` (ADR-0011-generalized — held handle,
+handle-relative traversal, temp-rehash, atomic rename, no path-copy
+fallback), which every human-copy application this epic's tasks stage
+(guard-invariants registration, sidecar-signature publication,
+`PLUGIN-CONTRACTS.md` consumers' skill-file edits, `.github/workflows/test.yml`
+registration) is applied through — never a bare `cp`. The ONE exception is
+`apply-human-copy` itself: since no anchored-publisher tool exists yet to
+apply IT, its own FIRST installation is bootstrapped via a single,
+human-verified plain `cp` + SHA-256 check (mirroring how
+`apply-protected-files.ps1` was itself originally installed, this INV,
+second bullet) — after that one-time bootstrap, `apply-human-copy` is
+self-hosting, and every SUBSEQUENT human-copy application in this epic goes
+through it, never reverting to a bare `cp`.
 
 ## INV-012: Test-suite pairing and registration convention
 
@@ -378,6 +394,20 @@ REQ-010's redesigned host-side canary challenge/response protocol (design.md
 Design Decisions) is built on, and the reason a prior draft's
 subprocess-file-I/O probe design could not have proven what it claimed to
 prove.
+
+**Defense-tier scope (closes B4)**: closing the standalone-script blind spot
+above makes the challenge/response *verification logic* correct against a
+synthetic, fixture-recorded evidence file (a footgun guard: it stops an
+agent from trusting `HOOK_ACTIVE` on the strength of its own unmediated
+subprocess I/O). It is NOT, by itself, proof that any given LIVE host
+actually intercepts and denies a REAL agent-proposed tool call at runtime —
+that is an empirical claim about the host's own `PreToolUse` wiring, which
+this spec-authoring session has no live host to observe. Per decision doc
+§9 v2's two-tier defense scope, that live-host, cross-runtime observation
+is Epic A8's own mandatory Done condition (REQ-010, requirements.md,
+Non-goals), not A1's — A1's Done condition is scoped to the verification
+logic's correctness, never to "an actual hook fired," a claim this
+investigation and REQ-010 no longer make unconditionally.
 
 ## Open Questions
 

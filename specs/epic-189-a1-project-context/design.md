@@ -14,8 +14,9 @@ canonicalizer, which needs something byte-stable to hash) and by REQ-009
 (track-selection reads `workflow.*`); REQ-003 is consumed by REQ-004
 (the sidecar's HMAC preimage is canonical-JSON bytes) and by REQ-006 (the
 weakening detector diffs canonicalized before/after documents, resolving
-its own baseline internally via git rather than accepting one from a
-caller); REQ-004 is
+its own trust anchor internally from a protected approved-context snapshot
+(the last content a human actually approved, REQ-004/REQ-007) rather than
+accepting one from a caller or from git HEAD); REQ-004 is
 consumed by REQ-005 (the validator recomputes REQ-004's own construction,
 including the `DUPLICATE_APPROVER_IDENTITY` check REQ-004's generator also
 applies); REQ-005 and REQ-006 are consumed by REQ-009: a Project Context
@@ -59,13 +60,16 @@ flowchart TB
   CANON -->|canonical hash| SIDE_PB["sdd/provider-bindings.approval.json (REQ-004, PROTECTED, LIVE)"]
 
   GEN["generate-approval-sidecar.py/.sh/.ps1 (REQ-004, new; human/CI-only, needs SDD_CONTEXT_KEY; REFUSES duplicate approver id)"]
-  GEN -->|nonce-tagged candidate + MANIFEST.sha256, staging ONLY| STAGE["sdd/.staging/<schema-id>/<nonce>/ (REQ-004, new, unprotected staging area)"]
+  GEN -->|nonce-tagged sidecar candidate + approved-context snapshot + MANIFEST.sha256, staging ONLY| STAGE["sdd/.staging/<schema-id>/<nonce>/ (REQ-004, new, unprotected staging area)"]
   REG["sdd/approver-registry.yaml (REQ-006, PROTECTED, new — id is the immutable identity key)"]
   REG -.->|approver id + count| GEN
+  ANCHOR["sdd/.approved-context/*.approved.yaml (REQ-006/007, PROTECTED, new — the last human-approved content, published by PUBLISHER alongside its sidecar)"]
+  PUBLISHER -.->|publishes in lockstep with the sidecar| ANCHOR
 
-  DETECT["detect-policy-weakening.py/.sh/.ps1 (REQ-006, new; default baseline = git show HEAD:<path>, NEVER caller-supplied in production call path)"]
-  PC -.->|candidate, no --baseline| DETECT
-  PB -.->|candidate, no --baseline| DETECT
+  DETECT["detect-policy-weakening.py/.sh/.ps1 (REQ-006, new; default anchor = the protected sdd/.approved-context/*.approved.yaml snapshot, NEVER caller-supplied or git-HEAD-derived in production call path)"]
+  PC -.->|candidate, no --approved-context| DETECT
+  PB -.->|candidate, no --approved-context| DETECT
+  ANCHOR -.->|default-resolved trust anchor| DETECT
   REG -.->|two_person_required / cooldown_hours| DETECT
   DETECT -->|verdict, recomputed fresh, never trusted from a file| GEN
   DETECT -->|verdict, recomputed fresh, never trusted from a file| VALIDATE
@@ -120,7 +124,7 @@ flowchart TB
 | Component | Responsibility | Technology | New/Existing | Protected? |
 |---|---|---|---|---|
 | `contracts/project-context.schema.json` | schema for `sdd/project-context.yaml` (`sdd-project-context/v1`) | JSON Schema | new | no |
-| `contracts/project-context.template.yaml` | generic starter scaffold, cross-cutting seed list (`specs/**`/`reports/**`/`docs/**`) pre-populated; consumed by Epic A3's day-one fixture | YAML | new | no |
+| `contracts/project-context.template.yaml` | generic starter scaffold; SINGLE-SOURCE cross-cutting seed-list inventory (`specs/**`/`reports/**`/`docs/**`/`.github/**`/`tests/fixtures/**`/`CHANGELOG.md`) pre-populated (closes NEW-001); read directly by Epic A3's day-one fixture | YAML | new | no |
 | `contracts/provider-bindings.schema.json` | schema for `sdd/provider-bindings.yaml` (`sdd-provider-bindings/v1`), skeleton only | JSON Schema | new | no |
 | `contracts/approval-sidecar.schema.json` | schema for both `*.approval.json` sidecars | JSON Schema | new | no |
 | `contracts/approver-registry.schema.json` | schema for `sdd/approver-registry.yaml` | JSON Schema | new | no |
@@ -128,13 +132,14 @@ flowchart TB
 | `canonicalize-sdd-yaml.sh` / `.ps1` / `.js` | thin dispatchers, `python3`/`python` resolution ONLY — no PowerShell-native fallback (revised, M10) | POSIX sh / PowerShell / Node | new | **YES** (REQ-007) |
 | `generate-approval-sidecar.py` / `.sh` / `.ps1` | human/CI tool: compute hash, accept DISTINCT approver ids, HMAC-sign, write STAGED candidate + manifest only (never live path, revised) | Python + sh/ps1 wrappers | new | **YES** (REQ-007) |
 | `validate-approval-sidecar.py` / `.sh` / `.ps1` | content-schema (incl. duplicate-id) + hash match + HMAC verify + approver-identity + approver-distinctness + `effective_at` gate | Python + sh/ps1 wrappers | new | **YES** (REQ-007) |
-| `detect-policy-weakening.py` / `.sh` / `.ps1` | 9-category (3 implemented + 6 N/A) before/after diff classification against an internally-resolved git-HEAD baseline + two-person/cooldown verdict | Python + sh/ps1 wrappers | new | **YES** (REQ-007) |
+| `detect-policy-weakening.py` / `.sh` / `.ps1` | 9-category (3 implemented + 6 N/A) before/after diff classification against an internally-resolved, protected approved-context anchor snapshot (never git HEAD, never caller-supplied) + two-person/cooldown verdict | Python + sh/ps1 wrappers | new | **YES** (REQ-007) |
 | `check-hook-activation-handshake.py` / `.sh` / `.ps1` | host-side canary challenge/response verifier (never itself performs a write); `HOOK_ACTIVE` / `CAPABILITY_RUNTIME_UNAVAILABLE` per runtime | Python + sh/ps1 wrappers | new | **YES** (REQ-007) |
 | `apply-human-copy.sh` / `.ps1` | anchored-publisher-equivalent human-copy applier (held handle, handle-relative traversal, temp-rehash, atomic rename, no path-copy fallback) | POSIX sh / PowerShell | new | **YES** (REQ-007) |
 | `sdd/project-context.yaml`, `provider-bindings.yaml` | target-project content instances (not created by A1) | YAML | n/a (consumer-owned) | no |
 | `sdd/project-context.approval.json`, `provider-bindings.approval.json` | approval sidecars — LIVE path, published only by `apply-human-copy` after REQ-005 re-validation | JSON | new (schema only; instances are consumer-owned) | **YES** (REQ-007/008) |
 | `sdd/approver-registry.yaml` | registered approver identities (`id` = immutable identity key) | YAML | new | **YES** (REQ-007) |
-| `sdd/.hook-canary-sentinel` | dedicated canary target for REQ-010's handshake — never real content | (empty/placeholder) | new | **YES** (REQ-007) |
+| `sdd/.hook-canary-sentinel` | dedicated canary target for REQ-010's handshake — absent-after when the hook fires; transiently created then cleaned up when it does not (revised, B5) | (empty/placeholder) | new | **YES** (REQ-007) |
+| `sdd/.approved-context/project-context.approved.yaml`, `provider-bindings.approved.yaml` | REQ-006's weakening-detector trust anchor — byte-exact snapshot of the content last hashed into the live sidecar's `context_sha256`; published only by `apply-human-copy` in lockstep with that sidecar (closes B3) | YAML | new | **YES** (REQ-007) |
 | `plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}` | RESERVED path for a future Capability Resolver (Epic A2/A5) — not built by A1 | n/a | reserved, not built | **YES (reserved)** (REQ-007) |
 | `plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json` | RESERVED path for a future generated projection (Epic A2/A5) — not built by A1 | n/a | reserved, not built | **YES (reserved)** (REQ-007) |
 | `specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md` | single canonical protected-path manifest this REQ-007 batch and its count are derived from | Markdown | new | no |
@@ -185,13 +190,13 @@ protection categories:
 | Approval validator | `validate-approval-sidecar.{py,sh,ps1}` | 3 | built by A1 |
 | Policy-weakening detector | `detect-policy-weakening.{py,sh,ps1}` | 3 | built by A1 |
 | Hook-activation handshake (grouped with validator family) | `check-hook-activation-handshake.{py,sh,ps1}` | 3 | built by A1 |
-| Sidecar/registry/sentinel data | `sdd/project-context.approval.json`, `sdd/provider-bindings.approval.json`, `sdd/approver-registry.yaml`, `sdd/.hook-canary-sentinel` | 4 | built by A1 |
+| Sidecar/registry/sentinel/approved-context-anchor data (revised, closes B3) | `sdd/project-context.approval.json`, `sdd/provider-bindings.approval.json`, `sdd/approver-registry.yaml`, `sdd/.hook-canary-sentinel`, `sdd/.approved-context/project-context.approved.yaml`, `sdd/.approved-context/provider-bindings.approved.yaml` | 6 | built by A1 |
 | Resolver (ADR-0019 item 3) | `plugins/sdd-quality-loop/scripts/resolve-project-context.{py,sh,ps1}` | 3 | **RESERVED, not built** — forced handoff to A2/A5 |
 | Generated projection (ADR-0019 item 3) | `plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json` | 1 | **RESERVED, not built** — forced handoff to A2/A5 |
 
-**Total: 20 concrete + 4 reserved = 24 entries** — this number is read FROM
+**Total: 22 concrete + 4 reserved = 26 entries** — this number is read FROM
 the table above by every other section of this package that needs it
-(AC-021, AC-038); no other section restates a competing literal. These 20
+(AC-021, AC-038); no other section restates a competing literal. These 22
 concrete entries are NOT protected at
 authoring time (they do not exist yet, except the reserved 4, which never
 exist in A1); they become protected only once
@@ -200,7 +205,7 @@ REQ-007's human-copy-applied `guard-invariants.json`/
 this implies (recorded here for the Phase 2 task decomposition that will
 consume it): author the concrete scripts UNPROTECTED first
 (agent-editable, fully testable), THEN stage the guard-invariants
-registration (covering the 20 concrete paths AND the 4 reserved
+registration (covering the 22 concrete paths AND the 4 reserved
 placeholders in the SAME batch) that protects them going forward — never
 the reverse, since staging protection for a file that does not exist yet
 would fail
@@ -209,7 +214,7 @@ content-exact-match validation trivially (the path string is accepted
 regardless of whether the file exists on disk; `_validate_repo_path`,
 `generate-guard-invariants.py:121-127`, checks path SHAPE only) but would
 leave no reviewable, tested script for a human to actually apply for the
-20 concrete entries (the 4 reserved entries have no script to review by
+22 concrete entries (the 4 reserved entries have no script to review by
 design — they are a pure path reservation, not a pending review item).
 
 **Exact-match constraint (INV-006, critical for this REQ)**:
@@ -222,7 +227,7 @@ Editing `guard-invariants.json`'s array without a matching edit to
 `.github/workflows/test.yml:27-35`), for every subsequent unrelated change
 in this repository, not just this epic's own. This design therefore
 introduces a THIRD constant tuple in the generator,
-`EPIC_A1_TARGETS` (24 entries — GENERATED from
+`EPIC_A1_TARGETS` (26 entries — GENERATED from
 `PROTECTED-MANIFEST.md` above, never hand-duplicated independently of it; a
 task-level test asserts the generator's own `EPIC_A1_TARGETS` Python tuple
 and the manifest's table are kept in sync), added to `expected_protected`'s
@@ -309,12 +314,26 @@ Data Entities:
   string — a mutable display label, NEVER used for identity comparison,
   `registered_at` ISO 8601) — the count of DISTINCT `id` entries is
   what REQ-006's detector compares against the two-person threshold.
-- `sdd/.hook-canary-sentinel` (REQ-007/REQ-010, new): no defined content
+- `sdd/.hook-canary-sentinel` (REQ-007/REQ-010, revised — resolves the
+  absent-after-on-every-outcome contradiction, B5): no defined content
   shape — a path-existence-agnostic protection target only (matches
-  `_is_protected_gate_file`'s suffix-only semantics, INV-006); never
-  written to by any legitimate flow, and the handshake redesign (REQ-010)
-  never writes to it either (only a DENIED write ATTEMPT is the signal of
-  interest).
+  `_is_protected_gate_file`'s suffix-only semantics, INV-006). When the
+  hook fires (deny), the write never executes and the sentinel is never
+  created. When the hook does NOT fire, the write DOES execute — this is
+  the direct, expected proof of hook-inactivity — and the handshake
+  requires one immediate follow-up cleanup tool-call (delete) before
+  completing, so no lasting content ever remains at this path across a
+  full handshake invocation, in either branch.
+- `sdd/.approved-context/project-context.approved.yaml`,
+  `provider-bindings.approved.yaml` (REQ-006/REQ-007, new, closes B3): a
+  byte-exact snapshot of the content REQ-004's signer last hashed into the
+  corresponding LIVE sidecar's `context_sha256` — REQ-006's weakening
+  detector's default trust anchor. Written ONLY by `apply-human-copy`, in
+  the SAME atomic operation that publishes the sidecar it accompanies;
+  never shares a basename with the live, freely-editable
+  `project-context.yaml`/`provider-bindings.yaml` content files (which
+  would otherwise also become protected under `_is_protected_gate_file`'s
+  suffix-match semantics, breaking B1).
 - `specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md`
   (REQ-007, new): the single canonical protected-path manifest,
   Protected-File Statement above.
@@ -608,14 +627,21 @@ preimage**, `generate-approval-sidecar` checks
 (`DUPLICATE_APPROVER_IDENTITY`) on a match — this check happens BEFORE any
 hashing work, since a same-identity two-person claim is invalid
 regardless of what it would hash to. **Output (revised — no live-path
-write, B7)**: `generate-approval-sidecar` writes the signed candidate PLUS
-a `MANIFEST.sha256` entry (candidate hash + a fresh, single-use `nonce`) to
+write, B7; adds the approved-context anchor snapshot, closes B3)**:
+`generate-approval-sidecar` writes the signed sidecar candidate, a
+byte-exact **approved-context content snapshot** (the live content file's
+bytes exactly as they were when hashed into `context_sha256` — never
+re-read from the live path later, which could have drifted by publish
+time), PLUS
+a `MANIFEST.sha256` entry (both files' hashes + a fresh, single-use `nonce`) to
 `sdd/.staging/<schema-id>/<nonce>/` ONLY — it never opens
 `sdd/project-context.approval.json`/`sdd/provider-bindings.approval.json`
-for writing. `apply-human-copy` (REQ-007) publishes a staged candidate to
-the live path ONLY after `validate-approval-sidecar` independently PASSES
-it (hash, HMAC, approver identity/distinctness, `effective_at`) — a
-signed-but-invalid staged candidate is never published.
+NOR `sdd/.approved-context/*.approved.yaml`
+for writing. `apply-human-copy` (REQ-007) publishes both staged candidates to
+their live paths, atomically and in lockstep, ONLY after `validate-approval-sidecar` independently PASSES
+the staged sidecar against the staged snapshot (hash, HMAC, approver identity/distinctness, `effective_at`) — a
+signed-but-invalid staged candidate is never published, and the live
+approved-context anchor is updated ONLY when its accompanying sidecar is.
 
 ### Policy-weakening categories (REQ-006, revised — closes M12/M13,
 renormalized to the canonical nine, no invented proxy classifications)
@@ -677,32 +703,53 @@ categories is sufficient
 (Edge Cases, requirements.md); N/A categories are explicitly reported as
 such in the detector's diagnostic output, never silently omitted.
 
-### Weakening-detector baseline CLI contract (REQ-006, NEW — closes B3)
+### Weakening-detector approved-context anchor CLI contract (REQ-006,
+revised — the trust anchor is the currently-APPROVED Project Context, not
+git HEAD; closes B3)
 
 ```
-detect-policy-weakening.py --candidate <path> [--baseline <path>] [--baseline-repo-path <repo-relative-path>]
+detect-policy-weakening.py --candidate <path> [--approved-context <path>]
 ```
 
 - `--candidate` (required): the working-tree/staged file under evaluation.
-- Default (no `--baseline`): baseline = `git show
-  HEAD:<repo-relative-path-of-candidate>` (or `--baseline-repo-path`'s
-  value for a renamed file). **This is the ONLY mode
-  `generate-approval-sidecar` and `validate-approval-sidecar` are
-  permitted to invoke** — neither tool ever passes `--baseline`, which is
-  what makes "pass the candidate as its own baseline" structurally
-  unavailable on the production call path (a caller cannot rewrite what
-  `git show HEAD:<path>` returns without rewriting committed history, a
-  separate, out-of-scope threat class).
-- `--baseline <path>` (explicit override): exists ONLY for this script's
-  own fixture tests (REQ-011); never used by REQ-004/REQ-005.
-- First-time creation (no HEAD blob for the path, `git cat-file -e`
-  fails): `policy_weakening: false` for every category
-  (`FIRST_COMMIT_NOT_WEAKENING`) — documented, not silent.
+- Default (no `--approved-context`): the anchor is resolved INTERNALLY by
+  reading the protected snapshot
+  `sdd/.approved-context/<schema-basename>.approved.yaml` (e.g.
+  `sdd/.approved-context/project-context.approved.yaml`) — the byte-exact
+  content `generate-approval-sidecar` (REQ-004) last hashed into the
+  CURRENTLY-LIVE, valid sidecar's `context_sha256`, published by
+  `apply-human-copy` in lockstep with that sidecar (REQ-007). **This is the
+  ONLY mode `generate-approval-sidecar` and `validate-approval-sidecar` are
+  permitted to invoke** — neither tool ever passes `--approved-context`,
+  which is what makes "pass the candidate as its own anchor" structurally
+  unavailable on the production call path. **Why an ordinary commit cannot
+  move the anchor**: the snapshot file is itself full-write-deny protected,
+  exactly like the sidecar it accompanies (REQ-007/REQ-008) — it changes
+  ONLY via a complete, human/HMAC-signed `apply-human-copy` publish, never
+  via a commit to the live content file. An attacker who commits a
+  weakening change to `project-context.yaml` directly (any number of
+  times, on any branch, merged or not) never touches
+  `sdd/.approved-context/*`; the next `detect-policy-weakening` invocation
+  (production call path, no override) still diffs the candidate against
+  the untouched, previously-approved anchor and correctly reports the
+  weakening — this retires the prior git-HEAD design's vulnerability,
+  where landing the weakening as a normal commit silently redefined
+  "HEAD" to match the candidate, erasing the diff.
+- `--approved-context <path>` (explicit override to an arbitrary local
+  file): exists ONLY for this script's own fixture tests (REQ-011); never
+  used by REQ-004/REQ-005.
+- No anchor snapshot exists yet (no sidecar for this schema has ever been
+  successfully published — first-time bootstrap): the anchor is treated as
+  absent, and the detector reports `policy_weakening: false` for every
+  category (`NO_APPROVED_CONTEXT_ANCHOR`) — every capability, path, and
+  enforcement setting in the candidate is a NEW addition, not a weakening
+  of anything previously approved; documented, never a silent default.
 - Deletion (candidate missing or empty): out of scope, tool exits non-zero
   (`CANDIDATE_NOT_SCHEMA_VALID`) rather than emitting any verdict.
-- A git-resolution error distinct from "no prior commit" (e.g. a shallow
-  clone missing the blob) is its own distinct fail-closed diagnostic, never
-  silently treated as first-commit.
+- This design RETIRES the prior git-HEAD-based resolution entirely (no
+  `--baseline`/`--baseline-repo-path` flags, no `git show`/`git cat-file`
+  dependency, no shallow-clone/mid-rebase failure mode) — the anchor is a
+  plain protected file read, not a git operation.
 
 ## Test Strategy
 
@@ -776,37 +823,91 @@ detect-policy-weakening.py --candidate <path> [--baseline <path>] [--baseline-re
     replaced broader; a pure-broadening change correctly classified
     non-weakening — five independent fixtures against design.md's
     scope-prefix algorithm, above.
-7c. Baseline CLI contract + injection-attempt rejection (REQ-006, AC-030,
-    NEW — closes B3): default git-HEAD baseline resolution proven against a
-    fixture git history; the production call path (no `--baseline`) proven
-    immune to self-diffing; first-commit and rename resolution rules each
-    independently asserted.
+7c. Approved-context anchor CLI contract + injection-attempt rejection
+    (REQ-006, AC-030, revised — closes B3): default resolution against the
+    protected `sdd/.approved-context/*.approved.yaml` snapshot proven
+    against a fixture (identical candidate → `false`; genuinely weakening
+    candidate → `true`, asserted BOTH immediately and after the candidate
+    is landed as an ordinary git commit, proving a new commit never moves
+    the anchor); the production call path (no `--approved-context`) proven
+    immune to self-diffing; the no-anchor-exists-yet
+    (`NO_APPROVED_CONTEXT_ANCHOR`) rule independently asserted.
 8. Protected-file write-boundary proof (REQ-008, AC-023, extended to the
-   full matrix, M17): a write attempt
-   against each of the FOUR protected basenames (the three sidecar/
-   registry files plus the new sentinel path), through EVERY ONE of the 12
+   full matrix, M17 — an explicit 12-row surface/argv/expected-denial
+   table, not a summary count): a write attempt
+   against each of the FOUR protected basenames (`sdd/project-context.approval.json`,
+   `sdd/provider-bindings.approval.json`, `sdd/approver-registry.yaml`,
+   `sdd/.hook-canary-sentinel`), through EVERY ONE of the 12
    mutation surfaces `_is_protected_gate_file` is consulted from (not one
    representative surface per basename), INCLUDING under an
    active `SDD_SUDO` token — 4 × 12 × 2 = 96 independent assertions, the
    never-bypass proof, mirroring
    epic-159-pillar-c's TEST-019/TEST-020 write/read-boundary pairing shape
-   generalized to a full matrix rather than a spot check.
-9. Handshake fail-closed proof (REQ-010, AC-027, REDESIGNED — closes B4):
-   `--verify-response`, given a fixture recorded-result matching each of
+   generalized to a full matrix rather than a spot check. **The 12-row
+   surface table (verified against `sdd-hook-guard.py`'s current call
+   sites; a snapshot, not load-bearing on exact line numbers if the guard
+   is later refactored)** — each row applies IDENTICALLY to and is
+   instantiated once for EACH of the 4 protected basenames (substituting
+   `<TARGET>` below) and once for EACH of the 2 `SDD_SUDO` states (never a
+   bypass in either), since `_is_protected_gate_file`'s suffix-match logic
+   and every one of these 12 call sites treat all four protected basenames
+   identically — the surface and argv shape do not vary by basename, only
+   the literal target path string does — giving the full 12 × 4 × 2 = 96
+   independent assertions:
+
+   | # | `sdd-hook-guard.py` site | Tool surface | Example argv/input shape (`<TARGET>` = one of the 4 basenames) | Expected denial |
+   |---|---|---|---|---|
+   | 1 | `_simple_shell_command_is_safe` (detached redirect) | Bash redirect, detached form | `echo x > <TARGET>` | denied, both `SDD_SUDO` states |
+   | 2 | `_simple_shell_command_is_safe` (attached redirect) | Bash redirect, attached form (non-fd-dup) | `echo x >`+`<TARGET>` (no space) / `2>`+`<TARGET>` | denied, both `SDD_SUDO` states |
+   | 3 | `_simple_shell_command_is_safe` (`cp`/`mv` dest) | Bash `cp`/`mv` destination argument | `cp src.yaml <TARGET>` | denied, both `SDD_SUDO` states |
+   | 4 | `_simple_shell_command_is_safe` (`tee`/`touch`/`rm`) | Bash `tee`/`touch`/`rm` target argument | `rm <TARGET>` / `touch <TARGET>` | denied, both `SDD_SUDO` states |
+   | 5 | `_cwd_write_target_is_protected` (absolute) | Bash redirect/`cp`/`mv`/`tee`/`touch`/`rm` target, absolute path, after a tracked `cd` | `cd /tmp && echo x > <TARGET-absolute>` | denied, both `SDD_SUDO` states |
+   | 6 | `_cwd_write_target_is_protected` (relative) | same, relative path resolved against tracked `cd` | `cd sdd && echo x > <TARGET-basename>` | denied, both `SDD_SUDO` states |
+   | 7 | `_segment_write_hits_protected` (detached redirect) | Bash detached redirect within a `cd`-aware compound segment | `cd sdd && >` then `<TARGET-basename>` | denied, both `SDD_SUDO` states |
+   | 8 | `_segment_write_hits_protected` (attached redirect) | Bash attached redirect within a `cd`-aware compound segment | `cd sdd && echo x >`+`<TARGET-basename>` (no space) | denied, both `SDD_SUDO` states |
+   | 9 | `_shell_cwd_write_hits_protected` via `_segment_write_hits_protected` (`cp`/`mv`) | Bash `cp`/`mv` destination within a `cd`-aware compound segment | `cd sdd && cp x.yaml <TARGET-basename>` | denied, both `SDD_SUDO` states |
+   | 10 | same (`tee`/`touch`/`rm`) | Bash `tee`/`touch`/`rm` target within a `cd`-aware compound segment | `cd sdd && rm <TARGET-basename>` | denied, both `SDD_SUDO` states |
+   | 11 | `main()` (`Edit`/`Write`/`MultiEdit`) | native tool call, `file_path` field | `{"tool_name":"Write","tool_input":{"file_path":"<TARGET>"}}` | denied, both `SDD_SUDO` states |
+   | 12 | `main()` (`apply_patch`) | native tool call, `apply_patch` envelope | `*** Update File: <TARGET>` | denied, both `SDD_SUDO` states |
+
+   **Documented residual gap (never silently implied as covered by this
+   matrix)**: `sdd-hook-guard.py`'s shell-command analysis does not model
+   `ln` (symlink/hard-link creation), an interpreter's own in-process write
+   via a code string (`python -c "..."`, `node -e "..."`), or any
+   PowerShell write cmdlet beyond its existing indirect-fail-closed list —
+   these are NOT among the 12 rows above and are recorded as a known
+   residual risk for a future hardening epic, not covered by this REQ's
+   96-cell matrix.
+9. Handshake fail-closed proof (REQ-010, AC-027, REDESIGNED — defense-tier
+   scope, B4): `--verify-response`, given a fixture recorded-result
+   matching each of
    the three runtimes' documented expected-deny-signatures AND a matching
    nonce, `HOOK_ACTIVE` for that runtime; given a fixture recorded-result
    showing the write executed, an unrecognized result, a missing
    recorded-result file, or a stale/mismatched nonce, `CAPABILITY_RUNTIME_UNAVAILABLE`
-   — never the reverse. This is a FIXTURE-SIMULATED proof of the
-   challenge/response verify logic (no real LLM session, REQ-011's
-   non-use declaration); it does not itself exercise a live host's actual
-   tool-call dispatch — that live, cross-runtime proof is Epic A8's
-   designated responsibility (REQ-010, Non-goals).
-9b. Sentinel non-mutation proof (REQ-010, AC-032, NEW — closes B5):
-    persistent state at `sdd/.hook-canary-sentinel` and at the live
-    sidecars (untouched by the redesigned handshake entirely) is
-    byte-identical (or absent-before/absent-after) across every handshake
-    invocation this suite exercises, regardless of simulated outcome.
+   — never the reverse. **Scope**: this is A1's own footgun-guard Done
+   condition — a FIXTURE-SIMULATED proof of the
+   challenge/response verify logic's correctness (no real LLM session, REQ-011's
+   non-use declaration); it does not, and cannot, exercise a live host's actual
+   tool-call dispatch — that live-host, cross-runtime observation is
+   explicitly OUT of A1's own Done condition and is instead Epic A8's own
+   MANDATORY Done condition (decision doc §9 v2's two-tier defense scope;
+   REQ-010, Non-goals) — an explicit forced handoff, not a mere related
+   future test.
+9b. Sentinel two-branch non-mutation proof (REQ-010, AC-032, revised —
+    resolves the absent-after-on-every-outcome contradiction, B5): the
+    live sidecars (untouched by the redesigned handshake in every branch)
+    are byte-identical before/after every handshake invocation,
+    unconditionally. `sdd/.hook-canary-sentinel`'s own state depends on
+    the branch: hook FIRES (deny) → absent-before AND absent-after (never
+    created); hook does NOT fire (write executes,
+    `CAPABILITY_RUNTIME_UNAVAILABLE`) → the sentinel IS created as the
+    direct proof of hook-inactivity, and `--verify-response` requires one
+    immediate follow-up cleanup tool-call attempt (delete the sentinel)
+    before the calling skill's own stop — end-to-end across the FULL
+    handshake invocation, the sentinel is absent-before and absent-after in
+    this branch too, with only a transient, expected mid-invocation
+    existence, never a lasting mutation.
 9c. Full entry-point wiring inventory (REQ-010, AC-035, NEW — closes M8):
     each of REQ-009's five migrated consumers is independently asserted to
     invoke the handshake at its own entry point.
@@ -891,26 +992,64 @@ detect-policy-weakening.py --candidate <path> [--baseline <path>] [--baseline-re
   `phase2_human_copy_targets` does, because this epic's own human-copy
   procedure (epic-159-pillar-c shape) does not consult
   `PHASE2_HUMAN_COPY_TARGETS`/`BootstrapTargets` at all.
-- New decision (closes B4): why the hook-activation handshake is redesigned
+- New decision (defense-tier scope, B4): why the hook-activation handshake
+  is redesigned
   as a challenge/response protocol driven by the AGENT's own tool call
-  rather than a standalone script's file I/O. A subprocess script cannot
+  rather than a standalone script's file I/O, and why nonce generation and
+  the deny-signature/nonce match are performed by the PROTECTED script
+  (never the agent) even though this is not, by itself, adversarially
+  complete. A subprocess script cannot
   originate a `PreToolUse`-intercepted event — that interception happens
   only for tool calls the AGENT SESSION itself proposes through its host's
   native tool-call surface (INV-015, investigation.md). Decided: the
-  script's role is reduced to challenge issuance and evidence verification
+  script's role is reduced to challenge issuance (nonce generation stays on
+  the protected-script side, embedded in the challenge — the agent records
+  ONLY the raw tool-call result, never computes or supplies its own nonce)
+  and evidence verification
   only; the SKILL layer (out of this package's own file scope except the
   ONE call site REQ-009 wires) is responsible for instructing the agent to
-  make the real tool-call attempt and for recording its raw result.
-- New decision (closes B5): why the canary target is a dedicated sentinel
-  path rather than the live approval sidecar. The live sidecar is a
+  make the real tool-call attempt and for recording its raw result. **Scope
+  boundary, explicit**: this makes the verification LOGIC correct against
+  synthetic evidence (a footgun guard against an agent trusting its own
+  unmediated I/O) — it does not make A1 itself capable of observing a real
+  host's live hook firing; that adversarial-tier proof is Epic A8's own
+  mandatory Done condition (REQ-010, Non-goals), not something this design
+  decision claims to deliver.
+- New decision (resolved, B5): why the canary target is a dedicated sentinel
+  path rather than the live approval sidecar, and why the sentinel is
+  allowed to be transiently created rather than requiring absent-after on
+  every outcome. The live sidecar is a
   security-load-bearing artifact; ANY write attempt against it — even a
   denied one that nonetheless triggers unexpected interaction with an
   existing sidecar's contents (e.g. a `Write` tool's diff-based apply
   logic touching the file's mtime, an OS-level lock, or a partial-write
   race) — is an avoidable risk with no compensating benefit, since the
   guard's protection is suffix-match-based and does not care WHICH
-  protected suffix is probed. Decided: reserve a dedicated,
-  never-populated-with-real-content path for canary use exclusively.
+  protected suffix is probed. A prior draft additionally required
+  absent-after on EVERY outcome, which is internally inconsistent: when the
+  hook does not fire, the write genuinely succeeds — that success IS the
+  detection signal for hook-inactivity, so the sentinel must be allowed to
+  exist at that moment. Decided: reserve a dedicated,
+  never-real-content path for canary use exclusively; require
+  absent-before/absent-after when the hook fires (deny, never created);
+  require the sentinel's creation, followed by one required cleanup
+  tool-call, when the hook does not fire — end-to-end across the full
+  handshake invocation, no branch leaves a lasting mutation.
+- New decision (closes B3): why the weakening-detector trust anchor is a
+  protected approved-context snapshot rather than git HEAD. Git HEAD is
+  trivially redefinable by an ordinary commit — an attacker who commits a
+  weakening change normally makes that change the new "HEAD," erasing any
+  diff against it on the next invocation. Decided: the anchor is instead
+  "the content a human actually last approved" — the exact bytes REQ-004's
+  signer hashed into the currently-live sidecar's `context_sha256` — stored
+  in a dedicated, full-write-deny-protected snapshot
+  (`sdd/.approved-context/*.approved.yaml`) that changes ONLY via a new,
+  complete `apply-human-copy` publish (REQ-004/REQ-007), never via a commit
+  to the live content file. This makes injection/substitution of a
+  favorable "baseline" structurally impossible on the production call path,
+  which never accepts a caller-supplied anchor at all — and, as a side
+  benefit, retires the prior design's git-repository/shallow-clone
+  dependency entirely (Risks, below).
 - New decision (closes M14): the resolver/generated-projection RESERVED
   path names (`resolve-project-context.{py,sh,ps1}`,
   `generated/project-context.resolved.json`) are chosen to match this
@@ -951,8 +1090,11 @@ Files touched by more than one task in this epic:
   using this tool, but no other task edits the tool itself.
 - `sdd/.staging/` (UNPROTECTED, REQ-004) and `sdd/.hook-canary-sentinel`
   (**R-10 PROTECTED once REQ-007 lands**, REQ-010) — neither path is ever
-  targeted by more than REQ-004's/REQ-010's own task respectively; no task
-  writes real content to the sentinel path under any circumstance.
+  targeted by more than REQ-004's/REQ-010's own task respectively; no
+  IMPLEMENTATION task ever authors real content for the sentinel path — its
+  only legitimate, transient occupant is the handshake's own hook-inactive
+  detection branch at test/run time (REQ-010, revised, B5), never
+  committed content.
 - `CHANGELOG.md`'s `## Unreleased` section — each task adds its own entry
   citing issue #189 (a single source issue for this whole epic, unlike
   epic-159-pillar-c's seven-issue fan-out) — tasks append distinct entries,
@@ -965,10 +1107,10 @@ Files touched by more than one task in this epic:
 | B1: content vs. approval separation | content files (`project-context.yaml`, `provider-bindings.yaml`) are freely agent-editable; EVERY consumer requires a fresh, validated sidecar (REQ-005) before trusting content — editability and trust are structurally decoupled | internal | Tampering (mitigated by hash+HMAC binding) |
 | B2: sidecar/registry write boundary | full deny, no `sudo` bypass, for `*.approval.json`, `approver-registry.yaml`, AND `sdd/.hook-canary-sentinel` (REQ-007/REQ-008, revised — 4-basename matrix) | internal | Elevation of Privilege (prevented at the tool-mediated layer; adversarial-agent resistance additionally relies on the external HMAC key + human review, per ADR-0019's two-tier scope) |
 | B3: HMAC key custody | `SDD_CONTEXT_KEY`/`_FILE`/home-path never read by an agent-driven signing operation; the signer itself never opens the live sidecar path for writing (REQ-004, revised — staging-only output) | internal | Spoofing (an agent cannot forge a valid signature without the key, nor smuggle an unsigned/invalid candidate onto the live path without `apply-human-copy`'s post-verification publish step) |
-| B4: policy-weakening self-approval | two-person/cooldown verdict re-derived from the protected registry, from a git-HEAD-resolved baseline the caller cannot supply, at BOTH generation and validation time (revised — B3/B2 findings closed) | internal | Repudiation / self-approval (an agent cannot manufacture a favorable verdict by controlling only the content file, cannot self-diff via a supplied baseline, and cannot satisfy two-person review with one identity presented twice) |
+| B4: policy-weakening self-approval | two-person/cooldown verdict re-derived from the protected registry, from a protected approved-context anchor snapshot the caller cannot supply and an ordinary commit cannot move, at BOTH generation and validation time (revised — closes the "commit the weakening, then re-diff against the new normal" gap) | internal | Repudiation / self-approval (an agent cannot manufacture a favorable verdict by controlling only the content file, cannot self-diff via a supplied anchor, and cannot satisfy two-person review with one identity presented twice) |
 | B5: track-selection fail-open / fail-open-via-tampering | a Project Context PHYSICALLY ABSENT uses the compatibility fallback; one PHYSICALLY PRESENT but failing validation STOPS with `PROJECT_CONTEXT_INVALID` (REQ-009, revised) — never treated as absent, closing the induced-validation-failure downgrade path | internal | Broken Access Control (prevented by the explicit-stop/compatibility-fallback distinction, not a single "treated as absent" branch) |
 | B6: `generate-guard-invariants.py`'s own exact-match self-defense | a JSON-only edit to `guard-invariants.json` (without the matching Python-constant edit) fails `--check` deterministically | internal | Tampering (a single-file forgery of the protected-file inventory does not silently take effect) |
-| B7: hook-activation handshake integrity | the redesigned handshake targets a dedicated sentinel path only (never the live sidecar) and never itself performs a write attempt (only a real, host-intercepted agent tool call counts as evidence, REQ-010) | internal | Tampering / false-negative Capability Mode activation (closes "canary corrupts live state" and "standalone-script I/O cannot observe host tool-call interception") |
+| B7: hook-activation handshake integrity | the redesigned handshake targets a dedicated sentinel path only (never the live sidecar; the sentinel itself is created only transiently, then cleaned up, when the hook is inactive) and never itself performs a write attempt (only a real, host-intercepted agent tool call counts as evidence, REQ-010) | internal | Tampering / false-negative Capability Mode activation (closes "canary corrupts live state" and the standalone-script blind spot for A1's own footgun-guard scope — does NOT extend to proving a live host's hook fires for a real, unscripted action, which is Epic A8's own mandatory Done condition) |
 | B8: human-copy publish integrity | every protected-file publish (guard-invariants, sidecar signatures, skill-file edits, CI registration) goes through `apply-human-copy`'s held-handle, atomic-rename, no-path-copy-fallback discipline (REQ-007, generalizing ADR-0011) | internal | Tampering / TOCTOU (a bare `cp` would not defend against symlink/reparse/hard-link/rename-race attacks during the publish window) |
 
 ## Deployment / CI Plan
@@ -1011,9 +1153,9 @@ lower-risk rollback surface than the guard-invariants batch.
 | signer never writes the live sidecar path (REQ-004, NEW B7) | staged candidate + nonce-tagged manifest only; `apply-human-copy` publishes after REQ-005 re-validates the STAGED candidate |
 | key never read by an agent-driven operation (REQ-004) | `generate-approval-sidecar` is authored and tested by an agent, but its SIGNING invocation is a human/CI-only operation — this is a documented operational constraint the design surfaces (Roles and Permissions, requirements.md), not one the script can enforce technically against a human who chooses to expose the key to an agent shell — the design's actual guarantee is that no key material is ever committed, logged, or echoed by the script itself |
 | approver identity checked against a protected registry (REQ-005, REQ-006) | `sdd/approver-registry.yaml` is itself protected (REQ-007) — an agent cannot expand or shrink it to manufacture a favorable validation or weakening-detector outcome |
-| weakening baseline internally resolved, never caller-supplied in production (REQ-006, NEW B3) | default git-HEAD resolution; `--baseline` override exists only for this script's OWN fixture tests, never used by REQ-004/REQ-005 |
+| weakening trust anchor internally resolved from an approved-context snapshot, never caller-supplied or git-derived in production (REQ-006, revised, closes B3) | default resolution reads the protected `sdd/.approved-context/*.approved.yaml` snapshot (published by `apply-human-copy` in lockstep with the sidecar, REQ-004/REQ-007); `--approved-context` override exists only for this script's OWN fixture tests, never used by REQ-004/REQ-005; an ordinary commit to the live content file cannot move this anchor |
 | policy-weakening categories renormalized to the canonical nine, N/A categories reported, not silently skipped or proxy-classified (REQ-006, revised M12/M13) | the detector's diagnostic output enumerates all NINE decision-doc §9 categories every run (3 implemented + 6 N/A), with the invented `artifact_kinds`/`runtime_classes`/`distribution_channels`-shrink proxies REMOVED |
-| exact-match guard-invariants registration (REQ-007) | `EPIC_A1_TARGETS` constant (24 entries, generated from `PROTECTED-MANIFEST.md`) added to the generator alongside `guard-invariants.json`'s new key, staged together in one `apply-human-copy` batch, staged-tree `--check` proof recorded before live application |
+| exact-match guard-invariants registration (REQ-007) | `EPIC_A1_TARGETS` constant (26 entries, generated from `PROTECTED-MANIFEST.md`) added to the generator alongside `guard-invariants.json`'s new key, staged together in one `apply-human-copy` batch, staged-tree `--check` proof recorded before live application |
 | resolver/generated-projection protection categories reserved, not silently absent (REQ-007, NEW M14) | two reserved paths added to the SAME batch, with a forced handoff gate for the epic that populates them |
 | human-copy publish provides anchored-publisher-equivalent guarantees (REQ-007, NEW B6) | `apply-human-copy.{sh,ps1}` — held handle, handle-relative traversal, temp-rehash, atomic rename, no path-copy fallback, generalizing ADR-0011 |
 | no hook-guard decision-logic edit (REQ-008) | `_is_protected_gate_file`'s suffix-match logic is unchanged; this epic relies on the EXISTING mechanism activating automatically once REQ-007's inventory lands, verified by the full 4×12×2 matrix rather than a spot check |
@@ -1041,9 +1183,12 @@ tool-call-denial reporting surface (Claude Code's `--emit exit` signature;
 Codex CLI's `plugin_hooks`-gated dispatch; Copilot CLI's `--emit copilot`
 JSON) is stable and distinguishable at implementation time (INV-015,
 investigation.md) — re-verified per Risks, below. `detect-policy-weakening`'s
-default baseline resolution assumes the repository is a git working tree
-with the candidate's prior content committed at `HEAD` when one exists
-(Risks, below, covers the non-git/shallow-clone failure mode).
+default anchor resolution (revised, closes B3) assumes only that
+`apply-human-copy` has correctly published the approved-context snapshot in
+lockstep with its accompanying sidecar whenever one exists — no git
+working-tree/history assumption remains, since the anchor is a plain
+protected-file read (Risks, below, covers the narrower missing/corrupted-
+snapshot failure mode this replaces the prior git-dependency risk with).
 
 ## Open Questions
 
@@ -1075,14 +1220,21 @@ above) without re-verifying it still matches this requirements.md/design.md
 pair after any intervening spec-review/impl-review edits — mitigated by
 recording the preserved draft's location and provenance in
 investigation.md rather than leaving it as tribal knowledge. Quinary risk
-(NEW, from the host-canary redesign, B4) is a host runtime's tool-call-
+(from the host-canary redesign, B4) is a host runtime's tool-call-
 denial reporting surface drifting from this epic's pinned per-runtime
 signature table without breaking the underlying guard itself — mitigated
 by REQ-011's per-runtime fixture tests pinning each signature explicitly,
-with Epic A8's cross-runtime handoff suite as the designated place this
-gets a live, ongoing regression check beyond this epic's fixture-only
-proof. Senary risk (NEW, from REQ-006's git-HEAD baseline resolution, B3)
-is a non-git deployment or shallow clone making default baseline
-resolution fail in a way distinct from "first commit" — mitigated by a
-dedicated fail-closed diagnostic distinct from `FIRST_COMMIT_NOT_WEAKENING`
-for that case, never a silent default to either verdict.
+with Epic A8's cross-runtime handoff suite as this epic's own MANDATORY
+handoff for a live, ongoing regression check beyond this epic's
+fixture-only proof — a forced Done condition for A8, not merely a
+designated future target. Senary risk (revised, from REQ-006's
+approved-context anchor resolution, B3) is now a NARROWER risk than the
+prior git-HEAD design's: the anchor snapshot itself could be missing (no
+sidecar for a schema has ever been successfully published) or, in
+principle, corrupted at the filesystem level — mitigated by the
+`NO_APPROVED_CONTEXT_ANCHOR` fail-closed rule (missing snapshot ⇒ every
+category `false`, never "assume weakening") and by the snapshot's own
+full-write-deny protection (REQ-007/REQ-008), which an agent cannot
+silently corrupt. This revision RETIRES the prior git-HEAD design's
+non-git-deployment/shallow-clone/mid-rebase risk entirely, since the anchor
+no longer depends on git history at all.
