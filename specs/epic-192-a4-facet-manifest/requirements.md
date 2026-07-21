@@ -198,12 +198,13 @@ not renegotiable, inputs.
   uniformly across all three axes (projection/registry/ownership), and a
   missing detector is an availability gap, not a decision that a Registry
   or ownership edit can never be a weakening. REQ-004 instead requires a
-  weakening verdict as input for **all three** axes and fails closed
-  (Block) whenever a changed axis's verdict is indeterminate — see REQ-004
-  below for the full contract, and Non-goals for the still-true fact that
-  this feature does not itself build a Registry- or ownership-scoped
-  detector; it only defines what the staleness comparator does in that
-  detector's absence.
+  mandatory, explicit weakening-verdict input for **all three** axes on
+  every invocation — never expressed by omitting a flag (Goals) — and
+  fails closed (Block) whenever a changed axis's verdict is indeterminate —
+  see REQ-004 below for the full contract, and Non-goals for the still-true
+  fact that this feature does not itself build a Registry- or
+  ownership-scoped detector; it only defines what the staleness comparator
+  does in that detector's absence.
 
 ## Goals
 
@@ -226,31 +227,54 @@ not renegotiable, inputs.
   `conditional_facets[]` entry's `evidence` is exactly the array
   `evaluate-predicate --predicate <this facet's Capability trigger or
   facet-condition predicate>` returned, so no root-extraction or
-  single-node-selection rule is needed)}`),
+  single-node-selection rule is needed)}`, and whose `facet` value MUST be
+  **unique** across the whole `conditional_facets[]` array — REQ-006's
+  semantic validator rejects a second entry sharing a `facet` name
+  (`conditional-facet-duplicate`, AC-047), reversing an earlier revision's
+  Edge Cases text that left a same-`facet`, different-outcome duplicate
+  unrestricted; see Edge Cases and design.md Design Decisions for why),
   `resolved_gates` (array of `{id, stage (enum: implementation/artifact/
-  promotion, copy-consistent with `gates[].stage`), blocking (boolean)}`),
+  promotion, copy-consistent with `gates[].stage`), blocking (boolean)}` —
+  `id` MUST be unique across `resolved_gates[]`, REQ-006's `resolved-gate-
+  id-duplicate` check enforces it),
   `capabilities` (array of unique resolved Capability-id strings),
   `capability_minimum_enforcement` (optional; `const: "required"` only, no
   other value — matching Epic A2's own `minimum_enforcement` field exactly,
   Field Definitions explains why this is *not* the full "effective
   enforcement" of decision v2 §10), `lite_eligibility` (`{eligible
-  (boolean, required), upgrade_reasons (array of strings, always present —
-  `[]` when there are none, materialized by the Resolver, never merely a
-  JSON Schema `default` annotation, which does not alter instance data)}`,
-  matching the per-Capability `lite_policy` shape but representing the
-  Feature-level aggregate), `context_binding` (`{full_context_revision,
+  (boolean, required), upgrade_reasons (array of **unique** strings,
+  always present — `[]` when there are none, materialized by the Resolver,
+  never merely a JSON Schema `default` annotation, which does not alter
+  instance data; written sorted-and-unique, the same canonical-order
+  discipline the other stable-sort-mandated arrays below already require,
+  a verification-round finding on total order — see the stable-sort
+  paragraph below and AC-048)}`, matching the per-Capability `lite_policy`
+  shape but representing the Feature-level aggregate), `context_binding`
+  (`{full_context_revision,
   dependency_pointers, projection_sha256, registry_digest,
   ownership_digest}`, verbatim from ADR-0021), and `resolver`
   (`{version, rule_set_revision}`, verbatim from ADR-0021). Every array
   REQ-001 defines that participates in semantic-output comparison
   (`affected_components`, `required_facets`, `conditional_facets`,
-  `resolved_gates`, `capabilities`) MUST be written stable-sorted
-  (lexicographic by id/facet-name/component-id) before serialization — the
-  same fragment-sort discipline Epic A2's `generate-registry-digest`
-  already established (INV-005) — so Resolver purity (ADR-0020 item 6)
-  extends to array order, not only set membership, and REQ-004's
-  comparison can be a plain structural-equality check rather than a
-  defensively-re-sorting one.
+  `resolved_gates`, `capabilities`, `lite_eligibility.upgrade_reasons`)
+  MUST be written stable-sorted (lexicographic by id/facet-name/
+  component-id/upgrade-reason-string) — and, for `upgrade_reasons`, unique
+  as well (schema-level `uniqueItems`, design.md API / Contract Plan) —
+  before serialization — the same fragment-sort discipline Epic A2's
+  `generate-registry-digest` already established (INV-005) — so Resolver
+  purity (ADR-0020 item 6) extends to array order, not only set
+  membership, and REQ-004's comparison can be a plain structural-equality
+  check rather than a defensively-re-sorting one. `conditional_facets`'
+  own by-`facet` sort, and `resolved_gates`' own by-`id` sort, are each a
+  **total order**, not merely a partial one — a lexicographic sort key
+  that is not guaranteed unique within the array has no defined relative
+  order for two entries that share it, making "the array is
+  stable-sorted" ill-defined for that input. `resolved_gates[].id`
+  uniqueness is already enforced (`resolved-gate-id-duplicate`, REQ-006);
+  this revision closes the identical gap for `conditional_facets[].facet`
+  (`conditional-facet-duplicate`, REQ-006, AC-047 — a verification-round
+  finding on total order, reversing an earlier revision's Edge Cases text
+  that left a same-`facet` duplicate unrestricted).
 - **REQ-002** (Capability Summary schema, Lite track only — decision v2 §6):
   Define `contracts/capability-summary.schema.json` fixing exactly decision
   v2 §6's own literal Lite Capability Summary shape, plus this feature's
@@ -348,9 +372,19 @@ not renegotiable, inputs.
   ownership, not to the projection axis alone — reverting an earlier
   revision's narrower reading, per adversarial review "B2"): the staleness
   comparator (design.md's `compare-facet-manifest-staleness` CLI contract)
-  takes a **weakening verdict for each of the three axes** as required
-  input — `not-weakened`, `weakened`, or **indeterminate** (the axis's
-  digest changed but no detector supplied a verdict for it at all).
+  takes a **mandatory, explicit weakening-verdict input for each of the
+  three axes, on every invocation** — a three-value enum, `weakened`,
+  `not-weakened`, or `indeterminate` (no detector supplied a verdict for
+  that axis at all), never expressed by omitting the axis's own input.
+  **Omitting any of the three inputs is a caller argument error**
+  (design.md's CLI contract, exit code 3), not a way to spell
+  `indeterminate` — a verification-round finding reversing an earlier
+  revision that made the three inputs optional and let flag omission
+  stand for `indeterminate`. A caller with no detector for an axis must
+  supply `indeterminate` explicitly for that axis; a caller for an axis
+  whose digest did not change supplies `not-weakened` for that axis, by
+  convention (below) — never `indeterminate`/`weakened` for an axis that
+  did not change.
   - Any axis reporting `weakened` → Block unconditionally (no
     semantic-output comparison attempted), re-approval and re-resolve
     required, per ADR-0021 item 3.
@@ -374,11 +408,17 @@ not renegotiable, inputs.
     already anticipate as weakening — this feature does not build the
     detector that would classify them, but its fail-closed default is what
     keeps them from silently passing through in the meantime.
-  - An axis whose digest is **unchanged** needs no verdict for that axis
-    (nothing to have weakened).
-  - If **no** axis's digest changed at all → continue, WARN-only (`fresh`,
-    the same status the metadata-only-refresh branch below also reports,
-    distinguished only by the WARN diagnostic).
+  - An axis whose digest is **unchanged** still carries a mandatory,
+    explicit weakening-verdict input (above — never omitted), but that
+    input has **no Block consequence** for an unchanged axis (nothing to
+    have weakened); the fixed caller convention (design.md) is to supply
+    `not-weakened` for an unchanged axis specifically, so every axis's
+    input is always a meaningful, explicit value, not a placeholder that
+    only matters for the changed axes.
+  - If **no** axis's digest changed at all (every axis's input is
+    `not-weakened`, per the convention above) → continue, WARN-only
+    (`fresh`, the same status the metadata-only-refresh branch below also
+    reports, distinguished only by the WARN diagnostic).
   - If every changed axis reports `not-weakened` (explicitly, not merely
     "not indeterminate") → ordinary path: recompute and compare semantic
     output. Unchanged semantic output → metadata-only refresh (`context_
@@ -388,8 +428,14 @@ not renegotiable, inputs.
   6): Fix the three-way `resolver.version` semver-component rule verbatim:
   **patch** → no regeneration required when semantic output is unchanged;
   **minor** → run the REQ-004 impact assessment, stale only if semantic
-  output changes; **major** → mandatory re-resolve for every Feature that
-  used the affected Resolver version, regardless of whether semantic
+  output changes, **regardless of whether any `context_binding` digest
+  also changed** (a verification-round finding on the comparator's branch
+  order: an earlier revision of `compare-facet-manifest-staleness`
+  short-circuited straight to `fresh` whenever no digest changed at all,
+  with no exception for a `minor` bump, silently skipping the impact
+  assessment this tier requires unconditionally — design.md fixes that
+  branch-order defect); **major** → mandatory re-resolve for every Feature
+  that used the affected Resolver version, regardless of whether semantic
   output would change (the one case that skips the semantic-output
   comparison entirely, INV-011) — unless REQ-004's Policy-Weakening
   short-circuit already Blocked the transition, in which case Block takes
@@ -399,9 +445,26 @@ not renegotiable, inputs.
   as a three-component semver string (`^\d+\.\d+\.\d+$`); `rule_set_
   revision` is a `sha256:<hex>` digest. A `rule_set_revision` change with
   `resolver.version` unchanged (a same-version rule-table edit) is treated
-  as a **minor**-tier transition (run the impact assessment; stale only if
-  semantic output changes) — never as a silent patch-tier no-op, and never
-  as an unconditional major-tier force.
+  as a **minor**-tier transition (run the impact assessment, unconditionally,
+  exactly like an ordinary minor bump — never as a silent patch-tier
+  no-op, and never as an unconditional major-tier force) and is supplied
+  to `compare-facet-manifest-staleness` as its **own explicit
+  `--resolver-version-bump minor-rule-set` input** (design.md API /
+  Contract Plan), distinct from an ordinary `minor` `resolver.version`
+  bump, so the comparator can tell "the version number moved" from "the
+  version number didn't move but the rule table did" without inferring
+  either from a raw digest diff. The comparator cross-checks the supplied
+  `--resolver-version-bump` tier against the actual difference between the
+  two input manifests' own `resolver.version`/`resolver.rule_set_revision`
+  fields — `none` requires both fields unchanged; `patch`/`minor`/`major`
+  each require `resolver.version` to differ at exactly that semver
+  component; `minor-rule-set` requires `resolver.version` unchanged **and**
+  `rule_set_revision` changed — and rejects any other combination (e.g.
+  `--resolver-version-bump patch` against manifests whose `resolver.
+  version` actually differs at the minor or major component) as an
+  **argument error** (design.md, exit code 3) before evaluating any
+  staleness branch, rather than silently trusting a caller-asserted tier
+  that contradicts the manifests it was given.
 - **REQ-006** (schema validation scripts, fixtures, tests — decision v2
   §19 item "schema"): Design three deterministic, stdlib-only-Python-
   master-plus-`sh`/`ps1`-wrapper scripts under
@@ -432,11 +495,28 @@ not renegotiable, inputs.
   table per script, mirroring `validate-capability-registry.py`'s
   `registry: <check-id>: <detail>` diagnostic style). The schema-
   conformance check's own hand-rolled draft-07 subset (design.md) covers
-  every keyword this feature's three schemas actually use, including `not`,
-  `oneOf`, boolean (`true`/`false`) subschema values, array-form (union)
-  `type`, and `propertyNames` — an earlier revision's implemented-keyword
-  list omitted all four despite the committed schemas using at least three
-  of them (adversarial review "B5"). Each of the three committed schema
+  every constraint keyword this feature's three schemas actually use,
+  including `not`, `oneOf`, boolean (`true`/`false`) subschema values,
+  array-form (union) `type`, `propertyNames`, and **`items`** (design.md's
+  API / Contract Plan re-enumerates every keyword all three schemas use,
+  cross-checked for exact coverage — a verification-round finding: `items`
+  constrains array-element shape throughout all three schemas
+  — `evidenceNode.children`, `conditional_facets[].evidence`,
+  `resolved_gates[]`, `dependency_pointers[]`, `shared_paths[].components`,
+  and every `projectedComponent` array field among them — and its absence
+  from an earlier revision's implemented-keyword list meant none of those
+  item-level constraints could actually be executed, despite the same
+  earlier revision's own text claiming full coverage of "every keyword
+  this feature's schemas actually use"); an earlier, still-earlier
+  revision's implemented-keyword list additionally omitted `not`, `oneOf`,
+  boolean (`true`/`false`) subschema values, and `propertyNames` despite
+  the committed schemas using at least three of them (adversarial review
+  "B5"). `$schema`, `$id`, and `title` are **not** implemented as
+  validation keywords — design.md states explicitly that they are
+  annotation/identifier keywords this feature's discovery contract
+  (design.md, "Discovery contract") checks directly (a present `$schema`
+  keyword and a matching `$id`), not constraint keywords the hand-rolled
+  structural validator needs to interpret. Each of the three committed schema
   documents is additionally validated once, at spec-authoring/registration
   time (not by an automated `tests/*.tests.sh` regression suite — a
   general draft-07-metaschema-conformant validator is out of this
@@ -755,21 +835,29 @@ not renegotiable, inputs.
   fixture is projection-axis only because no other axis has a detector to
   produce a `weakened` verdict with yet.
 - AC-024 (REQ-004, fail-closed lock, reversing an earlier revision's
-  fail-open reading — adversarial review "B2"): two sub-case fixtures over
-  a `registry_digest` change (a `minimum_enforcement` field removed from a
+  fail-open reading — adversarial review "B2"; revised — verification-round
+  finding on mandatory weakening inputs): two sub-case fixtures over a
+  `registry_digest` change (a `minimum_enforcement` field removed from a
   Capability — informally "looks like" a weakening — is used as the
-  concrete edit for both sub-cases): (1) **no** registry-axis weakening
-  verdict is supplied (the ordinary case today, since no Registry-scoped
-  detector exists, INV-012) → the comparator returns **Block**
-  (`weakening-verdict-indeterminate:registry`), never proceeding to the
-  ordinary semantic-output comparison path — proving the fail-closed rule
-  is a hard boundary, not a judgment call left to the comparator; (2) an
-  explicit `not-weakened` registry-axis verdict *is* supplied (simulating
-  a future Registry-scoped detector) → the comparator proceeds to the
-  ordinary semantic-output comparison path and classifies the Feature per
-  its actual output difference — proving the contract is forward-
-  compatible with a future detector without needing its own shape to
-  change once one exists.
+  concrete edit for both sub-cases), each supplying all three required
+  `--*-weakening` inputs explicitly (REQ-004 — no flag is ever omitted):
+  (1) an explicit **`indeterminate`** registry-axis weakening verdict is
+  supplied (the ordinary case today, since no Registry-scoped detector
+  exists, INV-012, so a caller with no detector for that axis must pass
+  `indeterminate` explicitly rather than omit the flag — reversing an
+  earlier revision, which represented this case by flag omission) → the
+  comparator returns **Block** (`weakening-verdict-indeterminate:registry`),
+  never proceeding to the ordinary semantic-output comparison path —
+  proving the fail-closed rule is a hard boundary, not a judgment call
+  left to the comparator; (2) an explicit `not-weakened` registry-axis
+  verdict *is* supplied instead (simulating a future Registry-scoped
+  detector) → the comparator proceeds to the ordinary semantic-output
+  comparison path and classifies the Feature per its actual output
+  difference — proving the contract is forward-compatible with a future
+  detector without needing its own shape to change once one exists. A
+  companion fixture (AC-044) proves the distinct case — omitting a
+  `--*-weakening` flag entirely — is an **argument error** (exit 3), not a
+  third way to spell `indeterminate`.
 - AC-025 (REQ-005): A `resolver.version` patch-only bump (e.g. `1.1.0` →
   `1.1.1`) with byte-identical semantic output requires no regeneration
   (no Stale marking, no forced re-resolve) — a positive fixture proving the
@@ -777,26 +865,34 @@ not renegotiable, inputs.
 - AC-026 (REQ-005): A `resolver.version` minor bump (e.g. `1.1.0` →
   `1.2.0`) triggers the REQ-004 impact assessment and is marked Stale only
   when semantic output actually changed as part of that assessment — a
-  fixture pair proving both the changed and unchanged sub-cases.
+  fixture pair proving both the changed and unchanged sub-cases, **each
+  also confirmed with a `context_binding` that is byte-identical old-vs-new
+  (no axis digest differs at all)** — a minor bump alone, with no digest
+  change, still runs the impact assessment rather than short-circuiting to
+  `fresh` (see AC-045, which locks the comparator-branch fix this
+  requirement depends on).
 - AC-027 (REQ-005): A `resolver.version` major bump (e.g. `1.1.0` →
   `2.0.0`) forces every Feature that used the affected Resolver version to
   re-resolve, even in a fixture where semantic output is otherwise
   byte-identical — proving the major tier skips the semantic-output
   comparison entirely (INV-011), not merely makes staleness more likely.
-- AC-028 (REQ-006): `validate-facet-manifest.py --manifest <path>` exits 0
-  on a fully schema-conformant, semantically-consistent fixture, and
-  non-zero with a `facet-manifest: <check-id>: <detail>` diagnostic line
-  (matching `validate-capability-registry.py`'s own diagnostic style,
-  INV-005/design.md) for each of: `schema-invalid`, `resolved-gate-id-
-  duplicate` (two `resolved_gates[]` entries sharing an `id`),
+- AC-028 (REQ-006, revised — verification-round finding on total order):
+  `validate-facet-manifest.py --manifest <path>` exits 0 on a fully
+  schema-conformant, semantically-consistent fixture, and non-zero with a
+  `facet-manifest: <check-id>: <detail>` diagnostic line (matching
+  `validate-capability-registry.py`'s own diagnostic style, INV-005/
+  design.md) for each of: `schema-invalid`, `resolved-gate-id-duplicate`
+  (two `resolved_gates[]` entries sharing an `id`),
   `facet-classification-conflict` (a facet name present in both
-  `required_facets` and `conditional_facets`), and `array-not-stable-
-  sorted` (one fixture per REQ-001 stable-sort-mandated array, each
-  submitted out of lexicographic order — an earlier revision of this AC
-  omitted this diagnostic despite design.md's own diagnostic-id table
-  listing it, adversarial review "M suite/1:1"; `dependency-pointer-
-  root-not-allowlisted` is retired from this table, folded into the schema
-  level, AC-017).
+  `required_facets` and `conditional_facets`), `conditional-facet-
+  duplicate` (two `conditional_facets[]` entries sharing a `facet` value,
+  AC-047), and `array-not-stable-sorted` (one fixture per REQ-001
+  stable-sort-mandated array, including `lite_eligibility.upgrade_reasons`
+  (AC-048), each submitted out of lexicographic order — an earlier
+  revision of this AC omitted this diagnostic despite design.md's own
+  diagnostic-id table listing it, adversarial review "M suite/1:1";
+  `dependency-pointer-root-not-allowlisted` is retired from this table,
+  folded into the schema level, AC-017).
 - AC-029 (REQ-006): `validate-capability-summary.py --summary <path>`
   exits 0 on a valid Lite Capability Summary fixture (AC-013's own worked
   example) and non-zero — `capability-summary: schema-invalid: <detail>`
@@ -875,19 +971,26 @@ not renegotiable, inputs.
   `contracts/workflow-state-registry.schema.json` (INV-017).
 - AC-039 (REQ-004, new — adversarial review "M suite/1:1"): A fixture pair
   where **none** of the three `context_binding` digests (`projection_
-  sha256`, `registry_digest`, `ownership_digest`) changed is classified
-  `fresh` with a `WARN`-only diagnostic, and the comparator does not
-  attempt to recompute or compare semantic output at all (distinct from
-  the metadata-only-refresh branch, AC-019, which *does* run the
-  comparison and finds it unchanged) — the "no axis changed" branch REQ-004
-  names but an earlier revision left untested.
-- AC-040 (REQ-004, new — adversarial review "M suite/1:1"): the
+  sha256`, `registry_digest`, `ownership_digest`) changed, **all three
+  weakening-verdict flags explicitly `not-weakened`, and
+  `--resolver-version-bump none`**, is classified `fresh` with a `WARN`-only
+  diagnostic, and the comparator does not attempt to recompute or compare
+  semantic output at all (distinct from the metadata-only-refresh branch,
+  AC-019, which *does* run the comparison and finds it unchanged, and
+  distinct from AC-045's `minor`/`minor-rule-set` fixtures, which also have
+  no digest change but *do* run the comparison) — the "no axis changed"
+  branch REQ-004 names but an earlier revision left untested.
+- AC-040 (REQ-004, new — adversarial review "M suite/1:1"; revised —
+  verification-round finding on mandatory weakening inputs): the
   `ownership_digest` axis's own parity with AC-019/AC-024's
-  `registry_digest` fixtures: (1) a fixture pair differing only in
-  `context_binding.ownership_digest`, with an explicit `not-weakened`
-  ownership-axis verdict supplied, is classified **not stale**
-  (metadata-only refresh); (2) the same digest change with **no**
-  ownership-axis verdict supplied is classified **Block**
+  `registry_digest` fixtures, both sub-cases supplying all three required
+  `--*-weakening` inputs explicitly (REQ-004 — no flag is ever omitted):
+  (1) a fixture pair differing only in `context_binding.ownership_digest`,
+  with an explicit `not-weakened` ownership-axis verdict supplied, is
+  classified **not stale** (metadata-only refresh); (2) the same digest
+  change with an explicit **`indeterminate`** ownership-axis verdict
+  supplied (reversing an earlier revision, which represented this case by
+  flag omission) is classified **Block**
   (`weakening-verdict-indeterminate:ownership`) — proving the fail-closed
   rule (REQ-004) applies uniformly to the ownership axis, not only the
   registry axis.
@@ -911,14 +1014,83 @@ not renegotiable, inputs.
   a clean fixture proves the scan does not false-positive on provider-
   neutral vocabulary already present in this feature's own schemas (e.g.
   `distribution_channels` as a field name).
-- AC-044 (REQ-006, new — adversarial review "B7"): `compare-facet-
-  manifest-staleness`'s own CLI contract exists as design.md specifies:
-  invoked with `--old-manifest`/`--new-manifest`/the three
-  `--*-weakening` flags (each optional except where a digest changed,
-  AC-019/AC-024/AC-039/AC-040)/`--resolver-version-bump`, it emits exactly
-  one of `fresh`/`stale`/`blocked` on stdout and exits `0`/`1`/`2`
-  respectively — a fixture per exit code proves the exit-code-to-status
-  mapping is fixed, not merely the status string.
+- AC-044 (REQ-006, new — adversarial review "B7"; revised —
+  verification-round finding on stdout/exit/error-channel unification):
+  `compare-facet-manifest-staleness`'s own CLI contract exists as
+  design.md specifies: invoked with `--old-manifest`/`--new-manifest`/
+  **all three** `--*-weakening` flags (each **required** on every
+  invocation — an earlier revision made them optional with omission
+  standing for `indeterminate`, which this revision reverses, Goals)/
+  `--resolver-version-bump`, it emits exactly one line,
+  `facet-manifest-staleness: <status>:<reason>` (never a bare `<status>`
+  alone — an earlier revision of this AC fixed a bare `fresh|stale|blocked`
+  stdout contract that contradicted design.md's own `<status>[:<reason>]`
+  shape; this revision makes `<reason>` mandatory and resolves the
+  contradiction in design.md's favor), on stdout, and exits `0`/`1`/`2`
+  for `fresh`/`stale`/`blocked` respectively — a fixture per exit code
+  proves the exit-code-to-status mapping is fixed, not merely the status
+  string. A **fourth** fixture class proves the separate error channel:
+  omitting a required flag, an out-of-enum `--*-weakening`/
+  `--resolver-version-bump` value, a `--resolver-version-bump` tier
+  inconsistent with the two manifests supplied (AC-046), or a
+  schema-invalid `--old-manifest`/`--new-manifest`, each exit **`3`** with
+  a diagnostic on **stderr** only (`facet-manifest-staleness: <check-id>:
+  <detail>`) — stdout carries no `facet-manifest-staleness:` line at all
+  for an exit-3 invocation, proving the verdict channel (stdout, exit
+  0/1/2) and the diagnostic channel (stderr, exit 3) are fully separated,
+  never sharing a line format or an exit code, and byte-identical across
+  all three runtimes (AC-031's diagnostic-determinism contract, extended
+  to this script's exit-3 case, design.md).
+- AC-045 (REQ-004/REQ-005, new — verification-round finding on comparator
+  branch order): a fixture pair whose `context_binding` (`projection_
+  sha256`/`registry_digest`/`ownership_digest`) is byte-identical old-vs-
+  new (no axis digest differs at all, all three weakening flags
+  `not-weakened`) but whose `resolver.version` differs at the minor
+  component (`--resolver-version-bump minor`) is classified per REQ-004's
+  ordinary comparison path (`fresh`/`metadata-only-refresh` or `stale`/
+  `semantic-output-changed`, depending on a companion semantic-output-
+  difference fixture), **never** short-circuited straight to `fresh`/
+  `unchanged` without running the comparison — proving the digest-
+  unchanged short-circuit (compare-facet-manifest-staleness branch 3,
+  design.md) is scoped to `none`/`patch` bumps only, and does not
+  intercept a `minor` bump whose semantic output the impact assessment
+  must still evaluate (REQ-005). A parity fixture confirms the identical
+  outcome for `--resolver-version-bump minor-rule-set` (a same-version
+  `rule_set_revision` edit) under the same digest-unchanged condition.
+- AC-046 (REQ-005, new — verification-round finding on comparator branch
+  order): `compare-facet-manifest-staleness` rejects, as an **argument
+  error** (exit 3, not a verdict), a `--resolver-version-bump` value
+  inconsistent with the actual `resolver.version`/`rule_set_revision`
+  difference between `--old-manifest` and `--new-manifest` — fixtures
+  cover: `--resolver-version-bump patch` against manifests whose `resolver.
+  version` actually differs at the minor or major component;
+  `--resolver-version-bump minor` against manifests whose `resolver.
+  version` is unchanged (the `minor-rule-set` case, misdeclared); and
+  `--resolver-version-bump minor-rule-set` against manifests whose
+  `resolver.version` actually changed, or whose `rule_set_revision` is
+  unchanged. A positive fixture per tier (`none`/`patch`/`minor`/
+  `minor-rule-set`/`major`) confirms a *consistent* declaration is accepted
+  and proceeds to the ordinary branch table.
+- AC-047 (REQ-001/REQ-006, new — verification-round finding on total
+  order): a fixture with two `conditional_facets[]` entries sharing one
+  `facet` value (differing in `applied`/`reason`/`evidence`) is rejected
+  by `validate-facet-manifest.py` with `facet-manifest: conditional-facet-
+  duplicate: <detail>`; a fixture with every `conditional_facets[]` entry
+  carrying a distinct `facet` value is accepted — proving `conditional_
+  facets`' own by-`facet` stable-sort requirement (Goals) now has a
+  genuine total order to sort against, reversing an earlier revision's
+  Edge Cases text that left this same-facet, different-outcome case
+  unrestricted.
+- AC-048 (REQ-001/REQ-006, new — verification-round finding on total
+  order): `lite_eligibility.upgrade_reasons` rejects a duplicate string at
+  the **schema** level (`uniqueItems: true`, API / Contract Plan) and
+  rejects an out-of-lexicographic-order, duplicate-free fixture at the
+  **semantic** level (`array-not-stable-sorted`'s scope extended to this
+  field, design.md diagnostic table) — proving `upgrade_reasons` now
+  carries the same sorted-and-unique canonical-order discipline REQ-001's
+  other semantic-output-comparison arrays already have (Goals), so
+  REQ-004's plain structural-equality comparator needs no special-case
+  normalization for this field either.
 
 ## Field Definitions
 
@@ -1079,14 +1251,30 @@ not renegotiable, inputs.
   populated Facet Manifest, not an error — `required_facets`, `conditional_
   facets`, `resolved_gates` are all schema-valid as `[]`.
 - Two `conditional_facets[]` entries for the same `facet` name from two
-  different resolved Capabilities, one `applied: true` and one `applied:
-  false` — REQ-006's `facet-classification-conflict` check (AC-028) only
-  guards against a facet appearing in *both* `required_facets` and
-  `conditional_facets`; it does not forbid this same-facet-different-
-  outcome case within `conditional_facets[]` alone, since two Capabilities
-  legitimately disagreeing about one Facet's applicability is a real,
-  representable Resolver output, not a malformed one — design.md's Design
-  Decisions records this as a considered, not overlooked, scope boundary.
+  different resolved Capabilities — an earlier revision of this spec
+  treated this as a legitimate, representable Resolver output (two
+  Capabilities disagreeing about one Facet's applicability) and left it
+  unrestricted; this revision **forbids** it (a verification-round finding
+  on `conditional_facets`' own total order, design.md Design Decisions):
+  REQ-006's new `conditional-facet-duplicate` semantic check (AC-047)
+  rejects a second `conditional_facets[]` entry sharing a `facet` value
+  with an earlier one, regardless of `applied`/`reason`/`evidence` content.
+  This is a **narrower** rule than `facet-classification-conflict`
+  (AC-028), which guards a different pair — a facet appearing in both
+  `required_facets` and `conditional_facets` — not the same-array-twice
+  case this Edge Case now forbids. Without this prohibition,
+  `conditional_facets`' own by-`facet` stable-sort requirement (Goals,
+  REQ-001) has no defined tie-breaker for two entries sharing one `facet`
+  name, making "the array is stable-sorted" an ill-defined check for that
+  input; forbidding the duplicate makes the by-`facet` sort a genuine
+  total order, the same status `resolved_gates`' own by-`id` sort already
+  has via `resolved-gate-id-duplicate`. A Resolver that needs to represent
+  two Capabilities' differing views of one Facet's applicability must
+  resolve that disagreement upstream (e.g. Capability-level precedence, a
+  future Epic A5 concern) before writing a single `conditional_facets[]`
+  entry for that `facet` name — this feature's schema and validator do not
+  themselves define that precedence rule, only that the Manifest's own
+  array may not carry the unresolved disagreement forward as two rows.
 - `dependency_pointers` containing a pointer into `/shared_paths/N/...`
   (a numeric-indexed pointer, not an `id`-keyed one, since `shared_paths[]`
   is not re-keyed by REQ-003) — schema-valid and root-allowlisted (its
