@@ -128,10 +128,83 @@ require a human `cp` + SHA-256 verification before the task can be marked
 Done. This feature's Gate-registration work (design.md; the corresponding
 task is deferred to this feature's Phase 2 task decomposition, per
 INV-012) follows this same shape for `guard-invariants.json` +
-`generate-guard-invariants.py` (unchanged, read-only input) +
-`generated/guard_invariants.py` + the three `generated/guard-invariants.generated.{js,ps1,sh}`
-siblings (all regenerated output, staged together as one unit since they
-are produced by one generator run).
+`generate-guard-invariants.py` (**edited, not merely read** — see
+INV-015, this investigation's own earlier "unchanged, read-only input"
+characterization was wrong) + `generated/guard_invariants.py` + the three
+`generated/guard-invariants.generated.{js,ps1,sh}` siblings — six files
+total, staged together as one unit since they are produced by one
+generator run.
+
+## INV-015: `generate-guard-invariants.py` itself must be edited to add a new protected suffix, and the epic-136 precedent already did so
+
+`plugins/sdd-quality-loop/scripts/generate-guard-invariants.py:37-56` fixes
+`PHASE2_TARGETS` as a hardcoded tuple, and `:57-88` fixes `BASELINE_SUFFIXES`
+likewise; `load_and_validate()` (`:129-147`) computes `expected_protected =
+BASELINE_SUFFIXES + (entries of PHASE2_TARGETS not already in
+BASELINE_SUFFIXES)` and raises `ValueError("protected_gate_suffixes must be
+the exact baseline/inventory union")` (`:145-147`) the moment
+`guard-invariants.json`'s `protected_gate_suffixes` array is not
+byte-for-byte equal to that computed tuple — **before** `--check`
+(`:271-291`) ever compares generated output for staleness. Adding
+`check-component-coverage.{sh,ps1,py}` to `guard-invariants.json` without
+also adding the identical three entries to `generate-guard-invariants.py`'s
+own `PHASE2_TARGETS` tuple therefore makes `load_and_validate()` reject the
+edited JSON outright — `--check` would never even reach its staleness
+comparison. This corrects this investigation's own earlier INV-007/INV-006
+characterization of `generate-guard-invariants.py` as "unchanged, read-only
+input": it is a sixth file this feature's Gate-registration work must edit
+and stage. The epic-136 precedent already did exactly this —
+`specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256` carries a line for
+`plugins/sdd-quality-loop/scripts/generate-guard-invariants.py`
+(`827d154754599f6231445fad6056c17700bb371e72f01346b56d0147ce4facc7`), and
+`specs/epic-136-phase2-gates/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py`
+exists as staged content — so this feature's requirements.md/design.md
+mischaracterized its own established precedent, not merely a hypothetical
+edge case.
+
+## INV-016: ADR-0016 fixes the derivation source `check-component-coverage`'s applicability must use — never file presence
+
+`docs/adr/0016-workflow-axes-separation.md:17-26` states the ADR's whole
+premise: "Prior designs risked using incidental file existence … as an
+implicit mode-selection variable," which "makes mode detection depend on
+accidents of what happens to exist on disk." `:30-39` fixes three
+explicit, single-valued `workflow.*` axes (`spec_profile`,
+`artifact_layout`, `capability_enforcement: advisory | required`) read
+from `project-context.yaml` as the sole source of truth (`:56-67`), with a
+file-existence fallback used ONLY for the compatibility case where
+`project-context.yaml` itself is absent. `:68-75` redefines
+`disabled-legacy` as a **derived internal state** ("the entire capability
+evaluation pipeline is inactive… the Resolver, the Registry, the Gate
+stage machinery… do not run at all — they are outside that computation's
+domain"), and `:90-93` requires "any component that consults
+`capability_enforcement`" to "first check whether the capability pipeline
+is in the `disabled-legacy` derived state." This feature's original
+requirements.md/design.md instead used the presence/absence of a Facet
+Manifest *file* as `check-component-coverage`'s mode selector — precisely
+the anti-pattern ADR-0016 forbids — and must instead derive the Gate's
+own applicability from `workflow.capability_enforcement`/`disabled-legacy`,
+per requirements.md REQ-004 (revised).
+
+## INV-017: an existing protected required-check-set mechanism already solves "unprotected caller can bypass a protected script"
+
+`plugins/sdd-quality-loop/skills/quality-gate/SKILL.md:30-75` (`## Process`,
+unprotected, INV-005) step 6 is agent-followed *instructional* text — an
+agent could delete or rename its `check-component-coverage` bullet without
+touching any protected file. But `plugins/sdd-quality-loop/references/risk-gate-matrix.md:80-92`
+already defines the pattern this feature reuses instead: a machine-form
+`Required check ids` set per risk tier that `check-contract` (itself R-10
+protected, `guard-invariants.json:14-16`) independently enforces as a
+contract-required superset, verified equal to `risk-gate-matrix.md`'s own
+text by `tests/gates.tests.sh` T-003 (also R-10 protected,
+`guard-invariants.json:20`) per `risk-gate-matrix.md:9-11`'s own invariant
+note. Registering `check-component-coverage` into that already-protected
+required-check-set (rather than relying solely on `PROTECTED_GATE_SUFFIXES`
+suffix protection of the script's own content) closes the gap INV-005's
+"direct, unprotected edit" of `quality-gate/SKILL.md` would otherwise leave
+open: deleting the SKILL.md bullet no longer removes the Gate's
+enforcement, because `check-contract`'s protected required-check-set
+still refuses a `high`/`critical` contract lacking a passing
+`check-component-coverage` evidence entry.
 
 ## INV-008: Script convention — Python master + sh/ps1 wrappers
 
@@ -268,6 +341,19 @@ exact "which sub-path counts as touching the adapter" rule to a follow-up
 once Epic A1 ships the file's real shape — recorded as an Open Question,
 not silently assumed.
 
+**Resolved** (requirements.md Dependencies, design.md Design Decisions
+"Fail-6 scope"): the join rule is fixed as a new optional
+`adapter_paths: string[]` (glob array, matched with REQ-001's own glob
+engine) field per binding entry in `sdd/provider-bindings.yaml` — a schema
+addition attributed to Epic A1 (this feature consumes it, does not define
+the file's schema, consistent with Non-goals) and tracked as a named,
+required Dependency rather than an indefinitely deferred follow-up. A
+binding that declares `adapter_paths` and whose glob matches a diff path
+without the corresponding binding facet/revision also present in the diff
+triggers Fail-6; a binding that exists but does not declare
+`adapter_paths` records Fail-6 as WARN "evaluation not possible" (not a
+silent pass) rather than N/A.
+
 ## OQ-002: Whether T-001/T-002 should hard-block on Epic A1 landing
 
 Decision-document v2 §12 already fixes the `components[].paths` /
@@ -304,3 +390,6 @@ Epic A4's Facet Manifest to exist as an artifact, not merely a shape).
 | INV-012 check-workflow-state.sh semantics | `plugins/sdd-quality-loop/scripts/check-workflow-state.sh` | 657-715 |
 | INV-013 check-sdd-structure.sh feature-mode gating | `scripts/check-sdd-structure.sh` | 1-13, 40-52 |
 | INV-014 ADR next free number | `docs/adr/` directory listing | 0020-0024 present, 0025 free |
+| INV-015 generator exact-match forces edit + epic-136 already staged it | `plugins/sdd-quality-loop/scripts/generate-guard-invariants.py`; `specs/epic-136-phase2-gates/human-copy/MANIFEST.sha256` | 37-88, 129-147, 271-291; generate-guard-invariants.py line |
+| INV-016 ADR-0016 axis derivation, not file presence | `docs/adr/0016-workflow-axes-separation.md` | 17-26, 30-39, 56-75, 90-93 |
+| INV-017 protected required-check-set closes SKILL.md reachability gap | `plugins/sdd-quality-loop/references/risk-gate-matrix.md`; `plugins/sdd-quality-loop/skills/quality-gate/SKILL.md` | 80-92, 9-11; 30-75 |
