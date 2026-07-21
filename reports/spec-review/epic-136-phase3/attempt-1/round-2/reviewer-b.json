@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase3-spec-a1r2-b-seq0341",
+  "host_session_id": "SESS-spec-a1r2-b-epic136phase3-0341",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-1/round-2/integrated-summary.json",
+      "sha256": "39d05e91eb6f5acbc722a509cf03e7bedd40406f8ce2f13fe45729716c65825a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-1/round-2/precheck-result.json",
+      "sha256": "42fd9abcf65b879a6cf614e7345dc5e0ce26ebb833e57193844d50e09bb263a7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "43581bbc893fc269aa0a75de352bec164ee7effe932cfac7732297624b6bd4c8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/requirements.md",
+      "sha256": "0eb03063e08786a045e85bf663a5fb5ed70648414812c95fdd81977c20d6570f"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:296-298) asserts as an already-fixed decision: 'Any .github/workflows/test.yml human-copy staging beyond the ONE shared staged batch this feature produces' (singular, settled). But Main Workflows item 4 (requirements.md:586-589) hedges the identical decision -- 'stage via human-copy (may share the SAME staged batch as Stream A's CI-step addition -- design.md decides the exact sequencing so both edits land in one reviewed diff rather than two separate human-copy rounds against the same file)' -- and Open Questions OQ-4 (requirements.md:723-725) explicitly defers it: 'the remaining intra-feature sequencing concern ... is a Global Constraint for design.md to resolve (one shared human-copy batch vs. two sequential ones)'. Downstream failure mode: a task-decomposition author reading only Non-goals schedules one combined human-copy PR for Streams A+D; one reading only Main Workflows/OQ-4 treats the batch cardinality itself as an open design.md question that could still resolve to two sequential rounds -- two implementers build different task sequencing and different MANIFEST.sha256 staging plans. This is a spec-review issue because the scope of the shared human-copy batch is asserted as a specification-level decision in Non-goals; if it is genuinely delegated to design.md (as Main Workflows/OQ-4 say), Non-goals must say so rather than assert the count as already fixed. Major: an ambiguous constraint causing a real downstream planning mismatch, not a cosmetic wording gap."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "Round-1's job-split contradiction was only partially remediated. REQ-004 (requirements.md:229-242) and AC-016/AC-017 (requirements.md:433-450) now correctly state the test job is NOT split ('WITHOUT splitting the job and WITHOUT touching required-checks' needs: list', 'required-checks' needs: list is confirmed byte-unchanged ... because no step leaves the single test job'), matching TEST-016/017. But Main Workflows item 4 (requirements.md:584-592) was left unedited and still instructs the opposite: 'Stream D (#126): restructure .github/workflows/test.yml's test job into named deterministic-lane job(s) per AC-016..AC-018, update required-checks' needs: list, stage via human-copy...'. This both implies a job split (plural 'job(s)') and explicitly requires updating needs: -- directly contradicting AC-016/AC-017/REQ-004's byte-unchanged, single-job commitment. The same stale framing recurs at Overview (requirements.md:119-121, 'separates ... single deterministic test job into named lanes'), Roles and Permissions (requirements.md:544-546, 'Stream D's job-graph restructuring'), Edge Cases (requirements.md:631, 'Stream D's job-graph restructuring must not silently drop a step ... transitively) in required-checks' needs:'), and Risks (requirements.md:770-772, 'Stream D's required-checks needs: list update (AC-017), if a step's covering job is accidentally omitted...' -- misdescribing AC-017 itself as an update rather than a byte-unchanged confirmation). Downstream failure mode: Non-goals (requirements.md:309-311) directs Phase-2 task decomposition explicitly at Main Workflows ('this spec deliberately does not pre-assign T-NNN task numbers; Main Workflows below refers to Stream A..D'), so a task author following that section would build a job split and a needs: edit that then fails AC-017's own self-check, which demands the opposite. This belongs to spec review because it is an internal document contradiction between an acceptance criterion and the very workflow plan meant to satisfy it, not an implementation choice. Critical: it is the same class of direct, unresolved contradiction round 1 flagged as Critical, now recurring in five other locations the remediation did not touch."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "WFI-014 branch enumeration is applied thoroughly per acceptance-tests.md Notes (lines 41-52): REQ-001's 5 PATH-availability branches + 1 precedence branch become TEST-001..006 (each its own fixture/assertion), and TEST-007 separately enumerates 2 emit-modes x 4 branches = 8 named sub-cases; REQ-002's 3-class x 4-runtime x 3-tool_name-shape matrix is enumerated as 12 independently PASS/FAIL-reported fixture+assertion pairs per class (TEST-008/009/010, 36 leaf assertions), not one combined loop assertion. Negative/failure/boundary paths are concretely covered: AC-005/TEST-005 (requirements.md:359-362, acceptance-tests.md:19) exercises fail-closed deny_unavailable under both --emit exit and --emit copilot; AC-010/TEST-010 (acceptance-tests.md:24) adds an explicit control sub-case proving a bare numeric substring alone never triggers a false DENY; AC-017/TEST-017 (acceptance-tests.md:31) is a literal RED-then-GREEN self-check proving an intentionally-dropped step name is caught; AC-022/TEST-022 (acceptance-tests.md:36) treats a premature Stream C CHANGELOG entry as an explicit FAIL, not merely an absence. Minor advisory (non-blocking): TEST-017 baselines against 'every step name enumerated from the CURRENT (pre-Stream-D) live test.yml'; since Main Workflows stages Stream A's new CI step in the SAME shared batch (Non-goals, requirements.md:296-298), the document does not state whether TEST-017's own enumeration baseline is captured before or after Stream A's new step lands in the staged candidate -- a clarification, not a blocking gap, since AC-020/TEST-020 separately verifies Stream A's step exists in the staged candidate."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's Assumptions section (lines 650-690) lists exactly 5 assumptions, each naming its source claim, its spec-authoring-time validity, and an explicit re-verification mechanism tied to WFI-013 discipline, e.g. 'RE-VERIFY the ADR's Status: line directly before treating Stream C as unblocked at any later point' (lines 675-678) and 'RE-VERIFY directly by grep at implementation time before assuming any of Streams A/B/D's test.yml edits are the first to touch this surface' (lines 656-659). Every one of investigation.md's 6 Open Questions is carried into requirements.md's own Open Questions section and marked RESOLVED with an explicit decision and rationale (OQ-1..OQ-6, requirements.md:694-738) -- none are left as a silent, unaddressed assumption. Nothing in this document requires a downstream reviewer to invent a product decision that this spec could have made itself."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Two human-approval/governance boundaries are in scope and both are testable. (1) Human-copy staging: Roles and Permissions (requirements.md:548-550) assigns the human maintainer to 'validate and apply the staged .github/workflows/test.yml human-copy candidate(s) as pre-merge commits', operationalized as a fail-closed testable state by AC-020 (requirements.md:463-467) and TEST-020 (acceptance-tests.md:34): 'the live file's grep-based self-check for each new suite's basename is red until a human applies the staged candidate -- the designed fail-closed state, no staged-candidate fallback'. (2) ADR-0010 approval gates Stream C: 'docs/adr/0010-loop-inventory-and-fixture-vocabulary.md's Status: line is the single source of truth' (requirements.md:629-630); OQ-2 (requirements.md:704-708) states Stream C 'does not proceed to implementation while ADR-0010 remains Status: Proposed'; TEST-012..015 are recorded with a distinct 'Blocked' Status value specifically so they cannot be mistaken for ready-to-implement work (acceptance-tests.md:71-75). Both boundaries are checkable against a named file/line, not an informal, unobservable sign-off."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The unremediated Main Workflows/AC-017 contradiction identified under CONTRADICTION (requirements.md:584-592 vs. :441-450 and :229-242, echoed at :119-121, :544-546, :631, :770-772) is exactly the missing product decision this check exists to catch: a downstream design reviewer picking up this spec would have to silently choose between the job-split-plus-needs:-update reading (Main Workflows, Overview, Roles and Permissions, Risks) and the single-job-plus-needs:-unchanged reading (REQ-004, AC-016, AC-017) with no textual signal for which is authoritative -- that is inventing missing behavior, not applying an existing spec decision. Non-goals (requirements.md:309-311) explicitly designates Main Workflows as the Phase-2 task-decomposition reference ('this spec deliberately does not pre-assign T-NNN task numbers; Main Workflows below refers to Stream A..D'), so a task author is directed straight at the contradictory section. Major (the check's calibrated default) because it blocks a clean downstream handoff without requiring invented resolution, stemming from the same underlying Critical contradiction."
+    }
+  ]
+}
