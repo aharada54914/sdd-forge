@@ -226,15 +226,20 @@ conclusively (Open Questions).
   escaping `tests/model-freshness-check.tests.sh` TEST-021 already covers,
   INV-018) and explicit namespace disambiguation from the pre-existing
   `tests/scenario.tests.sh` (INV-013).
-- REQ-004 (Stream D, #126; INV-019..INV-023, OQ-5): Restructure
-  `.github/workflows/test.yml`'s single `test` job into named
-  deterministic-lane job(s) with a documented, currently-empty boundary
-  for a future LLM-invoking eval lane, updating `required-checks`' `needs:`
-  list to preserve BL-001's exact pass/fail semantics (every step the
-  current `test` job runs remains reachable, directly or via job-dependency
-  chain, by some job `required-checks` depends on) — a preventive,
-  forward-looking reorganization, not a fix to a currently-mixed lane
-  (investigation.md found zero LLM-invoking steps exist today, INV-020).
+- REQ-004 (Stream D, #126; INV-019..INV-023, OQ-5): Mark the deterministic
+  lane boundary INSIDE `.github/workflows/test.yml`'s single `test` job —
+  every existing step gains a `[deterministic]` name prefix, plus a
+  documented, currently-empty comment boundary marking where a future
+  LLM-invoking eval lane would be added as a separate job — WITHOUT
+  splitting the job and WITHOUT touching `required-checks`' `needs:` list
+  (OQ-5's job-count-preserving decision: zero LLM-invoking steps exist
+  today, INV-020, so a job split now would be speculative). BL-001's exact
+  pass/fail semantics are preserved by construction: the job graph is
+  unchanged, `required-checks: needs: [test, cli-hook-enforcement]` stays
+  byte-identical, and every step the current `test` job runs remains inside
+  that same job — a preventive, forward-looking reorganization, not a fix
+  to a currently-mixed lane. A future eval-lane job split (out of scope
+  here) is the point at which `needs:` would be extended.
 - REQ-005 (cross-cutting, all streams; INV-006, INV-025): Every new suite
   this feature adds (Streams A, B, and C once unblocked) is registered in
   `tests/run-all.sh`; a native `.ps1` twin (if any) is additionally
@@ -288,11 +293,17 @@ conclusively (Open Questions).
   Phase 3 issues (#123-#126); no Phase 4 script/guard behavior change and
   no design-sync documentation-generation tooling is added, modified, or
   assumed available by any Stream here.
-- Any `.github/workflows/test.yml` human-copy staging beyond what Streams A
-  (one new CI step) and D (the job-graph restructuring) require. Streams B
-  and C (once unblocked) extend or add suites already covered by Stream A's
-  or an existing registration path; they do not independently re-stage
-  `test.yml`.
+- Any `.github/workflows/test.yml` human-copy staging beyond the ONE shared
+  staged batch this feature produces. That single batch carries: one CI step
+  per new suite from Stream A AND from Stream B (AC-019/AC-020 — INV-006's
+  no-wildcard rule means any suite without its own explicit step silently
+  never runs in CI), plus Stream D's step-prefix restructuring. "No
+  independent re-staging" means Streams B and C never author a SECOND,
+  separate human-copy batch of their own — it does NOT mean a Stream B
+  suite ships without its own explicit CI step. Stream C (once unblocked)
+  registers its runner via the same explicit-step rule; whether that rides
+  a later feature's batch is decided at Stream C's own implementation time
+  (it is Blocked in this feature).
 - `tasks.md`, `traceability.md`, and `traceability.json` (Phase 2
   artifacts, authored after spec approval, mirroring
   `quality-loop-fixes/requirements.md`'s identical Non-goal) — this spec
@@ -419,20 +430,24 @@ target) and a saved quality-gate report before it may be marked Done.
   lifecycle / hook-contract / signing round-trip vs. the 10
   greenfield/brownfield-classified classes) so a reader is never left to
   guess whether the two are duplicates. (REQ-003)
-- AC-016: `.github/workflows/test.yml`'s current `test` job is restructured
-  into named deterministic-lane job(s) (design.md names the exact job
-  boundary) with a documented placeholder for a future LLM-invoking eval
-  lane; the restructuring is staged via human-copy
+- AC-016: `.github/workflows/test.yml`'s current `test` job keeps its
+  single-job structure — the job count and job names are unchanged; each of
+  the `test` job's steps gains a `[deterministic]` name prefix, and the job
+  gains a documented, currently-empty comment placeholder marking where a
+  future LLM-invoking eval lane would be added as a separate job; the
+  change is staged via human-copy
   (`specs/epic-136-phase3/human-copy/.github/workflows/test.yml`,
   `MANIFEST.sha256`) since `test.yml` is R-10 protected. (REQ-004)
-- AC-017: `required-checks`' `needs:` list is updated so every job that
-  now covers a step formerly inside the single `test` job is present,
-  directly or via a job-dependency chain — BL-001's exact pass/fail
+- AC-017: `required-checks`' `needs:` list is confirmed byte-unchanged
+  (`needs: [test, cli-hook-enforcement]`) — BL-001's exact pass/fail
   semantics (`required-checks` passes iff every step that used to gate it
-  still gates it) is preserved; a text-marker-based self-check (the
+  still gates it) is preserved by construction because no step leaves the
+  single `test` job; a text-marker-based self-check (the
   `tests/workflow-state-ci-integration.tests.sh` technique, no new YAML
-  parser dependency) proves no step's job is missing from the `needs`
-  chain. (REQ-004)
+  parser dependency) proves BOTH that every step name enumerated from the
+  current pre-Stream-D live `test` job is still present in the staged
+  candidate (with its `[deterministic]` prefix) AND that the `needs:`
+  membership is unchanged. (REQ-004)
 - AC-018: `self-improvement.yml`'s and `model-freshness-check.yml`'s
   existing isolation from `test.yml`/`required-checks` (investigation.md
   INV-021, INV-022) is unchanged — Stream D does not fold either into the
