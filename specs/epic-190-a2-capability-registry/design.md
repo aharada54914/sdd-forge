@@ -646,6 +646,9 @@ data under `tests/fixtures/capability-registry/`:
    circuit); `not` × {child true, child false, child false+WARN} against the
    documented truth table, plus a fixture where a malformed `not` shape
    (zero or two children) is rejected as `PREDICATE_SCHEMA_ERROR`; a
+   fixture using an operator token outside the closed 8-operator set (e.g.
+   `regex`, `jsonpath`) is rejected as `PREDICATE_SCHEMA_ERROR` (AC-040),
+   independent of TEST-011's field-allowlist fixture; a
    `trigger`-labeled fixture asserting it is evaluated by the identical code
    path as a `conditional_facets[].when` fixture (byte-identical evidence
    shape); Evidence-JSON-Schema conformance for every fixture's `evidence`

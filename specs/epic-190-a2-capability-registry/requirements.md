@@ -223,7 +223,12 @@ that check for a `profile: full` entry (Non-goals, below).
   condition language"). Every operator forbidden by ADR-0020 (regex,
   arbitrary JSONPath, shell, JS, Python, dynamic code, Provider API calls,
   time-/network-dependent conditions) must be structurally inexpressible in
-  the DSL's own grammar, not merely undocumented. Field allowlist:
+  the DSL's own grammar, not merely undocumented — the schema's `operator`
+  property is a closed enum of exactly the eight tokens above (`all`, `any`,
+  `not`, `equals`, `not_equals`, `contains`, `in`, `exists`); any other token
+  is a schema-level `PREDICATE_SCHEMA_ERROR`, independently testable of the
+  field-allowlist check (AC-011) since it rejects the operator name itself
+  rather than the `field` value. Field allowlist:
   `artifact_kinds`, `runtime_classes`, `characteristics.pii`,
   `characteristics.ui`, `characteristics.auto_update`,
   `characteristics.local_persistence`, `distribution_channels`,
@@ -707,6 +712,11 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
 - AC-039: Two `capabilities[]` entries sharing one `id` fails validation
   with a `capability-id-duplicate` diagnostic, checked independently of (and
   never masked by) AC-014's `gates[].id` uniqueness check. (REQ-003(i))
+- AC-040: A predicate node using an operator token outside the closed
+  8-operator set (`all`, `any`, `not`, `equals`, `not_equals`, `contains`,
+  `in`, `exists`) — e.g. `regex` or `jsonpath` — is rejected as a
+  `PREDICATE_SCHEMA_ERROR`, the same diagnostic class AC-011 already uses
+  for a field-allowlist violation, independently of it. (REQ-002)
 
 ## Field Definitions
 
