@@ -117,12 +117,14 @@ schema for 10 representative classes, reusing (never inventing) the
 `tests/loops/loop-inventory.json` already uses — but ADR-0010 is still
 `Status: Proposed`, so Stream C's implementation is an explicit Blocker
 (Open Questions, OQ-2), not a silent assumption of approval. Stream D
-(#126) separates `.github/workflows/test.yml`'s single deterministic `test`
-job into named lanes with a forward-looking boundary for a future
-LLM-invoking eval lane — investigation.md's INV-020 found `test.yml` has
-**zero** LLM-invoking steps today, so this is scoped as a preventive
-structural reorganization, not a fix to an existing mixed-lane defect
-(Open Questions, OQ-5).
+(#126) marks the deterministic lane boundary INSIDE
+`.github/workflows/test.yml`'s single `test` job — `[deterministic]`
+step-name prefixes plus a documented, currently-empty comment boundary for
+a future LLM-invoking eval lane, with the job graph and `required-checks`'
+`needs:` list byte-unchanged — investigation.md's INV-020 found `test.yml`
+has **zero** LLM-invoking steps today, so this is scoped as a preventive,
+job-count-preserving lane marking, not a job split and not a fix to an
+existing mixed-lane defect (Open Questions, OQ-5).
 
 Every new test-suite file across Streams A, B, and (once unblocked) C is a
 **new, unprotected file** — never an edit to `tests/gates.tests.sh`,
@@ -184,9 +186,9 @@ conclusively (Open Questions).
   50+ sequential steps across a 3-OS matrix) has no lane boundary of any
   kind (investigation.md INV-019); while no LLM-invoking step exists in it
   today (INV-020), the epic's own issue text asks for a structural
-  separation before one is ever added, and any restructuring risks silently
-  weakening `required-checks`' `needs: [test, cli-hook-enforcement]` gate
-  (`test.yml:577`, BL-001) if a step's covering job is dropped from the
+  separation before one is ever added, and any edit to that file risks
+  silently weakening `required-checks`' `needs: [test, cli-hook-enforcement]`
+  gate (`test.yml:577`, BL-001) if a step is dropped or the gate edited from the
   `needs` list.
 
 ## Goals
@@ -451,8 +453,8 @@ target) and a saved quality-gate report before it may be marked Done.
 - AC-018: `self-improvement.yml`'s and `model-freshness-check.yml`'s
   existing isolation from `test.yml`/`required-checks` (investigation.md
   INV-021, INV-022) is unchanged — Stream D does not fold either into the
-  restructured lane(s) or into `required-checks`' `needs:` list.
-  (REQ-004)
+  single `test` job's marked deterministic lane or into `required-checks`'
+  `needs:` list. (REQ-004)
 - AC-019: every new suite from Streams A and B (and Stream C once
   unblocked) is present in `tests/run-all.sh`; a native `.ps1` file (if
   any) is additionally present in `tests/run-all.ps1`, OR the suite is
@@ -525,7 +527,11 @@ target) and a saved quality-gate report before it may be marked Done.
   protected target; a human validates and applies the candidate.
 - `preventive restructuring` (REQ-004) — a structural reorganization made
   in anticipation of a future requirement (a not-yet-proposed LLM-invoking
-  eval step) rather than in response to a currently observed defect,
+  eval step) rather than in response to a currently observed defect; in
+  this feature its concrete form is the job-count-preserving lane marking
+  (OQ-5: `[deterministic]` step prefixes + the empty eval-lane comment
+  boundary inside the single `test` job, job graph and `needs:`
+  byte-unchanged), never a job split,
   distinguished explicitly from a bugfix so the design and its tests are
   not held to a RED-then-GREEN regression-reproduction standard that has
   no real "RED" state to reproduce (there is no live mixed-lane defect to
@@ -541,20 +547,20 @@ target) and a saved quality-gate report before it may be marked Done.
   collision with a protected entry). The agent NEVER writes
   `.github/workflows/test.yml` directly for any stream — it stages
   candidates under `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`
-  with a `MANIFEST.sha256` (Stream A's one new CI step and, separately or
-  combined, Stream D's job-graph restructuring — design.md Global
-  Constraints resolves the sequencing of these two edits to the SAME
-  protected file within this one feature).
+  with a `MANIFEST.sha256` (the ONE shared staged batch: Stream A's and
+  Stream B's new CI steps plus Stream D's step-prefix lane marking —
+  design.md Global Constraints resolves only the internal ordering of
+  these edits WITHIN that single batch against the SAME protected file).
 - Human maintainer: approves this spec and (Phase 2) tasks; validates and
   applies the staged `.github/workflows/test.yml` human-copy candidate(s)
   as pre-merge commits on the feature PR branch; separately, decides when
   ADR-0010 moves to `Status: Accepted`, which is the sole unblock condition
   for Stream C's implementation (OQ-2) — this decision is NOT made by this
   spec or by any agent session.
-- CI: runs Streams A and B's suites once the staged `test.yml` candidate
-  for Stream A's CI step is applied; runs Stream D's restructured job
-  graph once its own staged candidate is applied; Stream C's suites do not
-  exist in CI until Stream C unblocks and lands.
+- CI: runs Streams A and B's suites, and the same single `test` job with
+  its `[deterministic]`-prefixed steps, once the ONE shared staged
+  `test.yml` candidate (Streams A + B + D) is applied by the human;
+  Stream C's suites do not exist in CI until Stream C unblocks and lands.
 
 ## Main Workflows
 
@@ -578,18 +584,25 @@ target) and a saved quality-gate report before it may be marked Done.
    per AC-012..AC-015, reusing `tests/lib/loop-driver.sh`'s helper
    functions where the target stage is `"spec"` (its only fully
    implemented stage today, investigation.md INV-016); register in
-   `tests/run-all.sh`/`.ps1` as applicable; stage a CI step via human-copy;
-   CREATE the `CHANGELOG.md` entry citing #125. Blocker: ADR-0010 approval
-   (external to this feature's own work).
-4. Stream D (#126): restructure `.github/workflows/test.yml`'s `test` job
-   into named deterministic-lane job(s) per AC-016..AC-018, update
-   `required-checks`' `needs:` list, stage via human-copy (may share the
-   SAME staged batch as Stream A's CI-step addition — design.md decides
-   the exact sequencing so both edits land in one reviewed diff rather
-   than two separate human-copy rounds against the same file); CREATE the
+   `tests/run-all.sh`/`.ps1` as applicable; stage its CI step via
+   human-copy — inside this feature's ONE shared staged batch if Stream C
+   unblocks before that batch is finalized, otherwise via a later
+   feature's batch (Non-goals; never a second separate batch of this
+   feature's own); CREATE the `CHANGELOG.md` entry citing #125. Blocker:
+   ADR-0010 approval (external to this feature's own work).
+4. Stream D (#126): mark the deterministic lane boundary inside
+   `.github/workflows/test.yml`'s single `test` job per AC-016..AC-018 —
+   every existing step gains its `[deterministic]` name prefix plus the
+   documented, currently-empty eval-lane comment boundary; the job count,
+   job names, and `required-checks`' `needs:` list stay byte-unchanged
+   (AC-017 CONFIRMS, never updates, the `needs:` membership); stage via
+   human-copy in the ONE shared staged batch this feature produces
+   (Non-goals), together with Stream A's and Stream B's CI-step
+   additions — design.md decides only the internal ordering of edits
+   WITHIN that single reviewed diff, not the batch count; CREATE the
    `CHANGELOG.md` entry citing #126. Blockers: none — independent of
-   Streams A-C, though it shares `test.yml` as a file surface with Stream
-   A (Global Constraints, design.md).
+   Streams A-C, though it shares `test.yml` as a file surface with
+   Streams A/B (Global Constraints, design.md).
 5. Verification: each unblocked stream lands with `validate-repository`
    and the skill-reference count sync green; the quality gate evaluates
    each stream's task(s) with the standard evidence chain. Streams A, B,
@@ -628,13 +641,14 @@ target) and a saved quality-gate report before it may be marked Done.
   resolved because time has passed since this spec was authored (WFI-013
   discipline) — `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md`'s
   `Status:` line is the single source of truth.
-- Stream D's job-graph restructuring must not silently drop a step: every
-  step name currently inside `test.yml`'s single `test` job (INV-019) must
-  be traceable, after restructuring, to a job listed (directly or
-  transitively) in `required-checks`' `needs:` — the self-check technique
-  (AC-017) must enumerate every pre-restructuring step name and confirm
-  each survives in the post-restructuring job graph, not merely confirm
-  the new jobs exist.
+- Stream D's lane marking must not silently drop or rename away a step:
+  every step name currently inside `test.yml`'s single `test` job
+  (INV-019) must still be present, `[deterministic]`-prefixed, inside that
+  SAME single `test` job in the staged candidate — the self-check
+  technique (AC-017) must enumerate every pre-change step name, confirm
+  each survives in the staged candidate, and confirm `required-checks`'
+  `needs:` membership is byte-unchanged, not merely confirm that prefix
+  strings exist somewhere in the file.
 
 ## Security Boundaries
 
@@ -642,7 +656,7 @@ target) and a saved quality-gate report before it may be marked Done.
 |---|---|---|---|
 | B1: new-suite fixtures vs. the LIVE, protected guard binaries (`sdd-hook-guard.{py,js,ps1,sh}`) | Streams A/B exercise the live protected guards READ-ONLY (invoke, never edit) via env-var/PATH indirection, the same discipline `guard-cwd-bypass.tests.sh` already establishes; no new suite writes to a protected path | internal repository content only | none identified |
 | B2: fixture GitHub issue body (Stream C, scenario 5) vs. the reading agent session | the fixture's adversarial instruction-shaped text must be treated as inert DATA by the named `plugins/sdd-bootstrap` entry point, never executed as an instruction — this is the exact inbound-injection threat model AC-014 operationalizes | internal fixture content only (no real external issue body is fetched) | none identified |
-| B3: `.github/workflows/test.yml` vs. agent-direct edits | both Stream A's new CI step and Stream D's job-graph restructuring are staged under `specs/epic-136-phase3/human-copy/` with `MANIFEST.sha256`; only a human applies either | internal source only | none identified |
+| B3: `.github/workflows/test.yml` vs. agent-direct edits | the ONE shared staged batch (Streams A's/B's new CI steps and Stream D's step-prefix lane marking) is staged under `specs/epic-136-phase3/human-copy/` with `MANIFEST.sha256`; only a human applies it | internal source only | none identified |
 | B4: fixture world vs. real repository/network state | every new fixture (PATH-restricted subshells, PowerShell stubs, negative-case payloads, scenario fixtures once Stream C unblocks) is mktemp-scoped; no suite in this feature makes a live network call or drives a real `gh` CLI invocation against a real issue | synthetic fixtures only | none identified |
 
 Details: [Security specification](security-spec.md#trust-boundaries).
@@ -719,15 +733,21 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   `quality-loop-fixes` no longer applies — `quality-loop-fixes` fully
   merged (both its `ship/SKILL.md` and `test.yml` human-copy candidates
   applied, Re-verification note finding 3) before this feature's spec
-  authoring began. The remaining intra-feature sequencing concern (Streams
-  A and D both staging edits to `test.yml` within THIS SAME feature) is a
-  Global Constraint for design.md to resolve (one shared human-copy batch
-  vs. two sequential ones), not a cross-feature collision.
+  authoring began. The batch COUNT is decided at this spec level: the ONE
+  shared staged batch (Non-goals) carries Streams A/B/D's `test.yml`
+  edits. What remains for design.md's Global Constraints is only the
+  internal ordering of those edits WITHIN that single batch — not a
+  cross-feature collision, and not a one-vs-two-batches choice.
 - OQ-5 — RESOLVED (preventive/structural reorganization, option (a)):
-  Stream D is scoped as a forward-looking restructuring of the existing
-  single `test` job into named lanes, not a fix for a currently mixed
-  lane — investigation.md's INV-020 found zero LLM-invoking steps exist in
-  `test.yml` today, so there is no live defect to reproduce RED-then-GREEN.
+  Stream D is scoped as a forward-looking, job-count-preserving lane
+  marking INSIDE the existing single `test` job — `[deterministic]` step
+  prefixes plus the documented, currently-empty eval-lane comment
+  boundary, with the job graph and `required-checks`' `needs:` list
+  byte-unchanged — not a job split and not a fix for a currently mixed
+  lane. investigation.md's INV-020 found zero LLM-invoking steps exist in
+  `test.yml` today, so there is no live defect to reproduce RED-then-GREEN
+  and no job to split; a future eval-lane job split (out of scope) is the
+  point at which the job graph and `needs:` would change.
 - OQ-6 — RESOLVED (inbound direction, scoped to `plugins/sdd-bootstrap`):
   Stream C's scenario class 5 targets an attacker-controlled GitHub issue
   body consumed as agent-facing context by a `plugins/sdd-bootstrap` entry
@@ -767,13 +787,16 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   override is constructed incorrectly — mitigated by the Edge Cases
   requirement that each fixture assert the intended tool's actual
   presence/absence before asserting on the guard's decision.
-- Low: Stream D's `required-checks` `needs:` list update (AC-017), if a
-  step's covering job is accidentally omitted, would silently weaken
-  branch protection without any test failing locally (a `needs:` gap is
-  only observable via GitHub's actual required-status-check
-  configuration, itself outside this repository's tracked files) —
-  mitigated by AC-017's text-marker self-check enumerating every
-  pre-restructuring step name against the post-restructuring job graph,
-  and by a human reviewer's explicit verification of GitHub's branch
-  protection settings before Stream D's human-copy candidate is applied
-  (design.md Deployment / CI Plan).
+- Low: Stream D's step renaming (AC-016), if a step were accidentally
+  dropped while adding `[deterministic]` prefixes, would silently shrink
+  CI coverage without any test failing locally; and any accidental edit
+  to `required-checks`' `needs:` list — which AC-017 requires to stay
+  byte-unchanged — would silently weaken branch protection (a `needs:`
+  change is only fully observable via GitHub's actual
+  required-status-check configuration, itself outside this repository's
+  tracked files) — mitigated by AC-017's text-marker self-check
+  enumerating every pre-change step name against the staged candidate AND
+  confirming the `needs:` membership is byte-unchanged, and by a human
+  reviewer's explicit verification of GitHub's branch protection settings
+  before Stream D's human-copy candidate is applied (design.md
+  Deployment / CI Plan).
