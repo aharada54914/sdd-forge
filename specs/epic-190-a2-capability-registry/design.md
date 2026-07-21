@@ -2,57 +2,74 @@
 
 Impl-Review-Status: Pending
 Feature Type: new machine-readable contract (Capability Registry schema +
-instance) plus four deterministic scripts (Predicate DSL evaluator, Registry
-validator, `registry_digest` generator, projection generator) and their
-protected-file/CI wiring
+instance, plus a versioned lite-upgrade-reason catalog) plus four
+deterministic scripts (Predicate DSL evaluator, Registry validator,
+`registry_digest` generator, projection generator) added to the existing
+`plugins/sdd-quality-loop/` plugin, their protected-file/CI wiring, and a
+package-relative Registry discovery contract for standalone installs.
 
 ## Technical Summary
 
 Epic A2 introduces one new machine-readable contract (the Capability
-Registry) and four deterministic, testable scripts around it: a Predicate
-DSL evaluator, a Registry validator, a `registry_digest` generator, and a
-projection generator. It introduces no new UI, no new UX surface, and no new
-runtime service — every deliverable is a static contract file plus a
-Python-master/sh+ps1-wrapper script pair, following conventions already in
-use for guard-invariants and effort-routing v2 (investigation.md INV-009,
-INV-010, INV-014). This document is the **design for the implementation
-phase**; no file it describes is created by this spec commit (requirements.md
-Non-goals, AC-021).
+Registry, plus a small companion lite-upgrade-reason catalog) and four
+deterministic, testable scripts around it: a Predicate DSL evaluator, a
+Registry validator, a `registry_digest` generator, and a projection
+generator. It introduces no new UI, no new UX surface, and no new runtime
+service — every deliverable is a static contract file plus a
+Python-master/sh+ps1(+js)-wrapper script pair, following conventions already
+in use for guard-invariants and effort-routing v2 (investigation.md INV-009,
+INV-010, INV-014). All four scripts, and the Registry-discovery contract
+they share, are added to the **existing** `plugins/sdd-quality-loop/`
+plugin — this spec does not introduce a new plugin (Design Decisions,
+below; INV-015; adversarial spec review 2026-07-22). This document is the
+**design for the implementation phase**; no file it describes is created by
+this spec commit (requirements.md Non-goals, AC-034).
 
 ## Architecture
 
 ```
 contracts/capability-registry.schema.json   (JSON Schema, draft-07)
 contracts/capability-registry.json          (Registry instance, "schema": "capability-registry/v1")
+contracts/lite-upgrade-reason-catalog.json  (versioned catalog, "schema": "lite-upgrade-reason-catalog/v1")
         │
-        ├─► plugins/sdd-capability/scripts/validate-capability-registry.py (+ .sh/.ps1)
+        ├─► plugins/sdd-quality-loop/scripts/validate-capability-registry.py (+ .sh/.ps1)
         │     Gate-ID uniqueness, stage completeness, unregistered-script
-        │     detection, Pack-gate-definition absence, referential
-        │     integrity, Provider-name contamination (REQ-003)
+        │     detection (Gate implementation identity), Pack-gate-definition
+        │     absence, referential integrity, Provider-name contamination,
+        │     lite-upgrade-reason-catalog conformance (REQ-003(a-h))
         │
-        ├─► plugins/sdd-capability/scripts/evaluate-predicate.py (+ .sh/.ps1)
+        ├─► plugins/sdd-quality-loop/scripts/evaluate-predicate.py (+ .sh/.ps1)
         │     ADR-0020 Predicate DSL evaluator; called with a `trigger` or
         │     `conditional_facets[].when` expression + component properties
         │     (REQ-002)
         │
-        ├─► plugins/sdd-capability/scripts/generate-registry-digest.py (+ .sh/.ps1)
+        ├─► plugins/sdd-quality-loop/scripts/generate-registry-digest.py (+ .sh/.ps1/.js)
         │     calls Epic A1's canonicalizer; outputs sha256 over a named
         │     Registry fragment (REQ-004)
         │
-        └─► plugins/sdd-capability/scripts/generate-gate-capabilities.py (+ .sh/.ps1)
-              reads the validated Registry, writes the protected projection:
+        └─► plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py (+ .sh/.ps1)
+              reads the validated Registry (via its canonical monorepo-
+              relative path — this script is the projection's producer, so
+              it never reads the packaged/vendored copy), writes the
+              protected projection:
               plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json
-              (REQ-005) ──► read by sdd-quality-loop's Implementation Gate
+              (REQ-005) ──► read by sdd-quality-loop's own Implementation Gate
+
+Registry discovery contract (REQ-005), shared by every script above except
+the projection generator itself:
+  1. packaged, plugin-relative copy: ${PLUGIN_ROOT}/contracts/capability-registry.json
+     (${CLAUDE_PLUGIN_ROOT} today; Codex CLI/Copilot CLI analogs, INV-016)
+  2. monorepo-relative fallback: <repo-root>/contracts/capability-registry.json
+     (repo-root found by walking up to an `AGENTS.md` marker)
+  3. neither resolves, or `schema` field unsupported → fail closed with a
+     diagnostic naming every attempted path
 ```
 
-`plugins/sdd-capability/` is a **new plugin**, proposed by this spec (Design
-Decisions, below) as the home for Capability Registry/Resolver-family
-machinery that does not belong to `sdd-quality-loop` (gate execution),
-`sdd-lite` (lite track), or `sdd-bootstrap` (interview flow). Epic A1's
-canonicalizer, Epic A3's ownership tooling, and Epic A5's Resolver are
-expected to either live alongside these scripts in the same plugin or be
-consumed by it as a dependency; this spec does not decide Epic A1/A3/A5's own
-plugin placement, only Epic A2's.
+No new plugin is introduced. `plugins/sdd-quality-loop/` already carries a
+complete, working 3-environment manifest (`.claude-plugin/plugin.json`,
+`.codex-plugin/`, `copilot-agents/`, `hooks/{claude-hooks.json,hooks.json,
+copilot-hooks.json}`) — Design Decisions, below, records the new-plugin
+alternative this spec's first draft proposed, and why it is rejected.
 
 ## Components
 
@@ -97,24 +114,46 @@ plugin placement, only Epic A2's.
   }
   ```
   (Illustrative fixture, not literal shipped content — no Capability Packs
-  exist yet, INV-002.)
-- `plugins/sdd-capability/scripts/evaluate-predicate.{py,sh,ps1}` — the
+  exist yet, INV-002. `delivery_strategy.kind`'s value `"durable-workflow"`
+  is an arbitrary, non-empty string in this example, not a member of a
+  closed enum — see API / Contract Plan.)
+- `contracts/lite-upgrade-reason-catalog.json` — the versioned catalog
+  REQ-003(h) validates `upgrade_reasons` tokens against:
+  ```json
+  {
+    "schema": "lite-upgrade-reason-catalog/v1",
+    "catalog_version": 1,
+    "reasons": ["public_distribution", "production_cloud_runtime",
+      "durable_workflow", "external_identity", "pii"]
+  }
+  ```
+  (Illustrative starting set — ADR-0022's YAML example's five tokens; the
+  broader eleven-category prose list, ADR-0022's own item 4, is Epic A6's
+  decision about what to *add* to this catalog, not this spec's. The catalog
+  is additive/versioned: a new `catalog_version` may add reasons without
+  changing `capability-registry.schema.json`.)
+- `plugins/sdd-quality-loop/scripts/evaluate-predicate.{py,sh,ps1}` — the
   Predicate DSL evaluator. Python master implements the actual
   operator/evaluation-semantics logic; `.sh`/`.ps1` are thin argument-
   forwarding wrappers (the `sdd-hook-guard.sh` pattern, INV-014). Input:
-  a predicate expression (JSON) + a flat property map (the affected
-  component's allowlisted fields). Output: `{"result": bool, "evidence":
-  [{"operator": ..., "field": ..., "outcome": "match"|"no-match"|"warn",
-  "reason": ...}, ...]}`.
-- `plugins/sdd-capability/scripts/validate-capability-registry.{py,sh,ps1}`
-  — the Registry validator (REQ-003 checks a-g).
-- `plugins/sdd-capability/scripts/generate-registry-digest.{py,sh,ps1}` —
-  the `registry_digest` primitive (REQ-004), depends on Epic A1's
-  canonicalizer module (imported, not vendored/reimplemented).
-- `plugins/sdd-capability/scripts/generate-gate-capabilities.{py,sh,ps1}` —
-  the projection generator (REQ-005), `--check` mode for CI drift detection,
-  mirroring `generate-guard-invariants.py`'s own `--check` contract exactly.
-- `plugins/sdd-capability/references/provider-terms.json` — the Provider-
+  a predicate expression (JSON) + a nested property object (the affected
+  component's allowlisted fields, addressed by dotted path the same way
+  Epic A1's Project Context schema nests `characteristics.*` — not a
+  flattened-key-only map). Output: `{"result": bool, "evidence": [...]}`
+  conforming to the Evidence JSON Schema (API / Contract Plan).
+- `plugins/sdd-quality-loop/scripts/validate-capability-registry.{py,sh,ps1}`
+  — the Registry validator (REQ-003 checks a-h).
+- `plugins/sdd-quality-loop/scripts/generate-registry-digest.{py,sh,ps1,js}`
+  — the `registry_digest` primitive (REQ-004), depends on Epic A1's
+  canonicalizer module (imported, not vendored/reimplemented); ships a
+  `.js` wrapper in addition to `.sh`/`.ps1` because it calls Epic A1's
+  canonicalizer, which itself ships sh/ps1/js wrappers (decision v2 §18.3,
+  INV-006) — the digest generator's own wrapper set mirrors its dependency's.
+- `plugins/sdd-quality-loop/scripts/generate-gate-capabilities.{py,sh,ps1}`
+  — the projection generator (REQ-005), `--check` mode for CI drift
+  detection, mirroring `generate-guard-invariants.py`'s own `--check`
+  contract exactly.
+- `plugins/sdd-quality-loop/references/provider-terms.json` — the Provider-
   name-contamination allowlist: a maintained, versioned list of known
   provider-identifying tokens (`azure`, `aws`, `amazon`, `gcp`,
   `google-cloud`, `durable-functions`, `step-functions`, `lambda`, `s3`,
@@ -125,13 +164,20 @@ plugin placement, only Epic A2's.
   itself profane) and is not registered as a protected file — it is
   expected to grow as new providers are named in real Provider Bindings
   (ADR-0018 item 4).
+- `plugins/sdd-quality-loop/contracts/capability-registry.json`/`.schema.json`
+  (packaged, plugin-relative copies) — vendored from the canonical
+  `contracts/` originals at packaging time so a standalone-installed plugin
+  can discover the Registry without a monorepo checkout (Registry discovery
+  contract, API / Contract Plan). The vendoring/packaging step itself
+  (wiring into `scripts/bump-version.sh` or an equivalent) is
+  implementation-phase work, not designed field-by-field here (Assumptions).
 - `plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json` — the
-  protected, generated projection (REQ-005), headed
-  `# Generated from contracts/capability-registry.json; schema_version=1;
-  sha256=<hex>` / `// This file is generated. Do not edit.` (JSON comments
-  are not valid JSON; the header is carried as a top-level `"_generated"`
-  metadata object instead, matching JSON's own constraints — see API /
-  Contract Plan below for the exact shape).
+  protected, generated projection (REQ-005), headed by a top-level
+  `"_generated"` metadata object (`source`, `schema_version`, `sha256`, and
+  a "This file is generated. Do not edit." notice string) — the **sole**
+  normative header format; no comment-line convention is used anywhere for
+  this file, since `# ...`/`// ...` comments are not valid JSON (see API /
+  Contract Plan for the exact shape).
 
 ## Protected-File Statement
 
@@ -144,16 +190,17 @@ ADR-0011 pattern — INV-009):
    generated from `plugins/sdd-quality-loop/references/guard-invariants.json`
    by `generate-guard-invariants.py`, and both the source JSON and every
    generated output are themselves protected (INV-009) — self-hosting. Epic
-   A2's implementation phase must add these five new paths to
-   `guard-invariants.json`'s source list:
+   A2's implementation phase must add these paths to `guard-invariants.json`'s
+   source list:
    - `contracts/capability-registry.schema.json`
    - `contracts/capability-registry.json`
-   - `plugins/sdd-capability/scripts/generate-gate-capabilities.py`
+   - `contracts/lite-upgrade-reason-catalog.json`
+   - `plugins/sdd-quality-loop/scripts/generate-gate-capabilities.py`
    - `plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json`
-   - (the three per-language generated siblings, if REQ-005's
-     implementation phase mirrors guard-invariants' 4-language generation —
-     Open Questions notes this is not mandated by decision v2, only the
-     JSON output is)
+   - `plugins/sdd-quality-loop/contracts/capability-registry.json`/`.schema.json`
+     (the packaged, plugin-relative vendored copies — protecting these
+     prevents the vendored copy from silently drifting from the canonical
+     `contracts/` originals between packaging runs)
 
    Because this is a protected-file **addition** (editing
    `guard-invariants.json` and regenerating its own generated outputs), it
@@ -185,35 +232,54 @@ Not applicable — no UI surface.
 ## Cross-Layer Dependencies
 
 - REQ-004 (`registry_digest`) → Epic A1's canonicalizer (Dependencies,
-  requirements.md).
-- REQ-002's field allowlist → Epic A1's Project Context schema additions
-  (`distribution_channels`, `data_classification`) for full exercise against
-  real data (fixture-based testing does not require Epic A1 to land first).
-- REQ-005's generated projection → consumed by `sdd-quality-loop`'s
-  Implementation Gate (an Epic A2 output, an Epic-A0-already-decided
-  consumer per ADR-0017, not a new dependency Epic A2 introduces).
-- REQ-002/REQ-004 → consumed by Epic A5's Resolver (downstream, not a
-  blocking dependency on Epic A2's own implementation — Dependencies,
-  requirements.md).
+  requirements.md) — **blocked** until Epic A1 publishes a finalized path,
+  version, and I/O contract.
+- REQ-002's field allowlist → Epic A1's Project Context schema, generated
+  from/drift-checked against it rather than hand-copied
+  (`distribution_channels`, `data_classification` for full exercise against
+  real data; fixture-based testing does not require Epic A1 to land first,
+  investigation.md INV-004a).
+- REQ-005's generated projection → consumed by `sdd-quality-loop`'s own
+  Implementation Gate (same plugin, not a cross-plugin dependency, since
+  Design Decisions rejects a separate plugin).
+- REQ-002/REQ-004 (and, for full Capability data, the Registry itself via
+  REQ-005's discovery contract) → consumed by Epic A5's Resolver (downstream,
+  not a blocking dependency on Epic A2's own implementation — Dependencies,
+  requirements.md); this makes `plugins/sdd-quality-loop/` a shared-library
+  dependency for whichever plugin implements Epic A5, the same way other
+  Epics already depend on shared plugins.
 
 ## ADR Change Log
 
 No new ADR is proposed by this spec. Every design decision below traces to
 an existing ADR (0017, 0018, 0020, 0021, 0022) or decision v2 §§3, 6, 10, 11,
-13, 16, 18.3, 19. Where this spec makes a judgment call the ADRs leave open
-(plugin placement, `implementation_ref`'s bidirectional unregistered-script
-check, the `delivery_strategy.kind` enum, `upgrade_reasons`'s openness), it
-is recorded below under Design Decisions and cross-referenced to
-investigation.md's OQ-001..OQ-004, not silently folded into an ADR's scope.
+13, 16, 18.3, 19. Two judgment calls this spec's first draft made were
+corrected by orchestrator ruling (2026-07-22, adversarial spec review) rather
+than left as open design decisions: (1) `delivery_strategy.kind` is now an
+open, non-empty string with no inferred vocabulary (was: a closed four/five-
+value enum inferred from decision v2 §17); (2) "conditions" is confirmed as
+describing the DSL body itself, not a third schema field (was: flagged for
+human confirmation, now resolved). Where this spec still makes a judgment
+call the ADRs leave open (`implementation_ref`'s Gate-implementation-identity
+mechanism, `upgrade_reasons`'s catalog-based fail-closed check without a
+frozen vocabulary), it is recorded below under Design Decisions and
+cross-referenced to investigation.md's Open Questions, not silently folded
+into an ADR's scope.
 
 ## Data Plan
 
-- `contracts/capability-registry.json` is the only new persistent data file
-  this spec's implementation phase creates at the contract layer (REQ-001).
-  It is hand-edited by Registry maintainers (no UI), validated by REQ-003,
-  and projected by REQ-005. No database, no migration, no runtime storage.
-- `plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json` is
-  derived data (regenerated from the above), never hand-edited (protected).
+- `contracts/capability-registry.json` is the primary new persistent data
+  file this spec's implementation phase creates at the contract layer
+  (REQ-001). It is hand-edited by Registry maintainers (no UI), validated by
+  REQ-003, and projected by REQ-005. No database, no migration, no runtime
+  storage.
+- `contracts/lite-upgrade-reason-catalog.json` is a second, small persistent
+  data file (REQ-003(h)) — versioned and additive; new catalog versions add
+  reasons, never remove or redefine existing ones within Foundation's scope.
+- `plugins/sdd-quality-loop/scripts/generated/gate-capabilities.json` and
+  `plugins/sdd-quality-loop/contracts/capability-registry.json`/`.schema.json`
+  are derived data (regenerated/vendored from the `contracts/` originals
+  above), never hand-edited (protected).
 - No data is deleted or migrated; this is a net-new contract with no prior
   version.
 
@@ -232,7 +298,13 @@ Top-level required properties: `schema` (`const: "capability-registry/v1"`),
 - `implementation_ref` (string; **required if** `stage == "implementation"`,
   expressed via a schema-level `if`/`then` — matching JSON Schema draft-07's
   conditional-subschema feature, avoiding a hand-rolled cross-field check
-  where the schema language already provides one)
+  where the schema language already provides one). A `stage: artifact`/
+  `promotion` entry with no `implementation_ref` and no `minimum_enforcement`
+  passes schema validation and is exempt from every completeness check
+  (reserved-stage inertness, AC-005) — a dedicated positive fixture
+  (`stage: implementation` + valid `implementation_ref` passes) and negative
+  fixture (`minimum_enforcement` set to any value other than `"required"` is
+  rejected) both exist in Test Strategy item 5.
 
 `capabilities[]` item (`additionalProperties: false`):
 - `id` (string, same pattern as `gates[].id`)
@@ -242,16 +314,26 @@ Top-level required properties: `schema` (`const: "capability-registry/v1"`),
   `additionalProperties: false`)
 - `review_check_ids` (array of strings, `uniqueItems: true`)
 - `gate_ids` (array of strings, `uniqueItems: true`; referential integrity
-  against `gates[].id` is a validator-level check, REQ-003(f), not a
-  schema-level `$ref` — JSON Schema draft-07 cannot express "must equal one
-  of this sibling array's runtime values")
+  against `gates[].id` is a validator-level check only, REQ-003(f) — JSON
+  Schema draft-07 cannot express "must equal one of this sibling array's
+  runtime values", so the schema's own constraint on `gate_ids` stops at
+  type/syntax: array of unique strings. No part of this schema claims a
+  schema-level dynamic reference check.)
 - `lite_policy` (optional; `{eligible: boolean (required), upgrade_reasons:
   array of non-empty strings (optional, default [])}`, `additionalProperties:
-  false`)
+  false`; each `upgrade_reasons` token's membership in
+  `contracts/lite-upgrade-reason-catalog.json` is a REQ-003(h) validator
+  check, not a schema-level enum — the schema only constrains shape)
 - `minimum_enforcement` (optional; `const: "required"` — no other value is
   defined by decision v2 §10, so the schema does not invent one)
-- `delivery_strategy` (optional; `{kind: enum[developer-tooling, cli-library,
-  desktop, cloud-service, durable-workflow]}`, `additionalProperties: false`)
+- `delivery_strategy` (optional; `{kind: string, minLength: 1}`,
+  `additionalProperties: false` — **no enum**. Decision v2 requires only that
+  the field exist (`docs/ai-dlc-foundation-decision-v2.md:401`); it reserves
+  vocabulary-freezing for a later, real-case ADR (`:118-120`, `:399-402`,
+  `:488-492`), the same pattern ADR-0017 already applies to the
+  Artifact/Promotion Gate vocabulary. This spec's first draft inferred a
+  closed enum from decision v2 §17's Pack rollout order and is corrected by
+  orchestrator ruling 2026-07-22 — see Design Decisions.)
 
 `#/definitions/predicate` (shared by `trigger` and
 `conditional_facets[].when`, ADR-0020 item 4's "no second condition
@@ -281,6 +363,20 @@ language"):
 ```
 `value` is required for every operator except `exists` (schema-level `if`/
 `then`, matching ADR-0020: `exists` "tests only whether the path exists").
+The `field` enum above is generated from, or drift-checked against, Epic
+A1's Project Context schema once it lands (AC-011, INV-004a) rather than
+maintained as a second, hand-copied list.
+
+`not`'s schema shape (`{"not": <predicate>}`, a single required property
+holding one predicate object, not an array) already enforces arity exactly 1
+structurally — a construction that supplies zero or more than one child
+under `not` cannot even parse against this schema, so it is rejected as
+`PREDICATE_SCHEMA_ERROR` before evaluation, not accepted and misinterpreted
+(AC-012). The evaluator's own truth table for `not`: child result `true` →
+`not` result `false`; child result `false` → `not` result `true`; child
+result `false`+`WARN` → `not` result `false` (the `WARN` reason is preserved
+on the child's own Evidence entry, not inherited by `not` itself, since `not`
+inverts a boolean, not a WARN flag).
 
 ### Predicate DSL evaluator contract (REQ-002)
 
@@ -289,27 +385,105 @@ language"):
 evaluator itself never fails on a well-formed predicate — a `false` result
 with a `WARN` reason is a normal, successful evaluation, not an error, per
 ADR-0020's fail-closed-not-fail-loud design). Malformed input (invalid JSON,
-a field outside the allowlist, an operator outside the fixed set) is a
+a field outside the allowlist, an operator outside the fixed set, or a `not`
+node whose shape does not parse against `#/definitions/predicate`) is a
 distinct, non-zero-exit `PREDICATE_SCHEMA_ERROR` — this is a construction-
 time error, not a fail-closed evaluation outcome, and must not be conflated
 with a `WARN`.
+
+**Evidence JSON Schema** (each array element of the `evidence` output):
+```json
+{
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["operator", "path", "outcome"],
+  "properties": {
+    "operator": {"enum": ["all", "any", "not", "equals", "not_equals",
+      "contains", "in", "exists"]},
+    "path": {"type": ["string", "null"]},
+    "outcome": {"enum": ["match", "no-match", "warn"]},
+    "reason": {"type": "string"},
+    "children": {"type": "array", "items": {"$ref": "#"}}
+  },
+  "if": {"properties": {"outcome": {"const": "warn"}}},
+  "then": {"required": ["operator", "path", "outcome", "reason"]}
+}
+```
+`path` is `null` for logical nodes (`all`/`any`/`not`), which instead carry a
+`children` array — nested logical trees record their children's Evidence in
+a fixed **depth-first, left-to-right, stable order** regardless of outcome
+(AC-013), so that two evaluations of the identical predicate tree against
+the identical component properties always produce byte-identical `evidence`
+output (Global Constraints' determinism requirement extends to Evidence
+shape, not just the boolean `result`).
 
 ### Registry validator contract (REQ-003)
 
 `validate-capability-registry.py --registry <path>` → exit 0 (all checks
 pass) or non-zero with one diagnostic line per failed check, in the style of
 `check-sdd-structure.sh`'s `missing: <item>` lines (`registry: <check-id>:
-<detail>`). Each of the seven checks (a-g in requirements.md REQ-003) is an
-independently identifiable, independently testable failure mode.
+<detail>`). Each of the eight checks (a-h in requirements.md REQ-003) is an
+independently identifiable, independently testable failure mode:
+
+| Check | Diagnostic ID | Scope |
+|---|---|---|
+| (a) Gate ID uniqueness | `gate-id-duplicate` | top-level `gates[]` |
+| (b) stage-completeness | `implementation-ref-missing` | `stage: implementation` gates |
+| (c) unregistered-script detection | `unregistered-script` | Gate implementation identity (below) |
+| (d) no Pack-owned Gate definitions | `pack-owns-gate-definition` | repository-wide forward-guard |
+| (e) no missing `stage` (defense-in-depth) | `stage-missing` | top-level `gates[]`, validator-direct |
+| (f) referential integrity | `dangling-gate-reference` | `capabilities[].gate_ids` |
+| (g) Provider-name contamination | `provider-name-detected` | every string-valued field |
+| (h) lite-upgrade-reason-catalog conformance | `unknown-upgrade-reason` | `lite_policy.upgrade_reasons` |
+
+**Gate implementation identity** (check (c), OQ-004, this spec's own
+proposal): a configuration names (i) a fixed set of scan roots (repository-
+relative directories to search, e.g. `plugins/*/scripts/`), (ii) a fixed set
+of recognized wrapper extensions (`.py` as the master, `.sh`/`.ps1`/`.js` as
+wrappers), and (iii) a naming convention (same basename across extensions,
+e.g. `check-update-migration.py`/`.sh`/`.ps1` is one identity). Discovery
+rules: a symlink under a scan root resolves to its target path before
+grouping; every basename-matched set of files across the recognized
+extensions is exactly one implementation identity, regardless of how many
+extensions are present; a script under a scan root with no
+`gates[].implementation_ref` naming its identity is `unregistered-script`;
+a script outside every configured scan root (e.g. a future external
+Capability Pack's own script directory, living outside this repository's
+`plugins/` tree) is never flagged, structurally exempt rather than merely
+untested (Test Strategy item 2's bidirectional fixture set).
+
+**lite-upgrade-reason-catalog conformance** (check (h)): every string in
+every `capabilities[].lite_policy.upgrade_reasons` array must appear in
+`contracts/lite-upgrade-reason-catalog.json`'s `reasons` array (loaded via
+the same Registry discovery contract, REQ-005); an entry absent from the
+catalog is `unknown-upgrade-reason` — fail-closed, not a silent pass. Adding
+a new reason to Epic A6's vocabulary is a catalog edit (a new
+`catalog_version`), not a schema change.
 
 ### `registry_digest` generator contract (REQ-004)
 
-`generate-registry-digest.py --registry <path> --capability-ids <id[,id...]>
-| --whole` → stdout the sha256 hex digest of the canonical-JSON (via Epic
-A1's canonicalizer) serialization of the selected fragment (the listed
-Capabilities plus every `gates[]` entry any of them reference via
-`gate_ids`, transitively — "the Registry fragment used" per ADR-0021).
-`--whole` selects the entire Registry. No other output.
+`generate-registry-digest.py (--capability-ids <id[,id...]> | --gate-ids
+<id[,id...]> | --whole)` (the first two flags may be combined; at least one
+of the three forms is required) → stdout the sha256 hex digest of the
+canonical-JSON (via Epic A1's canonicalizer) serialization of the selected
+fragment. Fragment construction:
+1. Parse `--capability-ids`/`--gate-ids` as comma-separated ID lists;
+   dedupe each list.
+2. Any ID not present in the Registry (`capabilities[].id` or `gates[].id`
+   respectively) is a hard failure (`unknown-fragment-id`, non-zero exit) —
+   never a silent no-op.
+3. The fragment's `capabilities` sub-array is every named Capability;
+   its `gates` sub-array is the union of every named Capability's
+   transitively-referenced `gate_ids` **and** every directly-named
+   `--gate-ids` entry.
+4. Both sub-arrays are stable-sorted by `id` (lexicographic) before
+   serialization — this is the step that guarantees two callers requesting
+   the identical semantic ID set in a different order, or with input
+   duplicates, produce an identical digest, since JCS canonicalizes object
+   key order but not array order (Problems, requirements.md).
+`--whole` selects the entire Registry (its own `gates`/`capabilities` arrays,
+already author-ordered, are not re-sorted — `--whole`'s determinism instead
+follows directly from hashing the one committed file). No other output.
 
 ### Projection generator contract (REQ-005)
 
@@ -330,13 +504,50 @@ Capabilities plus every `gates[]` entry any of them reference via
   "capability_gate_map": { "<capability-id>": ["<gate-id>", ...] }
 }
 ```
-With `--check`: recomputes the same content in memory, compares byte-for-byte
-against the committed file, exits non-zero on any difference (no write),
-matching `generate-guard-invariants.py --check`'s contract exactly.
+This `_generated` object is the **only** header/provenance contract this
+spec defines for the projection — there is no comment-line ("# Generated
+...") variant anywhere in this package (Blocker finding, adversarial review
+2026-07-22, now closed). With `--check`: recomputes the same content in
+memory, compares byte-for-byte against the committed file, exits non-zero on
+any difference (no write, no filesystem mutation of any kind — asserted via
+mtime-unchanged in Test Strategy item 4), matching
+`generate-guard-invariants.py --check`'s contract exactly. The generator
+always reads its source Registry via the canonical monorepo-relative
+`contracts/` path (never the packaged/vendored copy under its own plugin
+directory), since it is that vendored copy's own producer.
+
+### Registry discovery contract (REQ-005)
+
+Every script above except the projection generator (which always reads the
+canonical source, per the previous section) resolves the Registry via a
+shared discovery routine before use:
+1. If a plugin-root environment variable is set for the running host
+   (`${CLAUDE_PLUGIN_ROOT}` today, confirmed precedent —
+   `plugins/sdd-quality-loop/hooks/claude-hooks.json:11`, INV-016; the
+   Codex CLI and Copilot CLI analogs referenced by `hooks/hooks.json` and
+   `hooks/copilot-hooks.json` respectively) **and**
+   `${PLUGIN_ROOT}/contracts/capability-registry.json` exists, use it (the
+   standalone-installed case — the packaged, vendored copy, Components).
+2. Otherwise, walk upward from the running script's own file location until
+   a repository-root marker (`AGENTS.md`) is found, and use
+   `<repo-root>/contracts/capability-registry.json` (the in-repo
+   development case).
+3. If neither location resolves, or the discovered file's top-level
+   `schema` field is not in a small, script-hardcoded
+   `SUPPORTED_SCHEMA_VERSIONS` set (initially `{"capability-registry/v1"}`),
+   fail closed: non-zero exit, a diagnostic naming both attempted paths and
+   the version check's result — never silently proceed with a stale or
+   absent Registry.
+`contracts/capability-registry.schema.json` and
+`contracts/lite-upgrade-reason-catalog.json` are resolved by the same
+routine, substituting the respective filename. Three fixtures (Test
+Strategy item 8) simulate a standalone install per runtime (only the
+packaged copy present, no monorepo `contracts/`, no `AGENTS.md` marker) to
+prove step 1 alone is sufficient.
 
 ## Test Strategy
 
-Six new `tests/*.tests.sh`/`.tests.ps1` pairs (REQ-006), each with fixture
+Eight new `tests/*.tests.sh`/`.tests.ps1` pairs (REQ-006), each with fixture
 data under `tests/fixtures/capability-registry/`:
 1. `evaluate-predicate` — every operator × {matching, non-matching, missing
    path, null value, type mismatch} where applicable; `exists` × {present-
@@ -344,27 +555,55 @@ data under `tests/fixtures/capability-registry/`:
    `all`/`any` × {empty list, all-true, all-false, mixed} with an assertion
    that every child's evidence entry is present even when the parent's
    result was already determined by an earlier child (proving no short-
-   circuit); a `trigger`-labeled fixture asserting it is evaluated by the
-   identical code path as a `conditional_facets[].when` fixture (byte-
-   identical evidence shape).
-2. `validate-capability-registry` — one fixture per REQ-003 check (a-g),
-   each a minimal Registry mutation isolating exactly one failure mode, plus
-   one fully-clean fixture proving a negative (all checks pass on valid
-   input) so the suite cannot pass vacuously.
+   circuit); `not` × {child true, child false, child false+WARN} against the
+   documented truth table, plus a fixture where a malformed `not` shape
+   (zero or two children) is rejected as `PREDICATE_SCHEMA_ERROR`; a
+   `trigger`-labeled fixture asserting it is evaluated by the identical code
+   path as a `conditional_facets[].when` fixture (byte-identical evidence
+   shape); Evidence-JSON-Schema conformance for every fixture's `evidence`
+   output; a nested `all`-of-`any`-of-comparisons fixture asserting
+   depth-first, left-to-right, stable Evidence ordering.
+2. `validate-capability-registry` — one fixture per REQ-003 check (a-h),
+   each a minimal Registry mutation isolating exactly one failure mode
+   (including a bidirectional Gate-implementation-identity fixture set for
+   check (c): an sh+ps1 wrapper pair counted as one registered
+   implementation, an out-of-scan-root script not flagged, an in-scan-root
+   script with no `implementation_ref` flagged; and a validator-direct,
+   schema-bypassing fixture for check (e)'s defense-in-depth re-assertion),
+   plus one fully-clean fixture proving a negative (all checks pass on
+   valid input) so the suite cannot pass vacuously. This suite's setup also
+   runs a one-off repository-structure assertion (AC-028) confirming
+   `plugins/sdd-capability/` does not exist and every script/reference file
+   this spec designs lives under `plugins/sdd-quality-loop/` — a structural
+   check for Design Decisions' rejected-new-plugin ruling, not a Registry-
+   content check.
 3. `generate-registry-digest` — a fixed fixture Registry, asserting (a) the
-   `.sh`- and `.ps1`-wrapper invocations of the digest generator produce an
-   identical sha256 (dual-runtime determinism, decision v2 §18.3), and (b) a
-   single-character mutation to the fragment changes the digest (negative
-   self-check proving the hash is content-sensitive, not a constant).
+   `.sh`-, `.ps1`-, and `.js`-wrapper invocations of the digest generator
+   produce an identical sha256 (dual/triple-runtime determinism, decision v2
+   §18.3), (b) a single-character mutation to the fragment changes the
+   digest (negative self-check proving the hash is content-sensitive), (c)
+   requesting the identical semantic ID set via `--capability-ids`/
+   `--gate-ids` in a different order, or with input duplicates, produces an
+   identical digest (stable-sort/dedupe, AC-024), (d) an unknown ID in
+   either flag is a hard failure, and (e) a JCS/NFC canonicalization vector
+   set (RFC 8785 key-ordering/number-formatting edge cases; Unicode NFC
+   composed-vs-decomposed string equivalence) produces identical digests for
+   canonically-equivalent-but-differently-encoded input.
 4. `generate-gate-capabilities --check` — a clean pass against a valid
    fixture Registry + its correctly-generated projection, and a mutated-
    projection negative case (hand-edit the generated file, confirm `--check`
-   fails) proving the drift check is live.
+   fails) proving the drift check is live; an mtime-unchanged assertion
+   proves `--check` never writes.
 5. Schema-conformance — `contracts/capability-registry.schema.json` validates
    both a minimal-valid and a maximal-valid fixture instance, and rejects one
    fixture per structurally-invalid case (missing `implementation_ref` on a
-   `stage: implementation` Gate, an out-of-enum `delivery_strategy.kind`, a
-   non-boolean `lite_policy.eligible`).
+   `stage: implementation` Gate, a non-string/empty `delivery_strategy.kind`,
+   a non-boolean `lite_policy.eligible`, an extra `conditions` key on a
+   `capabilities[]` entry); a `minimum_enforcement` positive fixture
+   (`"required"` accepted) and negative fixture (any other value rejected);
+   a reserved-stage inertness fixture (`stage: artifact`/`promotion`, no
+   `implementation_ref`, no `minimum_enforcement`, passes and is exempt from
+   every completeness check).
 6. Provider-name-contamination — one fixture per allowlisted term category
    (cloud provider, distribution channel, workflow-runtime product name)
    confirming each is caught, plus a clean fixture proving the scan does not
@@ -373,8 +612,23 @@ data under `tests/fixtures/capability-registry/`:
    `durable_workflow` as an `artifact_kinds` value is provider-neutral per
    ADR-0018 and must not itself trigger the scan — only a *provider name*
    like `durable-functions`, the Azure product name, does).
+7. Parity — all four scripts' `.sh`/`.ps1` wrapper invocations (and
+   `generate-registry-digest`'s `.js` wrapper) produce byte-identical output
+   for identical fixture input (golden-fixture comparison, not merely
+   independent correctness); each script's wrapper pair is additionally
+   invoked from within a Claude Code, a Codex CLI, and a Copilot CLI
+   installed-plugin context against the same fixture input, asserting
+   identical exit codes and stdout across all three runtimes.
+8. Registry discovery — three fixtures (one per runtime) simulate a
+   standalone install (only the packaged, plugin-relative
+   `contracts/capability-registry.json`/`.schema.json` present, no monorepo
+   `contracts/`, no `AGENTS.md` marker) and prove discovery succeeds via the
+   packaged copy alone; a version-mismatch fixture (packaged copy present
+   but `schema` field outside `SUPPORTED_SCHEMA_VERSIONS`) and a
+   neither-location-resolves fixture both prove the fail-closed diagnostic
+   fires and names both attempted paths.
 
-All six pairs are registered directly in `tests/run-all.sh`/`.ps1`
+All eight pairs are registered directly in `tests/run-all.sh`/`.ps1`
 (unprotected) and staged via human-copy for `.github/workflows/test.yml`
 (protected) — Protected-File Statement, above.
 
@@ -391,50 +645,93 @@ All six pairs are registered directly in `tests/run-all.sh`/`.ps1`
   readably, they do not fix an on-disk authoring format for the Registry
   specifically (Project Context and Provider Bindings, which those same
   documents also show in YAML, genuinely are YAML files on disk — the
-  Registry is a different artifact with different provenance). This is a
-  judgment call flagged for human confirmation at spec review; a reviewer
-  who intended literal YAML should say so before REQ-001's implementation
-  task begins.
+  Registry is a different artifact with different provenance). **This is a
+  repo-local design/ADR-adjacent judgment call this spec makes, not a
+  necessity decision v2 or any ADR compels** — decision v2 fixes neither the
+  Registry's storage location nor its serialization format (adversarial
+  review 2026-07-22, "OK" finding, confirming no deviation but requesting
+  this framing be explicit). The valid JSON metadata shape this spec commits
+  to is the `"schema": "capability-registry/v1"` self-describing-instance
+  convention already used by `contracts/agent-model-capabilities.v2.json`,
+  not a bare, schema-less JSON file.
 - **A flat, top-level `gates[]` array, not per-Capability (INV-003).**
   ADR-0017's own schema example presents `gates:` as a flat, ungrouped list.
   A flat list makes "Gate ID uniqueness" a single array's `uniqueItems`-style
   constraint instead of a cross-capability de-duplication problem, and lets
   multiple Capabilities share one Gate (e.g. two Capabilities that both
   require `check-component-coverage`) without duplicating its definition.
-- **"conditions" is not a third schema field (OQ-002).** ADR-0020 defines
-  exactly one condition concept. Treating decision v2 §13's "trigger /
-  conditions" as two words for the same DSL body (not two fields) avoids
-  inventing an undocumented field; flagged for human confirmation.
-- **`delivery_strategy.kind`'s four-value enum is an inference (OQ-003).**
-  Decision v2 never defines this vocabulary directly; the four values are
-  read off decision v2 §17's Pack rollout order, the only place in the
-  source documents that enumerates delivery-shape categories. A human
-  reviewer may prefer a different, smaller, or larger set.
-- **`upgrade_reasons` is an open string array, not a closed enum (OQ-001).**
+- **"conditions" is not a third schema field (OQ-002, RESOLVED 2026-07-22).**
+  ADR-0020 defines exactly one condition concept. The orchestrator's ruling
+  confirms decision v2 §13's "trigger / conditions" as two words for the
+  same DSL body (not two fields), avoiding an undocumented field. This is no
+  longer flagged for human confirmation at spec review — it is the
+  confirmed interpretation pending decision v2's own next revision, which is
+  expected to make it explicit (investigation.md OQ-002).
+- **`delivery_strategy.kind` is a reserved, open, non-empty string, not a
+  closed enum (OQ-003, RESOLVED and REVERSED 2026-07-22).** This spec's
+  first draft inferred a closed enum (`developer-tooling`, `cli-library`,
+  `desktop`, `cloud-service`, `durable-workflow`) from decision v2 §17's Pack
+  rollout order, and inconsistently described it as a "four-value enum"
+  while listing five literals. The adversarial review correctly identified
+  both the internal miscount and, more fundamentally, that decision v2
+  requires only the field's *existence*, explicitly deferring vocabulary-
+  freezing to a real cloud-service delivery case and its own later ADR
+  (`docs/ai-dlc-foundation-decision-v2.md:118-120,399-402,488-492`) — the
+  same pattern ADR-0017 already applies to the Artifact/Promotion Gate
+  vocabulary. The schema now types `delivery_strategy.kind` as any
+  non-empty string; no enum is defined in Foundation.
+- **`upgrade_reasons` remains an open string array; a versioned catalog now
+  enforces fail-closed validation (OQ-001, partially resolved 2026-07-22).**
   ADR-0022's YAML example and its own prose disagree on the count and
-  membership of this set; freezing either list into a closed enum would
-  silently pick a side. An open array lets Epic A6 (which actually consumes
-  this field, per ADR-0022 item 4) populate it without a schema change,
-  deferring the vocabulary-freezing decision to where it can be made with
-  real lite-track upgrade cases in hand — the same reasoning ADR-0017 already
-  applies to the Artifact/Promotion Gate vocabulary.
-- **A new `plugins/sdd-capability/` plugin, not an existing one.** None of
-  `sdd-quality-loop` (gate *execution*, not Registry *authoring*/
-  *validation*), `sdd-lite` (lite track specifically), or `sdd-bootstrap`
-  (interview flow) is a good semantic home for Registry-authoring/
-  validation/digest/projection scripts that Epic A1/A3/A5 will also need to
-  extend. This mirrors how `sdd-domain` and `sdd-ship` are each their own
-  plugin for their own concern rather than folded into `sdd-quality-loop`.
-  A human reviewer may instead prefer housing this inside an existing
-  plugin; this spec's tasks.md schedules the new-plugin scaffold as its own,
-  separately reversible task specifically so that preference is cheap to
-  apply at implementation-task-review time.
-- **`implementation_ref` and the bidirectional unregistered-script check are
-  this spec's own proposal (OQ-004).** Neither decision v2 nor any ADR
-  specifies a mechanism for "no unregistered script"; this spec proposes the
-  minimum mechanism that makes the check computable (a field naming the
-  implementing script, plus a configured scan-directory list) and flags it
-  as new, not quoted, design.
+  membership of this set; freezing either list into a closed schema enum
+  would still silently pick a side, so the schema itself remains open. The
+  adversarial review correctly noted that an *unconstrained* open string
+  makes Epic A6's upgrade determination typo-dependent with no automated
+  safety net. REQ-003(h) closes that gap without freezing the vocabulary:
+  every token must resolve against `contracts/lite-upgrade-reason-catalog.json`,
+  a small, separately-versioned contract Epic A6 (or a human, ahead of Epic
+  A6) can extend by adding a catalog version — an unrecognized token still
+  fails validation today, but the catalog's own membership is not baked into
+  `capability-registry.schema.json`.
+- **Registry-authoring/validation/digest/projection scripts live in the
+  existing `plugins/sdd-quality-loop/` plugin — a new `plugins/sdd-capability/`
+  plugin is a rejected alternative.** This spec's first draft proposed a new
+  plugin, reasoning that none of `sdd-quality-loop` (gate *execution*, not
+  Registry *authoring*/*validation*), `sdd-lite` (lite track specifically),
+  or `sdd-bootstrap` (interview flow) is an ideal semantic home. The
+  adversarial review correctly identified that decision v2 §16 makes
+  sh+ps1 scripts, a 3-environment (Claude/Codex/Copilot) plugin
+  configuration, and environment-specific tests a **per-Epic Done
+  condition** with no deferral to a later Epic (INV-015) — a new plugin
+  would have had to stand up its own manifest, install/uninstall path, and
+  3-environment test wiring for no offsetting benefit over semantic
+  separation alone, and this spec's first draft scoped none of that
+  packaging cost into REQ/AC/TEST. Per orchestrator ruling 2026-07-22, the
+  new-plugin alternative is rejected; every script and reference file this
+  spec designs is added to the existing `plugins/sdd-quality-loop/` plugin,
+  which already carries a working 3-environment manifest, so no new
+  packaging surface is introduced.
+- **`implementation_ref` and the Gate implementation identity mechanism are
+  this spec's own proposal (OQ-004, materially expanded 2026-07-22).**
+  Neither decision v2 nor any ADR specifies a mechanism for "no unregistered
+  script"; this spec's first draft proposed a bare field-plus-scanned-
+  directories mechanism that left scan roots, recognized extensions,
+  symlinks, and sh/ps1(/js)-wrapper grouping undefined — the adversarial
+  review correctly identified that this left the check's own completeness
+  untestable (would two wrapper files for one Python master count as one
+  implementation or two unregistered scripts?). API / Contract Plan's Gate
+  implementation identity schema now fixes all four dimensions, still
+  flagged as this spec's own proposal, not found verbatim in decision v2 or
+  an ADR.
+- **Registry discovery is a package-relative contract with a monorepo
+  fallback, not a repository-root-relative assumption.** The adversarial
+  review correctly identified that this spec's first draft designed the
+  projection generator to read a hardcoded top-level `contracts/` path with
+  no discovery story for a standalone-installed plugin. API / Contract
+  Plan's discovery contract reuses this repository's own existing
+  plugin-root environment-variable pattern (`${CLAUDE_PLUGIN_ROOT}`,
+  INV-016) rather than inventing a new one, and fails closed rather than
+  silently falling back to a stale or absent Registry.
 
 ## Global Constraints
 
@@ -442,9 +739,11 @@ All six pairs are registered directly in `tests/run-all.sh`/`.ps1`
   schema-level `oneOf` in API / Contract Plan structurally excludes any
   operator or field outside the fixed, closed set; there is no "raw
   expression" escape hatch anywhere in the grammar.
-- Determinism: the evaluator, the validator, and the digest generator must
-  each produce byte-identical output for identical input, across `.sh` and
-  `.ps1` invocations of the same Python master (Test Strategy item 3;
+- Determinism: the evaluator (including its Evidence output's depth-first
+  ordering), the validator, and the digest generator (including its
+  fragment's stable ID sort) must each produce byte-identical output for
+  identical input, across `.sh`, `.ps1`, and (for the digest generator)
+  `.js` invocations of the same Python master (Test Strategy items 1, 3, 7;
   decision v2 §18.3's dual-runtime fixture requirement).
 - No secrets, credentials, or provider-specific detail anywhere in
   `contracts/capability-registry.json` (ADR-0018; enforced by REQ-003(g)).
@@ -461,6 +760,10 @@ All six pairs are registered directly in `tests/run-all.sh`/`.ps1`
   protected path (Protected-File Statement) goes through human-copy with a
   SHA-256 manifest; no script this spec designs writes to a protected path
   directly.
+- **B4 — Discovery fail-closed.** The Registry discovery contract
+  (API / Contract Plan) never silently falls back to a stale or absent
+  Registry: an unresolved path or an unsupported `schema` version is a
+  non-zero-exit diagnostic, not a degraded-but-successful run.
 
 ## External Integrations
 
@@ -473,12 +776,18 @@ in the DSL, ADR-0020 item 3).
 - `.github/workflows/test.yml` gains (via human-copy, Protected-File
   Statement): a `generate-gate-capabilities.py --check` step (mirroring
   `generate-guard-invariants.py --check` at `test.yml:30,35`) and steps
-  running each of the six new `tests/*.tests.sh`/`.tests.ps1` pairs.
+  running each of the eight new `tests/*.tests.sh`/`.tests.ps1` pairs,
+  including the 3-runtime invocation parity suite (Test Strategy item 7) and
+  the Registry-discovery installed-layout suite (Test Strategy item 8).
 - No release-version bump is implied by this Epic alone; any version bump
   goes exclusively through `scripts/bump-version.sh`, per the repository-wide
   convention already stated in prior specs (e.g.
   `specs/epic-159-pillar-c/requirements.md` REQ-009) and not repeated in
-  full here since this spec introduces no new bump-version exception.
+  full here since this spec introduces no new bump-version exception. The
+  packaged/vendored `contracts/` copy under `plugins/sdd-quality-loop/`
+  (Components) is expected to be refreshed as part of this same
+  version-bump/packaging step; the exact wiring is implementation-phase
+  work (Assumptions).
 
 ## Constraint Compliance
 
@@ -488,60 +797,83 @@ in the DSL, ADR-0020 item 3).
   Gates from `gate-capabilities.json` (API / Contract Plan), and the
   validator's stage-completeness check (REQ-003(b)) exempts them explicitly.
 - No plugin, script, contract, test, or `.github` file is created or
-  modified by this spec commit (Non-goals, AC-021) — every path named above
+  modified by this spec commit (Non-goals, AC-034) — every path named above
   is a target for the implementation phase's tasks.md, not this commit's
   diff.
+- No new plugin is introduced (Design Decisions) — every script this spec
+  designs is added to `plugins/sdd-quality-loop/`'s existing manifest.
 
 ## Assumptions
 
 - Epic A1's canonicalizer will expose a stable, importable interface (module
-  or CLI) by the time Epic A2's implementation phase begins; if it instead
-  ships as an inline, non-reusable script, REQ-004's task will need a small
-  adapter, not a redesign.
+  or CLI), with a published version identifier and I/O contract, by the
+  time Epic A2's implementation phase begins; REQ-004's task is explicitly
+  **blocked** (not merely at-risk) until that contract is finalized
+  (Dependencies, requirements.md) — if it instead ships as an inline,
+  non-reusable script, REQ-004's task needs a small adapter, not a redesign,
+  but the task cannot start before the contract exists.
 - No Capability Pack exists yet, so REQ-003(d)'s Pack-gate-definition check
   and REQ-003(c)'s unregistered-script check are validated against
   synthetic, this-spec-authored fixtures rather than real Pack content
   (Test Strategy).
-- `plugins/sdd-capability/` is a new plugin; its `.plugin`/`.claude-plugin`/
-  `.codex-plugin` manifest scaffolding (matching every other plugin in this
-  repository) is implementation-phase work, scheduled in tasks.md, not
-  designed field-by-field here since manifest shape is unrelated to Epic
-  A2's registry/DSL/validator/digest/projection scope.
+- No new plugin manifest is needed: `plugins/sdd-quality-loop/`'s existing
+  `.claude-plugin/plugin.json`, `.codex-plugin/`, `copilot-agents/`, and
+  `hooks/*` are structurally unaffected by this spec's additions — only its
+  `scripts/`/`references/`/`contracts/` inventories grow. The
+  vendoring/packaging step that refreshes
+  `plugins/sdd-quality-loop/contracts/*` (Components, Deployment/CI Plan) is
+  scheduled as its own implementation-phase task, not designed field-by-
+  field here, since the packaging mechanism itself (e.g. wiring into
+  `scripts/bump-version.sh`) is unrelated to Epic A2's registry/DSL/
+  validator/digest/projection scope.
 
 ## Open Questions
 
 Carried forward from investigation.md (not re-litigated here, only indexed
 for a reviewer's convenience): OQ-001 (`lite_policy.upgrade_reasons`
-vocabulary), OQ-002 ("conditions" vs. `trigger` field semantics), OQ-003
-(`delivery_strategy.kind` enum membership), OQ-004 (unregistered-script check
-mechanism). A fifth, design-only question: whether the generated projection
-should mirror guard-invariants' full four-language generation (`.py`, `.js`,
-`.sh`, `.ps1`) or ship only the JSON projection `sdd-quality-loop` actually
-reads (API / Contract Plan proposes JSON-only, since no consumer for a
-`.py`/`.js`/`.sh`/`.ps1` *rendering* of the Registry has been identified
-anywhere in decision v2 or the ADRs — guard-invariants needs four languages
-because `sdd-hook-guard` itself ships in four languages; `gate-capabilities.json`
-has exactly one identified consumer, `sdd-quality-loop`'s gate skill, which
-decision v2 does not require to exist in four languages itself).
+catalog's own vocabulary — still Epic A6's decision, ADR-0022 item 4) and
+OQ-004 (Gate implementation identity mechanism — this spec's own proposal,
+now materially expanded, still not found verbatim in an ADR). OQ-002
+("conditions" vs. `trigger` field semantics) and OQ-003
+(`delivery_strategy.kind` vocabulary) are **resolved** by orchestrator ruling
+2026-07-22 (investigation.md's Open Questions section) and are not reopened
+by this document. A fifth, design-only question, unchanged from this spec's
+first draft: whether the generated projection should mirror guard-
+invariants' full four-language generation (`.py`, `.js`, `.sh`, `.ps1`) or
+ship only the JSON projection `sdd-quality-loop` actually reads (API /
+Contract Plan proposes JSON-only, since no consumer for a `.py`/`.js`/`.sh`/
+`.ps1` *rendering* of the Registry has been identified anywhere in decision
+v2 or the ADRs — guard-invariants needs four languages because
+`sdd-hook-guard` itself ships in four languages; `gate-capabilities.json`
+has exactly one identified consumer, `sdd-quality-loop`'s own gate skill,
+which decision v2 does not require to exist in four languages itself).
 
 ## Risks
 
-- **Plugin-placement churn.** If a human reviewer disagrees with the new
-  `plugins/sdd-capability/` plugin (Design Decisions), every script path in
-  this design shifts; mitigated by scheduling plugin scaffolding as its own,
-  early, separately-reversible task (tasks.md) rather than interleaving it
-  with schema/evaluator work.
 - **`contracts/` vs. `sdd/` reversal.** If a human reviewer intended literal
-  YAML authoring for the Registry (contradicting this spec's JSON choice),
-  REQ-001/REQ-004's canonicalization story changes materially (the YAML-1.2-
-  parse step would then apply, per decision v2 §18.3) — mitigated by
-  flagging this explicitly rather than burying it (Design Decisions).
-- **OQ-004's bidirectional unregistered-script check may be more expensive
-  to maintain than valuable** once real Capability Packs exist and ship
-  their own check scripts outside this repository's own `plugins/` tree
-  (e.g. a downstream consumer's custom Gate script). This spec's version of
-  the check only scans configured, in-repository directories; a
+  YAML authoring for the Registry (contradicting this spec's JSON choice,
+  which Design Decisions now states explicitly is a repo-local judgment, not
+  a source-document necessity), REQ-001/REQ-004's canonicalization story
+  changes materially (the YAML-1.2-parse step would then apply, per decision
+  v2 §18.3) — mitigated by flagging this explicitly rather than burying it
+  (Design Decisions).
+- **OQ-004's Gate implementation identity mechanism may be more expensive to
+  maintain than valuable** once real Capability Packs exist and ship their
+  own check scripts outside this repository's own `plugins/` tree (e.g. a
+  downstream consumer's custom Gate script). This spec's version of the
+  check only scans configured, in-repository scan roots; a
   Pack-shipped-elsewhere script would need its own `implementation_ref`
   entry and would not be flagged as "unregistered" merely for living outside
-  the scanned set — this asymmetry is worth revisiting once a real
+  the scanned set (this is now a structural exemption, not an untested
+  asymmetry — API / Contract Plan) — worth revisiting once a real
   Capability Pack exists (decision v2 §17's rollout order).
+- **Vendored-copy staleness.** The packaged, plugin-relative
+  `contracts/capability-registry.json`/`.schema.json` copies (Components,
+  Registry discovery contract) are only as fresh as the packaging step that
+  last refreshed them; if that step is not run at every release, a
+  standalone-installed plugin could read a stale Registry even though its
+  own `--check`-style protection (Protected-File Statement) would still
+  catch a *manually edited* vendored copy diverging from its own generation
+  contract. Mitigated by scheduling the vendoring step as a mandatory part
+  of `scripts/bump-version.sh` (Deployment/CI Plan), not an optional,
+  easily-skipped extra step — the exact wiring is implementation-phase work.

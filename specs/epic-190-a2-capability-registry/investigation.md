@@ -69,6 +69,19 @@ the evaluator this spec designs:
   `characteristics.local_persistence`, `distribution_channels`,
   `data_classification`.
 
+## INV-004a: Field allowlist drift-check obligation (adversarial review 2026-07-22)
+
+INV-004 already names the Project Context schema (Epic A1) as the field
+allowlist's source of truth. The spec's first draft nonetheless hand-
+re-listed the 8 dotted paths inside `contracts/capability-registry.schema.json`
+itself with no mechanism tying that copy back to A1's schema. Per orchestrator
+ruling 2026-07-22 (adversarial spec review, Major finding "A1 の
+schema/canonicalizer を参照せず複製・仮定"), REQ-002's allowlist must instead
+be generated from, or drift-checked against, A1's schema once it lands
+(design.md API / Contract Plan, REQ-002); until A1's schema exists to check
+against, the hand-listed 8 paths remain a placeholder carrying an explicit
+drift-check obligation, not a second source of truth.
+
 ## INV-005: registry_digest and staleness binding (ADR-0021)
 
 ADR-0021 (`docs/adr/0021-context-projection-staleness.md:30-46,55-76`) widens
@@ -245,52 +258,120 @@ edits go through human-copy, matching `epic-159-pillar-c`'s own T-001/T-003/
 T-005 procedure of staging `specs/<feature>/human-copy/.github/workflows/test.yml`
 + `MANIFEST.sha256` for a human `cp`).
 
+## INV-015: 3-environment packaging obligation bears on plugin placement (decision v2 §16)
+
+`docs/ai-dlc-foundation-decision-v2.md:245-258` (§16) makes sh+ps1 script
+pairs, Claude/Codex/Copilot plugin configuration, and environment-specific
+tests a **per-Epic Done condition**, explicitly forbidding deferral to a
+later Epic (e.g. A8). A *new* plugin therefore carries its own manifest
+(`.claude-plugin/plugin.json`, `.codex-plugin/`, copilot-agents/hooks
+equivalents — confirmed structure: `plugins/sdd-quality-loop/.claude-plugin/`,
+`.codex-plugin/`, `hooks/{claude-hooks.json,hooks.json,copilot-hooks.json}`,
+`copilot-agents/`), its own install/uninstall path, and its own 3-environment
+test wiring — none of which this spec's first draft scoped into REQ/AC/TEST
+for the proposed `plugins/sdd-capability/` plugin. Placing Epic A2's scripts
+inside the existing `plugins/sdd-quality-loop/` plugin instead (which already
+carries a complete, working 3-environment manifest set) avoids incurring this
+packaging cost a second time for no stated benefit beyond semantic separation.
+Per orchestrator ruling 2026-07-22, the new-plugin proposal is rejected on
+this basis (design.md Design Decisions records it as a rejected alternative).
+
+## INV-016: `${CLAUDE_PLUGIN_ROOT}`-style plugin-root resolution is an existing repository pattern
+
+`plugins/sdd-quality-loop/hooks/claude-hooks.json:2,11` confirms
+`${CLAUDE_PLUGIN_ROOT}` is expanded by Claude Code itself before spawning a
+hook command, and is already used to locate a script relative to the
+installed plugin's own root rather than a repository-root-relative path;
+`hooks/hooks.json` (Codex CLI) and `hooks/copilot-hooks.json` (Copilot CLI)
+are the two runtime-specific analogs referenced in the same file's own
+description comment. This is the repository's existing precedent for
+resolving a plugin-local path when installed standalone (no full monorepo
+checkout present), and is the pattern REQ-005's Registry-discovery contract
+(design.md) builds on for locating `contracts/capability-registry.json` from
+inside an installed `plugins/sdd-quality-loop/` package.
+
 ## Open Questions
 
-- **OQ-001**: `lite_policy.upgrade_reasons` — ADR-0022's YAML example (5
-  tokens) is narrower than its own prose (11 categories). This spec's schema
-  (design.md) treats the field as an open string array precisely to avoid
-  silently picking one list over the other; a human should decide whether to
-  freeze a closed enum in a later ADR amendment. Not blocking for Epic A2
-  (the field only needs to exist and be structurally valid; its vocabulary is
-  Epic A6's concern per ADR-0022 item 4).
-- **OQ-002**: decision v2 §13's field list names "trigger" and "conditions" as
-  two separate items, but ADR-0020 defines exactly one condition concept (the
-  Predicate DSL), used identically for `trigger` and for
-  `conditional_facets[].when`. This spec's schema (design.md) resolves this by
-  treating "conditions" as describing the DSL body itself, not a third field:
-  a Capability entry has exactly one predicate field (`trigger`); required
-  facets are unconditional; conditional facets each carry their own nested
-  `when`. Flagged for human confirmation at spec review, not silently
-  resolved without a trace.
-- **OQ-003**: "delivery strategy kind" is mentioned exactly once in decision
-  v2 (`docs/ai-dlc-foundation-decision-v2.md:401`) with no defined vocabulary
-  anywhere else. This spec infers the vocabulary from decision v2 §17's own
-  Pack rollout order (`docs/ai-dlc-foundation-decision-v2.md:488-492`:
-  developer-tooling/cli-library → desktop → cloud-service → durable-workflow)
-  as the closest documented enumeration of "kinds" of delivery shape, and
-  documents this inference explicitly in design.md rather than treating it as
-  settled fact.
-- **OQ-004**: "未登録 script なし" (no unregistered script) needs a discovery
-  convention to check both directions (every `stage: implementation` Gate has
-  exactly one implementing script; every gate-shaped script is registered).
-  No such enumeration convention exists in the repository today. design.md
-  proposes a `implementation_ref` field per Gate plus a configured list of
-  scanned script directories; this is this spec's own design proposal (not
-  found verbatim in decision v2 or an ADR) and is flagged as such.
+Each entry below records this spec's original disposition and, where the
+2026-07-22 adversarial spec review (18 findings) required a change, the
+orchestrator's ruling that supersedes it. No entry below authorizes changing
+`Spec-Review-Status`/`Impl-Review-Status` — both remain `Pending` for a human
+reviewer.
+
+- **OQ-001 — `lite_policy.upgrade_reasons` vocabulary.** Status: **partially
+  resolved (orchestrator ruling 2026-07-22)**. Original disposition:
+  ADR-0022's YAML example (5 tokens) is narrower than its own prose (11
+  categories); this spec's schema treats the field as an open string array so
+  neither list is silently picked. The adversarial review (Major finding)
+  correctly noted that an unconstrained open string makes Epic A6's upgrade
+  decision typo-dependent with no automated safety net. Ruling: the
+  vocabulary itself is **not** frozen (OQ-001 remains open on that point —
+  freezing it is still Epic A6's decision, ADR-0022 item 4), but REQ-003 now
+  adds an eighth validator check, (h): every `upgrade_reasons` token must
+  resolve against a versioned reason catalog (`contracts/lite-upgrade-
+  reason-catalog.json`, a new implementation-phase contract, additive/
+  versioned rather than a closed schema enum); an unrecognized token is a
+  fail-closed validation error, not a silent pass. See requirements.md
+  REQ-003(h)/AC-022, design.md's validator contract.
+- **OQ-002 — "trigger" vs. "conditions."** Status: **RESOLVED (orchestrator
+  ruling 2026-07-22)**. Decision v2 §13's field list names "trigger" and
+  "conditions" as two separate items, but ADR-0020 defines exactly one
+  condition concept (the Predicate DSL), used identically for `trigger` and
+  for `conditional_facets[].when`. The orchestrator's ruling confirms this
+  spec's original reading as the authoritative interpretation: "conditions"
+  in decision v2 §13 describes the DSL body itself, not a third schema field.
+  The schema holds the Predicate DSL in exactly two places —
+  `capabilities[].trigger` and `capabilities[].conditional_facets[].when` —
+  and introduces no top-level `conditions` field. This is recorded as the
+  confirmed interpretation of decision v2 §13 pending the source document's
+  own next revision, which is expected to state it explicitly; until then,
+  this ruling is authoritative for Epic A2's schema and is not re-litigated
+  at each subsequent review pass.
+- **OQ-003 — `delivery_strategy.kind` vocabulary.** Status: **RESOLVED, and
+  reversed from this spec's first draft (orchestrator ruling 2026-07-22,
+  correcting a Blocker finding)**. "delivery strategy kind" is mentioned
+  exactly once in decision v2 (`docs/ai-dlc-foundation-decision-v2.md:401`)
+  as a field that must exist; decision v2 elsewhere (§10, §16, §17 —
+  `:118-120`, `:399-402`, `:488-492`) explicitly reserves vocabulary-freezing
+  for a later ADR triggered by a real cloud-service delivery case, the same
+  pattern ADR-0017 already applies to the Artifact/Promotion Gate vocabulary.
+  This spec's first draft inferred a closed four/five-value enum from decision
+  v2 §17's Pack rollout order and described it inconsistently as a
+  "four-value enum" while listing five literals — both the closed-enum
+  inference and the internal miscount contradicted the source. Ruling:
+  `delivery_strategy.kind` is a reserved, **open, non-empty string** field
+  with no defined vocabulary in Foundation; its semantics are determined by a
+  real-case ADR after Epic A2 ships, not inferred here.
+- **OQ-004 — unregistered-script detection mechanism.** Status: **open,
+  materially expanded (orchestrator ruling 2026-07-22)**. "未登録 script なし"
+  (no unregistered script) needs a discovery convention to check both
+  directions (every `stage: implementation` Gate has exactly one implementing
+  script; every gate-shaped script is registered). No such enumeration
+  convention exists in decision v2 or any ADR; this remains this spec's own
+  design proposal, not a quoted requirement. The adversarial review correctly
+  identified that the first draft's bare `implementation_ref` + "configured
+  directories" left scan roots, recognized extensions, symlinks, and
+  sh/ps1-wrapper grouping (one Python master implementing one Gate via two or
+  three wrapper files, not two or three separate "unregistered" scripts)
+  undefined. design.md now specifies a **Gate implementation identity**
+  schema covering all of these (REQ-003(c)/AC-016/AC-017), still flagged as
+  this spec's own proposal, not found verbatim in decision v2 or an ADR.
 
 ## Summary of Evidence References
 
 - `docs/ai-dlc-foundation-decision-v2.md` §3 (Q2, Gate stages), §6 (Q5, lite
   matrix and `lite_policy`), §10 (Q9, effective enforcement), §11 (Q10,
-  Predicate DSL), §13 (Q12, Registry/Pack split, projection), §17 (Q16, Pack
-  rollout order), §18.3 (canonical hash), §19 (Epic A2 scope)
+  Predicate DSL), §13 (Q12, Registry/Pack split, projection), §16 (Q15,
+  per-Epic 3-environment Done condition), §17 (Q16, Pack rollout order),
+  §18.3 (canonical hash), §19 (Epic A2 scope)
 - ADR-0017 (Gate Stage Model), ADR-0018 (Provider Binding Separation),
   ADR-0020 (Conditional Predicate DSL), ADR-0021 (Context Projection
   Staleness), ADR-0022 (Lite Capability Upgrade)
 - `plugins/sdd-quality-loop/references/guard-invariants.json`,
   `plugins/sdd-quality-loop/scripts/generate-guard-invariants.py`,
   `plugins/sdd-quality-loop/scripts/generated/*`
+- `plugins/sdd-quality-loop/hooks/claude-hooks.json`,
+  `plugins/sdd-quality-loop/.claude-plugin/plugin.json`
 - `contracts/agent-model-capabilities.v2.json`,
   `contracts/workflow-state-registry.schema.json`
 - `specs/epic-136-phase2-gates/human-copy/` (MANIFEST.sha256,
@@ -299,3 +380,52 @@ T-005 procedure of staging `specs/<feature>/human-copy/.github/workflows/test.ym
   `plugins/sdd-quality-loop/scripts/check-workflow-state.sh`,
   `specs/workflow-state-registry.json`,
   `contracts/workflow-state-registry.schema.json`
+
+## Adversarial Spec Review Response (orchestrator ruling 2026-07-22)
+
+An 18-finding adversarial review (4 Blocker, 11 Major, 1 Minor, 2 OK) was
+conducted against this spec package. All 18 findings were accepted; the
+orchestrator's rulings are recorded at the point of each affected REQ/AC/
+design decision rather than duplicated here. This section is a pointer index
+only — it does not itself change `Spec-Review-Status`/`Impl-Review-Status`,
+both of which remain `Pending`:
+
+- Blocker 1 (`trigger`/`conditions`) → OQ-002 above (RESOLVED).
+- Blocker 2 (`delivery_strategy.kind` closed enum) → OQ-003 above (RESOLVED,
+  reversed); requirements.md AC-004; design.md API / Contract Plan.
+- Blocker 3 (JSON projection header contradiction) → requirements.md REQ-005/
+  AC-025; design.md API / Contract Plan (`_generated` object is now the only
+  header contract named anywhere in this package).
+- Blocker 4 (AC↔TEST 1:1 false) + Major "REQ-003 bidirectional completeness
+  gaps" → acceptance-tests.md was fully renumbered and cross-checked against
+  requirements.md's Acceptance Criteria; REQ-003(c)/(e) now have their own
+  AC-017/AC-018 and TEST-017/TEST-018.
+- Major "AC-003 unvalidatable schema-level dynamic reference" → folded into
+  AC-021 (validator-only referential integrity); no AC claims schema-level
+  dynamic cross-reference checking.
+- Major "`upgrade_reasons` typo-dependent" → OQ-001 above; REQ-003(h)/AC-022.
+- Major "`implementation_ref`+scan incomplete" → OQ-004 above; REQ-003(c)/
+  AC-016/AC-017.
+- Major "new `sdd-capability` plugin ignores 3-env packaging cost" → INV-015
+  above; design.md Architecture/Design Decisions (rejected-alternative
+  paragraph); all script paths moved under `plugins/sdd-quality-loop/`.
+- Major "Registry discovery for installed plugin" → INV-016 above; design.md
+  API / Contract Plan (Registry discovery contract); requirements.md AC-027.
+- Major "A1 schema/canonicalizer dependency undefined" → INV-004a above;
+  requirements.md Dependencies (REQ-004 blocked statement); AC-011.
+- Major "`registry_digest` fragment identity undefined" → requirements.md
+  AC-024; design.md `registry_digest` generator contract.
+- Major "dual-runtime/3-env parity claims outrun tests" → requirements.md
+  AC-031/AC-032/AC-033.
+- Major "evaluator Evidence/operator coverage ambiguous" → requirements.md
+  AC-012/AC-013.
+- Major "TEST-021 time-dependent" → acceptance-tests.md's Spec-Authoring-Time
+  Manual Review Record (moved out of the Planned implementation-phase table).
+- Minor "six files vs. four Phase-1 files" → requirements.md Roles and
+  Permissions (corrected to "four"); acceptance-tests.md AC-035/AC-036 split
+  (Phase 1 OQ audit vs. Phase 2 traceability audit).
+- OK "`contracts/`/JSON placement" → design.md Design Decisions (wording
+  clarified: repo-local judgment, not a source-document necessity).
+- OK "Gate stage/`minimum_enforcement` interpretation" → kept as-is;
+  requirements.md AC-005 adds the positive/negative schema test and the
+  reserved-stage inertness test the finding requested.
