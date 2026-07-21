@@ -348,6 +348,37 @@ drift (a canonicalizing YAML/JSON parse plus NFC normalization removes
 byte-level line-ending sensitivity regardless), so REQ-003 does not need to
 add new `.gitattributes` rules.
 
+## INV-015: `sdd-hook-guard.py`'s actual invocation contract (host-mediated
+`PreToolUse`, not a subprocess-observable event)
+
+**File**: `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py:1401-1524`
+
+`main()` reads a JSON payload from stdin (or the `PAYLOAD` env var,
+`sdd-hook-guard.py:1413-1423`) shaped `{"tool_name": ..., "tool_input":
+...}` — this payload describes a tool call the HOST RUNTIME's own
+`PreToolUse` hook dispatch is about to execute on behalf of the AGENT
+SESSION, not a description of anything a plain child process did. The
+guard's decision reaches the host via one of two documented output modes
+(`parse_args`, `sdd-hook-guard.py:34-36`): `--emit exit` (default; allow =
+exit 0, deny = a reason on stderr + exit 2 — the shape a shell-mediated
+`PreToolUse` hook script is expected to use) or `--emit copilot` (always
+prints `{"permissionDecision": ...}` JSON to stdout and exits 0 — a shape
+suited to a runtime that inspects structured output rather than an exit
+code). **Consequence for Epic A1's hook-activation handshake (REQ-010)**:
+a standalone script (`check-hook-activation-handshake.py`, run as an
+ordinary subprocess via `python3 <script>.py`) performing its OWN file
+write is never piped through this `PreToolUse` payload path at all — its
+write succeeds or fails purely on OS-level file permissions, which are
+unrelated to whether the host's hook is actually installed and wired to
+invoke `sdd-hook-guard.py` before a REAL agent-proposed tool call. The only
+way to observe genuine hook installation is for the AGENT SESSION ITSELF
+to propose a real tool call (`Edit`/`Write`/`Bash`/`apply_patch`) that the
+host's own dispatch intercepts and pipes to the guard — this is the fact
+REQ-010's redesigned host-side canary challenge/response protocol (design.md
+Design Decisions) is built on, and the reason a prior draft's
+subprocess-file-I/O probe design could not have proven what it claimed to
+prove.
+
 ## Open Questions
 
 - OQ-001 — Where should the "approver registry" (decision-doc §9: "approver
