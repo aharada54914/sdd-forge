@@ -356,6 +356,10 @@
     {
       "feature": "quality-loop-fixes",
       "profile": "full"
+    },
+    {
+      "feature": "epic-136-phase3",
+      "profile": "full"
     }
   ]
 }
