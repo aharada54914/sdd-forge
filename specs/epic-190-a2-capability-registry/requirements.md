@@ -608,7 +608,13 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   failure, never a silent no-op; the fragment's `capabilities` and `gates`
   sub-arrays are stable-sorted by ID before serialization so identical
   semantic ID sets always produce identical digests regardless of input
-  order or duplication. (REQ-004)
+  order or duplication. Invoking the script with none of
+  `--capability-ids`/`--gate-ids`/`--whole` supplied is itself a hard
+  failure with a named diagnostic — never a silent default to `--whole` or
+  to an empty fragment; supplying `--capability-ids` and `--gate-ids`
+  together (REQ-004's explicit "or both") selects the union of both ID
+  sets' entries, subject to the same dedupe and stable-sort rule as either
+  flag alone. (REQ-004)
 - AC-025: The projection generator design specifies the output header is
   carried exclusively as a top-level `_generated` object (`source`,
   `schema_version`, `sha256`, and a "This file is generated. Do not edit."

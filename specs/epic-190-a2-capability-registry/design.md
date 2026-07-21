@@ -677,10 +677,14 @@ data under `tests/fixtures/capability-registry/`:
    requesting the identical semantic ID set via `--capability-ids`/
    `--gate-ids` in a different order, or with input duplicates, produces an
    identical digest (stable-sort/dedupe, AC-024), (d) an unknown ID in
-   either flag is a hard failure, and (e) a JCS/NFC canonicalization vector
+   either flag is a hard failure, (e) a JCS/NFC canonicalization vector
    set (RFC 8785 key-ordering/number-formatting edge cases; Unicode NFC
    composed-vs-decomposed string equivalence) produces identical digests for
-   canonically-equivalent-but-differently-encoded input.
+   canonically-equivalent-but-differently-encoded input, (f) invoking with
+   none of `--capability-ids`/`--gate-ids`/`--whole` is a hard failure
+   (`fragment-selector-required`, AC-024) rather than a silent `--whole`
+   default, and (g) `--capability-ids`+`--gate-ids` supplied together
+   selects the union of both ID sets' entries (AC-024).
 4. `generate-gate-capabilities --check` — a clean pass against a valid
    fixture Registry + its correctly-generated projection, and a mutated-
    projection negative case (hand-edit the generated file, confirm `--check`
