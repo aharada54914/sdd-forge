@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v1.11.0 (2026-07-21)
 
 ### 追加
 

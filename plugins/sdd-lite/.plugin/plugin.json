@@ -1,7 +1,7 @@
 {
   "name": "sdd-lite",
   "description": "[internal] Lightweight medium-weight SDD track for internal/departmental apps. Use /sdd-ship:ship --lite for the standard workflow.",
-  "version": "1.10.0",
+  "version": "1.11.0",
   "author": {
     "name": "Harada"
   },
