@@ -226,9 +226,21 @@ direct agent edit.
 
 ## Layer Specifications
 
-Not applicable. Epic A2 has no UX, frontend, or infrastructure-provisioning
-layer; it is schema + deterministic script + generated-artifact work,
-covered in full by Components and API / Contract Plan below.
+| Layer | Summary | Canonical Detail | Owner | Status |
+|---|---|---|---|---|
+| UX | N/A — no change: no UI, no UX surface (Technical Summary) | [UX specification](ux-spec.md) | — | N/A |
+| Frontend | N/A — no change: no browser/client UI, no new runtime service; script/runtime inventory recorded for completeness | [Frontend specification](frontend-spec.md#technology-stack) | — | N/A |
+| Infrastructure | No new runtime deployment; CI drift checks (`--check` modes) plus release-gating vendored-copy check, 3-environment (Claude Code / Codex CLI / Copilot CLI) standalone-install discovery | [Infrastructure specification](infra-spec.md#deployment-topology) | Implementation task owner | Planned |
+| Security | Provider-neutrality (B1) / no-dynamic-evaluation (B2) / protected-file integrity (B3) / discovery fail-closed (B4) — STRIDE/OWASP detail expanded from Security Boundaries below | [Security specification](security-spec.md#trust-boundaries) | Implementation task owner | Planned |
+
+Detailed layer content lives in the dedicated files linked above, expanded
+from — and not contradicting — the summary boundaries and constraints this
+document already fixes (Security Boundaries, Deployment / CI Plan, Global
+Constraints). It remains true that Epic A2 has no UX, frontend, or
+infrastructure-*provisioning* layer of its own (schema + deterministic
+script + generated-artifact work, covered in full by Components and API /
+Contract Plan) — the linked files restate that same scope in the review
+harness's required per-layer file shape, they do not expand it.
 
 ## Design System Compliance
 
