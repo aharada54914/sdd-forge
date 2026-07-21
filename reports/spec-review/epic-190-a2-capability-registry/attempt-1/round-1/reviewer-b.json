@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-190-a2-capability-registry-spec-spec-reviewer-b-seq0321",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-190-a2-capability-registry-0321",
+  "allowed_input_manifest": [
+    {"path": "specs/epic-190-a2-capability-registry/requirements.md", "sha256": "4862e4d930af03159ff9e6eb550b0d37c60be2d5514bac8654b03382b731a0a0"},
+    {"path": "specs/epic-190-a2-capability-registry/acceptance-tests.md", "sha256": "0f2f2e8891d26e066d64fcf28e2a523f3acbe95401550d22d651e8c60e78a964"},
+    {"path": "specs/epic-190-a2-capability-registry/investigation.md", "sha256": "b6abc8e67d65af9922b8ba3abb10fb43340720d5c0ce27d0f675e7252fb5cc1d"},
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-1/precheck-result.json", "sha256": "0c500a89b1dbf2844c96f63b2adbf1566d473505ce48200a37f6a31532967228"},
+    {"path": "reports/spec-review/epic-190-a2-capability-registry/attempt-1/round-1/integrated-summary.json", "sha256": "4da6396e66a7a942bd566cd938a762496e42d30aba49797b365dd730acbe54c9"}
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-001's Goals paragraph enumerates the capabilities[] shape as id, trigger, required_facets, conditional_facets, review_check_ids, gate_ids, lite_policy, minimum_enforcement, delivery_strategy, and Field Definitions defines trigger, conditional_facets[].when, gate_ids, implementation_ref, registry_digest, lite_policy, delivery_strategy.kind, Registry fragment, and the discovery contract -- but no reviewed artifact (requirements.md, acceptance-tests.md, investigation.md) ever states the concrete JSON shape of required_facets[] entries (facet-ID strings vs. facet objects) or the facet-identifying key each conditional_facets[] entry carries alongside when. A schema author authoring contracts/capability-registry.schema.json (REQ-001, the feature's foundational requirement) cannot determine this from the package alone; two implementers could produce structurally incompatible shapes, breaking Epic A5's downstream consumption. This is a data-shape gap in the central schema requirement, not implementation architecture or task ordering the false-positive guard exempts, so it belongs to this gate. Major: causes downstream shape mismatch rather than an unreviewable contradiction."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "requirements.md's REQ-001 states twice, unambiguously, that minimum_enforcement is a capabilities[]-array field ('a capabilities array (id, trigger, required_facets, conditional_facets, review_check_ids, gate_ids, lite_policy, minimum_enforcement, delivery_strategy)... only lite_policy and minimum_enforcement are genuinely optional' on capabilities[] entries), while the top-level gates array is scoped to exactly id, stage, blocking, implementation_ref with no minimum_enforcement slot. Yet requirements.md's own AC-005 (repeated verbatim in acceptance-tests.md's TEST-005 row) tests 'a stage: artifact/promotion gates[] entry with no implementation_ref and no minimum_enforcement passes schema validation ... (reserved-stage inertness)' -- attributing minimum_enforcement's presence/absence to a gates[] entry, which REQ-001's own declared gates[] shape has no room for. This is a same-document, self-contradicting field-to-array assignment for a field explicitly called out as one of the two 'genuinely optional' capabilities[] properties. A schema author cannot satisfy both passages: either gates[] items need an undeclared minimum_enforcement property (contradicting REQ-001's stated 4-field gates[] shape), or AC-005/TEST-005 is testing the wrong array and its reserved-stage-inertness fixture is meaningless as written. Direct spec-vs-AC conflict over a required field's structural placement belongs to this gate; Critical because it makes REQ-001's own schema shape internally contradictory and unreviewable as written."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md shows thorough negative/boundary coverage tied to specific requirements: TEST-007 (missing-path/null/type-mismatch fail-closed for equals/not_equals/contains/in), TEST-008 (exists path-absent WARN, no type-inspection), TEST-009 (all/any empty-list boundary values, no-short-circuit), TEST-012 (not zero/2+-child arity error), TEST-014..019 (Gate-ID duplication, missing/nonexistent implementation_ref, non-.py wrapper reference, symlink resolution, duplicate wrapper-group collision, defense-in-depth stage-missing bypass fixture, Pack-owned-gate forward guard), TEST-020 (provider-term detection plus a clean false-positive-guard fixture), TEST-021 (dangling gate reference), TEST-022 (unknown upgrade-reason token), TEST-024 (duplicate/reordered fragment IDs, unknown-ID hard failure), TEST-026 (drift-detection negative canary, no-write assertion), TEST-027 (per-artifact wrong-schema-value fixtures, neither-location-resolves fail-closed, vendored-copy sha256-drift failure). Every REQ-002..REQ-005 failure mode named in requirements.md has a corresponding negative fixture, giving sufficient evidence to PASS."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md's Open Questions section records OQ-001 (upgrade_reasons vocabulary -- partially resolved, vocabulary intentionally left open but a fail-closed catalog check added, REQ-003(h)/AC-022), OQ-002 (trigger vs. conditions -- resolved by orchestrator ruling), OQ-003 (delivery_strategy.kind vocabulary -- resolved, reversed from an earlier closed-enum draft), and OQ-004 (unregistered-script detection mechanism -- open but narrowed to a concrete, fully specified Gate-implementation-identity design proposal, REQ-003(c)/AC-016/AC-017, explicitly flagged as this spec's own proposal). AC-035 requires an audit confirming OQ-001/OQ-004 are cross-referenced from the relevant REQ/AC rows. REQ-004's Epic A1 canonicalizer dependency is explicitly recorded as a blocking assumption rather than silently assumed, and REQ-002's field allowlist carries an explicit drift-check obligation (INV-004a). Every assumption surfaced is either resolved with a recorded ruling or explicitly left open with a named decision-owner and safety mechanism, so this check passes."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "requirements.md's Roles and Permissions section names an explicit, testable approval boundary: the spec author 'does not write \"Approved\" in any Status/approval field... Spec-Review-Status stays Pending, for a human to change,' and the Human maintainer 'reviews and approves this spec... resolves OQ-001 and OQ-004 either by direct instruction or by a follow-up ADR.' A second, distinct protected/irreversible-change boundary -- human-copy protected-file registration for guard-invariants.json and .github/workflows/test.yml -- is made concretely testable by AC-029/AC-030 and TEST-029/TEST-030: a staged candidate under specs/.../human-copy/ with a MANIFEST.sha256 entry, byte-identical live protected files until a human applies the staged candidate, and post-cp verification of the regenerated guard_invariants.py. Non-goals additionally cites check-workflow-state.sh's hard enforcement that tasks.md requires both Spec- and Impl-Review-Status Passed. This boundary is present and testable, so this check passes."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The gaps found under AMBIGUITY and CONTRADICTION mean a design/impl reviewer receiving this package cannot avoid inventing product behavior: (1) required_facets[]/conditional_facets[] entry shape beyond the documented .when key is never defined anywhere in the reviewed artifacts, so the design reviewer must invent the facet-reference data shape; (2) REQ-001 places minimum_enforcement on capabilities[] while AC-005/TEST-005 test it as if present on gates[] entries, so the design reviewer must unilaterally resolve this spec's own self-contradiction rather than implement a settled decision. Both are foundational REQ-001 schema-shape decisions (not implementation architecture or task ordering the false-positive guard exempts), so handing this package to implementation-policy review as-is requires inventing missing product behavior."
+    }
+  ]
+}
