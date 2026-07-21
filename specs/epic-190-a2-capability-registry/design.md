@@ -447,7 +447,7 @@ shape, not just the boolean `result`).
 `validate-capability-registry.py --registry <path>` → exit 0 (all checks
 pass) or non-zero with one diagnostic line per failed check, in the style of
 `check-sdd-structure.sh`'s `missing: <item>` lines (`registry: <check-id>:
-<detail>`). Each of the eight checks (a-h in requirements.md REQ-003) is an
+<detail>`). Each of the nine checks (a-i in requirements.md REQ-003) is an
 independently identifiable, independently testable failure mode:
 
 | Check | Diagnostic ID | Scope |
@@ -460,6 +460,7 @@ independently identifiable, independently testable failure mode:
 | (f) referential integrity | `dangling-gate-reference` | `capabilities[].gate_ids` |
 | (g) Provider-name contamination | `provider-name-detected` | every string-valued field |
 | (h) lite-upgrade-reason-catalog conformance | `unknown-upgrade-reason` | `lite_policy.upgrade_reasons` |
+| (i) Capability ID uniqueness | `capability-id-duplicate` | top-level `capabilities[]`, independent of (a) |
 
 **Gate implementation identity** (check (c), OQ-004, this spec's own
 proposal, **fully closed per orchestrator ruling 2026-07-22 — P8**): a
@@ -650,14 +651,18 @@ data under `tests/fixtures/capability-registry/`:
    shape); Evidence-JSON-Schema conformance for every fixture's `evidence`
    output; a nested `all`-of-`any`-of-comparisons fixture asserting
    depth-first, left-to-right, stable Evidence ordering.
-2. `validate-capability-registry` — one fixture per REQ-003 check (a-h),
+2. `validate-capability-registry` — one fixture per REQ-003 check (a-i),
    each a minimal Registry mutation isolating exactly one failure mode
    (including a bidirectional Gate-implementation-identity fixture set for
    check (c): an sh+ps1 wrapper pair counted as one registered
    implementation, an out-of-scan-root script not flagged, an in-scan-root
-   script with no `implementation_ref` flagged; and a validator-direct,
-   schema-bypassing fixture for check (e)'s defense-in-depth re-assertion),
-   plus one fully-clean fixture proving a negative (all checks pass on
+   script with no `implementation_ref` flagged; a validator-direct,
+   schema-bypassing fixture for check (e)'s defense-in-depth re-assertion;
+   and, for check (i), a two-`capabilities[]`-entries-share-one-`id` fixture
+   plus a combined fixture carrying one `gates[].id` duplicate and one
+   `capabilities[].id` duplicate simultaneously, asserting both diagnostics
+   surface and neither masks the other), plus one fully-clean fixture
+   proving a negative (all checks pass on
    valid input) so the suite cannot pass vacuously. This suite's setup also
    runs a one-off repository-structure assertion (AC-028) confirming
    `plugins/sdd-capability/` does not exist and every script/reference file
@@ -688,7 +693,9 @@ data under `tests/fixtures/capability-registry/`:
    a `capabilities[]` entry with no `delivery_strategy` key at all, a
    `delivery_strategy` object present but with no `kind` key, a non-boolean
    `lite_policy.eligible`, an extra `conditions` key on a `capabilities[]`
-   entry); a `minimum_enforcement` positive fixture
+   entry, a non-string or empty-string element in `review_check_ids`); a
+   `review_check_ids: []` fixture passes; a `minimum_enforcement` positive
+   fixture
    (`"required"` accepted), negative fixture (any other value rejected), and
    optionality fixture (a `capabilities[]` entry with no `minimum_enforcement`
    key at all also passes); a reserved-stage inertness fixture (`stage:

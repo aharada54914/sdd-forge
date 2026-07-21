@@ -238,7 +238,7 @@ that check for a `profile: full` entry (Non-goals, below).
   output. Nested logical (`all`/`any`/`not`) trees record their children's
   Evidence in a fixed depth-first, left-to-right, stable order.
 - REQ-003 (Registry validation): Design a validation script/check-suite (same
-  Python-master + sh/ps1-wrapper convention) enforcing eight independently
+  Python-master + sh/ps1-wrapper convention) enforcing nine independently
   identifiable, independently testable checks:
   - (a) **Gate ID uniqueness** across the top-level `gates` array;
   - (b) **stage-completeness** — every `gates[]` entry with `stage:
@@ -293,7 +293,11 @@ that check for a `profile: full` entry (Non-goals, below).
     (`contracts/lite-upgrade-reason-catalog.json`, a new implementation-phase
     contract); an unrecognized token fails validation (fail-closed), while
     the catalog's own vocabulary remains additive/versioned, not frozen into
-    a closed schema enum (OQ-001, adversarial review 2026-07-22).
+    a closed schema enum (OQ-001, adversarial review 2026-07-22);
+  - (i) **Capability ID uniqueness** across the top-level `capabilities`
+    array, analogous to (a)'s `gates[].id` check — the two arrays are
+    checked independently, and a duplicate in one never masks or is masked
+    by a duplicate in the other.
 - REQ-004 (`registry_digest` generation): Design a script that computes a
   sha256 digest over a canonical-JSON serialization (RFC 8785/JCS, NFC
   string normalization — decision v2 §18.3) of either the whole Registry or
@@ -691,6 +695,12 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   or carrying an extra key beyond `{facet, when}` is rejected by
   `additionalProperties: false`; a fixture with both arrays empty (`[]`)
   passes schema validation. (REQ-001)
+- AC-038: `review_check_ids` has a schema-tested shape: an array containing
+  a non-string or empty-string element is rejected; an empty array (`[]`)
+  passes schema validation. (REQ-001)
+- AC-039: Two `capabilities[]` entries sharing one `id` fails validation
+  with a `capability-id-duplicate` diagnostic, checked independently of (and
+  never masked by) AC-014's `gates[].id` uniqueness check. (REQ-003(i))
 
 ## Field Definitions
 
@@ -709,6 +719,11 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
 - `conditional_facets[].when` (REQ-002; ADR-0020) — a Predicate DSL
   expression, evaluated per affected component, deciding whether a specific
   Facet is included once its owning Capability has already been triggered.
+- `review_check_ids` (REQ-001) — an array of non-empty strings (`uniqueItems:
+  true`; may be `[]`), each naming a review-time check this Capability
+  contributes (consumed by implementation-policy/task review, not this
+  Registry itself); shape mirrors `gate_ids`. AC-038 makes this shape
+  schema-testable.
 - `gate_ids` (REQ-001; ADR-0017, INV-003) — a Capability's reference list
   into the Registry's single, top-level `gates[]` array; Capabilities never
   embed their own Gate definitions (that duplication is exactly what
