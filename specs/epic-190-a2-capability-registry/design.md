@@ -56,13 +56,18 @@ contracts/lite-upgrade-reason-catalog.json  (versioned catalog, "schema": "lite-
               (REQ-005) ──► read by sdd-quality-loop's own Implementation Gate
 
 Registry discovery contract (REQ-005), shared by every script above except
-the projection generator itself:
-  1. packaged, plugin-relative copy: ${PLUGIN_ROOT}/contracts/capability-registry.json
-     (${CLAUDE_PLUGIN_ROOT} today; Codex CLI/Copilot CLI analogs, INV-016)
-  2. monorepo-relative fallback: <repo-root>/contracts/capability-registry.json
-     (repo-root found by walking up to an `AGENTS.md` marker)
-  3. neither resolves, or `schema` field unsupported → fail closed with a
-     diagnostic naming every attempted path
+the projection generator itself — script-relative, not runtime-variable-
+relative (P10):
+  1. packaged copy at a fixed offset from the invoking script's own
+     symlink-resolved real path: <script-real-dir>/../contracts/capability-registry.json
+  2. git-root fallback: `git rev-parse --show-toplevel` (or a `.git` walk)
+     + /contracts/capability-registry.json
+  3. neither resolves, or the artifact's own per-artifact version check
+     (API / Contract Plan) fails → fail closed with a diagnostic naming
+     every attempted path
+  4. release gate: a `--check` mode compares each canonical `contracts/*`
+     file's sha256 against its vendored `plugins/sdd-quality-loop/contracts/*`
+     counterpart, failing CI on any stale copy
 ```
 
 No new plugin is introduced. `plugins/sdd-quality-loop/` already carries a
@@ -86,7 +91,7 @@ alternative this spec's first draft proposed, and why it is rejected.
         "id": "check-update-migration",
         "stage": "implementation",
         "blocking": true,
-        "implementation_ref": "plugins/sdd-quality-loop/scripts/check-update-migration.sh"
+        "implementation_ref": "plugins/sdd-quality-loop/scripts/check-update-migration.py"
       }
     ],
     "capabilities": [
@@ -306,14 +311,27 @@ Top-level required properties: `schema` (`const: "capability-registry/v1"`),
   fixture (`minimum_enforcement` set to any value other than `"required"` is
   rejected) both exist in Test Strategy item 5.
 
-`capabilities[]` item (`additionalProperties: false`):
+`capabilities[]` item (`additionalProperties: false`, **`required`:
+`["id", "trigger", "required_facets", "conditional_facets",
+"review_check_ids", "gate_ids", "delivery_strategy"]`** — closing the
+2026-07-22 verification pass's NEW Major finding, which correctly noted
+this spec's prior draft never stated an explicit `required` list, leaving
+`delivery_strategy` schema-valid-when-absent even though decision v2 §13
+lists delivery-strategy classification among the fixed set of things every
+Capability entry in the sole machine-readable source of truth must carry.
+`lite_policy` and `minimum_enforcement` are the only two genuinely optional
+fields — decision v2 itself makes both conditional (lite-track applicability
+and an above-default enforcement floor, respectively), so their absence is
+meaningful, not an omission):
 - `id` (string, same pattern as `gates[].id`)
 - `trigger` (`$ref: "#/definitions/predicate"`)
-- `required_facets` (array of strings, `uniqueItems: true`)
+- `required_facets` (array of strings, `uniqueItems: true`; may be `[]`)
 - `conditional_facets` (array of `{facet: string, when: predicate}`,
-  `additionalProperties: false`)
-- `review_check_ids` (array of strings, `uniqueItems: true`)
-- `gate_ids` (array of strings, `uniqueItems: true`; referential integrity
+  `additionalProperties: false`; may be `[]`)
+- `review_check_ids` (array of strings, `uniqueItems: true`; may be `[]`)
+- `gate_ids` (array of strings, `uniqueItems: true`; may be `[]` — a
+  Capability with no Gates is still schema-valid, only `delivery_strategy`
+  is the field this ruling closes as required. Referential integrity
   against `gates[].id` is a validator-level check only, REQ-003(f) — JSON
   Schema draft-07 cannot express "must equal one of this sibling array's
   runtime values", so the schema's own constraint on `gate_ids` stops at
@@ -326,11 +344,16 @@ Top-level required properties: `schema` (`const: "capability-registry/v1"`),
   check, not a schema-level enum — the schema only constrains shape)
 - `minimum_enforcement` (optional; `const: "required"` — no other value is
   defined by decision v2 §10, so the schema does not invent one)
-- `delivery_strategy` (optional; `{kind: string, minLength: 1}`,
-  `additionalProperties: false` — **no enum**. Decision v2 requires only that
-  the field exist (`docs/ai-dlc-foundation-decision-v2.md:401`); it reserves
-  vocabulary-freezing for a later, real-case ADR (`:118-120`, `:399-402`,
-  `:488-492`), the same pattern ADR-0017 already applies to the
+- `delivery_strategy` (**required**, `required: ["kind"]`,
+  `{kind: string, minLength: 1}`, `additionalProperties: false` — **no
+  enum**. Both `delivery_strategy` itself and its `kind` property are
+  required — a Capability entry missing either fails schema validation;
+  Test Strategy item 5 adds a missing-`delivery_strategy` fixture and a
+  missing-`kind` fixture, both rejected, alongside the existing
+  present-but-empty/non-string `kind` rejection. Decision v2 requires only
+  that the field exist (`docs/ai-dlc-foundation-decision-v2.md:401`); it
+  reserves vocabulary-freezing for a later, real-case ADR (`:118-120`,
+  `:399-402`, `:488-492`), the same pattern ADR-0017 already applies to the
   Artifact/Promotion Gate vocabulary. This spec's first draft inferred a
   closed enum from decision v2 §17's Pack rollout order and is corrected by
   orchestrator ruling 2026-07-22 — see Design Decisions.)
@@ -437,20 +460,49 @@ independently identifiable, independently testable failure mode:
 | (h) lite-upgrade-reason-catalog conformance | `unknown-upgrade-reason` | `lite_policy.upgrade_reasons` |
 
 **Gate implementation identity** (check (c), OQ-004, this spec's own
-proposal): a configuration names (i) a fixed set of scan roots (repository-
-relative directories to search, e.g. `plugins/*/scripts/`), (ii) a fixed set
-of recognized wrapper extensions (`.py` as the master, `.sh`/`.ps1`/`.js` as
-wrappers), and (iii) a naming convention (same basename across extensions,
-e.g. `check-update-migration.py`/`.sh`/`.ps1` is one identity). Discovery
-rules: a symlink under a scan root resolves to its target path before
-grouping; every basename-matched set of files across the recognized
-extensions is exactly one implementation identity, regardless of how many
-extensions are present; a script under a scan root with no
-`gates[].implementation_ref` naming its identity is `unregistered-script`;
-a script outside every configured scan root (e.g. a future external
-Capability Pack's own script directory, living outside this repository's
-`plugins/` tree) is never flagged, structurally exempt rather than merely
-untested (Test Strategy item 2's bidirectional fixture set).
+proposal, **fully closed per orchestrator ruling 2026-07-22 — P8**): a
+configuration fixes, concretely, not by example, all four of the following:
+1. **Canonical reference.** `gates[].implementation_ref` names exactly one
+   file: the Python master script (`.py`), and only the `.py` path — never
+   an `.sh`/`.ps1`/`.js` wrapper. The illustrative fixture in Components,
+   above, is corrected to `"implementation_ref":
+   "plugins/sdd-quality-loop/scripts/check-update-migration.py"` (was,
+   incorrectly, its `.sh` wrapper in this spec's prior draft).
+2. **Scan roots.** Exactly one concrete, enumerated value —
+   `["plugins/sdd-quality-loop/scripts/"]` — not an illustrative pattern
+   like `plugins/*/scripts/`. Extending this list to a second literal
+   directory (e.g. if a future plugin also ships Gate scripts) is itself a
+   Registry-validator config change, reviewed like any other validator
+   behavior change, not an implicit wildcard match.
+3. **Gate-shaped script selection rule.** Within a scan root, a script is
+   "gate-shaped" (subject to the unregistered-script check at all) if and
+   only if its basename starts with the `check-` prefix — the existing
+   repository convention already followed by `check-contract.py`,
+   `check-placeholders.py`, `check-task-state.py`,
+   `check-workflow-state.py`, and every other script under
+   `plugins/sdd-quality-loop/scripts/` that implements a Gate-style check.
+   A script under the scan root whose basename does **not** start with
+   `check-` (e.g. `emit-run-record.py`, `kill-switch.js`) is out of scope
+   for this identity check entirely — never scanned, never flagged
+   `unregistered-script`, regardless of whether any `gates[]` entry
+   references it.
+4. **Wrapper grouping.** For a `check-<name>.py` master, its wrapper group
+   is every sibling file in the **same directory** sharing the identical
+   basename `check-<name>` across the recognized wrapper extensions
+   (`.sh`, `.ps1`, `.js`); a `.sh`/`.ps1`/`.js` file in that group is never
+   itself independently gate-shaped or independently unregistered — it is
+   part of the one implementation identity its `.py` master defines. A
+   symlinked script (master or wrapper) resolves to its target path before
+   grouping or comparison.
+
+Discovery rules built on the above: every `check-`-prefixed `.py` file under
+`plugins/sdd-quality-loop/scripts/` is exactly one implementation identity;
+a `check-`-prefixed `.py` master with no `gates[].implementation_ref`
+naming its own path is `unregistered-script`; a script outside
+`plugins/sdd-quality-loop/scripts/` (e.g. a future external Capability
+Pack's own script directory) is never flagged, structurally exempt because
+it is outside the one configured scan root, not merely untested (Test
+Strategy item 2's bidirectional fixture set).
 
 **lite-upgrade-reason-catalog conformance** (check (h)): every string in
 every `capabilities[].lite_policy.upgrade_reasons` array must appear in
@@ -518,32 +570,65 @@ directory), since it is that vendored copy's own producer.
 
 ### Registry discovery contract (REQ-005)
 
-Every script above except the projection generator (which always reads the
-canonical source, per the previous section) resolves the Registry via a
-shared discovery routine before use:
-1. If a plugin-root environment variable is set for the running host
-   (`${CLAUDE_PLUGIN_ROOT}` today, confirmed precedent —
-   `plugins/sdd-quality-loop/hooks/claude-hooks.json:11`, INV-016; the
-   Codex CLI and Copilot CLI analogs referenced by `hooks/hooks.json` and
-   `hooks/copilot-hooks.json` respectively) **and**
-   `${PLUGIN_ROOT}/contracts/capability-registry.json` exists, use it (the
-   standalone-installed case — the packaged, vendored copy, Components).
-2. Otherwise, walk upward from the running script's own file location until
-   a repository-root marker (`AGENTS.md`) is found, and use
-   `<repo-root>/contracts/capability-registry.json` (the in-repo
-   development case).
-3. If neither location resolves, or the discovered file's top-level
-   `schema` field is not in a small, script-hardcoded
-   `SUPPORTED_SCHEMA_VERSIONS` set (initially `{"capability-registry/v1"}`),
-   fail closed: non-zero exit, a diagnostic naming both attempted paths and
-   the version check's result — never silently proceed with a stale or
-   absent Registry.
-`contracts/capability-registry.schema.json` and
-`contracts/lite-upgrade-reason-catalog.json` are resolved by the same
-routine, substituting the respective filename. Three fixtures (Test
-Strategy item 8) simulate a standalone install per runtime (only the
-packaged copy present, no monorepo `contracts/`, no `AGENTS.md` marker) to
-prove step 1 alone is sufficient.
+**Fully closed per orchestrator ruling 2026-07-22 — P10.** The prior draft's
+dependence on a runtime-specific plugin-root environment variable
+(`${CLAUDE_PLUGIN_ROOT}` and undefined "Codex/Copilot analogs") is dropped.
+Discovery is **script-relative**, not runtime-variable-relative, so it works
+identically regardless of which host process invoked the script:
+
+1. **Script-relative packaged copy.** Resolve the currently-executing
+   script's own file path to its real, symlink-resolved location (the
+   equivalent of `os.path.realpath(__file__)`/`readlink -f "$0"` — a script
+   invoked through a symlinked entry point, e.g. from an installed plugin's
+   own layout, still resolves to its true on-disk directory). From that real
+   directory, look for the packaged copy at the fixed, script-relative
+   offset `../contracts/<filename>` (i.e., for a script at
+   `.../plugins/sdd-quality-loop/scripts/<name>.py`, the packaged copy is
+   `.../plugins/sdd-quality-loop/contracts/<filename>`, Components). If it
+   exists, use it — no environment variable of any kind is consulted.
+2. **git-root fallback.** Otherwise, resolve the repository root via
+   `git rev-parse --show-toplevel` (falling back to walking upward from the
+   script's real directory to the nearest `.git` file/directory if the `git`
+   command itself is unavailable), and use
+   `<git-root>/contracts/<filename>` (the in-repo development case).
+3. **Fail closed.** If neither location resolves, or the version check
+   (below) fails, exit non-zero with a diagnostic naming both attempted
+   paths and the version-check result — never silently proceed with a
+   stale or absent artifact.
+
+**Version check — a per-artifact key, not one shared rule** (closing the
+prior draft's contradiction, which defined only a `capability-registry/v1`
+`schema` check and then claimed it also covered the JSON Schema file and the
+reason catalog):
+
+| Artifact | Version check |
+|---|---|
+| `capability-registry.json` | top-level `schema == "capability-registry/v1"` |
+| `capability-registry.schema.json` | top-level `$schema` keyword is present (confirms it is a JSON Schema document, not a data instance) **and** `$id` equals this schema's own declared `$id` (API / Contract Plan, matching `workflow-state-registry.schema.json`'s `$id` convention) |
+| `lite-upgrade-reason-catalog.json` | top-level `schema == "lite-upgrade-reason-catalog/v1"` |
+
+Each check is independent and specific to its artifact's own shape; no
+script applies the `capability-registry.json` rule to the schema file or the
+catalog, or vice versa.
+
+**Vendored-copy drift check (release gate / CI contract).** The
+vendoring/packaging step (Deployment / CI Plan) that refreshes
+`plugins/sdd-quality-loop/contracts/*` from the canonical `contracts/*`
+originals must itself support a `--check` mode, mirroring
+`generate-gate-capabilities.py --check`'s own no-write, non-zero-exit-on-
+mismatch contract: for each of the three artifacts, compute the sha256 of
+the canonical `contracts/<filename>` and compare it to the sha256 of
+`plugins/sdd-quality-loop/contracts/<filename>`; any mismatch is a
+non-zero-exit failure naming the stale file. This check runs in CI (wired
+alongside `generate-gate-capabilities.py --check`, Deployment / CI Plan)
+and gates any release/version bump — `scripts/bump-version.sh` must not
+proceed while a vendored copy is stale relative to its canonical source,
+closing the staleness gap this spec's prior draft left unaddressed (Risks).
+
+Three fixtures (Test Strategy item 8) simulate a standalone install per
+runtime (only the packaged copy present at the script-relative path, no
+monorepo `contracts/`, no `.git` marker reachable) to prove step 1 alone is
+sufficient, independent of which host process invoked the script.
 
 ## Test Strategy
 
@@ -598,8 +683,10 @@ data under `tests/fixtures/capability-registry/`:
    both a minimal-valid and a maximal-valid fixture instance, and rejects one
    fixture per structurally-invalid case (missing `implementation_ref` on a
    `stage: implementation` Gate, a non-string/empty `delivery_strategy.kind`,
-   a non-boolean `lite_policy.eligible`, an extra `conditions` key on a
-   `capabilities[]` entry); a `minimum_enforcement` positive fixture
+   a `capabilities[]` entry with no `delivery_strategy` key at all, a
+   `delivery_strategy` object present but with no `kind` key, a non-boolean
+   `lite_policy.eligible`, an extra `conditions` key on a `capabilities[]`
+   entry); a `minimum_enforcement` positive fixture
    (`"required"` accepted) and negative fixture (any other value rejected);
    a reserved-stage inertness fixture (`stage: artifact`/`promotion`, no
    `implementation_ref`, no `minimum_enforcement`, passes and is exempt from
@@ -620,13 +707,17 @@ data under `tests/fixtures/capability-registry/`:
    installed-plugin context against the same fixture input, asserting
    identical exit codes and stdout across all three runtimes.
 8. Registry discovery — three fixtures (one per runtime) simulate a
-   standalone install (only the packaged, plugin-relative
-   `contracts/capability-registry.json`/`.schema.json` present, no monorepo
-   `contracts/`, no `AGENTS.md` marker) and prove discovery succeeds via the
-   packaged copy alone; a version-mismatch fixture (packaged copy present
-   but `schema` field outside `SUPPORTED_SCHEMA_VERSIONS`) and a
-   neither-location-resolves fixture both prove the fail-closed diagnostic
-   fires and names both attempted paths.
+   standalone install (only the packaged copy at the script-relative offset
+   `contracts/capability-registry.json`/`.schema.json`/
+   `lite-upgrade-reason-catalog.json` present, no monorepo `contracts/`, no
+   reachable `.git`, and no runtime environment variable set) and prove
+   discovery succeeds via the packaged copy alone, independent of which
+   host process invoked the script; three per-artifact version-mismatch
+   fixtures (one per artifact's own version-check rule, API / Contract
+   Plan) and a neither-location-resolves fixture prove the fail-closed
+   diagnostic fires and names both attempted paths; a further fixture
+   proves the release-gating `--check` mode fails when a vendored copy's
+   sha256 diverges from its canonical `contracts/*` source.
 
 All eight pairs are registered directly in `tests/run-all.sh`/`.ps1`
 (unprotected) and staged via human-copy for `.github/workflows/test.yml`
@@ -668,18 +759,30 @@ All eight pairs are registered directly in `tests/run-all.sh`/`.ps1`
   confirmed interpretation pending decision v2's own next revision, which is
   expected to make it explicit (investigation.md OQ-002).
 - **`delivery_strategy.kind` is a reserved, open, non-empty string, not a
-  closed enum (OQ-003, RESOLVED and REVERSED 2026-07-22).** This spec's
-  first draft inferred a closed enum (`developer-tooling`, `cli-library`,
-  `desktop`, `cloud-service`, `durable-workflow`) from decision v2 §17's Pack
-  rollout order, and inconsistently described it as a "four-value enum"
-  while listing five literals. The adversarial review correctly identified
-  both the internal miscount and, more fundamentally, that decision v2
-  requires only the field's *existence*, explicitly deferring vocabulary-
-  freezing to a real cloud-service delivery case and its own later ADR
+  closed enum (OQ-003, RESOLVED and REVERSED 2026-07-22) — and, since the
+  same day's verification pass, `delivery_strategy`/`kind` are both
+  required, not merely typed-when-present.** This spec's first draft
+  inferred a closed enum (`developer-tooling`, `cli-library`, `desktop`,
+  `cloud-service`, `durable-workflow`) from decision v2 §17's Pack rollout
+  order, and inconsistently described it as a "four-value enum" while
+  listing five literals. The adversarial review correctly identified both
+  the internal miscount and, more fundamentally, that decision v2 requires
+  only the field's *existence*, explicitly deferring vocabulary-freezing to
+  a real cloud-service delivery case and its own later ADR
   (`docs/ai-dlc-foundation-decision-v2.md:118-120,399-402,488-492`) — the
   same pattern ADR-0017 already applies to the Artifact/Promotion Gate
-  vocabulary. The schema now types `delivery_strategy.kind` as any
-  non-empty string; no enum is defined in Foundation.
+  vocabulary. The schema types `delivery_strategy.kind` as any non-empty
+  string; no enum is defined in Foundation. The 2026-07-22 verification pass
+  then identified a second, distinct gap in this same area (a **NEW Major
+  finding**, not a re-opening of OQ-003): this spec's schema left
+  `delivery_strategy` itself `optional`, so a Capability entry could be
+  schema-valid while carrying no delivery classification at all —
+  undermining decision v2 §13's "sole machine-readable source of truth"
+  premise regardless of what vocabulary `kind` allows. `capabilities[]`'s
+  own `required` list (API / Contract Plan) now names `delivery_strategy`
+  explicitly, and `delivery_strategy`'s own object schema requires `kind`;
+  the field's *vocabulary* remains open (OQ-003's resolution stands), only
+  its *presence* is now mandatory.
 - **`upgrade_reasons` remains an open string array; a versioned catalog now
   enforces fail-closed validation (OQ-001, partially resolved 2026-07-22).**
   ADR-0022's YAML example and its own prose disagree on the count and
@@ -712,26 +815,44 @@ All eight pairs are registered directly in `tests/run-all.sh`/`.ps1`
   which already carries a working 3-environment manifest, so no new
   packaging surface is introduced.
 - **`implementation_ref` and the Gate implementation identity mechanism are
-  this spec's own proposal (OQ-004, materially expanded 2026-07-22).**
-  Neither decision v2 nor any ADR specifies a mechanism for "no unregistered
-  script"; this spec's first draft proposed a bare field-plus-scanned-
-  directories mechanism that left scan roots, recognized extensions,
-  symlinks, and sh/ps1(/js)-wrapper grouping undefined — the adversarial
-  review correctly identified that this left the check's own completeness
-  untestable (would two wrapper files for one Python master count as one
-  implementation or two unregistered scripts?). API / Contract Plan's Gate
-  implementation identity schema now fixes all four dimensions, still
-  flagged as this spec's own proposal, not found verbatim in decision v2 or
-  an ADR.
-- **Registry discovery is a package-relative contract with a monorepo
-  fallback, not a repository-root-relative assumption.** The adversarial
+  this spec's own proposal (OQ-004, materially expanded 2026-07-22, and
+  fully closed 2026-07-22 — orchestrator ruling P8).** Neither decision v2
+  nor any ADR specifies a mechanism for "no unregistered script"; this
+  spec's first draft proposed a bare field-plus-scanned-directories
+  mechanism that left scan roots, recognized extensions, symlinks,
+  sh/ps1(/js)-wrapper grouping, the gate-shaped-script selection rule, and
+  `implementation_ref`'s own canonical extension undefined or
+  self-contradictory (the first-draft's illustrative fixture pointed
+  `implementation_ref` at a `.sh` wrapper while Field Definitions named the
+  Python master — the two disagreed on which file is canonical). API /
+  Contract Plan's Gate implementation identity schema now fixes all four
+  dimensions concretely rather than by example: `implementation_ref` is
+  always the `.py` master path; the sole scan root is the concrete literal
+  `plugins/sdd-quality-loop/scripts/`; a script is gate-shaped only if its
+  basename starts with `check-` (the repository's own existing convention —
+  `check-contract.py`, `check-placeholders.py`, `check-task-state.py`,
+  etc.); and a wrapper group is same-basename, same-directory `.sh`/`.ps1`/
+  `.js` siblings of one `check-*.py` master. This remains this spec's own
+  proposal, not found verbatim in decision v2 or an ADR.
+- **Registry discovery is script-relative with a git-root fallback, not a
+  runtime-plugin-variable or repository-root-relative assumption
+  (fully closed 2026-07-22 — orchestrator ruling P10).** The adversarial
   review correctly identified that this spec's first draft designed the
   projection generator to read a hardcoded top-level `contracts/` path with
-  no discovery story for a standalone-installed plugin. API / Contract
-  Plan's discovery contract reuses this repository's own existing
-  plugin-root environment-variable pattern (`${CLAUDE_PLUGIN_ROOT}`,
-  INV-016) rather than inventing a new one, and fails closed rather than
-  silently falling back to a stale or absent Registry.
+  no discovery story for a standalone-installed plugin, and that its second
+  draft's fix depended on a runtime-specific plugin-root environment
+  variable (`${CLAUDE_PLUGIN_ROOT}`) plus undefined "Codex/Copilot analogs"
+  — a dependency that could not be verified for two of the three supported
+  runtimes. API / Contract Plan's discovery contract now resolves the
+  packaged copy relative to the invoking script's own symlink-resolved real
+  path (no environment variable of any kind), falls back to a `git`-resolved
+  repository root, defines a distinct version check per artifact (the
+  Registry instance, the JSON Schema file, and the reason catalog each have
+  different shapes and cannot share one check), and adds a release-gating
+  `--check` mode comparing each vendored copy's sha256 against its canonical
+  source — closing the staleness gap the first two drafts left open. It
+  fails closed rather than silently falling back to a stale or absent
+  Registry.
 
 ## Global Constraints
 
@@ -762,8 +883,10 @@ All eight pairs are registered directly in `tests/run-all.sh`/`.ps1`
   directly.
 - **B4 — Discovery fail-closed.** The Registry discovery contract
   (API / Contract Plan) never silently falls back to a stale or absent
-  Registry: an unresolved path or an unsupported `schema` version is a
-  non-zero-exit diagnostic, not a degraded-but-successful run.
+  artifact: an unresolved path or a failed per-artifact version check is a
+  non-zero-exit diagnostic, not a degraded-but-successful run; the
+  vendored-copy drift check (same section) additionally gates any release
+  from shipping a stale packaged copy in the first place.
 
 ## External Integrations
 
@@ -775,19 +898,24 @@ in the DSL, ADR-0020 item 3).
 
 - `.github/workflows/test.yml` gains (via human-copy, Protected-File
   Statement): a `generate-gate-capabilities.py --check` step (mirroring
-  `generate-guard-invariants.py --check` at `test.yml:30,35`) and steps
-  running each of the eight new `tests/*.tests.sh`/`.tests.ps1` pairs,
-  including the 3-runtime invocation parity suite (Test Strategy item 7) and
-  the Registry-discovery installed-layout suite (Test Strategy item 8).
+  `generate-guard-invariants.py --check` at `test.yml:30,35`), the
+  vendoring/packaging step's own `--check` mode (P10, Registry discovery
+  contract — sha256 comparison of each canonical `contracts/*` file against
+  its vendored `plugins/sdd-quality-loop/contracts/*` counterpart, as a
+  release gate), and steps running each of the eight new
+  `tests/*.tests.sh`/`.tests.ps1` pairs, including the 3-runtime invocation
+  parity suite (Test Strategy item 7) and the Registry-discovery
+  installed-layout suite (Test Strategy item 8).
 - No release-version bump is implied by this Epic alone; any version bump
   goes exclusively through `scripts/bump-version.sh`, per the repository-wide
   convention already stated in prior specs (e.g.
   `specs/epic-159-pillar-c/requirements.md` REQ-009) and not repeated in
   full here since this spec introduces no new bump-version exception. The
   packaged/vendored `contracts/` copy under `plugins/sdd-quality-loop/`
-  (Components) is expected to be refreshed as part of this same
-  version-bump/packaging step; the exact wiring is implementation-phase
-  work (Assumptions).
+  (Components) is refreshed as part of this same version-bump/packaging
+  step and gated by its own `--check` mode (above) before the bump may
+  proceed; the exact wiring into `scripts/bump-version.sh` is
+  implementation-phase work (Assumptions).
 
 ## Constraint Compliance
 
@@ -861,19 +989,26 @@ which decision v2 does not require to exist in four languages itself).
   maintain than valuable** once real Capability Packs exist and ship their
   own check scripts outside this repository's own `plugins/` tree (e.g. a
   downstream consumer's custom Gate script). This spec's version of the
-  check only scans configured, in-repository scan roots; a
+  check scans exactly one concrete scan root
+  (`plugins/sdd-quality-loop/scripts/`), so extending it to a second
+  directory later (e.g. a future plugin that also ships Gate scripts) is a
+  deliberate validator-config change, not an implicit wildcard match; a
   Pack-shipped-elsewhere script would need its own `implementation_ref`
   entry and would not be flagged as "unregistered" merely for living outside
-  the scanned set (this is now a structural exemption, not an untested
+  the one scanned root (this is now a structural exemption, not an untested
   asymmetry — API / Contract Plan) — worth revisiting once a real
   Capability Pack exists (decision v2 §17's rollout order).
-- **Vendored-copy staleness.** The packaged, plugin-relative
-  `contracts/capability-registry.json`/`.schema.json` copies (Components,
+- **Vendored-copy staleness (closed 2026-07-22 — orchestrator ruling
+  P10).** The packaged, plugin-relative `contracts/*` copies (Components,
   Registry discovery contract) are only as fresh as the packaging step that
-  last refreshed them; if that step is not run at every release, a
-  standalone-installed plugin could read a stale Registry even though its
-  own `--check`-style protection (Protected-File Statement) would still
-  catch a *manually edited* vendored copy diverging from its own generation
-  contract. Mitigated by scheduling the vendoring step as a mandatory part
-  of `scripts/bump-version.sh` (Deployment/CI Plan), not an optional,
-  easily-skipped extra step — the exact wiring is implementation-phase work.
+  last refreshed them; if that step were not run at every release, a
+  standalone-installed plugin could read a stale Registry. This is now a
+  designed CI/release-gate contract, not an unmitigated risk: the
+  vendoring/packaging step's own `--check` mode (API / Contract Plan)
+  compares each canonical `contracts/*` file's sha256 against its vendored
+  counterpart and fails the release/version-bump if any mismatch is found —
+  wired alongside `generate-gate-capabilities.py --check` in CI (Deployment/
+  CI Plan). The residual risk is narrower: the exact wiring of this check
+  into `scripts/bump-version.sh` is implementation-phase work, so a task
+  that adds a version bump without also running this check would still slip
+  through until that wiring lands.

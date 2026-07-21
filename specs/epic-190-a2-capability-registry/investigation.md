@@ -276,19 +276,25 @@ packaging cost a second time for no stated benefit beyond semantic separation.
 Per orchestrator ruling 2026-07-22, the new-plugin proposal is rejected on
 this basis (design.md Design Decisions records it as a rejected alternative).
 
-## INV-016: `${CLAUDE_PLUGIN_ROOT}`-style plugin-root resolution is an existing repository pattern
+## INV-016: `${CLAUDE_PLUGIN_ROOT}`-style plugin-root resolution exists, but is host-specific, not a cross-runtime contract
 
 `plugins/sdd-quality-loop/hooks/claude-hooks.json:2,11` confirms
 `${CLAUDE_PLUGIN_ROOT}` is expanded by Claude Code itself before spawning a
 hook command, and is already used to locate a script relative to the
 installed plugin's own root rather than a repository-root-relative path;
 `hooks/hooks.json` (Codex CLI) and `hooks/copilot-hooks.json` (Copilot CLI)
-are the two runtime-specific analogs referenced in the same file's own
-description comment. This is the repository's existing precedent for
-resolving a plugin-local path when installed standalone (no full monorepo
-checkout present), and is the pattern REQ-005's Registry-discovery contract
-(design.md) builds on for locating `contracts/capability-registry.json` from
-inside an installed `plugins/sdd-quality-loop/` package.
+are described as "the two runtime-specific analogs" in the same file's own
+description comment, but neither of those two files was inspected to
+confirm they expose an *equivalent, identically-named* environment
+variable — this spec's second draft cited the comment's own characterization
+without verifying it, which the 2026-07-22 verification pass correctly
+flagged as unconfirmed (orchestrator ruling P10). Per that ruling, REQ-005's
+Registry-discovery contract (design.md) does **not** build on this pattern:
+it resolves the packaged copy relative to the invoking script's own
+symlink-resolved real file path instead, which requires no per-runtime
+environment variable at all and therefore does not depend on whether Codex
+CLI/Copilot CLI expose one. This INV entry is retained as a repository fact
+about the hooks layer's own design, not as the discovery contract's basis.
 
 ## Open Questions
 
@@ -405,12 +411,27 @@ both of which remain `Pending`:
   dynamic cross-reference checking.
 - Major "`upgrade_reasons` typo-dependent" → OQ-001 above; REQ-003(h)/AC-022.
 - Major "`implementation_ref`+scan incomplete" → OQ-004 above; REQ-003(c)/
-  AC-016/AC-017.
+  AC-016/AC-017. **Marked PARTIAL by the 2026-07-22 verification pass**
+  (scan roots/canonical-reference extension/gate-shaped-script rule were
+  still stated by example, not concretely); **fully closed same day per
+  orchestrator ruling P8**: `implementation_ref` is now always the `.py`
+  master; the sole scan root is the concrete literal
+  `plugins/sdd-quality-loop/scripts/`; gate-shaped = `check-`-prefixed
+  basename; wrapper group = same-directory, same-basename `.sh`/`.ps1`/
+  `.js` siblings.
 - Major "new `sdd-capability` plugin ignores 3-env packaging cost" → INV-015
   above; design.md Architecture/Design Decisions (rejected-alternative
   paragraph); all script paths moved under `plugins/sdd-quality-loop/`.
 - Major "Registry discovery for installed plugin" → INV-016 above; design.md
   API / Contract Plan (Registry discovery contract); requirements.md AC-027.
+  **Marked PARTIAL by the 2026-07-22 verification pass** (the runtime
+  plugin-root environment-variable dependency was unverified for two of the
+  three runtimes, and the version check/vendored-copy-drift-check gaps
+  remained); **fully closed same day per orchestrator ruling P10**:
+  discovery is now script-relative (no environment variable of any kind),
+  falls back to a `git`-resolved repository root, defines a distinct
+  version check per artifact, and adds a release-gating vendored-copy
+  digest-equality check.
 - Major "A1 schema/canonicalizer dependency undefined" → INV-004a above;
   requirements.md Dependencies (REQ-004 blocked statement); AC-011.
 - Major "`registry_digest` fragment identity undefined" → requirements.md

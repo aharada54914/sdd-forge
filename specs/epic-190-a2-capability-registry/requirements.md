@@ -166,7 +166,13 @@ that check for a `profile: full` entry (Non-goals, below).
   a `capabilities` array (`id`, `trigger`, `required_facets`,
   `conditional_facets`, `review_check_ids`, `gate_ids`, `lite_policy`,
   `minimum_enforcement`, `delivery_strategy`) and a top-level `gates` array
-  (`id`, `stage`, `blocking`, `implementation_ref`), referenced by ID from
+  (`id`, `stage`, `blocking`, `implementation_ref`). Every `capabilities[]`
+  entry's `required` list is `id`, `trigger`, `required_facets`,
+  `conditional_facets`, `review_check_ids`, `gate_ids`, and
+  `delivery_strategy`; only `lite_policy` and `minimum_enforcement` are
+  genuinely optional, since decision v2 itself makes both conditional
+  (lite-track applicability, and an above-default enforcement floor). Gate
+  references are referenced by ID from
   each Capability's `gate_ids` (INV-003: ADR-0017's schema example is a flat
   top-level list, not per-Capability). `stage` is one of `implementation` /
   `artifact` / `promotion`; `artifact` and `promotion` are reserved enum
@@ -183,7 +189,14 @@ that check for a `profile: full` entry (Non-goals, below).
   vocabulary-freezing for a real cloud-service delivery case and a later ADR,
   the same pattern already applied to the Artifact/Promotion Gate vocabulary
   — this spec does **not** infer a closed enum from decision v2 §17's Pack
-  rollout order). `trigger` is a single Predicate DSL expression (REQ-002);
+  rollout order). Both `delivery_strategy` and its `kind` property are
+  **required** — a Capability entry missing either fails schema validation
+  (2026-07-22 verification-pass NEW Major finding, closed same day: this
+  spec's schema previously left `delivery_strategy` `optional`, so a
+  Capability could be schema-valid with no delivery classification at all,
+  which decision v2 §13's "sole machine-readable source of truth" premise
+  does not allow — only the field's *vocabulary* stays open, its *presence*
+  does not). `trigger` is a single Predicate DSL expression (REQ-002);
   the schema holds the Predicate DSL in exactly two places — `trigger` and
   `conditional_facets[].when` — and has no top-level `conditions` field
   (OQ-002, **resolved by orchestrator ruling 2026-07-22**: decision v2 §13's
@@ -230,16 +243,24 @@ that check for a `profile: full` entry (Non-goals, below).
     per ADR-0017 item 1);
   - (c) **unregistered-script detection**, defined via a **Gate
     implementation identity** schema (OQ-004: this spec's own design
-    proposal, not directly stated in decision v2/ADRs): `implementation_ref`
-    names a canonical implementation identity grouping a Python master
-    script with its recognized wrapper extensions (`.sh`, `.ps1`, and `.js`
-    where applicable) under a fixed set of configured scan roots; a
-    symlinked script resolves to its target before comparison; two `gates[]`
-    entries must not resolve to the same wrapper group; a script outside the
-    configured scan roots (e.g. a future external Capability Pack's own
-    script directory) is never flagged unregistered. Subject to this
-    identity schema, every script matching the configured gate-script naming
-    convention under the configured scan directories is referenced by
+    proposal, not directly stated in decision v2/ADRs; fully closed
+    2026-07-22, orchestrator ruling P8): `implementation_ref` names exactly
+    the Python master script (`.py`) that implements the Gate — never an
+    `.sh`/`.ps1`/`.js` wrapper path; the sole configured scan root is the
+    concrete literal `plugins/sdd-quality-loop/scripts/` (not an
+    illustrative pattern); a script is "gate-shaped" — subject to this check
+    at all — only if its basename starts with the `check-` prefix, matching
+    this repository's own existing convention (`check-contract.py`,
+    `check-placeholders.py`, `check-task-state.py`, etc.); a non-`check-*`
+    script under the scan root (e.g. `emit-run-record.py`) is out of scope
+    for this check entirely. A `check-<name>.py` master's wrapper group is
+    every same-directory, same-basename `.sh`/`.ps1`/`.js` sibling; a
+    symlinked script resolves to its target before grouping or comparison;
+    two `gates[]` entries must not resolve to the same wrapper group; a
+    script outside `plugins/sdd-quality-loop/scripts/` (e.g. a future
+    external Capability Pack's own script directory) is never flagged
+    unregistered. Subject to this identity schema, every `check-`-prefixed
+    `.py` master under the one configured scan root is referenced by
     exactly one `gates[].implementation_ref`;
   - (d) **no Pack-owned Gate definitions** — no file matching
     `capability-packs/*/gates.yaml` (or a plugin-nested equivalent) exists
@@ -307,17 +328,27 @@ that check for a `profile: full` entry (Non-goals, below).
   (adversarial review 2026-07-22, Major finding "新規 sdd-capability plugin
   は3環境packagingコストを無視"; design.md Design Decisions records the
   rejected new-plugin alternative in one paragraph, INV-015). REQ-005 also
-  defines a **package-relative Registry discovery contract**: any script
-  that reads the Registry first checks a packaged, plugin-relative copy
+  defines a **script-relative Registry discovery contract** (fully closed
+  2026-07-22, orchestrator ruling P10): any script that reads the Registry
+  first checks a packaged, plugin-relative copy
   (`plugins/sdd-quality-loop/contracts/capability-registry.json`/`.schema.json`,
-  vendored at packaging time — implementation-phase work) via the plugin-root
-  environment-variable convention already used by this repository's hooks
-  (`${CLAUDE_PLUGIN_ROOT}`, INV-016, and its Codex/Copilot analogs), then
-  falls back to the monorepo-relative `contracts/` path (found by walking up
-  from the script's own location to a repository-root marker, `AGENTS.md`)
-  for in-repo development; if neither resolves, or the discovered file's
-  `schema` field is outside a small supported-version set, the script fails
-  closed with a diagnostic naming every path it attempted. The generated
+  vendored at packaging time — implementation-phase work), located relative
+  to the invoking script's own symlink-resolved real path — **no runtime
+  plugin-root environment variable is consulted** (correcting this spec's
+  prior draft, which depended on `${CLAUDE_PLUGIN_ROOT}` and an unverified
+  "Codex/Copilot analog"); then falls back to `git rev-parse
+  --show-toplevel`'s repository root (or a `.git`-directory walk if `git` is
+  unavailable) for in-repo development. Each artifact has its own version
+  check, not one shared rule: the Registry instance requires top-level
+  `schema == "capability-registry/v1"`; the JSON Schema file requires a
+  present `$schema` keyword and a matching `$id`; the reason catalog
+  requires top-level `schema == "lite-upgrade-reason-catalog/v1"`. If
+  neither location resolves, or the applicable version check fails, the
+  script fails closed with a diagnostic naming every path it attempted. A
+  release-gating `--check` mode additionally compares each canonical
+  `contracts/*` file's sha256 against its vendored
+  `plugins/sdd-quality-loop/contracts/*` counterpart, failing any
+  release/version bump while a vendored copy is stale. The generated
   projection file, the generator script itself, and
   `contracts/capability-registry.json`/`.schema.json` must all be registered
   as protected files (added to `guard-invariants.json`'s
@@ -450,7 +481,13 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   enum constraint; design.md documents this as a reserved field whose
   semantics are deferred to a future real-case ADR (orchestrator ruling
   2026-07-22), not inferred from decision v2 §17's Pack rollout order.
-  (REQ-001, OQ-003)
+  `capabilities[]`'s own `required` list names `delivery_strategy`
+  explicitly, and `delivery_strategy`'s own object schema requires `kind`; a
+  `capabilities[]` entry with no `delivery_strategy` key, and a
+  `delivery_strategy` object present but missing `kind`, are each rejected
+  by a dedicated negative fixture (2026-07-22 verification-pass NEW Major
+  finding, closed same day — presence is mandatory even though vocabulary
+  stays open). (REQ-001, OQ-003)
 - AC-005: `minimum_enforcement` has a positive schema test (`"required"`
   accepted) and a negative test (any other string value rejected); a
   `stage: artifact`/`promotion` `gates[]` entry with no `implementation_ref`
@@ -504,22 +541,26 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   implementation` Gate must resolve `implementation_ref` to an existing file
   path, and that `stage: artifact`/`promotion` Gates are exempt from this
   check (ADR-0017 item 1). (REQ-003(b))
-- AC-016: The Gate implementation identity schema is specified:
-  `implementation_ref` names a canonical implementation identity grouping a
-  Python master script with its recognized wrapper extensions (`.sh`,
-  `.ps1`, and `.js` where applicable) under a fixed set of configured scan
-  roots; a symlinked script resolves to its target before comparison; two
-  `gates[]` entries must not resolve to the same wrapper group; a script
-  outside the configured scan roots is never flagged unregistered.
+- AC-016: The Gate implementation identity schema is specified concretely:
+  `implementation_ref` names exactly the Python master (`.py`) path, never a
+  wrapper; the sole scan root is the concrete literal
+  `plugins/sdd-quality-loop/scripts/`; a script is gate-shaped only if its
+  basename starts with `check-`; a wrapper group is every same-directory,
+  same-basename `.sh`/`.ps1`/`.js` sibling of one `check-*.py` master; a
+  symlinked script resolves to its target before comparison; two `gates[]`
+  entries must not resolve to the same wrapper group; a script outside
+  `plugins/sdd-quality-loop/scripts/` is never flagged unregistered.
   (REQ-003(c))
 - AC-017: The Registry validator design specifies unregistered-script
-  detection: every script matching the naming convention under the
-  configured scan roots (per AC-016) is referenced by exactly one
-  `gates[].implementation_ref`; a bidirectional fixture set proves (i) an
-  sh+ps1 wrapper pair for one Python master counts as one registered
-  implementation, not two unregistered scripts, (ii) a script outside the
-  scan roots is not flagged, and (iii) an in-scan-root script with no
-  `implementation_ref` is flagged unregistered. (REQ-003(c))
+  detection: every `check-`-prefixed `.py` master under
+  `plugins/sdd-quality-loop/scripts/` (per AC-016) is referenced by exactly
+  one `gates[].implementation_ref`; a bidirectional fixture set proves (i)
+  an sh+ps1 wrapper pair for one Python master counts as one registered
+  implementation, not two unregistered scripts, (ii) a script outside
+  `plugins/sdd-quality-loop/scripts/` is not flagged, (iii) an in-scan-root
+  `check-*.py` script with no `implementation_ref` is flagged unregistered,
+  and (iv) an in-scan-root, non-`check-*` script (e.g. `emit-run-record.py`)
+  is never scanned or flagged regardless of registration. (REQ-003(c))
 - AC-018: The Registry validator design specifies that it independently
   re-asserts no `gates[]` entry lacks `stage`, exercised against a fixture
   constructed to bypass schema validation (a validator-direct call), proving
@@ -569,17 +610,25 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   hand-mutated committed projection causes `--check` to exit non-zero; a
   freshly, correctly regenerated projection causes `--check` to exit zero;
   no filesystem write occurs in `--check` mode. (REQ-005)
-- AC-027: The design specifies a package-relative Registry-discovery
-  contract usable from each of the three supported runtimes (Claude Code,
-  Codex CLI, Copilot CLI): a script locates
-  `contracts/capability-registry.json`/`.schema.json` via a packaged,
-  plugin-relative path first, falls back to a monorepo-relative path for
-  in-repo development, verifies the discovered Registry's `schema` field
-  against a small supported-version set, and fails closed with a diagnostic
-  naming every attempted path if neither location resolves or the version
-  check fails; three fixtures (one per runtime) simulate a standalone
-  install (no monorepo checkout, no `AGENTS.md` marker) and prove discovery
-  succeeds via the packaged copy alone. (REQ-005)
+- AC-027: The design specifies a script-relative Registry-discovery
+  contract, verifiable identically regardless of which of the three
+  supported runtimes (Claude Code, Codex CLI, Copilot CLI) invoked the
+  script: a script locates `contracts/capability-registry.json`/
+  `.schema.json`/`lite-upgrade-reason-catalog.json` via a packaged copy at a
+  fixed offset from its own symlink-resolved real file path first (no
+  runtime environment variable of any kind), falls back to `git rev-parse
+  --show-toplevel`'s repository root for in-repo development, verifies the
+  discovered artifact against its own per-artifact version check (Registry:
+  `schema == "capability-registry/v1"`; JSON Schema file: `$schema` present
+  and `$id` matching; reason catalog: `schema ==
+  "lite-upgrade-reason-catalog/v1"`), and fails closed with a diagnostic
+  naming every attempted path if neither location resolves or the
+  applicable version check fails; three fixtures (one per runtime) simulate
+  a standalone install (only the script-relative packaged copy present, no
+  monorepo checkout, no reachable `.git`) and prove discovery succeeds via
+  the packaged copy alone; a fourth fixture proves a release-gating
+  `--check` mode fails when a vendored copy's sha256 diverges from its
+  canonical `contracts/*` source. (REQ-005)
 - AC-028: The design specifies that the projection generator, the
   Registry-authoring/validation/digest scripts (REQ-002/003/004), and the
   generated projection all live under the existing `plugins/sdd-quality-loop/`
@@ -647,11 +696,14 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   embed their own Gate definitions (that duplication is exactly what
   decision v2 §13 abolishes).
 - `implementation_ref` (REQ-001, REQ-003(c); this spec's own proposal,
-  OQ-004) — a canonical implementation identity on a `gates[]` entry naming
-  the Python-master script (and, implicitly, its recognized sh/ps1/js
-  wrapper siblings under the configured scan roots) that implements a
-  `stage: implementation` Gate's check; required for `implementation`-stage
-  entries, meaningless (and not required) for reserved `artifact`/`promotion`
+  OQ-004, closed 2026-07-22) — the path to the Python-master script (`.py`,
+  the sole canonical reference — never an `.sh`/`.ps1`/`.js` wrapper path)
+  on a `gates[]` entry that implements a `stage: implementation` Gate's
+  check; its same-directory, same-basename `.sh`/`.ps1`/`.js` siblings under
+  the one scan root (`plugins/sdd-quality-loop/scripts/`) are implicitly
+  part of the same implementation identity, not separately referenced;
+  required for `implementation`-stage entries, meaningless (and not
+  required) for reserved `artifact`/`promotion`
   entries.
 - `registry_digest` (REQ-004; ADR-0021) — a sha256 digest, computed over a
   canonical-JSON (RFC 8785/JCS) serialization of a named Registry fragment,
@@ -663,22 +715,29 @@ ambiguous (OQ-001, OQ-004 — OQ-002/OQ-003 are resolved by orchestrator ruling
   eligibility: `eligible` (boolean) and `upgrade_reasons` (open string array,
   OQ-001, each token validated against a versioned reason catalog at the
   REQ-003(h) validator level, not by the schema).
-- `delivery_strategy.kind` (REQ-001; OQ-003, resolved 2026-07-22) — a
-  reserved, open, non-empty string tag on each Capability, recorded now
-  (cheap, knowable at Registry-authoring time) with no defined vocabulary in
-  Foundation; a future `sdd-delivery` ADR, triggered by a real delivery case,
-  defines its semantics and (if warranted) a closed vocabulary.
+- `delivery_strategy.kind` (REQ-001; OQ-003, resolved 2026-07-22; required
+  2026-07-22) — a **required**, reserved, open, non-empty string tag on
+  every Capability, recorded now (cheap, knowable at Registry-authoring
+  time) with no defined vocabulary in Foundation; a future `sdd-delivery`
+  ADR, triggered by a real delivery case, defines its semantics and (if
+  warranted) a closed vocabulary. `delivery_strategy` itself is on
+  `capabilities[]`'s `required` list, and its own object schema requires
+  `kind` — only the *vocabulary* is deferred, not the field's presence.
 - `Registry fragment` (REQ-004; ADR-0021's own phrasing) — a named subset of
   the Registry, selected by an explicit, deduped list of Capability and/or
   Gate IDs (stable-sorted before serialization), whose canonical
   serialization is what `registry_digest` actually hashes, as opposed to the
   whole Registry file.
-- Registry discovery contract (REQ-005) — the package-relative,
-  version-verified lookup procedure (packaged plugin-relative path, then
-  monorepo-relative fallback, then fail-closed) every Registry-reading
-  script uses to locate `contracts/capability-registry.json`/`.schema.json`,
-  whether running inside this monorepo or inside a standalone-installed
-  `sdd-quality-loop` plugin.
+- Registry discovery contract (REQ-005; closed 2026-07-22, orchestrator
+  ruling P10) — the script-relative, per-artifact-version-verified lookup
+  procedure (a packaged copy at a fixed offset from the invoking script's
+  own symlink-resolved real path, then a `git`-resolved repository-root
+  fallback, then fail-closed) every Registry-reading script uses to locate
+  `contracts/capability-registry.json`/`.schema.json`/
+  `lite-upgrade-reason-catalog.json`, whether running inside this monorepo
+  or inside a standalone-installed `sdd-quality-loop` plugin; paired with a
+  release-gating `--check` mode that fails a version bump while any
+  vendored copy's sha256 diverges from its canonical `contracts/*` source.
 
 ## Roles and Permissions
 
