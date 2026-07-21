@@ -33,7 +33,14 @@ INV-006), and (5) protected, generated projection files for
 `sdd-quality-loop` to consume at gate-check time, following the
 guard-invariants precedent exactly (INV-009). This spec covers the **spec
 phase only**: no plugin code, script, or generated artifact is created by
-this commit; `tasks.md` schedules that work for the implementation phase.
+this commit. `tasks.md` and `traceability.md` are themselves deferred to a
+later, separate commit authored only after this package's `Spec-Review-Status`
+and `design.md`'s `Impl-Review-Status` are both `Passed` — this repository's
+`check-workflow-state.sh` hard-enforces "tasks.md requires Spec and Impl
+Passed" (`plugins/sdd-quality-loop/scripts/check-workflow-state.sh:681-682`)
+for any feature registered in `specs/workflow-state-registry.json`, so
+authoring `tasks.md` in the same commit as this Pending package would fail
+that check for a `profile: full` entry (Non-goals, below).
 
 ## Dependencies
 
@@ -259,9 +266,26 @@ this commit; `tasks.md` schedules that work for the implementation phase.
   `sdd-delivery` (ADR-0017 items 3-4); this spec's `stage` enum reserves the
   values but implements no behavior for them.
 - Writing any actual plugin code, contract file, generated projection, or
-  test file — this is the spec phase; `tasks.md` schedules that work for the
-  implementation phase and no file under `plugins/`, `scripts/`, `contracts/`,
-  `tests/`, or `.github/` is created or modified by this commit.
+  test file — this is the spec phase; `tasks.md` (once authored) schedules
+  that work for the implementation phase and no file under `plugins/`,
+  `scripts/`, `contracts/`, `tests/`, or `.github/` is created or modified by
+  this commit.
+- **Authoring `tasks.md` or `traceability.md` in this commit.** This
+  repository's workflow-state model treats them as Phase 2 artifacts,
+  authored only after `Spec-Review-Status` (this document) and
+  `Impl-Review-Status` (design.md) are both `Passed` — `check-workflow-state.sh`
+  hard-fails any registered, non-legacy feature whose `tasks.md` exists while
+  either status is not `Passed`
+  (`plugins/sdd-quality-loop/scripts/check-workflow-state.sh:681-682`, "tasks.md
+  requires Spec and Impl Passed"). This session's own reference spec
+  (`specs/epic-159-pillar-c/requirements.md` Non-goals) states the same
+  convention in different words: "tasks.md and traceability.md (Phase 2
+  artifacts, authored after spec approval)". This package is therefore four
+  files (`investigation.md`, `requirements.md`, `design.md`,
+  `acceptance-tests.md`); `tasks.md`/`traceability.md` content already drafted
+  during this spec's authoring is preserved outside the repository
+  (scratchpad) for reuse once a human passes this spec's review, rather than
+  discarded.
 - Modifying `AGENTS.md`'s "Active Spec Directories" or
   `specs/workflow-state-registry.json` in this commit — that registration is
   isolated to its own, separate commit (orchestrator instruction, to
