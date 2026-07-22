@@ -155,6 +155,19 @@ Existing Data Affected: none. `tests/loops/loop-inventory.json`'s 8
 existing entries are unmodified by this task (INV-001 remains the current,
 correct description of `main`'s state after this task).
 
+Migration Strategy: No migration required. Every schema-shaped change
+this design proposes for a future implementation task is additive and
+optional with a documented backward-compatible default: the
+`capability_applicability` field on the `quality-gate` loop-inventory
+entry is absent-safe (this section, above); the `emit-run-record.sh`
+`capability` object is gated behind an independent `emit_capability`
+flag with the no-flag heredoc staying byte-identical (AC-011); the new
+`compatibility-event-trace/v1`, `skip-allowlist-manifest/v1`, and
+`structural-fixture-corpus/v1` schemas are net-new files with no prior
+version to migrate from. No existing consumer of any touched file's
+current shape is broken by these additions (Constraint Compliance,
+below).
+
 Proposed future-task additive field (`tests/loops/loop-inventory.json`,
 `quality-gate` entry only, optional, absent = not capability-aware):
 
