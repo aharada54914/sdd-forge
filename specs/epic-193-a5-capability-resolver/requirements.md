@@ -91,9 +91,17 @@ document v2 §7/§18.4).
 
 ## Dependencies
 
-- **Epic A1 (Project Context) — schema shape, canonicalizer CLI, and the
-  reserved Resolver script path (hard, already-`Passed` dependencies)**:
-  `contracts/project-context.schema.json`'s `workflow`/`components`/
+- **Epic A1 (Project Context) — schema shape, canonicalizer CLI, the
+  reserved Resolver script path, and (B1) the multi-target transactional
+  bundle contract pattern (hard, already-`Passed` dependencies)**: this
+  feature's own journaled publication transaction (design.md "Resolver
+  publication transactional bundle contract") applies Epic A1's own
+  already-fixed `apply-human-copy` multi-target transactional bundle
+  contract isomorphically (Epic A1 `design.md:927-1016`) — a design-
+  pattern reuse, not a runtime dependency on `apply-human-copy` itself
+  (this feature's own journal governs its own Resolver-owned output
+  paths, never a human-copy batch). `contracts/project-context.schema.
+  json`'s `workflow`/`components`/
   `shared_paths` shapes (investigation.md INV-007) are read, never
   redefined, by this feature. `canonicalize-sdd-yaml`'s stdin/stdout-only,
   YAML-or-JSON-input CLI (no parsed-structure API) is the **only** path
@@ -229,11 +237,16 @@ document v2 §7/§18.4).
   across differently-invoked-but-logically-identical runs.
 
   Processing (design.md's API / Contract Plan gives the full normative
-  procedure — revised by adversarial-review findings B1/B2/B3/B4/B7/B8/
+  procedure — revised by adversarial-review findings B1/B2/B3/B4/B6/B7/B8/
   M3/M9; the central change from an earlier revision of this package:
   **every evaluation and every Block determination completes before any
   artifact reaches a live path** — nothing is written incrementally
-  mid-procedure): (a) derive the `disabled-legacy`/`advisory`/`required`
+  mid-procedure): (0) a mandatory crash-recovery scan runs first, on every
+  invocation, converging any journal a prior interrupted invocation
+  against the identical `--feature` left behind to one of two terminal
+  states before any of the following steps begin (`publication-journal-
+  recovery` below; design.md "Resolver publication transactional bundle
+  contract"); (a) derive the `disabled-legacy`/`advisory`/`required`
   state (REQ-003) from `--config` and refuse immediately if `disabled-
   legacy` or if `workflow.spec_profile`/`workflow.artifact_layout` name
   one of decision document v2 §6's own two explicitly-invalid combination
@@ -281,19 +294,35 @@ document v2 §7/§18.4).
   (j) assemble (stage) Resolver Evidence (REQ-004) from every (f)/(g)
   result and this invocation's own digests/provenance fields; (k)
   schema-self-validate every staged artifact (REQ-002's `output-schema-
-  validation-failed`); (l) re-read the three snapshotted sources from
-  (b)/(d)/(e) and recompute their digests, Blocking (`snapshot-
-  generation-mismatch`, REQ-002) on any mismatch against this
-  invocation's own step-(b)/(d)/(e) snapshot; (m) write this invocation's
-  own entire track-exclusive output set — `{facet-manifest.yaml,
-  generated/project-context.resolved.json, resolver-evidence.yaml}` on
-  `full`, `{capability-summary.yaml, resolver-evidence.yaml}` on `lite`
-  — to their live paths in one atomic commit (temp file + `fsync` +
-  `rename` per file, REQ-002's `artifact-publication-failed` on any
-  failure), matching Epic A4's own REQ-007 storage location for every
-  per-Feature path; on any Block reached at (a)/(h)/(i)/(k)/(l)/(m), this
-  same atomic-commit mechanism writes **only** Resolver Evidence's own
-  record of that Block, never a partial Facet Manifest/Capability
+  validation-failed` — if Resolver Evidence itself is what fails this
+  check, this invocation writes **nothing** to any live path, not even a
+  best-effort Evidence instance, B3, below); (l) re-read the three
+  snapshotted sources from (b)/(d)/(e), **also re-deriving
+  `affected_components`** (not only `ownership_digest`, B8 correction —
+  `ownership_digest` alone cannot detect a diff-only generation change),
+  and recompute their digests, Blocking (`snapshot-generation-mismatch`,
+  REQ-002) on any digest mismatch or any `affected_components` set
+  difference against this invocation's own step-(b)/(d)/(e) snapshot; (m)
+  publish this invocation's own entire track-exclusive output set —
+  `{facet-manifest.yaml, generated/project-context.resolved.json,
+  resolver-evidence.yaml}` on `full`, `{capability-summary.yaml,
+  resolver-evidence.yaml}` on `lite` — via a single **journaled
+  transaction** (Prepare/Journal/Commit/Post-publication-verification/
+  Complete, REQ-002's `artifact-publication-failed` on an in-process
+  write/fsync/rename failure, `post-publication-generation-mismatch`
+  on a source-generation change detected between (l)'s own recheck and
+  this step's own last rename completing — design.md "Resolver
+  publication transactional bundle contract," applying Epic A1's own
+  already-fixed multi-target transactional bundle contract
+  isomorphically; B1 — this replaces an earlier revision's bare per-file
+  `temp file + fsync + rename`, which left a crash between two renames
+  unrecoverable and rolled back an in-process failure via a bare `unlink`
+  that destroyed pre-existing live bytes with no restore), matching Epic
+  A4's own REQ-007 storage location for every per-Feature path; on any
+  Block reached at (0)/(a)/(h)/(i)/(k)/(l)/(m), this same transactional
+  mechanism writes **only** Resolver Evidence's own record of that Block
+  (except the self-referential schema-failure case at (k), B3, which
+  writes nothing at all), never a partial Facet Manifest/Capability
   Summary/Context Projection (REQ-002's own "never a partial artifact"
   rule, unchanged in substance from an earlier revision, now enforced
   structurally by this ordering rather than by a per-step promise).
@@ -303,15 +332,17 @@ document v2 §7/§18.4).
   condition): Enumerate every condition under which the Resolver refuses
   to produce a Facet Manifest/Capability Summary/Context Projection,
   fail-closed, as a fixed, machine-readable diagnostic-id table — **closed
-  at fourteen rows** (revised from an earlier revision's seven-table-rows-
-  plus-one-inline, and from that same revision's incomplete coverage of
-  subprocess/parse/output-validation/commit failures — adversarial review
-  "B3 taxonomy"/"Minor Block count"; no fail-open path exists anywhere in
-  this list):
+  at sixteen rows** (revised from an earlier revision's seven-table-rows-
+  plus-one-inline, then fourteen, and from that same revision's incomplete
+  coverage of subprocess/parse/output-validation/commit/journal-recovery/
+  post-publication-race failures — adversarial review "B3 taxonomy"/"Minor
+  Block count"/"B1 atomicity"/"B8 TOCTOU"; no fail-open path exists
+  anywhere in this list):
 
   | Diagnostic ID | Trigger condition |
   |---|---|
   | `disabled-legacy-invocation` | The `--config` target is absent (or the AGENTS.md-marker/default fallback derives `disabled-legacy`, ADR-0016 item 4) — the Resolver refuses before touching Registry/ownership/Context-Projection machinery at all (investigation.md INV-013). **This is a CLI-misuse guard, not a designed pipeline state** (adversarial review "M4 CLI misuse"): a compatible caller (REQ-007) never invokes this Resolver's own process while a Project Context is absent or derives `disabled-legacy` (ADR-0016 item 4 names the Resolver itself as outside that state's own computational domain, investigation.md INV-013); this diagnostic exists purely as a fail-closed response to a caller that invokes it anyway |
+  | `publication-journal-recovery` | **NEW (B1).** The mandatory crash-recovery scan every invocation runs before any Registry/ownership/Context-Projection work (REQ-001's own step 0, above) finds a stale transaction journal from a prior, interrupted invocation against the identical `--feature`, and that journal cannot be safely converged to either terminal state (a referenced pre-image backup file is itself missing/unreadable, or a target's current live hash matches neither its journal-recorded PRE nor POST value) — design.md "Resolver publication transactional bundle contract" gives the full recovery algorithm; a journal that *can* be safely converged (the common case) is silently resolved by that same scan and never reaches this diagnostic at all |
   | `workflow-combination-invalid` | `workflow.spec_profile`/`workflow.artifact_layout` name one of decision document v2 §6's own combination matrix's two explicitly-marked "無効な組合せ" rows — `spec_profile == lite` with `artifact_layout != lite-three-file`, or `spec_profile == full` with `artifact_layout == lite-three-file` — checked immediately after Context-schema validity, before any Registry/ownership/projection work (adversarial review "M3 invalid workflow combination") |
   | `project-context-validation-failed` | `--config`'s target file exists but fails Epic A1's own content-schema validation surface (a present-but-invalid Context, distinct from an absent one) |
   | `affected-component-resolution-failed` | `resolve-component-paths` (Epic A3) exits non-zero for any reason (config-shape error, unresolvable rev, unattainable merge-base, NFC-collision, exceeded rename limit, TOCTOU mismatch) — an UNOWNED/OVERLAP classification present in a *successful* `resolve-component-paths` exit is data, not this condition, per Epic A3's own "classification results are data, not failure by themselves" rule; this feature does not reimplement `check-component-coverage`'s own Fail-condition logic. This diagnostic's own `detail` is a canonical, Resolver-owned sentence (repo-relative path, upstream exit code) — never the underlying script's own raw stderr text quoted verbatim (adversarial review "M8 stderr parity") |
@@ -322,22 +353,29 @@ document v2 §7/§18.4).
   | `dependency-output-malformed` | Any dependency subprocess this Resolver invokes exits zero but its stdout does not parse as the JSON/hex-digest shape that subprocess's own contract promises (non-JSON stdout, a JSON parse error, or well-formed JSON missing a contractually-required key) (adversarial review "B3 taxonomy") |
   | `dsl-warn-on-matched-capability` | **Any** evaluation this invocation performs — any Registry Capability's own `trigger` evaluation against any affected component, matched or unmatched, or any matched Capability's own `conditional_facets[].when` evaluation against any affected component — contains at least one `outcome: "warn"` node anywhere in its evidence tree (design.md Design Decisions states the rationale, layered on top of, and never contradicting, ADR-0020's own DSL-evaluator-level "WARN is not an error" rule). **This condition's own quantifier is "any evaluated branch," matched or unmatched, representative or not** — an earlier revision scoped this row to a single "representative" evaluation per matched Capability only; adversarial review "B2 WARN" found that scoping let a WARN-producing, potentially-false-negative evaluation on any other branch silently aggregate into a clean `false`/`applied: false` outcome, under-resolving the Feature. The diagnostic-id string itself is unchanged for enum stability |
   | `lite-check-source-undefined` | `workflow.spec_profile == lite` and at least one matched Capability would need to contribute to `required_lite_checks`, but the Registry (Epic A2, content-frozen) carries no field this feature can source that list from (investigation.md INV-019; Dependencies, above, records the Epic A2 schema-revision prerequisite this gap implies for Epic A6) |
-  | `output-schema-validation-failed` | This invocation's own staged Facet Manifest/Capability Summary/Context Projection/Resolver Evidence fails a defensive re-validation against its own governing schema before publication (adversarial review "B3 taxonomy") |
-  | `snapshot-generation-mismatch` | Immediately before this invocation's own atomic commit, a re-read of the Project Context/ownership-source/Registry bytes this invocation snapshotted at steps (b)/(d)/(e) (REQ-001, above) no longer matches that snapshot — a generation-mixed input set (adversarial review "B8 TOCTOU") |
-  | `artifact-publication-failed` | A `write`/`fsync`/`rename` failure during this invocation's own single atomic commit step, including a failure encountered while attempting this invocation's own best-effort rollback of an already-completed partial commit (adversarial review "B1 atomicity"/"B3 taxonomy" — rollback failure is recorded in this same diagnostic's own `detail`, not a fifteenth diagnostic-id value of its own) |
+  | `output-schema-validation-failed` | This invocation's own staged Facet Manifest/Capability Summary/Context Projection/Resolver Evidence fails a defensive re-validation against its own governing schema before publication (adversarial review "B3 taxonomy"). **If Resolver Evidence itself is the artifact that fails this check, this invocation writes NOTHING to any live path, not even a best-effort, fields-omitted Evidence instance** (B3, revised — an earlier revision wrote such a best-effort instance; adversarial review "B3 best-effort Evidence removed" found it carries no guarantee of re-conforming to its own schema, making it exactly the schema-invalid live artifact this check exists to prevent) |
+  | `snapshot-generation-mismatch` | Immediately before this invocation's own publication, a re-read of the Project Context/ownership-source/Registry bytes this invocation snapshotted at steps (b)/(d)/(e) (REQ-001, above), **and a fresh re-derivation of `affected_components`**, no longer matches that snapshot — a generation-mixed input set. **Now fires on an `affected_components` set difference alone, even when every digest including `ownership_digest` still matches** (B8, revised — `ownership_digest` is a blunt, project-wide "the ownership *config* changed" signal, Epic A3 `requirements.md:530-569`, and does not itself change when only the underlying diff shifts which components are affected between this invocation's own two `resolve-component-paths` calls; adversarial review "B8 TOCTOU") |
+  | `artifact-publication-failed` | A `write`/`fsync`/`rename` failure caught **in-process** during this invocation's own publication transaction's Prepare/Journal/Commit phases (design.md "Resolver publication transactional bundle contract"). **Rollback of any already-completed rename in the same commit sub-sequence is now journal-based, restoring that target's own PRE-transaction live bytes — never a bare `unlink`, which an earlier revision used and which destroyed pre-existing live bytes with no restore path** (B1, revised, closing that gap; a rollback failure, if the in-process attempt cannot itself fully complete, is recorded in this same diagnostic's own `detail` and safely completed by the next invocation's own crash-recovery scan instead — never a nineteenth diagnostic-id value of its own) |
+  | `post-publication-generation-mismatch` | **NEW (B8).** Immediately after every rename in this invocation's own publication transaction has succeeded — closing the "post-recheck race," the window between the pre-publication recheck (`snapshot-generation-mismatch`, above) and the last rename actually completing — a **final** re-read of the same three sources plus a fresh `affected_components` re-derivation no longer matches the pre-publication recheck's own snapshot. This invocation itself rolls every just-completed rename back to its own PRE-transaction state via the transaction's own journal before returning this Block (design.md "Resolver publication transactional bundle contract," Post-publication verification) — the sole diagnostic-id row whose own trigger condition is detected only *after* every live rename in the batch has already, if briefly, succeeded |
 
   Every Block exits non-zero (REQ-002's own exit-code contract, design.md)
   and writes **no** `facet-manifest.yaml`, `capability-summary.yaml`, or
   `project-context.resolved.json` — never a partial or schema-invalid
   instance of any of the three, and never any of the three left partially
-  written even when the Block fires *after* this invocation began staging
-  one of them (REQ-001's own staged-generation/single-atomic-commit
+  written (including, for `post-publication-generation-mismatch`, a
+  written-then-rolled-back one — the journal-based rollback above restores
+  the pre-invocation state before this invocation's own exit) even when
+  the Block fires *after* this invocation began staging one of them
+  (REQ-001's own staged-generation/journaled-transactional-publication
   ordering, above, is what makes this structurally true rather than a
   per-step promise this feature's own implementation could violate,
   adversarial review "B1 atomicity"). Resolver Evidence (REQ-004) is still
-  written on every Block (except `disabled-legacy-invocation`, whose own
-  Evidence record is minimal by construction, recording only the fact of
-  the out-of-contract invocation itself), mirroring `check-component-
+  written on every Block, with **two** named exceptions: `disabled-legacy-
+  invocation` (whose own Evidence record is minimal by construction,
+  recording only the fact of the out-of-contract invocation itself) and
+  the self-referential `output-schema-validation-failed` case immediately
+  above (which writes no live artifact of any kind, B3, revised) —
+  mirroring `check-component-
   coverage`'s own NEW-001 "always emit an evidence record, never a bare
   skip line" discipline (investigation.md INV-006). Diagnostic lines follow
   this Epic set's own established `<producer>: <check-id>: <detail>`
@@ -413,39 +451,67 @@ document v2 §7/§18.4).
   ascending lexicographic order — including the zero-affected-component
   case, where this array is `[]` for every Capability, Edge Cases below,
   "M9 zero-component correction"), and, for a matched Capability only, an
-  additional `conditional_facet_evaluations: [{facet, applied,
-  evaluations: [{component_id, result, evidence[]}, ...]}]` with exactly
-  one element per that Capability's own declared `conditional_facets[]`
-  entry, and, within each, exactly one `evaluations[]` element per
-  affected component (the identical exact-set binding, one level deeper);
+  additional `conditional_facet_evaluations: [{facet, declaration_index,
+  applied, evaluations: [{component_id, result, evidence[]}, ...]}]` with
+  exactly one element per that Capability's own declared `conditional_
+  facets[]` array *entry* — **keyed by `declaration_index` (0-based array
+  position), never by `facet` value** (B7 predicate-instance keying,
+  revised: Epic A2's own Registry schema does not forbid two entries
+  sharing one `facet` name within a single Capability's own declaration,
+  so this array's own cardinality is bound to that Capability's own
+  `conditional_facets[]` *length*, not its own distinct-facet-name count
+  — a Capability declaring the identical `facet` name twice produces
+  **two** entries here, `declaration_index: 0` and `declaration_index:
+  1`), and, within each, exactly one `evaluations[]` element per affected
+  component (the identical exact-set binding, one level deeper);
   `matched`/`applied` are each **bidirectionally** consistent with their
   own governing array (`matched: true` iff at least one `trigger_
   evaluations[].result` is `true`, and `matched: false` iff every one is
   `false` — both directions checked, not only the "at least one true"
   direction an earlier revision of this REQ's own validator checked, B6),
-  and `capability_evaluations[]`'s own `capability_id` values, and each
-  entry's own nested `component_id`/`facet` values, are each unique
-  within their own governing array (nested-ID uniqueness, B6); and
-  `diagnostics` (array of `{id (REQ-002's own fourteen-value enum),
+  and `capability_evaluations[]`'s own `capability_id` values, each
+  entry's own nested `component_id` values, and each entry's own nested
+  `declaration_index` values (**not** `facet` values, which are legitimately
+  non-unique within one Capability, B7), are each unique within their own
+  governing array (nested-ID uniqueness, B6); and
+  `diagnostics` (array of `{id (REQ-002's own sixteen-value enum),
   detail, severity: "block"|"warn"}`, recording **every** diagnostic-
   worthy condition this invocation encountered, not only the first/fatal
   one, mirroring ADR-0020's own "no short-circuit, every result recorded"
   discipline extended by this feature to its own diagnostic surface).
   Resolver Evidence is written on **every** invocation, success or Block
-  (REQ-002), mirroring `check-component-coverage`'s own always-emit
+  (REQ-002), **with the sole exception of a Block reached because
+  Resolver Evidence itself fails its own schema self-validation** (B3,
+  revised — that one case writes nothing at all, never a best-effort,
+  fields-omitted instance, REQ-002's `output-schema-validation-failed`
+  row above), mirroring `check-component-coverage`'s own always-emit
   discipline (investigation.md INV-006), via the identical staged-
-  generation/single-atomic-commit mechanism REQ-001 fixes for every other
-  artifact (adversarial review "B1 atomicity" — Resolver Evidence is not
-  exempt from that mechanism merely because it is written on every path).
-  Design three deterministic, stdlib-only-Python-master-plus-`sh`/`ps1`-
-  wrapper companion scripts (matching Epic A4's own `validate-facet-
-  manifest`/etc. precedent, investigation.md INV-011): `validate-resolver-
-  evidence.{py,sh,ps1}` (schema-conformance **and** exact-set/cardinality/
-  bidirectional-consistency check, against its own closed, ten-value
-  check-id enum, independent of REQ-002's own enum — adversarial review
-  "Minor diagnostic namespace"; design.md's own `validate-resolver-
-  evidence` contract section lists every check-id — no `.js` wrapper — a
-  structural validator, not a cross-runtime-hashed digest primitive).
+  generation/journaled-transactional-publication mechanism REQ-001 fixes
+  for every other artifact (adversarial review "B1 atomicity" — Resolver
+  Evidence is not exempt from that mechanism merely because it is written
+  on most every path). Design three deterministic, stdlib-only-Python-
+  master-plus-`sh`/`ps1`-wrapper companion scripts (matching Epic A4's
+  own `validate-facet-manifest`/etc. precedent, investigation.md
+  INV-011): `validate-resolver-evidence.{py,sh,ps1}` (schema-conformance
+  **and** exact-set/cardinality/bidirectional-consistency/**provenance-
+  binding** check, against its own closed, **twelve**-value check-id
+  enum, independent of REQ-002's own enum — adversarial review "Minor
+  diagnostic namespace"/"B6 provenance binding"; design.md's own
+  `validate-resolver-evidence` contract section lists every check-id — no
+  `.js` wrapper — a structural validator, not a cross-runtime-hashed
+  digest primitive). **This validator never trusts a caller-supplied
+  `--registry`/`--affected-components` argument as ground truth by
+  itself** (B6, revised — an earlier revision did, letting a caller pass
+  a different, smaller Registry or an arbitrary affected-component subset
+  alongside a self-consistent-but-wrong Evidence instance and have it
+  pass): by default it self-resolves the Registry via ADR-0025 discovery
+  and derives the affected-component set from the Evidence instance's own
+  `context_binding.dependency_pointers[]` (cross-checked against a
+  co-located Facet Manifest's own `dependency_pointers[]` when present),
+  requiring any explicit `--registry`/`--affected-components` override to
+  still match the Evidence instance's own recorded `registry_digest`/
+  `dependency_pointers[]` — design.md's own `validate-resolver-evidence`
+  contract section gives the full provenance-binding procedure.
 
 - **REQ-005** (Idempotency and determinism — "**Python master equivalence
   + sh↔ps1 dual-runtime parity**", decision v2 §19's own "同一入力 → 同一
@@ -515,21 +581,27 @@ document v2 §7/§18.4).
   earlier revision of this REQ described a non-Blocking "non-determining"
   WARN case, which no longer exists under REQ-002's own any-branch scope,
   adversarial review "B2 WARN"); (e) one fixture per REQ-002 diagnostic-id
-  row (fourteen total), each independently testable; (f) a cross-
-  Capability same-`facet`-name aggregation fixture (design.md Design
-  Decisions "facet-name aggregation", adversarial review "B7"); (g) a
-  zero-affected-component fixture confirming every Registry Capability's
-  own `trigger_evaluations[]` is `[]` and `capabilities: []` results (Edge
-  Cases, below, "M9 zero-component correction"); (h) the all-true/false-
+  row (sixteen total, including the two NEW `publication-journal-
+  recovery`/`post-publication-generation-mismatch` rows, B1/B8), each
+  independently testable; (f) a predicate-instance same-`facet`-name
+  aggregation fixture pair — one cross-Capability, one same-Capability
+  (design.md Design Decisions "facet-name aggregation, predicate-instance
+  keyed", adversarial review "B7"); (g) a zero-affected-component fixture
+  confirming every Registry Capability's own `trigger_evaluations[]` is
+  `[]` and `capabilities: []` results (Edge Cases, below, "M9
+  zero-component correction"); (h) the all-true/false-
   combination, component-order-permutation, multiple-true, and nested-
   array-completeness metamorphic fixtures design.md's own Test Strategy
   item 9 fixes in full (adversarial review "M10 metamorphic completeness")
-  — plus REQ-005's own dual-runtime parity suite and REQ-003's `disabled-
-  legacy`/`{advisory,required}`-byte-identical-content proof, and a live-
-  `SKILL.md` caller-contract suite (design.md Test Strategy item 10,
-  REQ-007, below, adversarial review "M6 caller integration") asserting
-  non-invocation while Context-absent, single-invocation on Context-
-  present, Block-surfacing on a REQ-002 Block, and a drift check against
+  — plus REQ-005's own dual-runtime parity suite, REQ-003's `disabled-
+  legacy`/`{advisory,required}`-byte-identical-content proof, a
+  journal-based crash-recovery fixture pair (B1) and a provenance-binding
+  fixture pair for `validate-resolver-evidence` (B6, design.md Test
+  Strategy items 2/8), and a live-`SKILL.md` caller-contract suite
+  (design.md Test Strategy item 10, REQ-007, below, adversarial review
+  "M6 caller integration") asserting non-invocation while Context-absent,
+  single-invocation on Context-present, Block-surfacing on a REQ-002
+  Block, and a position-sensitive anchor-fingerprint drift check against
   this package's own cited insertion-point anchor. Discovery-contract
   fixtures (installed-standalone-plugin layout, one per runtime — **three
   total, the direct product of one layout case × three runtimes**, never
@@ -674,18 +746,18 @@ document v2 §7/§18.4).
 | AC-007 | REQ-001 | `required_facets`/`conditional_facets`/`resolved_gates`/`capabilities`/`capability_minimum_enforcement`/`lite_eligibility` are each populated per Epic A4's own field-by-field rules (Dependencies, above) with no additional field and no field omitted that Epic A4's schema requires |
 | AC-008 | REQ-001 | The written `facet-manifest.yaml` validates successfully against `contracts/facet-manifest.schema.json` (Epic A4) for a representative multi-Capability, multi-affected-component fixture |
 | AC-009 | REQ-001 | On the Lite track (`workflow.spec_profile == lite`) with a source able to populate `required_lite_checks`, the written `capability-summary.yaml` validates successfully against `contracts/capability-summary.schema.json` (Epic A4), and this same invocation writes neither `facet-manifest.yaml` nor `project-context.resolved.json` (track-exclusive output set, B4) |
-| AC-010 | REQ-002 | Each of the **fourteen** REQ-002 diagnostic-id rows has its own independently-triggerable fixture; no other condition produces a non-zero exit |
-| AC-011 | REQ-002 | On any Block, no `facet-manifest.yaml`, `capability-summary.yaml`, or `project-context.resolved.json` is written or left partially written (a fixture asserts none of the three paths exists, or is unchanged from its pre-invocation state, after a Blocked run) — including a Block reached only after this invocation had already staged one of the three in memory (REQ-001's own staged-generation/single-atomic-commit ordering, B1) |
-| AC-012 | REQ-002 | Resolver Evidence is written on every Block except `disabled-legacy-invocation`, whose own minimal Evidence record is written instead of the full form |
+| AC-010 | REQ-002 | Each of the **sixteen** REQ-002 diagnostic-id rows has its own independently-triggerable fixture; no other condition produces a non-zero exit |
+| AC-011 | REQ-002 | On any Block, no `facet-manifest.yaml`, `capability-summary.yaml`, or `project-context.resolved.json` is written or left partially written (a fixture asserts none of the three paths exists, or is unchanged from its pre-invocation state, after a Blocked run) — including a Block reached only after this invocation had already staged one of the three in memory (REQ-001's own staged-generation/journaled-transactional-publication ordering, B1), and including `post-publication-generation-mismatch`, whose own journal-based rollback restores this same unchanged-from-pre-invocation state even though a rename briefly succeeded (B8) |
+| AC-012 | REQ-002 | Resolver Evidence is written on every Block except `disabled-legacy-invocation` (whose own minimal Evidence record is written instead of the full form) and except `output-schema-validation-failed` when Resolver Evidence itself is the artifact that failed (which writes no live artifact of any kind, B3) |
 | AC-013 | REQ-002 | Exit code contract: `0` on success, `1` on any REQ-002 Block, `2` on a CLI usage error (AC-001) — fixed, tested per value |
-| AC-014 | REQ-002 | Every diagnostic line `resolve-project-context.{py,sh,ps1}` itself emits follows the `capability-resolver: <check-id>: <detail>` format, `<check-id>` drawn only from REQ-002's own fourteen-value enum, and `<detail>` is a canonical, Resolver-owned sentence never quoting a dependency subprocess's own raw stderr verbatim (M8) — this criterion is scoped to `resolve-project-context`'s own diagnostic lines only; `validate-resolver-evidence`'s own, independent check-id enum is AC-021's own concern (Minor "diagnostic namespace" correction) |
+| AC-014 | REQ-002 | Every diagnostic line `resolve-project-context.{py,sh,ps1}` itself emits follows the `capability-resolver: <check-id>: <detail>` format, `<check-id>` drawn only from REQ-002's own sixteen-value enum, and `<detail>` is a canonical, Resolver-owned sentence never quoting a dependency subprocess's own raw stderr verbatim (M8) — this criterion is scoped to `resolve-project-context`'s own diagnostic lines only; `validate-resolver-evidence`'s own, independent check-id enum is AC-021's own concern (Minor "diagnostic namespace" correction) |
 | AC-015 | REQ-003 | `disabled-legacy` (absent `--config` target, or the AGENTS.md-marker/default fallback deriving it) produces `disabled-legacy-invocation` before any Registry/ownership/Context-Projection work is attempted (a fixture confirms no `resolve-component-paths`/Registry-discovery subprocess is ever invoked in this branch) |
 | AC-016 | REQ-003 | A fixture pair identical except for `workflow.capability_enforcement` (`advisory` vs. `required`) produces byte-identical output across this invocation's own track-exclusive output set (whichever of `{facet-manifest.yaml, project-context.resolved.json}` or `{capability-summary.yaml}` applies, plus Resolver Evidence); only Resolver Evidence's own `state` field differs (M5/B4 correction — an earlier revision of this row named all four artifacts as if a single invocation ever produced all of them) |
 | AC-017 | REQ-004 | `contracts/resolver-evidence.schema.json` exists, is valid draft-07, and its `$id` matches every other `contracts/*.schema.json`'s convention |
 | AC-018 | REQ-004 | `capability_evaluations[]` includes **exactly** one entry for **every** Registry Capability, not only matched ones (exact-set, not merely non-duplicated, B6) — a fixture with an unmatched Capability confirms its own entry is present with `matched: false` and a `trigger_evaluations[]` entry for every affected component; a **separate** zero-affected-component fixture (M9 correction) confirms every Capability's own `trigger_evaluations[]` is legitimately `[]` in that one case, without contradicting this row's own general "one entry per affected component" rule |
-| AC-019 | REQ-004 | A matched Capability's `capability_evaluations[]` entry carries **exactly** one `conditional_facet_evaluations[]` entry per `conditional_facets[]` the Registry declares for it (exact-set, B6), each with exactly one `evaluations[]` element per affected component; an unmatched Capability's entry carries the key omitted entirely; `matched`/`applied` are each bidirectionally consistent with their own governing array (B6) |
+| AC-019 | REQ-004 | A matched Capability's `capability_evaluations[]` entry carries **exactly** one `conditional_facet_evaluations[]` entry per `conditional_facets[]` array *entry* the Registry declares for it — keyed by `declaration_index` (0-based position), **never** collapsed by distinct `facet` name (B7 predicate-instance keying; a Capability declaring the identical `facet` twice produces two entries, exact-set/cardinality bound to declaration count), each with exactly one `evaluations[]` element per affected component; an unmatched Capability's entry carries the key omitted entirely; `matched`/`applied` are each bidirectionally consistent with their own governing array (B6) |
 | AC-020 | REQ-004 | Resolver Evidence is written on a fully successful run as well as on every Block (AC-012) — never conditionally omitted on success |
-| AC-021 | REQ-004 | `validate-resolver-evidence.{py,sh,ps1}` exits 0 on a schema-conformant, exact-set-complete fixture and non-zero (with a `resolver-evidence: <check-id>: <detail>` diagnostic, `<check-id>` drawn from this script's own closed, ten-value enum, design.md) on a fixture missing any required field, any Registry Capability, any affected component, or a bidirectionally-inconsistent `matched`/`applied` value |
+| AC-021 | REQ-004 | `validate-resolver-evidence.{py,sh,ps1}` exits 0 on a schema-conformant, exact-set-complete, provenance-bound fixture and non-zero (with a `resolver-evidence: <check-id>: <detail>` diagnostic, `<check-id>` drawn from this script's own closed, **twelve**-value enum, design.md) on a fixture missing any required field, any Registry Capability, any affected component, a bidirectionally-inconsistent `matched`/`applied` value, a Registry whose digest does not match `context_binding.registry_digest` (`registry-digest-unbound`, B6), or an affected-component set that diverges between the Evidence instance's own `dependency_pointers[]`, a co-located Manifest's own, and any CLI override (`affected-component-provenance-mismatch`, B6) |
 | AC-022 | REQ-005 | Two invocations of the identical `.py` Resolver against the identical input produce byte-identical output across this invocation's own track-exclusive output set |
 | AC-023 | REQ-005 | `.py`/`.sh`/`.ps1` invocations of the identical input produce byte-identical output across this invocation's own track-exclusive output set, and identical stdout/stderr/exit code, restricted to this feature's own emitted content (M8 — never comparing a dependency subprocess's own raw stderr, which is out of this feature's own control and out of this comparison's own scope) |
 | AC-024 | REQ-005 | `capability_evaluations[]` is stable-sorted by `capability_id`; `diagnostics[]` is stable-sorted by `(id, detail)`; every Epic-A4-mandated Facet Manifest array (Dependencies, above) is stable-sorted per Epic A4's own rule |
@@ -702,15 +774,23 @@ document v2 §7/§18.4).
 | AC-035 (Global) | — | `check-workflow-state.sh --feature epic-193-a5-capability-resolver` exits 0 after this package's registration commit lands, with no `tasks.md`/`traceability.md` present and `requirements.md`'s `Spec-Review-Status: Pending`/`design.md`'s `Impl-Review-Status: Pending` headers intact |
 | AC-036 (Global) | — | `check-sdd-structure.sh` (no feature argument) exits 0 after this package's registration commit, run as `sh scripts/check-sdd-structure.sh .` |
 | AC-037 (Global) | — | `specs/workflow-state-registry.json`'s new entry is exactly `{"feature": "epic-193-a5-capability-resolver", "profile": "full"}`, no additional keys, appended to this worktree's own `entries` array |
-| AC-038 | REQ-001/REQ-002 | Staged-generation/single-atomic-commit lock (B1): a fixture that reaches a Block only after this invocation has already staged the Context Projection and/or Facet Manifest/Capability Summary in memory (e.g. `lite-check-source-undefined`, `output-schema-validation-failed`, `snapshot-generation-mismatch`) confirms no earlier-staged artifact ever reached a live path — this criterion is additive to, and structurally subsumes, AC-011's own narrower "no partial artifact" statement |
-| AC-039 | REQ-002 | `artifact-publication-failed` lock (B1/B3): an injected write/rename failure on one of this invocation's own staged output paths, after every earlier step already succeeded, Blocks with this diagnostic id; a fixture with a second, already-completed rename in the same commit sub-sequence confirms that file is rolled back (`unlink`) best-effort and the rollback attempt is itself recorded in this diagnostic's own `detail` |
-| AC-040 | REQ-002 | `snapshot-generation-mismatch` lock (B8 TOCTOU): a fixture that mutates the Project Context, ownership-source declarations, or Registry between this invocation's own invocation-start snapshot and its pre-publication recheck Blocks with this diagnostic id, and no artifact from this invocation reaches a live path |
+| AC-038 | REQ-001/REQ-002 | Staged-generation/journaled-transactional-publication lock (B1): a fixture that reaches a Block only after this invocation has already staged the Context Projection and/or Facet Manifest/Capability Summary in memory (e.g. `lite-check-source-undefined`, `output-schema-validation-failed`, `snapshot-generation-mismatch`) confirms no earlier-staged artifact ever reached a live path — this criterion is additive to, and structurally subsumes, AC-011's own narrower "no partial artifact" statement |
+| AC-039 | REQ-002 | `artifact-publication-failed` lock (B1/B3, revised): an injected write/rename failure on one of this invocation's own staged output paths, after every earlier step already succeeded, Blocks with this diagnostic id; a fixture with a second, already-completed rename in the same commit sub-sequence confirms that target is rolled back to its own PRE-transaction live bytes via the transaction's own journal — **never** a bare `unlink` with no restore path (B1, closing the "existing bytes destroyed" gap) — and the rollback attempt is itself recorded in this diagnostic's own `detail` |
+| AC-040 | REQ-002 | `snapshot-generation-mismatch` lock (B8 TOCTOU, revised): a fixture that mutates the Project Context, ownership-source declarations, or Registry between this invocation's own invocation-start snapshot and its pre-publication recheck Blocks with this diagnostic id, and no artifact from this invocation reaches a live path; a **second** fixture leaves every digest (including `ownership_digest`) byte-identical but mutates only the worktree/index/untracked state so the re-derived `affected_components` set itself differs, confirming the Block fires on the set difference alone (B8 correction — `ownership_digest` parity is not by itself sufficient) |
 | AC-041 | REQ-002 | `workflow-combination-invalid` lock (M3): one independently-triggerable fixture per decision document v2 §6's own two explicitly-invalid combination rows (`lite` × non-`lite-three-file`, `full` × `lite-three-file`), each Blocking before any Registry/ownership/projection work begins |
 | AC-042 | REQ-003/REQ-007 | CLI-misuse framing lock (M4): a spy-harness fixture on `sdd-bootstrap-interviewer`'s own capability interview phase (REQ-007) confirms it never invokes `resolve-project-context`'s own subprocess at all while a Project Context is absent or derives `disabled-legacy` — distinct from, and in addition to, AC-015's own narrower "the Resolver itself invokes no further subprocess in this branch" check |
-| AC-043 | REQ-001 | Facet-name cross-Capability aggregation lock (B7): a fixture where two matched Capabilities each declare a `conditional_facets[]` entry under the identical `facet` name confirms `applied` is the OR of both Capabilities' own per-component evaluations, `evidence` is the concatenation of every contributing `(capability_id, component_id)` pair's own evaluation nodes in `capability_id`-then-`component_id` ascending order, and (on `applied: false`) `reason` names every contributing Capability |
+| AC-043 | REQ-001 | Cross-Capability facet-name aggregation lock (B7): a fixture where two *different*, matched Capabilities each declare a `conditional_facets[]` entry under the identical `facet` name confirms `applied` is the OR of both predicate instances' own per-component evaluations, `evidence` is the concatenation of every contributing `(capability_id, declaration_index, component_id)` triple's own evaluation nodes in `capability_id`-then-`declaration_index`-then-`component_id` ascending order, and (on `applied: false`) `reason` names every contributing predicate instance |
 | AC-044 | REQ-004 | Provenance canonicalization lock (B9): a fixture confirms `dependency_pointers[]` is exactly `/workflow` plus one RFC-6901-escaped `/components/<id>` pointer per affected component, stable-sorted and de-duplicated (including a component `id` containing `/`/`~` to exercise escaping); `resolver.version`/`resolver.rule_set_revision` are identical across repeated invocations and across `.py`/`.sh`/`.ps1` of the same Resolver revision, and change only when that revision's own `RESOLVER_VERSION`/rule-set constant is bumped (`scripts/bump-version.sh`) |
 | AC-045 | REQ-005/REQ-006 | Metamorphic completeness lock (M10): all four true/false combinations of a 2-affected-component `trigger` result; output invariance under affected-component input-order permutation; a >1-true-component fixture recording the matched Capability exactly once; and a nested-array-completeness fixture confirming every level of Resolver Evidence's own nesting carries exactly its governing set's cardinality (design.md Test Strategy item 9) |
-| AC-046 | REQ-007 | Live-caller-contract lock (M6): a contract-test suite against the live `sdd-bootstrap-interviewer/SKILL.md` confirms (a) no `resolve-project-context` invocation while Context-absent, (b) exactly one invocation per capability interview phase run, (c) a REQ-002 Block surfaces to the interview session rather than silently degrading, and (d) a drift check fails loudly if this package's own cited anchor (`SKILL.md:60`'s `### Full-Profile Layer Interview` heading, at this package's own design-authoring time) no longer matches the live file verbatim |
+| AC-046 | REQ-007 | Live-caller-contract lock (M6, revised): a contract-test suite against the live `sdd-bootstrap-interviewer/SKILL.md` confirms (a) no `resolve-project-context` invocation while Context-absent, (b) exactly one invocation per capability interview phase run, (c) a REQ-002 Block surfaces to the interview session rather than silently degrading, and (d) an **anchor-fingerprint** drift check (AC-053, below, gives the fingerprint mechanism) fails loudly if this package's own cited anchor no longer matches the live file, superseding an earlier revision's bare heading-text-existence check |
+| AC-047 | REQ-002 | Journal-based crash recovery lock (B1, NEW): a fixture simulates a hard crash between two renames of a multi-target publication transaction (test-harness-only kill hook) and confirms the **next** invocation's own mandatory crash-recovery scan converges every target back to its own PRE-transaction bytes before proceeding with its own, separate resolve; a companion fixture corrupts the journal's own recorded pre-image backup (an unrecoverable state) and confirms the next invocation Blocks, `publication-journal-recovery`, before any Registry/ownership/Context-Projection work begins |
+| AC-048 | REQ-002 | Pre-publication `affected_components` re-derivation lock (B8, NEW): a fixture mutates only the worktree/index/untracked state (no ownership-config edit) between this invocation's own step-4 snapshot and its step-13 recheck, confirming `snapshot-generation-mismatch` fires on the `affected_components` set difference even though `ownership_digest` itself stays byte-identical |
+| AC-049 | REQ-002 | Post-publication verification / race lock (B8, NEW): a fixture injects the identical class of source mutation *after* the pre-publication recheck has already passed but *before* the publication transaction's own last rename completes, confirming (a) `post-publication-generation-mismatch` fires only after every rename in the transaction has already, briefly, succeeded, (b) every one of those renames is rolled back to its own PRE-transaction state via the journal before this invocation exits, (c) the rollback is journal-based, never a bare `unlink` |
+| AC-050 | REQ-004 | `validate-resolver-evidence` Registry provenance-binding lock (B6, NEW): a fixture supplies a `--registry` override whose own `generate-registry-digest --whole` value does not equal the Evidence instance's own `context_binding.registry_digest`, confirming `registry-digest-unbound` fires before any `capability-set-mismatch` check runs; a companion fixture confirms the default (no `--registry`) self-discovery path performs the identical binding check against the ADR-0025-discovered Registry, never trusting an unverified caller-supplied path |
+| AC-051 | REQ-004 | `validate-resolver-evidence` affected-component provenance-binding lock (B6, NEW): a fixture pairs an Evidence instance with a co-located Facet Manifest whose own `dependency_pointers[]` names a different affected-component set than the Evidence instance's own, confirming `affected-component-provenance-mismatch` fires without needing any `--affected-components` CLI argument at all; a companion fixture supplies an explicit `--affected-components` override that contradicts both sibling artifacts' own `dependency_pointers[]`, confirming the identical check-id fires for the override case too |
+| AC-052 | REQ-001 | Same-Capability duplicate-facet predicate-instance lock (B7, NEW): a fixture where a single Registry Capability declares the identical `facet` name at two different `conditional_facets[]` array positions with two different `when` predicates confirms Resolver Evidence records two independent `conditional_facet_evaluations[]` entries (one per `declaration_index`, never collapsed by `facet` name), and the Facet Manifest's own single, facet-name-unique output entry aggregates both declaration indices' own contributions by the identical `(capability_id, declaration_index, component_id)`-keyed rule the cross-Capability case (AC-043) uses |
+| AC-053 | REQ-007 | Anchor-fingerprint lock (M6, NEW): a fixture confirms the recomputed sha256 of the fixed `SKILL.md:54-64` window and the `### Full-Profile Layer Interview` heading's own 1-based ordinal position among every `##`/`###` heading in the live file both match this package's own recorded values (`sha256:d969fa163169ee5a9b5941600382b86b75929d6cd90d223dbe991e1dc234fb64` and `3` respectively); a regression fixture that relocates the identical heading text to a different position in the file, while its own immediate neighboring lines stay unchanged, confirms the drift check fails loudly — the exact case an earlier revision's bare "heading text still exists" check could not detect |
+| AC-054 | REQ-001/REQ-004 | Resolver publication transaction reader-side lock (B1, NEW): a fixture confirms `validate-resolver-evidence` fails closed (never a silent read of possibly-torn cross-file state) when a live transaction journal names the `resolver-evidence.yaml` path it is about to read |
 
 ## Field Definitions
 
@@ -738,10 +818,20 @@ document v2 §7/§18.4).
   within a successful run) and distinct from ADR-0021's own "Policy
   Weakening → Block" (a `compare-facet-manifest-staleness` verdict, a
   different script this feature does not build, Non-goals). A REQ-002
-  Block always means "this invocation's own atomic commit step (REQ-001)
-  never runs, so it produced no Facet Manifest/Capability Summary/Context
-  Projection at all" — never a partial or degraded one — a structural
-  guarantee of REQ-001's own staged-generation/single-atomic-commit
+  Block always means this invocation's own publication transaction
+  (REQ-001) never *completes* leaving new content live: for every Block
+  reached before publication begins, the transaction never runs at all,
+  so this invocation produced no Facet Manifest/Capability Summary/
+  Context Projection at all; for the one exception —
+  `post-publication-generation-mismatch`, whose own detection point is
+  necessarily *after* every rename has already, briefly, succeeded — this
+  invocation itself rolls the transaction back to its own PRE-transaction
+  state before returning the Block, so the *net* effect converges to the
+  identical "no Facet Manifest/Capability Summary/Context Projection at
+  all" outcome even though a live rename technically occurred in between
+  (design.md "Resolver publication transactional bundle contract"). Never
+  a partial or degraded artifact either way — a structural guarantee of
+  REQ-001's own staged-generation/journaled-transactional-publication
   ordering (adversarial review "B1 atomicity"), not merely a per-step
   promise. **This definition no longer depends on any "representative
   branch" concept** — an earlier revision's `dsl-warn-on-matched-
@@ -775,8 +865,9 @@ document v2 §7/§18.4).
 - **A running Resolver process (any caller)**: the sole intended writer of
   live `facet-manifest.yaml`/`capability-summary.yaml`/`project-context.
   resolved.json`/Resolver Evidence instances for a real Feature, via the
-  guarded atomic publication mechanism REQ-001 fixes (staged generation,
-  single atomic commit, cwd-independent path resolution per ADR-0025 —
+  guarded journaled publication transaction REQ-001 fixes (staged
+  generation, journaled transactional commit, cwd-independent path
+  resolution per ADR-0025 —
   never a human-copy content-population step, M7 correction to an earlier
   revision that treated `project-context.resolved.json`'s own "initial
   content" as a human-copy target, which is incoherent for a value that is
@@ -807,16 +898,19 @@ document v2 §7/§18.4).
    any evaluated branch → track branch selects `full` → Facet Manifest
    staged (facets/gates/lite-policy collected, cross-Capability facet-name
    aggregation applied) → Resolver Evidence staged → every staged artifact
-   schema-validated → pre-publication snapshot recheck matches → single
-   atomic commit writes `facet-manifest.yaml` to `specs/my-feature/`,
+   schema-validated → pre-publication snapshot recheck (digests and
+   `affected_components`) matches → the journaled publication transaction
+   writes `facet-manifest.yaml` to `specs/my-feature/`,
    `project-context.resolved.json` to `generated/`, and Resolver Evidence
-   alongside `facet-manifest.yaml` → exit 0.
+   alongside `facet-manifest.yaml`, verified once more immediately after
+   the last rename (post-publication verification) → exit 0.
 2. **Successful lite-track resolve with a resolvable check source**: as
    above through evaluation, but `workflow.spec_profile == lite`, the
    track branch selects `lite`, and every matched Capability contributing
    to `required_lite_checks` has a resolvable source → Capability Summary
    staged (**never** a Facet Manifest or a published Context Projection on
-   this track, B4) → the single atomic commit writes `capability-
+   this track, B4) → the journaled publication transaction writes
+   `capability-
    summary.yaml` and Resolver Evidence only → exit 0. (Given
    investigation.md INV-019's confirmed gap, this workflow currently has a
    real-world instance only when zero matched Capabilities need a Lite
@@ -888,20 +982,26 @@ document v2 §7/§18.4).
   is removed together with the representative-evidence-selection concept
   it depended on, Field Definitions "Block", above). There is no longer an
   accepted-WARN case anywhere in this feature's own evaluation model.
-- **Two or more matched Capabilities declare a `conditional_facets[]`
-  entry under the identical `facet` name** (adversarial review "B7 facet
-  aggregation"): the Facet Manifest's own single, facet-name-unique
-  `conditional_facets[]` entry for that name aggregates every contributing
-  Capability by OR (`applied: true` iff any contributing Capability's own
-  evaluation, against any affected component, is `true`), concatenates
-  every contributing `(capability, component)` pair's own evidence nodes
-  in `capability_id`-then-`component_id` ascending order, and (on
-  `applied: false`) names every contributing Capability in `reason`
-  (design.md Design Decisions "facet-name aggregation" gives the exact
-  rule). Resolver Evidence itself never aggregates across Capabilities —
-  each matched Capability's own `conditional_facet_evaluations[]` entry
-  remains scoped to that Capability alone, regardless of `facet`-name
-  collisions with any other Capability.
+- **Two or more predicate instances — `(capability_id, declaration_
+  index)` pairs, whether from two *different* matched Capabilities or
+  from the *same* Capability declaring the identical `facet` name more
+  than once in its own `conditional_facets[]` array — share one `facet`
+  name** (adversarial review "B7 facet aggregation", generalized to
+  predicate-instance keying): the Facet Manifest's own single,
+  facet-name-unique `conditional_facets[]` entry for that name aggregates
+  every contributing predicate instance by OR (`applied: true` iff any
+  contributing predicate instance's own evaluation, against any affected
+  component, is `true`), concatenates every contributing `(capability_id,
+  declaration_index, component_id)` triple's own evidence nodes in
+  `capability_id`-then-`declaration_index`-then-`component_id` ascending
+  order, and (on `applied: false`) names every contributing predicate
+  instance in `reason` (design.md Design Decisions "facet-name
+  aggregation, predicate-instance keyed" gives the exact rule). Resolver
+  Evidence itself never aggregates across predicate instances — each
+  matched Capability's own `conditional_facet_evaluations[]` array
+  carries one entry per its own `conditional_facets[]` *declaration*
+  (keyed by `declaration_index`, B7), regardless of `facet`-name
+  collisions with any other declaration, same-Capability or not.
 - **A Registry Capability with an empty `conditional_facets: []`**: its
   `capability_evaluations[]` entry (Resolver Evidence) carries an empty
   `conditional_facet_evaluations: []` if matched, and none at all if
@@ -919,23 +1019,50 @@ document v2 §7/§18.4).
   Feature "stale" is `compare-facet-manifest-staleness`'s own concern
   (Epic A4, Non-goals), not this feature's; this feature never itself
   decides staleness.
-- **The Project Context, ownership-source declarations, or Registry
-  change between this invocation's own snapshot and its pre-publication
-  recheck** (a TOCTOU window — a concurrent commit, a concurrent second
-  Resolver invocation against the same repository, or a filesystem race —
-  adversarial review "B8 TOCTOU"): `snapshot-generation-mismatch` Blocks
-  (REQ-002), even though every earlier step in this invocation already
-  succeeded; this invocation's own staged artifacts, which reflect the
-  now-stale snapshot, are discarded rather than committed.
+- **The Project Context, ownership-source declarations, Registry, or the
+  underlying diff's own `affected_components` set change between this
+  invocation's own snapshot and its pre-publication recheck** (a TOCTOU
+  window — a concurrent commit, a concurrent second Resolver invocation
+  against the same repository (out of scope by the single-writer
+  assumption, below), or a filesystem race — adversarial review "B8
+  TOCTOU", widened to also re-derive and compare `affected_components`,
+  not only digests): `snapshot-generation-mismatch` Blocks (REQ-002),
+  even though every earlier step in this invocation already succeeded;
+  this invocation's own staged artifacts, which reflect the now-stale
+  snapshot, are discarded rather than committed.
+- **The identical class of change occurs again, *after* the
+  pre-publication recheck immediately above has already passed but
+  *before* the publication transaction's own last rename completes** (the
+  "post-recheck race," adversarial review "B8 TOCTOU" — a narrower,
+  later window the pre-publication recheck alone cannot close, since it
+  is itself over by the time the transaction's own renames run):
+  `post-publication-generation-mismatch` Blocks (REQ-002, NEW), and this
+  invocation itself rolls every already-committed rename back to its own
+  PRE-transaction state via the publication transaction's own journal
+  before returning that exit code — the sole Edge Case in this feature
+  where a live rename briefly succeeds before this invocation's own exit
+  code reports a Block.
+- **This invocation, or a prior invocation against the identical
+  `--feature`, crashes between two renames of a multi-target publication
+  transaction** (adversarial review "B1 atomicity"): the transaction's
+  own journal, written before any rename in that transaction began,
+  survives the crash; the next invocation against that same `--feature`
+  detects it via the mandatory crash-recovery scan (REQ-001's own step 0)
+  and converges every target back to one of the transaction's own two
+  terminal states — fully-applied or fully-reverted — before proceeding
+  with its own, separate work, never leaving a mixed generation standing
+  (design.md "Resolver publication transactional bundle contract").
 
 ## Security Boundaries
 
 - The Resolver's own orchestration logic never invokes a Provider API,
   reads a credential, or writes outside `specs/<feature>/facet-manifest.
   yaml`/`capability-summary.yaml`, `generated/project-context.resolved.
-  json`, and its own Resolver Evidence path — matching ADR-0020's own
-  Provider-neutrality boundary for the DSL layer, extended by this
-  feature's REQ-005 to its own orchestration layer.
+  json`, its own Resolver Evidence path, and its own transient
+  `specs/<feature>/.resolver-staging/` transaction-journal/pre-image area
+  (B1, unprotected staging, never a live path itself) — matching
+  ADR-0020's own Provider-neutrality boundary for the DSL layer, extended
+  by this feature's REQ-005 to its own orchestration layer.
 - The Resolver never writes to any `*.approval.json` sidecar, any
   `sdd/.approved-context/` anchor, or `guard-invariants.json` itself —
   those remain exclusively Epic A1's own protected-file surface
@@ -952,11 +1079,34 @@ document v2 §7/§18.4).
   to execute — a compatible caller's own security posture (REQ-007) is to
   never invoke this Resolver's process at all in this state.
 - **No artifact this invocation stages ever reaches a live path except via
-  a single atomic commit** (REQ-001, above, adversarial review "B1
-  atomicity") — a crash, a Block, or a publication failure at any point
-  before that commit leaves every live path this feature's Resolver could
-  write either fully absent, fully unchanged, or (Resolver Evidence only,
-  on a Block) fully written; never a torn or partially-written artifact.
+  the journaled publication transaction** (REQ-001, above, adversarial
+  review "B1 atomicity"/"B8 TOCTOU") — a crash at any point, including
+  between two renames, a Block, an in-process publication failure, or a
+  post-publication-verification mismatch each leave every live path this
+  feature's Resolver could write either fully absent, fully unchanged
+  (converged there by the crash-recovery scan or an in-process rollback,
+  both journal-based, never a bare `unlink` with no restore), or (Resolver
+  Evidence only, on a Block reached before publication) fully written;
+  never a torn or partially-written artifact, and never a mixed
+  generation across a multi-target batch.
+- **Every invocation runs a mandatory crash-recovery scan, scoped to its
+  own `--feature` value, before any other work begins** (B1, above) — a
+  stale transaction journal from a prior, interrupted invocation is
+  always resolved (or, if unrecoverable, fails this invocation closed
+  with `publication-journal-recovery`) before this invocation's own
+  Registry/ownership/Context-Projection work is ever attempted, matching
+  this feature's own general "fail closed, never proceed on unverified
+  state" posture.
+- **This feature assumes a single writer to a given `--feature` value's
+  own Resolver-owned output paths, and to the Project Context/ownership-
+  source/Registry sources it reads, across one invocation's own
+  multi-step sequence** (mirroring Epic A3's own single-writer/snapshot
+  contract) — a concurrent second invocation against the identical
+  `--feature`, or a concurrent edit to the same live output paths outside
+  this Resolver's own transaction, is out of this feature's own scope; it
+  is exactly the class of interference `snapshot-generation-mismatch`/
+  `post-publication-generation-mismatch`/the crash-recovery scan exist to
+  detect and fail closed on, never to serialize or prevent by themselves.
 - This feature's Resolver never embeds an upstream dependency subprocess's
   own raw stderr text (which may carry local, OS-specific path or
   environment detail) in any diagnostic line or Resolver Evidence
@@ -1000,12 +1150,16 @@ document v2 §7/§18.4).
   `compare-facet-manifest-staleness` against two of this feature's own
   outputs, and on what trigger.
 - **OQ-003 is resolved by this revision** (design.md Design Decisions
-  "caller insertion point", adversarial review "M6"): the capability
-  interview phase's insertion point is fixed to a concrete, file:line-
-  cited anchor in the live `sdd-bootstrap-interviewer/SKILL.md` (`SKILL.
-  md:60`'s `### Full-Profile Layer Interview` heading, at this package's
-  own design-authoring time), with a drift check (design.md Test Strategy
-  item 10) guarding that citation. What remains for the future
+  "caller insertion point"/"anchor fingerprint", adversarial review
+  "M6"): the capability interview phase's insertion point is fixed to a
+  concrete, file:line-cited anchor in the live `sdd-bootstrap-interviewer/
+  SKILL.md` (`SKILL.md:60`'s `### Full-Profile Layer Interview` heading,
+  at this package's own design-authoring time), with a **position-
+  sensitive anchor-fingerprint drift check** (design.md Test Strategy
+  item 10, AC-053) — a recorded window sha256 plus heading-ordinal-index
+  pair, revised from an earlier revision's bare "heading text still
+  exists" check, which could not detect the heading relocating within
+  the file — guarding that citation. What remains for the future
   implementation task is only the direct-edit-vs.-human-copy mechanical
   choice (Roles and Permissions, above), not the insertion point itself.
 
@@ -1045,28 +1199,52 @@ document v2 §7/§18.4).
   rationale, explicitly (design.md Design Decisions) precisely so
   spec-review can evaluate them before implementation begins.
 - **A future Epic A4 addendum is needed for the facet-name aggregation
-  rule's own evidence-concatenation consequence** (design.md Design
-  Decisions "facet-name aggregation"/Cross-Layer Dependencies "A4
-  addendum needed", adversarial review "B7"): Epic A4's own `conditional_
-  facets[].evidence` schema already accommodates this feature's
-  concatenated, multi-Capability-contributor output without any schema
-  change, but Epic A4's own prose (`design.md:413-422` in the Epic A4
-  worktree, "the whole array is copied verbatim from the evaluator's own
-  output") describes only the single-contributing-Capability case. This
-  package names the gap and takes no further action on Epic A4's own
-  content-frozen files (this task's own hard boundary) — see this
-  package's own final report for the explicit A4-addendum recommendation.
-- **The staged-generation/single-atomic-commit/snapshot-recheck rules
-  (REQ-001/REQ-002, above, adversarial review "B1 atomicity"/"B8 TOCTOU")
-  add real implementation complexity** a future Phase-2 implementer must
-  budget for — temp-file management, best-effort rollback on a partial
-  commit failure, and a second `resolve-component-paths` invocation
-  solely for the pre-publication ownership-digest recheck. This is the
-  direct, accepted cost of closing the atomicity/TOCTOU gaps adversarial
-  review found in an earlier revision of this package, not a design
-  defect of this revision.
+  rule's own evidence-concatenation consequence, and a future Epic A2
+  addendum candidate exists for same-Capability duplicate `facet`
+  declarations** (design.md Design Decisions "facet-name aggregation,
+  predicate-instance keyed"/Cross-Layer Dependencies "A4 addendum
+  needed"/"A2 addendum candidate", adversarial review "B7"): Epic A4's
+  own `conditional_facets[].evidence` schema already accommodates this
+  feature's concatenated, multi-predicate-instance-contributor output
+  without any schema change, but Epic A4's own prose (`design.md:
+  413-422` in the Epic A4 worktree, "the whole array is copied verbatim
+  from the evaluator's own output") describes only the
+  single-contributing-invocation case. Separately, Epic A2's own Registry
+  schema (`specs/epic-190-a2-capability-registry/requirements.md:
+  169-173`) neither requires nor forbids, and states no prose either way
+  about, a single Capability declaring the identical `conditional_
+  facets[].facet` name more than once — this feature's own
+  predicate-instance-keyed design (above) handles that case correctly
+  regardless of how a future addendum resolves the ambiguity. This
+  package names both gaps and takes no further action on either Epic's
+  own content-frozen files (this task's own hard boundary) — see this
+  package's own final report for both addendum recommendations.
+- **The staged-generation/journaled-transactional-publication/
+  provenance-binding rules (REQ-001/REQ-002/REQ-004, above, adversarial
+  review "B1 atomicity"/"B6 provenance binding"/"B8 TOCTOU") add real
+  implementation complexity** a future Phase-2 implementer must budget
+  for — transaction-journal read/write/rehash, byte-exact pre-image
+  backup, a mandatory crash-recovery scan on every invocation, a *third*
+  `resolve-component-paths` invocation for post-publication verification
+  in addition to the pre-publication recheck's own second one, and
+  `validate-resolver-evidence`'s own ADR-0025 self-discovery plus
+  digest-binding logic. This is the direct, accepted cost of closing the
+  atomicity/TOCTOU/provenance gaps adversarial review found in an earlier
+  revision of this package, not a design defect of this revision — Epic
+  A1's own already-fixed transactional bundle contract (`design.md:
+  927-1016` in the Epic A1 worktree) is the reference implementation a
+  future Phase-2 task should study first rather than developing the
+  journal/recovery mechanism from scratch.
 - **`resolve-project-context.{py,sh,ps1}`'s protected-suffix reservation
   may not yet be live** when this feature's own Phase-2 implementation
   begins, depending on Epic A1's own landing schedule (Assumptions,
   above) — the future implementation task must re-verify this before
   choosing its own staging sequencing.
+- **The anchor-fingerprint drift check (M6, requirements.md REQ-007,
+  design.md Design Decisions "anchor fingerprint") requires its own
+  recorded citation to be updated in the same commit as any future,
+  intentional `SKILL.md` edit that moves this package's own insertion
+  point** — a future implementer who forgets is caught immediately by
+  AC-053's own drift-check fixture failing, not silently; this is the
+  intended, low-cost trade-off of a position-sensitive check over the
+  earlier revision's weaker, position-blind one.

@@ -652,6 +652,115 @@ adjudicated finding grouping), 3 Minor (Block count, diagnostic
 namespace, discovery fixture count), 3 OK (union-match/digest-order/
 parity-target reinforced, not changed in substance).
 
+## INV-021: Second-round adversarial verification (B1/B3/B6/B7/B8/M6
+PARTIAL/NOT_RESOLVED, this revision) — resolutions recorded here for
+traceability
+
+A second-round adversarial verification of the revision INV-020 above
+produced re-tested RESOLVED: 19, PARTIAL: 4 (B3, B6, B7, M6),
+NOT_RESOLVED: 2 (B1, B8) — final verdict FAIL. This revision closes all
+six remaining findings. The findings requiring a genuinely new
+investigation-time fact are recorded here; the remainder are resolved
+entirely within requirements.md/design.md/acceptance-tests.md themselves:
+
+- **B1 (crash-safe multi-artifact transaction, NOT_RESOLVED → resolved)**:
+  the prior revision's own single atomic commit (temp-file + `fsync` +
+  `rename` per file, one file after another) had no cross-file atomicity
+  and no crash-safe rollback — a crash between two renames of a
+  multi-target batch could leave a mixed generation standing, and an
+  in-process failure's own best-effort `unlink` rollback destroyed
+  pre-existing live bytes with no restore path. Epic A1 (this worktree's
+  own sibling, `specs/epic-189-a1-project-context/design.md:927-1016`,
+  read directly for this finding) already fixes an isomorphic problem —
+  multi-target human-copy batches — via a journaled, prepare/journal/
+  commit/complete/recovery/reader-check protocol with byte-exact
+  pre-image backups. This revision applies that same protocol shape to
+  this feature's own Resolver-owned publication targets (design.md
+  "Resolver publication transactional bundle contract"), reusing Epic
+  A1's own already-`Passed` design rather than inventing a second one.
+- **B3 (best-effort Evidence on self-referential schema failure, PARTIAL
+  → resolved)**: the prior revision's own `output-schema-validation-
+  failed` handling wrote a "best-effort" Resolver Evidence instance
+  (failed fields omitted) when Evidence itself failed its own schema
+  self-validation, on the reasoning that REQ-004's "written on every
+  invocation" guarantee should hold even in this one case. This
+  instance's own conformance to `contracts/resolver-evidence.schema.json`
+  was never itself verified — it could as easily be schema-invalid as
+  not, making it exactly the class of artifact this self-validation check
+  exists to keep off a live path. This revision removes that rule: this
+  one case now writes nothing to any live path (requirements.md REQ-002/
+  REQ-004, design.md API / Contract Plan step 12).
+- **B6 (validator provenance binding, PARTIAL → resolved)**: the prior
+  revision's `validate-resolver-evidence` trusted a caller-supplied
+  `--registry`/`--affected-components` pair as the ground truth its own
+  exact-set checks compared against, with no independent verification
+  that pair was itself correct — a caller could substitute a different,
+  smaller Registry or an arbitrary affected-component subset alongside a
+  self-consistent-but-wrong Evidence instance and have it pass. This
+  revision binds both inputs to Evidence's own recorded provenance
+  fields: the Registry is self-resolved via ADR-0025 discovery (or, as an
+  override, digest-verified against `context_binding.registry_digest`),
+  and the affected-component set is derived from Evidence's own
+  `context_binding.dependency_pointers[]` (B9's own already-fixed
+  provenance field, `AC-044`), cross-checked against a co-located Facet
+  Manifest's own `dependency_pointers[]` when present — design.md
+  `validate-resolver-evidence` contract, "Provenance binding."
+- **B7 (same-Capability duplicate-facet aggregation, PARTIAL → resolved;
+  A2 addendum candidate, NEW)**: the prior revision's facet-name
+  aggregation rule keyed contribution by bare `capability_id`, which can
+  represent *cross*-Capability same-facet-name collisions but not a
+  *single* Capability declaring the identical `facet` name more than once
+  in its own `conditional_facets[]` array — a legitimate Registry input,
+  since Epic A2's own schema (`specs/epic-190-a2-capability-registry/
+  requirements.md:169-173`, the Epic A2 worktree, read directly for this
+  finding) neither requires nor forbids this. This revision generalizes
+  the aggregation unit to a "predicate instance," `(capability_id,
+  declaration_index)`, which covers both collision shapes identically
+  (design.md Design Decisions "facet-name aggregation, predicate-instance
+  keyed"). Because Epic A2's own prose is silent on whether the
+  same-Capability duplicate pattern is intentional or an oversight, this
+  revision also names an **A2 addendum candidate** (requesting explicit
+  prose either way) alongside the existing A4-addendum candidate above —
+  this package edits neither Epic A2 nor Epic A4's own files (this task's
+  own hard boundary).
+- **B8 (generation-binding completion, NOT_RESOLVED → resolved)**: the
+  prior revision's pre-publication recheck re-verified `ownership_digest`
+  but never re-derived `affected_components` itself, and `ownership_
+  digest` (Epic A3 `requirements.md:530-569`, the Epic A3 worktree, read
+  directly for this finding) is a project-wide "the ownership *config*
+  changed" signal that does not itself change when only the underlying
+  *diff* shifts which components are affected — a second invocation's own
+  `affected_components` set could silently drift between this
+  invocation's own snapshot and its recheck with no digest ever catching
+  it. This revision adds an explicit `affected_components` set comparison
+  to the pre-publication recheck, and adds a **second**, later
+  verification immediately after the publication transaction's own last
+  rename completes (`post-publication-generation-mismatch`, NEW), closing
+  the residual "post-recheck race" window the first recheck alone cannot
+  close — both re-derivations reuse the identical `resolve-component-
+  paths` re-invocation mechanism, never a second algorithm. A new,
+  explicit single-writer assumption (mirroring Epic A3's own
+  `design.md:351-371`, the Epic A3 worktree, read directly for this
+  finding) is stated alongside these two checks.
+- **M6 (anchor position-sensitivity, PARTIAL → resolved)**: the prior
+  revision's drift check verified only that the cited heading text
+  (`### Full-Profile Layer Interview`) still existed verbatim somewhere
+  in the live `SKILL.md` — a check that cannot detect the heading
+  *moving* to a different position in the document while its own text
+  stays unchanged. A direct read of the live file (this worktree, at this
+  revision's own authoring time) fixes two independent, recomputable
+  drift signals in its place: the sha256 of the literal 11-line window
+  `SKILL.md:54-64` (`sha256:d969fa163169ee5a9b5941600382b86b75929
+  d6cd90d223dbe991e1dc234fb64`, computed via `sed -n '54,64p' SKILL.md |
+  shasum -a 256`, LF-joined), and the heading's own 1-based ordinal
+  position among every `##`/`###`-level heading in the file in document
+  order (`3` — confirmed by `grep -n '^#\{2,3\} ' SKILL.md`, counting `##
+  Invocation`, `## Intake And Investigation`, then this heading). design.md
+  Design Decisions "anchor fingerprint" records both values and the
+  update procedure for a future, intentional `SKILL.md` revision.
+
+25/25 first-round plus 6/6 second-round findings resolved.
+
 ## Summary of Evidence References
 
 - `docs/ai-dlc-foundation-decision-v2.md` §2, §6, §7, §9, §10, §11, §12,
