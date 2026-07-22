@@ -1,6 +1,6 @@
 # Design: epic-193-a5-capability-resolver
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: one new deterministic script family (`resolve-project-
 context.{py,sh,ps1}`, at a path Epic A1 already reserved as protected)
 plus companion validator scripts (`validate-resolver-evidence.{py,sh,
