@@ -1,6 +1,6 @@
 # Tasks: epic-190-a2-capability-registry
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issue #190 (Epic A2 — Capability Registry), tracked under epic #187
 (AI-DLC Foundation) /
