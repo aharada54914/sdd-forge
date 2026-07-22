@@ -572,8 +572,8 @@ guessing at an undocumented convention.
 - AC-034: A single allowlist manifest (design.md; REQ-007;
   `skip-allowlist-manifest/v1`) lists every upstream-dependent assertion
   this package names as a `SKIP` candidate — AC-004, AC-007, AC-019–
-  AC-021, AC-042, AC-043, and any Context-present REQ-003 assertion — each
-  row's own
+  AC-021, AC-036, AC-037, AC-042, AC-043, and any Context-present REQ-003
+  assertion — each row's own
   `dependencies` field an **array** of `{epic, issue, fingerprints}`
   objects (never a single flat `{epic, issue}` pair), so one assertion
   can cite more than one upstream epic (AC-021's own compound Epic A1
