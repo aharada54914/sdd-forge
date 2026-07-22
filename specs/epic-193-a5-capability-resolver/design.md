@@ -405,10 +405,17 @@ evaluates, unmodified), `docs/adr/0021-context-projection-staleness.md`
 (`context_binding` shape and semantic-output definition this feature
 populates), `docs/adr/0023-track-selection-contract-migration.md` (cited
 for context; this feature does not itself implement track-selection CLI
-precedence, that remains Epic A1's own REQ-009 scope), and (in the Epic A2
-worktree) `docs/adr/0025-registry-discovery-contract.md` (the discovery
-procedure this feature reuses unmodified, investigation.md INV-005) — this
-design implements those seven ADRs' decisions, plus six new,
+precedence, that remains Epic A1's own REQ-009 scope), and
+`docs/adr/0025-registry-discovery-contract.md` (the discovery procedure
+this feature reuses unmodified, investigation.md INV-005 — **Accepted in
+the Epic A2 worktree, 2026-07-21; not yet present on this worktree's own
+`docs/adr/` branch state at this package's own design-authoring time**
+(`ls docs/adr/` here returns only 0001-0024 plus README.md), cited as an
+Accepted cross-Epic ADR regardless, per investigation.md INV-005/INV-020/
+INV-021 — a reader of this worktree can consult this design's own
+verbatim restatement of ADR-0025's three-step discovery procedure,
+Discovery contract below, without needing the file present locally) —
+this design implements those seven ADRs' decisions, plus six new,
 not-independently-ADR-worthy decisions this design records below (Design
 Decisions), narrowed from an earlier revision's two after adversarial
 review found the earlier "representative-evidence-selection" decision
@@ -656,6 +663,24 @@ Data Entities:
   via the transactional bundle contract's own journal before returning
   that exit code, since the artifacts in question are, at the moment of
   this check, already live.
+
+Existing Data Affected: none written; two existing artifacts read only —
+the **Registry Capability read set** and the **Context Projection read
+set** (both defined above, in this same Data Plan) are the only existing,
+already-`Spec-Review-Status: Passed` sibling-epic artifacts this
+feature's Resolver ever reads (`capability-registry.json`, Epic A2, via
+`gate_ids`/`capabilities[]` referential lookup; the Resolver's own
+internally-computed Context Projection, Epic A4's REQ-003 generation
+procedure applied to `project-context.yaml`'s own already-approved
+content, Epic A1). Neither is ever modified by this feature — this
+feature's Resolver performs no write of any kind against
+`capability-registry.json`, `project-context.yaml`, or any other Epic
+A1/A2/A3/A4 artifact (Cross-Layer Dependencies, above, "this package does
+not edit Epic A4's/A2's own files, this task's own hard boundary"; API /
+Contract Plan step 5, "Registry discovery ... read not redefined").
+`generated/project-context.resolved.json` is this feature's own new
+output, not an existing artifact this feature affects — see Data Entities,
+above, and Protected-File Statement.
 
 Migration Strategy: none. No database, no runtime storage, no schema
 migration anywhere in this feature — the same "no database, no migration,
