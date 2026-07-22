@@ -138,19 +138,44 @@ def is_design_md(path):
     return bool(path) and str(path).replace("\\", "/").lower().endswith("design.md")
 
 
-def _impl_review_verdict_exists(feature):
-    """CWD-relative path resolution (matches JS behavior, ADR-004)."""
+def _impl_review_verdict_exists(feature, file_path=None):
+    """Resolve the repository root the same way as _resolve_project_root
+    (CLAUDE_PROJECT_DIR, then the git root discovered upward from the edited
+    file_path, then CWD) and look for a PASS/PASS-with-warnings
+    integrated-verdict.json under each candidate root. Resolving from
+    file_path/CLAUDE_PROJECT_DIR rather than CWD alone fixes false denials when
+    the agent's CWD is outside the repository (the previous CWD-only glob missed
+    a genuine verdict). The verdict criterion is unchanged. (WFI-016)
+    """
     import glob as _glob
     import json as _json
-    pattern = f"reports/impl-review/{feature}/attempt-*/round-*/integrated-verdict.json"
-    for f in _glob.glob(pattern):
+    roots = []
+    env_root = os.environ.get("CLAUDE_PROJECT_DIR")
+    if env_root:
+        roots.append(env_root)
+    if file_path:
+        fp_root = _find_git_root(os.path.dirname(os.path.abspath(file_path)))
+        if fp_root:
+            roots.append(fp_root)
+    roots.append(".")
+    rel = f"reports/impl-review/{feature}/attempt-*/round-*/integrated-verdict.json"
+    seen = set()
+    for root in roots:
         try:
-            with open(f) as fh:
-                data = _json.load(fh)
-            if data.get("verdict") in ("PASS", "PASS-with-warnings"):
-                return True
+            key = os.path.abspath(root)
         except Exception:
-            pass
+            continue
+        if key in seen:
+            continue
+        seen.add(key)
+        for f in _glob.glob(os.path.join(root, rel)):
+            try:
+                with open(f) as fh:
+                    data = _json.load(fh)
+                if data.get("verdict") in ("PASS", "PASS-with-warnings"):
+                    return True
+            except Exception:
+                pass
     return False
 
 
@@ -193,7 +218,7 @@ def impl_review_status_passed_increases(payload):
     if not m:
         return False
     feature = m.group(1)
-    return not _impl_review_verdict_exists(feature)
+    return not _impl_review_verdict_exists(feature, file_path)
 
 
 def is_wfi_path(path):
