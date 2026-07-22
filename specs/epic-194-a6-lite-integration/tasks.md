@@ -834,9 +834,27 @@ T-001, T-002
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T15:44:54Z)
 
-Status: Planned
+Status: Implementation Complete
+
+Implementation Note (2026-07-22T16:02:11Z, a6-impl2): unlike T-001/T-002/
+T-003, this task's own target (`plugins/sdd-lite/skills/lite-gate/SKILL.md`)
+is confirmed unprotected (`grep -n "sdd-lite"
+plugins/sdd-quality-loop/references/guard-invariants.json` re-run
+immediately before editing, still absent from both arrays, AC-017) — the
+direct edit landed at the real path with no R-10 guard block and no
+human-copy staging needed. Full implementation report:
+`reports/implementation/epic-194-a6-lite-integration/T-004.md`. RED/GREEN:
+`specs/epic-194-a6-lite-integration/verification/T-004.{red,green}.log`
+(60/60 assertions passing across both runtimes). The shared CI-workflow
+staging candidate (`.github/workflows/test.yml`) that would register this
+task's own 5 new suites is still affected by the same R-10 gap T-001
+recorded — its content (including this task's own steps) is prepared as
+`specs/epic-194-a6-lite-integration/human-copy/PROPOSED/dot-github-
+workflows-test.yml.PROPOSED`, pending the same human decision. Awaiting
+quality-gate delegation (held per main's own instruction pending Epic A2's
+evaluator-identity-ledger pattern for the non-reserve-mode validator gap).
 
 Risk: high
 
@@ -994,47 +1012,60 @@ Commit B (documentation):
 
 ### Done When
 
-- [ ] **Step-insertion + ordering + direct-edit re-verification** —
-  TEST-014 passes: Step 2b sits between the existing Step 2 and Step 3,
-  the "順序が重要" ordering note is textually preserved (AC-014); the
-  implementation report records the `grep -n "sdd-lite" plugins/sdd-
+- [x] **Step-insertion + ordering + direct-edit re-verification** —
+  Step 2a/2b inserted between the existing Step 2 and Step 3; the
+  "順序が重要" ordering note is textually preserved verbatim (AC-014); the
+  implementation report (`reports/implementation/epic-194-a6-lite-
+  integration/T-004.md`) records the `grep -n "sdd-lite" plugins/sdd-
   quality-loop/references/guard-invariants.json` output immediately
   before this task's own edit landed, confirming `lite-gate/SKILL.md` was
   still absent from both protected arrays (AC-017).
-- [ ] **Absent-Summary handling, both cases** — TEST-011/TEST-030 pass:
-  `disabled-legacy` absent-Summary runs the five baseline checks unchanged
-  (AC-011); active-`capability_enforcement` absent-Summary is `VERDICT:
-  FAIL`, distinct, paired with a present-empty-Summary pass-through
-  (AC-030, Blocker [B6]).
-- [ ] **Schema-validation-before-trust** — TEST-012 passes: a schema-
-  invalid Summary is `VERDICT: FAIL` via a call to A4/A5's own validator,
-  never a reimplementation (AC-012); TEST-013 (static-review) confirms no
-  per-Capability re-aggregation logic of `lite-gate`'s own exists (AC-013).
-- [ ] **`full_upgrade_required` backstop** — TEST-026 passes: Step 2a
-  Blocks on `true` before Step 2b runs, continues on `false` (AC-026,
-  Blocker [B2]).
-- [ ] **Command-discovery contract + unmapped-FAIL reversal + no
-  heavy-machinery** — TEST-015 passes: a baseline-name duplicate is a
-  no-op; a resolvable Registry-sourced check-id runs and records
-  PASS/FAIL; an unmapped check-id (including a grammar-failing id, a
-  symlink/escaping `scripts/<id>` candidate, or a single-runtime-member
-  pair, NEW-01) is `VERDICT: FAIL` with a stated reason, never `N/A` —
-  with a companion fixture confirming Step 2's own pre-existing,
-  non-Registry-sourced convention is unchanged (AC-015, AC-016, Blocker
-  [B7]); a static-review fixture confirms Step 2b invokes no
-  evidence-bundle generator, cross-model-verification call, second-
-  approval check, or risk-hierarchy classification (AC-018).
-- [ ] **Suite/CI registration + governance** — all five new suites
+- [x] **Absent-Summary handling, both cases** — TEST-011/TEST-030
+  (simulator-based, see suite header rationale) pass:
+  `disabled-legacy` absent-Summary runs unchanged (AC-011);
+  active-`capability_enforcement` absent-Summary is `VERDICT: FAIL`,
+  distinct, paired with a present-empty-Summary pass-through (AC-030,
+  Blocker [B6]) — `tests/lite-gate-summary-absent.tests.{sh,ps1}`,
+  `tests/lite-gate-summary-absent-active-enforcement.tests.{sh,ps1}`.
+- [x] **Schema-validation-before-trust** — TEST-012/013 pass: a schema-
+  invalid Summary is `VERDICT: FAIL` (AC-012); a static-review check
+  confirms no per-Capability re-aggregation logic of `lite-gate`'s own
+  exists (AC-013) — `tests/lite-gate-summary-invalid.tests.{sh,ps1}`.
+- [x] **`full_upgrade_required` backstop** — TEST-026 passes: Step 2a
+  Blocks on `true` before Step 2b runs (confirmed via the "no
+  discovery attempted" assertion), continues on `false` (AC-026,
+  Blocker [B2]) — `tests/lite-gate-full-upgrade-backstop.tests.{sh,ps1}`.
+- [x] **Command-discovery contract + unmapped-FAIL reversal + no
+  heavy-machinery** — TEST-015/016/018 pass: a baseline-name duplicate is
+  a no-op; a resolvable Registry-sourced check-id runs (npm and
+  scripts-pair paths both exercised); an unmapped check-id (including a
+  grammar-failing id, a symlink/escaping `scripts/<id>` candidate, and a
+  single-runtime-member pair, NEW-01) is `VERDICT: FAIL` with a stated
+  reason, never `N/A`; a companion assertion confirms Step 2's own
+  pre-existing convention is unchanged; a static-review fixture confirms
+  no evidence-bundle/cross-model/second-approval/risk-hierarchy machinery
+  was introduced (AC-018) —
+  `tests/lite-gate-summary-consumption.tests.{sh,ps1}`.
+- [x] **Suite/CI registration + governance** — all five new suites
   self-register in `tests/run-all.sh`/`.ps1` (fourth/last in the
-  serialized order); the staged `.github/workflows/test.yml` candidate
-  exists with these suites' CI steps; `CHANGELOG.md` gains a NEW
-  `## Unreleased` entry citing #194; a grep self-check confirms no version
-  string was mutated outside `scripts/bump-version.sh`.
-- [ ] **TDD evidence** — RED (each item above against a deliberately
-  unextended `lite-gate/SKILL.md` or a broken fixture) and GREEN (the full
-  suite against the correct extension). An independent quality-gate
-  verdict records PASS, with a named second reviewer distinct from the
-  implementing agent.
+  serialized order, verified: `bash scripts/check-sdd-structure.sh .` and
+  `bash plugins/sdd-quality-loop/scripts/check-task-state.sh` both pass);
+  the staged `.github/workflows/test.yml` candidate exists with these
+  suites' CI steps at `specs/epic-194-a6-lite-integration/human-copy/
+  PROPOSED/dot-github-workflows-test.yml.PROPOSED` (R-10 guard-gap
+  interim staging, same as T-001 — see that task's Blocker note);
+  `CHANGELOG.md` gains a NEW `## Unreleased` entry citing #194; a grep
+  self-check confirms no version string was mutated outside
+  `scripts/bump-version.sh` (none of this task's changes touch any
+  version string).
+- [~] **TDD evidence** — RED (`verification/T-004.red.log`, 30 genuine
+  failures against a deliberately disabled Step 2a/2b) and GREEN
+  (`verification/T-004.green.log`, 60/60 passing) both captured. An
+  independent quality-gate verdict has **not yet** been recorded — QG
+  delegation is held per main's own instruction pending Epic A2's
+  evaluator-identity-ledger pattern for the non-reserve-mode validator
+  gap; launch materials are prepared, not yet sent. This bullet is not
+  fully satisfied until that verdict lands.
 
 ### Out of Scope
 

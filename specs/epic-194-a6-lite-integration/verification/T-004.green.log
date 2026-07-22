@@ -1,0 +1,140 @@
+### lite-gate-summary-consumption.tests.sh (restored, correct simulator) ###
+=== TEST-015a: baseline-name duplicate is a no-op ===
+ok: TEST-015a: baseline-only required_lite_checks is a no-op, VERDICT: PASS
+ok: TEST-015a: no command-discovery attempted for baseline names
+=== TEST-015b: Registry-sourced check resolved via npm scripts ===
+ok: TEST-015b: npm-resolvable check runs, VERDICT: PASS
+ok: TEST-015b: recorded as run via npm
+=== TEST-015c: Registry-sourced check resolved via scripts/<id> pair ===
+ok: TEST-015c: scripts-pair-resolvable check runs, VERDICT: PASS
+ok: TEST-015c: recorded as run via scripts pair
+=== TEST-016a: unmapped Registry-sourced id is VERDICT: FAIL, never N/A ===
+ok: TEST-016a: unmapped id is VERDICT: FAIL
+ok: TEST-016a: reason names the missing discoverable command (never N/A)
+=== TEST-016b: grammar-failing check-id blocked before discovery (NEW-01) ===
+ok: TEST-016b: grammar-failing id rejected before discovery is attempted
+=== TEST-016c: symlink-escaping scripts/<id> candidate rejected (NEW-01) ===
+ok: TEST-016c: symlinked scripts/<id> pair treated as unmapped, never executed
+=== TEST-016d: single-runtime-member pair is unmapped (NEW-01) ===
+ok: TEST-016d: a check-id with only one runtime member present is treated as unmapped
+=== TEST-016e: N/A stays reserved for Step 2's own pre-existing convention ===
+ok: TEST-016e: SKILL.md text still reserves N/A for Step 2's own convention only
+=== TEST-018: static review -- no evidence-bundle/cross-model/second-approval/risk-hierarchy machinery introduced ===
+ok: TEST-018: the new Step 2a/2b text explicitly disclaims adding evidence-bundle/cross-model/second-approval machinery, and introduces none
+
+Results: 13 passed, 0 failed
+
+### lite-gate-summary-absent.tests.sh (restored, correct simulator) ###
+=== TEST-011: disabled-legacy (no Project Context, no Summary) runs unchanged ===
+ok: TEST-011a: disabled-legacy VERDICT: PASS (no Summary is legitimate, not a failure)
+ok: TEST-011b: no Registry-sourced command-discovery attempted (required_lite_checks is empty)
+
+Results: 2 passed, 0 failed
+
+### lite-gate-summary-invalid.tests.sh (restored, correct simulator) ###
+=== TEST-012a: wrong schema constant is VERDICT: FAIL ===
+ok: TEST-012a: wrong schema constant is VERDICT: FAIL
+=== TEST-012b: missing a required key is VERDICT: FAIL ===
+ok: TEST-012b: missing required_lite_checks/full_upgrade_required is VERDICT: FAIL
+=== TEST-012c: wrong-type field (full_upgrade_required not boolean) is VERDICT: FAIL ===
+ok: TEST-012c: non-boolean full_upgrade_required is VERDICT: FAIL
+=== TEST-013: static review -- no per-Capability re-aggregation logic ===
+ok: TEST-013a: Boundaries explicitly disclaims re-aggregating across Capabilities
+ok: TEST-013b: text confirms the field is read as already-aggregated, not recomputed
+ok: TEST-013c: no Predicate-DSL/Registry-matching invocation found in lite-gate/SKILL.md (disclaimed, not called)
+
+Results: 6 passed, 0 failed
+
+### lite-gate-full-upgrade-backstop.tests.sh (restored, correct simulator) ###
+=== TEST-026a: full_upgrade_required: true Blocks before Step 2b runs ===
+ok: TEST-026a: VERDICT: FAIL
+ok: TEST-026a: reason names full_upgrade_required specifically (not the unmapped check-id -- proves Step 2b never ran)
+ok: TEST-026a: no check-discovery was attempted (Step 2b never reached)
+=== TEST-026b: full_upgrade_required: false continues normally ===
+ok: TEST-026b: full_upgrade_required: false continues, VERDICT: PASS
+
+Results: 4 passed, 0 failed
+
+### lite-gate-summary-absent-active-enforcement.tests.sh (restored, correct simulator) ###
+=== TEST-030a: active capability_enforcement, no Summary at all -> VERDICT: FAIL ===
+ok: TEST-030a: required enforcement + absent Summary is VERDICT: FAIL
+ok: TEST-030a: reason names active capability_enforcement specifically
+=== TEST-030b: advisory enforcement, no Summary at all -> also VERDICT: FAIL ===
+ok: TEST-030b: advisory enforcement + absent Summary is also VERDICT: FAIL
+=== TEST-030c: disabled-legacy (distinct case) is NOT a failure ===
+ok: TEST-030c: disabled-legacy (no Project Context at all) is legitimate, VERDICT: PASS -- distinct from TEST-030a/b
+=== TEST-030d: present-but-empty Summary is a pass-through ===
+ok: TEST-030d: present-but-empty Summary passes through, VERDICT: PASS
+
+Results: 5 passed, 0 failed
+
+### lite-gate-summary-consumption.tests.ps1 (restored, correct simulator) ###
+=== TEST-015a: baseline-name duplicate is a no-op ===
+ok: TEST-015a: baseline-only is a no-op, VERDICT: PASS
+ok: TEST-015a: no command-discovery attempted for baseline names
+=== TEST-015b: Registry-sourced check resolved via npm scripts ===
+ok: TEST-015b: npm-resolvable check runs, VERDICT: PASS
+ok: TEST-015b: recorded as run via npm
+=== TEST-015c: Registry-sourced check resolved via scripts/<id> pair ===
+ok: TEST-015c: scripts-pair-resolvable check runs, VERDICT: PASS
+ok: TEST-015c: recorded as run via scripts pair
+=== TEST-016a: unmapped Registry-sourced id is VERDICT: FAIL, never N/A ===
+ok: TEST-016a: unmapped id is VERDICT: FAIL
+ok: TEST-016a: reason names the missing discoverable command (never N/A)
+=== TEST-016b: grammar-failing check-id blocked before discovery (NEW-01) ===
+ok: TEST-016b: grammar-failing id rejected before discovery
+=== TEST-016c: symlink-escaping scripts/<id> candidate rejected (NEW-01) ===
+ok: TEST-016c: symlinked scripts/<id> pair treated as unmapped, never executed
+=== TEST-016d: single-runtime-member pair is unmapped (NEW-01) ===
+ok: TEST-016d: single-runtime-member check-id is unmapped
+=== TEST-016e: N/A stays reserved for Step 2's own pre-existing convention ===
+ok: TEST-016e: SKILL.md text still reserves N/A for Step 2's own convention only
+=== TEST-018: static review -- no evidence-bundle/cross-model/second-approval/risk-hierarchy machinery introduced ===
+ok: TEST-018: the new Step 2a/2b text explicitly disclaims adding this machinery, and introduces none
+
+Results: 13 passed, 0 failed
+
+### lite-gate-summary-absent.tests.ps1 (restored, correct simulator) ###
+=== TEST-011: disabled-legacy (no Project Context, no Summary) runs unchanged ===
+ok: TEST-011a: disabled-legacy VERDICT: PASS
+ok: TEST-011b: no Registry-sourced command-discovery attempted
+
+Results: 2 passed, 0 failed
+
+### lite-gate-summary-invalid.tests.ps1 (restored, correct simulator) ###
+=== TEST-012a: wrong schema constant is VERDICT: FAIL ===
+ok: TEST-012a: wrong schema constant is VERDICT: FAIL
+=== TEST-012b: missing a required key is VERDICT: FAIL ===
+ok: TEST-012b: missing required keys is VERDICT: FAIL
+=== TEST-012c: wrong-type field is VERDICT: FAIL ===
+ok: TEST-012c: non-boolean full_upgrade_required is VERDICT: FAIL
+=== TEST-013: static review -- no per-Capability re-aggregation logic ===
+ok: TEST-013a: Boundaries explicitly disclaims cross-Capability re-aggregation
+ok: TEST-013b: text confirms the field is read as already-aggregated
+ok: TEST-013c: no Predicate-DSL/Registry-matching invocation found (disclaimed, not called)
+
+Results: 6 passed, 0 failed
+
+### lite-gate-full-upgrade-backstop.tests.ps1 (restored, correct simulator) ###
+=== TEST-026a: full_upgrade_required: true Blocks before Step 2b runs ===
+ok: TEST-026a: VERDICT: FAIL
+ok: TEST-026a: reason names full_upgrade_required specifically (proves Step 2b never ran)
+ok: TEST-026a: no check-discovery was attempted (Step 2b never reached)
+=== TEST-026b: full_upgrade_required: false continues normally ===
+ok: TEST-026b: full_upgrade_required: false continues, VERDICT: PASS
+
+Results: 4 passed, 0 failed
+
+### lite-gate-summary-absent-active-enforcement.tests.ps1 (restored, correct simulator) ###
+=== TEST-030a: active capability_enforcement, no Summary at all -> VERDICT: FAIL ===
+ok: TEST-030a: required enforcement + absent Summary is VERDICT: FAIL
+ok: TEST-030a: reason names active capability_enforcement specifically
+=== TEST-030b: advisory enforcement, no Summary at all -> also VERDICT: FAIL ===
+ok: TEST-030b: advisory enforcement + absent Summary is also VERDICT: FAIL
+=== TEST-030c: disabled-legacy (distinct case) is NOT a failure ===
+ok: TEST-030c: disabled-legacy is legitimate, VERDICT: PASS -- distinct from TEST-030a/b
+=== TEST-030d: present-but-empty Summary is a pass-through ===
+ok: TEST-030d: present-but-empty Summary passes through, VERDICT: PASS
+
+Results: 5 passed, 0 failed
+

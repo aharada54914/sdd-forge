@@ -35,7 +35,7 @@ step is a human copying each one's exact bytes to its real destination path
 
 | `.PROPOSED` file | Real destination (once applied) | SHA-256 |
 |---|---|---|
-| `dot-github-workflows-test.yml.PROPOSED` | `.github/workflows/test.yml` | `09d7388d8a8b8375e5dce961a893fe0ab42919b1c94e643e90a69ffbe2550206` |
+| `dot-github-workflows-test.yml.PROPOSED` | `.github/workflows/test.yml` | `f6efce1c800630711dd5ce5fa119582b23047e5bfb4b760a16f38a1b03a20ceb` |
 | `check-risk-upgrade.sh.PROPOSED` | `plugins/sdd-lite/scripts/check-risk-upgrade.sh` | `89eb175a274f6ef08c33ae793866e5698b40ca21fa3b454701b0158bf6fe1acc` |
 | `check-risk-upgrade.ps1.PROPOSED` | `plugins/sdd-lite/scripts/check-risk-upgrade.ps1` | `6090a6337ef300dfa4f755e54fdbe605fe4229e46d570cb262be20de457e4902` |
 | `risk-upgrade-policy.md.PROPOSED` | `plugins/sdd-lite/references/risk-upgrade-policy.md` | `dab10b8b7ed6e6e762db2b09fc73454700c47cc825fec3161b35bb16ad3be674` |
@@ -59,14 +59,26 @@ Every one of these is genuinely tested, not placeholder content:
   `tests/lite-spec-capability-block.tests.{sh,ps1}` (T-003). RED/GREEN
   evidence: `specs/epic-194-a6-lite-integration/verification/T-003.{red,green}.log`.
 - `dot-github-workflows-test.yml.PROPOSED` -- the full, real
-  `.github/workflows/test.yml` content with T-001/T-002/T-003's 12 new CI
-  steps inserted in the correct serialized order; validated as parseable
+  `.github/workflows/test.yml` content with T-001/T-002/T-003/T-004's 22 new
+  CI steps inserted in the correct serialized order; validated as parseable
   YAML (`ruby -ryaml -e "YAML.load_file(...)"`, since this environment has
   no `pyyaml` installed) and step-count-diffed against the live file (87 ->
-  99 steps, exactly the 12 new steps expected: 2 for T-001, 8 for T-002, 2
-  for T-003).
+  109 steps, exactly the 22 new steps expected: 2 for T-001, 8 for T-002, 2
+  for T-003, 10 for T-004).
 - `risk-upgrade-policy.md.PROPOSED` -- documentation only, no test suite of
   its own; reviewed by hand against the actual extended script behavior.
+
+**Note on T-004**: unlike T-001/T-002/T-003, T-004's own target
+(`plugins/sdd-lite/skills/lite-gate/SKILL.md`) is confirmed **not**
+protected (absent from both `guard-invariants.json` arrays, re-verified
+immediately before editing, AC-017) -- its direct edit landed at the real
+path with no staging needed. Only the shared CI-workflow candidate above is
+affected by the same guard gap, for the identical reason as T-001's own CI
+step. T-004's own 5 new test suites
+(`tests/lite-gate-summary-consumption.tests.{sh,ps1}` and four siblings)
+are committed as ordinary, unprotected files -- see
+`specs/epic-194-a6-lite-integration/verification/T-004.{red,green}.log`
+and `reports/implementation/epic-194-a6-lite-integration/T-004.md`.
 
 ## Human-apply command sequence
 

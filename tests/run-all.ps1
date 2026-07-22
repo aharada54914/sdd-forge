@@ -42,7 +42,12 @@ $tests = @(
     'tests/check-risk-upgrade-capability-merge.tests.ps1',
     'tests/check-risk-upgrade-fragment-fail-closed.tests.ps1',
     'tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1',
-    'tests/lite-spec-capability-block.tests.ps1'
+    'tests/lite-spec-capability-block.tests.ps1',
+    'tests/lite-gate-summary-consumption.tests.ps1',
+    'tests/lite-gate-summary-absent.tests.ps1',
+    'tests/lite-gate-summary-invalid.tests.ps1',
+    'tests/lite-gate-full-upgrade-backstop.tests.ps1',
+    'tests/lite-gate-summary-absent-active-enforcement.tests.ps1'
 )
 
 Push-Location $root

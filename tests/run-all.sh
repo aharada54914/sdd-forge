@@ -60,6 +60,11 @@ tests=(
   tests/check-risk-upgrade-fragment-fail-closed.tests.sh
   tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
   tests/lite-spec-capability-block.tests.sh
+  tests/lite-gate-summary-consumption.tests.sh
+  tests/lite-gate-summary-absent.tests.sh
+  tests/lite-gate-summary-invalid.tests.sh
+  tests/lite-gate-full-upgrade-backstop.tests.sh
+  tests/lite-gate-summary-absent-active-enforcement.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

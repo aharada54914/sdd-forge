@@ -286,6 +286,52 @@ jobs:
         shell: pwsh
         run: ./tests/lite-spec-capability-block.tests.ps1
 
+      # epic-194-a6-lite-integration T-004 (REQ-003/REQ-004, AC-011/012/013/014/015/016/017/018/026/030).
+      - name: Test lite-gate summary consumption + command-discovery (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/lite-gate-summary-consumption.tests.sh
+
+      - name: Test lite-gate summary consumption + command-discovery (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-consumption.tests.ps1
+
+      - name: Test lite-gate summary absent, disabled-legacy (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/lite-gate-summary-absent.tests.sh
+
+      - name: Test lite-gate summary absent, disabled-legacy (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-absent.tests.ps1
+
+      - name: Test lite-gate summary schema-invalid handling (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/lite-gate-summary-invalid.tests.sh
+
+      - name: Test lite-gate summary schema-invalid handling (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-invalid.tests.ps1
+
+      - name: Test lite-gate full_upgrade_required backstop (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/lite-gate-full-upgrade-backstop.tests.sh
+
+      - name: Test lite-gate full_upgrade_required backstop (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-full-upgrade-backstop.tests.ps1
+
+      - name: Test lite-gate summary absent under active enforcement (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/lite-gate-summary-absent-active-enforcement.tests.sh
+
+      - name: Test lite-gate summary absent under active enforcement (pwsh)
+        shell: pwsh
+        run: ./tests/lite-gate-summary-absent-active-enforcement.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
