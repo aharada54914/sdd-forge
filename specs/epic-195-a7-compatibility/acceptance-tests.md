@@ -8,7 +8,7 @@
 | AC-004 | REQ-001, REQ-007 | TEST-004 | integration (named SKIP, allowlist-governed, until Epic A5 merges) | Context-absent: no capability subprocess invoked — adopts Epic A5's `design.md` item 10(b) fixture directly | Planned |
 | AC-005 | REQ-002 | TEST-005 | integration | Context-absent generation: exact track-appropriate file set — legacy-seven-layer (`full`/F1) or the `requirements.md`/`design.md`/`tasks.md` lite-spec set (`lite`/F2, INV-024) — no capability/Facet files | Planned |
 | AC-006 | REQ-002 | TEST-006 | static / regex | `REQ-NNN`/`AC-NNN` identifier format unchanged | Planned |
-| AC-007 | REQ-002, REQ-007 | TEST-007 | integration (named SKIP, allowlist-governed, until Epic A4 merges) | Context-present-required: no Facet reference leaks into legacy-shaped output | Planned |
+| AC-007 | REQ-002, REQ-007 | TEST-007 | integration (named SKIP, allowlist-governed, until Epic A4 merges) | Context-present-required, full-track only (F4 — never F6, see AC-043): no Facet reference leaks into legacy-shaped output | Planned |
 | AC-008 | REQ-003 | TEST-008 | static / registration-forcing | `tests/loops/loop-inventory.json` entry count stays 8 | Planned |
 | AC-009 | REQ-003 | TEST-009 | static / schema | `quality-gate` entry carries additive `capability_applicability`; `assert_terminal`/`assert_artifacts_schema` remain unmodified; the new `assert_capability_applicability` helper reads it | Planned |
 | AC-010 | REQ-003 | TEST-010 | integration | `TEST-019` in `tests/loop-escalation.tests.sh`: quality-gate-outcome event kind, via `assert_event_trace`, vs. golden trace | Planned |
@@ -44,6 +44,7 @@
 | AC-040 | REQ-006 | TEST-040 | static / doc-review | CI-workflow-scan check: `.github/workflows/test.yml` never references `promote-golden-baseline.sh` or `--write-candidate` | Planned |
 | AC-041 | REQ-006 | TEST-041 | integration, negative self-check ×2 | `promote-golden-baseline.sh` runtime refusal exercised directly: `CI` env var set to a non-empty value → non-zero exit, no file read/write; `--approved-by` omitted or empty → non-zero exit, no canonical write | Planned |
 | AC-042 | REQ-002, REQ-007 | TEST-042 | integration (named SKIP, allowlist-governed, until Epic A1 merges) | Context-present-advisory (F3): generated artifacts remain structurally identical to the full-track legacy-seven-layer file set (AC-005 full-track clause) — closes the F3/REQ-002 structural-assertion gap design.md's Compatibility Matrix and Observable×fixture-state table already name | Planned |
+| AC-043 | REQ-002, REQ-007 | TEST-043 | integration (named SKIP, allowlist-governed, until Epic A1 and Epic A6 both merge) | Context-present, lite-track (F5 advisory / F6 required): generated artifacts remain structurally identical to the lite-track three-file set (AC-005 lite-track clause) — closes the F5/F6×REQ-002 structural-assertion gap design.md's Compatibility Matrix already names via its "A1+A6 compound entry" citation | Planned |
 
 This is internal test-infrastructure specification work with no
 user-facing entry point; the UI Integration Checklist is not applicable.
@@ -54,7 +55,7 @@ no test code exists yet. Test IDs and targets are fixed here so the Phase
 resolve, matching this repository's own precedent for fixing a deferred
 suite's contract at design time (investigation.md INV-016, citing Epic
 A5's `resolve-project-context-caller-contract`). The `Test ID` column
-above (`TEST-001`–`TEST-042`) is this package's own Phase 1 AC-to-test
+above (`TEST-001`–`TEST-043`) is this package's own Phase 1 AC-to-test
 placeholder index — one entry per AC, in AC order — and is a distinct
 namespace from the *real*, per-suite-file case numbers Phase 2/3 actually
 implements (e.g. `TEST-018` in `tests/loop-consistency.tests.sh` and

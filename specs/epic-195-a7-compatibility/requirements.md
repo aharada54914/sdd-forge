@@ -338,13 +338,16 @@ guessing at an undocumented convention.
   identifier format (`^(REQ|AC)-[0-9]{3}$` or the exact pattern
   `design.md` fixes) is unchanged in Context-absent generation output.
 - AC-007: The structural compatibility test asserts that a Context-present,
-  `capability_enforcement: required` fixture's generated artifacts contain
-  no Facet reference in a project that legacy-mode-generates
-  (cross-referencing INV-014's truthful-non-evaluation principle: presence
-  of capability wiring, absence of Facet content, are two independently
-  checkable claims) — a named `SKIP` entry in REQ-007's allowlist manifest
-  (AC-034) until Epic A4's Facet Manifest exists, activation condition
-  "Epic A4 merged to `main`" (REQ-007).
+  `full`-track/legacy-seven-layer, `capability_enforcement: required`
+  fixture (**F4 only** — never F6, the `lite`-track/lite-three-file
+  counterpart design.md's own Compatibility Matrix scopes separately and
+  gates on a different, compound Epic A1+A6 dependency, AC-043 below)'s
+  generated artifacts contain no Facet reference in a project that
+  legacy-mode-generates (cross-referencing INV-014's truthful-non-evaluation
+  principle: presence of capability wiring, absence of Facet content, are
+  two independently checkable claims) — a named `SKIP` entry in REQ-007's
+  allowlist manifest (AC-034) until Epic A4's Facet Manifest exists,
+  activation condition "Epic A4 merged to `main`" (REQ-007).
 - AC-008: `tests/loops/loop-inventory.json`'s entry count remains exactly
   8 after this epic's Phase 2/3 implementation (INV-002); any new field
   this epic's design proposes is additive and optional, verified by a
@@ -569,7 +572,8 @@ guessing at an undocumented convention.
 - AC-034: A single allowlist manifest (design.md; REQ-007;
   `skip-allowlist-manifest/v1`) lists every upstream-dependent assertion
   this package names as a `SKIP` candidate — AC-004, AC-007, AC-019–
-  AC-021, and any Context-present REQ-003 assertion — each row's own
+  AC-021, AC-042, AC-043, and any Context-present REQ-003 assertion — each
+  row's own
   `dependencies` field an **array** of `{epic, issue, fingerprints}`
   objects (never a single flat `{epic, issue}` pair), so one assertion
   can cite more than one upstream epic (AC-021's own compound Epic A1
@@ -665,6 +669,29 @@ guessing at an undocumented convention.
   Project Context schema exists, activation condition "Epic A1 merged to
   `main`" (REQ-007) — matching the exact gating condition design.md's own
   Compatibility Matrix F3/REQ-002 cell already names.
+- AC-043: The structural compatibility test (REQ-002) asserts that
+  Context-present, `lite`-track/lite-three-file fixtures — F5 (advisory)
+  and F6 (required) — generated artifacts remain structurally identical to
+  the Context-absent `lite`-track file set AC-005's own lite-track clause
+  fixes (INV-024): identical required-file count, frontmatter, required
+  headings, and status field names, matching
+  `plugins/sdd-lite/templates/requirements-lite.md`/`design-lite.md`/
+  `tasks-lite.md` unchanged — because Project Context presence, and
+  `capability_enforcement`'s advisory-or-required value, do not themselves
+  alter generation structure while the project's own facet-track selection
+  remains `lite`/lite-three-file (design.md Compatibility Matrix, F5/F6
+  rows, REQ-002 column — both already cite "the allowlist manifest's own
+  A1+A6 compound entry"). A named `SKIP` entry in REQ-007's allowlist
+  manifest (AC-034) until Epic A1's Project Context schema **and** Epic
+  A6's Lite integration both merge, activation condition "Epic A1 merged
+  to `main` AND Epic A6 merged to `main`" (REQ-007) — the identical
+  compound-dependency shape AC-021 already establishes for its own Epic A1
+  + Epic A5 pair.
+  - **F5 clause (advisory)**: `capability_enforcement: advisory`.
+  - **F6 clause (required)**: `capability_enforcement: required`.
+
+  Both clauses are independently checkable and neither is ever substituted
+  for the other, mirroring AC-005's own full-track/lite-track discipline.
 
 ## Field Definitions
 
