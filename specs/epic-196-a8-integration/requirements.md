@@ -147,9 +147,10 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
   attributable, human-session-backed observation that each runtime's own
   installed hook subsystem denies a real, unscripted agent tool call,
   never a synthetic/fixture-only substitute (Safety constraints,
-  investigation.md). Once Epic A1 merges, at least one of its five
-  migrated consumer entry points (INV-007) is exercised per runtime rather
-  than only a standalone canary script.
+  investigation.md). Once Epic A1 merges, all five of its migrated
+  consumer entry points (INV-007) are exercised per runtime, in a
+  fingerprinted inventory (AC-016), rather than only a standalone canary
+  script or a single sampled entry point.
 - **REQ-004** (Path/line-ending regression): specify a cross-platform
   fixture matrix covering (a) Windows path-separator handling in
   install/uninstall output and any generated file path, (b) CRLF-vs-LF
@@ -290,8 +291,13 @@ a weaker, unlogged substitute.
   a second time over an already-installed state (same `--target`, same
   `--install-root`) produces a registered/copied state identical to the
   first run — no duplicate marketplace entries, no duplicate config.toml
-  blocks (INV-016's per-CLI marker-delimited block pattern is the existing
-  idempotency mechanism this assertion checks, never re-designs).
+  blocks (INV-016's Codex-specific per-MCP marker-delimited
+  `~/.codex/config.toml` block is the existing idempotency mechanism
+  REQ-005/AC-022's own drift check re-uses for that one surface; Claude's
+  and Copilot's own marketplace/plugin-registration idempotency is
+  independently checked against each CLI's own registration state, since
+  neither uses that same marker-delimited-block mechanism — this
+  assertion checks, never re-designs, either).
 - AC-009: Each matrix cell's own zero-residue post-uninstall state is
   asserted: after `uninstall --target <value>` followed by a re-run
   verify, no installed file, CLI plugin registration, marketplace entry,
