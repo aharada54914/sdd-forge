@@ -140,9 +140,36 @@ the rest of REQ-001, belongs to whichever future task also applies the
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T15:08:56Z)
 
-Status: Planned
+Status: Blocked
+
+Blocker (recorded 2026-07-22T15:08:56Z, a6-impl2): the R-10 enforcement-chain
+guard (`plugins/sdd-quality-loop/scripts/sdd-hook-guard.py`,
+`_is_protected_gate_file`) matches a write target by bare repository-relative
+**suffix** against `plugins/sdd-quality-loop/references/guard-invariants.json`'s
+`protected_gate_suffixes` (confirmed directly:
+`grep -n "test.yml\|check-risk-upgrade\|lite-spec/SKILL\|risk-upgrade-policy"
+plugins/sdd-quality-loop/references/guard-invariants.json`), with no carve-out
+for a `specs/<feature>/human-copy/**` staged prefix. Every Edit/Write/
+MultiEdit/Bash/apply_patch attempt to create
+`specs/epic-194-a6-lite-integration/human-copy/.github/workflows/test.yml`
+(this task's own Done-When "Suite/CI registration + governance" bullet) was
+denied with `_GATE_PROTECT_MSG` ("agents must not modify gate scripts, hook
+configuration, or critical test files... cannot be bypassed by sudo") even
+though the target was the staged candidate under `human-copy/`, not the live
+`.github/workflows/test.yml`. This is not scoped to T-001 alone: the same
+suffix-match blocks T-002's and T-003's own staged
+`check-risk-upgrade.sh`/`.ps1`/`risk-upgrade-policy.md`/`lite-spec/SKILL.md`
+payload files under their own `human-copy/` prefix too, since the guard
+matches on bare basename/suffix, not full path. Per this session's own
+standing instruction, a guard denial is not routed around; this is a
+judgment-requiring tooling/architecture gap (a missing `human-copy/`
+exception in the R-10 suffix matcher, or a documented-but-unimplemented
+exception process) that needs a human decision, not an implementer
+workaround. Real, working, uncommitted implementation exists for the parts
+NOT blocked by this gap (see Implementation Complete evidence below); it is
+preserved in the working tree, uncommitted, pending this decision.
 
 Risk: high
 
