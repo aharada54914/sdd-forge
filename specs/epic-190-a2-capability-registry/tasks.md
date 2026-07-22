@@ -295,7 +295,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/190
 
 Approval: Approved (sudo 2026-07-22T16:12:48Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
