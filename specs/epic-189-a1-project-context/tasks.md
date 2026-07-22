@@ -1,6 +1,6 @@
 # Tasks: epic-189-a1-project-context
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issue #189 (Epic A1 — "Project Context + 承認防衛"), tracked under epic
 #187 (AI-DLC Foundation) /
