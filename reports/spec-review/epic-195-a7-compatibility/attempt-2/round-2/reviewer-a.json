@@ -1,0 +1,59 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-a-seq0331",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0331",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "reports/spec-review/epic-195-a7-compatibility/attempt-2/round-2/precheck-result.json", "sha256": "c6cc0ebe6778e2860e32627b1c3be32da0d87453c988139e81bc09cedcb322ce"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "5a2c278d8d9583a2b8d7f7b8096e38b02fc66d56f48849a80bcc7a18a8deef42"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All seven Goals (REQ-001-REQ-007, requirements.md:92-227) map 1:1 to measurable acceptance criteria in acceptance-tests.md's 43-row table (lines 5-47, AC-001-AC-043, sequential with no gaps). Concretely: REQ-001's byte-for-byte targets (AC-002/AC-003/AC-038); REQ-002's structural/track checks (AC-005-007/AC-030/AC-042/AC-043); REQ-003's six event kinds (AC-022-027); REQ-006's baseline governance (AC-018/AC-040/AC-041) all specify an externally checkable outcome, not an intent statement. The remedy addition AC-043 (requirements.md:672-694, acceptance-tests.md:47) gives REQ-002's F5/F6 lite-track rows a concrete, measurable structural-identity assertion (matching AC-005's lite-track clause) that round 1 lacked."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Goal traces forward to at least one AC and every AC traces back to a Requirement via acceptance-tests.md's Requirement column (e.g. row 47: 'AC-043 | REQ-002, REQ-007'). The round-1 gap -- REQ-002 had no AC covering the F5/F6 (lite-track, Context-present) rows -- is closed: AC-043 (requirements.md:672-694) explicitly names both the F5 (advisory) and F6 (required) clauses and is independently registered in acceptance-tests.md:47 with its own TEST-043 id."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria specify concrete, externally checkable artifacts/behavior rather than intent: byte-for-byte diffs (AC-003), a fixed entry count (AC-008), a static CI-workflow text scan (AC-040), non-zero exit codes with no file written (AC-041). The remedied AC-007 (requirements.md:340-350) now names the exact observable fixture -- 'Context-present, full-track/legacy-seven-layer, capability_enforcement: required fixture (F4 only -- never F6 ... AC-043 below)' -- removing the round-1 ambiguity about which track's fixture the 'no Facet reference' assertion applies to; acceptance-tests.md:11 mirrors this ('F4 -- never F6, see AC-043')."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:229-255) explicitly excludes implementing Epics A1-A6, authoring test code/fixtures, registering a new loop-inventory id, re-specifying Epic A5's deferred suite in full, and any change to plugins/**, scripts/**, .github/**, tests/**, contracts/**, docs/**. The Risks section additionally documents and bounds a deliberate scope deviation (4-file Phase-1-only package vs. the 9-file full-profile default) rather than leaving it silently open (requirements.md:896-908)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Security Boundaries table (requirements.md:829-834) fixes the golden-baseline write boundary (B1: maintainer-authored initial capture, candidate/canonical separation, CI structurally barred from writing canonical) and the shared cross-epic surface boundary (B2). Roles and Permissions (requirements.md:746-774) fixes who may touch tests/loops/loop-inventory.json and emit-run-record.sh. Migration/approval constraints are concrete and testable (AC-018 pins the baseline to a named pre-capability commit SHA; AC-040/AC-041 give CI-enforcement and runtime-refusal tests for the promotion boundary)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section (requirements.md:879-908) names three high-risk claims, each tied to a concrete validation surface: the Critical SKIP-drift risk is mitigated by AC-034/AC-035's fingerprint-drift/dependency-present-SKIP/unknown-SKIP hard-fail checks (requirements.md:572-598); the High shared-registry-surface risk is mitigated by fixing exact field names in design.md before Phase 2/3 starts; the Medium Phase-1-scope-deviation risk is mitigated by a self-documenting check-sdd-structure.sh signal at Phase 2 kickoff (requirements.md:896-908, Main Workflows step 1, requirements.md:781-785)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped per the check's own skip condition: domain/context-map.md and domain/domain-contract.json are not part of this review's allowed input manifest (the 5-file table above), so an Approved domain model cannot be verified within this review's scope. requirements.md's own header block (lines 1-6) carries no Bounded-Context: field, consistent with no Approved domain model applying to this feature."
+    }
+  ]
+}
