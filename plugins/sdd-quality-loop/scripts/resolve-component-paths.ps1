@@ -32,6 +32,10 @@
 param(
     [string]$Config,
     [string]$ChangedPathsFile,
+    [string]$SourceRev = "HEAD",
+    [string]$TargetRev,
+    [bool]$IncludeUntracked = $true,
+    [string]$RepoRoot = ".",
     [switch]$CheckSchemaConformance,
     [string]$Schema = "contracts/project-context.template.yaml"
 )
@@ -706,6 +710,207 @@ function Test-SchemaConformance {
 }
 
 # --------------------------------------------------------------------------
+# Git-diff basis collector (REQ-003, T-002) — full parallel PowerShell
+# implementation of resolve-component-paths.py's own collector (INV-008;
+# not a wrapper calling into Python). See the Python master for the full
+# rationale; this port keeps identical constants, exit/diagnostic
+# conventions, and the same TOCTOU retry-once-then-fail-closed rule.
+# --------------------------------------------------------------------------
+
+$RENAME_SIMILARITY_THRESHOLD = 50
+$RENAME_LIMIT = 1000
+
+class GitDiffError : System.Exception {
+    GitDiffError([string]$message) : base($message) {}
+}
+
+$Utf8Strict = [System.Text.UTF8Encoding]::new($false, $true)
+
+function Invoke-GitRaw {
+    # Runs git as a real subprocess and returns raw bytes for stdout/stderr
+    # (never PowerShell's own text/console decoding), reading both streams
+    # concurrently via CopyToAsync to avoid a classic redirect deadlock.
+    param([string]$RepoRoot, [string[]]$GitArgs)
+    $psi = [System.Diagnostics.ProcessStartInfo]::new()
+    $psi.FileName = "git"
+    [void]$psi.ArgumentList.Add("-C")
+    [void]$psi.ArgumentList.Add($RepoRoot)
+    foreach ($a in $GitArgs) { [void]$psi.ArgumentList.Add($a) }
+    $psi.RedirectStandardOutput = $true
+    $psi.RedirectStandardError = $true
+    $psi.UseShellExecute = $false
+    $proc = [System.Diagnostics.Process]::new()
+    $proc.StartInfo = $psi
+    try {
+        [void]$proc.Start()
+    } catch {
+        throw [GitDiffError]::new("git executable not found: $($_.Exception.Message)")
+    }
+    $stdoutMs = [System.IO.MemoryStream]::new()
+    $stderrMs = [System.IO.MemoryStream]::new()
+    $outTask = $proc.StandardOutput.BaseStream.CopyToAsync($stdoutMs)
+    $errTask = $proc.StandardError.BaseStream.CopyToAsync($stderrMs)
+    $outTask.Wait()
+    $errTask.Wait()
+    $proc.WaitForExit()
+    return @{ ExitCode = $proc.ExitCode; Stdout = $stdoutMs.ToArray(); Stderr = $stderrMs.ToArray() }
+}
+
+function ConvertTo-PathStrict {
+    param([byte[]]$Raw)
+    try {
+        return $Utf8Strict.GetString($Raw)
+    } catch {
+        throw [GitDiffError]::new("invalid UTF-8 in a git-reported path: $([System.BitConverter]::ToString($Raw)) ($($_.Exception.Message))")
+    }
+}
+
+function Resolve-CommitOid {
+    param([string]$RepoRoot, [string]$Rev)
+    $r = Invoke-GitRaw -RepoRoot $RepoRoot -GitArgs @("rev-parse", "--verify", "$Rev^{commit}")
+    if ($r.ExitCode -ne 0) {
+        $errText = [System.Text.Encoding]::UTF8.GetString($r.Stderr).Trim()
+        throw [GitDiffError]::new("unresolvable rev '$Rev': $errText")
+    }
+    return [System.Text.Encoding]::ASCII.GetString($r.Stdout).Trim()
+}
+
+function Get-MergeBaseOid {
+    param([string]$RepoRoot, [string]$SourceOid, [string]$TargetOid)
+    $r = Invoke-GitRaw -RepoRoot $RepoRoot -GitArgs @("merge-base", $SourceOid, $TargetOid)
+    if ($r.ExitCode -ne 0) {
+        $errText = [System.Text.Encoding]::UTF8.GetString($r.Stderr).Trim()
+        throw [GitDiffError]::new("no merge-base between $SourceOid and $TargetOid (unrelated histories?): $errText")
+    }
+    return [System.Text.Encoding]::ASCII.GetString($r.Stdout).Trim()
+}
+
+function Get-RepoFingerprint {
+    param([string]$RepoRoot)
+    $r1 = Invoke-GitRaw -RepoRoot $RepoRoot -GitArgs @("rev-parse", "HEAD")
+    $head = if ($r1.ExitCode -eq 0) { [System.Text.Encoding]::ASCII.GetString($r1.Stdout).Trim() } else { "(unborn)" }
+    $r2 = Invoke-GitRaw -RepoRoot $RepoRoot -GitArgs @("status", "--porcelain=v1", "-z", "--untracked-files=all")
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    $hashBytes = $sha.ComputeHash($r2.Stdout)
+    $statusHash = -join ($hashBytes | ForEach-Object { $_.ToString("x2") })
+    return @{ Head = $head; StatusHash = $statusHash }
+}
+
+function Split-NulBytes {
+    param([byte[]]$Raw)
+    $out = [System.Collections.Generic.List[byte[]]]::new()
+    if ($Raw.Length -eq 0) { return , $out.ToArray() }
+    $start = 0
+    for ($i = 0; $i -lt $Raw.Length; $i++) {
+        if ($Raw[$i] -eq 0) {
+            $len = $i - $start
+            $segment = [byte[]]::new($len)
+            [Array]::Copy($Raw, $start, $segment, 0, $len)
+            $out.Add($segment)
+            $start = $i + 1
+        }
+    }
+    if ($start -lt $Raw.Length) {
+        $len = $Raw.Length - $start
+        $segment = [byte[]]::new($len)
+        [Array]::Copy($Raw, $start, $segment, 0, $len)
+        $out.Add($segment)
+    }
+    return , $out.ToArray()
+}
+
+function Get-TrackedDiff {
+    param([string]$RepoRoot, [string]$BaselineOid)
+    $r = Invoke-GitRaw -RepoRoot $RepoRoot -GitArgs @(
+        "-c", "diff.renameLimit=$RENAME_LIMIT",
+        "diff", "--no-ext-diff", "-M${RENAME_SIMILARITY_THRESHOLD}%",
+        "--ignore-submodules=dirty", "--name-status", "-z", $BaselineOid
+    )
+    $errText = [System.Text.Encoding]::UTF8.GetString($r.Stderr)
+    if ($errText -match "too many files" -or $errText -match "rename detection was skipped") {
+        throw [GitDiffError]::new("rename-detection limit exceeded (pinned diff.renameLimit=$RENAME_LIMIT); failing closed rather than silently falling back to an unrelated add+delete pair")
+    }
+    if ($r.ExitCode -ne 0) {
+        throw [GitDiffError]::new("git diff against baseline $BaselineOid failed: $($errText.Trim())")
+    }
+
+    $tokens = Split-NulBytes -Raw $r.Stdout
+    $entries = [System.Collections.Generic.List[string]]::new()
+    $renames = [System.Collections.Generic.List[object]]::new()
+    $i = 0
+    while ($i -lt $tokens.Count) {
+        $status = [System.Text.Encoding]::ASCII.GetString($tokens[$i])
+        if ($status.StartsWith("R") -or $status.StartsWith("C")) {
+            if ($i + 2 -ge $tokens.Count) {
+                throw [GitDiffError]::new("malformed rename/copy entry in git diff --name-status -z output")
+            }
+            $oldPath = ConvertTo-PathStrict $tokens[$i + 1]
+            $newPath = ConvertTo-PathStrict $tokens[$i + 2]
+            $entries.Add($oldPath)
+            $entries.Add($newPath)
+            $renames.Add([ordered]@{ old_path = $oldPath; new_path = $newPath; status = $status })
+            $i += 3
+        } else {
+            if ($i + 1 -ge $tokens.Count) {
+                throw [GitDiffError]::new("malformed status entry in git diff --name-status -z output")
+            }
+            $path = ConvertTo-PathStrict $tokens[$i + 1]
+            $entries.Add($path)
+            $i += 2
+        }
+    }
+    return @{ Entries = @($entries); Renames = @($renames) }
+}
+
+function Get-UntrackedFiles {
+    param([string]$RepoRoot)
+    $r = Invoke-GitRaw -RepoRoot $RepoRoot -GitArgs @("ls-files", "--others", "--exclude-standard", "-z")
+    if ($r.ExitCode -ne 0) {
+        $errText = [System.Text.Encoding]::UTF8.GetString($r.Stderr).Trim()
+        throw [GitDiffError]::new("git ls-files --others failed: $errText")
+    }
+    $tokens = Split-NulBytes -Raw $r.Stdout
+    return @($tokens | ForEach-Object { ConvertTo-PathStrict $_ })
+}
+
+function Get-ChangedPaths {
+    param([string]$RepoRoot, [string]$SourceRev, [string]$TargetRev, [bool]$IncludeUntracked = $true)
+    $attempt = 0
+    while ($true) {
+        $attempt += 1
+        $fpBefore = Get-RepoFingerprint -RepoRoot $RepoRoot
+
+        $sourceOid = Resolve-CommitOid -RepoRoot $RepoRoot -Rev $SourceRev
+        $targetOid = Resolve-CommitOid -RepoRoot $RepoRoot -Rev $TargetRev
+        $baselineOid = Get-MergeBaseOid -RepoRoot $RepoRoot -SourceOid $sourceOid -TargetOid $targetOid
+        $tracked = Get-TrackedDiff -RepoRoot $RepoRoot -BaselineOid $baselineOid
+        $untracked = if ($IncludeUntracked) { Get-UntrackedFiles -RepoRoot $RepoRoot } else { @() }
+
+        $fpAfter = Get-RepoFingerprint -RepoRoot $RepoRoot
+        if ($fpBefore.Head -eq $fpAfter.Head -and $fpBefore.StatusHash -eq $fpAfter.StatusHash) {
+            break
+        }
+        if ($attempt -ge 2) {
+            throw [GitDiffError]::new("single-writer/TOCTOU snapshot mismatch persisted after one retry; failing closed rather than returning a mixed-snapshot result")
+        }
+    }
+
+    $seen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    $changedPaths = [System.Collections.Generic.List[string]]::new()
+    foreach ($p in (@($tracked.Entries) + @($untracked))) {
+        if ($seen.Add($p)) { $changedPaths.Add($p) }
+    }
+
+    return @{
+        SourceOid   = $sourceOid
+        TargetOid   = $targetOid
+        BaselineOid = $baselineOid
+        ChangedPaths = @($changedPaths)
+        Renames     = @($tracked.Renames)
+    }
+}
+
+# --------------------------------------------------------------------------
 # CLI entry point
 # --------------------------------------------------------------------------
 
@@ -736,18 +941,29 @@ try {
     exit 1
 }
 
-try {
-    if ([string]::IsNullOrEmpty($ChangedPathsFile)) {
-        $text = [Console]::In.ReadToEnd()
-    } else {
-        $text = Get-Content -Raw -LiteralPath $ChangedPathsFile -Encoding utf8
+$diffBasis = $null
+if (-not [string]::IsNullOrEmpty($TargetRev)) {
+    try {
+        $diffBasis = Get-ChangedPaths -RepoRoot $RepoRoot -SourceRev $SourceRev -TargetRev $TargetRev -IncludeUntracked $IncludeUntracked
+    } catch [GitDiffError] {
+        Write-Error ("resolve-component-paths: $($_.Exception.Message)")
+        exit 1
     }
-} catch {
-    Write-Error ("resolve-component-paths: cannot read changed-paths-file: $($_.Exception.Message)")
-    exit 1
+    $rawPaths = @($diffBasis.ChangedPaths)
+} else {
+    try {
+        if ([string]::IsNullOrEmpty($ChangedPathsFile)) {
+            $text = [Console]::In.ReadToEnd()
+        } else {
+            $text = Get-Content -Raw -LiteralPath $ChangedPathsFile -Encoding utf8
+        }
+    } catch {
+        Write-Error ("resolve-component-paths: cannot read changed-paths-file: $($_.Exception.Message)")
+        exit 1
+    }
+    $normalizedText = $text -replace "`r`n", "`n" -replace "`r", "`n"
+    $rawPaths = @($normalizedText -split "`n" | Where-Object { $_ -ne "" })
 }
-$normalizedText = $text -replace "`r`n", "`n" -replace "`r", "`n"
-$rawPaths = @($normalizedText -split "`n" | Where-Object { $_ -ne "" })
 
 try {
     $result = Invoke-ClassifyPaths -Config $cfg -RawPaths $rawPaths
@@ -757,6 +973,49 @@ try {
 } catch [CollisionError] {
     Write-Error ("resolve-component-paths: $($_.Exception.Message)")
     exit 1
+}
+
+if ($null -ne $diffBasis) {
+    $classificationByPath = @{}
+    foreach ($rec in $result.records) { $classificationByPath[$rec.raw_path] = $rec }
+    $renamesWithEvidence = [System.Collections.Generic.List[object]]::new()
+    foreach ($rename in $diffBasis.Renames) {
+        $oldRec = $classificationByPath[$rename.old_path]
+        $newRec = $classificationByPath[$rename.new_path]
+        # NOTE: a FOURTH distinct PowerShell collection-unwrapping pitfall
+        # (alongside Get-StringList's null-pipeline issue, the -eq/-ne
+        # culture-awareness issue, and the @{} case-insensitivity issue
+        # documented elsewhere in this file): any IEnumerable (a HashSet<T>,
+        # here) returned through an expression's "output stream" — via
+        # `return`, or as the trailing value of an if/else block used as an
+        # expression — gets enumerated and unrolled item-by-item, exactly
+        # like an array does. A single-element HashSet<string> therefore
+        # collapses to its bare scalar string element instead of staying a
+        # HashSet (confirmed: a minimal repro assigning `$x = if ($true)
+        # {[HashSet[string]]::new($oneElementArray)} else {$null}` produced
+        # $x as a [string], not a [HashSet]). The leading comma operator
+        # forces the object through as a single item, not a collection to
+        # unroll — the same protection already applied to array-returning
+        # helpers elsewhere in this file.
+        $oldOwners = if ($oldRec) { , [System.Collections.Generic.HashSet[string]]::new([string[]]$oldRec.owning_components) } else { , [System.Collections.Generic.HashSet[string]]::new() }
+        $newOwners = if ($newRec) { , [System.Collections.Generic.HashSet[string]]::new([string[]]$newRec.owning_components) } else { , [System.Collections.Generic.HashSet[string]]::new() }
+        $crossComponent = -not $oldOwners.SetEquals($newOwners)
+        $renamesWithEvidence.Add([ordered]@{
+            old_path = $rename.old_path
+            new_path = $rename.new_path
+            status = $rename.status
+            cross_component = $crossComponent
+        })
+    }
+    # $result is an [ordered] hashtable (not a PSCustomObject) -- set the
+    # key directly rather than Add-Member, which would attach to the
+    # wrapping PSObject instead of the hashtable ConvertTo-Json serializes.
+    $result["diff_basis"] = [ordered]@{
+        source_oid   = $diffBasis.SourceOid
+        target_oid   = $diffBasis.TargetOid
+        baseline_oid = $diffBasis.BaselineOid
+        renames      = @($renamesWithEvidence)
+    }
 }
 
 Write-Output (ConvertTo-CanonicalJson $result)

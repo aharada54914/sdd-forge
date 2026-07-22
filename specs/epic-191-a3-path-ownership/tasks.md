@@ -365,7 +365,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/191
 
 Approval: Approved (sudo 2026-07-22T15:53:17Z)
 
-Status: In Progress
+Status: Blocked
 
 Risk: high
 

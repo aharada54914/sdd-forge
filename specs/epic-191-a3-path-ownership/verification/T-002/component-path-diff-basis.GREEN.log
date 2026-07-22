@@ -1,0 +1,30 @@
+=== TEST-019: rev-resolution + merge-base baseline ===
+ok: TEST-019.1: identical source/target revs resolve cleanly (merge-base is that same commit)
+ok: TEST-019.2: an unresolvable target rev fails closed with a diagnostic
+ok: TEST-019.3: unrelated histories (no common ancestor) fail closed with a diagnostic, never a silently empty change set
+=== TEST-020: staged + unstaged + untracked, no double-count ===
+ok: TEST-020.1: staged, unstaged, and untracked changes are each collected exactly once (3 records, no duplicates)
+=== TEST-021: NUL-safe framing (TAB round-trip, invalid-UTF-8 fail-closed) ===
+ok: TEST-021.1: a path containing a literal TAB round-trips correctly through NUL-delimited parsing
+OK
+ok: TEST-021.2: a path containing invalid UTF-8 bytes fails closed with a diagnostic, never silently truncated/dropped (direct unit test of _decode_path_strict; macOS's own filesystem does not permit creating such a filename on disk to drive this through the CLI end-to-end)
+=== TEST-022: rename-follow incl. cross-component ===
+ok: TEST-022.1: a cross-component rename is detected and surfaced as its own distinct case (cross_component: true)
+ok: TEST-022.2: both the pre-rename and post-rename path are independently classified
+=== TEST-023: pinned threshold/limit contract ===
+ok: TEST-023.1: the pinned rename similarity threshold (50%) and diff.renameLimit (1000) are defined as fixed constants, not runtime-configurable
+OK: collect_tracked_diff raises GitDiffError with the expected diagnostic on a too-many-files stderr warning
+ok: TEST-023.2: the rename-limit-exceeded stderr warning is detected and fails closed (direct unit test of the error-handling path)
+=== TEST-024: submodule/symlink reference-only (four cases) ===
+ok: TEST-024.1: a dirty-but-pointer-unchanged submodule is NOT reported as a change
+ok: TEST-024.2: a submodule gitlink OID change (pointer bump) IS reported as a change
+ok: TEST-024.3: a symlink's own target-text change is reported at the symlink's path (reference-only, never dereferenced)
+ok: TEST-024.4: a referent-only content change is reported at the referent's own path, never at the (untouched) symlink's path
+=== TEST-025: single-writer/TOCTOU retry-then-fail-closed ===
+ok: TEST-025.1: an ordinary resolve with no concurrent writer succeeds (no retry needed)
+OK: collect_changed_paths retries exactly once then fails closed on a persistent mismatch
+ok: TEST-025.2: a persistent single-writer/TOCTOU fingerprint mismatch retries exactly once then fails closed (direct unit test)
+=== registration self-check ===
+ok: component-path-diff-basis suite self-registers in tests/run-all.sh and .ps1
+
+Results: 17 passed, 0 failed.

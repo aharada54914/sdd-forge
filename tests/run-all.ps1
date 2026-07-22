@@ -37,7 +37,8 @@ $tests = @(
     'tests/release-loop-gate.tests.ps1',
     'tests/run-panelist-effort.tests.ps1',
     'tests/model-freshness-check.tests.ps1',
-    'tests/component-path-resolver.tests.ps1'
+    'tests/component-path-resolver.tests.ps1',
+    'tests/component-path-diff-basis.tests.ps1'
 )
 
 Push-Location $root

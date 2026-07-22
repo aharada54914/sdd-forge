@@ -650,6 +650,191 @@ def check_schema_conformance(schema_path: str) -> Tuple[bool, str]:
 
 
 # --------------------------------------------------------------------------
+# Git-diff basis collector (REQ-003, T-002)
+# --------------------------------------------------------------------------
+#
+# Wraps the pure classifier above with a deterministic git-diff change-set
+# collector: resolves --source-rev/--target-rev to commit OIDs, computes
+# their merge-base, collects the baseline..worktree change set (staged +
+# unstaged + untracked, each counted once, NUL-framed raw-byte parsing),
+# follows renames under a pinned threshold/limit, evaluates submodule/
+# symlink entries reference-only, and enforces a single-writer/TOCTOU
+# snapshot check with a retry-once-then-fail-closed rule. Every axis is
+# normatively fail-closed (ADR-0025).
+
+RENAME_SIMILARITY_THRESHOLD = 50  # percent, pinned (git's own default -M50%)
+RENAME_LIMIT = 1000  # pinned diff.renameLimit
+
+
+class GitDiffError(ValueError):
+    """A fail-closed git-diff-collection error (REQ-003). Always propagates
+    to a non-zero exit with a diagnostic — never a silent empty change set
+    or a silent fallback."""
+
+
+def _run_git(repo_root: str, args: List[str]) -> Tuple[int, bytes, bytes]:
+    import subprocess
+
+    try:
+        proc = subprocess.run(
+            ["git", "-C", repo_root] + args,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except FileNotFoundError as exc:
+        raise GitDiffError(f"git executable not found: {exc}") from exc
+    return proc.returncode, proc.stdout, proc.stderr
+
+
+def _decode_path_strict(raw: bytes) -> str:
+    try:
+        return raw.decode("utf-8")
+    except UnicodeDecodeError as exc:
+        raise GitDiffError(f"invalid UTF-8 in a git-reported path: {raw!r} ({exc})") from exc
+
+
+def resolve_commit_oid(repo_root: str, rev: str) -> str:
+    code, out, err = _run_git(repo_root, ["rev-parse", "--verify", f"{rev}^{{commit}}"])
+    if code != 0:
+        raise GitDiffError(f"unresolvable rev {rev!r}: {err.decode('utf-8', 'replace').strip()}")
+    return out.decode("ascii").strip()
+
+
+def compute_merge_base(repo_root: str, source_oid: str, target_oid: str) -> str:
+    code, out, err = _run_git(repo_root, ["merge-base", source_oid, target_oid])
+    if code != 0:
+        raise GitDiffError(
+            f"no merge-base between {source_oid} and {target_oid} "
+            f"(unrelated histories?): {err.decode('utf-8', 'replace').strip()}"
+        )
+    return out.decode("ascii").strip()
+
+
+def _capture_fingerprint(repo_root: str) -> Tuple[str, str]:
+    # Single-writer/snapshot contract: HEAD OID + a hash of the full
+    # staged/unstaged/untracked porcelain status, captured before and after
+    # this collector's own multi-command sequence.
+    code, out, _err = _run_git(repo_root, ["rev-parse", "HEAD"])
+    head = out.decode("ascii").strip() if code == 0 else "(unborn)"
+    _code2, status_out, _err2 = _run_git(
+        repo_root, ["status", "--porcelain=v1", "-z", "--untracked-files=all"]
+    )
+    import hashlib
+
+    status_hash = hashlib.sha256(status_out).hexdigest()
+    return head, status_hash
+
+
+def _split_nul(raw: bytes) -> List[bytes]:
+    parts = raw.split(b"\x00")
+    if parts and parts[-1] == b"":
+        parts = parts[:-1]
+    return parts
+
+
+def collect_tracked_diff(repo_root: str, baseline_oid: str) -> Tuple[List[str], List[dict]]:
+    code, out, err = _run_git(
+        repo_root,
+        [
+            "-c",
+            f"diff.renameLimit={RENAME_LIMIT}",
+            "diff",
+            "--no-ext-diff",
+            f"-M{RENAME_SIMILARITY_THRESHOLD}%",
+            "--ignore-submodules=dirty",
+            "--name-status",
+            "-z",
+            baseline_oid,
+        ],
+    )
+    err_text = err.decode("utf-8", "replace")
+    if "too many files" in err_text or "rename detection was skipped" in err_text:
+        raise GitDiffError(
+            f"rename-detection limit exceeded (pinned diff.renameLimit={RENAME_LIMIT}); "
+            "failing closed rather than silently falling back to an unrelated add+delete pair"
+        )
+    if code != 0:
+        raise GitDiffError(f"git diff against baseline {baseline_oid} failed: {err_text.strip()}")
+
+    tokens = _split_nul(out)
+    entries: List[str] = []
+    renames: List[dict] = []
+    i = 0
+    while i < len(tokens):
+        status = tokens[i].decode("ascii", "replace")
+        if status.startswith("R") or status.startswith("C"):
+            if i + 2 >= len(tokens):
+                raise GitDiffError("malformed rename/copy entry in git diff --name-status -z output")
+            old_path = _decode_path_strict(tokens[i + 1])
+            new_path = _decode_path_strict(tokens[i + 2])
+            entries.append(old_path)
+            entries.append(new_path)
+            renames.append({"old_path": old_path, "new_path": new_path, "status": status})
+            i += 3
+        else:
+            if i + 1 >= len(tokens):
+                raise GitDiffError("malformed status entry in git diff --name-status -z output")
+            path = _decode_path_strict(tokens[i + 1])
+            entries.append(path)
+            i += 2
+    return entries, renames
+
+
+def collect_untracked(repo_root: str) -> List[str]:
+    code, out, err = _run_git(repo_root, ["ls-files", "--others", "--exclude-standard", "-z"])
+    if code != 0:
+        raise GitDiffError(f"git ls-files --others failed: {err.decode('utf-8', 'replace').strip()}")
+    return [_decode_path_strict(tok) for tok in _split_nul(out)]
+
+
+def collect_changed_paths(
+    repo_root: str, source_rev: str, target_rev: str, include_untracked: bool = True
+) -> dict:
+    attempt = 0
+    while True:
+        attempt += 1
+        fp_before = _capture_fingerprint(repo_root)
+
+        source_oid = resolve_commit_oid(repo_root, source_rev)
+        target_oid = resolve_commit_oid(repo_root, target_rev)
+        baseline_oid = compute_merge_base(repo_root, source_oid, target_oid)
+        tracked_entries, renames = collect_tracked_diff(repo_root, baseline_oid)
+        untracked_entries = collect_untracked(repo_root) if include_untracked else []
+
+        fp_after = _capture_fingerprint(repo_root)
+        if fp_before == fp_after:
+            break
+        if attempt >= 2:
+            raise GitDiffError(
+                "single-writer/TOCTOU snapshot mismatch persisted after one retry; "
+                "failing closed rather than returning a mixed-snapshot result"
+            )
+        # else: retry the whole sequence once (attempt == 1 -> loop to attempt 2)
+
+    # Staged + unstaged + untracked, each counted exactly once: tracked_entries
+    # come only from `git diff` (staged+unstaged against the baseline,
+    # porcelain-only, never touching the filesystem directly); untracked_entries
+    # come only from `git ls-files --others`, a disjoint set by construction
+    # (a tracked path can never also be untracked). Deduplicate defensively
+    # (order-preserving) in case the same path appears twice across rename
+    # old/new legs and untracked (should not happen, but never double-count).
+    seen: Dict[str, None] = {}
+    changed_paths: List[str] = []
+    for p in tracked_entries + untracked_entries:
+        if p not in seen:
+            seen[p] = None
+            changed_paths.append(p)
+
+    return {
+        "source_oid": source_oid,
+        "target_oid": target_oid,
+        "baseline_oid": baseline_oid,
+        "changed_paths": changed_paths,
+        "renames": renames,
+    }
+
+
+# --------------------------------------------------------------------------
 # CLI
 # --------------------------------------------------------------------------
 
@@ -670,8 +855,36 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument(
         "--changed-paths-file",
         help="path to a newline-separated file of raw changed paths "
-        "(T-001 interim input surface; T-002 supersedes this with the "
-        "real git-diff basis collector). Omit to read from stdin.",
+        "(T-001 interim input surface, still available when --target-rev "
+        "is omitted). Omit to read from stdin.",
+    )
+    parser.add_argument(
+        "--source-rev",
+        default="HEAD",
+        help="source revision for the git-diff basis (default: HEAD, T-002)",
+    )
+    parser.add_argument(
+        "--target-rev",
+        help="target revision (complete ref/OID) for the git-diff basis; "
+        "supplying this switches to the real git-diff collector (T-002) "
+        "instead of --changed-paths-file/stdin",
+    )
+    parser.add_argument(
+        "--include-untracked",
+        action="store_true",
+        default=True,
+        help="include untracked files in the git-diff basis (default: true)",
+    )
+    parser.add_argument(
+        "--no-include-untracked",
+        dest="include_untracked",
+        action="store_false",
+        help="exclude untracked files from the git-diff basis",
+    )
+    parser.add_argument(
+        "--repo-root",
+        default=".",
+        help="repository root the git-diff basis operates against (default: .)",
     )
     parser.add_argument(
         "--check-schema-conformance",
@@ -703,17 +916,49 @@ def main(argv: Optional[List[str]] = None) -> int:
         print(f"resolve-component-paths: cannot read config: {exc}", file=sys.stderr)
         return 1
 
-    try:
-        raw_paths = _read_paths_file(args.changed_paths_file)
-    except OSError as exc:
-        print(f"resolve-component-paths: cannot read changed-paths-file: {exc}", file=sys.stderr)
-        return 1
+    diff_basis: Optional[dict] = None
+    if args.target_rev:
+        try:
+            diff_basis = collect_changed_paths(
+                args.repo_root, args.source_rev, args.target_rev, args.include_untracked
+            )
+        except GitDiffError as exc:
+            print(f"resolve-component-paths: {exc}", file=sys.stderr)
+            return 1
+        raw_paths = diff_basis["changed_paths"]
+    else:
+        try:
+            raw_paths = _read_paths_file(args.changed_paths_file)
+        except OSError as exc:
+            print(f"resolve-component-paths: cannot read changed-paths-file: {exc}", file=sys.stderr)
+            return 1
 
     try:
         result = classify_paths(config, raw_paths)
     except (ConfigError, CollisionError) as exc:
         print(f"resolve-component-paths: {exc}", file=sys.stderr)
         return 1
+
+    if diff_basis is not None:
+        classification_by_path = {r["raw_path"]: r for r in result["records"]}
+        renames_with_evidence = []
+        for rename in diff_basis["renames"]:
+            old_rec = classification_by_path.get(rename["old_path"])
+            new_rec = classification_by_path.get(rename["new_path"])
+            old_owners = set(old_rec["owning_components"]) if old_rec else set()
+            new_owners = set(new_rec["owning_components"]) if new_rec else set()
+            renames_with_evidence.append(
+                {
+                    **rename,
+                    "cross_component": old_owners != new_owners,
+                }
+            )
+        result["diff_basis"] = {
+            "source_oid": diff_basis["source_oid"],
+            "target_oid": diff_basis["target_oid"],
+            "baseline_oid": diff_basis["baseline_oid"],
+            "renames": renames_with_evidence,
+        }
 
     print(json.dumps(result, indent=2, ensure_ascii=False, sort_keys=True))
     return 0
