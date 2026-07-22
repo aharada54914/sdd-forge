@@ -1,6 +1,6 @@
 # Tasks: epic-194-a6-lite-integration
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issue #194 (Epic A6 — Lite統合), tracked under epic #187 (AI-DLC
 Foundation tracking) /
