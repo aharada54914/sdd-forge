@@ -1,6 +1,6 @@
 # Tasks: epic-136-phase3
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issues #123 (Stream A — `.ps1`-fallback dispatcher coverage), #124
 (Stream B — cross-runtime negative corpus), #125 (Stream C —
