@@ -648,6 +648,23 @@ guessing at an undocumented convention.
   `state: "not-applicable (disabled-legacy)"`; Resolver (Epic A5): no
   invocation event at all — so the orchestration-event trace's own
   fixture assertions never require the two to share one shape.
+- AC-042: The structural compatibility test (REQ-002) asserts that a
+  Context-present, `capability_enforcement: advisory` fixture (F3)'s
+  generated artifacts remain structurally identical to the Context-absent
+  `full`-track legacy-seven-layer file set AC-005's own full-track clause
+  fixes (INV-018) — identical required-file count, frontmatter, required
+  headings, and status field names, matching the existing templates under
+  `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/templates/`
+  unchanged — because Project Context presence alone, independent of
+  `capability_enforcement`'s advisory value, does not itself alter
+  generation structure while the project's own facet-track selection
+  remains `full`/legacy-seven-layer (design.md Compatibility Matrix, F3
+  row/REQ-002 column; design.md Observable×fixture-state judgment table,
+  "Generated-artifact structure" row, F3 column: `structural`). A named
+  `SKIP` entry in REQ-007's allowlist manifest (AC-034) until Epic A1's
+  Project Context schema exists, activation condition "Epic A1 merged to
+  `main`" (REQ-007) — matching the exact gating condition design.md's own
+  Compatibility Matrix F3/REQ-002 cell already names.
 
 ## Field Definitions
 
