@@ -1,0 +1,62 @@
+ticket_id: RT-20260723-001
+status: open
+type: incomplete-implementation
+severity: major
+target:
+  feature: epic-190-a2-capability-registry
+  task: T-004
+  files:
+    - plugins/sdd-quality-loop/scripts/validate-capability-registry.py
+    - tests/validate-capability-registry.tests.sh
+    - tests/validate-capability-registry.tests.ps1
+summary: Registry validator's Gate implementation identity check (c) does not detect a wrapper-group collision, and TEST-016 is missing three required assertions.
+problem: |
+  The independent quality-gate evaluator for epic-190-a2-capability-registry
+  T-004 (run RUN-epic-190-a2-capability-registry-qg-T-004-seq0347, report
+  reports/quality-gate/2026-07-23T020000Z-epic-190-a2-capability-registry-T-004-attempt1.md,
+  VERDICT: NEEDS_WORK) found two Major issues:
+
+  1. Wrapper-group collision not detected (REQ-003(c)/AC-016/TEST-016).
+     validate-capability-registry.py:178-209's `check_c_unregistered_script`
+     builds `registered_reals` as a set of resolved implementation_ref real
+     paths; if two distinct gates[] entries reference the identical
+     check-*.py master, the set silently collapses both references into one
+     entry and no diagnostic fires. AC-016 states "two gates[] entries must
+     not resolve to the same wrapper group" -- this is currently
+     unenforced. The evaluator demonstrated a crafted two-gate registry
+     referencing the same check-registered.py-equivalent master passing
+     validation with exit 0, when the spec requires it to fail.
+  2. TEST-016 is substantially unimplemented in
+     tests/validate-capability-registry.tests.{sh,ps1}: the block labeled
+     "TEST-016/017" only exercises TEST-017's four bidirectional sub-cases.
+     Three TEST-016 assertions have no fixture or assertion at all:
+       (1) rejection of a non-.py implementation_ref (e.g. a gate pointing
+           at a .sh/.ps1/.js wrapper instead of its .py master),
+       (2) symlink resolution (the code path exists in
+           check_c_unregistered_script's use of Path.resolve(), but zero
+           test exercises a symlinked script),
+       (3) the wrapper-group collision from finding 1.
+expected_fix: |
+  1. Add a distinct diagnostic ID (e.g. `gate-implementation-collision`) to
+     validate-capability-registry.py's check (c): when two or more gates[]
+     entries' implementation_ref values resolve to the same real path,
+     emit this diagnostic naming the colliding gate ids and fail the check
+     -- do not let the set-based dedup silently absorb the collision.
+  2. Add fixtures/assertions to both test suites (TDD Red->Green, new RED
+     evidence appended, not fabricated) for:
+     - a gate whose implementation_ref names a .sh/.ps1/.js wrapper instead
+       of the .py master (expect rejection),
+     - a gate whose implementation_ref traverses a symlink to the real
+       master (expect correct resolution/acceptance),
+     - two gates referencing the identical master (expect the new
+       gate-implementation-collision diagnostic).
+  Both runtimes green after the fix; live .github/workflows/test.yml
+  unchanged; re-submit for quality-gate re-evaluation under a freshly
+  reserved evaluator identity.
+references:
+  - reports/quality-gate/2026-07-23T020000Z-epic-190-a2-capability-registry-T-004-attempt1.md
+  - reports/implementation/epic-190-a2-capability-registry/T-004.md
+  - specs/epic-190-a2-capability-registry/design.md (Registry validator contract, REQ-003)
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1
