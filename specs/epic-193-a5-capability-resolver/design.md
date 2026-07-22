@@ -2362,6 +2362,21 @@ None — every input and output this feature touches is repository-local
   `specs/epic-193-a5-capability-resolver/` and (in the registration
   commit) `AGENTS.md`'s Active Spec Directories list and `specs/
   workflow-state-registry.json`.
+- **Security constraints** (impl-review round-1 remedy, closing a
+  NO-REQ-CONTRADICTION Major finding on this section's own narrow scope):
+  requirements.md's Security Boundaries bullet 1 ("never invokes a
+  Provider API, reads a credential, or writes outside" a fixed path set)
+  and REQ-005's no-clock/no-network/no-provider-API orchestration
+  constraint are each honored — see this design's own `## Security
+  Boundaries` section (above) and `## Global Constraints` (below) for the
+  concrete, elaborated compliance statement; this Constraint Compliance
+  section does not restate that content, only cross-references it.
+- **Compatibility constraints**: every upstream Epic A1/A2/A3/A4 contract
+  this feature reads is treated as already-fixed and content-frozen
+  (Dependencies, requirements.md); no field, enum, or evaluation semantic
+  any of those four already-`Spec-Review-Status: Passed` contracts fixes
+  is redefined or narrowed by this design — see `## ADR Change Log`
+  (above) for the full compatibility-preserving decision record.
 
 ## Assumptions
 
