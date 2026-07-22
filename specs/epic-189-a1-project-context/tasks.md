@@ -31,21 +31,21 @@ task-authoring time — design.md Protected-File Statement):
 `plugins/sdd-ship/skills/ship/SKILL.md`,
 `plugins/sdd-lite/skills/lite-spec/SKILL.md`, and
 `.github/workflows/test.yml`. **No task below writes any of these nine
-files directly.** T-008 stages the six guard-invariants files; T-011 stages
+files directly.** T-009 stages the six guard-invariants files; T-012 stages
 `ship/SKILL.md` and `lite-spec/SKILL.md`; every task registering a new test
 suite stages its own `.github/workflows/test.yml` addition. Every staged
 file goes under
 `specs/epic-189-a1-project-context/human-copy/<repository-relative-path>` +
 a `MANIFEST.sha256` entry (design.md's single canonical
-`PROTECTED-MANIFEST.md`, staged by T-008).
+`PROTECTED-MANIFEST.md`, staged by T-009).
 
-This epic ALSO builds `apply-human-copy.sh`/`.ps1` (T-006, REQ-007) — the
+This epic ALSO builds `apply-human-copy.sh`/`.ps1` (T-007, REQ-007) — the
 anchored-publisher-equivalent tool every other task's staged artifact is
 applied through (design.md Global Constraints) — and BECOMES itself a
-concrete `PROTECTED-MANIFEST.md` entry once T-008's registration lands,
+concrete `PROTECTED-MANIFEST.md` entry once T-009's registration lands,
 after exactly one human-verified bootstrap `cp` (design.md Protected-File
-Statement, "Publisher self-protection", B9). Before T-008 lands,
-`apply-human-copy.{sh,ps1}` is an ordinary, agent-editable file; T-008's
+Statement, "Publisher self-protection", B9). Before T-009 lands,
+`apply-human-copy.{sh,ps1}` is an ordinary, agent-editable file; T-009's
 human-apply step is what makes it, and the 24 concrete + 4 reserved paths
 listed in the staged `PROTECTED-MANIFEST.md`, protected going forward. This
 epic does not extend or reuse
@@ -69,33 +69,39 @@ procedure is still required.
 - **`tests/run-all.sh` / `.ps1`** (unprotected, direct edit): every task
   below that registers a new suite appends ONLY its own suite's
   registration lines, in this task list's own numeric order (T-001 through
-  T-012, one array-append per task, landed in serialized, per-task
-  commits) — the same append-only, task-numeric-order discipline design.md
-  Global Constraints mandates for the REQ-003..REQ-007/REQ-010 subset and
-  this package extends uniformly to every suite-registering task so no two
-  tasks race on the same shared file.
+  T-012 — every task except T-013, the closing audit, which registers no
+  new suite of its own — one array-append per task, landed in serialized,
+  per-task commits). **This numeric-order serialization is enforced
+  machine-checkably, not merely by convention**: every one of T-001..T-012
+  declares the immediately-preceding numeric-order task among its
+  `Blockers:` (directly, or transitively through another declared
+  blocker — e.g. T-006 blocks on T-005, which itself blocks on T-004, which
+  blocks on T-003, and so on back to T-001), so no two of these twelve
+  tasks can be scheduled out of order or in parallel against this shared
+  file (round-1 task-review remedy — closes reviewer-b's round-1
+  SCOPE-DISJOINT/DEPENDENCY-OVERLAP findings, `--edit-summary` below).
 - **`.github/workflows/test.yml`** (R-10 protected): the same tasks each
   stage their own registration addition via human-copy, in the SAME
   numeric order, under
   `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
   + a shared, task-appended `MANIFEST.sha256`.
 - **`plugins/sdd-quality-loop/references/guard-invariants.json`,
-  `generate-guard-invariants.py`, `generated/guard_invariants.*`**: T-008
+  `generate-guard-invariants.py`, `generated/guard_invariants.*`**: T-009
   is the SOLE editor within this epic (design.md Global Constraints); no
   other task stages a competing edit.
-- **`apply-human-copy.{sh,ps1}`**: T-006 is the sole author. Every OTHER
+- **`apply-human-copy.{sh,ps1}`**: T-007 is the sole author. Every OTHER
   task's staged human-copy artifact (T-003's sidecar+anchor publication,
-  T-011's `ship`/`lite-spec` edits, every suite's `test.yml` registration)
+  T-012's `ship`/`lite-spec` edits, every suite's `test.yml` registration)
   is APPLIED using this tool once it exists; no other task edits the tool
   itself (design.md Global Constraints).
-- **`PLUGIN-CONTRACTS.md`**: T-010 is the sole editor.
+- **`PLUGIN-CONTRACTS.md`**: T-011 is the sole editor.
 - **`sdd/.staging/`** (unprotected, T-003) and **`sdd/.hook-canary-sentinel`**
-  (protected once T-008 lands, T-007/T-009): neither path is ever targeted
+  (protected once T-009 lands, T-008/T-010): neither path is ever targeted
   by more than its own task; no task ever authors real, committed content
   for the sentinel path — its only legitimate occupant is the handshake's
   own transient hook-inactive detection branch at test/run time (design.md
   Global Constraints, REQ-010 Design Decisions).
-- **`sdd/.staging/*/TRANSACTION.json`** (unprotected, T-006, REQ-007): written
+- **`sdd/.staging/*/TRANSACTION.json`** (unprotected, T-007, REQ-007): written
   and deleted ONLY by `apply-human-copy` itself; no task, script, or test
   fixture ever authors or edits this path directly — a fixture proving
   recovery correctness drives it only through `apply-human-copy`'s own CLI
@@ -271,7 +277,7 @@ Risk: high
 Risk Rationale: Touches a sensitive surface per
 `risk-classification-policy.md:16` — this is the security-foundational
 primitive every HMAC preimage (T-003) and every weakening-detector diff
-(T-004) depends on for byte-stability; a defect here (e.g. an anchor/tag/
+(T-005) depends on for byte-stability; a defect here (e.g. an anchor/tag/
 duplicate-key document silently accepted rather than rejected, or a
 non-finite/out-of-range number silently normalized) would let an ambiguous
 document's canonical hash diverge from a human reviewer's understanding of
@@ -286,15 +292,17 @@ Cross-Model: not enabled
 
 Requirements: REQ-003
 
-Depends On: none (a generic YAML/JSON canonicalization primitive; design.md
+Depends On: T-001 only for this task list's mandatory shared-file
+numeric-order append serialization (Global Constraints) — this task's own
+functional content (a generic YAML/JSON canonicalization primitive; design.md
 Technical Summary treats REQ-003 as consuming REQ-001/REQ-002 only at the
-content-instance level — the canonicalizer's own code takes an arbitrary
-content-file path argument and has no compile-time dependency on the
-schema files T-001 authors).
+content-instance level) has no compile-time dependency on the schema files
+T-001 authors; the canonicalizer's own code takes an arbitrary content-file
+path argument.
 
 Planned Files:
 - `plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py` (new,
-  agent-editable — becomes protected only after T-008)
+  agent-editable — becomes protected only after T-009)
 - `plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.sh` / `.ps1` /
   `.js` (new, agent-editable — thin dispatchers, `python3`/`python`
   resolution ONLY, mirroring `sdd-hook-guard.sh:1-53`'s dispatch shape but
@@ -312,7 +320,7 @@ Data Migration: none.
 Breaking API: no; wholly new script.
 
 Rollback: revert this task's two commits; nothing protected is touched yet
-(this task's own outputs are not yet registered as protected — T-008 does
+(this task's own outputs are not yet registered as protected — T-009 does
 that later).
 
 ### Goal
@@ -381,11 +389,11 @@ canonicalizer's addition.
 ### Out of Scope
 
 - HMAC signing (T-003).
-- Any consumer wiring (T-003, T-004).
+- Any consumer wiring (T-003, T-005).
 
 ### Blockers
 
-None
+T-001
 
 ---
 
@@ -504,11 +512,11 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 ### Out of Scope
 
-- Validation (T-005).
-- The two-person/cooldown verdict's own computation (T-004; this task only
+- Validation (T-006).
+- The two-person/cooldown verdict's own computation (T-005; this task only
   ACCEPTS a verdict it is given and embeds it, it does not compute one).
-- Publishing the staged candidate to the live path (T-006's
-  `apply-human-copy`, applied by T-008/T-011's tasks after this task's own
+- Publishing the staged candidate to the live path (T-007's
+  `apply-human-copy`, applied by T-009/T-012's tasks after this task's own
   Done).
 
 ### Blockers
@@ -517,7 +525,121 @@ T-002
 
 ---
 
-## T-004 Author the approver registry schema and the policy-weakening detector
+## T-004 Author the approver registry schema
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
+
+Approval: Draft
+
+Status: Planned
+
+Risk: high
+
+Risk Rationale: Security-policy-decision surface per
+`risk-classification-policy.md:16` — this schema defines the immutable
+identity key (`id`) every two-person/cooldown verdict (T-005) and every
+validation-time identity/duplicate-identity check (T-006) is anchored
+against; a malformed or under-constrained schema (e.g. permitting a
+non-unique or mutable identity key) would silently defeat the two-person
+review guarantee ADR-0019 item 6 exists to enforce, even though this task
+itself computes no verdict.
+
+Required Workflow: tdd
+
+Security-Sensitive: true
+
+Cross-Model: not enabled
+
+Requirements: REQ-006
+
+Depends On: T-003 only for this task list's mandatory shared-file
+numeric-order append serialization (Global Constraints) — this schema has
+no functional code dependency on T-003's signer; it is a standalone JSON
+Schema artifact, like T-001's schemas.
+
+Planned Files:
+- `contracts/approver-registry.schema.json` (new, agent-editable — schema
+  id `sdd-approver-registry/v1`)
+- `tests/approver-registry-schema.tests.sh` / `.ps1` (new, agent-editable)
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — fourth in
+  numeric order)
+- `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
+  (staged, appended)
+- `specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256` (appended)
+- `CHANGELOG.md` (existing, agent-editable — APPEND)
+
+Data Migration: none.
+
+Breaking API: no; wholly new file.
+
+Rollback: revert this task's two commits.
+
+### Goal
+
+Author `contracts/approver-registry.schema.json` (schema id
+`sdd-approver-registry/v1`): `schema` (const), `approvers[]` (`id` unique
+string — the immutable identity key, `name` string — mutable display
+label, `registered_at` ISO 8601). Prove field-level conformance, the
+malformed-registry rejection path, the registry-side duplicate-`id`
+semantic rejection, and the zero-entry boundary case.
+
+### Must Read
+
+- `specs/epic-189-a1-project-context/design.md` (Data Plan —
+  `sdd/approver-registry.yaml` entity; Design Decisions — OQ-001 location)
+- `specs/epic-189-a1-project-context/acceptance-tests.md` (AC-044..AC-046)
+- `docs/adr/0019-approval-sidecar-protection.md`
+
+### Scope
+
+Commit A (TDD Red → Green):
+
+- Red: TEST-044 (schema conformance, parameterized required-field
+  rejection on `id`/`name`, malformed-`approvers`-shape rejection,
+  zero-entry `[]` VALIDATES), TEST-045 (registry-side duplicate-`id`
+  semantic rejection, `DUPLICATE_APPROVER_REGISTRY_ID`, at the
+  semantic-validator layer not the JSON Schema), TEST-046 (zero-identity
+  boundary: a schema-valid `approvers: []` fixture, combined with T-003's/
+  T-006's structural fail-closed-signing/validating consequence for that
+  same empty registry — this task's own Done When scopes to proving the
+  registry itself validates the empty-array case; the downstream
+  fail-closed proof is T-006's) against a not-yet-implemented schema.
+- Green: author the schema; capture the passing run.
+- Register the suite; stage the `test.yml` addition.
+
+Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
+
+### Done When
+
+- [ ] TEST-044 proves schema conformance including the malformed-registry
+  rejection path and the zero-entry validating case (AC-044).
+- [ ] TEST-045 proves the registry-side duplicate-`id` semantic rejection
+  (AC-045).
+- [ ] TEST-046 proves the zero-identity registry fixture itself validates
+  against the schema, as the precondition T-005/T-006 build their
+  classification/fail-closed proofs on (AC-046, schema-conformance half —
+  the verdict/fail-closed half is T-005's/T-006's own Done When).
+- [ ] Suite self-registers; `test.yml` staged correctly.
+- [ ] `CHANGELOG.md` #189 entry updated.
+- [ ] TDD Red/Green evidence recorded in the implementation report; an
+  independent quality-gate verdict (a named second reviewer) records PASS.
+
+### Out of Scope
+
+- The policy-weakening detector and its two-person/cooldown verdict
+  derivation (T-005) — a functionally distinct algorithmic deliverable
+  from this schema, split out per round-1 task-review remedy (below).
+- The generator's/validator's own consumption of this schema (T-003
+  already ships against a verdict it receives; T-006 re-derives identity/
+  duplicate-identity checks against this schema's data shape).
+
+### Blockers
+
+T-003
+
+---
+
+## T-005 Author the policy-weakening detector
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
@@ -545,17 +667,17 @@ Requirements: REQ-006
 
 Depends On: T-002 (canonicalizer, used to diff before/after documents on
 stable byte content; design.md Technical Summary: "REQ-003 is consumed
-by ... REQ-006").
+by ... REQ-006"), T-004 (this task list's shared-file numeric-order append
+serialization, and the approver-registry schema this detector's
+two-person/cooldown verdict reads `sdd/approver-registry.yaml` against).
 
 Planned Files:
-- `contracts/approver-registry.schema.json` (new, agent-editable — schema
-  id `sdd-approver-registry/v1`)
 - `plugins/sdd-quality-loop/scripts/detect-policy-weakening.py` (new,
   agent-editable)
 - `plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh` / `.ps1`
   (new, agent-editable)
 - `tests/detect-policy-weakening.tests.sh` / `.ps1` (new, agent-editable)
-- `tests/run-all.sh` / `.ps1` (existing, agent-editable — fourth in numeric
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — fifth in numeric
   order)
 - `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
   (staged, appended)
@@ -570,13 +692,14 @@ Rollback: revert this task's two commits.
 
 ### Goal
 
-Author `contracts/approver-registry.schema.json` and
-`detect-policy-weakening.{py,sh,ps1}`, implementing the renormalized
-3-implemented/6-N/A weakening-category table, the glob-coverage narrowing
-algorithm, the two-person/cooldown verdict derivation against
-`sdd/approver-registry.yaml`, and the default trust-anchor resolution
-against the protected `sdd/.approved-context/*.approved.yaml` snapshot
-(never git HEAD, never caller-supplied on the production call path).
+Author `detect-policy-weakening.{py,sh,ps1}`, implementing the
+renormalized 3-implemented/6-N/A weakening-category table, the
+glob-coverage narrowing algorithm, the two-person/cooldown verdict
+derivation against `sdd/approver-registry.yaml` (T-004's schema,
+including the zero-identity boundary case), and the default trust-anchor
+resolution against the protected `sdd/.approved-context/*.approved.yaml`
+snapshot (never git HEAD, never caller-supplied on the production call
+path).
 
 ### Must Read
 
@@ -584,47 +707,39 @@ against the protected `sdd/.approved-context/*.approved.yaml` snapshot
   categories; Weakening-detector approved-context anchor CLI contract;
   Design Decisions — B3 anchor choice)
 - `specs/epic-189-a1-project-context/acceptance-tests.md` (AC-016..AC-018,
-  AC-030, AC-031, AC-044..AC-046)
+  AC-030, AC-031, AC-046)
 - `docs/adr/0019-approval-sidecar-protection.md`
 
 ### Scope
 
 Commit A (TDD Red → Green):
 
-- Red: TEST-044 (approver-registry schema conformance, parameterized
-  required-field rejection, malformed-`approvers`-shape rejection,
-  zero-entry `[]` VALIDATES), TEST-045 (approver-registry duplicate-`id`
-  semantic rejection, `DUPLICATE_APPROVER_REGISTRY_ID`), TEST-046
-  (zero-identity boundary: `two_person_required: false, cooldown_hours: 24`
-  verdict plus structural fail-closed-signing/validating proof against an
-  empty registry), TEST-016 (per-category classification: 3 implemented
-  categories classify `policy_weakening: true`; 6 documented-N/A
-  categories reported N/A explicitly, no proxy classification), TEST-017
-  (strengthening-change negative proof), TEST-018 (two-person/cooldown
-  verdict fixture pair), TEST-030 (approved-context anchor CLI contract:
-  identical-to-anchor ⇒ false; genuine diff ⇒ true, both immediately and
-  after landing as ordinary git commits; production call path immune to
+- Red: TEST-016 (per-category classification: 3 implemented categories
+  classify `policy_weakening: true`; 6 documented-N/A categories reported
+  N/A explicitly, no proxy classification), TEST-017 (strengthening-change
+  negative proof), TEST-018 (two-person/cooldown verdict fixture pair: a
+  2-identity registry fixture → `two_person_required: true`; a 1-identity
+  registry fixture → `two_person_required: false, cooldown_hours: 24`),
+  TEST-030 (approved-context anchor CLI contract: identical-to-anchor ⇒
+  false; genuine diff ⇒ true, both immediately and after landing as
+  ordinary git commits; production call path immune to
   `--approved-context` override; `NO_APPROVED_CONTEXT_ANCHOR` fail-closed
   rule; `HUMAN_COPY_PUBLISH_IN_PROGRESS` fail-closed on a live
   `TRANSACTION.json`), TEST-031 (glob-coverage narrowing algorithm: pattern
   removed, pattern replaced at unchanged count, exclude added, exclude
   replaced broader, pure-broadening non-weakening — five independent
-  fixtures) against a not-yet-implemented detector.
-- Green: implement the schema and the detector; capture the passing run.
+  fixtures), TEST-046 (zero-identity verdict half: given a
+  policy-weakening change and T-004's schema-valid `approvers: []`
+  fixture, the detector emits `two_person_required: false,
+  cooldown_hours: 24`, identical to the 1-identity case) against a
+  not-yet-implemented detector.
+- Green: implement the detector; capture the passing run.
 - Register the suite; stage the `test.yml` addition.
 
 Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 ### Done When
 
-- [ ] TEST-044 proves approver-registry schema conformance including the
-  malformed-registry rejection path and the zero-entry validating case
-  (AC-044).
-- [ ] TEST-045 proves the registry-side duplicate-`id` semantic rejection,
-  run before the distinct-identity count (AC-045).
-- [ ] TEST-046 proves the zero-identity classification verdict and the
-  structural fail-closed-signing/validating consequence for an empty
-  registry (AC-046).
 - [ ] TEST-016 proves every implemented weakening category classifies as
   weakening and every documented-N/A category is reported N/A explicitly
   (AC-016).
@@ -637,6 +752,8 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
   fail-closed case (AC-030).
 - [ ] TEST-031 proves all five glob-coverage narrowing boundary cases
   (AC-031).
+- [ ] TEST-046 proves the zero-identity registry classification verdict
+  (AC-046, verdict half — the schema-conformance half is T-004's).
 - [ ] Suite self-registers; `test.yml` staged correctly.
 - [ ] `CHANGELOG.md` #189 entry updated.
 - [ ] TDD Red/Green evidence recorded in the implementation report; an
@@ -644,17 +761,18 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 ### Out of Scope
 
+- The approver-registry schema itself (T-004).
 - The generator's enforcement of a two-person-required verdict at signing
   time (T-003 already ships that behavior against a verdict it receives).
-- End-to-end signing/validation wiring of this verdict (T-005).
+- End-to-end signing/validation wiring of this verdict (T-006).
 
 ### Blockers
 
-T-002
+T-002, T-004
 
 ---
 
-## T-005 Author the approval validator (`validate-approval-sidecar`)
+## T-006 Author the approval validator (`validate-approval-sidecar`)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
@@ -680,7 +798,8 @@ Requirements: REQ-005
 
 Depends On: T-003 (recomputes the generator's own construction), T-004
 (the approver-registry schema this validator checks identity/duplicate-
-identity against).
+identity against), T-005 (this task list's mandatory shared-file
+numeric-order append serialization).
 
 Planned Files:
 - `plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py` (new,
@@ -688,7 +807,7 @@ Planned Files:
 - `plugins/sdd-quality-loop/scripts/validate-approval-sidecar.sh` / `.ps1`
   (new, agent-editable)
 - `tests/validate-approval-sidecar.tests.sh` / `.ps1` (new, agent-editable)
-- `tests/run-all.sh` / `.ps1` (existing, agent-editable — fifth in numeric
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — sixth in numeric
   order)
 - `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
   (staged, appended)
@@ -706,14 +825,16 @@ Rollback: revert this task's two commits.
 Implement the six validation gates (content-schema incl. duplicate-`id`,
 hash match, HMAC verify, unregistered approver, duplicate approver
 identity, premature `effective_at`) plus the two-person/cooldown
-enforcement proof and the `--verify-provenance` historical re-check mode.
+enforcement proof, the zero-identity structural fail-closed-signing/
+validating consequence, and the `--verify-provenance` historical re-check
+mode.
 
 ### Must Read
 
 - `specs/epic-189-a1-project-context/design.md` (Data Plan; Constraint
   Compliance — historical weakening binding)
 - `specs/epic-189-a1-project-context/acceptance-tests.md` (AC-014, AC-015,
-  AC-019, AC-020, AC-043)
+  AC-019, AC-020, AC-043, AC-046)
 - `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py:454-486`
   (`sudo_active`'s epoch-gate and `hmac.compare_digest` precedent)
 
@@ -730,7 +851,10 @@ Commit A (TDD Red → Green):
   predecessor anchor is gone when `second_approval` is distinct, still
   FAILS `WEAKENING_PROVENANCE_UNDERAPPROVED` when null/duplicate; bootstrap
   case `approval_epoch: 1` passes with no second-approval requirement
-  implied) against a not-yet-implemented validator.
+  implied), TEST-046 (zero-identity structural fail-closed half: given
+  T-004's schema-valid `approvers: []` fixture, `generate-approval-sidecar.py`/
+  `validate-approval-sidecar.py` refuse to sign/validate since no `id` can
+  ever resolve) against a not-yet-implemented validator.
 - Green: implement the validator; capture the passing run.
 - Register the suite; stage the `test.yml` addition.
 
@@ -746,6 +870,9 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
   acceptance after (AC-020).
 - [ ] TEST-043 proves post-publish provenance re-provability and
   underapproval rejection, including the bootstrap case (AC-043).
+- [ ] TEST-046 proves the zero-identity structural fail-closed-signing/
+  validating consequence (AC-046, structural half — the verdict half is
+  T-005's).
 - [ ] Suite self-registers; `test.yml` staged correctly.
 - [ ] `CHANGELOG.md` #189 entry updated.
 - [ ] TDD Red/Green evidence recorded in the implementation report; an
@@ -754,16 +881,17 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 ### Out of Scope
 
 - Wiring this validator into any Capability Mode gate beyond REQ-009's
-  call sites (T-010/T-011).
+  call sites (T-011/T-012).
 - The staging-only signer's own behavior (T-003).
+- The weakening detector's own category/verdict computation (T-005).
 
 ### Blockers
 
-T-003, T-004
+T-003, T-004, T-005
 
 ---
 
-## T-006 Author the anchored-publisher-equivalent human-copy tool (`apply-human-copy`)
+## T-007 Author the anchored-publisher-equivalent human-copy tool (`apply-human-copy`)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
@@ -776,7 +904,7 @@ Risk: critical
 Risk Rationale: Per `risk-classification-policy.md:17` ("irreversible
 destructive operations"), this task builds the SOLE mechanism through
 which every protected-file publish in this epic (T-003's sidecar+anchor
-pair, T-008's guard-invariants registration batch, T-011's `ship`/
+pair, T-009's guard-invariants registration batch, T-012's `ship`/
 `lite-spec` edits, every suite's `test.yml` registration) lands on a live
 path — held handle, handle-relative traversal, temp-rehash, atomic
 rename, no path-copy fallback, journaled multi-target transaction with
@@ -792,16 +920,19 @@ Cross-Model: not enabled
 
 Requirements: REQ-007
 
-Depends On: none (a generic, content-agnostic publisher; design.md
+Depends On: T-006 only for this task list's mandatory shared-file
+numeric-order append serialization (Global Constraints) — this task's own
+functional content (a generic, content-agnostic publisher; design.md
 Global Constraints: authored and tested UNPROTECTED first, self-protected
-only later by T-008's registration batch).
+only later by T-009's registration batch) has no code dependency on
+T-002..T-006's own artifacts.
 
 Planned Files:
 - `plugins/sdd-quality-loop/scripts/apply-human-copy.sh` / `.ps1` (new,
-  agent-editable at authoring time — becomes protected only after T-008)
+  agent-editable at authoring time — becomes protected only after T-009)
 - `tests/apply-human-copy.tests.sh` / `.ps1` (new, agent-editable)
-- `tests/run-all.sh` / `.ps1` (existing, agent-editable — sixth in numeric
-  order)
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — seventh in
+  numeric order)
 - `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
   (staged, appended)
 - `specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256` (appended)
@@ -812,7 +943,7 @@ Data Migration: none.
 Breaking API: no; wholly new tool, no existing consumer.
 
 Rollback: revert this task's two commits; no protected file is touched by
-this task (the tool is not yet registered protected — T-008 does that).
+this task (the tool is not yet registered protected — T-009 does that).
 
 ### Goal
 
@@ -872,18 +1003,18 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 ### Out of Scope
 
-- Registering the tool itself as protected (T-008).
+- Registering the tool itself as protected (T-009).
 - Applying any OTHER task's staged artifact through this tool (T-003's
-  sidecar publish is applied later by T-008/T-011's own human-apply
-  steps; T-011's `ship`/`lite-spec` publish).
+  sidecar publish is applied later by T-009/T-012's own human-apply
+  steps; T-012's `ship`/`lite-spec` publish).
 
 ### Blockers
 
-None
+T-006
 
 ---
 
-## T-007 Author the hook-activation handshake (`check-hook-activation-handshake`)
+## T-008 Author the hook-activation handshake (`check-hook-activation-handshake`)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
@@ -910,21 +1041,23 @@ Cross-Model: not enabled
 
 Requirements: REQ-010
 
-Depends On: none — this task's own proof is FIXTURE-SIMULATED (synthetic
-recorded-result evidence, design.md Test Strategy item 9), so it does not
-require the sentinel path to already be live-protected; it only requires
-the SCRIPT to exist before T-008 can register its path as protected.
+Depends On: T-007 only for this task list's mandatory shared-file
+numeric-order append serialization (Global Constraints) — this task's own
+proof is FIXTURE-SIMULATED (synthetic recorded-result evidence, design.md
+Test Strategy item 9), so it does not require the sentinel path to already
+be live-protected; it only requires the SCRIPT to exist before T-009 can
+register its path as protected.
 
 Planned Files:
 - `plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py`
-  (new, agent-editable — becomes protected only after T-008)
+  (new, agent-editable — becomes protected only after T-009)
 - `plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.sh` /
   `.ps1` (new, agent-editable)
 - `tests/check-hook-activation-handshake.tests.sh` / `.ps1` (new,
   agent-editable — fixture recorded-result evidence per runtime; a fixture
   guard stub that does NOT deny; stale-sentinel and cleanup-failure
   fixtures)
-- `tests/run-all.sh` / `.ps1` (existing, agent-editable — seventh in
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — eighth in
   numeric order)
 - `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
   (staged, appended)
@@ -991,19 +1124,19 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 ### Out of Scope
 
-- Wiring the handshake into any of REQ-009's five entry points (T-010,
-  T-011).
+- Wiring the handshake into any of REQ-009's five entry points (T-011,
+  T-012).
 - A live, cross-runtime, real-agent-session proof of the underlying guard
   actually firing — explicitly Epic A8's own mandatory Done condition
   (design.md Test Strategy item 9, Non-goals), never claimed here.
 
 ### Blockers
 
-None
+T-007
 
 ---
 
-## T-008 Register the sidecar, registry, publisher, and verification scripts in guard-invariants (human-copy)
+## T-009 Register the sidecar, registry, publisher, and verification scripts in guard-invariants (human-copy)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
@@ -1032,10 +1165,13 @@ Cross-Model: not enabled
 
 Requirements: REQ-007
 
-Depends On: T-002, T-003, T-004, T-005, T-006, T-007 (registers every
-concrete script/data path those six tasks introduce, per the single
-canonical `PROTECTED-MANIFEST.md` — design.md Protected-File Statement:
-24 concrete + 4 reserved = 28 entries).
+Depends On: T-002, T-003, T-005, T-006, T-007, T-008 (registers every
+concrete script/data path those tasks introduce, per the single canonical
+`PROTECTED-MANIFEST.md` — design.md Protected-File Statement: 24 concrete
++ 4 reserved = 28 entries; T-004's schema is not itself a protected-file
+registration target, but T-005/T-006 transitively cover it for this task
+list's shared-file numeric-order append serialization since T-005 blocks
+on T-004).
 
 Planned Files:
 - `specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md`
@@ -1059,7 +1195,7 @@ Planned Files:
   matches `PROTECTED-MANIFEST.md`'s table exactly) and a staged-tree
   `--check` pass; cannot assert the live inventory until after human
   application)
-- `tests/run-all.sh` / `.ps1` (existing, agent-editable — eighth in numeric
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — ninth in numeric
   order)
 - `CHANGELOG.md` (existing, agent-editable — APPEND)
 
@@ -1078,7 +1214,7 @@ Stage a consistent, staged-tree-`--check`-passing update to
 `guard-invariants.json` + `generate-guard-invariants.py` + the four
 generated files, registering every new protected path this epic
 introduces (24 concrete + 4 reserved = 28 entries) via the single
-canonical `PROTECTED-MANIFEST.md`, applied through T-006's
+canonical `PROTECTED-MANIFEST.md`, applied through T-007's
 `apply-human-copy` — including the one-time bootstrap that makes
 `apply-human-copy.{sh,ps1}` itself protected.
 
@@ -1130,7 +1266,7 @@ task requires a human-apply step before Done.
   plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check`
   against the now-live tree and confirms it passes.
 - [ ] The human confirms (via `tests/hook-guard-epic-a1-boundary.tests.sh`
-  once T-009 lands, or a throwaway write attempt beforehand) that the new
+  once T-010 lands, or a throwaway write attempt beforehand) that the new
   protected paths are now denied by the live guard.
 
 ### Done When
@@ -1159,18 +1295,18 @@ task requires a human-apply step before Done.
 
 ### Out of Scope
 
-- Any edit to `_is_protected_gate_file`'s decision logic itself (T-009
+- Any edit to `_is_protected_gate_file`'s decision logic itself (T-010
   only verifies it, per REQ-008's own scope).
 - `PHASE2_TARGETS`/`BASELINE_SUFFIXES` — both remain untouched, frozen
   constants.
 
 ### Blockers
 
-T-002, T-003, T-004, T-005, T-006, T-007
+T-002, T-003, T-005, T-006, T-007, T-008
 
 ---
 
-## T-009 Verify the hook-guard extension (protected-write full-matrix deny)
+## T-010 Verify the hook-guard extension (protected-write full-matrix deny)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
@@ -1196,14 +1332,16 @@ Cross-Model: not enabled
 
 Requirements: REQ-008
 
-Depends On: T-008 (the human-apply step must have landed; this task tests
-the LIVE, now-active deny path, not a staged one).
+Depends On: T-009 (the human-apply step must have landed; this task tests
+the LIVE, now-active deny path, not a staged one — this is also the
+immediately-preceding numeric-order task for this task list's shared-file
+append serialization).
 
 Planned Files:
 - `tests/hook-guard-epic-a1-boundary.tests.sh` / `.ps1` (new,
   agent-editable — exercises the full 12-call-site matrix against the four
   new protected basenames, including under a fixture `SDD_SUDO` token)
-- `tests/run-all.sh` / `.ps1` (existing, agent-editable — ninth in numeric
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — tenth in numeric
   order)
 - `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
   (staged, appended)
@@ -1219,7 +1357,7 @@ this task itself.
 
 ### Goal
 
-Prove, against the LIVE, post-T-008-application hook guard, that a write
+Prove, against the LIVE, post-T-009-application hook guard, that a write
 attempt against each of the four protected basenames
 (`sdd/project-context.approval.json`, `sdd/provider-bindings.approval.json`,
 `sdd/approver-registry.yaml`, `sdd/.hook-canary-sentinel`) is denied
@@ -1241,7 +1379,7 @@ assertions, never a per-basename spot check (design.md Test Strategy item
 
 Commit A (TDD Red → Green):
 
-- Red: run the new suite against a PRE-T-008-application state (or a
+- Red: run the new suite against a PRE-T-009-application state (or a
   fixture guard-invariants snapshot lacking the new entries) and confirm
   it fails (proving the test is not vacuously green).
 - Green: run the same suite against the live, post-application state;
@@ -1270,11 +1408,11 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 ### Blockers
 
-T-008
+T-009
 
 ---
 
-## T-010 Revise PLUGIN-CONTRACTS.md and the unprotected track-selection consumers
+## T-011 Revise PLUGIN-CONTRACTS.md and the unprotected track-selection consumers
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
@@ -1282,29 +1420,40 @@ Approval: Draft
 
 Status: Planned
 
-Risk: medium
+Risk: high
 
-Risk Rationale: Documentation and skill-instruction prose per
-`risk-classification-policy.md:15` — no protected file, no runtime
-security-decision code of its own, no secrets. Does not reach `high`
-because the actual protected consumer edits that ENFORCE the new
-precedence (`ship`, `lite-spec`) are T-011's; this task changes the
-documented contract and three unprotected consumer skills that call
-T-005's validator and T-007's handshake but implement no new
-security-decision logic themselves.
+Risk Rationale: Revised in this round, closing round-1 task-review's
+RISK-APPROPRIATE finding (see `--edit-summary` below). Evaluated against
+`risk-classification-policy.md:16` directly. This task implements, for 3
+of REQ-009's 5 migrated consumers (`bootstrap`, `sdd-bootstrap-interviewer`,
+`lite-gate`), the SAME ADR-0023 access-control precedence logic T-012
+implements for the other 2 (`ship`, `lite-spec`): the four-case rule
+(absent → compatibility fallback; present+valid → new precedence;
+present-but-failing-REQ-005-validation → explicit `PROJECT_CONTEXT_INVALID`
+stop, never treated as absent — security-spec.md's B5 "Track-selection
+fail-open" boundary). A silent defect in this precedence logic (e.g. a
+present-but-invalid Context mistakenly treated as absent) reproduces
+exactly the "silent downgrade" ADR-0023 exists to close — the same failure
+mode T-012's own `high` classification is justified against, for the
+identical decision-branch class in the remaining 2 consumers. `medium`
+was the round-1 classification; the Risk Rationale then claimed these 3
+consumers "implement no new security-decision logic themselves," which
+this task's own Goal/Scope text (the four-case rule these files gain)
+contradicted — corrected here to `high`/`tdd` by direct parity with T-012.
 
-Required Workflow: acceptance-first
+Required Workflow: tdd
 
-Security-Sensitive: false
+Security-Sensitive: true
 
 Cross-Model: not enabled
 
 Requirements: REQ-009
 
-Depends On: T-001 (Project Context schema, for the four-case rule), T-005
+Depends On: T-001 (Project Context schema, for the four-case rule), T-006
 (validator, consulted for the `PROJECT_CONTEXT_INVALID` explicit-stop
-rule), T-007 (handshake, wired into each of this task's three entry
-points).
+rule), T-008 (handshake, wired into each of this task's three entry
+points), T-010 (this task list's mandatory shared-file numeric-order
+append serialization).
 
 Planned Files:
 - `PLUGIN-CONTRACTS.md` (existing, agent-editable — Track Detection section
@@ -1320,8 +1469,8 @@ Planned Files:
 - `tests/plugin-contracts-track-selection.tests.sh` / `.ps1` (new,
   agent-editable — document-conformance + fixture-behavior checks for
   these four consumers)
-- `tests/run-all.sh` / `.ps1` (existing, agent-editable — tenth in numeric
-  order)
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — eleventh in
+  numeric order)
 - `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
   (staged, appended)
 - `specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256` (appended)
@@ -1345,7 +1494,7 @@ the three unprotected consumer skills (`bootstrap`,
 Project Context physically absent → compatibility fallback (unchanged);
 physically present and valid → the new precedence; physically present but
 failing REQ-005 validation → explicit `PROJECT_CONTEXT_INVALID` stop,
-never treated as absent; each entry point additionally calls T-007's
+never treated as absent; each entry point additionally calls T-008's
 handshake.
 
 ### Must Read
@@ -1368,10 +1517,10 @@ Commit A (implementation):
 - Write TEST-024 (document conformance) and the fixture-driven half of
   TEST-025/TEST-026/TEST-039 these three unprotected skills' prose can
   satisfy on their own (full end-to-end behavior lock for `ship`/
-  `lite-spec` spans into T-011's own Done When).
+  `lite-spec` spans into T-012's own Done When).
 - Revise `PLUGIN-CONTRACTS.md`, `bootstrap/SKILL.md`,
   `sdd-bootstrap-interviewer/SKILL.md`, and `lite-gate/SKILL.md`, wiring
-  T-007's handshake at each entry point.
+  T-008's handshake at each entry point.
 - Register the suite; stage the `test.yml` addition.
 
 Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
@@ -1386,27 +1535,29 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
   revised text, including the `PROJECT_CONTEXT_INVALID` explicit-stop case
   distinct from the compatibility fallback.
 - [ ] Each of these three consumers' handshake wiring is present at its
-  own entry point (partial evidence toward AC-035, completed at T-011).
+  own entry point (partial evidence toward AC-035, completed at T-012).
 - [ ] Suite self-registers; `test.yml` staged correctly.
 - [ ] `CHANGELOG.md` #189 entry updated.
-- [ ] Acceptance-first evidence (per risk-classification-policy.md:15)
-  recorded in the implementation report; an independent quality-gate
-  verdict (a named second reviewer) records PASS.
+- [ ] TDD Red/Green evidence recorded in the implementation report,
+  matching this task's now-`high` Risk tier (Red: fixture assertions
+  against the CURRENT, unmigrated live text for all three consumers;
+  Green: against the revised text); an independent quality-gate verdict
+  (a named second reviewer, not the implementing agent) records PASS.
 
 ### Out of Scope
 
-- `ship/SKILL.md` and `lite-spec/SKILL.md` (protected — T-011).
+- `ship/SKILL.md` and `lite-spec/SKILL.md` (protected — T-012).
 - The full 5-consumer common-contract-suite matrix and the full
-  entry-point wiring inventory (T-011, since both need the protected
+  entry-point wiring inventory (T-012, since both need the protected
   consumers wired too).
 
 ### Blockers
 
-T-001, T-005, T-007
+T-001, T-006, T-008, T-010
 
 ---
 
-## T-011 Migrate the protected track-selection consumers (`ship`, `lite-spec`) via human-copy and close out consumer wiring
+## T-012 Migrate the protected track-selection consumers (`ship`, `lite-spec`) via human-copy and close out consumer wiring
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
@@ -1433,10 +1584,12 @@ Cross-Model: not enabled
 
 Requirements: REQ-009, REQ-010
 
-Depends On: T-008 (`apply-human-copy` must be bootstrapped and protected
-before this task's staged candidates are applied through it), T-010
+Depends On: T-009 (`apply-human-copy` must be bootstrapped and protected
+before this task's staged candidates are applied through it), T-011
 (documented contract text and the three unprotected consumers this task's
-matrix completes against).
+matrix completes against — also this task list's mandatory shared-file
+numeric-order append serialization, T-011 being the immediately-preceding
+numeric-order task).
 
 Planned Files:
 - `specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md`
@@ -1450,7 +1603,7 @@ Planned Files:
   agent-editable — asserts the STAGED `ship`/`lite-spec` candidates'
   content, the full 5-consumer common-contract-suite matrix, and the full
   entry-point wiring inventory)
-- `tests/run-all.sh` / `.ps1` (existing, agent-editable — eleventh in
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — twelfth in
   numeric order)
 - `specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
   (staged, appended)
@@ -1470,7 +1623,7 @@ human should also hand-revert that application.
 
 Stage corrected `ship/SKILL.md` and `lite-spec/SKILL.md` content
 implementing the four-case rule plus handshake wiring, apply it through
-T-006's `apply-human-copy`, and prove the full 5-consumer common-contract-
+T-007's `apply-human-copy`, and prove the full 5-consumer common-contract-
 suite matrix (`sdd-ship`, `sdd-bootstrap`, `sdd-bootstrap-interviewer`,
 `lite-spec`, `lite-gate`) plus the full entry-point wiring inventory.
 
@@ -1488,7 +1641,7 @@ suite matrix (`sdd-ship`, `sdd-bootstrap`, `sdd-bootstrap-interviewer`,
 Commit A (implementation — staged candidates + tests):
 
 - Draft the staged `ship/SKILL.md` and `lite-spec/SKILL.md` candidates,
-  wiring T-007's handshake into `ship`'s call site.
+  wiring T-008's handshake into `ship`'s call site.
 - Write `tests/ship-track-selection-migration.tests.sh`/`.ps1` asserting
   the staged candidates' content against the full+`--lite` error-stop
   case, the lite+`--full` promotion case, the `PROJECT_CONTEXT_INVALID`
@@ -1539,11 +1692,11 @@ task requires a human-apply step before Done.
 
 ### Blockers
 
-T-008, T-010
+T-009, T-011
 
 ---
 
-## T-012 Close out three-environment test coverage and CI wiring
+## T-013 Close out three-environment test coverage and CI wiring
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
@@ -1566,7 +1719,7 @@ Cross-Model: not enabled
 
 Requirements: REQ-011
 
-Depends On: T-001 through T-011 (all must be Implementation Complete or
+Depends On: T-001 through T-012 (all must be Implementation Complete or
 later; this task audits their combined output).
 
 Planned Files:
@@ -1576,7 +1729,7 @@ Planned Files:
 - `specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256` (final
   consolidated entries)
 - `tests/run-all.sh` / `.ps1` (existing, agent-editable — audit only, no
-  new entries expected if T-001..T-011 registered correctly)
+  new entries expected if T-001..T-012 registered correctly)
 - `CHANGELOG.md` (existing, agent-editable — APPEND, closing entry)
 
 Data Migration: none.
@@ -1590,9 +1743,9 @@ discipline as prior tasks.
 ### Goal
 
 Run the full local suite (`bash tests/run-all.sh` and
-`pwsh tests/run-all.ps1`) end to end, confirm every suite T-001..T-011
+`pwsh tests/run-all.ps1`) end to end, confirm every suite T-001..T-012
 added is registered and green, confirm the non-use declarations (no real
-LLM/`gh`/`sdd-sudo` invocation — `SDD_SUDO` in T-009's suite is a
+LLM/`gh`/`sdd-sudo` invocation — `SDD_SUDO` in T-010's suite is a
 locally-signed fixture token, never a live grant) and the CI-resilience
 checklist hold across every new suite, and reconcile the
 `.github/workflows/test.yml` human-copy staging into one final, consistent
@@ -1603,8 +1756,8 @@ candidate if any task's staging left drift.
 - `specs/epic-189-a1-project-context/design.md` (Test Strategy items 11
   and 12; Deployment / CI Plan)
 - `specs/epic-189-a1-project-context/acceptance-tests.md` (AC-028, AC-029)
-- `specs/epic-189-a1-project-context/tasks.md` (this file, T-001..T-011)
-- `tests/run-all.sh` / `.ps1` (post-T-001..T-011 state)
+- `specs/epic-189-a1-project-context/tasks.md` (this file, T-001..T-012)
+- `tests/run-all.sh` / `.ps1` (post-T-001..T-012 state)
 
 ### Scope
 
@@ -1616,7 +1769,7 @@ Commit A (audit + reconciliation):
   Constraints — this is a verification pass, not expected to require new
   logic).
 - Reconcile any `.github/workflows/test.yml` staging drift across
-  T-001..T-011's incremental candidates into one final, consistent staged
+  T-001..T-012's incremental candidates into one final, consistent staged
   file.
 
 Commit B: APPEND a closing `CHANGELOG.md` entry summarizing the epic's full
@@ -1626,7 +1779,7 @@ addition under #189's entry.
 
 - [ ] TEST-028 proves every new suite self-registers and the
   `.github/workflows/test.yml` staged/live-unchanged/post-copy-registered
-  3-part proof holds across the FULL set of suites T-001..T-011 added
+  3-part proof holds across the FULL set of suites T-001..T-012 added
   (AC-028).
 - [ ] TEST-029 proves the non-use declarations and CI-resilience checklist
   hold across every new suite (AC-029).
@@ -1643,4 +1796,4 @@ addition under #189's entry.
 
 ### Blockers
 
-T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-010, T-011
+T-001, T-002, T-003, T-004, T-005, T-006, T-007, T-008, T-009, T-010, T-011, T-012
