@@ -1,0 +1,14 @@
+{
+  "schema": "integrated-verdict/v1",
+  "stage": "impl",
+  "feature": "epic-136-phase3",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_verdict": "BLOCKED",
+  "reviewer_b_verdict": "BLOCKED",
+  "findings_critical": 2,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "verdict": "NEEDS_WORK",
+  "run_id": "impl-orch-epic136phase3-a1r1"
+}
