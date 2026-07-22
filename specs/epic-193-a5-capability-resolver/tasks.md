@@ -286,9 +286,9 @@ the deferred suite's own criteria) are correspondingly out of this
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T17:18:41Z)
 
-Status: Planned
+Status: In Progress
 
 Risk: medium
 
