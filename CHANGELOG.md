@@ -4,6 +4,37 @@
 
 ### 追加
 
+- **Capability Registry スキーマ・インスタンス・lite-upgrade-reason カタログ
+  (Issue #190, epic-190-a2-capability-registry T-001)**:
+  `contracts/capability-registry.schema.json`(draft-07、`contracts/
+  workflow-state-registry.schema.json` の `$id`/スタイル規約踏襲)を新規追加。
+  `gates[]`(`id`/`stage`/`blocking`必須、`stage: implementation` のときのみ
+  `implementation_ref` を条件必須の `if`/`then`)、`capabilities[]`
+  (`id`/`trigger`/`required_facets`/`conditional_facets`/`review_check_ids`/
+  `gate_ids`/`delivery_strategy` を `required` 明記、`lite_policy`/
+  `minimum_enforcement` のみ真に任意)、`trigger`/`conditional_facets[].when`
+  が共有する `#/definitions/predicate`(8演算子閉集合の `oneOf`、`not` は
+  単一子でアリティ1を構造的に強制)を全て `additionalProperties: false` で
+  実装。`contracts/capability-registry.json`(illustrative fixture、
+  INV-002)と `contracts/lite-upgrade-reason-catalog.json`
+  (ADR-0022 の5トークン初期セット)も新規追加。新スイート
+  `tests/capability-registry-schema.tests.sh` / `.ps1` は、schema
+  ファイルを汎用エンジンで解釈するのではなく jq/PowerShell で独立に
+  再実装した厳密predicate(`workflow-state-registry.tests.sh` と同じ
+  規約)で、6件の accept fixture と16件の reject fixture (TEST-001..006,
+  TEST-037, TEST-038 相当)を検証。受け入れ先行(acceptance-first)で RED
+  (各 reject fixture が意図的に緩い permissive スタンドイン schema には
+  誤って受理されることを証明)→ GREEN (正しい厳密predicateで全fixtureが
+  期待どおりの結果になることを確認)の順で実装、証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-001/` 配下の
+  `{red,green}-{sh,ps1}.log`。`tests/run-all.sh` / `tests/run-all.ps1`
+  へ自スイートを直接登録(grep 自己検査つき)。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CIステップ
+  (bash/pwsh 両レーン)を反映した完全な補正版を
+  `specs/epic-190-a2-capability-registry/human-copy/.github/workflows/test.yml`
+  + `MANIFEST.sha256` としてステージし、人間の `cp` 適用を待つ(適用前後で
+  ライブファイルの SHA-256 は不変)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-001.md` を参照。
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
   `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接
