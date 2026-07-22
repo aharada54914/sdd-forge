@@ -208,10 +208,12 @@ production-time misclassification. Not `low`: this schema is the sole
 structural contract every other task's own fixtures validate against: an
 error here (a wrong `required` list, a wrong `enum`, a missing `if`/
 `then` pair) would propagate into every downstream task's own fixture
-authoring before being caught. Required Workflow is `tdd` per the
-policy's medium-tier row.
+authoring before being caught. Required Workflow is `acceptance-first`
+per the risk-gate-matrix's own medium-tier row (`tdd` is reserved for
+high/critical; `medium` requires acceptance-tests/regression coverage
+written before implementation, not a red→green TDD cycle).
 
-Required Workflow: tdd
+Required Workflow: acceptance-first
 
 Security-Sensitive: false
 
@@ -299,12 +301,14 @@ conformance test suite.
 ### Scope
 
 Commit A (implementation — schema + suite + fixtures + CI wiring):
-- Write the acceptance checks first (TDD Red→Green): TEST-017 (existence
-  + `$id` convention), TEST-018 (all-Capabilities-recorded, exact-set —
-  as a schema-conformant-vs.-malformed fixture pair, not a live-Registry
-  check, which is T-004's own scope), TEST-019 (conditional-facet
-  scoping / `if`/`then` branch), TEST-020 (always-emit-on-success,
-  `diagnostics: []`).
+- Write the acceptance checks first (`acceptance-first`, per risk-gate-
+  matrix medium tier — author the fixture-level acceptance checks before
+  the schema they exercise, no formal Red→Green TDD cycle required):
+  TEST-017 (existence + `$id` convention), TEST-018
+  (all-Capabilities-recorded, exact-set — as a schema-conformant-vs.-
+  malformed fixture pair, not a live-Registry check, which is T-004's own
+  scope), TEST-019 (conditional-facet scoping / `if`/`then` branch),
+  TEST-020 (always-emit-on-success, `diagnostics: []`).
 - Author `contracts/resolver-evidence.schema.json` verbatim per
   design.md's own API / Contract Plan document.
 - Register `resolver-evidence-schema` (`.sh`/`.ps1`) in `tests/run-all.
@@ -341,9 +345,11 @@ Commit B (documentation):
   (AC-034 share); a `git diff --stat` confirms no path under `plugins/**`
   appears in either of this task's own commits (AC-032, restated as a
   per-task check).
-- [ ] **TDD evidence** — RED (each fixture against a deliberately
-  under-constrained or absent schema) and GREEN (the full suite against
-  the correct schema). An independent quality-gate verdict records PASS.
+- [ ] **Acceptance evidence** — every fixture written before the schema
+  it exercises, failing against a deliberately under-constrained or
+  absent schema and passing against the correct schema (`acceptance-
+  first`, no formal Red→Green TDD cycle required at `medium` tier). An
+  independent quality-gate verdict records PASS.
 
 ### Out of Scope
 
@@ -1084,9 +1090,11 @@ misclassification. Not `low`: REQ-005's own dual-runtime parity guarantee
 is one of this feature's own named, adversarially-reviewed guarantees
 (requirements.md REQ-005, "OK-3 reinforcement"), and a gap in this
 suite's own coverage would let a `.sh`/`.ps1` divergence ship silently on
-whichever runtime this suite under-tests. Required Workflow is `tdd`.
+whichever runtime this suite under-tests. Required Workflow is
+`acceptance-first` per the risk-gate-matrix's own medium-tier row (`tdd`
+is reserved for high/critical).
 
-Required Workflow: tdd
+Required Workflow: acceptance-first
 
 Security-Sensitive: false
 
@@ -1152,11 +1160,11 @@ client (AC-025).
 ### Scope
 
 Commit A (implementation — suite + fixtures + CI wiring):
-- Write the acceptance checks first (TDD Red→Green): TEST-022
-  (repeated-invocation determinism), TEST-023 (dual-runtime parity,
-  including a Windows-style path fixture), TEST-024 (stable-sort
-  discipline), TEST-025 (no-nondeterministic-source grep, repository-
-  wide).
+- Write the acceptance checks first (`acceptance-first`, per risk-gate-
+  matrix medium tier): TEST-022 (repeated-invocation determinism),
+  TEST-023 (dual-runtime parity, including a Windows-style path fixture),
+  TEST-024 (stable-sort discipline), TEST-025 (no-nondeterministic-source
+  grep, repository-wide).
 - Register `resolve-project-context-parity` (`.sh`/`.ps1`) in `tests/
   run-all.sh`/`.ps1`; stage the `.github/workflows/test.yml` candidate
   with this suite's CI steps under `human-copy/`, appended after T-004's
@@ -1185,9 +1193,11 @@ Commit B (documentation):
   citing #193 (AC-033 share); no version string mutated outside
   `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms
   no path under `plugins/**` (AC-032).
-- [ ] **TDD evidence** — RED (against a deliberately introduced
-  cross-runtime or ordering divergence) and GREEN. An independent
-  quality-gate verdict records PASS.
+- [ ] **Acceptance evidence** — every fixture written before the
+  behavior it exercises, failing against a deliberately introduced
+  cross-runtime or ordering divergence and passing against the correct
+  pipeline (`acceptance-first`, no formal Red→Green TDD cycle required
+  at `medium` tier). An independent quality-gate verdict records PASS.
 
 ### Out of Scope
 
@@ -1221,9 +1231,10 @@ already-built scripts from additional angles) — a gap here is a
 false-negative coverage gap for the completeness/invariance properties
 adversarial review "M10" specifically found unfixtured in an earlier
 revision, not itself a new production-time defect source. Required
-Workflow is `tdd`.
+Workflow is `acceptance-first` per the risk-gate-matrix's own medium-tier
+row (`tdd` is reserved for high/critical).
 
-Required Workflow: tdd
+Required Workflow: acceptance-first
 
 Security-Sensitive: false
 
@@ -1290,8 +1301,9 @@ subprocess.
 ### Scope
 
 Commit A (implementation — suite + fixtures + CI wiring):
-- Write the acceptance checks first (TDD Red→Green): TEST-045, covering
-  design.md Test Strategy item 9's own sub-items (a) through (g).
+- Write the acceptance checks first (`acceptance-first`, per risk-gate-
+  matrix medium tier): TEST-045, covering design.md Test Strategy item
+  9's own sub-items (a) through (g).
 - Register `resolve-project-context-metamorphic` (`.sh`/`.ps1`) in
   `tests/run-all.sh`/`.ps1`; stage the `.github/workflows/test.yml`
   candidate with this suite's CI steps under `human-copy/`, appended
@@ -1324,9 +1336,11 @@ Commit B (documentation):
   under `tests/fixtures/capability-resolver/` (AC-026 [nine of ten
   suites, per Global Constraints' own "Deferred, Not Scheduled" note],
   AC-027).
-- [ ] **TDD evidence** — RED (each metamorphic fixture against a
-  deliberately incomplete or order-sensitive pipeline) and GREEN. An
-  independent quality-gate verdict records PASS.
+- [ ] **Acceptance evidence** — every metamorphic fixture written before
+  the behavior it exercises, failing against a deliberately incomplete or
+  order-sensitive pipeline and passing against the correct one
+  (`acceptance-first`, no formal Red→Green TDD cycle required at
+  `medium` tier). An independent quality-gate verdict records PASS.
 
 ### Out of Scope
 
