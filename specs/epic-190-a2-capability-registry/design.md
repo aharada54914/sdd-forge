@@ -1,6 +1,6 @@
 # Design: epic-190-a2-capability-registry
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: new machine-readable contract (Capability Registry schema +
 instance, plus a versioned lite-upgrade-reason catalog) plus four
 deterministic scripts (Predicate DSL evaluator, Registry validator,
