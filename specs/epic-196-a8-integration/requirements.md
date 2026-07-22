@@ -751,12 +751,14 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   to be confirmed empirically by the Phase 2/3 implementer before any
   automated E2E path is built around it, never assumed here.
 - OQ-002 (resolved): the REQ-005 drift check covers `~/.codex/
-  config.toml` MCP registration blocks and `~/.codex/agents/sdd-*.toml`
-  role files (both also install-root-copied, INV-016) in addition to
-  `plugins/**`-sourced files — design.md's own Coverage Scope table and
-  Design Decisions fix this broadened scope concretely, each surface
-  carrying its own comparison disposition (whole-file hash for
-  `plugins/**` and agent TOML; delimited-region hash for the MCP block).
+  config.toml` MCP registration blocks, `~/.codex/agents/sdd-*.toml`
+  role files (both also install-root-copied, INV-016), and the three
+  hook config files (`claude-hooks.json`/`hooks.json`/
+  `copilot-hooks.json`) in addition to `plugins/**`-sourced files —
+  design.md's own Coverage Scope table and Design Decisions fix this
+  broadened scope concretely, each surface carrying its own comparison
+  disposition (whole-file hash for `plugins/**`, agent TOML, and hook
+  config files; delimited-region hash for the MCP block).
   This package's own REQ-005 (Goals, above) states this resolved scope
   directly, never a `plugins/**`-only scope with the rest deferred.
 

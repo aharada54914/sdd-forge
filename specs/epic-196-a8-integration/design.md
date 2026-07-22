@@ -94,7 +94,7 @@ Phase-1 package builds none of them.
 | `tests/install-uninstall-matrix.tests.sh` / `.ps1` | Drives REQ-002's install→verify→uninstall→verify cycle across the four `--target` values; calls `install.sh`/`uninstall.sh` (POSIX) or `install.ps1`/`uninstall.ps1` (Windows) unmodified | sh/PowerShell | new | No |
 | `tests/cli-hook-enforcement.ps1` (extended) | Existing synthetic/regression hook-guard check (INV-013); this epic adds the Codex `plugin_hooks` flag-state matrix and the Copilot subagent non-firing case as new assertions in the SAME file, preserving its existing assertions unmodified | PowerShell | existing, extended | No |
 | `tests/hook-activation-live-proof/` | Per-semantic-cell live-host proof records (fortified `live-host-verification-record/v1`), one file per one of the five REQ-003 semantic matrix cells (`Claude-active`, `Codex-enabled-active`, `Codex-disabled-expected-unavailable`, `Copilot-primary-active`, `Copilot-subagent-expected-unavailable`), produced by an automated capture script where confirmed available, else by an operator + independent reviewer following REQ-006's fortified record format | JSON | new | No |
-| `plugins/sdd-quality-loop/scripts/validate-live-host-proof.{sh,ps1}` | Aggregate REQ-003/AC-028 Done-gate check: loads all five semantic-cell `live-host-verification-record/v1` files, re-verifies each record's nonce uniqueness, hash bindings, and two-party attestation signatures, and exits non-zero on any missing, post-A1-merge `SKIP`, `FAIL`, stale (expired/mismatched nonce or session), config-digest-mismatch, or duplicate-nonce record | sh/PowerShell (thin wrappers over a shared aggregation routine) | new | No (read-only validator; never writes a record itself) |
+| `plugins/sdd-quality-loop/scripts/validate-live-host-proof.{sh,ps1}` | Aggregate REQ-003/AC-028 Done-gate check: loads all five semantic-cell `live-host-verification-record/v1` files, re-verifies each record's nonce uniqueness, hash bindings, and two-party attestation signatures, and exits non-zero on any missing, post-A1-merge `SKIP`, `FAIL`, stale (expired/mismatched nonce or session), config-digest-mismatch, or duplicate-nonce record | sh/PowerShell (thin wrappers over a shared aggregation routine) | new | No (never generates a `live-host-verification-record/v1` itself; performs exactly one lock-guarded, atomic, idempotent write — marking a consumed nonce's own `consumed_by_record` field in the Nonce Issuance Ledger, Data Plan — and is otherwise read-only, per the Protected-File Statement's own exception) |
 | `tests/path-lineending-regression.tests.sh` / `.ps1` | Drives the REQ-004 pairwise covering Windows-path × CRLF-LF × NFC-NFD combination matrix against this epic's own Unicode-normalization contract | sh/PowerShell | new | No |
 | `plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.{sh,ps1}` | REQ-005 drift check: compares an installed plugin cache (platform-correct default) against the repository's own install/uninstall-touched source surface (`plugins/**` plus copied/generated scripts, manifests, agent-role, and hook-config files) by content hash, in both a standalone preflight mode and a stricter post-install verify mode | sh/PowerShell (thin wrappers over a shared comparison routine, matching the repository's own `sdd-hook-guard` multi-runtime-wrapper precedent) | new | No (read-only comparison tool; never a guard-invariants target itself since it has no write path) |
 | `plugins/sdd-review-loop/references/a8-skip-allowlist.json` | REQ-003/A7-precedent SKIP-governance manifest: this epic's own exact allowlisted-SKIP records (AC-006/AC-015/AC-016), each bound to an Epic A1 canonical-artifact activation predicate (SKIP Allowlist Activation Gate, below) | JSON | new | No |
@@ -390,15 +390,18 @@ value, distinguished from `PASS`/`FAIL` and gated as follows:
 - **Required fields when `verdict == "SKIP"`**: only `schema`,
   `matrix_cell`, `runtime`, `check`, `invocation_mode` (`manual`),
   `operator`, `operator_key_id`, `reviewer`, `reviewer_key_id`, `verdict`,
-  `skip_reason`, `operator_signature`, `reviewer_signature` are non-null;
-  every session-evidence field (`nonce`, `host_session_id`,
-  `host_event_id`, `raw_tool_request_ref`/`_sha256`,
-  `raw_tool_result_ref`/`_sha256`, `installed_hook_config_ref`/`_digest`,
+  `skip_reason`, `operator_signature`, `reviewer_signature`, and
+  `plugin_hooks_flag` are non-null — `plugin_hooks_flag` is required
+  non-null in every record regardless of `verdict` (Schema Validation
+  Rules, below), and for a `SKIP` record its own value is fixed to
+  `not_applicable`, never itself set to `null`. Every session-evidence
+  field (`nonce`, `host_session_id`, `host_event_id`,
+  `raw_tool_request_ref`/`_sha256`, `raw_tool_result_ref`/`_sha256`,
+  `installed_hook_config_ref`/`_digest`,
   `installed_feature_config_ref`/`_digest`, `session_date`,
   `session_start`, `session_end`, `cli_name`, `cli_version`, `host_os`,
-  `tool_call_evidence`, `plugin_hooks_flag` resolves to `not_applicable`)
-  is `null` — a `SKIP` record never carries partial or fabricated session
-  evidence.
+  `tool_call_evidence`) is `null` — a `SKIP` record never carries partial
+  or fabricated session evidence.
 - **Three distinct validator states per cell**, never conflated: (1)
   **missing** — no record file exists for that `matrix_cell` at all
   (`ERR_MISSING_CELL`, always a hard failure); (2) **valid pre-merge
@@ -1264,15 +1267,18 @@ it is a real, adjacent concern this epic's own REQ-004 does not duplicate
 - **OQ-002 (resolved, revised — broadened per adversarial review)**: the
   REQ-005 drift check's own scope covers every install/uninstall-touched
   surface (Coverage Scope table, Data Plan, above): `plugins/**`-sourced
-  files, the Codex agent role TOML files, and the `~/.codex/config.toml`
-  MCP registration block, each with its own comparison disposition (the
-  MCP block compared as its own delimited region, not a whole-file hash,
-  because its own drift-detection shape structurally differs from a
-  `plugins/**` file-for-file comparison). This supersedes an earlier
-  `plugins/**`-only draft scope, which would have left the exact drift
-  class this REQ-005 exists to catch (INV-017's own precedent, which is
-  itself a role-definition/validator-schema divergence, not necessarily a
-  `plugins/**`-path file) uncovered.
+  files, the Codex agent role TOML files, the three hook config files
+  (`claude-hooks.json`/`hooks.json`/`copilot-hooks.json`), and the
+  `~/.codex/config.toml` MCP registration block, each with its own
+  comparison disposition (the MCP block compared as its own delimited
+  region, not a whole-file hash, because its own drift-detection shape
+  structurally differs from a `plugins/**` file-for-file comparison;
+  every other surface, including the hook config files, compared as a
+  whole-file hash). This supersedes an earlier `plugins/**`-only draft
+  scope, which would have left the exact drift class this REQ-005 exists
+  to catch (INV-017's own precedent, which is itself a role-definition/
+  validator-schema divergence, not necessarily a `plugins/**`-path file)
+  uncovered.
 - **New decision — SKIP-governance reuse, not reinvention**: every `SKIP`
   this package's own future suites emit (AC-006, AC-015, AC-016) follows
   Epic A7's own already-established named-SKIP/allowlist convention
