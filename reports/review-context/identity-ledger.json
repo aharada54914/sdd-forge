@@ -3141,6 +3141,15 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-193-a5-capability-resolver-a2r3-0349",
       "previous_record_sha256": "61914009e28d330eb3370a12fdd397962503c4b4dd0b4497e9e63183f823d84e",
       "record_sha256": "5f20c3e028b76f4c17caee9e99ec14f7aa5acfb7765e878dcc71a6f09b5b5a88"
+    },
+    {
+      "sequence": 350,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-193-a5-capability-resolver-task-task-reviewer-a-a3r1-seq0350",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-193-a5-capability-resolver-a3r1-0350",
+      "previous_record_sha256": "5f20c3e028b76f4c17caee9e99ec14f7aa5acfb7765e878dcc71a6f09b5b5a88",
+      "record_sha256": "c6843d9322d3f0b73d827e35ab4b5ae51d880c44e6bbcae2b3f8c965edbd137e"
     }
   ]
 }
