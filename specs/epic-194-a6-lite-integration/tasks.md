@@ -856,6 +856,37 @@ workflows-test.yml.PROPOSED`, pending the same human decision. Awaiting
 quality-gate delegation (held per main's own instruction pending Epic A2's
 evaluator-identity-ledger pattern for the non-reserve-mode validator gap).
 
+Quality-Gate Addendum (2026-07-22T16:30:38Z, a6-impl2 — non-frozen
+addendum, not a change to this task's own frozen Scope/Done-When text):
+independent evaluator run seq0329 recorded `VERDICT: PASS` (0 Critical,
+0 Major, 2 Minor non-blocking — AC-014's ordering/insertion property has
+no dedicated automated fixture, verified instead via `git diff`; the
+simulator's schema-validation stand-in for A4/A5's not-yet-existing real
+validator is disclosed, not hidden). Full report:
+`reports/quality-gate/epic-194-a6-lite-integration/T-004.md` (byte-identical
+to the evaluator's own extracted content, sha256
+`135fbfc755a4a92dab4e675d85450dcd9b66acd88b14461389643c61e259e203`).
+Verification was execution-based: independent 60/60 GREEN re-run, RED
+independently reproduced (the evaluator disabled the `full_upgrade_required`
+backstop and the NEW-01 grammar check itself, confirmed failure, then
+restored with a clean tree and matching hashes), a line-by-line comparison
+against design.md's own REQ-003/REQ-004 pseudocode, and NEW-01 path-safety
+verification.
+
+**`Status` is deliberately NOT set to `Done` by this addendum — that
+remains main's own decision.** Per the evaluator's own caveat: this
+feature's `check-workflow-state.sh` deterministic gate still exits 1 (the
+pre-existing `Blocked`-status-enum gap T-001's own Blocker note documents —
+T-001/T-002/T-003 are legitimately `Status: Blocked`, which that script's
+own task-lifecycle regex does not recognize). Deterministic gates are never
+bypassed, even under sudo (sudo-mode-policy.md's own "Enforced" list); a
+red deterministic gate is not waved through by a passing quality-gate
+verdict on a single task. `Done` recording for T-004 is deferred until
+`check-workflow-state.sh` passes for this feature — i.e., until the
+one-line fix at that script's own lines ~694-695 (accepting `Blocked` in
+its task-status regex) is human-applied (that script is itself protected;
+see the A6 HUMAN APPLY STEP list, this task's own final report).
+
 Risk: high
 
 Risk Rationale: Evaluated against `plugins/sdd-quality-loop/references/
