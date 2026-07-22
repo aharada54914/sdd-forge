@@ -4,6 +4,43 @@
 
 ### 追加
 
+- **component path ownership resolver — グロブ意味論と分類 (Issue #191,
+  epic-191-a3-path-ownership T-001)**: `plugins/sdd-quality-loop/scripts/
+  resolve-component-paths.{py,sh,ps1}` を新規追加。`project-context.yaml`
+  の `components[].paths.{include,exclude}` / `shared_paths[]` を読み、
+  変更パス群を `EXCLUSIVE` / `SHARED_BOUNDED` / `SHARED_CROSS_CUTTING` /
+  `OVERLAP` / `UNOWNED` に分類する。`**` はゼロ以上の完全セグメント(ゼロ
+  セグメントの `a/**/b` が `a/b` に一致するケースを含む)、裸の `*` は
+  単一セグメント内のみ、`?`/`[...]` 等の未対応メタ文字は load 時に
+  fail-closed で拒否。パターン/パスは比較専用に Unicode NFC 正規化し、
+  raw path のバイト列自体は出力の identity として保持(NFC 衝突は
+  fail-closed のコリジョンエラー)。マッチングは常にバイト単位で
+  大文字小文字を区別。component 自身の `exclude` は同一 component の
+  `include` に絶対に優先し(Fail-5 不変条件)、その結果 UNOWNED になった
+  パスには `EXCLUDED_MATCH` エビデンスタグを付与。`shared_paths` は
+  bounded(`components:` 明示リスト)/cross-cutting(`classification:
+  cross-cutting`)の二者択一で、両方または どちらも無い設定は
+  fail-closed。YAML パーサーは本リポジトリの CI が PyYAML 等の外部
+  依存を一切インストールしないため独自実装の制限付きサブセット
+  (ADR-0020 の restricted-DSL 方針を踏襲、ADR-0025 に記録)。
+  Epic A1 の正式スキーマ(`contracts/project-context.template.yaml`)
+  との適合性チェック(`--check-schema-conformance`)は AC-011 により
+  当該アーティファクトが存在しない間 fail-closed で恒常的に赤のまま
+  (Epic A1 未着地の間の意図された挙動、バグではない)。
+  新スイート `tests/component-path-resolver.tests.sh` / `.ps1`
+  (TEST-001〜018 + TEST-045、`tests/fixtures/component-path-ownership/`
+  配下の静的フィクスチャで駆動)を追加し `tests/run-all.sh` /
+  `tests/run-all.ps1` へ自己登録。R-10 保護ファイルである
+  `.github/workflows/test.yml` は直接書き込まず、本スイートの新規CI
+  ステップ(bash/pwsh 両レーン)を反映した補正版の human-copy staging を
+  試みたが、インストール済み Claude Code の PreToolUse フック
+  (`sdd-hook-guard.sh`)が human-copy/ 配下でも `test.yml` という
+  basename を無条件にブロックしたため本コミットには含まれていない
+  (`specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256` に
+  詳細と再現手順を記録、`reports/implementation/
+  epic-191-a3-path-ownership/T-001.md` のBlockersも参照)。
+  ADR-0025 でグロブ意味論・優先順位・六つのFail条件定義を記録。
+
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
   `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接
