@@ -930,14 +930,6 @@ Commit B (documentation):
   no partial artifact, correct Resolver Evidence content (AC-010 [five
   more of sixteen rows, ten complete], AC-011 [share], AC-012 [share],
   AC-013 [share], AC-014 [share]).
-- [ ] **Union-match and WARN evaluation logic implemented** — every
-  Registry Capability's own `trigger_evaluations[]` and every matched
-  Capability's own `conditional_facet_evaluations[]` is recorded in this
-  invocation's own in-memory evaluation set regardless of outcome (no
-  short-circuit), ready for T-005's own `match`-suite fixtures to
-  exercise once the pipeline is complete; this task's own Done When does
-  not itself require the `match` suite passing — that is T-005's own
-  Done When.
 - [ ] **Fixture registration (append-only)** — `tests/resolve-project-
   context-block.tests.sh`/`.ps1` gains this task's own five new fixtures
   without modifying any of T-002's own five; `tests/run-all.*` and the
@@ -1187,13 +1179,6 @@ Commit B (documentation):
   Summary is already staged in memory), correct Resolver Evidence
   content (AC-010 [three more of sixteen rows, thirteen complete],
   AC-011 [share], AC-012 [share], AC-013 [share], AC-014 [share]).
-- [ ] **Production logic complete and ready for downstream exercise** —
-  the track branch, facet-name aggregation, Evidence assembly, output
-  schema self-validation, and pre-publication recheck are all correctly
-  implemented per design.md's own contract; this task's own Done When
-  does not itself require T-005's own `match` suite passing — that is
-  T-005's own Done When, exercised against this task's already-authored
-  code once it lands.
 - [ ] **Fixture registration (append-only)** — the block-suite's own
   three new fixtures append cleanly onto T-002/T-003's own ten without
   modifying them; `tests/run-all.*` and the staged `test.yml` candidate
