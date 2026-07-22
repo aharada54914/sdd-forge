@@ -2934,6 +2934,15 @@
       "host_session_id": "SESS-task-task-reviewer-a-epic-192-a4-facet-manifest-0326",
       "previous_record_sha256": "a56141b63051777fdde7770d2d32d89d8201ae65123898f3eb08db17186d46b2",
       "record_sha256": "4720af4e385f2001df8cc9805d143869459b35aa6b65abf4a7af769c4605dc9b"
+    },
+    {
+      "sequence": 327,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-b-seq0327",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-192-a4-facet-manifest-0327",
+      "previous_record_sha256": "4720af4e385f2001df8cc9805d143869459b35aa6b65abf4a7af769c4605dc9b",
+      "record_sha256": "56953cc4148c543f33b2ccdaf02b8ed2a6dd06aef12f12148c7a9dd67b435919"
     }
   ]
 }
