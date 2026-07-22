@@ -55,6 +55,7 @@ tests=(
   tests/run-panelist-effort.tests.sh
   tests/model-freshness-check.tests.sh
   tests/capability-registry-schema.tests.sh
+  tests/evaluate-predicate.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

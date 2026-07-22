@@ -224,6 +224,17 @@ jobs:
         shell: pwsh
         run: ./tests/capability-registry-schema.tests.ps1
 
+      - name: Test evaluate-predicate suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/evaluate-predicate.tests.sh
+
+      - name: Test evaluate-predicate suite (pwsh)
+        shell: pwsh
+        run: ./tests/evaluate-predicate.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

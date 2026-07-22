@@ -4,6 +4,29 @@
 
 ### 追加
 
+- **Predicate DSL evaluator (Issue #190, epic-190-a2-capability-registry
+  T-002)**: `plugins/sdd-quality-loop/scripts/evaluate-predicate.{py,sh,ps1}`
+  を新規追加(ADR-0020 完全実装、Python master + thin sh/ps1 wrapper、
+  INV-014)。closed 8演算子文法(`all`/`any`/`not`/`equals`/`not_equals`/
+  `contains`/`in`/`exists`)、`equals`/`not_equals`/`contains`/`in` の
+  fail-closed 一般則(missing path/null/type-mismatch → `false`+`WARN`、
+  例外を投げない)、`exists` の例外(存在すれば値に関わらず `true`、
+  不在なら `false`+`WARN`、型検査なし)、`all`(空→`true`)/`any`
+  (空→`false`)の non-short-circuit 評価、`not` の厳密単項アリティ+
+  真理値表(child=`warn` のときは素朴な否定ではなく `not` 結果も
+  `false` に倒す特別則)、`trigger`/`conditional_facets[].when` が
+  共有する単一評価器+単一フィールド許可リスト(第二の条件言語なし)を実装。
+  フィールド許可リストは Epic A1 の Project Context schema
+  未着地(investigation.md INV-004a)のため `--check-field-allowlist`
+  drift-check モード+fixture スタンドインで機構の正しさのみ先行証明。
+  新スイート `tests/evaluate-predicate.tests.sh` / `.ps1`(63 checks
+  each)は TDD Red→Green で実装(RED: 意図的に許容的な stub 実装に対し
+  50/63 失敗を確認 → GREEN: 全63 checks 合格)、証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-002/`
+  配下の `{red,green}-{sh,ps1}.log`。`tests/run-all.sh`/`.ps1` へ
+  自スイート登録、`.github/workflows/test.yml` は直接書き込まず
+  human-copy 経由でステージ(T-001 の候補に追記)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-002.md` を参照。
 - **Capability Registry スキーマ・インスタンス・lite-upgrade-reason カタログ
   (Issue #190, epic-190-a2-capability-registry T-001)**:
   `contracts/capability-registry.schema.json`(draft-07、`contracts/
