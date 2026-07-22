@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-196-a8-integration",
+  "attempt": 1,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "2e3b141c051d7a198530635ad409f4616bd717d2fe3f6dfeff6632954e15562e",
+  "acceptance_sha256": "eccb74b87747529947540ff290184b5bc7f3111f49d18252b2f8b1bbc5d872cb",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "6d749b2ce5b018fa1d8f4042136f20a98d753736b4c3430770aec415f4a0e1fd",
+  "edit_summary": "",
+  "reset": false,
+  "generated_at": "2026-07-22T17:24:14Z"
+}
