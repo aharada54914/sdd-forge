@@ -185,16 +185,23 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
 - **REQ-007** (Process and traceability integrity): specify the
   requirement→AC→concrete-test-case→oracle→evidence-artifact traceability
   discipline this package's own acceptance-tests.md and design.md must
-  jointly satisfy — every AC is reachable from exactly one REQ-001–REQ-006
-  entry above, except AC-029/AC-030, whose own subject is this package's
-  process integrity (scope-boundary self-check; citation compliance) rather
-  than any single artifact REQ-001–REQ-006 name; those two ACs map to this
-  REQ-007 instead of to "REQ (process)," a placeholder label
-  acceptance-tests.md must not use. REQ-007 also fixes that design.md's
-  Automated / Manual Classification Table (AC-025) is this package's single
-  normative source for every check's classification — acceptance-tests.md's
-  own `Test Type` column must cite that table's value directly rather than
-  carrying an independent `TBD` marker once design.md has already fixed it.
+  jointly satisfy — every AC is reachable from exactly one *primary*
+  REQ-001–REQ-006 entry above (acceptance-tests.md's own `Requirement`
+  column carries exactly one REQ value per AC row; a secondary,
+  supporting dependency on another REQ, where one genuinely exists — e.g.
+  AC-005's own classification vocabulary depending on REQ-006, or
+  AC-028's own aggregate-gate mechanics depending on REQ-006 — is recorded
+  in that AC's own prose cross-reference, never by listing a second REQ in
+  the `Requirement` column itself), except AC-029/AC-030, whose own
+  subject is this package's process integrity (scope-boundary self-check;
+  citation compliance) rather than any single artifact REQ-001–REQ-006
+  name; those two ACs map to this REQ-007 instead of to "REQ (process),"
+  a placeholder label acceptance-tests.md must not use. REQ-007 also
+  fixes that design.md's Automated / Manual Classification Table (AC-025)
+  is this package's single normative source for every check's
+  classification — acceptance-tests.md's own `Test Type` column must
+  cite that table's value directly rather than carrying an independent
+  `TBD` marker once design.md has already fixed it.
 
 ## Non-goals
 
@@ -389,14 +396,14 @@ a weaker, unlogged substitute.
   independent of the existing forward-slash-normalized fixture paths
   `install.tests.sh`/`.ps1` already use (INV-016), covering at minimum one
   generated file path and one CLI-registration path string, as one axis of
-  the REQ-004 cross-product combination matrix (design.md) rather than a
+  the REQ-004 pairwise covering combination matrix (design.md) rather than a
   single isolated case.
 - AC-019: A fixture asserts CRLF-vs-LF content parity at the
   `.gitattributes` layer (INV-022) for at least one install/uninstall
   script output and one skill/plugin manifest file this epic's own matrix
   touches — explicitly scoped to git-attribute-layer normalization, never
   asserting or depending on Epic A1's own canonicalizer-layer YAML
-  handling (Non-goals) — as one axis of the same REQ-004 cross-product
+  handling (Non-goals) — as one axis of the same REQ-004 pairwise covering
   combination matrix (design.md).
 - AC-020: A fixture asserts NFC-vs-NFD equivalence for at least one
   filename or file-content string this epic's own fixtures touch,
@@ -408,7 +415,7 @@ a weaker, unlogged substitute.
   text/EOL and defines no Unicode-normalization rule of its own, and never
   introducing a normalization rule that competes with Epic A1's own
   canonicalizer-layer handling (Non-goals). This is the third axis of the
-  same REQ-004 cross-product combination matrix (design.md), which fixes a
+  same REQ-004 pairwise covering combination matrix (design.md), which fixes a
   per-cell source bytes/name, resolved path, copied bytes, stdout, and
   uninstall-residue oracle across OS × path-separator × LF/CRLF ×
   NFC/NFD × sh/ps1 × install/uninstall, superseding any reading of
@@ -461,21 +468,31 @@ a weaker, unlogged substitute.
 - AC-026: A single manual-session record schema (design.md;
   `live-host-verification-record/v1`) fixes the required fields for every
   `manual-required` (and `automated`-classified, once upgraded) item
-  AC-025's table names: session date, session start/end timestamps,
-  operator identity, an independent reviewer identity distinct from the
-  operator, an A1-issued single-use challenge nonce, the raw host
-  tool-request and tool-result payload hashes (sha256), a host-issued
-  session ID and event ID, a digest of the installed hook/config file(s)
-  actually exercised, CLI name and version, host OS, Codex `plugin_hooks`
-  flag state (when applicable), the observed real tool-call
-  transcript/evidence, the pass/fail verdict, and a two-party attestation
-  (operator signature + independent-reviewer signature) over the record's
-  own content hash. A record missing any of these fields, reusing a nonce
-  already consumed by a prior record, or carrying an attestation signature
-  that does not verify against the record's own content hash is invalid
-  per this schema (AC-027's classification-mismatch/replay guard) — no
-  operator self-attestation or freeform transcript excerpt alone
-  discharges AC-028.
+  AC-025's table names: session date (its own field, independent of the
+  start/end timestamps it is derived from), session start/end timestamps,
+  operator identity plus a resolvable operator key ID, an independent
+  reviewer identity plus a resolvable reviewer key ID distinct from the
+  operator's, an A1-issued single-use challenge nonce recorded in a
+  dedicated nonce-issuance ledger, references to the committed raw host
+  tool-request and tool-result capture files plus their sha256 hashes
+  (independently recomputable from those files, never a bare claimed
+  hash), a host-issued session ID and event ID, a digest of the installed
+  hook/config file(s) actually exercised (checked against a
+  maintainer-committed expected-digest manifest, never trusted
+  self-reported), CLI name and version, host OS, Codex `plugin_hooks`
+  flag state (when applicable), a human-readable tool-call evidence
+  summary, the pass/fail verdict, and a two-party attestation (operator
+  signature + independent-reviewer signature, each keyed to a registered,
+  trusted signing key) over the record's own canonicalized content hash
+  (design.md's own Signing Contract fixes the canonicalization,
+  signing-target, and algorithm). A record missing any of these fields,
+  reusing a nonce already consumed by a prior record or absent from the
+  nonce ledger, whose raw-capture hash does not match its own referenced
+  file, whose installed-hook-config digest does not match the expected
+  -digest manifest, or carrying an attestation signature that does not
+  verify against a trusted key is invalid per this schema (AC-027's
+  classification-mismatch/replay guard) — no operator self-attestation or
+  freeform transcript excerpt alone discharges AC-028.
 - AC-027: No check classified `automated` in AC-025's table may be
   satisfied by a `manual-required`-format record, and no check classified
   `manual-required` may be satisfied by an automated artifact claiming
@@ -627,8 +644,10 @@ a weaker, unlogged substitute.
    handling (Non-goals).
 7. As Epic A1 merges, a follow-up task un-skips AC-006/AC-015/AC-016
    (verifying Epic A1's own handshake script exists and matches this
-   package's citations first) and exercises at least one of A1's five
-   migrated consumer entry points per runtime (AC-016).
+   package's citations first) and exercises all five of A1's migrated
+   consumer entry points per runtime, in a fingerprinted inventory
+   (AC-016) — never a single sampled entry point standing in for the
+   remaining four.
 
 ## Edge Cases
 

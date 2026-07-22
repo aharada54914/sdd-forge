@@ -95,9 +95,13 @@ Phase-1 package builds none of them.
 | `tests/cli-hook-enforcement.ps1` (extended) | Existing synthetic/regression hook-guard check (INV-013); this epic adds the Codex `plugin_hooks` flag-state matrix and the Copilot subagent non-firing case as new assertions in the SAME file, preserving its existing assertions unmodified | PowerShell | existing, extended | No |
 | `tests/hook-activation-live-proof/` | Per-semantic-cell live-host proof records (fortified `live-host-verification-record/v1`), one file per one of the five REQ-003 semantic matrix cells (`Claude-active`, `Codex-enabled-active`, `Codex-disabled-expected-unavailable`, `Copilot-primary-active`, `Copilot-subagent-expected-unavailable`), produced by an automated capture script where confirmed available, else by an operator + independent reviewer following REQ-006's fortified record format | JSON | new | No |
 | `plugins/sdd-quality-loop/scripts/validate-live-host-proof.{sh,ps1}` | Aggregate REQ-003/AC-028 Done-gate check: loads all five semantic-cell `live-host-verification-record/v1` files, re-verifies each record's nonce uniqueness, hash bindings, and two-party attestation signatures, and exits non-zero on any missing, post-A1-merge `SKIP`, `FAIL`, stale (expired/mismatched nonce or session), config-digest-mismatch, or duplicate-nonce record | sh/PowerShell (thin wrappers over a shared aggregation routine) | new | No (read-only validator; never writes a record itself) |
-| `tests/path-lineending-regression.tests.sh` / `.ps1` | Drives the REQ-004 cross-product Windows-path × CRLF-LF × NFC-NFD combination matrix against this epic's own Unicode-normalization contract | sh/PowerShell | new | No |
+| `tests/path-lineending-regression.tests.sh` / `.ps1` | Drives the REQ-004 pairwise covering Windows-path × CRLF-LF × NFC-NFD combination matrix against this epic's own Unicode-normalization contract | sh/PowerShell | new | No |
 | `plugins/sdd-quality-loop/scripts/check-installed-plugin-drift.{sh,ps1}` | REQ-005 drift check: compares an installed plugin cache (platform-correct default) against the repository's own install/uninstall-touched source surface (`plugins/**` plus copied/generated scripts, manifests, agent-role, and hook-config files) by content hash, in both a standalone preflight mode and a stricter post-install verify mode | sh/PowerShell (thin wrappers over a shared comparison routine, matching the repository's own `sdd-hook-guard` multi-runtime-wrapper precedent) | new | No (read-only comparison tool; never a guard-invariants target itself since it has no write path) |
-| `plugins/sdd-review-loop/references/a8-skip-allowlist.json` | REQ-003/A7-precedent SKIP-governance manifest: this epic's own exact allowlisted-SKIP records (AC-006/AC-015/AC-016), each bound to an Epic A1 commit/blob fingerprint and a machine-detectable activation predicate | JSON | new | No |
+| `plugins/sdd-review-loop/references/a8-skip-allowlist.json` | REQ-003/A7-precedent SKIP-governance manifest: this epic's own exact allowlisted-SKIP records (AC-006/AC-015/AC-016), each bound to an Epic A1 canonical-artifact activation predicate (SKIP Allowlist Activation Gate, below) | JSON | new | No |
+| `tests/hook-activation-live-proof/nonce-ledger.json` | Append-only nonce issuance/consumption ledger Epic A1's own handshake script writes to; `validate-live-host-proof`'s own replay/unknown-nonce ground truth | JSON | new | No (append-only; never rewrites a prior entry except to set `consumed_by_record` once) |
+| `tests/hook-activation-live-proof/raw/<matrix_cell>-{request,result}.json` | Committed, unedited raw tool-request/tool-result capture files each `live-host-verification-record/v1`'s own hash fields are recomputed against | JSON | new | No |
+| `plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json` | Maintainer-committed expected `installed_hook_config_digest` per semantic cell — the validator's own ground truth, never the record's self-reported value alone | JSON | new | No |
+| `plugins/sdd-review-loop/references/a8-trusted-signers.json` | Maintainer-committed key-ID → identity/public-key registry the two-party attestation signatures resolve against | JSON | new | No |
 
 ## Protected-File Statement
 
@@ -271,24 +275,40 @@ semantics: `NOT_APPLICABLE` never silently substitutes for a `FAIL` when
 
 The sole oracle TEST-007/008/009 evaluate against — every cell below is
 `present`, `absent`, or `unchanged` (relative to the pre-install
-baseline), never left to a generic pass/fail schema alone to encode:
+baseline), never left to a generic pass/fail schema alone to encode. The
+MCP-registration surface is per-target distinct, not a single Codex-only
+block: `install.sh:519-533`'s own `install_mcp_servers` gates
+`register_claude_mcp` on `All|Claude`, `register_codex_mcp` (the
+`~/.codex/config.toml` delimited block) on `All|Codex`, and
+`register_vscode_mcp` (the VS Code `mcp.json` upsert, which is how the
+Copilot target's own MCP surface is consumed, per that function's own
+comment) on `All|Copilot` — an earlier draft of this table incorrectly
+marked Claude's and Copilot's own MCP surface `absent`, which would have
+made TEST-007/TEST-009's own sole oracle assert the opposite of the
+installer's real, already-shipped behavior:
 
-| Target | Phase | Marketplace entry | Plugin registration | MCP config block | Codex agent TOML |
+| Target | Phase | Marketplace entry | Plugin registration | MCP registration surface | Codex agent TOML |
 |---|---|---|---|---|---|
-| All | post-install | present | present (Claude+Codex+Copilot) | present | present |
+| All | post-install | present | present (Claude+Codex+Copilot) | present (Claude `claude mcp add` list + Codex `config.toml` block + VS Code `mcp.json`; Cursor's own `mcp.json` also registers under `All` but is outside this epic's four-value matrix) | present |
 | All | post-uninstall | absent | absent | absent | absent |
-| Codex | post-install | present | present (Codex only) | present | present |
+| Codex | post-install | present | present (Codex only) | present (Codex `~/.codex/config.toml` delimited block only) | present |
 | Codex | post-uninstall | absent | absent | absent | absent |
-| Claude | post-install | present | present (Claude only) | absent (Claude has no MCP-block surface) | absent |
-| Claude | post-uninstall | absent | absent | unchanged (was already absent) | unchanged (was already absent) |
-| Copilot | post-install | present | present (Copilot only) | absent (Copilot has no MCP-block surface) | absent |
-| Copilot | post-uninstall | absent | absent | unchanged (was already absent) | unchanged (was already absent) |
+| Claude | post-install | present | present (Claude only) | present (Claude's own `claude mcp add`-registered server list only) | absent |
+| Claude | post-uninstall | absent | absent | absent | unchanged (was already absent) |
+| Copilot | post-install | present | present (Copilot only) | present (VS Code `mcp.json` upsert only — the surface Copilot's own MCP support consumes) | absent |
+| Copilot | post-uninstall | absent | absent | absent | unchanged (was already absent) |
 
 A cell whose own installer/uninstaller behavior does not produce a given
-surface at all (e.g. `Claude`'s own MCP config block) is fixed
-`absent`/`unchanged` rather than omitted from the table, so no
+surface at all (e.g. `Claude`'s/`Copilot`'s own Codex agent TOML) is
+fixed `absent`/`unchanged` rather than omitted from the table, so no
 target×phase×surface combination is left for a Phase 2/3 implementer to
-guess.
+guess. Claude's own MCP registration surface is the CLI's own `claude mcp
+list` server-registration state (not necessarily a single repository- or
+home-directory file this epic's own fixture can hash directly); a Phase
+2/3 implementer's own `verify_1`/`verify_residue` check for that cell
+uses `claude mcp list`'s own output/exit contract as its oracle, parallel
+to but structurally distinct from the file-hash oracle Codex's and VS
+Code's own MCP surfaces use.
 
 ### `live-host-verification-record/v1` (REQ-003, REQ-006; AC-026, AC-028; fortified per Blocker-level finding on captured-JSON forgeability)
 
@@ -302,47 +322,129 @@ guess.
   "nonce": "string (single-use, issued by Epic A1's own hook-activation handshake script; never operator-chosen)",
   "host_session_id": "string (host-issued CLI session identifier)",
   "host_event_id": "string (host-issued event/turn identifier for the specific intercepted tool call)",
-  "raw_tool_request_sha256": "sha256:<hex> (hash of the raw, unedited host tool-request payload the runtime's own dispatcher produced)",
-  "raw_tool_result_sha256": "sha256:<hex> (hash of the raw, unedited host tool-result/denial payload the runtime's own hook subsystem produced)",
-  "installed_hook_config_digest": "sha256:<hex> (digest of the installed hook/config file(s) actually exercised in this session, e.g. the installed copy of claude-hooks.json/hooks.json/copilot-hooks.json)",
+  "raw_tool_request_ref": "string (repo-relative path to the committed, unedited raw tool-request capture file this session produced)",
+  "raw_tool_request_sha256": "sha256:<hex> (sha256 of the exact bytes at raw_tool_request_ref; recomputed and compared by the validator, never trusted as a bare claim)",
+  "raw_tool_result_ref": "string (repo-relative path to the committed, unedited raw tool-result/denial capture file)",
+  "raw_tool_result_sha256": "sha256:<hex> (sha256 of the exact bytes at raw_tool_result_ref; recomputed and compared by the validator)",
+  "installed_hook_config_digest": "sha256:<hex> (digest of the installed hook/config file(s) actually exercised in this session)",
+  "session_date": "YYYY-MM-DD (UTC calendar date derived from session_start; present as its own field because AC-026 lists it as an independently required field, not merely derivable)",
   "session_start": "ISO8601",
   "session_end": "ISO8601",
   "operator": "string (required in all cases; the session's own attending party, distinct from reviewer)",
+  "operator_key_id": "string (key ID, resolved against the trusted-signer registry below)",
   "reviewer": "string (required in all cases; independent of operator, countersigns after verifying nonce/hashes/timestamps)",
+  "reviewer_key_id": "string (key ID, resolved against the trusted-signer registry below; must differ from operator_key_id)",
   "cli_name": "string",
   "cli_version": "string",
   "host_os": "string",
   "plugin_hooks_flag": "enabled|disabled|not_applicable",
-  "tool_call_evidence": "string (the real, observed tool-call attempt and its result — transcript excerpt or structured capture, never a synthetic invocation)",
+  "tool_call_evidence": "string (human-readable summary only; never the sole evidence — raw_tool_request_ref/raw_tool_result_ref are the machine-checked evidence)",
   "verdict": "PASS|FAIL",
-  "operator_signature": "string (signature over this record's own canonical content hash, keyed to operator)",
-  "reviewer_signature": "string (signature over the identical canonical content hash, keyed to reviewer; must differ from operator_signature's signing identity)",
+  "operator_signature": "string (signature over the canonicalized record, per Signing Contract below, keyed to operator_key_id)",
+  "reviewer_signature": "string (signature over the identical canonicalized record, keyed to reviewer_key_id)",
   "notes": "string|null"
 }
 ```
+
+#### Schema Validation Rules (machine-checkable; resolves the "JSON example, not a verifiable contract" Blocker)
+
+`additionalProperties: false` — the object contains exactly the keys
+listed above, no more, no fewer. `required`: every key above except
+`notes` (nullable) and `plugin_hooks_flag` (required, but its own value
+is `not_applicable` for non-Codex cells). Type/format constraints:
+
+| Field | Constraint |
+|---|---|
+| `matrix_cell` | enum, exactly one of the 5 Live-Host Semantic Matrix cell names |
+| `nonce` | `^[A-Za-z0-9_-]{16,}$`; must appear, unconsumed, in the Nonce Issuance Ledger (below) |
+| `host_session_id`, `host_event_id` | non-empty string, `\S+` |
+| `raw_tool_request_ref`, `raw_tool_result_ref` | canonical repo-relative path under `tests/hook-activation-live-proof/raw/`, no symlink, no `..` traversal (matching `is_canonical_path`, `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh`'s own existing convention) |
+| `raw_tool_request_sha256`, `raw_tool_result_sha256`, `installed_hook_config_digest` | `^[0-9a-f]{64}$`; the validator independently recomputes each from the referenced file/expected-digest manifest and rejects on mismatch (`ERR_HASH_MISMATCH`) |
+| `session_date` | `^\d{4}-\d{2}-\d{2}$`; must equal `session_start`'s own UTC calendar date |
+| `session_start`, `session_end` | ISO 8601 UTC; `session_end` strictly after `session_start` |
+| `operator`, `reviewer` | non-empty string; `operator != reviewer` |
+| `operator_key_id`, `reviewer_key_id` | must each resolve to a distinct entry in the Trusted-Signer Registry (below); `operator_key_id != reviewer_key_id` |
+| `verdict` | enum `PASS`/`FAIL`; for `-active` cells `PASS` means denial observed, for `-expected-unavailable` cells `PASS` means correctly-detected unavailability observed |
+| `operator_signature`, `reviewer_signature` | verify against the canonicalized record (Signing Contract, below) under the corresponding `*_key_id`'s registered public key |
+
+#### Raw Capture, Nonce Ledger, and Expected-Digest Manifest (resolves the "hash of nothing stored" and "validator has no ground truth" Blocker sub-findings)
+
+- **Raw capture files**: `raw_tool_request_ref`/`raw_tool_result_ref` name
+  committed files under `tests/hook-activation-live-proof/raw/
+  <matrix_cell>-request.json` / `-result.json` — the actual, unedited
+  payload the runtime's own dispatcher/hook subsystem produced (for an
+  `automated` capture, written directly by the capturing script; for a
+  `manual` session, the operator's own copy-pasted raw CLI/session output,
+  saved verbatim before any transcription into `tool_call_evidence`).
+  `tool_call_evidence` is downgraded to a human-readable summary field
+  only — it is never itself hashed or treated as evidence a validator can
+  recompute against, closing the "single string" gap.
+- **Nonce Issuance Ledger** (`tests/hook-activation-live-proof/
+  nonce-ledger.json`, schema `live-host-nonce-ledger/v1`): an
+  append-only array Epic A1's own `check-hook-activation-handshake.
+  {py,sh,ps1}` writes to at issuance time — `{"nonce": "...",
+  "matrix_cell": "...", "issued_at": "ISO8601", "consumed_by_record":
+  "string|null"}`. `validate-live-host-proof` looks up each record's own
+  `nonce` in this ledger, rejects a `nonce` absent from the ledger
+  (`ERR_NONCE_UNKNOWN`) or whose `consumed_by_record` is already set to a
+  different record (`ERR_NONCE_REUSED`), and on a clean pass marks that
+  ledger entry's own `consumed_by_record` with the accepted record's own
+  path.
+- **Expected-Digest Manifest** (`plugins/sdd-review-loop/references/
+  a8-expected-hook-config-digests.json`): a maintainer-committed mapping
+  `{"<matrix_cell>": {"config_path": "<installed-relative path>",
+  "expected_sha256": "sha256:<hex>"}}`, one entry per semantic cell,
+  updated whenever the corresponding hook config file's own repository
+  source changes. `installed_hook_config_digest` is valid only when it
+  equals this manifest's own `expected_sha256` for that `matrix_cell` —
+  giving the validator an independent ground truth rather than trusting
+  the record's self-reported digest.
+
+#### Signing Contract (resolves the "canonicalization/signing target/algorithm/key source undefined" Blocker sub-finding)
+
+- **Canonicalization**: RFC 8785 JSON Canonicalization Scheme (JCS)
+  applied to the record with `operator_signature`, `reviewer_signature`,
+  `operator_key_id`, and `reviewer_key_id` removed (the four
+  signature-carrying fields are excluded from what is signed; every other
+  field, including `notes`, is included).
+- **Signing target**: the SHA-256 digest of the JCS-canonicalized,
+  signature-fields-excluded record.
+- **Algorithm**: Ed25519 (`raw_signature` bytes, base64-encoded in the
+  `*_signature` field).
+- **Trusted-Signer Registry** (`plugins/sdd-review-loop/references/
+  a8-trusted-signers.json`, schema `a8-trusted-signers/v1`): a
+  maintainer-committed, append-only mapping `{"<key_id>": {"identity":
+  "<maintainer/contributor name>", "public_key": "<base64
+  Ed25519 public key>", "added_at": "ISO8601"}}`. `validate-live-host-
+  proof` resolves `operator_key_id`/`reviewer_key_id` against this
+  registry, verifies each signature against the resolved public key, and
+  rejects a `key_id` absent from the registry (`ERR_SIGNER_UNTRUSTED`) or
+  a signature that fails to verify (`ERR_SIGNATURE_INVALID`).
 
 `operator` and `reviewer` are both required and must name distinct
 identities in every record, regardless of `invocation_mode` (AC-026); an
 `automated` record additionally names the capturing script/CI job in
 `notes`, but still carries a human reviewer's countersignature over the
-automated capture's own output before `validate-live-host-proof` accepts
-it. A record is invalid per this schema, and is rejected by
-`validate-live-host-proof`, when any of the following holds: `nonce` is
-blank, reused across two records (replay), or does not match the nonce
-Epic A1's own handshake script issued for that session; `raw_tool_request_
-sha256`/`raw_tool_result_sha256` is blank or does not correspond to the
-`tool_call_evidence` payload; `installed_hook_config_digest` does not
-match the installed hook/config file this epic's own matrix expects for
-that `matrix_cell`; `session_end` precedes `session_start`; `operator_
-signature`/`reviewer_signature` is missing, identical to each other, or
-fails to verify against the record's own canonical content hash;
-`tool_call_evidence` is empty; or `verdict` was computed from a
+automated capture's own raw output before `validate-live-host-proof`
+accepts it. A record is invalid per this schema, and is rejected by
+`validate-live-host-proof` with the named error code, when any Schema
+Validation Rules constraint fails, or when: `nonce` is unknown or reused
+(`ERR_NONCE_UNKNOWN`/`ERR_NONCE_REUSED`); either raw-capture hash does
+not match its own referenced file's recomputed digest
+(`ERR_HASH_MISMATCH`); `installed_hook_config_digest` does not match the
+Expected-Digest Manifest's own entry for that `matrix_cell`
+(`ERR_DIGEST_MISMATCH`); `session_end` does not strictly follow
+`session_start`, or `session_date` does not match `session_start`'s own
+UTC date; either signature fails to verify or resolves to an untrusted
+key (`ERR_SIGNATURE_INVALID`/`ERR_SIGNER_UNTRUSTED`); `operator_key_id`
+equals `reviewer_key_id`; or `verdict` was computed from a
 `sdd-hook-guard` script invocation rather than from a real CLI-mediated
-tool call. This is the exact structural distinction AC-027's
-classification-mismatch rule checks mechanically (Test Strategy, below),
-not merely by convention — closing the "editable JSON with a self-
-attested verdict is sufficient" gap the adversarial review identified
-against ADR-0019's own conditioned defense claim.
+tool call (`ERR_SYNTHETIC_SUBSTITUTION`, cross-checked against the raw
+capture's own content shape, Test Strategy item 8). This is the exact
+structural distinction AC-027's classification-mismatch rule checks
+mechanically, not merely by convention — closing the "editable JSON with
+a self-attested verdict is sufficient" gap the adversarial review
+identified against ADR-0019's own conditioned defense claim.
 
 ### `path-lineending-fixture-result/v1` (REQ-004)
 
@@ -372,7 +474,7 @@ against ADR-0019's own conditioned defense claim.
 }
 ```
 
-`cells[]` enumerates the REQ-004 cross-product combination matrix
+`cells[]` enumerates the REQ-004 pairwise covering combination matrix
 (pairwise-or-better coverage over OS × separator × LF/CRLF × NFC/NFD ×
 sh/ps1 × install/uninstall, below) rather than the three independent
 single-case checks an earlier draft of this schema implied; a `case` not
@@ -380,20 +482,60 @@ applicable to a given OS/script combination (e.g. `windows-path-separator`
 on a `sh` runtime) is recorded `N/A`, never silently omitted from
 `cells[]`.
 
-#### REQ-004 Cross-Product Combination Matrix (AC-018–AC-021; resolves the "three independent spot checks" gap)
+#### REQ-004 Pairwise Covering Combination Matrix (AC-018–AC-021; resolves both the "three independent spot checks" gap and the "not a genuine cross-product" Major finding)
 
-| Case | OS | Separator | EOL | Normalization | Script | Phase | Oracle |
-|---|---|---|---|---|---|---|---|
-| windows-path-separator | windows | backslash | CRLF | NFC | ps1 | install | `resolved_path` uses `\`; `install-uninstall-matrix-result/v1.phases.install_1.registered[]` paths match native separator |
-| windows-path-separator | windows | backslash | CRLF | NFC | ps1 | uninstall | `uninstall_residue` empty; no leftover backslash-separated path |
-| crlf-lf-gitattributes-layer | windows | backslash | CRLF (checkout) → LF (`.gitattributes`-normalized) | NFC | ps1 | install | `copied_bytes_sha256` equals the LF-normalized repository blob hash, not the CRLF checkout bytes |
-| crlf-lf-gitattributes-layer | linux/macos | forward-slash | LF | NFC/NFD | sh | install | `copied_bytes_sha256` equals the LF repository blob hash (identity case, confirms no double-normalization) |
-| nfc-nfd-filename | macos (author) → windows/linux (consume) | forward-slash | LF | NFD (authored) → NFC (consumed) | sh/ps1 | install | `resolved_path`/`copied_bytes_sha256` match the Unicode-Normalization Contract's own fixed NFC bytes, never the NFD-authored bytes verbatim |
-| nfc-nfd-filename | macos (author) → windows/linux (consume) | forward-slash | LF | NFD/NFC | sh/ps1 | uninstall | `uninstall_residue` empty under both the NFC and NFD byte forms of the filename (collision-policy check) |
+An earlier draft of this section claimed a "cross-product"/"every cell"
+combination matrix while actually enumerating only six hand-picked rows
+with collapsed multi-value cells (`linux/macos`, `NFC/NFD`, `sh/ps1`) —
+neither a real cross-product nor a defined pairwise design, and
+inconsistent with its own "every cell" claim. This package instead fixes
+an explicit **pairwise (2-wise) covering design**, not a full
+cross-product, over four axes, plus two axes that are OS-*derived*
+attributes rather than independent dimensions:
 
-Every cell above carries its own `source bytes/name`, `resolved path`,
-`copied bytes`, `stdout`, and `uninstall residue` oracle fields (schema
-above) — no cell is evaluated against prose description alone.
+- **Independent axes**: `os` ∈ {windows, linux, macos}; `eol` ∈ {LF,
+  CRLF}; `normalization` ∈ {NFC, NFD}; `phase` ∈ {install, uninstall}.
+- **OS-derived attributes** (never independently varied — a `sh` script
+  and forward-slash separator are not meaningful on `windows`, and a
+  `.ps1` script and backslash separator are not meaningful on
+  `linux`/`macos` in this repository's own existing runtime convention,
+  Constraint Compliance): `separator` = `backslash` iff `os == windows`,
+  else `forward-slash`; `script` = `ps1` iff `os == windows`, else `sh`.
+
+**Generation algorithm**: enumerate all 8 combinations of the three
+binary axes (`eol` × `normalization` × `phase`) exactly once each, and
+assign `os` to each of those 8 rows by cycling `windows, linux, macos`
+(row `i`'s `os` = the cycle's `(i mod 3)`th value). This is a concrete,
+reproducible generation rule (not an ad hoc selection), and its own
+coverage is verifiable directly from the table below: every one of the
+6 possible (`os`, `eol`) pairs, all 6 (`os`, `normalization`) pairs, and
+all 6 (`os`, `phase`) pairs each appear in at least one row, and — because
+the 8 rows already enumerate every (`eol`, `normalization`, `phase`)
+triple exactly once — every pair among those three axes is trivially
+fully (not merely pairwise) covered.
+
+| Row | OS | Separator (derived) | EOL | Normalization | Script (derived) | Phase | `windows-path-separator` | `crlf-lf-gitattributes-layer` | `nfc-nfd-filename` |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | windows | backslash | LF | NFC | ps1 | install | ASSERT: `resolved_path` uses `\`; `install-uninstall-matrix-result/v1.phases.install_1.registered[]` paths match native separator | ASSERT (identity): `copied_bytes_sha256` equals the LF repository blob hash unchanged | ASSERT: NFC-authored bytes pass through unchanged (Unicode-Normalization Contract) |
+| 2 | linux | forward-slash | LF | NFC | sh | uninstall | N/A (no backslash separator on linux) | ASSERT (identity): `uninstall_residue` empty under the unchanged LF bytes | ASSERT: `uninstall_residue` empty under the NFC byte form |
+| 3 | macos | forward-slash | LF | NFD | sh | install | N/A | ASSERT (identity) | ASSERT: NFD-authored source bytes are consumed on their own authoring OS without cross-OS normalization pressure (baseline case) |
+| 4 | windows | backslash | LF | NFD | ps1 | uninstall | ASSERT: `uninstall_residue` empty; no leftover backslash-separated path | ASSERT (identity) | ASSERT: `uninstall_residue` empty under both NFC and NFD byte forms (collision-policy check, Unicode-Normalization Contract) |
+| 5 | linux | forward-slash | CRLF | NFC | sh | install | N/A | ASSERT (correction): `copied_bytes_sha256` equals the LF-normalized repository blob hash, not the CRLF checkout bytes | ASSERT: NFC-authored bytes pass through unchanged |
+| 6 | macos | forward-slash | CRLF | NFC | sh | uninstall | N/A | ASSERT (correction) | ASSERT: `uninstall_residue` empty under the NFC byte form |
+| 7 | windows | backslash | CRLF | NFD | ps1 | install | ASSERT: `resolved_path` uses `\` | ASSERT (correction) | ASSERT: `resolved_path`/`copied_bytes_sha256` match the Contract's own fixed NFC bytes, never the NFD-authored bytes verbatim (cross-OS consumption case) |
+| 8 | linux | forward-slash | CRLF | NFD | sh | uninstall | N/A | ASSERT (correction) | ASSERT: `uninstall_residue` empty under both NFC and NFD byte forms |
+
+Every one of the three REQ-004 cases (`windows-path-separator`,
+`crlf-lf-gitattributes-layer`, `nfc-nfd-filename`) is evaluated in every
+row — `N/A` for `windows-path-separator` on non-`windows` rows is itself
+the cell's own recorded disposition (per the `path-lineending-fixture-
+result/v1` schema's own `N/A` state, Data Plan, above), never an omitted
+cell; the other two cases are `ASSERT` in all 8 rows. This is a fully
+enumerated 8-row × 3-case = 24-cell table, not a "some cells collapsed"
+draft, and its own coverage claim (pairwise across the 4 independent
+axes, full coverage of `separator`/`script` as OS-derived attributes) is
+verifiable by inspection of the table rather than asserted in prose
+alone.
 
 #### Unicode-Normalization Contract (AC-020; resolves the ".gitattributes has no NFC/NFD rule" gap)
 
@@ -524,23 +666,39 @@ names — not `plugins/**` alone:
   `state: installed_synced`; exit 1 with `state: installed_drifted` or
   `state: not_installed` (Data Plan, above). Read-only: never writes to
   either the install root or the repository (Protected-File Statement).
-- `plugins/sdd-quality-loop/scripts/validate-live-host-proof.sh` /
-  `.ps1` — no required flags; reads all five
-  `tests/hook-activation-live-proof/<matrix_cell>.json` records, exits 0
-  only when every one of the five semantic cells (Claude-active,
-  Codex-enabled-active, Codex-disabled-expected-unavailable,
-  Copilot-primary-active, Copilot-subagent-expected-unavailable) has a
-  present, schema-valid, non-stale, non-duplicate-nonce,
-  two-party-attested record whose `verdict` matches that cell's own
-  expected Done condition (denial `PASS` for the three "-active" cells,
-  correctly-detected unavailability for the two
-  "-expected-unavailable" cells); exits non-zero on any missing, stale,
-  `FAIL`, config-digest-mismatch, or duplicate-nonce record, or on any
-  post-A1-merge `SKIP`. Wired as this epic's own Done gate and as a
-  release gate (Deployment/CI Plan, below); read-only, never writes a
-  record itself.
+- `plugins/sdd-quality-loop/scripts/validate-live-host-proof.sh
+  [--records-dir <path>] [--nonce-ledger <path>]
+  [--expected-digest-manifest <path>] [--trusted-signers <path>]
+  [--skip-allowlist <path>]` / the equivalent `.ps1` named parameters —
+  every flag defaults to this epic's own canonical path
+  (`tests/hook-activation-live-proof/`,
+  `tests/hook-activation-live-proof/nonce-ledger.json`,
+  `plugins/sdd-review-loop/references/a8-expected-hook-config-digests.json`,
+  `plugins/sdd-review-loop/references/a8-trusted-signers.json`,
+  `plugins/sdd-review-loop/references/a8-skip-allowlist.json`
+  respectively) so a bare invocation is always well-defined, while a
+  Phase 2/3 test harness may override any path for fixture isolation.
+  Reads all five `tests/hook-activation-live-proof/<matrix_cell>.json`
+  records against the Schema Validation Rules, Nonce Issuance Ledger,
+  Expected-Digest Manifest, and Signing Contract (Data Plan, above);
+  exits 0 only when every one of the five semantic cells has a present,
+  schema-valid, hash-recomputed, nonce-ledger-confirmed,
+  digest-manifest-matched, two-party-signature-verified record whose
+  `verdict` matches that cell's own expected Done condition (denial
+  `PASS` for the three "-active" cells, correctly-detected unavailability
+  for the two "-expected-unavailable" cells). Exits non-zero with one of
+  the named error codes (`ERR_MISSING_CELL`, `ERR_SCHEMA_INVALID`,
+  `ERR_NONCE_UNKNOWN`, `ERR_NONCE_REUSED`, `ERR_HASH_MISMATCH`,
+  `ERR_DIGEST_MISMATCH`, `ERR_SIGNATURE_INVALID`, `ERR_SIGNER_UNTRUSTED`,
+  `ERR_SYNTHETIC_SUBSTITUTION`, `ERR_STALE_SKIP`) printed to stderr per
+  failing cell — never a bare non-zero exit with no diagnostic. Wired as
+  this epic's own Done gate and as a release gate (Deployment/CI Plan,
+  below); read-only, never writes a record itself (the nonce ledger's own
+  `consumed_by_record` update on a clean pass is the sole state mutation,
+  scoped to marking consumption, never rewriting an issued nonce's other
+  fields).
 - `tests/path-lineending-regression.tests.sh` / `.ps1` — no flags; runs
-  every cell of the REQ-004 cross-product combination matrix (Data Plan),
+  every cell of the REQ-004 pairwise covering combination matrix (Data Plan),
   emits `path-lineending-fixture-result/v1`.
 - Live-host proof capture: where REQ-006's classification finds a
   runtime's headless contract confirmed, a Phase 2/3-named automated
@@ -609,7 +767,7 @@ names — not `plugins/**` alone:
    reports non-zero on — matching Epic A7's own AC-035(a) SKIP-governance
    precedent this package adopts by reference rather than re-inventing.
 6. **REQ-004 path/line-ending drive** — `tests/path-lineending-
-   regression.tests.sh`/`.ps1` runs every cell of the Cross-Product
+   regression.tests.sh`/`.ps1` runs every cell of the Pairwise Covering
    Combination Matrix (Data Plan) on the existing 3-OS CI matrix (Windows
    runner covers the path-separator and CRLF cases natively; macOS runner
    covers the NFC/NFD case natively via its own filesystem), asserting
@@ -750,45 +908,75 @@ reference without an A8-specific instance of it:
   `check-hook-activation-handshake.{py,sh,ps1}` and the five consumer
   entry points, at that commit).
 - **Activation predicate**: a case is "activated" (i.e. its own `SKIP`
-  becomes a hard failure if still present) exactly when Epic A1's
-  `feature/epic-189-a1-project-context` branch has merged to `main` —
-  machine-detected by `git merge-base --is-ancestor
-  <upstream_epic_a1_commit> HEAD` returning true, never by a human
-  asserting "Epic A1 has merged" in prose.
-- **Stale/unknown/drift handling**: once activated, `validate-live-host-
-  proof`/`tests/cross-runtime-handoff.tests.sh` re-resolve each
-  allowlist entry's own `upstream_epic_a1_path_blob_ids` against the
-  merged `main`'s current blobs; a mismatch (Epic A1's handshake script
-  or a consumer entry point changed shape after this allowlist entry was
-  authored), an allowlist entry absent from the manifest, or an unknown
-  `case_id` not present in the manifest is a non-zero-exit hard failure —
-  matching Epic A7's own stale/unknown/drifted-SKIP hard-fail requirement
+  becomes a hard failure if still present) exactly when every canonical
+  artifact that case depends on exists at its own fixed repo-relative
+  path on `main` — `check-hook-activation-handshake.{py,sh,ps1}` for
+  AC-015, the five consumer entry-point files (INV-007) for AC-016 —
+  machine-detected by a plain file-existence check against `main`'s
+  current tree, never by commit-ancestry alone. A squash-merge or rebase
+  merge of Epic A1's own branch never makes the pre-merge
+  `upstream_epic_a1_commit` this allowlist entry recorded an ancestor of
+  `main` even though its own content did land, so `git merge-base
+  --is-ancestor <upstream_epic_a1_commit> HEAD` is used only as an
+  optional, best-effort corroborating diagnostic in the validator's own
+  output when it happens to hold (informational only) — it is never the
+  activation condition itself, and its own failure never suppresses
+  activation when the canonical artifacts are actually present.
+- **Stale/unknown/drift handling**: once activated (by existence), each
+  activated case's own content-level check re-resolves
+  `upstream_epic_a1_path_blob_ids` against the *current* blob ID of each
+  now-existing canonical artifact on `main`; `validate-live-host-
+  proof`/`tests/cross-runtime-handoff.tests.sh` treat a blob-ID mismatch
+  (Epic A1's handshake script or a consumer entry point changed shape
+  after this allowlist entry was authored) as a non-zero-exit hard
+  failure requiring the allowlist entry to be re-authored against the
+  current blob before the case may pass — this is the substance-level
+  drift check, distinct from and downstream of the existence-based
+  activation predicate above, so a squash/rebase merge that changes blob
+  IDs is still correctly caught here even though it does not affect
+  activation itself. An allowlist entry absent from the manifest for an
+  activated case, or an unknown `case_id` not present in the manifest, is
+  likewise a non-zero-exit hard failure — matching Epic A7's own
+  stale/unknown/drifted-SKIP hard-fail requirement
   (`specs/epic-195-a7-compatibility/requirements.md:210-227`) rather than
   merely citing it.
 
 ## Automated / Manual Classification Table (REQ-006; AC-025)
 
-Exhaustive over every check REQ-001 through REQ-005 name. `Gating fact`
-names the exact unconfirmed capability an `automated-pending-confirmation`
-row depends on (OQ-001); a `manual-required` row names why no automated
-path exists at all.
+Exhaustive over every check REQ-001 through REQ-005 name — every AC from
+AC-001 through AC-024 that REQ-001–REQ-005 name appears in exactly one
+row below (bundled with sibling ACs only where they share one
+classification and gating fact verbatim), including the static/doc-review
+checks (AC-001, AC-005, AC-017, AC-021) an earlier draft of this table
+omitted while still claiming exhaustiveness. `Current Classification` is
+always exactly one of `automated` / `automated-pending-confirmation` /
+`manual-required` — never two values in the same cell. `Upgrade
+Condition` is non-null only for a row whose classification can later
+change without a schema change; it is never itself a second live
+classification value. `Gating fact / reason` names the exact unconfirmed
+capability an `automated-pending-confirmation` row depends on (OQ-001), or
+why no automated path exists at all for a `manual-required` row.
 
-| Check (AC) | Classification | Gating fact / reason |
-|---|---|---|
-| Claude→Codex handoff step (AC-002) | automated-pending-confirmation | Claude Code CLI headless/non-interactive contract unconfirmed in this repo (INV-021, OQ-001) |
-| Codex→Copilot handoff step (AC-003) | automated-pending-confirmation | Codex CLI and Copilot CLI headless contracts both unconfirmed (INV-021, OQ-001) |
-| Full 3-hop chain (AC-004) | automated-pending-confirmation | Inherits both gating facts above; automatable only once all three are confirmed |
-| Hook-activation canary presence in handoff fixture (AC-006) | automated | Presence-only check (the case exists in the fixture trace); does not itself require a live-host session — the live-host proof is AC-015's own, separate check |
-| Install/uninstall matrix, all 4 cells (AC-007–AC-011) | automated | `install.sh`/`.ps1`/`uninstall.sh`/`.ps1` already run non-interactively (existing `tests/install.tests.sh` precedent, INV-016); no CLI session required |
-| Installed-cache drift check (AC-022–AC-024) | automated | Filesystem-only content-hash comparison; no CLI session required |
-| Cross-runtime guard fixture, synthetic half only (AC-012) | automated | Direct script invocation, matching `tests/cli-hook-enforcement.ps1`'s existing pattern (INV-013); a legitimate config/guard-contract regression check, never presented as a live-host proof (Direct-Invocation De-Spoofing, above); no live CLI session required |
-| Codex `plugin_hooks` flag matrix, real-session dispatch (AC-013 → `Codex-enabled-active`/`Codex-disabled-expected-unavailable` cells) | manual-required (default) / automated-pending-confirmation (upgrade path) | No confirmed scripted contract exists today for toggling Codex's own persisted `plugin_hooks` config and dispatching a real Codex session per state (INV-021, Direct-Invocation De-Spoofing); a config-toggle-plus-direct-guard-invocation result never substitutes for this row |
-| Copilot subagent/primary non-firing contrast, real-session dispatch (AC-014 → `Copilot-primary-active`/`Copilot-subagent-expected-unavailable` cells) | manual-required (default) / automated-pending-confirmation (upgrade path) | No confirmed scripted contract exists today for dispatching a real Copilot primary session and a real Copilot subagent session per cell (INV-021, Direct-Invocation De-Spoofing); reproducing INV-012's documented config state via direct guard invocation never substitutes for this row |
-| Live-host hook-activation-handshake proof, 5 semantic matrix cells (AC-015, AC-028) | manual-required (default) / automated-pending-confirmation (upgrade path) | No confirmed scripted contract exists today for driving a genuine, unscripted, host-intercepted tool call inside any of the three CLIs (INV-021); defaults to `manual-required` under the fortified `live-host-verification-record/v1` (nonce, raw hashes, session/event IDs, hook/config digest, two-party attestation) until Phase 2/3 confirms an automatable path for a given cell, at which point that cell individually upgrades to `automated` without a schema change — the aggregate `validate-live-host-proof` check itself (below) stays `automated` regardless, since it is a deterministic file/schema validator over whatever records exist |
-| Aggregate live-host proof validation (`validate-live-host-proof`, AC-028) | automated | Deterministic, read-only validation of committed JSON records against the fortified schema and the SKIP Allowlist Activation Gate; no CLI session required — this is the Done-gate/release-gate check itself, distinct from the manual-required sessions whose records it validates |
-| A1 consumer entry-point live exercise, all 5 consumers (AC-016) | manual-required (default), same upgrade path as AC-015 | Same gating fact as AC-015; inherits its classification; requires the full fingerprinted 5-consumer inventory, never a single sampled entry point |
-| Installed-cache drift check, negative-lifecycle case (AC-022 negative case, Test Strategy item 7) | automated | Filesystem-only content-hash/change-type comparison against a deliberately staged prior-version or mutated cache; no CLI session required |
-| Path/line-ending regression, cross-product matrix cells (AC-018–AC-020) | automated | Filesystem/fixture-only; runs unattended on the existing 3-OS CI matrix (INV-014) across every OS × separator × EOL × normalization × script × phase cell (Data Plan) |
+| Check (AC) | Current Classification | Upgrade Condition | Gating fact / reason |
+|---|---|---|---|
+| Fixture Contract table definition (AC-001) | automated | — | Static structural check: design.md's own Fixture Contract table (Data Plan) is grep/parse-checkable; no CLI session required |
+| Claude→Codex handoff step (AC-002) | automated-pending-confirmation | Upgrades to `automated` once Claude Code CLI's own headless/non-interactive contract is confirmed (OQ-001) | Claude Code CLI headless/non-interactive contract unconfirmed in this repo (INV-021, OQ-001) |
+| Codex→Copilot handoff step (AC-003) | automated-pending-confirmation | Upgrades to `automated` once both Codex CLI's and Copilot CLI's own headless contracts are confirmed (OQ-001) | Codex CLI and Copilot CLI headless contracts both unconfirmed (INV-021, OQ-001) |
+| Full 3-hop chain (AC-004) | automated-pending-confirmation | Upgrades to `automated` once all three CLIs' headless contracts are confirmed (OQ-001) | Inherits both gating facts above; automatable only once all three are confirmed |
+| Per-CLI headless-contract confirmed-or-unconfirmed marker (AC-005) | automated | — | Static structural check: design.md's own classification table (this table) is itself the marker AC-005 requires; no CLI session required to verify the marker's own presence |
+| Hook-activation canary presence in handoff fixture (AC-006) | automated | — | Presence-only check (the case exists in the fixture trace); does not itself require a live-host session — the live-host proof is AC-015's own, separate check |
+| Install/uninstall matrix, all 4 cells (AC-007–AC-011) | automated | — | `install.sh`/`.ps1`/`uninstall.sh`/`.ps1` already run non-interactively (existing `tests/install.tests.sh` precedent, INV-016); no CLI session required |
+| Cross-runtime guard fixture, synthetic half only (AC-012) | automated | — | Direct script invocation, matching `tests/cli-hook-enforcement.ps1`'s existing pattern (INV-013); a legitimate config/guard-contract regression check, never presented as a live-host proof (Direct-Invocation De-Spoofing, above); no live CLI session required |
+| Codex `plugin_hooks` flag matrix, real-session dispatch (AC-013 → `Codex-enabled-active`/`Codex-disabled-expected-unavailable` cells) | manual-required | Upgrades to `automated` per cell once a scripted, native-Codex-dispatcher-engaging session contract is confirmed (INV-021) | No confirmed scripted contract exists today for toggling Codex's own persisted `plugin_hooks` config and dispatching a real Codex session per state (Direct-Invocation De-Spoofing); a config-toggle-plus-direct-guard-invocation result never substitutes for this row |
+| Copilot subagent/primary non-firing contrast, real-session dispatch (AC-014 → `Copilot-primary-active`/`Copilot-subagent-expected-unavailable` cells) | manual-required | Upgrades to `automated` per cell once a scripted, real-Copilot-subagent-dispatching session contract is confirmed (INV-021) | No confirmed scripted contract exists today for dispatching a real Copilot primary session and a real Copilot subagent session per cell (Direct-Invocation De-Spoofing); reproducing INV-012's documented config state via direct guard invocation never substitutes for this row |
+| Live-host hook-activation-handshake proof, 5 semantic matrix cells (AC-015, AC-028) | manual-required | Each of the 5 cells upgrades to `automated` independently, without a schema change, once Phase 2/3 confirms an automatable path for that cell | No confirmed scripted contract exists today for driving a genuine, unscripted, host-intercepted tool call inside any of the three CLIs (INV-021); defaults to `manual-required` under the fortified `live-host-verification-record/v1` (nonce, raw hashes, session/event IDs, hook/config digest, two-party attestation) |
+| Regression continuity: `cli-hook-enforcement.ps1` existing assertions stay green (AC-017) | automated | — | Runs unattended on the existing 3-OS CI matrix (INV-014), independent of AC-015's own live-host proof (AC-017's own structural-separation guarantee, Design Decisions) |
+| Aggregate live-host proof validation (`validate-live-host-proof`, AC-028) | automated | — | Deterministic, read-only validation of committed JSON records against the fortified schema and the SKIP Allowlist Activation Gate; no CLI session required — this is the Done-gate/release-gate check itself, distinct from the manual-required sessions whose records it validates |
+| A1 consumer entry-point live exercise, all 5 consumers (AC-016) | manual-required | Same upgrade path as AC-015, per runtime | Same gating fact as AC-015; inherits its classification; requires the full fingerprinted 5-consumer inventory, never a single sampled entry point |
+| Path/line-ending regression, pairwise covering matrix cells (AC-018–AC-020) | automated | — | Filesystem/fixture-only; runs unattended on the existing 3-OS CI matrix (INV-014) across the pairwise-covering OS × EOL × normalization × phase design, with separator/script as OS-derived attributes (Data Plan) |
+| Regression-matrix cell disposition table (AC-021) | automated | — | Static structural check: design.md's own Path/Line-Ending Regression Matrix table is grep/parse-checkable; no CLI session required |
+| Installed-cache drift check, positive divergence class (AC-022–AC-024) | automated | — | Filesystem-only content-hash/change-type comparison; no CLI session required |
+| Installed-cache drift check, negative-lifecycle case (AC-022 negative case, Test Strategy item 7) | automated | — | Filesystem-only content-hash/change-type comparison against a deliberately staged prior-version or mutated cache; no CLI session required |
 
 No check above is left unclassified; a Phase 2/3 task introducing a new
 check under any REQ-001–REQ-005 heading extends this table in the same
@@ -798,16 +986,16 @@ commit, never leaving a new row implicitly `automated` by omission.
 
 This table is the layer-level disposition summary (Epic A7's own
 `ASSERT`/`SKIP-with-activation`/`N/A` vocabulary); the Data Plan's own
-Cross-Product Combination Matrix and Unicode-Normalization Contract
+Pairwise Covering Combination Matrix and Unicode-Normalization Contract
 (above) are the concrete per-cell oracle each `ASSERT` row below resolves
 to — the two are complementary, not duplicative.
 
 | Case | Layer under test | Disposition | Evidence basis |
 |---|---|---|---|
-| Windows path-separator (AC-018) | This epic's own install/uninstall/generated-path output | ASSERT (automated, AC-018) | `install.sh`/`.ps1` existing behavior; no upstream Epic dependency; resolved by the Cross-Product Combination Matrix's own `windows-path-separator` rows |
-| CRLF-vs-LF, `.gitattributes` layer (AC-019) | Git-attribute normalization only (`.gitattributes:1-9`, INV-022) | ASSERT (automated, AC-019) | Existing, already-committed `.gitattributes` contract; no upstream Epic dependency; resolved by the Cross-Product Combination Matrix's own `crlf-lf-gitattributes-layer` rows |
+| Windows path-separator (AC-018) | This epic's own install/uninstall/generated-path output | ASSERT (automated, AC-018) | `install.sh`/`.ps1` existing behavior; no upstream Epic dependency; resolved by the Pairwise Covering Combination Matrix's own `windows-path-separator` rows |
+| CRLF-vs-LF, `.gitattributes` layer (AC-019) | Git-attribute normalization only (`.gitattributes:1-9`, INV-022) | ASSERT (automated, AC-019) | Existing, already-committed `.gitattributes` contract; no upstream Epic dependency; resolved by the Pairwise Covering Combination Matrix's own `crlf-lf-gitattributes-layer` rows |
 | CRLF-vs-LF, canonicalizer layer | Epic A1's own `canonicalize-sdd-yaml.py` NFC/JCS re-serialization (INV-022) | N/A for this package | Epic A1's own AC-007/canonicalizer test owns this layer (requirements.md Non-goals); re-asserting it here would duplicate, not extend, Epic A1's own coverage |
-| NFC-vs-NFD filename/content (AC-020) | This epic's own fixture files, authored on an NFD-tending filesystem (macOS), consumed on NFC-only checkouts (Windows/Linux) | ASSERT (automated, AC-020) | This epic's own dedicated Unicode-Normalization Contract (Data Plan, above) — never `.gitattributes` (INV-022), which fixes text/EOL rules only and defines no Unicode-normalization rule; resolved by the Cross-Product Combination Matrix's own `nfc-nfd-filename` rows |
+| NFC-vs-NFD filename/content (AC-020) | This epic's own fixture files, authored on an NFD-tending filesystem (macOS), consumed on NFC-only checkouts (Windows/Linux) | ASSERT (automated, AC-020) | This epic's own dedicated Unicode-Normalization Contract (Data Plan, above) — never `.gitattributes` (INV-022), which fixes text/EOL rules only and defines no Unicode-normalization rule; resolved by the Pairwise Covering Combination Matrix's own `nfc-nfd-filename` rows |
 
 Every cell carries exactly one disposition; the canonicalizer-layer row is
 recorded `N/A for this package` (never silently omitted) precisely because
