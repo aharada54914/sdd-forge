@@ -29,15 +29,34 @@ CLI (`resolve-project-context`) that reads a Project Context, a Registry,
 and a git-diff-derived affected-component set, evaluates the Predicate DSL
 (unmodified) once per (Capability `trigger`, affected component) pair and
 once per (matched Capability's `conditional_facets[].when`, affected
-component) pair, and assembles a Facet Manifest (+ Context Projection, +
-on the Lite track, a Capability Summary) that already validates against
-Epic A4's own schemas — plus one genuinely new artifact, Resolver Evidence,
-whose shape no upstream contract fixes (requirements.md REQ-004). The one
-place this design makes a real, new decision rather than a mechanical
-transcription is the multi-affected-component matching rule (Design
-Decisions, below) — `evaluate-predicate`'s own CLI takes exactly one
-component's properties per call, and no upstream spec says how several
-per-component results combine into one Feature-level match/no-match.
+component) pair, and assembles this invocation's **track-exclusive**
+output set — a **Full**-track resolve assembles a Facet Manifest, a
+Context Projection, and Resolver Evidence; a **Lite**-track resolve
+instead assembles a Capability Summary and Resolver Evidence only, never
+a Facet Manifest and never a published Context Projection (Design
+Decisions, below, "track-exclusive publication set" — this corrects an
+earlier revision of this design that assembled both a Facet Manifest and
+a Capability Summary on the Lite track, adversarial review "B4 Lite
+publication") — each already validating against Epic A4's own schemas
+before this invocation ever writes to a live path (Design Decisions,
+below, "staged generation, single atomic commit"), plus one genuinely new
+artifact, Resolver Evidence, whose shape no upstream contract fixes
+(requirements.md REQ-004). Every evaluation this invocation performs —
+every Registry Capability's `trigger` against every affected component,
+and every matched Capability's `conditional_facets[].when` against every
+affected component — runs to completion, and every Block condition this
+invocation's inputs trigger is determined, **before** this invocation
+commits any artifact to a live path (Design Decisions, "staged generation,
+single atomic commit" — adversarial review "B1 atomicity"). The two
+places this design makes a real, new decision rather than a mechanical
+transcription are the multi-affected-component matching rule and the
+cross-Capability facet-name aggregation rule (Design Decisions, below) —
+`evaluate-predicate`'s own CLI takes exactly one component's properties
+per call, and no upstream spec says how several per-component results
+combine into one Feature-level match/no-match, or how two Capabilities
+that happen to declare a `conditional_facets[]` entry under the identical
+`facet` name combine into the one Facet Manifest entry Epic A4's own
+facet-name-uniqueness rule requires.
 
 ## Architecture
 
@@ -45,66 +64,120 @@ per-component results combine into one Feature-level match/no-match.
                          project-context.yaml (A1)
                                    │
                     ┌──────────────┴───────────────┐
-                    │ canonicalize-sdd-yaml (A1)    │
-                    │  pass 1: YAML → source_sha256 │
-                    └──────────────┬───────────────┘
-                                   │ parsed structure
+                    │ state derivation (REQ-003)     │  ── disabled-legacy
+                    │  disabled-legacy? invalid       │     → immediate
+                    │  workflow combination? (M3)     │     Block, no
+                    └──────────────┬───────────────┘     staging area
+                                   │ (advisory|required, valid combination)
+                    ┌──────────────┴───────────────┐
+                    │ canonicalize-sdd-yaml (A1)    │  ── snapshot: pin
+                    │  pass 1: YAML → source_sha256 │     project-context.yaml
+                    └──────────────┬───────────────┘     bytes in memory
+                                   │ parsed structure     (B8 TOCTOU)
                     ┌──────────────┴───────────────┐
                     │ Context Projection assembly    │  ── A4 REQ-003
                     │  (re-key components by id;      │     generation
                     │   canonicalize-sdd-yaml pass 2  │     procedure,
-                    │   → projection_sha256)          │     verbatim
-                    └──────────────┬───────────────┘
-                                   │ project-context.resolved.json
-    --config/--source-rev/        │ (generated/, A1-reserved path)
+                    │   → projection_sha256; STAGED,   │     verbatim;
+                    │   not written to a live path yet) │   written only
+                    └──────────────┬───────────────┘     at commit (below)
+    --config/--source-rev/        │ staged Context Projection
     --target-rev/--include-       │
     untracked ────────────────────┤
                     ┌──────────────┴───────────────┐
-                    │ resolve-component-paths (A3)  │
-                    │  → affected_components[]       │
-                    │  → ownership_digest             │
-                    └──────────────┬───────────────┘
+                    │ resolve-component-paths (A3)  │  ── snapshot: pin
+                    │  → affected_components[]       │     ownership-source
+                    │  → ownership_digest             │     bytes/digest
+                    └──────────────┬───────────────┘     (B8 TOCTOU)
                                    │
                     ┌──────────────┴───────────────┐
-                    │ Registry discovery (A2, ADR-0025)│
-                    │  → capability-registry.json      │
-                    │  → registry_digest --whole       │
+                    │ Registry discovery (A2, ADR-0025)│ ── snapshot: pin
+                    │  → capability-registry.json      │    Registry bytes/
+                    │  → registry_digest --whole       │    digest (B8 TOCTOU)
                     └──────────────┬───────────────┘
                                    │
-      for each affected_component × each Registry capability:
+      for each Registry capability (declaration order) ×
+      each affected_component (ascending lexicographic order),
+      no short-circuit — every evaluation is performed and recorded,
+      matched or not, WARN or not (B2/B6):
                     ┌──────────────┴───────────────┐
                     │ evaluate-predicate (A2)         │  ── per-component
                     │  trigger against component        │     fan-out +
                     │  properties (Context Projection)   │     union-match
                     └──────────────┬───────────────┘     (this feature's
-                                   │ matched capability set    own rule,
+                                   │ every result recorded     own rule,
                     ┌──────────────┴───────────────┐     Design Decisions)
                     │ evaluate-predicate (A2)         │
                     │  conditional_facets[].when          │
-                    │  per matched capability               │
+                    │  per matched capability, every        │
+                    │  affected component (no short-circuit) │
                     └──────────────┬───────────────┘
                                    │
                     ┌──────────────┴───────────────┐
-                    │ Facet Manifest / Capability      │  ── A4 schemas,
-                    │  Summary assembly + stable-sort   │     verbatim
+                    │ WARN check (B2): any evidence tree │ ── any evaluated
+                    │  from ANY evaluation above          │    branch, matched
+                    │  contains outcome:"warn"?            │    or unmatched,
+                    └──────────────┬───────────────┘     any component (B2)
+                                   │ (no WARN anywhere → continue)
+                    ┌──────────────┴───────────────┐
+                    │ track branch (B4), decided here, │ ── before any
+                    │  before any publication:          │    publication —
+                    │  full  → stage Facet Manifest      │    determines this
+                    │  lite  → stage Capability Summary   │   invocation's own
+                    │          (lite-check-source-        │   output SET
+                    │           undefined check, REQ-002) │
                     └──────────────┬───────────────┘
                                    │
                     ┌──────────────┴───────────────┐
                     │ Resolver Evidence assembly       │  ── this feature's
                     │  (every capability, every         │     own new
-                    │   diagnostic, both digests)        │     schema
+                    │   diagnostic, both digests,        │     schema;
+                    │   canonical dependency_pointers/    │    STAGED, not
+                    │   resolver.version/rule_set_revision)│   yet committed
                     └──────────────┬───────────────┘
+                                   │ every staged artifact schema-validated
+                                   │ (output-schema-validation-failed, B3)
+                    ┌──────────────┴───────────────┐
+                    │ pre-publication snapshot recheck │ ── re-read/re-hash
+                    │  (B8 TOCTOU): staged bytes/digest │    Context/ownership-
+                    │  vs. invocation-start snapshot     │   source/Registry;
+                    │  — mismatch → Block                │   mismatch →
+                    │  (snapshot-generation-mismatch)     │   snapshot-
+                    └──────────────┬───────────────┘     generation-mismatch
+                                   │ (match → continue)
+                    ┌──────────────┴───────────────┐
+                    │ single atomic commit (B1): write   │ ── temp-file +
+                    │  every staged artifact in this      │    fsync + rename
+                    │  invocation's own track-exclusive    │   per file, or
+                    │  output set to its live path,         │  none at all
+                    │  or write none of them (all-or-        │  (artifact-
+                    │  nothing across the whole set)          │ publication-
+                    └──────────────┬───────────────┘         failed)
                                    ▼
-       specs/<feature>/facet-manifest.yaml
-       specs/<feature>/capability-summary.yaml  (lite track only)
-       generated/project-context.resolved.json
-       specs/<feature>/... resolver-evidence path (Data Plan)
+   Full track:  specs/<feature>/facet-manifest.yaml
+                generated/project-context.resolved.json
+                specs/<feature>/resolver-evidence.yaml
+   Lite track:  specs/<feature>/capability-summary.yaml
+                specs/<feature>/resolver-evidence.yaml
+                (no facet-manifest.yaml, no project-context.resolved.json)
+   Every Block (any track, any diagnostic except disabled-legacy-
+   invocation/project-context-validation-failed/workflow-combination-
+   invalid, which short-circuit before a staging area exists at all):
+                specs/<feature>/resolver-evidence.yaml only
 ```
 
-Any Block (requirements.md REQ-002) short-circuits this pipeline at the
-step named in its own diagnostic-id row and skips every step after it —
-`disabled-legacy-invocation` short-circuits before Context Projection
-assembly even begins.
+Any Block (requirements.md REQ-002) prevents this invocation's own atomic
+commit step from running at all — nothing this invocation staged (Facet
+Manifest, Capability Summary, Context Projection) ever reaches a live
+path; only Resolver Evidence, itself staged and validated like every other
+artifact, participates in that Block's own commit (API / Contract Plan,
+below, fixes the exact ordering and the staging-area/commit split this
+diagram summarizes — adversarial review "B1 atomicity"). `disabled-legacy-
+invocation`, `project-context-validation-failed`, and `workflow-
+combination-invalid` are the only three diagnostics that fire before any
+staging area exists — each writes a Resolver Evidence record directly,
+with no earlier staged artifact to discard (API / Contract Plan step 1,
+below).
 
 ## Components
 
@@ -113,10 +186,10 @@ assembly even begins.
 | `contracts/resolver-evidence.schema.json` | schema for this feature's own new Resolver Evidence artifact (`sdd-resolver-evidence/v1`) | JSON Schema | new | no |
 | `plugins/sdd-quality-loop/scripts/resolve-project-context.py` | Python master: orchestrates canonicalizer, Context Projection assembly, `resolve-component-paths`, Registry discovery, per-component `evaluate-predicate` fan-out, Facet Manifest/Capability Summary/Resolver Evidence assembly, REQ-002 Block taxonomy | Python | new (path already reserved-protected by Epic A1, investigation.md INV-003) | **YES (already reserved by A1)** |
 | `plugins/sdd-quality-loop/scripts/resolve-project-context.sh` / `.ps1` | thin dispatchers, `python3`/`python` resolution only — no native fallback, matching `canonicalize-sdd-yaml`'s own dispatch shape (Epic A1 precedent) | POSIX sh / PowerShell | new (path already reserved-protected by Epic A1) | **YES (already reserved by A1)** |
-| `plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json` | Context Projection instance, one per repository, regenerated on every Resolver invocation | JSON | new (path already reserved-protected by Epic A1) | **YES (already reserved by A1)** |
+| `plugins/sdd-quality-loop/scripts/generated/project-context.resolved.json` | Context Projection instance, one per repository; computed internally on every Resolver invocation (both tracks, for predicate evaluation) but **published to this path only on a Full-track resolve** (Design Decisions, "track-exclusive publication set", B4) — a Lite-track resolve never writes this path; the running Resolver process is this path's sole writer, via the guarded atomic publication mechanism (Design Decisions, "staged generation, single atomic commit"), never a human-copy content-population target (M7 correction, below) | JSON | new (path already reserved-protected by Epic A1) | **YES (already reserved by A1)** |
 | `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.py` / `.sh` / `.ps1` | schema-conformance validator for this feature's own new artifact, matching Epic A4's own three-validator precedent | Python + sh/ps1 wrappers | new | no |
 | `specs/<feature>/facet-manifest.yaml` | per-Feature Facet Manifest instance, schema `sdd-facet-manifest/v1` (Epic A4) | YAML | new instances only (schema is Epic A4's) | no (agent-writable only via the Resolver, matching Epic A4's own convention) |
-| `specs/<feature>/capability-summary.yaml` | per-Feature Capability Summary instance, Lite track only, schema `sdd-capability-summary/v1` (Epic A4) | YAML | new instances only | no |
+| `specs/<feature>/capability-summary.yaml` | per-Feature Capability Summary instance, Lite track only (written **instead of**, never alongside, `facet-manifest.yaml`/`project-context.resolved.json` on that track — Design Decisions, "track-exclusive publication set", B4), schema `sdd-capability-summary/v1` (Epic A4) | YAML | new instances only | no |
 | `specs/<feature>/resolver-evidence.yaml` (Data Plan, below) | per-Feature Resolver Evidence instance, schema `sdd-resolver-evidence/v1` (this feature) | YAML | new (schema is this feature's own) | no |
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md` | future capability interview phase integration (REQ-007) — **documented, not edited, by this package** | Markdown (skill) | existing, unmodified by this package | no (per Epic A1's own investigation; re-verified at future implementation time, investigation.md INV-017) |
 
@@ -152,11 +225,10 @@ build-then-stage discipline it did not itself decide:
    denies a write regardless of whether a file currently exists at that
    path — Epic A1's own `_validate_repo_path`, "checks path SHAPE only").
    This feature's implementation task therefore develops
-   `resolve-project-context.py`/`.sh`/`.ps1` and the initial
-   `project-context.resolved.json` content **unprotected-first**, at a
+   `resolve-project-context.py`/`.sh`/`.ps1` **unprotected-first**, at a
    fully testable location (e.g. this package's own `specs/epic-193-
    a5-capability-resolver/` working tree, or any non-protected path), then
-   stages the finished, tested content under `specs/epic-193-a5-
+   stages the finished, tested *script content* under `specs/epic-193-a5-
    capability-resolver/human-copy/<repository-relative-path>` with a
    `MANIFEST.sha256` entry, for a human to apply via `apply-human-copy`
    (Epic A1's own publisher) — a **content-population** human-copy, never
@@ -170,6 +242,40 @@ build-then-stage discipline it did not itself decide:
    own (still-pending) human-copy batch perform the registration in the
    same commit it already plans to, rather than this feature inventing a
    second, competing registration of the identical two paths.
+
+**`generated/project-context.resolved.json` is deliberately *not* part of
+either human-copy batch above (adversarial review "M7 human-copy
+boundary")**, even though it shares the same protected-suffix reservation
+as the three scripts. Human-copy, in every existing precedent this Epic
+set establishes (Epic A1's own 24 concrete entries, this feature's own
+scripts above), stages **immutable code or a registration candidate** —
+content with one fixed, reviewable value at staging time. A generated
+Context Projection has no such fixed "initial content": it is a pure,
+Context-dependent function of whatever `project-context.yaml` a live
+repository happens to carry at invocation time, recomputed by definition
+on every Full-track resolve (Architecture, above). Treating it as a
+human-copy target would either stage a stale, single fixture's worth of
+content as if it were durable initial state (misleading — the very next
+Full-track invocation overwrites it) or leave the human-copy step with
+nothing meaningful to stage at all. This feature's design therefore
+governs this path, and every other per-Feature generated artifact this
+Resolver writes (`specs/<feature>/facet-manifest.yaml`/`capability-
+summary.yaml`/`resolver-evidence.yaml`), under a **separate contract**:
+guarded atomic publication (Architecture/Design Decisions, "staged
+generation, single atomic commit") by the running Resolver process
+itself, the sole writer, at a path resolved the same **cwd-independent**
+way every other artifact this feature's scripts locate is resolved —
+script-relative-then-git-root-fallback (ADR-0025, Discovery contract,
+below) for the repository-scoped `generated/project-context.resolved.json`
+path, and `<git-root>/specs/<feature>/` (never a `cwd`-relative guess,
+matching REQ-001's own `--feature`-must-be-explicit rationale,
+requirements.md REQ-001) for every per-Feature path. No implementation
+task ever stages a fixed instance of any of these four paths under
+`human-copy/` — only the three scripts above (and, per the Protected-File
+Statement's own registration/content-population distinction, the guard-
+invariants.json registration content-population that already occupies
+`generated/project-context.resolved.json`'s and the three scripts' *path
+reservation*, not their *runtime content*) are ever human-copy targets.
 
 `validate-resolver-evidence.{py,sh,ps1}` and `contracts/resolver-evidence.
 schema.json` are **not** protected — matching Epic A4's own three schema
@@ -242,6 +348,23 @@ Not applicable — no UI surface.
   sorted semantic-output arrays, requirements.md REQ-005) is designed so
   that future caller's comparison is well-defined without requiring any
   change to this feature's own contract.
+- **A4 addendum needed (B7, flagged here, not acted on — this package does
+  not edit Epic A4's own files, this task's own hard boundary and Epic
+  A4's own post-review content freeze)**: Epic A4's own `design.md:413-422`
+  prose ("the whole array is copied verbatim from the evaluator's own
+  output") describes `conditional_facets[].evidence` as a single `evaluate-
+  predicate` invocation's own verbatim output. This feature's own
+  cross-Capability facet-name aggregation rule (Design Decisions,
+  "facet-name aggregation", B7, above) can make that field the
+  **concatenation** of several such invocations' own output instead, when
+  more than one matched Capability declares a `conditional_facets[]` entry
+  under the identical `facet` name. The concatenated array still satisfies
+  A4's own JSON Schema (an array of `#/definitions/evidenceNode` elements,
+  of whatever length) — only A4's own *prose* describes a narrower,
+  single-invocation case than this feature's own design can now produce.
+  This is named in this package's own final report as an item a future A4
+  addendum should reconcile (a one-sentence prose broadening, not a schema
+  change) — this package takes no further action on it itself.
 
 ## ADR Change Log
 
@@ -260,17 +383,41 @@ for context; this feature does not itself implement track-selection CLI
 precedence, that remains Epic A1's own REQ-009 scope), and (in the Epic A2
 worktree) `docs/adr/0025-registry-discovery-contract.md` (the discovery
 procedure this feature reuses unmodified, investigation.md INV-005) — this
-design implements those seven ADRs' decisions, plus two new,
+design implements those seven ADRs' decisions, plus six new,
 not-independently-ADR-worthy decisions this design records below (Design
-Decisions): the multi-affected-component matching rule, and the
-representative-evidence-selection rule for a matched Capability's embedded
-`conditional_facets[].evidence`. Both are narrow, mechanical extensions of
-`evaluate-predicate`'s own already-fixed single-component CLI shape
-(investigation.md INV-012), not new architectural axes on the scale
-ADR-0016/0020/0021 already establish — if impl-review disagrees, promoting
-either to its own ADR is a low-cost follow-up (matching Epic A1's own
-identical "resolved-but-revisitable choice, not a gap" framing for its
-`approver-registry.yaml`, Epic A1 `design.md:291-297`).
+Decisions), narrowed from an earlier revision's two after adversarial
+review found the earlier "representative-evidence-selection" decision
+itself unsound (findings "M1 stale evidence"/"M2 undefined trigger
+representative") and required several additional orchestration rules no
+upstream contract fixes:
+
+1. the multi-affected-component matching rule (union-match, unchanged from
+   the earlier revision);
+2. the cross-Capability facet-name aggregation rule (replaces the removed
+   representative-evidence-selection rule — Design Decisions, "facet-name
+   aggregation");
+3. the any-branch WARN-Block scope rule (widened from the earlier
+   revision's representative-branch-only scope — Design Decisions, "WARN
+   scope");
+4. the staged-generation/single-atomic-commit publication rule and its
+   companion invocation-start-snapshot/pre-publication-recheck rule
+   (Design Decisions, "staged generation, single atomic commit");
+5. the track-exclusive publication-set rule (Design Decisions,
+   "track-exclusive publication set");
+6. the `dependency_pointers`/`resolver.version`/`rule_set_revision`
+   canonical-preimage rules (Design Decisions, "provenance canonicalization").
+
+Every one of the six is a narrow, mechanical extension of an
+already-fixed upstream CLI shape or an already-fixed upstream ADR
+principle (`evaluate-predicate`'s own single-component CLI shape,
+investigation.md INV-012, for 1-3; ADR-0021's own full-input-binding
+principle, investigation.md INV-009, for 4/6; A4's own track-exclusive
+Capability Summary contract, investigation.md INV-004, for 5), not a new
+architectural axis on the scale ADR-0016/0020/0021 already establish — if
+impl-review disagrees, promoting any of the six to its own ADR is a
+low-cost follow-up (matching Epic A1's own identical "resolved-but-
+revisitable choice, not a gap" framing for its `approver-registry.yaml`,
+Epic A1 `design.md:291-297`).
 
 ## Data Plan
 
@@ -284,22 +431,61 @@ Data Entities:
   `dependency_pointers[]`, `projection_sha256`, `registry_digest`,
   `ownership_digest`, each a `sha256:<64-hex>` digest), `resolver`
   (identical shape to Epic A4's own `resolverBlock` — `version`,
-  `rule_set_revision`), `capability_evaluations[]` (one entry per Registry
-  Capability: `{capability_id, matched: boolean, trigger_evaluations:
-  [{component_id, result: boolean, evidence: [<Epic-A2-Evidence-node-
-  shape, embedded structurally like Epic A4's own evidenceNode>]}]`, and,
-  only when `matched: true`, `conditional_facet_evaluations: [{facet,
-  applied: boolean, evaluations: [{component_id, result, evidence}]}]`}),
-  `diagnostics[]` (`{id: <REQ-002's own 7-value enum>, detail: string,
-  severity: "block"|"warn"}`). `additionalProperties: false` at every
-  level, matching every other `contracts/*.schema.json` in this
-  repository.
+  `rule_set_revision`), `capability_evaluations[]` (**exactly** one entry
+  per Registry Capability — cardinality bound to the discovered Registry's
+  own `capabilities[]` length, not merely "no duplicates" — adversarial
+  review "B6 Evidence completeness": `{capability_id, matched: boolean,
+  trigger_evaluations: [{component_id, result: boolean, evidence:
+  [<Epic-A2-Evidence-node-shape, embedded structurally like Epic A4's own
+  evidenceNode>]}]}` with **exactly** one `trigger_evaluations[]` element
+  per `affected_components[]` entry (exact-set bound to the invocation's
+  own affected-component set, not merely non-empty — B6; the sole
+  exception is the zero-affected-component Edge Case, where `affected_
+  components` itself is `[]` and every Capability's own `trigger_
+  evaluations[]` is therefore also `[]`, still exact-set-correct for a
+  zero-length governing set, Edge Cases below, "M9 zero-component
+  correction"), and, only when `matched: true`, `conditional_facet_
+  evaluations: [{facet, applied: boolean, evaluations: [{component_id,
+  result, evidence}]}]` with **exactly** one `conditional_facet_
+  evaluations[]` element per that Capability's own `conditional_facets[]`
+  entry (exact-set bound to that Capability's own declared facet set) and,
+  within each, exactly one `evaluations[]` element per affected component
+  (the identical exact-set rule, one level deeper) — `matched: true` iff
+  at least one `trigger_evaluations[].result` is `true` **and** `matched:
+  false` iff every `trigger_evaluations[].result` is `false` (bidirectional
+  — B6; a semantic validator, not this JSON Schema document alone, enforces
+  every exact-set/cardinality/bidirectional/nested-uniqueness rule this
+  paragraph states, since JSON Schema draft-07 cannot itself express
+  "array length equals an externally-discovered Registry's own array
+  length" — `validate-resolver-evidence` contract, below), `diagnostics[]`
+  (`{id: <REQ-002's own closed, 14-value enum, requirements.md REQ-002>,
+  detail: string, severity: "block"|"warn"}`). `additionalProperties:
+  false` at every level, matching every other `contracts/*.schema.json` in
+  this repository.
 - **`specs/<feature>/facet-manifest.yaml`**, **`specs/<feature>/
   capability-summary.yaml`**, **`generated/project-context.resolved.
   json`**: Epic A4's own already-fixed shapes (requirements.md
   Dependencies) — this feature reads none of them as input to any other
   step; each is a pure output this feature's Resolver writes once per
-  invocation.
+  invocation, and never more than one of `facet-manifest.yaml`/
+  `capability-summary.yaml` in the same invocation (track-exclusive,
+  Design Decisions "track-exclusive publication set", B4).
+- **`facet-manifest.yaml`'s own `conditional_facets[]` — this feature's
+  computation of an A4-owned field (facet-name cross-Capability
+  aggregation, B7)**: Epic A2's own Registry schema does not require
+  `conditional_facets[].facet` uniqueness *within* one Capability's own
+  declaration, and does not forbid two *different* Capabilities from each
+  declaring a `conditional_facets[]` entry under the identical `facet`
+  name — while Epic A4's `facet-manifest.schema.json` requires
+  `conditional_facets[].facet` to be unique **Manifest-wide**
+  (investigation.md, citing `specs/epic-192-a4-facet-manifest/
+  requirements.md:220-235`). This feature's Resolver therefore aggregates,
+  per distinct `facet` name, across every **matched** Capability that
+  declares a `conditional_facets[]` entry under that name (Design
+  Decisions, "facet-name aggregation", below, gives the exact `applied`/
+  `evidence`/`reason` combination rule) — this is a computation this
+  feature's own orchestration performs to satisfy an already-fixed A4
+  field constraint, not a redefinition of that constraint.
 - **`specs/<feature>/resolver-evidence.yaml`** (new, this feature's own
   storage-location convention, REQ-004): placed directly alongside
   `facet-manifest.yaml`, matching Epic A4's own REQ-007 placement
@@ -336,16 +522,88 @@ Data Entities:
   already constrains which of that object's own fields any predicate can
   reference; this feature does not pre-filter the payload before passing
   it to `evaluate-predicate`.
+- **`context_binding.dependency_pointers[]` — canonical derivation rule
+  (B9, no upstream rule fixed this)**: exactly `/workflow`, plus one
+  `/components/<id>` pointer per **affected** component (never every
+  component the Project Context declares — only the ones this invocation
+  actually evaluated a predicate against), each `<id>` RFC 6901-escaped
+  (`~` → `~0`, `/` → `~1`, applied before any other pointer construction,
+  matching A4's own `dependency_pointers[].pattern`,
+  `^/(workflow|components|shared_paths)(/([^/~]|~0|~1)*)*$`, investigation.
+  md INV-004), the resulting set stable-sorted (lexicographic, by the
+  pointer string itself) and de-duplicated (a Feature can only be affected
+  by a given component `id` once, but the rule is stated for defensiveness
+  regardless). `/workflow` is always present — `workflow.spec_profile`/
+  `capability_enforcement`/`artifact_layout` gate REQ-002's own `disabled-
+  legacy`/`workflow-combination-invalid` checks and this invocation's own
+  `state`, so every invocation's semantic output structurally depends on
+  it. `/shared_paths` is never included — a `trigger`/`when` predicate's
+  own `scope: affected_component` never reads a `shared_paths` entry
+  directly (Data Plan, "Context Projection read set", above), and
+  `shared_paths`'s own contribution to `affected_components` is entirely
+  Epic A3's own `ownership_digest`-bound concern, a separate digest this
+  schema already carries independently.
+- **`resolver.version`/`resolver.rule_set_revision` — single-source-of-
+  truth and canonical-preimage rules (B9, no upstream rule fixed this)**:
+  `resolver.version` is read from one `RESOLVER_VERSION` string constant
+  defined once, at the top of `resolve-project-context.py` (the Python
+  master) — the `.sh`/`.ps1` dispatchers never read, duplicate, or
+  independently derive this value; they invoke the Python master, which
+  alone emits it into Resolver Evidence, so `.py`/`.sh`/`.ps1` parity
+  (REQ-005/AC-023) is structural, not independently maintained per
+  runtime, and mutated only via `scripts/bump-version.sh`
+  (REQ-008/AC-034). `resolver.rule_set_revision` is the sha256 hex digest,
+  `sha256:<64-hex>`, of one fixed, versioned canonical UTF-8 string
+  constant (e.g. `"sdd-resolver-rule-set/v1"`) defined identically
+  alongside `RESOLVER_VERSION` — this feature's own orchestration rules
+  (union-match, WARN-Block scope, facet-name aggregation, the REQ-002
+  Block taxonomy) have no upstream file `rule_set_revision` could
+  otherwise be a digest *of*; the canonical string is instead this
+  feature's own fixed statement of *which revision of its own rule set*
+  produced a given Resolver Evidence instance, bumped in lockstep with any
+  future change to one of those rules (never independently derived per
+  runtime, never a hash of any *input* file — a hash of a fixed, versioned
+  constant this feature's own source carries, so `rule_set_revision` is
+  identical across every invocation of the same Resolver revision,
+  regardless of which Feature, Registry, or Project Context it is run
+  against).
+- **Invocation-start snapshot / pre-publication recheck (B8, no upstream
+  rule fixed this)**: at the moment each of the three externally-sourced
+  byte sequences this invocation's own digests are computed from is first
+  read — `project-context.yaml`'s own canonicalized bytes (`source_
+  sha256`), the ownership-source bytes `resolve-component-paths` itself
+  read to compute `ownership_digest` (this feature does not re-read the
+  underlying `paths`/`shared_paths` declarations a second time; it pins
+  the `ownership_digest` value `resolve-component-paths` itself already
+  returned), and the discovered Registry's own bytes (`registry_digest`)
+  — this invocation retains that exact byte sequence (or, for `ownership_
+  digest`, that exact already-computed digest value) in memory as its own
+  fixed snapshot, never re-reading any of the three paths from disk again
+  for any purpose other than the recheck below. Immediately before the
+  single atomic commit step (Design Decisions, "staged generation, single
+  atomic commit"), this invocation re-reads the same three paths (`--
+  config`'s own target, the Registry path Registry discovery resolved,
+  and re-invokes `resolve-component-paths` with the identical flags a
+  second time solely to obtain a fresh `ownership_digest` for comparison —
+  never to re-derive `affected_components`, which this invocation's own
+  evaluation and output already fixed from the first invocation) and
+  recomputes each of the three digests; any mismatch against the
+  invocation-start snapshot → Block, `snapshot-generation-mismatch`
+  (REQ-002), even though every earlier step in this invocation already
+  succeeded — the atomic commit step never runs on a generation-mixed
+  input set.
 
 Migration Strategy: none. No database, no runtime storage, no schema
 migration anywhere in this feature — the same "no database, no migration,
 no runtime storage" statement every sibling epic's own `infra-spec.md`
 (not authored at this phase, Layer Specifications above) would otherwise
 record. `contracts/resolver-evidence.schema.json`,
-`specs/<feature>/resolver-evidence.yaml`, and the two content-population
-targets this feature's own future implementation stages under human-copy
-are each a net-new, additive artifact with no prior version to migrate
-from.
+`specs/<feature>/resolver-evidence.yaml`, and the one content-population
+target (the `resolve-project-context.{py,sh,ps1}` script family) this
+feature's own future implementation stages under human-copy are each a
+net-new, additive artifact with no prior version to migrate from —
+`generated/project-context.resolved.json` is never a human-copy target at
+all (Protected-File Statement, "M7 human-copy boundary", above).
 
 ## API / Contract Plan
 
@@ -374,8 +632,21 @@ re-implements any part of Epic A3's own `git diff` basis (decision
 document v2 §12's "merge-base + untracked + rename follow" rule remains
 entirely Epic A3's own scope).
 
-**Processing order** (each step's own failure maps to exactly one REQ-002
-diagnostic; a step's own success is a precondition for the next):
+**Processing order** (adversarial-review-revised — findings "B1
+atomicity"/"B2 WARN"/"B3 taxonomy"/"B4 Lite publication"/"B8 TOCTOU"/"M3
+invalid workflow combination"/"M4 CLI misuse"/"M8 stderr parity"/"M9
+zero-component". This revision's central structural change: **nothing
+this invocation computes is written to a live path until every Block
+condition this invocation's own inputs could trigger has already been
+determined** — steps 7-9 (evaluation) always run to completion before
+steps 10-14 (assembly/validation/publication) begin, and steps 10-14
+themselves stage every artifact and validate it before the single atomic
+commit step (14) ever touches a live path. Each step's own failure maps
+to exactly one REQ-002 diagnostic; a step's own success is a
+precondition for the next, except that steps 7 and 8 never short-circuit
+internally — every capability/component (7) and every matched-capability/
+facet/component (8) combination is evaluated and recorded regardless of
+any individual combination's own result):
 
 0. **Argument validation.** All required flags present, `--feature`
    matches its own pattern. Failure → exit 2 (usage error), no
@@ -387,132 +658,315 @@ diagnostic; a step's own success is a precondition for the next):
    `--config`'s target path. Absent, or the AGENTS.md-marker/default
    fallback derives `disabled-legacy` per ADR-0016 item 4 → Block,
    `disabled-legacy-invocation`, write a minimal Resolver Evidence record
-   (Data Plan: `schema`, `feature`, `state: "disabled-legacy"`,
-   `context_binding` and `resolver` blocks both absent — there is nothing
-   to bind, since no Registry/ownership/projection step ever ran —
-   `capability_evaluations: []`, `diagnostics: [{id: "disabled-legacy-
-   invocation", detail: <path attempted>, severity: "block"}]`), exit 1.
-   Present but fails Epic A1's own content-schema validation surface →
-   Block, `project-context-validation-failed`, exit 1 (a normal, full
-   Resolver Evidence record is written here, since Registry/ownership
-   discovery has not yet run but the state-derivation step itself did
-   execute — `state` is omitted, since none of the three values applies
-   to a schema-invalid Context). Otherwise, `workflow.capability_
-   enforcement` (`advisory` or `required`) is read and recorded as this
-   invocation's `state` (REQ-003: this value does not otherwise branch
-   any subsequent step).
+   directly (no staging area exists yet — Data Plan: `schema`, `feature`,
+   `state: "disabled-legacy"`, `context_binding` and `resolver` blocks
+   both absent — there is nothing to bind, since no Registry/ownership/
+   projection step ever ran — `capability_evaluations: []`, `diagnostics:
+   [{id: "disabled-legacy-invocation", detail: <path attempted>,
+   severity: "block"}]`), exit 1. **This diagnostic exists as a defense-
+   in-depth guard against a caller-contract violation, never as a designed
+   pipeline state of its own** (M4 correction, below, and Security
+   Boundaries) — REQ-007's own compatible-caller contract requires
+   `sdd-bootstrap-interviewer` to never invoke this Resolver's process at
+   all while a Project Context is absent or derives `disabled-legacy`
+   (ADR-0016 item 4 names the Resolver itself, alongside the Registry and
+   Gate machinery, as outside `disabled-legacy`'s own computational domain,
+   investigation.md INV-013); a caller that invokes this Resolver anyway
+   is misusing its CLI, and this diagnostic is this feature's own fail-
+   closed response to that misuse, not evidence the Resolver has a
+   meaningful "disabled-legacy mode" of its own. Present but fails Epic
+   A1's own content-schema validation surface → Block, `project-context-
+   validation-failed`, exit 1 (a normal, full Resolver Evidence record is
+   written directly here too — Registry/ownership discovery has not yet
+   run, so no staging area exists yet either — `state` is omitted, since
+   none of the three values applies to a schema-invalid Context).
+   Otherwise, `workflow.capability_enforcement` (`advisory` or `required`)
+   is read and recorded as this invocation's `state`, and `workflow.
+   spec_profile`/`workflow.artifact_layout` are checked against decision
+   document v2 §6's own combination matrix: `spec_profile == "lite"` with
+   `artifact_layout != "lite-three-file"`, or `spec_profile == "full"`
+   with `artifact_layout == "lite-three-file"`, is one of that matrix's
+   own two explicitly-named "無効な組合せ" (invalid combination) rows →
+   Block, `workflow-combination-invalid`, exit 1, a normal full Resolver
+   Evidence record written directly (no staging area exists yet — this
+   check runs immediately after the schema-validity check above and
+   immediately before any Registry/ownership/projection work begins, M3
+   correction). Every other named combination in that same matrix
+   (including both `disabled-legacy` fallback rows, already handled
+   above, and every named valid full/lite combination) proceeds to step 2.
 2. **Project Context canonicalization** (Epic A1). Invoke
    `canonicalize-sdd-yaml` (YAML mode) over `--config`'s target →
    `source_sha256` (= `context_binding.full_context_revision`); its
    canonical-JSON stdout is separately `json.loads()`-parsed. A
-   canonicalizer subprocess failure here → Block,
-   `canonicalizer-invocation-failed`, exit 1.
+   canonicalizer subprocess non-zero exit here → Block, `canonicalizer-
+   invocation-failed`, exit 1. A zero exit whose stdout does not parse as
+   valid JSON (or valid canonical-UTF-8 text, per the invoked mode) →
+   Block, `dependency-output-malformed`, exit 1 (B3 — distinct from a
+   non-zero exit, since a subprocess that exits 0 with unparseable output
+   is a different failure mode, not previously named by any diagnostic
+   row). **Snapshot (B8):** this invocation retains `--config`'s own
+   target-path bytes (as canonicalized above) in memory as this
+   invocation's own fixed Project Context snapshot; no later step re-reads
+   this path from disk except the pre-publication recheck, step 13, below.
 3. **Context Projection assembly** (Epic A4's own REQ-003 generation
    procedure, verbatim — Data Plan, above): substitute `components: []`/
    `shared_paths: []` for either omitted key; re-key `components` by
    `id`; feed the re-keyed structure back through `canonicalize-sdd-yaml`
-   (JSON mode) → `projection_sha256`; write to `generated/project-
-   context.resolved.json`. A second canonicalizer failure here →
-   identical `canonicalizer-invocation-failed` Block.
+   (JSON mode) → `projection_sha256`. **Staged, not written to a live
+   path yet** (B1/B4 — the earlier revision of this design wrote this
+   artifact directly to `generated/project-context.resolved.json` at this
+   point, before any later step's own Block condition could be known;
+   this revision defers every live-path write to the single atomic commit
+   step, 14, below). A second canonicalizer non-zero exit here → identical
+   `canonicalizer-invocation-failed` Block; a zero exit with unparseable
+   stdout → identical `dependency-output-malformed` Block (B3).
 4. **Affected-component resolution** (Epic A3). Invoke
    `resolve-component-paths --config <same --config value>
    [--source-rev <same value>] --target-rev <same value>
-   [--include-untracked] --json`. Non-zero exit →
-   `affected-component-resolution-failed` Block, exit 1, the underlying
-   script's own stderr diagnostic quoted verbatim in this Block's own
-   `detail`. Zero exit → `affected_components[]` and `ownership_digest`
-   consumed from its JSON stdout.
+   [--include-untracked] --json`. Non-zero exit → `affected-component-
+   resolution-failed` Block, exit 1 — this Block's own `detail` is a
+   **canonical diagnostic this feature constructs itself** (M8
+   correction, below): `"resolve-component-paths exited <code> resolving
+   <repo-relative --config path>; see resolve-component-paths
+   diagnostics"` — **never** the underlying script's own raw stderr text
+   quoted verbatim (an earlier revision of this design did exactly that;
+   adversarial review "M8 stderr parity" found that upstream stderr's own
+   path-separator/quoting/runtime-wording differences across `.py`/`.sh`/
+   `.ps1` are outside this feature's own control and cannot satisfy
+   REQ-005's own byte-identical dual-runtime parity requirement — the
+   underlying script's own stderr remains visible to a human operator on
+   the terminal, exactly as `resolve-component-paths` itself already
+   writes it; it is simply never copied into this Resolver's own
+   structured `detail` field). A zero exit whose stdout does not parse as
+   the JSON shape `resolve-component-paths --json` itself already
+   contractually promises (Epic A3) → Block, `dependency-output-
+   malformed`, exit 1 (B3). A zero exit with well-formed JSON stdout →
+   `affected_components[]` and `ownership_digest` consumed from it.
+   **Snapshot (B8):** this invocation retains this exact `ownership_
+   digest` value (this feature never re-reads the underlying `paths`/
+   `shared_paths` declarations directly — Data Plan, above) as this
+   invocation's own fixed ownership-source snapshot.
 5. **Registry discovery** (Epic A2, via ADR-0025). Resolve
    `capability-registry.json` and `capability-registry.schema.json` per
    the script-relative-then-git-root-fallback procedure (investigation.md
    INV-005); a resolution or version-check failure at this step →
    `contract-discovery-failed` Block. Run Epic A2's own `validate-
    capability-registry` checks against the located Registry; a failure →
-   `registry-validation-failed` Block. Both are exit 1.
+   `registry-validation-failed` Block. Both are exit 1. **Snapshot (B8):**
+   this invocation retains the located Registry's own canonicalized bytes
+   in memory as this invocation's own fixed Registry snapshot.
 6. **`registry_digest`.** Invoke `generate-registry-digest --whole`
    (Epic A2) against the located Registry → `context_binding.
    registry_digest`. A canonicalizer failure inside that invocation →
    `canonicalizer-invocation-failed` Block (this feature's own diagnostic
    surface treats every canonicalizer subprocess failure, regardless of
    which upstream step invoked it, identically — Design Decisions,
+   below). A non-zero exit from `generate-registry-digest` itself, for a
+   reason other than an internal canonicalizer failure (a defensive,
+   should-never-occur case against an already-validated Registry) →
+   Block, `dependency-subprocess-failed` (B3 — this feature's own closed-
+   enum catch-all for a dependency subprocess's own generic, otherwise-
+   unnamed non-zero exit; used again in step 7/8 below for `evaluate-
+   predicate`'s own equivalent case). A zero exit whose stdout is not a
+   well-formed `sha256:<64-hex>` digest string → `dependency-output-
+   malformed` Block (B3).
+7. **Per-component, per-Capability trigger evaluation — every Registry
+   Capability, matched or not, evaluated in full (B2/B6).** For each
+   Registry `capabilities[]` entry, **in Registry-declaration order**
+   (Registry `capabilities[]` is Epic A2's own already-author-ordered
+   array — this feature does not re-sort the Registry's own read order,
+   only its own *output* arrays, per REQ-005/AC-024), and for each
+   `affected_components[]` entry **in ascending lexicographic order**
+   (or, when `affected_components` is the empty array, the zero-iteration
+   case — M9 correction, below), invoke `evaluate-predicate --predicate
+   <this capability's trigger> --component-properties <this affected
+   component's Context-Projection entry>`. A `PREDICATE_SCHEMA_ERROR`
+   exit here (a malformed predicate — should never occur against an
+   already-`validate-capability-registry`-passed Registry, but checked
+   defensively) → `registry-validation-failed` Block (a malformed
+   predicate is, by construction, a Registry validation defect this
+   feature did not itself introduce). Any other non-zero exit →
+   `dependency-subprocess-failed` Block (B3). A zero exit whose stdout
+   does not parse as the `{result, evidence}` JSON shape Epic A2's own
+   evaluator contract promises → `dependency-output-malformed` Block
+   (B3). Every result (`result`, `evidence[]`) is recorded in this
+   invocation's own in-memory evaluation set, keyed
+   `capability_evaluations[<this capability>].trigger_evaluations[]`,
+   **regardless of outcome** — no short-circuit, matching ADR-0020's own
+   "every predicate is evaluated" discipline extended by this feature to
+   its own per-component fan-out (Design Decisions), and regardless of
+   whether this Capability turns out matched or unmatched (B6 — Resolver
+   Evidence's own exact-set completeness rule, Data Plan, above, requires
+   every Registry Capability's own `trigger_evaluations[]` recorded in
+   full, not only a matched subset's). A Capability is **matched** iff at
+   least one `trigger_evaluations[]` entry's `result` is `true` (the
+   union-match rule, Design Decisions) — this feature computes, but does
+   not yet act on, `matched` here; no Block or assembly decision depends
+   on any individual evaluation's own outcome until step 9.
+8. **Matched-Capability conditional-facet evaluation — every
+   `conditional_facets[]` entry a matched Capability declares, evaluated
+   in full (B2/B6).** For each Capability step 7 determined **matched**,
+   and each of its `conditional_facets[]` entries, repeat step 7's
+   per-affected-component fan-out (identical error handling: `PREDICATE_
+   SCHEMA_ERROR` → `registry-validation-failed`; other non-zero exit →
+   `dependency-subprocess-failed`; unparseable zero-exit stdout →
+   `dependency-output-malformed`) against that entry's own `when`
+   predicate, recording every result in this invocation's own in-memory
+   evaluation set, `capability_evaluations[<capability>].conditional_
+   facet_evaluations[<facet>].evaluations[]`, again with no short-circuit.
+   A given Capability's own `conditional_facets[].facet` entry is
+   `applied: true`, **for that Capability's own Resolver-Evidence-scoped
+   record**, iff at least one of *that Capability's own* per-component
+   evaluations' `result` is `true` (the identical union-match rule,
+   reused for facet-level, not only capability-level, matching — this is
+   distinct from, and computed before, the cross-Capability facet-name
+   aggregation step 10a performs for the Facet Manifest's own
+   `conditional_facets[]`, Design Decisions "facet-name aggregation", B7,
    below).
-7. **Per-component, per-Capability trigger evaluation.** For each Registry
-   `capabilities[]` entry, **in Registry-declaration order** (Registry
-   `capabilities[]` is Epic A2's own already-author-ordered array — this
-   feature does not re-sort the Registry's own read order, only its own
-   *output* arrays, per REQ-005/AC-024), and for each
-   `affected_components[]` entry **in ascending lexicographic order**,
-   invoke `evaluate-predicate --predicate <this capability's trigger>
-   --component-properties <this affected component's Context-Projection
-   entry>`. A `PREDICATE_SCHEMA_ERROR` exit here (a malformed predicate —
-   should never occur against an already-`validate-capability-registry`-
-   passed Registry, but checked defensively) →
-   `registry-validation-failed` Block (a malformed predicate is, by
-   construction, a Registry validation defect this feature did not itself
-   introduce). Every result (`result`, `evidence[]`) is recorded in this
-   invocation's Resolver Evidence `capability_evaluations[<this
-   capability>].trigger_evaluations[]`, **regardless of outcome** — no
-   short-circuit, matching ADR-0020's own "every predicate is evaluated"
-   discipline extended by this feature to its own per-component fan-out
-   (Design Decisions). A Capability is **matched** iff at least one
-   `trigger_evaluations[]` entry's `result` is `true` (the union-match
-   rule, Design Decisions).
-8. **Matched-Capability conditional-facet evaluation.** For each matched
-   Capability, and each of its `conditional_facets[]` entries, repeat step
-   7's per-affected-component fan-out against that entry's own `when`
-   predicate, recording every result in
-   `capability_evaluations[<capability>].conditional_facet_evaluations[]`.
-   A `conditional_facets[].facet` entry is `applied: true` iff at least
-   one per-component evaluation's `result` is `true` (the identical
-   union-match rule, reused for facet-level, not only capability-level,
-   matching).
-9. **Determining-WARN check.** For each matched Capability: inspect the
-   representative evaluation this invocation selected (Design Decisions'
-   representative-selection rule) for that Capability's own `trigger`, and
-   for each of its `conditional_facets[]` entries' own `when` — if any
-   representative evaluation's own Evidence tree contains an `outcome:
-   "warn"` node anywhere → `dsl-warn-on-matched-capability` Block, exit 1
-   (a full Resolver Evidence record is written here, including every
-   evaluation this invocation already performed through step 8 — this
-   Block fires only after all evaluation work is complete, so the record
-   is maximally informative for the caller diagnosing it).
-10. **Facet Manifest assembly.** Collect every matched Capability's
-    `required_facets`/`gate_ids` (resolved to `{id, stage, blocking}`
-    via the Registry-side lookup, Data Plan)/`lite_policy`/
-    `minimum_enforcement`; assemble every Epic-A4-defined field; stable-
-    sort every semantic-output array (Epic A4's own rule, requirements.md
-    REQ-005/AC-024). Write `specs/<feature>/facet-manifest.yaml`.
-11. **Capability Summary assembly (Lite track only).** If
-    `workflow.spec_profile == lite`: `capabilities` = the same matched-
-    Capability-id set as step 10's own `capabilities[]`;
-    `full_upgrade_required` = `!lite_eligibility.eligible` (the identical
-    aggregate signal step 10 already computed, requirements.md Field
-    Definitions); `required_lite_checks` — for each matched Capability,
-    attempt to source its own contribution; **no Registry field exists to
-    source it from** (investigation.md INV-019) → `lite-check-source-
-    undefined` Block, exit 1, **no** `facet-manifest.yaml` (already
-    assembled in step 10) is written either — a lite-track resolve is
-    all-or-nothing, never a Facet-Manifest-only partial success (REQ-002's
-    own "never a partial artifact" rule, requirements.md AC-011, applies
-    across *all* of this invocation's outputs together, not per-file).
-12. **Resolver Evidence write, success path.** Assemble and write
+9. **Any-branch WARN check (B2, widened scope).** Across **every**
+   evaluation this invocation performed in steps 7 and 8 — every Registry
+   Capability's own `trigger_evaluations[]`, matched or unmatched, and
+   every matched Capability's own `conditional_facet_evaluations[].
+   evaluations[]` — if **any** evaluation's own Evidence tree contains an
+   `outcome: "warn"` node **anywhere**, on **any** branch → `dsl-warn-on-
+   matched-capability` Block, exit 1 (the diagnostic-id string is
+   retained unchanged from the earlier, narrower-scoped revision for
+   enum stability across this feature's own schema/validator/fixture
+   surface; its condition is no longer scoped to a "representative" or
+   "matched-capability-only" branch — an earlier revision of this design
+   Blocked only on a single, deterministically-chosen "representative"
+   evaluation per matched Capability, and never inspected an unmatched
+   Capability's own trigger Evidence at all; adversarial review "B2 WARN"
+   found this let a WARN-producing, potentially-false-negative evaluation
+   on any other branch silently aggregate into a clean `false`/`applied:
+   false` outcome, under-resolving the Feature). A full Resolver Evidence
+   record is written here, including every evaluation this invocation
+   already performed through step 8 — this Block fires only after all
+   evaluation work is complete, so the record is maximally informative
+   for the caller diagnosing it. No WARN anywhere → continue.
+10. **Track branch, decided here, before any publication (B4).**
+    `workflow.spec_profile` (already read, step 1) selects exactly one of:
+    - **(10a) Full track — Facet Manifest assembly.** Collect every
+      matched Capability's `required_facets`/`gate_ids` (resolved to
+      `{id, stage, blocking}` via the Registry-side lookup, Data
+      Plan)/`lite_policy`/`minimum_enforcement`; compute `conditional_
+      facets[]` via the cross-Capability facet-name aggregation rule
+      (Design Decisions "facet-name aggregation", B7 — this is the step
+      that combines step 8's own per-Capability `conditional_facet_
+      evaluations[]` records into Epic A4's facet-name-unique Manifest
+      field); assemble every other Epic-A4-defined field; stable-sort
+      every semantic-output array (Epic A4's own rule, requirements.md
+      REQ-005/AC-024). **Stage** (do not yet write) `specs/<feature>/
+      facet-manifest.yaml` and the Context Projection staged in step 3.
+      No Capability Summary is staged on this track (B4 — Epic A4's own
+      track-exclusive contract, investigation.md INV-004, names only a
+      Facet Manifest for the Full track).
+    - **(10b) Lite track — Capability Summary assembly.** `capabilities`
+      = the matched-Capability-id set step 7 determined;
+      `full_upgrade_required` = `!lite_eligibility.eligible` (the
+      identical aggregate signal 10a would compute, requirements.md Field
+      Definitions, computed here directly since 10a does not run on this
+      track); `required_lite_checks` — for each matched Capability,
+      attempt to source its own contribution; **no Registry field exists
+      to source it from** (investigation.md INV-019) → `lite-check-
+      source-undefined` Block, exit 1 — nothing from step 3 or this step
+      was ever written to a live path (no staging-area artifact reaches
+      commit), so this Block never leaves a partial `capability-summary.
+      yaml` either. On a resolvable source (today, only the zero-matched-
+      Capability case, Edge Cases, "zero affected components" — Test
+      Strategy item 4's own track-exclusive-output-set fixture, B5
+      correction below), **stage** (do not yet write) `specs/<feature>/
+      capability-summary.yaml` only — no
+      `facet-manifest.yaml` and no `project-context.resolved.json` are
+      staged or written on this track (B4 — this corrects an earlier
+      revision that assembled a Facet Manifest in a Full-track-shaped
+      step *before* branching on track, then additionally staged a
+      Capability Summary on the Lite track, producing both; Epic A4's own
+      contract names Capability Summary as the Lite track's **only**
+      output, never a Facet-Manifest-plus-Summary pair).
+11. **Resolver Evidence assembly.** Assemble (stage, do not yet write)
     `specs/<feature>/resolver-evidence.yaml` — every `capability_
-    evaluations[]` entry from steps 7-8, `diagnostics: []` (no Block
-    condition fired), `context_binding`/`resolver` fully populated,
-    `state` from step 1. Exit 0.
+    evaluations[]` entry from steps 7-8 in full (B6 — every Registry
+    Capability, matched or not; every affected component; every matched
+    Capability's own declared `conditional_facets[]`, in full, regardless
+    of which track branch 10 took — Resolver Evidence's own completeness
+    guarantee is track-independent, REQ-004), `diagnostics: []` (no Block
+    condition fired through step 10), `context_binding` (`dependency_
+    pointers[]`/`resolver.version`/`rule_set_revision` per the canonical
+    derivation rules, Data Plan "B9", above; `registry_digest`/
+    `ownership_digest`/`full_context_revision`/`projection_sha256` from
+    steps 2-6), `resolver` (`version`/`rule_set_revision`, Data Plan
+    "B9"), `state` from step 1.
+12. **Output schema self-validation (B3).** Every artifact staged through
+    steps 3/10/11 is validated against its own governing schema (`Facet
+    Manifest`/`Capability Summary`/`Context Projection` against Epic A4's
+    three schemas; `Resolver Evidence` against this feature's own
+    `contracts/resolver-evidence.schema.json`) using the same hand-rolled
+    validators (`validate-facet-manifest`/etc., Epic A4;
+    `validate-resolver-evidence`, this feature, below) a downstream
+    caller would otherwise run separately — a defensive self-check, since
+    every field above is already assembled from already-validated inputs
+    and should never fail this check in practice, but a schema-conformance
+    defect in this feature's own assembly logic must never reach a live
+    path. Any failure → Block, `output-schema-validation-failed`, exit 1
+    — Resolver Evidence (already staged, step 11) is itself re-validated
+    first; if Resolver Evidence itself is the artifact that fails this
+    check, this invocation still writes the best-effort Resolver Evidence
+    it can assemble (the same content minus the field(s) that failed
+    validation, plus this diagnostic) rather than writing nothing at all,
+    preserving REQ-004's own "written on every invocation" guarantee even
+    in this one self-referential failure case.
+13. **Pre-publication snapshot recheck (B8 TOCTOU, Data Plan above gives
+    the exact mechanism).** Re-read `--config`'s target, the Registry
+    discovery resolved in step 5, and re-invoke `resolve-component-paths`
+    with this invocation's own identical flags a second time (solely for
+    a fresh `ownership_digest`, never to re-derive `affected_components`);
+    recompute all three digests; compare each against this invocation's
+    own step-2/4/5 snapshot. Any mismatch → Block, `snapshot-generation-
+    mismatch`, exit 1 — even though every earlier step already succeeded,
+    this invocation's own staged artifacts reflect a generation-mixed
+    input set and must never be committed.
+14. **Single atomic commit (B1).** Write every artifact staged in steps
+    3/10/11 that belongs to this invocation's own track-exclusive output
+    set (10a: Facet Manifest + Context Projection + Resolver Evidence;
+    10b: Capability Summary + Resolver Evidence) to a temp file beside its
+    own live path, `fsync` each temp file, then `rename()` each into
+    place — all three (or two) renames complete, or (on any Block reached
+    at step 1/9/10/12/13, above) only Resolver Evidence's own temp-write-
+    fsync-rename sequence runs, staging nothing else. A `write`/`fsync`/
+    `rename` failure on **any** file in this step's own set → Block,
+    `artifact-publication-failed`, exit 1; this invocation then attempts
+    to roll back (`unlink`) any temp file or completed rename this same
+    step already produced before the failure, best-effort, and reports
+    `artifact-publication-failed` regardless of whether that rollback
+    itself fully succeeds (a rollback failure is recorded in this same
+    diagnostic's own `detail`, never silently swallowed, but does not
+    introduce a sixteenth diagnostic-id value of its own — publication
+    failure and rollback failure are the same fail-closed condition from
+    a caller's own point of view: this invocation's intended artifact set
+    did not reach a live path cleanly). Every rename in this step
+    succeeding, with no earlier Block, is this invocation's own success
+    path. Exit 0.
 
-**Exit codes**: `0` = success (steps 10-12 all completed); `1` = any
-REQ-002 Block (steps 1, 2/3/6, 4, 5, 9, 11); `2` = CLI usage error (step
-0) — fixed, three-way, matching this Epic set's own established "a fixed,
-small exit-code enum a caller can branch on without parsing stdout"
-convention (Epic A4's `compare-facet-manifest-staleness`, investigation.md
-INV-004, uses the identical pattern for its own, differently-shaped
-verdict set).
+**Exit codes**: `0` = success (step 14's own commit completed with no
+earlier Block); `1` = any REQ-002 Block (steps 1, 2/3/6/7/8, 4, 5, 9, 10,
+12, 13, 14); `2` = CLI usage error (step 0) — fixed, three-way, matching
+this Epic set's own established "a fixed, small exit-code enum a caller
+can branch on without parsing stdout" convention (Epic A4's `compare-
+facet-manifest-staleness`, investigation.md INV-004, uses the identical
+pattern for its own, differently-shaped verdict set).
 
 **Diagnostic line format**: `capability-resolver: <check-id>: <detail>`,
 one line per diagnostic, to stderr — matching Epic A2's `registry: <check-
 id>: <detail>` and Epic A4's `facet-manifest: <check-id>: <detail>`
-conventions exactly (requirements.md REQ-002).
+conventions exactly (requirements.md REQ-002). Every `<detail>` this
+feature's own scripts construct is a **canonical, Resolver-owned
+sentence** built from fixed fields (repo-relative paths, upstream script
+names, upstream exit codes, this feature's own check-id) — never upstream
+stderr text quoted verbatim (M8 correction, above) — so `<detail>` itself
+participates in REQ-005's own dual-runtime byte-identity guarantee
+without needing to normalize any dependency script's own OS-specific
+wording.
 
 ### `contracts/resolver-evidence.schema.json` (REQ-004)
 
@@ -629,10 +1083,14 @@ conventions exactly (requirements.md REQ-002).
       "required": ["id", "detail", "severity"],
       "properties": {
         "id": {
-          "enum": ["disabled-legacy-invocation", "project-context-validation-failed",
+          "enum": ["disabled-legacy-invocation", "workflow-combination-invalid",
+                   "project-context-validation-failed",
                    "affected-component-resolution-failed", "registry-validation-failed",
                    "contract-discovery-failed", "canonicalizer-invocation-failed",
-                   "dsl-warn-on-matched-capability", "lite-check-source-undefined"]
+                   "dependency-subprocess-failed", "dependency-output-malformed",
+                   "dsl-warn-on-matched-capability", "lite-check-source-undefined",
+                   "output-schema-validation-failed", "snapshot-generation-mismatch",
+                   "artifact-publication-failed"]
         },
         "detail": { "type": "string" },
         "severity": { "enum": ["block", "warn"] }
@@ -651,33 +1109,102 @@ JSON Schema, copied verbatim (identical to how Epic A4's own
 INV-004/INV-005) — not a redefinition, and not a `$ref` across separately-
 versioned `contracts/` files (the same coordination risk Epic A4's own
 design explicitly avoids, Epic A4 `design.md:429-435`). `diagnostics[].id`'s
-enum carries all eight REQ-002 diagnostic-id values including
-`project-context-validation-failed` (present in this schema's own enum
-even though requirements.md's REQ-002 table lists seven rows plus this one
-inline in step 1's own processing text above — both this schema and
-requirements.md's own table agree on the same eight-value set; the table
-in requirements.md groups it under the same "state derivation" row
-prose rather than a separate table row, since it shares that row's own
-trigger condition family).
+enum carries all **fourteen** REQ-002 diagnostic-id values, listed here in
+the identical order requirements.md's REQ-002 table itself now lists them
+(Minor "Block count" correction, below — an earlier revision of this
+schema and requirements.md's own table disagreed, seven table rows plus
+one inline versus eight in this schema; this revision closes that gap by
+giving requirements.md's REQ-002 table its own explicit row for every one
+of the fourteen values below, none inline-only): `disabled-legacy-
+invocation`, `workflow-combination-invalid` (M3), `project-context-
+validation-failed`, `affected-component-resolution-failed`, `registry-
+validation-failed`, `contract-discovery-failed`, `canonicalizer-
+invocation-failed`, `dependency-subprocess-failed` (B3), `dependency-
+output-malformed` (B3), `dsl-warn-on-matched-capability` (B2, scope
+widened), `lite-check-source-undefined`, `output-schema-validation-failed`
+(B3), `snapshot-generation-mismatch` (B8), `artifact-publication-failed`
+(B1/B3). This schema's own `capability_evaluations[]`/`trigger_
+evaluations[]`/`conditional_facet_evaluations[]`/`evaluations[]` arrays
+are intentionally left `minItems`-unconstrained at the JSON Schema level:
+draft-07 cannot express "this array's own length equals an externally-
+discovered Registry's own `capabilities[]` length" (or the current
+invocation's own `affected_components[]` length) — the exact-set/
+cardinality/bidirectional-consistency rules Data Plan (above, "B6
+Evidence completeness") states are enforced by `validate-resolver-
+evidence`'s own semantic checks, below, never by this schema document
+alone.
 
 ### `validate-resolver-evidence.{py,sh,ps1}` contract (REQ-004)
 
-`validate-resolver-evidence.py --evidence <path>` → exit 0 (schema-
-conformant) or non-zero with `resolver-evidence: <check-id>: <detail>`
+`validate-resolver-evidence.py --evidence <path> --registry <capability-
+registry.json path> --affected-components <comma-separated id list, or a
+`--context <resolved-context-projection-path>`-derived equivalent>` → exit
+0 (conformant) or non-zero with `resolver-evidence: <check-id>: <detail>`
 lines, one per failed check — matching Epic A4's own three-validator
-diagnostic-line convention exactly. Checks: schema conformance
-(`schema-invalid`, against `contracts/resolver-evidence.schema.json`,
-using the identical hand-rolled, stdlib-only draft-07 subset Epic A4's own
-`validate-facet-manifest.py` already implements — no third-party
-`jsonschema` dependency, investigation.md INV-011); `capability_id`
-uniqueness across `capability_evaluations[]` (`capability-evaluation-
-id-duplicate`); a `matched: true` entry whose `trigger_evaluations[]` has
-no `result: true` member is a `matched-without-evidence` contradiction —
-this validator does not re-run any predicate evaluation itself, it checks
-only that the recorded evidence is internally consistent with the recorded
-`matched`/`applied` booleans it accompanies. Discovery via ADR-0025,
-identical to every other script in this feature and in Epic A2/A4
-(investigation.md INV-005/INV-011).
+diagnostic-line convention exactly, but drawing `<check-id>` from **this
+script's own closed enum, independent of `resolve-project-context`'s own
+REQ-002 enum** (Minor "diagnostic namespace" correction — an earlier
+revision of this design left `validate-resolver-evidence`'s own check-ids
+undifferentiated from REQ-002's Block taxonomy in places this feature's
+own AC-014 could be misread to constrain; AC-014, requirements.md, is
+corrected to scope its own `<check-id>`-drawn-only-from-REQ-002's-enum
+claim to `resolve-project-context`'s own diagnostic lines alone).
+`validate-resolver-evidence`'s **exact-set/cardinality inputs**
+(`--registry`/`--affected-components`) are why this validator, unlike
+Epic A4's three structural-only validators, takes more than a bare
+`--evidence`/`--manifest` path: B6's own exact-set rules (Data Plan,
+above) are checkable only against the Registry and affected-component set
+a given Resolver Evidence instance itself claims to be *about* — a purely
+structural, schema-only check cannot detect a *missing* Capability entry,
+only a malformed *present* one.
+
+**`validate-resolver-evidence`'s own closed check-id enum:**
+
+- `schema-invalid`: fails `contracts/resolver-evidence.schema.json`
+  conformance, using the identical hand-rolled, stdlib-only draft-07
+  subset Epic A4's own `validate-facet-manifest.py` already implements —
+  no third-party `jsonschema` dependency (investigation.md INV-011).
+- `capability-set-mismatch` (B6): the set of `capability_evaluations[].
+  capability_id` values is not exactly the `--registry`'s own
+  `capabilities[].id` set (a missing Capability, an extra one, or a
+  `capability_id` naming a Capability the Registry does not declare).
+- `capability-evaluation-id-duplicate` (nested uniqueness, B6): the same
+  `capability_id` appears more than once in `capability_evaluations[]`.
+- `trigger-evaluation-set-mismatch` (B6): a `capability_evaluations[]`
+  entry's own `trigger_evaluations[].component_id` set is not exactly
+  `--affected-components`'s own set (missing, extra, or foreign
+  `component_id`), for **any** entry, matched or unmatched.
+- `component-evaluation-id-duplicate` (nested uniqueness, B6): the same
+  `component_id` appears more than once in one `trigger_evaluations[]`
+  array, or in one `conditional_facet_evaluations[].evaluations[]` array.
+- `matched-result-contradiction` (B6, bidirectional): `matched: true`
+  with no `trigger_evaluations[].result: true` member, **or** `matched:
+  false` with at least one `trigger_evaluations[].result: true` member —
+  both directions checked, not only the first (an earlier revision of
+  this validator, under the retired name `matched-without-evidence`,
+  checked only the first direction).
+- `conditional-facet-set-mismatch` (B6): a matched Capability's own
+  `conditional_facet_evaluations[].facet` set is not exactly that
+  Capability's own `conditional_facets[].facet` set, per `--registry`.
+- `conditional-facet-evaluation-set-mismatch` (B6): a `conditional_facet_
+  evaluations[]` entry's own `evaluations[].component_id` set is not
+  exactly `--affected-components`'s own set.
+- `applied-result-contradiction` (B6, bidirectional, facet-level
+  equivalent of `matched-result-contradiction`): `applied: true` with no
+  `evaluations[].result: true` member, or `applied: false` with at least
+  one `evaluations[].result: true` member, within one `conditional_facet_
+  evaluations[]` entry.
+- `array-not-stable-sorted`: `capability_evaluations[]` not sorted by
+  `capability_id`, or `diagnostics[]` not sorted by `(id, detail)` (REQ-
+  005/AC-024's own stable-sort mandate for this feature's new arrays,
+  mirroring Epic A2/A4's own identically-named check).
+
+This validator does not re-run any predicate evaluation itself — every
+check above is a structural/set-membership check against the recorded
+evidence and the Registry/affected-component inputs it is told to compare
+against, never a semantic re-derivation of any `result`/`evidence[]`
+value. Discovery via ADR-0025, identical to every other script in this
+feature and in Epic A2/A4 (investigation.md INV-005/INV-011).
 
 ### Discovery contract (REQ-001/REQ-004, every script in this feature)
 
@@ -696,6 +1223,10 @@ feature's own vendoring step (Deployment / CI Plan, below) compares
 `contracts/resolver-evidence.schema.json`'s canonical sha256 against its
 vendored `plugins/sdd-quality-loop/contracts/resolver-evidence.schema.
 json` counterpart, mirroring Epic A2's and Epic A4's own identical check.
+This same three-step procedure is also what the pre-publication snapshot
+recheck (API / Contract Plan step 13, B8) re-runs against the Registry
+path specifically — no second, divergent discovery algorithm for the
+recheck.
 
 ## Test Strategy
 
@@ -707,46 +1238,153 @@ here at contract level (authored at Phase 2):
    one fixture per required flag, deleted; `--source-rev` omission
    defaults to `HEAD`.
 2. `resolve-project-context-block` — one fixture per REQ-002 diagnostic-id
-   row (eight total, including `project-context-validation-failed`),
-   each independently triggerable and each asserting (a) the correct exit
-   code, (b) the correct diagnostic line, (c) no `facet-manifest.yaml`/
-   `capability-summary.yaml`/`project-context.resolved.json` written or
-   changed, (d) the correct Resolver Evidence content (AC-010..AC-012).
+   row (**fourteen** total — Minor "Block count" correction, below), each
+   independently triggerable and each asserting (a) the correct exit code,
+   (b) the correct diagnostic line — for `affected-component-resolution-
+   failed`, `dependency-subprocess-failed`, and `dependency-output-
+   malformed`, a fixture confirms the line is this feature's own canonical
+   sentence, never the upstream dependency's own raw stderr text (M8,
+   AC-014), (c) no `facet-manifest.yaml`/`capability-summary.yaml`/
+   `project-context.resolved.json` written or changed (AC-011), (d) the
+   correct Resolver Evidence content (AC-010..AC-012); plus one `workflow-
+   combination-invalid` fixture per invalid row of decision document v2
+   §6's own combination matrix (both named invalid rows — `lite` ×
+   {`legacy-seven-layer`,`facet-hybrid`,`facet-native`}, and `full` ×
+   `lite-three-file` — M3); plus one `snapshot-generation-mismatch`
+   fixture (B8) that mutates the Registry (or Project Context, or
+   ownership-source declarations) between this invocation's own step-2/4/5
+   snapshot and its step-13 recheck (a test-harness-only hook simulates the
+   TOCTOU window; the fixture's own assertion is that the mismatch Blocks
+   and nothing from steps 3/10/11 reaches a live path); plus one
+   `artifact-publication-failed` fixture (B1/B3) that denies write/rename
+   permission on one of this invocation's own staged output paths after
+   every earlier step already succeeded, asserting (i) the Block fires,
+   (ii) any file this step's own commit sub-sequence already renamed
+   before the injected failure is rolled back (`unlink`)
+   best-effort and the rollback attempt itself is recorded in this
+   diagnostic's own `detail`, (iii) no live artifact this invocation was
+   not already committed to writing survives partially written.
 3. `resolve-project-context-match` — the full match/no-match/conditional/
-   WARN fixture matrix (REQ-006 items a-d): a two-affected-component
-   fixture where only one component's properties satisfy a Capability's
-   `trigger` (AC-006); a matched Capability with one applied and one
-   N/A `conditional_facets[]` entry; a WARN on a non-representative branch
-   (accepted) vs. a WARN on the representative, determining branch of a
-   matched Capability (Blocked, `dsl-warn-on-matched-capability`).
+   WARN fixture matrix (REQ-006 items a-d, expanded per M10 "metamorphic
+   completeness" below): a two-affected-component fixture where only one
+   component's properties satisfy a Capability's `trigger` (AC-006); a
+   matched Capability with one applied and one N/A `conditional_facets[]`
+   entry, the N/A entry's own `reason` naming every contributing
+   Capability (B7); a WARN on an **unmatched** Capability's own `trigger`
+   evaluation (Blocked, `dsl-warn-on-matched-capability`, per B2's widened
+   scope — this exact fixture did **not** Block under the earlier,
+   representative-branch-only revision of this design, and is the
+   regression fixture that proves B2's fix); a WARN on a matched
+   Capability's own **non-determining** affected-component branch
+   (**also** now Blocked, B2 — under the earlier revision this branch was
+   the accepted, non-Blocking case; there is no longer an accepted-WARN
+   fixture anywhere in this suite, since B2 removed the only branch that
+   was ever exempt); a same-`facet`-name-across-two-Capabilities fixture
+   (B7) whose own `applied`/`evidence`/`reason` match the OR-aggregation
+   rule (Design Decisions, "facet-name aggregation") exactly.
 4. `resolve-project-context-lite` — the Lite-track path: confirms
    `lite-check-source-undefined` fires for the current, real Registry
    shape (investigation.md INV-019) via a synthetic fixture whose Registry
    Capability declares `lite_policy.eligible: true`, proving the Block
-   fires structurally rather than by an accidental fixture gap; a
-   forward-compatibility fixture (a hypothetical Registry extension
-   supplying a resolvable source) proves the rest of the Lite pipeline
-   (steps 10-12) is otherwise already correct, matching Epic A4's own
-   "forward compatibility" fixture-pairing style for its own detector-
-   absence handling (Epic A4 `acceptance-tests.md` AC-024's own
-   sub-case (2)).
+   fires structurally rather than by an accidental fixture gap. **No
+   forward-compatibility fixture exercises a hypothetical Registry
+   extension that supplies a resolvable `required_lite_checks` source**
+   (B5 correction, removing the earlier revision's synthetic-Registry-
+   extension fixture) — such a fixture's own Registry instance would not
+   itself pass `validate-capability-registry` (Epic A2's own schema is
+   `additionalProperties: false` and content-frozen, investigation.md
+   INV-019/B5), so it never exercised a Registry state any real
+   `validate-capability-registry`-passing input could ever reach; this
+   suite instead adds a **track-exclusive output-set** fixture (B4) that
+   confirms a successful (non-Blocked) Lite resolve writes exactly
+   `capability-summary.yaml` + `resolver-evidence.yaml` and **never**
+   `facet-manifest.yaml`/`project-context.resolved.json` — this fixture
+   is reachable today only via a Lite-eligible Feature whose matched
+   Capabilities collectively need zero `required_lite_checks` entries
+   (e.g. zero matched Capabilities at all, the zero-affected-component
+   Edge Case, M9), since INV-019's own gap otherwise Blocks every
+   non-trivial Lite resolve — this remains an accurate, honestly-scoped
+   fixture of the current cross-epic state, not a fabricated forward-
+   compatibility one.
 5. `resolve-project-context-parity` — `.py`/`.sh`/`.ps1` byte-identical
    output across every fixture above, plus a repeated-invocation
    determinism proof (REQ-005/AC-022/AC-023); includes at least one
    Windows-style (`\`-separated) path argument, matching Epic A4's own
    parity-suite convention (Epic A4 `design.md`, "Diagnostic determinism
-   contract").
+   contract"). The parity oracle (M8 correction) compares only this
+   feature's own emitted lines/artifact bytes across runtimes — any
+   dependency script's own raw stderr (never embedded in this feature's
+   own `detail` fields, API / Contract Plan step 4, M8) is explicitly out
+   of this suite's own comparison scope.
 6. `resolve-project-context-discovery` — three fixtures (one per runtime)
    simulating a standalone-installed-plugin layout, for every `contracts/*`
    artifact this feature's scripts locate (Registry + its schema, Epic
    A4's three schemas, this feature's own `resolver-evidence.schema.
    json`) — matching Epic A2's own three-fixture discovery pattern
-   (AC-028).
+   (AC-028); the fixture-count identity is stated explicitly (Minor
+   "discovery fixture count" correction, below) as the **direct product**
+   of `{one installed-standalone-plugin layout case}` × `{three
+   runtimes}` × `{one artifact set per runtime}` = three fixtures total,
+   one per runtime, each exercising every artifact this feature's scripts
+   locate within that one runtime's own invocation — never nine, and
+   never ambiguous between "three total" and "three per runtime."
 7. `resolver-evidence-schema` — `contracts/resolver-evidence.schema.json`
    existence/`$id`-convention/required-field-matrix fixtures, matching
    Epic A4's own `facet-manifest-schema` suite's own structure.
 8. `validate-resolver-evidence` — one fixture per `validate-resolver-
-   evidence` diagnostic-id row (AC-021).
+   evidence` diagnostic-id row (AC-021, the ten-value enum above, B6).
+9. `resolve-project-context-metamorphic` (new, M10) — the completeness/
+   invariance suite an earlier revision of this design left unfixtured:
+   (a) all four true/false combinations of a 2-affected-component
+   Feature's own `trigger` result (TT/TF/FT/FF), asserting `matched`
+   exactly per the union-match rule in every case; (b) the identical
+   fixture's own `affected_components[]` fed to the Resolver in each of
+   its 2 possible orderings, asserting byte-identical output regardless
+   (this invocation's own ascending-lexicographic evaluation order and
+   stable-sort discipline make output order-invariant of input order —
+   REQ-005); (c) a 3-affected-component fixture where more than one
+   component's own evaluation is `true`, asserting the Capability is
+   still recorded exactly once in `capabilities[]` (no duplication); (d)
+   an `applied: false` `conditional_facets[]` fixture whose `reason`
+   content is asserted verbatim against the exact template this feature's
+   design fixes; (e) one fixture per WARN branch this feature's own
+   evaluation model can produce — matched-capability-trigger-WARN,
+   unmatched-capability-trigger-WARN, matched-capability-conditional-
+   facet-WARN — each independently Blocking (B2); (f) a nested-array-
+   completeness fixture asserting, for a multi-Capability/multi-component/
+   multi-facet fixture, that every level of Resolver Evidence's own
+   nesting (`capability_evaluations[]`, `trigger_evaluations[]`,
+   `conditional_facet_evaluations[]`, `evaluations[]`) carries exactly the
+   cardinality its own governing set requires (B6), asserted via
+   `validate-resolver-evidence`'s own exact-set checks passing and an
+   intentionally-corrupted (one entry deleted) copy of the same fixture
+   failing the matching check-id; (g) a dependency-invocation-order spy
+   fixture (OK-2 reinforcement) asserting this invocation's own subprocess
+   call order is exactly canonicalize-sdd-yaml (Project Context pass) →
+   canonicalize-sdd-yaml (Context Projection pass) → resolve-component-
+   paths → Registry discovery → generate-registry-digest → evaluate-
+   predicate (trigger fan-out) → evaluate-predicate (conditional-facet
+   fan-out), and that a forced non-zero exit injected at each position in
+   turn Blocks with that position's own correct diagnostic id and invokes
+   no later-ordered subprocess at all.
+10. `resolve-project-context-caller-contract` (new, M6) — a contract test
+    against the **live** `plugins/sdd-bootstrap/skills/sdd-bootstrap-
+    interviewer/SKILL.md` (Design Decisions, "caller insertion point",
+    below, fixes the exact anchor): (a) a drift check confirming the named
+    anchor text (`### Full-Profile Layer Interview`,
+    `SKILL.md:60` at this package's own investigation time) still exists
+    verbatim in the live file, failing loudly if a future, unrelated edit
+    to that file silently moves or renames it out from under this
+    feature's own documented insertion point; (b) a spy-harness fixture
+    confirming a Context-absent invocation of the interviewer never
+    invokes `resolve-project-context`'s own subprocess at all (REQ-007(a),
+    event-identical to today's flow); (c) a fixture confirming a REQ-002
+    Block surfaces to the interview session (REQ-007(d)) rather than
+    silently falling back. This test suite is itself authored once the
+    capability interview phase is actually implemented (a future task,
+    Non-goals) — its own fixture-level contract is fixed here, at design
+    time, so that implementation task has no remaining insertion-point
+    ambiguity to resolve (M6).
 
 Every new suite is registered directly (unprotected) in `tests/run-all.
 sh`/`.ps1` (AC-026), matching Epic A2/A4's own precedent; a staged
@@ -782,40 +1420,154 @@ to `full`, regardless of whether every other touched component also
 handles PII) and would let a multi-component Feature silently omit a
 Capability a single one of its components genuinely needs.
 
-**Representative-evidence selection for `conditional_facets[].evidence`
-(Facet Manifest, Epic A4's own field): the first affected component, in
-ascending lexicographic order, whose own evaluation result equals the
-facet's own `applied` value.** Epic A4 already fixes that this field is
-"exactly what `evaluate-predicate` returned for that facet's governing
-predicate" (Epic A4 `design.md:413-422`) — a **single** invocation's
-output, not an array of per-component results. Given this feature's own
-union-match rule can involve several per-component invocations for the
-same predicate, this design picks one, deterministically: the first
-(lexicographically, by `component_id`) whose own `result` agrees with the
-facet's overall `applied` outcome — so the embedded evidence always
-supports the stated outcome (never a component whose own evaluation
-contradicts `applied`), and the choice is fully reproducible (REQ-005)
-without depending on evaluation order or wall-clock timing. Resolver
-Evidence (this feature's own, broader artifact, REQ-004) retains **every**
-per-component evaluation regardless of which one Facet Manifest embeds, so
-no information is lost — only the single-value field Epic A4 already fixed
-needs a single representative, and Resolver Evidence is exactly the place
-this feature's design puts the full record that field cannot carry.
+**Facet-name aggregation for `conditional_facets[]` (Facet Manifest, Epic
+A4's own field) across every matched Capability that declares the
+identical `facet` name: OR-aggregation, evidence concatenation,
+contributing-Capability-enumerated `reason` (B7 — this decision *replaces*
+an earlier revision's "representative-evidence selection" decision;
+adversarial review "M1/M2 representative selection removed" found that
+earlier decision unsound in its own right — a "representative" branch
+concept applied inconsistently between facet-level and trigger-level
+Evidence, and Design Decisions below no longer defines any representative-
+selection rule of any kind, trigger or facet).** Epic A2's own Registry
+schema neither requires `conditional_facets[].facet` uniqueness *within*
+one Capability's own declaration, nor forbids two *different* Capabilities
+from declaring a `conditional_facets[]` entry under the identical `facet`
+name; Epic A4's own Facet Manifest schema *does* require `conditional_
+facets[].facet` Manifest-wide uniqueness (Data Plan, "B7", above). This
+design resolves the resulting many-to-one mapping as follows, per distinct
+`facet` name `F`, across the set of matched Capabilities `{C_1, ..., C_n}`
+that each declare a `conditional_facets[]` entry named `F` (a set of
+exactly one Capability is the common case and degenerates to this rule's
+own base case unchanged):
 
-**`dsl-warn-on-matched-capability`'s scope is the representative
-evaluation only, not every per-component evaluation.** A WARN on a
-non-representative branch (e.g. a second affected component whose
-properties happen to be incomplete, but whose own evaluation was not the
-one that determined the Capability's `matched`/`applied` outcome) is
-recorded in Resolver Evidence and never Blocks — matching ADR-0020's own
-"WARN is a normal, successful evaluation" principle at the DSL-evaluator
-layer. Only a WARN on the branch this feature's own Facet Manifest
-actually embeds (the representative one, immediately above) is
-Block-worthy, because *that* branch's own outcome is what a human or
-downstream Gate reading the Facet Manifest will actually see and rely on
-— a WARN there means the field allowlist expects Project-Context data the
-current Context does not (yet) provide, for the exact evaluation that
-determined a real, consequential outcome.
+- **`applied`**: `true` iff **any** `C_i`'s own per-component evaluation
+  of its own `F`-named `when` predicate (step 8's own per-Capability
+  union-match result, API / Contract Plan) is `true` for **any** affected
+  component — an OR of ORs, matching this feature's own union-match
+  soundness argument (immediately above) applied one level higher: no
+  contributing Capability's own genuine match can be soundly discarded
+  merely because a *different* contributing Capability's own evaluation
+  of the same-named facet happened to be `false`.
+- **`evidence`**: the **concatenation** of every `(C_i, component)` pair's
+  own evaluation-node array that contributed to this determination,
+  ordered first by `capability_id` ascending, then by `component_id`
+  ascending within each Capability (a stable, fully deterministic total
+  order, REQ-005) — **never** a single representative node array. This
+  remains a structurally valid `#/definitions/evidenceNode` array under
+  Epic A4's own schema (an array of evidence nodes, of whatever length,
+  Data Plan "B7", above) even though it is now several `evaluate-
+  predicate` invocations' own output concatenated together rather than
+  one invocation's own verbatim output — **Epic A4's own prose** ("the
+  whole array is copied verbatim from the evaluator's own output", Epic
+  A4 `design.md:413-422`) describes only the single-contributing-
+  Capability case and does not anticipate this multi-Capability
+  concatenation; this design flags that prose (not the schema itself,
+  which this concatenation satisfies unmodified) as needing a future A4
+  addendum (Risks, below, and this package's own final report) — this
+  package does not edit A4's own files (this task's own hard boundary).
+- **`reason`** (present iff `applied: false`, matching Epic A4's own
+  optional-`reason`-only-on-N/A field shape): a fixed template naming
+  every contributing Capability, e.g. `"no contributing capability's
+  conditional facet matched any affected component (contributing:
+  cap-a, cap-b)"`, with the contributing-Capability-id list itself
+  stable-sorted ascending — so a human reading an N/A facet always sees
+  which Capabilities were even in play, not only that none matched.
+
+**Any-branch WARN-Block scope (widened from an earlier revision's
+representative-branch-only scope, B2).** `dsl-warn-on-matched-capability`
+now Blocks on an `outcome: "warn"` node found **anywhere** in **any**
+evaluation this invocation performs in steps 7-8 (API / Contract Plan) —
+every Registry Capability's own `trigger_evaluations[]`, matched or
+unmatched, and every matched Capability's own `conditional_facet_
+evaluations[].evaluations[]` — never only a single "representative"
+branch. The earlier, representative-branch-only revision existed *because*
+of the now-removed representative-evidence-selection decision above (a
+WARN only mattered, that revision reasoned, on the one branch the Facet
+Manifest actually embedded) — with that concept removed (B7's own
+evidence-concatenation rule embeds **every** contributing branch, not one
+representative), the WARN-Block condition's own scope naturally widens to
+match: since **every** evaluated branch can now influence the aggregated
+`applied`/`matched` outcome the Facet Manifest exposes (union-match, both
+levels), a WARN on **any** branch is a genuine "the field allowlist
+expects Project-Context data the current Context does not (yet) provide,
+for an evaluation that could determine a real, consequential outcome" —
+including an unmatched Capability's own trigger WARN, which an earlier
+revision never inspected at all (adversarial review's own worked example:
+a WARN-producing missing-path evaluation collapsing to `false` on a
+Capability that consequently reads as cleanly "unmatched," silently
+under-resolving the Feature).
+
+**Staged generation, single atomic commit (B1, no upstream rule fixed
+this).** Every artifact this invocation may write (Context Projection,
+Facet Manifest **or** Capability Summary per the track branch immediately
+below, Resolver Evidence) is assembled and schema-validated in memory
+(API / Contract Plan steps 3/10/11/12) before any of them is written to a
+live path; the single atomic commit step (step 14) then writes this
+invocation's own entire track-exclusive output set via `temp-file +
+fsync + rename` per file, all of it or (on any earlier Block) none of it
+except Resolver Evidence's own record of that Block. This replaces an
+earlier revision's incremental-write ordering (Context Projection written
+at roughly the procedure's own step 3, Facet Manifest at roughly step 10,
+*before* a later step's own Block condition — e.g. `lite-check-source-
+undefined`, knowable only after Facet-Manifest-equivalent assembly work —
+could be known), which let a Blocked invocation leave an already-live
+Context Projection or Facet Manifest behind, violating AC-011's own
+"never a partial artifact" rule (adversarial review "B1 atomicity").
+
+**Track-exclusive publication set (B4, Epic A4's own already-fixed
+contract, this feature's own processing-order consequence of it).** The
+track branch (API / Contract Plan step 10) is decided, and every
+subsequent artifact staged accordingly, **before** any publication step
+runs: a Full-track resolve's own output set is `{facet-manifest.yaml,
+project-context.resolved.json, resolver-evidence.yaml}`; a Lite-track
+resolve's own output set is `{capability-summary.yaml, resolver-
+evidence.yaml}` — **never** both a Facet Manifest and a Capability
+Summary in the same invocation, and never a Context Projection published
+on the Lite track (Context Projection is still **computed** internally on
+every track, since matched-Capability evaluation needs it regardless of
+track, but only **published** to `generated/project-context.resolved.
+json` on the Full track). This corrects an earlier revision that
+assembled a Full-track-shaped Facet Manifest unconditionally, then
+additionally staged a Capability Summary on the Lite track — producing
+both outputs on a Lite resolve, contradicting Epic A4's own track-
+exclusive Capability Summary contract (`specs/epic-192-a4-facet-manifest/
+requirements.md:1214-1217`, investigation.md INV-004).
+
+**`context_binding.dependency_pointers[]`/`resolver.version`/`resolver.
+rule_set_revision` canonicalization (B9, no upstream rule fixed this) —
+full derivation rules stated once, in Data Plan above ("B9"), not
+repeated here.**
+
+**Caller insertion point for `sdd-bootstrap-interviewer`'s capability
+interview phase (M6, resolving OQ-003 to a concrete, file:line-cited
+anchor).** The live `plugins/sdd-bootstrap/skills/sdd-bootstrap-
+interviewer/SKILL.md` (read directly, this worktree, at this package's own
+design-authoring time) has no "track detection" step named as such, but
+its own existing flow already branches on track by the point its `###
+Full-Profile Layer Interview` heading (`SKILL.md:60`) is reached — that
+section's own first sentence ("For non-LITE work, use `references/
+interview-question-bank.md`...") and its own closing line ("LITE excludes
+this section and produces no layer documents", `SKILL.md:92`) both
+presuppose the track is already known by that point, sourced today from
+`AGENTS.md`'s `spec_profile` marker (the same source the file's own
+Specification/Implementation Policy Review Gates already read,
+`SKILL.md:147,159`). The capability interview phase's own insertion point
+is therefore **immediately before `SKILL.md:60`'s `### Full-Profile Layer
+Interview` heading** — after `## Intake And Investigation`'s own step 8
+(`SKILL.md:58`, the last numbered step before that heading) and before any
+Facet-dependent layer generation the following section performs (REQ-007's
+own "after track detection, before any Facet-dependent layer is
+generated" ordering, requirements.md). A new `### Capability Interview
+Phase` subsection, inserted at that exact point, is where a future
+implementation task's own Resolver invocation (REQ-001, once) and
+Capability-relevant-unknowns-only interviewing (REQ-007(c)) belong. This
+insertion point is a **design-time citation**, not an edit — this
+package's own commits never touch `plugins/**` (this task's own hard
+boundary, Non-goals) — and Test Strategy item 10, above, fixes a drift
+check against this exact anchor text so a future, unrelated edit to
+`SKILL.md` cannot silently invalidate this citation without that check
+failing first.
 
 **`resolved_gates[]` includes every matched Capability's referenced
 Gates verbatim, at any `stage` value — this feature does not filter to
@@ -849,6 +1601,13 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   scripts emit — matching Epic A4's own "Diagnostic determinism contract"
   verbatim (Epic A4 `design.md:956-985`), reused unmodified rather than
   re-derived.
+- REQ-002's own diagnostic-id enum is closed at **fourteen** values
+  (API / Contract Plan, above; requirements.md REQ-002) — no code path in
+  this feature's own scripts emits a `diagnostics[].id`/exit-1 condition
+  outside that enum; `validate-resolver-evidence`'s own, independent
+  check-id enum (`validate-resolver-evidence` contract, above) is closed
+  at ten values, and the two enums never share a member (Minor
+  "diagnostic namespace" correction).
 
 ## Security Boundaries
 
@@ -864,9 +1623,36 @@ once `artifact`/`promotion` Gates gain real execution behavior.
   investigation.md INV-007), it never participates in, and never bypasses,
   the approval-sidecar workflow.
 - A `disabled-legacy-invocation` Block is fail-closed by construction —
-  there is no code path in this design that reaches step 10 (Facet
-  Manifest assembly) while state derivation (step 1) has resolved
-  `disabled-legacy` (Design Decisions/API Contract Plan, above).
+  there is no code path in this design that reaches step 10 (track branch/
+  Facet Manifest or Capability Summary assembly) while state derivation
+  (step 1) has resolved `disabled-legacy` (Design Decisions/API Contract
+  Plan, above). This diagnostic is itself a **CLI-misuse guard**, not a
+  designed pipeline state (M4 correction, API / Contract Plan step 1,
+  above) — a compatible caller (REQ-007) never invokes this Resolver's
+  process at all while a Project Context is absent or derives `disabled-
+  legacy`; this Block exists solely to fail loudly if a caller does so
+  regardless, matching ADR-0016 item 4's own framing of the Resolver as a
+  thing with no defined behavior in that state, not a thing that runs and
+  gracefully no-ops in it (investigation.md INV-013).
+- **No artifact this invocation stages ever reaches a live path except via
+  the single atomic commit step (B1, API / Contract Plan step 14, Design
+  Decisions "staged generation, single atomic commit")** — a process
+  crash, a Block at any step 1-13, or a write/fsync/rename failure at
+  step 14 itself each leave every live path this invocation might have
+  written either fully absent, fully unchanged from its pre-invocation
+  state, or (Resolver Evidence only, on a Block) fully written — never a
+  torn or partially-written file at any of the four paths this feature's
+  Resolver ever writes.
+- **This feature's Resolver never embeds an upstream dependency script's
+  own raw stderr text in any diagnostic line or Resolver Evidence
+  `detail` field it emits (M8 correction, API / Contract Plan step 4,
+  above)** — every `detail` this feature's own scripts construct is a
+  canonical, Resolver-owned sentence built from fixed, repository-
+  relative fields; this both closes a potential local-path/environment-
+  detail leak into a committed artifact and is the mechanism that makes
+  REQ-005's own dual-runtime byte-identity guarantee (AC-023) achievable
+  at all for a Block whose underlying cause is a dependency subprocess's
+  own OS-specific error text.
 - The two-tier defense-claim scope ADR-0019 §4 already establishes
   (hook-layer-plus-deterministic-validator vs. protected-file-plus-
   external-key-HMAC adversarial resistance) applies unchanged to this
@@ -904,8 +1690,9 @@ None — every input and output this feature touches is repository-local
   feature's own new contract (`resolver-evidence.schema.json`) is authored
   in this same package; "architecture changes require ADRs" — this
   feature authors no new ADR because it makes no new architecture-level
-  decision (ADR Change Log, above; its two genuinely new decisions are
-  narrow, mechanical DSL-invocation-orchestration rules, not a new axis).
+  decision (ADR Change Log, above; its six genuinely new decisions are
+  narrow, mechanical DSL-invocation-orchestration/publication rules, not a
+  new axis).
 - This task's own hard boundary (no edit to `plugins/**`/`scripts/**`/
   `.github/**`/`tests/**`/`contracts/**`/`docs/**`) is honored throughout
   this design — every concrete file this design names under those trees
@@ -931,28 +1718,59 @@ re-verified at that future task's own start time.
 Restated from investigation.md: OQ-001 (Context Projection regeneration
 cadence beyond "once per invocation"), OQ-002 (which future caller invokes
 `compare-facet-manifest-staleness` against two of this feature's outputs,
-and when), OQ-003 (the exact numbered-step insertion point for the
-capability interview phase within `sdd-bootstrap-interviewer`'s live
-`SKILL.md`).
+and when). **OQ-003 is resolved by this revision** (M6, Design Decisions
+"caller insertion point", above) to a concrete, file:line-cited anchor —
+immediately before `SKILL.md:60`'s `### Full-Profile Layer Interview`
+heading, in the live `sdd-bootstrap-interviewer/SKILL.md` at this
+package's own design-authoring time — with Test Strategy item 10's own
+drift check guarding against that anchor silently moving before the
+future implementation task applies it; what remains genuinely open for
+that future task is only the mechanical choice of direct-edit-vs.-human-
+copy, gated on that file's then-current protection status
+(investigation.md INV-017, requirements.md Assumptions), not the
+insertion point itself.
 
 ## Risks
 
 Restated and design-elaborated from requirements.md's own Risks section:
 
-- **Lite-track resolution is effectively Blocked for every real
-  invocation today** (investigation.md INV-019, requirements.md Risks) —
-  this design's own Test Strategy item 4 makes this fact directly,
-  mechanically testable (a synthetic-Registry forward-compatibility
-  fixture proves the rest of the pipeline is otherwise correct) rather
-  than leaving it as an assertion this package cannot verify.
-- **The multi-component matching rule and the representative-evidence-
-  selection rule (Design Decisions, above) are this feature's own new
-  decisions**, not upstream-fixed facts — both are narrow, citation-
-  grounded, mechanical extensions of `evaluate-predicate`'s own already-
-  fixed CLI shape, but a future spec-review pass may still find either
-  needs to be an ADR of its own (ADR Change Log, above, already names this
-  as a low-cost, anticipated follow-up rather than a gap).
+- **Lite-track resolution is effectively Blocked for every real,
+  non-trivial invocation today** (investigation.md INV-019, requirements.md
+  Risks) — this design's own Test Strategy item 4 (revised, B5) makes this
+  fact directly, mechanically testable using only fixtures that
+  themselves pass `validate-capability-registry` (an earlier revision's
+  synthetic-Registry forward-compatibility fixture did not, and is
+  removed, B5) — a track-exclusive-output-set fixture (B4) is reachable
+  today only via a Lite Feature with zero matched Capabilities needing a
+  Lite check, which remains an honest, if narrow, positive-path proof.
+  **Epic A2 Registry-schema revision adding a `required_lite_checks`
+  source is now recorded as an explicit, owned prerequisite for Epic A6**
+  (requirements.md Dependencies, B5) — not merely a named risk this
+  package could not act on.
+- **The multi-component matching rule and the facet-name aggregation rule
+  (Design Decisions, above) are this feature's own new decisions**, not
+  upstream-fixed facts — both are narrow, citation-grounded, mechanical
+  extensions of `evaluate-predicate`'s own already-fixed CLI shape, but a
+  future spec-review pass may still find either needs to be an ADR of its
+  own (ADR Change Log, above, already names this as a low-cost,
+  anticipated follow-up rather than a gap).
+- **A4 addendum needed for the facet-name aggregation rule's own evidence-
+  concatenation consequence** (Cross-Layer Dependencies, "A4 addendum
+  needed", B7, above) — Epic A4's own schema already accommodates this
+  feature's own concatenated-evidence output without a schema change, but
+  Epic A4's own prose describing that field assumes a single-invocation
+  case this feature's design can now exceed; this package names the gap
+  and takes no further action on Epic A4's own content-frozen files
+  (this task's own hard boundary).
 - **`resolve-project-context.{py,sh,ps1}`'s reservation may not yet be
   live** when this feature's own Phase-2 implementation begins (Protected-
   File Statement, above, already gives the fallback sequencing for that
   case).
+- **The staged-generation/single-atomic-commit/snapshot-recheck rules
+  (Design Decisions, "staged generation, single atomic commit", B1/B8,
+  above) add real implementation complexity** (temp-file management,
+  rollback-on-partial-failure, a second `resolve-component-paths`
+  invocation solely for the pre-publication ownership-digest recheck) a
+  future Phase-2 implementer must budget for — this is the direct,
+  accepted cost of closing the atomicity/TOCTOU gaps adversarial review
+  found in an earlier revision, not a design defect of this revision.

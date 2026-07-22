@@ -573,20 +573,84 @@ is designed so a future caller has everything it needs (digests, semantic
 output fields) to make that call without needing to re-invoke the
 Resolver a second time merely to inspect its prior output.
 
-## OQ-003: `sdd-bootstrap-interviewer`'s exact insertion point for the capability interview phase
+## OQ-003: `sdd-bootstrap-interviewer`'s exact insertion point for the capability interview phase — **resolved by INV-020, below**
 
 INV-017 confirms the target file's current shape and unprotected status,
 but the *exact* step number/insertion point within its existing Intake/
 Investigation → Full-Profile Layer Interview flow is not fixed by decision
 document v2 §7/§18.4, by issue #193, or by any sibling epic (none of A1-A4
-touches this file for this purpose). This feature's design (REQ-007)
-therefore documents the target contract's *inputs, outputs, and ordering
-relative to existing steps* (capability interview phase runs after
-Project-Context/track detection, before Facet-dependent layer generation)
-without asserting a specific numbered-step insertion into the live file —
-left for the future implementation task, which edits the live file
-directly (or via human-copy, per its own then-current protection status
-re-check).
+touches this file for this purpose). An earlier revision of this feature's
+own design (REQ-007) documented only the target contract's *inputs,
+outputs, and ordering relative to existing steps* (capability interview
+phase runs after Project-Context/track detection, before Facet-dependent
+layer generation) without asserting a specific numbered-step insertion
+into the live file. Adversarial review ("M6 caller integration") found
+this insufficient — the exact insertion point is now resolved, with a
+file:line citation against the live `SKILL.md`, in INV-020 below; what
+remains for the future implementation task is only the direct-edit-vs.-
+human-copy mechanical choice, gated on that file's then-current protection
+status re-check (requirements.md Roles and Permissions/Assumptions).
+
+## INV-020: Adversarial spec review (25 findings, `Spec-Review-Status:
+Pending` → this revision) — resolutions recorded here for traceability
+
+An adversarial spec review of an earlier revision of this package
+returned 9 Blocker, 10 Major, 3 Minor, and 3 OK findings (25 total,
+verdict FAIL). This revision resolves all 25. The findings requiring a
+genuinely new investigation-time fact (beyond a requirements.md/design.md/
+acceptance-tests.md text correction) are recorded here; the remainder are
+resolved entirely within requirements.md/design.md/acceptance-tests.md
+themselves (each finding's own resolution is cited inline at its own
+point of application, tagged with its own finding id, e.g. "B1", "M6"):
+
+- **M6 (caller insertion point, resolving OQ-003 above)**: a direct read
+  of the live `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/
+  SKILL.md` (this worktree, at this package's own revision-authoring time)
+  confirms it has no step literally named "track detection," but its own
+  existing flow already branches on track by the point its `### Full-
+  Profile Layer Interview` heading (`SKILL.md:60`) is reached — that
+  section's own opening sentence ("For non-LITE work, use `references/
+  interview-question-bank.md`...") and its own closing line ("LITE
+  excludes this section and produces no layer documents", `SKILL.md:92`)
+  both presuppose the track is already known by that point, sourced today
+  from `AGENTS.md`'s `spec_profile` marker (the same source this file's
+  own Specification/Implementation Policy Review Gates already read,
+  `SKILL.md:147,159`). The capability interview phase's own insertion
+  point is therefore fixed to **immediately before `SKILL.md:60`**, after
+  `## Intake And Investigation`'s own step 8 (`SKILL.md:58`) — design.md
+  Design Decisions "caller insertion point" and requirements.md REQ-007
+  both cite this exact anchor; design.md Test Strategy item 10 fixes a
+  drift check against it for the future implementation task.
+- **B5 (Lite-check-source Registry-schema gap → explicit A6
+  prerequisite)**: this investigation's own INV-019 already confirmed the
+  gap; adversarial review found an earlier revision of this package left
+  the consequence as a named Risk only, with no owner. requirements.md
+  Dependencies now records the Epic A2 Registry-schema revision this gap
+  requires as an **explicit, owned prerequisite for Epic A6** (owner:
+  Epic A2's own maintainers; scope: an additive `capabilities[]` field;
+  migration: existing Registry instances remain valid) — this
+  investigation adds no new fact beyond INV-019's own, only a
+  traceability pointer to where the ownership statement now lives.
+- **B7 (facet-name cross-Capability aggregation → A4 addendum
+  candidate)**: `specs/epic-192-a4-facet-manifest/design.md:413-422` (the
+  Epic A4 worktree, read directly for this finding) states `conditional_
+  facets[].evidence` is "the whole array... copied verbatim from the
+  evaluator's own output" — a single-invocation framing. This feature's
+  own new facet-name aggregation rule (design.md Design Decisions) can
+  make that field a **concatenation** of several invocations' own output
+  when more than one matched Capability shares a `facet` name. The
+  concatenated array still satisfies A4's own JSON Schema (an array of
+  `evidenceNode` elements, any length) — only A4's own *prose* assumes
+  the narrower case. This package's own final report names this as an
+  A4-addendum candidate; this package does not edit any Epic A4 file
+  (this task's own hard boundary, and Epic A4's own post-review content
+  freeze).
+
+25/25 findings resolved: 9 Blocker (B1-B9), 10 Major (M1-M10 — M1/M2
+merged into one "representative selection removed" resolution per the
+adjudicated finding grouping), 3 Minor (Block count, diagnostic
+namespace, discovery fixture count), 3 OK (union-match/digest-order/
+parity-target reinforced, not changed in substance).
 
 ## Summary of Evidence References
 
