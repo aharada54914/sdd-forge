@@ -735,7 +735,7 @@ helpers are themselves unmodified; a new, dedicated
 NEW-001).** Every normative citation of Epic A5's own spec text below is
 a fingerprint — `{source file, a fixed line range recorded at this
 package's own authoring-time read of sibling worktree
-sdd-forge-wt-epic-193 HEAD 919f4ebddcf6, the sha256 digest of that
+sdd-forge-wt-epic-193 HEAD 748f40ccb713, the sha256 digest of that
 range's own literal lines (LF-normalized, UTF-8, joined by a single `\n`,
 no trailing newline — identical algorithm to Epic A5's own anchor-
 fingerprint technique, `specs/epic-193-a5-capability-resolver/design.md:2181-2189`,
