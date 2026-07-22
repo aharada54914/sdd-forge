@@ -2925,6 +2925,15 @@
       "host_session_id": "SESS-impl-impl-reviewer-b-epic-194-a6-lite-integration-a1r1-0325",
       "previous_record_sha256": "a920b5d98507df6b33888d5f2637758241356cf05235a24696fab5aebe5e204b",
       "record_sha256": "8159ab755f57026ddb1917a3a446fdb67f62ee5f6f4df5d8d5ab1993b4037d5e"
+    },
+    {
+      "sequence": 326,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-194-a6-lite-integration-task-task-reviewer-a-a1r1-seq0326",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-194-a6-lite-integration-a1r1-0326",
+      "previous_record_sha256": "8159ab755f57026ddb1917a3a446fdb67f62ee5f6f4df5d8d5ab1993b4037d5e",
+      "record_sha256": "dc7eb0d39584d664287c74b3018cb5245768e225da8979b663c25ffd8833795d"
     }
   ]
 }
