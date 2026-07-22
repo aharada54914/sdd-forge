@@ -103,7 +103,11 @@ document v2 §7/§18.4).
   paths, never a human-copy batch). `contracts/project-context.schema.
   json`'s `workflow`/`components`/
   `shared_paths` shapes (investigation.md INV-007) are read, never
-  redefined, by this feature. `canonicalize-sdd-yaml`'s stdin/stdout-only,
+  redefined, by this feature — including as this feature's own structural
+  validation target for REQ-002's `project-context-validation-failed`
+  diagnostic, below (this feature's own JSON-Schema-conformance check, not
+  a separate Epic A1 CLI this feature does not otherwise depend on).
+  `canonicalize-sdd-yaml`'s stdin/stdout-only,
   YAML-or-JSON-input CLI (no parsed-structure API) is the **only** path
   from YAML bytes to a structure this feature's Resolver ever uses — this
   feature's own Context Projection generation is Epic A1's canonicalizer
@@ -344,7 +348,7 @@ document v2 §7/§18.4).
   | `disabled-legacy-invocation` | The `--config` target is absent (or the AGENTS.md-marker/default fallback derives `disabled-legacy`, ADR-0016 item 4) — the Resolver refuses before touching Registry/ownership/Context-Projection machinery at all (investigation.md INV-013). **This is a CLI-misuse guard, not a designed pipeline state** (adversarial review "M4 CLI misuse"): a compatible caller (REQ-007) never invokes this Resolver's own process while a Project Context is absent or derives `disabled-legacy` (ADR-0016 item 4 names the Resolver itself as outside that state's own computational domain, investigation.md INV-013); this diagnostic exists purely as a fail-closed response to a caller that invokes it anyway |
   | `publication-journal-recovery` | **NEW (B1).** The mandatory crash-recovery scan every invocation runs before any Registry/ownership/Context-Projection work (REQ-001's own step 0, above) finds a stale transaction journal from a prior, interrupted invocation against the identical `--feature`, and that journal cannot be safely converged to either terminal state (a referenced pre-image backup file is itself missing/unreadable, or a target's current live hash matches neither its journal-recorded PRE nor POST value) — design.md "Resolver publication transactional bundle contract" gives the full recovery algorithm; a journal that *can* be safely converged (the common case) is silently resolved by that same scan and never reaches this diagnostic at all |
   | `workflow-combination-invalid` | `workflow.spec_profile`/`workflow.artifact_layout` name one of decision document v2 §6's own combination matrix's two explicitly-marked "無効な組合せ" rows — `spec_profile == lite` with `artifact_layout != lite-three-file`, or `spec_profile == full` with `artifact_layout == lite-three-file` — checked immediately after Context-schema validity, before any Registry/ownership/projection work (adversarial review "M3 invalid workflow combination") |
-  | `project-context-validation-failed` | `--config`'s target file exists but fails Epic A1's own content-schema validation surface (a present-but-invalid Context, distinct from an absent one) |
+  | `project-context-validation-failed` | `--config`'s target file exists, but the structure this feature's Resolver obtains from it via `canonicalize-sdd-yaml` (Dependencies, above — this feature's only route from YAML bytes to a structure) fails **this feature's own** JSON-Schema-conformance check against Epic A1's already-fixed `contracts/project-context.schema.json` (spec-review round-1 remedy, closing a CONTRADICTION finding — a present-but-invalid Context, distinct from an absent one). This is the identical defensive re-validation mechanism this same table's `output-schema-validation-failed` row uses for this feature's own **output** artifacts, applied here to this feature's one **input** artifact; it is structural/shape conformance only — a semantic constraint the schema document itself cannot express (e.g. `components[].id` uniqueness) remains Epic A1's own responsibility at Context-authoring time (investigation.md INV-007) and is not re-checked by this diagnostic |
   | `affected-component-resolution-failed` | `resolve-component-paths` (Epic A3) exits non-zero for any reason (config-shape error, unresolvable rev, unattainable merge-base, NFC-collision, exceeded rename limit, TOCTOU mismatch) — an UNOWNED/OVERLAP classification present in a *successful* `resolve-component-paths` exit is data, not this condition, per Epic A3's own "classification results are data, not failure by themselves" rule; this feature does not reimplement `check-component-coverage`'s own Fail-condition logic. This diagnostic's own `detail` is a canonical, Resolver-owned sentence (repo-relative path, upstream exit code) — never the underlying script's own raw stderr text quoted verbatim (adversarial review "M8 stderr parity") |
   | `registry-validation-failed` | The located Registry fails Epic A2's own `validate-capability-registry` checks, or (defensively) `evaluate-predicate` returns `PREDICATE_SCHEMA_ERROR` against an already-validated Registry |
   | `contract-discovery-failed` | Any `contracts/*` artifact this feature's scripts need (Registry, its schema, any of Epic A4's three schemas, this feature's own `resolver-evidence.schema.json`) fails ADR-0025's discovery procedure (neither the script-relative packaged copy nor the git-root fallback resolves, or the artifact's own version check fails) |
@@ -479,6 +483,29 @@ document v2 §7/§18.4).
   worthy condition this invocation encountered, not only the first/fatal
   one, mirroring ADR-0020's own "no short-circuit, every result recorded"
   discipline extended by this feature to its own diagnostic surface).
+  **This array's own `severity` value is closed and fully determined by
+  which of REQ-002's sixteen ids is present, with exactly one exception**
+  (spec-review round-1 remedy, closing an AMBIGUITY finding on this
+  array's own warn/block cardinality): every id **except**
+  `dsl-warn-on-matched-capability` appears **at most once**, always with
+  `severity: "block"` (the one condition that itself caused, or jointly
+  caused, this invocation's own fail-closed exit). `dsl-warn-on-matched-
+  capability` alone can appear **more than once**: this feature's own
+  "no short-circuit" evaluation records one `severity: "warn"` entry
+  **per individual `outcome: "warn"` node** encountered anywhere in this
+  invocation's own evaluation (ADR-0020's own DSL-evaluator-level "WARN
+  is not an error" scope — each such entry's own `detail` names that one
+  node's `capability_id`/`component_id`/(`declaration_index`, only for a
+  `conditional_facets[].when` node) location, so no two `severity: "warn"`
+  entries ever share an identical `detail`), **plus exactly one
+  additional `severity: "block"` entry** with the identical id, whose own
+  `detail` is this feature's own fixed summary sentence (never identical
+  to any `severity: "warn"` entry's own per-node `detail`, preserving
+  this array's own `(id, detail)` uniqueness, AC-024), recording that
+  this invocation blocked overall because at least one such node exists.
+  A `dsl-warn-on-matched-capability` id therefore never appears with
+  **only** `severity: "warn"` entries and no `severity: "block"` summary
+  entry, and no other id ever carries `severity: "warn"` at all (AC-056).
   Resolver Evidence is written on **every** invocation, success or Block
   (REQ-002), **with the sole exception of a Block reached because
   Resolver Evidence itself fails its own schema self-validation** (B3,
@@ -562,7 +589,7 @@ document v2 §7/§18.4).
   出力 byte-identical テスト" and "曖昧ケースの Block 動作テスト" Done
   conditions): Design `tests/*.tests.sh`/`.tests.ps1` pairs and fixture
   data under `tests/fixtures/capability-resolver/`, covering, at minimum,
-  the eleven items design.md's own Test Strategy fixes at contract level
+  the ten items design.md's own Test Strategy fixes at contract level
   (adversarial review-expanded from an earlier revision's eight — new
   items 9/10 add the metamorphic-completeness and live-caller-contract
   suites below; item 2's own Block matrix and item 3's own match/WARN
