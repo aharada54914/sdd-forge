@@ -1,0 +1,98 @@
+=== TEST-012 (AC-012): scenario schema + 10-class coverage completeness ===
+ok: TEST-012: scenario-schema.json exists and is valid JSON
+ok: TEST-012 (AC-012): scenario-schema.json's fixture_profile enum ["brownfield","greenfield"] is byte-for-byte identical to loop-inventory.json's own fixture_profiles vocabulary (ADR-0010 verbatim reuse)
+ok: TEST-012: greenfield-cli.json exists and is valid JSON
+ok: TEST-012: greenfield-cli.json's own scenario_id field matches its filename
+ok: TEST-012: greenfield-cli.json's fixture_profile [greenfield] is a member of the closed vocabulary
+ok: TEST-012: greenfield-cli.json (existing-coverage) declares 2 coverage_refs entr(y/ies)
+ok: TEST-012: greenfield-cli.json's 2 coverage_refs path(s) all exist on disk (traceability-integrity check)
+ok: TEST-012: greenfield-cli.json's class_number [1] is in range 1..10
+ok: TEST-012: brownfield-web.json exists and is valid JSON
+ok: TEST-012: brownfield-web.json's own scenario_id field matches its filename
+ok: TEST-012: brownfield-web.json's fixture_profile [brownfield] is a member of the closed vocabulary
+ok: TEST-012: brownfield-web.json (existing-coverage) declares 2 coverage_refs entr(y/ies)
+ok: TEST-012: brownfield-web.json's 2 coverage_refs path(s) all exist on disk (traceability-integrity check)
+ok: TEST-012: brownfield-web.json's class_number [2] is in range 1..10
+ok: TEST-012: refactor-baseline-missing.json exists and is valid JSON
+ok: TEST-012: refactor-baseline-missing.json's own scenario_id field matches its filename
+ok: TEST-012: refactor-baseline-missing.json's fixture_profile [greenfield] is a member of the closed vocabulary
+ok: TEST-012: refactor-baseline-missing.json (net-new) correctly declares no coverage_refs
+ok: TEST-012: refactor-baseline-missing.json's class_number [3] is in range 1..10
+ok: TEST-012: lite-full-misclassification.json exists and is valid JSON
+ok: TEST-012: lite-full-misclassification.json's own scenario_id field matches its filename
+ok: TEST-012: lite-full-misclassification.json's fixture_profile [brownfield] is a member of the closed vocabulary
+ok: TEST-012: lite-full-misclassification.json (existing-coverage) declares 2 coverage_refs entr(y/ies)
+ok: TEST-012: lite-full-misclassification.json's 2 coverage_refs path(s) all exist on disk (traceability-integrity check)
+ok: TEST-012: lite-full-misclassification.json's class_number [4] is in range 1..10
+ok: TEST-012: inbound-prompt-injection.json exists and is valid JSON
+ok: TEST-012: inbound-prompt-injection.json's own scenario_id field matches its filename
+ok: TEST-012: inbound-prompt-injection.json's fixture_profile [greenfield] is a member of the closed vocabulary
+ok: TEST-012: inbound-prompt-injection.json (net-new) correctly declares no coverage_refs
+ok: TEST-012: inbound-prompt-injection.json's class_number [5] is in range 1..10
+ok: TEST-012: mcp-evidence-corruption.json exists and is valid JSON
+ok: TEST-012: mcp-evidence-corruption.json's own scenario_id field matches its filename
+ok: TEST-012: mcp-evidence-corruption.json's fixture_profile [brownfield] is a member of the closed vocabulary
+ok: TEST-012: mcp-evidence-corruption.json (existing-coverage) declares 2 coverage_refs entr(y/ies)
+ok: TEST-012: mcp-evidence-corruption.json's 2 coverage_refs path(s) all exist on disk (traceability-integrity check)
+ok: TEST-012: mcp-evidence-corruption.json's class_number [6] is in range 1..10
+ok: TEST-012: ci-token-shortage.json exists and is valid JSON
+ok: TEST-012: ci-token-shortage.json's own scenario_id field matches its filename
+ok: TEST-012: ci-token-shortage.json's fixture_profile [brownfield] is a member of the closed vocabulary
+ok: TEST-012: ci-token-shortage.json (existing-coverage) declares 2 coverage_refs entr(y/ies)
+ok: TEST-012: ci-token-shortage.json's 2 coverage_refs path(s) all exist on disk (traceability-integrity check)
+ok: TEST-012: ci-token-shortage.json's class_number [7] is in range 1..10
+ok: TEST-012: huge-actions-log.json exists and is valid JSON
+ok: TEST-012: huge-actions-log.json's own scenario_id field matches its filename
+ok: TEST-012: huge-actions-log.json's fixture_profile [brownfield] is a member of the closed vocabulary
+ok: TEST-012: huge-actions-log.json (existing-coverage) declares 2 coverage_refs entr(y/ies)
+ok: TEST-012: huge-actions-log.json's 2 coverage_refs path(s) all exist on disk (traceability-integrity check)
+ok: TEST-012: huge-actions-log.json's class_number [8] is in range 1..10
+ok: TEST-012: critical-cross-model-missing.json exists and is valid JSON
+ok: TEST-012: critical-cross-model-missing.json's own scenario_id field matches its filename
+ok: TEST-012: critical-cross-model-missing.json's fixture_profile [brownfield] is a member of the closed vocabulary
+ok: TEST-012: critical-cross-model-missing.json (existing-coverage) declares 1 coverage_refs entr(y/ies)
+ok: TEST-012: critical-cross-model-missing.json's 1 coverage_refs path(s) all exist on disk (traceability-integrity check)
+ok: TEST-012: critical-cross-model-missing.json's class_number [9] is in range 1..10
+ok: TEST-012: unreadable-contract-traceability.json exists and is valid JSON
+ok: TEST-012: unreadable-contract-traceability.json's own scenario_id field matches its filename
+ok: TEST-012: unreadable-contract-traceability.json's fixture_profile [brownfield] is a member of the closed vocabulary
+ok: TEST-012: unreadable-contract-traceability.json (existing-coverage) declares 2 coverage_refs entr(y/ies)
+ok: TEST-012: unreadable-contract-traceability.json's 2 coverage_refs path(s) all exist on disk (traceability-integrity check)
+ok: TEST-012: unreadable-contract-traceability.json's class_number [10] is in range 1..10
+ok: TEST-012 (AC-012): all 10 representative classes (1..10) have exactly one mapped scenario id, no gap, no duplicate
+=== TEST-012 (AC-012, net-new depth): refactor-baseline-missing fixture ===
+ok: TEST-012 (net-new depth): loop_fixture_init greenfield built a synthetic refactor-scenario fixture
+ok: TEST-012 (net-new depth): baseline-behavior.md is genuinely ABSENT in the fresh fixture (setup-genuineness check, requirements.md Edge Cases discipline)
+ok: TEST-012 (AC-012, net-new depth): quality-gate-calibration.md still states the class-3 governing policy sentence verbatim (real, read-only file)
+=== TEST-013 (AC-013): both tool_name-shape families driven per scenario ===
+ok: TEST-013: greenfield-cli -- Claude-Code-shaped PreToolUse payload built (tool_name=Write)
+ok: TEST-013: greenfield-cli -- Codex-shaped PreToolUse payload built (tool_name=apply_patch)
+ok: TEST-013: brownfield-web -- Claude-Code-shaped PreToolUse payload built (tool_name=Edit)
+ok: TEST-013: brownfield-web -- Codex-shaped PreToolUse payload built (tool_name=exec_command)
+ok: TEST-013: refactor-baseline-missing -- Claude-Code-shaped PreToolUse payload built (tool_name=Write)
+ok: TEST-013: refactor-baseline-missing -- Codex-shaped PreToolUse payload built (tool_name=apply_patch)
+ok: TEST-013: lite-full-misclassification -- Claude-Code-shaped PreToolUse payload built (tool_name=Edit)
+ok: TEST-013: lite-full-misclassification -- Codex-shaped PreToolUse payload built (tool_name=exec_command)
+ok: TEST-013: inbound-prompt-injection -- Claude-Code-shaped PreToolUse payload built (tool_name=Bash)
+ok: TEST-013: inbound-prompt-injection -- Codex-shaped PreToolUse payload built (tool_name=exec_command)
+ok: TEST-013: mcp-evidence-corruption -- Claude-Code-shaped PreToolUse payload built (tool_name=Edit)
+ok: TEST-013: mcp-evidence-corruption -- Codex-shaped PreToolUse payload built (tool_name=exec_command)
+ok: TEST-013: ci-token-shortage -- Claude-Code-shaped PreToolUse payload built (tool_name=Bash)
+ok: TEST-013: ci-token-shortage -- Codex-shaped PreToolUse payload built (tool_name=exec_command)
+ok: TEST-013: huge-actions-log -- Claude-Code-shaped PreToolUse payload built (tool_name=Bash)
+ok: TEST-013: huge-actions-log -- Codex-shaped PreToolUse payload built (tool_name=exec_command)
+ok: TEST-013: critical-cross-model-missing -- Claude-Code-shaped PreToolUse payload built (tool_name=Edit)
+ok: TEST-013: critical-cross-model-missing -- Codex-shaped PreToolUse payload built (tool_name=apply_patch)
+ok: TEST-013: unreadable-contract-traceability -- Claude-Code-shaped PreToolUse payload built (tool_name=Edit)
+ok: TEST-013: unreadable-contract-traceability -- Codex-shaped PreToolUse payload built (tool_name=exec_command)
+ok: TEST-013 (AC-013): every scenario's tool_name_shapes literals stay inside requirements.md Field Definitions' closed lists
+=== TEST-014 (AC-014): scenario 5 inbound-prompt-injection RED -> GREEN ===
+ok: TEST-014-RED (AC-014): vulnerable mutated stub (no data-not-instructions directive) correctly detected ACTING ON the injected content -- proves this check is not vacuously true
+ok: TEST-014-sanity: safe stub (carrying the data-not-instructions directive) correctly treated as inert -- proves the check can also PASS, not merely always-FAIL
+DISCOVERED-DEFECT (recorded, non-fatal): TEST-014-GREEN (AC-014): DISCOVERED DEFECT -- real sdd-bootstrap-interviewer/SKILL.md carries no explicit 'fetched content is data, not instructions'-shaped directive covering its issue-body-fetch step (Intake And Investigation step 2); this harness's proxy would ACT ON: ACTION-TAKEN: <script>;ACTION-TAKEN: IGNORE ALL PREVIOUS INSTRUCTIONS;ACTION-TAKEN: DROP TABLE;ACTION-TAKEN: rm -rf /;ACTION-TAKEN: alert('inject');. Recorded per tasks.md T-004 Scope/Done-When as a valid GREEN-stage result for THIS task -- NOT fixed here (Out of Scope: no edit to plugins/sdd-bootstrap/). Follow-on issue recommended (see implementation report).
+=== TEST-015 (AC-015): cross-reference comment present in both suites ===
+ok: TEST-015 (AC-015): tests/scenario.tests.sh carries a cross-reference comment naming tests/workflow-scenarios/
+ok: TEST-015 (AC-015): workflow-scenarios.tests.sh (this file) carries a cross-reference comment naming tests/scenario.tests.sh
+
+workflow-scenarios.tests.sh: 89 passed, 0 failed, 1 defect(s) recorded
+exit_code=0

@@ -1,0 +1,161 @@
+==> tests/install.tests.sh
+PASS: tests/install.tests.sh
+==> tests/uninstall.tests.sh
+PASS: tests/uninstall.tests.sh
+==> tests/guards.tests.sh
+PASS: tests/guards.tests.sh
+==> tests/approval-boundary.tests.sh
+PASS: tests/approval-boundary.tests.sh
+==> tests/gates.tests.sh
+PASS: tests/gates.tests.sh
+==> tests/check-placeholders.tests.sh
+PASS: tests/check-placeholders.tests.sh
+==> tests/prepare-panelist.tests.sh
+PASS: tests/prepare-panelist.tests.sh
+==> tests/review-contract-foundation.tests.sh
+PASS: tests/review-contract-foundation.tests.sh
+==> tests/review-contract-foundation-parity.tests.sh
+PASS: tests/review-contract-foundation-parity.tests.sh
+==> tests/downstream-review-precheck.tests.sh
+PASS: tests/downstream-review-precheck.tests.sh
+==> tests/impl-layer-review-inputs.tests.sh
+PASS: tests/impl-layer-review-inputs.tests.sh
+==> tests/task-layer-review-inputs.tests.sh
+PASS: tests/task-layer-review-inputs.tests.sh
+==> tests/task-layer-full-profile.tests.sh
+PASS: tests/task-layer-full-profile.tests.sh
+==> tests/downstream-review-precheck-parity.tests.sh
+PASS: tests/downstream-review-precheck-parity.tests.sh
+==> tests/task-review-precheck.tests.sh
+PASS: tests/task-review-precheck.tests.sh
+==> tests/review-agent-isolation.tests.sh
+PASS: tests/review-agent-isolation.tests.sh
+==> tests/agent-model-routing.tests.sh
+PASS: tests/agent-model-routing.tests.sh
+==> tests/agent-capabilities-v2.tests.sh
+PASS: tests/agent-capabilities-v2.tests.sh
+==> tests/render-agent-frontmatter.tests.sh
+PASS: tests/render-agent-frontmatter.tests.sh
+==> tests/task-context-isolation.tests.sh
+PASS: tests/task-context-isolation.tests.sh
+==> tests/turn-first-workflow.tests.sh
+FAIL: tests/turn-first-workflow.tests.sh
+==> tests/retrospective-loop.tests.sh
+PASS: tests/retrospective-loop.tests.sh
+==> tests/emit-run-record-feature-scope.tests.sh
+PASS: tests/emit-run-record-feature-scope.tests.sh
+==> tests/rollback-1.5.0.tests.sh
+FAIL: tests/rollback-1.5.0.tests.sh
+==> tests/cross-model.tests.sh
+PASS: tests/cross-model.tests.sh
+==> tests/eval.tests.sh
+PASS: tests/eval.tests.sh
+==> tests/crlf-parity.tests.sh
+PASS: tests/crlf-parity.tests.sh
+==> tests/scenario.tests.sh
+PASS: tests/scenario.tests.sh
+==> tests/workflow-scenarios/workflow-scenarios.tests.sh
+FAIL: tests/workflow-scenarios/workflow-scenarios.tests.sh
+==> tests/apply-branch-protection.tests.sh
+PASS: tests/apply-branch-protection.tests.sh
+==> tests/workflow-state-registry.tests.sh
+FAIL: tests/workflow-state-registry.tests.sh
+==> tests/workflow-state-registry-parity.tests.sh
+FAIL: tests/workflow-state-registry-parity.tests.sh
+==> tests/workflow-state.tests.sh
+PASS: tests/workflow-state.tests.sh
+==> tests/workflow-state-parity.tests.sh
+PASS: tests/workflow-state-parity.tests.sh
+==> tests/second-approval-mask.tests.sh
+PASS: tests/second-approval-mask.tests.sh
+==> tests/workflow-state-ci-integration.tests.sh
+PASS: tests/workflow-state-ci-integration.tests.sh
+==> tests/structure-check-feature-mode.tests.sh
+PASS: tests/structure-check-feature-mode.tests.sh
+==> tests/quality-gate-cycle-limit.tests.sh
+PASS: tests/quality-gate-cycle-limit.tests.sh
+==> tests/guard-dispatch-fallback.tests.sh
+PASS: tests/guard-dispatch-fallback.tests.sh
+==> tests/guard-negative-corpus.tests.sh
+PASS: tests/guard-negative-corpus.tests.sh
+==> tests/guard-ps1-ascii.tests.sh
+PASS: tests/guard-ps1-ascii.tests.sh
+==> tests/loop-inventory.tests.sh
+PASS: tests/loop-inventory.tests.sh
+==> tests/loop-driver.tests.sh
+PASS: tests/loop-driver.tests.sh
+==> tests/loop-consistency.tests.sh
+PASS: tests/loop-consistency.tests.sh
+==> tests/loop-escalation.tests.sh
+PASS: tests/loop-escalation.tests.sh
+==> tests/hitl-wfi-terminal.tests.sh
+PASS: tests/hitl-wfi-terminal.tests.sh
+==> tests/check-placeholders-brownfield.tests.sh
+PASS: tests/check-placeholders-brownfield.tests.sh
+==> tests/bump-version-gate.tests.sh
+PASS: tests/bump-version-gate.tests.sh
+==> tests/release-loop-gate.tests.sh
+PASS: tests/release-loop-gate.tests.sh
+==> tests/run-panelist-effort.tests.sh
+PASS: tests/run-panelist-effort.tests.sh
+==> tests/model-freshness-check.tests.sh
+PASS: tests/model-freshness-check.tests.sh
+
+TOTAL: 46 passed, 5 failed
+Failed suites:
+  - tests/turn-first-workflow.tests.sh
+  - tests/rollback-1.5.0.tests.sh
+  - tests/workflow-scenarios/workflow-scenarios.tests.sh
+  - tests/workflow-state-registry.tests.sh
+  - tests/workflow-state-registry-parity.tests.sh
+
+=== Targeted re-verification addendum (appended, not overwritten) ===
+Reason: after this task's own GREEN-non-fatal design correction (TEST-014-GREEN's
+DISCOVERED DEFECT now recorded via a dedicated non-fatal `record_defect()`
+helper/DEFECTS_RECORDED counter instead of `fail()`/FAIL, per tasks.md T-004
+Done-When's "GREEN case run and recorded regardless of outcome" and the
+requirement that this suite's own tests/run-all.sh registration -- AC-019 --
+stay compatible with a clean exit 0), a full non-aborting 51-suite re-sweep
+was attempted but its first suite (tests/install.tests.sh) alone did not
+complete within a practical session time budget; it was abandoned in favor
+of this targeted re-verification instead, recorded explicitly here rather
+than silently re-using the stale FAIL line above.
+
+==> tests/workflow-scenarios/workflow-scenarios.tests.sh
+PASS: tests/workflow-scenarios/workflow-scenarios.tests.sh (89 passed, 0
+  failed, 1 defect(s) recorded; exit 0 under both default bash 5.3.9 and
+  real /bin/bash 3.2.57 -- see green-workflow-scenarios.log and
+  bash32-workflow-scenarios.log, byte-identical to each other)
+
+==> tests/turn-first-workflow.tests.sh
+FAIL: tests/turn-first-workflow.tests.sh (re-confirmed pre-existing,
+  unrelated: "not ok: implementation report template omits: ## Output Paths
+  And Hashes" -- template/validator heading-name drift, already documented
+  in T-001.md's Unresolved Items)
+
+==> tests/rollback-1.5.0.tests.sh
+FAIL: tests/rollback-1.5.0.tests.sh (re-confirmed pre-existing, unrelated:
+  "ROLLBACK_HASH: current hash mismatch: .agents/plugins/marketplace.json")
+
+==> tests/workflow-state-registry.tests.sh
+FAIL: tests/workflow-state-registry.tests.sh (re-confirmed pre-existing,
+  unrelated: "not ok: canonical registry contract is invalid")
+
+==> tests/workflow-state-registry-parity.tests.sh
+FAIL: tests/workflow-state-registry-parity.tests.sh (re-confirmed
+  pre-existing, unrelated: "not ok: canonical registry contract is invalid")
+
+UPDATED TOTAL (targeted re-verification): 47 passed, 4 failed
+Updated failed suites:
+  - tests/turn-first-workflow.tests.sh
+  - tests/rollback-1.5.0.tests.sh
+  - tests/workflow-state-registry.tests.sh
+  - tests/workflow-state-registry-parity.tests.sh
+
+The remaining 46 suites (every tests/run-all.sh array entry other than the 5
+named in the original sweep above) are NOT re-run in this targeted pass:
+this task's own diff touches only tests/workflow-scenarios/workflow-scenarios.tests.sh
+(a new, independent leaf suite -- no shared library, guard, or other
+production-code file is edited by this task), so their PASS status recorded
+in the original sweep above is causally unaffected by this task's change and
+is relied upon unchanged rather than re-executed.

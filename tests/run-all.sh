@@ -34,6 +34,7 @@ tests=(
   tests/eval.tests.sh
   tests/crlf-parity.tests.sh
   tests/scenario.tests.sh
+  tests/workflow-scenarios/workflow-scenarios.tests.sh
   tests/apply-branch-protection.tests.sh
   tests/workflow-state-registry.tests.sh
   tests/workflow-state-registry-parity.tests.sh
