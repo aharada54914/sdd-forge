@@ -4,6 +4,28 @@
 
 ### 追加
 
+- **cross-epic cross-cutting seed inventory 検証 (Issue #191,
+  epic-191-a3-path-ownership T-005)**: `tests/component-path-resolver.tests.sh`
+  / `.ps1`(T-001既登録のスイート、新規スイート・新規 `tests/run-all.sh`
+  / `.ps1` 登録・`.github/workflows/test.yml` 追加ステップは一切なし)に
+  TEST-042/TEST-042-negative/TEST-043/TEST-044 を追加。Epic A1 の
+  `contracts/project-context.template.yaml` の `shared_paths` cross-cutting
+  セクションが `specs/**`・`reports/**`・`docs/**`・`.github/**`・
+  `tests/fixtures/**`・`CHANGELOG.md` の六項目に厳密一致し `contracts/**`
+  が含まれないことを検証する唯一の正典ソースとして扱い、A3 側は競合する
+  seed-list ドキュメントを一切持たない(REQ-006)。TEST-043 は
+  `tests/fixtures/component-path-ownership/test-043-cross-cutting-no-op/`
+  という自己完結フィクスチャで、六項目に触れる diff がゼロ declared
+  owners でも Fail-1(UNOWNED)を絶対に誘発しないことを実証(今日時点で
+  green)。TEST-042/TEST-044 は Epic A1 の実アーティファクトを直接読む
+  ため、それが着地するまで恒久的に red(T-001 の TEST-011.3 と同一の
+  意図された外部依存性ブロック、バグではない、再確認済み:
+  `contracts/project-context.template.yaml` は本コミット時点でも不在)。
+  TEST-042-negative は inventory-conformance チェック関数
+  (`check_inventory_conformance` / `Test-InventoryConformance`)を
+  意図的に誤った seed set に対して実行し、チェックが恒常的に true を
+  返す vacuous な実装でないことを証明(acceptance-first の RED エビデンス)。
+
 - **component path ownership resolver — グロブ意味論と分類 (Issue #191,
   epic-191-a3-path-ownership T-001)**: `plugins/sdd-quality-loop/scripts/
   resolve-component-paths.{py,sh,ps1}` を新規追加。`project-context.yaml`
