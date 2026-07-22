@@ -4,6 +4,41 @@
 
 ### 追加
 
+- **Reverse Coverage Gate と --diagnose (Issue #191,
+  epic-191-a3-path-ownership T-004)**: `plugins/sdd-quality-loop/scripts/
+  check-component-coverage.{py,ps1,sh}` を新規追加(Python master + 独立
+  PowerShell twin + 薄い bash dispatcher、INV-008)。常に完走し常に
+  `check-component-coverage-verdict/v1` エビデンスレコード(`producer.sha256`
+  同梱)を出力する。`workflow.capability_enforcement` の値(ADR-0016)から
+  `disabled-legacy`/`advisory`/`required` の三状態を導出し(Facet Manifest
+  の有無からは導出しない)、`disabled-legacy` は評価ゼロで実 N/A・exit 0、
+  `advisory`/`required` は Facet Manifest 構造的必須(欠落は exit 2、
+  Fail 発火時の exit 1 と明確に区別)で六つの Fail 条件(UNOWNED /
+  EXCLUSIVE owner 欠落 / OVERLAP / bounded shared_paths owner 欠落 /
+  resolver の `EXCLUDED_MATCH` エビデンス到達 / Provider Adapter/Binding
+  drift)を全評価し、`required` のみ Fail 発火時 exit 1。非 Gate の
+  `resolve-component-paths --diagnose`/`-Diagnose` サブコマンドを両
+  resolver twin に追加(独自 schema、Gate の schema とは別、
+  `quality-gate/SKILL.md` からは呼ばれない)。`risk-gate-matrix.md`
+  (`high`/`critical` 必須チェックセットへ追加)・`quality-gate/SKILL.md`
+  (`## Process` への記載)を直接編集(いずれも非保護ファイル、defense-in-depth
+  として文書化するのみで実際の到達保証は required-check-set 登録そのもの)。
+  新スイート `tests/check-component-coverage.tests.sh` / `.ps1`
+  (TEST-026〜036、TEST-046、TEST-052〜055)を、Epic A4/A1 の実スキーマに
+  一切依存しない自己完結フィクスチャ Facet Manifest / Provider Bindings
+  で駆動し、両ランタイムで29/29 green(このタスクの Scope 内では外部依存
+  ブロックなし)。`tests/run-all.sh` / `.ps1` へ自己登録。R-10 保護ファイル
+  である Bundle A(`guard-invariants.json`・`generate-guard-invariants.py`・
+  `generated/*` 4件)・Bundle B(`check-contract.{sh,ps1,py}`)への
+  human-copy staging、および `.github/workflows/test.yml` への本タスク
+  分 CI ステップ追加は、T-001/T-002 と同一の Claude Code PreToolUse フック
+  (`sdd-hook-guard.sh`)によりブロックされ本コミットには含まれていない。
+  Bundle A の候補内容は実際の `generate-guard-invariants.py` をスクラッチ
+  作業コピーへ適用して生成・`--check` で内部整合性検証済み、Bundle B は
+  必要な変更内容を仕様として正確に記述(いずれも
+  `reports/implementation/epic-191-a3-path-ownership/T-004.md` の
+  Unresolved Items 参照)。
+
 - **git-diff basis collector (Issue #191, epic-191-a3-path-ownership
   T-002)**: `plugins/sdd-quality-loop/scripts/resolve-component-paths.{py,ps1}`
   に `--source-rev`/`--target-rev`/`--include-untracked`/`--repo-root` を
