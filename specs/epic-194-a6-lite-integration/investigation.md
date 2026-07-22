@@ -307,25 +307,163 @@ every parallel worktree — this feature's own REQ-001's "Registry schema
 v1.1 additive extension" is therefore, like A2's own REQ-001, a documented
 *design* for a schema revision, never an edit to a file that exists today.
 
+## INV-014: `check-risk-upgrade`'s current design silently degrades an unreadable/malformed/shape-invalid *supplied* fragment to "no Capability-derived trigger" — an accepted fail-open path this feature's own Security Boundaries text mislabels "fail-closed"
+
+An earlier revision of this design (`design.md` Data Plan / API / Contract
+Plan) stated that when `--capability-reasons` is *supplied* but the file at
+that path is unreadable, malformed, or missing the `upgrade_reasons` key,
+`capability_triggers[] = []` — degrading silently to the same output as if
+the second argument had never been given at all, never an error exit.
+`design.md`'s own Security Boundaries text simultaneously claimed this same
+behavior was "fail-closed... never a parse error that silently permits a
+Lite-ineligible Capability through" — a direct contradiction: a
+*supplied-but-invalid* fragment is exactly the case where a Capability
+author or upstream signal-source producer made an error, and silently
+treating it as "no Capability signal" is the fail-*open* direction (a
+genuinely ineligible Capability's signal is lost, not preserved). The
+2026-07-22 adversarial review (Blocker [B3]) identifies this contradiction;
+the orchestrator's ruling (OQ-002 is unrelated; see requirements.md REQ-002,
+revised) reverses the *supplied-but-invalid* path to a hard Block (exit
+`2`), reserving the silent-degrade behavior for the *omitted* (legacy, no
+second argument at all) case only.
+
+## INV-015: A5's own design.md states `advisory` and `required` enforcement produce byte-identical Resolver output content — only `Resolver Evidence`'s own `state` field differs
+
+`specs/epic-193-a5-capability-resolver/design.md` (REQ-003 discussion,
+cited directly): "`advisory` and `required` are **not** distinguished by
+this feature's own Resolver output content — the same inputs under either
+state produce byte-identical output across this invocation's own
+**track-exclusive output set**... within that set, only Resolver Evidence's
+own `state` field differs between the `advisory` and `required` fixture of
+an otherwise-identical pair." This means neither a written
+`capability-summary.yaml` nor its own `required_lite_checks`/`capabilities`
+content ever reveals, on its own, whether a specific matched Capability's
+absent `lite_policy.required_lite_checks` key was tolerated (`advisory`) or
+should have Blocked (`required`) — that distinction, if enforced at all,
+must be made by a mechanism this feature (A6) names explicitly, since A5's
+own Resolver output alone cannot carry it (2026-07-22 adversarial review,
+Blocker [B5]).
+
+## INV-016: A5's own design.md step 10b stages a Capability Summary on **every** resolvable (non-Blocked) Lite-track resolve, including the zero-matched-Capability case — a written Summary's mere absence under active enforcement is therefore never a legitimate "nothing to check" state
+
+`specs/epic-193-a5-capability-resolver/design.md` step 10b: "On a
+resolvable source... **stage** (do not yet write) `specs/<feature>/
+capability-summary.yaml` only." The zero-matched-Capability case is
+explicitly named as a resolvable source producing a schema-valid Summary
+with empty `capabilities`/`required_lite_checks` arrays (A5 `design.md`
+Test Strategy item 4, `resolve-project-context-lite`, "track-exclusive-
+output-set fixture"). Under an active Project Context (`workflow.
+capability_enforcement` is `advisory` or `required`, ADR-0016 item 4), a
+Lite-track Feature's successful resolve therefore *always* produces a
+Summary, zero-matched-Capability included — an absent `capability-summary.
+yaml` under that condition can only mean the Resolver Blocked, failed, was
+never invoked, or the file was deleted after the fact, never a legitimate
+zero-checks state (2026-07-22 adversarial review, Blocker [B6]). The only
+condition under which "no Capability Summary, and this is fine" remains
+true is `disabled-legacy` (no Project Context at all, ADR-0016 item 4's own
+"outside that computation's domain" framing, requirements.md Edge Cases
+"Compatibility fallback") — the Resolver mechanism itself never runs, so
+there is nothing to have produced a Summary from.
+
+## INV-017: ADR-0022 item 3's own worked `capability-summary.yaml` example, and A4's own AC-013 fixture built directly from it, name three check-ids (`build`, `test`, `installer-dry-run`) — not one — as the canonical Feature-level `required_lite_checks` content this feature's `lite-check-catalog.json` design must admit
+
+`docs/adr/0022-lite-capability-upgrade.md` item 3's own literal YAML
+example: `required_lite_checks: [build, test, installer-dry-run]`.
+`specs/epic-192-a4-facet-manifest/requirements.md` AC-013 independently
+fixes the identical three-token array as the canonical fixture `contracts/
+capability-summary.schema.json` must validate. An earlier revision of this
+feature's own `lite-check-catalog.json` design seeded only
+`["installer-dry-run"]`, reasoning that `build`/`test` are already
+`lite-gate` baseline check names, not new catalog entries — but the
+Registry-level validator check (j) (REQ-001 item 5) validates every
+`lite_policy.required_lite_checks` **token**, including a Capability
+author's own `build`/`test` declarations, against the catalog; a Capability
+entry declaring `required_lite_checks: [build, test, installer-dry-run]`
+(this feature's own `design.md` Test Strategy item 7 fixture, and the
+literal ADR-0022/A4 canonical example) would fail check (j) on `build`/
+`test` under the single-token seed — the design's own fixture would fail
+its own validator. The 2026-07-22 adversarial review (Major [M1])
+identifies this self-contradiction; the orchestrator's ruling expands the
+seed to all three canonical tokens (Field Definitions, requirements.md,
+revised).
+
+## INV-018: A2's own `requirements.md` Dependencies section states Epic A5 reads `lite_policy`/`trigger`/`required_facets` directly from the **full Registry**, never through the projection generator's own output — contradicting this feature's pre-review "passive flow through the projection" description
+
+`specs/epic-190-a2-capability-registry/requirements.md` (Dependencies,
+"Epic A5 (Capability Resolver) — downstream consumer, not a blocker"):
+"Because the generated projection (REQ-005) carries only `stage:
+implementation` Gate data, Epic A5's need for `trigger`, Facets, and
+`lite_policy` is met by reading the full Registry directly through
+REQ-005's package-relative discovery contract... not through the
+projection." An earlier revision of this feature's own REQ-001 item 5
+stated the new `required_lite_checks` field "passively flows through the
+existing `--check` drift-detection mode" of `generate-gate-capabilities` —
+implying the projection is the delivery path to A5, which A2's own text
+directly contradicts (the projection never carries `lite_policy` at all, in
+any version). The 2026-07-22 adversarial review (Major [M2]) identifies
+this; the orchestrator's ruling corrects REQ-001 item 5 to state the true
+mechanism (full-Registry direct read, no generator-logic change) and
+isolates the one real ripple (the projection's own `_generated` metadata
+hash changing when the underlying Registry file's bytes change) as a
+separate, narrower claim.
+
+## INV-019: `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1` is hard-anchored to its own `specs/epic-136-phase2-gates/human-copy` prefix and cannot read this feature's own staged directory
+
+Direct read, this worktree: `$HumanCopyPrefix = 'specs/epic-136-phase2-
+gates/human-copy'` (`apply-protected-files.ps1:31`) is a literal,
+unparameterized string constant; every staged-source path this runner
+computes is `$HumanCopyPrefix + '/' + $target` (`:635`), and the runner
+additionally requires a **staged canonical `guard-invariants.json` copy**
+at that exact fixed prefix (`$HumanCopyPrefix + '/plugins/sdd-quality-
+loop/references/guard-invariants.json'`, `:621-622`) whose own `phase2_
+human_copy_targets` array it cross-checks, in order, against the live
+file's own array (`:627-628`) — a file this feature's own REQ-002/REQ-005
+human-copy batch does not stage (this feature does not propose changing the
+protected-file inventory, OQ-001, Minor finding, below). This runner
+therefore cannot apply this feature's own `specs/epic-194-a6-lite-
+integration/human-copy/` batch as-is, on either count (wrong prefix,
+missing canonical file). The 2026-07-22 adversarial review (Major [M3])
+identifies this; the orchestrator's ruling adds a design-level contract
+(design.md Protected-File Statement, revised) for the feature-scoped
+anchored runner a future implementation task must author, rather than
+assuming the Epic-136 runner applies unmodified.
+
+## Open Questions
+
+Each entry below records this spec's original disposition and, where the
+2026-07-22 adversarial spec review (14 findings) required a change, the
+orchestrator's ruling that supersedes it. No entry below authorizes
+changing `Spec-Review-Status`/`Impl-Review-Status` — both remain `Pending`
+for a human reviewer.
+
 ## OQ-001: Should `lite-gate/SKILL.md` be newly registered as a protected file, given REQ-004's extension to it?
 
+Status: **CLOSED (orchestrator ruling 2026-07-22, Minor finding).**
 INV-008 confirms `lite-gate/SKILL.md` is not currently in `guard-invariants.
 json`'s protected-file inventory, and neither ADR-0022 nor decision
 document v2 §6 names it as protected. This feature's own REQ-004 extends
 `lite-gate/SKILL.md`'s Process to execute Registry-sourced Lite-specific
 checks — a change to the file that determines what counts as a passing
 Lite quality gate, arguably as enforcement-critical as the four files
-ADR-0022 item 5 already protects. This package does not decide, on its own
-authority, to expand the protected-file inventory beyond what ADR-0022
-already fixed (that would be an independent design judgment this task's
-own instructions ask this feature not to make); `requirements.md`'s Open
-Questions restates this for human/spec-review ruling, and this feature's
-own design (REQ-004) proceeds on the ADR-0022-literal, `guard-invariants.
-json`-confirmed basis — a direct edit to `lite-gate/SKILL.md`, not a
-human-copy one — unless and until that ruling adds it to the protected set.
+ADR-0022 item 5 already protects. The 2026-07-22 adversarial review
+correctly noted an earlier revision left this re-opened as a question for
+human ruling even though this feature's own investigation already had the
+only fact that matters (the live `guard-invariants.json` state) and no
+正本 source proposes protecting it. Ruling: this package does not itself
+propose adding `lite-gate/SKILL.md` to the protected-file inventory
+(expanding ADR-0022's own already-fixed four-file list stays outside this
+feature's own authority) — REQ-004's edit is a **direct** edit,
+definitively, not a question deferred to a later ruling. The existing,
+narrower "live-repository snapshot, re-verified at implementation-start
+time" caveat (`requirements.md` Roles and Permissions; `design.md`
+Protected-File Statement) is retained — that re-verification is a factual
+check against a file that could change for reasons entirely outside this
+feature's own scope, not an open design question this package itself
+still needs resolved.
 
 ## OQ-002: What supplies a Capability-aware signal at `lite-spec`'s pre-generation Risk-Upgrade Gate, before any Feature-specific code diff exists?
 
+Status: **RESOLVED (orchestrator ruling 2026-07-22, Blocker [B1]).**
 INV-010 establishes that `lite-spec`'s Risk-Upgrade Gate runs before any
 `specs/<feature>/` file exists — necessarily before Epic A3's
 `resolve-component-paths`/Epic A5's Resolver has a Feature-specific git
@@ -335,22 +473,37 @@ resolve against). No sibling epic's spec, ADR, or the decision document
 itself states how Capability matching is supposed to produce a signal at a
 point in the flow that precedes the very computation (`affected_
 components`) every existing Capability-matching mechanism (A2's
-`evaluate-predicate`, A5's Resolver) depends on. `requirements.md`'s Open
-Questions names two candidate resolutions this investigation identifies
-without selecting between them (matching this task's own instruction not
-to add independent design judgment where the正本 is silent): (a) evaluate
-Registry `trigger`s directly against every component the Project Context
-already *declares* (Epic A1, static, diff-independent), rather than
-against a diff-scoped `affected_components` subset; or (b) scope this
-feature's own Capability-aware forced-upgrade check to the *existing*
-second invocation point only (`ship`'s pre-selection recheck, INV-010),
-where a real code diff already exists, and leave the pre-generation gate's
-own Capability-awareness as a no-op until a Feature-specific diff exists.
-This is the single largest open design question this package carries
-forward to spec review.
+`evaluate-predicate`, A5's Resolver) depends on. An earlier revision of
+this investigation named two candidate resolutions without selecting
+between them. **Ruling: candidate (a) is selected, and is layered with the
+existing `ship`-time recheck as a mandatory second stage — not a fallback,
+not an either/or choice.** Concretely: (1) at the pre-generation position
+(before any `specs/<feature>/` file is created), `lite-spec`'s extended
+Risk-Upgrade Gate evaluates every Registry Capability's own `trigger` (via
+A2's `evaluate-predicate`, one call per Capability × declared component)
+against every component the Project Context (Epic A1) already declares —
+Project-Context-wide, diff-independent, per candidate (a)'s own advantage
+(satisfies decision document v2 §19's own literal pre-generation-Block
+position, with no dependency on a Feature-specific diff existing yet); any
+matched, ineligible Capability (`lite_policy.eligible: false`) Blocks at
+this position, via REQ-002's own merged-trigger output contract. (2) The
+existing `ship`-time recheck (`plugins/sdd-lite/references/risk-upgrade-
+policy.md:40-51`, INV-010's second invocation point) remains independently
+mandatory and unmodified in position — it is not superseded by (1), and is
+not merely a fallback for when (1) was skipped; it is retained explicitly
+as a second, independent enforcement layer, because a Feature's own real
+diff can touch components the whole-project, declared-component evaluation
+in (1) did not itself flag as relevant to a given Capability's own
+`trigger` at intake time (a component added or changed after intake, or a
+component whose relevant `characteristics` field was not yet accurate at
+intake time). Both stages are now normative parts of this feature's own
+design (`requirements.md` REQ-005, Main Workflows; `design.md`
+Architecture/API-Contract-Plan/Design Decisions), not two candidates
+awaiting a choice.
 
 ## OQ-003: Does `full_upgrade_required` in a written Capability Summary require any `lite-gate`-side re-check, or is it purely an upstream (pre-generation) signal that already prevented `lite-gate` from ever running?
 
+Status: **RESOLVED (orchestrator ruling 2026-07-22, Blocker [B2]).**
 A4's `capability-summary.schema.json` (INV-005) fixes `full_upgrade_
 required` as a required boolean field on every Capability Summary A5's
 Resolver writes. Because A5's own Lite-track resolve path Blocks
@@ -358,12 +511,80 @@ Resolver writes. Because A5's own Lite-track resolve path Blocks
 check the Registry cannot yet source (INV-004), and because REQ-005's own
 full-upgrade Block is scoped to the same pre-generation position as the
 existing Risk-Upgrade Gate (decision document v2 §19's own literal Epic A6
-line), it is not self-evident from any正本 text whether a *written*
-Capability Summary can ever legitimately carry `full_upgrade_required:
-true` in practice, or whether that field exists purely for forward-
-compatibility / defense-in-depth. `requirements.md`'s Open Questions
-restates this narrowly, scoped to whether REQ-003/REQ-004's `lite-gate`
-extension needs its own `full_upgrade_required` re-check (a second,
-independent enforcement point) or may treat a written Capability Summary's
-mere existence as proof the Feature already cleared every full-upgrade
-determination upstream.
+line), it was not self-evident from any正本 text whether a *written*
+Capability Summary could ever legitimately carry `full_upgrade_required:
+true` in practice, or whether that field existed purely for forward-
+compatibility / defense-in-depth. **Ruling: yes** — `lite-gate` performs
+its own independent `full_upgrade_required` re-check, immediately after
+Capability Summary schema validation succeeds (REQ-003/REQ-004's own
+existing validate-before-trust discipline, AC-012), and Blocks (`VERDICT:
+FAIL`, `Status` unchanged, Full-track redirection named in the reason)
+whenever the field reads `true` — never treating a written Summary's mere
+existence as proof every full-upgrade determination already happened
+upstream. This does not reopen or duplicate REQ-005's own pre-generation
+Block (a different position, a different mechanism, and — per INV-015/
+INV-016 below — potentially a different, later-discovered ineligibility a
+whole-project intake-time evaluation could not have seen) — it is
+`lite-gate`'s own backstop, the same "never trust upstream self-report"
+posture ADR-0022 item 4 already requires of every other check `lite-gate`
+runs. `false` continues to Step 2b unchanged; an invalid/missing value is
+already covered by REQ-003's existing schema-invalid-Summary Edge Case,
+since `full_upgrade_required` is a required field on the schema `lite-gate`
+already validates against before reading it.
+
+## Adversarial Spec Review Response (orchestrator ruling 2026-07-22)
+
+A 14-finding adversarial review (7 Blocker, 3 Major, 1 Minor, 3 OK) was
+conducted against this spec package. All 14 findings were accepted by
+orchestrator ruling; the ruling for each is recorded at the point of the
+affected REQ/AC/design text rather than duplicated here. This section is a
+pointer index only — it does not itself change `Spec-Review-Status`/
+`Impl-Review-Status`, both of which remain `Pending`:
+
+- Blocker [B1] (OQ-002/TEST-020 non-selection leaves the pre-generation
+  Block inert) → OQ-002 above (RESOLVED); requirements.md REQ-005/AC-020/
+  Main Workflows step 2/Open Questions/Risks; design.md Architecture/API-
+  Contract-Plan/Design Decisions/Open Questions/Risks; acceptance-tests.md
+  TEST-020/AC-019.
+- Blocker [B2] (`full_upgrade_required: true` read but never Blocked) →
+  OQ-003 above (RESOLVED); requirements.md REQ-003/REQ-004/AC-026; design.md
+  API/Contract Plan Step 2a (NEW); acceptance-tests.md TEST-026.
+- Blocker [B3] (supplied-but-invalid capability fragment fail-opens to
+  keyword-only) → INV-014 above; requirements.md REQ-002/Security
+  Boundaries; design.md Data Plan/API-Contract-Plan/Security Boundaries/
+  AC-027; acceptance-tests.md TEST-027.
+- Blocker [B4] (`eligible: false` with no reasons is unrepresentable in the
+  fragment) → requirements.md REQ-002/Field Definitions/Edge Cases/AC-028;
+  design.md Data Plan/API-Contract-Plan; acceptance-tests.md TEST-028.
+- Blocker [B5] (no enforcement owner for "opted-in" vs. absent per-matched-
+  Capability under `required`) → INV-015 above; requirements.md REQ-001
+  Field Definitions/Edge Cases/AC-029; design.md Cross-Layer Dependencies;
+  acceptance-tests.md TEST-029.
+- Blocker [B6] (active-pipeline Summary absence bypasses every check) →
+  INV-016 above; requirements.md REQ-003/AC-011 (narrowed)/AC-030; design.md
+  Components/API-Contract-Plan Step 2a; acceptance-tests.md AC-011/TEST-011
+  (narrowed), AC-030/TEST-030.
+- Blocker [B7] (`required` check can stay unmapped `N/A` and still PASS) →
+  requirements.md REQ-004/AC-016 (reversed); design.md API-Contract-Plan/
+  new "Lite-check command-discovery contract"; acceptance-tests.md AC-016/
+  TEST-016 (reversed).
+- Major [M1] (single-token catalog seed self-contradicts the design's own
+  `build`/`installer-dry-run` fixture and the ADR-0022/A4 canonical
+  example) → INV-017 above; requirements.md AC-003/Field Definitions/
+  Non-goals/Design Decisions; design.md Data Plan/Design Decisions/Test
+  Strategy; acceptance-tests.md AC-003/TEST-003.
+- Major [M2] (projection "passive flow" claim contradicts A5's full-
+  Registry-direct-read contract) → INV-018 above; requirements.md REQ-001
+  item 5; design.md Architecture/Design Decisions/new Test Strategy item
+  11.
+- Major [M3] (no runner can apply this feature's own protected-file batch)
+  → INV-019 above; design.md Protected-File Statement (revised)/AC-031;
+  acceptance-tests.md AC-010 (revised)/AC-031/TEST-031.
+- Minor (OQ-001 re-opened as a question despite no正本 basis to protect
+  the file) → OQ-001 above (CLOSED); requirements.md Roles and Permissions/
+  Non-goals/AC-017/Risks; design.md Protected-File Statement/Open
+  Questions.
+- OK (schema shape / 12-token vocabulary / lightness boundary) → preserved
+  as-is; the required-mapping fail-closed reversal (B7) and the
+  fragment-shape addition (B4) are both designed to coexist with, not
+  widen, these boundaries (design.md Global Constraints, restated).
