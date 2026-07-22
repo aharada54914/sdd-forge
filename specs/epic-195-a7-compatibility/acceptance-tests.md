@@ -4,9 +4,9 @@
 |---|---|---|---|---|---|
 | AC-001 | REQ-006 | TEST-001 | static / doc-review | golden-baseline capture/promote script contract: two named commands (`capture-golden-baseline.sh`, `promote-golden-baseline.sh`), candidate/canonical separation, fully scripted | Planned |
 | AC-002 | REQ-001 | TEST-002 | integration, negative self-check | byte-identical suite vs. a deliberately mutated fixture | Planned |
-| AC-003 | REQ-001 | TEST-003 | integration | representative script per REQ-001's canonical target inventory (AC-038), two invocations, fixed env | Planned |
+| AC-003 | REQ-001 | TEST-003 | integration | representative script per REQ-001's canonical target inventory (AC-038, including directory listing + plugin manifest) and the 6-cell CLI submatrix, two invocations, fixed env | Planned |
 | AC-004 | REQ-001, REQ-007 | TEST-004 | integration (named SKIP, allowlist-governed, until Epic A5 merges) | Context-absent: no capability subprocess invoked — adopts Epic A5's `design.md` item 10(b) fixture directly | Planned |
-| AC-005 | REQ-002 | TEST-005 | integration | Context-absent generation: exact legacy-seven-layer file set, no capability/Facet files | Planned |
+| AC-005 | REQ-002 | TEST-005 | integration | Context-absent generation: exact track-appropriate file set — legacy-seven-layer (`full`/F1) or the `requirements.md`/`design.md`/`tasks.md` lite-spec set (`lite`/F2, INV-024) — no capability/Facet files | Planned |
 | AC-006 | REQ-002 | TEST-006 | static / regex | `REQ-NNN`/`AC-NNN` identifier format unchanged | Planned |
 | AC-007 | REQ-002, REQ-007 | TEST-007 | integration (named SKIP, allowlist-governed, until Epic A4 merges) | Context-present-required: no Facet reference leaks into legacy-shaped output | Planned |
 | AC-008 | REQ-003 | TEST-008 | static / registration-forcing | `tests/loops/loop-inventory.json` entry count stays 8 | Planned |
@@ -29,18 +29,19 @@
 | AC-025 | REQ-003 | TEST-025 | integration | `TEST-019`'s own quality-gate-outcome event kind: producer/ordering/value-normalization fixed and asserted | Planned |
 | AC-026 | REQ-003 | TEST-026 | integration | Done-transition event kind asserted as the last event within both `TEST-018` and `TEST-019` | Planned |
 | AC-027 | REQ-003 | TEST-027 | integration | skip-stop-message event kind asserted against the allowlist manifest's own fixed template string | Planned |
-| AC-028 | REQ-005 | TEST-028 | static / doc-review | Compatibility Matrix (F1–F8 × REQ-001/002/003, plus the CLI submatrix): every cell marked exactly one of ASSERT/SKIP/N-A | Planned |
+| AC-028 | REQ-005 | TEST-028 | static / doc-review | Compatibility Matrix (F1–F8 × REQ-001/002/003, plus the CLI submatrix): every AC cited in a cell carries its own single disposition — ASSERT / SKIP-with-activation / N-A | Planned |
 | AC-029 | REQ-004 | TEST-029 | static / doc-review | observable×fixture-state judgment table is exhaustive and mutually exclusive (byte vs. event vs. structural) | Planned |
 | AC-030 | REQ-002 | TEST-030 | integration | deterministic recorded-response injection seam + Markdown/frontmatter AST canonicalizer | Planned |
 | AC-031 | REQ-002 | TEST-031 | integration, non-gating | live-model structural-comparison refresh test, registered outside the gating suite/CI job | Planned |
 | AC-032 | REQ-003 | TEST-032 | integration | `TEST-018` in `tests/loop-consistency.tests.sh` exists, calls `assert_event_trace`, and asserts a Context-absent round's own event trace | Planned |
 | AC-033 | REQ-003 | TEST-033 | integration + golden negative test | `emit-run-record.sh`'s four flag-combination outcomes; capability-only usage-error golden negative test | Planned |
-| AC-034 | REQ-007 | TEST-034 | static / doc-review | REQ-007 allowlist manifest: assertion→epic/issue→contract-fingerprint→activation-condition, enumerating A1–A6 | Planned |
+| AC-034 | REQ-007 | TEST-034 | static / doc-review | REQ-007 allowlist manifest: assertion→`dependencies[]` (epic/issue/`fingerprints[]` sha256-digest array)→`merged`/`fingerprint_match` activation-condition grammar, enumerating A1–A6 | Planned |
 | AC-035 | REQ-007 | TEST-035 | integration, negative self-check ×3 | dependency-present SKIP / unknown SKIP / fingerprint drift each independently hard-fail the suite | Planned |
 | AC-036 | REQ-003 | TEST-036 | integration (named SKIP until Epic A5 merges) | anchor-fingerprint drift check against the live `sdd-bootstrap-interviewer/SKILL.md`, owned by this epic's existing suite (OQ-001) | Planned |
 | AC-037 | REQ-003 | TEST-037 | integration (named SKIP until Epic A5 merges) | a REQ-002 Block surfaces as a visible stop/error event, never a silent fallback (OQ-001) | Planned |
 | AC-038 | REQ-001 | TEST-038 | static / doc-review | REQ-001 canonical target inventory: each target 1:1 with a capture format and an AC/TEST, including directory listing + plugin manifest | Planned |
 | AC-039 | REQ-003 | TEST-039 | static / doc-review | INV-014's pattern is scoped to `check-component-coverage`; a per-component disabled-legacy expectation table (Resolver = event absent, coverage Gate = N/A evidence present) | Planned |
+| AC-040 | REQ-006 | TEST-040 | static / doc-review | CI-workflow-scan check: `.github/workflows/test.yml` never references `promote-golden-baseline.sh` or `--write-candidate` | Planned |
 
 This is internal test-infrastructure specification work with no
 user-facing entry point; the UI Integration Checklist is not applicable.
@@ -51,7 +52,7 @@ no test code exists yet. Test IDs and targets are fixed here so the Phase
 resolve, matching this repository's own precedent for fixing a deferred
 suite's contract at design time (investigation.md INV-016, citing Epic
 A5's `resolve-project-context-caller-contract`). The `Test ID` column
-above (`TEST-001`–`TEST-039`) is this package's own Phase 1 AC-to-test
+above (`TEST-001`–`TEST-040`) is this package's own Phase 1 AC-to-test
 placeholder index — one entry per AC, in AC order — and is a distinct
 namespace from the *real*, per-suite-file case numbers Phase 2/3 actually
 implements (e.g. `TEST-018` in `tests/loop-consistency.tests.sh` and
