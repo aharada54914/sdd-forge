@@ -298,15 +298,21 @@ content at a reservation an upstream epic already made.
 
 ## Layer Specifications
 
-Not applicable — this feature has no `frontend-spec.md`/`ux-spec.md`/
-`infra-spec.md`/`security-spec.md` at this phase (requirements.md
-Non-goals; investigation.md INV-015 confirms this matches Epic A2's and
-Epic A4's own precedent of adding those later, at impl-review-prep time,
-not as part of the Phase 1 spec-review commit). This feature ships no UI,
-no infrastructure beyond existing repository scripts, and its security
-posture is covered directly in this document's own Security Boundaries
-section below (matching Epic A2/A3/A4's own identical treatment for a
-backend-only, script-producing feature).
+| Layer | Summary | Canonical Detail | Owner | Status |
+|---|---|---|---|---|
+| UX | N/A — no user-facing surface; deterministic CLI script family + validator + schema + documented (not implemented) caller-integration contract only | ux-spec.md (N/A content — no UI to specify) | — | N/A |
+| Frontend | N/A — no browser/client UI, no new runtime service; new stdlib-only Python scripts + `sh`/`ps1` wrappers recorded for completeness | frontend-spec.md (N/A content — no browser/frontend surface) | — | N/A |
+| Infrastructure | No new runtime deployment; ten new CI test-suite pairs registered in `tests/run-all.sh`/`.ps1`, a staged `test.yml` human-copy candidate, and one new vendored-copy `--check` drift entry (`resolver-evidence.schema.json`) | infra-spec.md (expands this document's Deployment / CI Plan) | Implementation task owner | Planned |
+| Security | No new trust boundary beyond this feature's own transactional-publication/snapshot-recheck/provenance-binding rules (Security Boundaries, below); two already-reserved protected paths inherited from Epic A1 (Protected-File Statement, above) | security-spec.md (expands this document's Security Boundaries / Protected-File Statement) | Implementation task owner | Planned |
+
+Added at impl-review-prep time (investigation.md INV-015 already
+anticipated this step, matching Epic A2's and Epic A4's own identical
+precedent of adding these four files after the Phase 1 spec-review
+commit, not as part of it) — this feature ships no UI and no
+infrastructure beyond existing repository scripts; every one of the four
+files above is a reorganization of this document's own already-fixed
+content into the review harness's canonical layer-file shape, introducing
+no new design judgment of its own.
 
 ## Design System Compliance
 
