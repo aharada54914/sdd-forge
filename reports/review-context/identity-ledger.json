@@ -2961,6 +2961,15 @@
       "host_session_id": "SESS-spec-spec-reviewer-a-epic-195-a7-compatibility-0329",
       "previous_record_sha256": "7a7203a1f9421dbff232459fd9068639a9be6e1896146a65ecba580a118a8e58",
       "record_sha256": "2723b5b411cd0b6698bfd4da76114822a3b1d19a5df340469f05f417792d1b5b"
+    },
+    {
+      "sequence": 330,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-195-a7-compatibility-spec-spec-reviewer-b-seq0330",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-195-a7-compatibility-0330",
+      "previous_record_sha256": "2723b5b411cd0b6698bfd4da76114822a3b1d19a5df340469f05f417792d1b5b",
+      "record_sha256": "6ee63d858ba98591f4ee8c9aeb8a42b8dfbc7175dabf6a1c4563751e575a7ab7"
     }
   ]
 }
