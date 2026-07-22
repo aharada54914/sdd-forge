@@ -352,6 +352,10 @@
     {
       "feature": "epic-159-pillar-d",
       "profile": "full"
+    },
+    {
+      "feature": "epic-195-a7-compatibility",
+      "profile": "full"
     }
   ]
 }
