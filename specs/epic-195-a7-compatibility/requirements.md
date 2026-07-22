@@ -22,7 +22,11 @@ inventory-registered capability event), never silent drift. Per §4.3 and
 to the already-existing `loop-inventory/v1` registry, shared loop driver,
 `loop-consistency`/`loop-escalation` suites, and `emit-run-record.sh`
 (INV-001 through INV-006) — this epic registers no ninth loop and creates
-no parallel test harness.
+no parallel test harness. Compatibility itself is judged against a
+versioned canonical event-trace schema and a governed, pre-capability
+golden baseline this package fixes (REQ-003, REQ-006) — not against ad
+hoc, suite-local assertions — so a future implementer has exactly one
+comparison oracle per compatibility claim, never several competing ones.
 
 This package is Phase 1 (specification) only: `investigation.md`,
 `requirements.md`, `design.md`, `acceptance-tests.md`. No test code,
@@ -51,9 +55,11 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
   those tests must pin has no committed golden baseline (INV-017).
 - Without a formal fixture matrix, "Project Context absent" is the only
   state anyone has tested (implicitly, by every existing suite); the other
-  three states decision doc §6 names — absent-with-lite-marker,
-  present-advisory, present-required (INV-011) — have no test surface at
-  all, on `main` or on any unmerged Epic A branch.
+  seven valid rows decision doc §6 names — absent-with-lite-marker,
+  present-lite-advisory, present-lite-required, present-advisory,
+  present-required, present-facet-hybrid-required,
+  present-facet-native-required (INV-011) — have no test surface at all,
+  on `main` or on any unmerged Epic A branch.
 - Epic A7 is being specified while Epic A1 (Project Context), A2
   (Registry), A3 (Path Ownership), and A5 (Resolver) are still unmerged
   (INV-013–INV-016); a naive orchestration-event spec would either wait
@@ -68,6 +74,18 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
   this requirement first risks either breaking that hardcoded check by
   registering a new loop kind, or silently under-specifying the extension
   by not updating it at all.
+- Neither the shared loop driver nor either loop suite collects an
+  ordered, multi-kind event trace today (INV-021); without a versioned
+  canonical schema fixing every required event kind's own producer,
+  ordering rule, and value-normalization, "event-identical" has no
+  comparison oracle to test against, and REQ-003's six named observables
+  risk collapsing into whichever ad hoc assertion a Phase 2 implementer
+  happens to write first.
+- A `SKIP` degradation rule that only checks the forward direction
+  (unmerged dependency → `SKIP`) is fail-open by construction (INV-023):
+  nothing catches a `SKIP` line surviving after its dependency has
+  merged, an unrecognized `SKIP` message, or a cited upstream contract
+  that has drifted from what this package records.
 
 ## Goals
 
@@ -80,47 +98,133 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
   results are byte-for-byte identical to a recorded golden baseline
   (decision doc §4.1). It extends `tests/install.tests.sh` /
   `tests/uninstall.tests.sh` (INV-007) rather than duplicating their
-  fixture harness.
+  fixture harness. REQ-001's own target list is decomposed into a single
+  canonical inventory table (design.md) so every target — including
+  generated directory listings and plugin manifests — is paired 1:1 with
+  an exact capture format and an AC/TEST (AC-038).
 - **REQ-002** (Structural compatibility test): specify a test kind that
   compares LLM-generated specification artifacts structurally —
   required-file count, frontmatter, required headings, status fields,
   `REQ-NNN`/`AC-NNN` identifier format, absence of Facet-Manifest
   references in legacy mode, and absence of any capability-related
-  generated file in legacy mode (decision doc §4.2).
-- **REQ-003** (Orchestration event test — capability-event extension):
-  specify the exact additive fields/events this epic adds to
-  `tests/loops/loop-inventory.json`, `tests/lib/loop-driver.sh`,
+  generated file in legacy mode (decision doc §4.2) — through a
+  deterministic, versioned recorded-response injection seam and a
+  Markdown/frontmatter AST canonicalizer (AC-030), never a live model
+  call in the gating suite (AC-031).
+- **REQ-003** (Orchestration event test — capability-event extension over
+  a versioned canonical trace schema): specify (a) a single, versioned
+  canonical orchestration-event-trace schema (`compatibility-event-trace/v1`,
+  design.md) naming, independently, each of the six event kinds decision
+  doc §4.3 requires — skill-invocation order, review-loop presence,
+  approval-checkpoint, quality-gate outcome, Done-transition, and
+  skip/stop message — together with that kind's own producer, its
+  ordering rule relative to the other kinds, and its value-normalization
+  rule (AC-022–AC-027); (b) the exact additive fields/events this epic
+  adds to `tests/loops/loop-inventory.json`, `tests/lib/loop-driver.sh`,
   `tests/loop-consistency.tests.sh`, `tests/loop-escalation.tests.sh`, and
-  `emit-run-record.sh` (INV-001–INV-006) to make skill-invocation order,
-  review-loop presence, approval checkpoints, quality-gate outcomes,
-  Done-transitions, and skip/stop messages comparable as an event trace
-  (decision doc §4.3), without registering a new loop `id` and without
-  creating a new `tests/*.tests.sh` file.
+  `emit-run-record.sh` (INV-001–INV-006, INV-021) to produce and compare
+  that schema, without registering a new loop `id` and without creating a
+  new `tests/*.tests.sh` file — capability events extend the existing
+  `quality-gate` loop entry because a capability event has no independent
+  cap/round/terminal lifecycle of its own; it is semantically an outcome
+  of the already-existing quality-gate loop, never a ninth loop (this is
+  the design's own basis for the "no new loop `id`" decision, never
+  `loop-inventory.tests.sh`'s current `length == 8` assertion value,
+  INV-002); and (c) which of the two review-loop suites owns which event
+  kind: `tests/loop-escalation.tests.sh` owns the quality-gate-outcome
+  event (Capability Coverage is a quality-gate common check item,
+  decision doc §3.1, already driven end-to-end by that suite, INV-005 —
+  AC-010/AC-025), while `tests/loop-consistency.tests.sh` owns the
+  skill-invocation-order, review-loop-presence, and approval-checkpoint
+  events (that suite already drives all four review rounds end-to-end via
+  the shared driver, INV-005 — AC-032) — both suites compare against the
+  identical canonical schema from (a), so this remains one oracle, not
+  two competing ones.
 - **REQ-004** (Formal compatibility requirement decomposition): decompose
   decision doc §4's exact requirement text — "Project Context不在時、決定
   論的成果物と制御フローはbyte-identicalまたはevent-identicalであり、LLM
   生成仕様は既存のschema・構造・必須見出しと互換であること" — into
   independently verifiable acceptance criteria, so the requirement itself
-  is testable rather than only its three named test kinds.
-- **REQ-005** (Fixture matrix + cross-runtime pairing): specify a 4-state
-  fixture matrix (Context absent / Context absent + `AGENTS.md`
-  `spec_profile: lite` marker / Context present + `advisory` / Context
-  present + `required` — decision doc §6, INV-011) that every REQ-001
-  through REQ-003 test consumes, each new/extended suite shipped as a
+  is testable rather than only its three named test kinds. Clause (b)'s
+  "registered event vocabulary" is REQ-003's own canonical trace schema;
+  an exclusive observable×fixture-state judgment table (design.md) fixes
+  which observable is byte-compared and which is event-compared, so no
+  observable is ever eligible for both simultaneously (AC-029).
+- **REQ-005** (Fixture matrix + cross-runtime pairing): specify a fixture
+  matrix covering every valid row of decision doc §6's combination matrix
+  — the eight rows that are not one of §6's two explicitly-marked `無効な
+  組合せ` (invalid-combination) rows: (F1) Context absent, default track
+  (`full`/`legacy-seven-layer`/non-active); (F2) Context absent,
+  `AGENTS.md` `spec_profile: lite` marker
+  (`lite`/`lite-three-file`/non-active); (F3) Context present,
+  `full`/`legacy-seven-layer`/`advisory`; (F4) Context present,
+  `full`/`legacy-seven-layer`/`required`; (F5) Context present,
+  `lite`/`lite-three-file`/`advisory`; (F6) Context present,
+  `lite`/`lite-three-file`/`required`; (F7) Context present,
+  `full`/`facet-hybrid`/`required`; (F8) Context present,
+  `full`/`facet-native`/`required` (INV-011; decision doc §6). F1–F4 are
+  this package's own fixture-builder targets (AC-014); F5/F6 are named
+  `SKIP` until Epic A1's schema and Epic A6's Lite integration both merge
+  (REQ-007); F7/F8 additionally require Epic A4/A5 output and are
+  recorded `N/A` — no Foundation epic (A0–A9, decision doc §19) produces
+  `facet-native` at all, and `facet-hybrid` is reached only after
+  `facet-hybrid` "has an operational track record" (ADR-0016 Decision
+  item 2), i.e. after this epic's own Phase 3 — so F7/F8 are documented
+  rows carrying a stated non-coverage rationale, never silently omitted
+  cells (AC-028). Each of the F3/F4 rows additionally requires a
+  `PROJECT_CONTEXT_INVALID` negative variant (F3-invalid, F4-invalid —
+  Edge Cases, below; AC-019–AC-021), resolving OQ-002. The Context-absent
+  rows (F1/F2) are additionally decomposed into a CLI
+  `none`/`--full`/`--lite` × `AGENTS.md`-marker `present`/`absent`
+  submatrix (six cells) exercising the unchanged compatibility-fallback
+  priority order CLI flag → `AGENTS.md` marker → default (ADR-0023 item
+  2; `PLUGIN-CONTRACTS.md:63-66`), so F1/F2 are each one cell of that
+  submatrix (no-flag/no-marker and no-flag/marker respectively), not the
+  submatrix's full coverage by themselves. Every REQ-001 through REQ-003
+  test consumes the relevant matrix cells (AC-028 fixes the exhaustive
+  cell-to-AC/TEST/SKIP/N-A mapping); each new/extended suite ships as a
   `.sh`/`.ps1` pair per this repository's existing convention (INV-005,
   INV-007), registered in `tests/run-all.sh`, `tests/run-all.ps1`, and
   `.github/workflows/test.yml` (INV-005 pattern).
-- **REQ-006** (Golden baseline governance): specify where the REQ-001
-  golden baseline lives, how it is captured for the first time, and the
-  exact procedure and required approval for updating it — an unreviewable,
-  agent-writable golden baseline would defeat the byte-identical test's
-  own purpose.
-- **REQ-007** (Forward-compatibility / staged activation): specify how
-  every "Context present" assertion in REQ-001–REQ-003 behaves before its
-  upstream dependency (Epic A1 Project Context schema, Epic A2 Registry,
-  Epic A3 path ownership, Epic A5 Resolver) is merged to `main` — a named,
-  auditable `SKIP`, never a silent pass and never a hard failure that
-  blocks Epic A0's own stated build order (decision doc §20).
+- **REQ-006** (Golden baseline governance): specify (a) the golden
+  baseline's exact capture script name/path/location, its manifest
+  format, and the exact command that runs it (API / Contract Plan,
+  design.md); (b) that the baseline is captured once against a **fixed,
+  named pre-capability commit** — the merge-base commit that predates
+  Epic A1's own first merge to `main`, recorded by exact SHA in the
+  manifest (AC-018) — never "whatever `main` is when Phase 2 begins"
+  (INV-022), so a legacy regression an already-merged upstream epic
+  introduces before this epic's own Phase 2 starts can never be silently
+  canonized as the new baseline; and (c) a two-stage update procedure
+  that structurally separates a locally-regenerable **candidate**
+  baseline (unreviewed, gitignored, produced by the same script's
+  `--write-candidate` mode) from the committed **canonical** one: a
+  candidate is promoted to canonical only via a dedicated pull request
+  whose diff a human maintainer reviews and approves (Roles and
+  Permissions; Security Boundaries B1) — the default (no-flag) invocation
+  of the capture script is read-only (diff-against-canonical-only) in
+  every context including CI, and CI is never the actor that writes the
+  canonical baseline (Roles and Permissions).
+- **REQ-007** (Forward-compatibility / staged activation): specify (a)
+  how every "Context present" assertion, and every Context-absent
+  assertion whose own target process does not exist yet (e.g. AC-004's
+  Resolver-absence spy, meaningful only once Epic A5's Resolver process
+  exists to be absent-checked against, INV-015), behaves before its
+  upstream dependency (Epic A1 Project Context, Epic A2 Registry, Epic A3
+  path ownership, Epic A4 Facet Manifest, Epic A5 Resolver, Epic A6 Lite
+  integration — INV-023) is merged to `main` — a named, auditable `SKIP`,
+  never a silent pass and never a hard failure that blocks Epic A0's own
+  stated build order (decision doc §20); and (b) a single allowlist
+  manifest (design.md) mapping every such assertion to
+  {epic/issue, expected-contract fingerprint, machine-detectable
+  activation condition} that the suite reads to emit each `SKIP` line, so
+  that (i) a `SKIP` for an assertion whose activation condition is
+  already true (its dependency has merged) is a hard failure, not a
+  silent pass; (ii) any `SKIP`-shaped output not present in the allowlist
+  is a hard failure (unknown SKIP); and (iii) an allowlisted assertion
+  whose recorded contract fingerprint no longer matches its cited
+  upstream epic's current spec is a hard failure (fingerprint drift) —
+  closing the fail-open direction INV-023 identifies.
 
 ## Non-goals
 
@@ -139,9 +243,14 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
   vocabulary-revision decision outside this epic's scope, recorded as an
   Open Question below.
 - Re-specifying Epic A5's own deferred `resolve-project-context-caller-contract`
-  suite (INV-016) in full; this package only decides where that suite's
-  eventual home is (Open Questions) so Phase 2/3 tasks are not blocked
-  guessing.
+  suite (INV-016) in full, or its remaining fixture assertions this
+  package does not adopt. This package specifies exactly the three
+  fixture-level assertions A5's own `design.md` item 10(a)/(b)/(c) already
+  fixes — anchor-fingerprint drift, Context-absent Resolver-non-invocation,
+  and Block-surfaces-not-fallback — as `TEST` cases inside this epic's own
+  existing suite once Epic A5's caller insertion point is implemented
+  (AC-036, AC-004/AC-021, AC-037; OQ-001, resolved), so Phase 2/3 has no
+  remaining suite-placement ambiguity to guess at.
 - Any change to `plugins/**`, `scripts/**`, `.github/**`, `tests/**`,
   `contracts/**`, or `docs/**` in this task.
 
@@ -183,9 +292,14 @@ guessing at an undocumented convention.
   Registry discovery, Facet generation) — the "resolver を呼ばない旧コー
   ドパス" target of decision doc §4.1 — via a spy/absence check, not by
   merely observing that the (currently nonexistent) subprocess happens not
-  to exist (REQ-007; this assertion becomes meaningful once Epic A5 lands
-  and is a named `SKIP` until then, citing the tracking issue, per
-  REQ-007).
+  to exist. This is the identical spy-harness fixture Epic A5's own
+  `design.md` item 10(b) already fixes for
+  `resolve-project-context-caller-contract` (INV-016); this package adopts
+  it directly rather than redesigning an equivalent check. It is a named
+  `SKIP` entry in REQ-007's allowlist manifest (AC-034) until Epic A5
+  lands, citing the tracking issue — the activation condition is "Epic A5
+  merged to `main`," at which point a surviving `SKIP` here is a hard
+  failure (AC-035).
 - AC-005: The structural compatibility test (REQ-002) asserts, for a
   Context-absent LLM-generation fixture, that generated artifacts contain
   exactly the legacy-seven-layer file set (INV-018) — no
@@ -202,26 +316,35 @@ guessing at an undocumented convention.
   no Facet reference in a project that legacy-mode-generates
   (cross-referencing INV-014's truthful-non-evaluation principle: presence
   of capability wiring, absence of Facet content, are two independently
-  checkable claims) — named `SKIP` until Epic A4's Facet Manifest exists
-  (REQ-007).
+  checkable claims) — a named `SKIP` entry in REQ-007's allowlist manifest
+  (AC-034) until Epic A4's Facet Manifest exists, activation condition
+  "Epic A4 merged to `main`" (REQ-007).
 - AC-008: `tests/loops/loop-inventory.json`'s entry count remains exactly
   8 after this epic's Phase 2/3 implementation (INV-002); any new field
   this epic's design proposes is additive and optional, verified by a
   schema-validation check that a pre-epic copy of the registry (no new
   fields) still validates against the (still `loop-inventory/v1`, not
   bumped) schema.
-- AC-009: At least one existing `loop-inventory` entry (design.md names
-  which) carries a new, additive field enumerating the capability events
-  that entry's own gate can emit once capability machinery exists (e.g.
-  `disabled-legacy` / `advisory` / `required` applicability outcomes,
-  INV-014), and `assert_artifacts_schema`/`assert_terminal`
-  (`tests/lib/loop-driver.sh`, INV-004) require no code change to read it.
-- AC-010: A new numbered `TEST-0NN` case is added to `tests/loop-consistency.tests.sh`
-  or `tests/loop-escalation.tests.sh` (design.md decides which, backed by
-  investigation.md's own reasoning) asserting that a Context-absent round
-  drive produces an identical event trace (skill invocation order, loop
-  presence/absence, terminal state) to a recorded golden trace — no new
-  suite file is created (REQ-003, INV-005).
+- AC-009: The existing `quality-gate` `loop-inventory` entry (design.md
+  Design Decisions) carries a new, additive `capability_applicability`
+  field enumerating that entry's own capability-applicability outcomes
+  (`disabled-legacy` / `advisory` / `required`, INV-014, scoped to the
+  component-coverage Gate shape, AC-039). `assert_artifacts_schema` and
+  `assert_terminal` (`tests/lib/loop-driver.sh`, INV-004) are themselves
+  unmodified by this addition — the new field is read by a new, dedicated
+  `assert_capability_applicability` helper (API / Contract Plan,
+  design.md), not by either existing function; this corrects a prior
+  draft's inaccurate "existing helpers read it with no code change"
+  framing (INV-002's caveat, above).
+- AC-010: A new numbered case, `TEST-019`, is added to
+  `tests/loop-escalation.tests.sh` (design.md Design Decisions) asserting
+  that the quality-gate-outcome event kind (capability-applicability
+  observation) a Context-present round drive produces is identical to the
+  recorded golden-trace value for that fixture state's canonical
+  `compatibility-event-trace/v1` value (REQ-003) — no new suite file is
+  created (INV-005). AC-032 is this criterion's `loop-consistency`-owned
+  counterpart for the skill-invocation-order, review-loop-presence, and
+  approval-checkpoint event kinds.
 - AC-011: `emit-run-record.sh`'s no-flag output remains byte-identical to
   today's `sdd-run-record/v1` shape after this epic's Phase 2/3
   implementation (the same invariant its own `v1`/`v2` branch already
@@ -239,34 +362,207 @@ guessing at an undocumented convention.
   byte-identical, (b) Context-present deviation is event-identical against
   a registered event vocabulary, (c) generated specs remain
   schema/structure/heading-compatible — each clause traced to at least one
-  AC above in `traceability.md` (future phase).
-- AC-014: All four fixture-matrix states (REQ-005) are constructible by a
-  single, named fixture-builder contract (design.md fixes its signature),
-  each producing a `project-context.yaml`-absent-or-present,
-  `AGENTS.md`-marker-present-or-absent, and
-  `capability_enforcement`-valued tree as decision doc §6's combination
-  matrix rows require (INV-011).
+  AC above in `traceability.md` (future phase), and clause (a)/(b)'s own
+  boundary is fixed exhaustively and exclusively by the
+  observable×fixture-state judgment table AC-029 requires, so no
+  observable is ever simultaneously eligible for both a byte-identical
+  and an event-identical assertion.
+- AC-014: F1–F4 (REQ-005) are constructible by a single, named
+  fixture-builder contract (design.md fixes its signature) accepting a
+  `project-context.yaml`-absent-or-present, `AGENTS.md`-marker-present-or-
+  absent, `capability_enforcement`-valued, and (for F3/F4) a
+  valid-or-`PROJECT_CONTEXT_INVALID`-variant parameter, as decision doc
+  §6's combination-matrix rows require (INV-011); the same contract also
+  constructs the Context-absent CLI `none`/`--full`/`--lite` ×
+  `AGENTS.md`-marker submatrix (REQ-005) as a `track_flag` parameter
+  independent of the other three.
 - AC-015: Every new or extended suite this epic's future tasks add ships
   as a `.sh`/`.ps1` pair (INV-005, INV-007 convention) and is registered
   in `tests/run-all.sh`, `tests/run-all.ps1`, and
   `.github/workflows/test.yml` — this package's design.md names the exact
   registration lines to add to, without editing them now.
-- AC-016: Every "Context present" assertion in REQ-001–REQ-003 that
-  depends on an unmerged upstream epic (A1/A2/A3/A5) degrades to a named
-  `SKIP` line (matching the existing `LOOP_VALIDATOR_CAPABILITY`
-  degradation pattern, `tests/lib/loop-driver.sh:460-519`) citing the
-  specific tracking issue, rather than failing the suite or silently
-  passing, until that upstream epic merges (REQ-007).
+- AC-016: Every assertion in REQ-001–REQ-003 that depends on an unmerged
+  upstream epic (A1/A2/A3/A4/A5/A6, INV-023) — whether a Context-present
+  assertion or a Context-absent spy/absence assertion whose own target
+  does not exist yet (AC-004) — degrades to a named `SKIP` line (matching
+  the existing `LOOP_VALIDATOR_CAPABILITY` degradation pattern,
+  `tests/lib/loop-driver.sh:460-519`) citing the specific tracking issue
+  and reading its entry from the REQ-007 allowlist manifest (AC-034),
+  rather than failing the suite or silently passing, until that upstream
+  epic merges.
 - AC-017: This package cites file:line evidence (WFI-011) for every
   checkable factual claim about current repository behavior; `spec-review`
   is expected to reject an uncited claim as a structural gap (AGENTS.md
   rule, INV-019).
 - AC-018: The Golden baseline (REQ-006/AC-001) capture procedure records,
-  at minimum, the exact commit SHA it was captured against, the exact
-  fixed environment variables used, and the exact script versions
-  (file sha256) it pins — an update to the baseline is only valid when
-  accompanied by a human-reviewed diff explaining why legacy behavior
-  intentionally changed (never an unreviewed regeneration).
+  at minimum, the exact pre-capability merge-base commit SHA it was
+  captured against (INV-022 — never "`main` at Phase 2 start"), the exact
+  fixed environment variables used, and the exact script versions (file
+  sha256) it pins — an update to the baseline is only valid when produced
+  as a `candidate` (REQ-006c), promoted to `canonical` via a dedicated
+  pull request carrying a human-reviewed diff explaining why legacy
+  behavior intentionally changed, and never written directly by CI or by
+  an unreviewed regeneration.
+- AC-019: A `sdd/project-context.yaml` that is physically present but
+  fails Epic A1's own validator (REQ-009, `PROJECT_CONTEXT_INVALID` —
+  `specs/epic-189-a1-project-context/requirements.md:891-908,1836-1847`)
+  causes the orchestration-event trace to record a distinct
+  `PROJECT_CONTEXT_INVALID` stop event for both the F3-invalid and
+  F4-invalid fixture variants (REQ-005) — never the F1/F2
+  compatibility-fallback event and never a valid-F3/F4 event trace. Named
+  `SKIP` in REQ-007's allowlist manifest until Epic A1 merges.
+- AC-020: The F3-invalid/F4-invalid fixture variants' own event trace
+  never reaches the Context-absent compatibility-fallback path (CLI-flag
+  → `AGENTS.md`-marker → default priority order, ADR-0023 item 2) — only
+  a `sdd/project-context.yaml` that is physically **absent** reaches that
+  fallback (`specs/epic-189-a1-project-context/requirements.md:891-921`),
+  so F3-invalid/F4-invalid and F1/F2 must be asserted as producing
+  genuinely different event traces, not the same fallback trace reused
+  for both. Named `SKIP` until Epic A1 merges (REQ-007).
+- AC-021: The F3-invalid/F4-invalid fixture variants' event trace asserts
+  the Resolver subprocess is never invoked (identical spy/absence
+  mechanism to AC-004) — a present-but-invalid Context must fail closed
+  before any capability machinery runs, not merely before it succeeds.
+  Named `SKIP` until Epic A1 **and** Epic A5 both merge (REQ-007;
+  Resolver-invocation-avoidance depends on A5 existing to be spied on).
+- AC-022: The skill-invocation-order event kind (canonical trace schema,
+  REQ-003) has its own producer, ordering rule, and value-normalization
+  fixed in design.md, and `TEST-018` in `tests/loop-consistency.tests.sh`
+  (AC-032) asserts a Context-absent round drive's observed
+  skill-invocation-order sequence is identical to a recorded golden-trace
+  value for that event kind alone.
+- AC-023: The review-loop-presence event kind has its own producer,
+  ordering rule, and value-normalization fixed in design.md, and the same
+  `TEST-018` case (AC-032) asserts the observed set of loop entries/rounds
+  actually driven for a given fixture state is identical to the recorded
+  golden-trace value for this event kind.
+- AC-024: The approval-checkpoint event kind has its own producer (the
+  shared driver's `_loop_reserve_review_context`/ledger-write call sites,
+  INV-003), ordering rule, and value-normalization (ledger hash fields
+  excluded/canonicalized per design.md) fixed, and is asserted against
+  the golden trace by the same `TEST-018` case AC-032 names.
+- AC-025: The quality-gate-outcome event kind has its own producer
+  (`check-quality-gate-cycle-limit.sh`/`select-agent-model.sh` escalation
+  decisions plus the new `capability_applicability` observation, INV-005,
+  INV-014), ordering rule, and value-normalization fixed, and is asserted
+  against the golden trace by `TEST-019` in `tests/loop-escalation.tests.sh`
+  (AC-010).
+- AC-026: The Done-transition event kind has its own producer (the
+  terminal-state write this epic's fixture drive observes,
+  `assert_terminal`, INV-004), ordering rule (always last in a round's
+  own event sub-sequence), and value-normalization fixed, and is asserted
+  against the golden trace by the same `TEST-018`/`TEST-019` cases
+  AC-022/AC-025 name, split by which suite drives the round in question.
+- AC-027: The skip/stop-message event kind has its own producer
+  (`loop_validator_skip`'s existing named-SKIP pattern, INV-005,
+  `tests/lib/loop-driver.sh:460-519`, extended by REQ-007's allowlist
+  manifest, AC-034) and value-normalization (the message's own fixed,
+  cited-issue-number template, never free text) fixed, and is asserted
+  against the golden trace's skip-message value wherever a `SKIP`-degraded
+  assertion fires within a driven round.
+- AC-028: A single compatibility matrix (design.md) enumerates every
+  valid decision doc §6 row (F1–F8, REQ-005) crossed with each of
+  REQ-001/REQ-002/REQ-003's three test kinds, marking each cell exactly
+  one of `ASSERT` (cites the AC/TEST that covers it), `SKIP` (cites the
+  REQ-007 allowlist entry gating it), or `N/A` (cites the stated
+  non-coverage rationale, e.g. F7/F8's "no Foundation epic produces this
+  state") — no cell is left unmarked, and no cell carries more than one
+  of the three markings. The Context-absent CLI `none`/`--full`/`--lite`
+  × marker submatrix (REQ-005) is included as its own six-cell block
+  within the same table.
+- AC-029: A single observable×fixture-state judgment table (design.md)
+  fixes, for every REQ-001/REQ-002 observable (script output, exit code,
+  stdout/stderr, template copy, schema validator, install, uninstall,
+  directory listing, plugin manifest, generated-artifact structure)
+  crossed with every matrix row (AC-028), whether that observable is
+  compared byte-identical or event-identical for that row — each cell
+  carries exactly one marking (mutually exclusive), and the table's own
+  coverage is exhaustive over every observable×row pair AC-028 already
+  enumerates.
+- AC-030: The structural compatibility test's LLM-generation fixtures
+  inject a versioned, recorded model response through a fixed
+  deterministic seam (design.md names the injection point in
+  `sdd-bootstrap-interviewer`'s own generation call) rather than invoking
+  a live model, and every generated Markdown/frontmatter artifact is
+  compared through a fixed AST canonicalizer (heading order, whitespace,
+  and frontmatter key order normalized before comparison) — REQ-002's own
+  gating suite runs fully offline and deterministically against this
+  seam, never against a live model call.
+- AC-031: A separate, explicitly non-gating test exercises the structural
+  compatibility assertions against a live model call (recorded-response
+  corpus refresh) — its own result is never required for the
+  compatibility suite's own pass/fail verdict and it is never registered
+  in the gating `tests/run-all.sh`/`.github/workflows/test.yml` entries
+  AC-015 requires for the gating suite.
+- AC-032: A new case, `TEST-018`, in `tests/loop-consistency.tests.sh`
+  (design.md Design Decisions; that suite's own next available case
+  number after `TEST-017`, INV-005) asserts that a Context-absent round
+  drive's skill-invocation-order, review-loop-presence, and
+  approval-checkpoint event-kind values (AC-022–AC-024) are identical to
+  the recorded golden trace — no new suite file is created (REQ-003).
+- AC-033: `emit-run-record.sh`'s four `--effort-*`/
+  `--capability-enforcement` flag combinations each produce the exact
+  JSON shape design.md fixes: no-flag → unchanged `sdd-run-record/v1`
+  heredoc (AC-011); `--effort-*` only → current `sdd-run-record/v2` with
+  the `effort` object, no `capability` object; `--capability-enforcement`
+  only (no `--effort-*`) → a usage error (non-zero exit, no `$out` file
+  written), matching the script's own existing
+  `require_effort_control_value`-style fail-closed argument validation
+  (`plugins/sdd-quality-loop/scripts/emit-run-record.sh:45-54`); both
+  flag families → `sdd-run-record/v2` with both the `effort` object and
+  the additive `capability` object (AC-012). A golden negative test
+  asserts the capability-only combination's own non-zero exit and absent
+  output file.
+- AC-034: A single allowlist manifest (design.md; REQ-007) lists every
+  upstream-dependent assertion this package names as a `SKIP` candidate —
+  AC-004, AC-007, AC-019–AC-021, and any Context-present REQ-003
+  assertion — each row carrying {assertion ID, upstream epic/issue (A1
+  #189, A2 #190, A3 #191, A4 #192, A5 #193, A6 #194, INV-023), the
+  expected contract fingerprint this package's own citation records, and
+  a machine-detectable activation condition (e.g. "the cited spec file's
+  `Spec-Review-Status` is no longer `Pending` and the branch is merged to
+  `main`")}.
+- AC-035: The suite fails — not `SKIP`s, not passes — when (a) an
+  allowlisted assertion's activation condition (AC-034) evaluates true
+  but the assertion still emits `SKIP`; (b) any `SKIP`-shaped line in
+  suite output does not match an allowlist entry (unknown SKIP); or (c)
+  an allowlisted assertion's recorded contract fingerprint no longer
+  matches its cited upstream spec's current content (fingerprint drift) —
+  closing the fail-open direction INV-023 identifies.
+- AC-036: A `TEST-0NN` case inside this epic's own existing suite
+  (design.md; not a new suite file) recomputes, against the live
+  `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md`, the
+  sha256 of the fixed line window and the target heading's own ordinal
+  position Epic A5's `design.md` item 10(a) already records
+  (`specs/epic-193-a5-capability-resolver/design.md:1861-1880`), failing
+  loudly on drift — resolving OQ-001's suite-ownership half for this
+  specific assertion.
+- AC-037: A `TEST-0NN` case inside this epic's own existing suite asserts
+  that a REQ-002 Block (Epic A5's own diagnostic taxonomy,
+  `specs/epic-193-a5-capability-resolver/requirements.md:334-349`)
+  surfaces as a visible stop/error event in the orchestration-event trace
+  rather than silently falling back to legacy generation — the third of
+  Epic A5's `design.md` item 10 fixture assertions
+  (`specs/epic-193-a5-capability-resolver/design.md:1881-1886`), owned by
+  this epic's own existing suite, resolving OQ-001 in full together with
+  AC-004/AC-021 and AC-036.
+- AC-038: REQ-001's target inventory is a single canonical table
+  (design.md) pairing each target — deterministic script output, exit
+  code, stdout/stderr, template-copy result, schema-validator result,
+  install result, uninstall result, generated directory listing, and
+  plugin manifest — 1:1 with an exact capture format (a status integer, a
+  raw stdout/stderr byte-tuple, or a filesystem manifest) and an AC/TEST;
+  the generated directory listing and plugin manifest (decision doc §4.1)
+  are present in this table even though a prior draft's AC-003/
+  capture-contract/Test Strategy text omitted both.
+- AC-039: INV-014's three-state Gate-applicability pattern is documented
+  as scoped to the `check-component-coverage` Gate shape only (not every
+  future capability-derived Gate); a per-component table (design.md)
+  fixes each component's own `disabled-legacy` expectation independently
+  — `check-component-coverage`: an evidence event present with
+  `state: "not-applicable (disabled-legacy)"`; Resolver (Epic A5): no
+  invocation event at all — so the orchestration-event trace's own
+  fixture assertions never require the two to share one shape.
 
 ## Field Definitions
 
@@ -281,11 +577,34 @@ guessing at an undocumented convention.
   `workflow.capability_enforcement` is `advisory`.
 - **Context-present-required fixture**: identical, with
   `workflow.capability_enforcement: required`.
+- **Context-present-invalid variant**: a Context-present-advisory or
+  Context-present-required fixture (above) whose `sdd/project-context.yaml`
+  is physically present but fails Epic A1's own validator (REQ-009,
+  `specs/epic-189-a1-project-context/requirements.md:891-921`) — the
+  required negative variant of each present state (REQ-005; AC-019–
+  AC-021), distinguished in the orchestration-event trace from both the
+  Context-absent fallback and a valid Context-present run by a distinct
+  `PROJECT_CONTEXT_INVALID` stop event (Edge Cases, below; resolves
+  OQ-002).
 - **Event-identical**: two orchestration event traces are event-identical
-  when they name the identical ordered sequence of skill
-  invocations/loop entries/terminal states, even when byte-level artifact
-  content differs (decision doc §4's own distinction between
-  byte-identical and event-identical compatibility).
+  when every event kind the `compatibility-event-trace/v1` schema
+  (design.md; REQ-003) defines — skill-invocation order, review-loop
+  presence, approval-checkpoint, quality-gate outcome, Done-transition,
+  and skip/stop message (decision doc §4.3) — matches per that schema's
+  own required/ignored-field list, ordering rule, and value-normalization
+  rule for that kind, even when byte-level artifact content differs
+  (decision doc §4's own distinction between byte-identical and
+  event-identical compatibility). Which observable is byte-compared and
+  which is event-compared for a given fixture-matrix row is fixed
+  exhaustively and exclusively by the observable×fixture-state judgment
+  table AC-029 requires — never a fixture-state-only or observable-only
+  default.
+- **Canonical event kind**: one of the six named, independently-defined
+  members of the `compatibility-event-trace/v1` schema (REQ-003):
+  `skill-order`, `review-loop-presence`, `approval-checkpoint`,
+  `quality-gate-outcome`, `done-transition`, `skip-stop-message`. Each
+  kind is asserted by its own AC (AC-022–AC-027) and traced to its own
+  producer in design.md.
 - **Capability event**: any orchestration-observable fact whose presence,
   absence, or value depends on `workflow.capability_enforcement`'s derived
   state (`disabled-legacy` / `advisory` / `required`, ADR-0016) — e.g. "the
@@ -295,42 +614,67 @@ guessing at an undocumented convention.
 
 ## Roles and Permissions
 
-- **Maintainer**: authors the golden baseline (REQ-006), approves baseline
-  updates, and is the sole approver of any task that touches
+- **Maintainer**: authors the golden baseline's initial canonical capture
+  (REQ-006) against the fixed pre-capability merge-base commit (AC-018),
+  reviews and approves every later candidate→canonical promotion PR
+  (REQ-006c), and is the sole approver of any task that touches
   `tests/loops/loop-inventory.json` (a shared, cross-epic registry —
   INV-001) or `emit-run-record.sh` (INV-006).
-- **Epic A1/A2/A3/A5 implementer**: consumes this package's REQ-003/
+- **Epic A1/A2/A3/A4/A5/A6 implementer**: consumes this package's REQ-003/
   design.md contract to know which fields/events their own epic's Phase
   2/3 tasks must add; does not redesign the shared registry/driver
   contract unilaterally.
 - **CI**: runs every REQ-005 fixture-matrix state on every push, using the
   named `SKIP` degradation (AC-016) for states whose upstream dependency
-  is not yet merged.
+  is not yet merged. CI never writes the golden baseline (REQ-006/AC-018)
+  in either its `candidate` or `canonical` form — the capture script's own
+  default (no-flag) invocation is read-only, and `--write-candidate`
+  output is never committed by an automated job; only a human-reviewed
+  pull request promotes a candidate to canonical (Security Boundaries B1).
 
 ## Main Workflows
 
 1. A future Phase 2/3 task reads this package, captures the REQ-006 golden
-   baseline against the current `main` HEAD, and commits it.
+   baseline against the fixed pre-capability merge-base commit (AC-018,
+   never "current `main` HEAD"), and commits it as the initial canonical
+   baseline. Before this task's own Phase 2 begins, a preflight
+   `check-sdd-structure.sh` run against this directory is expected to fail
+   with the six `missing:` lines Risks (Medium) already records — Phase
+   2's own first commit is the one that finally generates those files,
+   making the Phase-1 deviation self-closing rather than silently
+   permanent.
 2. That task extends `tests/loops/loop-inventory.json` with the additive
-   capability-event field(s) this package's design.md names, and adds the
-   corresponding `TEST-0NN` case(s) to the named existing suite.
+   `capability_applicability` field on the `quality-gate` entry (design.md
+   Data Plan), adds `TEST-019` to `tests/loop-escalation.tests.sh`
+   (AC-010/AC-025), and adds `TEST-018` to `tests/loop-consistency.tests.sh`
+   (AC-032/AC-022–024).
 3. That task extends `emit-run-record.sh` with the new, flag-gated
-   capability sibling object, following the `effort` object's exact
-   pattern (INV-006).
-4. CI runs all four fixture-matrix states; the three states depending on
-   unmerged upstream epics report a named `SKIP` until each epic merges.
-5. As Epic A1 merges, a follow-up task un-skips the Context-present
-   assertions that depended only on Epic A1; the same repeats for A2/A3/A5
+   `capability` sibling object across all four flag combinations
+   (AC-033), following the `effort` object's exact pattern (INV-006).
+4. That task builds the REQ-007 allowlist manifest (AC-034) and wires
+   AC-035's three hard-fail checks (dependency-present SKIP, unknown
+   SKIP, fingerprint drift) into the suite run itself.
+5. CI runs every REQ-005 matrix cell (AC-028); cells depending on
+   unmerged upstream epics report a named `SKIP` per the allowlist
+   manifest until each epic merges, and CI never writes the golden
+   baseline (Roles and Permissions).
+6. As Epic A1 merges, a follow-up task un-skips the assertions that
+   depended only on Epic A1 (verifying the allowlist's activation
+   condition first, AC-035); the same repeats for A2/A3/A4/A5/A6
    independently, each unblocking only the assertions that name it.
+7. Any baseline update after step 1 follows REQ-006c: a `candidate`
+   capture, a dedicated pull request carrying a human-reviewed diff, and
+   only then a promotion to `canonical` — never a direct commit.
 
 ## Edge Cases
 
 - A Context-present fixture whose `sdd/project-context.yaml` fails
-  Epic A1's own validation (REQ-009, INV-013) must be distinguishable, in
-  the orchestration-event trace, from both the Context-absent fallback and
-  a valid Context-present run — it is the third, `PROJECT_CONTEXT_INVALID`
-  outcome (Field Definitions omits it deliberately until Epic A1 defines
-  its exact validator contract; recorded as an Open Question).
+  Epic A1's own validation (REQ-009, INV-013) is distinguishable, in the
+  orchestration-event trace, from both the Context-absent fallback and a
+  valid Context-present run — it is the third, `PROJECT_CONTEXT_INVALID`
+  outcome, now a named Field Definition (Context-present-invalid variant,
+  above) and the required negative variant of each Context-present matrix
+  row (F3-invalid/F4-invalid, REQ-005; AC-019–AC-021), resolving OQ-002.
 - A golden baseline captured against one `main` commit must not silently
   validate against a later commit whose legacy behavior has genuinely and
   intentionally changed (e.g. a bug fix in `install.sh`) — AC-018's
@@ -346,7 +690,7 @@ guessing at an undocumented convention.
 
 | Trust Boundary | Auth/Authz Requirement | PII / Data Classification | Regulatory Constraints |
 |---|---|---|---|
-| B1: golden baseline capture/update | maintainer-authored and human-reviewed only (REQ-006/AC-018); an agent may propose a diff but never silently commit a baseline update | none (repository fixtures/scripts only) | none identified |
+| B1: golden baseline capture/update | maintainer-authored initial canonical capture against a fixed pre-capability merge-base commit (REQ-006/AC-018); every later update is a `candidate` (agent-producible) promoted to `canonical` only via a maintainer-reviewed pull request (REQ-006c) — CI and an unreviewed agent commit can never write the canonical file directly (Roles and Permissions) | none (repository fixtures/scripts only) | none identified |
 | B2: shared registry/driver/run-record edits (`tests/loops/loop-inventory.json`, `tests/lib/loop-driver.sh`, `emit-run-record.sh`) | cross-epic shared surface (INV-001, INV-006); any Phase 2/3 edit requires the same review rigor as a protected-file change even though these are not formally protected files today, because Epic A2/A3/A5's own suites depend on their stability | none | none identified |
 
 This is internal test-infrastructure specification work with no
@@ -356,10 +700,13 @@ user-facing entry point; the UI Integration Checklist is not applicable.
 
 - Epics A1 (`sdd-forge-wt-epic-189`), A3 (`sdd-forge-wt-epic-191`), and A5
   (`sdd-forge-wt-epic-193`) remain unmerged and in active spec/task-review
-  through this epic's own Phase 1; any REQ-007-cited fact from them may
-  shift before those epics reach `impl-review-loop`/merge. This package
-  re-verifies before Phase 2/3 begins, per investigation.md's Safety
-  constraints.
+  through this epic's own Phase 1; A4 (`sdd-forge-wt-epic-192`) has passed
+  `spec-review-loop` but is also unmerged; A6 (`sdd-forge-wt-epic-194`) is
+  in active spec-review. Any REQ-007-cited fact from any of them may shift
+  before that epic reaches `impl-review-loop`/merge — this is the exact
+  drift AC-035's fingerprint-mismatch hard-fail (REQ-007) is designed to
+  catch, not merely tolerate. This package re-verifies before Phase 2/3
+  begins, per investigation.md's Safety constraints.
 - `docs/ai-dlc-foundation-decision-v2.md` and ADR-0010/0016/0023 remain the
   authoritative, unrevised source of the compatibility requirement and the
   loop-inventory/track-selection contracts respectively; this package adds
@@ -370,33 +717,34 @@ user-facing entry point; the UI Integration Checklist is not applicable.
 
 ## Open Questions
 
-- OQ-001: Should the Epic A5-deferred `resolve-project-context-caller-contract`
-  suite (INV-016) be authored as part of this epic's own orchestration-
-  event package once Epic A5's caller insertion point is implemented, or
-  remain a distinct future task owned by whichever epic implements the
-  capability interview phase (Epic A6, per decision doc §19)? Owner:
-  maintainers. Blocks Phase 2 design of the orchestration-event test's
-  exact suite placement, not this Phase 1 package.
-- OQ-002: Should the `PROJECT_CONTEXT_INVALID` outcome (Edge Cases, above)
-  get its own named fixture-matrix state (a fifth state) once Epic A1
-  defines its validator's exact error contract, or be folded into the
-  Context-present states as a variant? Owner: maintainers, jointly with
-  the Epic A1 implementer. Blocks Phase 2 fixture-builder design
-  (AC-014), not this Phase 1 package.
+- OQ-001 (resolved): Epic A5's deferred
+  `resolve-project-context-caller-contract` fixture assertions (INV-016)
+  are authored as `TEST` cases inside this epic's own existing suite
+  (AC-036, AC-004/AC-021, AC-037), not a new suite file and not a
+  distinct future task — decided in this package (Non-goals; design.md
+  Design Decisions).
+- OQ-002 (resolved): `PROJECT_CONTEXT_INVALID` is folded into the
+  Context-present states as a required negative variant (Field
+  Definitions "Context-present-invalid variant"; REQ-005; AC-019–AC-021),
+  not a fifth top-level fixture-matrix state — decided in this package.
 - OQ-003: Where should the REQ-006 golden baseline fixture set physically
   live — `specs/epic-195-a7-compatibility/verification/` (matching this
   repository's existing per-feature `verification/` convention) or a
   shared `tests/fixtures/compatibility-baseline/`? Owner: maintainers.
-  Blocks Phase 2 implementation, not this Phase 1 package; design.md
-  records the tradeoff without deciding it exclusively.
+  Blocks Phase 2 implementation, not this Phase 1 package; design.md's own
+  Design Decisions section fixes the former as this package's own
+  recommendation without treating the tradeoff as fully foreclosed.
 
 ## Risks
 
 - Critical: specifying "Context present" orchestration-event assertions
-  against Epic A1/A2/A3/A5 specs that are still unmerged and under active
-  review (INV-013–INV-016) risks the assertions drifting from what those
-  epics actually ship; REQ-007's named-`SKIP` design and OQ-001/OQ-002 are
-  this package's mitigation, not an elimination of the risk.
+  against Epic A1/A2/A3/A4/A5/A6 specs that are still unmerged and under
+  active review (INV-013–INV-016, INV-023) risks the assertions drifting
+  from what those epics actually ship; REQ-007's named-`SKIP`/allowlist
+  design (AC-034/AC-035) and this package's OQ-001/OQ-002 resolutions are
+  this package's mitigation, not an elimination of the risk — the
+  fingerprint-drift hard-fail (AC-035c) is what turns a silent drift into
+  a loud one once it actually occurs.
 - High: extending a cross-epic shared surface (`loop-inventory.json`,
   `loop-driver.sh`, `emit-run-record.sh` — INV-001, INV-003, INV-006) is
   higher-blast-radius than a feature-local change; an incorrect additive
@@ -410,4 +758,10 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   directory with the feature name supplied would report six `missing:`
   lines. This is intentional per this task's explicit Phase-1-only mandate
   and is not a defect to silently "fix" by generating placeholder layer
-  files.
+  files. A Phase 2 kickoff gate closes this deliberately rather than
+  leaving it open-ended: Phase 2's own first commit is expected to be the
+  one that finally generates the six missing files (layer specs +
+  `tasks.md`/`traceability.md`), and a `check-sdd-structure.sh` run
+  failing before that commit is the expected, self-documenting signal
+  that Phase 2 has not yet started — never silence (Main Workflows step
+  1).
