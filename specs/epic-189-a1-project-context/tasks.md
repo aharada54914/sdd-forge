@@ -123,9 +123,9 @@ procedure is still required.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T14:31:01Z)
 
-Status: Planned
+Status: Blocked
 
 Risk: medium
 
@@ -260,7 +260,55 @@ Commit B (documentation):
 
 ### Blockers
 
-None
+BLOCKED (2026-07-22, implementation session): every Done-When item this
+task can perform directly is complete and independently verified
+(`contracts/project-context.schema.json`,
+`contracts/provider-bindings.schema.json`,
+`contracts/project-context.template.yaml`,
+`tests/project-context-schema.tests.sh`/`.ps1` — TEST-001/002/003/004/
+040/041/042 all PASS, real run captured at
+`specs/epic-189-a1-project-context/verification/T-001/acceptance-sh.log`
+(exit=0, 41/41) and `.../acceptance-ps1.log` (exit=0, 41/41); both suites
+registered in `tests/run-all.sh`/`.ps1`). The remaining Done-When item —
+"Staged `.github/workflows/test.yml` candidate exists with a correct
+`MANIFEST.sha256` entry" — cannot currently be produced: writing to
+`specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml`
+(via both the Write tool and `cp` through Bash) is denied by
+`sdd-hook-guard.py`'s R-10 gate with "エージェントはゲートスクリプト・
+フック設定・テストファイルを書き換えられません...sudo でもバイパスでき
+ません" (confirmed not a sudo-bypassable checkpoint per
+`plugins/sdd-quality-loop/references/sudo-mode-policy.md`'s own
+"Deterministic gate scripts" enforced-list). Root cause, read directly:
+`_is_protected_gate_file()` (`plugins/sdd-quality-loop/scripts/
+sdd-hook-guard.py:976-990`) matches via pure path-suffix
+`normalized.endswith(suffix.lower())` against
+`plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`'s
+`PROTECTED_GATE_SUFFIXES`, which contains the bare string
+`'.github/workflows/test.yml'` with **no exemption for any
+`specs/**/human-copy/**` staging prefix** — so the sanctioned staging
+candidate path is indistinguishable from the live protected path to this
+check. This is not scoped to T-001: every task in this epic that stages a
+`test.yml` addition (T-001 through every suite-registering task) and
+T-012 (`ship/SKILL.md`, `lite-spec/SKILL.md`) hits the identical suffix
+match for their own staged candidates, since the same unconditional
+suffix list applies. (A pre-existing precedent,
+`specs/epic-159-pillar-c/human-copy/.github/workflows/test.yml`
+(commit `825d6c6`), shows this same path was staged successfully in the
+past even though the identical suffix was already present in that
+commit's own `guard_invariants.py` — the guard's Write/Edit-tool
+enforcement for this exact case is not something this session was able
+to explain from the history available; it may have been wired more
+strictly since, or applied through a path this session's tool set does
+not have.) No workaround was attempted (per this session's operating
+constraints: a guard denial is reported, not routed around). Human
+decision needed: (a) patch `_is_protected_gate_file()` to exempt
+`specs/**/human-copy/**` staging prefixes (a guard change, itself outside
+this task's edit scope and requiring its own review), (b) amend this
+task's (and every sibling task's) Done When to defer `test.yml` staging
+to a single later consolidated task performed via a channel outside this
+guard's purview, or (c) some other resolution. `tasks/run-all.sh`/`.ps1`
+registration (the unprotected half of the same Done-When item family) is
+unaffected and already complete above.
 
 ---
 
