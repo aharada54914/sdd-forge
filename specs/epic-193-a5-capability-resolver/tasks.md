@@ -467,9 +467,9 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T18:36:32Z)
 
-Status: Planned
+Status: Blocked
 
 Risk: high
 
@@ -723,7 +723,37 @@ Commit B (documentation):
 
 ### Blockers
 
-T-001
+T-001 (satisfied — Done, seq0352 PASS).
+
+**New blocker, recorded at this task's own implementation-start time per
+this task's own Depends On re-verification discipline**: Epic A1's
+`canonicalize-sdd-yaml` CLI is absent on this worktree/branch
+(`feature/epic-193-a5-capability-resolver`). Re-verified directly:
+`find . -iname "*canonicalize-sdd-yaml*"` and
+`grep -rl "canonicalize-sdd-yaml" plugins/sdd-quality-loop/scripts/` both
+return no match; no `validate-*.py`/`evaluate-predicate`/
+`resolve-component-paths`/`generate-registry-digest` script exists under
+`plugins/sdd-quality-loop/scripts/` either — Epic A1/A2/A3/A4 have not
+landed on this branch. This task's own Depends On text states verbatim:
+"`canonicalize-sdd-yaml` must be present, landed unmodified from its own
+`Spec-Review-Status: Passed` contract, before this task's own fixtures can
+execute meaningfully; if absent at this task's own implementation-start
+time, this task is blocked pending Epic A1's own landing, per
+requirements.md Assumptions." This task's own Scope requires steps 2-3 to
+invoke `canonicalize-sdd-yaml` as a real subprocess (twice), matching this
+Epic set's own established integration-test convention (never mocked) —
+writing the success-path canonicalization logic and its own RED/GREEN
+fixtures without a real canonicalizer to invoke would not meaningfully
+exercise that logic, only its already-guaranteed failure path
+(`canonicalizer-invocation-failed`, trivially true when the binary is
+simply absent). Per `sdd-forge-wt-epic-189` (a separate worktree on branch
+`feature/epic-189-a1-project-context`) existing elsewhere on this machine,
+Epic A1 itself is in progress but not yet merged/landed onto this task's
+own branch — this task does not read or borrow from that other worktree
+(explicit isolation boundary for this session). Awaiting either (a) Epic
+A1 landing on this branch, or (b) an explicit human/coordinator decision
+on how to proceed otherwise (e.g., develop against a stub with a recorded,
+authorized specification deviation) — not decided unilaterally here.
 
 ---
 ## T-003 Author `resolve-project-context.{py,sh,ps1}`'s Registry-discovery and Capability-evaluation stage (steps 4-9)
