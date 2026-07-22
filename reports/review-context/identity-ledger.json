@@ -3141,6 +3141,15 @@
       "host_session_id": "SESS-impl-a1r2-a-epic136phase3-0349",
       "previous_record_sha256": "bbda4fb1b49680502e58a611db5190f02c3a1441ce821e16cdba0f8ceb9d42ad",
       "record_sha256": "195ecafdc6b587b98306d54bcc733d5274d120b56027381c2e6ea6e7538b5599"
+    },
+    {
+      "sequence": 350,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase3-impl-a1r2-b-seq0350",
+      "host_session_id": "SESS-impl-a1r2-b-epic136phase3-0350",
+      "previous_record_sha256": "195ecafdc6b587b98306d54bcc733d5274d120b56027381c2e6ea6e7538b5599",
+      "record_sha256": "0601a781a2e4d22bee80c439bc948882fd2515103408aab54b9d7800e1df8746"
     }
   ]
 }
