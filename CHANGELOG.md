@@ -4,6 +4,35 @@
 
 ### 追加
 
+- **Registry validator + provider-terms allowlist (Issue #190,
+  epic-190-a2-capability-registry T-004)**:
+  `plugins/sdd-quality-loop/scripts/validate-capability-registry.{py,sh,ps1}`
+  を新規追加。REQ-003(a-i) の9独立チェック
+  (gate-id-duplicate/implementation-ref-missing/unregistered-script/
+  pack-owns-gate-definition/stage-missing/dangling-gate-reference/
+  provider-name-detected/unknown-upgrade-reason/capability-id-duplicate)
+  を実装。Gate implementation identity схема(`.py` canonical参照のみ、
+  唯一の scan root、`check-` prefix 規則、`.sh`/`.ps1`/`.js` wrapper
+  grouping、symlink 解決)を含む。テスト分離のため `--repo-root` を
+  追加(デフォルトは registry_discovery 経由の git-root 解決、
+  checks (b)/(c)/(d) のファイルシステム依存をテスト用の隔離済み
+  fake repo で検証可能に)。併せて `plugins/sdd-quality-loop/
+  references/provider-terms.json`(cloud-provider/distribution-channel/
+  workflow-runtime-product-name の3カテゴリ)を新規追加。新スイート
+  `tests/validate-capability-registry.tests.sh` / `.ps1`(各23
+  checks)は TDD Red→Green で実装(RED: 常に成功を返す stub に対し
+  12/23 失敗確認 → GREEN: 23/23 合格)、9チェック各1つの
+  minimally-mutated fixture、check(c) の bidirectional
+  fixture set、check(i) の combined-duplicate fixture、
+  fully-clean fixture(全チェック合格を証明)を含む。REQ-005
+  share の AC-028 構造配置チェック(`plugins/sdd-capability/` 不在、
+  REQ-002..005 の全ファイルが `plugins/sdd-quality-loop/` 配下)も
+  スイート自身の setup assertion として実装。証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-004/`
+  配下の `{red,green}-{sh,ps1}.log`。`tests/run-all.sh`/`.ps1` へ
+  自スイート登録、`.github/workflows/test.yml` は直接書き込まず
+  human-copy 経由でステージ(T-003 の候補に追記)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-004.md` を参照。
 - **Registry discovery contract + vendored-copy packaging (Issue #190,
   epic-190-a2-capability-registry T-003)**: ADR-0025 の三段階
   script-relative 探索(`plugins/sdd-quality-loop/scripts/registry_discovery.py`、

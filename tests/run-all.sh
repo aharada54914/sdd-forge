@@ -57,6 +57,7 @@ tests=(
   tests/capability-registry-schema.tests.sh
   tests/evaluate-predicate.tests.sh
   tests/registry-discovery.tests.sh
+  tests/validate-capability-registry.tests.sh
 )
 
 for test_file in "${tests[@]}"; do
