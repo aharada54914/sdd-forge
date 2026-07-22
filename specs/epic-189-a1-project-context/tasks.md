@@ -616,9 +616,9 @@ T-002
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T15:24:55Z)
 
-Status: Planned
+Status: Blocked
 
 Risk: high
 
@@ -722,7 +722,25 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 ### Blockers
 
-T-003
+T-003 (documentation-only dependency for shared-file numeric-order
+serialization; not a real conflict here since T-002/T-003 are themselves
+blocked pre-code and have contributed no lines to `tests/run-all.sh`/
+`.ps1` yet).
+
+BLOCKED (2026-07-22, staging only): all of this task's own Done-When
+items are complete and verified — TEST-044/045/046 pass 8/8 in both
+`bash` and `pwsh`, with genuine TDD Red (schema absent, 7/8 fail) → Green
+(schema present, 8/8 pass) evidence captured for both runtimes at
+`specs/epic-189-a1-project-context/verification/T-004/`; the suite is
+registered in `tests/run-all.sh`/`.ps1`; `CHANGELOG.md` is updated. The
+sole remaining item — staging this suite's CI workflow registration
+under human-copy — hits the identical guard block already recorded in
+T-001's `### Blockers` (same root cause, same fix options A/B/C). Exact
+intended CI step content and the human-apply procedure are recorded in
+`reports/implementation/epic-189-a1-project-context/HUMAN-APPLY-STEPS.md`.
+Live CI workflow file SHA-256 unchanged
+(`3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`,
+verified before and after this task's work).
 
 ---
 

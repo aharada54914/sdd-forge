@@ -4,6 +4,55 @@
 
 ### 追加
 
+- **project-context / provider-bindings スキーマ + 単一ソース seed テンプレート
+  (Issue #189, epic-189-a1-project-context T-001)**:
+  `contracts/project-context.schema.json`(schema id
+  `sdd-project-context/v1`)と `contracts/provider-bindings.schema.json`
+  (schema id `sdd-provider-bindings/v1`)を新規追加。`workflow.spec_profile`/
+  `artifact_layout`/`capability_enforcement` の3値と `components[].id`・
+  `platform_targets[].{os,architecture}` のみを REQUIRED とし、他の
+  `components[]` フィールド(`artifact_kinds`/`runtime_classes`/
+  `characteristics.*`/`distribution_channels`/`data_classification`/
+  `provider_binding_ids`/`paths`)は任意。ADR-0020 の条件述語 DSL が参照する
+  8つのallowlistパス全てがスキーマフィールドとして解決することを検証。
+  `provider-bindings` 側は `provider`/`product`/`purpose` を固定enumなしの
+  自由文字列とし(provider-neutrality)、`state_authority`/`credentials`は
+  任意の任意形オブジェクト、`adapter_paths`(Epic A3 Reverse Coverage Gate
+  消費予定)は任意のglob文字列配列。`components[].id`/`bindings[].id` の
+  重複拒否はJSON Schema自体ではなく意味検証層の責務であることを、重複
+  フィクスチャがスキーマ単体は通過しつつ意味チェックでは
+  `DUPLICATE_COMPONENT_ID`/`DUPLICATE_BINDING_ID` として拒否されることで
+  証明。`contracts/project-context.template.yaml` は Epic A1/A3 共通の
+  単一ソース cross-cutting seed 一覧(`specs/**`/`reports/**`/`docs/**`/
+  `.github/**`/`tests/fixtures/**`/`CHANGELOG.md`、各
+  `classification: cross-cutting`)を含む汎用スキャフォールドとして追加。
+  `tests/project-context-schema.tests.sh`/`.ps1` が41アサーションで
+  受け入れ先行検証(acceptance-first)を実施、両ランタイムで実行し
+  PASS(`specs/epic-189-a1-project-context/verification/T-001/`)。
+  `tests/run-all.sh`/`.ps1` へ自スイートを直接登録。R-10 保護ファイルで
+  ある CI ワークフロー定義ファイルへの新規CIステップの反映は、staging
+  メカニズム自体が現状のガード実装(パス末尾一致)によりブロックされる
+  ため未完了 — 詳細と意図した挿入内容は
+  `reports/implementation/epic-189-a1-project-context/T-001.md` と
+  `tasks.md` の T-001 Blockers を参照。詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-001.md`。
+- **approver-registry スキーマ (Issue #189, epic-189-a1-project-context
+  T-004)**: `contracts/approver-registry.schema.json`(schema id
+  `sdd-approver-registry/v1`)を新規追加。`approvers[]` の `id`(不変の
+  identity key)・`name`(可変の表示ラベル、identity比較には一切使用しない)
+  を REQUIRED、`registered_at` は任意。`approvers: []` の空配列は
+  スキーマとして正当(T-005/T-006が構築する2名承認/フェイルクローズド
+  判定の前提条件)。`components[].id`/`bindings[].id`(T-001)と同型の
+  意味検証層による重複`id`拒否(`DUPLICATE_APPROVER_REGISTRY_ID`)を、
+  重複フィクスチャがスキーマ単体は通過することの証明とあわせて実装。
+  TDD Red(スキーマ未実装で8件中7件fail)→ Green(実装後8件全PASS)を
+  `bash`/`pwsh` 双方で実行・記録
+  (`specs/epic-189-a1-project-context/verification/T-004/`)。
+  `tests/approver-registry-schema.tests.sh`/`.ps1` を
+  `tests/run-all.sh`/`.ps1` へ登録。CI ワークフロー登録はT-001と同じ
+  guard 制約により未完了。詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-004.md`。
+
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
   `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接
