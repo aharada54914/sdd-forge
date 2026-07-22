@@ -352,6 +352,10 @@
     {
       "feature": "epic-159-pillar-d",
       "profile": "full"
+    },
+    {
+      "feature": "epic-194-a6-lite-integration",
+      "profile": "full"
     }
   ]
 }
