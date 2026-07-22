@@ -28,7 +28,7 @@ every sibling epic's own protection choice:
    project-context.resolved.json` match `PROTECTED_GATE_SUFFIXES` entries
    Epic A1's own `guard-invariants.json` registration commit adds (a
    suffix match denies a write regardless of whether a file currently
-   exists at that path). **T-002 and T-004 each re-verify, at their own
+   exists at that path). **T-002 and T-005 each re-verify, at their own
    implementation-start time, whether that Epic A1 registration commit
    has already landed on this branch** (`grep -n "resolve-project-
    context" plugins/sdd-quality-loop/references/guard-invariants.json`
@@ -55,12 +55,12 @@ every sibling epic's own protection choice:
      it has no fixed "initial content"; it is a pure function of
      whatever `project-context.yaml` a live repository carries,
      recomputed on every Full-track resolve and written only by the
-     running Resolver process itself, via T-004's own journaled
+     running Resolver process itself, via T-005's own journaled
      publication transaction, never by a human `cp`.
 2. **Never protected, agent-editable directly, no human-copy step**:
    `contracts/resolver-evidence.schema.json` (T-001) and
    `plugins/sdd-quality-loop/scripts/validate-resolver-evidence.{py,sh,
-   ps1}` (T-005) — matching Epic A4's own three schema-validator
+   ps1}` (T-006) — matching Epic A4's own three schema-validator
    precedent (structural validators, not cross-runtime-hashed digest
    primitives).
 3. **Per-Feature generated instances, unprotected, agent-writable only
@@ -96,54 +96,67 @@ the deferred suite's own criteria) are correspondingly out of this
   tests + fixtures + registration + human-copy staging, commit B =
   docs), matching `specs/epic-159-pillar-c/tasks.md`'s and Epic
   A3/A4's own convention: commit A must land before commit B within the
-  same task. Each of T-001..T-007 lands its OWN new `## Unreleased`
+  same task. Each of T-001..T-008 lands its OWN new `## Unreleased`
   block in `CHANGELOG.md` citing issue #193 — never an append to another
   task's own entry (REQ-008/AC-033).
-- **Task-decomposition note (task-review round-1 remedy, closing a
-  TASK-SIZE finding)**: the original Phase-2 draft bundled the core
-  evaluation engine (steps 0-13) together with its own CLI-validation,
-  discovery-contract, and Lite-track test suites into one task.
-  Reviewer-b's TASK-SIZE finding (12+ pipeline stages plus five new test
-  suites in one unit of work) was addressed by splitting that task into
-  T-002 (the core engine plus the two suites — `match`/`block` — most
-  directly tied to its own evaluation/WARN/track-branch/Evidence-
-  assembly logic) and a new T-003 (the three suites — `cli`/`discovery`/
-  `lite` — exercising that engine from more peripheral angles), with
-  every task from the original T-003 onward renumbering up by one
-  (T-003→T-004, T-004→T-005, T-005→T-006, T-006→T-007). No requirement,
-  acceptance criterion, or test suite was dropped or added by this
-  remedy — see `reports/task-review/epic-193-a5-capability-resolver/
-  attempt-1/round-1/tasks-round-1-proposed-changes.md` for the full
-  finding and remedy record.
+- **Task-decomposition note (two task-review remedy rounds, both closing
+  TASK-SIZE findings)**: the original Phase-2 draft bundled the core
+  evaluation engine (steps 0-13) together with all five of its own test
+  suites (`cli`/`match`/`lite`/`discovery`/`block`) into one task.
+  **Round-1 remedy**: reviewer-b's first TASK-SIZE finding (12+ pipeline
+  stages plus five new test suites in one unit of work) was addressed by
+  splitting that task into a narrower T-002 (the core engine plus the
+  `match`/`block` suites) and a new T-003 (the `cli`/`discovery`/`lite`
+  suites), renumbering every later task up by one. **Round-2 remedy**:
+  reviewer-b's own re-check found the round-1 split insufficient — T-002
+  still bundled the entire undivided 12+-stage engine with two full TDD
+  suites (`match` and the twelve-fixture `block`) — so T-002 was split
+  once more, this time taking reviewer-b's own stated minimum-sufficient
+  option (isolate the block suite; isolating `match` as well was
+  deliberately rejected, since it would leave T-002 with no test suite
+  of its own, conflicting with its own `Required Workflow: tdd`): T-002
+  now carries only the engine plus `match`; a new T-003 carries the
+  twelve-fixture `block` suite; every task from the round-1 T-003
+  onward renumbers up by one again (round-1 T-003→T-004, T-004→T-005,
+  T-005→T-006, T-006→T-007, T-007→T-008). Round-2 also corrected a
+  DEPENDENCY-OVERLAP finding (T-005/T-007, in this final numbering, each
+  now correctly cite T-003 as a Blockers entry, and T-007 additionally
+  cites T-004 — both real dependencies an earlier revision omitted). No
+  requirement, acceptance criterion, or test suite was dropped or added
+  by either remedy — see `reports/task-review/epic-193-a5-capability-
+  resolver/attempt-1/round-1/tasks-round-1-proposed-changes.md` and
+  `.../round-2/tasks-round-2-proposed-changes.md` for the full finding
+  and remedy record of each round.
 - **Test-suite/CI-registration serialization, T-001 → T-002 → T-003 →
-  T-005 → T-006 → T-007** (mirroring `specs/epic-191-a3-path-ownership/
-  tasks.md`'s identical convention for a shared protected CI file): each
-  of T-001, T-002, T-003, T-005, T-006, T-007 registers its own **new**
-  suite directly (unprotected) in `tests/run-all.sh`/`.ps1` (AC-026) and
-  stages its own suite's CI steps into the shared candidate under
-  `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
-  test.yml` (R-10 protected — `test.yml` itself is never written
-  directly) with a `MANIFEST.sha256` entry, in that exact order. **T-004
-  registers no new suite** — it extends `tests/resolve-project-
-  context-block.tests.sh`/`.ps1` (already registered by T-002) with
-  additional fixtures for the transactional diagnostic rows only, and
-  touches neither `tests/run-all.*` nor `human-copy/.github/workflows/
-  test.yml`. A task that stages after another whose candidate is not yet
-  human-applied appends its own suite's steps to that pending staged
-  file rather than starting from the unmodified real `test.yml`.
+  T-004 → T-006 → T-007 → T-008** (mirroring `specs/epic-191-a3-path-
+  ownership/tasks.md`'s identical convention for a shared protected CI
+  file): each of T-001, T-002, T-003, T-004, T-006, T-007, T-008
+  registers its own **new** suite directly (unprotected) in `tests/
+  run-all.sh`/`.ps1` (AC-026) and stages its own suite's CI steps into
+  the shared candidate under `specs/epic-193-a5-capability-resolver/
+  human-copy/.github/workflows/test.yml` (R-10 protected — `test.yml`
+  itself is never written directly) with a `MANIFEST.sha256` entry, in
+  that exact order. **T-005 registers no new suite** — it extends
+  `tests/resolve-project-context-block.tests.sh`/`.ps1` (already
+  registered by T-003) with additional fixtures for the transactional
+  diagnostic rows only, and touches neither `tests/run-all.*` nor
+  `human-copy/.github/workflows/test.yml`. A task that stages after
+  another whose candidate is not yet human-applied appends its own
+  suite's steps to that pending staged file rather than starting from
+  the unmodified real `test.yml`.
 - **`tests/resolve-project-context-block.tests.sh`/`.ps1` is a single,
-  shared suite file spanning two tasks in strict sequence**: T-002
+  shared suite file spanning two tasks in strict sequence**: T-003
   creates it (registration + the twelve non-transactional REQ-002
   diagnostic-id fixtures, API / Contract Plan steps 0-13 excluding the
-  crash-recovery scan and step 14's own commit); T-004 appends the four
+  crash-recovery scan and step 14's own commit); T-005 appends the four
   transactional-diagnostic fixtures (`publication-journal-recovery`,
   `artifact-publication-failed`, `post-publication-generation-mismatch`,
   and the second, `affected_components`-only `snapshot-generation-
-  mismatch` fixture pairing with T-002's digest-only one) without
-  touching T-002's own fixtures. AC-010's full sixteen-row matrix, and
+  mismatch` fixture pairing with T-003's digest-only one) without
+  touching T-003's own fixtures. AC-010's full sixteen-row matrix, and
   AC-011/012/013/014's own全-Block-fixture completeness, are each
-  satisfied only once T-004 lands — T-002's own Done When scopes these
-  four criteria to its own twelve fixtures; T-004's own Done When
+  satisfied only once T-005 lands — T-003's own Done When scopes these
+  four criteria to its own twelve fixtures; T-005's own Done When
   completes them (Task Mapping, traceability.md).
 - **`resolve-project-context.{py,sh,ps1}` is one Python-master-plus-
   wrapper component edited by exactly two tasks, in sequence**: T-002
@@ -153,13 +166,13 @@ the deferred suite's own criteria) are correspondingly out of this
   Registry discovery, trigger/conditional-facet evaluation, WARN check,
   track branch, Facet-Manifest-or-Capability-Summary staging, Resolver
   Evidence assembly, output schema self-validation, pre-publication
-  snapshot recheck); T-004 layers the crash-recovery scan (end of step
+  snapshot recheck); T-005 layers the crash-recovery scan (end of step
   0) and step 14's own journaled publication transaction (Prepare /
   Journal / Commit / Post-publication-verification / Complete) onto that
   same script. Neither task's own diff to this file may be developed
   against a live protected path directly — see "Protected Files" above.
-  **T-003 never edits this file** — it only adds tests/fixtures
-  exercising the engine T-002 already authored.
+  **T-003 and T-004 never edit this file** — each only adds tests/
+  fixtures exercising the engine T-002 already authored.
 - **Deferred, not scheduled** (design.md Test Strategy item 10, REQ-007
   Non-goals): `tests/resolve-project-context-caller-contract.tests.sh`/
   `.ps1` is fixed at contract level by `design.md` (Design Decisions,
@@ -169,7 +182,7 @@ the deferred suite's own criteria) are correspondingly out of this
   below — design.md states it "is itself authored once the capability
   interview phase is actually implemented (a future task, Non-goals)."
   **AC-026's own "ten new suites registered" criterion is therefore
-  satisfied by this `tasks.md` only for the nine suites T-001..T-007
+  satisfied by this `tasks.md` only for the nine suites T-001..T-008
   build** (`resolve-project-context-cli`, `-block`, `-match`, `-lite`,
   `-discovery`, `resolver-evidence-schema`, `validate-resolver-
   evidence`, `-parity`, `-metamorphic`); the tenth (`-caller-contract`)
@@ -199,7 +212,7 @@ the deferred suite's own criteria) are correspondingly out of this
 - **No code path reads the clock, the network, or a provider API**
   anywhere in this feature's own orchestration logic (REQ-005/Security
   Boundaries) — a repository-wide grep self-check (AC-025) is part of
-  T-006's own Done When, run against every script this feature adds.
+  T-007's own Done When, run against every script this feature adds.
 - Preserve unrelated changes; implement one task at a time.
 
 ---
@@ -423,7 +436,7 @@ Requirements: REQ-001 (steps 0-13 — the core evaluation engine only; the
 CLI required-flag-matrix's own dedicated coverage (AC-001), the
 discovery-contract-reuse suite's own dedicated coverage (AC-002/AC-028),
 and the Lite-track suite's own dedicated coverage (AC-009) are each
-T-003's own, exercised against this task's own already-authored engine —
+T-004's own, exercised against this task's own already-authored engine —
 task-review round-1 remedy, closing a TASK-SIZE finding), REQ-002 (share
 — twelve of sixteen non-transactional diagnostic-id rows:
 `disabled-legacy-invocation`, `workflow-combination-invalid`,
@@ -433,13 +446,15 @@ failed`, `registry-validation-failed`, `contract-discovery-failed`,
 `dependency-output-malformed`, `dsl-warn-on-matched-capability`,
 `lite-check-source-undefined`, `output-schema-validation-failed`,
 `snapshot-generation-mismatch` — the sole step-13 row also lands here
-since step 13 is this task's own last step; the three step-0/14
-transactional rows are T-004's own), REQ-003 (state derivation), REQ-004
-(share — Resolver Evidence assembly logic; schema is T-001's own),
-REQ-005 (share — determinism baseline: stable sort, no clock/network/
-provider-API reads in this task's own code), REQ-006 (share — fixture-
-matrix items a-d, e [twelve of sixteen rows], f, g), REQ-008 (share —
-CHANGELOG)
+since step 13 is this task's own last step; the twelve-fixture suite
+that exercises this set is T-003's own, task-review round-2 remedy,
+closing a second TASK-SIZE finding; the three step-0/14 transactional
+rows are T-005's own), REQ-003 (state derivation), REQ-004 (share —
+Resolver Evidence assembly logic; schema is T-001's own), REQ-005 (share
+— determinism baseline: stable sort, no clock/network/provider-API
+reads in this task's own code), REQ-006 (share — fixture-matrix items
+a-d, f, g — item e's own fixture suite is T-003's/T-005's), REQ-008
+(share — CHANGELOG)
 
 Depends On: T-001 (step 12's own output-schema self-validation validates
 the staged Resolver Evidence instance against T-001's own schema before
@@ -455,9 +470,7 @@ meaningfully (this task's own script invokes them as real subprocesses,
 not mocked stand-ins, matching this Epic set's own established
 integration-test convention) — if any is absent at this task's own
 implementation-start time, this task is blocked pending that sibling
-epic's own landing, per requirements.md Assumptions; the schema/
-structural portions of the block suite that do not require a real
-subprocess call can still proceed independently of that landing.
+epic's own landing, per requirements.md Assumptions.
 
 Planned Files:
 - `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-
@@ -475,16 +488,13 @@ Planned Files:
 - `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256`
   (edited — three new SHA-256 entries for the staged script candidates)
 - `tests/resolve-project-context-match.tests.sh` / `.ps1` (new)
-- `tests/resolve-project-context-block.tests.sh` / `.ps1` (new — this
-  task's own twelve non-transactional diagnostic fixtures only; T-004
-  appends four more to this same file later)
 - `tests/fixtures/capability-resolver/` (new fixture tree — match
-  fixtures, and this task's own twelve block fixtures; design.md Test
-  Strategy items 2 [non-transactional portion] and 3)
-- `tests/run-all.sh` / `.ps1` (existing, agent-editable — two suites'
-  registration: match, block)
+  fixtures only; design.md Test Strategy item 3; the Block-diagnostic
+  fixture tree is T-003's own)
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — one suite's
+  registration: match)
 - `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
-  test.yml` (appended, agent-editable — this task's own two suites' CI
+  test.yml` (appended, agent-editable — this task's own one suite's CI
   steps)
 - `CHANGELOG.md` (existing, agent-editable — CREATE the `## Unreleased`
   entry citing #193)
@@ -508,7 +518,7 @@ commits never touch the live protected path directly.
 Author `resolve-project-context.py` (+ `.sh`/`.ps1` wrappers)
 implementing API / Contract Plan steps 0 through 13: argument validation
 and `--feature` pattern check (exit 2 on failure — implemented here; its
-own dedicated required-flag-matrix test suite is T-003's own); state
+own dedicated required-flag-matrix test suite is T-004's own); state
 derivation (REQ-003, `disabled-legacy-invocation` short-circuit before
 any Registry/ownership/Context-Projection work); `workflow-combination-
 invalid` check (M3); Project Context canonicalization and its own
@@ -518,25 +528,29 @@ verbatim, staged only); `resolve-component-paths` invocation
 (`affected-component-resolution-failed` on non-zero exit) with its own
 snapshot; Registry discovery via ADR-0025 (`contract-discovery-failed`,
 `registry-validation-failed`, implemented here — its own dedicated
-discovery-contract-reuse test suite is T-003's own) and `registry_digest
+discovery-contract-reuse test suite is T-004's own) and `registry_digest
 --whole`; per-Capability, per-affected-component trigger evaluation and
 matched-Capability conditional-facet evaluation, both with no
 short-circuit (`canonicalizer-invocation-failed`/`dependency-subprocess-
 failed`/`dependency-output-malformed` on any dependency subprocess
-failure); the any-branch WARN check (`dsl-warn-on-matched-capability`,
-B2's widened scope); the track branch (before any publication, B4)
-staging a Facet Manifest (`full`) or a Capability Summary (`lite`,
-subject to `lite-check-source-undefined`, narrowed per the cross-epic B5
-addendum, implemented here — its own dedicated Lite-track test suite is
-T-003's own); Resolver Evidence assembly (every capability, every
-diagnostic, canonical `dependency_pointers[]`/`resolver.version`/
-`resolver.rule_set_revision`, B9); output schema self-validation against
-every staged artifact's own governing schema (`output-schema-validation-
+failure — this evaluation logic's own Block-diagnostic test coverage,
+including the twelve-fixture non-transactional Block matrix, is T-003's
+own, exercised against this task's own already-authored engine —
+task-review round-2 remedy, closing a second TASK-SIZE finding); the
+any-branch WARN check (`dsl-warn-on-matched-capability`, B2's widened
+scope); the track branch (before any publication, B4) staging a Facet
+Manifest (`full`) or a Capability Summary (`lite`, subject to
+`lite-check-source-undefined`, narrowed per the cross-epic B5 addendum,
+implemented here — its own dedicated Lite-track test suite is T-004's
+own); Resolver Evidence assembly (every capability, every diagnostic,
+canonical `dependency_pointers[]`/`resolver.version`/`resolver.
+rule_set_revision`, B9); output schema self-validation against every
+staged artifact's own governing schema (`output-schema-validation-
 failed`, with the self-referential Evidence-fails-its-own-check
 exception writing nothing, B3); and the pre-publication snapshot recheck
 (`snapshot-generation-mismatch`, re-deriving `affected_components` as
 well as re-hashing every snapshot, B8). This task stages every artifact
-in memory only — it never performs step 14's own live commit (T-004's
+in memory only — it never performs step 14's own live commit (T-005's
 own scope).
 
 ### Must Read
@@ -548,11 +562,13 @@ own scope).
   `## Components`; `### resolve-project-context.{py,sh,ps1} CLI contract
   (REQ-001)`, steps 0-13; `## Design Decisions` — union-match,
   facet-name aggregation, any-branch WARN scope; `## Test Strategy`
-  items 2 [non-transactional rows] and 3; `## Global Constraints`;
-  `## Security Boundaries`)
+  item 3; `## Global Constraints`; `## Security Boundaries`)
 - `specs/epic-193-a5-capability-resolver/acceptance-tests.md` (AC-003
-  through AC-008, AC-010 through AC-016, AC-038, AC-040, AC-041, AC-043,
-  AC-044, AC-048, AC-052, AC-055, AC-056)
+  through AC-008, AC-016, AC-043, AC-044, AC-052, AC-056 — this task's
+  own `match` suite; AC-010 through AC-015, AC-038, AC-040, AC-041,
+  AC-048, AC-055 are cited for the diagnostic *behavior* this task's own
+  code must implement correctly, even though their own dedicated test
+  suite is T-003's)
 - `specs/epic-193-a5-capability-resolver/investigation.md` (INV-003,
   INV-005 through INV-013, INV-019, INV-020)
 - `specs/epic-193-a5-capability-resolver/security-spec.md`
@@ -567,42 +583,39 @@ own scope).
 
 ### Scope
 
-Commit A (implementation — engine + two suites + fixture tree + CI
+Commit A (implementation — engine + one suite + fixture tree + CI
 wiring):
 - Write the acceptance checks first (TDD Red→Green): TEST-003 (Context
   Projection byte-identity), TEST-004 (`resolve-component-paths`
   pass-through), TEST-005 (`registry_digest --whole` binding), TEST-006
   (union-match), TEST-007 (field-assembly conformance), TEST-008 (Facet
-  Manifest schema-conformance), TEST-010 (this task's own twelve
-  non-transactional Block fixtures, exit code + diagnostic line +
-  no-partial-artifact + Evidence content each), TEST-011/TEST-012/
-  TEST-013/TEST-014/TEST-015 (scoped to this task's own twelve
-  fixtures), TEST-016 (advisory/required byte-identity, excluding the
-  `lite-check-source-undefined` divergent branch), TEST-038
-  (staged-generation lock for `lite-check-source-undefined`/
-  `output-schema-validation-failed`/`snapshot-generation-mismatch`),
-  TEST-040 (both `snapshot-generation-mismatch` fixtures — the
-  digest-mismatch one and the `affected_components`-set-only one),
-  TEST-041 (both `workflow-combination-invalid` rows), TEST-043
-  (cross-Capability facet-name aggregation), TEST-044 (provenance
-  canonicalization — `dependency_pointers[]`/`resolver.version`/
-  `resolver.rule_set_revision`), TEST-048 (pre-publication
-  `affected_components` re-derivation lock), TEST-052 (same-Capability
-  duplicate-facet predicate-instance), TEST-055 (`output-schema-
-  validation-failed` dual-artifact-scope, both sub-cases), TEST-056
-  (`diagnostics[]` warn/block cardinality).
+  Manifest schema-conformance), TEST-016 (advisory/required byte-
+  identity, excluding the `lite-check-source-undefined` divergent
+  branch), TEST-043 (cross-Capability facet-name aggregation), TEST-044
+  (provenance canonicalization — `dependency_pointers[]`/`resolver.
+  version`/`resolver.rule_set_revision`), TEST-052 (same-Capability
+  duplicate-facet predicate-instance), TEST-056 (`diagnostics[]`
+  warn/block cardinality). This task's own suite exercises the engine's
+  match/no-match/aggregation/WARN/provenance behavior; the twelve-
+  fixture non-transactional Block-diagnostic matrix this same engine
+  code must also correctly implement (`disabled-legacy-invocation`
+  through `snapshot-generation-mismatch`) is proven Red→Green by T-003's
+  own suite against this task's already-authored engine, not duplicated
+  here (task-review round-2 remedy, closing a second TASK-SIZE finding
+  — see Global Constraints, "Task-decomposition note, round 2").
 - Author `resolve-project-context.py` (steps 0-13) + `.sh`/`.ps1`
   wrappers per the Protected Files branch this task's own start-time
-  check selects.
+  check selects — including the diagnostic-emitting code paths for all
+  twelve non-transactional REQ-002 rows, even though this task's own
+  Red→Green suite does not directly exercise them.
 - CI resilience and diagnostic determinism per Global Constraints (UTF-8/
   no-BOM/LF-only; no dependency subprocess's own raw stderr ever
   embedded in a `<detail>` field, M8).
-- Register `resolve-project-context-match`/`-block` (`.sh`/`.ps1`, two
-  suites) in `tests/run-all.sh`/`.ps1`; stage the `.github/workflows/
-  test.yml` candidate with these two suites' CI steps under
-  `human-copy/`, appending to T-001's own staged candidate; update
-  `MANIFEST.sha256` with this task's own three staged script entries
-  plus the appended `test.yml` entry.
+- Register `resolve-project-context-match` (`.sh`/`.ps1`) in `tests/
+  run-all.sh`/`.ps1`; stage the `.github/workflows/test.yml` candidate
+  with this suite's CI steps under `human-copy/`, appending to T-001's
+  own staged candidate; update `MANIFEST.sha256` with this task's own
+  three staged script entries plus the appended `test.yml` entry.
 
 Commit B (documentation):
 - CREATE the `CHANGELOG.md` `## Unreleased` entry citing #193.
@@ -614,6 +627,190 @@ Commit B (documentation):
   pass-through (AC-004), `registry_digest --whole` binding (AC-005),
   union-match (AC-006), field-assembly conformance (AC-007), Facet
   Manifest schema-conformance (AC-008).
+- [ ] **Byte-identity / aggregation / provenance locks** — TEST-016
+  (advisory/required, excluding the B5-divergent branch), TEST-043
+  (cross-Capability facet-name aggregation), TEST-044 (provenance
+  canonicalization), TEST-052 (same-Capability duplicate-facet), TEST-056
+  (`diagnostics[]` warn/block cardinality) each pass (AC-016, AC-043,
+  AC-044, AC-052, AC-056).
+- [ ] **Diagnostic-emitting code paths implemented (verified by T-003,
+  not this task)** — every one of the twelve non-transactional REQ-002
+  diagnostic rows (`disabled-legacy-invocation` through
+  `snapshot-generation-mismatch`) has a correct code path in this task's
+  own script, ready for T-003's own Red→Green suite to exercise; this
+  task's own Done When does not itself require those fixtures passing —
+  that is T-003's own Done When (AC-010 [twelve of sixteen], AC-011
+  [share], AC-012 [share], AC-013, AC-014 [share], AC-015, AC-038
+  [share], AC-040 [share, first fixture], AC-041, AC-048, AC-055).
+- [ ] **Fixture + suite/CI registration** — `tests/resolve-project-
+  context-match.tests.sh`/`.ps1` self-registers in `tests/run-all.sh`/
+  `.ps1` (grep self-check); the staged `.github/workflows/test.yml`
+  candidate carries this task's own one suite's steps appended after
+  T-001's, with correct `MANIFEST.sha256` entries; the LIVE `test.yml`
+  is byte-unchanged before/after this task's own commits.
+- [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
+  citing #193 (AC-033 share); no version string mutated outside
+  `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms no
+  path under `plugins/**` in either of this task's own commits (AC-032).
+- [ ] **TDD evidence** — RED (each `match`-suite fixture against a
+  deliberately broken pipeline) and GREEN (the full suite against the
+  correct pipeline). An independent quality-gate verdict records PASS.
+
+### Out of Scope
+
+- The twelve-fixture non-transactional Block-diagnostic suite
+  (AC-010..AC-015, AC-038, AC-040 [first fixture], AC-041, AC-048,
+  AC-055, `tests/resolve-project-context-block.tests.sh`/`.ps1`) — this
+  task implements every diagnostic-emitting code path it exercises, but
+  its own dedicated test suite is T-003's own (task-review round-2
+  remedy, closing a second TASK-SIZE finding).
+- The CLI required-flag-matrix suite (AC-001, TEST-001), the discovery-
+  contract-reuse suite (AC-002/AC-028, TEST-002/TEST-028), and the
+  Lite-track suite (AC-009, TEST-009) — this task implements the code
+  each of these exercises (argument validation, ADR-0025 discovery,
+  Lite-track staging), but their own dedicated test suites are T-004's
+  own (task-review round-1 remedy, closing the first TASK-SIZE finding).
+- Step 0's own crash-recovery scan and step 14's own journaled
+  publication transaction/commit (T-005's own scope) — this task's
+  script stages every artifact in memory only and never performs a live
+  filesystem rename of any of them.
+- `publication-journal-recovery`, `artifact-publication-failed`, and
+  `post-publication-generation-mismatch` (T-005's own three diagnostic
+  rows).
+- `validate-resolver-evidence` (T-006), the dual-runtime parity suite
+  (T-007), and the metamorphic completeness suite (T-008).
+- `contracts/resolver-evidence.schema.json` itself (T-001's own
+  deliverable — this task only consumes it at step 12).
+- Any edit to `plugins/**`, including `sdd-bootstrap-interviewer/
+  SKILL.md` — REQ-007's target integration contract remains
+  design-only (Non-goals; see "Deferred, Not Scheduled", Global
+  Constraints).
+
+### Blockers
+
+T-001
+
+---
+
+## T-003 Author `resolve-project-context`'s non-transactional Block-diagnostic test suite
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
+
+Approval: Draft
+
+Status: Planned
+
+Risk: medium
+
+Risk Rationale: Evaluated against
+`plugins/sdd-quality-loop/references/risk-classification-policy.md`
+directly. `medium`: this task adds no new production code path of its
+own — it exercises T-002's own already-authored engine's diagnostic-
+emitting code paths from twelve independent angles — a defect here is a
+false-negative test-coverage gap (a REQ-002 diagnostic condition going
+unverified), not itself a source of production-time silent
+misclassification, matching T-004's/T-006's/T-007's own identical
+"test-only task" rationale (task-review round-1 remedy precedent). Not
+`low`: this suite proves decision document v2 §19's own governing
+"曖昧な場合は Block" rule for twelve of its sixteen concrete conditions —
+a gap here would let one of those Block conditions ship silently
+unverified, exactly the surface T-002's own `high` classification names
+as consequential. Required Workflow is `acceptance-first` per the
+risk-gate-matrix's own medium-tier row (`tdd` is reserved for
+high/critical).
+
+Required Workflow: acceptance-first
+
+Security-Sensitive: false
+
+Cross-Model: not enabled
+
+Requirements: REQ-002 (share — twelve of sixteen non-transactional
+diagnostic-id rows, exercising T-002's own already-authored engine; the
+four transactional rows are T-005's own — task-review round-2 remedy,
+closing a TASK-SIZE finding on the original round-1-remedied T-002),
+REQ-006 (share — fixture-matrix item e's twelve non-transactional rows),
+REQ-008 (share — CHANGELOG)
+
+Depends On: T-002 (needs the core evaluation engine's own diagnostic-
+emitting code paths to already exist to test against; this task's own
+fixtures invoke `resolve-project-context` as a real subprocess).
+
+Planned Files:
+- `tests/resolve-project-context-block.tests.sh` / `.ps1` (new — the
+  twelve non-transactional diagnostic fixtures only; T-005 appends four
+  more transactional-diagnostic fixtures to this same file later)
+- `tests/fixtures/capability-resolver/` (extended — the twelve block
+  fixtures; design.md Test Strategy item 2, non-transactional portion)
+- `tests/run-all.sh` / `.ps1` (existing, agent-editable — this suite's
+  registration)
+- `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
+  test.yml` (appended, agent-editable — this suite's CI steps, appended
+  after T-002's own)
+- `specs/epic-193-a5-capability-resolver/human-copy/MANIFEST.sha256`
+  (edited — appended entry)
+- `CHANGELOG.md` (existing, agent-editable — CREATE the `## Unreleased`
+  entry citing #193)
+
+Data Migration: none.
+
+Breaking API: no; this task adds only test files and fixtures — it never
+edits `resolve-project-context.{py,sh,ps1}` itself.
+
+Rollback: revert this task's two commits (B then A, or both). Nothing
+protected is touched.
+
+### Goal
+
+Author `resolve-project-context-block`'s twelve non-transactional
+diagnostic-id fixtures (`disabled-legacy-invocation`, `workflow-
+combination-invalid`, `project-context-validation-failed`,
+`affected-component-resolution-failed`, `registry-validation-failed`,
+`contract-discovery-failed`, `canonicalizer-invocation-failed`,
+`dependency-subprocess-failed`, `dependency-output-malformed`,
+`dsl-warn-on-matched-capability`, `lite-check-source-undefined`,
+`output-schema-validation-failed`, `snapshot-generation-mismatch` [first,
+digest-mismatch fixture only — the `affected_components`-set-only
+companion fixture is T-005's own]), each independently triggerable, each
+asserting correct exit code, correct diagnostic line, no partial
+artifact, and correct Resolver Evidence content — exercising T-002's own
+already-authored engine.
+
+### Must Read
+
+- `specs/epic-193-a5-capability-resolver/requirements.md` (REQ-002 in
+  full)
+- `specs/epic-193-a5-capability-resolver/design.md` (`## Test Strategy`
+  item 2, non-transactional rows; `## API / Contract Plan`, the
+  sixteen-row Block diagnostic-id table)
+- `specs/epic-193-a5-capability-resolver/acceptance-tests.md` (AC-010
+  through AC-015, AC-038, AC-040 [first fixture], AC-041, AC-048,
+  AC-055)
+
+### Scope
+
+Commit A (implementation — suite + fixtures + CI wiring):
+- Write the acceptance checks first (`acceptance-first`, per risk-gate-
+  matrix medium tier): TEST-010 (twelve non-transactional Block
+  fixtures, exit code + diagnostic line + no-partial-artifact + Evidence
+  content each), TEST-011/TEST-012/TEST-013/TEST-014/TEST-015 (scoped to
+  these twelve fixtures), TEST-038 (staged-generation lock for
+  `lite-check-source-undefined`/`output-schema-validation-failed`/
+  `snapshot-generation-mismatch`), TEST-040 (first fixture — digest-
+  mismatch `snapshot-generation-mismatch`), TEST-041 (both
+  `workflow-combination-invalid` rows), TEST-048 (pre-publication
+  `affected_components` re-derivation lock), TEST-055 (`output-schema-
+  validation-failed` dual-artifact-scope, both sub-cases).
+- Register `resolve-project-context-block` (`.sh`/`.ps1`) in `tests/
+  run-all.sh`/`.ps1`; stage the `.github/workflows/test.yml` candidate
+  with this suite's CI steps under `human-copy/`, appended after T-002's
+  own; update `MANIFEST.sha256`.
+
+Commit B (documentation):
+- CREATE the `CHANGELOG.md` `## Unreleased` entry citing #193.
+
+### Done When
+
 - [ ] **Non-transactional Block matrix (twelve of sixteen rows)** —
   TEST-010..TEST-015 pass for `disabled-legacy-invocation`,
   `workflow-combination-invalid`, `project-context-validation-failed`,
@@ -628,59 +825,38 @@ Commit B (documentation):
   AC-014 [share], AC-015). TEST-038/TEST-040/TEST-041/TEST-048/TEST-055
   pass for this task's own diagnostics (AC-038, AC-040, AC-041, AC-048,
   AC-055).
-- [ ] **Byte-identity / aggregation / provenance locks** — TEST-016
-  (advisory/required, excluding the B5-divergent branch), TEST-043
-  (cross-Capability facet-name aggregation), TEST-044 (provenance
-  canonicalization), TEST-052 (same-Capability duplicate-facet), TEST-056
-  (`diagnostics[]` warn/block cardinality) each pass (AC-016, AC-043,
-  AC-044, AC-052, AC-056).
-- [ ] **Fixture + suite/CI registration** — `tests/resolve-project-
-  context-match.tests.sh`/`.ps1` and `tests/resolve-project-context-
-  block.tests.sh`/`.ps1` self-register in `tests/run-all.sh`/`.ps1`
-  (grep self-check); the staged `.github/workflows/test.yml` candidate
-  carries this task's own two suites' steps appended after T-001's, with
-  correct `MANIFEST.sha256` entries; the LIVE `test.yml` is
-  byte-unchanged before/after this task's own commits.
+- [ ] **Fixture + suite/CI registration** — self-registers in `tests/
+  run-all.sh`/`.ps1`; staged `.github/workflows/test.yml` candidate
+  carries this suite's steps appended after T-002's own, with a correct
+  `MANIFEST.sha256` entry; LIVE `test.yml` byte-unchanged before/after.
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
-  `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms no
-  path under `plugins/**` in either of this task's own commits (AC-032).
-- [ ] **TDD evidence** — RED (each fixture against a deliberately broken
-  pipeline) and GREEN (the full suite against the correct pipeline). An
-  independent quality-gate verdict records PASS.
+  `scripts/bump-version.sh` (AC-034 share); `git diff --stat` confirms
+  no path under `plugins/**` (AC-032).
+- [ ] **Acceptance evidence** — every fixture written before the
+  behavior it exercises, failing against a deliberately regressed
+  engine (a diagnostic that silently stops firing, or fires with the
+  wrong id/exit-code) and passing against T-002's own correct engine
+  (`acceptance-first`, no formal Red→Green TDD cycle required at
+  `medium` tier). An independent quality-gate verdict records PASS.
 
 ### Out of Scope
 
-- The CLI required-flag-matrix suite (AC-001, TEST-001), the discovery-
-  contract-reuse suite (AC-002/AC-028, TEST-002/TEST-028), and the
-  Lite-track suite (AC-009, TEST-009) — this task implements the code
-  each of these exercises (argument validation, ADR-0025 discovery,
-  Lite-track staging), but their own dedicated test suites are T-003's
-  own (task-review round-1 remedy, closing a TASK-SIZE finding: T-002
-  bundled 12+ pipeline stages with five new test suites in one task).
-- Step 0's own crash-recovery scan and step 14's own journaled
-  publication transaction/commit (T-004's own scope) — this task's
-  script stages every artifact in memory only and never performs a live
-  filesystem rename of any of them.
-- `publication-journal-recovery`, `artifact-publication-failed`, and
-  `post-publication-generation-mismatch` (T-004's own three diagnostic
-  rows).
-- `validate-resolver-evidence` (T-005), the dual-runtime parity suite
-  (T-006), and the metamorphic completeness suite (T-007).
-- `contracts/resolver-evidence.schema.json` itself (T-001's own
-  deliverable — this task only consumes it at step 12).
-- Any edit to `plugins/**`, including `sdd-bootstrap-interviewer/
-  SKILL.md` — REQ-007's target integration contract remains
-  design-only (Non-goals; see "Deferred, Not Scheduled", Global
-  Constraints).
+- Any change to `resolve-project-context.{py,sh,ps1}` itself — this task
+  only adds tests/fixtures exercising the engine T-002 already built.
+- The `resolve-project-context-match` suite (T-002's own), the CLI/
+  discovery/lite suites (T-004's own), the four transactional diagnostic
+  rows and the second `snapshot-generation-mismatch` fixture (T-005's
+  own), `validate-resolver-evidence` (T-006), the parity suite (T-007),
+  and the metamorphic suite (T-008).
 
 ### Blockers
 
-T-001
+T-002
 
 ---
 
-## T-003 Author `resolve-project-context`'s CLI-validation, discovery-contract, and Lite-track test suites
+## T-004 Author `resolve-project-context`'s CLI-validation, discovery-contract, and Lite-track test suites
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
@@ -836,9 +1012,10 @@ Commit B (documentation):
 
 - Any change to `resolve-project-context.{py,sh,ps1}` itself — this task
   only adds tests/fixtures exercising the engine T-002 already built.
-- The `resolve-project-context-match`/`-block` suites (T-002's own),
-  `validate-resolver-evidence` (T-005), the parity suite (T-006), and
-  the metamorphic suite (T-007).
+- The `resolve-project-context-match` suite (T-002's own), the
+  non-transactional Block-diagnostic suite (T-003's own),
+  `validate-resolver-evidence` (T-006), the parity suite (T-007), and
+  the metamorphic suite (T-008).
 
 ### Blockers
 
@@ -846,7 +1023,7 @@ T-002
 
 ---
 
-## T-004 Layer the Resolver publication transactional bundle contract onto `resolve-project-context.{py,sh,ps1}`
+## T-005 Layer the Resolver publication transactional bundle contract onto `resolve-project-context.{py,sh,ps1}`
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
@@ -891,7 +1068,11 @@ CHANGELOG)
 
 Depends On: T-002 (extends the same `resolve-project-context.{py,sh,
 ps1}` script with the commit-phase logic; T-002's own staged-artifact
-assembly is this task's own transaction's input).
+assembly is this task's own transaction's input), T-003 (this task
+appends its own four transactional-diagnostic fixtures to T-003's own
+already-registered `resolve-project-context-block.tests.sh`/`.ps1` file
+— task-review round-2 remedy, correcting a DEPENDENCY-OVERLAP finding on
+an earlier revision that omitted this real dependency).
 
 Planned Files:
 - `specs/epic-193-a5-capability-resolver/human-copy/plugins/sdd-quality-
@@ -908,7 +1089,7 @@ Planned Files:
   (edited — updated SHA-256 entries for the three updated staged
   candidates)
 - `tests/resolve-project-context-block.tests.sh` / `.ps1` (edited —
-  appends the four transactional-diagnostic fixtures to T-002's own
+  appends the four transactional-diagnostic fixtures to T-003's own
   file; no new suite registration)
 - `tests/fixtures/capability-resolver/` (extended — journal/crash-
   recovery/post-publication-race fixtures, including a test-harness-only
@@ -1054,8 +1235,8 @@ Commit B (documentation):
   never changes the union-match rule, the facet-name aggregation rule,
   the WARN check, or any of the twelve non-transactional diagnostic
   rows.
-- `validate-resolver-evidence` (T-005), the parity suite (T-006), the
-  metamorphic suite (T-007).
+- `validate-resolver-evidence` (T-006), the parity suite (T-007), the
+  metamorphic suite (T-008).
 - Registering a new test suite in `tests/run-all.*` or staging a new
   `.github/workflows/test.yml` CI step — this task only edits fixtures
   inside T-002's already-registered `resolve-project-context-block`
@@ -1063,11 +1244,11 @@ Commit B (documentation):
 
 ### Blockers
 
-T-002
+T-002, T-003
 
 ---
 
-## T-005 Author `validate-resolver-evidence.{py,sh,ps1}` and its provenance-binding suite
+## T-006 Author `validate-resolver-evidence.{py,sh,ps1}` and its provenance-binding suite
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
@@ -1081,7 +1262,7 @@ Risk Rationale: Evaluated against
 `plugins/sdd-quality-loop/references/risk-classification-policy.md`
 directly. `high` is justified on the identical "footgun-prevention/
 tamper-evidence exposure" surface Epic A3's own `check-component-
-coverage` (T-005 there) established for a structural validator: this
+coverage` (T-006 there) established for a structural validator: this
 script closes the "point the validator at a different, smaller Registry"
 and "supply an arbitrary affected-component subset" attacks (adversarial
 review "B6 provenance binding") — a defect here (the identical earlier-
@@ -1104,11 +1285,11 @@ Requirements: REQ-004 (validator), REQ-005 (share — stable-sort check
 provenance-binding pair), REQ-008 (share — CHANGELOG)
 
 Depends On: T-001 (schema this validator's own `schema-invalid` check
-enforces), T-004 (the reader-side `RESOLVER_PUBLICATION_IN_PROGRESS`
+enforces), T-005 (the reader-side `RESOLVER_PUBLICATION_IN_PROGRESS`
 journal check, AC-054, needs a real `TRANSACTION.json` shape identical to
-T-004's own journal format to fixture against; realistic Resolver
+T-005's own journal format to fixture against; realistic Resolver
 Evidence/Facet-Manifest sibling-artifact fixtures for the provenance-
-binding checks are likewise most directly produced by T-002/T-004's own
+binding checks are likewise most directly produced by T-002/T-005's own
 working pipeline, though hand-crafted fixtures suffice where a real
 invocation is impractical).
 
@@ -1198,8 +1379,8 @@ Commit A (implementation — validator + suite + fixtures + CI wiring):
 - Author `validate-resolver-evidence.py` + `.sh`/`.ps1` wrappers.
 - Register `validate-resolver-evidence` (`.sh`/`.ps1`) in `tests/run-all.
   sh`/`.ps1`; stage the `.github/workflows/test.yml` candidate with this
-  suite's CI steps under `human-copy/`, appended after T-003's own (the
-  last suite-owning task before this one — T-004 registers no new suite);
+  suite's CI steps under `human-copy/`, appended after T-004's own (the
+  last suite-owning task before this one — T-005 registers no new suite);
   update `MANIFEST.sha256`.
 
 Commit B (documentation):
@@ -1225,7 +1406,7 @@ Commit B (documentation):
 - [ ] **Fixture + suite/CI registration** — `tests/validate-resolver-
   evidence.tests.sh`/`.ps1` self-register in `tests/run-all.sh`/`.ps1`
   (grep self-check); the staged `.github/workflows/test.yml` candidate
-  carries this suite's own steps appended after T-003's own, with a
+  carries this suite's own steps appended after T-004's own, with a
   correct `MANIFEST.sha256` entry; the LIVE `test.yml` is byte-unchanged
   before/after this task's own commits.
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
@@ -1239,22 +1420,22 @@ Commit B (documentation):
 
 ### Out of Scope
 
-- `resolve-project-context` itself (T-002/T-004) — this task never
+- `resolve-project-context` itself (T-002/T-005) — this task never
   re-runs any predicate evaluation; every check is structural/set-
   membership/provenance-binding against already-recorded evidence.
-- The dual-runtime parity suite (T-006) and the metamorphic completeness
-  suite (T-007), though both depend on this task's own validator.
+- The dual-runtime parity suite (T-007) and the metamorphic completeness
+  suite (T-008), though both depend on this task's own validator.
 - Extending `contracts/resolver-evidence.schema.json` itself (T-001's
   own, content-frozen-once-passed deliverable) — `schema-invalid` reads
   it, never edits it.
 
 ### Blockers
 
-T-001, T-004
+T-001, T-005
 
 ---
 
-## T-006 Author the dual-runtime parity and determinism suite
+## T-007 Author the dual-runtime parity and determinism suite
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
@@ -1267,7 +1448,7 @@ Risk: medium
 Risk Rationale: Evaluated against
 `plugins/sdd-quality-loop/references/risk-classification-policy.md`
 directly. `medium`: this task adds no new production code path of its
-own (it is a test suite exercising T-002/T-003/T-004/T-005's own
+own (it is a test suite exercising T-002/T-003/T-004/T-005/T-006's own
 already-built scripts across runtimes) — a defect here is a
 false-negative test gap (REQ-005's own byte-identity/determinism
 guarantee going unverified for some input), not itself a source of
@@ -1292,18 +1473,21 @@ REQ-008 (share — CHANGELOG)
 
 Depends On: T-002 (core evaluation engine), T-003 (design.md Test
 Strategy item 5 requires byte-identical parity "across every fixture
-above" — items 1-4, which include T-003's own CLI/discovery/lite
-fixtures, not only T-002's own match/block fixtures), T-004 (needs the
-full evaluation-plus-publication pipeline, every track, every
-diagnostic, to compare across `.py`/`.sh`/`.ps1`), T-005
+above" — items 1-4, which include T-003's own non-transactional Block
+fixtures), T-004 (item 1's own CLI fixtures and item 6's own discovery
+fixtures — task-review round-2 remedy, correcting a DEPENDENCY-OVERLAP
+finding on an earlier revision that omitted this real dependency), T-005
+(needs the full evaluation-plus-publication pipeline, every track, every
+diagnostic, to compare across `.py`/`.sh`/`.ps1`), T-006
 (`validate-resolver-evidence` has its own `.py`/`.sh`/`.ps1` triad and
 participates in this same parity guarantee).
 
 Planned Files:
 - `tests/resolve-project-context-parity.tests.sh` / `.ps1` (new)
 - `tests/fixtures/capability-resolver/parity/` (new — reuses fixture
-  inputs from T-002/T-003/T-004/T-005's own suites where practical;
-  includes at least one Windows-style, `\`-separated path argument)
+  inputs from T-002/T-003/T-004/T-005/T-006's own suites where
+  practical; includes at least one Windows-style, `\`-separated path
+  argument)
 - `tests/run-all.sh` / `.ps1` (existing, agent-editable — this suite's
   registration)
 - `specs/epic-193-a5-capability-resolver/human-copy/.github/workflows/
@@ -1357,7 +1541,7 @@ Commit A (implementation — suite + fixtures + CI wiring):
   grep, repository-wide).
 - Register `resolve-project-context-parity` (`.sh`/`.ps1`) in `tests/
   run-all.sh`/`.ps1`; stage the `.github/workflows/test.yml` candidate
-  with this suite's CI steps under `human-copy/`, appended after T-005's
+  with this suite's CI steps under `human-copy/`, appended after T-006's
   own; update `MANIFEST.sha256`.
 
 Commit B (documentation):
@@ -1377,7 +1561,7 @@ Commit B (documentation):
   evidence.*` (AC-025).
 - [ ] **Fixture + suite/CI registration** — self-registers in `tests/
   run-all.sh`/`.ps1`; staged `.github/workflows/test.yml` candidate
-  carries this suite's steps appended after T-005's own, with a correct
+  carries this suite's steps appended after T-006's own, with a correct
   `MANIFEST.sha256` entry; LIVE `test.yml` byte-unchanged before/after.
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
   citing #193 (AC-033 share); no version string mutated outside
@@ -1393,17 +1577,17 @@ Commit B (documentation):
 
 - Any change to `resolve-project-context.{py,sh,ps1}` or
   `validate-resolver-evidence.{py,sh,ps1}` themselves — this task only
-  adds tests/fixtures exercising the scripts T-002/T-003/T-004/T-005
-  already built.
-- The metamorphic completeness suite (T-007).
+  adds tests/fixtures exercising the scripts T-002/T-003/T-004/T-005/
+  T-006 already built.
+- The metamorphic completeness suite (T-008).
 
 ### Blockers
 
-T-002, T-003, T-004, T-005
+T-002, T-003, T-004, T-005, T-006
 
 ---
 
-## T-007 Author the metamorphic completeness suite
+## T-008 Author the metamorphic completeness suite
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/193
 
@@ -1415,8 +1599,8 @@ Risk: medium
 
 Risk Rationale: Evaluated against
 `plugins/sdd-quality-loop/references/risk-classification-policy.md`
-directly. `medium`, for the identical reason T-006 is `medium`: this task
-adds no new production code path (it exercises T-002/T-004/T-005's own
+directly. `medium`, for the identical reason T-007 is `medium`: this task
+adds no new production code path (it exercises T-002/T-005/T-006's own
 already-built scripts from additional angles) — a gap here is a
 false-negative coverage gap for the completeness/invariance properties
 adversarial review "M10" specifically found unfixtured in an earlier
@@ -1434,9 +1618,9 @@ Requirements: REQ-005 (share — metamorphic output-invariance proof),
 REQ-006 (metamorphic-completeness suite item h; AC-045), REQ-008 (share —
 CHANGELOG)
 
-Depends On: T-002, T-004 (the full evaluation-plus-publication pipeline
+Depends On: T-002, T-005 (the full evaluation-plus-publication pipeline
 this suite's own TT/TF/FT/FF and order-permutation fixtures exercise),
-T-005 (`validate-resolver-evidence`'s own exact-set checks are this
+T-006 (`validate-resolver-evidence`'s own exact-set checks are this
 suite's own assertion mechanism for the nested-array-completeness
 fixture, item (f) below).
 
@@ -1497,7 +1681,7 @@ Commit A (implementation — suite + fixtures + CI wiring):
 - Register `resolve-project-context-metamorphic` (`.sh`/`.ps1`) in
   `tests/run-all.sh`/`.ps1`; stage the `.github/workflows/test.yml`
   candidate with this suite's CI steps under `human-copy/`, appended
-  after T-006's own (the final entry in this feature's own staged
+  after T-007's own (the final entry in this feature's own staged
   candidate); update `MANIFEST.sha256`.
 
 Commit B (documentation):
@@ -1513,7 +1697,7 @@ Commit B (documentation):
   with per-position forced-failure sub-fixtures (AC-045).
 - [ ] **Fixture + suite/CI registration** — self-registers in `tests/
   run-all.sh`/`.ps1`; staged `.github/workflows/test.yml` candidate
-  carries this suite's steps appended after T-006's own (the final
+  carries this suite's steps appended after T-007's own (the final
   entry), with a correct `MANIFEST.sha256` entry; LIVE `test.yml`
   byte-unchanged before/after.
 - [ ] **Governance** — `CHANGELOG.md` gains a NEW `## Unreleased` entry
@@ -1522,7 +1706,7 @@ Commit B (documentation):
   no path under `plugins/**` (AC-032).
 - [ ] **Feature-wide fixture-matrix completeness** — a final check
   confirms every REQ-006 fixture-matrix item (a-h) and every one of the
-  nine suites T-001..T-007 build is present and independently invocable
+  nine suites T-001..T-008 build is present and independently invocable
   under `tests/fixtures/capability-resolver/` (AC-026 [nine of ten
   suites, per Global Constraints' own "Deferred, Not Scheduled" note],
   AC-027).
@@ -1543,4 +1727,4 @@ Commit B (documentation):
 
 ### Blockers
 
-T-002, T-004, T-005
+T-002, T-005, T-006
