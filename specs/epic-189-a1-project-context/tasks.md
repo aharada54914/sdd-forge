@@ -316,9 +316,9 @@ unaffected and already complete above.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T15:16:57Z)
 
-Status: Planned
+Status: Blocked
 
 Risk: high
 
@@ -441,7 +441,46 @@ canonicalizer's addition.
 
 ### Blockers
 
-T-001
+T-001 (satisfied — its shared-file edits to `tests/run-all.sh`/`.ps1`
+landed in commit `4bd2ec3`).
+
+BLOCKED (2026-07-22, implementation session, before any code was
+written): design.md's own "Design Decisions" section (parser library
+choice, ~line 1279-1291) explicitly decides "use a standard library
+(`PyYAML` or `ruamel.yaml`, confirmed available at a future
+implementation session)" over a hand-rolled 1.2-core-schema parser,
+specifically FOR the security reason this task's own Risk Rationale
+states (an ambiguous/malformed document must never be silently accepted).
+At this implementation session, neither is available: `python3 -c "import
+yaml"` and `python3 -c "import ruamel.yaml"` both raise
+`ModuleNotFoundError`; `pip3 show pyyaml`/`pip3 show ruamel.yaml` both
+report "Package(s) not found". No `requirements.txt`/`pyproject.toml`/
+`setup.py`/`Pipfile` exists anywhere in this repository (checked
+repo-wide), and a repo-wide grep of every existing `.py` file under
+`plugins/`+`scripts/` shows every single one imports only Python stdlib
+modules — this would be the first third-party Python dependency this
+tool has ever had. This is not a routine approval checkpoint sudo can
+pass: it is exactly the "architecture... decision" class
+`implement-task/SKILL.md`'s Block-And-Stop section names, for the
+single most security-sensitive component in this epic (every later HMAC
+preimage (T-003) and weakening-detector diff (T-005) depends on this
+task's byte-stability guarantee). Silently substituting a hand-rolled
+parser would override an explicit, already-impl-reviewed design decision
+by guessing; silently adding a new pip dependency would make an
+unauthorized packaging/distribution decision for a tool installed by
+end users via a Claude Code plugin. Human decision needed: (a) accept
+PyYAML/ruamel.yaml as this tool's first-ever third-party Python
+dependency (and decide how it gets installed for end users — a real
+packaging change outside this task's own scope), (b) revise design.md to
+authorize a hand-rolled parser after all (itself requiring the frozen
+design.md to be amended and likely re-run through impl-review), or (c)
+some other resolution. **This blocks T-002's own further work
+completely (no Scope items were started — this was found while
+completing Required Reading, before any Red/Green TDD work began) and
+transitively blocks every downstream task that consumes the
+canonicalizer's actual function** (T-003 HMAC preimage, T-005 diffing,
+and everything chained after them: T-006 through T-010, T-012) — this is
+architecture-critical for the whole epic, not T-002-local.
 
 ---
 
