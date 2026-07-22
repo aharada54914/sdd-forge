@@ -37,7 +37,12 @@ $tests = @(
     'tests/release-loop-gate.tests.ps1',
     'tests/run-panelist-effort.tests.ps1',
     'tests/model-freshness-check.tests.ps1',
-    'tests/human-copy-runner-contract.tests.ps1'
+    'tests/human-copy-runner-contract.tests.ps1',
+    'tests/check-risk-upgrade-byte-identical.tests.ps1',
+    'tests/check-risk-upgrade-capability-merge.tests.ps1',
+    'tests/check-risk-upgrade-fragment-fail-closed.tests.ps1',
+    'tests/check-risk-upgrade-ineligible-no-reasons.tests.ps1',
+    'tests/lite-spec-capability-block.tests.ps1'
 )
 
 Push-Location $root

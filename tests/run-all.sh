@@ -55,6 +55,11 @@ tests=(
   tests/run-panelist-effort.tests.sh
   tests/model-freshness-check.tests.sh
   tests/human-copy-runner-contract.tests.sh
+  tests/check-risk-upgrade-byte-identical.tests.sh
+  tests/check-risk-upgrade-capability-merge.tests.sh
+  tests/check-risk-upgrade-fragment-fail-closed.tests.sh
+  tests/check-risk-upgrade-ineligible-no-reasons.tests.sh
+  tests/lite-spec-capability-block.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

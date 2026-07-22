@@ -1,0 +1,144 @@
+### check-risk-upgrade-byte-identical.tests.sh ###
+ok: TEST-007-clean: exit code identical (0)
+ok: TEST-007-clean: stdout byte-identical
+ok: TEST-007-auth: exit code identical (10)
+ok: TEST-007-auth: stdout byte-identical
+ok: TEST-007-token: exit code identical (10)
+ok: TEST-007-token: stdout byte-identical
+ok: TEST-007-mcp: exit code identical (10)
+ok: TEST-007-mcp: stdout byte-identical
+ok: TEST-007-api: exit code identical (10)
+ok: TEST-007-api: stdout byte-identical
+ok: TEST-007-secret: exit code identical (10)
+ok: TEST-007-secret: stdout byte-identical
+ok: TEST-007-github-actions: exit code identical (10)
+ok: TEST-007-github-actions: stdout byte-identical
+ok: TEST-007-unavailable: exit code identical (2)
+ok: TEST-007-unavailable: stdout byte-identical
+
+Results: 16 passed, 0 failed
+
+### check-risk-upgrade-capability-merge.tests.sh (against .PROPOSED extended script) ###
+=== TEST-008a: clean source + mixed fragment merges correctly ===
+ok: TEST-008a: exits 10 (a Capability-derived trigger fired)
+ok: TEST-008a: output matches exact expected merge (array order, synthetic token, eligible:true excluded)
+=== TEST-008b: keyword-derived tokens precede capability-derived tokens ===
+ok: TEST-008b: exits 10
+ok: TEST-008b: keyword tokens (AUTH_BOUNDARY,TOKEN_CREDENTIAL) precede capability tokens; primary id unchanged
+=== TEST-008c: all-eligible fragment contributes nothing ===
+ok: TEST-008c: all-eligible fragment + clean source stays lite-eligible
+=== TEST-009: static review -- no new keyword row, no DSL/Registry call ===
+ok: TEST-009a: exactly one rules-tuple definition (no duplicated/added keyword table)
+ok: TEST-009b: still exactly the original six keyword-rule IDs (no new row added)
+ok: TEST-009c: no Predicate-DSL/Registry-matching call found in the staged script
+
+Results: 8 passed, 0 failed
+
+### check-risk-upgrade-fragment-fail-closed.tests.sh (against .PROPOSED extended script) ###
+=== TEST-013a: unreadable (missing) fragment path ===
+ok: TEST-013a: exits 2
+ok: TEST-013a: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013b: malformed (not valid JSON) fragment ===
+ok: TEST-013b: exits 2
+ok: TEST-013b: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013c: shape-invalid -- missing 'capabilities' key ===
+ok: TEST-013c: exits 2
+ok: TEST-013c: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013d: shape-invalid -- 'capabilities' is not an array ===
+ok: TEST-013d: exits 2
+ok: TEST-013d: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013e: shape-invalid -- entry missing 'id' ===
+ok: TEST-013e: exits 2
+ok: TEST-013e: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013f: shape-invalid -- entry missing 'eligible' ===
+ok: TEST-013f: exits 2
+ok: TEST-013f: prints the dedicated fragment-invalid diagnostic (not the input-unavailable one)
+=== TEST-013g: distinct from the omitted-argument case ===
+ok: TEST-013g: omitted-argument case is unaffected (exit 0, lite-eligible) -- fail-closed is scoped to SUPPLIED-invalid only
+
+Results: 13 passed, 0 failed
+
+### check-risk-upgrade-ineligible-no-reasons.tests.sh (against .PROPOSED extended script) ###
+=== TEST-014a: eligible:false, upgrade_reasons key absent ===
+ok: TEST-014a: exits 10
+ok: TEST-014a: synthetic ineligible:<id> token produced (never silently empty)
+=== TEST-014b: eligible:false, upgrade_reasons is an empty array ===
+ok: TEST-014b: exits 10
+ok: TEST-014b: synthetic ineligible:<id> token produced for an explicit empty array too
+=== TEST-014c: mixed no-reasons + has-reasons entries, both contribute ===
+ok: TEST-014c: exits 10
+ok: TEST-014c: no-reasons entry's synthetic token appears in its own array position, not dropped
+
+Results: 6 passed, 0 failed
+### check-risk-upgrade-byte-identical.tests.ps1 ###
+ok: TEST-007-clean: exit code identical (0)
+ok: TEST-007-clean: stdout byte-identical
+ok: TEST-007-auth: exit code identical (10)
+ok: TEST-007-auth: stdout byte-identical
+ok: TEST-007-token: exit code identical (10)
+ok: TEST-007-token: stdout byte-identical
+ok: TEST-007-mcp: exit code identical (10)
+ok: TEST-007-mcp: stdout byte-identical
+ok: TEST-007-api: exit code identical (10)
+ok: TEST-007-api: stdout byte-identical
+ok: TEST-007-secret: exit code identical (10)
+ok: TEST-007-secret: stdout byte-identical
+ok: TEST-007-github-actions: exit code identical (10)
+ok: TEST-007-github-actions: stdout byte-identical
+ok: TEST-007-unavailable: exit code identical (2)
+ok: TEST-007-unavailable: stdout byte-identical
+
+Results: 16 passed, 0 failed
+
+### check-risk-upgrade-capability-merge.tests.ps1 (against .PROPOSED extended script) ###
+=== TEST-008a: clean source + mixed fragment merges correctly ===
+ok: TEST-008a: exits 10
+ok: TEST-008a: output matches exact expected merge
+=== TEST-008b: keyword-derived tokens precede capability-derived tokens ===
+ok: TEST-008b: exits 10
+ok: TEST-008b: keyword tokens precede capability tokens; primary id unchanged
+=== TEST-008c: all-eligible fragment contributes nothing ===
+ok: TEST-008c: all-eligible fragment + clean source stays lite-eligible
+=== TEST-009: static review -- no new keyword row, no DSL/Registry call ===
+ok: TEST-009a: exactly one $rules array definition
+ok: TEST-009b: still exactly the original six keyword-rule IDs
+ok: TEST-009c: no Predicate-DSL/Registry-matching call found
+
+Results: 8 passed, 0 failed
+
+### check-risk-upgrade-fragment-fail-closed.tests.ps1 (against .PROPOSED extended script) ###
+=== TEST-013a: unreadable (missing) fragment path ===
+ok: TEST-013a: exits 2
+ok: TEST-013a: prints the dedicated fragment-invalid diagnostic
+=== TEST-013b: malformed (not valid JSON) fragment ===
+ok: TEST-013b: exits 2
+ok: TEST-013b: prints the dedicated fragment-invalid diagnostic
+=== TEST-013c: shape-invalid -- missing 'capabilities' key ===
+ok: TEST-013c: exits 2
+ok: TEST-013c: prints the dedicated fragment-invalid diagnostic
+=== TEST-013d: shape-invalid -- 'capabilities' is not an array ===
+ok: TEST-013d: exits 2
+ok: TEST-013d: prints the dedicated fragment-invalid diagnostic
+=== TEST-013e: shape-invalid -- entry missing 'id' ===
+ok: TEST-013e: exits 2
+ok: TEST-013e: prints the dedicated fragment-invalid diagnostic
+=== TEST-013f: shape-invalid -- entry missing 'eligible' ===
+ok: TEST-013f: exits 2
+ok: TEST-013f: prints the dedicated fragment-invalid diagnostic
+=== TEST-013g: distinct from the omitted-argument case ===
+ok: TEST-013g: omitted-argument case is unaffected (exit 0, lite-eligible)
+
+Results: 13 passed, 0 failed
+
+### check-risk-upgrade-ineligible-no-reasons.tests.ps1 (against .PROPOSED extended script) ###
+=== TEST-014a: eligible:false, upgrade_reasons key absent ===
+ok: TEST-014a: exits 10
+ok: TEST-014a: synthetic ineligible:<id> token produced
+=== TEST-014b: eligible:false, upgrade_reasons is an empty array ===
+ok: TEST-014b: exits 10
+ok: TEST-014b: synthetic ineligible:<id> token produced for an explicit empty array too
+=== TEST-014c: mixed no-reasons + has-reasons entries, both contribute ===
+ok: TEST-014c: exits 10
+ok: TEST-014c: no-reasons entry's synthetic token appears in its own array position
+
+Results: 6 passed, 0 failed

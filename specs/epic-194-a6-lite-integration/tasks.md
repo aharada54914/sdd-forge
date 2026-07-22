@@ -167,9 +167,37 @@ standing instruction, a guard denial is not routed around; this is a
 judgment-requiring tooling/architecture gap (a missing `human-copy/`
 exception in the R-10 suffix matcher, or a documented-but-unimplemented
 exception process) that needs a human decision, not an implementer
-workaround. Real, working, uncommitted implementation exists for the parts
-NOT blocked by this gap (see Implementation Complete evidence below); it is
-preserved in the working tree, uncommitted, pending this decision.
+workaround. Real, working implementation exists for the parts NOT blocked by
+this gap (runner, TDD suite, RED/GREEN evidence) and has been committed
+(commit `6f83009`); the staged CI-workflow candidate and the CHANGELOG
+Commit B remain outstanding, pending the human decision.
+
+Addendum (2026-07-22T15:08:56Z window, a6-impl2, human-directed interim
+work): per human direction (independently confirmed on Epic A1; options
+presented: (A) add a guard human-copy exception, (B) prepare non-suffix-
+matching `.PROPOSED` content for a human to apply in one batch once
+unblocked, (C) rescope), this session prepared the FINAL content for every
+target this task's own runner will eventually apply, plus T-002's and
+T-003's own real payload content, under
+`specs/epic-194-a6-lite-integration/human-copy/PROPOSED/*.PROPOSED`
+(non-suffix-matching filenames — never written to a live or deny-listed
+path; see that directory's own `README.md` for the exact human-apply
+command sequence and the prepared `MANIFEST.sha256` additions). This is
+data preparation only, not a guard workaround: nothing was written to a
+protected suffix at any point.
+
+Addendum 2: recording this task's own `Status: Blocked` (a documented
+AGENTS.md/check-task-state.sh-valid lifecycle state) exposed a SECOND,
+independent script gap: `plugins/sdd-quality-loop/scripts/check-workflow-
+state.sh`'s own task-lifecycle status regex (line ~694-696) only accepts
+`Planned|In Progress|Implementation Complete|Done` — it does not recognize
+`Blocked` at all, even though `check-task-state.sh` and AGENTS.md both do.
+`bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh` now exits 1
+("task status is invalid") for this reason alone, confirmed reproducible,
+and will keep doing so for every commit in this feature while any task
+remains `Blocked`. Also not routed around (this script is equally
+off-limits to direct edits); reported here for the same human decision
+alongside the R-10 gap.
 
 Risk: high
 
@@ -362,9 +390,29 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T15:39:07Z)
 
-Status: Planned
+Status: Blocked
+
+Blocker (recorded 2026-07-22T15:39:07Z, a6-impl2): same root cause as T-001's
+own Blocker note (R-10 guard suffix-match with no `human-copy/` staging
+carve-out) — this task's own three staged targets
+(`check-risk-upgrade.sh`/`.ps1`, `risk-upgrade-policy.md`) hit the identical
+denial. Per human direction (interim, pending the same guard-gap decision),
+the extended script content is fully authored and TDD-tested (byte-identical
+legacy path, merge ordering, fail-closed on invalid fragment, synthetic
+ineligible-token contract — `tests/check-risk-upgrade-byte-identical.tests.
+{sh,ps1}`, `tests/check-risk-upgrade-capability-merge.tests.{sh,ps1}`,
+`tests/check-risk-upgrade-fragment-fail-closed.tests.{sh,ps1}`,
+`tests/check-risk-upgrade-ineligible-no-reasons.tests.{sh,ps1}`; RED/GREEN:
+`specs/epic-194-a6-lite-integration/verification/T-002.{red,green}.log`) and
+staged as non-suffix-matching `.PROPOSED` content under
+`specs/epic-194-a6-lite-integration/human-copy/PROPOSED/` (never written to
+a live or deny-listed path — see that directory's own `README.md` for the
+apply procedure and prepared `MANIFEST.sha256` additions). The HUMAN APPLY
+STEP (copying this content to its real path, then applying via T-001's
+runner) remains pending the same human decision; this task cannot reach
+`Implementation Complete` in the normal sense until then.
 
 Risk: high
 
@@ -584,9 +632,26 @@ T-001
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/194
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T15:39:07Z)
 
-Status: Planned
+Status: Blocked
+
+Blocker (recorded 2026-07-22T15:39:07Z, a6-impl2): same root cause as
+T-001's/T-002's own Blocker notes — this task's own single staged target
+(`lite-spec/SKILL.md`) hits the identical R-10 suffix-match denial. Per
+human direction (interim, pending the same guard-gap decision), the
+extended skill text is fully authored and tested (structural + functional +
+defense-in-depth — `tests/lite-spec-capability-block.tests.{sh,ps1}`;
+RED/GREEN: `specs/epic-194-a6-lite-integration/verification/T-003.{red,
+green}.log`) and staged as non-suffix-matching `.PROPOSED` content under
+`specs/epic-194-a6-lite-integration/human-copy/PROPOSED/` (never written to
+a live or deny-listed path — see that directory's own `README.md`). The
+HUMAN APPLY STEP remains pending the same human decision; this task cannot
+reach `Implementation Complete` in the normal sense until then. Depends On
+T-001, T-002 (Blockers, above) is unaffected by this note — the shared
+registration surface (`tests/run-all.sh`/`.ps1` array order,
+`.github/workflows/test.yml` staged-candidate append order) is already
+correctly ordered T-001 -> T-002 -> T-003 in this session's own work.
 
 Risk: high
 
