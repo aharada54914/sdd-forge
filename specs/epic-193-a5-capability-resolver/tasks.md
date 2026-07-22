@@ -1,6 +1,6 @@
 # Tasks: epic-193-a5-capability-resolver
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issue #193 (Epic A5 — Capability Resolver), tracked under epic
 #187 (AI-DLC Foundation) /
