@@ -86,7 +86,13 @@ scope without contradicting the v2 role split.
   change before this epic's own Phase 2/3 begins. INV-008 is a live
   demonstration of exactly this drift risk materializing between when Epic
   A7 recorded its own citation and when this package recomputed the same
-  window — re-verify before authoring tests against any of them.
+  window — re-verify before authoring tests against any of them. Per
+  design.md's Test Strategy item 11 (A5 caller-contract fingerprint
+  precheck), re-verification of `FP-A8-A5-CALLER-CONTRACT-10` at Phase
+  2/3 start is a mandatory, hard-failing precheck (expected HEAD/blob ID
+  match, digest recomputation) — not a `SKIP`/`PASS`-tolerant advisory —
+  precisely because INV-008 already observed this drift class occur once
+  between Epic A5's and Epic A7's own recorded citations.
 - Do not assert or imply that any of Claude Code CLI, Codex CLI, or Copilot
   CLI already has a confirmed, documented headless/non-interactive
   invocation contract in this repository (INV-021); this package's Phase

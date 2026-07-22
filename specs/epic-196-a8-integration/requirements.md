@@ -182,6 +182,19 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
   session must produce — so "this was verified" always means either a
   reproducible automated artifact or an auditable manual record, never an
   unlogged claim (orchestrator's own instruction: "自動化を偽装しない").
+- **REQ-007** (Process and traceability integrity): specify the
+  requirement→AC→concrete-test-case→oracle→evidence-artifact traceability
+  discipline this package's own acceptance-tests.md and design.md must
+  jointly satisfy — every AC is reachable from exactly one REQ-001–REQ-006
+  entry above, except AC-029/AC-030, whose own subject is this package's
+  process integrity (scope-boundary self-check; citation compliance) rather
+  than any single artifact REQ-001–REQ-006 name; those two ACs map to this
+  REQ-007 instead of to "REQ (process)," a placeholder label
+  acceptance-tests.md must not use. REQ-007 also fixes that design.md's
+  Automated / Manual Classification Table (AC-025) is this package's single
+  normative source for every check's classification — acceptance-tests.md's
+  own `Test Type` column must cite that table's value directly rather than
+  carrying an independent `TBD` marker once design.md has already fixed it.
 
 ## Non-goals
 
@@ -229,12 +242,15 @@ a weaker, unlogged substitute.
 
 ## Acceptance Criteria
 
-- AC-001: A fixture-project definition (design.md) names the exact
-  repository-file artifact each of the two adjacent-runtime handoffs
-  (Claude→Codex, Codex→Copilot) produces and consumes, and the exact
-  observable proving the consuming runtime actually used the artifact
-  (not merely that the file exists) — resolving REQ-001's own fixture
-  contract before any Phase 2/3 task authors it.
+- AC-001: A fixture-project definition (design.md) names, for each of the
+  two adjacent-runtime handoffs (Claude→Codex, Codex→Copilot), the exact
+  repository-relative artifact path, its exact initial bytes, the exact
+  nonce-bearing mutation each producing runtime applies, the exact final
+  bytes/hash the artifact must carry, and a machine-checkable
+  `consumer_observable` oracle (not a free-text description) proving the
+  consuming runtime actually used the artifact (not merely that the file
+  exists) — resolving REQ-001's own fixture contract, with no
+  implementer-discretion gap, before any Phase 2/3 task authors it.
 - AC-002: The Claude→Codex handoff step is independently verifiable: a
   file a Claude Code session produces is read, and its content correctly
   influences, a subsequent Codex CLI session's own output or behavior.
@@ -259,7 +275,10 @@ a weaker, unlogged substitute.
   cycle install→verify→uninstall→verify, run independently against each of
   `--target All`, `--target Codex`, `--target Claude`, `--target Copilot`
   — four independent matrix cells, never one cell generalized to stand for
-  another (design.md fixes the per-cell expected registration/file state).
+  another. design.md fixes a target × phase × surface table (marketplace,
+  plugin registration, MCP config, Codex agent/config TOML) naming each
+  cell's own expected present/absent/unchanged state, the sole oracle
+  TEST-007/008/009 evaluate against.
 - AC-008: Each matrix cell's own idempotency is asserted: running `install`
   a second time over an already-installed state (same `--target`, same
   `--install-root`) produces a registered/copied state identical to the
@@ -290,34 +309,74 @@ a weaker, unlogged substitute.
   `tests/cli-hook-enforcement.ps1`'s existing direct-invocation assertions
   (INV-013) rather than re-authoring an equivalent check from scratch.
 - AC-013: Both states of Codex's `plugin_hooks` feature flag (enabled,
-  disabled) are independently exercised and asserted: enabled → the guard
-  fires per AC-012; disabled → the guard does not fire and this is the
-  expected, correctly-detected state (`CAPABILITY_RUNTIME_UNAVAILABLE` or
-  this epic's own equivalent non-firing signal, design.md), never silently
-  treated as a guard failure or silently passed over.
+  disabled) are independently exercised and asserted through a genuine
+  Codex CLI session dispatch — never a config-file toggle plus a direct
+  `sdd-hook-guard` invocation, which sets no Codex flag and never engages
+  Codex's own native hook dispatcher (investigation.md:50-52;
+  `plugins/sdd-quality-loop/hooks/hooks.json:2`). Enabled → the guard fires
+  per AC-012, corresponding to the `Codex-enabled-active` cell of the
+  REQ-003 semantic live-host matrix (design.md); disabled → the guard does
+  not fire and this is the expected, correctly-detected
+  `Codex-disabled-expected-unavailable` cell state
+  (`CAPABILITY_RUNTIME_UNAVAILABLE` or this epic's own equivalent
+  non-firing signal, design.md), never silently treated as a guard failure
+  or silently passed over. Until design.md's classification table confirms
+  a scripted, native-dispatcher-engaging Codex session contract exists,
+  both cells stay `manual-required`/`automated-pending-confirmation`
+  (never `automated` on the strength of a direct guard invocation alone).
 - AC-014: Copilot's known subagent non-firing case (INV-012) is
-  independently exercised inside a subagent context and asserted as an
-  expected, documented non-firing state — with the manual fallback
-  commands `docs/troubleshooting.md` already prescribes (INV-012) recorded
-  as this fixture's own remediation reference, never silently absent from
-  the suite.
+  independently exercised inside a genuine Copilot subagent context —
+  never a direct guard-script invocation carrying a `copilot` flag/argument
+  (`tests/cli-hook-enforcement.ps1`'s existing `--emit copilot` pattern,
+  which never launches an actual Copilot subagent, investigation.md:50-52)
+  — and contrasted against a genuine Copilot primary-context session in
+  which the guard does fire, corresponding to the REQ-003 semantic matrix's
+  `Copilot-primary-active` and `Copilot-subagent-expected-unavailable`
+  cells (design.md). The subagent cell is asserted as an expected,
+  documented non-firing state — with the manual fallback commands
+  `docs/troubleshooting.md` already prescribes (INV-012) recorded as this
+  fixture's own remediation reference, never silently absent from the
+  suite. Until design.md's classification table confirms a scripted,
+  real-subagent-dispatching Copilot session contract exists, both cells
+  stay `manual-required`/`automated-pending-confirmation`.
 - AC-015: A live-host hook-activation handshake proof — a genuine, real
   installed-toolchain session in which the agent's own real tool call is
   intercepted and denied by that runtime's own native hook subsystem — is
-  produced independently for each of the three runtimes, discharging the
-  ADR-0019/Epic A1 Done-condition delegation (INV-004–INV-006) in full.
-  Each proof is either a reproducible automated artifact (if REQ-006's
-  classification finds automation available for that runtime) or a
-  REQ-006-format manual-session record; a synthetic/fixture-only result is
-  never accepted in place of either (Safety constraints,
-  investigation.md). Named `SKIP` (citing Epic A1's tracking issue,
-  `sdd-forge-wt-epic-189`) until Epic A1 merges and its handshake script
-  (`check-hook-activation-handshake.{py,sh,ps1}`) exists to be exercised.
-- AC-016: Once Epic A1 merges, at least one of its five migrated consumer
-  entry points (`sdd-ship`, `sdd-bootstrap`, `sdd-bootstrap-interviewer`,
-  `lite-spec`, `lite-gate` — INV-007) is exercised per runtime as part of
-  AC-015's own live-host proof, rather than relying solely on a standalone
-  canary invocation.
+  produced independently for each of the REQ-003 semantic live-host
+  matrix's five cells (`Claude-active`, `Codex-enabled-active`,
+  `Codex-disabled-expected-unavailable`, `Copilot-primary-active`,
+  `Copilot-subagent-expected-unavailable` — design.md), discharging the
+  ADR-0019/Epic A1 Done-condition delegation (INV-004–INV-006) in full. The
+  three "-active" cells' Done condition is a genuine denial `PASS`; the two
+  "-expected-unavailable" cells' Done condition is a correctly-detected
+  fail-closed/unavailable result, never a silently-passing gap and never a
+  cell conflated with a differently-named cell. Each proof is either a
+  reproducible automated artifact (if REQ-006's classification finds
+  automation available for that runtime) or a REQ-006-format manual-session
+  record that additionally satisfies AC-026's fortified
+  `live-host-verification-record/v1` fields (A1-issued single-use nonce,
+  raw host tool-request/tool-result hashes, host session/event ID,
+  installed hook/config digest, session start/end timestamps, and a
+  two-party operator + independent-reviewer signed attestation); a
+  synthetic/fixture-only result, a direct guard-script invocation, or a
+  record missing any fortified field is never accepted in place of either
+  (Safety constraints, investigation.md; AC-027). All five cells' records
+  are aggregated and re-validated by the `validate-live-host-proof`
+  aggregate check (design.md), which is a Done gate for this epic and for
+  the AI-DLC Foundation as a whole (AC-028), and a release gate. Named
+  `SKIP` (citing Epic A1's tracking issue, `sdd-forge-wt-epic-189`) until
+  Epic A1 merges and its handshake script
+  (`check-hook-activation-handshake.{py,sh,ps1}`) exists to be exercised;
+  a `SKIP` surviving `validate-live-host-proof` after Epic A1 merges is a
+  non-zero-exit hard failure, never a passing state.
+- AC-016: Once Epic A1 merges, all five of its migrated consumer entry
+  points (`sdd-ship`, `sdd-bootstrap`, `sdd-bootstrap-interviewer`,
+  `lite-spec`, `lite-gate` — INV-007) are exercised per runtime as part of
+  AC-015's own live-host proof, each recorded in a fingerprinted inventory
+  (entry-point name, file:line or commit citation into Epic A1's own
+  package, and the runtime/cell it was exercised under) — never relying on
+  a single sampled entry point to stand in for the remaining four, and
+  never a partial inventory silently presented as complete.
 - AC-017: `tests/cli-hook-enforcement.ps1`'s existing config-drift and
   direct-invocation assertions (INV-013) remain green and are registered
   as this epic's own REQ-003 "synthetic/regression half," independently of
@@ -329,19 +388,31 @@ a weaker, unlogged substitute.
   Windows-path-separator (`\`) working directory and install root,
   independent of the existing forward-slash-normalized fixture paths
   `install.tests.sh`/`.ps1` already use (INV-016), covering at minimum one
-  generated file path and one CLI-registration path string.
+  generated file path and one CLI-registration path string, as one axis of
+  the REQ-004 cross-product combination matrix (design.md) rather than a
+  single isolated case.
 - AC-019: A fixture asserts CRLF-vs-LF content parity at the
   `.gitattributes` layer (INV-022) for at least one install/uninstall
   script output and one skill/plugin manifest file this epic's own matrix
   touches — explicitly scoped to git-attribute-layer normalization, never
   asserting or depending on Epic A1's own canonicalizer-layer YAML
-  handling (Non-goals).
+  handling (Non-goals) — as one axis of the same REQ-004 cross-product
+  combination matrix (design.md).
 - AC-020: A fixture asserts NFC-vs-NFD equivalence for at least one
   filename or file-content string this epic's own fixtures touch,
   authored on a macOS (NFD-tending) filesystem and consumed by a
-  Windows/Linux (NFC-only) checkout, against the existing `.gitattributes`
-  contract (INV-022) — never introducing a new, competing normalization
-  rule.
+  Windows/Linux (NFC-only) checkout, against this epic's own dedicated
+  Unicode-normalization contract (design.md: owning algorithm, raw-byte
+  preservation and collision policy, per-OS expected path/content bytes) —
+  never against `.gitattributes` (INV-022), which normalizes only
+  text/EOL and defines no Unicode-normalization rule of its own, and never
+  introducing a normalization rule that competes with Epic A1's own
+  canonicalizer-layer handling (Non-goals). This is the third axis of the
+  same REQ-004 cross-product combination matrix (design.md), which fixes a
+  per-cell source bytes/name, resolved path, copied bytes, stdout, and
+  uninstall-residue oracle across OS × path-separator × LF/CRLF ×
+  NFC/NFD × sh/ps1 × install/uninstall, superseding any reading of
+  AC-018–AC-020 as three independent single-case spot checks.
 - AC-021: design.md's Compatibility/regression table (mirroring Epic A7's
   own Compatibility Matrix convention) enumerates every REQ-004 fixture
   cell with its own single disposition drawn from the same three-value
@@ -354,14 +425,23 @@ a weaker, unlogged substitute.
   is silently omitted from the
   evidence trail.
 - AC-022: A drift-detection check (design.md fixes its exact script
-  name/flags) compares a CLI-installed plugin cache
-  (`${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins` or an explicit
+  name/flags, per-platform install-root default) compares a CLI-installed
+  plugin cache (platform-correct default per install.sh/install.ps1's own
+  actual `INSTALL_ROOT`/`$InstallRoot` value, or an explicit
   `--install-root` override, INV-016) against the repository's own current
-  `plugins/**` source for at least one concrete divergence class this
-  package models directly on the `AGENTS.md` WFI-004/issue #86 precedent
-  (INV-017): a plugin-shipped role/definition file present in the
-  installed cache that no longer matches (by content hash) its own
-  repository-source counterpart.
+  install/uninstall-touched source surface (`plugins/**` plus any script,
+  manifest, agent-role, or hook-config file the installer copies or
+  generates, matching this package's own Installed-cache-drift Field
+  Definition) for a concrete divergence class this package models directly
+  on the `AGENTS.md` WFI-004/issue #86 precedent (INV-017): a
+  plugin-shipped role/definition file present in the installed cache that
+  no longer matches (by content hash) its own repository-source
+  counterpart. In addition to this positive-divergence class, at least one
+  independent negative-lifecycle case is asserted with an exact diff/exit
+  oracle — either a prior-version install followed by a source-tree
+  revision, or a direct mutate/delete/add against the installed cache —
+  distinct from the always-freshly-installed happy path a same-source
+  install-then-immediate-compare alone cannot rule out.
 - AC-023: The REQ-005 drift check reports a distinct, non-zero-exit
   diagnostic (design.md names it) when divergence is detected, and a
   distinct, zero-exit pass when the installed cache and repository source
@@ -379,11 +459,23 @@ a weaker, unlogged substitute.
   reason no automated path exists) — exhaustive over every check this
   package names, never partial.
 - AC-026: A single manual-session record schema (design.md;
-  `live-host-verification-record/v1`) fixes the required fields — session
-  date, operator identity, CLI name and version, host OS, Codex
-  `plugin_hooks` flag state (when applicable), the observed real tool-call
-  transcript/evidence, and the pass/fail verdict — for every
-  `manual-required` item AC-025's table names.
+  `live-host-verification-record/v1`) fixes the required fields for every
+  `manual-required` (and `automated`-classified, once upgraded) item
+  AC-025's table names: session date, session start/end timestamps,
+  operator identity, an independent reviewer identity distinct from the
+  operator, an A1-issued single-use challenge nonce, the raw host
+  tool-request and tool-result payload hashes (sha256), a host-issued
+  session ID and event ID, a digest of the installed hook/config file(s)
+  actually exercised, CLI name and version, host OS, Codex `plugin_hooks`
+  flag state (when applicable), the observed real tool-call
+  transcript/evidence, the pass/fail verdict, and a two-party attestation
+  (operator signature + independent-reviewer signature) over the record's
+  own content hash. A record missing any of these fields, reusing a nonce
+  already consumed by a prior record, or carrying an attestation signature
+  that does not verify against the record's own content hash is invalid
+  per this schema (AC-027's classification-mismatch/replay guard) — no
+  operator self-attestation or freeform transcript excerpt alone
+  discharges AC-028.
 - AC-027: No check classified `automated` in AC-025's table may be
   satisfied by a `manual-required`-format record, and no check classified
   `manual-required` may be satisfied by an automated artifact claiming
@@ -393,10 +485,20 @@ a weaker, unlogged substitute.
   Strategy independently enforces.
 - AC-028: The ADR-0019/Epic A1 hook-activation-handshake Done-condition
   delegation (INV-004–INV-006) is considered discharged only once AC-015's
-  live-host proof exists for all three runtimes crossed with both of
-  AC-013's Codex `plugin_hooks` flag states (six total observations,
-  design.md's own matrix) — or, before Epic A1 merges, is explicitly
-  recorded as `SKIP` (AC-015) rather than silently unaddressed.
+  live-host proof exists, as a fortified `live-host-verification-record/v1`
+  (AC-026), for all five cells of the REQ-003 semantic live-host matrix
+  (`Claude-active`, `Codex-enabled-active`,
+  `Codex-disabled-expected-unavailable`, `Copilot-primary-active`,
+  `Copilot-subagent-expected-unavailable` — design.md's own matrix,
+  superseding any "three runtimes × two flag states" six-cell framing) —
+  or, before Epic A1 merges, is explicitly recorded as `SKIP` (AC-015)
+  rather than silently unaddressed. Discharge is computed only by the
+  `validate-live-host-proof` aggregate check (design.md), never asserted
+  by inspection of individual record files alone; that aggregate check is
+  wired as both this epic's own Done gate and a release gate, and reports
+  a non-zero exit on any missing, `SKIP`-after-merge, `FAIL`, stale
+  (nonce/session mismatch or expired), config-digest-mismatch, or
+  duplicate-nonce record among the five cells.
 - AC-029: This package's own scope boundary (Non-goals; decision doc §7
   v2, INV-001) is independently checkable: no AC above names a new
   `.sh`/`.ps1` pair, a new plugin hook config, or a new environment-specific
@@ -423,7 +525,29 @@ a weaker, unlogged substitute.
   against that runtime's own real CLI session, distinct from and never
   satisfied by a synthetic/fixture-only invocation of the guard script
   directly (the `tests/cli-hook-enforcement.ps1` pattern, INV-013; Epic
-  A1's own local-canary scope statement, INV-006).
+  A1's own local-canary scope statement, INV-006), and never satisfied by
+  a direct-invocation shim that carries a runtime-name flag/argument
+  (e.g. `--emit copilot`) without actually engaging that runtime's own
+  native dispatcher or subagent context (investigation.md:50-52). Recorded
+  only as a fortified `live-host-verification-record/v1` (AC-026)
+  carrying a single-use nonce, raw tool-request/result hashes, session/
+  event IDs, an installed hook/config digest, start/end timestamps, and a
+  two-party operator + independent-reviewer attestation — an
+  unfortified freeform transcript excerpt or self-attested JSON does not
+  meet this definition.
+- **Semantic live-host matrix cell**: one of the five REQ-003 cells this
+  package's live-host proof is organized around — `Claude-active`,
+  `Codex-enabled-active`, `Codex-disabled-expected-unavailable`,
+  `Copilot-primary-active`, `Copilot-subagent-expected-unavailable`
+  (design.md) — never the un-semantic "3 runtimes × 2 Codex flag states =
+  6" direct product, which double-counts Claude (no flag dimension) and
+  never represents Copilot's primary-vs-subagent dimension at all.
+- **Unicode-normalization contract**: this epic's own dedicated
+  specification (design.md) of the NFC algorithm, raw-byte preservation
+  and collision policy, and per-OS expected path/content bytes governing
+  AC-020's NFC-vs-NFD fixture — distinct from `.gitattributes`, whose own
+  `text=auto eol=lf` rules (INV-022) normalize only text content and line
+  endings and define no Unicode-normalization behavior of their own.
 - **Installed-cache drift**: a state in which a CLI-registered install
   root's own copy of a repository-sourced file (script, plugin manifest,
   agent role definition, hook config) no longer matches, by content hash,
@@ -451,7 +575,14 @@ a weaker, unlogged substitute.
   manual-required session per REQ-006's record format when no automated
   path exists for a given runtime/check combination; never presents a
   synthetic or partial result as satisfying a manual-required item
-  (AC-027).
+  (AC-027); is one of the two required signatories on every
+  `live-host-verification-record/v1` (AC-026).
+- **Independent reviewer**: a maintainer or authorized contributor other
+  than the session's own operator who countersigns a
+  `live-host-verification-record/v1` (AC-026) after independently
+  checking its nonce, hash bindings, and timestamps — the record's second
+  required signatory; a record signed only by its own operator is invalid
+  per AC-026/AC-027 (never a self-attested single-signature record).
 - **CI**: runs every fully-`automated`-classified check (AC-025) on its
   existing 3-OS matrix (INV-014); never itself produces or claims to
   produce a `manual-required` live-host proof record.
@@ -478,12 +609,14 @@ a weaker, unlogged substitute.
    cross-runtime fixture (AC-012–AC-014) and the Codex `plugin_hooks`
    flag-state matrix (AC-013), keeping the synthetic/regression half
    (AC-017) independently green.
-4. That task runs (or schedules a human operator to run) the REQ-003
-   live-host hook-activation handshake proof (AC-015) for each runtime,
-   producing either an automated artifact or a REQ-006-format manual
-   record — discharging the ADR-0019/Epic A1 delegation (AC-028) once all
-   six observations (three runtimes × two Codex flag states) exist, or
-   recording `SKIP` before Epic A1 merges.
+4. That task runs (or schedules a human operator and an independent
+   reviewer to run) the REQ-003 live-host hook-activation handshake proof
+   (AC-015) for each of the five semantic live-host matrix cells,
+   producing either an automated artifact or a fortified,
+   two-party-attested REQ-006-format manual record — discharging the
+   ADR-0019/Epic A1 delegation (AC-028) once `validate-live-host-proof`
+   confirms all five cells' records exist and pass, or recording `SKIP`
+   before Epic A1 merges.
 5. That task builds the REQ-002 install/uninstall matrix (AC-007–AC-011)
    as one local macOS run plus a registration in the existing 3-OS CI job
    (AC-010), wiring the REQ-005 drift check (AC-022–AC-024) into its own
