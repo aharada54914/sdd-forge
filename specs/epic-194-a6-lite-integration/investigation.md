@@ -428,6 +428,71 @@ identifies this; the orchestrator's ruling adds a design-level contract
 anchored runner a future implementation task must author, rather than
 assuming the Epic-136 runner applies unmodified.
 
+## INV-020: The Protected-File Statement's own "exact-set" wording, as first drafted, forbade the runner and manifest control files it also required to exist in the same staged directory
+
+Direct read, this package's own `design.md` Protected-File Statement
+(pre-correction text): it places `apply-protected-files.ps1` and requires
+a `MANIFEST.sha256` **inside** `specs/epic-194-a6-lite-integration/
+human-copy/`, while simultaneously requiring that same directory's own
+file set contain *exactly* the four payload targets and "no more" — the
+runner and manifest are therefore forbidden by the same rule that
+requires them, an internal contradiction the 2026-07-22 adversarial final
+verification identified (M3, PARTIAL). The real Epic-136 runner does not
+read this as a contradiction because it never enumerates its own staging
+root's raw filesystem listing: `Get-ManifestDigests` only requires the
+manifest to carry exactly one line per declared target
+(`apply-protected-files.ps1:81-101`), and the staged canonical
+`guard-invariants.json` copy and `MANIFEST.sha256` are read as control
+inputs the copy process consumes, never as members of the
+`phase2_human_copy_targets` set they themselves describe
+(`apply-protected-files.ps1:68-101`, `:621-629`). The orchestrator's
+ruling adopts the same reading explicitly: `design.md`'s Protected-File
+Statement now defines a **payload file set** (recursive staged paths
+excluding this batch's own control files — `MANIFEST.sha256`, the runner
+script, and any machine-readable target-inventory file) and states the
+exact-set requirement as a three-way equality among the declared
+four-target list, `MANIFEST.sha256`'s own target set, and the enumerated
+payload set — never a raw directory-listing diff. TEST-010/TEST-031
+(acceptance-tests.md) are revised to the same definition. This closes
+M3 (previously PARTIAL).
+
+## INV-021: The `required_lite_checks`/`checks[]` catalog schemas admit any non-empty string, while `lite-gate`'s own command-discovery contract interpolates that string into a `scripts/<id>.{sh,ps1}` filesystem path with no stated identifier grammar, canonical-path containment proof, regular-file/no-link policy, or argv-safe invocation
+
+Direct read, this package's own pre-correction text: the designed
+`lite_policy.required_lite_checks`/`lite-check-catalog.json` `checks[]`
+item schemas (design.md Data Plan) constrained each token only to
+`{"type": "string", "minLength": 1}`, and the "Lite-check
+command-discovery contract" (design.md API / Contract Plan, requirements.
+md REQ-004 Step 2b) named `scripts/<id>.sh`/`scripts/<id>.ps1` as a
+resolution target with no stated grammar on `<id>`, no canonical-path
+containment proof against `scripts/`, no regular-file/no-symlink policy,
+and no argv-safe invocation guarantee — a schema-valid check-id such as
+`../outside` could therefore make the stated "bounded to `scripts/`"
+claim false, and TEST-016 (acceptance-tests.md, pre-correction) covered
+only "neither mapping exists," not traversal/option-like ids or a link
+escaping the scripts root. The 2026-07-22 adversarial final verification
+identifies this as a new, significant finding (NEW-01, NOT_RESOLVED)
+against text that had otherwise closed the original Blocker [B7]. The
+orchestrator's ruling: constrain every check-id to
+`^[a-z0-9][a-z0-9-]*$` (this repository's own lowercase-hyphenated
+identifier convention), enforced fail-closed at three independent points
+— the catalog schema, the Registry's `required_lite_checks` item schema,
+and `lite-gate`'s own pre-discovery re-validation (Field Definitions,
+requirements.md; Data Plan/API-Contract-Plan, design.md) — require a
+canonical-path repo-root-`scripts/`-containment proof before a
+`scripts/<id>` candidate is touched, require it be a regular file (reject
+symlinks/reparse points), require argv-direct invocation (never a
+shell-interpolated command string), and resolve the "pair" ambiguity
+between requirements.md's and design.md's own pre-correction text: "pair"
+means **both** `.sh` and `.ps1` runtime members must exist and pass these
+rules for an id to be mapped (the dual-runtime principle already implicit
+in every other `plugins/**/scripts/*.{sh,ps1}` pair this repository
+establishes) — a partial pair is unmapped, never "resolved for the
+running runtime only." Paired POSIX/PowerShell negative fixtures for
+`../`, path separators, option-like ids, and a scripts-root-escaping link
+are added to design.md Test Strategy item 7 and requirements.md REQ-006
+fixture (e). This closes NEW-01 (previously NOT_RESOLVED).
+
 ## Open Questions
 
 Each entry below records this spec's original disposition and, where the
@@ -588,3 +653,42 @@ pointer index only — it does not itself change `Spec-Review-Status`/
   as-is; the required-mapping fail-closed reversal (B7) and the
   fragment-shape addition (B4) are both designed to coexist with, not
   widen, these boundaries (design.md Global Constraints, restated).
+
+## Adversarial Final Verification Response (orchestrator ruling 2026-07-22)
+
+A follow-on adversarial final verification re-reviewed the six items the
+first-round review had left PARTIAL/NOT_RESOLVED (M3, NEW-01) or flagged
+as depending on a sibling package (B5), and re-confirmed the remaining
+twelve RESOLVED findings unchanged. Two of the three remaining items are
+closed by this ruling; the third (B5) is intentionally left open on this
+package's own side, since its remaining half is A5's own addendum
+obligation, not this package's:
+
+- Major [M3] (PARTIAL → **RESOLVED**: the Protected-File Statement's own
+  "exact-set" wording forbade the runner/manifest control files it also
+  required to exist in the same staged directory) → INV-020 above;
+  design.md Protected-File Statement ("Payload file set, defined")/Test
+  Strategy item 17; requirements.md AC-010/AC-031; acceptance-tests.md
+  TEST-010/TEST-031.
+- New Major [NEW-01] (NOT_RESOLVED → **RESOLVED**: command-discovery had
+  no stated check-id grammar, canonical-path containment proof,
+  regular-file/no-link policy, or argv-safe invocation, and "pair" was
+  read two ways) → INV-021 above; requirements.md Field Definitions
+  ("Check-id identifier grammar")/REQ-004 Step 2b/Edge Cases/Security
+  Boundaries/AC-001/AC-003/AC-016/REQ-006(e); design.md Data Plan (both
+  schema fragments)/API-Contract-Plan ("Lite-check command-discovery
+  contract")/Test Strategy item 7/Security Boundaries; acceptance-tests.md
+  TEST-016.
+- Blocker [B5] (PARTIAL, **left PARTIAL by design** — this package's own
+  text is internally consistent, but not yet mutually consistent with
+  A5's own currently-`Pending` text) → this package makes no further
+  content change here; requirements.md AC-029 and acceptance-tests.md
+  TEST-029/Spec-Authoring-Time Manual Review Record now each state
+  explicitly that this AC/TEST records this feature's own half of a
+  cross-epic contract, normative only once A5's own reciprocal addendum
+  (narrowing `lite-check-source-undefined`'s trigger condition and A5's
+  own REQ-003/AC-016 byte-identity guarantee to this exact case) is
+  itself normalized in A5's own package — a dependency-direction
+  clarification (A6→A5), not a substantive change to what this package
+  itself already specifies. Tracked for closure in A5's own package, not
+  this one.

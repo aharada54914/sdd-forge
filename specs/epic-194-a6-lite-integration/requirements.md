@@ -11,9 +11,10 @@ feature's own primary normative source; ADR-0016 (Workflow Axes Separation)
 and ADR-0017 (Gate Stage Model) are structural context this feature reuses
 unmodified.
 Investigation: specs/epic-194-a6-lite-integration/investigation.md
-(INV-001..INV-019; OQ-001..OQ-003, all three closed/resolved by
+(INV-001..INV-021; OQ-001..OQ-003, all three closed/resolved by
 orchestrator ruling 2026-07-22 — see investigation.md's Open Questions
-section and its Adversarial Spec Review Response)
+section, its Adversarial Spec Review Response, and its Adversarial Final
+Verification Response)
 
 ## Overview
 
@@ -487,12 +488,25 @@ task's own explicit instruction.
   name, ADR-0022 item 3's own worked example lists `build`/`test`
   alongside `installer-dry-run`, investigation.md INV-017; a repeated
   baseline name is a no-op, not a second execution, Edge Cases below),
-  `lite-gate` resolves an executable command for that check-id via a
-  **bounded, portable command-discovery contract** (design.md API /
-  Contract Plan, "Lite-check command-discovery contract," NEW — 2026-07-22
-  adversarial review, Blocker [B7]): a repo-root `package.json`'s own
-  `scripts[<id>]` entry, or else a repo-root `scripts/<id>.sh`/
-  `scripts/<id>.ps1` pair, checked in that fixed order; a mapped check-id
+  `lite-gate` first re-validates the id against the check-id identifier
+  grammar (Field Definitions, below, `^[a-z0-9][a-z0-9-]*$` — 2026-07-22
+  adversarial final verification, NEW-01, investigation.md INV-021) — a
+  grammar-failing id is `VERDICT: FAIL` before any discovery is
+  attempted, never passed through as a literal path segment — then
+  resolves an executable command for a grammar-valid check-id via a
+  **bounded, portable, safety-hardened command-discovery contract**
+  (design.md API / Contract Plan, "Lite-check command-discovery
+  contract," NEW — 2026-07-22 adversarial review, Blocker [B7];
+  safety-hardened, NEW-01): a repo-root `package.json`'s own
+  `scripts[<id>]` entry (invoked with `id` passed as a direct argv
+  element, never shell-interpolated), or else **both** members of a
+  repo-root `scripts/<id>.sh` **and** `scripts/<id>.ps1` pair (a check-id
+  is mapped by this step only when both runtime members exist, pass a
+  canonical-path repo-root-`scripts/`-containment proof, and are regular
+  files — never symlinks/reparse points; "pair" means the two-file
+  dual-runtime set, not "whichever member matches the currently-running
+  runtime," resolving an earlier ambiguity between this text and design.md
+  API / Contract Plan), checked in that fixed order; a mapped check-id
   runs the same self-executing, self-capturing way `lite-gate` already
   runs its own lint/typecheck/build/test commands (never trusting an
   implementer's self-report — ADR-0022 item 4's own "`lite-gate` never
@@ -509,13 +523,17 @@ task's own explicit instruction.
   revision's rule):** a `required_lite_checks` declaration is a Capability
   author's own promise that this check runs; a check-id neither
   `package.json` nor the `scripts/<id>.{sh,ps1}` convention can resolve to
-  a command means that promise cannot be kept, and this feature no longer
-  lets that state PASS the gate silently. `N/A` remains the correct,
-  unchanged outcome **only** for Step 2's own **pre-existing,
-  non-Registry-sourced** convention — a missing local lint/typecheck
-  project command/config (`SKILL.md:37`) — an orthogonal convention this
-  REQ does not touch or extend to Registry-sourced check-ids (Non-goals,
-  below, revised).
+  a command — including a check-id that fails the identifier grammar
+  before discovery is even attempted, whose `scripts/<id>` candidate is a
+  symlink/reparse point or resolves outside `scripts/`, or that stages
+  only one runtime member of the `.sh`/`.ps1` pair (Field Definitions,
+  below, NEW-01, investigation.md INV-021) — means that promise cannot be
+  kept, and this feature no longer lets that state PASS the gate
+  silently. `N/A` remains the correct, unchanged outcome **only** for
+  Step 2's own **pre-existing, non-Registry-sourced** convention — a
+  missing local lint/typecheck project command/config (`SKILL.md:37`) —
+  an orthogonal convention this REQ does not touch or extend to
+  Registry-sourced check-ids (Non-goals, below, revised).
 
   Per investigation.md INV-008, and per OQ-001's now-**closed** ruling
   (investigation.md, Minor finding), this is a **direct** edit to
@@ -583,12 +601,20 @@ task's own explicit instruction.
   fixture — `lite-gate` given a well-formed `capability-summary.yaml`
   correctly runs every additional `required_lite_checks` entry and records
   each in the quality report (REQ-003/REQ-004); (e) an **unmapped required
-  check-id** fixture (revised, Blocker [B7]) — a Registry-sourced check-id
-  neither the `package.json`-script nor the `scripts/<id>.{sh,ps1}`
-  command-discovery contract can resolve is `VERDICT: FAIL`, never `N/A`
-  and never a silent skip (REQ-004); a companion fixture confirms Step 2's
-  own pre-existing, non-Registry-sourced missing-local-command convention
-  is unchanged (still `N/A`); (f) an **unknown-catalog-token** fixture — a
+  check-id** fixture (revised, Blocker [B7]; safety-hardened, NEW-01) — a
+  Registry-sourced check-id neither the `package.json`-script nor the
+  `scripts/<id>.{sh,ps1}` command-discovery contract can resolve is
+  `VERDICT: FAIL`, never `N/A` and never a silent skip (REQ-004); a
+  companion fixture confirms Step 2's own pre-existing, non-Registry-
+  sourced missing-local-command convention is unchanged (still `N/A`);
+  paired POSIX/PowerShell negative fixtures further confirm a
+  grammar-invalid id (`../`, a path separator, an option-like prefix
+  such as `--help`), a `scripts/<id>` symlink/reparse point that
+  escapes or resolves inside `scripts/`, and a pair with only one
+  runtime member staged are each `VERDICT: FAIL` via this same
+  unmapped/grammar-failure path, never a partial-runtime pass (Field
+  Definitions, design.md API / Contract Plan, "Lite-check
+  command-discovery contract"); (f) an **unknown-catalog-token** fixture — a
   `required_lite_checks` or `upgrade_reasons` token absent from its own
   catalog fails Registry validation, fail-closed (REQ-001 item 5); (g) a
   **disabled-legacy missing-Capability-Summary** fixture — `lite-gate`
@@ -729,9 +755,9 @@ task's own explicit instruction.
 
 | ID | REQ | Criterion |
 |---|---|---|
-| AC-001 | REQ-001 | The designed `lite_policy` schema fragment has exactly three keys — `eligible` (boolean, required), `upgrade_reasons` (array of non-empty strings, optional, default `[]`), `required_lite_checks` (array of unique non-empty strings, optional, default `[]`) — `additionalProperties: false`; a fixture `lite_policy` object with a fourth key is documented as schema-invalid. |
+| AC-001 | REQ-001 | The designed `lite_policy` schema fragment has exactly three keys — `eligible` (boolean, required), `upgrade_reasons` (array of non-empty strings, optional, default `[]`), `required_lite_checks` (array of unique strings each matching the check-id grammar `^[a-z0-9][a-z0-9-]*$`, optional, default `[]`, NEW-01) — `additionalProperties: false`; a fixture `lite_policy` object with a fourth key is documented as schema-invalid. |
 | AC-002 | REQ-001 | A fixture `capabilities[]` entry whose `lite_policy` carries only `{eligible, upgrade_reasons}` (the current, pre-extension, two-key shape) is documented as still schema-valid under the v1.1 design, with `required_lite_checks` treated as `[]` by every consumer (REQ-003's own absent/default handling). |
-| AC-003 | REQ-001 | `contracts/lite-check-catalog.json`'s designed shape is `{schema: const "lite-check-catalog/v1", catalog_version: integer, checks: array of unique non-empty strings}`, seeded with exactly `["build", "test", "installer-dry-run"]` (revised, Blocker [M1] — matching ADR-0022 item 3's own worked example and A4's own AC-013 canonical fixture); a `required_lite_checks` token absent from this array is documented as validator-rejected (fail-closed), never a schema-level enum. |
+| AC-003 | REQ-001 | `contracts/lite-check-catalog.json`'s designed shape is `{schema: const "lite-check-catalog/v1", catalog_version: integer, checks: array of unique strings each matching the check-id grammar ^[a-z0-9][a-z0-9-]*$ (NEW-01)}`, seeded with exactly `["build", "test", "installer-dry-run"]` (revised, Blocker [M1] — matching ADR-0022 item 3's own worked example and A4's own AC-013 canonical fixture); a `required_lite_checks` token absent from this array is documented as validator-rejected (fail-closed), never a schema-level enum. |
 | AC-004 | REQ-001 | `contracts/lite-upgrade-reason-catalog.json`'s designed `catalog_version`-2 `reasons` array is the original five tokens (`public_distribution`, `production_cloud_runtime`, `durable_workflow`, `external_identity`, `pii`) plus exactly seven new ones (`public_package_registry`, `store_distribution`, `auto_update`, `code_signing`, `payments`, `multi_tenant`, `high_risk_migration`) — twelve total, no token removed or renamed. |
 | AC-005 | REQ-001 | The designed validator check-suite addition is named "(j) lite-check-catalog conformance," documented with the same fail-closed, validator-level (not schema-level) posture as check (h), and is independently testable from check (h) (a fixture with an unknown `required_lite_checks` token but a fully valid `upgrade_reasons` array fails only check (j)). |
 | AC-006 | REQ-001 | The design records that no `contracts/*.schema.json` in this repository uses a decimal `schema` const string anywhere (investigation.md, repository-wide grep evidence cited) and that this feature does not propose one — `"schema": "capability-registry/v1"` is unchanged by this extension. |
@@ -744,7 +770,7 @@ task's own explicit instruction.
 | AC-013 | REQ-003 | The design states this feature does not re-aggregate `required_lite_checks` across Capabilities itself — it reads the single, already-aggregated array A5's Resolver writes, citing investigation.md INV-006's union-match reasoning as the aggregation rule this feature relies on without re-deriving. |
 | AC-014 | REQ-004 | The design places the new Registry-sourced-check step between `lite-gate/SKILL.md`'s existing Step 2 and Step 3, preserving the existing Step 1/Step 2/Step 5 numbering's own relative order and the existing "順序が重要" ordering note (investigation.md INV-010's citation of the live file is the baseline). |
 | AC-015 | REQ-004 | The design states a Registry-sourced check-id that duplicates one of the five baseline names is a no-op (not re-executed a second time, not double-recorded in the quality report). |
-| AC-016 | REQ-004 | The design states an unmapped Registry-sourced check-id (one the command-discovery contract cannot resolve) is `VERDICT: FAIL` with a stated reason — never `N/A` and never a silently-dropped entry; `N/A` remains reserved for Step 2's own pre-existing, non-Registry-sourced missing-local-command convention only (reversed, Blocker [B7]). |
+| AC-016 | REQ-004 | The design states an unmapped Registry-sourced check-id (one the command-discovery contract cannot resolve, now including a check-id that fails the identifier grammar, resolves outside `scripts/`, is a symlink/reparse point, or stages only one `.sh`/`.ps1` runtime member, NEW-01) is `VERDICT: FAIL` with a stated reason — never `N/A` and never a silently-dropped entry; `N/A` remains reserved for Step 2's own pre-existing, non-Registry-sourced missing-local-command convention only (reversed, Blocker [B7]; safety-hardened, NEW-01). |
 | AC-017 | REQ-004 | The design states this REQ's own file target, `lite-gate/SKILL.md`, is edited **directly** (not via human-copy), citing investigation.md INV-008's live `guard-invariants.json` evidence that it is not currently a protected file, and records OQ-001's now-**closed** ruling (investigation.md, Minor finding) as the reason this is a definitive design choice, re-verified against the then-current `guard-invariants.json` at implementation-start time (Roles and Permissions, above), not an open question this choice still awaits. |
 | AC-018 | REQ-004 | The design states no evidence-bundle, cross-model-verification, second-approval, or other `quality-gate`-only mechanism is added to `lite-gate` by this REQ — only bounded execution of a Registry-named, already-capped check list, preserving ADR-0022 item 4's "never grows into a second `quality-gate`" boundary. |
 | AC-019 | REQ-005 | The design fixes the Block's position (identical to the existing Risk-Upgrade Gate's own position, before any `specs/<feature>/` file is created), exit code (`10`), message shape (`full-required: ...`), and non-overridability (`--lite` never overrides), all citing `lite-spec/SKILL.md`'s live Risk-Upgrade Gate section (investigation.md INV-010) as the pattern being matched. |
@@ -757,9 +783,9 @@ task's own explicit instruction.
 | AC-026 | REQ-003/REQ-004 | The design states `lite-gate`'s own Step 2a Blocks (`VERDICT: FAIL`, `Status` unchanged) whenever a schema-valid Capability Summary's own `full_upgrade_required` field reads `true`, treats `false` as a pass-through to Step 2b, and relies on REQ-003's own existing schema-validation Edge Case for an invalid/missing value — resolving OQ-003 (Blocker [B2]). |
 | AC-027 | REQ-002 | The design states a **supplied** `--capability-reasons`/`-CapabilityReasons` path whose file is unreadable, not valid UTF-8 JSON, or shape-invalid (Field Definitions) causes `check-risk-upgrade` to exit `2` with no trigger reporting — never a silent degrade to "no Capability-derived trigger"; the byte-identical guarantee (AC-007) is stated as applying **only** to the second-argument-omitted case (Blocker [B3]). |
 | AC-028 | REQ-002 | The design states a Capability-derived fragment entry with `eligible: false` and an empty/absent `upgrade_reasons` array still contributes exactly one synthetic trigger token (`ineligible:<id>`) to the merged `triggers=` output and exit code `10` — never silently contributing nothing (Blocker [B4]). |
-| AC-029 | REQ-001 | The design's Field Definitions state that a matched Capability under `workflow.capability_enforcement: required` whose own `lite_policy` carries no `required_lite_checks` key at all is not usable on the Lite track, and name A5's own existing `lite-check-source-undefined` diagnostic (A5 `requirements.md` REQ-002 table) as the mechanism whose trigger condition this field's existence extends to cover this exact per-matched-Capability case — distinguishing this state from an `advisory`-tolerated absence and from a zero-matched-Capability resolve (Blocker [B5]). |
+| AC-029 | REQ-001 | The design's Field Definitions state that a matched Capability under `workflow.capability_enforcement: required` whose own `lite_policy` carries no `required_lite_checks` key at all is not usable on the Lite track, and name A5's own existing `lite-check-source-undefined` diagnostic (A5 `requirements.md` REQ-002 table) as the mechanism whose trigger condition this field's existence extends to cover this exact per-matched-Capability case — distinguishing this state from an `advisory`-tolerated absence and from a zero-matched-Capability resolve (Blocker [B5]). This AC records this feature's own half of a cross-epic contract: it is a specification A6 states for A5's Resolver to enforce (Non-goals, above), and becomes fully normative once A5's own addendum narrowing the `lite-check-source-undefined` trigger condition and its REQ-003/AC-016 byte-identity guarantee to this exact case (orchestrator ruling 2026-07-22, B5) is itself normalized in A5's own package — a dependency this AC states in the A6→A5 direction, not the reverse, and this package's own Spec-Review-Status is not itself blocked on that addendum landing first. |
 | AC-030 | REQ-003 | The design states an absent `capability-summary.yaml` under an active (`advisory`/`required`) `workflow.capability_enforcement` is `VERDICT: FAIL`, distinct from the same absence under `disabled-legacy` (AC-011) — and that a zero-matched-Capability resolve under active enforcement instead produces a *present*, schema-valid, empty-array Summary, never an absence (Blocker [B6]). |
-| AC-031 | REQ-002/REQ-005 | The design's Protected-File Statement names the contract a future feature-scoped anchored runner must satisfy to apply this feature's own `specs/epic-194-a6-lite-integration/human-copy/` batch (exact-set match against the batch's own declared four-target list, per-target sha256 verification against a `MANIFEST.sha256`, and post-copy re-verification of every installed file's own hash) — since `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1` is hard-anchored to its own fixed prefix and cannot read this feature's own staged directory (investigation.md INV-019, Major [M3]). |
+| AC-031 | REQ-002/REQ-005 | The design's Protected-File Statement names the contract a future feature-scoped anchored runner must satisfy to apply this feature's own `specs/epic-194-a6-lite-integration/human-copy/` batch — a three-way exact-set match (declared four-target list = `MANIFEST.sha256` target set = enumerated payload file set, payload defined as staged paths excluding this batch's own control files — `MANIFEST.sha256`, the runner, and any machine-readable inventory, investigation.md INV-020), per-target sha256 verification against `MANIFEST.sha256`, and post-copy re-verification of every installed file's own hash — since `specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1` is hard-anchored to its own fixed prefix and cannot read this feature's own staged directory (investigation.md INV-019, Major [M3]). |
 
 ## Field Definitions
 
@@ -792,12 +818,37 @@ task's own explicit instruction.
 - `contracts/lite-check-catalog.json` (REQ-001; new, A6-owned) — the
   versioned catalog `required_lite_checks` tokens validate against:
   `{schema: const "lite-check-catalog/v1", catalog_version: integer,
-  checks: array of unique non-empty strings}`. Seeded with `["build",
-  "test", "installer-dry-run"]` (revised, Blocker [M1], investigation.md
-  INV-017 — no larger seed beyond these three canonical, ADR-0022/A4-named
-  tokens is正本-mandated). Additive/versioned exactly like
-  `lite-upgrade-reason-catalog.json` — a later `catalog_version` may add
-  check-ids without a `capability-registry.schema.json` change.
+  checks: array of unique strings, each matching the check-id identifier
+  grammar below}`. Seeded with `["build", "test", "installer-dry-run"]`
+  (revised, Blocker [M1], investigation.md INV-017 — no larger seed
+  beyond these three canonical, ADR-0022/A4-named tokens is正本-mandated).
+  Additive/versioned exactly like `lite-upgrade-reason-catalog.json` — a
+  later `catalog_version` may add check-ids without a `capability-
+  registry.schema.json` change.
+- **Check-id identifier grammar (NEW, 2026-07-22 adversarial final
+  verification, NEW-01, investigation.md INV-021)** — every
+  `required_lite_checks`/`lite-check-catalog.json` `checks[]` token (a
+  "check-id") matches `^[a-z0-9][a-z0-9-]*$`: this repository's own
+  lowercase-hyphenated identifier convention (the same shape every
+  existing check-id this design already names — `build`, `test`,
+  `installer-dry-run` — already has). This grammar is not cosmetic:
+  `lite-gate`'s own command-discovery contract (REQ-004 Step 2b; design.md
+  API / Contract Plan) interpolates a check-id into a
+  `scripts/<id>.{sh,ps1}` filesystem path, and an unconstrained string
+  (e.g. one containing `../`, a path separator, or an option-like prefix
+  such as `--`) could otherwise defeat the "bounded to `scripts/`" claim
+  this design already makes for that lookup. The grammar is enforced
+  fail-closed at three independent points, none of which trusts the
+  others: (1) `contracts/lite-check-catalog.json`'s own `checks[]` item
+  schema (Data Plan, design.md); (2) the Registry's `lite_policy.
+  required_lite_checks[]` item schema (Data Plan, design.md — the same
+  pattern, at Capability-declaration time); (3) `lite-gate` itself,
+  re-validating every id read from `capability-summary.yaml` immediately
+  before Step 2b's own discovery loop, independent of whether either
+  upstream schema actually ran (REQ-004, Step 2b). A grammar-failing id is
+  `VERDICT: FAIL` at whichever of these three points first sees it, never
+  silently truncated, escaped, or passed through as a literal path
+  segment.
 - `lite-upgrade-reason-catalog.json` vocabulary growth (REQ-001;
   investigation.md INV-007) — the `catalog_version`-2 mapping from
   ADR-0022's forced-upgrade prose to snake_case tokens:
@@ -989,11 +1040,18 @@ task's own explicit instruction.
 - **Registry-sourced check-id equals a baseline name**: no-op, not a
   second execution or a second report line (AC-015).
 - **Registry-sourced check-id with no discoverable command (revised,
-  Blocker [B7])**: `VERDICT: FAIL` with a stated reason (AC-016) — never
-  `N/A` and never a silently-dropped entry. `N/A` remains the correct
-  outcome only for Step 2's own pre-existing, non-Registry-sourced
-  convention (a missing local lint/typecheck project command/config),
-  which this REQ does not touch or extend to Registry-sourced check-ids.
+  Blocker [B7]; safety-hardened, NEW-01)**: `VERDICT: FAIL` with a stated
+  reason (AC-016) — never `N/A` and never a silently-dropped entry. `N/A`
+  remains the correct outcome only for Step 2's own pre-existing,
+  non-Registry-sourced convention (a missing local lint/typecheck project
+  command/config), which this REQ does not touch or extend to
+  Registry-sourced check-ids. This "no discoverable command" category
+  itself now includes, without becoming a distinct outcome (Field
+  Definitions, above, NEW-01): an id failing the check-id grammar, a
+  `scripts/<id>` candidate that is a symlink/reparse point or that
+  canonicalizes outside `scripts/`, and a `scripts/<id>.{sh,ps1}` pair
+  with only one runtime member staged — each is `VERDICT: FAIL` via this
+  same rule, never treated as resolved.
 - **`capability-summary.yaml` present but fails schema validation**:
   `lite-gate` treats this the same way it would treat a malformed
   `reports/implementation/<task-id>.md` today — a `VERDICT: FAIL` with the
@@ -1042,7 +1100,10 @@ task's own explicit instruction.
   Cases), a Capability Summary absent under active `capability_
   enforcement` (Edge Cases, Blocker [B6]), `full_upgrade_required: true`
   (REQ-004 Step 2a, Blocker [B2]), an unmapped `required_lite_checks`
-  check-id (REQ-004, Blocker [B7]), and a **supplied-but-invalid**
+  check-id (REQ-004, Blocker [B7] — including a check-id that fails the
+  required identifier grammar or whose `scripts/<id>` candidate resolves
+  outside `scripts/` or is a symlink/reparse point, NEW-01, investigation.
+  md INV-021), and a **supplied-but-invalid**
   `--capability-reasons` fragment file (REQ-002, exit `2` — Blocker [B3],
   correcting an earlier revision that treated this same case as a silent
   degrade and mislabeled it "fail-closed," investigation.md INV-014) all

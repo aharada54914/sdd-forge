@@ -207,23 +207,54 @@ authoring that runner (Non-goals, requirements.md — this feature does not
 touch `plugins/**`/`scripts/**`, and the runner itself, mirroring the
 Epic-136 runner's own self-hosted placement, lives at
 `specs/epic-194-a6-lite-integration/human-copy/apply-protected-files.ps1`
-— inside this feature's own `specs/**` tree, not under `plugins/**`):
+— inside this feature's own `specs/**` tree, not under `plugins/**`).
+
+**Payload file set, defined (2026-07-22 adversarial final verification,
+M3, investigation.md INV-020).** Every "exact-set"/"payload"/"staged file
+set" reference below means the recursive set of staged paths under
+`specs/epic-194-a6-lite-integration/human-copy/` **excluding this batch's
+own control files**: `MANIFEST.sha256` itself, the runner script
+(`apply-protected-files.ps1`), and any machine-readable target-inventory
+file the runner reads to establish its own target list. This mirrors the
+real Epic-136 runner's own treatment of `MANIFEST.sha256` and its own
+staged canonical `guard-invariants.json` copy — both are read as control
+inputs the copy process consumes, never counted as members of the
+payload/target set they themselves describe (`apply-protected-files.
+ps1:68-101`, `Get-CanonicalTargets`/`Get-ManifestDigests`). An earlier
+revision of this section left "the staged directory's own file set" to
+mean every filesystem entry under the staging root, which the same rule
+then forbade the runner and manifest it also requires from ever
+occupying — a self-contradiction the adversarial final verification
+caught (design.md previously placed the runner and `MANIFEST.sha256`
+inside `human-copy/` while requiring that directory's own file set
+contain *only* the four payload targets). This definition corrects it:
+the runner and `MANIFEST.sha256` live alongside the payload, as control
+files, excluded from the payload-set comparison by construction, exactly
+as Epic-136's own runner and its own staged canonical-inventory copy
+already are relative to its own eighteen-target payload.
+
+This runner's own required contract:
 
 1. **Feature-scoped, not fixed-prefix** — reads targets and digests from
    `specs/epic-194-a6-lite-integration/human-copy/` (a parameterized
    prefix, or a dedicated copy of the Epic-136 runner with this feature's
    own prefix hard-coded the same way Epic-136's own copy is,
    `apply-protected-files.ps1:31`) — never the Epic-136 prefix.
-2. **Exact-set verification** — the staged directory's own file set
-   matches, exactly, the four declared targets (`risk-upgrade-policy.md`,
+2. **Exact-set verification** — three-way equality among (i) the four
+   declared payload targets this design names (`risk-upgrade-policy.md`,
    `check-risk-upgrade.sh`, `check-risk-upgrade.ps1`, `lite-spec/
-   SKILL.md`) — no fewer, no more, no path outside that declared set
-   (mirrors `Get-CanonicalTargets`'s own no-duplicate/exact-count
-   discipline, `apply-protected-files.ps1:68-79`, reused as a pattern, not
-   a literal call into Epic-136's own fixed-prefix instance).
-3. **Per-target hash verification** — each staged file's own sha256
-   matches a `MANIFEST.sha256` entry (the same shape TEST-010 already
-   verifies exists, acceptance-tests.md) before any copy is attempted.
+   SKILL.md`), (ii) `MANIFEST.sha256`'s own target set, and (iii) the
+   staged directory's own **payload file set** (defined above, control
+   files excluded) — no fewer, no more, no payload path outside that
+   declared set (mirrors `Get-ManifestDigests`'s own one-line-per-target,
+   no-duplicate, no-omission discipline, `apply-protected-files.
+   ps1:81-101`, and the staged/live canonical-inventory `Assert-SameOrder`
+   check, `apply-protected-files.ps1:621-629`, reused as a pattern, not a
+   literal call into Epic-136's own fixed-prefix instance).
+3. **Per-target hash verification** — each staged payload file's own
+   sha256 matches a `MANIFEST.sha256` entry (the same shape TEST-010
+   already verifies exists, acceptance-tests.md) before any copy is
+   attempted.
 4. **Post-copy re-verification** — after every file is installed, each
    live, installed file's own hash is re-read and re-compared against the
    staged/manifest hash (mirroring `VerifyPublished`/
@@ -332,13 +363,22 @@ ADR by this package itself.
       },
       "required_lite_checks": {
         "type": "array",
-        "items": { "type": "string", "minLength": 1 },
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
         "uniqueItems": true,
         "default": []
       }
     }
   }
   ```
+  (the `pattern` constraint on each `required_lite_checks` item is new,
+  2026-07-22 adversarial final verification, NEW-01, investigation.md
+  INV-021 — Field Definitions, requirements.md, states the identifier
+  grammar and why `lite-gate`'s own filesystem-path command-discovery
+  contract, API / Contract Plan below, requires it fail-closed rather
+  than merely documented.)
   (`default` here documents intended value when absent for a
   Resolver/consumer's own materialization step, matching A4's own
   explicit "materialized by the Resolver, never merely a JSON Schema
@@ -368,12 +408,21 @@ ADR by this package itself.
       "catalog_version": { "type": "integer", "minimum": 1 },
       "checks": {
         "type": "array",
-        "items": { "type": "string", "minLength": 1 },
+        "items": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9-]*$"
+        },
         "uniqueItems": true, "minItems": 1
       }
     }
   }
   ```
+  (the `pattern` constraint is new, 2026-07-22 adversarial final
+  verification, NEW-01, investigation.md INV-021 — the seed values
+  `build`/`test`/`installer-dry-run` already conform; the constraint
+  exists so a schema-valid catalog entry can never itself defeat the
+  command-discovery contract's own `scripts/`-containment claim, API /
+  Contract Plan below.)
 - **`contracts/lite-upgrade-reason-catalog.json` (`catalog_version` 2,
   data-only change)** —
   ```json
@@ -571,25 +620,93 @@ Step 4 (unchanged): Status: Done only on VERDICT: PASS
 Step 5 (unchanged): check-task-state-lite final verification
 ```
 
-**Lite-check command-discovery contract (NEW, Blocker [B7]):** for a
-given Registry-sourced check-id not already one of the five baseline
-names, `lite-gate` resolves an executable command in this fixed,
-bounded, portable order:
+**Lite-check command-discovery contract (NEW, Blocker [B7]; safety-
+hardened, 2026-07-22 adversarial final verification, NEW-01,
+investigation.md INV-021):** for a given Registry-sourced check-id not
+already one of the five baseline names, `lite-gate` first validates the
+id's own shape, then resolves an executable command in a fixed, bounded,
+portable order — never the reverse:
+
+0. **Check-id grammar (NEW-01)** — the id matches
+   `^[a-z0-9][a-z0-9-]*$` (this repository's own lowercase-hyphenated
+   identifier convention, matching every existing check-id this design
+   already names: `build`, `test`, `installer-dry-run`). This grammar is
+   enforced fail-closed at three independent points, not assumed
+   already-true at discovery time: (i) `contracts/lite-check-
+   catalog.json`'s own `checks[]` item schema (Data Plan, above — a
+   catalog entry that does not match the grammar is not a schema-valid
+   catalog); (ii) the Registry's `lite_policy.required_lite_checks[]`
+   item schema (Data Plan, above — the same pattern, applied at the
+   point a Capability author declares the token, mirroring validator
+   check (j)'s own catalog-membership check, which a non-conforming
+   token also fails since it cannot appear in a conforming catalog);
+   (iii) `lite-gate` itself, immediately before Step 2b's own per-id loop
+   attempts discovery — re-validates every `required_lite_checks` id
+   read from `capability-summary.yaml` against the identical grammar,
+   independent of whether the upstream Registry/catalog validation ran
+   correctly (the same "does not trust a written artifact's own mere
+   existence" discipline REQ-004 Step 2a already applies to
+   `full_upgrade_required`, Blocker [B2]). An id failing this grammar is
+   `VERDICT: FAIL`, reason "`<id>`: check-id does not match the required
+   `^[a-z0-9][a-z0-9-]*$` grammar" — Blocked **before** discovery is
+   attempted, never passed through to steps 1-2 below as a literal path
+   segment.
 1. a repo-root `package.json` (if one exists) whose own `scripts[<id>]`
    key is present → run via the ecosystem's own cross-runtime script
-   invocation (`npm run <id>` / equivalent), the identical convention-
-   over-configuration discovery this repository's own tooling already
-   relies on elsewhere;
+   invocation (`npm run <id>` / equivalent, argv-direct — `id` is passed
+   as a literal argument to the package-manager's own script-name
+   parameter, never interpolated into a shell command string), the
+   identical convention-over-configuration discovery this repository's
+   own tooling already relies on elsewhere;
 2. a repo-root `scripts/<id>.sh` (POSIX runtime) / `scripts/<id>.ps1`
-   (Windows runtime) pair — the same cross-runtime pair convention this
-   repository's own `plugins/**/scripts/*.{sh,ps1}` files already
-   establish;
-3. neither found → **unmapped** (Step 2b, above, states the FAIL
-   consequence).
-This contract is bounded (two, fixed, checked-in-order locations, never
-an open-ended search) and portable (no OS-specific-only lookup) — it
-adds no evidence-bundle/cross-model/second-approval machinery (ADR-0022
-item 4's own boundary, unchanged, Global Constraints, below).
+   (Windows runtime) — resolved and invoked under all of the following
+   additional safety rules (NEW-01):
+   - the candidate path is built by joining the already-grammar-validated
+     `id` (step 0) onto the fixed `scripts/` segment — no other path
+     component is caller- or Registry-controlled;
+   - the resulting path is canonicalized (symlinks/`..`/`.` resolved) and
+     the canonical path's own prefix is proven to still be the
+     canonicalized repo-root `scripts/` directory before the file is
+     touched — a resolution that escapes `scripts/` (however constructed)
+     is treated identically to "neither found" (unmapped), never
+     executed;
+   - the resolved path must be a **regular file** — a symlink or
+     reparse-point at that path (even one that itself resolves inside
+     `scripts/`) is rejected the same way, matching this design's own
+     `apply-protected-files.ps1`-pattern regular-file-only discipline
+     (`ValidateHandle`'s own reparse-point rejection, cited in this
+     document's Protected-File Statement) applied here to an independent
+     surface;
+   - the selected script is invoked with its own path passed as a direct
+     argv element to the interpreter (e.g. `sh scripts/<id>.sh` /
+     `pwsh -File scripts/<id>.ps1`, or an equivalent direct-exec call) —
+     never built as an interpolated shell command string, so no
+     character `id` itself might otherwise contain (already excluded by
+     the step-0 grammar, defense-in-depth) could reach a shell parser;
+   - **"pair" means both runtime members** (2026-07-22 adversarial final
+     verification, NEW-01, resolving the two-reading ambiguity an
+     earlier revision left between requirements.md and design.md): a
+     check-id is **mapped** at this step only when **both**
+     `scripts/<id>.sh` **and** `scripts/<id>.ps1` exist and pass the
+     containment/regular-file rules above — the same dual-runtime
+     convention this repository's own `plugins/**/scripts/*.{sh,ps1}`
+     pairs already establish for every other cross-runtime script this
+     design cites. A repository that stages only one runtime's member
+     for a given id has not mapped that id at all — if the id is
+     `required`, this is `VERDICT: FAIL` (step 3), the same as if
+     neither member existed; a partial pair is never treated as
+     "resolved for the currently-running runtime only."
+3. neither step 1 nor step 2 resolves → **unmapped** (Step 2b, above,
+   states the FAIL consequence).
+
+This contract is bounded (one grammar check plus two, fixed,
+checked-in-order locations, never an open-ended search), fails closed
+against path traversal, symlink/reparse-point escape, and shell
+interpolation by construction (NEW-01), and portable (no OS-specific-only
+lookup, and the dual-runtime pairing rule applies identically regardless
+of which runtime is currently executing) — it adds no evidence-bundle/
+cross-model/second-approval machinery (ADR-0022 item 4's own boundary,
+unchanged, Global Constraints, below).
 
 ## Test Strategy
 
@@ -654,7 +771,18 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
    (already a baseline check) and to run/record `installer-dry-run` via
    the command-discovery contract if resolvable, or `VERDICT: FAIL` —
    never `N/A` — if not (requirements.md AC-015/AC-016, reversed, Blocker
-   [B7]).
+   [B7]). Paired `bash`+`ps1` negative fixtures (safety-hardened,
+   2026-07-22 adversarial final verification, NEW-01) additionally
+   confirm the command-discovery contract's own safety rules: a check-id
+   containing `../` or a path separator, and an option-like id (e.g.
+   `--help`), are rejected by the step-0 grammar check before discovery
+   ever runs (`VERDICT: FAIL`, the grammar-failure reason, not a
+   discovery attempt); a `scripts/<id>` symlink/reparse point that
+   itself resolves inside `scripts/` is rejected by the regular-file-only
+   rule, distinct from the grammar fixtures; and a fixture staging only
+   `scripts/<id>.sh` with no `scripts/<id>.ps1` counterpart (or vice
+   versa) confirms the id is **unmapped**, not "resolved for the running
+   runtime only" (the dual-runtime pairing rule).
 8. `lite-gate-summary-absent` (REQ-003, `disabled-legacy` only, narrowed
    Blocker [B6]) — no Project Context and no `capability-summary.yaml`
    at all → `lite-gate` runs exactly its five baseline checks, output
@@ -699,12 +827,23 @@ to its own requirements.md REQ-006 fixture-matrix items a-h.
     field-presence contract, and names A5's own `lite-check-source-
     undefined` diagnostic as its enforcement owner, distinct from
     `advisory` tolerance and from a zero-matched-Capability resolve
-    (requirements.md AC-029).
+    (requirements.md AC-029) — this item locks this package's own half
+    of a cross-epic contract; A5's own package
+    (`specs/epic-193-a5-capability-resolver/`) separately carries the
+    reciprocal addendum obligation (orchestrator ruling 2026-07-22, B5)
+    to narrow its own `lite-check-source-undefined` trigger condition and
+    REQ-003/AC-016 byte-identity guarantee to match, a dependency this
+    item states in the A6→A5 direction only, not a claim that A5's
+    current, still-`Pending` text already agrees.
 17. `human-copy-runner-contract` (Protected-File Statement, Major [M3],
     design-content review only) — confirms design.md states the
-    feature-scoped anchored runner's own exact-set/hash/post-copy-
-    verification contract, distinct from the Epic-136 fixed-prefix
-    runner it cannot reuse unmodified (requirements.md AC-031).
+    feature-scoped anchored runner's own payload-file-set-defined
+    (control files excluded, 2026-07-22 adversarial final verification,
+    investigation.md INV-020) exact-set/hash/post-copy-verification
+    contract — a three-way equality among the declared four-target
+    payload list, the manifest's own target set, and the enumerated
+    payload set — distinct from the Epic-136 fixed-prefix runner it
+    cannot reuse unmodified (requirements.md AC-031).
 
 ## Design Decisions (resolving open questions)
 
@@ -861,7 +1000,10 @@ Boundaries.)
   fail-closed the opposite direction (REQ-001, check (j)); a Capability
   Summary absent under active `capability_enforcement` (Blocker [B6]),
   `full_upgrade_required: true` (Blocker [B2]), and an unmapped
-  `required_lite_checks` entry (Blocker [B7]) are all now `VERDICT: FAIL`
+  `required_lite_checks` entry (Blocker [B7] — including a check-id that
+  fails the required identifier grammar, or whose `scripts/<id>`
+  candidate resolves outside `scripts/` or is a symlink/reparse point,
+  NEW-01, investigation.md INV-021) are all now `VERDICT: FAIL`
   at `lite-gate`, never a silent pass-through — every one of these
   directions independently reduces the chance a Lite-ineligible
   Capability, or an unfulfilled required check, is silently treated as
