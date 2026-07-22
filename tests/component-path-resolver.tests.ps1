@@ -303,31 +303,79 @@ if ($r.ExitCode -ne 0 -and $r.Output -match "never both or neither") { Ok "TEST-
 # the full rationale.
 # ============================================================================
 # Shared inventory-conformance check, factored out so it can be proven
-# against BOTH the real A1 template (TEST-042) and a deliberately wrong
-# local fixture (TEST-042-negative, the acceptance-first RED evidence this
+# against BOTH the real A1 template (TEST-042) and deliberately wrong local
+# fixtures (TEST-042-negative, the acceptance-first RED evidence this
 # task's Required Workflow calls for).
+#
+# T-005 quality-gate finding (Major, reports/quality-gate/epic-191-a3-path-ownership/T-005.md):
+# the prior version did a fixed-string/regex-escaped substring match, which
+# caught a missing entry and the one specific extra `contracts/**` case,
+# but did not reject an ARBITRARY extra cross-cutting entry ("no more") or
+# a canonical entry wrongly classified as bounded instead of cross-cutting
+# ("no differently classified") — both of which AC-042 explicitly requires
+# this fixture to fail on. Remedied by parsing the actual shared_paths
+# entry structure (a small, purpose-built parser scoped to exactly this
+# shape — not resolve-component-paths.ps1's own generic YAML parser,
+# since dot-sourcing that script would also execute its CLI dispatch/exit
+# logic in this process) and asserting SET EQUALITY between the
+# template's cross-cutting patterns and the canonical six.
 function Test-InventoryConformance {
     param([string]$TemplatePath)
-    $text = Get-Content -Raw -LiteralPath $TemplatePath
-    $expectedEntries = @("specs/**", "reports/**", "docs/**", ".github/**", "tests/fixtures/**", "CHANGELOG.md")
-    $missing = $expectedEntries | Where-Object { $text -notmatch [regex]::Escape($_) }
-    if ($text -match [regex]::Escape("contracts/**")) { return $false }
-    if ($missing.Count -gt 0) { return $false }
-    return $true
+    $CANONICAL = @("specs/**", "reports/**", "docs/**", ".github/**", "tests/fixtures/**", "CHANGELOG.md")
+    $lines = Get-Content -LiteralPath $TemplatePath
+    $entries = [System.Collections.Generic.List[object]]::new()
+    $current = $null
+    foreach ($line in $lines) {
+        if ($line -match '^\s*-\s*pattern:\s*(.+)$') {
+            if ($null -ne $current) { $entries.Add($current) }
+            $patternValue = $matches[1].Trim().Trim('"').Trim("'")
+            $current = [ordered]@{ Pattern = $patternValue; Classification = $null; HasComponents = $false }
+        } elseif ($null -ne $current -and $line -match '^\s*classification:\s*(.+)$') {
+            $current.Classification = $matches[1].Trim().Trim('"').Trim("'")
+        } elseif ($null -ne $current -and $line -match '^\s*components:\s*$') {
+            $current.HasComponents = $true
+        }
+    }
+    if ($null -ne $current) { $entries.Add($current) }
+
+    $misclassified = [System.Collections.Generic.List[string]]::new()
+    $crossCuttingSet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    foreach ($e in $entries) {
+        $isCanonical = $CANONICAL -contains $e.Pattern
+        if ($isCanonical -and ($e.Classification -ne "cross-cutting" -or $e.HasComponents)) {
+            $misclassified.Add($e.Pattern)
+        }
+        if ($e.Classification -eq "cross-cutting") {
+            [void]$crossCuttingSet.Add($e.Pattern)
+        }
+    }
+    if ($misclassified.Count -gt 0) {
+        return @{ Conformant = $false; Reason = "canonical entries wrongly classified as bounded: $($misclassified -join ',')" }
+    }
+    $canonicalSet = [System.Collections.Generic.HashSet[string]]::new([string[]]$CANONICAL, [System.StringComparer]::Ordinal)
+    if (-not $crossCuttingSet.SetEquals($canonicalSet)) {
+        $missing = $CANONICAL | Where-Object { -not $crossCuttingSet.Contains($_) }
+        $extra = $crossCuttingSet | Where-Object { $CANONICAL -notcontains $_ }
+        return @{ Conformant = $false; Reason = "cross-cutting set mismatch: missing=$($missing -join ',') extra=$($extra -join ',')" }
+    }
+    return @{ Conformant = $true; Reason = "conformant" }
 }
 
 Write-Output "=== TEST-042: cross-epic inventory conformance (A1 template) ==="
 $a1Template = Join-Path $repoRoot "contracts/project-context.template.yaml"
 if (-not (Test-Path -LiteralPath $a1Template)) {
     Fail "TEST-042 [EXPECTED - Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at $a1Template"
-} elseif (Test-InventoryConformance $a1Template) {
-    Ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, contracts/** absent"
 } else {
-    Fail "TEST-042: A1's landed template diverges from the six-entry canonical cross-cutting set"
+    $r042 = Test-InventoryConformance $a1Template
+    if ($r042.Conformant) {
+        Ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, contracts/** absent, none misclassified"
+    } else {
+        Fail "TEST-042: A1's landed template diverges from the six-entry canonical cross-cutting set: $($r042.Reason)"
+    }
 }
 
-Write-Output "=== TEST-042-negative: inventory-conformance check catches a deliberately wrong seed set (acceptance-first RED evidence) ==="
-$wrongSeedFile = Join-Path ([IO.Path]::GetTempPath()) ("rcp-wrong-seed." + [Guid]::NewGuid().ToString("N") + ".yaml")
+Write-Output "=== TEST-042-negative: inventory-conformance check catches deliberately wrong seed sets (acceptance-first RED evidence) ==="
+$wrongSeedFile1 = Join-Path ([IO.Path]::GetTempPath()) ("rcp-wrong-seed1." + [Guid]::NewGuid().ToString("N") + ".yaml")
 @"
 shared_paths:
   - pattern: "specs/**"
@@ -336,15 +384,77 @@ shared_paths:
     classification: cross-cutting
   - pattern: "contracts/**"
     classification: cross-cutting
-"@ | Set-Content -LiteralPath $wrongSeedFile -Encoding utf8 -NoNewline
+"@ | Set-Content -LiteralPath $wrongSeedFile1 -Encoding utf8 -NoNewline
 try {
-    if (Test-InventoryConformance $wrongSeedFile) {
-        Fail "TEST-042-negative: a deliberately wrong seed set should have been rejected, but the check reported conformant"
+    if ((Test-InventoryConformance $wrongSeedFile1).Conformant) {
+        Fail "TEST-042-negative.1: missing entries + wrongly-included contracts/** should have been rejected, but the check reported conformant"
     } else {
-        Ok "TEST-042-negative: the inventory-conformance check correctly rejects a deliberately wrong seed set — proves the check is not vacuously always-passing"
+        Ok "TEST-042-negative.1: the check correctly rejects missing entries + wrongly-included contracts/**"
     }
 } finally {
-    Remove-Item -Force -LiteralPath $wrongSeedFile -ErrorAction SilentlyContinue
+    Remove-Item -Force -LiteralPath $wrongSeedFile1 -ErrorAction SilentlyContinue
+}
+
+# Sub-case the QG finding specifically named: an ARBITRARY 7th extra
+# cross-cutting entry, with all six canonical entries otherwise present
+# and correctly classified — a pure "no more" violation the old
+# substring-match check would have missed entirely.
+$wrongSeedFile2 = Join-Path ([IO.Path]::GetTempPath()) ("rcp-wrong-seed2." + [Guid]::NewGuid().ToString("N") + ".yaml")
+@"
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+  - pattern: "vendor/**"
+    classification: cross-cutting
+"@ | Set-Content -LiteralPath $wrongSeedFile2 -Encoding utf8 -NoNewline
+try {
+    if ((Test-InventoryConformance $wrongSeedFile2).Conformant) {
+        Fail "TEST-042-negative.2: all six canonical entries PLUS one arbitrary extra (vendor/**) should have been rejected, but the check reported conformant"
+    } else {
+        Ok "TEST-042-negative.2: the check correctly rejects an arbitrary extra cross-cutting entry even when all six canonical entries are present and correctly classified ('no more')"
+    }
+} finally {
+    Remove-Item -Force -LiteralPath $wrongSeedFile2 -ErrorAction SilentlyContinue
+}
+
+# Sub-case the QG finding specifically named: a canonical pattern present
+# but wrongly classified as BOUNDED (components: [...]) instead of
+# cross-cutting — a pure "no differently classified" violation.
+$wrongSeedFile3 = Join-Path ([IO.Path]::GetTempPath()) ("rcp-wrong-seed3." + [Guid]::NewGuid().ToString("N") + ".yaml")
+@"
+shared_paths:
+  - pattern: "specs/**"
+    components:
+      - some-component
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+"@ | Set-Content -LiteralPath $wrongSeedFile3 -Encoding utf8 -NoNewline
+try {
+    if ((Test-InventoryConformance $wrongSeedFile3).Conformant) {
+        Fail "TEST-042-negative.3: specs/** declared bounded (components:) instead of cross-cutting should have been rejected, but the check reported conformant"
+    } else {
+        Ok "TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')"
+    }
+} finally {
+    Remove-Item -Force -LiteralPath $wrongSeedFile3 -ErrorAction SilentlyContinue
 }
 
 Write-Output "=== TEST-043: no-op proof for the six-entry cross-cutting set ==="

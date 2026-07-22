@@ -52,8 +52,10 @@ ok: TEST-018.1: shared_paths entry with BOTH components and classification is re
 ok: TEST-018.2: shared_paths entry with NEITHER components nor classification is rejected fail-closed
 === TEST-042: cross-epic inventory conformance (A1 template) ===
 FAIL: TEST-042 [EXPECTED — Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at /Users/jrmag/Projects/active/sdd-forge-wt-epic-191/contracts/project-context.template.yaml
-=== TEST-042-negative: inventory-conformance check catches a deliberately wrong seed set (acceptance-first RED evidence) ===
-ok: TEST-042-negative: the inventory-conformance check correctly rejects a deliberately wrong seed set (missing entries, contracts/** wrongly present) — proves the check is not vacuously always-passing
+=== TEST-042-negative: inventory-conformance check catches deliberately wrong seed sets (acceptance-first RED evidence) ===
+ok: TEST-042-negative.1: the check correctly rejects missing entries + wrongly-included contracts/**
+ok: TEST-042-negative.2: the check correctly rejects an arbitrary extra cross-cutting entry even when all six canonical entries are present and correctly classified ('no more')
+ok: TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')
 === TEST-043: no-op proof for the six-entry cross-cutting set ===
 ok: TEST-043: a diff confined to the six-entry cross-cutting set, with zero declared component owners, never triggers Fail-1/UNOWNED
 === TEST-044: day-one cross-epic integration proof (A1 template) ===
@@ -65,4 +67,4 @@ ok: TEST-045.3: base fixture tree has a bounded shared_paths entry
 ok: TEST-045.4: component-path-resolver suite self-registers in tests/run-all.sh and .ps1
 ok: TEST-045.5: staged .github/workflows/test.yml candidate has a MANIFEST.sha256 entry
 
-Results: 38 passed, 3 failed.
+Results: 40 passed, 3 failed.

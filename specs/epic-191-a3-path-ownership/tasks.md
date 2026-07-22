@@ -363,9 +363,9 @@ fixture is deterministically red and the task cannot reach Done
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/191
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T15:53:17Z)
 
-Status: Planned
+Status: In Progress
 
 Risk: high
 
@@ -978,7 +978,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/191
 
 Approval: Approved (sudo 2026-07-22T15:40:55Z)
 
-Status: Implementation Complete
+Status: Blocked
 
 Risk: medium
 

@@ -363,40 +363,94 @@ fi
 # resolve-component-paths.
 # ============================================================================
 # Shared inventory-conformance check, factored out so it can be proven
-# against BOTH the real A1 template (TEST-042) and a deliberately wrong
-# local fixture (TEST-042-negative, the acceptance-first RED evidence this
+# against BOTH the real A1 template (TEST-042) and deliberately wrong local
+# fixtures (TEST-042-negative, the acceptance-first RED evidence this
 # task's Required Workflow calls for) — this is the same logic in both
 # calls, not a re-implementation that could silently diverge.
+#
+# T-005 quality-gate finding (Major, reports/quality-gate/epic-191-a3-path-ownership/T-005.md):
+# a prior version of this check did a fixed-string/regex-escaped substring
+# grep, which caught a MISSING entry and the one specific extra
+# `contracts/**` case, but did not reject an ARBITRARY extra cross-cutting
+# entry ("no more") or a CANONICAL entry wrongly classified as bounded
+# instead of cross-cutting ("no differently classified") — both of which
+# AC-042 explicitly requires this fixture to fail on. Remedied here by
+# parsing the actual shared_paths structure (reusing
+# resolve-component-paths.py's own restricted-YAML parser, not a
+# second, potentially-diverging implementation) and asserting SET EQUALITY
+# between the template's cross-cutting patterns and the canonical six —
+# a single assertion that catches missing, extra, AND misclassified
+# entries simultaneously (a canonical pattern declared bounded is neither
+# absent from shared_paths nor cross-cutting, so it fails the same
+# equality check either way).
 check_inventory_conformance() {
-  # $1 = template path. Returns 0 (conformant) or 1 (non-conformant); never
-  # a skip on a present file.
+  # $1 = template path (real or fixture). Returns 0 (conformant) or 1
+  # (non-conformant), printing the mismatch reason to stdout on rejection;
+  # never a skip on a present file.
   tpl="$1"
-  expected_entries="specs/** reports/** docs/** .github/** tests/fixtures/** CHANGELOG.md"
-  missing=0
-  for entry in $expected_entries; do
-    grep -Fq -- "$entry" "$tpl" || missing=1
-  done
-  if grep -Fq "contracts/**" "$tpl"; then
-    return 1
-  elif [ "$missing" -ne 0 ]; then
-    return 1
-  fi
-  return 0
+  python3 - "$tpl" "${REPO_ROOT}/plugins/sdd-quality-loop/scripts/resolve-component-paths.py" << 'PYEOF'
+import importlib.util
+import sys
+
+tpl_path, resolver_path = sys.argv[1], sys.argv[2]
+spec = importlib.util.spec_from_file_location("rcp", resolver_path)
+rcp = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(rcp)
+
+CANONICAL = {"specs/**", "reports/**", "docs/**", ".github/**", "tests/fixtures/**", "CHANGELOG.md"}
+
+with open(tpl_path, "r", encoding="utf-8") as fh:
+    text = fh.read()
+try:
+    data = rcp.parse_minimal_yaml(text)
+except rcp.ConfigError as exc:
+    print(f"template could not be parsed: {exc}")
+    sys.exit(1)
+
+shared_paths = data.get("shared_paths")
+if not isinstance(shared_paths, list):
+    print("template has no top-level 'shared_paths' list")
+    sys.exit(1)
+
+cross_cutting_patterns = set()
+misclassified = []
+for entry in shared_paths:
+    if not isinstance(entry, dict):
+        continue
+    pattern = entry.get("pattern")
+    classification = entry.get("classification")
+    components = entry.get("components")
+    if pattern in CANONICAL and (classification != "cross-cutting" or components is not None):
+        misclassified.append(pattern)
+    if classification == "cross-cutting":
+        cross_cutting_patterns.add(pattern)
+
+if misclassified:
+    print(f"canonical entries wrongly classified as bounded (not cross-cutting): {sorted(misclassified)}")
+    sys.exit(1)
+if cross_cutting_patterns != CANONICAL:
+    missing = CANONICAL - cross_cutting_patterns
+    extra = cross_cutting_patterns - CANONICAL
+    print(f"cross-cutting set mismatch: missing={sorted(missing)} extra={sorted(extra)}")
+    sys.exit(1)
+print("conformant")
+sys.exit(0)
+PYEOF
 }
 
 echo "=== TEST-042: cross-epic inventory conformance (A1 template) ==="
 A1_TEMPLATE="${REPO_ROOT}/contracts/project-context.template.yaml"
 if [ ! -f "$A1_TEMPLATE" ]; then
   fail "TEST-042 [EXPECTED — Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at ${A1_TEMPLATE}"
-elif check_inventory_conformance "$A1_TEMPLATE"; then
-  ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, contracts/** absent"
+elif check_inventory_conformance "$A1_TEMPLATE" >/dev/null; then
+  ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, contracts/** absent, none misclassified"
 else
-  fail "TEST-042: A1's landed template diverges from the six-entry canonical cross-cutting set (missing entry, extra entry, or contracts/** wrongly included)"
+  fail "TEST-042: A1's landed template diverges from the six-entry canonical cross-cutting set: $(check_inventory_conformance "$A1_TEMPLATE")"
 fi
 
-echo "=== TEST-042-negative: inventory-conformance check catches a deliberately wrong seed set (acceptance-first RED evidence) ==="
-WRONG_SEED_FILE=$(mktemp)
-cat > "$WRONG_SEED_FILE" << 'WRONGEOF'
+echo "=== TEST-042-negative: inventory-conformance check catches deliberately wrong seed sets (acceptance-first RED evidence) ==="
+WRONG_SEED_MISSING_PLUS_EXTRA=$(mktemp)
+cat > "$WRONG_SEED_MISSING_PLUS_EXTRA" << 'WRONGEOF'
 shared_paths:
   - pattern: "specs/**"
     classification: cross-cutting
@@ -405,12 +459,70 @@ shared_paths:
   - pattern: "contracts/**"
     classification: cross-cutting
 WRONGEOF
-if check_inventory_conformance "$WRONG_SEED_FILE"; then
-  fail "TEST-042-negative: a deliberately wrong seed set (missing entries + wrongly-included contracts/**) should have been rejected, but the check reported conformant"
+if check_inventory_conformance "$WRONG_SEED_MISSING_PLUS_EXTRA" >/dev/null; then
+  fail "TEST-042-negative.1: a seed set with missing entries + wrongly-included contracts/** should have been rejected, but the check reported conformant"
 else
-  ok "TEST-042-negative: the inventory-conformance check correctly rejects a deliberately wrong seed set (missing entries, contracts/** wrongly present) — proves the check is not vacuously always-passing"
+  ok "TEST-042-negative.1: the check correctly rejects missing entries + wrongly-included contracts/**"
 fi
-rm -f "$WRONG_SEED_FILE"
+rm -f "$WRONG_SEED_MISSING_PLUS_EXTRA"
+
+# Sub-case the QG finding specifically named: an ARBITRARY 7th extra
+# cross-cutting entry, with all six canonical entries otherwise present
+# and correctly classified — a pure "no more" violation the old
+# substring-grep check would have missed entirely.
+WRONG_SEED_EXTRA_ONLY=$(mktemp)
+cat > "$WRONG_SEED_EXTRA_ONLY" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+  - pattern: "vendor/**"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_EXTRA_ONLY" >/dev/null; then
+  fail "TEST-042-negative.2: a seed set with all six canonical entries PLUS one arbitrary extra (vendor/**) should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.2: the check correctly rejects an arbitrary extra cross-cutting entry even when all six canonical entries are present and correctly classified ('no more')"
+fi
+rm -f "$WRONG_SEED_EXTRA_ONLY"
+
+# Sub-case the QG finding specifically named: a canonical pattern present
+# but wrongly classified as BOUNDED (components: [...]) instead of
+# cross-cutting — a pure "no differently classified" violation the old
+# substring-grep check would have missed entirely (the pattern string
+# itself is still present in the file, just under the wrong shape).
+WRONG_SEED_MISCLASSIFIED=$(mktemp)
+cat > "$WRONG_SEED_MISCLASSIFIED" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    components:
+      - some-component
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_MISCLASSIFIED" >/dev/null; then
+  fail "TEST-042-negative.3: specs/** declared bounded (components:) instead of cross-cutting should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative.3: the check correctly rejects a canonical entry wrongly classified as bounded instead of cross-cutting ('no differently classified')"
+fi
+rm -f "$WRONG_SEED_MISCLASSIFIED"
 
 echo "=== TEST-043: no-op proof for the six-entry cross-cutting set ==="
 out=$(resolve "${FIXTURES}/test-043-cross-cutting-no-op/config.yaml" "${FIXTURES}/test-043-cross-cutting-no-op/changed-paths.txt")
