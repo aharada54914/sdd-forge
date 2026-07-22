@@ -1,0 +1,54 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic-193-a5-capability-resolver-spec-spec-reviewer-b-seq0321",
+  "host_session_id": "SESS-spec-spec-reviewer-b-epic-193-a5-capability-resolver-0321",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/requirements.md", "sha256": "c19482a592b885952ca21edc8dd7e739371bc0def47e97a0638f78b402dbe6ad"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/acceptance-tests.md", "sha256": "e0c00bde6317d377029eba92833e7f216da2f1d72e470f467848c2e1be0277b6"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/specs/epic-193-a5-capability-resolver/investigation.md", "sha256": "4b63f379d58f18759991e58d27f0c75a7164c6f752b245bd67b4d06ce2738532"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/reports/spec-review/epic-193-a5-capability-resolver/attempt-1/round-1/precheck-result.json", "sha256": "2da78e13fc09340fb5c5096bc71b76fe3181a4c7554444864c3521bd5db96781"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-193/reports/spec-review/epic-193-a5-capability-resolver/attempt-1/round-1/integrated-summary.json", "sha256": "fe9408253ac9fb6f410f3e334c28642b9aa7ed21cb414483e897a857e5baf368"}
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004 defines Resolver Evidence's diagnostics[] as {id, detail, severity: \"block\"|\"warn\"}, recording 'every diagnostic-worthy condition this invocation encountered, not only the first/fatal one.' But REQ-002's entire 16-row diagnostic-id taxonomy is framed exclusively as fail-closed Block conditions ('Enumerate every condition under which the Resolver refuses to produce...'), and Edge Cases states 'There is no longer an accepted-WARN case anywhere in this feature's own evaluation model.' No requirement, edge case, or AC ever describes a scenario producing a diagnostics[] entry with severity:\"warn\" (as opposed to \"block\"), or its cardinality relationship to a same-id \"block\" summary entry (e.g. for dsl-warn-on-matched-capability, which REQ-004's own no-short-circuit language implies could be recorded per offending branch). Two compliant implementations could diverge (one never emitting \"warn\", another emitting one \"warn\" entry per branch plus a \"block\" summary), producing non-byte-identical diagnostics[] arrays for identical input and undermining REQ-005's byte-identical guarantee and AC-021's validator conformance rules for this branch. No fixture in REQ-006's matrix or AC-027 exercises severity:\"warn\" specifically."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "(1) requirements.md REQ-006 states its future suites cover 'the eleven items design.md's own Test Strategy fixes at contract level,' in the same clause explaining this is 'expanded from an earlier revision's eight — new items 9/10 add the metamorphic-completeness and live-caller-contract suites' (8+2=10, not 11 — an internal arithmetic contradiction). acceptance-tests.md restates the identical fact set twice as 'ten suites' ('design.md's own Test Strategy names ten suites...' / '...keeping the suite count at ten'), directly contradicting REQ-006's own headline 'eleven.' A future tasks.md author following requirements.md vs. acceptance-tests.md would schedule a different number of Test-Strategy-suite-authoring tasks. (2) REQ-002's project-context-validation-failed row requires the Resolver to detect that '--config's target file exists but fails Epic A1's own content-schema validation surface' — but the Dependencies section states canonicalize-sdd-yaml's CLI 'is the ONLY path from YAML bytes to a structure this feature's Resolver ever uses,' and investigation.md INV-007 confirms that CLI is a pure byte-canonicalizer ('emitting canonical UTF-8 bytes... on stdout and nothing else') with no content-schema-validation capability; no other Epic A1 validator CLI is named anywhere in this package, unlike every sibling row (e.g. registry-validation-failed names validate-capability-registry explicitly). This makes one of AC-010's own sixteen independently-fixture-tested Block conditions impossible to implement as specified without inventing a dependency this package's own Dependencies section forbids — an impossible acceptance criterion, the calibration's own Critical anchor."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-002's output-schema-validation-failed row and AC-012 jointly establish two materially different observable behaviors for this one diagnostic-id: if Resolver Evidence itself is the failing artifact, 'this invocation writes NOTHING to any live path, not even a best-effort... Evidence instance' (B3); if any other staged artifact (Facet Manifest/Capability Summary/Context Projection) fails instead, Resolver Evidence is still written recording the diagnostic (REQ-002's general 'still written on every Block' rule, only two named exceptions). AC-010/TEST-010 requires only 'one fixture per REQ-002/design.md diagnostic-id row (sixteen total)... each independently triggerable' — satisfiable by a single fixture covering only one of these two sub-cases. No AC in acceptance-tests.md requires both the 'Evidence itself fails' and 'a non-Evidence artifact fails while Evidence still publishes' sub-cases to each have a dedicated fixture, so a test-author following AC-010 literally could ship a suite that never exercises the more common, non-Evidence-artifact-fails sub-case's own distinct writes-Evidence-only behavior."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section names exactly three residual latent risks (sibling A1-A3 contracts changing before Phase 2 begins; the resolve-project-context.* protected-suffix reservation's live status; SKILL.md's unprotected status) and each carries an explicit fallback procedure exercised if the assumption fails to hold at implementation-start time (e.g. 'the future implementation task re-verifies the file's then-current protection status before choosing a direct unprotected-first-then-register sequencing... instead of the content-population-only human-copy this package assumes'). The one genuine open cross-epic gap this feature depends on — Epic A2's Registry schema lacking a required_lite_checks source (investigation.md INV-019) — is not left as a silent assumption but is recorded as an explicit, owned prerequisite for Epic A6 in both Dependencies and Risks, with owner, scope, and migration stated."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Roles and Permissions fixes a clear, testable irreversible-change boundary: the Resolver script family's own code content is human-copy-gated ('specs/epic-193-a5-capability-resolver/human-copy/' -> apply-human-copy, 'never a direct agent write to the live path,' investigation.md INV-003), strictly distinguished from live per-Feature artifacts which are 'agent-writable-only-via-the-Resolver... never hand-edited.' Security Boundaries further fixes that 'the Resolver never writes to any *.approval.json sidecar, any sdd/.approved-context/ anchor, or guard-invariants.json itself... it never participates in the approval-sidecar workflow itself,' explicitly delegating human-approval workflow to Epic A1's own already-Passed mechanism, while REQ-002's own 16-row fail-closed Block taxonomy (independently fixture-tested via AC-010 through AC-014 and AC-038-054) is itself the in-scope governance mechanism preventing an under-specified artifact from silently publishing."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Two findings above directly block a clean handoff to implementation-policy review: (1) project-context-validation-failed (REQ-002) names no callable mechanism, and the Dependencies section's own 'canonicalize-sdd-yaml... is the ONLY path' restriction rules out the one tool this package does name — a design reviewer inheriting this package would have to invent which Epic A1 surface satisfies this already-tested (AC-010) diagnostic, a product/contract decision this Phase 1 package claims to have already fixed rather than a design-phase architectural choice; (2) REQ-006's own 'eleven items' test-suite count directly contradicts acceptance-tests.md's twice-stated 'ten suites,' so a downstream task author would schedule a different Test Strategy suite count depending on which document they follow, with nothing in this package flagging which number is authoritative. Both require a product-level decision this specification claims to have already closed, not an implementation-styling choice appropriate for the next gate to originate."
+    }
+  ]
+}
