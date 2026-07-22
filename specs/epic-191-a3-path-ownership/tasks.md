@@ -289,44 +289,54 @@ Commit B (documentation):
 
 ### Done When
 
-- [ ] TEST-001..TEST-009 each prove their own glob clause id independently
-  (AC-001..AC-009).
-- [ ] TEST-010 proves the NFC-collision fail-closed error, raw-identity
-  preservation, and stable sort over raw path bytes (AC-010).
-- [ ] TEST-011 proves the schema-conformance fixture FAILS closed (non-zero,
-  red) while Epic A1's schema artifact is absent, and validates
-  field-name/type/version conformance when present (AC-011) — this task
-  cannot reach Done while that fixture is red for an unlanded/divergent
-  schema.
-- [ ] TEST-012/TEST-015/TEST-016/TEST-017 prove EXCLUSIVE / UNOWNED (Fail-1)
-  / OVERLAP (Fail-3) / `shared_paths`-precedence classification
-  (AC-012, AC-015, AC-016, AC-017).
-- [ ] TEST-013 proves the exclude-as-include Fail-5 invariant at the
-  resolver level (AC-013); TEST-014 proves the `EXCLUDED_MATCH` evidence tag
-  (AC-014).
-- [ ] TEST-018 proves the `shared_paths` both/neither config-shape
-  fail-closed rejection (AC-018).
-- [ ] TEST-045 proves the fixture-tree base shape (≥2 overlapping
-  components, nested excluded subtree, bounded `shared_paths` entry)
-  (AC-045).
-- [ ] `tests/component-path-resolver.tests.sh`/`.ps1` self-register in
-  `tests/run-all.sh`/`.ps1` (grep self-check); the staged
-  `.github/workflows/test.yml` candidate exists with a correct
+- [ ] **Glob semantics** — TEST-001..TEST-010 pass: each glob-matching
+  clause id independently (AC-001..AC-009) plus the NFC-collision
+  fail-closed error, raw-identity preservation, and stable sort over raw
+  path bytes (AC-010).
+- [ ] **A1 schema conformance** — TEST-011 proves the schema-conformance
+  fixture FAILS closed (non-zero, red) while Epic A1's schema artifact is
+  absent, and validates field-name/type/version conformance when present
+  (AC-011) — this task cannot reach Done while that fixture is red for an
+  unlanded/divergent schema.
+- [ ] **Classification + shared_paths + Fail conditions** — TEST-012..018
+  pass: EXCLUSIVE / UNOWNED (Fail-1) / OVERLAP (Fail-3) /
+  `shared_paths`-precedence classification (AC-012, AC-015, AC-016,
+  AC-017); the exclude-as-include Fail-5 invariant and its `EXCLUDED_MATCH`
+  evidence tag (AC-013, AC-014); the `shared_paths` both/neither
+  config-shape fail-closed rejection (AC-018).
+- [ ] **Fixture + suite/CI registration** — TEST-045 proves the fixture-tree
+  base shape (≥2 overlapping components, nested excluded subtree, bounded
+  `shared_paths` entry) (AC-045); `tests/component-path-resolver.tests.sh`/
+  `.ps1` self-register in `tests/run-all.sh`/`.ps1` (grep self-check); the
+  staged `.github/workflows/test.yml` candidate exists with a correct
   `MANIFEST.sha256` entry and the LIVE `test.yml` is byte-unchanged
   before/after this task's own commits.
-- [ ] `docs/adr/0025-component-path-ownership-resolver-semantics.md` exists,
-  is correctly numbered (re-verified via `ls docs/adr/`), and records glob
+- [ ] **Governance (ADR + CHANGELOG + version discipline)** —
+  `docs/adr/0025-component-path-ownership-resolver-semantics.md` exists, is
+  correctly numbered (re-verified via `ls docs/adr/`), and records glob
   semantics, precedence, the six Fail-condition definitions, the
   applicability-derivation decision, and the reachability-registration
-  decision (AC-048 share, ADR portion).
-- [ ] `CHANGELOG.md` gains a NEW `## Unreleased` entry citing #191
-  (AC-048 share).
-- [ ] A grep self-check confirms no version string was mutated outside a
-  `scripts/bump-version.sh` invocation (AC-049 share).
-- [ ] TDD evidence recorded: RED (each glob clause / classification test
+  decision (AC-048 share, ADR portion); `CHANGELOG.md` gains a NEW
+  `## Unreleased` entry citing #191 (AC-048 share); a grep self-check
+  confirms no version string was mutated outside a `scripts/bump-version.sh`
+  invocation (AC-049 share).
+- [ ] **TDD evidence** — RED (each glob clause / classification test
   against a deliberately broken resolver or fixture) and GREEN (the full
   suite against the correct resolver). An independent quality-gate verdict
   records PASS.
+
+Note on scope breadth (task-review round 1, TASK-SIZE): this task's five
+work areas (resolver core, suite, fixture tree, ADR, CI registration) are
+not a Phase-2 decomposition choice — design.md's own Technical Summary,
+API/Contract Plan (`resolve-component-paths.sh`/`.ps1` (T-001/T-002)
+heading), Components table, and Global Constraints ("the new ADR... is
+drafted and added as PART OF T-001's implementation commit A") explicitly
+bundle every one of these deliverables into T-001. Splitting them into
+separate tasks would contradict the frozen (Impl-Review-Status: Passed)
+design.md. The commit-conflation risk this check protects against is
+mitigated structurally by the two-commit landing plan (Global Constraints):
+commit A is the resolver + suite + fixture + ADR + CI-staging work with its
+own RED/GREEN evidence; commit B is only the CHANGELOG entry.
 
 ### Out of Scope
 
@@ -339,11 +349,13 @@ Commit B (documentation):
 
 ### Blockers
 
-None (task-ID blockers). External Done-gating condition, not a start
-blocker: Epic A1's canonical `project-context.yaml` schema artifact must
-land and match for TEST-011 to go green — until then this task's own
-schema-conformance fixture is deterministically red and the task cannot
-reach Done (requirements.md Dependencies, AC-011).
+None
+
+(Not a task-ID blocker, but an external Done-gating condition: Epic A1's
+canonical `project-context.yaml` schema artifact must land and match for
+TEST-011 to go green — until then this task's own schema-conformance
+fixture is deterministically red and the task cannot reach Done
+(requirements.md Dependencies, AC-011).)
 
 ---
 
@@ -479,30 +491,28 @@ Commit B (documentation):
 
 ### Done When
 
-- [ ] TEST-019 proves rev-resolution, merge-base baseline, and the
-  fail-closed unresolvable-rev / unrelated-histories diagnostic (AC-019).
-- [ ] TEST-020 proves staged + unstaged + untracked collection with no
-  double-count, porcelain-only (AC-020).
-- [ ] TEST-021 proves NUL-safe raw-byte framing (TAB/LF round-trip,
-  invalid-UTF-8 fail-closed) (AC-021).
-- [ ] TEST-022 proves rename-follow including the cross-component case
-  (AC-022).
-- [ ] TEST-023 proves the pinned rename threshold/limit contract and the
-  followed-vs-limit-exceeded fail-closed distinction (AC-023).
-- [ ] TEST-024 proves all four submodule/symlink reference-only cases
-  (AC-024).
-- [ ] TEST-025 proves the single-writer/TOCTOU retry-then-fail-closed rule
-  (AC-025).
-- [ ] `tests/component-path-diff-basis.tests.sh`/`.ps1` self-register in
+- [ ] **Baseline + collection + framing** — TEST-019..021 pass:
+  rev-resolution, merge-base baseline, and the fail-closed
+  unresolvable-rev/unrelated-histories diagnostic (AC-019); staged +
+  unstaged + untracked collection with no double-count, porcelain-only
+  (AC-020); NUL-safe raw-byte framing, TAB/LF round-trip, invalid-UTF-8
+  fail-closed (AC-021).
+- [ ] **Rename + submodule/symlink + single-writer** — TEST-022..025 pass:
+  rename-follow including the cross-component case (AC-022); the pinned
+  rename threshold/limit contract and the followed-vs-limit-exceeded
+  fail-closed distinction (AC-023); all four submodule/symlink
+  reference-only cases (AC-024); the single-writer/TOCTOU
+  retry-then-fail-closed rule (AC-025).
+- [ ] **Suite/CI registration + governance** —
+  `tests/component-path-diff-basis.tests.sh`/`.ps1` self-register in
   `tests/run-all.sh`/`.ps1`; the staged `test.yml` candidate exists with a
   correct `MANIFEST.sha256` entry and the LIVE `test.yml` is byte-unchanged
-  before/after this task's commits.
-- [ ] `CHANGELOG.md` gains a NEW `## Unreleased` entry citing #191
-  (AC-048 share).
-- [ ] A grep self-check confirms no version string was mutated outside
-  `scripts/bump-version.sh` (AC-049 share).
-- [ ] TDD evidence recorded: RED (each fail-closed axis against a fixture
-  that would otherwise silently degrade) and GREEN (the full suite). An
+  before/after this task's commits; `CHANGELOG.md` gains a NEW
+  `## Unreleased` entry citing #191 (AC-048 share); a grep self-check
+  confirms no version string was mutated outside `scripts/bump-version.sh`
+  (AC-049 share).
+- [ ] **TDD evidence** — RED (each fail-closed axis against a fixture that
+  would otherwise silently degrade) and GREEN (the full suite). An
   independent quality-gate verdict records PASS.
 
 ### Out of Scope
@@ -638,29 +648,27 @@ Commit B (documentation):
 
 ### Done When
 
-- [ ] TEST-037 proves the digest binds the entire declared ownership input,
-  unconditionally, identically across every Feature sharing a config, via
-  Epic A1's canonicalizer (AC-037) — or a documented blocker is recorded if
-  that canonicalizer is absent at implementation time.
-- [ ] TEST-038 proves `context_binding` population and semantic-output
-  exclusion (a digest-only change does not mark a Feature stale) (AC-038).
-- [ ] TEST-039 proves the non-match→match stale regression changes the
-  digest against identical changed paths (AC-039).
-- [ ] TEST-040 proves all six selective-stale matrix rows against ADR-0021's
-  semantic-output comparison and `context_binding`/`resolver` metadata
-  update behavior (AC-040).
-- [ ] TEST-041 proves the suite-wiring self-test across all three
-  registration surfaces (AC-041).
-- [ ] `tests/ownership-digest.tests.sh`/`.ps1` self-register in
+- [ ] **Full-input binding + staleness matrix** — TEST-037..040 pass: the
+  digest binds the entire declared ownership input, unconditionally,
+  identically across every Feature sharing a config, via Epic A1's
+  canonicalizer (AC-037) — or a documented blocker is recorded if that
+  canonicalizer is absent at implementation time; `context_binding`
+  population and semantic-output exclusion, i.e. a digest-only change does
+  not mark a Feature stale (AC-038); the non-match→match stale regression
+  changes the digest against identical changed paths (AC-039); all six
+  selective-stale matrix rows against ADR-0021's semantic-output comparison
+  and `context_binding`/`resolver` metadata update behavior (AC-040).
+- [ ] **Suite/CI registration + governance** — TEST-041 proves the
+  suite-wiring self-test across all three registration surfaces (AC-041);
+  `tests/ownership-digest.tests.sh`/`.ps1` self-register in
   `tests/run-all.sh`/`.ps1`; the staged `test.yml` candidate exists with a
   correct `MANIFEST.sha256` entry and the LIVE `test.yml` is byte-unchanged
-  before/after this task's commits.
-- [ ] `CHANGELOG.md` gains a NEW `## Unreleased` entry citing #191
-  (AC-048 share).
-- [ ] A grep self-check confirms no version string was mutated outside
-  `scripts/bump-version.sh` (AC-049 share).
-- [ ] Acceptance-first evidence recorded: RED (a subset/evaluated-only
-  digest binding failing the non-match regression) and GREEN (the full-input
+  before/after this task's commits; `CHANGELOG.md` gains a NEW
+  `## Unreleased` entry citing #191 (AC-048 share); a grep self-check
+  confirms no version string was mutated outside `scripts/bump-version.sh`
+  (AC-049 share).
+- [ ] **Acceptance-first evidence** — RED (a subset/evaluated-only digest
+  binding failing the non-match regression) and GREEN (the full-input
   binding passing the whole matrix). An independent quality-gate verdict
   records PASS.
 
@@ -871,34 +879,32 @@ Commit B (documentation):
 
 ### Done When
 
-- [ ] TEST-026/TEST-027 prove applicability is derived from
-  `capability_enforcement` (never Facet-Manifest presence) and the
-  `disabled-legacy` truthful-non-evaluation record (AC-026, AC-027).
-- [ ] TEST-028 proves the manifest-required hard error in `advisory`/
-  `required` (AC-028); TEST-029 proves `--diagnose` is never Gate-invoked
-  (AC-029).
-- [ ] TEST-030 proves one dedicated fixture per Fail-1..Fail-6, identical in
-  `advisory` and `required` (AC-030); TEST-031 proves Fail-2/Fail-4 mutual
-  exclusivity (AC-031); TEST-032 proves Fail-5 Gate-level reachability
-  (AC-032); TEST-033/TEST-034 prove the Fail-6 `adapter_paths` rule and
-  N/A-when-absent case (AC-033, AC-034).
-- [ ] TEST-052 proves `advisory` non-blocking exit-0-despite-trigger
-  (AC-052); TEST-053 proves `required` blocking exit-non-zero-iff-trigger
-  (AC-053).
-- [ ] TEST-054 proves every evidence record (all three states) carries
-  `schema`, `check_id`, and a live-computed `producer.sha256` (AC-054);
-  TEST-055 proves `check-contract`'s producer-digest verification rejects a
-  substituted-script + stale/unrelated-evidence pairing (AC-055).
-- [ ] TEST-035 proves the reachability claim (SKILL.md-deletion /
-  script-rename + mismatched-digest evidence still fails the `high`/
-  `critical` Gate), scoped to the two-tier defense boundary (AC-035).
-- [ ] TEST-036 proves the protected-suffix + generator-inventory
+- [ ] **Applicability derivation** — TEST-026..029 pass: applicability is
+  derived from `capability_enforcement` (never Facet-Manifest presence) and
+  the `disabled-legacy` truthful-non-evaluation record (AC-026, AC-027); the
+  manifest-required hard error in `advisory`/`required` (AC-028); `--diagnose`
+  is never Gate-invoked (AC-029).
+- [ ] **Six Fail conditions** — TEST-030..034/046 pass: one dedicated
+  fixture per Fail-1..Fail-6, identical in `advisory` and `required`
+  (AC-030); Fail-2/Fail-4 mutual exclusivity (AC-031); Fail-5 Gate-level
+  reachability (AC-032); the Fail-6 `adapter_paths` rule and
+  N/A-when-absent case (AC-033, AC-034); the `contracts/**` bounded-shared
+  out-of-enumeration Fail-4 fixture (AC-046).
+- [ ] **Blocking behavior + evidence/tamper-evidence proofs** — TEST-052..055
+  pass: `advisory` non-blocking exit-0-despite-trigger (AC-052); `required`
+  blocking exit-non-zero-iff-trigger (AC-053); every evidence record (all
+  three states) carries `schema`, `check_id`, and a live-computed
+  `producer.sha256` (AC-054); `check-contract`'s producer-digest
+  verification rejects a substituted-script + stale/unrelated-evidence
+  pairing (AC-055).
+- [ ] **Reachability + registration proofs** — TEST-035/036 pass: the
+  reachability claim (SKILL.md-deletion/script-rename + mismatched-digest
+  evidence still fails the `high`/`critical` Gate), scoped to the two-tier
+  defense boundary (AC-035); the protected-suffix + generator-inventory
   registration (staged six-file candidate set + correct `MANIFEST.sha256`;
   `generate-guard-invariants.py --check` exits 0 against the staged tree;
   live files byte-identical before/after; post-human-copy self-registration
   grep confirms the three `check-component-coverage.*` entries) (AC-036).
-- [ ] TEST-046 proves the `contracts/**` bounded-shared out-of-enumeration
-  Fail-4 fixture (AC-046).
 - [ ] **HUMAN APPLY STEP — Bundle A (situation 1, content protection, six
   files):** a human maintainer runs `cp` for each of
   `guard-invariants.json`, `generate-guard-invariants.py`,
@@ -916,19 +922,34 @@ Commit B (documentation):
   — confirmed before this task is marked Done. (A partial application — one
   bundle applied, the other not — is detectable via the manifest, never
   silently assumed complete.)
-- [ ] `tests/check-component-coverage.tests.sh`/`.ps1` self-register in
+- [ ] **Suite/CI registration + governance** —
+  `tests/check-component-coverage.tests.sh`/`.ps1` self-register in
   `tests/run-all.sh`/`.ps1`; the staged `test.yml` candidate exists with a
   correct `MANIFEST.sha256` entry and the LIVE `test.yml` is byte-unchanged
-  before/after this task's commits.
-- [ ] `CHANGELOG.md` gains a NEW `## Unreleased` entry citing #191
-  (AC-048 share).
-- [ ] A grep self-check confirms no version string was mutated outside
-  `scripts/bump-version.sh` (AC-049 share).
-- [ ] TDD evidence recorded: RED (each Fail condition, the producer-digest
+  before/after this task's commits; `CHANGELOG.md` gains a NEW
+  `## Unreleased` entry citing #191 (AC-048 share); a grep self-check
+  confirms no version string was mutated outside `scripts/bump-version.sh`
+  (AC-049 share).
+- [ ] **TDD evidence** — RED (each Fail condition, the producer-digest
   rejection, and the registration proofs against deliberately broken
   fixtures) and GREEN (the full suite + the human-copy `--check` exit-0
   proof). An independent quality-gate verdict records PASS, including
   confirmation that both human-copy bundles have been applied and verified.
+
+Note on scope breadth (task-review round 1, TASK-SIZE): this task's six work
+areas (three-state Gate logic + six Fail conditions, `--diagnose`, direct
+`risk-gate-matrix.md`/`SKILL.md` edits, Bundle A staging, Bundle B staging,
+CI registration) are not a Phase-2 decomposition choice — design.md's own
+Global Constraints are explicit that T-004 is the SOLE editor of both
+protected-file bundles ("T-004 is the sole editor (via human-copy) within
+this feature" / "T-004 is the sole editor of both"), precisely to avoid a
+human-copy staging race across tasks; splitting this work across multiple
+tasks would reintroduce that race and contradict the frozen
+(Impl-Review-Status: Passed) design.md. The two independent HUMAN APPLY
+STEPs above (Bundle A, Bundle B) are already kept as separate, individually
+verifiable Done-When items rather than merged, and the two-commit landing
+plan (Global Constraints) keeps the CHANGELOG entry in its own commit B,
+separate from the Gate/registration implementation in commit A.
 
 ### Out of Scope
 
