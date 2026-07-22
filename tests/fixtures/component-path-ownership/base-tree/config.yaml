@@ -1,0 +1,18 @@
+components:
+  - name: desktop-client
+    paths:
+      include:
+        - "src/desktop/**"
+        - "src/shared-ui/**"
+      exclude:
+        - "src/desktop/generated/**"
+  - name: mobile-client
+    paths:
+      include:
+        - "src/mobile/**"
+        - "src/shared-ui/**"
+shared_paths:
+  - pattern: "contracts/**"
+    components:
+      - desktop-client
+      - mobile-client

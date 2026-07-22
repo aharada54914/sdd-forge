@@ -146,9 +146,9 @@ authors no competing or duplicate list of its own.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/191
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T14:38:39Z)
 
-Status: Planned
+Status: Blocked
 
 Risk: high
 

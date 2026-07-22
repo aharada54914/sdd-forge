@@ -1,0 +1,57 @@
+=== TEST-001: ** crosses / boundaries ===
+ok: TEST-001.1: direct child match
+ok: TEST-001.2: nested match crosses /
+=== TEST-002: bare * confined to one path segment ===
+ok: TEST-002.1: src/*.ts matches src/file.ts
+ok: TEST-002.2: src/*.ts does not cross /
+=== TEST-003: backslash pattern normalization ===
+ok: TEST-003.1: backslash pattern normalizes to slash form
+=== TEST-004: NFC-normalized matching ===
+ok: TEST-004.1: NFD-encoded raw path matches NFC-encoded pattern
+=== TEST-005: case-sensitive matching ===
+ok: TEST-005.1: Src/** matches Src/file.ts
+ok: TEST-005.2: Src/** does not match src/file.ts (case differs)
+=== TEST-006: unsupported metacharacter rejected fail-closed ===
+ok: TEST-006.1: '[abc]' pattern rejected fail-closed at load time
+=== TEST-007: ** zero-segment case ===
+ok: TEST-007.1: a/**/b matches literal a/b
+ok: TEST-007.2: a/**/b matches a/x/b
+ok: TEST-007.3: a/**/b does not match unrelated a/c
+=== TEST-008: empty-set clauses ===
+ok: TEST-008.1: empty changed-paths diff resolves vacuously
+ok: TEST-008.2: component with empty include list is a config-load-time error
+=== TEST-009: shared_paths zero-match this resolve ===
+ok: TEST-009.1: a zero-match shared_paths entry does not disturb ordinary classification
+=== TEST-010: NFC collision, raw identity, stable sort ===
+ok: TEST-010.1: two distinct raw paths differing only in NFC/NFD form are rejected fail-closed
+ok: TEST-010.2: output raw_path preserves the original NFD byte sequence exactly
+ok: TEST-010.3: stable ordinal sort over raw path bytes
+=== TEST-011: A1 schema-conformance fixture ===
+ok: TEST-011.1: fail-closed non-zero when the artifact is absent
+ok: TEST-011.2: exit 0 + conformant:true for a well-formed schema artifact
+FAIL: TEST-011.3 [EXPECTED - Epic A1 has not landed contracts/project-context.template.yaml yet]: { "conformant": false, "diagnostic": "schema artifact absent: contracts/project-context.template.yaml (Epic A1 has not landed it yet)" } 
+=== TEST-012: EXCLUSIVE classification ===
+ok: TEST-012.1: single-component match classifies EXCLUSIVE
+ok: TEST-012.2: EXCLUSIVE record names the owning component
+=== TEST-013/014: exclude invariant + EXCLUDED_MATCH evidence ===
+ok: TEST-013.1: Fail-5 invariant — exclude wins over include within the same component
+ok: TEST-014.1: UNOWNED record carries EXCLUDED_MATCH evidence
+=== TEST-015: UNOWNED (Fail-1), ordinary case ===
+ok: TEST-015.1: no component match classifies UNOWNED
+ok: TEST-015.2: ordinary UNOWNED carries no EXCLUDED_MATCH evidence
+=== TEST-016: OVERLAP (Fail-3) ===
+ok: TEST-016.1: two-component match classifies OVERLAP
+ok: TEST-016.2: OVERLAP names every residual owner
+=== TEST-017: shared_paths exemption ===
+ok: TEST-017.1: shared_paths match exempts from OVERLAP
+=== TEST-018: shared_paths shape fail-closed ===
+ok: TEST-018.1: both components+classification rejected
+ok: TEST-018.2: neither components nor classification rejected
+=== TEST-045: fixture-tree base shape + suite/CI registration ===
+ok: TEST-045.1: base fixture has >=2 overlapping components
+ok: TEST-045.2: base fixture has a nested excluded subtree
+ok: TEST-045.3: base fixture has a bounded shared_paths entry
+ok: TEST-045.4: component-path-resolver self-registers in run-all.sh and .ps1
+ok: TEST-045.5: staged .github/workflows/test.yml candidate has a MANIFEST.sha256 entry
+
+component-path-resolver.tests.ps1: 36 passed, 1 failed

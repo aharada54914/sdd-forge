@@ -1,0 +1,7 @@
+components:
+  - name: c1
+    paths:
+      include:
+        - "src/c1/**"
+      exclude:
+        - "src/c1/generated/**"

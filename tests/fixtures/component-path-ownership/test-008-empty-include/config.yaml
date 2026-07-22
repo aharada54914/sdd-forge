@@ -1,0 +1,6 @@
+components:
+  - name: c1
+    paths:
+      include:
+      exclude:
+        - "x/**"

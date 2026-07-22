@@ -1,0 +1,9 @@
+components:
+  - name: c1
+    paths:
+      include:
+        - "shared/**"
+  - name: c2
+    paths:
+      include:
+        - "shared/**"

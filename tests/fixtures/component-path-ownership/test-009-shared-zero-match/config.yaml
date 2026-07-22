@@ -1,0 +1,8 @@
+components:
+  - name: c1
+    paths:
+      include:
+        - "a/**"
+shared_paths:
+  - pattern: "never/matched/**"
+    classification: cross-cutting
