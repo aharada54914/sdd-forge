@@ -344,9 +344,12 @@ Not applicable — no UI surface.
   out of this package's own scope (requirements.md Non-goals).
 - **Downstream (anticipated future consumer)**: Epic A6 (Lite統合) is the
   anticipated consumer of this feature's Capability Summary output — see
-  Risks, below, for why that consumption is currently blocked by
+  Risks, below, for why `required`-enforcement consumption specifically
+  (not Epic A6 Lite consumption as a whole, cross-epic addendum, Epic A6
+  adversarial verification finding B5) is currently blocked by
   investigation.md INV-019's Registry-schema gap, independent of this
-  feature's own completeness.
+  feature's own completeness; `advisory`-enforcement consumption is not
+  blocked by this gap.
 - **Downstream (anticipated future consumer)**: a future epic (plausibly
   A6/A8) is the anticipated caller of Epic A4's `compare-facet-manifest-
   staleness` against two of this feature's own Facet Manifest outputs
@@ -975,16 +978,28 @@ any individual combination's own result):
       `full_upgrade_required` = `!lite_eligibility.eligible` (the
       identical aggregate signal 10a would compute, requirements.md Field
       Definitions, computed here directly since 10a does not run on this
-      track); `required_lite_checks` — for each matched Capability,
-      attempt to source its own contribution; **no Registry field exists
-      to source it from** (investigation.md INV-019) → `lite-check-
-      source-undefined` Block, exit 1 — nothing from step 3 or this step
-      was ever written to a live path (no staging-area artifact reaches
-      commit), so this Block never leaves a partial `capability-summary.
-      yaml` either. On a resolvable source (today, only the zero-matched-
-      Capability case, Edge Cases, "zero affected components" — Test
-      Strategy item 4's own track-exclusive-output-set fixture, B5
-      correction below), **stage** (do not yet write) `specs/<feature>/
+      track); `required_lite_checks` — **narrowed by cross-epic addendum
+      (Epic A6 adversarial verification finding B5, requirements.md
+      Dependencies)**: for each matched Capability, attempt to source its
+      own contribution from that Capability's own Registry entry's
+      `lite_policy.required_lite_checks` key. If that key is **present**
+      (including present-and-empty), its own value (or `[]`) is that
+      Capability's own contribution — valid, non-Blocking, regardless of
+      enforcement state. If that key is **absent**, the contribution
+      depends on `state` (step 1, REQ-003): under `advisory`, the absent
+      key contributes an empty `[]` and processing continues; under
+      `required`, the absent key → `lite-check-source-undefined` Block,
+      exit 1 — nothing from step 3 or this step was ever written to a
+      live path (no staging-area artifact reaches commit), so this Block
+      never leaves a partial `capability-summary.yaml` either. Zero
+      matched Capabilities is vacuously non-Blocking under either
+      enforcement state (no Capability's own key is ever consulted). On a
+      resolvable source (today: any `advisory`-enforcement Lite resolve;
+      any `required`-enforcement Lite resolve where every matched
+      Capability's own key is present, including present-and-empty; or
+      the zero-matched-Capability case, Edge Cases, "zero affected
+      components" — Test Strategy item 4's own track-exclusive-output-set
+      fixture, B5 correction below), **stage** (do not yet write) `specs/<feature>/
       capability-summary.yaml` only — no
       `facet-manifest.yaml` and no `project-context.resolved.json` are
       staged or written on this track (B4 — this corrects an earlier
@@ -1757,30 +1772,40 @@ here at contract level (authored at Phase 2):
    id, declaration_index, component_id)`-keyed OR/concatenation rule the
    cross-Capability case uses (Design Decisions, "facet-name aggregation,
    predicate-instance keyed").
-4. `resolve-project-context-lite` — the Lite-track path: confirms
-   `lite-check-source-undefined` fires for the current, real Registry
-   shape (investigation.md INV-019) via a synthetic fixture whose Registry
-   Capability declares `lite_policy.eligible: true`, proving the Block
-   fires structurally rather than by an accidental fixture gap. **No
+4. `resolve-project-context-lite` — the Lite-track path, **narrowed and
+   expanded by cross-epic addendum (Epic A6 adversarial verification
+   finding B5)**: confirms `lite-check-source-undefined` fires for the
+   current, real Registry shape (investigation.md INV-019) only under the
+   **required-missing** state — a `required`-enforcement fixture whose
+   Registry Capability declares `lite_policy.eligible: true` and whose
+   `required_lite_checks` key is absent — proving the Block fires
+   structurally, on that narrower conjunction, rather than by an
+   accidental fixture gap; the otherwise-identical **advisory**-enforcement
+   fixture is a companion, non-Blocking case (below). **No
    forward-compatibility fixture exercises a hypothetical Registry
    extension that supplies a resolvable `required_lite_checks` source**
    (B5 correction, removing the earlier revision's synthetic-Registry-
    extension fixture) — such a fixture's own Registry instance would not
-   itself pass `validate-capability-registry` (Epic A2's own schema is
-   `additionalProperties: false` and content-frozen, investigation.md
+   itself pass `validate-capability-registry` (Epic A2's own `lite_policy`
+   sub-schema is `additionalProperties: false`, sub-keys `{eligible,
+   upgrade_reasons}` only, and content-frozen, investigation.md
    INV-019/B5), so it never exercised a Registry state any real
-   `validate-capability-registry`-passing input could ever reach; this
-   suite instead adds a **track-exclusive output-set** fixture (B4) that
-   confirms a successful (non-Blocked) Lite resolve writes exactly
-   `capability-summary.yaml` + `resolver-evidence.yaml` and **never**
-   `facet-manifest.yaml`/`project-context.resolved.json` — this fixture
-   is reachable today only via a Lite-eligible Feature whose matched
-   Capabilities collectively need zero `required_lite_checks` entries
-   (e.g. zero matched Capabilities at all, the zero-affected-component
-   Edge Case, M9), since INV-019's own gap otherwise Blocks every
-   non-trivial Lite resolve — this remains an accurate, honestly-scoped
-   fixture of the current cross-epic state, not a fabricated forward-
-   compatibility one.
+   `validate-capability-registry`-passing input could ever reach — this is
+   also why **required-present-empty** has no fixture in this suite: it is
+   a documented, non-Blocking rule (API / Contract Plan step 10b,
+   requirements.md REQ-002) but not yet a reachable real-Registry state,
+   pending a future Epic A2 schema revision that adds the key itself; this
+   suite instead adds two **track-exclusive output-set** fixtures (B4)
+   that each confirm a successful (non-Blocked) Lite resolve writes
+   exactly `capability-summary.yaml` + `resolver-evidence.yaml` and
+   **never** `facet-manifest.yaml`/`project-context.resolved.json` — an
+   **advisory-missing** fixture (a matched Capability whose key is absent,
+   under `advisory` enforcement, contributing `[]`, reachable with any
+   real Registry today) and the original **zero-match** fixture (zero
+   matched Capabilities, e.g. the zero-affected-component Edge Case, M9,
+   reachable under either enforcement state) — this remains an accurate,
+   honestly-scoped set of fixtures against the current cross-epic state,
+   not a fabricated forward-compatibility one.
 5. `resolve-project-context-parity` — `.py`/`.sh`/`.ps1` byte-identical
    output across every fixture above, plus a repeated-invocation
    determinism proof (REQ-005/AC-022/AC-023); includes at least one
@@ -2370,19 +2395,25 @@ insertion point itself.
 
 Restated and design-elaborated from requirements.md's own Risks section:
 
-- **Lite-track resolution is effectively Blocked for every real,
-  non-trivial invocation today** (investigation.md INV-019, requirements.md
-  Risks) — this design's own Test Strategy item 4 (revised, B5) makes this
-  fact directly, mechanically testable using only fixtures that
-  themselves pass `validate-capability-registry` (an earlier revision's
-  synthetic-Registry forward-compatibility fixture did not, and is
-  removed, B5) — a track-exclusive-output-set fixture (B4) is reachable
-  today only via a Lite Feature with zero matched Capabilities needing a
-  Lite check, which remains an honest, if narrow, positive-path proof.
-  **Epic A2 Registry-schema revision adding a `required_lite_checks`
-  source is now recorded as an explicit, owned prerequisite for Epic A6**
-  (requirements.md Dependencies, B5) — not merely a named risk this
-  package could not act on.
+- **Lite-track resolution under `required` enforcement is effectively
+  Blocked for every real, non-trivial invocation today;
+  `advisory`-enforcement Lite resolution is not** (investigation.md
+  INV-019, requirements.md Risks, narrowed by cross-epic addendum, Epic A6
+  adversarial verification finding B5) — this design's own Test Strategy
+  item 4 (revised, B5) makes this fact directly, mechanically testable
+  using only fixtures that themselves pass `validate-capability-registry`
+  (an earlier revision's synthetic-Registry forward-compatibility fixture
+  did not, and is removed, B5) — a track-exclusive-output-set fixture (B4)
+  is now reachable two ways: an `advisory`-missing fixture (any real
+  Registry, any matched Capability, `advisory` enforcement) and a
+  zero-matched-Capability fixture (either enforcement state), which
+  together remain an honest, if still narrow for the `required` case,
+  positive-path proof. **Epic A2 Registry-schema revision adding a
+  `required_lite_checks` source is now recorded as an explicit, owned
+  prerequisite for Epic A6's `required`-enforcement Lite path
+  specifically** (requirements.md Dependencies, B5) — not merely a named
+  risk this package could not act on, and not a blocker on Epic A6's
+  `advisory`-enforcement Lite path.
 - **The multi-component matching rule and the facet-name aggregation rule
   (Design Decisions, above) are this feature's own new decisions**, not
   upstream-fixed facts — both are narrow, citation-grounded, mechanical

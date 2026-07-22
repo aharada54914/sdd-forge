@@ -1,6 +1,6 @@
 # Requirements: epic-193-a5-capability-resolver
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 Source Issues: https://github.com/aharada54914/sdd-forge/issues/193,
 https://github.com/aharada54914/sdd-forge/issues/187
 Epic: https://github.com/aharada54914/sdd-forge/issues/187 (AI-DLC
@@ -144,12 +144,19 @@ document v2 §7/§18.4).
   new, additively-versioned `capabilities[]` field the current schema's
   `additionalProperties: false` does not yet admit; migration: existing
   Registry instances remain valid until a Capability author opts into the
-  new field) is a **named prerequisite for Epic A6 (Lite統合) to begin**,
-  not merely for this feature's own Lite-track output to become non-
-  trivial. Until that revision lands, this feature's own `lite-check-
-  source-undefined` Block condition (REQ-002) is the correct, fail-closed,
-  and *expected* outcome for essentially every real Lite-track Feature
-  with at least one matched Capability (Risks, below) — this feature does
+  new field) is a **named prerequisite for Epic A6's `required`-enforcement
+  Lite path to begin** (narrowed by cross-epic addendum, Epic A6
+  adversarial verification finding B5, from an earlier revision's claim
+  that this gap blocked Epic A6 Lite consumption as a whole — an
+  `advisory`-enforcement Lite Feature is not blocked by this gap, Risks
+  below), not merely for this feature's own Lite-track output to become
+  non-trivial. Until that revision lands, this feature's own `lite-check-
+  source-undefined` Block condition (REQ-002), as narrowed by that same
+  addendum, is the correct, fail-closed, and *expected* outcome for
+  essentially every real `required`-enforcement Lite-track Feature with at
+  least one matched Capability (Risks, below) — an otherwise-identical
+  `advisory`-enforcement Feature resolves normally instead, contributing
+  `[]` (REQ-002, above). This feature does
   not itself propose that schema revision (Non-goals; out of this
   feature's own authority over an already-`Passed`, content-frozen A2
   contract), it only names the prerequisite explicitly, with an owner, so
@@ -356,7 +363,7 @@ document v2 §7/§18.4).
   | `dependency-subprocess-failed` | Any other dependency subprocess this Resolver invokes (`evaluate-predicate`, `generate-registry-digest`) exits non-zero for a reason not already named by a more specific row above (adversarial review "B3 taxonomy" — the closed-enum catch-all for a generic, otherwise-unnamed dependency-subprocess failure) |
   | `dependency-output-malformed` | Any dependency subprocess this Resolver invokes exits zero but its stdout does not parse as the JSON/hex-digest shape that subprocess's own contract promises (non-JSON stdout, a JSON parse error, or well-formed JSON missing a contractually-required key) (adversarial review "B3 taxonomy") |
   | `dsl-warn-on-matched-capability` | **Any** evaluation this invocation performs — any Registry Capability's own `trigger` evaluation against any affected component, matched or unmatched, or any matched Capability's own `conditional_facets[].when` evaluation against any affected component — contains at least one `outcome: "warn"` node anywhere in its evidence tree (design.md Design Decisions states the rationale, layered on top of, and never contradicting, ADR-0020's own DSL-evaluator-level "WARN is not an error" rule). **This condition's own quantifier is "any evaluated branch," matched or unmatched, representative or not** — an earlier revision scoped this row to a single "representative" evaluation per matched Capability only; adversarial review "B2 WARN" found that scoping let a WARN-producing, potentially-false-negative evaluation on any other branch silently aggregate into a clean `false`/`applied: false` outcome, under-resolving the Feature. The diagnostic-id string itself is unchanged for enum stability |
-  | `lite-check-source-undefined` | `workflow.spec_profile == lite` and at least one matched Capability would need to contribute to `required_lite_checks`, but the Registry (Epic A2, content-frozen) carries no field this feature can source that list from (investigation.md INV-019; Dependencies, above, records the Epic A2 schema-revision prerequisite this gap implies for Epic A6) |
+  | `lite-check-source-undefined` | **Narrowed by cross-epic addendum (Epic A6 adversarial verification, finding B5 — requirements.md Dependencies, below).** `workflow.spec_profile == lite` **and** `workflow.capability_enforcement == required` (REQ-003's derived `state`) **and** at least one matched Capability's own Registry entry has its `lite_policy.required_lite_checks` key **absent** (investigation.md INV-019). This trigger is a conjunction of all three conditions, not merely "Lite track with an unsourceable matched Capability": under `advisory` enforcement, an absent `required_lite_checks` key contributes an empty `[]` to that Capability's own share instead of Blocking; a `required`-enforcement Capability whose key is **present** but whose own array is empty is a valid, explicit "no Lite checks required" declaration and does not Block; and zero matched Capabilities is non-Blocking under either enforcement state (Edge Cases, "zero affected components") — this diagnostic's own quantifier is deliberately narrower than REQ-002's other "any"-scoped rows |
   | `output-schema-validation-failed` | This invocation's own staged Facet Manifest/Capability Summary/Context Projection/Resolver Evidence fails a defensive re-validation against its own governing schema before publication (adversarial review "B3 taxonomy"). **If Resolver Evidence itself is the artifact that fails this check, this invocation writes NOTHING to any live path, not even a best-effort, fields-omitted Evidence instance** (B3, revised — an earlier revision wrote such a best-effort instance; adversarial review "B3 best-effort Evidence removed" found it carries no guarantee of re-conforming to its own schema, making it exactly the schema-invalid live artifact this check exists to prevent) |
   | `snapshot-generation-mismatch` | Immediately before this invocation's own publication, a re-read of the Project Context/ownership-source/Registry bytes this invocation snapshotted at steps (b)/(d)/(e) (REQ-001, above), **and a fresh re-derivation of `affected_components`**, no longer matches that snapshot — a generation-mixed input set. **Now fires on an `affected_components` set difference alone, even when every digest including `ownership_digest` still matches** (B8, revised — `ownership_digest` is a blunt, project-wide "the ownership *config* changed" signal, Epic A3 `requirements.md:530-569`, and does not itself change when only the underlying diff shifts which components are affected between this invocation's own two `resolve-component-paths` calls; adversarial review "B8 TOCTOU") |
   | `artifact-publication-failed` | A `write`/`fsync`/`rename` failure caught **in-process** during this invocation's own publication transaction's Prepare/Journal/Commit phases (design.md "Resolver publication transactional bundle contract"). **Rollback of any already-completed rename in the same commit sub-sequence is now journal-based, restoring that target's own PRE-transaction live bytes — never a bare `unlink`, which an earlier revision used and which destroyed pre-existing live bytes with no restore path** (B1, revised, closing that gap; a rollback failure, if the in-process attempt cannot itself fully complete, is recorded in this same diagnostic's own `detail` and safely completed by the next invocation's own crash-recovery scan instead — never a nineteenth diagnostic-id value of its own) |
@@ -424,7 +431,20 @@ document v2 §7/§18.4).
   `{advisory, required}` (resolve normally, recording which of the two
   applied in Resolver Evidence's own `state` field for downstream
   auditability, even though it does not change this invocation's own
-  output content).
+  output content). **This byte-identical guarantee has exactly one named
+  exception (cross-epic addendum, Epic A6 adversarial verification
+  finding B5, requirements.md Dependencies, below): REQ-002's
+  `lite-check-source-undefined` diagnostic, as narrowed by that addendum,
+  is itself keyed to `capability_enforcement == required`, so a
+  Lite-track fixture pair that is otherwise identical except for
+  `advisory` vs. `required` and that also has at least one matched
+  Capability's `lite_policy.required_lite_checks` key absent produces
+  divergent output by design — the `required` member of that pair Blocks
+  while the `advisory` member resolves normally. Every other
+  otherwise-identical `advisory`/`required` fixture pair, including every
+  fixture where no matched Capability's key is absent, remains
+  byte-identical as stated above (AC-016/TEST-016 explicitly exclude this
+  one diagnostic branch from their own scope).**
 
 - **REQ-004** (Resolver Evidence — decision v2 §19's fourth output,
   investigation.md INV-018): Define `contracts/resolver-evidence.schema.
@@ -772,14 +792,14 @@ document v2 §7/§18.4).
 | AC-006 | REQ-001 | For a Feature with two affected components where only one component's properties satisfy a Capability's `trigger`, that Capability is included in `capabilities[]` (the union-match rule, design.md Design Decisions) |
 | AC-007 | REQ-001 | `required_facets`/`conditional_facets`/`resolved_gates`/`capabilities`/`capability_minimum_enforcement`/`lite_eligibility` are each populated per Epic A4's own field-by-field rules (Dependencies, above) with no additional field and no field omitted that Epic A4's schema requires |
 | AC-008 | REQ-001 | The written `facet-manifest.yaml` validates successfully against `contracts/facet-manifest.schema.json` (Epic A4) for a representative multi-Capability, multi-affected-component fixture |
-| AC-009 | REQ-001 | On the Lite track (`workflow.spec_profile == lite`) with a source able to populate `required_lite_checks`, the written `capability-summary.yaml` validates successfully against `contracts/capability-summary.schema.json` (Epic A4), and this same invocation writes neither `facet-manifest.yaml` nor `project-context.resolved.json` (track-exclusive output set, B4) |
-| AC-010 | REQ-002 | Each of the **sixteen** REQ-002 diagnostic-id rows has its own independently-triggerable fixture; no other condition produces a Block (exit `1`) — a closed enumeration of Block causes only, distinct from the CLI usage-error exit path (exit `2`) AC-013 separately fixes (spec-review round-2 remedy, closing a CONTRADICTION finding) |
+| AC-009 | REQ-001 | On the Lite track (`workflow.spec_profile == lite`), across each of the three non-Blocking `required_lite_checks`-sourcing states the cross-epic addendum (Epic A6 adversarial verification finding B5) defines — **advisory-missing** (`capability_enforcement == advisory`, a matched Capability's key absent, contributing `[]`), **required-present-empty** (`capability_enforcement == required`, a matched Capability's key present with an empty array), and **zero-match** (no matched Capability, either enforcement state) — the written `capability-summary.yaml` validates successfully against `contracts/capability-summary.schema.json` (Epic A4), and this same invocation writes neither `facet-manifest.yaml` nor `project-context.resolved.json` (track-exclusive output set, B4) |
+| AC-010 | REQ-002 | Each of the **sixteen** REQ-002 diagnostic-id rows has its own independently-triggerable fixture — for `lite-check-source-undefined` specifically, the **required-missing** state only (`capability_enforcement == required` and a matched Capability's `lite_policy.required_lite_checks` key absent), per the cross-epic addendum narrowing that row's own trigger (REQ-002, above; AC-009 covers this diagnostic's three sibling non-Blocking states) — no other condition produces a Block (exit `1`) — a closed enumeration of Block causes only, distinct from the CLI usage-error exit path (exit `2`) AC-013 separately fixes (spec-review round-2 remedy, closing a CONTRADICTION finding) |
 | AC-011 | REQ-002 | On any Block, no `facet-manifest.yaml`, `capability-summary.yaml`, or `project-context.resolved.json` is written or left partially written (a fixture asserts none of the three paths exists, or is unchanged from its pre-invocation state, after a Blocked run) — including a Block reached only after this invocation had already staged one of the three in memory (REQ-001's own staged-generation/journaled-transactional-publication ordering, B1), and including `post-publication-generation-mismatch`, whose own journal-based rollback restores this same unchanged-from-pre-invocation state even though a rename briefly succeeded (B8) |
 | AC-012 | REQ-002 | Resolver Evidence is written on every Block except `disabled-legacy-invocation` (whose own minimal Evidence record is written instead of the full form) and except `output-schema-validation-failed` when Resolver Evidence itself is the artifact that failed (which writes no live artifact of any kind, B3) |
 | AC-013 | REQ-002 | Exit code contract: `0` on success, `1` on any REQ-002 Block, `2` on a CLI usage error (AC-001) — fixed, tested per value |
 | AC-014 | REQ-002 | Every diagnostic line `resolve-project-context.{py,sh,ps1}` itself emits follows the `capability-resolver: <check-id>: <detail>` format, `<check-id>` drawn only from REQ-002's own sixteen-value enum, and `<detail>` is a canonical, Resolver-owned sentence never quoting a dependency subprocess's own raw stderr verbatim (M8) — this criterion is scoped to `resolve-project-context`'s own diagnostic lines only; `validate-resolver-evidence`'s own, independent check-id enum is AC-021's own concern (Minor "diagnostic namespace" correction) |
 | AC-015 | REQ-003 | `disabled-legacy` (absent `--config` target, or the AGENTS.md-marker/default fallback deriving it) produces `disabled-legacy-invocation` before any Registry/ownership/Context-Projection work is attempted (a fixture confirms no `resolve-component-paths`/Registry-discovery subprocess is ever invoked in this branch) |
-| AC-016 | REQ-003 | A fixture pair identical except for `workflow.capability_enforcement` (`advisory` vs. `required`) produces byte-identical output across this invocation's own track-exclusive output set (whichever of `{facet-manifest.yaml, project-context.resolved.json}` or `{capability-summary.yaml}` applies, plus Resolver Evidence); only Resolver Evidence's own `state` field differs (M5/B4 correction — an earlier revision of this row named all four artifacts as if a single invocation ever produced all of them) |
+| AC-016 | REQ-003 | A fixture pair identical except for `workflow.capability_enforcement` (`advisory` vs. `required`) produces byte-identical output across this invocation's own track-exclusive output set (whichever of `{facet-manifest.yaml, project-context.resolved.json}` or `{capability-summary.yaml}` applies, plus Resolver Evidence); only Resolver Evidence's own `state` field differs (M5/B4 correction — an earlier revision of this row named all four artifacts as if a single invocation ever produced all of them). **This criterion explicitly excludes the one diagnostic branch REQ-002's `lite-check-source-undefined` (as narrowed by the cross-epic addendum, Epic A6 adversarial verification finding B5) does not treat identically across the two states** — a Lite-track fixture pair with a matched Capability's `lite_policy.required_lite_checks` key absent diverges by design (`required` Blocks, `advisory` resolves), and is covered instead by AC-009/AC-010's own three-non-Blocking-plus-one-Blocking matrix |
 | AC-017 | REQ-004 | `contracts/resolver-evidence.schema.json` exists, is valid draft-07, and its `$id` matches every other `contracts/*.schema.json`'s convention |
 | AC-018 | REQ-004 | `capability_evaluations[]` includes **exactly** one entry for **every** Registry Capability, not only matched ones (exact-set, not merely non-duplicated, B6) — a fixture with an unmatched Capability confirms its own entry is present with `matched: false` and a `trigger_evaluations[]` entry for every affected component; a **separate** zero-affected-component fixture (M9 correction) confirms every Capability's own `trigger_evaluations[]` is legitimately `[]` in that one case, without contradicting this row's own general "one entry per affected component" rule |
 | AC-019 | REQ-004 | A matched Capability's `capability_evaluations[]` entry carries **exactly** one `conditional_facet_evaluations[]` entry per `conditional_facets[]` array *entry* the Registry declares for it — keyed by `declaration_index` (0-based position), **never** collapsed by distinct `facet` name (B7 predicate-instance keying; a Capability declaring the identical `facet` twice produces two entries, exact-set/cardinality bound to declaration count), each with exactly one `evaluations[]` element per affected component; an unmatched Capability's entry carries the key omitted entirely; `matched`/`applied` are each bidirectionally consistent with their own governing array (B6) |
@@ -940,18 +960,29 @@ document v2 §7/§18.4).
    staged (**never** a Facet Manifest or a published Context Projection on
    this track, B4) → the journaled publication transaction writes
    `capability-
-   summary.yaml` and Resolver Evidence only → exit 0. (Given
-   investigation.md INV-019's confirmed gap, this workflow currently has a
-   real-world instance only when zero matched Capabilities need a Lite
-   check — e.g. the zero-affected-component Edge Case, below — see Risks
-   and Dependencies' own Epic A6 prerequisite, B5.)
+   summary.yaml` and Resolver Evidence only → exit 0. (Narrowed by
+   cross-epic addendum, Epic A6 adversarial verification finding B5: a
+   "resolvable source" now includes an **absent** key under `advisory`
+   enforcement (contributes `[]`) and a **present-but-empty** key under
+   `required` enforcement, in addition to the zero-matched-Capability
+   case — this workflow therefore has a real-world instance whenever the
+   invocation is `advisory`-enforcement, or is `required`-enforcement
+   with no matched Capability whose key is absent — not only the
+   zero-affected-component Edge Case, below; see Risks and Dependencies'
+   own Epic A6 prerequisite, B5, for the one state that remains blocked.)
 3. **Lite-track resolve, unresolvable check source**: as workflow 2, but
-   at least one matched Capability's `required_lite_checks` contribution
-   cannot be sourced from the Registry → Block,
+   `capability_enforcement == required` **and** at least one matched
+   Capability's `lite_policy.required_lite_checks` key is absent
+   (cross-epic addendum, Epic A6 adversarial verification finding B5,
+   narrowing this workflow from an earlier revision's broader "any
+   matched Capability lacking a source" trigger) → Block,
    `lite-check-source-undefined`, at the track-branch step, before any
    commit — Resolver Evidence written recording the diagnostic, no
    `capability-summary.yaml` (or `facet-manifest.yaml`/`project-context.
-   resolved.json`) ever reaches a live path → exit 1.
+   resolved.json`) ever reaches a live path → exit 1. The
+   otherwise-identical `advisory`-enforcement fixture does not reach this
+   workflow at all — it resolves under workflow 2 instead, contributing
+   `[]`.
 4. **`disabled-legacy` invocation (a CLI-misuse condition, not a designed
    pipeline state — M4)**: a caller invokes the Resolver against a project
    with no `project-context.yaml` (or the AGENTS.md-marker/default
@@ -1194,27 +1225,37 @@ document v2 §7/§18.4).
 
 ## Risks
 
-- **Lite-track resolution is effectively Blocked for every real,
-  non-trivial invocation today** (investigation.md INV-019): because Epic
-  A2's own, already-content-frozen Registry schema carries no field
-  `required_lite_checks` can be sourced from, REQ-002's
-  `lite-check-source-undefined` condition fires for essentially any
-  Lite-track Feature with at least one matched Capability that would
-  otherwise need to contribute a Lite check. This is the correct,
-  fail-closed consequence of a real, confirmed cross-epic gap — not a
-  design flaw of this feature — but it means Epic A6 (Lite統合) cannot
-  usefully build on this feature's Capability Summary output until either
-  a future Epic A2 Registry-schema revision adds the missing field, or a
-  future ADR names a different source. **This is now an explicit, owned
-  prerequisite for Epic A6, not merely a named risk** (Dependencies,
-  above, adversarial review "B5 lite checks") — this package surfaces the
-  gap explicitly (investigation.md INV-019, Dependencies) rather than
-  papering over it with a fabricated source (this package's own Test
-  Strategy accordingly contains no synthetic-Registry-extension fixture
-  that would not itself pass `validate-capability-registry`, B5), so that
-  the Registry-schema revision this fix actually requires is visible at
-  Epic A5's own spec-review time, not discovered later during Epic A6's
-  own work.
+- **Lite-track resolution under `required` enforcement is Blocked for
+  every real, non-trivial invocation with an unsourced matched Capability
+  today; `advisory`-enforcement Lite resolution is not** (investigation.md
+  INV-019, narrowed by cross-epic addendum, Epic A6 adversarial
+  verification finding B5): because Epic A2's own, already-content-frozen
+  Registry schema carries no field `required_lite_checks` can be sourced
+  from, a matched Capability's own `lite_policy.required_lite_checks` key
+  is absent for essentially every real Registry entry today. Under
+  `capability_enforcement == required`, REQ-002's `lite-check-source-
+  undefined` condition fires on that absence — the correct, fail-closed
+  consequence of a real, confirmed cross-epic gap, not a design flaw of
+  this feature. Under `capability_enforcement == advisory`, the identical
+  absence is **not** a Block — it contributes an empty `[]` to that
+  Capability's own `required_lite_checks` share, and the invocation
+  resolves normally (REQ-002, above) — so an `advisory`-enforcement Lite
+  Feature can usefully exercise this feature's Capability Summary output
+  today, before any Epic A2 Registry-schema revision lands; only a
+  `required`-enforcement Lite Feature with at least one such matched
+  Capability remains blocked until that revision (or a future ADR naming
+  a different source) exists. **The Epic A2 Registry-schema revision
+  remains an explicit, owned prerequisite for Epic A6's
+  `required`-enforcement Lite path specifically, not for Epic A6 as a
+  whole** (Dependencies, above, adversarial review "B5 lite checks") —
+  this package surfaces the gap explicitly (investigation.md INV-019,
+  Dependencies) rather than papering over it with a fabricated source
+  (this package's own Test Strategy accordingly contains no
+  synthetic-Registry-extension fixture that would not itself pass
+  `validate-capability-registry`, B5), so that the Registry-schema
+  revision this fix actually requires, and its scope narrowed to
+  `required` enforcement only, is visible at Epic A5's own spec-review
+  time, not discovered later during Epic A6's own work.
 - **The multi-component trigger-matching rule and the cross-Capability
   facet-name aggregation rule (REQ-001/AC-006/AC-043) are this feature's
   own new orchestration decisions**, not something any upstream ADR or
