@@ -235,6 +235,17 @@ jobs:
         shell: pwsh
         run: ./tests/evaluate-predicate.tests.ps1
 
+      - name: Test registry-discovery suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/registry-discovery.tests.sh
+
+      - name: Test registry-discovery suite (pwsh)
+        shell: pwsh
+        run: ./tests/registry-discovery.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

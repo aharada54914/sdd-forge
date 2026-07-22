@@ -4,6 +4,32 @@
 
 ### 追加
 
+- **Registry discovery contract + vendored-copy packaging (Issue #190,
+  epic-190-a2-capability-registry T-003)**: ADR-0025 の三段階
+  script-relative 探索(`plugins/sdd-quality-loop/scripts/registry_discovery.py`、
+  T-004/T-005 が import する共有 helper)を実装。①自スクリプトの
+  symlink 解決済み実パスから `../contracts/<filename>` のパッケージ済み
+  コピーを最優先(ランタイム環境変数は一切参照しない)、②`git rev-parse
+  --show-toplevel`(`git` 不在時は `.git` 上方探索)フォールバック、
+  ③アーティファクトごとの独立バージョンチェック(Registry:
+  `schema=="capability-registry/v1"`、schema ファイル: `$schema` 存在+
+  `$id` 一致、catalog: `schema=="lite-upgrade-reason-catalog/v1"`)失敗時は
+  両方の試行パスを名指しした fail-closed 診断で非ゼロ終了(Security
+  Boundary B4)。併せて `vendor-capability-registry.{py,sh,ps1}`
+  (`generate-guard-invariants.py --check` と同型の no-write/sha256 比較
+  `--check` モード)を新規追加し、`contracts/*` の canonical 3ファイルを
+  `plugins/sdd-quality-loop/contracts/` へ実際にベンダリング。新スイート
+  `tests/registry-discovery.tests.sh` / `.ps1`(各21 checks)は TDD
+  Red→Green で実装(RED: 意図的に壊れた stub に対し 15/21 失敗確認 →
+  GREEN: 21/21 合格)、3ランタイム分の installed-layout fixture(うち1件は
+  symlink 経由起動で symlink 解決も検証)・3件のバージョン不一致
+  fixture・neither-location-resolves fixture・vendored-copy-drift
+  fixture を含む。証跡は
+  `specs/epic-190-a2-capability-registry/verification/T-003/`
+  配下の `{red,green}-{sh,ps1}.log`。`tests/run-all.sh`/`.ps1` へ
+  自スイート登録、`.github/workflows/test.yml` は直接書き込まず
+  human-copy 経由でステージ(T-002 の候補に追記)。詳細は
+  `reports/implementation/epic-190-a2-capability-registry/T-003.md` を参照。
 - **Predicate DSL evaluator (Issue #190, epic-190-a2-capability-registry
   T-002)**: `plugins/sdd-quality-loop/scripts/evaluate-predicate.{py,sh,ps1}`
   を新規追加(ADR-0020 完全実装、Python master + thin sh/ps1 wrapper、
