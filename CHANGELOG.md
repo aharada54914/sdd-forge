@@ -4,6 +4,38 @@
 
 ### 追加
 
+- **git-diff basis collector (Issue #191, epic-191-a3-path-ownership
+  T-002)**: `plugins/sdd-quality-loop/scripts/resolve-component-paths.{py,ps1}`
+  に `--source-rev`/`--target-rev`/`--include-untracked`/`--repo-root` を
+  追加し、実 git 差分から変更パス集合を収集する経路を新設(T-001 の
+  `--changed-paths-file`/stdin 経路は `--target-rev` 省略時の代替として
+  存続)。`git rev-parse --verify <rev>^{commit}` で source/target を
+  commit OID に解決してから `git merge-base` を計算し、解決不能な rev や
+  共通祖先のない履歴は fail-closed。`baseline..worktree`(staged +
+  unstaged)+ `git ls-files --others --exclude-standard -z`(untracked)を
+  それぞれ一度だけ収集し、全ての path 列挙コマンドを NUL 区切りの生バイト
+  として解析(改行分割は一切行わない、不正 UTF-8 バイト列は fail-closed)。
+  リネームは固定閾値(類似度 50%)・固定 `diff.renameLimit`(1000)・
+  `--no-ext-diff` で追跡し、rename 前後のパスを独立に分類、component
+  境界を跨ぐリネームは `diff_basis.renames[].cross_component: true` として
+  明示。submodule/symlink は `--ignore-submodules=dirty` により
+  「dirty だが pointer 未変更」は完全に無視、gitlink OID 変更・symlink
+  自身の target-text 変更は報告、symlink が指す先の内容のみの変更は
+  symlink 自身のパスには一切現れない(実ディスポーザブル fixture リポジトリ
+  で四ケース全て検証)。単一書き手/TOCTOU スナップショット(HEAD OID +
+  ポーセリン status のハッシュ)を収集開始前後で比較し、不一致は1回だけ
+  リトライしてから fail-closed。新スイート
+  `tests/component-path-diff-basis.tests.sh` / `.ps1`(TEST-019〜025、
+  test 実行時に mktemp 配下へ使い捨て git リポジトリを作成、本リポジトリ
+  自身の履歴は一切使わない)を追加し、両ランタイムで17/17 green
+  (Epic A1/A4 への外部依存なし、T-001/T-005と異なりこのタスク自体は
+  完全 green)。`tests/run-all.sh` / `.ps1` へ自己登録。R-10 保護ファイル
+  である `.github/workflows/test.yml` への human-copy staging は
+  T-001 と同一の Claude Code PreToolUse フック(`sdd-hook-guard.sh`)に
+  よりブロックされ本コミットには含まれていない
+  (`reports/implementation/epic-191-a3-path-ownership/T-002.md` の
+  Unresolved Items 参照、既報告のブロッカーの再現であり新規事象ではない)。
+
 - **cross-epic cross-cutting seed inventory 検証 (Issue #191,
   epic-191-a3-path-ownership T-005)**: `tests/component-path-resolver.tests.sh`
   / `.ps1`(T-001既登録のスイート、新規スイート・新規 `tests/run-all.sh`
