@@ -356,6 +356,10 @@ Commit B (documentation):
   this task authors is a hand-crafted instance validated directly
   against this task's own schema document.
 
+### Blockers
+
+None
+
 ---
 
 ## T-002 Author `resolve-project-context.{py,sh,ps1}`'s evaluation pipeline (steps 0-13)
@@ -646,6 +650,10 @@ Commit B (documentation):
   design-only (Non-goals; see "Deferred, Not Scheduled", Global
   Constraints).
 
+### Blockers
+
+T-001
+
 ---
 
 ## T-003 Layer the Resolver publication transactional bundle contract onto `resolve-project-context.{py,sh,ps1}`
@@ -863,6 +871,10 @@ Commit B (documentation):
   inside T-002's already-registered `resolve-project-context-block`
   suite.
 
+### Blockers
+
+T-002
+
 ---
 
 ## T-004 Author `validate-resolver-evidence.{py,sh,ps1}` and its provenance-binding suite
@@ -1045,6 +1057,10 @@ Commit B (documentation):
   own, content-frozen-once-passed deliverable) — `schema-invalid` reads
   it, never edits it.
 
+### Blockers
+
+T-001, T-003
+
 ---
 
 ## T-005 Author the dual-runtime parity and determinism suite
@@ -1181,6 +1197,10 @@ Commit B (documentation):
   built.
 - The metamorphic completeness suite (T-006).
 
+### Blockers
+
+T-002, T-003, T-004
+
 ---
 
 ## T-006 Author the metamorphic completeness suite
@@ -1316,3 +1336,7 @@ Commit B (documentation):
   suite (design.md Test Strategy item 10) — deferred to a future,
   not-yet-scheduled task that also edits `sdd-bootstrap-interviewer/
   SKILL.md` (Global Constraints, "Deferred, Not Scheduled").
+
+### Blockers
+
+T-002, T-003, T-004
