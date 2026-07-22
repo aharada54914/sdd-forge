@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase3",
+  "attempt": 2,
+  "round": 1,
+  "reviewer_a_run_id": "RUN-epic136phase3-spec-a2r1-a-seq0344",
+  "reviewer_b_run_id": "RUN-epic136phase3-spec-a2r1-b-seq0345",
+  "reviewer_a_host_session_id": "SESS-spec-a2r1-a-epic136phase3-0344",
+  "reviewer_b_host_session_id": "SESS-spec-a2r1-b-epic136phase3-0345",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

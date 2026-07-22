@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase3-spec-a2r1-b-seq0345",
+  "host_session_id": "SESS-spec-a2r1-b-epic136phase3-0345",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-2/round-1/integrated-summary.json",
+      "sha256": "18e24d98f00f6caeff66b85c590da4b76a662e2c9ad2131186c47b68fa5f20e4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-2/round-1/precheck-result.json",
+      "sha256": "0a541d389a8efe5872934779bb43ceb4789d2edd2ba1ff205fed574d7481ff53"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/requirements.md",
+      "sha256": "aca0ad29f0cf629cdb23674f9a12d864ae78e1eb210fc0aa932ec60787925979"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Field Definitions (specs/epic-136-phase3/requirements.md:493-538) concretely defines guard-runtime surface, tool_name shape, PATH-restricted subshell, decision parity, combined suite, human-copy staging, and preventive restructuring, and every AC-001..AC-023 (specs/epic-136-phase3/acceptance-tests.md:15-37) enumerates named sub-cases (AC-005's 2, AC-007's 8, AC-008/9/10's 12+1) so two implementers would not diverge on scope. Advisory (non-blocking): 'Streams A, B, and D are independently shippable' (requirements.md:611) sits alongside 'the feature PR branch' (singular, requirements.md:556) and the mandatory 'ONE shared staged batch' spanning A+B+D's test.yml edits (Non-goals, requirements.md:298-308); the document does not state whether independent shippability means separate PRs merged before the joint test.yml batch lands or code landing in one PR with CI-registration timing gated by the joint batch. AC-020's fail-closed self-check (acceptance-tests.md:34) already makes the registration-timing behavior itself unambiguous, so this does not block downstream implementation."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Verified both flagged consistency properties hold document-wide via direct grep of requirements.md and acceptance-tests.md (my only in-scope spec artifacts). (a) REQ-004/Stream D is stated as a job-count-preserving, needs:-byte-unchanged [deterministic] step-prefix lane marking identically in Overview (requirements.md:120-127), Goals REQ-004 (:231-244), Non-goals (:289-292), AC-016/017/018 (acceptance-tests.md:30-32), Main Workflows item 4 (:595-607), OQ-5 (:743-752), and the Risks Low bullet (:795-807); every 'job split' occurrence in requirements.md (lines 126,238,243,534,748,751) is negated ('not a job split', 'never a job split', 'no job to split') with only a hypothetical future out-of-scope split referenced. (b) the test.yml human-copy batch cardinality is stated as the ONE shared staged batch for Streams A+B+D, with design.md scoped to internal ordering only, identically in Non-goals (:298-308), Main Workflows items 2 (:573-583) and 4 (:595-607), Roles and Permissions (:550-556), OQ-4 (:733-742), the Risks Medium bullet (:771-780), and AC-020 (acceptance-tests.md:34); no surviving second-batch/hedged-batch language found. BL-001's required-checks needs: [test, cli-hook-enforcement] pass/fail semantics (investigation.md:826-846) is preserved identically wherever cited. No other cross-section conflict found between Goals/Non-goals/Constraints/Acceptance Criteria."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "WFI-014 branch enumeration is applied literally: REQ-001's 5 PATH-availability branches + 1 precedence-order branch are split into TEST-001..006, each independently PASS/FAIL-reported (acceptance-tests.md:15-20), and TEST-007 separately enumerates 2 emit modes x 4 branches = 8 named sub-cases (:21); REQ-002's 3-class x 4-runtime x 3-tool_name-shape matrix is enumerated as 12 named fixture+assertion pairs per class in TEST-008/009/010 (36 leaf assertions total, :22-24), plus AC-010/TEST-010's dedicated control sub-case guarding against false-DENY (:24). Fail-closed negative paths (AC-005 deny_unavailable, AC-008/009/010 denials) and boundary/false-negative guards (Edge Cases, requirements.md:621-627, on PATH fixtures accidentally admitting a real interpreter) are explicit; SKIP semantics for missing runtimes are a named, non-silent SKIP (acceptance-tests.md Notes, :63-70), not a silent PASS. Minor advisory: unlike AC-022's explicit negative check that Stream C's CHANGELOG entry is ABSENT while Blocked (acceptance-tests.md:36), there is no symmetrical explicit AC confirming tests/workflow-scenarios/ itself does not yet exist while Stream C is Blocked \u2014 a minor coverage asymmetry, non-blocking given REQ-003/AC-012..015 are already marked Blocked with no suite file expected (acceptance-tests.md:8,26-29)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All 5 listed Assumptions (requirements.md:668-706) are tied to investigation.md's Re-verification note findings and each carries an explicit RE-VERIFY-at-implementation-time instruction (WFI-013 discipline) rather than being silently carried forward as fact. Every Open Question (OQ-1..OQ-6, requirements.md:710-760) is marked RESOLVED with a stated rationale; OQ-2 converts the one genuinely unresolved external dependency (ADR-0010 Status: Proposed) into an explicit, testable Blocker on Stream C's implementation (Non-goals :279-284, Roles and Permissions :557-559) rather than leaving it as a silent assumption, matching the check's 'explicitly marked as decision needed' branch precisely."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Not SKIP \u2014 an approval boundary is clearly in scope and made testable. (1) The R-10 protected .github/workflows/test.yml human-copy staging boundary (Roles and Permissions, requirements.md:548-556) is backed by AC-020's fail-closed self-check ('the live file's grep-based self-check for each new suite's basename is red until a human applies the staged candidate \u2014 the designed fail-closed state, no staged-candidate fallback', acceptance-tests.md:34) and AC-017's RED-then-GREEN text-marker self-check for Stream D's staged candidate (acceptance-tests.md:31). (2) The ADR-0010 Status: Accepted human-decision boundary gating Stream C is stated as owned solely by the human maintainer, never by spec or agent (requirements.md:557-559), with a concrete, checkable re-verification mechanism ('docs/adr/0010-...md's Status: line is the single source of truth', Edge Cases :641-645). The GitHub branch-protection required-status-check configuration is correctly scoped out of testability since it is 'outside this repository's tracked files' (investigation.md:855-856; requirements.md Risks Low bullet :798-807), consistent with the calibration's guard against requiring evidence the repo cannot produce."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every AC-NNN maps 1:1 to a TEST-NNN with an explicit Test Type/Target (acceptance-tests.md:13-37); every REQ traces to Goals with file:line evidence from investigation.md; Field Definitions (requirements.md:493-538) pre-resolves terms a design reviewer would otherwise have to invent (e.g. 'preventive restructuring', 'combined suite'); Non-goals explicitly fence off task-decomposition artifacts (tasks.md/traceability.md/traceability.json, :309-313) and Phase 4/design-sync scope (:293-297); Roles and Permissions and Security Boundaries name concrete actors, trust boundaries, and data classifications (:540-664) rather than leaving them for a design reviewer to infer. Stream C's Blocked scope is explicitly deferred without a dangling requirement (Non-goals :279-284) \u2014 a design reviewer for Streams A/B/D has no missing product-behavior decision left to invent."
+    }
+  ]
+}
