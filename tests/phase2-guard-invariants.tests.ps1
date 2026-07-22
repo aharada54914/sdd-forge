@@ -924,6 +924,31 @@ if ((Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) -and ($env:SDD_PHAS
     Bad 'TEST-013 isolated bootstrap fixture cannot run without its staged validator'
 }
 
+# WFI-016 followup (issue #207): every staged human-copy target must be
+# byte-identical to its live counterpart (twin of the bash sync check).
+$syncOk = $true
+$syncCanonical = Join-Path $bootstrapStage 'plugins/sdd-quality-loop/references/guard-invariants.json'
+try {
+    $syncTargets = @((Get-Content -Raw -LiteralPath $syncCanonical | ConvertFrom-Json).phase2_human_copy_targets)
+    if ($syncTargets.Count -eq 0) { $syncOk = $false }
+    foreach ($syncTarget in $syncTargets) {
+        $syncLive = Join-Path $root $syncTarget
+        $syncStaged = Join-Path $bootstrapStage $syncTarget
+        if (-not (Test-Path -LiteralPath $syncLive -PathType Leaf) -or -not (Test-Path -LiteralPath $syncStaged -PathType Leaf)) {
+            Write-Host "  missing: $syncTarget"
+            $syncOk = $false
+            continue
+        }
+        $syncLiveHash = (Get-FileHash -LiteralPath $syncLive -Algorithm SHA256).Hash
+        $syncStagedHash = (Get-FileHash -LiteralPath $syncStaged -Algorithm SHA256).Hash
+        if ($syncLiveHash -cne $syncStagedHash) {
+            Write-Host "  out of sync: $syncTarget"
+            $syncOk = $false
+        }
+    }
+} catch { $syncOk = $false }
+if ($syncOk) { Ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' } else { Bad 'WFI-016 staged targets are byte-identical to live (no stale staging)' }
+
 Write-Host "phase2-guard-invariants.tests.ps1: $passCount passed, $failCount failed"
 if ($failCount -gt 0) { exit 1 }
 exit 0

@@ -251,5 +251,38 @@ else
   ok 'Node denies an unconsumed fixed-module export'
 fi
 
+# WFI-016 followup (issue #207): every staged human-copy target must be
+# byte-identical to its live counterpart. The reviewed batch travels WITH its
+# application in the same change, so any divergence here is stale staging (the
+# 2b8a52f class that nearly reverted ten commits of CI definition) and must be
+# caught at commit time, not at the next apply.
+sync_ok=1
+sync_canonical="$stage/plugins/sdd-quality-loop/references/guard-invariants.json"
+if [[ -f "$sync_canonical" ]]; then
+  sync_targets="$(python3 - "$sync_canonical" <<'PY'
+import json, sys
+for t in json.load(open(sys.argv[1], encoding="utf-8"))["phase2_human_copy_targets"]:
+    print(t)
+PY
+)"
+  while IFS= read -r sync_target; do
+    [[ -n "$sync_target" ]] || continue
+    if [[ ! -f "$root/$sync_target" || ! -f "$stage/$sync_target" ]]; then
+      echo "  missing: $sync_target"
+      sync_ok=0
+      continue
+    fi
+    staged_digest="$(sha256sum "$stage/$sync_target" | awk '{print $1}')"
+    live_digest="$(sha256sum "$root/$sync_target" | awk '{print $1}')"
+    if [[ "$staged_digest" != "$live_digest" ]]; then
+      echo "  out of sync: $sync_target"
+      sync_ok=0
+    fi
+  done <<< "$sync_targets"
+else
+  sync_ok=0
+fi
+[[ "$sync_ok" == 1 ]] && ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' || bad 'WFI-016 staged targets are byte-identical to live (no stale staging)'
+
 echo "phase2-guard-invariants.tests.sh: $pass passed, $fail failed"
 [[ "$fail" -eq 0 ]]
