@@ -3168,6 +3168,15 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase3-0352",
       "previous_record_sha256": "eb7e06da31e398034442de70f951410c830f48cea5b25fec8fbec81886f4ef93",
       "record_sha256": "92085bf9645ef6d949b9979257650dfe7c4bdc3803cb03b73d28e76acbdf1c7f"
+    },
+    {
+      "sequence": 353,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-136-phase3-task-task-reviewer-b-seq0353",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase3-0353",
+      "previous_record_sha256": "92085bf9645ef6d949b9979257650dfe7c4bdc3803cb03b73d28e76acbdf1c7f",
+      "record_sha256": "172760b0eb7a652b225baebd17bc4c99c60ab3da5e0c88898ba6cc45c42baa6a"
     }
   ]
 }
