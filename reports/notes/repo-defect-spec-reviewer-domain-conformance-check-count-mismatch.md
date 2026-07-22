@@ -136,3 +136,38 @@ round) stays self-consistent. Reviewer-b's own round-2 launch prompt is
 built by reading `spec-reviewer-b.md`'s own "Output Format" section
 directly and quoting only its actual text (7-check order, ending
 `DOMAIN-CONFORMANCE`), never instructing it to omit anything.
+
+## Update (2026-07-23): the predicted latent risk is now confirmed real, blocking round 3
+
+The "Mechanical confirmation" section above predicted this would only
+matter "for a hypothetical future round 3 or attempt-3 reset." Round 3
+became real the same session: `spec-review-precheck.sh
+epic-195-a7-compatibility 2 3 --edit-summary="..."` was run against the
+live, remedied spec (AC-034 enumeration fix, commit `556034c`) and
+**fails**, before creating any round-3 directory (`ERROR:
+spec-review-precheck: prior round contract is malformed or does not
+require work`).
+
+Root cause precisely isolated (not assumed): `validate_contract` (called
+at `round > 1`, line 201) calls `validate_reviewer_output` on round 2's
+own `reviewer-a.json`, comparing `[.checks[].id] | join(",")` against the
+hardcoded 6-ID `expected_ids` string. Round 2's actual value is
+`REQ-TESTABILITY,GOAL-AC-TRACE,AC-OBSERVABLE,SCOPE-BOUNDARY,
+CONSTRAINTS-EXPLICIT,RISK-VALIDATION-SURFACE,DOMAIN-CONFORMANCE` (7 IDs);
+the hardcoded expectation has only the first 6 — exact-string-equality
+fails. This is a **different root cause** from attempt-2/round-1's
+reset-hash-staleness defect (round 2 never used `--reset`, and its own
+`requirements_sha256`/`acceptance_sha256` are internally consistent
+throughout) — same failure message, same general "review-loop gate script
+drift" class, distinct mechanism.
+
+**This orchestrator did not self-authorize a second manual-precheck
+fallback for round 3.** The human's own 2026-07-22 authorization (recorded
+verbatim in `reports/spec-review/epic-195-a7-compatibility/attempt-2/round-2/manual-precheck-note.md`)
+was explicit and narrow: *"this manual-precheck deviation for
+epic-195-a7-compatibility attempt-2/round-2 only -- not a standing
+exemption from issue #61."* Round 3 is a different round, blocked by a
+different defect; extending that authorization to cover it without asking
+again would be exactly the "generalize one approval to later actions"
+pattern this orchestrator's own operating rules prohibit. Escalated to the
+coordinator/human for a fresh decision rather than proceeding.
