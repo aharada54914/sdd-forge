@@ -1038,15 +1038,23 @@ blocker (see that task's Blockers section for the parser-library
 question) and land/merge its canonicalizer; only then can T-005 resume
 from its own Scope's Red step.
 
+Cross-reference: per coordinator decision 2026-07-22 (option (a),
+conditional), T-006 proceeded ahead of this task's Blocked state under
+the Global Constraints' serialized-order rule, since T-005 made zero
+edits to any shared file before blocking -- see T-006's own
+implementation report for the deviation record and the required
+future-task obligation (insert T-005's shared-file registration between
+T-004's and T-006's entries once T-005 unblocks and lands).
+
 ---
 
 ## T-006 Author the projection generator and stage the protected-file registration
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/190
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T18:37:01Z)
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: high
 
@@ -1246,6 +1254,27 @@ a direct edit.
 ### Blockers
 
 T-001, T-002, T-003, T-004, T-005
+
+(T-005 satisfied for shared-file-serialization purposes only, per
+coordinator decision 2026-07-22 option (a) -- see this task's own
+implementation report for the deviation record and the future-task
+obligation this creates for T-005.)
+
+PARTIALLY BLOCKED (Done When #2 only, 2026-07-22): the six-file
+guard-invariants protected-file registration bundle is staged under
+`human-copy/` and independently verified mechanically self-consistent
+(`generate-guard-invariants.py --check` exits 0 against the staged
+overlay in an isolated tree; the live real files are confirmed
+byte-unchanged), but is not recommended for a routine human `cp` --
+`PHASE2_TARGETS`/`guard-invariants.json` are shared, repository-wide
+constants that at least one other in-flight epic
+(`feature/epic-189-a1-project-context`, its own future T-009) will also
+need to extend; applying either epic's whole-file-replacement candidate
+without a human coordination decision on sequencing risks silently
+dropping the other epic's registration. Full detail in this task's own
+implementation report (Summary, Unresolved Items). The core projection
+generator, its test suite, and this feature's ordinary `test.yml`/
+`MANIFEST` staging are unaffected and complete.
 
 ---
 

@@ -257,6 +257,17 @@ jobs:
         shell: pwsh
         run: ./tests/validate-capability-registry.tests.ps1
 
+      - name: Test generate-gate-capabilities suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/generate-gate-capabilities.tests.sh
+
+      - name: Test generate-gate-capabilities suite (pwsh)
+        shell: pwsh
+        run: ./tests/generate-gate-capabilities.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
