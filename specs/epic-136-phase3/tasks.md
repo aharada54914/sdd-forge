@@ -159,7 +159,7 @@ directly (design.md Protected-File Statement).
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/123
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T12:11:46Z)
 
 Status: Planned
 
@@ -371,7 +371,7 @@ independent.")
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/124
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T12:11:46Z)
 
 Status: Planned
 
@@ -576,7 +576,7 @@ independent.")
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/126
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T12:11:46Z)
 
 Status: Planned
 
@@ -811,7 +811,7 @@ blockers and remains true.)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/125
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T12:11:46Z)
 
 Status: Planned
 
