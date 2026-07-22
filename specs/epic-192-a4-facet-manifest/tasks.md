@@ -711,7 +711,8 @@ Commit B (documentation):
   non-conformant schema/validator, including a still-array-shaped
   `components` case) and GREEN (the full suite), captured in
   `specs/epic-192-a4-facet-manifest/verification/T-003/{red,green}-sh.log`.
-  An independent quality-gate verdict records PASS.
+  An independent quality-gate verdict (a named reviewer distinct from the
+  implementing agent) records PASS.
 
 ### Out of Scope
 
@@ -912,7 +913,8 @@ Commit B (documentation):
   fixture against a deliberately incorrect comparator) and GREEN (the full
   branch table + argument-error class against the correct comparator),
   captured in `specs/epic-192-a4-facet-manifest/verification/T-004/
-  {red,green}-sh.log`. An independent quality-gate verdict records PASS.
+  {red,green}-sh.log`. An independent quality-gate verdict (a named
+  reviewer distinct from the implementing agent) records PASS.
 
 ### Out of Scope
 
