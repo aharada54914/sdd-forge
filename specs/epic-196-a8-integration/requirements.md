@@ -163,13 +163,19 @@ fixtures, or registry edits are produced by this task; `tasks.md` and
   (INV-022), never a new, competing normalization rule.
 - **REQ-005** (Known environment-difference detection: installed cache vs.
   repository drift): specify a detection check comparing a CLI-installed
-  plugin cache (`${XDG_DATA_HOME:-$HOME/.local/share}/sdd-plugins` or the
-  `--install-root` override, INV-016) against the repository's own current
-  `plugins/**` source, modeled on the real, already-occurred drift class
-  `AGENTS.md`'s WFI-004 rule documents (issue #86, "shipped role
-  definitions" diverging from "the validator's canonical schema", INV-017)
-  — so that class of divergence is caught by a pre-flight/CI check rather
-  than only discovered downstream, the next time it recurs.
+  plugin cache (platform-correct default per install.sh/install.ps1's own
+  actual install-root convention, or the `--install-root` override,
+  INV-016) against the repository's own current install/uninstall-touched
+  source surface — `plugins/**`, the Codex agent role TOML files
+  (`~/.codex/agents/sdd-*.toml`), the Codex `~/.codex/config.toml` MCP
+  delimited block, and the three hook config files (INV-016) — this
+  broadened scope resolved and fixed by design.md's own Coverage Scope
+  table, never narrowed back to `plugins/**` alone, modeled on the real,
+  already-occurred drift class `AGENTS.md`'s WFI-004 rule documents (issue
+  #86, "shipped role definitions" diverging from "the validator's
+  canonical schema", INV-017) — so that class of divergence is caught by
+  a pre-flight/CI check rather than only discovered downstream, the next
+  time it recurs.
 - **REQ-006** (Automated vs. manual verification boundary): specify a
   single classification — for every check REQ-001 through REQ-005 name —
   of whether it is fully automatable today, automatable pending a Phase
@@ -458,9 +464,17 @@ a weaker, unlogged substitute.
 - AC-023: The REQ-005 drift check reports a distinct, non-zero-exit
   diagnostic (design.md names it) when divergence is detected, and a
   distinct, zero-exit pass when the installed cache and repository source
-  agree — never a silent pass on divergence and never a hard failure when
-  no install root exists at all (a "not installed" state is independently
-  distinguished from a "installed but drifted" state).
+  agree — never a silent pass on divergence (a "not installed" state is
+  independently distinguished from an "installed but drifted" state).
+  This "not installed never hard-fails" behavior holds only in the drift
+  check's own standalone `preflight` mode; run in `verify` mode as
+  REQ-002's own post-install verify sub-step (AC-024), a "not installed"
+  result is instead a `FAIL`, because a verify step by construction runs
+  after an `install` phase already claimed success, so a
+  `not_installed` result there means path resolution or the copy itself
+  silently failed. design.md's own two-mode schema (`mode: preflight` vs.
+  `mode: verify`) is this AC's own normative disambiguation, never a
+  design-only elaboration this AC's own text contradicts.
 - AC-024: The REQ-005 drift check is wired as a verify-step addition to
   REQ-002's own install→verify→uninstall→verify cycle (design.md), rather
   than specified as an unrelated, standalone check with no lifecycle
@@ -681,10 +695,15 @@ a weaker, unlogged substitute.
   until it passes — a negative live-host result is itself load-bearing
   evidence this package's design.md Test Strategy must treat as
   actionable, not as noise.
-- An installed-cache drift check (REQ-005) run against an install root
-  that does not exist at all (never installed) is a distinct, non-failing
-  "not installed" result (AC-023), never conflated with a "drifted"
-  result.
+- An installed-cache drift check (REQ-005) run in standalone `preflight`
+  mode against an install root that does not exist at all (never
+  installed) is a distinct, non-failing "not installed" result (AC-023),
+  never conflated with a "drifted" result. The identical "not installed"
+  state observed in `verify` mode (REQ-002's own post-install verify
+  sub-step, AC-024) is instead a `FAIL` — a verify step that finds no
+  install root at all after its own `install` phase claimed success
+  indicates the install itself silently did not happen, never a
+  non-failing state in that mode.
 
 ## Security Boundaries
 
@@ -731,12 +750,15 @@ user-facing entry point; the UI Integration Checklist is not applicable.
   gating unconfirmed fact for REQ-001's/REQ-003's own automation boundary,
   to be confirmed empirically by the Phase 2/3 implementer before any
   automated E2E path is built around it, never assumed here.
-- OQ-002: whether the REQ-005 drift check should additionally cover
-  `~/.codex/config.toml` MCP registration blocks and `~/.codex/agents/
-  sdd-*.toml` role files (both also install-root-copied, INV-016), or stay
-  scoped to `plugins/**`-sourced files only, is left to design.md's own
-  Design Decisions to fix concretely — this package names both as
-  candidate targets without yet choosing between them.
+- OQ-002 (resolved): the REQ-005 drift check covers `~/.codex/
+  config.toml` MCP registration blocks and `~/.codex/agents/sdd-*.toml`
+  role files (both also install-root-copied, INV-016) in addition to
+  `plugins/**`-sourced files — design.md's own Coverage Scope table and
+  Design Decisions fix this broadened scope concretely, each surface
+  carrying its own comparison disposition (whole-file hash for
+  `plugins/**` and agent TOML; delimited-region hash for the MCP block).
+  This package's own REQ-005 (Goals, above) states this resolved scope
+  directly, never a `plugins/**`-only scope with the rest deferred.
 
 ## Risks
 

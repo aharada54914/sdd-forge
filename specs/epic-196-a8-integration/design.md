@@ -107,11 +107,17 @@ Phase-1 package builds none of them.
 
 This epic adds no `PROTECTED_GATE_SUFFIXES`/guard-invariants entries. Every
 component above is a read-only verification tool (comparison, observation,
-or fixture-driving); none of them writes to an approval field, a sidecar, or
-any other file this repository's existing guard machinery protects. The
-REQ-005 drift check (`check-installed-plugin-drift`) is explicitly read-only
-by design (Security Boundaries B2, requirements.md) — it never remediates a
-detected divergence, only reports it.
+or fixture-driving) with one narrow, named exception: `validate-live-host-
+proof` performs exactly one lock-guarded, atomic, idempotent write — marking
+a consumed nonce in the Nonce Issuance Ledger (`tests/hook-activation-
+live-proof/nonce-ledger.json`'s own `consumed_by_record` field, Data Plan)
+— and never writes to any other file this component reads. No component
+above, including that one exception, writes to an approval field, a
+sidecar, or any other file this repository's existing guard machinery
+protects. The REQ-005 drift check (`check-installed-plugin-drift`) is
+explicitly and unconditionally read-only by design (Security Boundaries
+B2, requirements.md) — it never remediates a detected divergence, only
+reports it.
 
 ## Layer Specifications
 
@@ -350,35 +356,80 @@ Code's own MCP surfaces use.
   "raw_tool_request_sha256": "sha256:<hex> (sha256 of the exact bytes at raw_tool_request_ref; recomputed and compared by the validator, never trusted as a bare claim)",
   "raw_tool_result_ref": "string (repo-relative path to the committed, unedited raw tool-result/denial capture file)",
   "raw_tool_result_sha256": "sha256:<hex> (sha256 of the exact bytes at raw_tool_result_ref; recomputed and compared by the validator)",
-  "installed_hook_config_ref": "string (repo-relative path to a committed snapshot of the actual installed hook/config file this session exercised, captured at session time)",
-  "installed_hook_config_digest": "sha256:<hex> (sha256 of the exact bytes at installed_hook_config_ref; recomputed by the validator and additionally compared against the Expected-Digest Manifest, below)",
-  "session_date": "YYYY-MM-DD (UTC calendar date derived from session_start; present as its own field because AC-026 lists it as an independently required field, not merely derivable)",
-  "session_start": "ISO8601",
-  "session_end": "ISO8601",
-  "operator": "string (required in all cases; the session's own attending party, distinct from reviewer; must equal the Trusted-Signer Registry's own identity for operator_key_id)",
+  "installed_hook_config_ref": "string|null (repo-relative path to a committed snapshot of the actual installed hook/config file this session exercised, captured at session time; null only when verdict=SKIP)",
+  "installed_hook_config_digest": "sha256:<hex>|null (sha256 of the exact bytes at installed_hook_config_ref; recomputed by the validator and additionally compared against the Expected-Digest Manifest, below; null only when verdict=SKIP)",
+  "installed_feature_config_ref": "string|null (repo-relative path to a committed snapshot of the actual Codex feature-flag configuration, e.g. the installed `~/.codex/config.toml`'s own `plugin_hooks` setting, at session time; required, non-null, only for the two Codex-runtime cells; null for Claude/Copilot cells and for verdict=SKIP)",
+  "installed_feature_config_digest": "sha256:<hex>|null (sha256 of the exact bytes at installed_feature_config_ref; required alongside installed_feature_config_ref)",
+  "session_date": "YYYY-MM-DD|null (UTC calendar date derived from session_start; present as its own field because AC-026 lists it as an independently required field, not merely derivable; null only when verdict=SKIP)",
+  "session_start": "ISO8601|null (null only when verdict=SKIP)",
+  "session_end": "ISO8601|null (null only when verdict=SKIP)",
+  "operator": "string (required in all cases including SKIP; the attesting party, distinct from reviewer; must equal the Trusted-Signer Registry's own identity for operator_key_id)",
   "operator_key_id": "string (key ID, resolved against the trusted-signer registry below)",
-  "reviewer": "string (required in all cases; independent of operator, countersigns after verifying nonce/hashes/timestamps; must equal the Trusted-Signer Registry's own identity for reviewer_key_id)",
+  "reviewer": "string (required in all cases including SKIP; independent of operator, countersigns after verifying nonce/hashes/timestamps or, for SKIP, the allowlist citation; must equal the Trusted-Signer Registry's own identity for reviewer_key_id)",
   "reviewer_key_id": "string (key ID, resolved against the trusted-signer registry below; must differ from operator_key_id and resolve to a different public key)",
-  "cli_name": "string",
-  "cli_version": "string",
-  "host_os": "string",
+  "cli_name": "string|null (null only when verdict=SKIP)",
+  "cli_version": "string|null (null only when verdict=SKIP)",
+  "host_os": "string|null (null only when verdict=SKIP)",
   "plugin_hooks_flag": "enabled|disabled|not_applicable",
-  "tool_call_evidence": "string (human-readable summary only; never the sole evidence — raw_tool_request_ref/raw_tool_result_ref are the machine-checked evidence)",
-  "verdict": "PASS|FAIL",
-  "operator_signature": "string (Ed25519 signature over the operator's own domain-separated signing target, per Signing Contract below, keyed to operator_key_id)",
+  "tool_call_evidence": "string|null (human-readable summary only; never the sole evidence — raw_tool_request_ref/raw_tool_result_ref are the machine-checked evidence; null only when verdict=SKIP)",
+  "verdict": "PASS|FAIL|SKIP",
+  "skip_reason": "string|null (required, non-null, only when verdict=SKIP; must cite an exact, currently non-activated `case_id`/entry in `a8-skip-allowlist.json`; null whenever verdict is PASS/FAIL)",
+  "operator_signature": "string (Ed25519 signature over the operator's own domain-separated signing target, per Signing Contract below, keyed to operator_key_id; a SKIP record's signature attests to the SKIP claim's own legitimacy, not to a session)",
   "reviewer_signature": "string (Ed25519 signature over the reviewer's own domain-separated signing target, keyed to reviewer_key_id)",
   "notes": "string|null"
 }
 ```
 
+#### SKIP Representation (resolves the "pre-A1 SKIP unrepresentable" Major finding)
+
+Before Epic A1 merges, this epic's own aggregate validator must accept a
+placeholder record per semantic cell rather than requiring a real session
+that cannot yet happen. `verdict: "SKIP"` is this placeholder's own
+value, distinguished from `PASS`/`FAIL` and gated as follows:
+
+- **Required fields when `verdict == "SKIP"`**: only `schema`,
+  `matrix_cell`, `runtime`, `check`, `invocation_mode` (`manual`),
+  `operator`, `operator_key_id`, `reviewer`, `reviewer_key_id`, `verdict`,
+  `skip_reason`, `operator_signature`, `reviewer_signature` are non-null;
+  every session-evidence field (`nonce`, `host_session_id`,
+  `host_event_id`, `raw_tool_request_ref`/`_sha256`,
+  `raw_tool_result_ref`/`_sha256`, `installed_hook_config_ref`/`_digest`,
+  `installed_feature_config_ref`/`_digest`, `session_date`,
+  `session_start`, `session_end`, `cli_name`, `cli_version`, `host_os`,
+  `tool_call_evidence`, `plugin_hooks_flag` resolves to `not_applicable`)
+  is `null` — a `SKIP` record never carries partial or fabricated session
+  evidence.
+- **Three distinct validator states per cell**, never conflated: (1)
+  **missing** — no record file exists for that `matrix_cell` at all
+  (`ERR_MISSING_CELL`, always a hard failure); (2) **valid pre-merge
+  SKIP** — a schema-valid `SKIP` record whose `skip_reason` cites a
+  `a8-skip-allowlist.json` entry the SKIP Allowlist Activation Gate has
+  not yet activated (accepted; the aggregate reports `pending`, not
+  `discharged`, for AC-028 — a `pending` aggregate is not itself a Done
+  gate failure before Epic A1 merges, per Design Decisions); (3) **stale
+  post-merge SKIP** — an otherwise schema-valid `SKIP` record whose own
+  allowlist entry the Activation Gate has now activated
+  (`ERR_STALE_SKIP`, a hard failure, matching Epic A7's own
+  stale-SKIP-hard-fail precedent this package already adopts, SKIP
+  Allowlist Activation Gate above).
+- A `SKIP` record's own `operator_signature`/`reviewer_signature` attest
+  only to the `skip_reason` citation's own accuracy (that the named
+  allowlist entry genuinely covers this cell and has not activated) —
+  never to a session that did not occur.
+
 #### Schema Validation Rules (machine-checkable; resolves the "JSON example, not a verifiable contract" Blocker)
 
 `additionalProperties: false` — the object contains exactly the keys
-listed above and no others. `required`: every key above except `notes`
-(the schema's own sole optional/nullable key); `plugin_hooks_flag` is
-itself required in every record, with `not_applicable` as its own valid
-enum value for non-Codex cells (required-but-nullable-by-enum, not
-schema-optional). Type/format constraints:
+listed above and no others. `required` (present, though not necessarily
+non-null): every key above except `notes` (the schema's own sole
+freely-optional key). Whether a required key's own value must be
+non-null is conditional on `verdict`: when `verdict` is `PASS`/`FAIL`,
+every key except `notes` must be non-null (and `installed_feature_config_
+ref`/`_digest` must additionally be non-null when `runtime == codex`,
+null otherwise); when `verdict` is `SKIP`, only the fields the SKIP
+Representation subsection above lists as non-null may be non-null — every
+other field must be `null` (`ERR_SCHEMA_INVALID` on any violation of
+either branch). Type/format constraints:
 
 | Field | Constraint |
 |---|---|
@@ -387,30 +438,39 @@ schema-optional). Type/format constraints:
 | `runtime` | enum `claude`/`codex`/`copilot` |
 | `invocation_mode` | enum `automated`/`manual` |
 | `check` | non-empty string, `\S+` |
-| `nonce` | `^[A-Za-z0-9_-]{16,}$`; must appear, unconsumed, in the Nonce Issuance Ledger (below) |
-| `host_session_id`, `host_event_id` | non-empty string, `\S+` |
-| `raw_tool_request_ref`, `raw_tool_result_ref`, `installed_hook_config_ref` | canonical repo-relative path under `tests/hook-activation-live-proof/raw/`, no symlink, no `..` traversal (matching `is_canonical_path`, `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh`'s own existing convention) |
-| `raw_tool_request_sha256`, `raw_tool_result_sha256`, `installed_hook_config_digest` | `^sha256:[0-9a-f]{64}$` (the identical prefixed format every other schema in this Data Plan uses — `cross-runtime-handoff-trace/v1`'s `artifact_*_sha256`, `installed-plugin-drift-report/v1`'s `*_sha256` — resolving an earlier draft's own inconsistency between this prefixed JSON example and an unprefixed validation regex) |
-| `session_date` | `^\d{4}-\d{2}-\d{2}$`; must equal `session_start`'s own UTC calendar date |
-| `session_start`, `session_end` | ISO 8601 UTC; `session_end` strictly after `session_start` |
-| `operator`, `reviewer` | non-empty string; `operator != reviewer`; each must equal the Trusted-Signer Registry's own `identity` value for its corresponding `*_key_id` (`ERR_SIGNER_IDENTITY_MISMATCH` otherwise) |
+| `nonce` | `^[A-Za-z0-9_-]{16,}$`; must appear, unconsumed, in the Nonce Issuance Ledger (below); null iff `verdict == SKIP` |
+| `host_session_id`, `host_event_id` | non-empty string, `\S+`; null iff `verdict == SKIP` |
+| `raw_tool_request_ref`, `raw_tool_result_ref`, `installed_hook_config_ref`, `installed_feature_config_ref` | canonical repo-relative path under `tests/hook-activation-live-proof/raw/`, no symlink, no `..` traversal (matching `is_canonical_path`, `plugins/sdd-quality-loop/scripts/validate-review-context-set.sh`'s own existing convention); null iff `verdict == SKIP`, and `installed_feature_config_ref` additionally null whenever `runtime != codex` |
+| `raw_tool_request_sha256`, `raw_tool_result_sha256`, `installed_hook_config_digest`, `installed_feature_config_digest` | `^sha256:[0-9a-f]{64}$` (the identical prefixed format every other schema in this Data Plan uses — `cross-runtime-handoff-trace/v1`'s `artifact_*_sha256`, `installed-plugin-drift-report/v1`'s `*_sha256`); null exactly when their own paired `*_ref` is null |
+| `session_date` | `^\d{4}-\d{2}-\d{2}$`; must equal `session_start`'s own UTC calendar date; null iff `verdict == SKIP` |
+| `session_start`, `session_end` | ISO 8601 UTC; `session_end` strictly after `session_start`; null iff `verdict == SKIP` |
+| `operator`, `reviewer` | non-empty string, required (non-null) even when `verdict == SKIP`; `operator != reviewer`; each must equal the Trusted-Signer Registry's own `identity` value for its corresponding `*_key_id` (`ERR_SIGNER_IDENTITY_MISMATCH` otherwise) |
 | `operator_key_id`, `reviewer_key_id` | must each resolve to a distinct entry in the Trusted-Signer Registry (below); `operator_key_id != reviewer_key_id`; the registry's own `public_key` bytes for the two entries must also differ (`ERR_SIGNER_KEY_COLLISION` otherwise — a defense-in-depth check independent of the key-ID string comparison) |
-| `plugin_hooks_flag` | enum `enabled`/`disabled`/`not_applicable` |
-| `verdict` | enum `PASS`/`FAIL`; for `-active` cells `PASS` means denial observed, for `-expected-unavailable` cells `PASS` means correctly-detected unavailability observed |
-| `operator_signature`, `reviewer_signature` | verify against each signer's own domain-separated signing target (Signing Contract, below) under the corresponding `*_key_id`'s registered public key |
+| `plugin_hooks_flag` | enum `enabled`/`disabled`/`not_applicable`; required (non-null) in every record, including `SKIP` |
+| `verdict` | enum `PASS`/`FAIL`/`SKIP`; for `-active` cells a `PASS` means denial observed, for `-expected-unavailable` cells a `PASS` means correctly-detected unavailability observed; `SKIP` is valid only pre-Epic-A1-merge (SKIP Representation, above) |
+| `skip_reason` | non-null and citing a current `a8-skip-allowlist.json` entry iff `verdict == SKIP`; null otherwise |
+| `operator_signature`, `reviewer_signature` | verify against each signer's own domain-separated signing target (Signing Contract, below) under the corresponding `*_key_id`'s registered public key; required (non-null) even when `verdict == SKIP` |
 
-**`matrix_cell` ↔ `runtime`/`plugin_hooks_flag` discriminator** (closes
-the "nothing rejects `Claude-active` + `runtime: copilot`" gap): a record
-is invalid (`ERR_CELL_RUNTIME_MISMATCH`) unless it matches its own row
-below exactly.
+**`matrix_cell` ↔ `runtime`/`plugin_hooks_flag`/feature-config
+discriminator** (closes the "nothing rejects `Claude-active` + `runtime:
+copilot`" gap, and the "Codex flag state not cryptographically bound to
+evidence" gap): for a `PASS`/`FAIL` record, it is invalid
+(`ERR_CELL_RUNTIME_MISMATCH`) unless it matches its own row below
+exactly; for the two Codex cells, it is additionally invalid
+(`ERR_FEATURE_CONFIG_MISMATCH`) unless the validator, parsing the
+committed `installed_feature_config_ref` snapshot itself, extracts a
+`plugin_hooks` setting that matches both the record's own
+`plugin_hooks_flag` and this row's own `required plugin_hooks_flag` — so
+a record cannot merely self-report `plugin_hooks_flag: disabled` without
+a snapshot that actually shows that configuration state.
 
-| `matrix_cell` | required `runtime` | required `plugin_hooks_flag` |
-|---|---|---|
-| `Claude-active` | `claude` | `not_applicable` |
-| `Codex-enabled-active` | `codex` | `enabled` |
-| `Codex-disabled-expected-unavailable` | `codex` | `disabled` |
-| `Copilot-primary-active` | `copilot` | `not_applicable` |
-| `Copilot-subagent-expected-unavailable` | `copilot` | `not_applicable` |
+| `matrix_cell` | required `runtime` | required `plugin_hooks_flag` | `installed_feature_config_ref` |
+|---|---|---|---|
+| `Claude-active` | `claude` | `not_applicable` | not required (null) |
+| `Codex-enabled-active` | `codex` | `enabled` | required; extracted `plugin_hooks` must be `enabled` |
+| `Codex-disabled-expected-unavailable` | `codex` | `disabled` | required; extracted `plugin_hooks` must be `disabled` |
+| `Copilot-primary-active` | `copilot` | `not_applicable` | not required (null) |
+| `Copilot-subagent-expected-unavailable` | `copilot` | `not_applicable` | not required (null) |
 
 #### Raw Capture, Nonce Ledger, and Expected-Digest Manifest (resolves the "hash of nothing stored" and "validator has no ground truth" Blocker sub-findings, and the round-2 nonce-ledger/provenance gaps)
 
@@ -442,20 +502,34 @@ below exactly.
         "matrix_cell": "<one of the 5 semantic cells>",
         "issued_at": "ISO8601",
         "issuer": "check-hook-activation-handshake",
-        "issuer_signature": "string (Ed25519 signature over {nonce, matrix_cell, issued_at}, keyed to a dedicated a8-issuer key_id in the Trusted-Signer Registry)",
+        "issuer_key_id": "string (must resolve, in the Trusted-Signer Registry, to an entry whose own role is exactly \"issuer\")",
+        "issuer_signature": "string (Ed25519 signature over this entry's own domain-separated signing target, keyed to issuer_key_id)",
         "consumed_by_record": "string|null"
       }
     ]
   }
   ```
   An append-only array Epic A1's own `check-hook-activation-handshake.
-  {py,sh,ps1}` writes to at issuance time, signing each entry with a
-  dedicated issuer key registered in the Trusted-Signer Registry (below)
-  so the ledger's own entries are themselves forgery-resistant, not a
-  bare unsigned JSON array. `validate-live-host-proof` rejects a ledger
-  containing two entries with the same `nonce` (`ERR_NONCE_DUPLICATE_
-  LEDGER_ENTRY`) or an entry whose `issuer_signature` fails to verify
-  (`ERR_ISSUER_SIGNATURE_INVALID`). For each record it validates, it
+  {py,sh,ps1}` writes to at issuance time. Each entry's own
+  `issuer_signature` verifies against `sha256(JCS({nonce, matrix_cell,
+  issued_at, issuer, issuer_key_id}) || ":nonce-issuer")` — the identical
+  JCS-canonicalization convention the Signing Contract (below) uses for
+  live-host records, with `":nonce-issuer"` as this entry type's own
+  domain separator (distinct from `":operator"`/`":reviewer"`, so an
+  issuer signature can never be replayed as an operator/reviewer
+  signature or vice versa). `issuer_key_id` must resolve, in the
+  Trusted-Signer Registry (Signing Contract, below), to an entry whose
+  own `role` field is exactly `issuer` — a key registered as
+  `operator`/`reviewer` cannot sign ledger entries, closing the "which of
+  potentially several registered keys signed this" ambiguity an
+  unqualified "dedicated issuer key" reference left open. This ledger's
+  entries are therefore themselves forgery-resistant, not a bare unsigned
+  JSON array. `validate-live-host-proof` rejects a ledger containing two
+  entries with the same `nonce` (`ERR_NONCE_DUPLICATE_LEDGER_ENTRY`), an
+  entry whose `issuer_key_id` does not resolve to a registered `issuer`
+  -role key (`ERR_SIGNER_UNTRUSTED`), or an entry whose `issuer_signature`
+  fails to verify against that key (`ERR_ISSUER_SIGNATURE_INVALID`). For
+  each record it validates, it
   looks up the record's own `nonce` in this ledger and rejects when:
   the `nonce` is absent (`ERR_NONCE_UNKNOWN`); the ledger entry's own
   `consumed_by_record` is already set to a different record
@@ -669,7 +743,7 @@ own oracle:
   `copied_bytes_sha256` match the Unicode-Normalization Contract's own
   fixed NFC bytes on every row; `uninstall_residue` is empty under both
   NFC and NFD byte forms on every `phase=uninstall` row (rows 2, 4, 6, 8,
-  12, 16 — collision-policy check).
+  10, 12, 14, 16 — collision-policy check).
 
 This is a fully enumerated 16-row × 3-case = 48-cell table; no cell is
 evaluated against prose description alone, and the pairwise-coverage
@@ -717,10 +791,12 @@ asserting against a `.gitattributes` rule that does not exist:
   "state": "not_installed|installed_synced|installed_drifted",
   "diverged": [
     {
-      "path": "string (repo-relative; plugins/<name>/... or a script/manifest/agent-role/hook-config path the installer copies or generates)",
+      "surface": "file|delimited-region",
+      "source_ref": "string (repo-relative path to the generating source artifact — plugins/<name>/..., the agent-role TOML source, or the hook-config source)",
+      "installed_ref": "string (surface=file: the installed-side file location, e.g. an installed plugins/** copy or ~/.codex/agents/sdd-*.toml, expressed relative to install_root or as $HOME-relative for outside-install-root targets; surface=delimited-region: '<installed config file path>#<marker-derived region ID>', e.g. '~/.codex/config.toml#sdd-forge-mcp', per the Region Extraction Rule below)",
       "change_type": "added|removed|modified|type-changed",
-      "installed_sha256": "sha256:<hex>|null (null when change_type=added, i.e. present only in repo source)",
-      "repo_sha256": "sha256:<hex>|null (null when change_type=removed, i.e. present only in installed cache)"
+      "installed_sha256": "sha256:<hex>|null (surface=file: hash of the installed file's own bytes; surface=delimited-region: hash of only the extracted region's own bytes, Region Extraction Rule; null when change_type=added)",
+      "repo_sha256": "sha256:<hex>|null (surface=file: hash of the repo source file; surface=delimited-region: hash of the region the installer would itself generate from current repo source, computed without touching the live installed file; null when change_type=removed)"
     }
   ]
 }
@@ -738,9 +814,28 @@ identified in the original single-state schema). `diverged` is only ever
 populated when `state == "installed_drifted"`, and now represents
 `added`/`removed`/`modified`/`type-changed` (e.g. a symlink replaced by a
 regular file) divergence, not only content-hash mismatches on files
-present on both sides — a repo-only `path` is `change_type: "added"`
-with `installed_sha256: null`; an installed-only `path` is
-`change_type: "removed"` with `repo_sha256: null`.
+present on both sides — a repo-only `source_ref` is `change_type:
+"added"` with `installed_sha256: null`; an installed-only
+`installed_ref` is `change_type: "removed"` with `repo_sha256: null`.
+
+#### Region Extraction Rule (resolves the "delimited-region MCP block unrepresentable as a repo-relative file path" Major finding)
+
+`surface: "delimited-region"` applies only to the Codex `~/.codex/
+config.toml` MCP block (Coverage Scope, below); every other surface
+(`plugins/**`, Codex agent role TOML, hook config files) is
+`surface: "file"`, comparing whole-file bytes at a real repo-relative
+(`source_ref`) or install-root-relative (`installed_ref`) path — never a
+delimited region. For the one `delimited-region` surface, the check
+extracts exactly the marker-delimited block `install.sh:377-378`'s own
+`register_codex_mcp` function writes — the literal lines from `# >>> 
+<mcp-name> (managed by sdd-forge installer; do not edit by hand) >>>`
+through `# <<< <mcp-name> <<<` inclusive, for each selected MCP name —
+and hashes only those extracted lines (never the surrounding
+`config.toml` content the installer never owns). A missing marker pair
+for an MCP name the repository source expects is itself `change_type:
+"removed"`; an unexpected marker pair present in the installed file but
+absent from the repository's own current MCP selection is `change_type:
+"added"`.
 
 #### Platform Install-Root Defaults (resolves the sh/ps1 default mismatch)
 
@@ -818,25 +913,29 @@ names — not `plugins/**` alone:
   respectively) so a bare invocation is always well-defined, while a
   Phase 2/3 test harness may override any path for fixture isolation.
   Reads all five `tests/hook-activation-live-proof/<matrix_cell>.json`
-  records, their referenced raw-capture/installed-config snapshots, the
-  Nonce Issuance Ledger, the Expected-Digest Manifest, and the
-  Trusted-Signer Registry (Data Plan, above); exits 0 only when every one
-  of the five semantic cells has a present, schema-valid,
-  cell/runtime/flag-consistent, hash-recomputed, nonce-ledger-confirmed
-  (matching cell, ordered timestamps, unexpired), digest-manifest-matched,
-  identity-and-key-verified two-party-signature-verified record whose
-  `verdict` matches that cell's own expected Done condition (denial
-  `PASS` for the three "-active" cells, correctly-detected unavailability
-  for the two "-expected-unavailable" cells). Exits non-zero with one of
-  the named error codes (`ERR_MISSING_CELL`, `ERR_SCHEMA_INVALID`,
-  `ERR_CELL_RUNTIME_MISMATCH`, `ERR_NONCE_UNKNOWN`, `ERR_NONCE_REUSED`,
-  `ERR_NONCE_CELL_MISMATCH`, `ERR_NONCE_ISSUED_AFTER_SESSION`,
-  `ERR_NONCE_EXPIRED`, `ERR_NONCE_DUPLICATE_LEDGER_ENTRY`,
-  `ERR_ISSUER_SIGNATURE_INVALID`, `ERR_HASH_MISMATCH`,
-  `ERR_DIGEST_MISMATCH`, `ERR_SIGNATURE_INVALID`, `ERR_SIGNER_UNTRUSTED`,
-  `ERR_SIGNER_IDENTITY_MISMATCH`, `ERR_SIGNER_KEY_COLLISION`,
-  `ERR_SYNTHETIC_SUBSTITUTION`, `ERR_STALE_SKIP`) printed to stderr per
-  failing cell — never a bare non-zero exit with no diagnostic. Wired as
+  records, their referenced raw-capture/installed-config/feature-config
+  snapshots, the Nonce Issuance Ledger, the Expected-Digest Manifest, the
+  `a8-skip-allowlist.json` Activation Gate state, and the Trusted-Signer
+  Registry (Data Plan, above). Reports one of three aggregate states:
+  `discharged` (every cell has a `PASS`-per-its-own-Done-condition record,
+  fully validated; exit 0); `pending` (every cell is either `discharged`-
+  eligible or a valid pre-merge `SKIP` per the SKIP Representation
+  subsection, and no cell is `FAIL`/invalid/stale — exit 0, since
+  `pending` before Epic A1 merges is this epic's own expected state, never
+  itself a Done-gate failure); or a hard failure (exit non-zero) with one
+  of the named error codes (`ERR_MISSING_CELL`, `ERR_SCHEMA_INVALID`,
+  `ERR_CELL_RUNTIME_MISMATCH`, `ERR_FEATURE_CONFIG_MISMATCH`,
+  `ERR_NONCE_UNKNOWN`, `ERR_NONCE_REUSED`, `ERR_NONCE_CELL_MISMATCH`,
+  `ERR_NONCE_ISSUED_AFTER_SESSION`, `ERR_NONCE_EXPIRED`,
+  `ERR_NONCE_DUPLICATE_LEDGER_ENTRY`, `ERR_ISSUER_SIGNATURE_INVALID`,
+  `ERR_HASH_MISMATCH`, `ERR_DIGEST_MISMATCH`, `ERR_SIGNATURE_INVALID`,
+  `ERR_SIGNER_UNTRUSTED`, `ERR_SIGNER_IDENTITY_MISMATCH`,
+  `ERR_SIGNER_KEY_COLLISION`, `ERR_SYNTHETIC_SUBSTITUTION`,
+  `ERR_STALE_SKIP`) printed to stderr per failing cell — never a bare
+  non-zero exit with no diagnostic, and never a `pending` aggregate
+  silently reported as `discharged`. AC-028's own delegation-discharge
+  claim requires the `discharged` aggregate state specifically, never
+  `pending`. Wired as
   this epic's own Done gate and as a release gate (Deployment/CI Plan,
   below); read-only over every input except the Nonce Issuance Ledger,
   which it updates through exactly one lock-guarded, atomic,
