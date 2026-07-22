@@ -296,6 +296,89 @@ $r = Invoke-ResolverRaw -CliArgs @("-Config", (Join-Path $fixtures "test-018-sha
 if ($r.ExitCode -ne 0 -and $r.Output -match "never both or neither") { Ok "TEST-018.2: neither components nor classification rejected" } else { Fail "TEST-018.2: expected shape diagnostic, got exit=$($r.ExitCode) out=$($r.Output)" }
 
 # ============================================================================
+# TEST-042/043/044 (AC-042/043/044, REQ-006, T-005): cross-epic
+# cross-cutting seed inventory. TEST-042/044 read Epic A1's REAL template
+# directly and are DELIBERATELY, PERMANENTLY red while it is absent — same
+# documented pattern as TEST-011.3. See the bash twin's header comment for
+# the full rationale.
+# ============================================================================
+# Shared inventory-conformance check, factored out so it can be proven
+# against BOTH the real A1 template (TEST-042) and a deliberately wrong
+# local fixture (TEST-042-negative, the acceptance-first RED evidence this
+# task's Required Workflow calls for).
+function Test-InventoryConformance {
+    param([string]$TemplatePath)
+    $text = Get-Content -Raw -LiteralPath $TemplatePath
+    $expectedEntries = @("specs/**", "reports/**", "docs/**", ".github/**", "tests/fixtures/**", "CHANGELOG.md")
+    $missing = $expectedEntries | Where-Object { $text -notmatch [regex]::Escape($_) }
+    if ($text -match [regex]::Escape("contracts/**")) { return $false }
+    if ($missing.Count -gt 0) { return $false }
+    return $true
+}
+
+Write-Output "=== TEST-042: cross-epic inventory conformance (A1 template) ==="
+$a1Template = Join-Path $repoRoot "contracts/project-context.template.yaml"
+if (-not (Test-Path -LiteralPath $a1Template)) {
+    Fail "TEST-042 [EXPECTED - Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at $a1Template"
+} elseif (Test-InventoryConformance $a1Template) {
+    Ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, contracts/** absent"
+} else {
+    Fail "TEST-042: A1's landed template diverges from the six-entry canonical cross-cutting set"
+}
+
+Write-Output "=== TEST-042-negative: inventory-conformance check catches a deliberately wrong seed set (acceptance-first RED evidence) ==="
+$wrongSeedFile = Join-Path ([IO.Path]::GetTempPath()) ("rcp-wrong-seed." + [Guid]::NewGuid().ToString("N") + ".yaml")
+@"
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: "contracts/**"
+    classification: cross-cutting
+"@ | Set-Content -LiteralPath $wrongSeedFile -Encoding utf8 -NoNewline
+try {
+    if (Test-InventoryConformance $wrongSeedFile) {
+        Fail "TEST-042-negative: a deliberately wrong seed set should have been rejected, but the check reported conformant"
+    } else {
+        Ok "TEST-042-negative: the inventory-conformance check correctly rejects a deliberately wrong seed set — proves the check is not vacuously always-passing"
+    }
+} finally {
+    Remove-Item -Force -LiteralPath $wrongSeedFile -ErrorAction SilentlyContinue
+}
+
+Write-Output "=== TEST-043: no-op proof for the six-entry cross-cutting set ==="
+$r = Invoke-ResolveFixture (Join-Path $fixtures "test-043-cross-cutting-no-op/config.yaml") (Join-Path $fixtures "test-043-cross-cutting-no-op/changed-paths.txt")
+$dayOnePaths = @("specs/some-feature/requirements.md", "reports/quality-gate/2026-01-01.md", "docs/architecture/overview.md", ".github/workflows/example.yml", "tests/fixtures/some-fixture.json", "CHANGELOG.md")
+$allCrossCutting = $true
+foreach ($p in $dayOnePaths) {
+    $cls = Get-Classification $r.Output $p
+    if ($cls -ne "SHARED_CROSS_CUTTING") {
+        $allCrossCutting = $false
+        Fail "TEST-043: expected SHARED_CROSS_CUTTING for $p, got $cls"
+    }
+}
+if ($allCrossCutting) { Ok "TEST-043: a diff confined to the six-entry cross-cutting set, with zero declared component owners, never triggers Fail-1/UNOWNED" }
+
+Write-Output "=== TEST-044: day-one cross-epic integration proof (A1 template) ==="
+if (-not (Test-Path -LiteralPath $a1Template)) {
+    Fail "TEST-044 [EXPECTED - Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at $a1Template, day-one integration cannot be proven against it"
+} else {
+    $dayOneFile = Join-Path ([IO.Path]::GetTempPath()) ("rcp-dayone." + [Guid]::NewGuid().ToString("N") + ".txt")
+    "specs/epic-example/requirements.md`nreports/quality-gate/2026-01-01.md`n" | Set-Content -LiteralPath $dayOneFile -Encoding utf8 -NoNewline
+    try {
+        $r = Invoke-ResolverRaw -CliArgs @("-Config", $a1Template, "-ChangedPathsFile", $dayOneFile)
+        if ($r.ExitCode -eq 0 -and (Get-Classification $r.Output "specs/epic-example/requirements.md") -ne "UNOWNED" -and (Get-Classification $r.Output "reports/quality-gate/2026-01-01.md") -ne "UNOWNED") {
+            Ok "TEST-044: a project-context.yaml shaped like A1's own landed template does not trip Fail-1 on an ordinary day-one specs/**/reports/** change"
+        } else {
+            Fail "TEST-044: day-one integration against A1's landed template failed (exit=$($r.ExitCode))"
+        }
+    } finally {
+        Remove-Item -Force -LiteralPath $dayOneFile -ErrorAction SilentlyContinue
+    }
+}
+
+# ============================================================================
 # TEST-045 (AC-045): fixture-tree base shape + suite/CI registration
 # ============================================================================
 Write-Output "=== TEST-045: fixture-tree base shape + suite/CI registration ==="

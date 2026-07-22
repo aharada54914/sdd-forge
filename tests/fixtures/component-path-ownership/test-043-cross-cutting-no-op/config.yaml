@@ -1,0 +1,18 @@
+components:
+  - name: c1
+    paths:
+      include:
+        - "src/c1/**"
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting

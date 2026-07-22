@@ -345,6 +345,108 @@ else
 fi
 
 # ============================================================================
+# TEST-042/043/044 (AC-042/043/044, REQ-006, T-005): cross-epic
+# cross-cutting seed inventory — Epic A1's contracts/project-context.template.yaml
+# is the SOLE canonical source of the default cross-cutting seed list; A3
+# authors no competing list of its own (Non-goals). These cases extend
+# T-001's already-registered component-path-resolver suite (no new
+# tests/run-all.sh/.ps1 or .github/workflows/test.yml entry — T-005 shares
+# T-001's suite/fixture tree, design.md Global Constraints).
+#
+# TEST-042 and TEST-044 read Epic A1's REAL, canonical template artifact
+# directly (never a stand-in/copy) and are DELIBERATELY, PERMANENTLY red
+# while it is absent from this repository — exactly the same documented,
+# designed external-dependency pattern as TEST-011.3 above. This is
+# re-verified at this task's own implementation-start time
+# (`ls contracts/ | grep -i project-context` -> confirmed absent, per
+# tasks.md T-005 Depends On) and is not a defect in this suite or in
+# resolve-component-paths.
+# ============================================================================
+# Shared inventory-conformance check, factored out so it can be proven
+# against BOTH the real A1 template (TEST-042) and a deliberately wrong
+# local fixture (TEST-042-negative, the acceptance-first RED evidence this
+# task's Required Workflow calls for) — this is the same logic in both
+# calls, not a re-implementation that could silently diverge.
+check_inventory_conformance() {
+  # $1 = template path. Returns 0 (conformant) or 1 (non-conformant); never
+  # a skip on a present file.
+  tpl="$1"
+  expected_entries="specs/** reports/** docs/** .github/** tests/fixtures/** CHANGELOG.md"
+  missing=0
+  for entry in $expected_entries; do
+    grep -Fq -- "$entry" "$tpl" || missing=1
+  done
+  if grep -Fq "contracts/**" "$tpl"; then
+    return 1
+  elif [ "$missing" -ne 0 ]; then
+    return 1
+  fi
+  return 0
+}
+
+echo "=== TEST-042: cross-epic inventory conformance (A1 template) ==="
+A1_TEMPLATE="${REPO_ROOT}/contracts/project-context.template.yaml"
+if [ ! -f "$A1_TEMPLATE" ]; then
+  fail "TEST-042 [EXPECTED — Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at ${A1_TEMPLATE}"
+elif check_inventory_conformance "$A1_TEMPLATE"; then
+  ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, contracts/** absent"
+else
+  fail "TEST-042: A1's landed template diverges from the six-entry canonical cross-cutting set (missing entry, extra entry, or contracts/** wrongly included)"
+fi
+
+echo "=== TEST-042-negative: inventory-conformance check catches a deliberately wrong seed set (acceptance-first RED evidence) ==="
+WRONG_SEED_FILE=$(mktemp)
+cat > "$WRONG_SEED_FILE" << 'WRONGEOF'
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: "contracts/**"
+    classification: cross-cutting
+WRONGEOF
+if check_inventory_conformance "$WRONG_SEED_FILE"; then
+  fail "TEST-042-negative: a deliberately wrong seed set (missing entries + wrongly-included contracts/**) should have been rejected, but the check reported conformant"
+else
+  ok "TEST-042-negative: the inventory-conformance check correctly rejects a deliberately wrong seed set (missing entries, contracts/** wrongly present) — proves the check is not vacuously always-passing"
+fi
+rm -f "$WRONG_SEED_FILE"
+
+echo "=== TEST-043: no-op proof for the six-entry cross-cutting set ==="
+out=$(resolve "${FIXTURES}/test-043-cross-cutting-no-op/config.yaml" "${FIXTURES}/test-043-cross-cutting-no-op/changed-paths.txt")
+all_cross_cutting=1
+for p in specs/some-feature/requirements.md reports/quality-gate/2026-01-01.md docs/architecture/overview.md .github/workflows/example.yml tests/fixtures/some-fixture.json CHANGELOG.md; do
+  cls=$(classification_of "$out" "$p")
+  if [ "$cls" != "SHARED_CROSS_CUTTING" ]; then
+    all_cross_cutting=0
+    fail "TEST-043: expected SHARED_CROSS_CUTTING for $p, got $cls"
+  fi
+done
+if [ "$all_cross_cutting" -eq 1 ]; then
+  ok "TEST-043: a diff confined to the six-entry cross-cutting set, with zero declared component owners, never triggers Fail-1/UNOWNED"
+fi
+
+echo "=== TEST-044: day-one cross-epic integration proof (A1 template) ==="
+if [ ! -f "$A1_TEMPLATE" ]; then
+  fail "TEST-044 [EXPECTED — Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at ${A1_TEMPLATE}, day-one integration cannot be proven against it"
+else
+  DAYONE_PATHS_FILE=$(mktemp)
+  printf 'specs/epic-example/requirements.md\nreports/quality-gate/2026-01-01.md\n' > "$DAYONE_PATHS_FILE"
+  set +e
+  dayone_out=$(resolve "$A1_TEMPLATE" "$DAYONE_PATHS_FILE" 2>&1)
+  dayone_code=$?
+  set -e
+  rm -f "$DAYONE_PATHS_FILE"
+  if [ "$dayone_code" -eq 0 ] \
+     && [ "$(classification_of "$dayone_out" "specs/epic-example/requirements.md")" != "UNOWNED" ] \
+     && [ "$(classification_of "$dayone_out" "reports/quality-gate/2026-01-01.md")" != "UNOWNED" ]; then
+    ok "TEST-044: a project-context.yaml shaped like A1's own landed template does not trip Fail-1 on an ordinary day-one specs/**/reports/** change"
+  else
+    fail "TEST-044: day-one integration against A1's landed template failed (exit=$dayone_code, or an ordinary day-one change tripped Fail-1)"
+  fi
+fi
+
+# ============================================================================
 # TEST-045 (AC-045): fixture-tree base shape (>=2 overlapping components,
 # nested excluded subtree, bounded shared_paths entry); suite/CI
 # self-registration proof; live test.yml byte-unchanged proof.
