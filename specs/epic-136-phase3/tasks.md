@@ -189,6 +189,22 @@ acceptance-first.
 
 Required Workflow: acceptance-first
 
+Test Type: integration — TEST-001..TEST-007 each drive two or more real
+system components (the `sdd-hook-guard.sh` dispatcher PLUS a directly
+invoked `sdd-hook-guard.py` or `.ps1` parity reference, decisions
+cross-checked) inside fixture-driven PATH-restricted subshells; no component
+is mocked. acceptance-tests.md's Test Type column carries the coarser label
+"unit (fixture-driven, real script, PATH-restricted subshell)"; that
+document is hash-frozen post spec-review (its sha256 is pinned inside the
+persisted spec/impl review contracts that `task-review-precheck.sh`
+re-verifies on every task-review round, so relabeling the column now would
+invalidate both predecessor contracts). The authoritative task-level test
+type is therefore recorded HERE: implementers and quality-gate reviewers
+apply the integration-tier bar (2+ real components, cross-checked
+decisions, no mocking of the scripts under test). The column relabel itself
+is deferred to the next feature that legitimately reopens the spec
+documents.
+
 Security-Sensitive: false
 
 Cross-Model: not enabled
@@ -389,6 +405,17 @@ guard's own unmodified PreToolUse enforcement regardless of this suite's
 correctness) -> medium -> acceptance-first.
 
 Required Workflow: acceptance-first
+
+Test Type: integration — TEST-008..TEST-010 each drive the same payload
+across four real runtime surfaces (`sdd-hook-guard.py`, `.js`, `.ps1`, and
+the `.sh` dispatcher; 4 runtimes x 3 `tool_name` shapes), and TEST-011
+cross-compares every runtime's decision against every other's; no component
+is mocked. acceptance-tests.md's Test Type column labels TEST-008..010
+"unit (fixture-driven, real script)" — the same hash-frozen-column
+situation recorded in T-001's Test Type field applies identically here, so
+the authoritative integration-tier expectation is recorded at the task
+level; the column relabel is deferred to the next feature that legitimately
+reopens the spec documents.
 
 Security-Sensitive: false
 
@@ -767,12 +794,16 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 
 ### Blockers
 
-None
+T-001, T-002
 
-(Not independent in the functional sense of Depends On — see above — but
-carries no unresolved external Blocker; requirements.md Main Workflows item
-4: "Blockers: none — independent of Streams A-C, though it shares
-`test.yml` as a file surface with Streams A/B.")
+(Same-feature task-dependency blockers only, mirroring this task's Depends
+On line so `task-review-precheck.sh`'s dependency-graph.json records the
+T-003->T-001 and T-003->T-002 edges — the `### Blockers` T-NNN-list
+encoding epic-136-phase2-gates used for its own in-feature dependencies. No
+unresolved EXTERNAL blocker exists; requirements.md Main Workflows item 4's
+"Blockers: none — independent of Streams A-C, though it shares `test.yml`
+as a file surface with Streams A/B" speaks to external/stream-level
+blockers and remains true.)
 
 ---
 
