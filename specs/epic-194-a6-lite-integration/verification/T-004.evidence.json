@@ -1,0 +1,59 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-194-a6-lite-integration",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "2740928c9e9c45cd56644a0e22e4fb5fc3c270932eba9c8fecf4a8450780d437",
+  "quality_report": "reports/quality-gate/epic-194-a6-lite-integration/T-004.md",
+  "verification_contract": "specs/epic-194-a6-lite-integration/verification/T-004.contract.json",
+  "git_commit": "859209955dcf1f99d4be0305f3dea317577b8006",
+  "git_generated_dirty": false,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/T-004.contract.json",
+      "sha256": "5662c8b8f350409f3a87e8cfd62ccc30989cc8c6b086777cfbdf07ac8d2b9f81"
+    },
+    {
+      "path": "reports/quality-gate/epic-194-a6-lite-integration/T-004.md",
+      "sha256": "135fbfc755a4a92dab4e675d85450dcd9b66acd88b14461389643c61e259e203"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/T-004.green.log",
+      "sha256": "4d205616e655617fbaadbcbdfc0aafe091747b1716d3d52652eb952d53ec53b8"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/T-004/placeholder-scan.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/T-004/regression-sh.log",
+      "sha256": "32381fab0a7a6cffc962520611e69c41589414d40e81feee4a244c0b86fd6c8a"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/T-004/task-state.log",
+      "sha256": "ec46addaca7e67c6d9ebe6de1013989887f71e621a176a566d4b6d6fa7de1919"
+    },
+    {
+      "path": "specs/epic-194-a6-lite-integration/verification/qg/T-004/traceability-check.log",
+      "sha256": "9492bb7d6d265e6929f23f3f4a448045695c455a2d94b67a7ad27554f298d510"
+    }
+  ]
+}
