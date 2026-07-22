@@ -5,7 +5,7 @@ implementation-Blocked target shape. No cloud service, deployment target,
 IaC resource, network route, or data store is added or changed. The only
 infrastructure-facing edit across the 3 unblocked streams is
 `.github/workflows/test.yml`, staged as ONE shared human-copy batch
-covering Stream A's 2 new CI steps and Stream D's job-graph restructuring
+covering Streams A/B's 2 new CI steps and Stream D's step-prefix lane marking
 (design.md Protected-File Statement) — never two sequential human-copy
 rounds against the same protected file within this feature.
 
@@ -136,9 +136,9 @@ test files; because their CI-step registration is part of the SHARED
 `test.yml`'s registration lines requires a second human-copy application
 (staging a candidate with Stream A/B's 2 lines removed) — the same
 human-in-the-loop mechanism that added them, never a direct agent revert
-of the live protected file. Stream D: reverting its job-graph
-restructuring similarly requires a second human-copy application removing
-the `[deterministic]` prefixes and any boundary-marker addition; if
+of the live protected file. Stream D: reverting its step-prefix lane
+marking similarly requires a second human-copy application removing
+the `[deterministic]` prefixes and the comment lane-boundary placeholder; if
 Streams A/B's step lines are meant to survive a Stream D revert, the
 implementation report for whichever stream lands LAST in the shared batch
 must record the exact revert boundary (design.md Deployment / CI Plan).

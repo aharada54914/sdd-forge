@@ -25,9 +25,12 @@ shapes, with an explicit cross-runtime decision-parity assertion. Stream C
 (#125) defines the target shape of `tests/workflow-scenarios/` and its
 scenario schema but does not implement it — Stream C is Blocked pending
 ADR-0010 reaching `Status: Accepted` (requirements.md OQ-2). Stream D
-(#126) restructures `.github/workflows/test.yml`'s single `test` job into
-named deterministic-lane job(s), preserving `required-checks`' exact
-pass/fail semantics.
+(#126) marks the deterministic lane boundary INSIDE
+`.github/workflows/test.yml`'s single `test` job — a `[deterministic]`
+name prefix on every existing step plus a documented, currently-empty
+comment placeholder for a future eval lane — keeping the job graph and
+`required-checks`' `needs:` list byte-unchanged (BL-001 preserved by
+construction).
 
 The guiding principle carried from `quality-loop-fixes` and
 epic-159-pillar-d: no safety property is asserted by reimplementation.
@@ -36,7 +39,7 @@ binaries (`sdd-hook-guard.py`/`.js`/`.ps1`/`.sh`) via the same env-var/PATH
 indirection `tests/guard-cwd-bypass.tests.sh` already establishes, never a
 reimplementation of guard decision logic. Stream B's `cd&&rm` corpus reuses
 `guard-cwd-bypass.tests.sh`'s existing payload set rather than inventing a
-new one. Stream D's job-graph self-check reuses the text-marker technique
+new one. Stream D's step-survival self-check reuses the text-marker technique
 `tests/workflow-state-ci-integration.tests.sh` already establishes, rather
 than introducing a new YAML-parsing dependency.
 
@@ -78,8 +81,8 @@ flowchart TB
 
   subgraph SD["Stream D (#126)"]
     TESTYML_LIVE[".github/workflows/test.yml (PROTECTED, live, single test job today)"]
-    TESTYML_HC["human-copy/.github/workflows/test.yml (staged, restructured job graph + Stream A's new step)"]
-    RC["required-checks (needs: updated to preserve BL-001 semantics)"]
+    TESTYML_HC["human-copy/.github/workflows/test.yml (staged: [deterministic] step prefixes + comment lane boundary + Streams A/B's new steps)"]
+    RC["required-checks (needs: byte-unchanged - BL-001 preserved)"]
     SELFCHECK["text-marker step-coverage self-check (tests/workflow-state-ci-integration.tests.sh technique)"]
     TESTYML_HC -.->|human copies, SHA-256 verified| TESTYML_LIVE
     TESTYML_HC --> RC
@@ -98,7 +101,7 @@ flowchart TB
 | `sdd-hook-guard.sh`/`.py`/`.js`/`.ps1` | live guard runtimes (exercised read-only by both new suites) | Bash / Python / Node / PowerShell | existing, UNCHANGED | YES — `PROTECTED_GATE_SUFFIXES` (`guard_invariants.py:4`); neither stream edits any of the four |
 | `tests/workflow-scenarios/` + scenario schema | 10-class scenario harness, `greenfield`/`brownfield` vocabulary reused from `loop-inventory.json` | Bash/PowerShell + JSON schema | NOT YET CREATED — Blocked (Stream C, pending ADR-0010) | n/a (new files, no protected-suffix collision once created) |
 | `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md` | normative vocabulary source Stream C must reuse | Markdown (ADR) | existing, `Status: Proposed`, NOT edited by this feature | READ-ONLY per this feature's Hard Constraints |
-| `.github/workflows/test.yml` | CI job graph; gains Stream A's 1 new step AND Stream D's job-graph restructuring | GitHub Actions YAML | existing, edited via human-copy (Streams A + D, ONE shared staged batch — Global Constraints below) | YES — `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS` (`guard_invariants.py:4,18`) |
+| `.github/workflows/test.yml` | CI workflow; gains Streams A/B's new steps AND Stream D's step-prefix lane marking (job graph unchanged) | GitHub Actions YAML | existing, edited via human-copy (Streams A + D, ONE shared staged batch — Global Constraints below) | YES — `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS` (`guard_invariants.py:4,18`) |
 | `tests/run-all.sh` | local convenience runner | Bash | existing, edited (Streams A + B; Stream C once unblocked) | no |
 | `tests/run-all.ps1` | local convenience runner (native `.ps1` suites only) | PowerShell | existing, edited only if either new suite ships a native `.ps1` twin (Design Decisions) | no |
 | `CHANGELOG.md` | 3 independent `## Unreleased` entries (#123, #124, #126); #125's entry deferred | Markdown | existing, edited (Streams A, B, D) | no |
@@ -132,8 +135,8 @@ the ADR's normative vocabulary text.
 
 For `.github/workflows/test.yml`: the agent stages ONE combined candidate
 under `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`
-containing BOTH Stream A's new CI step AND Stream D's job-graph
-restructuring, with ONE `MANIFEST.sha256` entry — resolving
+containing BOTH Stream A's new CI step AND Stream D's step-prefix lane
+marking, with ONE `MANIFEST.sha256` entry — resolving
 requirements.md's Global Constraints concern about two streams touching
 the same protected file within one feature (Design Decisions below).
 Stream B does not independently stage a `test.yml` edit — its CI step is
@@ -161,7 +164,7 @@ visualization skipped.
 | requirements.md | design.md | `sdd-hook-guard.sh` fallback-chain branch coverage + emit-mode cross | REQ-001 | AC-001..007 | TEST-001..007 |
 | requirements.md | design.md | 3-class x 4-runtime x 3-tool_name-shape negative corpus + cross-runtime parity | REQ-002 | AC-008..011 | TEST-008..011 |
 | requirements.md | design.md | `tests/workflow-scenarios/` target shape (Blocked) | REQ-003 | AC-012..015 | TEST-012..015 |
-| requirements.md | design.md | `test.yml` job-graph restructuring + `required-checks` semantics preservation | REQ-004 | AC-016..018 | TEST-016..018 |
+| requirements.md | design.md | `test.yml` step-prefix lane marking + `required-checks` `needs:` byte-unchanged confirmation | REQ-004 | AC-016..018 | TEST-016..018 |
 | requirements.md | design.md | new-suite CI-registration discipline | REQ-005 | AC-019..020 | TEST-019..020 |
 | requirements.md | design.md | portability + doc-follow + CHANGELOG discipline | REQ-006 | AC-021..023 | TEST-021..023 |
 | requirements.md | security-spec.md | read-only guard-exercise boundary; inbound prompt-injection boundary (blocked); protected-file carve-out | REQ-001, REQ-002, REQ-003, REQ-004 | AC-001, AC-008, AC-014, AC-016 | TEST-001, TEST-008, TEST-014, TEST-016; [security-spec.md#trust-boundaries](security-spec.md#trust-boundaries) |
@@ -336,19 +339,18 @@ Stream 1 convention for a suite that does not need a separate `pwsh` leg):
         run: bash ./tests/guard-negative-corpus.tests.sh
 ```
 
-Stream D restructures the job graph. Design decision (below): rather than
-splitting the 50+-step `test` job into multiple GitHub Actions JOBS
-(which would require re-plumbing the 3-OS matrix, checkout, and toolchain
-setup steps per job — a much larger blast radius than #126's own issue
-text asks for), the restructuring introduces ONE new job,
-`deterministic-tests-boundary` (name decided here, not left to task time),
-that runs a single, trivial, always-green marker step
-immediately BEFORE the existing `test` job's own step list begins,
-carrying an inline comment naming the deterministic/LLM lane boundary this
-job graph maintains — and adds ONE renamed top-level grouping via GitHub
-Actions' native step `name:` prefixing convention (`"[deterministic] ..."`
-prefix on every existing step name inside the `test` job), so the
-boundary is VISIBLE in the Actions UI's step list without moving any step
+Stream D marks the lane boundary INSIDE the single `test` job. Design
+decision (below): rather than splitting the 50+-step `test` job into
+multiple GitHub Actions JOBS (which would require re-plumbing the 3-OS
+matrix, checkout, and toolchain setup steps per job — a much larger blast
+radius than #126's own issue text asks for), the lane marking introduces
+NO new job and NO job rename: every existing step name inside the `test`
+job gains a `"[deterministic] ..."` prefix via GitHub Actions' native step
+`name:` convention, and the job gains ONE documented, currently-empty
+YAML comment placeholder (per AC-016) marking exactly where a future
+LLM-invoking eval lane would be added as a separate job. The job count and
+job names are byte-unchanged; the boundary is VISIBLE in the Actions UI's
+step list without moving any step
 into a new job (which would otherwise force re-running toolchain
 installation 50+ times per OS). `required-checks`' `needs:` list is
 UNCHANGED in membership (`[test, cli-hook-enforcement]`) because no step
@@ -423,9 +425,10 @@ job-count-preserving restructuring was chosen over a job-splitting one).
 - OQ-5 -> preventive/structural, job-count-preserving: rather than
   splitting `test` into multiple GitHub Actions jobs (large blast radius:
   toolchain setup re-run per new job per OS), Stream D marks the existing
-  single job's steps with a `[deterministic]` name prefix and adds one
-  trivial boundary-marker job — preserving `required-checks`' `needs:`
-  membership exactly, which is the SIMPLEST design that satisfies
+  single job's steps with a `[deterministic]` name prefix and adds only a
+  documented, currently-empty comment placeholder (no new job, no job
+  rename) — keeping the job graph and `required-checks`' `needs:`
+  membership byte-unchanged, which is the SIMPLEST design that satisfies
   BL-001's preserved-semantics requirement (API/Contract Plan). A
   full job-splitting redesign is explicitly deferred to whenever an actual
   LLM-invoking eval step is proposed and needs its own job's resource/
@@ -507,7 +510,7 @@ maintainer applies the staged candidate as a pre-merge commit on the
 feature PR branch, the PR's own CI stays red on TEST-019/020's live-file
 self-check, the designed fail-closed state, matching `quality-loop-fixes`'
 own Deployment / CI Plan precedent, with no staged-candidate fallback.
-Stream D's job-graph restructuring is part of the SAME staged candidate,
+Stream D's step-prefix lane marking is part of the SAME staged candidate,
 so both land in one reviewed diff and one CI-turns-green moment, not two.
 The human reviewer applying the staged candidate MUST additionally verify
 GitHub's actual branch-protection required-status-check configuration
