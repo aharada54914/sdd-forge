@@ -127,7 +127,7 @@ N/A — `ds_profile: none`. Not a UI application; no mockup applicable.
 | requirements.md | investigation.md INV-006 | `emit-run-record.sh` capability object follows the existing `effort` v1/v2 additive-flag pattern, with its own independent no-flag/effort-only/capability-only/both matrix | REQ-003 | AC-011, AC-012, AC-033 |
 | requirements.md | investigation.md INV-011 | eight-row fixture matrix (F1–F8) plus a Context-absent CLI submatrix maps 1:1 to decision doc §6's combination-matrix rows | REQ-005 | AC-014, AC-028 |
 | requirements.md | investigation.md INV-013 | `PROJECT_CONTEXT_INVALID` is a required negative variant of each Context-present row, distinct from the compatibility fallback | REQ-005 | AC-019–AC-021 |
-| requirements.md | investigation.md INV-022 | golden baseline is captured once against a fixed pre-capability merge-base commit and updated only via a candidate→canonical PR | REQ-006 | AC-001, AC-018 |
+| requirements.md | investigation.md INV-022 | golden baseline is captured once against a fixed pre-capability merge-base commit and updated only via a candidate→canonical PR | REQ-006 | AC-001, AC-018, AC-041 |
 | requirements.md | investigation.md INV-023 | the SKIP allowlist manifest closes the fail-open direction (dependency-present SKIP, unknown SKIP, fingerprint drift) and enumerates A1–A6 | REQ-007 | AC-004, AC-007, AC-016, AC-034, AC-035 |
 | requirements.md | investigation.md INV-014 | the three-state Gate-applicability pattern is scoped to `check-component-coverage`; the Resolver's own disabled-legacy behavior is independently defined | REQ-003 | AC-009, AC-039 |
 | requirements.md | investigation.md INV-016 | Epic A5's three deferred fixture assertions are owned by this epic's own existing suite, not a new suite | REQ-003 | AC-004, AC-021, AC-036, AC-037 |
@@ -688,7 +688,13 @@ Phase 2/3 (not this task) implements, in this order:
    either appears anywhere in that file — the automated verification that
    this registration step never wires either mutation-capable golden-
    baseline command into CI (Security Boundaries B1; API / Contract
-   Plan).
+   Plan). A second, integration-level negative-fixture pair (AC-041)
+   invokes `promote-golden-baseline.sh` directly rather than scanning
+   CI's own workflow text: once with `CI` set to a non-empty value and
+   once with `--approved-by` omitted, asserting a non-zero exit and no
+   write to the canonical path in both cases — exercising the script's
+   own fail-closed guard (API / Contract Plan, above) rather than only
+   its absence from CI's job definition.
 
 ## Design Decisions (resolving requirements.md's Open Questions where possible)
 
@@ -940,7 +946,7 @@ what AC-028 requires.
 
 | Trust Boundary | Auth/Authz Mechanism | Data Classification | OWASP Concerns |
 |---|---|---|---|
-| B1: golden-baseline capture/update | `--write-candidate` produces only a gitignored candidate file (API / Contract Plan); the canonical file is written exclusively by `promote-golden-baseline.sh`, run only inside a maintainer-reviewed pull request (REQ-006c); CI is structurally, not merely conventionally, blocked from invoking the promote command — the script itself exits non-zero when the `CI` environment variable is set and refuses to run without an explicit `--approved-by <human-identifier>` flag (API / Contract Plan), and AC-040's static check independently verifies `.github/workflows/test.yml` never references `promote-golden-baseline.sh`/`--write-candidate` at all | repository fixture/script output only, no secrets | Broken Access Control (unreviewed baseline drift) if the candidate/canonical separation, the `CI`-env-var/`--approved-by` guards, or the AC-040 workflow scan were ever simultaneously bypassed |
+| B1: golden-baseline capture/update | `--write-candidate` produces only a gitignored candidate file (API / Contract Plan); the canonical file is written exclusively by `promote-golden-baseline.sh`, run only inside a maintainer-reviewed pull request (REQ-006c); CI is structurally, not merely conventionally, blocked from invoking the promote command — the script itself exits non-zero when the `CI` environment variable is set and refuses to run without an explicit `--approved-by <human-identifier>` flag (API / Contract Plan), AC-040's static check independently verifies `.github/workflows/test.yml` never references `promote-golden-baseline.sh`/`--write-candidate` at all, and AC-041 exercises the script's own `CI`/`--approved-by` runtime refusal directly rather than only inferring it from AC-040's static text scan | repository fixture/script output only, no secrets | Broken Access Control (unreviewed baseline drift) if the candidate/canonical separation, the `CI`-env-var/`--approved-by` guards, the AC-040 workflow scan, or the AC-041 runtime-refusal fixtures were ever simultaneously bypassed |
 | B2: shared-registry/driver/run-record extension | future-task edits reviewed with the same rigor as a protected-file change (requirements.md Security Boundaries B2) even though not formally protected today | none | Improper cross-epic coordination risk, not a traditional OWASP class |
 | B3: REQ-007 allowlist manifest integrity | the manifest itself is a versioned repository file reviewed like any other test-infrastructure change; AC-035's fingerprint-drift check is this boundary's own detection mechanism, not merely documentation | none | Silent scope drift (a `SKIP` outliving its own justification) if the manifest were edited without re-verifying its cited fingerprints |
 
@@ -976,7 +982,7 @@ above.
 | `emit-run-record.sh` no-flag output stays byte-identical (AC-011) | new `capability` object gated behind an independent `emit_capability` flag, mirroring `emit_v2`'s own proven isolation (INV-006); capability-only is a usage error, never a third schema version (Design Decisions) |
 | Every upstream-dependent assertion has a named, auditable degradation (REQ-007) | `SKIP` lines are read from the single allowlist manifest (Data Plan), which AC-035's three hard-fail checks keep honest in both directions |
 | `PROJECT_CONTEXT_INVALID` is distinguishable in the event trace (Edge Cases) | a dedicated `skip-stop-message`/`quality-gate-outcome`-kind event, asserted by AC-019–AC-021, never reused from the Context-absent fallback trace |
-| Golden baseline cannot be silently regenerated (REQ-006) | `--write-candidate` never writes the canonical path; only `promote-golden-baseline.sh` inside a reviewed PR does, and that script structurally refuses to run under `CI` or without `--approved-by` (API / Contract Plan; Security Boundaries B1); AC-040 independently verifies CI's own workflow file never references either command |
+| Golden baseline cannot be silently regenerated (REQ-006) | `--write-candidate` never writes the canonical path; only `promote-golden-baseline.sh` inside a reviewed PR does, and that script structurally refuses to run under `CI` or without `--approved-by` (API / Contract Plan; Security Boundaries B1); AC-040 independently verifies CI's own workflow file never references either command, and AC-041 exercises the script's own runtime refusal directly |
 | Cross-epic citations cannot silently drift undetected (finding 10, NEW-001) | every normative Epic A5 citation is a fingerprint (source, line range, sha256 digest, quote — Design Decisions "Cross-epic fingerprint citations"), recomputed by the REQ-007 allowlist manifest's own `fingerprint_match` evaluator (Data Plan) |
 
 ## Assumptions

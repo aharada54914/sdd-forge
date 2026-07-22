@@ -621,6 +621,16 @@ guessing at an undocumented convention.
   (Security Boundaries B1), independent of and in addition to
   `promote-golden-baseline.sh`'s own `CI`-environment-variable/
   `--approved-by` fail-closed guards (design.md API / Contract Plan).
+- AC-041: `promote-golden-baseline.sh`'s own runtime refusal guard (Roles
+  and Permissions; design.md API / Contract Plan) is exercised directly,
+  not only inferred from AC-040's static CI-workflow-text scan: invoking
+  the script with the `CI` environment variable set to any non-empty
+  value exits non-zero immediately without reading or writing any file
+  (even given a valid candidate path and a valid `--approved-by` value),
+  and invoking it without `--approved-by` (or with an empty
+  `--approved-by` value) also exits non-zero and writes nothing to the
+  canonical path — two independent negative fixtures, neither condition
+  satisfied by the other's absence.
 - AC-038: REQ-001's target inventory is a single canonical table
   (design.md) pairing each target — deterministic script output, exit
   code, stdout/stderr, template-copy result, schema-validator result,
@@ -713,7 +723,10 @@ guessing at an undocumented convention.
   environment variable is set or when no `--approved-by <human-identifier>`
   flag is supplied (design.md API / Contract Plan), and AC-040's static
   check independently verifies CI's own `.github/workflows/test.yml`
-  never references either mutation-capable command.
+  never references either mutation-capable command. AC-041 additionally
+  exercises the script's own runtime refusal directly (two independent
+  negative fixtures: `CI` set, and `--approved-by` omitted), rather than
+  relying solely on AC-040's static text scan of CI's job definition.
 
 ## Main Workflows
 

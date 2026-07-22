@@ -42,6 +42,7 @@
 | AC-038 | REQ-001 | TEST-038 | static / doc-review | REQ-001 canonical target inventory: each target 1:1 with a capture format and an AC/TEST, including directory listing + plugin manifest | Planned |
 | AC-039 | REQ-003 | TEST-039 | static / doc-review | INV-014's pattern is scoped to `check-component-coverage`; a per-component disabled-legacy expectation table (Resolver = event absent, coverage Gate = N/A evidence present) | Planned |
 | AC-040 | REQ-006 | TEST-040 | static / doc-review | CI-workflow-scan check: `.github/workflows/test.yml` never references `promote-golden-baseline.sh` or `--write-candidate` | Planned |
+| AC-041 | REQ-006 | TEST-041 | integration, negative self-check ×2 | `promote-golden-baseline.sh` runtime refusal exercised directly: `CI` env var set to a non-empty value → non-zero exit, no file read/write; `--approved-by` omitted or empty → non-zero exit, no canonical write | Planned |
 
 This is internal test-infrastructure specification work with no
 user-facing entry point; the UI Integration Checklist is not applicable.
@@ -52,7 +53,7 @@ no test code exists yet. Test IDs and targets are fixed here so the Phase
 resolve, matching this repository's own precedent for fixing a deferred
 suite's contract at design time (investigation.md INV-016, citing Epic
 A5's `resolve-project-context-caller-contract`). The `Test ID` column
-above (`TEST-001`–`TEST-040`) is this package's own Phase 1 AC-to-test
+above (`TEST-001`–`TEST-041`) is this package's own Phase 1 AC-to-test
 placeholder index — one entry per AC, in AC order — and is a distinct
 namespace from the *real*, per-suite-file case numbers Phase 2/3 actually
 implements (e.g. `TEST-018` in `tests/loop-consistency.tests.sh` and
