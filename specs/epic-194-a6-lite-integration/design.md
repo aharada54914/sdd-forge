@@ -278,17 +278,12 @@ Non-goals).
 
 ## Layer Specifications
 
-`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`, and `security-spec.md`
-now exist for this feature, authored at impl-review-prep time (matching
-A2's/A4's/A5's own identical precedent of adding those later than the
-initial design draft; requirements.md Non-goals; investigation.md). Each
-records a reasoned N/A/no-change status for its own layer where that
-layer does not apply: `ux-spec.md` states this feature has no UX
-surface; `frontend-spec.md` states no new browser/client UI, no new
-runtime service, and no new plugin; `infra-spec.md` states no new
-runtime deployment. This feature ships no UI and no new infrastructure;
-its security posture is covered both directly below (Security
-Boundaries) and, in full normative detail, in `security-spec.md`.
+Not applicable — this feature has no `ux-spec.md`/`frontend-spec.md`/
+`infra-spec.md`/`security-spec.md` at this phase (requirements.md
+Non-goals; investigation.md, matching A2's/A4's/A5's own identical
+precedent of adding those later, at impl-review-prep time). This feature
+ships no UI and no new infrastructure; its security posture is covered
+directly below (Security Boundaries).
 
 ## Design System Compliance
 
@@ -353,21 +348,6 @@ matching rule, facet-name aggregation rule) — neither is proposed as an
 ADR by this package itself.
 
 ## Data Plan
-
-**Data Entities:** `lite_policy` (below), `contracts/lite-check-catalog.json`
-(below), and the Capability-derived trigger fragment (below) are the
-new/modified schema entities this feature defines.
-
-**Existing Data Affected:** `contracts/lite-upgrade-reason-catalog.json`
-(below, `catalog_version` 2) is grown additively; no existing token or key
-in any entity this Data Plan names is ever removed.
-
-**Migration Strategy:** REQ-001's own migration rule (requirements.md) is
-the operative statement of what "absent" means at the consumer level: v1
-`lite_policy` instances remain valid, `required_lite_checks` absent = `[]`.
-The reason-catalog `catalog_version` 2 growth is likewise additive-only
-(no reason token removed), and `lite-check-catalog.json` is a wholly new
-seed with no prior version to migrate from.
 
 - **`lite_policy` (Registry, v1.1 design)** —
   ```json
