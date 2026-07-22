@@ -87,6 +87,67 @@ parity_check_in() {
     fi
 }
 
+# Helper: run guards from <cwd> while pointing CLAUDE_PROJECT_DIR at a DIFFERENT
+# <proj> root. WFI-016: the agent's CWD is outside the repository but the repo
+# root (with the verdict) is supplied via CLAUDE_PROJECT_DIR.
+# Usage: parity_check_cwd_env <cwd> <proj> "scenario" <expected> <payload_json>
+# ---------------------------------------------------------------------------
+parity_check_cwd_env() {
+    local cwd="$1"
+    local proj="$2"
+    local scenario="$3"
+    local expected="$4"
+    local payload="$5"
+    local js_code=0
+    local py_code=0
+
+    printf '%s' "$payload" \
+        | (cd "$cwd" && CLAUDE_PROJECT_DIR="$proj" node "${SCRIPTS_DIR}/sdd-hook-guard.js" --emit exit) \
+        >/dev/null 2>&1 || js_code=$?
+
+    printf '%s' "$payload" \
+        | (cd "$cwd" && CLAUDE_PROJECT_DIR="$proj" python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" --emit exit) \
+        >/dev/null 2>&1 || py_code=$?
+
+    if [ "$js_code" != "$py_code" ]; then
+        fail "parity [$scenario]: JS=$js_code PY=$py_code — DIVERGENCE (expected $expected)"
+    elif [ "$js_code" != "$expected" ]; then
+        fail "parity [$scenario]: both exit $js_code but expected $expected"
+    else
+        ok "parity [$scenario]: both exit $js_code (expected)"
+    fi
+}
+
+# Helper: run guards from <cwd> with CLAUDE_PROJECT_DIR UNSET. WFI-016: repo-root
+# resolution falls to the git root walked up from the edited file_path (which
+# must be an absolute path in the payload).
+# Usage: parity_check_cwd_noenv <cwd> "scenario" <expected> <payload_json>
+# ---------------------------------------------------------------------------
+parity_check_cwd_noenv() {
+    local cwd="$1"
+    local scenario="$2"
+    local expected="$3"
+    local payload="$4"
+    local js_code=0
+    local py_code=0
+
+    printf '%s' "$payload" \
+        | (cd "$cwd" && env -u CLAUDE_PROJECT_DIR node "${SCRIPTS_DIR}/sdd-hook-guard.js" --emit exit) \
+        >/dev/null 2>&1 || js_code=$?
+
+    printf '%s' "$payload" \
+        | (cd "$cwd" && env -u CLAUDE_PROJECT_DIR python3 "${SCRIPTS_DIR}/sdd-hook-guard.py" --emit exit) \
+        >/dev/null 2>&1 || py_code=$?
+
+    if [ "$js_code" != "$py_code" ]; then
+        fail "parity [$scenario]: JS=$js_code PY=$py_code — DIVERGENCE (expected $expected)"
+    elif [ "$js_code" != "$expected" ]; then
+        fail "parity [$scenario]: both exit $js_code but expected $expected"
+    else
+        ok "parity [$scenario]: both exit $js_code (expected)"
+    fi
+}
+
 # ---------------------------------------------------------------------------
 # Setup
 # ---------------------------------------------------------------------------
@@ -419,6 +480,54 @@ parity_check "domain-model-guard: non-context-map domain/ file unaffected" 0 \
 # ---------------------------------------------------------------------------
 parity_check "domain-model-guard: Pending to Reviewed transition allowed" 0 \
     "{\"tool_name\":\"edit\",\"tool_input\":{\"file_path\":\"${CONTEXT_MAP}\",\"old_string\":\"Domain-Model-Status: Pending\",\"new_string\":\"Domain-Model-Status: Reviewed\"}}"
+
+# ---------------------------------------------------------------------------
+# WFI-016: impl-review verdict resolution when CWD is OUTSIDE the repository.
+# The pre-fix guards resolved reports/impl-review/ relative to CWD only, so a
+# genuine PASS verdict was missed and the write was falsely denied (observed
+# 2026-07-22, epic-191). The fix resolves the repo root like
+# resolveProjectRoot: CLAUDE_PROJECT_DIR first, then the git root walked up
+# from the edited file_path, then CWD. Verdict criterion unchanged.
+# ---------------------------------------------------------------------------
+WFI016_REPO="${WORK}/wfi016-repo"
+WFI016_OUTSIDE="${WORK}/wfi016-outside"
+mkdir -p "${WFI016_REPO}/.git"
+mkdir -p "${WFI016_REPO}/specs/feat-y"
+printf 'Impl-Review-Status: Pending\n' > "${WFI016_REPO}/specs/feat-y/design.md"
+mkdir -p "${WFI016_REPO}/reports/impl-review/feat-y/attempt-1/round-1"
+printf '{"verdict":"PASS"}' \
+    > "${WFI016_REPO}/reports/impl-review/feat-y/attempt-1/round-1/integrated-verdict.json"
+mkdir -p "${WFI016_OUTSIDE}"
+
+WFI016_PAYLOAD="{\"tool_name\":\"write\",\"tool_input\":{\"file_path\":\"${WFI016_REPO}/specs/feat-y/design.md\",\"content\":\"Impl-Review-Status: Passed\\n\"}}"
+
+# ---------------------------------------------------------------------------
+# Scenario 37: CWD outside repo, repo supplied via CLAUDE_PROJECT_DIR, PASS
+# verdict exists in the repo (allow — exit 0). Fails (exit 2) on pre-fix guards.
+# ---------------------------------------------------------------------------
+parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
+    "wfi016: outside CWD + CLAUDE_PROJECT_DIR + PASS verdict allowed" 0 \
+    "$WFI016_PAYLOAD"
+
+# ---------------------------------------------------------------------------
+# Scenario 38: CWD outside repo, CLAUDE_PROJECT_DIR unset, repo root discovered
+# by walking up from the absolute file_path (allow — exit 0).
+# ---------------------------------------------------------------------------
+parity_check_cwd_noenv "$WFI016_OUTSIDE" \
+    "wfi016: outside CWD + file_path git-root walk + PASS verdict allowed" 0 \
+    "$WFI016_PAYLOAD"
+
+# ---------------------------------------------------------------------------
+# Scenario 39: same outside-CWD setup but the verdict is FAIL — the write must
+# still be denied (exit 2). Proves the fix widens WHERE the guard looks, not
+# WHAT it accepts (non-decreasing gate).
+# ---------------------------------------------------------------------------
+printf '{"verdict":"FAIL"}' \
+    > "${WFI016_REPO}/reports/impl-review/feat-y/attempt-1/round-1/integrated-verdict.json"
+
+parity_check_cwd_env "$WFI016_OUTSIDE" "$WFI016_REPO" \
+    "wfi016: outside CWD + FAIL verdict still denied" 2 \
+    "$WFI016_PAYLOAD"
 
 # ---------------------------------------------------------------------------
 # Summary

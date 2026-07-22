@@ -330,6 +330,25 @@ function Test-KillSwitch {
     return $false
 }
 
+function Find-GitRoot {
+    # Walk up from $Start up to 20 levels; return the git root dir or $null.
+    # Twin of _find_git_root (.py) / findGitRoot (.js). (WFI-016)
+    param([string]$Start)
+    if ([string]::IsNullOrEmpty($Start)) { return $null }
+    $current = $Start
+    try { $current = [System.IO.Path]::GetFullPath($Start) } catch { }
+    for ($i = 0; $i -lt 20; $i++) {
+        $gitCandidate = Join-Path $current ".git"
+        try {
+            if (Test-Path -LiteralPath $gitCandidate) { return $current }
+        } catch { }
+        $parent = Split-Path -Parent $current
+        if ([string]::IsNullOrEmpty($parent) -or $parent -eq $current) { break }
+        $current = $parent
+    }
+    return $null
+}
+
 function Resolve-ProjectRoot {
     $envRoot = $env:CLAUDE_PROJECT_DIR
     if (-not [string]::IsNullOrEmpty($envRoot)) {
@@ -886,33 +905,55 @@ function Test-DesignMd {
 }
 
 function Test-ImplReviewVerdictExists {
-    # Check whether a valid integrated-verdict.json with PASS or PASS-with-warnings
-    # exists in reports/impl-review/<feature>/ (CWD-relative, ADR-004). Extract the
-    # feature from the design.md path (specs/<feature>/design.md).
+    # Resolve the repository root the same way as Resolve-ProjectRoot
+    # (CLAUDE_PROJECT_DIR, then the git root discovered upward from the edited
+    # FilePath, then CWD) and look for a PASS/PASS-with-warnings
+    # integrated-verdict.json under each candidate root. Resolving from
+    # FilePath/CLAUDE_PROJECT_DIR rather than CWD alone fixes false denials when
+    # the agent's CWD is outside the repository. The verdict criterion is
+    # unchanged. Extract the feature from the design.md path
+    # (specs/<feature>/design.md). (WFI-016)
     param([string]$FilePath)
     if ([string]::IsNullOrEmpty($FilePath)) { return $false }
     $normalized = $FilePath -replace "\\", "/"
     $m = [regex]::Match($normalized, 'specs/([^/]+)/design\.md$', [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     if (-not $m.Success) { return $false }
     $feature = $m.Groups[1].Value
-    $reportsBase = "reports/impl-review/$feature"
+
+    $roots = New-Object System.Collections.Generic.List[string]
+    $envRoot = $env:CLAUDE_PROJECT_DIR
+    if (-not [string]::IsNullOrEmpty($envRoot)) { $roots.Add($envRoot) }
     try {
-        if (-not (Test-Path -LiteralPath $reportsBase)) { return $false }
-        $attemptDirs = Get-ChildItem -LiteralPath $reportsBase -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "attempt-*" }
-        foreach ($ad in $attemptDirs) {
-            $roundDirs = Get-ChildItem -LiteralPath $ad.FullName -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "round-*" }
-            foreach ($rd in $roundDirs) {
-                $verdictPath = Join-Path $rd.FullName "integrated-verdict.json"
-                if (Test-Path -LiteralPath $verdictPath) {
-                    try {
-                        $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $verdictPath
-                        $verdict = $content | ConvertFrom-Json
-                        if ($verdict.verdict -eq "PASS" -or $verdict.verdict -eq "PASS-with-warnings") { return $true }
-                    } catch { }
+        $fpDir = Split-Path -Parent ([System.IO.Path]::GetFullPath($FilePath))
+        $fpRoot = Find-GitRoot $fpDir
+        if (-not [string]::IsNullOrEmpty($fpRoot)) { $roots.Add($fpRoot) }
+    } catch { }
+    $roots.Add(".")
+
+    $seen = New-Object 'System.Collections.Generic.HashSet[string]'
+    foreach ($root in $roots) {
+        $key = $root
+        try { $key = [System.IO.Path]::GetFullPath($root) } catch { }
+        if (-not $seen.Add($key)) { continue }
+        $reportsBase = Join-Path $root "reports/impl-review/$feature"
+        try {
+            if (-not (Test-Path -LiteralPath $reportsBase)) { continue }
+            $attemptDirs = Get-ChildItem -LiteralPath $reportsBase -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "attempt-*" }
+            foreach ($ad in $attemptDirs) {
+                $roundDirs = Get-ChildItem -LiteralPath $ad.FullName -Directory -ErrorAction SilentlyContinue | Where-Object { $_.Name -like "round-*" }
+                foreach ($rd in $roundDirs) {
+                    $verdictPath = Join-Path $rd.FullName "integrated-verdict.json"
+                    if (Test-Path -LiteralPath $verdictPath) {
+                        try {
+                            $content = Get-Content -Raw -Encoding Utf8 -LiteralPath $verdictPath
+                            $verdict = $content | ConvertFrom-Json
+                            if ($verdict.verdict -eq "PASS" -or $verdict.verdict -eq "PASS-with-warnings") { return $true }
+                        } catch { }
+                    }
                 }
             }
-        }
-    } catch { }
+        } catch { }
+    }
     return $false
 }
 
