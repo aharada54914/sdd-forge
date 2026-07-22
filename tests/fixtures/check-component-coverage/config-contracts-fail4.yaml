@@ -1,0 +1,21 @@
+workflow:
+  capability_enforcement: advisory
+components:
+  - name: desktop
+    paths:
+      include:
+        - "src/desktop/**"
+  - name: mobile
+    paths:
+      include:
+        - "src/mobile/**"
+  - name: backend
+    paths:
+      include:
+        - "src/backend/**"
+shared_paths:
+  - pattern: "contracts/**"
+    components:
+      - desktop
+      - mobile
+      - backend

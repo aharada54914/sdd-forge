@@ -1,0 +1,11 @@
+workflow:
+  capability_enforcement: advisory
+components:
+  - name: desktop
+    paths:
+      include:
+        - "shared/**"
+  - name: mobile
+    paths:
+      include:
+        - "shared/**"

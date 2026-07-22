@@ -29,3 +29,51 @@
 # implementation report's Blockers section for the exact diff and hash
 # once a human (or a session not subject to this hook) creates the file.
 # No sha256 entry can be honestly recorded here until that file exists.
+#
+# STATUS NOTE (T-004, recorded at implementation time): identical guard
+# finding re-confirmed for T-004's own attempts to stage Bundle A (6 files:
+# guard-invariants.json, generate-guard-invariants.py, and the four
+# generated/ siblings) and Bundle B (3 files: check-contract.{sh,ps1,py})
+# under this human-copy/ directory, and for appending this task's own CI
+# steps to the shared test.yml candidate. No workaround was attempted (the
+# block is already confirmed stable across T-001/T-002/T-004).
+#
+# Bundle A candidate content was fully prepared and verified in a scratch
+# working copy (never under a path matching a protected suffix): the six
+# files were reconstructed relative to each other exactly as
+# generate-guard-invariants.py expects (script_dir/../references/
+# guard-invariants.json, script_dir/generated/*), with
+# check-component-coverage.py/.sh/.ps1 added to PHASE2_TARGETS (in
+# generate-guard-invariants.py) and to both protected_gate_suffixes and
+# phase2_human_copy_targets (in guard-invariants.json, immediately after
+# the existing plugins/sdd-ship/skills/ship/SKILL.md entry, matching where
+# they land in the non-baseline residual per PHASE2_TARGETS order). The
+# REAL generate-guard-invariants.py was then run against this scratch copy
+# (not a reimplementation) to regenerate the four generated/ siblings, and
+# `generate-guard-invariants.py --check` was run against the scratch tree
+# and exited 0, confirming internal consistency. Preserved at
+# `/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/gen-scratch/`
+# (references/guard-invariants.json, scripts/generate-guard-invariants.py,
+# scripts/generated/{guard_invariants.py,guard-invariants.generated.js,
+# guard-invariants.generated.ps1,guard-invariants.generated.sh}):
+#
+# 247dace0ea4b8fa77cad3bf2e7a729b7fd16a1c8a84332cf709fe81e357ca690  plugins/sdd-quality-loop/references/guard-invariants.json
+# ed0d952a2287bceecd2322dc53495eb3c45ec7c8e2386b50598e9a49a3106605  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+# 6ec685c4dcc6ff27eed577ebdac1a3758d6327714ac970730ec6281b9012f96d  plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+# 03e4f4ba3a37eadea7e95a3b139521ab2c5f36d07b760fc88f50a6060c728441  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+# ebb20bc8b56479da67de6a8db53d7caaab468c1dc84e665c2536c98e6263868b plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+# 0f4fbab792493c94b95ecfb9beef45c9df40dfd3c3011134b2d8a3bb7c61a5d1  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+#
+# Bundle B (check-contract.{sh,ps1,py}) was NOT authored to full file
+# content in this session (time-boxed given the session's overall scope);
+# the exact additive change needed is specified precisely in
+# reports/implementation/epic-191-a3-path-ownership/T-004.md's Unresolved
+# Items instead (add "check-component-coverage" to the hardcoded
+# high/critical tier-minimum set already mirrored live in
+# risk-gate-matrix.md, plus a new producer-digest verification pass). No
+# sha256 entries are recorded here for Bundle B; none should be assumed.
+#
+# The combined test.yml candidate (T-001 + T-002 + T-004 CI steps) is
+# preserved at
+# /private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/T-004-staged-workflow-test-yml-candidate.yml
+# (sha256 494ea0a3f40fcc06d88c55bca428ea466dba2bfb3342c8adc237e3701ce7789f).

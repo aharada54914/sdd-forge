@@ -56,6 +56,7 @@ tests=(
   tests/model-freshness-check.tests.sh
   tests/component-path-resolver.tests.sh
   tests/component-path-diff-basis.tests.sh
+  tests/check-component-coverage.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

@@ -37,7 +37,9 @@ param(
     [bool]$IncludeUntracked = $true,
     [string]$RepoRoot = ".",
     [switch]$CheckSchemaConformance,
-    [string]$Schema = "contracts/project-context.template.yaml"
+    [string]$Schema = "contracts/project-context.template.yaml",
+    [switch]$Diagnose,
+    [string]$ProviderBindings = "sdd/provider-bindings.yaml"
 )
 $ErrorActionPreference = "Stop"
 
@@ -911,6 +913,79 @@ function Get-ChangedPaths {
 }
 
 # --------------------------------------------------------------------------
+# --diagnose (T-004, resolver-only diagnostics — never Gate-invoked)
+# --------------------------------------------------------------------------
+
+function Invoke-Diagnose {
+    param($ClassifyResult, [string]$ProviderBindingsPath)
+    $records = $ClassifyResult.records
+    $findings = [System.Collections.Generic.List[object]]::new()
+
+    $unowned = @($records | Where-Object { $_.classification -eq "UNOWNED" } | ForEach-Object { $_.raw_path })
+    $findings.Add([ordered]@{ id = "Fail-1"; triggered = ($unowned.Count -gt 0); detail = [ordered]@{ unowned_paths = $unowned } })
+
+    $overlap = @($records | Where-Object { $_.classification -eq "OVERLAP" } | ForEach-Object { $_.raw_path })
+    $findings.Add([ordered]@{ id = "Fail-3"; triggered = ($overlap.Count -gt 0); detail = [ordered]@{ overlap_paths = $overlap } })
+
+    $excludedMatch = @($records | Where-Object { $_.classification -eq "UNOWNED" -and $_.evidence.excluded_match } | ForEach-Object { $_.raw_path })
+    $findings.Add([ordered]@{ id = "Fail-5"; triggered = ($excludedMatch.Count -gt 0); detail = [ordered]@{ excluded_match_paths = $excludedMatch } })
+
+    $warnings = [System.Collections.Generic.List[string]]::new()
+    if ($ProviderBindingsPath -and (Test-Path -LiteralPath $ProviderBindingsPath -PathType Leaf)) {
+        $text = Get-Content -Raw -LiteralPath $ProviderBindingsPath
+        try {
+            $data = $text | ConvertFrom-Json -AsHashtable
+        } catch {
+            $data = ConvertFrom-MinimalYaml $text
+        }
+        $bindings = if ($data -is [System.Collections.IDictionary]) { $data["bindings"] } else { $null }
+        $exclusiveByComponent = @{}
+        foreach ($r in $records) {
+            if ($r.classification -eq "EXCLUSIVE") {
+                foreach ($comp in $r.owning_components) {
+                    if (-not $exclusiveByComponent.ContainsKey($comp)) { $exclusiveByComponent[$comp] = [System.Collections.Generic.List[string]]::new() }
+                    $exclusiveByComponent[$comp].Add($r.raw_path)
+                }
+            }
+        }
+        $matches = [System.Collections.Generic.List[object]]::new()
+        if ($bindings) {
+            foreach ($binding in $bindings) {
+                $adapterPaths = $binding["adapter_paths"]
+                $joined = $binding["provider_binding_ids"]
+                if ($null -eq $adapterPaths) {
+                    $warnings.Add("Fail-6: a provider binding declares no adapter_paths; evaluation not possible for it")
+                    continue
+                }
+                if (-not $joined) { continue }
+                foreach ($comp in $joined) {
+                    if (-not $exclusiveByComponent.ContainsKey($comp)) { continue }
+                    foreach ($path in $exclusiveByComponent[$comp]) {
+                        $nfcPath = ConvertTo-Nfc $path
+                        foreach ($pattern in $adapterPaths) {
+                            try {
+                                $normalized = Confirm-AndNormalizePattern $pattern
+                            } catch {
+                                continue
+                            }
+                            if (Test-PatternMatches -PatternNormalized $normalized -PathNfc $nfcPath) {
+                                $matches.Add([ordered]@{ component = $comp; path = $path; pattern = $pattern })
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        $findings.Add([ordered]@{ id = "Fail-6"; triggered = ($matches.Count -gt 0); detail = [ordered]@{ matches = @($matches) } })
+    } else {
+        $findings.Add([ordered]@{ id = "Fail-6"; triggered = $false; detail = [ordered]@{ status = "not-applicable (provider-bindings absent)" } })
+        $warnings.Add("Fail-6: provider-bindings file absent; recorded N/A")
+    }
+
+    return [ordered]@{ schema = "resolve-component-paths-diagnose/v1"; findings = @($findings); warnings = @($warnings) }
+}
+
+# --------------------------------------------------------------------------
 # CLI entry point
 # --------------------------------------------------------------------------
 
@@ -918,6 +993,16 @@ function ConvertTo-CanonicalJson {
     param($Value)
     return ($Value | ConvertTo-Json -Depth 20 -Compress:$false)
 }
+
+# T-004: check-component-coverage.ps1 dot-sources this script to reuse its
+# config/classification/git-diff functions without a second, potentially-
+# diverging implementation. Guard the executable CLI dispatch below so a
+# dot-source (". resolve-component-paths.ps1", InvocationName "." with no
+# bound parameters) only defines functions/classes and does NOT also run
+# this script's own CLI logic (which would try to classify with no -Config
+# and `exit 1` the CALLING script's session too, in the same in-process
+# scope, since `.`-sourcing shares scope and `exit` is not scope-limited).
+if ($MyInvocation.InvocationName -ne '.') {
 
 if ($CheckSchemaConformance) {
     $result = Test-SchemaConformance -SchemaPath $Schema
@@ -975,6 +1060,12 @@ try {
     exit 1
 }
 
+if ($Diagnose) {
+    $diag = Invoke-Diagnose -ClassifyResult $result -ProviderBindingsPath $ProviderBindings
+    Write-Output (ConvertTo-CanonicalJson $diag)
+    exit 0
+}
+
 if ($null -ne $diffBasis) {
     $classificationByPath = @{}
     foreach ($rec in $result.records) { $classificationByPath[$rec.raw_path] = $rec }
@@ -1020,3 +1111,5 @@ if ($null -ne $diffBasis) {
 
 Write-Output (ConvertTo-CanonicalJson $result)
 exit 0
+
+} # end: if ($MyInvocation.InvocationName -ne '.')

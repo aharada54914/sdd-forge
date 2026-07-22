@@ -835,6 +835,81 @@ def collect_changed_paths(
 
 
 # --------------------------------------------------------------------------
+# --diagnose (T-004, resolver-only diagnostics — never Gate-invoked)
+# --------------------------------------------------------------------------
+#
+# Fail-1/3/5/6(conditional)-only findings for early feedback, any time,
+# regardless of capability state. This subcommand's exit code carries no
+# Implementation Gate meaning and `quality-gate`'s `## Process` never
+# invokes it (REQ-004). Fail-2/Fail-4 are never evaluated here since they
+# require Facet Manifest data this subcommand deliberately never accepts.
+
+
+def diagnose(classify_result: dict, provider_bindings_path: Optional[str]) -> dict:
+    records = classify_result["records"]
+    findings = []
+
+    unowned = [r["raw_path"] for r in records if r["classification"] == "UNOWNED"]
+    findings.append({"id": "Fail-1", "triggered": len(unowned) > 0, "detail": {"unowned_paths": unowned}})
+
+    overlap = [r["raw_path"] for r in records if r["classification"] == "OVERLAP"]
+    findings.append({"id": "Fail-3", "triggered": len(overlap) > 0, "detail": {"overlap_paths": overlap}})
+
+    excluded_match = [
+        r["raw_path"] for r in records if r["classification"] == "UNOWNED" and r.get("evidence", {}).get("excluded_match")
+    ]
+    findings.append(
+        {"id": "Fail-5", "triggered": len(excluded_match) > 0, "detail": {"excluded_match_paths": excluded_match}}
+    )
+
+    warnings: List[str] = []
+    if provider_bindings_path and os.path.isfile(provider_bindings_path):
+        try:
+            with open(provider_bindings_path, "r", encoding="utf-8") as fh:
+                text = fh.read()
+            data = json.loads(text)
+        except (OSError, json.JSONDecodeError):
+            try:
+                data = parse_minimal_yaml(text)
+            except ConfigError:
+                data = {}
+        bindings = data.get("bindings") if isinstance(data, dict) else None
+        exclusive_by_component: Dict[str, List[str]] = {}
+        for r in records:
+            if r["classification"] == "EXCLUSIVE":
+                for comp in r["owning_components"]:
+                    exclusive_by_component.setdefault(comp, []).append(r["raw_path"])
+        matches = []
+        if isinstance(bindings, list):
+            for binding in bindings:
+                if not isinstance(binding, dict):
+                    continue
+                adapter_paths = binding.get("adapter_paths")
+                joined = binding.get("provider_binding_ids") or []
+                if adapter_paths is None:
+                    warnings.append("Fail-6: a provider binding declares no adapter_paths; evaluation not possible for it")
+                    continue
+                for comp in joined:
+                    for path in exclusive_by_component.get(comp, []):
+                        nfc_path = normalize_nfc(path)
+                        for pattern in adapter_paths:
+                            try:
+                                normalized = validate_and_normalize_pattern(pattern)
+                            except ConfigError:
+                                continue
+                            if pattern_matches(normalized, nfc_path):
+                                matches.append({"component": comp, "path": path, "pattern": pattern})
+        findings.append({"id": "Fail-6", "triggered": len(matches) > 0, "detail": {"matches": matches}})
+    else:
+        findings.append(
+            {"id": "Fail-6", "triggered": False, "detail": {"status": "not-applicable (provider-bindings absent)"}}
+        )
+        warnings.append("Fail-6: provider-bindings file absent; recorded N/A")
+
+    return {"schema": "resolve-component-paths-diagnose/v1", "findings": findings, "warnings": warnings}
+
+
+# --------------------------------------------------------------------------
 # CLI
 # --------------------------------------------------------------------------
 
@@ -896,6 +971,17 @@ def main(argv: Optional[List[str]] = None) -> int:
         default=SCHEMA_ARTIFACT_PATH,
         help=f"schema artifact path for --check-schema-conformance (default: {SCHEMA_ARTIFACT_PATH})",
     )
+    parser.add_argument(
+        "--diagnose",
+        action="store_true",
+        help="T-004: resolver-only diagnostics (Fail-1/3/5/6-conditional), never Gate-invoked, "
+        "no --facet-manifest input, exit code carries no Implementation Gate meaning",
+    )
+    parser.add_argument(
+        "--provider-bindings",
+        default="sdd/provider-bindings.yaml",
+        help="path to the Provider Bindings file for --diagnose's Fail-6 (default: sdd/provider-bindings.yaml)",
+    )
     args = parser.parse_args(argv)
 
     if args.check_schema_conformance:
@@ -938,6 +1024,11 @@ def main(argv: Optional[List[str]] = None) -> int:
     except (ConfigError, CollisionError) as exc:
         print(f"resolve-component-paths: {exc}", file=sys.stderr)
         return 1
+
+    if args.diagnose:
+        diag = diagnose(result, args.provider_bindings)
+        print(json.dumps(diag, indent=2, ensure_ascii=False, sort_keys=True))
+        return 0
 
     if diff_basis is not None:
         classification_by_path = {r["raw_path"]: r for r in result["records"]}

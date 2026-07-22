@@ -692,9 +692,9 @@ run — a documented blocker is recorded if absent, per Depends On.)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/191
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T16:24:31Z)
 
-Status: Planned
+Status: Blocked
 
 Risk: high
 

@@ -1,0 +1,5 @@
+components:
+  - name: desktop
+    paths:
+      include:
+        - "src/desktop/**"
