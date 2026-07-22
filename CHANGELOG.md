@@ -2,6 +2,33 @@
 
 ## Unreleased
 
+### 追加
+
+- **sdd-hook-guard.sh の `.ps1` フォールバック分岐カバレッジ (Issue #123,
+  epic-136-phase3 T-001, Stream A)**: 新規スイート
+  `tests/guard-dispatch-fallback.tests.sh` を追加。`sdd-hook-guard.sh` の
+  `python3` → `pwsh`/`powershell.exe`/`powershell` → `deny_unavailable`
+  フォールバックチェーン(`sdd-hook-guard.sh:36-52`)の全分岐を、実際の
+  `PATH` 制限サブシェル(隔離された fixture ディレクトリのみで構成、
+  `/usr/bin:/bin` には依存しない — このホストの `/usr/bin/python3` が実際に
+  動作する実装であることを確認した上での設計判断)を通じて実地検証する。
+  各 PowerShell 名スタブは薄い転送シム(`command -v` にのみ応答し、実際の
+  呼び出しは元の `PATH` から捕捉した実インタプリタへ `exec` で転送)で、
+  `.ps1` の決定自体は本物のまま保たれる。ディスパッチャが選択したランタイムの
+  決定を、同一ペイロードに対する `sdd-hook-guard.py`/`.ps1` の直接呼び出しと
+  突合(decision parity)し、`--emit exit`/`--emit copilot` 両モードを
+  TEST-001..007(AC-001..007)として個別に PASS/FAIL 報告する。本スイート
+  以前は `python3` 不在の `PATH` 下でディスパッチャを直接駆動するテストが
+  存在しなかった(`guard-parity.tests.sh` は SKIP、`guard-r10-port.tests.ps1`
+  は `.ps1` を直接起動しディスパッチャ自体を経由しない)ため、受け入れ先行
+  (acceptance-first)の POSITIVE proof として実装(RED→GREEN のバグ修正では
+  なく、design.md Test Strategy item 1 が明示する「これまで観測不可能だった
+  挙動の証明」)。`tests/run-all.sh` へ自スイートを1行登録(既存の guard 系
+  スイート近傍、アルファベット順)。`declare -A` および `set -u` 下での
+  無保護配列展開は本ファイルに一切存在しない(配列を使わない設計、
+  bash 3.2 実行環境で確認済み)。詳細は
+  `reports/implementation/epic-136-phase3/T-001.md` を参照。
+
 ## v1.11.0 (2026-07-21)
 
 ### 追加

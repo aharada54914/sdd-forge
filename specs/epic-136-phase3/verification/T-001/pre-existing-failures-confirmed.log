@@ -1,0 +1,42 @@
+# Pre-existing, unrelated regression-test failures — confirmed via parent-commit (pre-T-001) reproduction
+# Parent commit checked: 8802505 (docs(tasks): epic-136-phase3 T-001..T-004 Approval: Approved)
+# Method: git worktree add --detach <tmpdir> 8802505; ran each suite there; identical failure observed.
+
+=== tests/rollback-1.5.0.tests.sh (worktree HEAD=6d8fbc3, post-T-001-commit-A) ===
+On branch feature/epic-136-phase3
+Your branch is up to date with 'origin/feature/epic-136-phase3'.
+
+nothing to commit, working tree clean
+
+=== tests/rollback-1.5.0.tests.sh (parent commit 8802505, pre-T-001) ===
+Note: switching to '8802505be7c163dfb9a8691dc9e62ee0422a1887'.
+
+You are in 'detached HEAD' state. You can look around, make experimental
+changes and commit them, and you can discard any commits you make in this
+state without impacting any branches by switching back to a branch.
+
+If you want to create a new branch to retain commits you create, you may
+do so (now or later) by using -c with the switch command. Example:
+
+  git switch -c <new-branch-name>
+
+Or undo this operation with:
+
+  git switch -
+
+Turn off this advice by setting config variable advice.detachedHead to false
+
+Not currently on any branch.
+nothing to commit, working tree clean
+
+=== tests/workflow-state-registry.tests.sh (worktree HEAD=6d8fbc3, post-T-001-commit-A) ===
+not ok: canonical registry contract is invalid
+
+=== tests/workflow-state-registry.tests.sh (parent commit 8802505, pre-T-001) ===
+not ok: canonical registry contract is invalid
+
+=== tests/workflow-state-registry-parity.tests.sh (worktree HEAD=6d8fbc3, post-T-001-commit-A) ===
+not ok: canonical registry contract is invalid
+
+=== tests/workflow-state-registry-parity.tests.sh (parent commit 8802505, pre-T-001) ===
+not ok: canonical registry contract is invalid
