@@ -3087,6 +3087,15 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-190-a2-capability-registry-a1r1-0343",
       "previous_record_sha256": "aa57c72fd9aea8003274e731734e83bc44dce0e028d7ea4c50e5f1ed36d7d256",
       "record_sha256": "085f6dc78f2361e5252a2cc3260a8ac8d3c6bfbe22c8f60972bdee7a40e13434"
+    },
+    {
+      "sequence": 344,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-190-a2-capability-registry-qg-T-001-seq0344",
+      "host_session_id": "SESS-qg-epic-190-a2-capability-registry-T-001-0344",
+      "previous_record_sha256": "085f6dc78f2361e5252a2cc3260a8ac8d3c6bfbe22c8f60972bdee7a40e13434",
+      "record_sha256": "7a93c7e648831fe2fa7af985109822f5b6d7b5bff5d12cd6114a82a993600d33"
     }
   ]
 }
