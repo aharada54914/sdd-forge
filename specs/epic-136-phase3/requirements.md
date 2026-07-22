@@ -575,10 +575,12 @@ target) and a saved quality-gate report before it may be marked Done.
    `guard-cwd-bypass.tests.sh`'s existing `cd&&rm` corpus and the
    RED/GREEN staged-guard parameterization pattern
    (`GUARD_PY`/`GUARD_JS`/etc. env-var indirection) it establishes; register
-   in `tests/run-all.sh`; stage a CI step via human-copy (may share the
-   SAME staged `test.yml` batch as Stream A's step, design.md decides);
-   CREATE the `CHANGELOG.md` entry citing #124. Blockers: none —
-   independent.
+   in `tests/run-all.sh`; stage its CI step via human-copy in the ONE
+   shared staged batch this feature produces (Non-goals; the batch count
+   is decided at this spec level — design.md decides only the internal
+   ordering of edits WITHIN that single reviewed diff, exactly as stated
+   for Stream D in item 4 below); CREATE the `CHANGELOG.md` entry citing
+   #124. Blockers: none — independent.
 3. Stream C (#125): **Blocked pending ADR-0010 `Status: Accepted`.** Once
    unblocked: create `tests/workflow-scenarios/` and its scenario schema
    per AC-012..AC-015, reusing `tests/lib/loop-driver.sh`'s helper
@@ -766,13 +768,16 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   not hedge by inventing a fallback vocabulary, since doing so would
   recreate the exact dual-vocabulary risk ADR-0010 itself warns against
   (investigation.md INV-015).
-- Medium: Streams A and D both stage edits to the SAME protected
-  `.github/workflows/test.yml` file within this one feature; if
-  implemented as two separate, sequential human-copy rounds rather than
-  one coordinated batch, the second round's staged candidate must be
-  diffed against the FIRST round's already-applied live state, not against
-  this spec's authoring-time snapshot — design.md's Global Constraints
-  names the exact sequencing to avoid a stale-diff human-copy candidate.
+- Medium: Streams A, B, and D all stage edits to the SAME protected
+  `.github/workflows/test.yml` file within this one feature. The batch
+  count is settled at this spec level (the ONE shared staged batch,
+  Non-goals/OQ-4), which removes the two-sequential-rounds stale-diff
+  hazard by construction; the residual risk is intra-batch: the single
+  staged candidate must be authored against the CURRENT live file and
+  carry all three streams' edits coherently — design.md's Global
+  Constraints names the exact internal ordering of edits within that one
+  reviewed diff so no stream's edit is authored against a stale
+  intermediate state of the candidate.
 - Medium: Stream B's 4-runtime x 3-tool_name-shape (12-combination) matrix
   per defect class, if implemented as one large assertion rather than 12
   named fixture+assertion pairs, could pass by accident on one combination
