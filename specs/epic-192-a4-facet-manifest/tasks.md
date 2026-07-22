@@ -119,9 +119,32 @@ not a **start** blocker (see each task's own Blockers section).
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/192
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-22T14:40:35Z)
 
-Status: Planned
+Status: Blocked
+
+Blocker (recorded 2026-07-22T23:40:00Z): Everything in Scope/Done When is
+complete and verified **except** the "staged `.github/workflows/test.yml`
+candidate" bullet. Writing
+`specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml`
+(via both the Bash and Write tools, reproduced 3 times) is rejected by
+`sdd-hook-guard.sh` with: "SDD決定論ゲート: エージェントはゲートスクリプト・
+フック設定・テストファイルを書き換えられません...sudo でもバイパスできませ
+ん" — a hard, sudo-immune deterministic gate. This directly contradicts this
+task's own Protected Files section and Planned Files entry above, both of
+which name that exact human-copy path "new staged candidate, agent-editable
+... R-10 protected real path, human-copy only." The guard appears to match
+on the `.github/workflows/test.yml` suffix/basename regardless of the
+`specs/<feature>/human-copy/` prefix the design's own human-copy staging
+convention (and multiple prior epics' completed precedent, e.g.
+epic-159-pillar-c's CHANGELOG entry) relies on. Per operating instructions
+("ガードが deny した場合は迂回せず停止・報告"), no further tool or path
+workaround was attempted; this is reported for human resolution rather than
+routed around. Every other Done When item is independently verified complete
+(see `reports/implementation/epic-192-a4-facet-manifest/T-001.md`). The
+CHANGELOG.md bullet (Commit B) is deferred: Global Constraints bundles the
+CI-staging step into Commit A's own definition, so Commit A itself cannot be
+declared complete while this bullet is outstanding.
 
 Risk: high
 
