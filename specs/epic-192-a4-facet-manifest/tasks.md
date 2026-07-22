@@ -374,23 +374,29 @@ Approval: Draft
 
 Status: Planned
 
-Risk: medium
+Risk: high
 
 Risk Rationale: Evaluated against
 `plugins/sdd-quality-loop/references/risk-classification-policy.md`
-directly. `medium` is justified: `contracts/capability-summary.schema.json`
-is a normal, well-bounded feature addition with observable behavior
-(schema-conformance pass/fail) but a materially narrower blast radius than
-T-001's Facet Manifest — no sibling epic's already-committed script reads
-`capability-summary.yaml` today (unlike `affected_components`, INV-006), and
-this feature ships the Lite-track shape only, six fixed fields,
-`additionalProperties: false` (Non-goals, "M full Summary"). It is not
-`high`: a defect here would produce a schema-invalid Lite Capability
-Summary a validator rejects, not a silently-corrupted one a downstream Gate
-trusts (no such Gate reads this artifact yet). Required Workflow is
-therefore `acceptance-first` per the policy's medium-tier row.
+directly (revised at task-review round 1 per reviewer-b's RISK-APPROPRIATE
+finding — the original `medium` classification self-certified a narrowing
+the policy forbids; see below). `high` is justified, not merely asserted:
+the policy's `high` tier names "public API contracts" as a sensitive
+surface, and `contracts/capability-summary.schema.json` is exactly that —
+design.md's own Cross-Layer Dependencies states "Every schema and script
+this feature defines → consumed by Epic A5's Capability Resolver," the same
+downstream-consumer relationship T-001's Facet Manifest schema (already
+`high`) carries. The policy also states explicitly, "An agent MUST NOT
+self-certify its own risk tier as the basis for relaxing a gate" — this
+task's original Risk Rationale did exactly that, arguing the artifact's
+*current* absence of an already-committed downstream reader (unlike
+`affected_components`, INV-006) made it materially lower-risk than T-001's
+sibling schema; the policy's "public API contracts" trigger names no such
+carve-out, so that narrowing is not a valid basis for a tier below `high`.
+Required Workflow is therefore `tdd` (Red→Green) per the policy's high-tier
+row.
 
-Required Workflow: acceptance-first
+Required Workflow: tdd
 
 Security-Sensitive: true
 
@@ -466,7 +472,7 @@ Strategy item 3. Register the suite, stage this task's CI step.
 
 Commit A (implementation — schema + validator + suite + fixtures + CI
 wiring):
-- Write the acceptance checks first (acceptance-first): TEST-012 (Lite-only
+- Write the acceptance checks first (TDD Red→Green): TEST-012 (Lite-only
   required-field set), TEST-013 (decision v2 §6 worked example, `schema`/
   `feature`/`track` added), TEST-014 (`additionalProperties: false`
   rejects a `facet_manifest_ref`/extra field), TEST-029 (`validate-
@@ -508,10 +514,12 @@ Commit B (documentation):
   manifest/verification/T-002/metaschema-conformance.md` records the
   one-time draft-07 metaschema check result for `capability-
   summary.schema.json`.
-- [ ] **Acceptance-first evidence** — RED (each fixture against a
-  deliberately non-conformant schema/validator) and GREEN (the full suite),
-  captured in `specs/epic-192-a4-facet-manifest/verification/T-002/
-  {red,green}-sh.log`.
+- [ ] **TDD evidence** — RED (each fixture against a deliberately
+  non-conformant schema/validator) and GREEN (the full suite against the
+  correct schema/validator), captured in `specs/epic-192-a4-facet-manifest/
+  verification/T-002/{red,green}-sh.log`. An independent quality-gate
+  verdict (a named reviewer distinct from the implementing agent) records
+  PASS.
 
 ### Out of Scope
 
