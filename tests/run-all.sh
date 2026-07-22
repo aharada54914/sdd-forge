@@ -44,6 +44,7 @@ tests=(
   tests/structure-check-feature-mode.tests.sh
   tests/quality-gate-cycle-limit.tests.sh
   tests/guard-dispatch-fallback.tests.sh
+  tests/guard-negative-corpus.tests.sh
   tests/guard-ps1-ascii.tests.sh
   tests/loop-inventory.tests.sh
   tests/loop-driver.tests.sh
