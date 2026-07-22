@@ -78,6 +78,141 @@ jobs:
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
 
+      - name: Test loop inventory registration forcing (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-inventory.tests.sh
+
+      - name: Test loop inventory registration forcing (pwsh)
+        shell: pwsh
+        run: ./tests/loop-inventory.tests.ps1
+
+      - name: Test loop driver smoke suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-driver.tests.sh
+
+      - name: Test loop driver smoke suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-driver.tests.ps1
+
+      - name: Test loop consistency suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-consistency.tests.sh
+
+      - name: Test loop consistency suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-consistency.tests.ps1
+
+      - name: Test loop escalation suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/loop-escalation.tests.sh
+
+      - name: Test loop escalation suite (pwsh)
+        shell: pwsh
+        run: ./tests/loop-escalation.tests.ps1
+
+      - name: Test agent-model-capabilities v2 registry parity lock (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/agent-capabilities-v2.tests.sh
+
+      - name: Test agent-model-capabilities v2 registry parity lock (pwsh)
+        shell: pwsh
+        run: ./tests/agent-capabilities-v2.tests.ps1
+
+      - name: Test render-agent-frontmatter suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/render-agent-frontmatter.tests.sh
+
+      - name: Test render-agent-frontmatter suite (pwsh)
+        shell: pwsh
+        run: ./tests/render-agent-frontmatter.tests.ps1
+
+      - name: Test turn-first agent-model routing suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/agent-model-routing.tests.sh
+
+      - name: Test turn-first agent-model routing suite (pwsh)
+        shell: pwsh
+        run: ./tests/agent-model-routing.tests.ps1
+
+      - name: Test HITL/WFI-audit terminal-behavior suite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/hitl-wfi-terminal.tests.sh
+
+      - name: Test HITL/WFI-audit terminal-behavior suite (pwsh)
+        shell: pwsh
+        run: ./tests/hitl-wfi-terminal.tests.ps1
+
+      - name: Test check-placeholders brownfield behavior lock (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/check-placeholders-brownfield.tests.sh
+
+      - name: Test check-placeholders brownfield behavior lock (pwsh)
+        shell: pwsh
+        run: ./tests/check-placeholders-brownfield.tests.ps1
+
+      - name: Test bump-version.sh loop-gate prerequisite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/bump-version-gate.tests.sh
+
+      - name: Test bump-version.sh loop-gate prerequisite (pwsh)
+        shell: pwsh
+        run: ./tests/bump-version-gate.tests.ps1
+
+      - name: Test release.yml required loop-gate job (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/release-loop-gate.tests.sh
+
+      - name: Test release.yml required loop-gate job (pwsh)
+        shell: pwsh
+        run: ./tests/release-loop-gate.tests.ps1
+
+      - name: Test run-panelist-effort suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/run-panelist-effort.tests.sh
+
+      - name: Test run-panelist-effort suite (pwsh)
+        shell: pwsh
+        run: ./tests/run-panelist-effort.tests.ps1
+
+      - name: Test model-freshness-check suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/model-freshness-check.tests.sh
+
+      - name: Test model-freshness-check suite (pwsh)
+        shell: pwsh
+        run: ./tests/model-freshness-check.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
@@ -85,6 +220,10 @@ jobs:
       - name: Test selected-feature structure validation
         shell: pwsh
         run: ./tests/structure-check-feature-mode.tests.ps1
+
+      - name: Test quality-gate cycle-limit suite (bash)
+        shell: bash
+        run: bash ./tests/quality-gate-cycle-limit.tests.sh
 
       - name: Test portable review-loop prechecks (pwsh)
         shell: pwsh
@@ -262,7 +401,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "20"
           cache: npm
@@ -317,7 +456,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Set up Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "20"
           cache: npm
@@ -368,7 +507,7 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
 
       - name: Set up Node.js
-        uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: "20"
           cache: npm

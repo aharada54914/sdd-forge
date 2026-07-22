@@ -2,12 +2,12 @@
 d3fc35cc4dfad5a9139b9ccc1acd262d76812affdf56282aab9700301e9b6631  plugins/sdd-quality-loop/scripts/sdd-hook-guard.js
 dcb1899e45431baceeefd38762ef4e04e89ece48a44f276e84b8812c0839228e  plugins/sdd-quality-loop/scripts/sdd-hook-guard.ps1
 1def3bcac3db0e1b6f8ae859cd8ae13957e199e87d2c0e2bc9b3317f18e9e840  plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh
-4d79bf32f9911623215258510ee3289af5b1f56dff9956ffff33189d94ba1420  plugins/sdd-quality-loop/scripts/check-contract.ps1
+ca9183c7cacecdd12df0d6f5d077b021b316a907460c64db654d3046e3072937  plugins/sdd-quality-loop/scripts/check-contract.ps1
 afc7b0738e83bf55dd49a7f66a27a7b45209f4ace524d34ccfa2f9259b4a3e03  plugins/sdd-lite/references/risk-upgrade-policy.md
 192fc9887883e30e4ab8ff2f512ca7169ce7dea3149ab7cd60efb36312d8ba45  plugins/sdd-lite/scripts/check-risk-upgrade.sh
 d1ac00563adecf9906516b7aa29d98b36ac5a485ba245532adf3ed00f14c4b38  plugins/sdd-lite/scripts/check-risk-upgrade.ps1
 40fdba6f1849effb06a8439a09b92a192a36b42a708c3cf1a253d7d48a50fc74  plugins/sdd-lite/skills/lite-spec/SKILL.md
-5748a0928443bc63307bf3ab7bdb75c158bdfbef9cde72e3b3f5354bac063e91  plugins/sdd-ship/skills/ship/SKILL.md
+6e9d9c44641171c2934178cb8fa1bda4a4e10f156a349189e2ed3a2df050ec43  plugins/sdd-ship/skills/ship/SKILL.md
 df007163c4422f1760302977ac5091736f797380c5405f793d801772a287ca08  plugins/sdd-quality-loop/references/guard-invariants.json
 e63de23091b603f220ef6e26e1cbc94b0f81e62f5ead63e4c02418e07732408d  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
 749c5ca3b4131e7d9408c208e4a0c826c220f16022ae927de61da99fc10373aa  plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
@@ -15,5 +15,5 @@ a7cd73055b37ad9da9f1ca407f218cd68c4bdc86ceaee7ef0e621fff8271aa73  plugins/sdd-qu
 fb5342e7ba6073d3e628bfbd72ea64ee2f1ac5966acd6e42c25643db8e8928ec  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
 eed499b5626ec7a1aa70fd8ab5ce4372bac84c63d2939aba10fb51c55ae2da08  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
 055c08bc6f7eeb807252b455346fe36d0286c16c2befc6d1582d5a38179e83c4  tests/guard-parity.tests.sh
-094c9dd8ed743958867f043e2887a4c533c86031c4a4124823bf14153785e82b  .github/workflows/test.yml
+7470c23b3aec5e9eaf55d3dca268293d5c5dbbd131087fed8330d71859583e7f  .github/workflows/test.yml
 e00f76b687b229fb80a7ce291b9e0ec5640f5c62d8906ea37721563a7b10010a  specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
