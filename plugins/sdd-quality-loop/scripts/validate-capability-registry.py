@@ -10,6 +10,8 @@ Checks (diagnostic ID):
   (a) gate-id-duplicate            -- Gate-ID uniqueness, top-level gates[]
   (b) implementation-ref-missing   -- stage:implementation gates resolve to an existing file
   (c) unregistered-script          -- Gate implementation identity / unregistered-script detection
+      gate-implementation-collision -- (c)'s own AC-016 sibling: two gates[] entries must
+      never resolve implementation_ref to the identical real path
   (d) pack-owns-gate-definition    -- no capability-packs/*/gates.yaml exists (forward-guard)
   (e) stage-missing                -- defense-in-depth re-assertion, independent of schema
   (f) dangling-gate-reference       -- capabilities[].gate_ids referential integrity
@@ -181,7 +183,14 @@ def check_c_unregistered_script(registry, repo_root, diagnostics):
     gates[].implementation_ref (symlink-resolved before comparison). A
     non-check-* script, or any script outside the scan root, is never
     scanned or flagged. Wrapper (.sh/.ps1/.js) siblings are never
-    independently scanned -- only their .py master is a candidate."""
+    independently scanned -- only their .py master is a candidate.
+
+    AC-016 also requires: "two gates[] entries must not resolve to the
+    same wrapper group" -- i.e. two distinct gates[] entries must never
+    resolve their implementation_ref to the identical real path. This is
+    tracked as gate-implementation-collision, a diagnostic distinct from
+    unregistered-script (RT-20260723-001 remedy: a set-based dedup here
+    previously absorbed a collision silently instead of failing it)."""
     scan_root = repo_root / SCAN_ROOT_REL
     ok = True
 
@@ -191,7 +200,7 @@ def check_c_unregistered_script(registry, repo_root, diagnostics):
             if entry.is_file() and entry.name.startswith("check-") and entry.suffix == ".py":
                 masters[str(entry.resolve())] = entry
 
-    registered_reals = set()
+    registered_by_real = {}  # real-path str -> [gate id, ...] referencing it
     for g in registry.get("gates", []):
         if not isinstance(g, dict):
             continue
@@ -200,10 +209,19 @@ def check_c_unregistered_script(registry, repo_root, diagnostics):
             continue
         ref_path = repo_root / ref
         if ref_path.is_file():
-            registered_reals.add(str(ref_path.resolve()))
+            real = str(ref_path.resolve())
+            registered_by_real.setdefault(real, []).append(g.get("id", "?"))
+
+    for real_str, gate_ids in sorted(registered_by_real.items()):
+        if len(gate_ids) > 1:
+            diagnostics.append(
+                "registry: gate-implementation-collision: "
+                f"{sorted(gate_ids)} all resolve to {real_str}"
+            )
+            ok = False
 
     for real_str, original in masters.items():
-        if real_str not in registered_reals:
+        if real_str not in registered_by_real:
             diagnostics.append(f"registry: unregistered-script: {original.relative_to(repo_root)}")
             ok = False
     return ok

@@ -81,6 +81,17 @@ assert_not_contains "TEST-017(i): a properly-referenced master is not flagged" "
 assert_not_contains "TEST-017(ii): a script outside the scan root is never flagged" "check-outside.py"
 assert_not_contains "TEST-017(iv): a non-check-* script under the scan root is never scanned" "emit-run-record.py"
 
+# RT-20260723-001 remedy: TEST-016's three previously-missing assertions.
+run_validate validate-registry-identity-non-py-ref --repo-root "$IDENTITY_REPO"
+assert_contains "TEST-016(1): a non-.py implementation_ref does not register its .py master" "registry: unregistered-script: plugins/sdd-quality-loop/scripts/check-registered.py"
+
+run_validate validate-registry-identity-symlink --repo-root "$IDENTITY_REPO"
+assert_not_contains "TEST-016(2): a gate referencing a symlinked entry point correctly registers the real master" "check-registered.py"
+
+run_validate validate-registry-identity-collision --repo-root "$IDENTITY_REPO"
+assert_contains "TEST-016(3): two gates resolving to the identical master are a gate-implementation-collision" "registry: gate-implementation-collision:"
+assert_contains "TEST-016(3): collision diagnostic names both colliding gate ids" "'collision-gate-a', 'collision-gate-b'"
+
 # =====================================================================
 # TEST-018 (e): defense-in-depth stage-missing re-assertion (schema-bypassing fixture)
 # =====================================================================

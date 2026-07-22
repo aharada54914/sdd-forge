@@ -87,6 +87,17 @@ Assert-NotContains 'TEST-017(i): a properly-referenced master is not flagged' $i
 Assert-NotContains 'TEST-017(ii): a script outside the scan root is never flagged' $inv 'check-outside.py'
 Assert-NotContains 'TEST-017(iv): a non-check-* script under the scan root is never scanned' $inv 'emit-run-record.py'
 
+# RT-20260723-001 remedy: TEST-016's three previously-missing assertions.
+$inv = Invoke-Validate -Fixture 'validate-registry-identity-non-py-ref' -ExtraArgs @('--repo-root', $identityRepo)
+Assert-Contains 'TEST-016(1): a non-.py implementation_ref does not register its .py master' $inv 'registry: unregistered-script: plugins/sdd-quality-loop/scripts/check-registered.py'
+
+$inv = Invoke-Validate -Fixture 'validate-registry-identity-symlink' -ExtraArgs @('--repo-root', $identityRepo)
+Assert-NotContains 'TEST-016(2): a gate referencing a symlinked entry point correctly registers the real master' $inv 'check-registered.py'
+
+$inv = Invoke-Validate -Fixture 'validate-registry-identity-collision' -ExtraArgs @('--repo-root', $identityRepo)
+Assert-Contains 'TEST-016(3): two gates resolving to the identical master are a gate-implementation-collision' $inv 'registry: gate-implementation-collision:'
+Assert-Contains 'TEST-016(3): collision diagnostic names both colliding gate ids' $inv "'collision-gate-a', 'collision-gate-b'"
+
 # =====================================================================
 # TEST-018 (e): defense-in-depth stage-missing re-assertion
 # =====================================================================

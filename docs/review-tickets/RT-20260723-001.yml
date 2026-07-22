@@ -1,5 +1,31 @@
 ticket_id: RT-20260723-001
-status: open
+status: resolved
+resolution: |
+  2026-07-23: Remedied in plugins/sdd-quality-loop/scripts/validate-capability-registry.py:
+  check_c_unregistered_script now tracks implementation_ref resolutions as
+  real-path -> [gate ids] instead of a bare set, and emits a new
+  `gate-implementation-collision` diagnostic (naming every colliding gate
+  id) whenever two or more gates[] entries resolve to the identical real
+  path -- closing the AC-016 gap the evaluator's crafted registry
+  demonstrated (exit 0 where the spec requires failure).
+  Added the three missing TEST-016 assertions to both
+  tests/validate-capability-registry.tests.{sh,ps1}: (1) a gate naming a
+  .sh wrapper instead of its .py master (the master correctly shows
+  unregistered-script), (2) a gate referencing a symlinked entry point
+  (the real master correctly registers, proving symlink resolution),
+  (3) the new collision diagnostic (two new fixtures:
+  validate-registry-identity-{non-py-ref,symlink,collision}.json, plus a
+  check-registered-symlink.py symlink added to the existing
+  identity-bidirectional-repo fixture).
+  TDD evidence: reran the ORIGINAL (pre-remedy, commit 2e79289) validator
+  against the new assertions first -- RED showed exactly the reported bug
+  (both collision assertions fail; the non-py-ref and symlink assertions
+  already passed even pre-remedy, since only collision detection was
+  actually broken) -- then GREEN after the fix, 27/27 both runtimes.
+  Evidence: specs/epic-190-a2-capability-registry/verification/T-004/
+  {red,green}-{sh,ps1}-remedy.log.
+  Minor findings 3-5 from the attempt-1 report were not actioned this
+  round per the evaluator's own instruction (recorded only).
 type: incomplete-implementation
 severity: major
 target:
