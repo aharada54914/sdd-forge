@@ -14,6 +14,7 @@ IMPL_TEMPLATE="$REPO_ROOT/plugins/sdd-implementation/templates/implementation-re
 QG_TEMPLATE="$REPO_ROOT/plugins/sdd-quality-loop/templates/quality-report.template.md"
 VALIDATOR="$REPO_ROOT/plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
 BUNDLE_CHECK="$REPO_ROOT/plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+IMPL_REPORT_VALIDATOR="$REPO_ROOT/plugins/sdd-implementation/scripts/validate-implementation-report.sh"
 
 WORK="$(mktemp -d "${TMPDIR:-/tmp}/template-parity.XXXXXX")"
 trap 'rm -rf "$WORK"' EXIT
@@ -90,6 +91,51 @@ fi
 grep -Fq '/^## Outputs[[:space:]]*$/' "$VALIDATOR" &&
     ok "validator pin: Outputs-section parser still present in launch boundary" ||
     fail "validator pin: Outputs-section parser changed in launch boundary"
+
+# ---------------------------------------------------------------------------
+# WFI-017 leg: implementation report template vs its OWN authoring-time
+# validator (validate-implementation-report.sh). `render` above only fills
+# the placeholders the other legs care about, leaving every other field as
+# inert "fixture-value" text -- not enough to satisfy the full validator
+# (Test Result enum, Task Attempt Count, escalation vacuity, Isolation Mode,
+# Current Status enum). `render_impl_report_ok` renders straight from the
+# template with the superset of substitutions needed to pass every rule,
+# proving the template's CURRENT "## Outputs" table form satisfies the
+# validator end-to-end, not just the single-row shape Rule 3 already pins.
+# ---------------------------------------------------------------------------
+render_impl_report_ok() {
+    sed \
+        -e "s|{{task_id}}|$TASK_ID|g" \
+        -e "s|{{output_path}}|$OUT_PATH|g" \
+        -e "s|{{output_sha256}}|$OUT_HASH|g" \
+        -e "s|{{model}}|anthropic/opus|g" \
+        -e "s|{{effort}}|standard|g" \
+        -e "s|{{PASS_or_FAIL_or_BLOCKED_or_NOT_RUN}}|PASS|g" \
+        -e "s|{{task_attempt_count}}|1|g" \
+        -e "s|{{escalation_prior_tier}}|None|g" \
+        -e "s|{{escalation_next_tier}}|None|g" \
+        -e "s|{{escalation_failure_class}}|None|g" \
+        -e "s|{{escalation_attempt_number}}|None|g" \
+        -e "s|{{escalation_reason}}|None|g" \
+        -e "s|{{isolation_mode}}|fresh-agent|g" \
+        -e "s|{{fallback_reason_or_none}}|None|g" \
+        -e "s|{{handoff_reload_evidence_hash_or_none}}|None|g" \
+        -e "s|{{handoff_status}}|Implementation Complete|g" \
+        -e "s|{{[a-zA-Z_|]*}}|fixture-value|g" \
+        "$1"
+}
+IMPL_FULL_RENDERED="$WORK/impl-report-full.md"
+render_impl_report_ok "$IMPL_TEMPLATE" > "$IMPL_FULL_RENDERED"
+
+IMPL_VALIDATOR_OUTPUT="$(bash "$IMPL_REPORT_VALIDATOR" "$IMPL_FULL_RENDERED" 2>&1 || true)"
+if [[ "$IMPL_VALIDATOR_OUTPUT" == "IMPLEMENTATION_REPORT_OK" ]]; then
+    ok "impl-report template: rendered report passes validate-implementation-report.sh"
+else
+    fail "impl-report template: rendered report rejected by validate-implementation-report.sh (got: $IMPL_VALIDATOR_OUTPUT)"
+fi
+grep -Fq 'outputs_row_pattern = re.compile(' "$IMPL_REPORT_VALIDATOR" &&
+    ok "validator pin: Outputs-table row parser still present in validate-implementation-report.sh" ||
+    fail "validator pin: Outputs-table row parser missing from validate-implementation-report.sh"
 
 # ---------------------------------------------------------------------------
 # Quality gate report template vs the evidence-bundle validator

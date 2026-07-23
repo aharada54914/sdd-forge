@@ -287,7 +287,7 @@ fi
 # deterministic, while pre-schema reports stay readable byte-for-byte.
 for needle in \
   'Report Schema: implementation-report/v2' \
-  '## Output Paths And Hashes' \
+  '## Outputs' \
   '**Test Command**' \
   '**Test Result**' \
   '**Test Evidence Path**' \
@@ -317,11 +317,16 @@ printf 'green evidence\n' > "$REPORT_WORK/evidence/green.log"
 cat > "$REPORT_WORK/current.md" <<'EOF'
 # Implementation Report: T-006
 
+- Model: anthropic/opus
+- Effort: standard
+
 Report Schema: implementation-report/v2
 
-## Output Paths And Hashes
+## Outputs
 
-- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+| Path | SHA-256 |
+|---|---|
+| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
 
 ## Test Evidence
 
@@ -362,6 +367,119 @@ current_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/current.
   fail "complete current-schema implementation report was rejected"
 [[ "$current_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
   fail "unexpected current-schema success diagnostic: $current_output"
+
+# WFI-017: the v2 outputs contract accepts EITHER the current "## Outputs"
+# table (current.md, above) or the legacy "## Output Paths And Hashes"
+# bullet list, retained solely so previously committed bullet-only and
+# dual-form v2 reports remain valid -- and BOTH together, with duplicate-path
+# rejection spanning both sections.
+cat > "$REPORT_WORK/bullet-only-v2.md" <<'EOF'
+# Implementation Report: T-020
+
+- Model: anthropic/opus
+- Effort: standard
+
+Report Schema: implementation-report/v2
+
+## Output Paths And Hashes
+
+- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+
+## Test Evidence
+
+- **Test Command**: `bash tests/example.tests.sh`
+- **Test Result**: PASS
+- **Test Evidence Path**: `specs/example/verification/T-020/green.log`
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Run ID**: run-020
+- **Session ID**: session-020
+- **Agent Instance ID**: agent-020
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+None.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: Independent quality review
+- **Unresolved Items**: None
+EOF
+bullet_only_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/bullet-only-v2.md")" ||
+  fail "bullet-only v2 (legacy ## Output Paths And Hashes only) implementation report was rejected"
+[[ "$bullet_only_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected bullet-only v2 success diagnostic: $bullet_only_output"
+
+cat > "$REPORT_WORK/dual-form-v2.md" <<'EOF'
+# Implementation Report: T-021
+
+- Model: anthropic/opus
+- Effort: standard
+
+Report Schema: implementation-report/v2
+
+## Outputs
+
+| Path | SHA-256 |
+|---|---|
+| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
+
+## Output Paths And Hashes
+
+- **Path**: `plugins/example-legacy.md`; **SHA-256**: `bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb`
+
+## Test Evidence
+
+- **Test Command**: `bash tests/example.tests.sh`
+- **Test Result**: PASS
+- **Test Evidence Path**: `specs/example/verification/T-021/green.log`
+
+## Iteration And Escalation
+
+- **Task Attempt Count**: 1
+- **Escalation Prior Tier**: None
+- **Escalation Next Tier**: None
+- **Escalation Failure Class**: None
+- **Escalation Attempt Number**: None
+- **Escalation Reason**: None
+
+## Isolation Evidence
+
+- **Run ID**: run-021
+- **Session ID**: session-021
+- **Agent Instance ID**: agent-021
+- **Isolation Mode**: fresh-agent
+- **Fallback Reason**: None
+- **Handoff Reload Evidence Hash**: None
+
+## Unresolved Items
+
+None.
+
+## Session Handoff
+
+- **Current Status**: Implementation Complete
+- **Next Action**: Independent quality review
+- **Unresolved Items**: None
+EOF
+dual_form_output="$(bash "$IMPLEMENTATION_REPORT_VALIDATOR" "$REPORT_WORK/dual-form-v2.md")" ||
+  fail "dual-form v2 (## Outputs table + legacy ## Output Paths And Hashes, no duplicate path) implementation report was rejected"
+[[ "$dual_form_output" == "IMPLEMENTATION_REPORT_OK" ]] ||
+  fail "unexpected dual-form v2 success diagnostic: $dual_form_output"
 
 cat > "$REPORT_WORK/legacy.md" <<'EOF'
 # Implementation Report: T-001
@@ -427,7 +545,7 @@ expect_report_rejection() {
 }
 
 missing_cases=(
-  '- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`'
+  '| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |'
   '- **Test Command**: `bash tests/example.tests.sh`'
   '- **Test Result**: PASS'
   '- **Test Evidence Path**: `specs/example/verification/T-006/green.log`'
