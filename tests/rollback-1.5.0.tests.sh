@@ -188,21 +188,15 @@ jq -e '
     (.new_sha256 == null or (.new_sha256 | test("^[a-f0-9]{64}$"))))
 ' "$canonical" >/dev/null || fail "canonical rollback contract is not closed and pinned"
 
-# TEST-006: materialize the reviewed T-007 tree plus the six post-review T-008
-# outputs, then run the real pinned inventory and a 1.4.0 release validator.
+# TEST-006: materialize the 1.5.0 release tree (the reviewed T-007 tree plus
+# the six post-review T-008 outputs) at its pinned release commit, then run
+# the real pinned inventory and a 1.4.0 release validator. HEAD keeps moving
+# past 1.5.0, so the release tree is pinned by commit instead of copying the
+# current worktree files, whose hashes legitimately drift after the release.
+t008_release_commit="9ce412176eea876aff945e665ccd0884a1540181"
 canonical_release="$TMP/canonical-release"
 git clone -q "$ROOT" "$canonical_release"
-for path in \
-  contracts/rollback-1.5.0.json \
-  scripts/rollback-1.5.0.sh scripts/rollback-1.5.0.ps1 \
-  tests/rollback-1.5.0.tests.sh tests/rollback-1.5.0.tests.ps1 \
-  tests/run-all.sh tests/run-all.ps1; do
-  mkdir -p "$canonical_release/$(dirname "$path")"
-  cp "$ROOT/$path" "$canonical_release/$path"
-done
-git -C "$canonical_release" add .
-git -C "$canonical_release" -c user.name=rollback-test \
-  -c user.email=rollback-test@example.invalid commit -qm t008-release
+git -C "$canonical_release" checkout -q "$t008_release_commit"
 baseline_release_validator="$TMP/baseline-release-validator.sh"
 cat > "$baseline_release_validator" <<'VALIDATOR'
 #!/usr/bin/env bash
