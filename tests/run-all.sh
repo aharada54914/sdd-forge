@@ -56,6 +56,7 @@ tests=(
   tests/model-freshness-check.tests.sh
   tests/project-context-schema.tests.sh
   tests/approver-registry-schema.tests.sh
+  tests/guard-staging-exemption.tests.sh
 )
 
 for test_file in "${tests[@]}"; do

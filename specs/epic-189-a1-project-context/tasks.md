@@ -310,6 +310,20 @@ guard's purview, or (c) some other resolution. `tasks/run-all.sh`/`.ps1`
 registration (the unprotected half of the same Done-When item family) is
 unaffected and already complete above.
 
+UPDATE (2026-07-23, follow-up session): option (a) has been prepared and
+pre-verified. The guard patch (bugs 1+2: human-copy staging exemption plus
+token-based pre-filter), its verification evidence, and the human apply
+procedure are recorded in `reports/implementation/
+epic-189-a1-project-context/HUMAN-APPLY-STEPS.md` ("Guard fix" section),
+with the git-apply-ready patch file beside it; a permanent regression
+suite (`tests/guard-staging-exemption.tests.sh`, registered in
+`tests/run-all.sh`) runs its invariant block now and its fix block once
+the patch lands. The related workflow-state validator false positive on
+`Status: Blocked` (bug 3 in HUMAN-APPLY-STEPS.md) was fixed directly in
+the same follow-up session. This blocker remains open until a human
+applies the patch; after application, complete the staged `test.yml` +
+MANIFEST items per HUMAN-APPLY-STEPS.md.
+
 ---
 
 ## T-002 Author the canonicalizer (`canonicalize-sdd-yaml`)
