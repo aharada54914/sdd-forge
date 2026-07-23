@@ -1,0 +1,89 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic-195-a7-compatibility-impl-impl-reviewer-b-seq0340",
+  "host_session_id": "SESS-impl-impl-reviewer-b-epic-195-a7-compatibility-0340",
+  "allowed_input_manifest": [
+    {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-2/round-2/integrated-summary.json", "sha256": "a65ec0cc71316068738e8be2cb472b5a49d539963f1664492708f9ad8b8bc2e3"},
+    {"path": "reports/impl-review/epic-195-a7-compatibility/attempt-2/round-2/precheck-result.json", "sha256": "d4a7d7248b79f257cab7a61d86eb5794db4736943536a22930580e1e058b2db7"},
+    {"path": "specs/epic-195-a7-compatibility/acceptance-tests.md", "sha256": "7b62c3391ddc58131cf1d1a16644e116b3030562e47a15fcd66ee4ef3c8aa24d"},
+    {"path": "specs/epic-195-a7-compatibility/design.md", "sha256": "748f7a3663fde8b179f472db08c6e8044d1796af7cc5222dd2025e6dbf332052"},
+    {"path": "specs/epic-195-a7-compatibility/frontend-spec.md", "sha256": "bbcae337adb4371b994ed87252db4eaf3f4d5e18a23b5e6f3f6aaa4a2d1a7a67"},
+    {"path": "specs/epic-195-a7-compatibility/infra-spec.md", "sha256": "63437f00948646284d18aeb8de86c30752f95c7d5ce6e12c0fd5a0dc7846ccb9"},
+    {"path": "specs/epic-195-a7-compatibility/investigation.md", "sha256": "8b1ac3aba8b41e9bb1d053755f9e735b97af293c6be513ddb14d99dd7d5a353b"},
+    {"path": "specs/epic-195-a7-compatibility/requirements.md", "sha256": "f8dd9574021a2c3b81986c5b54b648631e8c1b7415034dce3e73b8bf89485390"},
+    {"path": "specs/epic-195-a7-compatibility/security-spec.md", "sha256": "4a598c1196360540871cfbc33bcab92a0b4a0f93062ec9ba7d652e8cb150b591"},
+    {"path": "specs/epic-195-a7-compatibility/ux-spec.md", "sha256": "5324dcaeffe2cccab149d3365f9ea63df579d95b22263a5d4066e0ddeae5bdba"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round-1 finding resolved: design.md API / Contract Plan now contains a dedicated 'Fixture-matrix builder contract' subsection (lines 699-729) naming `tests/lib/fixture-matrix-builder.sh`'s `build_fixture` function with its full five-parameter signature (`project_context`, `agents_marker`, `capability_enforcement`, `valid_or_invalid`, `track_flag`) in a table with values/meaning. The three other cross-reference points (Components table line 81, Data Plan line 380, Test Strategy item 1 lines 735-736) now consistently point forward to this single definition instead of deferring circularly. Scanning the remainder of design.md (event-trace schema shape, emit-run-record.sh flag gating, golden-baseline candidate/canonical split, structural-comparison seam anchor/corpus/normalization algorithm, loop-consistency/loop-escalation suite-placement split, F7/F8 N/A-vs-SKIP framing), every decision carries an explicit 'because'/'since'-style rationale (e.g. Design Decisions: 'Suite placement...', 'capability_applicability starts on quality-gate only...', 'F7/F8...are N/A, not SKIP...'). No inline decision without a stated rationale was found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Open Questions' section (lines 1116-1125) contains zero unresolved entries: it states OQ-001/OQ-002/OQ-003 are all resolved by the Design Decisions section above and by requirements.md's own corresponding entries, with no new open question surfaced by design.md itself. requirements.md's Open Questions section (lines 858-878) mirrors this: all three OQ entries are marked '(resolved)' with an inline resolution citation. No entry lacks an owner or a blocks-implementation/resolution-path status because no entry remains actually open."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (24 findings, INV-001-INV-024). design.md's '## Assumptions' section (lines 1106-1114) restates requirements.md's 3 assumptions: (1) Epics A1/A3/A5 unmerged, A4/A6 in spec-review - grounded in investigation.md's Source line and cross-epic findings INV-013 (A1), INV-014 (A3), INV-015/INV-016 (A5); (2) ADR-0010/0016/0023 and decision doc remain authoritative - grounded in INV-008/INV-009/INV-010; (3) jq/bash/PowerShell remain the deterministic runtimes - grounded in INV-005/INV-007. All three are grounded in investigation.md citations; none is an ungrounded non-trivial claim."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (lines 1093-1105, Primary/TYPE-D branch applies) with 8 rows tracing to requirements.md constraints: no-new-loop-entry (Non-goals/AC-008), no-new-suite-file (REQ-003), assert_terminal/assert_artifacts_schema unmodified (AC-009), emit-run-record.sh no-flag byte-identical (AC-011), REQ-007 named-degradation, PROJECT_CONTEXT_INVALID distinguishability (Edge Cases), golden-baseline non-regenerability (REQ-006/Security Boundaries B1), and cross-epic-citation drift (NEW-001). Two requirements.md constraints (Non-goals' protected-tree edit restriction; Security Boundaries B2 review-rigor) are not reproduced as their own Constraint Compliance row but are affirmatively addressed elsewhere in the same design.md (Protected-File Statement, Global Constraints, design.md's own Security Boundaries B2 row) - no constraint found silently unaddressed."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirements found in requirements.md. Keyword scan for performance/latency/throughput/response-time/concurrency/SLA/ms/seconds returned no genuine matches; infra-spec.md's Service Level Objectives section explicitly states 'N/A - no live service to hold an availability/latency SLO.'"
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment / CI Plan' section (lines 1076-1091) names the deployment target (GitHub Actions test.yml plus local tests/run-all.sh/.ps1, infra-spec.md Environments table), the future CI pipeline changes required (new .sh/.ps1 suite registrations, Test Strategy item 9), and states 'No CI change in this task' with rationale (Phase-1 spec-only scope). No schema change exists (Data Plan: 'No migration required'), so migration-execution-order does not apply. Observation (non-blocking): the section's own text does not itself name the SKIP-allowlist staged-activation/incremental-rollout mechanism (F1-F4 assertable now, F5-F8 gated per upstream-epic-merge); that mechanism is documented with concrete AC/test coverage in Data Plan, API / Contract Plan, Design Decisions, and Security Boundaries B3 instead - a cross-reference gap, not a missing capability."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Data Plan' states 'Data Entities: none persisted by this task', 'Existing Data Affected: none', and 'Migration Strategy: No migration required' - equivalent to the check's 'No data changes' PASS condition. The proposed future-task JSON field additions (`capability_applicability` on loop-inventory.json, `capability` object on emit-run-record.sh output) are explicitly additive/optional with documented backward-compatible defaults, not database schema/table changes."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## External Integrations' section states 'None. Every target in this package is internal to the repository.' GitHub Actions (test.yml) is referenced only as this repository's pre-existing, unmodified CI runner ('No CI change in this task'), not a new integration this design introduces. No third-party service or cross-service API call is referenced in passing anywhere in design.md."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Components-table entry (design.md lines 72-85) maps 1:1 to a requirements.md REQ item; no component lacks a requirement citation. Every Goal (REQ-001-REQ-007) and User Story in requirements.md is addressed by a named design.md mechanism. No `design-system/` directory exists in this repository (confirmed via filesystem check) and design.md's own Design System Compliance section states 'N/A - ds_profile: none,' consistent with this non-UI test-infrastructure feature."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The applicable high-risk surface is security/authorization changes (golden-baseline write-authority B1, shared-registry blast-radius B2, SKIP-allowlist integrity B3, cross-epic fingerprint-citation integrity B4, structural-comparison-seam tamper-resistance B5 - security-spec.md Trust Boundaries). Each names a concrete validation path: B1->AC-040 (static CI-workflow scan) + AC-041 (two negative-fixture runtime-refusal tests); B2->AC-008/AC-009/AC-011/AC-033; B3->AC-034/AC-035 (three independent hard-fail conditions, Test Strategy item 8); B4->fingerprint recompute-and-compare (AC-035c mechanism reuse); B5->AC-030/AC-031 (Test Strategy item 4). No PII, payment, or cross-service-integration-failure surface exists (External Integrations: None); not a fullstack/UI feature."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no `domain/` directory exists in this repository (confirmed via filesystem check), so the DOMAIN-CONFORMANCE precondition (an Approved domain/context-map.md plus schema-valid domain/domain-contract.json) is not met."
+    }
+  ]
+}
