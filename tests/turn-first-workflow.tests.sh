@@ -287,7 +287,7 @@ fi
 # deterministic, while pre-schema reports stay readable byte-for-byte.
 for needle in \
   'Report Schema: implementation-report/v2' \
-  '## Output Paths And Hashes' \
+  '## Outputs' \
   '**Test Command**' \
   '**Test Result**' \
   '**Test Evidence Path**' \
@@ -316,6 +316,9 @@ mkdir -p "$REPORT_WORK/evidence"
 printf 'green evidence\n' > "$REPORT_WORK/evidence/green.log"
 cat > "$REPORT_WORK/current.md" <<'EOF'
 # Implementation Report: T-006
+
+- Model: anthropic/opus
+- Effort: high
 
 Report Schema: implementation-report/v2
 
