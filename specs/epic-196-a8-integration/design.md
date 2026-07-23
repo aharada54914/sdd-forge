@@ -176,9 +176,14 @@ with no UI surface.
 
 ## ADR Change Log
 
-None. This package cites ADR-0019 (Approval Sidecar Protection) and
-decision doc §7/§9/§19 as read-only authoritative sources; it proposes no
-ADR revision.
+This package cites ADR-0019 (Approval Sidecar Protection) and decision doc
+§7/§9/§19 as read-only authoritative sources, and proposes one new ADR:
+**ADR-0028** (Ed25519 signing and a maintainer-committed trusted-signer
+registry for live-host verification records, `docs/adr/0028-live-host-
+proof-ed25519-signing.md`), scoping the Signing Contract's Ed25519
+algorithm choice, domain-separated signing targets, and Trusted-Signer
+Registry (Data Plan, below) as this package's own ADR-level decision, per
+ADR-0008's established bar for signature-verification-scoped decisions.
 
 ## Data Plan
 

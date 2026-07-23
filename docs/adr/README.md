@@ -112,3 +112,5 @@ must never rely on a bare legacy number.
 | 0022 | Lite Capability Upgrade | Accepted |
 | 0023 | Track Selection Contract Migration | Accepted |
 | 0024 | Workflow State Registry vs. Project Context | Accepted |
+| 0025-0027 | Reserved — triple-claimed by unmerged sibling branches (epic-189-a1-project-context, epic-190-a2-capability-registry, epic-191-a3) for unrelated decisions as of 2026-07-23; expected to resolve into this range via the duplicate-number resolution procedure above at merge time. Not assigned by this entry. | (pending merge-time resolution) |
+| 0028 | Ed25519 signing and a maintainer-committed trusted-signer registry for live-host verification records | Proposed |
