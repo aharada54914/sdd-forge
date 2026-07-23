@@ -2916,6 +2916,15 @@
       "host_session_id": "SESS-impl-a-epic-196-a8-integration-a1r2-seq324",
       "previous_record_sha256": "5488391f02a7ad288597f969d10b26869cf7aa53872c864b7b2847faab1b7a16",
       "record_sha256": "84078c9e7c6446f41b94123c1530164e5883cb90da9caefd5b840fbf89697392"
+    },
+    {
+      "sequence": 325,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-196-a8-integration-impl-reviewer-b-a1r2-seq325",
+      "host_session_id": "SESS-impl-b-epic-196-a8-integration-a1r2-seq325",
+      "previous_record_sha256": "84078c9e7c6446f41b94123c1530164e5883cb90da9caefd5b840fbf89697392",
+      "record_sha256": "cb2f7a23ac4c5c4369df2b351ba37536b1594408972ae02b3d15f3ef6501b556"
     }
   ]
 }
