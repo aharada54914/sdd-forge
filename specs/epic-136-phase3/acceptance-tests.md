@@ -4,11 +4,17 @@ TEST IDs (TEST-001..TEST-023) are namespaced to this feature
 (`specs/epic-136-phase3/`) and do not collide with any other spec folder's
 own TEST numbering (different suite files — design.md Test Strategy).
 TEST-NNN numbers match their AC-NNN counterpart 1:1 (requirements.md
-Acceptance Criteria). TEST-012..015 (Stream C) are Planned-but-Blocked: no
-suite exists to run them until ADR-0010 unblocks Stream C
-(requirements.md OQ-2); they are listed here so Phase 2 task decomposition
-inherits complete traceability the moment Stream C unblocks, not so they
-can be executed today.
+Acceptance Criteria). TEST-012..015 (Stream C) were originally authored
+Planned-but-Blocked, since no suite existed to run them until ADR-0010
+unblocked Stream C (requirements.md OQ-2). **Reconciled during QG
+remediation (#125 Major 4)**: ADR-0010 was promoted to `Status: Accepted`
+by human decision (commit `67015a5`, 2026-07-22), and epic-136-phase3
+T-004 has since authored and landed `tests/workflow-scenarios/` +
+`workflow-scenarios.tests.sh`, which run TEST-012..015 for real. The table
+below now records `Planned` for AC-012..015, matching every sibling AC
+row's own convention — this column tracks spec-readiness, not
+implementation completion (AC-001..011 stayed `Planned` even after
+T-001/T-002 reached Implementation Complete).
 
 | Acceptance Criterion | Requirement | Test ID | Test Type | Test Target | Status |
 |---|---|---|---|---|---|
@@ -23,17 +29,17 @@ can be executed today.
 | AC-009 | REQ-002 | TEST-009 | unit (fixture-driven, real script) — 12 named sub-cases | same suite: triple-quote-shaped (`"""`) command-text payload correctly classified (no tokenizer confusion, no read/write misclassification) across the same 4-runtime x 3-tool_name-shape, 12-combination matrix | Planned |
 | AC-010 | REQ-002 | TEST-010 | unit (fixture-driven, real script) — 12 named sub-cases + 1 control | same suite: task-id-substring-collision payload (task-id-shaped token adjacent to a protected basename) decided purely on the basename match across the same 12-combination matrix, PLUS 1 control sub-case proving the numeric substring alone (no protected basename present) never triggers a false DENY | Planned |
 | AC-011 | REQ-002 | TEST-011 | cross-runtime parity aggregation | same suite: for every payload in TEST-008/009/010, every runtime surface that reached a decision agrees with every other runtime surface for that same payload; a divergence names both disagreeing runtimes in the failure message | Planned |
-| AC-012 | REQ-003 | TEST-012 | — Blocked pending ADR-0010 `Status: Accepted` | `tests/workflow-scenarios/` scenario schema: fixture-classification field is exactly `greenfield`\|`brownfield`; all 10 representative classes from issue #125's body have a mapped scenario id (8 referencing existing coverage per investigation.md INV-017, 2 net-new: refactor-baseline-missing, inbound-prompt-injection) | Blocked |
-| AC-013 | REQ-003 | TEST-013 | — Blocked, same precondition | same target: scenario PreToolUse payloads driven with both a Claude-Code-shaped `tool_name` (`Edit`/`Write`/`MultiEdit`/`Bash`) and a Codex-shaped `tool_name` (`apply_patch`/`exec_command`/`shell`/`exec`) | Blocked |
-| AC-014 | REQ-003 | TEST-014 | — Blocked, same precondition | same target: scenario class 5 (prompt injection) targets the INBOUND direction — a fixture GitHub issue body with adversarial instruction-shaped text, fetched by the named `plugins/sdd-bootstrap` entry point, is proven NOT executed/followed by the reading agent session | Blocked |
-| AC-015 | REQ-003 | TEST-015 | — Blocked, same precondition | `tests/workflow-scenarios/` and `tests/scenario.tests.sh` each carry an explicit cross-reference comment naming the other and the scope difference | Blocked |
+| AC-012 | REQ-003 | TEST-012 | unit (fixture-driven, real script, JSON validation + hand-written schema-presence checks) | `tests/workflow-scenarios/` scenario schema: fixture-classification field is exactly `greenfield`\|`brownfield`; all 10 representative classes from issue #125's body have a mapped scenario id (8 referencing existing coverage per investigation.md INV-017, 2 net-new: refactor-baseline-missing, inbound-prompt-injection) | Planned |
+| AC-013 | REQ-003 | TEST-013 | unit (fixture-driven, real script, declaration + closed-list check) | same target: every scenario document DECLARES at least one Claude-Code-shaped `tool_name` (`Edit`/`Write`/`MultiEdit`/`Bash`) and one Codex-shaped `tool_name` (`apply_patch`/`exec_command`/`shell`/`exec`); a separate cross-check confirms every declared literal stays inside those closed lists (re-scoped during QG remediation, #125 Major 1, away from a prior self-referential payload round-trip that could only ever PASS and never reached a real guard/runner) | Planned |
+| AC-014 | REQ-003 | TEST-014 | unit (fixture-driven, real script) — `tdd`, RED/GREEN pair + defect-count pin | same target: scenario class 5 (prompt injection) targets the INBOUND direction — a fixture GitHub issue body with adversarial instruction-shaped text, fetched by the named `plugins/sdd-bootstrap` entry point, is proven NOT executed/followed by the reading agent session, via a deterministic proxy harness whose accepted-directive detector matches a documented multi-expression set (QG remediation, #125 Major 2); a genuine discovered defect is recorded non-fatally and its count is pinned against a named known-defect allowlist so a future fix or a future new defect both surface as a FAIL (#125 Major 3) | Planned |
+| AC-015 | REQ-003 | TEST-015 | self-check (grep-based) | `tests/workflow-scenarios/` and `tests/scenario.tests.sh` each carry an explicit cross-reference comment naming the other and the scope difference | Planned |
 | AC-016 | REQ-004 | TEST-016 | document/YAML conformance (staged candidate vs. live) | `.github/workflows/test.yml`'s `test` job steps each gain a `[deterministic]` name prefix (single-job structure, job count and job names unchanged); the step-prefix change is staged under `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` with a `MANIFEST.sha256` entry; the LIVE file is confirmed unmodified by the agent at staging time | Planned |
 | AC-017 | REQ-004 | TEST-017 | self-check (text-marker technique) — RED-demonstrable | same staged candidate: every step name enumerated from the CURRENT (pre-Stream-D) live `test.yml` is confirmed present (with its `[deterministic]` prefix) in the staged candidate — the enumeration baseline is captured from the live file BEFORE any of this feature's staged edits are authored, so Stream A's/B's NEW steps (verified separately by TEST-020) are additions on top of, never members of, that baseline (RED: an intentionally-dropped step name fails this check first, proving the check can catch a real omission; GREEN: the actual candidate passes); `required-checks: needs: [test, cli-hook-enforcement]` membership confirmed unchanged | Planned |
 | AC-018 | REQ-004 | TEST-018 | non-regression | `self-improvement.yml` and `model-freshness-check.yml` remain absent from `required-checks`' `needs:` list and from the single `test` job's marked deterministic lane — unchanged isolation | Planned |
 | AC-019 | REQ-005 | TEST-019 | CI/registration conformance (grep-based self-check) | both new suites (Streams A + B): basename present in `tests/run-all.sh`; absence from `tests/run-all.ps1` reviewed and confirmed as the correct exemption (neither ships a native `.ps1` twin) | Planned |
 | AC-020 | REQ-005 | TEST-020 | CI/registration conformance (grep-based self-check) | staged `.github/workflows/test.yml` candidate (the ONE shared batch, Streams A + B + D) contains a CI step for each new suite from Streams A and B; the LIVE file's self-check for each new suite's basename is red until the human-copy commit lands (no staged-candidate fallback) | Planned |
-| AC-021 | REQ-006 | TEST-021 | CI resilience conformance (grep/review) | every new `.sh` file (Streams A, B): grep-based self-check confirms no `declare -A` and no unguarded array expansion under `set -u`; this feature adds no new native `.ps1` file (design.md Global Constraints), so the ASCII/BOM/`exit N` sub-check is reviewed as N/A for Streams A/B and deferred to Stream C once unblocked | Planned |
-| AC-022 | REQ-006 | TEST-022 | document conformance | `CHANGELOG.md`'s `## Unreleased` section contains 3 independent entries citing #123, #124, and #126 respectively; Stream C's entry (#125) is confirmed ABSENT while Blocked (a premature entry would be a FAIL, not merely a missing one); review-time check confirms no version-literal edit exists outside `scripts/bump-version.sh` | Planned |
+| AC-021 | REQ-006 | TEST-021 | CI resilience conformance (grep/review) | every new `.sh` file (Streams A, B, C — Stream C's own `workflow-scenarios.tests.sh` reconciled into this AC's scope during QG remediation, #125 Major 4, now that Stream C is unblocked and landed): grep-based self-check confirms no `declare -A` and no unguarded array expansion under `set -u`; this feature adds no new native `.ps1` file in any stream (design.md Global Constraints), so the ASCII/BOM/`exit N` sub-check remains N/A across Streams A/B/C | Planned |
+| AC-022 | REQ-006 | TEST-022 | document conformance | `CHANGELOG.md`'s `## Unreleased` section contains 4 independent entries citing #123, #124, #125, and #126 respectively (reconciled during QG remediation, #125 Major 4: Stream C's own #125 entry is now correctly PRESENT since ADR-0010's `Accepted` promotion unblocked it, commit `fd4db859` — the INVERSE of the pre-unblock expectation, where an absent entry would now be the FAIL condition); review-time check confirms no version-literal edit exists outside `scripts/bump-version.sh` | Planned |
 | AC-023 | REQ-006 | TEST-023 | document conformance (per-stream review) | each of Streams A/B/D's implementation report states explicitly whether any epic-#136-Done-condition doc surface (`README.md`/`USERGUIDE.md`/`docs/workflow-guide.md`/`docs/skill-reference.md`/`docs/agent-capability-matrix.md`/`PLUGIN-CONTRACTS.md`/`docs/troubleshooting.md`/`docs/contributor/*`) is affected; expected answer "none" recorded explicitly, not silently assumed | Planned |
 
 Notes:
@@ -68,11 +74,19 @@ Notes:
   interpreter installed (a host lacking `node`, for example, causes only
   the `.js`-runtime sub-cases to SKIP with a named reason, mirroring
   `guard-parity.tests.sh`'s own SKIP convention, never a silent PASS).
-- TEST-012..015 (Stream C) are recorded as `Blocked`, not `Planned` — this
-  is a distinct Status value from every other row in this table,
-  deliberately visible so a reader scanning this file cannot mistake
-  Stream C's rows for ready-to-implement work. No suite file exists for
-  them; design.md's API/Contract Plan names the target shape only.
+- TEST-012..015 (Stream C) were originally recorded as `Blocked`, not
+  `Planned`, at spec-authoring time — a distinct Status value from every
+  other row in this table, deliberately visible so a reader scanning this
+  file could not mistake Stream C's rows for ready-to-implement work while
+  no suite file existed and design.md's API/Contract Plan named only the
+  target shape. **Reconciled during QG remediation (#125 Major 4)**:
+  ADR-0010's `Status: Accepted` promotion (human commit `67015a5`,
+  2026-07-22) unblocked Stream C, and epic-136-phase3 T-004 has since
+  authored, landed, and run `tests/workflow-scenarios/workflow-scenarios.tests.sh`
+  for real — so AC-012..015 now read `Planned` above, the same convention
+  every other implemented-but-not-yet-`Done` AC row in this table already
+  uses (e.g. AC-001..011, still `Planned` despite T-001/T-002 already being
+  Implementation Complete).
 - This is CI/script/scenario-schema work with no user-facing entry point;
   the UI integration checklist is not applicable (ux-spec.md,
   frontend-spec.md — both N/A stubs, mirroring `quality-loop-fixes`' and
