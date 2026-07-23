@@ -1,0 +1,104 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-qualityloopfixes-impl-a1r1-a-seq0326",
+  "host_session_id": "SESS-impl-a1r1-a-qualityloopfixes-0326",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/quality-loop-fixes/attempt-1/round-1/precheck-result.json",
+      "sha256": "260b19d45dfc12407d5e4c8d62527e25b6a70e78d6f436e9880fa79db381da56"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "22aef714ea5d40617d6cf275d0f51bede25bebdab566ba5b0b0cb7cb71c9ce01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/design.md",
+      "sha256": "7f0794f002efa2608fd10bef6a9c193d7db412571e110bc56fb52d544ac55214"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/frontend-spec.md",
+      "sha256": "c7e207dfc4eabab554f7aa6e986f6b2ea29a9e7f8f9e480db7823c9e3b20674a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/infra-spec.md",
+      "sha256": "40478e507bb7a6796d98d2ddff23391c94e1c98eb4ab641c2154c0f828267f4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+      "sha256": "508fd039e064674796e6cd9e17a4c2912792ac0318cd55d6133235535f433a0c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/security-spec.md",
+      "sha256": "7bc4662bcd1d9249f7b2dc52fc52e0d51ade1cc7483438ab642794ef65b5cb68"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/ux-spec.md",
+      "sha256": "0904ea7b08fcf60d46df8a32bc9ff649de9d8cb8366941a837c27010ca536b15"
+    }
+  ],
+  "verdict": "PASS",
+  "legacy_design": false,
+  "feature_type": "4 independent deterministic-script/skill-prose bugfixes inside plugins/sdd-quality-loop/ (+ one plugins/sdd-ship/skills/ship/SKILL.md prose reference), no in-spec or external dependency between streams (non-UI, no frontend surface)",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md ## Architecture (lines 36-83) is a Mermaid flowchart with 4 stream subgraphs (S1-S4) naming top-level component boundaries (scripts, tests, human-copy staged vs. live protected files) and labeled directed edges describing interactions/integration with existing components (e.g. `RUNALL_SH['tests/run-all.sh (unedited, already lists suite)'] --> QGCL_TEST`, `PPI_SH -->|reads for completeness check| IMPL_RPT`, `PROBE -->|degraded to ok on real Windows CI| VRC_SH`) -- well beyond a one-sentence description. Technology choices per layer are given via ## Layer Specifications (lines 139-146: UX N/A, Frontend N/A, Infrastructure = CI-registration human-copy staging, Security = path-containment/tamper non-regression), the ## Components table's Technology column (lines 87-100: Bash/PowerShell twins, Markdown, GitHub Actions YAML), and ## Data Plan (lines 176-195, no new data layer). No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Explicit dependency edges are declared in the ## Architecture Mermaid diagram (e.g. QGCL_TEST->QGCL_SH, QGCL_TEST->QGCL_PS, SHIP_HC->SHIP_LIVE, RUNALL_SH->QGCL_TEST, ERR_TEST->ERR_SH/ERR_PS, PPI_TEST->PPI_SH/PPI_PS, PPI_SH->IMPL_RPT, VRC_TEST->VRC_SH, JQSHIM->VRC_TEST, PROBE->VRC_SH). Traced the full graph: it is a DAG -- test suites drive target scripts, staged human-copy files point one-directionally to live protected files, and read edges (PPI_SH->IMPL_RPT, PROBE->VRC_SH) do not loop back to any ancestor. No cycle exists. No issues found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Data Plan (lines 176-195) has all three required sub-fields, each with explicit no-change rationale: `Data Entities:` 'none new... it does not add a field, a file format, or a schema version to any of them'; `Existing Data Affected:` 'none of the 4 streams writes a new field into any existing report or ledger schema'; `Migration Strategy:` 'none. No schema changes...'. Functionally equivalent to the required 'No data changes' statement, with concrete rationale per sub-field rather than a bare assertion. No issues found."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## API / Contract Plan (lines 197-392) is not empty: it enumerates the new/changed CLI contract for each of the 5 target scripts individually (check-quality-gate-cycle-limit.{sh,ps1}'s new required `<task-id> <feature> [reports-dir]` positional shape with exit-code contract; emit-run-record.{sh,ps1}'s replaced grep pattern; prepare-panelist-input.{sh,ps1}'s recursion + completeness-check insertion point; cross-model-verify/SKILL.md's new Step 1.5 prose; validate-review-context-set.sh's `tr -d '\\r'` sites), each with concrete request/response-equivalent shape (CLI args in / exit code+stdout out) as the HTTP-equivalent for a CLI-only feature. Breaking-change status is explicitly identified: Risks section states Stream 1's new 2-required-arg contract 'is a breaking change to check-quality-gate-cycle-limit.{sh,ps1}'s invocation shape,' with its one caller (ship/SKILL.md) updated in the same feature (AC-006). No issues found."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md ## Security Boundaries (lines 507-517) is present with a 4-row table (B1-B4) naming every trust boundary the feature crosses (declared-outputs table vs. bundle root; identity-ledger jq/CRLF read; protected ship/SKILL.md + test.yml vs. agent edits; fixture world vs. real ledger). Each row states its Auth/Authz Mechanism column (e.g. B1: 'reuses `validate-review-context-set.sh`'s existing canonical-path validation posture'; B3: 'staged under specs/quality-loop-fixes/human-copy/... only a human applies either'). Data Classification is addressed per row (all 'internal repository content only' / 'internal source only' -- correctly reflecting that this CI/script-tooling feature handles no PII). OWASP concerns are named per row (Path Traversal, Tampering (non-regression), Security Misconfiguration (prevented by process)) and further detailed in security-spec.md's dedicated OWASP Mapping table (5 rows: Path Traversal, Tampering, Security Misconfiguration, Information Disclosure, DoS). No issues found."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md's Feature Type header states '4 independent deterministic-script/skill-prose bugfixes... no in-spec or external dependency between streams' and contains no ## Frontend Plan or ## Backend Plan section (grep confirmed absent). ux-spec.md and frontend-spec.md are both explicit N/A stubs ('no GUI, view, dialog, menu item... no component tree, browser state, route, API client, or frontend bundle exists'). This is a CLI/script/skill-prose-only feature with no frontend surface -- equivalent to the `cli`/`library` skip category the check enumerates. Per Cannot-Verify Handling (reviewer-calibration.md), SKIP applies because the scoped surface (frontend) does not exist for this feature."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "## Test Strategy (lines 394-433) covers unit scope (item 1-2: fixture-driven RED/GREEN pairs per stream, e.g. TEST-004, TEST-010, TEST-023, each against the real unmodified target script), integration scope (item 5: 'Full suite: bash tests/run-all.sh and pwsh tests/run-all.ps1 locally; the 3-OS CI matrix is authoritative'; Stream 1's combined suite drives both .sh and .ps1 targets via a pwsh subprocess for parity), and acceptance-criteria mapping via the ## Cross-Layer Dependencies table (REQ->AC->TEST triples for all 7 REQs) plus item 6's self-registration check. Concrete planned verification evidence is named throughout: exact command names (`bash tests/run-all.sh`, `pwsh tests/run-all.ps1`, `bash ./tests/quality-gate-cycle-limit.tests.sh`), exact suite/fixture file names per stream, and an implementation-report evidence artifact for TEST-025 ('recorded in the Stream-4 implementation report'). No fullstack/UI critical-user-journey E2E path is required since this feature has no frontend surface (ux-spec.md/frontend-spec.md N/A, consistent with the FRONTEND-BACKEND-CONSISTENCY SKIP above). No issues found."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every node referenced in the ## Architecture diagram is defined either in the ## Components table (lines 87-100: check-quality-gate-cycle-limit.{sh,ps1}, tests/quality-gate-cycle-limit.tests.sh, ship/SKILL.md, .github/workflows/test.yml, emit-run-record.{sh,ps1} + its test suite, prepare-panelist-input.{sh,ps1} + its test suite, cross-model-verify/SKILL.md, validate-review-context-set.sh/.ps1, CHANGELOG.md) or in an adjacent named subsection: RUNALL_SH (tests/run-all.sh) is described in ## Global Constraints ('Stream 1's suite entry already exists (INV-005); no edit needed') and is an established repository component also referenced in acceptance-tests.md; PROBE (loop_validator_capability_probe) is defined directly below the Components table under 'Real surfaces exercised READ-ONLY'; IMPL_RPT (implementation report ## Outputs table) is described in ## Data Plan and ## API / Contract Plan; JQSHIM (jq PATH-shim) is labeled in the diagram itself and elaborated in ## Test Strategy item 3. No undefined component found."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's ## ADR Change Log (lines 167-174) is this repository's established section name for this template field (matches the sibling epic-159-pillar-d convention) and lists no new ADR, with explicit rationale: 'This feature introduces no new vocabulary, schema, or architectural pattern: it reuses the epic-136 human-copy procedure verbatim (already established), the `## Outputs` table parser shape validate-review-context-set.sh already defines... and the `tr -d '\\r'` CRLF-stripping pattern already proven in commit `c756a5a`.' No new technology choice, integration pattern, or architectural departure is introduced without a corresponding rationale for reusing an existing, already-established pattern. No referenced ADR document IDs exist to verify against docs/adr/. No issues found."
+    }
+  ]
+}

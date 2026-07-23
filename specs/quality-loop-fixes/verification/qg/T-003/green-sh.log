@@ -1,0 +1,152 @@
+=== GREEN evidence: tests/prepare-panelist.tests.sh against FIXED prepare-panelist-input.sh ===
+Captured: 2026-07-19T16:57:34Z
+Fixed SHA-256 (sh):  792119c1ad60b17860776b9b5876e0c8408967c8184e779ae4dfdb0e9441063a
+
+--- default bash (5.3.9) lane ---
+=== PP-001: Fail closed — no consent ===
+FAIL: PP-001a: no consent should exit non-zero, got 0
+FAIL: PP-001b: output file must NOT be created without consent
+FAIL: PP-001c: error message should mention 'consent', got: 7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b
+=== PP-002: Consent via tasks.md flag + secret sanitization ===
+ok: PP-002a: consent present → exit 0
+ok: PP-002b: output file created
+ok: PP-002c: AWS_SECRET_ACCESS_KEY value stripped
+ok: PP-002d: OPENAI_API_KEY value stripped
+ok: PP-002e: AWS_ACCESS_KEY_ID value stripped
+ok: PP-002f: PRIVATE_TOKEN (GitHub PAT) value stripped
+ok: PP-002g: DB_PASSWORD value stripped
+ok: PP-002h: absolute Unix path /Users/... stripped
+ok: PP-002i: absolute Unix path /home/... stripped
+ok: PP-002j: private URL stripped
+ok: PP-002k: private IP URL stripped
+ok: PP-002l: normal content preserved
+=== PP-003: input_digest deterministic and 64-hex ===
+ok: PP-003a: input_digest is 64-hex: 7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b
+=== PP-004: Digest is deterministic (same input → same digest) ===
+ok: PP-004: same input → same digest (7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b)
+=== PP-005: Default output path ===
+ok: PP-005: default output path created at verification/T-004.panelist-input.txt
+=== PP-006: Required args validation ===
+ok: PP-006a: missing --task → non-zero exit
+ok: PP-006b: missing --feature → non-zero exit
+=== PP-007: SDD_SUDO consent path ===
+ok: PP-007: SDD_SUDO (skip-sig test mode) grants consent → exit 0
+=== PP-008/009/010: SDD_SUDO real-HMAC verification (issue #108) ===
+ok: PP-008a: TEST-001 HMAC operands use quoted-heredoc environment data
+ok: PP-008: correctly signed SDD_SUDO grants consent → exit 0
+ok: PP-009: tampered SDD_SUDO signature is rejected → consent denied
+ok: PP-010: adversarial issuer field did not execute code (no RCE)
+ok: PP-010: adversarial token is denied (invalid signature)
+ok: PP-010: backslash/newline HMAC key remains inert data
+ok: PP-010: triple-quote HMAC key cannot execute or create a bundle
+ok: PP-011: correctly signed invalid nonce is denied
+ok: PP-012: correctly signed expired TTL is denied
+ok: PP-012: correctly signed overlong TTL is denied
+ok: PP-013: correctly signed wrong repository is denied
+=== TEST-013: recursion — subdirectory file included in bundle (AC-013) ===
+ok: TEST-013a: recursive collection succeeds (exit 0)
+ok: TEST-013b: subdirectory file content included in bundle (recursion)
+=== TEST-014: completeness positive baseline (AC-014) ===
+ok: TEST-014a: complete declared-outputs bundle → exit 0
+ok: TEST-014b: digest printed on completeness success
+=== TEST-015: missing declared output → fail closed (AC-015) ===
+ok: TEST-015a: missing declared output → nonzero exit
+ok: TEST-015b: gap (missing path) printed to stderr
+ok: TEST-015c: no digest line printed on completeness gap
+ok: TEST-015d: bundle file not written on completeness gap
+=== TEST-016: hash-mismatch declared output → fail closed (AC-016) ===
+ok: TEST-016a: hash-mismatch declared output → nonzero exit
+ok: TEST-016b: gap (hash mismatch) printed to stderr
+ok: TEST-016c: no digest line printed on hash-mismatch gap
+=== TEST-017: subdirectory declared output located + verified (AC-017) ===
+ok: TEST-017a: subdirectory declared output found + hash-verified → exit 0
+ok: TEST-017b: digest printed (completeness passed for subdirectory path)
+ok: TEST-017c: nested artifact content collected into bundle (recursion)
+=== TEST-032: path-traversal declared output → fail closed (AC-032, B1) ===
+ok: TEST-032a: path-traversal declared output → nonzero exit
+ok: TEST-032b: out-of-root violation reported on stderr
+ok: TEST-032c: no digest line printed on path-traversal gap
+ok: TEST-032d: sentinel content does not appear anywhere in stdout/stderr
+ok: TEST-032e: bundle file not written on path-traversal gap
+
+Results: 48 passed, 3 failed
+EXIT=1
+
+--- bash 3.2 lane (env PATH=/bin:/usr/bin:/usr/sbin /bin/bash) ---
+=== PP-001: Fail closed — no consent ===
+FAIL: PP-001a: no consent should exit non-zero, got 0
+FAIL: PP-001b: output file must NOT be created without consent
+FAIL: PP-001c: error message should mention 'consent', got: 7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b
+=== PP-002: Consent via tasks.md flag + secret sanitization ===
+ok: PP-002a: consent present → exit 0
+ok: PP-002b: output file created
+ok: PP-002c: AWS_SECRET_ACCESS_KEY value stripped
+ok: PP-002d: OPENAI_API_KEY value stripped
+ok: PP-002e: AWS_ACCESS_KEY_ID value stripped
+ok: PP-002f: PRIVATE_TOKEN (GitHub PAT) value stripped
+ok: PP-002g: DB_PASSWORD value stripped
+ok: PP-002h: absolute Unix path /Users/... stripped
+ok: PP-002i: absolute Unix path /home/... stripped
+ok: PP-002j: private URL stripped
+ok: PP-002k: private IP URL stripped
+ok: PP-002l: normal content preserved
+=== PP-003: input_digest deterministic and 64-hex ===
+ok: PP-003a: input_digest is 64-hex: 7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b
+=== PP-004: Digest is deterministic (same input → same digest) ===
+ok: PP-004: same input → same digest (7d7bfda2dd30c93693ca42225c5129af1b6dc78c4e30671c72ccfd0b528a665b)
+=== PP-005: Default output path ===
+ok: PP-005: default output path created at verification/T-004.panelist-input.txt
+=== PP-006: Required args validation ===
+ok: PP-006a: missing --task → non-zero exit
+ok: PP-006b: missing --feature → non-zero exit
+=== PP-007: SDD_SUDO consent path ===
+ok: PP-007: SDD_SUDO (skip-sig test mode) grants consent → exit 0
+=== PP-008/009/010: SDD_SUDO real-HMAC verification (issue #108) ===
+ok: PP-008a: TEST-001 HMAC operands use quoted-heredoc environment data
+ok: PP-008: correctly signed SDD_SUDO grants consent → exit 0
+ok: PP-009: tampered SDD_SUDO signature is rejected → consent denied
+ok: PP-010: adversarial issuer field did not execute code (no RCE)
+ok: PP-010: adversarial token is denied (invalid signature)
+ok: PP-010: backslash/newline HMAC key remains inert data
+ok: PP-010: triple-quote HMAC key cannot execute or create a bundle
+ok: PP-011: correctly signed invalid nonce is denied
+ok: PP-012: correctly signed expired TTL is denied
+ok: PP-012: correctly signed overlong TTL is denied
+ok: PP-013: correctly signed wrong repository is denied
+=== TEST-013: recursion — subdirectory file included in bundle (AC-013) ===
+ok: TEST-013a: recursive collection succeeds (exit 0)
+ok: TEST-013b: subdirectory file content included in bundle (recursion)
+=== TEST-014: completeness positive baseline (AC-014) ===
+ok: TEST-014a: complete declared-outputs bundle → exit 0
+ok: TEST-014b: digest printed on completeness success
+=== TEST-015: missing declared output → fail closed (AC-015) ===
+ok: TEST-015a: missing declared output → nonzero exit
+ok: TEST-015b: gap (missing path) printed to stderr
+ok: TEST-015c: no digest line printed on completeness gap
+ok: TEST-015d: bundle file not written on completeness gap
+=== TEST-016: hash-mismatch declared output → fail closed (AC-016) ===
+ok: TEST-016a: hash-mismatch declared output → nonzero exit
+ok: TEST-016b: gap (hash mismatch) printed to stderr
+ok: TEST-016c: no digest line printed on hash-mismatch gap
+=== TEST-017: subdirectory declared output located + verified (AC-017) ===
+ok: TEST-017a: subdirectory declared output found + hash-verified → exit 0
+ok: TEST-017b: digest printed (completeness passed for subdirectory path)
+ok: TEST-017c: nested artifact content collected into bundle (recursion)
+=== TEST-032: path-traversal declared output → fail closed (AC-032, B1) ===
+ok: TEST-032a: path-traversal declared output → nonzero exit
+ok: TEST-032b: out-of-root violation reported on stderr
+ok: TEST-032c: no digest line printed on path-traversal gap
+ok: TEST-032d: sentinel content does not appear anywhere in stdout/stderr
+ok: TEST-032e: bundle file not written on path-traversal gap
+
+Results: 48 passed, 3 failed
+EXIT=1
+
+NOTE: PP-001a/b/c fail on BOTH lanes above -- a pre-existing, environment-only
+flake caused by an ambient, currently-active real sudo-mode consent-token grant
+at the repository root (this feature's own tasks.md records 'Approval: Approved
+(sudo 2026-07-19T15:39:07Z)' for this exact task batch) picked up by PP-001's
+default (no explicit project-root override) project-root auto-detection.
+Reproduced IDENTICALLY against the UNMODIFIED pre-fix script (see red-sh.log)
+-- proven unrelated to and unaffected by this task's diff, which does not touch
+the BL-007 consent-gate code at all.

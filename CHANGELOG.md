@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.11.0 (2026-07-21)
+
 ### 追加
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
@@ -612,6 +614,38 @@
   `green-ps1.log`: TEST-009 のライブファイル半分を除く全アサーションが
   green)の順で実装、詳細は
   `reports/implementation/epic-159-pillar-d/T-003.md` を参照。
+- **`--effort-policy` の既定値を `matrix` に変更 (Issue #155,
+  epic-159-pillar-c T-007, Phase 2 / REQ-007)**: `select-agent-model.sh` /
+  `.ps1` の `--effort-policy` 既定値を `welded` から `matrix` へ1行変更
+  (`select-agent-model.sh:18`、`select-agent-model.ps1:16` の
+  `ValidateSet` 既定値)。フラグを付けない全呼び出しが
+  `risk_effort_matrix[risk]` ベースのリスク連動 effort 選択(escalation
+  bump・`supported_efforts` へのクランプを含む)に切り替わる。`welded`
+  (effort を tier に溶接した Phase 1 の既定挙動)は
+  `--effort-policy welded` を明示すれば無期限にフルサポートされ続ける
+  (非推奨化タイマーなし、OQ-004)。T-003 が `role_defaults` を現行値から
+  事前シードしていたため、フリップ後最初の本番 `role_defaults` レンダーは
+  ゼロ差分(`render-agent-frontmatter.sh --check`: 10 targets, 0 drift、
+  AC-042)。`USERGUIDE.md` / `docs/agent-capability-matrix.md` を matrix
+  既定の説明で更新。**前提ゲート(AC-045)**: `git merge-base
+  --is-ancestor` で T-001..T-006 の Phase 1 マージコミット
+  (825d6c6、PR #185)と A3 コミット(2d8c6a5、#143)の双方が実装時点の
+  HEAD の祖先であることを再検証済み
+  (`specs/epic-159-pillar-c/verification/T-007/prereq-gate.log`)。TDD で
+  RED(`specs/epic-159-pillar-c/verification/T-007/red-sh.log`: フリップ前は
+  既定 `welded` のまま解決し `risk_effort_matrix` 値と食い違う)→ GREEN
+  (`specs/epic-159-pillar-c/verification/T-007/green-sh.log`)の順で実装。
+  **TEST-044(実 Codex ホストでの smoke 実行、AC-044)**: 本実装セッションでは
+  意図的に見送った — 正直な理由(実 `codex` CLI はこのリポジトリに対して
+  自律的にファイル書き込み・コマンド実行が可能な agentic ツールであり、
+  無人の自動スイート実行から無条件で起動するのは安全でないと判断)は
+  `reports/implementation/epic-159-pillar-c/T-007.md` の Unresolved Items
+  を参照。スイート内の TEST-044 は SKIP(named-reason、フィクション化なし、
+  `SDD_ALLOW_REAL_CODEX_SMOKE=1` を明示した運用者のみ実行可能)。この
+  タスクは T-001..T-006 とは別 PR・別リリースとして着地し、
+  `scripts/bump-version.sh` の実行は本実装セッションの範囲外(呼び出し元が
+  別途実施、AC-046)。詳細は
+  `reports/implementation/epic-159-pillar-c/T-007.md` を参照。
 
 ### セキュリティ修正
 
@@ -717,6 +751,123 @@
 - **check-placeholders の grep 実エラー握り潰し (Issue #127)**: grep の終了コードを
   区別し(0=一致 / 1=不一致 / >=2=致命的エラー)、品質ゲートでのフェイルオープンを
   解消。.sh / .ps1 双方を fail-closed に統一。
+- **quality-gate cycle-limit がタスク ID を全フィーチャー横断でカウントしていた問題
+  (Issue #167 / RT-20260712-001)**: `check-quality-gate-cycle-limit.{sh,ps1}` は
+  タスク ID(`T-NNN`)が `reports/quality-gate/` 配下のどのフィーチャーのレポートに
+  現れても単語境界一致でカウントしていたため、3 フィーチャー以上が同じ裸のタスク
+  ID を共有すると、対象フィーチャー自身のレポート件数が 0 でも偽の
+  `Escalate-Human` を返していた(epic-136-phase1-guards の T-003〜T-006 で実測)。
+  CLI 契約を `<task-id> <feature> [reports-dir]` に変更し(`feature` は必須第2
+  位置引数、文法 `^[a-z0-9][a-z0-9-]*$`、欠落・不正は使用法エラー exit 2)、
+  カウント述語を「単語境界一致のタスク ID」AND「同一ファイル内のアンカー付き
+  `^Feature:[[:space:]]*<feature>[[:space:]]*$` 行」の二条件に変更
+  (`emit-run-record.sh:123,125` が既に確立した二述語形状を再利用)。
+  RT-20260712-001 の実測シナリオ(他フィーチャー3件+対象フィーチャー0/1/2件)を
+  未修正スクリプトに対して先に RED 記録してから修正後に GREEN 確認する
+  受け入れ先行(acceptance-first)手順で実装。本スイートの新規 CI 登録ステップ
+  (bash 単一レーン、combined-suite 慣習に準拠)を反映した R-10 保護ファイル
+  `.github/workflows/test.yml` の完全な補正版を
+  `specs/quality-loop-fixes/human-copy/.github/workflows/test.yml` としてステージ
+  (人間の適用待ち、適用前後でライブファイルの SHA-256 は不変)。
+  `plugins/sdd-ship/skills/ship/SKILL.md` Step 4 のプロセ・呼び出し例2箇所も
+  同様に補正版を用意したが、同ファイルの human-copy ステージング書き込みが
+  R-10 ガードの suffix 判定(`specs/*/human-copy/` 配下の待避パスにも
+  ライブ保護パスと同一の exact-suffix match が誤って適用される既知のギャップ)
+  により本セッションのツールから完了できなかったため、完成済みの補正内容・
+  SHA-256・ライブ差分を実装レポートに記録し、人間が直接適用する運びとした
+  (AC-006 は本レポートで "blocked — 人間ステージング待ち" と正直に記録)。
+  CLI 契約変更に伴い、旧 2 引数契約でスクリプトを直接駆動していた
+  `tests/loop-escalation.tests.sh` / `.ps1`(T-001 の計画ファイル外だが、
+  この変更がなければ実際に壊れる既存 CI 登録済みスイート)にも feature 引数を
+  追加し、両レーンとも無回帰(green)を確認。詳細は
+  `reports/implementation/quality-loop-fixes/T-001.md` を参照。
+- **emit-run-record の gate_reports.blocked が VERDICT 行以外の本文中の
+  "BLOCKED" 文字列も誤カウントしていた問題 (Issue #176 / WFI-010)**:
+  `emit-run-record.{sh,ps1}` の `gate_blocked` 集計はレポート全文に対する
+  無アンカーの `grep -q 'BLOCKED'` / `-match "BLOCKED"` スキャンだったため、
+  レポート自身の `VERDICT:` 行が `PASS` でも本文中に「BLOCKED」という語が
+  出現するだけで誤カウントされていた(実例:
+  `reports/quality-gate/T-008.md`、WFI-010 が記録した epic-159-pillar-a の
+  実測値 baseline=1・真値=0)。レポート自身のアンカー付き
+  `^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$` /
+  `(?m)^VERDICT:\s*BLOCKED\s*$` 行のみを読む方式に変更(`VERDICT:` 行が
+  存在しないレポートは fail-open でカウントされない、OQ-4)。
+  `emit-run-record.ps1` にはファイル末尾の明示的な `exit 0` も追加
+  (従来は暗黙の終了コードのみ)。`tests/emit-run-record-feature-scope.tests.sh`
+  / `.ps1` に、同一フィーチャー内で `VERDICT: PASS` かつ本文に "BLOCKED" を
+  含むレポートを含む新規フィクスチャ(feature `feat-t002`)を追加し、
+  未修正スクリプトに対して先に RED 記録(誤って2件カウント)してから修正後に
+  GREEN(正しく1件カウント)を確認する受け入れ先行(acceptance-first)手順で
+  実装、既存の feat-a/feat-b フィクスチャとそのアサーションは無改変
+  (INV-010 のカバレッジギャップを解消)。WFI-010 の Status を
+  Approved → Applied に更新。詳細は
+  `reports/implementation/quality-loop-fixes/T-002.md` を参照。
+- **prepare-panelist-input のバンドル収集が単一階層のみで、実装レポートの
+  宣言済み成果物との整合性検証もなかった問題 (Issue #166 / WFI-009)**:
+  `prepare-panelist-input.{sh,ps1}` の `--input` 収集ロジックは単一階層の
+  glob(`for f in "$input_path"/*` / 非 `-Recurse` の `Get-ChildItem`)で、
+  サブディレクトリのファイルを収集しなかった。さらに収集後、実装レポートの
+  `## Outputs` テーブルが宣言する成果物パス・SHA-256 と実際に収集した
+  バンドルとの整合性を一切検証していなかった
+  (epic-136-phase1-guards レトロスペクティブが記録した2件の
+  evidence-completeness による盲検パネル NEEDS_WORK の根本原因、WFI-009)。
+  `find "$input_path" -type f | sort` ベースの再帰走査(`.ps1` は
+  `Get-ChildItem -Recurse -File` のネイティブ実装、ソート済みで決定的)に
+  置き換え、コンセントゲート直後・サニタイズ/ダイジェスト計算前に宣言済み
+  成果物の整合性検証を追加: `validate-review-context-set.sh:63-74` の
+  `## Outputs` テーブルパーサ形状を逆方向に再利用し、各宣言パスをバンドル
+  自身の `--input` ルート配下に収まるかコンテインメント検証してから
+  (root 外に解決されるパスは読み取らず即座にギャップとして扱う、
+  Security Boundary B1)存在・SHA-256 一致を確認、ギャップが1件でも
+  あればサニタイズ/ダイジェスト計算に到達する前に非ゼロ終了しギャップ
+  一覧を stderr に出力・ダイジェスト行は一切印字しない(構造的性質であり
+  条件分岐によるガードではない)。実装レポートのパスは新規フラグを追加
+  せず(Breaking API: no、CLI フラグ不変)、`--task`/`--feature`/
+  `--project-root` から `reports/implementation/<feature>/<task_id>.md`
+  という既存の規約(`validate-review-context-set.sh:267-282` が同一規約を
+  使用)で導出。`cross-model-verify/SKILL.md` の Step 1 と Step 2 の間に
+  "Step 1.5 — Pre-Panel Readiness" を新設し、仕様が列挙可能なカバレッジ
+  要件を明示するタスクについてのみ、機械検証可能なカバレッジマニフェスト
+  の全要素がマッピングされていることをパネリスト起動前に検証、未マッピング
+  要素があれば起動前に停止する(通常タスクは no-op で従来どおり Step 2 に
+  進む)。`tests/prepare-panelist.tests.{sh,ps1}` に再帰・整合性チェックの
+  陽性/欠落/ハッシュ不一致/サブディレクトリ/パストラバーサル
+  (センチネルファイル使用)の6ケースを追加し、未修正コレクタに対して
+  先に RED 記録してから修正後に GREEN を確認する TDD 手順で実装
+  (高リスクタスクの必須要件)。BL-007(コンセントゲート)・BL-008
+  (サニタイズ)・BL-009(`--effort` 出力契約)は無改変で green を維持。
+  WFI-009 の Status を Approved → Applied に更新。詳細は
+  `reports/implementation/quality-loop-fixes/T-003.md` を参照。
+- **validate-review-context-set.sh が Windows Git Bash (jq.exe) 上で正当な
+  identity ledger を拒否していた問題 (Issue #179)**:
+  `validate-review-context-set.sh` のレコードハッシュ再計算経路にある全
+  `jq -r` 消費箇所(マニフェスト単一値読み取り9箇所+条件付き `task_id`
+  読み取り1箇所、`@tsv` 形式の ledger バッチ読み取り1箇所、
+  `allowed_input_manifest` 読み取り2箇所、計12箇所)が jq 出力の末尾 `\r`
+  を除去していなかったため、Windows の `jq.exe` が emit する CRLF 改行が
+  `while IFS=$'\t' read` ループの最終フィールド(`record_sha256`)に混入し、
+  正当な genesis ledger に対してもバイト完全一致比較が失敗し
+  `REVIEW_CONTEXT_IDENTITY: canonical identity ledger record hash is
+  invalid` を誤って返していた(`tests/lib/loop-driver.sh:460-481` の
+  `loop_validator_capability_probe` が `degraded` として長期間吸収)。
+  コミット `c756a5a` で確立済みの `tr -d '\r'`(`uname`/OS 分岐なし)を
+  該当12箇所すべてに機械的に追加。`validate-review-context-set.ps1` は
+  `ConvertFrom-Json` ベースで本来この欠陥の対象外のため無改変(INV-019)。
+  `tests/review-contract-foundation.tests.sh` に、対象の jq プログラム文字列
+  にのみ末尾 `\r` を付与する PATH 差し込み型 jq シム(1箇所ずつ分離適用、
+  全体一括だと stage/role の CONTRACT チェックが先に失敗してしまうため)
+  を用いたフィクスチャスイートを追加し、未修正スクリプトに対して先に RED
+  記録(genesis ledger が `canonical identity ledger record hash is
+  invalid` で拒否される実測)してから修正後に GREEN(`REVIEW_CONTEXT_OK`)
+  を確認する TDD 手順(高リスクタスクの必須要件)で実装。BL-010 の
+  真正な改ざんケース(sequence 不正・previous_record_sha256 不正・
+  シンボリックリンクトラバーサル・run/session ID 重複)は shim 適用有無の
+  両レーンで修正後も fail-closed のままであることを再確認し、本タスクの
+  変更が改ざん検知を弱めていないことを証明(security-spec.md Security
+  Boundary B2)。フィクスチャは mktemp スコープの ledger コピーのみを使用し
+  実 `reports/review-context/identity-ledger.json` には一切書き込まない
+  (実施前後で当該ファイルの SHA-256 が不変であることを確認済み)。詳細は
+  `reports/implementation/quality-loop-fixes/T-004.md` を参照。
 
 ### ドキュメント
 

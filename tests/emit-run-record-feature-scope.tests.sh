@@ -108,6 +108,78 @@ assert_eq '.metrics.review_tickets.critical'           0 "feat-b's critical tick
 assert_eq '.metrics.review_tickets.minor'              1 'CRLF feat-a ticket severity is counted'
 
 # ============================================================================
+# quality-loop-fixes T-002 (#176 / WFI-010): anchored VERDICT: blocked-count
+# read (AC-008..012, TEST-008..012). This is a NET NEW fixture (feature
+# feat-t002), added specifically to close the INV-010 coverage gap -- the
+# feat-a/feat-b fixture above never exercises a same-feature,
+# non-BLOCKED-verdict report whose BODY prose independently contains the
+# literal substring "BLOCKED". Neither the feat-a/feat-b fixture above nor
+# its assertions are modified for this (AC-011).
+# ============================================================================
+mkdir -p "$WORK/specs/feat-t002"
+cat > "$WORK/specs/feat-t002/tasks.md" <<'EOF'
+## T-001 dummy task
+Status: Done
+EOF
+
+# t002-blocked: anchored VERDICT: BLOCKED on its own header line -- TRUE
+# POSITIVE, same-feature, must be counted (AC-008 positive).
+cat > "$WORK/reports/quality-gate/t002-blocked.md" <<'EOF'
+Task: T-001
+Feature: feat-t002
+VERDICT: BLOCKED
+EOF
+
+# t002-pass / t002-needswork: ordinary non-blocked verdicts, no "BLOCKED"
+# substring anywhere -- must never be counted (AC-008 negative).
+cat > "$WORK/reports/quality-gate/t002-pass.md" <<'EOF'
+Task: T-002
+Feature: feat-t002
+VERDICT: PASS
+EOF
+
+cat > "$WORK/reports/quality-gate/t002-needswork.md" <<'EOF'
+Task: T-003
+Feature: feat-t002
+VERDICT: NEEDS_WORK
+EOF
+
+# t002-noverdict: legacy report shape, no VERDICT: line at all -- must not
+# be counted as blocked (AC-009, fail-open per OQ-4).
+cat > "$WORK/reports/quality-gate/t002-noverdict.md" <<'EOF'
+Task: T-004
+Feature: feat-t002
+This is a legacy report predating the VERDICT: convention. It has no
+verdict header line at all.
+EOF
+
+# t002-bodyblocked: the AC-010/AC-011 coverage-gap-closing fixture, mirroring
+# reports/quality-gate/T-008.md's real shape (INV-009) -- VERDICT: PASS on
+# its own header line, but BODY prose independently contains the literal
+# substring "BLOCKED" twice. Proven RED against the pre-fix unanchored
+# `grep -q 'BLOCKED'` scan (specs/quality-loop-fixes/verification/qg/T-002/red.log:
+# gate_reports.blocked wrongly read 2, not 1) before this fix landed; this
+# assertion below runs against the fixed, anchored-read script (GREEN).
+cat > "$WORK/reports/quality-gate/t002-bodyblocked.md" <<'EOF'
+Task: T-005
+Feature: feat-t002
+VERDICT: PASS
+
+> Note: per this repository's policy, a BLOCKED verdict must stop the
+> pipeline immediately and no further tasks should proceed while any task
+> remains BLOCKED. This task's own verdict above is PASS, not BLOCKED.
+EOF
+
+( cd "$WORK" && sh "$SCRIPT" feat-t002 --track lite >/dev/null )
+OUT="$(find "$WORK/reports/runs" -name 'RUN-*-feat-t002.json' | head -n 1)"
+if [ -z "$OUT" ]; then
+  fail "emit-run-record produced no run record for feat-t002"
+else
+  assert_eq '.metrics.gate_reports.total'   1 'feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report'
+  assert_eq '.metrics.gate_reports.blocked' 1 'feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report -- the VERDICT: PASS report with body-text "BLOCKED" (AC-010), the VERDICT: NEEDS_WORK report (AC-008 negative), and the no-VERDICT-line report (AC-009) are all correctly excluded'
+fi
+
+# ============================================================================
 # T-004 (#153): sdd-run-record/v2 effort attribution + degradation lock
 # (REQ-004; AC-021..026, AC-051; security-spec.md B4). Each scenario below
 # uses its own uniquely-named feature slug so RUN-<UTC-second>-<feature>.json

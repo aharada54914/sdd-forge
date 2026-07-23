@@ -1,0 +1,32 @@
+T-007 task-state-check evidence (check-task-state.sh)
+Captured: 2026-07-21T15:01:14Z
+NOTE: T-007 itself is NOT touched by this task's own commits (hard
+constraint: never touch specs/epic-159-pillar-c/tasks.md) -- this
+check validates the CURRENT on-disk tasks.md state machine as a
+read-only sanity check, not a T-007-specific mutation proof.
+
+Verification contract passed for task T-001.
+WARNING: git_commit 1a486fe8ee5f79af493c5594ad9efec14ac528e7 is not an ancestor of HEAD (history may have been rewritten after amend/rebase), but all artifact hashes still match
+Evidence bundle passed for task T-001.
+Verification contract passed for task T-002.
+WARNING: git_commit 1a486fe8ee5f79af493c5594ad9efec14ac528e7 is not an ancestor of HEAD (history may have been rewritten after amend/rebase), but all artifact hashes still match
+WARNING: evidence bundle for task T-002 was generated with a dirty working tree
+Evidence bundle passed for task T-002.
+Verification contract passed for task T-003.
+WARNING: git_commit 1a486fe8ee5f79af493c5594ad9efec14ac528e7 is not an ancestor of HEAD (history may have been rewritten after amend/rebase), but all artifact hashes still match
+WARNING: evidence bundle for task T-003 was generated with a dirty working tree
+Evidence bundle passed for task T-003.
+Verification contract passed for task T-004.
+WARNING: git_commit 1a486fe8ee5f79af493c5594ad9efec14ac528e7 is not an ancestor of HEAD (history may have been rewritten after amend/rebase), but all artifact hashes still match
+WARNING: evidence bundle for task T-004 was generated with a dirty working tree
+Evidence bundle passed for task T-004.
+Verification contract passed for task T-005.
+WARNING: git_commit 1a486fe8ee5f79af493c5594ad9efec14ac528e7 is not an ancestor of HEAD (history may have been rewritten after amend/rebase), but all artifact hashes still match
+WARNING: evidence bundle for task T-005 was generated with a dirty working tree
+Evidence bundle passed for task T-005.
+Verification contract passed for task T-006.
+WARNING: git_commit 1a486fe8ee5f79af493c5594ad9efec14ac528e7 is not an ancestor of HEAD (history may have been rewritten after amend/rebase), but all artifact hashes still match
+WARNING: evidence bundle for task T-006 was generated with a dirty working tree
+Evidence bundle passed for task T-006.
+Task state check passed for 7 task(s).
+exit_code=0

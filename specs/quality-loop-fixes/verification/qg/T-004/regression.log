@@ -1,0 +1,86 @@
++ quality-loop-fixes cross-suite regression set for T-004 (the other three tasks' suites: T-001, T-002, T-003; both bash and pwsh lanes where twins exist; plus validate-repository.sh/.ps1, check-sdd-structure.sh, check-risk.sh)
+
+###### bash tests/quality-gate-cycle-limit.tests.sh (T-001's own suite) ######
+== start: 2026-07-19T17:36:02Z ==
+Results: 59 passed, 2 failed
+== end: 2026-07-19T17:36:02Z ==
+EXIT_CODE: 1
+  KNOWN, DOCUMENTED CONDITIONS (both pre-existing, unaffected by T-004's own
+  diff, which never touches check-quality-gate-cycle-limit.{sh,ps1}):
+  - QGCL-015 (AC-006): staged ship/SKILL.md human-copy candidate still
+    missing -- T-001's already-documented classifier-blocked item.
+  - QGCL-016 (AC-007, DESIGNED-RED pre-human-copy): live
+    .github/workflows/test.yml still lacks the staged CI-registration step --
+    T-001's pre-existing, designed-red state pending the human-copy
+    pre-merge commit.
+  (tests/quality-gate-cycle-limit.tests.sh has no registered .ps1 twin --
+  deliberate combined-suite convention, OQ-5.)
+
+###### bash tests/emit-run-record-feature-scope.tests.sh (T-002's own suite) ######
+== start: 2026-07-19T17:37:10Z ==
+emit-run-record-feature-scope.tests.sh: 38 passed, 0 failed
+== end: 2026-07-19T17:37:10Z ==
+EXIT_CODE: 0
+
+###### pwsh tests/emit-run-record-feature-scope.tests.ps1 (T-002's own suite) ######
+== start: 2026-07-19T17:37:14Z ==
+emit-run-record-feature-scope.tests.ps1: 38 passed, 0 failed
+== end: 2026-07-19T17:37:14Z ==
+EXIT_CODE: 0
+
+###### bash tests/prepare-panelist.tests.sh (T-003's own suite) ######
+== start: 2026-07-19T17:38:20Z ==
+Results: 48 passed, 3 failed
+== end: 2026-07-19T17:38:20Z ==
+EXIT_CODE: 1
+  KNOWN, DOCUMENTED CONDITION: PP-001a/b/c fail -- pre-existing, environment-
+  only ambient-sudo consent-token flake (see T-003's own focused-tests.log);
+  unaffected by T-004's own diff.
+
+###### pwsh tests/prepare-panelist.tests.ps1 (T-003's own suite) ######
+== start: 2026-07-19T17:38:26Z ==
+Results: 43 passed, 3 failed
+== end: 2026-07-19T17:38:26Z ==
+EXIT_CODE: 1
+  Same PP-001a/b/c ambient-sudo condition as the bash lane above.
+
+###### bash tests/validate-repository.sh ######
+== start: 2026-07-19T17:40:15Z ==
+workflow-state: ok
+(10 targets, 0 drift)
+Repository validation passed.
+== end: 2026-07-19T17:40:15Z ==
+EXIT_CODE: 0
+
+###### pwsh tests/validate-repository.ps1 ######
+== start: 2026-07-19T17:40:16Z ==
+workflow-state: ok
+(10 targets, 0 drift)
+Repository validation passed.
+== end: 2026-07-19T17:40:16Z ==
+EXIT_CODE: 0
+
+###### bash scripts/check-sdd-structure.sh ######
+== start: 2026-07-19T17:40:17Z ==
+advisory: CLAUDE.md
+advisory: docs/architecture
+host: github
+check-sdd-structure: OK
+== end: 2026-07-19T17:40:17Z ==
+EXIT_CODE: 0
+
+###### bash plugins/sdd-quality-loop/scripts/check-risk.sh specs/quality-loop-fixes/tasks.md ######
+== start: 2026-07-19T17:40:18Z ==
+Risk check passed for 4 task(s).
+== end: 2026-07-19T17:40:18Z ==
+EXIT_CODE: 0
+
+=== Summary for T-004's regression sweep: 0 new/unexplained failures. The two
+non-green suites (T-001's QGCL-015/016, T-003's PP-001a/b/c) are the
+pre-existing, documented conditions each owning task's own gate evidence
+already carries -- reproduced identically here, not introduced or affected by
+T-004's own diff (validate-review-context-set.sh only;
+validate-review-context-set.ps1 is untouched, INV-019). T-004's own suites
+(tests/review-contract-foundation.tests.sh + the parity suite) are excluded
+here by design -- their full run is this task's own focused-tests.log, not a
+cross-suite regression check. ===

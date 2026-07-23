@@ -518,6 +518,65 @@ loop_validator_skip() {
   printf 'SKIP: %s: %s\n' "$1" "$LOOP_VALIDATOR_SKIP_REASON"
 }
 
+# Second runtime capability probe (behavior-only, no OS branching), same
+# design as loop_validator_capability_probe: the impl/task legs additionally
+# exercise impl-review-precheck.sh's canonical workflow-state validation,
+# which has its own upstream Windows CRLF consumption defect (issue #203)
+# that only became reachable once issue #179's validator fix let those legs
+# run. Probes the fixture's own checker once, read-only; cached globally
+# because the defect is runtime-level, not fixture-level.
+LOOP_WORKFLOW_STATE_SKIP_REASON="canonical workflow-state validation rejects the fixture's registered, on-disk specification directory on this runtime (upstream Windows CRLF defect in check-workflow-state.sh jq -r consumption; issue #203)"
+loop_workflow_state_capability_probe() {
+  if [[ -n "${LOOP_WORKFLOW_STATE_CAPABILITY:-}" ]]; then
+    [[ "$LOOP_WORKFLOW_STATE_CAPABILITY" == ok ]]
+    return
+  fi
+  local root="${LOOP_FIXTURE_ROOT:?loop_workflow_state_capability_probe requires LOOP_FIXTURE_ROOT (set by loop_fixture_init)}"
+  local checker="${root}/plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+  local probe_out probe_rc
+  if [[ ! -f "$checker" ]]; then
+    # No fixture copy to probe: not the upstream defect; report ok so the
+    # real checks run and surface the actual error.
+    LOOP_WORKFLOW_STATE_CAPABILITY=ok
+    return 0
+  fi
+  if probe_out="$(bash "$checker" --feature "${LOOP_FIXTURE_FEATURE:-}" 2>&1)"; then
+    probe_rc=0
+  else
+    probe_rc=$?
+  fi
+  if [[ "$probe_rc" -eq 0 ]]; then
+    LOOP_WORKFLOW_STATE_CAPABILITY=ok
+    return 0
+  fi
+  if [[ "$probe_out" == *registry-dangling-entry* ]]; then
+    # The fixture registry is canonically valid by construction (every
+    # registered directory exists on disk), so a dangling-entry diagnostic
+    # here can only be the upstream CRLF consumption defect.
+    LOOP_WORKFLOW_STATE_CAPABILITY=degraded
+    return 1
+  fi
+  LOOP_WORKFLOW_STATE_CAPABILITY=ok
+  return 0
+}
+
+# loop_workflow_state_skip <check-id> — canonical named SKIP line for a check
+# suppressed by loop_workflow_state_capability_probe.
+loop_workflow_state_skip() {
+  printf 'SKIP: %s: %s\n' "$1" "$LOOP_WORKFLOW_STATE_SKIP_REASON"
+}
+
+# loop_impl_chain_skip <check-id> — SKIP for checks that need BOTH the real
+# validator and canonical workflow-state validation; names whichever
+# capability degraded.
+loop_impl_chain_skip() {
+  if [[ "${LOOP_VALIDATOR_CAPABILITY:-}" == degraded ]]; then
+    loop_validator_skip "$1"
+  else
+    loop_workflow_state_skip "$1"
+  fi
+}
+
 # _loop_reserve_review_context <stage> <role> <feature> <manifest-json-array>
 # Unchanged public contract from A2/#142: always reserves (extends the
 # identity-ledger chain).
