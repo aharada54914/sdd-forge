@@ -78,7 +78,7 @@ the exhaustive, authoritative enumeration (AC-028).
 | `plugins/sdd-quality-loop/scripts/emit-run-record.sh` | deterministic run-record emitter (INV-006) | add `--capability-enforcement <disabled-legacy\|advisory\|required>` and `--capability-block-id <id>` (adopted now as an optional field, Data Plan — not deferred), gated by a new `emit_capability` flag independent of `emit_v2`; four flag-combination outcomes fixed in Data Plan/API Contract Plan (AC-033) | existing, extended (future task) |
 | `tests/install.tests.sh` / `tests/uninstall.tests.sh` | existing byte-identical-style install/uninstall suites (INV-007) | add fixture cases asserting install/uninstall output is unaffected by `project-context.yaml` presence/absence (byte-identical target, decision doc §4.1) | existing, extended (future task) |
 | golden-baseline capture/promote scripts (REQ-006, name/location fixed by Design Decisions below) | pinned byte-for-byte legacy output snapshot; separate `candidate`-capture and `canonical`-promotion commands (REQ-006c) | new | new (future task) |
-| fixture-matrix builder (name/location fixed by Design Decisions below) | constructs F1–F4 plus the F3/F4-invalid variants and the Context-absent CLI submatrix (REQ-005) | new | new (future task) |
+| fixture-matrix builder (`tests/lib/fixture-matrix-builder.sh`, `build_fixture` function — full signature fixed in API / Contract Plan below) | constructs F1–F4 plus the F3/F4-invalid variants and the Context-absent CLI submatrix (REQ-005) | new | new (future task) |
 | `compatibility-event-trace/v1` schema (Data Plan) | versioned canonical definition of the six REQ-003 event kinds — producer, ordering, value-normalization per kind | new (specified inline in this document; not a new repository file in Phase 1) | new (future task authors the golden-trace fixture) |
 | REQ-007 SKIP allowlist manifest (Data Plan) | assertion→epic/issue→fingerprint→activation-condition table every named `SKIP` reads from | new | new (future task) |
 | `contracts/*.schema.json` (9 existing files, e.g. `workflow-state-registry.schema.json`) | existing schema validators cited as a byte-identical target (decision doc §4.1 "schema validator") | none — read-only compatibility target | existing, unmodified |
@@ -377,8 +377,9 @@ spy/absence check, not a byte-capture target, and is independently
 specified by AC-004/TEST-004 (Compatibility Matrix, above).
 
 **`PROJECT_CONTEXT_INVALID` variant plan** (REQ-005/AC-019–021): the
-fixture-matrix builder's `valid_or_invalid` parameter (API / Contract
-Plan) produces, for F3/F4 only, a `sdd/project-context.yaml` that parses
+fixture-matrix builder's `valid_or_invalid` parameter (`build_fixture`,
+API / Contract Plan below) produces, for F3/F4 only, a
+`sdd/project-context.yaml` that parses
 as YAML but fails Epic A1's own schema/hash/HMAC validator by exactly one
 deliberately-broken field (design.md's own future-task fixture chooses
 which, e.g. a corrupted `content_hash`) — never a syntactically invalid
@@ -695,14 +696,48 @@ pre-capability merge-base commit SHA (AC-018, INV-022), the fixed
 environment variables used (`TZ`, `LC_ALL`, no ambient `SDD_*`), and each
 captured target's own sha256 plus the capturing script's own sha256.
 
+**Fixture-matrix builder contract** (REQ-005/AC-014; name and location
+this section fixes, closing the Components table's own "name/location
+fixed by Design Decisions below" forward-reference — the concrete
+definition lives here, in API / Contract Plan, matching this document's
+own precedent for the golden-baseline scripts above): a new shared
+library, `tests/lib/fixture-matrix-builder.sh` (`.sh`/`.ps1` pair per
+this repository's own convention, INV-005/INV-007 — sourced by the
+suites that consume it, never registered as its own independent test
+suite). One named function,
+
+```
+build_fixture <project_context> <agents_marker> <capability_enforcement> <valid_or_invalid> <track_flag>
+```
+
+returning the constructed fixture's own root directory path, following
+`loop_fixture_init`'s own `mktemp -d` + physical-path-normalization +
+outside-repo-root assertion pattern (`tests/lib/loop-driver.sh:106-141`,
+Test Strategy item 1) so fixtures never touch the real working tree.
+AC-014's own five required parameters, fixed exhaustively:
+
+| Parameter | Values | Meaning |
+|---|---|---|
+| `project_context` | `absent` \| `present` | whether `sdd/project-context.yaml` is written into the fixture at all |
+| `agents_marker` | `absent` \| `present` | whether `AGENTS.md` carries `spec_profile: lite` |
+| `capability_enforcement` | `disabled-legacy` \| `advisory` \| `required` | the value written into `workflow.capability_enforcement` when `project_context` is `present` (ignored when `absent`) |
+| `valid_or_invalid` | `valid` \| `PROJECT_CONTEXT_INVALID` | F3/F4 only (ignored otherwise); `PROJECT_CONTEXT_INVALID` corrupts exactly one deliberately-broken field per the `PROJECT_CONTEXT_INVALID` variant plan above, never a syntactically invalid YAML file |
+| `track_flag` | `none` \| `--full` \| `--lite` | the CLI flag argument the fixture's own generation invocation is run with, independent of the other four parameters (Context-absent CLI submatrix, AC-014) |
+
+Each named matrix row (F1–F4) is a fixed parameter tuple this function
+accepts; F5–F8 have no builder call (documented `SKIP`/`N-A`,
+Compatibility Matrix, Data Plan).
+
 ## Test Strategy
 
 Phase 2/3 (not this task) implements, in this order:
 
-1. Fixture-matrix builder (REQ-005/AC-014): named builder functions for
-   F1–F4 plus a `valid_or_invalid` parameter (F3/F4-invalid, AC-019–021)
-   and a `track_flag` parameter (Context-absent CLI submatrix, AC-014),
-   following `loop_fixture_init`'s own `mktemp -d` +
+1. Fixture-matrix builder (REQ-005/AC-014): `tests/lib/fixture-matrix-builder.sh`'s
+   `build_fixture` function (full five-parameter signature fixed in API /
+   Contract Plan) for F1–F4 plus a `valid_or_invalid` parameter
+   (F3/F4-invalid, AC-019–021) and a `track_flag` parameter
+   (Context-absent CLI submatrix, AC-014), following `loop_fixture_init`'s
+   own `mktemp -d` +
    physical-path-normalization + outside-repo-root assertion pattern
    (`tests/lib/loop-driver.sh:106-141`) so fixtures never touch the real
    working tree. F5–F8 are documented `SKIP`/`N-A` rows (Compatibility
