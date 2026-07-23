@@ -1,7 +1,10 @@
+# post-human-copy simulation: live_workflow repointed at the candidate
 === TEST-016 (AC-016): candidate structure, every step prefixed ===
 ok: TEST-016: job count and job names are byte-unchanged (test mcp-tests local-env-mcp-tests ci-mcp-tests cli-hook-enforcement required-checks )
 ok: TEST-016: all 69 'test'-job step entries are named AND carry the [deterministic] prefix (no unnamed step)
 ok: TEST-016: the documented, currently-empty eval-lane comment placeholder is present
+ok: TEST-016: every 'test'-job step name is a YAML-safe scalar (no unquoted flow-sequence opener)
+ok: TEST-016: the candidate parses as YAML (ruby/Psych)
 === TEST-017 (AC-017): idempotent RED-then-GREEN step-coverage self-check ===
 ok: TEST-017-RED: dropped step 'Verify generated guard invariants (POSIX)' correctly failed the coverage check (check is non-vacuous)
 ok: TEST-017-GREEN: all 69 baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)
@@ -26,4 +29,5 @@ ok: TEST-020: the candidate runs tests/deterministic-lane-selfcheck.tests.sh
 ok: TEST-020: the referenced suite tests/deterministic-lane-selfcheck.tests.sh exists
 ok: TEST-020: the LIVE workflow runs tests/deterministic-lane-selfcheck.tests.sh (human-copy already applied)
 
-deterministic-lane-selfcheck.tests.sh: 23 passed, 0 failed, 0 designed-red (pre-human-copy)
+deterministic-lane-selfcheck.tests.sh: 25 passed, 0 failed, 0 designed-red (pre-human-copy)
+exit=0

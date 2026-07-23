@@ -135,7 +135,7 @@ fi
 # the total number of step entries, so an unnamed step (which cannot carry a
 # prefix) makes the counts diverge and fails this assertion.
 cand_named="$(job_step_names "$candidate" test | wc -l | tr -d ' ')"
-cand_prefixed="$(job_step_names "$candidate" test | grep -c '^\[deterministic\] ' || true)"
+cand_prefixed="$(job_step_names "$candidate" test | grep -c '^"\[deterministic\] ' || true)"
 cand_entries="$(job_step_entry_count "$candidate" test | tr -d ' ')"
 if [ "$cand_prefixed" -eq "$cand_entries" ] && [ "$cand_named" -eq "$cand_entries" ]; then
     ok "TEST-016: all $cand_entries 'test'-job step entries are named AND carry the [deterministic] prefix (no unnamed step)"
@@ -149,12 +149,46 @@ else
     fail "TEST-016: the eval-lane comment placeholder is missing from the candidate"
 fi
 
+# AC-016 is scoped as document/YAML conformance, so the candidate must be a
+# LOADABLE YAML document -- not merely the right lines. The `[deterministic] `
+# prefix is exactly the hazard here: an UNQUOTED scalar beginning with `[`
+# opens a YAML flow sequence and makes the whole file unparseable, which no
+# text-marker assertion can see. This check is dependency-free and fails
+# closed; a real parser run is added on top when one is available.
+bad_scalar="$(python3 - "$candidate" <<'PY'
+import sys
+bad = []
+for n, ln in enumerate(open(sys.argv[1], encoding="utf-8").read().split("\n"), 1):
+    if not ln.startswith("      - name: "):
+        continue
+    value = ln[len("      - name: "):].strip()
+    if value[:1] in ('[', '{', '*', '&', '!', '%', '@', '`', ','):
+        bad.append("%d:%s" % (n, value[:40]))
+print("\n".join(bad))
+PY
+)"
+if [ -z "$bad_scalar" ]; then
+    ok "TEST-016: every 'test'-job step name is a YAML-safe scalar (no unquoted flow-sequence opener)"
+else
+    fail "TEST-016: unquoted step name(s) open a YAML flow sequence -- the document would not load: $(echo "$bad_scalar" | tr '\n' ' ')"
+fi
+
+if command -v ruby >/dev/null 2>&1; then
+    if ruby -ryaml -e 'YAML.load_file(ARGV[0])' "$candidate" >/dev/null 2>&1; then
+        ok "TEST-016: the candidate parses as YAML (ruby/Psych)"
+    else
+        fail "TEST-016: the candidate does NOT parse as YAML (ruby/Psych) -- applying it would make the workflow unloadable"
+    fi
+else
+    echo "note: ruby not available; YAML parseability rests on the scalar-shape check above"
+fi
+
 echo "=== TEST-017 (AC-017): idempotent RED-then-GREEN step-coverage self-check ==="
 
 # Baseline = live step names with any existing [deterministic] prefix stripped.
 # Stripping makes the check idempotent: pre-apply the live names are bare, post-
 # apply they already carry the prefix, and both reduce to the same base set.
-job_step_names "$live_workflow" test | sed 's/^\[deterministic\] //' > "$work/base-steps.txt"
+job_step_names "$live_workflow" test | sed -e 's/^"\[deterministic\] //' -e 's/"$//' > "$work/base-steps.txt"
 base_count="$(wc -l < "$work/base-steps.txt" | tr -d ' ')"
 
 # coverage_check <file>: every baseline name must appear PREFIXED in <file>.
@@ -162,7 +196,7 @@ coverage_check() {
     local target="$1" missing=0 name
     while IFS= read -r name; do
         [ -n "$name" ] || continue
-        if ! grep -Fqx "      - name: [deterministic] ${name}" "$target"; then
+        if ! grep -Fqx "      - name: \"[deterministic] ${name}\"" "$target"; then
             echo "    missing: ${name}"
             missing=$((missing + 1))
         fi
@@ -172,7 +206,7 @@ coverage_check() {
 
 # RED: drop one baseline name's prefixed line from a candidate copy.
 dropped_step="$(sed -n '3p' "$work/base-steps.txt")"
-grep -vFx "      - name: [deterministic] ${dropped_step}" "$candidate" > "$work/red-fixture.draft.yml"
+grep -vFx "      - name: \"[deterministic] ${dropped_step}\"" "$candidate" > "$work/red-fixture.draft.yml"
 if coverage_check "$work/red-fixture.draft.yml" > "$work/red-output.txt" 2>&1; then
     fail "TEST-017-RED: the dropped-step fixture PASSED the coverage check -- the check is vacuous"
 else
