@@ -108,10 +108,13 @@ if ($testJsonAvailable) {
   Write-Output 'skip: Test-Json unavailable (requires PowerShell 6.1+/pwsh) - canonical registry schema conformance not exercised'
 }
 $registry = $raw | ConvertFrom-Json
+# Full/lite membership is not pinned here: the exact feature set is enforced
+# below by the two-way comparison against first-level specs directories. Only
+# the legacy subset is a closed list, held solely in
+# contracts/workflow-state-registry.schema.json (legacyEntry).
 $features = @($registry.entries.feature | Sort-Object -CaseSensitive)
-$expected = @('agent-cost-context-isolation','bootstrap-interviewer-enhancement','claude-workflow-compatibility','cross-model-verification','local-env-mcp','p0-hardening','risk-adaptive-layer','sdd-diagnose','sdd-domain','sdd-forge-mcp','sdd-forge-refactor','sdd-lite','uninstall-workflow','workflow-state-integrity')
-if ($registry.schema_version -ne 1 -or $registry.migration_baseline_commit -cne $baseline -or ($features -join ',') -cne ($expected -join ',')) {
-  throw 'not ok: canonical registry metadata or coverage is invalid'
+if ($registry.schema_version -ne 1 -or $registry.migration_baseline_commit -cne $baseline -or $features.Count -eq 0) {
+  throw 'not ok: canonical registry metadata is invalid'
 }
 if (@($registry.entries.feature | Sort-Object -Unique).Count -ne $registry.entries.Count) { throw 'not ok: duplicate registry feature' }
 $directories = @(Get-ChildItem -LiteralPath (Join-Path $root specs) -Directory | Where-Object { -not $_.LinkType } | Select-Object -ExpandProperty Name | Sort-Object -CaseSensitive)
