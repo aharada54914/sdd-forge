@@ -10,6 +10,7 @@ $implTemplate = Join-Path $repoRoot "plugins/sdd-implementation/templates/implem
 $qgTemplate = Join-Path $repoRoot "plugins/sdd-quality-loop/templates/quality-report.template.md"
 $validator = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/validate-review-context-set.sh"
 $bundleCheck = Join-Path $repoRoot "plugins/sdd-quality-loop/scripts/check-evidence-bundle.sh"
+$implReportValidator = Join-Path $repoRoot "plugins/sdd-implementation/scripts/validate-implementation-report.sh"
 
 $script:passCount = 0
 $script:failCount = 0
@@ -81,6 +82,60 @@ if ((Get-Content -Raw $validator).Contains('/^## Outputs[[:space:]]*$/')) {
     Ok "validator pin: Outputs-section parser still present in launch boundary"
 } else {
     Fail "validator pin: Outputs-section parser changed in launch boundary"
+}
+
+# ---------------------------------------------------------------------------
+# WFI-017 leg: implementation report template vs its OWN authoring-time
+# validator (validate-implementation-report.sh). `Render` above only fills
+# the placeholders the other legs care about, leaving every other field as
+# inert "fixture-value" text -- not enough to satisfy the full validator
+# (Test Result enum, Task Attempt Count, escalation vacuity, Isolation Mode,
+# Current Status enum). `Render-ImplReportOk` renders straight from the
+# template with the superset of substitutions needed to pass every rule,
+# proving the template's CURRENT "## Outputs" table form satisfies the
+# validator end-to-end, not just the single-row shape Rule 3 already pins.
+# ---------------------------------------------------------------------------
+function Render-ImplReportOk([string]$TemplatePath) {
+    $text = [IO.File]::ReadAllText($TemplatePath)
+    $text = $text.Replace("{{task_id}}", $taskId)
+    $text = $text.Replace("{{output_path}}", $outPath)
+    $text = $text.Replace("{{output_sha256}}", $outHash)
+    $text = $text.Replace("{{model}}", "anthropic/opus")
+    $text = $text.Replace("{{effort}}", "standard")
+    $text = $text.Replace("{{PASS_or_FAIL_or_BLOCKED_or_NOT_RUN}}", "PASS")
+    $text = $text.Replace("{{task_attempt_count}}", "1")
+    $text = $text.Replace("{{escalation_prior_tier}}", "None")
+    $text = $text.Replace("{{escalation_next_tier}}", "None")
+    $text = $text.Replace("{{escalation_failure_class}}", "None")
+    $text = $text.Replace("{{escalation_attempt_number}}", "None")
+    $text = $text.Replace("{{escalation_reason}}", "None")
+    $text = $text.Replace("{{isolation_mode}}", "fresh-agent")
+    $text = $text.Replace("{{fallback_reason_or_none}}", "None")
+    $text = $text.Replace("{{handoff_reload_evidence_hash_or_none}}", "None")
+    $text = $text.Replace("{{handoff_status}}", "Implementation Complete")
+    $text = [regex]::Replace($text, "\{\{[A-Za-z_|]*\}\}", "fixture-value")
+    return $text
+}
+
+$implFullWork = Join-Path ([IO.Path]::GetTempPath()) ("template-parity-impl-" + [Guid]::NewGuid().ToString("N"))
+New-Item -ItemType Directory -Force -Path $implFullWork | Out-Null
+try {
+    $implFullRendered = Join-Path $implFullWork "impl-report-full.md"
+    [IO.File]::WriteAllText($implFullRendered, (Render-ImplReportOk $implTemplate))
+
+    $implValidatorOutput = (& bash $implReportValidator $implFullRendered 2>&1 | Out-String).Trim()
+    if ($implValidatorOutput -eq "IMPLEMENTATION_REPORT_OK") {
+        Ok "impl-report template: rendered report passes validate-implementation-report.sh"
+    } else {
+        Fail "impl-report template: rendered report rejected by validate-implementation-report.sh (got: $implValidatorOutput)"
+    }
+} finally {
+    Remove-Item -Recurse -Force $implFullWork -ErrorAction SilentlyContinue
+}
+if ((Get-Content -Raw $implReportValidator).Contains('outputs_row_pattern = re.compile(')) {
+    Ok "validator pin: Outputs-table row parser still present in validate-implementation-report.sh"
+} else {
+    Fail "validator pin: Outputs-table row parser missing from validate-implementation-report.sh"
 }
 
 # ---------------------------------------------------------------------------
