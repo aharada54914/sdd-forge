@@ -96,12 +96,25 @@ none is touched.
 
 ## Layer Specifications
 
-This package deliberately ships four Phase 1 files
+This package originally shipped four Phase 1 files
 (`investigation.md`/`requirements.md`/`design.md`/`acceptance-tests.md`)
 with no `ux-spec.md`/`frontend-spec.md`/`infra-spec.md`/`security-spec.md`
-and no Phase 2 files, per this task's own explicit scope (requirements.md
-Risks; investigation.md INV-018). The layer content that would normally
-live in those four files is folded into this document instead:
+and no Phase 2 files, per this task's own explicit Phase-1 scope
+(requirements.md Risks; investigation.md INV-018). This registry entry's
+`profile: full` value, once impl-review-loop's own precondition #4 was
+reached, required the four layer specification files to exist as real,
+hash-bound files (`plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md`
+Preconditions item 4) — a distinct requirement from this package's own
+Phase-1-only content decision above, and the same class of registry/
+precheck-precondition tension `specs/epic-190-a2-capability-registry`'s
+own retrospective already independently identified for a different
+feature. `ux-spec.md`, `frontend-spec.md`, `infra-spec.md`, and
+`security-spec.md` were added in canonical form (commit `b0df1797`) to
+satisfy that precondition; the layer content that would otherwise be
+folded into this document alone is now split between this section's own
+summary below and those four files' own fuller detail — this section is
+retained as the compact cross-reference, not a claim that the four files
+do not exist:
 
 - UX: N/A — no GUI, view, dialog, menu item, or human interactive shell
   surface. The only human-observable effects are suite pass/fail output
@@ -272,10 +285,10 @@ simultaneously.
 |---|---|---|---|---|
 | F1 | Context absent, `full`/legacy-seven-layer/non-active | ASSERT (AC-003); SKIP-with-activation → AC-004 (until Epic A5 merges) | ASSERT (AC-005 full-track clause, AC-006) | ASSERT (AC-022–024, AC-026, AC-032) |
 | F2 | Context absent, `lite`/lite-three-file/non-active | ASSERT (AC-003) | ASSERT (AC-005 lite-track clause, AC-006) — corrected from an earlier draft's mistaken citation of AC-005's `full`-track legacy-seven-layer clause for this `lite`-track row (INV-024) | ASSERT (AC-022–024, AC-026, AC-032) |
-| F3 | Context present, `full`/legacy-seven-layer/advisory | N/A (byte-identical is a Context-absent-only target, REQ-001) | SKIP-with-activation → AC-034's F3/F4 entry (until Epic A1 merges) | SKIP-with-activation → AC-010, AC-025 (until Epic A1 merges) — `capability_applicability` is a static translation of `workflow.capability_enforcement` alone, ADR-0016, not a Registry-derived value; F3-invalid variant: SKIP-with-activation → AC-019, AC-020 (until Epic A1 merges), AC-021 (until Epic A1 **and** Epic A5 both merge) |
+| F3 | Context present, `full`/legacy-seven-layer/advisory | N/A (byte-identical is a Context-absent-only target, REQ-001) | SKIP-with-activation → AC-042 (until Epic A1 merges) | SKIP-with-activation → AC-010, AC-025 (until Epic A1 merges) — `capability_applicability` is a static translation of `workflow.capability_enforcement` alone, ADR-0016, not a Registry-derived value; F3-invalid variant: SKIP-with-activation → AC-019, AC-020 (until Epic A1 merges), AC-021 (until Epic A1 **and** Epic A5 both merge) |
 | F4 | Context present, `full`/legacy-seven-layer/required | N/A (same as F3) | SKIP-with-activation → AC-007 (until Epic A4 merges) | SKIP-with-activation → AC-010, AC-025 (until Epic A1 merges) — identical dependency to F3, only the asserted value differs; F4-invalid variant: identical disposition to F3-invalid (AC-019–021) |
-| F5 | Context present, `lite`/lite-three-file/advisory | N/A | SKIP-with-activation → the allowlist manifest's own A1+A6 compound entry (until Epic A1 **and** Epic A6 both merge) | SKIP-with-activation → the identical A1+A6 compound entry |
-| F6 | Context present, `lite`/lite-three-file/required | N/A | SKIP-with-activation → the identical A1+A6 compound entry | SKIP-with-activation → the identical A1+A6 compound entry |
+| F5 | Context present, `lite`/lite-three-file/advisory | N/A | SKIP-with-activation → AC-043 (until Epic A1 **and** Epic A6 both merge) | SKIP-with-activation → the identical A1+A6 compound entry |
+| F6 | Context present, `lite`/lite-three-file/required | N/A | SKIP-with-activation → AC-043 (identical A1+A6 compound entry) | SKIP-with-activation → the identical A1+A6 compound entry |
 | F7 | Context present, `full`/facet-hybrid/required | N/A | N/A — no Foundation epic produces `facet-hybrid` before this epic's own Phase 3 (ADR-0016 item 2) | N/A — same rationale |
 | F8 | Context present, `full`/facet-native/required | N/A | N/A — no Foundation epic (A0–A9) ever produces `facet-native` (decision doc §19) | N/A — same rationale |
 
@@ -461,18 +474,75 @@ citations of Epic A5):
       }
     ],
     "activation_condition": "merged(A1) AND merged(A5)"
+  },
+  {
+    "assertion_id": "AC-042",
+    "dependencies": [
+      {
+        "epic": "A1",
+        "issue": 189,
+        "fingerprints": [
+          {
+            "source": "specs/epic-189-a1-project-context/requirements.md",
+            "line_range": "891-908",
+            "algorithm": "sha256",
+            "normalization": "lf-normalized, utf-8, lines joined by a single \n, no trailing newline",
+            "digest": "sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a",
+            "quote": "**Presence/validity semantics (revised — closes the downgrade-via-"
+          }
+        ]
+      }
+    ],
+    "activation_condition": "merged(A1)"
+  },
+  {
+    "assertion_id": "AC-043",
+    "dependencies": [
+      {
+        "epic": "A1",
+        "issue": 189,
+        "fingerprints": [
+          {
+            "source": "specs/epic-189-a1-project-context/requirements.md",
+            "line_range": "891-908",
+            "algorithm": "sha256",
+            "normalization": "lf-normalized, utf-8, lines joined by a single \n, no trailing newline",
+            "digest": "sha256:0851c0920fdfc93deb792b1f322dbe89a1b6ed6cb6bfc2c9a361cba5f513955a",
+            "quote": "**Presence/validity semantics (revised — closes the downgrade-via-"
+          }
+        ]
+      },
+      {
+        "epic": "A6",
+        "issue": 194,
+        "fingerprints": [
+          {
+            "source": "specs/epic-194-a6-lite-integration/requirements.md",
+            "line_range": "217-219",
+            "algorithm": "sha256",
+            "normalization": "lf-normalized, utf-8, lines joined by a single \n, no trailing newline",
+            "digest": "sha256:185d9e88b4ef19fd86d4993dabc6446f5e1b2e5dc9a84b3bacbb81f823f25134",
+            "quote": "- **REQ-001** (Registry `lite_policy` v1.1 additive extension and"
+          }
+        ]
+      }
+    ],
+    "activation_condition": "merged(A1) AND merged(A6)"
   }
 ]
 ```
 
-A future F5/F6 assertion's own manifest entry (Phase 2/3, once those
-`TEST-0NN` cases are authored) follows the identical `AC-021`-style
-compound shape with an `A1`+`A6` `dependencies` pair — Epic A6's own
-`requirements.md:217-219` REQ-001 opening (`sha256:
+AC-042's F3 manifest entry (above) is gated on Epic A1 alone, matching
+the F3/REQ-002 Compatibility Matrix cell's own "until Epic A1 merges"
+citation. AC-043's F5/F6 manifest entry follows the identical
+`AC-021`-style compound shape with an `A1`+`A6` `dependencies` pair —
+Epic A6's own `requirements.md:217-219` REQ-001 opening (`sha256:
 185d9e88b4ef19fd86d4993dabc6446f5e1b2e5dc9a84b3bacbb81f823f25134`, this
 package's own recorded fingerprint at `sdd-forge-wt-epic-194` HEAD
 `32b8bf57b760`) is the fingerprint that entry cites, following this same
-algorithm.
+algorithm — resolving an earlier draft's own "future TEST-0NN" framing
+now that AC-043/TEST-043 (`requirements.md`, `acceptance-tests.md`) are
+finalized in the Spec-Review-Status: Passed spec.
 
 **`activation_condition` grammar and evaluator** (deterministic, no
 free-form text): a boolean expression over exactly two primitive
