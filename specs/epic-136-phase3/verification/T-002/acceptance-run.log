@@ -30,6 +30,8 @@ ok: TEST-009 .py/apply_patch: triple-quote -> DENY as expected
 ok: TEST-009 .js/apply_patch: triple-quote -> DENY as expected
 ok: TEST-009 .ps1/apply_patch: triple-quote -> DENY as expected
 ok: TEST-009 .sh/apply_patch: triple-quote -> DENY as expected
+=== TEST-009 control (AC-009): read-only """-decorated payload AGAINST the protected path must never trigger a false DENY ===
+ok: TEST-009-control: read-only triple-quote-decorated payload against the protected path ('cat """notes""" plugins/sdd-quality-loop/scripts/sdd-hook-guard.py') ALLOWED across every available runtime — no false DENY (AC-009, literal Done-When satisfaction)
 === TEST-010 (AC-010): task-id-collision decided purely on basename match, same matrix ===
 ok: TEST-010 .py/Bash: task-id-collision -> DENY as expected
 ok: TEST-010 .js/Bash: task-id-collision -> DENY as expected
@@ -56,5 +58,5 @@ ok: TEST-011 task-id-collision/Bash: every runtime that reached a decision agree
 ok: TEST-011 task-id-collision/exec_command: every runtime that reached a decision agrees (DENY) (AC-011)
 ok: TEST-011 task-id-collision/apply_patch: every runtime that reached a decision agrees (DENY) (AC-011)
 
-guard-negative-corpus.tests.sh: 46 passed, 0 failed, 0 skipped
+guard-negative-corpus.tests.sh: 47 passed, 0 failed, 0 skipped
 EXIT=0

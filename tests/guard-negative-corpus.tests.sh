@@ -25,7 +25,23 @@
 #      misreading the write segment (no read/write misclassification) while
 #      staying inside acceptance-tests.md's hash-frozen 12-sub-case cardinality
 #      for TEST-009 (see this file's own Specification Differences note in
-#      the implementation report for the exact reasoning).
+#      the implementation report for the exact reasoning). A SEPARATE
+#      control payload — a single, non-compound, `"""`-decorated READ-ONLY
+#      command that DOES reference the SAME protected path (`cat """x"""
+#      <protected-path>`, no write verb anywhere) — proves the `"""`
+#      decoration never perturbs a decision in the false-DENY direction
+#      EITHER: the live guard's own read-only short-circuit (reviewed
+#      directly in `sdd-hook-guard.py`'s `_shell_targets_protected_gate_file`
+#      docstring and confirmed empirically across all 4 runtimes during QG
+#      remediation, issue #124) ALLOWs a command that merely mentions a
+#      protected path with no write verb present, regardless of `"""`
+#      decoration — this is a LITERAL (not a narrowed/"achievable-reading")
+#      satisfaction of tasks.md's own Done-When: "ALLOW for read-only cases
+#      ... against a protected path". See the implementation report's
+#      Specification Differences for the full QG-remediation record,
+#      including the correction of an earlier, inaccurate premise that the
+#      live guard never distinguishes read from write once a protected
+#      basename is present.
 #   3. A task-id-substring-collision non-interference payload (issue #111
 #      word-boundary defect class, ported from `check-task-state.ps1` to
 #      prove `sdd-hook-guard`'s own basename matcher has no analogous
@@ -281,6 +297,16 @@ CDRM_PATCH="$(printf '*** Begin Patch\n*** Update File: plugins/sdd-quality-loop
 # segment would wrongly ALLOW.
 TQ_CMD='cat """notes""" README.md && echo """payload""" > plugins/sdd-quality-loop/scripts/sdd-hook-guard.py'
 TQ_PATCH="$(printf '*** Begin Patch\n*** Update File: plugins/sdd-quality-loop/scripts/sdd-hook-guard.py\n+"""docstring"""\n*** End Patch')"
+# Control (AC-009, QG remediation #124): a single, non-compound, """-
+# decorated READ-ONLY command that DOES reference the SAME protected path
+# (no write verb anywhere) — must ALLOW. Unlike the class-2 DENY payload
+# above (whose write segment alone, plain-text-matched against the
+# protected path, fully explains its DENY regardless of """ decoration),
+# this control is the literal read-only-against-a-protected-path case
+# tasks.md's own Done-When names; a """-tokenizer confused into treating
+# this as a write, or into losing track of the protected-path reference,
+# would wrongly DENY.
+TQ_CONTROL_CMD='cat """notes""" plugins/sdd-quality-loop/scripts/sdd-hook-guard.py'
 
 # Class 3 (AC-010): task-id-substring-collision non-interference. A
 # comment-shaped decoy ("# see T-0010") textually adjacent to, but distinct
@@ -307,6 +333,32 @@ echo "=== TEST-009 (AC-009): triple-quote payload correctly classified across 4 
 run_combo "TEST-009" "triple-quote" "Bash"        "$TQ_CMD"   2
 run_combo "TEST-009" "triple-quote" "exec_command" "$TQ_CMD"   2
 run_combo "TEST-009" "triple-quote" "apply_patch"  "$TQ_PATCH" 2
+
+echo "=== TEST-009 control (AC-009): read-only \"\"\"-decorated payload AGAINST the protected path must never trigger a false DENY ==="
+TQ_CONTROL_PAYLOAD="$(build_payload "Bash" "$TQ_CONTROL_CMD")"
+tq_control_mismatches=""
+invoke_py "$TQ_CONTROL_PAYLOAD"
+if [ "$RC" != "0" ]; then tq_control_mismatches="${tq_control_mismatches}py=$(decision_label "$RC"); "; fi
+if [ "$HAVE_NODE" = "1" ]; then
+    invoke_js "$TQ_CONTROL_PAYLOAD"
+    if [ "$RC" != "0" ]; then tq_control_mismatches="${tq_control_mismatches}js=$(decision_label "$RC"); "; fi
+else
+    skip "TEST-009-control .js: node not found on host"
+fi
+if [ -n "$PS_INTERP" ]; then
+    invoke_ps1 "$TQ_CONTROL_PAYLOAD"
+    if [ "$RC" != "0" ]; then tq_control_mismatches="${tq_control_mismatches}ps1=$(decision_label "$RC"); "; fi
+else
+    skip "TEST-009-control .ps1: no pwsh/powershell.exe/powershell found on host"
+fi
+invoke_sh "$TQ_CONTROL_PAYLOAD"
+if [ "$RC" != "0" ]; then tq_control_mismatches="${tq_control_mismatches}sh=$(decision_label "$RC"); "; fi
+
+if [ -z "$tq_control_mismatches" ]; then
+    ok "TEST-009-control: read-only triple-quote-decorated payload against the protected path ('cat \"\"\"notes\"\"\" plugins/sdd-quality-loop/scripts/sdd-hook-guard.py') ALLOWED across every available runtime — no false DENY (AC-009, literal Done-When satisfaction)"
+else
+    fail "TEST-009-control: read-only triple-quote-decorated payload against the protected path incorrectly DENIED by: ${tq_control_mismatches}(AC-009)"
+fi
 
 # ===========================================================================
 # TEST-010 (AC-010): task-id-substring-collision, same matrix + 1 control.
