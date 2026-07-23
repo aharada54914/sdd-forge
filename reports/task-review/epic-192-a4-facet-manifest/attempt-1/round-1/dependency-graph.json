@@ -1,0 +1,9 @@
+{
+  "schema": "dependency-graph/v1",
+  "feature": "epic-192-a4-facet-manifest",
+  "attempt": 1,
+  "round": 1,
+  "nodes": ["T-001","T-002","T-003","T-004","T-005"],
+  "edges": [{"from":"T-002","to":"T-001"},{"from":"T-003","to":"T-001"},{"from":"T-003","to":"T-002"},{"from":"T-004","to":"T-001"},{"from":"T-004","to":"T-002"},{"from":"T-004","to":"T-003"},{"from":"T-005","to":"T-001"},{"from":"T-005","to":"T-002"},{"from":"T-005","to":"T-003"},{"from":"T-005","to":"T-004"}],
+  "generated_at": "2026-07-22T10:25:41Z"
+}

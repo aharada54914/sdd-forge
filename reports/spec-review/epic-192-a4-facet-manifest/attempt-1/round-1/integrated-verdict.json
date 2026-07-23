@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "epic-192-a4-facet-manifest",
+  "attempt": 1,
+  "round": 1,
+  "reviewer_a_run_id": "RUN-epic-192-a4-facet-manifest-spec-spec-reviewer-a-seq0320",
+  "reviewer_b_run_id": "RUN-epic-192-a4-facet-manifest-spec-spec-reviewer-b-seq0321",
+  "reviewer_a_host_session_id": "SESS-spec-spec-reviewer-a-epic-192-a4-facet-manifest-0320",
+  "reviewer_b_host_session_id": "SESS-spec-spec-reviewer-b-epic-192-a4-facet-manifest-0321",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 0
+  },
+  "verdict": "PASS",
+  "warningCount": 0
+}

@@ -354,6 +354,10 @@
       "profile": "full"
     },
     {
+      "feature": "epic-192-a4-facet-manifest",
+      "profile": "full"
+    },
+    {
       "feature": "quality-loop-fixes",
       "profile": "full"
     }
