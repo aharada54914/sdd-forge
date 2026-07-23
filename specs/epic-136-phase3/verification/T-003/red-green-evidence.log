@@ -1,5 +1,5 @@
-=== TEST-017 (AC-017): RED-then-GREEN step-coverage self-check ===
+=== TEST-017 (AC-017): idempotent RED-then-GREEN step-coverage self-check ===
 ok: TEST-017-RED: dropped step 'Install recorded Claude Code CLI' correctly failed the coverage check (check is non-vacuous)
-ok: TEST-017-GREEN: all 65 pre-change step names survive in the candidate with the [deterministic] prefix
+ok: TEST-017-GREEN: all 65 baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)
 ok: TEST-017: required-checks' needs: line is byte-unchanged (   needs: [test, cli-hook-enforcement])
-=== TEST-018 (AC-018): sibling workflow isolation unchanged ===
+=== TEST-018 (AC-018): sibling workflow graph isolation unchanged ===

@@ -105,13 +105,20 @@
   ジョブ名・`required-checks` の `needs:` メンバーシップはバイト不変で、
   BL-001 は構成上保たれる(diff で実測検証)。ジョブ分割を選ばない設計判断は
   design.md Design Decisions OQ-5 を参照。
+  無名ステップ(`- uses: actions/checkout`)にも `[deterministic] Checkout`
+  の名前を与え、test ジョブの全ステップが例外なくプレフィックスを持つ。
+  Stream A/B の新規スイートに加え Stream D 自身の self-check スイートも
+  同じバッチで CI ステップとして staged する(REQ-005)。
   新規スイート `tests/deterministic-lane-selfcheck.tests.sh` を追加し
-  `tests/run-all.sh` へ1行登録: TEST-016(ジョブグラフ不変・全ステップの
-  プレフィックス・placeholder 存在・live ファイル未改変)、TEST-017(1ステップ
-  を意図的に落とした使い捨て fixture が先に FAIL する RED → 実 candidate が
-  PASS する GREEN、`needs:` バイト不変)、TEST-018(兄弟ワークフローのグラフ
-  分離)、TEST-020(新規スイートごとの CI ステップ)。21 passed / 0 failed、
-  bash 5.3 と実 bash 3.2.57 で同一。
+  `tests/run-all.sh` へ1行登録: TEST-016(ジョブグラフ不変・全ステップが
+  named かつプレフィックス付き・無名ステップの検出・placeholder 存在)、
+  TEST-017(基準リストを live のステップ名からプレフィックスを剥がして導出する
+  **冪等**な RED→GREEN。human-copy 適用の前後どちらでも同一に動作)、
+  TEST-018(兄弟ワークフローのグラフ分離)、TEST-020(新規スイートごとの CI
+  ステップが live に登録されるまで意図的に赤くなる DESIGNED-RED)。
+  human-copy 適用前は 20 passed / 0 failed / 3 designed-red(意図的な
+  fail-closed で exit 1)、適用後シミュレーションでは 23 passed / 0 designed-red
+  (exit 0)。実 bash 3.2.57 でも同一。
   なお staged candidate は**非保護のドラフトパス**
   `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
   に置かれる。sdd-hook-guard の保護判定はパスのサフィックス一致で human-copy

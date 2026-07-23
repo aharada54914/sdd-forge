@@ -1,23 +1,3 @@
-# ==========================================================================
-# STAGED CANDIDATE (DRAFT) -- epic-136 Phase 3, T-003 / issue #126
-#
-# This file is the byte-exact content intended for the human-copy staging
-# path under specs/epic-136-phase3/human-copy/ and, after that, for the
-# live protected workflow file itself.
-#
-# It lives at this NON-protected draft path because sdd-hook-guard denies
-# every agent write whose path ends with the protected workflow suffix --
-# including the human-copy staging path (suffix match, no human-copy
-# carve-out). Placing this content at the human-copy path is therefore a
-# HUMAN action, exactly like applying it to the live file afterwards.
-# See reports/implementation/epic-136-phase3/T-003.md for the full
-# discovery record and the remaining human-action checklist.
-#
-# Human application (two copies, both human-performed):
-#   1. this draft            -> specs/epic-136-phase3/human-copy/...
-#   2. human-copy candidate  -> the live workflow file
-# Verify with specs/epic-136-phase3/human-copy/MANIFEST.sha256 after step 1.
-# ==========================================================================
 name: Test installers and gates
 
 on:
@@ -38,7 +18,8 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - name: [deterministic] Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
@@ -393,6 +374,9 @@ jobs:
       - name: [deterministic] Test guard negative corpus suite (bash)
         shell: bash
         run: bash ./tests/guard-negative-corpus.tests.sh
+      - name: [deterministic] Test deterministic-lane self-check suite (bash)
+        shell: bash
+        run: bash ./tests/deterministic-lane-selfcheck.tests.sh
       # ---------------------------------------------------------------
       # [deterministic] lane boundary (epic-136 Phase 3, Stream D, #126).
       # Every step above this marker inside the `test` job is

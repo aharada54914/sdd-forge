@@ -3,8 +3,8 @@ ok: TEST-016: job count and job names are byte-unchanged (test mcp-tests local-e
 ok: TEST-016: all 69 'test'-job step entries are named AND carry the [deterministic] prefix (no unnamed step)
 ok: TEST-016: the documented, currently-empty eval-lane comment placeholder is present
 === TEST-017 (AC-017): idempotent RED-then-GREEN step-coverage self-check ===
-ok: TEST-017-RED: dropped step 'Install recorded Claude Code CLI' correctly failed the coverage check (check is non-vacuous)
-ok: TEST-017-GREEN: all 65 baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)
+ok: TEST-017-RED: dropped step 'Verify generated guard invariants (POSIX)' correctly failed the coverage check (check is non-vacuous)
+ok: TEST-017-GREEN: all 69 baseline step names appear in the candidate with the [deterministic] prefix (idempotent pre/post apply)
 ok: TEST-017: required-checks' needs: line is byte-unchanged (   needs: [test, cli-hook-enforcement])
 === TEST-018 (AC-018): sibling workflow graph isolation unchanged ===
 ok: TEST-018: the candidate does not reuse self-improvement.yml as a workflow (isolation preserved)
@@ -18,12 +18,12 @@ ok: TEST-018: model-freshness-check.yml keeps its own independent trigger (no wo
 === TEST-020 (AC-020): CI step per new suite, DESIGNED-RED until human-copy ===
 ok: TEST-020: the candidate runs tests/guard-dispatch-fallback.tests.sh
 ok: TEST-020: the referenced suite tests/guard-dispatch-fallback.tests.sh exists
-DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/guard-dispatch-fallback.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the LIVE workflow runs tests/guard-dispatch-fallback.tests.sh (human-copy already applied)
 ok: TEST-020: the candidate runs tests/guard-negative-corpus.tests.sh
 ok: TEST-020: the referenced suite tests/guard-negative-corpus.tests.sh exists
-DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/guard-negative-corpus.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the LIVE workflow runs tests/guard-negative-corpus.tests.sh (human-copy already applied)
 ok: TEST-020: the candidate runs tests/deterministic-lane-selfcheck.tests.sh
 ok: TEST-020: the referenced suite tests/deterministic-lane-selfcheck.tests.sh exists
-DESIGNED-RED (pre-human-copy): TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/deterministic-lane-selfcheck.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)
+ok: TEST-020: the LIVE workflow runs tests/deterministic-lane-selfcheck.tests.sh (human-copy already applied)
 
-deterministic-lane-selfcheck.tests.sh: 20 passed, 0 failed, 3 designed-red (pre-human-copy)
+deterministic-lane-selfcheck.tests.sh: 23 passed, 0 failed, 0 designed-red (pre-human-copy)
