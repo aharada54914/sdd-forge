@@ -903,7 +903,7 @@ foreach ($entry in @($RegistryData.entries)) {
             }
         }
         foreach ($status in $statuses) {
-            if ($status -notin @("Planned", "In Progress", "Implementation Complete", "Done")) {
+            if ($status -notin @("Planned", "In Progress", "Blocked", "Implementation Complete", "Done")) {
                 Stop-WorkflowState $feature "task-lifecycle" "task status is invalid"
             }
         }
@@ -923,7 +923,7 @@ foreach ($entry in @($RegistryData.entries)) {
             }
         }
         if (($taskText -match "(?m)^Approval:\s*Approved" -or
-             $taskText -match "(?m)^Status:\s*(In Progress|Implementation Complete|Done)") -and
+             $taskText -match "(?m)^Status:\s*(In Progress|Blocked|Implementation Complete|Done)") -and
             ($spec -ne "Passed" -or $impl -ne "Passed" -or $task -ne "Passed")) {
             Stop-WorkflowState $feature "task-lifecycle" "executable task state requires all reviews Passed"
         }
