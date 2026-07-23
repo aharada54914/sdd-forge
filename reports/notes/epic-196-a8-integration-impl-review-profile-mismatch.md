@@ -1,8 +1,10 @@
 # Defect/decision note: `epic-196-a8-integration` registry profile blocks impl-review-precheck
 
-Status: **resolved by human authorization (2026-07-23) — candidate 2
-selected.** See "Human authorization" section below for the verbatim
-decision and its scope. Originally filed by the impl-review-loop
+Status: **precheck deviation resolved (candidate 2, human-authorized); round
+2 clean PASS reached; final `Impl-Review-Status: Passed` write blocked by
+an unrelated, separately-diagnosed gate defect (WFI-016) — see "Round 2
+clean PASS, but the `Impl-Review-Status: Passed` write itself is blocked"
+and "HUMAN APPLY STEP" below.** Originally filed by the impl-review-loop
 orchestrator for `epic-196-a8-integration` after `impl-review-precheck.sh`
 failed before any reviewer was invoked and before any evidence directory
 was created.
@@ -175,6 +177,73 @@ value, or an amendment to `requirements.md`'s Risks section (candidates 1
 and 3 above remain unauthorized and unapplied). No review finding is
 waived by this authorization — it concerns precheck-input scope only, not
 review outcome.
+
+## Round 2 clean PASS, but the `Impl-Review-Status: Passed` write itself is blocked (WFI-016)
+
+2026-07-23, after round 2 (both impl-reviewer-a and impl-reviewer-b
+returned clean `PASS`, 0 Critical/Major/Minor — see
+`reports/impl-review/epic-196-a8-integration/attempt-1/round-2/
+integrated-verdict.json`, verdict `PASS`, and the round-2
+`impl-review-contract.json`, both committed). Editing `design.md`'s
+`Impl-Review-Status: Pending` to `Passed` was denied by `sdd-hook-guard.py`
+Check 2e (`impl_review_status_passed_increases`), a gate documented as
+never bypassed by sudo:
+
+> SDD決定論ゲート: エージェントは impl-review-loop の PASS 判定なしに
+> design.md に 'Impl-Review-Status: Passed' を書き込めません。
+
+No workaround was attempted (no hook edit, no CWD manipulation, no
+alternate-tool detour — `TARGETED_FILE_TOOLS = {"edit","write",
+"multiedit"}` confirmed all three tools hit the identical check).
+`design.md` remained unmodified (`Impl-Review-Status: Pending`) and the
+worktree stayed git-clean throughout.
+
+**Root cause, confirmed by the coordinator: known, already-fixed bug
+WFI-016.** `sdd-hook-guard.py`'s `_impl_review_verdict_exists(feature)`
+globs `reports/impl-review/{feature}/attempt-*/round-*/
+integrated-verdict.json` using **CWD-relative path resolution**
+(the function's own comment: "matches JS behavior, ADR-004"). This
+orchestrator's Bash tool's own base CWD is `/Users/jrmag/Setup`, not the
+worktree root `/Users/jrmag/Projects/active/sdd-forge-wt-epic-196` where
+the genuinely valid, fully-verified round-2 PASS evidence actually lives
+— if the hook subprocess inherits that same CWD (likely, since PreToolUse
+hooks typically run in the harness's own process context), the
+CWD-relative glob finds nothing at that location, causing a false-negative
+deny despite valid evidence existing at the correct worktree-relative
+path. The coordinator confirmed: this is **WFI-016**, already fixed
+upstream in `sdd-quality-loop` v1.11.1 (PR #208), but this repository's
+local plugin cache still has only v1.11.0 — the fix has not reached this
+worktree. The coordinator explicitly declined to perform the edit on this
+orchestrator's behalf (would be permission laundering of a denied
+operation) and declined any CWD-manipulation or alternate-tool detour
+(narrows the gate's visibility rather than resolving the actual defect).
+
+## HUMAN APPLY STEP (required before this feature can reach `Impl-Review-Status: Passed`)
+
+One of the following, by the human (presented to the user by the
+coordinator):
+
+(a) Update the local `sdd-plugins` cache to `sdd-quality-loop` v1.11.1
+(carries the WFI-016 fix) — then this orchestrator retries the
+`Impl-Review-Status: Passed` edit normally, through the (now-fixed) gate.
+
+(b) Manually re-apply the WFI-016 patch to the local v1.11.0 cache —
+same retry path afterward.
+
+(c) The human edits `specs/epic-196-a8-integration/design.md` line 3
+directly (`Impl-Review-Status: Pending` → `Passed`) — a direct human edit
+is exactly what this gate is designed to require when the automated path
+cannot proceed; it is not a deviation from the gate's own intent.
+
+After whichever path: record `Impl-Review-Status: Passed` (if not already
+done by option (c)), then re-run
+`bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature
+epic-196-a8-integration` **after** the transition (not only before it) to
+confirm the post-Passed `validate_passed_stage` provenance check — which
+only fires once the header actually reads `Passed` — is also clean. This
+repeats the discipline that surfaced a related transition-only check in
+`epic-195-a7-compatibility`'s own history; it has not yet been run here
+because the transition itself never completed.
 
 ## Pointers
 
