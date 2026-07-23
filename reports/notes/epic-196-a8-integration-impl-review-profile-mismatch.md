@@ -1,9 +1,11 @@
 # Defect/decision note: `epic-196-a8-integration` registry profile blocks impl-review-precheck
 
-Status: escalated for human decision (candidate resolutions listed below;
-none applied). Filed by the impl-review-loop orchestrator for
-`epic-196-a8-integration` after `impl-review-precheck.sh` failed before any
-reviewer was invoked and before any evidence directory was created.
+Status: **resolved by human authorization (2026-07-23) — candidate 2
+selected.** See "Human authorization" section below for the verbatim
+decision and its scope. Originally filed by the impl-review-loop
+orchestrator for `epic-196-a8-integration` after `impl-review-precheck.sh`
+failed before any reviewer was invoked and before any evidence directory
+was created.
 
 ## Timeline
 
@@ -116,25 +118,63 @@ edit was made.
    `contracts/workflow-state-registry.schema.json`,
    `check-workflow-state.sh`, and `impl-review-precheck.sh` — a
    gate-infrastructure change outside impl-review-loop's own scope.
-2. **(Coordinator's recommended option, pending one open check.)** Grant an
+2. **SELECTED by human authorization, 2026-07-23.** Grant an
    explicit, case-scoped deviation authorization analogous to AGENTS.md's
    issue #61 manual-precheck fallback: a human-approved manual
    `impl-review-precheck` that waives only the four-layer-file existence
    check while keeping identity-ledger reservation, hash-manifest binding,
    and reviewer strictness fully intact (the same shape as the human's
    prior choice for `epic-195-a7-compatibility` round 2's manual
-   spec-review precheck, commit `c5de142` in the A7 worktree). Still to be
-   confirmed before use: whether `check-workflow-state.sh`'s
-   `validate_passed_stage()` (lines 561-575) would re-demand the four layer
-   files once `Impl-Review-Status` reaches `Passed`, since that check
-   triggers only when `precheck-result.json`'s `layer_sha256` map is
-   non-empty — a manual precheck that leaves `layer_sha256: {}` should
-   avoid re-triggering it, but this has not yet been verified end-to-end.
+   spec-review precheck, commit `c5de142` in the A7 worktree).
+
+   Open check resolved before use, 2026-07-23: does
+   `check-workflow-state.sh`'s `validate_passed_stage()` (lines 561-575,
+   `impl` branch) re-demand the four layer files once `Impl-Review-Status`
+   reaches `Passed`? Re-read directly: the entire layer-file verification
+   block is gated by
+   `if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]`
+   — it reads only `precheck-result.json`'s own `layer_sha256` field, never
+   the registry's `profile` value. A manual `precheck-result.json` that
+   records `layer_sha256: {}` (the only honest value, since the four files
+   do not exist) makes this condition false, so the block — and with it
+   any re-demand of the four layer files — never executes. **Confirmed: no
+   re-trigger.** This holds regardless of the registry keeping
+   `profile: full` (which it does; no registry edit was made or is planned
+   under this authorization).
 3. Human amendment of `requirements.md`'s Risks section (765-791) to
    retract the "not a defect to silently fix with placeholder files"
    language and formally authorize adding the four layer files after all —
    reopens an already-passed spec-review artifact and was not pursued
    without explicit authorization.
+
+## Human authorization
+
+Record of the human's decision (not this orchestrator's own signature, and
+not the coordinator's own signature — a record of what the human said).
+Date: 2026-07-23. Channel: the coordinator agent's own chat with the human
+(this orchestrator has no direct channel to the human); relayed to this
+orchestrator by the coordinator, who quoted it verbatim. Context: the
+coordinator had added this note's escalation to a numbered list of pending
+human decisions across this session's several parallel orchestrators, with
+this feature's issue filed as "判断5" ("decision/judgment 5"), and had
+recommended candidate 2 above as the answer to decision 5. Verbatim human
+instruction, as relayed by the coordinator: "判断2・5については認可する"
+("I authorize decisions/judgments 2 and 5") — decision 5 being this note's
+escalation; decision 2 belongs to a different, unrelated orchestrator
+thread in this session and is out of scope for this note.
+
+Scope of what is authorized, as stated by the coordinator when relaying the
+decision: a case-scoped manual `impl-review-precheck` for
+`epic-196-a8-integration`'s impl-review only — the four-layer-file
+existence/hash check is waived for this feature's impl-review-precheck
+alone, while identity-ledger reservation, hash-manifest binding, and
+reviewer strictness all remain fully intact and unmodified. Explicitly
+**not** a standing exemption from the full-profile layer-file requirement,
+and **not** any of: a registry `profile` change, a new registry profile
+value, or an amendment to `requirements.md`'s Risks section (candidates 1
+and 3 above remain unauthorized and unapplied). No review finding is
+waived by this authorization — it concerns precheck-input scope only, not
+review outcome.
 
 ## Pointers
 
