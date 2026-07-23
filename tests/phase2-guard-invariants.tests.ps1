@@ -436,7 +436,7 @@ if ($env:SDD_PHASE2_RUNNER_CHILD -eq '1') {
 #>
 
 # TEST-013 Slice 3: isolated bootstrap validation only. The runner deliberately
-# stops after validating all 18 staged hashes; no fixture live target is copied.
+# stops after validating all 19 staged hashes; no fixture live target is copied.
 $bootstrapTargets = @(
     'plugins/sdd-quality-loop/scripts/sdd-hook-guard.py',
     'plugins/sdd-quality-loop/scripts/sdd-hook-guard.js',
@@ -454,6 +454,7 @@ $bootstrapTargets = @(
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js',
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1',
     'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh',
+    'tests/guard-parity.tests.sh',
     '.github/workflows/test.yml',
     'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
 )
@@ -922,6 +923,31 @@ if ((Test-Path -LiteralPath $bootstrapRunner -PathType Leaf) -and ($env:SDD_PHAS
 } else {
     Bad 'TEST-013 isolated bootstrap fixture cannot run without its staged validator'
 }
+
+# WFI-016 followup (issue #207): every staged human-copy target must be
+# byte-identical to its live counterpart (twin of the bash sync check).
+$syncOk = $true
+$syncCanonical = Join-Path $bootstrapStage 'plugins/sdd-quality-loop/references/guard-invariants.json'
+try {
+    $syncTargets = @((Get-Content -Raw -LiteralPath $syncCanonical | ConvertFrom-Json).phase2_human_copy_targets)
+    if ($syncTargets.Count -eq 0) { $syncOk = $false }
+    foreach ($syncTarget in $syncTargets) {
+        $syncLive = Join-Path $root $syncTarget
+        $syncStaged = Join-Path $bootstrapStage $syncTarget
+        if (-not (Test-Path -LiteralPath $syncLive -PathType Leaf) -or -not (Test-Path -LiteralPath $syncStaged -PathType Leaf)) {
+            Write-Host "  missing: $syncTarget"
+            $syncOk = $false
+            continue
+        }
+        $syncLiveHash = (Get-FileHash -LiteralPath $syncLive -Algorithm SHA256).Hash
+        $syncStagedHash = (Get-FileHash -LiteralPath $syncStaged -Algorithm SHA256).Hash
+        if ($syncLiveHash -cne $syncStagedHash) {
+            Write-Host "  out of sync: $syncTarget"
+            $syncOk = $false
+        }
+    }
+} catch { $syncOk = $false }
+if ($syncOk) { Ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' } else { Bad 'WFI-016 staged targets are byte-identical to live (no stale staging)' }
 
 Write-Host "phase2-guard-invariants.tests.ps1: $passCount passed, $failCount failed"
 if ($failCount -gt 0) { exit 1 }

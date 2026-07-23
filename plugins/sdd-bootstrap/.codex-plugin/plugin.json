@@ -1,6 +1,6 @@
 {
   "name": "sdd-bootstrap",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "description": "Create implementation-ready SDD specifications and approved task contracts from GitHub/GitLab issues or supplied requirements. Supports project, feature, bugfix, and refactor modes with read-only codebase investigation.",
   "skills": "./skills/",
   "author": {
