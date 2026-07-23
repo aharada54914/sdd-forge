@@ -182,6 +182,34 @@ ADR revision.
 
 ## Data Plan
 
+Data Entities: the new JSON files this package's future implementation
+task creates — `tests/hook-activation-live-proof/<matrix_cell>.json`
+records (`live-host-verification-record/v1`), `tests/hook-activation-
+live-proof/nonce-ledger.json` (the append-only nonce issuance/consumption
+ledger), `tests/hook-activation-live-proof/raw/<matrix_cell>-{request,
+result,installed-config}.json` capture files, `plugins/sdd-review-loop/
+references/a8-skip-allowlist.json`, `a8-expected-hook-config-digests.json`,
+and `a8-trusted-signers.json` (all listed in the Components table, above)
+— plus the four other schema-shaped outputs this section defines below
+(`cross-runtime-handoff-trace/v1`, `install-uninstall-matrix-result/v1`,
+`path-lineending-fixture-result/v1`, `installed-plugin-drift-report/v1`).
+
+Existing Data Affected: read-only comparison targets, never modified —
+installed hook-config files (`claude-hooks.json`/`hooks.json`/
+`copilot-hooks.json`) and other install-root-copied `plugins/**` content
+(Coverage Scope, below), `~/.codex/config.toml`'s MCP registration block
+(same table), and Epic A1's own `nonce-ledger.json` entries (whose
+`consumed_by_record` field is the one narrow write `validate-live-host-
+proof` performs — Protected-File Statement, above). No existing file's
+content is altered by any other component in this package.
+
+Migration Strategy: No migration required. Every data entity named above
+is a net-new file with no prior version to migrate from; the one write
+this package performs against existing data (marking `consumed_by_record`
+on an existing nonce-ledger entry) is additive metadata on an
+already-append-only structure Epic A1 itself defines, not a schema
+migration.
+
 ### `cross-runtime-handoff-trace/v1` (REQ-001)
 
 ```json
@@ -1399,6 +1427,18 @@ its full, broadened coverage surface (Coverage Scope, Data Plan).
   package's own future Test Strategy items reuse the identical fixture
   patterns (`tests/install.tests.sh`'s `git archive`-based fixture clone,
   INV-016 of Epic A7's own investigation.md) rather than inventing new ones.
+- B1/B2 (requirements.md's own Security Boundaries table): both are
+  concrete constraints this design complies with, addressed in full under
+  `## Security Boundaries`, above — B1 (a genuine, real installed-toolchain
+  session is required; a synthetic/fixture-only result is never accepted)
+  by the fortified `live-host-verification-record/v1` schema's required
+  fields plus the AC-027 classification-mismatch/replay static check and
+  the aggregate `validate-live-host-proof` Done/release gate; B2 (the
+  drift check stays read-only, never remediates) by `check-installed-
+  plugin-drift`'s own read-only API contract (no write flag exists in its
+  own interface). This entry restates that compliance here rather than
+  duplicating the mechanism description; `## Security Boundaries` remains
+  the normative source for how each is enforced.
 
 ## Assumptions
 
