@@ -159,3 +159,47 @@ this task's own diff touches only tests/workflow-scenarios/workflow-scenarios.te
 production-code file is edited by this task), so their PASS status recorded
 in the original sweep above is causally unaffected by this task's change and
 is relied upon unchanged rather than re-executed.
+
+=== QG REMEDIATION ADDENDUM (2026-07-23, independent-evaluator NEEDS_WORK
+remediation pass, #125 Major 1/2/3/4) ===
+
+Same lighter-weight targeted-re-verification technique as above (a full
+51-suite non-aborting re-sweep was not repeated for this remediation pass
+either, for the same practical-time-budget reason already disclosed above
+and in T-004.md's own Specification Differences): this remediation pass's
+own diff touches exactly ONE test file
+(tests/workflow-scenarios/workflow-scenarios.tests.sh -- re-scoped AC-013
+check, broadened AC-014 detector, pinned DEFECTS_RECORDED) plus two
+documentation-only files (specs/epic-136-phase3/acceptance-tests.md,
+reports/implementation/epic-136-phase3/T-004.md); no shared library, guard
+script, or other production file is touched. Re-run of this task's own
+suite and of the same 4 previously-known-failing suites:
+
+==> tests/workflow-scenarios/workflow-scenarios.tests.sh
+PASS: tests/workflow-scenarios/workflow-scenarios.tests.sh (120 passed, 0
+  failed, 1 defect(s) recorded, exit 0 -- both default bash 5.3.9 and real
+  /bin/bash 3.2.57, byte-identical captures)
+
+==> tests/turn-first-workflow.tests.sh
+FAIL: tests/turn-first-workflow.tests.sh (re-confirmed pre-existing,
+  unrelated: "not ok: implementation report template omits: ## Output Paths
+  And Hashes")
+
+==> tests/rollback-1.5.0.tests.sh
+FAIL: tests/rollback-1.5.0.tests.sh (re-confirmed pre-existing, unrelated;
+  working-tree-state assumption that does not hold on this branch's current
+  checkout)
+
+==> tests/workflow-state-registry.tests.sh
+FAIL: tests/workflow-state-registry.tests.sh (re-confirmed pre-existing,
+  unrelated: "not ok: canonical registry contract is invalid")
+
+==> tests/workflow-state-registry-parity.tests.sh
+FAIL: tests/workflow-state-registry-parity.tests.sh (re-confirmed
+  pre-existing, unrelated: "not ok: canonical registry contract is invalid")
+
+REMEDIATION-PASS TOTAL (targeted re-verification): this task's own suite
+flips from the prior sweep's FAIL entry to a clean PASS (0 change in the
+OTHER 4 pre-existing, unrelated failures -- same signatures as the original
+sweep and the prior targeted addendum above). The remaining suites are not
+re-run in this pass for the same causal-independence reason stated above.
