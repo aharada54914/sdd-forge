@@ -1,15 +1,23 @@
 Candidate: manual precheck deviation for epic-195-a7-compatibility, attempt 2, round 3
 ========================================================================================
 
-STATUS: candidate only. NOT applied to the live path. **Human authorization
-NOT yet obtained for this round** -- the 2026-07-22 authorization for round
-2's fallback was explicit and scoped to "attempt-2/round-2 only ... not a
-standing exemption from issue #61" (see
-`reports/spec-review/epic-195-a7-compatibility/attempt-2/round-2/manual-precheck-note.md`).
-This orchestrator judged that authorization does not extend to round 3,
-which is blocked by a *different* defect, and is escalating for a fresh
-decision rather than self-applying this candidate. If a human authorizes
-it, the two blocks below become, verbatim: (1)
+STATUS: **human authorization obtained.** Record of the human's decision
+(not this orchestrator's own signature), matching the round-2 record's
+format (commit `c5de142`): Date 2026-07-23. Channel: this session's main
+chat, typed by the human directly, relayed to this orchestrator by the
+coordinator agent. Context: this orchestrator had escalated two prior
+turns' worth of accumulated decisions to the human (numbered by the
+coordinator as it relayed them), including "判断2" = authorization of
+this specific candidate (the round-3 manual-precheck fallback). Verbatim
+instruction (as relayed by the coordinator, quoting the human): "判断2・5
+については認可する" ("I authorize judgments 2 and 5") -- the coordinator's
+own message identifies "判断2" as referring exactly to "epic-195-a7-compatibility
+spec attempt-2 round 3 の手動precheck（候補: reports/notes/candidate-manual-precheck-round3.md)の認可".
+Scope, per the coordinator's own explicit restatement (matching round 2's
+own discipline): "round 2 と同じくこのラウンド限定の認可であり standing
+exemption ではない" ("same as round 2, authorization scoped to this round
+only, not a standing exemption"). This candidate's two blocks below are
+now persisted verbatim, unmodified, to: (1)
 `reports/spec-review/epic-195-a7-compatibility/attempt-2/round-3/precheck-result.json`,
 and (2) that same directory's `manual-precheck-note.md`, per AGENTS.md's
 "Review gate precheck fallback" (issue #61) procedure.
@@ -116,11 +124,22 @@ automated path would.
 
 ## Human authorization
 
-<TO BE FILLED IN BY THE HUMAN APPROVER -- this is a SEPARATE authorization
-from the 2026-07-22 round-2 one, which was explicitly scoped to that round
-only. Who, when, and the exact scope of what is authorized (this round's
-manual precheck only; not a standing exemption; not a waiver of any
-finding).>
+Record of the human's decision (not this orchestrator's own signature).
+Date: 2026-07-23. Channel: this session's main chat, typed by the human
+directly, relayed by the coordinator agent. This is a SEPARATE
+authorization from the 2026-07-22 round-2 one (which was explicitly
+scoped to that round only) -- the orchestrator escalated rather than
+assuming round 2's approval extended here. Verbatim instruction (as
+relayed by the coordinator, quoting the human): "判断2・5については認可
+する" ("I authorize judgments 2 and 5"), with the coordinator's own
+message identifying "判断2" as this exact candidate (the round-3
+manual-precheck fallback for epic-195-a7-compatibility attempt-2). Scope:
+"round 2 と同じくこのラウンド限定の認可であり standing exemption ではな
+い" ("same as round 2, scoped to this round only, not a standing
+exemption") -- this round's manual precheck only; no review finding is
+waived (round 2's own NEEDS_WORK verdict and its 1 Major finding stand
+exactly as reviewed; the remedy is sent to fresh independent reviewers,
+not accepted on the strength of this precheck substitution).
 
 ## Manual checks performed
 
