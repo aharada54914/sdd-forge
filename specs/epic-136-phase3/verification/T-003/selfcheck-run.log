@@ -1,0 +1,27 @@
+=== TEST-016 (AC-016): candidate structure + live file untouched ===
+ok: TEST-016: job count and job names are byte-unchanged (test mcp-tests local-env-mcp-tests ci-mcp-tests cli-hook-enforcement required-checks )
+ok: TEST-016: all 67 steps inside the single 'test' job carry the [deterministic] prefix
+ok: TEST-016: the documented, currently-empty eval-lane comment placeholder is present
+ok: TEST-016: the LIVE protected workflow directory has no agent-authored modification
+=== TEST-017 (AC-017): RED-then-GREEN step-coverage self-check ===
+ok: TEST-017-RED: dropped step 'Install recorded Claude Code CLI' correctly failed the coverage check (check is non-vacuous)
+ok: TEST-017-GREEN: all 65 pre-change step names survive in the candidate with the [deterministic] prefix
+ok: TEST-017: required-checks' needs: line is byte-unchanged (   needs: [test, cli-hook-enforcement])
+=== TEST-018 (AC-018): sibling workflow isolation unchanged ===
+ok: TEST-018: the candidate does not reuse self-improvement.yml as a workflow (isolation preserved)
+ok: TEST-018: self-improvement is not a job in the candidate (isolation preserved)
+ok: TEST-018: self-improvement appears in no needs: list in the candidate (isolation preserved)
+ok: TEST-018: the candidate does not reuse model-freshness-check.yml as a workflow (isolation preserved)
+ok: TEST-018: model-freshness-check is not a job in the candidate (isolation preserved)
+ok: TEST-018: model-freshness-check appears in no needs: list in the candidate (isolation preserved)
+ok: TEST-018: self-improvement.yml keeps its own independent trigger (no workflow_run coupling)
+ok: TEST-018: model-freshness-check.yml keeps its own independent trigger (no workflow_run coupling)
+=== TEST-020 (AC-020): CI step per new suite from T-001 and T-002 ===
+ok: TEST-020: the candidate runs tests/guard-dispatch-fallback.tests.sh
+ok: TEST-020: the LIVE workflow does not yet run tests/guard-dispatch-fallback.tests.sh -- red until the human-copy commit lands (expected, no staged fallback)
+ok: TEST-020: the referenced suite tests/guard-dispatch-fallback.tests.sh exists
+ok: TEST-020: the candidate runs tests/guard-negative-corpus.tests.sh
+ok: TEST-020: the LIVE workflow does not yet run tests/guard-negative-corpus.tests.sh -- red until the human-copy commit lands (expected, no staged fallback)
+ok: TEST-020: the referenced suite tests/guard-negative-corpus.tests.sh exists
+
+deterministic-lane-selfcheck.tests.sh: 21 passed, 0 failed

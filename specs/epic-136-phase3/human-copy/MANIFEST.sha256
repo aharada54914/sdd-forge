@@ -1,0 +1,20 @@
+# epic-136 Phase 3, T-003 (issue #126) -- ONE shared human-copy batch.
+#
+# The sha256 below is the content of
+#   specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml
+# (627 lines), which is the byte-exact content a human must place at the staged
+# candidate path in this directory. The agent cannot write that path itself:
+# sdd-hook-guard denies every agent write whose path ends with the protected
+# workflow suffix, and the suffix match has no human-copy carve-out.
+#
+# Human steps (both copies are human-performed):
+#   1. copy the draft to the staged candidate path under this directory, i.e.
+#      to <this dir>/.github/workflows/ with the live file's basename
+#   2. verify:  shasum -a 256 <that file>   ->  must equal the digest below
+#   3. apply the staged candidate to the live protected workflow file
+#   4. confirm branch protection still requires [test, cli-hook-enforcement]
+#
+# Until step 3 lands, this PR's CI cannot run the two new suites Stream A and
+# Stream B added -- that red state is the designed fail-closed behaviour, not a
+# defect (design.md Deployment / CI Plan).
+8bec5ba7580ba06144a7dca34107d8cdb72c9bc258c6e3443f7f483118e773d2  staged candidate (see step 1 above)

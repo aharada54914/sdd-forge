@@ -1,0 +1,4 @@
+GNU bash, version 3.2.57(1)-release (arm64-apple-darwin25)
+ok: TEST-020: the referenced suite tests/guard-negative-corpus.tests.sh exists
+
+deterministic-lane-selfcheck.tests.sh: 21 passed, 0 failed
