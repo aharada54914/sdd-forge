@@ -95,6 +95,31 @@
   `declare -A` 不使用、固定10要素配列のみを使用(bash 3.2 実行環境で
   確認済み)。詳細は `reports/implementation/epic-136-phase3/T-004.md` を
   参照。
+- **決定論レーン境界のマーキングと共有 human-copy バッチ (Issue #126,
+  epic-136-phase3 T-003, Stream D)**: CI ワークフローの単一 `test` ジョブ
+  内部に決定論レーン境界を導入する staged candidate を作成。既存65ステップ
+  すべての `name:` に `[deterministic] ` プレフィックスを付与し、将来の
+  LLM 起動 eval レーンを別ジョブとして追加する位置を示す(現時点で空の)
+  ドキュメント化済みコメント placeholder を1つ追加、さらに Stream A/B の
+  新規スイート2本を実行する CI ステップを同一ジョブ内に追記する。ジョブ数・
+  ジョブ名・`required-checks` の `needs:` メンバーシップはバイト不変で、
+  BL-001 は構成上保たれる(diff で実測検証)。ジョブ分割を選ばない設計判断は
+  design.md Design Decisions OQ-5 を参照。
+  新規スイート `tests/deterministic-lane-selfcheck.tests.sh` を追加し
+  `tests/run-all.sh` へ1行登録: TEST-016(ジョブグラフ不変・全ステップの
+  プレフィックス・placeholder 存在・live ファイル未改変)、TEST-017(1ステップ
+  を意図的に落とした使い捨て fixture が先に FAIL する RED → 実 candidate が
+  PASS する GREEN、`needs:` バイト不変)、TEST-018(兄弟ワークフローのグラフ
+  分離)、TEST-020(新規スイートごとの CI ステップ)。21 passed / 0 failed、
+  bash 5.3 と実 bash 3.2.57 で同一。
+  なお staged candidate は**非保護のドラフトパス**
+  `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
+  に置かれる。sdd-hook-guard の保護判定はパスのサフィックス一致で human-copy
+  の carve-out を持たないため、human-copy のステージングパスも live と同様に
+  エージェント書込みが拒否されるためである。ドラフトをステージングパスへ配置
+  する作業は、その後の live 適用と同じく**人間のアクション**であり、
+  `specs/epic-136-phase3/human-copy/MANIFEST.sha256` がその検証用ダイジェスト
+  を記録する。詳細は `reports/implementation/epic-136-phase3/T-003.md` を参照。
 
 ## v1.11.0 (2026-07-21)
 
