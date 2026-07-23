@@ -159,6 +159,25 @@ assumed.
 Manual precheck passed under the temporary issue-#61 fallback.
 ```
 
+## Launch history (recorded for audit-trail continuity, not part of the
+authorized candidate content above)
+
+seq0333's *first* launch instance (2026-07-23) declined to launch entirely
+(no substantive file read, no output), citing: (1) the reservation's own
+claims read as narrative, not tool-verifiable; (2) a hash typo plus inline
+correction introduced during main's own prompt-assembly step (not in this
+orchestrator's launch-prompt file or reservation manifest, both of which
+were correct throughout) that read as a possible hash-laundering pattern;
+(3) general distrust of the manual-fallback precheck route. This is a
+legitimate refusal, not an error to route around by force. Identity
+`seq0333` was never consumed and remained valid. Main retried the
+**same** identity with a corrected prompt (treated as the ECONNRESET-class
+same-identity retry this repository's own precedent already establishes,
+not a new reservation) that has the reviewer independently self-verify the
+identity ledger, its own reservation manifest, and this human-authorization
+note via `Read`, rather than asking it to trust narrative claims about
+them.
+
 ## What remains after this candidate, if authorized
 
 Reserve spec-reviewer-a's identity for attempt-2/round-3 (next ledger
