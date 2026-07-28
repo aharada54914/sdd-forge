@@ -1,0 +1,68 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase4mcp-spec-a1r2-a-seq0370",
+  "host_session_id": "SESS-spec-a1r2-a-epic136phase4mcp-0370",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-mcp/attempt-1/round-2/precheck-result.json",
+      "sha256": "3a951baeff006548c7cb4bc0ba304de44fec13666f128e6b7b10709066332cba"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/investigation.md",
+      "sha256": "68b448ea17f7b049b7e04947391636ec3f23beff88ca34e8c0ad8bcd46930691"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "a4ba7128ce129de96e157538aa51f765cc0d181e57ee80234d18c4a556e050a8"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "All 8 Goals (REQ-001..008, requirements.md:114-191) resolve to concrete, field/type-level testable claims with matching AC-NNN/TEST-NNN rows (requirements.md:251-372; acceptance-tests.md:14-31). One peripheral sub-clause of REQ-008 ('no version-literal edit exists anywhere outside scripts/bump-version.sh', requirements.md:191) has no dedicated AC/TEST row -- AC-013/AC-014 (requirements.md:320-332) cover only the CHANGELOG/USERGUIDE halves of REQ-008 -- but the clause is trivially grep-checkable and is a well-established repo-wide convention repeated from prior features, not a novel ambiguity that would block a downstream verifier's decision; advisory only, not blocking."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every REQ-001..008 goal (requirements.md:114-191) has at least one matching AC in the Acceptance Criteria section (requirements.md:251-372) and a corresponding TEST-NNN row (acceptance-tests.md:14-31): REQ-001->AC-001/002/017, REQ-002->AC-003/004/016/018, REQ-003->AC-005/006, REQ-004->AC-007/008, REQ-005->AC-009, REQ-006->AC-010, REQ-007->AC-011/012, REQ-008->AC-013/014. AC-015 (protected-file re-verification, requirements.md:333-343; acceptance-tests.md:28) is explicitly labeled cross-cutting rather than orphaned. No stated goal is left without acceptance coverage."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Conformance-shaped ACs correctly name real verification mechanisms rather than text-marker proxies: AC-009/TEST-009 names the real ajv getEnvelopeValidator() strict-mode run (requirements.md:296-304; acceptance-tests.md:22,35-42) and AC-012/TEST-012 requires all existing suites to be updated against that same real validator (requirements.md:314-319; acceptance-tests.md:25). AC-016/TEST-016 is deliberately scoped to schema-description STRING CONTENT rather than structure, and the spec explicitly and correctly justifies why a literal string-containment check (not ajv) is the right mechanism for that specific claim, since JSON Schema's description keyword carries no validation semantics (requirements.md:416-422; acceptance-tests.md:29,72-79) -- this is a direct assertion of documentation content, not a proxy standing in for untested behavior. AC-015's grep-based check against the generated guard-invariants file (requirements.md:333-343; acceptance-tests.md:28) is likewise a real, executable check."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Non-goals (requirements.md:193-224) explicitly excludes widening scope to list_review_tickets/get_quality_gate_summary diagnostics, any change to listGuardedFiles's existing signature/call-site behavior or allow/denylist rules, adding real signature/git-ancestry verification, enforcing the host-verification policy in code, and any of epic #136's other Phase 4 issues (#128-#130,#133-#135,#138-#140). These boundaries are consistently reflected in BL-002/BL-003/BL-006 (requirements.md:590-609) and reinforced by AC-004's verdict-independence assertion (requirements.md:264-270) and AC-006's byte-identical-behavior assertion (requirements.md:278-285)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "BL-001..006 (requirements.md:587-610) are each stated with file:line citations and are consistent with the ACs that exercise them: BL-002 (read-only/no-exec) matches AC-003/AC-004's verdict-independence claim (requirements.md:259-270); BL-003 (existing signature preserved) matches AC-006's byte-identical-output requirement (requirements.md:278-285); BL-005 (verdict formula unchanged) matches AC-004; BL-006 (allow/denylist unchanged) matches Security Boundaries B3 (requirements.md:543) and Non-goals bullet 2 (requirements.md:204-208). BL-004's required-not-optional rationale is now backed by the round-2 Assumption citing sdd-forge-mcp's private/unpublished package.json status and ADR-0003 (requirements.md:565-581), and this rationale is applied consistently everywhere the required-field choice is discussed -- Overview (requirements.md:40-58), Field Definitions 'additive schema change' (requirements.md:436-448), and AC-013 (requirements.md:320-326) -- with no remaining unconditional 'fully backward compatible' claim found elsewhere in the re-read document."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The Risks section (requirements.md:645-666) ties each of its 3 named risks to a concrete AC-level mitigation (AC-009/AC-012 as a hard Done condition, the explicit Non-goal, and Field Definitions' verbatim-reuse constraint). The one additional high-risk claim the corrected Overview itself introduces -- that pinning the 3 new fields as required will cause a pre-change-schema-strict validator to reject a post-change response (requirements.md:44-51) -- has its own planned validation surface: the Assumptions section's explicit RE-VERIFY instruction for package.json's private/publishConfig fields before implementation begins, with a stated concrete consequence (re-examine required vs. optional) if that assumption is later invalidated (requirements.md:576-581)."
+    }
+  ]
+}

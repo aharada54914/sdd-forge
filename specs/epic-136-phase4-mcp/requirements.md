@@ -1,6 +1,6 @@
 # Requirements: epic-136-phase4-mcp
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 
 Source Issues:
 - https://github.com/aharada54914/sdd-forge/issues/131 (evidence.ts:
@@ -12,7 +12,7 @@ Source Issues:
   `listGuardedFilesWithDiagnostics` function)
 Epic: https://github.com/aharada54914/sdd-forge/issues/136 (Phase 4)
 
-Investigation: specs/epic-136-phase4-mcp/investigation.md (INV-001..INV-023,
+Investigation: specs/epic-136-phase4-mcp/investigation.md (INV-001..INV-022,
 one investigation-native Open Question). No baseline-behavior.md — this
 feature is additive: every new field is computed alongside, never in place
 of, an existing field, and every existing response shape's currently-tested
@@ -53,7 +53,7 @@ nothing changed) and is judged acceptable specifically because
 — it is `private`, unpublished, and distributed only as this repository's
 own committed `dist/`, verified byte-identical to its `src/` and schema
 origin within a single commit by CI (Assumptions; investigation.md
-INV-023). No tool is renamed or removed, and no tool's response is given a
+`mcp/sdd-forge-mcp/package.json:2-4`). No tool is renamed or removed, and no tool's response is given a
 shape that a NEWLY-written validator against the POST-change schema would
 reject.
 
@@ -322,7 +322,7 @@ traceability table.
   additive AND accompanied by a same-repository, same-commit schema update
   (the 3 new `required` fields in `contracts/sdd-forge-mcp-tools.v1.schema.json`)
   — matching the Overview's corrected framing (Assumptions; investigation.md
-  INV-023), never as an unconditional "fully backward compatible" claim,
+  `mcp/sdd-forge-mcp/package.json:2-4`), never as an unconditional "fully backward compatible" claim,
   and never inventing its own compatibility characterization. (REQ-008)
 - AC-014: `USERGUIDE.md`'s `evidence_find_missing`/
   `evidence_compare_to_traceability`/`evidence_deep_verify` rows
@@ -443,7 +443,7 @@ traceability table.
   new required field (Constraints). This deploys-atomically claim is not
   asserted without evidence: `sdd-forge-mcp` is `private: true`, unpublished
   to the public npm registry, and distributed only via this repository's own
-  committed `dist/` (investigation.md INV-023, Assumptions below) — there is
+  committed `dist/` (`docs/adr/0003-mcp-dist-bundle-distribution.md`, Assumptions below) — there is
   no independently-versioned external consumer this `required`-not-optional
   choice could strand.
 
@@ -570,7 +570,7 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   origin (and, by this feature's own same-commit discipline, to
   `contracts/sdd-forge-mcp-tools.v1.schema.json`) by CI's dist-parity check
   (`docs/adr/0003-mcp-dist-bundle-distribution.md`, `Status: Accepted`;
-  investigation.md INV-023). This is the factual basis for REQ-005/BL-004's
+  `mcp/sdd-forge-mcp/package.json:2-4` and `docs/adr/0003-mcp-dist-bundle-distribution.md`). This is the factual basis for REQ-005/BL-004's
   "required, not optional" choice and for Field Definitions' "single
   monorepo-nested package that deploys atomically" claim (Overview). RE-VERIFY
   `package.json`'s `private`/`publishConfig` fields directly before
