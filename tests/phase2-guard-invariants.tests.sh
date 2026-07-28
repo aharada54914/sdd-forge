@@ -258,13 +258,20 @@ fi
 # caught at commit time, not at the next apply.
 sync_ok=1
 sync_canonical="$stage/plugins/sdd-quality-loop/references/guard-invariants.json"
+sync_targets=""
 if [[ -f "$sync_canonical" ]]; then
-  sync_targets="$(python3 - "$sync_canonical" <<'PY'
+  # native_path is required: on Windows Git Bash python3 is a native
+  # interpreter that cannot open POSIX-style /c/... paths (same convention as
+  # every other python3 call in this suite). Guard the substitution so a
+  # python failure records a bad instead of killing the suite via set -e.
+  if ! sync_targets="$(python3 - "$(native_path "$sync_canonical")" <<'PY'
 import json, sys
 for t in json.load(open(sys.argv[1], encoding="utf-8"))["phase2_human_copy_targets"]:
     print(t)
 PY
-)"
+)"; then
+    sync_ok=0
+  fi
   while IFS= read -r sync_target; do
     [[ -n "$sync_target" ]] || continue
     if [[ ! -f "$root/$sync_target" || ! -f "$stage/$sync_target" ]]; then
