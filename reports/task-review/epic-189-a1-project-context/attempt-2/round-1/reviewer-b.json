@@ -1,0 +1,93 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-189-a1-project-context",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-b-attempt2-seq0339",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-189-a1-project-context-attempt2-seq0339",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-189-a1-project-context/requirements.md", "sha256": "78e7f94a0a7d1029ca1b8e03e23faecb050d454af588e57e7ff48cbc887f8c37"},
+      {"path": "specs/epic-189-a1-project-context/acceptance-tests.md", "sha256": "e0b6ae1d5a2d2d2daaa9435dcc3814ce1ba8a215703b110e36b3f9bdfc7d2b7d"},
+      {"path": "specs/epic-189-a1-project-context/design.md", "sha256": "c983abe8d80a3f1c38dd677156b6287e0e9791810bbed8a1e32fd9cce95c97f5"},
+      {"path": "specs/epic-189-a1-project-context/tasks.md", "sha256": "961a93f5319b3f4cd176be2f241bab7b19ee94da9740e1fca42af7efc35ec9ab"},
+      {"path": "specs/epic-189-a1-project-context/traceability.md", "sha256": "ed3166a5a468b075a5d48c7031dec000110cc657b4ac6b1bd76b2ba85b0b5a54"},
+      {"path": "specs/epic-189-a1-project-context/ux-spec.md", "sha256": "1ecac8ad0949029ff805f06e6da2aaa9c692eff32c8f099a394911de2354e8e7"},
+      {"path": "specs/epic-189-a1-project-context/frontend-spec.md", "sha256": "0c4c53dabe5ae5f98ad26c16df38b65fad6c6c4b45c27b985d6a8095e1c33771"},
+      {"path": "specs/epic-189-a1-project-context/infra-spec.md", "sha256": "2f6b17f7239ecf3ce4c395e9d1a1d59303680a0239fa7a2f1abef09d1e9ca489"},
+      {"path": "specs/epic-189-a1-project-context/security-spec.md", "sha256": "d68fe78b0261420be876a8eaa3b2f02473f4f7a6801de10277e6b6fcfe77faec"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-2/round-1/precheck-result.json", "sha256": "c620e2a767e3c671762e72bb2823637682159019b709683a7a8db54d6008757e"},
+      {"path": "reports/task-review/epic-189-a1-project-context/attempt-2/round-1/integrated-summary.json", "sha256": "039c0bef0ca0f755ab5ed7c2aad7d330662e0d0cf43db1b632fe28a4fb9348f8"}
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every task's declared Risk tier matches its scope per risk-classification-policy.md's sentinel-surface test. T-002/T-003/T-005/T-006/T-008/T-010/T-011/T-012 (high) all touch security-foundational or access-control-decision surfaces (canonicalization for HMAC preimages, secrets/HMAC signing, weakening-detection self-approval logic, validator enforcement, hook-guard verification, track-selection precedence). T-007/T-009 (critical) match 'irreversible destructive operations' (T-007 is the sole publish mechanism for every protected artifact; T-009 edits the enforcement-chain protected-file inventory with repo-wide blast radius and performs the publisher's one-time bootstrap). T-011's Risk Rationale (tasks.md:1550-1567) explicitly documents its own correction from medium to high this round, closing a prior RISK-APPROPRIATE finding by parity with T-012. No high/critical task's scope is limited to UI/CSS/docs/test-only content; T-004's schema-only scope still gates the approver-registry immutable identity key an authorization decision depends on (tasks.md:643-650), so high is warranted there too. T-001/T-013 (medium) touch no sentinel surface within this epic (T-001's artifacts have no consumer yet; T-013 is a closing audit with no production-logic change, tasks.md:1834-1837)."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found. Every Risk: high/critical task's Done When section (T-002 tasks.md:448-451, T-003:614-616, T-004:729-730, T-005:884-885, T-006:1003-1004, T-007:1123-1127, T-008:1247-1248, T-009:1413-1419, T-010:1525-1526, T-011:1666-1670, T-012:1806-1810) includes explicit TDD Red→Green evidence language plus 'an independent quality-gate verdict (a named second reviewer...) records PASS'. The two Risk: critical tasks (T-007, T-009) additionally require 'a second, distinct named approver additionally reviews and signs the evidence bundle (Risk: critical, risk-classification-policy.md:17)', satisfying the critical-tier's extra requirement."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "T-001 (specs/epic-189-a1-project-context/tasks.md:122-328) is oversized: its Scope bundles TWO separate schema requirements into one task (REQ-001's contracts/project-context.schema.json + contracts/project-context.template.yaml, AND REQ-002's contracts/provider-bindings.schema.json) plus CI/test wiring and CHANGELOG documentation -- more than three distinct implementation areas -- and its Done When list (tasks.md:229-252) carries 11 distinct checkbox items, the only task in this 13-task list exceeding the >8-item oversized threshold by a wide margin (the next-highest is 9, for single-requirement tasks T-002/T-003/T-005/T-006, each scoped to exactly one script family/requirement). Every other task in this epic maps to exactly one script family or requirement; T-001 alone spans two, increasing the risk that partial completion of one schema is marked Implementation Complete alongside the other within a single session."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every functional task pairs its happy-path AC/TEST with an explicit negative or edge-case AC/TEST in the same Done When list: T-001 pairs AC-001..AC-004/AC-041/AC-042 with AC-040's duplicate-id rejection; T-002 pairs AC-006..AC-009 with AC-005's 4-category rejection lock and AC-037's boundary-vector rejections; T-003 pairs AC-010/AC-011 with AC-011's no-key fail-closed case and AC-034's mid-write-failure rollback; T-004 pairs AC-044 with AC-045's duplicate-id rejection and AC-046's zero-identity boundary; T-005 pairs AC-016 with AC-017's non-weakening negative case and AC-030's anchor-injection-rejection; T-006 pairs AC-015 with AC-014's six-way negative proof; T-007/T-008's entire Done When is built around failure-injection/rollback proofs (AC-033, AC-032); T-011/T-012 both require the PROJECT_CONTEXT_INVALID error-stop case (AC-026) alongside the happy-path promotion/no-op cases (AC-025)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. acceptance-tests.md's Test Type column names the concrete test shape for every TEST-ID (e.g. 'parameterized schema conformance (positive + negative)' for TEST-001; 'rejection lock (4 categories)' for TEST-005; 'dual/multi-runtime hash-equality + dispatch proof' for TEST-009), and every TEST-ID maps 1:1 to a specific AC-NNN per acceptance-tests.md's own header and traceability.md's Acceptance Mapping table -- satisfying the acceptance-test AC-reference requirement for every declared test in this task list. No test task's declared type text contradicts its actual scope (e.g. TEST-023's 96-cell matrix, tasks.md:1518-1520, is described and scoped as a full-matrix proof, not mislabeled as a narrow unit test)."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every Risk: high/critical task carries an explicit Rollback: field: T-002 tasks.md:386-388, T-003:552-553, T-004:680, T-005:816, T-006:946, T-007:1070-1071, T-008:1196, T-009:1331-1334, T-010:1480-1481, T-011:1612, T-012:1742-1745 -- including the protected-file caveat that reverting an agent-authored staging commit does NOT automatically revert an already-human-applied guard-invariants/skill-file change (T-009, T-012), which the revert PR must state explicitly."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Global Constraints (tasks.md:62-118) enforces exclusive ownership or numeric-order serialization for every shared file: tests/run-all.sh/.ps1 additions are serialized because every one of T-001..T-012 declares the immediately-preceding numeric-order task among its Blockers (directly or transitively); plugins/sdd-quality-loop/references/guard-invariants.json + generate-guard-invariants.py + generated/* has T-009 as sole editor; apply-human-copy.{sh,ps1} has T-007 as sole author; PLUGIN-CONTRACTS.md has T-011 as sole editor; CHANGELOG.md's Unreleased section is append-only per task, never edited in place by another task. No two tasks claim an uncoordinated, unblocked edit to the same file."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found. Every Blockers entry is either a genuine functional dependency (e.g. T-006 blocks on T-003/T-004/T-005 because it recomputes the generator's construction and re-derives the weakening verdict, tasks.md:924-927; T-009 blocks on T-002/T-003/T-005/T-006/T-007/T-008 because it registers every concrete path those tasks introduce, tasks.md:1293-1299) or an explicitly-labeled, reasoned shared-file numeric-order serialization dependency (e.g. T-002's 'Depends On: T-001 only for this task list's mandatory shared-file numeric-order append serialization ... has no compile-time dependency on the schema files T-001 authors', tasks.md:359-365) -- the latter class exists specifically to close a prior round's SCOPE-DISJOINT/DEPENDENCY-OVERLAP finding per Global Constraints (tasks.md:74-82) and is not spurious in the sense of unexplained or unnecessary. No task's scope depends on another's output without a declared (direct or transitive) Blockers entry."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All 13 tasks (T-001..T-013) are net-new feature/schema/infrastructure authorship or a closing audit task per their own Goal/Scope text; none is scoped as a bugfix, regression fix, debugging, failure-diagnosis, flaky-test resolution, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "T-001 (specs/epic-189-a1-project-context/tasks.md:122-328) is oversized: its Scope bundles TWO separate schema requirements into one task (REQ-001's contracts/project-context.schema.json + contracts/project-context.template.yaml, AND REQ-002's contracts/provider-bindings.schema.json) plus CI/test wiring and CHANGELOG documentation -- more than three distinct implementation areas -- and its Done When list (tasks.md:229-252) carries 11 distinct checkbox items, the only task in this 13-task list exceeding the >8-item oversized threshold by a wide margin (the next-highest is 9, for single-requirement tasks T-002/T-003/T-005/T-006, each scoped to exactly one script family/requirement). Every other task in this epic maps to exactly one script family or requirement; T-001 alone spans two, increasing the risk that partial completion of one schema is marked Implementation Complete alongside the other within a single session."
+    }
+  ]
+}
