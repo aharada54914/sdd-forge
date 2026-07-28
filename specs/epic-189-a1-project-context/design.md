@@ -653,6 +653,52 @@ never a free-text display name. When both `primary_approval` and
 `primary_approval.approver` (`DUPLICATE_APPROVER_IDENTITY` otherwise,
 checked at both generation and validation time).
 
+### `contracts/approver-registry.schema.json` (REQ-006, OQ-001 — added attempt-3 round-1, closes an API-COVERAGE gap)
+
+```json
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SDD Forge approver-registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "approvers"],
+  "properties": {
+    "schema": { "const": "sdd-approver-registry/v1" },
+    "approvers": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "registered_at": { "type": "string" }
+        }
+      }
+    }
+  }
+}
+```
+
+Validates `sdd/approver-registry.yaml` after REQ-003 canonicalization
+(YAML → canonical JSON), exactly like the three sibling schemas above.
+Field semantics are Data Plan's: `id` is the IMMUTABLE identity key every
+`approval.approver` references; `name` is a mutable display label NEVER
+used for identity comparison; `registered_at` is ISO 8601 (format
+enforcement is semantic-layer, not schema-layer, mirroring the sibling
+schemas' draft-07 posture). Two schema-external semantic checks (JSON
+Schema draft-07 cannot express either, same M18 handling as the sibling
+`id`-uniqueness checks): (1) `approvers[].id` uniqueness — a duplicate is
+rejected by REQ-005's semantic-validation step (AC-045), never silently
+deduplicated; (2) the count of DISTINCT `id` entries is the value REQ-006's
+detector compares against the two-person threshold (AC-046's zero-identity
+boundary). AC-044's parameterized positive/negative conformance suite
+(TEST-044) validates fixtures against THIS schema body; the landed
+artifact (T-004) is byte-consistent with it. The live
+`sdd/approver-registry.yaml` and this schema file are both REQ-007
+protected-registration targets (Protected-File Statement).
+
 ### Canonicalization procedure (REQ-003, revised — closes M10/M11)
 
 1. Read file bytes; decode as UTF-8 (reject on decode error).
@@ -675,9 +721,10 @@ checked at both generation and validation time).
    single document, tab indentation, an unquoted scalar beginning with a
    reserved sigil — is rejected fail-closed with its own named category
    (`UNSUPPORTED_SYNTAX_REJECTED`) and a quote-the-scalar hint where
-   applicable, NEVER best-effort interpreted (A3 precedent:
-   `docs/adr/0025-component-path-ownership-resolver-semantics.md`
-   Consequences).
+   applicable, NEVER best-effort interpreted (A3 precedent: the epic-191
+   branch's path-ownership ADR, Consequences — an epic-191-branch document,
+   NOT a file on this branch; Design Decisions states the cross-branch
+   citation contract).
 3. Walk the parsed structure; normalize every string scalar to Unicode NFC
    (`unicodedata.normalize("NFC", s)`), THEN re-check every mapping's keys
    for a **post-NFC duplicate-key collision** (two distinct source keys
@@ -1028,6 +1075,64 @@ any other pair this epic stages together) — recovered on the next
 invocation — always converges to either both targets at their PRE bytes or
 both at their POST bytes, never one advanced without the other.
 
+### Hook-activation handshake CLI contract (REQ-010 — added attempt-3 round-1, closes an API-COVERAGE gap)
+
+`check-hook-activation-handshake.py` (+ `.sh`/`.ps1` dispatch wrappers,
+Components) NEVER itself performs a write attempt (design decision B4,
+Design Decisions: nonce generation and deny-signature matching stay on the
+protected-script side; the AGENT SESSION makes the actual probe tool-call).
+Its full behavioral specification is requirements.md REQ-010 (the
+"Redesigned protocol", "Sentinel cleanup contract", and "Stale-start
+contract" passages); this subsection fixes the CLI surface those passages
+imply, in the same shape as the other script families above:
+
+- **`--emit-challenge`** → stdout: one machine-readable challenge JSON:
+  `{"schema": "sdd-hook-challenge/v1", "nonce": "<fresh single-use>",
+  "canary_target": "sdd/.hook-canary-sentinel", "tool_call_template":
+  {…per-runtime…}}` — the template is `Edit`/`Write` with
+  `file_path: sdd/.hook-canary-sentinel` for Claude Code / Copilot CLI,
+  and the equivalent `apply_patch`/shell-redirect form for Codex CLI.
+  Exit 0 on emission. Per the Stale-start contract, the CALLING skill
+  first checks for a pre-existing sentinel and performs/records ONE
+  stale-cleanup attempt before requesting a new challenge; the tool
+  reports the stale condition in its diagnostic output but still emits
+  the new challenge.
+- **`--verify-response --nonce <nonce> --recorded-result <path>
+  --runtime <claude-code|codex-cli|copilot-cli>`** → applies the
+  per-runtime documented expected-deny-signature check (Claude Code:
+  guard's `--emit exit` deny surfaced through the host's tool-call-denial
+  reporting; Codex CLI: `plugin_hooks`-mediated denial, with an unset
+  feature flag correctly collapsing into "hook not active"; Copilot CLI:
+  guard's `--emit copilot` JSON `{"permissionDecision": "deny", …}`) AND
+  the nonce-match check (`STALE_CHALLENGE_REJECTED` on mismatch — replay
+  defense). Outcomes: `HOOK_ACTIVE` (exit 0) ONLY when the
+  runtime-specific deny signature is present and the nonce matches;
+  otherwise `CAPABILITY_RUNTIME_UNAVAILABLE` (non-zero, fail-closed — the
+  burden of proof is on demonstrating denial), upon which the calling
+  skill MUST stop Capability Mode, never silently fall back to legacy
+  (decision doc §7 v2).
+- **`--confirm-cleanup --nonce <nonce> --recorded-cleanup-result <path>`**
+  (or the equivalent inspection within `--verify-response`, made
+  immediately after the calling skill records its cleanup attempt) →
+  three documented outcomes per REQ-010's Sentinel cleanup contract:
+  (a) sentinel confirmed removed — clean resolution; (b) no cleanup
+  evidence recorded — `SENTINEL_CLEANUP_UNCONFIRMED` reported ALONGSIDE
+  the standing `CAPABILITY_RUNTIME_UNAVAILABLE` (independent verdicts —
+  a later cleanup outcome never retroactively changes what the original
+  probe proved); (c) the cleanup attempt was itself denied (the race
+  case: hook became active between create and cleanup) — reported
+  identically to (b); never a privileged force-delete.
+
+Framing/exit-code discipline matches the other script families: exactly
+one machine-readable JSON document on stdout per invocation, diagnostics
+to stderr only, each named outcome above carries a stable documented exit
+code. Evidence-file paths are caller-supplied plain files; the tool never
+writes them (it only reads recorded results — Constraint Compliance, B4
+row). Verified end-to-end by TEST-027 (host-canary challenge/response
+fail-closed proof, AC-027), TEST-032 (sentinel two-branch/cleanup-
+confirmation/stale-start proof, AC-032), and TEST-035 (five-entry-point
+wiring inventory, AC-035).
+
 ## Test Strategy
 
 1. Dual/multi-runtime hash-equality (REQ-003, AC-009): the SAME fixture file
@@ -1303,16 +1408,22 @@ both at their POST bytes, never one advanced without the other.
   implement a HAND-WRITTEN, stdlib-only, RESTRICTED YAML-SUBSET parser
   inside `canonicalize-sdd-yaml.py` — no third-party YAML library, no
   `requirements.txt`, no distribution/install-design change. This follows
-  the ALREADY-REVIEWED same-shape precedent in Epic A3
-  (`specs/epic-191-a3-path-ownership` T-001,
-  `plugins/sdd-quality-loop/scripts/resolve-component-paths.py`'s
-  "Minimal restricted YAML-subset parser", an impl-review/task-review
-  Passed package in the A3 worktree, and
-  `docs/adr/0025-component-path-ownership-resolver-semantics.md`
-  Consequences), which itself extends this repository's restricted-DSL
-  philosophy (ADR-0020) and the `check-contract.py` stdlib-only CI
-  precedent ("this repository's CI installs no Python packages for its
-  gate scripts").
+  the ALREADY-REVIEWED same-shape precedent in Epic A3. **Cross-branch
+  citation contract, explicit**: the A3 precedent lives on the EPIC-191
+  BRANCH ONLY and none of its files exist on this branch — its spec
+  package (`specs/epic-191-a3-path-ownership` T-001), its
+  `resolve-component-paths.py` "Minimal restricted YAML-subset parser"
+  (an impl-review/task-review Passed package), and its
+  path-ownership-resolver-semantics ADR (numbered 0025 THERE; this
+  branch's own `docs/adr/0025-human-copy-transactional-bundle.md`
+  independently occupies 0025 HERE — a known cross-branch numbering
+  collision deferred to merge-phase renumbering) are all epic-191-branch
+  documents, cited as precedent, not as local files, and NOT required
+  reading for implementing this design (this section restates everything
+  the implementer needs). The A3 precedent itself extends this
+  repository's restricted-DSL philosophy (ADR-0020, a real file on this
+  branch) and the `check-contract.py` stdlib-only CI precedent ("this
+  repository's CI installs no Python packages for its gate scripts").
 
   **Accepted subset (normative)** — exactly what `project-context.yaml`,
   `provider-bindings.yaml`, `sdd/approver-registry.yaml`, and the staged
@@ -1600,7 +1711,7 @@ lower-risk rollback surface than the guard-invariants batch.
 | cross-cutting seed-list scaffold, single-source inventory (REQ-001, cross-epic addition, closes NEW-001) | `contracts/project-context.template.yaml` pre-populates `shared_paths` with the SIX canonical seed patterns — `specs/**`/`reports/**`/`docs/**`/`.github/**`/`tests/fixtures/**`/`CHANGELOG.md` — each `classification: cross-cutting`; this template is the ONE canonical inventory, read directly (never re-declared) by Epic A3's day-one fixture (AC-042) |
 | Provider name never appears in Project Context (REQ-001, REQ-002, ADR-0018) | `provider_binding_ids` is the ONLY cross-reference field; the schema has no `provider` field anywhere under `components[]` |
 | `provider-bindings.yaml` skeleton only, no `credentials`/`state_authority` vocabulary (REQ-002) | both fields typed `{"type": "object"}` with no nested schema — any object passes, nothing is validated beyond "is an object"; the new OPTIONAL `adapter_paths` field is a bare array-of-string, no glob interpretation in A1 |
-| YAML 1.2 core schema, single-document, anchor/tag/dup-key/non-string-key/post-NFC-collision/out-of-range-number rejected (REQ-003, revised M11; parser decision revised 2026-07-24, human decision-3 = B) | hand-written stdlib-only restricted-subset parser (Design Decisions, above — A3/ADR-0025 precedent): anchor/alias/tag/dup-key/non-string-key rejection happens at parse time inside the parser itself (no third-party loader exists to mis-trust); post-NFC collision and number-range checks remain in the post-parse walk; out-of-subset syntax has its own explicit category (`UNSUPPORTED_SYNTAX_REJECTED`); each rejection category keeps its own diagnostic and exit code |
+| YAML 1.2 core schema, single-document, anchor/tag/dup-key/non-string-key/post-NFC-collision/out-of-range-number rejected (REQ-003, revised M11; parser decision revised 2026-07-24, human decision-3 = B) | hand-written stdlib-only restricted-subset parser (Design Decisions, above — epic-191-branch A3 precedent, cross-branch citation contract): anchor/alias/tag/dup-key/non-string-key rejection happens at parse time inside the parser itself (no third-party loader exists to mis-trust); post-NFC collision and number-range checks remain in the post-parse walk; out-of-subset syntax has its own explicit category (`UNSUPPORTED_SYNTAX_REJECTED`); each rejection category keeps its own diagnostic and exit code |
 | RFC 8785 JCS canonical JSON, ECMAScript-`Number` numeric form (REQ-003, revised — the "no exponent for integers" bespoke rule is retired) | deterministic key order, RFC-8785-correct numeric formatting (including exponents where JCS's own rule produces one), minimal string escaping — golden byte-sequence fixture asserts this directly |
 | single Python implementation + thin wrappers, NO PowerShell-native fallback (REQ-003, decision doc §18.3, revised M10) | `.sh`/`.ps1`/`.js` are dispatch-only (`python3`/`python` resolution ONLY), mirroring `sdd-hook-guard.sh:1-53`'s DISPATCH shape but NOT its native-`.ps1`-fallback shape (which does not apply — there is no native canonicalizer implementation to fall back to); no wrapper reimplements canonicalization |
 | HMAC preimage excludes `hmac` field itself, covers every other field (REQ-004, ADR-0019 v2.1, extended M9) | preimage construction operates on a field-excluded copy of the object, never the object with `hmac` present; AC-012's self-reference-exclusion test PLUS AC-036's golden-vector/per-field-mutation test are the executable proof |

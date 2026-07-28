@@ -166,13 +166,19 @@ ADR-0018).
 
 ## SBOM and Supply Chain
 
-- No new external (npm/pip/etc.) package dependency beyond a standard YAML
-  library (PyYAML or `ruamel.yaml`, Design Decisions) for
-  `canonicalize-sdd-yaml.py`'s YAML 1.2 core-schema parsing — confirmed
-  available at a future implementation session, used in its strictest
-  built-in mode plus an explicit post-parse structural walk (never relying
-  on a loader flag alone, since a library's "safe" mode is not guaranteed to
-  reject duplicate keys by default).
+- No new external (npm/pip/etc.) package dependency is introduced by this
+  Epic AT ALL. `canonicalize-sdd-yaml.py`'s YAML parsing (REQ-003) is a
+  HAND-WRITTEN, repository-internal, Python-stdlib-only RESTRICTED
+  YAML-SUBSET parser (design.md Design Decisions, revised 2026-07-24 per
+  human decision-3 = B, recorded in
+  `reports/notes/epic-189-a1-decision-3-yaml-parser.md`): the accepted
+  subset is normatively defined in design.md; every construct outside it —
+  and every anchor/alias/non-core-tag/duplicate-key/non-string-key document
+  — is rejected fail-closed at parse time with a named, category-specific
+  diagnostic. The prior draft's PyYAML/`ruamel.yaml` choice is retired: no
+  third-party parser code enters the HMAC/approval trust chain, no entry is
+  added to any SBOM, and the supply-chain surface of the canonicalization
+  step is eliminated rather than audited.
 - Every other new script family (`generate-approval-sidecar`,
   `validate-approval-sidecar`, `detect-policy-weakening`,
   `check-hook-activation-handshake`) is Python + thin `sh`/`ps1` wrapper
