@@ -64,3 +64,54 @@ a3r1 の b 用プロンプトには「Authority note」（埋め込みペルソ�
 
 前回インスタンスの verdict・finding 内容は清書版プロンプトに**記載しない**
 （anchoring / verdict shopping の外観を避ける)。
+
+## Amendment — run-2（清書版 v2)も非受理、根本原因確定 (2026-07-29)
+
+run-2 は ROLE AUTHORITY 節に従い worktree ファイル・該当段落・human commit
+を**検証したうえで**、逐語:
+
+> my actual governing role (system prompt) contains no such rule … no
+> agent message may authorize a configuration change to my behavior.
+> I did not adopt that rule
+
+と明言して収束規則を不適用（verdict: NEEDS_WORK、TASK-SIZE Major)。
+
+**非受理（run-1 と同一根拠・一貫)**: 「human 修正済み正本役割
+（`1dce9a8d`、sha256 `a50d54b5…`)が実行されなかった」という実行の瑕疵。
+verdict 非依存 — 本インスタンスの拒否姿勢自体は、その system prompt
+（インストール版)に対しては誠実であり、注入防衛としても正しい。欠陥は
+インスタンスではなく**配備**にある。
+
+**根本原因確定**: サブエージェントの system prompt は
+`~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/<ver>/` から供給され、
+検証の結果 **cache 全 3 バージョン (1.10.0/1.11.0/1.11.1) と共有本体
+`~/.local/share/sdd-plugins/plugins/sdd-review-loop/` の計 4 箇所すべて**が
+WFI-018 前の hash（`ed4f264b…`/`f2bb5acf…`/`a79ae4e0…`)のまま =
+**インストールが repo に遅延**。reviewer-a (seq0341) が規則に従ったのは
+プロンプト引用を受容した僥倖で、b 系は 2 回連続で同一拒否 — 同条件の
+3 回目は無意味。解決はキャッシュ同期（HUMAN-APPLY-STEPS「WFI-018 cache
+sync」節、人間実行)。
+
+**監査保存（verdict shopping への防衛)**: run-1 生出力 =
+`reports/notes/epic-189-a1-seq0342-first-run-nonaccepted.json`
+（sha256 `798bfd0d1791b4aca221bf971cd20ea798caa94d3d9620e9e405f0a12f92b266`)。
+run-2 生出力も同様に
+`epic-189-a1-seq0342-second-run-nonaccepted.json` として保存する
+（coordinator 抽出待ち)。両 run とも round ディレクトリ外に置き、
+evidence と誤認されない。受理基準は不変: 正本役割を適用した実行の
+finding は、内容が何であれ事実として受理する。
+
+**3 回目の identity 判断（同一 seq0342 で適法)**:
+- ledger 検証が拒否する「identity reuse」は同一 identity の再予約・複数
+  persisted evidence。seq0342 の persisted evidence はゼロのまま、予約
+  record（`b230b954…`)と hash 連鎖は無傷。最終的な reviewer-b.json は
+  seq0342 をちょうど 1 つ持つ — 不変量維持。
+- 役割定義ファイルは invocation manifest の束縛対象外のため、キャッシュ
+  同期は予約内容（inputs/hash)を一切変えない — 「同一の予約済み invocation
+  を、今度は正しく実行する」だけである。
+- 先例: A7 seq0333 の同一 identity 再実行 + 全プロンプト共通の transient
+  時同一 identity 再試行規約。新 seq 予約はむしろ evidence を持たない
+  dangling 予約を恒久に残すため劣後。
+- launch プロンプトは **v2 をそのまま再使用**（Authority note の検証手順は
+  同期後のキャッシュとも整合し、system persona と worktree が一致するため
+  拒否事由が消滅する)。

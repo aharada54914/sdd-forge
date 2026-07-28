@@ -1,5 +1,16 @@
 # epic-189-a1 持ち越し事項（最終フェーズで main が処理)
 
+- **WFI 候補: installed role と repo role の乖離検出** (2026-07-29,
+  task-review attempt-3 で顕在化): サブエージェントの system prompt は
+  プラグインキャッシュ（`~/.claude/plugins/cache/…`)から供給されるため、
+  repo 側で human-apply された役割ファイル改訂（WFI-018)がインストールに
+  反映されず、レビュアーが正当にも installed 版を権威として改訂規則を
+  不適用 → 2 実行が非受理となった。恒久修正候補: インストーラ/`codex-sync`
+  または review 系 precheck に「repo の役割ファイル sha256 と installed 版の
+  一致チェック（不一致なら STOP: cache sync required)」を追加。詳細:
+  `reports/notes/epic-189-a1-seq0342-nonacceptance.md` Amendment 節、
+  HUMAN-APPLY-STEPS「WFI-018 cache sync」節。
+
 - **WFI 候補: task-review-precheck の provenance-rereview 例外欠如**
   (2026-07-29, 判断7-A 実行時に顕在化): `task-review-precheck.sh:520-533`
   の round>1 unchanged-tasks check（前 round contract の tasks_sha256 と

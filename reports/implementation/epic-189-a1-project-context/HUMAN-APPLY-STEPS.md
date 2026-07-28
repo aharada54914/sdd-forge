@@ -237,3 +237,73 @@ What it changes (identical rule, per-document field names):
 4. If a NEW TYPE-H FAIL still appears against unchanged content, the
    orchestrator halts with no further rounds and returns to human
    decision.
+
+## WFI-018 cache sync — plugin install lags the repo (human application required)
+
+Prepared 2026-07-29. Root cause found during task-review attempt-3:
+subagent system prompts are served from the PLUGIN CACHE, not the
+worktree. All four installed locations still carry the pre-WFI-018 role
+texts (verified read-only: every one hashes `ed4f264b…` / `f2bb5acf…` /
+`a79ae4e0…`, the exact pre-apply values recorded above):
+
+- `~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/1.10.0/`
+- `~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/1.11.0/`
+- `~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/1.11.1/`
+- `~/.local/share/sdd-plugins/plugins/sdd-review-loop/`
+
+Because reviewer instances rightly treat their installed system prompt as
+their authority, the WFI-018 rule must be synced into the install itself.
+The cache lives outside the repo (the guard does not apply there), but
+this changes reviewer behavior, so it is HUMAN-EXECUTED by policy
+(precedent: the 2026-07-22 direct cache patch of the hook-guard js).
+Syncing ALL version directories avoids active-version ambiguity (all
+three are stale; future `codex-sync`/installer runs should re-converge
+from the repo once the release lands).
+
+### Apply procedure (cache sync; requires repo-side WFI-018 commit 1dce9a8d already present)
+
+```
+SRC=/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-review-loop
+for DST in \
+  ~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/1.10.0 \
+  ~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/1.11.0 \
+  ~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/1.11.1 \
+  ~/.local/share/sdd-plugins/plugins/sdd-review-loop
+do
+  cp "$SRC/agents/task-reviewer-a.md"        "$DST/agents/task-reviewer-a.md"
+  cp "$SRC/agents/task-reviewer-b.md"        "$DST/agents/task-reviewer-b.md"
+  cp "$SRC/skills/task-review-loop/SKILL.md" "$DST/skills/task-review-loop/SKILL.md"
+done
+# Post-copy verification (12 lines; every location must match):
+for DST in \
+  ~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/1.10.0 \
+  ~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/1.11.0 \
+  ~/.claude/plugins/cache/sdd-plugins/sdd-review-loop/1.11.1 \
+  ~/.local/share/sdd-plugins/plugins/sdd-review-loop
+do
+  shasum -a 256 "$DST/agents/task-reviewer-a.md" "$DST/agents/task-reviewer-b.md" "$DST/skills/task-review-loop/SKILL.md"
+done
+# Expected hashes at every location:
+#   d867fd530b83cca49c98ad9f38d872e64c6a94a7db9ed3f3e354a3e11a1011ac  agents/task-reviewer-a.md
+#   a50d54b5f6a22e050d1ffd47719946a2f9b3c3ecfeb5f58095929cfae053cc05  agents/task-reviewer-b.md
+#   fdae67b509d34ec76167304860ea955bb3679b5e0febf129dabca2bd15c41cf6  skills/task-review-loop/SKILL.md
+```
+
+Rollback: restore the pre-sync texts into the same locations (e.g.
+`git show 1dce9a8d^:<path>` from the worktree for each of the three
+files); the pre-sync hashes are the `ed4f264b…` / `f2bb5acf…` /
+`a79ae4e0…` values recorded above.
+
+### After cache sync (orchestrator runbook)
+
+1. Orchestrator re-verifies the 12 hashes read-only, then asks main to
+   relaunch the risk reviewer with the SAME identity (seq0342 — third
+   run; legality analysis:
+   `reports/notes/epic-189-a1-seq0342-nonacceptance.md`, Amendment
+   section) using the UNCHANGED v2 prompt
+   (`scratchpad/a1-task-reviewer-b-s342-a3r1-launch-v2.md` — its
+   Authority-note verification steps now agree with both the worktree
+   AND the installed persona, so the refusal ground disappears).
+2. Acceptance criterion is unchanged and verdict-independent: an
+   execution that follows the verified worktree role definition is
+   accepted whatever it finds.
