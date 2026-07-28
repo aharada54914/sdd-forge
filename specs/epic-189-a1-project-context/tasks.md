@@ -326,6 +326,8 @@ the same follow-up session. This blocker remains open until a human
 applies the patch; after application, complete the staged `test.yml` +
 MANIFEST items per HUMAN-APPLY-STEPS.md.
 
+Accepted-deviation record (decision-7 = A): specs/epic-189-a1-project-context/verification/T-001/sizing-accepted-deviation.md
+
 ---
 
 ## T-002 Author the canonicalizer (`canonicalize-sdd-yaml`)
