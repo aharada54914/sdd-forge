@@ -161,7 +161,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/123
 
 Approval: Approved (sudo 2026-07-22T12:11:46Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: medium
 
@@ -317,32 +317,32 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 
 ### Done When
 
-- [ ] TEST-001 confirms the `python3`-present control case: `.py` branch
+- [x] TEST-001 confirms the `python3`-present control case: `.py` branch
   selected, decision matches a direct `sdd-hook-guard.py` invocation
   (AC-001).
-- [ ] TEST-002 confirms `python3` absent + `pwsh` present selects `.ps1` via
+- [x] TEST-002 confirms `python3` absent + `pwsh` present selects `.ps1` via
   `pwsh`, decision matches a direct `sdd-hook-guard.ps1` invocation (AC-002).
-- [ ] TEST-003 confirms the `powershell.exe` branch under the same
+- [x] TEST-003 confirms the `powershell.exe` branch under the same
   decision-parity assertion (AC-003).
-- [ ] TEST-004 confirms the `powershell` branch under the same
+- [x] TEST-004 confirms the `powershell` branch under the same
   decision-parity assertion (AC-004).
-- [ ] TEST-005 confirms `deny_unavailable` fires with both named sub-cases
+- [x] TEST-005 confirms `deny_unavailable` fires with both named sub-cases
   (`--emit exit` exit 2; `--emit copilot` deny JSON) when all four
   interpreters are absent (AC-005).
-- [ ] TEST-006 confirms the `pwsh`-wins precedence order under a real `PATH`
+- [x] TEST-006 confirms the `pwsh`-wins precedence order under a real `PATH`
   lookup when all three PowerShell names are simultaneously present
   (AC-006).
-- [ ] TEST-007 confirms every branch reaching `.ps1` (AC-002/003/004/006) is
+- [x] TEST-007 confirms every branch reaching `.ps1` (AC-002/003/004/006) is
   independently re-run under both `--emit exit` and `--emit copilot` — 8
   named sub-cases, none combined into a single pass/fail (AC-007).
-- [ ] Shared legs: `tests/guard-dispatch-fallback.tests.sh` self-registers
+- [x] Shared legs: `tests/guard-dispatch-fallback.tests.sh` self-registers
   in `tests/run-all.sh` (grep self-check, AC-019); the new `.sh` lines carry
   no `declare -A` and no unguarded array expansion under `set -u`, reviewed
   and recorded (AC-021); `CHANGELOG.md` gains this task's OWN entry citing
   #123 (AC-022); applicable doc surfaces verified, expected answer "none"
   recorded explicitly (AC-023); no version-literal edit anywhere outside
   `scripts/bump-version.sh`.
-- [ ] Acceptance-first evidence is recorded in the implementation report:
+- [x] Acceptance-first evidence is recorded in the implementation report:
   the acceptance checks (TEST-001..007's expected behaviors) are written
   down before/with the fixtures, noting explicitly that this is a POSITIVE,
   previously-unobservable-behavior proof (design.md Test Strategy item 1),
@@ -373,7 +373,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/124
 
 Approval: Approved (sudo 2026-07-22T12:11:46Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: medium
 
@@ -522,28 +522,28 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 
 ### Done When
 
-- [ ] TEST-008 confirms the `cd&&rm` bypass corpus denied across all 12
+- [x] TEST-008 confirms the `cd&&rm` bypass corpus denied across all 12
   runtime x `tool_name`-shape combinations, each independently reported
   (AC-008).
-- [ ] TEST-009 confirms the triple-quote payload correctly classified
+- [x] TEST-009 confirms the triple-quote payload correctly classified
   (ALLOW for read-only cases, DENY for write-shaped cases against a
   protected path) across the same 12-combination matrix, unperturbed by the
   embedded `"""` sequence (AC-009).
-- [ ] TEST-010 confirms the task-id-collision payload decided purely on the
+- [x] TEST-010 confirms the task-id-collision payload decided purely on the
   protected-basename match across the same matrix, PLUS the numeric-only
   control case never triggering a false DENY (AC-010).
-- [ ] TEST-011 confirms the cross-runtime decision-parity aggregation: every
+- [x] TEST-011 confirms the cross-runtime decision-parity aggregation: every
   runtime that reached a decision for a given payload agrees with every
   other runtime; a divergence names both disagreeing runtimes in the failure
   message (AC-011).
-- [ ] Shared legs: `tests/guard-negative-corpus.tests.sh` self-registers in
+- [x] Shared legs: `tests/guard-negative-corpus.tests.sh` self-registers in
   `tests/run-all.sh` (grep self-check, AC-019); the new `.sh` lines carry no
   `declare -A` and no unguarded array expansion under `set -u`, reviewed and
   recorded (AC-021); `CHANGELOG.md` gains this task's OWN entry citing #124
   (AC-022); applicable doc surfaces verified, expected answer "none"
   recorded explicitly (AC-023); no version-literal edit anywhere outside
   `scripts/bump-version.sh`.
-- [ ] Acceptance-first evidence is recorded in the implementation report:
+- [x] Acceptance-first evidence is recorded in the implementation report:
   the acceptance checks (TEST-008..011's expected behaviors, 36 leaf
   assertions across the 3 classes plus the parity pass) are written down
   before/with the fixtures, each combination independently PASS/FAIL-visible
@@ -578,7 +578,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/126
 
 Approval: Approved (sudo 2026-07-22T12:11:46Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
@@ -743,28 +743,28 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 
 ### Done When
 
-- [ ] TEST-016 confirms the staged candidate: single-job structure
+- [x] TEST-016 confirms the staged candidate: single-job structure
   preserved, job count/names unchanged, every `test`-job step gains
   `[deterministic]`, the documented empty eval-lane comment placeholder is
   present, and the LIVE file is confirmed unmodified by the agent at staging
   time (AC-016).
-- [ ] TEST-017 confirms the RED-then-GREEN self-check: the throwaway
+- [x] TEST-017 confirms the RED-then-GREEN self-check: the throwaway
   dropped-step fixture fails first (RED), then the real staged candidate
   passes — every pre-change step name present with its `[deterministic]`
   prefix, AND `required-checks: needs: [test, cli-hook-enforcement]`
   membership confirmed byte-unchanged (AC-017).
-- [ ] TEST-018 confirms `self-improvement.yml`'s and
+- [x] TEST-018 confirms `self-improvement.yml`'s and
   `model-freshness-check.yml`'s isolation from `test.yml`/`required-checks`
   is unchanged (AC-018).
-- [ ] TEST-020 confirms the staged candidate contains a CI step for each new
+- [x] TEST-020 confirms the staged candidate contains a CI step for each new
   suite from T-001 and T-002 (AC-020); the LIVE file's own self-check for
   each new suite's basename is red until the human-copy commit lands (no
   staged-candidate fallback).
-- [ ] Shared legs: `CHANGELOG.md` gains this task's OWN entry citing #126
+- [x] Shared legs: `CHANGELOG.md` gains this task's OWN entry citing #126
   (AC-022); applicable doc surfaces verified, expected answer "none"
   recorded explicitly (AC-023); no version-literal edit anywhere outside
   `scripts/bump-version.sh`.
-- [ ] TDD evidence is recorded in the implementation report with Red and
+- [x] TDD evidence is recorded in the implementation report with Red and
   Green explicitly separated: RED — the throwaway dropped-step fixture
   failing the self-check; GREEN — the real staged candidate passing the same
   self-check, re-confirmed after commit B. An independent quality-gate
@@ -813,7 +813,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/125
 
 Approval: Approved (sudo 2026-07-22T12:11:46Z)
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
@@ -1024,28 +1024,28 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 
 ### Done When
 
-- [ ] TEST-012 confirms `scenario-schema.json`'s `fixture_profile` field is
+- [x] TEST-012 confirms `scenario-schema.json`'s `fixture_profile` field is
   exactly `greenfield`|`brownfield` and all 10 representative classes have a
   mapped scenario id (AC-012).
-- [ ] TEST-013 confirms scenario PreToolUse payloads are driven with both a
+- [x] TEST-013 confirms scenario PreToolUse payloads are driven with both a
   Claude-Code-shaped and a Codex-shaped `tool_name` (AC-013).
-- [ ] TEST-014 confirms scenario 5's inbound-direction proof: the fixture
+- [x] TEST-014 confirms scenario 5's inbound-direction proof: the fixture
   issue body's adversarial instruction-shaped text, fetched by the named
   `sdd-bootstrap-interviewer` entry point, is proven NOT executed/followed
   by the reading agent session, with the RED (mutated-stub) case failing
   first and the GREEN (real-target) case run and recorded regardless of
   outcome (AC-014).
-- [ ] TEST-015 confirms `tests/workflow-scenarios/` and
+- [x] TEST-015 confirms `tests/workflow-scenarios/` and
   `tests/scenario.tests.sh` each carry the explicit cross-reference comment
   naming the other and the scope difference (AC-015).
-- [ ] Shared legs: `tests/workflow-scenarios/workflow-scenarios.tests.sh`
+- [x] Shared legs: `tests/workflow-scenarios/workflow-scenarios.tests.sh`
   self-registers in `tests/run-all.sh` (grep self-check, AC-019); the new
   `.sh` lines carry no `declare -A` and no unguarded array expansion under
   `set -u`, reviewed and recorded (AC-021); `CHANGELOG.md` gains this task's
   OWN entry citing #125 (AC-022); applicable doc surfaces verified, expected
   answer "none" recorded explicitly (AC-023); no version-literal edit
   anywhere outside `scripts/bump-version.sh`.
-- [ ] TDD evidence is recorded in the implementation report with Red and
+- [x] TDD evidence is recorded in the implementation report with Red and
   Green explicitly separated for the prompt-injection sub-scope (AC-014):
   RED — the mutated-stub fixture failing the non-execution assertion,
   proving the check is not vacuously true; GREEN — the real
