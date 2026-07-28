@@ -71,6 +71,17 @@ emitting any FAIL finding. In particular:
 - Do not require live build, coverage, E2E, git, checkpoint, or learning
   workflows; require only planned, inspectable task evidence.
 
+Post-implementation provenance re-review convergence rule (TYPE-H checks
+only): when the orchestrator declares the invocation a post-implementation
+provenance re-review (see the task-review-loop skill) and a TYPE-H check
+would raise a NEW finding against content that is byte-identical - modulo
+human-authorized status/approval/pointer lines - to content already bound
+by a prior attempt's persisted task-review PASS evidence, record that
+check as `status: PASS` and carry the observation in the check's
+`finding` text as an advisory, citing the prior PASS evidence path
+(`reports/task-review/<feature>/attempt-<K>/round-<N>/`). Do NOT emit a
+`findings` entry for it. TYPE-D checks are unaffected by this rule.
+
 # Checks
 
 All checks default to FAIL. Emit PASS only when you can cite specific evidence
