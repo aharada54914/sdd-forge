@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.12.0 (2026-07-28)
+
 ### 追加
 
 - **sdd-hook-guard.sh の `.ps1` フォールバック分岐カバレッジ (Issue #123,
