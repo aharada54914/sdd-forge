@@ -94,6 +94,7 @@ flowchart TB
 | `mcp/sdd-forge-mcp/src/path-guard.ts` | new `listGuardedFilesWithDiagnostics`; existing `listGuardedFiles` refactored to a thin wrapper (byte-identical behavior, AC-006) | TypeScript | Existing (extended) | no |
 | `mcp/sdd-forge-mcp/src/parsers/report-lookup.ts` | new `anyFileContainingWithDiagnostics`; existing `anyFileContaining` refactored to a thin wrapper | TypeScript | Existing (extended) | no |
 | `mcp/sdd-forge-mcp/src/parsers/quality-report.ts`, `.../review-ticket.ts` | UNCHANGED — continue calling `listGuardedFiles` exactly as today (Non-goals; requirements.md AC-006) | TypeScript | Existing, untouched | no |
+| `mcp/sdd-forge-mcp/src/parsers/task-validation.ts` | UNCHANGED, but not a "Non-goal" like `quality-report.ts`/`review-ticket.ts` above — it is a live consumer: imports `anyFileContaining` directly (`task-validation.ts:7`) and calls it at `:163` (`const qgMatches = anyFileContaining(root, reportsDir, taskId);`) for `get_task_state`'s `validateDoneEvidence`/`done-quality-gate-report-missing` check — this is the 4th real production consumer of `anyFileContaining`, alongside the 3 consumers mediated through `report-lookup.ts`/`quality-report.ts`/`review-ticket.ts`; see API/Contract Plan `anyFileContaining` section and Test Strategy item 4 below for its consumer-inventory scope and verification path | TypeScript | Existing, untouched | no |
 | `contracts/sdd-forge-mcp-tools.v1.schema.json` | `traceabilityComparisonData`/`evidenceDeepVerifyData`/`evidenceMissingData` each gain one new `required` property | JSON Schema | Existing (extended, additive) | no — `.github/workflows/test.yml` is the only protected entry anywhere near this feature's file set, and this feature does not touch it |
 | `mcp/sdd-forge-mcp/dist/index.js` | rebuilt bundle (ADR-0003) | esbuild output | Existing (regenerated) | no |
 | `mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts`, `tests/tools/*`, and 1 new fixture for `listGuardedFilesWithDiagnostics` (design decision: co-located in `tests/path-security/`, matching that directory's existing scope) | golden/regression/contract-conformance coverage for all 4 new fields | node:test + ajv | Existing (extended) + 1 new file | no |
@@ -396,6 +397,37 @@ are UNCHANGED — they keep calling the existing `anyFileContaining` wrapper.
 calling `listGuardedFiles` directly, never
 `listGuardedFilesWithDiagnostics`).
 
+**Consumer inventory (BL-003) — `anyFileContaining` has 4 real production
+consumers, not 3.** (1)-(3) are the consumers mediated through
+`report-lookup.ts`'s own `hasAnyFileMentioning`/`hasQualityGateVerdictPass`
+helpers, which in turn back `quality-report.ts`/`review-ticket.ts`'s
+tool-level lookups (Components table above). (4) is
+`mcp/sdd-forge-mcp/src/parsers/task-validation.ts`, which imports
+`anyFileContaining` directly (`task-validation.ts:7`) and calls it directly
+at `task-validation.ts:163` (`const qgMatches = anyFileContaining(root,
+reportsDir, taskId);`) to feed `get_task_state`'s
+`validateDoneEvidence`/`done-quality-gate-report-missing` check —
+`task-validation.ts` additionally calls `hasAnyFileMentioning`
+(`task-validation.ts:80`) and `hasQualityGateVerdictPass`
+(`task-validation.ts:169`), so it depends on `anyFileContaining`'s
+byte-identical post-refactor behavior through 3 separate call paths, not
+just the one direct call. `evidence.ts`'s own doc comment (`evidence.ts:16-19`)
+documents an explicit intended PARITY between `evidenceFindMissing` (the
+exact function REQ-004 modifies, via `evidence.ts:217`) and
+`task-validation.ts`'s `validateDoneEvidence` — "its `missing` list is empty
+for exactly the tasks whose `Status: Done` transition `parseTaskState`
+already accepts."
+
+investigation.md INV-008's "exactly 3 production call sites, no fourth
+exists" is scoped to DIRECT `listGuardedFiles` callers only
+(`report-lookup.ts`, `quality-report.ts`, `review-ticket.ts` —
+re-verified: still exactly 3, `grep -rln "listGuardedFiles\b"
+mcp/sdd-forge-mcp/src` returns only those 3 plus `path-guard.ts` itself,
+the definition site). INV-008 does not count, and was never intended to
+count, `anyFileContaining` callers — `task-validation.ts` never imports
+`listGuardedFiles`. Test Strategy item 4 below names the concrete
+verification path for this 4th consumer.
+
 ### `evidence_find_missing` (REQ-004)
 
 ```ts
@@ -542,6 +574,28 @@ and `$schema` are unchanged — the contract stays `v1`.
    and re-running the EXISTING "no verification artifacts" fixture
    (`evidence.test.ts:275`) unmodified to confirm `undeterminable` stays
    `[]` there.
+
+   This same refactor (REQ-004) touches the SAME `anyFileContaining`
+   function `task-validation.ts:163` calls directly (API/Contract Plan
+   `anyFileContaining` section, 4th consumer). Verified two ways, both
+   already-existing regression coverage, neither requiring a new fixture:
+   (a) the 3 pre-existing suites that exercise `task-validation.ts` through
+   `parseTaskState` — `mcp/sdd-forge-mcp/tests/parser/done-state.test.ts`
+   (specifically its `done-quality-gate-report-missing` assertions, e.g.
+   `:167-168`), `mcp/sdd-forge-mcp/tests/golden/task-state-golden.test.ts`,
+   and `mcp/sdd-forge-mcp/tests/next-command/next-command.test.ts` — MUST
+   stay green, unmodified, through the `listGuardedFiles`/`anyFileContaining`
+   refactor; item 7's `npm test` already runs them, named here explicitly so
+   the Done condition is "these 3 named suites are checked," not "the full
+   suite happens to still pass." (b) the `evidenceFindMissing`/
+   `validateDoneEvidence` PARITY invariant `evidence.ts:16-19` documents in
+   prose is verified concretely, not just assumed from two suites passing
+   independently: TEST-007/TEST-008's own fixtures are additionally run
+   through BOTH `evidenceFindMissing` and `parseTaskState`, asserting that
+   for every fixture task, `taskId` appears in `evidenceFindMissing`'s
+   `missing` array if and only if `parseTaskState` reports a
+   `done-quality-gate-report-missing` failure for that same task — a direct,
+   automated check of the documented parity claim.
 5. TEST-009: extend
    `mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts`'s
    established pattern (real ajv `getEnvelopeValidator()`, `strict: true`)
@@ -686,7 +740,7 @@ land in the same commit (Global Constraints).
 
 | Requirement Constraint | Design Response |
 |---|---|
-| baseline preservation (BL-001..BL-006, requirements.md Constraints) | every new field is additive and computed alongside, never in place of, an existing computation; `verdict` (BL-005), `listGuardedFiles`'s signature (BL-003), and the allowlist/denylist (BL-006) are all byte-unchanged; TEST-004/TEST-006 are the direct regression proofs |
+| baseline preservation (BL-001..BL-006, requirements.md Constraints) | every new field is additive and computed alongside, never in place of, an existing computation; `verdict` (BL-005), `listGuardedFiles`/`anyFileContaining`'s signatures (BL-003), and the allowlist/denylist (BL-006) are all byte-unchanged; BL-003's consumer inventory is 4 real call sites, not 3 — `report-lookup.ts`/`quality-report.ts`/`review-ticket.ts` (mediated) plus `task-validation.ts`'s direct `anyFileContaining` call (API/Contract Plan `anyFileContaining` section) — TEST-004/TEST-006/TEST-007/TEST-008 plus the 3 named `task-validation.ts`-dependent suites and the `evidenceFindMissing`/`validateDoneEvidence` parity check (Test Strategy item 4) are the direct regression proofs, not TEST-004/TEST-006 alone |
 | read-only / no-exec (`evidence_deep_verify`, `evidence_compare_to_traceability`, `listGuardedFilesWithDiagnostics`) | no new `fs` write API, no `child_process`/`exec`/`spawn`, no new network call anywhere in this feature's diff |
 | additive v1 contract (REQ-005) | 3 `required` property additions, each with `additionalProperties: false` preserved on every new nested object; `$id`/`$schema` unchanged |
 | host-deferred signature/ancestry boundary (ADR-0008) | `hostRequiredChecks` reuses, never recomputes, the existing `verified: false` values; no new crypto or git subprocess call is added |
@@ -731,3 +785,16 @@ Decisions) never actually being filed as an issue once this feature ships —
 mitigated by requiring the implementation report to name it explicitly
 (mirroring `epic-136-phase3`'s own discipline of recording deferred scope
 decisions in the implementation report rather than only in the spec).
+Quaternary risk is the `anyFileContaining`/`listGuardedFiles` consumer
+inventory itself being undercounted — an earlier draft of this design named
+only 3 `anyFileContaining` consumers, omitting `task-validation.ts`'s direct
+call (`task-validation.ts:7,163`), a gap this design's own attempt-1
+round-1 review caught (security-spec.md STRIDE B4 treats a BL-003 behavior
+break as a Done-transition safety-signal Tampering risk) — mitigated by
+naming all 4 real consumers explicitly (Components table; API/Contract Plan
+`anyFileContaining` section) rather than relying on investigation.md
+INV-008's `listGuardedFiles`-scoped "exactly 3" count for a claim about
+`anyFileContaining`, and by Test Strategy item 4's explicit parity-invariant
+check between `evidenceFindMissing` and `validateDoneEvidence` rather than
+trusting two independently-passing suites to catch a divergence by
+coincidence.
