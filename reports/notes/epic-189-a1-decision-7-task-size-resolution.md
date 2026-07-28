@@ -51,3 +51,26 @@ task-reviewer-b (seq0339) が TASK-SIZE Major を T-001 に対して起票
 （9 spec .md + calibration + precheck + role別ファイルのみ)。よって addendum
 は manifest 束縛ではなく、orchestrator の launch プロンプトに逐語引用 +
 repo パス・sha256 を事実として記載する形で reviewer に提示する。
+
+## Amendment — 判断7 更新 = A′ (2026-07-29)
+
+**Decider**: human (repository owner), coordinator (main) 経由で伝達。
+
+A の実行が決定論ゲートに deny された: `task-review-precheck.sh:520-533` は
+round > 1 で前 round contract の `tasks_sha256` と現 tasks.md の一致を
+無条件 exit 1 とし、`--provenance-rereview` の例外分岐が存在しない
+（「tasks.md 無変更で round-2」は構造的に実行不可能)。迂回せず停止・
+エスカレートした結果、人間が **A′ を明示認可**:
+
+> frozen 例外として、tasks.md への **accepted-deviation 記録への1行
+> ポインタ追記のみ**を人間が明示認可。
+
+**スコープ（逐語で限定)**: 追記は次の1行のみ —
+`Accepted-deviation record (decision-7 = A): specs/epic-189-a1-project-context/verification/T-001/sizing-accepted-deviation.md`
+（T-001 Blockers prose 直下)。**意味内容・Approval/Status・タスク分解は
+不変**。これ以外の tasks.md 本文変更は本認可の対象外。
+
+**WFI 候補（最終フェーズ持ち越し)**: `task-review-precheck.sh` の
+round>1 unchanged-tasks check に `--provenance-rereview` 例外がない設計漏れ
+（provenance re-review の「frozen 無変更で re-bind」前提と矛盾)。
+`reports/notes/epic-189-a1-carryover-items.md` にも登録。
