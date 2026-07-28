@@ -656,15 +656,28 @@ checked at both generation and validation time).
 ### Canonicalization procedure (REQ-003, revised — closes M10/M11)
 
 1. Read file bytes; decode as UTF-8 (reject on decode error).
-2. Parse as YAML restricted to the 1.2 **core schema** resolver (no 1.1
-   `on`/`off`/`yes`/`no` → boolean coercion), **single-document only**
-   (reject a multi-document `---`-separated stream,
-   `MULTI_DOCUMENT_REJECTED`). Reject (non-zero exit, named
+2. Parse with the HAND-WRITTEN, stdlib-only restricted YAML-subset parser
+   (Design Decisions, revised 2026-07-24 — no third-party YAML library;
+   human decision-3 record:
+   `reports/notes/epic-189-a1-decision-3-yaml-parser.md`). Scalar
+   resolution over the ACCEPTED subset follows the YAML 1.2 **core
+   schema** (no 1.1 `on`/`off`/`yes`/`no` → boolean coercion);
+   **single-document only** (a `---`-separated stream producing more than
+   one document, `MULTI_DOCUMENT_REJECTED`). Reject (non-zero exit, named
    diagnostic) if the document contains an anchor, an alias, any tag other
    than the core-schema implicit tags, a mapping with a duplicate key at
    any nesting level (`DUPLICATE_KEY_REJECTED`), or a **non-string mapping
    key** (`NON_STRING_KEY_REJECTED` — YAML 1.2 core schema permits
-   integer/boolean scalar keys, which RFC 8785 JCS cannot represent).
+   integer/boolean scalar keys, which RFC 8785 JCS cannot represent). ANY
+   other construct outside the accepted subset (Design Decisions: the
+   subset's normative definition) — non-empty flow style, block scalars,
+   directives, explicit-key/merge-key syntax, a leading `---` marker on a
+   single document, tab indentation, an unquoted scalar beginning with a
+   reserved sigil — is rejected fail-closed with its own named category
+   (`UNSUPPORTED_SYNTAX_REJECTED`) and a quote-the-scalar hint where
+   applicable, NEVER best-effort interpreted (A3 precedent:
+   `docs/adr/0025-component-path-ownership-resolver-semantics.md`
+   Consequences).
 3. Walk the parsed structure; normalize every string scalar to Unicode NFC
    (`unicodedata.normalize("NFC", s)`), THEN re-check every mapping's keys
    for a **post-NFC duplicate-key collision** (two distinct source keys
@@ -1276,20 +1289,78 @@ both at their POST bytes, never one advanced without the other.
   spec-authoring session is preserved outside the repository for
   reintroduction once the impl-review gate passes and this document's
   header is updated accordingly by that later session.
-- New decision: whether `canonicalize-sdd-yaml`'s YAML parser is a
-  hand-rolled 1.2-core-schema parser or a widely available library
-  constrained to core-schema-only behavior (e.g. Python's `PyYAML` with
-  `yaml.BaseLoader`/`SafeLoader` plus an explicit anchor/alias/duplicate-key
-  post-check, since neither loader natively rejects duplicate keys or
-  anchors by default). Decided: use a standard library (`PyYAML` or
-  `ruamel.yaml`, confirmed available at a future implementation session) in
-  its strictest built-in mode, plus an explicit post-parse walk that rejects
-  any node the loader tags as an alias/anchor/non-core-tag or any mapping
-  with a duplicate key BEFORE trusting the parsed structure — never rely on
-  a loader flag alone without an independent structural check, since a
-  library's "safe" mode is not guaranteed to reject duplicate keys (PyYAML's
-  `SafeLoader` silently keeps the LAST occurrence of a duplicate key by
-  default).
+- Decision (REVISED 2026-07-24, resolves T-002's architecture Blocker;
+  human decision-3, verbatim「B で」, recorded in
+  `reports/notes/epic-189-a1-decision-3-yaml-parser.md`): whether
+  `canonicalize-sdd-yaml`'s YAML parser is a hand-written restricted-subset
+  parser or a third-party library. A prior draft of this decision chose
+  "a standard library (`PyYAML` or `ruamel.yaml`, confirmed available at a
+  future implementation session)"; that condition FAILED at the actual
+  implementation session (2026-07-22): neither module exists in the target
+  environment, this repository has never had a `requirements.txt`/
+  `pyproject.toml`/any Python packaging file, and every existing `.py`
+  under `plugins/`+`scripts/` imports stdlib only. Decided (option B):
+  implement a HAND-WRITTEN, stdlib-only, RESTRICTED YAML-SUBSET parser
+  inside `canonicalize-sdd-yaml.py` — no third-party YAML library, no
+  `requirements.txt`, no distribution/install-design change. This follows
+  the ALREADY-REVIEWED same-shape precedent in Epic A3
+  (`specs/epic-191-a3-path-ownership` T-001,
+  `plugins/sdd-quality-loop/scripts/resolve-component-paths.py`'s
+  "Minimal restricted YAML-subset parser", an impl-review/task-review
+  Passed package in the A3 worktree, and
+  `docs/adr/0025-component-path-ownership-resolver-semantics.md`
+  Consequences), which itself extends this repository's restricted-DSL
+  philosophy (ADR-0020) and the `check-contract.py` stdlib-only CI
+  precedent ("this repository's CI installs no Python packages for its
+  gate scripts").
+
+  **Accepted subset (normative)** — exactly what `project-context.yaml`,
+  `provider-bindings.yaml`, `sdd/approver-registry.yaml`, and the staged
+  approval JSON objects actually use, and nothing more:
+  - UTF-8, single document, no leading BOM, no document markers;
+  - block mappings (`key: value`; `key:` + indented child block) and
+    block sequences (`- item`; `- key: value` inline-mapping start),
+    nested arbitrarily; indentation is spaces-only;
+  - mapping keys: plain or quoted string scalars (a plain key resolving
+    to a non-string core-schema type is `NON_STRING_KEY_REJECTED`);
+  - scalars: plain, single-quoted (with `''` escaping), double-quoted
+    (JSON's escape set exactly, incl. `\uXXXX`); plain scalars resolve
+    per YAML 1.2 core schema to null/bool/int/float/string, with the
+    1.1-only tokens (`yes`/`no`/`on`/`off`) remaining strings (TEST-006);
+  - the empty flow collections `[]` and `{}` as complete values ONLY
+    (`contracts/project-context.template.yaml` uses `components: []`);
+  - full-line and space-preceded trailing `#` comments; blank lines.
+
+  **Everything else is out-of-subset and rejected fail-closed** with a
+  named, category-specific diagnostic — anchors/aliases/tags keep their
+  own existing categories (AC-005); duplicate keys
+  `DUPLICATE_KEY_REJECTED`; a multi-document stream
+  `MULTI_DOCUMENT_REJECTED`; every remaining construct (non-empty flow
+  style, block scalars `|`/`>`, `%` directives, `?` explicit keys, `<<`
+  merge keys, tab indentation, a leading `---`, unquoted
+  reserved-sigil-leading scalars) `UNSUPPORTED_SYNTAX_REJECTED` with a
+  quote-the-scalar hint where applicable — never a best-effort
+  interpretation (the exact silent-acceptance harm this task's Risk
+  Rationale and ADR-0019's Context name). `.inf`/`-.inf`/`.nan` and
+  out-of-double-range numbers keep their existing post-parse
+  `NUMBER_OUT_OF_RANGE_REJECTED` category (procedure step 4, unchanged).
+
+  **Both-runtime equivalence**: unchanged from M10 — there is exactly ONE
+  behavioral implementation (the Python parser); the bash-side and
+  PowerShell-side wrappers (`.sh`/`.ps1`/`.js`) are dispatch-only and
+  never re-parse YAML, so bash/jq-side and PowerShell-side behavior is
+  equivalent BY CONSTRUCTION, and TEST-009's multi-runtime hash-equality
+  + dispatch-target proof verifies it end-to-end.
+
+  **Difference from the A3 precedent, explicit**: A3's config loader
+  treats every scalar as a string (its consumers are glob patterns and
+  enum-like strings); A1's canonicalizer MUST resolve core-schema scalar
+  types (null/bool/int/float) because RFC 8785 JCS output is typed, and
+  additionally accepts the empty flow forms `[]`/`{}`. A1's parser is
+  therefore a sibling implementation with the same philosophy and
+  rejection posture, not a copy — and it is NOT shared code with A3's
+  (A3's file is a Passed, protected-track artifact in a different epic's
+  scope; this epic writes only its own `canonicalize-sdd-yaml.py`).
 - New decision: whether the four `generate-guard-invariants.py`-generated
   files need a FIFTH consumer (a `.py`/`.sh`/`.ps1` trio for the new
   `EPIC_A1_TARGETS` constant, analogous to `PHASE2_HUMAN_COPY_TARGETS`).
@@ -1529,7 +1600,7 @@ lower-risk rollback surface than the guard-invariants batch.
 | cross-cutting seed-list scaffold, single-source inventory (REQ-001, cross-epic addition, closes NEW-001) | `contracts/project-context.template.yaml` pre-populates `shared_paths` with the SIX canonical seed patterns — `specs/**`/`reports/**`/`docs/**`/`.github/**`/`tests/fixtures/**`/`CHANGELOG.md` — each `classification: cross-cutting`; this template is the ONE canonical inventory, read directly (never re-declared) by Epic A3's day-one fixture (AC-042) |
 | Provider name never appears in Project Context (REQ-001, REQ-002, ADR-0018) | `provider_binding_ids` is the ONLY cross-reference field; the schema has no `provider` field anywhere under `components[]` |
 | `provider-bindings.yaml` skeleton only, no `credentials`/`state_authority` vocabulary (REQ-002) | both fields typed `{"type": "object"}` with no nested schema — any object passes, nothing is validated beyond "is an object"; the new OPTIONAL `adapter_paths` field is a bare array-of-string, no glob interpretation in A1 |
-| YAML 1.2 core schema, single-document, anchor/tag/dup-key/non-string-key/post-NFC-collision/out-of-range-number rejected (REQ-003, revised M11) | explicit post-parse structural walk (Design Decisions, above), not a bare loader-flag reliance; each rejection category has its own diagnostic and exit code |
+| YAML 1.2 core schema, single-document, anchor/tag/dup-key/non-string-key/post-NFC-collision/out-of-range-number rejected (REQ-003, revised M11; parser decision revised 2026-07-24, human decision-3 = B) | hand-written stdlib-only restricted-subset parser (Design Decisions, above — A3/ADR-0025 precedent): anchor/alias/tag/dup-key/non-string-key rejection happens at parse time inside the parser itself (no third-party loader exists to mis-trust); post-NFC collision and number-range checks remain in the post-parse walk; out-of-subset syntax has its own explicit category (`UNSUPPORTED_SYNTAX_REJECTED`); each rejection category keeps its own diagnostic and exit code |
 | RFC 8785 JCS canonical JSON, ECMAScript-`Number` numeric form (REQ-003, revised — the "no exponent for integers" bespoke rule is retired) | deterministic key order, RFC-8785-correct numeric formatting (including exponents where JCS's own rule produces one), minimal string escaping — golden byte-sequence fixture asserts this directly |
 | single Python implementation + thin wrappers, NO PowerShell-native fallback (REQ-003, decision doc §18.3, revised M10) | `.sh`/`.ps1`/`.js` are dispatch-only (`python3`/`python` resolution ONLY), mirroring `sdd-hook-guard.sh:1-53`'s DISPATCH shape but NOT its native-`.ps1`-fallback shape (which does not apply — there is no native canonicalizer implementation to fall back to); no wrapper reimplements canonicalization |
 | HMAC preimage excludes `hmac` field itself, covers every other field (REQ-004, ADR-0019 v2.1, extended M9) | preimage construction operates on a field-excluded copy of the object, never the object with `hmac` present; AC-012's self-reference-exclusion test PLUS AC-036's golden-vector/per-field-mutation test are the executable proof |
