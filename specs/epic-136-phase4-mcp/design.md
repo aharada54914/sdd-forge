@@ -94,7 +94,7 @@ flowchart TB
 | `mcp/sdd-forge-mcp/src/path-guard.ts` | new `listGuardedFilesWithDiagnostics`; existing `listGuardedFiles` refactored to a thin wrapper (byte-identical behavior, AC-006) | TypeScript | Existing (extended) | no |
 | `mcp/sdd-forge-mcp/src/parsers/report-lookup.ts` | new `anyFileContainingWithDiagnostics`; existing `anyFileContaining` refactored to a thin wrapper | TypeScript | Existing (extended) | no |
 | `mcp/sdd-forge-mcp/src/parsers/quality-report.ts`, `.../review-ticket.ts` | UNCHANGED — continue calling `listGuardedFiles` exactly as today (Non-goals; requirements.md AC-006) | TypeScript | Existing, untouched | no |
-| `mcp/sdd-forge-mcp/src/parsers/task-validation.ts` | UNCHANGED, but not a "Non-goal" like `quality-report.ts`/`review-ticket.ts` above — it is a live consumer: imports `anyFileContaining` directly (`task-validation.ts:7`) and calls it at `:163` (`const qgMatches = anyFileContaining(root, reportsDir, taskId);`) for `get_task_state`'s `validateDoneEvidence`/`done-quality-gate-report-missing` check — this is the 4th real production consumer of `anyFileContaining`, alongside the 3 consumers mediated through `report-lookup.ts`/`quality-report.ts`/`review-ticket.ts`; see API/Contract Plan `anyFileContaining` section and Test Strategy item 4 below for its consumer-inventory scope and verification path | TypeScript | Existing, untouched | no |
+| `mcp/sdd-forge-mcp/src/parsers/task-validation.ts` | UNCHANGED, but not a "Non-goal" like `quality-report.ts`/`review-ticket.ts` above — it is a live consumer: imports `anyFileContaining` directly (`task-validation.ts:7`) and calls it at `:163` (`const qgMatches = anyFileContaining(root, reportsDir, taskId);`) for `get_task_state`'s `validateDoneEvidence`/`done-quality-gate-report-missing` check — it is one of exactly TWO direct `anyFileContaining` callers (the other is `evidence.ts:217`), and one of four modules that depend on the refactor across two call layers; see API/Contract Plan `anyFileContaining` section (Consumer inventory + Parity Impact) and Test Strategy item 4 below for the full inventory and verification path | TypeScript | Existing, untouched | no |
 | `contracts/sdd-forge-mcp-tools.v1.schema.json` | `traceabilityComparisonData`/`evidenceDeepVerifyData`/`evidenceMissingData` each gain one new `required` property | JSON Schema | Existing (extended, additive) | no — `.github/workflows/test.yml` is the only protected entry anywhere near this feature's file set, and this feature does not touch it |
 | `mcp/sdd-forge-mcp/dist/index.js` | rebuilt bundle (ADR-0003) | esbuild output | Existing (regenerated) | no |
 | `mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts`, `tests/tools/*`, and 1 new fixture for `listGuardedFilesWithDiagnostics` (design decision: co-located in `tests/path-security/`, matching that directory's existing scope) | golden/regression/contract-conformance coverage for all 4 new fields | node:test + ajv | Existing (extended) + 1 new file | no |
@@ -397,26 +397,65 @@ are UNCHANGED — they keep calling the existing `anyFileContaining` wrapper.
 calling `listGuardedFiles` directly, never
 `listGuardedFilesWithDiagnostics`).
 
-**Consumer inventory (BL-003) — `anyFileContaining` has 4 real production
-consumers, not 3.** (1)-(3) are the consumers mediated through
-`report-lookup.ts`'s own `hasAnyFileMentioning`/`hasQualityGateVerdictPass`
-helpers, which in turn back `quality-report.ts`/`review-ticket.ts`'s
-tool-level lookups (Components table above). (4) is
-`mcp/sdd-forge-mcp/src/parsers/task-validation.ts`, which imports
-`anyFileContaining` directly (`task-validation.ts:7`) and calls it directly
-at `task-validation.ts:163` (`const qgMatches = anyFileContaining(root,
-reportsDir, taskId);`) to feed `get_task_state`'s
-`validateDoneEvidence`/`done-quality-gate-report-missing` check —
-`task-validation.ts` additionally calls `hasAnyFileMentioning`
-(`task-validation.ts:80`) and `hasQualityGateVerdictPass`
-(`task-validation.ts:169`), so it depends on `anyFileContaining`'s
-byte-identical post-refactor behavior through 3 separate call paths, not
-just the one direct call. `evidence.ts`'s own doc comment (`evidence.ts:16-19`)
-documents an explicit intended PARITY between `evidenceFindMissing` (the
-exact function REQ-004 modifies, via `evidence.ts:217`) and
-`task-validation.ts`'s `validateDoneEvidence` — "its `missing` list is empty
-for exactly the tasks whose `Status: Done` transition `parseTaskState`
-already accepts."
+**Consumer inventory (BL-003) — the refactor is depended on by FOUR modules
+across TWO distinct call layers.** The two layers must not be conflated: a
+module reaches the refactored code either by calling `listGuardedFiles`
+directly, or by calling one of `report-lookup.ts`'s helpers (which is where
+`listGuardedFiles` is called on its behalf).
+
+Layer 1 — direct `listGuardedFiles` callers (exactly 3, matching INV-008;
+re-verified by `grep -rn "listGuardedFiles" mcp/sdd-forge-mcp/src`):
+
+1. `report-lookup.ts` — inside `anyFileContaining`, `hasAnyFileMentioning`
+   and `hasQualityGateVerdictPass`.
+2. `parsers/quality-report.ts:132` — `listQualityReports` iterates
+   `listGuardedFiles(root, relDir)` directly. It does **not** import or call
+   `anyFileContaining` or either sibling helper (`quality-report.ts:18`
+   imports only `guardedRead, listGuardedFiles`).
+3. `parsers/review-ticket.ts:160` — `listReviewTickets`, same shape and the
+   same import set (`review-ticket.ts:16`).
+
+Layer 2 — `report-lookup.ts` helper callers (exactly 2 modules):
+
+4. `tools/evidence.ts:217` — `evidenceFindMissing` calls
+   `anyFileContaining`, and `:218` calls `hasQualityGateVerdictPass`. This
+   is the exact function REQ-004 modifies.
+5. `parsers/task-validation.ts` — imports all three helpers at `:7` and
+   calls `anyFileContaining` at `:163`, `hasAnyFileMentioning` at `:80`, and
+   `hasQualityGateVerdictPass` at `:169`, feeding `get_task_state`'s
+   `validateDoneEvidence`/`done-quality-gate-report-missing` check.
+
+So `anyFileContaining` itself has exactly TWO direct callers
+(`evidence.ts:217`, `task-validation.ts:163`), and four modules in total
+depend on the refactored behavior. `task-validation.ts` is the consumer
+investigation.md did not surface, because INV-008 counted only Layer 1.
+
+investigation.md INV-008's "exactly 3 production call sites, no fourth
+exists" is therefore correct as written and needs no correction: it is a
+statement about Layer 1 only.
+
+**Parity Impact of REQ-004 (deliberate; state it, do not test the old form).**
+`evidence.ts`'s doc comment (`evidence.ts:16-19`) documents an intended
+parity between `evidenceFindMissing` and `task-validation.ts`'s
+`validateDoneEvidence` — "its `missing` list is empty for exactly the tasks
+whose `Status: Done` transition `parseTaskState` already accepts." Before
+this feature, a `reports/quality-gate` directory-scan failure made
+`anyFileContaining` return `[]`, so BOTH sides treated "unreadable" as
+"absent": the task landed in `missing` AND `validateDoneEvidence` failed
+`done-quality-gate-report-missing`. That conflation is exactly what issue
+#132 reports. After this feature, `evidenceFindMissing` routes a scan
+failure to `undeterminable` instead of `missing`, while
+`task-validation.ts` is intentionally left unchanged (BL-003: the wrapper
+keeps byte-identical behavior) and therefore still reports
+`done-quality-gate-report-missing` for that same task.
+
+The post-change invariant is therefore over the UNION, not over `missing`
+alone: a task appears in `missing ∪ undeterminable` if and only if
+`parseTaskState` reports `done-quality-gate-report-missing` for it.
+Restricted to the scan-succeeded case, `undeterminable` is empty and the
+original `missing`-only parity still holds exactly. Propagating the
+undeterminable distinction into `get_task_state` is an explicit Non-goal
+(requirements.md Non-goals) and a follow-on-issue candidate.
 
 investigation.md INV-008's "exactly 3 production call sites, no fourth
 exists" is scoped to DIRECT `listGuardedFiles` callers only
@@ -590,12 +629,24 @@ and `$schema` are unchanged — the contract stays `v1`.
    suite happens to still pass." (b) the `evidenceFindMissing`/
    `validateDoneEvidence` PARITY invariant `evidence.ts:16-19` documents in
    prose is verified concretely, not just assumed from two suites passing
-   independently: TEST-007/TEST-008's own fixtures are additionally run
-   through BOTH `evidenceFindMissing` and `parseTaskState`, asserting that
-   for every fixture task, `taskId` appears in `evidenceFindMissing`'s
-   `missing` array if and only if `parseTaskState` reports a
-   `done-quality-gate-report-missing` failure for that same task — a direct,
-   automated check of the documented parity claim.
+   independently. The assertion must be written in the POST-REQ-004 form
+   (see "Parity Impact of REQ-004" in the API/Contract Plan): TEST-007/
+   TEST-008's own fixtures are additionally run through BOTH
+   `evidenceFindMissing` and `parseTaskState`, asserting that for every
+   fixture task, `taskId` appears in the UNION of `missing` and
+   `undeterminable` if and only if `parseTaskState` reports a
+   `done-quality-gate-report-missing` failure for that same task.
+   Writing this assertion over `missing` alone would be unsatisfiable by
+   construction: TEST-007's fixture is a directory-scan failure, which
+   REQ-004 deliberately routes to `undeterminable` while the unchanged
+   `task-validation.ts` still reports the failure — so the `missing`-only
+   form is false for that fixture no matter how the code is written. The
+   test must additionally pin the asymmetry itself, so a future change
+   cannot silently erase it: for TEST-007's scan-failure fixture, assert
+   `taskId` is in `undeterminable`, is NOT in `missing`, and that
+   `parseTaskState` still reports `done-quality-gate-report-missing`.
+   Restricted to scan-succeeded fixtures (TEST-008), `undeterminable` is
+   empty and the assertion reduces to the original `missing`-only parity.
 5. TEST-009: extend
    `mcp/sdd-forge-mcp/tests/tools/deep-verify-contract-conformance.test.ts`'s
    established pattern (real ajv `getEnvelopeValidator()`, `strict: true`)
@@ -740,7 +791,7 @@ land in the same commit (Global Constraints).
 
 | Requirement Constraint | Design Response |
 |---|---|
-| baseline preservation (BL-001..BL-006, requirements.md Constraints) | every new field is additive and computed alongside, never in place of, an existing computation; `verdict` (BL-005), `listGuardedFiles`/`anyFileContaining`'s signatures (BL-003), and the allowlist/denylist (BL-006) are all byte-unchanged; BL-003's consumer inventory is 4 real call sites, not 3 — `report-lookup.ts`/`quality-report.ts`/`review-ticket.ts` (mediated) plus `task-validation.ts`'s direct `anyFileContaining` call (API/Contract Plan `anyFileContaining` section) — TEST-004/TEST-006/TEST-007/TEST-008 plus the 3 named `task-validation.ts`-dependent suites and the `evidenceFindMissing`/`validateDoneEvidence` parity check (Test Strategy item 4) are the direct regression proofs, not TEST-004/TEST-006 alone |
+| baseline preservation (BL-001..BL-006, requirements.md Constraints) | every new field is additive and computed alongside, never in place of, an existing computation; `verdict` (BL-005), `listGuardedFiles`/`anyFileContaining`'s signatures (BL-003), and the allowlist/denylist (BL-006) are all byte-unchanged; BL-003's dependent-module inventory spans two call layers — Layer 1, the 3 direct `listGuardedFiles` callers `report-lookup.ts`/`quality-report.ts`/`review-ticket.ts` (INV-008's count, correct as written); Layer 2, the 2 `report-lookup.ts`-helper callers `evidence.ts` and `task-validation.ts` (so `anyFileContaining` has exactly 2 direct callers, and 4 modules depend on the refactor overall) — see API/Contract Plan `anyFileContaining` section; TEST-004/TEST-006/TEST-007/TEST-008 plus the 3 named `task-validation.ts`-dependent suites and the union-form `evidenceFindMissing`/`validateDoneEvidence` parity check (Test Strategy item 4) are the direct regression proofs, not TEST-004/TEST-006 alone |
 | read-only / no-exec (`evidence_deep_verify`, `evidence_compare_to_traceability`, `listGuardedFilesWithDiagnostics`) | no new `fs` write API, no `child_process`/`exec`/`spawn`, no new network call anywhere in this feature's diff |
 | additive v1 contract (REQ-005) | 3 `required` property additions, each with `additionalProperties: false` preserved on every new nested object; `$id`/`$schema` unchanged |
 | host-deferred signature/ancestry boundary (ADR-0008) | `hostRequiredChecks` reuses, never recomputes, the existing `verified: false` values; no new crypto or git subprocess call is added |
