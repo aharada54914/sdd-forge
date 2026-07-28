@@ -167,3 +167,73 @@ Known, accepted residual behavior (fail-closed by design, not regressions):
 - Prose whose token ends EXACTLY with a bare protected path (no trailing
   punctuation, no quoting/backticks) still enters the deeper write-target
   analysis and can be denied when the surrounding command is unmodelable.
+
+## WFI-018 — task-review provenance re-review TYPE-H convergence rule (patch for human application)
+
+Prepared 2026-07-29 per human decision-8 = C
+(`reports/notes/epic-189-a1-decision-8-wfi-convergence.md`; WFI document:
+`docs/workflow-improvements/WFI-018.md`). The three target files are all
+R-10 protected, so the change is recorded here for direct human
+application, same convention as the guard fix above.
+
+**Patch**:
+`reports/implementation/epic-189-a1-project-context/wfi-018-provenance-convergence.patch`
+(unified diff, three files, instruction paragraphs only; verified with
+`git apply --check` against this worktree at preparation time; patch file
+sha256 `6514b464361c04a7bfaea2d20e342216d9398b76333e425fb2c4347f5517b733`).
+
+What it changes (identical rule, per-document field names):
+
+1. `plugins/sdd-review-loop/agents/task-reviewer-a.md` — Finding
+   Calibration gains the TYPE-H convergence rule (`status: PASS` +
+   advisory-in-finding-text for NEW TYPE-H findings against byte-identical
+   previously-passed content in a declared provenance re-review; no
+   `findings` entry; TYPE-D unaffected).
+2. `plugins/sdd-review-loop/agents/task-reviewer-b.md` — same rule with
+   `result: PASS`.
+3. `plugins/sdd-review-loop/skills/task-review-loop/SKILL.md` — same rule
+   in the Post-Implementation Provenance Re-Review section (inserted
+   before "Controlled re-binding boundary"), with the non-convergence
+   rationale.
+
+### Apply procedure (WFI-018)
+
+1. From the repo root, re-verify then apply:
+   `git apply --check reports/implementation/epic-189-a1-project-context/wfi-018-provenance-convergence.patch`,
+   then the same command without `--check`.
+2. Verify post-apply SHA-256 of the three files matches EXACTLY:
+   - `d867fd530b83cca49c98ad9f38d872e64c6a94a7db9ed3f3e354a3e11a1011ac`
+     `plugins/sdd-review-loop/agents/task-reviewer-a.md`
+   - `a50d54b5f6a22e050d1ffd47719946a2f9b3c3ecfeb5f58095929cfae053cc05`
+     `plugins/sdd-review-loop/agents/task-reviewer-b.md`
+   - `fdae67b509d34ec76167304860ea955bb3679b5e0febf129dabca2bd15c41cf6`
+     `plugins/sdd-review-loop/skills/task-review-loop/SKILL.md`
+   (pre-apply live hashes, for reference/rollback: `ed4f264b…`,
+   `f2bb5acf…`, `a79ae4e0…`.)
+3. Commit the three files (human commit, message suggestion:
+   `fix(review-loop): WFI-018 provenance re-review TYPE-H convergence rule`
+   — record the three post-apply hashes in the commit body).
+4. No test suite covers these instruction documents; the behavioral
+   verification is WFI-018.md's Verification Plan (task-review attempt-3
+   round-1, run by the epic-189 orchestrator).
+5. RECOMMENDED same touchpoint: re-issue SDD_SUDO in this worktree
+   (`/sdd-sudo`) — the previous grant expired 2026-07-23T14:12:55Z and is
+   required for restarting T-002 implementation after task-review goes
+   green.
+
+### After application (orchestrator runbook, epic-189-a1)
+
+1. Orchestrator re-verifies the three post-apply hashes, then runs
+   `bash plugins/sdd-review-loop/scripts/task-review-precheck.sh epic-189-a1-project-context 3 1 --provenance-rereview`
+   (round 1 — the round>1 unchanged-tasks check does not fire).
+2. Reserves fresh identities (next ledger sequences) for the two task
+   reviewers, regenerates both launch prompts from the AMENDED role files
+   (verbatim re-quote — not the pre-WFI text), and hands them to main for
+   launch, reviewer-a first, reviewer-b after the round summary exists.
+3. Expected per WFI-018 Verification Plan: merged PASS, contract persisted,
+   `check-workflow-state.sh --feature epic-189-a1-project-context` exit 0.
+   Then T-002 implementation restarts (requires the SDD_SUDO re-issue
+   above).
+4. If a NEW TYPE-H FAIL still appears against unchanged content, the
+   orchestrator halts with no further rounds and returns to human
+   decision.
