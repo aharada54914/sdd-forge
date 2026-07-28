@@ -260,6 +260,8 @@ Commit B (documentation):
 
 ### Blockers
 
+None
+
 BLOCKED (2026-07-22, implementation session): every Done-When item this
 task can perform directly is complete and independently verified
 (`contracts/project-context.schema.json`,
@@ -455,7 +457,9 @@ canonicalizer's addition.
 
 ### Blockers
 
-T-001 (satisfied — its shared-file edits to `tests/run-all.sh`/`.ps1`
+T-001
+
+(satisfied — its shared-file edits to `tests/run-all.sh`/`.ps1`
 landed in commit `4bd2ec3`).
 
 BLOCKED (2026-07-22, implementation session, before any code was
@@ -736,7 +740,9 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 ### Blockers
 
-T-003 (documentation-only dependency for shared-file numeric-order
+T-003
+
+(documentation-only dependency for shared-file numeric-order
 serialization; not a real conflict here since T-002/T-003 are themselves
 blocked pre-code and have contributed no lines to `tests/run-all.sh`/
 `.ps1` yet).
