@@ -526,6 +526,23 @@ function Test-IsProtectedGateFile {
     param([string]$FilePath)
     if ([string]::IsNullOrEmpty($FilePath)) { return $false }
     $normalized = (Normalize-PosixPath ($FilePath -replace "\\", "/")).ToLower()
+    # Staging exemption: a path still carrying the specs/<feature>/human-copy/
+    # prefix after normalization cannot reach a live enforcement-chain file
+    # (any ..-traversal has already been collapsed), so a staging candidate is
+    # writable -- unless a registered suffix itself names a human-copy path
+    # (e.g. the phase2 publisher script), which stays protected.
+    if ([regex]::IsMatch($normalized, '(?:^|/)specs/[^/]+/human-copy/')) {
+        foreach ($suffix in $ProtectedGateSuffixes) {
+            $sl = $suffix.ToLower()
+            if ($sl.Contains("/human-copy/") -and $normalized.EndsWith($sl)) { return $true }
+        }
+        foreach ($suffix in $ProtectedGatePluginJsonSuffixes) {
+            $sl = $suffix.ToLower()
+            if ($sl.Contains("/human-copy/") -and
+                ($normalized.EndsWith($sl) -or $normalized.EndsWith($sl.TrimStart("/")))) { return $true }
+        }
+        return $false
+    }
     foreach ($suffix in $ProtectedGateSuffixes) {
         if ($normalized.EndsWith($suffix.ToLower())) { return $true }
     }
@@ -845,9 +862,44 @@ function Test-ShellCwdWriteHitsProtected {
     return $false
 }
 
+function Test-CommandReferencesProtectedPath {
+    # R-10 pre-filter: True when a protected path appears as a shell TOKEN
+    # (a path-shaped word, or a redirect token's target), not merely as a
+    # substring of the raw command text. Prose inside a quoted argument --
+    # e.g. a commit message that mentions a protected filename mid-sentence --
+    # no longer trips the filter, because the quoted argument is one token
+    # whose full text does not END with the protected suffix. Falls back to
+    # the raw substring scan when the tokenizer cannot model the command
+    # (fail closed).
+    param([string]$Cmd)
+    $res = Tokenize-ShellCommand $Cmd
+    if ($null -eq $res) {
+        $cmdLower = $Cmd.ToLower()
+        foreach ($s in $ProtectedGateSuffixes) {
+            if ($cmdLower.Contains($s.ToLower())) { return $true }
+        }
+        foreach ($s in $ProtectedGatePluginJsonSuffixes) {
+            $sl = $s.ToLower()
+            if ($cmdLower.Contains($sl) -or $cmdLower.Contains($sl.TrimStart("/"))) { return $true }
+        }
+        return $false
+    }
+    foreach ($t in $res.Tokens) {
+        if ($t[0] -ne "word") { continue }
+        $candidate = [string]$t[1]
+        if ($candidate.Contains(">")) {
+            $m = [regex]::Match($candidate, $ShellRedirectTokenRe)
+            if ($m.Success -and $m.Groups[2].Value) { $candidate = $m.Groups[2].Value }
+        }
+        if (Test-IsProtectedGateFile $candidate) { return $true }
+    }
+    return $false
+}
+
 function Test-ShellTargetsProtectedGateFile {
-    # R-10: Deny shell commands that WRITE to protected gate files. Substring scan
-    # (path appears literally in command) combined with write-target analysis
+    # R-10: Deny shell commands that WRITE to protected gate files. Token-based
+    # pre-filter (a protected path appears as a shell token or redirect target)
+    # combined with write-target analysis
     # (issue #62): a write verb/redirect elsewhere no longer denies read-only
     # access to a protected path. Read-only short-circuit fires only when: no
     # compound operators, command starts with a read-only verb, and no write
@@ -859,17 +911,7 @@ function Test-ShellTargetsProtectedGateFile {
     # the full protected path literally. Read-only segments never hit, so this is
     # checked before the read-only short-circuit below.
     if (Test-ShellCwdWriteHitsProtected $Cmd) { return $true }
-    $cmdLower = $Cmd.ToLower()
-    $hasProtectedPath = $false
-    foreach ($s in $ProtectedGateSuffixes) {
-        if ($cmdLower.Contains($s.ToLower())) { $hasProtectedPath = $true; break }
-    }
-    if (-not $hasProtectedPath) {
-        foreach ($s in $ProtectedGatePluginJsonSuffixes) {
-            $sl = $s.ToLower()
-            if ($cmdLower.Contains($sl) -or $cmdLower.Contains($sl.TrimStart("/"))) { $hasProtectedPath = $true; break }
-        }
-    }
+    $hasProtectedPath = Test-CommandReferencesProtectedPath $Cmd
     if (-not $hasProtectedPath) { return $false }
     $hasWrite = [regex]::IsMatch($Cmd, $ShellSudoWriteRe, [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $hasCompound = [regex]::IsMatch($Cmd, $ShellCompoundRe)
