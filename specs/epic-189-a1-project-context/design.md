@@ -1,6 +1,6 @@
 # Design: epic-189-a1-project-context
 
-Impl-Review-Status: Passed
+Impl-Review-Status: Pending
 Feature Type: schema + security-infrastructure (canonicalization, HMAC
 approval sidecar, protected-file registration, hook-guard extension,
 track-selection contract migration) — no UI, no new plugin, no Provider
