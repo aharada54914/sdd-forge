@@ -12,7 +12,7 @@ Source Issues:
   `listGuardedFilesWithDiagnostics` function)
 Epic: https://github.com/aharada54914/sdd-forge/issues/136 (Phase 4)
 
-Investigation: specs/epic-136-phase4-mcp/investigation.md (INV-001..INV-022,
+Investigation: specs/epic-136-phase4-mcp/investigation.md (INV-001..INV-023,
 one investigation-native Open Question). No baseline-behavior.md — this
 feature is additive: every new field is computed alongside, never in place
 of, an existing field, and every existing response shape's currently-tested
@@ -37,7 +37,25 @@ indistinguishable from a genuinely empty, successfully-read directory
 response (`evidence_find_missing`) where the ambiguity currently gets folded
 into an existing Done-transition signal (INV-009). Every change is additive
 to the v1 MCP tool-response contract (`contracts/sdd-forge-mcp-tools.v1.schema.json`)
-— no tool is removed, renamed, or given a breaking response shape.
+— no tool is removed or renamed, and every new field is computed alongside,
+never in place of, an existing field. This additivity is NOT the same as
+"no strict validator will ever reject a changed response": the 3 touched
+objects (`traceabilityComparisonData`, `evidenceDeepVerifyData`,
+`evidenceMissingData`) all declare `additionalProperties: false`, and
+REQ-005 deliberately makes the 3 new fields `required`, not `optional` (see
+BL-004) — so a caller that already validates strictly against the
+PRE-change schema will reject a POST-change response for missing a field it
+does not know about yet. This is intentional (BL-004: forcing every
+schema-strict consumer to notice the new field exists, rather than letting
+it silently keep reading only `mismatches.length`/`failures.length` as if
+nothing changed) and is judged acceptable specifically because
+`sdd-forge-mcp` has no independently-versioned external consumer to strand
+— it is `private`, unpublished, and distributed only as this repository's
+own committed `dist/`, verified byte-identical to its `src/` and schema
+origin within a single commit by CI (Assumptions; investigation.md
+INV-023). No tool is renamed or removed, and no tool's response is given a
+shape that a NEWLY-written validator against the POST-change schema would
+reject.
 
 ## Target Users
 
@@ -110,10 +128,15 @@ to the v1 MCP tool-response contract (`contracts/sdd-forge-mcp-tools.v1.schema.j
   re-surfacing the git-commit-ancestry and signature-verification
   host-deferral caveats that already exist nested in `invariants.gitCommit`
   and `signature` (unchanged, still present, for backward compatibility);
-  the field's schema description documents the policy issue #131 asks for
-  ("critical は host 側通過を必須とする方針") as text, not as new
+  the field's schema `description` property documents the policy issue #131
+  asks for ("critical は host 側通過を必須とする方針") as text, not as new
   enforcement code — `evidence_deep_verify` remains read-only/no-exec
-  (BL-002) and its `verdict` formula is byte-unchanged (OQ-4).
+  (BL-002) and its `verdict` formula is byte-unchanged (OQ-4). The exact
+  literal text this `description` property must contain is CONFIRMED, not
+  left for a task author to invent, in Field Definitions below
+  (`hostRequiredChecks`); AC-016/TEST-016 verifies the schema file's actual
+  `description` value contains it, by direct file read, not by a
+  text-marker proxy for behavior.
 - REQ-003 (issue #132 / Finding B-12; investigation.md INV-007, INV-012):
   `path-guard.ts` gains a new function `listGuardedFilesWithDiagnostics(root,
   relDir): { files: string[]; errors: GuardedListError[] }` that reports
@@ -295,7 +318,12 @@ traceability table.
   suite asserting these 3 tools' response shapes) is updated to assert the
   new field and continues to pass. (REQ-007)
 - AC-013: `CHANGELOG.md`'s `## Unreleased` contains 2 independent entries,
-  one citing `#131` and one citing `#132`. (REQ-008)
+  one citing `#131` and one citing `#132`; each entry frames its change as
+  additive AND accompanied by a same-repository, same-commit schema update
+  (the 3 new `required` fields in `contracts/sdd-forge-mcp-tools.v1.schema.json`)
+  — matching the Overview's corrected framing (Assumptions; investigation.md
+  INV-023), never as an unconditional "fully backward compatible" claim,
+  and never inventing its own compatibility characterization. (REQ-008)
 - AC-014: `USERGUIDE.md`'s `evidence_find_missing`/
   `evidence_compare_to_traceability`/`evidence_deep_verify` rows
   (`USERGUIDE.md:96,98,99`) are updated to mention the new distinguishing
@@ -313,6 +341,35 @@ traceability table.
   at implementation time, not assumed from investigation.md INV-018's
   authoring-time snapshot (WFI-013 discipline); no human-copy staging is
   used for any of them.
+- AC-016: `evidenceDeepVerifyData`'s `hostRequiredChecks` property, in
+  `contracts/sdd-forge-mcp-tools.v1.schema.json`'s actual `description`
+  value, contains the CONFIRMED literal policy text recorded in Field
+  Definitions below (the git-commit-ancestry/signature-verification
+  host-deferral statement plus the "critical tasks require host-side
+  verification" policy sentence), verbatim — verified by reading the schema
+  file directly and asserting the literal string is present; a response
+  missing/paraphrasing this text fails the check. This directly closes the
+  gap AC-003/TEST-003 (structure only) and AC-009/TEST-009 (required/
+  additionalProperties structure only) leave open: neither verifies
+  `description` CONTENT. (REQ-002)
+- AC-017: for a feature with a task present in `knownTaskIds` (from
+  `tasks.md`) that is NOT `Done` and has no `contract.json` yet,
+  `evidence_compare_to_traceability`'s response still names that task in
+  `unreadableContracts` with its `parseVerificationContract` failure reason
+  — the field is not filtered to Done tasks only. Exercised by a fixture
+  distinct from AC-001's (which is scoped to "a Done task"), containing at
+  least one non-Done, contract-less task. (REQ-001)
+- AC-018: `evidenceDeepVerify`'s `hostRequiredChecks` array is present with
+  exactly 2 entries, each `verified: false` with a non-empty `note`, for (a)
+  a bundle fixture with no `signature` block at all (`signature.present:
+  false`) and (b) a bundle fixture whose `git_commit` value is not 40-hex
+  (`gitCommit.shapeValid: false`) — in both sub-cases `hostRequiredChecks`'
+  presence/length is unconditional, and each entry's `note` text reflects
+  the corresponding `signature.note`/`gitCommit.reason` value actually
+  computed for that specific fixture (equality-asserted against the
+  fixture's own `invariants.gitCommit.reason`/`signature.note`, not a fixed
+  placeholder string). Exercised by fixtures distinct from AC-003's
+  pass-verdict/fail-verdict pair, which pins neither sub-condition. (REQ-002)
 
 ## Field Definitions
 
@@ -332,7 +389,37 @@ traceability table.
   `verified: false` by construction (these are, by definition, the checks
   this tool never performs in-process — ADR-0008). `note` reuses the
   EXISTING computed `gitCommit.reason`/`signature.note` strings verbatim
-  (DRY — no new string literal duplicating an existing one).
+  (DRY — no new string literal duplicating an existing one). The
+  `hostRequiredChecks` PROPERTY's own schema `description` (i.e.
+  `$defs.evidenceDeepVerifyData.properties.hostRequiredChecks.description`
+  in `contracts/sdd-forge-mcp-tools.v1.schema.json`) is CONFIRMED, verbatim,
+  as the following literal string (copy-paste this exact text into the
+  property's `description` value — matches this schema file's existing
+  no-markdown, plain-identifier description convention, e.g.
+  `evidenceDeepVerifyData`'s own top-level `description`; derived losslessly
+  from design.md's API/Contract Plan quote for this field, with markdown
+  backticks stripped for JSON-string compatibility, content unchanged):
+
+  > Checks this tool cannot verify in-process: git commit ancestry and the
+  > evidence bundle signature. Always exactly 2 entries, each with verified:
+  > false. Promoted from the nested invariants.gitCommit and signature
+  > fields (both unchanged, still present) to make the host-deferred
+  > boundary visible at the top level. Policy: for risk: critical tasks,
+  > both checks MUST be separately confirmed via host-side verification (a
+  > real git ancestry check and a real signature verification) before this
+  > bundle's evidence is treated as fully trustworthy for a Done
+  > transition. This tool does NOT enforce that policy — it is read-only
+  > and performs no signature verification or git subprocess call
+  > (ADR-0008); enforcement is a host-script/release-gate responsibility
+  > outside this tool. Never affects verdict.
+
+  AC-016/TEST-016 verifies this exact string is present in the actual
+  schema file, by direct file read and literal string-containment
+  assertion — never a text-marker/substring proxy standing in for tested
+  behavior (this is a check of the schema's own documentation content, not
+  of runtime behavior, so a literal string-containment assertion IS the
+  correct check here, unlike AC-009's structural required/
+  additionalProperties conformance, which must use the real ajv validator).
 - `undeterminable` (REQ-004) — `string[]` on `evidenceMissingData`, using
   the SAME requirement-name vocabulary as `required`/`present`/`missing`
   (i.e., `"quality-gate-report-pass"` today; extensible to future
@@ -353,7 +440,12 @@ traceability table.
   major version (`v1`) stay the same, since implementation and schema are a
   single monorepo-nested package that deploys atomically (never independent
   versioning), unlike a public API where old clients could be stranded by a
-  new required field (Constraints).
+  new required field (Constraints). This deploys-atomically claim is not
+  asserted without evidence: `sdd-forge-mcp` is `private: true`, unpublished
+  to the public npm registry, and distributed only via this repository's own
+  committed `dist/` (investigation.md INV-023, Assumptions below) — there is
+  no independently-versioned external consumer this `required`-not-optional
+  choice could strand.
 
 ## Roles and Permissions
 
@@ -411,7 +503,9 @@ traceability table.
   — the field reports "could not be cross-checked," not "should have had a
   contract by now"; a caller wanting to filter to only Done tasks does so
   itself by cross-referencing `get_task_state`'s own output, exactly as it
-  already must for any of this tool's other per-task data.
+  already must for any of this tool's other per-task data. Given a dedicated
+  test fixture — AC-017/TEST-017 — separate from AC-001/TEST-001's Done-task
+  fixture, since AC-001 alone does not exercise the non-Done inclusion path.
 - A task has a `contract.json` that reads fine but has ZERO
   `requirementIds`-bearing checks. This is NOT an `unreadableContracts`
   entry (the read succeeded) — it contributes 0 to `totalChecks` for that
@@ -434,7 +528,11 @@ traceability table.
   `git_commit` that is not 40-hex (`gitCommit.shapeValid: false`) — the
   array's presence is unconditional; only the `note` text varies with the
   underlying `signature`/`gitCommit` computation's own existing conditional
-  text.
+  text. Given 2 dedicated fixtures — AC-018/TEST-018 (sub-case (a):
+  `signature.present: false`; sub-case (b): `gitCommit.shapeValid: false`)
+  — separate from AC-003/TEST-003's pass-verdict/fail-verdict fixtures,
+  since neither of those 2 fixtures is pinned to exercise either
+  sub-condition.
 
 ## Security Boundaries
 
@@ -464,6 +562,23 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   spec-authoring time; this feature adds no new CI step, so no
   `.github/workflows/test.yml` edit (and therefore no human-copy staging)
   is needed regardless of that file's own protected status.
+- `sdd-forge-mcp` is `private: true` (`mcp/sdd-forge-mcp/package.json:4`),
+  declares no `publishConfig`/`files`/`exports`, and is not present on the
+  public npm registry (`npm view sdd-forge-mcp version` -> `E404` at
+  spec-authoring time) — its only distribution channel is this repository's
+  own committed `dist/index.js`, verified byte-identical to its `src/`
+  origin (and, by this feature's own same-commit discipline, to
+  `contracts/sdd-forge-mcp-tools.v1.schema.json`) by CI's dist-parity check
+  (`docs/adr/0003-mcp-dist-bundle-distribution.md`, `Status: Accepted`;
+  investigation.md INV-023). This is the factual basis for REQ-005/BL-004's
+  "required, not optional" choice and for Field Definitions' "single
+  monorepo-nested package that deploys atomically" claim (Overview). RE-VERIFY
+  `package.json`'s `private`/`publishConfig` fields directly before
+  implementation begins (WFI-013 discipline) — a future change could flip
+  this by adding `publishConfig`/removing `private` to actually publish the
+  package, which would invalidate this assumption and require re-examining
+  whether the 3 new required fields (REQ-005) should instead be `optional`
+  or gated behind a schema major-version bump.
 
 ## Constraints
 

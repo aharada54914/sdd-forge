@@ -1,9 +1,13 @@
 # Acceptance Tests: epic-136-phase4-mcp
 
-TEST IDs (TEST-001..TEST-015) are namespaced to this feature
+TEST IDs (TEST-001..TEST-018) are namespaced to this feature
 (`specs/epic-136-phase4-mcp/`) and do not collide with any other spec
 folder's own TEST numbering. TEST-NNN numbers match their AC-NNN
-counterpart 1:1 (requirements.md Acceptance Criteria).
+counterpart 1:1 (requirements.md Acceptance Criteria). TEST-016..018 were
+added during spec-review attempt-1 round-1 remediation (5 Major findings,
+reviewer B) to close 2 gaps: REQ-002's schema `description` content had no
+verifying AC/TEST (AMBIGUITY/DOWNSTREAM-READINESS), and 2 of requirements.md's
+own Edge Cases had no dedicated Test ID (EDGE-CASE-COVERAGE).
 
 | Acceptance Criterion | Requirement | Test ID | Test Type | Test Target | Status |
 |---|---|---|---|---|---|
@@ -19,9 +23,12 @@ counterpart 1:1 (requirements.md Acceptance Criteria).
 | AC-010 | REQ-006 | TEST-010 | CI/dist-parity conformance | `npm run build` inside `mcp/sdd-forge-mcp` regenerates `dist/index.js` byte-identical to the committed file (`git diff --exit-code -- dist/`); `npx tsc --noEmit` and `npm test` pass; verified against the existing `mcp-tests` job's 3-OS matrix (`.github/workflows/test.yml:385-432`), no new CI step added | Planned |
 | AC-011 | REQ-007 | TEST-011 | regression (closes investigation.md INV-004's pre-existing gap) | same as TEST-001 -- recorded as its own row because it targets a DIFFERENT concern (closing a previously-uncovered behavior gap that predates this feature) from TEST-001's forward-looking field assertion; both are satisfied by the same new test case | Planned |
 | AC-012 | REQ-007 | TEST-012 | non-regression (existing suites updated) | every existing test in `tests/evidence/evidence.test.ts` and `tests/tools/deep-verify-contract-conformance.test.ts` (and any other suite asserting `evidence_compare_to_traceability`/`evidence_deep_verify`/`evidence_find_missing`'s response shape) is updated to assert its respective new field via `getEnvelopeValidator()` and continues to pass | Planned |
-| AC-013 | REQ-008 | TEST-013 | document conformance (review) | `CHANGELOG.md`'s `## Unreleased` contains 2 independent entries citing `#131` and `#132` respectively | Planned |
+| AC-013 | REQ-008 | TEST-013 | document conformance (review) | `CHANGELOG.md`'s `## Unreleased` contains 2 independent entries citing `#131` and `#132` respectively, each framed as additive-with-same-commit-schema-update, never as an unconditional "fully backward compatible" claim (requirements.md AC-013, Assumptions/INV-023) | Planned |
 | AC-014 | REQ-008 | TEST-014 | document conformance (review) | `USERGUIDE.md:96,98,99` (`evidence_find_missing`/`evidence_compare_to_traceability`/`evidence_deep_verify` rows) mention the new distinguishing fields; the implementation report states this explicitly | Planned |
 | AC-015 | REQ-... (cross-cutting) | TEST-015 | self-check (grep-based, protected-file re-verification) | fresh grep of `mcp/sdd-forge-mcp/src/tools/evidence.ts`, `mcp/sdd-forge-mcp/src/path-guard.ts`, `mcp/sdd-forge-mcp/src/parsers/report-lookup.ts`, `mcp/sdd-forge-mcp/tests/*`, `mcp/sdd-forge-mcp/dist/index.js`, `contracts/sdd-forge-mcp-tools.v1.schema.json` against `plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js`'s `PROTECTED_GATE_SUFFIXES` tuple confirms zero matches, re-verified at implementation time (not assumed from investigation.md's authoring-time snapshot) | Planned |
+| AC-016 | REQ-002 | TEST-016 | document/schema-content conformance (direct file read, literal string-containment assertion -- not ajv, since this checks a `description` string's CONTENT, not the schema's structural shape) | reads `contracts/sdd-forge-mcp-tools.v1.schema.json` directly and asserts `$defs.evidenceDeepVerifyData.properties.hostRequiredChecks.description` contains, verbatim, the CONFIRMED literal text recorded in requirements.md Field Definitions (`hostRequiredChecks`) | Planned |
+| AC-017 | REQ-001 | TEST-017 | unit (fixture-driven, real function) -- extends TEST-001/TEST-011's fixture | `mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts`: same suite, fixture adds one non-`Done` task (e.g. `In Progress`) with no `contract.json`, alongside the AC-001 Done-task fixture; asserts `unreadableContracts` names BOTH the Done task and the non-Done task, closing requirements.md Edge Cases' first author-flagged gap (`:500-508`) | Planned |
+| AC-018 | REQ-002 | TEST-018 | unit (fixture-driven, real function) -- 2 named sub-cases | `mcp/sdd-forge-mcp/tests/tools/`: sub-case (a) a bundle fixture with no `signature` block (`signature.present: false`); sub-case (b) a bundle fixture whose `git_commit` is not 40-hex (`gitCommit.shapeValid: false`); both assert `hostRequiredChecks` has exactly 2 entries, `verified: false`, and `note` equal to that fixture's own computed `signature.note`/`gitCommit.reason`, closing requirements.md Edge Cases' second author-flagged gap (`:526-535`) | Planned |
 
 Notes:
 
@@ -62,3 +69,18 @@ Notes:
 - No AC in this table requires human-copy staging (requirements.md AC-015,
   investigation.md INV-018) -- unlike `epic-136-phase3`'s AC-016/017, there
   is no staged-candidate-vs-live-file distinction anywhere in this table.
+- TEST-016 deliberately does NOT reuse `getEnvelopeValidator()`/ajv: AC-009/
+  TEST-009 already covers `hostRequiredChecks`' STRUCTURAL conformance
+  (required, `additionalProperties: false`) via the real ajv harness;
+  TEST-016 instead asserts the `description` property's own STRING CONTENT,
+  which ajv's `strict: true` mode does not and cannot validate (JSON Schema
+  has no mechanism to constrain a `description` value's text) -- a direct
+  file read plus literal string-containment assertion is the correct check
+  for this specific claim, not a downgrade from the ajv precedent.
+- TEST-017/TEST-018 each extend an EXISTING fixture family (TEST-001/
+  TEST-011's Done-task fixture; TEST-003/TEST-004's pass/fail-verdict
+  fixtures) with an additional, distinctly-scoped case rather than
+  duplicating fixture setup -- matching this table's own established
+  convention (see the TEST-001/TEST-011 note above) of listing a test
+  against the AC row it was authored to satisfy without re-deriving shared
+  setup.
