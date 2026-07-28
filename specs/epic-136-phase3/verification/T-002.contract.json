@@ -1,0 +1,142 @@
+{
+  "task_id": "T-002",
+  "feature": "epic-136-phase3",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "2f1d0cdd71e999d859f167624b49348eb2c076daafb16f2c3ec91a7872cdd7fb",
+  "created": "2026-07-28T14:24:02Z",
+  "comment": "Default-FAIL verification contract for T-002 (medium, acceptance-first, issue #124). Populated after reports/quality-gate/20260728T140322Z-epic-136-phase3-T-002.md recorded VERDICT: PASS (RUN-epic-136-phase3-qg-T-002-seq0361, round 2 of 2 evaluated rounds, 5 Minor all Accepted) for tests/guard-negative-corpus.tests.sh (TEST-008..011, AC-008..011): the evaluator re-ran the suite and recorded 47 passed / 0 failed / 0 skipped under both real bash and /bin/bash 3.2.57 (specs/epic-136-phase3/verification/T-002/acceptance-run.log and bash32-run.log, byte-identical), plus a full regression sweep (specs/epic-136-phase3/verification/T-002/full-regression-sweep.log, TOTAL: 47 passed, 4 failed -- the 4 failures are the same pre-existing, unrelated suites T-001 already confirmed via parent-commit reproduction, not caused by this task). This is a POSITIVE, previously-unobservable-behavior proof (design.md Test Strategy item 2), not a RED-then-GREEN bugfix regression -- no suite drove the full 3-class x 4-runtime x 3-tool_name-shape cross product before this task, so red_evidence/green_evidence are intentionally left empty on the non-tdd checks below (required_workflow: acceptance-first, not tdd). Shell/Markdown/YAML stack (test-infrastructure files plus this JSON contract) waives the three compile-oriented checks (lint/typecheck/build). Landing commits per the QG report: 4a3931f (suite + run-all.sh) + 6a79319 (report + CHANGELOG) + 72a4cdad (QG remediation: TEST-009 ALLOW control).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell test-infrastructure files plus JSON contract file (stack: shell); bash -n and pwsh parse validity are exercised implicitly by every green run recorded in acceptance-run.log/bash32-run.log.",
+      "requirement_ids": ["REQ-002", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-002/acceptance-run.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration is in scope beyond what acceptance already exercises against the real sdd-hook-guard.py/.js/.ps1/.sh scripts, read-only via env-var indirection; no separate service-integration surface exists.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-002/acceptance-run.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-002/full-regression-sweep.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell test-infrastructure files.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-002/full-regression-sweep.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-002/full-regression-sweep.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-002", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's suite fully covers its own CLI/script surface via the acceptance and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task (differential-test-policy.md does not apply). The change is additive net-new test coverage per design.md's API/Contract Plan; no prior baseline behavior exists to differentiate against.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are test/doc files only (ux-spec.md and frontend-spec.md are N/A stubs for this CI/test-hardening feature).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}
