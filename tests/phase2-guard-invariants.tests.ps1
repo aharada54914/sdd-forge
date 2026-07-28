@@ -667,10 +667,18 @@ function Try-NewFixtureHardLink([string]$Path, [string]$Target) {
 
 function Invoke-IsolatedInstall([string]$Fixture) {
     $runner = Join-Path $Fixture 'specs/epic-136-phase2-gates/human-copy/specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
+    $log = Join-Path $Fixture 'runner-invocation.log'
     $ErrorActionPreference = 'Continue'
     try {
-        & $powerShellCommand -NoProfile -ExecutionPolicy Bypass -File $runner -Bootstrap -RepositoryRoot $Fixture 1>$null 2>$null
-        return $LASTEXITCODE
+        & $powerShellCommand -NoProfile -ExecutionPolicy Bypass -File $runner -Bootstrap -RepositoryRoot $Fixture *> $log
+        $exitCode = $LASTEXITCODE
+        if (($exitCode -ne 0) -and (Test-Path -LiteralPath $log -PathType Leaf)) {
+            # Diagnostics: a success-path fixture failing here previously gave no
+            # signal at all (runner output was discarded); surface the tail.
+            Write-Host "  runner diagnostics (exit ${exitCode}):"
+            Get-Content -LiteralPath $log | Select-Object -Last 25 | ForEach-Object { Write-Host "    | $_" }
+        }
+        return $exitCode
     } finally { $ErrorActionPreference = 'Stop' }
 }
 

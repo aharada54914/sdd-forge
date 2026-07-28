@@ -273,6 +273,9 @@ PY
     sync_ok=0
   fi
   while IFS= read -r sync_target; do
+    # Native Windows python emits CRLF on stdout; strip the trailing CR so
+    # target paths resolve (mirrors the runner's manifest CRLF normalization).
+    sync_target="${sync_target%$'\r'}"
     [[ -n "$sync_target" ]] || continue
     if [[ ! -f "$root/$sync_target" || ! -f "$stage/$sync_target" ]]; then
       echo "  missing: $sync_target"
