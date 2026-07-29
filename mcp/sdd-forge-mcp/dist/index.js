@@ -35025,16 +35025,20 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function anyFileContaining(root, relDir, pattern) {
+function anyFileContainingWithDiagnostics(root, relDir, pattern) {
   const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
+  const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
   const matches = [];
-  for (const relFilePath of listGuardedFiles(root, relDir)) {
+  for (const relFilePath of files) {
     const read = guardedRead(root, relFilePath);
     if (read.ok && wordBoundary.test(read.data.contents)) {
       matches.push(relFilePath);
     }
   }
-  return matches;
+  return { matches, errors };
+}
+function anyFileContaining(root, relDir, pattern) {
+  return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
 }
 function hasAnyFileMentioning(root, relDir, taskId) {
   return anyFileContaining(root, relDir, taskId).length > 0;
@@ -36207,6 +36211,7 @@ function evidenceFindMissing(root, feature, taskId) {
   const required2 = [EVIDENCE_BUNDLE_REQUIREMENT, VERIFICATION_CONTRACT_REQUIREMENT, QUALITY_GATE_REPORT_REQUIREMENT];
   const present = [];
   const missing = [];
+  const undeterminable = [];
   if (guardedExists(root, bundleRelPath)) {
     present.push(EVIDENCE_BUNDLE_REQUIREMENT);
   } else {
@@ -36217,13 +36222,15 @@ function evidenceFindMissing(root, feature, taskId) {
   } else {
     missing.push(VERIFICATION_CONTRACT_REQUIREMENT);
   }
-  const qgMatches = anyFileContaining(root, reportsDir, taskId);
-  if (qgMatches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
+  const qgScan = anyFileContainingWithDiagnostics(root, reportsDir, taskId);
+  if (qgScan.errors.length > 0) {
+    undeterminable.push(QUALITY_GATE_REPORT_REQUIREMENT);
+  } else if (qgScan.matches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
     present.push(QUALITY_GATE_REPORT_REQUIREMENT);
   } else {
     missing.push(QUALITY_GATE_REPORT_REQUIREMENT);
   }
-  return ok({ kind: "evidence-missing", feature, taskId, required: required2, present, missing });
+  return ok({ kind: "evidence-missing", feature, taskId, required: required2, present, missing, undeterminable });
 }
 function evidenceSummarizeContractChecks(root, feature, taskId) {
   const featureResult = validateFeature(feature);

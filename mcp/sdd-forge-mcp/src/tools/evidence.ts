@@ -15,8 +15,18 @@
  * (path-guard denylists the key file outright), and nothing in this module
  * changes that. `evidence_find_missing` reproduces the same Done-transition
  * requirements `task-validation.ts`'s `validateDoneEvidence` checks
- * (check-task-state.sh parity), so its `missing` list is empty for exactly
- * the tasks whose `Status: Done` transition `parseTaskState` already accepts.
+ * (check-task-state.sh parity). Since REQ-004 (issue #132) that parity is
+ * stated over the UNION `missing` + `undeterminable`, not over `missing`
+ * alone: a requirement lands in that union for exactly the `Status: Done`
+ * transitions `parseTaskState` rejects with
+ * `done-quality-gate-report-missing`. The asymmetry is deliberate — a
+ * `reports/quality-gate` directory scan that FAILS is routed here to
+ * `undeterminable`, while `parsers/task-validation.ts` is intentionally left
+ * unchanged (BL-003) and therefore still reports that same task as missing
+ * its quality-gate report. Restricted to scan-succeeded cases,
+ * `undeterminable` is empty and the original `missing`-only parity holds
+ * exactly. Propagating the undeterminable distinction into `get_task_state`
+ * is an explicit Non-goal and a follow-on-issue candidate.
  */
 
 import { createHash } from "node:crypto";
@@ -28,7 +38,7 @@ import {
   type ContractChecksSummaryEntry,
 } from "../parsers/evidence.js";
 import type { EvidenceArtifact, EvidenceBundle } from "../parsers/evidence-bundle.js";
-import { anyFileContaining, hasQualityGateVerdictPass } from "../parsers/report-lookup.js";
+import { anyFileContainingWithDiagnostics, hasQualityGateVerdictPass } from "../parsers/report-lookup.js";
 import { parseTaskState } from "../parsers/tasks.js";
 import { parseTraceability, type TraceabilityData } from "../parsers/traceability.js";
 import { guardedExists, guardedRead, resolveGuarded } from "../path-guard.js";
@@ -160,6 +170,14 @@ export interface EvidenceMissingData {
   required: string[];
   present: string[];
   missing: string[];
+  /**
+   * Requirements whose check could not be performed at all, as opposed to
+   * being performed and found unsatisfied (REQ-004, issue #132). Every entry
+   * of `required` lands in EXACTLY ONE of `present`/`missing`/
+   * `undeterminable` — the three arrays partition `required` and never
+   * overlap.
+   */
+  undeterminable: string[];
 }
 
 const EVIDENCE_BUNDLE_REQUIREMENT = "evidence-bundle";
@@ -201,6 +219,7 @@ export function evidenceFindMissing(
   const required = [EVIDENCE_BUNDLE_REQUIREMENT, VERIFICATION_CONTRACT_REQUIREMENT, QUALITY_GATE_REPORT_REQUIREMENT];
   const present: string[] = [];
   const missing: string[] = [];
+  const undeterminable: string[] = [];
 
   if (guardedExists(root, bundleRelPath)) {
     present.push(EVIDENCE_BUNDLE_REQUIREMENT);
@@ -214,14 +233,23 @@ export function evidenceFindMissing(
     missing.push(VERIFICATION_CONTRACT_REQUIREMENT);
   }
 
-  const qgMatches = anyFileContaining(root, reportsDir, taskId);
-  if (qgMatches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
+  // The quality-gate requirement is the only one of the three checked by a
+  // DIRECTORY SCAN, so it is the only one that can fail ambiguously. The
+  // errors branch is tested FIRST and short-circuits: a scan that could not be
+  // performed tells us nothing about whether the evidence exists, so the
+  // result is neither `present` nor `missing` (REQ-004/OQ-3). Calling
+  // `hasQualityGateVerdictPass` in that branch would only repeat the same
+  // failed scan (requirements.md Edge Cases).
+  const qgScan = anyFileContainingWithDiagnostics(root, reportsDir, taskId);
+  if (qgScan.errors.length > 0) {
+    undeterminable.push(QUALITY_GATE_REPORT_REQUIREMENT);
+  } else if (qgScan.matches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
     present.push(QUALITY_GATE_REPORT_REQUIREMENT);
   } else {
     missing.push(QUALITY_GATE_REPORT_REQUIREMENT);
   }
 
-  return ok({ kind: "evidence-missing", feature, taskId, required, present, missing });
+  return ok({ kind: "evidence-missing", feature, taskId, required, present, missing, undeterminable });
 }
 
 // --- evidence_summarize_contract_checks ------------------------------------

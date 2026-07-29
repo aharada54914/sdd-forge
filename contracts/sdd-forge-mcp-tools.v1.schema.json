@@ -285,14 +285,19 @@
       "type": "object",
       "description": "evidence_find_missing: Done-transition requirements (evidence.json, contract.json, quality-gate report) vs. what is present.",
       "additionalProperties": false,
-      "required": ["kind", "feature", "taskId", "required", "present", "missing"],
+      "required": ["kind", "feature", "taskId", "required", "present", "missing", "undeterminable"],
       "properties": {
         "kind": { "const": "evidence-missing" },
         "feature": { "$ref": "#/$defs/feature" },
         "taskId": { "$ref": "#/$defs/taskId" },
         "required": { "type": "array", "items": { "type": "string" } },
         "present": { "type": "array", "items": { "type": "string" } },
-        "missing": { "type": "array", "items": { "type": "string" } }
+        "missing": { "type": "array", "items": { "type": "string" } },
+        "undeterminable": {
+          "type": "array",
+          "description": "Requirements whose check could not be performed at all, as distinct from performed-and-unsatisfied: today only quality-gate-report-pass, whose check is a reports/quality-gate directory scan, can appear here. Every entry of `required` lands in exactly one of present/missing/undeterminable.",
+          "items": { "type": "string" }
+        }
       }
     },
     "contractChecksSummaryData": {

@@ -16,24 +16,76 @@
  * matching the shell's.
  */
 
-import { guardedRead, listGuardedFiles } from "../path-guard.js";
+import { guardedRead, listGuardedFilesWithDiagnostics } from "../path-guard.js";
 import type { SddRoot } from "../root.js";
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-/** Every path-guard-relative file path under `relDir` whose contents contain `pattern` as a whole word. */
-export function anyFileContaining(root: SddRoot, relDir: string, pattern: string): string[] {
+/**
+ * One failure encountered while scanning a directory for matching files.
+ *
+ * Structurally identical to `path-guard.ts`'s `GuardedListError` (which is
+ * what actually populates it) and declared here so this module's own callers
+ * do not have to reach into the path guard's vocabulary for a type.
+ */
+export interface DirectoryReadError {
+  /** The scanned `relDir` for a guard-validation failure, or the root-relative sub-path where the walk failed. */
+  path: string;
+  /** The caught error's message, or the guard's own denial message. */
+  reason: string;
+}
+
+/**
+ * Every path-guard-relative file path under `relDir` whose contents contain
+ * `pattern` as a whole word, PLUS every failure the directory scan hit.
+ *
+ * This is the diagnostics-carrying form of `anyFileContaining` below. It
+ * exists because an empty `matches` is ambiguous on its own: a directory that
+ * was read successfully and simply holds no match is indistinguishable from a
+ * directory that could not be scanned at all. Callers that must not conflate
+ * the two (REQ-004: `evidence_find_missing`'s `undeterminable`) check
+ * `errors.length` FIRST and only then interpret `matches`.
+ *
+ * `errors` is reported exactly as `listGuardedFilesWithDiagnostics` produced
+ * it — no message is rewritten, and no absolute path or extra filesystem
+ * detail is interpolated here (security-spec.md Boundary B4).
+ *
+ * A scan can be BOTH partially successful and errored (a readable top-level
+ * directory with one unreadable subdirectory), so `matches` is still fully
+ * populated from whatever was readable even when `errors` is non-empty; this
+ * function does not fail fast and does not discard partial results.
+ */
+export function anyFileContainingWithDiagnostics(
+  root: SddRoot,
+  relDir: string,
+  pattern: string,
+): { matches: string[]; errors: DirectoryReadError[] } {
   const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
+  const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
   const matches: string[] = [];
-  for (const relFilePath of listGuardedFiles(root, relDir)) {
+  for (const relFilePath of files) {
     const read = guardedRead(root, relFilePath);
     if (read.ok && wordBoundary.test(read.data.contents)) {
       matches.push(relFilePath);
     }
   }
-  return matches;
+  return { matches, errors };
+}
+
+/**
+ * Every path-guard-relative file path under `relDir` whose contents contain
+ * `pattern` as a whole word.
+ *
+ * Exact signature and exact behavior preserved (BL-003): this is a thin
+ * wrapper over `anyFileContainingWithDiagnostics` that discards the
+ * diagnostics, so a scan failure still collapses to `[]` here exactly as it
+ * did before. Callers that need the failure reason must use
+ * `anyFileContainingWithDiagnostics` instead.
+ */
+export function anyFileContaining(root: SddRoot, relDir: string, pattern: string): string[] {
+  return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
 }
 
 /**
