@@ -156,7 +156,7 @@ is out of scope by construction rather than by avoidance.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/131
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -418,7 +418,7 @@ None
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/131
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -680,7 +680,7 @@ functional one — see Global Constraints. No external blocker exists.)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/132
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -947,7 +947,7 @@ a functional one — see Global Constraints. No external blocker exists.)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/132
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -1268,7 +1268,7 @@ exists.)
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/131 and
 https://github.com/aharada54914/sdd-forge/issues/132
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
