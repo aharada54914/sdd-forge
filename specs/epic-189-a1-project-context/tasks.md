@@ -336,7 +336,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
 Approval: Approved (sudo 2026-07-22T15:16:57Z)
 
-Status: Blocked
+Status: Implementation Complete
 
 Risk: high
 
@@ -501,6 +501,50 @@ transitively blocks every downstream task that consumes the
 canonicalizer's actual function** (T-003 HMAC preimage, T-005 diffing,
 and everything chained after them: T-006 through T-010, T-012) — this is
 architecture-critical for the whole epic, not T-002-local.
+
+UNBLOCKED (2026-07-29, implementation session): human decision-3 = B
+resolved the parser-library question — design.md's Design Decisions and
+Canonicalization procedure sections were amended (REVISED 2026-07-24) to
+require a HAND-WRITTEN, stdlib-only, restricted YAML-subset parser (no
+PyYAML/ruamel.yaml, no `requirements.txt`, no packaging change), recorded
+in `reports/notes/epic-189-a1-decision-3-yaml-parser.md`, and the amended
+design.md re-passed impl-review (attempt-3, PASS clean) plus a
+post-implementation provenance re-review. This session resumes T-002 from
+its Scope's Red step under that resolved design.
+
+STAGING DEFERRED (2026-07-29, same implementation session, after TDD
+Green): `canonicalize-sdd-yaml.py`/`.sh`/`.ps1`/`.js`,
+`tests/canonicalize-sdd-yaml.tests.sh`/`.ps1`, and this suite's direct
+`tests/run-all.sh`/`.ps1` registration are all complete — TDD Red
+(`bash` 19/29, `pwsh` crashes without the implementation present) →
+Green (`bash` 29/29, `pwsh` 26/26) captured for both runtimes at
+`specs/epic-189-a1-project-context/verification/T-002/`. The remaining
+Done-When item — staging this suite's `.github/workflows/test.yml`
+addition under `specs/epic-189-a1-project-context/human-copy/` +
+`MANIFEST.sha256` — is DEFERRED, not blocked: `git status` shows
+`specs/epic-189-a1-project-context/human-copy/` as an untracked,
+uncommitted directory at this session's start, already containing a
+`.github/workflows/test.yml` candidate + `MANIFEST.sha256` (T-001's and
+T-004's own staged registrations) from a concurrent session's staging
+flow that this session did not author and has not seen committed. Per
+this session's own operating constraints, appending to or committing
+those uncommitted foreign files risks corrupting or silently dropping
+that other session's in-flight work, so this task defers ONLY that
+staging sub-item (mirroring T-001's own "CI staging deferred" precedent
+above, though for a different underlying reason: a concurrent-session
+working-tree conflict here, a guard denial there) — every other Scope
+item and Done-When item is complete. The intended staged addition (two
+new CI steps, `canonicalize-sdd-yaml.tests.sh`/`.ps1`, inserted directly
+after T-001's `project-context-schema` steps and before T-004's
+`approver-registry-schema` steps, matching this suite's `tests/run-all.sh`/
+`.ps1` position) is recorded in
+`reports/implementation/epic-189-a1-project-context/T-002.md` for
+whichever session next finds `human-copy/` clean or committed. Live
+`.github/workflows/test.yml` SHA-256 unchanged this session (never
+written): `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`
+(recorded before and after this session's work; identical to T-004's own
+recorded value above, confirming no session has touched the live file
+since).
 
 ---
 

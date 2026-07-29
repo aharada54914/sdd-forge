@@ -38,6 +38,7 @@ $tests = @(
     'tests/run-panelist-effort.tests.ps1',
     'tests/model-freshness-check.tests.ps1',
     'tests/project-context-schema.tests.ps1',
+    'tests/canonicalize-sdd-yaml.tests.ps1',
     'tests/approver-registry-schema.tests.ps1'
 )
 
