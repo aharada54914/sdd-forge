@@ -52,6 +52,34 @@
   `tests/run-all.sh`/`.ps1` へ登録。CI ワークフロー登録はT-001と同じ
   guard 制約により未完了。詳細実装は
   `reports/implementation/epic-189-a1-project-context/T-004.md`。
+- **canonicalizer `canonicalize-sdd-yaml` (Issue #189, epic-189-a1-project-context
+  T-002)**: `plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py` を
+  新規追加 — HAND-WRITTEN・stdlib-only の制限付きYAMLサブセットパーサー
+  (PyYAML/ruamel.yaml 等サードパーティ依存なし、`requirements.txt` 新設なし。
+  人間判断3 = B、`reports/notes/epic-189-a1-decision-3-yaml-parser.md`)。
+  YAML 1.2 core schema によるプレーンスカラー解決(`yes`/`no`/`on`/`off` は
+  1.1 専用トークンとして文字列のまま維持)、anchor/alias/カスタムタグ/
+  重複キー/非文字列キーを各専用診断カテゴリで拒否、Unicode NFC 正規化後の
+  post-NFC 重複キー衝突検出、非有限(`.inf`/`.nan`)・IEEE-754 倍精度範囲外
+  数値の拒否を実装。RFC 8785 (JCS) 準拠の正準 JSON バイト列出力
+  (`--hash-only` で SHA-256 のみ出力)と、ECMAScript Number::toString
+  相当の数値フォーマット(固定/指数表記の境界を含む)を実装。JSON 入力
+  モードも受理(T-003 の HMAC preimage 経路向け)。`.sh`/`.ps1`/`.js` は
+  `python3`/`python` 解決のみを行う薄いディスパッチャで、いずれもネイティブ
+  再実装を持たない(`.ps1` も `sdd-hook-guard.sh` の PowerShell ネイティブ
+  フォールバック形は踏襲しない) — 4ランタイム全てが同一 SHA-256 を生成する
+  ことと、各ラッパーが `canonicalize-sdd-yaml.py` へ実際にディスパッチして
+  いる(単体では動作しない)ことを`tests/canonicalize-sdd-yaml.tests.sh`/
+  `.ps1` で証明。カテゴリ別に安定した終了コード(2/3/10/11/20-28)を割当て、
+  診断は stderr のみ・正常時は stdout をバイト完全出力。TDD Red(未実装で
+  bash 19件/29件・pwsh クラッシュ)→ Green(実装後 bash 29/29・pwsh 26/26 全
+  PASS)を`bash`/`pwsh` 双方で実行・記録
+  (`specs/epic-189-a1-project-context/verification/T-002/`)。
+  `tests/canonicalize-sdd-yaml.tests.sh`/`.ps1` を`tests/run-all.sh`/`.ps1`
+  へT-001の直後・T-004の直前(数値順)に登録。CI ワークフロー登録は、
+  T-001/T-004 と同じ human-copy staging 領域に別セッションの未コミット
+  ステージング内容が存在するため、それらと競合しないよう本タスクでは延期
+  (詳細実装は`reports/implementation/epic-189-a1-project-context/T-002.md`)。
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
