@@ -513,6 +513,20 @@ def resolve_value_str(val_str, line_no):
     if c0 in "]},":
         raise _unsupported(f"unexpected flow indicator character {c0!r}", line_no, hint="quote the scalar")
     _check_reserved_sigil(val_str, line_no)
+    if _looks_like_mapping_entry(val_str):
+        # A plain (unquoted) scalar containing ": " or ending with ":" is
+        # ambiguous with a nested mapping entry -- YAML 1.2 forbids ": "
+        # inside a plain scalar for exactly this reason. Reject rather than
+        # best-effort-keep the first ": " found by parse_key_part_and_rest
+        # as the key/value separator and treat everything after it as plain
+        # scalar text (the exact silent-acceptance harm design.md's Design
+        # Decisions names: "never a best-effort interpretation").
+        raise _unsupported(
+            "a plain scalar value containing ': ' or ending with ':' is ambiguous with a "
+            "nested mapping entry and is not accepted",
+            line_no,
+            hint="quote the scalar",
+        )
     _, value = resolve_core_schema_scalar(val_str)
     return value
 
@@ -634,12 +648,40 @@ def parse_yaml_bytes(data):
 # non-finite/out-of-range number rejection (procedure steps 3-4)
 # ---------------------------------------------------------------------------
 
+def _reject_if_lone_surrogate(s):
+    """A lone (unpaired) UTF-16 surrogate (U+D800-U+DFFF) is not a valid
+    Unicode scalar value and has no UTF-8 encoding at all (RFC 3629
+    excludes that whole range from UTF-8's codespace). In this parser it
+    can only be produced by a `\\uXXXX` escape in a double-quoted scalar
+    (YAML mode) or the equivalent escape in JSON input mode -- never by a
+    plain/single-quoted scalar or a correctly-paired surrogate escape --
+    but the accepted subset's own text allows exactly that escape ("JSON's
+    escape set exactly, incl. `\\uXXXX`"), so it must be checked here
+    rather than rejected at parse time. This is the same "not valid
+    Unicode text" defect the canonicalization procedure's step 1 already
+    guards against ("decode as UTF-8 (reject on decode error)") and step 6
+    requires on the way out ("the canonical UTF-8 byte sequence") --
+    INVALID_UTF8_REJECTED is the one existing category whose plain
+    meaning covers both: input bytes that never decoded to valid Unicode
+    text, and a resolved scalar that cannot be re-encoded as valid UTF-8
+    either way, regardless of which pipeline stage discovers it."""
+    for ch in s:
+        code = ord(ch)
+        if 0xD800 <= code <= 0xDFFF:
+            raise CanonicalizeError(
+                "INVALID_UTF8_REJECTED",
+                f"resolved scalar contains an unpaired UTF-16 surrogate U+{code:04X}, "
+                "which has no valid UTF-8 encoding",
+            )
+
+
 def normalize_and_validate(node):
     if isinstance(node, dict):
         result = {}
         seen = {}
         for k, v in node.items():
             nk = unicodedata.normalize("NFC", k)
+            _reject_if_lone_surrogate(nk)
             if nk in seen:
                 raise CanonicalizeError(
                     "POST_NFC_DUPLICATE_KEY_REJECTED",
@@ -651,7 +693,9 @@ def normalize_and_validate(node):
     if isinstance(node, list):
         return [normalize_and_validate(item) for item in node]
     if isinstance(node, str):
-        return unicodedata.normalize("NFC", node)
+        normalized = unicodedata.normalize("NFC", node)
+        _reject_if_lone_surrogate(normalized)
+        return normalized
     if isinstance(node, bool) or node is None:
         return node
     if isinstance(node, float):

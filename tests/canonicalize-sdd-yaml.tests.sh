@@ -350,20 +350,154 @@ else
   fail "TEST-037 byte-exact stdout framing: --hash-only output ends with exactly one trailing newline"
 fi
 
-# Documented exit-code table cross-check: every category this suite exercised
-# above used its own stable, distinct, non-zero exit code (never 0, never
-# reused across categories).
-seen_codes=""
-for pair in "ANCHOR_REJECTED:20" "ALIAS_REJECTED:21" "CUSTOM_TAG_REJECTED:22" \
-  "DUPLICATE_KEY_REJECTED:23" "NON_STRING_KEY_REJECTED:24" "MULTI_DOCUMENT_REJECTED:25" \
-  "POST_NFC_DUPLICATE_KEY_REJECTED:27" "NUMBER_OUT_OF_RANGE_REJECTED:28"; do
-  code=${pair#*:}
-  case " $seen_codes " in
-    *" $code "*) fail "TEST-037 exit-code table: $pair 's code $code is unique across categories" ;;
-    *) seen_codes="$seen_codes $code" ;;
-  esac
-done
-pass "TEST-037 exit-code table: every rejection category exercised by this suite uses a distinct, stable, non-zero exit code"
+# Documented exit-code table cross-check (remedy, quality-gate seq0346 Minor
+# finding: the prior version asserted only literals typed into THIS file and
+# never read the script's own table, so it could not detect drift). Reads
+# CATEGORY_EXIT_CODES directly out of canonicalize-sdd-yaml.py via
+# importlib and diffs it against the documented table below -- a real,
+# non-tautological comparison that fails if the two diverge.
+actual_table=$("$PY" -c "
+import importlib.util
+spec = importlib.util.spec_from_file_location('canon', '$CANON_PY')
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+for k, v in sorted(mod.CATEGORY_EXIT_CODES.items()):
+    print('%s=%s' % (k, v))
+")
+expected_table='ALIAS_REJECTED=21
+ANCHOR_REJECTED=20
+CANONICALIZER_RUNTIME_UNAVAILABLE=3
+CUSTOM_TAG_REJECTED=22
+DUPLICATE_KEY_REJECTED=23
+INVALID_JSON_REJECTED=11
+INVALID_UTF8_REJECTED=10
+MULTI_DOCUMENT_REJECTED=25
+NON_STRING_KEY_REJECTED=24
+NUMBER_OUT_OF_RANGE_REJECTED=28
+POST_NFC_DUPLICATE_KEY_REJECTED=27
+UNSUPPORTED_SYNTAX_REJECTED=26'
+if [ "$actual_table" = "$expected_table" ]; then
+  pass "TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table"
+else
+  fail "TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table (got: $actual_table)"
+fi
+
+# ---------------------------------------------------------------------------
+# Remedy (quality-gate seq0346, NEEDS_WORK): lone-surrogate escapes,
+# plain-scalar embedded ": " rejection, previously-uncovered exit codes
+# (26/10/11), and JSON input mode.
+# ---------------------------------------------------------------------------
+
+# (a) Lone (unpaired) UTF-16 surrogate -> INVALID_UTF8_REJECTED (10), never
+# an uncaught UnicodeEncodeError. Value + key position, YAML + JSON mode.
+printf 'a: "\\ud800"\n' > "$WORK/remedy_surrogate_val.yaml"
+expect_reject "TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode) is INVALID_UTF8_REJECTED, not an uncaught exception" \
+  "$WORK/remedy_surrogate_val.yaml" INVALID_UTF8_REJECTED 10
+expect_reject "TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode, --hash-only) is INVALID_UTF8_REJECTED" \
+  "$WORK/remedy_surrogate_val.yaml" INVALID_UTF8_REJECTED 10 --hash-only
+
+printf '"\\udfff": 1\n' > "$WORK/remedy_surrogate_key.yaml"
+expect_reject "TEST-REMEDY lone surrogate in a quoted mapping KEY (YAML mode) is INVALID_UTF8_REJECTED" \
+  "$WORK/remedy_surrogate_key.yaml" INVALID_UTF8_REJECTED 10
+
+printf '{"a":"\\ud800"}' > "$WORK/remedy_surrogate_val.json"
+expect_reject "TEST-REMEDY lone surrogate in a string VALUE (JSON input mode) is INVALID_UTF8_REJECTED" \
+  "$WORK/remedy_surrogate_val.json" INVALID_UTF8_REJECTED 10
+
+printf '{"\\udfff":1}' > "$WORK/remedy_surrogate_key.json"
+expect_reject "TEST-REMEDY lone surrogate in an object KEY (JSON input mode) is INVALID_UTF8_REJECTED" \
+  "$WORK/remedy_surrogate_key.json" INVALID_UTF8_REJECTED 10
+
+# Regression guard: a correctly-paired surrogate escape (a real astral
+# character) must keep succeeding -- the fix must not over-reject.
+printf 'a: "\\ud83d\\ude00"\n' > "$WORK/remedy_pair.yaml"
+printf '{"a":"\xf0\x9f\x98\x80"}' > "$WORK/remedy_pair_expected.json"
+expect_stdout_bytes "TEST-REMEDY a correctly-paired surrogate escape (astral character) still succeeds" \
+  "$WORK/remedy_pair.yaml" "$WORK/remedy_pair_expected.json"
+
+# (b) A plain scalar containing ": " or ending with ":" is ambiguous with a
+# nested mapping entry -> UNSUPPORTED_SYNTAX_REJECTED (26) with a
+# quote-the-scalar hint, never best-effort-kept as scalar text.
+printf 'a: b: c\n' > "$WORK/remedy_embedded_colon.yaml"
+expect_reject "TEST-REMEDY plain scalar value 'b: c' (embedded ': ') is rejected, not best-effort-interpreted as \"b: c\"" \
+  "$WORK/remedy_embedded_colon.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+run_canon "$WORK/remedy_embedded_colon.yaml"
+if grep -q 'quote the scalar' "$WORK/err"; then
+  pass "TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint"
+else
+  fail "TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint (stderr: $(cat "$WORK/err"))"
+fi
+
+printf 'key: value:\n' > "$WORK/remedy_trailing_colon.yaml"
+expect_reject "TEST-REMEDY plain scalar value 'value:' (trailing ':') is rejected" \
+  "$WORK/remedy_trailing_colon.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf -- '- a: b: c\n' > "$WORK/remedy_seq_embedded_colon.yaml"
+expect_reject "TEST-REMEDY embedded ': ' is rejected inside an inline '- key: value' mapping too" \
+  "$WORK/remedy_seq_embedded_colon.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+# Regression guards: legitimate ':'-bearing content must keep working.
+printf 'a: http://example.com\n' > "$WORK/remedy_url.yaml"
+printf '{"a":"http://example.com"}' > "$WORK/remedy_url_expected.json"
+expect_stdout_bytes "TEST-REMEDY a URL value (':' not followed by a space) still succeeds" \
+  "$WORK/remedy_url.yaml" "$WORK/remedy_url_expected.json"
+printf 'a: "b: c"\n' > "$WORK/remedy_quoted_colon.yaml"
+printf '{"a":"b: c"}' > "$WORK/remedy_quoted_colon_expected.json"
+expect_stdout_bytes "TEST-REMEDY a QUOTED value containing ': ' still succeeds" \
+  "$WORK/remedy_quoted_colon.yaml" "$WORK/remedy_quoted_colon_expected.json"
+
+# (c) Previously-uncovered exit codes: UNSUPPORTED_SYNTAX_REJECTED (26) via
+# several independent out-of-subset constructs, INVALID_UTF8_REJECTED (10)
+# via genuinely invalid input bytes (not just a surrogate escape), and
+# INVALID_JSON_REJECTED (11) via malformed JSON.
+printf 'a: |\n  block\n  scalar\n' > "$WORK/remedy_blockscalar.yaml"
+expect_reject "TEST-REMEDY(26) block scalar indicator is UNSUPPORTED_SYNTAX_REJECTED" \
+  "$WORK/remedy_blockscalar.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf 'a: [1, 2]\n' > "$WORK/remedy_flow.yaml"
+expect_reject "TEST-REMEDY(26) non-empty flow sequence is UNSUPPORTED_SYNTAX_REJECTED" \
+  "$WORK/remedy_flow.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf '\ta: 1\n' > "$WORK/remedy_tab.yaml"
+expect_reject "TEST-REMEDY(26) tab indentation is UNSUPPORTED_SYNTAX_REJECTED" \
+  "$WORK/remedy_tab.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf -- '---\nkey: value\n' > "$WORK/remedy_leadmarker.yaml"
+expect_reject "TEST-REMEDY(26) a leading '---' marker on a single document is UNSUPPORTED_SYNTAX_REJECTED" \
+  "$WORK/remedy_leadmarker.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf '\xff\xfe invalid utf-8 bytes\n' > "$WORK/remedy_badutf8.yaml"
+expect_reject "TEST-REMEDY(10) genuinely invalid UTF-8 input BYTES (not an escape) is INVALID_UTF8_REJECTED" \
+  "$WORK/remedy_badutf8.yaml" INVALID_UTF8_REJECTED 10
+
+printf '{"a": 1,}' > "$WORK/remedy_badjson.json"
+expect_reject "TEST-REMEDY(11) malformed JSON input is INVALID_JSON_REJECTED" \
+  "$WORK/remedy_badjson.json" INVALID_JSON_REJECTED 11
+
+# JSON input mode generally (REQ-003's second declared input mode; the
+# T-003 HMAC-preimage path). Extension auto-detection, explicit
+# --input-format override, duplicate-key rejection, and non-finite
+# constant rejection.
+printf '{"b":2,"a":1}' > "$WORK/remedy_json_roundtrip.json"
+printf '{"a":1,"b":2}' > "$WORK/remedy_json_roundtrip_expected.json"
+expect_stdout_bytes "TEST-REMEDY JSON input mode round-trips and re-sorts keys (extension auto-detection)" \
+  "$WORK/remedy_json_roundtrip.json" "$WORK/remedy_json_roundtrip_expected.json"
+
+cp "$WORK/remedy_json_roundtrip.json" "$WORK/remedy_json_roundtrip.noext"
+expect_stdout_bytes "TEST-REMEDY JSON input mode round-trips via explicit --input-format json (no .json extension)" \
+  "$WORK/remedy_json_roundtrip.noext" "$WORK/remedy_json_roundtrip_expected.json" --input-format json
+
+printf '{"a":1,"a":2}' > "$WORK/remedy_json_dup.json"
+expect_reject "TEST-REMEDY JSON input mode rejects a duplicate object key" \
+  "$WORK/remedy_json_dup.json" DUPLICATE_KEY_REJECTED 23
+
+printf '{"a": NaN}' > "$WORK/remedy_json_nan.json"
+expect_reject "TEST-REMEDY JSON input mode rejects the non-standard NaN constant" \
+  "$WORK/remedy_json_nan.json" NUMBER_OUT_OF_RANGE_REJECTED 28
+
+printf '{"a": Infinity}' > "$WORK/remedy_json_inf.json"
+expect_reject "TEST-REMEDY JSON input mode rejects the non-standard Infinity constant" \
+  "$WORK/remedy_json_inf.json" NUMBER_OUT_OF_RANGE_REJECTED 28
 
 # ---------------------------------------------------------------------------
 # Self-registration (design.md Test Strategy item 11).

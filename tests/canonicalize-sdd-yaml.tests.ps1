@@ -89,8 +89,8 @@ function Get-Sha256Hex([string]$Path) {
   return (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
 }
 
-function Expect-Reject([string]$Desc, [string]$FilePath, [string]$Category, [int]$ExitCode) {
-  $r = Invoke-Canon -FilePath $FilePath
+function Expect-Reject([string]$Desc, [string]$FilePath, [string]$Category, [int]$ExitCode, [string[]]$ExtraArgs = @()) {
+  $r = Invoke-Canon -FilePath $FilePath -ExtraArgs $ExtraArgs
   if ($r.ExitCode -ne $ExitCode) {
     Test-Fail $Desc "exit code: got $($r.ExitCode), want $ExitCode"
     return
@@ -108,8 +108,8 @@ function Expect-Reject([string]$Desc, [string]$FilePath, [string]$Category, [int
   Test-Pass $Desc
 }
 
-function Expect-StdoutBytes([string]$Desc, [string]$FilePath, [string]$ExpectedPath) {
-  $r = Invoke-Canon -FilePath $FilePath
+function Expect-StdoutBytes([string]$Desc, [string]$FilePath, [string]$ExpectedPath, [string[]]$ExtraArgs = @()) {
+  $r = Invoke-Canon -FilePath $FilePath -ExtraArgs $ExtraArgs
   if ($r.ExitCode -ne 0) {
     $stderrText = Get-Content -Raw -LiteralPath $r.StderrPath -ErrorAction SilentlyContinue
     Test-Fail $Desc "exit code: got $($r.ExitCode), want 0; stderr: $stderrText"
@@ -367,31 +367,186 @@ empty_list: []
     Test-Fail 'TEST-037 byte-exact stdout framing: --hash-only output ends with exactly one trailing newline'
   }
 
-  # Documented exit-code table cross-check: every category this suite
-  # exercised above used its own stable, distinct, non-zero exit code.
-  $categoryCodes = [ordered]@{
-    ANCHOR_REJECTED                  = 20
-    ALIAS_REJECTED                   = 21
-    CUSTOM_TAG_REJECTED              = 22
-    DUPLICATE_KEY_REJECTED           = 23
-    NON_STRING_KEY_REJECTED          = 24
-    MULTI_DOCUMENT_REJECTED          = 25
-    POST_NFC_DUPLICATE_KEY_REJECTED  = 27
-    NUMBER_OUT_OF_RANGE_REJECTED     = 28
+  # Documented exit-code table cross-check (remedy, quality-gate seq0346
+  # Minor finding: the prior version asserted only literals typed into
+  # THIS file and never read the script's own table, so it could not
+  # detect drift). Reads CATEGORY_EXIT_CODES directly out of
+  # canonicalize-sdd-yaml.py via a python3 subprocess and diffs it
+  # against the documented table below -- a real, non-tautological
+  # comparison that fails if the two diverge.
+  $tableScript = @"
+import importlib.util
+spec = importlib.util.spec_from_file_location('canon', r'$CanonPy')
+mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(mod)
+for k, v in sorted(mod.CATEGORY_EXIT_CODES.items()):
+    print('%s=%s' % (k, v))
+"@
+  $actualTable = (& $Py -c $tableScript | Out-String).Trim() -replace "`r`n", "`n"
+  $expectedTable = @(
+    'ALIAS_REJECTED=21',
+    'ANCHOR_REJECTED=20',
+    'CANONICALIZER_RUNTIME_UNAVAILABLE=3',
+    'CUSTOM_TAG_REJECTED=22',
+    'DUPLICATE_KEY_REJECTED=23',
+    'INVALID_JSON_REJECTED=11',
+    'INVALID_UTF8_REJECTED=10',
+    'MULTI_DOCUMENT_REJECTED=25',
+    'NON_STRING_KEY_REJECTED=24',
+    'NUMBER_OUT_OF_RANGE_REJECTED=28',
+    'POST_NFC_DUPLICATE_KEY_REJECTED=27',
+    'UNSUPPORTED_SYNTAX_REJECTED=26'
+  ) -join "`n"
+  if ($actualTable -eq $expectedTable) {
+    Test-Pass 'TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table'
+  } else {
+    Test-Fail 'TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table' "got: $actualTable"
   }
-  $seenCodes = @()
-  $duplicateFound = $false
-  foreach ($entry in $categoryCodes.GetEnumerator()) {
-    if ($seenCodes -contains $entry.Value) {
-      Test-Fail "TEST-037 exit-code table: $($entry.Key)'s code $($entry.Value) is unique across categories"
-      $duplicateFound = $true
-    } else {
-      $seenCodes += $entry.Value
-    }
+
+  # -------------------------------------------------------------------
+  # Remedy (quality-gate seq0346, NEEDS_WORK): lone-surrogate escapes,
+  # plain-scalar embedded ": " rejection, previously-uncovered exit
+  # codes (26/10/11), and JSON input mode.
+  # -------------------------------------------------------------------
+
+  # (a) Lone (unpaired) UTF-16 surrogate -> INVALID_UTF8_REJECTED (10),
+  # never an uncaught UnicodeEncodeError. Value + key, YAML + JSON mode.
+  $remedySurrogateVal = Join-Path $Work 'remedy_surrogate_val.yaml'
+  Set-Content -LiteralPath $remedySurrogateVal -NoNewline -Encoding utf8 -Value ('a: "\ud800"' + "`n")
+  Expect-Reject 'TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode) is INVALID_UTF8_REJECTED, not an uncaught exception' `
+    $remedySurrogateVal 'INVALID_UTF8_REJECTED' 10
+  Expect-Reject 'TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode, --hash-only) is INVALID_UTF8_REJECTED' `
+    $remedySurrogateVal 'INVALID_UTF8_REJECTED' 10 @('--hash-only')
+
+  $remedySurrogateKeyYaml = Join-Path $Work 'remedy_surrogate_key.yaml'
+  Set-Content -LiteralPath $remedySurrogateKeyYaml -NoNewline -Encoding utf8 -Value ('"\udfff": 1' + "`n")
+  Expect-Reject 'TEST-REMEDY lone surrogate in a quoted mapping KEY (YAML mode) is INVALID_UTF8_REJECTED' `
+    $remedySurrogateKeyYaml 'INVALID_UTF8_REJECTED' 10
+
+  $remedySurrogateValJson = Join-Path $Work 'remedy_surrogate_val.json'
+  Set-Content -LiteralPath $remedySurrogateValJson -NoNewline -Encoding utf8 -Value '{"a":"\ud800"}'
+  Expect-Reject 'TEST-REMEDY lone surrogate in a string VALUE (JSON input mode) is INVALID_UTF8_REJECTED' `
+    $remedySurrogateValJson 'INVALID_UTF8_REJECTED' 10
+
+  $remedySurrogateKeyJson = Join-Path $Work 'remedy_surrogate_key.json'
+  Set-Content -LiteralPath $remedySurrogateKeyJson -NoNewline -Encoding utf8 -Value '{"\udfff":1}'
+  Expect-Reject 'TEST-REMEDY lone surrogate in an object KEY (JSON input mode) is INVALID_UTF8_REJECTED' `
+    $remedySurrogateKeyJson 'INVALID_UTF8_REJECTED' 10
+
+  # Regression guard: a correctly-paired surrogate escape (a real astral
+  # character) must keep succeeding -- the fix must not over-reject.
+  $remedyPair = Join-Path $Work 'remedy_pair.yaml'
+  Set-Content -LiteralPath $remedyPair -NoNewline -Encoding utf8 -Value ('a: "😀"' + "`n")
+  $remedyPairExpected = Join-Path $Work 'remedy_pair_expected.json'
+  [System.IO.File]::WriteAllBytes($remedyPairExpected, [System.Text.Encoding]::UTF8.GetBytes('{"a":"😀"}'))
+  Expect-StdoutBytes 'TEST-REMEDY a correctly-paired surrogate escape (astral character) still succeeds' `
+    $remedyPair $remedyPairExpected
+
+  # (b) A plain scalar containing ": " or ending with ":" is ambiguous
+  # with a nested mapping entry -> UNSUPPORTED_SYNTAX_REJECTED (26) with
+  # a quote-the-scalar hint, never best-effort-kept as scalar text.
+  $remedyEmbeddedColon = Join-Path $Work 'remedy_embedded_colon.yaml'
+  Set-Content -LiteralPath $remedyEmbeddedColon -NoNewline -Encoding utf8 -Value "a: b: c`n"
+  Expect-Reject 'TEST-REMEDY plain scalar value ''b: c'' (embedded '': '') is rejected, not best-effort-interpreted' `
+    $remedyEmbeddedColon 'UNSUPPORTED_SYNTAX_REJECTED' 26
+  $rEmbedded = Invoke-Canon -FilePath $remedyEmbeddedColon
+  $embeddedStderr = Get-Content -Raw -LiteralPath $rEmbedded.StderrPath -ErrorAction SilentlyContinue
+  if ($embeddedStderr -match 'quote the scalar') {
+    Test-Pass "TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint"
+  } else {
+    Test-Fail "TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint" $embeddedStderr
   }
-  if (-not $duplicateFound) {
-    Test-Pass 'TEST-037 exit-code table: every rejection category exercised by this suite uses a distinct, stable, non-zero exit code'
-  }
+
+  $remedyTrailingColon = Join-Path $Work 'remedy_trailing_colon.yaml'
+  Set-Content -LiteralPath $remedyTrailingColon -NoNewline -Encoding utf8 -Value "key: value:`n"
+  Expect-Reject "TEST-REMEDY plain scalar value 'value:' (trailing ':') is rejected" `
+    $remedyTrailingColon 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedySeqEmbedded = Join-Path $Work 'remedy_seq_embedded_colon.yaml'
+  Set-Content -LiteralPath $remedySeqEmbedded -NoNewline -Encoding utf8 -Value "- a: b: c`n"
+  Expect-Reject "TEST-REMEDY embedded ': ' is rejected inside an inline '- key: value' mapping too" `
+    $remedySeqEmbedded 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  # Regression guards: legitimate ':'-bearing content must keep working.
+  $remedyUrl = Join-Path $Work 'remedy_url.yaml'
+  Set-Content -LiteralPath $remedyUrl -NoNewline -Encoding utf8 -Value "a: http://example.com`n"
+  $remedyUrlExpected = Join-Path $Work 'remedy_url_expected.json'
+  Set-Content -LiteralPath $remedyUrlExpected -NoNewline -Encoding utf8 -Value '{"a":"http://example.com"}'
+  Expect-StdoutBytes "TEST-REMEDY a URL value (':' not followed by a space) still succeeds" `
+    $remedyUrl $remedyUrlExpected
+
+  $remedyQuotedColon = Join-Path $Work 'remedy_quoted_colon.yaml'
+  Set-Content -LiteralPath $remedyQuotedColon -NoNewline -Encoding utf8 -Value ('a: "b: c"' + "`n")
+  $remedyQuotedColonExpected = Join-Path $Work 'remedy_quoted_colon_expected.json'
+  Set-Content -LiteralPath $remedyQuotedColonExpected -NoNewline -Encoding utf8 -Value '{"a":"b: c"}'
+  Expect-StdoutBytes "TEST-REMEDY a QUOTED value containing ': ' still succeeds" `
+    $remedyQuotedColon $remedyQuotedColonExpected
+
+  # (c) Previously-uncovered exit codes: UNSUPPORTED_SYNTAX_REJECTED (26)
+  # via several independent out-of-subset constructs,
+  # INVALID_UTF8_REJECTED (10) via genuinely invalid input bytes (not
+  # just a surrogate escape), and INVALID_JSON_REJECTED (11) via
+  # malformed JSON.
+  $remedyBlockScalar = Join-Path $Work 'remedy_blockscalar.yaml'
+  Set-Content -LiteralPath $remedyBlockScalar -NoNewline -Encoding utf8 -Value "a: |`n  block`n  scalar`n"
+  Expect-Reject 'TEST-REMEDY(26) block scalar indicator is UNSUPPORTED_SYNTAX_REJECTED' `
+    $remedyBlockScalar 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedyFlow = Join-Path $Work 'remedy_flow.yaml'
+  Set-Content -LiteralPath $remedyFlow -NoNewline -Encoding utf8 -Value "a: [1, 2]`n"
+  Expect-Reject 'TEST-REMEDY(26) non-empty flow sequence is UNSUPPORTED_SYNTAX_REJECTED' `
+    $remedyFlow 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedyTab = Join-Path $Work 'remedy_tab.yaml'
+  Set-Content -LiteralPath $remedyTab -NoNewline -Encoding utf8 -Value ("`ta: 1`n")
+  Expect-Reject 'TEST-REMEDY(26) tab indentation is UNSUPPORTED_SYNTAX_REJECTED' `
+    $remedyTab 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedyLeadMarker = Join-Path $Work 'remedy_leadmarker.yaml'
+  Set-Content -LiteralPath $remedyLeadMarker -NoNewline -Encoding utf8 -Value "---`nkey: value`n"
+  Expect-Reject "TEST-REMEDY(26) a leading '---' marker on a single document is UNSUPPORTED_SYNTAX_REJECTED" `
+    $remedyLeadMarker 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedyBadUtf8 = Join-Path $Work 'remedy_badutf8.yaml'
+  [System.IO.File]::WriteAllBytes($remedyBadUtf8, [byte[]](0xff, 0xfe, 0x20, 0x62, 0x61, 0x64, 0x0a))
+  Expect-Reject 'TEST-REMEDY(10) genuinely invalid UTF-8 input BYTES (not an escape) is INVALID_UTF8_REJECTED' `
+    $remedyBadUtf8 'INVALID_UTF8_REJECTED' 10
+
+  $remedyBadJson = Join-Path $Work 'remedy_badjson.json'
+  Set-Content -LiteralPath $remedyBadJson -NoNewline -Encoding utf8 -Value '{"a": 1,}'
+  Expect-Reject 'TEST-REMEDY(11) malformed JSON input is INVALID_JSON_REJECTED' `
+    $remedyBadJson 'INVALID_JSON_REJECTED' 11
+
+  # JSON input mode generally (REQ-003's second declared input mode; the
+  # T-003 HMAC-preimage path). Extension auto-detection, explicit
+  # --input-format override, duplicate-key rejection, and non-finite
+  # constant rejection.
+  $remedyJsonRoundtrip = Join-Path $Work 'remedy_json_roundtrip.json'
+  Set-Content -LiteralPath $remedyJsonRoundtrip -NoNewline -Encoding utf8 -Value '{"b":2,"a":1}'
+  $remedyJsonRoundtripExpected = Join-Path $Work 'remedy_json_roundtrip_expected.json'
+  Set-Content -LiteralPath $remedyJsonRoundtripExpected -NoNewline -Encoding utf8 -Value '{"a":1,"b":2}'
+  Expect-StdoutBytes 'TEST-REMEDY JSON input mode round-trips and re-sorts keys (extension auto-detection)' `
+    $remedyJsonRoundtrip $remedyJsonRoundtripExpected
+
+  $remedyJsonRoundtripNoExt = Join-Path $Work 'remedy_json_roundtrip.noext'
+  Copy-Item -LiteralPath $remedyJsonRoundtrip -Destination $remedyJsonRoundtripNoExt
+  Expect-StdoutBytes 'TEST-REMEDY JSON input mode round-trips via explicit --input-format json (no .json extension)' `
+    $remedyJsonRoundtripNoExt $remedyJsonRoundtripExpected @('--input-format', 'json')
+
+  $remedyJsonDup = Join-Path $Work 'remedy_json_dup.json'
+  Set-Content -LiteralPath $remedyJsonDup -NoNewline -Encoding utf8 -Value '{"a":1,"a":2}'
+  Expect-Reject 'TEST-REMEDY JSON input mode rejects a duplicate object key' `
+    $remedyJsonDup 'DUPLICATE_KEY_REJECTED' 23
+
+  $remedyJsonNan = Join-Path $Work 'remedy_json_nan.json'
+  Set-Content -LiteralPath $remedyJsonNan -NoNewline -Encoding utf8 -Value '{"a": NaN}'
+  Expect-Reject 'TEST-REMEDY JSON input mode rejects the non-standard NaN constant' `
+    $remedyJsonNan 'NUMBER_OUT_OF_RANGE_REJECTED' 28
+
+  $remedyJsonInf = Join-Path $Work 'remedy_json_inf.json'
+  Set-Content -LiteralPath $remedyJsonInf -NoNewline -Encoding utf8 -Value '{"a": Infinity}'
+  Expect-Reject 'TEST-REMEDY JSON input mode rejects the non-standard Infinity constant' `
+    $remedyJsonInf 'NUMBER_OUT_OF_RANGE_REJECTED' 28
 
   # -------------------------------------------------------------------
   # Self-registration (design.md Test Strategy item 11).

@@ -546,6 +546,42 @@ written): `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`
 recorded value above, confirming no session has touched the live file
 since).
 
+QUALITY-GATE REMEDY (2026-07-29, follow-up session, seq0346, verdict
+NEEDS_WORK): the independent evaluator confirmed the implementation core
+genuine (independent JCS differential across 8,023 numbers and 400
+whole-document fixtures, both zero mismatches) and found 3 Major
+findings, all remedied in this session: (1) a lone (unpaired) UTF-16
+surrogate reaching the serializer raised an uncaught `UnicodeEncodeError`
+(exit 1, raw traceback) instead of a documented category — fixed by
+rejecting it as `INVALID_UTF8_REJECTED` (exit 10), assigned to that
+EXISTING category rather than a new one: design.md's Canonicalization
+procedure step 1 ("decode as UTF-8 (reject on decode error)") and step 6
+("the canonical UTF-8 byte sequence") together establish that the whole
+pipeline operates only on valid Unicode text representable in UTF-8; a
+lone surrogate produced via a `\uXXXX` escape (itself inside the accepted
+subset's own text, "JSON's escape set exactly, incl. `\uXXXX`") violates
+that exact invariant discovered at a later pipeline stage, not a
+different one — `INVALID_UTF8_REJECTED`'s plain meaning covers both.
+(2) A plain scalar containing an embedded `": "` or ending with `":"`
+(e.g. `a: b: c`) was best-effort split on the first `": "` and accepted
+(`{"a":"b: c"}`, rc=0) instead of rejected — fixed by rejecting with
+`UNSUPPORTED_SYNTAX_REJECTED` (exit 26) and the quote-the-scalar hint,
+per Design Decisions' explicit "never a best-effort interpretation".
+(3) Neither test suite exercised `UNSUPPORTED_SYNTAX_REJECTED` (26),
+`INVALID_UTF8_REJECTED` (10), `INVALID_JSON_REJECTED` (11), or JSON input
+mode at all — remedied with 23 new regression assertions per runtime
+(TDD Red 9 FAIL/43 PASS `bash`, 9 FAIL/40 PASS `pwsh` against the
+pre-remedy script → Green 52/52 `bash`, 49/49 `pwsh`, evidence at
+`specs/epic-189-a1-project-context/verification/T-002/remedy-{red,green}-{sh,ps1}.log`),
+plus the Minor finding's tautological exit-code-table test replaced with
+one that reads `CATEGORY_EXIT_CODES` directly from
+`canonicalize-sdd-yaml.py` via `importlib`. Full detail:
+`reports/implementation/epic-189-a1-project-context/T-002.md`. The two
+remaining Minor findings (block-sequence-flush-left-style coverage gap;
+this section's own staging-deferral checklist item) are unchanged by this
+remedy and remain open for a future task/session per the evaluator's own
+scoping.
+
 ---
 
 ## T-003 Author the approval sidecar schema and staging-only signer (`generate-approval-sidecar`)
