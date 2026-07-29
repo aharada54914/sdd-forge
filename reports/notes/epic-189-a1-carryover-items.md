@@ -40,3 +40,19 @@
   節の「Every task below carries Approval: Draft and Status: Planned」が
   T-001/T-002/T-004 の sudo Approved / Blocked 実態に対し stale。14 チェック
   の defect ではない。最終フェーズの docs 改訂（正規ゲート経由)で更新検討。
+
+- **WFI 候補 + documented interim state: 実装進行に伴う tasks.md の正規 drift**
+  (2026-07-29, T-002 Done 直後の workflow-state「task plan hash is stale」で
+  顕在化): implement-task の正規ライフサイクル追記（unblock note・
+  STAGING DEFERRED note・status 遷移)は task-review contract の束縛 hash
+  （raw/normalized どちらの導出でも)を必然的に乖離させる。normalized_hash
+  の task 正規化は 3 フィールド行のマスクのみで、ライフサイクルが要求する
+  prose 追記を畳み込まない — つまり**実装フェーズ中の task-stage provenance
+  は構造的に green を維持できない**（WFI-019 は re-binding 時点の一致を
+  修復したが、その後の正規追記で再乖離する)。判断: (a)+(b) の両方 —
+  当面は「documented interim state」として許容（4bd2ec3b 以来の同族、
+  A1 実装完了時の最終 provenance re-binding で解消。check-task-state /
+  check-contract / evidence bundle は green のまま)。恒久修正は WFI として
+  最終フェーズへ: normalized_hash の task 正規化に「ライフサイクル公認の
+  追記領域（Blockers prose 以下のノート等)の畳み込み」を追加する等、
+  検証器側の設計変更（human-apply 経路)。検証器は編集しない。
