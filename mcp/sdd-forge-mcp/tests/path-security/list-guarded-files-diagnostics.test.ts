@@ -460,14 +460,25 @@ test("TEST-006 (AC-006): every guard-failure class still collapses to [] for the
   }
 });
 
-test("TEST-006 (AC-006, BL-003): none of the 3 existing call sites was changed to opt into the diagnostics function", () => {
+test("TEST-006 (AC-006, BL-003): the 2 Non-goal call sites were not changed to opt into the diagnostics function", () => {
   const repoRoot = findSddForgeRepoRoot();
-  const callSites = [
-    "mcp/sdd-forge-mcp/src/parsers/report-lookup.ts",
+  // design.md's Components table names exactly TWO modules as Non-goals that
+  // "continue calling `listGuardedFiles` exactly as today": quality-report.ts
+  // and review-ticket.ts. report-lookup.ts is NOT one of them -- the same table
+  // lists it as "Existing (extended)" gaining `anyFileContainingWithDiagnostics`
+  // (REQ-004), which design.md's API/Contract Plan implements by calling
+  // `listGuardedFilesWithDiagnostics` directly. This test originally looped over
+  // all three and asserted the Non-goal constraint on report-lookup.ts too,
+  // which the spec never required; its own failure message already conceded
+  // "T-004 owns report-lookup.ts's opt-in". Scoped to the two modules the spec
+  // actually constrains. report-lookup.ts's own invariant -- that
+  // `anyFileContaining` keeps its exact signature as a thin wrapper -- is
+  // pinned positively below and by report-lookup's own callers' suites.
+  const nonGoalCallSites = [
     "mcp/sdd-forge-mcp/src/parsers/quality-report.ts",
     "mcp/sdd-forge-mcp/src/parsers/review-ticket.ts",
   ];
-  for (const relPath of callSites) {
+  for (const relPath of nonGoalCallSites) {
     const source = readFileSync(join(repoRoot, ...relPath.split("/")), "utf-8");
     assert.ok(
       source.includes("listGuardedFiles(root, relDir)"),
@@ -475,7 +486,18 @@ test("TEST-006 (AC-006, BL-003): none of the 3 existing call sites was changed t
     );
     assert.ok(
       !source.includes("listGuardedFilesWithDiagnostics"),
-      `${relPath} must NOT opt into listGuardedFilesWithDiagnostics in this task (requirements.md Non-goals; T-004 owns report-lookup.ts's opt-in)`,
+      `${relPath} must NOT opt into listGuardedFilesWithDiagnostics (design.md Components table: Non-goal, "continue calling listGuardedFiles exactly as today")`,
     );
   }
+
+  const reportLookup = readFileSync(
+    join(repoRoot, "mcp", "sdd-forge-mcp", "src", "parsers", "report-lookup.ts"),
+    "utf-8",
+  );
+  assert.ok(
+    reportLookup.includes(
+      "export function anyFileContaining(root: SddRoot, relDir: string, pattern: string): string[]",
+    ),
+    "report-lookup.ts's anyFileContaining must keep its exact pre-existing signature (BL-003), whichever list function it delegates to",
+  );
 });
