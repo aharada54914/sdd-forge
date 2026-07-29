@@ -613,6 +613,20 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
   mutations produce a different HMAC (AC-036).
 - [ ] Suite self-registers; `test.yml` staged correctly.
 - [ ] `CHANGELOG.md` #189 entry updated.
+- [ ] The provenance seam is proven WITHOUT any detector present, via
+  `tests/generate-approval-sidecar.tests.sh` / `.ps1`: a bootstrap fixture
+  (no live sidecar) signs with `predecessor_context_sha256` /
+  `weakening_verdict` = null and `approval_epoch` = 1; a non-bootstrap
+  fixture (live sidecar present) exits non-zero with the
+  `WEAKENING_DETECTOR_UNAVAILABLE` diagnostic and writes NO staged
+  candidate; both runs' outputs captured under
+  `specs/epic-189-a1-project-context/verification/T-003/`
+  (`seam-bootstrap-sh.log` / `-ps1.log`, `seam-failclosed-sh.log` /
+  `-ps1.log`). (Remedy, task-review attempt-3 round-2 OBSERVABLE-DONE
+  finding — verification-command/evidence-artifact form; the frozen
+  acceptance-tests.md gains no new AC/TEST IDs, and the transitional
+  diagnostic is task-sequencing state, not a design.md final-state
+  change.)
 - [ ] TDD Red/Green evidence recorded in the implementation report; an
   independent quality-gate verdict (a named second reviewer, not the
   implementing agent) records PASS.
@@ -903,6 +917,17 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
   (AC-046, verdict half — the schema-conformance half is T-004's).
 - [ ] Suite self-registers; `test.yml` staged correctly.
 - [ ] `CHANGELOG.md` #189 entry updated.
+- [ ] The wiring completion is proven end-to-end via
+  `tests/detect-policy-weakening.tests.sh` / `.ps1`: with the detector
+  present, a non-bootstrap signing fixture through
+  `generate-approval-sidecar.py` embeds the EXACT in-process-computed
+  verdict (no caller-supplied verdict path exists; the
+  `WEAKENING_DETECTOR_UNAVAILABLE` diagnostic no longer fires for this
+  fixture), outputs captured under
+  `specs/epic-189-a1-project-context/verification/T-005/`
+  (`wiring-sh.log` / `wiring-ps1.log`). (Remedy, task-review attempt-3
+  round-2 OBSERVABLE-DONE finding — closes T-003's fail-closed seam to
+  design.md's final in-process state.)
 - [ ] TDD Red/Green evidence recorded in the implementation report; an
   independent quality-gate verdict (a named second reviewer) records PASS.
 
