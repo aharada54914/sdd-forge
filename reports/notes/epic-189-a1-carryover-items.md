@@ -34,3 +34,9 @@
   `docs/adr/0025-human-copy-transactional-bundle.md` と epic-191 ブランチの
   path-ownership ADR (0025) が衝突。マージ段で renumber
   （design.md Design Decisions の cross-branch citation contract 参照)。
+
+- **docs 整理候補: tasks.md Lifecycle 節ヘッダーの stale 文言** (2026-07-29,
+  task-review attempt-4 round-1 reviewer-a の非ブロッキング観察): Lifecycle
+  節の「Every task below carries Approval: Draft and Status: Planned」が
+  T-001/T-002/T-004 の sudo Approved / Blocked 実態に対し stale。14 チェック
+  の defect ではない。最終フェーズの docs 改訂（正規ゲート経由)で更新検討。
