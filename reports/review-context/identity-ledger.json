@@ -3087,6 +3087,15 @@
       "host_session_id": "SESS-task-task-reviewer-a-epic-189-a1-project-context-attempt3-seq0343",
       "previous_record_sha256": "b230b954e2a837bc7b1b7a552231749a86e0a7959486fd6f33ce258789895696",
       "record_sha256": "2fa0d4a41d464f0f1da4d61c447182882845ece2f0e63ec0ac138bcf9fc852d3"
+    },
+    {
+      "sequence": 344,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-189-a1-project-context-task-task-reviewer-a-attempt4-seq0344",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-189-a1-project-context-attempt4-seq0344",
+      "previous_record_sha256": "2fa0d4a41d464f0f1da4d61c447182882845ece2f0e63ec0ac138bcf9fc852d3",
+      "record_sha256": "f28ef0f9f65bbb168f2493f7dc54a87ed915b1a2bf64a15543bd04444985ac69"
     }
   ]
 }
