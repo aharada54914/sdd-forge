@@ -621,6 +621,74 @@ The two remaining Minor findings (block-sequence-flush-left-style coverage
 gap; the `.github/workflows/test.yml` staging deferral) are unchanged by
 this round and remain open per the evaluator's own scoping.
 
+QUALITY-GATE REMEDY 3 (2026-07-29, follow-up session, seq0348, verdict
+NEEDS_WORK): the re-evaluation independently reconfirmed the remedy-2 fix
+genuine (its own disable-the-fix differential reproduced the exact
+pre-fix corruption) and judged the separator REJECT reading defensible,
+then found 2 new Major + 3 Minor, all remedied here. (1) [Major] YAML
+merge-key syntax (`<<`) was never rejected — design.md's Canonicalization
+procedure and Design Decisions both name `<<` merge keys explicitly as
+out-of-subset, but `_RESERVED_SIGIL_GENERIC` had no `<`, so an unquoted
+`<<` key resolved as an ordinary string key at every position (top-level,
+nested, with a map/sequence/scalar/empty-flow value), corrupting the
+canonical hash exactly as the task's Risk Rationale forbids. Fixed with a
+KEY-POSITION-ONLY check (not folded into the general reserved-sigil scalar
+check, which also runs against values) for the exact token `<<`, since `<`
+is not itself a reserved indicator for an ordinary scalar (`a: <foo>` is
+legal plain text) — a blanket "reject any scalar starting with `<`" would
+over-reject content the accepted subset permits; only the exact unquoted
+key `<<` is merge-key syntax, and a quoted `"<<"` key is unaffected (same
+quote-exempts-reserved-sigil pattern as anchor/alias/tag). Documented
+behavior change: `<<: *base` now reports the merge-key rejection instead
+of `ALIAS_REJECTED`, since key-parsing (and this new check) now runs
+before the value is examined — both constructs are independently
+out-of-subset, and naming the key construct is more informative.
+(2) [Major] an in-subset deeply nested document (depth ≥250) raised an
+uncaught `RecursionError` — Python's default recursion limit/thread stack
+size are this interpreter's resource defaults, not part of design.md's
+grammar, which states block collections nest "arbitrarily" with no depth
+cap of its own; inventing a rejection category for depth would itself be
+a design violation. Fixed by running the whole parse/normalize/serialize
+pipeline (three recursions that execute sequentially, never stacked on
+each other) in a dedicated thread with a substantially raised recursion
+limit (100,000) and a much larger stack (512 MiB), so any realistic
+"arbitrarily nested" document now succeeds normally (verified through
+depth 10,000) with no error at all. A new `RECURSION_DEPTH_EXCEEDED` exit
+code (4) exists only as a documented, non-crashing backstop for the
+residual case where even this dramatically raised limit is exceeded — the
+SAME KIND of exit as `CANONICALIZER_RUNTIME_UNAVAILABLE` (an environment/
+resource-capability signal), not a new member of the 10-28
+content-rejection family, since such a document is still accepted-subset
+-valid; verified to fire cleanly (not a raw crash) via a scratch copy with
+artificially lowered limits. (3) [Minor, remedied] `%`/`?` construct-
+specific diagnostics, added at the document-root level in remedy 2, now
+also apply at NESTED mapping-key positions. (4) [Minor, decided and
+recorded, not changed] the evaluator's separator-strictness asymmetry
+finding (mapping-side `k:   v` still accepts 2+ spaces via `.lstrip(' ')`
+while sequence-side `-  a` now rejects) is NOT aligned to a symmetric
+reject: the sequence-side bug was a silent CORRUPTION defect (extra
+whitespace absorbed into resolved content, e.g. a leading-space-polluted
+string or a corrupted key), which is why it was Major; the mapping side's
+`.lstrip(' ')` already discards extra separator whitespace with ZERO
+corruption risk before any further processing, so it is safe and
+unambiguous, not the same defect class — tightening it to match would be
+grammar-conformance purity, not a risk/safety fix, and the design's
+dominant concern (this task's own Risk Rationale, ADR-0019) is never
+silently corrupting content, not textual-grammar minimalism for its own
+sake. (5) [Minor, remedied] `T-002.md`'s `## Outputs` table now also
+declares `tests/run-all.sh`, `tests/run-all.ps1`, `CHANGELOG.md`, and (per
+a separate coordinator instruction) `contracts/project-context.template.yaml`
+(referenced, unchanged by this task — the empirical basis for the
+remedy-2 separator reading) so a future evaluator's manifest-scoped read
+access can independently verify claims this round's evaluator flagged as
+unverifiable. TDD Red (`bash` 10 FAIL/70 PASS, `pwsh` 10 FAIL/67 PASS
+against the pre-remedy-3 script) → Green (`bash` 80/80, `pwsh` 77/77)
+captured at
+`specs/epic-189-a1-project-context/verification/T-002/remedy3-{red,green}-{sh,ps1}.log`.
+Full detail: `reports/implementation/epic-189-a1-project-context/T-002.md`.
+The flush-left-block-sequence-style Minor finding and the `test.yml`
+staging deferral remain open, unchanged by this round.
+
 ---
 
 ## T-003 Author the approval sidecar schema and staging-only signer (`generate-approval-sidecar`)

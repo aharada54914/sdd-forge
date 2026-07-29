@@ -375,6 +375,7 @@ MULTI_DOCUMENT_REJECTED=25
 NON_STRING_KEY_REJECTED=24
 NUMBER_OUT_OF_RANGE_REJECTED=28
 POST_NFC_DUPLICATE_KEY_REJECTED=27
+RECURSION_DEPTH_EXCEEDED=4
 UNSUPPORTED_SYNTAX_REJECTED=26'
 if [ "$actual_table" = "$expected_table" ]; then
   pass "TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table"
@@ -574,6 +575,113 @@ if grep -qi 'explicit-key' "$WORK/err"; then
 else
   fail "TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically (stderr: $(cat "$WORK/err"))"
 fi
+
+# ---------------------------------------------------------------------------
+# Remedy 3 (quality-gate seq0348, NEEDS_WORK): YAML merge-key ('<<')
+# rejection, deep-nesting resource fix (no artificial depth cap), and
+# construct-specific '%'/'?' diagnostics at NESTED positions.
+# ---------------------------------------------------------------------------
+
+# (a) merge key '<<' rejected at every position/value-shape; never
+# silently accepted as an ordinary string key.
+printf 'a:\n  <<:\n    y: 2\n' > "$WORK/remedy3_mergekey_map.yaml"
+expect_reject "TEST-REMEDY3 nested merge key with a mapping value is rejected, not key-polluted to {\"<<\":{...}}" \
+  "$WORK/remedy3_mergekey_map.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+run_canon "$WORK/remedy3_mergekey_map.yaml"
+if grep -qi 'merge key' "$WORK/err"; then
+  pass "TEST-REMEDY3 the merge-key rejection names 'merge key' specifically"
+else
+  fail "TEST-REMEDY3 the merge-key rejection names 'merge key' specifically (stderr: $(cat "$WORK/err"))"
+fi
+
+printf '<<: {}\nz: 1\n' > "$WORK/remedy3_mergekey_top.yaml"
+expect_reject "TEST-REMEDY3 top-level merge key with an empty-flow-map value is rejected" \
+  "$WORK/remedy3_mergekey_top.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf 'a:\n  <<:\n    - 1\n' > "$WORK/remedy3_mergekey_seq.yaml"
+expect_reject "TEST-REMEDY3 merge key with a sequence value is rejected" \
+  "$WORK/remedy3_mergekey_seq.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf 'a:\n  <<:\n' > "$WORK/remedy3_mergekey_null.yaml"
+expect_reject "TEST-REMEDY3 merge key with a null (colon-nothing) value is rejected" \
+  "$WORK/remedy3_mergekey_null.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+# Documented behavior change: the merge-key check now runs at key-parse
+# time, before the value (an alias) is ever examined, so '<<: *base' is
+# now reported as a merge-key rejection rather than ALIAS_REJECTED --
+# both constructs are independently out-of-subset; naming the key
+# construct is more informative than incidentally reporting on the value.
+printf '<<: *base\n' > "$WORK/remedy3_mergekey_alias.yaml"
+expect_reject "TEST-REMEDY3 '<<: *base' now reports the merge-key rejection (not ALIAS_REJECTED)" \
+  "$WORK/remedy3_mergekey_alias.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+# Regression guards: a quoted '<<' key, and any scalar merely starting
+# with '<' (not the exact unquoted key '<<'), must keep working.
+printf '"<<": 1\n' > "$WORK/remedy3_quoted_mergekey.yaml"
+printf '{"<<":1}' > "$WORK/remedy3_quoted_mergekey_expected.json"
+expect_stdout_bytes "TEST-REMEDY3 a quoted '<<' key still succeeds as a literal string key" \
+  "$WORK/remedy3_quoted_mergekey.yaml" "$WORK/remedy3_quoted_mergekey_expected.json"
+
+printf 'a: <foo>\n' > "$WORK/remedy3_lt_value.yaml"
+printf '{"a":"<foo>"}' > "$WORK/remedy3_lt_value_expected.json"
+expect_stdout_bytes "TEST-REMEDY3 a value merely starting with '<' (not merge-key syntax) still succeeds" \
+  "$WORK/remedy3_lt_value.yaml" "$WORK/remedy3_lt_value_expected.json"
+
+printf '<foo>: 1\n' > "$WORK/remedy3_lt_key.yaml"
+printf '{"<foo>":1}' > "$WORK/remedy3_lt_key_expected.json"
+expect_stdout_bytes "TEST-REMEDY3 a key merely starting with '<' (not the exact key '<<') still succeeds" \
+  "$WORK/remedy3_lt_key.yaml" "$WORK/remedy3_lt_key_expected.json"
+
+# (b) deep, in-subset nesting succeeds normally (no artificial depth cap;
+# design.md's "nested arbitrarily"). Depth 2000 is ~8x the depth (250)
+# the quality-gate report reproduced the RecursionError at, while staying
+# fast enough for a regression suite.
+python3 -c "
+depth = 2000
+lines = []
+for i in range(depth - 1):
+    lines.append('  ' * i + 'a:')
+lines.append('  ' * (depth - 1) + 'b: 1')
+print('\n'.join(lines))
+" > "$WORK/remedy3_deepnest.yaml"
+run_canon "$WORK/remedy3_deepnest.yaml" --hash-only
+if [ "$?" = 0 ] && [ -s "$WORK/out" ]; then
+  pass "TEST-REMEDY3 a depth-2000 in-subset document succeeds (no RecursionError, no artificial depth cap)"
+else
+  fail "TEST-REMEDY3 a depth-2000 in-subset document succeeds (exit=$? stderr=$(cat "$WORK/err"))"
+fi
+
+# (c) construct-specific '%'/'?' diagnostics at NESTED positions (not
+# just the document root, which seq0347 already covered).
+printf 'a:\n  ? b\n  : c\n' > "$WORK/remedy3_nested_explicitkey.yaml"
+expect_reject "TEST-REMEDY3(c) a nested '?' explicit key gets a construct-specific diagnostic" \
+  "$WORK/remedy3_nested_explicitkey.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+run_canon "$WORK/remedy3_nested_explicitkey.yaml"
+if grep -qi 'explicit-key' "$WORK/err"; then
+  pass "TEST-REMEDY3(c) the nested '?' rejection names 'explicit-key' specifically"
+else
+  fail "TEST-REMEDY3(c) the nested '?' rejection names 'explicit-key' specifically (stderr: $(cat "$WORK/err"))"
+fi
+
+printf 'a:\n  %%FOO bar\n' > "$WORK/remedy3_nested_directive.yaml"
+expect_reject "TEST-REMEDY3(c) a nested '%' directive gets a construct-specific diagnostic" \
+  "$WORK/remedy3_nested_directive.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+run_canon "$WORK/remedy3_nested_directive.yaml"
+if grep -qi 'directive' "$WORK/err"; then
+  pass "TEST-REMEDY3(c) the nested '%' rejection names 'directive' specifically"
+else
+  fail "TEST-REMEDY3(c) the nested '%' rejection names 'directive' specifically (stderr: $(cat "$WORK/err"))"
+fi
+
+# Regression guard: mapping-side multi-space after ':' is a DELIBERATE,
+# recorded non-change (see report's Quality Gate Remedy 3 section) --
+# unlike the sequence-side '-' separator, extra spaces after ':' are
+# already discarded via .lstrip(' ') with zero corruption risk, so this
+# is not the same silent-best-effort-corruption class of bug.
+printf 'k:   v\n' > "$WORK/remedy3_mapping_multispace.yaml"
+printf '{"k":"v"}' > "$WORK/remedy3_mapping_multispace_expected.json"
+expect_stdout_bytes "TEST-REMEDY3(c) mapping-side 'k:   v' (multiple spaces after ':') still succeeds (deliberate, recorded non-change)" \
+  "$WORK/remedy3_mapping_multispace.yaml" "$WORK/remedy3_mapping_multispace_expected.json"
 
 # ---------------------------------------------------------------------------
 # Self-registration (design.md Test Strategy item 11).

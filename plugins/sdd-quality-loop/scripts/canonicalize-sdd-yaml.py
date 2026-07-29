@@ -50,6 +50,7 @@ import json
 import math
 import re
 import sys
+import threading
 import unicodedata
 
 EXIT_OK = 0
@@ -60,9 +61,16 @@ EXIT_USAGE_ERROR = 2
 # interpreter was already found) -- documented here so the full exit-code
 # table lives in one place.
 EXIT_RUNTIME_UNAVAILABLE = 3
+# Reserved for RECURSION_DEPTH_EXCEEDED (below): an environment/resource
+# capability signal, the same KIND of exit as EXIT_RUNTIME_UNAVAILABLE --
+# not a member of the 10-28 content-rejection family, since the document
+# itself is accepted-subset-valid in this case (remedy, quality-gate
+# seq0348).
+EXIT_RECURSION_DEPTH_EXCEEDED = 4
 
 CATEGORY_EXIT_CODES = {
     "CANONICALIZER_RUNTIME_UNAVAILABLE": EXIT_RUNTIME_UNAVAILABLE,
+    "RECURSION_DEPTH_EXCEEDED": EXIT_RECURSION_DEPTH_EXCEEDED,
     "INVALID_UTF8_REJECTED": 10,
     "INVALID_JSON_REJECTED": 11,
     "ANCHOR_REJECTED": 20,
@@ -491,6 +499,13 @@ def parse_key_part_and_rest(content, line_no):
             if content.endswith(":"):
                 idx = len(content) - 1
             else:
+                # A construct-specific diagnostic (directive/explicit-key/
+                # anchor/alias/tag) beats the generic fallback whenever a
+                # reserved sigil is the actual cause -- applies at NESTED
+                # mapping-key positions too, not just the document root
+                # (remedy, quality-gate seq0348 Minor finding: the
+                # seq0347 fix only covered the document-root case).
+                _check_reserved_sigil(content, line_no)
                 raise _unsupported(
                     "expected a mapping entry ('key: value' or 'key:'); no unquoted ': ' separator found",
                     line_no,
@@ -499,6 +514,25 @@ def parse_key_part_and_rest(content, line_no):
         key_token = content[:idx].rstrip(" ")
         if key_token == "":
             raise _unsupported("empty mapping key", line_no)
+        if key_token == "<<":
+            # YAML merge-key syntax (remedy, quality-gate seq0348 Major
+            # finding): design.md's Canonicalization procedure step 2 and
+            # Design Decisions' accepted-subset text both name "<<" merge
+            # keys explicitly as out-of-subset. This check is scoped to
+            # the KEY position only (not folded into the general
+            # `_check_reserved_sigil` scalar check, which also runs
+            # against VALUES) -- '<' is not itself a reserved indicator
+            # for an ordinary scalar (e.g. a value like "<foo>" is legal
+            # plain text), so a blanket "reject any scalar starting with
+            # '<'" would over-reject content the accepted subset permits.
+            # Only the exact, unquoted key "<<" is merge-key syntax; a
+            # quoted "<<" key is unaffected (quoting already exempts every
+            # other reserved sigil the same way).
+            raise _unsupported(
+                "a YAML merge key ('<<') is not accepted",
+                line_no,
+                hint="quote the key ('\"<<\"') if a literal '<<' string is intended",
+            )
         _check_reserved_sigil(key_token, line_no)
         key_type, key_value = resolve_core_schema_scalar(key_token)
         if key_type != "string":
@@ -919,6 +953,71 @@ def build_arg_parser():
     return parser
 
 
+# design.md's accepted subset nests block mappings/sequences "arbitrarily"
+# (Design Decisions) with no depth cap of its own -- Python's default
+# recursion limit (1000) and default thread stack size are this
+# interpreter's own resource defaults, not part of that grammar. Hitting
+# them on an in-subset, otherwise-valid deeply nested document is a
+# resource limitation, not a content-validity rejection (remedy,
+# quality-gate seq0348 Major finding), so no new document-validity
+# rejection category is introduced. Instead, the whole parse/normalize/
+# serialize pipeline (the recursive-descent parser, the post-parse
+# normalize_and_validate walk, and jcs_serialize -- these three
+# recursions run sequentially, never simultaneously stacked on one
+# another, since each fully returns before the next begins) runs in a
+# dedicated thread with a substantially larger stack and a substantially
+# higher recursion limit, so any realistic "arbitrarily nested" document
+# succeeds normally with no error at all. RECURSION_DEPTH_EXCEEDED exists
+# only as a documented, non-crashing backstop for the residual case where
+# even this dramatically raised limit is exceeded -- the same KIND of
+# exit as CANONICALIZER_RUNTIME_UNAVAILABLE (an environment/resource
+# signal), not a new member of the content-rejection family.
+_PIPELINE_RECURSION_LIMIT = 100_000
+_PIPELINE_STACK_SIZE_BYTES = 512 * 1024 * 1024  # 512 MiB
+
+
+def _run_pipeline(func):
+    """Run `func()` (no arguments) in a dedicated thread with a much
+    larger stack and a much higher recursion limit than Python's
+    defaults, then return its result. Re-raises any exception `func`
+    raised, from THIS (the caller's) thread, so normal exception handling
+    in `main` is unaffected. Converts a `RecursionError` that occurs even
+    at the raised limit into a `CanonicalizeError`
+    (`RECURSION_DEPTH_EXCEEDED`) rather than letting it surface as a raw
+    traceback."""
+    outcome = {}
+
+    def runner():
+        sys.setrecursionlimit(_PIPELINE_RECURSION_LIMIT)
+        try:
+            outcome["value"] = func()
+        except RecursionError:
+            outcome["error"] = CanonicalizeError(
+                "RECURSION_DEPTH_EXCEEDED",
+                "the document's nesting depth exceeded this environment's available "
+                f"resources even at a raised recursion limit ({_PIPELINE_RECURSION_LIMIT}) "
+                f"and a {_PIPELINE_STACK_SIZE_BYTES // (1024 * 1024)} MiB stack; this is a "
+                "resource limitation, not a content-validity rejection",
+            )
+        except BaseException as exc:  # noqa: BLE001 - re-raised in the caller's thread
+            outcome["error"] = exc
+
+    previous_stack_size = threading.stack_size()
+    previous_recursion_limit = sys.getrecursionlimit()
+    try:
+        threading.stack_size(_PIPELINE_STACK_SIZE_BYTES)
+        thread = threading.Thread(target=runner)
+        thread.start()
+        thread.join()
+    finally:
+        threading.stack_size(previous_stack_size)
+        sys.setrecursionlimit(previous_recursion_limit)
+
+    if "error" in outcome:
+        raise outcome["error"]
+    return outcome["value"]
+
+
 def main(argv=None):
     parser = build_arg_parser()
     args = parser.parse_args(argv)
@@ -932,10 +1031,13 @@ def main(argv=None):
 
     input_format = args.input_format or ("json" if args.file.lower().endswith(".json") else "yaml")
 
-    try:
+    def _run():
         value = parse_json_bytes(data) if input_format == "json" else parse_yaml_bytes(data)
         value = normalize_and_validate(value)
-        canonical_bytes = jcs_serialize(value)
+        return jcs_serialize(value)
+
+    try:
+        canonical_bytes = _run_pipeline(_run)
     except CanonicalizeError as exc:
         location = f" (line {exc.line_no})" if exc.line_no else ""
         print(f"canonicalize-sdd-yaml: {exc.category}{location}: {exc.message}", file=sys.stderr)

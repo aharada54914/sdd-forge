@@ -395,6 +395,7 @@ for k, v in sorted(mod.CATEGORY_EXIT_CODES.items()):
     'NON_STRING_KEY_REJECTED=24',
     'NUMBER_OUT_OF_RANGE_REJECTED=28',
     'POST_NFC_DUPLICATE_KEY_REJECTED=27',
+    'RECURSION_DEPTH_EXCEEDED=4',
     'UNSUPPORTED_SYNTAX_REJECTED=26'
   ) -join "`n"
   if ($actualTable -eq $expectedTable) {
@@ -638,6 +639,116 @@ for k, v in sorted(mod.CATEGORY_EXIT_CODES.items()):
   } else {
     Test-Fail "TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically" $explicitKeyStderr
   }
+
+  # -------------------------------------------------------------------
+  # Remedy 3 (quality-gate seq0348, NEEDS_WORK): YAML merge-key ('<<')
+  # rejection, deep-nesting resource fix (no artificial depth cap), and
+  # construct-specific '%'/'?' diagnostics at NESTED positions.
+  # -------------------------------------------------------------------
+
+  $remedy3MergeKeyMap = Join-Path $Work 'remedy3_mergekey_map.yaml'
+  Set-Content -LiteralPath $remedy3MergeKeyMap -NoNewline -Encoding utf8 -Value "a:`n  <<:`n    y: 2`n"
+  Expect-Reject "TEST-REMEDY3 nested merge key with a mapping value is rejected, not key-polluted" `
+    $remedy3MergeKeyMap 'UNSUPPORTED_SYNTAX_REJECTED' 26
+  $rMergeKeyMap = Invoke-Canon -FilePath $remedy3MergeKeyMap
+  $mergeKeyStderr = Get-Content -Raw -LiteralPath $rMergeKeyMap.StderrPath -ErrorAction SilentlyContinue
+  if ($mergeKeyStderr -match '(?i)merge key') {
+    Test-Pass "TEST-REMEDY3 the merge-key rejection names 'merge key' specifically"
+  } else {
+    Test-Fail "TEST-REMEDY3 the merge-key rejection names 'merge key' specifically" $mergeKeyStderr
+  }
+
+  $remedy3MergeKeyTop = Join-Path $Work 'remedy3_mergekey_top.yaml'
+  Set-Content -LiteralPath $remedy3MergeKeyTop -NoNewline -Encoding utf8 -Value "<<: {}`nz: 1`n"
+  Expect-Reject "TEST-REMEDY3 top-level merge key with an empty-flow-map value is rejected" `
+    $remedy3MergeKeyTop 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedy3MergeKeySeq = Join-Path $Work 'remedy3_mergekey_seq.yaml'
+  Set-Content -LiteralPath $remedy3MergeKeySeq -NoNewline -Encoding utf8 -Value "a:`n  <<:`n    - 1`n"
+  Expect-Reject "TEST-REMEDY3 merge key with a sequence value is rejected" `
+    $remedy3MergeKeySeq 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedy3MergeKeyNull = Join-Path $Work 'remedy3_mergekey_null.yaml'
+  Set-Content -LiteralPath $remedy3MergeKeyNull -NoNewline -Encoding utf8 -Value "a:`n  <<:`n"
+  Expect-Reject "TEST-REMEDY3 merge key with a null (colon-nothing) value is rejected" `
+    $remedy3MergeKeyNull 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedy3MergeKeyAlias = Join-Path $Work 'remedy3_mergekey_alias.yaml'
+  Set-Content -LiteralPath $remedy3MergeKeyAlias -NoNewline -Encoding utf8 -Value ("<<: *base`n")
+  Expect-Reject "TEST-REMEDY3 '<<: *base' now reports the merge-key rejection (not ALIAS_REJECTED)" `
+    $remedy3MergeKeyAlias 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedy3QuotedMergeKey = Join-Path $Work 'remedy3_quoted_mergekey.yaml'
+  Set-Content -LiteralPath $remedy3QuotedMergeKey -NoNewline -Encoding utf8 -Value ('"<<": 1' + "`n")
+  $remedy3QuotedMergeKeyExpected = Join-Path $Work 'remedy3_quoted_mergekey_expected.json'
+  Set-Content -LiteralPath $remedy3QuotedMergeKeyExpected -NoNewline -Encoding utf8 -Value '{"<<":1}'
+  Expect-StdoutBytes "TEST-REMEDY3 a quoted '<<' key still succeeds as a literal string key" `
+    $remedy3QuotedMergeKey $remedy3QuotedMergeKeyExpected
+
+  $remedy3LtValue = Join-Path $Work 'remedy3_lt_value.yaml'
+  Set-Content -LiteralPath $remedy3LtValue -NoNewline -Encoding utf8 -Value ("a: <foo>`n")
+  $remedy3LtValueExpected = Join-Path $Work 'remedy3_lt_value_expected.json'
+  Set-Content -LiteralPath $remedy3LtValueExpected -NoNewline -Encoding utf8 -Value '{"a":"<foo>"}'
+  Expect-StdoutBytes "TEST-REMEDY3 a value merely starting with '<' (not merge-key syntax) still succeeds" `
+    $remedy3LtValue $remedy3LtValueExpected
+
+  $remedy3LtKey = Join-Path $Work 'remedy3_lt_key.yaml'
+  Set-Content -LiteralPath $remedy3LtKey -NoNewline -Encoding utf8 -Value ("<foo>: 1`n")
+  $remedy3LtKeyExpected = Join-Path $Work 'remedy3_lt_key_expected.json'
+  Set-Content -LiteralPath $remedy3LtKeyExpected -NoNewline -Encoding utf8 -Value '{"<foo>":1}'
+  Expect-StdoutBytes "TEST-REMEDY3 a key merely starting with '<' (not the exact key '<<') still succeeds" `
+    $remedy3LtKey $remedy3LtKeyExpected
+
+  # (b) deep, in-subset nesting succeeds normally (no artificial depth
+  # cap; design.md's "nested arbitrarily").
+  $remedy3DeepNest = Join-Path $Work 'remedy3_deepnest.yaml'
+  $depth = 2000
+  $deepLines = New-Object System.Collections.Generic.List[string]
+  for ($i = 0; $i -lt $depth - 1; $i++) { $deepLines.Add((' ' * (2 * $i)) + 'a:') }
+  $deepLines.Add((' ' * (2 * ($depth - 1))) + 'b: 1')
+  Set-Content -LiteralPath $remedy3DeepNest -NoNewline -Encoding utf8 -Value (($deepLines -join "`n") + "`n")
+  $rDeepNest = Invoke-Canon -FilePath $remedy3DeepNest -ExtraArgs @('--hash-only')
+  $deepNestOutBytes = [System.IO.File]::ReadAllBytes($rDeepNest.StdoutPath)
+  if ($rDeepNest.ExitCode -eq 0 -and $deepNestOutBytes.Length -gt 0) {
+    Test-Pass "TEST-REMEDY3 a depth-2000 in-subset document succeeds (no RecursionError, no artificial depth cap)"
+  } else {
+    $deepNestStderr = Get-Content -Raw -LiteralPath $rDeepNest.StderrPath -ErrorAction SilentlyContinue
+    Test-Fail "TEST-REMEDY3 a depth-2000 in-subset document succeeds" "exit=$($rDeepNest.ExitCode) stderr=$deepNestStderr"
+  }
+
+  # (c) construct-specific '%'/'?' diagnostics at NESTED positions.
+  $remedy3NestedExplicitKey = Join-Path $Work 'remedy3_nested_explicitkey.yaml'
+  Set-Content -LiteralPath $remedy3NestedExplicitKey -NoNewline -Encoding utf8 -Value "a:`n  ? b`n  : c`n"
+  Expect-Reject "TEST-REMEDY3(c) a nested '?' explicit key gets a construct-specific diagnostic" `
+    $remedy3NestedExplicitKey 'UNSUPPORTED_SYNTAX_REJECTED' 26
+  $rNestedExplicitKey = Invoke-Canon -FilePath $remedy3NestedExplicitKey
+  $nestedExplicitKeyStderr = Get-Content -Raw -LiteralPath $rNestedExplicitKey.StderrPath -ErrorAction SilentlyContinue
+  if ($nestedExplicitKeyStderr -match '(?i)explicit-key') {
+    Test-Pass "TEST-REMEDY3(c) the nested '?' rejection names 'explicit-key' specifically"
+  } else {
+    Test-Fail "TEST-REMEDY3(c) the nested '?' rejection names 'explicit-key' specifically" $nestedExplicitKeyStderr
+  }
+
+  $remedy3NestedDirective = Join-Path $Work 'remedy3_nested_directive.yaml'
+  Set-Content -LiteralPath $remedy3NestedDirective -NoNewline -Encoding utf8 -Value "a:`n  %FOO bar`n"
+  Expect-Reject "TEST-REMEDY3(c) a nested '%' directive gets a construct-specific diagnostic" `
+    $remedy3NestedDirective 'UNSUPPORTED_SYNTAX_REJECTED' 26
+  $rNestedDirective = Invoke-Canon -FilePath $remedy3NestedDirective
+  $nestedDirectiveStderr = Get-Content -Raw -LiteralPath $rNestedDirective.StderrPath -ErrorAction SilentlyContinue
+  if ($nestedDirectiveStderr -match '(?i)directive') {
+    Test-Pass "TEST-REMEDY3(c) the nested '%' rejection names 'directive' specifically"
+  } else {
+    Test-Fail "TEST-REMEDY3(c) the nested '%' rejection names 'directive' specifically" $nestedDirectiveStderr
+  }
+
+  # Regression guard: mapping-side multi-space after ':' is a DELIBERATE,
+  # recorded non-change (see report's Quality Gate Remedy 3 section).
+  $remedy3MappingMultiSpace = Join-Path $Work 'remedy3_mapping_multispace.yaml'
+  Set-Content -LiteralPath $remedy3MappingMultiSpace -NoNewline -Encoding utf8 -Value ("k:   v`n")
+  $remedy3MappingMultiSpaceExpected = Join-Path $Work 'remedy3_mapping_multispace_expected.json'
+  Set-Content -LiteralPath $remedy3MappingMultiSpaceExpected -NoNewline -Encoding utf8 -Value '{"k":"v"}'
+  Expect-StdoutBytes "TEST-REMEDY3(c) mapping-side 'k:   v' still succeeds (deliberate, recorded non-change)" `
+    $remedy3MappingMultiSpace $remedy3MappingMultiSpaceExpected
 
   # -------------------------------------------------------------------
   # Self-registration (design.md Test Strategy item 11).
