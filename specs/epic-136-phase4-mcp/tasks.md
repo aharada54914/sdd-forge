@@ -158,7 +158,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/131
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
@@ -347,25 +347,25 @@ TDD, Red before Green, in one commit:
 
 ### Done When
 
-- [ ] TEST-001 confirms that, for a fixture whose `tasks.md` carries a `Done`
+- [x] TEST-001 confirms that, for a fixture whose `tasks.md` carries a `Done`
   task with a missing or unparsable `T-NNN.contract.json`,
   `evidence_compare_to_traceability`'s response `unreadableContracts`
   contains `{ taskId, reason }` for that task, `reason` asserted EQUAL to the
   underlying `parseVerificationContract` failure message (not merely
   non-empty), and `matches`/`mismatches` are regression-pinned to the values
   the same fixture produced before this change (AC-001).
-- [ ] TEST-002 confirms `unreadableContracts` is present and `[]` for a
+- [x] TEST-002 confirms `unreadableContracts` is present and `[]` for a
   fixture in which every `Done` task's contract is readable (AC-002).
-- [ ] TEST-017 confirms a fixture containing at least one non-`Done` task
+- [x] TEST-017 confirms a fixture containing at least one non-`Done` task
   (e.g. `In Progress`) with no `contract.json` yet has that task named in
   `unreadableContracts` alongside the AC-001 `Done` task — the field is not
   filtered to `Done` tasks (AC-017, closing requirements.md Edge Cases' first
   author-flagged gap).
-- [ ] TEST-011 confirms the branch investigation.md INV-004 identifies as
+- [x] TEST-011 confirms the branch investigation.md INV-004 identifies as
   previously untested is now directly exercised: `unreadableContracts` is
   populated for the affected task AND `mismatches`/`matches` reflect only the
   tasks whose contracts WERE readable (AC-011).
-- [ ] Shared legs, each recorded in the implementation report: the ajv
+- [x] Shared legs, each recorded in the implementation report: the ajv
   `getEnvelopeValidator()` harness (never a text-marker/substring check)
   confirms `$defs.traceabilityComparisonData` now `required`s
   `unreadableContracts`, that the new nested object keeps
@@ -379,14 +379,14 @@ TDD, Red before Green, in one commit:
   `guard-invariants.generated.js`'s `PROTECTED_GATE_SUFFIXES` returns zero
   matches (AC-015 leg); no version literal outside `scripts/bump-version.sh`
   changed.
-- [ ] TDD Red -> Green evidence is recorded in the implementation report with
+- [x] TDD Red -> Green evidence is recorded in the implementation report with
   the two stages explicitly separated: RED — the schema-first `required`
   addition turning the existing ajv conformance suite red, plus the 4 new
   assertions failing against the absent field, both captured before any
   `src/tools/evidence.ts` edit; GREEN — the same suites passing after the
   implementation, re-confirmed after the regenerated `dist/index.js` is
   committed.
-- [ ] An independent review verdict, recorded by a named reviewer distinct
+- [x] An independent review verdict, recorded by a named reviewer distinct
   from the implementing agent, plus an independent quality-gate verdict, both
   record PASS for this task (high-risk requirement, risk-gate-matrix.md).
   Evidence lands in `reports/quality-gate/` and
@@ -420,7 +420,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/131
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
@@ -601,33 +601,33 @@ TDD, Red before Green, in one commit:
 
 ### Done When
 
-- [ ] TEST-003 confirms `evidence_deep_verify`'s response always carries a
+- [x] TEST-003 confirms `evidence_deep_verify`'s response always carries a
   top-level `hostRequiredChecks` array with exactly 2 entries — one
   `git-commit-ancestry`, one `signature-verification` — each `verified: false`
   with a non-empty `note`, asserted for BOTH a `pass`-verdict fixture and a
   `fail`-verdict fixture; each entry's `note` is asserted EQUAL to that same
   response's own `invariants.gitCommit.reason` / `signature.note` value, not
   to a hand-copied literal (AC-003; design.md Risks' drift mitigation).
-- [ ] TEST-004 confirms verdict-independence: across the pass and fail
+- [x] TEST-004 confirms verdict-independence: across the pass and fail
   fixtures, `verdict` is determined only by the pre-existing
   artifacts/artifactsDigest/specRevision/gitCommit.shapeValid/crossBindings
   inputs, and varying `hostRequiredChecks`' content changes it in neither
   direction (AC-004).
-- [ ] TEST-018 confirms the two unconditional-presence sub-cases, each with a
+- [x] TEST-018 confirms the two unconditional-presence sub-cases, each with a
   fixture distinct from TEST-003/TEST-004's pair: (a) a bundle with no
   `signature` block; (b) a bundle whose `git_commit` is not 40-hex. In both,
   `hostRequiredChecks` has exactly 2 entries, both `verified: false`, and each
   `note` equals that fixture's own computed `invariants.gitCommit.reason` /
   `signature.note` (AC-018, closing requirements.md Edge Cases' second
   author-flagged gap).
-- [ ] TEST-016 confirms, by reading
+- [x] TEST-016 confirms, by reading
   `contracts/sdd-forge-mcp-tools.v1.schema.json` directly and asserting
   literal string containment, that
   `$defs.evidenceDeepVerifyData.properties.hostRequiredChecks.description`
   contains verbatim the CONFIRMED policy text recorded in requirements.md
   Field Definitions; a paraphrase or a missing sentence fails the check
   (AC-016).
-- [ ] Shared legs, each recorded in the implementation report: the ajv
+- [x] Shared legs, each recorded in the implementation report: the ajv
   `getEnvelopeValidator()` harness confirms `$defs.evidenceDeepVerifyData`
   now `required`s `hostRequiredChecks`, that the new nested object keeps
   `additionalProperties: false` with `verified` pinned to `const: false`, and
@@ -639,13 +639,13 @@ TDD, Red before Green, in one commit:
   leg); a fresh grep of the 4 paths this task writes against
   `PROTECTED_GATE_SUFFIXES` returns zero matches (AC-015 leg); no version
   literal outside `scripts/bump-version.sh` changed.
-- [ ] TDD Red -> Green evidence is recorded in the implementation report with
+- [x] TDD Red -> Green evidence is recorded in the implementation report with
   the two stages explicitly separated: RED — the schema-first `required`
   addition turning both ok deep-verify conformance cases red, plus the new
   top-level-field assertions failing, both captured before any
   `src/tools/evidence.ts` edit; GREEN — the same suites passing afterwards,
   re-confirmed after the regenerated `dist/index.js` is committed.
-- [ ] An independent review verdict, recorded by a named reviewer distinct
+- [x] An independent review verdict, recorded by a named reviewer distinct
   from the implementing agent, plus an independent quality-gate verdict, both
   record PASS for this task (high-risk requirement). Evidence lands in
   `reports/quality-gate/` and
@@ -682,7 +682,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/132
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
@@ -870,31 +870,31 @@ TDD, Red before Green, in one commit:
 
 ### Done When
 
-- [ ] TEST-005 sub-case (a) confirms
+- [x] TEST-005 sub-case (a) confirms
   `listGuardedFilesWithDiagnostics(root, relDir)` returns
   `{ files: [], errors: [] }` for a genuinely empty, successfully-readable
   allowlisted directory (AC-005).
-- [ ] TEST-005 sub-case (b) confirms a `relDir` that fails guard validation
+- [x] TEST-005 sub-case (b) confirms a `relDir` that fails guard validation
   (not-found / path-denied) returns `files: []` and at least one `errors`
   entry carrying the `resolveGuardedDirectory` denial reason, and that the
   denial fires BEFORE any walk-level `readdirSync` is attempted — the
   assertion security-spec.md B3's STRIDE row requires so that an
   allowlist/denylist check moved inside the new `try`/`catch` cannot pass
   this test (AC-005).
-- [ ] TEST-005 sub-case (c) confirms a mid-walk `readdirSync`/`statSync`
+- [x] TEST-005 sub-case (c) confirms a mid-walk `readdirSync`/`statSync`
   failure yields at least one `errors` entry for the failed path while
   `files` still contains every sibling entry read successfully before and
   after it — the walk continues, matching the existing resilience behavior
   (AC-005; requirements.md Edge Cases' third item). Sub-cases (a), (b) and
   (c) are distinguishable by `errors.length` and are reported individually,
   never collapsed into one pass/fail.
-- [ ] TEST-006 confirms that for every fixture already used by
+- [x] TEST-006 confirms that for every fixture already used by
   `report-lookup.ts`/`quality-report.ts`/`review-ticket.ts`'s own existing
   test suites, `listGuardedFiles(root, relDir)` output is byte-identical to
   `listGuardedFilesWithDiagnostics(root, relDir).files`, and that those 3
   suites pass unmodified — no call site needed a code change (AC-006,
   BL-003).
-- [ ] Shared legs, each recorded in the implementation report: `npm run build`
+- [x] Shared legs, each recorded in the implementation report: `npm run build`
   + `npx tsc --noEmit` + `npm test` pass locally and
   `git diff --exit-code -- dist/` is clean on the committed bundle (AC-010
   leg); a fresh grep of the 3 paths this task writes against
@@ -903,14 +903,14 @@ TDD, Red before Green, in one commit:
   `DENYLISTED_BASENAMES` constants against their pre-task content shows zero
   changes (BL-006); no version literal outside `scripts/bump-version.sh`
   changed.
-- [ ] TDD Red -> Green evidence is recorded in the implementation report with
+- [x] TDD Red -> Green evidence is recorded in the implementation report with
   the two stages explicitly separated: RED — the new suite failing against
   the absent `listGuardedFilesWithDiagnostics` export, captured before any
   `path-guard.ts` edit, including the guard-ordering sub-case (b) assertion
   that proves the check is not vacuous; GREEN — the same suite plus every
   pre-existing consumer suite passing afterwards, re-confirmed after the
   regenerated `dist/index.js` is committed.
-- [ ] An independent review verdict, recorded by a named reviewer distinct
+- [x] An independent review verdict, recorded by a named reviewer distinct
   from the implementing agent, plus an independent quality-gate verdict, both
   record PASS for this task (high-risk requirement). Evidence lands in
   `reports/quality-gate/` and
@@ -949,7 +949,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/132
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: high
 
@@ -1178,18 +1178,18 @@ TDD, Red before Green, in one commit:
 
 ### Done When
 
-- [ ] TEST-007 confirms that for a task whose `reports/quality-gate`
+- [x] TEST-007 confirms that for a task whose `reports/quality-gate`
   directory scan itself fails (a `mktemp`-scoped guard-denial or unlistable
   directory fixture), `evidence_find_missing`'s response places
   `quality-gate-report-pass` into `undeterminable` and into NEITHER `present`
   NOR `missing`, with `required` unaffected (AC-007).
-- [ ] TEST-008 confirms the pre-existing fixture
+- [x] TEST-008 confirms the pre-existing fixture
   `evidence_find_missing: synthetic, a task with no verification artifacts has every requirement missing`
   (`mcp/sdd-forge-mcp/tests/evidence/evidence.test.ts:275`) passes UNMODIFIED
   with `quality-gate-report-pass` still in `missing` and `undeterminable`
   asserted `[]` — proving the genuinely-empty case was not reclassified
   (AC-008; security-spec.md B4's named negative regression).
-- [ ] The union-form parity assertion of design.md Test Strategy item 4(b)
+- [x] The union-form parity assertion of design.md Test Strategy item 4(b)
   passes: for every fixture task, `taskId` is in `missing ∪ undeterminable`
   if and only if `parseTaskState` reports `done-quality-gate-report-missing`
   for it; and for TEST-007's scan-failure fixture the asymmetry is pinned
@@ -1198,7 +1198,7 @@ TDD, Red before Green, in one commit:
   `tests/parser/done-state.test.ts`, `tests/golden/task-state-golden.test.ts`,
   `tests/next-command/next-command.test.ts` — are each run and recorded green
   and unmodified (design.md Test Strategy item 4(a); BL-003).
-- [ ] Shared legs, each recorded in the implementation report: the ajv
+- [x] Shared legs, each recorded in the implementation report: the ajv
   `getEnvelopeValidator()` harness confirms `$defs.evidenceMissingData` now
   `required`s `undeterminable` AND — because this is the last schema-touching
   task — that all 3 of `traceabilityComparisonData.unreadableContracts`,
@@ -1215,13 +1215,13 @@ TDD, Red before Green, in one commit:
   leg); a fresh grep of the 5 paths this task writes against
   `PROTECTED_GATE_SUFFIXES` returns zero matches (AC-015 leg); no version
   literal outside `scripts/bump-version.sh` changed.
-- [ ] TDD Red -> Green evidence is recorded in the implementation report with
+- [x] TDD Red -> Green evidence is recorded in the implementation report with
   the two stages explicitly separated: RED — the schema-first `required`
   addition turning the ajv conformance cases red, plus TEST-007's and the
   parity assertion's failure against the absent field, both captured before
   any `src/` edit; GREEN — the same suites passing afterwards, re-confirmed
   after the regenerated `dist/index.js` is committed.
-- [ ] An independent review verdict, recorded by a named reviewer distinct
+- [x] An independent review verdict, recorded by a named reviewer distinct
   from the implementing agent, plus an independent quality-gate verdict, both
   record PASS for this task (high-risk requirement). Evidence lands in
   `reports/quality-gate/` and
@@ -1270,7 +1270,7 @@ https://github.com/aharada54914/sdd-forge/issues/132
 
 Approval: Approved
 
-Status: Implementation Complete
+Status: Done
 
 Risk: low
 
@@ -1388,24 +1388,24 @@ Test-after (low tier), one documentation-only commit:
 
 ### Done When
 
-- [ ] `CHANGELOG.md`'s `## Unreleased` section contains exactly 2 independent
+- [x] `CHANGELOG.md`'s `## Unreleased` section contains exactly 2 independent
   entries, one citing `#131` and one citing `#132`, each framed as additive
   and accompanied by a same-commit schema update, with no unconditional
   "fully backward compatible" claim anywhere in either entry — confirmed by
   reading the section and quoting both entries verbatim into the
   implementation report (AC-013).
-- [ ] `USERGUIDE.md`'s `evidence_find_missing`, `evidence_compare_to_traceability`
+- [x] `USERGUIDE.md`'s `evidence_find_missing`, `evidence_compare_to_traceability`
   and `evidence_deep_verify` rows each name the tool's new distinguishing
   field (`undeterminable`, `unreadableContracts`, `hostRequiredChecks`
   respectively), and the implementation report states this explicitly rather
   than silently assuming no doc-follow was needed — the exact wording epic
   `#136`'s Done-condition text requires (AC-014).
-- [ ] Shared legs, recorded in the implementation report: the `## Unreleased`
+- [x] Shared legs, recorded in the implementation report: the `## Unreleased`
   header was not re-created and no released version section was modified
   (diff scoped to `CHANGELOG.md` and `USERGUIDE.md` only); a fresh grep of
   those 2 paths against `PROTECTED_GATE_SUFFIXES` returns zero matches
   (AC-015 leg); no version literal outside `scripts/bump-version.sh` changed.
-- [ ] An independent quality-gate verdict records PASS for this task, with
+- [x] An independent quality-gate verdict records PASS for this task, with
   evidence in `reports/quality-gate/` and
   `specs/epic-136-phase4-mcp/verification/T-005/`.
 
