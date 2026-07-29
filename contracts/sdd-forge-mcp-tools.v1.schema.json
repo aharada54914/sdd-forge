@@ -325,7 +325,7 @@
       "type": "object",
       "description": "evidence_compare_to_traceability: mismatches between traceability.md rows and verification artifacts.",
       "additionalProperties": false,
-      "required": ["kind", "feature", "matches", "mismatches"],
+      "required": ["kind", "feature", "matches", "mismatches", "unreadableContracts"],
       "properties": {
         "kind": { "const": "traceability-comparison" },
         "feature": { "$ref": "#/$defs/feature" },
@@ -339,6 +339,18 @@
             "properties": {
               "subject": { "type": "string" },
               "issue": { "type": "string" }
+            }
+          }
+        },
+        "unreadableContracts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["taskId", "reason"],
+            "properties": {
+              "taskId": { "$ref": "#/$defs/taskId" },
+              "reason": { "type": "string" }
             }
           }
         }

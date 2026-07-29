@@ -36275,9 +36275,11 @@ function evidenceCompareToTraceability(root, feature) {
     }
   }
   const declaredReqIds = new Set(traceability.reqToTask.map((row) => row.reqId));
+  const unreadableContracts = [];
   for (const taskId of knownTaskIds) {
     const contractResult = parseVerificationContract(root, feature, taskId);
     if (!contractResult.ok) {
+      unreadableContracts.push({ taskId, reason: contractResult.error.message });
       continue;
     }
     for (const check2 of contractResult.data.checks) {
@@ -36296,7 +36298,8 @@ function evidenceCompareToTraceability(root, feature) {
     kind: "traceability-comparison",
     feature,
     matches: totalChecks - mismatches.length,
-    mismatches
+    mismatches,
+    unreadableContracts
   });
 }
 var RECORDED_SHA256_PATTERN = /^[a-f0-9]{64}$/;

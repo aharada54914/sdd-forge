@@ -267,11 +267,25 @@ export interface TraceabilityMismatch {
   issue: string;
 }
 
+/**
+ * One task whose `<taskId>.contract.json` could not be read at all, so none
+ * of its `requirementIds` could be cross-checked against traceability.md.
+ * `reason` is `parseVerificationContract`'s own `Result.error.message`,
+ * reused verbatim — never re-worded and never interpolated with an absolute
+ * path or any other filesystem detail beyond what that already-reviewed
+ * message carries.
+ */
+export interface UnreadableContract {
+  taskId: string;
+  reason: string;
+}
+
 export interface TraceabilityComparisonData {
   kind: "traceability-comparison";
   feature: string;
   matches: number;
   mismatches: TraceabilityMismatch[];
+  unreadableContracts: UnreadableContract[];
 }
 
 const TASK_ID_PREFIX_PATTERN = /^T-\d+/;
@@ -308,6 +322,15 @@ function extractTaskIdPrefix(token: string): string | undefined {
  *      `<taskId> contract -> REQ-ID`.
  * `matches` counts every one of the above checks that did *not* produce a
  * mismatch (i.e. total checks performed minus `mismatches.length`).
+ *
+ * Rule 3 skips any task whose contract cannot be read. That skip is no longer
+ * silent: every such task is reported in `unreadableContracts` with the
+ * `parseVerificationContract` failure message verbatim, so a caller can tell
+ * "cross-checked and consistent" apart from "never cross-checked at all"
+ * (issue #131 Finding A-5). `unreadableContracts` is NOT filtered to `Done`
+ * tasks — it names every task in tasks.md whose contract was unreadable — and
+ * it does not participate in `matches`/`mismatches`, whose counting semantics
+ * are unchanged.
  */
 export function evidenceCompareToTraceability(
   root: SddRoot,
@@ -359,9 +382,11 @@ export function evidenceCompareToTraceability(
   }
 
   const declaredReqIds = new Set(traceability.reqToTask.map((row) => row.reqId));
+  const unreadableContracts: UnreadableContract[] = [];
   for (const taskId of knownTaskIds) {
     const contractResult = parseVerificationContract(root, feature, taskId);
     if (!contractResult.ok) {
+      unreadableContracts.push({ taskId, reason: contractResult.error.message });
       continue; // no readable contract for this task -- nothing to cross-check
     }
     for (const check of contractResult.data.checks) {
@@ -382,6 +407,7 @@ export function evidenceCompareToTraceability(
     feature,
     matches: totalChecks - mismatches.length,
     mismatches,
+    unreadableContracts,
   });
 }
 
