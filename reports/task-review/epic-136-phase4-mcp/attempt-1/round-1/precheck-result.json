@@ -1,0 +1,16 @@
+{
+  "schema": "task-review-precheck/v1",
+  "feature": "epic-136-phase4-mcp",
+  "attempt": 1,
+  "round": 1,
+  "workflow_match_precheck": "PASS",
+  "blockers_format_valid": true,
+  "tasks_sha256": "6206f23d0c14285bce6fe66b37d9e2b0118d2d32166762313d8cf80561c906eb",
+  "requirements_sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1",
+  "acceptance_sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461",
+  "design_sha256": "fb50896916fc130021b7c80088f4b494d4209f013d6ea0f3143e125751501c41",
+  "traceability_sha256": "3fb25f19703b477b5017bab556cb770b92f2bad069cba3ae7050e26f1a268906",
+  "layer_sha256": {"ux-spec.md":"6a6ca85dbf150c758cdcd1553137cbdbaa779f0c5f83a42c832dc536f3aac7f5","frontend-spec.md":"2878a9ff9d728edcd4910dc5cce01c5ff62f5548beb797556d6bec79f184afa1","infra-spec.md":"4eda7da866fde929e1b87785fdacf444e5d49d08ec88c85c8a0090010df74b59","security-spec.md":"83c3997c613eb5edd2f5396c045eb415dfcf395b5777bfbfa2c4ae704a295c39"},
+  "input_sha256": "070d9a066c2518291743e128cc35718d2f2c8a31083638c5f67a0d4b18412c8c",
+  "generated_at": "2026-07-29T02:04:11Z"
+}
