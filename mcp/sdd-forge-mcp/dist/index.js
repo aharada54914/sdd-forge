@@ -36508,6 +36508,11 @@ function evidenceDeepVerify(root, feature, taskId) {
       failures.push(`cross-binding ${binding.subject}: ${binding.detail}`);
     }
   }
+  const signature = echoSignature(bundle);
+  const hostRequiredChecks = [
+    { check: "git-commit-ancestry", verified: false, note: gitCommit.reason },
+    { check: "signature-verification", verified: false, note: signature.note }
+  ];
   return ok({
     kind: "evidence-deep-verify",
     feature,
@@ -36515,7 +36520,8 @@ function evidenceDeepVerify(root, feature, taskId) {
     verdict: failures.length === 0 ? "pass" : "fail",
     artifacts,
     invariants: { artifactsDigest, specRevision, gitCommit, crossBindings },
-    signature: echoSignature(bundle),
+    signature,
+    hostRequiredChecks,
     failures
   });
 }

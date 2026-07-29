@@ -480,6 +480,27 @@ export interface DeepVerifySignature {
   note: string;
 }
 
+/**
+ * The two checks `evidence_deep_verify` structurally cannot perform in-process
+ * (ADR-0008): git commit ancestry (no git subprocess) and evidence-bundle
+ * signature verification (no key material is ever read).
+ */
+export type HostRequiredCheckId = "git-commit-ancestry" | "signature-verification";
+
+/**
+ * One host-deferred check, promoted to the top level so a consumer cannot
+ * overlook it while reading a `pass` verdict. `verified` is `false` by
+ * construction — this is the set of checks the tool never performs — and
+ * `note` is the ALREADY-COMPUTED `invariants.gitCommit.reason` /
+ * `signature.note` string for the same call, reused verbatim rather than
+ * duplicated, so the two can never silently drift apart.
+ */
+export interface HostRequiredCheck {
+  check: HostRequiredCheckId;
+  verified: false;
+  note: string;
+}
+
 export interface EvidenceDeepVerifyData {
   kind: "evidence-deep-verify";
   feature: string;
@@ -488,6 +509,12 @@ export interface EvidenceDeepVerifyData {
   artifacts: ArtifactVerifyResult[];
   invariants: DeepVerifyInvariants;
   signature: DeepVerifySignature;
+  /**
+   * Always exactly 2 entries, always `verified: false`, and NEVER an input to
+   * `verdict` (issue #131 Finding B-13). Advisory metadata only: the tool
+   * documents the host-deferred boundary here, it does not enforce it.
+   */
+  hostRequiredChecks: HostRequiredCheck[];
   failures: string[];
 }
 
@@ -726,6 +753,11 @@ function echoSignature(bundle: EvidenceBundle): DeepVerifySignature {
  * spec_revision are `match`, git_commit's shape is valid, and every
  * cross-binding is `match`. `gitCommit.ancestryVerified` and
  * `signature.verified` are always `false` and never affect the verdict.
+ *
+ * `hostRequiredChecks` (issue #131 Finding B-13) promotes those same two
+ * host-deferred facts to the top level, verbatim, so a consumer reading a
+ * `pass` verdict cannot overlook them. It is appended to the response object
+ * only: it is not an input to `failures[]` and not an input to the verdict.
  */
 export function evidenceDeepVerify(
   root: SddRoot,
@@ -796,6 +828,15 @@ export function evidenceDeepVerify(
     }
   }
 
+  // Built AFTER the verdict inputs above are final, from values already
+  // computed for this same call, and consumed by nothing but the response
+  // object below — `failures[]` and the `verdict` formula never read it.
+  const signature = echoSignature(bundle);
+  const hostRequiredChecks: HostRequiredCheck[] = [
+    { check: "git-commit-ancestry", verified: false, note: gitCommit.reason },
+    { check: "signature-verification", verified: false, note: signature.note },
+  ];
+
   return ok({
     kind: "evidence-deep-verify",
     feature,
@@ -803,7 +844,8 @@ export function evidenceDeepVerify(
     verdict: failures.length === 0 ? "pass" : "fail",
     artifacts,
     invariants: { artifactsDigest, specRevision, gitCommit, crossBindings },
-    signature: echoSignature(bundle),
+    signature,
+    hostRequiredChecks,
     failures,
   });
 }
