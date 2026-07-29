@@ -307,3 +307,72 @@ files); the pre-sync hashes are the `ed4f264b…` / `f2bb5acf…` /
 2. Acceptance criterion is unchanged and verdict-independent: an
    execution that follows the verified worktree role definition is
    accepted whatever it finds.
+
+## WFI-019 — task-stage hash-compat validator fix (patch for human application)
+
+Prepared 2026-07-29. The task-review post-implementation provenance
+re-review completed with a clean PASS (attempt-4, contract commit
+`3f3b38da`), but its own completion requirement — feature-scoped
+`check-workflow-state` exit 0 — is structurally unreachable: the
+persisted-state validator compares the contract's tasks.md hashes against
+the STATUS-NORMALIZED live-file hash, while the identity-ledger validator
+forces reviewer manifests to carry the RAW file hash; with
+post-implementation task states the two diverge (raw `73172ff7…` vs
+normalized `d22f7517…`). Full analysis: `docs/workflow-improvements/WFI-019.md`.
+The two validator files are NOT R-10 protected (precedent: commit
+`289eeaba` edited the `.sh` directly), but this change is HUMAN-EXECUTED
+by policy to remove any appearance of the orchestrator editing the
+validator that gates its own contract.
+
+**Patch**:
+`reports/implementation/epic-189-a1-project-context/wfi-019-taskstage-hash-compat.patch`
+(sha256 `5f89b953a21f3eec4fddc722065f0b65921716170bd5145dcdcc11d59e3ae616`;
+verified with `git apply --check` against this worktree at preparation
+time). Minimal diff: the two task-stage comparisons in the `.sh` and the
+identical block in the `.ps1` accept EITHER the status-normalized OR the
+raw hash of the live tasks.md — both are fixed derivations of the same
+file and the raw hash binds strictly more content, so this cannot weaken
+tamper detection (stated in the patched comments).
+
+### Apply procedure (WFI-019)
+
+```
+cd /Users/jrmag/Projects/active/sdd-forge-wt-epic-189
+
+# 1. Verify then apply
+git apply --check reports/implementation/epic-189-a1-project-context/wfi-019-taskstage-hash-compat.patch
+git apply reports/implementation/epic-189-a1-project-context/wfi-019-taskstage-hash-compat.patch
+
+# 2. Post-apply sha256 (both must match exactly)
+shasum -a 256 \
+  plugins/sdd-quality-loop/scripts/check-workflow-state.sh \
+  plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+# Expected:
+#   d331c9452d49879ec03ec3cceec03c7734e72826d04a06a0b1e1a3a6587b15ad  check-workflow-state.sh
+#   ae476dda0c1c42559796c52bfe77abc3dc5b28f825bdf88b283f90f1cc52c4ff  check-workflow-state.ps1
+# (Pre-apply, for rollback reference: 6391ad93… / 627c46a2…)
+
+# 3. Feature-scoped validation MUST exit 0 (provenance re-review completion)
+bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh --feature epic-189-a1-project-context; echo "exit=$?"
+
+# 4. Repository-wide run (a failure naming a DIFFERENT feature is a
+#    separate pre-existing issue, not a WFI-019 regression - report it)
+bash plugins/sdd-quality-loop/scripts/check-workflow-state.sh; echo "exit=$?"
+
+# 5. Regression suites
+bash tests/workflow-state.tests.sh
+pwsh -NoProfile -File tests/workflow-state.tests.ps1   # where pwsh exists
+
+# 6. Human commit (explicit paths)
+git add plugins/sdd-quality-loop/scripts/check-workflow-state.sh \
+        plugins/sdd-quality-loop/scripts/check-workflow-state.ps1
+git commit -m "fix(quality-loop): WFI-019 task-stage raw-or-normalized hash acceptance"
+```
+
+### After application (orchestrator runbook)
+
+1. Orchestrator re-verifies the two post-apply hashes read-only, re-runs
+   the feature-scoped validator (exit 0 expected), and formally reports
+   the provenance re-review COMPLETE per its step 5.
+2. T-002 implementation (already launched in parallel) is unaffected by
+   this patch; its quality-gate evaluation proceeds via the coordinator.
