@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase4mcp-impl-a1r3-b-seq0377",
+  "host_session_id": "SESS-impl-a1r3-b-epic136phase4mcp-0377",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-mcp/attempt-1/round-3/integrated-summary.json",
+      "sha256": "640e44f826fe5d1a9082015bf0efe318c520b1b00e028f0cd5ed919f79bafc60"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-mcp/attempt-1/round-3/precheck-result.json",
+      "sha256": "4fc92d1c0a6f4675af216647e10bb94decbdfc873d36713bc84e041c45488fe0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/design.md",
+      "sha256": "fc600560e2ce6205210729c6574987be4903af613cb2455b25f370652bbcc610"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/frontend-spec.md",
+      "sha256": "2878a9ff9d728edcd4910dc5cce01c5ff62f5548beb797556d6bec79f184afa1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/infra-spec.md",
+      "sha256": "4eda7da866fde929e1b87785fdacf444e5d49d08ec88c85c8a0090010df74b59"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/investigation.md",
+      "sha256": "68b448ea17f7b049b7e04947391636ec3f23beff88ca34e8c0ad8bcd46930691"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/security-spec.md",
+      "sha256": "83c3997c613eb5edd2f5396c045eb415dfcf395b5777bfbfa2c4ae704a295c39"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/ux-spec.md",
+      "sha256": "6a6ca85dbf150c758cdcd1553137cbdbaa779f0c5f83a42c832dc536f3aac7f5"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md 'Design Decisions' section (lines 664-734) gives explicit rationale for every decision: OQ-1 single-field-not-two (avoids DRY violation, lines 666-678), OQ-1 sub-decision required-not-optional (cites BL-004's silent-staleness risk, lines 679-690), OQ-2 wrapper-not-flag-argument (cites string[] vs {files,errors} type-mismatch risk, lines 691-699), OQ-3 separate-field-not-merged (closes INV-009, lines 700-705), OQ-4 doc-only-not-enforcement (cites ADR-0008 read-only mandate and BL-005 verdict-input-closure conflict, lines 706-717), plus 2 new decisions (test file location co-location rationale, lines 718-724; quality-report.ts/review-ticket.ts non-goal scope rationale, lines 725-734). No unjustified 'we will use X' statement found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md '## Open Questions' (lines 811-817) states 'None blocking. All 4 of requirements.md's OQ-1..OQ-4 are resolved above' and records investigation.md's own new Open Question as a resolved Non-goal/follow-on-issue candidate. No individual open-question entry remains that would require owner/Blocks-Implementation/Resolution-Path fields."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md '## Assumptions' (lines 802-809) is explicitly carried from requirements.md's own Assumptions section, each item grounded in investigation.md (INV-018 PROTECTED_GATE_SUFFIXES membership, INV-016 ADR-0008/0009 Status Proposed, investigation.md's CHANGELOG.md/mcp-tests-CI-shape findings). investigation.md is present (manifest hash 68b448ea verified) and matches the cited INV-xxx references."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md's API/Contract Plan 'Schema description' quote for hostRequiredChecks (design.md:277-291, explicitly labeled 'the new field's normative text') is NOT verbatim-identical to requirements.md's Field Definitions CONFIRMED literal text (requirements.md:403-414, which says 'copy-paste this exact text into the property's description value'). Diffing both blocks (whitespace-normalized, markdown backticks stripped) shows multiple substantive wording differences beyond formatting, e.g. 'in-process: git commit ancestry and the evidence bundle signature' (req) vs 'in-process (git commit ancestry, evidence bundle signature)' (design); 'each with verified: false' (req) vs 'always verified: false' (design); 'invariants.gitCommit and signature fields' (req) vs 'invariants.gitCommit/signature fields' (design); 'both checks MUST' (req) vs 'BOTH checks MUST' (design); 'This tool does NOT enforce' (req) vs 'This MCP tool does NOT enforce' (design); '(ADR-0008); enforcement is' (req) vs '(ADR-0008) - enforcement is' (design); design's version additionally wraps the whole quote in literal double-quote characters requirements.md's version omits. AC-016/TEST-016 (acceptance-tests.md:29, requirements.md:416-422) verifies this exact string is present in the schema's actual description field via direct file read and literal string-containment assertion against requirements.md's text specifically -- not design.md's. design.md never cross-references requirements.md's Field Definitions or AC-016/017/018 anywhere in the document (grepped for both, zero hits). Failure mode: an implementer following design.md's own presented 'normative text' verbatim (a reasonable reading, since it is labeled normative and design.md is silent about deferring to requirements.md's differently-worded text) produces a schema description that fails TEST-016's exact-match assertion, forcing rework. Major, not Critical: the substantive policy meaning is preserved and requirements.md's own unambiguous directive remains available to a careful implementer reading both documents."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md (grepped for response-time/throughput/concurrency/latency/SLA/ms/p95/p99/rps keywords, zero matches). Feature is a pure-function additive response-field change with no new I/O beyond already-executed reads (design.md Technical Summary)."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md '## Deployment / CI Plan' (lines 772-788) states the deployment target (no runtime deployment; distributed solely via committed dist/index.js per ADR-0003), states explicitly that no new CI step/job is added (existing mcp-tests job, .github/workflows/test.yml:385-432, exercises the change unmodified), describes the same-commit src+dist+schema landing discipline that functions as this codebase's migration-ordering safeguard (fail-closed via git diff --exit-code -- dist/), and states a concrete rollback path (single reviewed revert, no partial-revert hazard since schema+impl always land together). infra-spec.md#cicd-sequence corroborates. No feature-flag strategy is needed since there is no incremental/user-facing rollout surface for this internal contract-additive change."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md '## Data Plan' (lines 170-191) states 'Data Entities: none new' and 'Migration Strategy: none. No schema changes to any artifact OUTSIDE contracts/sdd-forge-mcp-tools.v1.schema.json; that file's own 3 changes are additive' -- no column/table/persistent-schema change is declared anywhere, satisfying the 'No data changes' PASS condition."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md '## External Integrations' (lines 766-770) states 'None. Every change operates entirely on repository-local files already read by the existing implementation -- no new network call, external API, or credential.' Corroborated throughout Architecture/Security Boundaries/infra-spec.md; no integration is mentioned in passing without this explicit treatment."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Architecture/Components/API-Contract-Plan sections map 1:1 onto requirements.md's REQ-001..REQ-008 Goals (Cross-Layer Dependencies table, lines 143-153). requirements.md's Non-goals (widening scope to list_review_tickets/get_quality_gate_summary) are explicitly excluded in design.md's own 'New decision' entry (lines 725-734) and recorded as a follow-on-issue candidate, not implemented -- no scope creep. Feature Type api-only and Design System Compliance N/A are both correctly reflected; no UI component library introduced."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Independently verified against mcp/sdd-forge-mcp/src (not trusting design.md's prose): grep of listGuardedFiles/anyFileContaining confirms the restated two-layer consumer inventory is byte-accurate -- Layer 1 (3 direct listGuardedFiles callers: report-lookup.ts, quality-report.ts:132, review-ticket.ts:160) and Layer 2 (2 direct anyFileContaining callers: evidence.ts:217, task-validation.ts:163); confirmed quality-report.ts:18 and review-ticket.ts:16 import only {guardedRead, listGuardedFiles} from path-guard.js, never report-lookup.js. Traced the union-form parity assertion through the actual evidenceFindMissing wiring (design.md:486-496) and task-validation.ts's validateDoneEvidence (task-validation.ts:163-168) for exactly the two fixtures Test Strategy item 4 scopes it to (TEST-007 directory-scan-failure, TEST-008 no-artifacts case) -- the biconditional holds for both, so the assertion is satisfiable and executable as concretely specified. Non-blocking observation: the surrounding 'Parity Impact of REQ-004' prose (design.md:452-456) frames the invariant more broadly than is strictly true in general (a report-found-but-no-verdict-pass scan-succeeded sub-case would break it, since task-validation.ts emits a different rule there) -- but since Test Strategy item 4 explicitly scopes the assertion to only TEST-007/TEST-008's own two named fixtures, which never hit that sub-case, this does not affect executability and is not raised as a separate finding."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists in the repository (checked via ls), so the approved-domain-model precondition for this check is absent."
+    }
+  ]
+}

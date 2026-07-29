@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase4mcp-impl-a1r1-b-seq0373",
+  "host_session_id": "SESS-impl-a1r1-b-epic136phase4mcp-0373",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-mcp/attempt-1/round-1/integrated-summary.json",
+      "sha256": "28706e545b9c7cfaaf8b45b7532311d03123c46f1ada2bc56a0376a3538a868a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-mcp/attempt-1/round-1/precheck-result.json",
+      "sha256": "43f4d0093c5668d07a46c3cb21d2a5cb5d31e25197e6e57ff3ac4c4ee218d854"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/acceptance-tests.md",
+      "sha256": "847356a80ba5e4c39f874248f57d7ab49ad54fb851a492f6f77781e9a9ba6461"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/design.md",
+      "sha256": "525eb5eb30ea4c9adf87d976959f2370f4d4c7f3e0146eb82a5e9366e7576bf1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/frontend-spec.md",
+      "sha256": "2878a9ff9d728edcd4910dc5cce01c5ff62f5548beb797556d6bec79f184afa1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/infra-spec.md",
+      "sha256": "4eda7da866fde929e1b87785fdacf444e5d49d08ec88c85c8a0090010df74b59"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/investigation.md",
+      "sha256": "68b448ea17f7b049b7e04947391636ec3f23beff88ca34e8c0ad8bcd46930691"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/requirements.md",
+      "sha256": "25b437824e6b9dc87f83d4dee6d7fd5ab484a7ce6cc340941fb678eaba9566f1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/security-spec.md",
+      "sha256": "83c3997c613eb5edd2f5396c045eb415dfcf395b5777bfbfa2c4ae704a295c39"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-mcp/ux-spec.md",
+      "sha256": "6a6ca85dbf150c758cdcd1553137cbdbaa779f0c5f83a42c832dc536f3aac7f5"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Design Decisions section (lines 559-629) states an explicit rationale for every decision: OQ-1 (single field vs. two overlapping names, and required-vs-optional sub-decision), OQ-2 (wrapper vs. flag-argument), OQ-3 (separate field vs. folding into missing), OQ-4 (documentation-only vs. enforcement), plus 2 unprompted decisions. The REQ-005 required-vs-optional choice is justified via two evidence-cited threads: required makes AC-009's ajv hard Done condition catch an omission that optional would silently allow; and the resulting incompatibility with a strict old-schema validator is acceptable because sdd-forge-mcp is private/unpublished (package.json private: true; grep confirms no code outside mcp/sdd-forge-mcp references this schema at runtime). No inline decision found without a because/since clause."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's ## Open Questions (lines 706-712) states 'None blocking. All 4 of requirements.md's OQ-1..OQ-4 are resolved above with concrete field shapes and rationale,' and resolves investigation.md's own new Open Question as a Non-goal/follow-on decision. requirements.md's OQ-1..OQ-4 (613-643) are each marked RESOLVED inline with rationale; investigation.md's Open Questions table (597-599) names an owner and Blocking=no."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's ## Assumptions (697-704) lists 4 assumptions, each traceable to an INV: PROTECTED_GATE_SUFFIXES -> INV-018; ADR-0008/0009 Status -> INV-016; CHANGELOG empty Unreleased -> INV-020; mcp-tests CI shape -> INV-017. investigation.md is present (INV-001..022). Each assumption names a concrete re-verification action (WFI-013 discipline)."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's ## Constraint Compliance (685-695) is present. Every requirements.md Constraints entry (BL-001..BL-006, 583-610) is addressed: BL-003/BL-005/BL-006 named explicitly; BL-001/BL-002 covered by the read-only/no-exec row; BL-004's rationale by the additive v1 contract row plus Design Decisions. Cross-checked evidence_find_missing's undeterminable partition (REQ-004) against INV-009: the wiring is an errors.length>0/else-if/else chain placing QUALITY_GATE_REPORT_REQUIREMENT into exactly one of present/missing/undeterminable; the other 2 required entries are single-file guardedExists checks with no directory-listing failure mode -- confirmed against live evidence.ts:205-222. No contradiction found."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. The feature is a pure-function additive change to 3 existing read-only MCP tool responses plus one new path-guard helper (fixture-driven unit tests only); infra-spec.md Runtime Budget (69-75) and frontend-spec.md Performance and Size Budget (22-28) both state no runtime-budget assertion applies. No numeric threshold, SLA, throughput, or latency target appears in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's ## Deployment / CI Plan (667-683) names the deployment target (no runtime deployment; existing mcp-tests CI job and committed dist/ bundle, .github/workflows/test.yml:385-432), the CI pipeline changes (explicitly none -- adds NO new CI step and touches NO protected file), and the atomicity requirement (dist/index.js regenerated in the SAME commit as any src/ change; otherwise the ubuntu-latest git diff --exit-code -- dist/ step fails red, the designed fail-closed state). No database schema exists, so migrate-ordering is N/A; feature flags are N/A for a single-commit additive contract change."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's ## Data Plan (169-190) states Data Entities: none new; Existing Data Affected: none read differently; Migration Strategy: none -- matching the check's 'No data changes' PASS carve-out. The only schema artifact touched is contracts/sdd-forge-mcp-tools.v1.schema.json (a JSON Schema for MCP tool-response validation, confirmed present with additionalProperties:false), not a database table/column."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's ## External Integrations (661-665) states None -- every change operates on repository-local files already read by the existing implementation, with no new network call, external API, or credential. Confirmed by source inspection: no new fs write, subprocess, or network call is introduced anywhere in the API/Contract Plan."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every requirements.md Goal (REQ-001..008) has a corresponding design.md API/Contract Plan or Deployment/Test-Strategy entry (Cross-Layer Dependencies table, 142-152, maps each REQ to a design section and TEST-ID). No new MCP tool, endpoint, or component appears beyond what REQ-001..008 name. No design-system/ directory exists, so the UI-component-library clause does not apply. New locally-scoped types (GuardedListError, DirectoryReadError, HostRequiredCheck) are direct in-scope shapes of functions the Field Definitions and REQ-003/004 name."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "High-risk surface: REQ-003/REQ-004's refactor of listGuardedFiles (path-guard.ts) and anyFileContaining (report-lookup.ts) into thin wrappers over new diagnostics-returning functions is a load-bearing 'preserve exact existing behavior for every real consumer' claim (BL-003, requirements.md:593-595); security-spec.md's STRIDE table (B4) treats a behavior break here as a Done-transition safety-signal Tampering risk. design.md's only named concrete validation path is AC-006/TEST-006 (acceptance-tests.md:19; design.md Test Strategy item 3, 524-536), scoped explicitly to report-lookup.ts/quality-report.ts/review-ticket.ts's OWN test suites (3 files). Direct inspection shows a 4th real consumer design.md never names: mcp/sdd-forge-mcp/src/parsers/task-validation.ts:7,163 imports and calls anyFileContaining directly, feeding get_task_state's validateDoneEvidence/done-quality-gate-report-missing check -- and evidence.ts's own doc comment (16-19) documents an explicit intended PARITY between evidenceFindMissing (the exact function REQ-004 modifies) and task-validation.ts's validateDoneEvidence. This consumer is exercised by 3 pre-existing suites design.md never names: tests/parser/done-state.test.ts:167-168, tests/golden/task-state-golden.test.ts, and tests/next-command/next-command.test.ts. investigation.md's INV-008 ('Exactly 3 production call sites... no fourth exists') is true only for DIRECT listGuardedFiles callers -- task-validation.ts calls anyFileContaining, not listGuardedFiles -- and neither investigation.md nor design.md names task-validation.ts or its 3 dependent suites anywhere (grep returns zero matches). Failure mode: a task author decomposing REQ-003/REQ-004 from AC-006's literal text could treat the consumer-preservation obligation as fully characterized by 3 files and not specifically verify the documented evidenceFindMissing/validateDoneEvidence parity invariant post-refactor, even though AC-010's full npm test run would still execute these suites as a project-wide safety net."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "SKIP: no domain/ directory exists in this repository (confirmed via ls), so the Domain-Model-Status: Approved precondition cannot be met; this check does not apply."
+    }
+  ]
+}

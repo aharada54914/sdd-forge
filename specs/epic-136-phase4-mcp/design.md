@@ -274,21 +274,30 @@ const hostRequiredChecks: HostRequiredCheck[] = [
 (`:746-771`) are BYTE-UNCHANGED — `hostRequiredChecks` is appended to the
 final `ok({...})` object only, never consulted by the verdict computation.
 
-**Schema description** (the new field's normative text, carrying issue
-#131's requested policy statement — REQ-002/OQ-4):
+**Schema description** — NORMATIVE SOURCE: requirements.md's Field
+Definitions section (the `hostRequiredChecks` entry, requirements.md:394-422)
+is the SINGLE source of truth for this string, and AC-016/TEST-016 asserts
+literal containment of *that* text in the actual schema file. design.md does
+not restate it in its own words; the block below is a verbatim copy of
+requirements.md's CONFIRMED literal text, reproduced here only for reading
+convenience. If the two ever diverge, requirements.md wins and this copy is
+the defect. Implementers MUST copy-paste from requirements.md (markdown
+backticks are already stripped there for JSON-string compatibility, and no
+surrounding quote characters are part of the value). Carries issue #131's
+requested policy statement — REQ-002/OQ-4.
 
-> "Checks this tool cannot verify in-process (git commit ancestry, evidence
-> bundle signature) — always exactly 2 entries, always `verified: false`.
-> Promoted from the nested `invariants.gitCommit`/`signature` fields (both
-> unchanged, still present) to make the host-deferred boundary visible at
-> the top level. Policy: for `risk: critical` tasks, BOTH checks MUST be
-> separately confirmed via host-side verification (a real git ancestry
-> check and a real signature verification) before this bundle's evidence is
-> treated as fully trustworthy for a Done transition. This MCP tool does
-> NOT enforce that policy — it is read-only and performs no signature
-> verification or git subprocess call (ADR-0008) — enforcement is a
-> host-script/release-gate responsibility outside this tool. Never affects
-> `verdict`."
+> Checks this tool cannot verify in-process: git commit ancestry and the
+> evidence bundle signature. Always exactly 2 entries, each with verified:
+> false. Promoted from the nested invariants.gitCommit and signature
+> fields (both unchanged, still present) to make the host-deferred
+> boundary visible at the top level. Policy: for risk: critical tasks,
+> both checks MUST be separately confirmed via host-side verification (a
+> real git ancestry check and a real signature verification) before this
+> bundle's evidence is treated as fully trustworthy for a Done
+> transition. This tool does NOT enforce that policy — it is read-only
+> and performs no signature verification or git subprocess call
+> (ADR-0008); enforcement is a host-script/release-gate responsibility
+> outside this tool. Never affects verdict.
 
 ### `path-guard.ts`: `listGuardedFilesWithDiagnostics` (REQ-003)
 
