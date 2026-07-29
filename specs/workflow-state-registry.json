@@ -360,6 +360,10 @@
     {
       "feature": "epic-136-phase3",
       "profile": "full"
+    },
+    {
+      "feature": "epic-136-phase4-mcp",
+      "profile": "full"
     }
   ]
 }
