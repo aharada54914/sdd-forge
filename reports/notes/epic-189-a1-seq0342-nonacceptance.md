@@ -115,3 +115,15 @@ finding は、内容が何であれ事実として受理する。
 - launch プロンプトは **v2 をそのまま再使用**（Authority note の検証手順は
   同期後のキャッシュとも整合し、system persona と worktree が一致するため
   拒否事由が消滅する)。
+
+## Verification — cache sync 独立再検証 (2026-07-29T01:00Z 頃, orchestrator)
+
+判断9（人間実行の cache sync)後、orchestrator が読み取り専用で 12 hash を
+再検証: cache 1.10.0 / 1.11.0 / 1.11.1 と共有本体
+`~/.local/share/sdd-plugins/plugins/sdd-review-loop/` の全 4 箇所 × 3
+ファイルすべてが post-WFI-018 期待値（`d867fd53…`/`a50d54b5…`/`fdae67b5…`)
+に一致。人間の shasum 出力（一次確認)と整合。run-2 監査コピー =
+`epic-189-a1-seq0342-second-run-nonaccepted.json`
+（sha256 `8f3ab6289256b2a869f97b1a16c0672d96599bbd7670de03469d67df7ec56af6`)。
+seq0342 第 3 実行は v2 プロンプト + 「installed copies も human 同期済み」
+追記版で起動済み（coordinator)。
