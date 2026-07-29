@@ -93,10 +93,10 @@ MCP サーバーがどのリポジトリを SDD ルートとして扱うかは�
 |---|---|
 | `evidence_get_bundle` | `specs/<feature>/verification/<taskId>.evidence.json` をそのまま読み取り（署名フィールドも含め検証はしない） |
 | `evidence_validate_paths` | evidence bundle 内の各アーティファクトパスが path-guard の allowlist 内にあるか・実在するかを報告 |
-| `evidence_find_missing` | Done 遷移に必要な要件（evidence bundle・verification contract・PASS の品質ゲートレポート）の有無を報告（check-task-state.sh の Done evidence チェック相当） |
+| `evidence_find_missing` | Done 遷移に必要な要件（evidence bundle・verification contract・PASS の品質ゲートレポート）の有無を報告（check-task-state.sh の Done evidence チェック相当）。`reports/quality-gate` のディレクトリ走査自体が失敗した場合は `missing` ではなく第3の配列 `undeterminable` に振り分ける（`present`/`missing`/`undeterminable` の3配列が `required` を過不足なく分割する）。なお `get_task_state` は意図的に変更しておらず、走査失敗のタスクを引き続き `done-quality-gate-report-missing` として報告する |
 | `evidence_summarize_contract_checks` | `<taskId>.contract.json` の各チェックの required/passes/waiverReason/requirementIds を要約 |
-| `evidence_compare_to_traceability` | `traceability.md` の REQ→Task・AC→TEST→Task 表と `tasks.md` のタスクID、各タスクの verification contract の requirementIds と traceability.md の宣言 REQ-ID を突き合わせ |
-| `evidence_deep_verify` | evidence bundle を再検証：各成果物の sha256 をディスク上から再計算して記録値と突合、正準 artifacts ダイジェスト・spec_revision・git_commit 40-hex 形状・contract/report クロスバインドの不変条件を検証し、決定論的な pass/fail verdict と failures リストを返す。署名鍵は読まず、署名検証も行わない（verified:false、host 責務）、git 祖先検証も行わない（host-deferred）。 |
+| `evidence_compare_to_traceability` | `traceability.md` の REQ→Task・AC→TEST→Task 表と `tasks.md` のタスクID、各タスクの verification contract の requirementIds と traceability.md の宣言 REQ-ID を突き合わせ。contract が読めずクロスチェックを試行できなかったタスクは `unreadableContracts`（`{ taskId, reason }`、`reason` は `parseVerificationContract` の失敗メッセージそのまま）に列挙する（`Done` に限定せず全タスクが対象。`matches`/`mismatches` の計数意味は不変） |
+| `evidence_deep_verify` | evidence bundle を再検証：各成果物の sha256 をディスク上から再計算して記録値と突合、正準 artifacts ダイジェスト・spec_revision・git_commit 40-hex 形状・contract/report クロスバインドの不変条件を検証し、決定論的な pass/fail verdict と failures リストを返す。署名鍵は読まず、署名検証も行わない（verified:false、host 責務）、git 祖先検証も行わない（host-deferred）。この host 委譲の2件は、入れ子の `invariants.gitCommit`/`signature` に加えてトップレベルの `hostRequiredChecks`（`git-commit-ancestry` と `signature-verification` の常に2件、`verified:false` 固定、`note` は既存の計算済み文字列をそのまま再利用）にも掲出される。`hostRequiredChecks` は助言的メタデータであり `verdict` にも `failures` にも一切影響しない。 |
 
 #### resources（5種）
 

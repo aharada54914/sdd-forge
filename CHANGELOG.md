@@ -2,6 +2,82 @@
 
 ## Unreleased
 
+### 追加
+
+- **`evidence_compare_to_traceability` の `unreadableContracts` と
+  `evidence_deep_verify` の `hostRequiredChecks` (Issue #131,
+  epic-136-phase4-mcp T-001/T-002)**: 「読めなかった／検証していない」を
+  「そもそも何も無かった」と区別できないという 2 つの応答形状の欠落を解消する。
+  `evidence_compare_to_traceability` の応答に `unreadableContracts`
+  (`{ taskId, reason }[]`) を追加。`<taskId>.contract.json` を読めず
+  `requirementIds` のクロスチェックを一度も試行できなかったタスクを列挙し、
+  `reason` には `parseVerificationContract` の失敗メッセージをそのまま
+  (再表現せずに) 載せる。対象は `Done` タスクに限定せず `tasks.md` 上の全
+  タスクで、`matches`/`mismatches` の計数意味は変更していない
+  (issue #131 Finding A-5)。`evidence_deep_verify` の応答トップレベルには
+  `hostRequiredChecks` (`{ check, verified: false, note }[]`) を追加。
+  `git-commit-ancestry` と `signature-verification` の常に 2 件で、`note` は
+  同一呼び出しで既に計算済みの `invariants.gitCommit.reason` /
+  `signature.note` を verbatim 再利用する (入れ子の既存フィールドは両方とも
+  変更なしでそのまま残る)。`hostRequiredChecks` は **`verdict` にも
+  `failures[]` にも一切影響しない**助言的メタデータで、`verdict` の算出式は
+  本変更の前後でバイト不変である (issue #131 Finding B-13, ADR-0008 —
+  本ツールは read-only で署名検証も git サブプロセス呼び出しも行わず、
+  この 2 件の host 側確認を強制する責務も持たない)。両フィールドとも
+  既存フィールドを置き換えない追加であり、同一コミットで
+  `contracts/sdd-forge-mcp-tools.v1.schema.json` の schema 更新
+  (`traceabilityComparisonData` / `evidenceDeepVerifyData` それぞれの
+  `required` 配列への新規プロパティ追加、`$id` と v1 は据え置き、
+  新規ネストオブジェクトの `additionalProperties: false` も維持) を伴う。
+  ただしこの追加性は「いかなる strict validator も変更後の応答を拒否しない」
+  という意味ではない: 対象 2 オブジェクトは `additionalProperties: false` を
+  宣言しており、新フィールドは `optional` ではなく `required` として追加して
+  いる (BL-004) ため、**変更前**の schema に対して strict 検証している
+  呼び出し元は変更後の応答を「知らない必須フィールドが欠けている」として
+  拒否する。これは strict な消費者に新フィールドの存在を必ず気付かせるための
+  意図的な選択で、`sdd-forge-mcp` が `private: true` の未公開パッケージで
+  あり本リポジトリ自身のコミット済み `dist/` としてのみ配布される
+  (独立してバージョン管理される外部消費者が存在しない) ことを根拠に受容して
+  いる。詳細は `reports/implementation/epic-136-phase4-mcp/T-001.md` および
+  `T-002.md` を参照。
+- **`listGuardedFilesWithDiagnostics` / `anyFileContainingWithDiagnostics` と
+  `evidence_find_missing` の `undeterminable` (Issue #132,
+  epic-136-phase4-mcp T-003/T-004)**: ディレクトリ走査の失敗が、走査に成功
+  して中身が空だった場合と黙って同一視される曖昧さを解消する。`path-guard.ts`
+  に診断を伴う兄弟関数 `listGuardedFilesWithDiagnostics`
+  (`{ files, errors: GuardedListError[] }`) を追加。ガード検証
+  (`resolveGuardedDirectory` による shape/allowlist/denylist チェック) は
+  すべての `try`/`catch` の**外側かつ最初**に実行され、拒否は常にハード deny
+  のままで I/O エラーと混同されない (security-spec.md Boundary B3)。走査自体の
+  制御フローは従来と同一で、fail-fast 化も厳格化もしていない。既存の
+  `listGuardedFiles` は診断を捨てる薄いラッパへ縮退し、シグネチャと挙動は
+  不変 (BL-003)。`report-lookup.ts` にも同形の
+  `anyFileContainingWithDiagnostics` (`{ matches, errors: DirectoryReadError[] }`)
+  を追加し、`anyFileContaining` は `.matches` を返す薄いラッパへ縮退 (挙動不変)。
+  これを受けて `evidence_find_missing` の応答に第 3 の配列 `undeterminable`
+  を追加した: `reports/quality-gate` のディレクトリ走査自体が失敗した場合、
+  `quality-gate-report-pass` は `missing` ではなく `undeterminable` に振り分け
+  られる (従来は「レポートが存在しない」と同一視されていた)。
+  `present`/`missing`/`undeterminable` の 3 配列は `required` を過不足なく
+  分割する。**`get_task_state` 側は意図的に変更していない** (BL-003):
+  `parsers/task-validation.ts` はバイト不変のため、走査が失敗したタスクは
+  引き続き `done-quality-gate-report-missing` として報告される。この非対称性は
+  意図的なもので、`undeterminable` の `get_task_state` への伝播、および
+  `list_review_tickets` / `get_quality_gate_summary` への診断の拡張は、いずれも
+  明示的な Non-goal かつ follow-on issue 候補として記録されている
+  (`quality-report.ts` / `review-ticket.ts` は引き続き `listGuardedFiles` を
+  直接呼ぶ)。`undeterminable` も既存フィールドを置き換えない追加であり、
+  同一コミットで `contracts/sdd-forge-mcp-tools.v1.schema.json` の schema 更新
+  (`evidenceMissingData.required` への `undeterminable` 追加、`$id` と v1 は
+  据え置き) を伴う。上の #131 エントリと同じく、`evidenceMissingData` は
+  `additionalProperties: false` を宣言し新フィールドは `required` として追加
+  されるため、**変更前**の schema に対して strict 検証している呼び出し元は
+  変更後の応答を拒否する — BL-004 の意図した挙動であり、未公開・
+  `private: true` でコミット済み `dist/` としてのみ配布される本パッケージの
+  性質を根拠に受容している。詳細は
+  `reports/implementation/epic-136-phase4-mcp/T-003.md` および `T-004.md` を
+  参照。
+
 ## v1.12.0 (2026-07-28)
 
 ### 追加
