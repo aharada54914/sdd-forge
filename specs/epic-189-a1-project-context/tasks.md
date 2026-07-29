@@ -620,8 +620,22 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 ### Out of Scope
 
 - Validation (T-006).
-- The two-person/cooldown verdict's own computation (T-005; this task only
-  ACCEPTS a verdict it is given and embeds it, it does not compute one).
+- The two-person/cooldown verdict's own COMPUTATION (T-005's
+  `detect-policy-weakening`). This task DOES build the generator's
+  provenance-field resolution exactly as design.md's "HMAC preimage and
+  signing" section requires — reading the currently-live sidecar for
+  `predecessor_context_sha256`/`approval_epoch`, and resolving
+  `weakening_verdict` via an IN-PROCESS invocation seam, never from any
+  caller-supplied value (the CLI's accepted fields are the second-approval
+  identity/timestamp fields only, not a verdict): the bootstrap case (no
+  live sidecar → null/null/epoch 1) is completed entirely within this
+  task; a non-bootstrap transition calls the seam, which — until T-005's
+  detector lands — fails CLOSED with a named diagnostic
+  (`WEAKENING_DETECTOR_UNAVAILABLE`) instead of signing. T-005 completes
+  the seam by wiring its detector into `generate-approval-sidecar.py`
+  in-process (see T-005 Planned Files), closing the transition to
+  design.md's final state (remedy, task-review attempt-3 round-1
+  DEPENDENCY-OVERLAP finding).
 - Publishing the staged candidate to the live path (T-007's
   `apply-human-copy`, applied by T-009/T-012's tasks after this task's own
   Done).
@@ -803,6 +817,12 @@ Planned Files:
   agent-editable)
 - `plugins/sdd-quality-loop/scripts/detect-policy-weakening.sh` / `.ps1`
   (new, agent-editable)
+- `plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py` (existing
+  by T-003, agent-editable — completes T-003's fail-closed
+  `WEAKENING_DETECTOR_UNAVAILABLE` seam by wiring `detect-policy-weakening`
+  IN-PROCESS for non-bootstrap transitions, per design.md "HMAC preimage
+  and signing"; no CLI-surface change, never a caller-supplied verdict —
+  remedy, task-review attempt-3 round-1 DEPENDENCY-OVERLAP finding)
 - `tests/detect-policy-weakening.tests.sh` / `.ps1` (new, agent-editable)
 - `tests/run-all.sh` / `.ps1` (existing, agent-editable — fifth in numeric
   order)
@@ -895,7 +915,11 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 ### Blockers
 
-T-002, T-004
+T-002, T-003, T-004
+
+(T-003 added — remedy, task-review attempt-3 round-1 DEPENDENCY-OVERLAP
+finding: this task now edits `generate-approval-sidecar.py`, which T-003
+creates, to complete the in-process weakening-verdict wiring.)
 
 ---
 
