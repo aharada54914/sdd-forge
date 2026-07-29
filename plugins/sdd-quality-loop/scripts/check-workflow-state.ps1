@@ -775,11 +775,17 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         }
     } elseif ($Stage -eq "task") {
         $tasks = Join-Path $FeatureDir "tasks.md"
-        $tasksHash = Get-NormalizedHash $tasks "task"
-        if (-not (Test-ManifestHash $contract "/specs/$Feature/tasks.md" $tasksHash $RepoRoot)) {
+        # Post-implementation provenance re-review compatibility (WFI-019, see
+        # the .sh twin): accept either the status-normalized or the raw hash
+        # of the live tasks.md - the raw hash binds strictly more content
+        # than the normalized one, so this cannot weaken tamper detection.
+        $tasksHashNorm = Get-NormalizedHash $tasks "task"
+        $tasksHashRaw = Get-Sha256 $tasks
+        if (-not ((Test-ManifestHash $contract "/specs/$Feature/tasks.md" $tasksHashNorm $RepoRoot) -or
+                  (Test-ManifestHash $contract "/specs/$Feature/tasks.md" $tasksHashRaw $RepoRoot))) {
             Stop-WorkflowState $Feature "stage-provenance" "task plan hash is stale"
         }
-        if ([string]$contract.tasks_sha256 -ne $tasksHash) {
+        if (([string]$contract.tasks_sha256 -ne $tasksHashNorm) -and ([string]$contract.tasks_sha256 -ne $tasksHashRaw)) {
             Stop-WorkflowState $Feature "stage-provenance" "task top-level plan hash is stale"
         }
         $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']

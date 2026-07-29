@@ -575,11 +575,24 @@ validate_passed_stage() {
     fi
   elif [[ "$stage" == task ]]; then
     local tasks="$feature_dir/tasks.md" traceability="$feature_dir/traceability.md"
+    local tasks_norm tasks_raw contract_tasks_hash
     [[ -f "$tasks" && ! -L "$tasks" ]] ||
       diagnostic "$feature" stage-provenance "task plan is missing"
-    manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$(normalized_hash "$tasks" task)" "$recorded_root" ||
+    # Post-implementation provenance re-review compatibility (WFI-019): the
+    # identity-ledger validator (validate-review-context-set) binds reviewer
+    # manifests to the RAW bytes of tasks.md, while this check historically
+    # expected only the status-normalized hash. Once tasks carry approved/
+    # advanced states the two derivations diverge, so an honestly re-bound
+    # contract records the raw hash. Accept either derivation of the live
+    # file - the raw hash binds strictly more content than the normalized
+    # one, so this cannot weaken tamper detection.
+    tasks_norm="$(normalized_hash "$tasks" task)"
+    tasks_raw="$(sha256_file "$tasks")"
+    manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$tasks_norm" "$recorded_root" ||
+      manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$tasks_raw" "$recorded_root" ||
       diagnostic "$feature" stage-provenance "task plan hash is stale"
-    [[ "$(jq -r '.tasks_sha256 // empty' "$contract")" == "$(normalized_hash "$tasks" task)" ]] ||
+    contract_tasks_hash="$(jq -r '.tasks_sha256 // empty' "$contract")"
+    [[ "$contract_tasks_hash" == "$tasks_norm" || "$contract_tasks_hash" == "$tasks_raw" ]] ||
       diagnostic "$feature" stage-provenance "task top-level plan hash is stale"
     if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
       [[ -f "$traceability" && ! -L "$traceability" ]] ||
