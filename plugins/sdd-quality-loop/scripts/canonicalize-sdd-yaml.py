@@ -362,6 +362,18 @@ _FLOAT_NAN_RE = re.compile(r"^\.(?:nan|NaN|NAN)$")
 _RESERVED_SIGIL_CATEGORY = {"&": "ANCHOR_REJECTED", "*": "ALIAS_REJECTED", "!": "CUSTOM_TAG_REJECTED"}
 _RESERVED_SIGIL_NAME = {"&": "anchor", "*": "alias", "!": "tag"}
 _RESERVED_SIGIL_GENERIC = set("?%@`|>")
+# Construct-specific names for the UNSUPPORTED_SYNTAX_REJECTED sigils
+# (remedy, quality-gate seq0347 Minor finding: "%"/"?" previously fell
+# through to a generic "reserved indicator character" message with no
+# named construct, same as design.md names them by).
+_RESERVED_SIGIL_GENERIC_NAME = {
+    "?": "explicit-key",
+    "%": "directive",
+    "|": "block scalar",
+    ">": "block scalar",
+    "@": "reserved-for-future-use",
+    "`": "reserved-for-future-use",
+}
 
 
 def resolve_core_schema_scalar(text):
@@ -404,8 +416,11 @@ def _check_reserved_sigil(token, line_no):
             line_no,
         )
     if c0 in _RESERVED_SIGIL_GENERIC:
+        name = _RESERVED_SIGIL_GENERIC_NAME.get(c0)
+        article = "an" if name and name[0] in "aeiou" else "a"
+        descriptor = f"{article} {name} indicator ({c0!r})" if name else f"the reserved indicator character {c0!r}"
         raise _unsupported(
-            f"unquoted scalar begins with the reserved indicator character {c0!r}",
+            f"unquoted scalar begins with {descriptor}",
             line_no,
             hint="quote the scalar",
         )
@@ -415,8 +430,28 @@ def _check_reserved_sigil(token, line_no):
 # YAML-subset input mode: recursive-descent block parser
 # ---------------------------------------------------------------------------
 
+def _sequence_marker_prefix_len(content):
+    """If `content` is shaped like a block-sequence-item marker ('-' alone,
+    or '-' followed by a run of one-or-more spaces/tabs), return the total
+    prefix length (the dash plus that separator run); else None. Widened
+    to recognize a run of ANY separator whitespace (not just a single
+    space) so that a non-conforming separator (more than one space, or any
+    tab) is caught and REJECTED by parse_sequence with a construct-specific
+    diagnostic, rather than silently falling through to a different
+    parse path (e.g. the whole document being reinterpreted as a bare
+    scalar, remedy quality-gate seq0347)."""
+    if content == "-":
+        return 1
+    if content[0] != "-" or content[1] not in (" ", "\t"):
+        return None
+    n = 2
+    while n < len(content) and content[n] in (" ", "\t"):
+        n += 1
+    return n
+
+
 def is_sequence_item(content):
-    return content == "-" or content.startswith("- ")
+    return _sequence_marker_prefix_len(content) is not None
 
 
 def _looks_like_mapping_entry(content):
@@ -560,14 +595,49 @@ def parse_sequence(lines, i, indent):
     n = len(lines)
     while i < n and lines[i].indent == indent and is_sequence_item(lines[i].content):
         line = lines[i]
-        rest = line.content[1:]
-        if rest == "":
+        content = line.content
+        prefix_len = _sequence_marker_prefix_len(content)  # not None: filtered above
+        if prefix_len == 1:
+            # A bare '-' with nothing after it: value is a nested block on
+            # following more-indented lines, or null.
             i += 1
             value, i = _resolve_entry_value(lines, i, indent, None, line.line_no)
         else:
-            inline = rest[1:]
+            sep = content[1:prefix_len]
+            if sep != " ":
+                # Anything other than EXACTLY one space after '-' is
+                # out-of-subset (remedy, quality-gate seq0347): the
+                # accepted subset's own text shows only the single-space
+                # '- item'/'- key: value' shapes, and silently absorbing
+                # extra separator whitespace into the resolved scalar/key
+                # is exactly the best-effort interpretation the design
+                # forbids. A tab gets its own message since it is never
+                # valid YAML block-context whitespace at all (consistent
+                # with this parser's existing tab-indentation rejection).
+                if "\t" in sep:
+                    message = "a tab is not accepted as separator whitespace after a sequence '-' marker"
+                else:
+                    message = (
+                        "a sequence '-' marker must be followed by exactly one space "
+                        f"before its item (found {len(sep)} separator characters)"
+                    )
+                raise _unsupported(message, line.line_no, hint="use exactly one space after '-'")
+            inline = content[prefix_len:]
             if inline == "":
                 raise _unsupported("sequence item marker '- ' must be followed by a value or nothing", line.line_no)
+            if is_sequence_item(inline):
+                # '- - value' (an inline nested-sequence lookalike) is not
+                # accepted, even though it is unambiguous in full YAML --
+                # this restricted subset already supports nested sequences
+                # via the multi-line form (a bare '-' followed by an
+                # indented nested block), which is sufficient for "nested
+                # arbitrarily" (Design Decisions) without needing a second,
+                # inline nesting shape only "- key: value" documents.
+                raise _unsupported(
+                    "an inline nested sequence ('- - value') is not accepted",
+                    line.line_no,
+                    hint="write the nested sequence on indented lines below this item instead",
+                )
             if _looks_like_mapping_entry(inline):
                 value, i = parse_inline_mapping_start(lines, i, indent, inline)
             else:
@@ -628,6 +698,11 @@ def parse_document(lines):
         value, i = parse_mapping(lines, 0, 0)
     else:
         if len(lines) != 1:
+            # A construct-specific diagnostic (e.g. "% directives"/"?
+            # explicit keys" name their own reserved indicator) beats the
+            # generic fallback below whenever the root line itself is the
+            # actual cause (remedy, quality-gate seq0347 Minor finding).
+            _check_reserved_sigil(first.content, first.line_no)
             raise _unsupported(
                 "multiple top-level lines but the document root is not a mapping or sequence",
                 lines[1].line_no,

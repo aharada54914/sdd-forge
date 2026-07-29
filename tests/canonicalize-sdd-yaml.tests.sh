@@ -500,6 +500,82 @@ expect_reject "TEST-REMEDY JSON input mode rejects the non-standard Infinity con
   "$WORK/remedy_json_inf.json" NUMBER_OUT_OF_RANGE_REJECTED 28
 
 # ---------------------------------------------------------------------------
+# Remedy 2 (quality-gate seq0347, NEEDS_WORK): block-sequence '-' marker
+# separator handling -- more than one space, a tab, or an inline nested
+# sequence ('- - value') after '-' is now rejected UNSUPPORTED_SYNTAX_REJECTED
+# (26) with a construct-specific diagnostic, rather than silently
+# absorbed into the resolved scalar/key or reinterpreting the whole
+# document's type. Plus construct-specific diagnostics for '%'/'?'.
+# ---------------------------------------------------------------------------
+
+printf -- '-  a\n' > "$WORK/remedy2_multispace.yaml"
+expect_reject "TEST-REMEDY2 sequence item '-  a' (2 spaces) is rejected, not silently parsed as ' a'" \
+  "$WORK/remedy2_multispace.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf -- '-   a\n' > "$WORK/remedy2_multispace3.yaml"
+expect_reject "TEST-REMEDY2 sequence item '-   a' (3 spaces) is rejected" \
+  "$WORK/remedy2_multispace3.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf -- '-  k: v\n' > "$WORK/remedy2_multispace_key.yaml"
+expect_reject "TEST-REMEDY2 sequence inline mapping '-  k: v' (2 spaces) is rejected, not key-corrupted to {' k':'v'}" \
+  "$WORK/remedy2_multispace_key.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+printf -- 'x:\n  -   k: v\n    j: w\n' > "$WORK/remedy2_coupled.yaml"
+run_canon "$WORK/remedy2_coupled.yaml"
+if [ "$?" = 26 ] && grep -q "sequence '-' marker" "$WORK/err" && [ ! -s "$WORK/out" ]; then
+  pass "TEST-REMEDY2 the multi-line coupled fixture (nested '-   k: v' + aligned sibling) now gets the construct-specific separator diagnostic, not the misleading generic one"
+else
+  fail "TEST-REMEDY2 the multi-line coupled fixture now gets the construct-specific separator diagnostic (exit=$? stderr=$(cat "$WORK/err"))"
+fi
+
+printf -- '-\ta\n' > "$WORK/remedy2_tab.yaml"
+expect_reject "TEST-REMEDY2 sequence item '-<TAB>a' is rejected, not reinterpreted as a bare scalar document" \
+  "$WORK/remedy2_tab.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+run_canon "$WORK/remedy2_tab.yaml"
+if grep -qi 'tab' "$WORK/err"; then
+  pass "TEST-REMEDY2 the tab-separator rejection names 'tab' specifically"
+else
+  fail "TEST-REMEDY2 the tab-separator rejection names 'tab' specifically (stderr: $(cat "$WORK/err"))"
+fi
+
+printf -- '- - a\n' > "$WORK/remedy2_nestedlike.yaml"
+expect_reject "TEST-REMEDY2 inline nested-sequence lookalike '- - a' is rejected, not swallowed as '- a'" \
+  "$WORK/remedy2_nestedlike.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+
+# Regression guards: legitimate single-space forms and the already-working
+# multi-line nested-sequence form must keep succeeding.
+printf -- '- k: v\n' > "$WORK/remedy2_baseline.yaml"
+printf '[{"k":"v"}]' > "$WORK/remedy2_baseline_expected.json"
+expect_stdout_bytes "TEST-REMEDY2 correct single-space '- k: v' still succeeds" \
+  "$WORK/remedy2_baseline.yaml" "$WORK/remedy2_baseline_expected.json"
+
+printf -- '-\n  - a\n  - b\n-\n  - c\n' > "$WORK/remedy2_multiline_nested.yaml"
+printf '[["a","b"],["c"]]' > "$WORK/remedy2_multiline_nested_expected.json"
+expect_stdout_bytes "TEST-REMEDY2 multi-line nested sequence (bare '-' + indented block) still succeeds" \
+  "$WORK/remedy2_multiline_nested.yaml" "$WORK/remedy2_multiline_nested_expected.json"
+
+# (c) construct-specific diagnostics for '%' directives and '?' explicit keys.
+printf '%%YAML 1.2\na: 1\n' > "$WORK/remedy2_directive.yaml"
+expect_reject "TEST-REMEDY2(c) a '%' directive gets a construct-specific diagnostic" \
+  "$WORK/remedy2_directive.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+run_canon "$WORK/remedy2_directive.yaml"
+if grep -qi 'directive' "$WORK/err"; then
+  pass "TEST-REMEDY2(c) the '%' rejection names 'directive' specifically"
+else
+  fail "TEST-REMEDY2(c) the '%' rejection names 'directive' specifically (stderr: $(cat "$WORK/err"))"
+fi
+
+printf '? a\n: 1\n' > "$WORK/remedy2_explicitkey.yaml"
+expect_reject "TEST-REMEDY2(c) a '?' explicit key gets a construct-specific diagnostic" \
+  "$WORK/remedy2_explicitkey.yaml" UNSUPPORTED_SYNTAX_REJECTED 26
+run_canon "$WORK/remedy2_explicitkey.yaml"
+if grep -qi 'explicit-key' "$WORK/err"; then
+  pass "TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically"
+else
+  fail "TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically (stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
 # Self-registration (design.md Test Strategy item 11).
 # ---------------------------------------------------------------------------
 

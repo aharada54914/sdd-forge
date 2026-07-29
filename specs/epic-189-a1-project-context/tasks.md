@@ -582,6 +582,45 @@ this section's own staging-deferral checklist item) are unchanged by this
 remedy and remain open for a future task/session per the evaluator's own
 scoping.
 
+QUALITY-GATE REMEDY 2 (2026-07-29, follow-up session, seq0347, verdict
+NEEDS_WORK): the re-evaluation independently reconfirmed both seq0346
+Major fixes genuine, judged the `INVALID_UTF8_REJECTED` category
+assignment "defensible and design-grounded", and cleared the JCS core
+again (10,018-double + 400-document differential, zero mismatches). This
+round found 1 new Major (same silent-best-effort-interpretation family as
+seq0346 finding #2) + 2 Minor, remedied here: (1) block-sequence items
+separated from the `-` marker by MORE than one space, or by a tab, were
+silently best-effort misparsed at exit 0 (`-  a` → `[" a"]`; `-  k: v` →
+key-corrupted `[{" k":"v"}]`; `-<TAB>a` → the whole document's type
+silently changed from sequence to string; `- - a` → `["- a"]`, swallowing
+an inline nested-sequence lookalike) instead of parsed correctly or
+rejected. **Reading chosen, derived from design.md's own text**: the
+accepted subset's literal grammar shows only the single-space
+`- item`/`- key: value` shapes (Design Decisions), the subset is framed
+as "exactly what the real artifacts actually use" (which use exactly one
+space), and the dominant fail-closed posture ("never a best-effort
+interpretation") outweighs extending parsing to accept variant
+separators — so EVERY deviation from exactly one space after `-`
+(2+ spaces, any tab, or an inline nested-sequence lookalike) is now
+rejected fail-closed with `UNSUPPORTED_SYNTAX_REJECTED` (26) and a
+construct-specific diagnostic, rather than parsed per full YAML. Multi-line
+nested sequences (a bare `-` followed by an indented block) already work
+and remain the sole accepted nesting form, satisfying "nested arbitrarily"
+without a second inline-nesting shape. This also fixes the "coupled site"
+misleading multi-line diagnostic as a direct side effect — the malformed
+separator is now caught at the offending line itself, before the
+previously-reached generic "bad indentation" fallback. (2)+(3) [Minor,
+both remedied]: `%` directives and `?` explicit keys now get
+construct-specific diagnostics (naming "directive"/"explicit-key")
+instead of the generic multi-top-level-lines fallback message. TDD Red
+(`bash` 9 FAIL/56 PASS, `pwsh` 9 FAIL/53 PASS against the pre-remedy-2
+script) → Green (`bash` 65/65, `pwsh` 62/62) captured at
+`specs/epic-189-a1-project-context/verification/T-002/remedy2-{red,green}-{sh,ps1}.log`.
+Full detail: `reports/implementation/epic-189-a1-project-context/T-002.md`.
+The two remaining Minor findings (block-sequence-flush-left-style coverage
+gap; the `.github/workflows/test.yml` staging deferral) are unchanged by
+this round and remain open per the evaluator's own scoping.
+
 ---
 
 ## T-003 Author the approval sidecar schema and staging-only signer (`generate-approval-sidecar`)

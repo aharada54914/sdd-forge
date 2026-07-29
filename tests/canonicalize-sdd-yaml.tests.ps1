@@ -549,6 +549,97 @@ for k, v in sorted(mod.CATEGORY_EXIT_CODES.items()):
     $remedyJsonInf 'NUMBER_OUT_OF_RANGE_REJECTED' 28
 
   # -------------------------------------------------------------------
+  # Remedy 2 (quality-gate seq0347, NEEDS_WORK): block-sequence '-' marker
+  # separator handling -- more than one space, a tab, or an inline nested
+  # sequence ('- - value') after '-' is now rejected
+  # UNSUPPORTED_SYNTAX_REJECTED (26) with a construct-specific diagnostic.
+  # Plus construct-specific diagnostics for '%'/'?'.
+  # -------------------------------------------------------------------
+
+  $remedy2MultiSpace = Join-Path $Work 'remedy2_multispace.yaml'
+  Set-Content -LiteralPath $remedy2MultiSpace -NoNewline -Encoding utf8 -Value "-  a`n"
+  Expect-Reject "TEST-REMEDY2 sequence item '-  a' (2 spaces) is rejected, not silently parsed as ' a'" `
+    $remedy2MultiSpace 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedy2MultiSpace3 = Join-Path $Work 'remedy2_multispace3.yaml'
+  Set-Content -LiteralPath $remedy2MultiSpace3 -NoNewline -Encoding utf8 -Value "-   a`n"
+  Expect-Reject "TEST-REMEDY2 sequence item '-   a' (3 spaces) is rejected" `
+    $remedy2MultiSpace3 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedy2MultiSpaceKey = Join-Path $Work 'remedy2_multispace_key.yaml'
+  Set-Content -LiteralPath $remedy2MultiSpaceKey -NoNewline -Encoding utf8 -Value "-  k: v`n"
+  Expect-Reject "TEST-REMEDY2 sequence inline mapping '-  k: v' (2 spaces) is rejected, not key-corrupted" `
+    $remedy2MultiSpaceKey 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  $remedy2Coupled = Join-Path $Work 'remedy2_coupled.yaml'
+  Set-Content -LiteralPath $remedy2Coupled -NoNewline -Encoding utf8 -Value "x:`n  -   k: v`n    j: w`n"
+  $rCoupled = Invoke-Canon -FilePath $remedy2Coupled
+  $coupledStderr = Get-Content -Raw -LiteralPath $rCoupled.StderrPath -ErrorAction SilentlyContinue
+  $coupledStdoutBytes = [System.IO.File]::ReadAllBytes($rCoupled.StdoutPath)
+  if ($rCoupled.ExitCode -eq 26 -and $coupledStderr -match "sequence '-' marker" -and $coupledStdoutBytes.Length -eq 0) {
+    Test-Pass "TEST-REMEDY2 the multi-line coupled fixture now gets the construct-specific separator diagnostic, not the misleading generic one"
+  } else {
+    Test-Fail "TEST-REMEDY2 the multi-line coupled fixture now gets the construct-specific separator diagnostic" "exit=$($rCoupled.ExitCode) stderr=$coupledStderr"
+  }
+
+  $remedy2Tab = Join-Path $Work 'remedy2_tab.yaml'
+  Set-Content -LiteralPath $remedy2Tab -NoNewline -Encoding utf8 -Value ("-`ta`n")
+  Expect-Reject "TEST-REMEDY2 sequence item '-<TAB>a' is rejected, not reinterpreted as a bare scalar document" `
+    $remedy2Tab 'UNSUPPORTED_SYNTAX_REJECTED' 26
+  $rTab = Invoke-Canon -FilePath $remedy2Tab
+  $tabStderr = Get-Content -Raw -LiteralPath $rTab.StderrPath -ErrorAction SilentlyContinue
+  if ($tabStderr -match '(?i)tab') {
+    Test-Pass "TEST-REMEDY2 the tab-separator rejection names 'tab' specifically"
+  } else {
+    Test-Fail "TEST-REMEDY2 the tab-separator rejection names 'tab' specifically" $tabStderr
+  }
+
+  $remedy2NestedLike = Join-Path $Work 'remedy2_nestedlike.yaml'
+  Set-Content -LiteralPath $remedy2NestedLike -NoNewline -Encoding utf8 -Value "- - a`n"
+  Expect-Reject "TEST-REMEDY2 inline nested-sequence lookalike '- - a' is rejected, not swallowed as '- a'" `
+    $remedy2NestedLike 'UNSUPPORTED_SYNTAX_REJECTED' 26
+
+  # Regression guards.
+  $remedy2Baseline = Join-Path $Work 'remedy2_baseline.yaml'
+  Set-Content -LiteralPath $remedy2Baseline -NoNewline -Encoding utf8 -Value "- k: v`n"
+  $remedy2BaselineExpected = Join-Path $Work 'remedy2_baseline_expected.json'
+  Set-Content -LiteralPath $remedy2BaselineExpected -NoNewline -Encoding utf8 -Value '[{"k":"v"}]'
+  Expect-StdoutBytes "TEST-REMEDY2 correct single-space '- k: v' still succeeds" `
+    $remedy2Baseline $remedy2BaselineExpected
+
+  $remedy2MultilineNested = Join-Path $Work 'remedy2_multiline_nested.yaml'
+  Set-Content -LiteralPath $remedy2MultilineNested -NoNewline -Encoding utf8 -Value "-`n  - a`n  - b`n-`n  - c`n"
+  $remedy2MultilineNestedExpected = Join-Path $Work 'remedy2_multiline_nested_expected.json'
+  Set-Content -LiteralPath $remedy2MultilineNestedExpected -NoNewline -Encoding utf8 -Value '[["a","b"],["c"]]'
+  Expect-StdoutBytes "TEST-REMEDY2 multi-line nested sequence (bare '-' + indented block) still succeeds" `
+    $remedy2MultilineNested $remedy2MultilineNestedExpected
+
+  # (c) construct-specific diagnostics for '%' directives and '?' explicit keys.
+  $remedy2Directive = Join-Path $Work 'remedy2_directive.yaml'
+  Set-Content -LiteralPath $remedy2Directive -NoNewline -Encoding utf8 -Value "%YAML 1.2`na: 1`n"
+  Expect-Reject "TEST-REMEDY2(c) a '%' directive gets a construct-specific diagnostic" `
+    $remedy2Directive 'UNSUPPORTED_SYNTAX_REJECTED' 26
+  $rDirective = Invoke-Canon -FilePath $remedy2Directive
+  $directiveStderr = Get-Content -Raw -LiteralPath $rDirective.StderrPath -ErrorAction SilentlyContinue
+  if ($directiveStderr -match '(?i)directive') {
+    Test-Pass "TEST-REMEDY2(c) the '%' rejection names 'directive' specifically"
+  } else {
+    Test-Fail "TEST-REMEDY2(c) the '%' rejection names 'directive' specifically" $directiveStderr
+  }
+
+  $remedy2ExplicitKey = Join-Path $Work 'remedy2_explicitkey.yaml'
+  Set-Content -LiteralPath $remedy2ExplicitKey -NoNewline -Encoding utf8 -Value "? a`n: 1`n"
+  Expect-Reject "TEST-REMEDY2(c) a '?' explicit key gets a construct-specific diagnostic" `
+    $remedy2ExplicitKey 'UNSUPPORTED_SYNTAX_REJECTED' 26
+  $rExplicitKey = Invoke-Canon -FilePath $remedy2ExplicitKey
+  $explicitKeyStderr = Get-Content -Raw -LiteralPath $rExplicitKey.StderrPath -ErrorAction SilentlyContinue
+  if ($explicitKeyStderr -match '(?i)explicit-key') {
+    Test-Pass "TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically"
+  } else {
+    Test-Fail "TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically" $explicitKeyStderr
+  }
+
+  # -------------------------------------------------------------------
   # Self-registration (design.md Test Strategy item 11).
   # -------------------------------------------------------------------
 
