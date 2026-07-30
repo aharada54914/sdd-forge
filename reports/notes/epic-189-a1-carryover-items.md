@@ -65,3 +65,18 @@
   （reports/quality-gate/2026-07-30T142236Z-T-003.md)参照。Major
   （staging 経路 OSError の未分類 exit 1)は remedy 対応中で carryover
   対象外。
+
+- **T-004 QG Minor 4件の処遇** (2026-07-30, seq0351 PASS 報告より、全て非ブロッキング):
+  ① T-004.md:101-106 の「run-all/CHANGELOG は landing 以来 unchanged」注記は
+  事実誤認（T-003 系コミットが接触。宣言 hash は live 一致で無害)—
+  **報告書は編集しない**: quality-gate SKILL 自身の規則（「record the
+  current values directly in this quality-gate report … do not edit the
+  frozen implementation report to reconcile it」)に従い、正値は QG 報告書
+  （2026-07-30T143105Z-T-004.md)が記録済み。carryover 記録のみ。
+  ② red ログが existence-based（評価者の mutation runs で束縛性補償済み)
+  — 記録のみ。③ green ログ両レーン byte-identical（区別性は red 側)—
+  記録のみ。④ **traceability.md:95 の AC-045 に split 注記なし**（AC-046
+  は 3 分割注記あり)— **T-005/T-006 への carry-forward**: T-005 は AC-046
+  verdict 半分の production check、T-006 は AC-045 の semantic-validator
+  本体 + ordering assertion の義務を実装時に明示すること。traceability.md
+  は凍結のため注記追加は最終 re-binding 時に検討。
