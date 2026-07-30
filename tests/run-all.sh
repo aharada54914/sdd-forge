@@ -60,6 +60,7 @@ tests=(
   tests/approver-registry-schema.tests.sh
   tests/detect-policy-weakening.tests.sh
   tests/validate-approval-sidecar.tests.sh
+  tests/apply-human-copy.tests.sh
   tests/guard-staging-exemption.tests.sh
 )
 

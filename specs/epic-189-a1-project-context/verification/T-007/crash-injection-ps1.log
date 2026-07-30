@@ -1,0 +1,69 @@
+AC-033 extended crash-injection proof -- apply-human-copy.ps1
+Generated: 2026-07-30T20:05:45Z
+
+=== SCENARIO 1: crash BEFORE the first rename (journal-write) -> recovers ALL-PRE ===
+-- invocation 1 (simulate crash after journal-write) --
+exit=137
+SIMULATED_CRASH: after journal write, before first rename
+state right after crash: a=old-a
+ b=old-b
+
+-- invocation 2 (recovery) --
+exit=0
+{"status":"ok","recovered":1,"targets":[]}
+state after recovery: a=old-a
+ b=old-b
+
+
+=== SCENARIO 2: crash MID-BATCH (after rename 1 of 2) -> recovers ALL-PRE ===
+-- invocation 1 (simulate crash after rename-1) --
+exit=137
+SIMULATED_CRASH: after committing rename #1 (plugins/x/a.txt)
+state right after crash: a=new-a
+ b=old-b
+
+-- invocation 2 (recovery) --
+exit=0
+{"status":"ok","recovered":1,"targets":[]}
+state after recovery: a=old-a
+ b=old-b
+
+
+=== SCENARIO 3: crash AFTER the last rename but BEFORE journal deletion -> recovers ALL-POST ===
+-- invocation 1 (simulate crash after rename-2, the last target) --
+exit=137
+SIMULATED_CRASH: after committing rename #2 (plugins/x/b.txt)
+state right after crash: a=new-a
+ b=new-b
+
+-- invocation 2 (recovery) --
+exit=0
+{"status":"ok","recovered":1,"targets":[]}
+state after recovery: a=new-a
+ b=new-b
+
+
+=== SCENARIO 4: a SECOND crash injected DURING recovery itself still converges on the FOLLOWING invocation ===
+-- invocation 1 (simulate crash after rename-2 of 3) --
+exit=137
+SIMULATED_CRASH: after committing rename #2 (plugins/x/b.txt)
+state right after crash: a=new-a
+ b=new-b
+ c=old-c
+
+-- invocation 2 (recovery, ITSELF crashed after reverting target 1 of the mismatch) --
+exit=137
+SIMULATED_CRASH: recovery after reverting target 1 (plugins/x/a.txt)
+state after the SECOND crash (mid-recovery): a=old-a
+ b=new-b
+ c=old-c
+
+-- invocation 3 (the FOLLOWING invocation must still converge) --
+exit=0
+{"status":"ok","recovered":1,"targets":[]}
+state after the third invocation: a=old-a
+ b=old-b
+ c=old-c
+
+
+ALL FOUR AC-033 CRASH-INJECTION SCENARIOS EXERCISED (pwsh / apply-human-copy.ps1).

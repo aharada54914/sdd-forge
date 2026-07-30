@@ -1,0 +1,49 @@
+AC-033 extended crash-injection proof -- apply-human-copy.sh
+Generated: 2026-07-30T20:04:24Z
+
+=== SCENARIO 1: crash BEFORE the first rename (journal-write) -> recovers ALL-PRE ===
+-- invocation 1 (simulate crash after journal-write) --
+exit=137
+state right after crash: a=old-a b=old-b
+-- invocation 2 (recovery) --
+{"status":"ok","recovered":1,"targets":[]}
+exit=0
+state after recovery: a=old-a b=old-b
+VERDICT: CONVERGED ALL-PRE (correct)
+
+=== SCENARIO 2: crash MID-BATCH (after rename 1 of 2) -> recovers ALL-PRE ===
+-- invocation 1 (simulate crash after rename-1) --
+exit=137
+state right after crash: a=new-a b=old-b
+(observe: a advanced to new-a, b still old-b -- a genuine partial-publish state)
+-- invocation 2 (recovery) --
+{"status":"ok","recovered":1,"targets":[]}
+exit=0
+state after recovery: a=old-a b=old-b
+VERDICT: CONVERGED ALL-PRE (correct)
+
+=== SCENARIO 3: crash AFTER the last rename but BEFORE journal deletion -> recovers ALL-POST ===
+-- invocation 1 (simulate crash after rename-2, the last target) --
+exit=137
+state right after crash: a=new-a b=new-b
+-- invocation 2 (recovery) --
+{"status":"ok","recovered":1,"targets":[]}
+exit=0
+state after recovery: a=new-a b=new-b
+VERDICT: CONVERGED ALL-POST (correct)
+
+=== SCENARIO 4: a SECOND crash injected DURING recovery itself still converges on the FOLLOWING invocation ===
+-- invocation 1 (simulate crash after rename-1, leaving a mixed 3-target batch -- reusing a/b plus a third target c) --
+exit=137
+state right after crash: a=new-a b=new-b c=old-c
+-- invocation 2 (recovery, ITSELF crashed after reverting target 1 of the 2-target mismatch) --
+exit=137
+state after the SECOND crash (mid-recovery): a=old-a b=new-b c=old-c
+(observe: recovery itself was interrupted -- a partial-recovery state)
+-- invocation 3 (the FOLLOWING invocation must still converge) --
+{"status":"ok","recovered":1,"targets":[]}
+exit=0
+state after the third invocation: a=old-a b=old-b c=old-c
+VERDICT: CONVERGED ALL-PRE despite a second mid-recovery crash (correct -- recovery is idempotent/re-entrant)
+
+ALL FOUR AC-033 CRASH-INJECTION SCENARIOS EXERCISED (bash / apply-human-copy.sh).

@@ -1425,9 +1425,9 @@ has touched the live file since).
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-30T20:08:23Z)
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: critical
 
@@ -1541,6 +1541,78 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 ### Blockers
 
 T-006
+
+STAGING DEFERRED (2026-07-30, implementation session, after TDD Green): all
+of this task's own Scope/Done-When items are complete and verified --
+TEST-033 proves the full anchored-publisher contract plus the multi-target
+crash-recovery proof across all four AC-033 injection points (before any
+rename; mid-batch; after the last rename but before journal deletion; a
+second crash injected during recovery itself), each independently
+exercised for both runtimes and additionally captured as dedicated
+crash-injection transcripts (`specs/epic-189-a1-project-context/
+verification/T-007/crash-injection-{sh,ps1}.log`). `tests/apply-human-copy
+.tests.sh`/`.ps1` pass 38/38 (`bash`) and 27/27 (`pwsh`), with genuine TDD
+Red (`bash` 19/38, `pwsh` 10/27, script relocated out of the plugin
+directory) -> Green (`bash` 38/38, `pwsh` 27/27) captured for both runtimes
+at `specs/epic-189-a1-project-context/verification/T-007/`. The suite is
+registered in `tests/run-all.sh`/`.ps1` (seventh in numeric order,
+directly after `validate-approval-sidecar.tests.sh` and before the
+unrelated `guard-staging-exemption.tests.sh`, matching T-006's own
+recorded position note). `docs/adr/0025-human-copy-transactional-bundle.md`
+was found ALREADY drafted and committed (round-1 impl-review remedy,
+commit `e28ba891`), predating this implementation session; its content was
+verified line-by-line against the actual implementation (journal shape,
+six-step prepare/journal/commit/complete/recovery protocol, all four
+AC-033 convergence states, and it already names
+`tests/apply-human-copy.tests.sh`/`.ps1` by their real filenames) and
+found fully consistent -- no edit was needed or made. The remaining
+Done-When item -- staging this suite's `.github/workflows/test.yml`
+addition under `specs/epic-189-a1-project-context/human-copy/` +
+`MANIFEST.sha256` -- is DEFERRED, not blocked, for the SAME reason recorded
+in T-001..T-006's own "STAGING DEFERRED" notes above (unchanged root
+cause): `specs/epic-189-a1-project-context/human-copy/` is an untracked,
+uncommitted directory at this session's start, still holding only prior
+sessions' own staged `test.yml` + `MANIFEST.sha256` content (verified:
+references to `project-context-schema`/`approver-registry-schema` only;
+none to `apply-human-copy`). Appending to or committing another session's
+uncommitted staging work risks corrupting or silently dropping it, so this
+task defers ONLY that one staging sub-item -- every other Scope/Done-When
+item is complete. The intended staged addition (two new CI steps,
+`apply-human-copy.tests.sh`/`.ps1`, to be inserted directly after
+T-006's own `validate-approval-sidecar` steps (once staged) and before any
+T-008+ addition, matching this suite's `tests/run-all.sh`/`.ps1` position)
+is recorded in
+`reports/implementation/epic-189-a1-project-context/T-007.md` for
+whichever session next finds `human-copy/` clean or committed. Live
+`.github/workflows/test.yml` SHA-256 unchanged this session (never
+written): `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`
+(recorded before and after this session's work; identical to
+T-001..T-006's own recorded value, confirming no session has touched the
+live file since). Carry-forward obligations 1 and 2 (T-005 relay,
+registered carry-forward items) are discharged: this publisher's own
+journal writer conforms exactly to the `targets[]` =
+`{live_path, pre_hash, post_hash}` shape T-005's reader already consumes,
+and this publisher's own recovery/publish path REJECTS (fail-closed,
+`JOURNAL_SHAPE_INVALID`) a journal that is valid JSON but lacks/mis-shapes
+`targets[]`, in contrast to `detect-policy-weakening.py:201-203`'s known
+fail-open behavior on that same shape violation (that file is NOT in this
+task's Planned Files and was NOT edited; the residual is recorded, not
+silently papered over, in the implementation report's Unresolved Items).
+Two implementation-time architecture findings are recorded in the
+implementation report and in code comments: (1) neither POSIX shell nor
+cross-platform PowerShell can produce a literal `openat()`/`NtCreateFile`
+handle chain, so both runtimes realize "handle-relative traversal" via the
+process's own kernel-mediated current-working-directory binding
+(`chdir`/`Directory.SetCurrentDirectory`), walked one segment at a time
+with a symlink/reparse-point check before each descent -- documented in
+both scripts' own header comments and cross-referenced from ADR-0025;
+(2) PowerShell cmdlets (`Copy-Item`, `Test-Path`, `Move-Item`) resolve a
+relative path via PowerShell's own `$PWD` bookkeeping, NOT via
+`[System.Environment]::CurrentDirectory` -- a genuine substitution-
+resistance defect (not merely a test artifact) found and fixed during
+this session by routing every actual destination-side read/write through
+raw `[System.IO.File]`/`[System.IO.Directory]` calls resolved fresh
+against `[System.Environment]::CurrentDirectory` at the moment of use.
 
 ---
 
