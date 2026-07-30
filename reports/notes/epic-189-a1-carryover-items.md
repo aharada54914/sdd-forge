@@ -154,3 +154,19 @@
   ならない** — 充足には T-003 側のクローズ判断（design/decomposition の
   正規経路)が必要。placeholder scan がこの残余を説明する suite コメントを
   検出する事象は qg/T-006/placeholder.log の受理注記で処理済み。
+
+- **T-007 QG seq0357 の carryover** (2026-07-30/31):
+  ① Minor 3 件（QG 報告書 2026-07-30T204328Z-T-007.md 参照): dead な
+  dev/inode 検査 + 過大なコメント主張 / ps1 コメントの誤記述 + cmdlet 残余
+  / symlink 拒否のカテゴリ混同 + unknown-flag の exit 差 — いずれも
+  非ブロッキング、最終フェーズの仕上げ候補。
+  ② **reader 耐性（T-007 スコープ外・実測済み)**: detector の journal 読取は
+  `open(..., encoding='utf-8')`（detect-policy-weakening.py:192)で、BOM 付き
+  JSON は `JSONDecodeError` になることを実測確認（`utf-8-sig` なら OK)。
+  現状この失敗は `HUMAN_COPY_PUBLISH_IN_PROGRESS` に分類され **fail-closed**
+  （安全側)だが、正当な publisher journal を「torn」と誤判定する偽陽性に
+  なりうる。T-007 Major 3（ps1 の BOM 除去)修正後は T-007 起因としては
+  moot。**reader 側の耐性強化（utf-8-sig 受理)は carryover 候補**（安全性を
+  下げない緩和 = BOM のみ許容し、それ以外の不整合は現行どおり fail-closed)。
+  detect-policy-weakening.py は T-005 の凍結成果物のため、変更は正規の
+  タスク/ゲート経路で。
