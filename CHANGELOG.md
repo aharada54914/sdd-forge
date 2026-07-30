@@ -80,6 +80,51 @@
   T-001/T-004 と同じ human-copy staging 領域に別セッションの未コミット
   ステージング内容が存在するため、それらと競合しないよう本タスクでは延期
   (詳細実装は`reports/implementation/epic-189-a1-project-context/T-002.md`)。
+- **承認サイドカー・スキーマ + staging-only 署名ツール `generate-approval-sidecar`
+  (Issue #189, epic-189-a1-project-context T-003)**:
+  `contracts/approval-sidecar.schema.json`(schema id
+  `sdd-project-context-approval/v1`/`sdd-provider-bindings-approval/v1`)と
+  `plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py` を新規追加。
+  `--content` の内容ファイルを T-002 の canonicalizer(`--hash-only`)へ
+  サブプロセスとして dispatch して `context_sha256` を算出、`--approver`/
+  `--second-approver`/`--status`/`--effective-at` を受理し、
+  `primary_approval.approver == second_approval.approver` の場合は
+  ハッシュ計算前に `DUPLICATE_APPROVER_IDENTITY` で拒否。HMAC preimage は
+  `hmac` フィールドを除いた承認オブジェクト全体を canonicalizer の JSON
+  入力モードへ dispatch して得た正準バイト列(TEST-036: ゴールデンベクタ
+  1件 + 全8フィールド由来の15種の単一フィールド変異、各変異で HMAC が
+  変化することを証明)。`SDD_CONTEXT_KEY` は `_resolve_sudo_key`/
+  `resolve_evidence_key` と同一の4段解決順序(env var → env-file →
+  home-path → キーなしは fail-closed)をバイト単位で再実装せずミラー
+  (TEST-013 で `sdd-hook-guard.py` に対するバイトパリティを証明)。
+  provenance フィールド(`predecessor_context_sha256`/`weakening_verdict`/
+  `approval_epoch`)は現存する live サイドカー(`--live-sidecar`)の
+  有無で分岐: 不在なら bootstrap として null/null/1 を即座に確定・署名
+  完了。存在する場合は `predecessor_context_sha256`/`approval_epoch+1` を
+  読み取った上で、T-005 の `detect-policy-weakening.py` を in-process で
+  呼び出す唯一の呼び出し口(seam)を通す — T-005 未着手の現時点では
+  当該モジュールが存在しないため、この seam は常に
+  `WEAKENING_DETECTOR_UNAVAILABLE` で fail-closed し、署名も staging も
+  一切行わない(呼び出し元から検証済み verdict を受理することは決してない
+  設計)。出力は live サイドカー/anchor パスを一切書き込まず、
+  `sdd/.staging/<schema-id>/<nonce>/` 配下へ署名済み候補・
+  approved-context バイト完全スナップショット・`MANIFEST.sha256`
+  (nonce 埋め込み)の3点のみを一時ディレクトリ経由の単一アトミック
+  rename で staging(TEST-034: シミュレートした書き込み途中失敗が
+  最終 staging パスに部分的な成果物を一切残さないこと、失敗後の再実行が
+  新しい nonce で成功することを証明)。`--dump-preimage`(AC-012 専用の
+  非本番コードパス)は `hmac` の自己参照除外を証明する内部テストフック。
+  `.sh`/`.ps1` は `python3`/`python` 解決のみを行う薄いディスパッチャ
+  (T-002 と同型)。TDD Red(未実装で bash 29/50・pwsh クラッシュ)→
+  Green(実装後 bash 50/50・pwsh 48/48 全 PASS)を`bash`/`pwsh` 双方で
+  実行・記録(`specs/epic-189-a1-project-context/verification/T-003/`、
+  seam の bootstrap/fail-closed 実行ログを含む)。
+  `tests/generate-approval-sidecar.tests.sh`/`.ps1` を`tests/run-all.sh`/
+  `.ps1` へ T-002 の直後・T-004 の直前(数値順)に登録。CI ワークフロー
+  登録は、T-001/T-002/T-004 と同じ human-copy staging 領域に別セッションの
+  未コミットステージング内容(T-001/T-004 分)が存在するため、それらと
+  競合しないよう本タスクでは延期(詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-003.md`)。
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
