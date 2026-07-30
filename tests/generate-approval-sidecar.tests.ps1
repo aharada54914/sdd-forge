@@ -687,9 +687,15 @@ Test-Mutation 'weakening_verdict.cooldown_hours' 'weakening_verdict.cooldown_hou
 Test-Mutation 'approval_epoch' 'approval_epoch' '3'
 
 # ---------------------------------------------------------------------------
-# Provenance seam Done-When (tasks.md T-003): bootstrap signs with
-# null/null/epoch=1; non-bootstrap fails closed with
-# WEAKENING_DETECTOR_UNAVAILABLE and writes NO staged candidate.
+# Provenance seam Done-When (tasks.md T-003; UPDATED by T-005's wiring
+# completion): bootstrap signs with null/null/epoch=1; non-bootstrap now
+# resolves a REAL verdict via the in-process detect-policy-weakening.py
+# seam (T-005) rather than failing closed with WEAKENING_DETECTOR_UNAVAILABLE
+# -- that diagnostic remains a documented category (module genuinely
+# absent/unloadable), but no longer fires for THIS fixture now that the
+# detector is present. The comprehensive wiring proof lives in
+# tests/detect-policy-weakening.tests.ps1 (T-005); this suite only
+# re-asserts that ITS OWN non-bootstrap fixture now signs successfully.
 # ---------------------------------------------------------------------------
 
 $StageBoot = Join-Path $Work 'stage-seam-bootstrap'
@@ -716,25 +722,53 @@ if ($predecessor -eq 'None' -and $verdict -eq 'None' -and $epoch -eq '1') {
   Test-Fail 'SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1' "predecessor=$predecessor verdict=$verdict epoch=$epoch"
 }
 
-$StageNonboot = Join-Path $Work 'stage-seam-nonbootstrap'
-$r = Invoke-Gen -ArgList @(
-  '--schema', 'sdd-project-context-approval/v1',
-  '--content', $ContentA,
-  '--approver', 'alice',
-  '--status', 'Approved',
-  '--live-sidecar', $LiveB,
-  '--stage-dir', $StageNonboot
-) -EnvSet @{ SDD_CONTEXT_KEY = 'test-context-key-epic189-t003' }
-$errText = Get-Content -Raw -LiteralPath $r.StderrPath -ErrorAction SilentlyContinue
-if ($r.ExitCode -eq 12 -and $errText -match 'WEAKENING_DETECTOR_UNAVAILABLE') {
-  Test-Pass 'SEAM non-bootstrap (live sidecar present): exits non-zero with WEAKENING_DETECTOR_UNAVAILABLE'
-} else {
-  Test-Fail 'SEAM non-bootstrap (live sidecar present): exits non-zero with WEAKENING_DETECTOR_UNAVAILABLE' "exit $($r.ExitCode); $errText"
+# Isolated CWD (no sdd/.approved-context/ present) so this fixture's
+# result never depends on whether the ambient repository has a REAL
+# approved-context anchor by the time this suite runs (it does not, as of
+# T-005, but a later task in this epic will eventually bootstrap one) --
+# the detector's default anchor resolution is CWD-relative, matching
+# design.md's CLI contract, so isolating the CWD is what makes this
+# fixture deterministic regardless of ambient repository state.
+$ProjNonboot = Join-Path $Work 'proj-seam-nonbootstrap'
+New-Item -ItemType Directory -Path $ProjNonboot -Force | Out-Null
+Copy-Item -LiteralPath $ContentA -Destination (Join-Path $ProjNonboot 'project-context.yaml')
+Copy-Item -LiteralPath $LiveB -Destination (Join-Path $ProjNonboot 'live-sidecar.json')
+Push-Location $ProjNonboot
+try {
+  $r = Invoke-Gen -ArgList @(
+    '--schema', 'sdd-project-context-approval/v1',
+    '--content', 'project-context.yaml',
+    '--approver', 'alice',
+    '--status', 'Approved',
+    '--live-sidecar', 'live-sidecar.json',
+    '--stage-dir', 'stage-nonbootstrap'
+  ) -EnvSet @{ SDD_CONTEXT_KEY = 'test-context-key-epic189-t003' }
+} finally {
+  Pop-Location
 }
-if (Test-Path -LiteralPath $StageNonboot) {
-  Test-Fail 'SEAM non-bootstrap: writes NO staged candidate'
+$errText = Get-Content -Raw -LiteralPath $r.StderrPath -ErrorAction SilentlyContinue
+if ($r.ExitCode -eq 0) {
+  Test-Pass 'SEAM non-bootstrap (live sidecar present, detector now wired): signing succeeds'
 } else {
-  Test-Pass 'SEAM non-bootstrap: writes NO staged candidate'
+  Test-Fail 'SEAM non-bootstrap (live sidecar present, detector now wired): signing succeeds' "exit $($r.ExitCode); $errText"
+}
+if ($errText -match 'WEAKENING_DETECTOR_UNAVAILABLE') {
+  Test-Fail 'SEAM non-bootstrap: WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture'
+} else {
+  Test-Pass 'SEAM non-bootstrap: WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture'
+}
+$StageNonboot = Join-Path $ProjNonboot 'stage-nonbootstrap'
+$nonbootSidecar = Join-Path $StageNonboot 'project-context.approval.json'
+if (Test-Path -LiteralPath $nonbootSidecar) {
+  Test-Pass 'SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves'
+} else {
+  Test-Fail 'SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves'
+}
+$nonbootVerdict = Get-PyText @('-c', "import json; print(json.load(open(r'$nonbootSidecar'))['weakening_verdict'] is not None)")
+if ($nonbootVerdict -eq 'True') {
+  Test-Pass 'SEAM non-bootstrap: the embedded weakening_verdict is non-null (T-005''s in-process seam)'
+} else {
+  Test-Fail 'SEAM non-bootstrap: the embedded weakening_verdict is non-null' "got: $nonbootVerdict"
 }
 
 # ---------------------------------------------------------------------------

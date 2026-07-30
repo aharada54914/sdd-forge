@@ -650,9 +650,17 @@ mutate_and_check "weakening_verdict.cooldown_hours" "d['weakening_verdict']['coo
 mutate_and_check "approval_epoch" "d['approval_epoch'] = 3"
 
 # ---------------------------------------------------------------------------
-# Provenance seam Done-When (tasks.md T-003, remedy): bootstrap signs with
-# null/null/epoch=1; non-bootstrap fails closed with
-# WEAKENING_DETECTOR_UNAVAILABLE and writes NO staged candidate.
+# Provenance seam Done-When (tasks.md T-003, remedy; UPDATED by T-005's
+# wiring completion): bootstrap signs with null/null/epoch=1; non-bootstrap
+# now resolves a REAL verdict via the in-process detect-policy-weakening.py
+# seam (T-005) rather than failing closed with WEAKENING_DETECTOR_UNAVAILABLE
+# -- that diagnostic remains a documented category (module genuinely
+# absent/unloadable), but no longer fires for THIS fixture now that the
+# detector is present. The comprehensive wiring proof (exact verdict
+# match, malformed/None-verdict/unexpected-exception carry-forward
+# regressions) lives in tests/detect-policy-weakening.tests.sh (T-005);
+# this suite only re-asserts that ITS OWN non-bootstrap fixture now signs
+# successfully.
 # ---------------------------------------------------------------------------
 
 STAGE_BOOT="$WORK/stage-seam-bootstrap"
@@ -678,24 +686,49 @@ else
   fail "SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1 (got predecessor=$predecessor verdict=$verdict epoch=$epoch)"
 fi
 
-STAGE_NONBOOT="$WORK/stage-seam-nonbootstrap"
-SDD_CONTEXT_KEY="test-context-key-epic189-t003" run_gen \
-  --schema sdd-project-context-approval/v1 \
-  --content "$CONTENT_A" \
-  --approver alice \
-  --status Approved \
-  --live-sidecar "$LIVE_B" \
-  --stage-dir "$STAGE_NONBOOT"
+# Isolated CWD (no sdd/.approved-context/ present) so this fixture's
+# result never depends on whether the ambient repository has a REAL
+# approved-context anchor by the time this suite runs (it does not, as of
+# T-005, but a later task in this epic will eventually bootstrap one) --
+# the detector's default anchor resolution is CWD-relative, matching
+# design.md's CLI contract, so isolating the CWD is what makes this
+# fixture deterministic regardless of ambient repository state.
+PROJ_NONBOOT="$WORK/proj-seam-nonbootstrap"
+mkdir -p "$PROJ_NONBOOT"
+cp "$CONTENT_A" "$PROJ_NONBOOT/project-context.yaml"
+cp "$LIVE_B" "$PROJ_NONBOOT/live-sidecar.json"
+(
+  cd "$PROJ_NONBOOT" && \
+  SDD_CONTEXT_KEY="test-context-key-epic189-t003" "$GEN_SH" \
+    --schema sdd-project-context-approval/v1 \
+    --content project-context.yaml \
+    --approver alice \
+    --status Approved \
+    --live-sidecar live-sidecar.json \
+    --stage-dir stage-nonbootstrap >"$WORK/out" 2>"$WORK/err"
+)
 rc=$?
-if [ "$rc" = 12 ] && grep -q WEAKENING_DETECTOR_UNAVAILABLE "$WORK/err"; then
-  pass "SEAM non-bootstrap (live sidecar present): exits non-zero with WEAKENING_DETECTOR_UNAVAILABLE"
+if [ "$rc" = 0 ]; then
+  pass "SEAM non-bootstrap (live sidecar present, detector now wired): signing succeeds"
 else
-  fail "SEAM non-bootstrap (live sidecar present): exits non-zero with WEAKENING_DETECTOR_UNAVAILABLE (exit $rc; stderr: $(cat "$WORK/err")"
+  fail "SEAM non-bootstrap (live sidecar present, detector now wired): signing succeeds (exit $rc; stderr: $(cat "$WORK/err")"
 fi
-if [ -e "$STAGE_NONBOOT" ]; then
-  fail "SEAM non-bootstrap: writes NO staged candidate"
+if grep -q WEAKENING_DETECTOR_UNAVAILABLE "$WORK/err"; then
+  fail "SEAM non-bootstrap: WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture"
 else
-  pass "SEAM non-bootstrap: writes NO staged candidate"
+  pass "SEAM non-bootstrap: WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture"
+fi
+STAGE_NONBOOT="$PROJ_NONBOOT/stage-nonbootstrap"
+if [ -f "$STAGE_NONBOOT/project-context.approval.json" ]; then
+  pass "SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves"
+else
+  fail "SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves"
+fi
+nonboot_verdict=$($PY -c "import json; print(json.load(open('$STAGE_NONBOOT/project-context.approval.json'))['weakening_verdict'] is not None)" 2>/dev/null)
+if [ "$nonboot_verdict" = "True" ]; then
+  pass "SEAM non-bootstrap: the embedded weakening_verdict is non-null (T-005's in-process seam)"
+else
+  fail "SEAM non-bootstrap: the embedded weakening_verdict is non-null (got: $nonboot_verdict)"
 fi
 
 # ---------------------------------------------------------------------------

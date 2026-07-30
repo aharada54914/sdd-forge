@@ -20,15 +20,25 @@ approval_epoch): reads the CURRENTLY-LIVE sidecar for this schema, if one
 exists (`--live-sidecar`). If none exists (bootstrap, first-ever publish),
 the three fields are null/null/1. If one exists, `weakening_verdict` is
 resolved via an IN-PROCESS invocation seam (`_invoke_weakening_detector_seam`)
-that will be wired to T-005's `detect-policy-weakening.py` once it lands;
-until then, every non-bootstrap transition fails CLOSED with
-`WEAKENING_DETECTOR_UNAVAILABLE` rather than signing an unverified verdict
-(tasks.md T-003 Out of Scope; this task never accepts a caller-supplied
-verdict).
+that dispatches to T-005's `detect-policy-weakening.py` (`compute_verdict()`,
+called WITHOUT an anchor override -- the production call path never
+supplies one). This tool never accepts a caller-supplied verdict
+(requirements.md REQ-006) -- the seam is the ONLY place one may come from.
+If the detector module is missing, fails to load, or exposes no
+`compute_verdict()` entry point, every non-bootstrap transition fails
+CLOSED with `WEAKENING_DETECTOR_UNAVAILABLE` (tasks.md T-003 Out of Scope,
+completed by T-005's wiring). Any exception `compute_verdict()` itself
+raises (its own named diagnostic, or an unexpected error) is classified as
+a documented `generate-approval-sidecar` failure rather than an uncaught
+traceback (`WEAKENING_DETECTOR_ERROR`, or the detector's own category
+passed through verbatim); a verdict that is malformed, non-serializable,
+or `None` for a non-bootstrap transition is rejected before preimage
+construction (`WEAKENING_VERDICT_MALFORMED` -- T-003 QG round-2 seq0352
+advance findings, closed by T-005's wiring).
 
-Out of scope (see tasks.md T-003): the two-person/cooldown verdict's own
-computation (T-005), full sidecar re-validation (T-006), and publishing the
-staged candidate to its live path (T-007's `apply-human-copy`).
+Out of scope (see tasks.md T-003/T-005): full sidecar re-validation
+(T-006), and publishing the staged candidate to its live path (T-007's
+`apply-human-copy`).
 """
 import argparse
 import hashlib
@@ -54,6 +64,19 @@ CATEGORY_EXIT_CODES = {
     "PREIMAGE_CANONICALIZATION_FAILED": 14,
     "LIVE_SIDECAR_UNREADABLE": 15,
     "STAGING_IO_ERROR": 16,
+    # T-005 wiring completion (T-003 QG round-2 seq0352 advance findings):
+    # the compute_verdict() call site itself must be inside the classified
+    # try-wrap, and its return value validated BEFORE preimage construction.
+    "WEAKENING_DETECTOR_ERROR": 17,
+    "WEAKENING_VERDICT_MALFORMED": 18,
+    # Pass-through categories: detect-policy-weakening.py's own named
+    # diagnostics, re-raised verbatim by the seam rather than collapsed into
+    # a generic label (category-specific diagnostic discipline, T-002/T-003
+    # gate lessons).
+    "CANDIDATE_NOT_SCHEMA_VALID": 20,
+    "HUMAN_COPY_PUBLISH_IN_PROGRESS": 21,
+    "APPROVED_CONTEXT_ANCHOR_UNREADABLE": 22,
+    "APPROVER_REGISTRY_UNREADABLE": 23,
     # Test-only hook (AC-034/TEST-034); never produced by a real signing run.
     "SIMULATED_MID_WRITE_FAILURE": 90,
 }
@@ -207,21 +230,100 @@ def _canonicalize_json_preimage(obj):
 # ---------------------------------------------------------------------------
 
 
-def _invoke_weakening_detector_seam(candidate_content_path, live_sidecar_path):
-    """The single, in-process invocation seam T-005's `detect-policy-
-    weakening.py` will be wired into (tasks.md T-003 Out of Scope: "T-005
-    completes the seam by wiring its detector into generate-approval-
-    sidecar.py in-process"). `generate-approval-sidecar` never accepts a
-    caller-supplied weakening verdict (requirements.md REQ-006) -- this is
-    the ONLY place a verdict may come from. Until T-005 lands, no such
-    module is importable in-process, so every non-bootstrap transition
-    fails CLOSED here with `WEAKENING_DETECTOR_UNAVAILABLE` rather than
-    signing an unverified claim."""
+_WEAKENING_VERDICT_REQUIRED_KEYS = {
+    "policy_weakening", "categories", "two_person_required", "cooldown_hours",
+}
+_WEAKENING_VERDICT_ENUM_CATEGORIES = {
+    "capability_enforcement_weakened", "component_path_narrowed", "spec_profile_full_to_lite",
+}
+_WEAKENING_VERDICT_NA_CATEGORIES = {
+    "capability_removed", "public_distribution_descoped", "criticality_lowered",
+    "provider_allowlist_widened", "production_write_path_changed", "required_gate_removed",
+}
+_WEAKENING_VERDICT_CATEGORY_KEYS = _WEAKENING_VERDICT_ENUM_CATEGORIES | _WEAKENING_VERDICT_NA_CATEGORIES
+
+
+def _validate_weakening_verdict_shape(verdict):
+    """(T-003 QG round-2 seq0352 advance findings #2/#3, closed by T-005's
+    wiring): the detector's return value must be schema-shaped and
+    JSON-serializable BEFORE it reaches HMAC preimage construction -- a
+    malformed, non-serializable, or (for a non-bootstrap transition) `None`
+    verdict is a classified rejection here, never a downstream TypeError
+    or a silently-embedded `weakening_verdict: null` in violation of
+    requirements.md:310-312's invariant."""
+    if verdict is None:
+        raise GenerateApprovalSidecarError(
+            "WEAKENING_VERDICT_MALFORMED",
+            "detect-policy-weakening.py's compute_verdict() returned None for a "
+            "non-bootstrap transition; requirements.md's historical "
+            "weakening-binding invariant requires a non-null weakening_verdict "
+            "whenever a predecessor anchor exists (only the first-ever, "
+            "bootstrap publish may embed null)",
+        )
+    if not isinstance(verdict, dict) or set(verdict.keys()) != _WEAKENING_VERDICT_REQUIRED_KEYS:
+        raise GenerateApprovalSidecarError(
+            "WEAKENING_VERDICT_MALFORMED",
+            "detect-policy-weakening.py's compute_verdict() returned a malformed "
+            f"verdict (expected exactly the keys {sorted(_WEAKENING_VERDICT_REQUIRED_KEYS)}): "
+            f"{verdict!r}",
+        )
+    if not isinstance(verdict["policy_weakening"], bool):
+        raise GenerateApprovalSidecarError(
+            "WEAKENING_VERDICT_MALFORMED", "weakening_verdict.policy_weakening must be a boolean",
+        )
+    if not isinstance(verdict["two_person_required"], bool):
+        raise GenerateApprovalSidecarError(
+            "WEAKENING_VERDICT_MALFORMED", "weakening_verdict.two_person_required must be a boolean",
+        )
+    cooldown = verdict["cooldown_hours"]
+    if isinstance(cooldown, bool) or (cooldown is not None and not isinstance(cooldown, (int, float))):
+        raise GenerateApprovalSidecarError(
+            "WEAKENING_VERDICT_MALFORMED", "weakening_verdict.cooldown_hours must be null or a number",
+        )
+    categories = verdict["categories"]
+    if not isinstance(categories, dict) or set(categories.keys()) != _WEAKENING_VERDICT_CATEGORY_KEYS:
+        raise GenerateApprovalSidecarError(
+            "WEAKENING_VERDICT_MALFORMED",
+            "weakening_verdict.categories must have exactly the keys "
+            f"{sorted(_WEAKENING_VERDICT_CATEGORY_KEYS)}",
+        )
+    for name, value in categories.items():
+        if name in _WEAKENING_VERDICT_ENUM_CATEGORIES:
+            if value not in ("weakened", "not_weakened"):
+                raise GenerateApprovalSidecarError(
+                    "WEAKENING_VERDICT_MALFORMED",
+                    f"weakening_verdict.categories.{name} must be 'weakened' or 'not_weakened' "
+                    f"(got {value!r})",
+                )
+        elif value != "n/a":
+            raise GenerateApprovalSidecarError(
+                "WEAKENING_VERDICT_MALFORMED",
+                f"weakening_verdict.categories.{name} must be 'n/a' (got {value!r})",
+            )
+    try:
+        json.dumps(verdict)
+    except (TypeError, ValueError) as exc:
+        raise GenerateApprovalSidecarError(
+            "WEAKENING_VERDICT_MALFORMED", f"weakening_verdict is not JSON-serializable: {exc}",
+        ) from exc
+
+
+def _invoke_weakening_detector_seam(candidate_content_path):
+    """The single, in-process invocation seam through which T-005's
+    `detect-policy-weakening.py` is wired in (tasks.md T-005 Planned
+    Files). `generate-approval-sidecar` never accepts a caller-supplied
+    weakening verdict (requirements.md REQ-006) -- this is the ONLY place
+    a verdict may come from, and it never passes an anchor override (the
+    production call path always uses the detector's own internally-
+    resolved, protected approved-context anchor). If the detector module
+    is absent, fails to load, or exposes no `compute_verdict()` entry
+    point, every non-bootstrap transition fails CLOSED here with
+    `WEAKENING_DETECTOR_UNAVAILABLE`."""
     detector_path = Path(__file__).resolve().parent / "detect-policy-weakening.py"
     if not detector_path.is_file():
         raise GenerateApprovalSidecarError(
             "WEAKENING_DETECTOR_UNAVAILABLE",
-            "detect-policy-weakening.py (T-005) is not yet present in-process; "
+            "detect-policy-weakening.py (T-005) is not present in-process; "
             "cannot resolve a weakening verdict for a non-bootstrap transition",
         )
     spec = importlib.util.spec_from_file_location("_sdd_detect_policy_weakening", detector_path)
@@ -243,7 +345,30 @@ def _invoke_weakening_detector_seam(candidate_content_path, live_sidecar_path):
             "WEAKENING_DETECTOR_UNAVAILABLE",
             "detect-policy-weakening.py has no compute_verdict() entry point",
         )
-    return module.compute_verdict(candidate_content_path, live_sidecar_path)
+
+    # (T-003 QG round-2 seq0352 advance finding #1): the compute_verdict()
+    # CALL SITE itself -- not merely the module load above -- must sit
+    # inside the classified try-wrap: any exception it raises must surface
+    # as a documented, classified failure, never a raw traceback.
+    detector_error_type = getattr(module, "DetectPolicyWeakeningError", None)
+    try:
+        verdict = module.compute_verdict(candidate_content_path)
+    except Exception as exc:  # noqa: BLE001 - every exception here must be classified
+        if detector_error_type is not None and isinstance(exc, detector_error_type):
+            # Pass through the detector's OWN named category verbatim (it is
+            # already a stable, documented diagnostic) rather than
+            # collapsing it into a generic label.
+            raise GenerateApprovalSidecarError(exc.category, exc.message) from exc
+        raise GenerateApprovalSidecarError(
+            "WEAKENING_DETECTOR_ERROR",
+            f"detect-policy-weakening.py's compute_verdict() raised an unexpected "
+            f"error: {exc!r}",
+        ) from exc
+
+    # (finding #2/#3): validate BEFORE returning to the caller, so an
+    # invalid verdict never reaches preimage construction.
+    _validate_weakening_verdict_shape(verdict)
+    return verdict
 
 
 def _resolve_provenance(live_sidecar_path, content_path):
@@ -274,7 +399,7 @@ def _resolve_provenance(live_sidecar_path, content_path):
         )
 
     # Non-bootstrap: the verdict may ONLY come from the in-process seam.
-    weakening_verdict = _invoke_weakening_detector_seam(content_path, live_sidecar_path)
+    weakening_verdict = _invoke_weakening_detector_seam(content_path)
     return predecessor_context_sha256, weakening_verdict, approval_epoch_prev + 1
 
 

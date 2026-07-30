@@ -1075,9 +1075,9 @@ reconfirmed this session).
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-30T15:42:24Z)
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: high
 
@@ -1222,6 +1222,39 @@ T-002, T-003, T-004
 (T-003 added — remedy, task-review attempt-3 round-1 DEPENDENCY-OVERLAP
 finding: this task now edits `generate-approval-sidecar.py`, which T-003
 creates, to complete the in-process weakening-verdict wiring.)
+
+STAGING DEFERRED (2026-07-30, same recorded precedent as T-001/T-002/
+T-003/T-004's own "STAGING DEFERRED" notes): all of this task's own
+Scope/Done-When items are complete and verified — TEST-016/017/018/030/
+031/046 pass in both `bash` (56/56) and `pwsh` (55/55), with genuine TDD
+Red (detector absent, 51/56 fail in `bash`; `pwsh` aborts on the first
+missing-script invocation) → Green (detector present, full PASS in both
+runtimes) evidence captured at
+`specs/epic-189-a1-project-context/verification/T-005/` (`red-sh.log`,
+`red-ps1.log`, `green-sh.log`, `green-ps1.log`); the wiring-completion
+Done-When item is additionally proven end-to-end via a dedicated
+standalone reproduction (`wiring-sh.log`, `wiring-ps1.log`, same
+directory) showing the staged sidecar's embedded `weakening_verdict`
+exactly matches the detector's own direct-invocation output and that
+`WEAKENING_DETECTOR_UNAVAILABLE` no longer fires for that fixture; the
+suite is registered in `tests/run-all.sh`/`.ps1` (fifth in numeric order);
+`CHANGELOG.md` is updated. The sole remaining item — staging this suite's
+CI workflow registration under human-copy — hits the identical condition
+already recorded in T-001/T-002/T-003/T-004's own `### Blockers`:
+`specs/epic-189-a1-project-context/human-copy/` remains an untracked,
+uncommitted directory holding another, concurrent session's in-flight
+staged `test.yml` + `MANIFEST.sha256` content this session did not author
+and has not seen committed; appending to or committing those foreign
+uncommitted files risks corrupting or silently dropping that other
+session's work, so this task defers ONLY that one staging sub-item. Exact
+intended CI step content and the human-apply procedure are recorded in
+`reports/implementation/epic-189-a1-project-context/HUMAN-APPLY-STEPS.md`
+(T-005 entry, inserted after T-004's block). Live CI workflow file
+SHA-256 unchanged
+(`3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`,
+verified before and after this task's work). Staging completes via the
+human-copy flow once that tree is clean or committed (the T-009/T-013
+chain).
 
 ---
 

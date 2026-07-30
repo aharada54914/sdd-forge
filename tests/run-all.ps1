@@ -40,7 +40,8 @@ $tests = @(
     'tests/project-context-schema.tests.ps1',
     'tests/canonicalize-sdd-yaml.tests.ps1',
     'tests/generate-approval-sidecar.tests.ps1',
-    'tests/approver-registry-schema.tests.ps1'
+    'tests/approver-registry-schema.tests.ps1',
+    'tests/detect-policy-weakening.tests.ps1'
 )
 
 Push-Location $root

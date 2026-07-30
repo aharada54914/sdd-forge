@@ -50,6 +50,23 @@ Insert immediately after T-001's block above.
         run: ./tests/approver-registry-schema.tests.ps1
 ```
 
+## T-005 — detect-policy-weakening suite
+
+Insert immediately after T-004's block above (fifth in numeric order).
+
+```yaml
+      - name: Test detect-policy-weakening suite (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/detect-policy-weakening.tests.sh
+
+      - name: Test detect-policy-weakening suite (pwsh)
+        shell: pwsh
+        run: ./tests/detect-policy-weakening.tests.ps1
+```
+
 ## Apply procedure (per task, or all at once)
 
 1. Open `.github/workflows/test.yml`.
@@ -70,7 +87,7 @@ Insert immediately after T-001's block above.
    the commit.
 
 Live file SHA-256 immediately before this session's work (still current,
-unchanged, as of T-004): `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`.
+unchanged, as of T-005): `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`.
 
 ## Guard bugs found this session (see spawned follow-up task for full detail)
 
