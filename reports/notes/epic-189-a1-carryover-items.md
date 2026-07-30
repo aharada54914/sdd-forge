@@ -80,3 +80,11 @@
   verdict 半分の production check、T-006 は AC-045 の semantic-validator
   本体 + ordering assertion の義務を実装時に明示すること。traceability.md
   は凍結のため注記追加は最終 re-binding 時に検討。
+
+- **T-007 carry-forward: TRANSACTION.json shape の準拠義務** (2026-07-30,
+  T-005 implementer relay): `sdd/.staging/*/TRANSACTION.json` の shape
+  （`targets[]` 各 `{live_path, pre_hash, post_hash}`)は T-005 が定義した。
+  T-007（apply-human-copy)はこの shape に**準拠するか、明示的に改訂**する
+  義務がある — T-007 launch プロンプトに織り込むこと。関連記録:
+  project-context.schema.json の components[] に additionalProperties:false
+  が無い件は曖昧性源ではなかった（T-005 relay #3、記録のみ)。
