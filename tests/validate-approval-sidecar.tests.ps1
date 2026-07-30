@@ -662,6 +662,57 @@ if ($r.ExitCode -eq 21 -and (Get-ErrText $r) -match 'HUMAN_COPY_PUBLISH_IN_PROGR
 }
 
 # ---------------------------------------------------------------------------
+# SEQ0355 REMEDY (quality-gate seq0355 Major finding): gate (5)'s
+# `second_id == primary_id` clause (validate-approval-sidecar.py:678) was
+# UNREACHABLE-in-coverage on the standard path (gate (3)'s
+# DUPLICATE_APPROVER_IDENTITY always intercepts a same-identity sidecar
+# first) and had NO assertion at all under --verify-provenance. See
+# tests/validate-approval-sidecar.tests.sh's own "SEQ0355 REMEDY" comment
+# for the full rationale. This fixture pins BOTH halves: (a)
+# --verify-provenance rejects on the duplicate-identity clause
+# specifically; (b) the standard path is pinned to STILL exit via gate (3)
+# first for this SAME fixture, never reaching gate (5).
+# ---------------------------------------------------------------------------
+
+$VerdictTwoPersonRequired = '"weakening_verdict": {
+    "policy_weakening": true,
+    "categories": {
+      "capability_enforcement_weakened": "weakened",
+      "capability_removed": "n/a",
+      "component_path_narrowed": "not_weakened",
+      "public_distribution_descoped": "n/a",
+      "criticality_lowered": "n/a",
+      "provider_allowlist_widened": "n/a",
+      "production_write_path_changed": "n/a",
+      "required_gate_removed": "n/a",
+      "spec_profile_full_to_lite": "not_weakened"
+    },
+    "two_person_required": true,
+    "cooldown_hours": null
+  }'
+
+$TDupidVerdictTpl = Join-Path $Work 't_dupid_verdict_tpl.json'
+New-Template -OutPath $TDupidVerdictTpl -Approver 'alice' -SecondJson '{"status": "Approved", "approver": "alice", "approved_at": "2026-01-01T00:05:00Z"}' -EffectiveJson 'null' -PredecessorJson 'null' -VerdictJson $VerdictTwoPersonRequired -Epoch 1
+$TDupidVerdictSidecar = Join-Path $Work 't_dupid_verdict_sidecar.json'
+New-SignedFixture -ContentPath $ContentValid -KeyFile $KeyFile -TemplatePath $TDupidVerdictTpl -OutputPath $TDupidVerdictSidecar
+
+Push-Location $Work
+try { $r = Invoke-Val -ArgList @('--verify-provenance', '--sidecar', $TDupidVerdictSidecar) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey } } finally { Pop-Location }
+if ($r.ExitCode -eq 43 -and (Get-ErrText $r) -match 'WEAKENING_PROVENANCE_UNDERAPPROVED') {
+  Test-Pass 'SEQ0355 REMEDY (a) --verify-provenance rejects a two-person-required sidecar whose second_approval.approver duplicates primary_approval.approver (WEAKENING_PROVENANCE_UNDERAPPROVED, gate 5''s duplicate clause)'
+} else {
+  Test-Fail 'SEQ0355 REMEDY (a) --verify-provenance rejects duplicate-identity two-person-required sidecar' "exit $($r.ExitCode); $(Get-ErrText $r)"
+}
+
+Push-Location $Work
+try { $r = Invoke-Val -ArgList @('--content', $ContentValid, '--sidecar', $TDupidVerdictSidecar, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey } } finally { Pop-Location }
+if ($r.ExitCode -eq 10 -and (Get-ErrText $r) -match 'DUPLICATE_APPROVER_IDENTITY') {
+  Test-Pass 'SEQ0355 REMEDY (b) the SAME fixture on the standard path is intercepted by gate 3 (DUPLICATE_APPROVER_IDENTITY), never reaching gate 5 -- the two-path split is pinned'
+} else {
+  Test-Fail 'SEQ0355 REMEDY (b) standard path intercepted by gate 3 for the same fixture' "exit $($r.ExitCode); $(Get-ErrText $r)"
+}
+
+# ---------------------------------------------------------------------------
 # APPROVER_REGISTRY_SCHEMA_VIOLATION.
 # ---------------------------------------------------------------------------
 

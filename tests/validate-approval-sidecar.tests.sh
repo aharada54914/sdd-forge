@@ -770,6 +770,45 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# SEQ0355 REMEDY (quality-gate seq0355 Major finding): gate (5)'s
+# `second_id == primary_id` clause (validate-approval-sidecar.py:678) was
+# UNREACHABLE-in-coverage on the standard path (gate (3)'s
+# DUPLICATE_APPROVER_IDENTITY always intercepts a same-identity sidecar
+# first) and had NO assertion at all under --verify-provenance -- a
+# refactor deleting that clause would leave every prior assertion green.
+# This fixture (two_person_required: true, second_approval.approver ==
+# primary_approval.approver, both individually registered) pins BOTH
+# halves of the 2x2 (null-vs-duplicate) x (standard-vs-verify-provenance)
+# matrix's remaining untested cell: (a) --verify-provenance reaches gate
+# (5) directly and rejects on the duplicate-identity clause specifically
+# (WEAKENING_PROVENANCE_UNDERAPPROVED); (b) the standard path is pinned to
+# STILL exit via gate (3) first (DUPLICATE_APPROVER_IDENTITY), never
+# reaching gate (5) for this same fixture -- the two-path split itself is
+# now a regression-locked behavior, not merely an implementer's claim.
+# ---------------------------------------------------------------------------
+
+T_DUPID_VERDICT_TPL="$WORK/t_dupid_verdict_tpl.json"
+write_template "$T_DUPID_VERDICT_TPL" alice '{"status": "Approved", "approver": "alice", "approved_at": "2026-01-01T00:05:00Z"}' 'null' 'null' "$VERDICT_TWO_PERSON_REQUIRED" 1
+T_DUPID_VERDICT_SIDECAR="$WORK/t_dupid_verdict_sidecar.json"
+sign_fixture "$CONTENT_VALID" "$KEYFILE" "$T_DUPID_VERDICT_TPL" "$T_DUPID_VERDICT_SIDECAR"
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --verify-provenance --sidecar "$T_DUPID_VERDICT_SIDECAR")
+rc=$?
+if [ "$rc" = 43 ] && grep -q WEAKENING_PROVENANCE_UNDERAPPROVED "$WORK/err"; then
+  pass "SEQ0355 REMEDY (a) --verify-provenance rejects a two-person-required sidecar whose second_approval.approver duplicates primary_approval.approver (WEAKENING_PROVENANCE_UNDERAPPROVED, gate 5's duplicate clause)"
+else
+  fail "SEQ0355 REMEDY (a) --verify-provenance rejects duplicate-identity two-person-required sidecar (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+(cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$CONTENT_VALID" --sidecar "$T_DUPID_VERDICT_SIDECAR" --approver-registry "$REGISTRY_VALID")
+rc=$?
+if [ "$rc" = 10 ] && grep -q DUPLICATE_APPROVER_IDENTITY "$WORK/err"; then
+  pass "SEQ0355 REMEDY (b) the SAME fixture on the standard path is intercepted by gate 3 (DUPLICATE_APPROVER_IDENTITY), never reaching gate 5 -- the two-path split is pinned"
+else
+  fail "SEQ0355 REMEDY (b) standard path intercepted by gate 3 for the same fixture (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
 # APPROVER_REGISTRY_SCHEMA_VIOLATION: a malformed (non-array 'approvers')
 # registry is rejected distinctly from a duplicate-id one.
 # ---------------------------------------------------------------------------
