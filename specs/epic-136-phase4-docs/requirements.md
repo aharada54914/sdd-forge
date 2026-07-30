@@ -24,9 +24,15 @@ Consumer-visible consequence, stated plainly: after this feature, a hung panelis
 
 The taxonomy must distinguish, by name: **CLI absent**, **CLI exits non-zero**, **CLI rate-limited**, **CLI hangs / exceeds the time bound**, and **CLI returns malformed output**. For each, the document must state the exit code, whether a verdict file is produced, and how the missing verdict propagates through the diversity requirement to the gate verdict.
 
+**Malformed output is already implemented, and this specification originally got its exit code wrong.** Round 1 of spec review flagged that the taxonomy's "malformed output" row had no evidentiary basis in `investigation.md`, leaving it ambiguous whether the row documents existing behaviour or demands new validation code. Re-verified directly: `run-panelist-gpt.sh:241-297` runs a Python validation block that rejects output with no JSON object (`:252`), invalid JSON (`:259`), missing required fields (`:266`), the wrong schema (`:270`), or `blind` not true (`:274`) — each with **`sys.exit(1)`**, and all of it *before* the verdict file is written. `run-panelist-gemini.sh` carries the same block.
+
+So this row documents behaviour that already exists, requires **no new code**, and its exit code is **1** — not the 2 an earlier draft of this specification asserted. That draft error is exactly the "spec premise false at implementation time" class this repository records as WFI-011, caught here at spec review rather than after implementation.
+
 #### AC-001
 
-`cross-model-verification-policy.md` contains a failure-taxonomy section naming all five failure modes above, each with its exit code and its propagation to the gate verdict. Verified by reading the file and asserting each of the five mode names is present with a stated exit code — not by asserting the section merely exists.
+`cross-model-verification-policy.md` contains a failure-taxonomy section naming all five failure modes above. For **each** mode the section states all three elements REQ-001 requires: its exit code, whether a verdict file is produced, and how it propagates to the gate verdict.
+
+Verified by reading the file and asserting, per mode, that all three elements are present — not merely the mode name, and not merely the exit code. An earlier draft of this criterion verified only the exit code, which would have let five bare mode-name-plus-number lines pass while the propagation narrative REQ-001 actually demands was never written. That is the text-marker failure mode recorded as FP-02 in the `epic-136-phase3` retrospective, reproduced by a criterion whose own verification clause was narrower than its parent requirement.
 
 #### AC-002
 
@@ -74,6 +80,14 @@ The mapping must be **honest about non-applicability**. Entries that this reposi
 
 At least one row is N/A with a stated reason, and at least one row cites an existing control by name. This is a deliberate anti-padding assertion: it fails both a mapping that claims universal coverage and one that claims none.
 
+#### AC-013 — the MCP half of REQ-004 is verified, not just the OWASP half
+
+`docs/THREAT-MODEL.md` carries an MCP security cross-reference naming this repository's three MCP servers (`sdd-forge-mcp`, `local-env-mcp`, `ci-mcp`) and stating, for each, the trust posture that applies to it.
+
+**Resolving investigation Open Question 2 for #134.** That question asked whether an authoritative MCP security checklist exists to cite, or whether the cross-reference must point at primary MCP documentation. Resolved as: **cite primary MCP documentation**. No authoritative third-party MCP security checklist is established by anything in this repository, and citing one this specification cannot name would be an unverifiable requirement.
+
+Round 1 of spec review found that REQ-004's MCP clause had **no acceptance criterion and no test at all** — AC-007 and AC-008 cover only the OWASP table — so an implementer could have satisfied every stated criterion for REQ-004 while omitting the MCP cross-reference entirely. AC-013 closes that gap, and the resolution above closes the open question the gap was hiding behind.
+
 ### REQ-005 — the five absent runtime trust surfaces are documented (#134)
 
 `docs/THREAT-MODEL.md` must cover the surfaces the #134 addendum names and the investigation found absent: Codex hook trust including first-run approval and the existence of `--dangerously-bypass-hook-trust` (INV-011); `~/.codex/config.toml` `hooks.state` (INV-012); the installer's MCP-registration marker block (INV-013); `plugins/sdd-quality-loop/hooks/claude-hooks.json` in its node exec form (INV-014); and the Claude Code settings/permissions model (INV-015).
@@ -82,7 +96,11 @@ At least one row is N/A with a stated reason, and at least one row cites an exis
 
 #### AC-009
 
-Each of the five surfaces appears in `docs/THREAT-MODEL.md` with a stated trust assumption and at least one mitigation or an explicit residual-risk entry where no mitigation exists. Verified per surface by literal-string search for the surface's own identifier (e.g. `--dangerously-bypass-hook-trust`, `hooks.state`, `claude-hooks.json`), not by a generic heading match.
+Each of the five surfaces appears in `docs/THREAT-MODEL.md` with a stated trust assumption and at least one mitigation or an explicit residual-risk entry where no mitigation exists.
+
+Verified per surface by **two** assertions, both required: (1) the surface's own identifier is present by literal string (e.g. `--dangerously-bypass-hook-trust`, `hooks.state`, `claude-hooks.json`), and (2) a trust-assumption statement and a mitigation-or-residual-risk statement accompany it in the same section.
+
+An earlier draft verified only (1). That is the same defect as AC-001's: a document that name-drops `hooks.state` in an unrelated sentence would have passed while never carrying the substance REQ-005 demands. AC-010 on this same requirement already asserted an accompanying statement, which is what makes the omission in AC-009 an inconsistency rather than a considered choice.
 
 #### AC-010
 
@@ -104,6 +122,7 @@ The timeout default asserted by the tests is read from the same source the scrip
 
 - **Retries.** `performance-checklist.md` mentions "bounded retries" alongside timeouts, but adding retry logic changes cost and latency characteristics of a `critical` gate and is not required by either issue. Recorded as out of scope, not overlooked.
 - **Rewriting the already-correct half of #133.** The absent/error path is documented and implemented correctly; this feature extends the taxonomy around it and must not restate or restructure it.
+- **Adding or changing output validation.** The malformed-output path is already fully implemented at `run-panelist-gpt.sh:241-297` (and its `gemini` twin) and already exits 1 before writing a verdict. This feature *documents* it and writes no new validation code. Stated as a Non-goal because round 1 of spec review correctly found the boundary between "document existing behaviour" and "implement new behaviour" was drawn for the timeout and the absent/error path but left ambiguous for this row.
 - **Re-documenting `.codex/agents/*.toml`** (INV-010).
 - **Changing `check-cross-model`'s own logic.** The gate reads verdict files and is already correct (INV-004); the defect is upstream.
 - **Pinning or vendoring the `codex` / `gemini` CLIs.** Their failure behaviour is outside this repository's control, which is exactly why AC-002 documents the limitation instead of asserting a guarantee.
@@ -115,10 +134,13 @@ The timeout default asserted by the tests is read from the same source the scrip
 3. **A partially written verdict.** If the CLI is killed mid-write, a truncated JSON must not be left where `check-cross-model` will read it — hence AC-005's absence assertion. The existing scripts write to a scratch path and move on success; the design must preserve that ordering.
 4. **`SDD_PANELIST_TIMEOUT=0` or negative.** Rejected as a tool error (AC-003) rather than silently meaning "no bound", which would reintroduce the defect through configuration.
 5. **A vendor CLI that rate-limits by sleeping rather than erroring.** Indistinguishable from a hang at the process boundary, and correctly handled as one — this is the substance of AC-002.
+6. **The polling boundary race.** A polled deadline is not atomic with process completion: the CLI can exit successfully inside the very interval in which the poller is about to declare the deadline exceeded. The implementation must not report a timeout for a child that has already exited successfully — after the deadline fires, it must re-check whether the child completed before treating the expiry as authoritative. Raised by round 1 of spec review; the original edge-case list covered "killed mid-write" but not this, and every planned test used a 1-second bound against a 30-second stub, a margin so wide it could only ever exercise the unambiguously-hung case.
+7. **A vendor CLI that ignores `SIGTERM`.** The Assumptions section anticipates this and requires escalation to `SIGKILL`, but a stub built from plain `sleep` dies on the first `SIGTERM` by default disposition, so it can never reach the escalation branch. A test suite built only from such a stub would pass against an implementation whose escalation is broken or absent. At least one sub-case must use a stub that installs a `SIGTERM` trap and keeps running.
 
 ## Assumptions
 
-- The `codex` and `gemini` CLIs terminate on `SIGTERM`. If one ignores it, an escalation to `SIGKILL` is required; the design must state which signal it sends and whether it escalates.
+- The `codex` and `gemini` CLIs terminate on `SIGTERM`. If one ignores it, an escalation to `SIGKILL` is required; the design must state which signal it sends and whether it escalates. **This assumption is not merely deferred — Edge Case 7 requires a test whose stub ignores `SIGTERM`, so the escalation path is exercised rather than assumed.**
+- `install.sh:758-781` is the repository's existing portable-deadline convention (`SDD_INSTALL_LOCK_TIMEOUT`, `date +%s` deadline, `kill -0` polling). Round 1 of spec review noted this citation carries no `INV-` number, unlike every other citation here, because it was verified by the orchestrator after `investigation.md` was written rather than by the investigator. Recorded so the provenance gap is visible; the requirement it supports — no dependency on `timeout(1)` — rests independently on the first-hand `command -v` result in Edge Case 1.
 - Re-verify every `file:line` in this document at implementation start. Three of this repository's recorded defects (WFI-011, and the off-by-one citations corrected in `epic-136-phase4-mcp`) came from citations that were accurate when written and stale when used.
 
 ## Baseline Constraints

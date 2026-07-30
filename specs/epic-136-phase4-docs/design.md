@@ -39,11 +39,18 @@ _sdd_run_bounded() {                      # usage: _sdd_run_bounded <seconds> <c
     _bw_pid=$!
     _bw_deadline=$(( $(date +%s) + _bw_limit ))
     while kill -0 "$_bw_pid" 2>/dev/null; do
-        [ "$(date +%s)" -ge "$_bw_deadline" ] && { kill -TERM "$_bw_pid" 2>/dev/null
+        if [ "$(date +%s)" -ge "$_bw_deadline" ]; then
+            # Edge Case 6 — the deadline is not atomic with completion. Re-check
+            # liveness once more before treating expiry as authoritative, so a
+            # child that finished inside this very interval is reported by its
+            # own exit code rather than as a timeout.
+            kill -0 "$_bw_pid" 2>/dev/null || break
+            kill -TERM "$_bw_pid" 2>/dev/null
             sleep 2
             kill -0 "$_bw_pid" 2>/dev/null && kill -KILL "$_bw_pid" 2>/dev/null
             wait "$_bw_pid" 2>/dev/null
-            return 124; }
+            return 124
+        fi
         sleep 1
     done
     wait "$_bw_pid"                        # propagates the child's real exit code
@@ -113,8 +120,12 @@ Appended to `cross-model-verification-policy.md`, leaving `:28-31` and `:202-210
 | CLI exits non-zero | 1 | none | same |
 | CLI exceeds `SDD_PANELIST_TIMEOUT` | 1 | none | same |
 | CLI rate-limited | 1, **via** one of the two rows above | none | same |
-| CLI returns malformed output | 2 | none | tool error; caller cannot claim consensus |
+| CLI returns malformed output | **1** | none | missing verdict → diversity unmet → gate fails |
 | Runner misconfigured (bad `SDD_PANELIST_TIMEOUT`) | 2 | none | tool error |
+
+**Correction after spec-review round 1.** An earlier draft of this table gave malformed output exit **2** and called it a tool error. That was wrong, and no artifact supported it. The behaviour already exists and was re-read directly: `run-panelist-gpt.sh:241-297` validates the CLI's output and exits **1** on no-JSON (`:252`), invalid JSON (`:259`), missing required fields (`:266`), wrong schema (`:270`) and `blind` not true (`:274`) — every one of them before the verdict file is written. `run-panelist-gemini.sh` carries the same block. So this row documents existing behaviour, needs no new code (now an explicit Non-goal), and belongs with the other exit-1 rows.
+
+Only the misconfiguration row is genuinely exit 2, and that is correct: a bad `SDD_PANELIST_TIMEOUT` is the caller's bug, not a vendor failure.
 
 The rate-limit row is deliberately not a separate mechanism (AC-002): whether a rate-limited vendor CLI errors or stalls is the vendor's choice, and this repository pins neither CLI. Claiming a rate-limit-specific guarantee would be unverifiable, so the document states the limitation instead.
 
@@ -134,7 +145,10 @@ The rate-limit row is deliberately not a separate mechanism (AC-002): whether a 
 ## Test Strategy
 
 1. **AC-003 — configuration parsing.** Unset, empty, `600`, `1`, `0`, `-5`, `abc`. First three proceed; last three exit 2 **before** the CLI is invoked, asserted by a stub that records whether it was called at all.
-2. **AC-004 — the bound actually bounds.** `SDD_PANELIST_TIMEOUT=1` plus a stub that sleeps 30s. Assert elapsed wall-clock is under a generous margin (≤ 10s) and that the stub's PID is gone afterwards. The liveness assertion is what distinguishes a real kill from a parent that merely returned.
+2. **AC-004 — the bound actually bounds.** Three sub-cases after spec-review round 1, because one was not enough:
+   - **(a)** `SDD_PANELIST_TIMEOUT=1` plus a stub that sleeps 30s. Assert elapsed wall-clock ≤ 10s and that the stub's PID is gone afterwards. The liveness assertion distinguishes a real kill from a parent that merely returned.
+   - **(b)** the same, but the stub installs `trap '' TERM`. Only the `SIGKILL` escalation can end it, so this is the sub-case that proves the escalation branch exists. A plain `sleep` stub dies on the first `SIGTERM` and can never reach it — which meant the original single case would have passed against a broken or absent escalation.
+   - **(c)** `SDD_PANELIST_TIMEOUT=2` with a stub exiting *successfully* at ~2s, repeated ≥ 5 times. Asserts the boundary re-check above: a child that finished inside the expiry interval must be reported by its own exit code, never as a timeout.
 3. **AC-005 — no partial verdict.** After a timeout, assert exit 1 **and** that the output directory contains no verdict JSON for that task.
 4. **AC-006 — the gate actually fails.** Compose 2 and 3 with `check-cross-model` over the resulting verdict directory; assert non-zero and no consensus PASS. This is the only test that demonstrates the issue's stated `critical`-verification concern is closed.
 5. **BL-001 — behaviour preservation.** The existing absent-CLI and non-zero-exit cases must pass **unmodified**. If an existing case needs editing to accommodate the timeout, that is evidence BL-001 was broken.

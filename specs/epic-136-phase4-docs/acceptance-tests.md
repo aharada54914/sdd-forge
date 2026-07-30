@@ -16,14 +16,17 @@
 | TEST-010 | AC-010 | integration (real file read) | same | `--dangerously-bypass-hook-trust` named, with what it forfeits |
 | TEST-011 | AC-011 | regression | `tests/cross-model.tests.{sh,ps1}` | both suites pass, including the pre-existing cases unmodified |
 | TEST-012 | AC-012 | unit | test suites | the asserted default is read from the script, not hard-coded in the test |
+| TEST-013 | AC-013 | integration (real file read) | `docs/THREAT-MODEL.md` | the MCP cross-reference names all three MCP servers with a trust posture each |
 
 ## Test Details
 
 ### TEST-001 (AC-001) — the taxonomy is complete, not merely present
 
-Read `plugins/sdd-quality-loop/references/cross-model-verification-policy.md` and assert the presence of all five failure-mode names **and** an exit code adjacent to each: CLI absent, CLI exits non-zero, CLI rate-limited, CLI exceeds the time bound, CLI returns malformed output.
+Read `plugins/sdd-quality-loop/references/cross-model-verification-policy.md` and assert, **for each of the five failure modes**, that all three elements REQ-001 requires are present: the mode's name, its exit code, whether a verdict file is produced, and how it propagates to the gate verdict.
 
-Deliberately not a section-heading check. A heading assertion passes against an empty section — the exact text-marker failure mode recorded as FP-02 in the `epic-136-phase3` retrospective, where a conformance AC was satisfied by line shapes while the artifact was invalid.
+Deliberately not a section-heading check — a heading assertion passes against an empty section. **And deliberately not an exit-code-only check either.** An earlier draft of this test asserted only the mode names plus an adjacent exit code, which would have passed against five bare `name → 1` lines while the propagation narrative was never written. That is the same FP-02 text-marker failure the paragraph above warns about, reproduced one level down in the test that was supposed to prevent it.
+
+Expected exit codes, all verified against the implementation rather than assumed: CLI absent → 1; CLI exits non-zero → 1; CLI rate-limited → 1 via one of those two; CLI exceeds the bound → 1; **CLI returns malformed output → 1** (`run-panelist-gpt.sh:252,259,266,270,274`, all `sys.exit(1)` inside the validation block at `:241-297`, all before the verdict file is written).
 
 ### TEST-002 (AC-002) — the limitation is stated, not papered over
 
@@ -40,12 +43,18 @@ The non-invocation assertion is the substantive part. A runner could validate la
 
 ### TEST-004 (AC-004) — the bound bounds, and the child dies
 
-`SDD_PANELIST_TIMEOUT=1`, stub CLI sleeps 30s. Assert:
+Three sub-cases, not one. Round 1 of spec review found the original single case — a 1-second bound against a 30-second `sleep` stub — could only ever exercise the unambiguously-hung path, leaving two branches of the chosen mechanism untested.
+
+**(a) The clearly-hung case.** `SDD_PANELIST_TIMEOUT=1`, stub sleeps 30s. Assert:
 
 1. elapsed wall-clock ≤ 10s (generous margin over the 1s bound plus the 2s SIGTERM grace), and
 2. the stub's PID is no longer alive after the runner returns.
 
 Assertion 2 is what distinguishes a genuine kill from a parent that merely stopped waiting. Without it a runner that abandons an orphaned vendor process would pass.
+
+**(b) The `SIGTERM`-ignoring case (Edge Case 7).** Same bound, but the stub installs `trap '' TERM` and keeps running. Assert the runner still returns within the margin and the stub is dead — which can only happen via the `SIGKILL` escalation. A stub built from plain `sleep` dies on the first `SIGTERM` by default disposition, so without this sub-case an implementation whose escalation is broken or entirely absent would pass every other test.
+
+**(c) The polling boundary race (Edge Case 6).** `SDD_PANELIST_TIMEOUT=2` with a stub that exits **successfully** at ~2 seconds — inside the interval where the poller is about to declare expiry. Assert the runner reports success and writes its verdict; it must not report a timeout for a child that already finished. Run this sub-case repeatedly (≥ 5 iterations) since it targets a race, and treat any single timeout report as a failure rather than flakiness.
 
 ### TEST-005 (AC-005) — no partial verdict survives
 
@@ -65,7 +74,9 @@ TEST-008 asserts at least one row is N/A **with a reason** and at least one row 
 
 ### TEST-009 / TEST-010 (AC-009, AC-010) — the five surfaces, by literal identifier
 
-Literal-string search per surface: `--dangerously-bypass-hook-trust`, `hooks.state`, the MCP-registration marker, `claude-hooks.json`, and the Claude Code settings/permissions surface. TEST-010 additionally asserts the bypass flag is accompanied by a statement of what an operator forfeits by using it.
+Per surface, **two** assertions, both required: the identifier by literal string (`--dangerously-bypass-hook-trust`, `hooks.state`, the MCP-registration marker, `claude-hooks.json`, and the Claude Code settings/permissions surface), **and** that a trust-assumption statement plus a mitigation-or-residual-risk statement accompany it in the same section.
+
+An earlier draft asserted only the identifier, which would have passed against a document that name-drops `hooks.state` in an unrelated sentence. TEST-010 on the same requirement already asserted an accompanying statement, which is what made the weaker form here an inconsistency rather than a considered choice.
 
 `.codex/agents/*.toml` is **not** asserted here: it is already documented (INV-010) and REQ-005 forbids re-documenting it. A test asserting its presence would pass without this feature doing anything, which makes it a vacuous test.
 
@@ -74,6 +85,12 @@ Literal-string search per surface: `--dangerously-bypass-hook-trust`, `hooks.sta
 `tests/cross-model.tests.sh` and `tests/cross-model.tests.ps1` both pass. The pre-existing absent-CLI and non-zero-exit cases must pass **unmodified**; needing to edit one is evidence BL-001 was broken and must be reported, not accommodated.
 
 All new cases drive a stub CLI placed on `PATH`. No test may invoke a real `codex` or `gemini` binary: a test requiring vendor credentials or a network is not a regression signal, and would make CI failures unattributable.
+
+### TEST-013 (AC-013) — the MCP half of REQ-004 is actually checked
+
+Assert `docs/THREAT-MODEL.md`'s MCP cross-reference names `sdd-forge-mcp`, `local-env-mcp` and `ci-mcp`, and that each carries a stated trust posture.
+
+This test exists because round 1 of spec review found REQ-004's MCP clause had **no criterion and no test whatsoever** — AC-007 and AC-008 covered only the OWASP table, so an implementation could have satisfied every stated criterion for REQ-004 while omitting the MCP cross-reference entirely. The gap was concealed by an unresolved investigation open question, now resolved in AC-013: cite primary MCP documentation, because no authoritative third-party MCP security checklist is established by anything in this repository and requiring one this specification cannot name would be unverifiable.
 
 ### TEST-012 (AC-012) — the default is not duplicated
 
