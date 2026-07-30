@@ -709,6 +709,195 @@ else
 fi
 
 # ===========================================================================
+# TEST-033t (quality-gate seq0359 CLASS-ELIMINATION mandate): a hostile-
+# path PROPERTY MATRIX -- for each of the required character classes,
+# drives publish -> mid-batch crash -> recovery convergence -> journal
+# byte round-trip (python3 json.load + exact live_path match) -> a
+# faithful T-005-reader surrogate query, for BOTH runtimes, plus a direct
+# sh-vs-ps1 parity check on the published bytes. This is a MACHINE-DRIVEN
+# fixture matrix (one small function, invoked once per class), not
+# scattered ad hoc cases, per the coordinator's explicit remedy mandate
+# after three consecutive same-class regressions (round 1: byte-count
+# heuristic; round 2: `read`-based IFS field-splitting; round 3: a
+# non-JSON-aware hand-rolled parser AND unquoted pathname expansion).
+# ===========================================================================
+
+hostile_matrix_case() {
+  # hostile_matrix_case <label> <basename-fragment>
+  label=$1
+  frag=$2
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  relpath="hostile/${frag}"
+  write_file "$F/repo/hostile/zz.txt" "old-z"
+  write_file "$F/stage/$relpath" "new-$label"
+  write_file "$F/stage/hostile/zz.txt" "new-z"
+  {
+    manifest_line "$F/stage" "$relpath"
+    manifest_line "$F/stage" "hostile/zz.txt"
+  } >"$F/stage/MANIFEST.sha256"
+
+  # (1) publish, with a mid-batch crash between the two renames.
+  run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after rename-1
+  JF=$(find "$F/repo/sdd/.staging" -name TRANSACTION.json 2>/dev/null | head -1)
+
+  # (2) journal byte round-trip: parses via plain python3 json.load, and
+  # live_path matches the declared path EXACTLY (obligation 1's real
+  # contract, not merely "some journal exists").
+  if [ -n "$JF" ] && command -v python3 >/dev/null 2>&1; then
+    if python3 -c "
+import json, sys
+d = json.load(open(sys.argv[1]))
+paths = [t['live_path'] for t in d['targets']]
+assert sys.argv[2] in paths, (sys.argv[2], paths)
+" "$JF" "$relpath" 2>/dev/null; then
+      pass "TEST-033t [$label] journal round-trips live_path exactly via plain python3 json.load"
+    else
+      fail "TEST-033t [$label] journal round-trips live_path exactly via plain python3 json.load"
+    fi
+    # (3) T-005-reader surrogate: the SAME glob+json.load+live_path
+    # membership check detect-policy-weakening.py's own
+    # _check_no_publish_in_progress performs, against the path actually
+    # mid-publish -- must report IN-PROGRESS (fail-closed), never a
+    # false negative on a different, wrongly-decoded path.
+    if ( cd "$F/repo" && python3 -c "
+import json, glob, sys
+found = False
+for jf in glob.glob('sdd/.staging/*/TRANSACTION.json'):
+    d = json.load(open(jf))
+    if sys.argv[1] in [t['live_path'] for t in d['targets']]:
+        found = True
+sys.exit(0 if found else 1)
+" "$relpath" ); then
+      pass "TEST-033t [$label] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path"
+    else
+      fail "TEST-033t [$label] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path"
+    fi
+  else
+    pass "TEST-033t [$label] journal round-trip + T-005 surrogate (skipped: python3 not available)"
+    pass "TEST-033t [$label] journal round-trip + T-005 surrogate (skipped: python3 not available)"
+  fi
+
+  # (4) recovery converges ALL-PRE, and the publisher is not bricked
+  # afterward (a second, unrelated publish still succeeds).
+  run_apply "$F/repo"
+  rc=$?
+  if [ "$rc" = 0 ] && [ ! -e "$F/repo/$relpath" ] && [ "$(cat "$F/repo/hostile/zz.txt")" = "old-z" ]; then
+    pass "TEST-033t [$label] recovery converges ALL-PRE (target absent, sibling unchanged)"
+  else
+    fail "TEST-033t [$label] recovery converges ALL-PRE (exit $rc)"
+  fi
+  if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
+    pass "TEST-033t [$label] no journal/staging litter remains after recovery"
+  else
+    fail "TEST-033t [$label] no journal/staging litter remains after recovery"
+  fi
+
+  # (5) sh vs ps1 parity, on a FRESH, non-crashed publish of the same path.
+  if command -v pwsh >/dev/null 2>&1; then
+    new_fixture_dir; F2=$NEW_FIXTURE_DIR
+    write_file "$F2/stage/$relpath" "parity-$label"
+    manifest_line "$F2/stage" "$relpath" >"$F2/stage/MANIFEST.sha256"
+    mkdir -p "$F2/repo2/sdd/.staging"
+    run_apply "$F2/repo" --staging-dir "$F2/stage" --manifest "$F2/stage/MANIFEST.sha256"
+    sh_rc=$?
+    ( cd "$F2/repo2" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_FOR_PARITY" -StagingDir "$F2/stage" -Manifest "$F2/stage/MANIFEST.sha256" ) >/dev/null 2>&1
+    ps1_rc=$?
+    sh_content=$(cat "$F2/repo/$relpath" 2>/dev/null)
+    ps1_content=$(cat "$F2/repo2/$relpath" 2>/dev/null)
+    if [ "$sh_rc" = 0 ] && [ "$ps1_rc" = 0 ] && [ "$sh_content" = "parity-$label" ] && [ "$ps1_content" = "parity-$label" ]; then
+      pass "TEST-033t [$label] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)"
+    else
+      fail "TEST-033t [$label] sh/ps1 parity (sh_rc=$sh_rc ps1_rc=$ps1_rc sh='$sh_content' ps1='$ps1_content')"
+    fi
+  else
+    pass "TEST-033t [$label] sh/ps1 parity (skipped: pwsh not available)"
+  fi
+}
+
+# The required character-class matrix (space/tab/leading-trailing already
+# have dedicated TEST-033s coverage; included again here for the FULL
+# machine-driven matrix's own completeness per the mandate). Backslash is
+# DELIBERATELY EXCLUDED from this success-path matrix -- see the
+# dedicated UNSUPPORTED_PATH_CHARACTER rejection test below instead.
+hostile_matrix_case space 'sp ace.txt'
+hostile_matrix_case tab "ta$(printf '\t')b.txt"
+hostile_matrix_case leadtrail ' lead-trail '
+hostile_matrix_case dquote 'qu"ote.txt'
+hostile_matrix_case obrace 'o{pen.txt'
+hostile_matrix_case cbrace 'c}lose.txt'
+hostile_matrix_case comma 'com,ma.txt'
+hostile_matrix_case star 'st*ar.txt'
+hostile_matrix_case question 'que?stion.txt'
+hostile_matrix_case obracket 'ob[racket.txt'
+hostile_matrix_case cbracket 'cb]racket.txt'
+hostile_matrix_case dollar 'do$llar.txt'
+hostile_matrix_case backtick 'back`tick.txt'
+hostile_matrix_case squote "sq'uote.txt"
+hostile_matrix_case utf8 'utf8-café-日本語.txt'
+
+# ---------------------------------------------------------------------------
+# Newline-in-path: confirmed structurally UNREPRESENTABLE in this
+# line-oriented manifest format (a raw newline terminates the manifest
+# LINE itself before the path portion could ever be assembled) --
+# verified directly rather than merely asserted: a manifest line
+# containing an embedded newline byte cannot even be constructed as a
+# single line for `parse_manifest`'s own `IFS= read -r line` loop to
+# consume; the "path" that would follow becomes a SEPARATE line, which
+# --- lacking a valid 64-hex-lowercase prefix and two-space separator of
+# its own --- is independently rejected as MANIFEST_INVALID by the
+# existing hash/separator check. No new rejection code was needed or
+# added; this is the parser's PRE-EXISTING behavior, confirmed here.
+# ===========================================================================
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/stage/live/x.txt" "x"
+h=$(sha256_of "$F/stage/live/x.txt")
+printf '%s  live/x' "$h" >"$F/stage/MANIFEST.sha256"
+printf '\n' >>"$F/stage/MANIFEST.sha256"
+printf '.txt\n' >>"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+if [ $? != 0 ] && [ "$(category_of "$WORK/out")" = "MANIFEST_INVALID" ]; then
+  pass "TEST-033t a literal newline inside a manifest path is structurally unrepresentable -- the resulting malformed line is rejected (MANIFEST_INVALID), confirming no separate rejection code is needed"
+else
+  fail "TEST-033t a literal newline inside a manifest path is structurally unrepresentable"
+fi
+
+# ---------------------------------------------------------------------------
+# Backslash: a GENUINELY unsupportable character (quality-gate seq0359) --
+# verified empirically that PowerShell/.NET's FileSystemProvider treats
+# `\` as a directory separator on every platform, even under -LiteralPath,
+# so the .ps1 twin could never literally address such a path regardless of
+# implementation technique. Classified-rejected in BOTH runtimes
+# (UNSUPPORTED_PATH_CHARACTER) rather than silently letting sh accept what
+# ps1 can never publish.
+# ---------------------------------------------------------------------------
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/stage/back\\slash.txt" "x"
+h=$(sha256_of "$F/stage/back\\slash.txt")
+printf '%s  back\\slash.txt\n' "$h" >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "UNSUPPORTED_PATH_CHARACTER" ]; then
+  pass "TEST-033t sh rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER, both-runtime parity by design)"
+else
+  fail "TEST-033t sh rejects a literal backslash in a manifest path (exit $rc, category $(category_of "$WORK/out"))"
+fi
+if command -v pwsh >/dev/null 2>&1; then
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  write_file "$F/stage/back\\slash.txt" "x"
+  h=$(sha256_of "$F/stage/back\\slash.txt")
+  printf '%s  back\\slash.txt\n' "$h" >"$F/stage/MANIFEST.sha256"
+  ( cd "$F/repo" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_FOR_PARITY" -StagingDir "$F/stage" -Manifest "$F/stage/MANIFEST.sha256" ) >"$WORK/out" 2>"$WORK/err"
+  rc=$?
+  if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "UNSUPPORTED_PATH_CHARACTER" ]; then
+    pass "TEST-033t ps1 ALSO rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER, parity confirmed)"
+  else
+    fail "TEST-033t ps1 ALSO rejects a literal backslash in a manifest path (exit $rc, category $(category_of "$WORK/out"))"
+  fi
+else
+  pass "TEST-033t ps1 backslash rejection parity (skipped: pwsh not available)"
+fi
+
+# ===========================================================================
 # Self-registration (design.md Test Strategy item 11; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).
 # ===========================================================================

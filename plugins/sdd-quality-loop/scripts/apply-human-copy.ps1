@@ -93,6 +93,7 @@ $ExitJournalWriteFailed = 15
 $ExitRenameFailed = 16
 $ExitRecoveryFailed = 17
 $ExitDuplicateBasenameInBatch = 19
+$ExitUnsupportedPathCharacter = 20
 
 function Write-Denial([int]$Code, [string]$Category, [string]$Message) {
     $obj = [ordered]@{ status = 'denied'; category = $Category; message = $Message }
@@ -132,34 +133,46 @@ function Test-ReparsePoint([string]$Path) {
     return ([int]$attrs -band [int][System.IO.FileAttributes]::ReparsePoint) -ne 0
 }
 
-# PowerShell's Set-Location/Push-Location/Pop-Location update ONLY the
-# provider's own $PWD tracking; they do NOT update
-# [System.Environment]::CurrentDirectory (verified empirically at
-# implementation time: a raw .NET static call immediately after
-# `Set-Location` still resolves relative paths against the PROCESS'S
-# ORIGINAL launch directory). Every anchored operation in this script
-# uses raw .NET calls ([System.IO.File]::GetAttributes/Move, Get-FileHash
-# with a relative -LiteralPath) for the same reason the .sh twin uses raw
-# POSIX cd -- these are the calls that are actually kernel-mediated
-# (Directory.SetCurrentDirectory wraps chdir()/SetCurrentDirectory()
-# directly). These three wrappers keep BOTH location trackers
-# synchronized on every anchor step; using bare Set-Location/Push-
-# Location/Pop-Location anywhere below this point would silently break
-# the anchor (a use-after-check race far WORSE than the one this design
-# exists to close), so every call site in this file uses these instead.
+# quality-gate seq0359 (Major, architecture fix): the PRIOR version of
+# these three wrappers used PowerShell's own Set-Location/Push-Location/
+# Pop-Location (with -LiteralPath) to keep $PWD synchronized alongside
+# [System.Environment]::CurrentDirectory. This was found to be UNSAFE:
+# `Set-Location -LiteralPath 'a*b'` was verified EMPIRICALLY to navigate
+# into an EXISTING, differently-named directory (e.g. 'axxb') instead of
+# the literal 'a*b' -- for a RELATIVE argument, a fully-qualified
+# ABSOLUTE argument, and even a `[WildcardPattern]::Escape()`-escaped
+# `-Path` argument. This is a genuine bug/quirk in this PowerShell
+# version's FileSystem provider: `-LiteralPath`'s literal-interpretation
+# contract is not honored for Set-Location the way it correctly IS for
+# Test-Path/Copy-Item/Get-Content (all independently verified reliable).
+# [System.IO.Directory]::SetCurrentDirectory (raw .NET) is the ONLY
+# navigation primitive verified wildcard-safe in every case tested, so
+# these three wrappers now use ONLY that -- $PWD is deliberately NEVER
+# touched again anywhere in this script, and this file's OWN manual
+# stack (below) replaces Push-Location/Pop-Location's bookkeeping.
+# CONSEQUENCE: every PowerShell cmdlet call anywhere in this file that
+# used to rely on a bare RELATIVE path (resolved implicitly via $PWD,
+# which these wrappers no longer maintain) has been converted to receive
+# a fully-qualified ABSOLUTE path instead, computed via
+# [System.IO.Path]::Combine against [System.Environment]::CurrentDirectory
+# at the point of use -- see Invoke-WalkRelativeDir, Get-PreHashOfLiveTarget,
+# Backup-PreBytes, and Publish-OneTarget's source-side scriptblock, below.
+$script:AnchorStack = New-Object System.Collections.Generic.List[string]
+
 function Enter-AnchoredLocation([string]$Path) {
-    Set-Location -LiteralPath $Path
-    [System.IO.Directory]::SetCurrentDirectory((Get-Location).Path)
+    $abs = [System.IO.Path]::Combine([System.Environment]::CurrentDirectory, $Path)
+    [System.IO.Directory]::SetCurrentDirectory($abs)
 }
 
 function Push-AnchoredLocation([string]$Path) {
-    Push-Location -LiteralPath $Path
-    [System.IO.Directory]::SetCurrentDirectory((Get-Location).Path)
+    $script:AnchorStack.Add([System.Environment]::CurrentDirectory)
+    [System.IO.Directory]::SetCurrentDirectory($Path)
 }
 
 function Pop-AnchoredLocation {
-    Pop-Location
-    [System.IO.Directory]::SetCurrentDirectory((Get-Location).Path)
+    $prev = $script:AnchorStack[$script:AnchorStack.Count - 1]
+    $script:AnchorStack.RemoveAt($script:AnchorStack.Count - 1)
+    [System.IO.Directory]::SetCurrentDirectory($prev)
 }
 
 function New-Nonce {
@@ -177,13 +190,22 @@ function Split-RelPath([string]$RelPath) {
 }
 
 # Walk-RelativeDir: MUST be called with the current process already
-# anchored (Set-Location'd) at the intended base. Walks one segment at a
-# time, denying a reparse point / traversal segment / missing-or-
-# non-directory segment BEFORE ever entering it. Throws on failure with a
-# short reason code in the exception message; caller runs this inside a
-# job/subshell-equivalent (a fresh PowerShell child process, or restores
-# location via try/finally) so a failed walk never corrupts the caller's
-# own anchor.
+# anchored ([System.Environment]::CurrentDirectory-set) at the intended
+# base. Walks one segment at a time, denying a reparse point / traversal
+# segment / missing-or-non-directory segment BEFORE ever entering it.
+# Throws on failure with a short reason code in the exception message;
+# caller runs this inside a job/subshell-equivalent (Invoke-AnchoredChild,
+# or restores location via try/finally) so a failed walk never corrupts
+# the caller's own anchor.
+#
+# quality-gate seq0359 (Major): every check below uses a fully-qualified
+# ABSOLUTE path ($segAbs), computed via [System.IO.Path]::Combine against
+# the CURRENT [System.Environment]::CurrentDirectory, and navigation uses
+# ONLY [System.IO.Directory]::SetCurrentDirectory -- never Set-Location
+# (found unsafe for wildcard-containing segments, see Enter-
+# AnchoredLocation's own comment, above) and never a bare RELATIVE
+# -LiteralPath argument (which would depend on $PWD, which this script no
+# longer maintains at all).
 function Invoke-WalkRelativeDir([string]$RelPath, [bool]$Create = $false) {
     # $Create: a missing segment is CREATED (re-checked for a symlink
     # race immediately after) rather than denied -- used ONLY for the
@@ -197,13 +219,18 @@ function Invoke-WalkRelativeDir([string]$RelPath, [bool]$Create = $false) {
     foreach ($seg in $RelPath -split '/') {
         if ([string]::IsNullOrEmpty($seg)) { continue }
         if ($seg -eq '.' -or $seg -eq '..') { throw 'traversal-dotdot' }
-        if (Test-ReparsePoint $seg) { throw 'symlink-denied' }
-        if (-not (Test-Path -LiteralPath $seg) -and $Create) {
-            New-Item -ItemType Directory -Path $seg -Force -ErrorAction SilentlyContinue | Out-Null
+        $segAbs = [System.IO.Path]::Combine([System.Environment]::CurrentDirectory, $seg)
+        if (Test-ReparsePoint $segAbs) { throw 'symlink-denied' }
+        if (-not (Test-Path -LiteralPath $segAbs) -and $Create) {
+            # [System.IO.Directory]::CreateDirectory is a raw .NET call
+            # (verified wildcard-safe, unlike New-Item's -Path, which has
+            # no -LiteralPath parameter at all) and never interprets
+            # wildcards.
+            try { [System.IO.Directory]::CreateDirectory($segAbs) | Out-Null } catch { }
         }
-        if (Test-ReparsePoint $seg) { throw 'symlink-denied' }
-        if (-not (Test-Path -LiteralPath $seg -PathType Container)) { throw 'segment-missing' }
-        Enter-AnchoredLocation $seg
+        if (Test-ReparsePoint $segAbs) { throw 'symlink-denied' }
+        if (-not (Test-Path -LiteralPath $segAbs -PathType Container)) { throw 'segment-missing' }
+        [System.IO.Directory]::SetCurrentDirectory($segAbs)
     }
 }
 
@@ -237,6 +264,16 @@ function Read-Manifest([string]$Path) {
         if ($target.StartsWith('/') -or $target.Contains('..')) {
             Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest line $lineNo target is not a normalized repo-relative path: $target"
         }
+        # UNSUPPORTED_PATH_CHARACTER (quality-gate seq0359): rejected in
+        # BOTH runtimes -- see apply-human-copy.sh's parse_manifest for
+        # the full empirical verification (PowerShell/.NET's
+        # FileSystemProvider treats `\` as a directory separator on every
+        # platform even under -LiteralPath, so THIS runtime could never
+        # literally address such a path either; rejecting it here too,
+        # rather than only in .sh, avoids a silent capability divergence).
+        if ($target.Contains('\')) {
+            Write-Denial $ExitUnsupportedPathCharacter 'UNSUPPORTED_PATH_CHARACTER' "manifest line $lineNo target contains a literal backslash, which this runtime's own FileSystemProvider cannot address literally on any platform (verified: -LiteralPath still treats \ as a directory separator); rejected in both runtimes to avoid a silent sh/ps1 capability divergence: $target"
+        }
         if (-not $seen.Add($target)) {
             Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest lists target '$target' more than once"
         }
@@ -256,30 +293,24 @@ function Read-Manifest([string]$Path) {
 }
 
 # ---------------------------------------------------------------------------
-# Anchored single-target primitives. Each spawns a CHILD pwsh process for
-# the anchored work, exactly mirroring the .sh twin's `( cd ... && ... )`
-# subshell isolation: a failed walk in the child can never corrupt this
-# process's own working directory, and the child's own Set-Location chain
-# is the held anchor for the duration of ITS process lifetime.
+# Anchored single-target primitives. Each runs the anchored work IN
+# PROCESS (never a separate pwsh child process -- corrected here, seq0359:
+# the prior comment claimed child-process isolation, which the body never
+# actually performed). Isolation instead comes from Invoke-AnchoredChild's
+# own try/finally: Push-AnchoredLocation/Pop-AnchoredLocation save and
+# restore [System.Environment]::CurrentDirectory around the body (this
+# script's own manual stack, never PowerShell's Push-Location/
+# Pop-Location -- see Enter-AnchoredLocation's own comment for why), so a
+# failed walk inside $Body can never leave the anchor corrupted for
+# whatever runs next.
 # ---------------------------------------------------------------------------
 
 $ScriptSelf = $PSCommandPath
 
 function Invoke-AnchoredChild([string]$BaseDir, [scriptblock]$Body, [hashtable]$BodyArgs) {
-    # Executes $Body in-process but wrapped so a thrown error never
-    # escapes as an unhandled/raw exception -- returns
-    # @{ Ok = $bool; Value = ...; Reason = ... }. Runs in a NEW pwsh child
-    # process for genuine process-level isolation (matching the .sh
-    # twin's subshell), passing $BaseDir and the body as a base64
-    # -EncodedCommand invocation is unnecessarily heavy here; instead we
-    # use Start-Job (a real separate PowerShell process under pwsh's
-    # threadjob/process job infra) is avoided for startup-cost reasons in
-    # a hot per-target loop -- Push-Location/Pop-Location around a
-    # try/catch gives the SAME anchoring guarantee within this process
-    # for the narrow, bounded window each target's operation needs
-    # (Set-Location's chdir/SetCurrentDirectory call is unaffected by
-    # which process invoked it), and is what every sibling suite's own
-    # PowerShell test driver already relies on for correctness.
+    # Executes $Body in-process, wrapped so a thrown error never escapes
+    # as an unhandled/raw exception -- returns
+    # @{ Ok = $bool; Value = ...; Reason = ... }.
     Push-AnchoredLocation $BaseDir
     try {
         $result = & $Body @BodyArgs
@@ -296,7 +327,11 @@ function Get-PreHashOfLiveTarget([string]$RepoRootAbs, [string]$RelPath) {
     $r = Invoke-AnchoredChild -BaseDir $RepoRootAbs -Body {
         param($Dir, $Base)
         Invoke-WalkRelativeDir $Dir
-        return Get-Sha256OrAbsent $Base
+        # Absolute path (seq0359): Get-Sha256OrAbsent's own Test-Path/
+        # Get-FileHash calls must never depend on a bare relative name,
+        # since $PWD is no longer maintained by the anchoring helpers.
+        $baseAbs = [System.IO.Path]::Combine([System.Environment]::CurrentDirectory, $Base)
+        return Get-Sha256OrAbsent $baseAbs
     } -BodyArgs @{ Dir = $split.Dir; Base = $split.Base }
     if (-not $r.Ok) { return 'ABSENT' }
     return $r.Value
@@ -307,8 +342,13 @@ function Backup-PreBytes([string]$RepoRootAbs, [string]$RelPath, [string]$DestFi
     $r = Invoke-AnchoredChild -BaseDir $RepoRootAbs -Body {
         param($Dir, $Base)
         Invoke-WalkRelativeDir $Dir
-        if ((Test-Path -LiteralPath $Base -PathType Leaf) -and -not (Test-ReparsePoint $Base)) {
-            return (Resolve-Path -LiteralPath $Base).Path
+        # Absolute path (seq0359): see Get-PreHashOfLiveTarget's own
+        # comment -- $PWD is no longer maintained, so every check here
+        # must use the current [System.Environment]::CurrentDirectory
+        # explicitly rather than a bare relative name.
+        $baseAbs = [System.IO.Path]::Combine([System.Environment]::CurrentDirectory, $Base)
+        if ((Test-Path -LiteralPath $baseAbs -PathType Leaf) -and -not (Test-ReparsePoint $baseAbs)) {
+            return $baseAbs
         }
         return $null
     } -BodyArgs @{ Dir = $split.Dir; Base = $split.Base }
@@ -331,10 +371,15 @@ function Publish-OneTarget {
     $srcResult = Invoke-AnchoredChild -BaseDir $SourceRootAbs -Body {
         param($Dir, $Base)
         Invoke-WalkRelativeDir $Dir
-        if ((Test-ReparsePoint $Base) -or -not (Test-Path -LiteralPath $Base -PathType Leaf)) {
+        # Absolute path (seq0359): the staged SOURCE path is itself
+        # manifest-derived (equally attacker-influenceable as the
+        # destination side), so it gets the identical treatment -- never
+        # a bare relative name depending on the no-longer-maintained $PWD.
+        $baseAbs = [System.IO.Path]::Combine([System.Environment]::CurrentDirectory, $Base)
+        if ((Test-ReparsePoint $baseAbs) -or -not (Test-Path -LiteralPath $baseAbs -PathType Leaf)) {
             throw 'source-missing-or-symlink'
         }
-        return (Resolve-Path -LiteralPath $Base).Path
+        return $baseAbs
     } -BodyArgs @{ Dir = $split.Dir; Base = $split.Base }
     if (-not $srcResult.Ok) { return @{ Ok = $false; Code = 10; Reason = $srcResult.Reason } }
     $stagedFile = $srcResult.Value
@@ -624,7 +669,7 @@ $manifestEntries = Read-Manifest $Manifest
 
 $BatchNonce = New-Nonce
 $BatchDir = Join-Path $RepoRootAbs "sdd/.staging/$BatchNonce"
-New-Item -ItemType Directory -Path (Join-Path $BatchDir 'pre') -Force | Out-Null
+[System.IO.Directory]::CreateDirectory((Join-Path $BatchDir 'pre')) | Out-Null
 $BatchDirAbs = (Resolve-Path -LiteralPath $BatchDir).Path
 
 $targetsForJournal = New-Object System.Collections.Generic.List[object]
@@ -638,10 +683,13 @@ foreach ($entry in $manifestEntries) {
     $stagedResult = Invoke-AnchoredChild -BaseDir $StagingDirAbs -Body {
         param($Dir, $Base)
         Invoke-WalkRelativeDir $Dir
-        if ((Test-ReparsePoint $Base) -or -not (Test-Path -LiteralPath $Base -PathType Leaf)) {
+        # Absolute path (seq0359): see Get-PreHashOfLiveTarget's own
+        # comment -- never a bare relative name depending on $PWD.
+        $baseAbs = [System.IO.Path]::Combine([System.Environment]::CurrentDirectory, $Base)
+        if ((Test-ReparsePoint $baseAbs) -or -not (Test-Path -LiteralPath $baseAbs -PathType Leaf)) {
             throw 'source-missing-or-symlink'
         }
-        return Get-Sha256Hex $Base
+        return Get-Sha256Hex $baseAbs
     } -BodyArgs @{ Dir = $split.Dir; Base = $split.Base }
 
     if (-not $stagedResult.Ok) {

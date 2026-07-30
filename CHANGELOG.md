@@ -293,21 +293,44 @@
   外部からrenameしても真の(rename後の)anchor先へ正しく書き込まれる —
   攻撃者が新規に作った置換先ディレクトリへは決して漏れない)、
   atomic-rename-onlyでのpublish(path-based copyフォールバック皆無)、
-  マニフェスト形状検証を含む52(`bash`)/41(`pwsh`)アサーション
-  (初回実装時点では38/27、seq0357/seq0358の2回のquality-gate remedyで
-  それぞれ7/10・7/4件を追加)の`tests/apply-human-copy.tests.sh`/`.ps1`
-  で証明。TDD Red(未実装で`bash` 19/38・`pwsh` 10/27)→ Green(実装後
+  マニフェスト形状検証・ホスティルパス文字クラス行列を含む130(`bash`)/
+  72(`pwsh`)アサーション(初回実装時点では38/27、seq0357/seq0358/seq0359
+  の3回のquality-gate remedyで段階的に追加)の
+  `tests/apply-human-copy.tests.sh`/`.ps1`で証明。TDD
+  Red(未実装で`bash` 19/38・`pwsh` 10/27)→ Green(実装後
   `bash` 38/38・`pwsh` 27/27 全PASS)を両ランタイムで実行・記録
   (`specs/epic-189-a1-project-context/verification/T-007/`)。
-  **quality-gate remedy 2件**: (seq0357) 0バイトlive targetのpre-
+  **quality-gate remedy 3件**: (seq0357) 0バイトlive targetのpre-
   transaction backupを誤削除しmid-batch crash後にpublisher恒久ブロック
   していたCritical、basename衝突・pwsh側TEST-033d/e欠如・journal
   UTF-8 BOMの3件のMajorを修正。(seq0358) manifest target pathに空白を
   含む場合にshのIFS field-splittingでjournalが構造破壊される
   (T-005 readerがfail openする)Majorを修正 — 全ての内部work-file
   (`TARGETS_FILE`・recovery用journal再展開)をfixed-width record化し
-  `read`によるIFS分割を完全排除、埋め込み空白・タブ・連続空白を
-  正しく扱えるようps1と挙動を一致させた。詳細は
+  `read`によるIFS分割を完全排除。(seq0359、訂正付き — 直前2回の報告書の
+  「パリティ回復」記述は過大主張だったと評価者に指摘され訂正: 空白/タブは
+  実際には正しく扱えていたが `"`・`\`・`}` は未対応のまま残っていた)
+  sh の journal reader(`json_get_targets`、手書き`sed`パース)が自身の
+  `json_escape`が出すエスケープを復号できずrecoveryが誤ったlive_pathを
+  照会してmixed stateを「成功」として固定するCriticalと、
+  同reader の `{...}` 境界スキャンが `}` を含むlive_pathで自身の
+  well-formed journalを恒久拒否するCriticalの計2件、および
+  `walk_relative_dir`の未クオート`set --`(sh)・`Set-Location`/`New-Item`
+  の`-LiteralPath`未実装/不徹底(ps1、`Set-Location -LiteralPath`が
+  wildcard文字を含むパスでは絶対パスでも実在の別ディレクトリへ解決して
+  しまう挙動を実測確認)によるglob展開Majorを修正 — sh側jsonリーダーを
+  awkによる真のエスケープ対応パーサへ全面書き換え、ps1側は
+  `Set-Location`/`Push-Location`/`New-Item -Path`を全廃し
+  `[System.IO.Directory]::SetCurrentDirectory`等の生.NET呼び出しのみへ
+  移行(`$PWD`依存を完全排除)。space/tab/先頭末尾空白/`"`/`\`/`{`/`}`/
+  `,`/`*`/`?`/`[`/`]`/`$`/backtick/`'`/UTF-8多バイトの機械的行列テストで
+  publish→crash→recovery収束→journal round-trip→T-005 surrogate照会→
+  sh/ps1パリティを全類型で証明。バックスラッシュのみ両ランタイムで
+  classified拒否(`UNSUPPORTED_PATH_CHARACTER`) — ps1側 .NET
+  FileSystemProviderが`\`を全プラットフォームでパス区切りとして扱う
+  実装上の制約と実測確認、design根拠を記録の上でsh側も一致拒否として
+  無言の非対称を回避。write_journalへのrehash-before-rename追加
+  (design.md:1020-1022、ps1は既存)も本ラウンドで実施。詳細は
   `reports/implementation/epic-189-a1-project-context/T-007.md`の
   「Quality Gate Remedy」各節。
   `docs/adr/0025-human-copy-transactional-bundle.md`

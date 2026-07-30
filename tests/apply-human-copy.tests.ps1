@@ -517,6 +517,85 @@ if ($r3.ExitCode -eq 0 -and $ab -eq "content-ab`n" -and $b -eq "content-b`n") {
 }
 
 # ---------------------------------------------------------------------------
+# TEST-033t (quality-gate seq0359 CLASS-ELIMINATION mandate, ps1-side):
+# hostile-path property matrix -- publish, mid-batch crash, recovery
+# convergence, and (this runtime's own ConvertFrom-Json, already reliable)
+# journal live_path round-trip, for each required character class. The
+# sh suite's own TEST-033t performs the full cross-runtime parity check
+# (it can shell out to pwsh); this suite locks in ps1's OWN correctness
+# for every class, including on native Windows where it cannot shell out
+# to a POSIX sh.
+# ---------------------------------------------------------------------------
+function Test-HostileMatrixCase([string]$Label, [string]$Frag) {
+    $F = New-FixtureDir
+    $relPath = "hostile/$Frag"
+    Write-FixtureFile (Join-Path $F 'repo/hostile/zz.txt') 'old-z'
+    Write-FixtureFile (Join-Path $F "stage/$relPath") "new-$Label"
+    Write-FixtureFile (Join-Path $F 'stage/hostile/zz.txt') 'new-z'
+    $manifestLines = (Get-ManifestLine (Join-Path $F 'stage') $relPath) + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'hostile/zz.txt') + "`n"
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $manifestLines
+
+    Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'), '-SimulateCrashAfter', 'rename-1') | Out-Null
+    $journal = Get-ChildItem -Path (Join-Path $F 'repo/sdd/.staging') -Filter 'TRANSACTION.json' -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($journal) {
+        try {
+            $d = Get-Content -Raw -LiteralPath $journal.FullName | ConvertFrom-Json
+            $paths = @($d.targets | ForEach-Object { $_.live_path })
+            if ($paths -contains $relPath) {
+                Test-Pass "TEST-033t [$Label] journal round-trips live_path exactly (ConvertFrom-Json)"
+            } else {
+                Test-Fail "TEST-033t [$Label] journal round-trips live_path exactly" "paths=$($paths -join ',')"
+            }
+        } catch {
+            Test-Fail "TEST-033t [$Label] journal round-trips live_path exactly" "parse error: $_"
+        }
+    } else {
+        Test-Fail "TEST-033t [$Label] journal exists for round-trip check" 'no TRANSACTION.json found'
+    }
+
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+    $targetGone = -not (Test-Path -LiteralPath (Join-Path $F "repo/$relPath"))
+    $sibling = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/hostile/zz.txt') -ErrorAction SilentlyContinue
+    if ($r.ExitCode -eq 0 -and $targetGone -and $sibling -eq "old-z`n") {
+        Test-Pass "TEST-033t [$Label] recovery converges ALL-PRE (target absent, sibling unchanged)"
+    } else {
+        Test-Fail "TEST-033t [$Label] recovery converges ALL-PRE" "exit $($r.ExitCode)"
+    }
+}
+
+Test-HostileMatrixCase -Label 'space' -Frag 'sp ace.txt'
+Test-HostileMatrixCase -Label 'tab' -Frag "ta$([char]9)b.txt"
+Test-HostileMatrixCase -Label 'leadtrail' -Frag ' lead-trail '
+Test-HostileMatrixCase -Label 'dquote' -Frag 'qu"ote.txt'
+Test-HostileMatrixCase -Label 'obrace' -Frag 'o{pen.txt'
+Test-HostileMatrixCase -Label 'cbrace' -Frag 'c}lose.txt'
+Test-HostileMatrixCase -Label 'comma' -Frag 'com,ma.txt'
+Test-HostileMatrixCase -Label 'star' -Frag 'st*ar.txt'
+Test-HostileMatrixCase -Label 'question' -Frag 'que?stion.txt'
+Test-HostileMatrixCase -Label 'obracket' -Frag 'ob[racket.txt'
+Test-HostileMatrixCase -Label 'cbracket' -Frag 'cb]racket.txt'
+Test-HostileMatrixCase -Label 'dollar' -Frag 'do$llar.txt'
+Test-HostileMatrixCase -Label 'backtick' -Frag 'back`tick.txt'
+Test-HostileMatrixCase -Label 'squote' -Frag "sq'uote.txt"
+Test-HostileMatrixCase -Label 'utf8' -Frag 'utf8-café-日本語.txt'
+
+# Backslash: a GENUINELY unsupportable character on this runtime (see the
+# .sh suite's own dedicated test for the full empirical verification) --
+# classified-rejected here too (UNSUPPORTED_PATH_CHARACTER), never
+# silently accepted. Rejection happens at manifest-PARSE time (before any
+# staged-file access), so no staged file needs to exist for this fixture
+# -- the manifest line's own hash value is an arbitrary placeholder.
+$F = New-FixtureDir
+$placeholderHash = '0' * 64
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value "$placeholderHash  back\slash.txt`n"
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'UNSUPPORTED_PATH_CHARACTER') {
+    Test-Pass 'TEST-033t ps1 rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER)'
+} else {
+    Test-Fail 'TEST-033t ps1 rejects a literal backslash' "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+}
+
+# ---------------------------------------------------------------------------
 # Self-registration.
 # ---------------------------------------------------------------------------
 if ((Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.ps1')) -match 'apply-human-copy\.tests\.ps1') {

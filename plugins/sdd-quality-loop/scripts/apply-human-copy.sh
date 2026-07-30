@@ -95,13 +95,26 @@ EXIT_RENAME_FAILED=16
 EXIT_RECOVERY_FAILED=17
 EXIT_SOURCE_UNREADABLE=18
 EXIT_DUPLICATE_BASENAME_IN_BATCH=19
+EXIT_UNSUPPORTED_PATH_CHARACTER=20
 
 # ---------------------------------------------------------------------------
 # Small helpers.
 # ---------------------------------------------------------------------------
 
 json_escape() {
-  printf '%s' "$1" | sed 's/\\/\\\\/g; s/"/\\"/g' | tr '\n' ' '
+  # quality-gate seq0359 hostile-path matrix: a literal TAB byte was
+  # passed through UNESCAPED, producing a JSON string containing a raw
+  # control character -- valid enough for this tool's OWN lenient
+  # sed-based reader, but REJECTED by a strict JSON parser (RFC 8259
+  # requires control characters 0x00-0x1F to be escaped), breaking a
+  # plain `python3 json.load` on the emitted journal (verified: "Invalid
+  # control character" at the tab's position). Escaped to the standard
+  # `\t` sequence, ordered AFTER the backslash-escape step so the escape
+  # sequence's own backslash is never itself re-escaped.
+  printf '%s' "$1" \
+    | sed 's/\\/\\\\/g; s/"/\\"/g' \
+    | tr '\n' ' ' \
+    | sed "s/$(printf '\t')/\\\\t/g"
 }
 
 emit_ok() {
@@ -224,17 +237,37 @@ is_hex64() {
 # inside a subshell so a failed walk never corrupts the parent shell's
 # own cwd anchor).
 walk_relative_dir() {
+  # quality-gate seq0359 (Major): the PRIOR implementation split segments
+  # via `IFS='/'; set -- $relpath` -- an UNQUOTED expansion, which in
+  # POSIX shell undergoes BOTH word-splitting AND PATHNAME EXPANSION
+  # (globbing). A segment containing a glob metacharacter (`*`, `?`,
+  # `[...]`) that happened to match an EXISTING, differently-named
+  # directory entry was silently substituted for the real (non-existent)
+  # literal segment -- "validated one path, published a different one,"
+  # while reporting success under the DECLARED (never-actually-used) name
+  # (design.md's own anchored-publisher intent, directly violated).
+  # Verified empirically at remedy time: `set -- $relpath` on
+  # "a*b/f.txt" with an existing "axxb" directory yields segments
+  # ["axxb","f.txt"], not the literal ["a*b","f.txt"].
+  # Fix: split via PURE PARAMETER EXPANSION (`${var%%/*}` /
+  # `${var#*/}`), which performs pattern-matching against the STRING
+  # value only -- it never touches the filesystem and is therefore
+  # immune to pathname expansion regardless of the shell's `-f`/noglob
+  # state. Every extracted segment is used ONLY as a quoted variable
+  # reference below (`"$seg"`), so no glob-sensitive context is ever
+  # reached for it.
   relpath=$1
   create_mode=${2:-}
   [ -n "$relpath" ] || return 0
   case "$relpath" in
     /*) return 1 ;;
   esac
-  oldifs=$IFS
-  IFS='/'
-  set -- $relpath
-  IFS=$oldifs
-  for seg in "$@"; do
+  rest=$relpath
+  while [ -n "$rest" ]; do
+    case "$rest" in
+      */*) seg=${rest%%/*}; rest=${rest#*/} ;;
+      *) seg=$rest; rest="" ;;
+    esac
     [ -n "$seg" ] || continue
     case "$seg" in
       .|..) return 1 ;;
@@ -377,6 +410,27 @@ parse_manifest() {
     case "$path" in
       /*|*..*) die "$EXIT_MANIFEST_INVALID" MANIFEST_INVALID \
         "manifest line $line_no target is not a normalized repo-relative path: $path" ;;
+    esac
+    # UNSUPPORTED_PATH_CHARACTER (quality-gate seq0359 hostile-path
+    # matrix): a literal backslash is rejected in BOTH runtimes, by
+    # design, not merely by sh-side limitation. This publisher's .ps1
+    # twin runs via cross-platform pwsh, and PowerShell/.NET's
+    # FileSystemProvider was verified EMPIRICALLY to treat `\` as a
+    # directory separator on every platform (macOS included) even when
+    # `-LiteralPath` is used -- `Test-Path -LiteralPath 'back\slash.txt'`
+    # resolves to a NESTED path ('back/slash.txt') and returns $false for
+    # a real, literal file named 'back\slash.txt'; this is a genuine,
+    # verified runtime limitation of PowerShell's own path-handling
+    # layer, not a bug reachable by any technique available to this
+    # tool's architecture (which relies on PowerShell's own Test-Path/
+    # Get-FileHash/etc. cmdlets, all of which pass through the same
+    # provider). Rejecting it in sh TOO (which has no such limitation on
+    # its own) avoids a silent divergence where sh accepts a path .ps1
+    # can never publish -- the SAME "genuinely unsupportable character"
+    # treatment as an unrepresentable literal newline, above.
+    case "$path" in
+      *'\'*) die "$EXIT_UNSUPPORTED_PATH_CHARACTER" UNSUPPORTED_PATH_CHARACTER \
+        "manifest line $line_no target contains a literal backslash, which the .ps1 twin's PowerShell/.NET FileSystemProvider cannot address literally on any platform (verified: -LiteralPath still treats \\ as a directory separator); rejected in both runtimes to avoid a silent sh/ps1 capability divergence: $path" ;;
     esac
     if grep -qxF -- "$path" "$seen_paths_file" 2>/dev/null; then
       rm -f "$seen_paths_file" "$seen_basenames_file"
@@ -628,6 +682,16 @@ write_journal() {
     cd -- "$batch_dir_abs" || exit 1
     tmp=$(mktemp ".TRANSACTION.json.XXXXXX") || exit 2
     printf '%s\n' "$body" >"$tmp" || { rm -f "$tmp"; exit 3; }
+    # quality-gate seq0359 Minor (authorized fix): round-trip-verify the
+    # temp file's own bytes before the rename, matching design.md:1020-
+    # 1022's "temp-then-rehash-then-atomic-rename" discipline the .ps1
+    # twin already performs (Write-Journal's own round-trip read-back).
+    written=$(sha256_of "$tmp")
+    roundtrip=$(cat -- "$tmp")
+    if [ -z "$written" ] || [ "$roundtrip" != "$body" ]; then
+      rm -f -- "$tmp"
+      exit 5
+    fi
     mv -f -- "$tmp" TRANSACTION.json || exit 4
   )
 }
@@ -639,53 +703,144 @@ write_journal() {
 # shaped fixed-width record (above) per target to stdout, preserving
 # live_path verbatim including any whitespace it may legitimately contain
 # (quality-gate seq0358), and returns 0. On a shape violation, prints
-# nothing and returns 1 (an
-# UNREADABLE/unparsable file also returns 1 -- caller treats both
-# identically: fail closed, never proceed).
+# nothing and returns 1 (an UNREADABLE/unparsable file also returns 1 --
+# caller treats both identically: fail closed, never proceed).
+#
+# quality-gate seq0359 (Critical x2): the PRIOR implementation used
+# `sed -n 's/.*"live_path":"\([^"]*\)".*/\1/p'` and a naive "split on
+# `},{`" character scan -- NEITHER understands JSON string escaping, so
+# (C1) a live_path containing `"` or `\` (which json_escape, above,
+# legitimately produces escaped forms of) was silently mis-decoded to the
+# WRONG string, and (C2) a live_path containing a literal `}` broke the
+# object-boundary scan, causing the tool to reject its OWN well-formed
+# journal. This is a genuine, repeated failure CLASS (round 1: a
+# byte-count heuristic; round 2: `read`-based IFS field-splitting; round
+# 3: a non-JSON-aware hand-rolled parser) -- each prior fix solved one
+# character/mechanism at a time rather than the underlying pattern
+# ("home-grown parsing that does not understand the full expressiveness
+# of the format it's reading"). This round replaces the reader with a
+# real JSON-STRING-AWARE parser (implemented in awk, since sed cannot
+# express the required backtracking/state): it walks the journal
+# character-by-character, correctly treats `{`/`}`/`,`/`"` occurring
+# INSIDE a properly-parsed string value as ordinary string content (never
+# structural), and correctly reverses every escape json_escape's CLOSED
+# emit set can produce (`\\` -> `\`, `\"` -> `"`) plus the standard JSON
+# escapes generally (`\/`, `\n`, `\t`, `\r`, `\b`, `\f`, `\uXXXX` for the
+# ASCII range) for defense-in-depth against a hand-edited or
+# differently-produced journal. Any character genuinely outside JSON's
+# own string grammar (an unterminated string, a missing key, a
+# non-object array element, etc.) is a parse failure -- fail closed,
+# exactly as before.
 json_get_targets() {
   jf=$1
   [ -f "$jf" ] || return 1
-  content=$(cat -- "$jf" 2>/dev/null) || return 1
-  [ -n "$content" ] || return 1
-  case "$content" in
-    *'"targets"'*'['*']'*) : ;;
-    *) return 1 ;;
-  esac
-  # Minimal, dependency-free structural extraction: one target object per
-  # {...} group inside the targets array. Each MUST contain all three
-  # required keys with string values -- anything else is a shape
-  # violation (fail closed).
-  arr=$(printf '%s' "$content" | sed -n 's/.*"targets":\[\(.*\)\].*/\1/p')
-  [ -n "$arr" ] || return 1
-  count=0
-  ok=1
-  # Split on "},{" boundaries (each target is a flat, single-level
-  # object -- true for every journal THIS tool ever writes).
-  rest=$arr
-  while [ -n "$rest" ]; do
-    case "$rest" in
-      '{'*'}'*)
-        obj=${rest#\{}
-        obj=${obj%%\}*}
-        lp=$(printf '%s' "$obj" | sed -n 's/.*"live_path":"\([^"]*\)".*/\1/p')
-        ph=$(printf '%s' "$obj" | sed -n 's/.*"pre_hash":"\([^"]*\)".*/\1/p')
-        qh=$(printf '%s' "$obj" | sed -n 's/.*"post_hash":"\([^"]*\)".*/\1/p')
-        if [ -z "$lp" ] || [ -z "$ph" ] || [ -z "$qh" ]; then
-          ok=0
+  awk '
+    function zsentinel(   i, s) {
+      s = ""
+      for (i = 0; i < 64; i++) s = s "z"
+      return s
+    }
+    # parse_json_string(s, start): s is the whole content; start is the
+    # index of the OPENING quote. Sets RES_VAL (decoded value) and
+    # RES_NEXT (index just past the closing quote) on success; sets
+    # PARSE_ERR=1 on an unterminated string.
+    function parse_json_string(s, start,    i, n, c, out, nc, hex, cp) {
+      n = length(s)
+      i = start + 1
+      out = ""
+      while (i <= n) {
+        c = substr(s, i, 1)
+        if (c == "\"") { RES_VAL = out; RES_NEXT = i + 1; return }
+        if (c == "\\") {
+          nc = substr(s, i + 1, 1)
+          if (nc == "\"") { out = out "\""; i += 2 }
+          else if (nc == "\\") { out = out "\\"; i += 2 }
+          else if (nc == "/") { out = out "/"; i += 2 }
+          else if (nc == "n") { out = out "\n"; i += 2 }
+          else if (nc == "t") { out = out "\t"; i += 2 }
+          else if (nc == "r") { out = out "\r"; i += 2 }
+          else if (nc == "b") { out = out "\b"; i += 2 }
+          else if (nc == "f") { out = out "\f"; i += 2 }
+          else if (nc == "u") {
+            hex = substr(s, i + 2, 4)
+            cp = strtonum("0x" hex)
+            if (cp >= 32 && cp < 127) { out = out sprintf("%c", cp) }
+            else { out = out "?" }
+            i += 6
+          }
+          else { out = out nc; i += 2 }
+          continue
+        }
+        out = out c
+        i += 1
+      }
+      PARSE_ERR = 1
+    }
+    { content = content $0 "\n" }
+    END {
+      n = length(content)
+      ZS = zsentinel()
+      tidx = index(content, "\"targets\"")
+      if (tidx == 0) { exit 1 }
+      p = tidx + length("\"targets\"")
+      while (p <= n && substr(content, p, 1) != ":") p++
+      p++
+      while (p <= n && substr(content, p, 1) == " ") p++
+      if (substr(content, p, 1) != "[") { exit 1 }
+      p++
+      count = 0
+      for (;;) {
+        while (p <= n) {
+          ch = substr(content, p, 1)
+          if (ch == " " || ch == "," || ch == "\n") { p++; continue }
           break
-        fi
-        write_target_record "$ph" "$qh" "$lp"
-        count=$((count + 1))
-        after=${rest#*\}}
-        case "$after" in
-          ,*) rest=${after#,} ;;
-          *) rest="" ;;
-        esac
-        ;;
-      *) ok=0; break ;;
-    esac
-  done
-  [ "$ok" = "1" ] && [ "$count" -gt 0 ]
+        }
+        if (p > n) { exit 1 }
+        ch = substr(content, p, 1)
+        if (ch == "]") { p++; break }
+        if (ch != "{") { exit 1 }
+        p++
+        live_path = ""; pre_hash = ""; post_hash = ""
+        have_lp = 0; have_ph = 0; have_qh = 0
+        for (;;) {
+          while (p <= n) {
+            ch = substr(content, p, 1)
+            if (ch == " " || ch == "," || ch == "\n") { p++; continue }
+            break
+          }
+          if (p > n) { exit 1 }
+          ch = substr(content, p, 1)
+          if (ch == "}") { p++; break }
+          if (ch != "\"") { exit 1 }
+          PARSE_ERR = 0
+          parse_json_string(content, p)
+          if (PARSE_ERR) { exit 1 }
+          key = RES_VAL
+          p = RES_NEXT
+          while (p <= n && substr(content, p, 1) != ":") p++
+          if (p > n) { exit 1 }
+          p++
+          while (p <= n && substr(content, p, 1) == " ") p++
+          if (substr(content, p, 1) != "\"") { exit 1 }
+          PARSE_ERR = 0
+          parse_json_string(content, p)
+          if (PARSE_ERR) { exit 1 }
+          val = RES_VAL
+          p = RES_NEXT
+          if (key == "live_path") { live_path = val; have_lp = 1 }
+          else if (key == "pre_hash") { pre_hash = val; have_ph = 1 }
+          else if (key == "post_hash") { post_hash = val; have_qh = 1 }
+        }
+        if (!have_lp || !have_ph || !have_qh || live_path == "" || pre_hash == "" || post_hash == "") { exit 1 }
+        pre_enc = (pre_hash == "ABSENT") ? ZS : pre_hash
+        post_enc = (post_hash == "ABSENT") ? ZS : post_hash
+        printf "%s%s %s\n", pre_enc, post_enc, live_path
+        count++
+      }
+      if (count == 0) { exit 1 }
+      exit 0
+    }
+  ' "$jf" 2>/dev/null
 }
 
 # ---------------------------------------------------------------------------

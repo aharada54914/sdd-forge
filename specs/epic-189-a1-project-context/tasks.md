@@ -1708,6 +1708,65 @@ by the coordinator and is corrected in this same entry, above; the other
 detail in `reports/implementation/epic-189-a1-project-context/T-007.md`'s
 own "Quality Gate Remedy (seq0358)" section.
 
+QUALITY-GATE REMEDY 3 (2026-07-31, seq0359 NEEDS_WORK -> remedy applied,
+FINAL round of this attempt): `reports/quality-gate/
+2026-07-30T224124Z-T-007.md` (commit `9b23592f`) returned Critical 2 /
+Major 1 / Minor 3 -- the THIRD consecutive round finding the same
+underlying CLASS (sh/ps1 diverging on a path character the design
+contract never restricts), each round in a different mechanism. This
+remedy targets CLASS ELIMINATION per the coordinator's explicit mandate.
+Root cause: `json_get_targets` (sh journal reader) used hand-rolled sed/
+character-scanning that could not reverse json_escape's own JSON string
+escaping (Critical: a `"` or `\` in live_path made recovery probe the
+WRONG path, declare false ALL-PRE, and delete the journal+backups --
+an unrecoverable mixed state reported as SUCCESS) nor correctly find
+object boundaries when live_path contained a literal `}` (Critical:
+permanently bricked the publisher on its own well-formed journal).
+Separately, `walk_relative_dir`'s unquoted `set -- $relpath` underwent
+pathname expansion (Major, sh): a glob-metacharacter segment (e.g.
+`a*b`) silently redirected the publish to an unrelated EXISTING
+directory while reporting success under the declared name. Fixing the
+reported ps1-side `New-Item -Path` equivalent surfaced a DEEPER
+PowerShell/.NET bug: `Set-Location -LiteralPath` itself was verified,
+empirically, to mis-resolve ANY wildcard-containing segment (relative,
+absolute, or `[WildcardPattern]::Escape()`-escaped) against an existing
+directory -- not a caller error but a genuine FileSystemProvider quirk.
+Fix: sh's `json_get_targets` rewritten as a real JSON-string-aware
+parser in awk (character-by-character, correctly treats structural
+characters inside a parsed string as ordinary content, reverses every
+escape json_escape's closed emit set produces plus the standard JSON
+escapes generally). sh's `walk_relative_dir` now splits segments via
+pure parameter expansion (`${rest%%/*}`/`${rest#*/}`), never touching
+the filesystem. ps1's three anchoring helpers were rewritten to use
+ONLY `[System.IO.Directory]::SetCurrentDirectory` (verified wildcard-
+safe in every case tested), never Set-Location/Push-Location/
+Pop-Location again -- `$PWD` is deliberately never touched, so every
+remaining cmdlet call that relied on it was converted to an absolute
+path computed via `[System.IO.Path]::Combine` against
+`[System.Environment]::CurrentDirectory`. Two further genuine bugs
+found during the hostile-path matrix build, fixed in the same pass:
+json_escape did not escape TAB (invalid per RFC 8259, rejected by a
+strict `python3 json.load`); and a literal backslash is GENUINELY
+unsupportable on ps1 (PowerShell/.NET treats `\` as a directory
+separator on every platform, verified) -- classified-rejected
+(`UNSUPPORTED_PATH_CHARACTER`) in BOTH runtimes rather than a silent
+sh/ps1 capability divergence. A literal newline in a path was confirmed
+structurally unrepresentable in the line-oriented manifest format (no
+new code needed). Authorized Minor fix: `write_journal` now round-trip-
+verifies before rename, matching design.md:1020-1022 (ps1 already did).
+New hostile-path property matrix (TEST-033t, both suites): publish ->
+mid-batch crash -> recovery convergence -> journal byte round-trip (real
+python3 json.load / ConvertFrom-Json) -> T-005-reader surrogate query ->
+sh/ps1 parity, machine-driven across space, tab, leading/trailing
+whitespace, `"`, `{`, `}`, `,`, `*`, `?`, `[`, `]`, `$`, backtick, `'`,
+UTF-8 multi-byte (backslash verified rejected identically instead).
+`bash` 52->130 (78 new), `pwsh` 41->72 (31 new); both 100% PASS. TDD Red
+(script relocated): `bash` 66/128 reached, `pwsh` 15/71 reached ->
+Green: 130/130, 72/72. All four AC-033 crash-injection scenarios
+re-verified in both runtimes. Full detail in `reports/implementation/
+epic-189-a1-project-context/T-007.md`'s own "Quality Gate Remedy
+(seq0359)" section.
+
 ---
 
 ## T-008 Author the hook-activation handshake (`check-hook-activation-handshake`)

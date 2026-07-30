@@ -1,5 +1,5 @@
 AC-033 extended crash-injection proof -- apply-human-copy.ps1
-Generated: 2026-07-30T21:59:09Z
+Generated: 2026-07-30T23:24:02Z
 
 === SCENARIO 1: crash BEFORE the first rename (journal-write) -> recovers ALL-PRE ===
 -- invocation 1 (simulate crash after journal-write) --
