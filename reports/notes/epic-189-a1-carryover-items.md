@@ -170,3 +170,16 @@
   下げない緩和 = BOM のみ許容し、それ以外の不整合は現行どおり fail-closed)。
   detect-policy-weakening.py は T-005 の凍結成果物のため、変更は正規の
   タスク/ゲート経路で。
+
+- **T-007 QG round-2 (seq0358) carryover** (2026-07-31):
+  ① ps1 スイートの 5 アサーション非対称（挙動自体は正・カバレッジ表現の
+  対称性課題)② backup found/not-found シグナルの不精密（機能は正)
+  ③ ADR-0025 関連 Done-When 文言との軽微な逸脱（開示済み・substance 充足)
+  — いずれも非ブロッキング、最終フェーズ仕上げ候補。
+  ④ **評価者 observation（third-state probe)**: 回復時に target が PRE でも
+  POST でもない（外部編集された)第三状態にある場合の扱いは design の
+  収束列挙（all-pre / all-post)の外だが、両レーンが同挙動 — design 明文化
+  候補として記録（現挙動の是非判断は将来の design 改訂ゲートで)。
+  （新規 Major = 空白入り path の sh IFS 構造破壊 journal は remedy-2
+  対応中で carryover 対象外。round-1 の 4 指摘は評価者の fixture 再構築 +
+  revert-mutation で全解消実証済み。)
