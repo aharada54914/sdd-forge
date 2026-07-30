@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.13.0 (2026-07-30)
+
 ### 追加
 
 - **`evidence_compare_to_traceability` の `unreadableContracts` と
