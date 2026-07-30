@@ -53,6 +53,7 @@ CATEGORY_EXIT_CODES = {
     "CONTENT_CANONICALIZATION_FAILED": 13,
     "PREIMAGE_CANONICALIZATION_FAILED": 14,
     "LIVE_SIDECAR_UNREADABLE": 15,
+    "STAGING_IO_ERROR": 16,
     # Test-only hook (AC-034/TEST-034); never produced by a real signing run.
     "SIMULATED_MID_WRITE_FAILURE": 90,
 }
@@ -293,20 +294,29 @@ def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonc
     `stage_dir`. A failure at any point before that rename leaves `stage_dir`
     itself absent -- never partially populated (AC-034/TEST-034) -- and the
     temporary directory is removed. A re-run always uses a fresh nonce, so
-    it never collides with a prior failed attempt's leftovers."""
+    it never collides with a prior failed attempt's leftovers.
+
+    Every filesystem operation in this function -- including directory
+    creation and the final commit rename -- is covered by the try/except
+    below: an OSError from any of them (a colliding `--stage-dir`, an
+    unwritable parent, a non-directory occupying part of the default path,
+    a permission error, etc.) is wrapped as `GenerateApprovalSidecarError`
+    (`STAGING_IO_ERROR`), never left to propagate as a raw, undocumented
+    traceback (quality-gate seq0350 Major remedy)."""
     basename = SCHEMA_BASENAMES[schema_id]
     sidecar_bytes = (json.dumps(sidecar_obj, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
     stage_dir = stage_dir.rstrip("/").rstrip(os.sep)
     parent_dir = os.path.dirname(stage_dir) or "."
-    os.makedirs(parent_dir, exist_ok=True)
-
     tmp_leaf = os.path.join(parent_dir, ".tmp-" + nonce)
-    if os.path.exists(tmp_leaf):
-        shutil.rmtree(tmp_leaf)
-    os.makedirs(tmp_leaf)
 
     try:
+        os.makedirs(parent_dir, exist_ok=True)
+
+        if os.path.exists(tmp_leaf):
+            shutil.rmtree(tmp_leaf)
+        os.makedirs(tmp_leaf)
+
         sidecar_path = os.path.join(tmp_leaf, f"{basename}.approval.json")
         snapshot_path = os.path.join(tmp_leaf, f"{basename}.approved.yaml")
         manifest_path = os.path.join(tmp_leaf, "MANIFEST.sha256")
@@ -345,6 +355,13 @@ def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonc
             f.write(manifest_text)
 
         os.rename(tmp_leaf, stage_dir)
+    except OSError as exc:
+        shutil.rmtree(tmp_leaf, ignore_errors=True)
+        raise GenerateApprovalSidecarError(
+            "STAGING_IO_ERROR",
+            f"a filesystem error occurred while staging the candidate at "
+            f"{stage_dir!r}: {exc}",
+        ) from exc
     except BaseException:
         shutil.rmtree(tmp_leaf, ignore_errors=True)
         raise

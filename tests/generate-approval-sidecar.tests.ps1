@@ -816,6 +816,96 @@ if ($r.ExitCode -eq 2 -and $errText -notmatch '(?i)traceback') {
 }
 
 # ---------------------------------------------------------------------------
+# TEST-HARDEN(d): staging I/O errors are wrapped as STAGING_IO_ERROR, never a
+# raw traceback (quality-gate seq0350 Major remedy: os.makedirs()/os.rename()
+# OSError subclasses escaped main()'s narrow GenerateApprovalSidecarError
+# handler). Two required classes: (i) a --stage-dir collision (existing
+# non-empty directory or existing regular file); (ii) the DEFAULT path with
+# no --stage-dir override, where `sdd` itself is a regular file.
+# ---------------------------------------------------------------------------
+
+$StageCollideDir = Join-Path $Work 'stage-collide-dir'
+New-Item -ItemType Directory -Path $StageCollideDir -Force | Out-Null
+Set-Content -LiteralPath (Join-Path $StageCollideDir 'pre-existing-file') -NoNewline -Encoding utf8 -Value ''
+$r = Invoke-Gen -ArgList @(
+  '--schema', 'sdd-project-context-approval/v1',
+  '--content', $ContentA,
+  '--approver', 'alice',
+  '--status', 'Approved',
+  '--live-sidecar', (Join-Path $Work 'no-such-sidecar-collide-dir.json'),
+  '--stage-dir', $StageCollideDir
+) -EnvSet @{ SDD_CONTEXT_KEY = 'test-context-key-epic189-t003' }
+$errText = Get-Content -Raw -LiteralPath $r.StderrPath -ErrorAction SilentlyContinue
+if ($r.ExitCode -eq 16 -and $errText -match 'STAGING_IO_ERROR' -and $errText -notmatch '(?i)traceback') {
+  Test-Pass 'TEST-HARDEN(d) --stage-dir = existing non-empty directory: clean STAGING_IO_ERROR (exit 16), never a traceback'
+} else {
+  Test-Fail 'TEST-HARDEN(d) --stage-dir = existing non-empty directory: clean STAGING_IO_ERROR (exit 16), never a traceback' "exit $($r.ExitCode); $errText"
+}
+if (Test-Path -LiteralPath (Join-Path $StageCollideDir 'project-context.approval.json')) {
+  Test-Fail 'TEST-HARDEN(d) a stage-dir directory collision writes no staged candidate into it'
+} else {
+  Test-Pass 'TEST-HARDEN(d) a stage-dir directory collision writes no staged candidate into it'
+}
+$strayTmpD = Get-ChildItem -LiteralPath $Work -Filter '.tmp-*' -Directory -ErrorAction SilentlyContinue
+if (-not $strayTmpD) {
+  Test-Pass 'TEST-HARDEN(d) a stage-dir directory collision leaves no stray temp staging directory'
+} else {
+  Test-Fail 'TEST-HARDEN(d) a stage-dir directory collision leaves no stray temp staging directory'
+}
+
+$StageCollideFile = Join-Path $Work 'stage-collide-file'
+Set-Content -LiteralPath $StageCollideFile -NoNewline -Encoding utf8 -Value ''
+$r = Invoke-Gen -ArgList @(
+  '--schema', 'sdd-project-context-approval/v1',
+  '--content', $ContentA,
+  '--approver', 'alice',
+  '--status', 'Approved',
+  '--live-sidecar', (Join-Path $Work 'no-such-sidecar-collide-file.json'),
+  '--stage-dir', $StageCollideFile
+) -EnvSet @{ SDD_CONTEXT_KEY = 'test-context-key-epic189-t003' }
+$errText = Get-Content -Raw -LiteralPath $r.StderrPath -ErrorAction SilentlyContinue
+if ($r.ExitCode -eq 16 -and $errText -match 'STAGING_IO_ERROR' -and $errText -notmatch '(?i)traceback') {
+  Test-Pass 'TEST-HARDEN(d) --stage-dir = existing regular file: clean STAGING_IO_ERROR (exit 16), never a traceback'
+} else {
+  Test-Fail 'TEST-HARDEN(d) --stage-dir = existing regular file: clean STAGING_IO_ERROR (exit 16), never a traceback' "exit $($r.ExitCode); $errText"
+}
+$strayTmpF = Get-ChildItem -LiteralPath $Work -Filter '.tmp-*' -Directory -ErrorAction SilentlyContinue
+if (-not $strayTmpF) {
+  Test-Pass 'TEST-HARDEN(d) a stage-dir file collision leaves no stray temp staging directory'
+} else {
+  Test-Fail 'TEST-HARDEN(d) a stage-dir file collision leaves no stray temp staging directory'
+}
+
+$ProjSddIsFile = Join-Path $Work 'proj-sdd-is-file'
+New-Item -ItemType Directory -Path $ProjSddIsFile -Force | Out-Null
+Write-ContentFixture (Join-Path $ProjSddIsFile 'project-context.yaml')
+Set-Content -LiteralPath (Join-Path $ProjSddIsFile 'sdd') -NoNewline -Encoding utf8 -Value ''
+Push-Location $ProjSddIsFile
+try {
+  $r = Invoke-Gen -ArgList @(
+    '--schema', 'sdd-project-context-approval/v1',
+    '--content', 'project-context.yaml',
+    '--approver', 'alice',
+    '--status', 'Approved',
+    '--live-sidecar', 'no-such-sidecar.json'
+  ) -EnvSet @{ SDD_CONTEXT_KEY = 'test-context-key-epic189-t003' }
+} finally {
+  Pop-Location
+}
+$errText = Get-Content -Raw -LiteralPath $r.StderrPath -ErrorAction SilentlyContinue
+if ($r.ExitCode -eq 16 -and $errText -match 'STAGING_IO_ERROR' -and $errText -notmatch '(?i)traceback') {
+  Test-Pass "TEST-HARDEN(d) default path with 'sdd' as a regular file: clean STAGING_IO_ERROR (exit 16), never a traceback"
+} else {
+  Test-Fail "TEST-HARDEN(d) default path with 'sdd' as a regular file: clean STAGING_IO_ERROR (exit 16), never a traceback" "exit $($r.ExitCode); $errText"
+}
+$extraPaths = Get-ChildItem -LiteralPath $ProjSddIsFile -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Name -ne 'project-context.yaml' -and $_.Name -ne 'sdd' }
+if ($extraPaths) {
+  Test-Fail "TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere" ($extraPaths.FullName -join ', ')
+} else {
+  Test-Pass "TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere"
+}
+
+# ---------------------------------------------------------------------------
 # Self-registration (design.md Test Strategy item 11).
 # ---------------------------------------------------------------------------
 

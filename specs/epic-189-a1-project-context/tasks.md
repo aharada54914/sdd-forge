@@ -884,6 +884,37 @@ written): `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`
 (recorded before and after this session's work; identical to T-002's/T-004's
 own recorded value, confirming no session has touched the live file since).
 
+QUALITY-GATE REMEDY (2026-07-30, follow-up session, seq0350, verdict
+NEEDS_WORK): the independent evaluator reproduced 5/5 a Major finding —
+`generate-approval-sidecar.py:302,347`'s `os.makedirs(parent_dir)` and
+`os.rename(tmp_leaf, stage_dir)` raised OSError subclasses
+(`NotADirectoryError`/`FileExistsError`/`PermissionError`) that escaped
+`main()`'s narrow `except GenerateApprovalSidecarError` handler, producing
+a raw traceback and undocumented exit 1, contradicting the module's own
+"never an uncaught traceback" docstring promise and the stable
+documented-exit-code contract — including the DEFAULT (no `--stage-dir`)
+path, when `sdd` itself is an existing regular file. The evaluator judged
+this Major rather than Critical because fail-closed behavior itself
+(no stray temp directories, no partial/unsigned artifact) was already
+intact. Remedied here: `_write_staged_outputs`'s entire filesystem
+sequence (directory creation through the final commit rename) is now
+inside one `try`/`except OSError`, wrapping any such error as a new,
+documented category (`STAGING_IO_ERROR`, exit 16 — the next available slot
+in the existing 0/2/10-15/90 exit-code space) while preserving the
+existing cleanup-then-reraise behavior for the `SIMULATED_MID_WRITE_FAILURE`
+test hook (an `except BaseException` clause below the new `except OSError`
+handles that non-OSError case unchanged). All 5 of the evaluator's
+reproduction cases re-verified fixed by hand before writing any test.
+TDD Red (both suites' 3 new `TEST-HARDEN(d)` "clean exit code" assertions
+fail genuinely against the pre-remedy script, with a real captured
+traceback) → Green (`bash` 57/57, `pwsh` 55/55) captured for both runtimes
+at `specs/epic-189-a1-project-context/verification/T-003/remedy-{red,green}-{sh,ps1}.log`.
+The two Minor findings (AC-013's `resolve_evidence_key` half unproven by
+execution; the pwsh suite's one documented TEST-HARDEN(b) delivery-method
+difference) are unchanged by this remedy and remain open per the
+evaluator's own scoping — no other file or behavior was touched. Full
+detail: `reports/implementation/epic-189-a1-project-context/T-003.md`.
+
 ---
 
 ## T-004 Author the approver registry schema

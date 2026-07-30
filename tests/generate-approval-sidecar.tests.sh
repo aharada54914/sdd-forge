@@ -776,6 +776,89 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# TEST-HARDEN(d): staging I/O errors are wrapped as STAGING_IO_ERROR, never a
+# raw traceback (quality-gate seq0350 Major remedy: os.makedirs()/os.rename()
+# OSError subclasses escaped main()'s narrow GenerateApprovalSidecarError
+# handler). Two required classes: (i) a --stage-dir collision (existing
+# non-empty directory or existing regular file); (ii) the DEFAULT path with
+# no --stage-dir override, where `sdd` itself is a regular file.
+# ---------------------------------------------------------------------------
+
+STAGE_COLLIDE_DIR="$WORK/stage-collide-dir"
+mkdir -p "$STAGE_COLLIDE_DIR"
+touch "$STAGE_COLLIDE_DIR/pre-existing-file"
+SDD_CONTEXT_KEY="test-context-key-epic189-t003" run_gen \
+  --schema sdd-project-context-approval/v1 \
+  --content "$CONTENT_A" \
+  --approver alice \
+  --status Approved \
+  --live-sidecar "$WORK/no-such-sidecar-collide-dir.json" \
+  --stage-dir "$STAGE_COLLIDE_DIR"
+rc=$?
+if [ "$rc" = 16 ] && grep -q STAGING_IO_ERROR "$WORK/err" && ! grep -qi traceback "$WORK/err"; then
+  pass "TEST-HARDEN(d) --stage-dir = existing non-empty directory: clean STAGING_IO_ERROR (exit 16), never a traceback"
+else
+  fail "TEST-HARDEN(d) --stage-dir = existing non-empty directory: clean STAGING_IO_ERROR (exit 16), never a traceback (exit $rc; stderr: $(cat "$WORK/err")"
+fi
+if [ -e "$STAGE_COLLIDE_DIR/project-context.approval.json" ] || [ -e "$STAGE_COLLIDE_DIR/MANIFEST.sha256" ]; then
+  fail "TEST-HARDEN(d) a stage-dir directory collision writes no staged candidate into it"
+else
+  pass "TEST-HARDEN(d) a stage-dir directory collision writes no staged candidate into it"
+fi
+if find "$WORK" -maxdepth 1 -name ".tmp-*" | grep -q .; then
+  fail "TEST-HARDEN(d) a stage-dir directory collision leaves no stray temp staging directory"
+else
+  pass "TEST-HARDEN(d) a stage-dir directory collision leaves no stray temp staging directory"
+fi
+
+STAGE_COLLIDE_FILE="$WORK/stage-collide-file"
+touch "$STAGE_COLLIDE_FILE"
+SDD_CONTEXT_KEY="test-context-key-epic189-t003" run_gen \
+  --schema sdd-project-context-approval/v1 \
+  --content "$CONTENT_A" \
+  --approver alice \
+  --status Approved \
+  --live-sidecar "$WORK/no-such-sidecar-collide-file.json" \
+  --stage-dir "$STAGE_COLLIDE_FILE"
+rc=$?
+if [ "$rc" = 16 ] && grep -q STAGING_IO_ERROR "$WORK/err" && ! grep -qi traceback "$WORK/err"; then
+  pass "TEST-HARDEN(d) --stage-dir = existing regular file: clean STAGING_IO_ERROR (exit 16), never a traceback"
+else
+  fail "TEST-HARDEN(d) --stage-dir = existing regular file: clean STAGING_IO_ERROR (exit 16), never a traceback (exit $rc; stderr: $(cat "$WORK/err")"
+fi
+if find "$WORK" -maxdepth 1 -name ".tmp-*" | grep -q .; then
+  fail "TEST-HARDEN(d) a stage-dir file collision leaves no stray temp staging directory"
+else
+  pass "TEST-HARDEN(d) a stage-dir file collision leaves no stray temp staging directory"
+fi
+
+PROJ_SDD_IS_FILE="$WORK/proj-sdd-is-file"
+mkdir -p "$PROJ_SDD_IS_FILE"
+write_content_fixture "$PROJ_SDD_IS_FILE/project-context.yaml"
+touch "$PROJ_SDD_IS_FILE/sdd"
+(
+  cd "$PROJ_SDD_IS_FILE" && \
+  SDD_CONTEXT_KEY="test-context-key-epic189-t003" "$GEN_SH" \
+    --schema sdd-project-context-approval/v1 \
+    --content project-context.yaml \
+    --approver alice \
+    --status Approved \
+    --live-sidecar no-such-sidecar.json >"$WORK/out" 2>"$WORK/err"
+)
+rc=$?
+if [ "$rc" = 16 ] && grep -q STAGING_IO_ERROR "$WORK/err" && ! grep -qi traceback "$WORK/err"; then
+  pass "TEST-HARDEN(d) default path with 'sdd' as a regular file: clean STAGING_IO_ERROR (exit 16), never a traceback"
+else
+  fail "TEST-HARDEN(d) default path with 'sdd' as a regular file: clean STAGING_IO_ERROR (exit 16), never a traceback (exit $rc; stderr: $(cat "$WORK/err")"
+fi
+extra_paths=$(find "$PROJ_SDD_IS_FILE" -mindepth 1 ! -name 'project-context.yaml' ! -name 'sdd')
+if [ -n "$extra_paths" ]; then
+  fail "TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere (found: $extra_paths)"
+else
+  pass "TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere"
+fi
+
+# ---------------------------------------------------------------------------
 # Self-registration (design.md Test Strategy item 11).
 # ---------------------------------------------------------------------------
 
