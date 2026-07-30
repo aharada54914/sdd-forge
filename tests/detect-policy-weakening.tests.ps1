@@ -370,6 +370,96 @@ Assert-Eq $v.categories.component_path_narrowed 'not_weakened' `
 Assert-Eq $v.policy_weakening $false `
   'TEST-031 (5) a pure-broadening change is not classified as policy-weakening'
 
+# (6) whole-component removal/addition (quality-gate seq0353 Major remedy:
+# pins the implementer's own extension beyond design.md's five literal
+# boundary cases -- a component present in the baseline but ABSENT from
+# the candidate is the ultimate narrowing of whatever effective path
+# ownership it had, never silently ignored; a component's ADDITION is the
+# mirror non-weakening case). Rationale: design.md:882-886 requires this
+# algorithm to fail closed toward "review this" rather than fail open
+# toward "silently permit a possible narrowing" -- a removed component
+# with no assertion pinning it is exactly the fail-open risk that
+# guidance forbids on this Risk: high policy-decision surface.
+$B6Removed = Join-Path $T031 'b6-removed.yaml'
+$C6Removed = Join-Path $T031 'c6-removed.yaml'
+Set-Content -LiteralPath $B6Removed -NoNewline -Encoding utf8 -Value @"
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components:
+  - id: docs
+    paths:
+      include:
+        - docs/**
+      exclude: []
+  - id: infra
+    paths:
+      include:
+        - infra/**
+      exclude: []
+"@
+Set-Content -LiteralPath $C6Removed -NoNewline -Encoding utf8 -Value @"
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components:
+  - id: infra
+    paths:
+      include:
+        - infra/**
+      exclude: []
+"@
+$r = Invoke-Detect -ArgList @('--candidate', $C6Removed, '--approved-context', $B6Removed)
+$v = Get-VerdictJson $r.StdoutPath
+Assert-Eq $v.categories.component_path_narrowed 'weakened' `
+  'TEST-031 (6a) a whole component removed (docs) narrows coverage (fail-closed extension beyond design.md''s five literal fixtures)'
+Assert-Eq $v.policy_weakening $true `
+  'TEST-031 (6a) a whole component removed is classified as policy-weakening'
+
+$B6Added = Join-Path $T031 'b6-added.yaml'
+$C6Added = Join-Path $T031 'c6-added.yaml'
+Set-Content -LiteralPath $B6Added -NoNewline -Encoding utf8 -Value @"
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components:
+  - id: infra
+    paths:
+      include:
+        - infra/**
+      exclude: []
+"@
+Set-Content -LiteralPath $C6Added -NoNewline -Encoding utf8 -Value @"
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components:
+  - id: infra
+    paths:
+      include:
+        - infra/**
+      exclude: []
+  - id: docs
+    paths:
+      include:
+        - docs/**
+      exclude: []
+"@
+$r = Invoke-Detect -ArgList @('--candidate', $C6Added, '--approved-context', $B6Added)
+$v = Get-VerdictJson $r.StdoutPath
+Assert-Eq $v.categories.component_path_narrowed 'not_weakened' `
+  'TEST-031 (6b) mirror case: a NEW component added (docs) does NOT narrow (the baseline''s own components are untouched)'
+Assert-Eq $v.policy_weakening $false `
+  'TEST-031 (6b) a component addition is NOT classified as policy-weakening'
+
 # ---------------------------------------------------------------------------
 # TEST-030: approved-context anchor CLI contract -- AC-030.
 # ---------------------------------------------------------------------------

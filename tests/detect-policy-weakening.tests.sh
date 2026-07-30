@@ -362,6 +362,90 @@ assert_json_field "$WORK/out" "d['categories']['component_path_narrowed']" "not_
 assert_json_field "$WORK/out" "d['policy_weakening']" "False" \
   "TEST-031 (5) a pure-broadening change is not classified as policy-weakening"
 
+# (6) whole-component removal/addition (quality-gate seq0353 Major remedy:
+# pins the implementer's own extension beyond design.md's five literal
+# boundary cases -- a component present in the baseline but ABSENT from
+# the candidate is the ultimate narrowing of whatever effective path
+# ownership it had, never silently ignored; a component's ADDITION is the
+# mirror non-weakening case). Rationale: design.md:882-886 requires this
+# algorithm to fail closed toward "review this" rather than fail open
+# toward "silently permit a possible narrowing" -- a removed component
+# with no assertion pinning it is exactly the fail-open risk that
+# guidance forbids on this Risk: high policy-decision surface.
+cat > "$WORK/t031/b6-removed.yaml" <<'EOF'
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components:
+  - id: docs
+    paths:
+      include:
+        - docs/**
+      exclude: []
+  - id: infra
+    paths:
+      include:
+        - infra/**
+      exclude: []
+EOF
+cat > "$WORK/t031/c6-removed.yaml" <<'EOF'
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components:
+  - id: infra
+    paths:
+      include:
+        - infra/**
+      exclude: []
+EOF
+run_detect --candidate "$WORK/t031/c6-removed.yaml" --approved-context "$WORK/t031/b6-removed.yaml"
+assert_json_field "$WORK/out" "d['categories']['component_path_narrowed']" "weakened" \
+  "TEST-031 (6a) a whole component removed (docs) narrows coverage (fail-closed extension beyond design.md's five literal fixtures)"
+assert_json_field "$WORK/out" "d['policy_weakening']" "True" \
+  "TEST-031 (6a) a whole component removed is classified as policy-weakening"
+
+cat > "$WORK/t031/b6-added.yaml" <<'EOF'
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components:
+  - id: infra
+    paths:
+      include:
+        - infra/**
+      exclude: []
+EOF
+cat > "$WORK/t031/c6-added.yaml" <<'EOF'
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: lite-three-file
+  capability_enforcement: required
+components:
+  - id: infra
+    paths:
+      include:
+        - infra/**
+      exclude: []
+  - id: docs
+    paths:
+      include:
+        - docs/**
+      exclude: []
+EOF
+run_detect --candidate "$WORK/t031/c6-added.yaml" --approved-context "$WORK/t031/b6-added.yaml"
+assert_json_field "$WORK/out" "d['categories']['component_path_narrowed']" "not_weakened" \
+  "TEST-031 (6b) mirror case: a NEW component added (docs) does NOT narrow (the baseline's own components are untouched)"
+assert_json_field "$WORK/out" "d['policy_weakening']" "False" \
+  "TEST-031 (6b) a component addition is NOT classified as policy-weakening"
+
 # ---------------------------------------------------------------------------
 # TEST-030: approved-context anchor CLI contract -- AC-030.
 # ---------------------------------------------------------------------------
