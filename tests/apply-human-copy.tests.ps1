@@ -151,6 +151,50 @@ if ($IsWindows) {
 }
 
 # ---------------------------------------------------------------------------
+# TEST-033d: symlink at an INTERMEDIATE destination-parent segment is
+# denied (quality-gate seq0357 Major #2 remedy: this case previously had
+# NO pwsh coverage on ANY platform -- an earlier report claimed an
+# `$IsWindows` skip branch that did not exist. Implemented here, running
+# for real on macOS/Linux, where the CI matrix actually exercises pwsh
+# symlink handling; skipped ONLY on native Windows, matching TEST-033c's
+# own already-correct convention, for the SAME reason -- symlink creation
+# there requires elevation/Developer Mode not guaranteed in CI).
+# ---------------------------------------------------------------------------
+if ($IsWindows) {
+    Test-Pass 'TEST-033d symlinked intermediate destination-parent segment denied (skipped: Windows symlink creation requires elevation)'
+} else {
+    $F = New-FixtureDir
+    New-Item -ItemType Directory -Path (Join-Path $F 'repo/plugins') -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $F 'elsewhere-dir') -Force | Out-Null
+    Write-FixtureFile (Join-Path $F 'elsewhere-dir/untouched.txt') 'elsewhere-canary'
+    New-Item -ItemType SymbolicLink -Path (Join-Path $F 'repo/plugins/x') -Target (Join-Path $F 'elsewhere-dir') | Out-Null
+    Write-FixtureFile (Join-Path $F 'stage/plugins/x/file.txt') 'malicious2'
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/file.txt') + "`n")
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    if ($r.ExitCode -ne 0) { Test-Pass "TEST-033d symlinked intermediate destination-parent segment denied (exit $($r.ExitCode))" } else { Test-Fail 'TEST-033d symlinked intermediate destination-parent segment denied' "exit 0" }
+    if (-not (Test-Path -LiteralPath (Join-Path $F 'elsewhere-dir/file.txt'))) { Test-Pass 'TEST-033d write never redirected through the symlinked segment' } else { Test-Fail 'TEST-033d write never redirected through the symlinked segment' 'leaked into elsewhere-dir' }
+}
+
+# ---------------------------------------------------------------------------
+# TEST-033e: the STAGED SOURCE candidate itself being a symlink is denied
+# (quality-gate seq0357 Major #2 remedy -- see TEST-033d's header comment;
+# same skip-only-on-native-Windows convention).
+# ---------------------------------------------------------------------------
+if ($IsWindows) {
+    Test-Pass 'TEST-033e symlinked staged source candidate denied (skipped: Windows symlink creation requires elevation)'
+} else {
+    $F = New-FixtureDir
+    Write-FixtureFile (Join-Path $F 'canary2.txt') 'source-canary'
+    New-Item -ItemType Directory -Path (Join-Path $F 'stage/plugins/x') -Force | Out-Null
+    New-Item -ItemType SymbolicLink -Path (Join-Path $F 'stage/plugins/x/file.txt') -Target (Join-Path $F 'canary2.txt') | Out-Null
+    $h = Get-Sha256Hex (Join-Path $F 'canary2.txt')
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value "$h  plugins/x/file.txt`n"
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    if ($r.ExitCode -ne 0) { Test-Pass "TEST-033e symlinked staged source candidate denied (exit $($r.ExitCode))" } else { Test-Fail 'TEST-033e symlinked staged source candidate denied' 'exit 0' }
+    if (-not (Test-Path -LiteralPath (Join-Path $F 'repo/plugins/x/file.txt'))) { Test-Pass 'TEST-033e no live target created from a symlinked source' } else { Test-Fail 'TEST-033e no live target created from a symlinked source' 'live target exists' }
+}
+
+# ---------------------------------------------------------------------------
 # TEST-033f: hard-link-alias non-propagation.
 # ---------------------------------------------------------------------------
 $F = New-FixtureDir
@@ -315,6 +359,105 @@ $origIsEmpty = -not (Test-Path -LiteralPath $origPath) -or ((Get-Item -LiteralPa
 if ($origIsEmpty) { Test-Pass 'TEST-033o the newly-substituted directory at the ORIGINAL name never receives the candidate' } else { Test-Fail 'TEST-033o original-name directory unaffected' 'candidate leaked into the substitute' }
 $movedContent = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x.attacker-moved/file.txt') -ErrorAction SilentlyContinue
 if ($movedContent -eq "new-content`n") { Test-Pass 'TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)' } else { Test-Fail 'TEST-033o write lands in anchored original' "got '$movedContent'" }
+
+# ---------------------------------------------------------------------------
+# TEST-033p (quality-gate seq0357 Critical remedy): a batch containing a
+# PRE-EXISTING, LEGITIMATELY ZERO-BYTE live target must still converge to
+# ALL-PRE after a mid-batch crash, and the publisher must remain usable
+# afterward. Backup-PreBytes was already correct on this ps1 twin (it
+# keys on the resolved SOURCE PATH string being non-null, not on the
+# copied byte count), matching the evaluator's own cross-runtime
+# observation -- this test locks that behavior in as a regression guard.
+# ---------------------------------------------------------------------------
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'repo/plugins/x/b.txt') 'old-b'
+New-Item -ItemType File -Path (Join-Path $F 'repo/plugins/x/a.txt') -Force | Out-Null
+Write-FixtureFile (Join-Path $F 'stage/plugins/x/a.txt') 'new-a'
+Write-FixtureFile (Join-Path $F 'stage/plugins/x/b.txt') 'new-b'
+$manifestLines = (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/a.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/b.txt') + "`n"
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $manifestLines
+Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'), '-SimulateCrashAfter', 'rename-1') | Out-Null
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+$aLen = (Get-Item -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt')).Length
+$b = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/b.txt')
+if ($r.ExitCode -eq 0 -and $aLen -eq 0 -and $b -eq "old-b`n") {
+    Test-Pass 'TEST-033p zero-byte live target survives mid-batch crash + recovery, converging ALL-PRE (exit 0)'
+} else {
+    Test-Fail 'TEST-033p zero-byte live target converges ALL-PRE' "exit $($r.ExitCode); a-len=$aLen; b='$b'"
+}
+Write-FixtureFile (Join-Path $F 'stage/plugins/x/a.txt') 'newer-a'
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST2.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/a.txt') + "`n")
+$r2 = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST2.sha256'))
+$a2 = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt') -ErrorAction SilentlyContinue
+if ($r2.ExitCode -eq 0 -and $a2 -eq "newer-a`n") {
+    Test-Pass 'TEST-033p the publisher remains usable afterward (a subsequent legitimate publish succeeds, not permanently bricked)'
+} else {
+    Test-Fail 'TEST-033p publisher remains usable afterward' "exit $($r2.ExitCode); a='$a2'"
+}
+
+# ---------------------------------------------------------------------------
+# TEST-033q (quality-gate seq0357 Major #1 remedy): two targets sharing a
+# basename in different directories within the SAME batch are refused at
+# manifest-parse time (DUPLICATE_BASENAME_IN_BATCH).
+# ---------------------------------------------------------------------------
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'repo/dir1/same.txt') 'old-1'
+Write-FixtureFile (Join-Path $F 'repo/dir2/same.txt') 'old-2'
+Write-FixtureFile (Join-Path $F 'stage/dir1/same.txt') 'new-1'
+Write-FixtureFile (Join-Path $F 'stage/dir2/same.txt') 'new-2'
+$manifestLines = (Get-ManifestLine (Join-Path $F 'stage') 'dir1/same.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'dir2/same.txt') + "`n"
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $manifestLines
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'DUPLICATE_BASENAME_IN_BATCH') {
+    Test-Pass 'TEST-033q duplicate-basename batch rejected (DUPLICATE_BASENAME_IN_BATCH)'
+} else {
+    Test-Fail 'TEST-033q duplicate-basename batch rejected' "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+}
+$d1 = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/dir1/same.txt')
+$d2 = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/dir2/same.txt')
+if ($d1 -eq "old-1`n" -and $d2 -eq "old-2`n") {
+    Test-Pass 'TEST-033q both live targets unchanged (refused before any live mutation)'
+} else {
+    Test-Fail 'TEST-033q both live targets unchanged' "d1='$d1' d2='$d2'"
+}
+
+# ---------------------------------------------------------------------------
+# TEST-033r (quality-gate seq0357 Major #3 remedy): this runtime's own
+# journal writer emits BOM-less UTF-8, parseable by a plain `python3
+# json.load` (no `utf-8-sig` workaround needed) -- the ps1-side half of
+# the cross-runtime parity proof; the sh suite's own TEST-033r performs
+# the full cross-runtime byte comparison (this suite alone cannot shell
+# out to a POSIX `sh` on native Windows, where this suite ALSO runs).
+# Skips gracefully if python3 is unavailable.
+# ---------------------------------------------------------------------------
+$python3Cmd = Get-Command python3 -ErrorAction SilentlyContinue
+if (-not $python3Cmd) { $python3Cmd = Get-Command python -ErrorAction SilentlyContinue }
+if ($python3Cmd) {
+    $F = New-FixtureDir
+    Write-FixtureFile (Join-Path $F 'stage/plugins/x/a.txt') 'bom-check-a'
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/a.txt') + "`n")
+    Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'), '-SimulateCrashAfter', 'journal-write') | Out-Null
+    $journal = Get-ChildItem -Path (Join-Path $F 'repo/sdd/.staging') -Filter 'TRANSACTION.json' -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($journal) {
+        $bytes = [System.IO.File]::ReadAllBytes($journal.FullName) | Select-Object -First 3
+        $hex = ($bytes | ForEach-Object { $_.ToString('x2') }) -join ''
+        if ($hex -eq '7b2273') {
+            Test-Pass "TEST-033r ps1 journal has no BOM (leading bytes $hex = open-brace quote s)"
+        } else {
+            Test-Fail 'TEST-033r ps1 journal has no BOM' "got $hex"
+        }
+        $procResult = Invoke-ChildProcess -Exe $python3Cmd.Source -ArgList @('-c', 'import json,sys; json.load(open(sys.argv[1]))', $journal.FullName) -WorkingDirectory $F
+        if ($procResult.ExitCode -eq 0) {
+            Test-Pass 'TEST-033r ps1 journal parses via plain python3 json.load (no utf-8-sig needed)'
+        } else {
+            Test-Fail 'TEST-033r ps1 journal parses via plain python3 json.load' "exit $($procResult.ExitCode)"
+        }
+    } else {
+        Test-Fail 'TEST-033r ps1 journal exists for BOM inspection' 'no TRANSACTION.json found'
+    }
+} else {
+    Test-Pass 'TEST-033r ps1 journal BOM check (skipped: python3/python not available in this environment)'
+}
 
 # ---------------------------------------------------------------------------
 # Self-registration.

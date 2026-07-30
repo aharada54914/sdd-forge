@@ -36,6 +36,7 @@ WORK=$(cd "$WORK" && pwd -P)
 trap 'rm -rf "$WORK"' EXIT INT TERM
 
 APPLY_SH="$ROOT/plugins/sdd-quality-loop/scripts/apply-human-copy.sh"
+APPLY_PS1_FOR_PARITY="$ROOT/plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
 
 PASS=0
 FAIL=0
@@ -483,6 +484,114 @@ if [ "$(cat "$F/repo/plugins/x.attacker-moved/file.txt" 2>/dev/null)" = "new-con
   pass "TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)"
 else
   fail "TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)"
+fi
+
+# ===========================================================================
+# TEST-033p (quality-gate seq0357 Critical remedy): a batch containing a
+# PRE-EXISTING, LEGITIMATELY ZERO-BYTE live target must still converge to
+# ALL-PRE after a mid-batch crash, and the publisher must remain usable
+# afterward (the original bug permanently bricked it: `[ ! -s ... ] &&
+# rm -f` deleted the zero-byte backup, so revert_one_target could never
+# find it, exit 17 RECOVERY_FAILED forever).
+# ===========================================================================
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/repo/plugins/x/b.txt" "old-b"
+: >"$F/repo/plugins/x/a.txt"
+write_file "$F/stage/plugins/x/a.txt" "new-a"
+write_file "$F/stage/plugins/x/b.txt" "new-b"
+{
+  manifest_line "$F/stage" "plugins/x/a.txt"
+  manifest_line "$F/stage" "plugins/x/b.txt"
+} >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after rename-1
+run_apply "$F/repo"
+rc=$?
+if [ "$rc" = 0 ] && [ ! -s "$F/repo/plugins/x/a.txt" ] && [ "$(cat "$F/repo/plugins/x/b.txt")" = "old-b" ]; then
+  pass "TEST-033p zero-byte live target survives mid-batch crash + recovery, converging ALL-PRE (exit 0)"
+else
+  fail "TEST-033p zero-byte live target survives mid-batch crash + recovery, converging ALL-PRE (exit $rc; a-size=$(wc -c <"$F/repo/plugins/x/a.txt" 2>/dev/null); b=$(cat "$F/repo/plugins/x/b.txt" 2>/dev/null))"
+fi
+write_file "$F/stage/plugins/x/a.txt" "newer-a"
+manifest_line "$F/stage" "plugins/x/a.txt" >"$F/stage/MANIFEST2.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST2.sha256"
+rc=$?
+if [ "$rc" = 0 ] && [ "$(cat "$F/repo/plugins/x/a.txt")" = "newer-a" ]; then
+  pass "TEST-033p the publisher remains usable afterward (a subsequent legitimate publish succeeds, not permanently bricked)"
+else
+  fail "TEST-033p the publisher remains usable afterward (exit $rc)"
+fi
+
+# ===========================================================================
+# TEST-033q (quality-gate seq0357 Major #1 remedy): two targets sharing a
+# basename in different directories within the SAME batch are refused at
+# manifest-parse time (DUPLICATE_BASENAME_IN_BATCH), never silently
+# colliding on a single `pre/<basename>` backup slot.
+# ===========================================================================
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/repo/dir1/same.txt" "old-1"
+write_file "$F/repo/dir2/same.txt" "old-2"
+write_file "$F/stage/dir1/same.txt" "new-1"
+write_file "$F/stage/dir2/same.txt" "new-2"
+{
+  manifest_line "$F/stage" "dir1/same.txt"
+  manifest_line "$F/stage" "dir2/same.txt"
+} >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+cat_val=$(category_of "$WORK/out")
+if [ "$rc" != 0 ] && [ "$cat_val" = "DUPLICATE_BASENAME_IN_BATCH" ]; then
+  pass "TEST-033q duplicate-basename batch rejected (DUPLICATE_BASENAME_IN_BATCH)"
+else
+  fail "TEST-033q duplicate-basename batch rejected (exit $rc, category $cat_val)"
+fi
+if [ "$(cat "$F/repo/dir1/same.txt")" = "old-1" ] && [ "$(cat "$F/repo/dir2/same.txt")" = "old-2" ]; then
+  pass "TEST-033q both live targets unchanged (refused before any live mutation)"
+else
+  fail "TEST-033q both live targets unchanged (refused before any live mutation)"
+fi
+
+# ===========================================================================
+# TEST-033r (quality-gate seq0357 Major #3 remedy): the sh and ps1
+# journal writers emit BYTE-IDENTICAL-AT-THE-HEADER, BOM-less UTF-8 --
+# both must be parseable by a plain `python3 json.load`, discharging
+# carry-forward obligation 1's "no silent divergence" against T-005's
+# Python reader for real, not merely by key-name inspection. Skips
+# gracefully (never fails) if pwsh or python3 is unavailable in this
+# environment, matching this repo's established capability non-use
+# declaration convention.
+# ===========================================================================
+if command -v pwsh >/dev/null 2>&1 && command -v python3 >/dev/null 2>&1; then
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  mkdir -p "$F/repo2/sdd/.staging" "$F/repo2/plugins/x"
+  write_file "$F/stage/plugins/x/a.txt" "cross-runtime-a"
+  manifest_line "$F/stage" "plugins/x/a.txt" >"$F/stage/MANIFEST.sha256"
+  run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after journal-write
+  ( cd "$F/repo2" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_FOR_PARITY" -StagingDir "$F/stage" -Manifest "$F/stage/MANIFEST.sha256" -SimulateCrashAfter journal-write ) >/dev/null 2>&1
+  SHJ=$(find "$F/repo/sdd/.staging" -name TRANSACTION.json 2>/dev/null | head -1)
+  PSJ=$(find "$F/repo2/sdd/.staging" -name TRANSACTION.json 2>/dev/null | head -1)
+  if [ -n "$SHJ" ] && [ -n "$PSJ" ]; then
+    SH3=$(head -c 3 "$SHJ" | od -An -tx1 | tr -d ' \n')
+    PS3=$(head -c 3 "$PSJ" | od -An -tx1 | tr -d ' \n')
+    if [ "$SH3" = "$PS3" ]; then
+      pass "TEST-033r sh and ps1 journals have IDENTICAL leading 3 bytes (no BOM divergence, got $SH3)"
+    else
+      fail "TEST-033r sh and ps1 journals have IDENTICAL leading 3 bytes (sh=$SH3 ps1=$PS3)"
+    fi
+    if python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$SHJ" 2>/dev/null; then
+      pass "TEST-033r sh journal parses via plain python3 json.load"
+    else
+      fail "TEST-033r sh journal parses via plain python3 json.load"
+    fi
+    if python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$PSJ" 2>/dev/null; then
+      pass "TEST-033r ps1 journal parses via plain python3 json.load (no utf-8-sig needed)"
+    else
+      fail "TEST-033r ps1 journal parses via plain python3 json.load (no utf-8-sig needed)"
+    fi
+  else
+    fail "TEST-033r both sh and ps1 journals must exist for comparison (sh=$SHJ ps1=$PSJ)"
+  fi
+else
+  pass "TEST-033r sh/ps1 journal BOM parity (skipped: pwsh or python3 not available in this environment)"
 fi
 
 # ===========================================================================

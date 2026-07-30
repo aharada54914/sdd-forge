@@ -92,6 +92,7 @@ $ExitJournalShapeInvalid = 14
 $ExitJournalWriteFailed = 15
 $ExitRenameFailed = 16
 $ExitRecoveryFailed = 17
+$ExitDuplicateBasenameInBatch = 19
 
 function Write-Denial([int]$Code, [string]$Category, [string]$Message) {
     $obj = [ordered]@{ status = 'denied'; category = $Category; message = $Message }
@@ -219,6 +220,7 @@ function Read-Manifest([string]$Path) {
         Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest file is empty: $Path"
     }
     $seen = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
+    $seenBasenames = New-Object 'System.Collections.Generic.HashSet[string]' ([StringComparer]::Ordinal)
     $result = New-Object System.Collections.Generic.List[object]
     $lineNo = 0
     foreach ($line in $lines) {
@@ -237,6 +239,16 @@ function Read-Manifest([string]$Path) {
         }
         if (-not $seen.Add($target)) {
             Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest lists target '$target' more than once"
+        }
+        # DUPLICATE_BASENAME_IN_BATCH (quality-gate seq0357 Major #1): the
+        # transactional bundle contract's own backup path (design.md:1011,
+        # `sdd/.staging/<batch-nonce>/pre/<target-basename>`) is
+        # basename-keyed, not path-keyed -- see apply-human-copy.sh's
+        # parse_manifest for the full rationale (identical check, both
+        # runtimes).
+        $targetBase = (Split-RelPath $target).Base
+        if (-not $seenBasenames.Add($targetBase)) {
+            Write-Denial $ExitDuplicateBasenameInBatch 'DUPLICATE_BASENAME_IN_BATCH' "manifest target '$target' shares basename '$targetBase' with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
         }
         $result.Add([ordered]@{ Hash = $hash; Path = $target })
     }
@@ -471,6 +483,15 @@ function Write-Journal([string]$BatchDirAbs, [string]$Nonce, [object[]]$Targets)
             })
     }
     $json = $obj | ConvertTo-Json -Compress -Depth 5
+    # BOM-less UTF-8 (quality-gate seq0357 Major #3): the static
+    # [System.Text.Encoding]::UTF8 property emits a UTF-8 preamble (BOM)
+    # on WriteAllText, so this journal byte-diverged from the .sh twin's
+    # plain `printf` output -- carry-forward obligation 1's "no silent
+    # divergence" requirement failed against a plain `python3
+    # json.load(open(p))` reader (raises JSONDecodeError on a BOM-led
+    # file unless opened with utf-8-sig). A explicit no-BOM
+    # UTF8Encoding instance closes this.
+    $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
     try {
         # Fully-qualified paths throughout: this journal write targets the
         # UNPROTECTED sdd/.staging/<nonce>/ area only (never a live
@@ -478,9 +499,9 @@ function Write-Journal([string]$BatchDirAbs, [string]$Nonce, [object[]]$Targets)
         # temp-then-rehash-then-atomic-rename discipline itself.
         $tmpName = '.TRANSACTION.json.' + [Guid]::NewGuid().ToString('N').Substring(0, 12)
         $tmpPath = Join-Path $BatchDirAbs $tmpName
-        [System.IO.File]::WriteAllText($tmpPath, $json, [System.Text.Encoding]::UTF8)
+        [System.IO.File]::WriteAllText($tmpPath, $json, $Utf8NoBom)
         $writtenHash = Get-Sha256Hex $tmpPath
-        $roundTrip = [System.IO.File]::ReadAllText($tmpPath, [System.Text.Encoding]::UTF8)
+        $roundTrip = [System.IO.File]::ReadAllText($tmpPath, $Utf8NoBom)
         if ($roundTrip -ne $json -or [string]::IsNullOrEmpty($writtenHash)) {
             Remove-Item -LiteralPath $tmpPath -Force -ErrorAction SilentlyContinue
             return $false

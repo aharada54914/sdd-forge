@@ -1614,6 +1614,44 @@ this session by routing every actual destination-side read/write through
 raw `[System.IO.File]`/`[System.IO.Directory]` calls resolved fresh
 against `[System.Environment]::CurrentDirectory` at the moment of use.
 
+QUALITY-GATE REMEDY (2026-07-31, seq0357 NEEDS_WORK -> remedy applied):
+`reports/quality-gate/2026-07-30T204328Z-T-007.md` (commit `f6e227af`)
+returned Critical 1 / Major 3 / Minor 3. All Critical + 3 Major findings
+fixed with TDD (Red-first, confirmed via genuine script relocation) plus
+new regression tests in BOTH runtimes; the 3 Minor findings are left as
+carryover (no code change, per the coordinator's explicit instruction),
+with this task's own implementation report corrected where it had
+overstated or misstated the underlying mechanism. Summary: (a) Critical
+-- `backup_pre_bytes`/`Backup-PreBytes` deleted a legitimately zero-byte
+pre-transaction backup, permanently bricking the sh publisher after a
+mid-batch crash on a batch containing an empty pre-existing live target
+(ps1 was already correct); fixed via an explicit found/not-found signal
+instead of a byte-count heuristic. (b) Major -- two targets sharing a
+basename in different directories within one batch collided on the
+design.md:1011-specified `pre/<basename>` backup slot, permanently
+blocking recovery in both runtimes; design.md:1011 was read in full
+before choosing a remedy, and since its literal text specifies the
+basename-keyed layout, a path-derived rename would have required a design
+amendment (review-process matter) -- chose instead a new prepare-time
+classified rejection, `DUPLICATE_BASENAME_IN_BATCH`, in both runtimes.
+(c) Major -- `tests/apply-human-copy.tests.ps1` had NO TEST-033d/e
+coverage on any platform, and this task's own report had falsely claimed
+an `$IsWindows` skip branch existed; both tests are now genuinely
+implemented (running on macOS/Linux, skipped only on native Windows,
+matching TEST-033c's own convention). (d) Major -- the ps1 journal writer
+emitted a UTF-8 BOM, byte-diverging from the sh journal and breaking
+carry-forward obligation 1's "no silent divergence against a plain Python
+reader" for real (not merely by key-name inspection, which is all the
+original report had verified); fixed via an explicit BOM-less
+`UTF8Encoding` instance, with a new cross-runtime regression test.
+TDD Red (script relocated, both runtimes together): `bash` 20/43 (43
+reached, not 45 -- some downstream blocks short-circuit when the tool is
+wholly absent), `pwsh` 15/36 (36 reached, not 37) -> Green (post-fix):
+`bash` 45/45, `pwsh` 37/37. Full detail, root-cause analysis, and the
+corrected mechanism descriptions are in
+`reports/implementation/epic-189-a1-project-context/T-007.md`'s own
+"Quality Gate Remedy (seq0357)" section.
+
 ---
 
 ## T-008 Author the hook-activation handshake (`check-hook-activation-handshake`)

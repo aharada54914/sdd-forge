@@ -94,6 +94,7 @@ EXIT_JOURNAL_WRITE_FAILED=15
 EXIT_RENAME_FAILED=16
 EXIT_RECOVERY_FAILED=17
 EXIT_SOURCE_UNREADABLE=18
+EXIT_DUPLICATE_BASENAME_IN_BATCH=19
 
 # ---------------------------------------------------------------------------
 # Small helpers.
@@ -276,6 +277,7 @@ parse_manifest() {
   [ -s "$manifest" ] || die "$EXIT_MANIFEST_INVALID" MANIFEST_INVALID \
     "manifest file is empty: $manifest"
   seen_paths=""
+  seen_basenames=""
   line_no=0
   while IFS= read -r line || [ -n "$line" ]; do
     line_no=$((line_no + 1))
@@ -296,6 +298,27 @@ parse_manifest() {
         "manifest lists target '$path' more than once" ;;
     esac
     seen_paths="$seen_paths $path"
+    # DUPLICATE_BASENAME_IN_BATCH (quality-gate seq0357 Major #1): the
+    # transactional bundle contract's own backup path
+    # (design.md:1011, `sdd/.staging/<batch-nonce>/pre/<target-basename>`)
+    # is basename-keyed, not path-keyed. Two targets sharing a basename
+    # in different directories within the SAME batch would collide on a
+    # single backup slot, permanently defeating recovery for one of them.
+    # This never occurs in this epic's own real batches (every staged
+    # basename across REQ-004's sidecar+anchor pair and REQ-007's own
+    # guard-invariants/self-protection batches is globally unique), but
+    # is a reachable input to this generic, content-agnostic publisher --
+    # refused here, at manifest-parse time, before any live mutation,
+    # rather than silently deviating from the design's literal backup
+    # naming scheme (a design amendment to a path-derived backup name is
+    # a review-process matter, not an implementer's unilateral choice).
+    split_dir_base "$path"
+    base=$SPLIT_BASE
+    case " $seen_basenames " in
+      *" $base "*) die "$EXIT_DUPLICATE_BASENAME_IN_BATCH" DUPLICATE_BASENAME_IN_BATCH \
+        "manifest target '$path' shares basename '$base' with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction" ;;
+    esac
+    seen_basenames="$seen_basenames $base"
     printf '%s %s\n' "$hash" "$path"
   done <"$manifest"
 }
@@ -422,7 +445,17 @@ pre_hash_of_live_target() {
 
 # backup_pre_bytes <repo_root_abs> <relpath> <dest_file> -- if the live
 # target currently exists (and is not a symlink), copies its bytes
-# byte-exact to <dest_file>. No-op if absent.
+# byte-exact to <dest_file>, EVEN IF the target is legitimately a
+# zero-byte file (quality-gate seq0357 Critical: the previous
+# `[ ! -s "$dest_file" ] && rm -f` heuristic could not distinguish "no
+# backup was produced" from "a genuine empty-file backup was produced",
+# deleting a legitimate zero-byte backup and leaving `revert_one_target`
+# permanently unable to restore it -- a standing mixed state and a
+# permanently bricked publisher, exactly what AC-033/design.md:1056-1063
+# forbid). The subshell below signals "found" (exit 0, possibly zero
+# bytes of output) vs. "not found" (any nonzero exit) explicitly, so the
+# decision to keep or remove <dest_file> is never inferred from its size.
+# No-op (removes any placeholder) if absent.
 backup_pre_bytes() {
   repo_root_abs=$1
   relpath=$2
@@ -433,9 +466,12 @@ backup_pre_bytes() {
     walk_relative_dir "$SPLIT_DIR" || exit 1
     if [ -f "$SPLIT_BASE" ] && [ ! -L "$SPLIT_BASE" ]; then
       cat -- "$SPLIT_BASE"
+      exit 0
     fi
+    exit 9
   ) >"$dest_file" 2>/dev/null
-  if [ ! -s "$dest_file" ]; then
+  found_rc=$?
+  if [ "$found_rc" != 0 ]; then
     rm -f -- "$dest_file" 2>/dev/null
   fi
 }

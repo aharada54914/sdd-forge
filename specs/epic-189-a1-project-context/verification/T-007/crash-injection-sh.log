@@ -1,8 +1,9 @@
 AC-033 extended crash-injection proof -- apply-human-copy.sh
-Generated: 2026-07-30T20:04:24Z
+Generated: 2026-07-30T21:00:44Z
 
 === SCENARIO 1: crash BEFORE the first rename (journal-write) -> recovers ALL-PRE ===
 -- invocation 1 (simulate crash after journal-write) --
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 31 行: 19923 Killed: 9                  ( cd "$D/repo" && "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after journal-write )
 exit=137
 state right after crash: a=old-a b=old-b
 -- invocation 2 (recovery) --
@@ -13,6 +14,7 @@ VERDICT: CONVERGED ALL-PRE (correct)
 
 === SCENARIO 2: crash MID-BATCH (after rename 1 of 2) -> recovers ALL-PRE ===
 -- invocation 1 (simulate crash after rename-1) --
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 43 行: 20058 Killed: 9                  ( cd "$D/repo" && "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after rename-1 )
 exit=137
 state right after crash: a=new-a b=old-b
 (observe: a advanced to new-a, b still old-b -- a genuine partial-publish state)
@@ -24,6 +26,7 @@ VERDICT: CONVERGED ALL-PRE (correct)
 
 === SCENARIO 3: crash AFTER the last rename but BEFORE journal deletion -> recovers ALL-POST ===
 -- invocation 1 (simulate crash after rename-2, the last target) --
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 56 行: 20226 Killed: 9                  ( cd "$D/repo" && "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after rename-2 )
 exit=137
 state right after crash: a=new-a b=new-b
 -- invocation 2 (recovery) --
@@ -34,9 +37,11 @@ VERDICT: CONVERGED ALL-POST (correct)
 
 === SCENARIO 4: a SECOND crash injected DURING recovery itself still converges on the FOLLOWING invocation ===
 -- invocation 1 (simulate crash after rename-1, leaving a mixed 3-target batch -- reusing a/b plus a third target c) --
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 73 行: 20409 Killed: 9                  ( cd "$D/repo" && "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after rename-2 )
 exit=137
 state right after crash: a=new-a b=new-b c=old-c
 -- invocation 2 (recovery, ITSELF crashed after reverting target 1 of the 2-target mismatch) --
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 77 行: 20559 Killed: 9                  ( cd "$D/repo" && "$APPLY" --simulate-crash-during-recovery-after revert-1 )
 exit=137
 state after the SECOND crash (mid-recovery): a=old-a b=new-b c=old-c
 (observe: recovery itself was interrupted -- a partial-recovery state)
