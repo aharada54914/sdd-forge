@@ -132,3 +132,13 @@
   T-006 非起因を orchestrator が独立確認（最終変更 298cf22b/2f93edd6 =
   #108/#185 系、env -i でも再現、既知 run-all 失敗連鎖の一部)。T-006 Done
   チェーンの regression 段は直接関連スイートの個別実行で代替記録する。
+
+- **T-006 QG seq0355 Minor carryover 2 件** (2026-07-30):
+  ① UnicodeDecodeError が INTERNAL_ERROR(90) に誤分類（意図されたカテゴリは
+  37。fail-closed は維持されており実害なし)— 将来の分類精緻化候補。
+  ② HMAC 比較が uppercase-hex を `.lower()` で受理（contract は lowercase
+  64-hex)— T-013 系の仕上げ or 最終 re-binding 時の修正候補。
+  （Major = 「同一 approver × --verify-provenance」セルの未テスト
+  (py:678 到達不能 by 標準経路 gate 3 先行遮断) は remedy 対応中で
+  carryover 対象外。評価者の好材料記録: bootstrap-downgrade 攻撃の HMAC
+  ゲート捕捉実証・key-parity 3 実装 AST 検証・hostile 20 ケース全分類。)
