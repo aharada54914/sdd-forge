@@ -180,6 +180,61 @@
   未コミットステージング内容が存在するため、それらと競合しないよう
   本タスクでは延期(詳細実装は
   `reports/implementation/epic-189-a1-project-context/T-005.md`)。
+- **承認バリデータ `validate-approval-sidecar` (Issue #189,
+  epic-189-a1-project-context T-006)**:
+  `plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py` を新規
+  追加 — REQ-005 が定める6段ゲートを順番通り・最初の失敗で即時打ち切りで
+  独立検証: (0) 内容ファイルスキーマ適合(T-002 canonicalizer への
+  サブプロセスdispatch + `contracts/project-context.schema.json`/
+  `provider-bindings.schema.json` に対するdraft-07サブセット検証 —
+  T-001/T-004のテストスイートに埋め込まれていた検証ロジックと同一の
+  ものを本番コードへ格上げ — と `DUPLICATE_COMPONENT_ID`/
+  `DUPLICATE_BINDING_ID` 意味検証、加えて `sdd/approver-registry.yaml`
+  自体のスキーマ適合と重複`id`拒否(`DUPLICATE_APPROVER_REGISTRY_ID`、
+  AC-045の本番側証明 — T-004のスイートはテスト専用ハーネスで概念のみ
+  証明していた)、(1) ハッシュ一致、(2) HMAC検証(`hmac`除外オブジェクトを
+  canonicalizer JSON入力モードへdispatchして得た正準バイト列を独自に
+  再計算 — `generate-approval-sidecar.py`からのimportは一切行わず、
+  鍵解決・preimage構築とも本バリデータ自身が独立再実装することで
+  「生成側のバグをバリデータが黙って共有してしまう」リスクを排除)、
+  (3) 承認者identity検証(未登録拒否 `UNREGISTERED_APPROVER` +
+  同一identity二重拒否 `DUPLICATE_APPROVER_IDENTITY`、署名時点でT-003が
+  既に行っているチェックを検証時点で独立に再実施)、(4) `effective_at`
+  ゲート、(5) weakening-provenance整合性チェック
+  (`WEAKENING_PROVENANCE_UNDERAPPROVED`)。`--verify-provenance <sidecar>`
+  モード(REQ-005新設)は`--content`なしでLIVEなsidecar単体からHMAC
+  自己整合性(署名後の改ざん検知)と上記(5)を再検証し、先代anchorの
+  バイト列が消えた後も無期限に検証可能(AC-043)。読み取り前生成整合性
+  チェック(`sdd/.staging/*/TRANSACTION.json`が読み取り対象パスを含む場合
+  `HUMAN_COPY_PUBLISH_IN_PROGRESS`でフェイルクローズ)はT-005の同名処理を
+  本番コードとして独立再実装。**キャリーオーバー4件を本タスクで解消**:
+  (1) 鍵解決バイトパリティの実行時証明 — 本バリデータ独自の
+  `resolve_context_key()`(`_resolve_sudo_key`と同一アルゴリズムを
+  importでなく独立再実装)が`sdd-hook-guard.py`の`_resolve_sudo_key`と
+  `generate-approval-sidecar.py`の`resolve_context_key`双方とAC-013形式
+  4ケース行列で完全一致することをexecutableに証明
+  (`key-parity-sh.log`/`key-parity-ps1.log`)。(2) 非bootstrap
+  sidecar(`predecessor_context_sha256`が非null)が`weakening_verdict: null`
+  を持つ場合は requirements.md:310-312 の不変条件違反として
+  `WEAKENING_VERDICT_MISSING`で拒否 — T-005側の生成時拒否のバックストップ。
+  (3) AC-045の本番側半分をこのバリデータが担うことを明示。(4b)
+  「weakening_verdict が二者承認を要求するのに`second_approval`が不在/
+  同一identityのまま署名されてしまう」というT-005 QG seq0353での指摘済み
+  ギャップに対し、本バリデータ(標準検証経路と`--verify-provenance`の
+  両方)を設計上の正規のエンフォースメント地点として実装 —
+  `generate-approval-sidecar.py`(T-003)自体は現在もこの一貫性を
+  検証しないままサインしてしまう(修正はT-003のスコープ外と明記されて
+  いるため本タスクでは変更しない)ことをTEST-019 (a)がexplicitに記録した
+  上で、実際の生成→検証チェーン全体としてフェイルクローズであることを
+  証明。TDD Red(未実装で`bash` 8/38・`pwsh` 7/37)→ Green(実装後
+  `bash` 38/38・`pwsh` 37/37 全PASS)を`bash`/`pwsh` 双方で実行・記録
+  (`specs/epic-189-a1-project-context/verification/T-006/`)。
+  `tests/validate-approval-sidecar.tests.sh`/`.ps1` を`tests/run-all.sh`/
+  `.ps1` へ T-005 の直後(数値順・6番目)に登録。CI ワークフロー登録は、
+  T-001/T-002/T-003/T-004/T-005 と同じ human-copy staging 領域に別
+  セッションの未コミットステージング内容が存在するため、それらと競合
+  しないよう本タスクでは延期(詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-006.md`)。
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
