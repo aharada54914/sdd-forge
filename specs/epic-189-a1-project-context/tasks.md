@@ -892,7 +892,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
 Approval: Approved (sudo 2026-07-22T15:24:55Z)
 
-Status: Blocked
+Status: Implementation Complete
 
 Risk: high
 
@@ -1017,6 +1017,26 @@ intended CI step content and the human-apply procedure are recorded in
 Live CI workflow file SHA-256 unchanged
 (`3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`,
 verified before and after this task's work).
+
+STAGING DEFERRED (2026-07-30, coordinator decision, close-out session):
+per coordinator decision, this task proceeds via a RECORDED DEFERRAL of
+the one remaining staging sub-item, the same precedent already recorded
+above for T-001 and, in the same shape, for T-002's and T-003's own
+"STAGING DEFERRED" notes. `specs/epic-189-a1-project-context/human-copy/`
+remains an untracked, uncommitted directory holding another, concurrent
+session's in-flight staged `test.yml` + `MANIFEST.sha256` content that
+this session did not author and has not seen committed; appending to or
+committing those foreign uncommitted files risks corrupting or silently
+dropping that other session's work, so this task defers ONLY that one
+staging sub-item. Every other Scope/Done-When item for this task is
+complete and independently re-verified this session (TEST-044/045/046,
+8/8 in both `bash` and `pwsh`, fresh recheck logs at
+`specs/epic-189-a1-project-context/verification/T-004/
+recheck-green-sh.log` and `.../recheck-green-ps1.log`). Staging completes
+via the human-copy flow once that tree is clean or committed (the T-009/
+T-013 chain). Live CI workflow file SHA-256 unchanged
+(`3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`,
+reconfirmed this session).
 
 ---
 
