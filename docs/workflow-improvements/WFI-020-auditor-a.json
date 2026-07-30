@@ -1,0 +1,80 @@
+{
+  "schema": "wfi-auditor-a/v1",
+  "wfi_id": "WFI-020",
+  "category": "measurement",
+  "cycle": 1,
+  "verdict": "NEEDS_REVISION",
+  "persistence_note": "wfi-auditor-a is read-only by charter and holds no write tool, so it returned this body and the orchestrating session wrote it to disk verbatim. No check result, severity, finding, or proposed revision was altered.",
+  "checks": [
+    {
+      "id": "EVIDENCE-CITED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every citation in Problem Evidence was independently reproduced. check-evidence-bundle.sh:201 (`^Task ID:\\s*{task_id}\\s*$` regex) and :228 (`^Feature:\\s*(.*?)\\s*$` findall feeding the 'exactly one' check at line 231) match exactly. emit-run-record.sh:125 (`grep -rlE \"^Feature:...\"`) and :129 (`grep -q \"Task: ${tid}\\b\"`) match exactly. reports/runs/RUN-20260729T235825Z-epic-136-phase4-mcp.json confirmed gate_reports.total=1 and first_pass_gate.passed_first_try=1 verbatim. All 5 gate report files under reports/quality-gate/*epic-136-phase4-mcp-T-00*.md exist; grep confirmed only T-004's report carries a bare `Task:` line, the other 4 carry only `Task ID:`. Commits 7b7faa23 and 9e82fa5b were read via `git show`; both match the WFI's description exactly, including the specific detail that T-005's commit prefixed a `- ` bullet to a second `Feature:` line inside its own `## Target` section (confirmed byte-for-byte in the diff). Minor counts 3/3/5/3/2 for T-001..T-005 were independently recounted from each report's own findings list and match exactly. workflow-retrospective SKILL.md:87-89 quotes rule 3 ('exactly one `Task: T-NNN` identity and one non-empty `Run ID`') verbatim as cited."
+    },
+    {
+      "id": "ROOT-CAUSE-PLAUSIBLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The hypothesis is specific in form but factually contradicted by an existing rule this same retrospective documents as violated. AGENTS.md § Rules → 'Evidence report identity fields' (added by WFI-003, quoted verbatim from the file at lines 128-130): 'Quality verification gate reports (`reports/quality-gate/`) must carry a `Task: T-NNN` line and a `Run ID:` line whose value equals the evaluator run id reserved in the identity ledger for that gate run.' This is exactly the `Task: T-NNN` requirement that `emit-run-record.sh:129` greps for, and this retrospective's own Retention Check records WFI-003 as `Status: Regressed` specifically because 4 of 5 gate reports in this feature lack that line. WFI-020's Root Cause Hypothesis states: 'The quality-gate report has neither [a template nor a validator]... The authoring instruction and the parsing contract were never written down together' and concludes 'it is not a discipline problem, it is a missing specification.' Both claims are inaccurate for the `Task:`/`Run ID:` portion of the gap: the parsing contract WAS written down (in AGENTS.md via WFI-003, well before this feature ran on 2026-07-29), and its violation in this feature is exactly the kind of non-compliance WFI-010's own Result section describes for the identical defect ('Human decision... restore AGENTS.md/WFI-003 compliance in gate-report authoring'). The WFI never mentions the existing AGENTS.md rule anywhere in Problem Evidence or Root Cause Hypothesis. The more accurate mechanism -- that quality-gate SKILL.md step 15 ('freely-authored, no separate template file exists for this report', confirmed verbatim at SKILL.md:196-202) never cross-references the AGENTS.md rule the evaluator is bound by, so the rule is invisible at the point of authoring even though it exists in the repository -- is a materially different, narrower claim than 'never written down.' The claim is fully accurate only for the fields WFI-003 does NOT cover: `Task ID:`, `Feature:`, `VERDICT:`, and `Critical:`/`Major:`/`Minor:`."
+    },
+    {
+      "id": "CATEGORY-LANGUAGE-MATCH",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Category: measurement is a guide-defined value (Section 1), not absent/unrecognized. Per the guide, 'Language rules follow the underlying target (generic if plugin-side, concrete if project-side)'; the Proposed Change targets only project-side files (AGENTS.md, CLAUDE.md), so the applicable rule is Section 3's concreteness standard. Root Cause Hypothesis, Problem Evidence, and Proposed Change all carry abundant concrete, verified detail: feature slug `epic-136-phase4-mcp`, all 5 task IDs, exact script:line citations, exact commit hashes. No forbidden plugin-improvement term (Section 2 table) is misused. On the language-matching criterion this check is chartered to test, no violation was found. Separately -- outside this check's literal scope but directly responsive to the orchestrator's specific request to scrutinize the category selection -- see the note below and the proposed revision: repository precedent (WFI-003 2026-07-05, WFI-005 2026-07-07, WFI-010 2026-07-15, WFI-017 2026-07-23 on branch wfi/017-impl-report-validator-outputs) shows four prior WFIs of the same shape (report-authoring format vs. deterministic-consumer parsing, all touching run-record/retrospective/evaluator-launch-boundary logic) unanimously chose `Category: plugin-improvement`, not `measurement`, even though the `measurement` category has existed in the guide since commit 40f1dd1a (2026-07-02), i.e. before all four were drafted. WFI-010's own text states this outright: 'Following the WFI-005/006/007/009 precedent for plugin-side measurement-adjacent fixes, this WFI uses the GitHub-Issue lane (Category: plugin-improvement).' A `grep` of all 20 WFI files' `Category:` field confirms WFI-020 is the only WFI in the repository that uses `Category: measurement`."
+    },
+    {
+      "id": "CHANGE-CONCRETE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "Row 2 fails: `| CLAUDE.md | One-line cross-reference to the AGENTS.md rule from the SDD workflow section, so the constraint is reachable from the file the orchestrator loads by default. |`. `CLAUDE.md` does not exist anywhere in this repository -- confirmed by `find . -maxdepth 3 -iname CLAUDE.md` (no result) and `git ls-files | grep -i claude.md` (no result). The project's only root-level agent-memory file is `AGENTS.md` (confirmed present, 7673 bytes, contains the § Rules section). The six OTHER WFI files that mention 'CLAUDE.md' all do so only inside a boilerplate HTML comment listing example allowed target-file types ('Target files must be project-side workflow files only (AGENTS.md, CLAUDE.md, ...)'), not as a reference to a file that exists in this repo. The row's premise -- that CLAUDE.md is 'the file the orchestrator loads by default' -- does not hold for this project, and there is no 'SDD workflow section' to add a cross-reference to, since the file itself does not exist. Row 1 (AGENTS.md) passes cleanly: specific existing file, non-vague, highly concrete description naming exact field names, format, and the three consuming scripts by line number."
+    },
+    {
+      "id": "EFFECT-MEASURABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Three distinct, named metrics with quantitative or well-defined categorical targets: (1) 'zero retrofit commits needed... to be accepted by check-evidence-bundle' -- matches the retrospective's own pre-registered Improvement Verification Plan row exactly (baseline 2 [`9e82fa5b`, `7b7faa23`] -> target 0). (2) 'gate_reports.total... equal to the retrospective's retained Quality-Gate Runs total' -- see VERIFICATION-METRIC-DEFINED for falsifiability analysis. (3) 'Data Completeness: Complete rather than Partial' -- a specific, checkable categorical field name taken directly from the retrospective template. Minor accuracy note (not sufficient to fail this check): the phrase 'no gate report excluded under artifact rule 5 for a missing association field' misattributes the rule number. The retrospective's own Data Exclusions table assigns Rule 3 to all 4 excluded gate reports (the quality-gate-runs association rule) and Rule 5 only to the unrelated impl-review round-2 contract-file absence. Problem Evidence correctly cites 'artifact rule 3' for the same fact elsewhere in this same WFI; Expected Effect should say the same."
+    },
+    {
+      "id": "VERIFICATION-METRIC-DEFINED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Exactly one primary metric (`Target-Metric: gate_reports.total`, no competing/unprioritized second primary metric). Baseline: 1 -- verified exactly against reports/runs/RUN-20260729T235825Z-epic-136-phase4-mcp.json's `gate_reports.total`. Checkpoint: 'next completed feature retrospective (Wave 8b, issues #133/#134)' -- a specific, named checkpoint. On the orchestrator's specific question of falsifiability: the Target ('equal to that retrospective's retained Quality-Gate Runs total... the point is agreement, not a fixed number') is a genuinely falsifiable, mechanically-checkable equality test between two independently-derived counts (the emitted run record's field vs. the checkpoint retrospective's own manual tally), not an open-ended or unfalsifiable aspiration -- either they agree or they don't. This exact non-fixed-number formulation is not novel or evasive: it verbatim matches (a) this same retrospective's own pre-registered Improvement Verification Plan row for this metric ('Target: equal', baseline fixed at '1 vs 6 (this period)' before any WFI existed, specifically so 'a later WFI cannot pick a more flattering one'), and (b) established project precedent -- WFI-010's own accepted Verified checkpoint used the identical pattern ('Target: exact equality between reports/runs/RUN-*.json's gate_reports block and the same retrospective's own manually-counted totals'). A fixed number would in fact be a weaker metric here, since the correct count is mechanically dependent on the next feature's task count, which is unknown at drafting time."
+    },
+    {
+      "id": "VERIFICATION-PLAN-SPECIFIC",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The plan names four specific, checkable items, all traceable to real fields: `gate_reports.total` (reports/runs/RUN-*.json, verified field), the retrospective's 'Quality-Gate Runs' metrics-table column, the 'Data Completeness' cell (a real retrospective-template field, confirmed present in this report's Header table), and `review_verdict.minor` (verified as the exact field name `generate-evidence-bundle.sh:249-256` emits). No generic 'check if things improved' language."
+    },
+    {
+      "id": "NO-PLUGIN-SCOPE-CREEP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both Target File rows (AGENTS.md, CLAUDE.md) are project-root paths; neither names a path inside plugins/. (The CLAUDE.md row has a different, non-scope-creep defect -- see CHANGE-CONCRETE.)"
+    }
+  ],
+  "proposed_revisions": [
+    {
+      "section": "## Root Cause Hypothesis",
+      "change": "Add an explicit acknowledgment of AGENTS.md § Rules → 'Evidence report identity fields' (WFI-003), quoting its existing `Task: T-NNN` / `Run ID:` requirement for quality-gate reports, and reframe the mechanism as two distinct gaps: (1) for the fields WFI-003 already specifies, the gap is that quality-gate SKILL.md step 15's authoring instruction never cross-references the AGENTS.md rule, so it is invisible to the evaluator at write time even though it exists in the repository -- this is a visibility/cross-reference gap, not an absence of specification; (2) for `Task ID:`, `Feature:`, `VERDICT:`, and `Critical:`/`Major:`/`Minor:`, no specification exists anywhere, which is the 'missing specification' claim and is accurate only for these fields.",
+      "rationale": "Resolves the ROOT-CAUSE-PLAUSIBLE finding: the current hypothesis is contradicted by an existing, already-written AGENTS.md rule that this same retrospective documents as violated (WFI-003 Regressed), which undermines the credibility of 'it is not a discipline problem, it is a missing specification' as stated."
+    },
+    {
+      "section": "## Proposed Change",
+      "change": "Drop the CLAUDE.md row, or replace it with a row targeting a file that actually exists in this repository if an equivalent cross-reference is still wanted. `CLAUDE.md` does not exist in this repository (confirmed via `find` and `git ls-files`); the description's premise that it is 'the file the orchestrator loads by default' does not hold here -- AGENTS.md plays that role directly.",
+      "rationale": "Resolves the CHANGE-CONCRETE finding: a Proposed Change row targeting a nonexistent file cannot be executed as written and should not survive to Approved without correction."
+    },
+    {
+      "section": "## Expected Effect",
+      "change": "Change 'excluded under artifact rule 5' to 'excluded under artifact rule 3', matching the retrospective's own Data Exclusions table (which assigns Rule 3 to all 4 excluded gate reports) and matching this WFI's own correct citation of 'artifact rule 3' elsewhere in Problem Evidence.",
+      "rationale": "Minor citation-accuracy fix; does not affect measurability but is a factual error a careful reader would catch."
+    },
+    {
+      "section": "## Category",
+      "change": "Add an explicit note addressing the precedent conflict: WFI-003, WFI-005, WFI-010, and WFI-017 -- all structurally identical 'report format vs. deterministic-consumer parsing' fixes, all drafted after the measurement category was introduced -- used Category: plugin-improvement, and WFI-010 documents this as established precedent for 'measurement-adjacent' fixes. Either justify why WFI-020 departs from this unbroken precedent, or reclassify to plugin-improvement for consistency.",
+      "rationale": "The orchestrator explicitly asked this to be scrutinized. This does not fail the formal CATEGORY-LANGUAGE-MATCH check (measurement is a guide-recognized value and the language used is appropriately concrete for a project-side target), but the precedent misalignment is real, well-evidenced, and worth a human decision before Approved -- especially given Category: measurement forces the Meta-Change strict audit lane, which changes downstream audit obligations relative to what plugin-improvement would require."
+    }
+  ]
+}
