@@ -1652,6 +1652,62 @@ corrected mechanism descriptions are in
 `reports/implementation/epic-189-a1-project-context/T-007.md`'s own
 "Quality Gate Remedy (seq0357)" section.
 
+QUALITY-GATE REMEDY 2 (2026-07-31, seq0358 NEEDS_WORK -> remedy applied;
+round-1 (seq0357) findings independently reconfirmed fixed by this
+round's evaluator, including a mutation test reverting each round-1 fix
+and observing the regression lock genuinely fail): `reports/quality-gate/
+2026-07-30T213553Z-T-007.md` (commit `02e25f98`) returned Major 1 (new) /
+Minor 5. Fixed: a manifest target path containing whitespace passed
+`parse_manifest` unrejected but was then corrupted by `apply-human-copy
+.sh`'s internal `read -r a b c` IFS field-splitting (in `write_journal`
+and the commit loop) -- fields shifted, the journal's `post_hash` became
+two concatenated hashes, `json_get_targets`'s own shape check still
+passed (all three keys non-empty) so `JOURNAL_SHAPE_INVALID` never fired,
+and T-005's `detect-policy-weakening.py` reader would have probed the
+WRONG `live_path` and failed open on the file actually mid-publish
+(design.md:1064-1070 step 6) -- while the `.ps1` twin already handled the
+identical batch correctly (a genuine parity break). design.md's own
+manifest/journal contract text (the "Human-copy publisher transactional
+bundle contract" section) was read in full before choosing a remedy: it
+places no restriction on path characters, and the `.ps1` runtime already
+proved whitespace-containing paths are a legitimately supported input, so
+the chosen fix is (i) -- make `.sh` handle them correctly end-to-end,
+restoring parity, rather than a new rejection category. Every internal
+work-file that carries a path (`TARGETS_FILE`, and `json_get_targets`'s
+own re-serialization of a live journal's targets for the crash-recovery
+scan) was migrated to a fixed-width "target record" encoding
+(`<64-char-pre><64-char-post><space><path-to-end-of-line>`, with a
+reserved 64-'z' sentinel for "ABSENT" -- 'z' is never a valid lowercase-
+hex digit, so it cannot collide with a real digest) split ONLY via
+fixed-column `cut`, never via `read` IFS field-splitting, which was
+ALSO found to silently strip a path's own leading/trailing whitespace
+even where embedded spaces happened to parse correctly (an adjacent
+defect class the coordinator's remedy instructions asked to be pinned
+alongside the reported one). A separate, related latent bug was found
+and fixed in the same pass: `parse_manifest`'s prior duplicate-path/
+duplicate-basename detection joined seen paths into a SPACE-separated
+string and checked containment via a `case "* $x *"` substring pattern --
+unsound once paths may contain spaces (a target literally named "b.txt"
+would have been FALSELY rejected as a duplicate of an earlier, unrelated
+"a b.txt", since " a b.txt " contains " b.txt " as a literal substring);
+replaced with newline-delimited accumulator files checked via
+`grep -qxF` (exact whole-line match -- a path can never itself contain a
+newline in this line-oriented manifest format, so this is unambiguous).
+New regression coverage in BOTH runtimes proves: whitespace-path publish
+success + byte-exact journal `live_path` + single (never concatenated)
+hash values per field; mid-batch-crash convergence with a whitespace
+path, including the journal read during recovery; the false-positive-
+duplicate fix; genuine duplicate-path/duplicate-basename detection still
+firing correctly; and (sh-only, where the fix lives) a literal tab
+character embedded in a path surviving end-to-end. TDD Red (script
+relocated, both runtimes): `bash` 21/50 reached, `pwsh` 15/40 reached ->
+Green: `bash` 52/52, `pwsh` 41/41. The 5 Minor findings: #1
+(CHANGELOG.md's stale 38/27 tally) was explicitly authorized for update
+by the coordinator and is corrected in this same entry, above; the other
+4 are carryover (no code change) per the coordinator's instruction. Full
+detail in `reports/implementation/epic-189-a1-project-context/T-007.md`'s
+own "Quality Gate Remedy (seq0358)" section.
+
 ---
 
 ## T-008 Author the hook-activation handshake (`check-hook-activation-handshake`)

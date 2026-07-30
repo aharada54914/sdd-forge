@@ -293,11 +293,23 @@
   外部からrenameしても真の(rename後の)anchor先へ正しく書き込まれる —
   攻撃者が新規に作った置換先ディレクトリへは決して漏れない)、
   atomic-rename-onlyでのpublish(path-based copyフォールバック皆無)、
-  マニフェスト形状検証を含む38(`bash`)/27(`pwsh`)アサーションの
-  `tests/apply-human-copy.tests.sh`/`.ps1`で証明。TDD
-  Red(未実装で`bash` 19/38・`pwsh` 10/27)→ Green(実装後
+  マニフェスト形状検証を含む52(`bash`)/41(`pwsh`)アサーション
+  (初回実装時点では38/27、seq0357/seq0358の2回のquality-gate remedyで
+  それぞれ7/10・7/4件を追加)の`tests/apply-human-copy.tests.sh`/`.ps1`
+  で証明。TDD Red(未実装で`bash` 19/38・`pwsh` 10/27)→ Green(実装後
   `bash` 38/38・`pwsh` 27/27 全PASS)を両ランタイムで実行・記録
   (`specs/epic-189-a1-project-context/verification/T-007/`)。
+  **quality-gate remedy 2件**: (seq0357) 0バイトlive targetのpre-
+  transaction backupを誤削除しmid-batch crash後にpublisher恒久ブロック
+  していたCritical、basename衝突・pwsh側TEST-033d/e欠如・journal
+  UTF-8 BOMの3件のMajorを修正。(seq0358) manifest target pathに空白を
+  含む場合にshのIFS field-splittingでjournalが構造破壊される
+  (T-005 readerがfail openする)Majorを修正 — 全ての内部work-file
+  (`TARGETS_FILE`・recovery用journal再展開)をfixed-width record化し
+  `read`によるIFS分割を完全排除、埋め込み空白・タブ・連続空白を
+  正しく扱えるようps1と挙動を一致させた。詳細は
+  `reports/implementation/epic-189-a1-project-context/T-007.md`の
+  「Quality Gate Remedy」各節。
   `docs/adr/0025-human-copy-transactional-bundle.md`
   は round-1 impl-review remedy(コミット `e28ba891`)で既に作成・
   コミット済みであることを確認 — 内容は本実装(journal形状・六段階

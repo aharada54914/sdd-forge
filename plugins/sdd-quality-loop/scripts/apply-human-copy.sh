@@ -265,6 +265,68 @@ split_dir_base() {
 }
 
 # ---------------------------------------------------------------------------
+# Fixed-width "target record" encoding (quality-gate seq0358 Major): every
+# INTERNAL work file this script writes and re-reads for a batch (the
+# rehashed target list, the journal's own re-derived target list during
+# recovery) previously stored "<hash> <hash> <path>"-shaped lines and
+# re-parsed them with `read -r a b c`, which IFS-field-splits on
+# whitespace -- silently corrupting any path containing an embedded
+# space/tab (fields shift) and silently STRIPPING a path's own leading/
+# trailing whitespace (a `read`-assigned field never retains it), both
+# verified empirically at remedy time. Neither the MANIFEST file itself
+# nor the live TRANSACTION.json journal (both parsed via fixed-column
+# `cut`/JSON extraction) had this defect -- only these SPECIFIC internal
+# work-file round-trips did. Fix: every hash field is normalized to an
+# EXACT 64-character encoding (real hashes already are; "ABSENT" is
+# mapped to a 64-'z' sentinel, since 'z' is never a valid lowercase-hex
+# digit and so can never collide with a genuine SHA-256 digest), so a
+# record is always "<64-char><64-char><SPACE><path-to-end-of-line>" and
+# is ALWAYS split via `cut -c`, NEVER via `read` IFS-splitting -- `cut`
+# operates on byte/character positions only and is therefore immune to
+# embedded whitespace, runs of whitespace, tabs, or leading/trailing
+# whitespace in the path. A literal newline inside a path cannot be
+# expressed in this line-oriented format at all (a raw newline would
+# simply terminate the record early) -- inherently unrepresentable, not
+# separately guarded here.
+# ---------------------------------------------------------------------------
+
+ABSENT_SENTINEL=$(printf '%064d' 0 | tr '0' z)
+
+norm_hash() {
+  # norm_hash <hash-or-ABSENT> -- prints a fixed-64-char encoding.
+  if [ "$1" = "ABSENT" ]; then
+    printf '%s' "$ABSENT_SENTINEL"
+  else
+    printf '%s' "$1"
+  fi
+}
+
+denorm_hash() {
+  # denorm_hash <64-char-encoded> -- inverse of norm_hash.
+  if [ "$1" = "$ABSENT_SENTINEL" ]; then
+    printf 'ABSENT'
+  else
+    printf '%s' "$1"
+  fi
+}
+
+write_target_record() {
+  # write_target_record <pre_hash_or_ABSENT> <post_hash_or_ABSENT> <path>
+  # -- prints one fixed-width-prefix record: cols 1-64 = pre (normalized),
+  # cols 65-128 = post (normalized), col 129 = one literal space, cols
+  # 130-end = path VERBATIM.
+  printf '%s%s %s\n' "$(norm_hash "$1")" "$(norm_hash "$2")" "$3"
+}
+
+# parse_target_record <line> -- sets globals TR_PRE / TR_POST / TR_PATH.
+parse_target_record() {
+  line=$1
+  TR_PRE=$(denorm_hash "$(printf '%s' "$line" | cut -c1-64)")
+  TR_POST=$(denorm_hash "$(printf '%s' "$line" | cut -c65-128)")
+  TR_PATH=$(printf '%s' "$line" | cut -c130-)
+}
+
+# ---------------------------------------------------------------------------
 # Manifest parsing.
 # ---------------------------------------------------------------------------
 
@@ -276,14 +338,37 @@ parse_manifest() {
     "manifest file does not exist: $manifest"
   [ -s "$manifest" ] || die "$EXIT_MANIFEST_INVALID" MANIFEST_INVALID \
     "manifest file is empty: $manifest"
-  seen_paths=""
-  seen_basenames=""
+  # Duplicate-path / duplicate-basename tracking (quality-gate seq0358):
+  # NEWLINE-delimited accumulator FILES, checked via `grep -qxF` (exact
+  # whole-line, fixed-string match) -- NEVER a space-joined string checked
+  # via a `case "* $x *"` substring pattern (the PRIOR implementation),
+  # which is UNSOUND once paths may contain embedded spaces: `seen=" a b"`
+  # would false-positive-match a LATER, genuinely distinct target "b"
+  # (" a b " contains " b " as a literal substring), verified empirically
+  # at remedy time. A path can never contain a newline (this manifest
+  # format is inherently line-oriented -- a literal newline would simply
+  # terminate the line early, producing a malformed line the hash/
+  # separator checks below already reject), so newline-delimited,
+  # exact-line matching is unambiguous regardless of embedded spaces,
+  # tabs, or runs of either.
+  seen_paths_file=$(mktemp "${TMPDIR:-/tmp}/ahc-seen-paths.XXXXXX")
+  seen_basenames_file=$(mktemp "${TMPDIR:-/tmp}/ahc-seen-basenames.XXXXXX")
+  : >"$seen_paths_file"
+  : >"$seen_basenames_file"
   line_no=0
   while IFS= read -r line || [ -n "$line" ]; do
     line_no=$((line_no + 1))
     [ -n "$line" ] || continue
     hash=$(printf '%s' "$line" | cut -c1-64)
     sep=$(printf '%s' "$line" | cut -c65-66)
+    # Fixed-column extraction (never `read`-based IFS field-splitting):
+    # `path` is EVERYTHING from column 67 to end of line, verbatim --
+    # embedded spaces/tabs, runs of either, and leading/trailing
+    # whitespace within the path are all preserved byte-exact
+    # (quality-gate seq0358 Major: a `read`-split path corrupts on
+    # embedded whitespace and a `read`-assigned path has its OWN
+    # leading/trailing whitespace silently stripped by IFS semantics,
+    # verified empirically at remedy time -- `cut -c` does neither).
     path=$(printf '%s' "$line" | cut -c67-)
     if ! is_hex64 "$hash" || [ "$sep" != "  " ] || [ -z "$path" ]; then
       die "$EXIT_MANIFEST_INVALID" MANIFEST_INVALID \
@@ -293,11 +378,12 @@ parse_manifest() {
       /*|*..*) die "$EXIT_MANIFEST_INVALID" MANIFEST_INVALID \
         "manifest line $line_no target is not a normalized repo-relative path: $path" ;;
     esac
-    case " $seen_paths " in
-      *" $path "*) die "$EXIT_MANIFEST_INVALID" MANIFEST_INVALID \
-        "manifest lists target '$path' more than once" ;;
-    esac
-    seen_paths="$seen_paths $path"
+    if grep -qxF -- "$path" "$seen_paths_file" 2>/dev/null; then
+      rm -f "$seen_paths_file" "$seen_basenames_file"
+      die "$EXIT_MANIFEST_INVALID" MANIFEST_INVALID \
+        "manifest lists target '$path' more than once"
+    fi
+    printf '%s\n' "$path" >>"$seen_paths_file"
     # DUPLICATE_BASENAME_IN_BATCH (quality-gate seq0357 Major #1): the
     # transactional bundle contract's own backup path
     # (design.md:1011, `sdd/.staging/<batch-nonce>/pre/<target-basename>`)
@@ -314,13 +400,15 @@ parse_manifest() {
     # a review-process matter, not an implementer's unilateral choice).
     split_dir_base "$path"
     base=$SPLIT_BASE
-    case " $seen_basenames " in
-      *" $base "*) die "$EXIT_DUPLICATE_BASENAME_IN_BATCH" DUPLICATE_BASENAME_IN_BATCH \
-        "manifest target '$path' shares basename '$base' with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction" ;;
-    esac
-    seen_basenames="$seen_basenames $base"
+    if grep -qxF -- "$base" "$seen_basenames_file" 2>/dev/null; then
+      rm -f "$seen_paths_file" "$seen_basenames_file"
+      die "$EXIT_DUPLICATE_BASENAME_IN_BATCH" DUPLICATE_BASENAME_IN_BATCH \
+        "manifest target '$path' shares basename '$base' with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
+    fi
+    printf '%s\n' "$base" >>"$seen_basenames_file"
     printf '%s %s\n' "$hash" "$path"
   done <"$manifest"
+  rm -f "$seen_paths_file" "$seen_basenames_file"
 }
 
 # ---------------------------------------------------------------------------
@@ -515,18 +603,21 @@ revert_one_target() {
 
 write_journal() {
   # write_journal <batch_dir_abs> <nonce> <targets_file>
-  # <targets_file> has one "<live_path> <pre_hash> <post_hash>" line per
-  # target (space-separated; live_path/hash never contain spaces by
-  # construction -- repo-relative paths, hex or ABSENT). Writes
-  # TRANSACTION.json via temp+rehash+atomic-rename (itself all-or-nothing,
-  # design.md).
+  # <targets_file> has one FIXED-WIDTH "target record" per line
+  # (write_target_record's own format, above -- quality-gate seq0358:
+  # NEVER read via IFS field-splitting, since a live_path may legitimately
+  # contain whitespace). Writes TRANSACTION.json via temp+rehash+atomic-
+  # rename (itself all-or-nothing, design.md).
   batch_dir_abs=$1
   nonce=$2
   targets_file=$3
 
   body="{\"schema\":\"sdd-human-copy-transaction/v1\",\"nonce\":\"$(json_escape "$nonce")\",\"status\":\"in-progress\",\"targets\":["
   first=1
-  while read -r lp ph qh; do
+  while IFS= read -r target_line || [ -n "$target_line" ]; do
+    [ -n "$target_line" ] || continue
+    parse_target_record "$target_line"
+    lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
     [ -n "$lp" ] || continue
     if [ "$first" = "1" ]; then first=0; else body="$body,"; fi
     body="$body{\"live_path\":\"$(json_escape "$lp")\",\"pre_hash\":\"$(json_escape "$ph")\",\"post_hash\":\"$(json_escape "$qh")\"}"
@@ -544,9 +635,11 @@ write_journal() {
 # json_get_targets <journal_file> -- validates SHAPE strictly (fail
 # closed on any deviation, carry-forward obligation 2: a journal that is
 # valid JSON but lacks/mis-shapes `targets` is REJECTED, never silently
-# treated as "no journal"). On success prints one
-# "<live_path> <pre_hash> <post_hash>" line per target to stdout and
-# returns 0. On a shape violation, prints nothing and returns 1 (an
+# treated as "no journal"). On success prints one write_target_record-
+# shaped fixed-width record (above) per target to stdout, preserving
+# live_path verbatim including any whitespace it may legitimately contain
+# (quality-gate seq0358), and returns 0. On a shape violation, prints
+# nothing and returns 1 (an
 # UNREADABLE/unparsable file also returns 1 -- caller treats both
 # identically: fail closed, never proceed).
 json_get_targets() {
@@ -581,7 +674,7 @@ json_get_targets() {
           ok=0
           break
         fi
-        printf '%s %s %s\n' "$lp" "$ph" "$qh"
+        write_target_record "$ph" "$qh" "$lp"
         count=$((count + 1))
         after=${rest#*\}}
         case "$after" in
@@ -630,7 +723,10 @@ recover_all() {
 
     all_post=1
     all_pre=1
-    while read -r lp ph qh; do
+    while IFS= read -r target_line || [ -n "$target_line" ]; do
+      [ -n "$target_line" ] || continue
+      parse_target_record "$target_line"
+      lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
       [ -n "$lp" ] || continue
       cur=$(pre_hash_of_live_target "$repo_root_abs" "$lp")
       if [ "$cur" != "$qh" ]; then all_post=0; fi
@@ -657,7 +753,10 @@ recover_all() {
 
     # MIXED: revert every target currently at POST back to PRE.
     idx=0
-    while read -r lp ph qh; do
+    while IFS= read -r target_line || [ -n "$target_line" ]; do
+      [ -n "$target_line" ] || continue
+      parse_target_record "$target_line"
+      lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
       [ -n "$lp" ] || continue
       idx=$((idx + 1))
       cur=$(pre_hash_of_live_target "$repo_root_abs" "$lp")
@@ -739,7 +838,15 @@ TARGETS_FILE=$(mktemp "${TMPDIR:-/tmp}/ahc-targets.XXXXXX")
 LIVEPATHS_FILE=$(mktemp "${TMPDIR:-/tmp}/ahc-livepaths.XXXXXX")
 : >"$LIVEPATHS_FILE"
 
-while read -r hash relpath; do
+while IFS= read -r manifest_line || [ -n "$manifest_line" ]; do
+  [ -n "$manifest_line" ] || continue
+  # Fixed-column extraction (never `read`-based IFS field-splitting; see
+  # parse_manifest's own header comment, quality-gate seq0358): hash is
+  # cols 1-64, one literal separator space at col 65, path is cols 66-end
+  # verbatim -- matches parse_manifest's own emitted "<hash> <path>" line
+  # shape exactly.
+  hash=$(printf '%s' "$manifest_line" | cut -c1-64)
+  relpath=$(printf '%s' "$manifest_line" | cut -c66-)
   [ -n "$relpath" ] || continue
   split_dir_base "$relpath"
   # Verify the staged candidate exists, is not a symlink, and hashes to
@@ -769,7 +876,7 @@ while read -r hash relpath; do
     base=$(basename "$relpath")
     backup_pre_bytes "$REPO_ROOT_ABS" "$relpath" "$BATCH_DIR_ABS/pre/$base"
   fi
-  printf '%s %s %s\n' "$relpath" "$pre_hash" "$hash" >>"$TARGETS_FILE"
+  write_target_record "$pre_hash" "$hash" "$relpath" >>"$TARGETS_FILE"
   printf '%s\n' "$relpath" >>"$LIVEPATHS_FILE"
 done <"$MANIFEST_LINES"
 
@@ -791,7 +898,10 @@ fi
 # ---- COMMIT: atomic rename per target, in journal (=manifest) order. ------
 idx=0
 first_target=1
-while read -r relpath pre_hash post_hash; do
+while IFS= read -r target_line || [ -n "$target_line" ]; do
+  [ -n "$target_line" ] || continue
+  parse_target_record "$target_line"
+  relpath=$TR_PATH; pre_hash=$TR_PRE; post_hash=$TR_POST
   [ -n "$relpath" ] || continue
   idx=$((idx + 1))
   do_sub=0
@@ -815,7 +925,7 @@ rmdir -- "$BATCH_DIR_ABS" 2>/dev/null || true
 
 applied_json="["
 first=1
-while read -r relpath; do
+while IFS= read -r relpath || [ -n "$relpath" ]; do
   [ -n "$relpath" ] || continue
   if [ "$first" = "1" ]; then first=0; else applied_json="$applied_json,"; fi
   applied_json="$applied_json\"$(json_escape "$relpath")\""

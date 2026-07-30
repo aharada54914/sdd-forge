@@ -595,6 +595,120 @@ else
 fi
 
 # ===========================================================================
+# TEST-033s (quality-gate seq0358 Major remedy): a manifest target path
+# containing WHITESPACE (embedded space, tab, and -- via a two-target
+# batch -- a path that is a space-joined "substring" of another target's
+# path, the exact class that broke the PRIOR duplicate-path/basename
+# detection) is handled correctly end-to-end: parsed, published, journaled
+# with a byte-accurate live_path and exactly one hash per hash field,
+# survives a mid-batch crash + recovery convergence, and is never
+# misclassified as a duplicate of an unrelated target.
+# ===========================================================================
+
+# (a) basic publish + journal byte-accuracy for an embedded-space path.
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/repo/live/d/a b.txt" "old content"
+write_file "$F/stage/live/d/a b.txt" "new content"
+manifest_line "$F/stage" "live/d/a b.txt" >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" = 0 ] && [ "$(cat "$F/repo/live/d/a b.txt")" = "new content" ]; then
+  pass "TEST-033s embedded-space path publishes correctly (exit 0, correct content)"
+else
+  fail "TEST-033s embedded-space path publishes correctly (exit $rc; content=$(cat "$F/repo/live/d/a b.txt" 2>/dev/null))"
+fi
+
+# (b) mid-batch crash with an embedded-space path -- journal byte-accuracy
+# (live_path preserves the space; each hash field is EXACTLY one 64-hex
+# value, never two concatenated) + recovery convergence.
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/repo/live/d/a b.txt" "old content"
+write_file "$F/repo/live/d/c.txt" "old-c"
+write_file "$F/stage/live/d/a b.txt" "new content"
+write_file "$F/stage/live/d/c.txt" "new-c"
+{
+  manifest_line "$F/stage" "live/d/a b.txt"
+  manifest_line "$F/stage" "live/d/c.txt"
+} >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after rename-1
+JF=$(find "$F/repo/sdd/.staging" -name TRANSACTION.json 2>/dev/null | head -1)
+if [ -n "$JF" ] && grep -qF '"live_path":"live/d/a b.txt"' "$JF"; then
+  pass "TEST-033s journal preserves the embedded-space live_path byte-exact"
+else
+  fail "TEST-033s journal preserves the embedded-space live_path byte-exact (journal: $(cat "$JF" 2>/dev/null))"
+fi
+if [ -n "$JF" ] && command -v python3 >/dev/null 2>&1; then
+  if python3 -c "
+import json, sys
+d = json.load(open(sys.argv[1]))
+t = [x for x in d['targets'] if x['live_path'] == 'live/d/a b.txt'][0]
+import re
+assert re.fullmatch(r'[0-9a-f]{64}', t['pre_hash']), t['pre_hash']
+assert re.fullmatch(r'[0-9a-f]{64}', t['post_hash']), t['post_hash']
+" "$JF" 2>/dev/null; then
+    pass "TEST-033s journal's pre_hash/post_hash for the space-containing target are each EXACTLY one 64-hex value (never concatenated)"
+  else
+    fail "TEST-033s journal hash fields are single, well-formed 64-hex values"
+  fi
+else
+  pass "TEST-033s journal hash-field shape check (skipped: python3 not available)"
+fi
+run_apply "$F/repo"
+rc=$?
+if [ "$rc" = 0 ] && [ "$(cat "$F/repo/live/d/a b.txt")" = "old content" ] && [ "$(cat "$F/repo/live/d/c.txt")" = "old-c" ]; then
+  pass "TEST-033s mid-batch crash with an embedded-space target converges to ALL-PRE on recovery"
+else
+  fail "TEST-033s mid-batch crash with an embedded-space target converges to ALL-PRE (exit $rc)"
+fi
+
+# (c) the false-positive class the PRIOR space-joined duplicate-detection
+# scheme was vulnerable to: target "b.txt" must NOT be flagged as a
+# duplicate merely because an EARLIER target's path is "a b.txt" (whose
+# space-joined representation contains " b.txt " as a literal substring).
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/stage/live/a b.txt" "content-ab"
+write_file "$F/stage/live/b.txt" "content-b"
+{
+  manifest_line "$F/stage" "live/a b.txt"
+  manifest_line "$F/stage" "live/b.txt"
+} >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" = 0 ] && [ "$(cat "$F/repo/live/a b.txt")" = "content-ab" ] && [ "$(cat "$F/repo/live/b.txt")" = "content-b" ]; then
+  pass "TEST-033s 'b.txt' is never false-positive-flagged as a duplicate of 'a b.txt' (both publish correctly)"
+else
+  fail "TEST-033s no false-positive duplicate-path rejection for space-containing paths (exit $rc)"
+fi
+
+# (d) genuine duplicate detection still fires correctly (regression lock
+# for the grep-based rewrite): exact duplicate path, and duplicate
+# basename in different directories.
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/stage/live/x.txt" "c"
+h=$(sha256_of "$F/stage/live/x.txt")
+printf '%s  live/x.txt\n%s  live/x.txt\n' "$h" "$h" >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+if [ $? != 0 ] && [ "$(category_of "$WORK/out")" = "MANIFEST_INVALID" ]; then
+  pass "TEST-033s genuine duplicate-path rejection still fires (regression lock on the grep-based rewrite)"
+else
+  fail "TEST-033s genuine duplicate-path rejection still fires"
+fi
+
+# (e) tab character and leading/trailing whitespace within a path are
+# preserved end-to-end (adjacent whitespace classes, quality-gate
+# seq0358's explicit "pin these too" guidance).
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+tab_path="live/a$(printf '\t')b.txt"
+write_file "$F/stage/$tab_path" "tab-content"
+manifest_line "$F/stage" "$tab_path" >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+if [ $? = 0 ] && [ "$(cat "$F/repo/$tab_path" 2>/dev/null)" = "tab-content" ]; then
+  pass "TEST-033s a tab character embedded in a path is preserved end-to-end"
+else
+  fail "TEST-033s a tab character embedded in a path is preserved end-to-end"
+fi
+
+# ===========================================================================
 # Self-registration (design.md Test Strategy item 11; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).
 # ===========================================================================

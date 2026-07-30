@@ -460,6 +460,63 @@ if ($python3Cmd) {
 }
 
 # ---------------------------------------------------------------------------
+# TEST-033s (quality-gate seq0358 Major remedy -- ps1-side parity lock):
+# this runtime was ALREADY correct on whitespace-containing manifest
+# target paths (the sh twin was the one with the IFS field-splitting
+# defect); these assertions lock that correctness in as a regression
+# guard so a future ps1 change cannot silently reintroduce the same class
+# of bug the sh runtime had.
+# ---------------------------------------------------------------------------
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'repo/live/d/a b.txt') 'old content'
+Write-FixtureFile (Join-Path $F 'stage/live/d/a b.txt') 'new content'
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'live/d/a b.txt') + "`n")
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+$content = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/live/d/a b.txt') -ErrorAction SilentlyContinue
+if ($r.ExitCode -eq 0 -and $content -eq "new content`n") {
+    Test-Pass 'TEST-033s embedded-space path publishes correctly (exit 0, correct content)'
+} else {
+    Test-Fail 'TEST-033s embedded-space path publishes correctly' "exit $($r.ExitCode); content='$content'"
+}
+
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'repo/live/d/a b.txt') 'old content'
+Write-FixtureFile (Join-Path $F 'repo/live/d/c.txt') 'old-c'
+Write-FixtureFile (Join-Path $F 'stage/live/d/a b.txt') 'new content'
+Write-FixtureFile (Join-Path $F 'stage/live/d/c.txt') 'new-c'
+$manifestLines = (Get-ManifestLine (Join-Path $F 'stage') 'live/d/a b.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'live/d/c.txt') + "`n"
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $manifestLines
+Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'), '-SimulateCrashAfter', 'rename-1') | Out-Null
+$journal = Get-ChildItem -Path (Join-Path $F 'repo/sdd/.staging') -Filter 'TRANSACTION.json' -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+if ($journal -and (Get-Content -Raw -LiteralPath $journal.FullName) -match '"live_path":"live/d/a b\.txt"') {
+    Test-Pass "TEST-033s journal preserves the embedded-space live_path byte-exact"
+} else {
+    Test-Fail 'TEST-033s journal preserves embedded-space live_path' 'not found in journal'
+}
+$r2 = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+$a = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/live/d/a b.txt') -ErrorAction SilentlyContinue
+$c = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/live/d/c.txt') -ErrorAction SilentlyContinue
+if ($r2.ExitCode -eq 0 -and $a -eq "old content`n" -and $c -eq "old-c`n") {
+    Test-Pass 'TEST-033s mid-batch crash with an embedded-space target converges to ALL-PRE on recovery'
+} else {
+    Test-Fail 'TEST-033s mid-batch crash convergence with embedded-space target' "exit $($r2.ExitCode); a='$a' c='$c'"
+}
+
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'stage/live/a b.txt') 'content-ab'
+Write-FixtureFile (Join-Path $F 'stage/live/b.txt') 'content-b'
+$manifestLines = (Get-ManifestLine (Join-Path $F 'stage') 'live/a b.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'live/b.txt') + "`n"
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $manifestLines
+$r3 = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+$ab = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/live/a b.txt') -ErrorAction SilentlyContinue
+$b = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/live/b.txt') -ErrorAction SilentlyContinue
+if ($r3.ExitCode -eq 0 -and $ab -eq "content-ab`n" -and $b -eq "content-b`n") {
+    Test-Pass "TEST-033s 'b.txt' is never false-positive-flagged as a duplicate of 'a b.txt' (both publish correctly)"
+} else {
+    Test-Fail 'TEST-033s no false-positive duplicate rejection for space-containing paths' "exit $($r3.ExitCode)"
+}
+
+# ---------------------------------------------------------------------------
 # Self-registration.
 # ---------------------------------------------------------------------------
 if ((Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.ps1')) -match 'apply-human-copy\.tests\.ps1') {
