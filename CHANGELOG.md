@@ -236,6 +236,80 @@
   しないよう本タスクでは延期(詳細実装は
   `reports/implementation/epic-189-a1-project-context/T-006.md`)。
 
+- **anchored-publisher-equivalent human-copy ツール `apply-human-copy`
+  (Issue #189, epic-189-a1-project-context T-007, Risk: critical)**:
+  `plugins/sdd-quality-loop/scripts/apply-human-copy.sh`/`.ps1` を新規
+  追加 — ADR-0011(Windows専用ネイティブランナー)の保護保証を
+  sh/ps1双方へ汎化した、REQ-007の唯一の実装。**設計上の一意な制約**:
+  この2ファイルには共有 `.py` マスターが存在せず、各ランタイムが
+  publisher全ロジックを完全に独立実装(design.md Components)。
+  **held-handle/handle-relative traversal の実現手法**: 純粋な
+  POSIX shell / クロスプラットフォーム pwsh には `openat`/`NtCreateFile`
+  相当のFFIが無い(pwsh は macOS/Linux/Windows 全てで動作するため
+  Win32 API直呼びも不可) — 代わりに、プロセス自身の
+  current-working-directory束縛(POSIX `chdir`/.NET
+  `Directory.SetCurrentDirectory`、いずれもカーネル媒介の実syscall)を
+  「保持されたハンドル」として用い、パスを1セグメントずつ
+  symlink拒否チェック→降下、を繰り返す実装を採用(祖先ディレクトリの
+  差し替えに対して免疫— ADR-0011が閉じた脆弱性クラスと同一)。
+  実装過程で2件の重大な発見: (1) `pwd -P`/`getcwd()`
+  相当は常に「ディレクトリの現在の名前」を反映するため、正当な
+  rename-and-continue(=置換耐性そのもの)が偽陽性で拒否される —
+  パス文字列比較ではなく (device, inode) 比較に修正。(2) PowerShell の
+  `Copy-Item`/`Test-Path`等のコマンドレットは
+  `[System.Environment]::CurrentDirectory`ではなく PowerShell 自身の
+  `$PWD`(これも単なる文字列ブックキーピング)経由で相対パスを解決する
+  ため、コマンドレット呼び出しは外部rename攻撃に追随してしまう —
+  publish/revert両経路を、書き込み直前に毎回
+  `[System.Environment]::CurrentDirectory`を再読込し `[System.IO.Path]`
+  で結合する生 .NET呼び出しのみに統一(コマンドレット不使用)。
+  **多対象ジャーナル化トランザクション**(design.md「Human-copy
+  publisher transactional bundle contract」、ADR-0025):
+  prepare(全候補を束で再ハッシュ+ライブ内容のpre-transactionバックアップ)
+  → journal(`sdd/.staging/<batch-nonce>/TRANSACTION.json`、
+  `targets[]` 各 `{live_path, pre_hash, post_hash}` — T-005が定義した
+  形状にcarry-forward義務1として準拠)を同一tempファイル+rehash+atomic
+  rename規律で書き込み→ commit(記録順に1対象ずつatomic rename)→
+  complete(journal削除)→ **全invocation開始時に自動実行される
+  crash-recovery**(現在のライブhashをjournal記録値と比較し、
+  全対象ALL-POST/ALL-PRE/MIXEDを判定 — MIXEDはPOST側の対象のみ
+  `pre/<basename>`バックアップからPREへ復元、必ず二値の終端状態
+  へ収束、リカバリ自体も冪等・再入可能)。**carry-forward義務2
+  (T-005 relay)を discharge**: `targets`キー欠如または不正形状の
+  journalはfail-closedで拒否(`JOURNAL_SHAPE_INVALID`)—
+  `detect-policy-weakening.py:201-203`の既知fail-open欠陥
+  (本タスクのPlanned Files外、変更せず)とは対照的に、本publisher自身の
+  recovery/publish経路は不正形状journalを「journalなし」と誤認しない。
+  AC-033の拡張crash-injection証明: (a)
+  journal書き込み直後・renameゼロ件時点のクラッシュ→ALL-PRE収束、
+  (b) 2対象中1件renameのみ完了時点のクラッシュ(mid-batch)→ALL-PRE収束、
+  (c) 全rename完了後・journal削除前のクラッシュ→ALL-POST収束、
+  (d) recovery自体の最中に2回目のクラッシュを注入→次回invocationで
+  なお正しく収束(recoveryの冪等性証明)、以上4点全てを両ランタイムで
+  実行時証明(`specs/epic-189-a1-project-context/verification/T-007/
+  crash-injection-{sh,ps1}.log`)。加えて、事前存在symlink拒否
+  (宛先leaf・宛先中間segment・staged source双方)、hard-link-alias
+  非伝播、held-handle置換耐性(宛先親ディレクトリを検証後・書き込み前に
+  外部からrenameしても真の(rename後の)anchor先へ正しく書き込まれる —
+  攻撃者が新規に作った置換先ディレクトリへは決して漏れない)、
+  atomic-rename-onlyでのpublish(path-based copyフォールバック皆無)、
+  マニフェスト形状検証を含む38(`bash`)/27(`pwsh`)アサーションの
+  `tests/apply-human-copy.tests.sh`/`.ps1`で証明。TDD
+  Red(未実装で`bash` 19/38・`pwsh` 10/27)→ Green(実装後
+  `bash` 38/38・`pwsh` 27/27 全PASS)を両ランタイムで実行・記録
+  (`specs/epic-189-a1-project-context/verification/T-007/`)。
+  `docs/adr/0025-human-copy-transactional-bundle.md`
+  は round-1 impl-review remedy(コミット `e28ba891`)で既に作成・
+  コミット済みであることを確認 — 内容は本実装(journal形状・六段階
+  プロトコル・AC-033の全4収束状態、`tests/apply-human-copy.tests.sh`/
+  `.ps1`という実ファイル名まで)と完全に整合しており、編集不要。
+  `tests/apply-human-copy.tests.sh`/`.ps1` を`tests/run-all.sh`/`.ps1`
+  へ T-006 の直後(数値順・7番目)に登録。CI ワークフロー登録は、
+  T-001〜T-006と同じ human-copy staging 領域に別セッションの未コミット
+  ステージング内容が存在するため、それらと競合しないよう本タスクでは
+  延期(詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-007.md`)。
+
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
   `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接
