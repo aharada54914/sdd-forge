@@ -106,3 +106,12 @@
   ④ relay 判定の記録: #1 TRANSACTION.json shape = design-conformant、
   #2 glob-narrowing 拡張 = 方向性 conformant（欠落はテストのみ・remedy 中)、
   #3 additionalProperties = 非問題確定。
+
+- **T-005 QG round-2 (seq0354) carry-forward 注記 2 件** (2026-07-30):
+  (a) two_person gap は T-006 着地まで unguarded — T-006 launch プロンプト
+  義務 4b として**登録済み確認**（validate-approval-sidecar が強制点)。
+  (b) **tasks.md:1215 付近の T-005 Out of Scope 括弧書き「(T-003 already
+  ships that behavior…)」は事実不正確**（署名時点で two-person 整合は
+  未強制)— tasks.md は凍結境界のため本 note で訂正を記録し、実文修正は
+  最終 re-binding 時の候補とする（正値: 強制点は T-006 の
+  --verify-provenance / 標準検証経路)。
