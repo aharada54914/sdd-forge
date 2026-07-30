@@ -142,3 +142,15 @@
   (py:678 到達不能 by 標準経路 gate 3 先行遮断) は remedy 対応中で
   carryover 対象外。評価者の好材料記録: bootstrap-downgrade 攻撃の HMAC
   ゲート捕捉実証・key-parity 3 実装 AST 検証・hostile 20 ケース全分類。)
+
+- **T-006 QG round-2 (seq0356) carryover** (2026-07-30):
+  ① **新規 hardening 候補**: `--verify-provenance` 限定で primary_approval
+  が非 dict（例: 文字列)の two-person weakening sidecar が gate5 を回避
+  （標準経路は SIDECAR_MALFORMED(38) で捕捉・要署名鍵・全 AC/TEST 範囲外)
+  — validator hardening 候補として最終フェーズ or 将来タスクへ。
+  ② **feature 完了判定用の明示記録**: **AC-019 の generator 半分は
+  feature-wide で未充足のまま**（T-003 gap・TEST-019(a) が現挙動を
+  regression lock)。**feature 完了判定時に AC-019 を「充足」とマークしては
+  ならない** — 充足には T-003 側のクローズ判断（design/decomposition の
+  正規経路)が必要。placeholder scan がこの残余を説明する suite コメントを
+  検出する事象は qg/T-006/placeholder.log の受理注記で処理済み。
