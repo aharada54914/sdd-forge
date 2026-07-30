@@ -56,3 +56,12 @@
   最終フェーズへ: normalized_hash の task 正規化に「ライフサイクル公認の
   追記領域（Blockers prose 以下のノート等)の畳み込み」を追加する等、
   検証器側の設計変更（human-apply 経路)。検証器は編集しない。
+
+- **T-003 QG Minor carryover** (2026-07-30, seq0350 NEEDS_WORK 報告より):
+  ① `resolve_evidence_key` の既存 `_resolve_sudo_key` 系との**実行的**
+  パリティ証明（ソース検査を超える independent import/exercise、AC-013
+  4-case 行列)は未実施のまま — T-006 の validator 側 key 解決実装時に
+  合同で証明するのが自然な合流点。② もう 1 件の Minor は seq0350 報告書
+  （reports/quality-gate/2026-07-30T142236Z-T-003.md)参照。Major
+  （staging 経路 OSError の未分類 exit 1)は remedy 対応中で carryover
+  対象外。
