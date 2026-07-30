@@ -1262,9 +1262,9 @@ chain).
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-30T16:59:46Z)
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: high
 
@@ -1374,6 +1374,50 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 ### Blockers
 
 T-003, T-004, T-005
+
+(satisfied — T-003, T-004, T-005 are all `Status: Done`; T-003 quality-gate
+PASS seq0350 remedy, T-004 quality-gate PASS, T-005 quality-gate PASS
+seq0354, all with green evidence bundles.)
+
+STAGING DEFERRED (2026-07-30, implementation session, after TDD Green): all
+of this task's own Scope/Done-When items are complete and verified --
+TEST-014/015/019/020/043/046 pass 38/38 in `bash` and 37/37 in `pwsh` (the
+`.sh` suite carries one extra self-registration assertion, matching every
+sibling suite's own convention), with genuine TDD Red (`bash` 8/38,
+`pwsh` 7/37, script absent) -> Green (`bash` 38/38, `pwsh` 37/37) captured
+for both runtimes at
+`specs/epic-189-a1-project-context/verification/T-006/`, plus the
+dedicated `key-parity-sh.log`/`key-parity-ps1.log` pair for carry-forward
+obligation 1. The suite is registered in `tests/run-all.sh`/`.ps1` (sixth
+in numeric order, directly after `detect-policy-weakening.tests.sh` and
+before the unrelated `guard-staging-exemption.tests.sh`). The remaining
+Done-When item -- staging this suite's `.github/workflows/test.yml`
+addition under `specs/epic-189-a1-project-context/human-copy/` +
+`MANIFEST.sha256` -- is DEFERRED, not blocked, for the SAME reason
+recorded in T-001/T-002/T-003/T-004/T-005's own "STAGING DEFERRED" notes
+above (unchanged root cause): `specs/epic-189-a1-project-context/human-copy/`
+is an untracked, uncommitted directory at this session's start, still
+holding only T-001's and T-004's own staged `test.yml` + `MANIFEST.sha256`
+content (verified: references to
+`project-context-schema`/`approver-registry-schema` only; none to
+`canonicalize-sdd-yaml`/`generate-approval-sidecar`/`detect-policy-weakening`/
+`validate-approval-sidecar` -- none of it authored by this session, and
+T-002/T-003/T-005's own staging remains equally deferred as of this
+session's start). Appending to or committing another session's uncommitted
+staging work risks corrupting or silently dropping it, so this task defers
+ONLY that one staging sub-item -- every other Scope/Done-When item is
+complete. The intended staged addition (two new CI steps,
+`validate-approval-sidecar.tests.sh`/`.ps1`, to be inserted directly after
+T-005's own `detect-policy-weakening` steps (once staged) and before any
+T-007+ addition, matching this suite's `tests/run-all.sh`/`.ps1` position)
+is recorded in
+`reports/implementation/epic-189-a1-project-context/T-006.md` for
+whichever session next finds `human-copy/` clean or committed. Live
+`.github/workflows/test.yml` SHA-256 unchanged this session (never
+written): `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`
+(recorded before and after this session's work; identical to
+T-001/T-002/T-003/T-004/T-005's own recorded value, confirming no session
+has touched the live file since).
 
 ---
 
