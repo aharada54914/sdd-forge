@@ -88,3 +88,21 @@
   義務がある — T-007 launch プロンプトに織り込むこと。関連記録:
   project-context.schema.json の components[] に additionalProperties:false
   が無い件は曖昧性源ではなかった（T-005 relay #3、記録のみ)。
+
+- **T-005 QG seq0353 の carryover 群** (2026-07-30):
+  ① **T-007 carry-forward への統合**: TRANSACTION.json shape 準拠義務に
+  加え、**shape 不一致 journal の拒否**を義務化 — 現行 reader は valid
+  JSON だが `targets` list を欠く journal で fail-OPEN
+  (detect-policy-weakening.py:201-203、L203 未実行) → T-007 の publisher/
+  recovery 実装はこの shape を強制し、不一致は fail-closed で拒否すること。
+  ② `--approved-context`（test-only flag)の不存在パス silent bootstrap
+  降格 — 記録のみ。
+  ③ **評価者 observation（finding 外・重要)**: 単一 `--approver` でも
+  `two_person_required: true` verdict を埋めた署名が成功する — tasks.md
+  T-005 Out of Scope の「T-003 already ships that behavior」は署名時点で
+  不成立。正当な置き場所は REQ-005/T-006 の
+  `validate-approval-sidecar --verify-provenance`。**T-006 が実装する義務**
+  として launch プロンプトに明記済み（gate の既強制誤認防止)。
+  ④ relay 判定の記録: #1 TRANSACTION.json shape = design-conformant、
+  #2 glob-narrowing 拡張 = 方向性 conformant（欠落はテストのみ・remedy 中)、
+  #3 additionalProperties = 非問題確定。
