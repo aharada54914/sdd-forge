@@ -695,9 +695,9 @@ staging deferral remain open, unchanged by this round.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (sudo 2026-07-30T13:22:34Z)
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: high
 
@@ -844,6 +844,45 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 ### Blockers
 
 T-002
+
+(satisfied — T-002 is `Done`, quality-gate PASS seq0349, evidence bundle
+green.)
+
+STAGING DEFERRED (2026-07-30, implementation session, after TDD Green):
+`contracts/approval-sidecar.schema.json`,
+`generate-approval-sidecar.py`/`.sh`/`.ps1`,
+`tests/generate-approval-sidecar.tests.sh`/`.ps1`, and this suite's direct
+`tests/run-all.sh`/`.ps1` registration (inserted between T-002's
+`canonicalize-sdd-yaml` entry and T-004's `approver-registry-schema` entry,
+correct numeric order) are all complete — TDD Red (`bash` 29/50, `pwsh`
+crashes without the implementation present) → Green (`bash` 50/50, `pwsh`
+48/48) captured for both runtimes at
+`specs/epic-189-a1-project-context/verification/T-003/`, plus the four
+dedicated seam Done-When logs (`seam-bootstrap-{sh,ps1}.log`,
+`seam-failclosed-{sh,ps1}.log`). The remaining Done-When item — staging
+this suite's `.github/workflows/test.yml` addition under
+`specs/epic-189-a1-project-context/human-copy/` + `MANIFEST.sha256` — is
+DEFERRED, not blocked, for the SAME reason recorded in T-002's own
+"STAGING DEFERRED" note above (unchanged root cause, T-001/T-002/T-004
+precedent): `specs/epic-189-a1-project-context/human-copy/` is an
+untracked, uncommitted directory at this session's start, already holding
+T-001's and T-004's own staged `test.yml` + `MANIFEST.sha256` content
+(verified: references to `project-context-schema`/`approver-registry-schema`,
+none to `generate-approval-sidecar`, in that staged file — none of it
+authored by this session). Appending to or committing another session's
+uncommitted staging work risks corrupting or silently dropping it, so this
+task defers ONLY that one staging sub-item — every other Scope/Done-When
+item is complete. The intended staged addition (two new CI steps,
+`generate-approval-sidecar.tests.sh`/`.ps1`, to be inserted directly after
+T-002's `canonicalize-sdd-yaml` steps and before T-004's
+`approver-registry-schema` steps, matching this suite's `tests/run-all.sh`/
+`.ps1` position) is recorded in
+`reports/implementation/epic-189-a1-project-context/T-003.md` for whichever
+session next finds `human-copy/` clean or committed. Live
+`.github/workflows/test.yml` SHA-256 unchanged this session (never
+written): `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`
+(recorded before and after this session's work; identical to T-002's/T-004's
+own recorded value, confirming no session has touched the live file since).
 
 ---
 

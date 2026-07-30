@@ -56,6 +56,7 @@ tests=(
   tests/model-freshness-check.tests.sh
   tests/project-context-schema.tests.sh
   tests/canonicalize-sdd-yaml.tests.sh
+  tests/generate-approval-sidecar.tests.sh
   tests/approver-registry-schema.tests.sh
   tests/guard-staging-exemption.tests.sh
 )
