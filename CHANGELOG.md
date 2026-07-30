@@ -125,6 +125,61 @@
   未コミットステージング内容(T-001/T-004 分)が存在するため、それらと
   競合しないよう本タスクでは延期(詳細実装は
   `reports/implementation/epic-189-a1-project-context/T-003.md`)。
+- **ポリシー弱体化検出ツール `detect-policy-weakening` + 配線完了
+  (Issue #189, epic-189-a1-project-context T-005)**:
+  `plugins/sdd-quality-loop/scripts/detect-policy-weakening.py` を新規追加 —
+  decision doc §9 の正準9カテゴリのうち実装済み3カテゴリ
+  (`capability_enforcement` の `required`→`advisory` 弱体化、
+  scope-prefix 集合演算によるコンポーネントパス縮小アルゴリズム(パターン
+  削除・同数置換・exclude追加・exclude広域化・純粋拡大の5境界ケース全証明)、
+  `spec_profile` の `full`→`lite` 移行)を直接フィールド比較で判定し、
+  残り6カテゴリ(Capability削除・公開配布縮小・重要度低下・Provider
+  allowlist拡大・本番書き込みパス変更・必須Gate削除)は全実行で明示的に
+  `n/a` と報告(プロキシ分類なし、決して黙殺しない)。信頼アンカーは
+  `git HEAD` ではなく `sdd/.approved-context/<schema>.approved.yaml` を
+  ツール内部で解決(本番呼び出し経路は `--approved-context` を一切
+  渡さない — 通常のコミットではアンカーを一切動かせないことをgit-commit
+  不変性テストで証明)。アンカー未存在(初回bootstrap)は
+  `NO_APPROVED_CONTEXT_ANCHOR` として全カテゴリ `not_weakened`/`n/a` を
+  返す文書化された非エラー条件。ポリシー弱体化と判定された場合のみ
+  `sdd/approver-registry.yaml`(T-004のスキーマ)の DISTINCT `id` 数を
+  数え、2以上で `two_person_required: true`、それ未満(0または1、
+  レジストリ不在含む)で `two_person_required: false, cooldown_hours: 24`
+  を出力。`sdd/.staging/*/TRANSACTION.json` が読み取り対象パスを含む
+  場合は `HUMAN_COPY_PUBLISH_IN_PROGRESS` でフェイルクローズ。
+  すべてのYAML/JSON解析はT-002の canonicalizer へサブプロセスdispatchし
+  再実装しない。**配線完了**(tasks.md T-005 Done-When、task-review
+  attempt-3 round-2 remedy): `generate-approval-sidecar.py`(T-003)の
+  `WEAKENING_DETECTOR_UNAVAILABLE` フェイルクローズド seam を in-process
+  で完成 — 非bootstrap遷移で本検出器の `compute_verdict()` を直接呼び出し、
+  その戻り値を寸分違わず sidecar の `weakening_verdict` へ埋め込む
+  (呼び出し元が verdict を供給する経路は存在しない)。T-003 QG round-2
+  seq0352 の3件の advance finding をこの配線で解消:
+  (1) `compute_verdict()` 呼び出し自体を分類済み try-wrap の内側に配置し、
+  検出器が送出する例外(その専用診断名を検証パイプラインを通して伝播、
+  または未知の例外は `WEAKENING_DETECTOR_ERROR`)を生の traceback として
+  漏らさない、(2) verdict の形状(必須4キー・カテゴリenum値・
+  JSONシリアライズ可能性)を preimage 構築前に検証し不正なら
+  `WEAKENING_VERDICT_MALFORMED` で拒否、(3) 非bootstrap遷移で
+  `None` verdict を `weakening_verdict: null` として署名することを拒否。
+  これら3件はそれぞれ独立した回帰テスト(バグを注入した検出器スタブを
+  差し替えた擬似スクリプトディレクトリ経由、実物の検出器は一切改変しない)
+  として両ランタイムに追加。`tests/generate-approval-sidecar.tests.sh`/
+  `.ps1` の既存 SEAM 非bootstrapテスト(T-003 が
+  `WEAKENING_DETECTOR_UNAVAILABLE` を期待していた箇所)を、配線完了後の
+  実際の挙動(署名成功・実verdict埋め込み)に合わせて更新。TDD
+  Red(検出器未実装で bash 5/56・pwsh 初回起動で異常終了)→
+  Green(実装後 bash 56/56・pwsh 55/55 全PASS)を`bash`/`pwsh` 双方で
+  実行・記録し、配線完了の専用証跡(`wiring-sh.log`/`wiring-ps1.log`:
+  埋め込みverdictと直接呼び出しverdictの完全一致、
+  `WEAKENING_DETECTOR_UNAVAILABLE` 不在の確認)も併せて記録
+  (`specs/epic-189-a1-project-context/verification/T-005/`)。
+  `tests/detect-policy-weakening.tests.sh`/`.ps1` を`tests/run-all.sh`/
+  `.ps1` へ T-004 の直後(数値順・5番目)に登録。CI ワークフロー登録は、
+  T-001/T-002/T-003/T-004 と同じ human-copy staging 領域に別セッションの
+  未コミットステージング内容が存在するため、それらと競合しないよう
+  本タスクでは延期(詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-005.md`)。
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
