@@ -115,3 +115,20 @@
   未強制)— tasks.md は凍結境界のため本 note で訂正を記録し、実文修正は
   最終 re-binding 時の候補とする（正値: 強制点は T-006 の
   --verify-provenance / 標準検証経路)。
+
+- **T-006 implementer relay の carryover** (2026-07-30):
+  ① T-005 residual: detector の distinct-count は重複 id を silent dedupe
+  したまま（T-005 out-of-scope 記録済み)。T-006 validator 側 gate は
+  `DUPLICATE_APPROVER_REGISTRY_ID` で registry 重複自体を拒否するため
+  count 依存なしで discharge — detector 側の dedupe 挙動是正は最終フェーズ
+  検討事項として記録。
+  ② **design-vs-decomposition gap**: design.md REQ-004 文の「staged
+  (pre-publish) candidate の provenance 再導出」記述に対応する TEST id が
+  T-006 の凍結 Done-When に無く、意図的未実装（TDD 駆動不能・guess 回避)。
+  **T-007（publisher の publish 前再検証経路)の関心事の可能性** — T-007
+  実装時に design 実文と照合し、T-007 スコープ外なら residual として
+  最終 re-binding 判断へ。
+  ③ regression runner: tests/prepare-panelist.tests.sh の失敗は
+  T-006 非起因を orchestrator が独立確認（最終変更 298cf22b/2f93edd6 =
+  #108/#185 系、env -i でも再現、既知 run-all 失敗連鎖の一部)。T-006 Done
+  チェーンの regression 段は直接関連スイートの個別実行で代替記録する。
