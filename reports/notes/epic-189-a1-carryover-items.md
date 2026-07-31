@@ -183,3 +183,15 @@
   （新規 Major = 空白入り path の sh IFS 構造破壊 journal は remedy-2
   対応中で carryover 対象外。round-1 の 4 指摘は評価者の fixture 再構築 +
   revert-mutation で全解消実証済み。)
+
+## T-007 seq0360 Minor: apply-human-copy `--help` 文書化不存在
+
+- **出所**: QG round-4（seq0360、`reports/quality-gate/2026-07-31T113826Z-T-007.md`)
+  の Minor 所見。評価者は非ブロッキングと判定。
+- **内容**: `apply-human-copy.sh` / `.ps1` に `--help`（usage 出力)が存在せず、
+  分類済み exit code 体系（特に remedy-3 で新設された
+  `UNSUPPORTED_PATH_CHARACTER` = exit 20)が CLI 上から発見できない。
+  兄弟タスクの先例（T-002 の exit 3 / T-003 の exit 16)は `--help` に記載あり。
+- **対処方針**: T-007 のフォローアップ（epic 内の後続タスクまたは別 feature)で
+  `--help` を追加し exit code 表を記載する。R-10 非対象のため通常編集で可。
+  remedy-4 のスコープには含めない（remedy-4 は seq0360 の Critical/Major のみ)。
