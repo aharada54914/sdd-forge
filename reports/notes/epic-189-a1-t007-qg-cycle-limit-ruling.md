@@ -67,3 +67,23 @@ review-loop（spec/impl/task)の 3 ラウンド終端規則を QG に誤って�
    human 接点も同梱)。
 3. 人間が round-4 継続 or review-ticket 経路(SKILL 13)で close を判断。
 4. **認可までは seq0360 を予約しない**。
+
+## 人間の round-4 継続認可（2026-07-31、AskUserQuestion 回答)
+
+**判断**: 「round-4 継続を認可」。`check-quality-gate-cycle-limit.sh T-007`
+の `Escalate-Human`（cycle-limit 3 到達)に対し、人間が QG round-4
+(seq0360)の実施を正式認可した。
+
+**判断材料**: orchestrator の remedy-3（commit `25d5728c`)独立検証サマリ —
+diff は Planned Files 内（ps1 全面再構築含む)、Outputs 26/26 live 一致、
+両レーン 130/130・72/72、hostile 文字行列の 4 指定ケース（`"`/`}`/glob/
+backslash)全てで journal round-trip + T-005 reader 照会 + ALL-PRE 収束 +
+litter なし + パリティ、backslash は両レーン同一 `UNSUPPORTED_PATH_CHARACTER`
+(exit 20)拒否を実測。留意点として exit 20 の `--help` 未記載・ps1 anchoring
+再構築への敵対検証未実施・3 ラウンド連続の sh 側新規クラスを提示済み。
+
+**根拠整合**: cycle-limit の `Escalate-Human` は禁止でなく人間判断要求
+（本ノート上部の裁定)。品質ループが機能中（毎回新規クラス発見 → 根本修正)
+かつ remedy-3 はクラス単位の対処（AWK パーサ・行列検証)であることから
+継続が妥当と人間が判断。round-4 で収束しなければ review-ticket 経路(SKILL
+13)への切替を再検討する。
