@@ -330,7 +330,47 @@
   FileSystemProviderが`\`を全プラットフォームでパス区切りとして扱う
   実装上の制約と実測確認、design根拠を記録の上でsh側も一致拒否として
   無言の非対称を回避。write_journalへのrehash-before-rename追加
-  (design.md:1020-1022、ps1は既存)も本ラウンドで実施。詳細は
+  (design.md:1020-1022、ps1は既存)も本ラウンドで実施。(seq0360)
+  過去3ラウンドと異なり**sh/ps1が同一の壊れ方をする**新規Critical:
+  live-hashプローブ(`pre_hash_of_live_target`/`Get-PreHashOfLiveTarget`)が
+  「walk失敗」(親segmentの欠落・symlink置換・chmod 000等のaccess拒否)を
+  無条件に文字列`"ABSENT"`へ丸め込んでおり、recoveryが既にPOSTへ進んだ
+  対象の宛先親を非攻撃的トリガ(symlink置換/rename退避/chmod 000)で
+  一時的に走査不能にされただけで「確認済みABSENT」と誤認 —
+  journal・pre/backupを無条件削除し復元不能なmixed stateを放置していた
+  (design.md:1055-1056が要求する「全対象がPRE復帰したことをrevert後に
+  再確認してからjournal削除」という検証ステップ自体がコード上不存在)。
+  修正: walk失敗を`"ABSENT"`へ変換する経路を全廃 —
+  `walk_relative_dir`/`Invoke-WalkRelativeDir`
+  に「この時点で単に存在しない」(sh: 戻り値3 / ps1:
+  `'segment-missing'`)と「存在するが遮断されている」(symlink・
+  access拒否・非ディレクトリ)を区別する戻り値を追加し、
+  prepare段階の**journalがまだ存在しない最初の1回のプローブに限り**
+  明示的な`tolerate-not-found`フラグで前者のみ許容(新規初回publish時に
+  宛先ディレクトリが未作成なのは正当な状態のため)。recovery側の全プローブ
+  (分類パス・revertパス・新設の確認パス)はこのフラグを一切使わず、
+  いかなるwalk失敗も分類済み失敗として`RECOVERY_FAILED`でfail-closed
+  (journal・backup保持)。design.md:1055-1056が要求する最終確認パスを
+  新規追加 — revert後に全対象を再プローブし、全てPRE一致を確認できた
+  場合のみjournal削除。prepare段階の同種失敗にも新カテゴリ
+  `LIVE_PROBE_FAILED`(exit 21、両ランタイム)を追加。regression fixtureの
+  構築中に2件のlatentバグを追加発見・修正: (a)
+  jsonリーダー(awk)の`\uXXXX`デコーダが印字可能ASCII(32-126)に制限され
+  C0制御文字を`?`へ破壊していた(本ラウンドのMajor #1修正が依存する
+  round-tripを直接破壊)、(b) 同デコーダが`strtonum`(gawk拡張、POSIX awk
+  非準拠)を使用しておりmacOS標準`/usr/bin/awk`(one true awk)でハード
+  クラッシュ — 移植可能な`hex2dec`ヘルパへ置換。Major
+  2件は一貫したper-character方針で解決: 「両ランタイムでend-to-end
+  表現可能な文字は正しくescapeして行列に含める、いずれかのランタイムで
+  構造的に表現不能な文字は両ランタイム対称に`UNSUPPORTED_PATH_CHARACTER`
+  拒否」— sh `json_escape`はC0制御文字全域(vtab/soh/formfeed/esc等)を
+  汎用的に`\u00XX`でescapeするよう修正(ps1の`ConvertTo-Json`は元々正しく
+  未変更)、CR(復帰)はCRLF行末との構造的判別不能性から両ランタイム対称に
+  拒否(ps1の`Get-Content`が独立に誤って行分割することも実測確認)。Major
+  #3: TEST-033t自体のhostileフラグメントが常にmanifestのLEAFにしか
+  出現せずglobメタ文字を含む**ディレクトリsegment**へのwalk_relative_dir
+  到達経路に回帰ロックが無かった欠落を新規fixture(decoy directory
+  `axxb/`併設)で解消。アサーション数174(`bash`)/100(`pwsh`)へ増加。詳細は
   `reports/implementation/epic-189-a1-project-context/T-007.md`の
   「Quality Gate Remedy」各節。
   `docs/adr/0025-human-copy-transactional-bundle.md`

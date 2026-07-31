@@ -1,9 +1,9 @@
-AC-033 extended crash-injection proof -- apply-human-copy.sh
-Generated: 2026-07-30T23:24:01Z
+AC-033 extended crash-injection proof -- apply-human-copy.sh (quality-gate seq0360 remedy-4)
+Generated: 2026-07-31T12:58:40Z
 
 === SCENARIO 1: crash BEFORE the first rename (journal-write) -> recovers ALL-PRE ===
 -- invocation 1 (simulate crash after journal-write) --
-/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 31 行:  1111 Killed: 9                  ( cd "$D/repo" && "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after journal-write )
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: line 18: 20548 Killed: 9               "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after journal-write
 exit=137
 state right after crash: a=old-a b=old-b
 -- invocation 2 (recovery) --
@@ -14,7 +14,7 @@ VERDICT: CONVERGED ALL-PRE (correct)
 
 === SCENARIO 2: crash MID-BATCH (after rename 1 of 2) -> recovers ALL-PRE ===
 -- invocation 1 (simulate crash after rename-1) --
-/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 43 行:  1313 Killed: 9                  ( cd "$D/repo" && "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after rename-1 )
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: line 34: 21972 Killed: 9               "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after rename-1
 exit=137
 state right after crash: a=new-a b=old-b
 (observe: a advanced to new-a, b still old-b -- a genuine partial-publish state)
@@ -26,7 +26,7 @@ VERDICT: CONVERGED ALL-PRE (correct)
 
 === SCENARIO 3: crash AFTER the last rename but BEFORE journal deletion -> recovers ALL-POST ===
 -- invocation 1 (simulate crash after rename-2, the last target) --
-/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 56 行:  1588 Killed: 9                  ( cd "$D/repo" && "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after rename-2 )
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: line 51: 23512 Killed: 9               "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after rename-2
 exit=137
 state right after crash: a=new-a b=new-b
 -- invocation 2 (recovery) --
@@ -36,19 +36,19 @@ state after recovery: a=new-a b=new-b
 VERDICT: CONVERGED ALL-POST (correct)
 
 === SCENARIO 4: a SECOND crash injected DURING recovery itself still converges on the FOLLOWING invocation ===
--- invocation 1 (simulate crash after rename-1, leaving a mixed 3-target batch -- reusing a/b plus a third target c) --
-/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 73 行:  1858 Killed: 9                  ( cd "$D/repo" && "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after rename-2 )
+-- invocation 1 (simulate crash after rename-1, leaving a mixed state: a=POST b=PRE) --
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: line 67: 24992 Killed: 9               "$APPLY" --staging-dir "$D/stage" --manifest "$D/stage/MANIFEST.sha256" --simulate-crash-after rename-1
 exit=137
-state right after crash: a=new-a b=new-b c=old-c
--- invocation 2 (recovery, ITSELF crashed after reverting target 1 of the 2-target mismatch) --
-/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: 77 行:  2124 Killed: 9                  ( cd "$D/repo" && "$APPLY" --simulate-crash-during-recovery-after revert-1 )
+state right after crash: a=new-a b=old-b
+-- invocation 2 (recovery, ITSELF crashed after reverting target 1) --
+/private/tmp/claude-501/-Users-jrmag-Setup/0097dba4-ac85-43c6-8e5c-271e593ecdeb/scratchpad/crash-evidence-sh.sh: line 71: 26385 Killed: 9               "$APPLY" --simulate-crash-during-recovery-after revert-1
 exit=137
-state after the SECOND crash (mid-recovery): a=old-a b=new-b c=old-c
+state after the SECOND crash (mid-recovery): a=old-a b=old-b
 (observe: recovery itself was interrupted -- a partial-recovery state)
 -- invocation 3 (the FOLLOWING invocation must still converge) --
 {"status":"ok","recovered":1,"targets":[]}
 exit=0
-state after the third invocation: a=old-a b=old-b c=old-c
+state after the third invocation: a=old-a b=old-b
 VERDICT: CONVERGED ALL-PRE despite a second mid-recovery crash (correct -- recovery is idempotent/re-entrant)
 
 ALL FOUR AC-033 CRASH-INJECTION SCENARIOS EXERCISED (bash / apply-human-copy.sh).

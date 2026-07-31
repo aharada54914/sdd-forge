@@ -835,6 +835,21 @@ hostile_matrix_case backtick 'back`tick.txt'
 hostile_matrix_case squote "sq'uote.txt"
 hostile_matrix_case utf8 'utf8-café-日本語.txt'
 
+# C0 control-character classes (quality-gate seq0360 Major #1 remedy):
+# the evaluator's own extended matrix found vtab(0x0B)/soh(0x01)/
+# formfeed(0x0C)/esc(0x1B) journaled as INVALID JSON (json_escape only
+# escaped backslash/quote/TAB); "unitsep" (0x1F, the highest C0 value) is
+# an additional representative sample proving the fix is GENERIC across
+# the full C0 range, not a fifth single-character patch. CR (0x0D) is
+# DELIBERATELY EXCLUDED here too -- see the dedicated CR
+# UNSUPPORTED_PATH_CHARACTER rejection test below instead (symmetric
+# with backslash's own treatment).
+hostile_matrix_case vtab "vt$(printf '\013')ab.txt"
+hostile_matrix_case soh "so$(printf '\001')h.txt"
+hostile_matrix_case formfeed "ff$(printf '\014')eed.txt"
+hostile_matrix_case esc "es$(printf '\033')c.txt"
+hostile_matrix_case unitsep "un$(printf '\037')itsep.txt"
+
 # ---------------------------------------------------------------------------
 # Newline-in-path: confirmed structurally UNREPRESENTABLE in this
 # line-oriented manifest format (a raw newline terminates the manifest
@@ -895,6 +910,199 @@ if command -v pwsh >/dev/null 2>&1; then
   fi
 else
   pass "TEST-033t ps1 backslash rejection parity (skipped: pwsh not available)"
+fi
+
+# ---------------------------------------------------------------------------
+# Carriage return (CR): a GENUINELY unsupportable character (quality-gate
+# seq0360 Major #2) -- a literal CR embedded in a manifest target path is,
+# by raw bytes alone, indistinguishable from a legitimate CRLF line
+# terminator, and this runtime's ps1 twin ALSO independently mis-splits a
+# bare CR via Get-Content's own line-splitting (verified: an accidental,
+# mis-categorized MANIFEST_INVALID on the identical input, BEFORE this
+# remedy). Classified-rejected in BOTH runtimes (UNSUPPORTED_PATH_
+# CHARACTER), whole-file, symmetric with the backslash precedent.
+# ---------------------------------------------------------------------------
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+cr=$(printf '\r')
+write_file "$F/stage/cr${cr}path.txt" "x"
+h=$(sha256_of "$F/stage/cr${cr}path.txt")
+printf '%s  cr%spath.txt\n' "$h" "$cr" >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "UNSUPPORTED_PATH_CHARACTER" ]; then
+  pass "TEST-033t sh rejects a literal CR in a manifest path (UNSUPPORTED_PATH_CHARACTER, both-runtime parity by design)"
+else
+  fail "TEST-033t sh rejects a literal CR in a manifest path (exit $rc, category $(category_of "$WORK/out"))"
+fi
+if command -v pwsh >/dev/null 2>&1; then
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  write_file "$F/stage/cr${cr}path.txt" "x"
+  h=$(sha256_of "$F/stage/cr${cr}path.txt")
+  printf '%s  cr%spath.txt\n' "$h" "$cr" >"$F/stage/MANIFEST.sha256"
+  ( cd "$F/repo" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_FOR_PARITY" -StagingDir "$F/stage" -Manifest "$F/stage/MANIFEST.sha256" ) >"$WORK/out" 2>"$WORK/err"
+  rc=$?
+  if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "UNSUPPORTED_PATH_CHARACTER" ]; then
+    pass "TEST-033t ps1 ALSO rejects a literal CR in a manifest path (UNSUPPORTED_PATH_CHARACTER, parity confirmed)"
+  else
+    fail "TEST-033t ps1 ALSO rejects a literal CR in a manifest path (exit $rc, category $(category_of "$WORK/out"))"
+  fi
+else
+  pass "TEST-033t ps1 CR rejection parity (skipped: pwsh not available)"
+fi
+
+# ===========================================================================
+# TEST-033u (quality-gate seq0360 Major #3 remedy): a glob-metacharacter
+# DIRECTORY SEGMENT, not merely a leaf basename -- TEST-033t's own
+# hostile_matrix_case fragments are ALWAYS "hostile/${frag}", i.e. the
+# hostile fragment is always the LEAF, so a decoy directory a naive
+# glob-vulnerable walk would substitute into is never actually exercised
+# (the seq0359 walk_relative_dir/Invoke-WalkRelativeDir fix itself had NO
+# regression lock at the exact layer it operates on). A pre-existing
+# decoy directory 'axxb' sits next to the real target 'a*b'; a
+# glob-vulnerable walk would silently substitute into the decoy while
+# reporting success under the DECLARED name.
+# ===========================================================================
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+mkdir -p "$F/repo/axxb"
+write_file "$F/repo/axxb/decoy-canary.txt" "decoy-untouched"
+write_file "$F/stage/a*b/t.txt" "real-payload"
+manifest_line "$F/stage" "a*b/t.txt" >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" = 0 ] && [ "$(cat "$F/repo/a*b/t.txt" 2>/dev/null)" = "real-payload" ]; then
+  pass "TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name, not a decoy"
+else
+  fail "TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name (rc=$rc)"
+fi
+if [ "$(cat "$F/repo/axxb/decoy-canary.txt" 2>/dev/null)" = "decoy-untouched" ] && [ ! -e "$F/repo/axxb/t.txt" ]; then
+  pass "TEST-033u decoy directory 'axxb' left completely untouched (no substitution into it)"
+else
+  fail "TEST-033u decoy directory 'axxb' left completely untouched"
+fi
+
+# ===========================================================================
+# TEST-033v (quality-gate seq0360 CRITICAL remedy, requirements 1+2+3): the
+# evaluator's own 3-trigger regression fixture. A genuine MIXED state
+# (t1 already committed to POST, t2 still at PRE) is created via a real
+# mid-batch crash; the destination-parent of the ALREADY-COMMITTED target
+# is then attacked via 3 independent, non-adversarial triggers (symlink
+# replacement / rename-aside / chmod 000). Recovery must FAIL CLOSED
+# (nonzero exit, category RECOVERY_FAILED, journal AND pre/ backup
+# RETAINED) while the trigger is active -- never silently coerce the
+# probe failure to "ABSENT" and delete the only durable record of the
+# pre-transaction state -- then CONVERGE to ALL-PRE, with the journal
+# finally removed, once the trigger is undone.
+# ===========================================================================
+
+recovery_probe_failure_setup() {
+  # Creates a fresh fixture with a genuine MIXED state (t1 at POST, t2 at
+  # PRE) via a real mid-batch crash. Sets F / JOURNAL_DIR globals.
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  write_file "$F/repo/sub1/a.txt" "old-a"
+  write_file "$F/repo/sub2/b.txt" "old-b"
+  write_file "$F/stage/sub1/a.txt" "new-a"
+  write_file "$F/stage/sub2/b.txt" "new-b"
+  {
+    manifest_line "$F/stage" "sub1/a.txt"
+    manifest_line "$F/stage" "sub2/b.txt"
+  } >"$F/stage/MANIFEST.sha256"
+  run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after rename-1
+  JOURNAL_DIR=$(dirname "$(find "$F/repo/sdd/.staging" -name TRANSACTION.json 2>/dev/null | head -1)")
+}
+
+recovery_probe_failure_case() {
+  # recovery_probe_failure_case <label> -- label is symlink/renameaside/chmod000.
+  label=$1
+  recovery_probe_failure_setup
+  case "$label" in
+    symlink)
+      mv "$F/repo/sub1" "$F/repo/sub1.saved"
+      ln -s "$F/repo/sub1.saved" "$F/repo/sub1"
+      ;;
+    renameaside)
+      mv "$F/repo/sub1" "$F/repo/sub1.attacker-moved"
+      ;;
+    chmod000)
+      chmod 000 "$F/repo/sub1"
+      ;;
+  esac
+
+  run_apply "$F/repo"
+  rc=$?
+  if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "RECOVERY_FAILED" ]; then
+    pass "TEST-033v [$label] recovery fails closed while the destination-parent is unwalkable (RECOVERY_FAILED)"
+  else
+    fail "TEST-033v [$label] recovery fails closed (exit $rc, category $(category_of "$WORK/out"))"
+  fi
+  if [ -f "$JOURNAL_DIR/TRANSACTION.json" ] && [ -n "$(find "$JOURNAL_DIR/pre" -type f 2>/dev/null)" ]; then
+    pass "TEST-033v [$label] journal and pre/ backup RETAINED after the failed recovery attempt"
+  else
+    fail "TEST-033v [$label] journal and pre/ backup RETAINED after the failed recovery attempt"
+  fi
+
+  # Undo the trigger (chmod 000 back to a workable mode; restore the
+  # renamed-aside/symlink-shadowed real directory to its original name).
+  case "$label" in
+    symlink)
+      rm -f "$F/repo/sub1"
+      mv "$F/repo/sub1.saved" "$F/repo/sub1"
+      ;;
+    renameaside)
+      mv "$F/repo/sub1.attacker-moved" "$F/repo/sub1"
+      ;;
+    chmod000)
+      chmod 755 "$F/repo/sub1"
+      ;;
+  esac
+
+  run_apply "$F/repo"
+  rc=$?
+  if [ "$rc" = 0 ] && [ "$(cat "$F/repo/sub1/a.txt")" = "old-a" ] && [ "$(cat "$F/repo/sub2/b.txt")" = "old-b" ]; then
+    pass "TEST-033v [$label] recovery converges to ALL-PRE once the trigger is undone"
+  else
+    fail "TEST-033v [$label] recovery converges to ALL-PRE once the trigger is undone (exit $rc)"
+  fi
+  if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
+    pass "TEST-033v [$label] journal/staging litter fully cleaned up after convergence"
+  else
+    fail "TEST-033v [$label] journal/staging litter fully cleaned up after convergence"
+  fi
+}
+
+recovery_probe_failure_case symlink
+recovery_probe_failure_case renameaside
+recovery_probe_failure_case chmod000
+
+# ===========================================================================
+# TEST-033w (quality-gate seq0360 CRITICAL remedy): the SAME probe-failure
+# fail-closed discipline also applies at PREPARE time (before ANY journal
+# for a NEW batch is written) -- a symlinked destination-parent denies
+# the WHOLE batch (LIVE_PROBE_FAILED) rather than silently proceeding
+# with a guessed pre_hash="ABSENT" that could hide real live content
+# behind the symlink from the backup step.
+# ===========================================================================
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+mkdir -p "$F/repo/real-sub1"
+write_file "$F/repo/real-sub1/hidden.txt" "hidden-content"
+ln -s "$F/repo/real-sub1" "$F/repo/sub1"
+write_file "$F/stage/sub1/hidden.txt" "new-content"
+manifest_line "$F/stage" "sub1/hidden.txt" >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "LIVE_PROBE_FAILED" ]; then
+  pass "TEST-033w PREPARE-time symlinked destination-parent denies the whole batch (LIVE_PROBE_FAILED)"
+else
+  fail "TEST-033w PREPARE-time symlinked destination-parent denies the whole batch (exit $rc, category $(category_of "$WORK/out"))"
+fi
+if [ "$(cat "$F/repo/real-sub1/hidden.txt" 2>/dev/null)" = "hidden-content" ]; then
+  pass "TEST-033w real content behind the symlink is unchanged (never silently overwritten)"
+else
+  fail "TEST-033w real content behind the symlink is unchanged"
+fi
+if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
+  pass "TEST-033w no journal/staging litter left behind by the denied batch"
+else
+  fail "TEST-033w no journal/staging litter left behind by the denied batch"
 fi
 
 # ===========================================================================

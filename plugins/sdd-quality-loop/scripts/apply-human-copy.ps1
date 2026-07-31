@@ -94,6 +94,7 @@ $ExitRenameFailed = 16
 $ExitRecoveryFailed = 17
 $ExitDuplicateBasenameInBatch = 19
 $ExitUnsupportedPathCharacter = 20
+$ExitLiveProbeFailed = 21
 
 function Write-Denial([int]$Code, [string]$Category, [string]$Message) {
     $obj = [ordered]@{ status = 'denied'; category = $Category; message = $Message }
@@ -214,6 +215,21 @@ function Invoke-WalkRelativeDir([string]$RelPath, [bool]$Create = $false) {
     # (source, pre-hash, backup, revert) must keep $Create=$false so
     # "does not exist" stays a plain absence, never a fabricated
     # directory.
+    #
+    # quality-gate seq0360 Critical remedy: 'segment-missing' (this exact
+    # segment plainly does not exist) is now DISTINCT from
+    # 'segment-blocked-not-directory' (it exists but is not a
+    # directory) -- previously ONE `-PathType Container` check produced
+    # 'segment-missing' for BOTH. The distinction exists ONLY so a caller
+    # with narrow, explicit context (Get-PreHashOfLiveTarget's PREPARE-
+    # time-only $TolerateNotFound, below) can safely treat "never
+    # existed" as a legitimate absence while still fail-closing on every
+    # other denial reason (symlink, access-denied -- an
+    # UnauthorizedAccessException from SetCurrentDirectory itself
+    # propagates with its own distinct .NET message, already never
+    # matched by 'segment-missing' -- or blocked-by-a-file) -- never the
+    # reverse. This function itself makes no safety judgment; it only
+    # reports precisely what it found.
     if ([string]::IsNullOrEmpty($RelPath)) { return }
     if ($RelPath.StartsWith('/')) { throw 'traversal-absolute' }
     foreach ($seg in $RelPath -split '/') {
@@ -229,7 +245,8 @@ function Invoke-WalkRelativeDir([string]$RelPath, [bool]$Create = $false) {
             try { [System.IO.Directory]::CreateDirectory($segAbs) | Out-Null } catch { }
         }
         if (Test-ReparsePoint $segAbs) { throw 'symlink-denied' }
-        if (-not (Test-Path -LiteralPath $segAbs -PathType Container)) { throw 'segment-missing' }
+        if (-not (Test-Path -LiteralPath $segAbs)) { throw 'segment-missing' }
+        if (-not (Test-Path -LiteralPath $segAbs -PathType Container)) { throw 'segment-blocked-not-directory' }
         [System.IO.Directory]::SetCurrentDirectory($segAbs)
     }
 }
@@ -241,6 +258,32 @@ function Invoke-WalkRelativeDir([string]$RelPath, [bool]$Create = $false) {
 function Read-Manifest([string]$Path) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
         Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest file does not exist: $Path"
+    }
+    # UNSUPPORTED_PATH_CHARACTER (quality-gate seq0360 Major #2): a
+    # literal CR (0x0D) ANYWHERE in the manifest file is rejected,
+    # whole-file, in BOTH runtimes -- symmetric with the backslash
+    # precedent (seq0359). This manifest is documented as a GNU
+    # sha256sum-format file (this tool's own CLI contract comment,
+    # above): LF-line-oriented, never CRLF. A CR embedded WITHIN a
+    # target path is, by raw bytes alone, genuinely INDISTINGUISHABLE
+    # from a legitimate CRLF line terminator -- the exact same "cannot
+    # tell apart without external context" class this whole remedy round
+    # addresses at the recovery layer -- so BOTH are refused uniformly
+    # here rather than attempting a raw-byte, LF-only re-parse (which
+    # would risk silently corrupting a genuinely CRLF-terminated
+    # manifest by leaving a spurious trailing CR attached to every
+    # target path). This check runs BEFORE Get-Content's own line-array
+    # parse below, because Get-Content ALSO independently splits a bare
+    # CR as its own line boundary -- verified empirically: on a manifest
+    # whose second target path contains an embedded CR, Get-Content
+    # produces an EXTRA, malformed "line" and this function would
+    # otherwise reject it as an accidental, mis-categorized
+    # MANIFEST_INVALID rather than the correctly-categorized
+    # UNSUPPORTED_PATH_CHARACTER the .sh twin's own whole-file
+    # pre-check (parse_manifest) reports for the identical input.
+    $rawForCrCheck = Get-Content -LiteralPath $Path -Raw -Encoding utf8
+    if ($null -ne $rawForCrCheck -and $rawForCrCheck.Contains("`r")) {
+        Write-Denial $ExitUnsupportedPathCharacter 'UNSUPPORTED_PATH_CHARACTER' "manifest file contains a literal carriage return (CR), which cannot be safely distinguished from a CRLF line terminator by either runtime; rejected in both runtimes (sh and ps1) to avoid a silent capability divergence: $Path"
     }
     $lines = @(Get-Content -LiteralPath $Path -Encoding utf8)
     if ($lines.Count -eq 0 -or ($lines.Count -eq 1 -and [string]::IsNullOrEmpty($lines[0]))) {
@@ -322,7 +365,42 @@ function Invoke-AnchoredChild([string]$BaseDir, [scriptblock]$Body, [hashtable]$
     }
 }
 
-function Get-PreHashOfLiveTarget([string]$RepoRootAbs, [string]$RelPath) {
+# Get-PreHashOfLiveTarget <RepoRootAbs> <RelPath> [-TolerateNotFound]
+# -- returns @{ Ok = $bool; Value = <sha256-or-'ABSENT'> } on success, or
+# @{ Ok = $false; Reason = <string> } on a PROBE FAILURE -- a state that
+# could not be safely determined. Callers MUST check .Ok, never infer
+# success from .Value alone.
+#
+# quality-gate seq0360 CRITICAL: the PRIOR implementation returned the
+# bare string 'ABSENT' whenever the inner anchored walk failed for ANY
+# reason -- a missing destination-parent segment, a symlink REPLACING
+# it, or an access-denied SetCurrentDirectory (e.g. chmod 000), ALL
+# produced the identical value as "the file genuinely does not exist".
+# Invoke-RecoverAll's own comparisons (`$cur -eq $t.pre_hash`) could then
+# not tell "confirmed absent" from "could not check" -- the evaluator's
+# own repro (parent replaced with a symlink / renamed aside / chmod 000,
+# applied to an ALREADY-COMMITTED target) made a target genuinely at
+# POST look identical to one still at PRE, and recovery deleted the
+# journal AND the pre/ backup UNCONDITIONALLY, permanently destroying the
+# only durable record of the pre-transaction state. Fixed: a probe
+# failure is now ALWAYS reported as a probe failure (Ok=$false) -- NEVER
+# silently reinterpreted as absent -- with exactly ONE narrow, explicit
+# exception: -TolerateNotFound accepts Invoke-WalkRelativeDir's
+# 'segment-missing' reason (this exact segment plainly does not exist,
+# never a symlink/access-denied/blocked-by-a-file) as a legitimate
+# absence. This switch is passed ONLY by the very first, journal-free
+# PREPARE-time probe (below, before ANY journal for this batch exists --
+# so there is nothing yet to protect, and "the destination directory has
+# simply never been created yet" is the ordinary, entirely expected
+# first-ever-publish case, not a threat). Invoke-RecoverAll -- its
+# classification pass, its MIXED revert pass, and the mandatory
+# post-revert confirmation pass design.md:1055-1056 requires -- NEVER
+# passes this switch: during recovery, ANY walk failure whatsoever
+# (including a clean "does not exist", which by then could equally mean
+# "never reached" OR "reached, and the evidence was just destroyed" --
+# genuinely indistinguishable from current filesystem state alone) is
+# fail-closed, full stop.
+function Get-PreHashOfLiveTarget([string]$RepoRootAbs, [string]$RelPath, [bool]$TolerateNotFound = $false) {
     $split = Split-RelPath $RelPath
     $r = Invoke-AnchoredChild -BaseDir $RepoRootAbs -Body {
         param($Dir, $Base)
@@ -333,8 +411,13 @@ function Get-PreHashOfLiveTarget([string]$RepoRootAbs, [string]$RelPath) {
         $baseAbs = [System.IO.Path]::Combine([System.Environment]::CurrentDirectory, $Base)
         return Get-Sha256OrAbsent $baseAbs
     } -BodyArgs @{ Dir = $split.Dir; Base = $split.Base }
-    if (-not $r.Ok) { return 'ABSENT' }
-    return $r.Value
+    if ($r.Ok) {
+        return [ordered]@{ Ok = $true; Value = $r.Value }
+    }
+    if ($TolerateNotFound -and $r.Reason -eq 'segment-missing') {
+        return [ordered]@{ Ok = $true; Value = 'ABSENT' }
+    }
+    return [ordered]@{ Ok = $false; Reason = $r.Reason }
 }
 
 function Backup-PreBytes([string]$RepoRootAbs, [string]$RelPath, [string]$DestFile) {
@@ -607,7 +690,18 @@ function Invoke-RecoverAll([string]$RepoRootAbs, [string]$RecoveryCrashStage) {
         $allPre = $true
         $current = @{}
         foreach ($t in $targets) {
-            $cur = Get-PreHashOfLiveTarget $RepoRootAbs $t.live_path
+            # quality-gate seq0360 CRITICAL: STRICT probe (no
+            # -TolerateNotFound) -- during recovery, a walk failure of ANY
+            # kind (including a clean "does not exist") is fail-closed,
+            # never silently treated as a confirmed "ABSENT" match. See
+            # Get-PreHashOfLiveTarget's own header comment for the full
+            # rationale (this is the exact call the evaluator's repro
+            # exploited).
+            $probe = Get-PreHashOfLiveTarget $RepoRootAbs $t.live_path
+            if (-not $probe.Ok) {
+                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery could not determine the current live state of target '$($t.live_path)' in batch $batchDirAbs (its destination-parent chain could not be safely walked -- possibly replaced, renamed, or made inaccessible since the crash); refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
+            }
+            $cur = $probe.Value
             $current[$t.live_path] = $cur
             if ($cur -ne $t.post_hash) { $allPost = $false }
             $preMatch = ($t.pre_hash -eq 'ABSENT' -and $cur -eq 'ABSENT') -or ($t.pre_hash -ne 'ABSENT' -and $cur -eq $t.pre_hash)
@@ -639,6 +733,29 @@ function Invoke-RecoverAll([string]$RepoRootAbs, [string]$RecoveryCrashStage) {
                 }
             }
         }
+
+        # design.md:1055-1056 MANDATORY final confirmation (quality-gate
+        # seq0360 Critical remedy, requirement 2): "for every target
+        # still at its POST hash, until every target is confirmed back
+        # at PRE. Only then is the journal deleted." This is a DISTINCT
+        # re-probe pass -- never inferred from Restore-OneTarget's own
+        # return value alone. Any probe failure, or any target NOT
+        # confirmed at PRE here, is fail-closed: the journal and backups
+        # are retained rather than deleted, so the NEXT invocation gets
+        # another chance once whatever blocked the probe (or the revert)
+        # is resolved.
+        foreach ($t in $targets) {
+            $probe = Get-PreHashOfLiveTarget $RepoRootAbs $t.live_path
+            if (-not $probe.Ok) {
+                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation could not determine the current live state of target '$($t.live_path)' in batch $batchDirAbs; refusing to delete the journal (fail-closed, design.md:1055-1056)"
+            }
+            $cur = $probe.Value
+            $confirmed = ($t.pre_hash -eq 'ABSENT' -and $cur -eq 'ABSENT') -or ($t.pre_hash -ne 'ABSENT' -and $cur -eq $t.pre_hash)
+            if (-not $confirmed) {
+                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation failed for target '$($t.live_path)' in batch ${batchDirAbs}: its current live state does not match the journal's recorded pre-transaction hash; refusing to delete the journal (fail-closed, design.md:1055-1056)"
+            }
+        }
+
         Remove-Item -LiteralPath $jf -Force
         $preDir = Join-Path $batchDirAbs 'pre'
         if (Test-Path -LiteralPath $preDir) { Remove-Item -LiteralPath $preDir -Recurse -Force -ErrorAction SilentlyContinue }
@@ -701,7 +818,22 @@ foreach ($entry in $manifestEntries) {
         Write-Denial $ExitStagedCandidateHashMismatch 'STAGED_CANDIDATE_HASH_MISMATCH' "staged candidate for '$relPath' does not match the manifest's recorded sha256 (got $($stagedResult.Value), want $hash)"
     }
 
-    $preHash = Get-PreHashOfLiveTarget $RepoRootAbs $relPath
+    # quality-gate seq0360 CRITICAL: this is the ONLY call site anywhere
+    # in this file that passes $TolerateNotFound=$true -- it is the
+    # FIRST, journal-free probe for this batch (nothing has been
+    # recorded yet, so "the destination directory has simply never been
+    # created" is the ordinary first-ever-publish case, not a threat).
+    # Any OTHER probe failure (symlink, access-denied, blocked-by-a-file)
+    # is still fail-closed here too, denying the whole batch BEFORE any
+    # journal is ever written -- never silently proceeding with a
+    # guessed "ABSENT" that could misrepresent hidden live content as
+    # absent and skip backing it up.
+    $preHashResult = Get-PreHashOfLiveTarget $RepoRootAbs $relPath $true
+    if (-not $preHashResult.Ok) {
+        Remove-Item -LiteralPath $BatchDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Denial $ExitLiveProbeFailed 'LIVE_PROBE_FAILED' "could not determine the current live state of target '$relPath' before staging batch $BatchNonce (its destination-parent chain exists but could not be safely walked -- a symlink, access-denied directory, or a non-directory entry blocking the path); refusing to proceed (fail-closed, never coerced to ABSENT)"
+    }
+    $preHash = $preHashResult.Value
     if ($preHash -ne 'ABSENT') {
         $base = Split-Path -Leaf $relPath
         Backup-PreBytes $RepoRootAbs $relPath (Join-Path $BatchDirAbs "pre/$base")

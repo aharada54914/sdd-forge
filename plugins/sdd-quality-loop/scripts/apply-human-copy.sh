@@ -96,25 +96,53 @@ EXIT_RECOVERY_FAILED=17
 EXIT_SOURCE_UNREADABLE=18
 EXIT_DUPLICATE_BASENAME_IN_BATCH=19
 EXIT_UNSUPPORTED_PATH_CHARACTER=20
+EXIT_LIVE_PROBE_FAILED=21
 
 # ---------------------------------------------------------------------------
 # Small helpers.
 # ---------------------------------------------------------------------------
 
 json_escape() {
-  # quality-gate seq0359 hostile-path matrix: a literal TAB byte was
-  # passed through UNESCAPED, producing a JSON string containing a raw
-  # control character -- valid enough for this tool's OWN lenient
-  # sed-based reader, but REJECTED by a strict JSON parser (RFC 8259
-  # requires control characters 0x00-0x1F to be escaped), breaking a
-  # plain `python3 json.load` on the emitted journal (verified: "Invalid
-  # control character" at the tab's position). Escaped to the standard
-  # `\t` sequence, ordered AFTER the backslash-escape step so the escape
-  # sequence's own backslash is never itself re-escaped.
-  printf '%s' "$1" \
+  # quality-gate seq0359 fixed TAB specifically; quality-gate seq0360's
+  # extended hostile-path matrix proved every OTHER C0 control byte
+  # (0x01-0x07, 0x0B, 0x0E-0x1F -- the evaluator's own repro used
+  # vtab/soh/formfeed/esc as representative samples) was STILL emitted
+  # RAW, producing invalid JSON (RFC 8259 requires every control
+  # character 0x00-0x1F to be escaped) that a strict `python3 json.load`
+  # rejects and this tool's OWN T-005-reader surrogate silently fails
+  # open on. Fixed generically for the FULL C0 range (never another
+  # single-character patch): named JSON escapes are used where JSON
+  # defines one (`\b` 0x08, `\f` 0x0C, `\r` 0x0D, `\t` 0x09); every OTHER
+  # C0 byte (1-31, excluding those four and 0x0A) gets the generic
+  # `\u00XX` form. 0x0A (LF) is DELIBERATELY left to the existing
+  # newline-to-space normalization below (this function's own long-
+  # standing convention for multi-line diagnostic TEXT -- a literal
+  # newline inside a manifest PATH is separately confirmed structurally
+  # unrepresentable, quality-gate seq0359, so this never applies to a
+  # path). NUL (0x00) cannot survive into a POSIX shell string at all (a
+  # hard C-string/argv boundary, not specific to this tool) and so is not
+  # separately handled. Verified round-trip-safe against `python3
+  # json.load` for every one of these codes (quality-gate seq0360
+  # remedy); UTF-8 multi-byte sequences pass through completely
+  # untouched (every continuation/lead byte is >= 0x80, outside the C0
+  # range these substitutions ever match).
+  esc=$(printf '%s' "$1" \
     | sed 's/\\/\\\\/g; s/"/\\"/g' \
-    | tr '\n' ' ' \
-    | sed "s/$(printf '\t')/\\\\t/g"
+    | tr '\n' ' ')
+  esc=$(printf '%s' "$esc" | sed "s/$(printf '\b')/\\\\b/g")
+  esc=$(printf '%s' "$esc" | sed "s/$(printf '\f')/\\\\f/g")
+  esc=$(printf '%s' "$esc" | sed "s/$(printf '\r')/\\\\r/g")
+  n=1
+  while [ "$n" -le 31 ]; do
+    case "$n" in
+      8|9|10|12|13) n=$((n + 1)); continue ;;
+    esac
+    ch=$(printf "\\$(printf '%03o' "$n")")
+    hex=$(printf '%02x' "$n")
+    esc=$(printf '%s' "$esc" | sed "s/$ch/\\\\u00$hex/g")
+    n=$((n + 1))
+  done
+  printf '%s' "$esc" | sed "s/$(printf '\t')/\\\\t/g"
 }
 
 emit_ok() {
@@ -171,24 +199,40 @@ stat_id() {
 
 sha256_of() {
   # sha256_of <file> -> prints lowercase 64-hex on stdout, or nothing +
-  # nonzero exit on failure.
+  # nonzero exit on failure. quality-gate seq0360: the PRIOR implementation
+  # piped `sha256sum ... | awk ...` directly -- in POSIX sh a pipeline's
+  # own exit status is the LAST command's (awk's), which succeeds (prints
+  # nothing) even when sha256sum/shasum itself failed to OPEN the file
+  # (e.g. permission-denied), so this function's doc comment ("or nothing
+  # + nonzero exit on failure") was FALSE in practice: it always returned
+  # 0. Fixed by capturing the hashing command's OWN exit status via
+  # command substitution (`out=$(...) || return 1`) before ever handing
+  # anything to awk, so a genuine read failure is never silently
+  # indistinguishable from "hashed successfully, zero-length output".
   file=$1
   if command -v sha256sum >/dev/null 2>&1; then
-    sha256sum -- "$file" 2>/dev/null | awk '{print $1}'
+    out=$(sha256sum -- "$file" 2>/dev/null) || return 1
   else
-    shasum -a 256 -- "$file" 2>/dev/null | awk '{print $1}'
+    out=$(shasum -a 256 -- "$file" 2>/dev/null) || return 1
   fi
+  [ -n "$out" ] || return 1
+  printf '%s' "$out" | awk '{print $1}'
 }
 
 sha256_of_or_absent() {
   # sha256_of_or_absent <file> -> the file's sha256, or the literal
   # sentinel "ABSENT" if it does not exist (or is not a regular file).
+  # quality-gate seq0360: propagates a genuine sha256_of read failure
+  # (e.g. the file exists, passed the -e/-L/-f checks, but is unreadable)
+  # as its OWN nonzero exit -- never silently coerced to "ABSENT", which
+  # would misrepresent "cannot determine" as "confirmed absent" (the same
+  # failure class this round's Critical fix eliminates at the walk layer).
   file=$1
   if [ -e "$file" ] && [ ! -L "$file" ] && [ -f "$file" ]; then
-    sha256_of "$file"
-  else
-    printf 'ABSENT'
+    sha256_of "$file" || return 1
+    return 0
   fi
+  printf 'ABSENT'
 }
 
 gen_nonce() {
@@ -236,6 +280,27 @@ is_hex64() {
 # caller's cwd is left at whichever segment failed (callers MUST run this
 # inside a subshell so a failed walk never corrupts the parent shell's
 # own cwd anchor).
+#
+# Return codes (quality-gate seq0360 Critical remedy: return 3 -- "this
+# segment plainly does not exist" -- is now DISTINCT from return 5 --
+# "this segment exists but is blocked by a non-directory entry" -- which
+# were previously the SAME code, both produced by one `[ ! -d "$seg" ]`
+# check. This distinction exists ONLY so a caller with narrow, explicit
+# context (pre_hash_of_live_target's PREPARE-time-only tolerance, below)
+# can safely treat "never existed" as a legitimate absence while STILL
+# fail-closing on every other denial reason (symlink, access-denied,
+# blocked-by-file) -- never the reverse. `walk_relative_dir` itself makes
+# NO safety judgment; it only reports precisely what it found):
+#   1 = malformed relpath (absolute, or a `.`/`..` segment)
+#   2 = symlink/reparse-point encountered
+#   3 = segment does not exist (clean `! -e`), non-create mode
+#   4 = `cd` itself failed despite existing+directory+non-symlink (e.g.
+#       access denied -- a directory whose OWN execute/search bit is
+#       removed, as opposed to its parent's, which would already have
+#       been caught earlier by the walk never reaching this segment)
+#   5 = segment exists but is NOT a directory (blocked by a file)
+#   6 = create_mode="create" requested but mkdir failed for a real reason
+#       (not merely "already exists as a directory", which is tolerated)
 walk_relative_dir() {
   # quality-gate seq0359 (Major): the PRIOR implementation split segments
   # via `IFS='/'; set -- $relpath` -- an UNQUOTED expansion, which in
@@ -276,13 +341,16 @@ walk_relative_dir() {
       return 2
     fi
     if [ ! -e "$seg" ] && [ "$create_mode" = "create" ]; then
-      mkdir -- "$seg" 2>/dev/null || [ -d "$seg" ] || return 3
+      mkdir -- "$seg" 2>/dev/null || [ -d "$seg" ] || return 6
     fi
     if [ -L "$seg" ]; then
       return 2
     fi
-    if [ ! -d "$seg" ]; then
+    if [ ! -e "$seg" ]; then
       return 3
+    fi
+    if [ ! -d "$seg" ]; then
+      return 5
     fi
     cd -- "$seg" || return 4
   done
@@ -371,6 +439,27 @@ parse_manifest() {
     "manifest file does not exist: $manifest"
   [ -s "$manifest" ] || die "$EXIT_MANIFEST_INVALID" MANIFEST_INVALID \
     "manifest file is empty: $manifest"
+  # UNSUPPORTED_PATH_CHARACTER (quality-gate seq0360 Major #2): a literal
+  # CR (0x0D) ANYWHERE in the manifest file is rejected, whole-file, in
+  # BOTH runtimes -- symmetric with the backslash precedent (seq0359).
+  # This manifest is documented as a GNU sha256sum-format file (this
+  # tool's own CLI contract comment, above): LF-line-oriented, never
+  # CRLF. A CR embedded WITHIN a target path is, by raw bytes alone,
+  # genuinely INDISTINGUISHABLE from a legitimate CRLF line terminator --
+  # the exact same "cannot tell apart without external context" class
+  # this whole remedy round addresses at the recovery layer -- so BOTH
+  # are refused uniformly here rather than attempting a raw-byte,
+  # LF-only re-parse (which would risk silently corrupting a genuinely
+  # CRLF-terminated manifest by leaving a spurious trailing CR attached
+  # to every target path). The .ps1 twin's Get-Content ALSO independently
+  # splits a bare CR as its own line boundary, making a CR mid-path
+  # unparseable as a single manifest line there too without an
+  # equivalent raw pre-check -- verified empirically, see Read-Manifest's
+  # own comment for the evaluator's exact repro.
+  if grep -q "$(printf '\r')" "$manifest" 2>/dev/null; then
+    die "$EXIT_UNSUPPORTED_PATH_CHARACTER" UNSUPPORTED_PATH_CHARACTER \
+      "manifest file contains a literal carriage return (CR), which cannot be safely distinguished from a CRLF line terminator by either runtime; rejected in both runtimes (sh and ps1) to avoid a silent capability divergence: $manifest"
+  fi
   # Duplicate-path / duplicate-basename tracking (quality-gate seq0358):
   # NEWLINE-delimited accumulator FILES, checked via `grep -qxF` (exact
   # whole-line, fixed-string match) -- NEVER a space-joined string checked
@@ -566,23 +655,72 @@ publish_one_target() {
   return 0
 }
 
-# pre_hash_of_live_target <repo_root_abs> <relpath> -- prints the CURRENT
-# live sha256 (or ABSENT), anchored the same cwd-chain way, WITHOUT
-# mutating the caller's cwd (runs in a subshell).
+# pre_hash_of_live_target <repo_root_abs> <relpath> [tolerate-not-found]
+# -- prints the CURRENT live sha256, or the literal "ABSENT" -- ONLY when
+# that is a CONFIRMED fact, never a guess -- anchored the same cwd-chain
+# way, WITHOUT mutating the caller's cwd (runs in a subshell). Returns
+# nonzero with EMPTY stdout -- a PROBE FAILURE -- when the state cannot be
+# safely determined; callers MUST check the exit status, never infer
+# success from stdout alone.
+#
+# quality-gate seq0360 CRITICAL: the PRIOR implementation printed the bare
+# string "ABSENT" whenever the inner subshell exited nonzero for ANY
+# reason -- a missing destination-parent segment, a symlink REPLACING it,
+# an access-denied `cd` (e.g. chmod 000), ALL produced the identical
+# output as "the file genuinely does not exist". recover_all()'s own
+# comparisons (`cur == pre_hash`) could then not tell "confirmed absent"
+# from "could not check", so an attacker (or an unrelated fault) able to
+# make a target's destination-parent chain momentarily unwalkable BETWEEN
+# a successful commit and the next invocation's recovery scan could make
+# a target that had already advanced to POST look identical to one that
+# had never been touched (evaluator's own repro: parent replaced with a
+# symlink / renamed aside / chmod 000, six runs, six false "already
+# reverted" verdicts) -- recovery then deleted the journal AND the
+# pre/ backup UNCONDITIONALLY, permanently destroying the only durable
+# record of the pre-transaction state, leaving the live target standing
+# at POST with no way back. Fixed: a probe failure is now ALWAYS reported
+# as a probe failure (nonzero return, no stdout) -- NEVER silently
+# reinterpreted as "absent" -- with exactly ONE narrow, explicit
+# exception: the OPTIONAL third argument, the literal string
+# "tolerate-not-found", makes THIS SPECIFIC probe accept walk_relative_dir
+# return code 3 ("this exact segment plainly does not exist", never a
+# symlink/access-denied/blocked-by-file) as a legitimate absence. This
+# flag exists ONLY for the very first, journal-free PREPARE-time probe
+# (pre_hash_of_live_target's caller, below, before ANY journal for this
+# batch exists -- so there is nothing yet to protect, and "the
+# destination directory has simply never been created yet" is the
+# ordinary, ENTIRELY EXPECTED first-ever-publish case, not a threat).
+# recover_all() -- BOTH its classification pass and its MIXED revert pass,
+# plus the mandatory post-revert confirmation pass design.md:1055-1056
+# requires -- NEVER passes this flag: during recovery, ANY walk failure
+# whatsoever (including a clean "does not exist", which by then could
+# equally mean "never reached" OR "reached, and the evidence was just
+# destroyed" -- genuinely indistinguishable from current filesystem state
+# alone) is fail-closed, full stop.
 pre_hash_of_live_target() {
   repo_root_abs=$1
   relpath=$2
+  tolerate_not_found=${3:-}
   split_dir_base "$relpath"
   result=$(
     cd -- "$repo_root_abs" 2>/dev/null || exit 1
-    walk_relative_dir "$SPLIT_DIR" || exit 1
-    sha256_of_or_absent "$SPLIT_BASE"
+    walk_relative_dir "$SPLIT_DIR"
+    walk_rc=$?
+    if [ "$walk_rc" != 0 ]; then
+      if [ "$walk_rc" = 3 ] && [ "$tolerate_not_found" = "tolerate-not-found" ]; then
+        printf 'ABSENT'
+        exit 0
+      fi
+      exit 1
+    fi
+    sha256_of_or_absent "$SPLIT_BASE" || exit 1
   )
-  if [ -z "$result" ]; then
-    printf 'ABSENT'
-  else
-    printf '%s' "$result"
+  rc=$?
+  if [ "$rc" != 0 ]; then
+    return 1
   fi
+  printf '%s' "$result"
+  return 0
 }
 
 # backup_pre_bytes <repo_root_abs> <relpath> <dest_file> -- if the live
@@ -740,6 +878,29 @@ json_get_targets() {
       for (i = 0; i < 64; i++) s = s "z"
       return s
     }
+    # hex2dec(h): portable 4-hex-digit -> decimal conversion for \uXXXX
+    # decoding. quality-gate seq0360: the PRIOR implementation used
+    # strtonum("0x" hex), a GAWK EXTENSION not part of POSIX awk -- macOS
+    # own default /usr/bin/awk (the "one true awk"/BWK awk, NOT gawk) has
+    # no such builtin, so this whole function silently hard-crashed
+    # ("calling undefined function strtonum", awk exit 2) the FIRST time
+    # any \uXXXX escape actually reached this code path at runtime. This
+    # was LATENT since it was first written (quality-gate seq0359):
+    # json_escape never itself emitted a \uXXXX sequence back then, so
+    # nothing ever exercised this function end-to-end until the seq0360
+    # json_escape fix started generically emitting \u00XX for C0 control
+    # bytes. Implemented here using only POSIX-standard awk
+    # builtins (length/substr/tolower/index), portable across the BWK
+    # awk, gawk, and mawk this tool must run under.
+    function hex2dec(h,   i, c, v, digits) {
+      digits = "0123456789abcdef"
+      v = 0
+      for (i = 1; i <= length(h); i++) {
+        c = tolower(substr(h, i, 1))
+        v = v * 16 + (index(digits, c) - 1)
+      }
+      return v
+    }
     # parse_json_string(s, start): s is the whole content; start is the
     # index of the OPENING quote. Sets RES_VAL (decoded value) and
     # RES_NEXT (index just past the closing quote) on success; sets
@@ -762,9 +923,21 @@ json_get_targets() {
           else if (nc == "b") { out = out "\b"; i += 2 }
           else if (nc == "f") { out = out "\f"; i += 2 }
           else if (nc == "u") {
+            # quality-gate seq0360 Major #1: this decoder previously
+            # restricted \uXXXX to PRINTABLE ASCII (32-126), substituting
+            # "?" for anything outside that range. The json_escape fix
+            # now GENERICALLY emits \u00XX for every C0 control byte NOT
+            # covered by a named escape (1-7, 11, 14-31) -- the prior
+            # restriction silently corrupted every one of those bytes
+            # back to "?" on decode, breaking the round-trip fidelity of
+            # the journal for exactly the class this remedy exists to
+            # fix. Decoded for the FULL single-byte range (0-255) that
+            # this encoder can ever produce; sprintf with %c is
+            # byte-exact in the C-locale awk invocation this function
+            # always runs under.
             hex = substr(s, i + 2, 4)
-            cp = strtonum("0x" hex)
-            if (cp >= 32 && cp < 127) { out = out sprintf("%c", cp) }
+            cp = hex2dec(hex)
+            if (cp >= 0 && cp <= 255) { out = out sprintf("%c", cp) }
             else { out = out "?" }
             i += 6
           }
@@ -883,7 +1056,18 @@ recover_all() {
       parse_target_record "$target_line"
       lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
       [ -n "$lp" ] || continue
+      # quality-gate seq0360 CRITICAL: this probe is STRICT (no third
+      # "tolerate-not-found" argument) -- during recovery, a walk failure
+      # of ANY kind (including a clean "does not exist") is fail-closed,
+      # never silently treated as a confirmed "ABSENT" match. See
+      # pre_hash_of_live_target's own header comment for the full
+      # rationale (this is the exact line the evaluator's repro exploited).
       cur=$(pre_hash_of_live_target "$repo_root_abs" "$lp")
+      if [ $? != 0 ]; then
+        rm -f "$targets_tmp"
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "recovery could not determine the current live state of target '$lp' in batch $batch_dir_abs (its destination-parent chain could not be safely walked -- possibly replaced, renamed, or made inaccessible since the crash); refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
+      fi
       if [ "$cur" != "$qh" ]; then all_post=0; fi
       pre_match=0
       if [ "$ph" = "ABSENT" ] && [ "$cur" = "ABSENT" ]; then pre_match=1; fi
@@ -915,6 +1099,11 @@ recover_all() {
       [ -n "$lp" ] || continue
       idx=$((idx + 1))
       cur=$(pre_hash_of_live_target "$repo_root_abs" "$lp")
+      if [ $? != 0 ]; then
+        rm -f "$targets_tmp"
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "recovery could not determine the current live state of target '$lp' in batch $batch_dir_abs before deciding whether to revert it; refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
+      fi
       if [ "$cur" = "$qh" ] && [ "$cur" != "$ph" ]; then
         base=$(basename "$lp")
         backup="${batch_dir_abs}/pre/${base}"
@@ -929,6 +1118,37 @@ recover_all() {
         fi
       fi
     done <"$targets_tmp"
+
+    # design.md:1055-1056 MANDATORY final confirmation (quality-gate
+    # seq0360 Critical remedy, requirement 2): "for every target still at
+    # its POST hash, until every target is confirmed back at PRE. Only
+    # then is the journal deleted." This is a DISTINCT re-probe pass --
+    # never inferred from revert_one_target's own return value alone. Any
+    # probe failure, or any target NOT confirmed at PRE here, is
+    # fail-closed: the journal and backups are retained rather than
+    # deleted, so the NEXT invocation gets another chance once whatever
+    # blocked the probe (or the revert) is resolved.
+    while IFS= read -r target_line || [ -n "$target_line" ]; do
+      [ -n "$target_line" ] || continue
+      parse_target_record "$target_line"
+      lp=$TR_PATH; ph=$TR_PRE
+      [ -n "$lp" ] || continue
+      cur=$(pre_hash_of_live_target "$repo_root_abs" "$lp")
+      if [ $? != 0 ]; then
+        rm -f "$targets_tmp"
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "post-revert confirmation could not determine the current live state of target '$lp' in batch $batch_dir_abs; refusing to delete the journal (fail-closed, design.md:1055-1056)"
+      fi
+      confirmed=0
+      if [ "$ph" = "ABSENT" ] && [ "$cur" = "ABSENT" ]; then confirmed=1; fi
+      if [ "$ph" != "ABSENT" ] && [ "$cur" = "$ph" ]; then confirmed=1; fi
+      if [ "$confirmed" != "1" ]; then
+        rm -f "$targets_tmp"
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "post-revert confirmation failed for target '$lp' in batch $batch_dir_abs: its current live state does not match the journal's recorded pre-transaction hash; refusing to delete the journal (fail-closed, design.md:1055-1056)"
+      fi
+    done <"$targets_tmp"
+
     rm -f -- "$jf"
     rm -rf -- "${batch_dir_abs}/pre" 2>/dev/null
     recovered=$((recovered + 1))
@@ -1026,7 +1246,22 @@ while IFS= read -r manifest_line || [ -n "$manifest_line" ]; do
       "staged candidate for '$relpath' does not match the manifest's recorded sha256 (got $staged_hash, want $hash)"
   fi
 
-  pre_hash=$(pre_hash_of_live_target "$REPO_ROOT_ABS" "$relpath")
+  # quality-gate seq0360 CRITICAL: this is the ONLY call site anywhere in
+  # this file that passes "tolerate-not-found" -- it is the FIRST,
+  # journal-free probe for this batch (nothing has been recorded yet, so
+  # "the destination directory has simply never been created" is the
+  # ordinary first-ever-publish case, not a threat). Any OTHER probe
+  # failure (symlink, access-denied, blocked-by-a-file) is still fail-
+  # closed here too, denying the whole batch BEFORE any journal is ever
+  # written -- never silently proceeding with a guessed "ABSENT" that
+  # could misrepresent hidden live content as absent and skip backing it
+  # up.
+  pre_hash=$(pre_hash_of_live_target "$REPO_ROOT_ABS" "$relpath" "tolerate-not-found")
+  if [ $? != 0 ]; then
+    rm -rf -- "$BATCH_DIR"
+    die "$EXIT_LIVE_PROBE_FAILED" LIVE_PROBE_FAILED \
+      "could not determine the current live state of target '$relpath' before staging batch $BATCH_NONCE (its destination-parent chain exists but could not be safely walked -- a symlink, access-denied directory, or a non-directory entry blocking the path); refusing to proceed (fail-closed, never coerced to ABSENT)"
+  fi
   if [ "$pre_hash" != "ABSENT" ]; then
     base=$(basename "$relpath")
     backup_pre_bytes "$REPO_ROOT_ABS" "$relpath" "$BATCH_DIR_ABS/pre/$base"

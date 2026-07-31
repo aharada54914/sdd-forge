@@ -1767,6 +1767,56 @@ re-verified in both runtimes. Full detail in `reports/implementation/
 epic-189-a1-project-context/T-007.md`'s own "Quality Gate Remedy
 (seq0359)" section.
 
+QUALITY-GATE REMEDY 4 (2026-07-31, seq0360 NEEDS_WORK -> remedy applied,
+human explicitly authorized remedy-4 + a possible round-5):
+`reports/quality-gate/2026-07-31T113826Z-T-007.md` (commit `3f57c485`)
+returned Critical 1 NEW / Major 3 / Minor 1 -- the first Critical, past
+three parity-focused rounds, where `sh` and `ps1` fail IDENTICALLY (not
+a parity break), reached via a far more easily triggered vector than any
+prior round. Critical: the live-hash probe coerced ANY walk failure
+(missing parent segment, symlink replacement, or access-denied `cd`/
+`SetCurrentDirectory`, e.g. chmod 000) to the bare string "ABSENT",
+indistinguishable from a confirmed absence -- during recovery this let a
+target already advanced to POST look identical, after an ordinary
+parent-directory disturbance, to one never touched, and recovery deleted
+the journal and pre/ backup UNCONDITIONALLY, permanently stranding the
+live target at POST with no way back. design.md:1055-1056's own required
+post-revert confirmation step did not exist in code at all. Fix: the
+probe never coerces a walk failure to ABSENT again; `walk_relative_dir`/
+`Invoke-WalkRelativeDir` now distinguish "plainly does not exist" from
+"exists but blocked" (symlink/access-denied/non-directory); an explicit
+tolerate-not-found flag, passed ONLY by the very first journal-free
+PREPARE-time probe, is the sole exception; recovery (classification
+pass, revert pass, and a NEW mandatory post-revert confirmation pass
+implementing design.md:1055-1056 literally) never uses it, and fails
+closed (RECOVERY_FAILED, journal/backups retained) on any probe failure
+of any kind. The equivalent PREPARE-time failure is now also fail-closed
+via a new LIVE_PROBE_FAILED category (exit 21, both runtimes). Two
+further latent bugs found while building the regression fixture, fixed
+in the same pass: the awk journal reader's `\uXXXX` decoder restricted
+decoding to printable ASCII, corrupting every C0 control byte back to
+"?"; and its hex-to-integer conversion used `strtonum`, a gawk-only
+extension absent from macOS's default `/usr/bin/awk`, hard-crashing the
+first time this path was ever actually exercised -- both fixed (widened
+range; portable `hex2dec` helper). Major #1+#2 (sh `json_escape`
+under-escaping C0 controls; ps1 `Get-Content` mis-splitting a bare CR)
+resolved under one consistent per-character policy: end-to-end
+representable in both runtimes -> escape + cover in the matrix;
+structurally unrepresentable in either runtime -> UNSUPPORTED_PATH_
+CHARACTER in both, symmetrically. Major #3: a new glob-in-directory-
+segment regression lock (TEST-033u, both suites) closes the coverage
+gap the evaluator proved by mutation (TEST-033t's own fragments are
+always the manifest leaf, never a directory segment). Minor (--help
+absence) confirmed non-blocking by the evaluator's own adjudication, no
+code change. `bash` 130->174 (44 new), `pwsh` 72->100 (28 new); both
+100% PASS. TDD Red (script relocated to pre-remedy4 state): `bash`
+151/174 reached, `pwsh` 88/100 reached -> Green: 174/174, 100/100. All
+four AC-033 crash-injection scenarios re-verified in both runtimes (logs
+re-captured, since the recovery-path internals changed substantially).
+Full detail, including the per-character policy table, in
+`reports/implementation/epic-189-a1-project-context/T-007.md`'s own
+"Quality Gate Remedy (seq0360)" section.
+
 ---
 
 ## T-008 Author the hook-activation handshake (`check-hook-activation-handshake`)

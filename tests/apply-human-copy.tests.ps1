@@ -579,6 +579,21 @@ Test-HostileMatrixCase -Label 'backtick' -Frag 'back`tick.txt'
 Test-HostileMatrixCase -Label 'squote' -Frag "sq'uote.txt"
 Test-HostileMatrixCase -Label 'utf8' -Frag 'utf8-café-日本語.txt'
 
+# C0 control-character classes (quality-gate seq0360 Major #1 remedy):
+# the evaluator's own extended matrix found vtab(0x0B)/soh(0x01)/
+# formfeed(0x0C)/esc(0x1B) journaled as INVALID JSON on the .sh twin
+# (json_escape only escaped backslash/quote/TAB there); ps1's own
+# ConvertTo-Json already escaped these correctly, so this locks that
+# CONTINUED correctness as a regression guard, matching the .sh suite's
+# matrix one-for-one for parity. "unitsep" (0x1F, the highest C0 value)
+# is an additional representative sample. CR (0x0D) is DELIBERATELY
+# EXCLUDED here too -- see the dedicated CR rejection test below instead.
+Test-HostileMatrixCase -Label 'vtab' -Frag "vt$([char]11)ab.txt"
+Test-HostileMatrixCase -Label 'soh' -Frag "so$([char]1)h.txt"
+Test-HostileMatrixCase -Label 'formfeed' -Frag "ff$([char]12)eed.txt"
+Test-HostileMatrixCase -Label 'esc' -Frag "es$([char]27)c.txt"
+Test-HostileMatrixCase -Label 'unitsep' -Frag "un$([char]31)itsep.txt"
+
 # Backslash: a GENUINELY unsupportable character on this runtime (see the
 # .sh suite's own dedicated test for the full empirical verification) --
 # classified-rejected here too (UNSUPPORTED_PATH_CHARACTER), never
@@ -593,6 +608,190 @@ if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'UNSUPPORTED_PATH_
     Test-Pass 'TEST-033t ps1 rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER)'
 } else {
     Test-Fail 'TEST-033t ps1 rejects a literal backslash' "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+}
+
+# Carriage return (CR): a GENUINELY unsupportable character (quality-gate
+# seq0360 Major #2) -- a literal CR embedded in a manifest target path is,
+# by raw bytes alone, indistinguishable from a legitimate CRLF line
+# terminator, and this runtime's own Get-Content independently mis-splits
+# a bare CR as its own line boundary (verified: an accidental,
+# mis-categorized MANIFEST_INVALID on the identical input, BEFORE this
+# remedy). Classified-rejected (UNSUPPORTED_PATH_CHARACTER), whole-file,
+# symmetric with the .sh twin and with backslash's own precedent.
+$F = New-FixtureDir
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value "$placeholderHash  cr$([char]13)path.txt`n"
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'UNSUPPORTED_PATH_CHARACTER') {
+    Test-Pass 'TEST-033t ps1 rejects a literal CR in a manifest path (UNSUPPORTED_PATH_CHARACTER)'
+} else {
+    Test-Fail 'TEST-033t ps1 rejects a literal CR' "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+}
+
+# ---------------------------------------------------------------------------
+# TEST-033u (quality-gate seq0360 Major #3 remedy): a glob-metacharacter
+# DIRECTORY SEGMENT, not merely a leaf basename -- Test-HostileMatrixCase's
+# own fragments are ALWAYS "hostile/$Frag", i.e. the hostile fragment is
+# always the LEAF, so a decoy directory a naive glob-vulnerable walk would
+# substitute into is never actually exercised. A pre-existing decoy
+# directory 'axxb' sits next to the real target 'a*b'.
+# ---------------------------------------------------------------------------
+$F = New-FixtureDir
+New-Item -ItemType Directory -Path (Join-Path $F 'repo/axxb') -Force | Out-Null
+Write-FixtureFile (Join-Path $F 'repo/axxb/decoy-canary.txt') 'decoy-untouched'
+Write-FixtureFile (Join-Path $F 'stage/a*b/t.txt') 'real-payload'
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'a*b/t.txt') + "`n")
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+$realContent = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/a*b/t.txt') -ErrorAction SilentlyContinue
+if ($r.ExitCode -eq 0 -and $realContent -eq "real-payload`n") {
+    Test-Pass 'TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name, not a decoy'
+} else {
+    Test-Fail 'TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name' "exit $($r.ExitCode)"
+}
+$decoyContent = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/axxb/decoy-canary.txt') -ErrorAction SilentlyContinue
+$decoyGotTarget = Test-Path -LiteralPath (Join-Path $F 'repo/axxb/t.txt')
+if ($decoyContent -eq "decoy-untouched`n" -and -not $decoyGotTarget) {
+    Test-Pass "TEST-033u decoy directory 'axxb' left completely untouched (no substitution into it)"
+} else {
+    Test-Fail "TEST-033u decoy directory 'axxb' left completely untouched" 'substitution detected'
+}
+
+# ---------------------------------------------------------------------------
+# TEST-033v (quality-gate seq0360 CRITICAL remedy, requirements 1+2+3): the
+# evaluator's own 3-trigger regression fixture. A genuine MIXED state (t1
+# already committed to POST, t2 still at PRE) is created via a real
+# mid-batch crash; the destination-parent of the ALREADY-COMMITTED target
+# is then attacked via 3 independent, non-adversarial triggers (symlink
+# replacement / rename-aside / chmod 000 -- the last two run on
+# non-Windows only, matching this suite's own established Windows-skip
+# convention for capability gaps outside scope). Recovery must FAIL
+# CLOSED (nonzero exit, category RECOVERY_FAILED, journal AND pre/ backup
+# RETAINED) while the trigger is active, then CONVERGE to ALL-PRE once
+# the trigger is undone.
+# ---------------------------------------------------------------------------
+
+function New-RecoveryProbeFailureFixture {
+    $f = New-FixtureDir
+    Write-FixtureFile (Join-Path $f 'repo/sub1/a.txt') 'old-a'
+    Write-FixtureFile (Join-Path $f 'repo/sub2/b.txt') 'old-b'
+    Write-FixtureFile (Join-Path $f 'stage/sub1/a.txt') 'new-a'
+    Write-FixtureFile (Join-Path $f 'stage/sub2/b.txt') 'new-b'
+    $lines = (Get-ManifestLine (Join-Path $f 'stage') 'sub1/a.txt') + "`n" + (Get-ManifestLine (Join-Path $f 'stage') 'sub2/b.txt') + "`n"
+    Set-Content -LiteralPath (Join-Path $f 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $lines
+    Invoke-Apply -RepoDir (Join-Path $f 'repo') -ArgList @('-StagingDir', (Join-Path $f 'stage'), '-Manifest', (Join-Path $f 'stage/MANIFEST.sha256'), '-SimulateCrashAfter', 'rename-1') | Out-Null
+    $journal = Get-ChildItem -Path (Join-Path $f 'repo/sdd/.staging') -Filter 'TRANSACTION.json' -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    return @{ F = $f; JournalDir = $journal.DirectoryName }
+}
+
+function Test-RecoveryProbeFailureCase([string]$Label) {
+    $fixture = New-RecoveryProbeFailureFixture
+    $f = $fixture.F
+    $sub1 = Join-Path $f 'repo/sub1'
+    switch ($Label) {
+        'symlink' {
+            Rename-Item -LiteralPath $sub1 -NewName 'sub1.saved'
+            New-Item -ItemType SymbolicLink -Path $sub1 -Target (Join-Path $f 'repo/sub1.saved') | Out-Null
+        }
+        'renameaside' {
+            Rename-Item -LiteralPath $sub1 -NewName 'sub1.attacker-moved'
+        }
+        'chmod000' {
+            & chmod 000 $sub1
+        }
+    }
+
+    $r = Invoke-Apply -RepoDir (Join-Path $f 'repo')
+    if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'RECOVERY_FAILED') {
+        Test-Pass "TEST-033v [$Label] recovery fails closed while the destination-parent is unwalkable (RECOVERY_FAILED)"
+    } else {
+        Test-Fail "TEST-033v [$Label] recovery fails closed" "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+    }
+    $journalStillThere = Test-Path -LiteralPath (Join-Path $fixture.JournalDir 'TRANSACTION.json')
+    $backupStillThere = (Get-ChildItem -Path (Join-Path $fixture.JournalDir 'pre') -File -ErrorAction SilentlyContinue).Count -gt 0
+    if ($journalStillThere -and $backupStillThere) {
+        Test-Pass "TEST-033v [$Label] journal and pre/ backup RETAINED after the failed recovery attempt"
+    } else {
+        Test-Fail "TEST-033v [$Label] journal and pre/ backup RETAINED" "journal=$journalStillThere backup=$backupStillThere"
+    }
+
+    switch ($Label) {
+        'symlink' {
+            Remove-Item -LiteralPath $sub1 -Force
+            Rename-Item -LiteralPath (Join-Path $f 'repo/sub1.saved') -NewName 'sub1'
+        }
+        'renameaside' {
+            Rename-Item -LiteralPath (Join-Path $f 'repo/sub1.attacker-moved') -NewName 'sub1'
+        }
+        'chmod000' {
+            & chmod 755 $sub1
+        }
+    }
+
+    $r2 = Invoke-Apply -RepoDir (Join-Path $f 'repo')
+    $aContent = Get-Content -Raw -LiteralPath (Join-Path $f 'repo/sub1/a.txt') -ErrorAction SilentlyContinue
+    $bContent = Get-Content -Raw -LiteralPath (Join-Path $f 'repo/sub2/b.txt') -ErrorAction SilentlyContinue
+    if ($r2.ExitCode -eq 0 -and $aContent -eq "old-a`n" -and $bContent -eq "old-b`n") {
+        Test-Pass "TEST-033v [$Label] recovery converges to ALL-PRE once the trigger is undone"
+    } else {
+        Test-Fail "TEST-033v [$Label] recovery converges to ALL-PRE once the trigger is undone" "exit $($r2.ExitCode)"
+    }
+    $litter = Get-ChildItem -Path (Join-Path $f 'repo/sdd/.staging') -Recurse -File -ErrorAction SilentlyContinue
+    if (-not $litter) {
+        Test-Pass "TEST-033v [$Label] journal/staging litter fully cleaned up after convergence"
+    } else {
+        Test-Fail "TEST-033v [$Label] journal/staging litter fully cleaned up after convergence" 'litter remains'
+    }
+}
+
+if ($IsWindows) {
+    'symlink', 'renameaside', 'chmod000' | ForEach-Object {
+        Test-Pass "TEST-033v [$_] recovery fails closed / converges (skipped: requires Windows elevation or POSIX permission bits)"
+        Test-Pass "TEST-033v [$_] journal and pre/ backup RETAINED (skipped)"
+        Test-Pass "TEST-033v [$_] recovery converges to ALL-PRE once undone (skipped)"
+        Test-Pass "TEST-033v [$_] journal/staging litter fully cleaned up (skipped)"
+    }
+} else {
+    Test-RecoveryProbeFailureCase 'symlink'
+    Test-RecoveryProbeFailureCase 'renameaside'
+    Test-RecoveryProbeFailureCase 'chmod000'
+}
+
+# ---------------------------------------------------------------------------
+# TEST-033w (quality-gate seq0360 CRITICAL remedy): the SAME probe-failure
+# fail-closed discipline also applies at PREPARE time (before ANY journal
+# for a NEW batch is written) -- a symlinked destination-parent denies the
+# WHOLE batch (LIVE_PROBE_FAILED) rather than silently proceeding with a
+# guessed pre_hash='ABSENT' that could hide real live content behind the
+# symlink from the backup step.
+# ---------------------------------------------------------------------------
+if ($IsWindows) {
+    Test-Pass 'TEST-033w PREPARE-time symlinked destination-parent denies the whole batch (skipped: Windows symlink creation requires elevation)'
+    Test-Pass 'TEST-033w real content behind the symlink is unchanged (skipped)'
+    Test-Pass 'TEST-033w no journal/staging litter left behind by the denied batch (skipped)'
+} else {
+    $F = New-FixtureDir
+    New-Item -ItemType Directory -Path (Join-Path $F 'repo/real-sub1') -Force | Out-Null
+    Write-FixtureFile (Join-Path $F 'repo/real-sub1/hidden.txt') 'hidden-content'
+    New-Item -ItemType SymbolicLink -Path (Join-Path $F 'repo/sub1') -Target (Join-Path $F 'repo/real-sub1') | Out-Null
+    Write-FixtureFile (Join-Path $F 'stage/sub1/hidden.txt') 'new-content'
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'sub1/hidden.txt') + "`n")
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'LIVE_PROBE_FAILED') {
+        Test-Pass 'TEST-033w PREPARE-time symlinked destination-parent denies the whole batch (LIVE_PROBE_FAILED)'
+    } else {
+        Test-Fail 'TEST-033w PREPARE-time symlinked destination-parent denies the whole batch' "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+    }
+    $hiddenContent = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/real-sub1/hidden.txt') -ErrorAction SilentlyContinue
+    if ($hiddenContent -eq "hidden-content`n") {
+        Test-Pass 'TEST-033w real content behind the symlink is unchanged (never silently overwritten)'
+    } else {
+        Test-Fail 'TEST-033w real content behind the symlink is unchanged' "got '$hiddenContent'"
+    }
+    $litter = Get-ChildItem -Path (Join-Path $F 'repo/sdd/.staging') -Recurse -File -ErrorAction SilentlyContinue
+    if (-not $litter) {
+        Test-Pass 'TEST-033w no journal/staging litter left behind by the denied batch'
+    } else {
+        Test-Fail 'TEST-033w no journal/staging litter left behind by the denied batch' 'litter remains'
+    }
 }
 
 # ---------------------------------------------------------------------------
