@@ -225,8 +225,8 @@ function Test-ValidateReviewerOutput(
 
   $expectedIds = $null
   switch ($Role) {
-    'spec-reviewer-a' { $expectedIds = @('REQ-TESTABILITY', 'GOAL-AC-TRACE', 'AC-OBSERVABLE', 'SCOPE-BOUNDARY', 'CONSTRAINTS-EXPLICIT', 'RISK-VALIDATION-SURFACE') }
-    'spec-reviewer-b' { $expectedIds = @('AMBIGUITY', 'CONTRADICTION', 'EDGE-CASE-COVERAGE', 'ASSUMPTIONS-RESOLVABLE', 'APPROVAL-BOUNDARY', 'DOWNSTREAM-READINESS') }
+    'spec-reviewer-a' { $expectedIds = @('REQ-TESTABILITY', 'GOAL-AC-TRACE', 'AC-OBSERVABLE', 'SCOPE-BOUNDARY', 'CONSTRAINTS-EXPLICIT', 'RISK-VALIDATION-SURFACE', 'DOMAIN-CONFORMANCE') }
+    'spec-reviewer-b' { $expectedIds = @('AMBIGUITY', 'CONTRADICTION', 'EDGE-CASE-COVERAGE', 'ASSUMPTIONS-RESOLVABLE', 'APPROVAL-BOUNDARY', 'DOWNSTREAM-READINESS', 'DOMAIN-CONFORMANCE') }
     default { return $false }
   }
   $actualIds = @($data.checks | ForEach-Object { $_.id })

@@ -41,17 +41,17 @@ write_contract() {
   local requirements_sha acceptance_sha precheck_sha summary_sha calibration calibration_sha round a_verdict a_result a_fails a_passes critical major minor warning check_severity
   round="$(jq -r .round "${directory}/precheck-result.json")"
   case "${severity}" in
-    none) a_verdict="PASS"; a_result="PASS"; a_fails=0; a_passes=6; critical=0; major=0; minor=0; check_severity="Minor" ;;
-    Critical) a_verdict="BLOCKED"; a_result="FAIL"; a_fails=1; a_passes=5; critical=1; major=0; minor=0; check_severity="Critical" ;;
-    Major) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=5; critical=0; major=1; minor=0; check_severity="Major" ;;
-    Minor) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=5; critical=0; major=0; minor=1; check_severity="Minor" ;;
+    none) a_verdict="PASS"; a_result="PASS"; a_fails=0; a_passes=7; critical=0; major=0; minor=0; check_severity="Minor" ;;
+    Critical) a_verdict="BLOCKED"; a_result="FAIL"; a_fails=1; a_passes=6; critical=1; major=0; minor=0; check_severity="Critical" ;;
+    Major) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=6; critical=0; major=1; minor=0; check_severity="Major" ;;
+    Minor) a_verdict="NEEDS_WORK"; a_result="FAIL"; a_fails=1; a_passes=6; critical=0; major=0; minor=1; check_severity="Minor" ;;
     *) fail "unknown fixture severity: ${severity}" ;;
   esac
   warning=0
   [[ "${round}" == 3 && "${severity}" == Minor ]] && warning=1
   jq -n --argjson attempt 1 --argjson round "${round}" --arg result "${a_result}" --arg severity "${check_severity}" \
     --argjson fail_count "${a_fails}" --argjson pass_count "${a_passes}" \
-    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE"] as $ids |
+    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
      reviewer_a_checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end)})),
      reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
@@ -65,7 +65,7 @@ write_contract() {
   jq -n --arg feature "${FEATURE}" --arg result "${a_result}" --arg severity "${check_severity}" --arg verdict "${a_verdict}" \
     --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg calibration "${calibration}" \
     --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg precheck_sha "${precheck_sha}" --arg calibration_sha "${calibration_sha}" \
-    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE"] as $ids |
+    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
      allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}],
      verdict:$verdict,
@@ -73,7 +73,7 @@ write_contract() {
     > "${directory}/reviewer-a.json"
   jq -n --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" \
     --arg calibration "${calibration}" --arg requirements_sha "${requirements_sha}" --arg acceptance_sha "${acceptance_sha}" --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" --arg calibration_sha "${calibration_sha}" \
-    '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
      allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}],
      verdict:"PASS",

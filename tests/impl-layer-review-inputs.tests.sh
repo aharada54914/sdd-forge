@@ -48,7 +48,7 @@ write_spec_pass() {
       calibration_sha256:$calibration,input_sha256:$req,edit_summary:"",reset:false,
       generated_at:"2026-06-23T00:00:00Z"}' > "$directory/precheck-result.json"
   jq -n \
-    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE"] as $ids |
+    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"integrated-summary/v1",attempt:1,round:1,
       reviewer_a_checks:($ids | map({id:.,result:"PASS",severity:"Minor"})),
       reviewer_a_fail_count:0,reviewer_a_pass_count:6,reviewer_a_skip_count:0,
@@ -59,7 +59,7 @@ write_spec_pass() {
     --arg calibration_path "$ROOT/plugins/sdd-review-loop/references/spec-review-calibration.md" \
     --arg precheck_path "$directory/precheck-result.json" \
     --arg req "$req" --arg acc "$acc" --arg calibration "$calibration" --arg precheck "$precheck" \
-    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE"] as $ids |
+    '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"spec-a",host_session_id:"session-a",
       allowed_input_manifest:[
         {path:$requirements,sha256:$req},{path:$acceptance,sha256:$acc},
@@ -70,7 +70,7 @@ write_spec_pass() {
     --arg calibration_path "$ROOT/plugins/sdd-review-loop/references/spec-review-calibration.md" \
     --arg precheck_path "$directory/precheck-result.json" --arg summary_path "$directory/integrated-summary.json" \
     --arg req "$req" --arg acc "$acc" --arg calibration "$calibration" --arg precheck "$precheck" --arg summary "$summary" \
-    '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    '["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"spec-b",host_session_id:"session-b",
       allowed_input_manifest:[
         {path:$requirements,sha256:$req},{path:$acceptance,sha256:$acc},

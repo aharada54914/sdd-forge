@@ -364,6 +364,10 @@
     {
       "feature": "epic-136-phase4-mcp",
       "profile": "full"
+    },
+    {
+      "feature": "epic-136-phase4-docs",
+      "profile": "full"
     }
   ]
 }
