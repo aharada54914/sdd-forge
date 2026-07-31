@@ -51,7 +51,7 @@ write_spec_pass() {
     '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"integrated-summary/v1",attempt:1,round:1,
       reviewer_a_checks:($ids | map({id:.,result:"PASS",severity:"Minor"})),
-      reviewer_a_fail_count:0,reviewer_a_pass_count:6,reviewer_a_skip_count:0,
+      reviewer_a_fail_count:0,reviewer_a_pass_count:7,reviewer_a_skip_count:0,
       generated_at:"2026-06-23T00:00:00Z"}' > "$directory/integrated-summary.json"
   precheck="$(sha256 "$directory/precheck-result.json")"
   summary="$(sha256 "$directory/integrated-summary.json")"

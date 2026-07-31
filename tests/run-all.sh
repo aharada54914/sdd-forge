@@ -51,6 +51,7 @@ tests=(
   tests/loop-inventory.tests.sh
   tests/loop-driver.tests.sh
   tests/loop-consistency.tests.sh
+  tests/review-prompt-calibration.tests.sh
   tests/loop-escalation.tests.sh
   tests/hitl-wfi-terminal.tests.sh
   tests/check-placeholders-brownfield.tests.sh

@@ -44,7 +44,7 @@ function Write-SpecPass {
         ConvertTo-Json -Depth 5 | Set-Content (Join-Path $directory 'precheck-result.json') -Encoding utf8NoBOM
     $reviewerAIds = @('REQ-TESTABILITY','GOAL-AC-TRACE','AC-OBSERVABLE','SCOPE-BOUNDARY','CONSTRAINTS-EXPLICIT','RISK-VALIDATION-SURFACE','DOMAIN-CONFORMANCE')
     $reviewerBIds = @('AMBIGUITY','CONTRADICTION','EDGE-CASE-COVERAGE','ASSUMPTIONS-RESOLVABLE','APPROVAL-BOUNDARY','DOWNSTREAM-READINESS','DOMAIN-CONFORMANCE')
-    [ordered]@{schema='integrated-summary/v1';attempt=1;round=1;reviewer_a_checks=@($reviewerAIds | ForEach-Object {@{id=$_;result='PASS';severity='Minor'}});reviewer_a_fail_count=0;reviewer_a_pass_count=6;reviewer_a_skip_count=0;generated_at='2026-06-23T00:00:00Z'} |
+    [ordered]@{schema='integrated-summary/v1';attempt=1;round=1;reviewer_a_checks=@($reviewerAIds | ForEach-Object {@{id=$_;result='PASS';severity='Minor'}});reviewer_a_fail_count=0;reviewer_a_pass_count=7;reviewer_a_skip_count=0;generated_at='2026-06-23T00:00:00Z'} |
         ConvertTo-Json -Depth 6 | Set-Content (Join-Path $directory 'integrated-summary.json') -Encoding utf8NoBOM
     $precheck = Hash (Join-Path $directory 'precheck-result.json')
     $summary = Hash (Join-Path $directory 'integrated-summary.json')
