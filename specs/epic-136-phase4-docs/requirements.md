@@ -1,6 +1,6 @@
 # Requirements: epic-136-phase4-docs
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 
 Source issues: [#133](https://github.com/aharada54914/sdd-forge/issues/133) (`documentation`), [#134](https://github.com/aharada54914/sdd-forge/issues/134) (`documentation`, `security`). Both are Phase 4 items of epic #136.
 
@@ -50,7 +50,31 @@ Each of the four runner scripts reads `SDD_PANELIST_TIMEOUT`, defaults to 600 wh
 
 #### AC-004
 
-With `SDD_PANELIST_TIMEOUT=1` and a stub CLI on `PATH` that sleeps well past the bound, each shell runner terminates the stub and returns within a bounded margin of the deadline. Asserted by measuring elapsed wall-clock time against the bound, and by confirming the stub process is no longer alive afterwards — not by asserting the exit code alone, which a script could produce without ever killing the child.
+With `SDD_PANELIST_TIMEOUT=1` and a stub CLI on `PATH` that sleeps well past the bound, **each of the four runners** — `run-panelist-{gpt,gemini}.{sh,ps1}` — terminates the stub and returns within a bounded margin of the deadline. Asserted by measuring elapsed wall-clock time against the bound, and by confirming the stub process is no longer alive afterwards — not by asserting the exit code alone, which a script could produce without ever killing the child.
+
+**The pass bar is stated per runtime, because the mechanisms differ (round-2 remediation).** An earlier draft scoped this criterion to "each shell runner", which contradicted BL-004's parity mandate, AC-011's requirement that both suites gain cases, and REQ-002's requirement that all four scripts implement the bound — and left a task author free to satisfy the literal text with shell-only tests.
+
+| Runtime | Bound mechanism | Escalation | Liveness assertion |
+|---|---|---|---|
+| POSIX shell | `date +%s` deadline polled with `kill -0` (no `timeout(1)` — Edge Case 1). The child is started in **its own process group** (`setsid`, or an equivalent), so the group id is known and signalable. | `SIGTERM` then `SIGKILL` after a grace period, sent to the **process group** (`kill -TERM -<pgid>`), not to the single PID | `kill -0 <pid>` fails after the runner returns, **and** no orphan of any child the stub spawned remains |
+| PowerShell | `Start-Process -PassThru` plus a bounded `WaitForExit(<ms>)` — the existing `-Wait` has no timeout parameter (INV-003) | `Kill($true)`, a single unconditional tree-kill. **No soft-request step precedes it, and none is to be added.** | the process object reports exited, and no orphan of any child the stub spawned remains |
+
+**Edge Case 7 has no PowerShell counterpart, and that is a finding rather than an omission (round-3 remediation).** An earlier draft claimed one — "a stub that does not exit on a close request" — while the same table said `Kill($true)` was "not a second mechanism". Those cannot both hold: describing a stub that *ignores* a request presupposes a request is sent, which is exactly the soft step the table denies. Reviewer A caught the contradiction and was right; `Process.Kill()` maps to `TerminateProcess`, which user-mode code cannot trap or refuse the way a POSIX process can trap `SIGTERM`.
+
+So the escalation asymmetry is stated plainly instead of papered over:
+
+- **POSIX** genuinely has two steps, and a CLI can survive the first. TEST-004(b) exists to prove the second step is reached.
+- **PowerShell** has one step that cannot be survived. There is no stub behaviour that would make a (b) sub-case verify anything (a) does not already verify, so **the PowerShell suite carries no (b) sub-case** — writing one would be a test that cannot fail.
+
+What replaces it, so the runtime is not simply less covered: the PowerShell (a) sub-case additionally asserts that a stub which spawns its own child leaves **no orphan** after the runner returns. That is the property `Kill($true)`'s `$true` argument buys and a plain `Kill()` would not, and it is the one PowerShell-specific escalation behaviour that *can* fail.
+
+**The no-orphan assertion is required of both runtimes, not only PowerShell (attempt-2 remediation).** An earlier draft added it to the PowerShell row only, framed as compensation for losing sub-case (b). That was wrong in a way worth naming: it implied POSIX is structurally exempt, and POSIX is not. `kill -TERM <pid>` reaches one process; a grandchild the vendor CLI spawned survives it, which is precisely the orphan Edge Case 2 warns about, and it holds the API session just the same. Nothing in that draft required or tested descendant reachability on POSIX, so the runtime with the *weaker* guarantee was the one carrying no assertion.
+
+Hence the POSIX row now commits to process-group semantics — start the child with `setsid`, signal `-<pgid>` — and carries the same no-orphan assertion. BL-004's outcome parity is what forces this: "no orphan holding the API session" is an outcome, and an outcome parity claim cannot hold if only one runtime is required to deliver it.
+
+BL-004's parity requirement is satisfied at the level of **outcome** — bounded, terminated, no partial verdict, in both runtimes — not by mirroring a POSIX signal model onto a platform that has no equivalent.
+
+**Scope note for TEST-004(c).** This criterion's "terminates the stub" clause describes the *timeout* path only. The polling-boundary-race sub-case asserts the opposite outcome — a child that finished inside the expiry interval must **not** be terminated, and must be reported by its own exit code. That sub-case is governed by Edge Case 6, not by this sentence.
 
 ### REQ-003 — a timeout is fail-closed by the *existing* mechanism, not a new one (#133)
 
@@ -60,7 +84,9 @@ The reasoning is that exit 1 leaves the already-documented chain intact: no verd
 
 #### AC-005
 
-A timed-out shell runner exits 1 and writes **no** verdict JSON to the output directory. Asserted by both the exit code and the absence of the file, since a runner could exit 1 after having written a partial verdict, which would be worse than hanging.
+A timed-out runner — **any of the four**, shell or PowerShell — exits 1 and writes **no** verdict JSON to the output directory. Asserted by both the exit code and the absence of the file, since a runner could exit 1 after having written a partial verdict, which would be worse than hanging.
+
+Scoped to all four for the same reason as AC-004: an earlier draft said "shell runner", which left the no-partial-verdict guarantee unasserted for exactly the two scripts whose kill mechanism differs most from the one the criterion was written against.
 
 #### AC-006
 
@@ -105,6 +131,14 @@ An earlier draft verified only (1). That is the same defect as AC-001's: a docum
 #### AC-010
 
 The document names `--dangerously-bypass-hook-trust` explicitly and states what an operator who uses it gives up. A threat model that describes hook trust without naming its documented bypass is not a threat model.
+
+#### AC-014 — the hole this feature closes is recorded where the threat model can see it
+
+`docs/THREAT-MODEL.md` gains a residual-risk entry for the unbounded external panelist, marked **closed by this feature** and naming `SDD_PANELIST_TIMEOUT`.
+
+**Resolving investigation Open Question 3 for #134.** That question asked whether #133's hung-panelist finding should also land in #134's document. Resolved as **yes**. Round 2 of spec review found it was the one open question this specification left neither answered nor explicitly deferred, while closing every other one by name — so a task author scoping the THREAT-MODEL.md changes had no guidance on it.
+
+The reasoning is that a threat model shipped in the same release as a denial-of-service fix, omitting the hole that fix closes, is stale on arrival. Recording it as *closed* rather than open also gives the next reader the `SDD_PANELIST_TIMEOUT` knob without having to find this specification.
 
 ### REQ-006 — documentation and behaviour are verified equal, not asserted equal (#133, #134)
 

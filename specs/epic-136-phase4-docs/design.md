@@ -35,7 +35,12 @@ The design's central choice is that a timeout must be **indistinguishable downst
 ```sh
 _sdd_run_bounded() {                      # usage: _sdd_run_bounded <seconds> <cmd...>
     _bw_limit="$1"; shift
-    "$@" &                                 # child inherits the caller's redirections
+    # setsid puts the child in its own process group so the kill below reaches
+    # any grandchild the vendor CLI spawned. Signalling a bare PID would leave
+    # that grandchild orphaned holding the API session (Edge Case 2) — the
+    # attempt-2 review finding. Where setsid is unavailable, fall back to a bare
+    # invocation and record that the no-orphan guarantee is not available there.
+    setsid "$@" &                          # child inherits the caller's redirections
     _bw_pid=$!
     _bw_deadline=$(( $(date +%s) + _bw_limit ))
     while kill -0 "$_bw_pid" 2>/dev/null; do
@@ -45,9 +50,11 @@ _sdd_run_bounded() {                      # usage: _sdd_run_bounded <seconds> <c
             # child that finished inside this very interval is reported by its
             # own exit code rather than as a timeout.
             kill -0 "$_bw_pid" 2>/dev/null || break
-            kill -TERM "$_bw_pid" 2>/dev/null
+            # Negative pid = the whole process group, so descendants die too.
+            kill -TERM "-$_bw_pid" 2>/dev/null || kill -TERM "$_bw_pid" 2>/dev/null
             sleep 2
-            kill -0 "$_bw_pid" 2>/dev/null && kill -KILL "$_bw_pid" 2>/dev/null
+            kill -0 "$_bw_pid" 2>/dev/null && \
+                { kill -KILL "-$_bw_pid" 2>/dev/null || kill -KILL "$_bw_pid" 2>/dev/null; }
             wait "$_bw_pid" 2>/dev/null
             return 124
         fi

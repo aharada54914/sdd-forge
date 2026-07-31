@@ -7,8 +7,8 @@
 | TEST-001 | AC-001 | integration (real file read) | `cross-model-verification-policy.md` | all five failure-mode names present, each with a stated exit code |
 | TEST-002 | AC-002 | integration (real file read) | same | the rate-limit row states it is not separately handled |
 | TEST-003 | AC-003 | unit (stub CLI, 7 sub-cases) | 4 runners | `SDD_PANELIST_TIMEOUT` parsing; invalid values exit 2 **without invoking the CLI** |
-| TEST-004 | AC-004 | integration (stub CLI, real process) | shell runners | bound is enforced in wall-clock time **and** the child is dead afterwards |
-| TEST-005 | AC-005 | integration (stub CLI) | shell runners | timeout → exit 1 **and** no verdict JSON written |
+| TEST-004 | AC-004 | integration (stub CLI, real process) | **all 4 runners** (`.sh` + `.ps1`) | bound is enforced in wall-clock time **and** the child is dead afterwards |
+| TEST-005 | AC-005 | integration (stub CLI) | **all 4 runners** (`.sh` + `.ps1`) | timeout → exit 1 **and** no verdict JSON written |
 | TEST-006 | AC-006 | integration (composed with the gate) | runner → `check-cross-model` | a timed-out sole non-Anthropic panelist makes the gate fail, no consensus PASS |
 | TEST-007 | AC-007 | integration (real file read) | `docs/THREAT-MODEL.md` | ten OWASP identifiers present, every disposition cell non-empty |
 | TEST-008 | AC-008 | integration (real file read) | same | ≥1 N/A row with a reason **and** ≥1 row citing an existing control |
@@ -17,6 +17,7 @@
 | TEST-011 | AC-011 | regression | `tests/cross-model.tests.{sh,ps1}` | both suites pass, including the pre-existing cases unmodified |
 | TEST-012 | AC-012 | unit | test suites | the asserted default is read from the script, not hard-coded in the test |
 | TEST-013 | AC-013 | integration (real file read) | `docs/THREAT-MODEL.md` | the MCP cross-reference names all three MCP servers with a trust posture each |
+| TEST-014 | AC-014 | integration (real file read) | `docs/THREAT-MODEL.md` | a residual-risk entry for the unbounded panelist exists, marked closed and naming `SDD_PANELIST_TIMEOUT` |
 
 ## Test Details
 
@@ -36,8 +37,10 @@ Assert the rate-limit row says it reaches the gate *through* the exit-non-zero o
 
 Seven sub-cases per runner: unset, empty, `600`, `1`, `0`, `-5`, `abc`.
 
-- First three: the runner proceeds to invoke the CLI.
-- Last three: exit **2**, and the stub CLI records that it was **never called**.
+- **First four** (`unset`, empty, `600`, `1`): the runner proceeds to invoke the CLI. `1` is a valid bound, not an invalid one — it is the same value AC-004's timeout sub-cases use.
+- **Last three** (`0`, `-5`, `abc`): exit **2**, and the stub CLI records that it was **never called**.
+
+(An earlier draft wrote "first three / last three" against a seven-item list, leaving `1` unclassified. Both round-2 reviewers caught the arithmetic independently.)
 
 The non-invocation assertion is the substantive part. A runner could validate late and still exit 2 after burning a vendor call, which defeats the point of treating misconfiguration as a caller bug.
 
@@ -56,9 +59,25 @@ Assertion 2 is what distinguishes a genuine kill from a parent that merely stopp
 
 **(c) The polling boundary race (Edge Case 6).** `SDD_PANELIST_TIMEOUT=2` with a stub that exits **successfully** at ~2 seconds — inside the interval where the poller is about to declare expiry. Assert the runner reports success and writes its verdict; it must not report a timeout for a child that already finished. Run this sub-case repeatedly (≥ 5 iterations) since it targets a race, and treat any single timeout report as a failure rather than flakiness.
 
+**Both runtimes are covered, but not with an identical sub-case list (round-2 and round-3 remediation).** An earlier draft targeted "shell runners" only, leaving the two PowerShell scripts unasserted while BL-004 demanded parity. A later draft over-corrected by inventing a PowerShell (b) that could not fail. Per AC-004's runtime table:
+
+| Sub-case | POSIX shell | PowerShell |
+|---|---|---|
+| (a) bound is enforced, child dies | yes — **including the no-orphan assertion** | yes — including the no-orphan assertion |
+| (b) escalation is reached | yes — the stub traps `SIGTERM`, so only `SIGKILL` can end it | **none, deliberately** |
+| (c) boundary race reports success | yes | yes |
+
+**Why (b) has no PowerShell counterpart.** `Process.Kill()` maps to `TerminateProcess`, which user-mode code cannot trap or refuse. There is no stub that "ignores" it, so a PowerShell (b) would assert exactly what (a) already asserts — a test that cannot fail. Round 3 caught an earlier draft doing precisely that, phrased as "a stub that does not exit on a close request", which also contradicted the table's own "no soft-request step precedes it".
+
+The no-orphan assertion in (a) is what carries the PowerShell-specific escalation risk instead: it is the property `Kill($true)`'s `$true` buys, it fails against a plain `Kill()`, and it is therefore a real check rather than a mirrored one.
+
+**The no-orphan assertion applies to both runtimes (attempt-2 remediation).** In sub-case (a), the stub spawns a child of its own; after the runner returns, assert that **neither the stub nor its child is alive**, in POSIX and in PowerShell alike.
+
+An earlier draft attached this to PowerShell only, as compensation for dropping (b). That left the runtime with the *weaker* default guarantee untested: `kill -TERM <pid>` reaches a single process, so a grandchild spawned by the vendor CLI survives it — the orphan Edge Case 2 names, still holding the API session. The POSIX assertion fails against a single-PID signal and passes only with the process-group signalling AC-004's table now requires (`setsid` on start, `kill -TERM -<pgid>` on expiry), so it is a real check on that runtime too, not a mirrored one.
+
 ### TEST-005 (AC-005) — no partial verdict survives
 
-After the TEST-004 timeout, assert exit code 1 **and** that the output directory contains no verdict JSON for the task. A runner that exits 1 after writing a truncated verdict would be worse than one that hangs, because `check-cross-model` would then read it.
+After the TEST-004 timeout, assert exit code 1 **and** that the output directory contains no verdict JSON for the task, **in both runtimes**. A runner that exits 1 after writing a truncated verdict would be worse than one that hangs, because `check-cross-model` would then read it.
 
 ### TEST-006 (AC-006) — the gate actually fails
 
@@ -91,6 +110,12 @@ All new cases drive a stub CLI placed on `PATH`. No test may invoke a real `code
 Assert `docs/THREAT-MODEL.md`'s MCP cross-reference names `sdd-forge-mcp`, `local-env-mcp` and `ci-mcp`, and that each carries a stated trust posture.
 
 This test exists because round 1 of spec review found REQ-004's MCP clause had **no criterion and no test whatsoever** — AC-007 and AC-008 covered only the OWASP table, so an implementation could have satisfied every stated criterion for REQ-004 while omitting the MCP cross-reference entirely. The gap was concealed by an unresolved investigation open question, now resolved in AC-013: cite primary MCP documentation, because no authoritative third-party MCP security checklist is established by anything in this repository and requiring one this specification cannot name would be unverifiable.
+
+### TEST-014 (AC-014) — the threat model records the hole this release closes
+
+Assert `docs/THREAT-MODEL.md`'s Residual Risks section carries an entry for the unbounded external panelist, that it is marked **closed by this feature**, and that it names `SDD_PANELIST_TIMEOUT` so a reader gets the knob without having to find this specification.
+
+Added after round 2, which found this was the one investigation open question the specification left neither answered nor explicitly deferred, while closing every other one by name. A threat model shipped in the same release as a denial-of-service fix, omitting the hole that fix closes, is stale on arrival.
 
 ### TEST-012 (AC-012) — the default is not duplicated
 
