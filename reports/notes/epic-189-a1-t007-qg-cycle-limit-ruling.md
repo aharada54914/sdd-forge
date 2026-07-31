@@ -87,3 +87,29 @@ litter なし + パリティ、backslash は両レーン同一 `UNSUPPORTED_PATH
 かつ remedy-3 はクラス単位の対処（AWK パーサ・行列検証)であることから
 継続が妥当と人間が判断。round-4 で収束しなければ review-ticket 経路(SKILL
 13)への切替を再検討する。
+
+## 人間の remedy-4 + round-5 継続認可（2026-07-31、AskUserQuestion 回答)
+
+**判断**: 「remedy-4 + round-5 を認可」。round-4（seq0360)の verdict は
+NEEDS_WORK（Critical 1 / Major 3 / Minor 1、報告書 =
+`reports/quality-gate/2026-07-31T113826Z-T-007.md`、commit `3f57c485`、
+sha256 `0d8510e2a28bda0a55562529b93d65d17d2cfd3cabf3534ec2b913167863ba2b`)
+だったが、人間が remedy-4 実施と QG round-5（seq0361)の継続を明示認可した。
+
+**判断材料**（= seq0360 報告書):
+- Critical: probe 失敗の 'ABSENT' 強制変換（両レーン同一のため非パリティ
+  ゆえ過去 3 ラウンドのパリティ中心検証の構造的盲点)+
+  design.md:1055-1056 の PRE 復帰確認ステップ不存在。
+- Major 3: C0 制御文字の raw 出力（sh)/ CR の両レーン能力乖離 /
+  glob 修正の回帰ロック欠落（評価者の mutation で実証されたギャップ)。
+- Minor 1: `--help` に exit 20 等の文書化不存在（非ブロッキング判定、
+  carryover 登録)。
+- 好材料: ps1 anchoring 再構築は評価者の敵対検証（自作 decoy 5 種)を
+  全通過、crash-injection 4 シナリオ green、cmdlet 残余なし確認。
+
+**継続根拠**: 検証ループは機能し続けており（round-4 も新規クラスを発見)、
+Critical は fail-closed 化 + 設計手順追記で対処可能なクラス。remedy-4 の
+方針 = Critical: probe 失敗の fail-closed 化 + PRE 復帰確認ステップ /
+Major 1+2: per-character ポリシー（escape-or-reject 対称)/ Major 3:
+SEGMENT glob fixture + mutation 証明。round-5（seq0361)の予約は remedy-4
+の orchestrator 独立検証完了後・実行→実値→報告の順で行う。
