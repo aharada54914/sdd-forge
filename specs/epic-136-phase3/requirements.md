@@ -1,6 +1,6 @@
 # Requirements: epic-136-phase3
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 
 Source Issues:
 - https://github.com/aharada54914/sdd-forge/issues/123 (Stream A — drive the
