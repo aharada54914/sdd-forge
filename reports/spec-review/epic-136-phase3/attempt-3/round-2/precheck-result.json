@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase3",
+  "attempt": 3,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "4898ed0a8d6976c2c1887b8b260a02e3f4bce4eca1bc4269b5657d6599a89124",
+  "acceptance_sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "fe12f7e159b2252833c93a6124848a21a57cf6fad133d423ebd014a378b7a387",
+  "edit_summary": "Widened TEST-020 to AC-019's full suite set (Streams A + B + C), reconciling it with TEST-019/TEST-021; dropped the requirements.md Non-goals deferral of Stream C's CI step whose premise (Stream C Blocked here) was falsified when ADR-0010 unblocked it and its suite landed. Staged the missing explicit CI step for tests/workflow-scenarios/workflow-scenarios.tests.sh and re-pinned the candidate's actions/checkout to the live v7.0.1.",
+  "reset": false,
+  "generated_at": "2026-08-01T22:23:53Z"
+}
