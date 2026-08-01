@@ -222,6 +222,68 @@ rm -rf "${rollback_dir}"
 
 "${PRECHECK}" "${FEATURE}" 2 1 --reset
 expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
+# Evidence records absolute paths from the checkout that produced it, so a run
+# from anywhere else -- a git worktree, CI, another machine -- sees a different
+# repository root. Comparing recorded paths to locally built ones literally
+# rejects valid evidence: that is what made epic-136-phase3's attempt 2
+# unverifiable outside the checkout that wrote it, and it blocked every
+# subsequent attempt. The canonical gate (check-workflow-state.sh relative_path)
+# and the PowerShell precheck (Get-ManifestRelativePath, issue #61) already
+# normalized; this validator was the last one comparing raw absolute strings.
+FOREIGN_ROOT="/opt/ci-checkout/sdd-forge"
+reroot() {
+  local file="$1" tmp="$1.reroot"
+  jq --arg from "${ROOT}/" --arg to "${FOREIGN_ROOT}/" '
+    def rerooted: if startswith($from) then $to + .[($from | length):] else . end;
+    if has("reviewers")
+    then .reviewers[].allowed_input_manifest[].path |= rerooted
+    else .allowed_input_manifest[].path |= rerooted end' "$file" > "$tmp"
+  mv "$tmp" "$file"
+}
+rebuild_rerooted_terminal_contract() {
+  local file
+  rm -rf "${REPORT_ROOT}/attempt-2"
+  write_contract "${ROUND_THREE}" PASS Minor
+  for file in spec-review-contract.json reviewer-a.json reviewer-b.json; do
+    reroot "${ROUND_THREE}/${file}"
+  done
+}
+
+rebuild_rerooted_terminal_contract
+# The fixture proves nothing unless every recorded path really left the local
+# root: under the previous literal comparison a shared prefix would still match.
+if jq -e --arg root "${ROOT}/" '[.reviewers[].allowed_input_manifest[].path | select(startswith($root))] | length > 0' \
+  "${ROUND_THREE}/spec-review-contract.json" >/dev/null; then
+  fail "re-rooted fixture still carries local-root paths, so it proves nothing"
+fi
+"${PRECHECK}" "${FEATURE}" 2 1 --reset ||
+  fail "a contract recorded under a different repository root must still validate"
+
+# Normalizing the root must not normalize away tampering. Each case below is the
+# recipe just proven to pass, plus exactly one mutation.
+rebuild_rerooted_terminal_contract
+tmp_contract="${ROUND_THREE}/spec-review-contract.tmp"
+jq --arg other "/opt/other-checkout/sdd-forge/specs/${FEATURE}/requirements.md" \
+  '.reviewers[0].allowed_input_manifest[0].path = $other' \
+  "${ROUND_THREE}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${ROUND_THREE}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
+rebuild_rerooted_terminal_contract
+tmp_contract="${ROUND_THREE}/spec-review-contract.tmp"
+jq '.reviewers[0].allowed_input_manifest[0].sha256 = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"' \
+  "${ROUND_THREE}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${ROUND_THREE}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
+rebuild_rerooted_terminal_contract
+tmp_contract="${ROUND_THREE}/spec-review-contract.tmp"
+jq '.reviewers[0].allowed_input_manifest += [{"path":"/elsewhere/random.md","sha256":"cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"}]' \
+  "${ROUND_THREE}/spec-review-contract.json" > "${tmp_contract}"
+mv "${tmp_contract}" "${ROUND_THREE}/spec-review-contract.json"
+expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+
 cleanup
 mkdir -p "${SPEC_DIR}" "${ROOT}/reports/spec-review"
 printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
