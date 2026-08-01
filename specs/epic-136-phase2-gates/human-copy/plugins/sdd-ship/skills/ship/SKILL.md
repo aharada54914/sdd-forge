@@ -193,18 +193,20 @@ For each task at `Implementation Complete`, in tasks.md document order:
    instead of counting reports by hand:
 
    ```txt
-   plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh T-NNN
+   plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.sh T-NNN <feature>
    ```
 
    On a Windows host without `python3`/`node`, run the PowerShell twin instead:
 
    ```txt
-   pwsh plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1 T-NNN
+   pwsh plugins/sdd-quality-loop/scripts/check-quality-gate-cycle-limit.ps1 T-NNN <feature>
    ```
 
-   The script counts this task's existing gate reports under
+   The script counts THIS FEATURE's existing gate reports under
    `reports/quality-gate/` (word-boundary match on the task id so `T-001` does
-   not match `T-0010`; an absent directory counts zero) and prints its decision:
+   not match `T-0010`, AND an anchored match on this feature's own `Feature:`
+   header line, so a different feature's report sharing the same bare task id
+   is never counted; an absent directory counts zero) and prints its decision:
    - `continue` (exit 0): fewer than three reports — proceed to invoke
      quality-gate for T-NNN.
    - `Escalate-Human` (non-zero exit): three or more reports and the task is
