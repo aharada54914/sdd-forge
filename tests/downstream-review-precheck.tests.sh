@@ -425,4 +425,86 @@ if (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "
 [[ -z "$(find "$outside" -mindepth 1 -print -quit)" ]] || fail "symlinked destination must not receive evidence"
 rm -rf "$IMPL_REPORT" "$outside"
 
+# AC coverage: design.md must name every AC-NNN that requirements.md states.
+# On epic-136-phase4-docs, impl review burned rounds 2 and 3 of attempt 1 finding
+# AC-013 and then AC-012 absent from the design plan, one per round, and escalated
+# to BLOCKED; a later sweep found AC-001 and AC-014 missing too. All were criteria
+# spec review had added late as gap-closers. This is deterministic work that was
+# being paid for with reviewer rounds.
+rm -rf "$SPEC_DIR" "$SPEC_REPORT" "$IMPL_REPORT"
+write_inputs
+# The spec contract is hash-bound to these documents, so every edit below is made
+# before the contract that pins it is written.
+printf '\n#### AC-001\n\nfixture criterion\n' >> "$SPEC_DIR/requirements.md"
+write_spec_pass
+
+ac_run() {
+  (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 1) 2>&1
+}
+
+# absent -> refused, and refused before any evidence is written
+rm -rf "$IMPL_REPORT"
+ac_out="$(ac_run || true)"
+grep -q 'never names these acceptance criteria: AC-001' <<<"$ac_out" ||
+  fail "impl precheck must refuse a design.md that never names AC-001 (got: $ac_out)"
+[[ ! -d "$IMPL_REPORT/attempt-1/round-1" ]] ||
+  fail 'AC-coverage refusal must fail closed before creating round evidence'
+
+# named -> accepted, proving the refusal above was the AC check and not some
+# unrelated fixture failure that would make this case vacuous
+printf '\nCovers AC-001 in the plan.\n' >> "$SPEC_DIR/design.md"
+write_spec_pass   # re-pin the contract now that design.md changed
+rm -rf "$IMPL_REPORT"
+ac_out="$(ac_run || true)"
+if grep -q 'never names these acceptance criteria' <<<"$ac_out"; then
+  fail "impl precheck must accept a design.md that names AC-001 (got: $ac_out)"
+fi
+[[ -f "$IMPL_REPORT/attempt-1/round-1/precheck-result.json" ]] ||
+  fail "impl precheck should have produced round evidence once AC-001 is named (got: $ac_out)"
+rm -rf "$IMPL_REPORT"
+
+# Contract/reviewer agreement: a round's recorded hashes must be the hashes its
+# two reviewers actually pinned. On epic-136-phase4-docs attempt 2 round 2 the
+# contract was written after a remediation edit and recorded a design.md hash
+# neither reviewer had read, so the round's verdict was attributed to text nobody
+# reviewed. It surfaced only because the next round's precheck happened to refuse.
+rm -rf "$SPEC_DIR" "$SPEC_REPORT" "$IMPL_REPORT"
+write_inputs
+printf '\n#### AC-001\n\nfixture criterion\n' >> "$SPEC_DIR/requirements.md"
+printf '\nCovers AC-001 in the plan.\n' >> "$SPEC_DIR/design.md"
+write_spec_pass
+# Round-1 impl evidence without flipping Impl-Review-Status, which must stay
+# Pending for round 2 to run at all.
+mkdir -p "$IMPL_REPORT/attempt-1/round-1"
+write_pass_artifacts impl "$IMPL_REPORT/attempt-1/round-1"
+impl_contract="$IMPL_REPORT/attempt-1/round-1/impl-review-contract.json"
+[[ -f "$impl_contract" ]] || fail 'fixture did not produce an impl contract'
+cp "$impl_contract" "$impl_contract.orig"
+# Round 2 requires design.md to differ from what round 1 recorded.
+printf '\nRound-2 remediation line.\n' >> "$SPEC_DIR/design.md"
+
+fake='1111111111111111111111111111111111111111111111111111111111111111'
+
+# (a) contract records a design hash neither reviewer pinned -> refused
+jq --arg h "$fake" '.design_sha256=$h' "$impl_contract.orig" > "$impl_contract"
+out="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 2) 2>&1 || true)"
+grep -q 'neither reviewer read' <<<"$out" ||
+  fail "impl precheck must refuse a contract recording a design hash no reviewer pinned (got: $out)"
+
+# (b) the two reviewers pinned different design hashes -> refused
+jq --arg h "$fake" '.reviewers[1].allowed_input_manifest |= map(if (.path|test("design\\.md$")) then .sha256=$h else . end)' \
+  "$impl_contract.orig" > "$impl_contract"
+out="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 2) 2>&1 || true)"
+grep -q 'did not review the same text' <<<"$out" ||
+  fail "impl precheck must refuse a contract whose reviewers pinned different design.md (got: $out)"
+
+# (c) the untouched contract must still be accepted, so (a) and (b) are not vacuous
+cp "$impl_contract.orig" "$impl_contract"
+out="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh "$FEATURE" 1 2) 2>&1 || true)"
+if grep -qE 'neither reviewer read|did not review the same text' <<<"$out"; then
+  fail "impl precheck must accept a contract whose reviewers agree with it (got: $out)"
+fi
+rm -f "$impl_contract.orig"
+rm -rf "$IMPL_REPORT"
+
 printf 'ok: downstream prechecks reject bad predecessors and cycles before evidence, then preserve valid graph edges\n'

@@ -48,6 +48,48 @@ reviewed_sha256() {
       shasum -a 256 | awk '{print $1}'
   fi
 }
+# A round's verdict belongs to the text its two reviewers actually read.
+# Elsewhere the manifest checks accept either the contract's recorded hash or the
+# current file hash, which is right for tolerating an untouched file but leaves a
+# real gap: a contract written after a remediation edit can record a hash neither
+# reviewer ever saw, and the round's verdict is then attributed to text that was
+# never reviewed. That happened on epic-136-phase4-docs attempt 2 round 2, and
+# surfaced only because the next round's precheck happened to refuse.
+#
+# Close it directly: the two reviewers must have pinned the same hash for each
+# reviewed document, and the contract must record that hash and no other.
+assert_contract_reviewer_agreement() {
+  local contract="$1" stage="$2"
+  local role_a="${stage}-reviewer-a" role_b="${stage}-reviewer-b"
+  local doc doc_key hash_a hash_b hash_contract
+  pinned_hash() {
+    jq -r --arg role "$1" --arg path "$2" --arg repo "${repo_root}/" '
+      def relative_path:
+        if startswith($repo) then .[($repo | length):]
+        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+        else . end;
+      [.reviewers[]? | select(.role == $role) | .allowed_input_manifest[]?
+       | select((.path | relative_path) == $path) | .sha256] | first // ""
+    ' "$contract"
+  }
+  for doc in requirements.md acceptance-tests.md design.md; do
+    case "$doc" in
+      requirements.md)     doc_key=requirements_sha256 ;;
+      acceptance-tests.md) doc_key=acceptance_sha256 ;;
+      design.md)           doc_key=design_sha256 ;;
+    esac
+    hash_a=$(pinned_hash "$role_a" "specs/${FEATURE}/${doc}")
+    hash_b=$(pinned_hash "$role_b" "specs/${FEATURE}/${doc}")
+    [[ -n "$hash_a" && -n "$hash_b" ]] || continue
+    [[ "$hash_a" == "$hash_b" ]] ||
+      fail "persisted ${stage} contract: reviewer-a and reviewer-b pinned different ${doc}; they did not review the same text"
+    hash_contract=$(jq -r --arg k "$doc_key" '.[$k] // ""' "$contract")
+    if [[ -n "$hash_contract" && "$hash_contract" != "$hash_a" ]]; then
+      fail "persisted ${stage} contract records a ${doc} hash neither reviewer read; the verdict does not belong to that text"
+    fi
+  done
+}
+
 require_persisted_pass() {
   local root="$1" stage="$2" requirements_hash="$3" acceptance_hash="$4" design_hash="$5"
   local requirements_current_hash="$6" design_current_hash="$7" verdict="" contract contract_dir
@@ -208,6 +250,8 @@ require_persisted_pass() {
     manifest_has "$role_a" "$previous_summary" "$(sha256 "${repo_root}/${previous_summary}")" ||
       fail "persisted impl reviewer-a manifest is missing previous-round summary"
   fi
+
+  assert_contract_reviewer_agreement "$contract" "$stage"
   jq -e --slurpfile verdict "$verdict" --arg stage "$stage" '
     . as $contract | $verdict[0] as $verdict |
     $contract.attempt == $verdict.attempt and
@@ -362,11 +406,17 @@ if [[ "${ROUND}" -gt 1 ]]; then
   prior_contract="reports/impl-review/${FEATURE}/attempt-${ATTEMPT}/round-${prior_round}/impl-review-contract.json"
 
   if [[ -f "${prior_contract}" ]]; then
+    # The prior round's own verdict must belong to the text its reviewers read.
+    # This is the site where the epic-136-phase4-docs attempt-2 round-2 defect
+    # lived: require_persisted_pass only inspects the spec contract, so without
+    # this call an impl round-to-round handoff carries no such check at all.
+    assert_contract_reviewer_agreement "${prior_contract}" impl
+
     prior_design_sha256=$(python3 -c "import json,sys; d=json.load(open('${prior_contract}')); print(d.get('design_sha256',''))" 2>/dev/null || echo "")
 
     if [[ "${design_sha256}" == "${prior_design_sha256}" ]]; then
       echo "ERROR: impl-review-precheck: design.md sha256 is unchanged from round ${prior_round}." \
-        "Edit design.md before re-invoking, then provide --edit-summary." >&2
+        "A new round must review changed text; edit design.md, then re-invoke." >&2
       exit 1
     fi
 
@@ -382,6 +432,29 @@ if [[ "${ROUND}" -gt 1 ]]; then
       fi
     fi
   fi
+fi
+
+# AC coverage. Every AC-NNN in requirements.md must be named in design.md.
+#
+# This is deterministic work that was being paid for with reviewer rounds. On
+# epic-136-phase4-docs, impl review spent rounds 2 and 3 of attempt 1 finding
+# AC-013 and then AC-012 missing from the design plan, one per round, and the
+# attempt escalated to BLOCKED. A later mechanical sweep found AC-001 and AC-014
+# absent as well. Every one of them was an AC that spec review had added late as
+# a gap-closer, which the design -- written against the REQ-* headings -- dropped
+# silently. A design that does not name an AC cannot be audited for covering it.
+ac_missing=""
+if [[ -f "${REQS_MD}" && -f "${DESIGN_MD}" ]]; then
+  while IFS= read -r ac_id; do
+    [[ -n "${ac_id}" ]] || continue
+    grep -Fq -- "${ac_id}" "${DESIGN_MD}" || ac_missing+="${ac_id} "
+  done < <(grep -oE 'AC-[0-9]{3}' "${REQS_MD}" | sort -u)
+fi
+if [[ -n "${ac_missing}" ]]; then
+  echo "ERROR: impl-review-precheck: design.md never names these acceptance criteria: ${ac_missing% }" >&2
+  echo "       Each one is testable and traceable in requirements.md but absent from the design plan," >&2
+  echo "       so an implementer could satisfy the plan and still not deliver them." >&2
+  exit 1
 fi
 
 # ──────────────────────────────────────────────────────────────────────────────

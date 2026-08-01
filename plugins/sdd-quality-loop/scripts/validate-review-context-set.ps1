@@ -345,6 +345,51 @@ try {
         }
     }
 
+    # Round consistency. A manifest freezes hashes at reservation time; the round's
+    # precheck-result.json froze them when the round opened. If the two disagree, a
+    # reviewed document changed between the precheck and this reservation, so the
+    # round's two reviewers would be judging different text. Precheck replay is
+    # forbidden, so refuse the reservation now rather than a round later.
+    $precheckEntry = $inputs | Where-Object {
+        $_.path -cmatch '^reports/(spec|impl|task)-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\.json$'
+    } | Select-Object -First 1
+    if ($null -ne $precheckEntry) {
+        $precheckPath = Join-Path $repositoryRoot $precheckEntry.path
+        if (Test-Path -LiteralPath $precheckPath -PathType Leaf) {
+            $precheck = Get-Content -LiteralPath $precheckPath -Raw | ConvertFrom-Json
+            $pinned = [ordered]@{}
+            $simple = [ordered]@{
+                'requirements.md'     = 'requirements_sha256'
+                'acceptance-tests.md' = 'acceptance_sha256'
+                'design.md'           = 'design_sha256'
+                'tasks.md'            = 'tasks_sha256'
+                'traceability.json'   = 'traceability_sha256'
+            }
+            foreach ($docName in $simple.Keys) {
+                $value = $precheck.PSObject.Properties[$simple[$docName]]
+                if ($null -ne $value -and $value.Value -is [string] -and
+                    $value.Value -cmatch '^[0-9a-f]{64}$') {
+                    $pinned["specs/$($document.feature)/$docName"] = $value.Value
+                }
+            }
+            $layer = $precheck.PSObject.Properties['layer_sha256']
+            if ($null -ne $layer -and $null -ne $layer.Value) {
+                foreach ($entry in $layer.Value.PSObject.Properties) {
+                    if ($entry.Value -is [string] -and $entry.Value -cmatch '^[0-9a-f]{64}$') {
+                        $pinned["specs/$($document.feature)/$($entry.Name)"] = $entry.Value
+                    }
+                }
+            }
+            foreach ($pinnedPath in $pinned.Keys) {
+                $manifestEntry = $inputs | Where-Object { $_.path -ceq $pinnedPath } | Select-Object -First 1
+                if ($null -eq $manifestEntry) { continue }
+                if ($manifestEntry.sha256 -cne $pinned[$pinnedPath]) {
+                    Fail-ReviewContext 'ROUND' "manifest freezes $pinnedPath at a hash this round's precheck did not pin: the document changed mid-round"
+                }
+            }
+        }
+    }
+
     $recordText = "$($document.sequence)|$($document.stage)|$($document.role)|$($document.run_id)|$($document.host_session_id)|$($document.previous_record_sha256)"
     $recordHash = Get-Sha256Text $recordText
     if ($Reserve) {
