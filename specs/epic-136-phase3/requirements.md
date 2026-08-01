@@ -114,10 +114,20 @@ Codex-shaped `tool_name` values, closing the gap investigation.md's INV-010
 names. Stream C (#125) creates `tests/workflow-scenarios/` and a scenario
 schema for 10 representative classes, reusing (never inventing) the
 `greenfield`/`brownfield` fixture-profile vocabulary ADR-0010 defines and
-`tests/loops/loop-inventory.json` already uses — but ADR-0010 is still
-`Status: Proposed`, so Stream C's implementation is an explicit Blocker
-(Open Questions, OQ-2), not a silent assumption of approval. Stream D
-(#126) marks the deterministic lane boundary INSIDE
+`tests/loops/loop-inventory.json` already uses.
+
+**Stream C status record (authoritative).** ADR-0010 reached `Status:
+Accepted` by human decision (commit `67015a5`, 2026-07-22). That promotion
+discharged OQ-2's Blocker, and Stream C's implementation then landed inside
+this feature: T-004 authored `tests/workflow-scenarios/` and
+`workflow-scenarios.tests.sh`, and the `CHANGELOG.md` entry citing #125 was
+written (commit `fd4db859`). Every passage below that once carried an
+operative "Blocked pending ADR-0010" instruction has been reconciled to this
+record in place. Where a passage is explicitly labelled a spec-authoring-time
+or investigation-time snapshot, it is retained verbatim as history and is NOT
+a current-state claim.
+
+Stream D (#126) marks the deterministic lane boundary INSIDE
 `.github/workflows/test.yml`'s single `test` job — `[deterministic]`
 step-name prefixes plus a documented, currently-empty comment boundary for
 a future LLM-invoking eval lane, with the job graph and `required-checks`'
@@ -126,7 +136,7 @@ has **zero** LLM-invoking steps today, so this is scoped as a preventive,
 job-count-preserving lane marking, not a job split and not a fix to an
 existing mixed-lane defect (Open Questions, OQ-5).
 
-Every new test-suite file across Streams A, B, and (once unblocked) C is a
+Every new test-suite file across Streams A, B, and C is a
 **new, unprotected file** — never an edit to `tests/gates.tests.sh`,
 `tests/eval.tests.sh`, `tests/guard-parity.tests.sh`, or
 `tests/constant-parity.tests.sh`, all four of which remain genuinely R-10
@@ -150,8 +160,8 @@ conclusively (Open Questions).
 - Maintainers and epic-159 Pillar A loop-harness authors who need
   `tests/workflow-scenarios/` to share vocabulary with
   `tests/loops/loop-inventory.json` rather than inventing a second,
-  incompatible fixture-profile taxonomy (Stream C's audience, blocked on
-  ADR-0010).
+  incompatible fixture-profile taxonomy (Stream C's audience; ADR-0010,
+  which gated this, is Accepted).
 - CI maintainers who need `test.yml`'s deterministic suites to sit in a
   named, structurally separate lane from any future LLM-invoking eval step,
   before such a step is actually proposed (Stream D's audience,
@@ -180,8 +190,10 @@ conclusively (Open Questions).
   ADR-0010's `greenfield`/`brownfield` vocabulary and does not use it
   (INV-013), creating a real risk that a hastily created `tests/workflow-scenarios/`
   either collides with that existing suite's naming or invents a
-  second, incompatible fixture-profile taxonomy before ADR-0010 (still
-  `Proposed`) is even accepted (INV-015).
+  second, incompatible fixture-profile taxonomy before ADR-0010 — which
+  was `Proposed` when this problem was recorded — was even accepted
+  (INV-015). The ADR has since been Accepted (Stream C status record), so
+  the taxonomy Stream C reuses is the approved one.
 - `.github/workflows/test.yml`'s single `test` job (`test.yml:14-372`,
   50+ sequential steps across a 3-OS matrix) has no lane boundary of any
   kind (investigation.md INV-019); while no LLM-invoking step exists in it
@@ -215,8 +227,9 @@ conclusively (Open Questions).
   Code; `"exec_command"` and `"apply_patch"` — Codex, per issue #124's own
   "exec_command / apply_patch 等" wording, INV-031), with an explicit
   cross-runtime decision-parity assertion tying every combination together.
-- REQ-003 (Stream C, #125; INV-012..INV-018, OQ-2, OQ-3, OQ-6) — **Blocked
-  pending ADR-0010 reaching `Status: Accepted`**: define the
+- REQ-003 (Stream C, #125; INV-012..INV-018, OQ-2, OQ-3, OQ-6) —
+  **Unblocked: ADR-0010 reached `Status: Accepted` (Stream C status
+  record)**: define the
   `tests/workflow-scenarios/` directory layout and a scenario schema whose
   fixture-classification field is the closed set `greenfield`|`brownfield`
   (reused verbatim from `loop-inventory.json`, never invented fresh, per
@@ -243,7 +256,7 @@ conclusively (Open Questions).
   to a currently-mixed lane. A future eval-lane job split (out of scope
   here) is the point at which `needs:` would be extended.
 - REQ-005 (cross-cutting, all streams; INV-006, INV-025): Every new suite
-  this feature adds (Streams A, B, and C once unblocked) is registered in
+  this feature adds (Streams A, B, and C) is registered in
   `tests/run-all.sh`; a native `.ps1` twin (if any) is additionally
   registered in `tests/run-all.ps1`, or the suite is documented as a
   "combined suite" (quality-loop-fixes Field Definitions convention,
@@ -259,8 +272,9 @@ conclusively (Open Questions).
   file is pure-ASCII, LF-only, no BOM, and ends with an explicit `exit N`
   (`tests/guard-ps1-ascii.tests.sh`'s constraint, extended to new files).
   Each unblocked stream's own PR/commit set carries its own `CHANGELOG.md`
-  `## Unreleased` entry citing its own issue number (#123, #124, #126 —
-  #125's entry is deferred until Stream C unblocks, OQ-2); no
+  `## Unreleased` entry citing its own issue number (#123, #124, #126, and
+  #125 — Stream C's entry was written once ADR-0010's Accepted promotion
+  unblocked it, OQ-2); no
   version-literal edit exists outside `scripts/bump-version.sh`; per epic
   #136's Done-condition text (investigation.md INV-030), any of
   `README.md`/`USERGUIDE.md`/`docs/workflow-guide.md`/`docs/skill-reference.md`/
@@ -276,12 +290,14 @@ conclusively (Open Questions).
   (`tests/gates.tests.sh`, `tests/eval.tests.sh`, `tests/guard-parity.tests.sh`,
   `tests/constant-parity.tests.sh`) directly. Every new negative-case or
   fallback-dispatch test lands in a NEW, unprotected file (Overview; OQ-1).
-- Inventing a fixture-profile vocabulary for Stream C ahead of ADR-0010's
-  approval, or proceeding with Stream C's implementation at all while
-  ADR-0010's `Status` remains `Proposed` (Open Questions, OQ-2) — this spec
-  defines Stream C's target shape so task decomposition is not blocked on
-  spec re-authoring once the ADR is accepted, but implementation itself is
-  a recorded Blocker.
+- Inventing a fixture-profile vocabulary for Stream C instead of reusing
+  ADR-0010's — the vocabulary is reused verbatim, never invented (Open
+  Questions, OQ-2 and OQ-3). The companion prohibition, proceeding with
+  Stream C's implementation while ADR-0010's `Status` was `Proposed`, was
+  discharged rather than waived: this spec defined Stream C's target shape
+  so task decomposition would not be blocked on spec re-authoring, the ADR
+  then reached `Status: Accepted` (Stream C status record), and only then
+  did implementation proceed.
 - Migrating or renaming the 3 existing `tests/scenario.tests.sh` scenarios
   (A/B1/E) into `tests/workflow-scenarios/`; the two suites coexist as a
   clean new namespace with an explicit cross-reference comment in each
@@ -402,8 +418,8 @@ target) and a saved quality-gate report before it may be marked Done.
   reaches a decision for that payload agrees with every other runtime
   surface (fail if, for example, `.py` denies a payload that `.ps1`
   allows). (REQ-002)
-- AC-012 — **Blocked pending ADR-0010 `Status: Accepted`**: once
-  unblocked, `tests/workflow-scenarios/` exists with a scenario schema
+- AC-012 — **Unblocked (ADR-0010 `Status: Accepted`; Stream C status
+  record)**: `tests/workflow-scenarios/` exists with a scenario schema
   whose fixture-classification field is exactly the closed set
   `greenfield`|`brownfield` (verbatim reuse of `loop-inventory.json`'s
   field, ADR-0010 §2), and every one of the 10 representative classes
@@ -412,24 +428,24 @@ target) and a saved quality-gate report before it may be marked Done.
   inbound-prompt-injection — the other 8 reference their existing coverage
   per investigation.md INV-017's table rather than duplicating it).
   (REQ-003)
-- AC-013 — Blocked, same precondition as AC-012: scenario PreToolUse
+- AC-013 — same precondition as AC-012, likewise discharged: scenario PreToolUse
   payloads are driven with both a Claude-Code-shaped `tool_name` (`Edit`,
   `Write`, `MultiEdit`, or `Bash`) and a Codex-shaped `tool_name`
   (`apply_patch`, `exec_command`, `shell`, or `exec`) — both families
   exercised, not one alone (issue #125's own runtime-対応 text).
   (REQ-003)
-- AC-014 — Blocked, same precondition: scenario class 5 (prompt injection
+- AC-014 — same precondition, likewise discharged: scenario class 5 (prompt injection
   issue body) targets the INBOUND direction specifically — a fixture
   GitHub issue body containing adversarial instruction-shaped text
   (`<script>`, "IGNORE ALL PREVIOUS INSTRUCTIONS", etc., the same corpus
   `model-freshness-check.tests.sh:423` already uses for its OUTBOUND
   check) is fetched by the named `plugins/sdd-bootstrap` entry point
-  (design.md API/Contract Plan names the exact target once Stream C
-  unblocks) and its embedded instruction-shaped text is proven NOT
+  (design.md API/Contract Plan names the exact target now that Stream C
+  is unblocked) and its embedded instruction-shaped text is proven NOT
   executed/followed by the reading agent session — the complementary,
   currently-uncovered direction to TEST-021's existing outbound check.
   (REQ-003)
-- AC-015 — Blocked, same precondition: `tests/workflow-scenarios/` and
+- AC-015 — same precondition, likewise discharged: `tests/workflow-scenarios/` and
   `tests/scenario.tests.sh` carry an explicit cross-reference comment in
   each pointing at the other, naming the scope difference (full-chain
   lifecycle / hook-contract / signing round-trip vs. the 10
@@ -458,8 +474,8 @@ target) and a saved quality-gate report before it may be marked Done.
   INV-021, INV-022) is unchanged — Stream D does not fold either into the
   single `test` job's marked deterministic lane or into `required-checks`'
   `needs:` list. (REQ-004)
-- AC-019: every new suite from Streams A and B (and Stream C once
-  unblocked) is present in `tests/run-all.sh`; a native `.ps1` file (if
+- AC-019: every new suite from Streams A, B, and C is present in
+  `tests/run-all.sh`; a native `.ps1` file (if
   any) is additionally present in `tests/run-all.ps1`, OR the suite is
   documented as a "combined suite" (internally shells to `pwsh`) and its
   absence from `run-all.ps1` is a stated, reviewed exemption — re-verified
@@ -470,16 +486,17 @@ target) and a saved quality-gate report before it may be marked Done.
   `guard_invariants.py:4`); the live file's grep-based self-check for each
   new suite's basename is red until a human applies the staged candidate —
   the designed fail-closed state, no staged-candidate fallback. (REQ-005)
-- AC-021: every new `.sh` file (Streams A, B, and C once unblocked) avoids
+- AC-021: every new `.sh` file (Streams A, B, and C) avoids
   `declare -A` and guards any possibly-empty array expansion under `set
   -u`; every new `.ps1` file is pure-ASCII with no BOM, LF-only line
   endings, and ends with an explicit `exit N` — reviewed against
   `tests/guard-ps1-ascii.tests.sh`'s existing constraint. (REQ-006)
 - AC-022: Streams A, B, and D each carry their own `CHANGELOG.md` `##
   Unreleased` entry citing their own issue number (#123, #124, #126 — three
-  independent entries); Stream C's entry (#125) is deferred until it
-  unblocks (OQ-2) — not written speculatively against a still-`Proposed`
-  ADR. No version-literal edit exists anywhere outside
+  independent entries); Stream C's entry (#125) is PRESENT, written only
+  after ADR-0010's Accepted promotion unblocked it (OQ-2) — never
+  speculatively against a still-`Proposed` ADR. No version-literal edit
+  exists anywhere outside
   `scripts/bump-version.sh`. (REQ-006)
 - AC-023: for each unblocked stream, its implementation report states
   explicitly whether any of `README.md`/`USERGUIDE.md`/`docs/workflow-guide.md`/
@@ -505,7 +522,7 @@ target) and a saved quality-gate report before it may be marked Done.
   (`hooks.json:15-24`). This feature's tests use `"Bash"` (Claude-shaped)
   and BOTH `"exec_command"` and `"apply_patch"` (Codex-shaped, per issue
   #124's own "exec_command / apply_patch 等" wording) as its 3
-  representative shapes for REQ-002; REQ-003 (once unblocked) additionally
+  representative shapes for REQ-002; REQ-003 additionally
   exercises `"shell"`/`"exec"` per issue #125's own broader enumeration.
 - `PATH-restricted subshell` (REQ-001) — the `tests/collection-layer.tests.sh`-established
   technique (`:28,56,84,200,228`) of invoking a target script with an
@@ -545,7 +562,7 @@ target) and a saved quality-gate report before it may be marked Done.
 - Agent: authors `tests/guard-dispatch-fallback.tests.sh` (REQ-001) and
   `tests/guard-negative-corpus.tests.sh` (REQ-002) directly — neither name
   matches any entry in `PROTECTED_GATE_SUFFIXES` (re-verified,
-  `guard_invariants.py:4`). Once Stream C unblocks, the agent authors
+  `guard_invariants.py:4`). With Stream C unblocked, the agent authors
   `tests/workflow-scenarios/` directly (new directory, no suffix
   collision with a protected entry). The agent NEVER writes
   `.github/workflows/test.yml` directly for any stream — it stages
@@ -556,14 +573,17 @@ target) and a saved quality-gate report before it may be marked Done.
   these edits WITHIN that single batch against the SAME protected file).
 - Human maintainer: approves this spec and (Phase 2) tasks; validates and
   applies the staged `.github/workflows/test.yml` human-copy candidate(s)
-  as pre-merge commits on the feature PR branch; separately, decides when
-  ADR-0010 moves to `Status: Accepted`, which is the sole unblock condition
-  for Stream C's implementation (OQ-2) — this decision is NOT made by this
-  spec or by any agent session.
+  as pre-merge commits on the feature PR branch; separately, decided when
+  ADR-0010 moved to `Status: Accepted`, which was the sole unblock condition
+  for Stream C's implementation (OQ-2) — that decision was NOT made by this
+  spec or by any agent session, and it has since been made (commit
+  `67015a5`).
 - CI: runs Streams A and B's suites, and the same single `test` job with
   its `[deterministic]`-prefixed steps, once the ONE shared staged
-  `test.yml` candidate (Streams A + B + D) is applied by the human;
-  Stream C's suites do not exist in CI until Stream C unblocks and lands.
+  `test.yml` candidate (Streams A + B + C + D) is applied by the human;
+  Stream C's suite landed with the rest and registers its own explicit step
+  inside that same batch (AC-019/AC-020) rather than waiting for a later
+  feature's batch.
 
 ## Main Workflows
 
@@ -584,17 +604,18 @@ target) and a saved quality-gate report before it may be marked Done.
    ordering of edits WITHIN that single reviewed diff, exactly as stated
    for Stream D in item 4 below); CREATE the `CHANGELOG.md` entry citing
    #124. Blockers: none — independent.
-3. Stream C (#125): **Blocked pending ADR-0010 `Status: Accepted`.** Once
-   unblocked: create `tests/workflow-scenarios/` and its scenario schema
+3. Stream C (#125): **Unblocked — ADR-0010 reached `Status: Accepted`
+   (Stream C status record).** Create `tests/workflow-scenarios/` and its
+   scenario schema
    per AC-012..AC-015, reusing `tests/lib/loop-driver.sh`'s helper
    functions where the target stage is `"spec"` (its only fully
    implemented stage today, investigation.md INV-016); register in
    `tests/run-all.sh`/`.ps1` as applicable; stage its CI step via
-   human-copy — inside this feature's ONE shared staged batch if Stream C
-   unblocks before that batch is finalized, otherwise via a later
-   feature's batch (Non-goals; never a second separate batch of this
-   feature's own); CREATE the `CHANGELOG.md` entry citing #125. Blocker:
-   ADR-0010 approval (external to this feature's own work).
+   human-copy — inside this feature's ONE shared staged batch, since Stream
+   C unblocked before that batch was finalized (Non-goals; never a second
+   separate batch of this feature's own); CREATE the `CHANGELOG.md` entry
+   citing #125. Blocker: DISCHARGED — ADR-0010 approval was external to this
+   feature's own work and was granted at commit `67015a5`.
 4. Stream D (#126): mark the deterministic lane boundary inside
    `.github/workflows/test.yml`'s single `test` job per AC-016..AC-018 —
    every existing step gains its `[deterministic]` name prefix plus the
@@ -641,11 +662,11 @@ target) and a saved quality-gate report before it may be marked Done.
   CI OS's real toolchain shape to happen to match (the same "portable
   fixture, not `windows-latest`-only" discipline `quality-loop-fixes`
   Stream 4 established for its CRLF `jq` shim).
-- Stream C's Blocker (ADR-0010) must be re-checked at Phase 2 task
-  decomposition time and again at implementation time, not assumed
-  resolved because time has passed since this spec was authored (WFI-013
+- Stream C's Blocker (ADR-0010) was re-checked at Phase 2 task
+  decomposition time and again at implementation time, rather than assumed
+  resolved because time had passed since this spec was authored (WFI-013
   discipline) — `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md`'s
-  `Status:` line is the single source of truth.
+  `Status:` line is the single source of truth, and it reads `Accepted`.
 - Stream D's lane marking must not silently drop or rename away a step:
   every step name currently inside `test.yml`'s single `test` job
   (INV-019) must still be present, `[deterministic]`-prefixed, inside that
@@ -662,7 +683,7 @@ target) and a saved quality-gate report before it may be marked Done.
 | B1: new-suite fixtures vs. the LIVE, protected guard binaries (`sdd-hook-guard.{py,js,ps1,sh}`) | Streams A/B exercise the live protected guards READ-ONLY (invoke, never edit) via env-var/PATH indirection, the same discipline `guard-cwd-bypass.tests.sh` already establishes; no new suite writes to a protected path | internal repository content only | none identified |
 | B2: fixture GitHub issue body (Stream C, scenario 5) vs. the reading agent session | the fixture's adversarial instruction-shaped text must be treated as inert DATA by the named `plugins/sdd-bootstrap` entry point, never executed as an instruction — this is the exact inbound-injection threat model AC-014 operationalizes | internal fixture content only (no real external issue body is fetched) | none identified |
 | B3: `.github/workflows/test.yml` vs. agent-direct edits | the ONE shared staged batch (Streams A's/B's new CI steps and Stream D's step-prefix lane marking) is staged under `specs/epic-136-phase3/human-copy/` with `MANIFEST.sha256`; only a human applies it | internal source only | none identified |
-| B4: fixture world vs. real repository/network state | every new fixture (PATH-restricted subshells, PowerShell stubs, negative-case payloads, scenario fixtures once Stream C unblocks) is mktemp-scoped; no suite in this feature makes a live network call or drives a real `gh` CLI invocation against a real issue | synthetic fixtures only | none identified |
+| B4: fixture world vs. real repository/network state | every new fixture (PATH-restricted subshells, PowerShell stubs, negative-case payloads, Stream C's scenario fixtures) is mktemp-scoped; no suite in this feature makes a live network call or drives a real `gh` CLI invocation against a real issue | synthetic fixtures only | none identified |
 
 Details: [Security specification](security-spec.md#trust-boundaries).
 
@@ -690,11 +711,13 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   fixture-scoped ledger copy where a ledger interaction is even needed,
   avoiding this risk (none of Streams A/B/D's own fixtures need to
   `--reserve` against the real ledger at all).
-- ADR-0010's `Status: Proposed` (Re-verification note) holds at
-  spec-authoring time. This is the SOLE precondition Stream C's Blocker
-  depends on — RE-VERIFY the ADR's `Status:` line directly before treating
-  Stream C as unblocked at any later point (task decomposition,
-  implementation start), not this document's authoring-time snapshot.
+- ADR-0010's `Status: Proposed` (Re-verification note) held at
+  spec-authoring time — an authoring-time snapshot, not a current-state
+  claim. This was the SOLE precondition Stream C's Blocker depended on, and
+  the RE-VERIFY instruction was carried out rather than skipped: the ADR's
+  `Status:` line now reads `Accepted` (commit `67015a5`), which is what
+  unblocked Stream C. Re-verify that line directly rather than trusting
+  either snapshot.
 - `tests/loop-driver.sh`'s `drive_review_round` remains implemented only
   for stage `"spec"` (Re-verification note) at spec-authoring time; Stream
   C's reuse of it (Main Workflows item 3) is scoped accordingly — if a
@@ -720,19 +743,21 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   INV-025). Non-goal: the two issues' own Constraint-section framing
   (human-copy edits to the protected suites) is not followed; this
   document records that discrepancy rather than silently reconciling it.
-- OQ-2 — RESOLVED (Blocked pending ADR-0010 `Status: Accepted`): Stream C
-  does not proceed to implementation while ADR-0010 remains `Status:
-  Proposed` (re-verified current at spec-authoring time). This spec
-  defines Stream C's target shape (REQ-003, AC-012..015) so task
-  decomposition is ready the moment the ADR is accepted, but no
-  `tests/workflow-scenarios/` file is created, and no `CHANGELOG.md` entry
-  for #125 is written, until then. This is the more conservative of the
-  two options investigation.md's OQ-2 posed, chosen per this feature's own
-  brief instruction not to assume ADR-0010 Accepted.
+- OQ-2 — RESOLVED, and its Blocker has since been DISCHARGED. The rule
+  chosen was the more conservative of the two options investigation.md's
+  OQ-2 posed, per this feature's own brief instruction not to assume
+  ADR-0010 Accepted: Stream C would not proceed to implementation while
+  ADR-0010 remained `Status: Proposed` (re-verified current at
+  spec-authoring time), and no `tests/workflow-scenarios/` file and no
+  `CHANGELOG.md` entry for #125 would be written until then. This spec
+  defined Stream C's target shape (REQ-003, AC-012..015) so task
+  decomposition was ready the moment the ADR was accepted. That rule was
+  honoured, not waived: ADR-0010 reached `Status: Accepted` first (commit
+  `67015a5`), and only then did Stream C implement against that shape.
 - OQ-3 — RESOLVED (clean new namespace, cross-referenced): `tests/workflow-scenarios/`
   is a new directory, distinct from `tests/scenario.tests.sh`; neither
   suite is migrated or renamed. AC-015 requires an explicit cross-reference
-  comment in both files once Stream C unblocks.
+  comment in both files, added once Stream C unblocked.
 - OQ-4 — RESOLVED (moot, re-verified): the concurrent `test.yml`
   human-copy staging risk investigation.md recorded against
   `quality-loop-fixes` no longer applies — `quality-loop-fixes` fully
@@ -764,13 +789,15 @@ Details: [Security specification](security-spec.md#trust-boundaries).
 
 ## Risks
 
-- High: Stream C's Blocker (ADR-0010 approval) is entirely outside this
-  feature's control; if ADR-0010 is ultimately Rejected rather than
-  Accepted, Stream C's entire REQ-003 scope must be re-scoped against
-  whatever vocabulary decision replaces it — this spec deliberately does
-  not hedge by inventing a fallback vocabulary, since doing so would
-  recreate the exact dual-vocabulary risk ADR-0010 itself warns against
-  (investigation.md INV-015).
+- High, now RETIRED (the risk resolved in this feature's favour): Stream
+  C's Blocker (ADR-0010 approval) was entirely outside this feature's
+  control; had ADR-0010 been Rejected rather than Accepted, Stream C's
+  entire REQ-003 scope would have needed re-scoping against whatever
+  vocabulary decision replaced it. This spec deliberately did not hedge by
+  inventing a fallback vocabulary, since doing so would have recreated the
+  exact dual-vocabulary risk ADR-0010 itself warns against
+  (investigation.md INV-015). ADR-0010 was Accepted (commit `67015a5`), so
+  the reused vocabulary stands and no re-scoping was needed.
 - Medium: Streams A, B, and D all stage edits to the SAME protected
   `.github/workflows/test.yml` file within this one feature. The batch
   count is settled at this spec level (the ONE shared staged batch,
