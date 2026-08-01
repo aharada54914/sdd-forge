@@ -1301,38 +1301,56 @@ function isDesignMd(filePath) {
 }
 
 function implReviewVerdictExists(filePath) {
-  // Check whether a valid integrated-verdict.json with PASS or PASS-with-warnings
-  // exists in reports/impl-review/<feature>/. Extract feature from the design.md path.
-  // Path pattern: specs/<feature>/design.md
+  // Resolve the repository root the same way as resolveProjectRoot
+  // (CLAUDE_PROJECT_DIR, then the git root discovered upward from the edited
+  // filePath, then CWD) and look for a PASS/PASS-with-warnings
+  // integrated-verdict.json under each candidate root. Resolving from
+  // filePath/CLAUDE_PROJECT_DIR rather than CWD alone fixes false denials when
+  // the agent's CWD is outside the repository (the previous CWD-only scan missed
+  // a genuine verdict). The verdict criterion is unchanged. Extract feature from
+  // the design.md path (specs/<feature>/design.md). (WFI-016)
   if (!filePath) return false;
   const normalized = String(filePath).replace(/\\/g, '/');
   const specsMatch = normalized.match(/specs\/([^/]+)\/design\.md$/i);
   if (!specsMatch) return false;
   const feature = specsMatch[1];
 
-  // Look for any integrated-verdict.json in reports/impl-review/<feature>/
-  const reportsBase = 'reports/impl-review/' + feature;
-  try {
-    // Walk attempt dirs
-    const attemptDirs = fs.readdirSync(reportsBase).filter(d => d.startsWith('attempt-'));
-    for (const attemptDir of attemptDirs) {
-      const roundBase = path.join(reportsBase, attemptDir);
-      const roundDirs = fs.readdirSync(roundBase).filter(d => d.startsWith('round-'));
-      for (const roundDir of roundDirs) {
-        const verdictPath = path.join(roundBase, roundDir, 'integrated-verdict.json');
-        try {
-          const content = fs.readFileSync(verdictPath, 'utf8');
-          const verdict = JSON.parse(content);
-          if (verdict.verdict === 'PASS' || verdict.verdict === 'PASS-with-warnings') {
-            return true;
+  const roots = [];
+  const envRoot = process.env.CLAUDE_PROJECT_DIR;
+  if (envRoot) roots.push(envRoot);
+  const fpRoot = findGitRoot(path.dirname(path.resolve(filePath)));
+  if (fpRoot) roots.push(fpRoot);
+  roots.push('.');
+
+  const seen = new Set();
+  for (const root of roots) {
+    let key;
+    try { key = path.resolve(root); } catch (e) { continue; }
+    if (seen.has(key)) continue;
+    seen.add(key);
+    const reportsBase = path.join(root, 'reports/impl-review/' + feature);
+    try {
+      // Walk attempt dirs
+      const attemptDirs = fs.readdirSync(reportsBase).filter(d => d.startsWith('attempt-'));
+      for (const attemptDir of attemptDirs) {
+        const roundBase = path.join(reportsBase, attemptDir);
+        const roundDirs = fs.readdirSync(roundBase).filter(d => d.startsWith('round-'));
+        for (const roundDir of roundDirs) {
+          const verdictPath = path.join(roundBase, roundDir, 'integrated-verdict.json');
+          try {
+            const content = fs.readFileSync(verdictPath, 'utf8');
+            const verdict = JSON.parse(content);
+            if (verdict.verdict === 'PASS' || verdict.verdict === 'PASS-with-warnings') {
+              return true;
+            }
+          } catch (e) {
+            // continue
           }
-        } catch (e) {
-          // continue
         }
       }
+    } catch (e) {
+      // reports dir doesn't exist or can't be read
     }
-  } catch (e) {
-    // reports dir doesn't exist or can't be read
   }
   return false;
 }

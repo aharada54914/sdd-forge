@@ -1,6 +1,6 @@
 {
   "name": "sdd-ship",
-  "version": "1.11.0",
+  "version": "1.11.1",
   "description": "Implement approved SDD tasks through the quality gate to Done — the second of the two-command workflow.",
   "skills": "./skills/",
   "author": {
