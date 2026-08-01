@@ -43,7 +43,8 @@ $tests = @(
     'tests/approver-registry-schema.tests.ps1',
     'tests/detect-policy-weakening.tests.ps1',
     'tests/validate-approval-sidecar.tests.ps1',
-    'tests/apply-human-copy.tests.ps1'
+    'tests/apply-human-copy.tests.ps1',
+    'tests/check-hook-activation-handshake.tests.ps1'
 )
 
 Push-Location $root

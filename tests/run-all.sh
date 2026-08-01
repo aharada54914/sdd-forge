@@ -61,6 +61,7 @@ tests=(
   tests/detect-policy-weakening.tests.sh
   tests/validate-approval-sidecar.tests.sh
   tests/apply-human-copy.tests.sh
+  tests/check-hook-activation-handshake.tests.sh
   tests/guard-staging-exemption.tests.sh
 )
 

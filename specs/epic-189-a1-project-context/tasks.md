@@ -1899,9 +1899,9 @@ including the design derivation and the axis-variation table, in
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-01T13:46:38Z)
 
-Status: Planned
+Status: Implementation Complete
 
 Risk: high
 
@@ -2021,7 +2021,9 @@ T-007
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (aharada54914 2026-08-01T12:58:44Z)
+
+Second Approval: Approved (aharada227 2026-08-01T12:59:05Z)
 
 Status: Planned
 
