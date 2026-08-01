@@ -271,7 +271,7 @@ conclusively (Open Questions).
   possibly-empty array under `set -u` (bash 3.2 safety); every new `.ps1`
   file is pure-ASCII, LF-only, no BOM, and ends with an explicit `exit N`
   (`tests/guard-ps1-ascii.tests.sh`'s constraint, extended to new files).
-  Each unblocked stream's own PR/commit set carries its own `CHANGELOG.md`
+  Each stream's own PR/commit set carries its own `CHANGELOG.md`
   `## Unreleased` entry citing its own issue number (#123, #124, #126, and
   #125 — Stream C's entry was written once ADR-0010's Accepted promotion
   unblocked it, OQ-2); no
@@ -348,8 +348,9 @@ substring-collision defect would be caught in ANY of the 4 runtime
 surfaces and under a Codex-shaped tool-call payload, not only the
 Claude-Code-shaped payload the older suites happen to use. As an
 epic-159 Pillar A loop-harness author, I trust that
-`tests/workflow-scenarios/` (once ADR-0010 is accepted and Stream C
-unblocks) speaks the same `greenfield`/`brownfield` vocabulary my own
+`tests/workflow-scenarios/` (delivered by Stream C, which ADR-0010's
+Accepted promotion unblocked) speaks the same
+`greenfield`/`brownfield` vocabulary my own
 loop-driver fixtures use, so I never have to reconcile two incompatible
 fixture-profile taxonomies. As a CI maintainer, I see `test.yml`'s
 deterministic suites sitting in a clearly named lane, ready for a future
@@ -360,8 +361,9 @@ structural rewrite under time pressure.
 
 See [acceptance-tests.md](acceptance-tests.md) for the full TEST-ID
 traceability table. Every criterion below is tied to a deterministic
-suite (or, for Stream C while blocked, a Planned-but-not-yet-implementable
-target) and a saved quality-gate report before it may be marked Done.
+suite — including Stream C's, whose target became implementable when
+ADR-0010's Accepted promotion discharged its Blocker (Stream C status
+record) — and a saved quality-gate report before it may be marked Done.
 
 - AC-001: `tests/guard-dispatch-fallback.tests.sh` drives
   `sdd-hook-guard.sh` with `PATH="/usr/bin:/bin"` (or an equivalent
@@ -498,7 +500,7 @@ target) and a saved quality-gate report before it may be marked Done.
   speculatively against a still-`Proposed` ADR. No version-literal edit
   exists anywhere outside
   `scripts/bump-version.sh`. (REQ-006)
-- AC-023: for each unblocked stream, its implementation report states
+- AC-023: for each stream, its implementation report states
   explicitly whether any of `README.md`/`USERGUIDE.md`/`docs/workflow-guide.md`/
   `docs/skill-reference.md`/`docs/agent-capability-matrix.md`/
   `PLUGIN-CONTRACTS.md`/`docs/troubleshooting.md`/`docs/contributor/*` is
@@ -629,11 +631,12 @@ target) and a saved quality-gate report before it may be marked Done.
    `CHANGELOG.md` entry citing #126. Blockers: none — independent of
    Streams A-C, though it shares `test.yml` as a file surface with
    Streams A/B (Global Constraints, design.md).
-5. Verification: each unblocked stream lands with `validate-repository`
+5. Verification: each stream lands with `validate-repository`
    and the skill-reference count sync green; the quality gate evaluates
    each stream's task(s) with the standard evidence chain. Streams A, B,
-   and D are independently shippable; Stream C ships only after its
-   Blocker clears.
+   and D are independently shippable; Stream C's shipping was gated on its
+   Blocker clearing, which it did (item 3 — ADR-0010 Accepted at commit
+   `67015a5`), so all four streams ship from this feature.
 
 ## Edge Cases
 
@@ -721,9 +724,9 @@ Details: [Security specification](security-spec.md#trust-boundaries).
 - `tests/loop-driver.sh`'s `drive_review_round` remains implemented only
   for stage `"spec"` (Re-verification note) at spec-authoring time; Stream
   C's reuse of it (Main Workflows item 3) is scoped accordingly — if a
-  future edit extends `drive_review_round` to other stages before Stream C
-  unblocks, that is additional capability Stream C's task decomposition
-  may take advantage of, not a premise this spec depends on.
+  later edit extends `drive_review_round` to other stages, that is
+  additional capability Stream C's task decomposition may take advantage
+  of, not a premise this spec depends on.
 - `tests/collection-layer.tests.sh`'s `PATH="/usr/bin:/bin"` technique
   (Field Definitions) remains the established, working pattern for driving
   a script's "tool absent" branch at spec-authoring time — RE-VERIFY by
@@ -782,8 +785,8 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   Stream C's scenario class 5 targets an attacker-controlled GitHub issue
   body consumed as agent-facing context by a `plugins/sdd-bootstrap` entry
   point (the investigation/interview flow that runs `gh issue view` to
-  gather requirements) — design.md names the exact target once Stream C
-  unblocks. This is the complementary, currently-uncovered direction to
+  gather requirements) — design.md names the exact target, now that Stream
+  C is unblocked. This is the complementary, currently-uncovered direction to
   `tests/model-freshness-check.tests.sh` TEST-021's existing OUTBOUND
   check (investigation.md INV-018).
 
