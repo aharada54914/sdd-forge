@@ -25,13 +25,18 @@
 # traversal, immune to an ATTACKER renaming/replacing an ALREADY-ENTERED
 # ancestor directory out from under us -- exactly ADR-0011's "the
 # filesystem namespace could still change between the final check and the
-# path-based open" defect. An explicit `exec N<dir` file descriptor is
-# ADDITIONALLY held on the repo root and on each target's destination
-# parent for the duration of that target's operation, for identity
-# pinning / defense-in-depth (its /dev/fd or /proc/self/fd projection is
-# used, where available, to re-verify identity immediately before the
-# atomic rename). Documented residual (never silently implied as fully
-# closed): the narrow window between a segment's own `-L` check and its
+# path-based open" defect. Identity pinning / defense-in-depth is provided
+# by an explicit (device, inode) re-check of the anchored destination
+# parent (`stat_id .`) immediately before the atomic rename -- NOT by an
+# `exec N<dir` file descriptor. Two such descriptors used to be opened
+# here; quality-gate seq0361 established that neither was ever read from
+# (so they added nothing the cwd binding does not already provide), while
+# the `2>/dev/null` guarding one of them silently discarded this script's
+# OWN stderr for the entire remainder of execution -- POSIX `exec` with
+# redirections applies them to the CURRENT shell -- defeating die()'s
+# documented intent. Both were removed. Documented residual (never
+# silently implied as fully closed): the narrow window between a
+# segment's own `-L` check and its
 # `cd`, and between the final pre-rename re-check and the `mv` syscall
 # itself, is not closed by a single held syscall the way a real
 # openat()/renameat() chain would close it -- this is the strongest
@@ -541,14 +546,36 @@ parse_manifest() {
     # rather than silently deviating from the design's literal backup
     # naming scheme (a design amendment to a path-derived backup name is
     # a review-process matter, not an implementer's unilateral choice).
+    #
+    # quality-gate seq0361 Major #2: this comparison is CASE-INSENSITIVE.
+    # The prior `grep -qxF` was byte-exact, so on a case-insensitive
+    # volume -- macOS APFS by default, and this tool's primary platform --
+    # `d1/File.txt` and `d2/file.txt` passed the guard as "different
+    # basenames" yet resolved to the SAME `pre/<basename>` slot: the
+    # second backup silently overwrote the first, destroying one target's
+    # only PRE bytes (evaluator's repro: one slot holding the WRONG
+    # target's content, then RECOVERY_FAILED forever).
+    #
+    # The fold is applied UNCONDITIONALLY, on every platform, rather than
+    # probing the volume's own case semantics: a batch is then accepted or
+    # refused identically everywhere, both runtimes agree by construction,
+    # and the verdict does not depend on where the repository happens to
+    # be checked out. It is deliberately ASCII-ONLY (`LC_ALL=C` makes `tr`
+    # operate bytewise, and every UTF-8 continuation/lead byte is >= 0x80,
+    # outside the A-Z range) so the two runtimes fold byte-identically;
+    # non-ASCII case folding is a per-volume Unicode property no static
+    # fold can decide, and is caught instead by the backup-slot
+    # exclusivity check at PREPARE time (below), which uses the real
+    # filesystem's own answer.
     split_dir_base "$path"
     base=$SPLIT_BASE
-    if grep -qxF -- "$base" "$seen_basenames_file" 2>/dev/null; then
+    base_key=$(printf '%s' "$base" | LC_ALL=C tr 'A-Z' 'a-z')
+    if grep -qxF -- "$base_key" "$seen_basenames_file" 2>/dev/null; then
       rm -f "$seen_paths_file" "$seen_basenames_file"
       die "$EXIT_DUPLICATE_BASENAME_IN_BATCH" DUPLICATE_BASENAME_IN_BATCH \
-        "manifest target '$path' shares basename '$base' with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
+        "manifest target '$path' shares basename '$base' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
     fi
-    printf '%s\n' "$base" >>"$seen_basenames_file"
+    printf '%s\n' "$base_key" >>"$seen_basenames_file"
     printf '%s %s\n' "$hash" "$path"
   done <"$manifest"
   rm -f "$seen_paths_file" "$seen_basenames_file"
@@ -602,7 +629,6 @@ publish_one_target() {
     cd -- "$repo_root_abs" || exit 1
     walk_relative_dir "$dest_dir" create || exit 2
     dest_parent_id=$(stat_id .)
-    exec 9<. 2>/dev/null || true
 
     if [ "$do_substitute" = "1" ]; then
       # TEST-ONLY: simulate an attacker renaming the destination-parent
@@ -685,18 +711,14 @@ publish_one_target() {
 # "tolerate-not-found", makes THIS SPECIFIC probe accept walk_relative_dir
 # return code 3 ("this exact segment plainly does not exist", never a
 # symlink/access-denied/blocked-by-file) as a legitimate absence. This
-# flag exists ONLY for the very first, journal-free PREPARE-time probe
-# (pre_hash_of_live_target's caller, below, before ANY journal for this
-# batch exists -- so there is nothing yet to protect, and "the
-# destination directory has simply never been created yet" is the
-# ordinary, ENTIRELY EXPECTED first-ever-publish case, not a threat).
-# recover_all() -- BOTH its classification pass and its MIXED revert pass,
-# plus the mandatory post-revert confirmation pass design.md:1055-1056
-# requires -- NEVER passes this flag: during recovery, ANY walk failure
-# whatsoever (including a clean "does not exist", which by then could
-# equally mean "never reached" OR "reached, and the evidence was just
-# destroyed" -- genuinely indistinguishable from current filesystem state
-# alone) is fail-closed, full stop.
+# flag is passed by the very first, journal-free PREPARE-time probe
+# (below, before ANY journal for this batch exists -- so there is nothing
+# yet to protect, and "the destination directory has simply never been
+# created yet" is the ordinary, ENTIRELY EXPECTED first-ever-publish
+# case, not a threat) and, during recovery, ONLY through
+# recovery_probe_live_target() below, which derives it from the JOURNAL's
+# own recorded pre_hash rather than from the probe result. See that
+# function's header for the design derivation.
 pre_hash_of_live_target() {
   repo_root_abs=$1
   relpath=$2
@@ -721,6 +743,59 @@ pre_hash_of_live_target() {
   fi
   printf '%s' "$result"
   return 0
+}
+
+# recovery_probe_live_target <repo_root_abs> <relpath> <journal_pre_hash>
+# -- the ONLY probe recover_all() is permitted to use. Prints the target's
+# current live sha256 or the literal "ABSENT"; returns nonzero with EMPTY
+# stdout when the state cannot be determined.
+#
+# DESIGN DERIVATION (quality-gate seq0361 Critical; seq0360's own remedy
+# over-corrected here and bricked every first-ever publish, so the exact
+# reasoning is recorded rather than left implicit):
+#
+#   design.md:1036-1037 requires recovery to "re-hash every listed
+#   target's CURRENT live bytes (OR NOTE `ABSENT`)", and design.md:1042-
+#   1046 makes "every target's current hash equals its journal-recorded
+#   PRE value (OR BOTH ARE `ABSENT`) => SAFE abandonment" a REQUIRED
+#   terminal verdict. Observing ABSENT is therefore a first-class,
+#   mandatory outcome of the probe -- not a failure. A recovery that can
+#   never reach it cannot satisfy design.md:1056-1058's "recovery ALWAYS
+#   drives the system to exactly one of two terminal states".
+#
+#   What must never happen (seq0360's Critical) is COERCING an
+#   undetermined state into "ABSENT". So the line is drawn between an
+#   OBSERVATION and a FAILURE TO OBSERVE, and the journal itself supplies
+#   the discriminator:
+#
+#   * walk rc 2/4/5 (symlink, access-denied, blocked by a non-directory)
+#     -- the segment EXISTS but its true contents cannot be read. Nothing
+#     was observed. ALWAYS fail closed, in both branches, for every
+#     target, regardless of what the journal recorded.
+#   * walk rc 3 (this segment plainly does not exist) AND the journal
+#     recorded pre_hash="ABSENT" for this target -- a legitimate
+#     OBSERVATION of exactly the state the journal says to expect. This
+#     is the ordinary first-ever-publish shape: PREPARE tolerated the
+#     same missing chain moments earlier (its own probe below) precisely
+#     because the tool creates destination directories on demand.
+#   * walk rc 3 AND the journal recorded a REAL pre_hash -- fail closed.
+#     A non-ABSENT pre_hash PROVES that at journal-write time this target
+#     existed as a regular file, which PROVES its entire destination-
+#     parent chain existed and was walkable. A clean ENOENT now is
+#     therefore evidence that something REMOVED a chain that provably
+#     existed (seq0360's own "parent renamed aside" repro), never the
+#     never-yet-created case -- and the pre/ backup that would be
+#     destroyed by a wrong "already at PRE" verdict is exactly the
+#     durable record that only exists in this branch.
+recovery_probe_live_target() {
+  rp_root=$1
+  rp_path=$2
+  rp_journal_pre=$3
+  if [ "$rp_journal_pre" = "ABSENT" ]; then
+    pre_hash_of_live_target "$rp_root" "$rp_path" "tolerate-not-found"
+  else
+    pre_hash_of_live_target "$rp_root" "$rp_path"
+  fi
 }
 
 # backup_pre_bytes <repo_root_abs> <relpath> <dest_file> -- if the live
@@ -1056,13 +1131,12 @@ recover_all() {
       parse_target_record "$target_line"
       lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
       [ -n "$lp" ] || continue
-      # quality-gate seq0360 CRITICAL: this probe is STRICT (no third
-      # "tolerate-not-found" argument) -- during recovery, a walk failure
-      # of ANY kind (including a clean "does not exist") is fail-closed,
-      # never silently treated as a confirmed "ABSENT" match. See
-      # pre_hash_of_live_target's own header comment for the full
-      # rationale (this is the exact line the evaluator's repro exploited).
-      cur=$(pre_hash_of_live_target "$repo_root_abs" "$lp")
+      # Classification pass. recovery_probe_live_target() decides what a
+      # plainly-missing chain means from the JOURNAL's own recorded
+      # pre_hash for THIS target -- never from the probe result alone
+      # (seq0360 Critical) and never by refusing every absence (seq0361
+      # Critical). See its header for the full design derivation.
+      cur=$(recovery_probe_live_target "$repo_root_abs" "$lp" "$ph")
       if [ $? != 0 ]; then
         rm -f "$targets_tmp"
         die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
@@ -1098,7 +1172,7 @@ recover_all() {
       lp=$TR_PATH; ph=$TR_PRE; qh=$TR_POST
       [ -n "$lp" ] || continue
       idx=$((idx + 1))
-      cur=$(pre_hash_of_live_target "$repo_root_abs" "$lp")
+      cur=$(recovery_probe_live_target "$repo_root_abs" "$lp" "$ph")
       if [ $? != 0 ]; then
         rm -f "$targets_tmp"
         die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
@@ -1133,7 +1207,7 @@ recover_all() {
       parse_target_record "$target_line"
       lp=$TR_PATH; ph=$TR_PRE
       [ -n "$lp" ] || continue
-      cur=$(pre_hash_of_live_target "$repo_root_abs" "$lp")
+      cur=$(recovery_probe_live_target "$repo_root_abs" "$lp" "$ph")
       if [ $? != 0 ]; then
         rm -f "$targets_tmp"
         die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
@@ -1183,7 +1257,6 @@ while [ $# -gt 0 ]; do
 done
 
 REPO_ROOT_ABS=$(pwd -P)
-exec 8<. 2>/dev/null || true
 
 RECOVERED=0
 recover_all "$REPO_ROOT_ABS" "$SIM_CRASH_RECOVERY_AFTER"
@@ -1264,6 +1337,22 @@ while IFS= read -r manifest_line || [ -n "$manifest_line" ]; do
   fi
   if [ "$pre_hash" != "ABSENT" ]; then
     base=$(basename "$relpath")
+    # Backup-slot EXCLUSIVITY (quality-gate seq0361 Major #2, second line
+    # of defence): parse_manifest's ASCII case fold cannot decide whether
+    # THIS volume folds non-ASCII case (APFS does) or normalizes Unicode,
+    # so the slot itself is the authority -- if the path this target's
+    # backup would occupy is already taken by an earlier target in the
+    # SAME batch, the filesystem has just told us the two basenames
+    # collide, whatever its rules are. Refused here, still inside PREPARE
+    # (before the journal exists and before any rename), so no live target
+    # has been touched; reported under the SAME documented category as the
+    # parse-time guard, since it is the same condition detected with the
+    # filesystem's own answer instead of a static fold.
+    if [ -e "$BATCH_DIR_ABS/pre/$base" ]; then
+      rm -rf -- "$BATCH_DIR"
+      die "$EXIT_DUPLICATE_BASENAME_IN_BATCH" DUPLICATE_BASENAME_IN_BATCH \
+        "manifest target '$relpath' would reuse the pre-transaction backup slot 'pre/$base' already occupied by an earlier target in this batch (this filesystem treats the two basenames as the same name); the backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
+    fi
     backup_pre_bytes "$REPO_ROOT_ABS" "$relpath" "$BATCH_DIR_ABS/pre/$base"
   fi
   write_target_record "$pre_hash" "$hash" "$relpath" >>"$TARGETS_FILE"

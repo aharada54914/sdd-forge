@@ -255,6 +255,24 @@ function Invoke-WalkRelativeDir([string]$RelPath, [bool]$Create = $false) {
 # Manifest parsing.
 # ---------------------------------------------------------------------------
 
+# ConvertTo-AsciiLowerKey -- byte-for-byte equivalent of the .sh twin's
+# `LC_ALL=C tr 'A-Z' 'a-z'`: ONLY U+0041..U+005A are folded, so every
+# non-ASCII code point (and every UTF-8 byte >= 0x80 the .sh twin sees)
+# passes through untouched and both runtimes derive the identical
+# collision key. Deliberately NOT ToLowerInvariant(), which additionally
+# folds the whole Unicode range and would diverge from .sh.
+function ConvertTo-AsciiLowerKey([string]$Value) {
+    $sb = [System.Text.StringBuilder]::new($Value.Length)
+    foreach ($ch in $Value.ToCharArray()) {
+        if ($ch -ge [char]0x41 -and $ch -le [char]0x5A) {
+            [void]$sb.Append([char]([int][char]$ch + 32))
+        } else {
+            [void]$sb.Append($ch)
+        }
+    }
+    return $sb.ToString()
+}
+
 function Read-Manifest([string]$Path) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
         Write-Denial $ExitManifestInvalid 'MANIFEST_INVALID' "manifest file does not exist: $Path"
@@ -326,9 +344,20 @@ function Read-Manifest([string]$Path) {
         # basename-keyed, not path-keyed -- see apply-human-copy.sh's
         # parse_manifest for the full rationale (identical check, both
         # runtimes).
+        #
+        # quality-gate seq0361 Major #2: compared CASE-INSENSITIVELY, via
+        # the SAME deliberately ASCII-ONLY fold the .sh twin applies
+        # (`LC_ALL=C tr 'A-Z' 'a-z'`) -- NOT ToLowerInvariant()/
+        # OrdinalIgnoreCase, whose full Unicode folding would make the two
+        # runtimes disagree on non-ASCII basenames. Applied on every
+        # platform so the verdict never depends on the volume's own case
+        # semantics; non-ASCII folding is a per-volume Unicode property no
+        # static fold can decide, and is caught instead by the
+        # backup-slot exclusivity check at PREPARE time (below).
         $targetBase = (Split-RelPath $target).Base
-        if (-not $seenBasenames.Add($targetBase)) {
-            Write-Denial $ExitDuplicateBasenameInBatch 'DUPLICATE_BASENAME_IN_BATCH' "manifest target '$target' shares basename '$targetBase' with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
+        $targetBaseKey = ConvertTo-AsciiLowerKey $targetBase
+        if (-not $seenBasenames.Add($targetBaseKey)) {
+            Write-Denial $ExitDuplicateBasenameInBatch 'DUPLICATE_BASENAME_IN_BATCH' "manifest target '$target' shares basename '$targetBase' (compared case-insensitively) with an earlier target in the same batch; the pre-transaction backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
         }
         $result.Add([ordered]@{ Hash = $hash; Path = $target })
     }
@@ -418,6 +447,31 @@ function Get-PreHashOfLiveTarget([string]$RepoRootAbs, [string]$RelPath, [bool]$
         return [ordered]@{ Ok = $true; Value = 'ABSENT' }
     }
     return [ordered]@{ Ok = $false; Reason = $r.Reason }
+}
+
+# Get-RecoveryProbe -- the ONLY probe Invoke-RecoverAll is permitted to
+# use. Whether a plainly-missing destination chain is a legitimate
+# OBSERVATION or a FAILURE TO OBSERVE is decided by the JOURNAL's own
+# recorded pre_hash for that target, never by the probe result alone.
+#
+# DESIGN DERIVATION (quality-gate seq0361 Critical): design.md:1036-1037
+# requires recovery to "re-hash every listed target's CURRENT live bytes
+# (OR NOTE `ABSENT`)" and design.md:1042-1046 makes "...(OR BOTH ARE
+# `ABSENT`) => SAFE abandonment" a REQUIRED terminal verdict, so observing
+# ABSENT is a mandatory first-class outcome, not a failure; a recovery
+# that can never reach it cannot satisfy design.md:1056-1058. What must
+# never happen (seq0360's Critical) is COERCING an undetermined state into
+# ABSENT. Hence: 'symlink-denied'/'segment-blocked-not-directory'/an
+# access-denied SetCurrentDirectory always fail closed (the segment exists
+# but cannot be read -- nothing was observed); 'segment-missing' is
+# accepted ONLY where the journal recorded pre_hash='ABSENT', because a
+# REAL recorded pre_hash proves the whole chain existed and held a regular
+# file at journal-write time, making a clean not-found now evidence of
+# destruction rather than the ordinary first-ever-publish shape. See
+# apply-human-copy.sh's recovery_probe_live_target for the identical
+# reasoning; the two runtimes implement the same rule independently.
+function Get-RecoveryProbe([string]$RepoRootAbs, [string]$RelPath, [string]$JournalPreHash) {
+    return Get-PreHashOfLiveTarget $RepoRootAbs $RelPath ($JournalPreHash -eq 'ABSENT')
 }
 
 function Backup-PreBytes([string]$RepoRootAbs, [string]$RelPath, [string]$DestFile) {
@@ -690,14 +744,13 @@ function Invoke-RecoverAll([string]$RepoRootAbs, [string]$RecoveryCrashStage) {
         $allPre = $true
         $current = @{}
         foreach ($t in $targets) {
-            # quality-gate seq0360 CRITICAL: STRICT probe (no
-            # -TolerateNotFound) -- during recovery, a walk failure of ANY
-            # kind (including a clean "does not exist") is fail-closed,
-            # never silently treated as a confirmed "ABSENT" match. See
-            # Get-PreHashOfLiveTarget's own header comment for the full
-            # rationale (this is the exact call the evaluator's repro
-            # exploited).
-            $probe = Get-PreHashOfLiveTarget $RepoRootAbs $t.live_path
+            # Classification pass. Get-RecoveryProbe decides what a
+            # plainly-missing chain means from the JOURNAL's own recorded
+            # pre_hash for THIS target -- never from the probe result
+            # alone (seq0360 Critical) and never by refusing every
+            # absence (seq0361 Critical). See its header for the full
+            # design derivation.
+            $probe = Get-RecoveryProbe $RepoRootAbs $t.live_path $t.pre_hash
             if (-not $probe.Ok) {
                 Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery could not determine the current live state of target '$($t.live_path)' in batch $batchDirAbs (its destination-parent chain could not be safely walked -- possibly replaced, renamed, or made inaccessible since the crash); refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
             }
@@ -745,7 +798,7 @@ function Invoke-RecoverAll([string]$RepoRootAbs, [string]$RecoveryCrashStage) {
         # another chance once whatever blocked the probe (or the revert)
         # is resolved.
         foreach ($t in $targets) {
-            $probe = Get-PreHashOfLiveTarget $RepoRootAbs $t.live_path
+            $probe = Get-RecoveryProbe $RepoRootAbs $t.live_path $t.pre_hash
             if (-not $probe.Ok) {
                 Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation could not determine the current live state of target '$($t.live_path)' in batch $batchDirAbs; refusing to delete the journal (fail-closed, design.md:1055-1056)"
             }
@@ -836,7 +889,22 @@ foreach ($entry in $manifestEntries) {
     $preHash = $preHashResult.Value
     if ($preHash -ne 'ABSENT') {
         $base = Split-Path -Leaf $relPath
-        Backup-PreBytes $RepoRootAbs $relPath (Join-Path $BatchDirAbs "pre/$base")
+        $slot = Join-Path $BatchDirAbs "pre/$base"
+        # Backup-slot EXCLUSIVITY (quality-gate seq0361 Major #2, second
+        # line of defence): Read-Manifest's ASCII case fold cannot decide
+        # whether THIS volume folds non-ASCII case (APFS does) or
+        # normalizes Unicode, so the slot itself is the authority -- if
+        # the path this target's backup would occupy is already taken by
+        # an earlier target in the SAME batch, the filesystem has just
+        # told us the two basenames collide, whatever its rules are.
+        # Refused inside PREPARE, before the journal exists and before any
+        # rename, under the SAME documented category as the parse-time
+        # guard.
+        if (Test-Path -LiteralPath $slot) {
+            Remove-Item -LiteralPath $BatchDir -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Denial $ExitDuplicateBasenameInBatch 'DUPLICATE_BASENAME_IN_BATCH' "manifest target '$relPath' would reuse the pre-transaction backup slot 'pre/$base' already occupied by an earlier target in this batch (this filesystem treats the two basenames as the same name); the backup path is basename-keyed (design.md:1011) and cannot safely hold two colliding targets in one transaction"
+        }
+        Backup-PreBytes $RepoRootAbs $relPath $slot
     }
     $targetsForJournal.Add([ordered]@{ Path = $relPath; PreHash = $preHash; Hash = $hash })
     $appliedPaths.Add($relPath)

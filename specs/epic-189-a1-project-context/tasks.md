@@ -1817,6 +1817,80 @@ Full detail, including the per-character policy table, in
 `reports/implementation/epic-189-a1-project-context/T-007.md`'s own
 "Quality Gate Remedy (seq0360)" section.
 
+QUALITY-GATE REMEDY 5 (2026-08-01, seq0361 NEEDS_WORK -> remedy applied;
+human-authorized round, escalated to a stronger model because remedy 4
+INTRODUCED the Critical): `reports/quality-gate/
+2026-07-31T141033Z-T-007.md` (commit `a462bf73`) returned Critical 1 /
+Major 3 / Minor 1. (a) Critical (a REGRESSION from remedy 4) -- remedy 4
+made every recovery-stage walk failure fatal, including "this segment
+plainly does not exist", which is the ordinary state of every
+not-yet-committed target in a first-ever publish (the tool creates
+destination directories on demand, and PREPARE already tolerates
+not-found for exactly that reason). With NO hostile input, a 2-target
+batch into not-yet-existing directories crashed at `journal-write`
+returned exit 17 RECOVERY_FAILED forever and retained the journal, so
+every later unrelated batch also failed -- a permanent brick, in both
+runtimes, violating AC-033 and design.md:1042-1046/1056-1063. design.md
+was read in full before choosing the remedy and is NOT ambiguous here:
+:1036-1037 requires the probe to "re-hash ... (or note `ABSENT`)" and
+:1042-1046 makes "(or both are `ABSENT`) => SAFE abandonment" a REQUIRED
+terminal verdict, so observing ABSENT is mandatory, not optional. The fix
+keeps remedy 4's Critical fix fully intact by distinguishing an
+OBSERVATION from a FAILURE-TO-OBSERVE, using the journal's OWN recorded
+`pre_hash` as the discriminator: symlink / access-denied /
+blocked-by-a-non-directory always fail closed (the segment exists but its
+contents cannot be read); a plainly-missing chain is accepted ONLY where
+the journal recorded `pre_hash="ABSENT"`, because a REAL recorded
+pre_hash proves the whole chain existed and held a regular file at
+journal-write time, making a clean not-found now evidence of destruction
+rather than the first-ever-publish shape. Implemented as one named helper
+per runtime (`recovery_probe_live_target` / `Get-RecoveryProbe`) used by
+all three recovery probes. (b) Major #1 -- remedy 4's own headline fix
+(the design.md:1055-1056 post-revert confirmation pass) had ZERO
+regression coverage; new TEST-033x in both suites locks it via a target
+moved to a THIRD state after the crash, where the classification pass
+sees a MIX and the revert pass legitimately skips it, so only the
+confirmation pass can catch the non-terminal state. (c) Major #2 -- the
+DUPLICATE_BASENAME_IN_BATCH guard was byte-exact, so `d1/File.txt` +
+`d2/file.txt` collided in the single design.md:1011 `pre/<basename>` slot
+on macOS APFS and destroyed one target's PRE bytes; fixed with a
+conservative always-ASCII-case-insensitive parse-time fold (identical in
+both runtimes by construction, applied on every platform so the verdict
+never depends on the volume) PLUS a PREPARE-time backup-slot exclusivity
+check that lets the filesystem itself decide non-ASCII/normalization
+collisions -- both under the existing category and exit code 19, both
+before any live mutation. (d) Major #3 -- `exec 8<. 2>/dev/null`
+redirected the sh script's OWN stderr for the remainder of execution,
+discarding every diagnostic after it (measured: 0 bytes on stderr for a
+denial that put 205 bytes on stdout, against 205/205 in pwsh -- also a
+live parity break); the suppression and both vestigial, never-read file
+descriptors were removed and the header's inaccurate "held fd provides
+identity pinning" claim corrected to name the real mechanism (the
+`stat_id` device+inode re-check before the rename). (e) Minor -- the
+report's stale 130/72 Test Result line refreshed to the delivered
+numbers. STRUCTURAL (the reason for the escalation): the fixture harness
+now varies a destination-directory-existence AXIS -- every
+crash-injection/recovery scenario runs in BOTH `pre-existing` and
+`absent` (first-ever-publish) form in BOTH runtimes, asserting against
+abstract PRE/POST states rather than hardcoded bytes -- instead of
+gaining one more point fixture; TEST-033v is now the 3-trigger axis
+crossed with the existence axis (6 combinations per runtime), and
+TEST-033y gained a no-live-content sub-case specifically to isolate the
+two collision guards, which otherwise mask each other on a
+case-insensitive volume. Every fix is mutation-proven in scratch copies
+(never the repository): reverting each one makes the matching assertions
+fail -- Critical 11 sh / 11 ps1, confirmation pass 5 / 5, ASCII fold
+2 / 2, slot check 2 / 2, stderr 1 (sh-only defect). `bash` 174->218 (44
+new), `pwsh` 100->146 (46 new); both 100% PASS. TDD Red (the FINAL test
+set run against the pre-remedy HEAD scripts in a scratch layout): `bash`
+200 passed / 18 failed, `pwsh` 129 passed / 17 failed -> Green 218/218,
+146/146. All four AC-033 crash-injection scenarios re-proved in both
+runtimes across both axis variants (8 scenario runs per runtime, all
+converging with journals-left=0; transcripts re-captured). Full detail,
+including the design derivation and the axis-variation table, in
+`reports/implementation/epic-189-a1-project-context/T-007.md`'s own
+"Quality Gate Remedy (seq0361)" section.
+
 ---
 
 ## T-008 Author the hook-activation handshake (`check-hook-activation-handshake`)

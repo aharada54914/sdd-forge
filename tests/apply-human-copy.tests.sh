@@ -290,124 +290,213 @@ else
 fi
 
 # ===========================================================================
-# TEST-033i: multi-target journaled transaction -- crash BEFORE any rename
-# (right after the journal itself is durably written) recovers to
-# ALL-PRE.
+# TEST-033i..l: the four AC-033 crash-injection scenarios, each driven
+# across the DESTINATION-DIRECTORY-EXISTENCE AXIS.
+#
+# quality-gate seq0361 STRUCTURAL remedy. Every crash-injection fixture in
+# rounds 1-4 pre-created the destination directories, so the entire
+# first-ever-publish shape -- the journal recording pre_hash="ABSENT" for
+# a target whose destination-parent chain does not exist yet -- was never
+# exercised by ANY of the 174 assertions. Round 4's Critical fix then
+# broke exactly that shape (recovery returned RECOVERY_FAILED forever,
+# bricking the publisher) with the suite still reporting 174/174.
+#
+# The fix is an AXIS, not another point fixture: every scenario below runs
+# TWICE, once per value of
+#
+#   pre-existing : the destination chain AND the live targets already
+#                  exist -> the journal records a REAL pre_hash
+#   absent       : nothing under the destination chain exists (the tool
+#                  creates it on demand) -> the journal records
+#                  pre_hash="ABSENT"
+#
+# and the terminal-state assertions are written against the ABSTRACT
+# states PRE/POST (cf_state, below, maps "PRE" to "file absent" in the
+# `absent` variant and to "old-<name> bytes" in the `pre-existing` one),
+# so one assertion text expresses the design's own contract in both.
 # ===========================================================================
-new_fixture_dir; F=$NEW_FIXTURE_DIR
-write_file "$F/repo/plugins/x/a.txt" "old-a"
-write_file "$F/repo/plugins/x/b.txt" "old-b"
-write_file "$F/stage/plugins/x/a.txt" "new-a"
-write_file "$F/stage/plugins/x/b.txt" "new-b"
-{
-  manifest_line "$F/stage" "plugins/x/a.txt"
-  manifest_line "$F/stage" "plugins/x/b.txt"
-} >"$F/stage/MANIFEST.sha256"
-run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after journal-write
-if [ "$(cat "$F/repo/plugins/x/a.txt")" = "old-a" ] && [ "$(cat "$F/repo/plugins/x/b.txt")" = "old-b" ]; then
-  pass "TEST-033i crash before any rename: both targets still PRE immediately after the crash"
-else
-  fail "TEST-033i crash before any rename: both targets still PRE immediately after the crash"
-fi
-run_apply "$F/repo"
-if [ "$(cat "$F/repo/plugins/x/a.txt")" = "old-a" ] && [ "$(cat "$F/repo/plugins/x/b.txt")" = "old-b" ]; then
-  pass "TEST-033i recovery converges to ALL-PRE (crash before any rename)"
-else
-  fail "TEST-033i recovery converges to ALL-PRE (crash before any rename)"
-fi
-if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
-  pass "TEST-033i stale journal cleaned up after recovery"
-else
-  fail "TEST-033i stale journal cleaned up after recovery"
-fi
 
-# ===========================================================================
-# TEST-033j: multi-target journaled transaction -- crash MID-BATCH (after
-# the first of two renames) recovers to ALL-PRE (the already-committed
-# target is rolled back).
-# ===========================================================================
-new_fixture_dir; F=$NEW_FIXTURE_DIR
-write_file "$F/repo/plugins/x/a.txt" "old-a"
-write_file "$F/repo/plugins/x/b.txt" "old-b"
-write_file "$F/stage/plugins/x/a.txt" "new-a"
-write_file "$F/stage/plugins/x/b.txt" "new-b"
-{
-  manifest_line "$F/stage" "plugins/x/a.txt"
-  manifest_line "$F/stage" "plugins/x/b.txt"
-} >"$F/stage/MANIFEST.sha256"
-run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after rename-1
-if [ "$(cat "$F/repo/plugins/x/a.txt")" = "new-a" ] && [ "$(cat "$F/repo/plugins/x/b.txt")" = "old-b" ]; then
-  pass "TEST-033j mid-batch crash leaves an observable partial state right after the crash (a advanced, b not)"
-else
-  fail "TEST-033j mid-batch crash leaves an observable partial state right after the crash (a advanced, b not)"
-fi
-run_apply "$F/repo"
-if [ "$(cat "$F/repo/plugins/x/a.txt")" = "old-a" ] && [ "$(cat "$F/repo/plugins/x/b.txt")" = "old-b" ]; then
-  pass "TEST-033j recovery converges to ALL-PRE (mid-batch crash rolled back)"
-else
-  fail "TEST-033j recovery converges to ALL-PRE (mid-batch crash rolled back)"
-fi
+# crash_fixture <variant> <n-targets> -- builds a fresh N-target fixture
+# for <variant> and sets the CF global to its root. Targets are
+# plugins/x/{a,b,c}.txt in manifest (= commit) order.
+crash_fixture() {
+  cf_variant=$1
+  cf_n=$2
+  new_fixture_dir; CF=$NEW_FIXTURE_DIR
+  : >"$CF/stage/MANIFEST.sha256"
+  cf_i=0
+  for cf_nm in a b c; do
+    cf_i=$((cf_i + 1))
+    [ "$cf_i" -le "$cf_n" ] || break
+    if [ "$cf_variant" = "pre-existing" ]; then
+      write_file "$CF/repo/plugins/x/$cf_nm.txt" "old-$cf_nm"
+    fi
+    write_file "$CF/stage/plugins/x/$cf_nm.txt" "new-$cf_nm"
+    manifest_line "$CF/stage" "plugins/x/$cf_nm.txt" >>"$CF/stage/MANIFEST.sha256"
+  done
+}
 
-# ===========================================================================
-# TEST-033k: multi-target journaled transaction -- crash AFTER the last
-# rename but BEFORE journal deletion recovers to ALL-POST.
-# ===========================================================================
-new_fixture_dir; F=$NEW_FIXTURE_DIR
-write_file "$F/repo/plugins/x/a.txt" "old-a"
-write_file "$F/repo/plugins/x/b.txt" "old-b"
-write_file "$F/stage/plugins/x/a.txt" "new-a"
-write_file "$F/stage/plugins/x/b.txt" "new-b"
-{
-  manifest_line "$F/stage" "plugins/x/a.txt"
-  manifest_line "$F/stage" "plugins/x/b.txt"
-} >"$F/stage/MANIFEST.sha256"
-run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after rename-2
-run_apply "$F/repo"
-if [ "$(cat "$F/repo/plugins/x/a.txt")" = "new-a" ] && [ "$(cat "$F/repo/plugins/x/b.txt")" = "new-b" ]; then
-  pass "TEST-033k recovery converges to ALL-POST (crash after last rename, before journal delete)"
-else
-  fail "TEST-033k recovery converges to ALL-POST (crash after last rename, before journal delete)"
-fi
-if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
-  pass "TEST-033k journal removed once recovery confirms ALL-POST"
-else
-  fail "TEST-033k journal removed once recovery confirms ALL-POST"
-fi
+# cf_state <variant> <name> -> the target's ABSTRACT state: PRE, POST, or
+# OTHER (anything the transaction contract does not permit to stand).
+cf_state() {
+  st_v=$1
+  st_nm=$2
+  st_p="$CF/repo/plugins/x/$st_nm.txt"
+  if [ -f "$st_p" ]; then
+    st_c=$(cat "$st_p")
+    if [ "$st_c" = "new-$st_nm" ]; then printf 'POST'; return 0; fi
+    if [ "$st_v" = "pre-existing" ] && [ "$st_c" = "old-$st_nm" ]; then printf 'PRE'; return 0; fi
+    printf 'OTHER'
+    return 0
+  fi
+  # A target that does not exist IS its pre-transaction state exactly when
+  # the journal recorded pre_hash="ABSENT" -- design.md:1042-1043's "(or
+  # both are `ABSENT`)" clause, which the `absent` variant exists to
+  # exercise.
+  if [ "$st_v" = "absent" ]; then printf 'PRE'; return 0; fi
+  printf 'OTHER'
+}
 
-# ===========================================================================
-# TEST-033l: a SECOND crash injected DURING recovery itself still
-# converges correctly on the FOLLOWING invocation (recovery idempotence).
-# ===========================================================================
-new_fixture_dir; F=$NEW_FIXTURE_DIR
-write_file "$F/repo/plugins/x/a.txt" "old-a"
-write_file "$F/repo/plugins/x/b.txt" "old-b"
-write_file "$F/repo/plugins/x/c.txt" "old-c"
-write_file "$F/stage/plugins/x/a.txt" "new-a"
-write_file "$F/stage/plugins/x/b.txt" "new-b"
-write_file "$F/stage/plugins/x/c.txt" "new-c"
-{
-  manifest_line "$F/stage" "plugins/x/a.txt"
-  manifest_line "$F/stage" "plugins/x/b.txt"
-  manifest_line "$F/stage" "plugins/x/c.txt"
-} >"$F/stage/MANIFEST.sha256"
-run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after rename-2
-run_apply "$F/repo" --simulate-crash-during-recovery-after revert-1
-if [ "$(cat "$F/repo/plugins/x/a.txt")" = "old-a" ] && [ "$(cat "$F/repo/plugins/x/b.txt")" = "new-b" ] && [ "$(cat "$F/repo/plugins/x/c.txt")" = "old-c" ]; then
-  pass "TEST-033l a second crash mid-recovery leaves an observable partial-recovery state"
-else
-  fail "TEST-033l a second crash mid-recovery leaves an observable partial-recovery state"
-fi
-run_apply "$F/repo"
-if [ "$(cat "$F/repo/plugins/x/a.txt")" = "old-a" ] && [ "$(cat "$F/repo/plugins/x/b.txt")" = "old-b" ] && [ "$(cat "$F/repo/plugins/x/c.txt")" = "old-c" ]; then
-  pass "TEST-033l the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)"
-else
-  fail "TEST-033l the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)"
-fi
-if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
-  pass "TEST-033l journal fully cleaned up after the second recovery invocation"
-else
-  fail "TEST-033l journal fully cleaned up after the second recovery invocation"
-fi
+# cf_states <variant> <n> -> "S1 S2 ..." for the first <n> targets.
+cf_states() {
+  cs_v=$1
+  cs_n=$2
+  cs_out=""
+  cs_i=0
+  for cs_nm in a b c; do
+    cs_i=$((cs_i + 1))
+    [ "$cs_i" -le "$cs_n" ] || break
+    if [ -n "$cs_out" ]; then cs_out="$cs_out "; fi
+    cs_out="$cs_out$(cf_state "$cs_v" "$cs_nm")"
+  done
+  printf '%s' "$cs_out"
+}
+
+cf_no_litter() {
+  [ -z "$(find "$CF/repo/sdd/.staging" -type f 2>/dev/null)" ]
+}
+
+for cf_axis in pre-existing absent; do
+
+  # -------------------------------------------------------------------------
+  # TEST-033i: crash BEFORE any rename (right after the journal itself is
+  # durably written) recovers to ALL-PRE.
+  #
+  # In the `absent` variant this is the exact fixture quality-gate seq0361
+  # reported as a Critical regression: the journal records pre="ABSENT"
+  # for both targets and NO destination directory has been created yet, so
+  # every recovery probe walks into a plainly-missing segment.
+  # -------------------------------------------------------------------------
+  crash_fixture "$cf_axis" 2
+  run_apply "$CF/repo" --staging-dir "$CF/stage" --manifest "$CF/stage/MANIFEST.sha256" --simulate-crash-after journal-write
+  obs=$(cf_states "$cf_axis" 2)
+  if [ "$obs" = "PRE PRE" ]; then
+    pass "TEST-033i [$cf_axis] crash before any rename: both targets still PRE immediately after the crash"
+  else
+    fail "TEST-033i [$cf_axis] crash before any rename: both targets still PRE immediately after the crash (got '$obs')"
+  fi
+  run_apply "$CF/repo"
+  rc=$?
+  obs=$(cf_states "$cf_axis" 2)
+  if [ "$rc" = 0 ] && [ "$obs" = "PRE PRE" ]; then
+    pass "TEST-033i [$cf_axis] recovery converges to ALL-PRE (crash before any rename)"
+  else
+    fail "TEST-033i [$cf_axis] recovery converges to ALL-PRE (exit $rc, states '$obs', category $(category_of "$WORK/out"))"
+  fi
+  if cf_no_litter; then
+    pass "TEST-033i [$cf_axis] stale journal cleaned up after recovery"
+  else
+    fail "TEST-033i [$cf_axis] stale journal cleaned up after recovery"
+  fi
+  # The publisher must remain usable afterwards -- a retained journal is
+  # not merely untidy, it makes EVERY later batch fail (recovery runs
+  # first on every invocation), which is how the seq0361 regression turned
+  # into a permanent brick.
+  write_file "$CF/stage/plugins/x/a.txt" "newer-a"
+  manifest_line "$CF/stage" "plugins/x/a.txt" >"$CF/stage/MANIFEST2.sha256"
+  run_apply "$CF/repo" --staging-dir "$CF/stage" --manifest "$CF/stage/MANIFEST2.sha256"
+  rc=$?
+  if [ "$rc" = 0 ] && [ "$(cat "$CF/repo/plugins/x/a.txt" 2>/dev/null)" = "newer-a" ]; then
+    pass "TEST-033i [$cf_axis] a subsequent UNRELATED batch still publishes (publisher not bricked)"
+  else
+    fail "TEST-033i [$cf_axis] a subsequent UNRELATED batch still publishes (exit $rc, category $(category_of "$WORK/out"))"
+  fi
+
+  # -------------------------------------------------------------------------
+  # TEST-033j: crash MID-BATCH (after the first of two renames) recovers
+  # to ALL-PRE -- the already-committed target is rolled back.
+  # -------------------------------------------------------------------------
+  crash_fixture "$cf_axis" 2
+  run_apply "$CF/repo" --staging-dir "$CF/stage" --manifest "$CF/stage/MANIFEST.sha256" --simulate-crash-after rename-1
+  obs=$(cf_states "$cf_axis" 2)
+  if [ "$obs" = "POST PRE" ]; then
+    pass "TEST-033j [$cf_axis] mid-batch crash leaves an observable partial state right after the crash (a advanced, b not)"
+  else
+    fail "TEST-033j [$cf_axis] mid-batch crash leaves an observable partial state (got '$obs')"
+  fi
+  run_apply "$CF/repo"
+  rc=$?
+  obs=$(cf_states "$cf_axis" 2)
+  if [ "$rc" = 0 ] && [ "$obs" = "PRE PRE" ]; then
+    pass "TEST-033j [$cf_axis] recovery converges to ALL-PRE (mid-batch crash rolled back)"
+  else
+    fail "TEST-033j [$cf_axis] recovery converges to ALL-PRE (exit $rc, states '$obs', category $(category_of "$WORK/out"))"
+  fi
+  if cf_no_litter; then
+    pass "TEST-033j [$cf_axis] journal/staging litter fully cleaned up after convergence"
+  else
+    fail "TEST-033j [$cf_axis] journal/staging litter fully cleaned up after convergence"
+  fi
+
+  # -------------------------------------------------------------------------
+  # TEST-033k: crash AFTER the last rename but BEFORE journal deletion
+  # recovers to ALL-POST.
+  # -------------------------------------------------------------------------
+  crash_fixture "$cf_axis" 2
+  run_apply "$CF/repo" --staging-dir "$CF/stage" --manifest "$CF/stage/MANIFEST.sha256" --simulate-crash-after rename-2
+  run_apply "$CF/repo"
+  rc=$?
+  obs=$(cf_states "$cf_axis" 2)
+  if [ "$rc" = 0 ] && [ "$obs" = "POST POST" ]; then
+    pass "TEST-033k [$cf_axis] recovery converges to ALL-POST (crash after last rename, before journal delete)"
+  else
+    fail "TEST-033k [$cf_axis] recovery converges to ALL-POST (exit $rc, states '$obs', category $(category_of "$WORK/out"))"
+  fi
+  if cf_no_litter; then
+    pass "TEST-033k [$cf_axis] journal removed once recovery confirms ALL-POST"
+  else
+    fail "TEST-033k [$cf_axis] journal removed once recovery confirms ALL-POST"
+  fi
+
+  # -------------------------------------------------------------------------
+  # TEST-033l: a SECOND crash injected DURING recovery itself still
+  # converges correctly on the FOLLOWING invocation (idempotent/re-entrant
+  # recovery).
+  # -------------------------------------------------------------------------
+  crash_fixture "$cf_axis" 3
+  run_apply "$CF/repo" --staging-dir "$CF/stage" --manifest "$CF/stage/MANIFEST.sha256" --simulate-crash-after rename-2
+  run_apply "$CF/repo" --simulate-crash-during-recovery-after revert-1
+  obs=$(cf_states "$cf_axis" 3)
+  if [ "$obs" = "PRE POST PRE" ]; then
+    pass "TEST-033l [$cf_axis] a second crash mid-recovery leaves an observable partial-recovery state"
+  else
+    fail "TEST-033l [$cf_axis] a second crash mid-recovery leaves an observable partial-recovery state (got '$obs')"
+  fi
+  run_apply "$CF/repo"
+  rc=$?
+  obs=$(cf_states "$cf_axis" 3)
+  if [ "$rc" = 0 ] && [ "$obs" = "PRE PRE PRE" ]; then
+    pass "TEST-033l [$cf_axis] the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)"
+  else
+    fail "TEST-033l [$cf_axis] the FOLLOWING invocation still converges to ALL-PRE (exit $rc, states '$obs', category $(category_of "$WORK/out"))"
+  fi
+  if cf_no_litter; then
+    pass "TEST-033l [$cf_axis] journal fully cleaned up after the second recovery invocation"
+  else
+    fail "TEST-033l [$cf_axis] journal fully cleaned up after the second recovery invocation"
+  fi
+
+done
 
 # ===========================================================================
 # TEST-033m: a journal that is valid JSON but does NOT conform to the
@@ -981,25 +1070,53 @@ else
 fi
 
 # ===========================================================================
-# TEST-033v (quality-gate seq0360 CRITICAL remedy, requirements 1+2+3): the
-# evaluator's own 3-trigger regression fixture. A genuine MIXED state
-# (t1 already committed to POST, t2 still at PRE) is created via a real
-# mid-batch crash; the destination-parent of the ALREADY-COMMITTED target
-# is then attacked via 3 independent, non-adversarial triggers (symlink
-# replacement / rename-aside / chmod 000). Recovery must FAIL CLOSED
-# (nonzero exit, category RECOVERY_FAILED, journal AND pre/ backup
-# RETAINED) while the trigger is active -- never silently coerce the
-# probe failure to "ABSENT" and delete the only durable record of the
-# pre-transaction state -- then CONVERGE to ALL-PRE, with the journal
-# finally removed, once the trigger is undone.
+# TEST-033v: recovery-stage probe taxonomy, across BOTH the
+# probe-disturbance axis (seq0360) AND the destination-directory-existence
+# axis (seq0361). A genuine MIXED state (t1 already committed to POST, t2
+# still at PRE) is created via a real mid-batch crash; the
+# destination-parent of the ALREADY-COMMITTED target is then disturbed by
+# one of 3 independent, non-adversarial triggers (symlink replacement /
+# rename-aside / chmod 000).
+#
+# The EXPECTED first-recovery outcome depends on BOTH axes, and that
+# dependence IS the specification the seq0361 Critical remedy implements:
+#
+#   symlink / chmod000, EITHER variant  -> fail closed, always.
+#       The segment EXISTS but its true state cannot be read. Nothing was
+#       observed, so nothing may be compared; design.md:1037's "re-hash
+#       every listed target's CURRENT live bytes (or note `ABSENT`)"
+#       cannot be satisfied at all. (seq0360's Critical; unchanged.)
+#
+#   renameaside + pre-existing          -> fail closed.
+#       The segment plainly does not exist NOW, but the journal recorded a
+#       REAL pre_hash for this target -- which PROVES the whole chain
+#       existed, and held a regular file, at journal-write time. A clean
+#       ENOENT is therefore evidence that something destroyed a chain that
+#       provably existed, never the ordinary first-ever-publish shape.
+#       (This is the seq0360 evaluator's own repro; it must stay closed.)
+#
+#   renameaside + absent                -> CONVERGES to ALL-PRE, exit 0.
+#       The journal recorded pre_hash="ABSENT" for this target, so a
+#       plainly-absent path is EXACTLY the state the journal says to
+#       expect -- design.md:1042-1043's "(or both are `ABSENT`) => SAFE
+#       abandonment". Refusing here is what bricked the publisher in
+#       seq0361; recovery must still drive to one of the two terminal
+#       states (design.md:1056-1058).
 # ===========================================================================
 
 recovery_probe_failure_setup() {
-  # Creates a fresh fixture with a genuine MIXED state (t1 at POST, t2 at
-  # PRE) via a real mid-batch crash. Sets F / JOURNAL_DIR globals.
+  # recovery_probe_failure_setup <variant> -- fresh fixture in a genuine
+  # MIXED state (t1 at POST, t2 at PRE) via a real mid-batch crash. Sets
+  # the F / JOURNAL_DIR globals. In the `absent` variant neither
+  # destination directory exists beforehand; sub1 is created by the tool
+  # during the (crashed) publish, so the trigger below still has a real
+  # directory to disturb, while the journal records pre="ABSENT".
+  rpf_variant=$1
   new_fixture_dir; F=$NEW_FIXTURE_DIR
-  write_file "$F/repo/sub1/a.txt" "old-a"
-  write_file "$F/repo/sub2/b.txt" "old-b"
+  if [ "$rpf_variant" = "pre-existing" ]; then
+    write_file "$F/repo/sub1/a.txt" "old-a"
+    write_file "$F/repo/sub2/b.txt" "old-b"
+  fi
   write_file "$F/stage/sub1/a.txt" "new-a"
   write_file "$F/stage/sub2/b.txt" "new-b"
   {
@@ -1010,10 +1127,25 @@ recovery_probe_failure_setup() {
   JOURNAL_DIR=$(dirname "$(find "$F/repo/sdd/.staging" -name TRANSACTION.json 2>/dev/null | head -1)")
 }
 
+rpf_state() {
+  # rpf_state <variant> <relpath> <old-bytes> <new-bytes> -> PRE/POST/OTHER
+  rs_v=$1; rs_p="$F/repo/$2"; rs_old=$3; rs_new=$4
+  if [ -f "$rs_p" ]; then
+    rs_c=$(cat "$rs_p")
+    if [ "$rs_c" = "$rs_new" ]; then printf 'POST'; return 0; fi
+    if [ "$rs_v" = "pre-existing" ] && [ "$rs_c" = "$rs_old" ]; then printf 'PRE'; return 0; fi
+    printf 'OTHER'
+    return 0
+  fi
+  if [ "$rs_v" = "absent" ]; then printf 'PRE'; return 0; fi
+  printf 'OTHER'
+}
+
 recovery_probe_failure_case() {
-  # recovery_probe_failure_case <label> -- label is symlink/renameaside/chmod000.
+  # recovery_probe_failure_case <label> <variant>
   label=$1
-  recovery_probe_failure_setup
+  variant=$2
+  recovery_probe_failure_setup "$variant"
   case "$label" in
     symlink)
       mv "$F/repo/sub1" "$F/repo/sub1.saved"
@@ -1027,17 +1159,45 @@ recovery_probe_failure_case() {
       ;;
   esac
 
+  # "The journal's own recorded pre_hash decides" -- a plainly-missing
+  # chain is tolerated ONLY where the journal recorded ABSENT.
+  expect_closed=1
+  if [ "$label" = "renameaside" ] && [ "$variant" = "absent" ]; then
+    expect_closed=0
+  fi
+
   run_apply "$F/repo"
   rc=$?
-  if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "RECOVERY_FAILED" ]; then
-    pass "TEST-033v [$label] recovery fails closed while the destination-parent is unwalkable (RECOVERY_FAILED)"
+  if [ "$expect_closed" = "1" ]; then
+    if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "RECOVERY_FAILED" ]; then
+      pass "TEST-033v [$label/$variant] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)"
+    else
+      fail "TEST-033v [$label/$variant] recovery fails closed (exit $rc, category $(category_of "$WORK/out"))"
+    fi
+    # In the `absent` variant there is nothing to back up (pre="ABSENT"),
+    # so only the journal itself is a durable record to retain.
+    if [ -f "$JOURNAL_DIR/TRANSACTION.json" ]; then
+      if [ "$variant" = "absent" ] || [ -n "$(find "$JOURNAL_DIR/pre" -type f 2>/dev/null)" ]; then
+        pass "TEST-033v [$label/$variant] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt"
+      else
+        fail "TEST-033v [$label/$variant] journal and pre/ backup RETAINED after the failed recovery attempt"
+      fi
+    else
+      fail "TEST-033v [$label/$variant] journal RETAINED after the failed recovery attempt"
+    fi
   else
-    fail "TEST-033v [$label] recovery fails closed (exit $rc, category $(category_of "$WORK/out"))"
-  fi
-  if [ -f "$JOURNAL_DIR/TRANSACTION.json" ] && [ -n "$(find "$JOURNAL_DIR/pre" -type f 2>/dev/null)" ]; then
-    pass "TEST-033v [$label] journal and pre/ backup RETAINED after the failed recovery attempt"
-  else
-    fail "TEST-033v [$label] journal and pre/ backup RETAINED after the failed recovery attempt"
+    st1=$(rpf_state "$variant" "sub1/a.txt" "old-a" "new-a")
+    st2=$(rpf_state "$variant" "sub2/b.txt" "old-b" "new-b")
+    if [ "$rc" = 0 ] && [ "$st1" = "PRE" ] && [ "$st2" = "PRE" ]; then
+      pass "TEST-033v [$label/$variant] a plainly-absent chain the journal itself recorded as ABSENT converges to ALL-PRE (design.md:1042-1043), never a permanent RECOVERY_FAILED brick"
+    else
+      fail "TEST-033v [$label/$variant] plainly-absent + journal pre=ABSENT converges to ALL-PRE (exit $rc, states '$st1 $st2', category $(category_of "$WORK/out"))"
+    fi
+    if [ ! -f "$JOURNAL_DIR/TRANSACTION.json" ]; then
+      pass "TEST-033v [$label/$variant] the journal is deleted once recovery reaches its terminal state"
+    else
+      fail "TEST-033v [$label/$variant] the journal is deleted once recovery reaches its terminal state"
+    fi
   fi
 
   # Undo the trigger (chmod 000 back to a workable mode; restore the
@@ -1048,7 +1208,9 @@ recovery_probe_failure_case() {
       mv "$F/repo/sub1.saved" "$F/repo/sub1"
       ;;
     renameaside)
-      mv "$F/repo/sub1.attacker-moved" "$F/repo/sub1"
+      if [ -d "$F/repo/sub1.attacker-moved" ] && [ ! -e "$F/repo/sub1" ]; then
+        mv "$F/repo/sub1.attacker-moved" "$F/repo/sub1"
+      fi
       ;;
     chmod000)
       chmod 755 "$F/repo/sub1"
@@ -1057,21 +1219,37 @@ recovery_probe_failure_case() {
 
   run_apply "$F/repo"
   rc=$?
-  if [ "$rc" = 0 ] && [ "$(cat "$F/repo/sub1/a.txt")" = "old-a" ] && [ "$(cat "$F/repo/sub2/b.txt")" = "old-b" ]; then
-    pass "TEST-033v [$label] recovery converges to ALL-PRE once the trigger is undone"
+  # In the converge-then-restore case the moved-aside directory is put
+  # back AFTER the terminal state was already reached, so sub1/a.txt
+  # legitimately reappears at POST; that batch is finished and its journal
+  # is gone, which is what the assertions below check for that branch.
+  if [ "$expect_closed" = "1" ]; then
+    st1=$(rpf_state "$variant" "sub1/a.txt" "old-a" "new-a")
+    st2=$(rpf_state "$variant" "sub2/b.txt" "old-b" "new-b")
+    if [ "$rc" = 0 ] && [ "$st1" = "PRE" ] && [ "$st2" = "PRE" ]; then
+      pass "TEST-033v [$label/$variant] recovery converges to ALL-PRE once the trigger is undone"
+    else
+      fail "TEST-033v [$label/$variant] recovery converges to ALL-PRE once the trigger is undone (exit $rc, states '$st1 $st2')"
+    fi
   else
-    fail "TEST-033v [$label] recovery converges to ALL-PRE once the trigger is undone (exit $rc)"
+    if [ "$rc" = 0 ]; then
+      pass "TEST-033v [$label/$variant] a further invocation after convergence is a clean no-op (recovery is idempotent)"
+    else
+      fail "TEST-033v [$label/$variant] a further invocation after convergence is a clean no-op (exit $rc)"
+    fi
   fi
   if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
-    pass "TEST-033v [$label] journal/staging litter fully cleaned up after convergence"
+    pass "TEST-033v [$label/$variant] journal/staging litter fully cleaned up after convergence"
   else
-    fail "TEST-033v [$label] journal/staging litter fully cleaned up after convergence"
+    fail "TEST-033v [$label/$variant] journal/staging litter fully cleaned up after convergence"
   fi
 }
 
-recovery_probe_failure_case symlink
-recovery_probe_failure_case renameaside
-recovery_probe_failure_case chmod000
+for rpf_axis in pre-existing absent; do
+  recovery_probe_failure_case symlink "$rpf_axis"
+  recovery_probe_failure_case renameaside "$rpf_axis"
+  recovery_probe_failure_case chmod000 "$rpf_axis"
+done
 
 # ===========================================================================
 # TEST-033w (quality-gate seq0360 CRITICAL remedy): the SAME probe-failure
@@ -1103,6 +1281,219 @@ if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
   pass "TEST-033w no journal/staging litter left behind by the denied batch"
 else
   fail "TEST-033w no journal/staging litter left behind by the denied batch"
+fi
+
+# ===========================================================================
+# TEST-033x (quality-gate seq0361 Major #1): a REGRESSION LOCK on the
+# design.md:1055-1056 POST-REVERT CONFIRMATION PASS.
+#
+# seq0360 added that pass as its headline Critical fix, and seq0361 proved
+# it had ZERO coverage: deleting the entire confirmation loop from a
+# scratch copy still produced 174 passed / 0 failed. Its protective value
+# is real and load-bearing -- WITH it, a target left at a THIRD hash
+# (neither PRE nor POST) keeps the journal and the pre/ backup so a later
+# invocation can still finish the job; WITHOUT it recovery reports success
+# and DELETES both, stranding that target permanently.
+#
+# Driven across the destination-directory-existence axis as well: with
+# pre_hash="ABSENT" the confirmation compares "must be absent" instead of
+# "must equal a hash", a genuinely different code path.
+# ===========================================================================
+for cf_axis in pre-existing absent; do
+  crash_fixture "$cf_axis" 2
+  run_apply "$CF/repo" --staging-dir "$CF/stage" --manifest "$CF/stage/MANIFEST.sha256" --simulate-crash-after rename-1
+  JOURNAL_DIR=$(dirname "$(find "$CF/repo/sdd/.staging" -name TRANSACTION.json 2>/dev/null | head -1)")
+  # Move the already-committed target to a THIRD state, so it matches
+  # neither its journal-recorded PRE nor its POST hash. The classification
+  # pass therefore sees a MIX, the revert pass legitimately skips it (it is
+  # not at POST), and ONLY the confirmation pass can catch that recovery
+  # did not in fact reach a terminal state.
+  write_file "$CF/repo/plugins/x/a.txt" "third-state-content"
+  run_apply "$CF/repo"
+  rc=$?
+  if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "RECOVERY_FAILED" ]; then
+    pass "TEST-033x [$cf_axis] post-revert confirmation catches a target left at a THIRD state (RECOVERY_FAILED, design.md:1055-1056)"
+  else
+    fail "TEST-033x [$cf_axis] post-revert confirmation catches a target left at a THIRD state (exit $rc, category $(category_of "$WORK/out"))"
+  fi
+  if [ -f "$JOURNAL_DIR/TRANSACTION.json" ]; then
+    pass "TEST-033x [$cf_axis] the journal is RETAINED, never deleted, while any target is unconfirmed"
+  else
+    fail "TEST-033x [$cf_axis] the journal is RETAINED, never deleted, while any target is unconfirmed"
+  fi
+  if [ "$cf_axis" = "absent" ] || [ -n "$(find "$JOURNAL_DIR/pre" -type f 2>/dev/null)" ]; then
+    pass "TEST-033x [$cf_axis] the pre/ backup (where one exists) is RETAINED alongside the journal"
+  else
+    fail "TEST-033x [$cf_axis] the pre/ backup is RETAINED alongside the journal"
+  fi
+  # Restoring the target to its journal-recorded PRE state lets the SAME
+  # journal finally converge -- proving the fail-closed hold is a pause,
+  # not a brick.
+  if [ "$cf_axis" = "pre-existing" ]; then
+    write_file "$CF/repo/plugins/x/a.txt" "old-a"
+  else
+    rm -f "$CF/repo/plugins/x/a.txt"
+  fi
+  run_apply "$CF/repo"
+  rc=$?
+  obs=$(cf_states "$cf_axis" 2)
+  if [ "$rc" = 0 ] && [ "$obs" = "PRE PRE" ]; then
+    pass "TEST-033x [$cf_axis] once the target is back at PRE the SAME journal converges and is deleted"
+  else
+    fail "TEST-033x [$cf_axis] once the target is back at PRE the SAME journal converges (exit $rc, states '$obs')"
+  fi
+done
+
+# ===========================================================================
+# TEST-033y (quality-gate seq0361 Major #2): the DUPLICATE_BASENAME_IN_BATCH
+# guard must be CASE-INSENSITIVE.
+#
+# design.md:1011's backup slot is `pre/<target-basename>`. On a
+# case-insensitive volume -- macOS APFS by default, this tool's primary
+# platform -- `d1/File.txt` and `d2/file.txt` are DISTINCT live targets but
+# ONE backup slot, so the second backup silently overwrites the first and
+# recovery restores the WRONG bytes (or, as the evaluator observed, exits
+# 17 forever). The guard is deliberately conservative: the ASCII case fold
+# is applied on EVERY platform, so a batch is accepted or refused
+# identically regardless of the volume's own case semantics, and both
+# runtimes agree by construction.
+# ===========================================================================
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/repo/d1/File.txt" "pre-upper"
+write_file "$F/repo/d2/file.txt" "pre-lower"
+write_file "$F/stage/d1/File.txt" "new-upper"
+write_file "$F/stage/d2/file.txt" "new-lower"
+{
+  manifest_line "$F/stage" "d1/File.txt"
+  manifest_line "$F/stage" "d2/file.txt"
+} >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "DUPLICATE_BASENAME_IN_BATCH" ]; then
+  pass "TEST-033y basenames differing only by ASCII case are refused (DUPLICATE_BASENAME_IN_BATCH), on every platform"
+else
+  fail "TEST-033y basenames differing only by ASCII case are refused (exit $rc, category $(category_of "$WORK/out"))"
+fi
+if [ "$(cat "$F/repo/d1/File.txt")" = "pre-upper" ] && [ "$(cat "$F/repo/d2/file.txt")" = "pre-lower" ]; then
+  pass "TEST-033y both live targets unchanged (refused at manifest-parse time, before any live mutation)"
+else
+  fail "TEST-033y both live targets unchanged (refused before any live mutation)"
+fi
+if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
+  pass "TEST-033y no journal/staging litter left behind by the refused batch"
+else
+  fail "TEST-033y no journal/staging litter left behind by the refused batch"
+fi
+
+# The SAME case-variant batch with NO pre-existing live content. Both
+# targets record pre_hash="ABSENT", so no `pre/` backup slot is ever
+# written and the PREPARE-time slot-exclusivity check below CANNOT fire --
+# only the manifest-parse case fold can refuse this batch. This isolates
+# the two guards from one another, which matters because on a
+# case-insensitive volume they would otherwise mask each other and neither
+# would have independent detection power.
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/stage/d1/File.txt" "new-upper"
+write_file "$F/stage/d2/file.txt" "new-lower"
+{
+  manifest_line "$F/stage" "d1/File.txt"
+  manifest_line "$F/stage" "d2/file.txt"
+} >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "DUPLICATE_BASENAME_IN_BATCH" ]; then
+  pass "TEST-033y the manifest-parse case fold refuses a case-variant batch even when no backup slot would ever be written (guard isolated from the slot check)"
+else
+  fail "TEST-033y the manifest-parse case fold refuses a case-variant batch with no live content (exit $rc, category $(category_of "$WORK/out"))"
+fi
+if [ ! -e "$F/repo/d1/File.txt" ] && [ ! -e "$F/repo/d2/file.txt" ]; then
+  pass "TEST-033y neither target was published by the refused no-live-content batch"
+else
+  fail "TEST-033y neither target was published by the refused no-live-content batch"
+fi
+
+# ---------------------------------------------------------------------------
+# TEST-033y (second half): NON-ASCII case folding is a filesystem property
+# an ASCII fold cannot decide, so the second line of defence is the backup
+# slot ITSELF -- PREPARE refuses to write a slot that already exists. This
+# assertion is PROPERTY-BASED rather than platform-hardcoded: it first
+# probes what this very volume does with `Z-with-acute` vs its lowercase
+# form, then requires the tool to AGREE with that observation (refuse when
+# the volume would collide the two slots; publish both when it would not).
+# ---------------------------------------------------------------------------
+mkdir -p "$WORK/caseprobe"
+: >"$WORK/caseprobe/CASEPROBE-É.txt"
+if [ -e "$WORK/caseprobe/caseprobe-é.txt" ]; then
+  volume_folds_unicode_case=1
+else
+  volume_folds_unicode_case=0
+fi
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/repo/d1/É.txt" "pre-upper-acute"
+write_file "$F/repo/d2/é.txt" "pre-lower-acute"
+write_file "$F/stage/d1/É.txt" "new-upper-acute"
+write_file "$F/stage/d2/é.txt" "new-lower-acute"
+{
+  manifest_line "$F/stage" "d1/É.txt"
+  manifest_line "$F/stage" "d2/é.txt"
+} >"$F/stage/MANIFEST.sha256"
+run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$volume_folds_unicode_case" = "1" ]; then
+  if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "DUPLICATE_BASENAME_IN_BATCH" ]; then
+    pass "TEST-033y on a volume that folds non-ASCII case, the colliding backup slot is detected and the batch refused (DUPLICATE_BASENAME_IN_BATCH)"
+  else
+    fail "TEST-033y on a volume that folds non-ASCII case, the colliding backup slot is refused (exit $rc, category $(category_of "$WORK/out"))"
+  fi
+  if [ "$(cat "$F/repo/d1/É.txt")" = "pre-upper-acute" ] && [ "$(cat "$F/repo/d2/é.txt")" = "pre-lower-acute" ]; then
+    pass "TEST-033y non-ASCII collision refused BEFORE any live mutation (both targets still at PRE)"
+  else
+    fail "TEST-033y non-ASCII collision refused BEFORE any live mutation"
+  fi
+else
+  if [ "$rc" = 0 ] && [ "$(cat "$F/repo/d1/É.txt")" = "new-upper-acute" ] && [ "$(cat "$F/repo/d2/é.txt")" = "new-lower-acute" ]; then
+    pass "TEST-033y on a volume that does NOT fold non-ASCII case, both targets are distinct slots and both publish"
+  else
+    fail "TEST-033y on a volume that does NOT fold non-ASCII case, both targets publish (exit $rc)"
+  fi
+  pass "TEST-033y non-ASCII slot-collision behaviour matches this volume's own case semantics (no collision to refuse here)"
+fi
+
+# ===========================================================================
+# TEST-033z (quality-gate seq0361 Major #3): the tool must NEVER silence
+# its own stderr.
+#
+# `exec 8<. 2>/dev/null` at the top of main applied that redirection to
+# the CURRENT SHELL for the whole remainder of execution (POSIX `exec`
+# semantics), so every diagnostic raised after it -- die()'s own message,
+# `set -u` errors, mkdir/mv/cat failures, an awk crash -- was discarded,
+# defeating die()'s documented intent. The .ps1 twin never had the defect
+# ([Console]::Error.WriteLine), so this was ALSO a live sh/ps1 divergence.
+# ===========================================================================
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+run_apply "$F/repo" --staging-dir "$F/no-such-stage" --manifest "$F/no-such-stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" != 0 ] && grep -q '"category":"MANIFEST_INVALID"' "$WORK/err" 2>/dev/null; then
+  pass "TEST-033z a denial raised AFTER argument parsing still reaches stderr (die()'s diagnostic is never swallowed)"
+else
+  fail "TEST-033z a denial raised AFTER argument parsing still reaches stderr (exit $rc, stderr bytes $(wc -c <"$WORK/err" 2>/dev/null))"
+fi
+if grep -q '"category":"MANIFEST_INVALID"' "$WORK/out" 2>/dev/null; then
+  pass "TEST-033z the same denial ALSO reaches the machine-readable stdout channel (both channels, as documented)"
+else
+  fail "TEST-033z the same denial ALSO reaches the machine-readable stdout channel"
+fi
+if command -v pwsh >/dev/null 2>&1; then
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  ( cd "$F/repo" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_FOR_PARITY" -StagingDir "$F/no-such-stage" -Manifest "$F/no-such-stage/MANIFEST.sha256" ) >"$WORK/out" 2>"$WORK/err"
+  rc=$?
+  if [ "$rc" != 0 ] && grep -q '"category":"MANIFEST_INVALID"' "$WORK/err" 2>/dev/null; then
+    pass "TEST-033z ps1 emits the identical denial on stderr too (sh/ps1 diagnostic-channel parity)"
+  else
+    fail "TEST-033z ps1 emits the identical denial on stderr too (exit $rc, stderr bytes $(wc -c <"$WORK/err" 2>/dev/null))"
+  fi
+else
+  pass "TEST-033z ps1 stderr parity (skipped: pwsh not available)"
 fi
 
 # ===========================================================================

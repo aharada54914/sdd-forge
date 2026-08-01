@@ -370,7 +370,39 @@
   #3: TEST-033t自体のhostileフラグメントが常にmanifestのLEAFにしか
   出現せずglobメタ文字を含む**ディレクトリsegment**へのwalk_relative_dir
   到達経路に回帰ロックが無かった欠落を新規fixture(decoy directory
-  `axxb/`併設)で解消。アサーション数174(`bash`)/100(`pwsh`)へ増加。詳細は
+  `axxb/`併設)で解消。アサーション数174(`bash`)/100(`pwsh`)へ増加。
+  (seq0361) seq0360の修正自体が招いた**リグレッションCritical**を修正 —
+  recovery段のwalk失敗を種類を問わず致命扱いにしたため、宛先ディレクトリが
+  未作成の**初回publish**(journalが全対象に`pre_hash="ABSENT"`を記録した
+  状態)でcrashすると、敵対的入力が一切無くてもrecoveryが永久に
+  exit 17 `RECOVERY_FAILED`を返してjournalを保持し続け、以降の無関係な
+  batchも全て失敗する恒久ブリック状態に陥っていた(両ランタイム同一、
+  AC-033とdesign.md:1042-1046/1056-1063違反)。design.md:1036-1037が
+  プローブに「(or note `ABSENT`)」を明示的に要求し、:1042-1046が
+  「(or both are `ABSENT`) => SAFE abandonment」を必須の終端判定と
+  定めている以上、ABSENTの観測は正当な必須の結果であり失敗ではない。
+  修正方針は「walk成功/失敗」ではなく**観測できたか否か**で線を引き、
+  判別子にはjournal自身が記録した`pre_hash`を用いる: symlink・access拒否・
+  非ディレクトリ遮断は「存在するが読めない」ため常にfail-closed
+  (seq0360の修正をそのまま維持)、単純な不在は
+  journalが`pre_hash="ABSENT"`を記録している対象に限り正当な観測として
+  受理する(実hashが記録されている場合、journal書き込み時点で当該対象が
+  通常ファイルとして存在した=親チェーンも走査可能だったことの証明に
+  なるため、いま不在であることは破壊の証拠でありfail-closed)。両ランタイムに
+  専用ヘルパ(`recovery_probe_live_target`/`Get-RecoveryProbe`)を追加し
+  recoveryの全3プローブを集約。Major 3件も修正: seq0360の目玉であった
+  revert後確認パスに回帰ロックが皆無だった問題(新規TEST-033x)、
+  `DUPLICATE_BASENAME_IN_BATCH`がバイト厳密比較のため
+  case-insensitiveボリューム(macOS APFS既定)で`d1/File.txt`と
+  `d2/file.txt`が単一の`pre/<basename>`スロットを共有し一方のPREバイト列を
+  破壊していた問題(ASCII限定の常時case-insensitive判定＋PREPARE段階の
+  バックアップスロット排他チェックの二段構え)、`exec 8<. 2>/dev/null`が
+  sh側スクリプト自身のstderrを以降全域で破棄していた問題(未使用fdごと
+  削除、ps1との診断チャネル非対称も解消)。構造改善として、crash-injection
+  fixture群に**宛先ディレクトリ存在軸**(pre-existing / absent)を導入し、
+  AC-033の全4シナリオを両ランタイム×両バリアントで実行(点fixtureの
+  追加ではなく軸の追加)。各修正は scratch コピーでの mutation により
+  検出力を実証。アサーション数218(`bash`)/146(`pwsh`)へ増加。詳細は
   `reports/implementation/epic-189-a1-project-context/T-007.md`の
   「Quality Gate Remedy」各節。
   `docs/adr/0025-human-copy-transactional-bundle.md`

@@ -246,84 +246,119 @@ $r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join
 if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'MANIFEST_INVALID') { Test-Pass 'TEST-033h duplicate manifest target rejected (MANIFEST_INVALID)' } else { Test-Fail 'TEST-033h duplicate manifest target rejected' "exit $($r.ExitCode)" }
 
 # ---------------------------------------------------------------------------
-# TEST-033i: crash BEFORE any rename recovers to ALL-PRE.
+# TEST-033i..l: the four AC-033 crash-injection scenarios, each driven
+# across the DESTINATION-DIRECTORY-EXISTENCE AXIS (quality-gate seq0361
+# STRUCTURAL remedy -- see tests/apply-human-copy.tests.sh's own header
+# comment for the full rationale). Every scenario runs once with the
+# destination chain and live targets ALREADY PRESENT (journal records a
+# real pre_hash) and once with NOTHING present (journal records
+# pre_hash="ABSENT", the ordinary first-ever-publish shape that rounds 1-4
+# never exercised and round 4's Critical fix then broke).
 # ---------------------------------------------------------------------------
-$F = New-FixtureDir
-Write-FixtureFile (Join-Path $F 'repo/plugins/x/a.txt') 'old-a'
-Write-FixtureFile (Join-Path $F 'repo/plugins/x/b.txt') 'old-b'
-Write-FixtureFile (Join-Path $F 'stage/plugins/x/a.txt') 'new-a'
-Write-FixtureFile (Join-Path $F 'stage/plugins/x/b.txt') 'new-b'
-$manifestLines = (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/a.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/b.txt') + "`n"
-Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $manifestLines
-Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'), '-SimulateCrashAfter', 'journal-write') | Out-Null
-$a = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt')
-$b = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/b.txt')
-if ($a -eq "old-a`n" -and $b -eq "old-b`n") { Test-Pass 'TEST-033i crash before any rename: both targets still PRE immediately after the crash' } else { Test-Fail 'TEST-033i crash before any rename: both targets still PRE' "a='$a' b='$b'" }
-Invoke-Apply -RepoDir (Join-Path $F 'repo') | Out-Null
-$a = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt')
-$b = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/b.txt')
-if ($a -eq "old-a`n" -and $b -eq "old-b`n") { Test-Pass 'TEST-033i recovery converges to ALL-PRE (crash before any rename)' } else { Test-Fail 'TEST-033i recovery converges to ALL-PRE' "a='$a' b='$b'" }
 
-# ---------------------------------------------------------------------------
-# TEST-033j: crash MID-BATCH recovers to ALL-PRE.
-# ---------------------------------------------------------------------------
-$F = New-FixtureDir
-Write-FixtureFile (Join-Path $F 'repo/plugins/x/a.txt') 'old-a'
-Write-FixtureFile (Join-Path $F 'repo/plugins/x/b.txt') 'old-b'
-Write-FixtureFile (Join-Path $F 'stage/plugins/x/a.txt') 'new-a'
-Write-FixtureFile (Join-Path $F 'stage/plugins/x/b.txt') 'new-b'
-$manifestLines = (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/a.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/b.txt') + "`n"
-Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $manifestLines
-Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'), '-SimulateCrashAfter', 'rename-1') | Out-Null
-$a = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt')
-$b = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/b.txt')
-if ($a -eq "new-a`n" -and $b -eq "old-b`n") { Test-Pass 'TEST-033j mid-batch crash leaves an observable partial state right after the crash' } else { Test-Fail 'TEST-033j mid-batch crash partial state' "a='$a' b='$b'" }
-Invoke-Apply -RepoDir (Join-Path $F 'repo') | Out-Null
-$a = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt')
-$b = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/b.txt')
-if ($a -eq "old-a`n" -and $b -eq "old-b`n") { Test-Pass 'TEST-033j recovery converges to ALL-PRE (mid-batch crash rolled back)' } else { Test-Fail 'TEST-033j recovery converges to ALL-PRE' "a='$a' b='$b'" }
+function New-CrashFixture([string]$Variant, [int]$TargetCount) {
+    $f = New-FixtureDir
+    $lines = ''
+    $names = @('a', 'b', 'c')[0..($TargetCount - 1)]
+    foreach ($nm in $names) {
+        if ($Variant -eq 'pre-existing') {
+            Write-FixtureFile (Join-Path $f "repo/plugins/x/$nm.txt") "old-$nm"
+        }
+        Write-FixtureFile (Join-Path $f "stage/plugins/x/$nm.txt") "new-$nm"
+        $lines += (Get-ManifestLine (Join-Path $f 'stage') "plugins/x/$nm.txt") + "`n"
+    }
+    Set-Content -LiteralPath (Join-Path $f 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $lines
+    return $f
+}
 
-# ---------------------------------------------------------------------------
-# TEST-033k: crash AFTER the last rename but BEFORE journal deletion
-# recovers to ALL-POST.
-# ---------------------------------------------------------------------------
-$F = New-FixtureDir
-Write-FixtureFile (Join-Path $F 'repo/plugins/x/a.txt') 'old-a'
-Write-FixtureFile (Join-Path $F 'repo/plugins/x/b.txt') 'old-b'
-Write-FixtureFile (Join-Path $F 'stage/plugins/x/a.txt') 'new-a'
-Write-FixtureFile (Join-Path $F 'stage/plugins/x/b.txt') 'new-b'
-$manifestLines = (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/a.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/b.txt') + "`n"
-Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $manifestLines
-Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'), '-SimulateCrashAfter', 'rename-2') | Out-Null
-Invoke-Apply -RepoDir (Join-Path $F 'repo') | Out-Null
-$a = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt')
-$b = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/b.txt')
-if ($a -eq "new-a`n" -and $b -eq "new-b`n") { Test-Pass 'TEST-033k recovery converges to ALL-POST (crash after last rename, before journal delete)' } else { Test-Fail 'TEST-033k recovery converges to ALL-POST' "a='$a' b='$b'" }
+# Get-CrashState -> the target's ABSTRACT state: PRE, POST or OTHER. A
+# target that does not exist IS its pre-transaction state exactly when the
+# journal recorded pre_hash='ABSENT' (design.md:1042-1043's "or both are
+# ABSENT" clause), which the `absent` variant exists to exercise.
+function Get-CrashState([string]$FixtureDir, [string]$Variant, [string]$Name) {
+    $p = Join-Path $FixtureDir "repo/plugins/x/$Name.txt"
+    if (Test-Path -LiteralPath $p -PathType Leaf) {
+        $c = Get-Content -Raw -LiteralPath $p
+        if ($c -eq "new-$Name`n") { return 'POST' }
+        if ($Variant -eq 'pre-existing' -and $c -eq "old-$Name`n") { return 'PRE' }
+        return 'OTHER'
+    }
+    if ($Variant -eq 'absent') { return 'PRE' }
+    return 'OTHER'
+}
 
-# ---------------------------------------------------------------------------
-# TEST-033l: a SECOND crash injected DURING recovery itself still
-# converges correctly on the FOLLOWING invocation.
-# ---------------------------------------------------------------------------
-$F = New-FixtureDir
-Write-FixtureFile (Join-Path $F 'repo/plugins/x/a.txt') 'old-a'
-Write-FixtureFile (Join-Path $F 'repo/plugins/x/b.txt') 'old-b'
-Write-FixtureFile (Join-Path $F 'repo/plugins/x/c.txt') 'old-c'
-Write-FixtureFile (Join-Path $F 'stage/plugins/x/a.txt') 'new-a'
-Write-FixtureFile (Join-Path $F 'stage/plugins/x/b.txt') 'new-b'
-Write-FixtureFile (Join-Path $F 'stage/plugins/x/c.txt') 'new-c'
-$manifestLines = (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/a.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/b.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/c.txt') + "`n"
-Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $manifestLines
-Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'), '-SimulateCrashAfter', 'rename-2') | Out-Null
-Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-SimulateCrashDuringRecoveryAfter', 'revert-1') | Out-Null
-$a = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt')
-$b = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/b.txt')
-$c = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/c.txt')
-if ($a -eq "old-a`n" -and $b -eq "new-b`n" -and $c -eq "old-c`n") { Test-Pass 'TEST-033l a second crash mid-recovery leaves an observable partial-recovery state' } else { Test-Fail 'TEST-033l partial-recovery state' "a='$a' b='$b' c='$c'" }
-Invoke-Apply -RepoDir (Join-Path $F 'repo') | Out-Null
-$a = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt')
-$b = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/b.txt')
-$c = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/c.txt')
-if ($a -eq "old-a`n" -and $b -eq "old-b`n" -and $c -eq "old-c`n") { Test-Pass 'TEST-033l the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)' } else { Test-Fail 'TEST-033l final convergence' "a='$a' b='$b' c='$c'" }
+function Get-CrashStates([string]$FixtureDir, [string]$Variant, [int]$TargetCount) {
+    $names = @('a', 'b', 'c')[0..($TargetCount - 1)]
+    return (($names | ForEach-Object { Get-CrashState $FixtureDir $Variant $_ }) -join ' ')
+}
+
+function Test-NoStagingLitter([string]$FixtureDir) {
+    $litter = Get-ChildItem -Path (Join-Path $FixtureDir 'repo/sdd/.staging') -Recurse -File -ErrorAction SilentlyContinue
+    return (-not $litter)
+}
+
+foreach ($axis in @('pre-existing', 'absent')) {
+
+    # -----------------------------------------------------------------------
+    # TEST-033i: crash BEFORE any rename recovers to ALL-PRE. In the
+    # `absent` variant this is the exact fixture quality-gate seq0361
+    # reported as a Critical regression.
+    # -----------------------------------------------------------------------
+    $F = New-CrashFixture $axis 2
+    $stageArgs = @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList ($stageArgs + @('-SimulateCrashAfter', 'journal-write')) | Out-Null
+    $obs = Get-CrashStates $F $axis 2
+    if ($obs -eq 'PRE PRE') { Test-Pass "TEST-033i [$axis] crash before any rename: both targets still PRE immediately after the crash" } else { Test-Fail "TEST-033i [$axis] crash before any rename: both targets still PRE" "states '$obs'" }
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+    $obs = Get-CrashStates $F $axis 2
+    if ($r.ExitCode -eq 0 -and $obs -eq 'PRE PRE') { Test-Pass "TEST-033i [$axis] recovery converges to ALL-PRE (crash before any rename)" } else { Test-Fail "TEST-033i [$axis] recovery converges to ALL-PRE" "exit $($r.ExitCode) states '$obs' category $(Get-CategoryOf $r.StdoutPath)" }
+    if (Test-NoStagingLitter $F) { Test-Pass "TEST-033i [$axis] stale journal cleaned up after recovery" } else { Test-Fail "TEST-033i [$axis] stale journal cleaned up after recovery" 'litter remains' }
+    Write-FixtureFile (Join-Path $F 'stage/plugins/x/a.txt') 'newer-a'
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST2.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'plugins/x/a.txt') + "`n")
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST2.sha256'))
+    $aNow = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt') -ErrorAction SilentlyContinue
+    if ($r.ExitCode -eq 0 -and $aNow -eq "newer-a`n") { Test-Pass "TEST-033i [$axis] a subsequent UNRELATED batch still publishes (publisher not bricked)" } else { Test-Fail "TEST-033i [$axis] a subsequent UNRELATED batch still publishes" "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)" }
+
+    # -----------------------------------------------------------------------
+    # TEST-033j: crash MID-BATCH recovers to ALL-PRE.
+    # -----------------------------------------------------------------------
+    $F = New-CrashFixture $axis 2
+    $stageArgs = @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList ($stageArgs + @('-SimulateCrashAfter', 'rename-1')) | Out-Null
+    $obs = Get-CrashStates $F $axis 2
+    if ($obs -eq 'POST PRE') { Test-Pass "TEST-033j [$axis] mid-batch crash leaves an observable partial state right after the crash" } else { Test-Fail "TEST-033j [$axis] mid-batch crash partial state" "states '$obs'" }
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+    $obs = Get-CrashStates $F $axis 2
+    if ($r.ExitCode -eq 0 -and $obs -eq 'PRE PRE') { Test-Pass "TEST-033j [$axis] recovery converges to ALL-PRE (mid-batch crash rolled back)" } else { Test-Fail "TEST-033j [$axis] recovery converges to ALL-PRE" "exit $($r.ExitCode) states '$obs' category $(Get-CategoryOf $r.StdoutPath)" }
+    if (Test-NoStagingLitter $F) { Test-Pass "TEST-033j [$axis] journal/staging litter fully cleaned up after convergence" } else { Test-Fail "TEST-033j [$axis] journal/staging litter fully cleaned up after convergence" 'litter remains' }
+
+    # -----------------------------------------------------------------------
+    # TEST-033k: crash AFTER the last rename but BEFORE journal deletion
+    # recovers to ALL-POST.
+    # -----------------------------------------------------------------------
+    $F = New-CrashFixture $axis 2
+    $stageArgs = @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList ($stageArgs + @('-SimulateCrashAfter', 'rename-2')) | Out-Null
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+    $obs = Get-CrashStates $F $axis 2
+    if ($r.ExitCode -eq 0 -and $obs -eq 'POST POST') { Test-Pass "TEST-033k [$axis] recovery converges to ALL-POST (crash after last rename, before journal delete)" } else { Test-Fail "TEST-033k [$axis] recovery converges to ALL-POST" "exit $($r.ExitCode) states '$obs'" }
+    if (Test-NoStagingLitter $F) { Test-Pass "TEST-033k [$axis] journal removed once recovery confirms ALL-POST" } else { Test-Fail "TEST-033k [$axis] journal removed once recovery confirms ALL-POST" 'litter remains' }
+
+    # -----------------------------------------------------------------------
+    # TEST-033l: a SECOND crash injected DURING recovery itself still
+    # converges correctly on the FOLLOWING invocation.
+    # -----------------------------------------------------------------------
+    $F = New-CrashFixture $axis 3
+    $stageArgs = @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList ($stageArgs + @('-SimulateCrashAfter', 'rename-2')) | Out-Null
+    Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-SimulateCrashDuringRecoveryAfter', 'revert-1') | Out-Null
+    $obs = Get-CrashStates $F $axis 3
+    if ($obs -eq 'PRE POST PRE') { Test-Pass "TEST-033l [$axis] a second crash mid-recovery leaves an observable partial-recovery state" } else { Test-Fail "TEST-033l [$axis] partial-recovery state" "states '$obs'" }
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+    $obs = Get-CrashStates $F $axis 3
+    if ($r.ExitCode -eq 0 -and $obs -eq 'PRE PRE PRE') { Test-Pass "TEST-033l [$axis] the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)" } else { Test-Fail "TEST-033l [$axis] final convergence" "exit $($r.ExitCode) states '$obs'" }
+    if (Test-NoStagingLitter $F) { Test-Pass "TEST-033l [$axis] journal fully cleaned up after the second recovery invocation" } else { Test-Fail "TEST-033l [$axis] journal fully cleaned up after the second recovery invocation" 'litter remains' }
+}
 
 # ---------------------------------------------------------------------------
 # TEST-033m: journal shape mismatch fails closed (carry-forward
@@ -669,10 +704,12 @@ if ($decoyContent -eq "decoy-untouched`n" -and -not $decoyGotTarget) {
 # the trigger is undone.
 # ---------------------------------------------------------------------------
 
-function New-RecoveryProbeFailureFixture {
+function New-RecoveryProbeFailureFixture([string]$Variant) {
     $f = New-FixtureDir
-    Write-FixtureFile (Join-Path $f 'repo/sub1/a.txt') 'old-a'
-    Write-FixtureFile (Join-Path $f 'repo/sub2/b.txt') 'old-b'
+    if ($Variant -eq 'pre-existing') {
+        Write-FixtureFile (Join-Path $f 'repo/sub1/a.txt') 'old-a'
+        Write-FixtureFile (Join-Path $f 'repo/sub2/b.txt') 'old-b'
+    }
     Write-FixtureFile (Join-Path $f 'stage/sub1/a.txt') 'new-a'
     Write-FixtureFile (Join-Path $f 'stage/sub2/b.txt') 'new-b'
     $lines = (Get-ManifestLine (Join-Path $f 'stage') 'sub1/a.txt') + "`n" + (Get-ManifestLine (Join-Path $f 'stage') 'sub2/b.txt') + "`n"
@@ -682,8 +719,20 @@ function New-RecoveryProbeFailureFixture {
     return @{ F = $f; JournalDir = $journal.DirectoryName }
 }
 
-function Test-RecoveryProbeFailureCase([string]$Label) {
-    $fixture = New-RecoveryProbeFailureFixture
+function Get-RpfState([string]$FixtureDir, [string]$Variant, [string]$RelPath, [string]$Old, [string]$New) {
+    $p = Join-Path $FixtureDir "repo/$RelPath"
+    if (Test-Path -LiteralPath $p -PathType Leaf) {
+        $c = Get-Content -Raw -LiteralPath $p
+        if ($c -eq "$New`n") { return 'POST' }
+        if ($Variant -eq 'pre-existing' -and $c -eq "$Old`n") { return 'PRE' }
+        return 'OTHER'
+    }
+    if ($Variant -eq 'absent') { return 'PRE' }
+    return 'OTHER'
+}
+
+function Test-RecoveryProbeFailureCase([string]$Label, [string]$Variant) {
+    $fixture = New-RecoveryProbeFailureFixture $Variant
     $f = $fixture.F
     $sub1 = Join-Path $f 'repo/sub1'
     switch ($Label) {
@@ -699,18 +748,38 @@ function Test-RecoveryProbeFailureCase([string]$Label) {
         }
     }
 
+    # "The journal's own recorded pre_hash decides": a plainly-missing
+    # chain is tolerated ONLY where the journal recorded ABSENT. See the
+    # .sh twin's TEST-033v header comment for the full derivation.
+    $expectClosed = -not ($Label -eq 'renameaside' -and $Variant -eq 'absent')
+
     $r = Invoke-Apply -RepoDir (Join-Path $f 'repo')
-    if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'RECOVERY_FAILED') {
-        Test-Pass "TEST-033v [$Label] recovery fails closed while the destination-parent is unwalkable (RECOVERY_FAILED)"
+    if ($expectClosed) {
+        if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'RECOVERY_FAILED') {
+            Test-Pass "TEST-033v [$Label/$Variant] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)"
+        } else {
+            Test-Fail "TEST-033v [$Label/$Variant] recovery fails closed" "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+        }
+        $journalStillThere = Test-Path -LiteralPath (Join-Path $fixture.JournalDir 'TRANSACTION.json')
+        $backupStillThere = ($Variant -eq 'absent') -or ((Get-ChildItem -Path (Join-Path $fixture.JournalDir 'pre') -File -ErrorAction SilentlyContinue).Count -gt 0)
+        if ($journalStillThere -and $backupStillThere) {
+            Test-Pass "TEST-033v [$Label/$Variant] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt"
+        } else {
+            Test-Fail "TEST-033v [$Label/$Variant] journal and pre/ backup RETAINED" "journal=$journalStillThere backup=$backupStillThere"
+        }
     } else {
-        Test-Fail "TEST-033v [$Label] recovery fails closed" "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
-    }
-    $journalStillThere = Test-Path -LiteralPath (Join-Path $fixture.JournalDir 'TRANSACTION.json')
-    $backupStillThere = (Get-ChildItem -Path (Join-Path $fixture.JournalDir 'pre') -File -ErrorAction SilentlyContinue).Count -gt 0
-    if ($journalStillThere -and $backupStillThere) {
-        Test-Pass "TEST-033v [$Label] journal and pre/ backup RETAINED after the failed recovery attempt"
-    } else {
-        Test-Fail "TEST-033v [$Label] journal and pre/ backup RETAINED" "journal=$journalStillThere backup=$backupStillThere"
+        $st1 = Get-RpfState $f $Variant 'sub1/a.txt' 'old-a' 'new-a'
+        $st2 = Get-RpfState $f $Variant 'sub2/b.txt' 'old-b' 'new-b'
+        if ($r.ExitCode -eq 0 -and $st1 -eq 'PRE' -and $st2 -eq 'PRE') {
+            Test-Pass "TEST-033v [$Label/$Variant] a plainly-absent chain the journal itself recorded as ABSENT converges to ALL-PRE (design.md:1042-1043), never a permanent RECOVERY_FAILED brick"
+        } else {
+            Test-Fail "TEST-033v [$Label/$Variant] plainly-absent + journal pre=ABSENT converges to ALL-PRE" "exit $($r.ExitCode) states '$st1 $st2' category $(Get-CategoryOf $r.StdoutPath)"
+        }
+        if (-not (Test-Path -LiteralPath (Join-Path $fixture.JournalDir 'TRANSACTION.json'))) {
+            Test-Pass "TEST-033v [$Label/$Variant] the journal is deleted once recovery reaches its terminal state"
+        } else {
+            Test-Fail "TEST-033v [$Label/$Variant] the journal is deleted once recovery reaches its terminal state" 'journal retained'
+        }
     }
 
     switch ($Label) {
@@ -719,7 +788,9 @@ function Test-RecoveryProbeFailureCase([string]$Label) {
             Rename-Item -LiteralPath (Join-Path $f 'repo/sub1.saved') -NewName 'sub1'
         }
         'renameaside' {
-            Rename-Item -LiteralPath (Join-Path $f 'repo/sub1.attacker-moved') -NewName 'sub1'
+            if ((Test-Path -LiteralPath (Join-Path $f 'repo/sub1.attacker-moved')) -and -not (Test-Path -LiteralPath $sub1)) {
+                Rename-Item -LiteralPath (Join-Path $f 'repo/sub1.attacker-moved') -NewName 'sub1'
+            }
         }
         'chmod000' {
             & chmod 755 $sub1
@@ -727,32 +798,42 @@ function Test-RecoveryProbeFailureCase([string]$Label) {
     }
 
     $r2 = Invoke-Apply -RepoDir (Join-Path $f 'repo')
-    $aContent = Get-Content -Raw -LiteralPath (Join-Path $f 'repo/sub1/a.txt') -ErrorAction SilentlyContinue
-    $bContent = Get-Content -Raw -LiteralPath (Join-Path $f 'repo/sub2/b.txt') -ErrorAction SilentlyContinue
-    if ($r2.ExitCode -eq 0 -and $aContent -eq "old-a`n" -and $bContent -eq "old-b`n") {
-        Test-Pass "TEST-033v [$Label] recovery converges to ALL-PRE once the trigger is undone"
+    if ($expectClosed) {
+        $st1 = Get-RpfState $f $Variant 'sub1/a.txt' 'old-a' 'new-a'
+        $st2 = Get-RpfState $f $Variant 'sub2/b.txt' 'old-b' 'new-b'
+        if ($r2.ExitCode -eq 0 -and $st1 -eq 'PRE' -and $st2 -eq 'PRE') {
+            Test-Pass "TEST-033v [$Label/$Variant] recovery converges to ALL-PRE once the trigger is undone"
+        } else {
+            Test-Fail "TEST-033v [$Label/$Variant] recovery converges to ALL-PRE once the trigger is undone" "exit $($r2.ExitCode) states '$st1 $st2'"
+        }
     } else {
-        Test-Fail "TEST-033v [$Label] recovery converges to ALL-PRE once the trigger is undone" "exit $($r2.ExitCode)"
+        if ($r2.ExitCode -eq 0) {
+            Test-Pass "TEST-033v [$Label/$Variant] a further invocation after convergence is a clean no-op (recovery is idempotent)"
+        } else {
+            Test-Fail "TEST-033v [$Label/$Variant] a further invocation after convergence is a clean no-op" "exit $($r2.ExitCode)"
+        }
     }
     $litter = Get-ChildItem -Path (Join-Path $f 'repo/sdd/.staging') -Recurse -File -ErrorAction SilentlyContinue
     if (-not $litter) {
-        Test-Pass "TEST-033v [$Label] journal/staging litter fully cleaned up after convergence"
+        Test-Pass "TEST-033v [$Label/$Variant] journal/staging litter fully cleaned up after convergence"
     } else {
-        Test-Fail "TEST-033v [$Label] journal/staging litter fully cleaned up after convergence" 'litter remains'
+        Test-Fail "TEST-033v [$Label/$Variant] journal/staging litter fully cleaned up after convergence" 'litter remains'
     }
 }
 
-if ($IsWindows) {
-    'symlink', 'renameaside', 'chmod000' | ForEach-Object {
-        Test-Pass "TEST-033v [$_] recovery fails closed / converges (skipped: requires Windows elevation or POSIX permission bits)"
-        Test-Pass "TEST-033v [$_] journal and pre/ backup RETAINED (skipped)"
-        Test-Pass "TEST-033v [$_] recovery converges to ALL-PRE once undone (skipped)"
-        Test-Pass "TEST-033v [$_] journal/staging litter fully cleaned up (skipped)"
+foreach ($rpfAxis in @('pre-existing', 'absent')) {
+    if ($IsWindows) {
+        'symlink', 'renameaside', 'chmod000' | ForEach-Object {
+            Test-Pass "TEST-033v [$_/$rpfAxis] recovery fails closed / converges (skipped: requires Windows elevation or POSIX permission bits)"
+            Test-Pass "TEST-033v [$_/$rpfAxis] journal and pre/ backup RETAINED (skipped)"
+            Test-Pass "TEST-033v [$_/$rpfAxis] recovery converges to ALL-PRE once undone (skipped)"
+            Test-Pass "TEST-033v [$_/$rpfAxis] journal/staging litter fully cleaned up (skipped)"
+        }
+    } else {
+        Test-RecoveryProbeFailureCase 'symlink' $rpfAxis
+        Test-RecoveryProbeFailureCase 'renameaside' $rpfAxis
+        Test-RecoveryProbeFailureCase 'chmod000' $rpfAxis
     }
-} else {
-    Test-RecoveryProbeFailureCase 'symlink'
-    Test-RecoveryProbeFailureCase 'renameaside'
-    Test-RecoveryProbeFailureCase 'chmod000'
 }
 
 # ---------------------------------------------------------------------------
@@ -792,6 +873,182 @@ if ($IsWindows) {
     } else {
         Test-Fail 'TEST-033w no journal/staging litter left behind by the denied batch' 'litter remains'
     }
+}
+
+# ---------------------------------------------------------------------------
+# TEST-033x (quality-gate seq0361 Major #1): a REGRESSION LOCK on the
+# design.md:1055-1056 POST-REVERT CONFIRMATION PASS, which seq0360 added
+# as its headline Critical fix and seq0361 proved had ZERO coverage
+# (deleting the whole loop from a scratch copy still gave 174/0). Driven
+# across the destination-directory-existence axis, because with
+# pre_hash='ABSENT' the confirmation compares "must be absent" instead of
+# "must equal a hash" -- a genuinely different code path.
+# ---------------------------------------------------------------------------
+foreach ($axis in @('pre-existing', 'absent')) {
+    $F = New-CrashFixture $axis 2
+    $stageArgs = @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList ($stageArgs + @('-SimulateCrashAfter', 'rename-1')) | Out-Null
+    $journal = Get-ChildItem -Path (Join-Path $F 'repo/sdd/.staging') -Filter 'TRANSACTION.json' -Recurse -ErrorAction SilentlyContinue | Select-Object -First 1
+    $journalDir = $journal.DirectoryName
+    # Move the already-committed target to a THIRD state, matching neither
+    # its journal-recorded PRE nor its POST hash: the classification pass
+    # sees a MIX, the revert pass legitimately skips it (it is not at
+    # POST), and ONLY the confirmation pass can catch that recovery did not
+    # in fact reach a terminal state.
+    Write-FixtureFile (Join-Path $F 'repo/plugins/x/a.txt') 'third-state-content'
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+    if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'RECOVERY_FAILED') {
+        Test-Pass "TEST-033x [$axis] post-revert confirmation catches a target left at a THIRD state (RECOVERY_FAILED, design.md:1055-1056)"
+    } else {
+        Test-Fail "TEST-033x [$axis] post-revert confirmation catches a target left at a THIRD state" "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+    }
+    if (Test-Path -LiteralPath (Join-Path $journalDir 'TRANSACTION.json')) {
+        Test-Pass "TEST-033x [$axis] the journal is RETAINED, never deleted, while any target is unconfirmed"
+    } else {
+        Test-Fail "TEST-033x [$axis] the journal is RETAINED, never deleted, while any target is unconfirmed" 'journal deleted'
+    }
+    $backupStillThere = ($axis -eq 'absent') -or ((Get-ChildItem -Path (Join-Path $journalDir 'pre') -File -ErrorAction SilentlyContinue).Count -gt 0)
+    if ($backupStillThere) {
+        Test-Pass "TEST-033x [$axis] the pre/ backup (where one exists) is RETAINED alongside the journal"
+    } else {
+        Test-Fail "TEST-033x [$axis] the pre/ backup is RETAINED alongside the journal" 'backup deleted'
+    }
+    if ($axis -eq 'pre-existing') {
+        Write-FixtureFile (Join-Path $F 'repo/plugins/x/a.txt') 'old-a'
+    } else {
+        Remove-Item -LiteralPath (Join-Path $F 'repo/plugins/x/a.txt') -Force
+    }
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo')
+    $obs = Get-CrashStates $F $axis 2
+    if ($r.ExitCode -eq 0 -and $obs -eq 'PRE PRE') {
+        Test-Pass "TEST-033x [$axis] once the target is back at PRE the SAME journal converges and is deleted"
+    } else {
+        Test-Fail "TEST-033x [$axis] once the target is back at PRE the SAME journal converges" "exit $($r.ExitCode) states '$obs'"
+    }
+}
+
+# ---------------------------------------------------------------------------
+# TEST-033y (quality-gate seq0361 Major #2): the DUPLICATE_BASENAME_IN_BATCH
+# guard must be CASE-INSENSITIVE, because design.md:1011's backup slot is
+# `pre/<target-basename>` and macOS APFS (this tool's primary platform) is
+# case-insensitive by default. The ASCII case fold is applied on EVERY
+# platform so both runtimes accept or refuse a batch identically
+# regardless of the volume's own case semantics. See the .sh twin for the
+# full rationale.
+# ---------------------------------------------------------------------------
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'repo/d1/File.txt') 'pre-upper'
+Write-FixtureFile (Join-Path $F 'repo/d2/file.txt') 'pre-lower'
+Write-FixtureFile (Join-Path $F 'stage/d1/File.txt') 'new-upper'
+Write-FixtureFile (Join-Path $F 'stage/d2/file.txt') 'new-lower'
+$lines = (Get-ManifestLine (Join-Path $F 'stage') 'd1/File.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'd2/file.txt') + "`n"
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $lines
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'DUPLICATE_BASENAME_IN_BATCH') {
+    Test-Pass 'TEST-033y basenames differing only by ASCII case are refused (DUPLICATE_BASENAME_IN_BATCH), on every platform'
+} else {
+    Test-Fail 'TEST-033y basenames differing only by ASCII case are refused' "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+}
+$u = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/d1/File.txt') -ErrorAction SilentlyContinue
+$l = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/d2/file.txt') -ErrorAction SilentlyContinue
+if ($u -eq "pre-upper`n" -and $l -eq "pre-lower`n") {
+    Test-Pass 'TEST-033y both live targets unchanged (refused at manifest-parse time, before any live mutation)'
+} else {
+    Test-Fail 'TEST-033y both live targets unchanged' "u='$u' l='$l'"
+}
+if (Test-NoStagingLitter $F) {
+    Test-Pass 'TEST-033y no journal/staging litter left behind by the refused batch'
+} else {
+    Test-Fail 'TEST-033y no journal/staging litter left behind by the refused batch' 'litter remains'
+}
+
+# The SAME case-variant batch with NO pre-existing live content: both
+# targets record pre_hash='ABSENT', so no `pre/` backup slot is ever
+# written and the PREPARE-time slot-exclusivity check CANNOT fire -- only
+# the manifest-parse case fold can refuse this batch. This isolates the
+# two guards from one another (on a case-insensitive volume they would
+# otherwise mask each other and neither would have independent detection
+# power).
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'stage/d1/File.txt') 'new-upper'
+Write-FixtureFile (Join-Path $F 'stage/d2/file.txt') 'new-lower'
+$lines = (Get-ManifestLine (Join-Path $F 'stage') 'd1/File.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'd2/file.txt') + "`n"
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $lines
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'DUPLICATE_BASENAME_IN_BATCH') {
+    Test-Pass 'TEST-033y the manifest-parse case fold refuses a case-variant batch even when no backup slot would ever be written (guard isolated from the slot check)'
+} else {
+    Test-Fail 'TEST-033y the manifest-parse case fold refuses a case-variant batch with no live content' "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+}
+if (-not (Test-Path -LiteralPath (Join-Path $F 'repo/d1/File.txt')) -and -not (Test-Path -LiteralPath (Join-Path $F 'repo/d2/file.txt'))) {
+    Test-Pass 'TEST-033y neither target was published by the refused no-live-content batch'
+} else {
+    Test-Fail 'TEST-033y neither target was published by the refused no-live-content batch' 'a target was published'
+}
+
+# Non-ASCII case folding is a filesystem property an ASCII fold cannot
+# decide, so the second line of defence is the backup slot ITSELF: PREPARE
+# refuses to write a slot that already exists. PROPERTY-BASED rather than
+# platform-hardcoded -- probe what this volume does, then require the tool
+# to agree with that observation.
+$probeDir = Join-Path $Work 'caseprobe'
+New-Item -ItemType Directory -Path $probeDir -Force | Out-Null
+[System.IO.File]::WriteAllText((Join-Path $probeDir "CASEPROBE-$([char]0x00C9).txt"), 'x')
+$volumeFoldsUnicodeCase = [System.IO.File]::Exists((Join-Path $probeDir "caseprobe-$([char]0x00E9).txt"))
+$F = New-FixtureDir
+$upperName = "d1/$([char]0x00C9).txt"
+$lowerName = "d2/$([char]0x00E9).txt"
+Write-FixtureFile (Join-Path $F "repo/$upperName") 'pre-upper-acute'
+Write-FixtureFile (Join-Path $F "repo/$lowerName") 'pre-lower-acute'
+Write-FixtureFile (Join-Path $F "stage/$upperName") 'new-upper-acute'
+Write-FixtureFile (Join-Path $F "stage/$lowerName") 'new-lower-acute'
+$lines = (Get-ManifestLine (Join-Path $F 'stage') $upperName) + "`n" + (Get-ManifestLine (Join-Path $F 'stage') $lowerName) + "`n"
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $lines
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+$u = Get-Content -Raw -LiteralPath (Join-Path $F "repo/$upperName") -ErrorAction SilentlyContinue
+$l = Get-Content -Raw -LiteralPath (Join-Path $F "repo/$lowerName") -ErrorAction SilentlyContinue
+if ($volumeFoldsUnicodeCase) {
+    if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'DUPLICATE_BASENAME_IN_BATCH') {
+        Test-Pass 'TEST-033y on a volume that folds non-ASCII case, the colliding backup slot is detected and the batch refused (DUPLICATE_BASENAME_IN_BATCH)'
+    } else {
+        Test-Fail 'TEST-033y on a volume that folds non-ASCII case, the colliding backup slot is refused' "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+    }
+    if ($u -eq "pre-upper-acute`n" -and $l -eq "pre-lower-acute`n") {
+        Test-Pass 'TEST-033y non-ASCII collision refused BEFORE any live mutation (both targets still at PRE)'
+    } else {
+        Test-Fail 'TEST-033y non-ASCII collision refused BEFORE any live mutation' "u='$u' l='$l'"
+    }
+} else {
+    if ($r.ExitCode -eq 0 -and $u -eq "new-upper-acute`n" -and $l -eq "new-lower-acute`n") {
+        Test-Pass 'TEST-033y on a volume that does NOT fold non-ASCII case, both targets are distinct slots and both publish'
+    } else {
+        Test-Fail 'TEST-033y on a volume that does NOT fold non-ASCII case, both targets publish' "exit $($r.ExitCode)"
+    }
+    Test-Pass 'TEST-033y non-ASCII slot-collision behaviour matches this volume own case semantics (no collision to refuse here)'
+}
+
+# ---------------------------------------------------------------------------
+# TEST-033z (quality-gate seq0361 Major #3): the tool must NEVER silence
+# its own stderr. The .sh twin had `exec 8<. 2>/dev/null` at the top of
+# main, which under POSIX `exec` semantics redirected the CURRENT SHELL's
+# stderr for the whole remainder of execution, discarding every diagnostic
+# raised after it. This runtime never had the defect ([Console]::Error.
+# WriteLine); the assertion exists in BOTH suites so the parity is locked
+# from both sides.
+# ---------------------------------------------------------------------------
+$F = New-FixtureDir
+$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'no-such-stage'), '-Manifest', (Join-Path $F 'no-such-stage/MANIFEST.sha256'))
+$errText = Get-Content -Raw -LiteralPath $r.StderrPath -ErrorAction SilentlyContinue
+$outText = Get-Content -Raw -LiteralPath $r.StdoutPath -ErrorAction SilentlyContinue
+if ($r.ExitCode -ne 0 -and $null -ne $errText -and $errText.Contains('"category":"MANIFEST_INVALID"')) {
+    Test-Pass 'TEST-033z a denial raised AFTER argument parsing still reaches stderr (the diagnostic is never swallowed)'
+} else {
+    Test-Fail 'TEST-033z a denial raised AFTER argument parsing still reaches stderr' "exit $($r.ExitCode) stderr='$errText'"
+}
+if ($null -ne $outText -and $outText.Contains('"category":"MANIFEST_INVALID"')) {
+    Test-Pass 'TEST-033z the same denial ALSO reaches the machine-readable stdout channel (both channels, as documented)'
+} else {
+    Test-Fail 'TEST-033z the same denial ALSO reaches the machine-readable stdout channel' "stdout='$outText'"
 }
 
 # ---------------------------------------------------------------------------
