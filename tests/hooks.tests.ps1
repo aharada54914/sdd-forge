@@ -792,6 +792,48 @@ Approval: Draft
         Assert "copilot-hooks.json powershell fallback is deny" ($e.powershell -match '"permissionDecision":"deny"')
     }
 
+    # --- WFI-016: impl-review verdict multi-root lookup (CWD outside repo) ---
+    # Test-ImplReviewVerdictExists must find reports/impl-review/<feature>/
+    # verdicts via CLAUDE_PROJECT_DIR and via the git root walked up from the
+    # edited design.md path, not only via the process CWD.
+    function Invoke-GuardPsAt {
+        param([string]$Payload, [string]$Cwd, [string]$ProjectDir = $null)
+        $savedDir = $env:CLAUDE_PROJECT_DIR
+        if ($ProjectDir) { $env:CLAUDE_PROJECT_DIR = $ProjectDir } else { Remove-Item Env:\CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue }
+        try {
+            Push-Location $Cwd
+            try {
+                $Payload | & pwsh -NoProfile -ExecutionPolicy Bypass -File (Join-Path $scriptsDir "sdd-hook-guard.ps1") -Emit exit *> $null
+                return $LASTEXITCODE
+            } finally { Pop-Location }
+        } finally {
+            if ($savedDir) { $env:CLAUDE_PROJECT_DIR = $savedDir } else { Remove-Item Env:\CLAUDE_PROJECT_DIR -ErrorAction SilentlyContinue }
+        }
+    }
+
+    $wfiRepo = Join-Path $workDir "wfi016-repo"
+    $wfiOutside = Join-Path $workDir "wfi016-outside"
+    New-Item -ItemType Directory -Path (Join-Path $wfiRepo ".git") -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $wfiRepo "specs/feat-w") -Force | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $wfiRepo "reports/impl-review/feat-w/attempt-1/round-1") -Force | Out-Null
+    New-Item -ItemType Directory -Path $wfiOutside -Force | Out-Null
+    Set-Content -LiteralPath (Join-Path $wfiRepo "specs/feat-w/design.md") -Value "Impl-Review-Status: Pending" -NoNewline
+    $wfiVerdict = Join-Path $wfiRepo "reports/impl-review/feat-w/attempt-1/round-1/integrated-verdict.json"
+    $wfiDesign = (Join-Path $wfiRepo "specs/feat-w/design.md").Replace("\", "/")
+    $wfiPayload = '{"tool_name":"write","tool_input":{"file_path":"' + $wfiDesign + '","content":"Impl-Review-Status: Passed\n"}}'
+
+    Set-Content -LiteralPath $wfiVerdict -Value '{"verdict":"PASS"}' -NoNewline
+    Assert "wfi016: outside CWD + CLAUDE_PROJECT_DIR + PASS verdict -> allow" ((Invoke-GuardPsAt $wfiPayload $wfiOutside $wfiRepo) -eq 0)
+
+    Set-Content -LiteralPath $wfiVerdict -Value '{"verdict":"PASS-with-warnings"}' -NoNewline
+    Assert "wfi016: outside CWD + CLAUDE_PROJECT_DIR + PASS-with-warnings -> allow" ((Invoke-GuardPsAt $wfiPayload $wfiOutside $wfiRepo) -eq 0)
+
+    Set-Content -LiteralPath $wfiVerdict -Value '{"verdict":"PASS"}' -NoNewline
+    Assert "wfi016: outside CWD + file_path git-root walk + PASS verdict -> allow" ((Invoke-GuardPsAt $wfiPayload $wfiOutside) -eq 0)
+
+    Set-Content -LiteralPath $wfiVerdict -Value '{"verdict":"FAIL"}' -NoNewline
+    Assert "wfi016: outside CWD + FAIL verdict -> deny" ((Invoke-GuardPsAt $wfiPayload $wfiOutside $wfiRepo) -eq 2)
+
     if ($failures -gt 0) { throw "$failures hook test(s) failed." }
     Write-Host "Hook guard tests passed."
 } finally {

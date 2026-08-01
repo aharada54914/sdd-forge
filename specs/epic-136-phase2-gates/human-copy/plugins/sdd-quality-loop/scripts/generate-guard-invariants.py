@@ -51,6 +51,7 @@ PHASE2_TARGETS = (
     "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js",
     "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1",
     "plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh",
+    "tests/guard-parity.tests.sh",
     ".github/workflows/test.yml",
     "specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1",
 )
