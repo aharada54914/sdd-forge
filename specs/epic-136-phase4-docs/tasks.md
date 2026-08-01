@@ -1,6 +1,6 @@
 # Tasks: epic-136-phase4-docs
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issues [#133](https://github.com/aharada54914/sdd-forge/issues/133)
 (`documentation` — the cross-model failure policy is silent on a vendor CLI that
@@ -160,6 +160,16 @@ REQ-006 (AC-011, AC-012 — POSIX legs)
 
 Blockers: None
 
+Rollback: reviewed revert of this task's single commit. The change is additive
+to script control flow and carries no data migration and no persisted state, so
+one revert returns both runners to their exact pre-task behaviour. It is **not**
+a neutral undo, and this is stated here rather than left for the person doing it
+to discover: restoring the unbounded invocation reopens the B1 denial-of-service
+hole (infra-spec.md Rollback, security-spec.md B1). A revert of this task
+therefore requires T-003's taxonomy section to be reverted with it, or the
+policy document is left describing a bound that no longer exists. Nothing
+protected is touched, so no human-copy round-trip is involved.
+
 Done-When:
 
 - [ ] `run-panelist-gpt.sh` and `run-panelist-gemini.sh` both read
@@ -202,6 +212,17 @@ Done-When:
       **unmodified** (AC-011, BL-001).
 - [ ] `plugins/sdd-quality-loop/scripts/check-cross-model.sh` is unchanged
       (BL-002), verified by diff, not by assertion.
+- [ ] TDD Red -> Green evidence is recorded in the implementation report with the
+      two stages explicitly separated: RED — the AC-003 configuration cases and
+      the AC-004 sub-cases (a), (b) and (c) captured failing against the current
+      unbounded runners, before any edit to `run-panelist-gpt.sh` or
+      `run-panelist-gemini.sh`; GREEN — the same cases passing after the
+      implementation, with every pre-existing suite case still passing unmodified
+      (high-risk requirement, risk-gate-matrix.md).
+- [ ] An independent review verdict, recorded by a named reviewer distinct from
+      the implementing agent, plus an independent quality-gate verdict, both
+      record PASS for this task (high-risk requirement, risk-gate-matrix.md).
+      Evidence lands in `reports/quality-gate/`.
 
 ## T-002 Mirror the bound in the PowerShell runners at outcome parity
 
@@ -235,6 +256,16 @@ PowerShell leg), REQ-006 (AC-011, AC-012 — PowerShell legs), BL-004
 
 Blockers: T-001
 
+Rollback: reviewed revert of this task's single commit, with the same substance
+and the same caveat as T-001 — additive control-flow change, no migration, no
+persisted state, and **not** a neutral undo, because reverting restores the
+unbounded PowerShell invocation and reopens the same B1 hole (infra-spec.md
+Rollback). One asymmetry is specific to this runtime and is recorded so a
+partial revert is not attempted: T-002 may be reverted while T-001 stands, but
+the result is a repository whose two runtimes disagree about whether the bound
+exists, which is the BL-004 parity violation this task exists to prevent.
+Nothing protected is touched, so no human-copy round-trip is involved.
+
 Done-When:
 
 - [ ] `run-panelist-gpt.ps1` and `run-panelist-gemini.ps1` replace the untimed
@@ -258,6 +289,19 @@ Done-When:
 - [ ] Every case that exists in the POSIX suite exists here **except** TEST-004
       sub-case (b), and that single exception is stated in the suite itself so a
       future reader does not "fix" the asymmetry.
+- [ ] TDD Red -> Green evidence is recorded in the implementation report with the
+      two stages explicitly separated: RED — the AC-003 configuration cases and
+      the AC-004 sub-case (a) captured failing against the current untimed
+      PowerShell wait, before any edit to `run-panelist-gpt.ps1` or
+      `run-panelist-gemini.ps1`; GREEN — the same cases passing after the
+      implementation, with every pre-existing suite case still passing unmodified
+      (high-risk requirement, risk-gate-matrix.md). Sub-case (b) is absent by
+      design and is therefore absent from both stages, not silently dropped from
+      the GREEN one.
+- [ ] An independent review verdict, recorded by a named reviewer distinct from
+      the implementing agent, plus an independent quality-gate verdict, both
+      record PASS for this task (high-risk requirement, risk-gate-matrix.md).
+      Evidence lands in `reports/quality-gate/`.
 
 ## T-003 Complete the panelist failure taxonomy in the policy document
 
@@ -329,7 +373,7 @@ worse than one that is visibly incomplete, since it suppresses the very review
 that would find the gap. The anti-padding criterion (AC-008) exists precisely
 because a table can be filled to look finished.
 
-Required Workflow: test-after
+Required Workflow: acceptance-first
 
 Security-Sensitive: true
 
@@ -383,7 +427,7 @@ residual risks that are **not** closed, including a governance-bypass flag and
 what an operator who uses it forfeits. An inventory that quietly omits a bypass
 it knows about misrepresents the system's actual posture to the next reader.
 
-Required Workflow: test-after
+Required Workflow: acceptance-first
 
 Security-Sensitive: true
 

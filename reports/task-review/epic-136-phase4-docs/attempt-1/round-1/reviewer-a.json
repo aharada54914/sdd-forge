@@ -144,5 +144,12 @@
       "status": "PASS"
     }
   ],
-  "findings": []
+  "findings": [
+    {
+      "check_id": "RISK-WORKFLOW-FORMAT",
+      "severity": "Critical",
+      "task_id": null,
+      "finding": "T-004 (tasks.md:323,332) and T-005 (tasks.md:378,386) each declare Risk: medium paired with Required Workflow: test-after. The risk-gate-matrix pairing this check enforces is low->test-after, medium->acceptance-first, high/critical->tdd, so both are mismatches (medium requires acceptance-first, not test-after). T-001/T-002 (high->tdd, tasks.md:124/143, 214/224) and T-003 (low->test-after, tasks.md:270/279) pair correctly. precheck-result.json's workflow_match_precheck is recorded PASS, but that field does not match a direct reading of these two tasks' own Risk/Required Workflow lines against the stated matrix, so this is not a duplicate of an already-caught precheck failure -- it is a distinct finding this check exists to catch. Both T-004 and T-005 carry security-sensitive judgement content (Risk Rationale at tasks.md:325-330 and 380-384 explicitly argue for medium over low because of anti-padding/omission risk), which is exactly the class of task the stricter acceptance-first workflow is meant to cover before implementation starts."
+    }
+  ]
 }
