@@ -302,10 +302,13 @@ conclusively (Open Questions).
   never runs in CI), plus Stream D's step-prefix restructuring. "No
   independent re-staging" means Streams B and C never author a SECOND,
   separate human-copy batch of their own — it does NOT mean a Stream B
-  suite ships without its own explicit CI step. Stream C (once unblocked)
-  registers its runner via the same explicit-step rule; whether that rides
-  a later feature's batch is decided at Stream C's own implementation time
-  (it is Blocked in this feature).
+  suite ships without its own explicit CI step. Stream C registers its
+  runner via the same explicit-step rule, inside this ONE shared batch:
+  ADR-0010's `Status: Accepted` promotion unblocked Stream C and it landed
+  in this feature, so its step is no longer deferred to "Stream C's own
+  implementation time" (that deferral's stated premise — that Stream C is
+  Blocked here — no longer holds, and leaving it deferred would ship a
+  landed suite with no explicit step, precisely INV-006's silent-skip gap).
 - `tasks.md`, `traceability.md`, and `traceability.json` (Phase 2
   artifacts, authored after spec approval, mirroring
   `quality-loop-fixes/requirements.md`'s identical Non-goal) — this spec

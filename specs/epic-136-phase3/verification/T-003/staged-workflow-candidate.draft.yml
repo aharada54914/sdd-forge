@@ -19,7 +19,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: "[deterministic] Checkout"
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
@@ -380,6 +380,14 @@ jobs:
         shell: bash
         run: bash ./tests/deterministic-lane-selfcheck.tests.sh
 
+      # Stream C (#125). ADR-0010's `Status: Accepted` promotion unblocked
+      # Stream C and its suite landed in this feature, so it registers its
+      # explicit step inside this ONE shared batch (AC-019/AC-020). Without
+      # it, INV-006's no-wildcard rule means the suite silently never runs.
+      - name: "[deterministic] Test workflow-scenarios suite (bash)"
+        shell: bash
+        run: bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh
+
       # ---------------------------------------------------------------
       # [deterministic] lane marker (epic-136 Phase 3, Stream D, #126).
       # Every step in this `test` job is deterministic: no step invokes an
@@ -418,7 +426,7 @@ jobs:
       run:
         working-directory: mcp/sdd-forge-mcp
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history: the golden task-state tests exercise
           # check-evidence-bundle, which resolves each bundle's recorded
@@ -478,7 +486,7 @@ jobs:
       run:
         working-directory: mcp/local-env-mcp
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -529,7 +537,7 @@ jobs:
       run:
         working-directory: mcp/ci-mcp
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -574,7 +582,7 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Claude Code CLI
         shell: bash

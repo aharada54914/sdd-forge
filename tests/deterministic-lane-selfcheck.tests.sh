@@ -39,8 +39,13 @@ live_workflow="$workflows_dir/test.yml"
 candidate="$repo_root/specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml"
 
 # The suites this feature's ONE shared human-copy batch registers into the
-# LIVE workflow (Stream A, Stream B, and Stream D's own self-check -- REQ-005).
-NEW_SUITES="guard-dispatch-fallback guard-negative-corpus deterministic-lane-selfcheck"
+# LIVE workflow (Stream A, Stream B, Stream C, and Stream D's own self-check
+# -- REQ-005 / AC-019 / AC-020). Stream C joined this batch once ADR-0010's
+# `Status: Accepted` promotion unblocked it and its suite landed here.
+# Repo-relative PATHS, not bare basenames: Stream C's suite lives one
+# directory down (tests/workflow-scenarios/), so a basename-only list cannot
+# address it.
+NEW_SUITES="tests/guard-dispatch-fallback.tests.sh tests/guard-negative-corpus.tests.sh tests/deterministic-lane-selfcheck.tests.sh tests/workflow-scenarios/workflow-scenarios.tests.sh"
 
 PASS=0
 FAIL=0
@@ -261,24 +266,37 @@ done
 echo "=== TEST-020 (AC-020): CI step per new suite, DESIGNED-RED until human-copy ==="
 
 for suite in $NEW_SUITES; do
-    if grep -Fq "bash ./tests/${suite}.tests.sh" "$candidate"; then
-        ok "TEST-020: the candidate runs tests/${suite}.tests.sh"
+    if grep -Fq "bash ./${suite}" "$candidate"; then
+        ok "TEST-020: the candidate runs ${suite}"
     else
-        fail "TEST-020: the candidate has no CI step running tests/${suite}.tests.sh"
+        fail "TEST-020: the candidate has no CI step running ${suite}"
     fi
-    if [ -f "$repo_root/tests/${suite}.tests.sh" ]; then
-        ok "TEST-020: the referenced suite tests/${suite}.tests.sh exists"
+    if [ -f "$repo_root/${suite}" ]; then
+        ok "TEST-020: the referenced suite ${suite} exists"
     else
-        fail "TEST-020: the candidate references a non-existent suite tests/${suite}.tests.sh"
+        fail "TEST-020: the candidate references a non-existent suite ${suite}"
     fi
     # Designed fail-closed window: the LIVE file must run the suite. Until the
     # human applies the candidate, it does not -- that red result is intended.
-    if grep -Fq "bash ./tests/${suite}.tests.sh" "$live_workflow"; then
-        ok "TEST-020: the LIVE workflow runs tests/${suite}.tests.sh (human-copy already applied)"
+    if grep -Fq "bash ./${suite}" "$live_workflow"; then
+        ok "TEST-020: the LIVE workflow runs ${suite} (human-copy already applied)"
     else
-        designed_red "TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run tests/${suite}.tests.sh -- expected until the human-copy pre-merge commit lands (no staged fallback)"
+        designed_red "TEST-020 (AC-020, DESIGNED-RED): the LIVE .github/workflows/test.yml does NOT yet run ${suite} -- expected until the human-copy pre-merge commit lands (no staged fallback)"
     fi
 done
+
+# AC-020, no-regression-on-apply: the staged candidate is applied to the live
+# file by a human, wholesale. If a dependabot bump lands live while the
+# candidate still pins the older SHA, applying the candidate silently REVERTS
+# that bump (this exact drift broke main once -- actions/checkout 7.0.0 -> 7.0.1,
+# PR #222). Compare the pin sets rather than trusting authoring-time snapshots.
+live_checkout_pins="$(grep -o 'actions/checkout@[0-9a-f]\{40\}' "$live_workflow" | sort -u)"
+cand_checkout_pins="$(grep -o 'actions/checkout@[0-9a-f]\{40\}' "$candidate" | sort -u)"
+if [ "$live_checkout_pins" = "$cand_checkout_pins" ]; then
+    ok "TEST-020: the candidate's actions/checkout pins match the live workflow (applying it regresses no landed bump)"
+else
+    fail "TEST-020: the candidate's actions/checkout pins differ from live -- applying it would regress a landed dependency bump (live: $(echo "$live_checkout_pins" | tr '\n' ' '); candidate: $(echo "$cand_checkout_pins" | tr '\n' ' '))"
+fi
 
 echo
 echo "deterministic-lane-selfcheck.tests.sh: $PASS passed, $FAIL failed, $DESIGNED_RED designed-red (pre-human-copy)"
