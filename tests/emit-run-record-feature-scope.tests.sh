@@ -371,9 +371,11 @@ cat > "$VALIDATOR_FIXTURE_DIR/valid.md" <<'FIXEOF'
 
 Report Schema: implementation-report/v2
 
-## Output Paths And Hashes
+## Outputs
 
-- **Path**: `plugins/example.md`; **SHA-256**: `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa`
+| Path | SHA-256 |
+|---|---|
+| `plugins/example.md` | `aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa` |
 
 ## Test Evidence
 
