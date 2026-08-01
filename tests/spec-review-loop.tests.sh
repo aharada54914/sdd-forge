@@ -38,8 +38,9 @@ expect_failure() {
 
 write_contract() {
   local directory="$1" verdict="$2" severity="$3"
-  local requirements_sha acceptance_sha precheck_sha summary_sha calibration calibration_sha round a_verdict a_result a_fails a_passes critical major minor warning check_severity
+  local requirements_sha acceptance_sha precheck_sha summary_sha calibration calibration_sha round attempt a_verdict a_result a_fails a_passes critical major minor warning check_severity
   round="$(jq -r .round "${directory}/precheck-result.json")"
+  attempt="$(jq -r .attempt "${directory}/precheck-result.json")"
   case "${severity}" in
     none) a_verdict="PASS"; a_result="PASS"; a_fails=0; a_passes=6; critical=0; major=0; minor=0; check_severity="Minor" ;;
     Critical) a_verdict="BLOCKED"; a_result="FAIL"; a_fails=1; a_passes=5; critical=1; major=0; minor=0; check_severity="Critical" ;;
@@ -49,7 +50,7 @@ write_contract() {
   esac
   warning=0
   [[ "${round}" == 3 && "${severity}" == Minor ]] && warning=1
-  jq -n --argjson attempt 1 --argjson round "${round}" --arg result "${a_result}" --arg severity "${check_severity}" \
+  jq -n --argjson attempt "${attempt}" --argjson round "${round}" --arg result "${a_result}" --arg severity "${check_severity}" \
     --argjson fail_count "${a_fails}" --argjson pass_count "${a_passes}" \
     '["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE"] as $ids |
     {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
@@ -79,15 +80,15 @@ write_contract() {
      verdict:"PASS",
      checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
     > "${directory}/reviewer-b.json"
-  jq -n --arg feature "${FEATURE}" --arg verdict "${verdict}" --argjson round "${round}" --argjson warning "${warning}" --argjson critical "${critical}" --argjson major "${major}" --argjson minor "${minor}" \
-    '{schema:"spec-review-integrated-verdict/v1",stage:"spec",feature:$feature,attempt:1,round:$round,reviewer_a_run_id:"fixture-a",reviewer_b_run_id:"fixture-b",reviewer_a_host_session_id:"session-a",reviewer_b_host_session_id:"session-b",finding_counts:{critical:$critical,major:$major,minor:$minor},verdict:$verdict,warningCount:$warning}' \
+  jq -n --arg feature "${FEATURE}" --arg verdict "${verdict}" --argjson attempt "${attempt}" --argjson round "${round}" --argjson warning "${warning}" --argjson critical "${critical}" --argjson major "${major}" --argjson minor "${minor}" \
+    '{schema:"spec-review-integrated-verdict/v1",stage:"spec",feature:$feature,attempt:$attempt,round:$round,reviewer_a_run_id:"fixture-a",reviewer_b_run_id:"fixture-b",reviewer_a_host_session_id:"session-a",reviewer_b_host_session_id:"session-b",finding_counts:{critical:$critical,major:$major,minor:$minor},verdict:$verdict,warningCount:$warning}' \
     > "${directory}/integrated-verdict.json"
   jq -n --arg feature "${FEATURE}" --arg verdict "${verdict}" \
     --arg requirements_sha256 "${requirements_sha}" --arg acceptance_sha256 "${acceptance_sha}" \
-    --argjson round "${round}" --argjson warning "${warning}" \
+    --argjson attempt "${attempt}" --argjson round "${round}" --argjson warning "${warning}" \
     --arg requirements "${SPEC_DIR}/requirements.md" --arg acceptance "${SPEC_DIR}/acceptance-tests.md" --arg precheck "${directory}/precheck-result.json" --arg summary "${directory}/integrated-summary.json" --arg calibration "${calibration}" \
     --arg precheck_sha "${precheck_sha}" --arg summary_sha "${summary_sha}" --arg calibration_sha "${calibration_sha}" \
-    '{schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:1,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[
+    '{schema:"spec-review-contract/v1",stage:"spec",feature:$feature,attempt:$attempt,round:$round,requirements_sha256:$requirements_sha256,acceptance_sha256:$acceptance_sha256,reviewers:[
       {role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",allowed_input_manifest:[
         {path:$requirements,sha256:$requirements_sha256},{path:$acceptance,sha256:$acceptance_sha256},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}
       ]},
@@ -220,8 +221,30 @@ sed 's/Spec-Review-Status: Passed/Spec-Review-Status: Pending/' "${rollback_dir}
   fail "status-normalized rollback fixture did not recover the reviewed hash"
 rm -rf "${rollback_dir}"
 
+# Regression (same-turn edit + reset): editing requirements.md while it still
+# declares Passed, then running --reset, must persist the hash of the
+# post-reset (Pending) bytes in precheck-result.json — never the pre-mutation
+# bytes hashed before the script's own sed. A stale hash permanently wedges
+# the round-2 remedy path: reviewers and contracts carry the live post-reset
+# hash while precheck-result.json carries the pre-reset one, and
+# validate_contract can never reconcile the two.
+printf '\n- Spec addendum recorded while still Passed.\n' >> "${SPEC_DIR}/requirements.md"
 "${PRECHECK}" "${FEATURE}" 2 1 --reset
+ATTEMPT_TWO_ROUND_ONE="${REPORT_ROOT}/attempt-2/round-1"
+grep -q '^Spec-Review-Status: Pending$' "${SPEC_DIR}/requirements.md" || fail "reset did not restore Pending status"
+live_requirements_sha="$(sha256sum "${SPEC_DIR}/requirements.md" | awk '{print $1}')"
+[[ "$(jq -r .requirements_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")" == "${live_requirements_sha}" ]] ||
+  fail "reset persisted a stale requirements hash (pre-reset bytes)"
+live_acceptance_sha="$(jq -r .acceptance_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")"
+expected_input_sha="$(printf '%s:%s' "${live_requirements_sha}" "${live_acceptance_sha}" | sha256sum | awk '{print $1}')"
+[[ "$(jq -r .input_sha256 "${ATTEMPT_TWO_ROUND_ONE}/precheck-result.json")" == "${expected_input_sha}" ]] ||
+  fail "reset persisted a stale composite input hash"
 expect_failure "${PRECHECK}" "${FEATURE}" 2 1 --reset
+# The previously wedged remedy path: a NEEDS_WORK round 1 reached via a
+# same-turn edit + reset must still authorize round 2.
+write_contract "${ATTEMPT_TWO_ROUND_ONE}" NEEDS_WORK Major
+printf '\n- Remedy applied after reset.\n' >> "${SPEC_DIR}/requirements.md"
+"${PRECHECK}" "${FEATURE}" 2 2 --edit-summary="remedy after same-turn edit and reset"
 cleanup
 mkdir -p "${SPEC_DIR}" "${ROOT}/reports/spec-review"
 printf 'Spec-Review-Status: Pending\n' > "${SPEC_DIR}/requirements.md"
