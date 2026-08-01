@@ -417,6 +417,90 @@
   延期(詳細実装は
   `reports/implementation/epic-189-a1-project-context/T-007.md`)。
 
+- **hook稼働ハンドシェイク `check-hook-activation-handshake` (Issue #189,
+  epic-189-a1-project-context T-008, Risk: high)**:
+  `plugins/sdd-quality-loop/scripts/check-hook-activation-handshake.py`
+  (+ `.sh`/`.ps1` dispatchラッパー)を新規追加 — REQ-010の再設計
+  (host-side canary challenge/response)を実装。前身案(スタンドアロン
+  スクリプト自身がライブsidecarへの書き込みプローブを行い自身の結果を
+  検査)は、`sdd-hook-guard.py`がホストランタイム自身の`PreToolUse`
+  フックとして発火する以上、サブプロセス自身のファイルI/Oは決して
+  そのディスパッチに到達せず何も証明しないとして設計時に破棄済み
+  (requirements.md REQ-010)。本タスクは常にこのスクリプト自身が
+  一切の書き込みを試行しない(設計決定B4)前提のもと、3モードの
+  CLI契約を実装: `--emit-challenge`(新鮮な単回使用nonce + 専用canary対象
+  `sdd/.hook-canary-sentinel`(ライブ承認sidecarとは別、B5) +
+  ランタイム別tool-call templateを1つのJSONで出力。開始時に
+  既存sentinelの残留を読み取り専用チェック(`os.path.lexists`、
+  symlinkを辿らない)で検知し`STALE_SENTINEL_DETECTED`をstderr診断として
+  報告するが、新規challengeは常に発行——実際のcleanup試行は呼び出し側
+  スキルの責務)、`--verify-response --nonce --recorded-result --runtime`
+  (呼び出し側が記録した生のtool-call結果evidenceファイルを読み、
+  ランタイム別の期待deny署名+nonce一致を検証し`HOOK_ACTIVE`(exit 0)
+  またはfail-closedな`CAPABILITY_RUNTIME_UNAVAILABLE`を返す)、
+  `--confirm-cleanup --nonce --recorded-cleanup-result`
+  (sentinel削除試行の記録結果を検証し`SENTINEL_CLEANUP_CONFIRMED`/
+  `SENTINEL_CLEANUP_UNCONFIRMED`を、常に元のprobeの
+  `CAPABILITY_RUNTIME_UNAVAILABLE`裁定と併記——後からの結果が
+  遡って元の裁定を変えることはない、独立した裁定)。
+  **recorded-result evidenceスキーマ**(design.mdはCLI契約とランタイム別
+  署名の高レベル記述のみを固定しバイト単位のJSONフィールド名は
+  未規定のため、本実装が定義): 全evidenceファイル共通の`nonce`
+  (文字列)+`executed`(真偽値)エンベロープ、`executed: true`は
+  他フィールドに関わらず常に`WRITE_EXECUTED`へ短絡(書き込みが
+  実行された証拠は矛盾するdeny主張より常に優先)。`executed: false`時、
+  claude-code は`guard_emit_mode: "exit"` +非ゼロ整数`exit_code`
+  (`sdd-hook-guard.py`自身の`--emit exit`規約)、copilot-cli は
+  `permissionDecision: "deny"`(`--emit copilot`規約、`allow`/欠如は
+  「Copilotのsubagent hookは発火しないことが多い」既知ケースとして
+  `UNRECOGNIZED_RESULT`)、codex-cli は`plugin_hooks_enabled: true`
+  かつ`denied_by_plugin_hooks: true`(flag未設定/falseは
+  `denied_by_plugin_hooks`の値に関わらず常に`PLUGIN_HOOKS_DISABLED`
+  ——REQ-010が明記する「hook未発火への収束」)を要求。
+  `tests/check-hook-activation-handshake.tests.sh`/`.ps1`
+  (`bash` 88 / `pwsh` 87 アサーション)がTEST-027(3ランタイム×5結果
+  軸——HOOK_ACTIVE/WRITE_EXECUTED/UNRECOGNIZED_RESULT/
+  NO_RECORDED_RESULT/STALE_CHALLENGE_REJECTED、独立フィクスチャ、
+  codex-cli の`PLUGIN_HOOKS_DISABLED`収束ケース・copilot-cli の
+  `permissionDecision: allow`既知ケースを含む、AC-027)、TEST-032
+  (sentinel二分岐——hook発火時は絶対に作成されない/hook不発火時は
+  host観測された事実として作成されクリーンアップ成功が記録・確認
+  されるまで解決しない、cleanup未確認/拒否2フィクスチャ独立、
+  stale-start再帰(残留sentinel検知後も新規challengeが正しく発行・
+  解決される、残留sentinel自体はバイト同一のまま変更されない)、
+  複数回呼び出しにわたるplaceholder sidecar/registryフィクスチャの
+  非改変証明、AC-032)、design.mdのCLI契約が固定する`schema`/
+  `canary_target`フィールドの厳密一致(guard-invariants登録(T-009)との
+  クロスアーティファクト整合、AGENTS.md「High-risk task preflight」
+  WFI-001)、TEST-HARDEN(a..n)(nonce欠落/空文字列/不一致、
+  未知runtime、モードフラグ競合、不正JSON/非object top-level/不正
+  UTF-8/`executed`型不一致(文字列)、空白を含むパス、traceback
+  皆無)を検証。TDD Red(未実装スタブで`bash` 22 pass/66 fail・`pwsh`
+  21 pass/66 fail)→
+  Green(実装後`bash` 88/88・`pwsh` 87/87全PASS)を両ランタイムで実行・
+  記録(`specs/epic-189-a1-project-context/verification/T-008/`)。
+  6件の意図的mutation(nonce検証除去、`executed`常時false化、
+  claude-code署名検証除去、cleanup拒否検知除去、stale診断除去、
+  および最も安全性に関わる**B4違反mutation**——`--emit-challenge`
+  自身がsentinelへ実際に書き込むよう改変)をスクラッチコピー
+  (リポジトリ本体は変更せず)へ適用し、いずれも該当アサーションの
+  失敗として検出されることを実行時に確認(mutation F は非改変証明
+  テストが実際の禁止書き込みを検出することを直接実証)。
+  `tests/run-all.sh`/`.ps1`へT-007の直後(数値順・8番目)に登録。
+  CI ワークフロー登録は、T-001〜T-007と同じhuman-copy staging領域の
+  事情(2026-08-01時点でまだT-001/T-004の2ステップのみが登録された
+  古い状態)により本タスクでも延期——意図したCIステップの内容は
+  実装報告書に記録。ライブ`.github/workflows/test.yml`は無変更
+  (sha256 `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`)
+  であることを確認。**スコープ境界**(design.md Test Strategy
+  item 9、tasks.md Out of Scope): 本タスクはA1自身のfootgun-guard
+  Done条件——合成的・呼び出し側記録のevidenceに対するverify-response
+  ロジックの正しさのFIXTURE-SIMULATED証明のみであり、実ホストの
+  実際のtool-call denialの観測(live-host, cross-runtime)は含まない
+  ——それはEpic A8自身のmandatory Done条件。REQ-009の5つのentry point
+  へのwiring自体もT-011/T-012の範囲外。詳細実装は
+  `reports/implementation/epic-189-a1-project-context/T-008.md`。
+
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
   `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接
