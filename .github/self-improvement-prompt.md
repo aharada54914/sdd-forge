@@ -10,11 +10,31 @@
 人間の負担を「スマホで Issue/PR を眺めてマージをタップする」程度に抑えたまま、
 リポジトリの品質を毎週少しずつ確実に上げる。
 
+## 認証: gh issue 系の書き込みは DEFAULT_WORKFLOW_TOKEN を使う
+
+セッション内の `gh` CLI は既定で環境変数 `GH_TOKEN` を使うが、これは
+`.github/workflows/self-improvement.yml` の設定により `SDD_SESSION_PR_TOKEN`
+(登録されていればそれ、未登録なら既定トークン)に固定されている。
+`SDD_SESSION_PR_TOKEN` は `contents:write` + `pull_requests:write` のみのスコープで
+`issues:write` を含まない意図的な最小権限 PAT のため、これをそのまま使うと
+`gh issue create` / `gh issue comment` / `gh issue close` / `gh label create` が
+すべて `Resource not accessible by personal access token` で失敗する
+(2026-07-20 の実行で実証)。
+
+**issue 系の書き込みコマンドは必ず `GH_TOKEN="$DEFAULT_WORKFLOW_TOKEN"` を前置して実行すること**
+(例: `GH_TOKEN="$DEFAULT_WORKFLOW_TOKEN" gh issue create ...`)。`DEFAULT_WORKFLOW_TOKEN` は
+claude-code-action(ピン留めした v1.0.178, action.yml)がセッションに公開する
+`${{ github.token }}` そのもので、ワークフロー冒頭の `permissions:` ブロック通りの
+`issues: write` を持つ。この変数が未定義の場合のみ既定の `GH_TOKEN` にフォールバックする。
+`gh pr create` や `git push` は CI トリガーのため引き続き既定の `GH_TOKEN`
+(PAT があればそれ)を使う — 変更しない。
+
 ## 手順
 
 0. **失敗 Issue の自己修復**: タイトルに「Weekly self-improvement run failed」を含む
    open Issue を確認する。今この手順が動いていること自体がワークフロー復旧の証拠なので、
-   該当 Issue には「この実行(実行ログ URL を添える)で復旧を確認」とコメントしてクローズする。
+   該当 Issue には(前セクションの `DEFAULT_WORKFLOW_TOKEN` を使い)「この実行(実行ログ URL
+   を添える)で復旧を確認」とコメントしてクローズする。
 1. **重複確認**: `gh issue list --state open` と `gh pr list --state open` を確認し、
    既に報告済み・作業中のテーマは選ばない。`auto/improve-*` ブランチの残骸があれば考慮する。
    **open な `auto/improve-*` PR が残っている場合、今回は新しい PR を作らない**(既存 Issue への追記のみ)。
@@ -35,8 +55,8 @@
 4. **テスト実行**: Linux で実行可能なスイートを必ず回す:
    `bash tests/guards.tests.sh`、`bash tests/install.tests.sh`、
    `python3 -m py_compile`、`node --check`、全 JSON / YAML のパース検証。
-5. **Issue 起票**: 監査結果を 1 本の Issue にまとめる
-   (`gh label create self-improvement --color 1D76DB --description "weekly automated audit" 2>/dev/null || true`
+5. **Issue 起票**: 監査結果を 1 本の Issue にまとめる(前述の `DEFAULT_WORKFLOW_TOKEN` を使い、
+   `gh label create self-improvement --color 1D76DB --description "weekly automated audit" 2>/dev/null || true`
    してから `gh issue create --label self-improvement`)。発見ゼロなら Issue も PR も作らず終了してよい。
 6. **改善 PR**: 発見のうち**最も価値が高く、かつ差分 300 行以内に収まる 1 件だけ**を実装する。
    - ブランチ: `auto/improve-YYYYMMDD`
