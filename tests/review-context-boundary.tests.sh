@@ -47,8 +47,8 @@ grep -Fq '"$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha2
 # --- the contradiction the document documents ---------------------------------
 # If either half of the impl-reviewer-a / precheck contradiction is resolved, the
 # document's account of it becomes false and must be updated.
-grep -Fq 'Do not read any reviewer-b.json or integrated-summary.json from prior rounds.' "$REVIEWER_A" ||
-  fail "impl-reviewer-a.md no longer forbids reading integrated-summary.json; update review-context-boundary.md"
+grep -Fq 'Issue #143' "$REVIEWER_A" ||
+  fail "impl-reviewer-a.md lost the Issue #143 carve-out; update review-context-boundary.md"
 
 grep -Fq 'persisted impl reviewer-a manifest is missing previous-round summary' "$PRECHECK" ||
   fail "impl-review-precheck no longer requires reviewer-a's previous-round summary; update review-context-boundary.md"
