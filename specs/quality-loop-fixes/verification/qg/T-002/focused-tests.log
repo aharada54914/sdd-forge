@@ -1,0 +1,94 @@
++ bash tests/emit-run-record-feature-scope.tests.sh
+== start: 2026-07-19T17:37:10Z ==
+ok: gate_reports.total counts only feat-a reports (.metrics.gate_reports.total = 3)
+ok: feat-b's BLOCKED report is not counted for feat-a (.metrics.gate_reports.blocked = 0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (.metrics.gate_reports.max_runs_single_task = 2)
+ok: only feat-a T-002 passed on a single gate run (.metrics.first_pass_gate.passed_first_try = 1)
+ok: review_tickets.major counts only feat-a tickets (.metrics.review_tickets.major = 1)
+ok: feat-b's critical ticket is not counted for feat-a (.metrics.review_tickets.critical = 0)
+ok: CRLF feat-a ticket severity is counted (.metrics.review_tickets.minor = 1)
+ok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (.metrics.gate_reports.total = 1)
+ok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report -- the VERDICT: PASS report with body-text "BLOCKED" (AC-010), the VERDICT: NEEDS_WORK report (AC-008 negative), and the no-VERDICT-line report (AC-009) are all correctly excluded (.metrics.gate_reports.blocked = 1)
+ok: AC-021: schema bumps to v2 when any --effort-* flag supplied (.schema = sdd-run-record/v2)
+ok: AC-021: v1 field feature unchanged in v2 shape (.feature = feat-e021)
+ok: AC-021: v1 field track unchanged in v2 shape (.track = lite)
+ok: AC-021: v1 field model_ids.main unchanged in v2 shape (.model_ids.main = unknown)
+ok: AC-021: effort.main has exactly the three subfields ((.effort.main | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort) = true)
+ok: AC-021: effort.reviewers has exactly the three subfields ((.effort.reviewers | keys | sort) == (["effort_applied","effort_degraded_reason","effort_requested"] | sort) = true)
+ok: AC-021: v1 metrics object unchanged in v2 shape (.metrics.tasks.total = 1)
+ok: AC-022: effort_requested recorded on confirmed-applied outcome
+ok: AC-022: effort_requested recorded on degraded (frontmatter) outcome
+ok: AC-023 positive: effort_applied carries the confirmed value under flag control
+ok: AC-023 negative: effort_applied is null under frontmatter control
+ok: AC-023 negative: effort_applied is null under none control
+ok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)
+ok: AC-023 structural: --effort-applied-main with non-flag control is rejected fail-closed
+ok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value
+ok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)
+ok: AC-024 vacuity: no reason recorded when --effort-main itself was never supplied for that slot
+ok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code ({
+  "effort_applied": null,
+  "effort_degraded_reason": "effort-control-frontmatter"
+})
+ok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)
+ok: case-sensitivity: mis-cased --effort-control-main value is rejected fail-closed
+ok: AC-025: no --effort-* flag supplied emits v1 schema, unchanged (.schema = sdd-run-record/v1)
+ok: AC-025: v1 shape has no effort key at all (has("effort") = false)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+ok: AC-026: implementation-report.template.md carries the Model/Effort lines
+ok: AC-026: validate-implementation-report.sh checks the Model/Effort lines
+ok: AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction
+ok: AC-026: validator accepts a report carrying well-formed Model/Effort lines
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.sh: 38 passed, 0 failed
+== end: 2026-07-19T17:37:10Z ==
+EXIT_CODE: 0
+
++ pwsh tests/emit-run-record-feature-scope.tests.ps1
+== start: 2026-07-19T17:37:14Z ==
+ok: gate_reports.total counts only feat-a reports (3)
+ok: feat-b's BLOCKED report is not counted for feat-a (0)
+ok: max_runs_single_task reflects feat-a T-001 gated twice (2)
+ok: only feat-a T-002 passed on a single gate run (1)
+ok: review_tickets.major counts only feat-a tickets (1)
+ok: feat-b's critical ticket is not counted for feat-a (0)
+ok: CRLF feat-a ticket severity is counted (1)
+ok: feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report (1)
+ok: feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report (VERDICT: PASS + body-text BLOCKED, VERDICT: NEEDS_WORK, and no-VERDICT-line reports all correctly excluded) (1)
+ok: AC-021: schema bumps to v2 when any -Effort* param bound (sdd-run-record/v2)
+ok: AC-021: v1 field feature unchanged in v2 shape (feat-e021)
+ok: AC-021: v1 field track unchanged in v2 shape (lite)
+ok: AC-021: v1 field model_ids.main unchanged in v2 shape (unknown)
+ok: AC-021: effort.main has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)
+ok: AC-021: effort.reviewers has exactly the three subfields (effort_applied,effort_degraded_reason,effort_requested)
+ok: AC-021: v1 metrics object unchanged in v2 shape (1)
+ok: AC-022: effort_requested recorded on confirmed-applied outcome
+ok: AC-022: effort_requested recorded on degraded (frontmatter) outcome
+ok: AC-023 positive: effort_applied carries the confirmed value under flag control
+ok: AC-023 negative: effort_applied is null under frontmatter control
+ok: AC-023 negative: effort_applied is null under none control
+ok: AC-023 negative: effort_applied is null when flag control declines application (none sentinel)
+ok: AC-023 structural: -EffortAppliedMain with non-flag control is rejected fail-closed
+ok: AC-024 direction 1: effort_degraded_reason is null when effort_applied carries a value
+ok: AC-024 direction 2: effort_degraded_reason is non-empty when effort_applied is null and a flag was supplied (effort-control-frontmatter)
+ok: AC-024 vacuity: no reason recorded when -EffortMain itself was never supplied for that slot
+ok: AC-051: a Codex-host scenario with a non-flag effort_control degrades identically in shape to Claude Code (effort-control-frontmatter)
+ok: AC-051: Codex-host model with effort_control none also degrades (reason keyed on the resolved control value)
+ok: case-sensitivity: mis-cased -EffortControlMain value is rejected fail-closed
+ok: AC-025: no -Effort* param bound emits v1 schema, unchanged (sdd-run-record/v1)
+ok: AC-025: v1 shape has no effort key at all (False)
+ok: AC-025: a real, already-committed pre-feature v1 record still validates as schema v1 (untouched by this task)
+ok: AC-026: implementation-report.template.md carries the Model/Effort lines
+ok: AC-026: validate-implementation-report.sh checks the Model/Effort lines
+ok: AC-026: quality-gate SKILL.md documents the Model/Effort Process instruction
+ok: AC-026: validator accepts a report carrying well-formed Model/Effort lines
+ok: AC-026: validator rejects a report missing the Model line
+ok: AC-026: validator rejects a report missing the Effort line
+
+emit-run-record-feature-scope.tests.ps1: 38 passed, 0 failed
+== end: 2026-07-19T17:37:14Z ==
+EXIT_CODE: 0
+
+=== Result: 38/38 passed (bash lane), 38/38 passed (pwsh lane) -- no designed-fail exceptions for T-002 ===

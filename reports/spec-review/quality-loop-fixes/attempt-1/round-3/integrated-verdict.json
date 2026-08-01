@@ -1,0 +1,18 @@
+{
+  "schema": "spec-review-integrated-verdict/v1",
+  "stage": "spec",
+  "feature": "quality-loop-fixes",
+  "attempt": 1,
+  "round": 3,
+  "reviewer_a_run_id": "RUN-qualityloopfixes-spec-a1r3-a-seq0324",
+  "reviewer_b_run_id": "RUN-qualityloopfixes-spec-a1r3-b-seq0325",
+  "reviewer_a_host_session_id": "SESS-spec-a1r3-a-qualityloopfixes-0324",
+  "reviewer_b_host_session_id": "SESS-spec-a1r3-b-qualityloopfixes-0325",
+  "finding_counts": {
+    "critical": 0,
+    "major": 0,
+    "minor": 1
+  },
+  "verdict": "PASS",
+  "warningCount": 1
+}

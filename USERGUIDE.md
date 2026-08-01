@@ -18,6 +18,19 @@
 
 **初めての方は [docs/workflow-guide.md](docs/workflow-guide.md) の正常系フローからお読みください。**
 
+## エージェントモデルルーティング — Effort Policy
+
+`select-agent-model` の `--effort-policy` は、T-007 (Issue #155,
+epic-159-pillar-c Phase 2) 以降、既定値が `matrix` になった
+(`risk_effort_matrix` に基づくリスク連動 effort 選択 + escalation bump +
+`supported_efforts` へのクランプ)。Phase 1 (T-001..T-006) の既定であった
+`welded`(effort を tier に溶接した従来挙動)は、`--effort-policy welded`
+を明示すれば引き続き無期限にフルサポートされる(非推奨化なし、OQ-004)。
+詳細は [docs/agent-capability-matrix.md](docs/agent-capability-matrix.md)
+の「Effort Policy: `welded` vs. `matrix`」節と
+[docs/adr/0012-effort-tier-decoupling.md](docs/adr/0012-effort-tier-decoupling.md)
+を参照。
+
 ## MCP サーバー
 
 ### sdd-forge-mcp

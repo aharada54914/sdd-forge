@@ -25,6 +25,7 @@ workflow-retrospective が毎回全行を走査し、条件に合致する証跡
 | WFI-007 | 2026-07-12 | 実装レポートが canonical パス(reports/implementation/<feature>/<task-id>.md)以外で first-commit され gate 段階で move/rename された、または evaluator 起動境界がレポートパス起因の PATH 失敗を返したら再発 |
 | WFI-008 | 2026-07-19 | 新規完了フィーチャーの evidence bundle(specs/<feature>/verification/T-*.evidence.json)が参照するアーティファクトパスが git-tracked でない(git ls-files --error-unmatch 失敗)、または check-evidence-bundle.sh 相当の検証で欠落アーティファクトが検出されたら再発 |
 | WFI-011 | 2026-07-19 | investigation.md/requirements.md/design.md の既存リポジトリ挙動に関する具体的・検証可能な事実主張が実装時 grep で誤りと判明した(quality-gate Critical Review Cycles の Minor/Accepted 所見クラス「spec-premise factual inaccuracy discovered only at implementation time」)ら再発 |
+| WFI-010 | 2026-07-21 | reports/runs/RUN-*.json の gate_reports.total または gate_reports.blocked が同一 retrospective の手動集計値(その feature の Quality-Gate Runs 合計 / Blocked Count 合計)と一致しない証跡が出たら再発 |
 
 <!-- 記入例（WFI が Verified になったら追加する）:                                    -->
 <!-- | WFI-001 | 2026-07-15 | 高リスクタスクの quality-gate で evidence-consistency -->

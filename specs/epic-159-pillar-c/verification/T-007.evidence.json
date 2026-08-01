@@ -1,0 +1,59 @@
+{
+  "task_id": "T-007",
+  "feature": "epic-159-pillar-c",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "9f1a674687933dc2e31668c2bdb5b1243e55f1d3be9b269d5553a4547a2bf919",
+  "quality_report": "reports/quality-gate/20260721T153827Z-epic-159-pillar-c-T-007.md",
+  "verification_contract": "specs/epic-159-pillar-c/verification/T-007.contract.json",
+  "git_commit": "35a078605cf59ea41055718dd9d2ff72af67be25",
+  "git_generated_dirty": false,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-007.contract.json",
+      "sha256": "1cc4078b98addd03431b61305a3fe8237f143b7380252e1a23f827b16afb7683"
+    },
+    {
+      "path": "reports/quality-gate/20260721T153827Z-epic-159-pillar-c-T-007.md",
+      "sha256": "ffefbe427442fe9682d4635abb92231e6148e183912a72863d80f3031fd0a611"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-007/green-sh.log",
+      "sha256": "d25ba8fc1d92bd8ad584b63de0db6256808a9e51aa6a5a8408483000dba4cd63"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-007/placeholder-scan.log",
+      "sha256": "b1a51fda37ccf31a9a3d7cd6359eecf7a3de8e965e5d316d2e0a0b7cf0e026f9"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-007/regression.log",
+      "sha256": "c66c807140346bd742082b17c05dde9babfd04ce17caf2ca2b463d6a716815a4"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-007/task-state.log",
+      "sha256": "9f4354d0b13aa1d2e035d1fb124d17dbd583ff4932c14265b08e8314c55206b9"
+    },
+    {
+      "path": "specs/epic-159-pillar-c/verification/T-007/traceability.log",
+      "sha256": "2ad2f4663c545908287f819962823d856085349316a79d8daad81ac74007ec67"
+    }
+  ]
+}

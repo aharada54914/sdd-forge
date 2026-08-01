@@ -96,6 +96,64 @@ target:
     }
 
     # ========================================================================
+    # quality-loop-fixes T-002 (#176 / WFI-010): anchored VERDICT: blocked-count
+    # read (AC-008..012, TEST-008..012). This is a NET NEW fixture (feature
+    # feat-t002), added specifically to close the INV-010 coverage gap -- the
+    # feat-a/feat-b fixture above never exercises a same-feature,
+    # non-BLOCKED-verdict report whose BODY prose independently contains the
+    # literal substring "BLOCKED". Neither the feat-a/feat-b fixture above nor
+    # its assertions are modified for this (AC-011).
+    # ========================================================================
+    New-Item -ItemType Directory -Force -Path (Join-Path $work "specs/feat-t002") | Out-Null
+    Set-Content -Encoding Utf8 (Join-Path $work "specs/feat-t002/tasks.md") "## T-001 dummy task`nStatus: Done`n"
+
+    # t002-blocked: anchored VERDICT: BLOCKED on its own header line -- TRUE
+    # POSITIVE, same-feature, must be counted (AC-008 positive).
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-blocked.md") "Task: T-001`nFeature: feat-t002`nVERDICT: BLOCKED`n"
+
+    # t002-pass / t002-needswork: ordinary non-blocked verdicts, no "BLOCKED"
+    # substring anywhere -- must never be counted (AC-008 negative).
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-pass.md") "Task: T-002`nFeature: feat-t002`nVERDICT: PASS`n"
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-needswork.md") "Task: T-003`nFeature: feat-t002`nVERDICT: NEEDS_WORK`n"
+
+    # t002-noverdict: legacy report shape, no VERDICT: line at all -- must not
+    # be counted as blocked (AC-009, fail-open per OQ-4).
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-noverdict.md") "Task: T-004`nFeature: feat-t002`nThis is a legacy report predating the VERDICT: convention. It has no`nverdict header line at all.`n"
+
+    # t002-bodyblocked: the AC-010/AC-011 coverage-gap-closing fixture,
+    # mirroring reports/quality-gate/T-008.md's real shape (INV-009) --
+    # VERDICT: PASS on its own header line, but BODY prose independently
+    # contains the literal substring "BLOCKED" twice. Proven RED against the
+    # pre-fix unanchored `-match "BLOCKED"` scan
+    # (specs/quality-loop-fixes/verification/qg/T-002/red.log: gate_reports.blocked
+    # wrongly read 2, not 1) before this fix landed; this assertion below runs
+    # against the fixed, anchored-read script (GREEN).
+    Set-Content -Encoding Utf8 (Join-Path $work "reports/quality-gate/t002-bodyblocked.md") @"
+Task: T-005
+Feature: feat-t002
+VERDICT: PASS
+
+> Note: per this repository's policy, a BLOCKED verdict must stop the
+> pipeline immediately and no further tasks should proceed while any task
+> remains BLOCKED. This task's own verdict above is PASS, not BLOCKED.
+"@
+
+    Push-Location $work
+    try {
+        & pwsh -NoProfile -File $script -Feature feat-t002 -Track lite | Out-Null
+    } finally {
+        Pop-Location
+    }
+    $outT002 = Get-ChildItem (Join-Path $work "reports/runs") -Filter "RUN-*-feat-t002.json" | Select-Object -First 1
+    if (-not $outT002) {
+        Fail "emit-run-record produced no run record for feat-t002"
+    } else {
+        $recordT002 = Get-Content -Raw -Encoding Utf8 $outT002.FullName | ConvertFrom-Json
+        AssertEq $recordT002.metrics.gate_reports.total   1 "feat-t002 gate_reports.total counts only the tasks.md-listed T-001 report"
+        AssertEq $recordT002.metrics.gate_reports.blocked 1 "feat-t002 gate_reports.blocked counts ONLY the anchored VERDICT: BLOCKED report (VERDICT: PASS + body-text BLOCKED, VERDICT: NEEDS_WORK, and no-VERDICT-line reports all correctly excluded)"
+    }
+
+    # ========================================================================
     # T-004 (#153): sdd-run-record/v2 effort attribution + degradation lock
     # (REQ-004; AC-021..026, AC-051; security-spec.md B4). Each scenario uses
     # its own uniquely-named feature slug so RUN-<UTC-second>-<feature>.json
