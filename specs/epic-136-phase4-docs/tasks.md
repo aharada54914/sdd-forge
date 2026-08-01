@@ -117,7 +117,7 @@ by construction rather than by avoidance.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/133
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -228,7 +228,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/133
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -307,7 +307,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/133
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -360,7 +360,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/134
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -415,7 +415,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/134
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
