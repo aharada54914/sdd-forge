@@ -507,4 +507,103 @@ fi
 rm -f "$impl_contract.orig"
 rm -rf "$IMPL_REPORT"
 
+# ─────────────────────────────────────────────────────────────────────────────
+# impl-review-precheck --provenance-rereview
+#
+# Post-implementation evidence re-binding. Before this mode existed the impl
+# stage had no way to start a second attempt at all: a shipped feature's
+# design.md must read `Impl-Review-Status: Passed` (check-workflow-state.sh's
+# task-lifecycle rule requires every stage to read Passed once any task is
+# Approved or past Planned), while the precheck demanded `Pending`. The two
+# rules could not both hold, and the error text pointed at a `--reset` flag the
+# script never implemented.
+# ─────────────────────────────────────────────────────────────────────────────
+rm -rf "$SPEC_DIR" "$SPEC_REPORT" "$IMPL_REPORT" "$TASK_REPORT"
+write_inputs
+write_spec_pass
+
+# Without a prior persisted impl PASS there is no provenance to re-bind, so the
+# mode must refuse even though design.md is otherwise in the right state. This
+# is the guard that stops the mode standing in for a first review.
+sed -i.bak 's/Impl-Review-Status: Pending/Impl-Review-Status: Passed/' "$SPEC_DIR/design.md"
+rm -f "$SPEC_DIR"/*.bak
+provenance_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1 --provenance-rereview) 2>&1 1>/dev/null || true )"
+grep -q 'prior persisted impl-review PASS verdict' <<<"$provenance_err" ||
+  fail "provenance re-review without a prior PASS must name the missing verdict (got: $provenance_err)"
+[[ ! -e "$IMPL_REPORT/attempt-2" ]] ||
+  fail "provenance re-review must not create evidence when it refuses"
+
+# Now give it a real prior PASS. write_impl_pass leaves design.md at Passed and
+# writes attempt-1/round-1's integrated-verdict.
+sed -i.bak 's/Impl-Review-Status: Passed/Impl-Review-Status: Pending/' "$SPEC_DIR/design.md"
+rm -f "$SPEC_DIR"/*.bak
+write_impl_pass
+
+# A Pending header is refused even with a prior PASS present: Pending means the
+# ordinary attempt path applies, and silently accepting it here would let the
+# mode bypass a first review after all.
+sed -i.bak 's/Impl-Review-Status: Passed/Impl-Review-Status: Pending/' "$SPEC_DIR/design.md"
+rm -f "$SPEC_DIR"/*.bak
+pending_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1 --provenance-rereview) 2>&1 1>/dev/null || true )"
+grep -q 'requires design.md to declare' <<<"$pending_err" ||
+  fail "provenance re-review must refuse a Pending header (got: $pending_err)"
+rm -rf "$IMPL_REPORT/attempt-2"
+sed -i.bak 's/Impl-Review-Status: Pending/Impl-Review-Status: Passed/' "$SPEC_DIR/design.md"
+rm -f "$SPEC_DIR"/*.bak
+
+# The contrast that makes this suite non-vacuous: in one and the same state, the
+# ordinary invocation must fail and the provenance invocation must succeed. If
+# the ordinary one ever starts passing here, the mode is no longer doing
+# anything and these cases would otherwise still go green.
+ordinary_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1) 2>&1 1>/dev/null || true )"
+grep -q "expected 'Pending'" <<<"$ordinary_err" ||
+  fail "ordinary impl precheck must still refuse a Passed header (got: $ordinary_err)"
+grep -q 'use --provenance-rereview' <<<"$ordinary_err" ||
+  fail "ordinary impl precheck must point at a flag that exists (got: $ordinary_err)"
+rm -rf "$IMPL_REPORT/attempt-2"
+(cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1 --provenance-rereview) >/dev/null ||
+  fail "provenance re-review must accept a prior-PASS design.md that the ordinary path refuses"
+[[ -f "$IMPL_REPORT/attempt-2/round-1/precheck-result.json" ]] ||
+  fail "provenance re-review must write the round's precheck evidence"
+rm -rf "$IMPL_REPORT/attempt-2"
+
+# The canonical gate is advisory under this mode, not skipped. Re-register the
+# fixture as a full-profile feature so check-workflow-state actually runs and
+# fails on it, then assert the ordinary path dies on the gate while the
+# provenance path gets past it.
+jq --arg feature "$FEATURE" \
+  '.entries |= map(if .feature == $feature then .profile = "full" else . end)' \
+  "$REGISTRY" > "$REGISTRY.tmp"
+mv "$REGISTRY.tmp" "$REGISTRY"
+gate_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1) 2>&1 1>/dev/null || true )"
+# Match the fatal form specifically. The advisory NOTE quotes the same phrase,
+# so a bare substring match would be satisfied by the very message that proves
+# the mode worked.
+grep -q '^ERROR: impl-review-precheck: canonical workflow-state validation failed' <<<"$gate_err" ||
+  fail "the full-profile fixture must actually fail the canonical gate, or the next case proves nothing (got: $gate_err)"
+rm -rf "$IMPL_REPORT/attempt-2"
+tolerant_err="$( (cd "$ROOT" && bash plugins/sdd-review-loop/scripts/impl-review-precheck.sh \
+  "$FEATURE" 2 1 --provenance-rereview) 2>&1 1>/dev/null || true )"
+grep -q 'impl-stage evidence re-binding in progress' <<<"$tolerant_err" ||
+  fail "provenance re-review must disclose that it proceeded past a failing gate (got: $tolerant_err)"
+if grep -q '^ERROR: impl-review-precheck: canonical workflow-state validation failed' <<<"$tolerant_err"; then
+  fail "provenance re-review must not abort on the gate it is meant to repair (got: $tolerant_err)"
+fi
+# Positive proof that execution continued past the gate rather than stopping
+# quietly: the run reaches the full-profile layer-input check, which is many
+# steps downstream of the gate call.
+grep -q 'layer review input is missing' <<<"$tolerant_err" ||
+  fail "provenance re-review should have continued to the layer-input check (got: $tolerant_err)"
+jq --arg feature "$FEATURE" \
+  '.entries |= map(if .feature == $feature then .profile = "lite" else . end)' \
+  "$REGISTRY" > "$REGISTRY.tmp"
+mv "$REGISTRY.tmp" "$REGISTRY"
+rm -rf "$IMPL_REPORT/attempt-2"
+
 printf 'ok: downstream prechecks reject bad predecessors and cycles before evidence, then preserve valid graph edges\n'
+printf 'ok: impl --provenance-rereview re-binds a prior PASS, refuses without one, and treats the canonical gate as advisory\n'

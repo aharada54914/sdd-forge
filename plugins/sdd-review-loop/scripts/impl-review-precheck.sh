@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # impl-review-precheck.sh
-# Usage: impl-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs]
+# Usage: impl-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs|--provenance-rereview]
 #
 # Generates precheck-result.json for the impl-review-loop.
 # Outputs to: reports/impl-review/<feature>/attempt-<M>/round-<N>/
@@ -272,7 +272,8 @@ command -v jq >/dev/null 2>&1 || fail "jq is required"
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
-[[ -z "$MODE" || "$MODE" == "--verify-inputs" ]] || fail "unknown mode: $MODE"
+[[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]] ||
+  fail "unknown mode: $MODE"
 profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
 full_profile=false
 [[ "$profile" == "full" ]] && full_profile=true
@@ -310,8 +311,35 @@ fi
 [[ ! -e "$REPORT_DIR" && ! -L "$REPORT_DIR" ]] || fail "round destination already exists (replay is forbidden)"
 [[ -d "$SPECS_DIR" && ! -L "$SPECS_DIR" ]] || fail "feature specification directory must be a real directory"
 [[ "$(cd "$SPECS_DIR" && pwd -P)" == "$repo_root/specs/$FEATURE" ]] || fail "feature specification directory escapes repository"
-bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
-  fail "canonical workflow-state validation failed"
+if [[ "$MODE" == "--provenance-rereview" ]]; then
+  # Post-implementation evidence re-binding. Mirrors task-review-precheck.sh's
+  # mode of the same name, with the same guard: a prior persisted PASS at this
+  # stage must already exist, so this mode can only ever re-bind evidence for a
+  # design that genuinely passed -- it can never stand in for a first review.
+  #
+  # The canonical gate is advisory here rather than fatal, because a stale
+  # impl-stage contract hash is exactly the condition this mode exists to
+  # repair: requiring the gate to be green first would make the repair
+  # unreachable from the state that needs it.
+  prior_pass=false
+  while IFS= read -r verdict_file; do
+    if jq -e --arg feature "$FEATURE" \
+      '.feature == $feature and .stage == "impl" and .verdict == "PASS"' \
+      "$verdict_file" >/dev/null 2>&1; then
+      prior_pass=true
+      break
+    fi
+  done < <(find "$IMPL_REPORT_ROOT" -type f -name integrated-verdict.json ! -lname '*' -print 2>/dev/null)
+  [[ "$prior_pass" == "true" ]] ||
+    fail "provenance re-review requires a prior persisted impl-review PASS verdict"
+  if ! bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE"; then
+    echo "NOTE: impl-review-precheck: canonical workflow-state validation failed;" \
+      "proceeding under --provenance-rereview (impl-stage evidence re-binding in progress)." >&2
+  fi
+else
+  bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
+    fail "canonical workflow-state validation failed"
+fi
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 1: Check design.md exists and has Impl-Review-Status: Pending
@@ -339,9 +367,23 @@ if [[ -z "${impl_review_status}" ]]; then
   exit 1
 fi
 
-if [[ "${impl_review_status}" != "Pending" ]] && [[ "${impl_review_status}" != "pending" ]]; then
+if [[ "$MODE" == "--provenance-rereview" ]]; then
+  # The header stays Passed for the whole re-binding, deliberately. Flipping it
+  # to Pending is not an option here: check-workflow-state.sh's task-lifecycle
+  # rule requires every stage to read Passed once any task is Approved or past
+  # Planned, so a Pending header on a feature that has already shipped trades
+  # this stage's contradiction for a worse one.
+  if [[ "${impl_review_status}" != "Passed" ]]; then
+    echo "ERROR: impl-review-precheck: --provenance-rereview requires design.md to" \
+      "declare 'Impl-Review-Status: Passed'; it declares '${impl_review_status}'." \
+      "Without a prior pass there is no provenance to re-bind -- run an ordinary" \
+      "attempt instead." >&2
+    exit 1
+  fi
+elif [[ "${impl_review_status}" != "Pending" ]] && [[ "${impl_review_status}" != "pending" ]]; then
   echo "ERROR: impl-review-precheck: Impl-Review-Status is '${impl_review_status}', expected 'Pending'." \
-    "Use --reset to start a new attempt if a previous review has passed." >&2
+    "If a previous review has already passed and this is an evidence re-binding," \
+    "use --provenance-rereview." >&2
   exit 1
 fi
 
