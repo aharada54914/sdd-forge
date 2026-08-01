@@ -113,3 +113,46 @@ Critical は fail-closed 化 + 設計手順追記で対処可能なクラス。r
 Major 1+2: per-character ポリシー（escape-or-reject 対称)/ Major 3:
 SEGMENT glob fixture + mutation 証明。round-5（seq0361)の予約は remedy-4
 の orchestrator 独立検証完了後・実行→実値→報告の順で行う。
+
+## 人間の remedy-5（Opus)+ round-6 継続認可（2026-08-01、AskUserQuestion 回答 3 回目)
+
+**判断**: 「remedy-5（Opus)+ round-6 を認可」。round-5（seq0361)は
+NEEDS_WORK（Critical 1 / Major 3 / Minor 1、報告書 =
+`reports/quality-gate/2026-07-31T141033Z-T-007.md`、commit `a462bf73`、
+sha256 `eee45f72e062cf61498c1a60408a455b55bb5bd43a3f84cc58c85e32852c238f`)。
+人間は remedy-5 の実施と QG round-6（seq0362)を認可すると同時に、
+**実装者モデルを Opus に引き上げ**（旧 Sonnet 実装者は使わない)、
+**点の修正でなく構造修正**を要求した。
+
+**判断材料**（= seq0361 報告書):
+- **Critical = remedy-4 発の回帰**: probe 厳格化の過剰補正。「宛先の親が
+  存在しない」は初回 publish の正常状態であるにもかかわらず recovery が
+  致命扱いし、**敵対入力ゼロの基本シナリオ（宛先 dir 不在 + journal-write
+  直後クラッシュ)で exit 17 の永久ブリック**。評価者が pre-remedy-4 ビルド
+  (`3f57c485`)で同一 fixture の正常収束を実測して回帰と確定。両レーン同一。
+- Major ①: remedy-4 の目玉である post-revert 確認パスに**回帰カバレッジ皆無**
+  （丸ごと削除しても 174/174 green)= round-4 Major#3 の再犯。
+- Major ②: `DUPLICATE_BASENAME_IN_BATCH` が case-sensitive のため
+  **macOS APFS（主要プラットフォーム)で File.txt/file.txt が衝突し
+  PRE バイト破壊**、二度の recovery とも exit 17。
+- Major ③: `apply-human-copy.sh:1186` の `exec 8<. 2>/dev/null` が
+  **スクリプト自身の stderr を以降永久に /dev/null へ**リダイレクト
+  （fd 8 は未使用の残骸)。診断出力が全て黙殺され、strtonum クラッシュの
+  ような事象も観測不能になる。
+- Minor: `T-007.md:315` の Test Result が stale（130/72 のまま)。
+
+**人間の構造修正要求**: fixture harness に「宛先 dir 既存/不在」の
+**変種軸**を導入すること。174 アサーションが基本シナリオの破壊を見逃した
+根本原因がここにあるため、個別 fixture の追加ではなく harness 構造の修正で
+対処する。Critical の判定基準は「walk の成否」ではなく
+**「journal 記録の pre_hash と観測状態の整合」**で判定する方向を design.md
+から導出させる（導出が曖昧なら Block-And-Stop)。
+
+**orchestrator の検証手順（remedy-5 完了時、必須)**: (a) 宛先 dir 不在の
+基本シナリオ crash → 収束 + journal 削除 + 後続 publish 可 (b) 変種軸が
+実際に両値で回っているかの実測 (c) 各修正の mutation 検出力 (d) 大文字小文字
+衝突の両レーン拒否 (e) stderr が実際に届くこと (f) 両レーン再実行 +
+Outputs 照合。その後 seq0362 を実予約（実行→実値→報告)。
+
+**sudo 期限**: 失効済みを把握。remedy/検証/予約は承認接点なしで進行し、
+Done 記録段階で人間に再発行を依頼する。
