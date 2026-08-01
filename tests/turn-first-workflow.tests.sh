@@ -318,7 +318,7 @@ cat > "$REPORT_WORK/current.md" <<'EOF'
 # Implementation Report: T-006
 
 - Model: anthropic/opus
-- Effort: standard
+- Effort: high
 
 Report Schema: implementation-report/v2
 

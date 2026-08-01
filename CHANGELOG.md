@@ -2,6 +2,45 @@
 
 ## Unreleased
 
+## v1.11.1 (2026-07-22)
+
+### 修正
+
+- **impl-review verdict の CWD 相対解決による誤 deny を修正 (WFI-016, Issue
+  #207)**: `sdd-hook-guard.py` / `.js` / `.ps1` の 3 twin が
+  `reports/impl-review/<feature>/attempt-*/round-*/integrated-verdict.json`
+  をプロセス CWD 相対でのみ探索していたため、セッションの作業ディレクトリが
+  リポジトリ外にあると真正な PASS verdict が存在しても
+  `Impl-Review-Status: Passed` の書き込みを誤って拒否していた
+  (2026-07-22 epic-191 impl-review で顕在化)。探索起点を既存の
+  `_resolve_project_root` と同順の多段解決
+  (`CLAUDE_PROJECT_DIR` → 編集対象 design.md のパスから上方探索した
+  git root → CWD) に変更。判定基準 (PASS / PASS-with-warnings の存在) は
+  不変で、FAIL・verdict 不在はいかなる CWD からも従来どおり拒否される
+  (non-decreasing)。変更は Phase 2 human-copy レーン経由で人間承認・適用済み
+  (`docs/workflow-improvements/WFI-016.md`、適用は手動コピー経路)。
+- **stale staging の巻き戻り事故を修正・恒久検知を追加 (WFI-016 followup)**:
+  適用前監査で human-copy ステージの 3 target (`check-contract.ps1`、
+  ship スキル文書、CI ワークフロー定義) が `2b8a52f` 時点の古い断面のまま
+  残っており、そのまま適用すると後続の live 修正 (CI 定義は 10 コミット分)
+  が巻き戻る状態だったため live バイトへ再同期。再発防止として
+  `tests/phase2-guard-invariants.tests.sh` / `.ps1` に「staged 全 target が
+  live とバイト同一であること」の恒常チェックを追加した。
+
+### 追加
+
+- **guard-parity に outside-CWD シナリオ 3 件 (37-39)**: CWD がリポジトリ外
+  + `CLAUDE_PROJECT_DIR` 指定 + PASS verdict → allow (37、修正前ガードでは
+  exit 2 で失敗する RED 再現)、環境変数なしで file_path からの git-root
+  上方探索 + PASS → allow (38)、同条件で FAIL verdict → 依然 deny (39、
+  ゲートが緩まないことの固定)。スイートは 36 → 39 シナリオ。
+- **human-copy inventory を 18 → 19 target へ拡張**: `tests/guard-parity.tests.sh`
+  を `phase2_human_copy_targets` / `PHASE2_TARGETS` / `$BootstrapTargets` に
+  追加し、ガードを検証するパリティスイート自体が検証対象のガードと同じ
+  レビュー済み適用レーンを通るようにした。generated 4 ファイル再生成、
+  `MANIFEST.sha256` 再生成 (19 行)。inventory 変更を含む適用は設計上
+  update モードでは通らないため、ランナーは `-Bootstrap` で実行する。
+
 ## v1.11.0 (2026-07-21)
 
 ### 追加
