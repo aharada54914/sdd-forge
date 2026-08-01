@@ -3582,6 +3582,132 @@
       "host_session_id": "SESS-spec-a2r2-b-epic136phase4docs-0398",
       "previous_record_sha256": "48551893f720b3c46cf3cce793d29a05906d6bcb57edfe8ec2a10080e2e69b28",
       "record_sha256": "bd078b7f881360dd31e6fc7db022cb042f645efbb6506a398227a89bf2e36864"
+    },
+    {
+      "sequence": 399,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic136phase4docs-impl-a1r1-a-seq0399",
+      "host_session_id": "SESS-impl-a1r1-a-epic136phase4docs-0399",
+      "previous_record_sha256": "bd078b7f881360dd31e6fc7db022cb042f645efbb6506a398227a89bf2e36864",
+      "record_sha256": "9371ade325109dc0a855f0aea921e50b25043d6c2b188c37151f34fde77963b2"
+    },
+    {
+      "sequence": 400,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase4docs-impl-a1r1-b-seq0400",
+      "host_session_id": "SESS-impl-a1r1-b-epic136phase4docs-0400",
+      "previous_record_sha256": "9371ade325109dc0a855f0aea921e50b25043d6c2b188c37151f34fde77963b2",
+      "record_sha256": "53e84f4b7c3830801bd55e536ee65393de584280ea4d1fd5925740becc0343c1"
+    },
+    {
+      "sequence": 401,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic136phase4docs-impl-a1r2-a-seq0401",
+      "host_session_id": "SESS-impl-a1r2-a-epic136phase4docs-0401",
+      "previous_record_sha256": "53e84f4b7c3830801bd55e536ee65393de584280ea4d1fd5925740becc0343c1",
+      "record_sha256": "3d6fa3fc1f2dc69085ce59142854207dd67780733436c79c4e10b6d5ee8fbc21"
+    },
+    {
+      "sequence": 402,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase4docs-impl-a1r2-b-seq0402",
+      "host_session_id": "SESS-impl-a1r2-b-epic136phase4docs-0402",
+      "previous_record_sha256": "3d6fa3fc1f2dc69085ce59142854207dd67780733436c79c4e10b6d5ee8fbc21",
+      "record_sha256": "e507c11fcf44dfcf4fcf295477d7766624560c1d8ed7ce36cf6fac4e3db86eee"
+    },
+    {
+      "sequence": 403,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase4docs-impl-a1r2-b-seq0403",
+      "host_session_id": "SESS-impl-a1r2-b-epic136phase4docs-0403",
+      "previous_record_sha256": "e507c11fcf44dfcf4fcf295477d7766624560c1d8ed7ce36cf6fac4e3db86eee",
+      "record_sha256": "dffdac1120e1b780e053272d603970c7130214bc4c766e0d98f9310db531ff49"
+    },
+    {
+      "sequence": 404,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic136phase4docs-impl-a1r3-a-seq0404",
+      "host_session_id": "SESS-impl-a1r3-a-epic136phase4docs-0404",
+      "previous_record_sha256": "dffdac1120e1b780e053272d603970c7130214bc4c766e0d98f9310db531ff49",
+      "record_sha256": "a1f70f5adbd5b50dbf81d799b026b085dffae58183fee06c06503acdc8d7f460"
+    },
+    {
+      "sequence": 405,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase4docs-impl-a1r3-b-seq0405",
+      "host_session_id": "SESS-impl-a1r3-b-epic136phase4docs-0405",
+      "previous_record_sha256": "a1f70f5adbd5b50dbf81d799b026b085dffae58183fee06c06503acdc8d7f460",
+      "record_sha256": "63db417c5c446084e40a3b93577b5fa46769e886537a05a89bcf8582497d2d96"
+    },
+    {
+      "sequence": 406,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic136phase4docs-impl-a2r1-a-seq0406",
+      "host_session_id": "SESS-impl-a2r1-a-epic136phase4docs-0406",
+      "previous_record_sha256": "63db417c5c446084e40a3b93577b5fa46769e886537a05a89bcf8582497d2d96",
+      "record_sha256": "f67fb6f1223d77591a382ea4dd7cef2f2e5493898d0049327aabebbbfe6b0d14"
+    },
+    {
+      "sequence": 407,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase4docs-impl-a2r1-b-seq0407",
+      "host_session_id": "SESS-impl-a2r1-b-epic136phase4docs-0407",
+      "previous_record_sha256": "f67fb6f1223d77591a382ea4dd7cef2f2e5493898d0049327aabebbbfe6b0d14",
+      "record_sha256": "fad1315beac6ccc54e91d46617a673764f5b0ece944591e643bc7390207aa083"
+    },
+    {
+      "sequence": 408,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase4docs-impl-a2r1-b-seq0408",
+      "host_session_id": "SESS-impl-a2r1-b-epic136phase4docs-0408",
+      "previous_record_sha256": "fad1315beac6ccc54e91d46617a673764f5b0ece944591e643bc7390207aa083",
+      "record_sha256": "c491a241dad4784e05770ef9830947b470db0ae19e8e0f1926ea8a44ab08c3e3"
+    },
+    {
+      "sequence": 409,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic136phase4docs-impl-a2r2-a-seq0409",
+      "host_session_id": "SESS-impl-a2r2-a-epic136phase4docs-0409",
+      "previous_record_sha256": "c491a241dad4784e05770ef9830947b470db0ae19e8e0f1926ea8a44ab08c3e3",
+      "record_sha256": "7a5b579678455112f27b097caade657a3cebd3e0352feecb650f4689982d1243"
+    },
+    {
+      "sequence": 410,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase4docs-impl-a2r2-b-seq0410",
+      "host_session_id": "SESS-impl-a2r2-b-epic136phase4docs-0410",
+      "previous_record_sha256": "7a5b579678455112f27b097caade657a3cebd3e0352feecb650f4689982d1243",
+      "record_sha256": "c736dffc969b1cfef64f79a0f9bdd2384352f65c20cd36392742288fbf7e48c4"
+    },
+    {
+      "sequence": 411,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic136phase4docs-impl-a2r3-a-seq0411",
+      "host_session_id": "SESS-impl-a2r3-a-epic136phase4docs-0411",
+      "previous_record_sha256": "c736dffc969b1cfef64f79a0f9bdd2384352f65c20cd36392742288fbf7e48c4",
+      "record_sha256": "3f08b295db4de1ce2c9a1fdc4f27f3b8f82cc1d6c8ab8769b67dd471817051f3"
+    },
+    {
+      "sequence": 412,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase4docs-impl-a2r3-b-seq0412",
+      "host_session_id": "SESS-impl-a2r3-b-epic136phase4docs-0412",
+      "previous_record_sha256": "3f08b295db4de1ce2c9a1fdc4f27f3b8f82cc1d6c8ab8769b67dd471817051f3",
+      "record_sha256": "2efbda02aad3dee3742c31d707381b3a8210300b25ad2ea644cfa8969c43ba00"
     }
   ]
 }

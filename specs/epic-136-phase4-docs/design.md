@@ -1,6 +1,6 @@
 # Design: epic-136-phase4-docs
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 
 ## Architecture Overview
 
@@ -138,8 +138,43 @@ The rate-limit row is deliberately not a separate mechanism (AC-002): whether a 
 
 ### `docs/THREAT-MODEL.md`: two appended sections
 
-1. **OWASP LLM Top 10 / MCP cross-reference** — one row per LLM01…LLM10, each row carrying either a named existing control or an explicit N/A with a reason (AC-007, AC-008). The mapping is written by reading the existing Controls Table (`:48-65`) and Threats & Mitigations (`:69-109`) and asking which OWASP entry each already answers — not by inventing controls to fill rows.
-2. **Runtime trust surfaces** — the five absent surfaces (INV-011…INV-015), each with a trust assumption and either a mitigation or an explicit residual-risk entry. `.codex/agents/*.toml` is referenced by pointer to its existing rows, never restated (REQ-005).
+Section 1 has **two independently verified deliverables**, not one. REQ-004 names both OWASP and MCP, and they are checked separately — AC-007/AC-008/TEST-007 cover the OWASP half, AC-013/TEST-013 cover the MCP half. An earlier draft of this plan described only the OWASP mapping, which would have let an implementer satisfy every criterion it stated while omitting the MCP deliverable entirely. That is the same gap spec review round 1 found one layer up (`requirements.md:115`), reappearing here; impl review round 2 found it at this layer, and this text closes it.
+
+1. **OWASP LLM Top 10 cross-reference (AC-007, AC-008 → TEST-007)** — one row per LLM01…LLM10, each row carrying either a named existing control or an explicit N/A with a reason. The mapping is written by reading the existing Controls Table (`:48-65`) and Threats & Mitigations (`:69-109`) and asking which OWASP entry each already answers — not by inventing controls to fill rows.
+
+1a. **MCP server cross-reference (AC-013 → TEST-013)** — a distinct deliverable in the same section, naming all three of this repository's MCP servers — `sdd-forge-mcp`, `local-env-mcp`, `ci-mcp` — with a stated trust posture for each. TEST-013 asserts each of the three literal server names is present, so a row that gestures at "the MCP servers" collectively does not satisfy it. Trust posture is written from what each server can actually do (`local-env-mcp` has no execution capability; `ci-mcp` and `sdd-forge-mcp` are repository-local), and per AC-013 the posture cites primary MCP documentation rather than asserting a security property of the protocol from memory.
+
+2. **Runtime trust surfaces (REQ-005, AC-009, AC-010, AC-014 → TEST-009, TEST-010, TEST-014)** — the five absent surfaces (INV-011…INV-015), each with a trust assumption and either a mitigation or an explicit residual-risk entry. This section also carries the **AC-014 / TEST-014** residual-risk entry for the unbounded external panelist, marked *closed by this feature* and naming `SDD_PANELIST_TIMEOUT` — a threat model that omits a hole the same release closed would be stale on arrival. The vendor agent role definition files are referenced by pointer to their existing rows, never restated. Note that INV-013's *installer MCP-registration marker block* is a configuration-file surface and is **not** a substitute for deliverable 1a: 1a documents what the three servers are trusted to do, 2 documents that the installer writes a registration block. Both are required.
+
+## Data Plan
+
+**No data changes.** This feature introduces no database, no persisted schema, and no new document format. The complete set of artifacts it writes or edits is the Components table above: four runner scripts, two Markdown documents, and two test suites.
+
+Two existing on-disk artifacts are read or written by code this feature touches, and neither changes shape:
+
+| Artifact | Shape | Change |
+|---|---|---|
+| Panelist verdict file (`cross-model-verdict/v1`) | Existing JSON schema, written by the runner on success | **Unchanged.** On the timeout path the runner exits before the write, so no verdict file — not a partial one — is produced (AC-005). The schema itself is not touched. |
+| `SDD_PANELIST_TIMEOUT` | Process environment variable, whole seconds, default 600 | **New**, but environment configuration rather than stored data. Contract in the Configuration table above. |
+
+No migration, no backfill, and no retention change follows from this, which is why `infra-spec.md`'s Rollback section can state that a revert is complete and carries no migration.
+
+## Security Boundaries
+
+The authoritative treatment is `security-spec.md`, which is a normative layer of this specification rather than background reading. This section states the boundaries design decisions had to respect; it does not restate the threat analysis.
+
+| Boundary | Trust posture | What the design commits to |
+|---|---|---|
+| **B1 — vendor CLI process** | Untrusted for availability. The CLI is neither shipped, pinned, nor vendored by this repository, so its liveness cannot be assumed. | The bounded-wait helper. This is the whole point of the feature: a boundary that could previously block forever now has a bound. |
+| **B2 — cross-model consensus signal** | Integrity-critical. A verification gate that silently degrades is worse than one that fails. | Fail-closed on timeout: exit 1, no verdict file, diversity unmet, gate fails (AC-006). No skip-and-pass path is introduced. |
+| **B3 — threat-model control inventory** | Documentation of record. | The five runtime trust surfaces are added with their real posture, including residual risks that are *not* closed, rather than an inventory that reads as complete. |
+| **B4 — hook-trust surface** | Operator-controlled bypass. | Named explicitly in the threat model together with what an operator who uses it forfeits (AC-010). The design adds no new bypass and removes none. |
+
+Authorization and data classification:
+
+- **No protected gate file is written.** BL-005, verified against `guard-invariants.generated.js:5` (INV-017). `check-cross-model.*` is untouched (BL-002).
+- **No `SDD_SUDO` interaction.** This feature neither reads, creates, nor requires it.
+- **No secret is read, written, or transported.** `SDD_PANELIST_TIMEOUT` is a non-secret integer. Vendor credentials remain entirely inside the vendor CLI's own configuration and are never handled here — including on the kill path, where the design terminates a process and never inspects its environment.
 
 ## Design Decisions (Resolving Open Questions)
 
@@ -151,7 +186,34 @@ The rate-limit row is deliberately not a separate mechanism (AC-002): whether a 
 
 ## Test Strategy
 
-1. **AC-003 — configuration parsing.** Unset, empty, `600`, `1`, `0`, `-5`, `abc`. First three proceed; last three exit 2 **before** the CLI is invoked, asserted by a stub that records whether it was called at all.
+### Coverage table — every AC, every TEST
+
+Impl review attempt 1 found the same defect twice: a design plan that read well against the `REQ-*` headings while silently omitting an `AC-*` that spec review had added later specifically to close a gap. Round 2 caught AC-013; round 3 caught AC-012 and escalated the attempt to BLOCKED. Patching one row at a time would leave the class open, so the plan is stated as an exhaustive table instead. A mechanical cross-check of the current text found AC-001, AC-012 and AC-014 unnamed and ten of fourteen `TEST-*` IDs unmentioned — all now listed here. **If an AC has no row, the plan is incomplete; that is the check.**
+
+Requirement-to-criterion roll-up, so no `REQ-*` is reachable only through prose: **REQ-001** → AC-001, AC-002; **REQ-002** → AC-003, AC-004; **REQ-003** → AC-005, AC-006; **REQ-004** → AC-007, AC-008, AC-013; **REQ-005** → AC-009, AC-010, AC-014; **REQ-006** → AC-011, AC-012.
+
+| AC | TEST | Delivered by | Note |
+|---|---|---|---|
+| AC-001 | TEST-001 | Policy taxonomy section (`## API & Contract Plan`, taxonomy table) | all five failure-mode names, each with exit code, verdict-file state and propagation |
+| AC-002 | TEST-002 | Same section, rate-limit row | states rate-limiting is not separately handled; deliberately a stated limitation, not a guarantee |
+| AC-003 | TEST-003 | Item 1 below | 7 sub-cases; invalid values exit 2 **before** the CLI is invoked |
+| AC-004 | TEST-004 | Item 2 below | sub-cases (a)/(b)/(c); wall-clock bound, SIGKILL escalation, boundary re-check |
+| AC-005 | TEST-005 | Item 3 below | exit 1 **and** no verdict JSON |
+| AC-006 | TEST-006 | Item 4 below | composed with `check-cross-model`; the test that closes the issue's stated concern |
+| AC-007 | TEST-007 | Stream B deliverable 1 | ten OWASP identifiers, every disposition cell non-empty |
+| AC-008 | TEST-008 | Stream B deliverable 1 | ≥1 N/A row with a reason **and** ≥1 row citing an existing control — the anti-padding assertion |
+| AC-009 | TEST-009 | Stream B deliverable 2 | five surface identifiers by literal string |
+| AC-010 | TEST-010 | Stream B deliverable 2 | `--dangerously-bypass-hook-trust` named, with what it forfeits |
+| AC-011 | TEST-011 | Item 5 below | both suites pass, pre-existing cases unmodified |
+| AC-012 | TEST-012 | Item 7 below | the asserted default is read from the script, not hard-coded in the test |
+| AC-013 | TEST-013 | Stream B deliverable 1a | all three MCP server names with a trust posture each |
+| AC-014 | TEST-014 | Stream B deliverable 2 | residual-risk entry for the unbounded panelist, marked closed, naming `SDD_PANELIST_TIMEOUT` |
+
+1. **AC-003 — configuration parsing.** Seven sub-cases per runner: unset, empty, `600`, `1`, `0`, `-5`, `abc`.
+   - **First four** (unset, empty, `600`, `1`): the runner proceeds to invoke the CLI. `1` is a **valid** bound, not an invalid one — it is the same value item 2's timeout sub-cases depend on being accepted.
+   - **Last three** (`0`, `-5`, `abc`): exit 2 **before** the CLI is invoked, asserted by a stub that records whether it was called at all.
+
+   Stated as four-plus-three rather than three-plus-three because an earlier draft of this line wrote "first three / last three" against a seven-item list, leaving `1` unclassified — contradicting both item 2 below and the Configuration contract table above, which classify `1` as valid. Spec review caught that arithmetic at the requirements layer (`acceptance-tests.md:43`, both round-2 reviewers independently), but this document kept the stale phrasing; both impl reviewers then caught it here, independently, at attempt 2 round 1.
 2. **AC-004 — the bound actually bounds.** Three sub-cases after spec-review round 1, because one was not enough:
    - **(a)** `SDD_PANELIST_TIMEOUT=1` plus a stub that sleeps 30s. Assert elapsed wall-clock ≤ 10s and that the stub's PID is gone afterwards. The liveness assertion distinguishes a real kill from a parent that merely returned.
    - **(b)** the same, but the stub installs `trap '' TERM`. Only the `SIGKILL` escalation can end it, so this is the sub-case that proves the escalation branch exists. A plain `sleep` stub dies on the first `SIGTERM` and can never reach it — which meant the original single case would have passed against a broken or absent escalation.
@@ -159,8 +221,9 @@ The rate-limit row is deliberately not a separate mechanism (AC-002): whether a 
 3. **AC-005 — no partial verdict.** After a timeout, assert exit 1 **and** that the output directory contains no verdict JSON for that task.
 4. **AC-006 — the gate actually fails.** Compose 2 and 3 with `check-cross-model` over the resulting verdict directory; assert non-zero and no consensus PASS. This is the only test that demonstrates the issue's stated `critical`-verification concern is closed.
 5. **BL-001 — behaviour preservation.** The existing absent-CLI and non-zero-exit cases must pass **unmodified**. If an existing case needs editing to accommodate the timeout, that is evidence BL-001 was broken.
-6. **BL-004 — parity.** Every case above exists in both `tests/cross-model.tests.sh` and `.ps1`.
-7. **Stream B** is verified by literal-string assertions per REQ-004/REQ-005 — ten OWASP identifiers, five surface identifiers, and `--dangerously-bypass-hook-trust` by name (AC-010). Deliberately literal: a heading-level check would pass against an empty section, which is the text-marker failure mode recorded as FP-02 in the `epic-136-phase3` retrospective.
+6. **BL-004 — parity, with one deliberate exception.** Every case above exists in both `tests/cross-model.tests.sh` and `.ps1`, **except AC-004 sub-case (b)**, which the PowerShell suite carries **none of, deliberately**. PowerShell's termination step cannot be survived — `Process.Kill` maps to `TerminateProcess`, which is untrappable — so no stub behaviour would let a (b) sub-case verify anything (a) does not already verify; writing one would be a test that cannot fail. BL-004 is therefore satisfied at the level of **outcome** (both runtimes must end the child and leave no orphan), not by mirroring a POSIX signal model onto a platform with no equivalent. This carve-out is stated in `requirements.md:67,75` and tabulated in `acceptance-tests.md:64-68`; spec review round 3 blocked an earlier draft that got this wrong, so it is restated here rather than left to inference.
+7. **AC-012 — the default is not duplicated.** The `600` the tests assert is **derived from the runner script at test time**, not written as a literal in the test — e.g. by extracting the `${SDD_PANELIST_TIMEOUT:-600}` default from the script's own source and comparing against that. A test that carries its own copy of the constant keeps passing after someone changes the script's default, which turns the test from a guard into a decoration. This is the one case where a literal-string assertion is *wrong*: everywhere else in this plan the literal is the point (item 8), but here the literal is the defect. TEST-012 is the check.
+8. **Stream B** is verified by literal-string assertions per REQ-004/REQ-005 — ten OWASP identifiers (TEST-007), **the three MCP server names `sdd-forge-mcp`, `local-env-mcp` and `ci-mcp` (TEST-013)**, five surface identifiers (TEST-009), and `--dangerously-bypass-hook-trust` by name (AC-010, TEST-010). Deliberately literal: a heading-level check would pass against an empty section, which is the text-marker failure mode recorded as FP-02 in the `epic-136-phase3` retrospective. TEST-013 is listed separately from TEST-007 on purpose — they verify the two halves of REQ-004, and collapsing them is exactly how the MCP deliverable went missing from this plan in the first place.
 
 ## Deployment & CI Plan
 
