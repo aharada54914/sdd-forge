@@ -77,7 +77,11 @@ investigation snapshot:
    with no prior-feature content to preserve or collide with.
 
 Everything else investigation.md asserts was re-confirmed byte-identical at
-re-verification time: `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS`
+re-verification time. **This paragraph is a spec-authoring-time snapshot in
+full, not a current-state claim** — two of its entries have since been
+superseded and are flagged inline below; for Stream C's current state the
+Stream C status record further down is authoritative, not this list.
+`PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS`
 (`guard_invariants.py:4,18`, unchanged membership); `sdd-hook-guard.sh`'s
 fallback chain (`:36` `python3` check, `:41` `for ps in pwsh powershell.exe
 powershell`, `:52` `deny_unavailable` — byte-identical line numbers);
@@ -90,8 +94,10 @@ powershell`, `:52` `deny_unavailable` — byte-identical line numbers);
 `test.yml:574-590`, shifted only by the 4 added lines from finding 2's new
 step); zero LLM-invoking steps in `test.yml` (only 2 `npm install -g
 @anthropic-ai/claude-code` / `@openai/codex` CLI-installation lines, no
-inference call); ADR-0010's `Status: Proposed(人間承認待ち)`;
-`tests/workflow-scenarios/` still does not exist; `tests/scenario.tests.sh`
+inference call); ADR-0010's `Status: Proposed(人間承認待ち)` (**SUPERSEDED**
+— now `Accepted`, commit `67015a5`);
+`tests/workflow-scenarios/` did not yet exist (**SUPERSEDED** — Stream C's
+T-004 has since created it); `tests/scenario.tests.sh`
 still carries no `greenfield`/`brownfield` vocabulary; `loop-inventory.json`'s
 8 `fixture_profiles: ["greenfield", "brownfield"]` entries (lines
 25,47,70,94,115,137,151,165, byte-identical); `loop-driver.sh`'s
@@ -121,11 +127,13 @@ Accepted` by human decision (commit `67015a5`, 2026-07-22). That promotion
 discharged OQ-2's Blocker, and Stream C's implementation then landed inside
 this feature: T-004 authored `tests/workflow-scenarios/` and
 `workflow-scenarios.tests.sh`, and the `CHANGELOG.md` entry citing #125 was
-written (commit `fd4db859`). Every passage below that once carried an
-operative "Blocked pending ADR-0010" instruction has been reconciled to this
-record in place. Where a passage is explicitly labelled a spec-authoring-time
-or investigation-time snapshot, it is retained verbatim as history and is NOT
-a current-state claim.
+written (commit `fd4db859`). This record governs the WHOLE document, above
+and below: every passage anywhere in this file that once carried an operative
+"Blocked pending ADR-0010" instruction, or asserted Stream C's artifacts do
+not exist, has been reconciled to it in place. Where a passage is explicitly
+labelled a spec-authoring-time or investigation-time snapshot — including the
+Re-verification note above, whose two superseded entries are flagged inline —
+it is retained verbatim as history and is NOT a current-state claim.
 
 Stream D (#126) marks the deterministic lane boundary INSIDE
 `.github/workflows/test.yml`'s single `test` job — `[deterministic]`
@@ -185,7 +193,9 @@ conclusively (Open Questions).
   suite covers a proper subset of this cross-product, so a regression in
   any one runtime x class x shape combination this feature's corpus is
   meant to lock down could ship undetected.
-- `tests/workflow-scenarios/` does not exist (investigation.md INV-012);
+- `tests/workflow-scenarios/` did not exist when this problem was recorded
+  (investigation.md INV-012; Stream C's T-004 has since created it — Stream
+  C status record);
   the same-named-but-different-scope `tests/scenario.tests.sh` predates
   ADR-0010's `greenfield`/`brownfield` vocabulary and does not use it
   (INV-013), creating a real risk that a hastily created `tests/workflow-scenarios/`
