@@ -1,0 +1,116 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase3-impl-a1r1-b-seq0347",
+  "host_session_id": "SESS-impl-a1r1-b-epic136phase3-0347",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-136-phase3/attempt-1/round-1/integrated-summary.json",
+      "sha256": "879fcfafb1b6c656ccb3646c0eccd0f802b1ab813bef7f56bb391064938e079f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/impl-review/epic-136-phase3/attempt-1/round-1/precheck-result.json",
+      "sha256": "b9e0719af9631645a27a1cbfce1669a5c7b25eb806382d7988b09638e6ed50bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/design.md",
+      "sha256": "aef5f5887d730e3864492b71d9aaf0610d7b7ccc80978e1ddfc537344fea2582"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "e15f2213726d64daec586f72135d2734ee01543f6194d16487e2d5ad072e5f0f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "b77c8f316aff6c905891e3ffb52cec1dab0b167e755c2e583dc5843a16dfaf6b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/requirements.md",
+      "sha256": "d4d57f77463ea283b4c5de336f09009f3cdabb7d3cb69c9bd65bc8eba06a9986"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/security-spec.md",
+      "sha256": "5b8a3ad60e478b5ab83f159239771fd2a639876dfa7cfedb0547f56676300fe9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4d7d386b43f5219d0b60b9f260b099af049e56b6875366ff24f2dcfbe9d4ca72"
+    }
+  ],
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "Every material decision in design.md carries a stated rationale. Examples: API/Contract Plan 'thin forwarding shims' decision (design.md:447-453) is justified ('keeps the decision-under-test genuine... while still controlling exactly which NAME the dispatcher's command -v loop observes'); the NEW-not-reused corpus decision for Stream B's triple-quote/task-id payloads (design.md:439-446) is justified ('a structurally different injection surface... reusing that exact payload would not exercise the guard's own tokenizer'); the job-count-preserving-vs-job-splitting choice for Stream D (design.md:339-343) states an explicit blast-radius rationale. No 'we will use X' statement lacking a because/since clause was found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's '## Open Questions' section (lines 551-559) states 'None blocking for Streams A, B, D... Stream C carries ONE deliberately unresolved external precondition (ADR-0010 approval)... it is a recorded Blocker with a named, externally-owned unblock condition (requirements.md Roles and Permissions)'. This lacks the literal 'Blocks Implementation: yes/no' / 'Resolution Path:' field labels the check's ideal format names, but the substance is present: owner = Human maintainer (requirements.md Roles and Permissions, cross-referenced), blocking status = Stream C only, resolution path = ADR-0010 reaching Status: Accepted (a concrete, verifiable condition). Minor advisory: adopting the literal field syntax would make this machine-checkable, but per calibration's severity guidance this is not a Major gap since owner/block-status/resolution-path are all substantively answerable from the cited cross-reference."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "investigation.md is present (not absent), so the >1-non-trivial-assumption trigger does not apply. design.md's Assumptions section (lines 538-549) is explicitly 'Carried from requirements.md Assumptions... re-verified at each stream's actual implementation start' and each item traces to a specific INV-xxx: registration-gap state -> investigation.md INV-006/INV-024/INV-025 (tests/guard-parity.tests.sh etc. absent from test.yml, confirmed table at investigation.md:226-231); PROTECTED_GATE_SUFFIXES/PHASE2_HUMAN_COPY_TARGETS membership -> INV-024 (investigation.md:598-609 table); identity-ledger tail (sequence: 337, note this is requirements.md's re-verified figure superseding investigation.md INV-026's stale sequence 319) -> requirements.md Re-verification note finding 1, itself grounded in a fresh ledger read; ADR-0010 Status: Proposed -> INV-015 (investigation.md:403-421, ADR text quoted verbatim); loop-driver.sh drive_review_round stage-\"spec\"-only scope -> INV-016 (investigation.md:423-442); tests/collection-layer.tests.sh PATH technique -> INV-005 (investigation.md:197-217). All grounded, none floating."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "design.md has a '## Constraint Compliance' section (design.md:525-536) so the Primary/Critical check applies. Its first row claims Stream D's restructuring is 'job-count-preserving' and that 'no step moves to a job outside this needs: list' (design.md:528-529). This is directly contradicted by design.md's own API/Contract Plan: 'the restructuring introduces ONE new job, deterministic-tests-boundary... that runs a single, trivial, always-green marker step immediately BEFORE the existing test job's own step list begins' (design.md:339-343), and by Design Decisions OQ-5: Stream D 'adds ONE trivial boundary-marker job' while calling this same choice 'job-count-preserving' in the same sentence (design.md:423-427). requirements.md REQ-004 is explicit and unambiguous: mark the lane boundary via step-name prefix 'plus a documented, currently-empty comment boundary... WITHOUT splitting the job' (requirements.md:231-238, emphasis in source). AC-016 is equally explicit: 'the job count and job names are unchanged... the job gains a documented, currently-empty comment placeholder marking where a future LLM-invoking eval lane would be added as a separate job' (requirements.md:435-442) -- a COMMENT placeholder, not an actual new job. The live .github/workflows/test.yml currently defines exactly 6 top-level jobs (test, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, required-checks; confirmed by grep), so adding 'deterministic-tests-boundary' would make 7 -- a literal job-count change that AC-016 forbids. The contradiction is corroborated in two more places: design.md's own Architecture diagram labels the staged candidate 'restructured job graph' and required-checks 'needs: updated to preserve BL-001 semantics' (design.md:82-83, again 'updated' vs. requirements.md's 'WITHOUT touching needs:'), and infra-spec.md's CI/CD Sequence claims the opposite of design.md's own API/Contract Plan: 'Stream D deliberately avoids splitting the single test job into multiple jobs' (infra-spec.md:43-46). Failure mode: an implementer following the API/Contract Plan's literal instruction ('introduces ONE new job') would violate AC-016/AC-017 and the requirement's explicit 'WITHOUT splitting the job' constraint, and TEST-017's self-check (acceptance-tests.md:31) does not enumerate job names/job count against a pre-change baseline -- it only checks step-name survival inside the (assumed-still-singular) test job and needs: list membership -- so this violation would not be caught by the named verification path either. This is a direct, load-bearing contradiction between design.md and requirements.md's binding REQ-004/AC-016/AC-017 constraint and blocks progression."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "No performance requirements found in requirements.md. Scanned Goals, Acceptance Criteria, Non-goals, and Field Definitions for numeric thresholds/SLA/throughput/concurrency/latency language; none present. infra-spec.md's 'Runtime Budget' section and design.md Test Strategy item 4 explicitly state 'No stream's suite requires a runtime-budget assertion' as a scoping statement, not evidence of an unaddressed requirement -- there is no corresponding requirements.md performance requirement to address."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's '## Deployment / CI Plan' (lines 501-523) names the deployment target (no runtime deployment; staged human-copy candidate applied as a pre-merge commit on the feature PR branch), describes the CI pipeline changes (2 new steps to test.yml's test job plus Stream D's restructuring, staged as ONE shared batch under specs/epic-136-phase3/human-copy/), and states the fail-closed rollout gate (PR's CI stays red on TEST-019/020's live-file self-check until the human applies the candidate) plus rollback guidance (lines 516-523). Feature-flag strategy is not applicable (CI/test-hardening work, not an incrementally-rolled-out user-facing feature); no schema change exists so migration-execution-order is not triggered (see MIGRATION-PLANNED). Note: the section's own description of the CI pipeline change ('Stream D's job-graph restructuring is part of the SAME staged candidate') does not itself surface that a new job is being introduced -- that specific defect is captured under NO-REQ-CONTRADICTION (Critical) and is not double-counted here."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's '## Data Plan' (lines 181-195) states 'Data Entities: none new for Streams A, B, D... Existing Data Affected: none... Migration Strategy: none. No schema changes to any existing artifact' -- functionally equivalent to the check's explicit 'No data changes' PASS condition. Stream C's new scenario-schema.json (once unblocked) is a test-fixture JSON Schema document, not a database/table/column schema change, and Stream C's implementation is Blocked in this feature regardless (not a landing deliverable of this design)."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's '## External Integrations' section (lines 492-499) explicitly states 'None. All 3 unblocked streams operate entirely on repository-local files... no new network call, external API, or credential is introduced' and explicitly forecloses Stream C's scenario-5 fixture from being a real gh issue view network call ('a SYNTHETIC issue body, never a real gh issue view network call'). No external system, third-party service, or cross-service API call is referenced anywhere else in the document in passing (checked Components, Architecture, Security Boundaries, API/Contract Plan) that is not covered by this explicit None declaration."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "design.md's Cross-Layer Dependencies table (lines 159-168) maps every requirements.md REQ-001..REQ-006 to a corresponding design section and AC/TEST range, and the API/Contract Plan, Test Strategy, and Constraint Compliance sections address all 6 REQs and all Goals/User Stories (Stream A dispatch-fallback parity, Stream B negative corpus, Stream C target-shape-only per its Blocked status, Stream D lane marking, REQ-005 CI registration, REQ-006 portability/CHANGELOG/doc-follow). Non-goals are respected (no edit to the 4 R-10-protected suites; no Stream C implementation; no Phase 4/design-sync scope). One out-of-spec component was found -- Stream D's new 'deterministic-tests-boundary' GitHub Actions job (design.md:339-343, 423-427) has no corresponding requirement and is explicitly precluded by REQ-004's 'WITHOUT splitting the job' -- but this is the same underlying defect already raised as a Critical finding under NO-REQ-CONTRADICTION and is not duplicated here as a second Major finding per the Finding Evidence Gate's non-duplication rule."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "High-risk surfaces present: (1) B1 read-only guard-exercise boundary and adversarial payload construction (Streams A/B) -- verification path named: TEST-001..011, each an acceptance-test artifact with its own suite file (security-spec.md Security Tests table, lines 100-105). (2) B2 inbound prompt-injection boundary (Stream C, blocked) -- verification path named: TEST-014, explicitly deferred/Blocked but concretely identified as the future validation artifact (security-spec.md:84,109-112). (3) B3 protected-file/CI-authorization boundary (Stream D test.yml restructuring, branch-protection-adjacent) -- verification path named: TEST-016/TEST-017 self-check plus an explicit named human-review step ('The human reviewer applying the staged candidate MUST additionally verify GitHub's actual branch-protection required-status-check configuration', design.md:512-514). All are acceptable per the check's allowed evidence types (acceptance test artifact, review artifact named in design.md). Minor advisory: TEST-017 as specified (acceptance-tests.md:31) verifies step-name survival and needs: list membership but does not enumerate job count/job names against a pre-change baseline, so it would not by itself catch the job-addition contradiction already raised as Critical under NO-REQ-CONTRADICTION; this is noted as context, not scored as a second failure here."
+    }
+  ]
+}

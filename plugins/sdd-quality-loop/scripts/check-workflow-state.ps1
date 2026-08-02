@@ -221,6 +221,27 @@ function Test-ManifestHashForFile(
     if (-not $historical) { return $false }
     return Test-ManifestHash $Contract $Suffix $historical $RepositoryRoot
 }
+# A reviewed document's recorded hash legitimately takes either of two forms.
+# An ordinary review runs while the stage's status field still reads `Pending`
+# (impl-review-precheck enforces that), so the reviewers record the raw bytes
+# and the post-review flip to `Passed` is absorbed by Get-NormalizedHash. A
+# re-review of an already-passed feature (--provenance-rereview) necessarily
+# runs while the field already reads `Passed` -- that mode refuses to start
+# otherwise -- so the reviewers record the raw bytes of THAT state, which no
+# normalization can reproduce. Accepting either form does not weaken
+# provenance: both prove the reviewers read the document's current body, and
+# an edit to the body still matches neither.
+function Test-ReviewedHash([string]$FilePath, [string]$Stage, [string]$Candidate) {
+    if ([string]::IsNullOrEmpty($Candidate)) { return $false }
+    if ($Candidate -eq (Get-NormalizedHash $FilePath $Stage)) { return $true }
+    return ($Candidate -eq (Get-Sha256 $FilePath))
+}
+function Test-ManifestReviewedHash(
+    $Contract, [string]$Suffix, [string]$FilePath, [string]$Stage, [string]$RepositoryRoot
+) {
+    if (Test-ManifestHash $Contract $Suffix (Get-NormalizedHash $FilePath $Stage) $RepositoryRoot) { return $true }
+    return Test-ManifestHash $Contract $Suffix (Get-Sha256 $FilePath) $RepositoryRoot
+}
 function Test-AllowedLayerSupersetPath(
     [string]$Path, [string]$Feature, [string]$Stage, [string]$RepositoryRoot, [string]$RecordedRoot
 ) {
@@ -738,11 +759,10 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
     }
     if ($Stage -eq "impl") {
         $design = Join-Path $FeatureDir "design.md"
-        $designHash = Get-NormalizedHash $design "impl"
-        if (-not (Test-ManifestHash $contract "/specs/$Feature/design.md" $designHash $RepoRoot)) {
+        if (-not (Test-ManifestReviewedHash $contract "/specs/$Feature/design.md" $design "impl" $RepoRoot)) {
             Stop-WorkflowState $Feature "stage-provenance" "implementation design hash is stale"
         }
-        if ([string]$contract.design_sha256 -ne $designHash) {
+        if (-not (Test-ReviewedHash $design "impl" ([string]$contract.design_sha256))) {
             Stop-WorkflowState $Feature "stage-provenance" "implementation top-level design hash is stale"
         }
         $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']
@@ -775,11 +795,10 @@ function Test-PassedStage([string]$Feature, [string]$Stage, [string]$FeatureDir)
         }
     } elseif ($Stage -eq "task") {
         $tasks = Join-Path $FeatureDir "tasks.md"
-        $tasksHash = Get-NormalizedHash $tasks "task"
-        if (-not (Test-ManifestHash $contract "/specs/$Feature/tasks.md" $tasksHash $RepoRoot)) {
+        if (-not (Test-ManifestReviewedHash $contract "/specs/$Feature/tasks.md" $tasks "task" $RepoRoot)) {
             Stop-WorkflowState $Feature "stage-provenance" "task plan hash is stale"
         }
-        if ([string]$contract.tasks_sha256 -ne $tasksHash) {
+        if (-not (Test-ReviewedHash $tasks "task" ([string]$contract.tasks_sha256))) {
             Stop-WorkflowState $Feature "stage-provenance" "task top-level plan hash is stale"
         }
         $layerManifestProperty = $precheckData.psobject.Properties['layer_sha256']

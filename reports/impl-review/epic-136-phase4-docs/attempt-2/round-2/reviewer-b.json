@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-epic136phase4docs-impl-a2r2-b-seq0410",
+  "host_session_id": "SESS-impl-a2r2-b-epic136phase4docs-0410",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-2/round-2/integrated-summary.json",
+      "sha256": "1ae54f54495b0fd8736c6d2ffdcad4ef42d0b9f19f2ab363c939a556b556605a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-2/round-2/precheck-result.json",
+      "sha256": "7f67e42434b9d5c827b51530e38287309d89946f8b252dc2920c83aa8f128918"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/design.md",
+      "sha256": "192ef874f65df4a7e570a681cca7e4ca3c073a12116b7a0f64d11c9636d15727"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every stated architectural decision carries a rationale. design.md:9-11 explains why the bound lives in the runner and not check-cross-model (the gate 'reads verdict files off disk and never invokes a panelist... a timeout there would be a bound on the wrong thing'). design.md:33 justifies the date+kill-0 polling pattern by Edge Case 1's 'command -v timeout gtimeout' result plus the install.sh:758-781 precedent. design.md:118 justifies the 600s default against the neighbouring SDD_INSTALL_LOCK_STALE:-600 constant 'rather than invented'. Design Decisions (179-185) states rationale for OQ-1 through OQ-4 and #134 OQ-3. No unjustified 'we will use X' statement found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md carries no literally-named '## Open Questions' heading; the equivalent content is '## Design Decisions (Resolving Open Questions)' (179-185), which resolves all seven investigation.md open questions (#133 OQ1-4 at investigation.md:174-177, #134 OQ1-3 at investigation.md:181-183), each with a stated resolution and rationale, none left blocking. Under legacy_design: true (precheck-result.json) this heading-naming difference is a [LEGACY COMPAT] Minor advisory, not a Major gap, per reviewer-calibration.md:86-88."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present and grounds INV-001 through INV-017, so the 'investigation.md absent' Major does not apply. design.md itself introduces no separate ungrounded '## Assumptions' section (folded into Risks/Design Decisions instead). The requirements-level assumptions it builds on are each grounded: the SIGTERM-termination assumption is not merely deferred but exercised by a dedicated test (Edge Case 7 -> design.md item 2(b) / TEST-004(b)); the install.sh:758-781 convention citation's provenance gap is explicitly disclosed and independently supported by the first-hand command -v result (requirements.md:177); the 2-second SIGTERM grace is explicitly flagged as an accepted, challengeable guess (design.md:245, Risks section)."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md has no '## Constraint Compliance' section, so the TYPE-H fallback scan applies. Nearly all requirements.md constraints (BL-001, BL-002, BL-003, BL-005, REQ-003's 'must not exit 2', Edge Case 1's 'must not depend on GNU coreutils', Edge Case 6's must-not-false-report) are addressed. One is directly contradicted: design.md:224 ('6. BL-004 -- parity. Every case above exists in both tests/cross-model.tests.sh and .ps1.') is stated with no runtime carve-out, so it reads as requiring AC-004's sub-case (b) in both suites. That contradicts requirements.md's own BL-004/AC-004 text: the runtime table at requirements.md:57-60 and the explicit statement at requirements.md:67 ('the PowerShell suite carries no (b) sub-case -- writing one would be a test that cannot fail'), reinforced at requirements.md:75 ('BL-004's parity requirement is satisfied at the level of outcome... not by mirroring a POSIX signal model onto a platform that has no equivalent') and acceptance-tests.md's TEST-004 table at :64-68 ('(b) escalation is reached | ... | none, deliberately'). This is the identical contradiction class requirements.md:62 records round 3 of spec review catching and fixing in an earlier draft. design.md's own Test Strategy item 2 (212-220) and the Coverage table row for AC-004 (design.md:200) never restate the PowerShell exemption either, so nothing in design.md disambiguates line 224's 'every case' language. A task author implementing literally from design.md's Test Strategy could write a PowerShell (b) test case that cannot fail -- the exact vacuous-test defect this specification fought three rounds to eliminate. Concrete fix: line 224 needs the same runtime carve-out requirements.md and acceptance-tests.md already state."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md's REQ-002/AC-004 impose a concrete wall-clock bound (SDD_PANELIST_TIMEOUT, default 600s) on an external call -- this feature's latency/SLA-shaped constraint. design.md addresses it directly: the bounded-wait helper (API & Contract Plan, 33-106) is the mechanism, and Test Strategy item 2 / TEST-004 verifies it with explicit timing assertions (elapsed wall-clock within a 10s margin, boundary-race sub-case repeated at least 5 iterations). infra-spec.md:15 additionally notes the CI timing cost (~3s/case across a 3-OS matrix) is deliberately kept small to avoid flakiness."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Deployment & CI Plan' (228-232) states no new CI step, names the existing test job and tests/run-all.sh, and the waivable stack descriptor. infra-spec.md (required layer doc, in this round's manifest) supplies deployment target (scripts run on the operator's machine via the cross-model-verify skill; docs are repository-only, per infra-spec.md:19-28), CI/CD sequence, and a Rollback section (infra-spec.md:30-38) including the explicit note that reverting Stream A alone reopens the DoS hole. Data Plan states 'No data changes' (design.md:151), so migration-execution-order is inapplicable. No feature-flag strategy is stated, but none is required: the change is additive behind an env var with a safe default and is not a phased/incremental UI rollout."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's '## Data Plan' states 'No data changes. This feature introduces no database, no persisted schema, and no new document format.' (design.md:151), which is this check's explicit auto-pass condition."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The one external integration this feature touches -- the vendor panelist CLIs (codex, gemini) -- is identified with purpose and trust posture (Security Boundaries B1, design.md:168), its concrete invocation contract (call-site code, design.md:71-74 and 93-96), and exhaustively tabulated failure behaviour (Failure Taxonomy table, design.md:124-131, cross-checked by the STRIDE table in security-spec.md:29-37). The deliberate non-pinning of CLI version/behaviour is a stated, rationale-backed limitation (Non-goals, requirements.md:162; OQ-1, design.md:181), not a silent gap, satisfying the calibration rule that a defer-with-rationale is not a finding."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Components table (design.md:17-27) lists exactly the artifacts REQ-001..006 require (4 runner scripts, the policy doc, the threat-model doc, 2 test suites) plus one explicitly-untouched file (check-cross-model.sh, per BL-002) -- no extra component. The REQ-to-AC roll-up (design.md:193) and the AC-to-TEST coverage table (195-210) show 1:1 coverage of all 14 ACs with no addition or omission (the table's own stated purpose, design.md:191, is exactly to catch this class of defect after attempt 1's two BLOCKED rounds). requirements.md carries no '## Goals'/'## User Stories' headings (an issue-driven REQ/AC document instead); every REQ-001..006 is reachable through the roll-up table with no requirement left uncovered by any component."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces are present (B1 process-kill/DoS-fix, B2 truncated-verdict spoofing, B4 hook-trust bypass) and each names a concrete acceptance-test artifact rather than requiring live execution: B1 -> TEST-004 (security-spec.md:57-58), B2 -> TEST-005/TEST-006 (security-spec.md:59-60), B4 -> TEST-010 (security-spec.md:63). The Boundary-to-Test table in security-spec.md (55-63) and the AC/TEST coverage table in design.md (195-210) together give every high-risk claim a named, inspectable verification artifact."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no domain/ directory exists at the project root (verified: test -d domain -> absent). DOMAIN-CONFORMANCE applies only when an Approved domain/context-map.md and schema-valid domain/domain-contract.json are present."
+    }
+  ]
+}
