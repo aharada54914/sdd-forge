@@ -1,6 +1,6 @@
 # Design: epic-136-phase3
 
-Impl-Review-Status: Passed
+Impl-Review-Status: Pending
 
 Feature Type: 4 independent new-test-suite/CI-lane additions (Streams A,
 B, C, D), no in-spec dependency between streams (requirements.md Main
@@ -94,10 +94,12 @@ flowchart TB
 
   subgraph SD["Stream D (#126)"]
     TESTYML_LIVE[".github/workflows/test.yml (PROTECTED, live, single test job today)"]
-    TESTYML_HC["human-copy/.github/workflows/test.yml (staged: [deterministic] step prefixes + comment lane boundary + Streams A/B/C's new steps)"]
+    TESTYML_DRAFT["verification/T-003/staged-workflow-candidate.draft.yml (agent-authored bytes: [deterministic] step prefixes + comment lane boundary + all four streams' new steps)"]
+    TESTYML_HC["human-copy/.github/workflows/test.yml (DESTINATION only - the human places the draft here; MANIFEST.sha256 checksums this name)"]
     RC["required-checks (needs: byte-unchanged - BL-001 preserved)"]
     SELFCHECK["text-marker step-coverage self-check (tests/workflow-state-ci-integration.tests.sh technique)"]
-    TESTYML_HC -.->|human copies, SHA-256 verified| TESTYML_LIVE
+    TESTYML_DRAFT -.->|human copies to the staging destination| TESTYML_HC
+    TESTYML_HC -.->|human applies, SHA-256 verified| TESTYML_LIVE
     TESTYML_HC --> RC
     SELFCHECK -->|verifies| TESTYML_HC
   end
@@ -148,10 +150,32 @@ stream edits it, Stream C included; Stream C only READS the ADR's
 normative vocabulary text.
 
 For `.github/workflows/test.yml`: the agent stages ONE combined candidate
-under `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`
-containing ALL FOUR streams' changes — Stream A's, Stream B's, and Stream
-C's new CI steps AND Stream D's step-prefix lane marking — with ONE
-`MANIFEST.sha256` entry, resolving requirements.md's Global Constraints
+containing ALL FOUR streams' changes — Stream A's, Stream B's, Stream C's
+and Stream D's new CI steps AND Stream D's step-prefix lane marking — with
+ONE `MANIFEST.sha256` entry.
+
+That staging is a TWO-PATH mechanism, and both paths must be named or a
+maintainer looks in an empty directory:
+
+- **Destination** (what requirements.md names, what `MANIFEST.sha256`
+  checksums, what the human creates):
+  `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`.
+- **Agent-authored bytes** (what actually exists in the tree today):
+  `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`.
+
+The agent CANNOT write the destination path itself. `sdd-hook-guard`'s
+`_is_protected_gate_file` matches `PROTECTED_GATE_SUFFIXES` by
+`endswith()` on the normalized path, so ANY path ending in
+`.github/workflows/test.yml` is denied regardless of directory prefix —
+the `human-copy/` prefix earns no carve-out, and `sudo` cannot bypass it.
+The draft filename is therefore deliberately chosen not to end in the
+protected suffix. `specs/epic-136-phase3/human-copy/MANIFEST.sha256`
+records the draft's SHA-256 under the destination path name and states the
+human steps: copy the draft to the destination, run
+`shasum -a 256 -c MANIFEST.sha256` there, then apply it to the live file.
+Until step 3 lands, this is the designed fail-closed red state.
+
+This resolves requirements.md's Global Constraints
 concern about multiple streams touching the same protected file within one
 feature (Design Decisions below). Neither Stream B nor Stream C
 independently stages a `test.yml` edit; each one's CI step is folded into
@@ -542,10 +566,15 @@ job-count-preserving restructuring was chosen over a job-splitting one).
 ## Global Constraints
 
 - `.github/workflows/test.yml` — all four streams' edits are staged as ONE
-  shared human-copy batch under
-  `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` with ONE
+  shared human-copy batch destined for
+  `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`, with ONE
   `MANIFEST.sha256` entry (Protected-File Statement) — never two
   sequential human-copy rounds against the same file within this feature.
+  The agent-authored bytes live at
+  `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`;
+  the destination path above is created by the human, not the agent,
+  because the hook guard denies every agent write whose path ends in the
+  protected suffix (Protected-File Statement).
   Neither Stream B nor Stream C independently touches `test.yml`; each one's
   CI step rides this same shared batch, and so does Stream D's own
   self-check suite's step — so the batch carries FOUR new suite steps
@@ -613,6 +642,25 @@ maintainer applies the staged candidate as a pre-merge commit on the
 feature PR branch, the PR's own CI stays red on TEST-019/020's live-file
 self-check, the designed fail-closed state, matching `quality-loop-fixes`'
 own Deployment / CI Plan precedent, with no staged-candidate fallback.
+
+The human's three steps, in order (also recorded verbatim in
+`specs/epic-136-phase3/human-copy/MANIFEST.sha256`):
+
+1. copy
+   `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
+   to `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` — the
+   agent cannot create that destination itself (Protected-File Statement);
+2. from `specs/epic-136-phase3/human-copy/`, run
+   `shasum -a 256 -c MANIFEST.sha256` and confirm it reports `OK`;
+3. apply the verified candidate to the live `.github/workflows/test.yml`
+   and confirm branch protection still requires
+   `[test, cli-hook-enforcement]`.
+
+If a dependabot `actions/checkout` bump lands live before step 3, re-sync
+the draft and its recorded hash first: applying a stale candidate silently
+reverts the bump, which is how main went red once (PR #222).
+`tests/deterministic-lane-selfcheck.tests.sh` enforces the pin match as a
+hard FAIL (TEST-020).
 Stream D's step-prefix lane marking is part of the SAME staged candidate,
 so both land in one reviewed diff and one CI-turns-green moment, not two.
 The human reviewer applying the staged candidate MUST additionally verify

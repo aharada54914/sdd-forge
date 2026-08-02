@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+### Corrections
+
+- **v1.12.0 の Issue #125 エントリの訂正 (epic-136-phase3, Stream C)**:
+  v1.12.0 の #125 エントリは「`.github/workflows/test.yml` への CI ステップ
+  登録は requirements.md Non-goals により後続フィーチャーへ意図的に
+  deferred」と記載しているが、これは現在の設計と実物の両方に対して誤り。
+  requirements.md Non-goals が禁じているのは「Stream B と C が自前の
+  **2 個目の**別 human-copy バッチを作ること」であって、共有された 1 個の
+  バッチに乗ること自体ではない。ADR-0010 が `Status: Accepted`
+  (commit `67015a5`) になって Stream C の Blocker が解消され、その
+  スイートが本フィーチャーで着地した時点で、
+  `tests/workflow-scenarios/workflow-scenarios.tests.sh` の CI ステップは
+  T-003 の唯一の共有バッチに含まれるようになった
+  (`specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
+  で実測確認)。deferred のままにすると、着地済みのスイートが INV-006 の
+  no-wildcard ルールにより CI で一度も実行されない — REQ-005 が塞ぐために
+  存在する当のギャップを再生産することになる。v1.12.0 の記述自体は
+  リリース済みの履歴として書き換えない。
+
 ## v1.13.0 (2026-07-30)
 
 ### 追加

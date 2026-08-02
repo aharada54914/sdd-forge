@@ -62,10 +62,17 @@ task-authoring time). **No task below writes that file directly.** T-003
 (Stream D) stages the ONE shared human-copy candidate design.md's
 Protected-File Statement and Global Constraints specify — containing Stream
 D's `[deterministic]` step-prefix restructuring AND one new CI step per new
-suite from all four streams (AC-016/AC-020, REQ-004/REQ-005) — under
+suite from all four streams (AC-016/AC-020, REQ-004/REQ-005) — destined for
 `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` with ONE
-`MANIFEST.sha256` entry; a human maintainer applies it as a pre-merge commit
-on the feature PR branch. T-004 (Stream C) does **not** stage a SECOND
+`MANIFEST.sha256` entry. The agent authors the candidate's bytes at
+`specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
+and CANNOT create the destination path itself: `sdd-hook-guard` matches
+`PROTECTED_GATE_SUFFIXES` by `endswith()` on the normalized path, so any
+path ending in the protected workflow suffix is denied whatever directory
+precedes it — `human-copy/` is not a carve-out and `sudo` does not bypass
+it. The human maintainer copies the draft to the destination, verifies it
+with `shasum -a 256 -c MANIFEST.sha256`, then applies it as a pre-merge
+commit on the feature PR branch. T-004 (Stream C) does **not** stage a SECOND
 candidate — requirements.md Non-goals is explicit that "Streams B and C
 never author a SECOND, separate human-copy batch of their own" — but its
 suite's CI step DOES ride T-003's single shared batch, which is exactly what
@@ -639,8 +646,12 @@ Non-goals, design.md Global Constraints "ONE shared staged batch... never
 two sequential human-copy rounds")
 
 Planned Files:
-- `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` (new —
-  STAGED candidate only; the live file is never written. Contains: every
+- `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
+  (new — the agent-authored STAGED candidate; its destination after the
+  human copies it is
+  `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`, which the
+  agent cannot write itself under the hook guard's protected-suffix match.
+  The live file is never written by any agent. Contains: every
   existing step inside the current `test` job (`test.yml:14-372`) gains a
   `[deterministic]` name prefix; one documented, currently-empty YAML
   comment placeholder marking where a future LLM-invoking eval lane job
@@ -730,8 +741,10 @@ manifest; TDD Red before Green):
   dropped; run the self-check against it and record the FAIL (proving the
   check can catch a real omission).
 - Author the real staged candidate at
-  `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`: every
-  existing step gains its `[deterministic]` prefix; the documented,
+  `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
+  (a filename that deliberately does NOT end in the protected workflow
+  suffix, because the hook guard's `endswith()` match would otherwise deny
+  the write): every existing step gains its `[deterministic]` prefix; the documented,
   currently-empty eval-lane comment placeholder is added; one new CI step
   per new suite is appended — Stream A's and Stream B's (naming their exact
   suite paths from T-001/T-002), Stream C's

@@ -77,14 +77,31 @@ Because `.github/workflows/test.yml` is itself an enforcement-chain
 protected file
 (`plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`,
 design.md Protected-File Statement), ALL FOUR streams' edits are staged as
-ONE combined candidate under
+ONE combined candidate destined for
 `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` with ONE
 `MANIFEST.sha256`, following `epic-136-phase2-gates/tasks.md:16-25`'s
-established Human-Copy Procedure verbatim. The human maintainer applies
-the shared candidate as one pre-merge commit on the feature PR branch:
-until it lands, the PR's own CI stays red on TEST-019/020's live-file
-self-check — the designed fail-closed state, with no staged-candidate
-fallback.
+established Human-Copy Procedure.
+
+The staging is two-path, and both paths matter operationally:
+
+| Role | Path | Who creates it |
+|---|---|---|
+| agent-authored bytes | `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml` | the agent (T-003) |
+| staging destination | `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` | the human, by copying the draft |
+| checksum record | `specs/epic-136-phase3/human-copy/MANIFEST.sha256` | the agent (records the draft's hash under the destination name) |
+
+The agent cannot create the destination itself: `sdd-hook-guard`'s
+protected-suffix match is an `endswith()` on the normalized path, so any
+path ending in the protected workflow suffix is denied no matter what
+directory precedes it — `human-copy/` is not a carve-out. Only
+`MANIFEST.sha256` is committed under `human-copy/` today; running
+`find specs/epic-136-phase3/human-copy -type f` returns exactly that one
+file, and that is the designed state, not a missing artifact.
+
+The human maintainer then applies the shared candidate as one pre-merge
+commit on the feature PR branch: until it lands, the PR's own CI stays red
+on TEST-019/020's live-file self-check — the designed fail-closed state,
+with no staged-candidate fallback.
 
 `tests/run-all.ps1` receives NO new entry for ANY of the four new suites
 (design.md Global Constraints) — none of
