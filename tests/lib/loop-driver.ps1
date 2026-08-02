@@ -429,10 +429,14 @@ function Publish-LoopSpecRoundA {
     param([string]$RoundDir, [string]$Severity)
     $round = [int](Invoke-LoopJq @("-r", ".round") (Join-Path $RoundDir "precheck-result.json"))
     switch ($Severity) {
-        "none"     { $aVerdict = "PASS";       $aResult = "PASS"; $aFails = 0; $aPasses = 6; $checkSeverity = "Minor" }
-        "Critical" { $aVerdict = "BLOCKED";    $aResult = "FAIL"; $aFails = 1; $aPasses = 5; $checkSeverity = "Critical" }
-        "Major"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5; $checkSeverity = "Major" }
-        "Minor"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 5; $checkSeverity = "Minor" }
+        # Counts must equal this publisher's own $ids length (7 since
+        # DOMAIN-CONFORMANCE joined the spec reviewer-a set): the precheck
+        # recomputes them from reviewer-a.json and rejects the round's
+        # contract when integrated-summary.json disagrees.
+        "none"     { $aVerdict = "PASS";       $aResult = "PASS"; $aFails = 0; $aPasses = 7; $checkSeverity = "Minor" }
+        "Critical" { $aVerdict = "BLOCKED";    $aResult = "FAIL"; $aFails = 1; $aPasses = 6; $checkSeverity = "Critical" }
+        "Major"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 6; $checkSeverity = "Major" }
+        "Minor"    { $aVerdict = "NEEDS_WORK"; $aResult = "FAIL"; $aFails = 1; $aPasses = 6; $checkSeverity = "Minor" }
         default { Write-Error "Publish-LoopSpecRoundA: unknown severity: $Severity"; return $false }
     }
     $warning = 0
