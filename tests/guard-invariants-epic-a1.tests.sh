@@ -250,7 +250,7 @@ else
   fail "TEST-021: staged JSON epic_a1_targets equals the manifest exactly (ordered)"
 fi
 
-# protected_gate_suffixes must equal LIVE protected_gate_suffixes + manifest.
+# protected_gate_suffixes, asserted across the human-apply boundary.
 "$PY" - "$LIVE_JSON" >"$WORK/live_protected.txt" <<'PYEOF'
 import json, sys
 data = json.load(open(sys.argv[1], encoding="utf-8"))
@@ -262,11 +262,29 @@ import json, sys
 data = json.load(open(sys.argv[1], encoding="utf-8"))
 sys.stdout.write("".join(v + "\n" for v in data["protected_gate_suffixes"]))
 PYEOF
-if diff -u "$WORK/expect_protected.txt" "$WORK/staged_protected.txt" >"$WORK/prot.diff" 2>&1; then
-  pass "TEST-021: staged protected_gate_suffixes is the live list plus the 28 manifest paths, in order"
+# Two allowed states, mirroring TEST-022: BEFORE the human apply the staged
+# list is the live list plus the 28 manifest paths; AFTER it, the live list
+# IS the staged list. Anything else fails closed. A one-sided "live + 28"
+# assertion is correct only until the batch is legitimately applied.
+if diff -q "$WORK/expect_protected.txt" "$WORK/staged_protected.txt" >/dev/null 2>&1; then
+  pass "TEST-021: staged protected_gate_suffixes is the live list plus the 28 manifest paths (pre-apply)"
+elif diff -q "$WORK/live_protected.txt" "$WORK/staged_protected.txt" >/dev/null 2>&1; then
+  pass "TEST-021: staged protected_gate_suffixes equals the live list (human apply landed)"
 else
-  fail "TEST-021: staged protected_gate_suffixes is the live list plus the 28 manifest paths, in order"
+  fail "TEST-021: staged protected_gate_suffixes is neither live-plus-manifest nor live itself"
 fi
+
+# Apply-state INDEPENDENT, and the stronger of the two: the staged list's
+# last 28 entries are exactly the manifest in order, and each manifest path
+# occurs exactly once in the whole list.
+tail -n 28 "$WORK/staged_protected.txt" >"$WORK/staged_tail.txt"
+if diff -q "$WORK/paths.txt" "$WORK/staged_tail.txt" >/dev/null 2>&1; then
+  pass "TEST-021: the staged protected_gate_suffixes tail is exactly the 28 manifest paths, in manifest order"
+else
+  fail "TEST-021: the staged protected_gate_suffixes tail is exactly the 28 manifest paths, in manifest order"
+fi
+MANIFEST_HITS=$(grep -c -x -F -f "$WORK/paths.txt" "$WORK/staged_protected.txt" || :)
+assert_eq "$MANIFEST_HITS" "28" "TEST-021: each manifest path occurs exactly once in staged protected_gate_suffixes"
 
 SP_TOTAL=$(wc -l <"$WORK/staged_protected.txt" | tr -d ' ')
 SP_UNIQUE=$(sort "$WORK/staged_protected.txt" | uniq | wc -l | tr -d ' ')
@@ -322,9 +340,21 @@ live = load("live_gen", sys.argv[1]).REQUIRED_TOP_LEVEL
 staged = load("staged_gen", sys.argv[2]).REQUIRED_TOP_LEVEL
 sys.stdout.write(",".join(sorted(staged - live)) + "\n")
 sys.stdout.write(",".join(sorted(live - staged)) + "\n")
+sys.stdout.write(("yes" if "epic_a1_targets" in staged else "no") + "\n")
 PYEOF
-assert_eq "$(sed -n 1p "$WORK/topkeys.txt")" "epic_a1_targets" \
-  "TEST-021: staged REQUIRED_TOP_LEVEL adds exactly epic_a1_targets"
+# Apply-state independent: the staged generator always requires the new key.
+assert_eq "$(sed -n 3p "$WORK/topkeys.txt")" "yes" \
+  "TEST-021: staged REQUIRED_TOP_LEVEL requires epic_a1_targets"
+# Two allowed states: pre-apply the staged generator adds the key relative to
+# live; post-apply live already has it, so the delta is legitimately empty.
+TOP_ADDED=$(sed -n 1p "$WORK/topkeys.txt")
+if [ "$TOP_ADDED" = "epic_a1_targets" ]; then
+  pass "TEST-021: staged REQUIRED_TOP_LEVEL adds exactly epic_a1_targets (pre-apply)"
+elif [ "$TOP_ADDED" = "" ]; then
+  pass "TEST-021: staged REQUIRED_TOP_LEVEL matches live, which already requires it (human apply landed)"
+else
+  fail "TEST-021: staged REQUIRED_TOP_LEVEL adds an unexpected key set [$TOP_ADDED]"
+fi
 assert_eq "$(sed -n 2p "$WORK/topkeys.txt")" "" \
   "TEST-021: staged REQUIRED_TOP_LEVEL removes no existing key"
 

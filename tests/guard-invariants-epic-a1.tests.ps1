@@ -210,7 +210,25 @@ $stagedData = Get-Content -Raw -LiteralPath $StagedJson | ConvertFrom-Json
 $liveData = Get-Content -Raw -LiteralPath $LiveJson | ConvertFrom-Json
 
 Assert-SeqEq @($stagedData.epic_a1_targets) $paths 'TEST-021: staged JSON epic_a1_targets equals the manifest exactly (ordered)'
-Assert-SeqEq @($stagedData.protected_gate_suffixes) (@($liveData.protected_gate_suffixes) + $paths) 'TEST-021: staged protected_gate_suffixes is the live list plus the 28 manifest paths, in order'
+# Two allowed states, mirroring TEST-022: BEFORE the human apply the staged
+# list is the live list plus the 28 manifest paths; AFTER it, the live list
+# IS the staged list. Anything else fails closed. A one-sided "live + 28"
+# assertion is correct only until the batch is legitimately applied.
+$stagedProtected = @($stagedData.protected_gate_suffixes)
+$liveProtected = @($liveData.protected_gate_suffixes)
+$stagedJoined = $stagedProtected -join "`n"
+if ($stagedJoined -eq (($liveProtected + $paths) -join "`n")) {
+    Test-Pass 'TEST-021: staged protected_gate_suffixes is the live list plus the 28 manifest paths (pre-apply)'
+} elseif ($stagedJoined -eq ($liveProtected -join "`n")) {
+    Test-Pass 'TEST-021: staged protected_gate_suffixes equals the live list (human apply landed)'
+} else {
+    Test-Fail 'TEST-021: staged protected_gate_suffixes is neither live-plus-manifest nor live itself' 'sequences differ'
+}
+
+# Apply-state INDEPENDENT, and the stronger of the two.
+Assert-SeqEq @($stagedProtected[($stagedProtected.Count - 28)..($stagedProtected.Count - 1)]) $paths 'TEST-021: the staged protected_gate_suffixes tail is exactly the 28 manifest paths, in manifest order'
+Assert-Eq (@($stagedProtected | Where-Object { $paths -contains $_ }).Count) 28 'TEST-021: each manifest path occurs exactly once in staged protected_gate_suffixes'
+
 Assert-Eq (@($stagedData.protected_gate_suffixes | Sort-Object -Unique).Count) (@($stagedData.protected_gate_suffixes).Count) 'TEST-021: staged protected_gate_suffixes has no duplicates'
 
 $stagedEpicConst = Get-PyTupleConstant $StagedGen 'EPIC_A1_TARGETS'
@@ -246,7 +264,18 @@ Assert-True ($null -ne $liveTop -and $null -ne $stagedTop) 'TEST-021: REQUIRED_T
 if ($null -ne $liveTop -and $null -ne $stagedTop) {
     $added = @($stagedTop | Where-Object { $liveTop -notcontains $_ })
     $removed = @($liveTop | Where-Object { $stagedTop -notcontains $_ })
-    Assert-SeqEq $added @('epic_a1_targets') 'TEST-021: staged REQUIRED_TOP_LEVEL adds exactly epic_a1_targets'
+    # Apply-state independent: the staged generator always requires the key.
+    Assert-True ($stagedTop -contains 'epic_a1_targets') 'TEST-021: staged REQUIRED_TOP_LEVEL requires epic_a1_targets'
+    # Two allowed states: pre-apply the staged generator adds the key relative
+    # to live; post-apply live already has it, so the delta is legitimately
+    # empty.
+    if (($added.Count -eq 1) -and ($added[0] -eq 'epic_a1_targets')) {
+        Test-Pass 'TEST-021: staged REQUIRED_TOP_LEVEL adds exactly epic_a1_targets (pre-apply)'
+    } elseif ($added.Count -eq 0) {
+        Test-Pass 'TEST-021: staged REQUIRED_TOP_LEVEL matches live, which already requires it (human apply landed)'
+    } else {
+        Test-Fail 'TEST-021: staged REQUIRED_TOP_LEVEL adds an unexpected key set' ($added -join ',')
+    }
     Assert-Eq $removed.Count 0 'TEST-021: staged REQUIRED_TOP_LEVEL removes no existing key'
 
     $jsonKeys = @($stagedData.PSObject.Properties.Name | Sort-Object)
