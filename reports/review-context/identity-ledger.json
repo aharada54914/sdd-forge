@@ -4068,6 +4068,96 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase4-mcp-0452",
       "previous_record_sha256": "ae09c9f6a7da6ab51ee427625dd525bf384f92532cec039467fcde4f60c8ebfe",
       "record_sha256": "1482f9f42050582ca8e1ad0fe15dc26cc49d3923fb31f919d5e5c7d502375d20"
+    },
+    {
+      "sequence": 453,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-epic-192-a4-facet-manifest-spec-spec-reviewer-a-seq0320",
+      "host_session_id": "SESS-spec-spec-reviewer-a-epic-192-a4-facet-manifest-0320",
+      "previous_record_sha256": "1482f9f42050582ca8e1ad0fe15dc26cc49d3923fb31f919d5e5c7d502375d20",
+      "record_sha256": "8191e9200716d8c7554c401ba9597c9291989e177390e34dcbb45487bd2c163f"
+    },
+    {
+      "sequence": 454,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-epic-192-a4-facet-manifest-spec-spec-reviewer-b-seq0321",
+      "host_session_id": "SESS-spec-spec-reviewer-b-epic-192-a4-facet-manifest-0321",
+      "previous_record_sha256": "8191e9200716d8c7554c401ba9597c9291989e177390e34dcbb45487bd2c163f",
+      "record_sha256": "2b3f94088721473928f39f52735f27cf1a262a545428e6fe680169e45a3602be"
+    },
+    {
+      "sequence": 455,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic-192-a4-facet-manifest-impl-impl-reviewer-a-seq0322",
+      "host_session_id": "SESS-impl-impl-reviewer-a-epic-192-a4-facet-manifest-0322",
+      "previous_record_sha256": "2b3f94088721473928f39f52735f27cf1a262a545428e6fe680169e45a3602be",
+      "record_sha256": "7a5751f6974a5dada88d38589276f3888bc8bb5ddba6078448973a68eab4e89a"
+    },
+    {
+      "sequence": 456,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic-192-a4-facet-manifest-impl-impl-reviewer-b-seq0323",
+      "host_session_id": "SESS-impl-impl-reviewer-b-epic-192-a4-facet-manifest-0323",
+      "previous_record_sha256": "7a5751f6974a5dada88d38589276f3888bc8bb5ddba6078448973a68eab4e89a",
+      "record_sha256": "45fdf88cfcbd923ada913b66baeefb791b2e19eec68472fd9d9b1cb0ff82f8ea"
+    },
+    {
+      "sequence": 457,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-a-seq0324",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-192-a4-facet-manifest-0324",
+      "previous_record_sha256": "45fdf88cfcbd923ada913b66baeefb791b2e19eec68472fd9d9b1cb0ff82f8ea",
+      "record_sha256": "01c22d72b53acb57c4759fbabe5414c8b0c7eb390403d8258feaa1c11cc22426"
+    },
+    {
+      "sequence": 458,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-b-seq0325",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-192-a4-facet-manifest-0325",
+      "previous_record_sha256": "01c22d72b53acb57c4759fbabe5414c8b0c7eb390403d8258feaa1c11cc22426",
+      "record_sha256": "5f946a33b35d958a2f9e1f3a41ab7a44e47d9ea2191a64152c0c02b396b9d8ac"
+    },
+    {
+      "sequence": 459,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-a-seq0326",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-192-a4-facet-manifest-0326",
+      "previous_record_sha256": "5f946a33b35d958a2f9e1f3a41ab7a44e47d9ea2191a64152c0c02b396b9d8ac",
+      "record_sha256": "5e74d2f9a4dbe12a516fbcfcf4958287a6ba21370f5b6f4f5fed33411b39d565"
+    },
+    {
+      "sequence": 460,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-b-seq0327",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-192-a4-facet-manifest-0327",
+      "previous_record_sha256": "5e74d2f9a4dbe12a516fbcfcf4958287a6ba21370f5b6f4f5fed33411b39d565",
+      "record_sha256": "414d896d44fac9ce9080cb1f7e66ea7800af817737a5e7d27885abfc701c3995"
+    },
+    {
+      "sequence": 461,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-a-seq0328",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-192-a4-facet-manifest-0328",
+      "previous_record_sha256": "414d896d44fac9ce9080cb1f7e66ea7800af817737a5e7d27885abfc701c3995",
+      "record_sha256": "2e11f6b3d8ba77700d05f5a1125cf058b31336a9986464d40421be890d7226c2"
+    },
+    {
+      "sequence": 462,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-b-seq0329",
+      "host_session_id": "SESS-task-task-reviewer-b-epic-192-a4-facet-manifest-0329",
+      "previous_record_sha256": "2e11f6b3d8ba77700d05f5a1125cf058b31336a9986464d40421be890d7226c2",
+      "record_sha256": "14fb075b3dd7456b5ef287f9ef53cb32acdb02ff79a244b675d9b409beb91446"
     }
   ]
 }

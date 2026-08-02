@@ -60,6 +60,8 @@ tests=(
   tests/release-loop-gate.tests.sh
   tests/run-panelist-effort.tests.sh
   tests/model-freshness-check.tests.sh
+  tests/facet-manifest-schema.tests.sh
+  tests/facet-manifest-semantics.tests.sh
 )
 
 for test_file in "${tests[@]}"; do
