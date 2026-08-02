@@ -637,13 +637,17 @@ stream's CI step into this task's one shared batch: Streams A's, B's and C's
 product suites plus this task's own self-check suite), REQ-006 (share —
 AC-022/AC-023 legs, this task's own #126 files)
 
-Depends On: T-001, T-002 (functional — this task's staged candidate must
-contain a working CI step naming each of T-001's and T-002's own suite
-basenames, `tests/guard-dispatch-fallback.tests.sh` and
-`tests/guard-negative-corpus.tests.sh`; sequenced after both so the batch is
-authored against their FINAL basenames, not a placeholder — requirements.md
-Non-goals, design.md Global Constraints "ONE shared staged batch... never
-two sequential human-copy rounds")
+Depends On: T-001, T-002, T-004 (functional — this task's staged candidate
+must contain a working CI step naming each of the other three tasks' own
+suite paths: `tests/guard-dispatch-fallback.tests.sh` (T-001),
+`tests/guard-negative-corpus.tests.sh` (T-002) and
+`tests/workflow-scenarios/workflow-scenarios.tests.sh` (T-004); sequenced
+after all three so the batch is authored against their FINAL paths, not
+placeholders — requirements.md Non-goals, design.md Global Constraints "ONE
+shared staged batch... never two sequential human-copy rounds". T-004 earns
+the same dependency as T-001/T-002 for the same reason and on the same
+evidence: its suite path appears in the staged candidate. Adding it
+introduces no cycle — T-004's own Blockers are `None`.)
 
 Planned Files:
 - `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
@@ -787,9 +791,13 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 - [x] TEST-018 confirms `self-improvement.yml`'s and
   `model-freshness-check.yml`'s isolation from `test.yml`/`required-checks`
   is unchanged (AC-018).
-- [x] TEST-020 confirms the staged candidate contains a CI step for each new
-  suite from T-001 and T-002 (AC-020); the LIVE file's own self-check for
-  each new suite's basename is red until the human-copy commit lands (no
+- [x] TEST-020 confirms the staged candidate contains a CI step for EVERY new
+  suite in this feature (AC-020) — T-001's `guard-dispatch-fallback`, T-002's
+  `guard-negative-corpus`, T-004's `workflow-scenarios`, and this task's own
+  `deterministic-lane-selfcheck`. AC-020's frozen text names Streams A, B and
+  C's three product suites as the required minimum; the staged batch is a
+  superset of that minimum, never smaller. The LIVE file's own self-check for
+  each new suite's path is red until the human-copy commit lands (no
   staged-candidate fallback).
 - [x] Shared legs: `CHANGELOG.md` gains this task's OWN entry citing #126
   (AC-022); applicable doc surfaces verified, expected answer "none"
@@ -828,16 +836,18 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 
 ### Blockers
 
-T-001, T-002
+T-001, T-002, T-004
 
 (Same-feature task-dependency blockers only, mirroring this task's Depends
 On line so `task-review-precheck.sh`'s dependency-graph.json records the
-T-003->T-001 and T-003->T-002 edges — the `### Blockers` T-NNN-list
-encoding epic-136-phase2-gates used for its own in-feature dependencies. No
-unresolved EXTERNAL blocker exists; requirements.md Main Workflows item 4's
-"Blockers: none — independent of Streams A-C, though it shares `test.yml`
-as a file surface with Streams A/B" speaks to external/stream-level
-blockers and remains true.)
+T-003->T-001, T-003->T-002 and T-003->T-004 edges — the `### Blockers`
+T-NNN-list encoding epic-136-phase2-gates used for its own in-feature
+dependencies. No unresolved EXTERNAL blocker exists; requirements.md Main
+Workflows item 4's "Blockers: none — independent of Streams A-C, though it
+shares `test.yml` as a file surface with all three of them" speaks to
+external/stream-level blockers and remains true. Note that requirements.md
+says "all three of them", i.e. Streams A, B AND C — Stream C is inside that
+set, which is why T-004 is a same-feature blocker here.)
 
 ---
 
@@ -884,9 +894,12 @@ Security-Sensitive: true
 
 Cross-Model: not enabled
 
-Requirements: REQ-003, REQ-005 (share — AC-019 leg only; this task's CI-step
-registration under AC-020/REQ-005 is explicitly deferred, see Out of Scope),
-REQ-006 (share — AC-021/AC-022/AC-023 legs, this task's own #125 files)
+Requirements: REQ-003, REQ-005 (share — AC-019 leg, plus the AC-020 leg this
+task supplies to T-003's single shared batch: this task owns its suite path,
+T-003 owns authoring the CI step that names it. What Out of Scope forbids is
+authoring a SECOND candidate of this task's own, not participation in the one
+shared batch), REQ-006 (share — AC-021/AC-022/AC-023 legs, this task's own
+#125 files)
 
 Depends On: none (functionally independent of T-001/T-002/T-003 — this
 task's own scenario schema and fixtures do not consume any of their outputs;
