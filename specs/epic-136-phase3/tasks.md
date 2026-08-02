@@ -60,19 +60,24 @@ Exactly ONE file any task below touches is genuinely R-10 protected:
 re-verified byte-identical to design.md's Protected-File Statement at
 task-authoring time). **No task below writes that file directly.** T-003
 (Stream D) stages the ONE shared human-copy candidate design.md's
-Protected-File Statement and Global Constraints specify — containing BOTH
-Stream D's `[deterministic]` step-prefix restructuring AND Streams A's/B's
-new CI steps (AC-016/AC-020, REQ-004/REQ-005) — under
+Protected-File Statement and Global Constraints specify — containing Stream
+D's `[deterministic]` step-prefix restructuring AND one new CI step per new
+suite from all four streams (AC-016/AC-020, REQ-004/REQ-005) — under
 `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` with ONE
 `MANIFEST.sha256` entry; a human maintainer applies it as a pre-merge commit
-on the feature PR branch. T-004 (Stream C) does **not** stage any
-`.github/workflows/test.yml` candidate in this feature at all — requirements.md
-Non-goals is explicit that "Streams B and C never author a SECOND, separate
-human-copy batch of their own," and acceptance-tests.md's own TEST-020 target
-text scopes the ONE shared batch's CI-step content to "Streams A and B" only
-— T-004's CI-step registration is a recorded, deliberate gap deferred to a
-later feature's batch (requirements.md Non-goals, Main Workflows item 3),
-satisfied in THIS feature only via `tests/run-all.sh` registration (AC-019).
+on the feature PR branch. T-004 (Stream C) does **not** stage a SECOND
+candidate — requirements.md Non-goals is explicit that "Streams B and C
+never author a SECOND, separate human-copy batch of their own" — but its
+suite's CI step DOES ride T-003's single shared batch, which is exactly what
+that Non-goal requires: one batch, not one batch per stream. ADR-0010 reached
+`Status: Accepted` (commit `67015a5`) and Stream C's suite landed in this
+feature, so acceptance-tests.md's TEST-019/TEST-020 target text now names
+`tests/workflow-scenarios/workflow-scenarios.tests.sh` inside this batch's
+scope; deferring it would ship a landed suite that INV-006's no-wildcard
+rule then silently never runs. The batch as staged carries FOUR new suite
+steps (T-001's, T-002's, T-003's own self-check, and T-004's), verified
+against
+`specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`.
 
 Every other deliverable across all 4 tasks — `tests/guard-dispatch-fallback.tests.sh`,
 `tests/guard-negative-corpus.tests.sh`, `tests/workflow-scenarios/` and its
@@ -100,16 +105,22 @@ directly (design.md Protected-File Statement).
   plan; only the independent quality gate may tick a box after saved
   evidence exists. No box below is pre-ticked.
 - **`.github/workflows/test.yml`** — the ONE shared human-copy batch
-  (Streams A + B + D) is staged ONLY by T-003, carried forward verbatim from
-  requirements.md Non-goals / design.md Global Constraints: "never two
+  (Streams A + B + C + D) is staged ONLY by T-003, carried forward verbatim
+  from requirements.md Non-goals / design.md Global Constraints: "never two
   sequential human-copy rounds against the same file within this feature."
-  T-001 and T-002 never touch this file, staged or live; T-004 never touches
-  it either (Protected Files, above).
-- **`tests/run-all.sh`** (unprotected, direct edit): T-001, T-002, and T-004
-  each append exactly one line (their own new suite's basename); T-003 adds
-  no line (it registers no new suite, it restructures an existing CI job's
-  step names). `tests/run-all.ps1` is not edited by any of the 4 tasks — none
-  of the 4 new suites is a native `.ps1` file (design.md Global Constraints;
+  T-001, T-002 and T-004 never touch this file, staged or live (Protected
+  Files, above); their CI steps reach it only through T-003's single batch.
+- **`tests/run-all.sh`** (unprotected, direct edit): all four tasks each
+  append exactly one line for their own new suite — T-001's
+  `tests/guard-dispatch-fallback.tests.sh`, T-002's
+  `tests/guard-negative-corpus.tests.sh`, T-003's own
+  `tests/deterministic-lane-selfcheck.tests.sh` (the self-check harness that
+  proves the restructuring dropped no step), and T-004's
+  `tests/workflow-scenarios/workflow-scenarios.tests.sh`. Four lines in
+  total, at `run-all.sh` lines 37, 47, 48 and 49. T-003 restructures an
+  existing CI job's step names AND ships that one new suite; the two are not
+  mutually exclusive. `tests/run-all.ps1` is not edited by any of the 4
+  tasks — none of the 4 new suites is a native `.ps1` file (design.md Global Constraints;
   each new `.sh` suite drives other runtimes via subprocess/env-var
   indirection where needed, matching `guard-cwd-bypass.tests.sh`'s own
   `.sh`-only shape).
@@ -572,7 +583,7 @@ independent.")
 
 ---
 
-## T-003 Mark the deterministic CI lane and stage the shared test.yml batch (Streams A/B/D)
+## T-003 Mark the deterministic CI lane and stage the shared test.yml batch (Streams A/B/C/D)
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/126
 
@@ -614,9 +625,10 @@ Security-Sensitive: true
 
 Cross-Model: not enabled
 
-Requirements: REQ-004, REQ-005 (share — AC-019/AC-020, staging Streams A's
-and B's CI steps into this task's own batch), REQ-006 (share — AC-022/AC-023
-legs, this task's own #126 files)
+Requirements: REQ-004, REQ-005 (share — AC-019/AC-020, staging every
+stream's CI step into this task's one shared batch: Streams A's, B's and C's
+product suites plus this task's own self-check suite), REQ-006 (share —
+AC-022/AC-023 legs, this task's own #126 files)
 
 Depends On: T-001, T-002 (functional — this task's staged candidate must
 contain a working CI step naming each of T-001's and T-002's own suite
@@ -671,8 +683,10 @@ single `test` job — every existing step gains a `[deterministic]` name
 prefix plus a documented, currently-empty comment boundary for a future
 LLM-invoking eval lane — WITHOUT splitting the job and WITHOUT touching
 `required-checks`' `needs:` list (BL-001 preserved by construction), and
-stage this restructuring TOGETHER with Streams A's and B's new CI steps as
-the ONE shared human-copy batch this feature produces.
+stage this restructuring TOGETHER with every stream's new CI step — Streams
+A's, B's and C's product suites plus this task's own
+`tests/deterministic-lane-selfcheck.tests.sh` self-check harness, four steps
+in all — as the ONE shared human-copy batch this feature produces.
 
 ### Must Read
 
@@ -718,10 +732,14 @@ manifest; TDD Red before Green):
 - Author the real staged candidate at
   `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`: every
   existing step gains its `[deterministic]` prefix; the documented,
-  currently-empty eval-lane comment placeholder is added; Stream A's and
-  Stream B's new CI steps (naming their exact suite basenames from T-001/
-  T-002) are appended; job count, job names, and `required-checks: needs:`
-  stay byte-unchanged.
+  currently-empty eval-lane comment placeholder is added; one new CI step
+  per new suite is appended — Stream A's and Stream B's (naming their exact
+  suite paths from T-001/T-002), Stream C's
+  `tests/workflow-scenarios/workflow-scenarios.tests.sh` (T-004), and this
+  task's own `tests/deterministic-lane-selfcheck.tests.sh`, four in all; job
+  count, job names, and `required-checks: needs:` stay byte-unchanged. The
+  candidate also preserves the live file's current `actions/checkout` pin,
+  since the human applies it wholesale.
 - Stage GREEN: re-run the self-check against the real staged candidate and
   record every pre-change step name present (with its `[deterministic]`
   prefix) AND `required-checks: needs:` membership unchanged.
@@ -786,8 +804,11 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 - Staging or authoring a SECOND, separate `.github/workflows/test.yml`
   candidate for `tests/workflow-scenarios/` (T-004) — explicitly prohibited
   by requirements.md Non-goals ("Streams B and C never author a SECOND,
-  separate human-copy batch of their own"); T-004's CI-step registration is
-  deferred to a later feature entirely, never folded into this task's batch.
+  separate human-copy batch of their own"). T-004's CI step belongs in THIS
+  task's single batch, not in a candidate of its own and not deferred to a
+  later feature: one batch total is what the Non-goal requires, and INV-006's
+  no-wildcard rule means a landed suite with no explicit step silently never
+  runs.
 - Any edit to `tests/guard-dispatch-fallback.tests.sh` (T-001) or
   `tests/guard-negative-corpus.tests.sh` (T-002) beyond reading their final
   basenames for the staged CI-step text.
@@ -1066,15 +1087,18 @@ Commit B (documentation — CHANGELOG + doc-surface verification):
 - A real network call or real `gh issue view` invocation against a real
   issue for scenario 5 — synthetic, mktemp-scoped fixture only
   (security-spec.md Boundary B2/B4).
-- Staging or authoring ANY `.github/workflows/test.yml` candidate, staged or
-  live — requirements.md Non-goals explicitly prohibits Stream C from
-  authoring a SECOND, separate human-copy batch; this task's CI-step
-  registration under REQ-005/AC-020 is deferred to a later feature's batch,
-  decided at that later feature's own task-decomposition time. This is a
-  recorded, deliberate, spec-mandated gap, not an oversight: until that
-  later batch lands and is human-applied, `workflow-scenarios.tests.sh`
+- Staging or authoring ANY `.github/workflows/test.yml` candidate of this
+  task's own, staged or live — requirements.md Non-goals explicitly prohibits
+  Stream C from authoring a SECOND, separate human-copy batch. This task's
+  CI-step registration under REQ-005/AC-019/AC-020 is satisfied by T-003's
+  single shared batch, which carries a step for
+  `tests/workflow-scenarios/workflow-scenarios.tests.sh` alongside the other
+  three new suites — T-003 owns authoring it, this task owns supplying the
+  exact suite path. Deferring it instead would leave a landed suite that
+  INV-006's no-wildcard rule silently never runs, which is the very gap
+  REQ-005 exists to close. Until the human applies that one batch, the suite
   runs via `tests/run-all.sh`/local invocation only, not in the 3-OS CI
-  matrix.
+  matrix — the designed fail-closed state, shared with all four streams.
 - Any edit to `.github/workflows/test.yml`'s deterministic-lane restructuring
   (T-003's own scope) or to T-001's/T-002's suites.
 
