@@ -323,12 +323,13 @@ conclusively (Open Questions).
   assumed available by any Stream here.
 - Any `.github/workflows/test.yml` human-copy staging beyond the ONE shared
   staged batch this feature produces. That single batch carries: one CI step
-  per new suite from Stream A AND from Stream B (AC-019/AC-020 — INV-006's
+  per new suite from Streams A, B, AND C (AC-019/AC-020 — INV-006's
   no-wildcard rule means any suite without its own explicit step silently
-  never runs in CI), plus Stream D's step-prefix restructuring. "No
-  independent re-staging" means Streams B and C never author a SECOND,
-  separate human-copy batch of their own — it does NOT mean a Stream B
-  suite ships without its own explicit CI step. Stream C registers its
+  never runs in CI), plus Stream D's step-prefix restructuring — four
+  streams' edits in one candidate. "No independent re-staging" means
+  Streams B and C never author a SECOND, separate human-copy batch of their
+  own — it does NOT mean a Stream B or Stream C suite ships without its own
+  explicit CI step. Stream C registers its
   runner via the same explicit-step rule, inside this ONE shared batch:
   ADR-0010's `Status: Accepted` promotion unblocked Stream C and it landed
   in this feature, so its step is no longer deferred to "Stream C's own
@@ -503,10 +504,10 @@ record) — and a saved quality-gate report before it may be marked Done.
   -u`; every new `.ps1` file is pure-ASCII with no BOM, LF-only line
   endings, and ends with an explicit `exit N` — reviewed against
   `tests/guard-ps1-ascii.tests.sh`'s existing constraint. (REQ-006)
-- AC-022: Streams A, B, and D each carry their own `CHANGELOG.md` `##
-  Unreleased` entry citing their own issue number (#123, #124, #126 — three
-  independent entries); Stream C's entry (#125) is PRESENT, written only
-  after ADR-0010's Accepted promotion unblocked it (OQ-2) — never
+- AC-022: all four streams each carry their own `CHANGELOG.md` `##
+  Unreleased` entry citing their own issue number (#123, #124, #125, #126 —
+  four independent entries). Stream C's entry (#125) is PRESENT, written
+  only after ADR-0010's Accepted promotion unblocked it (OQ-2) — never
   speculatively against a still-`Proposed` ADR. No version-literal edit
   exists anywhere outside
   `scripts/bump-version.sh`. (REQ-006)
@@ -579,8 +580,8 @@ record) — and a saved quality-gate report before it may be marked Done.
   collision with a protected entry). The agent NEVER writes
   `.github/workflows/test.yml` directly for any stream — it stages
   candidates under `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`
-  with a `MANIFEST.sha256` (the ONE shared staged batch: Stream A's and
-  Stream B's new CI steps plus Stream D's step-prefix lane marking —
+  with a `MANIFEST.sha256` (the ONE shared staged batch: Streams A's, B's,
+  and C's new CI steps plus Stream D's step-prefix lane marking —
   design.md Global Constraints resolves only the internal ordering of
   these edits WITHIN that single batch against the SAME protected file).
 - Human maintainer: approves this spec and (Phase 2) tasks; validates and
@@ -635,12 +636,12 @@ record) — and a saved quality-gate report before it may be marked Done.
    job names, and `required-checks`' `needs:` list stay byte-unchanged
    (AC-017 CONFIRMS, never updates, the `needs:` membership); stage via
    human-copy in the ONE shared staged batch this feature produces
-   (Non-goals), together with Stream A's and Stream B's CI-step
+   (Non-goals), together with Streams A's, B's, and C's CI-step
    additions — design.md decides only the internal ordering of edits
    WITHIN that single reviewed diff, not the batch count; CREATE the
    `CHANGELOG.md` entry citing #126. Blockers: none — independent of
-   Streams A-C, though it shares `test.yml` as a file surface with
-   Streams A/B (Global Constraints, design.md).
+   Streams A-C, though it shares `test.yml` as a file surface with all
+   three of them (Global Constraints, design.md).
 5. Verification: each stream lands with `validate-repository`
    and the skill-reference count sync green; the quality gate evaluates
    each stream's task(s) with the standard evidence chain. Streams A, B,
@@ -695,7 +696,7 @@ record) — and a saved quality-gate report before it may be marked Done.
 |---|---|---|---|
 | B1: new-suite fixtures vs. the LIVE, protected guard binaries (`sdd-hook-guard.{py,js,ps1,sh}`) | Streams A/B exercise the live protected guards READ-ONLY (invoke, never edit) via env-var/PATH indirection, the same discipline `guard-cwd-bypass.tests.sh` already establishes; no new suite writes to a protected path | internal repository content only | none identified |
 | B2: fixture GitHub issue body (Stream C, scenario 5) vs. the reading agent session | the fixture's adversarial instruction-shaped text must be treated as inert DATA by the named `plugins/sdd-bootstrap` entry point, never executed as an instruction — this is the exact inbound-injection threat model AC-014 operationalizes | internal fixture content only (no real external issue body is fetched) | none identified |
-| B3: `.github/workflows/test.yml` vs. agent-direct edits | the ONE shared staged batch (Streams A's/B's new CI steps and Stream D's step-prefix lane marking) is staged under `specs/epic-136-phase3/human-copy/` with `MANIFEST.sha256`; only a human applies it | internal source only | none identified |
+| B3: `.github/workflows/test.yml` vs. agent-direct edits | the ONE shared staged batch (Streams A's/B's/C's new CI steps and Stream D's step-prefix lane marking) is staged under `specs/epic-136-phase3/human-copy/` with `MANIFEST.sha256`; only a human applies it | internal source only | none identified |
 | B4: fixture world vs. real repository/network state | every new fixture (PATH-restricted subshells, PowerShell stubs, negative-case payloads, Stream C's scenario fixtures) is mktemp-scoped; no suite in this feature makes a live network call or drives a real `gh` CLI invocation against a real issue | synthetic fixtures only | none identified |
 
 Details: [Security specification](security-spec.md#trust-boundaries).
@@ -811,13 +812,13 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   exact dual-vocabulary risk ADR-0010 itself warns against
   (investigation.md INV-015). ADR-0010 was Accepted (commit `67015a5`), so
   the reused vocabulary stands and no re-scoping was needed.
-- Medium: Streams A, B, and D all stage edits to the SAME protected
+- Medium: all four streams stage edits to the SAME protected
   `.github/workflows/test.yml` file within this one feature. The batch
   count is settled at this spec level (the ONE shared staged batch,
   Non-goals/OQ-4), which removes the two-sequential-rounds stale-diff
   hazard by construction; the residual risk is intra-batch: the single
   staged candidate must be authored against the CURRENT live file and
-  carry all three streams' edits coherently — design.md's Global
+  carry all four streams' edits coherently — design.md's Global
   Constraints names the exact internal ordering of edits within that one
   reviewed diff so no stream's edit is authored against a stale
   intermediate state of the candidate.
