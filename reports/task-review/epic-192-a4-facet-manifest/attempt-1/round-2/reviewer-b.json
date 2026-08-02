@@ -1,0 +1,93 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-192-a4-facet-manifest",
+  "attempt": 1,
+  "round": 2,
+  "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-b-seq0327",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-192-a4-facet-manifest-0327",
+  "manifest": {
+    "allowed_inputs": [
+      {"path": "specs/epic-192-a4-facet-manifest/requirements.md", "sha256": "41c938cbcc6b97f65255f4480a08a267402b018d4c6f9360714b196ad5fe33d0"},
+      {"path": "specs/epic-192-a4-facet-manifest/acceptance-tests.md", "sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920"},
+      {"path": "specs/epic-192-a4-facet-manifest/design.md", "sha256": "65a49c044cfee8a31539d6a48fad75c6107c65fa600162f22f530f76c53e1591"},
+      {"path": "specs/epic-192-a4-facet-manifest/tasks.md", "sha256": "a957865ac15e52351daade40f8018daf010ad490614060b4ffb0d43f95d99a9a"},
+      {"path": "specs/epic-192-a4-facet-manifest/traceability.md", "sha256": "b3db2423b7ce5038284bbe9ed419846c063e096964a46b365f2b6098f0485b0e"},
+      {"path": "specs/epic-192-a4-facet-manifest/ux-spec.md", "sha256": "4dfac597ef9fecabf517907a3030e6375a501dd6901b2ad383caa1f43305b80c"},
+      {"path": "specs/epic-192-a4-facet-manifest/frontend-spec.md", "sha256": "da495ac546baf663d6fec6b7c937f7a1d5a879614098a660535bb153fe446c07"},
+      {"path": "specs/epic-192-a4-facet-manifest/infra-spec.md", "sha256": "8a53ea0f5d861de3be82226f5f8224dcd3441b01336c7fac627b62009919f414"},
+      {"path": "specs/epic-192-a4-facet-manifest/security-spec.md", "sha256": "7ad511aa95fb94cfa8cd848b0f35dc20f7dbb049f237d210b5d96d497f677f5f"},
+      {"path": "plugins/sdd-review-loop/references/reviewer-calibration.md", "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"},
+      {"path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md", "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"},
+      {"path": "plugins/sdd-quality-loop/references/risk-classification-policy.md", "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"},
+      {"path": "reports/task-review/epic-192-a4-facet-manifest/attempt-1/round-2/precheck-result.json", "sha256": "8e247840d5410b9f337aae5af6f1effc6dd8443e83e80f4b9e5be5e848b6c67f"},
+      {"path": "reports/task-review/epic-192-a4-facet-manifest/attempt-1/round-2/integrated-summary.json", "sha256": "d8e73e87c7de64610085c46b443de4bc29a82fa459ed1c9580168da25a68b9e1"}
+    ]
+  },
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (Risk: high, contracts/facet-manifest.schema.json — public API contract, INV-006 reverse dependency from Epic A3's check-component-coverage), T-002 (Risk: high, contracts/capability-summary.schema.json), and T-003/T-004 (Risk: high, context-projection.schema.json / compare-facet-manifest-staleness's REQ-004 Policy-Weakening fail-closed gate, security-spec.md B3) all correctly classify at high for a public-API-contract or fail-closed-gate sentinel surface per risk-classification-policy.md, each with a Risk Rationale citing the policy trigger directly, not self-certification. T-002's round-1 Major finding (self-certified medium for a new public API contract) is now fixed: Risk is high, Required Workflow: tdd, and its Risk Rationale (tasks.md ~line 379-397) explicitly cites the policy's 'public API contracts' trigger and quotes the retired self-certification language rather than repeating it. T-005 (Risk: medium) is verification/packaging work over already-authored, already-high-classified artifacts (vendored-copy --check extension + parity suite testing T-001..T-004's already-built scripts) — it does not itself create or modify a schema/auth/payment/PII/migration surface, and its own Risk Rationale reasons through, rather than asserts, this distinction — consistent with the medium tier."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "FAIL",
+      "severity": "Critical",
+      "finding": "T-003 (Risk: high, tasks.md line 714) and T-004 (Risk: high, tasks.md line 915) each end their Done When list with only 'An independent quality-gate verdict records PASS.' — this omits the 'a named reviewer distinct from the implementing agent' qualifier that sibling Risk: high tasks T-001 (tasks.md lines 339-340) and T-002 (tasks.md lines 520-522, the round-1 fix) both carry verbatim. A grep of the whole file for 'named reviewer'/'distinct from the implementing agent' confirms this qualifier appears only at T-001 and T-002, with no global definition elsewhere in tasks.md that would extend it to T-003/T-004 by reference. As written, T-003/T-004's Done When item does not commit the recorded verdict to a named reviewer distinct from the implementer, failing HIGH-CRITICAL-EVIDENCE's required item 'Independent review verdict recorded (a named second reviewer, not the implementing agent)' for two of the feature's four Risk: high tasks."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of T-001..T-005 has a Done When list of 5-7 checkable items (none exceeds 8) and represents one coherent artifact-family unit (schema authoring + its validator + its own test suite(s); one comparator script + its suite; or the cross-cutting parity/drift-gate suite over already-built T-001..T-004 artifacts). T-005 explicitly documents its own scope-breadth rationale ('Note on scope breadth (TASK-SIZE)', tasks.md ~line 1023) for bundling the vendored-copy check extension with the parity suite, citing the shared AC-032 fixture dependency between the two halves. No task's title implies sequential phasing, and no 3+ tasks are single-function/single-file fragments."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every functional task (T-001..T-004) has extensive acceptance-tests.md negative/edge-case coverage beyond happy-path: T-001 — AC-002 (required-field-deletion matrix), AC-003/AC-006 (uniqueItems/enum rejection), AC-008 (upgrade_reasons-absent-now-rejected), AC-017/AC-018 (malformed/out-of-allowlist pointer rejection), AC-028/AC-047/AC-048 (five semantic-diagnostic negative fixtures); T-002 — AC-014 (additionalProperties rejection), AC-029 (non-zero-exit fixtures); T-003 — AC-030 (still-array-shaped components rejected), AC-042 (both/neither shared_paths branches rejected); T-004 — AC-023/AC-024/AC-040 (Block conditions), AC-044 (exit-3 argument-error class), AC-046 (inconsistent-tier rejection)."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All TEST-NNN rows in acceptance-tests.md map 1:1 to a specific AC-NNN (acceptance-tests.md header: 'TEST IDs are namespaced to this feature... map 1:1 to requirements.md's Acceptance Criteria'), satisfying the acceptance-test scope requirement to reference a specific AC-NNN. T-005's facet-manifest-parity suite (AC-031/AC-032/AC-033/AC-043) spans all four scripts across three runtimes plus the vendored-copy drift gate, consistent with integration-test scope (multiple components); the five per-schema/per-script suites (T-001..T-004) each target one schema/script's own conformance, consistent with a narrower, single-artifact scope."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each of T-001, T-002, T-003, T-004 (all Risk: high) carries an explicit Rollback: field describing git-revert of its two commits plus the human-copy re-staging/hand-revert procedure for the one protected surface (.github/workflows/test.yml) each stages. T-005 (medium, not required by this check) also carries one."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The only files multiple tasks write are the explicitly shared, serialized-append artifacts (tests/run-all.sh/.ps1, specs/epic-192-a4-facet-manifest/human-copy/.github/workflows/test.yml, MANIFEST.sha256, CHANGELOG.md), and tasks.md's own Global Constraints fixes a strict T-001→T-002→T-003→T-004→T-005 append order, enforced by each task's own Blockers field (T-002: T-001; T-003: T-001,T-002; T-004: T-001,T-002,T-003; T-005: T-001..T-004) — the allowed 'one task creates a file, a downstream task adds tests for it, provided the Blockers field enforces the ordering' exception applies. No two tasks list the same primary schema/script file."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers relationship is explicitly justified in the task's own 'Depends On' text as either a genuine functional dependency (e.g. T-005 Depends On T-001..T-004: the parity suite invokes all four scripts against all fixtures and needs all three vendored schema copies to exist; T-004 Depends On T-001: the comparator invokes T-001's schema-conformance check on both manifest inputs before comparing) or an explicitly-labeled non-functional serialization dependency on the shared, order-sensitive tests/run-all.sh/test.yml append (T-002/T-003's Blockers on T-001; T-004's text states plainly 'T-002/T-003 are not functional dependencies'). No blocker lacks a stated rationale, and no task's scope depends on an undeclared predecessor's output."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "HIGH-CRITICAL-EVIDENCE",
+      "severity": "Critical",
+      "task_id": "T-003, T-004",
+      "finding": "T-003 (tasks.md line 714) and T-004 (tasks.md line 915) each close their Done When list with 'An independent quality-gate verdict records PASS.' only — missing the 'a named reviewer distinct from the implementing agent' qualifier that sibling Risk: high tasks T-001 (lines 339-340) and T-002 (lines 520-522, the round-1 fix) both explicitly carry. No global definition elsewhere in tasks.md extends that qualifier to T-003/T-004 by reference (verified via full-file grep for 'named reviewer'/'distinct from the implementing agent'). This leaves two of the feature's four Risk: high tasks without a Done When item that commits the recorded verdict to a named, distinct-from-implementer reviewer, as HIGH-CRITICAL-EVIDENCE requires."
+    }
+  ]
+}

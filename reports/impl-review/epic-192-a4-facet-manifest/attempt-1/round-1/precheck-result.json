@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-192-a4-facet-manifest",
+  "attempt": 1,
+  "round": 1,
+  "impl_review_status_field": "Pending",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "2927f7d384b0587a39eb56b9accf3ceef673fa5b66be6b1bb52619ac4e09c5d7",
+  "requirements_sha256": "41c938cbcc6b97f65255f4480a08a267402b018d4c6f9360714b196ad5fe33d0",
+  "acceptance_sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920",
+  "layer_sha256": {"ux-spec.md":"4dfac597ef9fecabf517907a3030e6375a501dd6901b2ad383caa1f43305b80c","frontend-spec.md":"da495ac546baf663d6fec6b7c937f7a1d5a879614098a660535bb153fe446c07","infra-spec.md":"8a53ea0f5d861de3be82226f5f8224dcd3441b01336c7fac627b62009919f414","security-spec.md":"7ad511aa95fb94cfa8cd848b0f35dc20f7dbb049f237d210b5d96d497f677f5f"},
+  "input_sha256": "3763151cf517ed289c4e210340f4446065a1c98b49cac955e04dd60eaa462d98",
+  "generated_at": "2026-07-22T00:28:30Z"
+}
