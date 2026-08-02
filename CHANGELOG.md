@@ -501,6 +501,61 @@
   へのwiring自体もT-011/T-012の範囲外。詳細実装は
   `reports/implementation/epic-189-a1-project-context/T-008.md`。
 
+- **guard-invariants への Epic A1 保護パス登録のステージング (Issue #189,
+  epic-189-a1-project-context T-009, Risk: critical)**:
+  `specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md`
+  を新規追加 — 本パッケージ内の他のあらゆる件数が DERIVE される唯一の
+  正典インベントリ(design.md Protected-File Statement / M15)。
+  ADR-0019 item 3 の6カテゴリに沿って **具体24 + 予約4 = 28件** を列挙し、
+  パーサが依存する行文法を規範として明記する。内訳は canonicalizer 4 /
+  hash generator 3 / approval validator 3 / policy-weakening detector 3 /
+  hook稼働ハンドシェイク3(validator族に集約)/ sidecar・registry・
+  sentinel・approved-context anchor データ6(B3、ADR-0019 item 1由来の
+  明示的拡張)/ human-copy publisher 2(B9、`apply-human-copy.{sh,ps1}`
+  自身の自己保護)/ resolver 3(**予約**)/ generated projection 1
+  (**予約**)。予約4件はA1では構築されずA2/A5へ強制ハンドオフされるが、
+  同一バッチで保護登録することで後続epicが agent-writable な状態で
+  作成することを防ぐ(`_validate_repo_path` はパス形状のみを検査し、
+  ディスク上の存在を問わないため成立する)。
+  併せて6つのステージング候補
+  (`guard-invariants.json` / `generate-guard-invariants.py` / 生成物4種)
+  を `human-copy/` 配下に追加。JSONは `protected_gate_suffixes` を
+  42→70件に拡張(既存42件は完全な前置として保存し、28件をマニフェスト順に
+  追記)し、新規トップレベルキー `epic_a1_targets` を追加。Pythonは
+  第三の定数 `EPIC_A1_TARGETS` を追加して `expected_protected` の計算に
+  合流させ、`REQUIRED_TOP_LEVEL` を拡張、`phase2_human_copy_targets` と
+  同一方式(順序付き完全一致・重複禁止)で `epic_a1_targets` を検証する。
+  `PHASE2_TARGETS`/`BASELINE_SUFFIXES` は凍結定数として**無変更**
+  (tasks.md Out of Scope)。`EPIC_A1_TARGETS` 専用の生成物射影は追加
+  しない(design.md 設計判断「第5の生成物consumerは不要」)。
+  **staged-tree `--check` 合格を証跡として記録**(AC-021):
+  `generate-guard-invariants.py` は `Path(__file__)` を基点に正典JSONと
+  生成物ディレクトリを解決するため、ステージング側の複製を起動すれば
+  ライブツリーに一切触れずステージングツリーを検証できる
+  (`tests/phase2-guard-invariants.tests.sh:24,41` が凍結epic-136
+  ステージに対して既に用いている本リポジトリ自身の定石)。
+  **ライブの6ファイルは本タスクのエージェントコミット前後で
+  バイト同一**(AC-022)であることを確認:
+  `fde0a57e…d422ad` / `827d1547…facc7` / `121818ba…e115ad` /
+  `16c05a8c…82a1d6` / `52de1d38…7281b1b` / `30eadded…17ca88`。
+  `tests/guard-invariants-epic-a1.tests.sh`/`.ps1` を新規追加し
+  `tests/run-all.sh`/`.ps1` に登録(epic-189系9番目)。両スイートは
+  実行のたびにマニフェストから両候補を再導出して比較するため、
+  マニフェストに反映されない手編集はサイレントな乖離ではなくテスト失敗
+  になる。sh側はモジュールをimportして定数を読み、ps1側は同じ定数を
+  ソース解析で読む — 一方の読み方をすり抜ける欠陥をもう一方が捕らえる
+  意図的な差異軸。TDD Red/Green は
+  `specs/epic-189-a1-project-context/verification/T-009/` に記録
+  (Red = 予約4件を落とした不完全ドラフトに対する staged-tree `--check`
+  失敗、Green = 最終候補の合格。sh 75/0、ps1 79/0)。
+  **本タスクは Done の前に人手による適用ステップを必須とする**:
+  (1) B9 の一度限りの publisher ブートストラップ(人手検証付きの
+  平の `cp` + SHA-256 照合)、(2) now-live な `apply-human-copy` による
+  7件バッチの公開、(3) ライブツリーに対する `--check` 再実行、
+  (4) 新規保護パスが実際に deny されることの確認。手順書と
+  ロールバック方針は
+  `reports/implementation/epic-189-a1-project-context/T-009.md`。
+
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
   `agent-model-capabilities/v2`)を新規追加。v1 の tier↔effort 1:1溶接
