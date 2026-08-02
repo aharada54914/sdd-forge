@@ -249,6 +249,12 @@ if [[ "$reset" == true && "$status" == "Passed" ]]; then
   sed 's/^Spec-Review-Status:[[:space:]]*Passed[[:space:]]*$/Spec-Review-Status: Pending/' "$requirements" > "$reset_tmp"
   mv "$reset_tmp" "$requirements"
   status="Pending"
+  # Recompute the requirements/input hashes against the post-reset file: any
+  # persisted precheck-result.json must record the bytes reviewers, contracts,
+  # and later validate_contract calls will actually see, never the pre-mutation
+  # (Passed) bytes this same invocation just rewrote.
+  requirements_sha="$(sha256 "$requirements")"
+  input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
 fi
 
 generated_at="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"

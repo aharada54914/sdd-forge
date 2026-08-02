@@ -509,6 +509,12 @@ try {
     )
     [IO.File]::WriteAllText($requirements, $normalized)
     $status = 'Pending'
+    # Recompute the requirements/input hashes against the post-reset file: any
+    # persisted precheck-result.json must record the bytes reviewers, contracts,
+    # and later contract validation will actually see, never the pre-mutation
+    # (Passed) bytes this same invocation just rewrote.
+    $requirementsSha = Get-Sha256File $requirements
+    $inputSha = Get-Sha256Text "${requirementsSha}:${acceptanceSha}"
   }
 
   $generatedAt = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ssZ')
