@@ -2,10 +2,23 @@
 
 Impl-Review-Status: Passed
 
-Feature Type: 3 independent, unblocked new-test-suite/CI-lane additions
-(Streams A, B, D) + 1 spec-defined-but-implementation-blocked new-suite
-addition (Stream C, pending ADR-0010), no in-spec dependency between
-streams (requirements.md Main Workflows)
+Feature Type: 4 independent new-test-suite/CI-lane additions (Streams A,
+B, C, D), no in-spec dependency between streams (requirements.md Main
+Workflows). Stream C was spec-defined-but-implementation-blocked when this
+design was authored; ADR-0010's Accepted promotion discharged that Blocker
+and Stream C landed here (Stream C status record below).
+
+**Stream C status record (authoritative).** ADR-0010 reached `Status:
+Accepted` by human decision (commit `67015a5`, 2026-07-22), discharging the
+Blocker requirements.md OQ-2 recorded. Stream C's implementation then landed
+inside this feature: T-004 authored `tests/workflow-scenarios/` and
+`workflow-scenarios.tests.sh`, and the `CHANGELOG.md` entry citing #125 was
+written (commit `fd4db859`). This record governs the WHOLE document, above
+and below: every passage anywhere in this file that once carried an operative
+"Blocked pending ADR-0010" instruction, or asserted Stream C's artifacts do
+not exist, has been reconciled to it in place. Passages explicitly labelled a
+design-authoring-time snapshot are retained verbatim as history and are NOT
+current-state claims. Mirrors requirements.md's record of the same fact.
 
 ## Technical Summary
 
@@ -23,8 +36,8 @@ triple-quote injection shape, task-id substring-collision
 non-interference) across all 4 guard-runtime surfaces and 3 `tool_name`
 shapes, with an explicit cross-runtime decision-parity assertion. Stream C
 (#125) defines the target shape of `tests/workflow-scenarios/` and its
-scenario schema but does not implement it — Stream C is Blocked pending
-ADR-0010 reaching `Status: Accepted` (requirements.md OQ-2). Stream D
+scenario schema, and — once ADR-0010's Accepted promotion discharged its
+Blocker — implements it (Stream C status record below). Stream D
 (#126) marks the deterministic lane boundary INSIDE
 `.github/workflows/test.yml`'s single `test` job — a `[deterministic]`
 name prefix on every existing step plus a documented, currently-empty
@@ -71,12 +84,12 @@ flowchart TB
     CWDCORPUS -.->|reused payload set| GNC
   end
 
-  subgraph SC["Stream C (#125) — BLOCKED"]
-    ADR0010["ADR-0010 (Status: Proposed)"]
-    WFSCEN["tests/workflow-scenarios/ (NOT YET CREATED — target shape only)"]
+  subgraph SC["Stream C (#125) — UNBLOCKED, landed"]
+    ADR0010["ADR-0010 (Status: Accepted)"]
+    WFSCEN["tests/workflow-scenarios/ (created by T-004)"]
     LOOPINV["tests/loops/loop-inventory.json (greenfield/brownfield vocabulary source)"]
-    ADR0010 -.->|Status: Accepted required before| WFSCEN
-    LOOPINV -.->|vocabulary reused verbatim, once unblocked| WFSCEN
+    ADR0010 -.->|Status: Accepted, Blocker discharged| WFSCEN
+    LOOPINV -.->|vocabulary reused verbatim| WFSCEN
   end
 
   subgraph SD["Stream D (#126)"]
@@ -99,17 +112,17 @@ flowchart TB
 | `tests/guard-dispatch-fallback.tests.sh` | drives `sdd-hook-guard.sh`'s fallback chain under PATH-restricted subshells; decision-parity vs. direct `.py`/`.ps1` invocation | Bash | new (Stream A) | no — new file, no suffix match against `PROTECTED_GATE_SUFFIXES` (re-verified) |
 | `tests/guard-negative-corpus.tests.sh` | 3-class x 4-runtime x 3-tool_name-shape negative corpus + cross-runtime parity | Bash (drives `.py`/`.js`/`.ps1`/`.sh`) | new (Stream B) | no — new file, no suffix match |
 | `sdd-hook-guard.sh`/`.py`/`.js`/`.ps1` | live guard runtimes (exercised read-only by both new suites) | Bash / Python / Node / PowerShell | existing, UNCHANGED | YES — `PROTECTED_GATE_SUFFIXES` (`guard_invariants.py:4`); neither stream edits any of the four |
-| `tests/workflow-scenarios/` + scenario schema | 10-class scenario harness, `greenfield`/`brownfield` vocabulary reused from `loop-inventory.json` | Bash/PowerShell + JSON schema | NOT YET CREATED — Blocked (Stream C, pending ADR-0010) | n/a (new files, no protected-suffix collision once created) |
-| `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md` | normative vocabulary source Stream C must reuse | Markdown (ADR) | existing, `Status: Proposed`, NOT edited by this feature | READ-ONLY per this feature's Hard Constraints |
+| `tests/workflow-scenarios/` + scenario schema | 10-class scenario harness, `greenfield`/`brownfield` vocabulary reused from `loop-inventory.json` | Bash/PowerShell + JSON schema | created by Stream C's T-004 (Stream C status record) | no — new files, no protected-suffix collision |
+| `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md` | normative vocabulary source Stream C must reuse | Markdown (ADR) | existing, `Status: Accepted`, NOT edited by this feature | READ-ONLY per this feature's Hard Constraints |
 | `.github/workflows/test.yml` | CI workflow; gains Streams A/B's new steps AND Stream D's step-prefix lane marking (job graph unchanged) | GitHub Actions YAML | existing, edited via human-copy (Streams A + D, ONE shared staged batch — Global Constraints below) | YES — `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS` (`guard_invariants.py:4,18`) |
-| `tests/run-all.sh` | local convenience runner | Bash | existing, edited (Streams A + B; Stream C once unblocked) | no |
+| `tests/run-all.sh` | local convenience runner | Bash | existing, edited (Streams A, B, and C) | no |
 | `tests/run-all.ps1` | local convenience runner (native `.ps1` suites only) | PowerShell | existing, edited only if either new suite ships a native `.ps1` twin (Design Decisions) | no |
-| `CHANGELOG.md` | 3 independent `## Unreleased` entries (#123, #124, #126); #125's entry deferred | Markdown | existing, edited (Streams A, B, D) | no |
+| `CHANGELOG.md` | 4 independent `## Unreleased` entries (#123, #124, #125, #126) — AC-022; Stream C's #125 entry was written once its Blocker was discharged | Markdown | existing, edited (Streams A, B, C, D) | no |
 
 Real surfaces exercised READ-ONLY (never modified in place): all 4 guard
 runtimes (`sdd-hook-guard.py`/`.js`/`.ps1`/`.sh`), `guard-cwd-bypass.tests.sh`'s
-existing `cd&&rm` payload constants (read/reused, not edited), and, once
-Stream C unblocks, `tests/lib/loop-driver.sh`'s `loop_fixture_init
+existing `cd&&rm` payload constants (read/reused, not edited), and, in
+Stream C, `tests/lib/loop-driver.sh`'s `loop_fixture_init
 greenfield|brownfield` helper (read-only reuse for the `"spec"`-stage
 scenarios per investigation.md INV-016).
 
@@ -121,8 +134,8 @@ re-confirmed byte-identical to investigation.md INV-024 at this design's
 authoring time): of this feature's deliverables, exactly ONE file is
 genuinely protected — `.github/workflows/test.yml`. Every new test-suite
 file this feature adds (`tests/guard-dispatch-fallback.tests.sh`,
-`tests/guard-negative-corpus.tests.sh`, and, once Stream C unblocks,
-`tests/workflow-scenarios/`'s contents) is a NEW file with no suffix match
+`tests/guard-negative-corpus.tests.sh`, and Stream C's
+`tests/workflow-scenarios/` contents) is a NEW file with no suffix match
 against either list — confirmed by direct string comparison, not merely
 absence of a "similar-sounding" existing entry. `tests/run-all.sh` and
 `tests/run-all.ps1` are also unprotected (re-verified, absent from both
@@ -130,8 +143,8 @@ lists), so their edits (REQ-005) are direct, not human-copy staged.
 
 `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md` is READ-ONLY for
 this entire feature per the Hard Constraints (`docs/adr/` read-only) — no
-stream edits it, including Stream C once unblocked; Stream C only READS
-the ADR's normative vocabulary text.
+stream edits it, Stream C included; Stream C only READS the ADR's
+normative vocabulary text.
 
 For `.github/workflows/test.yml`: the agent stages ONE combined candidate
 under `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`
@@ -150,7 +163,7 @@ this feature's `test.yml` changes, not three sequential ones).
 | UX | N/A — no change: no GUI or user-facing surface | [UX specification](ux-spec.md#scope-and-user-journeys) | maintainers | N/A |
 | Frontend | N/A — no change: Bash/PowerShell/YAML/JSON-schema only | [Frontend specification](frontend-spec.md#technology-stack) | maintainers | N/A |
 | Infrastructure | one shared `test.yml` human-copy batch (Streams A + D); no new deployment target | [Infrastructure specification](infra-spec.md#cicd-sequence) | maintainers | Planned |
-| Security | inbound prompt-injection boundary (Stream C, blocked); read-only guard-exercise boundary (Streams A/B); one protected-file carve-out | [Security specification](security-spec.md#trust-boundaries) | maintainers | Planned |
+| Security | inbound prompt-injection boundary (Stream C, landed); read-only guard-exercise boundary (Streams A/B); one protected-file carve-out | [Security specification](security-spec.md#trust-boundaries) | maintainers | Planned |
 
 ## Design System Compliance
 
@@ -161,13 +174,13 @@ visualization skipped.
 
 | From | To | Contract / Decision | REQ | AC | Verification |
 |---|---|---|---|---|---|
-| requirements.md | design.md | `sdd-hook-guard.sh` fallback-chain branch coverage + emit-mode cross | REQ-001 | AC-001..007 | TEST-001..007 |
-| requirements.md | design.md | 3-class x 4-runtime x 3-tool_name-shape negative corpus + cross-runtime parity | REQ-002 | AC-008..011 | TEST-008..011 |
-| requirements.md | design.md | `tests/workflow-scenarios/` target shape (Blocked) | REQ-003 | AC-012..015 | TEST-012..015 |
-| requirements.md | design.md | `test.yml` step-prefix lane marking + `required-checks` `needs:` byte-unchanged confirmation | REQ-004 | AC-016..018 | TEST-016..018 |
-| requirements.md | design.md | new-suite CI-registration discipline | REQ-005 | AC-019..020 | TEST-019..020 |
-| requirements.md | design.md | portability + doc-follow + CHANGELOG discipline | REQ-006 | AC-021..023 | TEST-021..023 |
-| requirements.md | security-spec.md | read-only guard-exercise boundary; inbound prompt-injection boundary (blocked); protected-file carve-out | REQ-001, REQ-002, REQ-003, REQ-004 | AC-001, AC-008, AC-014, AC-016 | TEST-001, TEST-008, TEST-014, TEST-016; [security-spec.md#trust-boundaries](security-spec.md#trust-boundaries) |
+| requirements.md | design.md | `sdd-hook-guard.sh` fallback-chain branch coverage + emit-mode cross | REQ-001 | AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007 | TEST-001..007 |
+| requirements.md | design.md | 3-class x 4-runtime x 3-tool_name-shape negative corpus + cross-runtime parity | REQ-002 | AC-008, AC-009, AC-010, AC-011 | TEST-008..011 |
+| requirements.md | design.md | `tests/workflow-scenarios/` shape and driver suite (landed) | REQ-003 | AC-012, AC-013, AC-014, AC-015 | TEST-012..015 |
+| requirements.md | design.md | `test.yml` step-prefix lane marking + `required-checks` `needs:` byte-unchanged confirmation + sibling-workflow isolation | REQ-004 | AC-016, AC-017, AC-018 | TEST-016..018 |
+| requirements.md | design.md | new-suite CI-registration discipline | REQ-005 | AC-019, AC-020 | TEST-019..020 |
+| requirements.md | design.md | portability + doc-follow + CHANGELOG discipline | REQ-006 | AC-021, AC-022, AC-023 | TEST-021..023 |
+| requirements.md | security-spec.md | read-only guard-exercise boundary; inbound prompt-injection boundary (landed); protected-file carve-out | REQ-001, REQ-002, REQ-003, REQ-004 | AC-001, AC-008, AC-014, AC-016 | TEST-001, TEST-008, TEST-014, TEST-016; [security-spec.md#trust-boundaries](security-spec.md#trust-boundaries) |
 | requirements.md | infra-spec.md | one shared `test.yml` human-copy batch; CI matrix unchanged in shape | REQ-004, REQ-005 | AC-016, AC-020 | TEST-016, TEST-020; [infra-spec.md#cicd-sequence](infra-spec.md#cicd-sequence) |
 
 ## ADR Change Log
@@ -175,17 +188,17 @@ visualization skipped.
 No new ADR. This feature introduces no new vocabulary, schema, or
 architectural pattern of its own: Stream A/B reuse the epic-136 human-copy
 procedure and the `guard-cwd-bypass.tests.sh` env-var-indirection pattern
-verbatim; Stream C (once unblocked) reuses ADR-0010's own
-`greenfield`/`brownfield` vocabulary verbatim rather than defining a new
-one; Stream D reuses the `tests/workflow-state-ci-integration.tests.sh`
-text-marker technique verbatim. `docs/adr/0010-*.md` remains `Status:
-Proposed` and is not modified or superseded by this feature.
+verbatim; Stream C reuses ADR-0010's own `greenfield`/`brownfield`
+vocabulary verbatim rather than defining a new one; Stream D reuses the
+`tests/workflow-state-ci-integration.tests.sh` text-marker technique
+verbatim. `docs/adr/0010-*.md` is `Status: Accepted` and is not modified or
+superseded by this feature.
 
 ## Data Plan
 
 **Data Entities:** none new for Streams A, B, D — these streams add test
-code and CI configuration, not application data. Stream C (once unblocked)
-introduces one new schema: the scenario-schema JSON documents under
+code and CI configuration, not application data. Stream C introduces one
+new schema: the scenario-schema JSON documents under
 `tests/workflow-scenarios/`, whose fixture-classification field is the
 CLOSED set `greenfield`|`brownfield` (no new enum values; ADR-0010 is the
 schema's normative authority, not this feature).
@@ -215,7 +228,8 @@ for combo in \
     PATH="<constructed for $combo>" \
       sh plugins/sdd-quality-loop/scripts/sdd-hook-guard.sh --emit "$emit" \
       < "<fixture-payload>.json"
-    # assert exit code / stdout shape matches the expected branch (AC-001..007)
+    # assert exit code / stdout shape matches the expected branch
+    # (AC-001, AC-002, AC-003, AC-004, AC-005, AC-006, AC-007)
   done
 done
 ```
@@ -234,9 +248,21 @@ override) so the `.ps1` DECISION under test is genuine, not a stub
 fabrication — the stub's only job is to make `command -v` see the right
 NAME on the narrowed `PATH`; the guard dispatcher then execs whatever that
 name resolves to, which the stub forwards. Decision-parity assertions
-(AC-001..004) separately invoke `sdd-hook-guard.py`/`.ps1` directly (no
-`PATH` override) for the identical payload and diff the exit code +
-stdout/stderr shape against the dispatcher-routed result.
+(AC-001 for the `python3` branch, AC-002 for `pwsh`, AC-003 for
+`powershell.exe`, AC-004 for `powershell`) separately invoke
+`sdd-hook-guard.py`/`.ps1` directly (no `PATH` override) for the identical
+payload and diff the exit code + stdout/stderr shape against the
+dispatcher-routed result.
+
+AC-005 is the all-absent branch: with no `python3` and none of the three
+PowerShell names on the narrowed `PATH`, the dispatcher must reach its
+`deny_unavailable` fail-closed path — asserted in BOTH emit modes, since
+`--emit exit` and `--emit copilot` produce different observable shapes
+(a non-zero exit code versus a copilot-shaped JSON deny object) and a
+regression could fix one while breaking the other. AC-007 is the
+emit-mode cross itself: every combination above is driven under both
+`--emit exit` and `--emit copilot`, so the outer `for emit` loop is not
+incidental structure but AC-007's own coverage requirement.
 
 AC-006's precedence case constructs a `PATH` where stub scripts for all
 THREE PowerShell names are simultaneously `command -v`-visible and each
@@ -292,10 +318,11 @@ a post-loop aggregation (a payload -> verdict map keyed by runtime),
 not interleaved with the per-runtime loop above, so a parity failure's
 error message can name exactly which runtimes disagreed.
 
-### `tests/workflow-scenarios/` (Stream C) — target shape only, implementation Blocked
+### `tests/workflow-scenarios/` (Stream C)
 
-Recorded here so Phase 2 task decomposition can proceed the moment
-ADR-0010 unblocks, without a spec re-authoring round:
+The shape was recorded here so Phase 2 task decomposition could proceed the
+moment ADR-0010 unblocked, without a spec re-authoring round. It did unblock
+(Stream C status record), and T-004 implemented exactly this shape:
 
 ```
 tests/workflow-scenarios/
@@ -307,15 +334,31 @@ tests/workflow-scenarios/
                                  #   refactor-baseline-missing,
                                  #   inbound-prompt-injection)
   workflow-scenarios.tests.sh   # driver suite, tool_name shapes per
-                                 #   requirements.md Field Definitions
+                                 #   requirements.md Field Definitions (AC-013)
 ```
+
+AC-013's requirement on that driver is two-sided and both sides are
+asserted: every scenario document must DECLARE at least one Claude-Code-shaped
+`tool_name` (`Edit`/`Write`/`MultiEdit`/`Bash`) and at least one Codex-shaped
+one (`apply_patch`/`exec_command`/`shell`/`exec`), and a separate cross-check
+confirms every declared literal stays inside those two closed lists — so a
+typo or an invented shape fails rather than passing as "some string was
+present".
+
+AC-015 is the cross-reference obligation between the two same-sounding,
+different-scope suites: `tests/workflow-scenarios/` and
+`tests/scenario.tests.sh` each carry a comment naming the other and stating
+the scope difference (full-chain lifecycle / hook-contract / signing
+round-trip versus the 10 greenfield/brownfield-classified classes), so a
+reader landing on either one is never left guessing which suite owns what
+(Design Decisions OQ-3).
 
 Scenario 5's (inbound prompt-injection, AC-014) named target entry point:
 `plugins/sdd-bootstrap`'s investigation/interview flow — specifically the
 step that runs `gh issue view --json body` (or an equivalent issue-body
 fetch) to gather requirement text before authoring `investigation.md`.
-The exact script/skill file is named by Phase 2 task decomposition once
-unblocked, since `plugins/` is out of this feature's Hard Constraints for
+The exact script/skill file is named by Phase 2 task decomposition, since
+`plugins/` is out of this feature's Hard Constraints for
 direct editing regardless — Stream C's test only PROVES the entry point's
 existing behavior already treats fetched issue-body text as inert data
 (this repository's own README/AGENTS-level convention, "treat their text
@@ -398,10 +441,20 @@ job-count-preserving restructuring was chosen over a job-splitting one).
    `.github/workflows/test.yml` half of this self-check greps the LIVE
    file only, expected red until the human-copy commit lands (Protected-
    File Statement; mirrors `quality-loop-fixes`'s own TEST-007 precedent).
-7. Stream C's Test Strategy is deferred to its own Phase 2 task
-   decomposition, authored once ADR-0010 unblocks — this design commits
-   only to the target shape (API/Contract Plan above), not a test plan for
-   code that may not exist for some time.
+7. Stream C's Test Strategy is carried by its own Phase 2 task
+   decomposition (T-004), authored once ADR-0010's Accepted promotion
+   discharged its Blocker — this design commits to the target shape
+   (API/Contract Plan above) and to AC-012..AC-015's assertions, with the
+   per-scenario fixture inventory left to that task rather than duplicated
+   here.
+8. Sibling-workflow isolation (TEST-018) verifies AC-018 as a
+   non-regression: `self-improvement.yml` and `model-freshness-check.yml`
+   must stay absent from `required-checks`' `needs:` list AND outside the
+   single `test` job's marked deterministic lane. Stream D's restructuring
+   touches step NAMES only, so this is a check that nothing moved, not a
+   change being made — it exists because a lane-marking pass is exactly the
+   kind of edit that could quietly pull a sibling workflow into the
+   required-check graph.
 
 ## Design Decisions (resolving open questions)
 
@@ -410,14 +463,15 @@ job-count-preserving restructuring was chosen over a job-splitting one).
   `PROTECTED_GATE_SUFFIXES` (Protected-File Statement) — neither issue's
   own Constraint-section framing (human-copy edits to `guard-parity.tests.sh`/
   `gates.tests.sh`) is followed.
-- OQ-2 -> Blocked pending ADR-0010 `Status: Accepted`: Stream C's
-  API/Contract Plan above defines its target shape only, with
-  implementation Blocked; no `tests/workflow-scenarios/` file exists as an
-  output of this design.
+- OQ-2 -> gated on ADR-0010 `Status: Accepted`, now DISCHARGED: Stream C's
+  API/Contract Plan above defined its target shape while the Blocker held,
+  and implementation followed once the ADR was Accepted (Stream C status
+  record). The rule was honoured, not waived — no `tests/workflow-scenarios/`
+  file was written ahead of the approval.
 - OQ-3 -> clean new namespace, cross-referenced: `tests/workflow-scenarios/`
-  is a directory distinct from `tests/scenario.tests.sh`; once Stream C
-  unblocks, each file gains a one-line comment naming the other and the
-  scope distinction (API/Contract Plan).
+  is a directory distinct from `tests/scenario.tests.sh`; each file carries a
+  one-line comment naming the other and the scope distinction (AC-015,
+  API/Contract Plan).
 - OQ-4 -> moot (re-verified): no cross-feature `test.yml` staging conflict
   remains; the ONLY sequencing decision left is intra-feature (Streams A
   and D sharing one `test.yml` file), resolved by the ONE shared staged
@@ -435,7 +489,7 @@ job-count-preserving restructuring was chosen over a job-splitting one).
   secret isolation (requirements.md Non-goals; investigation.md
   Recommended Next Steps item 6).
 - OQ-6 -> inbound direction, `plugins/sdd-bootstrap` entry point: Stream
-  C's scenario 5 (once unblocked) targets the issue-body-fetching step of
+  C's scenario 5 targets the issue-body-fetching step of
   the investigation/interview flow (API/Contract Plan) — the complementary
   direction to `model-freshness-check.tests.sh` TEST-021's existing
   outbound check.
@@ -466,27 +520,29 @@ job-count-preserving restructuring was chosen over a job-splitting one).
   the same shared batch.
 - `tests/run-all.sh` — Streams A and B each add exactly one line (their
   new suite's basename); Stream D adds no line (it does not add a new
-  suite, it restructures an existing job's presentation). Stream C adds no
-  line while Blocked.
+  suite, it restructures an existing job's presentation). Stream C adds one
+  line for `tests/workflow-scenarios/workflow-scenarios.tests.sh` (AC-019).
 - `tests/run-all.ps1` — neither Stream A nor Stream B's new suite is a
   native `.ps1` file (both are `.sh`-only, driving other runtimes via
   subprocess where needed, matching `guard-cwd-bypass.tests.sh`'s own
   `.sh`-only shape) — no edit to `run-all.ps1` in this feature.
-- `CHANGELOG.md`'s `## Unreleased` section — each of Streams A, B, D cites
-  a DIFFERENT issue number (#123/#124/#126), so each creates its own
-  entry; Stream C's entry is deferred (OQ-2) — the section is currently
-  empty (Re-verification note finding 6), so no create-then-append
-  serialization conflict exists at this design's authoring time.
+- `CHANGELOG.md`'s `## Unreleased` section — each of Streams A, B, C, D
+  cites a DIFFERENT issue number (#123/#124/#125/#126), so each creates its
+  own entry, four in total (AC-022). Stream C's #125 entry was written once
+  its Blocker was discharged, never speculatively (OQ-2). The section was
+  empty at this design's authoring time (Re-verification note finding 6 —
+  a design-authoring-time snapshot), so no create-then-append serialization
+  conflict existed.
 - No stream is blocked, in-spec, on another (requirements.md Main
-  Workflows) — Stream C's Blocker is external (ADR-0010 approval), not a
-  dependency on Streams A, B, or D.
+  Workflows) — Stream C's Blocker was external (ADR-0010 approval), never a
+  dependency on Streams A, B, or D, and it has since been discharged.
 
 ## Security Boundaries
 
 | Trust Boundary | Auth/Authz Mechanism | Data Classification | OWASP Concerns |
 |---|---|---|---|
 | B1: new-suite fixtures vs. live protected guard binaries | both new suites invoke the live `sdd-hook-guard.{py,js,ps1,sh}` READ-ONLY via env-var/PATH indirection (`GUARD_PY`/`GUARD_JS`/`GUARD_PS1`/`GUARD_SH`, extending `guard-cwd-bypass.tests.sh`'s established pattern); neither suite ever opens either target file for writing | internal repository content only | Security Misconfiguration (prevented: no suite can accidentally mutate a live guard) |
-| B2: fixture GitHub issue body vs. reading agent session (Stream C, blocked) | the fixture's adversarial instruction-shaped text is synthetic, mktemp-scoped, never a real network-fetched issue body; the assertion proves the target entry point does not FOLLOW embedded instructions in fetched content | internal fixture content only | Prompt Injection (the exact class this AC operationalizes as a test) |
+| B2: fixture GitHub issue body vs. reading agent session (Stream C, landed) | the fixture's adversarial instruction-shaped text is synthetic, mktemp-scoped, never a real network-fetched issue body; the assertion proves the target entry point does not FOLLOW embedded instructions in fetched content | internal fixture content only | Prompt Injection (the exact class this AC operationalizes as a test) |
 | B3: `.github/workflows/test.yml` vs. agent-direct edits | ONE shared staged batch (Streams A + D) under `specs/epic-136-phase3/human-copy/` with ONE `MANIFEST.sha256`; only a human applies it | internal source only | Security Misconfiguration (prevented by process) |
 | B4: fixture world vs. real repository/network/ledger state | every fixture (PATH-restricted subshells, stub binaries, negative-case payloads) is mktemp-scoped; no suite in this feature reserves a real identity-ledger record or invokes the real `gh` CLI against a real issue | synthetic fixtures only | Test Isolation |
 
@@ -494,10 +550,10 @@ Detailed controls: [Security specification](security-spec.md#trust-boundaries).
 
 ## External Integrations
 
-None. All 3 unblocked streams operate entirely on repository-local files
+None. All 4 streams operate entirely on repository-local files
 (guard binaries, test fixtures, `test.yml`) — no new network call,
-external API, or credential is introduced. Stream C's target shape (once
-unblocked) likewise introduces no external integration — its scenario 5
+external API, or credential is introduced. Stream C likewise introduces no
+external integration — its scenario 5
 fixture is a SYNTHETIC issue body, never a real `gh issue view` network
 call (Security Boundaries B4).
 
@@ -531,12 +587,14 @@ batch must record the exact revert boundary.
 |---|---|
 | baseline preservation (`required-checks` pass/fail semantics, investigation.md BL-001) | Stream D's job-count-preserving restructuring (Design Decisions OQ-5) keeps `required-checks: needs: [test, cli-hook-enforcement]` membership UNCHANGED — no step moves to a job outside this `needs:` list, so BL-001's exact preserved-behavior contract holds by construction, not by a runtime check alone; TEST-017's self-check is the verification, not the mechanism |
 | CI resilience: bash 3.2 `set -u` empty-array safety | neither new `.sh` suite introduces a `declare -A` or an unguarded array expansion; both use scalar/indexed-array iteration only (API/Contract Plan's nested `for` loops), matching `guard-cwd-bypass.tests.sh`'s own idiom |
-| CI resilience: explicit `.ps1` exit / ASCII-only | this feature adds no new native `.ps1` file (Global Constraints) — the constraint carries forward for Stream C once unblocked, not exercised by Streams A/B/D |
+| CI resilience: explicit `.ps1` exit / ASCII-only | this feature adds no new native `.ps1` file in ANY stream, Stream C included (Global Constraints), so AC-021's ASCII/BOM/`exit N` sub-check is N/A across Streams A/B/C/D and only its `declare -A`/unguarded-array half is exercised |
+| CHANGELOG discipline: one entry per stream, citing its own issue | AC-022 — four independent `## Unreleased` entries (#123, #124, #125, #126), one per stream; Stream C's was written only after its Blocker was discharged, never speculatively (Global Constraints, Design Decisions OQ-2) |
+| sibling-workflow isolation preserved | AC-018 — `self-improvement.yml` and `model-freshness-check.yml` stay absent from `required-checks`' `needs:` list and outside the marked deterministic lane; Stream D changes step NAMES only, so isolation holds by construction and TEST-018 is the non-regression proof (Test Strategy item 8) |
 | read-only guard-exercise boundary (Security Boundaries B1) | both new suites use env-var/PATH indirection exclusively, reusing `guard-cwd-bypass.tests.sh`'s established pattern rather than a bespoke guard-invocation mechanism |
 | protected file — ONE carve-out, shared batch (Protected-File Statement) | Streams A and D share ONE staged `test.yml` candidate with ONE `MANIFEST.sha256`; every other deliverable across Streams A/B/D is agent-editable and verified absent from `PROTECTED_GATE_SUFFIXES` |
 | doc-following in same PR/commit-set | REQ-006's per-stream doc-surface verification (AC-023); expected answer "none" for all 4 streams, recorded explicitly rather than silently assumed |
 | version bump via `scripts/bump-version.sh` only | this feature makes no version-literal edit anywhere; carries forward the same rule `quality-loop-fixes`/`epic-159-pillar-a` already state |
-| ADR-0010 dependency stated explicitly, not assumed Accepted | Stream C's entire scope (REQ-003) is marked Blocked in both requirements.md and this design, with the exact unblock condition (`Status: Accepted`) named as the sole precondition — no fallback vocabulary is defined (Risks) |
+| ADR-0010 dependency stated explicitly, not assumed Accepted | Stream C's entire scope (REQ-003) was gated on the exact named precondition (`Status: Accepted`) in both requirements.md and this design, with no fallback vocabulary defined (Risks); the ADR then reached `Status: Accepted` (commit `67015a5`) and only then did implementation proceed — the constraint was satisfied by waiting, not by assuming |
 
 ## Assumptions
 
@@ -546,20 +604,21 @@ from this design's authoring-time snapshot): the registration-gap state
 for `guard-parity.tests.sh`/`constant-parity.tests.sh`/`guard-cwd-bypass.tests.sh`/
 `guard-r10-port.tests.ps1`; `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS`'s
 exact membership; the identity-ledger tail (`sequence: 337`); ADR-0010's
-`Status: Proposed` (Stream C's sole unblock precondition); `loop-driver.sh`'s
+`Status: Proposed` (Stream C's sole unblock precondition — **SUPERSEDED**,
+now `Accepted`, commit `67015a5`); `loop-driver.sh`'s
 `drive_review_round` stage-`"spec"`-only scope; and the
 `tests/collection-layer.tests.sh` `PATH="/usr/bin:/bin"` technique's
 continued validity.
 
 ## Open Questions
 
-None blocking for Streams A, B, D. All investigation.md OQ-1..OQ-6 are
-resolved above with design decisions. Stream C carries ONE deliberately
-unresolved external precondition (ADR-0010 approval) — this is not an
-"Open Question" in the spec-review sense (it does not require a design
-decision this document could make); it is a recorded Blocker with a named,
-externally-owned unblock condition (requirements.md Roles and
-Permissions).
+None blocking for any stream. All investigation.md OQ-1..OQ-6 are resolved
+above with design decisions. Stream C carried ONE deliberately unresolved
+external precondition (ADR-0010 approval) — never an "Open Question" in the
+spec-review sense, since it did not require a design decision this document
+could make; it was a recorded Blocker with a named, externally-owned unblock
+condition (requirements.md Roles and Permissions), and that condition has
+been met (Stream C status record).
 
 ## Risks
 
@@ -576,9 +635,10 @@ meaning their adversarial shape has not been proven-in-production the way
 `guard-cwd-bypass.tests.sh`'s reused `cd&&rm` corpus has — mitigated by
 security-spec.md's STRIDE analysis and by AC-009/AC-010's explicit
 per-combination enumeration catching a payload-construction mistake early
-rather than silently passing. Tertiary risk is Stream C's Blocker
-persisting indefinitely if ADR-0010 is neither Accepted nor Rejected —
-mitigated by this being an explicit, visible Blocked status in both
-requirements.md and this design (not a silently stalled task), so a
-retrospective can flag prolonged ADR limbo as its own workflow-improvement
-candidate if it recurs.
+rather than silently passing. The tertiary risk — Stream C's Blocker
+persisting indefinitely if ADR-0010 were neither Accepted nor Rejected — is
+RETIRED: the ADR was Accepted (commit `67015a5`) and Stream C landed. The
+mitigation that made this tractable was keeping the Blocker an explicit,
+visible status in both requirements.md and this design rather than a
+silently stalled task, so a retrospective can still flag prolonged ADR limbo
+as its own workflow-improvement candidate if it recurs.
