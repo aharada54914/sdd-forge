@@ -1,13 +1,17 @@
 # Infrastructure Specification: epic-136-phase3
 
-3 unblocked new-test-suite/CI-lane-restructuring streams + 1
-implementation-Blocked target shape. No cloud service, deployment target,
-IaC resource, network route, or data store is added or changed. The only
-infrastructure-facing edit across the 3 unblocked streams is
+**Stream C status.** ADR-0010 reached `Status: Accepted` (commit `67015a5`,
+2026-07-22), discharging Stream C's Blocker, and Stream C landed in this
+feature (T-004). requirements.md and design.md carry the authoritative
+record; this document is reconciled to it.
+
+4 new-test-suite/CI-lane-restructuring streams. No cloud service, deployment
+target, IaC resource, network route, or data store is added or changed. The
+only infrastructure-facing edit across the four streams is
 `.github/workflows/test.yml`, staged as ONE shared human-copy batch
-covering Streams A/B's 2 new CI steps and Stream D's step-prefix lane marking
-(design.md Protected-File Statement) — never two sequential human-copy
-rounds against the same protected file within this feature.
+covering Streams A/B/C's 3 new CI steps and Stream D's step-prefix lane
+marking (design.md Protected-File Statement) — never two sequential
+human-copy rounds against the same protected file within this feature.
 
 ## Deployment Topology
 
@@ -33,7 +37,7 @@ flowchart LR
 
   HUMAN["Human maintainer"] -->|copies ONE shared staged candidate, MANIFEST.sha256 verified| TESTYMLLIVE[".github/workflows/test.yml (protected, live)"]
 
-  ADR["ADR-0010 (Status: Proposed)"] -.->|Status: Accepted required| WFSCEN["tests/workflow-scenarios/ (Stream C, NOT YET CREATED)"]
+  ADR["ADR-0010 (Status: Accepted)"] -.->|Blocker discharged, commit 67015a5| WFSCEN["tests/workflow-scenarios/ (Stream C, created by T-004)"]
 ```
 
 ## CI/CD Sequence
@@ -142,8 +146,10 @@ the `[deterministic]` prefixes and the comment lane-boundary placeholder; if
 Streams A/B's step lines are meant to survive a Stream D revert, the
 implementation report for whichever stream lands LAST in the shared batch
 must record the exact revert boundary (design.md Deployment / CI Plan).
-Stream C has no rollback surface — this feature does not create any of its
-files (implementation Blocked).
+Stream C's rollback is a reviewed revert of T-004's own commits
+(`tests/workflow-scenarios/` and its driver suite are new, unprotected files,
+so no protected-file round-trip is needed) plus removal of its line from
+`tests/run-all.sh` and its step from the shared staged candidate.
 
 ## Open Questions
 

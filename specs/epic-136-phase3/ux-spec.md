@@ -1,11 +1,15 @@
 # UX Specification: epic-136-phase3
 
-N/A — no change: this feature is 3 unblocked new-test-suite/CI-lane
-additions (`tests/guard-dispatch-fallback.tests.sh`,
-`tests/guard-negative-corpus.tests.sh`,
-`.github/workflows/test.yml` job-graph restructuring) plus 1
-implementation-Blocked scenario-schema target shape
-(`tests/workflow-scenarios/`, pending ADR-0010), with no GUI, view,
+**Stream C status.** ADR-0010 reached `Status: Accepted` (commit `67015a5`,
+2026-07-22), discharging Stream C's Blocker, and Stream C landed in this
+feature (T-004 authored `tests/workflow-scenarios/` and
+`workflow-scenarios.tests.sh`). requirements.md and design.md carry the
+authoritative record; this document is reconciled to it.
+
+N/A — no change: this feature is 4 new-test-suite/CI-lane additions
+(`tests/guard-dispatch-fallback.tests.sh`,
+`tests/guard-negative-corpus.tests.sh`, `tests/workflow-scenarios/`, and
+the `.github/workflows/test.yml` job-graph restructuring), with no GUI, view,
 dialog, menu item, or human interactive shell surface of its own. The only
 human-observable effects are: a maintainer running Codex CLI or GitHub
 Copilot CLI on a `python3`-absent macOS/Linux host can trust
@@ -16,31 +20,32 @@ task-id substring-collision defect caught across all 4 guard-runtime
 surfaces and both Claude/Codex `tool_name` shapes, not a narrower subset
 (Stream B); a CI maintainer sees `test.yml`'s deterministic steps carrying
 a visible `[deterministic]` name prefix in the GitHub Actions UI, without
-any step being dropped from `required-checks`' gate (Stream D); and, once
-ADR-0010 is accepted, a maintainer creating a new `tests/workflow-scenarios/`
-scenario will find it already speaking the same `greenfield`/`brownfield`
-vocabulary the loop harness uses (Stream C, currently Blocked) — all
-governed by the acceptance criteria in acceptance-tests.md.
+any step being dropped from `required-checks`' gate (Stream D); and a
+maintainer creating a new `tests/workflow-scenarios/` scenario finds it
+already speaking the same `greenfield`/`brownfield` vocabulary the loop
+harness uses (Stream C) — all governed by the acceptance criteria in
+acceptance-tests.md.
 
 ## Scope and User Journeys
 
 - Primary user: maintainers and CI reviewers running the full test suite
   locally (`bash tests/run-all.sh`) or observing the GitHub Actions job
   list for a PR (Streams A, B, D); epic-159 Pillar A loop-harness authors
-  who will eventually author `tests/workflow-scenarios/` fixtures (Stream
-  C, blocked).
+  who author `tests/workflow-scenarios/` fixtures against the shape Stream
+  C landed.
 - Entry points: `tests/guard-dispatch-fallback.tests.sh` (CLI, `bash
   tests/guard-dispatch-fallback.tests.sh`); `tests/guard-negative-corpus.tests.sh`
   (CLI, same convention); the GitHub Actions job list rendered for any PR
   (Stream D's `[deterministic]`-prefixed step names).
-- Success outcome: each unblocked stream's target audience
+- Success outcome: each stream's target audience
   (requirements.md Target Users) sees the new coverage exist and pass, or
   fail with a legible, per-combination diagnostic naming exactly which
   runtime/tool_name/branch combination regressed (acceptance-tests.md).
-- Excluded journey: any rendered UI, navigation, or responsive layout;
-  Stream C's actual user journey (an epic-159 Pillar A author's workflow
-  once `tests/workflow-scenarios/` exists) is out of scope for THIS
-  feature's UX surface, since Stream C's implementation is Blocked here.
+- Excluded journey: any rendered UI, navigation, or responsive layout.
+  Stream C's downstream user journey — an epic-159 Pillar A author's
+  workflow for consuming `tests/workflow-scenarios/` — remains out of scope
+  for THIS feature's UX surface: Stream C delivers the harness and its
+  fixtures, not a workflow built on top of them.
 
 ## Target Views
 
