@@ -5,12 +5,13 @@
 feature (T-004). requirements.md and design.md carry the authoritative
 record; this document is reconciled to it.
 
-N/A — no change: the deliverables across the four streams are three new
-Bash test-suite files (`tests/guard-dispatch-fallback.tests.sh`,
-`tests/guard-negative-corpus.tests.sh`,
-`tests/workflow-scenarios/workflow-scenarios.tests.sh`) plus Stream C's JSON
-scenario schema, and one protected CI workflow file
-(`.github/workflows/test.yml`, human-copy staged, one shared batch for
+N/A — no change: the deliverables across the four streams are four new
+Bash test-suite files (`tests/guard-dispatch-fallback.tests.sh` — Stream A;
+`tests/guard-negative-corpus.tests.sh` — Stream B;
+`tests/workflow-scenarios/workflow-scenarios.tests.sh` — Stream C;
+`tests/deterministic-lane-selfcheck.tests.sh` — Stream D's own self-check
+harness) plus Stream C's JSON scenario schema, and one protected CI workflow
+file (`.github/workflows/test.yml`, human-copy staged, one shared batch for
 Streams A + B + C + D). There is no browser or frontend application.
 
 ## Technology Stack
@@ -18,9 +19,9 @@ Streams A + B + C + D). There is no browser or frontend application.
 | Layer | Technology | Version | Rationale | Constraint |
 |---|---|---|---|---|
 | `tests/guard-dispatch-fallback.tests.sh`, `tests/guard-negative-corpus.tests.sh` | Bash (existing supported runtime) | existing | new, narrow, evidence-quoted coverage additions | bash-3.2-safe (no `declare -A`, no unguarded `set -u` array expansion); driven via `PATH`/env-var indirection against real guard binaries, never a reimplementation |
-| `.github/workflows/test.yml` | GitHub Actions YAML | existing | 2 new CI steps (Streams A + B) plus a `[deterministic]` step-name-prefix restructuring (Stream D), all one shared human-copy batch | staged via human-copy (protected) |
+| `.github/workflows/test.yml` | GitHub Actions YAML | existing | 4 new CI steps (Streams A + B + C, plus Stream D's own self-check suite) plus a `[deterministic]` step-name-prefix restructuring (Stream D), all one shared human-copy batch | staged via human-copy (protected) |
 | `tests/workflow-scenarios/scenario-schema.json` (Stream C) | JSON Schema | created by T-004 | fixture-classification field reuses ADR-0010's closed `greenfield`\|`brownfield` set verbatim | authored only after ADR-0010 reached `Status: Accepted` (commit `67015a5`), never speculatively |
-| test suites | Bash-only (Streams A, B); no native `.ps1` twin | existing supported runtime | both new suites drive `.ps1`/`.js` targets via subprocess indirection rather than shipping a native `.ps1` driver, matching `guard-cwd-bypass.tests.sh`'s own shape | no `run-all.ps1` registration needed for either (design.md Global Constraints) |
+| test suites | Bash-only (all four streams); no native `.ps1` twin | existing supported runtime | each new suite drives its `.ps1`/`.js`/YAML targets via subprocess indirection or plain text inspection rather than shipping a native `.ps1` driver, matching `guard-cwd-bypass.tests.sh`'s own shape | no `run-all.ps1` registration needed for any of the four; all four ARE registered in `tests/run-all.sh` (design.md Global Constraints) |
 
 ## Component Tree, State Shape, Routes, and API Client
 
@@ -38,8 +39,8 @@ size, not a new order-of-magnitude runtime addition.
 
 ## Dependencies
 
-No new runtime dependency for Streams A, B, or D. Both new suites already
-depend on the same interpreters the guard binaries themselves require
+No new runtime dependency for Streams A, B, or D. Streams A's and B's new
+suites already depend on the same interpreters the guard binaries themselves require
 (`node`, `python3`, `pwsh`/`powershell.exe`/`powershell`, `bash`) —
 unchanged, SKIP-on-absence behavior mirrors `guard-parity.tests.sh`'s
 existing convention. No new suite drives a live network call or the real
@@ -54,10 +55,15 @@ TEST-001 through TEST-023 in acceptance-tests.md cover the fixture-driven
 script tests (Streams A, B), Stream C's scenario-schema and driver checks
 (TEST-012 through TEST-015, runnable today via
 `bash tests/workflow-scenarios/workflow-scenarios.tests.sh`), the staged-YAML
-conformance and self-check (Stream D), the CI-registration conformance checks
-(Streams A, B, C), and the document-conformance checks across all four
-streams. No component, accessibility, browser-performance, or frontend E2E
-test applies.
+conformance and self-check (Stream D, via its own
+`tests/deterministic-lane-selfcheck.tests.sh`), the CI-registration
+conformance checks (TEST-019/TEST-020 — AC-019's named scope is Streams A,
+B, and C's three product suites; the check as implemented additionally
+covers Stream D's own self-check suite, which registers itself in the same
+`tests/run-all.sh` list and the same shared `test.yml` batch, so all four
+registrations are verified), and the document-conformance checks across all
+four streams. No component, accessibility, browser-performance, or frontend
+E2E test applies.
 
 ## Open Questions
 

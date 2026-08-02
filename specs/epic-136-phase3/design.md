@@ -114,9 +114,10 @@ flowchart TB
 | `sdd-hook-guard.sh`/`.py`/`.js`/`.ps1` | live guard runtimes (exercised read-only by both new suites) | Bash / Python / Node / PowerShell | existing, UNCHANGED | YES — `PROTECTED_GATE_SUFFIXES` (`guard_invariants.py:4`); neither stream edits any of the four |
 | `tests/workflow-scenarios/` + scenario schema | 10-class scenario harness, `greenfield`/`brownfield` vocabulary reused from `loop-inventory.json` | Bash/PowerShell + JSON schema | created by Stream C's T-004 (Stream C status record) | no — new files, no protected-suffix collision |
 | `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md` | normative vocabulary source Stream C must reuse | Markdown (ADR) | existing, `Status: Accepted`, NOT edited by this feature | READ-ONLY per this feature's Hard Constraints |
-| `.github/workflows/test.yml` | CI workflow; gains Streams A/B/C's new steps AND Stream D's step-prefix lane marking (job graph unchanged) | GitHub Actions YAML | existing, edited via human-copy (Streams A + B + C + D, ONE shared staged batch — Global Constraints below) | YES — `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS` (`guard_invariants.py:4,18`) |
-| `tests/run-all.sh` | local convenience runner | Bash | existing, edited (Streams A, B, and C) | no |
-| `tests/run-all.ps1` | local convenience runner (native `.ps1` suites only) | PowerShell | existing, edited only if either new suite ships a native `.ps1` twin (Design Decisions) | no |
+| `.github/workflows/test.yml` | CI workflow; gains 4 new suite steps (Streams A/B/C's three product suites AND Stream D's own `deterministic-lane-selfcheck` harness) AND Stream D's step-prefix lane marking (job graph unchanged) | GitHub Actions YAML | existing, edited via human-copy (Streams A + B + C + D, ONE shared staged batch — Global Constraints below) | YES — `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS` (`guard_invariants.py:4,18`) |
+| `tests/deterministic-lane-selfcheck.tests.sh` | Stream D's own self-check harness: staged-candidate conformance (TEST-016/017/018) plus the registration and `actions/checkout`-pin checks (TEST-020) | Bash (text inspection of YAML) | new (Stream D) | no — new file, no suffix match (`PROTECTED_GATE_SUFFIXES` re-verified) |
+| `tests/run-all.sh` | local convenience runner | Bash | existing, edited (all four streams — one line each, at lines 37, 47, 48, 49) | no |
+| `tests/run-all.ps1` | local convenience runner (native `.ps1` suites only) | PowerShell | existing, UNCHANGED — no new suite in this feature ships a native `.ps1` twin (Design Decisions, Global Constraints) | no |
 | `CHANGELOG.md` | 4 independent `## Unreleased` entries (#123, #124, #125, #126) — AC-022; Stream C's #125 entry was written once its Blocker was discharged | Markdown | existing, edited (Streams A, B, C, D) | no |
 
 Real surfaces exercised READ-ONLY (never modified in place): all 4 guard
@@ -371,22 +372,35 @@ Constraints).
 
 ### `.github/workflows/test.yml` (Streams A + B + C + D, ONE shared staged batch)
 
-Streams A, B, and C each add one CI step (bash-only, matching the
-`quality-loop-fixes` Stream 1 convention for a suite that does not need a
-separate `pwsh` leg). Stream C's step is part of THIS batch, not a later
-feature's: its Blocker was discharged before the batch was finalized (Stream C
-status record), and AC-019/AC-020 require a step for every new suite —
-omitting it would ship a landed suite that INV-006's no-wildcard rule then
-silently never runs:
+Each of the four streams adds exactly one CI step for its own new suite
+(bash-only, matching the `quality-loop-fixes` Stream 1 convention for a
+suite that does not need a separate `pwsh` leg) — four new steps in total.
+Stream C's step is part of THIS batch, not a later feature's: its Blocker
+was discharged before the batch was finalized (Stream C status record), and
+AC-019/AC-020 require a step for every new suite — omitting it would ship a
+landed suite that INV-006's no-wildcard rule then silently never runs. The
+same reasoning applies to Stream D's own self-check suite: it is a new
+suite under the identical no-wildcard rule, so it registers its step in
+this same batch rather than going unrun. AC-019/AC-020 name Streams A, B,
+and C's three product suites as the required minimum; the batch is a
+superset of that minimum, never smaller.
+
+The block below is the byte-exact tail of the staged candidate
+(`specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`),
+in its actual order and already carrying the `[deterministic] ` prefix
+Stream D's restructuring applies to every step in the `test` job:
 
 ```yaml
-      - name: Test guard dispatch fallback suite (bash)
+      - name: "[deterministic] Test guard dispatch fallback suite (bash)"
         shell: bash
         run: bash ./tests/guard-dispatch-fallback.tests.sh
-      - name: Test guard negative corpus suite (bash)
+      - name: "[deterministic] Test guard negative corpus suite (bash)"
         shell: bash
         run: bash ./tests/guard-negative-corpus.tests.sh
-      - name: Test workflow-scenarios suite (bash)
+      - name: "[deterministic] Test deterministic-lane self-check suite (bash)"
+        shell: bash
+        run: bash ./tests/deterministic-lane-selfcheck.tests.sh
+      - name: "[deterministic] Test workflow-scenarios suite (bash)"
         shell: bash
         run: bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh
 ```
@@ -445,8 +459,15 @@ job-count-preserving restructuring was chosen over a job-splitting one).
 5. Full suite: `bash tests/run-all.sh` and `pwsh tests/run-all.ps1`
    locally; the 3-OS CI matrix is authoritative once the `test.yml`
    human-copy candidate is applied (Deployment / CI Plan).
-6. Self-registration (Streams A + B, TEST-019): grep-based self-check
-   confirms both new suites' basenames appear in `tests/run-all.sh`; the
+6. Self-registration (TEST-019/TEST-020): grep-based self-check confirms
+   every new suite's repo-relative path appears in `tests/run-all.sh`.
+   AC-019's named scope is Streams A, B, and C's three product suites; the
+   check as implemented additionally covers Stream D's own
+   `tests/deterministic-lane-selfcheck.tests.sh`, which registers itself in
+   the same list and the same shared `test.yml` batch — four registrations
+   verified, a superset of AC-019's minimum, never fewer. The list is
+   repo-relative paths rather than bare basenames because Stream C's suite
+   lives one directory down (`tests/workflow-scenarios/`). The
    `.github/workflows/test.yml` half of this self-check greps the LIVE
    file only, expected red until the human-copy commit lands (Protected-
    File Statement; mirrors `quality-loop-fixes`'s own TEST-007 precedent).
@@ -526,20 +547,31 @@ job-count-preserving restructuring was chosen over a job-splitting one).
   `MANIFEST.sha256` entry (Protected-File Statement) — never two
   sequential human-copy rounds against the same file within this feature.
   Neither Stream B nor Stream C independently touches `test.yml`; each one's
-  CI step rides this same shared batch, so the batch carries three new suite
-  steps (Streams A, B, C) plus Stream D's step-prefix restructuring.
+  CI step rides this same shared batch, and so does Stream D's own
+  self-check suite's step — so the batch carries FOUR new suite steps
+  (Stream A's `guard-dispatch-fallback`, Stream B's `guard-negative-corpus`,
+  Stream D's `deterministic-lane-selfcheck`, Stream C's `workflow-scenarios`,
+  in that order) plus Stream D's step-prefix restructuring. AC-019/AC-020
+  name Streams A, B, and C's three product suites as the required minimum;
+  the batch as staged is a superset of that minimum, never smaller.
   The staged candidate must also keep the live file's current
   `actions/checkout` pin: the human applies it wholesale, so a candidate
   pinned to an older SHA would silently revert a landed dependabot bump
   (TEST-020 enforces this as a hard FAIL).
-- `tests/run-all.sh` — Streams A, B, and C each add exactly one line (their
-  new suite's basename); Stream D adds no line (it does not add a new
-  suite, it restructures an existing job's presentation). Stream C adds one
-  line for `tests/workflow-scenarios/workflow-scenarios.tests.sh` (AC-019).
-- `tests/run-all.ps1` — neither Stream A nor Stream B's new suite is a
-  native `.ps1` file (both are `.sh`-only, driving other runtimes via
-  subprocess where needed, matching `guard-cwd-bypass.tests.sh`'s own
-  `.sh`-only shape) — no edit to `run-all.ps1` in this feature.
+- `tests/run-all.sh` — each of the four streams adds exactly one line for
+  its own new suite: Stream A's `tests/guard-dispatch-fallback.tests.sh`,
+  Stream B's `tests/guard-negative-corpus.tests.sh`, Stream C's
+  `tests/workflow-scenarios/workflow-scenarios.tests.sh` (AC-019), and
+  Stream D's `tests/deterministic-lane-selfcheck.tests.sh` (the self-check
+  harness that verifies the staged candidate — Stream D restructures an
+  existing job's presentation AND ships the suite that proves the
+  restructuring dropped nothing). Four lines in total, at `run-all.sh`
+  lines 37, 47, 48, and 49.
+- `tests/run-all.ps1` — none of the four new suites is a native `.ps1` file
+  (all are `.sh`-only: Streams A and B drive other runtimes via subprocess,
+  Stream C drives `tests/lib/loop-driver.sh`, and Stream D inspects YAML as
+  text — matching `guard-cwd-bypass.tests.sh`'s own `.sh`-only shape) — no
+  edit to `run-all.ps1` in this feature.
 - `CHANGELOG.md`'s `## Unreleased` section — each of Streams A, B, C, D
   cites a DIFFERENT issue number (#123/#124/#125/#126), so each creates its
   own entry, four in total (AC-022). Stream C's #125 entry was written once
@@ -573,9 +605,10 @@ call (Security Boundaries B4).
 
 ## Deployment / CI Plan
 
-No runtime deployment. Streams A, B, and C add exactly 3 new steps to
-`test.yml`'s single `test` job (staged, ONE shared human-copy batch with
-Stream D's restructuring, Protected-File Statement) — until the human
+No runtime deployment. All four streams add exactly 4 new steps to
+`test.yml`'s single `test` job — one per new suite, Stream D's own
+self-check harness included (staged, ONE shared human-copy batch together
+with Stream D's restructuring, Protected-File Statement) — until the human
 maintainer applies the staged candidate as a pre-merge commit on the
 feature PR branch, the PR's own CI stays red on TEST-019/020's live-file
 self-check, the designed fail-closed state, matching `quality-loop-fixes`'
@@ -605,7 +638,7 @@ batch must record the exact revert boundary.
 | CHANGELOG discipline: one entry per stream, citing its own issue | AC-022 — four independent `## Unreleased` entries (#123, #124, #125, #126), one per stream; Stream C's was written only after its Blocker was discharged, never speculatively (Global Constraints, Design Decisions OQ-2) |
 | sibling-workflow isolation preserved | AC-018 — `self-improvement.yml` and `model-freshness-check.yml` stay absent from `required-checks`' `needs:` list and outside the marked deterministic lane; Stream D changes step NAMES only, so isolation holds by construction and TEST-018 is the non-regression proof (Test Strategy item 8) |
 | read-only guard-exercise boundary (Security Boundaries B1) | both new suites use env-var/PATH indirection exclusively, reusing `guard-cwd-bypass.tests.sh`'s established pattern rather than a bespoke guard-invocation mechanism |
-| protected file — ONE carve-out, shared batch (Protected-File Statement) | all four streams share ONE staged `test.yml` candidate with ONE `MANIFEST.sha256` (Streams A/B/C contribute one suite step each, Stream D the step-prefix restructuring); every other deliverable across Streams A/B/C/D is agent-editable and verified absent from `PROTECTED_GATE_SUFFIXES` |
+| protected file — ONE carve-out, shared batch (Protected-File Statement) | all four streams share ONE staged `test.yml` candidate with ONE `MANIFEST.sha256` (each of Streams A/B/C/D contributes one new suite step — four in total — and Stream D additionally contributes the step-prefix restructuring); every other deliverable across Streams A/B/C/D is agent-editable and verified absent from `PROTECTED_GATE_SUFFIXES` |
 | doc-following in same PR/commit-set | REQ-006's per-stream doc-surface verification (AC-023); expected answer "none" for all 4 streams, recorded explicitly rather than silently assumed |
 | version bump via `scripts/bump-version.sh` only | this feature makes no version-literal edit anywhere; carries forward the same rule `quality-loop-fixes`/`epic-159-pillar-a` already state |
 | ADR-0010 dependency stated explicitly, not assumed Accepted | Stream C's entire scope (REQ-003) was gated on the exact named precondition (`Status: Accepted`) in both requirements.md and this design, with no fallback vocabulary defined (Risks); the ADR then reached `Status: Accepted` (commit `67015a5`) and only then did implementation proceed — the constraint was satisfied by waiting, not by assuming |

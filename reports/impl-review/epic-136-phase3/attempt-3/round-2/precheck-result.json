@@ -1,0 +1,15 @@
+{
+  "schema": "impl-review-precheck/v1",
+  "feature": "epic-136-phase3",
+  "attempt": 3,
+  "round": 2,
+  "impl_review_status_field": "Passed",
+  "legacy_design": false,
+  "design_req_drift": false,
+  "design_sha256": "2e03b014b01995e24915d023840e5784156ccf0e08562543798df65ef79c66bd",
+  "requirements_sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322",
+  "acceptance_sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b",
+  "layer_sha256": {"ux-spec.md":"4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008","frontend-spec.md":"02b9ff2b341941383018436c2edbe0dc1c2abe076019f5a65779c2324dc237a6","infra-spec.md":"78db64f86bf9cc4c08aa7fa663195935948d5a5b84f52979ffc6beeb1e1e2062","security-spec.md":"75a4b4fa4db0c46a617fab88138126a2f867c863b05fb7197f9de7efae50105a"},
+  "input_sha256": "c7b7935fa553f72c36c7b90a92f20c3dd2cbd6f0d0eda2d1104e240949acba77",
+  "generated_at": "2026-08-02T04:30:40Z"
+}

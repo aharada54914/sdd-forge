@@ -1,0 +1,130 @@
+{
+  "schema": "impl-review-contract/v1",
+  "stage": "impl",
+  "feature": "epic-136-phase3",
+  "attempt": 3,
+  "round": 1,
+  "feature_type": "ci-and-test-infrastructure-hardening (4 independent new-test-suite/CI-lane-boundary additions; no UI, no user-facing API)",
+  "legacy_design": false,
+  "requirements_sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322",
+  "acceptance_sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b",
+  "design_sha256": "08242bc809e10a277f94efee0bd48e56f0143fd204ad9a2379236522fc01f2b7",
+  "layer_sha256": {
+    "ux-spec.md": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008",
+    "frontend-spec.md": "8376e72b8eb1355d966c3546c4cc254d8d1cf287d64720482a50acc3655d86d8",
+    "infra-spec.md": "e46998906497e7c9b94cd4b009ac9c99ac92f190db9d7f1031dae171465c1dfd",
+    "security-spec.md": "66bec9fad6f97ebbd40b95e3f64dcf4f141197915d3d988788f419f0092a3520"
+  },
+  "design_req_drift": false,
+  "human_edit_summary": "round-1 NEEDS_WORK (1 Major: SECURITY-COVERAGE). Reviewer A found the Layer-Specifications-designated canonical documents contradicting design.md on the ONE shared test.yml batch's stream composition (security-spec.md:50 'both Stream A ... and Stream D'; infra-spec.md:70 'BOTH streams'; frontend-spec.md:21 '2 new CI steps (Streams A + B)'). Fix plan: sweep by concept anchor against the SHIPPED artifacts rather than by reviewer-quoted spelling. Ground truth verified this round: the staged candidate (verification/T-003/staged-workflow-candidate.draft.yml) carries FOUR new suite steps (guard-dispatch-fallback, guard-negative-corpus, deterministic-lane-selfcheck, workflow-scenarios), tests/run-all.sh registers all four (lines 37,47,48,49), tests/run-all.ps1 registers none (no suite ships a native .ps1 twin), and all four are absent from the live workflow (designed-red). Every counting/membership claim about the shared batch, run-all registration, and this feature's new-suite set in design.md and the four layer specs will be reconciled to that measured reality, including design.md's incorrect 'Stream D adds no line' and the 'three new suite steps' count.",
+  "prior_round_contract_sha256": "",
+  "pass_type": "with-findings",
+  "reviewer_a_verdict": "NEEDS_WORK",
+  "reviewer_b_verdict": "PASS",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-epic136phase3-impl-a3r1-a-seq0437",
+      "host_session_id": "SESS-impl-a3r1-a-epic136phase3-0437",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-1/precheck-result.json",
+          "sha256": "00bc99c212f5855b84ab1247116ec177e922a6b9a54ba392d0a18c81c6cf71c4"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+          "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+          "sha256": "08242bc809e10a277f94efee0bd48e56f0143fd204ad9a2379236522fc01f2b7"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+          "sha256": "8376e72b8eb1355d966c3546c4cc254d8d1cf287d64720482a50acc3655d86d8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+          "sha256": "e46998906497e7c9b94cd4b009ac9c99ac92f190db9d7f1031dae171465c1dfd"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+          "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+          "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+          "sha256": "66bec9fad6f97ebbd40b95e3f64dcf4f141197915d3d988788f419f0092a3520"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+          "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+        }
+      ]
+    },
+    {
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-epic136phase3-impl-a3r1-b-seq0438",
+      "host_session_id": "SESS-impl-a3r1-b-epic136phase3-0438",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-1/integrated-summary.json",
+          "sha256": "ce3dfba528e5fddc005e1b3c5444324e91d7399052969c3b3971778893075034"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase3/attempt-3/round-1/precheck-result.json",
+          "sha256": "00bc99c212f5855b84ab1247116ec177e922a6b9a54ba392d0a18c81c6cf71c4"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+          "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/design.md",
+          "sha256": "08242bc809e10a277f94efee0bd48e56f0143fd204ad9a2379236522fc01f2b7"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/frontend-spec.md",
+          "sha256": "8376e72b8eb1355d966c3546c4cc254d8d1cf287d64720482a50acc3655d86d8"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/infra-spec.md",
+          "sha256": "e46998906497e7c9b94cd4b009ac9c99ac92f190db9d7f1031dae171465c1dfd"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+          "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+          "sha256": "07899562af5b9b2d9768bf7796955e51397664063dd0cb4c4108dcf073c24322"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/security-spec.md",
+          "sha256": "66bec9fad6f97ebbd40b95e3f64dcf4f141197915d3d988788f419f0092a3520"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/ux-spec.md",
+          "sha256": "4418576e82848706f7401cf708cbfa791f8e1c59400b3719a61116f1221a5008"
+        }
+      ]
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "run_id": "impl-orch-epic136phase3-a3r1",
+  "timestamp": "2026-08-02T04:24:04Z"
+}
