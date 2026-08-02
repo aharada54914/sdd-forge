@@ -47,7 +47,7 @@ flowchart LR
 pattern are unchanged in SHAPE by this feature — Stream D deliberately
 avoids splitting the single `test` job into multiple jobs (design.md
 Design Decisions, OQ-5), so no toolchain-setup step is re-run per new job
-per OS. Streams A and B together add exactly 2 new steps to the existing
+per OS. Streams A, B, and C together add exactly 3 new steps to the existing
 `test` job, each now carrying the `[deterministic]` name prefix Stream D's
 restructuring applies to every step in that job:
 
@@ -58,6 +58,9 @@ restructuring applies to every step in that job:
       - name: "[deterministic] Test guard negative corpus suite (bash)"
         shell: bash
         run: bash ./tests/guard-negative-corpus.tests.sh
+      - name: "[deterministic] Test workflow-scenarios suite (bash)"
+        shell: bash
+        run: bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh
 ```
 
 Because `.github/workflows/test.yml` is itself an enforcement-chain
@@ -122,7 +125,7 @@ comparable class of guard-invocation suite.
 ## Infrastructure as Code, Scaling, SLOs, and Residency
 
 N/A — no change: no deployed service. The only IaC-like artifact touched is
-`.github/workflows/test.yml` (existing, protected — 2 new steps plus a
+`.github/workflows/test.yml` (existing, protected — 3 new steps plus a
 step-name-prefix restructuring, one shared human-copy batch, Streams A +
 D only).
 

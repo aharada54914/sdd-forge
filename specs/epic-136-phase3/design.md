@@ -368,10 +368,15 @@ defect for a FOLLOW-ON issue — Stream C's scope is the TEST, not a guard
 fix (Non-goals: no `plugins/` file is edited by this feature at all, Hard
 Constraints).
 
-### `.github/workflows/test.yml` (Stream D + Stream A, ONE shared staged batch)
+### `.github/workflows/test.yml` (Streams A + B + C + D, ONE shared staged batch)
 
-Stream A adds one CI step (bash-only, matching the `quality-loop-fixes`
-Stream 1 convention for a suite that does not need a separate `pwsh` leg):
+Streams A, B, and C each add one CI step (bash-only, matching the
+`quality-loop-fixes` Stream 1 convention for a suite that does not need a
+separate `pwsh` leg). Stream C's step is part of THIS batch, not a later
+feature's: its Blocker was discharged before the batch was finalized (Stream C
+status record), and AC-019/AC-020 require a step for every new suite —
+omitting it would ship a landed suite that INV-006's no-wildcard rule then
+silently never runs:
 
 ```yaml
       - name: Test guard dispatch fallback suite (bash)
@@ -380,6 +385,9 @@ Stream 1 convention for a suite that does not need a separate `pwsh` leg):
       - name: Test guard negative corpus suite (bash)
         shell: bash
         run: bash ./tests/guard-negative-corpus.tests.sh
+      - name: Test workflow-scenarios suite (bash)
+        shell: bash
+        run: bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh
 ```
 
 Stream D marks the lane boundary INSIDE the single `test` job. Design
@@ -511,13 +519,18 @@ job-count-preserving restructuring was chosen over a job-splitting one).
 
 ## Global Constraints
 
-- `.github/workflows/test.yml` — Streams A and D's edits are staged as ONE
+- `.github/workflows/test.yml` — all four streams' edits are staged as ONE
   shared human-copy batch under
   `specs/epic-136-phase3/human-copy/.github/workflows/test.yml` with ONE
   `MANIFEST.sha256` entry (Protected-File Statement) — never two
   sequential human-copy rounds against the same file within this feature.
-  Stream B does not independently touch `test.yml`; its CI step is part of
-  the same shared batch.
+  Neither Stream B nor Stream C independently touches `test.yml`; each one's
+  CI step rides this same shared batch, so the batch carries three new suite
+  steps (Streams A, B, C) plus Stream D's step-prefix restructuring.
+  The staged candidate must also keep the live file's current
+  `actions/checkout` pin: the human applies it wholesale, so a candidate
+  pinned to an older SHA would silently revert a landed dependabot bump
+  (TEST-020 enforces this as a hard FAIL).
 - `tests/run-all.sh` — Streams A and B each add exactly one line (their
   new suite's basename); Stream D adds no line (it does not add a new
   suite, it restructures an existing job's presentation). Stream C adds one
@@ -559,7 +572,7 @@ call (Security Boundaries B4).
 
 ## Deployment / CI Plan
 
-No runtime deployment. Streams A and B add exactly 2 new steps to
+No runtime deployment. Streams A, B, and C add exactly 3 new steps to
 `test.yml`'s single `test` job (staged, ONE shared human-copy batch with
 Stream D's restructuring, Protected-File Statement) — until the human
 maintainer applies the staged candidate as a pre-merge commit on the
@@ -591,7 +604,7 @@ batch must record the exact revert boundary.
 | CHANGELOG discipline: one entry per stream, citing its own issue | AC-022 — four independent `## Unreleased` entries (#123, #124, #125, #126), one per stream; Stream C's was written only after its Blocker was discharged, never speculatively (Global Constraints, Design Decisions OQ-2) |
 | sibling-workflow isolation preserved | AC-018 — `self-improvement.yml` and `model-freshness-check.yml` stay absent from `required-checks`' `needs:` list and outside the marked deterministic lane; Stream D changes step NAMES only, so isolation holds by construction and TEST-018 is the non-regression proof (Test Strategy item 8) |
 | read-only guard-exercise boundary (Security Boundaries B1) | both new suites use env-var/PATH indirection exclusively, reusing `guard-cwd-bypass.tests.sh`'s established pattern rather than a bespoke guard-invocation mechanism |
-| protected file — ONE carve-out, shared batch (Protected-File Statement) | Streams A and D share ONE staged `test.yml` candidate with ONE `MANIFEST.sha256`; every other deliverable across Streams A/B/D is agent-editable and verified absent from `PROTECTED_GATE_SUFFIXES` |
+| protected file — ONE carve-out, shared batch (Protected-File Statement) | all four streams share ONE staged `test.yml` candidate with ONE `MANIFEST.sha256` (Streams A/B/C contribute one suite step each, Stream D the step-prefix restructuring); every other deliverable across Streams A/B/C/D is agent-editable and verified absent from `PROTECTED_GATE_SUFFIXES` |
 | doc-following in same PR/commit-set | REQ-006's per-stream doc-surface verification (AC-023); expected answer "none" for all 4 streams, recorded explicitly rather than silently assumed |
 | version bump via `scripts/bump-version.sh` only | this feature makes no version-literal edit anywhere; carries forward the same rule `quality-loop-fixes`/`epic-159-pillar-a` already state |
 | ADR-0010 dependency stated explicitly, not assumed Accepted | Stream C's entire scope (REQ-003) was gated on the exact named precondition (`Status: Accepted`) in both requirements.md and this design, with no fallback vocabulary defined (Risks); the ADR then reached `Status: Accepted` (commit `67015a5`) and only then did implementation proceed — the constraint was satisfied by waiting, not by assuming |
