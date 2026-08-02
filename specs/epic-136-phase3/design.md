@@ -94,7 +94,7 @@ flowchart TB
 
   subgraph SD["Stream D (#126)"]
     TESTYML_LIVE[".github/workflows/test.yml (PROTECTED, live, single test job today)"]
-    TESTYML_HC["human-copy/.github/workflows/test.yml (staged: [deterministic] step prefixes + comment lane boundary + Streams A/B's new steps)"]
+    TESTYML_HC["human-copy/.github/workflows/test.yml (staged: [deterministic] step prefixes + comment lane boundary + Streams A/B/C's new steps)"]
     RC["required-checks (needs: byte-unchanged - BL-001 preserved)"]
     SELFCHECK["text-marker step-coverage self-check (tests/workflow-state-ci-integration.tests.sh technique)"]
     TESTYML_HC -.->|human copies, SHA-256 verified| TESTYML_LIVE
@@ -114,7 +114,7 @@ flowchart TB
 | `sdd-hook-guard.sh`/`.py`/`.js`/`.ps1` | live guard runtimes (exercised read-only by both new suites) | Bash / Python / Node / PowerShell | existing, UNCHANGED | YES — `PROTECTED_GATE_SUFFIXES` (`guard_invariants.py:4`); neither stream edits any of the four |
 | `tests/workflow-scenarios/` + scenario schema | 10-class scenario harness, `greenfield`/`brownfield` vocabulary reused from `loop-inventory.json` | Bash/PowerShell + JSON schema | created by Stream C's T-004 (Stream C status record) | no — new files, no protected-suffix collision |
 | `docs/adr/0010-loop-inventory-and-fixture-vocabulary.md` | normative vocabulary source Stream C must reuse | Markdown (ADR) | existing, `Status: Accepted`, NOT edited by this feature | READ-ONLY per this feature's Hard Constraints |
-| `.github/workflows/test.yml` | CI workflow; gains Streams A/B's new steps AND Stream D's step-prefix lane marking (job graph unchanged) | GitHub Actions YAML | existing, edited via human-copy (Streams A + D, ONE shared staged batch — Global Constraints below) | YES — `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS` (`guard_invariants.py:4,18`) |
+| `.github/workflows/test.yml` | CI workflow; gains Streams A/B/C's new steps AND Stream D's step-prefix lane marking (job graph unchanged) | GitHub Actions YAML | existing, edited via human-copy (Streams A + B + C + D, ONE shared staged batch — Global Constraints below) | YES — `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS` (`guard_invariants.py:4,18`) |
 | `tests/run-all.sh` | local convenience runner | Bash | existing, edited (Streams A, B, and C) | no |
 | `tests/run-all.ps1` | local convenience runner (native `.ps1` suites only) | PowerShell | existing, edited only if either new suite ships a native `.ps1` twin (Design Decisions) | no |
 | `CHANGELOG.md` | 4 independent `## Unreleased` entries (#123, #124, #125, #126) — AC-022; Stream C's #125 entry was written once its Blocker was discharged | Markdown | existing, edited (Streams A, B, C, D) | no |
@@ -148,13 +148,14 @@ normative vocabulary text.
 
 For `.github/workflows/test.yml`: the agent stages ONE combined candidate
 under `specs/epic-136-phase3/human-copy/.github/workflows/test.yml`
-containing BOTH Stream A's new CI step AND Stream D's step-prefix lane
-marking, with ONE `MANIFEST.sha256` entry — resolving
-requirements.md's Global Constraints concern about two streams touching
-the same protected file within one feature (Design Decisions below).
-Stream B does not independently stage a `test.yml` edit — its CI step is
-folded into the SAME staged batch (one shared human-copy round for all of
-this feature's `test.yml` changes, not three sequential ones).
+containing ALL FOUR streams' changes — Stream A's, Stream B's, and Stream
+C's new CI steps AND Stream D's step-prefix lane marking — with ONE
+`MANIFEST.sha256` entry, resolving requirements.md's Global Constraints
+concern about multiple streams touching the same protected file within one
+feature (Design Decisions below). Neither Stream B nor Stream C
+independently stages a `test.yml` edit; each one's CI step is folded into
+the SAME staged batch (one shared human-copy round for all of this
+feature's `test.yml` changes, never four sequential ones).
 
 ## Layer Specifications
 
@@ -162,7 +163,7 @@ this feature's `test.yml` changes, not three sequential ones).
 |---|---|---|---|---|
 | UX | N/A — no change: no GUI or user-facing surface | [UX specification](ux-spec.md#scope-and-user-journeys) | maintainers | N/A |
 | Frontend | N/A — no change: Bash/PowerShell/YAML/JSON-schema only | [Frontend specification](frontend-spec.md#technology-stack) | maintainers | N/A |
-| Infrastructure | one shared `test.yml` human-copy batch (Streams A + D); no new deployment target | [Infrastructure specification](infra-spec.md#cicd-sequence) | maintainers | Planned |
+| Infrastructure | one shared `test.yml` human-copy batch (Streams A + B + C + D); no new deployment target | [Infrastructure specification](infra-spec.md#cicd-sequence) | maintainers | Planned |
 | Security | inbound prompt-injection boundary (Stream C, landed); read-only guard-exercise boundary (Streams A/B); one protected-file carve-out | [Security specification](security-spec.md#trust-boundaries) | maintainers | Planned |
 
 ## Design System Compliance
@@ -531,7 +532,7 @@ job-count-preserving restructuring was chosen over a job-splitting one).
   `actions/checkout` pin: the human applies it wholesale, so a candidate
   pinned to an older SHA would silently revert a landed dependabot bump
   (TEST-020 enforces this as a hard FAIL).
-- `tests/run-all.sh` — Streams A and B each add exactly one line (their
+- `tests/run-all.sh` — Streams A, B, and C each add exactly one line (their
   new suite's basename); Stream D adds no line (it does not add a new
   suite, it restructures an existing job's presentation). Stream C adds one
   line for `tests/workflow-scenarios/workflow-scenarios.tests.sh` (AC-019).
@@ -556,7 +557,7 @@ job-count-preserving restructuring was chosen over a job-splitting one).
 |---|---|---|---|
 | B1: new-suite fixtures vs. live protected guard binaries | both new suites invoke the live `sdd-hook-guard.{py,js,ps1,sh}` READ-ONLY via env-var/PATH indirection (`GUARD_PY`/`GUARD_JS`/`GUARD_PS1`/`GUARD_SH`, extending `guard-cwd-bypass.tests.sh`'s established pattern); neither suite ever opens either target file for writing | internal repository content only | Security Misconfiguration (prevented: no suite can accidentally mutate a live guard) |
 | B2: fixture GitHub issue body vs. reading agent session (Stream C, landed) | the fixture's adversarial instruction-shaped text is synthetic, mktemp-scoped, never a real network-fetched issue body; the assertion proves the target entry point does not FOLLOW embedded instructions in fetched content. Verified by TEST-014 (AC-014) in `tests/workflow-scenarios/workflow-scenarios.tests.sh`, enumerated in security-spec.md's Security Tests table — a RED/GREEN-paired proxy harness whose accepted-directive detector is a documented multi-expression set, with any genuine discovered defect recorded non-fatally and its count pinned against a named allowlist | internal fixture content only | Prompt Injection (the exact class this AC operationalizes as a test) |
-| B3: `.github/workflows/test.yml` vs. agent-direct edits | ONE shared staged batch (Streams A + D) under `specs/epic-136-phase3/human-copy/` with ONE `MANIFEST.sha256`; only a human applies it | internal source only | Security Misconfiguration (prevented by process) |
+| B3: `.github/workflows/test.yml` vs. agent-direct edits | ONE shared staged batch (Streams A + B + C + D) under `specs/epic-136-phase3/human-copy/` with ONE `MANIFEST.sha256`; only a human applies it | internal source only | Security Misconfiguration (prevented by process) |
 | B4: fixture world vs. real repository/network/ledger state | every fixture (PATH-restricted subshells, stub binaries, negative-case payloads) is mktemp-scoped; no suite in this feature reserves a real identity-ledger record or invokes the real `gh` CLI against a real issue | synthetic fixtures only | Test Isolation |
 
 Detailed controls: [Security specification](security-spec.md#trust-boundaries).
@@ -590,7 +591,7 @@ A/B is a reviewed revert of their own commits (no protected-file
 round-trip needed, since neither touches `test.yml` independently of the
 shared batch). Stream D's rollback requires a second human-copy
 application reverting the shared candidate's restructuring portion while
-preserving Stream A/B's step additions if those are meant to survive —
+preserving Streams A/B/C's step additions if those are meant to survive —
 the implementation report for whichever stream lands LAST in the shared
 batch must record the exact revert boundary.
 

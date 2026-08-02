@@ -32,7 +32,8 @@ flowchart LR
 
   CI["test.yml 3-OS matrix (windows / macos / ubuntu)"] --> TESTJOB["test job ([deterministic]-prefixed steps, Stream D)"]
   TESTJOB --> GDFSTEP["Test guard dispatch fallback suite (bash, Stream A new step)"]
-  TESTJOB --> GNCSTEP["Test guard negative corpus suite (bash, Stream A/B new step)"]
+  TESTJOB --> GNCSTEP["Test guard negative corpus suite (bash, Stream B new step)"]
+  TESTJOB --> WFSSTEP["Test workflow-scenarios suite (bash, Stream C new step)"]
   TESTJOB --> RC["required-checks (needs: [test, cli-hook-enforcement], UNCHANGED membership)"]
 
   HUMAN["Human maintainer"] -->|copies ONE shared staged candidate, MANIFEST.sha256 verified| TESTYMLLIVE[".github/workflows/test.yml (protected, live)"]
@@ -103,7 +104,7 @@ makes the future split's target obvious.
 | python3 | `tests/guard-dispatch-fallback.tests.sh`'s control case (AC-001) and decision-parity checks | already a hard dependency of `sdd-hook-guard.sh`'s own `.py` branch (unchanged); the suite's OTHER cases deliberately construct a `python3`-absent `PATH`, so absence is exercised on purpose, not merely tolerated |
 | pwsh / powershell.exe / powershell (at least one, or stubbed) | `tests/guard-dispatch-fallback.tests.sh`'s fallback-branch cases (AC-002..006) | the suite provides thin forwarding stubs (design.md API/Contract Plan) so a host lacking a real PowerShell variant can still exercise `command -v`-level branch selection; the underlying DECISION parity check (AC-002..004) requires a real interpreter reachable from the pre-override `PATH` and SKIPs with a named reason if none is available, mirroring `guard-parity.tests.sh`'s SKIP convention |
 | node | `tests/guard-negative-corpus.tests.sh`'s `.js`-runtime sub-cases | already a hard dependency of `sdd-hook-guard.js` (unchanged); absence SKIPs only the `.js` sub-cases of AC-008/009/010, not the whole suite |
-| git | human-copy staging verification (Streams A + D's shared carve-out) | already a repository dependency |
+| git | human-copy staging verification (the shared carve-out covering all four streams) | already a repository dependency |
 
 No new services, containers, or package installations of any kind.
 
@@ -112,7 +113,7 @@ No new services, containers, or package installations of any kind.
 | Environment | URL | Auth | Trigger | Classification | Promotion Rule |
 |---|---|---|---|---|---|
 | local | repository checkout | none / synthetic fixtures | `bash tests/run-all.sh` | internal fixtures only | both new suites green |
-| CI matrix (`test.yml`) | no network use by either new suite beyond checkout | scoped `GITHUB_TOKEN` (unchanged) | push / PR / merge_group | synthetic fixtures | all required checks green on 3 OSes, once the shared human-copied `test.yml` candidate (Streams A + D) is live |
+| CI matrix (`test.yml`) | no network use by either new suite beyond checkout | scoped `GITHUB_TOKEN` (unchanged) | push / PR / merge_group | synthetic fixtures | all required checks green on 3 OSes, once the shared human-copied `test.yml` candidate (Streams A + B + C + D) is live |
 
 ## Runtime Budget
 
@@ -126,8 +127,8 @@ comparable class of guard-invocation suite.
 
 N/A — no change: no deployed service. The only IaC-like artifact touched is
 `.github/workflows/test.yml` (existing, protected — 3 new steps plus a
-step-name-prefix restructuring, one shared human-copy batch, Streams A +
-D only).
+step-name-prefix restructuring, one shared human-copy batch covering all
+four streams).
 
 ## Observability
 
@@ -137,16 +138,16 @@ D only).
 
 ## Rollback
 
-Streams A and B: reviewed revert of their own commits removes the 2 new
-test files; because their CI-step registration is part of the SHARED
+Streams A, B, and C: reviewed revert of their own commits removes the 3 new
+test suites; because their CI-step registration is part of the SHARED
 `test.yml` human-copy batch with Stream D, a revert of the LIVE
 `test.yml`'s registration lines requires a second human-copy application
-(staging a candidate with Stream A/B's 2 lines removed) — the same
+(staging a candidate with those 3 step blocks removed) — the same
 human-in-the-loop mechanism that added them, never a direct agent revert
 of the live protected file. Stream D: reverting its step-prefix lane
 marking similarly requires a second human-copy application removing
 the `[deterministic]` prefixes and the comment lane-boundary placeholder; if
-Streams A/B's step lines are meant to survive a Stream D revert, the
+Streams A/B/C's step lines are meant to survive a Stream D revert, the
 implementation report for whichever stream lands LAST in the shared batch
 must record the exact revert boundary (design.md Deployment / CI Plan).
 Stream C's rollback is a reviewed revert of T-004's own commits

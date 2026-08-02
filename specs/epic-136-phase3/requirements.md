@@ -590,7 +590,7 @@ record) — and a saved quality-gate report before it may be marked Done.
   for Stream C's implementation (OQ-2) — that decision was NOT made by this
   spec or by any agent session, and it has since been made (commit
   `67015a5`).
-- CI: runs Streams A and B's suites, and the same single `test` job with
+- CI: runs Streams A, B, and C's suites, and the same single `test` job with
   its `[deterministic]`-prefixed steps, once the ONE shared staged
   `test.yml` candidate (Streams A + B + C + D) is applied by the human;
   Stream C's suite landed with the rest and registers its own explicit step
@@ -708,7 +708,7 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   `tests/guard-r10-port.tests.ps1` remain absent from `.github/workflows/test.yml`
   today. This is shared, git-tracked state a sibling branch could change —
   RE-VERIFY directly by grep at implementation time before assuming any of
-  Streams A/B/D's `test.yml` edits are the first to touch this surface
+  Streams A/B/C/D's `test.yml` edits are the first to touch this surface
   (WFI-013 discipline).
 - `PROTECTED_GATE_SUFFIXES`/`PHASE2_HUMAN_COPY_TARGETS`
   (`guard_invariants.py:4,18`) hold their re-verified membership at
@@ -722,7 +722,7 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   implementation time, not assume `sequence 338` is still free (WFI-013
   discipline) — in practice, every new suite's own fixtures should use a
   fixture-scoped ledger copy where a ledger interaction is even needed,
-  avoiding this risk (none of Streams A/B/D's own fixtures need to
+  avoiding this risk (no stream's own fixtures need to
   `--reserve` against the real ledger at all).
 - ADR-0010's `Status: Proposed` (Re-verification note) held at
   spec-authoring time — an authoring-time snapshot, not a current-state
@@ -777,7 +777,7 @@ Details: [Security specification](security-spec.md#trust-boundaries).
   merged (both its `ship/SKILL.md` and `test.yml` human-copy candidates
   applied, Re-verification note finding 3) before this feature's spec
   authoring began. The batch COUNT is decided at this spec level: the ONE
-  shared staged batch (Non-goals) carries Streams A/B/D's `test.yml`
+  shared staged batch (Non-goals) carries Streams A/B/C/D's `test.yml`
   edits. What remains for design.md's Global Constraints is only the
   internal ordering of those edits WITHIN that single batch — not a
   cross-feature collision, and not a one-vs-two-batches choice.
