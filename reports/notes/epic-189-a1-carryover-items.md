@@ -195,3 +195,26 @@
 - **対処方針**: T-007 のフォローアップ（epic 内の後続タスクまたは別 feature)で
   `--help` を追加し exit code 表を記載する。R-10 非対象のため通常編集で可。
   remedy-4 のスコープには含めない（remedy-4 は seq0360 の Critical/Major のみ)。
+
+## 既存不具合: phase2-guard-invariants の pwsh レーンが macOS で 9 件失敗
+
+- **出所**: T-009 の Done チェーン生成時（コミット `2ff3e609`)に発見。当該
+  エージェントが**補足セクション**として隣接 guard スイート3種を追加実行した
+  ところ判明した。T-009 の必須 regression セット（8 スイート × 2 レーン、全
+  green)には含まれない。
+- **内容**: `pwsh -NoProfile -File tests/phase2-guard-invariants.tests.ps1` が
+  **59 passed / 9 failed**（exit 1)。bash 版 `tests/phase2-guard-invariants.tests.sh`
+  は 33/0 で green。失敗 9 件はすべて TEST-013 系で、junction・保持ハンドル・
+  インベントリ外ハードリンク別名・固定のネイティブ置換 API といった
+  **Windows/NTFS 固有セマンティクス**を macOS 上で実行していることに由来する。
+- **T-009 起因ではないことの証明**: `git archive 15b53914`（T-008 の Done
+  コミット = T-009 のコミットが1つも存在しない時点)を使い捨てディレクトリへ
+  展開して再実行したところ、**バイト単位で同一の 9 件失敗**を再現（FAIL 行の
+  `diff` が空)。
+- **注意**: seq0364/seq0365 の評価者はこのスイートの **bash 版のみ**を実行して
+  いたため、この pwsh 側の失敗は QG レポートには現れていない。
+- **対処方針**: (a) 当該 9 件を非 Windows ホストで明示スキップする（他スイートの
+  `$IsWindows` 分岐の先例に倣う)か、(b) macOS でも成立する形へ書き換えるか、
+  (c) CI が Windows レーンを持つならホスト限定テストとして正式に宣言する、の
+  いずれか。**epic-189-a1 のスコープ外**（`tests/phase2-guard-invariants.tests.ps1`
+  はどのタスクの Planned Files にも含まれない)。
