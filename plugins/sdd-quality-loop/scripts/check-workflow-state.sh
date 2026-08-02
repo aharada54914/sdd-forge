@@ -161,6 +161,27 @@ normalized_hash() {
         -e "/^Second Approval:/d" "$file" | sha256_stream ;;
   esac
 }
+# A reviewed document's recorded hash legitimately takes either of two forms.
+# An ordinary review runs while the stage's status field still reads `Pending`
+# (impl-review-precheck.sh enforces that), so the reviewers record the raw
+# bytes and the post-review flip to `Passed` is absorbed by normalized_hash().
+# A re-review of an already-passed feature (--provenance-rereview) necessarily
+# runs while the field already reads `Passed` -- that mode refuses to start
+# otherwise -- so the reviewers record the raw bytes of THAT state, which no
+# normalization can reproduce. Accepting either form does not weaken
+# provenance: both prove the reviewers read the document's current body, and
+# an edit to the body still matches neither.
+reviewed_hash_accepted() {
+  local file="$1" stage="$2" candidate="$3"
+  [[ -n "$candidate" ]] || return 1
+  [[ "$candidate" == "$(normalized_hash "$file" "$stage")" ]] && return 0
+  [[ "$candidate" == "$(sha256_file "$file")" ]]
+}
+manifest_has_reviewed_hash() {
+  local contract="$1" suffix="$2" file="$3" stage="$4" recorded_root="$5"
+  manifest_has_hash "$contract" "$suffix" "$(normalized_hash "$file" "$stage")" "$recorded_root" && return 0
+  manifest_has_hash "$contract" "$suffix" "$(sha256_file "$file")" "$recorded_root"
+}
 manifest_has_hash() {
   local contract="$1" suffix="$2" expected="$3" recorded_root="$4"
   jq -e --arg suffix "$suffix" --arg expected "$expected" \
@@ -554,9 +575,9 @@ validate_passed_stage() {
     local design="$feature_dir/design.md"
     [[ -f "$design" && ! -L "$design" ]] ||
       diagnostic "$feature" stage-provenance "implementation design is missing"
-    manifest_has_hash "$contract" "/specs/$feature/design.md" "$(normalized_hash "$design" impl)" "$recorded_root" ||
+    manifest_has_reviewed_hash "$contract" "/specs/$feature/design.md" "$design" impl "$recorded_root" ||
       diagnostic "$feature" stage-provenance "implementation design hash is stale"
-    [[ "$(jq -r '.design_sha256 // empty' "$contract")" == "$(normalized_hash "$design" impl)" ]] ||
+    reviewed_hash_accepted "$design" impl "$(jq -r '.design_sha256 // empty' "$contract")" ||
       diagnostic "$feature" stage-provenance "implementation top-level design hash is stale"
     if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
       jq -e '(.layer_sha256 | keys) == ["frontend-spec.md","infra-spec.md","security-spec.md","ux-spec.md"]' "$precheck" >/dev/null ||
@@ -577,9 +598,9 @@ validate_passed_stage() {
     local tasks="$feature_dir/tasks.md" traceability="$feature_dir/traceability.md"
     [[ -f "$tasks" && ! -L "$tasks" ]] ||
       diagnostic "$feature" stage-provenance "task plan is missing"
-    manifest_has_hash "$contract" "/specs/$feature/tasks.md" "$(normalized_hash "$tasks" task)" "$recorded_root" ||
+    manifest_has_reviewed_hash "$contract" "/specs/$feature/tasks.md" "$tasks" task "$recorded_root" ||
       diagnostic "$feature" stage-provenance "task plan hash is stale"
-    [[ "$(jq -r '.tasks_sha256 // empty' "$contract")" == "$(normalized_hash "$tasks" task)" ]] ||
+    reviewed_hash_accepted "$tasks" task "$(jq -r '.tasks_sha256 // empty' "$contract")" ||
       diagnostic "$feature" stage-provenance "task top-level plan hash is stale"
     if [[ "$(jq -r '(.layer_sha256 // {}) | length' "$precheck")" -gt 0 ]]; then
       [[ -f "$traceability" && ! -L "$traceability" ]] ||
