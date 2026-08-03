@@ -125,7 +125,7 @@ Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
 Approval: Approved (sudo 2026-07-22T14:31:01Z)
 
-Status: Blocked
+Status: Implementation Complete
 
 Risk: medium
 
@@ -327,6 +327,41 @@ applies the patch; after application, complete the staged `test.yml` +
 MANIFEST items per HUMAN-APPLY-STEPS.md.
 
 Accepted-deviation record (decision-7 = A): specs/epic-189-a1-project-context/verification/T-001/sizing-accepted-deviation.md
+
+CLOSED (2026-08-04, close-out session): the R-10 guard blocker described
+above has been resolved and independently re-verified by a fresh
+implementer session sharing no context with the original one.
+`_is_protected_gate_file()` (`plugins/sdd-quality-loop/scripts/
+sdd-hook-guard.py:976-1004`) now carries a `_HUMAN_COPY_STAGING_RE`
+exemption (`(?:^|/)specs/[^/]+/human-copy/`) for any normalized path still
+under a feature's `human-copy/` staging prefix — confirmed this session by
+reading the live function body, not the commit message alone; the fix
+landed in commit `6ecb818b` ("fix(quality-loop): human-copy staging
+exemption + token-based command pre-filter"). The previously-blocked
+Done-When item is now satisfied: the staged `specs/epic-189-a1-
+project-context/human-copy/.github/workflows/test.yml` candidate contains
+T-001's own CI steps ("Test project-context-schema suite (bash)"/"(pwsh)",
+lines 216-225, invoking `tests/project-context-schema.tests.sh`/`.ps1`),
+and its `specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256`
+entry (`506133dc4ae8b4c93ea18eae8f388d5ed9aefab07d687ae77c9c1ec99a286873
+.github/workflows/test.yml`) was confirmed this session to match a fresh
+`shasum -a 256` of the staged file's actual bytes. The LIVE
+`.github/workflows/test.yml` SHA-256 was re-measured this session and is
+still `3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4`
+— unchanged since the original 2026-07-22 session. Every other Done-When
+item was independently re-run this session, not merely re-read: both
+`tests/project-context-schema.tests.sh` and `.tests.ps1` were re-executed
+for real (bash and pwsh) and both produced 41/41 PASS, 0 FAIL, exit 0,
+assertion-for-assertion identical to the previously recorded logs; both
+suites remain registered in `tests/run-all.sh`/`.ps1`; the three contract/
+template files and both test scripts are byte-identical (SHA-256) to the
+values already on record; `CHANGELOG.md`'s `## Unreleased` section carries
+the `### 追加` entry citing Issue #189 for T-001. Nothing previously green
+regressed. Full detail in `reports/implementation/
+epic-189-a1-project-context/T-001.md`'s Close-Out (2026-08-04) section.
+The sole remaining Done-When item — an independent quality-gate verdict —
+is out of scope for this close-out and is deferred to `quality-gate`;
+`Status` moves to `Implementation Complete`, not `Done`.
 
 ---
 
