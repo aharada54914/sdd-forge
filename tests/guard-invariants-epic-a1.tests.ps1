@@ -390,8 +390,14 @@ if (Test-Path -LiteralPath $ManifestSha -PathType Leaf) {
     $badLines = @($shaLines | Where-Object { $_ -notmatch '^[0-9a-f]{64}  [^ ].*$' })
     Assert-Eq $badLines.Count 0 'staging: every MANIFEST.sha256 line is <64-lowercase-hex><2 spaces><path>'
 
+    # The CI-staging entry belongs to a later task, which owns refreshing it.
+    # T-009 must neither drop nor duplicate it. Its digest is validated against
+    # the staged bytes by the per-entry loop below, so pinning a literal digest
+    # here would assert nothing extra while breaking the moment that later task
+    # legitimately refreshes the entry - which is exactly what happened when
+    # T-010 appended its own CI step (human ruling, 2026-08-04).
     $wfLine = @($shaLines | Where-Object { $_.EndsWith('  .github/workflows/test.yml') })
-    Assert-SeqEq $wfLine @('a50b0e9632b22b0d5ca377bc5fb2a2c072f30a88194313cd220328f8fe5a05a3  .github/workflows/test.yml') 'staging: the pre-existing .github/workflows/test.yml entry is preserved verbatim'
+    Assert-Eq $wfLine.Count 1 'staging: the CI-staging .github/workflows/test.yml entry is present exactly once'
 
     $missing = 0
     $mismatched = 0

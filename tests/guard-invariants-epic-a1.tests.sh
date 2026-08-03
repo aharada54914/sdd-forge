@@ -523,12 +523,15 @@ if [ -f "$MANIFEST_SHA" ]; then
   BAD_LINES=$(grep -cvE '^[0-9a-f]{64}  [^ ].*$' "$MANIFEST_SHA" || :)
   assert_eq "$BAD_LINES" "0" "staging: every MANIFEST.sha256 line is <64-lowercase-hex><2 spaces><path>"
 
-  # The pre-existing CI-staging entry belongs to a later task; T-009 must
-  # preserve it verbatim rather than refresh or drop it.
-  WF_LINE=$(grep -F '  .github/workflows/test.yml' "$MANIFEST_SHA" || :)
-  assert_eq "$WF_LINE" \
-    "a50b0e9632b22b0d5ca377bc5fb2a2c072f30a88194313cd220328f8fe5a05a3  .github/workflows/test.yml" \
-    "staging: the pre-existing .github/workflows/test.yml entry is preserved verbatim"
+  # The CI-staging entry belongs to a later task, which owns refreshing it.
+  # T-009 must neither drop nor duplicate it. Its digest is validated against
+  # the staged bytes by the per-entry loop below, so pinning a literal digest
+  # here would assert nothing extra while breaking the moment that later task
+  # legitimately refreshes the entry — which is exactly what happened when
+  # T-010 appended its own CI step (human ruling, 2026-08-04).
+  WF_COUNT=$(grep -cF '  .github/workflows/test.yml' "$MANIFEST_SHA" || :)
+  assert_eq "$WF_COUNT" "1" \
+    "staging: the CI-staging .github/workflows/test.yml entry is present exactly once"
 
   # Every entry's digest must match the staged bytes at <stage>/<path>.
   mismatched=0
