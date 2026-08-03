@@ -565,6 +565,58 @@ try {
     }
 
     # ============================================================================
+    # TEST-001 / TEST-002: shipped policy taxonomy
+    # ============================================================================
+    Write-Host "=== TEST-001/002: panelist failure taxonomy ==="
+    $policyPath = Join-Path $repositoryRoot "plugins/sdd-quality-loop/references/cross-model-verification-policy.md"
+    $policyText = Get-Content -Raw -Encoding Utf8 -LiteralPath $policyPath
+    $taxonomyMatch = [regex]::Match(
+        $policyText,
+        '(?ms)^## Panelist Failure Taxonomy\s*$(.*?)(?=^##\s)')
+    $taxonomySection = if ($taxonomyMatch.Success) { $taxonomyMatch.Groups[1].Value } else { "" }
+
+    foreach ($mode in @(
+        "CLI absent",
+        "CLI exits non-zero",
+        "CLI rate-limited",
+        "CLI hangs / exceeds the time bound",
+        "CLI returns malformed output"
+    )) {
+        $rowPrefix = "| $mode |"
+        $row = $taxonomySection -split "`r?`n" |
+            Where-Object { $_.StartsWith($rowPrefix, [StringComparison]::Ordinal) } |
+            Select-Object -First 1
+        $cells = if ($row) {
+            @($row.Trim('|').Split('|') | ForEach-Object { $_.Trim() })
+        } else { @() }
+        $validRow = $cells.Count -eq 4 -and
+            $cells[1].StartsWith('`1`', [StringComparison]::Ordinal) -and
+            -not $cells[1].Contains('`2`', [StringComparison]::Ordinal) -and
+            $cells[2].StartsWith("No.", [StringComparison]::Ordinal) -and
+            $cells[3] -match '(?i)diversity' -and
+            $cells[3] -match '(?i)gate' -and
+            $cells[3] -match '(?i)exit 1' -and
+            $cells[3] -match '(?i)exit 2'
+        if ($validRow) {
+            Ok "TEST-001: $mode states exit, no-verdict, and gate propagation"
+        } else {
+            Fail "TEST-001: $mode must state exit 1, no verdict, and diversity/gate propagation"
+        }
+    }
+
+    $normalizedTaxonomy = [regex]::Replace($taxonomySection, '\s+', ' ')
+    if ($normalizedTaxonomy.Contains(
+            'Rate-limiting is **not separately handled**',
+            [StringComparison]::Ordinal) -and
+        $normalizedTaxonomy.Contains(
+            'exit-non-zero or timeout',
+            [StringComparison]::Ordinal)) {
+        Ok "TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout"
+    } else {
+        Fail "TEST-002: rate limiting must be stated as not separately handled"
+    }
+
+    # ============================================================================
     # Summary
     # ============================================================================
     Write-Host ""

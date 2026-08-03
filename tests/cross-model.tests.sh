@@ -5,6 +5,7 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SCRIPTS_DIR="${REPO_ROOT}/plugins/sdd-quality-loop/scripts"
+POLICY_FILE="${REPO_ROOT}/plugins/sdd-quality-loop/references/cross-model-verification-policy.md"
 PASS=0
 FAIL=0
 
@@ -617,6 +618,88 @@ if [ "$CM_EXIT" != "0" ] && [ "$gate_result" != "PASS" ] && ! printf '%s' "$CM_O
     ok "TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS"
 else
     fail "TEST-006: expected non-zero/no PASS; exit=${CM_EXIT}, result=${gate_result:-missing}, output=${CM_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-001 / TEST-002: shipped policy taxonomy
+# ============================================================================
+
+echo "=== TEST-001/002: panelist failure taxonomy ==="
+
+assert_policy_taxonomy_row() {
+    local mode="$1"
+    if python3 - "$POLICY_FILE" "$mode" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+policy_path, expected_mode = sys.argv[1:]
+text = pathlib.Path(policy_path).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Panelist Failure Taxonomy\s*$([\s\S]*?)(?=^##\s)",
+    text,
+    flags=re.MULTILINE,
+)
+if not match:
+    raise SystemExit(1)
+
+for line in match.group(1).splitlines():
+    if not line.startswith("|"):
+        continue
+    cells = [cell.strip() for cell in line.strip("|").split("|")]
+    if len(cells) != 4 or cells[0] != expected_mode:
+        continue
+    exit_code, verdict_file, gate_consequence = cells[1:]
+    valid = (
+        exit_code.startswith("`1`")
+        and "`2`" not in exit_code
+        and verdict_file.startswith("No.")
+        and "diversity" in gate_consequence.lower()
+        and "gate" in gate_consequence.lower()
+        and "exit 1" in gate_consequence.lower()
+        and "exit 2" in gate_consequence.lower()
+    )
+    raise SystemExit(0 if valid else 1)
+raise SystemExit(1)
+PYEOF
+    then
+        ok "TEST-001: ${mode} states exit, no-verdict, and gate propagation"
+    else
+        fail "TEST-001: ${mode} must state exit 1, no verdict, and diversity/gate propagation"
+    fi
+}
+
+for mode in \
+    "CLI absent" \
+    "CLI exits non-zero" \
+    "CLI rate-limited" \
+    "CLI hangs / exceeds the time bound" \
+    "CLI returns malformed output"; do
+    assert_policy_taxonomy_row "$mode"
+done
+
+if python3 - "$POLICY_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Panelist Failure Taxonomy\s*$([\s\S]*?)(?=^##\s)",
+    text,
+    flags=re.MULTILINE,
+)
+section = re.sub(r"\s+", " ", match.group(1)) if match else ""
+required = (
+    "Rate-limiting is **not separately handled**" in section
+    and "exit-non-zero or timeout" in section
+)
+raise SystemExit(0 if required else 1)
+PYEOF
+then
+    ok "TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout"
+else
+    fail "TEST-002: rate limiting must be stated as not separately handled"
 fi
 
 # ============================================================================
