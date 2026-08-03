@@ -63,6 +63,7 @@ tests=(
   tests/apply-human-copy.tests.sh
   tests/check-hook-activation-handshake.tests.sh
   tests/guard-invariants-epic-a1.tests.sh
+  tests/hook-guard-epic-a1-boundary.tests.sh
   tests/guard-staging-exemption.tests.sh
 )
 

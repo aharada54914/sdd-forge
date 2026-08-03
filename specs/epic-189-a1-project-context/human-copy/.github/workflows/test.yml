@@ -234,6 +234,21 @@ jobs:
       - name: Test approver-registry-schema suite (pwsh)
         shell: pwsh
         run: ./tests/approver-registry-schema.tests.ps1
+
+      # T-010 (REQ-008, AC-023): protected-write full-matrix deny. Drives the
+      # guard directly with synthetic payloads (no agent in the loop) across
+      # 4 basenames x 12 surfaces x 2 SDD_SUDO states in each runtime.
+      - name: Test hook-guard epic-a1 write-boundary matrix (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/hook-guard-epic-a1-boundary.tests.sh
+
+      - name: Test hook-guard epic-a1 write-boundary matrix (pwsh)
+        shell: pwsh
+        run: ./tests/hook-guard-epic-a1-boundary.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1
