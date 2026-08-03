@@ -8,6 +8,8 @@
 #   specs/<feature>/verification/T-NNN.panelist-google.verdict.json
 #
 # Graceful degrade: gemini CLI absent -> exit 1 (not exit 2; not a tool error).
+# Panelist timeout: SDD_PANELIST_TIMEOUT whole seconds; expiry kills the process
+# tree and exits 1 without writing a verdict.
 # Key isolation: SDD_EVIDENCE_KEY / SDD_SUDO_KEY never passed to panelist.
 #
 # Exit codes: 0=success  1=CLI absent or panelist failure  2=bad args
@@ -21,6 +23,7 @@ $SpecRoot    = "specs"
 $Model       = "gemini-2.0-flash"
 $InputDigest = ""
 $ConsentKind = "human-flag"
+$PanelistTimeoutDefault = 600
 
 $argIdx = 0
 $passedArgs = $args
@@ -38,6 +41,20 @@ while ($argIdx -lt $passedArgs.Count) {
             exit 2
         }
     }
+}
+
+$panelistTimeoutRaw = $env:SDD_PANELIST_TIMEOUT
+if ([string]::IsNullOrEmpty($panelistTimeoutRaw)) {
+    $PanelistTimeout = $PanelistTimeoutDefault
+} else {
+    $parsedPanelistTimeout = 0
+    if ($panelistTimeoutRaw -notmatch '^[0-9]+$' -or
+        -not [int]::TryParse($panelistTimeoutRaw, [ref]$parsedPanelistTimeout) -or
+        $parsedPanelistTimeout -le 0) {
+        [Console]::Error.WriteLine("run-panelist-gemini: SDD_PANELIST_TIMEOUT must be a positive whole number of seconds (got: $panelistTimeoutRaw)")
+        exit 2
+    }
+    $PanelistTimeout = $parsedPanelistTimeout
 }
 
 if (-not $TaskId)    { [Console]::Error.WriteLine("run-panelist-gemini: --task is required");    exit 2 }
@@ -119,7 +136,14 @@ Rules:
             -RedirectStandardInput  $combinedFile `
             -RedirectStandardOutput $rawOutput `
             -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
-            -Wait -PassThru -NoNewWindow
+            -PassThru -NoNewWindow
+        if (-not $proc.WaitForExit($PanelistTimeout * 1000)) {
+            $proc.Kill($true)
+            $proc.WaitForExit()
+            [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI exceeded SDD_PANELIST_TIMEOUT=${PanelistTimeout}s; terminated")
+            exit 1
+        }
+        $proc.WaitForExit()
         if ($proc.ExitCode -ne 0) {
             [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI exited $($proc.ExitCode)")
             Get-Content (Join-Path $scratch "stderr.txt") | ForEach-Object { [Console]::Error.WriteLine($_) }
