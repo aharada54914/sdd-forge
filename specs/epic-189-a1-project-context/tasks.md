@@ -2193,7 +2193,7 @@ T-002, T-003, T-005, T-006, T-007, T-008
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (aharada54914 2026-08-03T13:46:18Z)
 
 Status: Planned
 
@@ -2299,7 +2299,7 @@ T-009
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (aharada54914 2026-08-03T13:46:18Z)
 
 Status: Planned
 
@@ -2444,7 +2444,7 @@ T-001, T-006, T-008, T-010
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (aharada54914 2026-08-03T13:46:18Z)
 
 Status: Planned
 
@@ -2583,7 +2583,7 @@ T-009, T-011
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/189
 
-Approval: Draft
+Approval: Approved (aharada54914 2026-08-03T13:46:18Z)
 
 Status: Planned
 
