@@ -218,3 +218,29 @@
   (c) CI が Windows レーンを持つならホスト限定テストとして正式に宣言する、の
   いずれか。**epic-189-a1 のスコープ外**（`tests/phase2-guard-invariants.tests.ps1`
   はどのタスクの Planned Files にも含まれない)。
+
+## design 表の欠落: R-10 前置フィルタが 12 行のサーフェス表に無い
+
+- **出所**: T-010 実装者が起動時に「12 の呼び出し箇所を design 表を信用せず
+  自分で再列挙せよ」の指示に従って発見し、**再調整せず Block-And-Stop で報告**。
+  coordinator がコードで裏取り済み。
+- **事実**: `plugins/sdd-quality-loop/scripts/sdd-hook-guard.py` の
+  `_command_references_protected_path` 内 **L1348** に直接の
+  `_is_protected_gate_file(candidate)` 呼び出しがあり、design.md の 12 行表
+  （Test Strategy item 8)に含まれていない。しかも load-bearing:
+  `_shell_targets_protected_gate_file` は L1375 でこの前置フィルタを呼び、
+  **False なら L1377 で即 `return False`（拒否なし)**。つまり前置フィルタが
+  取りこぼすと、表の **row 1〜4 が依存する issue-#62 の書き込み対象解析が
+  一切走らない**。row 5〜10 は L1373 の `_shell_cwd_write_hits_protected` が
+  先に走り独立して拒否するため影響を受けない。
+- **design 表 12 行の内訳自体は正しい**（実装者の再列挙で確認): 直接 9 箇所
+  （L1125/1133/1156/1159/1230/1233/1348/1519/1534)のうち L1348 を除く 8 と、
+  `_segment_write_hits_protected` 経由の間接 4 で 4+2+4+1+1 = 12 サーフェス。
+- **人間の裁定（2026-08-03)**: **AC-023 の 96 セル（4 basename × 12 サーフェス
+  × 2 レーン)は規定どおり満たす**。前置フィルタは **AC 規定外の補足アサーション**
+  として T-010 のスイートで別途検証し、design 表の欠落は本項目として記録する。
+  凍結 spec（design.md / acceptance-tests.md)は改訂しない — 改訂すると
+  impl-review ゲートの再通過が必要になるため。
+- **将来の対処**: design.md Test Strategy item 8 の表に 13 行目として追記するか、
+  「前置フィルタであり書き込みサーフェスではない」と明示除外する旨を書き足す。
+  いずれも spec 改訂ゲートを通す前提。
