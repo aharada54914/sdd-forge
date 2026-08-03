@@ -823,6 +823,105 @@ else
 fi
 
 # ============================================================================
+# TEST-009 / TEST-010 / TEST-014: runtime trust surfaces and closed risk
+# ============================================================================
+
+echo "=== TEST-009/010/014: runtime trust surfaces and closed risk ==="
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Runtime Trust Surfaces\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+rows = []
+if match:
+    for line in match.group(1).splitlines():
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if line.startswith("|") and len(cells) == 4:
+            rows.append(cells)
+expected = {
+    "--dangerously-bypass-hook-trust",
+    "hooks.state",
+    "managed by sdd-forge installer",
+    "claude-hooks.json",
+    "Claude Code settings/permissions",
+}
+surface_rows = [row for row in rows if row[0].strip("`") in expected]
+valid = (
+    len(surface_rows) == 5
+    and {row[0].strip("`") for row in surface_rows} == expected
+    and all(row[1].startswith("Trust assumption — ") for row in surface_rows)
+    and all(
+        row[2].startswith("Mitigation — ") or row[2].startswith("Residual risk — ")
+        for row in surface_rows
+    )
+    and all(re.search(r"`[^`]+:\d+(?:-\d+)?`", row[3]) for row in surface_rows)
+)
+raise SystemExit(0 if valid else 1)
+PYEOF
+then
+    ok "TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence"
+else
+    fail "TEST-009: runtime trust table must substantively cover all five surfaces"
+fi
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Runtime Trust Surfaces\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+section = re.sub(r"\s+", " ", match.group(1)) if match else ""
+required = (
+    "--dangerously-bypass-hook-trust" in section
+    and "first-run trust approval" in section
+    and re.search(r"forfeit\w*", section, flags=re.IGNORECASE)
+)
+raise SystemExit(0 if required else 1)
+PYEOF
+then
+    ok "TEST-010: hook-trust bypass explicitly states the first-run approval forfeited"
+else
+    fail "TEST-010: bypass flag must name what its operator forfeits"
+fi
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Residual Risks\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+section = re.sub(r"\s+", " ", match.group(1)) if match else ""
+required = (
+    re.search(r"unbounded external panelist", section, flags=re.IGNORECASE)
+    and "closed by this feature" in section
+    and "SDD_PANELIST_TIMEOUT" in section
+)
+raise SystemExit(0 if required else 1)
+PYEOF
+then
+    ok "TEST-014: unbounded external panelist risk is recorded as closed with its timeout control"
+else
+    fail "TEST-014: residual risks must record the closed unbounded-panelist risk"
+fi
+
+# ============================================================================
 # Summary
 # ============================================================================
 

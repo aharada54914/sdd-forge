@@ -696,6 +696,73 @@ try {
     }
 
     # ============================================================================
+    # TEST-009 / TEST-010 / TEST-014: runtime trust surfaces and closed risk
+    # ============================================================================
+    Write-Host "=== TEST-009/010/014: runtime trust surfaces and closed risk ==="
+    $runtimeMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## Runtime Trust Surfaces\s*$(.*?)(?=^##\s|\z)')
+    $runtimeRows = @()
+    if ($runtimeMatch.Success) {
+        $runtimeRows = @($runtimeMatch.Groups[1].Value -split "`r?`n" |
+            Where-Object { $_ -match '^\|' } |
+            ForEach-Object { ,@($_.Trim('|').Split('|') | ForEach-Object { $_.Trim() }) } |
+            Where-Object { $_.Count -eq 4 })
+    }
+    $expectedRuntimeSurfaces = @(
+        '--dangerously-bypass-hook-trust',
+        'Claude Code settings/permissions',
+        'claude-hooks.json',
+        'hooks.state',
+        'managed by sdd-forge installer'
+    )
+    $surfaceRows = @($runtimeRows | Where-Object {
+        $expectedRuntimeSurfaces -ccontains $_[0].Trim('`')
+    })
+    $actualRuntimeSurfaces = @($surfaceRows | ForEach-Object { $_[0].Trim('`') } | Sort-Object)
+    $runtimeRowsValid = $surfaceRows.Count -eq 5 -and
+        (($actualRuntimeSurfaces -join ',') -ceq (($expectedRuntimeSurfaces | Sort-Object) -join ',')) -and
+        @($surfaceRows | Where-Object {
+            -not $_[1].StartsWith('Trust assumption — ', [StringComparison]::Ordinal) -or
+            (-not $_[2].StartsWith('Mitigation — ', [StringComparison]::Ordinal) -and
+             -not $_[2].StartsWith('Residual risk — ', [StringComparison]::Ordinal)) -or
+            $_[3] -notmatch '`[^`]+:\d+(?:-\d+)?`'
+        }).Count -eq 0
+    if ($runtimeRowsValid) {
+        Ok "TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence"
+    } else {
+        Fail "TEST-009: runtime trust table must substantively cover all five surfaces"
+    }
+
+    $normalizedRuntime = if ($runtimeMatch.Success) {
+        [regex]::Replace($runtimeMatch.Groups[1].Value, '\s+', ' ')
+    } else { '' }
+    $bypassValid = $normalizedRuntime.Contains(
+            '--dangerously-bypass-hook-trust', [StringComparison]::Ordinal) -and
+        $normalizedRuntime.Contains('first-run trust approval', [StringComparison]::Ordinal) -and
+        $normalizedRuntime -match '(?i)forfeit\w*'
+    if ($bypassValid) {
+        Ok "TEST-010: hook-trust bypass explicitly states the first-run approval forfeited"
+    } else {
+        Fail "TEST-010: bypass flag must name what its operator forfeits"
+    }
+
+    $residualMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## Residual Risks\s*$(.*?)(?=^##\s|\z)')
+    $normalizedResidual = if ($residualMatch.Success) {
+        [regex]::Replace($residualMatch.Groups[1].Value, '\s+', ' ')
+    } else { '' }
+    $closedRiskValid = $normalizedResidual -match '(?i)unbounded external panelist' -and
+        $normalizedResidual.Contains('closed by this feature', [StringComparison]::Ordinal) -and
+        $normalizedResidual.Contains('SDD_PANELIST_TIMEOUT', [StringComparison]::Ordinal)
+    if ($closedRiskValid) {
+        Ok "TEST-014: unbounded external panelist risk is recorded as closed with its timeout control"
+    } else {
+        Fail "TEST-014: residual risks must record the closed unbounded-panelist risk"
+    }
+
+    # ============================================================================
     # Summary
     # ============================================================================
     Write-Host ""
