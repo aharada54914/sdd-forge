@@ -6,6 +6,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SCRIPTS_DIR="${REPO_ROOT}/plugins/sdd-quality-loop/scripts"
 POLICY_FILE="${REPO_ROOT}/plugins/sdd-quality-loop/references/cross-model-verification-policy.md"
+THREAT_MODEL_FILE="${REPO_ROOT}/docs/THREAT-MODEL.md"
 PASS=0
 FAIL=0
 
@@ -700,6 +701,125 @@ then
     ok "TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout"
 else
     fail "TEST-002: rate limiting must be stated as not separately handled"
+fi
+
+# ============================================================================
+# TEST-007 / TEST-008 / TEST-013: threat-model security cross-references
+# ============================================================================
+
+echo "=== TEST-007/008/013: threat-model security cross-references ==="
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## OWASP LLM Top 10 \(2025\) Cross-Reference\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+rows = []
+if match:
+    for line in match.group(1).splitlines():
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if line.startswith("|") and cells and re.fullmatch(r"LLM(?:0[1-9]|10)", cells[0]):
+            rows.append(cells)
+expected = {f"LLM{number:02d}" for number in range(1, 11)}
+valid = (
+    len(rows) == 10
+    and {row[0] for row in rows} == expected
+    and all(len(row) == 3 and row[1] and row[2] for row in rows)
+)
+raise SystemExit(0 if valid else 1)
+PYEOF
+then
+    ok "TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence"
+else
+    fail "TEST-007: OWASP table must map LLM01 through LLM10 exactly once"
+fi
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+owasp = re.search(
+    r"^## OWASP LLM Top 10 \(2025\) Cross-Reference\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+controls = re.search(
+    r"^## Controls Table\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+rows = []
+if owasp:
+    for line in owasp.group(1).splitlines():
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if line.startswith("|") and cells and re.fullmatch(r"LLM(?:0[1-9]|10)", cells[0]):
+            rows.append(cells)
+control_names = re.findall(r"\*\*([^*]+)\*\*", controls.group(1) if controls else "")
+na_rows = [row for row in rows if len(row) == 3 and row[1].startswith("N/A — ")]
+mapped_rows = [
+    row for row in rows
+    if len(row) == 3 and (row[1].startswith("Control — ") or row[1].startswith("Partial control — "))
+]
+named_control_cited = any(
+    any(name in row[1] or name in row[2] for name in control_names)
+    for row in mapped_rows
+)
+valid = (
+    any(len(row[1].removeprefix("N/A — ").strip()) >= 12 for row in na_rows)
+    and bool(mapped_rows)
+    and named_control_cited
+)
+raise SystemExit(0 if valid else 1)
+PYEOF
+then
+    ok "TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows"
+else
+    fail "TEST-008: OWASP mapping needs both a reasoned N/A and an existing named control"
+fi
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## MCP Security Cross-Reference\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+rows = []
+if match:
+    for line in match.group(1).splitlines():
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if line.startswith("|") and cells and cells[0] in {"sdd-forge-mcp", "local-env-mcp", "ci-mcp"}:
+            rows.append(cells)
+expected = {"sdd-forge-mcp", "local-env-mcp", "ci-mcp"}
+valid = (
+    len(rows) == 3
+    and {row[0] for row in rows} == expected
+    and all(
+        len(row) == 4
+        and row[1]
+        and row[2]
+        and "https://modelcontextprotocol.io/" in row[3]
+        for row in rows
+    )
+)
+raise SystemExit(0 if valid else 1)
+PYEOF
+then
+    ok "TEST-013: all three MCP servers state trust posture and cite primary MCP guidance"
+else
+    fail "TEST-013: MCP cross-reference must cover three servers with posture and primary sources"
 fi
 
 # ============================================================================

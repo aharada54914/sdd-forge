@@ -162,3 +162,39 @@
 - **Risk-Adaptive Layer Design** (security considerations section, control surfaces): [`specs/risk-adaptive-layer/design.md`](../specs/risk-adaptive-layer/design.md)
 - **Deterministic Check Policy**: [`plugins/sdd-quality-loop/references/deterministic-check-policy.md`](../plugins/sdd-quality-loop/references/deterministic-check-policy.md)
 - **SDD Hook Guard** (Python, JavaScript, PowerShell implementations): [`plugins/sdd-quality-loop/scripts/sdd-hook-guard.{py,ps1,js}`](../plugins/sdd-quality-loop/scripts/)
+
+---
+
+## OWASP LLM Top 10 (2025) Cross-Reference
+
+This repository-level mapping uses the identifiers and category names from the
+[OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/llm-top-10/?cat=253).
+It does not claim that a mapped control eliminates the category; it identifies
+the existing control that constrains the repository's exposure. `N/A` means the
+category has no applicable attack surface in this repository's current scope.
+
+| OWASP entry | Disposition | Repository evidence |
+|---|---|---|
+| LLM01 | Control — Prompt Injection: external content is treated as untrusted data, and injected instructions do not override repository policy. | The trust assumption and prompt-injection mitigation are defined at `docs/THREAT-MODEL.md:15` and `docs/THREAT-MODEL.md:91-93`. |
+| LLM02 | Control — Sensitive Information Disclosure: panelist activation, output sanitization, CI isolation, and key isolation constrain outbound data. | The four existing code-leakage controls are defined at `docs/THREAT-MODEL.md:103-108`. |
+| LLM03 | Partial control — Supply Chain: **Branch protection (main)** requires status checks and CODEOWNERS review for repository changes. | The named control is defined in the Controls Table at `docs/THREAT-MODEL.md:65`; this mapping does not assert model or dataset supply-chain coverage. |
+| LLM04 | N/A — Data and Model Poisoning does not apply because this repository does not train, fine-tune, or maintain model-training datasets. | Repository scope contains workflow tooling and documentation, not a training or model-data pipeline. |
+| LLM05 | Control — Improper Output Handling: **Deterministic checks** and the **Review verdict requirement** reject malformed or unverified agent-produced artifacts before approval. | Both named controls are defined in the Controls Table at `docs/THREAT-MODEL.md:60` and `docs/THREAT-MODEL.md:63`. |
+| LLM06 | Control — Excessive Agency: the **Approval guard**, **WFI guard**, **Second Approval**, and **Two-person rule** keep privileged workflow transitions human-controlled. | The named controls are defined in the Controls Table at `docs/THREAT-MODEL.md:53-55` and `docs/THREAT-MODEL.md:64`. |
+| LLM07 | N/A — System Prompt Leakage does not apply because the repository does not host a model or treat its versioned role and instruction files as a confidential security boundary. | The repository's prompts are reviewable configuration; no secret system prompt is asserted as a protected asset. |
+| LLM08 | N/A — Vector and Embedding Weaknesses do not apply because the repository has no vector database, embedding pipeline, or retrieval-augmented generation store. | No vector, embedding, or RAG trust boundary exists in the documented system scope. |
+| LLM09 | Control — Misinformation: the **Traceability gate**, **Review verdict requirement**, and **Deterministic checks** require claims and completion evidence to be independently checkable. | The named controls are defined in the Controls Table at `docs/THREAT-MODEL.md:60`, `docs/THREAT-MODEL.md:62`, and `docs/THREAT-MODEL.md:63`. |
+| LLM10 | Control — Unbounded Consumption: `SDD_PANELIST_TIMEOUT` enforces a positive bounded panelist runtime and terminates the spawned process group on expiry. | The control is implemented in `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:49`, validated at lines 65-76, and enforced at lines 178-230. |
+
+## MCP Security Cross-Reference
+
+The MCP servers use local stdio rather than exposing a network listener. Their
+postures follow the MCP project's primary guidance to obtain consent for local
+server commands, apply least privilege and sandboxing where possible, and use
+authorization for HTTP transports that access protected resources.
+
+| Server | Trust posture | Repository evidence | Primary MCP source |
+|---|---|---|---|
+| sdd-forge-mcp | Local stdio under the caller's OS-user boundary; read-only, project-root-confined access through a fail-closed allowlist and denylist path guard; no network listener or server-side authentication. | `specs/sdd-forge-mcp/security-spec.md:17-18`, `specs/sdd-forge-mcp/security-spec.md:33-36`, and `specs/sdd-forge-mcp/security-spec.md:42-45`. | [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) and [MCP authorization guidance](https://modelcontextprotocol.io/docs/tutorials/security/authorization). |
+| local-env-mcp | Local stdio under the caller's OS-user boundary; exposes only bounded environment probes from a compile-time allowlist, executes them without a shell, and provides no caller-selected command or filesystem access. | `specs/local-env-mcp/security-spec.md:21-22`, `specs/local-env-mcp/security-spec.md:29-33`, and `specs/local-env-mcp/security-spec.md:39-48`. | [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) and [MCP authorization guidance](https://modelcontextprotocol.io/docs/tutorials/security/authorization). |
+| ci-mcp | Local stdio under the caller's OS-user boundary; uses an environment-provided read-only token solely for fixed-host GitHub API GET requests, scrubs token values, and exposes no write or local-filesystem operation. | `specs/ci-mcp/security-spec.md:23-24`, `specs/ci-mcp/security-spec.md:31-38`, `specs/ci-mcp/security-spec.md:59-61`, and `specs/ci-mcp/security-spec.md:67-70`. | [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) and [MCP authorization guidance](https://modelcontextprotocol.io/docs/tutorials/security/authorization). |

@@ -5,6 +5,7 @@ Set-StrictMode -Version Latest
 
 $repositoryRoot = Split-Path -Parent $PSScriptRoot
 $scriptsDir = Join-Path $repositoryRoot "plugins/sdd-quality-loop/scripts"
+$threatModelPath = Join-Path $repositoryRoot "docs/THREAT-MODEL.md"
 $workDir = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-cross-model-tests-" + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $workDir | Out-Null
 
@@ -614,6 +615,84 @@ try {
         Ok "TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout"
     } else {
         Fail "TEST-002: rate limiting must be stated as not separately handled"
+    }
+
+    # ============================================================================
+    # TEST-007 / TEST-008 / TEST-013: threat-model security cross-references
+    # ============================================================================
+    Write-Host "=== TEST-007/008/013: threat-model security cross-references ==="
+    $threatModelText = Get-Content -Raw -Encoding Utf8 -LiteralPath $threatModelPath
+    $owaspMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## OWASP LLM Top 10 \(2025\) Cross-Reference\s*$(.*?)(?=^##\s|\z)')
+    $owaspRows = @()
+    if ($owaspMatch.Success) {
+        $owaspRows = @($owaspMatch.Groups[1].Value -split "`r?`n" |
+            Where-Object { $_ -match '^\|\s*LLM(?:0[1-9]|10)\s*\|' } |
+            ForEach-Object { ,@($_.Trim('|').Split('|') | ForEach-Object { $_.Trim() }) })
+    }
+    $expectedOwaspIds = @(1..10 | ForEach-Object { "LLM{0:D2}" -f $_ })
+    $actualOwaspIds = @($owaspRows | ForEach-Object { $_[0] } | Sort-Object)
+    $owaspRowsValid = $owaspRows.Count -eq 10 -and
+        (($actualOwaspIds -join ',') -ceq (($expectedOwaspIds | Sort-Object) -join ',')) -and
+        @($owaspRows | Where-Object { $_.Count -ne 3 -or -not $_[1] -or -not $_[2] }).Count -eq 0
+    if ($owaspRowsValid) {
+        Ok "TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence"
+    } else {
+        Fail "TEST-007: OWASP table must map LLM01 through LLM10 exactly once"
+    }
+
+    $controlsMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## Controls Table\s*$(.*?)(?=^##\s|\z)')
+    $controlNames = @()
+    if ($controlsMatch.Success) {
+        $controlNames = @([regex]::Matches($controlsMatch.Groups[1].Value, '\*\*([^*]+)\*\*') |
+            ForEach-Object { $_.Groups[1].Value })
+    }
+    $naRows = @($owaspRows | Where-Object { $_.Count -eq 3 -and $_[1].StartsWith('N/A — ', [StringComparison]::Ordinal) })
+    $mappedRows = @($owaspRows | Where-Object {
+        $_.Count -eq 3 -and
+        ($_[1].StartsWith('Control — ', [StringComparison]::Ordinal) -or
+         $_[1].StartsWith('Partial control — ', [StringComparison]::Ordinal))
+    })
+    $reasonedNa = @($naRows | Where-Object { $_[1].Substring(6).Trim().Length -ge 12 }).Count -gt 0
+    $namedControlCited = $false
+    foreach ($row in $mappedRows) {
+        foreach ($name in $controlNames) {
+            if ($row[1].Contains($name, [StringComparison]::Ordinal) -or
+                $row[2].Contains($name, [StringComparison]::Ordinal)) {
+                $namedControlCited = $true
+            }
+        }
+    }
+    if ($reasonedNa -and $mappedRows.Count -gt 0 -and $namedControlCited) {
+        Ok "TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows"
+    } else {
+        Fail "TEST-008: OWASP mapping needs both a reasoned N/A and an existing named control"
+    }
+
+    $mcpMatch = [regex]::Match(
+        $threatModelText,
+        '(?ms)^## MCP Security Cross-Reference\s*$(.*?)(?=^##\s|\z)')
+    $mcpRows = @()
+    if ($mcpMatch.Success) {
+        $mcpRows = @($mcpMatch.Groups[1].Value -split "`r?`n" |
+            Where-Object { $_ -match '^\|\s*(?:sdd-forge-mcp|local-env-mcp|ci-mcp)\s*\|' } |
+            ForEach-Object { ,@($_.Trim('|').Split('|') | ForEach-Object { $_.Trim() }) })
+    }
+    $expectedMcpNames = @('ci-mcp', 'local-env-mcp', 'sdd-forge-mcp')
+    $actualMcpNames = @($mcpRows | ForEach-Object { $_[0] } | Sort-Object)
+    $mcpRowsValid = $mcpRows.Count -eq 3 -and
+        (($actualMcpNames -join ',') -ceq ($expectedMcpNames -join ',')) -and
+        @($mcpRows | Where-Object {
+            $_.Count -ne 4 -or -not $_[1] -or -not $_[2] -or
+            -not $_[3].Contains('https://modelcontextprotocol.io/', [StringComparison]::Ordinal)
+        }).Count -eq 0
+    if ($mcpRowsValid) {
+        Ok "TEST-013: all three MCP servers state trust posture and cite primary MCP guidance"
+    } else {
+        Fail "TEST-013: MCP cross-reference must cover three servers with posture and primary sources"
     }
 
     # ============================================================================
