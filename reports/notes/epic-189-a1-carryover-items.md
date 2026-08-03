@@ -244,3 +244,44 @@
 - **将来の対処**: design.md Test Strategy item 8 の表に 13 行目として追記するか、
   「前置フィルタであり書き込みサーフェスではない」と明示除外する旨を書き足す。
   いずれも spec 改訂ゲートを通す前提。
+
+## 既存不具合: guards スイートが POSIX `sh` 起動時のみ 1 件失敗
+
+- **出所**: T-010 の QG（seq0366)が失敗を報告し、T-010 の Done チェーン生成時に
+  原因が特定された。**T-009 の Done チェーンは `bash` 起動で green（133/0)と
+  記録しており、一見矛盾していたが両方とも正しい。**
+- **内容**: `tests/guards.tests.sh` を **POSIX `sh` で起動すると**
+  `sh: copilot deny -> JSON deny` が失敗し、Results 行を出さずに exit 2 で中断する。
+  **`bash` で起動すると 133/0 で green**（exit 0)。
+- **紛らわしい点**: ケース名の `sh:` 接頭辞は**ガード実装の種別**（`sh:` / `py:` /
+  `node:`)を指しており、**ハーネスを起動したシェルのことではない**。
+- **T-010 起因ではないことの証明**: `git log d2f37d0e..HEAD -- tests/guards.tests.sh
+  plugins/sdd-quality-loop/scripts/` が 0 コミット。さらに `git archive d2f37d0e`
+  を使い捨てディレクトリへ展開して再実行したところ、sh レーンの出力が
+  **バイト単位で同一**（sha256 `0bdd7b37…6afb` が両側一致)。
+- **対処方針**: (a) 当該ケースを修正するか、(b) スイートに bash 必須の
+  shebang/前提を明記するか、(c) `sh` 起動時に明示スキップする。
+  **epic-189-a1 のスコープ外**（`tests/guards.tests.sh` はどのタスクの
+  Planned Files にも含まれない)。
+
+## 記述の訂正: 「run-all は prepare-panelist で中断する」はもはや事実でない
+
+- **出所**: T-010 の Done チェーン生成エージェントが、定型文を繰り返さずに
+  **自分で実測して**発見。
+- **これまでの記述**: T-006 以降の各 regression ログとコントラクトの comment に
+  「`tests/run-all.sh` は無関係な既存不具合（`tests/prepare-panelist.tests.sh`、
+  #108/#185 系)で中断するため、個別スイート実行で代替する」と繰り返し
+  記載してきた。
+- **現在の実測**: **`bash tests/prepare-panelist.tests.sh` は 32/0 で通る**（exit 0)。
+  HEAD の独立クローンに対する `bash tests/run-all.sh` は **21 スイート目の
+  `tests/turn-first-workflow.tests.sh`** で中断する（`not ok: implementation
+  report template omits: ## Output Paths And Hashes`、exit 1)。これは
+  `plugins/sdd-implementation/templates/implementation-report.template.md` に
+  対するアサーションで、epic-189-a1 のどのタスクも触れていない。
+- **結論**: 「run-all が中断するため個別実行で代替する」という**運用判断自体は
+  依然として正当**だが、**中断理由の記載が古い**。T-010 の regression ログには
+  訂正済みの理由が記録されている。以後のタスクは prepare-panelist ではなく
+  turn-first-workflow を理由として記載すること。
+- **対処方針**: turn-first-workflow のテンプレートアサーション不一致を解消すれば
+  run-all が完走する可能性がある（未確認 — 21 スイート目以降に別の失敗が
+  潜んでいる可能性は残る)。**epic-189-a1 のスコープ外**。
