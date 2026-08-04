@@ -42,6 +42,10 @@ PASS: TEST-026 (1) missing sidecar file rejected (SIDECAR_UNREADABLE)
 PASS: TEST-026 (2) content-schema violation rejected (CONTENT_SCHEMA_VIOLATION)
 PASS: TEST-026 (3) hash mismatch rejected (HASH_MISMATCH)
 PASS: TEST-026 (4) HMAC mismatch rejected (HMAC_MISMATCH)
+PASS: TEST-026 (4b) precondition: the superseded signing key genuinely differs from the current key
+PASS: TEST-026 (4b) PRISTINE BASELINE: the same fixture signed with the CURRENT key PASSES, so (4b)'s rejection is attributable to the rotation alone
+PASS: TEST-026 (4b) rotated-key HMAC mismatch rejected (HMAC_MISMATCH): a genuinely-signed MAC under the SUPERSEDED key, not a corrupted one
+PASS: TEST-026 (4b) the two sidecars' hmac fields genuinely differ, proving the generator really signed under two different keys
 PASS: TEST-026 (5) unregistered approver rejected (UNREGISTERED_APPROVER)
 PASS: TEST-026 (6) not-yet-effective effective_at rejected (EFFECTIVE_AT_NOT_YET_REACHED)
 PASS: TEST-026: the 'valid-full' invalid fixture is physically PRESENT (never absent)
@@ -114,6 +118,8 @@ PASS: TEST-PUB [plugins/sdd-ship/skills/ship/SKILL.md] no staged/live drift
 --- publication state [plugins/sdd-lite/skills/lite-spec/SKILL.md]: unpublished
 PASS: TEST-PUB [plugins/sdd-lite/skills/lite-spec/SKILL.md] publication state is a valid terminal state (unpublished)
 PASS: TEST-PUB [plugins/sdd-lite/skills/lite-spec/SKILL.md] no staged/live drift
+--- publication pair state: ship=unpublished lite-spec=unpublished
+PASS: TEST-PUB pair consistency: both protected consumers are in the SAME publication state (ADR-0023:59-62 forbids a partial migration where some skills honor the new precedence and others the old)
 --- TEST-MUT: mutation detection power ---
 PASS: TEST-MUT baseline: the pristine document copy CONFORMS (mutations below are measurable)
 PASS: TEST-MUT the ADR-0023 silent downgrade (full + --lite honored) is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] specifically
@@ -144,5 +150,5 @@ PASS: TEST-MUT moving the handshake AFTER track resolution is REJECTED (AC-035 e
 PASS: self-registration: tests/ship-track-selection-migration.tests.sh registered in tests/run-all.sh
 PASS: self-registration: tests/ship-track-selection-migration.tests.ps1 registered in tests/run-all.ps1
 PASS: self-registration: tests/ship-track-selection-migration.tests.sh twin exists
-PASS: 134
+PASS: 139
 FAIL: 0
