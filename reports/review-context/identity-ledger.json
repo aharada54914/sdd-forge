@@ -4428,6 +4428,15 @@
       "host_session_id": "SESS-spec-a2r2-b-designsyncconsent-0492",
       "previous_record_sha256": "f1ff5e6ec5868972fe8b40c608c5621d3b3ca8139c953c01c500deda7ac2b8b6",
       "record_sha256": "bfec73a9179484ec1ab0cc20c48afbd33372ccab4afe0b852b2b6de327dabffd"
+    },
+    {
+      "sequence": 493,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-designsyncconsent-impl-a1r3-a-seq0493",
+      "host_session_id": "SESS-impl-a1r3-a-designsyncconsent-0493",
+      "previous_record_sha256": "bfec73a9179484ec1ab0cc20c48afbd33372ccab4afe0b852b2b6de327dabffd",
+      "record_sha256": "6c481e9e6fe7e0048c86a4074a5c5ec364a4179bf2270438a78f019b5e034867"
     }
   ]
 }

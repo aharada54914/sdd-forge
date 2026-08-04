@@ -140,9 +140,13 @@ Written as the structure to be implemented. Placeholders marked `⟨OQ-n⟩` are
    consent state — consent is bound to scope, not to upload success
    (R-OQ-1 / R-OQ-3).  The agent reports the failure to the operator.  A
    retry within the same scope resumes at step 5 with NO re-prompt, because
-   step 3a already says consent held for this scope.  (Decided 2026-08-05;
-   per-upload consent had no such question, because a failed upload was
-   simply asked about again — per-scope consent creates it new.)
+   step 3a already says consent held for this scope.  A push failure is
+   NOT step 3c's "not permitted" outcome and writes no standing
+   forbiddance (AC-030 part 4, mirroring AC-026's distinction on the
+   decline path).  (Decided 2026-08-05; per-upload consent had no such
+   question, because a failed upload was simply asked about again —
+   per-scope consent creates it new.  The full four-part rule is AC-030,
+   verified by TEST-051.)
 
 7. Review in the claude.ai/design browser UI.  Apply feedback; return to 2.
    No consent prompt is re-entered on this cycle.
@@ -210,7 +214,7 @@ The authoritative treatment is [`security-spec.md`](security-spec.md#trust-bound
 |---|---|---|
 | **B1 — outbound to claude.ai/design** (`write_files`, `finalize_plan`) | External. Retention and downstream handling are outside this repository's control. | The gate survives; only its unit changes (BL-001). The disclosure states what leaves, where to, and that retention is possible and uncontrolled — and does not overclaim about `finalize_plan` (AC-005). |
 | **B2 — inbound from claude.ai/design** (`get_file`) | Untrusted content. | **Unchanged.** `SKILL.md:99-101` already treats fetched content as data, not instructions, and this feature does not touch it. Named so its absence from the change set is a decision. |
-| **B3 — the `Design-Source` consent record** | Agent-written; NOT trusted per `docs/THREAT-MODEL.md:12`; unguarded. | The design does **not** claim the record is an enforcement point. It requires the skill to say what it is (AC-012) and leaves whether it may authorize a *later session* to OQ-1/OQ-2 rather than assuming yes. |
+| **B3 — the `Design-Source` consent record** | Agent-written; NOT trusted per `docs/THREAT-MODEL.md:12`; unguarded. | The design does **not** claim the record is an enforcement point. It requires the skill to say what it is (AC-012), and the later-session question is **answered**: R-OQ-1/R-OQ-2 (2026-08-04) scope consent to feature ∧ session, so the record cannot authorize a later session — a later session is a different scope and re-gates (AC-001 branch 3). |
 | **B4 — the human decision point** | Trusted, but now consenting to a category rather than a payload. | The disclosure must state the scope and the frequency change (AC-004). The design does not claim informed consent to an undetermined future payload is equivalent to consent to a reviewed one; `security-spec.md` records the difference as the feature's principal residual risk. |
 
 Authorization and data classification:
@@ -248,7 +252,7 @@ Three of these resolve *structural* questions the design owns. The rest are reco
 - **Split the fused push step into consent resolution → pre-upload point → upload.** Rationale in Architecture Overview. Chosen over an in-place conditional because the cheaper option leaves #139 and #140 without an attachment surface.
 - **Consent resolution runs after capability detection, not before.** Otherwise an absent DesignSync tool produces a consent prompt for an upload that cannot occur — user-hostile, and it would break AC-013's auth-failure branch.
 - **The consent outcome space is three-valued from the start.** `not permitted` costs one line now and a flow re-cut later.
-- **Push failure does not revoke consent** (decided 2026-08-05). Consent is bound to scope, not to upload success (R-OQ-1 / R-OQ-3); treating a failed push as an implicit revocation would collide with AC-028's explicit-withdrawal model, which is the only way a consent is meant to stop applying mid-session. The agent reports the failure and a same-scope retry resumes at step 5 without re-prompting.
+- **Push failure does not revoke consent** (decided 2026-08-05; AC-030, verified by TEST-051). Consent is bound to scope, not to upload success (R-OQ-1 / R-OQ-3); treating a failed push as an implicit revocation would collide with AC-028's explicit-withdrawal model, which is the only way a consent is meant to stop applying mid-session. The agent reports the failure and a same-scope retry resumes at step 5 without re-prompting. The failure is explicitly distinguished from step 3c's persistent "not permitted" outcome — it writes no standing forbiddance — for the same reason AC-026 carries that distinction on the decline path.
 
 **Resolved by human decision 2026-08-04, recorded in `requirements.md` → Resolutions:** OQ-1 (scope is feature ∧ session), OQ-2 (expires with the session; withdrawable mid-session), OQ-3 (consent binds feature + destination, not bytes), OQ-4 (pull direction stays ungated but is disclosed), OQ-5 (operator authority asserted, not enforced), OQ-8 (existing contract suite, registered in `run-all`, CI registration staged separately).
 
@@ -260,7 +264,7 @@ Three of these resolve *structural* questions the design owns. The rest are reco
 
 Stated as an exhaustive table rather than prose. `epic-136-phase4-docs`'s impl review found the same defect three rounds running: a plan that read well against the `REQ-*` headings while silently omitting an `AC-*` added later to close a gap. **If an AC has no row here, the plan is incomplete; that is the check.**
 
-Requirement roll-up, so no `REQ-*` is reachable only through prose: **REQ-001** → AC-001, AC-002, AC-026, AC-027, AC-028; **REQ-002** → AC-003, AC-004, AC-005, AC-029; **REQ-003** → AC-006, AC-007, AC-008, AC-009; **REQ-004** → AC-010, AC-011, AC-012; **REQ-005** → AC-013, AC-014, AC-015, AC-016; **REQ-006** → AC-017, AC-018, AC-019, AC-020; **REQ-007** → AC-021, AC-022, AC-023; **REQ-008** → AC-024, AC-025.
+Requirement roll-up, so no `REQ-*` is reachable only through prose: **REQ-001** → AC-001, AC-002, AC-026, AC-027, AC-028, AC-030; **REQ-002** → AC-003, AC-004, AC-005, AC-029; **REQ-003** → AC-006, AC-007, AC-008, AC-009; **REQ-004** → AC-010, AC-011, AC-012; **REQ-005** → AC-013, AC-014, AC-015, AC-016; **REQ-006** → AC-017, AC-018, AC-019, AC-020; **REQ-007** → AC-021, AC-022, AC-023; **REQ-008** → AC-024, AC-025.
 
 The four criteria added when OQ-1/2/3/4/5 were resolved attach to the requirements those questions blocked: AC-026 (transient decline), AC-027 (destination binding) and AC-028 (mid-session withdrawal) refine REQ-001's consent-scope rule, and AC-029 (disclosure elements (d)–(f)) extends REQ-002's disclosure obligation with the three things the resolutions made it owe the operator.
 
@@ -292,6 +296,7 @@ The four criteria added when OQ-1/2/3/4/5 were resolved attach to the requiremen
 | AC-024 | TEST-039 | staged CI patch; **stays red until a human applies it** (R-OQ-8 part 3) |
 | AC-025 | TEST-040 | `## Ensure design-system/` untouched (BL-007) |
 | AC-026 | TEST-041, TEST-042, TEST-043 | step 3c's transient-decline parenthetical, and the field table's "a decline is NOT written here" rule |
+| AC-030 | TEST-051 | step 6's push-failure rule, all four parts — consent unchanged, failure reported, no-re-prompt retry, distinguished from AC-019's "not permitted" |
 | AC-027 | TEST-044, TEST-045 | `Egress-Destination` in the field table plus the "destination X does not carry to destination Y" rule |
 | AC-028 | TEST-046, TEST-047 | the `withdrawn` value and step 3a's withdrawal clause |
 | AC-029 | TEST-048, TEST-049, TEST-050 | step 4's disclosure bullets (d) future regenerations, (e) pull direction, (f) asserted authority |
