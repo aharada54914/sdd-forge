@@ -4230,6 +4230,51 @@
       "host_session_id": "SESS-spec-a2r1-a-mcpreadonlypreflight-0470",
       "previous_record_sha256": "4f2b181970c537d7b6b58ad380a20fbdadfdde927d39ff008c0fe56218f71d06",
       "record_sha256": "72e89ab45cd65ee8b8ed95e9836a09fde6296c67ce81beceee233dafa3698e7d"
+    },
+    {
+      "sequence": 471,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-designsyncconsent-spec-a1r2-b-seq0471",
+      "host_session_id": "SESS-spec-a1r2-b-designsyncconsent-0471",
+      "previous_record_sha256": "72e89ab45cd65ee8b8ed95e9836a09fde6296c67ce81beceee233dafa3698e7d",
+      "record_sha256": "40274e6a3a8e420f94a871e9cab72508cde4aa982d051ee6ae3cee3bff06e886"
+    },
+    {
+      "sequence": 472,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-mcpreadonlypreflight-spec-a2r1-b-seq0472",
+      "host_session_id": "SESS-spec-a2r1-b-mcpreadonlypreflight-0472",
+      "previous_record_sha256": "40274e6a3a8e420f94a871e9cab72508cde4aa982d051ee6ae3cee3bff06e886",
+      "record_sha256": "a7dbdadb42ea3fdb4243df65e5fab211c1db42f21f8cba78c5e87b6206948479"
+    },
+    {
+      "sequence": 473,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-designsyncconsent-spec-a1r3-a-seq0473",
+      "host_session_id": "SESS-spec-a1r3-a-designsyncconsent-0473",
+      "previous_record_sha256": "a7dbdadb42ea3fdb4243df65e5fab211c1db42f21f8cba78c5e87b6206948479",
+      "record_sha256": "d96870203409436a849f6cef494c96da39f2e12ed49fa212190d9436592dee9b"
+    },
+    {
+      "sequence": 474,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-designsyncconsent-spec-a1r3-b-seq0474",
+      "host_session_id": "SESS-spec-a1r3-b-designsyncconsent-0474",
+      "previous_record_sha256": "d96870203409436a849f6cef494c96da39f2e12ed49fa212190d9436592dee9b",
+      "record_sha256": "6de47e5ef9b4343adf08a47c09cd244233fc01d9266d8804205978c2201784cf"
+    },
+    {
+      "sequence": 475,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-mcpreadonlypreflight-spec-a2r2-a-seq0475",
+      "host_session_id": "SESS-spec-a2r2-a-mcpreadonlypreflight-0475",
+      "previous_record_sha256": "6de47e5ef9b4343adf08a47c09cd244233fc01d9266d8804205978c2201784cf",
+      "record_sha256": "85772f357652dfe972ac585364d6b312213fa0dcf10c70b931c8f0cd830d55a1"
     }
   ]
 }

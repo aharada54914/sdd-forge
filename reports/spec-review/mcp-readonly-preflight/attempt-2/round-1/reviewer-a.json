@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a2r1-a-seq0470",
+  "host_session_id": "SESS-spec-a2r1-a-mcpreadonlypreflight-0470",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-2/round-1/precheck-result.json",
+      "sha256": "042115d3afc4a86484b58e3072f50d77ac8e34da3cb6296c455a00d46ddb1949"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "7ae4ea198ab5d972f3bcbe6a636e2076c9984d9c14e732af6b9b64e8e35657e0"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every requirement (REQ-001 through REQ-011) is backed by acceptance criteria verified against concrete, inspectable artifacts (file text, tool registry, test-suite pass/fail) rather than vague intent. The new REQ-005 warn-on-divergence resolution (specs/mcp-readonly-preflight/requirements.md:144) is backed by AC-027a (requirements.md:148-151, testable via the agent's output text) and AC-027b (requirements.md:153-156, testable via the behavioral conclusion acted on), each with a corresponding TEST row (acceptance-tests.md:38-39). REQ-007's dual-runtime ACs (AC-017-020, requirements.md:187-197) state observable path-execution outcomes even though the exact verification method is deferred to OQ-009 (requirements.md:199); per calibration this is acceptable because the specification states the observable criterion and the harness/method belongs to a later gate."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every stated goal traces to at least one AC. The Overview's two obligations (probe creation, policy gap-fill) map to REQ-001/002 and REQ-008/009 respectively. The newly-added warn-on-divergence goal ('the agent states the disagreement visibly to the operator, and proceeds on the file-based conclusion', requirements.md:144) maps directly to AC-027a (states disagreement + names source acted on, requirements.md:148-151) and AC-027b (conclusion acted on is the file-based one, requirements.md:153-156)."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "AC-027a and AC-027b (requirements.md:148-156) describe concretely observable artifacts: output text containing a disagreement statement and a named source (AC-027a), and a specific behavioral outcome of which conclusion was acted on (AC-027b), mirroring the observable pattern already established at AC-012/AC-013. TEST-027a/TEST-027b (acceptance-tests.md:38-39) split these into two independently-failing assertions, consistent with the document's established practice of avoiding weak-half passes (e.g., TEST-001/002, acceptance-tests.md:58-66). Minor stylistic note only, not blocking: unlike AC-012/AC-013, which were explicitly split per skill 'because a single criterion could be satisfied by testing whichever skill is easier (sweep 4)' (requirements.md:140), AC-027a/AC-027b are not split per skill and their TEST rows target 'both skills' in a single row without the explicit AND-required disclaimer used for the analogous AC-004-007 pattern ('asserted independently against both skills... not a partial pass', requirements.md:104). This does not clear the Finding Evidence Gate as a FAIL because the document's repeatedly-stated sweep-4 convention (invoked ~6 times) makes the stricter, both-skills-required reading clear from context even without a restated disclaimer at AC-027a/b specifically."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:244-252 states seven explicit Non-goals (no write/approval tools, no rewriting existing prose, probe never authoritative, no MCP server implementation changes, no server registration, no ADR generalization, no interviewer-skill addition). The new REQ-005 resolution does not expand scope: AC-027b (requirements.md:153-156) explicitly forecloses a 'warn, then follow the probe' reading, keeping intact the existing Non-goal that 'the probe never selects the feature, never advances a gate' (requirements.md:248)."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Baseline Constraints BL-001 through BL-005 (requirements.md:272-276) state implementation-boundary, behavioral-preservation, prose-preservation, protected-file/approval, and registry constraints. The new resolution states its own constraint explicitly: 'the file-based flow stays authoritative either way... warning cannot change an outcome it is forbidden from changing' (requirements.md:146), and AC-027b operationalizes that the run proceeds normally on the file-based conclusion in the divergent case, precluding the divergence warning from being read as a blocking or error condition (distinct from REQ-004's fallback-error guarantee)."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk claims each have a stated validation surface: no-write preservation -> AC-014-016 (requirements.md:170-177); outcome invariance -> AC-012/AC-013 (requirements.md:134-138); protected-file conformance -> AC-025/AC-026 (requirements.md:233-237); and the newly-resolved authority-inversion risk in the divergence branch -> AC-027b (requirements.md:153-156) / TEST-027b (acceptance-tests.md:39), which is explicitly designed to fail an implementation that 'warns, then follows the probe'."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No domain/ directory exists under specs/mcp-readonly-preflight/ (glob specs/mcp-readonly-preflight/domain/** returned no matches), so the domain-model-conformance surface required for this check is absent; skipped per the explicit skip condition."
+    }
+  ]
+}
