@@ -135,6 +135,14 @@ Written as the structure to be implemented. Placeholders marked `⟨OQ-n⟩` are
    it does not presume an interactive human is present.
 
 6. Push.  finalize_plan then write_files.       [call pair unchanged: SKILL.md:85]
+   Push failure (network error, timeout, an auth expiry discovered only
+   after capability detection passed, or a service outage) does NOT change
+   consent state — consent is bound to scope, not to upload success
+   (R-OQ-1 / R-OQ-3).  The agent reports the failure to the operator.  A
+   retry within the same scope resumes at step 5 with NO re-prompt, because
+   step 3a already says consent held for this scope.  (Decided 2026-08-05;
+   per-upload consent had no such question, because a failed upload was
+   simply asked about again — per-scope consent creates it new.)
 
 7. Review in the claude.ai/design browser UI.  Apply feedback; return to 2.
    No consent prompt is re-entered on this cycle.
@@ -240,6 +248,7 @@ Three of these resolve *structural* questions the design owns. The rest are reco
 - **Split the fused push step into consent resolution → pre-upload point → upload.** Rationale in Architecture Overview. Chosen over an in-place conditional because the cheaper option leaves #139 and #140 without an attachment surface.
 - **Consent resolution runs after capability detection, not before.** Otherwise an absent DesignSync tool produces a consent prompt for an upload that cannot occur — user-hostile, and it would break AC-013's auth-failure branch.
 - **The consent outcome space is three-valued from the start.** `not permitted` costs one line now and a flow re-cut later.
+- **Push failure does not revoke consent** (decided 2026-08-05). Consent is bound to scope, not to upload success (R-OQ-1 / R-OQ-3); treating a failed push as an implicit revocation would collide with AC-028's explicit-withdrawal model, which is the only way a consent is meant to stop applying mid-session. The agent reports the failure and a same-scope retry resumes at step 5 without re-prompting.
 
 **Resolved by human decision 2026-08-04, recorded in `requirements.md` → Resolutions:** OQ-1 (scope is feature ∧ session), OQ-2 (expires with the session; withdrawable mid-session), OQ-3 (consent binds feature + destination, not bytes), OQ-4 (pull direction stays ungated but is disclosed), OQ-5 (operator authority asserted, not enforced), OQ-8 (existing contract suite, registered in `run-all`, CI registration staged separately).
 
@@ -379,7 +388,10 @@ Three options were weighed above, with different protected-file exposure. Owner:
 
 ### Still open — none blocking
 
-OQ-6 (`finalize_plan`'s payload — resolvable at implementation time by reading the tool contract, or stated as a limitation per AC-005), OQ-7 (`送信対象` granularity — AC-010 fixes the record's field *names* without fixing this value domain), OQ-9 (`standing` × #139 — hedged by AC-018, which states the check point's blocking behaviour without presuming an interactive human), OQ-10 (threat-model entry — a documentation question owned by `security-spec.md`, touching no criterion here).
+- **OQ-6** (`finalize_plan`'s payload) — Owner: implementer. Resolvable at implementation time by reading the tool contract, or stated as a limitation per AC-005.
+- **OQ-7** (`送信対象` granularity) — Owner: product. AC-010 fixes the record's field *names* without fixing this value domain.
+- **OQ-9** (`standing` × #139 interaction) — Owner: product / security. Hedged by AC-018, which states the check point's blocking behaviour without presuming an interactive human.
+- **OQ-10** (threat-model entry) — Owner: maintainers; recorded in `security-spec.md`, touching no criterion here.
 
 ## Risks
 

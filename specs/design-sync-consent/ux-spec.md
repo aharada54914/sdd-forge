@@ -28,6 +28,6 @@ Worth stating explicitly because this feature is *about* the design-system integ
 
 ## Open Questions
 
-- product/security: **OQ-1** — the consent scope unit is what the disclosure must name in one word; the prompt cannot be written until it is decided. Blocks REQ-001, AC-002.
+- product/security: **OQ-1** — the consent scope unit is what the disclosure must name in one word. **Resolved 2026-08-04** — feature ∧ session (R-OQ-1); the prompt can be written. See `requirements.md` → Resolutions. Blocked REQ-001, AC-002 until answered.
 - product: **OQ-7** — how the upload subject is expressed in the record shapes what the disclosure can honestly claim it covers. Non-blocking.
 - implementer: **OQ-6** — `finalize_plan`'s payload determines whether the disclosure enumerates or acknowledges a gap. Non-blocking; AC-005 accepts either, provided the text does not overclaim.

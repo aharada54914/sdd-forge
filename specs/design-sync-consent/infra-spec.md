@@ -12,7 +12,7 @@ The changed artifacts and how they reach a consumer:
 | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md` | the interviewer skill | same |
 | `plugins/sdd-lite/skills/lite-spec/SKILL.md` | the lite-spec skill | same — but **protected**, see below |
 | `docs/workflow-guide.md` | humans | repository-only |
-| test suites | a CI entry point (OQ-8) | repository-only |
+| test suites | `tests/run-all.{sh,ps1}` locally; CI registration is a separate staged patch (R-OQ-8) | repository-only |
 
 `SDD_PANELIST_TIMEOUT`-style runtime configuration has no analogue here: this feature introduces no environment variable, no setting, and no file the runtime reads. The one configuration surface in the vicinity — `ds_upload_consent` in `AGENTS.md` — belongs to #140 and is explicitly out of scope.
 
@@ -42,7 +42,7 @@ Human steps, all human-performed:
 
 Until step 3 lands, TEST-017 (lite-profile record destination) is red against the live tree. **That red is the designed fail-closed behaviour, not a defect** — there is no staged-candidate fallback, by the same reasoning `epic-136-phase3` applied to TEST-019/TEST-020.
 
-**A second round is conditional on OQ-8.** `.github/workflows/test.yml` is on the same protected list. If OQ-8 resolves toward registering the assertion suite in CI, this feature acquires a second protected target, a second staged candidate, and a second blocking human action mid-implementation. If it resolves otherwise, no CI file is touched. **The task decomposition cannot be finalised before OQ-8 is answered**, because the two answers produce different task counts, different dependencies, and different human checkpoints.
+**A second protected target is acquired, but its patch is out-of-line.** `.github/workflows/test.yml` is on the same protected list. **R-OQ-8 (resolved 2026-08-04):** CI registration of the assertion suite is a separate staged patch — a second protected target and a second staged candidate, but explicitly not a blocking human action inside this feature's implementation phase; it is tracked separately and does not gate AC-025 or the rest of the feature. The task decomposition is finalised: one certain human-copy round (`lite-spec/SKILL.md`), and the CI workflow patch staged outside the decomposition rather than a second in-line blocking checkpoint.
 
 **Re-verification instruction (AGENTS.md "Author-time sweeps", item 3).** Protected-file membership is repository-wide, git-tracked, shared state this branch does not own, and it is regenerated from `plugins/sdd-quality-loop/references/guard-invariants.json`. Re-derive both claims — not from this document — at spec-review time and again at implementation start, by reading `guard_invariants.py:4` and testing each target with `endswith()` on its repository-relative path.
 
@@ -61,7 +61,7 @@ And `tests/run-all.sh` is itself **not invoked by CI**: zero matches for `run-al
 Consequences for sequencing:
 
 1. An acceptance criterion asserted only in that suite is, today, **not a CI-enforced guard**.
-2. BL-007 — "the seven `DS-006` literals survive the restructuring" — is currently protected by a suite nobody runs, at exactly the moment this feature restructures the file those literals live in. That is the sharpest argument for OQ-8 option (a).
+2. BL-007 — "the seven `DS-006` literals survive the restructuring" — is currently protected by a suite nobody runs, at exactly the moment this feature restructures the file those literals live in. That is the sharpest argument for OQ-8 option (a), which R-OQ-8 adopted.
 
 **Newly-reachable branch declaration (AGENTS.md "Author-time sweeps", item 5).** Under option (a), the whole `DS-001`…`DS-017` block — which has never executed on a CI runner — becomes reachable for the first time, on every leg of the OS matrix. The implementation report must name that block and that environment explicitly and either exercise it in a matching environment before merge or flag it as "pending first real execution at CI time", so a resulting failure is traced to this class rather than read as an unrelated surprise. Note also that these assertions were authored against a tree that has since changed; a first-ever CI run may surface pre-existing failures unrelated to this feature, and those must be reported as discovered defects rather than silently fixed inside this change.
 
@@ -70,7 +70,7 @@ Consequences for sequencing:
 ### Merge-time sequence
 
 1. Deterministic gates: `check-sdd-structure`, `check-workflow-state` (see Prerequisites below).
-2. The `test` job's existing enumerated suites — unchanged unless OQ-8 resolves to option (a).
+2. The `test` job's existing enumerated suites — unchanged inside this feature's decomposition; option (a) was adopted (R-OQ-8), but CI registration is the separate staged patch in part (c), not applied here.
 3. No `dist/` rebuild step applies. Markdown, shell and PowerShell only; no esbuild bundle is in scope, so ADR-0003's same-commit rebuild obligation does not attach and `git diff --exit-code -- dist/` is not a leg of any acceptance criterion.
 4. No `npm audit` interaction. No package manifest or lockfile is touched.
 5. The human-copy application commit(s) — blocking, and inside the implementation phase rather than after it.
@@ -110,11 +110,11 @@ Component-wise:
 - **Skill and documentation reverts** restore the per-upload text in all four live sites. Nothing parses them, so nothing breaks mechanically.
 - **A `Design-Source` record already written** by a run under the new model survives the revert as inert text. It is not read by any gate (INV-011), so a stale record is harmless — but it is also permanent, because it is git-tracked. An operator reverting for privacy reasons should know the record of a past consent does not disappear with the code that produced it.
 - **The `lite-spec/SKILL.md` revert requires a human**, because the file is protected in both directions. An agent can neither apply nor un-apply it. Plan the rollback as a human action, not a `git revert`.
-- **If OQ-8 resolved to option (a)**, reverting the CI registration is likewise a second human action, and reverting the suite content without reverting its registration would leave a registered suite asserting text that no longer exists.
+- **Because R-OQ-8 resolved to option (a)**, reverting the CI registration (once the staged patch in part (c) has been applied) is likewise a second human action, and reverting the suite content without reverting its registration would leave a registered suite asserting text that no longer exists.
 
 Partial rollback is safe in one direction only. The documentation reconciliation (REQ-007) may be reverted independently of the loop change; reverting the loop change while keeping the reconciliation would leave four documents describing a per-feature consent model the skill no longer implements — the precise documentation-versus-behaviour drift that produces issues of this shape in the first place.
 
 ## Open Questions
 
-- maintainers: **OQ-8** — where this feature's assertions run. Determines whether the plan carries one protected human-copy round or two. Blocks the task decomposition.
+- maintainers: **OQ-8** — where this feature's assertions run. Determined whether the plan carried one protected human-copy round or two. **Resolved 2026-08-04** — existing contract suite; registered in `run-all`; CI registration staged separately and not blocking the decomposition. See `requirements.md` → Resolutions (R-OQ-8).
 - maintainers: **OQ-10** — whether `docs/THREAT-MODEL.md` gains a design-sync egress boundary in this feature. Non-blocking; would add one unprotected documentation target.
