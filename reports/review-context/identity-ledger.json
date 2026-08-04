@@ -4311,6 +4311,33 @@
       "host_session_id": "SESS-impl-a1r1-a-designsyncconsent-0479",
       "previous_record_sha256": "c56f1e99fdb886cd30a67731c5d47d6db88d9fe8a8daec0c34836d8d2b6885bb",
       "record_sha256": "acd88f941de5c71c203c7e82275cf7921afd2091e497f1d5b3dba6a47ce9e6f5"
+    },
+    {
+      "sequence": 480,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-mcpreadonlypreflight-impl-a1r1-a-seq0480",
+      "host_session_id": "SESS-impl-a1r1-a-mcpreadonlypreflight-0480",
+      "previous_record_sha256": "acd88f941de5c71c203c7e82275cf7921afd2091e497f1d5b3dba6a47ce9e6f5",
+      "record_sha256": "2149b46e270d7bf631054ce6bccff63c26c6db8792c3541c14fa4b41cf858bb1"
+    },
+    {
+      "sequence": 481,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-designsyncconsent-impl-a1r1-b-seq0481",
+      "host_session_id": "SESS-impl-a1r1-b-designsyncconsent-0481",
+      "previous_record_sha256": "2149b46e270d7bf631054ce6bccff63c26c6db8792c3541c14fa4b41cf858bb1",
+      "record_sha256": "00c006eaecbfb01409e8526871dd18887c045bd73c5ca8a0b9539710aa4fe454"
+    },
+    {
+      "sequence": 482,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-mcpreadonlypreflight-impl-a1r1-b-seq0482",
+      "host_session_id": "SESS-impl-a1r1-b-mcpreadonlypreflight-0482",
+      "previous_record_sha256": "00c006eaecbfb01409e8526871dd18887c045bd73c5ca8a0b9539710aa4fe454",
+      "record_sha256": "c48f5c12c32ded41b3caa8a14b0cb330cfa9c1e20deafecc6a8c40842ea3ff63"
     }
   ]
 }
