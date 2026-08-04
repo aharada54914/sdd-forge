@@ -372,6 +372,18 @@
     {
       "feature": "epic-136-phase4-docs",
       "profile": "full"
+    },
+    {
+      "feature": "mcp-readonly-preflight",
+      "profile": "full"
+    },
+    {
+      "feature": "review-cross-critique",
+      "profile": "full"
+    },
+    {
+      "feature": "design-sync-consent",
+      "profile": "full"
     }
   ]
 }

@@ -97,6 +97,10 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/epic-159-pillar-c/`
 - `specs/epic-159-pillar-d/`
 - `specs/epic-192-a4-facet-manifest/`
+- `specs/epic-136-phase4-docs/`
+- `specs/mcp-readonly-preflight/`
+- `specs/review-cross-critique/`
+- `specs/design-sync-consent/`
 
 ## Source Artifact Locations
 
