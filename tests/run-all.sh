@@ -64,6 +64,7 @@ tests=(
   tests/check-hook-activation-handshake.tests.sh
   tests/guard-invariants-epic-a1.tests.sh
   tests/hook-guard-epic-a1-boundary.tests.sh
+  tests/plugin-contracts-track-selection.tests.sh
   tests/guard-staging-exemption.tests.sh
 )
 

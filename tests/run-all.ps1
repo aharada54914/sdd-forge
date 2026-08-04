@@ -46,7 +46,8 @@ $tests = @(
     'tests/apply-human-copy.tests.ps1',
     'tests/check-hook-activation-handshake.tests.ps1',
     'tests/guard-invariants-epic-a1.tests.ps1',
-    'tests/hook-guard-epic-a1-boundary.tests.ps1'
+    'tests/hook-guard-epic-a1-boundary.tests.ps1',
+    'tests/plugin-contracts-track-selection.tests.ps1'
 )
 
 Push-Location $root

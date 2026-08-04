@@ -249,6 +249,21 @@ jobs:
         shell: pwsh
         run: ./tests/hook-guard-epic-a1-boundary.tests.ps1
 
+      # T-011 (REQ-009, AC-024/AC-026/AC-039): ADR-0023 track-selection
+      # contract conformance for PLUGIN-CONTRACTS.md and the three UNPROTECTED
+      # migrated consumers. Fixture-driven -- it builds real project trees and
+      # drives the real approval signer/validator, with no agent in the loop.
+      - name: Test plugin-contracts track-selection contract (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/plugin-contracts-track-selection.tests.sh
+
+      - name: Test plugin-contracts track-selection contract (pwsh)
+        shell: pwsh
+        run: ./tests/plugin-contracts-track-selection.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

@@ -79,11 +79,54 @@ Stop after investigation completes. Outputs: `specs/<feature>/investigation.md`,
 
 ### Track selection
 
-Choose the track once, before invoking the interviewer:
+Choose the track once, before invoking the interviewer. This is a
+Capability-Mode-relevant entry point, so run the hook-activation handshake
+first:
 
-1. `--lite` selects the lite track.
-2. Otherwise, `AGENTS.md` with `spec_profile: lite` selects the lite track.
-3. Otherwise, use the full track.
+<!-- sdd:handshake-wiring v1 -->
+
+1. `check-hook-activation-handshake --emit-challenge` — returns a fresh
+   nonce and the canary target `sdd/.hook-canary-sentinel`.
+2. Make your **own** real tool-call attempt against that canary target,
+   using the per-runtime template the challenge carries, and record the raw
+   result verbatim.
+3. `check-hook-activation-handshake --verify-response --nonce <nonce>
+   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`.
+4. `HOOK_ACTIVE` — continue to track selection. Any other outcome — stop with
+   `CAPABILITY_RUNTIME_UNAVAILABLE`; never fall back to legacy behaviour
+   silently.
+
+<!-- /sdd:handshake-wiring -->
+
+Then resolve the track, checking physical presence FIRST and approval
+validity SECOND. A `sdd/project-context.yaml` that exists but fails
+`validate-approval-sidecar` is **not** the same as one that is absent —
+treating the two alike is the fail-open ADR-0023 closes.
+
+<!-- sdd:track-selection-contract v1 -->
+
+| Case | Project Context | Flag | Resolution |
+|---|---|---|---|
+| C1 | physically absent | `--full`, `--lite`, or none | `COMPATIBILITY_FALLBACK` |
+| C2 | physically present, REQ-005 validation fails | `--full`, `--lite`, or none | `PROJECT_CONTEXT_INVALID` |
+| C3 | physically present and valid, `spec_profile: lite` | `--full` | `PROMOTE_FULL` |
+| C4 | physically present and valid, `spec_profile: lite` | `--lite` | `NO_OP_LITE` |
+| C5 | physically present and valid, `spec_profile: full` | `--lite` | `ERROR_STOP` |
+| C6 | physically present and valid, `spec_profile: full` | `--full` | `NO_OP_FULL` |
+
+<!-- /sdd:track-selection-contract -->
+
+- `COMPATIBILITY_FALLBACK` (C1 only) — `--lite` selects the lite track;
+  otherwise `AGENTS.md` with `spec_profile: lite` selects the lite track;
+  otherwise the full track.
+- `PROJECT_CONTEXT_INVALID` (C2) — stop and report that name. Do not invoke
+  the interviewer or `lite-spec`, and do not fall through to C1's fallback.
+- `PROMOTE_FULL` — run the full track. `NO_OP_LITE` / `NO_OP_FULL` — run the
+  profile's own track. `ERROR_STOP` — stop with an explicit message; `--lite`
+  never downgrades a `full` profile.
+
+`PLUGIN-CONTRACTS.md`'s Track Detection section is the normative source for
+this table.
 
 ### `feature` / `bugfix` / `refactor` / `project` modes (full track)
 
@@ -121,7 +164,7 @@ Choose the track once, before invoking the interviewer:
    `Approval: Approved` on each task in `tasks.md`.
    Next step: `/sdd-ship:ship specs/<slug>/tasks.md`
 
-### Lite track (`--lite` or `spec_profile: lite`)
+### Lite track (resolved track: `lite`)
 
 Substitute `lite-spec` for `sdd-bootstrap-interviewer` and skip all three review loops.
 Outputs: `requirements.md`, `design.md`, `tasks.md` (no `traceability.md`,
