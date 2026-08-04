@@ -651,6 +651,42 @@
   `tests/guard-invariants-epic-a1.tests.*` の MANIFEST 件数を 8 に固定して
   いたアサーションは、後続タスクの正当な追加で誤って落ちるため、下限+
   重複なしの検査に置き換えた(各エントリのステージバイトとの照合は従来どおり)。
+- **三環境テストカバレッジと CI 配線のクローズアウト (Issue #189,
+  epic-189-a1-project-context T-013, Risk: medium)**: 本 epic が追加した
+  全スイートの登録・非使用宣言・CI 耐性を監査し、CI ステージングの drift を
+  解消した(AC-028・AC-029)。**CI ステージング drift の実測と是正**: 各タスクが
+  `specs/epic-189-a1-project-context/human-copy/` 配下の CI ワークフロー候補へ
+  逐次追記した結果、実測時点で bash レーン 13 件中 5 件・pwsh レーン 12 件中
+  5 件しか登録されておらず、**15 登録が欠落**していた。これを 13/13・12/12 に
+  是正し、`human-copy/MANIFEST.sha256` の該当ダイジェストを更新
+  (`c59b1c9a…`)。是正後の候補は YAML としてパース可能・`test` ジョブ 90
+  ステップ・ステップ名重複なしを実測。**AC-028 の3部構成証明**は3部とも成立:
+  (1) staged = 25 登録すべて存在、(2) live 不変 = ライブの CI ワークフロー定義
+  ファイルの sha256 が merge-base 時点と完全一致(`3fe8466c…`)、本ブランチの
+  当該ファイルへのコミット数 **0**、(3) post-copy = ステージ候補を適用した
+  シミュレーションで欠落 **0**。ライブファイルは一切編集していない(公開は
+  T-007 の `apply-human-copy` 経由の人手適用ステップ)。**AC-029**: 新規
+  スイート全件について実 LLM・`gh`・`sdd-sudo` のコマンド呼び出しがゼロで
+  あることを実測(検出された `copilot` はアサーション名の文字列、`SDD_SUDO`
+  は T-010 のローカル署名フィクスチャトークンおよび鍵解決パリティ用の
+  環境変数名のみで、ライブの grant は皆無)。bash 配列展開は全スイートで
+  ゼロ件(`set -u` の空配列ハザードは存在しない)。`mktemp` ルートの
+  `pwd -P` 正規化が3スイートで欠落していたため、本 epic の既存 10 スイートと
+  同一のイディオムで補った(アサーション数は 44/0・8/0・33/0 と変化なし)。
+  **個別実行は両ランタイム全 25 実行が green**(bash 13 本・pwsh 12 本、
+  全て exit 0)。**逸脱(人間承認済み)**: Done-When の
+  「`bash tests/run-all.sh` / `pwsh tests/run-all.ps1` の完走」は**本ブランチ
+  では達成できない**。bash レーンは 61 本中 **21 本目**
+  (`tests/turn-first-workflow.tests.sh`)で、pwsh レーンは 44 本中 **1 本目**
+  (`tests/validate-repository.ps1`)で中断する。**いずれも本 epic 由来では
+  なく、T-013 由来でもない**(前者は WFI-005 のテンプレート改名 drift で
+  upstream の #215/#216 が既に修正済み、後者は実装フェーズ中は構造的に
+  green を保てない stage-provenance の documented interim state)。人間判断に
+  より **main のマージは最終フェーズへ繰り延べ**、本項目は
+  「最終フェーズのマージ後に条件付きで充足」として記録する(充足済みとは
+  記録しない)。詳細な実測・使い捨てクローンでのマージ影響測定・是正内容は
+  `reports/implementation/epic-189-a1-project-context/T-013.md` と
+  `specs/epic-189-a1-project-context/verification/T-013/`。
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
