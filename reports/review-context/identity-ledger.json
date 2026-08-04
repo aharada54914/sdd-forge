@@ -4158,6 +4158,60 @@
       "host_session_id": "SESS-task-task-reviewer-b-epic-192-a4-facet-manifest-0329",
       "previous_record_sha256": "2e11f6b3d8ba77700d05f5a1125cf058b31336a9986464d40421be890d7226c2",
       "record_sha256": "14fb075b3dd7456b5ef287f9ef53cb32acdb02ff79a244b675d9b409beb91446"
+    },
+    {
+      "sequence": 463,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-mcpreadonlypreflight-spec-a1r1-a-seq0463",
+      "host_session_id": "SESS-spec-a1r1-a-mcpreadonlypreflight-0463",
+      "previous_record_sha256": "14fb075b3dd7456b5ef287f9ef53cb32acdb02ff79a244b675d9b409beb91446",
+      "record_sha256": "c325b018ca4e32fdc5209fd0bc296726b8d5a21a0a37758d76efedfbd63c12e4"
+    },
+    {
+      "sequence": 464,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-designsyncconsent-spec-a1r1-a-seq0464",
+      "host_session_id": "SESS-spec-a1r1-a-designsyncconsent-0464",
+      "previous_record_sha256": "c325b018ca4e32fdc5209fd0bc296726b8d5a21a0a37758d76efedfbd63c12e4",
+      "record_sha256": "81b4acbb5ebb8e57139e944cbde26e7f91ebf44fd5fc5c6ecebf1cf2c32c63dd"
+    },
+    {
+      "sequence": 465,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-designsyncconsent-spec-a1r1-b-seq0465",
+      "host_session_id": "SESS-spec-a1r1-b-designsyncconsent-0465",
+      "previous_record_sha256": "81b4acbb5ebb8e57139e944cbde26e7f91ebf44fd5fc5c6ecebf1cf2c32c63dd",
+      "record_sha256": "199702988cbaf607ba0cd269f1754d8cd107eebe0f27b865b62be57920499358"
+    },
+    {
+      "sequence": 466,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-mcpreadonlypreflight-spec-a1r1-b-seq0466",
+      "host_session_id": "SESS-spec-a1r1-b-mcpreadonlypreflight-0466",
+      "previous_record_sha256": "199702988cbaf607ba0cd269f1754d8cd107eebe0f27b865b62be57920499358",
+      "record_sha256": "bbeb5a3fe0121c540c1bd6164500f8f53ca15547c6b02bf1dd9219e4eaa23b1f"
+    },
+    {
+      "sequence": 467,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-mcpreadonlypreflight-spec-a1r2-a-seq0467",
+      "host_session_id": "SESS-spec-a1r2-a-mcpreadonlypreflight-0467",
+      "previous_record_sha256": "bbeb5a3fe0121c540c1bd6164500f8f53ca15547c6b02bf1dd9219e4eaa23b1f",
+      "record_sha256": "a59a519264e89bae3b2146d6106cecd0adc26812f2a8ef5893d3efbd0e7cca87"
+    },
+    {
+      "sequence": 468,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-mcpreadonlypreflight-spec-a1r2-b-seq0468",
+      "host_session_id": "SESS-spec-a1r2-b-mcpreadonlypreflight-0468",
+      "previous_record_sha256": "a59a519264e89bae3b2146d6106cecd0adc26812f2a8ef5893d3efbd0e7cca87",
+      "record_sha256": "0aa0e0422e1d654fc1526ac034a81e134721f86afed68ef79026d9d910c77eb4"
     }
   ]
 }

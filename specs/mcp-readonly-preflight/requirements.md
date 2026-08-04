@@ -1,6 +1,6 @@
 # Requirements: mcp-readonly-preflight
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 
 Source issue: [#129](https://github.com/aharada54914/sdd-forge/issues/129) (`enhancement`, `workflow-improvement`; Key `ENH-22`, Finding A-4, Plan Phase 4), including its 2026-07-10 runtime addendum.
 
@@ -140,6 +140,12 @@ The original criterion read "MCP 不在フォールバックが機能" — a sin
 Two criteria rather than one, because "each skill" quantifies over a set of two and a single criterion could be satisfied by testing whichever skill is easier (sweep 4).
 
 **Divergence handling is OQ-005 and is not decided here.** AC-012 and AC-013 assert *outcome equality*, which holds under every candidate answer — display-only, log-only, or warn-on-divergence — because none of those changes the conclusion. What they cannot assert is what the agent reports when the probe and the file-based flow disagree, because the issue does not say. A criterion invented for that would be a design decision smuggled into a specification.
+
+*Blocked on OQ-005 — this carries the same gating force as REQ-002's block on OQ-007, and the two instructions are to be read as equals.* The Overview calls OQ-005 the difference between a specifiable feature and an unspecifiable one; that judgement is only useful attached to an instruction, so here it is. **OQ-005 must be answered by a human before design or task decomposition proceeds.** A downstream reviewer or task author reaching this requirement with OQ-005 still open is to stop and route it for a product decision, not to select a behaviour and record it as derived.
+
+What makes this a block rather than a note: AC-012 and AC-013 hold under every candidate resolution, so the *safety* property is already secured and nothing here is unsafe to build. What is not constructible is the *reporting* behaviour — display-only, log-only and warn-on-divergence are three different products, and choosing among them is exactly the product decision this specification declines to make. Implementing REQ-005 without that answer yields a feature whose observable behaviour on divergence was picked by whoever wrote the code.
+
+Unlike REQ-002, this requirement is **not withdrawn** under any resolution: outcome equality is required regardless. Only the divergence-reporting criterion is deferred, and once OQ-005 is answered it must be added to *this* specification rather than to `design.md`, so the reviewed artefact remains the one that states the behaviour.
 
 ### REQ-006 — no write capability is added to any MCP server
 
