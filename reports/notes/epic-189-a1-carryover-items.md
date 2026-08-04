@@ -285,3 +285,72 @@
 - **対処方針**: turn-first-workflow のテンプレートアサーション不一致を解消すれば
   run-all が完走する可能性がある（未確認 — 21 スイート目以降に別の失敗が
   潜んでいる可能性は残る)。**epic-189-a1 のスコープ外**。
+
+## 記述の訂正: T-012 実装レポートの ship fidelity 記述（3点の事実誤り）
+
+- **出所**: T-012 QG round-2（seq0371、2026-08-04)の Minor 1。凍結済みレポートは
+  編集しない方針（T-004 の先例)のため、訂正をここに記録する。
+- **誤っている記述**: `reports/implementation/epic-189-a1-project-context/T-012.md:190-199`
+  が (a)「除去された 11 行はすべて同じ diff 内で再追加されている」(b)「`--full`
+  が唯一の scan bypass である段落は新設の『Compatibility fallback』節へ**移動**
+  された」(c)「唯一の実質的な書き換えは `Exit 0 with lite-eligible` の行だけ」
+  と述べている。
+- **現在の実測**: 評価者が `-` 行と `+` 行を集合比較した結果、**逐語で再追加
+  されているのは 11 行中 5 行のみ**（`Execute in this priority order (first
+  match wins):` と `--full` の 4 行項目)。残り 6 行のうち 5 行の risk-upgrade
+  段落は**その場で 6 行に書き換えられており、移動ではない**。staged 候補では
+  `### Risk-upgrade scan` が 201 行目、`### Compatibility fallback (no Project
+  Context)` が 226 行目なので、当該段落は「移動先」とされた節より**前**にある。
+- **結論**: **主張されている安全性そのものは真**（評価者が diff の逆適用 →
+  git blob OID 照合で、保護ファイルを読まずに独立実証済み)。誤っているのは
+  レポートの**要約文**であって証跡ではない。diff は永続化され `## Outputs` に
+  宣言されており、隠蔽は生じていない。実装者のトークン単位の検査自体は正しく、
+  それを行単位の再追加へ過度に一般化したことが原因。
+- **対処方針**: 訂正はこの記録をもって完了とする。以後 fidelity を主張する際は
+  「トークンが再出現する」と「行が再追加される」を区別して書くこと。
+
+## 罠: `remedy1-evidence.sh` は再実行すると固定済み成果物を上書きする
+
+- **出所**: T-012 QG round-2（seq0371)の Minor 3。
+- **現在の実測**: `specs/epic-189-a1-project-context/verification/T-012/remedy1-evidence.sh:59-98`
+  の `emit_diff` は `OUT="$HERE"`（スクリプト自身の所在)へ書き出すため、
+  再実行すると**コミット済み・`## Outputs` 宣言済み・レビューマニフェストで
+  ハッシュ固定済み**の 2 本の diff 成果物をその場で上書きする。にもかかわらず
+  `T-012.md:907` は「再現するなら `remedy1-evidence.sh <scratch-dir>` を
+  再実行せよ」と案内しており、読み取り専用であるべき評価者がこれに従うと
+  **自分の許可入力ハッシュを自ら無効化する**。
+- **副次的な好材料**: 評価者が scratch コピー上で実測したところ、上書き後も
+  **本文はバイト同一**で、差分は `Generated at (UTC)` / `Repository HEAD` の
+  ヘッダー行と `---`/`+++` の mtime のみだった（HEAD 485d9c3e で同じハンクが
+  再導出されることの裏付けでもある)。
+- **対処方針**: 再実行するなら必ずリポジトリ外の scratch コピー上で行うこと。
+  恒久対処は `OUT` を必須引数化してスクリプト所在への既定書き出しを廃すること
+  （**epic-189-a1 のスコープ外**、T-012 は QG PASS 済み)。
+
+## 最終フェーズで直す: CHANGELOG の T-012 タリーが古い
+
+- **出所**: T-012 QG round-2（seq0371)の Minor 4。
+- **現在の実測**: `CHANGELOG.md:646,648` は `両ランタイムとも 134/0` と記録して
+  いるが、remedy-1 後の実装は **139/0**（pair-consistency 1 + rotated-key 4 の
+  計 5 アサーション追加)。Done-When の「CHANGELOG #189 エントリ更新」自体は
+  満たしており、古いのはタリーの数値のみ。
+- **対処方針**: ユーザー常設指示「各種ドキュメントの内容、追番ももれなく改訂
+  せよ」の対象。**最終ドキュメント改訂フェーズで訂正する**（T-001 の
+  「41アサーション → 44」と同じ扱い)。QG PASS 後にマニフェスト固定ファイルを
+  編集しないため、この時点では直さない。
+
+## 強化候補: scan bypass 規則の書き換えにアサーションの錨がない
+
+- **出所**: T-012 QG round-2（seq0371)の Minor 2。
+- **現在の実測**: `specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md:203`
+  で規範的な scan bypass 規則が「`--full` が唯一の bypass」から「解決された
+  `full` トラックが唯一の bypass」へ変更されたが、`tests/ship-track-selection-migration.tests.sh:234-247`
+  の SHIP `PRESERVED` 錨リストは bypass 条件を pin していない（pin しているのは
+  `check-risk-upgrade.sh`・4 種の Track 出力・`risk-upgrade: input unavailable`)。
+- **結論**: 評価者が 6 つの contract ケースと 4 段の fallback 経路を全て歩き、
+  **どの経路でも緩和は生じていない**ことを確認済み（FULL 解決には必ず `--full`
+  が要り、C4 `NO_OP_LITE` と `--lite`/profile 経路は従来どおり scan される。
+  唯一曖昧な経路も最も厳格なトラックへ解決するため lite 適格性 scan は結果を
+  変えない)。ゆえにセキュリティ指摘ではなく Minor。
+- **対処方針**: 将来の編集で気づかれずに緩和されうるため、bypass 条件を
+  `PRESERVED` 錨に加えるのが望ましい。**epic-189-a1 のスコープ外**。
