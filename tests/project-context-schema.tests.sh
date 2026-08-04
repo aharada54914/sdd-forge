@@ -214,13 +214,19 @@ def delete_pointer(instance, pointer):
     return inst
 
 
-def duplicate_id_check(instance, array_path, code):
+DUPLICATE_ID_CODES = {
+    "components": "DUPLICATE_COMPONENT_ID",
+    "bindings": "DUPLICATE_BINDING_ID",
+}
+
+
+def duplicate_id_check(instance, array_path):
     arr = instance.get(array_path, [])
     seen = set()
     for item in arr:
         iid = item.get("id")
         if iid in seen:
-            return code
+            return DUPLICATE_ID_CODES.get(array_path)
         seen.add(iid)
     return None
 
@@ -268,7 +274,7 @@ def main(argv):
         instance = load_json_or_yaml(argv[2])
         array_path = argv[3]
         expected_code = argv[4]
-        code = duplicate_id_check(instance, array_path, expected_code)
+        code = duplicate_id_check(instance, array_path)
         if code == expected_code:
             print("DETECTED: %s" % code)
             return 0
@@ -446,10 +452,19 @@ done
 # proving no fixed Provider enum exists (AC-004).
 # ---------------------------------------------------------------------------
 
-if jq -e '.properties.bindings.items.properties.provider.enum' "$PB_SCHEMA" >/dev/null 2>&1; then
+jq -e '.properties.bindings.items.properties.provider.enum' "$PB_SCHEMA" >/dev/null 2>"$WORK/err"
+jq_provider_enum_rc=$?
+# jq -e exits 1 specifically when the queried value is false/null/absent —
+# that is the only exit code that legitimately proves "no enum present".
+# Any other code (including 127 when jq itself is missing from PATH) must
+# NOT be folded into the same else-branch as a real absence check, or a
+# broken/missing jq silently reads as PASS (quality-gate seq0367, Minor 1).
+if [ "$jq_provider_enum_rc" -eq 0 ]; then
   fail "TEST-004 no fixed Provider enum exists in the schema"
-else
+elif [ "$jq_provider_enum_rc" -eq 1 ]; then
   pass "TEST-004 no fixed Provider enum exists in the schema"
+else
+  fail "TEST-004 no fixed Provider enum exists in the schema: jq did not run as expected (exit $jq_provider_enum_rc): $(cat "$WORK/err")"
 fi
 
 if "$PY" "$VALIDATOR" check "$PB_SCHEMA" "$WORK/pb_positive.json" >/dev/null 2>"$WORK/err"; then
@@ -488,6 +503,27 @@ if "$PY" "$VALIDATOR" dup-check "$WORK/pb_dup_binding.json" bindings DUPLICATE_B
   pass "TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)"
 else
   fail "TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID): $(cat "$WORK/out" "$WORK/err")"
+fi
+
+# Mutation proof: a WRONG expected code must NOT be reported as detected.
+# duplicate_id_check() must derive the code from array_path itself, not
+# echo back whatever the caller passed in (quality-gate seq0367, Major 3).
+if "$PY" "$VALIDATOR" dup-check "$WORK/pc_dup_component.json" components DUPLICATE_BINDING_ID >"$WORK/out" 2>"$WORK/err"; then
+  fail "TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)"
+else
+  pass "TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)"
+fi
+
+if "$PY" "$VALIDATOR" dup-check "$WORK/pb_dup_binding.json" bindings DUPLICATE_COMPONENT_ID >"$WORK/out" 2>"$WORK/err"; then
+  fail "TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)"
+else
+  pass "TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)"
+fi
+
+if "$PY" "$VALIDATOR" dup-check "$WORK/pc_dup_component.json" components TOTALLY_BOGUS_CODE >"$WORK/out" 2>"$WORK/err"; then
+  fail "TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)"
+else
+  pass "TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)"
 fi
 
 # ---------------------------------------------------------------------------

@@ -28,9 +28,9 @@ PASS: TEST-040 duplicate-id components[] fixture still passes plain JSON Schema 
 PASS: TEST-040 semantic-validator layer rejects duplicate components[].id (DUPLICATE_COMPONENT_ID)
 PASS: TEST-040 duplicate-id bindings[] fixture still passes plain JSON Schema (M18)
 PASS: TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)
-PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)
-PASS: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)
-PASS: TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)
+FAIL: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)
+FAIL: TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)
+FAIL: TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)
 PASS: TEST-041 bindings[] entry declaring adapter_paths validates
 PASS: TEST-041 bindings[] entry with no adapter_paths also validates
 PASS: TEST-042 project-context.template.yaml parses
@@ -42,6 +42,5 @@ PASS: TEST-042 shared_paths contains cross-cutting seed pattern '.github/**'
 PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'tests/fixtures/**'
 PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'CHANGELOG.md'
 PASS: TEST-042 shared_paths contains exactly the six canonical seed patterns
-PASS: 44
-FAIL: 0
-sh exit=0
+PASS: 41
+FAIL: 3

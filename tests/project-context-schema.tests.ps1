@@ -207,13 +207,19 @@ def delete_pointer(instance, pointer):
     return inst
 
 
-def duplicate_id_check(instance, array_path, code):
+DUPLICATE_ID_CODES = {
+    "components": "DUPLICATE_COMPONENT_ID",
+    "bindings": "DUPLICATE_BINDING_ID",
+}
+
+
+def duplicate_id_check(instance, array_path):
     arr = instance.get(array_path, [])
     seen = set()
     for item in arr:
         iid = item.get("id")
         if iid in seen:
-            return code
+            return DUPLICATE_ID_CODES.get(array_path)
         seen.add(iid)
     return None
 
@@ -261,7 +267,7 @@ def main(argv):
         instance = load_json_or_yaml(argv[2])
         array_path = argv[3]
         expected_code = argv[4]
-        code = duplicate_id_check(instance, array_path, expected_code)
+        code = duplicate_id_check(instance, array_path)
         if code == expected_code:
             print("DETECTED: %s" % code)
             return 0
@@ -471,6 +477,21 @@ if __name__ == "__main__":
   $r = Invoke-Validator @('dup-check', $PbDupBinding, 'bindings', 'DUPLICATE_BINDING_ID')
   if ($r.ExitCode -eq 0) { Test-Pass 'TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)' }
   else { Test-Fail 'TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)' $r.Output }
+
+  # Mutation proof: a WRONG expected code must NOT be reported as detected.
+  # duplicate_id_check() must derive the code from array_path itself, not
+  # echo back whatever the caller passed in (quality-gate seq0367, Major 3).
+  $r = Invoke-Validator @('dup-check', $PcDupComponent, 'components', 'DUPLICATE_BINDING_ID')
+  if ($r.ExitCode -eq 0) { Test-Fail 'TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)' $r.Output }
+  else { Test-Pass 'TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for components[] (mutation proof)' }
+
+  $r = Invoke-Validator @('dup-check', $PbDupBinding, 'bindings', 'DUPLICATE_COMPONENT_ID')
+  if ($r.ExitCode -eq 0) { Test-Fail 'TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)' $r.Output }
+  else { Test-Pass 'TEST-040 semantic-validator layer rejects a mismatched duplicate-id code for bindings[] (mutation proof)' }
+
+  $r = Invoke-Validator @('dup-check', $PcDupComponent, 'components', 'TOTALLY_BOGUS_CODE')
+  if ($r.ExitCode -eq 0) { Test-Fail 'TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)' $r.Output }
+  else { Test-Pass 'TEST-040 semantic-validator layer rejects an arbitrary bogus duplicate-id code (mutation proof)' }
 
   # ---------------------------------------------------------------------
   # TEST-041
