@@ -616,6 +616,41 @@
   in-suite mutation(すべて pristine ベースラインとの差分として評価するため
   Red 状態では空振りせず失敗する)と5つのスイート外 mutation で実証。
   保護ファイル(`ship` / `lite-spec`)は本タスクでは一切触れない(T-012)。
+- **ADR-0023 トラック選択契約の移行 — 保護コンシューマ2件と配線クローズアウト
+  (Issue #189, epic-189-a1-project-context T-012, Risk: high)**:
+  R-10 保護下にある残り2コンシューマ(`sdd-ship` の Track Detection と
+  `lite-spec`)の移行候補を `specs/epic-189-a1-project-context/human-copy/`
+  配下に**ステージング**し、REQ-009 の5コンシューマ移行と REQ-010 の
+  エントリポイント配線を完結させた(AC-025・AC-026・AC-035・AC-039)。
+  **ライブの保護ファイルは一切編集していない**: 公開は T-007 の
+  `apply-human-copy` を通じた**人手の適用ステップ**であり、本タスクの Done
+  条件に明示的に含まれる(下記 runbook は
+  `reports/implementation/epic-189-a1-project-context/T-012.md`)。
+  `sdd-ship` の Step 2 は、ハンドシェイク → 契約解決 → リスク昇格スキャン →
+  **互換フォールバック**(旧優先順位1〜4を無変更で保持)という構成に再編し、
+  従来の `--full`/`--lite`/`spec_profile`/既定の4段優先順位は Project Context
+  が**物理的に不在**な C1 からのみ到達する経路として維持される。
+  **非 `HOOK_ACTIVE` ハンドシェイクの適用範囲**を、両ステージング候補が持つ
+  機械可読な `sdd:capability-gate-scope v1` 表で明文化した: 有効な Project
+  Context を持つプロジェクト(Capability Mode に入っている)は
+  `CAPABILITY_RUNTIME_UNAVAILABLE` で**停止**し、レガシー経路へ降格しない
+  (design.md:1112 — 停止するのは **Capability Mode**)。Project Context を
+  持たないプロジェクトは ADR-0016 の `disabled-legacy` であり、これは
+  「Project Context を持たないプロジェクトにとって正常かつ想定内の状態で
+  あり、エラーではない」(requirements.md:1821-1827)、かつ
+  `CAPABILITY_RUNTIME_UNAVAILABLE` とは「決して同一視されない」
+  (design.md:1734)ため、**停止しない**。禁止される遷移は Capability Mode →
+  レガシーであって、レガシー → レガシーではない。この規則は両方向とも
+  テストで反証可能にしてある(G2≠G4 / G3=G4 / G1≠G2 の3つの導出比較と、
+  両方向それぞれの mutation)。`tests/ship-track-selection-migration.tests.sh`
+  / `.ps1` を追加(run-all の12番目、両ランタイムとも 134/0)。TDD Red/Green は
+  `specs/epic-189-a1-project-context/verification/T-012/` に記録(Red = 両
+  ランタイムとも 58/76、Green = 両ランタイムとも 134/0)。T-011 のスイートは
+  文書リストを4→6に拡張(80→106、両ランタイム緑)。Red 取得中に `.ps1` 側の
+  G4 アサーションが空値で空振りする欠陥を発見し修正した。
+  `tests/guard-invariants-epic-a1.tests.*` の MANIFEST 件数を 8 に固定して
+  いたアサーションは、後続タスクの正当な追加で誤って落ちるため、下限+
+  重複なしの検査に置き換えた(各エントリのステージバイトとの照合は従来どおり)。
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
