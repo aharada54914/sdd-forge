@@ -30,6 +30,9 @@ set -u
 
 ROOT=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 WORK=$(mktemp -d "${TMPDIR:-/tmp}/pc-schema-test.XXXXXX")
+# Physical-path normalization (design.md Test Strategy item 12; see
+# tests/lib/loop-driver.sh:124): macOS $TMPDIR is itself a symlink.
+WORK=$(cd "$WORK" && pwd -P)
 trap 'rm -rf "$WORK"' EXIT INT TERM
 
 PASS=0

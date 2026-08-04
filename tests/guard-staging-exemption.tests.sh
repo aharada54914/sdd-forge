@@ -36,6 +36,9 @@ ok()   { echo "ok: $*";   PASS=$((PASS+1)); }
 fail() { echo "FAIL: $*"; FAIL=$((FAIL+1)); }
 
 WORK="$(mktemp -d)"
+# Physical-path normalization (design.md Test Strategy item 12; see
+# tests/lib/loop-driver.sh:124): macOS $TMPDIR is itself a symlink.
+WORK="$(cd "$WORK" && pwd -P)"
 trap 'rm -rf "$WORK"' EXIT
 
 RUNTIMES="py"

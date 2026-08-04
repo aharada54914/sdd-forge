@@ -354,3 +354,111 @@
   変えない)。ゆえにセキュリティ指摘ではなく Minor。
 - **対処方針**: 将来の編集で気づかれずに緩和されうるため、bypass 条件を
   `PRESERVED` 錨に加えるのが望ましい。**epic-189-a1 のスコープ外**。
+
+## 測定完了（T-013）: run-all.sh の中断は「1行修正」では解けない
+
+- **出所**: T-013 の実測。本ファイル上部「記述の訂正: 『run-all は
+  prepare-panelist で中断する』はもはや事実でない」の末尾が残していた
+  **未確認事項**（「テンプレートアサーション不一致を解消すれば完走する
+  可能性がある — 21 本目以降に別の失敗が潜んでいる可能性は残る」）を、
+  実測で置き換える。
+- **実測1（指示された測定）**: リポジトリ外の `git clone --local` に、
+  origin/main が既に持つ**1行だけ**
+  （`tests/turn-first-workflow.tests.sh:290` の
+  `'## Output Paths And Hashes'` → `'## Outputs'`）を適用しても、
+  **同じ 21 本目が今度は別の理由で落ちる**:
+  `IMPLEMENTATION_REPORT_FIELD: missing or invalid Model` /
+  `not ok: complete current-schema implementation report was rejected`。
+  → **1行修正は必要だが十分ではない**。マスクされていた2段目の失敗。
+- **系譜**: merge-base 時点で既にテンプレートは `## Outputs`、バリデータは
+  `Model`/`Effort` 必須だったのに、スイート内フィクスチャだけが旧 bullet
+  形式かつ `Model`/`Effort` 欠落のまま取り残されていた。upstream の
+  `6b40b6e1`（WFI-017 / PR #215、バリデータ整合）と `f2687bef`（PR #216、
+  スイート整合）が修正済みで、**どちらも本ブランチには来ていない**。
+- **実測2**: 本ブランチは `tests/turn-first-workflow.tests.sh` と
+  `plugins/sdd-implementation/scripts/validate-implementation-report.sh` の
+  **どちらにもコミットを持たない（0 commits）**ため、マージは main 版を
+  そのまま取る。両ファイルを main 版に置換すると 21 本目は **exit 0**。
+- **実測3**: その状態で `bash tests/run-all.sh` を回すと **21 → 24 本目**へ
+  進み、`tests/rollback-1.5.0.tests.sh` で中断（exit 1）。**作業ツリーが
+  完全にクリーンな pristine クローンでも同一失敗を再現**したので、これは
+  本ブランチの真の既存失敗であり使い捨てクローン固有の副作用ではない。
+  その修正 `5a9df172`（rollback TEST-006 フィクスチャを 1.5.0 リリース
+  コミットに pin）も **origin/main にあり本ブランチには無い**。
+- **実測4（全体マージのシミュレーション、決定的）**: 使い捨てクローンで
+  HEAD と origin/main の差分全件を「本ブランチにコミットが無い側は main 版
+  を採用(923 件)／main にコミットが無い側はブランチ版を維持(462 件)／
+  両側にコミットがある 21 件はコンフリクトとして記録」の規則で構成し、
+  `specs/workflow-state-registry.json` のみ**両側の追加が交わらない**
+  （ブランチ +1 件、main +5 件）ため和集合(31 件)を適用したところ、
+  `bash tests/run-all.sh` は **62 スイート全て実行して exit 0**、
+  `All POSIX regression tests passed.`、transcript 中の `not ok` は **0 件**。
+  本 epic の 13 スイートも全てその完走の中で実行されている
+  （run-all.sh はブランチ版を維持したため、本 epic の登録が使われた）。
+- **結論**: bash レーンの中断連鎖は**全て main 側に修正が存在**し、
+  **24 本目より先に隠れたテスト内容の失敗は無い**。最終フェーズに残るのは
+  「21 件の両側変更パスのコンフリクト解決」と「provenance re-binding」で
+  あって、テスト失敗の追跡ではない。
+- **主張の限界**: これはシミュレーションでありマージそのものではない。
+  21 件は全てブランチ版のまま維持しているので、実マージがそれらを別様に
+  解決すれば結果は変わりうる（特に pwsh レーンを止めている
+  `check-workflow-state` の 2 ファイルは、この 21 件に含まれる）。
+  また **pwsh レーンはこのシミュレーションでは再測定していない**。
+- **注意**: 上記の1行は**本ブランチには一切適用していない**。WFI-017 が
+  記録した「ハンク重複が無用なマージコンフリクトを生む」ハザードを避ける
+  ため、最終フェーズのマージに委ねる。
+
+## 新規発見（T-013）: `run-all.ps1` は 1 本目で中断する
+
+- **実測**: `pwsh tests/run-all.ps1` は 44 本中 **1 本目**
+  `tests/validate-repository.ps1` で exit 1。診断は
+  `workflow-state: epic-189-a1-project-context: stage-provenance: task plan hash is stale`。
+- **非帰属の証明**: **HEAD `71e0f0f2` で作業ツリーが完全にクリーンな
+  pristine クローン**で同一失敗を再現。T-013 の tasks.md 編集（Status 遷移）
+  より**前から**存在する。
+- **位置づけ**: 本ファイル上部の「WFI 候補 + documented interim state:
+  実装進行に伴う tasks.md の正規 drift」と同一事象。**main のマージでは
+  解けない** —— 最終フェーズの provenance re-binding で解消する種類のもの。
+- **記述の訂正**: これまで各タスクは「個別スイート実行で代替する」根拠に
+  bash レーンの中断だけを挙げてきたが、**pwsh レーンはそれより早く落ちる**。
+  以後は両レーンとも中断する事実を記載すること。
+
+## AC-028 の残ギャップ（T-013 実測）: 2 スイート対に自己登録アサーションが無い
+
+- **実測**: 登録そのものは全 25 件 green（`tests/run-all.sh` に 13、
+  `tests/run-all.ps1` に 12）。しかし design.md Test Strategy 項目 11 が
+  要求する「各スイートが自分の basename を run-all から grep する」自己登録
+  アサーションは、`tests/project-context-schema.tests.{sh,ps1}`（T-001）と
+  `tests/approver-registry-schema.tests.{sh,ps1}`（T-004）の**4 ファイルに
+  存在しない**（残り 10 スイート対には両レーンとも存在する）。
+- **T-013 で直さなかった理由**: T-013 の Planned Files はステージ CI 候補・
+  `MANIFEST.sha256`・run-all（監査のみ）・CHANGELOG に限られる。加えて当該
+  2 スイートは T-001/T-004 の実装レポート `## Outputs` でハッシュ固定されて
+  おり、クローズアウト監査タスクが後から編集するとその固定値を無効化する。
+  Scope が明示する「違反を修正せよ」の対象は Test Strategy 項目 12（CI 耐性）
+  であって項目 11 ではない。
+- **対処方針**: 他 10 スイートと同型の 2〜3 アサーションを追加する（正規
+  ゲート経由）。**epic-189-a1 のスコープ外**。
+
+## REQ-011 twin ギャップ（T-013 実測）: guard-staging-exemption に `.ps1` twin が無い
+
+- **実測**: `tests/guard-staging-exemption.tests.sh` は bash 版のみ。追加元は
+  `67acc6cd`（R-10 ガード修正パッケージ、T-001 実装中に発見）であり、
+  **T-001..T-012 のどの Planned Files にも属さない**。
+- **T-013 での扱い**: `tests/run-all.sh` に登録済みで実測 33/0 green のため、
+  ステージ CI 候補にも bash レーンとして登録した（登録しないままだと CI が
+  このスイートを一切走らせない）。`.ps1` twin の新規作成はクローズアウト監査の
+  範囲を超えるため行わず、本項目として記録する。
+- **対処方針**: `.ps1` twin を作るか、bash 専用であることを設計上の明示的
+  例外として宣言するか。**epic-189-a1 のスコープ外**。
+
+## 運用上の注意（T-013 実測）: run-all のスイートは作業ツリーを一時的に変更する
+
+- **実測**: `bash tests/run-all.sh` の実行中に `git status` を取ると
+  `specs/workflow-state-registry.json` が modified と表示され、
+  `specs/<fixture-name>/` と `reports/spec-review/<fixture-name>/` が
+  untracked として現れる（fixture 名はスイート進行に伴って変わる）。
+  スイート終了時に self-clean される。
+- **影響**: run-all と並行してコミットすると**テストの一時生成物を巻き込む**
+  恐れがある。`git add <path>` の明示指定を守り、コミット直前に
+  `git status` を再確認すること（T-013 はこの手順で回避した）。
