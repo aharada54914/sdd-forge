@@ -28,6 +28,114 @@ Claude Code:
 
 リポジトリ root に `AGENTS.md` が存在し、`scripts/check-sdd-structure.sh`（または `.ps1`）が `missing:` を出さないこと。未整備なら `/sdd-bootstrap:sdd-adopt` を案内して停止する。lite でも SDD 構造（AGENTS.md + 必須ディレクトリ）は前提（implement-task の前提条件）。
 
+## Track Detection
+
+本スキルは lite トラックを前提に呼ばれるが、その前提自体が Capability Mode
+の解決結果に従う。よってここが本スキルの Capability Mode 関連エントリポイント
+であり、Project Context の内容を信頼する前に、まず hook-activation
+ハンドシェイクを実行する:
+
+<!-- sdd:handshake-wiring v1 -->
+
+1. `check-hook-activation-handshake --emit-challenge` — 新しい単回使用 nonce と
+   カナリア対象 `sdd/.hook-canary-sentinel` を返す。前回の実行で残ったセンチネル
+   があれば、まず1回だけクリーンアップを試み結果を記録する。新しいチャレンジは
+   いずれにせよ発行される。
+2. エージェント自身のセッションが、チャレンジに含まれるランタイム別テンプレート
+   を用いてそのカナリア対象への**実際の**ツール呼び出しを試み、生の結果をその
+   まま記録する。ツール自身がプローブ書き込みを行うことはない。
+3. `check-hook-activation-handshake --verify-response --nonce <nonce>
+   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`。
+4. `HOOK_ACTIVE` ならトラック解決へ進む。それ以外の結果が止めるのは
+   **Capability Mode のみ**であり、どのプロジェクトが止まるかはこの手順単独
+   ではなく下のゲート表が決める: Project Context が物理的に存在し、かつ妥当
+   である場合に**限り** `CAPABILITY_RUNTIME_UNAVAILABLE` で停止する
+   (ゲート G2)。物理的に存在しない場合、そのプロジェクトは Capability Mode
+   に入ったことがないため、`DISABLED_LEGACY` として互換フォールバックを続行
+   する (ゲート G3/G4)。妥当な Context を持つプロジェクトから、レガシー動作へ
+   黙ってフォールバックしてはならない。
+
+<!-- /sdd:handshake-wiring -->
+
+**存在・妥当性プローブを実行する時点**: ハンドシェイク自身は Project Context
+を読まないため、手順 4 の時点ではどのゲート行に当たるかはまだ確定していない。
+G1/G2 と G3/G4 を分ける物理的存在・妥当性プローブは、下の「トラック解決」の
+**最初の**手順であり、そこで実行する — ハンドシェイクの後、トラックを選ぶ前
+である。本節がトラック解決より前に置かれているのはハンドシェイクの意味に関する
+規範だからであって、プローブを前倒しせよという指示ではない。
+
+### `HOOK_ACTIVE` でない場合に何が止まり、何が止まらないか
+
+上の手順 4 が止めるのは **Capability Mode** であって、本スキルの呼び出し
+すべてではない。どちらになるかは、そのプロジェクトが Capability Mode に
+入っていたかどうかで決まる。次の表は**両方向とも**規範である:
+
+<!-- sdd:capability-gate-scope v1 -->
+
+| Gate | Project Context | Handshake | Resolution |
+|---|---|---|---|
+| G1 | physically present and valid | `HOOK_ACTIVE` | `CAPABILITY_MODE` |
+| G2 | physically present and valid | not `HOOK_ACTIVE` | `CAPABILITY_RUNTIME_UNAVAILABLE` |
+| G3 | physically absent | `HOOK_ACTIVE` | `DISABLED_LEGACY` |
+| G4 | physically absent | not `HOOK_ACTIVE` | `DISABLED_LEGACY` |
+
+<!-- /sdd:capability-gate-scope -->
+
+- **G2 — 停止する。** 有効な Project Context を持つプロジェクトは Capability
+  Mode に入っている。nonce 一致した本物の拒否を観測できなかったハンドシェイク
+  は `CAPABILITY_RUNTIME_UNAVAILABLE` で停止しなければならず、下の互換フォール
+  バック経路へ降格してはならない。その降格こそ ADR-0023 が塞ぐ silent
+  downgrade である（`design.md:1112` — 呼び出し側スキルは **Capability Mode**
+  を停止するのであって、黙ってレガシーへフォールバックしてはならない）。
+- **G4 — 続行する。** Project Context を持たないプロジェクトは Capability Mode
+  に一度も入っていない。ADR-0016 の `disabled-legacy` — 「Project Context を
+  持たないプロジェクトにとって正常かつ想定内の状態であり、エラーではない」
+  (`requirements.md:1821-1827`) — であり、`CAPABILITY_RUNTIME_UNAVAILABLE` とは
+  「決して同一視されない」(`design.md:1734`)。ハンドシェイクが門番をするのは
+  `HOOK_ACTIVE` で条件付けられた振る舞いだけである
+  (`requirements.md:1078`) ため、`HOOK_ACTIVE` 以外の結果はこの種の
+  プロジェクトを止めない。下の互換フォールバック経路をそのまま続行する。
+
+禁止されている遷移は Capability Mode → レガシーであって、レガシー → レガシー
+は降格ではない。G2 がそうだからという理由で G4 を
+`CAPABILITY_RUNTIME_UNAVAILABLE` として報告してはならない。
+
+### トラック解決
+
+次にトラックを解決する。**物理的存在の確認が先、承認検証が後**である。
+`sdd/project-context.yaml` が存在するのに `validate-approval-sidecar` に
+失敗する状態は、ファイルが存在しない状態とは**別物**として扱う。両者を同一
+視することが ADR-0023 の塞ぐ fail-open である。
+
+<!-- sdd:track-selection-contract v1 -->
+
+| Case | Project Context | Flag | Resolution |
+|---|---|---|---|
+| C1 | physically absent | `--full`, `--lite`, or none | `COMPATIBILITY_FALLBACK` |
+| C2 | physically present, REQ-005 validation fails | `--full`, `--lite`, or none | `PROJECT_CONTEXT_INVALID` |
+| C3 | physically present and valid, `spec_profile: lite` | `--full` | `PROMOTE_FULL` |
+| C4 | physically present and valid, `spec_profile: lite` | `--lite` | `NO_OP_LITE` |
+| C5 | physically present and valid, `spec_profile: full` | `--lite` | `ERROR_STOP` |
+| C6 | physically present and valid, `spec_profile: full` | `--full` | `NO_OP_FULL` |
+
+<!-- /sdd:track-selection-contract -->
+
+- `COMPATIBILITY_FALLBACK`（C1 のみ）— 従来の優先順位（`--lite` → lite、
+  `AGENTS.md` の `spec_profile: lite` → lite、既定 → full）をそのまま適用する。
+  解決トラックが lite なら以下の Process を実行し、full なら本スキルを実行せず
+  `/sdd-bootstrap:sdd-bootstrap-interviewer` へ切り替える。
+- `PROJECT_CONTEXT_INVALID`（C2）— その名前を報告して停止する。`specs/<feature>/`
+  配下に何も生成せず、C1 のフォールバックへ落とさず、暗黙の `full`/`lite` 選択へも
+  進まない。
+- `PROMOTE_FULL` / `NO_OP_FULL` — 解決トラックは `full`。本スキルは実行せず、
+  `/sdd-bootstrap:sdd-bootstrap-interviewer` に切り替える。
+- `NO_OP_LITE` — 解決トラックは `lite`。以下の Risk-Upgrade Gate と Process を
+  実行する。
+- `ERROR_STOP` — 明示的なエラーで停止する。`--lite` が `full` プロファイルを
+  格下げすることは決してない。
+
+この表の正本は `PLUGIN-CONTRACTS.md` の Track Detection セクションである。
+
 ## Risk-Upgrade Gate
 
 Before beginning the Process or creating any file under `specs/<feature>/`,
