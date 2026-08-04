@@ -35,6 +35,8 @@ Every acceptance criterion in `requirements.md` has at least one TEST row here, 
 | TEST-025 | AC-025 | integration (hash conformance) | `specs/mcp-readonly-preflight/human-copy/` | staged candidate SHA-256 matches its `MANIFEST.sha256` entry |
 | TEST-026 | AC-026 | integration (hash conformance) | live ship SKILL.md | live protected file unmodified by an agent, asserted without opening it for write |
 | TEST-027 | AC-027 | regression | `tests/workflow-documentation.tests.sh` | the existing suite passes unmodified |
+| TEST-027a | AC-027a | integration (probe/file divergence) | both skills | on divergence the output states that a disagreement occurred AND names the source acted on — two separate assertions, so an output that reports the disagreement without identifying the authority cannot pass |
+| TEST-027b | AC-027b | integration (probe/file divergence) | both skills | on divergence the conclusion acted on is the file-based one — fails against a "warn, then follow the probe" implementation, which would satisfy TEST-027a while inverting the authority REQ-005 protects |
 
 ## Expansion Ledger
 

@@ -24,7 +24,18 @@ Consumer-visible consequence, stated once: after this feature the operator answe
 
 `design-sync-loop` must obtain the human's egress consent **once** within a defined scope and must not re-prompt for further uploads inside that scope. Outside the scope, consent must not be assumed.
 
-The scope unit itself is **not decided by this requirement**. The issue writes "per-feature/セッション 1 回", naming two units that are not the same thing (OQ-1); this requirement mandates that the shipped text name exactly one unit unambiguously, and AC-002 is the check on that. A skill that says "per feature or session" reproduces the ambiguity in the artifact instead of resolving it.
+The scope unit **is decided**: the consent scope is the **conjunction of feature and session** — a consent applies only where *both* the feature and the session match the ones it was granted under (OQ-1, resolved by the human 2026-08-04). The issue writes "per-feature/セッション 1 回", naming two units that are not the same thing; the narrower conjunction is chosen. The recorded rationale: the issue's actual pain is being asked on every upload *within one working session*, which session scoping solves; feature-only scoping would let a consent outlive the context it was given in, by days and across operators.
+
+The conjunction is **one** scope, not two alternatives. AC-002's prohibition is on a *disjunction* ("per feature or session"), which leaves the unit to the agent's judgement; naming both coordinates of a single scope does not. A skill that says "per feature or session" still fails AC-002.
+
+"Session" here carries the meaning already established for this feature: an **agent session**, in the sense used at `investigation.md:295`, which contrasts it with a `specs/<feature>/` directory and notes the two are orthogonal — one session can specify two features, and one feature routinely spans many sessions and days. This document does not further operationalise where a session boundary falls; it does not need to, because every criterion here is a document-conformance assertion over skill prose (see `acceptance-tests.md` opening) and the skill's obligation is to name the scope, not to detect its edges.
+
+Four consequences follow, stated here rather than left to inference:
+
+- **Expiry** (OQ-2, resolved 2026-08-04). Expiry follows from the scope: a consent dies when its session ends. No separate wall-clock expiry is defined — the session boundary *is* the expiry. Checked by AC-001 branch 3, since a later session is a different scope.
+- **Withdrawal** (OQ-2, resolved 2026-08-04). Withdrawal must additionally be possible **mid-session**, so that one answer does not bind the operator for the remainder of a session. Checked by AC-028.
+- **Destination** (OQ-3, resolved 2026-08-04). Consent attaches to the feature and **the destination**, not to a specific byte sequence. The loop regenerates mockups between uploads (`SKILL.md:87`), so byte-scoped consent is stale by construction, and re-consenting on every change collapses back to the per-upload behaviour this feature exists to remove. The destination half is load-bearing and is checked by AC-027; the price of not re-consenting on content change is paid in the disclosure (REQ-002, AC-029).
+- **A decline is transient** (decided 2026-08-04, closing a round-1 AMBIGUITY finding). Answering "no" to the first-upload consent prompt blocks *that* upload and nothing more; the next attempt asks again. It is **not** the persistent forbiddance that #140's `off` setting provides. Conflating a one-time "no" with a configuration-level change would be surprising, and REQ-006/AC-019's three-outcome model already has a distinct slot for the persistent case. Checked by AC-026.
 
 #### AC-001
 
@@ -40,7 +51,35 @@ Each branch has its own TEST row. Branch 3 is included because it is the one an 
 
 The consent scope is named by exactly one unit. The text does not offer alternatives ("per feature or session") and does not leave the unit to the agent's judgement. Verified by asserting that the scope statement names one unit and that no disjunction appears in it.
 
-This criterion is deliberately a check on *decidedness*, not on which unit was chosen — that choice is OQ-1 and belongs to the human, not to this document.
+This criterion is deliberately a check on *decidedness*, not on which unit was chosen. OQ-1 was answered by the human on 2026-08-04 (feature ∧ session); this criterion still asserts only that the shipped text names one scope and contains no disjunction, so it neither encodes that choice nor re-opens it. The conjunction satisfies it: the assertion is on the absence of "or" between candidate units, not on the scope having a single coordinate.
+
+#### AC-026
+
+A declined consent is **transient**, and the skill says so. Three TEST rows, because the three statements fail independently and a combined check would pass on any one:
+
+1. a decline blocks **that** upload — no upload occurs;
+2. the **next** upload attempt within the same scope prompts again;
+3. the decline is explicitly distinguished from the persistent "not permitted" outcome of AC-019 — declining once writes no standing forbiddance and is not #140's `off`.
+
+Row 3 is the substantive one. Without it, an implementation that persists a decline for the rest of the scope satisfies rows 1 and 2 while silently manufacturing the configuration-level control that #140 owns.
+
+#### AC-027
+
+A consent is bound to the **destination** claude.ai/design project selected in the pull step (`SKILL.md:68-69`), and a consent granted for one destination does not apply to another. Two TEST rows:
+
+1. the consent statement names the destination project as part of what the consent covers;
+2. a **different** destination project does not inherit the consent and is gated again.
+
+Both are required because either alone is satisfiable by a text that fails the criterion: a record that stores a destination but never says a change re-gates, or a re-gating claim with nothing that binds a consent to a destination in the first place. This is the criterion that gives Edge Case 2 coverage; before OQ-3 was answered that edge case mapped to no OQ, REQ, AC or TEST in this specification.
+
+#### AC-028
+
+A consent can be **withdrawn mid-session**, and the skill states both the path and its effect. Two TEST rows:
+
+1. a withdrawal path is stated — the operator can revoke a consent inside its scope without waiting for the session to end;
+2. after withdrawal, the next upload within that same scope is gated again.
+
+Split because "withdrawal is mentioned" is satisfiable by text that names the affordance and never says what it does, which is the vacuous-assertion failure mode this document rejects elsewhere (TEST-015).
 
 ### REQ-002 — the consent is informed, and its disclosure is accurate about what it cannot enumerate
 
@@ -49,7 +88,10 @@ The first-time consent prompt must state, in terms an operator can act on:
 - **what leaves** — the mockup HTML, and that its content is derived from the feature's requirements, acceptance criteria and design tokens, so it can carry pre-release product decisions, interface copy and brand identity;
 - **where it goes** — claude.ai/design, an external service, into the project selected at `SKILL.md:68-69`;
 - **what happens to it there** — that content sent to an external service may be retained there, and that the repository does not control its retention;
-- **what the consent covers** — the scope from REQ-001, and explicitly that later uploads inside that scope will proceed without asking again.
+- **what the consent covers** — the scope from REQ-001, and explicitly that later uploads inside that scope will proceed without asking again;
+- **that the coverage survives regeneration** — that the consent covers this feature's mockups **including future regenerations of them**, to the named destination, for this session (OQ-3, resolved 2026-08-04). This is the honest price of not re-consenting on content change: a disclosure that omitted it would let an operator believe only what they saw gets sent;
+- **that the pull direction also transmits** — that `list_projects` / `create_project` (`SKILL.md:68-72`) send a human-supplied project name to the same external service (OQ-4, resolved 2026-08-04). Gating the pull direction is out of scope for this feature and stays a Non-goal; saying nothing about it would make the disclosure misleading by omission;
+- **what the operator is asserting** — that by consenting, the operator asserts they have the authority to send this content externally (OQ-5, resolved 2026-08-04). This is **not** enforced technically and no such check is possible here; the disclosure converts an invisible assumption into an explicit claim. Organisation-level enforcement belongs to #140's setting.
 
 The disclosure must not overstate its own completeness. `finalize_plan` is called immediately before `write_files` (`SKILL.md:85`) and its payload is not knowable from this repository (OQ-6); a disclosure that enumerates outbound content as if the list were exhaustive would be a false statement in a consent prompt, which is worse than an honest partial one.
 
@@ -66,6 +108,12 @@ The disclosure states the consent's scope and, explicitly, that subsequent uploa
 #### AC-005
 
 Where the outbound payload is not fully enumerable from this repository, the text says so rather than implying a complete list. Verified by asserting that either `finalize_plan`'s payload is described from a source cited at implementation time, or its opacity is stated as a limitation.
+
+#### AC-029
+
+The disclosure states the three elements added by the 2026-08-04 decisions, each verified separately in the manner of AC-003: (d) the consent covers this feature's mockups **including future regenerations**, to the named destination, for this session; (e) the pull direction also transmits a human-supplied project name to the same external service; (f) the operator is asserting they have the authority to send this content externally.
+
+Three TEST rows, not one. Each element answers a different question the operator would otherwise answer wrongly on their own — (d) *how long does what I just agreed to keep applying?*, (e) *is this the only thing that leaves?*, (f) *am I the one who gets to decide this?* — and a combined "the disclosure mentions these topics" assertion passes on any one of the three, which is the FP-02 text-marker failure mode AC-003 already guards against.
 
 ### REQ-003 — the flow order inverts, and the demotion of local review is stated as a demotion
 
@@ -181,7 +229,15 @@ Whatever change `plugins/sdd-lite/skills/lite-spec/SKILL.md` requires is **stage
 
 Every acceptance criterion above is a document-conformance assertion, so the guard is only as real as its execution. Today the suite that already asserts against `design-sync-loop/SKILL.md` — `tests/design-system-contract.tests.{sh,ps1}`, block `DS-006` — is **registered nowhere**: not in `tests/run-all.sh`, not in `tests/run-all.ps1`, and not in any workflow, and `tests/run-all.sh` is itself not invoked by CI (INV-016, INV-017).
 
-Where this feature's assertions live is OQ-8, because the three available answers have materially different task plans — one of them adds a second protected human-copy target.
+Where this feature's assertions live **is decided** (OQ-8, resolved 2026-08-04), in three parts:
+
+**(a) The assertions live in the existing `tests/design-system-contract.tests.sh` / `.ps1`.** That suite already asserts against `design-sync-loop/SKILL.md` and is therefore the correct home: the `DS-006` block reads `plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md` at `tests/design-system-contract.tests.sh:61` and asserts over it at `:62-68`, and the `.ps1` twin reads the same file at `tests/design-system-contract.tests.ps1:58` and asserts at `:59-62`. Neither file is protected — `PROTECTED_GATE_SUFFIXES` (`plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`) contains only `tests/gates.tests.sh`, `tests/eval.tests.sh`, `tests/guard-parity.tests.sh` and `tests/constant-parity.tests.sh` under `tests/` — so extending both is agent-applicable.
+
+**(b) That suite is registered in `tests/run-all.sh` / `tests/run-all.ps1`.** Both are unprotected by the same read of `guard_invariants.py:4`, so this too is agent-applicable. Today the suite appears in neither list (`tests/run-all.sh:8-65`, `tests/run-all.ps1:7-14`).
+
+**(c) CI registration of the suite is a separate staged patch.** `.github/workflows/test.yml` is a member of `PROTECTED_GATE_SUFFIXES` (`guard_invariants.py:4`) and of `PHASE2_HUMAN_COPY_TARGETS` (`:18`), so an agent cannot write it. It is tracked as a staged candidate and human-applied, and it **explicitly does not block this feature's task decomposition**.
+
+Part (c) has a consequence that must be stated rather than discovered: `test.yml` enumerates its suites individually (`:75`, `:85`, `:95`, …) and invokes neither `tests/run-all.sh` nor `tests/run-all.ps1` — `grep -rn 'run-all' .github/` returns nothing. So part (b) alone does not make the suite CI-executed, and AC-024 is satisfied only once the staged workflow patch in part (c) is applied by a human. Until then AC-024's trace is red against the live tree, by the same designed fail-closed behaviour as AC-023/TEST-017 rather than as a defect. What part (c) unblocks is the *decomposition*: the task plan no longer branches on an unanswered question.
 
 #### AC-024
 
@@ -195,16 +251,16 @@ The seven existing `DS-006` literal assertions (`tests/design-system-contract.te
 
 - **Implementing the pre-upload secret/PII/placeholder scan.** That is #139. This feature specifies only the *point* at which such a check attaches (REQ-006) and writes none of the scanning logic.
 - **Implementing `ds_upload_consent`, or touching `AGENTS.md`.** That is #140. This feature specifies only that the consent decision's outcome space can express `off` (REQ-006), and adds no setting.
-- **Changing the pull direction.** `list_projects` / `create_project` / `list_files` / `get_file` (`SKILL.md:68-72`) are outbound-adjacent and currently ungated (INV-007). Leaving them as they are is the status quo, recorded as a Non-goal so its absence from the change set is a decision. The interaction with REQ-002's disclosure wording is OQ-4.
+- **Changing the pull direction.** `list_projects` / `create_project` / `list_files` / `get_file` (`SKILL.md:68-72`) are outbound-adjacent and currently ungated (INV-007). Leaving them as they are is the status quo, recorded as a Non-goal so its absence from the change set is a decision. OQ-4 was resolved 2026-08-04: gating the pull direction stays out of scope — that would be scope creep — **but** the consent disclosure must mention that the pull direction also transmits a human-supplied project name (REQ-002, AC-029 element (e)). The Non-goal is the gate, not the disclosure; omitting the mention would make the disclosure misleading by omission.
 - **Adding redaction, an `input_digest`, or a machine-checkable consent object** on the model of `prepare-panelist-input` (`cross-model-verification-policy.md:270-318`). The asymmetry between the two external-send paths is documented in `security-spec.md` as a residual risk; closing it is a larger change than this issue asks for and would overlap #139.
 - **Removing the egress gate.** The issue's own Rationale forbids it: the control stays, only its unit changes.
 - **Rewriting the already-correct half of the loop.** The `Ensure design-system/` section, the token-derivation rules at `SKILL.md:76-80`, the `get_file`-content-is-data boundary at `:99-101`, and the design-system contract remain untouched.
 
 ## Edge Cases
 
-1. **The mockup set changes between consent and upload — and it always does.** `SKILL.md:87` routes the human back to step 2 after every review, so consent is necessarily granted against revision *n* and spent against revisions *n+1…k*. There is no "material change" rule and defining one is a product decision (OQ-3). The specification must not imply the payload is fixed at consent time.
-2. **Consent granted, then the human selects a different claude.ai project.** Step 1 (`SKILL.md:68-69`) lets the human choose the destination project; nothing binds a consent to the project it was granted against. Consent to send to project A is not consent to send to project B, and the current text cannot tell them apart.
-3. **A later session, a different operator, a `Design-Source` line already present.** Because `Design-Source` lives in a git-tracked layer file, a consent recorded on day 1 is readable by any later session. Whether that constitutes standing authorization is the crux of OQ-1 and OQ-2; the failure mode if it is left unstated is silent, indefinite, transferable consent.
+1. **The mockup set changes between consent and upload — and it always does.** `SKILL.md:87` routes the human back to step 2 after every review, so consent is necessarily granted against revision *n* and spent against revisions *n+1…k*. **Resolved by OQ-3 (2026-08-04):** no "material change" rule is defined, because content change deliberately does not re-trigger consent — consent attaches to the feature and the destination, not to a byte sequence. The specification must not imply the payload is fixed at consent time; instead the disclosure states that coverage includes future regenerations (REQ-002, AC-029 element (d)).
+2. **Consent granted, then the human selects a different claude.ai project.** Step 1 (`SKILL.md:68-69`) lets the human choose the destination project; nothing binds a consent to the project it was granted against. Consent to send to project A is not consent to send to project B, and the current text cannot tell them apart. **Resolved by OQ-3 (2026-08-04):** consent is scoped to feature **and destination**, so a different destination re-gates. Covered by **AC-027** and its two TEST rows. Until that decision, this was the only Edge Case here mapping to no OQ, REQ, AC or TEST — recorded so the gap and its closure are both visible.
+3. **A later session, a different operator, a `Design-Source` line already present.** Because `Design-Source` lives in a git-tracked layer file, a consent recorded on day 1 is readable by any later session. **Resolved by OQ-1 and OQ-2 (2026-08-04):** it does **not** constitute standing authorization. The scope is feature ∧ session, so a later session is a different scope and is gated again (AC-001 branch 3); the session boundary is the expiry. The failure mode this closes — silent, indefinite, transferable consent — was a consequence of leaving the question open, not of the record's existence, and the record remains an audit trace either way (AC-012).
 4. **A fabricated or copy-pasted consent record.** Nothing prevents the line from being written without a human having been asked (INV-011, INV-021). Under per-upload this bought an attacker one upload; after this change it buys the whole feature.
 5. **`ds_profile: none` and the non-UI case.** The consent prompt must not appear where the loop does not run (AC-016). The most likely regression is a consent question leaking into the interviewer's generic flow.
 6. **A host without DesignSync.** On Codex the tool is absent and the loop falls to the manual path (INV-022). The consent change must not introduce a step that blocks there — the fallback has nothing to consent to.
@@ -227,7 +283,7 @@ The seven existing `DS-006` literal assertions (`tests/design-system-contract.te
 - **BL-002 — the manual fallback is behaviour-preserving.** `claude-design-workflow.md` keeps its current meaning, including `:12` and `:70-71`; the file is edited only if reconciliation requires it, and never in a way that adds an upload.
 - **BL-003 — the non-blocking invariant is preserved.** `SKILL.md:29-30` and `:94-95` keep their current meaning.
 - **BL-004 — `plugins/sdd-lite/skills/lite-spec/SKILL.md` is a protected enforcement-chain file and is never written by an agent.** Verified by direct read of `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`, where it is a member of the 42-entry `PROTECTED_GATE_SUFFIXES`; the matcher is a case-insensitive `endswith()` on the normalized repository-relative path (`sdd-hook-guard.py:1001-1015`) with **no `human-copy/` carve-out**, so the staging destination `specs/design-sync-consent/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md` is equally unwritable by an agent and must be placed by a human. The path is additionally a member of `PHASE2_HUMAN_COPY_TARGETS` (`guard_invariants.py:18`). **Re-verify per the Assumptions section before relying on this.**
-- **BL-005 — `.github/workflows/test.yml` is also protected** (same list, same read). If OQ-8 resolves toward registering a suite in CI, this feature acquires a **second** protected target and a second staged candidate. If OQ-8 resolves otherwise, no CI file is touched. The task decomposition cannot be written until OQ-8 is answered.
+- **BL-005 — `.github/workflows/test.yml` is also protected** (same list, same read: it is a member of `PROTECTED_GATE_SUFFIXES` at `guard_invariants.py:4` and of `PHASE2_HUMAN_COPY_TARGETS` at `:18`). **OQ-8 was answered 2026-08-04**, and the answer registers the suite in CI, so this feature does acquire a **second** protected target and a second staged candidate. Two things follow. First, `tests/design-system-contract.tests.{sh,ps1}` and `tests/run-all.{sh,ps1}` are **not** protected by that same read, so parts (a) and (b) of the OQ-8 answer are agent-applicable and carry no human-copy round. Second, the CI registration in part (c) is a **separate** staged patch that is tracked but **does not block this feature's task decomposition** — the earlier statement that the decomposition could not be written until OQ-8 was answered is discharged by the answer, not by removing the protected target.
 - **BL-006 — `CHANGELOG.md:1301` is not modified** (REQ-007 site 5).
 - **BL-007 — the seven `DS-006` literals are preserved.** `tests/design-system-contract.tests.sh:62-68` asserts `^## Ensure design-system/$`, `ui-ux-pro-max`, `design-system --persist`, `ui-ux-pro-max unavailable — D6 template interview used`, `figma-dtcg-import`, `design-system/design-tokens\.json`, `MASTER\.md` against `design-sync-loop/SKILL.md`. Any restructuring keeps all seven.
 
@@ -237,19 +293,32 @@ The seven existing `DS-006` literal assertions (`tests/design-system-contract.te
 
 ## Open Questions
 
-Carried from `investigation.md` without resolution. The three the issue is most ambiguous about — OQ-1, OQ-2, OQ-3 — are each product/security decisions that this specification deliberately declines to make on the human's behalf.
+Carried from `investigation.md`. **Six of the ten were answered by the human on 2026-08-04** — OQ-1, OQ-2, OQ-3, OQ-4, OQ-5 and OQ-8. Every row is retained, resolved or not, so the audit trail shows what was open, what closed it, and when. The `Blocks` column keeps its original value, which is a statement about the state before the decision; the `Status` column records the closure.
 
-| OQ | Question | Owner | Blocks | Blocked criteria |
-|---|---|---|---|---|
-| OQ-1 | What is a "feature" for consent scoping? The issue names two different units in one phrase ("per-feature/セッション") | product / security | **yes** | REQ-001, AC-002, REQ-004 |
-| OQ-2 | Does consent expire, and can it be withdrawn? A git-tracked record with no expiry is permanent by default | product / security | **yes** | REQ-001, REQ-004 |
-| OQ-3 | What happens when the mockup content changes after consent? Regeneration is guaranteed by the loop; no "material change" rule exists | product / security | **yes** | REQ-001, REQ-003, Edge Case 1 |
-| OQ-4 | Is the ungated pull direction inside or outside the consent statement's scope? | security | no | REQ-002 wording |
-| OQ-5 | Who consents when the operator is not the data owner? | security / legal | no | REQ-002 |
-| OQ-6 | What does `finalize_plan` send? Unknowable from this repository | implementer | no | AC-005, `security-spec.md` |
-| OQ-7 | Is "送信対象" a file list, hashes, or a description? Each has different staleness under regeneration | product | no | REQ-004, AC-010 |
-| OQ-8 | Where do this feature's assertions run, given the orphaned suite and the protected workflow file? | maintainers | **yes** | REQ-008, and the whole task decomposition (BL-005) |
-| OQ-9 | Under #140's `standing`, is #139's scan blocking, advisory, or skipped? | product / security | no | AC-018 (hedged by not assuming interactivity) |
-| OQ-10 | Does `docs/THREAT-MODEL.md` gain a design-sync egress boundary in this feature? | maintainers | no | `security-spec.md` |
+| OQ | Question | Owner | Blocks | Blocked criteria | Status |
+|---|---|---|---|---|---|
+| OQ-1 | What is a "feature" for consent scoping? The issue names two different units in one phrase ("per-feature/セッション") | product / security | **yes** | REQ-001, AC-002, REQ-004 | **Resolved 2026-08-04** — scope is feature **and** session together; both must match. See R-OQ-1 |
+| OQ-2 | Does consent expire, and can it be withdrawn? A git-tracked record with no expiry is permanent by default | product / security | **yes** | REQ-001, REQ-004 | **Resolved 2026-08-04** — expires with the session; withdrawable mid-session. See R-OQ-2 |
+| OQ-3 | What happens when the mockup content changes after consent? Regeneration is guaranteed by the loop; no "material change" rule exists | product / security | **yes** | REQ-001, REQ-003, Edge Case 1 | **Resolved 2026-08-04** — consent attaches to feature + destination, not to bytes; disclosure carries the cost. See R-OQ-3 |
+| OQ-4 | Is the ungated pull direction inside or outside the consent statement's scope? | security | no | REQ-002 wording | **Resolved 2026-08-04** — gating it is out of scope; the disclosure must mention it. See R-OQ-4 |
+| OQ-5 | Who consents when the operator is not the data owner? | security / legal | no | REQ-002 | **Resolved 2026-08-04** — not enforced technically; the operator asserts authority in the disclosure. See R-OQ-5 |
+| OQ-6 | What does `finalize_plan` send? Unknowable from this repository | implementer | no | AC-005, `security-spec.md` | Open — hedged by AC-005, which accepts a stated limitation |
+| OQ-7 | Is "送信対象" a file list, hashes, or a description? Each has different staleness under regeneration | product | no | REQ-004, AC-010 | Open |
+| OQ-8 | Where do this feature's assertions run, given the orphaned suite and the protected workflow file? | maintainers | **yes** | REQ-008, and the whole task decomposition (BL-005) | **Resolved 2026-08-04** — existing contract suite, registered in `run-all`, CI registration staged separately. See R-OQ-8 |
+| OQ-9 | Under #140's `standing`, is #139's scan blocking, advisory, or skipped? | product / security | no | AC-018 (hedged by not assuming interactivity) | Open |
+| OQ-10 | Does `docs/THREAT-MODEL.md` gain a design-sync egress boundary in this feature? | maintainers | no | `security-spec.md` | Open |
 
-Four of these — OQ-1, OQ-2, OQ-3, OQ-8 — block implementation. Approving tasks while they stand would violate the Approval Gate rule in `sdd-bootstrap-interviewer/SKILL.md:213-214`, and sudo does not license it (`:223-227`).
+### Resolutions (human decisions, 2026-08-04)
+
+- **R-OQ-1 — the consent scope is feature ∧ session.** Both must match for a consent to apply. The issue's phrase named two different units; the narrower conjunction is chosen. Rationale: the issue's actual pain is being asked on every upload within one working session, which session scoping solves; feature-only scoping would let a consent outlive the context it was given in, by days and across operators. Recorded in REQ-001; AC-002 continues to check decidedness only.
+- **R-OQ-2 — expiry and withdrawal.** Expiry follows from R-OQ-1: a consent dies when its session ends. Withdrawal must additionally be possible **mid-session**. Recorded in REQ-001; the withdrawal half is checked by **AC-028**, the expiry half by AC-001 branch 3.
+- **R-OQ-3 — consent attaches to the feature and the destination, not to a specific byte sequence.** The loop regenerates mockups between uploads, so byte-scoped consent is stale by construction, and re-consenting on every change collapses back to the per-upload behaviour this feature exists to remove. The price is paid honestly in the disclosure: it must state that the consent covers this feature's mockups **including future regenerations**, to the named destination, for this session (AC-029 element (d)). A disclosure that omitted this would let an operator believe only what they saw gets sent. The destination half is checked by **AC-027**, which is also what gives Edge Case 2 coverage.
+- **R-OQ-4 — the ungated pull direction stays out of scope, and is disclosed anyway.** Gating it is scope creep; omitting it from the disclosure makes the disclosure misleading by omission. The disclosure must mention that the pull direction also transmits a human-supplied project name (AC-029 element (e)). The Non-goal is unchanged.
+- **R-OQ-5 — the operator's authority is asserted, not enforced.** No technical check is possible here. The disclosure must state that the operator is asserting they have authority to send this content externally (AC-029 element (f)), converting an invisible assumption into an explicit claim. Organisation-level enforcement belongs to #140's setting.
+- **R-OQ-8 — where this feature's assertions run.** Three parts, spelled out with their verification in REQ-008: (a) the assertions live in the existing `tests/design-system-contract.tests.sh` / `.ps1`, which already assert against `design-sync-loop/SKILL.md`; (b) that suite is registered in `tests/run-all.sh` / `.ps1`, which are not protected and so are agent-applicable; (c) CI registration is a separate staged patch because `.github/workflows/test.yml` is protected — tracked, and explicitly **not** a blocker on this feature's task decomposition.
+
+### Still open
+
+Four remain: OQ-6, OQ-7, OQ-9, OQ-10. **None of them blocks implementation** — the `Blocks` column reads `no` for all four. Three are hedged by an acceptance criterion that accepts the gap rather than guessing: AC-005 accepts a stated opacity for OQ-6, AC-010 enumerates the record's field *names* without fixing OQ-7's value domain, and AC-018 states the check point's blocking behaviour without presuming an interactive human, which is the OQ-9 hedge. OQ-10 is a documentation question owned by `security-spec.md` and touches no criterion here.
+
+The four that did block — OQ-1, OQ-2, OQ-3, OQ-8 — are closed above. `sdd-bootstrap-interviewer/SKILL.md:213-214` ("Do not approve tasks while requirements, design, contracts, acceptance criteria, scope, or important risks remain ambiguous") therefore no longer stands in the way of task approval on their account. It still applies to any ambiguity found elsewhere, and approval remains a human action (`:210-211`).

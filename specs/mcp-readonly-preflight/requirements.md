@@ -1,6 +1,6 @@
 # Requirements: mcp-readonly-preflight
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 
 Source issue: [#129](https://github.com/aharada54914/sdd-forge/issues/129) (`enhancement`, `workflow-improvement`; Key `ENH-22`, Finding A-4, Plan Phase 4), including its 2026-07-10 runtime addendum.
 
@@ -139,13 +139,25 @@ The original criterion read "MCP 不在フォールバックが機能" — a sin
 
 Two criteria rather than one, because "each skill" quantifies over a set of two and a single criterion could be satisfied by testing whichever skill is easier (sweep 4).
 
-**Divergence handling is OQ-005 and is not decided here.** AC-012 and AC-013 assert *outcome equality*, which holds under every candidate answer — display-only, log-only, or warn-on-divergence — because none of those changes the conclusion. What they cannot assert is what the agent reports when the probe and the file-based flow disagree, because the issue does not say. A criterion invented for that would be a design decision smuggled into a specification.
+**Divergence handling was OQ-005. It was answered by the human on 2026-08-04 and is now decided here.** AC-012 and AC-013 assert *outcome equality*, which holds under every candidate answer — display-only, log-only, or warn-on-divergence — because none of those changes the conclusion. What they could not assert, until this decision, was what the agent reports when the probe and the file-based flow disagree, because the issue does not say.
 
-*Blocked on OQ-005 — this carries the same gating force as REQ-002's block on OQ-007, and the two instructions are to be read as equals.* The Overview calls OQ-005 the difference between a specifiable feature and an unspecifiable one; that judgement is only useful attached to an instruction, so here it is. **OQ-005 must be answered by a human before design or task decomposition proceeds.** A downstream reviewer or task author reaching this requirement with OQ-005 still open is to stop and route it for a product decision, not to select a behaviour and record it as derived.
+**Resolution: warn-on-divergence.** When the probe's view and the file-based conclusion disagree, the agent states the disagreement visibly to the operator, and proceeds on the file-based conclusion.
 
-What makes this a block rather than a note: AC-012 and AC-013 hold under every candidate resolution, so the *safety* property is already secured and nothing here is unsafe to build. What is not constructible is the *reporting* behaviour — display-only, log-only and warn-on-divergence are three different products, and choosing among them is exactly the product decision this specification declines to make. Implementing REQ-005 without that answer yields a feature whose observable behaviour on divergence was picked by whoever wrote the code.
+Two reasons, recorded so a later reader does not have to reconstruct the choice. First, a silent disagreement between two views of the same state is exactly the kind of thing that rots — the file-based flow stays authoritative either way, so the only question was whether the operator learns that the two disagreed, and there is no version of "they should not learn it" that survives being written down. Second, the warning costs nothing in safety: REQ-005 already requires the conclusion to be identical whether or not the probe ran, and AC-012/AC-013 test exactly that, so warning cannot change an outcome it is forbidden from changing.
 
-Unlike REQ-002, this requirement is **not withdrawn** under any resolution: outcome equality is required regardless. Only the divergence-reporting criterion is deferred, and once OQ-005 is answered it must be added to *this* specification rather than to `design.md`, so the reviewed artefact remains the one that states the behaviour.
+#### AC-027a
+When the probe returns a view of the SDD state that disagrees with the file-based conclusion, the agent's output states that a disagreement occurred, and names which source it acted on.
+
+Asserted as two separate elements — that the disagreement is surfaced at all, and that the authoritative source is identified — because an output that mentions a disagreement without saying which view it followed leaves the operator unable to act on it. A single combined assertion could pass on the weaker half alone.
+
+#### AC-027b
+The conclusion the agent acts on in the divergent case is the file-based one.
+
+This is REQ-005's own guarantee restated at the divergence branch specifically, so that the branch cannot be implemented as "warn, then follow the probe" — which would satisfy AC-027a while inverting the authority this requirement exists to protect.
+
+Unlike REQ-002, this requirement was **never withdrawable**: outcome equality is required under every resolution. What was deferred was only the reporting criterion above, and per this requirement's own earlier instruction it lands in this specification rather than in `design.md`, so the reviewed artefact remains the one that states the behaviour.
+
+**Consequence for provenance, stated plainly.** This resolution edits a document that had already passed spec-review, which invalidates that pass by design: the recorded contract binds the reviewed bytes. A fresh spec-review attempt is therefore required, and no part of the earlier pass is carried over.
 
 ### REQ-006 — no write capability is added to any MCP server
 

@@ -48,6 +48,18 @@ Where a criterion's own language enumerates branches or quantifies over conditio
 | TEST-038 | AC-023 | REQ-007 | staging conformance | `lite-spec/SKILL.md` + `human-copy/MANIFEST.sha256` | the change is staged, the live protected file is unmodified at staging time, and the manifest hash matches the drafted candidate |
 | TEST-039 | AC-024 | REQ-008 | CI-registration conformance | CI entry point → suite | this feature's assertions are reachable from a CI entry point in both runtimes where a `.ps1` twin exists |
 | TEST-040 | AC-025 | REQ-008 | regression | `tests/design-system-contract.tests.{sh,ps1}` | the seven pre-existing `DS-006` literals still pass unmodified |
+| TEST-041 | AC-026 | REQ-001 | document conformance | `design-sync-loop/SKILL.md` | a declined consent blocks **that** upload — no upload occurs |
+| TEST-042 | AC-026 | REQ-001 | document conformance | same | the **next** upload attempt within the same scope prompts again |
+| TEST-043 | AC-026 | REQ-001 | document conformance | same | a decline is stated to be distinct from AC-019's persistent "not permitted" outcome — it writes no standing forbiddance |
+| TEST-044 | AC-027 | REQ-001 | document conformance | same | the consent names the **destination** claude.ai/design project as part of what it covers |
+| TEST-045 | AC-027 | REQ-001 | document conformance | same | a **different** destination project does not inherit the consent and is gated again |
+| TEST-046 | AC-028 | REQ-001 | document conformance | same | a **mid-session withdrawal** path is stated — a consent can be revoked inside its scope |
+| TEST-047 | AC-028 | REQ-001 | document conformance | same | after withdrawal, the next upload within that same scope is gated again |
+| TEST-048 | AC-029 | REQ-002 | document conformance | same | disclosure element (d): the consent covers this feature's mockups **including future regenerations**, to the named destination, for this session |
+| TEST-049 | AC-029 | REQ-002 | document conformance | same | disclosure element (e): the pull direction also transmits a human-supplied project name to the same external service |
+| TEST-050 | AC-029 | REQ-002 | document conformance | same | disclosure element (f): the operator is asserting they have authority to send this content externally |
+
+Rows TEST-041 – TEST-050 were added on 2026-08-04, when the human resolved OQ-1 – OQ-5 and OQ-8 and closed two round-1 review findings. They are appended rather than interleaved so Test IDs stay monotonic and every pre-existing row keeps its number; the matrix is therefore sorted by Test ID, not by AC.
 
 ## Test Details
 
@@ -63,7 +75,9 @@ The criterion's own language implies three branches. Each is asserted separately
 
 Assert the scope statement names exactly one unit and contains no disjunction between units. The issue writes "per-feature/セッション 1 回"; shipping that phrasing verbatim would move the ambiguity from the issue into the artifact, where every later reader inherits it.
 
-**This test checks decidedness, not correctness.** Which unit is right is OQ-1, a human decision. This test fails a text that declines to choose, and passes either choice.
+**This test checks decidedness, not correctness.** Which unit is right was OQ-1, a human decision, answered on 2026-08-04: the scope is the **conjunction** of feature and session. This test is unchanged by that answer — it still fails a text that declines to choose and passes a text that chooses.
+
+**The conjunction satisfies this test, and the assertion must be written so.** "This feature, in this session" names one scope with two coordinates; it is not the disjunction the criterion forbids. The assertion is therefore on the absence of an *alternative* between candidate units ("feature **or** session", "per-feature/セッション"), not on the scope statement mentioning exactly one noun. An assertion implemented as "the scope sentence names one unit" naively — by counting unit nouns — would fail the decided text, which is the one defect this test could plausibly acquire from the answer.
 
 ### TEST-005 / TEST-006 / TEST-007 (AC-003) — the disclosure, element by element
 
@@ -176,9 +190,13 @@ Until the human applies the candidate, TEST-017 is red against the live tree. Th
 
 Assert this feature's assertions are reachable from a CI entry point, by tracing from `.github/workflows/` to the suite, in both runtimes where a `.ps1` twin exists.
 
-**This test cannot be written until OQ-8 is answered**, and that is the point of listing it. The suite that already asserts against `design-sync-loop/SKILL.md` — `tests/design-system-contract.tests.{sh,ps1}`, block `DS-006` — is registered in `tests/run-all.sh` (no), `tests/run-all.ps1` (no), and any workflow (no); and `tests/run-all.sh` is itself not invoked by CI (INV-016, INV-017). So the natural home for these assertions is currently unexecuted, and the natural fix touches a protected file.
+**OQ-8 was answered on 2026-08-04**, so this test is now writable. The three "no" answers that motivated it were re-derived on that date and still hold: the suite that already asserts against `design-sync-loop/SKILL.md` — `tests/design-system-contract.tests.{sh,ps1}`, block `DS-006` — is registered in `tests/run-all.sh` (no; the array is `:8-65`), `tests/run-all.ps1` (no; the array is `:7-14`), and any workflow (no; `grep -rn 'run-all' .github/` returns nothing, and `.github/workflows/test.yml` enumerates its suites individually at `:75`, `:85`, `:95`, …). INV-016 and INV-017 are therefore confirmed rather than assumed.
 
-**Newly-reachable branch declaration (AGENTS.md "Author-time sweeps", item 5).** If OQ-8 resolves toward registering `design-system-contract.tests.{sh,ps1}` in CI, then the entire `DS-001`…`DS-017` assertion block — which has **never executed on a CI runner** — becomes reachable for the first time, on every OS leg of the matrix. The implementation report must name that block and that environment explicitly, and must either exercise it in a matching environment before merge or flag it as "pending first real execution at CI time", so a resulting failure is traceable to this class rather than read as an unrelated surprise.
+The answer, in the three parts recorded in `requirements.md` → REQ-008: **(a)** the assertions go into `tests/design-system-contract.tests.{sh,ps1}` — unprotected, so agent-applicable; **(b)** that suite is registered in `tests/run-all.{sh,ps1}` — also unprotected by the same read of `plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4`, so also agent-applicable; **(c)** CI registration is a **separate staged patch**, because `.github/workflows/test.yml` is on that protected list (and on `PHASE2_HUMAN_COPY_TARGETS` at `:18`).
+
+**What that means for this row's colour.** Part (b) does not by itself make the suite CI-executed, because nothing in `.github/` invokes `run-all`. TEST-039 therefore stays **red against the live tree** until a human applies the staged workflow patch from part (c) — the same designed fail-closed state as TEST-017 pending TEST-038, and for the same reason: an agent cannot write the file that would turn it green. That red is the artifact of a protected boundary, not a defect in this test. What part (c) *does* discharge is the decomposition blocker: the task plan no longer branches on an unanswered question, so BL-005's "the decomposition cannot be written until OQ-8 is answered" no longer applies.
+
+**Newly-reachable branch declaration (AGENTS.md "Author-time sweeps", item 5).** OQ-8 resolved toward registering `design-system-contract.tests.{sh,ps1}` in CI, so the entire `DS-001`…`DS-017` assertion block — which has **never executed on a CI runner** — becomes reachable for the first time, on every OS leg of the matrix, at the moment the part-(c) patch is applied. The implementation report must name that block and that environment explicitly, and must either exercise it in a matching environment before merge or flag it as "pending first real execution at CI time", so a resulting failure is traceable to this class rather than read as an unrelated surprise.
 
 **Re-verification instruction (item 3).** The CI registration surface is shared, git-tracked state this branch does not own. Re-derive the three "no" answers above from `.github/workflows/` and `tests/run-all.{sh,ps1}` at implementation start rather than trusting this paragraph.
 
@@ -187,6 +205,42 @@ Assert this feature's assertions are reachable from a CI entry point, by tracing
 Assert the seven `DS-006` literals still pass after the `SKILL.md` restructuring: `^## Ensure design-system/$`, `ui-ux-pro-max`, `design-system --persist`, `ui-ux-pro-max unavailable — D6 template interview used`, `figma-dtcg-import`, `design-system/design-tokens\.json`, `MASTER\.md` (`tests/design-system-contract.tests.sh:62-68`). The `.ps1` twin asserts the same set minus the em-dash line, by an existing deliberate ASCII-only exclusion (`tests/design-system-contract.tests.ps1:57-62`).
 
 The pre-existing assertions must pass **unmodified**. Needing to edit one is evidence BL-007 was broken and must be reported, not accommodated.
+
+### TEST-041 / TEST-042 / TEST-043 (AC-026) — what "no" means, and what it does not mean
+
+Nothing in the round-1 specification stated what happens when the human answers "no" to the first-upload consent prompt, and a downstream reviewer had to invent the behaviour. The human decided on 2026-08-04: **a decline is transient.** Three rows, because the three statements fail independently.
+
+- **TEST-041 (this upload).** Assert the text states that a decline stops the upload it was asked about, and that no upload occurs. The failing shape is a text that records a decline without saying it blocks anything.
+- **TEST-042 (the next attempt).** Assert the text states that the next upload attempt inside the same scope prompts again. This is the transience itself: without it, "no" silently becomes "no, forever, for this scope".
+- **TEST-043 (not the persistent case).** Assert the text explicitly distinguishes a decline from AC-019 outcome 3 ("upload is not permitted") — declining once writes no standing forbiddance and is not #140's `off` setting.
+
+TEST-043 is the substantive row. An implementation that persists a decline for the remainder of the scope satisfies TEST-041 and TEST-042 while manufacturing a configuration-level control that #140 owns, which is precisely the surprising conflation the decision rejects. Note the boundary this test does **not** cross: it asserts nothing about `ds_upload_consent` existing, which would fail by design here for the same reason TEST-031/TEST-032 avoid it.
+
+### TEST-044 / TEST-045 (AC-027) — a consent is bound to where it sends
+
+Edge Case 2 records that nothing binds a consent to the claude.ai project it was granted against: step 1 (`SKILL.md:68-69`) lets the human choose the destination, and the round-1 text could not tell project A from project B. Unlike the other edge cases it mapped to no OQ, REQ, AC or TEST here. OQ-3's resolution closes it — consent is scoped to feature **and destination** — and these two rows are the coverage.
+
+- **TEST-044 (the binding).** Assert the consent statement names the destination project selected in the pull step as part of what the consent covers.
+- **TEST-045 (the re-gate).** Assert a **different** destination project does not inherit the consent and is gated again.
+
+Both, because either alone is satisfiable by a text that fails the criterion: a record that merely stores a destination field but never says a change re-gates, or a re-gating claim with nothing that binds a consent to a destination in the first place. The shape mirrors TEST-003 (a different scope does not inherit) deliberately — destination is a second coordinate on which inheritance must be denied, and an unstated inheritance rule defaults in practice to whatever the agent decides.
+
+### TEST-046 / TEST-047 (AC-028) — withdrawal exists, and does something
+
+OQ-2's resolution has two halves. Expiry needs no row of its own: a consent dies when its session ends, and a later session is a different scope, which TEST-003 already asserts. Withdrawal is new behaviour and gets its own rows.
+
+- **TEST-046 (the path).** Assert the text states a mid-session withdrawal path — the operator can revoke a consent inside its scope without waiting for the session to end.
+- **TEST-047 (the effect).** Assert that after withdrawal, the next upload within that same scope is gated again.
+
+Split for the reason TEST-015 is not a heading check: "withdrawal is mentioned" passes against a text that names the affordance and never says what it does. This is also the criterion that restores something the frequency change removed — under per-upload consent, "decline" *was* the withdrawal mechanism.
+
+### TEST-048 / TEST-049 / TEST-050 (AC-029) — the three disclosure elements the decisions added
+
+Three rows in the shape of TEST-005 / TEST-006 / TEST-007, and for the same reason: a disclosure can be partially right in three distinct ways, and a combined "the disclosure mentions these topics" assertion passes on any one of them — the FP-02 text-marker failure mode.
+
+- **TEST-048 (element (d), from OQ-3).** Assert the disclosure states that the consent covers this feature's mockups **including future regenerations**, to the named destination, for this session. This is the honest price of consent not re-triggering on content change: the loop regenerates between uploads (`SKILL.md:87`), so a disclosure that described only the current mockups would let an operator believe only what they saw gets sent. The assertion must find the forward-looking coverage, not merely the word "regenerate".
+- **TEST-049 (element (e), from OQ-4).** Assert the disclosure states that the pull direction also transmits a human-supplied project name to the same external service. Gating that direction stays a Non-goal; this row exists because a disclosure that describes only the push direction is misleading by omission. The row asserts on the *disclosure*, never on a gate — a test that required the pull direction to be gated would contradict the Non-goal.
+- **TEST-050 (element (f), from OQ-5).** Assert the disclosure states that the operator is asserting they have the authority to send this content externally. Note the phrasing bound, in the manner of TEST-007: the assertion must accept a text that frames this as the operator's claim and must **not** require any statement that the repository verifies it. No such check is possible here, and asserting one would be asserting a control that does not exist — the same defect TEST-018 guards against for the `Design-Source` record.
 
 ## UI Integration Checklist
 
@@ -198,4 +252,4 @@ The pre-existing assertions must pass **unmodified**. Needing to edit one is evi
 - **Dual-runtime parity (BL-008).** Every assertion above exists in both the `.sh` and `.ps1` suites, with one carve-out: an assertion whose literal cannot be expressed in an ASCII-only `.ps1` source must state the reason where the asymmetry is created, following the precedent comment at `tests/design-system-contract.tests.ps1:57`. Silently asserting a subset is the failure mode; a documented subset is acceptable.
 - **Case-sensitivity sweep (AGENTS.md "Author-time sweeps", item 1) — applicability.** This feature ports no `.sh` script to `.ps1`; it adds parallel assertions to an existing `.ps1` suite. The operator-level and cmdlet-level sweeps therefore apply narrowly — to any `-match` / `-notmatch` / `Select-String` site added here whose `.sh` counterpart compares case-sensitively — and must still be performed before the change is reported Implementation Complete, with a mis-cased negative fixture per layer. The sweep becomes fully load-bearing for **#139**, which ports a real scanner.
 - **Re-verify every `file:line` in this document at implementation start.** Citations accurate when written and stale when used are a recorded, recurring defect class here (WFI-011). One instance was already found in issue #138 itself (INV-002).
-- **Four Open Questions block implementation** — OQ-1, OQ-2, OQ-3, OQ-8. TEST-004 is satisfiable only after OQ-1 is answered; TEST-039 is not writable until OQ-8 is. That is not a defect in these tests; it is the specification declining to guess on the human's behalf.
+- **The four blocking Open Questions were answered on 2026-08-04** — OQ-1, OQ-2, OQ-3, OQ-8, together with the non-blocking OQ-4 and OQ-5. TEST-004 is now satisfiable and TEST-039 is now writable. The four that remain (OQ-6, OQ-7, OQ-9, OQ-10) do not block implementation and are each hedged by a criterion that accepts the gap rather than guessing; see `requirements.md` → Open Questions → Still open. That these tests waited for the answers rather than inventing them is the property the section is recording, and it is unchanged by the answers arriving.
