@@ -1,6 +1,6 @@
 # Requirements: mcp-readonly-preflight
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 
 Source issue: [#129](https://github.com/aharada54914/sdd-forge/issues/129) (`enhancement`, `workflow-improvement`; Key `ENH-22`, Finding A-4, Plan Phase 4), including its 2026-07-10 runtime addendum.
 
