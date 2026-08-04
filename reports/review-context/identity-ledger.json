@@ -3330,6 +3330,15 @@
       "host_session_id": "SESS-qg-epic-189-a1-project-context-T-012-0370",
       "previous_record_sha256": "c1e3a9fbc4a0a2f85427db05623813d2d472d811302454bef2d4fb92d40fd458",
       "record_sha256": "0889c0c7586df9654f61f4583ac2c2662296498337b5fbfda06f593f9823e7d7"
+    },
+    {
+      "sequence": 371,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-epic-189-a1-project-context-qg-T-012-seq0371",
+      "host_session_id": "SESS-qg-epic-189-a1-project-context-T-012-0371",
+      "previous_record_sha256": "0889c0c7586df9654f61f4583ac2c2662296498337b5fbfda06f593f9823e7d7",
+      "record_sha256": "7691e717f04eae017d88ee793a1fa9288ae1db2c6d8c8a2cba53b27557548927"
     }
   ]
 }
