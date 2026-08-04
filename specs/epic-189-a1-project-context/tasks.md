@@ -13,10 +13,12 @@ design.md (Impl-Review-Status: Passed)
 
 A task may enter `Blocked` from any active state. Humans approve tasks.
 `implement-task` may set `In Progress`, `Blocked`, or `Implementation
-Complete`. Only `quality-gate` may set `Done`. **Every task below carries
-`Approval: Draft` and `Status: Planned` — none carries an approved
-designation. Changing a task's Approval field is a human-only action,
-performed by editing the file directly; this package never performs it.**
+Complete`. Only `quality-gate` may set `Done`. **Changing a task's Approval
+field is a human-only action, performed by editing the file directly; this
+package never performs it.** (At authoring time every task below carried
+`Approval: Draft` and `Status: Planned`. Those fields have since advanced
+through the lifecycle above as the epic was implemented and gated; the
+human-only rule on Approval is unchanged.)
 
 ## Protected Files
 
@@ -1247,7 +1249,12 @@ Commit B: APPEND to `CHANGELOG.md`'s #189 entry.
 
 - The approver-registry schema itself (T-004).
 - The generator's enforcement of a two-person-required verdict at signing
-  time (T-003 already ships that behavior against a verdict it receives).
+  time. (Correction, recorded at epic close-out: the original text here read
+  "T-003 already ships that behavior against a verdict it receives", which is
+  inaccurate — a signature carrying `two_person_required: true` succeeds with
+  a single `--approver` at signing time. The actual enforcement point is
+  T-006's `validate-approval-sidecar --verify-provenance` and the standard
+  validation path, which is where the gap is closed.)
 - End-to-end signing/validation wiring of this verdict (T-006).
 
 ### Blockers
