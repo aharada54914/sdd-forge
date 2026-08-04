@@ -27,6 +27,7 @@ $tests = @(
     'tests/agent-capabilities-v2.tests.ps1',
     'tests/render-agent-frontmatter.tests.ps1',
     'tests/agent-model-routing.tests.ps1',
+    'tests/template-validator-parity.tests.ps1',
     'tests/loop-inventory.tests.ps1',
     'tests/loop-driver.tests.ps1',
     'tests/loop-consistency.tests.ps1',

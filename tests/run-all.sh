@@ -48,6 +48,8 @@ tests=(
   tests/guard-negative-corpus.tests.sh
   tests/deterministic-lane-selfcheck.tests.sh
   tests/guard-ps1-ascii.tests.sh
+  tests/repository-release-validation.tests.sh
+  tests/template-validator-parity.tests.sh
   tests/loop-inventory.tests.sh
   tests/loop-driver.tests.sh
   tests/loop-consistency.tests.sh

@@ -2,6 +2,20 @@
 set -euo pipefail
 
 repository_root="$(cd "$(dirname "$0")/.." && pwd -P)"
+
+# Both legs of this parity suite need PowerShell: validate-repository.ps1 is
+# driven directly, and validate-repository.sh is only a thin wrapper that
+# execs pwsh (tests/validate-repository.sh). This suite is registered in
+# tests/run-all.sh, which developers run on machines where PowerShell may be
+# absent, so skip loudly here instead of aborting the whole POSIX lane. CI's
+# ubuntu/macos runners always ship pwsh, so enforcement there is unchanged.
+# Mirrors the pwsh guard at the tail of tests/run-all.sh. Placed before the
+# fixture copy so a skip costs nothing.
+if ! command -v pwsh >/dev/null 2>&1; then
+    printf 'SKIP: pwsh not found; repository-release-validation.tests.sh not run (both validator legs require PowerShell)\n'
+    exit 0
+fi
+
 temporary_root="$(mktemp -d "${TMPDIR:-/tmp}/sdd-release-validation.XXXXXX")"
 fixture_root="$temporary_root/repository"
 trap 'rm -rf "$temporary_root"' EXIT
