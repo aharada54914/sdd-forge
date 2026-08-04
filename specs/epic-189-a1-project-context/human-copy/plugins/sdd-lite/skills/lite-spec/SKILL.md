@@ -46,11 +46,23 @@ Claude Code:
    まま記録する。ツール自身がプローブ書き込みを行うことはない。
 3. `check-hook-activation-handshake --verify-response --nonce <nonce>
    --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`。
-4. `HOOK_ACTIVE` ならトラック解決へ進む。それ以外の結果はすべて
-   `CAPABILITY_RUNTIME_UNAVAILABLE` で停止する。レガシー動作へ黙って
-   フォールバックしない。
+4. `HOOK_ACTIVE` ならトラック解決へ進む。それ以外の結果が止めるのは
+   **Capability Mode のみ**であり、どのプロジェクトが止まるかはこの手順単独
+   ではなく下のゲート表が決める: Project Context が物理的に存在し、かつ妥当
+   である場合に**限り** `CAPABILITY_RUNTIME_UNAVAILABLE` で停止する
+   (ゲート G2)。物理的に存在しない場合、そのプロジェクトは Capability Mode
+   に入ったことがないため、`DISABLED_LEGACY` として互換フォールバックを続行
+   する (ゲート G3/G4)。妥当な Context を持つプロジェクトから、レガシー動作へ
+   黙ってフォールバックしてはならない。
 
 <!-- /sdd:handshake-wiring -->
+
+**存在・妥当性プローブを実行する時点**: ハンドシェイク自身は Project Context
+を読まないため、手順 4 の時点ではどのゲート行に当たるかはまだ確定していない。
+G1/G2 と G3/G4 を分ける物理的存在・妥当性プローブは、下の「トラック解決」の
+**最初の**手順であり、そこで実行する — ハンドシェイクの後、トラックを選ぶ前
+である。本節がトラック解決より前に置かれているのはハンドシェイクの意味に関する
+規範だからであって、プローブを前倒しせよという指示ではない。
 
 ### `HOOK_ACTIVE` でない場合に何が止まり、何が止まらないか
 

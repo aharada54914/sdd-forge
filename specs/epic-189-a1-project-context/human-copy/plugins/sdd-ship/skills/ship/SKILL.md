@@ -91,11 +91,24 @@ before trusting any Project Context content:
    itself.
 3. `check-hook-activation-handshake --verify-response --nonce <nonce>
    --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`.
-4. `HOOK_ACTIVE` — continue to track resolution. Any other outcome — stop with
-   `CAPABILITY_RUNTIME_UNAVAILABLE`; never fall back to legacy behaviour
-   silently.
+4. `HOOK_ACTIVE` — continue to track resolution. Any other outcome stops
+   **Capability Mode only**, and which projects that stops is decided by the
+   gate table below, not by this step alone: stop with
+   `CAPABILITY_RUNTIME_UNAVAILABLE` if and ONLY if this project's Project
+   Context is physically present and valid (gate G2); if it is physically
+   absent, the project never entered Capability Mode, so continue on the
+   compatibility fallback as `DISABLED_LEGACY` (gates G3/G4). From a
+   valid-Context project, never fall back to legacy behaviour silently.
 
 <!-- /sdd:handshake-wiring -->
+
+**When the presence/validity probe runs.** The handshake itself never reads
+the Project Context, so step 4 records an outcome without yet knowing which
+gate row applies. The physical-presence-and-validity probe that decides G1/G2
+from G3/G4 is the FIRST step of "Track resolution" below, and it runs THERE —
+after the handshake, before any track is chosen. This section precedes track
+resolution because it is normative about the handshake's meaning; it is not an
+instruction to probe earlier.
 
 ### What a non-`HOOK_ACTIVE` handshake does and does not stop
 

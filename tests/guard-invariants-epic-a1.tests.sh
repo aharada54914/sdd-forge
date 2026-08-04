@@ -557,7 +557,14 @@ if [ -f "$MANIFEST_SHA" ]; then
   # class as the pinned CI digest the comment above records. What is asserted
   # instead is the floor plus uniqueness; every individual entry is already
   # validated against its staged bytes by the loop above, and each of T-009's
-  # own eight targets is separately pinned by name by the loop below.
+  # own eight targets is separately pinned by name by the loop below -- and so
+  # are T-012's own two, added at quality-gate seq0370 remedy time. Without
+  # them the floor+uniqueness+by-name combination was proven to ALL-PASS on a
+  # manifest with BOTH T-012 entries dropped (entries=8, floor True, dupes 0,
+  # wf 1, no by-name miss), i.e. the suite could not tell a correctly-appended
+  # 10-entry manifest from one that had silently lost the two migrated
+  # track-selection consumers. Each task pins its OWN targets by name; the
+  # floor stays a floor so the NEXT task's legitimate append never breaks this.
   ENTRIES=$(grep -cE '^[0-9a-f]{64}  ' "$MANIFEST_SHA" || :)
   if [ "$ENTRIES" -ge 8 ]; then
     pass "staging: MANIFEST.sha256 has at least T-009's 8 entries (has $ENTRIES)"
@@ -574,7 +581,9 @@ if [ -f "$MANIFEST_SHA" ]; then
     "$LOOP_REL/scripts/generated/guard_invariants.py" \
     "$LOOP_REL/scripts/generated/guard-invariants.generated.js" \
     "$LOOP_REL/scripts/generated/guard-invariants.generated.ps1" \
-    "$LOOP_REL/scripts/generated/guard-invariants.generated.sh"; do
+    "$LOOP_REL/scripts/generated/guard-invariants.generated.sh" \
+    "plugins/sdd-ship/skills/ship/SKILL.md" \
+    "plugins/sdd-lite/skills/lite-spec/SKILL.md"; do
     if grep -Fq "  $target" "$MANIFEST_SHA"; then
       pass "staging: MANIFEST.sha256 registers $target"
     else

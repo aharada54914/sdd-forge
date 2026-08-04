@@ -417,7 +417,13 @@ if (Test-Path -LiteralPath $ManifestSha -PathType Leaf) {
     # fail for the wrong reason the moment that happened. Floor plus
     # uniqueness is asserted instead; every individual entry is already
     # validated against its staged bytes above, and each of T-009's own
-    # targets is separately pinned by name below.
+    # targets is separately pinned by name below -- and so are T-012's own two,
+    # added at quality-gate seq0370 remedy time. Without them the
+    # floor+uniqueness+by-name combination was proven to ALL-PASS on a manifest
+    # with BOTH T-012 entries dropped, i.e. the suite could not tell a correctly
+    # appended 10-entry manifest from one that had silently lost the two
+    # migrated track-selection consumers. Each task pins its OWN targets by
+    # name; the floor stays a floor so the NEXT task's append never breaks this.
     Assert-True ($shaLines.Count -ge 8) `
         "staging: MANIFEST.sha256 has at least T-009's 8 entries (has $($shaLines.Count))" `
         "only $($shaLines.Count) entries"
@@ -432,7 +438,9 @@ if (Test-Path -LiteralPath $ManifestSha -PathType Leaf) {
         "$LoopRel/scripts/generated/guard_invariants.py",
         "$LoopRel/scripts/generated/guard-invariants.generated.js",
         "$LoopRel/scripts/generated/guard-invariants.generated.ps1",
-        "$LoopRel/scripts/generated/guard-invariants.generated.sh")) {
+        "$LoopRel/scripts/generated/guard-invariants.generated.sh",
+        'plugins/sdd-ship/skills/ship/SKILL.md',
+        'plugins/sdd-lite/skills/lite-spec/SKILL.md')) {
         Assert-True (@($shaLines | Where-Object { $_.EndsWith("  $target") }).Count -eq 1) "staging: MANIFEST.sha256 registers $target"
     }
 } else {

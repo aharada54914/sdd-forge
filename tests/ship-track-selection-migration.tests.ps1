@@ -55,6 +55,11 @@ $env:PYTHONDONTWRITEBYTECODE = '1'
 $GenPy = Join-Path $Root 'plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py'
 $ValPy = Join-Path $Root 'plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py'
 $TestKey = 't012-ship-track-selection-test-key'
+# The key that was in force BEFORE a rotation, i.e. the key an older sidecar was
+# legitimately signed under. Distinct from $TestKey by construction (asserted
+# below, so a future edit that accidentally equates them fails loudly instead of
+# silently turning TEST-026 (4b) into a duplicate of the valid-sidecar case).
+$RotatedOldKey = 't012-ship-track-selection-SUPERSEDED-key'
 
 $ContractOpen = '<!-- sdd:track-selection-contract v1 -->'
 $ContractClose = '<!-- /sdd:track-selection-contract -->'
@@ -377,12 +382,16 @@ function New-FixtureProject([string]$Name, [string]$Profile) {
     ) -join "`n" | Set-Content -LiteralPath (Join-Path $d 'fixtures/registry-without-alice.yaml') -Encoding utf8
 }
 
-function Invoke-Sign([string]$Name, [string[]]$Extra = @()) {
+function Invoke-SignWithKey([string]$Name, [string]$SigningKey, [string[]]$Extra = @()) {
+    # The signing key is a PARAMETER so the rotated-key fixture (TEST-026 4b) can
+    # be produced by the REAL generator under the SUPERSEDED key, rather than by
+    # hand-editing a MAC -- a hand-edited MAC is a corrupt MAC, not a genuinely
+    # signed one, and would not exercise the case AC-026 names.
     $d = Join-Path $Fx $Name
     $prev = Get-Location
     Set-Location -LiteralPath $d
     try {
-        $env:SDD_CONTEXT_KEY = $TestKey
+        $env:SDD_CONTEXT_KEY = $SigningKey
         $genArgs = @(
             $GenPy,
             '--schema', 'sdd-project-context-approval/v1',
@@ -394,6 +403,21 @@ function Invoke-Sign([string]$Name, [string[]]$Extra = @()) {
     } finally { Set-Location -LiteralPath $prev }
     $cand = Get-ChildItem -Path (Join-Path $d 'sdd/.staging') -Recurse -Filter 'project-context.approval.json' -ErrorAction SilentlyContinue | Select-Object -First 1
     if ($cand) { Copy-Item -LiteralPath $cand.FullName -Destination (Join-Path $d 'fixtures/approval.json') -Force }
+}
+
+function Invoke-Sign([string]$Name, [string[]]$Extra = @()) {
+    # Single delegation, so the ordinary path and the rotated-key path can never
+    # drift apart in anything except the key.
+    Invoke-SignWithKey $Name $TestKey $Extra
+}
+
+function Get-SidecarHmac([string]$Name) {
+    # The `hmac` field of a fixture project's generated sidecar, read back OFF
+    # DISK. Used only to prove the rotated-key fixture and its baseline were
+    # genuinely signed under different keys (never to judge validity).
+    $p = Join-Path $Fx "$Name/fixtures/approval.json"
+    if (-not (Test-Path -LiteralPath $p)) { return '' }
+    try { return [string]((Get-Content -LiteralPath $p -Raw | ConvertFrom-Json).hmac) } catch { return '' }
 }
 
 function Invoke-Validate([string]$Name, [string]$ContentRel, [string]$SidecarRel, [string]$RegistryRel) {
@@ -425,10 +449,17 @@ New-FixtureProject 'valid-full' 'full'
 New-FixtureProject 'valid-lite' 'lite'
 New-FixtureProject 'bad-schema' 'OMIT-PROFILE'
 New-FixtureProject 'not-yet-effective' 'full'
+# AC-026's rotated-key pair. 'rotated-key' is signed under the SUPERSEDED key;
+# 'rotated-key-baseline' is the byte-identical project signed under the CURRENT
+# key. The baseline is what makes the mutant's rejection attributable.
+New-FixtureProject 'rotated-key' 'full'
+New-FixtureProject 'rotated-key-baseline' 'full'
 
 Invoke-Sign 'valid-full'
 Invoke-Sign 'valid-lite'
 Invoke-Sign 'bad-schema'
+Invoke-SignWithKey 'rotated-key' $RotatedOldKey
+Invoke-Sign 'rotated-key-baseline'
 $futureAt = (Get-Date).ToUniversalTime().AddDays(3).ToString('yyyy-MM-ddTHH:mm:ssZ')
 Invoke-Sign 'not-yet-effective' @('--effective-at', $futureAt)
 
@@ -469,6 +500,28 @@ Assert-Eq (Invoke-Validate 'valid-full' 'fixtures/other-content.yaml' 'fixtures/
     'TEST-026 (3) hash mismatch rejected (HASH_MISMATCH)'
 Assert-Eq (Invoke-Validate 'valid-full' $Ctx 'fixtures/approval-badmac.json' $Reg) 40 `
     'TEST-026 (4) HMAC mismatch rejected (HMAC_MISMATCH)'
+# --- AC-026's rotated-key fixture --------------------------------------------
+# AC-026 (requirements.md:1462-1466) names "HMAC mismatch (including a
+# rotated-key fixture)". Case (4) above bit-flips a MAC, producing a CORRUPT MAC
+# that no key ever generated. A rotated key is the materially different shape: a
+# structurally perfect MAC the REAL generator genuinely produced under the key in
+# force at signing time, presented after the key has been rotated.
+Assert-Ne $RotatedOldKey $TestKey `
+    'TEST-026 (4b) precondition: the superseded signing key genuinely differs from the current key'
+Assert-Eq (Invoke-Validate 'rotated-key-baseline' $Ctx 'fixtures/approval.json' $Reg) 0 `
+    "TEST-026 (4b) PRISTINE BASELINE: the same fixture signed with the CURRENT key PASSES, so (4b)'s rejection is attributable to the rotation alone"
+Assert-Eq (Invoke-Validate 'rotated-key' $Ctx 'fixtures/approval.json' $Reg) 40 `
+    'TEST-026 (4b) rotated-key HMAC mismatch rejected (HMAC_MISMATCH): a genuinely-signed MAC under the SUPERSEDED key, not a corrupted one'
+Assert-Ne (Get-SidecarHmac 'rotated-key') (Get-SidecarHmac 'rotated-key-baseline') `
+    "TEST-026 (4b) the two sidecars' hmac fields genuinely differ, proving the generator really signed under two different keys"
+# AC-026's other named case, "unregistered OR DUPLICATE approver identity": the
+# unregistered half is (5) below. The duplicate half is covered by T-006's own
+# validator suite, tests/validate-approval-sidecar.tests.ps1:360-373 (POSIX twin
+# at tests/validate-approval-sidecar.tests.sh:375-392) -- a hand-signed fixture
+# with primary_approval.approver == second_approval.approver == 'alice', asserted
+# to exit 10 with DUPLICATE_APPROVER_IDENTITY. Deliberately not re-proven here:
+# generate-approval-sidecar refuses to PRODUCE that shape, so it must be
+# hand-signed, and T-006 owns that fixture machinery.
 Assert-Eq (Invoke-Validate 'valid-full' $Ctx 'fixtures/approval.json' 'fixtures/registry-without-alice.yaml') 41 `
     'TEST-026 (5) unregistered approver rejected (UNREGISTERED_APPROVER)'
 Assert-Eq (Invoke-Validate 'not-yet-effective' $Ctx 'fixtures/approval.json' $Reg) 42 `
@@ -542,7 +595,15 @@ foreach ($doc in $StagedDocs) {
     $g4 = Get-GateResolution $doc 'G4'
     Assert-Ne $g2 $g4 `
         "TEST-CGS [$doc] a valid Context's non-HOOK_ACTIVE outcome DIFFERS from an absent Context's (never conflated with disabled-legacy)"
-    Assert-Eq $g3 $g4 `
+    # Non-vacuous by construction. Comparing $g3 against a bare $g4 PASSES when
+    # BOTH sides are empty -- i.e. against a document with no capability-gate
+    # table at all -- which is the assertion-that-echoes-its-own-input class this
+    # feature has already been bitten by (the G4 assertion below carries the same
+    # guard for the same reason). Substituting a sentinel for an unresolved G4
+    # makes an absent or unparseable table FAIL here instead of passing silently,
+    # while a genuine "both resolved to DISABLED_LEGACY" still passes.
+    $g4OrSentinel = if ($g4 -eq '') { '<G4-UNRESOLVED>' } else { $g4 }
+    Assert-Eq $g3 $g4OrSentinel `
         "TEST-CGS [$doc] the handshake outcome does NOT change an absent-Context project's resolution (legacy -> legacy is not a downgrade)"
     Assert-Ne $g1 $g2 `
         "TEST-CGS [$doc] the handshake outcome DOES change a valid-Context project's resolution (Capability Mode is genuinely stopped)"
@@ -592,6 +653,42 @@ foreach ($pair in @(@($LiveShip, $DocShip), @($LiveLiteSpec, $DocLiteSpec))) {
         "TEST-PUB [$($pair[0])] no staged/live drift" `
         'a published live file must be byte-identical to its staged candidate'
 }
+
+# --- TEST-PUB pair consistency (ADR-0023:59-62) ----------------------------
+# The two protected consumers CANNOT be published in one batch: both targets are
+# named SKILL.md, and apply-human-copy rejects a batch with two same-basename
+# targets at PREPARE time (DUPLICATE_BASENAME_IN_BATCH, exit 19, before any live
+# mutation) because design.md:1011's backup slot
+# `sdd/.staging/<batch-nonce>/pre/<target-basename>` is basename-keyed. They are
+# therefore published as two SEPARATE single-target batches, which forfeits
+# cross-pair filesystem atomicity.
+#
+# That forfeit is legitimate: design.md:988-993 scopes the multi-target
+# transaction requirement BY ENUMERATION to "REQ-004's sidecar+anchor publish,
+# REQ-007's own six-file guard-invariants batch, the REQ-007 self-protection
+# batch" -- this pair is not among them -- and the gap it names is the
+# reader-consistency class, whose reader-side check binds only a script "reading
+# more than one of a transaction's targets together, and depending on them being
+# mutually consistent". Nothing reads ship/SKILL.md and lite-spec/SKILL.md
+# together.
+#
+# What IS forbidden is the resulting END STATE. ADR-0023:59-62 forbids "a partial
+# migration where some skills honor the new precedence and others still honor the
+# old one" -- exactly a half-applied pair. The per-file checks above treat
+# published and unpublished as independently valid, so a half-applied pair would
+# otherwise leave both lanes green. This is the pair-consistency replacement for
+# the atomicity the split gives up.
+#
+# It cannot fire SPURIOUSLY: it reports a difference that genuinely exists on
+# disk, and no state exists in which the two live files differ in publication
+# state while ADR-0023 is satisfied. The only window in which they legitimately
+# differ is BETWEEN the runbook's batch 1 and batch 2, and the runbook runs this
+# suite only after BOTH batches.
+$StateShip = Get-PublicationState $LiveShip $DocShip
+$StateLiteSpec = Get-PublicationState $LiveLiteSpec $DocLiteSpec
+Write-Output "--- publication pair state: ship=$StateShip lite-spec=$StateLiteSpec"
+Assert-Eq $StateShip $StateLiteSpec `
+    "TEST-PUB pair consistency: both protected consumers are in the SAME publication state (ADR-0023:59-62 forbids a partial migration where some skills honor the new precedence and others the old)"
 
 # ===========================================================================
 # TEST-MUT: detection power. Every assertion is a DELTA over a pristine copy,

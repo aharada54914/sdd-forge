@@ -113,6 +113,11 @@ PYTHONDONTWRITEBYTECODE=1
 export PYTHONDONTWRITEBYTECODE
 
 TESTKEY=t012-ship-track-selection-test-key
+# The key that was in force BEFORE a rotation, i.e. the key an older sidecar was
+# legitimately signed under. Distinct from $TESTKEY by construction (asserted
+# below, so a future edit that accidentally equates them fails loudly instead of
+# silently turning TEST-026 (4b) into a duplicate of the valid-sidecar case).
+ROTATED_OLD_KEY=t012-ship-track-selection-SUPERSEDED-key
 
 STAGE='specs/epic-189-a1-project-context/human-copy'
 
@@ -560,9 +565,14 @@ approvers:
 EOF
 }
 
-sign_project() {
-  d="$FX/$1"; shift
-  ( cd "$d" && SDD_CONTEXT_KEY="$TESTKEY" "$PY" "$GEN_PY" \
+sign_project_with_key() {
+  # sign_project_with_key <name> <signing-key> [extra generator args...]
+  # The signing key is a PARAMETER so the rotated-key fixture (TEST-026 4b)
+  # can be produced by the REAL generator under the SUPERSEDED key, rather
+  # than by hand-editing a MAC -- a hand-edited MAC is a corrupt MAC, not a
+  # genuinely-signed one, and would not exercise the case AC-026 names.
+  d="$FX/$1"; spk_key="$2"; shift 2
+  ( cd "$d" && SDD_CONTEXT_KEY="$spk_key" "$PY" "$GEN_PY" \
       --schema sdd-project-context-approval/v1 \
       --content sdd/project-context.yaml \
       --approver alice --status Approved \
@@ -572,12 +582,33 @@ sign_project() {
   if [ -n "$cand" ]; then cp "$cand" "$d/fixtures/approval.json"; fi
 }
 
+sign_project() {
+  # Single delegation, so the ordinary path and the rotated-key path can never
+  # drift apart in anything except the key.
+  spj_name="$1"; shift
+  sign_project_with_key "$spj_name" "$TESTKEY" "$@"
+}
+
 validate_project() {
   d="$FX/$1"
   ( cd "$d" && SDD_CONTEXT_KEY="$TESTKEY" "$PY" "$VAL_PY" \
       --content "$2" --sidecar "$3" --approver-registry "$4" ) \
       >"$WORK/val.out" 2>"$WORK/val.err"
   echo $?
+}
+
+sidecar_hmac() {
+  # The `hmac` field of a fixture project's generated sidecar, read back OFF
+  # DISK. Used only to prove the rotated-key fixture and its baseline were
+  # genuinely signed under different keys (never to judge validity).
+  "$PY" - "$FX/$1/fixtures/approval.json" <<'PYEOF'
+import json
+import sys
+try:
+    sys.stdout.write(str(json.load(open(sys.argv[1], encoding="utf-8")).get("hmac", "")))
+except Exception:
+    sys.stdout.write("")
+PYEOF
 }
 
 # The physical-presence probe REQ-009 mandates FIRST: a plain filesystem test
@@ -604,10 +635,19 @@ new_project valid-full full
 new_project valid-lite lite
 new_project bad-schema OMIT-PROFILE
 new_project not-yet-effective full
+# AC-026's rotated-key pair. `rotated-key` is signed under the SUPERSEDED key;
+# `rotated-key-baseline` is the byte-identical project signed under the CURRENT
+# key. The baseline is what makes the mutant's rejection attributable: without
+# it, a non-zero exit for `rotated-key` could be caused by anything about the
+# fixture rather than by the rotation.
+new_project rotated-key full
+new_project rotated-key-baseline full
 
 sign_project valid-full
 sign_project valid-lite
 sign_project bad-schema
+sign_project_with_key rotated-key "$ROTATED_OLD_KEY"
+sign_project rotated-key-baseline
 FUTURE_AT=$("$PY" -c "import datetime;print((datetime.datetime.now(datetime.timezone.utc)+datetime.timedelta(days=3)).strftime('%Y-%m-%dT%H:%M:%SZ'))")
 sign_project not-yet-effective --effective-at "$FUTURE_AT"
 
@@ -654,6 +694,30 @@ assert_eq "$(validate_project valid-full fixtures/other-content.yaml fixtures/ap
   "TEST-026 (3) hash mismatch rejected (HASH_MISMATCH)"
 assert_eq "$(validate_project valid-full "$CTX" fixtures/approval-badmac.json "$REG")" "40" \
   "TEST-026 (4) HMAC mismatch rejected (HMAC_MISMATCH)"
+# --- AC-026's rotated-key fixture --------------------------------------------
+# AC-026 (requirements.md:1462-1466) names "HMAC mismatch (including a
+# rotated-key fixture)". Case (4) above bit-flips a MAC, producing a CORRUPT
+# MAC that no key ever generated. A rotated key is the materially different
+# shape: a structurally perfect MAC the REAL generator genuinely produced under
+# the key that was in force at signing time, presented after the key has been
+# rotated. Only (4b) exercises that.
+assert_ne "$ROTATED_OLD_KEY" "$TESTKEY" \
+  "TEST-026 (4b) precondition: the superseded signing key genuinely differs from the current key"
+assert_eq "$(validate_project rotated-key-baseline "$CTX" fixtures/approval.json "$REG")" "0" \
+  "TEST-026 (4b) PRISTINE BASELINE: the same fixture signed with the CURRENT key PASSES, so (4b)'s rejection is attributable to the rotation alone"
+assert_eq "$(validate_project rotated-key "$CTX" fixtures/approval.json "$REG")" "40" \
+  "TEST-026 (4b) rotated-key HMAC mismatch rejected (HMAC_MISMATCH): a genuinely-signed MAC under the SUPERSEDED key, not a corrupted one"
+assert_ne "$(sidecar_hmac rotated-key)" "$(sidecar_hmac rotated-key-baseline)" \
+  "TEST-026 (4b) the two sidecars' hmac fields genuinely differ, proving the generator really signed under two different keys"
+# AC-026's other named case, "unregistered OR DUPLICATE approver identity": the
+# unregistered half is (5) below. The duplicate half is covered by T-006's own
+# validator suite, tests/validate-approval-sidecar.tests.sh:375-392 --
+# a hand-signed fixture with primary_approval.approver == second_approval.approver
+# == "alice", asserted to exit 10 with DUPLICATE_APPROVER_IDENTITY on stderr,
+# invoking the real validator (its .ps1 twin at :360-373). It is deliberately NOT
+# re-proven here: that shape is one generate-approval-sidecar.py refuses to
+# PRODUCE, so it must be hand-signed, and T-006 owns the hand-signing fixture
+# machinery. Verified by reading that suite at remedy time, not assumed.
 assert_eq "$(validate_project valid-full "$CTX" fixtures/approval.json fixtures/registry-without-alice.yaml)" "41" \
   "TEST-026 (5) unregistered approver rejected (UNREGISTERED_APPROVER)"
 assert_eq "$(validate_project not-yet-effective "$CTX" fixtures/approval.json "$REG")" "42" \
@@ -735,7 +799,14 @@ for doc in $STAGED_DOCS; do
   g4=$(gate_resolution "$doc" G4)
   assert_ne "$g2" "$g4" \
     "TEST-CGS [$doc] a valid Context's non-HOOK_ACTIVE outcome DIFFERS from an absent Context's (never conflated with disabled-legacy)"
-  assert_eq "$g3" "$g4" \
+  # Non-vacuous by construction. Comparing "$g3" against a bare "$g4" PASSES
+  # when BOTH sides are empty -- i.e. against a document with no capability-gate
+  # table at all -- which is the assertion-that-echoes-its-own-input class this
+  # feature has already been bitten by (the .ps1 twin's G4 assertion carries the
+  # same guard for the same reason). Substituting a sentinel for an unresolved
+  # G4 makes an absent or unparseable table FAIL here instead of passing
+  # silently, while a genuine "both resolved to DISABLED_LEGACY" still passes.
+  assert_eq "$g3" "${g4:-<G4-UNRESOLVED>}" \
     "TEST-CGS [$doc] the handshake outcome does NOT change an absent-Context project's resolution (legacy -> legacy is not a downgrade)"
   assert_ne "$g1" "$g2" \
     "TEST-CGS [$doc] the handshake outcome DOES change a valid-Context project's resolution (Capability Mode is genuinely stopped)"
@@ -785,6 +856,48 @@ for pair in "$LIVE_SHIP=$DOC_SHIP" "$LIVE_LITESPEC=$DOC_LITESPEC"; do
     pass "TEST-PUB [$live] no staged/live drift"
   fi
 done
+
+# --- TEST-PUB pair consistency (ADR-0023:59-62) ----------------------------
+# The two protected consumers CANNOT be published in one batch: both targets
+# are named SKILL.md, and apply-human-copy rejects a batch with two
+# same-basename targets at PREPARE time (DUPLICATE_BASENAME_IN_BATCH, exit 19,
+# before any live mutation) because design.md:1011's backup slot
+# `sdd/.staging/<batch-nonce>/pre/<target-basename>` is basename-keyed. They
+# are therefore published as two SEPARATE single-target batches, which forfeits
+# cross-pair filesystem atomicity.
+#
+# That forfeit is legitimate: design.md:988-993 scopes the multi-target
+# transaction requirement BY ENUMERATION to "REQ-004's sidecar+anchor publish,
+# REQ-007's own six-file guard-invariants batch, the REQ-007 self-protection
+# batch" -- this pair is not among them -- and the gap it names is the
+# reader-consistency class ("the anchor publishes but the sidecar doesn't"),
+# whose reader-side check (design.md, step 6 of the bundle contract) binds only
+# a script "reading more than one of a transaction's targets together, and
+# depending on them being mutually consistent". Nothing reads ship/SKILL.md and
+# lite-spec/SKILL.md together; each is read by its own skill invocation alone.
+#
+# What IS forbidden is the resulting END STATE. ADR-0023:59-62 requires Epic A1
+# to enumerate every CLI-flag consumer "before migrating any of them, to avoid a
+# partial migration where some skills honor the new precedence and others still
+# honor the old one" -- exactly a half-applied pair. Nothing else asserts it:
+# the per-file checks above treat `published` and `unpublished` as independently
+# valid, so a half-applied pair leaves both lanes green. This assertion is the
+# pair-consistency replacement for the atomicity the split gives up.
+#
+# It cannot fire SPURIOUSLY. It reports a difference that genuinely exists on
+# disk at the moment of observation, and there is no state in which the two live
+# files sit in different publication states while ADR-0023 is nevertheless
+# satisfied. The one window in which they legitimately differ is BETWEEN the
+# runbook's batch 1 and batch 2; the runbook runs this suite only after BOTH
+# batches, so that window is never observed as part of the documented procedure.
+# If a human does run the suite inside it, this assertion is a TRUE report of a
+# real half-applied pair, and the runbook states how to converge (finish batch 2,
+# or roll batch 1 back).
+state_ship=$(publication_state "$LIVE_SHIP" "$DOC_SHIP")
+state_litespec=$(publication_state "$LIVE_LITESPEC" "$DOC_LITESPEC")
+printf -- '--- publication pair state: ship=%s lite-spec=%s\n' "$state_ship" "$state_litespec"
+assert_eq "$state_ship" "$state_litespec" \
+  "TEST-PUB pair consistency: both protected consumers are in the SAME publication state (ADR-0023:59-62 forbids a partial migration where some skills honor the new precedence and others the old)"
 
 # ===========================================================================
 # TEST-MUT: detection power. Every assertion is a DELTA over a pristine copy,

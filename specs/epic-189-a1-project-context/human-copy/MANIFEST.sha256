@@ -6,5 +6,5 @@ d1d94441adb5b5a0ec31d60299b69183eba900c5af657e52775bb586c21e0edb  specs/epic-189
 5b0b8156641ae3b14db64b993a58a31bdeca5de296b3ff171b0c45ab6ce3ea86  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
 595b89786672f96acd9eb7c9807f06d6a9369587a65ede3c023db4a397a23085  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
 3aee77dc07ad3206b80e2b04497acd5356e3d58f4b0a7e0c9c48e672dabeffa6  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
-c68d3b8913ed82050ca459e5726509f738221b8724d736c87af9d7f337f63cb2  plugins/sdd-ship/skills/ship/SKILL.md
-28dabd1bda6d490b534ad832d91af26dde46e3935047b6241a9a5ed565a367fc  plugins/sdd-lite/skills/lite-spec/SKILL.md
+0761a91547375da3456a5aa60d220543f3831d2e1986086f10a70a037bd6d5c9  plugins/sdd-ship/skills/ship/SKILL.md
+757c681731aa766bf95ec016fc0f4a39216feb00a9ecca71f8b70a94cb1a9679  plugins/sdd-lite/skills/lite-spec/SKILL.md
