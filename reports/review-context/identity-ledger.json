@@ -4275,6 +4275,15 @@
       "host_session_id": "SESS-spec-a2r2-a-mcpreadonlypreflight-0475",
       "previous_record_sha256": "6de47e5ef9b4343adf08a47c09cd244233fc01d9266d8804205978c2201784cf",
       "record_sha256": "85772f357652dfe972ac585364d6b312213fa0dcf10c70b931c8f0cd830d55a1"
+    },
+    {
+      "sequence": 476,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-mcpreadonlypreflight-spec-a2r2-b-seq0476",
+      "host_session_id": "SESS-spec-a2r2-b-mcpreadonlypreflight-0476",
+      "previous_record_sha256": "85772f357652dfe972ac585364d6b312213fa0dcf10c70b931c8f0cd830d55a1",
+      "record_sha256": "86e9dac10d2247dc1d759a64f86aceea54fba3c8e1612be68404e9d78e96f441"
     }
   ]
 }

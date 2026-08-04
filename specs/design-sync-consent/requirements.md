@@ -1,6 +1,6 @@
 # Requirements: design-sync-consent
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 
 Source issue: [#138](https://github.com/aharada54914/sdd-forge/issues/138) (`enhancement`, `security`, `workflow-improvement`; key `DS-29`, epic #136). Dependants not specified here: [#139](https://github.com/aharada54914/sdd-forge/issues/139) (`DS-30`) and [#140](https://github.com/aharada54914/sdd-forge/issues/140) (`DS-31`), both declaring "Depends on: DS-29".
 
