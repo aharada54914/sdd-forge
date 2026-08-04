@@ -58,8 +58,9 @@ Where a criterion's own language enumerates branches or quantifies over conditio
 | TEST-048 | AC-029 | REQ-002 | document conformance | same | disclosure element (d): the consent covers this feature's mockups **including future regenerations**, to the named destination, for this session |
 | TEST-049 | AC-029 | REQ-002 | document conformance | same | disclosure element (e): the pull direction also transmits a human-supplied project name to the same external service |
 | TEST-050 | AC-029 | REQ-002 | document conformance | same | disclosure element (f): the operator is asserting they have authority to send this content externally |
+| TEST-051 | AC-030 | REQ-001 | document conformance | same | the push step states the push-failure rule: failure does not change consent state; the failure is reported; a same-scope retry proceeds without a new prompt |
 
-Rows TEST-041 – TEST-050 were added on 2026-08-04, when the human resolved OQ-1 – OQ-5 and OQ-8 and closed two round-1 review findings. They are appended rather than interleaved so Test IDs stay monotonic and every pre-existing row keeps its number; the matrix is therefore sorted by Test ID, not by AC.
+Rows TEST-041 – TEST-050 were added on 2026-08-04, when the human resolved OQ-1 – OQ-5 and OQ-8 and closed two round-1 review findings. Row TEST-051 was appended on 2026-08-05, when the human decided the push-failure rule (AC-030) after impl review's round 2 surfaced the behaviour as unspecified. Rows are appended rather than interleaved so Test IDs stay monotonic and every pre-existing row keeps its number; the matrix is therefore sorted by Test ID, not by AC.
 
 ## Test Details
 
@@ -241,6 +242,10 @@ Three rows in the shape of TEST-005 / TEST-006 / TEST-007, and for the same reas
 - **TEST-048 (element (d), from OQ-3).** Assert the disclosure states that the consent covers this feature's mockups **including future regenerations**, to the named destination, for this session. This is the honest price of consent not re-triggering on content change: the loop regenerates between uploads (`SKILL.md:87`), so a disclosure that described only the current mockups would let an operator believe only what they saw gets sent. The assertion must find the forward-looking coverage, not merely the word "regenerate".
 - **TEST-049 (element (e), from OQ-4).** Assert the disclosure states that the pull direction also transmits a human-supplied project name to the same external service. Gating that direction stays a Non-goal; this row exists because a disclosure that describes only the push direction is misleading by omission. The row asserts on the *disclosure*, never on a gate — a test that required the pull direction to be gated would contradict the Non-goal.
 - **TEST-050 (element (f), from OQ-5).** Assert the disclosure states that the operator is asserting they have the authority to send this content externally. Note the phrasing bound, in the manner of TEST-007: the assertion must accept a text that frames this as the operator's claim and must **not** require any statement that the repository verifies it. No such check is possible here, and asserting one would be asserting a control that does not exist — the same defect TEST-018 guards against for the `Design-Source` record.
+
+### TEST-051 (AC-030) — push failure spends nothing and revokes nothing
+
+Assert the push step's text states all three parts of the push-failure rule, each found separately: (1) a failed push — network error, timeout, an auth expiry discovered only after capability detection passed, a service outage — leaves consent state unchanged; (2) the agent reports the failure to the operator; (3) a retry within the same scope proceeds with no new consent prompt, re-entering at the pre-upload check point rather than at consent resolution. The failing shapes, one per part: text that treats a failed push as an implicit revocation (fails 1); text that retries silently (fails 2); text that re-prompts on retry (fails 3 — and silently restores per-upload friction on exactly the path where the operator is already dealing with a failure). As with TEST-043, the assertion must also find the boundary statement: a push failure is not AC-019's persistent "not permitted" outcome and writes no standing forbiddance.
 
 ## UI Integration Checklist
 

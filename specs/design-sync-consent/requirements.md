@@ -1,6 +1,6 @@
 # Requirements: design-sync-consent
 
-Spec-Review-Status: Passed
+Spec-Review-Status: Pending
 
 Source issue: [#138](https://github.com/aharada54914/sdd-forge/issues/138) (`enhancement`, `security`, `workflow-improvement`; key `DS-29`, epic #136). Dependants not specified here: [#139](https://github.com/aharada54914/sdd-forge/issues/139) (`DS-30`) and [#140](https://github.com/aharada54914/sdd-forge/issues/140) (`DS-31`), both declaring "Depends on: DS-29".
 
@@ -80,6 +80,18 @@ A consent can be **withdrawn mid-session**, and the skill states both the path a
 2. after withdrawal, the next upload within that same scope is gated again.
 
 Split because "withdrawal is mentioned" is satisfiable by text that names the affordance and never says what it does, which is the vacuous-assertion failure mode this document rejects elsewhere (TEST-015).
+
+#### AC-030
+
+The Loop's push step states the push-failure rule in all three of its parts:
+
+1. a push failure — a network error, a timeout, an auth expiry discovered only after capability detection passed, a service outage — does **not** change consent state;
+2. the agent reports the failure to the operator;
+3. a retry within the same scope proceeds **without** a new consent prompt, re-entering at the pre-upload check point rather than at consent resolution.
+
+Decided by the human on 2026-08-05, after impl review's round-2 reviewers independently found the behaviour unspecified. The rationale is scope-binding: consent attaches to feature ∧ session and to the destination (R-OQ-1, R-OQ-3), not to the success of any single upload, and treating a failed push as an implicit revocation would collide with AC-028's explicit-withdrawal model — withdrawal is the only way a consent is meant to stop applying mid-session. The question is new with this feature: under per-upload consent a failed upload was simply asked about again, so failure semantics never needed stating; per-scope consent creates the question and therefore owes an answer.
+
+Three parts asserted separately because each has its own vacuous-satisfaction shape: (1) without (3) permits re-prompting on retry, which silently restores per-upload friction on exactly the path where the operator is already dealing with a failure; (3) without (1) permits treating the consent as spent and skipping the retry; (2) alone is satisfiable by silent logging. An implementation that treats push failure as revocation fails (1) and (3) together.
 
 ### REQ-002 — the consent is informed, and its disclosure is accurate about what it cannot enumerate
 

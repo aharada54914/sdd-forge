@@ -80,9 +80,11 @@ Two claims per document, each needing an accompanying substantive statement rath
 
 **No persistent data, no schema, no migration.**
 
-The probe reads and discards. It writes no file, creates no cache, and leaves no artifact. Its result lives only in the agent's context for the duration of the run, which is what makes "read-only" true at the data layer and not merely at the tool layer.
+Data Entities: none introduced. The probe reads and discards. It writes no file, creates no cache, and leaves no artifact. Its result lives only in the agent's context for the duration of the run, which is what makes "read-only" true at the data layer and not merely at the tool layer.
 
-`sdd-forge-mcp` reads the repository's own files (`specs/`, `AGENTS.md`, `reports/`) and returns structured `Result<T>` envelopes (`mcp/sdd-forge-mcp/src/envelope.ts`). No new data flows into the repository as a result of this feature.
+Existing Data Affected: none modified or deleted. `sdd-forge-mcp` reads the repository's own files (`specs/`, `AGENTS.md`, `reports/`) and returns structured `Result<T>` envelopes (`mcp/sdd-forge-mcp/src/envelope.ts`). No new data flows into the repository as a result of this feature.
+
+Migration Strategy: no migration required — there is no schema and no persisted state to migrate.
 
 The only durable state this feature adds anywhere is:
 
