@@ -581,6 +581,41 @@
   2026-08-03 の裁定に従い **AC-023 の96には数えない補足アサーション**として
   検証し、凍結 spec は改訂していない。
   本タスクは `sdd-hook-guard.*` の判定ロジックを一切変更しない。
+- **ADR-0023 トラック選択契約の移行 — 非保護コンシューマ3件 (Issue #189,
+  epic-189-a1-project-context T-011, Risk: high)**:
+  `PLUGIN-CONTRACTS.md` の Track Detection セクションを ADR-0023 に沿って改訂し、
+  `plugins/sdd-bootstrap/skills/bootstrap/SKILL.md`、
+  `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md`、
+  `plugins/sdd-lite/skills/lite-gate/SKILL.md` の3コンシューマを移行(REQ-009 /
+  AC-024・AC-026・AC-039 の非保護半分)。解決順序は**物理的存在の確認が先、
+  REQ-005 承認検証が後**であり、この順序自体が契約である: `sdd/project-context.yaml`
+  が**物理的に不在**なら従来の CLI フラグ優先順位(互換フォールバック、無変更)、
+  **存在しかつ有効**なら ADR-0023 の新優先順位(lite+`--full`→昇格、
+  full+`--lite`→**明示エラーで停止**)、**存在するが REQ-005 検証に失敗**する場合は
+  `PROJECT_CONTEXT_INVALID` で停止し、**決して「不在」として扱わない**。この
+  第3分岐が security-spec.md の B5「トラック選択 fail-open」境界であり、
+  サイドカー改竄・リプレイ・鍵ローテーション窓の悪用で検証失敗を誘発しても
+  寛容な旧挙動を取り戻せないことを保証する。4文書すべてが同一の6ケース表を
+  機械可読なマーカー(`sdd:track-selection-contract v1`)で保持し、文書間の
+  ドリフト自体がテスト失敗になる。各エントリポイントには REQ-010 の
+  hook-activation ハンドシェイク(`--emit-challenge` → エージェント自身の
+  ツール呼び出し → `--verify-response`、非 `HOOK_ACTIVE` は
+  `CAPABILITY_RUNTIME_UNAVAILABLE` で停止)を配線(AC-035 の部分証跡、
+  完了は T-012)。interviewer の3つの `spec_profile` 読み取り箇所は、
+  エントリポイントで**一度だけ**解決したトラックを参照する形に統一した。
+  `tests/plugin-contracts-track-selection.tests.sh` / `.ps1` を追加(run-all
+  の11番目)。AC-026 の6つの無効理由(サイドカー欠落・content スキーマ違反・
+  ハッシュ不一致・HMAC 不一致・未登録承認者・未到達 `effective_at`)を**実際の**
+  `generate-approval-sidecar.py` / `validate-approval-sidecar.py` で駆動する
+  fixture プロジェクトとして個別に構築し、6つとも固有の終了コードで拒否される
+  こと、かつ**いずれも物理的には存在している**ことを確認する。C1(不在)と
+  C2(存在するが無効)の解決結果が**異なる**という不等式を明示的に検証しており、
+  これが「別ラベルを付けた同じ分岐」を排除する。TDD Red/Green は
+  `specs/epic-189-a1-project-context/verification/T-011/` に記録(Red = 両
+  ランタイムとも 16/64、Green = 両ランタイムとも 80/0)。検出力は12の
+  in-suite mutation(すべて pristine ベースラインとの差分として評価するため
+  Red 状態では空振りせず失敗する)と5つのスイート外 mutation で実証。
+  保護ファイル(`ship` / `lite-spec`)は本タスクでは一切触れない(T-012)。
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
