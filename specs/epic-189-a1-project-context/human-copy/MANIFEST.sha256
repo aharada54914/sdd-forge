@@ -1,4 +1,4 @@
-71b331353ca97dfb97887c36b341e2ec7123b10f1a770101d3cbcfed797064d8  .github/workflows/test.yml
+f03b7652b85048c0145cdc9b4cd246b3b68699d0565089789175efb34798ca14  .github/workflows/test.yml
 d1d94441adb5b5a0ec31d60299b69183eba900c5af657e52775bb586c21e0edb  specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md
 8e8db4c0dc1853ce1349853fe89fd5b6b428b88063df95bcc0a8b699fcf9d74a  plugins/sdd-quality-loop/references/guard-invariants.json
 7348f7d79b8a84f1c06ff092c4b3c84ca5ff476827932de76864b45aa6692b5b  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
@@ -6,3 +6,5 @@ d1d94441adb5b5a0ec31d60299b69183eba900c5af657e52775bb586c21e0edb  specs/epic-189
 5b0b8156641ae3b14db64b993a58a31bdeca5de296b3ff171b0c45ab6ce3ea86  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
 595b89786672f96acd9eb7c9807f06d6a9369587a65ede3c023db4a397a23085  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
 3aee77dc07ad3206b80e2b04497acd5356e3d58f4b0a7e0c9c48e672dabeffa6  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+c68d3b8913ed82050ca459e5726509f738221b8724d736c87af9d7f337f63cb2  plugins/sdd-ship/skills/ship/SKILL.md
+28dabd1bda6d490b534ad832d91af26dde46e3935047b6241a9a5ed565a367fc  plugins/sdd-lite/skills/lite-spec/SKILL.md

@@ -410,7 +410,20 @@ if (Test-Path -LiteralPath $ManifestSha -PathType Leaf) {
     }
     Assert-Eq $missing 0 'staging: every MANIFEST.sha256 entry has staged bytes at <stage>/<path>'
     Assert-Eq $mismatched 0 'staging: every MANIFEST.sha256 digest matches its staged bytes'
-    Assert-Eq $shaLines.Count 8 'staging: MANIFEST.sha256 has 8 entries (1 pre-existing + 7 added by T-009)'
+    # T-009's invariant is that its own eight entries are never DROPPED, not
+    # that the manifest is frozen at eight forever: later tasks in this epic
+    # legitimately stage further protected targets (T-012 appended the two
+    # migrated track-selection consumers). Pinning the total made this suite
+    # fail for the wrong reason the moment that happened. Floor plus
+    # uniqueness is asserted instead; every individual entry is already
+    # validated against its staged bytes above, and each of T-009's own
+    # targets is separately pinned by name below.
+    Assert-True ($shaLines.Count -ge 8) `
+        "staging: MANIFEST.sha256 has at least T-009's 8 entries (has $($shaLines.Count))" `
+        "only $($shaLines.Count) entries"
+    $targets = @($shaLines | ForEach-Object { $_.Substring(66) })
+    $dupes = @($targets | Group-Object | Where-Object { $_.Count -gt 1 })
+    Assert-Eq $dupes.Count 0 'staging: no MANIFEST.sha256 target path is registered twice'
 
     foreach ($target in @(
         'specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md',

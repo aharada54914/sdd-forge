@@ -264,6 +264,23 @@ jobs:
         shell: pwsh
         run: ./tests/plugin-contracts-track-selection.tests.ps1
 
+      # epic-189-a1-project-context T-012 (REQ-009/REQ-010): the ADR-0023
+      # migration of the two PROTECTED track-selection consumers, asserted
+      # against their staged candidates, plus AC-039's full 30-assertion
+      # five-consumer matrix and AC-035's full entry-point wiring inventory.
+      # Green in both publication states, so it does not depend on whether the
+      # human apply step has run yet.
+      - name: Test ship track-selection migration (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/ship-track-selection-migration.tests.sh
+
+      - name: Test ship track-selection migration (pwsh)
+        shell: pwsh
+        run: ./tests/ship-track-selection-migration.tests.ps1
+
       - name: Test deterministic gate scripts
         shell: pwsh
         run: ./tests/scripts.tests.ps1

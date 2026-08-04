@@ -1,0 +1,148 @@
+--- TEST-035/TEST-039/TEST-CGS/TEST-PRESERVE: document conformance ---
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: contract-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: contract-table-exact
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: handshake-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: handshake-tokens
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: handshake-before-contract
+PASS: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: contract-block-present
+PASS: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: contract-table-exact
+PASS: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: handshake-block-present
+PASS: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: handshake-tokens
+PASS: plugins/sdd-bootstrap/skills/bootstrap/SKILL.md: handshake-before-contract
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: contract-block-present
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: contract-table-exact
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: handshake-block-present
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: handshake-tokens
+PASS: plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md: handshake-before-contract
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: contract-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: contract-table-exact
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: handshake-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: handshake-tokens
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: handshake-before-contract
+PASS: plugins/sdd-lite/skills/lite-gate/SKILL.md: contract-block-present
+PASS: plugins/sdd-lite/skills/lite-gate/SKILL.md: contract-table-exact
+PASS: plugins/sdd-lite/skills/lite-gate/SKILL.md: handshake-block-present
+PASS: plugins/sdd-lite/skills/lite-gate/SKILL.md: handshake-tokens
+PASS: plugins/sdd-lite/skills/lite-gate/SKILL.md: handshake-before-contract
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: gate-scope-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: gate-scope-table-exact
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md: content-preserved
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: gate-scope-block-present
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: gate-scope-table-exact
+PASS: specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md: content-preserved
+--- TEST-025/TEST-026: fixture construction ---
+PASS: fixture: the no-Context project's sdd/project-context.yaml is physically ABSENT
+PASS: fixture: the full-profile project's sdd/project-context.yaml is physically PRESENT
+PASS: fixture: the full-profile project's on-disk spec_profile reads 'full'
+PASS: fixture: the lite-profile project's on-disk spec_profile reads 'lite'
+PASS: fixture: the full-profile project's sidecar PASSES validate-approval-sidecar
+PASS: fixture: the lite-profile project's sidecar PASSES validate-approval-sidecar
+--- TEST-026: six independent present-but-invalid reasons ---
+PASS: TEST-026 (1) missing sidecar file rejected (SIDECAR_UNREADABLE)
+PASS: TEST-026 (2) content-schema violation rejected (CONTENT_SCHEMA_VIOLATION)
+PASS: TEST-026 (3) hash mismatch rejected (HASH_MISMATCH)
+PASS: TEST-026 (4) HMAC mismatch rejected (HMAC_MISMATCH)
+PASS: TEST-026 (5) unregistered approver rejected (UNREGISTERED_APPROVER)
+PASS: TEST-026 (6) not-yet-effective effective_at rejected (EFFECTIVE_AT_NOT_YET_REACHED)
+PASS: TEST-026: the 'valid-full' invalid fixture is physically PRESENT (never absent)
+PASS: TEST-026: the 'bad-schema' invalid fixture is physically PRESENT (never absent)
+PASS: TEST-026: the 'not-yet-effective' invalid fixture is physically PRESENT (never absent)
+--- TEST-039: six-case matrix x five consumers (30 assertions) ---
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] C6 full + --full -> NO_OP_FULL
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] C6 full + --full -> NO_OP_FULL
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] C6 full + --full -> NO_OP_FULL
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] C6 full + --full -> NO_OP_FULL
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C1 physically absent -> COMPATIBILITY_FALLBACK
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C2 present-but-invalid -> PROJECT_CONTEXT_INVALID
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C3 lite + --full -> PROMOTE_FULL
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C4 lite + --lite -> NO_OP_LITE
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C5 full + --lite -> ERROR_STOP (never a silent downgrade)
+PASS: TEST-039 [plugins/sdd-lite/skills/lite-gate/SKILL.md] C6 full + --full -> NO_OP_FULL
+--- TEST-026: absent and present-but-invalid resolve DIFFERENTLY ---
+PASS: TEST-026 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+PASS: TEST-026 [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+PASS: TEST-026 [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+PASS: TEST-026 [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+PASS: TEST-026 [plugins/sdd-lite/skills/lite-gate/SKILL.md] the absent route and the present-but-invalid route resolve DIFFERENTLY
+--- TEST-025: sdd-ship error-stop and promotion behavior lock ---
+PASS: TEST-025 the observed spec_profile: full + valid sidecar + --lite fixture selects case C5
+PASS: TEST-025 sdd-ship resolves that fixture to ERROR_STOP
+PASS: TEST-025 ERROR_STOP is classified as a STOP (execution stops; --lite never downgrades)
+PASS: TEST-025 the observed spec_profile: lite + valid sidecar + --full fixture selects case C3
+PASS: TEST-025 sdd-ship resolves that fixture to PROMOTE_FULL
+PASS: TEST-025 PROMOTE_FULL is classified as a CONTINUE (promotes, no error)
+PASS: TEST-025 the error-stop case and the promotion case have OPPOSITE stop/continue dispositions
+PASS: TEST-025 the present-but-invalid fixture is a STOP, not a fallback continue
+PASS: TEST-025 the physically-absent fixture CONTINUES on the compatibility fallback
+--- TEST-CGS: capability-gate scope, both directions ---
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] a valid Context's non-HOOK_ACTIVE outcome DIFFERS from an absent Context's (never conflated with disabled-legacy)
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] the handshake outcome does NOT change an absent-Context project's resolution (legacy -> legacy is not a downgrade)
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] the handshake outcome DOES change a valid-Context project's resolution (Capability Mode is genuinely stopped)
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] a valid Context + non-HOOK_ACTIVE stops with CAPABILITY_RUNTIME_UNAVAILABLE
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] an absent Context + non-HOOK_ACTIVE is NOT CAPABILITY_RUNTIME_UNAVAILABLE (disabled-legacy is a normal condition)
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] the same absent-Context project continues on the compatibility fallback
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] a valid Context's non-HOOK_ACTIVE outcome DIFFERS from an absent Context's (never conflated with disabled-legacy)
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] the handshake outcome does NOT change an absent-Context project's resolution (legacy -> legacy is not a downgrade)
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] the handshake outcome DOES change a valid-Context project's resolution (Capability Mode is genuinely stopped)
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] a valid Context + non-HOOK_ACTIVE stops with CAPABILITY_RUNTIME_UNAVAILABLE
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] an absent Context + non-HOOK_ACTIVE is NOT CAPABILITY_RUNTIME_UNAVAILABLE (disabled-legacy is a normal condition)
+PASS: TEST-CGS [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] the same absent-Context project continues on the compatibility fallback
+--- TEST-PUB: staged/live publication state ---
+--- publication state [plugins/sdd-ship/skills/ship/SKILL.md]: unpublished
+PASS: TEST-PUB [plugins/sdd-ship/skills/ship/SKILL.md] publication state is a valid terminal state (unpublished)
+PASS: TEST-PUB [plugins/sdd-ship/skills/ship/SKILL.md] no staged/live drift
+--- publication state [plugins/sdd-lite/skills/lite-spec/SKILL.md]: unpublished
+PASS: TEST-PUB [plugins/sdd-lite/skills/lite-spec/SKILL.md] publication state is a valid terminal state (unpublished)
+PASS: TEST-PUB [plugins/sdd-lite/skills/lite-spec/SKILL.md] no staged/live drift
+--- TEST-MUT: mutation detection power ---
+PASS: TEST-MUT baseline: the pristine document copy CONFORMS (mutations below are measurable)
+PASS: TEST-MUT the ADR-0023 silent downgrade (full + --lite honored) is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] specifically
+PASS: TEST-MUT the ADR-0023 silent downgrade (full + --lite honored) is caught in [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] specifically
+PASS: TEST-MUT the ADR-0023 silent downgrade (full + --lite honored) is caught in [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] specifically
+PASS: TEST-MUT the ADR-0023 silent downgrade (full + --lite honored) is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] specifically
+PASS: TEST-MUT the ADR-0023 silent downgrade (full + --lite honored) is caught in [plugins/sdd-lite/skills/lite-gate/SKILL.md] specifically
+PASS: TEST-MUT the B5 fail-open (present-but-invalid granted the fallback) is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] specifically
+PASS: TEST-MUT the B5 fail-open (present-but-invalid granted the fallback) is caught in [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] specifically
+PASS: TEST-MUT the B5 fail-open (present-but-invalid granted the fallback) is caught in [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] specifically
+PASS: TEST-MUT the B5 fail-open (present-but-invalid granted the fallback) is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] specifically
+PASS: TEST-MUT the B5 fail-open (present-but-invalid granted the fallback) is caught in [plugins/sdd-lite/skills/lite-gate/SKILL.md] specifically
+PASS: TEST-MUT removing the REQ-010 handshake wiring is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md] specifically
+PASS: TEST-MUT removing the REQ-010 handshake wiring is caught in [plugins/sdd-bootstrap/skills/bootstrap/SKILL.md] specifically
+PASS: TEST-MUT removing the REQ-010 handshake wiring is caught in [plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md] specifically
+PASS: TEST-MUT removing the REQ-010 handshake wiring is caught in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md] specifically
+PASS: TEST-MUT removing the REQ-010 handshake wiring is caught in [plugins/sdd-lite/skills/lite-gate/SKILL.md] specifically
+PASS: TEST-MUT a valid Project Context DEGRADING to legacy on a non-HOOK_ACTIVE handshake is REJECTED in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md]
+PASS: TEST-MUT reporting an entirely-legacy project as CAPABILITY_RUNTIME_UNAVAILABLE is REJECTED in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md]
+PASS: TEST-MUT deleting the capability-gate scope block is REJECTED in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md]
+PASS: TEST-MUT silently dropping pre-existing risk-upgrade content is REJECTED in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md]
+PASS: TEST-MUT a valid Project Context DEGRADING to legacy on a non-HOOK_ACTIVE handshake is REJECTED in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md]
+PASS: TEST-MUT reporting an entirely-legacy project as CAPABILITY_RUNTIME_UNAVAILABLE is REJECTED in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md]
+PASS: TEST-MUT deleting the capability-gate scope block is REJECTED in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md]
+PASS: TEST-MUT silently dropping pre-existing risk-upgrade content is REJECTED in [specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md]
+PASS: TEST-MUT moving the handshake AFTER track resolution is REJECTED (AC-035 entry-point ordering)
+--- self-registration ---
+PASS: self-registration: tests/ship-track-selection-migration.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/ship-track-selection-migration.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/ship-track-selection-migration.tests.sh twin exists
+PASS: 134
+FAIL: 0

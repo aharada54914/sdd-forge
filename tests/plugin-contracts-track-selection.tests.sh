@@ -91,7 +91,14 @@ DOC_CONTRACTS='PLUGIN-CONTRACTS.md'
 DOC_BOOTSTRAP='plugins/sdd-bootstrap/skills/bootstrap/SKILL.md'
 DOC_INTERVIEWER='plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md'
 DOC_LITEGATE='plugins/sdd-lite/skills/lite-gate/SKILL.md'
-CONSUMER_DOCS="$DOC_BOOTSTRAP $DOC_INTERVIEWER $DOC_LITEGATE"
+# T-012 extension: the two PROTECTED consumers, read from the staged
+# candidates T-012 authors under the guard-exempt human-copy prefix. The
+# checker below is path-agnostic, so this is a list extension (4 -> 6), never
+# a parallel copy of the checker.
+_T012_STAGE='specs/epic-189-a1-project-context/human-copy'
+DOC_SHIP="$_T012_STAGE/plugins/sdd-ship/skills/ship/SKILL.md"
+DOC_LITESPEC="$_T012_STAGE/plugins/sdd-lite/skills/lite-spec/SKILL.md"
+CONSUMER_DOCS="$DOC_BOOTSTRAP $DOC_INTERVIEWER $DOC_LITEGATE $DOC_SHIP $DOC_LITESPEC"
 ALL_DOCS="$DOC_CONTRACTS $CONSUMER_DOCS"
 
 # ---------------------------------------------------------------------------
@@ -153,7 +160,11 @@ CONTRACTS = "PLUGIN-CONTRACTS.md"
 BOOTSTRAP = "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
 INTERVIEWER = "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md"
 LITEGATE = "plugins/sdd-lite/skills/lite-gate/SKILL.md"
-CONSUMERS = [BOOTSTRAP, INTERVIEWER, LITEGATE]
+# T-012: the two protected consumers, as their staged candidates.
+_STAGE = "specs/epic-189-a1-project-context/human-copy"
+SHIP = _STAGE + "/plugins/sdd-ship/skills/ship/SKILL.md"
+LITESPEC = _STAGE + "/plugins/sdd-lite/skills/lite-spec/SKILL.md"
+CONSUMERS = [BOOTSTRAP, INTERVIEWER, LITEGATE, SHIP, LITESPEC]
 ALL_DOCS = [CONTRACTS] + CONSUMERS
 
 # The compatibility fallback's own four steps (ADR-0023 decision 2: the

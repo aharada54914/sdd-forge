@@ -1,0 +1,2 @@
+c68d3b8913ed82050ca459e5726509f738221b8724d736c87af9d7f337f63cb2  specs/epic-189-a1-project-context/human-copy/plugins/sdd-ship/skills/ship/SKILL.md
+28dabd1bda6d490b534ad832d91af26dde46e3935047b6241a9a5ed565a367fc  specs/epic-189-a1-project-context/human-copy/plugins/sdd-lite/skills/lite-spec/SKILL.md

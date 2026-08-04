@@ -60,7 +60,14 @@ $DocContracts = 'PLUGIN-CONTRACTS.md'
 $DocBootstrap = 'plugins/sdd-bootstrap/skills/bootstrap/SKILL.md'
 $DocInterviewer = 'plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md'
 $DocLiteGate = 'plugins/sdd-lite/skills/lite-gate/SKILL.md'
-$ConsumerDocs = @($DocBootstrap, $DocInterviewer, $DocLiteGate)
+# T-012 extension: the two PROTECTED consumers, read from the staged
+# candidates T-012 authors under the guard-exempt human-copy prefix. The
+# checker below is path-agnostic, so this is a list extension (4 -> 6), never
+# a parallel copy of the checker.
+$T012Stage = 'specs/epic-189-a1-project-context/human-copy'
+$DocShip = "$T012Stage/plugins/sdd-ship/skills/ship/SKILL.md"
+$DocLiteSpec = "$T012Stage/plugins/sdd-lite/skills/lite-spec/SKILL.md"
+$ConsumerDocs = @($DocBootstrap, $DocInterviewer, $DocLiteGate, $DocShip, $DocLiteSpec)
 $AllDocs = @($DocContracts) + $ConsumerDocs
 
 # ADR-0023 / AC-024 / AC-039, transcribed HERE in the test. Never read back out
