@@ -13,19 +13,21 @@ No file under `mcp/` changes (BL-001), so no MCP server's output shape changes e
 
 Recorded as N/A rather than omitted, matching this repository's convention for non-UI features — `epic-136-phase4-docs`, `epic-136-phase4-mcp` and `epic-136-phase3` all carry the same stub. The absence of a UX surface is a fact about the feature, not an unfinished section.
 
-## The one human-perceivable change, and its one open decision
+## The one human-perceivable change, and how OQ-005 resolved its wording
 
 There is exactly one point where this feature could become visible to a person: the agent's own narration of the probe during a `bootstrap` or `ship` run.
 
-**What that narration says is not decided, and this document does not decide it.** It is `investigation.md` OQ-005 — whether the agent displays the probe result, logs it silently, or reports a divergence between the probe and the file-based conclusion. Those three produce materially different run transcripts:
+**What that narration says is decided.** It was `investigation.md` OQ-005 — whether the agent displays the probe result, logs it silently, or reports a divergence between the probe and the file-based conclusion — and it was resolved by the human on 2026-08-04. Those three candidates produced materially different run transcripts:
 
-| OQ-005 resolution | What a person sees during a run |
-|---|---|
-| display-only | one advisory line per run, always |
-| log-only | nothing, unless they inspect a log |
-| warn-on-divergence | nothing in the common case; a warning exactly when probe and files disagree |
+| OQ-005 resolution | What a person sees during a run | Status |
+|---|---|---|
+| display-only | one advisory line per run, always | rejected |
+| log-only | nothing, unless they inspect a log | rejected |
+| **warn-on-divergence** | nothing in the common case; a warning exactly when probe and files disagree | **adopted — 2026-08-04, `requirements.md` REQ-005** |
 
-The one UX-adjacent judgement this document *can* record, because it follows from REQ-005 rather than from taste: **whatever is shown must not read as an instruction or a gate result.** An advisory line phrased like a verdict would invite a person to act on it, which is the authority the probe is specified not to have. If OQ-005 resolves toward any visible output, its wording should name the probe as advisory in the line itself, so the transcript carries that framing without the reader needing to know this specification exists.
+The narration obligation this resolution creates is AC-027a: on divergence, the agent's output states that a disagreement occurred and names which source it acted on. In the non-divergent case — the common one — there is nothing further to narrate.
+
+The one UX-adjacent judgement this document *can* record, because it follows from REQ-005 rather than from taste: **whatever is shown must not read as an instruction or a gate result.** An advisory line phrased like a verdict would invite a person to act on it, which is the authority the probe is specified not to have. Now that OQ-005 has resolved toward warn-on-divergence, this applies concretely to the divergence warning itself: its wording should name the probe as advisory and identify the file-based conclusion as the one acted on (AC-027a/AC-027b), so the transcript carries that framing without the reader needing to know this specification exists.
 
 ## Failure presentation
 

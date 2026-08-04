@@ -36,7 +36,7 @@ Current state is **accurate but incomplete** (INV-007, INV-008): five statements
 
 | Boundary | Category | Threat | Current state | Disposition in this feature |
 |---|---|---|---|---|
-| B2 | **Elevation of Privilege** | The agent treats `get_next_sdd_command`'s answer as authoritative and advances or skips a gate on it | Not reachable — no such call exists (INV-004, INV-005) | **Introduced by this feature**; closed by REQ-005 / AC-012 / AC-013 asserting outcome equality with and without the probe. Closed by an assertion, not by the instruction text asking the agent to behave |
+| B2 | **Elevation of Privilege** | The agent treats `get_next_sdd_command`'s answer as authoritative and advances or skips a gate on it | Not reachable — no such call exists (INV-004, INV-005) | **Introduced by this feature**; closed by REQ-005 / AC-012 / AC-013 asserting outcome equality with and without the probe, and extended to the divergent case by AC-027a / AC-027b (the disagreement is reported and the source acted on is named, and that source is the file-based one — resolved 2026-08-04, warn-on-divergence). Closed by an assertion, not by the instruction text asking the agent to behave |
 | B2 | **Tampering** | An MCP tool mutates spec, task, or approval state | Structurally impossible — no write tool registered among the fourteen (INV-006) | **Preserved** by REQ-006 / AC-014…AC-016, asserted against the tool registry rather than the prose |
 | B2 | **Spoofing of workflow state** | A registered-but-stale `dist/` bundle answers successfully with outdated parsing logic, indistinguishable from a healthy probe | Not reachable today | **Residual, explicitly not closed.** No fallback branch catches it — the call succeeds. Bounded only by AC-012/AC-013: wrong advice cannot change the outcome. Recorded as residual rather than mitigated (Edge Case 4, design R-7) |
 | B1 | **Denial of Service** | An unavailable or hanging MCP server stalls a `bootstrap` / `ship` run | Not reachable today | Partially closed by REQ-004 / AC-008…AC-011 for the *unavailable* and *call-fails* cases. **A hung server is neither**, and no timeout is specified — see Residual Risks |
@@ -54,7 +54,7 @@ The probe reads and discards: it writes no file, creates no cache, and leaves no
 Two points where a secret could plausibly appear, and why it does not:
 
 1. **`ci-mcp` requires a GitHub PAT** (`USERGUIDE.md:237-243`). It is not among the tools issue #129 names, and OQ-001 is constrained by D-002 to the already-registered set — but if OQ-001 were resolved to include a `ci-mcp` tool, this section would need revisiting. Named so the dependency is visible rather than discovered later.
-2. **Probe output in the run transcript.** `sdd-forge-mcp` returns SDD state — feature names, task IDs, review statuses — which is repository content, not credentials. If OQ-005 resolves toward displaying probe output, the displayed content should remain the envelope's own fields and must not echo file contents wholesale.
+2. **Probe output in the run transcript.** `sdd-forge-mcp` returns SDD state — feature names, task IDs, review statuses — which is repository content, not credentials. OQ-005 resolved toward warn-on-divergence (2026-08-04): what reaches the transcript is not probe output in general, but, on divergence only, the fact that a disagreement occurred and the name of the source acted on (AC-027a) — narrower than the envelope's fields, and it must not echo file contents wholesale.
 
 ## Authorization
 

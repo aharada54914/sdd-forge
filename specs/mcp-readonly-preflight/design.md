@@ -14,7 +14,7 @@ The design's central constraint is that the probe must be **strictly subtractive
 
 **Why the two streams are not independently landable.** Stream B asserts a property of the system that Stream A's probe is the first live consumer of. Shipping B alone would document an advisory layer nothing uses; shipping A alone would add an MCP touchpoint with no written policy bounding it — which is the state issue #129 was filed to end. They can be implemented in either order and must merge together.
 
-**This design is not yet complete, and the incompleteness is structural rather than a drafting gap.** Ten Open Questions (`investigation.md` OQ-001 … OQ-010) remain unresolved because issue #129 does not decide them. Three of them — OQ-001 (which tools), OQ-005 (what the agent does with the result) and OQ-007 (how ship's protected file is handled) — are load-bearing for the component design below, and the sections that depend on them say so at the point of dependence rather than papering over it with a plausible choice.
+**This design is not yet complete, and the incompleteness is structural rather than a drafting gap.** Nine of the ten Open Questions (`investigation.md` OQ-001 … OQ-004, OQ-006 … OQ-010) remain unresolved because issue #129 does not decide them. The tenth, OQ-005 (what the agent does with the result), was resolved by the human on 2026-08-04 — warn-on-divergence, recorded in `requirements.md` REQ-005 / AC-027a / AC-027b, not here. Two of the remaining nine — OQ-001 (which tools) and OQ-007 (how ship's protected file is handled) — are load-bearing for the component design below, and the sections that depend on them say so at the point of dependence rather than papering over it with a plausible choice.
 
 ## Components
 
@@ -52,7 +52,7 @@ This asymmetry is why `bootstrap feature` mode — where the feature directory d
 
 Issue #129 names `get_next_sdd_command`/`get_task_state` **等**. Fourteen tools are registered (`server.ts:65-219`). **OQ-001 is not resolved here.** The skills cannot be written until the set is fixed, because AC-001 requires the step name a tool by its exact identifier.
 
-What the design *can* fix, because it follows from REQ-014 rather than from a product choice: whatever set is chosen, every member must be one of the fourteen currently registered tools. The probe may not motivate a new tool — a new tool would be new MCP surface, and REQ-014 plus ADR-0006's precedent (`:67-69`) point the other way.
+What the design *can* fix, because it follows from REQ-006 rather than from a product choice: whatever set is chosen, every member must be one of the fourteen currently registered tools. The probe may not motivate a new tool — a new tool would be new MCP surface, and REQ-006 plus ADR-0006's precedent (`:67-69`) point the other way.
 
 ### The instruction shape, and why it is runtime-agnostic by construction
 
@@ -96,19 +96,20 @@ The only durable state this feature adds anywhere is:
 Detailed treatment is in `security-spec.md`. The design-level summary:
 
 - **The probe crosses no new trust boundary.** `sdd-forge-mcp` is already registered by the installer and already runs as a stdio child process; this feature adds a *caller*, not a *server*, and not a new privilege.
-- **The probe must not be able to escalate.** The strongest structural guarantee available is that the probe has no write tool to call — all fourteen registered tools are read-only (INV-006), preserved by REQ-014. A design in which the probe merely *promised* not to write would be weaker by a category.
+- **The probe must not be able to escalate.** The strongest structural guarantee available is that the probe has no write tool to call — all fourteen registered tools are read-only (INV-006), preserved by REQ-006. A design in which the probe merely *promised* not to write would be weaker by a category.
 - **The protected-file boundary is respected, not routed around.** `ship/SKILL.md` is on `PROTECTED_GATE_SUFFIXES` (`guard_invariants.py:4`). The design's answer is the staging pattern (INV-011), never an attempt to write the live path. `ship/SKILL.md:314,317-318` — the skill's own Security Boundaries section — instructs agents never to modify gate scripts or hook files, so a feature that edited this very file by agent write would contradict the document it is editing.
 - **New failure mode introduced by this feature, and where it is retired.** An agent that treats a probe result as authoritative could select a different feature or skip a gate. That is a real risk created by adding the probe, and it is closed by AC-012 / AC-013 asserting outcome equality — not by the instruction text asking nicely.
+- **Divergence between the probe and the file-based conclusion is now also a verified surface.** AC-027a / AC-027b (TEST-027a / TEST-027b) extend the outcome-equality check to the divergent case specifically: the agent must name which source it acted on, and that source must be the file-based one. Authority does not shift — the file-based flow remains the sole decider, per REQ-005 — this only adds an assertion that a disagreement is reported rather than left silent.
 
 ## Design Decisions (Resolving Open Questions)
 
-**Three decisions are resolved here, each from repository evidence rather than from preference. Seven are escalated to the human, because issue #129 does not make them and a specification that invented them would be recording a choice as though it were a requirement.**
+**Three decisions are resolved here, each from repository evidence rather than from preference. Nine are escalated to the human, because issue #129 does not make them and a specification that invented them would be recording a choice as though it were a requirement — of the ten Open Questions, only OQ-005 has since been answered, and by the human directly rather than by a derivation in this section (see the Escalated table below).**
 
 ### Resolved
 
 **D-001 — the probe is attempt-and-degrade, never detect-then-branch.** Forced by REQ-003 plus INV-002: both registration surfaces exist and differ, so any detection step is runtime-specific and violates the addendum. This is a derivation, not a preference.
 
-**D-002 — no MCP server implementation changes, and no new tool.** Forced by REQ-014 and ADR-0006's precedent (`:67-69`), which requires a supersede for any write-direction expansion. The probe uses the existing fourteen tools or it does not ship.
+**D-002 — no MCP server implementation changes, and no new tool.** Forced by REQ-006 and ADR-0006's precedent (`:67-69`), which requires a supersede for any write-direction expansion. The probe uses the existing fourteen tools or it does not ship.
 
 **D-003 — `ship/SKILL.md` is never written by an agent.** Forced by `PROTECTED_GATE_SUFFIXES` membership (`guard_invariants.py:4`, INV-010), which is a mechanical fact about the guard, not a judgement. Note this resolves the *method* (staging, if ship is in scope at all); it does not resolve *whether* ship stays in scope, which is OQ-007.
 
@@ -120,14 +121,14 @@ Detailed treatment is in `security-spec.md`. The design-level summary:
 | OQ-002 | Where in each skill does the step go? | Three materially different placements; only one has `check-sdd-structure.sh` already run | Must not land inside `tests/workflow-documentation.tests.sh:65-68`'s `sed` range (INV-013) |
 | OQ-003 | What happens when there is no feature to probe? | `get_task_state` requires `feature`; `get_next_sdd_command` does not (INV-006) | The answer must not require the probe to succeed — REQ-004 already covers a probe that cannot run |
 | OQ-004 | Which modes and which track? | Six bootstrap modes, two tracks; the issue scopes neither | `adopt` may run with no `specs/` at all; lite runs none of the gates `get_next_sdd_command` walks |
-| OQ-005 | What are the consumption semantics, and what happens on divergence? | **The load-bearing one.** "Advisory" constrains authority, not behaviour | Whatever it is, outcome equality (AC-012/AC-013) must hold |
+| OQ-005 | What are the consumption semantics, and what happens on divergence? | **Resolved.** Answered by the human on 2026-08-04: warn-on-divergence — the agent states that a disagreement occurred and names which source it acted on, and acts on the file-based conclusion. Recorded in `requirements.md` REQ-005 / AC-027a / AC-027b, not in this design | Outcome equality (AC-012/AC-013) holds, as it always did; the divergence report is additionally required by AC-027a/AC-027b |
 | OQ-006 | Does the interviewer skill also get the step? | Issue names only `bootstrap/SKILL.md`; the interviewer has zero MCP references too (INV-005) | If added, all of REQ-003's criteria apply to it identically |
 | OQ-007 | How is ship's protected status handled — stage, descope, or relocate? | Changes what "1 issue = 1 commit" means for #129 | Under (a) the human-copy precedent (INV-011) applies verbatim; under (b) REQ-002 and AC-002 are withdrawn, not weakened |
 | OQ-008 | Prose, or an ADR generalising ADR-0006? | Issue names only two documents | If ADR: re-derive the next free number; `docs/adr/` has duplicate `0002`/`0003`/`0004` |
 | OQ-009 | Is there a test obligation, and in which suite? | Issue states none | AC-017 … AC-020 cannot be met by a text assertion (see Test Strategy) |
 | OQ-010 | Is an error envelope a third fallback condition? | `Result<T>` envelopes mean a call can succeed and still report failure | If yes, AC-008 … AC-011 expand from four branches to six |
 
-**OQ-005 is the one that should block.** The others narrow an implementation; OQ-005 determines whether there is a specifiable behaviour at all. An "advisory layer" whose divergence handling is undefined has no observable contract beyond "does not change the outcome" — which AC-012/AC-013 already assert without any probe existing.
+**OQ-005 was the one that should block.** The others narrow an implementation; OQ-005 determined whether there was a specifiable behaviour at all. An "advisory layer" whose divergence handling is undefined would have had no observable contract beyond "does not change the outcome" — which AC-012/AC-013 already assert without any probe existing. **It was resolved by the human on 2026-08-04** (warn-on-divergence; `requirements.md` REQ-005, AC-027a, AC-027b) and no longer blocks.
 
 ## Test Strategy
 
@@ -162,8 +163,10 @@ Detailed treatment is in `security-spec.md`. The design-level summary:
 | AC-025 | TEST-025 | integration (hash conformance) | conditional on OQ-007 |
 | AC-026 | TEST-026 | integration (hash conformance) | conditional on OQ-007 |
 | AC-027 | TEST-027 | regression | yes |
+| AC-027a | TEST-027a | integration (probe/file divergence) | yes |
+| AC-027b | TEST-027b | integration (probe/file divergence) | yes |
 
-Twenty-six live ACs, twenty-seven TEST rows, no AC without a row and no row without an AC.
+Twenty-eight live ACs, twenty-nine TEST rows, no AC without a row and no row without an AC.
 
 ### Three properties of this strategy that are deliberate
 
@@ -200,7 +203,7 @@ Twenty-six live ACs, twenty-seven TEST rows, no AC without a row and no row with
 
 | # | Risk | Likelihood | Impact | Mitigation |
 |---|---|---|---|---|
-| R-1 | **Implementation starts before OQ-005 is answered**, and an implementer picks divergence semantics by default | high | high — a design decision enters the codebase without ever being decided | OQ-005 is flagged as the blocking question in Design Decisions; task decomposition must not schedule the probe step before it resolves |
+| R-1 | **Retired.** OQ-005 was answered by the human on 2026-08-04 (warn-on-divergence; `requirements.md` REQ-005, AC-027a, AC-027b) before implementation began, so the risk this row named — an implementer picking divergence semantics by default — cannot occur | n/a | n/a — risk no longer applies | Resolved by the answer itself; the "task decomposition must not schedule the probe step before it resolves" constraint is satisfied and no longer active |
 | R-2 | AC-017 … AC-020 are quietly satisfied with a text assertion to make the matrix green | medium | high — four criteria become tests that cannot fail | Named explicitly in Test Strategy point 3 and in the coverage table's "method determined?" column |
 | R-3 | An agent attempts to write the live `ship/SKILL.md` | medium | medium — guard denial, wasted cycle, possible misdiagnosis as a tooling bug | BL-004, D-003, and the `Protected Gate Files` section of `requirements.md`; the guard blocks it regardless |
 | R-4 | The probe step is inserted inside the `sed` range at `tests/workflow-documentation.tests.sh:65-68` | medium | low — caught by AC-027, but presents as an unrelated suite failure | Constraint stated in AC-001 and in the OQ-002 row |
