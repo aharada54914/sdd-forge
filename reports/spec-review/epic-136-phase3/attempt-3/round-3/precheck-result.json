@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase3",
+  "attempt": 3,
+  "round": 3,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "d02c35a67a051725628ddac7d9deb26236b2e9197d7150d1d051422c2c949382",
+  "acceptance_sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "6663905ff98a449c02a0e0b45f00c74983afd3be72ea3352d18a7d4614347b39",
+  "edit_summary": "Round 2's Critical CONTRADICTION is addressed by making requirements.md state exactly one Stream C status. Added an authoritative Stream C status record to the Overview (ADR-0010 Accepted at commit 67015a5; Stream C landed via T-004; CHANGELOG #125 written at fd4db859) and reconciled every passage that carried an operative 'Blocked pending ADR-0010' or 'once unblocked' instruction: Overview, REQ-003, REQ-005, REQ-006, Non-goals, AC-012..015, AC-019, AC-021, AC-022, Roles and Permissions, Main Workflows item 3, the Phase-2 re-check note, Assumptions, OQ-2, OQ-3, the boundary table, and Risks. Passages explicitly labelled authoring-time or investigation-time snapshots are retained verbatim as history and named as such, preserving WFI-013 re-verification discipline.",
+  "reset": false,
+  "generated_at": "2026-08-01T22:43:47Z"
+}

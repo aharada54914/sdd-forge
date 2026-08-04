@@ -1,0 +1,7 @@
+# check-traceability.sh — epic-136-phase4-mcp gate evidence
+# run: 2026-07-29T23:41:32Z
+# HEAD: aeaea6b248debb6ca8af8c92b5d275e79a40e8ad
+
+$ check-traceability.sh specs/epic-136-phase4-mcp/traceability.json . require-evidence
+Traceability check passed for epic-136-phase4-mcp: 8 link(s).
+# exit=0

@@ -54,6 +54,66 @@ calibration="${repo_root}/plugins/sdd-review-loop/references/spec-review-calibra
 report_root="${repo_root}/reports/spec-review/${feature}"
 report_dir="${report_root}/attempt-${attempt}/round-${round}"
 
+# Manifests record absolute paths from whatever checkout produced the evidence.
+# A later run -- a git worktree, CI, a different machine -- has a different
+# repository root, so comparing recorded paths against locally built ones as
+# raw strings rejects valid evidence. The canonical gate already normalizes
+# (check-workflow-state.sh relative_path) and so does the PowerShell side
+# (Get-ManifestRelativePath, issue #61); this validator was the last one still
+# comparing absolute strings, which made a prior attempt unverifiable from any
+# checkout but the one that wrote it.
+#
+# Same semantics as the canonical gate, deliberately: strip the local root, its
+# /private/var alias, or the single root the contract itself recorded, and
+# reject anything still absolute afterwards. An unrelated absolute path
+# therefore normalizes to null rather than to a plausible-looking suffix, so
+# this does not widen what counts as a match -- it only stops the root from
+# being part of the comparison.
+repo_root_alias="$repo_root"
+case "$repo_root" in
+  /private/var/*) repo_root_alias="/var/${repo_root#/private/var/}" ;;
+  /var/*) repo_root_alias="/private/var/${repo_root#/var/}" ;;
+esac
+relative_to_repo() { printf '%s' "${1#"$repo_root/"}"; }
+
+jq_relative_path='
+  def relative_path:
+    gsub("\\\\"; "/") |
+    if startswith($repo) then .[($repo|length):]
+    elif startswith($alias) then .[($alias|length):]
+    elif ($recorded != "" and startswith($recorded)) then .[($recorded|length):]
+    elif test("^(/|[A-Za-z]:/)") then null
+    else . end;'
+
+# The recorded root is derived from the contract rather than trusted from it:
+# every manifest entry must split into a root plus a suffix of a canonical
+# shape, and all entries must agree on one root. A feature slug that happens
+# to be named "specs" or "plugins" produces two candidate splits and is
+# rejected. A wrong split cannot weaken tamper detection -- the derived
+# relative path still has to match the expected manifest entry, and its
+# recorded sha256 still has to match.
+recorded_repo_root() {
+  jq -r --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" '
+    def normalized: gsub("\\\\"; "/");
+    def rooted: test("^(/|[A-Za-z]:/)");
+    def canonical_suffix:
+      test("^specs/[a-z0-9][a-z0-9-]*/[^/]+$") or
+      test("^reports/(spec|impl|task)-review/[a-z0-9][a-z0-9-]*/attempt-[1-9][0-9]*/round-[1-9][0-9]*/[^/]+$") or
+      test("^plugins/[a-z0-9][a-z0-9-]*/references/[^/]+$");
+    [.reviewers[].allowed_input_manifest[].path |
+      normalized |
+      select(rooted and (startswith($repo) or startswith($alias) | not)) |
+      . as $path |
+      ([(($path | indices("/specs/")), ($path | indices("/reports/")), ($path | indices("/plugins/")))[] |
+         . as $i | select($path[$i + 1:] | canonical_suffix) | $path[0:$i]]
+        | unique) as $candidates |
+      if ($candidates | length) == 1 then $candidates[0] else null end] as $roots |
+    if any($roots[]; . == null) or ($roots | map(select(. != null)) | unique | length) > 1
+    then "__INVALID__"
+    else ($roots | map(select(. != null)) | unique | .[0] // "")
+    end' "$1"
+}
+
 [[ -d "$specs_root" && ! -L "$specs_root" ]] || fail "specs root must be a real directory"
 [[ "$(canonical_dir "$specs_root")" == "$specs_root" ]] || fail "specs root escapes repository"
 [[ -d "$spec_dir" && ! -L "$spec_dir" ]] || fail "feature specification directory must not be a symlink"
@@ -83,7 +143,7 @@ calibration_sha="$(sha256 "$calibration")"
 input_sha="$(printf '%s:%s' "$requirements_sha" "$acceptance_sha" | if command -v sha256sum >/dev/null 2>&1; then sha256sum | awk '{print $1}'; else shasum -a 256 | awk '{print $1}'; fi)"
 
 validate_reviewer_output() {
-  local output="$1" role="$2" manifest="$3" run_id="$4" host_session_id="$5"
+  local output="$1" role="$2" manifest="$3" run_id="$4" host_session_id="$5" recorded_prefix="${6:-}"
   local expected_verdict actual_manifest expected_ids actual_ids
   [[ -f "$output" && ! -L "$output" ]] || return 1
   jq -e --arg schema "${role}/v1" --arg role "$role" --arg run_id "$run_id" --arg host_session_id "$host_session_id" '
@@ -94,21 +154,34 @@ validate_reviewer_output() {
       (.id | type == "string" and test("\\S")) and (.result == "PASS" or .result == "FAIL" or .result == "SKIP") and
       (.severity == "Critical" or .severity == "Major" or .severity == "Minor") and (.finding | type == "string"))) and
     (.verdict == "PASS" or .verdict == "NEEDS_WORK" or .verdict == "BLOCKED")' "$output" >/dev/null || return 1
-  actual_manifest="$(jq -c '.allowed_input_manifest | sort_by(.path)' "$output")"
+  actual_manifest="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    [.allowed_input_manifest[] | {path: (.path | relative_path), sha256}] | sort_by(.path)' "$output")"
   [[ "$actual_manifest" == "$manifest" ]] || return 1
   case "$role" in
     spec-reviewer-a)
-      expected_ids="REQ-TESTABILITY,GOAL-AC-TRACE,AC-OBSERVABLE,SCOPE-BOUNDARY,CONSTRAINTS-EXPLICIT,RISK-VALIDATION-SURFACE"
+      expected_ids="REQ-TESTABILITY,GOAL-AC-TRACE,AC-OBSERVABLE,SCOPE-BOUNDARY,CONSTRAINTS-EXPLICIT,RISK-VALIDATION-SURFACE,DOMAIN-CONFORMANCE"
       ;;
     spec-reviewer-b)
-      expected_ids="AMBIGUITY,CONTRADICTION,EDGE-CASE-COVERAGE,ASSUMPTIONS-RESOLVABLE,APPROVAL-BOUNDARY,DOWNSTREAM-READINESS"
+      expected_ids="AMBIGUITY,CONTRADICTION,EDGE-CASE-COVERAGE,ASSUMPTIONS-RESOLVABLE,APPROVAL-BOUNDARY,DOWNSTREAM-READINESS,DOMAIN-CONFORMANCE"
       ;;
     *)
       return 1
       ;;
   esac
   actual_ids="$(jq -r '[.checks[].id] | join(",")' "$output")"
-  [[ "$actual_ids" == "$expected_ids" ]] || return 1
+  # Evidence is held to the role as it was defined when the evidence was
+  # produced, not as it is defined today. Check ids are appended to a role's
+  # list -- never inserted, reordered or renamed -- so a review that ran before
+  # a check existed carries a prefix of today's list. epic-136-phase3's
+  # attempt 2 is exactly that: six ids, DOMAIN-CONFORMANCE added afterwards
+  # (95479bb2, d528cbed). Rejecting it would mean every feature reviewed before
+  # any future check is added can never open a new attempt again.
+  #
+  # A prefix and nothing looser. A run that skipped a middle check, reordered
+  # them, invented one, or carries more ids than the role defines does not form
+  # a prefix and still fails, so this does not weaken any current-version
+  # review: for those, prefix and equality coincide.
+  [[ "${expected_ids}," == "${actual_ids},"* ]] || return 1
   expected_verdict="$(jq -r 'if ([.checks[] | select(.result == "FAIL" and .severity == "Critical")] | length) > 0 then "BLOCKED" elif ([.checks[] | select(.result == "FAIL")] | length) > 0 then "NEEDS_WORK" else "PASS" end' "$output")"
   [[ "$(jq -r .verdict "$output")" == "$expected_verdict" ]]
 }
@@ -117,7 +190,11 @@ validate_contract() {
   local contract="$1" expected_attempt="$2" expected_round="$3" expected_verdict="$4" precheck="$5"
   local round_dir summary integrated_verdict expected_a expected_b actual_a actual_b requirements_hash acceptance_hash calibration_hash
   local reviewer_a reviewer_b a_run a_session b_run b_session checks critical major minor expected_merged expected_warning
+  local recorded_root recorded_prefix
   [[ -f "$contract" && ! -L "$contract" && -f "$precheck" && ! -L "$precheck" ]] || return 1
+  recorded_root="$(recorded_repo_root "$contract")"
+  [[ "$recorded_root" != "__INVALID__" ]] || return 1
+  recorded_prefix="${recorded_root:+$recorded_root/}"
   jq -e --arg feature "$feature" --argjson attempt "$expected_attempt" --argjson round "$expected_round" --arg verdict "$expected_verdict" '
     type == "object" and keys == ["acceptance_sha256", "attempt", "feature", "requirements_sha256", "reviewers", "round", "run_id", "schema", "stage", "verdict", "warningCount"] and
     .schema == "spec-review-contract/v1" and .stage == "spec" and .feature == $feature and .attempt == $attempt and .round == $round and .verdict == $verdict and
@@ -144,18 +221,22 @@ validate_contract() {
 
   requirements_hash="$(jq -r .requirements_sha256 "$contract")"
   acceptance_hash="$(jq -r .acceptance_sha256 "$contract")"
-  calibration_hash="$(jq -r --arg calibration "$calibration" '[.reviewers[].allowed_input_manifest[] | select(.path == $calibration) | .sha256] | unique | if length == 1 then .[0] else "" end' "$contract")"
+  calibration_hash="$(jq -r --arg calibration "$calibration" --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    ($calibration | relative_path) as $target |
+    [.reviewers[].allowed_input_manifest[] | select((.path | relative_path) == $target) | .sha256] | unique | if length == 1 then .[0] else "" end' "$contract")"
   is_sha256 "$calibration_hash" || return 1
   if jq -e '.calibration_sha256 != null' "$precheck" >/dev/null; then
     [[ "$(jq -r .calibration_sha256 "$precheck")" == "$calibration_hash" ]] || return 1
   fi
-  expected_a="$(jq -cn --arg requirements "$requirements" --arg requirements_hash "$requirements_hash" --arg acceptance "$acceptance" --arg acceptance_hash "$acceptance_hash" --arg precheck "$precheck" --arg precheck_hash "$(sha256 "$precheck")" --arg calibration "$calibration" --arg calibration_hash "$calibration_hash" '[{path:$requirements,sha256:$requirements_hash},{path:$acceptance,sha256:$acceptance_hash},{path:$precheck,sha256:$precheck_hash},{path:$calibration,sha256:$calibration_hash}] | sort_by(.path)')"
+  expected_a="$(jq -cn --arg requirements "$(relative_to_repo "$requirements")" --arg requirements_hash "$requirements_hash" --arg acceptance "$(relative_to_repo "$acceptance")" --arg acceptance_hash "$acceptance_hash" --arg precheck "$(relative_to_repo "$precheck")" --arg precheck_hash "$(sha256 "$precheck")" --arg calibration "$(relative_to_repo "$calibration")" --arg calibration_hash "$calibration_hash" '[{path:$requirements,sha256:$requirements_hash},{path:$acceptance,sha256:$acceptance_hash},{path:$precheck,sha256:$precheck_hash},{path:$calibration,sha256:$calibration_hash}] | sort_by(.path)')"
   if [[ -f "${spec_dir}/investigation.md" && ! -L "${spec_dir}/investigation.md" ]]; then
-    expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "${spec_dir}/investigation.md" --arg investigation_hash "$(sha256 "${spec_dir}/investigation.md")" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
+    expected_a="$(jq -cn --argjson manifest "$expected_a" --arg investigation "$(relative_to_repo "${spec_dir}/investigation.md")" --arg investigation_hash "$(sha256 "${spec_dir}/investigation.md")" '$manifest + [{path:$investigation,sha256:$investigation_hash}] | sort_by(.path)')"
   fi
-  expected_b="$(jq -cn --argjson manifest "$expected_a" --arg summary "$summary" --arg summary_hash "$(sha256 "$summary")" '$manifest + [{path:$summary,sha256:$summary_hash}] | sort_by(.path)')"
-  actual_a="$(jq -c '[.reviewers[] | select(.role == "spec-reviewer-a") | .allowed_input_manifest[]] | sort_by(.path)' "$contract")"
-  actual_b="$(jq -c '[.reviewers[] | select(.role == "spec-reviewer-b") | .allowed_input_manifest[]] | sort_by(.path)' "$contract")"
+  expected_b="$(jq -cn --argjson manifest "$expected_a" --arg summary "$(relative_to_repo "$summary")" --arg summary_hash "$(sha256 "$summary")" '$manifest + [{path:$summary,sha256:$summary_hash}] | sort_by(.path)')"
+  actual_a="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    [.reviewers[] | select(.role == "spec-reviewer-a") | .allowed_input_manifest[] | {path: (.path | relative_path), sha256}] | sort_by(.path)' "$contract")"
+  actual_b="$(jq -c --arg repo "${repo_root}/" --arg alias "${repo_root_alias}/" --arg recorded "$recorded_prefix" "$jq_relative_path"'
+    [.reviewers[] | select(.role == "spec-reviewer-b") | .allowed_input_manifest[] | {path: (.path | relative_path), sha256}] | sort_by(.path)' "$contract")"
   [[ "$actual_a" == "$expected_a" && "$actual_b" == "$expected_b" ]] || return 1
 
   reviewer_a="${round_dir}/reviewer-a.json"
@@ -164,8 +245,8 @@ validate_contract() {
   a_session="$(jq -r '.reviewers[] | select(.role == "spec-reviewer-a") | .host_session_id' "$contract")"
   b_run="$(jq -r '.reviewers[] | select(.role == "spec-reviewer-b") | .run_id' "$contract")"
   b_session="$(jq -r '.reviewers[] | select(.role == "spec-reviewer-b") | .host_session_id' "$contract")"
-  validate_reviewer_output "$reviewer_a" "spec-reviewer-a" "$expected_a" "$a_run" "$a_session" || return 1
-  validate_reviewer_output "$reviewer_b" "spec-reviewer-b" "$expected_b" "$b_run" "$b_session" || return 1
+  validate_reviewer_output "$reviewer_a" "spec-reviewer-a" "$expected_a" "$a_run" "$a_session" "$recorded_prefix" || return 1
+  validate_reviewer_output "$reviewer_b" "spec-reviewer-b" "$expected_b" "$b_run" "$b_session" "$recorded_prefix" || return 1
   [[ "$(jq -c '[.checks[] | {id, result, severity}]' "$reviewer_a")" == "$(jq -c '.reviewer_a_checks' "$summary")" ]] || return 1
   [[ "$(jq -r '.reviewer_a_fail_count' "$summary")" == "$(jq '[.checks[] | select(.result == "FAIL")] | length' "$reviewer_a")" ]] || return 1
   [[ "$(jq -r '.reviewer_a_pass_count' "$summary")" == "$(jq '[.checks[] | select(.result == "PASS")] | length' "$reviewer_a")" ]] || return 1

@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase3-spec-a3r1-b-seq0418",
+  "host_session_id": "SESS-spec-a3r1-b-epic136phase3-0418",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-3/round-1/integrated-summary.json",
+      "sha256": "2888d5ea252a5751a94bebd8c6bac2a0731a4ce5218a52364bcd39e847124864"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-3/round-1/precheck-result.json",
+      "sha256": "af48cfb379724a36d0e16e1fec1d45bc5fe17f0bfe18ee4967a24ada8c50bad7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "7f560f59e736b0fa143a67d3619093449ab41adc6d6ad236834853d7b550e66d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "aca0ad29f0cf629cdb23674f9a12d864ae78e1eb210fc0aa932ec60787925979"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "CI-registration coverage for Stream C's landed suite is missing from the acceptance-test set. (1) Exact artifact text: REQ-005 requires that every new suite this feature adds -- 'Streams A, B, and C once unblocked' -- have 'a CI step ... staged for it in `.github/workflows/test.yml` via human-copy', and AC-020 scopes itself by reference as 'a CI step for every new suite from AC-019', while AC-019 covers 'every new suite from Streams A and B (and Stream C once unblocked)'. acceptance-tests.md now records Stream C as unblocked and landed inside this feature (header: ADR-0010 promoted to `Status: Accepted`, commit 67015a5; 'T-004 has since authored and landed `tests/workflow-scenarios/` + `workflow-scenarios.tests.sh`'), and the QG reconciliation pass explicitly widened TEST-019 ('Streams A + B, and Stream C now that ADR-0010 unblocks it') and TEST-021 ('Stream C's own `workflow-scenarios.tests.sh` reconciled into this AC's scope ... now that Stream C is unblocked and landed'). TEST-020 was not widened: its Test Target still verifies only 'a CI step for each new suite from Streams A and B'. Requirements' Non-goals pull the other way, deferring Stream C's step to 'Stream C's own implementation time (it is Blocked in this feature)' -- a deferral whose stated premise is falsified by acceptance-tests.md's own record that Stream C landed here. (2) Downstream failure mode: a task author or verifier cannot decide whether this feature must stage a `test.yml` step for the landed `workflow-scenarios.tests.sh`; AC-020/TEST-020 can be reported green while that suite has no explicit CI step, which is precisely the INV-006 no-wildcard gap the requirements themselves name ('any suite without its own explicit step silently never runs in CI') and that investigation.md rates likelihood high / impact high. (3) Specification-stage: this is a hole between REQ-005/AC-019/AC-020 and the acceptance-test set itself -- the reconciliation was applied to two of the three cross-cutting registration/conformance rows and omitted from the third -- so every later gate inherits it rather than introducing it. (4) Severity Major, not Critical: both readings still agree the suite eventually needs an explicit step, and the human-copy approval boundary (agent never writes the live protected file) holds under either reading, so the defect costs verification coverage and creates a downstream mismatch rather than an unsafe boundary or an unreviewable specification."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No issues found."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No issues found."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Check skipped: the allowed-input manifest contains no `domain/context-map.md` and no `domain/domain-contract.json`, so no approved domain model or schema-valid domain contract is in scope for this review, and requirements.md declares no `Bounded-Context:` field (its header carries only Spec-Review-Status, Source Issues, Epic, and Investigation). The check's stated precondition is unmet and it is recorded as skipped."
+    }
+  ]
+}

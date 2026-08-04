@@ -2,18 +2,18 @@
 
 Combined reference for all review checks used by `sdd-review-loop`.
 
-- **Part 0** — `spec-review-loop`: 12 checks across spec-reviewer-a and spec-reviewer-b
-- **Part 1** — `impl-review-loop`: 20 checks across impl-reviewer-a and impl-reviewer-b
+- **Part 0** — `spec-review-loop`: 14 checks across spec-reviewer-a and spec-reviewer-b
+- **Part 1** — `impl-review-loop`: 22 checks across impl-reviewer-a and impl-reviewer-b
 - **Part 2** — `task-review-loop`: 23 checks across task-reviewer-a and task-reviewer-b
 
 ---
 
 ## Part 0: Specification Review Checklist (spec-review-loop)
 
-Complete reference for all 12 checks in the spec-review-loop. Checks are split
-across two reviewers: spec-reviewer-a (requirements and acceptance coverage, 6
+Complete reference for all 14 checks in the spec-review-loop. Checks are split
+across two reviewers: spec-reviewer-a (requirements and acceptance coverage, 7
 checks) and spec-reviewer-b (ambiguity, contradiction, and downstream readiness,
-6 checks).
+7 checks).
 
 ### Check Types
 
@@ -30,7 +30,7 @@ evidence is found. Use SKIP only when the check declares an explicit skip
 condition and the scoped surface is absent. Absence of evidence on an in-scope
 surface is a finding, not a pass.
 
-### Reviewer-A Checks (Requirements and Acceptance Coverage — 6 checks)
+### Reviewer-A Checks (Requirements and Acceptance Coverage — 7 checks)
 
 #### REQ-TESTABILITY
 
@@ -148,7 +148,7 @@ quality-gate evidence path.
 
 ---
 
-### Reviewer-B Checks (Ambiguity and Downstream Readiness — 6 checks)
+### Reviewer-B Checks (Ambiguity and Downstream Readiness — 7 checks)
 
 #### AMBIGUITY
 
@@ -262,13 +262,43 @@ assigned before the next gate.
 **Fail condition:** The next gate would have to decide product behavior rather
 than design implementation policy.
 
+#### DOMAIN-CONFORMANCE
+
+| Field | Value |
+|---|---|
+| Reviewer | spec-reviewer-a and spec-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | SKIP when no approved domain model exists |
+
+**Description:** When the project carries an approved domain model, the
+specification must use that model's vocabulary and name a bounded context the
+model actually declares.
+
+**Applicability:** Applies only when `domain/` exists, `domain/context-map.md`
+records an approved `Domain-Model-Status`, and `domain/domain-contract.json` is
+schema-valid. When any of those is absent, record the reason in the finding and
+emit `SKIP`. The check is always **emitted** — a reviewer never omits it from the
+`checks` array. That is why each spec role declares seven ids, and why
+`spec-review-precheck`'s `expected_ids` must list seven: the two drifted apart
+once, and every spec-review round 2 became unreachable until they were realigned.
+
+**Pass condition:** `requirements.md` carries a `Bounded-Context:` field naming a
+context present in `domain-contract.json`, and the terms used in `## User
+Stories` and `## Acceptance Criteria` prefer each named context's canonical
+`terms[].canonical` values over any listed `forbidden_synonyms`.
+
+**Fail condition:** An approved model exists but `Bounded-Context:` is missing;
+or `Bounded-Context:` names a context absent from `domain-contract.json`; or a
+forbidden synonym is used in place of its canonical term.
+
 ---
 
 ## Part 1: Implementation Policy Review Checklist (impl-review-loop)
 
-Complete reference for all 20 checks in the impl-review-loop. Checks are split
-across two reviewers: impl-reviewer-a (structural soundness, 10 checks) and
-impl-reviewer-b (implementability/risk, 10 checks).
+Complete reference for all 22 checks in the impl-review-loop. Checks are split
+across two reviewers: impl-reviewer-a (structural soundness, 11 checks) and
+impl-reviewer-b (implementability/risk, 11 checks).
 
 ### Check Types
 
@@ -290,7 +320,7 @@ absent template fields from Major/Critical to Minor `[LEGACY COMPAT]` advisories
 
 ---
 
-### Reviewer-A Checks (Structural Soundness — 10 checks)
+### Reviewer-A Checks (Structural Soundness — 11 checks)
 
 #### ARCH-COVERAGE
 
@@ -503,7 +533,7 @@ contradicts the design-system artifacts.
 
 ---
 
-### Reviewer-B Checks (Implementability/Risk — 10 checks)
+### Reviewer-B Checks (Implementability/Risk — 11 checks)
 
 #### DECISION-JUSTIFIED
 
@@ -713,6 +743,39 @@ concrete validation path.
 
 **Skip condition:** No high-risk design claim or risk surface requires a
 separate verification path.
+
+#### DOMAIN-CONFORMANCE
+
+| Field | Value |
+|---|---|
+| Reviewer | impl-reviewer-a and impl-reviewer-b |
+| Type | TYPE-H |
+| Severity | Major |
+| Default | SKIP when no approved domain model exists |
+
+**Description:** When the project carries an approved domain model, the
+implementation policy must stay inside that model's declared contexts and use its
+canonical vocabulary.
+
+**Applicability:** Same precondition as the spec-stage check — `domain/` exists,
+`domain/context-map.md` records an approved `Domain-Model-Status`, and
+`domain/domain-contract.json` is schema-valid. Otherwise record the reason and
+emit `SKIP`. The check is always emitted, which is why each impl role declares
+eleven ids.
+
+**Pass condition:** `design.md` names a bounded context present in
+`domain-contract.json`, and its component, data and API vocabulary prefers each
+named context's canonical `terms[].canonical` values over any listed
+`forbidden_synonyms`.
+
+**Fail condition:** An approved model exists but the design names no bounded
+context, names one absent from `domain-contract.json`, or uses a forbidden
+synonym in place of its canonical term.
+
+**Note:** `impl-review-precheck` does not validate check ids at all, so this
+check's presence is enforced only by the role definition and by
+`review-prompt-calibration.tests.sh`. The spec stage is the one that validates
+ids, and that is where the six-versus-seven drift actually blocked the loop.
 
 ---
 

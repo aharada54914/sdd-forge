@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-epic136phase4docs-impl-a2r3-a-seq0411",
+  "host_session_id": "SESS-impl-a2r3-a-epic136phase4docs-0411",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-2/round-2/integrated-summary.json",
+      "sha256": "1ae54f54495b0fd8736c6d2ffdcad4ef42d0b9f19f2ab363c939a556b556605a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/epic-136-phase4-docs/attempt-2/round-3/precheck-result.json",
+      "sha256": "ebda0c9a5ab473246bba37b5ec90a6e5387725e1b786283578e68675b9980cf3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/design.md",
+      "sha256": "ecd5765c694418c79bfb6f0356e7530f31b12d838ccedbcb397455df127fd166"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/frontend-spec.md",
+      "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/infra-spec.md",
+      "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/security-spec.md",
+      "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/ux-spec.md",
+      "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:5-13 (## Architecture Overview) covers: (1) component boundaries via the Components table (design.md:17-27) listing the four runner scripts, policy doc, THREAT-MODEL.md, test suites, and check-cross-model.sh marked 'Untouched'; (2) integration with existing components -- design.md:9-11 explains the bound is added only in the runner scripts because check-cross-model 'reads verdict files off disk and never invokes a panelist,' and a timeout is made indistinguishable downstream from a CLI error so no gate/schema/consensus-rule change is needed; (3) technology choices -- shell/PowerShell (design.md:230-232), no frontend (frontend-spec.md:5), no data layer (design.md:151), no infra change (infra-spec.md:1-5). More than a one-sentence description. [LEGACY COMPAT] Minor: heading is '## Architecture Overview' rather than the template's '## Architecture'; content is equivalent."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found; checked for circular import patterns in architecture narrative. design.md:15-27 and :5-13 describe a one-directional flow (runner scripts write a verdict file on disk; check-cross-model reads it and is explicitly marked 'Untouched' and stated to 'never invoke a panelist', design.md:9). No cycle stated or implied."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:149-160 (## Data Plan) states 'No data changes' (:151); identifies Existing Data Affected -- the panelist verdict file (existing schema, unchanged, :157) and SDD_PANELIST_TIMEOUT (new env var, not stored data, :158); and states Migration Strategy explicitly: 'No migration, no backfill, and no retention change follows from this' (:160), cross-referenced to infra-spec.md's Rollback section. [LEGACY COMPAT] Minor: content is not laid out under the literal template labels; substance for all three is present in prose."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:29-147 (## API & Contract Plan) documents this feature's actual contracts: the bounded-wait shell function with call-site shape (:36-85), the PowerShell equivalent (:93-104), the SDD_PANELIST_TIMEOUT configuration contract (:110-118), and the failure-taxonomy/exit-code table (:124-131). No HTTP endpoint, RPC, or event surface exists (confirmed by frontend-spec.md/ux-spec.md N/A). BL-001 (:87, 'the non-124 branch is byte-identical in behaviour to today's handler') establishes no breaking change. [LEGACY COMPAT] Minor: section heading uses an ampersand and never states the literal phrase 'No API changes'; substance for a feature with no HTTP surface is nonetheless present."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:162-177 (## Security Boundaries) names four trust boundaries (B1-B4) matching security-spec.md:7-25 exactly. Authorization stated at :175-177 (no protected-gate write, no SDD_SUDO, no secret handled). Data classification stated explicitly (:177, SDD_PANELIST_TIMEOUT is a non-secret integer), consistent with security-spec.md:39-43. design.md:164 explicitly delegates deeper analysis to security-spec.md as 'a normative layer of this specification'; security-spec.md:27-37's STRIDE table covers the injection/access-control-adjacent concerns relevant to this feature's actual (non-HTTP) attack surface. No contradiction found between design.md's boundary table and security-spec.md's STRIDE table."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is cli/library (no rendered UI). design.md has no explicit 'Feature Type:' header, but ux-spec.md:5 ('N/A -- no user-facing surface... no rendered, interactive, or GUI surface anywhere') and frontend-spec.md:5 ('N/A -- no browser or frontend bundle... no HTML, no CSS, no JavaScript') both give justified N/A determinations, corroborated by design.md:5-13's Architecture Overview describing only shell/PowerShell CLI scripts plus Markdown documentation edits. Judged justified: no rendered or interactive surface exists anywhere in this feature."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:187-226 (## Test Strategy) covers unit scope (item 1, :212-216, AC-003; item 7, :225, AC-012), integration scope (items 2-4, :217-222, AC-004/005/006; item 8, :226, Stream B), and an exhaustive AC-to-TEST coverage table (:195-210) mapping all of AC-001..AC-014 (verified against requirements.md's full set) to TEST-ID and delivering section. Concrete evidence named: tests/cross-model.tests.sh, tests/cross-model.tests.ps1, tests/run-all.sh (:230-231). Item 6 (:224, BL-004) now states the AC-004(b) PowerShell carve-out explicitly with citations 'requirements.md:67,75' and 'acceptance-tests.md:64-68' -- independently verified accurate (requirements.md:67 'the PowerShell suite carries no (b) sub-case'; :75 parity satisfied 'at the level of outcome... not by mirroring a POSIX signal model'; acceptance-tests.md:64-68 table shows PowerShell (b) = 'none, deliberately') -- resolving round 2's Major finding. Numbering (:212-226) now runs sequentially 1-8, resolving round 2's cosmetic note, and back-references ('Item 5 below' for AC-011, 'Item 7 below' for AC-012, :207-208) correctly point to the renumbered items. Not fullstack, so no E2E/user-journey gap applies; item 4/TEST-006 (:222) composes runner plus gate as the closest analogue."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component named in Architecture Overview (:5-13), Components (:15-27), and API & Contract Plan (:29-147) is defined in the Components table (:17-27): the four run-panelist scripts, cross-model-verification-policy.md, docs/THREAT-MODEL.md, tests/cross-model.tests.sh and .ps1, check-cross-model.sh (Untouched). Other references -- install.sh:758-781 (:33, cited as existing convention), guard-invariants.generated.js:5 (:236, cited as evidence), sdd-forge-mcp/local-env-mcp/ci-mcp (:145) -- are established pre-existing repository artifacts identifiable from investigation.md (INV-013, INV-017), not undefined new components."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md contains no '## Architecture Decision Records' section, and none is required: this feature applies an existing, already-established repository pattern (deadline plus kill -0 poll, install.sh:758-781, cited design.md:33) to a new call site, not a new technology choice or architectural departure. design.md:230 explicitly confirms ADR-0003 does not apply since no esbuild dist/ bundle is in scope. No new architectural decision requiring an ADR was found."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Command: ls -d design-system (run at project root /Users/jrmag/Projects/active/sdd-forge-wt-phase4) -> output: 'ls: design-system: No such file or directory' (exit 1). No design-system/ directory exists; check recorded as skipped per its own skip condition and PASS emitted."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Command: ls -d domain (run at project root /Users/jrmag/Projects/active/sdd-forge-wt-phase4) -> output: 'ls: domain: No such file or directory' (exit 1). No domain/ directory exists; check recorded as skipped per its own skip condition and PASS emitted."
+    }
+  ],
+  "legacy_design": true,
+  "feature_type": "cli"
+}

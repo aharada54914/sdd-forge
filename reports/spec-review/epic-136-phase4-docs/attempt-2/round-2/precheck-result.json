@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 2,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "aeb2e098f02e2a67f3518077e0e141302154db32eba8775302988955cd757be6",
+  "acceptance_sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "695c692edeaf78ead6fc3a88b886516734af43f8798ae11ef468c4ee52ab4e8f",
+  "edit_summary": "Attempt-2 round-1 remediation: both reviewers independently found the same Major -- the no-orphan assertion was added to the PowerShell (a) sub-case only, while POSIX's kill -TERM <pid> reaches a single process and would leave a vendor-CLI grandchild orphaned holding the API session (Edge Case 2), with no test catching it. The AC-004 POSIX row now commits to process-group semantics (setsid on start, kill -TERM -<pgid> on expiry) and carries the same no-orphan assertion; the TEST-004 sub-case table marks (a) as including it in both runtimes; design.md's _sdd_run_bounded helper now starts the child under setsid and signals the negative pid with a bare-pid fallback. Rationale recorded: BL-004 parity is an OUTCOME claim, and 'no orphan holding the API session' is an outcome, so it cannot hold if only one runtime is required to deliver it.",
+  "reset": false,
+  "generated_at": "2026-07-31T14:35:00Z"
+}

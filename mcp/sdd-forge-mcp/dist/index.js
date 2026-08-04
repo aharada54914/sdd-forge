@@ -23451,15 +23451,15 @@ var makeIssue = (params) => {
       message: issueData.message
     };
   }
-  let errorMessage = "";
+  let errorMessage2 = "";
   const maps = errorMaps.filter((m) => !!m).slice().reverse();
   for (const map3 of maps) {
-    errorMessage = map3(fullIssue, { data, defaultError: errorMessage }).message;
+    errorMessage2 = map3(fullIssue, { data, defaultError: errorMessage2 }).message;
   }
   return {
     ...issueData,
     path: fullPath,
-    message: errorMessage
+    message: errorMessage2
   };
 };
 function addIssueToContext(ctx, issueData) {
@@ -27206,19 +27206,19 @@ var getRefs = (options) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/errorMessages.js
-function addErrorMessage(res, key, errorMessage, refs) {
+function addErrorMessage(res, key, errorMessage2, refs) {
   if (!refs?.errorMessages)
     return;
-  if (errorMessage) {
+  if (errorMessage2) {
     res.errorMessage = {
       ...res.errorMessage,
-      [key]: errorMessage
+      [key]: errorMessage2
     };
   }
 }
-function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
+function setResponseValueAndErrors(res, key, value, errorMessage2, refs) {
   res[key] = value;
-  addErrorMessage(res, key, errorMessage, refs);
+  addErrorMessage(res, key, errorMessage2, refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
@@ -28529,8 +28529,8 @@ var Protocol = class {
                   if (queuedMessage.type === "response") {
                     resolver(message);
                   } else {
-                    const errorMessage = message;
-                    const error51 = new McpError(errorMessage.error.code, errorMessage.error.message, errorMessage.error.data);
+                    const errorMessage2 = message;
+                    const error51 = new McpError(errorMessage2.error.code, errorMessage2.error.message, errorMessage2.error.data);
                     resolver(error51);
                   }
                 } else {
@@ -29830,23 +29830,23 @@ var Server = class extends Protocol {
       const wrappedHandler = async (request, extra) => {
         const validatedRequest = safeParse3(CallToolRequestSchema, request);
         if (!validatedRequest.success) {
-          const errorMessage = validatedRequest.error instanceof Error ? validatedRequest.error.message : String(validatedRequest.error);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call request: ${errorMessage}`);
+          const errorMessage2 = validatedRequest.error instanceof Error ? validatedRequest.error.message : String(validatedRequest.error);
+          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call request: ${errorMessage2}`);
         }
         const { params } = validatedRequest.data;
         const result = await Promise.resolve(handler(request, extra));
         if (params.task) {
           const taskValidationResult = safeParse3(CreateTaskResultSchema, result);
           if (!taskValidationResult.success) {
-            const errorMessage = taskValidationResult.error instanceof Error ? taskValidationResult.error.message : String(taskValidationResult.error);
-            throw new McpError(ErrorCode.InvalidParams, `Invalid task creation result: ${errorMessage}`);
+            const errorMessage2 = taskValidationResult.error instanceof Error ? taskValidationResult.error.message : String(taskValidationResult.error);
+            throw new McpError(ErrorCode.InvalidParams, `Invalid task creation result: ${errorMessage2}`);
           }
           return taskValidationResult.data;
         }
         const validationResult = safeParse3(CallToolResultSchema, result);
         if (!validationResult.success) {
-          const errorMessage = validationResult.error instanceof Error ? validationResult.error.message : String(validationResult.error);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call result: ${errorMessage}`);
+          const errorMessage2 = validationResult.error instanceof Error ? validationResult.error.message : String(validationResult.error);
+          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call result: ${errorMessage2}`);
         }
         return validationResult.data;
       };
@@ -30562,12 +30562,12 @@ var McpServer = class {
    * @param errorMessage - The error message.
    * @returns The tool error result.
    */
-  createToolError(errorMessage) {
+  createToolError(errorMessage2) {
     return {
       content: [
         {
           type: "text",
-          text: errorMessage
+          text: errorMessage2
         }
       ],
       isError: true
@@ -30585,8 +30585,8 @@ var McpServer = class {
     const parseResult = await safeParseAsync3(schemaToParse, args);
     if (!parseResult.success) {
       const error51 = "error" in parseResult ? parseResult.error : "Unknown error";
-      const errorMessage = getParseErrorMessage(error51);
-      throw new McpError(ErrorCode.InvalidParams, `Input validation error: Invalid arguments for tool ${toolName}: ${errorMessage}`);
+      const errorMessage2 = getParseErrorMessage(error51);
+      throw new McpError(ErrorCode.InvalidParams, `Input validation error: Invalid arguments for tool ${toolName}: ${errorMessage2}`);
     }
     return parseResult.data;
   }
@@ -30610,8 +30610,8 @@ var McpServer = class {
     const parseResult = await safeParseAsync3(outputObj, result.structuredContent);
     if (!parseResult.success) {
       const error51 = "error" in parseResult ? parseResult.error : "Unknown error";
-      const errorMessage = getParseErrorMessage(error51);
-      throw new McpError(ErrorCode.InvalidParams, `Output validation error: Invalid structured content for tool ${toolName}: ${errorMessage}`);
+      const errorMessage2 = getParseErrorMessage(error51);
+      throw new McpError(ErrorCode.InvalidParams, `Output validation error: Invalid structured content for tool ${toolName}: ${errorMessage2}`);
     }
   }
   /**
@@ -30823,8 +30823,8 @@ var McpServer = class {
         const parseResult = await safeParseAsync3(argsObj, request.params.arguments);
         if (!parseResult.success) {
           const error51 = "error" in parseResult ? parseResult.error : "Unknown error";
-          const errorMessage = getParseErrorMessage(error51);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid arguments for prompt ${request.params.name}: ${errorMessage}`);
+          const errorMessage2 = getParseErrorMessage(error51);
+          throw new McpError(ErrorCode.InvalidParams, `Invalid arguments for prompt ${request.params.name}: ${errorMessage2}`);
         }
         const args = parseResult.data;
         const cb = prompt.callback;
@@ -31405,17 +31405,22 @@ function guardedExistsNonEmpty(root, relPath) {
   const guardResult = resolveGuarded(root, relPath);
   return guardResult.ok && guardResult.data.size > 0;
 }
-function listGuardedFiles(root, relDir) {
+function errorMessage(error51) {
+  return error51 instanceof Error ? error51.message : String(error51);
+}
+function listGuardedFilesWithDiagnostics(root, relDir) {
   const guardResult = resolveGuardedDirectory(root, relDir);
   if (!guardResult.ok) {
-    return [];
+    return { files: [], errors: [{ path: relDir, reason: guardResult.error.message }] };
   }
-  const results = [];
+  const files = [];
+  const errors = [];
   const walk = (absDir, relPrefix) => {
     let entries;
     try {
       entries = readdirSync(absDir);
-    } catch {
+    } catch (error51) {
+      errors.push({ path: relPrefix, reason: errorMessage(error51) });
       return;
     }
     for (const entry of entries) {
@@ -31424,18 +31429,22 @@ function listGuardedFiles(root, relDir) {
       let stats;
       try {
         stats = statSync2(absEntryPath);
-      } catch {
+      } catch (error51) {
+        errors.push({ path: relEntryPath, reason: errorMessage(error51) });
         continue;
       }
       if (stats.isDirectory()) {
         walk(absEntryPath, relEntryPath);
       } else if (stats.isFile()) {
-        results.push(relEntryPath);
+        files.push(relEntryPath);
       }
     }
   };
   walk(guardResult.data.resolvedPath, relDir.replace(/\/+$/, ""));
-  return results;
+  return { files, errors };
+}
+function listGuardedFiles(root, relDir) {
+  return listGuardedFilesWithDiagnostics(root, relDir).files;
 }
 function resolveGuardedDirectory(root, relPath) {
   const shapeError = validateInputShape(relPath);
@@ -35022,16 +35031,20 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function anyFileContaining(root, relDir, pattern) {
+function anyFileContainingWithDiagnostics(root, relDir, pattern) {
   const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
+  const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
   const matches = [];
-  for (const relFilePath of listGuardedFiles(root, relDir)) {
+  for (const relFilePath of files) {
     const read = guardedRead(root, relFilePath);
     if (read.ok && wordBoundary.test(read.data.contents)) {
       matches.push(relFilePath);
     }
   }
-  return matches;
+  return { matches, errors };
+}
+function anyFileContaining(root, relDir, pattern) {
+  return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
 }
 function hasAnyFileMentioning(root, relDir, taskId) {
   return anyFileContaining(root, relDir, taskId).length > 0;
@@ -36204,6 +36217,7 @@ function evidenceFindMissing(root, feature, taskId) {
   const required2 = [EVIDENCE_BUNDLE_REQUIREMENT, VERIFICATION_CONTRACT_REQUIREMENT, QUALITY_GATE_REPORT_REQUIREMENT];
   const present = [];
   const missing = [];
+  const undeterminable = [];
   if (guardedExists(root, bundleRelPath)) {
     present.push(EVIDENCE_BUNDLE_REQUIREMENT);
   } else {
@@ -36214,13 +36228,15 @@ function evidenceFindMissing(root, feature, taskId) {
   } else {
     missing.push(VERIFICATION_CONTRACT_REQUIREMENT);
   }
-  const qgMatches = anyFileContaining(root, reportsDir, taskId);
-  if (qgMatches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
+  const qgScan = anyFileContainingWithDiagnostics(root, reportsDir, taskId);
+  if (qgScan.errors.length > 0) {
+    undeterminable.push(QUALITY_GATE_REPORT_REQUIREMENT);
+  } else if (qgScan.matches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
     present.push(QUALITY_GATE_REPORT_REQUIREMENT);
   } else {
     missing.push(QUALITY_GATE_REPORT_REQUIREMENT);
   }
-  return ok({ kind: "evidence-missing", feature, taskId, required: required2, present, missing });
+  return ok({ kind: "evidence-missing", feature, taskId, required: required2, present, missing, undeterminable });
 }
 function evidenceSummarizeContractChecks(root, feature, taskId) {
   const featureResult = validateFeature(feature);
@@ -36281,9 +36297,11 @@ function evidenceCompareToTraceability(root, feature) {
     }
   }
   const declaredReqIds = new Set(traceability.reqToTask.map((row) => row.reqId));
+  const unreadableContracts = [];
   for (const taskId of knownTaskIds) {
     const contractResult = parseVerificationContract(root, feature, taskId);
     if (!contractResult.ok) {
+      unreadableContracts.push({ taskId, reason: contractResult.error.message });
       continue;
     }
     for (const check2 of contractResult.data.checks) {
@@ -36302,7 +36320,8 @@ function evidenceCompareToTraceability(root, feature) {
     kind: "traceability-comparison",
     feature,
     matches: totalChecks - mismatches.length,
-    mismatches
+    mismatches,
+    unreadableContracts
   });
 }
 var RECORDED_SHA256_PATTERN = /^[a-f0-9]{64}$/;
@@ -36511,6 +36530,11 @@ function evidenceDeepVerify(root, feature, taskId) {
       failures.push(`cross-binding ${binding.subject}: ${binding.detail}`);
     }
   }
+  const signature = echoSignature(bundle);
+  const hostRequiredChecks = [
+    { check: "git-commit-ancestry", verified: false, note: gitCommit.reason },
+    { check: "signature-verification", verified: false, note: signature.note }
+  ];
   return ok({
     kind: "evidence-deep-verify",
     feature,
@@ -36518,7 +36542,8 @@ function evidenceDeepVerify(root, feature, taskId) {
     verdict: failures.length === 0 ? "pass" : "fail",
     artifacts,
     invariants: { artifactsDigest, specRevision, gitCommit, crossBindings },
-    signature: echoSignature(bundle),
+    signature,
+    hostRequiredChecks,
     failures
   });
 }

@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase4docs-spec-a1r1-a-seq0388",
+  "host_session_id": "SESS-spec-a1r1-a-epic136phase4docs-0388",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-1/precheck-result.json",
+      "sha256": "d82d8163c203b1c6bdf9b9e3cb729e984956153fef00418ccdd8f9bbc54660f5"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "b5334e495f163f4a93b83d23ba736a6581f5afa71ff7b8b2998d565c0e06d436"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "7d1e18f6e28b5d020b1c27c8f87abcacb92b020fe5b460fb3088a108292d1d20"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope REQ states an observable/measurable success condition: REQ-002/AC-003 defines exact parsing behavior (unset/empty->600, non-numeric/non-positive->exit 2) with an explicit no-invocation-before-validation clause; REQ-002/AC-004 requires both wall-clock bound compliance and post-kill PID liveness (not exit-code-only); REQ-003/AC-005 requires exit 1 AND absence of a verdict file; REQ-003/AC-006 composes with check-cross-model for an end-to-end gate-fails assertion; REQ-004/AC-007 requires all ten OWASP identifiers present with non-empty disposition cells; REQ-006/AC-011 requires both test suites passing with pre-existing cases unmodified. These are concrete, falsifiable conditions an implementer or verifier can act on without further clarification."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ has at least one matching AC: REQ-001->AC-001/AC-002, REQ-002->AC-003/AC-004, REQ-003->AC-005/AC-006, REQ-004->AC-007/AC-008, REQ-005->AC-009/AC-010, REQ-006->AC-011/AC-012. The Overview's two stated goals (close the timeout loophole in #133; fill the checklist-cross-reference and five-surface gaps in #134) are both fully covered by this REQ set with no orphaned goal."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "AC-001 and AC-009 each promise more content than their own stated verification method checks, reproducing (not avoiding) the FP-02 text-marker pattern acceptance-tests.md names explicitly. REQ-001 requires each of five failure modes to state (a) the exit code, (b) whether a verdict file is produced, and (c) how the missing verdict propagates through the diversity requirement to the gate verdict. AC-001's descriptive sentence already narrows to (a)+(c), dropping (b); its 'Verified by' clause narrows further to (a) alone -- 'asserting each of the five mode names is present with a stated exit code' -- and TEST-001 confirms: 'assert the presence of all five failure-mode names... and an exit code adjacent to each,' with no assertion of propagation or verdict-file-produced language anywhere. Symmetrically, REQ-005/AC-009 requires each of five surfaces to carry 'a stated trust assumption and at least one mitigation or an explicit residual-risk entry,' but AC-009's 'Verified by' clause is only 'literal-string search for the surface's own identifier,' and TEST-009 confirms: 'Literal-string search per surface,' with no check that a trust-assumption or mitigation/residual-risk sentence actually accompanies the identifier. That the drafters know how to write the stronger check is shown by AC-010/TEST-010 on the same REQ-005, which does assert the accompanying substantive statement ('accompanied by a statement of what an operator forfeits'). Downstream failure mode: an implementer can satisfy AC-001 by writing five mode names each followed only by a bare exit-code number, and satisfy AC-009 by dropping five identifier strings into any sentence, passing every stated test while never writing the propagation narrative or trust-assumption/mitigation text REQ-001 and REQ-005 actually require -- exactly the FP-02 gap that TEST-001's own text invokes by name as the failure mode being avoided, but does not fully avoid. This belongs to spec review because it is a mismatch between requirement content and the acceptance criterion's own verification scope, discoverable entirely from the Phase 1 artifacts, and no later gate is charged with checking that an AC's stated verification method covers everything its parent requirement demands."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The behavior-change nature of REQ-002/003 is disclosed explicitly and prominently in the Overview ('That is a behaviour change, not only a documentation change'), not hidden behind the issue's 'documentation' label, and is textually grounded in the issue's own '(critical fail-closed recommended)' wording. Scope is then tightly fenced by five explicit Non-goals and five Baseline Constraints (BL-001 behavior-preservation of the absent/error path, BL-002 check-cross-model untouched, BL-003 existing policy text extended not replaced, BL-004 dual-runtime parity, BL-005 no protected-suffix file touched). This is a materially better-bounded scope statement than a bare 'documentation' label would suggest, and the boundary is explicit rather than implied."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated: signal-handling escalation is required to be specified by the design; five Edge Cases cover coreutils absence (verified by command -v on the spec host), orphan-process risk, partial-write risk, zero/negative config rejection, and rate-limit-as-hang; BL-001..BL-005 constrain behavior-preservation, dual-runtime parity, and protected-file boundaries. One citation lacks the investigation-trail discipline the rest of the document follows: REQ-002's body and Edge Case 1 cite install.sh:758 / install.sh:758-781 as establishing 'the repository's existing convention', but investigation.md never mentions install.sh or SDD_INSTALL_LOCK_TIMEOUT anywhere -- every other file:line citation traces to a numbered INV-item; this one does not. This does not block a downstream decision (the underlying requirement is independently justified by Edge Case 1's own first-hand 'verified by command -v' claim), and the document's own Assumptions section already directs re-verification at implementation start. Recorded as a non-blocking observation, not grounds for FAIL."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both labeled high-risk areas (#133's fail-closed gate-blocking behavior change; #134's security-labeled threat-model coverage) have concrete planned validation surfaces. TEST-004/005/006 close the loop end-to-end: TEST-004 asserts wall-clock bound plus post-kill process death, TEST-005 asserts exit code plus absence of a partial verdict file, and TEST-006 explicitly composes the timeout behavior with check-cross-model to assert the gate itself fails. TEST-007 through TEST-010 give the threat-model content a real-file-read validation surface, with an honestly disclosed scope limit (correctness of cited controls deferred to impl-review) rather than a silently absent one."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skipped. domain/context-map.md and domain/domain-contract.json are not present in this role's allowed-input manifest, and requirements.md carries no Bounded-Context field. Per the strict read-only, file-manifest launch boundary for this role, the precondition for a full DOMAIN-CONFORMANCE check is not established, so SKIP applies per the check's own explicit skip condition."
+    }
+  ]
+}

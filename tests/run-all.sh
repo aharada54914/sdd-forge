@@ -34,6 +34,7 @@ tests=(
   tests/eval.tests.sh
   tests/crlf-parity.tests.sh
   tests/scenario.tests.sh
+  tests/workflow-scenarios/workflow-scenarios.tests.sh
   tests/apply-branch-protection.tests.sh
   tests/workflow-state-registry.tests.sh
   tests/workflow-state-registry-parity.tests.sh
@@ -43,10 +44,15 @@ tests=(
   tests/workflow-state-ci-integration.tests.sh
   tests/structure-check-feature-mode.tests.sh
   tests/quality-gate-cycle-limit.tests.sh
+  tests/guard-dispatch-fallback.tests.sh
+  tests/guard-negative-corpus.tests.sh
+  tests/deterministic-lane-selfcheck.tests.sh
   tests/guard-ps1-ascii.tests.sh
   tests/loop-inventory.tests.sh
   tests/loop-driver.tests.sh
   tests/loop-consistency.tests.sh
+  tests/review-prompt-calibration.tests.sh
+  tests/review-context-boundary.tests.sh
   tests/loop-escalation.tests.sh
   tests/hitl-wfi-terminal.tests.sh
   tests/check-placeholders-brownfield.tests.sh
