@@ -1,0 +1,164 @@
+{
+  "task_id": "T-013",
+  "feature": "epic-189-a1-project-context",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "stack": "shell",
+  "spec_revision": "d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624",
+  "created": "2026-08-04T17:48:30Z",
+  "comment": "Default-FAIL verification contract for T-013 (medium, acceptance-first), the closing audit of epic-189-a1-project-context. THE REQUIRED SET WAS DERIVED FROM check-contract.py's RISK_TIERS RATHER THAN COPIED FROM T-012'S high CONTRACT, because the two tiers differ: medium requires {lint, typecheck, build, placeholder-scan, task-state-check, unit-tests, acceptance-tests, regression} (check-contract.py:39) and does NOT require requirement-traceability, which is a high/critical-only member (:40-41). That check is nevertheless present and passing here, recorded as required:false / passes:true with evidence - a check performed BEYOND the tier's demand, not a tier obligation, and marked so that the contract does not misstate what medium asks for. The six BASELINE_IDS (check-contract.py:35) are all present, as _pass3_required_set demands regardless of tier. THERE IS NO RED/GREEN PAIR IN THIS CHAIN AND NONE IS REQUIRED: required_workflow is acceptance-first (tasks.md:2632), and _pass5_tdd_evidence early-returns for any workflow other than 'tdd' while _pass5b_risk_workflow forces tdd only at high/critical - so unlike T-011 and T-012 this contract carries empty red_evidence/green_evidence throughout, by rule and not by omission. NO SIGNATURE IS REQUIRED, verified by READING generate-evidence-bundle.sh rather than assuming: signing is gated on `if contract_risk == \"critical\":` at generate-evidence-bundle.sh:390, and medium is not critical. spec_revision was likewise recomputed from its definition (sha256 over the concatenated bytes of requirements.md, design.md and acceptance-tests.md in that order, generate-evidence-bundle.sh:203-222) rather than copied from T-012's contract: `cat requirements.md design.md acceptance-tests.md | shasum -a 256` returns d6103e00965d6cc00184081d6854b575d115badc86a36d39f700e6a62945c624, which happens to equal T-011's and T-012's because none of those three frozen files has moved. TWENTY-FIVE SUITE RUNS, ALL GREEN, all measured this session at HEAD b3b2805e with a clean working tree before and after: sh project-context-schema 44/0, canonicalize-sdd-yaml 80/0, generate-approval-sidecar 59/0, approver-registry-schema 8/0, detect-policy-weakening 60/0, validate-approval-sidecar 40/0, apply-human-copy 218/0, check-hook-activation-handshake 88/0, guard-invariants-epic-a1 81/0, hook-guard-epic-a1-boundary 211/0, plugin-contracts-track-selection 106/0, ship-track-selection-migration 139/0, guard-staging-exemption 33/0; pwsh 44/0, 77/0, 57/0, 8/0, 59/0, 39/0, 146/0, 87/0, 85/0, 207/0, 106/0, 139/0. 25 runs, 25 exit=0, 0 FAIL, totals re-added rather than copied: sh 1167 assertions, pwsh 1054. ZERO SKIPS: a case-insensitive grep for 'skip' over all 25 transcripts matches exactly two lines, one per lane, and both are inside a PASS assertion's own description text ('...never a skip'), so every assertion genuinely executed on this platform. Twelve of the thirteen tallies are IDENTICAL to T-012's chain; the thirteenth, guard-staging-exemption 33/0, is new to the required set because T-013 is the first task to treat that ownerless suite as in scope. TWO SUMMARY SHAPES had to be read, because a single grep would have missed one: eleven .sh and all twelve .ps1 suites end with the two-line 'PASS: n'/'FAIL: n' form, while apply-human-copy ends '218 passed, 0 failed' and guard-staging-exemption 'guard-staging-exemption.tests.sh: 33 passed, 0 failed' - the same shape difference that truncated the implementer's own first sweep at 6 of 25. AC-028 DISCHARGED IN ALL THREE PARTS, each measured independently of the audit harness. Part 1: all 13 .sh suites appear EXACTLY once in tests/run-all.sh and all 12 .ps1 twins exactly once in tests/run-all.ps1 (25/25; exactly-once rather than at-least-once, so a duplicate entry would also have been caught); the single zero, guard-staging-exemption.tests.ps1, is zero because that file does not exist, which is the disclosed missing-twin gap and not a missing registration. Neither runner was edited by T-013 - neither appears in `git diff --name-only 71e0f0f2 HEAD` - so 'all 25 already registered' is a finding about T-001..T-012 and the absence of a runner commit is its proof. Part 2: the staged .github/workflows/test.yml candidate registers 13 of 13 bash suites and 12 of 12 pwsh twins as real Actions steps (`run: bash ./tests/<x>.tests.sh` / `run: ./tests/<x>.tests.ps1`), not as string mentions; it parses under ruby/psych with jobs test, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement, required-checks, a 90-step test job of which 89 are named, and no duplicate step name. Part 2b, THE LIVE FILE BEING UNCHANGED IS REQUIRED, NOT A GAP: live sha256 3fe8466c4208dc89ea18811e71c5533b87fcc1977d49d83702697210482f86f4 in the working tree and the IDENTICAL digest at the merge-base b085ec76, with `git log --oneline b085ec76..HEAD -- .github/workflows/test.yml` returning 0 commits; a bare substring grep - the loosest available - for each of the 13 suite names over the live file returns 0 for all 13, so the absence is proved by a command that would have found the thing. CONSEQUENCE THAT LOOKS LIKE A FAILURE AND IS NOT: run from the repository root, where the manifest's paths resolve to the LIVE tree, `shasum -a 256 -c specs/epic-189-a1-project-context/human-copy/MANIFEST.sha256` reports '.github/workflows/test.yml: FAILED' and OK for the other nine entries, exit 1 - it reads FAILED precisely BECAUSE the manifest pins the staged bytes (c59b1c9a1367a32036fd072675fe7e8f75f8dc802f8703559bd799d04b7473ac, equal to the staged candidate's own digest) while the live bytes are still pre-apply. That is the correct staged-not-yet-applied state, exactly the shape ship/SKILL.md and lite-spec/SKILL.md presented before T-012's human apply, and both of those now read OK. Resolving the same manifest under human-copy/, which is what the audit harness does, all TEN entries MATCH. Both readings are correct and consistent; applying the workflow is a final-phase action outside T-013's Done When. Part 3: the seq0372 gate's second Minor - that the harness's own post-copy step is tautologically equal to part 2, because t013-evidence.sh:226 copies the live file in and :227 immediately overwrites it with the staged file - is CORRECT, so this round did not rely on the harness for part 3. An independent before/after pair was built entirely outside the repository: the LIVE bytes (3fe8466c...) were placed in a scratch file and registration counts taken there, then the STAGED bytes (c59b1c9a...) were published over that same location and the counts retaken with identical patterns. Before publish: sh=0 ps1=0 for ALL 13 suites, 26 zero counts. After publish: 1 for all 25 registrations, with guard-staging-exemption ps1=0 as expected. The pair moves 0 -> 1 and is falsifiable in a way the harness's version is not. AC-029 DISCHARGED BY RE-DERIVATION over the 25 files rather than by reading the committed artifact. No `gh` invocation at any command position in any of the 25. The harness's wider command-position pattern returns exactly two lines in all 25 files, both the same assertion DESCRIPTION string one per lane (check-hook-activation-handshake.tests.sh:172 / .ps1:165, 'TEST-027 copilot-cli: a genuine --emit copilot deny JSON...'), neither of which is a command. `sdd-sudo` is INVOKED nowhere; an independent whole-word grep finds exactly two textual occurrences, both the sentinel-file fixture CONTENT 'enabled-by: human via /sdd-sudo' inside a string literal written into a mktemp fixture (hook-guard-epic-a1-boundary.tests.sh:140, .ps1:130). The only other non-zero textual hits under the harness's D1b pattern are two per lane in canonicalize-sdd-yaml, both the YAML round-trip fixture value 'http://example.com' (:441/:442 and :473/:475). anthropic, openai and api.github.com appear in none of the 25. SDD_SUDO appears only as the environment-variable NAMES SDD_SUDO_KEY / SDD_SUDO_KEY_FILE in generate-approval-sidecar.tests.sh's key-resolution byte-parity fixtures, value literal 'byte-parity-value' (:392), popped at :398 and cleared at :405 - no live grant is taken. Every mktemp root in all 13 .sh suites is pwd -P normalized (twelve NORMALIZED_LATER, plus three nested roots in check-hook-activation-handshake at :122/:286/:473 that inherit normalization from an already-normalized $WORK); zero NOT_NORMALIZED. No possibly-empty bash array can be expanded under set -u because THERE IS NO ARRAY EXPANSION AT ALL: `grep -c '[@]'-style array-expansion count returns 0 for each of the 13 .sh suites individually, and the POSITIVE CONTROL for that absence claim - the identical pattern against tests/run-all.sh - returns 1, so the pattern does find array expansions when they are present. All 13 set -u, twelve bare and guard-staging-exemption as `set -euo pipefail` (:28). THE THREE SUITES T-013 EDITED ARE COUNT-NEUTRAL BY MEASUREMENT AT BOTH ENDS, not by argument: project-context-schema 44/0, approver-registry-schema 8/0 and guard-staging-exemption 33/0 both at HEAD and at 71e0f0f2 extracted with `git archive` into a scratch tree; the diff was read in full and each file gains exactly +3 purely additive lines (2 comment + 1 `WORK=$(cd \"$WORK\" && pwd -P)`), with no deletion anywhere, so it is structurally incapable of removing an assertion. Those three paths lie OUTSIDE T-013's Planned Files and their authority is the task's Scope (tasks.md:2685-2686, 'fix any violation found'), which is disclosed rather than folded in. THE FULL-LOCAL-SUITE DONE-WHEN ITEM IS **NOT SATISFIED** AND IS RECORDED AS **CONDITIONALLY SATISFIED PENDING THE FINAL-PHASE MERGE**, on a human's explicit recorded decision to defer that merge; the regression check's evidence is the 25 individual green runs, never the aggregate runners. Both lanes were run AS-IS this session - no patch, no skip - each on its own `git clone --local` in a scratch directory outside the repository, with `git status --porcelain` verified EMPTY in the clone beforehand, both at HEAD b3b2805e (LATER than the HEAD seq0372's evaluator used, b5930708, so every T-013 commit plus the gate-report and carryover commits are present). bash tests/run-all.sh announced 21 suites, aborted at the 21st, tests/turn-first-workflow.tests.sh, with 'not ok: implementation report template omits: ## Output Paths And Hashes', exit 1, and the whole transcript contains exactly ONE `not ok` line; a grep of that transcript for all 13 epic suite names returns 0, so the aggregate runner never reaches any of them - measured, not inferred from the tests=() array, which independently holds 61 entries with this epic's 13 at positions 49-61. pwsh tests/run-all.ps1 announced 1 suite and aborted at the 1st of 44, tests/validate-repository.ps1, with 'workflow-state: epic-189-a1-project-context: stage-provenance: task plan hash is stale', exit 1. NEITHER ABORT IS ATTRIBUTABLE TO T-013, and the pristine-clone controls are what carries that: a failure a task caused cannot reproduce on a clean tree at a HEAD that already contains the task's work. Bash-lane cause verified directly rather than cited: this branch's tests/turn-first-workflow.tests.sh:290 reads '## Output Paths And Hashes' while origin/main's same line reads '## Outputs'; `git log --oneline b085ec76..HEAD` returns 0 commits on that suite and 0 on plugins/sdd-implementation/scripts/validate-implementation-report.sh, so a merge takes main's version of both verbatim with nothing to conflict. The three upstream fixes were checked by ancestry, not by report: 6b40b6e1, f2687bef and 5a9df172 are each an ancestor of origin/main and NONE is an ancestor of HEAD; `git rev-list --left-right --count origin/main...HEAD` gives 172 behind / 224 ahead. The pwsh blocker is DIFFERENT IN KIND and not merge-resolvable - implement-task's lifecycle appends to tasks.md necessarily diverge the task-review contract's bound hash, so task-stage provenance structurally cannot stay green during the implementation phase; it is cleared by the final-phase provenance re-binding. WHAT THIS ROUND DID NOT RE-MEASURE is stated in regression.log rather than glossed: the implementer's Measurements 1-6, including the whole-repository merge simulation and the union-registry rerun that reached 62 suites green, were NOT reproduced here; they rest on the committed E1..E9 artifacts and the seq0372 evaluator's own checks, and the 'entirely merge-resolvable' conclusion is carried forward, not re-derived. THE COMMITTED AUDIT ARTIFACTS REPRODUCE BYTE-FOR-BYTE: the harness re-run at HEAD with --out-dir pointed OUTSIDE the repository (--sections C,D, exit 0) produced C-registration-audit.txt and D-nonuse-ci-resilience.txt that diff IDENTICAL to the committed copies, sha256 08809e8ff4c9cc955952e4c34d375436e6e004249bdd9506d341fafd70d24e6a and 055923b74162714f3bd7633421379abd3e8154a9692b00a215dddaeff3fda2dd, equal to the rows for those paths in the implementation report's Outputs table. --out-dir WAS DELIBERATELY NOT POINTED AT THE COMMITTED DIRECTORY: the report's own documented Test Command (T-013.md:138) does exactly that and would overwrite committed, hash-pinned artifacts including review-manifest inputs - seq0372's first Minor, registered carryover, the same trap remedy1-evidence.sh carries. Nothing in this chain was produced by running the harness in place. TEST-028 AND TEST-029 ARE NOT ID-TAGGED ASSERTIONS IN ANY SUITE and that is correct here: `grep -rn 'TEST-028|TEST-029' tests/` returns 8 lines, ALL of them in tests/agent-model-routing.tests.ps1 where they are an UNRELATED epic's own ids bound to ITS AC-007/AC-008; this feature's TEST-028/TEST-029 are carried by the audit harness's own section labels (t013-evidence.sh:171 and :281), which is consistent with tasks.md:2713 placing any new script or schema out of scope. THE ITEM-11 SHORTFALL IS 3, NOT 2, re-confirmed by direct measurement rather than by citing the carryover note: project-context-schema, approver-registry-schema and guard-staging-exemption carry no `run-all` reference in the .sh lane (the first two also lack it in .ps1), while hook-guard-epic-a1-boundary DOES assert it, once, as a loop over both runners at :349. Registration itself is nonetheless 25/25. Placeholder scan clean over T-013's entire changed source surface derived from the commit range rather than from Planned Files - six paths: the staged workflow, MANIFEST.sha256, the three edited suites and the harness script; tests/run-all.{sh,ps1} are absent from that surface because they are absent from the commit range, which is itself the audit's Part-1 finding. CHANGELOG.md is excluded and the reason is MEASURED: appending it yields 5 findings, all long-standing prose DESCRIBING the scanner's own behaviour, and re-running the scanner on the pre-T-013 tree (`git archive 71e0f0f2`) reproduces the same five at line numbers exactly 36 LOWER - matching T-013's single 36-line CHANGELOG insertion (`git diff --unified=0 71e0f0f2 HEAD -- CHANGELOG.md` reports one hunk, @@ -653,0 +654,36 @@, from the one commit ac30805b) - so T-013 introduced no marker and merely shifted five pre-existing ones. Those five sit at exactly the line numbers T-012's chain recorded, so the two rounds reconcile. Task-state passed for 13 tasks, with T-001..T-012's contracts and evidence bundles revalidated in the same run; the 'dirty working tree' warnings are historical properties of each stored bundle, not a statement about this round, whose tree was clean. THIS ROUND OBSERVES T-013 AS `Implementation Complete`, NOT AS `Done`: recording Done is the main session's job, `git diff --cached -- specs/epic-189-a1-project-context/tasks.md` was re-checked EMPTY immediately before this chain's commit, and tasks.md is not among the staged paths. Independent skeptical evaluation PASSed on the FIRST round, seq0372 (reports/quality-gate/2026-08-04T170517Z-T-013.md, sha256 54bac76c3bbca59d7237a2e703d452b887feedfff7eb757d4c1e76223bf57560, 0 Critical / 0 Major / 4 Minor) - unlike T-012, which needed two rounds. The frozen report was NOT edited, per this feature's precedent; its four Minors are registered as carryover by commit b3b2805e, verified to add exactly FOUR sections to reports/notes/epic-189-a1-carryover-items.md and to touch no other file (1 file changed, 58 insertions). All four are observations about the record and the harness - the Test Command overwrite trap, the '2 pairs vs 3 suites' framing, the part-3/part-2 equivalence, and the self-registration scanner heuristic - and none asserts a defect in the shipped surface, which is why the verdict is PASS at 0 Critical / 0 Major. ONE GENERATOR ARTIFACT IS RECORDED HERE rather than left to look like a contradiction: the generated T-013.evidence.json will carry review_verdict.minor = 0 although the frozen report records FOUR Minors. The cause was read out of the script, not guessed - generate-evidence-bundle.sh's parse_review_verdict counts a `^Minor: <N>` summary line, and this feature's reports do not emit one (`grep -c '^Minor:'` over the seq0372 report returns 0 while `grep -c '^- \\[Minor\\]'` returns 4). The same review_verdict.minor = 0 appears in T-008..T-012's bundles, all of which likewise carried non-zero Minors, so this is long-standing generator behavior across the whole feature. The authoritative counts are 0 Critical / 0 Major / 4 Minor. TWO ENFORCEMENT DENIALS were encountered during this run and NEITHER was bypassed, reshaped to evade, or worked around with elevated permissions: the repository's deterministic gate refused two compound commands, and the sanctioned fix - splitting each into separate, simpler invocations - was applied in both cases and the denial text is reported verbatim to the coordinator. Shell stack waives the three compile-oriented checks (no lint/typecheck/build toolchain; established waiver set). This chain-authoring commit touches no tasks.md line at all.",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's stdlib-only Python + shell/PowerShell script surface (shell stack; established waiver set, unchanged since T-002).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-013/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration in T-013's scope. T-013 is a closing audit that adds no production surface; the cross-file integration it does exercise - publishing the staged workflow candidate over the live bytes in a throwaway tree and re-measuring all 25 registrations - is recorded in focused-tests.log section 5 rather than claimed here.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-013/focused-tests.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-013/regression.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell/stdlib-Python scripts in this repository (shell stack; established waiver set).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-013/placeholder.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-013/task-state.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": false,
+      "passes": true,
+      "evidence": "specs/epic-189-a1-project-context/verification/qg/T-013/traceability.log",
+      "waiver_reason": "",
+      "requirement_ids": [
+        "REQ-011"
+      ],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application. T-013 adds no runnable entry point of its own; the audit harness it does add was executed end to end this round (exit 0) with its output directed outside the repository, and that run is recorded in focused-tests.log section 7 rather than claimed as a smoke run.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature. T-013 nonetheless pins its one behavioral edit from both ends by measurement rather than by baseline document: the three suites whose mktemp roots it normalized were run at 71e0f0f2 and at HEAD and report identical tallies (44/0, 8/0, 33/0), so the change is proven count-neutral.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface in T-013's scope.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}
