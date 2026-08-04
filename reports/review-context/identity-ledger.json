@@ -4410,6 +4410,15 @@
       "host_session_id": "SESS-spec-a2r1-b-designsyncconsent-0490",
       "previous_record_sha256": "bcf3736c4c98e8974c7a76a8da20375d9570c62414ca2779af3541252d6e0f97",
       "record_sha256": "98584042dc77db4c8d0e6c69d2e6c88d135e7dd5abc0386334681bc4a02f46c2"
+    },
+    {
+      "sequence": 491,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-designsyncconsent-spec-a2r2-a-seq0491",
+      "host_session_id": "SESS-spec-a2r2-a-designsyncconsent-0491",
+      "previous_record_sha256": "98584042dc77db4c8d0e6c69d2e6c88d135e7dd5abc0386334681bc4a02f46c2",
+      "record_sha256": "f1ff5e6ec5868972fe8b40c608c5621d3b3ca8139c953c01c500deda7ac2b8b6"
     }
   ]
 }

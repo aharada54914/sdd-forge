@@ -83,15 +83,16 @@ Split because "withdrawal is mentioned" is satisfiable by text that names the af
 
 #### AC-030
 
-The Loop's push step states the push-failure rule in all three of its parts:
+The Loop's push step states the push-failure rule in all four of its parts:
 
 1. a push failure — a network error, a timeout, an auth expiry discovered only after capability detection passed, a service outage — does **not** change consent state;
 2. the agent reports the failure to the operator;
-3. a retry within the same scope proceeds **without** a new consent prompt, re-entering at the pre-upload check point rather than at consent resolution.
+3. a retry within the same scope proceeds **without** a new consent prompt, re-entering at the pre-upload check point rather than at consent resolution;
+4. the failure is explicitly distinguished from AC-019's persistent "not permitted" outcome — a push failure writes no standing forbiddance.
 
 Decided by the human on 2026-08-05, after impl review's round-2 reviewers independently found the behaviour unspecified. The rationale is scope-binding: consent attaches to feature ∧ session and to the destination (R-OQ-1, R-OQ-3), not to the success of any single upload, and treating a failed push as an implicit revocation would collide with AC-028's explicit-withdrawal model — withdrawal is the only way a consent is meant to stop applying mid-session. The question is new with this feature: under per-upload consent a failed upload was simply asked about again, so failure semantics never needed stating; per-scope consent creates the question and therefore owes an answer.
 
-Three parts asserted separately because each has its own vacuous-satisfaction shape: (1) without (3) permits re-prompting on retry, which silently restores per-upload friction on exactly the path where the operator is already dealing with a failure; (3) without (1) permits treating the consent as spent and skipping the retry; (2) alone is satisfiable by silent logging. An implementation that treats push failure as revocation fails (1) and (3) together.
+Four parts asserted separately because each has its own vacuous-satisfaction shape: (1) without (3) permits re-prompting on retry, which silently restores per-upload friction on exactly the path where the operator is already dealing with a failure; (3) without (1) permits treating the consent as spent and skipping the retry; (2) alone is satisfiable by silent logging; and (4) exists for the same reason AC-026 carries its own distinguishing element — a generic non-change claim does not by itself establish the distinction, and text satisfying (1)–(3) could still leave a reader unable to tell a failed push from a persistent denial in the record's vocabulary, which is the conflation AC-026's third element prevents on the decline path. An implementation that treats push failure as revocation fails (1), (3) and (4) together.
 
 ### REQ-002 — the consent is informed, and its disclosure is accurate about what it cannot enumerate
 
