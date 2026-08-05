@@ -4464,6 +4464,24 @@
       "host_session_id": "SESS-task-task-reviewer-a-mcp-readonly-preflight-0496",
       "previous_record_sha256": "18102834d1fd2747ffe8816f7560b04aee0d121902afbfe01368b5c3d181641a",
       "record_sha256": "95a05c8f0d262d267e7b7580d1c738ef65d515b9c26257f24f0635212504cd0d"
+    },
+    {
+      "sequence": 497,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-design-sync-consent-task-task-reviewer-b-seq0497",
+      "host_session_id": "SESS-task-task-reviewer-b-design-sync-consent-0497",
+      "previous_record_sha256": "95a05c8f0d262d267e7b7580d1c738ef65d515b9c26257f24f0635212504cd0d",
+      "record_sha256": "211f3d526efc39d367a0fcb7c7e9f8a9abaec8bfd1635c7edbef205e23e35084"
+    },
+    {
+      "sequence": 498,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-mcp-readonly-preflight-task-task-reviewer-b-seq0498",
+      "host_session_id": "SESS-task-task-reviewer-b-mcp-readonly-preflight-0498",
+      "previous_record_sha256": "211f3d526efc39d367a0fcb7c7e9f8a9abaec8bfd1635c7edbef205e23e35084",
+      "record_sha256": "d7aac4bb3e8dcce66eb5e80cff863a972d5101ab0c6048739054b19cd770a113"
     }
   ]
 }
