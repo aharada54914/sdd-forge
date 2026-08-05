@@ -288,10 +288,10 @@ function Get-FirstLineIndex([string[]]$lines, [string]$pattern) {
     return -1
 }
 
-# Runtime-assembled banned per-upload markers (AGENTS.md "Author-time
-# sweeps" item 2; requirements.md Edge Case 8). TEST-033..TEST-036's
-# negative half must never embed the phrase this feature removes as a
-# contiguous literal in this suite's own source, comments or messages --
+# Runtime-assembled banned frequency-model markers, retired by this feature
+# (AGENTS.md "Author-time sweeps" item 2; requirements.md Edge Case 8).
+# TEST-033..TEST-036's negative half must never embed either retired phrase
+# as a contiguous literal in this suite's own source, comments or messages --
 # assembled here from non-contiguous parts instead. The Japanese marker
 # and the TEST-036 positive marker are additionally built from Unicode
 # code points rather than as literal characters: PS5.1 reads a BOM-less
@@ -563,23 +563,23 @@ $dslDescLine = ($dslLines | Where-Object { $_ -cmatch '^description:' } | Select
 if ($null -eq $dslDescLine) { $dslDescLine = "" }
 if (($dslDescLine -ne "") -and -not $dslDescLine.Contains($bannedPerUpload) `
         -and ($dslDescLine -match 'per-feature|feature.{0,15}(and|AND).{0,15}session')) {
-    Test-Pass "TEST-033 site 1 (frontmatter description) states the per-feature model, not per-upload (AC-021)"
+    Test-Pass "TEST-033 site 1 (frontmatter description) states the per-feature model, not $bannedPerUpload (AC-021)"
 } else {
-    Test-Fail "TEST-033 site 1 (frontmatter description) states the per-feature model, not per-upload (AC-021)"
+    Test-Fail "TEST-033 site 1 (frontmatter description) states the per-feature model, not $bannedPerUpload (AC-021)"
 }
 
 if (($boundariesLines.Count -gt 0) -and -not $boundariesFlat.Contains($bannedEveryTime) `
         -and ($boundariesFlat -match 'per-feature|feature.{0,15}(and|AND).{0,15}session')) {
-    Test-Pass "TEST-034 site 2 (Boundaries) states the per-feature model, not every time (AC-021)"
+    Test-Pass "TEST-034 site 2 (Boundaries) states the per-feature model, not $bannedEveryTime (AC-021)"
 } else {
-    Test-Fail "TEST-034 site 2 (Boundaries) states the per-feature model, not every time (AC-021)"
+    Test-Fail "TEST-034 site 2 (Boundaries) states the per-feature model, not $bannedEveryTime (AC-021)"
 }
 
 if (($bsiUiBulletLines.Count -gt 0) -and -not $bsiUiBulletFlat.Contains($bannedPerUpload) `
         -and ($bsiUiBulletFlat -match 'per-feature|feature.{0,15}(and|AND).{0,15}session')) {
-    Test-Pass "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not per-upload (AC-021)"
+    Test-Pass "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not $bannedPerUpload (AC-021)"
 } else {
-    Test-Fail "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not per-upload (AC-021)"
+    Test-Fail "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not $bannedPerUpload (AC-021)"
 }
 
 if (($wfgSectionLines.Count -gt 0) -and -not $wfgSectionFlat.Contains($bannedJaPerUpload) `

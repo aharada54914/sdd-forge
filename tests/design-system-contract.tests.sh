@@ -207,10 +207,10 @@ sha256_of() {
   fi
 }
 
-# Runtime-assembled banned per-upload markers (AGENTS.md "Author-time
-# sweeps" item 2; requirements.md Edge Case 8). TEST-033..TEST-036's
-# negative half must never embed the phrase this feature removes as a
-# contiguous literal in this suite's own source, comments or messages --
+# Runtime-assembled banned frequency-model markers, retired by this feature
+# (AGENTS.md "Author-time sweeps" item 2; requirements.md Edge Case 8).
+# TEST-033..TEST-036's negative half must never embed either retired phrase
+# as a contiguous literal in this suite's own source, comments or messages --
 # assembled here from non-contiguous parts instead, so this suite cannot
 # become a false-positive target of any vocabulary scan run over tests/.
 BANNED_PER_UPLOAD="$(printf '%s' 'per-up')$(printf '%s' 'load')"
@@ -491,25 +491,25 @@ DSL_DESC_LINE=$(grep -m1 '^description:' "$DSL")
 if [ -n "$DSL_DESC_LINE" ] \
    && ! printf '%s' "$DSL_DESC_LINE" | grep -Fq "$BANNED_PER_UPLOAD" \
    && printf '%s' "$DSL_DESC_LINE" | grep -Eiq 'per-feature|feature.{0,15}(and|AND).{0,15}session'; then
-  pass "TEST-033 site 1 (frontmatter description) states the per-feature model, not per-upload (AC-021)"
+  pass "TEST-033 site 1 (frontmatter description) states the per-feature model, not ${BANNED_PER_UPLOAD} (AC-021)"
 else
-  fail "TEST-033 site 1 (frontmatter description) states the per-feature model, not per-upload (AC-021)"
+  fail "TEST-033 site 1 (frontmatter description) states the per-feature model, not ${BANNED_PER_UPLOAD} (AC-021)"
 fi
 
 if [ -n "$BOUNDARIES_SECTION" ] \
    && ! printf '%s' "$BOUNDARIES_FLAT" | grep -Fq "$BANNED_EVERY_TIME" \
    && printf '%s' "$BOUNDARIES_FLAT" | grep -Eiq 'per-feature|feature.{0,15}(and|AND).{0,15}session'; then
-  pass "TEST-034 site 2 (Boundaries) states the per-feature model, not every time (AC-021)"
+  pass "TEST-034 site 2 (Boundaries) states the per-feature model, not ${BANNED_EVERY_TIME} (AC-021)"
 else
-  fail "TEST-034 site 2 (Boundaries) states the per-feature model, not every time (AC-021)"
+  fail "TEST-034 site 2 (Boundaries) states the per-feature model, not ${BANNED_EVERY_TIME} (AC-021)"
 fi
 
 if [ -n "$BSI_UI_BULLET" ] \
    && ! printf '%s' "$BSI_UI_BULLET_FLAT" | grep -Fq "$BANNED_PER_UPLOAD" \
    && printf '%s' "$BSI_UI_BULLET_FLAT" | grep -Eiq 'per-feature|feature.{0,15}(and|AND).{0,15}session'; then
-  pass "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not per-upload (AC-021)"
+  pass "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not ${BANNED_PER_UPLOAD} (AC-021)"
 else
-  fail "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not per-upload (AC-021)"
+  fail "TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not ${BANNED_PER_UPLOAD} (AC-021)"
 fi
 
 if [ -n "$WFG_SECTION" ] \
