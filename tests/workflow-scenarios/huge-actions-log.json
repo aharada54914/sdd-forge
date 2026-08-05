@@ -1,0 +1,23 @@
+{
+  "scenario_id": "huge-actions-log",
+  "class_number": 8,
+  "class_name": "huge Actions log",
+  "class_name_source": "issue #125 body (代表10種 item 8: \"巨大 Actions ログ\"); investigation.md INV-017 row 8",
+  "fixture_profile": "brownfield",
+  "coverage_kind": "existing-coverage",
+  "coverage_refs": [
+    {
+      "path": "mcp/ci-mcp/tests/error-paths/bounded-tail-read.test.ts",
+      "note": "bounded-tail-read error-path coverage for an oversized Actions log."
+    },
+    {
+      "path": "mcp/ci-mcp/tests/tools/get-job-log.test.ts",
+      "note": "get-job-log tool-level coverage of the same bounded-read contract."
+    }
+  ],
+  "tool_name_shapes": {
+    "claude_code": ["Bash"],
+    "codex": ["exec_command"]
+  },
+  "assertion_summary": "Strong existing coverage at MCP-tool level (investigation.md INV-017 row 8). workflow-scenarios.tests.sh's TEST-012 confirms both coverage_refs paths exist on disk, plus TEST-013's PreToolUse-shape drive builds a representative Bash/exec_command payload for a synthetic gh run view --log invocation. This scenario intentionally does not duplicate either existing suite's own assertions or invoke a real gh CLI call (security-spec.md Boundary B4)."
+}

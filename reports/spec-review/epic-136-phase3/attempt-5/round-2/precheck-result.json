@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase3",
+  "attempt": 5,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "c115dbf38f384a49f9ce9ba5817174972e31af05c16d5fd531ffbdd2224cda21",
+  "acceptance_sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "469c21647918c54c12d175148475b91117cca0787af4ef4aa57cad0ee8a234a8",
+  "edit_summary": "Round 1's contradiction closed by enumerating every paragraph containing 'batch' (18 hits) and fixing all six that named a stream set: Non-goals' opening sentence, Roles and Permissions' Agent bullet, Main Workflows item 4, Security Boundaries B3, and the Medium intra-batch risk all now say the ONE shared staged batch carries Streams A's, B's, and C's CI steps plus Stream D's step-prefix lane marking. Also corrected AC-022, which neither reviewer flagged: it claimed 'three independent entries (#123, #124, #126)' while asserting two lines later that Stream C's #125 entry is present, and disagreed with acceptance-tests.md's TEST-022 count of four.",
+  "reset": false,
+  "generated_at": "2026-08-02T03:44:52Z"
+}

@@ -422,6 +422,47 @@ mv "$top_level_hash/contract.tmp" \
   "$top_level_hash/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
 expect_rule "$top_level_hash" stage-provenance
 
+# A re-review (impl-review-precheck --provenance-rereview) necessarily runs
+# while design.md already reads `Impl-Review-Status: Passed`, so its reviewers
+# record the RAW hash of that state rather than the Pending-normalized one.
+# The gate must accept it, or a re-reviewed feature can never pass again no
+# matter how many times its review passes.
+rereview_ok="$(make_full_fixture rereview-raw-hash)"
+rereview_design="$rereview_ok/specs/workflow-state-integrity/design.md"
+rereview_contract="$rereview_ok/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
+rereview_raw="$(shasum -a 256 "$rereview_design" | awk '{print $1}')"
+rereview_norm="$(sed 's/^Impl-Review-Status:[[:space:]]*.*/Impl-Review-Status: Pending/' \
+  "$rereview_design" | shasum -a 256 | awk '{print $1}')"
+# Guard against a vacuous fixture: if the two forms coincided, this case would
+# prove nothing about accepting the raw one.
+[[ "$rereview_raw" != "$rereview_norm" ]] ||
+  fail "rereview fixture is vacuous: raw and normalized design hashes are equal"
+jq --arg raw "$rereview_raw" '
+  .design_sha256 = $raw |
+  (.reviewers[].allowed_input_manifest) |=
+    map(if (.path | endswith("/specs/workflow-state-integrity/design.md"))
+        then .sha256 = $raw else . end)' \
+  "$rereview_contract" > "$rereview_ok/contract.tmp"
+mv "$rereview_ok/contract.tmp" "$rereview_contract"
+expect_valid "$rereview_ok"
+
+# Non-vacuity of the above: accepting the raw form must NOT mean accepting any
+# hash. An edit to design.md's BODY after the contract was recorded matches
+# neither form, so the gate must still reject it.
+rereview_body="$(make_full_fixture rereview-body-edit)"
+rereview_body_design="$rereview_body/specs/workflow-state-integrity/design.md"
+rereview_body_contract="$rereview_body/reports/impl-review/workflow-state-integrity/attempt-1/round-2/impl-review-contract.json"
+rereview_body_raw="$(shasum -a 256 "$rereview_body_design" | awk '{print $1}')"
+jq --arg raw "$rereview_body_raw" '
+  .design_sha256 = $raw |
+  (.reviewers[].allowed_input_manifest) |=
+    map(if (.path | endswith("/specs/workflow-state-integrity/design.md"))
+        then .sha256 = $raw else . end)' \
+  "$rereview_body_contract" > "$rereview_body/contract.tmp"
+mv "$rereview_body/contract.tmp" "$rereview_body_contract"
+printf '\nAn edit made after the reviewers read this document.\n' >> "$rereview_body_design"
+expect_rule "$rereview_body" stage-provenance
+
 missing_calibration="$(make_full_fixture missing-calibration)"
 jq '(.reviewers[].allowed_input_manifest) |=
       map(select((.path | endswith("plugins/sdd-review-loop/references/reviewer-calibration.md")) | not))' \

@@ -37,7 +37,7 @@ on:
 
 # 権限は実際に使うものだけに最小化する(REQ-005 / AC-010, security-spec.md B2)。
 # id-token: write は削除済み。ピン留めした
-# anthropics/claude-code-action@af0559ee4f514d1ef21826982bed13f7edc3c35e
+# anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b
 # (v1.0.165) の action.yml は id-token を、入力 anthropic_federation_rule_id を
 # anthropic_organization_id と併用する workload identity federation 時のみ要求する
 # (action.yml 入力 anthropic_federation_rule_id の説明:
@@ -87,7 +87,7 @@ jobs:
           fi
 
       - name: Checkout repository
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -110,7 +110,7 @@ jobs:
         # to pick up upstream fixes; verify the SHA against the release tag.
         # NOTE: Generated PRs will be gated by required-checks from test.yml;
         # no auto-merge will bypass CI. Manual review & approval is required.
-        uses: anthropics/claude-code-action@af0559ee4f514d1ef21826982bed13f7edc3c35e # v1.0.178
+        uses: anthropics/claude-code-action@be7b93b1907a4abad570368f3c74b6fe3807510b # v1.0.183
         env:
           # セッション内の gh CLI も PAT を使う(issue #173 remedy (b))。
           GH_TOKEN: ${{ secrets.SDD_SESSION_PR_TOKEN || github.token }}

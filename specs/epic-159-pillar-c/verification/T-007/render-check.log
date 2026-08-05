@@ -1,0 +1,21 @@
+T-007 TEST-042 (AC-042) render-agent-frontmatter --check zero-diff proof
+Captured: 2026-07-21T14:44:47Z, post-flip (matrix is now the default policy)
+Note: render-agent-frontmatter.sh reads role_defaults directly from
+contracts/agent-model-capabilities.v2.json -- it never calls select-agent-model,
+so this check is mechanically independent of the --effort-policy flip itself;
+it is still this task's own Done-When item because T-007 is the first task
+whose landing constitutes production use of the matrix-default policy.
+
+$ bash render-agent-frontmatter.sh --check --root $ROOT
+OK: plugins/sdd-quality-loop/agents/evaluator.md
+OK: .codex/agents/sdd-evaluator.toml
+OK: plugins/sdd-bootstrap/agents/investigator.md
+OK: .codex/agents/sdd-investigator.toml
+OK: plugins/sdd-review-loop/agents/spec-reviewer-a.md
+OK: plugins/sdd-review-loop/agents/spec-reviewer-b.md
+OK: plugins/sdd-review-loop/agents/impl-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/impl-reviewer-b.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-a.md (protected, read-only)
+OK: plugins/sdd-review-loop/agents/task-reviewer-b.md (protected, read-only)
+---- check summary: 10 targets, 0 drift ----
+exit_code=0

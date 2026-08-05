@@ -116,6 +116,45 @@ All panelists receive the same sanitized input bundle.
 EOF
 }
 
+# ── TEST-013..017/032 helpers (REQ-003, declared-outputs completeness) ──────
+
+# Portable SHA-256 of a file, for building "## Outputs" table fixture rows.
+sha256_of() {
+    if command -v sha256sum >/dev/null 2>&1; then
+        sha256sum "$1" | awk '{print $1}'
+    else
+        shasum -a 256 "$1" | awk '{print $1}'
+    fi
+}
+
+# A 64-hex string guaranteed not to equal any real SHA-256 digest used below
+# (all lowercase 'f', never produced by sha256_of).
+wrong_hash() { printf 'f%.0s' $(seq 1 64); }
+
+# Write an implementation report fixture at
+# <project_root>/reports/implementation/<feature>/<task_id>.md with an
+# "## Outputs" table. Each remaining arg is one row as "path<TAB>hash".
+# Usage: write_impl_report <project_root> <feature> <task_id> <row> [<row> ...]
+write_impl_report() {
+    local root="$1" feature="$2" task_id="$3"
+    shift 3
+    local dir="${root}/reports/implementation/${feature}"
+    mkdir -p "$dir"
+    {
+        printf '# Implementation Report: %s\n\n' "$task_id"
+        printf '## Outputs\n\n'
+        printf '| Path | SHA-256 |\n'
+        printf '|---|---|\n'
+        local row rpath rhash
+        for row in "$@"; do
+            rpath="${row%%$'\t'*}"
+            rhash="${row#*$'\t'}"
+            printf '| `%s` | `%s` |\n' "$rpath" "$rhash"
+        done
+        printf '\n## Test Evidence\n\nN/A (fixture).\n'
+    } > "${dir}/${task_id}.md"
+}
+
 # ============================================================================
 # PP-001: No consent → fail closed (no tasks.md flag, no SDD_SUDO)
 # ============================================================================
@@ -609,6 +648,258 @@ else
     mv "${D13}/SDD_SUDO.tmp" "${D13}/SDD_SUDO"
     SDD_SUDO_KEY="$KEY" bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" --task T-004 --feature cross-model-verification --input "${D13}/input.txt" --tasks-file "${D13}/tasks.md" --project-root "$D13" --out "${D13}/out.txt" >/dev/null 2>&1 && PP13_RC=0 || PP13_RC=$?
     if [ "$PP13_RC" -ne 0 ] && [ ! -e "${D13}/out.txt" ]; then ok "PP-013: correctly signed wrong repository is denied"; else fail "PP-013: wrong repository must be denied"; fi
+fi
+
+# ============================================================================
+# TEST-013 (AC-013): recursion — subdirectory file included in the bundle,
+# independent of the completeness check (no implementation report fixture).
+# ============================================================================
+
+echo "=== TEST-013: recursion — subdirectory file included in bundle (AC-013) ==="
+
+D013="${WORK}/pp013"
+mkdir -p "${D013}/input/sub"
+write_tasks_with_consent "${D013}/tasks.md" "T-004"
+printf 'top-level marker TOPLEVEL013\n' > "${D013}/input/top.txt"
+printf 'subdirectory marker SUBDIRMARKER013\n' > "${D013}/input/sub/evidence.md"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D013}/input" \
+    --tasks-file "${D013}/tasks.md" \
+    --project-root "${D013}" \
+    --out "${D013}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-013a: recursive collection succeeds (exit 0)"
+else
+    fail "TEST-013a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if [ -f "${D013}/out.txt" ] && grep -q "SUBDIRMARKER013" "${D013}/out.txt"; then
+    ok "TEST-013b: subdirectory file content included in bundle (recursion)"
+else
+    fail "TEST-013b: subdirectory file content missing from bundle — collector did not recurse"
+fi
+
+# ============================================================================
+# TEST-014 (AC-014): completeness positive baseline — 2 top-level declared
+# outputs, both present with matching SHA-256 → success + printed digest.
+# ============================================================================
+
+echo "=== TEST-014: completeness positive baseline (AC-014) ==="
+
+D014="${WORK}/pp014"
+mkdir -p "${D014}/input"
+write_tasks_with_consent "${D014}/tasks.md" "T-004"
+printf 'artifact one content\n' > "${D014}/input/artifact-one.txt"
+printf 'artifact two content\n' > "${D014}/input/artifact-two.txt"
+HASH014A="$(sha256_of "${D014}/input/artifact-one.txt")"
+HASH014B="$(sha256_of "${D014}/input/artifact-two.txt")"
+write_impl_report "${D014}" "cross-model-verification" "T-004" \
+    "$(printf 'artifact-one.txt\t%s' "$HASH014A")" \
+    "$(printf 'artifact-two.txt\t%s' "$HASH014B")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D014}/input" \
+    --tasks-file "${D014}/tasks.md" \
+    --project-root "${D014}" \
+    --out "${D014}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-014a: complete declared-outputs bundle → exit 0"
+else
+    fail "TEST-014a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-014b: digest printed on completeness success"
+else
+    fail "TEST-014b: expected a printed digest, got: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-015 (AC-015): declared path missing from --input → fail closed, gap
+# printed, no digest line.
+# ============================================================================
+
+echo "=== TEST-015: missing declared output → fail closed (AC-015) ==="
+
+D015="${WORK}/pp015"
+mkdir -p "${D015}/input"
+write_tasks_with_consent "${D015}/tasks.md" "T-004"
+printf 'present content\n' > "${D015}/input/present.txt"
+HASH015="$(sha256_of "${D015}/input/present.txt")"
+write_impl_report "${D015}" "cross-model-verification" "T-004" \
+    "$(printf 'present.txt\t%s' "$HASH015")" \
+    "$(printf 'missing.txt\t%s' "$(wrong_hash)")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D015}/input" \
+    --tasks-file "${D015}/tasks.md" \
+    --project-root "${D015}" \
+    --out "${D015}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-015a: missing declared output → nonzero exit"
+else
+    fail "TEST-015a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -q "missing.txt"; then
+    ok "TEST-015b: gap (missing path) printed to stderr"
+else
+    fail "TEST-015b: expected a gap message naming missing.txt, got: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-015c: no digest line printed on completeness gap"
+else
+    fail "TEST-015c: digest must not print on a completeness gap. Output: ${PP_OUTPUT}"
+fi
+if [ ! -f "${D015}/out.txt" ]; then
+    ok "TEST-015d: bundle file not written on completeness gap"
+else
+    fail "TEST-015d: bundle file must not be written on a completeness gap"
+fi
+
+# ============================================================================
+# TEST-016 (AC-016): declared path present but SHA-256 mismatch → same
+# fail-closed/gap/no-digest contract as TEST-015.
+# ============================================================================
+
+echo "=== TEST-016: hash-mismatch declared output → fail closed (AC-016) ==="
+
+D016="${WORK}/pp016"
+mkdir -p "${D016}/input"
+write_tasks_with_consent "${D016}/tasks.md" "T-004"
+printf 'real content for hash mismatch test\n' > "${D016}/input/artifact.txt"
+write_impl_report "${D016}" "cross-model-verification" "T-004" \
+    "$(printf 'artifact.txt\t%s' "$(wrong_hash)")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D016}/input" \
+    --tasks-file "${D016}/tasks.md" \
+    --project-root "${D016}" \
+    --out "${D016}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-016a: hash-mismatch declared output → nonzero exit"
+else
+    fail "TEST-016a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -q "artifact.txt"; then
+    ok "TEST-016b: gap (hash mismatch) printed to stderr"
+else
+    fail "TEST-016b: expected a gap message naming artifact.txt, got: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-016c: no digest line printed on hash-mismatch gap"
+else
+    fail "TEST-016c: digest must not print on a hash-mismatch gap. Output: ${PP_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-017 (AC-017): declared path under --input/sub/... is located and
+# hash-verified correctly — combines TEST-013's recursion with TEST-014's
+# completeness check.
+# ============================================================================
+
+echo "=== TEST-017: subdirectory declared output located + verified (AC-017) ==="
+
+D017="${WORK}/pp017"
+mkdir -p "${D017}/input/sub/nested"
+write_tasks_with_consent "${D017}/tasks.md" "T-004"
+printf 'nested artifact marker NESTEDMARKER017\n' > "${D017}/input/sub/nested/artifact.md"
+HASH017="$(sha256_of "${D017}/input/sub/nested/artifact.md")"
+write_impl_report "${D017}" "cross-model-verification" "T-004" \
+    "$(printf 'sub/nested/artifact.md\t%s' "$HASH017")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D017}/input" \
+    --tasks-file "${D017}/tasks.md" \
+    --project-root "${D017}" \
+    --out "${D017}/out.txt"
+
+if [ "${PP_EXIT}" -eq 0 ]; then
+    ok "TEST-017a: subdirectory declared output found + hash-verified → exit 0"
+else
+    fail "TEST-017a: expected exit 0, got ${PP_EXIT}. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-017b: digest printed (completeness passed for subdirectory path)"
+else
+    fail "TEST-017b: expected a printed digest, got: ${PP_OUTPUT}"
+fi
+if [ -f "${D017}/out.txt" ] && grep -q "NESTEDMARKER017" "${D017}/out.txt"; then
+    ok "TEST-017c: nested artifact content collected into bundle (recursion)"
+else
+    fail "TEST-017c: nested artifact content missing from bundle — collector did not recurse"
+fi
+
+# ============================================================================
+# TEST-032 (AC-032): a `../`-traversal path and an absolute-path variant in
+# the declared-outputs table, each resolving OUTSIDE --input, plus a sentinel
+# file placed at that outside location → fail closed, violation reported,
+# sentinel content NOWHERE in any produced output, no digest line.
+# Operationalizes Security Boundary B1 (STRIDE Path Traversal / Information
+# Disclosure, security-spec.md).
+# ============================================================================
+
+echo "=== TEST-032: path-traversal declared output → fail closed (AC-032, B1) ==="
+
+D032="${WORK}/pp032"
+mkdir -p "${D032}/input" "${D032}/outside"
+write_tasks_with_consent "${D032}/tasks.md" "T-004"
+printf 'legit content\n' > "${D032}/input/legit.txt"
+HASH032L="$(sha256_of "${D032}/input/legit.txt")"
+SENTINEL_TOKEN="SENTINEL-TEST032-DO-NOT-LEAK-$$"
+printf '%s\n' "$SENTINEL_TOKEN" > "${D032}/outside/secret.txt"
+HASH032S="$(sha256_of "${D032}/outside/secret.txt")"
+ABS_OUTSIDE="${D032}/outside/secret.txt"
+
+write_impl_report "${D032}" "cross-model-verification" "T-004" \
+    "$(printf 'legit.txt\t%s' "$HASH032L")" \
+    "$(printf '../outside/secret.txt\t%s' "$HASH032S")" \
+    "$(printf '%s\t%s' "$ABS_OUTSIDE" "$HASH032S")"
+
+PP_EXIT=0
+run_prepare \
+    --task T-004 --feature cross-model-verification \
+    --input "${D032}/input" \
+    --tasks-file "${D032}/tasks.md" \
+    --project-root "${D032}" \
+    --out "${D032}/out.txt"
+
+if [ "${PP_EXIT}" -ne 0 ]; then
+    ok "TEST-032a: path-traversal declared output → nonzero exit"
+else
+    fail "TEST-032a: expected nonzero exit, got 0. Output: ${PP_OUTPUT}"
+fi
+if echo "${PP_OUTPUT}" | grep -q "outside/secret.txt"; then
+    ok "TEST-032b: out-of-root violation reported on stderr"
+else
+    fail "TEST-032b: expected an out-of-root violation message, got: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qE '[0-9a-f]{64}'; then
+    ok "TEST-032c: no digest line printed on path-traversal gap"
+else
+    fail "TEST-032c: digest must not print on a path-traversal gap. Output: ${PP_OUTPUT}"
+fi
+if ! echo "${PP_OUTPUT}" | grep -qF "$SENTINEL_TOKEN"; then
+    ok "TEST-032d: sentinel content does not appear anywhere in stdout/stderr"
+else
+    fail "TEST-032d: SENTINEL LEAK — sentinel content found in prepare-panelist-input output"
+fi
+if [ ! -f "${D032}/out.txt" ]; then
+    ok "TEST-032e: bundle file not written on path-traversal gap"
+else
+    fail "TEST-032e: bundle file must not be written on a path-traversal gap"
 fi
 
 # ============================================================================

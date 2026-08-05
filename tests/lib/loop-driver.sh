@@ -518,6 +518,65 @@ loop_validator_skip() {
   printf 'SKIP: %s: %s\n' "$1" "$LOOP_VALIDATOR_SKIP_REASON"
 }
 
+# Second runtime capability probe (behavior-only, no OS branching), same
+# design as loop_validator_capability_probe: the impl/task legs additionally
+# exercise impl-review-precheck.sh's canonical workflow-state validation,
+# which has its own upstream Windows CRLF consumption defect (issue #203)
+# that only became reachable once issue #179's validator fix let those legs
+# run. Probes the fixture's own checker once, read-only; cached globally
+# because the defect is runtime-level, not fixture-level.
+LOOP_WORKFLOW_STATE_SKIP_REASON="canonical workflow-state validation rejects the fixture's registered, on-disk specification directory on this runtime (upstream Windows CRLF defect in check-workflow-state.sh jq -r consumption; issue #203)"
+loop_workflow_state_capability_probe() {
+  if [[ -n "${LOOP_WORKFLOW_STATE_CAPABILITY:-}" ]]; then
+    [[ "$LOOP_WORKFLOW_STATE_CAPABILITY" == ok ]]
+    return
+  fi
+  local root="${LOOP_FIXTURE_ROOT:?loop_workflow_state_capability_probe requires LOOP_FIXTURE_ROOT (set by loop_fixture_init)}"
+  local checker="${root}/plugins/sdd-quality-loop/scripts/check-workflow-state.sh"
+  local probe_out probe_rc
+  if [[ ! -f "$checker" ]]; then
+    # No fixture copy to probe: not the upstream defect; report ok so the
+    # real checks run and surface the actual error.
+    LOOP_WORKFLOW_STATE_CAPABILITY=ok
+    return 0
+  fi
+  if probe_out="$(bash "$checker" --feature "${LOOP_FIXTURE_FEATURE:-}" 2>&1)"; then
+    probe_rc=0
+  else
+    probe_rc=$?
+  fi
+  if [[ "$probe_rc" -eq 0 ]]; then
+    LOOP_WORKFLOW_STATE_CAPABILITY=ok
+    return 0
+  fi
+  if [[ "$probe_out" == *registry-dangling-entry* ]]; then
+    # The fixture registry is canonically valid by construction (every
+    # registered directory exists on disk), so a dangling-entry diagnostic
+    # here can only be the upstream CRLF consumption defect.
+    LOOP_WORKFLOW_STATE_CAPABILITY=degraded
+    return 1
+  fi
+  LOOP_WORKFLOW_STATE_CAPABILITY=ok
+  return 0
+}
+
+# loop_workflow_state_skip <check-id> — canonical named SKIP line for a check
+# suppressed by loop_workflow_state_capability_probe.
+loop_workflow_state_skip() {
+  printf 'SKIP: %s: %s\n' "$1" "$LOOP_WORKFLOW_STATE_SKIP_REASON"
+}
+
+# loop_impl_chain_skip <check-id> — SKIP for checks that need BOTH the real
+# validator and canonical workflow-state validation; names whichever
+# capability degraded.
+loop_impl_chain_skip() {
+  if [[ "${LOOP_VALIDATOR_CAPABILITY:-}" == degraded ]]; then
+    loop_validator_skip "$1"
+  else
+    loop_workflow_state_skip "$1"
+  fi
+}
+
 # _loop_reserve_review_context <stage> <role> <feature> <manifest-json-array>
 # Unchanged public contract from A2/#142: always reserves (extends the
 # identity-ledger chain).
@@ -575,10 +634,10 @@ _loop_emit_spec_round_a() {
   local round a_verdict a_result a_fails a_passes check_severity warning
   round="$(jq -r .round "${round_dir}/precheck-result.json" | tr -d '\r')" || return 1
   case "$severity" in
-    none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=6; check_severity="Minor" ;;
-    Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Critical" ;;
-    Major)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Major" ;;
-    Minor)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=5; check_severity="Minor" ;;
+    none)     a_verdict="PASS";        a_result="PASS"; a_fails=0; a_passes=7; check_severity="Minor" ;;
+    Critical) a_verdict="BLOCKED";     a_result="FAIL"; a_fails=1; a_passes=6; check_severity="Critical" ;;
+    Major)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=6; check_severity="Major" ;;
+    Minor)    a_verdict="NEEDS_WORK";  a_result="FAIL"; a_fails=1; a_passes=6; check_severity="Minor" ;;
     *) echo "_loop_emit_spec_round_a: unknown severity: ${severity}" >&2; return 1 ;;
   esac
   warning=0
@@ -586,7 +645,7 @@ _loop_emit_spec_round_a() {
 
   jq -n --argjson attempt 1 --argjson round "$round" --arg result "$a_result" --arg severity "$check_severity" \
     --argjson fail_count "$a_fails" --argjson pass_count "$a_passes" '
-    ["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE"] as $ids |
+    ["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"integrated-summary/v1",attempt:$attempt,round:$round,
      reviewer_a_checks: ($ids | to_entries | map({id:.value,result:(if .key == 0 then $result else "PASS" end),severity:(if .key == 0 then $severity else "Minor" end)})),
      reviewer_a_fail_count:$fail_count,reviewer_a_pass_count:$pass_count,reviewer_a_skip_count:0,generated_at:"2026-06-23T00:00:00Z"}' \
@@ -606,7 +665,7 @@ _loop_emit_spec_round_a() {
   jq -n --arg result "$a_result" --arg severity "$check_severity" --arg verdict "$a_verdict" \
     --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg precheck "$precheck_path" --arg calibration "$calibration_path" \
     --arg requirements_sha "$requirements_sha" --arg acceptance_sha "$acceptance_sha" --arg precheck_sha "$precheck_sha" --arg calibration_sha "$calibration_sha" '
-    ["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE"] as $ids |
+    ["REQ-TESTABILITY","GOAL-AC-TRACE","AC-OBSERVABLE","SCOPE-BOUNDARY","CONSTRAINTS-EXPLICIT","RISK-VALIDATION-SURFACE","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-a/v1",stage:"spec",role:"spec-reviewer-a",run_id:"fixture-a",host_session_id:"session-a",
      allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha}],
      verdict:$verdict,
@@ -653,7 +712,7 @@ _loop_emit_spec_round_b_contract() {
   jq -n --arg requirements "$requirements_path" --arg acceptance "$acceptance_path" --arg precheck "$precheck_path" --arg summary "$summary_path" \
     --arg calibration "$calibration_path" --arg requirements_sha "$requirements_sha" --arg acceptance_sha "$acceptance_sha" \
     --arg precheck_sha "$precheck_sha" --arg summary_sha "$summary_sha" --arg calibration_sha "$calibration_sha" '
-    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"spec-reviewer-b/v1",stage:"spec",role:"spec-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
      allowed_input_manifest:[{path:$requirements,sha256:$requirements_sha},{path:$acceptance,sha256:$acceptance_sha},{path:$precheck,sha256:$precheck_sha},{path:$calibration,sha256:$calibration_sha},{path:$summary,sha256:$summary_sha}],
      verdict:"PASS",
@@ -891,7 +950,7 @@ _loop_emit_impl_round_b_contract() {
     manifest_b_json="$(jq -c --arg p "$lpath" --arg s "$lsha" '. + [{path:$p,sha256:$s}]' <<<"$manifest_b_json")"
   done
   jq -n --arg result PASS --arg severity Minor '
-    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"impl-reviewer-b/v1",stage:"impl",role:"impl-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
      allowed_input_manifest:'"$manifest_b_json"',verdict:"PASS",
      checks: ($ids | map({id:.,result:"PASS",severity:"Minor",finding:"fixture pass"}))}' \
@@ -1137,7 +1196,7 @@ _loop_emit_task_round_b_contract() {
     --arg precheck "$precheck_path" --arg precheck_sha "$precheck_sha" \
     --arg calibration "$calibration_path" --arg calibration_sha "$calibration_sha" \
     --arg summary "$summary_path" --arg summary_sha "$summary_sha" '
-    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"task-reviewer-b/v1",stage:"task",role:"task-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
      allowed_input_manifest:[
        {path:$tasks,sha256:$tasks_sha},{path:$requirements,sha256:$requirements_sha},
@@ -1318,7 +1377,7 @@ _loop_emit_domain_round_b_contract() {
     --arg precheck "$precheck_path" --arg precheck_sha "$precheck_sha" \
     --arg calibration "$calibration_path" --arg calibration_sha "$calibration_sha" \
     --arg summary "$summary_path" --arg summary_sha "$summary_sha" '
-    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS"] as $ids |
+    ["AMBIGUITY","CONTRADICTION","EDGE-CASE-COVERAGE","ASSUMPTIONS-RESOLVABLE","APPROVAL-BOUNDARY","DOWNSTREAM-READINESS","DOMAIN-CONFORMANCE"] as $ids |
     {schema:"domain-reviewer-b/v1",stage:"domain",role:"domain-reviewer-b",run_id:"fixture-b",host_session_id:"session-b",
      allowed_input_manifest:[
        {path:$context,sha256:$context_sha},{path:$precheck,sha256:$precheck_sha},

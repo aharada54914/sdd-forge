@@ -18,7 +18,7 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history: review-loop prechecks and provenance tests resolve
           # recorded commit hashes (e.g. TDD Red commits) via git rev-parse.
@@ -221,6 +221,10 @@ jobs:
         shell: pwsh
         run: ./tests/structure-check-feature-mode.tests.ps1
 
+      - name: Test quality-gate cycle-limit suite (bash)
+        shell: bash
+        run: bash ./tests/quality-gate-cycle-limit.tests.sh
+
       - name: Test portable review-loop prechecks (pwsh)
         shell: pwsh
         run: |
@@ -389,7 +393,7 @@ jobs:
       run:
         working-directory: mcp/sdd-forge-mcp
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           # Full history: the golden task-state tests exercise
           # check-evidence-bundle, which resolves each bundle's recorded
@@ -449,7 +453,7 @@ jobs:
       run:
         working-directory: mcp/local-env-mcp
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -500,7 +504,7 @@ jobs:
       run:
         working-directory: mcp/ci-mcp
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -545,7 +549,7 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Install Claude Code CLI
         shell: bash

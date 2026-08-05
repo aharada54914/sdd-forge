@@ -1,0 +1,22 @@
+{
+  "schema": "integrated-summary/v1",
+  "attempt": 3,
+  "round": 3,
+  "reviewer_a_check_ids": [
+    "ARCH-COVERAGE",
+    "NO-CIRCULAR-DEPS",
+    "DATA-COVERAGE",
+    "API-COVERAGE",
+    "SECURITY-COVERAGE",
+    "FRONTEND-BACKEND-CONSISTENCY",
+    "TEST-STRATEGY-COVERAGE",
+    "NO-UNDEFINED-COMPONENT",
+    "ADR-PRESENT",
+    "DESIGN-SYSTEM-CONFORMANCE",
+    "DOMAIN-CONFORMANCE"
+  ],
+  "reviewer_a_fail_count": 0,
+  "reviewer_a_pass_count": 10,
+  "reviewer_a_skip_count": 1,
+  "generated_at": "2026-08-02T05:10:24Z"
+}

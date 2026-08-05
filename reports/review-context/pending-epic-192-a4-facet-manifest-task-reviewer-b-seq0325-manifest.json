@@ -1,0 +1,73 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-192-a4-facet-manifest",
+  "run_id": "RUN-epic-192-a4-facet-manifest-task-task-reviewer-b-seq0325",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-192-a4-facet-manifest-0325",
+  "sequence": 325,
+  "previous_record_sha256": "666b892614b6e6443fbe99059d47c6a1468a12e7dc46baa6d18f14e815218edc",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "9b804299eee839d2dda6e326d677f04f177f16466a5c5ed876f3bf26f18f9a50",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/epic-192-a4-facet-manifest/requirements.md",
+      "sha256": "41c938cbcc6b97f65255f4480a08a267402b018d4c6f9360714b196ad5fe33d0"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/acceptance-tests.md",
+      "sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/design.md",
+      "sha256": "65a49c044cfee8a31539d6a48fad75c6107c65fa600162f22f530f76c53e1591"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/tasks.md",
+      "sha256": "3b094b2129b1158849f6d2861d612f96a980778865c81e5942961034e4e35a77"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/traceability.md",
+      "sha256": "d48a945d8b3fa7217de2ac2a271beb5b097ec8eddcf19725ada7c2ac8fd62029"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/ux-spec.md",
+      "sha256": "4dfac597ef9fecabf517907a3030e6375a501dd6901b2ad383caa1f43305b80c"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/frontend-spec.md",
+      "sha256": "da495ac546baf663d6fec6b7c937f7a1d5a879614098a660535bb153fe446c07"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/infra-spec.md",
+      "sha256": "8a53ea0f5d861de3be82226f5f8224dcd3441b01336c7fac627b62009919f414"
+    },
+    {
+      "path": "specs/epic-192-a4-facet-manifest/security-spec.md",
+      "sha256": "7ad511aa95fb94cfa8cd848b0f35dc20f7dbb049f237d210b5d96d497f677f5f"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "reports/task-review/epic-192-a4-facet-manifest/attempt-1/round-1/precheck-result.json",
+      "sha256": "1bb121286446be96e2935b540706e8d3ddc300d40e050d6eaa3204a16eaeb419"
+    },
+    {
+      "path": "reports/task-review/epic-192-a4-facet-manifest/attempt-1/round-1/integrated-summary.json",
+      "sha256": "5380982fffc9ed7ce94667aad5d10565fda91b07190015cf6bbac22775426d42"
+    }
+  ]
+}

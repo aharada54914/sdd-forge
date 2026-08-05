@@ -1,0 +1,61 @@
+==> tests/retrospective-loop.tests.sh
+PASS: tests/retrospective-loop.tests.sh
+==> tests/emit-run-record-feature-scope.tests.sh
+PASS: tests/emit-run-record-feature-scope.tests.sh
+==> tests/rollback-1.5.0.tests.sh
+UNEXPECTED-FAIL (exit 1): tests/rollback-1.5.0.tests.sh -- see /tmp/regression-rollback-1.5.0.tests.sh.log
+==> tests/cross-model.tests.sh
+PASS: tests/cross-model.tests.sh
+==> tests/eval.tests.sh
+PASS: tests/eval.tests.sh
+==> tests/crlf-parity.tests.sh
+PASS: tests/crlf-parity.tests.sh
+==> tests/scenario.tests.sh
+PASS: tests/scenario.tests.sh
+==> tests/apply-branch-protection.tests.sh
+PASS: tests/apply-branch-protection.tests.sh
+==> tests/workflow-state-registry.tests.sh
+UNEXPECTED-FAIL (exit 1): tests/workflow-state-registry.tests.sh -- see /tmp/regression-workflow-state-registry.tests.sh.log
+==> tests/workflow-state-registry-parity.tests.sh
+UNEXPECTED-FAIL (exit 1): tests/workflow-state-registry-parity.tests.sh -- see /tmp/regression-workflow-state-registry-parity.tests.sh.log
+==> tests/workflow-state.tests.sh
+PASS: tests/workflow-state.tests.sh
+==> tests/workflow-state-parity.tests.sh
+PASS: tests/workflow-state-parity.tests.sh
+==> tests/second-approval-mask.tests.sh
+PASS: tests/second-approval-mask.tests.sh
+==> tests/workflow-state-ci-integration.tests.sh
+PASS: tests/workflow-state-ci-integration.tests.sh
+==> tests/structure-check-feature-mode.tests.sh
+PASS: tests/structure-check-feature-mode.tests.sh
+==> tests/quality-gate-cycle-limit.tests.sh
+PASS: tests/quality-gate-cycle-limit.tests.sh
+==> tests/guard-dispatch-fallback.tests.sh
+PASS: tests/guard-dispatch-fallback.tests.sh
+==> tests/guard-ps1-ascii.tests.sh
+PASS: tests/guard-ps1-ascii.tests.sh
+==> tests/loop-inventory.tests.sh
+PASS: tests/loop-inventory.tests.sh
+==> tests/loop-driver.tests.sh
+PASS: tests/loop-driver.tests.sh
+==> tests/loop-consistency.tests.sh
+PASS: tests/loop-consistency.tests.sh
+==> tests/loop-escalation.tests.sh
+PASS: tests/loop-escalation.tests.sh
+==> tests/hitl-wfi-terminal.tests.sh
+PASS: tests/hitl-wfi-terminal.tests.sh
+==> tests/check-placeholders-brownfield.tests.sh
+PASS: tests/check-placeholders-brownfield.tests.sh
+==> tests/bump-version-gate.tests.sh
+PASS: tests/bump-version-gate.tests.sh
+==> tests/release-loop-gate.tests.sh
+PASS: tests/release-loop-gate.tests.sh
+==> tests/run-panelist-effort.tests.sh
+PASS: tests/run-panelist-effort.tests.sh
+==> tests/model-freshness-check.tests.sh
+PASS: tests/model-freshness-check.tests.sh
+==> tests/guard-r10-port.tests.ps1
+PASS: tests/guard-r10-port.tests.ps1
+
+=== Targeted sweep (post-abort-point entries) summary ===
+PASS=26 UNEXPECTED-FAIL=3

@@ -1,0 +1,53 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic-192-a4-facet-manifest-spec-spec-reviewer-a-seq0320",
+  "host_session_id": "SESS-spec-spec-reviewer-a-epic-192-a4-facet-manifest-0320",
+  "allowed_input_manifest": [
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/requirements.md", "sha256": "26a11832883733ab4b17d7716cd99f1c4102c6ef6dab50f4026fcaf4a58fb3f5"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/acceptance-tests.md", "sha256": "a5018cf67a2e709703c3c172659693eaefe94f174c50daebaf9be79c0404b920"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/specs/epic-192-a4-facet-manifest/investigation.md", "sha256": "e82a67c5cb79f0be950500635642f69744df50400177e21f263de1a7fe83f17f"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/plugins/sdd-review-loop/references/spec-review-calibration.md", "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"},
+    {"path": "/Users/jrmag/Projects/active/sdd-forge-wt-epic-192/reports/spec-review/epic-192-a4-facet-manifest/attempt-1/round-1/precheck-result.json", "sha256": "dba97d8a249fee4a8416f33acc8227f7075167b0d6efd4dd80e90b1a793d1ddf"}
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every REQ-001..REQ-008 goal is expressed with concrete, checkable field shapes (e.g. REQ-001's exact required-field list, enum values, regex patterns for context_binding/resolver, stable-sort mandates) and each has a dedicated fixture-level AC (AC-001..AC-048) specifying exact positive/negative inputs and expected outcomes (e.g. AC-002's required-field matrix, AC-009's digest-pattern rejection, AC-044's exit-code/stdout-line contract). No in-scope requirement is left as unmeasurable prose; even algorithmic branches (REQ-004's staleness comparator, REQ-005's version-tier rule) are pinned to fixture pairs and exact exit/status codes."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Goal (REQ-001 through REQ-008) traces to at least one, and typically many, Acceptance Criteria: REQ-001->AC-001..011/041/047/048; REQ-002->AC-012..014; REQ-003->AC-015..018/042; REQ-004->AC-019..024/039/040/045; REQ-005->AC-025..027/045/046; REQ-006->AC-028..033/041/044/047/048; REQ-007->AC-034; REQ-008->AC-035. No stated Goal is left without a matching criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe concrete, externally observable outcomes rather than intent: specific fixture shapes, exact required-field lists, specific exit codes (0/1/2/3), exact diagnostic line formats (e.g. AC-044's `facet-manifest-staleness: <status>:<reason>`), and exact rejection/acceptance verdicts per fixture (e.g. AC-018's malformed-pointer rejection, AC-020's same-gate-ID attribute-change staleness lock). These are directly checkable against a produced artifact or script output, not vague quality statements."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals explicitly excludes: building the Capability Resolver or producing any live Manifest/Summary/Projection instance; implementing resolve-project-context.*; implementing a Registry- or ownership-scoped Policy Weakening detector; defining a full-track Capability Summary shape; modifying any Epic A1/A2/A3 contract file; authoring a new ADR; deciding Context Projection regeneration cadence (OQ-002); and running spec-review-loop/impl-review-loop or authoring tasks.md/traceability.md against this package. These boundaries directly forestall the areas where this schema-defining feature could otherwise expand into resolver-building or detector-building territory."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Material constraints are stated: compatibility constraints against Epic A1/A2/A3's already-fixed schemas (Dependencies section, with exact field/line citations); a Security Boundaries section addressing trust-boundary scope (no network access, no dynamic code execution, no credential handling), the deliberate absence of cryptographic protection on the Manifest itself (contrasted with the protected approval sidecar), and provider-name neutrality (AC-043); and an explicit fail-closed approval/re-approval boundary for Policy Weakening (REQ-004's Block-then-re-approval rule). No material constraint implied by the requirements is left unstated."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Risks section names schema-drift risk (mitigated by exact section/line citations enabling mechanical future diffing), ambiguity-resolution risk (the fail-closed weakening-verdict policy and the registry_digest --whole binding), and reserved-path risk. The highest-risk claim -- REQ-004's fail-closed Block on an indeterminate weakening verdict for a changed axis -- has a direct acceptance-criterion validation surface (AC-023, AC-024, AC-039, AC-040 each lock specific Block/not-stale outcomes with concrete fixtures), so the risk is not left unvalidated."
+    }
+  ]
+}

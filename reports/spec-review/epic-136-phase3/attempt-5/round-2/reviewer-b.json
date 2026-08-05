@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase3-spec-a5r2-b-seq0436",
+  "host_session_id": "SESS-spec-a5r2-b-epic136phase3-0436",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-5/round-2/integrated-summary.json",
+      "sha256": "e87df3f284e31d524b35a667e29c98523fd4ee44dabda6fb7dc7f0d09b16620f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase3/attempt-5/round-2/precheck-result.json",
+      "sha256": "d0fe97669c70ddbc4253f350e148bfd612906dfbcfc71b57ba54315516fbb6bd"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase3/requirements.md",
+      "sha256": "c115dbf38f384a49f9ce9ba5817174972e31af05c16d5fd531ffbdd2224cda21"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Field Definitions section defines every load-bearing term used in Goals/AC (guard-runtime surface, tool_name shape, PATH-restricted subshell, decision parity, combined suite, human-copy staging, preventive restructuring) with closed enumerations (e.g. tool_name shapes fixed to Bash/exec_command/apply_patch for REQ-002, plus shell/exec for REQ-003; fixture-classification fixed to greenfield|brownfield). AC-001..AC-023 each name a concrete suite file, payload shape, and pass/fail condition (e.g. AC-006's pwsh-wins precedence, AC-017's byte-unchanged needs: list). No term found where two implementers would reasonably diverge."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Re-checked every 'batch' passage in the current requirements.md (Non-goals opening paragraph, Roles and Permissions Agent/CI bullets, Main Workflows items 2-4, Security Boundaries B3, Risks Medium item, Open Questions OQ-4) plus acceptance-tests.md's AC-019/AC-020/AC-021/AC-023: all now uniformly describe the ONE shared human-copy batch as carrying Streams A, B, C, AND D's edits (e.g. Non-goals: 'one CI step per new suite from Streams A, B, AND C ... plus Stream D's step-prefix restructuring - four streams' edits in one candidate'; Roles/CI bullet: '(Streams A + B + C + D)'; Risks Medium: 'all four streams stage edits to the SAME protected ... file'). The round-1 Critical contradiction (five passages saying Streams A/B/D vs. others saying A+B+C+D) no longer exists in requirements.md or acceptance-tests.md. AC-022/TEST-022 are also now aligned at 'four independent entries' citing all of #123/#124/#125/#126. No other direct conflict found between requirements, acceptance criteria, constraints, or non-goals."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases section covers fail-closed uniformity (AC-005/008/009/010), false-negative PATH-restriction premise checking, non-working PowerShell stub sufficiency, cross-runtime OS-independence discipline, Stream C blocker re-verification discipline, and Stream D step-preservation/needs-list integrity. Acceptance-tests.md adds explicit negative/boundary coverage: AC-005's 2 named deny_unavailable sub-cases, AC-008/009/010's 12-combination negative-path matrices plus AC-010's added false-DENY control sub-case, AC-017's RED-then-GREEN dropped-step detection proof, and AC-018's non-regression check that unrelated workflows stay isolated. Material negative/boundary/failure modes implied by the requirements are represented in the acceptance suite."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Assumptions section lists five items (registration-gap state, PROTECTED_GATE_SUFFIXES membership, identity-ledger tail, ADR-0010 status, loop-driver.sh stage scope, collection-layer.tests.sh PATH technique), each explicitly labeled as a spec-authoring-time snapshot with an operative RE-VERIFY-at-implementation-time instruction (WFI-013 discipline) rather than left as an unresolved open item. The formerly Blocked ADR-0010 dependency (investigation.md OQ-2) is resolved in-document via the 'Stream C status record' and correspondingly closed Open Questions OQ-1 through OQ-6, each carrying an explicit RESOLVED disposition and rationale."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-copy governance boundary around the R-10 protected .github/workflows/test.yml is concretely testable: the Agent stages candidates only under specs/epic-136-phase3/human-copy/ with a MANIFEST.sha256 (Roles and Permissions), the live file is confirmed unmodified at staging time (TEST-016), and AC-020/TEST-020 requires the LIVE file's registration self-check to stay red (fail-closed, no staged-candidate fallback) until a human applies the candidate. The separate ADR-0010 Accepted decision is documented as a human-only action (commit 67015a5) not attributable to any agent session. Both boundaries have an explicit, observable pass/fail surface."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "With the round-1 batch-composition contradiction resolved (see CONTRADICTION), the spec gives a design reviewer concrete, non-invented behavior to work from: exact file:line citations for the fallback chain and job graph, closed enumerations for every payload/shape/vocabulary, named suite files per stream, and an explicit statement of what design.md alone still owns (only the internal ordering of edits within the one shared batch, and naming the exact plugins/sdd-bootstrap entry point per OQ-6). No remaining passage requires a design reviewer to invent missing product behavior rather than apply an existing spec decision."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "Skip condition met: requirements.md contains no `Bounded-Context:` field and no reference to a domain/ directory, domain/context-map.md, or domain/domain-contract.json, and none of these files are part of the allowed input manifest for this review. No evidence of an Approved domain model in scope; check recorded as skipped per the calibrated skip condition."
+    }
+  ]
+}

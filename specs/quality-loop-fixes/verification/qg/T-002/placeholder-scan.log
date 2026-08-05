@@ -1,0 +1,5 @@
++ bash plugins/sdd-quality-loop/scripts/check-placeholders.sh plugins/sdd-quality-loop/scripts/emit-run-record.sh plugins/sdd-quality-loop/scripts/emit-run-record.ps1 tests/emit-run-record-feature-scope.tests.sh tests/emit-run-record-feature-scope.tests.ps1
+== start: 2026-07-19T17:40:05Z ==
+Placeholder scan passed.
+== end: 2026-07-19T17:40:05Z ==
+EXIT_CODE: 0

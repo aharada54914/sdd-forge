@@ -1,0 +1,152 @@
+{
+  "task_id": "T-004",
+  "feature": "epic-136-phase3",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "stack": "shell",
+  "spec_revision": "2f1d0cdd71e999d859f167624b49348eb2c076daafb16f2c3ec91a7872cdd7fb",
+  "created": "2026-07-28T14:24:02Z",
+  "comment": "Default-FAIL verification contract for T-004 (high, tdd -- risk-gate-matrix.md requires tdd at high/critical; tasks.md T-004 Risk Rationale, security-sensitive: true, issue #125, Stream C unblocked by ADR-0010 Accepted). Populated after reports/quality-gate/20260728T140322Z-epic-136-phase3-T-004.md recorded VERDICT: PASS (RUN-epic-136-phase3-qg-T-004-seq0366, round 3 of 3 evaluated rounds, 3 residual Minor all Accepted) for tests/workflow-scenarios/workflow-scenarios.tests.sh (TEST-012..015, AC-012..015): TDD RED then GREEN separated for the scenario-5 inbound-prompt-injection sub-scope -- RED in specs/epic-136-phase3/verification/T-004/red-workflow-scenarios.log (mutated stub that DOES follow injected text correctly fails first, proving the non-execution assertion is not vacuous) and GREEN in specs/epic-136-phase3/verification/T-004/green-workflow-scenarios.log (the real sdd-bootstrap-interviewer entry point's actual result recorded regardless of outcome: 120 passed / 0 failed / 1 defect recorded, exit 0). The 1 recorded defect is a genuine, disclosed finding (a real agent-guidance gap in plugins/sdd-bootstrap, filed as follow-on issue #210 per the QG report, not silently fixed inside this task's scope) with a pinned regression signal (KNOWN_DEFECT_ALLOWLIST/EXPECTED_DEFECTS) so a rising defect count still fails the gate. Re-confirmed byte-identical under real /bin/bash 3.2.57 (specs/epic-136-phase3/verification/T-004/bash32-workflow-scenarios.log) and against a full regression sweep (specs/epic-136-phase3/verification/T-004/full-regression-sweep.log; failures present are the same pre-existing, unrelated suites T-001/T-002 already confirmed, not caused by this task). Shell/Markdown/YAML/JSON stack (test-infrastructure files, 10 scenario fixtures, plus this JSON contract) waives the three compile-oriented checks (lint/typecheck/build). Landing commits per the QG report: f723349 (schema + 10 fixtures + suite + run-all.sh) + fd4db85 (report + CHANGELOG) + 98cbb97f/31e516b9/345045dd (round-1 remediation) + 7a179acd (round-2 remediation: AC-019/023 reconciliation) + fe8618fd (round-2 minor: Outputs hash).",
+  "checks": [
+    {
+      "id": "lint",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No lint tool configured for this repository's shell/PowerShell test-infrastructure files plus the 10 JSON scenario fixtures and this JSON contract file (stack: shell); bash -n parse validity and JSON parse validity are exercised implicitly by every green run recorded in green-workflow-scenarios.log/bash32-workflow-scenarios.log.",
+      "requirement_ids": ["REQ-003", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "typecheck",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No static type-check command is configured for shell/PowerShell test-infrastructure files or JSON scenario fixtures.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "unit-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-004/green-workflow-scenarios.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-005", "REQ-006"],
+      "red_evidence": "specs/epic-136-phase3/verification/T-004/red-workflow-scenarios.log",
+      "green_evidence": "specs/epic-136-phase3/verification/T-004/green-workflow-scenarios.log"
+    },
+    {
+      "id": "integration-tests",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No network or service integration is in scope; scenario 5's inbound-prompt-injection fixture is a synthetic, mktemp-scoped issue body fed to the named entry point directly -- never a real network fetch or real gh issue view (security-spec.md Boundary B2/B4).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "acceptance-tests",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-004/green-workflow-scenarios.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-005", "REQ-006"],
+      "red_evidence": "specs/epic-136-phase3/verification/T-004/red-workflow-scenarios.log",
+      "green_evidence": "specs/epic-136-phase3/verification/T-004/green-workflow-scenarios.log"
+    },
+    {
+      "id": "regression",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-004/full-regression-sweep.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "build",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No compile/build toolchain for shell/PowerShell test-infrastructure files or JSON scenario fixtures.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "placeholder-scan",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-004/full-regression-sweep.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "task-state-check",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-004/bash32-workflow-scenarios.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "requirement-traceability",
+      "required": true,
+      "passes": true,
+      "evidence": "specs/epic-136-phase3/verification/T-004/bash32-workflow-scenarios.log",
+      "waiver_reason": "",
+      "requirement_ids": ["REQ-003", "REQ-005", "REQ-006"],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "smoke-run",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No independently startable application/UI/service; this task's scenario suite fully covers its own fixture/schema/entry-point surface via the RED/GREEN and regression logs.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "differential-baseline",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No baseline-behavior.md exists for this feature; this is not a refactor/bugfix task (differential-test-policy.md does not apply). This is net-new scenario-test coverage per design.md's API/Contract Plan; no prior baseline behavior exists to differentiate against.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "ui-verification",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "No user-facing UI surface; this task's Planned Files are a schema, JSON scenario fixtures, and test/doc files only (ux-spec.md and frontend-spec.md are N/A stubs for this CI/test-hardening feature).",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    },
+    {
+      "id": "design-system",
+      "required": false,
+      "passes": false,
+      "evidence": "",
+      "waiver_reason": "ds_profile: none; no design-system/ directory exists in this repository.",
+      "requirement_ids": [],
+      "red_evidence": "",
+      "green_evidence": ""
+    }
+  ]
+}

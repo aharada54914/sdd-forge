@@ -354,6 +354,26 @@
       "profile": "full"
     },
     {
+      "feature": "epic-192-a4-facet-manifest",
+      "profile": "full"
+    },
+    {
+      "feature": "quality-loop-fixes",
+      "profile": "full"
+    },
+    {
+      "feature": "epic-136-phase3",
+      "profile": "full"
+    },
+    {
+      "feature": "epic-136-phase4-mcp",
+      "profile": "full"
+    },
+    {
+      "feature": "epic-136-phase4-docs",
+      "profile": "full"
+    },
+    {
       "feature": "epic-189-a1-project-context",
       "profile": "full"
     }

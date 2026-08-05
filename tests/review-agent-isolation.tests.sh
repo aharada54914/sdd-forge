@@ -419,6 +419,66 @@ if command -v pwsh >/dev/null 2>&1; then
     fail 'issue #143: PowerShell rejected impl-reviewer-a previous-round integrated summary'
 fi
 
+# Round consistency: a manifest must not freeze a hash that disagrees with the
+# hash the same round's precheck-result.json pinned. That disagreement means the
+# document changed between the precheck and this reservation, so the round's two
+# reviewers would judge different text. Observed for real on epic-136-phase4-docs
+# at ledger sequences 395 and 407: both were burned reservations, and one round's
+# contract briefly recorded a hash neither reviewer had seen.
+roundcheck_repository="$tmp/roundcheck-repository"
+make_repository "$roundcheck_repository"
+roundcheck_ok_precheck='reports/impl-review/f/attempt-1/round-2/precheck-result.json'
+roundcheck_drift_precheck='reports/impl-review/f/attempt-1/round-3/precheck-result.json'
+mkdir -p "$roundcheck_repository/$(dirname "$roundcheck_ok_precheck")" \
+         "$roundcheck_repository/$(dirname "$roundcheck_drift_precheck")"
+design_hash="$(sha256 "$roundcheck_repository/specs/f/design.md")"
+
+# Two separate round directories, both written before either manifest is built,
+# so neither manifest can go stale while the other case runs.
+jq -n --arg h "$design_hash" '{
+  schema:"impl-review-precheck/v1", feature:"f", attempt:1, round:2, design_sha256:$h
+}' > "$roundcheck_repository/$roundcheck_ok_precheck"
+jq -n '{
+  schema:"impl-review-precheck/v1", feature:"f", attempt:1, round:3,
+  design_sha256:"0000000000000000000000000000000000000000000000000000000000000000"
+}' > "$roundcheck_repository/$roundcheck_drift_precheck"
+
+make_manifest "$roundcheck_repository" impl-reviewer-a "$candidate"
+for variant in ok drift; do
+  case "$variant" in
+    ok)    rc_path=$roundcheck_ok_precheck ;;
+    drift) rc_path=$roundcheck_drift_precheck ;;
+  esac
+  # The manifest pins the precheck file at its true hash, so the only possible
+  # discrepancy is the design.md hash the precheck pinned. Without that, a HASH
+  # rejection would masquerade as a round-consistency rejection and this case
+  # would pass even with the check removed.
+  jq --arg path "$rc_path" --arg hash "$(sha256 "$roundcheck_repository/$rc_path")" \
+    '.allowed_input_manifest += [{path:$path,sha256:$hash}]' "$candidate" \
+    > "$tmp/roundcheck-$variant.json"
+done
+
+run_bash "$tmp/roundcheck-ok.json" "$roundcheck_repository" >/dev/null ||
+  fail 'round consistency: Bash rejected a manifest whose hashes agree with the round precheck'
+
+roundcheck_err="$(run_bash "$tmp/roundcheck-drift.json" "$roundcheck_repository" 2>&1 >/dev/null || true)"
+case "$roundcheck_err" in
+  REVIEW_CONTEXT_ROUND:*) ;;
+  '') fail 'round consistency: Bash accepted a manifest whose design.md hash disagrees with the round precheck' ;;
+  *)  fail "round consistency: Bash rejected for the wrong reason, so the case proves nothing: $roundcheck_err" ;;
+esac
+
+if command -v pwsh >/dev/null 2>&1; then
+  run_pwsh "$tmp/roundcheck-ok.json" "$roundcheck_repository" >/dev/null ||
+    fail 'round consistency: PowerShell rejected an agreeing manifest'
+  roundcheck_ps_err="$(run_pwsh "$tmp/roundcheck-drift.json" "$roundcheck_repository" 2>&1 >/dev/null || true)"
+  case "$roundcheck_ps_err" in
+    *REVIEW_CONTEXT_ROUND*) ;;
+    '') fail 'round consistency: PowerShell accepted a mid-round hash drift' ;;
+    *)  fail "round consistency: PowerShell rejected for the wrong reason: $roundcheck_ps_err" ;;
+  esac
+fi
+
 # Real rollback proof: restore only the pinned 1.4.0 boundary from 7df7318.
 # Files introduced after that commit must be deleted, and all surviving files
 # must be byte-identical to the archived baseline.

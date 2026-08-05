@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase3",
+  "attempt": 1,
+  "round": 2,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "0eb03063e08786a045e85bf663a5fb5ed70648414812c95fdd81977c20d6570f",
+  "acceptance_sha256": "43581bbc893fc269aa0a75de352bec164ee7effe932cfac7732297624b6bd4c8",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "427e00773a571e4583421c95e26ff7244608c7cb3d98e34e635533777da34f32",
+  "edit_summary": "Aligned REQ-004/AC-016/AC-017 to OQ-5's job-count-preserving decision (single test job, [deterministic] step prefixes, needs: byte-unchanged), resolving round-1 CONTRADICTION/AC-OBSERVABLE/DOWNSTREAM-READINESS; disambiguated the Non-goals staging sentence and TEST-020's shared-batch label so every Stream A AND B suite gets its own explicit CI step in the ONE shared human-copy batch (AMBIGUITY).",
+  "reset": false,
+  "generated_at": "2026-07-21T22:21:14Z"
+}

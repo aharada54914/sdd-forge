@@ -175,16 +175,16 @@ jq -e '
 ' "$manifest" >/dev/null 2>&1 ||
   fail CONTRACT 'required fields, file-manifest input, read-only mode, or no-fallback contract is invalid'
 
-stage=$(jq -r '.stage' "$manifest")
-role=$(jq -r '.role' "$manifest")
-feature=$(jq -r '.feature' "$manifest")
-run_id=$(jq -r '.run_id' "$manifest")
-host_session_id=$(jq -r '.host_session_id' "$manifest")
-sequence=$(jq -r '.sequence' "$manifest")
-previous_record_sha256=$(jq -r '.previous_record_sha256' "$manifest")
-bound_ledger_sha256=$(jq -r '.identity_ledger_sha256' "$manifest")
+stage=$(jq -r '.stage' "$manifest" | tr -d '\r')
+role=$(jq -r '.role' "$manifest" | tr -d '\r')
+feature=$(jq -r '.feature' "$manifest" | tr -d '\r')
+run_id=$(jq -r '.run_id' "$manifest" | tr -d '\r')
+host_session_id=$(jq -r '.host_session_id' "$manifest" | tr -d '\r')
+sequence=$(jq -r '.sequence' "$manifest" | tr -d '\r')
+previous_record_sha256=$(jq -r '.previous_record_sha256' "$manifest" | tr -d '\r')
+bound_ledger_sha256=$(jq -r '.identity_ledger_sha256' "$manifest" | tr -d '\r')
 task_id=''
-[[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest")
+[[ "$stage" == quality ]] && task_id=$(jq -r '.task_id' "$manifest" | tr -d '\r')
 
 case "$stage:$role" in
   spec:spec-reviewer-a|spec:spec-reviewer-b|impl:impl-reviewer-a|impl:impl-reviewer-b|task:task-reviewer-a|task:task-reviewer-b|quality:sdd-evaluator|domain:domain-reviewer-a|domain:domain-reviewer-b) ;;
@@ -255,7 +255,7 @@ done < <(jq -r '.records[] | [
   .host_session_id,
   (if .previous_record_sha256 == "" then "-" else .previous_record_sha256 end),
   .record_sha256
-] | @tsv' "$ledger")
+] | @tsv' "$ledger" | tr -d '\r')
 
 [[ "$sequence" -eq "$expected_sequence" && "$previous_record_sha256" == "$expected_previous" ]] ||
   fail IDENTITY 'invocation does not extend the canonical identity ledger'
@@ -272,7 +272,7 @@ if [[ "$stage:$role" == quality:sdd-evaluator ]]; then
       implementation_report_path=$candidate_report
       implementation_report_count=$((implementation_report_count + 1))
     fi
-  done < <(jq -r '.allowed_input_manifest[].path' "$manifest")
+  done < <(jq -r '.allowed_input_manifest[].path' "$manifest" | tr -d '\r')
   [[ "$implementation_report_count" -eq 1 ]] ||
     fail PATH 'sdd-evaluator requires the current task implementation report'
   [[ "$(sed -n '1p' "$repository_root/$implementation_report_path")" == "# Implementation Report: $task_id" ]] ||
@@ -302,7 +302,42 @@ while IFS=$'\t' read -r path expected_hash; do
   actual_hash=$(sha256_file "$candidate")
   [[ "$actual_hash" == "$expected_hash" ]] ||
     fail HASH "$role hash mismatch: $path"
-done < <(jq -r '.allowed_input_manifest[] | [.path, .sha256] | @tsv' "$manifest")
+done < <(jq -r '.allowed_input_manifest[] | [.path, .sha256] | @tsv' "$manifest" | tr -d '\r')
+
+# Round consistency. A manifest freezes hashes at reservation time; the round's
+# precheck-result.json froze them when the round opened. If the two disagree, a
+# reviewed document changed between the precheck and this reservation, so the two
+# reviewers of one round would be judging different text. Precheck replay is
+# forbidden, so that state is unrecoverable once a reviewer has run -- refuse the
+# reservation now rather than discovering it a round later.
+precheck_rel=$(jq -r '
+  .allowed_input_manifest[].path
+  | select(test("^reports/(spec|impl|task)-review/[^/]+/attempt-[1-9][0-9]*/round-[1-9][0-9]*/precheck-result\\.json$"))
+' "$manifest" | tr -d '\r' | head -1)
+if [[ -n "$precheck_rel" ]]; then
+  precheck_abs="$repository_root/$precheck_rel"
+  if [[ -f "$precheck_abs" && ! -L "$precheck_abs" ]]; then
+    while IFS=$'\t' read -r pinned_path pinned_hash; do
+      [[ -n "$pinned_path" ]] || continue
+      manifest_hash=$(jq -r --arg p "$pinned_path" '
+        .allowed_input_manifest[] | select(.path == $p) | .sha256
+      ' "$manifest" | tr -d '\r' | head -1)
+      [[ -n "$manifest_hash" ]] || continue
+      [[ "$manifest_hash" == "$pinned_hash" ]] ||
+        fail ROUND "manifest freezes $pinned_path at a hash this round's precheck did not pin: the document changed mid-round"
+    done < <(jq -r --arg f "$feature" '
+      [ {p: ("specs/" + $f + "/requirements.md"),     h: .requirements_sha256},
+        {p: ("specs/" + $f + "/acceptance-tests.md"), h: .acceptance_sha256},
+        {p: ("specs/" + $f + "/design.md"),           h: .design_sha256},
+        {p: ("specs/" + $f + "/tasks.md"),            h: .tasks_sha256},
+        {p: ("specs/" + $f + "/traceability.json"),   h: .traceability_sha256} ]
+      + [ ((.layer_sha256 // {}) | to_entries[]) | {p: ("specs/" + $f + "/" + .key), h: .value} ]
+      | .[]
+      | select((.h | type) == "string" and (.h | test("^[0-9a-f]{64}$")))
+      | [.p, .h] | @tsv
+    ' "$precheck_abs" | tr -d '\r')
+  fi
+fi
 
 record_hash=$(printf '%s' "$sequence|$stage|$role|$run_id|$host_session_id|$previous_record_sha256" | sha256_text)
 if $reserve; then
