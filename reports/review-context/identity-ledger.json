@@ -4482,6 +4482,15 @@
       "host_session_id": "SESS-task-task-reviewer-b-mcp-readonly-preflight-0498",
       "previous_record_sha256": "211f3d526efc39d367a0fcb7c7e9f8a9abaec8bfd1635c7edbef205e23e35084",
       "record_sha256": "d7aac4bb3e8dcce66eb5e80cff863a972d5101ab0c6048739054b19cd770a113"
+    },
+    {
+      "sequence": 499,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-mcp-readonly-preflight-task-task-reviewer-a-seq0499",
+      "host_session_id": "SESS-task-task-reviewer-a-mcp-readonly-preflight-0499",
+      "previous_record_sha256": "d7aac4bb3e8dcce66eb5e80cff863a972d5101ab0c6048739054b19cd770a113",
+      "record_sha256": "78b6d0bc582661e348a63776485a7e22eb0bfd4da13bc77fc14126f7bc384ada"
     }
   ]
 }

@@ -306,35 +306,43 @@ Done-When:
       identifier, states the step is **read-only**, and states the step is
       **advisory** / does not decide anything — all three elements present
       and separately assertable, not a heading over an empty section and
-      not element (1) alone (AC-001; the FP-02 text-marker failure this
-      guards against is recorded in the `epic-136-phase3` retrospective).
-- [ ] The insertion point is re-verified fresh against the current
-      `bootstrap/SKILL.md` and the current `tests/workflow-documentation.tests.sh:65-68`
-      `sed` range at implementation start, not assumed from this document's
-      line numbers (INV-013). If the range's bounding headings have moved,
-      the insertion point is re-derived to stay outside the range, not
+      not element (1) alone (AC-001, TEST-001; the FP-02 text-marker
+      failure this guards against is recorded in the `epic-136-phase3`
+      retrospective). The insertion point is re-verified fresh against the
+      current `bootstrap/SKILL.md` and the current
+      `tests/workflow-documentation.tests.sh:65-68` `sed` range at
+      implementation start, not assumed from this document's line numbers
+      (INV-013) — if the range's bounding headings have moved, the
+      insertion point is re-derived to stay outside the range, not
       inserted at a stale line number.
-- [ ] The step is written **attempt-and-degrade** ("attempt
+- [ ] The step's phrasing satisfies two structural requirements together:
+      it is written **attempt-and-degrade** ("attempt
       `get_next_sdd_command`; if it is unavailable or the call fails,
-      continue with the file-based flow below"), never **detect-then-branch**
-      (D-001, `design.md`) — no instruction to check whether an MCP server
-      is registered before attempting the call.
-- [ ] The step's wording names none of the four runtime-specific
-      registration surfaces: `claude mcp` / the Claude Code registration
-      command (AC-004); `~/.codex/config.toml` (AC-005); the installer's
-      marker-block comment format, `# >>> <name> (managed by sdd-forge
-      installer …` (AC-006); or a client configuration file by name such as
-      `mcp.json` (AC-007). Valid only jointly with the AC-001 presence
-      check above — an absence check alone cannot distinguish "correctly
-      runtime-agnostic" from "the wording is missing entirely."
-- [ ] The step applies unconditionally — no mode check (`feature` /
-      `bugfix` / `refactor` / `project` / `adopt` / `investigate`) and no
-      track check (full / lite) gates whether the paragraph is present, per
-      the OQ-004 resolution above.
+      continue with the file-based flow below"), never
+      **detect-then-branch** (D-001, `design.md` — no instruction to check
+      whether an MCP server is registered before attempting the call); and
+      it applies **unconditionally** — no mode check (`feature` / `bugfix`
+      / `refactor` / `project` / `adopt` / `investigate`) and no track
+      check (full / lite) gates whether the paragraph is present, per the
+      OQ-004 resolution above.
+- [ ] Four independent absence assertions are each verified separately
+      against the step's wording — valid only jointly with the AC-001 /
+      TEST-001 presence check above, since an absence check alone cannot
+      distinguish "correctly runtime-agnostic" from "the wording is
+      missing entirely":
+  - TEST-004 (AC-004) — no instruction to inspect `claude mcp` / the
+    Claude Code registration command
+  - TEST-005 (AC-005) — no instruction to inspect `~/.codex/config.toml`
+  - TEST-006 (AC-006) — no instruction to inspect the installer's
+    marker-block comment format, `# >>> <name> (managed by sdd-forge
+    installer …`
+  - TEST-007 (AC-007) — no instruction to inspect a client configuration
+    file by name, such as `mcp.json`
 - [ ] `bootstrap` completes its normal file-based flow, with no error
-      surfaced to the user as a run failure, both when no MCP server is
-      registered (AC-008) and when the tool call is attempted and fails
-      (AC-009) — two independently exercised cases, not one.
+      surfaced to the user as a run failure, in both of the following
+      independently exercised cases:
+  - TEST-008 (AC-008) — no MCP server registered
+  - TEST-009 (AC-009) — the tool call is attempted and fails
 - [ ] A differential check, run against an identical repository state once
       with the probe available and once with it forced absent, shows the
       same mode/track routing conclusion in both runs (AC-012, TEST-012).
@@ -342,29 +350,38 @@ Done-When:
       workflow" and is the load-bearing security test for this task
       (`security-spec.md`: "TEST-012 and TEST-013 are the load-bearing
       pair").
-- [ ] When the probe's view and the file-based conclusion disagree, the
-      step's wording requires the agent's output to (a) state that a
-      disagreement occurred and (b) name which source it acted on — both
-      elements, not one (AC-027a) — and (c) the conclusion actually acted
-      on in that case is the file-based one, never the probe's (AC-027b;
-      this is REQ-005's own guarantee restated at the divergence branch, so
-      a "warn, then follow the probe" implementation must fail this item
-      even though it would satisfy (a) and (b)).
+- [ ] When the probe's view and the file-based conclusion disagree, both of
+      the following are independently verified:
+  - TEST-027a (AC-027a) — the step's wording requires the agent's output
+    to (a) state that a disagreement occurred and (b) name which source it
+    acted on — both elements, not one
+  - TEST-027b (AC-027b) — the conclusion actually acted on in that case is
+    the file-based one, never the probe's (this is REQ-005's own guarantee
+    restated at the divergence branch, so a "warn, then follow the probe"
+    implementation must fail this item even though it would satisfy
+    TEST-027a)
 - [ ] AC-017 / AC-018 (Claude Code: probe path when available, fallback
       path when unavailable) and AC-019 / AC-020 (same, under Codex) — for
       `bootstrap`'s leg — have **no determined verification method**
       (OQ-009 is open). This item is not closed by a text assertion that
       would pass unconditionally against runtime-agnostic wording
-      (`design.md` Risk R-2 names exactly this shortcut). Evidence is
-      instead an explicitly recorded manual verification per runtime
-      (runtime name + which path was actually observed), saved under
-      `specs/mcp-readonly-preflight/verification/T-001/` and named in the
-      implementation report, with the undetermined method itself disclosed
-      to the quality gate rather than hidden.
-- [ ] `tests/workflow-documentation.tests.sh` passes **unmodified** (AC-027).
-      Needing to edit it is evidence the INV-013 structural assumption
-      broke and must be reported, not accommodated by adjusting the suite.
-- [ ] No file under `mcp/` is touched (BL-001), verified by diff.
+      (`design.md` Risk R-2 names exactly this shortcut):
+  - TEST-017 (AC-017) — Claude Code, probe path available
+  - TEST-018 (AC-018) — Claude Code, fallback path
+  - TEST-019 (AC-019) — Codex, probe path available
+  - TEST-020 (AC-020) — Codex, fallback path
+
+  Evidence is instead an explicitly recorded manual verification per
+  runtime (runtime name + which path was actually observed), saved under
+  `specs/mcp-readonly-preflight/verification/T-001/` and named in the
+  implementation report, with the undetermined method itself disclosed to
+  the quality gate rather than hidden.
+- [ ] Two closing guarantees are both confirmed: (a)
+      `tests/workflow-documentation.tests.sh` passes **unmodified**
+      (AC-027, TEST-027) — needing to edit it is evidence the INV-013
+      structural assumption broke and must be reported, not accommodated
+      by adjusting the suite; and (b) no file under `mcp/` is touched
+      (BL-001), verified by diff.
 
 ## T-002 Stage the read-only MCP preflight probe for `ship` (human-copy)
 
@@ -438,27 +455,36 @@ Done-When:
       derived from the current live `ship/SKILL.md` plus the probe step
       inserted per the OQ-002 resolution above (directly after `##
       Preconditions` `:45-53`, directly before `## Step 1` `:55` —
-      re-verify both line numbers fresh at implementation start).
-- [ ] The candidate's inserted step carries the same three required
-      elements as T-001's (AC-001's elements, restated for AC-002): names
-      `get_next_sdd_command` by its exact identifier, states **read-only**,
-      states **advisory** / non-deciding — and was **not** produced by an
-      agent write to the live protected path (AC-002's second, asserted
-      half).
-- [ ] The candidate's wording is attempt-and-degrade (D-001), names none of
-      the four runtime-specific registration surfaces (AC-004…AC-007, same
-      four checks as T-001, re-run against this file), applies
-      unconditionally regardless of track or invocation form (path
-      argument vs. zero-argument; OQ-004 resolution), and states the same
-      divergence-handling requirement as T-001's step: on disagreement,
-      state that a disagreement occurred and name the source acted on
-      (AC-027a), and always act on the file-based conclusion in that case
-      (AC-027b).
+      re-verify both line numbers fresh at implementation start), and its
+      inserted step carries the same three required elements as T-001's
+      (AC-001's elements, restated for AC-002): names `get_next_sdd_command`
+      by its exact identifier, states **read-only**, and states
+      **advisory** / non-deciding (TEST-002) — and this candidate was
+      **not** produced by an agent write to the live protected path
+      (AC-002's second, asserted half).
+- [ ] The candidate's wording satisfies, together: attempt-and-degrade
+      phrasing (D-001); the same four absence assertions as T-001's,
+      re-run against this file:
+  - TEST-004 (AC-004) — no instruction to inspect `claude mcp`
+  - TEST-005 (AC-005) — no instruction to inspect `~/.codex/config.toml`
+  - TEST-006 (AC-006) — no instruction to inspect the installer's
+    marker-block comment format
+  - TEST-007 (AC-007) — no instruction to inspect a client config file by
+    name (`mcp.json`)
+
+  unconditional application regardless of track or invocation form (path
+  argument vs. zero-argument; OQ-004 resolution); and the same
+  divergence-handling requirement as T-001's step:
+  - TEST-027a (AC-027a) — on disagreement, state that a disagreement
+    occurred and name the source acted on
+  - TEST-027b (AC-027b) — always act on the file-based conclusion in that
+    case
 - [ ] `ship` completes its normal file-based flow (`## Preconditions`
       `:45-53` into `## Step 1 — Target Selection` `:55`), with no error
-      surfaced to the user as a run failure, both when no MCP server is
-      registered (AC-010) and when the call is attempted and fails
-      (AC-011).
+      surfaced to the user as a run failure, in both of the following
+      independently exercised cases:
+  - TEST-010 (AC-010) — no MCP server registered
+  - TEST-011 (AC-011) — the call is attempted and fails
 - [ ] A differential check, run against an identical repository state once
       with the probe available and once forced absent, shows the same
       `specs/<feature>/tasks.md` target-selection conclusion in both runs
@@ -469,25 +495,28 @@ Done-When:
       separated, matching `specs/quality-loop-fixes/human-copy/MANIFEST.sha256`'s
       form) whose SHA-256 matches the staged candidate file exactly
       (AC-025, TEST-025).
-- [ ] This task's own commit(s) never open the live
-      `plugins/sdd-ship/skills/ship/SKILL.md` for write. If an attempt is
+- [ ] Two protected-boundary guarantees are both confirmed: (a) this
+      task's own commit(s) never open the live
+      `plugins/sdd-ship/skills/ship/SKILL.md` for write — if an attempt is
       made and the guard denies it, that denial is the boundary working as
-      designed (BL-004, D-003) and is not something to route around.
-      Confirmed by diff / provenance that the live path carries no
+      designed (BL-004, D-003) and is not something to route around —
+      confirmed by diff / provenance that the live path carries no
       agent-authored edit from this feature (AC-002 second half, AC-026,
-      TEST-003, TEST-026) — following `tests/quality-gate-cycle-limit.tests.sh:356-361`'s
-      "never opens the live protected path for write" pattern.
-- [ ] **The live-file half of any conformance check is expected red until
-      the human applies the candidate.** This is the correct
-      pre-human-copy state (`infra-spec.md` "protected-file staging leg";
-      mirrors `tests/quality-gate-cycle-limit.tests.sh:390-392`'s identical,
+      TEST-003, TEST-026), following
+      `tests/quality-gate-cycle-limit.tests.sh:356-361`'s "never opens the
+      live protected path for write" pattern; and (b) **the live-file half
+      of any conformance check is expected red until the human applies the
+      candidate** — this is the correct pre-human-copy state
+      (`infra-spec.md` "protected-file staging leg"; mirrors
+      `tests/quality-gate-cycle-limit.tests.sh:390-392`'s identical,
       already-shipped precedent for its own protected leg) and must be
       reported as such in the implementation report, never treated as this
       task's own failure or as a reason to attempt a workaround.
-- [ ] AC-017 / AC-018 / AC-019 / AC-020 — ship leg — recorded the same way
-      as T-001's: no determined method (OQ-009), no fabricated text
-      assertion, an explicitly recorded manual verification per runtime
-      saved under `specs/mcp-readonly-preflight/verification/T-002/`.
+- [ ] AC-017 / AC-018 / AC-019 / AC-020 (TEST-017 / TEST-018 / TEST-019 /
+      TEST-020) — ship leg — recorded the same way as T-001's: no
+      determined method (OQ-009), no fabricated text assertion, an
+      explicitly recorded manual verification per runtime saved under
+      `specs/mcp-readonly-preflight/verification/T-002/`.
 - [ ] No file under `mcp/` is touched (BL-001), verified by diff.
 
 **Handoff — explicit human action required.** After this task reaches
