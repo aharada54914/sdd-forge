@@ -4455,6 +4455,15 @@
       "host_session_id": "SESS-task-task-reviewer-a-design-sync-consent-0495",
       "previous_record_sha256": "58a1b8d024436689f371da7098fa8ccb8af4e974e4c6fb1d2324b609a2e13e22",
       "record_sha256": "18102834d1fd2747ffe8816f7560b04aee0d121902afbfe01368b5c3d181641a"
+    },
+    {
+      "sequence": 496,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-mcp-readonly-preflight-task-task-reviewer-a-seq0496",
+      "host_session_id": "SESS-task-task-reviewer-a-mcp-readonly-preflight-0496",
+      "previous_record_sha256": "18102834d1fd2747ffe8816f7560b04aee0d121902afbfe01368b5c3d181641a",
+      "record_sha256": "95a05c8f0d262d267e7b7580d1c738ef65d515b9c26257f24f0635212504cd0d"
     }
   ]
 }
