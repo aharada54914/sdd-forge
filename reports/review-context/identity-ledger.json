@@ -4599,6 +4599,51 @@
       "host_session_id": "SESS-qg-mcp-readonly-preflight-T-005-0511",
       "previous_record_sha256": "281ffcebfe6105a5a2442eba6f852ba1d04369c0bacc381ca11159c17b217cd3",
       "record_sha256": "182729dacf01123cdf9460c81bfa29f68eea1eceb06fef64ea87d8514cdeda44"
+    },
+    {
+      "sequence": 512,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-design-sync-consent-qg-T-001-seq0512",
+      "host_session_id": "SESS-qg-design-sync-consent-T-001-0512",
+      "previous_record_sha256": "182729dacf01123cdf9460c81bfa29f68eea1eceb06fef64ea87d8514cdeda44",
+      "record_sha256": "8f02b1642ccc03cd39a1df02e3ac39f4e65c0381f822e5b87183bc4321450612"
+    },
+    {
+      "sequence": 513,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-design-sync-consent-qg-T-002-seq0513",
+      "host_session_id": "SESS-qg-design-sync-consent-T-002-0513",
+      "previous_record_sha256": "8f02b1642ccc03cd39a1df02e3ac39f4e65c0381f822e5b87183bc4321450612",
+      "record_sha256": "3c2fc9a4e91948b79f0ea56a626dcec8854dd65355967176d2cbc748ff8a4d08"
+    },
+    {
+      "sequence": 514,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-design-sync-consent-qg-T-003-seq0514",
+      "host_session_id": "SESS-qg-design-sync-consent-T-003-0514",
+      "previous_record_sha256": "3c2fc9a4e91948b79f0ea56a626dcec8854dd65355967176d2cbc748ff8a4d08",
+      "record_sha256": "57b05526db03883d8696f3e40ead9b17bbe3d1bca895a370377b6baf79f8192b"
+    },
+    {
+      "sequence": 515,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-design-sync-consent-qg-T-004-seq0515",
+      "host_session_id": "SESS-qg-design-sync-consent-T-004-0515",
+      "previous_record_sha256": "57b05526db03883d8696f3e40ead9b17bbe3d1bca895a370377b6baf79f8192b",
+      "record_sha256": "38bbb5238b6a60f9ebf22bbca80466f2d679acdbfe1283402c77182745b7c724"
+    },
+    {
+      "sequence": 516,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-design-sync-consent-qg-T-005-seq0516",
+      "host_session_id": "SESS-qg-design-sync-consent-T-005-0516",
+      "previous_record_sha256": "38bbb5238b6a60f9ebf22bbca80466f2d679acdbfe1283402c77182745b7c724",
+      "record_sha256": "f9aba87ddee32e9bd4de5a64145b2fd80e7a56477258e8c24e2f2d5065091588"
     }
   ]
 }
