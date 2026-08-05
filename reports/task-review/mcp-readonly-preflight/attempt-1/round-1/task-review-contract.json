@@ -1,0 +1,150 @@
+{
+  "schema": "task-review-contract/v1",
+  "stage": "task",
+  "feature": "mcp-readonly-preflight",
+  "attempt": 1,
+  "round": 1,
+  "requirements_sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f",
+  "acceptance_sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0",
+  "design_sha256": "15afbf95e0faf383f2532f1f2e6fc25d5126bc2e473c5fd25396cb3630ddd04a",
+  "tasks_sha256": "c2894f512692878ef207d49063c817c54aceafaf89336717bdcf79e95e6db5af",
+  "traceability_sha256": "b4d58ea0b4b2afc32c91be4db9900be1992f39f4eb74f55f4423f1077d316747",
+  "layer_sha256": {
+    "ux-spec.md": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664",
+    "frontend-spec.md": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018",
+    "infra-spec.md": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3",
+    "security-spec.md": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+  },
+  "workflow_match_precheck": "ok",
+  "human_edit_summary": "",
+  "prior_round_contract_sha256": "",
+  "pass_type": "with-findings",
+  "reviewer_a_verdict": "PASS",
+  "reviewer_b_verdict": "NEEDS_WORK",
+  "findings_critical": 0,
+  "findings_major": 1,
+  "findings_minor": 0,
+  "reviewers": [
+    {
+      "role": "task-reviewer-a",
+      "run_id": "RUN-mcp-readonly-preflight-task-task-reviewer-a-seq0496",
+      "host_session_id": "SESS-task-task-reviewer-a-mcp-readonly-preflight-0496",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-1/dependency-graph.json",
+          "sha256": "754ef47814ecdef66081a0565ae54b05158c0ea607ac21e099f6fbe41be626d1"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-1/precheck-result.json",
+          "sha256": "f9d7177be6f0ff74c2d7267ae5bd6d6c89173a7e6bb0babc86222658d4fb6375"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+          "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/design.md",
+          "sha256": "15afbf95e0faf383f2532f1f2e6fc25d5126bc2e473c5fd25396cb3630ddd04a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/frontend-spec.md",
+          "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/infra-spec.md",
+          "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+          "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/security-spec.md",
+          "sha256": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/tasks.md",
+          "sha256": "c2894f512692878ef207d49063c817c54aceafaf89336717bdcf79e95e6db5af"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/traceability.md",
+          "sha256": "b4d58ea0b4b2afc32c91be4db9900be1992f39f4eb74f55f4423f1077d316747"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/ux-spec.md",
+          "sha256": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664"
+        }
+      ]
+    },
+    {
+      "role": "task-reviewer-b",
+      "run_id": "RUN-mcp-readonly-preflight-task-task-reviewer-b-seq0498",
+      "host_session_id": "SESS-task-task-reviewer-b-mcp-readonly-preflight-0498",
+      "allowed_input_manifest": [
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+          "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+          "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+          "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-1/integrated-summary.json",
+          "sha256": "fefcda55f9349373ce715d6719028317db44d3c0e764056d078c52c07d641984"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/mcp-readonly-preflight/attempt-1/round-1/precheck-result.json",
+          "sha256": "f9d7177be6f0ff74c2d7267ae5bd6d6c89173a7e6bb0babc86222658d4fb6375"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+          "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/design.md",
+          "sha256": "15afbf95e0faf383f2532f1f2e6fc25d5126bc2e473c5fd25396cb3630ddd04a"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/frontend-spec.md",
+          "sha256": "4de9fa87378fdc149cdbbdc3e50cd4752d48c42e96fb2ec138a93f940775c018"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/infra-spec.md",
+          "sha256": "a7d58604ba334af9e1fd5b0ccd6d8e4bdd9f7d0d4b32e42c7afa88bd485859d3"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+          "sha256": "fa391f930ae5c75b2d3f2751a978b9da33e32d9b1ba19d3c04800fb337a2359f"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/security-spec.md",
+          "sha256": "39757c4f04b5877da6834a7bbc05df6b61fdd0fda7cceb2f08a3cc5e600a8786"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/tasks.md",
+          "sha256": "c2894f512692878ef207d49063c817c54aceafaf89336717bdcf79e95e6db5af"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/traceability.md",
+          "sha256": "b4d58ea0b4b2afc32c91be4db9900be1992f39f4eb74f55f4423f1077d316747"
+        },
+        {
+          "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/ux-spec.md",
+          "sha256": "d205dd807be4c4d298dd2ccfc7b09431b992eae643f83184cec249657d183664"
+        }
+      ]
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "run_id": "task-orch-mcp-readonly-preflight-a1r1",
+  "timestamp": "2026-08-05T09:55:27Z"
+}
