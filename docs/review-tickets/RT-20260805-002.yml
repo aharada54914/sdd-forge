@@ -1,0 +1,35 @@
+ticket_id: RT-20260805-002
+status: open
+type: test-gap
+severity: major
+target:
+  feature: "mcp-readonly-preflight"
+  task: "T-002"
+  files:
+    - "specs/mcp-readonly-preflight/human-copy/plugins/sdd-ship/skills/ship/SKILL.md"
+    - "specs/mcp-readonly-preflight/human-copy/MANIFEST.sha256"
+summary: "Deferral of AC-010/AC-011/AC-013 (ship leg) to post-human-apply verification, per the QG evaluator's required disposition"
+problem: |
+  QG evaluator (seq 0508, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260805T131809Z-mcp-readonly-preflight-T-002.md)
+  found one Major it itself classified Deferred: Done-When bullets 3-4 demand
+  exercised ship runtime runs (TEST-010/TEST-011) and the differential
+  TEST-013 that security-spec.md:83 calls half of the load-bearing pair, but
+  those runs are structurally unexecutable while the probe exists only as a
+  staged human-copy candidate, and requirements.md:39 mandates staged-terms
+  Done-When wording. The evaluator's required disposition: record the
+  explicit deferral naming the post-apply runs so the feature's central
+  security control is not silently lost when the candidate lands.
+expected_fix:
+  - "Prerequisite (human): apply the staged candidate to the live plugins/sdd-ship/skills/ship/SKILL.md in a human-authored commit (copy + shasum -a 256 -c MANIFEST.sha256 -> OK + apply), per the T-002 handoff"
+  - "TEST-010: run /sdd-ship:ship in a session with no MCP registered; record the file-based flow completing with no error surfaced"
+  - "TEST-011: run it with sdd-forge-mcp registered but failing; record the same"
+  - "TEST-013: two /sdd-ship:ship runs over one identical repository state, probe registered vs. forced absent; record and compare the selected specs/<feature>/tasks.md target"
+  - "Record the runs in a supplementary record under specs/mcp-readonly-preflight/verification/T-002/ and re-run the quality gate for T-002 (new evaluator reservation)"
+references:
+  - "reports/quality-gate/20260805T131809Z-mcp-readonly-preflight-T-002.md"
+  - "specs/mcp-readonly-preflight/requirements.md"
+  - "specs/mcp-readonly-preflight/security-spec.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

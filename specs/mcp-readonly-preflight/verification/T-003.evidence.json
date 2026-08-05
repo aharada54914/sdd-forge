@@ -1,0 +1,59 @@
+{
+  "task_id": "T-003",
+  "feature": "mcp-readonly-preflight",
+  "risk": "medium",
+  "required_workflow": "acceptance-first",
+  "spec_revision": "82ddf0786e66d256d6daad97f221800d533c43fda3d89d8a679ee98649dee9ba",
+  "quality_report": "reports/quality-gate/20260805T131805Z-mcp-readonly-preflight-T-003.md",
+  "verification_contract": "specs/mcp-readonly-preflight/verification/T-003.contract.json",
+  "git_commit": "55bc207c1dbb1a975b5f2746e000117e9efcec64",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 0,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/mcp-readonly-preflight/verification/T-003.contract.json",
+      "sha256": "d9d2e40db25a8342b0d90701e7c2672c2e657a3005565a3bef856cc84d619786"
+    },
+    {
+      "path": "reports/quality-gate/20260805T131805Z-mcp-readonly-preflight-T-003.md",
+      "sha256": "bb3d9045033d1b251fd165cf419dc562d5a54f962abbf78c9fd514a1a0286f4c"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/T-003/00-acceptance-first-mapping.md",
+      "sha256": "4be3eb42793bacee8b64abb07cfb23edb148036a45275ec5c2684b26199c2945"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/T-003/01-verification-record.md",
+      "sha256": "e7aa806cff62bde2454e160c91a2a54779497d756c798f0c9cb2afcb590a2633"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/qg/placeholder-T-003.log",
+      "sha256": "340950d0e1d579c4da8456ea3bf45b968072d019c0649fbb37b228650a5bf086"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/qg/run-all.log",
+      "sha256": "982589359c98bc21a6423d3f40e7fcab6f65810a4f63ff19c472eb00e0df1681"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/verification/qg/task-state.log",
+      "sha256": "042494ebbf2f7bd99568a0f38a5c50096962413a64a9526e437519e0da622e17"
+    }
+  ]
+}
