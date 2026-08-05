@@ -63,6 +63,28 @@ For `feature`, `bugfix`, `refactor`, and `project` modes:
    `specs/<feature>/baseline-behavior.md`. If absent, recommend running
    `/sdd-bootstrap:bootstrap investigate refactor <source>` first and stop.
 
+## MCP Preflight (Advisory)
+
+Attempt `get_next_sdd_command` with no arguments; if it is unavailable or
+the call fails, continue with the file-based flow below.
+
+`get_next_sdd_command` is read-only: it only reads repository state and
+returns a suggestion, never writing or mutating anything. Its answer is
+advisory — it does not decide the mode, track, or step that follows.
+`## Routing` below remains the sole decision procedure, and nothing this
+step reads changes what `## Routing` concludes.
+
+This step is unconditional: apply it the same way for every mode
+(`feature` / `bugfix` / `refactor` / `project` / `adopt` / `investigate`)
+and every track (full / lite) — do not skip or gate it by mode or track.
+Do not surface the unavailability or the failure to the user as a run
+failure.
+
+If the probe's suggestion and the conclusion `## Routing` reaches disagree,
+state in the output both that a disagreement occurred and which source was
+acted on. Always act on the `## Routing` conclusion in that case, never the
+probe's.
+
 ## Routing
 
 ### `adopt` mode
