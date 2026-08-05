@@ -236,9 +236,9 @@ write only ordinary, non-protected files.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/129
 
-Approval: Draft
+Approval: Approved
 
-Status: Planned
+Status: In Progress
 
 Risk: medium
 
@@ -389,7 +389,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/129
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -535,7 +535,7 @@ AC-026 / TEST-026's live-path half remains red by design (see Done-When).
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/129
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -605,7 +605,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/129
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -663,7 +663,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/129
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 

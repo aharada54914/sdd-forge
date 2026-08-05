@@ -168,9 +168,9 @@ targets.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/138
 
-Approval: Draft
+Approval: Approved
 
-Status: Planned
+Status: In Progress
 
 Risk: medium
 
@@ -314,7 +314,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/138
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -514,7 +514,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/138
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -609,7 +609,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/138
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
@@ -701,7 +701,7 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/138
 
-Approval: Draft
+Approval: Approved
 
 Status: Planned
 
