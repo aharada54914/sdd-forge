@@ -62,6 +62,7 @@ tests=(
   tests/model-freshness-check.tests.sh
   tests/facet-manifest-schema.tests.sh
   tests/facet-manifest-semantics.tests.sh
+  tests/design-system-contract.tests.sh
 )
 
 for test_file in "${tests[@]}"; do
