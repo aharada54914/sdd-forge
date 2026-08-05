@@ -20,7 +20,7 @@ rather than left blank.
 | REQ-005 | The manual fallback and the non-blocking invariant survive unchanged; `ds_profile: none` performs no egress and asks no consent question | security-spec.md#stride-analysis | AC-013, AC-014, AC-015, AC-016 | TEST-019 – TEST-024 | T-001, T-002, T-003 |
 | REQ-006 | The model leaves #139's pre-upload scan point and #140's three-valued consent outcome / extensible record implementable | security-spec.md#trust-boundaries | AC-017, AC-018, AC-019, AC-020 | TEST-025 – TEST-032 | T-001, T-002 |
 | REQ-007 | Every live statement of the per-upload model is reconciled; the historical `CHANGELOG.md` record and the protected `lite-spec/SKILL.md` file are handled by their own rules | N/A — cross-layer only: reconciling four independent prose sites across two skill files and one guide is a repository-wide documentation-consistency requirement with no single owning ux/frontend/infra/security layer; `design.md`'s Components table, not a layer spec, is what enumerates the four sites | AC-021, AC-022, AC-023 | TEST-033 – TEST-038 | T-001, T-002, T-003, T-004 |
-| REQ-008 | This feature's document-conformance assertions are executed by a suite `run-all` reaches locally; CI registration is a separately staged patch | infra-spec.md#cicd-sequence | AC-024, AC-025 | TEST-039, TEST-040 | T-001, T-002 |
+| REQ-008 | This feature's document-conformance assertions are executed by a suite `run-all` reaches locally; CI registration is a separately staged patch | infra-spec.md#cicd-sequence | AC-024, AC-025 | TEST-039, TEST-040 | T-001, T-002, T-005 |
 
 `ux-spec.md` and `frontend-spec.md` are recorded N/A for this feature and are
 therefore not cited above. That N/A is justified rather than assumed:
@@ -61,7 +61,7 @@ visibly a judgement rather than an oversight."
 | AC-021 | TEST-033, TEST-034, TEST-035, TEST-036 | document conformance | `design-sync-loop/SKILL.md` (frontmatter + Boundaries), `sdd-bootstrap-interviewer/SKILL.md`, `docs/workflow-guide.md` | T-001, T-002, T-003 |
 | AC-022 | TEST-037 | regression (negative) | `CHANGELOG.md` | T-001, T-003 |
 | AC-023 | TEST-038 | staging conformance | `lite-spec/SKILL.md` + `human-copy/MANIFEST.sha256` | T-001, T-004 |
-| AC-024 | TEST-039 | CI-registration conformance | CI entry point → suite | T-001 (stays red pending the human-applied staged workflow patch, out of this decomposition — R-OQ-8 part 3) |
+| AC-024 | TEST-039 | CI-registration conformance | CI entry point → suite | T-001, T-005 (stays red pending the human-applied staged workflow patch, out of this decomposition — R-OQ-8 part 3) |
 | AC-025 | TEST-040 | regression | `tests/design-system-contract.tests.{sh,ps1}` | T-001, T-002 |
 | AC-026 | TEST-041, TEST-042, TEST-043 | document conformance | `design-sync-loop/SKILL.md` | T-001, T-002 |
 | AC-027 | TEST-044, TEST-045 | document conformance | same | T-001, T-002 |
@@ -81,16 +81,21 @@ impl review a BLOCKED attempt (`epic-136-phase4-docs/traceability.md`).
 
 | Task | Requirements | Shares |
 |---|---|---|
-| T-001 | REQ-001 – REQ-008 (all 30 AC, as the assertion-authoring task) | `tests/design-system-contract.tests.sh`, `tests/design-system-contract.tests.ps1`, `tests/run-all.sh`, `tests/run-all.ps1` |
+| T-001 | REQ-001 – REQ-008 (all 30 AC, as the assertion-authoring task) | `tests/design-system-contract.tests.sh`, `tests/design-system-contract.tests.ps1` |
 | T-002 | REQ-001, REQ-002, REQ-003, REQ-004 (full-profile leg), REQ-005 (AC-013, AC-015), REQ-006, REQ-007 (sites 1–2), REQ-008 (AC-025) | `plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md` |
 | T-003 | REQ-005 (AC-014, AC-016), REQ-007 (sites 3–4, AC-022) | `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md`, `docs/workflow-guide.md`, `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/references/claude-design-workflow.md` (reviewed, expected no-op) |
 | T-004 | REQ-004 (lite-profile leg), REQ-007 (AC-023) | `specs/design-sync-consent/verification/T-004/staged-lite-spec-candidate.draft.md`, `specs/design-sync-consent/human-copy/MANIFEST.sha256` |
+| T-005 | REQ-008 (AC-024 — local `run-all` reachability leg only) | `tests/run-all.sh`, `tests/run-all.ps1` |
 
 T-001 is listed against every requirement because it is where every
 Test ID in this feature is authored; the document content each assertion
 verifies is produced by T-002, T-003 or T-004, per the Acceptance Mapping
-table above. No two of T-002, T-003 and T-004 share an edited file — see
-`tasks.md` Global Constraints for the full dependency graph.
+table above. No two of T-002, T-003 and T-004 share an edited file. T-005,
+split out of T-001 at task-review round 1 to separate assertion-authoring
+from `run-all` registration, shares no edited file with any of T-002,
+T-003 or T-004 either (`tests/run-all.{sh,ps1}` only) — see `tasks.md`
+Global Constraints for the full dependency graph, including the
+`T-005 <- T-001` edge.
 
 ## Baseline Constraints
 

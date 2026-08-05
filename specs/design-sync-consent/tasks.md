@@ -75,8 +75,9 @@ against the live tree until that patch lands, and no task below is written
 to make it pass.
 
 No other file any task touches appears on either list — re-verified the same
-way: `tests/design-system-contract.tests.sh`, `tests/design-system-contract.tests.ps1`,
-`tests/run-all.sh` and `tests/run-all.ps1` (T-001);
+way: `tests/design-system-contract.tests.sh` and
+`tests/design-system-contract.tests.ps1` (T-001); `tests/run-all.sh` and
+`tests/run-all.ps1` (T-005);
 `plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md` (T-002);
 `plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md`,
 `docs/workflow-guide.md`, and the reviewed-only
@@ -97,18 +98,26 @@ targets.
   `risk-gate-matrix.md`'s Stack descriptor table. No `dist/` bundle is
   touched, so ADR-0003's same-commit rebuild obligation does not attach to
   any task below.
-- **One commit per task.** T-001's single commit contains all four files it
-  touches together (both suite files and both `run-all` files): splitting
-  the suite edit from its `run-all` registration would leave, for however
-  long the split lasted, a suite that exists but is not even locally
-  reachable — an incomplete, silently-unverified state this decomposition
-  has no reason to pass through. T-002, T-003 and T-004 each land their own
-  single file (or, for T-004, its draft-plus-manifest pair) in one commit.
+- **One commit per task.** T-001's single commit contains the two suite
+  files it authors (`tests/design-system-contract.tests.sh` and
+  `tests/design-system-contract.tests.ps1`) together. T-005's single commit
+  contains the two `run-all` registration files (`tests/run-all.sh` and
+  `tests/run-all.ps1`) together, landed after T-001 via the Blockers chain
+  (`T-005 <- T-001` below) — the suite exists, locally unreachable via
+  `run-all`, for the span between the two commits, which is this
+  decomposition's intended, sequenced state (T-001 is assertion-authoring;
+  T-005 is registration), not the same incomplete, silently-unverified
+  condition splitting a single task's own edit mid-commit would create.
+  T-002, T-003 and T-004 each land their own single file (or, for T-004, its
+  draft-plus-manifest pair) in one commit.
 - **Functional-dependency serialization (the Blockers chain).** T-001 is the
-  only task that edits `tests/design-system-contract.tests.{sh,ps1}` or
-  `tests/run-all.{sh,ps1}`; T-002, T-003 and T-004 touch none of those four
-  files, so there is no shared-artifact conflict among any pair of tasks
-  here — every edge below is functional only, and is named honestly as such:
+  only task that edits `tests/design-system-contract.tests.{sh,ps1}`; T-005
+  is the only task that edits `tests/run-all.{sh,ps1}`. T-002, T-003 and
+  T-004 touch none of those four files, so there is no shared-artifact
+  conflict among any pair of tasks here (SCOPE-DISJOINT continues to hold
+  after the T-001/T-005 split: every task's file set below is disjoint from
+  every other task's) — every edge below is functional only, and is named
+  honestly as such:
   - `T-002 <- T-001`, `T-003 <- T-001` — **functional.** Neither T-002 nor
     T-003 edits the two test-suite files T-001 owns; each needs T-001's
     already-authored assertions in place to do its own tier's required
@@ -123,11 +132,19 @@ targets.
     establishes live in `design-sync-loop/SKILL.md`; drafting it first risks
     a field-name mismatch that neither suite would catch until both land,
     since TEST-017 reads only the draft, never T-002's file.
-  - No two of T-002, T-003 and T-004 touch a shared file, so none of the
-    three blocks either of the other two, and the graph above is the
-    complete set of edges — T-002 and T-003 may, in principle, be
-    implemented in either order relative to each other once T-001 has
-    landed.
+  - `T-005 <- T-001` — **functional.** T-005 registers T-001's suite files
+    in `tests/run-all.{sh,ps1}`; it needs those files to exist before it can
+    append a reachability entry for them — the same file-existence
+    dependency the edges above state for T-002/T-003/T-004, applied here to
+    a registration step rather than an assertion-authoring step. T-005 does
+    not depend on T-002, T-003 or T-004: its RED-baseline evidence is
+    captured directly against the suite T-001 landed (see T-002's Done-When
+    for the same point made from T-002's side).
+  - No two of T-002, T-003, T-004 and T-005 touch a shared file, so none of
+    the four blocks another among themselves, and the graph above is the
+    complete set of edges — T-002, T-003 and T-005 may, in principle, be
+    implemented in any order relative to each other once T-001 has landed
+    (T-004 additionally requires T-002, per its own edge above).
 - **BL-001/BL-002/BL-003/BL-006/BL-007 preservation is a landing condition,
   not an aspiration.** Every pre-existing case in both test suites, and every
   cited unchanged line range, must hold **unmodified**. If an existing case
@@ -147,7 +164,7 @@ targets.
   (`grep`/read the file in full) rather than a line count, but both are
   named here as the concrete instance of the general instruction.
 
-## T-001 Author the design-sync-consent assertion suite and register it locally
+## T-001 Author the design-sync-consent assertion suite
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/138
 
@@ -161,18 +178,20 @@ Risk Rationale: Classified against
 `plugins/sdd-quality-loop/references/risk-classification-policy.md`, not
 defaulted. `medium` on the policy's "normal feature or fix with observable
 behavior but no sensitive surface... internal tooling... with tests" ground:
-this task adds executable assertions to two internal regression suites and
-registers them in a local runner; it changes no product behavior and touches
-no egress path itself. Not `low`: the new assertions are executable
-control-flow (structural/positional parsing for TEST-010/TEST-014/TEST-026,
-not simple string containment), and two of them — TEST-018 and TEST-026 —
-are the specific checks `security-spec.md`'s own Security Tests table
-(`:169`, "TEST-026 and TEST-018 are the two that matter most") names as
-load-bearing for this feature's B1/B3 boundaries; a vacuous version of either
-would silently defeat the verification this feature exists to provide. Does
-not reach `high`: this task performs no egress, holds no consent decision,
-and changes no runtime behavior — the material-harm path runs through
-T-002, which is classified `high` for exactly that reason.
+this task adds executable assertions to two internal regression suites; it
+changes no product behavior and touches no egress path itself, and
+registers nothing in a local runner — that registration, and the
+administrative verification around it, is T-005's separate scope. Not
+`low`: the new assertions are executable control-flow
+(structural/positional parsing for TEST-010/TEST-014/TEST-026, not simple
+string containment), and two of them — TEST-018 and TEST-026 — are the
+specific checks `security-spec.md`'s own Security Tests table (`:169`,
+"TEST-026 and TEST-018 are the two that matter most") names as load-bearing
+for this feature's B1/B3 boundaries; a vacuous version of either would
+silently defeat the verification this feature exists to provide. Does not
+reach `high`: this task performs no egress, holds no consent decision, and
+changes no runtime behavior — the material-harm path runs through T-002,
+which is classified `high` for exactly that reason.
 
 Required Workflow: acceptance-first
 
@@ -201,111 +220,88 @@ assertion verifies is produced by T-002, T-003 and T-004.
 Blockers: None
 
 Rollback: reviewed revert of this task's single commit. Additive to two test
-suites and two runner scripts, no data migration, no persisted state. Safe
-in isolation before T-002/T-003/T-004 land. Once they have landed, reverting
-T-001 alone does not remove or weaken any of their content — it only removes
-the assertions and the local `run-all` reachability that verify it, a
-coverage loss rather than a behavioral regression. Revert this task last,
-after any revert of T-002/T-003/T-004, so the suite is never left asserting
-against content that no longer exists.
+suites, no data migration, no persisted state. Safe in isolation before
+T-002/T-003/T-004 land. If T-005 has already landed, revert T-005 first —
+its `run-all` entries would otherwise reference suite files this revert
+removes. Once T-002/T-003/T-004 have landed, reverting T-001 alone does not
+remove or weaken any of their content — it only removes the assertions
+(and, once T-005 has landed, the local `run-all` reachability) that verify
+it, a coverage loss rather than a behavioral regression. Revert this task
+last: after T-005 (if landed) and after any revert of T-002/T-003/T-004, so
+the suite is never left asserting against content that no longer exists, or
+referenced by a runner entry that no longer resolves.
 
 Done-When:
 
-- [ ] `tests/design-system-contract.tests.sh` gains one assertion block per
-      TEST-001 through TEST-051, each labelled by its Test ID in the
-      pass/fail message (mirroring the existing `DS-NNN` labelling
+- [ ] `tests/design-system-contract.tests.sh` and
+      `tests/design-system-contract.tests.ps1` each gain one assertion block
+      per TEST-001 through TEST-051 at parity (BL-008), labelled by Test ID
+      in the pass/fail message (mirroring the existing `DS-NNN` labelling
       convention) and asserting exactly the one-line check
-      `acceptance-tests.md`'s Test Matrix states for that row. The seven
-      pre-existing `DS-006` literal assertions (`:62-68`) are left
-      byte-unchanged — verified by diff, not by re-running (the re-run is
-      TEST-040 itself, one of the 51).
-- [ ] `tests/design-system-contract.tests.ps1` gains the same 51 assertions
-      at parity (BL-008), except any single literal that cannot be expressed
-      in an ASCII-only `.ps1` source, whose asymmetry is stated as a comment
-      at the point it is created, following the precedent at
-      `tests/design-system-contract.tests.ps1:57`.
-- [ ] TEST-004 asserts the scope statement names exactly one unit with no
-      disjunction between candidate units — not "the scope sentence names
-      one unit" by naive noun-counting, which would fail the decided
-      "feature ∧ session" conjunction text.
-- [ ] TEST-010 and TEST-014 parse `## Loop`'s numbered list and compare step
-      positions; they do not pass on a file that merely contains every
-      step's text in the old order.
-- [ ] TEST-015 asserts the `Design-Source` record's field names are
-      enumerated by name; it is not a heading-presence check (`Design-Source`
-      already exists as a heading today, which would make a heading check
-      vacuously true before this feature changes anything).
-- [ ] TEST-017 targets the staged draft candidate path
-      (`specs/design-sync-consent/verification/T-004/staged-lite-spec-candidate.draft.md`),
-      never the live `plugins/sdd-lite/skills/lite-spec/SKILL.md`.
-- [ ] TEST-021 asserts `claude-design-workflow.md` both still states it
-      performs no upload and gained no consent step — positive and negative,
-      not absence-only.
-- [ ] TEST-026 is written structurally: it enumerates every path in the Loop
-      that reaches an upload call and asserts each one passes the named
-      pre-upload check point first, not merely that the point's name appears
-      somewhere in the file.
+      `acceptance-tests.md`'s Test Matrix states for that row:
+  - `tests/design-system-contract.tests.sh`: the seven pre-existing
+    `DS-006` literal assertions (`:62-68`) are left byte-unchanged —
+    verified by diff, not by re-running (the re-run is TEST-040 itself, one
+    of the 51).
+  - `tests/design-system-contract.tests.ps1`: parity holds except any
+    single literal that cannot be expressed in an ASCII-only `.ps1` source,
+    whose asymmetry is stated as a comment at the point it is created,
+    following the precedent at `tests/design-system-contract.tests.ps1:57`.
 - [ ] TEST-018 and TEST-026 — the two assertions `security-spec.md`'s
-      Security Tests table identifies as load-bearing — are written so a
-      text that merely mentions the audit-trace/no-bypass vocabulary without
-      the actual relationship (record-is-not-authorization; every upload
-      path passes the named point) fails them. Demonstrated in the
-      implementation report by running each against a deliberately vacuous
-      fixture (a text that says "this is an audit trace" or "there is a
-      check point" with none of the surrounding structure) and showing it
-      fails, before the real target is checked.
-- [ ] TEST-033 through TEST-036 assert per-site, never with one
-      repository-wide "the old phrase no longer occurs" sweep, which would
-      both miss site 4's Japanese phrasing and falsely flag
-      `CHANGELOG.md:1301` (which TEST-037 requires be preserved).
-- [ ] TEST-033 through TEST-036's negative assertions do not embed the
-      banned per-upload phrase as a contiguous literal in the test source,
-      comments, or failure messages, in either runtime; the marker is
-      assembled at runtime from non-contiguous parts (AGENTS.md "Author-time
-      sweeps" item 2; requirements.md Edge Case 8).
-- [ ] TEST-037 asserts `CHANGELOG.md`'s existing text at the historical
-      release-note site is byte-identical to its content as of this task's
-      authoring — a negative, regression-shaped assertion.
-- [ ] TEST-038 asserts all three of: the draft candidate exists at a
-      non-protected path, `specs/design-sync-consent/human-copy/MANIFEST.sha256`
-      records that candidate's SHA-256 under the destination name, and the
-      live `plugins/sdd-lite/skills/lite-spec/SKILL.md` is unmodified at
-      staging time.
-- [ ] TEST-039 traces this suite from a CI entry point in both runtimes
-      where a `.ps1` twin exists. Because this task's own `run-all`
-      registration does not by itself make any workflow invoke `run-all`,
-      TEST-039 is expected to record **red against the live tree** until a
-      human applies the separately staged CI workflow patch (R-OQ-8 part 3,
-      BL-005) — the designed fail-closed state, not a defect in this task.
-- [ ] Both suites are registered in `tests/run-all.sh` and
-      `tests/run-all.ps1` — each file read in full at implementation time
-      and the new entry appended following the file's existing convention.
-- [ ] Newly-reachable branch declaration (AGENTS.md "Author-time sweeps"
-      item 5): registering the suite in `run-all` makes the entire
-      pre-existing `DS-001`..`DS-017` block reachable under a local
-      `run-all` invocation for the first time. The implementation report
-      names that block and this environment explicitly, and either exercises
-      `bash tests/run-all.sh` and the PowerShell equivalent for real before
-      reporting Implementation Complete, or flags any resulting failure as
-      "pending first real execution", per design.md's Test Strategy and
-      infra-spec.md's CI/CD Sequence.
-- [ ] Case-sensitivity sweep (AGENTS.md "Author-time sweeps" item 1), narrow
-      scope: every `-match` / `-notmatch` / `Select-String` site newly added
-      by this task whose `.sh` counterpart compares case-sensitively is
-      swept at both the operator level and the cmdlet level, with a
-      mis-cased negative fixture recorded per layer, before this task is
-      reported Implementation Complete.
-- [ ] RED evidence recorded in the implementation report: running
-      `bash tests/design-system-contract.tests.sh` and the PowerShell
-      equivalent immediately after this task's own commit, against the
-      then-unedited `design-sync-loop/SKILL.md`,
-      `sdd-bootstrap-interviewer/SKILL.md`, `docs/workflow-guide.md`, and the
-      not-yet-created staged lite-spec candidate, shows the expected
-      failures for every Test ID whose target content T-002/T-003/T-004 have
-      not yet produced, while every pre-existing `DS-001`..`DS-017`
-      assertion (including the seven `DS-006` literals) continues to pass.
-      This is the feature-wide Red baseline T-002, T-003 and T-004 each turn
-      Green for their own subset.
+      Security Tests table (`:169`, "TEST-026 and TEST-018 are the two that
+      matter most") identifies as load-bearing for this feature's B1/B3
+      boundaries — are written so a text that merely mentions the
+      audit-trace/no-bypass vocabulary without the actual relationship
+      fails them:
+  - TEST-026 is written structurally: it enumerates every path in the Loop
+    that reaches an upload call and asserts each one passes the named
+    pre-upload check point first, not merely that the point's name appears
+    somewhere in the file.
+  - TEST-018 asserts record-is-not-authorization: the `Design-Source`
+    record is an agent-written audit trace, not an authorization anything
+    enforces — a relationship check, not a keyword check.
+  - Both are demonstrated in the implementation report by running each
+    against a deliberately vacuous fixture (a text that says "this is an
+    audit trace" or "there is a check point" with none of the surrounding
+    structure) and showing it fails, before the real target is checked.
+- [ ] Per-Test-ID structural correctness, verified at authoring time so a
+      naive containment check could not vacuously pass:
+  - TEST-004 asserts the scope statement names exactly one unit with no
+    disjunction between candidate units — not "the scope sentence names one
+    unit" by naive noun-counting, which would fail the decided
+    "feature ∧ session" conjunction text.
+  - TEST-010 and TEST-014 parse `## Loop`'s numbered list and compare step
+    positions; they do not pass on a file that merely contains every step's
+    text in the old order.
+  - TEST-015 asserts the `Design-Source` record's field names are
+    enumerated by name; it is not a heading-presence check (`Design-Source`
+    already exists as a heading today, which would make a heading check
+    vacuously true before this feature changes anything).
+  - TEST-017 targets the staged draft candidate path
+    (`specs/design-sync-consent/verification/T-004/staged-lite-spec-candidate.draft.md`),
+    never the live `plugins/sdd-lite/skills/lite-spec/SKILL.md`.
+  - TEST-021 asserts `claude-design-workflow.md` both still states it
+    performs no upload and gained no consent step — positive and negative,
+    not absence-only.
+- [ ] Per-Test-ID structural and regression correctness for the per-site,
+      negative and staging assertions:
+  - TEST-033 through TEST-036 assert per-site, never with one
+    repository-wide "the old phrase no longer occurs" sweep, which would
+    both miss site 4's Japanese phrasing and falsely flag
+    `CHANGELOG.md:1301` (which TEST-037 requires be preserved).
+  - TEST-033 through TEST-036's negative assertions do not embed the
+    banned per-upload phrase as a contiguous literal in the test source,
+    comments, or failure messages, in either runtime; the marker is
+    assembled at runtime from non-contiguous parts (AGENTS.md "Author-time
+    sweeps" item 2; requirements.md Edge Case 8).
+  - TEST-037 asserts `CHANGELOG.md`'s existing text at the historical
+    release-note site is byte-identical to its content as of this task's
+    authoring — a negative, regression-shaped assertion.
+  - TEST-038 asserts all three of: the draft candidate exists at a
+    non-protected path, `specs/design-sync-consent/human-copy/MANIFEST.sha256`
+    records that candidate's SHA-256 under the destination name, and the
+    live `plugins/sdd-lite/skills/lite-spec/SKILL.md` is unmodified at
+    staging time.
 - [ ] Acceptance-test and regression evidence for this task's own additions
       — the suite runs to completion, reports PASS/FAIL per assertion, and
       exits non-zero on any FAIL, in both runtimes — is recorded, per the
@@ -381,13 +377,28 @@ INV-011); a stale record does not disappear with the code that produced it.
 
 Done-When:
 
-- [ ] Frontmatter `description:` (`:3`) drops "with per-upload human
-      approval" and states the per-feature/session consent model in its
-      place (REQ-007 site 1, AC-021, TEST-033).
+- [ ] Static prose edits and preserved sections in
+      `design-sync-loop/SKILL.md`:
+  - Frontmatter `description:` (`:3`) drops "with per-upload human
+    approval" and states the per-feature/session consent model in its
+    place (REQ-007 site 1, AC-021, TEST-033).
+  - `## Boundaries` (`:92-111`): `:97-98` is restated for the
+    per-feature/session unit (REQ-007 site 2, AC-021, TEST-034); `:94-95`
+    (the non-blocking invariant, both conditions), `:96` (no Figma
+    API/sync), and `:99-111` (get_file-is-data, Mermaid-canonical,
+    layer-file edit rules, design-system authority) are preserved
+    **unchanged** — verified by diff, not by assertion (BL-003,
+    TEST-022/023).
+  - `## Capability Detection` (`:22-30`) and `## Ensure design-system/`
+    (`:32-64`) are **byte-identical** to the pre-task file — verified by
+    diff, not by assertion (AC-013 for the former; BL-007's seven `DS-006`
+    literals all have an occurrence inside the latter, for the latter).
 - [ ] `## Loop` (`:66-90`) is replaced by the seven-step target shape
       `design.md`'s API & Contract Plan states (`design.md:90-158`),
       re-derived and re-verified against the live file at implementation
-      start rather than assumed unchanged since spec-authoring:
+      start rather than assumed unchanged since spec-authoring — verified
+      structurally via TEST-010/TEST-014's positional parse, not by
+      presence of the old step text:
       1. Select project (Pull) — unchanged.
       2. Generate mockups — unchanged.
       3. Resolve egress consent as a single named step with exactly three
@@ -441,11 +452,12 @@ Done-When:
       (AC-007, TEST-011/012), and the consequence of that demotion — mockup
       content can reach claude.ai without any human having read it — is
       stated at the point the demotion is described (AC-008, TEST-013).
-- [ ] Consent resolution is specified to run after `## Capability
-      Detection`, never before, so an absent or authentication-failed
-      DesignSync tool never reaches a consent prompt (AC-013,
-      TEST-019/020) — verified by the Loop's own step order, since
-      `## Capability Detection` itself is untouched (below).
+  - Consent resolution is specified to run after `## Capability
+    Detection`, never before, so an absent or authentication-failed
+    DesignSync tool never reaches a consent prompt (AC-013, TEST-019/020)
+    — verified by the Loop's own step order, since `## Capability
+    Detection` itself is preserved unchanged (see the static-edits
+    checkbox above).
 - [ ] The `Design-Source` consent record gains named fields, stated so a
       reader can tell a conforming record from a non-conforming one
       (AC-010, TEST-015 — not a heading check): `Egress-Consent` (`granted`
@@ -470,21 +482,9 @@ Done-When:
       at step 3(c) is transient and is **not** written to this record
       (AC-026). State the record is an agent-written **audit trace**, not an
       authorization anything enforces (AC-012, TEST-018).
-- [ ] `## Boundaries` (`:92-111`): `:97-98` is restated for the
-      per-feature/session unit (REQ-007 site 2, AC-021, TEST-034); `:94-95`
-      (the non-blocking invariant, both conditions), `:96` (no Figma
-      API/sync), and `:99-111` (get_file-is-data, Mermaid-canonical,
-      layer-file edit rules, design-system authority) are preserved
-      **unchanged** — verified by diff, not by assertion (BL-003,
-      TEST-022/023).
-- [ ] `## Capability Detection` (`:22-30`) and `## Ensure design-system/`
-      (`:32-64`) are **byte-identical** to the pre-task file — verified by
-      diff, not by assertion (AC-013 for the former; BL-007's seven
-      `DS-006` literals all have an occurrence inside the latter, for the
-      latter).
 - [ ] After this task's edit, `bash tests/design-system-contract.tests.sh`
       and its PowerShell twin (run directly, since `run-all` registration
-      and CI registration are T-001's and a separate human action
+      and CI registration are T-005's and a separate human action
       respectively) show every Test ID whose target is
       `design-sync-loop/SKILL.md` passing, with no regression in the seven
       pre-existing `DS-006` literals (AC-025, TEST-040) or in any other
@@ -496,6 +496,12 @@ Done-When:
       above; GREEN — the same suite run after this task's edit, with every
       previously-passing case (including `DS-006`) still passing (high-risk
       requirement, risk-gate-matrix.md).
+  - Both runs invoke the suite directly (`bash
+    tests/design-system-contract.tests.sh` and its PowerShell twin), not
+    via `tests/run-all` — this task's RED/GREEN evidence does not depend on
+    T-005's `run-all` registration landing first (T-005's own Blockers is
+    T-001 only, and T-005 may land before, after, or concurrently with this
+    task).
 - [ ] `requirement-traceability` evidence (`check-traceability`) is
       recorded, mapping this task's REQ/AC/TEST set to the edited file
       (high-risk requirement, risk-gate-matrix.md).
@@ -684,6 +690,116 @@ Done-When:
       performed by this task.
 - [ ] Acceptance-test and regression evidence for TEST-017 and TEST-038
       (against the staged artifacts) is recorded, per the medium tier's
+      required-check set (`risk-gate-matrix.md`); `requirement-traceability`
+      and a separate independent-review verdict are not mandated at this
+      tier.
+
+## T-005 Register the design-sync-consent assertion suite in `run-all` and record baseline evidence
+
+Source Issue: https://github.com/aharada54914/sdd-forge/issues/138
+
+Approval: Draft
+
+Status: Planned
+
+Risk: medium
+
+Risk Rationale: Classified against
+`plugins/sdd-quality-loop/references/risk-classification-policy.md`, not
+defaulted. `medium` on the policy's "normal feature or fix with observable
+behavior but no sensitive surface... internal tooling... with tests" ground:
+registering T-001's already-authored suites in `tests/run-all.{sh,ps1}` is
+an internal-tooling change with observable behavior — it makes the entire
+pre-existing `DS-001`..`DS-017` block, and this feature's 51 new assertions,
+reachable under a local `run-all` invocation for the first time (AGENTS.md
+"Author-time sweeps" item 5) — but touches no product surface and performs
+no egress. Not `low`: a newly-reachable branch is exactly the
+"control-flow ... impact" the policy's `low` tier excludes, so this is not
+classified as cosmetic. Does not reach `high`: this task authors no new
+assertion logic — TEST-018 and TEST-026, the feature's load-bearing
+security checks, are T-001's own Done-When and already landed by the time
+this task starts (Blockers: T-001) — resolves no consent decision, and
+touches no egress path. Security-Sensitive is `false` for the same reason:
+this task creates no new security-relevant assertion and does not itself
+verify a security boundary — it makes T-001's already-authored assertions
+(including the security-relevant ones) locally reachable and confirms,
+mechanically, that case-sensitivity holds in code T-001 wrote.
+
+Required Workflow: acceptance-first
+
+Security-Sensitive: false
+
+Cross-Model: not enabled
+
+Test Type: registration/reachability conformance — exercising
+`tests/run-all.sh` and its PowerShell twin confirms the newly-reachable
+`DS-001`..`DS-017` block, and this feature's TEST-001..051, still pass under
+the runner (AGENTS.md item 5) — plus a narrow case-sensitivity fixture check
+(a mis-cased negative fixture per newly-swept `-match`/`Select-String` site,
+AGENTS.md item 1) and the CI-registration exception documentation for
+TEST-039/AC-024, which stays red against the live tree until the separately
+staged workflow patch lands, by design.
+
+Requirements: REQ-008 (AC-024 — local `run-all` reachability leg only; the
+CI-registration leg proper remains a separately staged patch per
+BL-005/R-OQ-8 part 3, out of this task's scope) — this task's remaining
+Done-When items (the case-sensitivity sweep and the RED-baseline recording
+transferred from T-001) verify AGENTS.md "Author-time sweeps" items 1 and 5
+and BL-008's dual-runtime parity rather than a numbered acceptance
+criterion of their own.
+
+Blockers: T-001
+
+Rollback: reviewed revert of this task's single commit. Additive to two
+runner files (`tests/run-all.sh`, `tests/run-all.ps1`), no data migration,
+no persisted state. This task's mis-cased negative fixtures are recorded
+in-suite, alongside T-001's assertions, not as separate files. Revert this
+task before reverting T-001 — T-001's suite files are this task's only
+dependency (Blockers: T-001), and reverting T-001 first would leave
+`run-all` referencing suite files that no longer exist.
+
+Done-When:
+
+- [ ] Both suites are registered in `tests/run-all.sh` and
+      `tests/run-all.ps1` — each file read in full at implementation time
+      and the new entry appended following the file's existing convention.
+- [ ] Newly-reachable branch declaration (AGENTS.md "Author-time sweeps"
+      item 5): registering the suite in `run-all` makes the entire
+      pre-existing `DS-001`..`DS-017` block reachable under a local
+      `run-all` invocation for the first time. The implementation report
+      names that block and this environment explicitly, and either exercises
+      `bash tests/run-all.sh` and the PowerShell equivalent for real before
+      reporting Implementation Complete, or flags any resulting failure as
+      "pending first real execution", per design.md's Test Strategy and
+      infra-spec.md's CI/CD Sequence.
+- [ ] Case-sensitivity sweep (AGENTS.md "Author-time sweeps" item 1), narrow
+      scope: every `-match` / `-notmatch` / `Select-String` site T-001 added
+      to `tests/design-system-contract.tests.ps1` whose `.sh` counterpart
+      compares case-sensitively is swept at both the operator level and the
+      cmdlet level, with a mis-cased negative fixture recorded per layer,
+      before this task is reported Implementation Complete.
+- [ ] RED baseline evidence recorded in the implementation report: running
+      `bash tests/design-system-contract.tests.sh` and the PowerShell
+      equivalent, captured after T-001's commit lands and before
+      T-002/T-003/T-004 land, against the then-unedited
+      `design-sync-loop/SKILL.md`, `sdd-bootstrap-interviewer/SKILL.md`,
+      `docs/workflow-guide.md`, and the not-yet-created staged lite-spec
+      candidate, shows the expected failures for every Test ID whose target
+      content T-002/T-003/T-004 have not yet produced, while every
+      pre-existing `DS-001`..`DS-017` assertion (including the seven
+      `DS-006` literals) continues to pass. This is the feature-wide Red
+      baseline T-002, T-003 and T-004 each turn Green for their own subset
+      — captured directly via the suite invocation above, independent of
+      this task's own `run-all` registration landing first (see T-002's
+      Done-When for the same point made from T-002's side).
+- [ ] TEST-039 traces this suite from a CI entry point in both runtimes
+      where a `.ps1` twin exists. Because this task's `run-all` registration
+      does not by itself make any workflow invoke `run-all`, TEST-039 is
+      expected to record **red against the live tree** until a human applies
+      the separately staged CI workflow patch (R-OQ-8 part 3, BL-005) — the
+      designed fail-closed state, not a defect in this task.
+- [ ] Acceptance-test and regression evidence for this task's own additions
+      (the `run-all` invocation itself) is recorded, per the medium tier's
       required-check set (`risk-gate-matrix.md`); `requirement-traceability`
       and a separate independent-review verdict are not mandated at this
       tier.
