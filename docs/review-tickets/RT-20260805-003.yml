@@ -24,6 +24,7 @@ problem: |
   'substantive' distinction) stayed green when both decline-vs-not-permitted
   distinctions were deleted, while TEST-041/042 correctly flipped.
 expected_fix:
+  - "Rework TEST-038 (both runtimes) to accept BOTH sanctioned lifecycle states: staged-only (live lite-spec unmodified, draft+manifest match) and applied (live file content matches the manifest-recorded candidate). Since the human applied the T-004 candidate on 2026-08-06, the current live-unmodified premise fails against the sanctioned post-apply state (suite now 118/3)"
   - "Strengthen TEST-026 (both runtimes) to assert the consent-already-holds outcome routes to the check point step (5), not merely that the check point exists before push -- e.g. parse the step-3 outcome (a) target"
   - "Strengthen TEST-043 (both runtimes) to anchor on the step 3/4 distinction text rather than (or in addition to) step 6's boundary sentence"
   - "Re-run both suites (expect the same 119/2, 50/1 at the current tree) and re-run the T-002 evaluator's two mutations to confirm both now flip red"
