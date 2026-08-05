@@ -102,8 +102,8 @@ Written as the structure to be implemented. Placeholders marked `⟨OQ-n⟩` are
    c. egress is not permitted                               → manual fallback
                                                               per claude-design-workflow.md;
                                                               no upload; record and return
-      (A decline is transient — it binds this scope for this session and is not
-       a persisted refusal; AC-026.)
+      (A decline is transient — it binds the current upload attempt only; the
+       next attempt asks again. It is not a persisted refusal; AC-026.)
 
 4. Obtain informed consent (once per scope).  State, before asking:
    - what leaves: the generated HTML under specs/<feature>/mockups/, whose
