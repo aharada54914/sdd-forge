@@ -86,7 +86,7 @@ assert_contains "$IRA" '^## DESIGN-SYSTEM-CONFORMANCE \(Major, TYPE-D\)$' "DS-01
 assert_contains "$IRA" 'ADR-PRESENT, DESIGN-SYSTEM-CONFORMANCE, DOMAIN-CONFORMANCE\.' "DS-010 ordered checks updated"
 PRC="$ROOT/plugins/sdd-review-loop/references/phase-review-checklist.md"
 assert_contains "$PRC" '^#### DESIGN-SYSTEM-CONFORMANCE$' "DS-010 checklist block"
-assert_contains "$PRC" 'impl-review-loop`: 20 checks' "DS-010 impl count updated"
+assert_contains "$PRC" 'impl-review-loop`: 22 checks' "DS-010 impl count updated"
 
 # DS-011 impl-reviewer-b unsanctioned UI library rule
 IRB="$ROOT/plugins/sdd-review-loop/agents/impl-reviewer-b.md"
