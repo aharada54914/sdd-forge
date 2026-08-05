@@ -4644,6 +4644,15 @@
       "host_session_id": "SESS-qg-design-sync-consent-T-005-0516",
       "previous_record_sha256": "38bbb5238b6a60f9ebf22bbca80466f2d679acdbfe1283402c77182745b7c724",
       "record_sha256": "f9aba87ddee32e9bd4de5a64145b2fd80e7a56477258e8c24e2f2d5065091588"
+    },
+    {
+      "sequence": 517,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-design-sync-consent-qg-T-001-seq0517",
+      "host_session_id": "SESS-qg-design-sync-consent-T-001-0517",
+      "previous_record_sha256": "f9aba87ddee32e9bd4de5a64145b2fd80e7a56477258e8c24e2f2d5065091588",
+      "record_sha256": "bc0e6396efdc0fddce3590b3ac8835c41568e6cbd31f8c7b1bb2ca75a5171e6c"
     }
   ]
 }
