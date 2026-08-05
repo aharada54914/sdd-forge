@@ -541,9 +541,12 @@ Security-Sensitive: false
 
 Cross-Model: not enabled
 
-Test Type: document conformance (real file reads) over three targets:
-`sdd-bootstrap-interviewer/SKILL.md`, `docs/workflow-guide.md`, and
-`claude-design-workflow.md`.
+Test Type: document conformance (real file reads) over the three edited
+targets — `sdd-bootstrap-interviewer/SKILL.md`, `docs/workflow-guide.md`,
+and `claude-design-workflow.md`; plus regression (negative), per
+acceptance-tests.md's own row typing for TEST-037, over the fourth,
+deliberately untouched target `CHANGELOG.md` (byte-identity asserted by
+diff, AC-022).
 
 Requirements: REQ-005 (AC-014, AC-016), REQ-007 (AC-021 — sites 3 and 4,
 AC-022)
