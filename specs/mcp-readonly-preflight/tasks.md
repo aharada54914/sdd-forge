@@ -269,9 +269,11 @@ Security-Sensitive: true
 Cross-Model: not enabled
 
 Test Type: mixed, per acceptance-tests.md's own per-row typing. Integration
-(real file read) for the three-element wording check (AC-001) and the
-absence checks (AC-004…AC-007, bootstrap leg); integration (bootstrap run,
-real repository state) for the fallback cases (AC-008, AC-009) and the
+(real file read) for the three-element wording check (AC-001); unit
+(literal-absence, both skills — acceptance-tests.md rows TEST-004…TEST-007)
+for the absence checks (AC-004…AC-007, bootstrap leg); integration
+(bootstrap run, real repository state) for the fallback cases (AC-008,
+AC-009) and the
 divergence-reporting cases (AC-027a, AC-027b, bootstrap leg); integration
 (differential — two runs of the same repository state compared) for outcome
 equality (AC-012); runtime exercise with **no determined method** (OQ-009)
@@ -422,9 +424,11 @@ Security-Sensitive: true
 
 Cross-Model: not enabled
 
-Test Type: mixed, matching T-001's typing for the wording elements and
-fallback/differential/divergence cases (integration, real file read /
-real ship run / differential / probe-divergence), plus integration
+Test Type: mixed, matching T-001's typing for the wording elements
+(integration, real file read), the absence checks (unit — literal-absence,
+both skills, ship leg of AC-004…AC-007), and the fallback/differential/
+divergence cases (integration, real ship run / differential /
+probe-divergence), plus integration
 (guard/provenance) for TEST-003 and integration (hash conformance) for
 TEST-025/TEST-026, which are unique to this task's protected-boundary
 handling. AC-017…AC-020's dual-runtime grid (ship leg) has no determined
