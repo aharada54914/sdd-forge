@@ -238,3 +238,19 @@ each actionable.
    execution at CI/release time" so the quality-gate reviewer and the next
    retrospective can trace a resulting failure to this class rather than treating
    it as an unrelated surprise. (WFI-015)
+
+6. **A recorded decision is propagated by identifier sweep, not by memory.**
+   Whenever an edit changes a recorded fact that other artifacts of the same
+   feature restate — resolving an open question, adding or amending a
+   constraint, changing a membership or status claim — the author must, before
+   submitting any review round that reads those artifacts: (a) grep the
+   feature's full artifact set (`requirements.md`, `design.md`,
+   `acceptance-tests.md`, every layer spec, `tasks.md` if present) for the
+   changed fact's identifiers (`OQ-N`, `BL-N`, `REQ-N`, the list or field
+   name); (b) resolve every hit to either the updated state or an explicit,
+   dated supersession note; and (c) for hash-frozen inputs that cannot be
+   edited without invalidating a round in progress (`investigation.md` during
+   spec review), place the supersession note in the governing artifact,
+   naming the stale span and stating the precedence rule. A sibling document
+   that still asserts the superseded state at review time is an authoring
+   defect of this class, not a reviewer discovery to wait for. (WFI-023)
