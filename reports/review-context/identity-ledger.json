@@ -4554,6 +4554,51 @@
       "host_session_id": "SESS-task-task-reviewer-b-design-sync-consent-0506",
       "previous_record_sha256": "c5776223e8a68929f4c7a216890bb1fb0f1b9bce4a87dbd5e4e6a4e92396b268",
       "record_sha256": "fa8f122079a1aac52fe5d08eddb27c2f9e34fec8692328fdc0dbf126ddc533ed"
+    },
+    {
+      "sequence": 507,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-mcp-readonly-preflight-qg-T-001-seq0507",
+      "host_session_id": "SESS-qg-mcp-readonly-preflight-T-001-0507",
+      "previous_record_sha256": "fa8f122079a1aac52fe5d08eddb27c2f9e34fec8692328fdc0dbf126ddc533ed",
+      "record_sha256": "bb31d38043e474fe60884a6e5492a0f54d2afcb7c7322bab05506bd6f54314b6"
+    },
+    {
+      "sequence": 508,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-mcp-readonly-preflight-qg-T-002-seq0508",
+      "host_session_id": "SESS-qg-mcp-readonly-preflight-T-002-0508",
+      "previous_record_sha256": "bb31d38043e474fe60884a6e5492a0f54d2afcb7c7322bab05506bd6f54314b6",
+      "record_sha256": "9430d9859a7be69911fa9bd18c880118e49fec4d64770501d4ea783a506a4d46"
+    },
+    {
+      "sequence": 509,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-mcp-readonly-preflight-qg-T-003-seq0509",
+      "host_session_id": "SESS-qg-mcp-readonly-preflight-T-003-0509",
+      "previous_record_sha256": "9430d9859a7be69911fa9bd18c880118e49fec4d64770501d4ea783a506a4d46",
+      "record_sha256": "542277fb2b4bbf5455f07f0ead523a68ceef635039684c5412e7ad92e293a3a7"
+    },
+    {
+      "sequence": 510,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-mcp-readonly-preflight-qg-T-004-seq0510",
+      "host_session_id": "SESS-qg-mcp-readonly-preflight-T-004-0510",
+      "previous_record_sha256": "542277fb2b4bbf5455f07f0ead523a68ceef635039684c5412e7ad92e293a3a7",
+      "record_sha256": "281ffcebfe6105a5a2442eba6f852ba1d04369c0bacc381ca11159c17b217cd3"
+    },
+    {
+      "sequence": 511,
+      "stage": "quality",
+      "role": "sdd-evaluator",
+      "run_id": "RUN-mcp-readonly-preflight-qg-T-005-seq0511",
+      "host_session_id": "SESS-qg-mcp-readonly-preflight-T-005-0511",
+      "previous_record_sha256": "281ffcebfe6105a5a2442eba6f852ba1d04369c0bacc381ca11159c17b217cd3",
+      "record_sha256": "182729dacf01123cdf9460c81bfa29f68eea1eceb06fef64ea87d8514cdeda44"
     }
   ]
 }
