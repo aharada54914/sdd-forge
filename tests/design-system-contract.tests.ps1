@@ -246,18 +246,22 @@ function Get-Sha256OfText([string]$text) {
 # the first later line matching $3. Scopes an assertion to one named
 # section/site instead of sweeping the whole file (acceptance-tests.md
 # Notes: "assert per-site, never...one repository-wide sweep").
+# -cmatch/-cnotmatch, not -match/-notmatch: the .sh twin's section_between()
+# finds section boundaries with awk's `~`, which is case-SENSITIVE, and
+# BL-008 dual-runtime parity requires both sides to accept/reject the same
+# heading (T-005 case-sensitivity-sweep-evidence.log, F-1).
 function Get-SectionBetween([string[]]$lines, [string]$startPattern, [string]$endPattern) {
     $result = New-Object System.Collections.Generic.List[string]
     $flag = $false
     foreach ($line in $lines) {
         if (-not $flag) {
-            if ($line -match $startPattern) {
+            if ($line -cmatch $startPattern) {
                 $flag = $true
                 $result.Add($line)
             }
             continue
         }
-        if (($line -match $endPattern) -and ($line -notmatch $startPattern)) {
+        if (($line -cmatch $endPattern) -and ($line -cnotmatch $startPattern)) {
             break
         }
         $result.Add($line)
@@ -595,10 +599,18 @@ if (($wfgSectionLines.Count -gt 0) -and -not $wfgSectionFlat.Contains($bannedJaP
 # following, unique in CHANGELOG.md) rather than a hardcoded line number,
 # then compared by SHA-256 over the anchor line plus the following four
 # lines -- a true byte-identity check that never needs the Japanese text
-# as a literal in this source at all.
+# as a literal in this source at all. The anchor search is an inline
+# -cmatch scan, not Get-FirstLineIndex: the .sh twin finds this anchor
+# with a plain `grep -n` (no -i, case-SENSITIVE), unlike TEST-010/
+# TEST-025's loop_line_of() (grep -iE), so this one site must not route
+# through the case-insensitive helper (T-005 sweep evidence, F-2) --
+# mirroring how TEST-026 keeps its `write_files` scan inline.
 function Test-037Unchanged {
     $chgLines = Get-LinesOrEmpty $chgPath
-    $anchorIdx = Get-FirstLineIndex $chgLines 'design-sync-loop`'
+    $anchorIdx = -1
+    for ($i = 0; $i -lt $chgLines.Count; $i++) {
+        if ($chgLines[$i] -cmatch 'design-sync-loop`') { $anchorIdx = $i; break }
+    }
     if ($anchorIdx -lt 0) { return $false }
     if ($anchorIdx + 4 -ge $chgLines.Count) { return $false }
     $block = ($chgLines[$anchorIdx..($anchorIdx + 4)] -join "`n") + "`n"
