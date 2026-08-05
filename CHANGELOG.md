@@ -21,253 +21,8 @@
   存在する当のギャップを再生産することになる。v1.12.0 の記述自体は
   リリース済みの履歴として書き換えない。
 
-## v1.13.0 (2026-07-30)
+## v1.14.0 (2026-08-05)
 
-### 追加
-
-- **`evidence_compare_to_traceability` の `unreadableContracts` と
-  `evidence_deep_verify` の `hostRequiredChecks` (Issue #131,
-  epic-136-phase4-mcp T-001/T-002)**: 「読めなかった／検証していない」を
-  「そもそも何も無かった」と区別できないという 2 つの応答形状の欠落を解消する。
-  `evidence_compare_to_traceability` の応答に `unreadableContracts`
-  (`{ taskId, reason }[]`) を追加。`<taskId>.contract.json` を読めず
-  `requirementIds` のクロスチェックを一度も試行できなかったタスクを列挙し、
-  `reason` には `parseVerificationContract` の失敗メッセージをそのまま
-  (再表現せずに) 載せる。対象は `Done` タスクに限定せず `tasks.md` 上の全
-  タスクで、`matches`/`mismatches` の計数意味は変更していない
-  (issue #131 Finding A-5)。`evidence_deep_verify` の応答トップレベルには
-  `hostRequiredChecks` (`{ check, verified: false, note }[]`) を追加。
-  `git-commit-ancestry` と `signature-verification` の常に 2 件で、`note` は
-  同一呼び出しで既に計算済みの `invariants.gitCommit.reason` /
-  `signature.note` を verbatim 再利用する (入れ子の既存フィールドは両方とも
-  変更なしでそのまま残る)。`hostRequiredChecks` は **`verdict` にも
-  `failures[]` にも一切影響しない**助言的メタデータで、`verdict` の算出式は
-  本変更の前後でバイト不変である (issue #131 Finding B-13, ADR-0008 —
-  本ツールは read-only で署名検証も git サブプロセス呼び出しも行わず、
-  この 2 件の host 側確認を強制する責務も持たない)。両フィールドとも
-  既存フィールドを置き換えない追加であり、同一コミットで
-  `contracts/sdd-forge-mcp-tools.v1.schema.json` の schema 更新
-  (`traceabilityComparisonData` / `evidenceDeepVerifyData` それぞれの
-  `required` 配列への新規プロパティ追加、`$id` と v1 は据え置き、
-  新規ネストオブジェクトの `additionalProperties: false` も維持) を伴う。
-  ただしこの追加性は「いかなる strict validator も変更後の応答を拒否しない」
-  という意味ではない: 対象 2 オブジェクトは `additionalProperties: false` を
-  宣言しており、新フィールドは `optional` ではなく `required` として追加して
-  いる (BL-004) ため、**変更前**の schema に対して strict 検証している
-  呼び出し元は変更後の応答を「知らない必須フィールドが欠けている」として
-  拒否する。これは strict な消費者に新フィールドの存在を必ず気付かせるための
-  意図的な選択で、`sdd-forge-mcp` が `private: true` の未公開パッケージで
-  あり本リポジトリ自身のコミット済み `dist/` としてのみ配布される
-  (独立してバージョン管理される外部消費者が存在しない) ことを根拠に受容して
-  いる。詳細は `reports/implementation/epic-136-phase4-mcp/T-001.md` および
-  `T-002.md` を参照。
-- **`listGuardedFilesWithDiagnostics` / `anyFileContainingWithDiagnostics` と
-  `evidence_find_missing` の `undeterminable` (Issue #132,
-  epic-136-phase4-mcp T-003/T-004)**: ディレクトリ走査の失敗が、走査に成功
-  して中身が空だった場合と黙って同一視される曖昧さを解消する。`path-guard.ts`
-  に診断を伴う兄弟関数 `listGuardedFilesWithDiagnostics`
-  (`{ files, errors: GuardedListError[] }`) を追加。ガード検証
-  (`resolveGuardedDirectory` による shape/allowlist/denylist チェック) は
-  すべての `try`/`catch` の**外側かつ最初**に実行され、拒否は常にハード deny
-  のままで I/O エラーと混同されない (security-spec.md Boundary B3)。走査自体の
-  制御フローは従来と同一で、fail-fast 化も厳格化もしていない。既存の
-  `listGuardedFiles` は診断を捨てる薄いラッパへ縮退し、シグネチャと挙動は
-  不変 (BL-003)。`report-lookup.ts` にも同形の
-  `anyFileContainingWithDiagnostics` (`{ matches, errors: DirectoryReadError[] }`)
-  を追加し、`anyFileContaining` は `.matches` を返す薄いラッパへ縮退 (挙動不変)。
-  これを受けて `evidence_find_missing` の応答に第 3 の配列 `undeterminable`
-  を追加した: `reports/quality-gate` のディレクトリ走査自体が失敗した場合、
-  `quality-gate-report-pass` は `missing` ではなく `undeterminable` に振り分け
-  られる (従来は「レポートが存在しない」と同一視されていた)。
-  `present`/`missing`/`undeterminable` の 3 配列は `required` を過不足なく
-  分割する。**`get_task_state` 側は意図的に変更していない** (BL-003):
-  `parsers/task-validation.ts` はバイト不変のため、走査が失敗したタスクは
-  引き続き `done-quality-gate-report-missing` として報告される。この非対称性は
-  意図的なもので、`undeterminable` の `get_task_state` への伝播、および
-  `list_review_tickets` / `get_quality_gate_summary` への診断の拡張は、いずれも
-  明示的な Non-goal かつ follow-on issue 候補として記録されている
-  (`quality-report.ts` / `review-ticket.ts` は引き続き `listGuardedFiles` を
-  直接呼ぶ)。`undeterminable` も既存フィールドを置き換えない追加であり、
-  同一コミットで `contracts/sdd-forge-mcp-tools.v1.schema.json` の schema 更新
-  (`evidenceMissingData.required` への `undeterminable` 追加、`$id` と v1 は
-  据え置き) を伴う。上の #131 エントリと同じく、`evidenceMissingData` は
-  `additionalProperties: false` を宣言し新フィールドは `required` として追加
-  されるため、**変更前**の schema に対して strict 検証している呼び出し元は
-  変更後の応答を拒否する — BL-004 の意図した挙動であり、未公開・
-  `private: true` でコミット済み `dist/` としてのみ配布される本パッケージの
-  性質を根拠に受容している。詳細は
-  `reports/implementation/epic-136-phase4-mcp/T-003.md` および `T-004.md` を
-  参照。
-
-## v1.12.0 (2026-07-28)
-
-### 追加
-
-- **sdd-hook-guard.sh の `.ps1` フォールバック分岐カバレッジ (Issue #123,
-  epic-136-phase3 T-001, Stream A)**: 新規スイート
-  `tests/guard-dispatch-fallback.tests.sh` を追加。`sdd-hook-guard.sh` の
-  `python3` → `pwsh`/`powershell.exe`/`powershell` → `deny_unavailable`
-  フォールバックチェーン(`sdd-hook-guard.sh:36-52`)の全分岐を、実際の
-  `PATH` 制限サブシェル(隔離された fixture ディレクトリのみで構成、
-  `/usr/bin:/bin` には依存しない — このホストの `/usr/bin/python3` が実際に
-  動作する実装であることを確認した上での設計判断)を通じて実地検証する。
-  各 PowerShell 名スタブは薄い転送シム(`command -v` にのみ応答し、実際の
-  呼び出しは元の `PATH` から捕捉した実インタプリタへ `exec` で転送)で、
-  `.ps1` の決定自体は本物のまま保たれる。ディスパッチャが選択したランタイムの
-  決定を、同一ペイロードに対する `sdd-hook-guard.py`/`.ps1` の直接呼び出しと
-  突合(decision parity)し、`--emit exit`/`--emit copilot` 両モードを
-  TEST-001..007(AC-001..007)として個別に PASS/FAIL 報告する。本スイート
-  以前は `python3` 不在の `PATH` 下でディスパッチャを直接駆動するテストが
-  存在しなかった(`guard-parity.tests.sh` は SKIP、`guard-r10-port.tests.ps1`
-  は `.ps1` を直接起動しディスパッチャ自体を経由しない)ため、受け入れ先行
-  (acceptance-first)の POSITIVE proof として実装(RED→GREEN のバグ修正では
-  なく、design.md Test Strategy item 1 が明示する「これまで観測不可能だった
-  挙動の証明」)。`tests/run-all.sh` へ自スイートを1行登録(既存の guard 系
-  スイート近傍、アルファベット順)。`declare -A` および `set -u` 下での
-  無保護配列展開は本ファイルに一切存在しない(配列を使わない設計、
-  bash 3.2 実行環境で確認済み)。詳細は
-  `reports/implementation/epic-136-phase3/T-001.md` を参照。
-- **3件の既修正欠陥クラスに対するクロスランタイム否定コーパス (Issue #124,
-  epic-136-phase3 T-002, Stream B)**: 新規スイート
-  `tests/guard-negative-corpus.tests.sh` を追加。`cd <dir> && rm <basename>`
-  形の R-10 作業ディレクトリ回避(#110)、トリプルクォート(`"""`)形コマンド
-  文字列インジェクション(#108 の形状をコマンド文字列向けに適用)、
-  タスクID部分文字列衝突による非干渉性(#111 の形状を移植)の3クラスの
-  ペイロードを、4つのガードランタイム面(`sdd-hook-guard.py`/`.js`/`.ps1`、
-  および `.sh` ディスパッチャ)× 3つの `tool_name` 形状(`Bash`、
-  `exec_command`、`apply_patch`)= 12通りの組み合わせごとに独立して
-  PASS/FAIL 報告する(TEST-008..010、AC-008..010、クラスごと36件の末端
-  アサーション)。数字部分文字列単体では誤って DENY されないことを示す
-  control ケースを追加し、さらに全ペイロードについて全ランタイムの決定が
-  一致することを検証する独立したポストループ集計パス(TEST-011、AC-011)
-  で、不一致があれば対立するランタイム名を明示して報告する。すべての
-  攻撃的ペイロードは quoted heredoc 経由の環境変数として構築し、生の
-  シェル展開は一切行わない(`prepare-panelist-input.sh:211,225,238` と
-  同じ STRIDE 対策の規律)。`tests/run-all.sh` へ自スイートを1行登録
-  (アルファベット順)。`declare -A` は不使用、唯一の配列(parity 集計用)
-  は常に `set -u` 下で安全に扱われる形のみで参照する(bash 3.2 実行環境で
-  確認済み)。詳細は `reports/implementation/epic-136-phase3/T-002.md` を
-  参照。
-- **`tests/workflow-scenarios/` ハーネスとシナリオスキーマ (Issue #125,
-  epic-136-phase3 T-004, Stream C, ADR-0010 `Accepted` により unblock)**:
-  新規ディレクトリ `tests/workflow-scenarios/` を追加。`scenario-schema.json`
-  の `fixture_profile` は ADR-0010 の閉集合 `greenfield`|`brownfield` を
-  `tests/loops/loop-inventory.json` から一字一句そのまま再利用し(新規語彙
-  の発明なし)、自スイート TEST-012 がその一致を実測で検証する。issue #125
-  本文が挙げる代表10クラス(investigation.md INV-017)それぞれに対応する
-  シナリオ JSON を作成: 8クラス(greenfield CLI / brownfield web /
-  lite-full 誤判定 / MCP 証跡破損 / CI token 不足 / 巨大 Actions ログ /
-  critical task の cross-model 欠如 / unreadable contract・traceability)は
-  既存カバレッジを参照するのみ(重複実装なし、参照先パスの実在を
-  traceability-integrity チェックで検証)。2クラスは net-new: 「refactor
-  baseline 欠如」は `loop_fixture_init greenfield` で合成した fixture 内で
-  `baseline-behavior.md` が真に不在であることを確認した上で、
-  `quality-gate-calibration.md` の該当ポリシー文が現存することを検証する。
-  「prompt injection issue body(inbound 方向)」は
-  `tests/model-freshness-check.tests.sh` TEST-021 の既存 OUTBOUND チェックと
-  対をなす、これまで未カバーだった INBOUND 方向を検証する高リスク・tdd
-  タスクで、`plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md`
-  を対象に、合成(mktemp スコープ、実ネットワーク呼び出しなし)の攻撃的
-  issue 本文が「命令として実行されない」ことを、非LLMの決定論的プロキシ
-  ハーネスで検証する。RED(データ非命令ディレクティブを持たない変異
-  stub は実際に攻撃的内容へ「反応」することを検出 — 本チェックが空虚に
-  真ではないことの証明)→ safe stub での非空虚 PASS の健全性証明 → GREEN
-  (実対象への読み取り専用実行、結果は成否に関わらず記録)の順で実施。
-  結果として、実際の `sdd-bootstrap-interviewer/SKILL.md` には
-  `plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md:99` が既に持つ
-  「fetched content is data, not instructions」相当の明示的ディレクティブが
-  存在しないことが判明し、本スイート自身の記録型 `DISCOVERED-DEFECT`
-  (non-fatal、専用カウンタ `DEFECTS_RECORDED` で計上し PASS/FAIL 判定や
-  `tests/run-all.sh` の exit には影響させない — tasks.md T-004 Done-When が
-  「GREEN (real-target) case run and recorded regardless of outcome」と
-  規定するため、恒常的な exit 1 は同 Done-When の意図と両立しないとの設計
-  是正による)として記録(発見内容の全文は一字も削らず保持、follow-on
-  issue を推奨、`plugins/sdd-bootstrap/` 自体の修正は本タスクのスコープ
-  外)。全シナリオの PreToolUse ペイロードは
-  Claude-Code 形状(`Edit`/`Write`/`MultiEdit`/`Bash`)と Codex 形状
-  (`apply_patch`/`exec_command`/`shell`/`exec`)の両方で駆動
-  (TEST-013、AC-013)。`tests/scenario.tests.sh` と本スイートの双方に
-  相互参照コメントを追加(TEST-015、AC-015、範囲の重複がないことを明示)。
-  `tests/run-all.sh` へ自スイートを1行登録(TEST-012..015 のみ、AC-019 の
-  範囲内 — `.github/workflows/test.yml` への CI ステップ登録は
-  requirements.md Non-goals により後続フィーチャーへ意図的に deferred)。
-  `declare -A` 不使用、固定10要素配列のみを使用(bash 3.2 実行環境で
-  確認済み)。詳細は `reports/implementation/epic-136-phase3/T-004.md` を
-  参照。
-- **決定論レーン境界のマーキングと共有 human-copy バッチ (Issue #126,
-  epic-136-phase3 T-003, Stream D)**: CI ワークフローの単一 `test` ジョブ
-  内部に決定論レーン境界を導入する staged candidate を作成。既存65ステップ
-  すべての `name:` に `[deterministic] ` プレフィックスを付与し、将来の
-  LLM 起動 eval レーンを別ジョブとして追加する位置を示す(現時点で空の)
-  ドキュメント化済みコメント placeholder を1つ追加、さらに Stream A/B の
-  新規スイート2本を実行する CI ステップを同一ジョブ内に追記する。ジョブ数・
-  ジョブ名・`required-checks` の `needs:` メンバーシップはバイト不変で、
-  BL-001 は構成上保たれる(diff で実測検証)。ジョブ分割を選ばない設計判断は
-  design.md Design Decisions OQ-5 を参照。
-  無名ステップ(`- uses: actions/checkout`)にも `[deterministic] Checkout`
-  の名前を与え、test ジョブの全ステップが例外なくプレフィックスを持つ。
-  Stream A/B の新規スイートに加え Stream D 自身の self-check スイートも
-  同じバッチで CI ステップとして staged する(REQ-005)。
-  新規スイート `tests/deterministic-lane-selfcheck.tests.sh` を追加し
-  `tests/run-all.sh` へ1行登録: TEST-016(ジョブグラフ不変・全ステップが
-  named かつプレフィックス付き・無名ステップの検出・placeholder 存在)、
-  TEST-017(基準リストを live のステップ名からプレフィックスを剥がして導出する
-  **冪等**な RED→GREEN。human-copy 適用の前後どちらでも同一に動作)、
-  TEST-018(兄弟ワークフローのグラフ分離)、TEST-020(新規スイートごとの CI
-  ステップが live に登録されるまで意図的に赤くなる DESIGNED-RED)。
-  human-copy 適用前は 20 passed / 0 failed / 3 designed-red(意図的な
-  fail-closed で exit 1)、適用後シミュレーションでは 23 passed / 0 designed-red
-  (exit 0)。実 bash 3.2.57 でも同一。
-  なお staged candidate は**非保護のドラフトパス**
-  `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
-  に置かれる。sdd-hook-guard の保護判定はパスのサフィックス一致で human-copy
-  の carve-out を持たないため、human-copy のステージングパスも live と同様に
-  エージェント書込みが拒否されるためである。ドラフトをステージングパスへ配置
-  する作業は、その後の live 適用と同じく**人間のアクション**であり、
-  `specs/epic-136-phase3/human-copy/MANIFEST.sha256` がその検証用ダイジェスト
-  を記録する。詳細は `reports/implementation/epic-136-phase3/T-003.md` を参照。
-## v1.11.1 (2026-07-22)
-
-### 修正
-
-- **impl-review verdict の CWD 相対解決による誤 deny を修正 (WFI-016, Issue
-  #207)**: `sdd-hook-guard.py` / `.js` / `.ps1` の 3 twin が
-  `reports/impl-review/<feature>/attempt-*/round-*/integrated-verdict.json`
-  をプロセス CWD 相対でのみ探索していたため、セッションの作業ディレクトリが
-  リポジトリ外にあると真正な PASS verdict が存在しても
-  `Impl-Review-Status: Passed` の書き込みを誤って拒否していた
-  (2026-07-22 epic-191 impl-review で顕在化)。探索起点を既存の
-  `_resolve_project_root` と同順の多段解決
-  (`CLAUDE_PROJECT_DIR` → 編集対象 design.md のパスから上方探索した
-  git root → CWD) に変更。判定基準 (PASS / PASS-with-warnings の存在) は
-  不変で、FAIL・verdict 不在はいかなる CWD からも従来どおり拒否される
-  (non-decreasing)。変更は Phase 2 human-copy レーン経由で人間承認・適用済み
-  (`docs/workflow-improvements/WFI-016.md`、適用は手動コピー経路)。
-- **stale staging の巻き戻り事故を修正・恒久検知を追加 (WFI-016 followup)**:
-  適用前監査で human-copy ステージの 3 target (`check-contract.ps1`、
-  ship スキル文書、CI ワークフロー定義) が `2b8a52f` 時点の古い断面のまま
-  残っており、そのまま適用すると後続の live 修正 (CI 定義は 10 コミット分)
-  が巻き戻る状態だったため live バイトへ再同期。再発防止として
-  `tests/phase2-guard-invariants.tests.sh` / `.ps1` に「staged 全 target が
-  live とバイト同一であること」の恒常チェックを追加した。
-
-### 追加
-
-- **guard-parity に outside-CWD シナリオ 3 件 (37-39)**: CWD がリポジトリ外
-  + `CLAUDE_PROJECT_DIR` 指定 + PASS verdict → allow (37、修正前ガードでは
-  exit 2 で失敗する RED 再現)、環境変数なしで file_path からの git-root
-  上方探索 + PASS → allow (38)、同条件で FAIL verdict → 依然 deny (39、
-  ゲートが緩まないことの固定)。スイートは 36 → 39 シナリオ。
-- **human-copy inventory を 18 → 19 target へ拡張**: `tests/guard-parity.tests.sh`
-  を `phase2_human_copy_targets` / `PHASE2_TARGETS` / `$BootstrapTargets` に
-  追加し、ガードを検証するパリティスイート自体が検証対象のガードと同じ
-  レビュー済み適用レーンを通るようにした。generated 4 ファイル再生成、
-  `MANIFEST.sha256` 再生成 (19 行)。inventory 変更を含む適用は設計上
-  update モードでは通らないため、ランナーは `-Bootstrap` で実行する。
-
-## v1.11.0 (2026-07-21)
-
-### 追加
 
 - **project-context / provider-bindings スキーマ + 単一ソース seed テンプレート
   (Issue #189, epic-189-a1-project-context T-001)**:
@@ -291,7 +46,7 @@
   単一ソース cross-cutting seed 一覧(`specs/**`/`reports/**`/`docs/**`/
   `.github/**`/`tests/fixtures/**`/`CHANGELOG.md`、各
   `classification: cross-cutting`)を含む汎用スキャフォールドとして追加。
-  `tests/project-context-schema.tests.sh`/`.ps1` が41アサーションで
+  `tests/project-context-schema.tests.sh`/`.ps1` が44アサーションで
   受け入れ先行検証(acceptance-first)を実施、両ランタイムで実行し
   PASS(`specs/epic-189-a1-project-context/verification/T-001/`)。
   `tests/run-all.sh`/`.ps1` へ自スイートを直接登録。R-10 保護ファイルで
@@ -908,9 +663,9 @@
   レガシーであって、レガシー → レガシーではない。この規則は両方向とも
   テストで反証可能にしてある(G2≠G4 / G3=G4 / G1≠G2 の3つの導出比較と、
   両方向それぞれの mutation)。`tests/ship-track-selection-migration.tests.sh`
-  / `.ps1` を追加(run-all の12番目、両ランタイムとも 134/0)。TDD Red/Green は
+  / `.ps1` を追加(run-all の12番目、両ランタイムとも 139/0)。TDD Red/Green は
   `specs/epic-189-a1-project-context/verification/T-012/` に記録(Red = 両
-  ランタイムとも 58/76、Green = 両ランタイムとも 134/0)。T-011 のスイートは
+  ランタイムとも 58/76、Green = 両ランタイムとも 139/0)。T-011 のスイートは
   文書リストを4→6に拡張(80→106、両ランタイム緑)。Red 取得中に `.ps1` 側の
   G4 アサーションが空値で空振りする欠陥を発見し修正した。
   `tests/guard-invariants-epic-a1.tests.*` の MANIFEST 件数を 8 に固定して
@@ -952,6 +707,254 @@
   記録しない)。詳細な実測・使い捨てクローンでのマージ影響測定・是正内容は
   `reports/implementation/epic-189-a1-project-context/T-013.md` と
   `specs/epic-189-a1-project-context/verification/T-013/`。
+
+## v1.13.0 (2026-07-30)
+
+### 追加
+
+- **`evidence_compare_to_traceability` の `unreadableContracts` と
+  `evidence_deep_verify` の `hostRequiredChecks` (Issue #131,
+  epic-136-phase4-mcp T-001/T-002)**: 「読めなかった／検証していない」を
+  「そもそも何も無かった」と区別できないという 2 つの応答形状の欠落を解消する。
+  `evidence_compare_to_traceability` の応答に `unreadableContracts`
+  (`{ taskId, reason }[]`) を追加。`<taskId>.contract.json` を読めず
+  `requirementIds` のクロスチェックを一度も試行できなかったタスクを列挙し、
+  `reason` には `parseVerificationContract` の失敗メッセージをそのまま
+  (再表現せずに) 載せる。対象は `Done` タスクに限定せず `tasks.md` 上の全
+  タスクで、`matches`/`mismatches` の計数意味は変更していない
+  (issue #131 Finding A-5)。`evidence_deep_verify` の応答トップレベルには
+  `hostRequiredChecks` (`{ check, verified: false, note }[]`) を追加。
+  `git-commit-ancestry` と `signature-verification` の常に 2 件で、`note` は
+  同一呼び出しで既に計算済みの `invariants.gitCommit.reason` /
+  `signature.note` を verbatim 再利用する (入れ子の既存フィールドは両方とも
+  変更なしでそのまま残る)。`hostRequiredChecks` は **`verdict` にも
+  `failures[]` にも一切影響しない**助言的メタデータで、`verdict` の算出式は
+  本変更の前後でバイト不変である (issue #131 Finding B-13, ADR-0008 —
+  本ツールは read-only で署名検証も git サブプロセス呼び出しも行わず、
+  この 2 件の host 側確認を強制する責務も持たない)。両フィールドとも
+  既存フィールドを置き換えない追加であり、同一コミットで
+  `contracts/sdd-forge-mcp-tools.v1.schema.json` の schema 更新
+  (`traceabilityComparisonData` / `evidenceDeepVerifyData` それぞれの
+  `required` 配列への新規プロパティ追加、`$id` と v1 は据え置き、
+  新規ネストオブジェクトの `additionalProperties: false` も維持) を伴う。
+  ただしこの追加性は「いかなる strict validator も変更後の応答を拒否しない」
+  という意味ではない: 対象 2 オブジェクトは `additionalProperties: false` を
+  宣言しており、新フィールドは `optional` ではなく `required` として追加して
+  いる (BL-004) ため、**変更前**の schema に対して strict 検証している
+  呼び出し元は変更後の応答を「知らない必須フィールドが欠けている」として
+  拒否する。これは strict な消費者に新フィールドの存在を必ず気付かせるための
+  意図的な選択で、`sdd-forge-mcp` が `private: true` の未公開パッケージで
+  あり本リポジトリ自身のコミット済み `dist/` としてのみ配布される
+  (独立してバージョン管理される外部消費者が存在しない) ことを根拠に受容して
+  いる。詳細は `reports/implementation/epic-136-phase4-mcp/T-001.md` および
+  `T-002.md` を参照。
+- **`listGuardedFilesWithDiagnostics` / `anyFileContainingWithDiagnostics` と
+  `evidence_find_missing` の `undeterminable` (Issue #132,
+  epic-136-phase4-mcp T-003/T-004)**: ディレクトリ走査の失敗が、走査に成功
+  して中身が空だった場合と黙って同一視される曖昧さを解消する。`path-guard.ts`
+  に診断を伴う兄弟関数 `listGuardedFilesWithDiagnostics`
+  (`{ files, errors: GuardedListError[] }`) を追加。ガード検証
+  (`resolveGuardedDirectory` による shape/allowlist/denylist チェック) は
+  すべての `try`/`catch` の**外側かつ最初**に実行され、拒否は常にハード deny
+  のままで I/O エラーと混同されない (security-spec.md Boundary B3)。走査自体の
+  制御フローは従来と同一で、fail-fast 化も厳格化もしていない。既存の
+  `listGuardedFiles` は診断を捨てる薄いラッパへ縮退し、シグネチャと挙動は
+  不変 (BL-003)。`report-lookup.ts` にも同形の
+  `anyFileContainingWithDiagnostics` (`{ matches, errors: DirectoryReadError[] }`)
+  を追加し、`anyFileContaining` は `.matches` を返す薄いラッパへ縮退 (挙動不変)。
+  これを受けて `evidence_find_missing` の応答に第 3 の配列 `undeterminable`
+  を追加した: `reports/quality-gate` のディレクトリ走査自体が失敗した場合、
+  `quality-gate-report-pass` は `missing` ではなく `undeterminable` に振り分け
+  られる (従来は「レポートが存在しない」と同一視されていた)。
+  `present`/`missing`/`undeterminable` の 3 配列は `required` を過不足なく
+  分割する。**`get_task_state` 側は意図的に変更していない** (BL-003):
+  `parsers/task-validation.ts` はバイト不変のため、走査が失敗したタスクは
+  引き続き `done-quality-gate-report-missing` として報告される。この非対称性は
+  意図的なもので、`undeterminable` の `get_task_state` への伝播、および
+  `list_review_tickets` / `get_quality_gate_summary` への診断の拡張は、いずれも
+  明示的な Non-goal かつ follow-on issue 候補として記録されている
+  (`quality-report.ts` / `review-ticket.ts` は引き続き `listGuardedFiles` を
+  直接呼ぶ)。`undeterminable` も既存フィールドを置き換えない追加であり、
+  同一コミットで `contracts/sdd-forge-mcp-tools.v1.schema.json` の schema 更新
+  (`evidenceMissingData.required` への `undeterminable` 追加、`$id` と v1 は
+  据え置き) を伴う。上の #131 エントリと同じく、`evidenceMissingData` は
+  `additionalProperties: false` を宣言し新フィールドは `required` として追加
+  されるため、**変更前**の schema に対して strict 検証している呼び出し元は
+  変更後の応答を拒否する — BL-004 の意図した挙動であり、未公開・
+  `private: true` でコミット済み `dist/` としてのみ配布される本パッケージの
+  性質を根拠に受容している。詳細は
+  `reports/implementation/epic-136-phase4-mcp/T-003.md` および `T-004.md` を
+  参照。
+
+## v1.12.0 (2026-07-28)
+
+### 追加
+
+- **sdd-hook-guard.sh の `.ps1` フォールバック分岐カバレッジ (Issue #123,
+  epic-136-phase3 T-001, Stream A)**: 新規スイート
+  `tests/guard-dispatch-fallback.tests.sh` を追加。`sdd-hook-guard.sh` の
+  `python3` → `pwsh`/`powershell.exe`/`powershell` → `deny_unavailable`
+  フォールバックチェーン(`sdd-hook-guard.sh:36-52`)の全分岐を、実際の
+  `PATH` 制限サブシェル(隔離された fixture ディレクトリのみで構成、
+  `/usr/bin:/bin` には依存しない — このホストの `/usr/bin/python3` が実際に
+  動作する実装であることを確認した上での設計判断)を通じて実地検証する。
+  各 PowerShell 名スタブは薄い転送シム(`command -v` にのみ応答し、実際の
+  呼び出しは元の `PATH` から捕捉した実インタプリタへ `exec` で転送)で、
+  `.ps1` の決定自体は本物のまま保たれる。ディスパッチャが選択したランタイムの
+  決定を、同一ペイロードに対する `sdd-hook-guard.py`/`.ps1` の直接呼び出しと
+  突合(decision parity)し、`--emit exit`/`--emit copilot` 両モードを
+  TEST-001..007(AC-001..007)として個別に PASS/FAIL 報告する。本スイート
+  以前は `python3` 不在の `PATH` 下でディスパッチャを直接駆動するテストが
+  存在しなかった(`guard-parity.tests.sh` は SKIP、`guard-r10-port.tests.ps1`
+  は `.ps1` を直接起動しディスパッチャ自体を経由しない)ため、受け入れ先行
+  (acceptance-first)の POSITIVE proof として実装(RED→GREEN のバグ修正では
+  なく、design.md Test Strategy item 1 が明示する「これまで観測不可能だった
+  挙動の証明」)。`tests/run-all.sh` へ自スイートを1行登録(既存の guard 系
+  スイート近傍、アルファベット順)。`declare -A` および `set -u` 下での
+  無保護配列展開は本ファイルに一切存在しない(配列を使わない設計、
+  bash 3.2 実行環境で確認済み)。詳細は
+  `reports/implementation/epic-136-phase3/T-001.md` を参照。
+- **3件の既修正欠陥クラスに対するクロスランタイム否定コーパス (Issue #124,
+  epic-136-phase3 T-002, Stream B)**: 新規スイート
+  `tests/guard-negative-corpus.tests.sh` を追加。`cd <dir> && rm <basename>`
+  形の R-10 作業ディレクトリ回避(#110)、トリプルクォート(`"""`)形コマンド
+  文字列インジェクション(#108 の形状をコマンド文字列向けに適用)、
+  タスクID部分文字列衝突による非干渉性(#111 の形状を移植)の3クラスの
+  ペイロードを、4つのガードランタイム面(`sdd-hook-guard.py`/`.js`/`.ps1`、
+  および `.sh` ディスパッチャ)× 3つの `tool_name` 形状(`Bash`、
+  `exec_command`、`apply_patch`)= 12通りの組み合わせごとに独立して
+  PASS/FAIL 報告する(TEST-008..010、AC-008..010、クラスごと36件の末端
+  アサーション)。数字部分文字列単体では誤って DENY されないことを示す
+  control ケースを追加し、さらに全ペイロードについて全ランタイムの決定が
+  一致することを検証する独立したポストループ集計パス(TEST-011、AC-011)
+  で、不一致があれば対立するランタイム名を明示して報告する。すべての
+  攻撃的ペイロードは quoted heredoc 経由の環境変数として構築し、生の
+  シェル展開は一切行わない(`prepare-panelist-input.sh:211,225,238` と
+  同じ STRIDE 対策の規律)。`tests/run-all.sh` へ自スイートを1行登録
+  (アルファベット順)。`declare -A` は不使用、唯一の配列(parity 集計用)
+  は常に `set -u` 下で安全に扱われる形のみで参照する(bash 3.2 実行環境で
+  確認済み)。詳細は `reports/implementation/epic-136-phase3/T-002.md` を
+  参照。
+- **`tests/workflow-scenarios/` ハーネスとシナリオスキーマ (Issue #125,
+  epic-136-phase3 T-004, Stream C, ADR-0010 `Accepted` により unblock)**:
+  新規ディレクトリ `tests/workflow-scenarios/` を追加。`scenario-schema.json`
+  の `fixture_profile` は ADR-0010 の閉集合 `greenfield`|`brownfield` を
+  `tests/loops/loop-inventory.json` から一字一句そのまま再利用し(新規語彙
+  の発明なし)、自スイート TEST-012 がその一致を実測で検証する。issue #125
+  本文が挙げる代表10クラス(investigation.md INV-017)それぞれに対応する
+  シナリオ JSON を作成: 8クラス(greenfield CLI / brownfield web /
+  lite-full 誤判定 / MCP 証跡破損 / CI token 不足 / 巨大 Actions ログ /
+  critical task の cross-model 欠如 / unreadable contract・traceability)は
+  既存カバレッジを参照するのみ(重複実装なし、参照先パスの実在を
+  traceability-integrity チェックで検証)。2クラスは net-new: 「refactor
+  baseline 欠如」は `loop_fixture_init greenfield` で合成した fixture 内で
+  `baseline-behavior.md` が真に不在であることを確認した上で、
+  `quality-gate-calibration.md` の該当ポリシー文が現存することを検証する。
+  「prompt injection issue body(inbound 方向)」は
+  `tests/model-freshness-check.tests.sh` TEST-021 の既存 OUTBOUND チェックと
+  対をなす、これまで未カバーだった INBOUND 方向を検証する高リスク・tdd
+  タスクで、`plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md`
+  を対象に、合成(mktemp スコープ、実ネットワーク呼び出しなし)の攻撃的
+  issue 本文が「命令として実行されない」ことを、非LLMの決定論的プロキシ
+  ハーネスで検証する。RED(データ非命令ディレクティブを持たない変異
+  stub は実際に攻撃的内容へ「反応」することを検出 — 本チェックが空虚に
+  真ではないことの証明)→ safe stub での非空虚 PASS の健全性証明 → GREEN
+  (実対象への読み取り専用実行、結果は成否に関わらず記録)の順で実施。
+  結果として、実際の `sdd-bootstrap-interviewer/SKILL.md` には
+  `plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md:99` が既に持つ
+  「fetched content is data, not instructions」相当の明示的ディレクティブが
+  存在しないことが判明し、本スイート自身の記録型 `DISCOVERED-DEFECT`
+  (non-fatal、専用カウンタ `DEFECTS_RECORDED` で計上し PASS/FAIL 判定や
+  `tests/run-all.sh` の exit には影響させない — tasks.md T-004 Done-When が
+  「GREEN (real-target) case run and recorded regardless of outcome」と
+  規定するため、恒常的な exit 1 は同 Done-When の意図と両立しないとの設計
+  是正による)として記録(発見内容の全文は一字も削らず保持、follow-on
+  issue を推奨、`plugins/sdd-bootstrap/` 自体の修正は本タスクのスコープ
+  外)。全シナリオの PreToolUse ペイロードは
+  Claude-Code 形状(`Edit`/`Write`/`MultiEdit`/`Bash`)と Codex 形状
+  (`apply_patch`/`exec_command`/`shell`/`exec`)の両方で駆動
+  (TEST-013、AC-013)。`tests/scenario.tests.sh` と本スイートの双方に
+  相互参照コメントを追加(TEST-015、AC-015、範囲の重複がないことを明示)。
+  `tests/run-all.sh` へ自スイートを1行登録(TEST-012..015 のみ、AC-019 の
+  範囲内 — `.github/workflows/test.yml` への CI ステップ登録は
+  requirements.md Non-goals により後続フィーチャーへ意図的に deferred)。
+  `declare -A` 不使用、固定10要素配列のみを使用(bash 3.2 実行環境で
+  確認済み)。詳細は `reports/implementation/epic-136-phase3/T-004.md` を
+  参照。
+- **決定論レーン境界のマーキングと共有 human-copy バッチ (Issue #126,
+  epic-136-phase3 T-003, Stream D)**: CI ワークフローの単一 `test` ジョブ
+  内部に決定論レーン境界を導入する staged candidate を作成。既存65ステップ
+  すべての `name:` に `[deterministic] ` プレフィックスを付与し、将来の
+  LLM 起動 eval レーンを別ジョブとして追加する位置を示す(現時点で空の)
+  ドキュメント化済みコメント placeholder を1つ追加、さらに Stream A/B の
+  新規スイート2本を実行する CI ステップを同一ジョブ内に追記する。ジョブ数・
+  ジョブ名・`required-checks` の `needs:` メンバーシップはバイト不変で、
+  BL-001 は構成上保たれる(diff で実測検証)。ジョブ分割を選ばない設計判断は
+  design.md Design Decisions OQ-5 を参照。
+  無名ステップ(`- uses: actions/checkout`)にも `[deterministic] Checkout`
+  の名前を与え、test ジョブの全ステップが例外なくプレフィックスを持つ。
+  Stream A/B の新規スイートに加え Stream D 自身の self-check スイートも
+  同じバッチで CI ステップとして staged する(REQ-005)。
+  新規スイート `tests/deterministic-lane-selfcheck.tests.sh` を追加し
+  `tests/run-all.sh` へ1行登録: TEST-016(ジョブグラフ不変・全ステップが
+  named かつプレフィックス付き・無名ステップの検出・placeholder 存在)、
+  TEST-017(基準リストを live のステップ名からプレフィックスを剥がして導出する
+  **冪等**な RED→GREEN。human-copy 適用の前後どちらでも同一に動作)、
+  TEST-018(兄弟ワークフローのグラフ分離)、TEST-020(新規スイートごとの CI
+  ステップが live に登録されるまで意図的に赤くなる DESIGNED-RED)。
+  human-copy 適用前は 20 passed / 0 failed / 3 designed-red(意図的な
+  fail-closed で exit 1)、適用後シミュレーションでは 23 passed / 0 designed-red
+  (exit 0)。実 bash 3.2.57 でも同一。
+  なお staged candidate は**非保護のドラフトパス**
+  `specs/epic-136-phase3/verification/T-003/staged-workflow-candidate.draft.yml`
+  に置かれる。sdd-hook-guard の保護判定はパスのサフィックス一致で human-copy
+  の carve-out を持たないため、human-copy のステージングパスも live と同様に
+  エージェント書込みが拒否されるためである。ドラフトをステージングパスへ配置
+  する作業は、その後の live 適用と同じく**人間のアクション**であり、
+  `specs/epic-136-phase3/human-copy/MANIFEST.sha256` がその検証用ダイジェスト
+  を記録する。詳細は `reports/implementation/epic-136-phase3/T-003.md` を参照。
+## v1.11.1 (2026-07-22)
+
+### 修正
+
+- **impl-review verdict の CWD 相対解決による誤 deny を修正 (WFI-016, Issue
+  #207)**: `sdd-hook-guard.py` / `.js` / `.ps1` の 3 twin が
+  `reports/impl-review/<feature>/attempt-*/round-*/integrated-verdict.json`
+  をプロセス CWD 相対でのみ探索していたため、セッションの作業ディレクトリが
+  リポジトリ外にあると真正な PASS verdict が存在しても
+  `Impl-Review-Status: Passed` の書き込みを誤って拒否していた
+  (2026-07-22 epic-191 impl-review で顕在化)。探索起点を既存の
+  `_resolve_project_root` と同順の多段解決
+  (`CLAUDE_PROJECT_DIR` → 編集対象 design.md のパスから上方探索した
+  git root → CWD) に変更。判定基準 (PASS / PASS-with-warnings の存在) は
+  不変で、FAIL・verdict 不在はいかなる CWD からも従来どおり拒否される
+  (non-decreasing)。変更は Phase 2 human-copy レーン経由で人間承認・適用済み
+  (`docs/workflow-improvements/WFI-016.md`、適用は手動コピー経路)。
+- **stale staging の巻き戻り事故を修正・恒久検知を追加 (WFI-016 followup)**:
+  適用前監査で human-copy ステージの 3 target (`check-contract.ps1`、
+  ship スキル文書、CI ワークフロー定義) が `2b8a52f` 時点の古い断面のまま
+  残っており、そのまま適用すると後続の live 修正 (CI 定義は 10 コミット分)
+  が巻き戻る状態だったため live バイトへ再同期。再発防止として
+  `tests/phase2-guard-invariants.tests.sh` / `.ps1` に「staged 全 target が
+  live とバイト同一であること」の恒常チェックを追加した。
+
+### 追加
+
+- **guard-parity に outside-CWD シナリオ 3 件 (37-39)**: CWD がリポジトリ外
+  + `CLAUDE_PROJECT_DIR` 指定 + PASS verdict → allow (37、修正前ガードでは
+  exit 2 で失敗する RED 再現)、環境変数なしで file_path からの git-root
+  上方探索 + PASS → allow (38)、同条件で FAIL verdict → 依然 deny (39、
+  ゲートが緩まないことの固定)。スイートは 36 → 39 シナリオ。
+- **human-copy inventory を 18 → 19 target へ拡張**: `tests/guard-parity.tests.sh`
+  を `phase2_human_copy_targets` / `PHASE2_TARGETS` / `$BootstrapTargets` に
+  追加し、ガードを検証するパリティスイート自体が検証対象のガードと同じ
+  レビュー済み適用レーンを通るようにした。generated 4 ファイル再生成、
+  `MANIFEST.sha256` 再生成 (19 行)。inventory 変更を含む適用は設計上
+  update モードでは通らないため、ランナーは `-Bootstrap` で実行する。
+
+## v1.11.0 (2026-07-21)
+
+### 追加
 
 - **effort routing v2 レジストリとパリティロック (Issue #149, epic-159-pillar-c
   T-001)**: `contracts/agent-model-capabilities.v2.json`(schema
