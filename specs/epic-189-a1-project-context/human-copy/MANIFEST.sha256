@@ -8,3 +8,7 @@ aaceb26a8c2a9bae7413611eeda7223c943f7a93279bbcdd64a128dc56ec99e5  plugins/sdd-qu
 67d422e19fe767733855961c50b788d77376bbcd3abe27a225241676c9489b19  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
 7cf397a061bad767fe8308f2af52d571724824fc2b6e8b0f2b1725c8f73d5b74  plugins/sdd-ship/skills/ship/SKILL.md
 757c681731aa766bf95ec016fc0f4a39216feb00a9ecca71f8b70a94cb1a9679  plugins/sdd-lite/skills/lite-spec/SKILL.md
+a3814265af176d1abc527c4c2a3c5bb35d3070e29a955f417c738f6c679aab3c  plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+b5867e25e05f6614f158b7aec9181dd7efa02ee30fcb23889b9a88e068f479cb  plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
+b7f2feb691e3b32cc9d37af541844b92f38ec21d9a13b25d72a61b0cba6a5cd8  plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
+a06f433d40a00252d7d17823df5ea3c74b834cb9d14f3fd1caee7c1ff21e4a74  plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py

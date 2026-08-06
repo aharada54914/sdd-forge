@@ -707,6 +707,59 @@
   記録しない)。詳細な実測・使い捨てクローンでのマージ影響測定・是正内容は
   `reports/implementation/epic-189-a1-project-context/T-013.md` と
   `specs/epic-189-a1-project-context/verification/T-013/`。
+- **外部レビュー(PR #229 Codex review)指摘 3 件の修正 (Issue #189,
+  epic-189-a1-project-context)**: いずれも R-10 保護スクリプトのため、修正は
+  `specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/`
+  配下の**ステージ済み候補**として作成し(`MANIFEST.sha256` に 4 件追記、
+  計 14 件)、ライブ適用は人間の `cp` を待つ。追加した検証は
+  `TEST-PR229-AHC` / `TEST-PR229-GEN` / `TEST-PR229-VAL` として既存スイートを
+  拡張し、**ステージ済み候補を実行**する(適用後もそのまま緑)。
+  **(1) [P1] `apply-human-copy.{sh,ps1}` のリカバリ probe が symlink を
+  ABSENT と誤判定**: `sha256_of_or_absent` の `[ -e ] && [ ! -L ] && [ -f ]`
+  (ps1 は `Get-Sha256OrAbsent`)が symlink を `printf 'ABSENT'` に落として
+  いた。QG seq0360 が確立した「読めないものを『確実に不在』へ強制変換しない」
+  規則が、regular file が読めない場合にしか適用されていなかった。結果、
+  `pre_hash: "ABSENT"` の journal + ライブ対象を占める symlink の組み合わせで
+  リカバリが「コミット未開始」と判定し、journal と `pre/` バックアップを削除、
+  symlink を保護パス上に残したまま `{"status":"ok","recovered":1}` を返した
+  (両ランタイムで実証再現)。symlink だけでなく**非 regular file 全体**
+  (ディレクトリ・fifo 等)へ規則を一般化して修正。probe 失敗は PREPARE では
+  `PRE_EXISTING_SYMLINK_DENIED`(exit 10、publish 時と同一カテゴリ)、リカバリ
+  時は `RECOVERY_FAILED`(exit 17、journal/バックアップ保持)として既存の
+  分類体系で報告する(新規規約は導入しない)。ps1 は .NET が Unix の fifo を
+  regular file と区別できないため reparse point とディレクトリのみを検出する
+  — この残差はコード内に明記した。
+  **(2) [P1] `generate-approval-sidecar.py` が publisher の読めない manifest を
+  出力**: `nonce: <hex>` ヘッダ行(publisher は `<64-hex>␣␣<path>` 以外の行を
+  `MANIFEST_INVALID` exit 13 で拒否)と、bare basename 行(リポジトリ**ルート**へ
+  publish されてしまう)の 2 点。ステージ成果物を repo-relative なライブパス
+  (`sdd/project-context.approval.json` と
+  `sdd/.approved-context/project-context.approved.yaml` — 後者は design.md:142
+  /907-908 のとおり `sdd/` 直下ではない)配下に配置し、manifest を publisher
+  形式 2 行に修正。nonce は破棄せず兄弟ファイル `NONCE` へ退避した(manifest の
+  nonce 行を読む消費者はリポジトリ全体に存在しないことを確認済み)。これにより
+  ステージディレクトリを `apply-human-copy --manifest` へそのまま渡せる
+  (2 target の単一 journaled transaction として exit 0、2 つの basename は
+  相異なるため exit 19 の衝突なし)。既存 2 スイートのパス表明はレイアウト
+  非依存に書き換え、適用前後の双方で緑を保つ。
+  **(3) [P2] `validate-approval-sidecar.py` の標準経路がフィールド単位の
+  スキーマ適合を検査していない**: `_load_sidecar` はトップレベル 9 キーの
+  **存在**しか見ておらず、`contracts/approval-sidecar.schema.json` は標準経路で
+  一度も読まれていなかった。HMAC を**再署名した**フィクスチャで
+  `primary_approval.status: "Rejected"` / 追加プロパティ(トップレベル・
+  `primary_approval` 内の両方)/ `approval_epoch` が `0` や `"1"` / 大文字
+  `hmac` の 6 件が全て `VALID` exit 0 を返すことを実証。`_schema_validate` に
+  `$ref`・`pattern`・`minimum`・`integer`/`number`/`null` 型を追加し(T-003 の
+  テスト側ハーネスと同一キーワード集合)、`SIDECAR_SCHEMA_VIOLATION`(exit 47、
+  既存の `CONTENT_SCHEMA_VIOLATION` 32 / `APPROVER_REGISTRY_SCHEMA_VIOLATION`
+  35 と同じ系列の 3 番目)として標準経路で強制する。大文字 hmac の carryover は
+  定数時間比較を緩めずスキーマの `pattern` で構造的に拒否される。
+  `--verify-provenance` は歴史的再証明可能性を失わせないため意図的に
+  スキーマ非拘束のまま残した。**指摘のうち `approved_at` の不正形式のみは
+  反証**: draft-07 の `format` は assertion ではなく annotation であり、本 epic
+  自身のサブセット validator も実装していないため、スキーマ適合では拒否され
+  ない。現状の挙動をテストで固定し、境界を明示した(日時ゲートの新設は本修正の
+  範囲外)。
 
 ## v1.13.0 (2026-07-30)
 
