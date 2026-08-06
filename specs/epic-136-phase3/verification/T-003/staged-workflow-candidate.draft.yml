@@ -7,6 +7,13 @@ on:
   merge_group:
   workflow_dispatch:
 
+# Cancel superseded runs of the same pull request. Pushes to main and
+# merge-queue runs fall back to the unique run_id group, so they are
+# never cancelled.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions:
   contents: read
 
@@ -17,6 +24,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - name: "[deterministic] Checkout"
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -34,14 +42,6 @@ jobs:
         if: runner.os != 'Windows'
         shell: bash
         run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
-
-      - name: "[deterministic] Install recorded Claude Code CLI"
-        shell: bash
-        run: npm install -g @anthropic-ai/claude-code
-
-      - name: "[deterministic] Validate Claude plugin manifests (real CLI)"
-        shell: pwsh
-        run: ./tests/claude-manifest-validation.tests.ps1
 
       # pwsh steps run the test scripts directly: piping through tee changes
       # pwsh exit-code semantics ($LASTEXITCODE leakage), and the job console
@@ -69,148 +69,413 @@ jobs:
         shell: bash
         run: ./tests/repository-release-validation.tests.sh
 
-      - name: "[deterministic] Test template-validator parity (bash)"
+      - name: "[deterministic] Test deterministic gate scripts"
+        shell: pwsh
+        run: ./tests/scripts.tests.ps1
+
+      - name: "[deterministic] Test selected-feature structure validation"
+        shell: pwsh
+        run: ./tests/structure-check-feature-mode.tests.ps1
+
+      - name: "[deterministic] Test quality-gate cycle-limit suite (bash)"
+        shell: bash
+        run: bash ./tests/quality-gate-cycle-limit.tests.sh
+
+      - name: "[deterministic] Test portable review-loop prechecks (pwsh)"
+        shell: pwsh
+        run: |
+          ./tests/review-contract-foundation.tests.ps1
+          ./tests/downstream-review-precheck.tests.ps1
+          ./tests/impl-layer-review-inputs.tests.ps1
+          ./tests/task-layer-review-inputs.tests.ps1
+
+      - name: "[deterministic] Test cross-model gate (pwsh)"
+        shell: pwsh
+        run: ./tests/cross-model.tests.ps1
+
+      - name: "[deterministic] Test Phase 2 guard invariants (pwsh)"
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/phase2-guard-invariants.tests.ps1
+
+      - name: "[deterministic] Test Phase 2 guard invariants (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: bash ./tests/phase2-guard-invariants.tests.sh
+
+      - name: "[deterministic] Test hook guards"
+        shell: pwsh
+        run: ./tests/hooks.tests.ps1
+
+      - name: "[deterministic] Test cross-runtime scenario suite (pwsh)"
+        shell: pwsh
+        run: ./tests/scenario.tests.ps1
+
+      - name: "[deterministic] Test guards (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
+
+      - name: "[deterministic] Test approval boundary (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
+
+      - name: "[deterministic] Test deterministic gates (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
+
+      - name: "[deterministic] Test panelist-input consent gate (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
+
+      - name: "[deterministic] Test panelist-input consent gate (pwsh)"
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: ./tests/prepare-panelist.tests.ps1
+
+      - name: "[deterministic] Test portable review-loop prechecks (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/review-contract-foundation.tests.sh
+          bash tests/review-contract-foundation-parity.tests.sh
+          bash tests/spec-review-loop.tests.sh
+          bash tests/downstream-review-precheck.tests.sh
+          bash tests/downstream-review-precheck-parity.tests.sh
+          bash tests/impl-layer-review-inputs.tests.sh
+          bash tests/task-layer-review-inputs.tests.sh
+          bash tests/task-layer-full-profile.tests.sh
+          bash tests/task-review-precheck.tests.sh
+          bash tests/review-agent-isolation.tests.sh
+
+      - name: "[deterministic] Test cross-model gate (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/cross-model.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-model-tests.log"
+
+      - name: "[deterministic] Test outcome-based eval suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
+
+      - name: "[deterministic] Test CRLF line-ending parity (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
+
+      - name: "[deterministic] Test cross-runtime scenario suite (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
+
+      - name: "[deterministic] Test branch-protection script (bash)"
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
+
+      - name: "[deterministic] Test guard dispatch fallback suite (bash)"
+        shell: bash
+        run: bash ./tests/guard-dispatch-fallback.tests.sh
+
+      - name: "[deterministic] Test guard negative corpus suite (bash)"
+        shell: bash
+        run: bash ./tests/guard-negative-corpus.tests.sh
+
+      - name: "[deterministic] Test deterministic-lane self-check suite (bash)"
+        shell: bash
+        run: bash ./tests/deterministic-lane-selfcheck.tests.sh
+
+      # Stream C (#125). ADR-0010's `Status: Accepted` promotion unblocked
+      # Stream C and its suite landed in this feature, so it registers its
+      # explicit step inside this ONE shared batch (AC-019/AC-020). Without
+      # it, INV-006's no-wildcard rule means the suite silently never runs.
+      - name: "[deterministic] Test workflow-scenarios suite (bash)"
+        shell: bash
+        run: bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh
+
+      # ---------------------------------------------------------------
+      # [deterministic] lane marker (epic-136 Phase 3, Stream D, #126).
+      # Every step in this `test` job is deterministic: no step invokes an
+      # LLM. A future LLM-invoking eval lane is added as a SEPARATE job,
+      # never as a step here -- this marker records where that job would
+      # be introduced. It is intentionally empty today: adding the job
+      # here would change the job graph and `required-checks`' `needs:`
+      # list, which BL-001 forbids for this feature (design.md Design
+      # Decisions OQ-5).
+      # eval-lane: (none yet)
+      # ---------------------------------------------------------------
+
+      - name: "[deterministic] Upload test logs"
+        if: failure()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: test-logs-${{ matrix.os }}
+          path: ${{ runner.temp }}/*.log
+          if-no-files-found: ignore
+
+  # installers -- the install/uninstall suites clone a source fixture and
+  # perform real filesystem installs per scenario, which dominated the old
+  # single test job (27+ min on the macOS leg alone). They run as their own
+  # parallel job so the gate suites above are not serialized behind them.
+  # Shallow checkout suffices here -- the fixtures archive HEAD and the
+  # remote-installer steps resolve $GITHUB_SHA through the GitHub API.
+  installers:
+    name: installers
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Verify generated guard invariants (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: python ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+
+      - name: Verify generated guard invariants (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python3 ./plugins/sdd-quality-loop/scripts/generate-guard-invariants.py --check
+
+      - name: Install recorded Claude Code CLI
+        shell: bash
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate Claude plugin manifests (real CLI)
+        shell: pwsh
+        run: ./tests/claude-manifest-validation.tests.ps1
+
+      - name: Test installer (pwsh)
+        shell: pwsh
+        run: ./tests/install.tests.ps1
+
+      - name: Test uninstaller (pwsh)
+        shell: pwsh
+        run: ./tests/uninstall.tests.ps1
+
+      - name: Test Claude registration (pwsh)
+        shell: pwsh
+        run: ./tests/claude-registration.tests.ps1
+
+      - name: Test authenticated remote installer (pwsh)
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./install.ps1 -Ref $env:GITHUB_SHA -InstallRoot (Join-Path $env:RUNNER_TEMP "sdd-remote-pwsh") -Target FilesOnly
+
+      - name: Test POSIX installer
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bash -n ./tests/release-host-smoke.sh
+          ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
+
+      - name: Test POSIX uninstaller
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          ./tests/uninstall.tests.sh 2>&1 | tee "${{ runner.temp }}/uninstall-tests-sh.log"
+
+      - name: Test authenticated remote installer (bash)
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: ./install.sh --ref "$GITHUB_SHA" --install-root "${RUNNER_TEMP}/sdd-remote-bash" --target FilesOnly
+
+      - name: Upload installer test logs
+        if: failure()
+        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
+        with:
+          name: installer-test-logs-${{ matrix.os }}
+          path: ${{ runner.temp }}/*.log
+          if-no-files-found: ignore
+
+  # loops-routing -- loop inventory/driver/consistency/escalation plus the
+  # agent-model routing, capabilities, frontmatter and placeholder suites.
+  # Pure file/manifest assertions with no git-history or CLI dependency.
+  loops-routing:
+    name: loops-routing
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Test template-validator parity (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/template-validator-parity.tests.sh
 
-      - name: "[deterministic] Test template-validator parity (pwsh)"
+      - name: Test template-validator parity (pwsh)
         shell: pwsh
         run: ./tests/template-validator-parity.tests.ps1
 
-      - name: "[deterministic] Test loop inventory registration forcing (bash)"
+      - name: Test loop inventory registration forcing (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/loop-inventory.tests.sh
 
-      - name: "[deterministic] Test loop inventory registration forcing (pwsh)"
+      - name: Test loop inventory registration forcing (pwsh)
         shell: pwsh
         run: ./tests/loop-inventory.tests.ps1
 
-      - name: "[deterministic] Test loop driver smoke suite (bash)"
+      - name: Test loop driver smoke suite (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/loop-driver.tests.sh
 
-      - name: "[deterministic] Test loop driver smoke suite (pwsh)"
+      - name: Test loop driver smoke suite (pwsh)
         shell: pwsh
         run: ./tests/loop-driver.tests.ps1
 
-      - name: "[deterministic] Test loop consistency suite (bash)"
+      - name: Test loop consistency suite (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/loop-consistency.tests.sh
 
-      - name: "[deterministic] Test loop consistency suite (pwsh)"
+      - name: Test loop consistency suite (pwsh)
         shell: pwsh
         run: ./tests/loop-consistency.tests.ps1
 
-      - name: "[deterministic] Test loop escalation suite (bash)"
+      - name: Test loop escalation suite (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/loop-escalation.tests.sh
 
-      - name: "[deterministic] Test loop escalation suite (pwsh)"
+      - name: Test loop escalation suite (pwsh)
         shell: pwsh
         run: ./tests/loop-escalation.tests.ps1
 
-      - name: "[deterministic] Test agent-model-capabilities v2 registry parity lock (bash)"
+      - name: Test agent-model-capabilities v2 registry parity lock (bash)
         if: runner.os != 'Windows'
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/agent-capabilities-v2.tests.sh
 
-      - name: "[deterministic] Test agent-model-capabilities v2 registry parity lock (pwsh)"
+      - name: Test agent-model-capabilities v2 registry parity lock (pwsh)
         shell: pwsh
         run: ./tests/agent-capabilities-v2.tests.ps1
 
-      - name: "[deterministic] Test render-agent-frontmatter suite (bash)"
+      - name: Test render-agent-frontmatter suite (bash)
         if: runner.os != 'Windows'
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/render-agent-frontmatter.tests.sh
 
-      - name: "[deterministic] Test render-agent-frontmatter suite (pwsh)"
+      - name: Test render-agent-frontmatter suite (pwsh)
         shell: pwsh
         run: ./tests/render-agent-frontmatter.tests.ps1
 
-      - name: "[deterministic] Test turn-first agent-model routing suite (bash)"
+      - name: Test turn-first agent-model routing suite (bash)
         if: runner.os != 'Windows'
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/agent-model-routing.tests.sh
 
-      - name: "[deterministic] Test turn-first agent-model routing suite (pwsh)"
+      - name: Test turn-first agent-model routing suite (pwsh)
         shell: pwsh
         run: ./tests/agent-model-routing.tests.ps1
 
-      - name: "[deterministic] Test HITL/WFI-audit terminal-behavior suite (bash)"
+      - name: Test HITL/WFI-audit terminal-behavior suite (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/hitl-wfi-terminal.tests.sh
 
-      - name: "[deterministic] Test HITL/WFI-audit terminal-behavior suite (pwsh)"
+      - name: Test HITL/WFI-audit terminal-behavior suite (pwsh)
         shell: pwsh
         run: ./tests/hitl-wfi-terminal.tests.ps1
 
-      - name: "[deterministic] Test check-placeholders brownfield behavior lock (bash)"
+      - name: Test check-placeholders brownfield behavior lock (bash)
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/check-placeholders-brownfield.tests.sh
 
-      - name: "[deterministic] Test check-placeholders brownfield behavior lock (pwsh)"
+      - name: Test check-placeholders brownfield behavior lock (pwsh)
         shell: pwsh
         run: ./tests/check-placeholders-brownfield.tests.ps1
 
-      - name: "[deterministic] Test bump-version.sh loop-gate prerequisite (bash)"
-        shell: bash
-        # Invoked via bash explicitly so the step does not depend on the
-        # committed exec bit (Windows-authored commits record mode 100644).
-        run: bash ./tests/bump-version-gate.tests.sh
-
-      - name: "[deterministic] Test bump-version.sh loop-gate prerequisite (pwsh)"
-        shell: pwsh
-        run: ./tests/bump-version-gate.tests.ps1
-
-      - name: "[deterministic] Test release.yml required loop-gate job (bash)"
-        shell: bash
-        # Invoked via bash explicitly so the step does not depend on the
-        # committed exec bit (Windows-authored commits record mode 100644).
-        run: bash ./tests/release-loop-gate.tests.sh
-
-      - name: "[deterministic] Test release.yml required loop-gate job (pwsh)"
-        shell: pwsh
-        run: ./tests/release-loop-gate.tests.ps1
-
-      - name: "[deterministic] Test run-panelist-effort suite (bash)"
+      - name: Test run-panelist-effort suite (bash)
         if: runner.os != 'Windows'
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/run-panelist-effort.tests.sh
 
-      - name: "[deterministic] Test run-panelist-effort suite (pwsh)"
+      - name: Test run-panelist-effort suite (pwsh)
         shell: pwsh
         run: ./tests/run-panelist-effort.tests.ps1
 
-      - name: "[deterministic] Test model-freshness-check suite (bash)"
+  # version-gates -- the bump-version and release loop-gate suites are the
+  # slowest non-installer steps on Windows (~9 min combined), so they get
+  # their own parallel job together with the model-freshness suite.
+  version-gates:
+    name: version-gates
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Test bump-version.sh loop-gate prerequisite (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/bump-version-gate.tests.sh
+
+      - name: Test bump-version.sh loop-gate prerequisite (pwsh)
+        shell: pwsh
+        run: ./tests/bump-version-gate.tests.ps1
+
+      - name: Test release.yml required loop-gate job (bash)
+        shell: bash
+        # Invoked via bash explicitly so the step does not depend on the
+        # committed exec bit (Windows-authored commits record mode 100644).
+        run: bash ./tests/release-loop-gate.tests.sh
+
+      - name: Test release.yml required loop-gate job (pwsh)
+        shell: pwsh
+        run: ./tests/release-loop-gate.tests.ps1
+
+      - name: Test model-freshness-check suite (bash)
         if: runner.os != 'Windows'
         shell: bash
         # Invoked via bash explicitly so the step does not depend on the
         # committed exec bit (Windows-authored commits record mode 100644).
         run: bash ./tests/model-freshness-check.tests.sh
 
-      - name: "[deterministic] Test model-freshness-check suite (pwsh)"
+      - name: Test model-freshness-check suite (pwsh)
         shell: pwsh
         run: ./tests/model-freshness-check.tests.ps1
 
@@ -378,200 +643,6 @@ jobs:
         shell: pwsh
         run: ./tests/ship-track-selection-migration.tests.ps1
 
-      - name: "[deterministic] Test deterministic gate scripts"
-        shell: pwsh
-        run: ./tests/scripts.tests.ps1
-
-      - name: "[deterministic] Test selected-feature structure validation"
-        shell: pwsh
-        run: ./tests/structure-check-feature-mode.tests.ps1
-
-      - name: "[deterministic] Test quality-gate cycle-limit suite (bash)"
-        shell: bash
-        run: bash ./tests/quality-gate-cycle-limit.tests.sh
-
-      - name: "[deterministic] Test portable review-loop prechecks (pwsh)"
-        shell: pwsh
-        run: |
-          ./tests/review-contract-foundation.tests.ps1
-          ./tests/downstream-review-precheck.tests.ps1
-          ./tests/impl-layer-review-inputs.tests.ps1
-          ./tests/task-layer-review-inputs.tests.ps1
-
-      - name: "[deterministic] Test cross-model gate (pwsh)"
-        shell: pwsh
-        run: ./tests/cross-model.tests.ps1
-
-      - name: "[deterministic] Test Phase 2 guard invariants (pwsh)"
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./tests/phase2-guard-invariants.tests.ps1
-
-      - name: "[deterministic] Test Phase 2 guard invariants (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: bash ./tests/phase2-guard-invariants.tests.sh
-
-      - name: "[deterministic] Test hook guards"
-        shell: pwsh
-        run: ./tests/hooks.tests.ps1
-
-      - name: "[deterministic] Test cross-runtime scenario suite (pwsh)"
-        shell: pwsh
-        run: ./tests/scenario.tests.ps1
-
-      - name: "[deterministic] Test installer (pwsh)"
-        shell: pwsh
-        run: ./tests/install.tests.ps1
-
-      - name: "[deterministic] Test uninstaller (pwsh)"
-        shell: pwsh
-        run: ./tests/uninstall.tests.ps1
-
-      - name: "[deterministic] Test Claude registration (pwsh)"
-        shell: pwsh
-        run: ./tests/claude-registration.tests.ps1
-
-      - name: "[deterministic] Test authenticated remote installer (pwsh)"
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: ./install.ps1 -Ref $env:GITHUB_SHA -InstallRoot (Join-Path $env:RUNNER_TEMP "sdd-remote-pwsh") -Target FilesOnly
-
-      - name: "[deterministic] Test POSIX installer"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash -n ./tests/release-host-smoke.sh
-          ./tests/install.tests.sh 2>&1 | tee "${{ runner.temp }}/install-tests-sh.log"
-
-      - name: "[deterministic] Test POSIX uninstaller"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          ./tests/uninstall.tests.sh 2>&1 | tee "${{ runner.temp }}/uninstall-tests-sh.log"
-
-      - name: "[deterministic] Test authenticated remote installer (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: ./install.sh --ref "$GITHUB_SHA" --install-root "${RUNNER_TEMP}/sdd-remote-bash" --target FilesOnly
-
-      - name: "[deterministic] Test guards (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          ./tests/guards.tests.sh 2>&1 | tee "${{ runner.temp }}/guards-tests.log"
-
-      - name: "[deterministic] Test approval boundary (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/approval-boundary.tests.sh 2>&1 | tee "${{ runner.temp }}/approval-boundary-tests.log"
-
-      - name: "[deterministic] Test deterministic gates (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          ./tests/gates.tests.sh 2>&1 | tee "${{ runner.temp }}/gates-tests.log"
-
-      - name: "[deterministic] Test panelist-input consent gate (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/prepare-panelist.tests.sh 2>&1 | tee "${{ runner.temp }}/prepare-panelist-tests.log"
-
-      - name: "[deterministic] Test panelist-input consent gate (pwsh)"
-        if: runner.os == 'Windows'
-        shell: pwsh
-        run: ./tests/prepare-panelist.tests.ps1
-
-      - name: "[deterministic] Test portable review-loop prechecks (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/review-contract-foundation.tests.sh
-          bash tests/review-contract-foundation-parity.tests.sh
-          bash tests/spec-review-loop.tests.sh
-          bash tests/downstream-review-precheck.tests.sh
-          bash tests/downstream-review-precheck-parity.tests.sh
-          bash tests/impl-layer-review-inputs.tests.sh
-          bash tests/task-layer-review-inputs.tests.sh
-          bash tests/task-layer-full-profile.tests.sh
-          bash tests/task-review-precheck.tests.sh
-          bash tests/review-agent-isolation.tests.sh
-
-      - name: "[deterministic] Test cross-model gate (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/cross-model.tests.sh 2>&1 | tee "${{ runner.temp }}/cross-model-tests.log"
-
-      - name: "[deterministic] Test outcome-based eval suite (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/eval.tests.sh 2>&1 | tee "${{ runner.temp }}/eval-tests.log"
-
-      - name: "[deterministic] Test CRLF line-ending parity (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/crlf-parity.tests.sh 2>&1 | tee "${{ runner.temp }}/crlf-parity-tests.log"
-
-      - name: "[deterministic] Test cross-runtime scenario suite (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/scenario.tests.sh 2>&1 | tee "${{ runner.temp }}/scenario-tests.log"
-
-      - name: "[deterministic] Test branch-protection script (bash)"
-        if: runner.os != 'Windows'
-        shell: bash
-        run: |
-          bash tests/apply-branch-protection.tests.sh 2>&1 | tee "${{ runner.temp }}/apply-branch-protection-tests.log"
-
-      - name: "[deterministic] Test guard dispatch fallback suite (bash)"
-        shell: bash
-        run: bash ./tests/guard-dispatch-fallback.tests.sh
-
-      - name: "[deterministic] Test guard negative corpus suite (bash)"
-        shell: bash
-        run: bash ./tests/guard-negative-corpus.tests.sh
-
-      - name: "[deterministic] Test deterministic-lane self-check suite (bash)"
-        shell: bash
-        run: bash ./tests/deterministic-lane-selfcheck.tests.sh
-
-      # Stream C (#125). ADR-0010's `Status: Accepted` promotion unblocked
-      # Stream C and its suite landed in this feature, so it registers its
-      # explicit step inside this ONE shared batch (AC-019/AC-020). Without
-      # it, INV-006's no-wildcard rule means the suite silently never runs.
-      - name: "[deterministic] Test workflow-scenarios suite (bash)"
-        shell: bash
-        run: bash ./tests/workflow-scenarios/workflow-scenarios.tests.sh
-
-      # ---------------------------------------------------------------
-      # [deterministic] lane marker (epic-136 Phase 3, Stream D, #126).
-      # Every step in this `test` job is deterministic: no step invokes an
-      # LLM. A future LLM-invoking eval lane is added as a SEPARATE job,
-      # never as a step here -- this marker records where that job would
-      # be introduced. It is intentionally empty today: adding the job
-      # here would change the job graph and `required-checks`' `needs:`
-      # list, which BL-001 forbids for this feature (design.md Design
-      # Decisions OQ-5).
-      # eval-lane: (none yet)
-      # ---------------------------------------------------------------
-
-      - name: "[deterministic] Upload test logs"
-        if: failure()
-        uses: actions/upload-artifact@b4b15b8c7c6ac21ea08fcf65892d2ee8f75cf882 # v4.4.3
-        with:
-          name: test-logs-${{ matrix.os }}
-          path: ${{ runner.temp }}/*.log
-          if-no-files-found: ignore
-
   # mcp-tests — sdd-forge-mcp (mcp/sdd-forge-mcp/) is the repo's first
   # Node/TypeScript component: a read-only MCP server exposing SDD workflow
   # state. Its tasks.md state-machine parser must stay shell-equivalent with
@@ -586,6 +657,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: mcp/sdd-forge-mcp
@@ -646,6 +718,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: mcp/local-env-mcp
@@ -697,6 +770,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     defaults:
       run:
         working-directory: mcp/ci-mcp
@@ -745,6 +819,7 @@ jobs:
       matrix:
         os: [windows-latest, macos-latest, ubuntu-latest]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -771,13 +846,38 @@ jobs:
   required-checks:
     name: required-checks
     if: always()
-    needs: [test, cli-hook-enforcement]
+    needs: [test, installers, loops-routing, version-gates, mcp-tests, local-env-mcp-tests, ci-mcp-tests, cli-hook-enforcement]
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - name: Check all required tests passed
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
             echo "test job failed"
+            exit 1
+          fi
+          if [ "${{ needs.installers.result }}" != "success" ]; then
+            echo "installers job failed"
+            exit 1
+          fi
+          if [ "${{ needs.loops-routing.result }}" != "success" ]; then
+            echo "loops-routing job failed"
+            exit 1
+          fi
+          if [ "${{ needs.version-gates.result }}" != "success" ]; then
+            echo "version-gates job failed"
+            exit 1
+          fi
+          if [ "${{ needs.mcp-tests.result }}" != "success" ]; then
+            echo "mcp-tests job failed"
+            exit 1
+          fi
+          if [ "${{ needs.local-env-mcp-tests.result }}" != "success" ]; then
+            echo "local-env-mcp-tests job failed"
+            exit 1
+          fi
+          if [ "${{ needs.ci-mcp-tests.result }}" != "success" ]; then
+            echo "ci-mcp-tests job failed"
             exit 1
           fi
           if [ "${{ needs.cli-hook-enforcement.result }}" != "success" ]; then

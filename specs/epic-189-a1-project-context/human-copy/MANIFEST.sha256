@@ -1,4 +1,4 @@
-e9cd4e0bfe67ba4251f9ebbb29809a54f48dd0228f075d57f527f9fda29b5e62  .github/workflows/test.yml
+8beba70cd04800f9ab79c24b911c9f43043968edf3362bbcd2ac50e76c380998  .github/workflows/test.yml
 d1d94441adb5b5a0ec31d60299b69183eba900c5af657e52775bb586c21e0edb  specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md
 acc3c11e1e2e52926a135cafd6d42100300795a0dcf01f5b86315e2a28dbd8b5  plugins/sdd-quality-loop/references/guard-invariants.json
 2aeeb4b65abf85d752e01d2a73f8000877c005ef35c04b6b136b5ecc750ecd0e  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
