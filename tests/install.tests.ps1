@@ -12,9 +12,12 @@ function New-TrackedFixture {
     # Do not clone local Git objects: macOS can invoke a host credential helper
     # while cloning. A Git archive contains only tracked content and expands
     # much faster than copying every file one by one.
+    # specs/ and reports/ hold no installer-relevant content but account for
+    # ~80% of the tracked files; excluding them keeps every scenario's
+    # per-file install copy loop proportional to what the installer needs.
     $archivePath = Join-Path ([System.IO.Path]::GetTempPath()) ("sdd-installer-fixture-" + [guid]::NewGuid() + ".zip")
     try {
-        & git -C $Source archive --format=zip "--output=$archivePath" HEAD
+        & git -C $Source archive --format=zip "--output=$archivePath" HEAD -- ':(exclude)specs' ':(exclude)reports'
         if ($LASTEXITCODE -ne 0) { throw "Unable to archive tracked fixture files." }
         Expand-Archive -LiteralPath $archivePath -DestinationPath $Destination -Force
         & git -C $Destination init -q
