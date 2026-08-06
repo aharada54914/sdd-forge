@@ -69,6 +69,36 @@ sha256_of() {
   fi
 }
 
+# ---------------------------------------------------------------------------
+# Staged-artifact layout resolvers (external review of PR #229, Codex).
+#
+# The staged bundle's INTERNAL layout changes from flat basenames to a mirror
+# of each artifact's repo-relative LIVE path, so the directory can be handed
+# straight to `apply-human-copy --manifest`. That fix currently lives in the
+# R-10-protected script's STAGED CANDIDATE (see STAGED_GEN_PY below) and
+# reaches the LIVE script only when a human applies it. These resolvers
+# report whichever layout the generator under test actually produced, so
+# every pre-existing assertion below holds BOTH before and after that apply.
+# TEST-PR229-* further down asserts the NEW layout specifically, against the
+# staged candidate, and needs no edit when the apply lands.
+staged_rel_sidecar() {
+  # staged_rel_sidecar <stagedir> -> sidecar path RELATIVE to <stagedir>
+  if [ -f "$1/sdd/project-context.approval.json" ]; then
+    printf 'sdd/project-context.approval.json'
+  else
+    printf 'project-context.approval.json'
+  fi
+}
+staged_rel_snapshot() {
+  if [ -f "$1/sdd/.approved-context/project-context.approved.yaml" ]; then
+    printf 'sdd/.approved-context/project-context.approved.yaml'
+  else
+    printf 'project-context.approved.yaml'
+  fi
+}
+staged_sidecar_path() { printf '%s/%s' "$1" "$(staged_rel_sidecar "$1")"; }
+staged_snapshot_path() { printf '%s/%s' "$1" "$(staged_rel_snapshot "$1")"; }
+
 # run_gen [env_prefix...] -- args... -- invokes the .sh dispatcher, capturing
 # stdout to $WORK/out, stderr to $WORK/err, and returning its exit code.
 run_gen() {
@@ -257,22 +287,24 @@ else
   pass "TEST-011 staged signing succeeds (exit 0)"
 fi
 
-if [ -f "$STAGE1/project-context.approval.json" ] && [ -f "$STAGE1/project-context.approved.yaml" ] && [ -f "$STAGE1/MANIFEST.sha256" ]; then
+STAGE1_SIDECAR=$(staged_sidecar_path "$STAGE1")
+STAGE1_SNAPSHOT=$(staged_snapshot_path "$STAGE1")
+if [ -f "$STAGE1_SIDECAR" ] && [ -f "$STAGE1_SNAPSHOT" ] && [ -f "$STAGE1/MANIFEST.sha256" ]; then
   pass "TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist"
 else
   fail "TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist"
 fi
 
-if cmp -s "$CONTENT" "$STAGE1/project-context.approved.yaml"; then
+if cmp -s "$CONTENT" "$STAGE1_SNAPSHOT"; then
   pass "TEST-011 approved-context snapshot is byte-exact with the live content file"
 else
   fail "TEST-011 approved-context snapshot is byte-exact with the live content file"
 fi
 
-sidecar_hash=$(sha256_of "$STAGE1/project-context.approval.json")
-snapshot_hash=$(sha256_of "$STAGE1/project-context.approved.yaml")
-if grep -q "$sidecar_hash  project-context.approval.json" "$STAGE1/MANIFEST.sha256" \
-  && grep -q "$snapshot_hash  project-context.approved.yaml" "$STAGE1/MANIFEST.sha256"; then
+sidecar_hash=$(sha256_of "$STAGE1_SIDECAR")
+snapshot_hash=$(sha256_of "$STAGE1_SNAPSHOT")
+if grep -q "$sidecar_hash  $(staged_rel_sidecar "$STAGE1")" "$STAGE1/MANIFEST.sha256" \
+  && grep -q "$snapshot_hash  $(staged_rel_snapshot "$STAGE1")" "$STAGE1/MANIFEST.sha256"; then
   pass "TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes"
 else
   fail "TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes (manifest: $(cat "$STAGE1/MANIFEST.sha256"))"
@@ -280,7 +312,7 @@ fi
 
 CANON_PY="$ROOT/plugins/sdd-quality-loop/scripts/canonicalize-sdd-yaml.py"
 expected_content_sha256=$("$PY" "$CANON_PY" "$CONTENT" --hash-only | tr -d '\n')
-actual_context_sha256=$($PY -c "import json; print(json.load(open('$STAGE1/project-context.approval.json'))['context_sha256'])")
+actual_context_sha256=$($PY -c "import json; print(json.load(open('$STAGE1_SIDECAR'))['context_sha256'])")
 if [ "$expected_content_sha256" = "$actual_context_sha256" ]; then
   pass "TEST-011 context_sha256 matches the live content file's independently-recomputed SHA-256"
 else
@@ -293,7 +325,7 @@ fi
 # never reusing the generator's own signing call.
 $PY -c "
 import json
-d = json.load(open('$STAGE1/project-context.approval.json'))
+d = json.load(open('$STAGE1_SIDECAR'))
 d.pop('hmac', None)
 json.dump(d, open('$WORK/t011_reverify.json', 'w'))
 "
@@ -304,7 +336,7 @@ key = open('$KEYFILE','rb').read()
 data = open('$WORK/t011_reverify.preimage','rb').read()
 print(hmac.new(key, data, hashlib.sha256).hexdigest())
 ")
-staged_hmac=$($PY -c "import json; print(json.load(open('$STAGE1/project-context.approval.json'))['hmac'])")
+staged_hmac=$($PY -c "import json; print(json.load(open('$STAGE1_SIDECAR'))['hmac'])")
 if [ "$recomputed_hmac" = "$staged_hmac" ]; then
   pass "TEST-011 staged sidecar's hmac verifies under independent preimage/HMAC re-derivation"
 else
@@ -677,9 +709,9 @@ if [ "$rc" = 0 ]; then
 else
   fail "SEAM bootstrap (no live sidecar): signing succeeds (exit $rc; stderr: $(cat "$WORK/err")"
 fi
-predecessor=$($PY -c "import json; print(json.load(open('$STAGE_BOOT/project-context.approval.json'))['predecessor_context_sha256'])" 2>/dev/null)
-verdict=$($PY -c "import json; print(json.load(open('$STAGE_BOOT/project-context.approval.json'))['weakening_verdict'])" 2>/dev/null)
-epoch=$($PY -c "import json; print(json.load(open('$STAGE_BOOT/project-context.approval.json'))['approval_epoch'])" 2>/dev/null)
+predecessor=$($PY -c "import json; print(json.load(open('$(staged_sidecar_path "$STAGE_BOOT")'))['predecessor_context_sha256'])" 2>/dev/null)
+verdict=$($PY -c "import json; print(json.load(open('$(staged_sidecar_path "$STAGE_BOOT")'))['weakening_verdict'])" 2>/dev/null)
+epoch=$($PY -c "import json; print(json.load(open('$(staged_sidecar_path "$STAGE_BOOT")'))['approval_epoch'])" 2>/dev/null)
 if [ "$predecessor" = "None" ] && [ "$verdict" = "None" ] && [ "$epoch" = "1" ]; then
   pass "SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1"
 else
@@ -719,12 +751,12 @@ else
   pass "SEAM non-bootstrap: WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture"
 fi
 STAGE_NONBOOT="$PROJ_NONBOOT/stage-nonbootstrap"
-if [ -f "$STAGE_NONBOOT/project-context.approval.json" ]; then
+if [ -f "$(staged_sidecar_path "$STAGE_NONBOOT")" ]; then
   pass "SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves"
 else
   fail "SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves"
 fi
-nonboot_verdict=$($PY -c "import json; print(json.load(open('$STAGE_NONBOOT/project-context.approval.json'))['weakening_verdict'] is not None)" 2>/dev/null)
+nonboot_verdict=$($PY -c "import json; print(json.load(open('$(staged_sidecar_path "$STAGE_NONBOOT")'))['weakening_verdict'] is not None)" 2>/dev/null)
 if [ "$nonboot_verdict" = "True" ]; then
   pass "SEAM non-bootstrap: the embedded weakening_verdict is non-null (T-005's in-process seam)"
 else
@@ -889,6 +921,136 @@ if [ -n "$extra_paths" ]; then
   fail "TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere (found: $extra_paths)"
 else
   pass "TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere"
+fi
+
+# ===========================================================================
+# TEST-PR229-GEN: the staged bundle is directly consumable by the publisher.
+#
+# External review of PR #229 (Codex), finding 2. The generator's
+# MANIFEST.sha256 was written as a `nonce: <hex>` header line followed by
+# `<sha256>  <bare basename>` rows. apply-human-copy accepts ONLY
+# `<64-hex-lowercase>  <repo-relative live path>` rows, so the header line
+# was rejected as MANIFEST_INVALID (exit 13) and the bare basenames would
+# have published both artifacts into the REPOSITORY ROOT instead of `sdd/`
+# and `sdd/.approved-context/`.
+#
+# WHICH SCRIPT THIS EXERCISES: plugins/sdd-quality-loop/scripts/
+# generate-approval-sidecar.py is R-10 protected, so the fix lives in its
+# STAGED CANDIDATE under specs/epic-189-a1-project-context/human-copy/ until
+# a human applies it. These assertions therefore run the STAGED candidate.
+# They keep passing unchanged after the apply (the staged copy and the live
+# copy are then byte-identical); to re-point them at the live script,
+# replace STAGED_GEN_PY with $GEN_PY.
+#
+# The staged Python scripts cannot be executed where they sit: they resolve
+# `canonicalize-sdd-yaml.py` via Path(__file__).parent. So the candidate is
+# copied into a SHADOW tree that reproduces the real repo layout
+# (<shadow>/plugins/sdd-quality-loop/scripts/ + <shadow>/contracts/), which
+# is also what a human gets after applying.
+# ===========================================================================
+
+STAGED_GEN_PY="$ROOT/specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py"
+STAGED_APPLY_SH="$ROOT/specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/apply-human-copy.sh"
+
+if [ -f "$STAGED_GEN_PY" ] && [ -f "$STAGED_APPLY_SH" ]; then
+  pass "TEST-PR229-GEN staged candidates for generate-approval-sidecar.py and apply-human-copy.sh exist"
+else
+  fail "TEST-PR229-GEN staged candidates for generate-approval-sidecar.py and apply-human-copy.sh exist"
+fi
+
+SHADOW229="$WORK/shadow229"
+mkdir -p "$SHADOW229/plugins/sdd-quality-loop/scripts"
+cp "$ROOT"/plugins/sdd-quality-loop/scripts/*.py "$SHADOW229/plugins/sdd-quality-loop/scripts/"
+cp "$STAGED_GEN_PY" "$SHADOW229/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py"
+cp -R "$ROOT/contracts" "$SHADOW229/contracts"
+SHADOW_GEN="$SHADOW229/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py"
+
+STAGE229="$WORK/stage-pr229"
+REPO229="$WORK/repo-pr229"
+mkdir -p "$REPO229/sdd/.staging"
+CONTENT229="$WORK/pr229-project-context.yaml"
+write_content_fixture "$CONTENT229"
+KEYFILE229="$WORK/pr229-key"
+printf 'test-context-key-epic189-pr229' > "$KEYFILE229"
+
+SDD_CONTEXT_KEY_FILE="$KEYFILE229" "$PY" "$SHADOW_GEN" \
+  --schema sdd-project-context-approval/v1 \
+  --content "$CONTENT229" \
+  --approver alice \
+  --status Approved \
+  --second-approver bob \
+  --live-sidecar "$WORK/pr229-no-such-sidecar.json" \
+  --stage-dir "$STAGE229" >"$WORK/out" 2>"$WORK/err"
+rc=$?
+if [ "$rc" = 0 ]; then
+  pass "TEST-PR229-GEN staged signing via the fixed candidate succeeds (exit 0)"
+else
+  fail "TEST-PR229-GEN staged signing via the fixed candidate succeeds (exit 0; got $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# (a) No `nonce:` header line -- that line alone was MANIFEST_INVALID.
+if grep -q '^nonce:' "$STAGE229/MANIFEST.sha256"; then
+  fail "TEST-PR229-GEN MANIFEST.sha256 carries no 'nonce:' header line"
+else
+  pass "TEST-PR229-GEN MANIFEST.sha256 carries no 'nonce:' header line"
+fi
+
+# (b) The nonce is PRESERVED out-of-band rather than dropped.
+if [ -f "$STAGE229/NONCE" ] && grep -q '^nonce: [0-9a-f][0-9a-f]*$' "$STAGE229/NONCE"; then
+  pass "TEST-PR229-GEN the nonce is preserved in a sibling NONCE file, not silently dropped"
+else
+  fail "TEST-PR229-GEN the nonce is preserved in a sibling NONCE file, not silently dropped"
+fi
+
+# (c) Exactly two rows, each publisher-format, naming the REAL live paths.
+pr229_rows=$(wc -l < "$STAGE229/MANIFEST.sha256" | tr -d ' ')
+pr229_wellformed=$(grep -c '^[0-9a-f]\{64\}  [^ ]' "$STAGE229/MANIFEST.sha256")
+if [ "$pr229_rows" = "2" ] && [ "$pr229_wellformed" = "2" ]; then
+  pass "TEST-PR229-GEN MANIFEST.sha256 is exactly two publisher-format '<64-hex>  <path>' rows"
+else
+  fail "TEST-PR229-GEN MANIFEST.sha256 is exactly two publisher-format rows (rows=$pr229_rows wellformed=$pr229_wellformed; manifest: $(cat "$STAGE229/MANIFEST.sha256"))"
+fi
+
+pr229_sidecar_hash=$(sha256_of "$STAGE229/sdd/project-context.approval.json")
+pr229_snapshot_hash=$(sha256_of "$STAGE229/sdd/.approved-context/project-context.approved.yaml")
+if grep -qxF "$pr229_sidecar_hash  sdd/project-context.approval.json" "$STAGE229/MANIFEST.sha256" \
+  && grep -qxF "$pr229_snapshot_hash  sdd/.approved-context/project-context.approved.yaml" "$STAGE229/MANIFEST.sha256"; then
+  pass "TEST-PR229-GEN manifest rows name the real repo-relative LIVE paths (sdd/, sdd/.approved-context/) and match the staged bytes"
+else
+  fail "TEST-PR229-GEN manifest rows name the real repo-relative LIVE paths and match the staged bytes (manifest: $(cat "$STAGE229/MANIFEST.sha256"))"
+fi
+
+# (d) The two live basenames differ, so the publisher's basename-keyed
+#     backup slot cannot collide (DUPLICATE_BASENAME_IN_BATCH, exit 19).
+if [ "project-context.approval.json" != "project-context.approved.yaml" ]; then
+  pass "TEST-PR229-GEN the batch's two live basenames differ (no DUPLICATE_BASENAME_IN_BATCH risk)"
+else
+  fail "TEST-PR229-GEN the batch's two live basenames differ"
+fi
+
+# (e) THE POINT: hand the staging dir straight to the publisher.
+( cd "$REPO229" && "$STAGED_APPLY_SH" --staging-dir "$STAGE229" --manifest "$STAGE229/MANIFEST.sha256" ) >"$WORK/out" 2>"$WORK/err"
+rc=$?
+if [ "$rc" = 0 ]; then
+  pass "TEST-PR229-GEN the staged bundle is consumed directly by apply-human-copy --manifest (exit 0)"
+else
+  fail "TEST-PR229-GEN the staged bundle is consumed directly by apply-human-copy --manifest (exit 0; got $rc; stdout: $(cat "$WORK/out"))"
+fi
+
+if [ -f "$REPO229/sdd/project-context.approval.json" ] \
+  && [ -f "$REPO229/sdd/.approved-context/project-context.approved.yaml" ] \
+  && [ ! -e "$REPO229/project-context.approval.json" ] \
+  && [ ! -e "$REPO229/project-context.approved.yaml" ]; then
+  pass "TEST-PR229-GEN both artifacts land at their real live paths, never in the repository root"
+else
+  fail "TEST-PR229-GEN both artifacts land at their real live paths, never in the repository root"
+fi
+
+if cmp -s "$STAGE229/sdd/project-context.approval.json" "$REPO229/sdd/project-context.approval.json" \
+  && cmp -s "$CONTENT229" "$REPO229/sdd/.approved-context/project-context.approved.yaml"; then
+  pass "TEST-PR229-GEN published bytes are byte-exact (sidecar vs staged candidate; anchor vs live content)"
+else
+  fail "TEST-PR229-GEN published bytes are byte-exact (sidecar vs staged candidate; anchor vs live content)"
 fi
 
 # ---------------------------------------------------------------------------

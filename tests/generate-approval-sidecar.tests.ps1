@@ -54,6 +54,33 @@ function Get-Sha256Hex([string]$Path) {
   return (Get-FileHash -Algorithm SHA256 -LiteralPath $Path).Hash.ToLowerInvariant()
 }
 
+# ---------------------------------------------------------------------------
+# Staged-artifact layout resolvers (external review of PR #229, Codex).
+#
+# The staged bundle's INTERNAL layout changes from flat basenames to a mirror
+# of each artifact's repo-relative LIVE path, so the directory can be handed
+# straight to `apply-human-copy --manifest`. That fix currently lives in the
+# R-10-protected script's STAGED CANDIDATE (see $StagedGenPy below) and
+# reaches the LIVE script only when a human applies it. These resolvers
+# report whichever layout the generator under test actually produced, so
+# every pre-existing assertion below holds BOTH before and after that apply.
+# TEST-PR229-* further down asserts the NEW layout specifically, against the
+# staged candidate, and needs no edit when the apply lands.
+function Get-StagedRelSidecar([string]$StageDir) {
+  if (Test-Path -LiteralPath (Join-Path $StageDir 'sdd/project-context.approval.json') -PathType Leaf) {
+    return 'sdd/project-context.approval.json'
+  }
+  return 'project-context.approval.json'
+}
+function Get-StagedRelSnapshot([string]$StageDir) {
+  if (Test-Path -LiteralPath (Join-Path $StageDir 'sdd/.approved-context/project-context.approved.yaml') -PathType Leaf) {
+    return 'sdd/.approved-context/project-context.approved.yaml'
+  }
+  return 'project-context.approved.yaml'
+}
+function Get-StagedSidecarPath([string]$StageDir) { return (Join-Path $StageDir (Get-StagedRelSidecar $StageDir)) }
+function Get-StagedSnapshotPath([string]$StageDir) { return (Join-Path $StageDir (Get-StagedRelSnapshot $StageDir)) }
+
 # Invoke-ChildProcess: runs $Exe with $ArgList as a real child process,
 # optional environment overrides/removals, returning
 # @{ ExitCode; StdoutPath; StderrPath }. Byte-exact raw stream capture (no
@@ -304,8 +331,8 @@ if ($r.ExitCode -eq 0) {
   Test-Fail 'TEST-011 staged signing succeeds (exit 0)' (Get-Content -Raw -LiteralPath $r.StderrPath -ErrorAction SilentlyContinue)
 }
 
-$SidecarOut = Join-Path $Stage1 'project-context.approval.json'
-$SnapshotOut = Join-Path $Stage1 'project-context.approved.yaml'
+$SidecarOut = Get-StagedSidecarPath $Stage1
+$SnapshotOut = Get-StagedSnapshotPath $Stage1
 $ManifestOut = Join-Path $Stage1 'MANIFEST.sha256'
 if ((Test-Path -LiteralPath $SidecarOut) -and (Test-Path -LiteralPath $SnapshotOut) -and (Test-Path -LiteralPath $ManifestOut)) {
   Test-Pass 'TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist'
@@ -324,8 +351,8 @@ if ([System.Linq.Enumerable]::SequenceEqual($contentBytes, $snapshotBytes)) {
 $sidecarHash = Get-Sha256Hex $SidecarOut
 $snapshotHash = Get-Sha256Hex $SnapshotOut
 $manifestText = Get-Content -Raw -LiteralPath $ManifestOut
-if ($manifestText -match [regex]::Escape("$sidecarHash  project-context.approval.json") -and
-    $manifestText -match [regex]::Escape("$snapshotHash  project-context.approved.yaml")) {
+if ($manifestText -match [regex]::Escape("$sidecarHash  $(Get-StagedRelSidecar $Stage1)") -and
+    $manifestText -match [regex]::Escape("$snapshotHash  $(Get-StagedRelSnapshot $Stage1)")) {
   Test-Pass 'TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes'
 } else {
   Test-Fail 'TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes' $manifestText
@@ -712,7 +739,7 @@ if ($r.ExitCode -eq 0) {
 } else {
   Test-Fail 'SEAM bootstrap (no live sidecar): signing succeeds' "exit $($r.ExitCode)"
 }
-$bootSidecar = Join-Path $StageBoot 'project-context.approval.json'
+$bootSidecar = Get-StagedSidecarPath $StageBoot
 $predecessor = Get-PyText @('-c', "import json; print(json.load(open(r'$bootSidecar'))['predecessor_context_sha256'])")
 $verdict = Get-PyText @('-c', "import json; print(json.load(open(r'$bootSidecar'))['weakening_verdict'])")
 $epoch = Get-PyText @('-c', "import json; print(json.load(open(r'$bootSidecar'))['approval_epoch'])")
@@ -758,7 +785,7 @@ if ($errText -match 'WEAKENING_DETECTOR_UNAVAILABLE') {
   Test-Pass 'SEAM non-bootstrap: WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture'
 }
 $StageNonboot = Join-Path $ProjNonboot 'stage-nonbootstrap'
-$nonbootSidecar = Join-Path $StageNonboot 'project-context.approval.json'
+$nonbootSidecar = Get-StagedSidecarPath $StageNonboot
 if (Test-Path -LiteralPath $nonbootSidecar) {
   Test-Pass 'SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves'
 } else {
@@ -937,6 +964,153 @@ if ($extraPaths) {
   Test-Fail "TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere" ($extraPaths.FullName -join ', ')
 } else {
   Test-Pass "TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere"
+}
+
+# ===========================================================================
+# TEST-PR229-GEN: the staged bundle is directly consumable by the publisher.
+# PowerShell twin of the same block in
+# tests/generate-approval-sidecar.tests.sh -- see that file for the full
+# rationale (external review of PR #229, Codex, finding 2). The publisher
+# invoked here is the .ps1 runtime, so both runtimes are covered.
+# ===========================================================================
+
+$StagedGenPy = Join-Path $Root 'specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py'
+$StagedApplyPs1 = Join-Path $Root 'specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/apply-human-copy.ps1'
+
+if ((Test-Path -LiteralPath $StagedGenPy -PathType Leaf) -and (Test-Path -LiteralPath $StagedApplyPs1 -PathType Leaf)) {
+  Test-Pass 'TEST-PR229-GEN staged candidates for generate-approval-sidecar.py and apply-human-copy.ps1 exist'
+} else {
+  Test-Fail 'TEST-PR229-GEN staged candidates for generate-approval-sidecar.py and apply-human-copy.ps1 exist'
+}
+
+# Shadow tree: the staged Python script resolves canonicalize-sdd-yaml.py via
+# Path(__file__).parent, so it cannot run where it sits.
+$Shadow229 = Join-Path $Work 'shadow229'
+$Shadow229Scripts = Join-Path $Shadow229 'plugins/sdd-quality-loop/scripts'
+New-Item -ItemType Directory -Path $Shadow229Scripts -Force | Out-Null
+Get-ChildItem -LiteralPath (Join-Path $Root 'plugins/sdd-quality-loop/scripts') -Filter '*.py' |
+  ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $Shadow229Scripts $_.Name) -Force }
+Copy-Item -LiteralPath $StagedGenPy -Destination (Join-Path $Shadow229Scripts 'generate-approval-sidecar.py') -Force
+Copy-Item -LiteralPath (Join-Path $Root 'contracts') -Destination (Join-Path $Shadow229 'contracts') -Recurse -Force
+$ShadowGen = Join-Path $Shadow229Scripts 'generate-approval-sidecar.py'
+
+$Stage229 = Join-Path $Work 'stage-pr229'
+$Repo229 = Join-Path $Work 'repo-pr229'
+New-Item -ItemType Directory -Path (Join-Path $Repo229 'sdd/.staging') -Force | Out-Null
+$Content229 = Join-Path $Work 'pr229-project-context.yaml'
+Write-ContentFixture $Content229
+$KeyFile229 = Join-Path $Work 'pr229-key'
+Set-Content -LiteralPath $KeyFile229 -NoNewline -Encoding utf8 -Value 'test-context-key-epic189-pr229'
+
+$r = Invoke-ChildProcess -Exe $PythonExe -ArgList @(
+  $ShadowGen,
+  '--schema', 'sdd-project-context-approval/v1',
+  '--content', $Content229,
+  '--approver', 'alice',
+  '--status', 'Approved',
+  '--second-approver', 'bob',
+  '--live-sidecar', (Join-Path $Work 'pr229-no-such-sidecar.json'),
+  '--stage-dir', $Stage229
+) -EnvSet @{ SDD_CONTEXT_KEY_FILE = $KeyFile229 } -EnvUnset @('SDD_CONTEXT_KEY')
+if ($r.ExitCode -eq 0) {
+  Test-Pass 'TEST-PR229-GEN staged signing via the fixed candidate succeeds (exit 0)'
+} else {
+  Test-Fail 'TEST-PR229-GEN staged signing via the fixed candidate succeeds (exit 0)' (Get-Content -Raw -LiteralPath $r.StderrPath -ErrorAction SilentlyContinue)
+}
+
+$Manifest229 = Join-Path $Stage229 'MANIFEST.sha256'
+$manifest229Text = Get-Content -Raw -LiteralPath $Manifest229 -ErrorAction SilentlyContinue
+if ($null -eq $manifest229Text) { $manifest229Text = '' }
+
+# (a) No `nonce:` header line -- that line alone was MANIFEST_INVALID.
+if ($manifest229Text -match '(?m)^nonce:') {
+  Test-Fail "TEST-PR229-GEN MANIFEST.sha256 carries no 'nonce:' header line" $manifest229Text
+} else {
+  Test-Pass "TEST-PR229-GEN MANIFEST.sha256 carries no 'nonce:' header line"
+}
+
+# (b) The nonce is PRESERVED out-of-band rather than dropped.
+$Nonce229 = Join-Path $Stage229 'NONCE'
+$nonce229Text = Get-Content -Raw -LiteralPath $Nonce229 -ErrorAction SilentlyContinue
+if ($null -ne $nonce229Text -and $nonce229Text -match '(?m)^nonce: [0-9a-f]+\s*$') {
+  Test-Pass 'TEST-PR229-GEN the nonce is preserved in a sibling NONCE file, not silently dropped'
+} else {
+  Test-Fail 'TEST-PR229-GEN the nonce is preserved in a sibling NONCE file, not silently dropped'
+}
+
+# (c) Exactly two rows, each publisher-format, naming the REAL live paths.
+$rows229 = @($manifest229Text -split "`n" | Where-Object { $_.Trim().Length -gt 0 })
+$wellformed229 = @($rows229 | Where-Object { $_ -match '^[0-9a-f]{64}  \S' })
+if ($rows229.Count -eq 2 -and $wellformed229.Count -eq 2) {
+  Test-Pass "TEST-PR229-GEN MANIFEST.sha256 is exactly two publisher-format '<64-hex>  <path>' rows"
+} else {
+  Test-Fail "TEST-PR229-GEN MANIFEST.sha256 is exactly two publisher-format '<64-hex>  <path>' rows" "rows=$($rows229.Count) wellformed=$($wellformed229.Count): $manifest229Text"
+}
+
+$Sidecar229 = Join-Path $Stage229 'sdd/project-context.approval.json'
+$Snapshot229 = Join-Path $Stage229 'sdd/.approved-context/project-context.approved.yaml'
+if ((Test-Path -LiteralPath $Sidecar229 -PathType Leaf) -and (Test-Path -LiteralPath $Snapshot229 -PathType Leaf)) {
+  $sidecarHash229 = Get-Sha256Hex $Sidecar229
+  $snapshotHash229 = Get-Sha256Hex $Snapshot229
+  if ($manifest229Text -match [regex]::Escape("$sidecarHash229  sdd/project-context.approval.json") -and
+      $manifest229Text -match [regex]::Escape("$snapshotHash229  sdd/.approved-context/project-context.approved.yaml")) {
+    Test-Pass 'TEST-PR229-GEN manifest rows name the real repo-relative LIVE paths (sdd/, sdd/.approved-context/) and match the staged bytes'
+  } else {
+    Test-Fail 'TEST-PR229-GEN manifest rows name the real repo-relative LIVE paths and match the staged bytes' $manifest229Text
+  }
+} else {
+  Test-Fail 'TEST-PR229-GEN manifest rows name the real repo-relative LIVE paths and match the staged bytes' 'staged artifacts are not under their repo-relative live paths'
+}
+
+# (d) The two live basenames differ, so the publisher's basename-keyed backup
+#     slot cannot collide (DUPLICATE_BASENAME_IN_BATCH, exit 19).
+if ((Split-Path -Leaf 'sdd/project-context.approval.json') -ne (Split-Path -Leaf 'sdd/.approved-context/project-context.approved.yaml')) {
+  Test-Pass "TEST-PR229-GEN the batch's two live basenames differ (no DUPLICATE_BASENAME_IN_BATCH risk)"
+} else {
+  Test-Fail "TEST-PR229-GEN the batch's two live basenames differ"
+}
+
+# (e) THE POINT: hand the staging dir straight to the publisher.
+Push-Location $Repo229
+try {
+  $rApply = Invoke-ChildProcess -Exe $PowerShellExe -ArgList @(
+    '-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $StagedApplyPs1,
+    '-StagingDir', $Stage229, '-Manifest', $Manifest229
+  )
+} finally {
+  Pop-Location
+}
+if ($rApply.ExitCode -eq 0) {
+  Test-Pass 'TEST-PR229-GEN the staged bundle is consumed directly by apply-human-copy --manifest (exit 0)'
+} else {
+  Test-Fail 'TEST-PR229-GEN the staged bundle is consumed directly by apply-human-copy --manifest (exit 0)' "exit $($rApply.ExitCode): $(Get-Content -Raw -LiteralPath $rApply.StdoutPath -ErrorAction SilentlyContinue)"
+}
+
+if ((Test-Path -LiteralPath (Join-Path $Repo229 'sdd/project-context.approval.json') -PathType Leaf) -and
+    (Test-Path -LiteralPath (Join-Path $Repo229 'sdd/.approved-context/project-context.approved.yaml') -PathType Leaf) -and
+    -not (Test-Path -LiteralPath (Join-Path $Repo229 'project-context.approval.json')) -and
+    -not (Test-Path -LiteralPath (Join-Path $Repo229 'project-context.approved.yaml'))) {
+  Test-Pass 'TEST-PR229-GEN both artifacts land at their real live paths, never in the repository root'
+} else {
+  Test-Fail 'TEST-PR229-GEN both artifacts land at their real live paths, never in the repository root'
+}
+
+$pubSidecarOk = $false
+$pubAnchorOk = $false
+if (Test-Path -LiteralPath (Join-Path $Repo229 'sdd/project-context.approval.json') -PathType Leaf) {
+  $pubSidecarOk = [System.Linq.Enumerable]::SequenceEqual(
+    [System.IO.File]::ReadAllBytes($Sidecar229),
+    [System.IO.File]::ReadAllBytes((Join-Path $Repo229 'sdd/project-context.approval.json')))
+}
+if (Test-Path -LiteralPath (Join-Path $Repo229 'sdd/.approved-context/project-context.approved.yaml') -PathType Leaf) {
+  $pubAnchorOk = [System.Linq.Enumerable]::SequenceEqual(
+    [System.IO.File]::ReadAllBytes($Content229),
+    [System.IO.File]::ReadAllBytes((Join-Path $Repo229 'sdd/.approved-context/project-context.approved.yaml')))
+}
+if ($pubSidecarOk -and $pubAnchorOk) {
+  Test-Pass 'TEST-PR229-GEN published bytes are byte-exact (sidecar vs staged candidate; anchor vs live content)'
+} else {
+  Test-Fail 'TEST-PR229-GEN published bytes are byte-exact (sidecar vs staged candidate; anchor vs live content)' "sidecar=$pubSidecarOk anchor=$pubAnchorOk"
 }
 
 # ---------------------------------------------------------------------------
