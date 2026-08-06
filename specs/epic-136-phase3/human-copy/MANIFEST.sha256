@@ -29,4 +29,4 @@
 #
 # The path below is the workflow's own repository-relative path so that
 # `shasum -a 256 -c` run from this directory checks the placed candidate.
-ad07d8dfa9caa3e9119ca49030771f64ed94886742ee15fa6feeaf5611338c51  .github/workflows/test.yml
+3986c22c8c1dc12be1b653bc280a5ca09666b0dc10f6797be35f0e80566be60a  .github/workflows/test.yml
