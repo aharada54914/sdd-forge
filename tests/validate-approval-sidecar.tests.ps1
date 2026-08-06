@@ -867,6 +867,129 @@ if ($r.ExitCode -eq 0) {
   Test-Fail 'OBLIGATION 1 case 4/4 (none resolvable) key-resolution byte-parity' (Get-ErrText $r)
 }
 
+# ===========================================================================
+# TEST-PR229-VAL: the standard path enforces SIDECAR schema conformance.
+# PowerShell twin of the same block in
+# tests/validate-approval-sidecar.tests.sh -- see that file for the full
+# rationale (external review of PR #229, Codex, finding 3).
+# ===========================================================================
+
+$StagedValPy = Join-Path $Root 'specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py'
+
+if (Test-Path -LiteralPath $StagedValPy -PathType Leaf) {
+  Test-Pass 'TEST-PR229-VAL staged validate-approval-sidecar.py candidate exists'
+} else {
+  Test-Fail 'TEST-PR229-VAL staged validate-approval-sidecar.py candidate exists'
+}
+
+# Shadow tree: the staged script resolves canonicalize-sdd-yaml.py via
+# Path(__file__).parent and the repo root via parents[3], so it cannot run
+# where it sits.
+$Shadow229V = Join-Path $Work 'shadow229v'
+$Shadow229VScripts = Join-Path $Shadow229V 'plugins/sdd-quality-loop/scripts'
+New-Item -ItemType Directory -Path $Shadow229VScripts -Force | Out-Null
+Get-ChildItem -LiteralPath (Join-Path $Root 'plugins/sdd-quality-loop/scripts') -Filter '*.py' |
+  ForEach-Object { Copy-Item -LiteralPath $_.FullName -Destination (Join-Path $Shadow229VScripts $_.Name) -Force }
+Copy-Item -LiteralPath $StagedValPy -Destination (Join-Path $Shadow229VScripts 'validate-approval-sidecar.py') -Force
+Copy-Item -LiteralPath (Join-Path $Root 'contracts') -Destination (Join-Path $Shadow229V 'contracts') -Recurse -Force
+$ShadowVal = Join-Path $Shadow229VScripts 'validate-approval-sidecar.py'
+
+function Invoke-ValPr229 {
+  param([string[]]$ArgList = @())
+  return Invoke-ChildProcess -Exe $PythonExe -ArgList (@($ShadowVal) + $ArgList) `
+    -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
+}
+
+# Base template + its faithfully-signed sidecar (the positive control).
+$Pr229Tpl = Join-Path $Work 'pr229_tpl.json'
+New-Template $Pr229Tpl 'alice' 'null' 'null' 'null' '"weakening_verdict": null' 1
+$Pr229Ok = Join-Path $Work 'pr229_ok.json'
+New-SignedFixture $ContentValid $KeyFile $Pr229Tpl $Pr229Ok
+
+$r = Invoke-ValPr229 -ArgList @('--content', $ContentValid, '--sidecar', $Pr229Ok, '--approver-registry', $RegistryValid)
+if ($r.ExitCode -eq 0 -and (Get-OutText $r) -match 'VALID') {
+  Test-Pass 'TEST-PR229-VAL positive control: a conformant, correctly-signed sidecar still validates (no false positive introduced)'
+} else {
+  Test-Fail 'TEST-PR229-VAL positive control: a conformant, correctly-signed sidecar still validates' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# New-Pr229Mutation: derives a mutated TEMPLATE from $Pr229Tpl, then signs
+# it, so the resulting sidecar's HMAC is genuinely valid over the mutation.
+function New-Pr229Mutation([string]$Name, [string]$PyStatement) {
+  $tpl = Join-Path $Work "pr229_${Name}_tpl.json"
+  $out = Join-Path $Work "pr229_${Name}.json"
+  $code = "import json" + "`n" +
+          "obj = json.load(open(r'$Pr229Tpl'))" + "`n" +
+          $PyStatement + "`n" +
+          "json.dump(obj, open(r'$tpl', 'w'))" + "`n"
+  $codeFile = Join-Path $Work "pr229_${Name}_mutate.py"
+  Set-Content -LiteralPath $codeFile -NoNewline -Encoding utf8 -Value $code
+  $rm = Invoke-Py -ArgList @($codeFile)
+  if ($rm.ExitCode -ne 0) { throw "pr229 mutation '$Name' failed: $(Get-ErrText $rm)" }
+  New-SignedFixture $ContentValid $KeyFile $tpl $out
+  return $out
+}
+
+function Test-Pr229Violation([string]$Label, [string]$SidecarPath) {
+  $rv = Invoke-ValPr229 -ArgList @('--content', $ContentValid, '--sidecar', $SidecarPath, '--approver-registry', $RegistryValid)
+  $errTextV = Get-ErrText $rv
+  if ($rv.ExitCode -eq 47 -and $null -ne $errTextV -and $errTextV -match 'SIDECAR_SCHEMA_VIOLATION') {
+    Test-Pass "TEST-PR229-VAL $Label is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47)"
+  } else {
+    Test-Fail "TEST-PR229-VAL $Label is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47)" "exit $($rv.ExitCode), stdout '$(Get-OutText $rv)', stderr '$errTextV'"
+  }
+}
+
+# (a) const violation: the schema pins primary_approval.status to "Approved".
+Test-Pr229Violation "primary_approval.status = 'Rejected'" (New-Pr229Mutation 'status' "obj['primary_approval']['status'] = 'Rejected'")
+
+# (b) additionalProperties: false, at the top level.
+$Pr229ExtraTop = New-Pr229Mutation 'extratop' "obj['smuggled_field'] = 'x'"
+Test-Pr229Violation 'a smuggled extra top-level property' $Pr229ExtraTop
+
+# (c) additionalProperties: false inside the $ref'd 'approval' definition
+#     (this also proves $ref resolution actually happens).
+Test-Pr229Violation "an extra property inside primary_approval (`$ref'd definition)" (New-Pr229Mutation 'extranested' "obj['primary_approval']['nickname'] = 'al'")
+
+# (d) minimum: 1.
+Test-Pr229Violation 'approval_epoch = 0 (schema minimum 1)' (New-Pr229Mutation 'epochzero' "obj['approval_epoch'] = 0")
+
+# (e) type: integer.
+Test-Pr229Violation "approval_epoch = '1' (schema type integer)" (New-Pr229Mutation 'epochstr' "obj['approval_epoch'] = '1'")
+
+# (f) pattern ^[0-9a-f]{64}$ on hmac. NOT re-signed -- the signature BYTES
+#     are unchanged and only their letter case is flipped, which is exactly
+#     why _check_hmac (comparing stored_hmac.lower()) never caught it. This
+#     is the previously-registered uppercase-hmac carryover.
+$Pr229HmacUpper = Join-Path $Work 'pr229_hmacupper.json'
+$upperObj = Get-Content -Raw -LiteralPath $Pr229Ok | ConvertFrom-Json
+$upperObj.hmac = $upperObj.hmac.ToUpperInvariant()
+Set-Content -LiteralPath $Pr229HmacUpper -NoNewline -Encoding utf8 -Value ($upperObj | ConvertTo-Json -Depth 20)
+Test-Pr229Violation 'an all-uppercase hmac (the registered carryover)' $Pr229HmacUpper
+
+# (g) DOCUMENTED LIMIT, asserted rather than implied -- see the .sh twin's
+#     comment: draft-07 `format` is an ANNOTATION, not an assertion, and
+#     neither this epic's T-003 harness nor the production _schema_validate
+#     promoted from it implements it. A malformed approved_at is therefore
+#     schema-CONFORMANT and is still accepted; enforcing it would be a new
+#     date-time gate, i.e. a new requirement rather than a conformance fix.
+$Pr229ApprovedAt = New-Pr229Mutation 'approvedat' "obj['primary_approval']['approved_at'] = 'not-a-date'"
+$r = Invoke-ValPr229 -ArgList @('--content', $ContentValid, '--sidecar', $Pr229ApprovedAt, '--approver-registry', $RegistryValid)
+if ($r.ExitCode -eq 0) {
+  Test-Pass "TEST-PR229-VAL DOCUMENTED LIMIT: a malformed approved_at is schema-CONFORMANT (draft-07 'format' is an annotation) and is still accepted -- no date-time gate exists for approved_at"
+} else {
+  Test-Fail 'TEST-PR229-VAL DOCUMENTED LIMIT: a malformed approved_at is schema-conformant and still accepted' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
+# (h) --verify-provenance is deliberately NOT bound to the current schema
+#     revision, so a historical sidecar stays re-provable indefinitely.
+$r = Invoke-ValPr229 -ArgList @('--verify-provenance', '--sidecar', $Pr229ExtraTop)
+if ($r.ExitCode -eq 0) {
+  Test-Pass 'TEST-PR229-VAL --verify-provenance is NOT schema-gated (historical re-provability must not expire when the schema is extended)'
+} else {
+  Test-Fail 'TEST-PR229-VAL --verify-provenance is NOT schema-gated' "exit $($r.ExitCode): $(Get-ErrText $r)"
+}
+
 # ---------------------------------------------------------------------------
 # Self-registration.
 # ---------------------------------------------------------------------------

@@ -967,6 +967,159 @@ else
 fi
 
 # ---------------------------------------------------------------------------
+# TEST-PR229-VAL: the standard path enforces SIDECAR schema conformance.
+#
+# External review of PR #229 (Codex), finding 3. _load_sidecar checked only
+# that the nine top-level keys were PRESENT -- nothing about their values --
+# and contracts/approval-sidecar.schema.json was never loaded on the
+# standard path at all. Every fixture below carries a GENUINELY VALID HMAC
+# (re-signed after mutation via this suite's own sign_fixture, exactly as
+# every other fixture in this file is built), so the HMAC gate cannot be
+# what rejects it: what is proven is schema conformance and nothing else.
+# All of these reported `VALID`, exit 0, before the fix.
+#
+# WHICH SCRIPT THIS EXERCISES: plugins/sdd-quality-loop/scripts/
+# validate-approval-sidecar.py is R-10 protected, so the fix lives in its
+# STAGED CANDIDATE under specs/epic-189-a1-project-context/human-copy/ until
+# a human applies it. These assertions therefore run the STAGED candidate.
+# They keep passing unchanged after the apply (staged and live are then
+# byte-identical); to re-point them at the live script, replace
+# STAGED_VAL_PY with $VAL_PY.
+#
+# The staged Python script cannot be executed where it sits: it resolves
+# canonicalize-sdd-yaml.py via Path(__file__).parent and the repo root via
+# Path(__file__).parents[3] (for contracts/). It is therefore copied into a
+# SHADOW tree reproducing the real repo layout -- which is also what a human
+# gets after applying.
+# ===========================================================================
+
+STAGED_VAL_PY="$ROOT/specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py"
+
+if [ -f "$STAGED_VAL_PY" ]; then
+  pass "TEST-PR229-VAL staged validate-approval-sidecar.py candidate exists"
+else
+  fail "TEST-PR229-VAL staged validate-approval-sidecar.py candidate exists"
+fi
+
+SHADOW229V="$WORK/shadow229v"
+mkdir -p "$SHADOW229V/plugins/sdd-quality-loop/scripts"
+cp "$ROOT"/plugins/sdd-quality-loop/scripts/*.py "$SHADOW229V/plugins/sdd-quality-loop/scripts/"
+cp "$STAGED_VAL_PY" "$SHADOW229V/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py"
+cp -R "$ROOT/contracts" "$SHADOW229V/contracts"
+SHADOW_VAL="$SHADOW229V/plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py"
+
+run_val_pr229() {
+  ( cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" "$PY" "$SHADOW_VAL" "$@" ) >"$WORK/out" 2>"$WORK/err"
+  return $?
+}
+
+# Base template + its faithfully-signed sidecar (the positive control).
+PR229_TPL="$WORK/pr229_tpl.json"
+write_template "$PR229_TPL" alice 'null' 'null' 'null' '"weakening_verdict": null' 1
+PR229_OK="$WORK/pr229_ok.json"
+sign_fixture "$CONTENT_VALID" "$KEYFILE" "$PR229_TPL" "$PR229_OK"
+
+run_val_pr229 --content "$CONTENT_VALID" --sidecar "$PR229_OK" --approver-registry "$REGISTRY_VALID"
+rc=$?
+if [ "$rc" = 0 ] && grep -q VALID "$WORK/out"; then
+  pass "TEST-PR229-VAL positive control: a conformant, correctly-signed sidecar still validates (no false positive introduced)"
+else
+  fail "TEST-PR229-VAL positive control: a conformant, correctly-signed sidecar still validates (exit $rc; stderr: $(cat "$WORK/err"))"
+fi
+
+# pr229_mutate <name> <python-statement> -- derives a mutated TEMPLATE from
+# PR229_TPL, then signs it, so the resulting sidecar's HMAC is genuinely
+# valid over the mutated content.
+pr229_mutate() {
+  pm_name=$1
+  pm_code=$2
+  "$PY" -c "
+import json
+obj = json.load(open('$PR229_TPL'))
+$pm_code
+json.dump(obj, open('$WORK/pr229_${pm_name}_tpl.json', 'w'))
+"
+  sign_fixture "$CONTENT_VALID" "$KEYFILE" "$WORK/pr229_${pm_name}_tpl.json" "$WORK/pr229_${pm_name}.json"
+}
+
+pr229_expect_violation() {
+  pv_label=$1
+  pv_sidecar=$2
+  run_val_pr229 --content "$CONTENT_VALID" --sidecar "$pv_sidecar" --approver-registry "$REGISTRY_VALID"
+  pv_rc=$?
+  if [ "$pv_rc" = 47 ] && grep -q SIDECAR_SCHEMA_VIOLATION "$WORK/err"; then
+    pass "TEST-PR229-VAL $pv_label is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47)"
+  else
+    fail "TEST-PR229-VAL $pv_label is rejected (SIDECAR_SCHEMA_VIOLATION, exit 47); got exit $pv_rc, stdout '$(cat "$WORK/out")', stderr '$(cat "$WORK/err")'"
+  fi
+}
+
+# (a) const violation: the schema pins primary_approval.status to "Approved".
+pr229_mutate status "obj['primary_approval']['status'] = 'Rejected'"
+pr229_expect_violation "primary_approval.status = 'Rejected'" "$WORK/pr229_status.json"
+
+# (b) additionalProperties: false, at the top level.
+pr229_mutate extratop "obj['smuggled_field'] = 'x'"
+pr229_expect_violation "a smuggled extra top-level property" "$WORK/pr229_extratop.json"
+
+# (c) additionalProperties: false inside the \$ref'd 'approval' definition
+#     (this also proves \$ref resolution actually happens).
+pr229_mutate extranested "obj['primary_approval']['nickname'] = 'al'"
+pr229_expect_violation "an extra property inside primary_approval (\$ref'd definition)" "$WORK/pr229_extranested.json"
+
+# (d) minimum: 1.
+pr229_mutate epochzero "obj['approval_epoch'] = 0"
+pr229_expect_violation "approval_epoch = 0 (schema minimum 1)" "$WORK/pr229_epochzero.json"
+
+# (e) type: integer.
+pr229_mutate epochstr "obj['approval_epoch'] = '1'"
+pr229_expect_violation "approval_epoch = '1' (schema type integer)" "$WORK/pr229_epochstr.json"
+
+# (f) pattern ^[0-9a-f]{64}$ on hmac. NOT re-signed -- the signature BYTES
+#     are unchanged and only their letter case is flipped, which is exactly
+#     why _check_hmac (comparing stored_hmac.lower()) never caught it. This
+#     is the previously-registered uppercase-hmac carryover; it is now
+#     rejected structurally by the schema rather than by tightening the
+#     constant-time comparison, which must keep normalizing so that a case
+#     difference can never become a timing signal.
+"$PY" -c "
+import json
+obj = json.load(open('$PR229_OK'))
+obj['hmac'] = obj['hmac'].upper()
+json.dump(obj, open('$WORK/pr229_hmacupper.json', 'w'))
+"
+pr229_expect_violation "an all-uppercase hmac (the registered carryover)" "$WORK/pr229_hmacupper.json"
+
+# (g) DOCUMENTED LIMIT, asserted rather than implied. The review also listed
+#     a malformed `approved_at`. That is NOT a schema-conformance failure:
+#     the schema types the field {"type": "string", "format": "date-time"},
+#     draft-07 defines `format` as an ANNOTATION rather than an assertion,
+#     and this epic's own purpose-built subset validators (the T-003 harness
+#     in tests/generate-approval-sidecar.tests.sh and the production
+#     _schema_validate promoted from it) both deliberately omit `format`.
+#     Enforcing it would require a NEW date-time gate -- a new requirement,
+#     not a conformance fix -- so the current, correct-per-schema behaviour
+#     is pinned here to keep the boundary visible instead of assumed.
+pr229_mutate approvedat "obj['primary_approval']['approved_at'] = 'not-a-date'"
+run_val_pr229 --content "$CONTENT_VALID" --sidecar "$WORK/pr229_approvedat.json" --approver-registry "$REGISTRY_VALID"
+rc=$?
+if [ "$rc" = 0 ]; then
+  pass "TEST-PR229-VAL DOCUMENTED LIMIT: a malformed approved_at is schema-CONFORMANT (draft-07 'format' is an annotation) and is still accepted -- no date-time gate exists for approved_at"
+else
+  fail "TEST-PR229-VAL DOCUMENTED LIMIT: a malformed approved_at is schema-conformant and still accepted (got exit $rc: $(cat "$WORK/err"))"
+fi
+
+# (h) --verify-provenance is deliberately NOT bound to the current schema
+#     revision, so a historical sidecar stays re-provable indefinitely.
+run_val_pr229 --verify-provenance --sidecar "$WORK/pr229_extratop.json"
+rc=$?
+if [ "$rc" = 0 ]; then
+  pass "TEST-PR229-VAL --verify-provenance is NOT schema-gated (historical re-provability must not expire when the schema is extended)"
+else
+  fail "TEST-PR229-VAL --verify-provenance is NOT schema-gated (got exit $rc: $(cat "$WORK/err"))"
+fi
+
+# ---------------------------------------------------------------------------
 # Self-registration.
 # ---------------------------------------------------------------------------
 
