@@ -1497,6 +1497,177 @@ else
 fi
 
 # ===========================================================================
+# TEST-PR229-AHC: a NON-REGULAR entry at a live target is never "ABSENT".
+#
+# External review of PR #229 (Codex), finding 1. sha256_of_or_absent's guard
+# was `[ -e ] && [ ! -L ] && [ -f ]`, so a SYMLINK fell through to
+# `printf 'ABSENT'`. quality-gate seq0360 had already established the rule
+# this violates -- an entry whose bytes cannot be read must never be coerced
+# to "confirmed absent" -- but that rule had only ever been enforced for the
+# unreadable-REGULAR-file case.
+#
+# The consequence is the recovery-time data-integrity failure reproduced
+# below: a journal recording pre_hash="ABSENT" plus a symlink squatting the
+# live target satisfied recover_all()'s
+# `[ "$ph" = ABSENT ] && [ "$cur" = ABSENT ]` comparison, so recovery
+# classified a target that had ALREADY COMMITTED as "the transaction never
+# began committing", deleted the journal AND the pre/ backups, and left the
+# symlink standing on a protected path.
+#
+# WHICH SCRIPT THIS EXERCISES: plugins/sdd-quality-loop/scripts/
+# apply-human-copy.sh is R-10 protected, so the fix lives in its STAGED
+# CANDIDATE under specs/epic-189-a1-project-context/human-copy/ until a
+# human applies it. These assertions therefore run the STAGED candidate.
+# They keep passing unchanged after the apply (staged and live are then
+# byte-identical); to re-point them at the live script, replace
+# APPLY_SH_PR229 with $APPLY_SH.
+# ===========================================================================
+
+APPLY_SH_PR229="$ROOT/specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/apply-human-copy.sh"
+APPLY_PS1_PR229="$ROOT/specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/apply-human-copy.ps1"
+
+if [ -f "$APPLY_SH_PR229" ] && [ -x "$APPLY_SH_PR229" ]; then
+  pass "TEST-PR229-AHC staged apply-human-copy.sh candidate exists and is executable"
+else
+  fail "TEST-PR229-AHC staged apply-human-copy.sh candidate exists and is executable"
+fi
+
+run_apply_pr229() {
+  repo_dir=$1
+  shift
+  ( cd "$repo_dir" && "$APPLY_SH_PR229" "$@" ) >"$WORK/out" 2>"$WORK/err"
+  return $?
+}
+
+# --- (1) RECOVERY: symlink at a target whose journal pre_hash is ABSENT. ---
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/stage/live/x.txt" "candidate-v1"
+manifest_line "$F/stage" "live/x.txt" >"$F/stage/MANIFEST.sha256"
+# Commit the rename, then die before the journal is deleted: the journal now
+# records pre_hash="ABSENT" (the target did not exist before) while the live
+# target actually stands at POST.
+run_apply_pr229 "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after rename-1
+if [ -f "$F/repo/live/x.txt" ] && ls "$F"/repo/sdd/.staging/*/TRANSACTION.json >/dev/null 2>&1; then
+  pass "TEST-PR229-AHC precondition: crash after rename-1 leaves the target committed and the journal present"
+else
+  fail "TEST-PR229-AHC precondition: crash after rename-1 leaves the target committed and the journal present"
+fi
+if grep -q '"pre_hash":"ABSENT"' "$F"/repo/sdd/.staging/*/TRANSACTION.json 2>/dev/null; then
+  pass "TEST-PR229-AHC precondition: the journal records pre_hash=ABSENT for this target"
+else
+  fail "TEST-PR229-AHC precondition: the journal records pre_hash=ABSENT for this target"
+fi
+
+# An attacker (or any unrelated fault) replaces the committed target with a
+# symlink pointing somewhere else entirely.
+write_file "$F/attacker.txt" "attacker-controlled"
+attacker_hash_before=$(sha256_of "$F/attacker.txt")
+rm -f "$F/repo/live/x.txt"
+ln -s "$F/attacker.txt" "$F/repo/live/x.txt"
+
+run_apply_pr229 "$F/repo"
+rc=$?
+if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "RECOVERY_FAILED" ]; then
+  pass "TEST-PR229-AHC recovery fails CLOSED on a symlinked target (RECOVERY_FAILED), never 'confirmed absent'"
+else
+  fail "TEST-PR229-AHC recovery fails CLOSED on a symlinked target (exit $rc, category $(category_of "$WORK/out"), stdout $(cat "$WORK/out"))"
+fi
+if grep -q '"recovered":1' "$WORK/out" 2>/dev/null; then
+  fail "TEST-PR229-AHC recovery never reports the batch as successfully recovered"
+else
+  pass "TEST-PR229-AHC recovery never reports the batch as successfully recovered"
+fi
+if ls "$F"/repo/sdd/.staging/*/TRANSACTION.json >/dev/null 2>&1; then
+  pass "TEST-PR229-AHC the transaction journal is RETAINED, not deleted (the durable record survives)"
+else
+  fail "TEST-PR229-AHC the transaction journal is RETAINED, not deleted"
+fi
+if [ -L "$F/repo/live/x.txt" ]; then
+  pass "TEST-PR229-AHC the symlink is left exactly as found (never followed, never replaced)"
+else
+  fail "TEST-PR229-AHC the symlink is left exactly as found"
+fi
+if [ -f "$F/attacker.txt" ] && [ "$(sha256_of "$F/attacker.txt")" = "$attacker_hash_before" ]; then
+  pass "TEST-PR229-AHC the symlink's target is never written through, deleted, or modified"
+else
+  fail "TEST-PR229-AHC the symlink's target is never written through, deleted, or modified"
+fi
+
+# --- (2) The same rule at PREPARE time, before any journal exists. ---------
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/stage/live/y.txt" "candidate-v1"
+manifest_line "$F/stage" "live/y.txt" >"$F/stage/MANIFEST.sha256"
+write_file "$F/canary3.txt" "canary-untouched"
+canary_hash_before=$(sha256_of "$F/canary3.txt")
+mkdir -p "$F/repo/live"
+ln -s "$F/canary3.txt" "$F/repo/live/y.txt"
+run_apply_pr229 "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "PRE_EXISTING_SYMLINK_DENIED" ]; then
+  pass "TEST-PR229-AHC PREPARE denies a symlinked live target under the script's existing symlink category (exit $rc)"
+else
+  fail "TEST-PR229-AHC PREPARE denies a symlinked live target under the script's existing symlink category (exit $rc, category $(category_of "$WORK/out"))"
+fi
+if ls "$F"/repo/sdd/.staging/*/TRANSACTION.json >/dev/null 2>&1; then
+  fail "TEST-PR229-AHC PREPARE denial writes no journal (it refuses before the transaction begins)"
+else
+  pass "TEST-PR229-AHC PREPARE denial writes no journal (it refuses before the transaction begins)"
+fi
+if [ -L "$F/repo/live/y.txt" ] && [ "$(sha256_of "$F/canary3.txt")" = "$canary_hash_before" ]; then
+  pass "TEST-PR229-AHC PREPARE denial leaves the symlink and its target untouched"
+else
+  fail "TEST-PR229-AHC PREPARE denial leaves the symlink and its target untouched"
+fi
+
+# --- (3) A DIRECTORY at the live target is the same class of observation. --
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/stage/live/z.txt" "candidate-v1"
+manifest_line "$F/stage" "live/z.txt" >"$F/stage/MANIFEST.sha256"
+mkdir -p "$F/repo/live/z.txt"
+run_apply_pr229 "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "PRE_EXISTING_SYMLINK_DENIED" ]; then
+  pass "TEST-PR229-AHC a DIRECTORY occupying the live target is denied too (the whole non-regular class, not symlinks alone)"
+else
+  fail "TEST-PR229-AHC a DIRECTORY occupying the live target is denied too (exit $rc, category $(category_of "$WORK/out"))"
+fi
+if [ -d "$F/repo/live/z.txt" ]; then
+  pass "TEST-PR229-AHC the occupying directory is left in place"
+else
+  fail "TEST-PR229-AHC the occupying directory is left in place"
+fi
+
+# --- (4) ps1 runtime parity for the recovery case. -------------------------
+if command -v pwsh >/dev/null 2>&1 && [ -f "$APPLY_PS1_PR229" ]; then
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  write_file "$F/stage/live/x.txt" "candidate-v1"
+  manifest_line "$F/stage" "live/x.txt" >"$F/stage/MANIFEST.sha256"
+  ( cd "$F/repo" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_PR229" -StagingDir "$F/stage" -Manifest "$F/stage/MANIFEST.sha256" -SimulateCrashAfter rename-1 ) >/dev/null 2>&1
+  write_file "$F/attacker.txt" "attacker-controlled"
+  rm -f "$F/repo/live/x.txt"
+  ln -s "$F/attacker.txt" "$F/repo/live/x.txt"
+  ( cd "$F/repo" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_PR229" ) >"$WORK/out" 2>"$WORK/err"
+  rc=$?
+  if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "RECOVERY_FAILED" ]; then
+    pass "TEST-PR229-AHC ps1 parity: recovery fails CLOSED on a symlinked target (RECOVERY_FAILED)"
+  else
+    fail "TEST-PR229-AHC ps1 parity: recovery fails CLOSED on a symlinked target (exit $rc, category $(category_of "$WORK/out"))"
+  fi
+  if ls "$F"/repo/sdd/.staging/*/TRANSACTION.json >/dev/null 2>&1; then
+    pass "TEST-PR229-AHC ps1 parity: the transaction journal is RETAINED, not deleted"
+  else
+    fail "TEST-PR229-AHC ps1 parity: the transaction journal is RETAINED, not deleted"
+  fi
+  if [ -L "$F/repo/live/x.txt" ]; then
+    pass "TEST-PR229-AHC ps1 parity: the symlink is left exactly as found"
+  else
+    fail "TEST-PR229-AHC ps1 parity: the symlink is left exactly as found"
+  fi
+else
+  pass "TEST-PR229-AHC ps1 parity (skipped: pwsh not available)"
+fi
+
+# ===========================================================================
 # Self-registration (design.md Test Strategy item 11; mirrors
 # tests/second-approval-mask.tests.sh:285-289's established pattern).
 # ===========================================================================

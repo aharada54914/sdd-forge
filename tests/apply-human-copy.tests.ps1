@@ -1052,6 +1052,156 @@ if ($null -ne $outText -and $outText.Contains('"category":"MANIFEST_INVALID"')) 
 }
 
 # ---------------------------------------------------------------------------
+# ===========================================================================
+# TEST-PR229-AHC: a NON-REGULAR entry at a live target is never "ABSENT".
+#
+# PowerShell twin of the same block in tests/apply-human-copy.tests.sh --
+# see that file for the full rationale (external review of PR #229, Codex,
+# finding 1). Get-Sha256OrAbsent returned the bare string 'ABSENT' for a
+# reparse point, so a journal recording pre_hash='ABSENT' plus a symlink
+# squatting the live target made Invoke-RecoverAll classify an
+# ALREADY-COMMITTED target as "never began committing" -- deleting the
+# journal and backups and leaving the symlink on a protected path.
+#
+# WHICH SCRIPT THIS EXERCISES: the live .ps1 is R-10 protected, so these
+# assertions run the STAGED CANDIDATE. They keep passing unchanged after a
+# human applies it; to re-point them at the live script, replace
+# $ApplyPs1Pr229 with $ApplyPs1.
+# ===========================================================================
+
+$ApplyPs1Pr229 = Join-Path $Root 'specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/apply-human-copy.ps1'
+
+if (Test-Path -LiteralPath $ApplyPs1Pr229 -PathType Leaf) {
+    Test-Pass 'TEST-PR229-AHC staged apply-human-copy.ps1 candidate exists'
+} else {
+    Test-Fail 'TEST-PR229-AHC staged apply-human-copy.ps1 candidate exists'
+}
+
+function Invoke-ApplyPr229 {
+    param([string]$RepoDir, [string[]]$ArgList = @())
+    return Invoke-ChildProcess -Exe $PowerShellExe `
+        -ArgList (@('-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', $ApplyPs1Pr229) + $ArgList) `
+        -WorkingDirectory $RepoDir
+}
+
+function Test-IsReparsePoint([string]$Path) {
+    try {
+        $a = [System.IO.File]::GetAttributes($Path)
+        return (([int]$a -band [int][System.IO.FileAttributes]::ReparsePoint) -ne 0)
+    } catch { return $false }
+}
+
+# --- (1) RECOVERY: symlink at a target whose journal pre_hash is ABSENT. ---
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'stage/live/x.txt') 'candidate-v1'
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 `
+    -Value ((Get-ManifestLine (Join-Path $F 'stage') 'live/x.txt') + "`n")
+# Commit the rename, then die before the journal is deleted.
+Invoke-ApplyPr229 -RepoDir (Join-Path $F 'repo') -ArgList @(
+    '-StagingDir', (Join-Path $F 'stage'),
+    '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'),
+    '-SimulateCrashAfter', 'rename-1') | Out-Null
+
+$journals = @(Get-ChildItem -Path (Join-Path $F 'repo/sdd/.staging') -Recurse -Filter 'TRANSACTION.json' -ErrorAction SilentlyContinue)
+if ((Test-Path -LiteralPath (Join-Path $F 'repo/live/x.txt') -PathType Leaf) -and $journals.Count -eq 1) {
+    Test-Pass 'TEST-PR229-AHC precondition: crash after rename-1 leaves the target committed and the journal present'
+} else {
+    Test-Fail 'TEST-PR229-AHC precondition: crash after rename-1 leaves the target committed and the journal present' "journals=$($journals.Count)"
+}
+$journalText = if ($journals.Count -gt 0) { Get-Content -Raw -LiteralPath $journals[0].FullName } else { '' }
+if ($journalText -match '"pre_hash"\s*:\s*"ABSENT"') {
+    Test-Pass 'TEST-PR229-AHC precondition: the journal records pre_hash=ABSENT for this target'
+} else {
+    Test-Fail 'TEST-PR229-AHC precondition: the journal records pre_hash=ABSENT for this target' $journalText
+}
+
+# An attacker replaces the committed target with a symlink elsewhere.
+Write-FixtureFile (Join-Path $F 'attacker.txt') 'attacker-controlled'
+$attackerHashBefore = Get-Sha256Hex (Join-Path $F 'attacker.txt')
+Remove-Item -LiteralPath (Join-Path $F 'repo/live/x.txt') -Force
+New-Item -ItemType SymbolicLink -Path (Join-Path $F 'repo/live/x.txt') -Target (Join-Path $F 'attacker.txt') | Out-Null
+
+$r = Invoke-ApplyPr229 -RepoDir (Join-Path $F 'repo')
+$outText = Get-Content -Raw -LiteralPath $r.StdoutPath -ErrorAction SilentlyContinue
+if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'RECOVERY_FAILED') {
+    Test-Pass "TEST-PR229-AHC recovery fails CLOSED on a symlinked target (RECOVERY_FAILED), never 'confirmed absent'"
+} else {
+    Test-Fail 'TEST-PR229-AHC recovery fails CLOSED on a symlinked target' "exit $($r.ExitCode), category $(Get-CategoryOf $r.StdoutPath), stdout $outText"
+}
+if ($null -ne $outText -and $outText.Contains('"recovered":1')) {
+    Test-Fail 'TEST-PR229-AHC recovery never reports the batch as successfully recovered' $outText
+} else {
+    Test-Pass 'TEST-PR229-AHC recovery never reports the batch as successfully recovered'
+}
+$journalsAfter = @(Get-ChildItem -Path (Join-Path $F 'repo/sdd/.staging') -Recurse -Filter 'TRANSACTION.json' -ErrorAction SilentlyContinue)
+if ($journalsAfter.Count -eq 1) {
+    Test-Pass 'TEST-PR229-AHC the transaction journal is RETAINED, not deleted (the durable record survives)'
+} else {
+    Test-Fail 'TEST-PR229-AHC the transaction journal is RETAINED, not deleted' "journals=$($journalsAfter.Count)"
+}
+if (Test-IsReparsePoint (Join-Path $F 'repo/live/x.txt')) {
+    Test-Pass 'TEST-PR229-AHC the symlink is left exactly as found (never followed, never replaced)'
+} else {
+    Test-Fail 'TEST-PR229-AHC the symlink is left exactly as found'
+}
+if ((Test-Path -LiteralPath (Join-Path $F 'attacker.txt') -PathType Leaf) -and
+    (Get-Sha256Hex (Join-Path $F 'attacker.txt')) -eq $attackerHashBefore) {
+    Test-Pass "TEST-PR229-AHC the symlink's target is never written through, deleted, or modified"
+} else {
+    Test-Fail "TEST-PR229-AHC the symlink's target is never written through, deleted, or modified"
+}
+
+# --- (2) The same rule at PREPARE time, before any journal exists. ---------
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'stage/live/y.txt') 'candidate-v1'
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 `
+    -Value ((Get-ManifestLine (Join-Path $F 'stage') 'live/y.txt') + "`n")
+Write-FixtureFile (Join-Path $F 'canary3.txt') 'canary-untouched'
+$canaryHashBefore = Get-Sha256Hex (Join-Path $F 'canary3.txt')
+New-Item -ItemType Directory -Path (Join-Path $F 'repo/live') -Force | Out-Null
+New-Item -ItemType SymbolicLink -Path (Join-Path $F 'repo/live/y.txt') -Target (Join-Path $F 'canary3.txt') | Out-Null
+$r = Invoke-ApplyPr229 -RepoDir (Join-Path $F 'repo') -ArgList @(
+    '-StagingDir', (Join-Path $F 'stage'),
+    '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'PRE_EXISTING_SYMLINK_DENIED') {
+    Test-Pass "TEST-PR229-AHC PREPARE denies a symlinked live target under the script's existing symlink category"
+} else {
+    Test-Fail "TEST-PR229-AHC PREPARE denies a symlinked live target under the script's existing symlink category" "exit $($r.ExitCode), category $(Get-CategoryOf $r.StdoutPath)"
+}
+$journalsPrep = @(Get-ChildItem -Path (Join-Path $F 'repo/sdd/.staging') -Recurse -Filter 'TRANSACTION.json' -ErrorAction SilentlyContinue)
+if ($journalsPrep.Count -eq 0) {
+    Test-Pass 'TEST-PR229-AHC PREPARE denial writes no journal (it refuses before the transaction begins)'
+} else {
+    Test-Fail 'TEST-PR229-AHC PREPARE denial writes no journal' "journals=$($journalsPrep.Count)"
+}
+if ((Test-IsReparsePoint (Join-Path $F 'repo/live/y.txt')) -and
+    (Get-Sha256Hex (Join-Path $F 'canary3.txt')) -eq $canaryHashBefore) {
+    Test-Pass 'TEST-PR229-AHC PREPARE denial leaves the symlink and its target untouched'
+} else {
+    Test-Fail 'TEST-PR229-AHC PREPARE denial leaves the symlink and its target untouched'
+}
+
+# --- (3) A DIRECTORY at the live target is the same class of observation. --
+$F = New-FixtureDir
+Write-FixtureFile (Join-Path $F 'stage/live/z.txt') 'candidate-v1'
+Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 `
+    -Value ((Get-ManifestLine (Join-Path $F 'stage') 'live/z.txt') + "`n")
+New-Item -ItemType Directory -Path (Join-Path $F 'repo/live/z.txt') -Force | Out-Null
+$r = Invoke-ApplyPr229 -RepoDir (Join-Path $F 'repo') -ArgList @(
+    '-StagingDir', (Join-Path $F 'stage'),
+    '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'PRE_EXISTING_SYMLINK_DENIED') {
+    Test-Pass 'TEST-PR229-AHC a DIRECTORY occupying the live target is denied too (the whole non-regular class, not symlinks alone)'
+} else {
+    Test-Fail 'TEST-PR229-AHC a DIRECTORY occupying the live target is denied too' "exit $($r.ExitCode), category $(Get-CategoryOf $r.StdoutPath)"
+}
+if (Test-Path -LiteralPath (Join-Path $F 'repo/live/z.txt') -PathType Container) {
+    Test-Pass 'TEST-PR229-AHC the occupying directory is left in place'
+} else {
+    Test-Fail 'TEST-PR229-AHC the occupying directory is left in place'
+}
+
+# ---------------------------------------------------------------------------
 # Self-registration.
 # ---------------------------------------------------------------------------
 if ((Get-Content -Raw -LiteralPath (Join-Path $Root 'tests/run-all.ps1')) -match 'apply-human-copy\.tests\.ps1') {
