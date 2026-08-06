@@ -197,10 +197,27 @@ const PROTECTED_BASENAMES = new Set(
   })
 );
 
+// Sanctioned staging prefix: specs/<feature>/human-copy/ holds candidate
+// copies awaiting human review and human application, never the live
+// enforcement chain itself.
+const HUMAN_COPY_STAGING_RE = /(?:^|\/)specs\/[^/]+\/human-copy\//;
+
 function isProtectedGateFile(filePath) {
   if (!filePath) return false;
   // posix.normalize collapses .. segments so ../../tests/gates.tests.sh is caught.
   const normalized = path.posix.normalize(String(filePath).replace(/\\/g, '/')).toLowerCase();
+  // Staging exemption: a path still carrying the specs/<feature>/human-copy/
+  // prefix after normalize cannot reach a live enforcement-chain file (any
+  // ..-traversal has already been collapsed), so a staging candidate is
+  // writable — unless a registered suffix itself names a human-copy path
+  // (e.g. the phase2 publisher script), which stays protected.
+  if (HUMAN_COPY_STAGING_RE.test(normalized)) {
+    return [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES].some(s => {
+      const sl = s.toLowerCase();
+      if (!sl.includes('/human-copy/')) return false;
+      return normalized.endsWith(sl) || (sl.startsWith('/') && normalized.endsWith(sl.slice(1)));
+    });
+  }
   return [...PROTECTED_GATE_SUFFIXES, ...PROTECTED_GATE_PLUGIN_JSON_SUFFIXES].some(s => {
     const sl = s.toLowerCase();
     // Match absolute paths and relative paths for suffixes that start with /.
@@ -508,9 +525,39 @@ function shellCwdWriteHitsProtected(cmd) {
   return false;
 }
 
+function commandReferencesProtectedPath(cmd) {
+  // R-10 pre-filter: true when a protected path appears as a shell TOKEN
+  // (a path-shaped word, or a redirect token's target), not merely as a
+  // substring of the raw command text. Prose inside a quoted argument — e.g.
+  // a commit message that mentions a protected filename mid-sentence — no
+  // longer trips the filter, because the quoted argument is one token whose
+  // full text does not END with the protected suffix. Falls back to the raw
+  // substring scan when the tokenizer cannot model the command (fail closed).
+  const tokens = tokenizeShellCommand(cmd);
+  if (tokens === null) {
+    const cmdLower = cmd.toLowerCase();
+    return PROTECTED_GATE_SUFFIXES.some(s => {
+      const sl = s.toLowerCase();
+      // Also match relative forms of suffixes that begin with / (e.g. .plugin/plugin.json).
+      return cmdLower.includes(sl) || (sl.startsWith('/') && cmdLower.includes(sl.slice(1)));
+    });
+  }
+  for (const [kind, text] of tokens) {
+    if (kind !== 'word') continue;
+    let candidate = text;
+    if (text.includes('>')) {
+      const m = text.match(SHELL_REDIRECT_TOKEN_RE);
+      if (m && m[2]) candidate = m[2];
+    }
+    if (isProtectedGateFile(candidate)) return true;
+  }
+  return false;
+}
+
 function shellTargetsProtectedGateFile(cmd) {
   // R-10: Deny shell commands that WRITE to protected gate files.
-  // Substring scan (path appears literally in command) combined with
+  // Token-based pre-filter (a protected path appears as a shell token or
+  // redirect target) combined with
   // write-target analysis (issue #62): a write verb/redirect elsewhere in the
   // command no longer denies read-only access to a protected path.
   // REQ-002 (issue #110): a working-directory-aware pass additionally resolves
@@ -521,12 +568,7 @@ function shellTargetsProtectedGateFile(cmd) {
   // spell the full protected path literally. Read-only segments never hit,
   // so this is checked before the read-only short-circuit below.
   if (shellCwdWriteHitsProtected(cmd)) return true;
-  const cmdLower = cmd.toLowerCase();
-  const hasProtectedPath = PROTECTED_GATE_SUFFIXES.some(s => {
-    const sl = s.toLowerCase();
-    // Also match relative forms of suffixes that begin with / (e.g. .plugin/plugin.json).
-    return cmdLower.includes(sl) || (sl.startsWith('/') && cmdLower.includes(sl.slice(1)));
-  });
+  const hasProtectedPath = commandReferencesProtectedPath(cmd);
   if (!hasProtectedPath) return false;
   // Read-only short-circuit only when: no compound ops AND read-only verb AND no write verb/redirect.
   // Prevents `cat f && rm f` (compound) and `cat > f << EOF` (write verb despite read-only start).
