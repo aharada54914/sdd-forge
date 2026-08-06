@@ -200,8 +200,11 @@ $liteDestName = "plugins/sdd-lite/skills/lite-spec/SKILL.md"
 # Captured 2026-08-05 at this task's authoring time, against the then-live
 # file. plugins/sdd-lite/skills/lite-spec/SKILL.md is never edited live by
 # any task in this decomposition (BL-004) -- T-004 stages a draft
-# candidate instead -- so this hash is expected to hold for the life of
-# the feature.
+# candidate instead -- so this hash holds until the human applies that
+# candidate (T-004 handoff; MANIFEST.sha256 step 3). After the apply, the
+# live file must instead be byte-identical to the reviewed staged
+# candidate: Test-038Staged accepts exactly those two states, so any
+# unreviewed drift of the protected file still fails.
 $liteLiveSha256AtT001 = "40fdba6f1849effb06a8439a09b92a192a36b42a708c3cf1a253d7d48a50fc74"
 
 function Get-LinesOrEmpty([string]$path) {
@@ -636,12 +639,14 @@ function Test-038Staged {
     }
     if (-not $found) { return $false }
     $liveHash = Get-Sha256OrNull $liteLivePath
-    return $liveHash -eq $liteLiveSha256AtT001
+    # Two designed states (see $liteLiveSha256AtT001's comment): pre-apply
+    # the live file is untouched; post-apply it is the reviewed candidate.
+    return (($liveHash -eq $liteLiveSha256AtT001) -or ($liveHash -eq $draftHash))
 }
 if (Test-038Staged) {
-    Test-Pass "TEST-038 lite-spec change staged, live file unmodified, manifest hash matches (AC-023)"
+    Test-Pass "TEST-038 lite-spec change staged, live file unmodified or applied verbatim, manifest hash matches (AC-023)"
 } else {
-    Test-Fail "TEST-038 lite-spec change staged, live file unmodified, manifest hash matches (AC-023)"
+    Test-Fail "TEST-038 lite-spec change staged, live file unmodified or applied verbatim, manifest hash matches (AC-023)"
 }
 
 # TEST-039 -- CI-registration conformance. Traced from a CI entry point
