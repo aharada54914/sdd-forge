@@ -52,6 +52,28 @@ If either check fails, stop immediately and direct the user to run
 Do **not** invoke `sdd-sudo`, create `SDD_SUDO`, or modify the `SDD_SUDO` file.
 Sudo management is always a separate human action.
 
+## MCP Preflight (Advisory)
+
+Attempt `get_next_sdd_command` with no arguments; if it is unavailable or
+the call fails, continue with the file-based flow below.
+
+`get_next_sdd_command` is read-only: it only reads repository state and
+returns a suggestion, never writing or mutating anything. Its answer is
+advisory — it does not decide the target, the track, or any step that
+follows. `## Step 1 — Target Selection` below remains the sole decision
+procedure, and nothing this step reads changes what `## Step 1` concludes.
+
+This step is unconditional: apply it the same way regardless of invocation
+form (a `specs/<feature>/tasks.md` path argument, an optional `#T-NNN` task
+selector, or the zero-argument auto-select form) and regardless of track
+(full / lite) — do not skip or gate it by invocation form or track. Do not
+surface the unavailability or the failure to the user as a run failure.
+
+If the probe's suggestion and the conclusion `## Step 1 — Target Selection`
+reaches disagree, state in the output both that a disagreement occurred and
+which source was acted on. Always act on the `## Step 1` conclusion in that
+case, never the probe's.
+
 ## Step 1 — Target Selection
 
 ### With a path argument
