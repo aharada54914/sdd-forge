@@ -423,10 +423,23 @@ try {
             @{ Name = "one"; Mode = "set"; Value = "1" }
         )) {
             $caseRoot = Join-Path $workDir "config-$($runner.Name)-$($validCase.Name)/specs"
+            $calledFile = Join-Path $workDir "config-$($runner.Name)-$($validCase.Name).called"
+            Remove-Item $calledFile -ErrorAction SilentlyContinue
             Invoke-PanelistRunner -Runner $runner -TimeoutMode $validCase.Mode `
-                -TimeoutValue $validCase.Value -SpecRoot $caseRoot
+                -TimeoutValue $validCase.Value -SpecRoot $caseRoot `
+                -StubEnvironment @{ STUB_CALLED_FILE = $calledFile }
             $verdict = Join-Path $caseRoot (Join-Path "timeout-test/verification" $runner.VerdictName)
-            if ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
+            if ($validCase.Name -eq "one") {
+                # A 1-second bound races stub start-up on slow runners:
+                # acceptance is proven by the stub being invoked without the
+                # exit-2 validation rejection, whether or not the timeout
+                # then fires.
+                if ((Test-Path $calledFile) -and ($script:panelistExit -in 0, 1)) {
+                    Ok "TEST-003: $($runner.Name) accepts $($validCase.Name) timeout"
+                } else {
+                    Fail "TEST-003: $($runner.Name) accepts $($validCase.Name) timeout (exit=$script:panelistExit called=$(Test-Path $calledFile))"
+                }
+            } elseif ($script:panelistExit -eq 0 -and (Test-Path $verdict)) {
                 Ok "TEST-003: $($runner.Name) accepts $($validCase.Name) timeout"
             } else {
                 Fail "TEST-003: $($runner.Name) accepts $($validCase.Name) timeout (exit=$script:panelistExit verdict=$(Test-Path $verdict))"

@@ -509,7 +509,16 @@ for runner_kind in gpt gemini; do
             explicit-default) run_panelist "$runner" set "$default_from_source" "$case_dir" STUB_CALLED_FILE="$marker" ;;
             one) run_panelist "$runner" set 1 "$case_dir" STUB_CALLED_FILE="$marker" ;;
         esac
-        if [ "$PANELIST_EXIT" = "0" ] && [ -s "$marker" ]; then
+        if [ "$config_case" = "one" ]; then
+            # A 1-second bound races stub start-up on slow runners: acceptance
+            # is proven by CLI invocation without the exit-2 validation
+            # rejection, whether or not the timeout then fires.
+            if [ -s "$marker" ] && { [ "$PANELIST_EXIT" = "0" ] || [ "$PANELIST_EXIT" = "1" ]; }; then
+                ok "TEST-003 ${runner_kind}/${config_case}: valid timeout invokes CLI"
+            else
+                fail "TEST-003 ${runner_kind}/${config_case}: expected CLI invocation without validation rejection; exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
+            fi
+        elif [ "$PANELIST_EXIT" = "0" ] && [ -s "$marker" ]; then
             ok "TEST-003 ${runner_kind}/${config_case}: valid timeout invokes CLI"
         else
             fail "TEST-003 ${runner_kind}/${config_case}: expected CLI invocation and exit 0; exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
