@@ -639,10 +639,16 @@ $F = New-FixtureDir
 $placeholderHash = '0' * 64
 Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value "$placeholderHash  back\slash.txt`n"
 $r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
-if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'UNSUPPORTED_PATH_CHARACTER') {
-    Test-Pass 'TEST-033t ps1 rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER)'
+# PR #229 CI (first-ever Linux execution): the rejection LAYER is
+# platform-dependent — Linux refuses the manifest row itself
+# (MANIFEST_INVALID) while macOS classifies the path
+# (UNSUPPORTED_PATH_CHARACTER). Both are classified fail-closed rejections;
+# the load-bearing property is that no platform ever publishes the path.
+$bsCat = Get-CategoryOf $r.StdoutPath
+if ($r.ExitCode -ne 0 -and ($bsCat -eq 'UNSUPPORTED_PATH_CHARACTER' -or $bsCat -eq 'MANIFEST_INVALID')) {
+    Test-Pass "TEST-033t ps1 rejects a literal backslash in a manifest path (fail-closed, category $bsCat)"
 } else {
-    Test-Fail 'TEST-033t ps1 rejects a literal backslash' "exit $($r.ExitCode) category $(Get-CategoryOf $r.StdoutPath)"
+    Test-Fail 'TEST-033t ps1 rejects a literal backslash' "exit $($r.ExitCode) category $bsCat"
 }
 
 # Carriage return (CR): a GENUINELY unsupportable character (quality-gate
@@ -1199,6 +1205,126 @@ if (Test-Path -LiteralPath (Join-Path $F 'repo/live/z.txt') -PathType Container)
     Test-Pass 'TEST-PR229-AHC the occupying directory is left in place'
 } else {
     Test-Fail 'TEST-PR229-AHC the occupying directory is left in place'
+}
+
+# ===========================================================================
+# TEST-MODE-PRESERVE: PowerShell twin of the same block in
+# tests/apply-human-copy.tests.sh -- see that file for the full rationale.
+# Publish propagates the STAGED CANDIDATE's Unix permission bits to the live
+# target (the live target's own PRE-existing mode is never consulted), and
+# rollback restores the PRE-transaction target's own mode along with its
+# bytes. Runs against the STAGED candidate ($ApplyPs1Pr229), same convention
+# as TEST-PR229-AHC above; skipped entirely on native Windows, where POSIX
+# permission bits do not exist and [System.IO.File]::GetUnixFileMode throws.
+# ===========================================================================
+function Get-ModeOctal([string]$Path) {
+    return ('{0}' -f [Convert]::ToString([int][System.IO.File]::GetUnixFileMode($Path), 8))
+}
+
+if ($IsWindows) {
+    Test-Pass 'TEST-MODE-PRESERVE fresh publish: executable staged candidate mode propagates (skipped: POSIX file modes not applicable on Windows)'
+    Test-Pass 'TEST-MODE-PRESERVE existing-live overwrite: staged mode wins over live mode (skipped: POSIX file modes not applicable on Windows)'
+    Test-Pass 'TEST-MODE-PRESERVE non-executable target: staged mode wins over live executable mode (skipped: POSIX file modes not applicable on Windows)'
+    Test-Pass 'TEST-MODE-PRESERVE rollback: target1 mode reverted to its PRE mode (skipped: POSIX file modes not applicable on Windows)'
+} else {
+    # --- (1) executable target, FRESH publish. -----------------------------
+    $F = New-FixtureDir
+    Write-FixtureFile (Join-Path $F 'stage/live/tool.sh') 'echo hi'
+    & chmod 755 (Join-Path $F 'stage/live/tool.sh')
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'live/tool.sh') + "`n")
+    $r = Invoke-ApplyPr229 -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    $livePath1 = Join-Path $F 'repo/live/tool.sh'
+    if ($r.ExitCode -eq 0 -and (Test-Path -LiteralPath $livePath1 -PathType Leaf) -and (Get-ModeOctal $livePath1) -eq '755') {
+        Test-Pass 'TEST-MODE-PRESERVE fresh publish: executable staged candidate mode 755 propagates to the live target'
+    } else {
+        Test-Fail 'TEST-MODE-PRESERVE fresh publish: executable staged candidate mode 755 propagates to the live target' "exit $($r.ExitCode), mode $(if (Test-Path -LiteralPath $livePath1) { Get-ModeOctal $livePath1 } else { 'n/a' })"
+    }
+
+    # --- (2) executable target, EXISTING live overwrite -- staged mode must
+    #         win over the live target's OWN pre-existing mode. ------------
+    $F = New-FixtureDir
+    Write-FixtureFile (Join-Path $F 'repo/live/tool2.sh') 'old script'
+    & chmod 600 (Join-Path $F 'repo/live/tool2.sh')
+    Write-FixtureFile (Join-Path $F 'stage/live/tool2.sh') 'new script'
+    & chmod 755 (Join-Path $F 'stage/live/tool2.sh')
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'live/tool2.sh') + "`n")
+    $r = Invoke-ApplyPr229 -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    $livePath2 = Join-Path $F 'repo/live/tool2.sh'
+    if ($r.ExitCode -eq 0 -and (Test-Path -LiteralPath $livePath2 -PathType Leaf) -and (Get-ModeOctal $livePath2) -eq '755') {
+        Test-Pass "TEST-MODE-PRESERVE existing-live overwrite: staged mode 755 wins over the live target's own pre-existing mode 600"
+    } else {
+        Test-Fail "TEST-MODE-PRESERVE existing-live overwrite: staged mode 755 wins over the live target's own pre-existing mode 600" "exit $($r.ExitCode), mode $(if (Test-Path -LiteralPath $livePath2) { Get-ModeOctal $livePath2 } else { 'n/a' })"
+    }
+
+    # --- (3) non-executable target -- the SAME rule in the opposite
+    #         direction: a staged 644 candidate must strip an executable
+    #         LIVE target's own 755. ------------------------------------
+    $F = New-FixtureDir
+    Write-FixtureFile (Join-Path $F 'repo/live/data.txt') 'old data'
+    & chmod 755 (Join-Path $F 'repo/live/data.txt')
+    Write-FixtureFile (Join-Path $F 'stage/live/data.txt') 'new data'
+    & chmod 644 (Join-Path $F 'stage/live/data.txt')
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'live/data.txt') + "`n")
+    $r = Invoke-ApplyPr229 -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    $livePath3 = Join-Path $F 'repo/live/data.txt'
+    if ($r.ExitCode -eq 0 -and (Test-Path -LiteralPath $livePath3 -PathType Leaf) -and (Get-ModeOctal $livePath3) -eq '644') {
+        Test-Pass "TEST-MODE-PRESERVE non-executable target: staged mode 644 wins over the live target's own pre-existing executable mode 755"
+    } else {
+        Test-Fail "TEST-MODE-PRESERVE non-executable target: staged mode 644 wins over the live target's own pre-existing executable mode 755" "exit $($r.ExitCode), mode $(if (Test-Path -LiteralPath $livePath3) { Get-ModeOctal $livePath3 } else { 'n/a' })"
+    }
+
+    # --- (4) rollback mode fidelity: a genuine MIX state (target1 committed
+    #         to POST, target2 never reached) via a real mid-batch crash.
+    #         Recovery must restore target1's PRE-transaction MODE (755),
+    #         not the staged 644, and not a backup-file default. ---------
+    $F = New-FixtureDir
+    Write-FixtureFile (Join-Path $F 'repo/live/a.txt') 'old-a'
+    & chmod 755 (Join-Path $F 'repo/live/a.txt')
+    Write-FixtureFile (Join-Path $F 'stage/live/a.txt') 'new-a'
+    & chmod 644 (Join-Path $F 'stage/live/a.txt')
+    Write-FixtureFile (Join-Path $F 'stage/live/b.txt') 'new-b'
+    $mpLines = (Get-ManifestLine (Join-Path $F 'stage') 'live/a.txt') + "`n" + (Get-ManifestLine (Join-Path $F 'stage') 'live/b.txt') + "`n"
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value $mpLines
+    Invoke-ApplyPr229 -RepoDir (Join-Path $F 'repo') -ArgList @(
+        '-StagingDir', (Join-Path $F 'stage'),
+        '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'),
+        '-SimulateCrashAfter', 'rename-1') | Out-Null
+    $aPath = Join-Path $F 'repo/live/a.txt'
+    $bPath = Join-Path $F 'repo/live/b.txt'
+    $aContentPost = Get-Content -Raw -LiteralPath $aPath -ErrorAction SilentlyContinue
+    if ($aContentPost -eq "new-a`n" -and -not (Test-Path -LiteralPath $bPath)) {
+        Test-Pass 'TEST-MODE-PRESERVE rollback precondition: mid-batch crash leaves target1 committed to POST, target2 not yet created'
+    } else {
+        Test-Fail 'TEST-MODE-PRESERVE rollback precondition: mid-batch crash leaves target1 committed to POST, target2 not yet created' "a='$aContentPost' bExists=$(Test-Path -LiteralPath $bPath)"
+    }
+    $r = Invoke-ApplyPr229 -RepoDir (Join-Path $F 'repo')
+    $mpOutText = Get-Content -Raw -LiteralPath $r.StdoutPath -ErrorAction SilentlyContinue
+    if ($r.ExitCode -eq 0 -and $null -ne $mpOutText -and $mpOutText.Contains('"recovered":1')) {
+        Test-Pass 'TEST-MODE-PRESERVE rollback: recovery succeeds and reports the batch recovered'
+    } else {
+        Test-Fail 'TEST-MODE-PRESERVE rollback: recovery succeeds and reports the batch recovered' "exit $($r.ExitCode), stdout $mpOutText"
+    }
+    $aContentReverted = Get-Content -Raw -LiteralPath $aPath -ErrorAction SilentlyContinue
+    if ($aContentReverted -eq "old-a`n") {
+        Test-Pass 'TEST-MODE-PRESERVE rollback: target1 content reverted to its PRE bytes'
+    } else {
+        Test-Fail 'TEST-MODE-PRESERVE rollback: target1 content reverted to its PRE bytes' "got '$aContentReverted'"
+    }
+    if ((Test-Path -LiteralPath $aPath -PathType Leaf) -and (Get-ModeOctal $aPath) -eq '755') {
+        Test-Pass 'TEST-MODE-PRESERVE rollback: target1 mode reverted to its PRE mode 755 (never the staged 644, never a backup-file default)'
+    } else {
+        Test-Fail 'TEST-MODE-PRESERVE rollback: target1 mode reverted to its PRE mode 755' "got $(if (Test-Path -LiteralPath $aPath) { Get-ModeOctal $aPath } else { 'n/a' })"
+    }
+    if (-not (Test-Path -LiteralPath $bPath)) {
+        Test-Pass 'TEST-MODE-PRESERVE rollback: target2 (never committed) remains absent'
+    } else {
+        Test-Fail 'TEST-MODE-PRESERVE rollback: target2 (never committed) remains absent'
+    }
+    if (Test-NoStagingLitter $F) {
+        Test-Pass 'TEST-MODE-PRESERVE rollback: journal/staging litter fully cleaned up after convergence'
+    } else {
+        Test-Fail 'TEST-MODE-PRESERVE rollback: journal/staging litter fully cleaned up after convergence' 'litter remains'
+    }
 }
 
 # ---------------------------------------------------------------------------

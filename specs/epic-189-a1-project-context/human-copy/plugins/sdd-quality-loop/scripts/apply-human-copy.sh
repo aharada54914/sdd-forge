@@ -224,6 +224,23 @@ sha256_of() {
   printf '%s' "$out" | awk '{print $1}'
 }
 
+# file_mode_of <path> -> prints the octal permission bits (e.g. "755",
+# "644") on stdout, or nothing + nonzero exit on failure. Same BSD-then-
+# GNU capability probe as stat_id above. The output is validated as pure
+# octal digits so an unexpected stat variant can never hand chmod an
+# empty or option-shaped argument (fail closed, never fail open).
+file_mode_of() {
+  if stat -f '%Lp' "$1" >/dev/null 2>&1; then
+    fm=$(stat -f '%Lp' "$1" 2>/dev/null) || return 1
+  else
+    fm=$(stat -c '%a' "$1" 2>/dev/null) || return 1
+  fi
+  case "$fm" in
+    ''|*[!0-7]*) return 1 ;;
+  esac
+  printf '%s' "$fm"
+}
+
 sha256_of_or_absent() {
   # sha256_of_or_absent <file> -> prints the file's sha256 (exit 0), or the
   # literal sentinel "ABSENT" (exit 0) ONLY when NOTHING WHATSOEVER occupies
@@ -629,6 +646,14 @@ parse_manifest() {
 # rehashes, and commits via a same-directory atomic rename. Prints
 # "<pre_hash_or_ABSENT>" on stdout on success. Returns nonzero (and prints
 # nothing) on any denial.
+#
+# Mode-preservation contract (Human-copy publisher transactional bundle
+# contract, design.md): the STAGED CANDIDATE's own Unix permission bits
+# (read via file_mode_of, above) are `chmod`ed onto the temp file BEFORE
+# the atomic rename, so they -- and never the live target's own
+# pre-existing mode -- are what the rename commits. Return 13 = the
+# staged candidate's mode could not be read; subshell exit 9 (surfaced by
+# the caller as 109) = the temp file's mode could not be set to match.
 # ---------------------------------------------------------------------------
 
 publish_one_target() {
@@ -659,6 +684,14 @@ publish_one_target() {
   if [ "$actual_hash" != "$expected_hash" ]; then
     return 12
   fi
+  # Mode-preservation contract (Human-copy publisher transactional bundle
+  # contract, design.md): the STAGED CANDIDATE's own permission bits are
+  # what get applied to the live target below -- the live target's
+  # pre-existing mode is deliberately NEVER consulted. Captured here,
+  # before the destination-parent anchor, so a failure to read it denies
+  # the whole publish (return 13) rather than silently falling through to
+  # whatever mode the temp file's own `mktemp` default happens to be.
+  staged_mode=$(file_mode_of "$staged_file") || return 13
 
   # --- Anchor into the DESTINATION-PARENT side (held for this target's
   #     entire write+rename window, inside one subshell). ------------------
@@ -696,6 +729,14 @@ publish_one_target() {
     if [ "$tmp_hash" != "$expected_hash" ]; then
       rm -f -- "$tmp" 2>/dev/null
       exit 6
+    fi
+    # The rename below carries the temp file's own permission bits, so
+    # the STAGED candidate's mode is applied here -- the live target's
+    # pre-existing mode is deliberately never consulted (it is exactly
+    # the drift/tamper surface this publisher exists to overwrite).
+    if ! chmod "$staged_mode" "$tmp" 2>/dev/null; then
+      rm -f -- "$tmp" 2>/dev/null
+      exit 9
     fi
     # Immediately-before-use identity re-check: the destination-parent we
     # anchored into at the top of this subshell must still be the SAME
@@ -889,13 +930,42 @@ backup_pre_bytes() {
   found_rc=$?
   if [ "$found_rc" != 0 ]; then
     rm -f -- "$dest_file" 2>/dev/null
+  else
+    # Capture the live target's PRE-transaction permission bits onto the
+    # backup, so a MIX-state rollback restores mode as well as bytes
+    # (fully-reverted must be faithful in both). Read through the same
+    # anchored walk as the byte read above; on any failure the backup is
+    # discarded (fail closed -- revert will then refuse on the missing
+    # backup rather than restore with a fabricated mode).
+    live_mode=$(
+      cd -- "$repo_root_abs" 2>/dev/null || exit 1
+      walk_relative_dir "$SPLIT_DIR" || exit 1
+      file_mode_of "$SPLIT_BASE"
+    )
+    # NOTE: no `--` before $dest_file here (unlike this file's other
+    # commands): verified empirically that BSD/macOS chmod, UNLIKE GNU
+    # chmod (and unlike BSD's own rm/mv/cat, which all support `--`
+    # correctly), does NOT treat `--` as an end-of-options marker -- it
+    # is parsed as a literal (nonexistent) file OPERAND, so
+    # `chmod MODE -- $dest_file` silently chmods $dest_file correctly
+    # but still EXITS NONZERO (failing on the bogus `--` operand), which
+    # would make this fail-closed check wrongly delete a backup it had
+    # just correctly written. Safe to omit here because $dest_file is
+    # always `$BATCH_DIR_ABS/pre/$base` -- always absolute (prefixed by
+    # a `pwd -P`-derived batch directory) and therefore can never begin
+    # with `-` regardless of $base's own leading character.
+    if [ -z "$live_mode" ] || ! chmod "$live_mode" "$dest_file" 2>/dev/null; then
+      rm -f -- "$dest_file" 2>/dev/null
+    fi
   fi
 }
 
 # revert_one_target <repo_root_abs> <relpath> <pre_hash> <backup_file>
-# Restores <relpath> to its PRE-transaction bytes: deletes it if
+# Restores <relpath> to its PRE-transaction bytes AND mode: deletes it if
 # pre_hash is ABSENT, else atomically renames <backup_file> onto it
-# (same anchored-write discipline as publish_one_target).
+# (same anchored-write discipline as publish_one_target), first chmod-ing
+# the temp file to the backup's own captured PRE-transaction permission
+# bits (backup_pre_bytes populated them onto the backup file itself).
 revert_one_target() {
   repo_root_abs=$1
   relpath=$2
@@ -916,6 +986,10 @@ revert_one_target() {
     cat -- "$backup_file" >"$tmp" || { rm -f -- "$tmp"; exit 6; }
     got=$(sha256_of "$tmp")
     if [ "$got" != "$pre_hash" ]; then rm -f -- "$tmp"; exit 7; fi
+    # Restore the PRE-transaction permission bits captured on the backup
+    # (backup_pre_bytes) along with the bytes.
+    backup_mode=$(file_mode_of "$backup_file") || { rm -f -- "$tmp"; exit 9; }
+    if ! chmod "$backup_mode" "$tmp" 2>/dev/null; then rm -f -- "$tmp"; exit 10; fi
     mv -f -- "$tmp" "$SPLIT_BASE" || exit 8
   )
 }

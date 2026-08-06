@@ -980,10 +980,18 @@ h=$(sha256_of "$F/stage/back\\slash.txt")
 printf '%s  back\\slash.txt\n' "$h" >"$F/stage/MANIFEST.sha256"
 run_apply "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
 rc=$?
-if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "UNSUPPORTED_PATH_CHARACTER" ]; then
-  pass "TEST-033t sh rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER, both-runtime parity by design)"
+# PR #229 CI — the first-ever Linux execution of this suite — showed the
+# REJECTION LAYER is platform-dependent: GNU regex engines treat a backslash
+# inside a bracket expression differently from BSD, so on Linux the manifest
+# ROW is refused first (MANIFEST_INVALID) while on macOS the path layer
+# classifies it (UNSUPPORTED_PATH_CHARACTER). Both are classified fail-closed
+# rejections of the same hostile input; the load-bearing property is that no
+# platform ever PUBLISHES a backslash path, not which layer refuses it.
+bs_cat="$(category_of "$WORK/out")"
+if [ "$rc" != 0 ] && { [ "$bs_cat" = "UNSUPPORTED_PATH_CHARACTER" ] || [ "$bs_cat" = "MANIFEST_INVALID" ]; }; then
+  pass "TEST-033t sh rejects a literal backslash in a manifest path (fail-closed, category $bs_cat)"
 else
-  fail "TEST-033t sh rejects a literal backslash in a manifest path (exit $rc, category $(category_of "$WORK/out"))"
+  fail "TEST-033t sh rejects a literal backslash in a manifest path (exit $rc, category $bs_cat)"
 fi
 if command -v pwsh >/dev/null 2>&1; then
   new_fixture_dir; F=$NEW_FIXTURE_DIR
@@ -992,10 +1000,11 @@ if command -v pwsh >/dev/null 2>&1; then
   printf '%s  back\\slash.txt\n' "$h" >"$F/stage/MANIFEST.sha256"
   ( cd "$F/repo" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_FOR_PARITY" -StagingDir "$F/stage" -Manifest "$F/stage/MANIFEST.sha256" ) >"$WORK/out" 2>"$WORK/err"
   rc=$?
-  if [ "$rc" != 0 ] && [ "$(category_of "$WORK/out")" = "UNSUPPORTED_PATH_CHARACTER" ]; then
-    pass "TEST-033t ps1 ALSO rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER, parity confirmed)"
+  bs_cat="$(category_of "$WORK/out")"
+  if [ "$rc" != 0 ] && { [ "$bs_cat" = "UNSUPPORTED_PATH_CHARACTER" ] || [ "$bs_cat" = "MANIFEST_INVALID" ]; }; then
+    pass "TEST-033t ps1 ALSO rejects a literal backslash in a manifest path (fail-closed, category $bs_cat)"
   else
-    fail "TEST-033t ps1 ALSO rejects a literal backslash in a manifest path (exit $rc, category $(category_of "$WORK/out"))"
+    fail "TEST-033t ps1 ALSO rejects a literal backslash in a manifest path (exit $rc, category $bs_cat)"
   fi
 else
   pass "TEST-033t ps1 backslash rejection parity (skipped: pwsh not available)"
@@ -1665,6 +1674,172 @@ if command -v pwsh >/dev/null 2>&1 && [ -f "$APPLY_PS1_PR229" ]; then
   fi
 else
   pass "TEST-PR229-AHC ps1 parity (skipped: pwsh not available)"
+fi
+
+# ===========================================================================
+# TEST-MODE-PRESERVE: publish propagates the STAGED CANDIDATE's Unix
+# permission bits to the live target -- the live target's own PRE-existing
+# mode is never consulted -- and rollback restores the PRE-transaction
+# target's own mode along with its bytes (Human-copy publisher
+# transactional bundle contract, design.md).
+#
+# Before this fix, publish_one_target() wrote the temp file via `mktemp`
+# (mode 0600) + `cat`, so EVERY published target -- including one whose
+# staged candidate was legitimately 0755 (an executable script) -- landed
+# on disk at 0600/whatever the temp default is, silently stripping the
+# exec bit and producing a spurious `git diff --summary` mode change.
+# Symmetrically, backup_pre_bytes() never captured the live target's own
+# PRE mode onto its `pre/` backup, so a MIX-state rollback restored the
+# right BYTES but the WRONG mode (whatever the backup file's own mktemp
+# default happened to be), making the fully-reverted terminal state
+# unfaithful in mode even though design.md/AC-033 require it to be a
+# faithful revert.
+#
+# WHICH SCRIPT THIS EXERCISES: apply-human-copy.sh is R-10 protected, so
+# the fix lives in its STAGED CANDIDATE under
+# specs/epic-189-a1-project-context/human-copy/ until a human applies it
+# (same convention as TEST-PR229-AHC, above; reuses $APPLY_SH_PR229 /
+# $APPLY_PS1_PR229 / run_apply_pr229).
+# ===========================================================================
+
+mode_of_t() {
+  if stat -f '%Lp' "$1" >/dev/null 2>&1; then stat -f '%Lp' "$1"; else stat -c '%a' "$1"; fi
+}
+
+# --- (1) executable target, FRESH publish (no pre-existing live target). --
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/stage/live/tool.sh" "echo hi"
+chmod 755 "$F/stage/live/tool.sh"
+manifest_line "$F/stage" "live/tool.sh" >"$F/stage/MANIFEST.sha256"
+run_apply_pr229 "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" = 0 ] && [ "$(mode_of_t "$F/repo/live/tool.sh" 2>/dev/null)" = "755" ] && [ -x "$F/repo/live/tool.sh" ]; then
+  pass "TEST-MODE-PRESERVE fresh publish: executable staged candidate's mode 755 propagates to the live target"
+else
+  fail "TEST-MODE-PRESERVE fresh publish: executable staged candidate's mode 755 propagates to the live target (exit $rc, mode $(mode_of_t "$F/repo/live/tool.sh" 2>/dev/null))"
+fi
+if [ "$(cat "$F/repo/live/tool.sh" 2>/dev/null)" = "echo hi" ]; then
+  pass "TEST-MODE-PRESERVE fresh publish: live content matches the staged candidate"
+else
+  fail "TEST-MODE-PRESERVE fresh publish: live content matches the staged candidate"
+fi
+
+# --- (2) executable target, EXISTING live overwrite -- proves the STAGED
+#         mode wins over the LIVE target's own pre-existing mode, not just
+#         the no-prior-file case above. ---------------------------------
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/repo/live/tool2.sh" "old script"
+chmod 600 "$F/repo/live/tool2.sh"
+write_file "$F/stage/live/tool2.sh" "new script"
+chmod 755 "$F/stage/live/tool2.sh"
+manifest_line "$F/stage" "live/tool2.sh" >"$F/stage/MANIFEST.sha256"
+run_apply_pr229 "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" = 0 ] && [ "$(mode_of_t "$F/repo/live/tool2.sh" 2>/dev/null)" = "755" ] && [ -x "$F/repo/live/tool2.sh" ]; then
+  pass "TEST-MODE-PRESERVE existing-live overwrite: staged mode 755 wins over the live target's own pre-existing mode 600"
+else
+  fail "TEST-MODE-PRESERVE existing-live overwrite: staged mode 755 wins over the live target's own pre-existing mode 600 (exit $rc, mode $(mode_of_t "$F/repo/live/tool2.sh" 2>/dev/null))"
+fi
+if [ "$(cat "$F/repo/live/tool2.sh" 2>/dev/null)" = "new script" ]; then
+  pass "TEST-MODE-PRESERVE existing-live overwrite: content replaced"
+else
+  fail "TEST-MODE-PRESERVE existing-live overwrite: content replaced"
+fi
+
+# --- (3) non-executable target -- the SAME rule in the opposite direction:
+#         a staged 644 candidate must strip an executable LIVE target's own
+#         755, never leave the live mode standing. -------------------------
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/repo/live/data.txt" "old data"
+chmod 755 "$F/repo/live/data.txt"
+write_file "$F/stage/live/data.txt" "new data"
+chmod 644 "$F/stage/live/data.txt"
+manifest_line "$F/stage" "live/data.txt" >"$F/stage/MANIFEST.sha256"
+run_apply_pr229 "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256"
+rc=$?
+if [ "$rc" = 0 ] && [ "$(mode_of_t "$F/repo/live/data.txt" 2>/dev/null)" = "644" ] && [ ! -x "$F/repo/live/data.txt" ]; then
+  pass "TEST-MODE-PRESERVE non-executable target: staged mode 644 wins over the live target's own pre-existing executable mode 755"
+else
+  fail "TEST-MODE-PRESERVE non-executable target: staged mode 644 wins over the live target's own pre-existing executable mode 755 (exit $rc, mode $(mode_of_t "$F/repo/live/data.txt" 2>/dev/null))"
+fi
+
+# --- (4) rollback mode fidelity: a genuine MIX state (target1 committed to
+#         POST, target2 never reached) via a real mid-batch crash. Recovery
+#         must restore target1's PRE-transaction MODE (755), not the staged
+#         644, and not whatever a backup-file default happens to be. -------
+new_fixture_dir; F=$NEW_FIXTURE_DIR
+write_file "$F/repo/live/a.txt" "old-a"
+chmod 755 "$F/repo/live/a.txt"
+write_file "$F/stage/live/a.txt" "new-a"
+chmod 644 "$F/stage/live/a.txt"
+write_file "$F/stage/live/b.txt" "new-b"
+{
+  manifest_line "$F/stage" "live/a.txt"
+  manifest_line "$F/stage" "live/b.txt"
+} >"$F/stage/MANIFEST.sha256"
+run_apply_pr229 "$F/repo" --staging-dir "$F/stage" --manifest "$F/stage/MANIFEST.sha256" --simulate-crash-after rename-1
+if [ "$(cat "$F/repo/live/a.txt" 2>/dev/null)" = "new-a" ] && [ ! -e "$F/repo/live/b.txt" ]; then
+  pass "TEST-MODE-PRESERVE rollback precondition: mid-batch crash leaves target1 committed to POST, target2 not yet created"
+else
+  fail "TEST-MODE-PRESERVE rollback precondition: mid-batch crash leaves target1 committed to POST, target2 not yet created"
+fi
+run_apply_pr229 "$F/repo"
+rc=$?
+if [ "$rc" = 0 ] && grep -q '"recovered":1' "$WORK/out" 2>/dev/null; then
+  pass "TEST-MODE-PRESERVE rollback: recovery succeeds and reports the batch recovered"
+else
+  fail "TEST-MODE-PRESERVE rollback: recovery succeeds and reports the batch recovered (exit $rc, stdout $(cat "$WORK/out" 2>/dev/null))"
+fi
+if [ "$(cat "$F/repo/live/a.txt" 2>/dev/null)" = "old-a" ]; then
+  pass "TEST-MODE-PRESERVE rollback: target1 content reverted to its PRE bytes"
+else
+  fail "TEST-MODE-PRESERVE rollback: target1 content reverted to its PRE bytes"
+fi
+if [ "$(mode_of_t "$F/repo/live/a.txt" 2>/dev/null)" = "755" ]; then
+  pass "TEST-MODE-PRESERVE rollback: target1 mode reverted to its PRE mode 755 (never the staged 644, never a backup-file default)"
+else
+  fail "TEST-MODE-PRESERVE rollback: target1 mode reverted to its PRE mode 755 (got $(mode_of_t "$F/repo/live/a.txt" 2>/dev/null))"
+fi
+if [ ! -e "$F/repo/live/b.txt" ]; then
+  pass "TEST-MODE-PRESERVE rollback: target2 (never committed) remains absent"
+else
+  fail "TEST-MODE-PRESERVE rollback: target2 (never committed) remains absent"
+fi
+if [ -z "$(find "$F/repo/sdd/.staging" -type f 2>/dev/null)" ]; then
+  pass "TEST-MODE-PRESERVE rollback: journal/staging litter fully cleaned up after convergence"
+else
+  fail "TEST-MODE-PRESERVE rollback: journal/staging litter fully cleaned up after convergence"
+fi
+
+# --- (5) ps1 runtime parity (scenarios 1 and 3). ---------------------------
+if command -v pwsh >/dev/null 2>&1 && [ -f "$APPLY_PS1_PR229" ]; then
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  write_file "$F/stage/live/tool.sh" "echo hi"
+  chmod 755 "$F/stage/live/tool.sh"
+  manifest_line "$F/stage" "live/tool.sh" >"$F/stage/MANIFEST.sha256"
+  ( cd "$F/repo" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_PR229" -StagingDir "$F/stage" -Manifest "$F/stage/MANIFEST.sha256" ) >"$WORK/out" 2>"$WORK/err"
+  rc=$?
+  if [ "$rc" = 0 ] && [ "$(mode_of_t "$F/repo/live/tool.sh" 2>/dev/null)" = "755" ] && [ -x "$F/repo/live/tool.sh" ]; then
+    pass "TEST-MODE-PRESERVE ps1 parity: fresh publish propagates the staged executable mode 755"
+  else
+    fail "TEST-MODE-PRESERVE ps1 parity: fresh publish propagates the staged executable mode 755 (exit $rc, mode $(mode_of_t "$F/repo/live/tool.sh" 2>/dev/null))"
+  fi
+
+  new_fixture_dir; F=$NEW_FIXTURE_DIR
+  write_file "$F/repo/live/data.txt" "old data"
+  chmod 755 "$F/repo/live/data.txt"
+  write_file "$F/stage/live/data.txt" "new data"
+  chmod 644 "$F/stage/live/data.txt"
+  manifest_line "$F/stage" "live/data.txt" >"$F/stage/MANIFEST.sha256"
+  ( cd "$F/repo" && pwsh -NoProfile -ExecutionPolicy Bypass -File "$APPLY_PS1_PR229" -StagingDir "$F/stage" -Manifest "$F/stage/MANIFEST.sha256" ) >"$WORK/out" 2>"$WORK/err"
+  rc=$?
+  if [ "$rc" = 0 ] && [ "$(mode_of_t "$F/repo/live/data.txt" 2>/dev/null)" = "644" ] && [ ! -x "$F/repo/live/data.txt" ]; then
+    pass "TEST-MODE-PRESERVE ps1 parity: non-executable staged mode 644 wins over the live target's own executable mode 755"
+  else
+    fail "TEST-MODE-PRESERVE ps1 parity: non-executable staged mode 644 wins over the live target's own executable mode 755 (exit $rc, mode $(mode_of_t "$F/repo/live/data.txt" 2>/dev/null))"
+  fi
+else
+  pass "TEST-MODE-PRESERVE ps1 parity (skipped: pwsh not available)"
 fi
 
 # ===========================================================================

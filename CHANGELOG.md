@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+### Fixed
+
+- **human-copy publisher のファイルモード保持 (epic-189-a1-project-context,
+  staged candidate)**: `apply-human-copy.sh`/`.ps1` が publish 時に staged
+  ファイルのモードを保持せず、全ターゲットが 0600 で着地するバグを修正
+  (sh 側は `mktemp`(0600) + `cat` + `mv` のため。実行可能な保護ターゲットが
+  exec bit を失い、publisher 自身を publish すると次バッチが
+  `Permission denied` で死ぬ)。契約は design.md の transactional bundle
+  contract に基づき「**STAGED candidate のモードを適用する**」を採用 —
+  live の既存モードは参照しない (live は publish が上書きすべき
+  drift/改竄面そのもの)。対称性として `pre/` バックアップが live の
+  PRE モードを捕捉し、rollback がそれを復元する。ps1 側は
+  `[System.IO.File]::Copy` の暗黙のモード複製に依存していた挙動を
+  `Get/SetUnixFileMode` で明示化 (Windows では no-op)。R-10 保護のため
+  修正は staged candidate
+  (`specs/epic-189-a1-project-context/human-copy/`) として作成し、
+  `MANIFEST.sha256` と `RUNBOOK-pr229.md` を更新 (Step 2 の一括 chmod
+  ワークアラウンドは、旧 publisher が実行する batch 1 の自己置換 1 件を
+  残して撤去)。`tests/apply-human-copy.tests.sh`/`.ps1` に
+  `TEST-MODE-PRESERVE` ブロックを追加 (実行可能/非実行可能ターゲットの
+  publish、既存 live モードに対する staged モード優先、mid-batch crash
+  後の rollback のモード忠実性。sh 247 passed / ps1 168 passed)。
+  副産物: BSD/macOS の `chmod` は `--` を end-of-options として扱わない
+  (bogus operand 扱いで nonzero exit) ことを実測で確認し、該当呼び出しに
+  インライン文書化。
+
 ### Corrections
 
 - **v1.12.0 の Issue #125 エントリの訂正 (epic-136-phase3, Stream C)**:

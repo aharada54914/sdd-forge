@@ -553,6 +553,13 @@ function Backup-PreBytes([string]$RepoRootAbs, [string]$RelPath, [string]$DestFi
     } -BodyArgs @{ Dir = $split.Dir; Base = $split.Base }
     if ($r.Ok -and $r.Value) {
         Copy-Item -LiteralPath $r.Value -Destination $DestFile -Force
+        # Capture the live target's PRE-transaction permission bits onto
+        # the backup, so a MIX-state rollback restores mode as well as
+        # bytes (Human-copy publisher transactional bundle contract,
+        # design.md; the .sh twin's backup_pre_bytes does the same).
+        if (-not $IsWindows) {
+            [System.IO.File]::SetUnixFileMode($DestFile, [System.IO.File]::GetUnixFileMode($r.Value))
+        }
     }
 }
 
@@ -584,6 +591,18 @@ function Publish-OneTarget {
     $stagedFile = $srcResult.Value
     $actualHash = Get-Sha256Hex $stagedFile
     if ($actualHash -ne $ExpectedHash) { return @{ Ok = $false; Code = 12; Reason = 'hash-mismatch' } }
+
+    # Mode-preservation contract: the STAGED candidate's Unix permission
+    # bits are applied to the temp file before the rename below, so the
+    # live target's pre-existing mode is never consulted. On Windows
+    # POSIX modes do not exist and this is a no-op. [System.IO.File]::Copy
+    # already copies the source mode on Unix, but the contract is made
+    # explicit here rather than relying on that undocumented behaviour.
+    $stagedMode = $null
+    if (-not $IsWindows) {
+        try { $stagedMode = [System.IO.File]::GetUnixFileMode($stagedFile) }
+        catch { return @{ Ok = $false; Code = 13; Reason = 'staged-mode-unreadable' } }
+    }
 
     # --- Anchor into DESTINATION-PARENT, held for the write+rename window. -
     # From this point on, EVERY actual read/write of the destination uses
@@ -666,6 +685,7 @@ function Publish-OneTarget {
         $liveDirFinal = [System.Environment]::CurrentDirectory
         $tmpAbsFinal = [System.IO.Path]::Combine($liveDirFinal, $tmpName)
         $destBaseAbsFinal = [System.IO.Path]::Combine($liveDirFinal, $split.Base)
+        if ($null -ne $stagedMode) { [System.IO.File]::SetUnixFileMode($tmpAbsFinal, $stagedMode) }
         [System.IO.File]::Move($tmpAbsFinal, $destBaseAbsFinal, $true)
         return @{ Ok = $true }
     } catch {
@@ -700,6 +720,11 @@ function Restore-OneTarget([string]$RepoRootAbs, [string]$RelPath, [string]$PreH
         if ($got -ne $PreHash) {
             [System.IO.File]::Delete($tmpAbs)
             return $false
+        }
+        # Restore the PRE-transaction permission bits captured on the
+        # backup (Backup-PreBytes) along with the bytes.
+        if (-not $IsWindows) {
+            [System.IO.File]::SetUnixFileMode($tmpAbs, [System.IO.File]::GetUnixFileMode($BackupFile))
         }
         $liveDirFinal = [System.Environment]::CurrentDirectory
         [System.IO.File]::Move([System.IO.Path]::Combine($liveDirFinal, $tmpName), [System.IO.Path]::Combine($liveDirFinal, $split.Base), $true)

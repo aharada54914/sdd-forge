@@ -1,8 +1,17 @@
-# Human-copy runbook — PR #229 external-review fixes (3 findings)
+# Human-copy runbook — PR #229 external-review fixes (3 findings) + publisher mode-preservation fix
 
 Applies four R-10-protected scripts from their staged candidates. An agent
 cannot perform any step here; the hook guard denies every write to these
 live paths and that denial must never be bypassed.
+
+The `apply-human-copy.{sh,ps1}` candidates in this batch additionally carry
+a fourth fix, found while rehearsing this very runbook: the publisher now
+preserves each file's permission bits — publish applies the STAGED
+candidate's mode (never the live target's pre-existing mode, which is
+exactly the drift/tamper surface a publish exists to overwrite), the
+`pre/` backup captures the live target's PRE-transaction mode, and a
+rollback restores it. Covered by `TEST-MODE-PRESERVE` in
+`tests/apply-human-copy.tests.{sh,ps1}`.
 
 Run every command from the repository root of the worktree
 (`/Users/jrmag/Projects/active/sdd-forge-wt-epic-189`, branch
@@ -12,8 +21,8 @@ Run every command from the repository root of the worktree
 
 | # | Live path (R-10 protected) | Basename | Finding |
 |---|---|---|---|
-| 1 | `plugins/sdd-quality-loop/scripts/apply-human-copy.sh` | `apply-human-copy.sh` | 1 (P1) |
-| 2 | `plugins/sdd-quality-loop/scripts/apply-human-copy.ps1` | `apply-human-copy.ps1` | 1 (P1) |
+| 1 | `plugins/sdd-quality-loop/scripts/apply-human-copy.sh` | `apply-human-copy.sh` | 1 (P1) + mode-preservation |
+| 2 | `plugins/sdd-quality-loop/scripts/apply-human-copy.ps1` | `apply-human-copy.ps1` | 1 (P1) + mode-preservation |
 | 3 | `plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py` | `generate-approval-sidecar.py` | 2 (P1) |
 | 4 | `plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py` | `validate-approval-sidecar.py` | 3 (P2) |
 
@@ -40,8 +49,8 @@ manifest disagree — do not proceed.
 Expected digests (also in `MANIFEST.sha256`):
 
 ```
-a3814265af176d1abc527c4c2a3c5bb35d3070e29a955f417c738f6c679aab3c  plugins/sdd-quality-loop/scripts/apply-human-copy.sh
-b5867e25e05f6614f158b7aec9181dd7efa02ee30fcb23889b9a88e068f479cb  plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
+c24357d541701a3d9a0dd8fbf99f2e2bec7ef64f6464e745107577b9de75e970  plugins/sdd-quality-loop/scripts/apply-human-copy.sh
+4b4eeaf3a53df2bb147f9355f155f6b189304fe6e2fb7f9a9c50ad5b6e0ea923  plugins/sdd-quality-loop/scripts/apply-human-copy.ps1
 b7f2feb691e3b32cc9d37af541844b92f38ec21d9a13b25d72a61b0cba6a5cd8  plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py
 a06f433d40a00252d7d17823df5ea3c74b834cb9d14f3fd1caee7c1ff21e4a74  plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
 ```
@@ -57,20 +66,23 @@ would not itself be a target, but keeping it out avoids any ambiguity).
 `mv` swaps the directory entry while the running shell keeps reading its
 original inode, so the in-flight invocation is unaffected.
 
-**Important — the publisher does NOT preserve file mode.** Verified by
-rehearsing this exact procedure against a scratch mirror of the repo: every
-published target lands at `0600`, because the publisher writes through
-`mktemp` and commits with an atomic rename, and the staged file's mode is
-never copied. Two consequences, both handled below:
+**Important — batch 1 is executed by the OLD live publisher, which does NOT
+preserve file mode.** The staged candidates in this batch fix that (the
+publisher now applies the staged candidate's mode; `TEST-MODE-PRESERVE`),
+but the fix only takes effect once it is itself live. Concretely:
 
-1. `apply-human-copy.sh` is `0755` live and would become `0600` after batch
-   1, so batches 2–4 would die with `Permission denied` if the loop invoked
-   it as `"$APPLY"`. The loop therefore invokes it as `sh "$APPLY"`.
-2. Modes must be restored explicitly afterwards (Step 2), or `git status`
-   will show spurious mode changes on all four files.
+1. Batch 1 (the publisher replacing itself) is performed by the old,
+   mode-lossy live bytes, so `apply-human-copy.sh` lands at `0600` — the
+   loop therefore invokes it as `sh "$APPLY"`, and Step 2 restores its
+   `0755` with one final `chmod` (the last such chmod any apply will ever
+   need).
+2. Batches 2–4 are performed by the NEW live bytes (`mv` swapped them in
+   during batch 1; `sh "$APPLY"` re-reads the path fresh each iteration),
+   so those three targets land at their staged modes (`0644`)
+   automatically — no chmod, no spurious `git diff --summary` entries.
 
-This mode behaviour is a property of the publisher, not of these fixes, and
-applies to every human-copy apply in this epic.
+Once this batch is applied, every future human-copy apply preserves modes
+end to end (publish, `pre/` backup, and rollback alike).
 
 ```sh
 cd /Users/jrmag/Projects/active/sdd-forge-wt-epic-189
@@ -97,16 +109,18 @@ Any other output: stop, do not continue to the next batch, and read the
 failure by design — leave it in place for the next invocation's recovery
 scan.
 
-## Step 2 — restore modes, then verify (live == staged, byte for byte)
+## Step 2 — restore batch 1's mode, then verify (live == staged, byte for byte)
+
+Only batch 1's own target needs a mode fix (it was published by the old,
+mode-lossy publisher — see Step 1). Batches 2–4 landed at their staged
+modes already; if `git diff --summary` below reports a mode change on any
+of those three, stop and investigate rather than chmod-ing over it.
 
 ```sh
 cd /Users/jrmag/Projects/active/sdd-forge-wt-epic-189
 STAGE=specs/epic-189-a1-project-context/human-copy
 
 chmod 755 plugins/sdd-quality-loop/scripts/apply-human-copy.sh
-chmod 644 plugins/sdd-quality-loop/scripts/apply-human-copy.ps1 \
-          plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py \
-          plugins/sdd-quality-loop/scripts/validate-approval-sidecar.py
 
 for p in \
   plugins/sdd-quality-loop/scripts/apply-human-copy.sh \
@@ -141,7 +155,7 @@ exercise the staged bytes, which are now also the live bytes):
 
 | suite | bash | pwsh |
 |---|---|---|
-| apply-human-copy | 234 passed, 0 failed | 159 passed, 0 failed |
+| apply-human-copy | 247 passed, 0 failed | 168 passed, 0 failed |
 | generate-approval-sidecar | 69 / 0 | 67 / 0 |
 | validate-approval-sidecar | 50 / 0 | 49 / 0 |
 | ship-track-selection-migration | 139 / 0 | 139 / 0 |
