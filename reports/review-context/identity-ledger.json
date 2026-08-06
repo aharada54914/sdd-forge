@@ -4689,6 +4689,15 @@
       "host_session_id": "SESS-task-task-reviewer-a-design-sync-consent-0521",
       "previous_record_sha256": "aea6e6fa803b1c1c041b9c0307c37e0ab7f22766df910ea919b2581b3f4e0e74",
       "record_sha256": "cd9b4ee06f9db562743725200421abe2c9a7a64f122a701d5950ac390ad1e7dd"
+    },
+    {
+      "sequence": 522,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-design-sync-consent-task-task-reviewer-b-seq0522",
+      "host_session_id": "SESS-task-task-reviewer-b-design-sync-consent-0522",
+      "previous_record_sha256": "cd9b4ee06f9db562743725200421abe2c9a7a64f122a701d5950ac390ad1e7dd",
+      "record_sha256": "0da6f4171da1d54b0400ece5d9555ca908d5d76b460916ebc0164b55be461757"
     }
   ]
 }
