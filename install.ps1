@@ -623,6 +623,10 @@ try {
 
     $stagingRoot = Join-Path $installParent ("sdd-plugins-staging-" + [guid]::NewGuid())
     New-Item -ItemType Directory -Path $stagingRoot | Out-Null
+    # The staging loop below uses static .NET file APIs, which resolve
+    # relative paths against the process working directory rather than the
+    # PowerShell location -- keep the root absolute so they always agree.
+    $stagingRoot = (Resolve-Path -LiteralPath $stagingRoot).Path
     if ($isLocalSource) {
         # The mcp/ tree is excluded here even though it is Git-tracked: MCP
         # payload placement is handled exclusively by Install-McpServerPayloads
@@ -632,15 +636,27 @@ try {
         if ($LASTEXITCODE -ne 0) {
             throw "Unable to enumerate Git-tracked source files."
         }
+        # Raw .NET file APIs instead of one Get-Item/New-Item/Copy-Item
+        # provider round-trip per file: FileInfo carries the same attribute
+        # source Get-Item wraps (so the reparse-point rejection is
+        # unchanged), each parent directory is created once, and File.Copy
+        # preserves file modes just as Copy-Item does.
+        $createdDirectories = New-Object 'System.Collections.Generic.HashSet[string]'
         foreach ($relativePath in $trackedFiles) {
             $sourcePath = Join-Path $sourceRoot $relativePath
-            $sourceItem = Get-Item -LiteralPath $sourcePath -Force
+            $sourceItem = [System.IO.FileInfo]::new($sourcePath)
+            if (-not $sourceItem.Exists) {
+                throw "Missing Git-tracked source file: $relativePath"
+            }
             if (($sourceItem.Attributes -band [System.IO.FileAttributes]::ReparsePoint) -ne 0) {
                 throw "Refusing to stage Git-tracked symlink/reparse point: $relativePath"
             }
             $destination = Join-Path $stagingRoot $relativePath
-            New-Item -ItemType Directory -Path (Split-Path -Parent $destination) -Force | Out-Null
-            Copy-Item -LiteralPath $sourcePath -Destination $destination -Force
+            $parent = Split-Path -Parent $destination
+            if ($createdDirectories.Add($parent)) {
+                [System.IO.Directory]::CreateDirectory($parent) | Out-Null
+            }
+            [System.IO.File]::Copy($sourcePath, $destination, $true)
         }
     }
     else {
