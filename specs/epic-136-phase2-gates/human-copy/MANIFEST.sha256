@@ -15,5 +15,5 @@ a7cd73055b37ad9da9f1ca407f218cd68c4bdc86ceaee7ef0e621fff8271aa73  plugins/sdd-qu
 fb5342e7ba6073d3e628bfbd72ea64ee2f1ac5966acd6e42c25643db8e8928ec  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
 eed499b5626ec7a1aa70fd8ab5ce4372bac84c63d2939aba10fb51c55ae2da08  plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
 055c08bc6f7eeb807252b455346fe36d0286c16c2befc6d1582d5a38179e83c4  tests/guard-parity.tests.sh
-835f1a644abcddb728b9cc33e6c914116f1347442ccd8bbfd42b1dfacc7bb666  .github/workflows/test.yml
+59da8d6df290ae42a342ecc1a74370c2bb0ade8c74dd666cf6c3a7aa3d8a9c6e  .github/workflows/test.yml
 e00f76b687b229fb80a7ce291b9e0ec5640f5c62d8906ea37721563a7b10010a  specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1
