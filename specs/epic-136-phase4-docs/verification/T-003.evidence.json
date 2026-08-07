@@ -1,0 +1,59 @@
+{
+  "task_id": "T-003",
+  "feature": "epic-136-phase4-docs",
+  "risk": "low",
+  "required_workflow": "test-after",
+  "spec_revision": "70afe97b1d9f9ca178e151003096e4bb5de9cb17c30cfa460c037fe2bbd6d619",
+  "quality_report": "reports/quality-gate/20260807T125911Z-epic-136-phase4-docs-T-003.md",
+  "verification_contract": "specs/epic-136-phase4-docs/verification/T-003.contract.json",
+  "git_commit": "b38d55b6587dc1ec7a1f63f7762f2a0005bb22e4",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 4,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/epic-136-phase4-docs/verification/T-003.contract.json",
+      "sha256": "143a360da7c3618bcd994bf7ed7f64f13a21790a33bc66e5d538d863766eaf9f"
+    },
+    {
+      "path": "reports/quality-gate/20260807T125911Z-epic-136-phase4-docs-T-003.md",
+      "sha256": "40aa33e8736569d4e5b7964fd75b2c580fec3b0629e3477bf0f1197dcd7141db"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/T-003/green.log",
+      "sha256": "21f95605834abd5d245fac083b66dc35821d931e46d64c665d2808206be0376d"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/qg/cross-model-sh.log",
+      "sha256": "b7f2f950da84e601cc673f7b37230b40afe72209ec614bee79243dae3766f8e7"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/qg/placeholder-T-003.log",
+      "sha256": "3786ea13bcd82f362d4c7039731b2dadc932eef395ce8af5856e033fc4df26b1"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/qg/task-state.log",
+      "sha256": "db0bcf2172b30c75ec1d0edcdde580956ce600b09c1c20b041fd4e8468856639"
+    },
+    {
+      "path": "specs/epic-136-phase4-docs/verification/qg/workflow-state-tail.log",
+      "sha256": "059a5e8ac80090e8e05d030fd3445067601ceaa3e432d7b4eaa89b17e16ca1be"
+    }
+  ]
+}
