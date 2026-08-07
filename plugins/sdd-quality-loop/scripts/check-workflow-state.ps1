@@ -100,6 +100,17 @@ function Get-NormalizedHash([string]$Path, [string]$Stage) {
     try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
     finally { $sha.Dispose() }
 }
+function Get-RereviewNormalizedHash([string]$Path, [string]$Status) {
+    $text = [IO.File]::ReadAllText($Path)
+    $text = [regex]::Replace($text, "(?m)^Task-Review-Status:[^\r\n]*(\r?)$", 'Task-Review-Status: Passed$1')
+    $text = [regex]::Replace($text, "(?m)^Approval:[^\r\n]*(\r?)$", 'Approval: Approved$1')
+    $text = [regex]::Replace($text, "(?m)^Status:[^\r\n]*(\r?)$", "Status: ${Status}`$1")
+    $text = [regex]::Replace($text, "(?m)^Second Approval:[^\r\n]*\r?\n?", '')
+    $bytes = [Text.UTF8Encoding]::new($false).GetBytes($text)
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try { return [BitConverter]::ToString($sha.ComputeHash($bytes)).Replace("-", "").ToLowerInvariant() }
+    finally { $sha.Dispose() }
+}
 function Get-Header([string]$Path, [string]$Header) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return "" }
     $match = [regex]::Match([IO.File]::ReadAllText($Path), "(?m)^$([regex]::Escape($Header)):\s*(\S+)")
@@ -246,13 +257,27 @@ function Test-ManifestHashForFile(
 function Test-ReviewedHash([string]$FilePath, [string]$Stage, [string]$Candidate) {
     if ([string]::IsNullOrEmpty($Candidate)) { return $false }
     if ($Candidate -eq (Get-NormalizedHash $FilePath $Stage)) { return $true }
-    return ($Candidate -eq (Get-Sha256 $FilePath))
+    if ($Candidate -eq (Get-Sha256 $FilePath)) { return $true }
+    if ($Stage -eq "task") {
+        # A task-stage re-review binds the raw bytes of an executable state;
+        # the quality gate's later Done flips are lifecycle transitions, not
+        # body edits, and are absorbed by the two re-review canonical forms
+        # (mirrors the bash twin's rereview_normalized_hash).
+        if ($Candidate -eq (Get-RereviewNormalizedHash $FilePath "Implementation Complete")) { return $true }
+        if ($Candidate -eq (Get-RereviewNormalizedHash $FilePath "Done")) { return $true }
+    }
+    return $false
 }
 function Test-ManifestReviewedHash(
     $Contract, [string]$Suffix, [string]$FilePath, [string]$Stage, [string]$RepositoryRoot
 ) {
     if (Test-ManifestHash $Contract $Suffix (Get-NormalizedHash $FilePath $Stage) $RepositoryRoot) { return $true }
-    return Test-ManifestHash $Contract $Suffix (Get-Sha256 $FilePath) $RepositoryRoot
+    if (Test-ManifestHash $Contract $Suffix (Get-Sha256 $FilePath) $RepositoryRoot) { return $true }
+    if ($Stage -eq "task") {
+        if (Test-ManifestHash $Contract $Suffix (Get-RereviewNormalizedHash $FilePath "Implementation Complete") $RepositoryRoot) { return $true }
+        if (Test-ManifestHash $Contract $Suffix (Get-RereviewNormalizedHash $FilePath "Done") $RepositoryRoot) { return $true }
+    }
+    return $false
 }
 function Test-AllowedLayerSupersetPath(
     [string]$Path, [string]$Feature, [string]$Stage, [string]$RepositoryRoot, [string]$RecordedRoot
