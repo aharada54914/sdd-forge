@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 """Generate a CycloneDX 1.5 SBOM for sdd-forge (C-06 / supply-chain transparency).
 
-sdd-forge has no third-party *runtime* dependencies (it is shell + Python
-stdlib + Node stdlib + Markdown). Its supply chain is therefore its build/CI
-dependencies: the GitHub Actions referenced by the workflows under
-.github/workflows/. This script scans those workflows for ``uses:`` entries and
-emits one SBOM component per pinned action, plus the repository itself as the
-root component. Pinning actions to commit SHAs (H-04) means each component's
-version is the exact commit, so the SBOM records precisely what runs in CI.
+The core sdd-forge plugin suite (shell + Python stdlib + Markdown) has no
+third-party runtime dependencies, but the mcp/ directory's Node/TypeScript MCP
+servers (sdd-forge-mcp, local-env-mcp, ci-mcp) each bundle npm production
+dependencies into their dist/ build. This script's supply chain therefore has
+two parts: the GitHub Actions referenced by the workflows under
+.github/workflows/ (build/CI dependencies), and the non-dev packages recorded
+in each mcp/*/package-lock.json (runtime dependencies actually shipped in
+dist/). It scans workflows for ``uses:`` entries and each lockfile's
+``packages`` map for non-dev entries, emitting one SBOM component per pinned
+action and per npm package, plus the repository itself as the root component.
+Pinning actions to commit SHAs (H-04) means each action component's version is
+the exact commit; each npm component's version is the exact resolved version
+recorded by ``npm ci``, so the SBOM records precisely what runs in CI and what
+ships in the MCP servers.
 
 Usage:
   generate-sbom.py [--version VERSION] [--repo OWNER/REPO] [--output PATH]
@@ -24,6 +31,7 @@ import datetime
 import json
 import os
 import re
+import urllib.parse
 import sys
 
 USES_RE = re.compile(r"^\s*-?\s*uses:\s*([^\s#'\"]+)")
@@ -84,6 +92,50 @@ def collect_action_uses():
     return found
 
 
+def collect_npm_dependencies():
+    """Scan mcp/*/package-lock.json (npm lockfile v3) for non-dev packages.
+
+    Each lockfile's ``packages`` map keys entries by their path under
+    node_modules/ (e.g. ``node_modules/@scope/name`` or, for a dependency
+    nested inside another package's own node_modules,
+    ``node_modules/pkg-a/node_modules/pkg-b``); the root package itself is
+    keyed by the empty string and is skipped. Entries carrying ``"dev": true``
+    are dev-only and excluded -- they are not shipped in the esbuild dist/
+    bundle. Returns a dict keyed by "name@version" (deduping the same package
+    version recorded across multiple lockfiles) mapping to (name, version).
+    """
+    mcp_dir = os.path.join(REPO_ROOT, "mcp")
+    found = {}
+    if not os.path.isdir(mcp_dir):
+        return found
+    for entry in sorted(os.listdir(mcp_dir)):
+        lockfile = os.path.join(mcp_dir, entry, "package-lock.json")
+        if not os.path.isfile(lockfile):
+            continue
+        try:
+            with open(lockfile, encoding="utf-8") as f:
+                data = json.load(f)
+        except (OSError, ValueError):
+            continue
+        packages = data.get("packages")
+        if not isinstance(packages, dict):
+            continue
+        for path, meta in packages.items():
+            if not path or not isinstance(meta, dict):
+                continue  # "" is the root package entry, not a dependency.
+            if meta.get("dev"):
+                continue
+            version = meta.get("version")
+            if not isinstance(version, str):
+                continue
+            # A dependency nested inside another package's own node_modules
+            # repeats the "node_modules/" separator; the real package name is
+            # whatever follows the LAST occurrence.
+            name = path.rsplit("node_modules/", 1)[-1]
+            found[f"{name}@{version}"] = (name, version)
+    return found
+
+
 def build_sbom(version, repo):
     """Build a CycloneDX SBOM dict for the given plugin version and GitHub repo slug."""
     timestamp = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
@@ -101,6 +153,15 @@ def build_sbom(version, repo):
         if subpath:
             comp["properties"] = [{"name": "github:action:subpath", "value": subpath.lstrip("/")}]
         components.append(comp)
+    for name, version_ in sorted(collect_npm_dependencies().values()):
+        # Canonical purl form percent-encodes the scope's "@" (purl-spec npm
+        # examples: pkg:npm/%40angular/animation@12.3.1).
+        components.append({
+            "type": "library",
+            "name": name,
+            "version": version_,
+            "purl": f"pkg:npm/{urllib.parse.quote(name, safe='/')}@{version_}",
+        })
     return {
         "bomFormat": "CycloneDX",
         "specVersion": "1.5",
@@ -138,7 +199,7 @@ def main(argv):
         with open(args.output, "w", encoding="utf-8") as f:
             f.write(text)
         sys.stderr.write(
-            f"Wrote SBOM for {args.repo}@{version} with {len(sbom['components'])} CI component(s) to {args.output}\n"
+            f"Wrote SBOM for {args.repo}@{version} with {len(sbom['components'])} component(s) to {args.output}\n"
         )
     else:
         sys.stdout.write(text)
