@@ -192,13 +192,28 @@ Write-TasksNoConsent -Path (Join-Path $d "tasks.md")
 Write-CleanInput     -Path (Join-Path $d "input.txt")
 $outFile = Join-Path $d "out.txt"
 
-Invoke-Prepare @(
-    "--task", "T-004",
-    "--feature", "cross-model-verification",
-    "--input", (Join-Path $d "input.txt"),
-    "--tasks-file", (Join-Path $d "tasks.md"),
-    "--out", $outFile
-)
+# Hermetic consent denial: PP-001 passes no --project-root, so the script
+# walks up from CWD and can find an operator's live SDD_SUDO token at the
+# real repo root — which ~/.sdd/sudo-key would legitimately verify, granting
+# consent and breaking the fixture assumption. A dummy key wins the script's
+# key-resolution order, so no real token can ever verify during the fixture;
+# SDD_SUDO_SKIP_SIG=0 shields against the skip flag leaking in from the env.
+$prevPP001Key     = $env:SDD_SUDO_KEY
+$prevPP001SkipSig = $env:SDD_SUDO_SKIP_SIG
+$env:SDD_SUDO_KEY      = "0" * 64
+$env:SDD_SUDO_SKIP_SIG = "0"
+try {
+    Invoke-Prepare @(
+        "--task", "T-004",
+        "--feature", "cross-model-verification",
+        "--input", (Join-Path $d "input.txt"),
+        "--tasks-file", (Join-Path $d "tasks.md"),
+        "--out", $outFile
+    )
+} finally {
+    if ($null -eq $prevPP001Key) { Remove-Item Env:SDD_SUDO_KEY -ErrorAction SilentlyContinue } else { $env:SDD_SUDO_KEY = $prevPP001Key }
+    if ($null -eq $prevPP001SkipSig) { Remove-Item Env:SDD_SUDO_SKIP_SIG -ErrorAction SilentlyContinue } else { $env:SDD_SUDO_SKIP_SIG = $prevPP001SkipSig }
+}
 
 if ($script:PP_Exit -ne 0) {
     ok "PP-001a: no consent → non-zero exit ($($script:PP_Exit))"
