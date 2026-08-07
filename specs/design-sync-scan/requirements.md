@@ -42,17 +42,17 @@ All three detection categories (REQ-003) run in a single invocation. No flag sel
 
 A target directory that exists but contains zero `.html` files exits 0 and is not treated as an error — consistent with `SKILL.md`'s non-blocking invariant ("absence of mockups... never blocks specification review"). A feature with no mockups yet has nothing to scan, and that is not a failure of the scan.
 
-### REQ-002 — the exit-code contract is exactly three-valued, and it is fail-closed
+### REQ-002 — the exit-code contract is exactly three-valued, fail-closed, and its two blocking codes are not interchangeable
 
-The contract is decided, not left to the implementation: **0** = no detection, upload may proceed; **1** = at least one detection, upload must not proceed without an explicit human override (REQ-006); **2** = the tool itself could not complete the scan, treated identically to a detection for gating purposes (fail-closed) but distinguished in wording from a genuine finding, so an operator debugging a missing script or a permissions error is not misdirected into hunting for a secret that was never found.
+The contract is decided, not left to the implementation, and its precedence is decided too: a tool-error condition is evaluated **before** either detection outcome, so a scan that does not complete is never reported as either clean or as having found nothing. **0** = the scan *completed* and found zero detections, upload may proceed; **1** = the scan *completed* and found at least one detection, upload must not proceed without an explicit human override granted against *that scan's own disclosed findings* (REQ-006); **2** = the scan *did not complete* — a tool error, not a detection outcome, so whether the payload contains anything is genuinely unknown. Exit 2 is fail-closed **and carries no override path**: an override is by definition a decision about findings a human has been shown, and exit 2 discloses none, so there is nothing for a human to approve. A caller must not read "both exit 1 and exit 2 block the push" as meaning the two are interchangeable — exit 1's block can be lifted, once, by a human decision about exactly what it found; exit 2's block cannot be lifted by any decision available at the check point at all, and is distinguished in wording from a genuine finding so an operator debugging a missing script or a permissions error is not misdirected into hunting for a secret that was never found.
 
 #### AC-005
 
-Exit code is 0 if and only if no pattern in any of the three categories matched anywhere in the scanned set.
+Exit code is 0 if and only if the scan **completes** — none of AC-007's tool-error conditions occurred — **and** no pattern in any of the three categories matched anywhere in the scanned set. A scan that does not complete is never reported as 0, regardless of what it would have found had it run; completion is evaluated first, and only a completed scan's finding count then decides between 0 and 1.
 
 #### AC-006
 
-Exit code is 1 if and only if at least one pattern matched, in one or more of the three categories. Each category independently reaching exit 1 is verified on its own, and a mixed-category case is verified separately again, so a category that only ever triggers detection while riding alongside another category's finding does not go unnoticed:
+Exit code is 1 if and only if the scan **completes** and at least one pattern matched, in one or more of the three categories. Each category independently reaching exit 1 is verified on its own, and a mixed-category case is verified separately again, so a category that only ever triggers detection while riding alongside another category's finding does not go unnoticed:
 
 1. a placeholder-only fixture exits 1;
 2. a secret-only fixture exits 1;
@@ -61,15 +61,20 @@ Exit code is 1 if and only if at least one pattern matched, in one or more of th
 
 #### AC-007
 
-Exit code is 2 for a tool error, enumerated exhaustively rather than left open-ended: a missing or invalid positional argument; a target directory that does not exist; and a file under the target directory that cannot be read. Each is its own branch because each is a different failure a caller must be able to tell apart from the others when triaging a red run:
+Exit code is 2 for a tool error, enumerated exhaustively rather than left open-ended: a missing or invalid positional argument; a target directory that does not exist; and a file under the target directory that cannot be read. Each is its own branch because each is a different failure a caller must be able to tell apart from the others when triaging a red run, and a fourth property holds across all three branches together: **none of them is eligible for a human override** — the override in REQ-006 is a decision about the findings a completed scan disclosed, and none of these branches produced any:
 
-1. no argument, or more arguments than the contract defines, exits 2 with a usage diagnostic;
-2. a nonexistent target directory exits 2 with a diagnostic naming the missing path;
-3. an unreadable `.html` file under an otherwise valid target directory exits 2 with a diagnostic naming the file — the scan does not silently skip a file it could not read and report the rest as clean, mirroring the fail-closed discipline `check-placeholders.sh`/`.ps1` already established for issue #127 (grep exit ≥2, or a PowerShell path/read failure).
+1. **zero arguments** exits 2 with a usage diagnostic;
+2. **more arguments than the contract defines** exits 2 with a usage diagnostic — its own branch, distinct from branch 1, because a caller passing an extra stray argument is a different mistake from a caller passing none, and a diagnostic written only for the empty-argument case may not fire, or may fire with misleading wording, on the too-many-arguments case;
+3. a nonexistent target directory exits 2 with a diagnostic naming the missing path;
+4. an unreadable `.html` file under an otherwise valid target directory exits 2 with a diagnostic naming the file — the scan does not silently skip a file it could not read and report the rest as clean, mirroring the fail-closed discipline `check-placeholders.sh`/`.ps1` already established for issue #127 (grep exit ≥2, or a PowerShell path/read failure).
 
 #### AC-008
 
-The usage/argument-error branch of AC-007 exits 2, not 1 — stated because it is a deliberate divergence from `check-placeholders.sh`, whose own missing-argument branch exits 1 (conflating "bad usage" with "markers found" under one code, `check-placeholders.sh:6-9`). This script's two failure codes carry different caller-facing meanings and must not be collapsed into one: a caller that branches on exit code to decide whether to show "here is what was found" versus "the tool did not run" would show the wrong message on any invocation-error path if the two were conflated.
+The usage/argument-error branches of AC-007 (both 1 and 2) exit 2, not 1 — stated because it is a deliberate divergence from `check-placeholders.sh`, whose own missing-argument branch exits 1 (conflating "bad usage" with "markers found" under one code, `check-placeholders.sh:6-9`). This script's two failure codes carry different caller-facing meanings and must not be collapsed into one: a caller that branches on exit code to decide whether to show "here is what was found" versus "the tool did not run" would show the wrong message on any invocation-error path if the two were conflated.
+
+#### AC-037
+
+`design-sync-loop/SKILL.md` step 5 states, for the exit-2 branch specifically, that it is unconditionally blocking with **no override affordance offered at all** — distinct in kind, not only in wording, from exit 1's block, which the same step states a human *can* explicitly lift (AC-020). The skill's diagnostic-wording requirement (AC-007's "distinguished... from a genuine finding") is restated here as a text the skill itself must carry, not only a property of the script's own stdout: an operator reading the skill, not only the script's output, must be able to tell a tool error from a finding before deciding there is nothing to do about it but wait for the tool to work. Added in response to adversarial review (item 9); it is the skill-text counterpart to AC-007's script-level contract, exactly as AC-016 is the skill-text counterpart to AC-013's script-level report contract.
 
 ### REQ-003 — the three detection categories are named, and their exact pattern sets are enumerated in `design.md`, not deferred to the implementer
 
@@ -85,11 +90,15 @@ The secret category's pattern set is enumerated by name in `design.md`, each mem
 
 #### AC-011
 
-The PII category is exactly two patterns, both named and both justified for their false-positive/false-negative trade-off in `design.md`: a conservative email-shaped pattern that excludes RFC 2606 reserved placeholder domains and TLDs (`example.com`/`.net`/`.org`/`.edu`, and the `.test`/`.example`/`.invalid`/`.localhost` TLDs), and a conservative E.164-shaped phone pattern. Neither category grows a third pattern without a design.md amendment — an unbounded, ad hoc PII pattern list is exactly the scope creep this feature must not become.
+The PII category is exactly two patterns, both named and both justified for their false-positive/false-negative trade-off in `design.md`: a conservative email-shaped pattern (P1) that excludes RFC 2606 reserved placeholder domains and TLDs (`example.com`/`.net`/`.org`, and the `.test`/`.example`/`.invalid` TLDs) plus `.localhost` (RFC 6761, a separate reservation cited on its own terms) — and **not** `.edu`, which neither RFC reserves and which this document's own first draft incorrectly included, a defect corrected here rather than silently carried forward — and a conservative E.164-shaped phone pattern (P2) that is bounded on both sides (not by its digit-count quantifier alone), so that a too-short run, a too-long run, and a valid-length run immediately adjacent to another digit each fail to match rather than the quantifier bound being trusted to prevent a substring match inside a longer run. Neither category grows a third pattern without a design.md amendment — an unbounded, ad hoc PII pattern list is exactly the scope creep this feature must not become.
 
 #### AC-012
 
 Every reported finding is labelled with its category (`placeholder`, `secret`, or `PII`). A report that aggregates "N finding(s)" without saying which category each belongs to fails this criterion, because REQ-004's presentation to the human depends on the human being able to triage by category.
+
+#### AC-038
+
+`design.md`'s pattern catalogue specifies S7 and P2 — the two patterns whose portable expression needs a boundary or character-class construct — in **two forms each**: a POSIX ERE form for `.sh` and a `.NET`-regex form for `.ps1`, because POSIX ERE has no lookaround and the two engines' boundary idioms are not interchangeable syntax. The two forms are required to classify one shared fixture corpus (REQ-009's corpus, extended with the boundary fixtures this criterion requires) identically — same match/no-match verdict, same category — so "ported to `.ps1`" means "verified to agree with the `.sh` form," not "compiles under PowerShell." The corpus must include, at minimum, P2's three negative boundary shapes (a 7-digit run, a 16-digit run, and a valid-length run immediately digit-adjacent) and S7's bare-keyword/empty-value negative shape (already required by AC-010/TEST-021), because these are exactly the constructs whose per-engine expression differs and are therefore where a translation error is most likely to hide. Added in response to adversarial review (item 4/Ruling D).
 
 ### REQ-004 — a detection blocks the upload, and the findings are presented to the human without re-exposing the sensitive value itself
 
@@ -133,11 +142,11 @@ The Loop's step order — generate → consent → **check point** → push → 
 
 ### REQ-006 — the false-positive override is an explicit, human-gated, single-scan-scoped procedure, and its outcome is recorded
 
-The issue's third acceptance box: "誤検知時の override 手順が明記されている" (the override procedure for a false positive is documented). This requirement fixes both the procedure and its scope, because an override that silently persists across a regenerated mockup set would quietly recreate the gap this feature exists to close — a human approves *this* scan's findings, not a standing exemption for the feature.
+The issue's third acceptance box: "誤検知時の override 手順が明記されている" (the override procedure for a false positive is documented). This requirement fixes both the procedure and its scope, because an override that silently carried forward across a regenerated mockup set would quietly recreate the gap this feature exists to close — a human approves *this* scan's findings, not a standing exemption for the feature.
 
 #### AC-020
 
-`SKILL.md` states an explicit override affordance: after being presented with findings, a human may explicitly approve continuing despite them. Absent that explicit approval, the push does not occur — silence, a non-response, or an agent's own judgment is not an override.
+`SKILL.md` states an explicit override affordance: after being presented with findings, a human may explicitly approve continuing despite them. Absent that explicit approval, the push does not occur — silence, a non-response, or an agent's own judgment is not an override. This affordance exists only for exit 1 (findings a human has actually been shown); exit 2 (tool error) offers no equivalent affordance at all, per AC-037 — there is nothing disclosed for a human to approve on that branch.
 
 #### AC-021
 
@@ -176,7 +185,7 @@ No upload path in the loop bypasses the now-active check point. Verified structu
 
 #### AC-028
 
-The existing `tests/design-system-contract.tests.{sh,ps1}` suite — its `DS-006` block, and `design-sync-consent`'s own structural assertions covering step order, the `Egress-Consent*` field names, and the no-bypass property — passes unmodified after this feature's `SKILL.md` edit. No test in that suite requires a source change; a failure there is evidence this feature broke a locked invariant, not something to accommodate by editing the lock.
+The existing `tests/design-system-contract.tests.{sh,ps1}` suite — its `DS-006` block, and `design-sync-consent`'s own structural assertions covering step order, the `Egress-Consent*` field names, and the no-bypass property — introduces **zero new failures** against its documented baseline after this feature's `SKILL.md` edit. This is stated relative to a documented baseline, not as an unconditional "the suite passes," because that suite already contains `design-sync-consent`'s own TEST-039 as a *designed* red pending a CI-registration patch this feature has no authority to apply (`design-sync-consent/acceptance-tests.md`'s own TEST-039 discussion). No test in that suite requires a source change from this feature; a *new* failure there is evidence this feature broke a locked invariant, not something to accommodate by editing the lock — and TEST-039 staying exactly as red as it already documented itself to be is not a new failure.
 
 ### REQ-008 — the scan is independently runnable as a manual pre-fallback check on a host without `DesignSync`
 
@@ -235,11 +244,12 @@ CI registration of the new suite in `.github/workflows/test.yml` is **not** insi
 
 1. **No mockups exist yet.** The scan is invoked (or invocable) before `specs/<feature>/mockups/` has any content, or before the directory exists at all. Resolved by AC-004 and AC-007 branch 2 respectively: an existing-but-empty directory is clean (exit 0); a genuinely nonexistent directory is a tool error (exit 2) distinct from "nothing to scan" — the Loop only ever invokes the scan after step 2 (Generate mockups) has run, so a nonexistent directory at that point is itself informative (something upstream did not do what the Loop assumes), not a condition the scan should paper over as clean.
 2. **A regenerated mockup set after an override.** `SKILL.md`'s cycle returns to step 2 (generate) after every review (`design-sync-consent`'s step 7), so a scan granted an override on revision *n* faces revision *n+1* fresh. Resolved by AC-021: the override does not carry forward; every scan invocation is evaluated on its own, including one that reproduces identical findings.
-3. **A legitimate string repeatedly resembling a false positive.** A mockup that genuinely, correctly contains something matching a PII or secret shape (a support contact's real email address in a "Contact Us" mockup; a field labelled "API Key" in a settings-page mockup with no real value present) triggers a finding on every regeneration and requires override every time under Edge Case 2's no-persistence rule. This is a stated usability cost, not an oversight: the alternative — letting a prior override apply to new content — is exactly the standing-exemption gap this feature exists to prevent (`security-spec.md`'s R1 discussion). The RFC 2606 exclusion (AC-011) and value masking (AC-014) reduce friction and disclosure risk respectively; they do not eliminate the cost.
+3. **A legitimate string repeatedly resembling a false positive.** A mockup that genuinely, correctly contains something matching a PII or secret shape (a support contact's real email address in a "Contact Us" mockup; a field labelled "API Key" in a settings-page mockup with no real value present) triggers a finding on every regeneration and requires override every time under Edge Case 2's no-carry-forward rule. This is a stated usability cost, not an oversight: the alternative — letting a prior override apply to new content — is exactly the standing-exemption gap this feature exists to prevent (`security-spec.md`'s R1 discussion). The RFC 2606 exclusion (AC-011) and value masking (AC-014) reduce friction and disclosure risk respectively; they do not eliminate the cost.
 4. **A non-HTML file under the target directory.** A JSON data fixture, an image, or stray notes placed inside `specs/<feature>/mockups/` are not scanned (Non-goals). A secret or PII string inside such a file is a gap this feature does not close.
 5. **Divergent regex-engine behaviour between POSIX ERE (`grep -E`) and .NET regex (PowerShell).** Patterns in this feature are restricted to a common, boring subset — literal prefixes, character classes, `{n}`/`{n,}` interval quantifiers, and the case-sensitive/case-insensitive split already used by `check-placeholders.sh` — deliberately avoiding constructs such as inline `(?i)` flags (a .NET-regex idiom with no POSIX ERE equivalent) that would otherwise force the two runtimes to diverge structurally rather than merely require careful porting. AC-033's case-sensitivity sweep is the mechanical check that this restriction was actually honoured.
 6. **A `.ps1` invocation against a path with characters POSIX and PowerShell path handling treat differently** (embedded spaces, mixed `/`/`\`, non-ASCII path segments). Not resolved here; re-verify at implementation time against the shared fixture corpus (REQ-009), following the same "re-verify before relying on it" discipline the Assumptions section states for shared repository state.
 7. **A finding on a line so long that printing it in full would flood the report** (a minified or single-line mockup, plausible for generated HTML). Not resolved here as a fixed truncation width; recorded as an implementation-time decision that must preserve AC-013's "sufficient to locate" property and AC-014's masking property together — truncation must not itself become a way to accidentally show more of a masked value than the masking rule intends.
+8. **A valid-length digit run sitting immediately next to another digit** (a 20-digit tracking number in a mockup, one 10-digit substring of which happens to be a plausible E.164 shape; a phone number rendered with an extra trailing check-digit). Resolved by P2's both-sides boundary (AC-011, design.md's dual-form block): a match must be flanked by a non-digit or a string edge on both sides, so a substring embedded in a longer digit run does not match even though its own 8–15 digits would satisfy the length quantifier in isolation. Named as its own edge case, distinct from Edge Case 5's regex-portability concern, because this is a **correctness** property of the pattern itself (what should and should not count as a phone number), not a portability property of how the same pattern is expressed per engine — AC-038 covers the portability half, this edge case and its negative fixtures (7-digit, 16-digit, digit-adjacent) cover the correctness half.
 
 ## Assumptions
 
@@ -255,7 +265,7 @@ CI registration of the new suite in `.github/workflows/test.yml` is **not** insi
 
 - **BL-001 — the pre-upload check point is not duplicated or relocated.** `SKILL.md` step 5 remains the single named point every upload path passes through (AC-026, AC-027).
 - **BL-002 — `design-sync-consent`'s consent model is unmodified.** `Egress-Consent`, `Egress-Consent-Scope`, `Egress-Consent-Subject`, `Egress-Destination`, `Egress-Consent-Expiry`, the feature∧session scope rule, expiry, withdrawal, the transient-decline rule, and the push-failure rule are all untouched by this feature (AC-024, AC-025).
-- **BL-003 — the existing `tests/design-system-contract.tests.{sh,ps1}` suite passes unmodified.** No source change to that suite is required by this feature (AC-028).
+- **BL-003 — the existing `tests/design-system-contract.tests.{sh,ps1}` suite introduces zero new failures against its documented baseline** (which already includes `design-sync-consent`'s TEST-039 as a designed red). No source change to that suite is required by this feature (AC-028).
 - **BL-004 — `.github/workflows/test.yml` is protected and is not written by this feature's tasks.** CI registration of the new suite is a separately staged, human-applied patch (AC-036). Re-verify per Assumptions before relying on this.
 - **BL-005 — `specs/workflow-state-registry.json` needs an entry for this feature**, per `check-workflow-state.sh:130-134`.
 

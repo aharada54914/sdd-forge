@@ -28,4 +28,4 @@ An operator who reaches the manual fallback under `off` sees no explanation of *
 
 ## Open Questions
 
-- product: **OQ-2** — `Egress-Consent-Party`'s exact value for a `standing` write is what an operator would see if they went looking at `Design-Source`; the phrasing chosen affects how legible the record is to a human auditor, even though nothing here requires it be operator-facing at the point of upload. Non-blocking.
+- product: **OQ-2** — `Egress-Consent-Party`'s exact value for a `standing` **or `off`** write (round 2: broadened — `off`'s not-permitted outcome has the identical no-live-human property `standing`'s grant does, per `requirements.md` AC-019) is what an operator would see if they went looking at `Design-Source`; the phrasing chosen affects how legible the record is to a human auditor, even though nothing here requires it be operator-facing at the point of upload. Non-blocking.
