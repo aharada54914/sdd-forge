@@ -1,0 +1,73 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "design-sync-scan",
+  "run_id": "RUN-design-sync-scan-task-task-reviewer-b-seq0555",
+  "host_session_id": "SESS-task-task-reviewer-b-design-sync-scan-0555",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "bf067011a6758021a8fbb00f3399866bd6fb4418ba23042f770e74ccd40e5298",
+  "previous_record_sha256": "509f33d5b08b9eefce8b54a8fd5ed6815852e013f047ccd6a4d9eafd87f8ccb7",
+  "sequence": 555,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-classification-policy.md",
+      "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+      "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "reports/task-review/design-sync-scan/attempt-1/round-1/integrated-summary.json",
+      "sha256": "8019359b10af97db7415c2b27f2d508429a4f9ad71a976ed264ee23acd2eac66"
+    },
+    {
+      "path": "reports/task-review/design-sync-scan/attempt-1/round-1/precheck-result.json",
+      "sha256": "d0d770856534d3625ed6f3cc8220e54d6efd8dc11c978c37b44379ea9e9ad818"
+    },
+    {
+      "path": "specs/design-sync-scan/acceptance-tests.md",
+      "sha256": "c6b1b55137764cbfe4af6d8616f44fb11102d50096cf239956f6b7fcf70f00f7"
+    },
+    {
+      "path": "specs/design-sync-scan/design.md",
+      "sha256": "2c8583fc2d049eaafc22cde106c092050d7e3252a387fec0ad7aa86afe259756"
+    },
+    {
+      "path": "specs/design-sync-scan/frontend-spec.md",
+      "sha256": "535e8276e4265022643ab0f96b7c8d619494ae593eefc8b5c6b5dda65fe6c291"
+    },
+    {
+      "path": "specs/design-sync-scan/infra-spec.md",
+      "sha256": "a908b7e24cf308e8cc4a94dd7f6c786e07d09ec4b7cd939e118de2cfa3d3f410"
+    },
+    {
+      "path": "specs/design-sync-scan/requirements.md",
+      "sha256": "354fb581c98441c02894f4a66c4e331b28165f426ab4ef822e93a2c9ccb51a01"
+    },
+    {
+      "path": "specs/design-sync-scan/security-spec.md",
+      "sha256": "3b59d7e0e8ae1e1cfb03d1ce6b42238fdaef51598014a689ba0306af01f2792a"
+    },
+    {
+      "path": "specs/design-sync-scan/tasks.md",
+      "sha256": "bc3fb68fbdf8b3a73f72363a4b6ab9e7e52b7e684e722ab93f7a62d3691a8a00"
+    },
+    {
+      "path": "specs/design-sync-scan/traceability.md",
+      "sha256": "1ba636c49eee5aff0608eb5d142d6e1b89da6eb34f9dcc410b876854ed350ee4"
+    },
+    {
+      "path": "specs/design-sync-scan/ux-spec.md",
+      "sha256": "4f63869ff536f816bc8bd4d9f59d29a45e547c35f53dc66c902450e156a8c554"
+    }
+  ]
+}

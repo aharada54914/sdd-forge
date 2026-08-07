@@ -1,6 +1,6 @@
 # Tasks: design-sync-standing-consent
 
-Task-Review-Status: Pending
+Task-Review-Status: Passed
 
 Source: Issue [#140](https://github.com/aharada54914/sdd-forge/issues/140)
 (`enhancement`, `workflow-improvement`; key `DS-31`, epic #136). Depends on

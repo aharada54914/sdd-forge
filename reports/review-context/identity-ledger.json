@@ -4968,6 +4968,42 @@
       "host_session_id": "SESS-impl-a1r1-b-designsyncstandingconsent-0552",
       "previous_record_sha256": "bad48f0748abed0cf3417e1c34a88e6a08b21e8c339e7bea3ce93c757032a6af",
       "record_sha256": "d99ab106ee1a096491debe7636407a5915a3c47648c34fb6d10c4481757e466b"
+    },
+    {
+      "sequence": 553,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-design-sync-scan-task-task-reviewer-a-seq0553",
+      "host_session_id": "SESS-task-task-reviewer-a-design-sync-scan-0553",
+      "previous_record_sha256": "d99ab106ee1a096491debe7636407a5915a3c47648c34fb6d10c4481757e466b",
+      "record_sha256": "f4a3f5d4663283010cc41c856d2a309543e3eed138057d4e3401dc5534871a75"
+    },
+    {
+      "sequence": 554,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-design-sync-standing-consent-task-task-reviewer-a-seq0554",
+      "host_session_id": "SESS-task-task-reviewer-a-design-sync-standing-consent-0554",
+      "previous_record_sha256": "f4a3f5d4663283010cc41c856d2a309543e3eed138057d4e3401dc5534871a75",
+      "record_sha256": "509f33d5b08b9eefce8b54a8fd5ed6815852e013f047ccd6a4d9eafd87f8ccb7"
+    },
+    {
+      "sequence": 555,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-design-sync-scan-task-task-reviewer-b-seq0555",
+      "host_session_id": "SESS-task-task-reviewer-b-design-sync-scan-0555",
+      "previous_record_sha256": "509f33d5b08b9eefce8b54a8fd5ed6815852e013f047ccd6a4d9eafd87f8ccb7",
+      "record_sha256": "f7415ba8886ee2a3cf038956c64db4f465b138289ec0d8fd0ef252264a0afc7c"
+    },
+    {
+      "sequence": 556,
+      "stage": "task",
+      "role": "task-reviewer-b",
+      "run_id": "RUN-design-sync-standing-consent-task-task-reviewer-b-seq0556",
+      "host_session_id": "SESS-task-task-reviewer-b-design-sync-standing-consent-0556",
+      "previous_record_sha256": "f7415ba8886ee2a3cf038956c64db4f465b138289ec0d8fd0ef252264a0afc7c",
+      "record_sha256": "8baee6a1b5b8374d9aafbc844b2d9d8b991b6b3023fdefb9988b3a87138d9925"
     }
   ]
 }
