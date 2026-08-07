@@ -214,8 +214,11 @@ Done-When:
       (BL-002), verified by diff, not by assertion.
 - [ ] TDD Red -> Green evidence is recorded in the implementation report with the
       two stages explicitly separated: RED — the AC-003 configuration cases and
-      the AC-004 sub-cases (a), (b) and (c) captured failing against the current
-      unbounded runners, before any edit to `run-panelist-gpt.sh` or
+      the AC-004 sub-cases (a) and (b) captured failing against the current
+      unbounded runners — sub-case (c) is structurally not red-capturable
+      (an unbounded runner lets the near-boundary completion succeed), so its
+      coverage is the GREEN-side test that exercises the post-deadline
+      re-check branch; ruled by human decision 2026-08-07, before any edit to `run-panelist-gpt.sh` or
       `run-panelist-gemini.sh`; GREEN — the same cases passing after the
       implementation, with every pre-existing suite case still passing unmodified
       (high-risk requirement, risk-gate-matrix.md).
@@ -352,8 +355,13 @@ Done-When:
       timeout paths the vendor CLI happens to take (AC-002). Neither CLI is
       pinned or vendored, so a rate-limit-specific guarantee would be
       unverifiable; the document states the limitation instead of inventing one.
-- [ ] The existing fail-closed statements at the line ranges design.md cites are
-      **unchanged** (BL-003), verified by diff.
+- [ ] The existing fail-closed statements at the line ranges design.md cites
+      keep their fail-closed posture (BL-003): `:28-31` byte-identical,
+      verified by diff; the block design.md cites as `:202-210` (shifted to
+      `:203-211` by the design-specified taxonomy-row insertion) carries
+      exactly one content change — the factually wrong no-verdict exit code
+      (1) corrected to the actual behaviour (2 — tool error, still fail
+      closed) — ratified by human decision 2026-08-07.
 - [ ] TEST-001 and TEST-002 pass in both suites.
 
 ## T-004 Add the OWASP LLM Top 10 and MCP cross-references to the threat model
