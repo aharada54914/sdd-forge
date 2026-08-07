@@ -76,7 +76,11 @@ A second, smaller choice: the three new record fields (`Egress-Consent-Party`, `
 
 Project-level configuration keys agents must honor. An absent key, or an
 absent section entirely, uses the stated default. Both absences are
-independently tested (requirements.md AC-003).
+independently tested (requirements.md AC-003). A present key whose value is
+not exactly one of the listed lowercase literals -- a typo, a case variant
+such as `Standing`, or an unknown value -- also uses the stated default,
+by exact case-sensitive matching (round 3, ruling F / requirements.md
+AC-031): never `standing`, never `off`.
 
 | Key | Values | Default | Meaning |
 |---|---|---|---|
@@ -91,7 +95,9 @@ Placeholders marked `⟨OQ-n⟩` are this document's own open questions (`requir
 
 ```
 3. **Resolve egress consent.** Read the project's `ds_upload_consent` setting
-   (AGENTS.md -> Project Settings; absent -> per-feature) EVERY TIME this
+   (AGENTS.md -> Project Settings; absent, or present with a value that is
+   not exactly one of the three lowercase literals -> per-feature; matching
+   is exact and case-sensitive -- round 3, ruling F) EVERY TIME this
    step is resolved -- never a value cached from an earlier resolution in
    the same session (round 2, ruling A / requirements.md AC-020). Three
    regimes:

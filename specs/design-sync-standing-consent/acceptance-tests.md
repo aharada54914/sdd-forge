@@ -6,6 +6,8 @@ Where a criterion's own language enumerates branches or quantifies over conditio
 
 **Revision note (round 2).** A Codex adversarial review found one Critical finding and fourteen other findings against round 1 of this matrix (28 rows, `TEST-001`–`TEST-028`) and its sibling `requirements.md` / `design.md`. This revision expands the matrix to 54 rows, splitting several round-1 rows that combined independently-failable claims, sharpens several assertions into executable oracles, corrects the Critical finding (round 1's own `TEST-022` row required a fallback bullet that named the literal setting key — a file whose own regression test forbids the substring that key contains), and moves the one CI-dependent row into a dedicated "Deferred (non-blocking verification)" section. Round-1 Test IDs are **not** preserved positionally — the whole matrix is renumbered once, here, rather than leaving two generations of IDs to cross-reference, because round 1 was never referenced from outside this spec directory (no task, no implementation, no evidence bundle exists yet that cites a round-1 Test ID).
 
+**Revision note (round 3, spec-review).** The spec-review loop's round-1 reviewer B found two Major findings — both the same underlying gap: no REQ/AC/TEST decided what a present `ds_upload_consent` key with an out-of-domain value resolves to. Ruling F (`requirements.md` → Resolutions, round 3) decides it: exact case-sensitive matching, unrecognized values resolve to `per-feature`. This revision appends AC-031's two rows — **TEST-055** (the resolution rule) and **TEST-056** (the matching-exactness rule) — to the main matrix, without renumbering or redefining any existing row, following the same append-only discipline as round 2.
+
 ## Test Matrix
 
 | Test ID | AC | REQ | Test Type | Target | Assertion in one line |
@@ -63,10 +65,12 @@ Where a criterion's own language enumerates branches or quantifies over conditio
 | TEST-051 | AC-025 | REQ-009 | external-suite regression (baseline-relative) | `tests/design-system-contract.tests.{sh,ps1}` | zero rows flip from green (pre-change baseline) to red (post-change); `TEST-010`/`TEST-015`/`TEST-018`/`TEST-026`/`TEST-040` checked explicitly as the rows this feature's edit shape most directly exposes |
 | TEST-052 | AC-026 | REQ-009 | external-suite regression (baseline-relative) | same, `TEST-021` specifically | DS-29's `TEST-021` is green in both the pre- and post-change runs, re-verified from this feature's own suite, covering both the general "consent" sweep and the literal-key ban |
 | TEST-053 | AC-027 | REQ-010 | registration conformance | `tests/run-all.sh`, `tests/run-all.ps1` | the new suite's two files are both registered |
+| TEST-055 | AC-031 | REQ-001 | document conformance | `AGENTS.md` | branch 3 (round 3, ruling F): a present key whose value is outside `standing \| per-feature \| off` is stated to resolve to `per-feature`, never `standing`, never `off` |
+| TEST-056 | AC-031 | REQ-001 | document conformance | `AGENTS.md` | value matching is stated as exact and case-sensitive (a case variant such as `Standing` is out-of-domain input, resolved per TEST-055) |
 
 ## Deferred (non-blocking verification)
 
-**Round 2, ruling E.** The one row below is presented separately from the Test Matrix above, rather than inside it, because it is expected to be **red on the live tree at authoring time and to remain red until a human applies a staged patch that is out of this feature's own control** — the same designed fail-closed state as DS-29's own `TEST-039`. Placing it in the main matrix, next to fifty-three rows that are all expected to go green once this feature is implemented, would read as an authoring defect the first time someone runs the suite; this section exists so it reads instead as the deliberate, documented gap it is.
+**Round 2, ruling E.** The one row below is presented separately from the Test Matrix above, rather than inside it, because it is expected to be **red on the live tree at authoring time and to remain red until a human applies a staged patch that is out of this feature's own control** — the same designed fail-closed state as DS-29's own `TEST-039`. Placing it in the main matrix, next to fifty-five rows that are all expected to go green once this feature is implemented, would read as an authoring defect the first time someone runs the suite; this section exists so it reads instead as the deliberate, documented gap it is.
 
 | Test ID | AC | REQ | Test Type | Target | Assertion in one line |
 |---|---|---|---|---|---|
@@ -87,6 +91,10 @@ Deliberately structured like DS-29's own `TEST-015` for `Design-Source`: `## Pro
 ### TEST-003 / TEST-004 (AC-003) — two absences, two rows (round 2, finding 6)
 
 Round 1 combined "no section" and "section but no key" into one assertion. Split because an implementation can satisfy one and miss the other: a whole-file default (if `## Project Settings` is missing entirely, assume `per-feature`) does not automatically also handle a present-but-incomplete section, and a table-driven default lookup (read the `ds_upload_consent` row's `Default` cell) does not automatically also handle the section being absent in the first place, since there is no row to look up. **TEST-003** asserts the wholly-absent case; **TEST-004** asserts the present-section-missing-key case. Both must pass independently for AC-003 to hold.
+
+### TEST-055 / TEST-056 (AC-031) — the third degenerate input, two independently-failable claims (round 3, ruling F)
+
+TEST-003/TEST-004 decided the two *absence* cases; the spec-review round-1 reviewer B found the third degenerate input — a key that is present with an out-of-domain value — undecided. Two rows, because the two claims fail independently: an implementation could resolve unknown values to `per-feature` (satisfying TEST-055's letter) while case-folding `Standing` into `standing` — silently granting no-prompt egress from a one-character typo, exactly the fail-open outcome ruling F exists to forbid; conversely, an implementation could match exactly (satisfying TEST-056) while resolving unknowns to a hard error or to `off`, failing TEST-055's resolution rule. **TEST-055** asserts the definition text states the resolution (`per-feature`, never `standing`, never `off`); **TEST-056** asserts it states exact case-sensitive matching, naming a case variant as out-of-domain input. Both target `AGENTS.md`'s definition text, so neither row implicates the fallback document's vocabulary constraints (AC-022/AC-024 are untouched).
 
 ### TEST-005 (AC-004) / TEST-007 (AC-006) — host-neutrality has two independent places it can leak a fork
 

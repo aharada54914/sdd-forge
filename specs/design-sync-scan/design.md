@@ -81,7 +81,11 @@ This feature adds nothing to the diagram's left half (generation, consent) and n
 design-sync-scan.sh <target-dir>
 design-sync-scan.ps1 <target-dir>
 
-  <target-dir>   required. Scanned recursively for *.html files.
+  <target-dir>   required. Scanned recursively for *.html files -- the
+                 extension test is case-insensitive (.HTML/.Html are
+                 scanned; requirements.md AC-039, round 3), and any file
+                 with a different extension is outside the scan entirely
+                 (no finding, no block, even with matching content).
 
 Exit codes (precedence: a tool-error condition always yields 2, evaluated
 before either detection outcome — a scan that does not complete is never 0
