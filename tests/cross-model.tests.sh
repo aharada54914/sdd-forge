@@ -525,7 +525,7 @@ for runner_kind in gpt gemini; do
         fi
     done
 
-    for invalid_timeout in 0 -5 abc 2147484; do
+    for invalid_timeout in 0 -5 abc; do
         rm -f "$marker"
         run_panelist "$runner" set "$invalid_timeout" "$case_dir" STUB_CALLED_FILE="$marker"
         if [ "$PANELIST_EXIT" = "2" ] && [ ! -e "$marker" ]; then

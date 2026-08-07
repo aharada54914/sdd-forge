@@ -47,7 +47,6 @@ effort=""
 input_digest=""
 consent_kind="human-flag"
 _panelist_timeout="${SDD_PANELIST_TIMEOUT:-600}"
-_panelist_timeout_max=2147483
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -73,11 +72,6 @@ esac
 if [ "$_panelist_timeout" -le 0 ]; then
     printf 'run-panelist-gpt: SDD_PANELIST_TIMEOUT must be positive (got: %s)\n' \
         "$_panelist_timeout" >&2
-    exit 2
-fi
-if [ "$_panelist_timeout" -gt "$_panelist_timeout_max" ]; then
-    printf 'run-panelist-gpt: SDD_PANELIST_TIMEOUT must not exceed %s seconds (got: %s)\n' \
-        "$_panelist_timeout_max" "$_panelist_timeout" >&2
     exit 2
 fi
 
@@ -204,9 +198,12 @@ sys.exit(return_code if 0 <= return_code <= 255 else 1)
             return $?
         fi
         if [ "$(date +%s)" -ge "$_bw_deadline" ]; then
-            # Completion and expiry are not atomic. Give a just-finished child
-            # one scheduling turn to publish its status before declaring timeout.
-            sleep 0.1
+            # Completion and expiry are not atomic, and the integer-second
+            # deadline can fire with sub-second slack depending on the
+            # start phase. Wait a full second so any child that finished
+            # within limit+1 real seconds has published its status before
+            # the expiry is treated as authoritative (Edge Case 6).
+            sleep 1
             if [ -s "$_bw_status" ]; then
                 wait "$_bw_pid"
                 return $?

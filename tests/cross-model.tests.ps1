@@ -420,7 +420,8 @@ try {
         foreach ($validCase in @(
             @{ Name = "unset"; Mode = "unset"; Value = "" },
             @{ Name = "empty"; Mode = "set"; Value = "" },
-            @{ Name = "one"; Mode = "set"; Value = "1" }
+            @{ Name = "one"; Mode = "set"; Value = "1" },
+            @{ Name = "huge"; Mode = "set"; Value = "99999999" }
         )) {
             $caseRoot = Join-Path $workDir "config-$($runner.Name)-$($validCase.Name)/specs"
             $calledFile = Join-Path $workDir "config-$($runner.Name)-$($validCase.Name).called"
@@ -460,7 +461,7 @@ try {
             Fail "TEST-003: $($runner.Name) source-derived default case is runnable"
         }
 
-        foreach ($invalidValue in @("0", "-5", "abc", "2147484")) {
+        foreach ($invalidValue in @("0", "-5", "abc")) {
             $safeValue = $invalidValue.Replace("-", "negative-")
             $caseRoot = Join-Path $workDir "config-$($runner.Name)-$safeValue/specs"
             $calledFile = Join-Path $workDir "config-$($runner.Name)-$safeValue.called"
