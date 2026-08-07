@@ -384,6 +384,14 @@
     {
       "feature": "design-sync-consent",
       "profile": "full"
+    },
+    {
+      "feature": "design-sync-scan",
+      "profile": "full"
+    },
+    {
+      "feature": "design-sync-standing-consent",
+      "profile": "full"
     }
   ]
 }
