@@ -6,8 +6,11 @@ SCRIPT_ROOT="$(cd "$(dirname "$0")/../../.." && pwd -P)"
 REGISTRY="$SCRIPT_ROOT/specs/workflow-state-registry.json"
 FEATURE_FILTER=""
 
-diagnostic() {
+diagnostic_line() {
   printf 'workflow-state: %s: %s: %s\n' "$1" "$2" "$3" >&2
+}
+diagnostic() {
+  diagnostic_line "$@"
   exit 1
 }
 sha256_file() {
@@ -115,23 +118,44 @@ esac
 
 duplicate="$(jq -r '[.entries[].feature] | group_by(.)[] | select(length > 1) | .[0]' "$REGISTRY" | head -1)"
 [[ -z "$duplicate" ]] || diagnostic "$duplicate" registry-duplicate "feature is registered more than once"
+# WFI-021: diagnostics accumulate across independent features instead of
+# exiting at the first one. Each feature's checks run in a subshell so
+# diagnostic()'s exit ends only that feature's iteration (the short-circuit
+# WITHIN a feature is retained); the run exits non-zero at the end if any
+# feature fired. A feature that fails these registry checks is excluded from
+# the later per-feature validation loop, so no check is evaluated against
+# state an earlier check already rejected.
+workflow_state_failed=0
+registry_failed_features=""
 while IFS= read -r feature; do
-  candidate="$SPECS_ROOT/$feature"
-  [[ -e "$candidate" || -L "$candidate" ]] ||
-    diagnostic "$feature" registry-dangling-entry "registered specification directory is missing"
-  resolved="$(cd "$candidate" 2>/dev/null && pwd -P)" ||
-    diagnostic "$feature" registry-unreadable-path "registered directory cannot be resolved"
-  case "$resolved/" in "$SPECS_ROOT/"*) ;; *)
-    diagnostic "$feature" registry-path-escape "registered directory escapes specs root" ;;
-  esac
-  [[ ! -L "$candidate" ]] ||
-    diagnostic "$feature" registry-linked-entry "registered specification directory must not be linked"
+  set +e
+  (
+    set -euo pipefail
+    candidate="$SPECS_ROOT/$feature"
+    [[ -e "$candidate" || -L "$candidate" ]] ||
+      diagnostic "$feature" registry-dangling-entry "registered specification directory is missing"
+    resolved="$(cd "$candidate" 2>/dev/null && pwd -P)" ||
+      diagnostic "$feature" registry-unreadable-path "registered directory cannot be resolved"
+    case "$resolved/" in "$SPECS_ROOT/"*) ;; *)
+      diagnostic "$feature" registry-path-escape "registered directory escapes specs root" ;;
+    esac
+    [[ ! -L "$candidate" ]] ||
+      diagnostic "$feature" registry-linked-entry "registered specification directory must not be linked"
+  )
+  entry_status=$?
+  set -e
+  if [[ "$entry_status" -ne 0 ]]; then
+    workflow_state_failed=$((workflow_state_failed + 1))
+    registry_failed_features="${registry_failed_features}${feature}"$'\n'
+  fi
 done < <(jq -r '.entries[].feature' "$REGISTRY")
 for candidate in "$SPECS_ROOT"/*; do
   [[ -d "$candidate" || -L "$candidate" ]] || continue
   feature="$(basename "$candidate")"
-  jq -e --arg feature "$feature" 'any(.entries[]; .feature == $feature)' "$REGISTRY" >/dev/null ||
-    diagnostic "$feature" registry-unregistered-directory "specification directory is not registered"
+  jq -e --arg feature "$feature" 'any(.entries[]; .feature == $feature)' "$REGISTRY" >/dev/null || {
+    diagnostic_line "$feature" registry-unregistered-directory "specification directory is not registered"
+    workflow_state_failed=$((workflow_state_failed + 1))
+  }
 done
 if [[ -n "$FEATURE_FILTER" ]]; then
   jq -e --arg feature "$FEATURE_FILTER" 'any(.entries[]; .feature == $feature)' "$REGISTRY" >/dev/null ||
@@ -671,10 +695,16 @@ validate_legacy() {
 while IFS= read -r entry; do
   feature="$(jq -r '.feature' <<<"$entry")"
   [[ -z "$FEATURE_FILTER" || "$feature" == "$FEATURE_FILTER" ]] || continue
+  case $'\n'"$registry_failed_features" in
+    *$'\n'"$feature"$'\n'*) continue ;;
+  esac
+  set +e
+  (
+  set -euo pipefail
   profile="$(jq -r '.profile' <<<"$entry")"
   dir="$SPECS_ROOT/$feature"
-  [[ "$profile" == lite ]] && continue
-  if [[ "$profile" == legacy ]]; then validate_legacy "$feature" "$dir" "$entry"; continue; fi
+  [[ "$profile" == lite ]] && exit 0
+  if [[ "$profile" == legacy ]]; then validate_legacy "$feature" "$dir" "$entry"; exit 0; fi
   for required in requirements.md design.md acceptance-tests.md; do
     [[ -f "$dir/$required" && ! -L "$dir/$required" && -r "$dir/$required" ]] ||
       diagnostic "$feature" stage-input "$required is missing, linked, or unreadable"
@@ -736,6 +766,11 @@ while IFS= read -r entry; do
   [[ "$spec" != Passed ]] || validate_passed_stage "$feature" spec "$dir"
   [[ "$impl" != Passed ]] || validate_passed_stage "$feature" impl "$dir"
   [[ "$task" != Passed ]] || validate_passed_stage "$feature" task "$dir"
+  )
+  feature_status=$?
+  set -e
+  [[ "$feature_status" -eq 0 ]] || workflow_state_failed=$((workflow_state_failed + 1))
 done < <(jq -c '.entries[]' "$REGISTRY")
 
+[[ "$workflow_state_failed" -eq 0 ]] || exit 1
 printf 'workflow-state: ok\n'
