@@ -15,6 +15,7 @@ tests=(
   tests/prepare-panelist.tests.sh
   tests/review-contract-foundation.tests.sh
   tests/review-contract-foundation-parity.tests.sh
+  tests/spec-review-loop.tests.sh
   tests/downstream-review-precheck.tests.sh
   tests/impl-layer-review-inputs.tests.sh
   tests/task-layer-review-inputs.tests.sh
@@ -33,6 +34,7 @@ tests=(
   tests/cross-model.tests.sh
   tests/eval.tests.sh
   tests/crlf-parity.tests.sh
+  tests/constant-parity.tests.sh
   tests/scenario.tests.sh
   tests/workflow-scenarios/workflow-scenarios.tests.sh
   tests/apply-branch-protection.tests.sh
@@ -44,8 +46,16 @@ tests=(
   tests/workflow-state-ci-integration.tests.sh
   tests/structure-check-feature-mode.tests.sh
   tests/quality-gate-cycle-limit.tests.sh
+  tests/quality-loop-calibration.tests.sh
   tests/guard-dispatch-fallback.tests.sh
   tests/guard-negative-corpus.tests.sh
+  tests/guard-cwd-bypass.tests.sh
+  tests/guard-parity.tests.sh
+  tests/claude-bash-matcher.tests.sh
+  tests/phase2-guard-invariants.tests.sh
+  tests/phase2-sudo-signature-static.tests.sh
+  tests/self-improvement-guard.tests.sh
+  tests/p0-hardening.tests.sh
   tests/deterministic-lane-selfcheck.tests.sh
   tests/guard-ps1-ascii.tests.sh
   tests/loop-inventory.tests.sh
@@ -53,9 +63,16 @@ tests=(
   tests/loop-consistency.tests.sh
   tests/review-prompt-calibration.tests.sh
   tests/review-context-boundary.tests.sh
+  tests/design-system-contract.tests.sh
+  tests/design-system-compliance.tests.sh
   tests/loop-escalation.tests.sh
   tests/hitl-wfi-terminal.tests.sh
   tests/check-placeholders-brownfield.tests.sh
+  tests/bootstrap-layer-templates.tests.sh
+  tests/bootstrap-interview-guidance.tests.sh
+  tests/bootstrap-cross-layer-index.tests.sh
+  tests/collection-layer.tests.sh
+  tests/workflow-documentation.tests.sh
   tests/bump-version-gate.tests.sh
   tests/release-loop-gate.tests.sh
   tests/run-panelist-effort.tests.sh
