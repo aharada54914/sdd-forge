@@ -110,8 +110,10 @@ import sys
 status_path = sys.argv[1]
 os.setsid()
 return_code = subprocess.call(sys.argv[2:])
-with open(status_path, "w", encoding="ascii") as status_file:
+tmp_path = status_path + ".tmp"
+with open(tmp_path, "w", encoding="ascii") as status_file:
     status_file.write(str(return_code))
+os.rename(tmp_path, status_path)
 sys.exit(return_code if 0 <= return_code <= 255 else 1)
 ' "$_bw_status" "$@" &
     _bw_pid=$!
