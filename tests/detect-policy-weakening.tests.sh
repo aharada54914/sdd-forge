@@ -573,7 +573,10 @@ if grep -q WEAKENING_DETECTOR_UNAVAILABLE "$WORK/wiring-err"; then
 else
   pass "WIRING WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture"
 fi
-STAGED_SIDECAR="$WORK/wiring/stage-out/project-context.approval.json"
+# The published generator stages outputs at their live-path mirror
+# (stage-out/sdd/...); older builds used a flat basename. Resolve either.
+STAGED_SIDECAR="$WORK/wiring/stage-out/sdd/project-context.approval.json"
+[ -f "$STAGED_SIDECAR" ] || STAGED_SIDECAR="$WORK/wiring/stage-out/project-context.approval.json"
 if [ -f "$STAGED_SIDECAR" ]; then
   pass "WIRING a staged sidecar candidate was written"
 else

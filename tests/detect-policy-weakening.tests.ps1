@@ -601,7 +601,12 @@ if ($wiringErr -match 'WEAKENING_DETECTOR_UNAVAILABLE') {
 } else {
   Test-Pass 'WIRING WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture'
 }
-$StagedSidecar = Join-Path $Wiring 'stage-out/project-context.approval.json'
+# The published generator stages outputs at their live-path mirror
+# (stage-out/sdd/...); older builds used a flat basename. Resolve either.
+$StagedSidecar = Join-Path $Wiring 'stage-out/sdd/project-context.approval.json'
+if (-not (Test-Path -LiteralPath $StagedSidecar)) {
+  $StagedSidecar = Join-Path $Wiring 'stage-out/project-context.approval.json'
+}
 if (Test-Path -LiteralPath $StagedSidecar) {
   Test-Pass 'WIRING a staged sidecar candidate was written'
 } else {
