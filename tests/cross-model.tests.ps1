@@ -460,7 +460,7 @@ try {
             Fail "TEST-003: $($runner.Name) source-derived default case is runnable"
         }
 
-        foreach ($invalidValue in @("0", "-5", "abc")) {
+        foreach ($invalidValue in @("0", "-5", "abc", "2147484")) {
             $safeValue = $invalidValue.Replace("-", "negative-")
             $caseRoot = Join-Path $workDir "config-$($runner.Name)-$safeValue/specs"
             $calledFile = Join-Path $workDir "config-$($runner.Name)-$safeValue.called"

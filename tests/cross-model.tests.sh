@@ -525,7 +525,7 @@ for runner_kind in gpt gemini; do
         fi
     done
 
-    for invalid_timeout in 0 -5 abc; do
+    for invalid_timeout in 0 -5 abc 2147484; do
         rm -f "$marker"
         run_panelist "$runner" set "$invalid_timeout" "$case_dir" STUB_CALLED_FILE="$marker"
         if [ "$PANELIST_EXIT" = "2" ] && [ ! -e "$marker" ]; then
@@ -602,7 +602,7 @@ for runner_kind in gpt gemini; do
         mkdir -p "$case_dir"
         started=$(monotonic_ms)
         run_panelist "$runner" set 2 "$case_dir" \
-            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=1.5
+            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=2.5
         finished=$(monotonic_ms)
         elapsed=$((finished-started))
         echo "measurement: TEST-004(c) runner=${runner_kind} iteration=${iteration} elapsed_ms=${elapsed} deadline_ms=2000 exit=${PANELIST_EXIT} verdict=$([ -f "$verdict" ] && echo present || echo absent)"

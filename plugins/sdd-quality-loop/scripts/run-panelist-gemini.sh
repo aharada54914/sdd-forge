@@ -28,6 +28,7 @@ model="gemini-2.0-flash"
 input_digest=""
 consent_kind="human-flag"
 _panelist_timeout="${SDD_PANELIST_TIMEOUT:-600}"
+_panelist_timeout_max=2147483
 
 while [ $# -gt 0 ]; do
     case "$1" in
@@ -52,6 +53,11 @@ esac
 if [ "$_panelist_timeout" -le 0 ]; then
     printf 'run-panelist-gemini: SDD_PANELIST_TIMEOUT must be positive (got: %s)\n' \
         "$_panelist_timeout" >&2
+    exit 2
+fi
+if [ "$_panelist_timeout" -gt "$_panelist_timeout_max" ]; then
+    printf 'run-panelist-gemini: SDD_PANELIST_TIMEOUT must not exceed %s seconds (got: %s)\n' \
+        "$_panelist_timeout_max" "$_panelist_timeout" >&2
     exit 2
 fi
 

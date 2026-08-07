@@ -42,6 +42,7 @@ $Effort      = ""
 $InputDigest = ""
 $ConsentKind = "human-flag"
 $PanelistTimeoutDefault = 600
+$PanelistTimeoutMaximum = 2147483
 
 $argIdx = 0
 $passedArgs = $args
@@ -71,6 +72,10 @@ if ([string]::IsNullOrEmpty($panelistTimeoutRaw)) {
         -not [int]::TryParse($panelistTimeoutRaw, [ref]$parsedPanelistTimeout) -or
         $parsedPanelistTimeout -le 0) {
         [Console]::Error.WriteLine("run-panelist-gpt: SDD_PANELIST_TIMEOUT must be a positive whole number of seconds (got: $panelistTimeoutRaw)")
+        exit 2
+    }
+    if ($parsedPanelistTimeout -gt $PanelistTimeoutMaximum) {
+        [Console]::Error.WriteLine("run-panelist-gpt: SDD_PANELIST_TIMEOUT must not exceed $PanelistTimeoutMaximum seconds (got: $panelistTimeoutRaw)")
         exit 2
     }
     $PanelistTimeout = $parsedPanelistTimeout
