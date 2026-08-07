@@ -382,6 +382,39 @@ if ($outText -match '"recovered":0') { Test-Pass 'TEST-033n recovery-only invoca
 
 # ---------------------------------------------------------------------------
 # TEST-033o: held-handle substitution resistance.
+#
+# PLATFORM NOTE (native Windows). The attack this fixture simulates -- an
+# attacker renaming the publisher's anchored destination-parent aside and
+# dropping an empty substitute at the original name -- CANNOT BE CONSTRUCTED
+# on native Windows, because Windows itself already forbids it.
+# [System.IO.Directory]::SetCurrentDirectory maps to Win32
+# SetCurrentDirectory, which OPENS the target directory and keeps that handle
+# in the process's own PEB (ProcessParameters->CurrentDirectory.Handle) for as
+# long as it remains the current directory, with a share mode of
+# FILE_SHARE_READ | FILE_SHARE_WRITE -- deliberately WITHOUT
+# FILE_SHARE_DELETE. Renaming a directory requires opening it for DELETE
+# access, so the rename is refused with a sharing violation while ANY process
+# is anchored inside it. The publisher's own -SimulateSubstitution block
+# swallows that failure by design (its catch is documented as best-effort
+# precisely so a fixture that cannot substitute never masks a real publish
+# failure), so on Windows the substitution simply never occurs. CI run
+# 31138444391 confirmed exactly this shape empirically: the moved-aside
+# directory did not exist at all ("got ''"), which is only possible if
+# [System.IO.Directory]::Move threw -- had the rename SUCCEEDED and the
+# publisher then followed the substitute, that path would have held the
+# original 'old-content'.
+#
+# POSIX has no such rule -- a directory that is a live process's cwd renames
+# freely -- which is exactly why both twins must close the hole in user space
+# there: the .sh twin re-checks the anchored directory's (device, inode)
+# identity, and this .ps1 twin re-reads Environment.CurrentDirectory (a real
+# getcwd() walk UP from the pinned directory, so it tracks a rename) freshly
+# before each use.
+#
+# This is therefore NOT a skip for convenience. The Windows leg asserts what
+# the platform genuinely guarantees, and is written so that a future Windows
+# or .NET release that ALLOWED the rename would fail this leg LOUDLY rather
+# than let the claim decay into something untested.
 # ---------------------------------------------------------------------------
 $F = New-FixtureDir
 Write-FixtureFile (Join-Path $F 'repo/plugins/x/file.txt') 'old-content'
@@ -390,10 +423,25 @@ Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Enco
 $r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'), '-SimulateSubstitution')
 if ($r.ExitCode -eq 0) { Test-Pass 'TEST-033o substitution-resistance fixture: tool still completes successfully' } else { Test-Fail 'TEST-033o substitution completes' "exit $($r.ExitCode)" }
 $origPath = Join-Path $F 'repo/plugins/x/file.txt'
-$origIsEmpty = -not (Test-Path -LiteralPath $origPath) -or ((Get-Item -LiteralPath $origPath).Length -eq 0)
-if ($origIsEmpty) { Test-Pass 'TEST-033o the newly-substituted directory at the ORIGINAL name never receives the candidate' } else { Test-Fail 'TEST-033o original-name directory unaffected' 'candidate leaked into the substitute' }
-$movedContent = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/plugins/x.attacker-moved/file.txt') -ErrorAction SilentlyContinue
-if ($movedContent -eq "new-content`n") { Test-Pass 'TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)' } else { Test-Fail 'TEST-033o write lands in anchored original' "got '$movedContent'" }
+$movedDir = Join-Path $F 'repo/plugins/x.attacker-moved'
+if ($IsWindows) {
+    if (-not (Test-Path -LiteralPath $movedDir)) {
+        Test-Pass 'TEST-033o (Windows) the rename-aside is refused by the OS itself: an anchored destination-parent cannot be renamed while the publisher holds it as its current directory'
+    } else {
+        Test-Fail 'TEST-033o (Windows) the rename-aside is refused by the OS itself' 'the anchored directory WAS renamed aside -- Windows sharing semantics have changed, so the POSIX-style user-space identity defense now has to be ported to this twin'
+    }
+    $origContent = Get-Content -Raw -LiteralPath $origPath -ErrorAction SilentlyContinue
+    if ($origContent -eq "new-content`n") {
+        Test-Pass 'TEST-033o (Windows) the write lands in the TRUE, still-anchored original directory'
+    } else {
+        Test-Fail 'TEST-033o (Windows) write lands in the still-anchored original' "got '$origContent'"
+    }
+} else {
+    $origIsEmpty = -not (Test-Path -LiteralPath $origPath) -or ((Get-Item -LiteralPath $origPath).Length -eq 0)
+    if ($origIsEmpty) { Test-Pass 'TEST-033o the newly-substituted directory at the ORIGINAL name never receives the candidate' } else { Test-Fail 'TEST-033o original-name directory unaffected' 'candidate leaked into the substitute' }
+    $movedContent = Get-Content -Raw -LiteralPath (Join-Path $movedDir 'file.txt') -ErrorAction SilentlyContinue
+    if ($movedContent -eq "new-content`n") { Test-Pass 'TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)' } else { Test-Fail 'TEST-033o write lands in anchored original' "got '$movedContent'" }
+}
 
 # ---------------------------------------------------------------------------
 # TEST-033p (quality-gate seq0357 Critical remedy): a batch containing a
