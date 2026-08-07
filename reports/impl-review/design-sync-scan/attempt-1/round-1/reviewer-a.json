@@ -1,0 +1,120 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-designsyncscan-impl-a1r1-a-seq0549",
+  "host_session_id": "SESS-impl-a1r1-a-designsyncscan-0549",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-scan/attempt-1/round-1/precheck-result.json",
+      "sha256": "1aa8989a3f776ab8cd16825646d9b90b5fdd21066399cd85cca3ca0cca2e4367"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/acceptance-tests.md",
+      "sha256": "c6b1b55137764cbfe4af6d8616f44fb11102d50096cf239956f6b7fcf70f00f7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/design.md",
+      "sha256": "ba1b23032de5929d56b0402b41136b06d076cb3267b955dcf1005fb1564bc6d4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/frontend-spec.md",
+      "sha256": "535e8276e4265022643ab0f96b7c8d619494ae593eefc8b5c6b5dda65fe6c291"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/infra-spec.md",
+      "sha256": "a908b7e24cf308e8cc4a94dd7f6c786e07d09ec4b7cd939e118de2cfa3d3f410"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/investigation.md",
+      "sha256": "67560e11a356a0e26769a01b010aab0695049705b89ee8a47130ebf6bbd44048"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/requirements.md",
+      "sha256": "354fb581c98441c02894f4a66c4e331b28165f426ab4ef822e93a2c9ccb51a01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/security-spec.md",
+      "sha256": "3b59d7e0e8ae1e1cfb03d1ce6b42238fdaef51598014a689ba0306af01f2792a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/ux-spec.md",
+      "sha256": "4f63869ff536f816bc8bd4d9f59d29a45e547c35f53dc66c902450e156a8c554"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md `## Architecture Overview` (design.md:6) plus `### Where this feature sits relative to design-sync-consent` (design.md:21, mermaid at 23-38) describe top-level component boundaries via the four-edit-surfaces table (design.md:10-17) and integration with the existing design-sync-consent Loop (fills the previously inert step-5 node, design.md:21-40). Technology choices per layer are stated by the `## Layer Specifications` table (design.md:61-68), cross-referenced as a normative refinement to frontend-spec.md `## Technology Stack` ('POSIX shell and PowerShell... plus Markdown', frontend-spec.md:3-7) and ux-spec.md's N/A-surface statement (ux-spec.md:5). This is far beyond a one-sentence description; interactions (why script not prose, design.md:42-44) are explicit. No issues found."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations found in `## Architecture Overview` or `## Components` (design.md:6-59). The mermaid flowchart (design.md:23-38) depicts the Loop's generate->consent->check->push->review workflow sequence, and its return-to-generate edge is an intentional iterative workflow cycle, not a static component dependency cycle (A-depends-on-B-depends-on-A). The `## Components` table (design.md:46-59) states Status/Change per artifact with no 'depends on' declarations. Checked the architecture narrative for circular import/dependency patterns; none found."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Data Plan` (design.md:222-233) covers all three required elements in prose: new/modified entities (`Design-Source` gains `Egress-Scan`/`Egress-Scan-At`; `specs/<feature>/mockups/*.html` read-only, unchanged in shape \u2014 table at design.md:228-231), existing data affected (the extension to the existing `Design-Source` section), and migration strategy ('No migration and no backfill follow.', design.md:233; 'No new storage mechanism is introduced, and no migration is required.', design.md:224). The literal `Data Entities:`/`Existing Data Affected:`/`Migration Strategy:` labels are not used verbatim, but the substantive content each sub-field requires is present and unambiguous, so this is not a coverage gap."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## API & Contract Plan` (design.md:76-186) fully specifies the CLI script contract in place of a network API, consistent with the cli feature type (design.md:4): invocation syntax, required positional argument, exit-code contract with stated precedence (design.md:78-128), and exact output shapes for exit 0 and exit 1 (design.md:112-126). The `Design-Source` scan-record extension (design.md:174-186) explicitly states the change is additive-only and names all five existing fields as unrenamed/unredefined (design.md:180, citing AC-024), satisfying the breaking-change disclosure requirement."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Security Boundaries` (design.md:235-249) names trust boundaries B1/B3/B5 and states security-spec.md is 'the authoritative treatment' (design.md:237), consistent with the Layer Specifications table marking Security 'Load-bearing' (design.md:68) -- read as a normative refinement per role instructions. security-spec.md `## Trust Boundaries` (security-spec.md:62-66) states AuthN/AuthZ per boundary ('none -- mechanical, no human required to run it'; 'human, for the override only; none for a clean pass'). `## Data Classification and Protection` (security-spec.md:111-120) classifies mockups/report/`Egress-Scan` fields. `## STRIDE Analysis` (security-spec.md:89-102) covers Information Disclosure, Tampering, Elevation of Privilege, Spoofing, and DoS as the applicable threat-modeling equivalent to OWASP Top 10 for a local, non-network-facing CLI scanner (ux-spec.md:5 and frontend-spec.md:5 confirm no UI/API attack surface exists for injection/broken-auth-in-the-web-sense concerns to attach to)."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: Feature Type is cli. design.md:4 states 'Feature Type: feature (a new runtime-neutral CLI check plus a targeted skill-text edit; small executable surface, no application code)'; ux-spec.md:5 states 'N/A -- no rendered, interactive, or GUI surface' and frontend-spec.md:5 states 'N/A -- no browser, no bundle, no build output'. design.md has no `## Frontend Plan` or `## Backend Plan` sections to compare."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## Test Strategy` (design.md:280-307) covers unit scope ('The script suite is executable... asserts on exit codes and report content', design.md:302), integration/wiring scope (SKILL.md document-conformance wiring tests, design.md:303; REQ-007 regression against the existing `tests/design-system-contract.tests.{sh,ps1}` baseline, design.md:258 and 291), acceptance-criteria end-to-end mapping (AC-to-TEST roll-up, design.md:282-298, mechanically cross-checked by TEST-052's traceability manifest, acceptance-tests.md:199), and concrete planned verification evidence (named files `tests/design-sync-scan.tests.{sh,ps1}`, `tests/run-all.{sh,ps1}`, and 86 named TEST-IDs in acceptance-tests.md's Test Matrix). No fullstack E2E/user-journey path is required given feature_type cli."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every component referenced in `## Architecture Overview` (design.md:6-44) and `## API & Contract Plan` (design.md:76-186) is defined in `## Components` (design.md:46-59): `design-sync-scan.sh`/`.ps1`, `design-sync-loop/SKILL.md` step 5, the `Design-Source consent record` section, `claude-design-workflow.md`, `tests/design-sync-scan.tests.{sh,ps1}`, `tests/run-all.{sh,ps1}`, `.github/workflows/test.yml`, `specs/workflow-state-registry.json`. `design-sync-consent` and `check-placeholders.sh` are referenced but are established sibling artifacts identifiable from investigation.md (INV-201, INV-202) and requirements.md's header ('Depends on: #138 (DS-29), specified in specs/design-sync-consent/'), satisfying the established-component carve-out."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md `## ADR Change Log` (design.md:260-262) states 'None proposed' with explicit reasoning that this feature introduces no new architectural pattern, external dependency, or data-egress path -- it reuses the existing `.sh`/`.ps1` twin convention (confirmed independently by investigation.md INV-206) and the existing Design-Source additive-extension pattern (cited at design.md:184, sourcing specs/design-sync-consent/design.md:180, verified present at that line). No new technology choice or architectural departure is introduced without a corresponding ADR discussion."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped per role definition: project root has no `design-system/` directory (verified via `ls -d design-system` -> No such file or directory). design.md `## Design System Compliance` (design.md:70-74) additionally records the exact expected value 'N/A -- ds_profile: none.' (design.md:72), consistent with ux-spec.md:31."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Skipped per role definition: project root has no `domain/` directory (verified via `ls -d domain` -> No such file or directory), so the `domain/context-map.md` `Domain-Model-Status: Approved` precondition cannot be met. No aggregate-card cross-references are required."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "cli"
+}

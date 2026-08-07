@@ -4932,6 +4932,42 @@
       "host_session_id": "SESS-spec-a1r2-b-designsyncstandingconsent-0548",
       "previous_record_sha256": "46fe326a252b83f81f3c131c2f1709cbaaa493501286f1976eb2de06e7350a49",
       "record_sha256": "2571f6925638975ed80f54a17bcab1e88b0978c035178da714ff55a4aecf6018"
+    },
+    {
+      "sequence": 549,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-designsyncscan-impl-a1r1-a-seq0549",
+      "host_session_id": "SESS-impl-a1r1-a-designsyncscan-0549",
+      "previous_record_sha256": "2571f6925638975ed80f54a17bcab1e88b0978c035178da714ff55a4aecf6018",
+      "record_sha256": "b5692c5bd7219300a3f1fcbe25541c9e1e13932d7171c038ec31df82be378880"
+    },
+    {
+      "sequence": 550,
+      "stage": "impl",
+      "role": "impl-reviewer-a",
+      "run_id": "RUN-designsyncstandingconsent-impl-a1r1-a-seq0550",
+      "host_session_id": "SESS-impl-a1r1-a-designsyncstandingconsent-0550",
+      "previous_record_sha256": "b5692c5bd7219300a3f1fcbe25541c9e1e13932d7171c038ec31df82be378880",
+      "record_sha256": "f6e4d36888ba606a81aba54e11806f0027106ee12c327ef5972078cdd933baff"
+    },
+    {
+      "sequence": 551,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-designsyncscan-impl-a1r1-b-seq0551",
+      "host_session_id": "SESS-impl-a1r1-b-designsyncscan-0551",
+      "previous_record_sha256": "f6e4d36888ba606a81aba54e11806f0027106ee12c327ef5972078cdd933baff",
+      "record_sha256": "bad48f0748abed0cf3417e1c34a88e6a08b21e8c339e7bea3ce93c757032a6af"
+    },
+    {
+      "sequence": 552,
+      "stage": "impl",
+      "role": "impl-reviewer-b",
+      "run_id": "RUN-designsyncstandingconsent-impl-a1r1-b-seq0552",
+      "host_session_id": "SESS-impl-a1r1-b-designsyncstandingconsent-0552",
+      "previous_record_sha256": "bad48f0748abed0cf3417e1c34a88e6a08b21e8c339e7bea3ce93c757032a6af",
+      "record_sha256": "d99ab106ee1a096491debe7636407a5915a3c47648c34fb6d10c4481757e466b"
     }
   ]
 }

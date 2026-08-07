@@ -1,6 +1,6 @@
 # Design: design-sync-scan
 
-Impl-Review-Status: Pending
+Impl-Review-Status: Passed
 Feature Type: feature (a new runtime-neutral CLI check plus a targeted skill-text edit; small executable surface, no application code)
 
 ## Architecture Overview
