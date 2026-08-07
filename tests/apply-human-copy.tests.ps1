@@ -646,21 +646,41 @@ function Test-HostileMatrixCase([string]$Label, [string]$Frag) {
     }
 }
 
-Test-HostileMatrixCase -Label 'space' -Frag 'sp ace.txt'
-Test-HostileMatrixCase -Label 'tab' -Frag "ta$([char]9)b.txt"
-Test-HostileMatrixCase -Label 'leadtrail' -Frag ' lead-trail '
-Test-HostileMatrixCase -Label 'dquote' -Frag 'qu"ote.txt'
-Test-HostileMatrixCase -Label 'obrace' -Frag 'o{pen.txt'
-Test-HostileMatrixCase -Label 'cbrace' -Frag 'c}lose.txt'
-Test-HostileMatrixCase -Label 'comma' -Frag 'com,ma.txt'
-Test-HostileMatrixCase -Label 'star' -Frag 'st*ar.txt'
-Test-HostileMatrixCase -Label 'question' -Frag 'que?stion.txt'
-Test-HostileMatrixCase -Label 'obracket' -Frag 'ob[racket.txt'
-Test-HostileMatrixCase -Label 'cbracket' -Frag 'cb]racket.txt'
-Test-HostileMatrixCase -Label 'dollar' -Frag 'do$llar.txt'
-Test-HostileMatrixCase -Label 'backtick' -Frag 'back`tick.txt'
-Test-HostileMatrixCase -Label 'squote' -Frag "sq'uote.txt"
-Test-HostileMatrixCase -Label 'utf8' -Frag 'utf8-café-日本語.txt'
+# Windows-unrepresentable classes: Win32 rejects '"', '*', '?' and every
+# control character 0x00-0x1F in a path component outright ("The filename,
+# directory name, or volume label syntax is incorrect" -- empirically
+# confirmed on windows-latest, probe run 31147935919), so on native
+# Windows these names cannot exist as fixtures NOR as live targets: the
+# class is untestable there BY CONSTRUCTION, and the publisher can never
+# be handed such a path on that platform. Skipped with the suite's
+# established capability-gap convention (TEST-033c). Every class that CAN
+# exist on Windows (space, leading/trailing space, braces, comma,
+# brackets, dollar, backtick, quotes, UTF-8) still runs for real there
+# (verified: full-suite probe on windows-latest, 160/0).
+function Test-HostileMatrixCaseOrSkip([string]$Label, [string]$Frag, [switch]$WindowsUnrepresentable) {
+    if ($IsWindows -and $WindowsUnrepresentable) {
+        Test-Pass "TEST-033t [$Label] journal round-trips live_path exactly (skipped: name unrepresentable in a Win32 path component)"
+        Test-Pass "TEST-033t [$Label] recovery converges ALL-PRE (skipped: name unrepresentable in a Win32 path component)"
+        return
+    }
+    Test-HostileMatrixCase -Label $Label -Frag $Frag
+}
+
+Test-HostileMatrixCaseOrSkip -Label 'space' -Frag 'sp ace.txt'
+Test-HostileMatrixCaseOrSkip -Label 'tab' -Frag "ta$([char]9)b.txt" -WindowsUnrepresentable
+Test-HostileMatrixCaseOrSkip -Label 'leadtrail' -Frag ' lead-trail '
+Test-HostileMatrixCaseOrSkip -Label 'dquote' -Frag 'qu"ote.txt' -WindowsUnrepresentable
+Test-HostileMatrixCaseOrSkip -Label 'obrace' -Frag 'o{pen.txt'
+Test-HostileMatrixCaseOrSkip -Label 'cbrace' -Frag 'c}lose.txt'
+Test-HostileMatrixCaseOrSkip -Label 'comma' -Frag 'com,ma.txt'
+Test-HostileMatrixCaseOrSkip -Label 'star' -Frag 'st*ar.txt' -WindowsUnrepresentable
+Test-HostileMatrixCaseOrSkip -Label 'question' -Frag 'que?stion.txt' -WindowsUnrepresentable
+Test-HostileMatrixCaseOrSkip -Label 'obracket' -Frag 'ob[racket.txt'
+Test-HostileMatrixCaseOrSkip -Label 'cbracket' -Frag 'cb]racket.txt'
+Test-HostileMatrixCaseOrSkip -Label 'dollar' -Frag 'do$llar.txt'
+Test-HostileMatrixCaseOrSkip -Label 'backtick' -Frag 'back`tick.txt'
+Test-HostileMatrixCaseOrSkip -Label 'squote' -Frag "sq'uote.txt"
+Test-HostileMatrixCaseOrSkip -Label 'utf8' -Frag 'utf8-café-日本語.txt'
 
 # C0 control-character classes (quality-gate seq0360 Major #1 remedy):
 # the evaluator's own extended matrix found vtab(0x0B)/soh(0x01)/
@@ -671,11 +691,11 @@ Test-HostileMatrixCase -Label 'utf8' -Frag 'utf8-café-日本語.txt'
 # matrix one-for-one for parity. "unitsep" (0x1F, the highest C0 value)
 # is an additional representative sample. CR (0x0D) is DELIBERATELY
 # EXCLUDED here too -- see the dedicated CR rejection test below instead.
-Test-HostileMatrixCase -Label 'vtab' -Frag "vt$([char]11)ab.txt"
-Test-HostileMatrixCase -Label 'soh' -Frag "so$([char]1)h.txt"
-Test-HostileMatrixCase -Label 'formfeed' -Frag "ff$([char]12)eed.txt"
-Test-HostileMatrixCase -Label 'esc' -Frag "es$([char]27)c.txt"
-Test-HostileMatrixCase -Label 'unitsep' -Frag "un$([char]31)itsep.txt"
+Test-HostileMatrixCaseOrSkip -Label 'vtab' -Frag "vt$([char]11)ab.txt" -WindowsUnrepresentable
+Test-HostileMatrixCaseOrSkip -Label 'soh' -Frag "so$([char]1)h.txt" -WindowsUnrepresentable
+Test-HostileMatrixCaseOrSkip -Label 'formfeed' -Frag "ff$([char]12)eed.txt" -WindowsUnrepresentable
+Test-HostileMatrixCaseOrSkip -Label 'esc' -Frag "es$([char]27)c.txt" -WindowsUnrepresentable
+Test-HostileMatrixCaseOrSkip -Label 'unitsep' -Frag "un$([char]31)itsep.txt" -WindowsUnrepresentable
 
 # Backslash: a GENUINELY unsupportable character on this runtime (see the
 # .sh suite's own dedicated test for the full empirical verification) --
@@ -724,24 +744,34 @@ if ($r.ExitCode -ne 0 -and (Get-CategoryOf $r.StdoutPath) -eq 'UNSUPPORTED_PATH_
 # substitute into is never actually exercised. A pre-existing decoy
 # directory 'axxb' sits next to the real target 'a*b'.
 # ---------------------------------------------------------------------------
-$F = New-FixtureDir
-New-Item -ItemType Directory -Path (Join-Path $F 'repo/axxb') -Force | Out-Null
-Write-FixtureFile (Join-Path $F 'repo/axxb/decoy-canary.txt') 'decoy-untouched'
-Write-FixtureFile (Join-Path $F 'stage/a*b/t.txt') 'real-payload'
-Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'a*b/t.txt') + "`n")
-$r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
-$realContent = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/a*b/t.txt') -ErrorAction SilentlyContinue
-if ($r.ExitCode -eq 0 -and $realContent -eq "real-payload`n") {
-    Test-Pass 'TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name, not a decoy'
+if ($IsWindows) {
+    # 'a*b' cannot exist as a directory name on Windows ('*' is rejected
+    # in any Win32 path component -- probe run 31147935919), so the
+    # glob-decoy substitution class this test locks in has no
+    # representable attack surface on this platform. Same capability-gap
+    # skip convention as TEST-033c.
+    Test-Pass 'TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name, not a decoy (skipped: glob metacharacters unrepresentable in a Win32 path component)'
+    Test-Pass "TEST-033u decoy directory 'axxb' left completely untouched (skipped: glob metacharacters unrepresentable in a Win32 path component)"
 } else {
-    Test-Fail 'TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name' "exit $($r.ExitCode)"
-}
-$decoyContent = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/axxb/decoy-canary.txt') -ErrorAction SilentlyContinue
-$decoyGotTarget = Test-Path -LiteralPath (Join-Path $F 'repo/axxb/t.txt')
-if ($decoyContent -eq "decoy-untouched`n" -and -not $decoyGotTarget) {
-    Test-Pass "TEST-033u decoy directory 'axxb' left completely untouched (no substitution into it)"
-} else {
-    Test-Fail "TEST-033u decoy directory 'axxb' left completely untouched" 'substitution detected'
+    $F = New-FixtureDir
+    New-Item -ItemType Directory -Path (Join-Path $F 'repo/axxb') -Force | Out-Null
+    Write-FixtureFile (Join-Path $F 'repo/axxb/decoy-canary.txt') 'decoy-untouched'
+    Write-FixtureFile (Join-Path $F 'stage/a*b/t.txt') 'real-payload'
+    Set-Content -LiteralPath (Join-Path $F 'stage/MANIFEST.sha256') -NoNewline -Encoding utf8 -Value ((Get-ManifestLine (Join-Path $F 'stage') 'a*b/t.txt') + "`n")
+    $r = Invoke-Apply -RepoDir (Join-Path $F 'repo') -ArgList @('-StagingDir', (Join-Path $F 'stage'), '-Manifest', (Join-Path $F 'stage/MANIFEST.sha256'))
+    $realContent = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/a*b/t.txt') -ErrorAction SilentlyContinue
+    if ($r.ExitCode -eq 0 -and $realContent -eq "real-payload`n") {
+        Test-Pass 'TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name, not a decoy'
+    } else {
+        Test-Fail 'TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name' "exit $($r.ExitCode)"
+    }
+    $decoyContent = Get-Content -Raw -LiteralPath (Join-Path $F 'repo/axxb/decoy-canary.txt') -ErrorAction SilentlyContinue
+    $decoyGotTarget = Test-Path -LiteralPath (Join-Path $F 'repo/axxb/t.txt')
+    if ($decoyContent -eq "decoy-untouched`n" -and -not $decoyGotTarget) {
+        Test-Pass "TEST-033u decoy directory 'axxb' left completely untouched (no substitution into it)"
+    } else {
+        Test-Fail "TEST-033u decoy directory 'axxb' left completely untouched" 'substitution detected'
+    }
 }
 
 # ---------------------------------------------------------------------------
