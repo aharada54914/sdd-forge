@@ -114,6 +114,20 @@ function Get-OutText($Result) {
   return (Get-Content -Raw -LiteralPath $Result.StdoutPath -ErrorAction SilentlyContinue)
 }
 
+# Staged-artifact layout resolver (mirrors tests/generate-approval-sidecar.tests.ps1's
+# Get-StagedRelSidecar/Get-StagedSidecarPath -- see that file's comment for
+# full rationale). The generator's staged bundle mirrors the sidecar's LIVE
+# repo-relative path (sdd/project-context.approval.json) rather than a bare
+# basename; this resolver locates it under either layout so these
+# path-agnostic tests keep passing before AND after that layout changes.
+function Get-StagedRelSidecar([string]$StageDir) {
+  if (Test-Path -LiteralPath (Join-Path $StageDir 'sdd/project-context.approval.json') -PathType Leaf) {
+    return 'sdd/project-context.approval.json'
+  }
+  return 'project-context.approval.json'
+}
+function Get-StagedSidecarPath([string]$StageDir) { return (Join-Path $StageDir (Get-StagedRelSidecar $StageDir)) }
+
 # ---------------------------------------------------------------------------
 # sign_fixture.py -- see tests/validate-approval-sidecar.tests.sh's own
 # header comment for the rationale (independent HMAC/hash computation,
@@ -199,6 +213,12 @@ Set-Content -LiteralPath $KeyFile -NoNewline -Encoding utf8 -Value $TestKey
 # ---------------------------------------------------------------------------
 # Content, registry fixtures.
 # ---------------------------------------------------------------------------
+
+# A syntactically-valid (schema pattern ^[0-9a-f]{64}$) but obviously-fake
+# 64-hex-digit placeholder, generated rather than hand-counted so the digit
+# count can never silently drift (as a hand-typed literal previously did:
+# see OBLIGATION 2's predecessor_context_sha256 fixture below).
+$Hex64Placeholder = 'c' * 64
 
 $ContentValid = Join-Path $Work 'project-context.yaml'
 Set-Content -LiteralPath $ContentValid -NoNewline -Encoding utf8 -Value @'
@@ -396,7 +416,7 @@ Push-Location $Work
 try {
   $r = Invoke-Gen -ArgList @('--schema', 'sdd-project-context-approval/v1', '--content', $ContentValid, '--approver', 'alice', '--status', 'Approved', '--effective-at', '2099-06-01T00:00:00Z', '--live-sidecar', $NoSuchLive, '--stage-dir', $StageT020Future) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
 } finally { Pop-Location }
-$T020Future = Join-Path $StageT020Future 'project-context.approval.json'
+$T020Future = Get-StagedSidecarPath $StageT020Future
 
 Push-Location $Work
 try { $r = Invoke-Val -ArgList @('--content', $ContentValid, '--sidecar', $T020Future, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey } } finally { Pop-Location }
@@ -411,7 +431,7 @@ Push-Location $Work
 try {
   $r = Invoke-Gen -ArgList @('--schema', 'sdd-project-context-approval/v1', '--content', $ContentValid, '--approver', 'alice', '--status', 'Approved', '--effective-at', '2020-01-01T00:00:00Z', '--live-sidecar', $NoSuchLive, '--stage-dir', $StageT020Past) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
 } finally { Pop-Location }
-$T020Past = Join-Path $StageT020Past 'project-context.approval.json'
+$T020Past = Get-StagedSidecarPath $StageT020Past
 
 Push-Location $Work
 try { $r = Invoke-Val -ArgList @('--content', $ContentValid, '--sidecar', $T020Past, '--approver-registry', $RegistryValid) -EnvSet @{ SDD_CONTEXT_KEY = $TestKey } } finally { Pop-Location }
@@ -433,7 +453,7 @@ Copy-Item -LiteralPath $ContentValid -Destination (Join-Path $T019 'baseline.yam
 Copy-Item -LiteralPath $ContentOther -Destination (Join-Path $T019 'candidate.yaml')
 Copy-Item -LiteralPath (Join-Path $T019 'baseline.yaml') -Destination (Join-Path $T019 'sdd/.approved-context/project-context.approved.yaml')
 Copy-Item -LiteralPath $RegistryValid -Destination (Join-Path $T019 'sdd/approver-registry.yaml')
-Set-Content -LiteralPath (Join-Path $T019 'live-sidecar.json') -NoNewline -Encoding utf8 -Value '{"schema": "sdd-project-context-approval/v1", "context_sha256": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "approval_epoch": 1}'
+Set-Content -LiteralPath (Join-Path $T019 'live-sidecar.json') -NoNewline -Encoding utf8 -Value "{`"schema`": `"sdd-project-context-approval/v1`", `"context_sha256`": `"sha256:$Hex64Placeholder`", `"approval_epoch`": 1}"
 
 Push-Location $T019
 try {
@@ -444,7 +464,7 @@ if ($r.ExitCode -eq 0) {
 } else {
   Test-Fail 'TEST-019 (a) [discharge note] generator''s documented current behavior (sign, exit 0) changed unexpectedly' "exit $($r.ExitCode); $(Get-ErrText $r)"
 }
-$T019Solo = Join-Path $T019 'stage-solo/project-context.approval.json'
+$T019Solo = Get-StagedSidecarPath (Join-Path $T019 'stage-solo')
 $SoloCheck = Join-Path $Work 'solo_check.py'
 Set-Content -LiteralPath $SoloCheck -NoNewline -Encoding utf8 -Value @'
 import json, sys
@@ -461,7 +481,7 @@ if ((Test-Path -LiteralPath $T019Solo) -and $rc.ExitCode -eq 0) {
 }
 
 Push-Location $T019
-try { $r = Invoke-Val -ArgList @('--content', 'candidate.yaml', '--sidecar', 'stage-solo/project-context.approval.json', '--approver-registry', 'sdd/approver-registry.yaml') -EnvSet @{ SDD_CONTEXT_KEY = $TestKey } } finally { Pop-Location }
+try { $r = Invoke-Val -ArgList @('--content', 'candidate.yaml', '--sidecar', "stage-solo/$(Get-StagedRelSidecar (Join-Path $T019 'stage-solo'))", '--approver-registry', 'sdd/approver-registry.yaml') -EnvSet @{ SDD_CONTEXT_KEY = $TestKey } } finally { Pop-Location }
 if ($r.ExitCode -eq 43 -and (Get-ErrText $r) -match 'WEAKENING_PROVENANCE_UNDERAPPROVED') {
   Test-Pass 'TEST-019 (a) validate-approval-sidecar.py REJECTS the solo-approved two-person-required sidecar (WEAKENING_PROVENANCE_UNDERAPPROVED) -- the canonical enforcement point (obligation 4b)'
 } else {
@@ -478,7 +498,7 @@ if ($r.ExitCode -eq 0) {
   Test-Fail 'TEST-019 (b) generator signs with two distinct approvers' "exit $($r.ExitCode); $(Get-ErrText $r)"
 }
 Push-Location $T019
-try { $r = Invoke-Val -ArgList @('--content', 'candidate.yaml', '--sidecar', 'stage-two/project-context.approval.json', '--approver-registry', 'sdd/approver-registry.yaml') -EnvSet @{ SDD_CONTEXT_KEY = $TestKey } } finally { Pop-Location }
+try { $r = Invoke-Val -ArgList @('--content', 'candidate.yaml', '--sidecar', "stage-two/$(Get-StagedRelSidecar (Join-Path $T019 'stage-two'))", '--approver-registry', 'sdd/approver-registry.yaml') -EnvSet @{ SDD_CONTEXT_KEY = $TestKey } } finally { Pop-Location }
 if ($r.ExitCode -eq 0) {
   Test-Pass 'TEST-019 (b) validate-approval-sidecar.py accepts the two-distinct-approver sidecar'
 } else {
@@ -540,7 +560,11 @@ if ($r.ExitCode -eq 36 -and (Get-ErrText $r) -match 'DUPLICATE_APPROVER_REGISTRY
 # ---------------------------------------------------------------------------
 
 $TObl2Tpl = Join-Path $Work 't_obl2_tpl.json'
-New-Template -OutPath $TObl2Tpl -Approver 'alice' -SecondJson 'null' -EffectiveJson 'null' -PredecessorJson '"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"' -VerdictJson '"weakening_verdict": null' -Epoch 2
+# predecessor_context_sha256 must independently conform to the schema's
+# ^sha256:[0-9a-f]{64}$ pattern (contracts/approval-sidecar.schema.json) --
+# generated the same way $Hex64Placeholder is, rather than a hand-counted
+# literal, so the digit count can never drift.
+New-Template -OutPath $TObl2Tpl -Approver 'alice' -SecondJson 'null' -EffectiveJson 'null' -PredecessorJson ('"sha256:' + ('d' * 64) + '"') -VerdictJson '"weakening_verdict": null' -Epoch 2
 $TObl2Sidecar = Join-Path $Work 't_obl2_sidecar.json'
 New-SignedFixture -ContentPath $ContentValid -KeyFile $KeyFile -TemplatePath $TObl2Tpl -OutputPath $TObl2Sidecar
 
@@ -571,19 +595,19 @@ Copy-Item -LiteralPath $ContentValid -Destination (Join-Path $T043 'baseline.yam
 Copy-Item -LiteralPath $ContentOther -Destination (Join-Path $T043 'candidate.yaml')
 Copy-Item -LiteralPath (Join-Path $T043 'baseline.yaml') -Destination (Join-Path $T043 'sdd/.approved-context/project-context.approved.yaml')
 Copy-Item -LiteralPath $RegistryValid -Destination (Join-Path $T043 'sdd/approver-registry.yaml')
-Set-Content -LiteralPath (Join-Path $T043 'live-sidecar.json') -NoNewline -Encoding utf8 -Value '{"schema": "sdd-project-context-approval/v1", "context_sha256": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "approval_epoch": 1}'
+Set-Content -LiteralPath (Join-Path $T043 'live-sidecar.json') -NoNewline -Encoding utf8 -Value "{`"schema`": `"sdd-project-context-approval/v1`", `"context_sha256`": `"sha256:$Hex64Placeholder`", `"approval_epoch`": 1}"
 
 Push-Location $T043
 try {
   $r = Invoke-Gen -ArgList @('--schema', 'sdd-project-context-approval/v1', '--content', 'candidate.yaml', '--approver', 'alice', '--second-approver', 'bob', '--status', 'Approved', '--live-sidecar', 'live-sidecar.json', '--stage-dir', 'stage-approved') -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
 } finally { Pop-Location }
-$T043Approved = Join-Path $T043 'stage-approved/project-context.approval.json'
+$T043Approved = Get-StagedSidecarPath (Join-Path $T043 'stage-approved')
 
 Push-Location $T043
 try {
   $r = Invoke-Gen -ArgList @('--schema', 'sdd-project-context-approval/v1', '--content', 'candidate.yaml', '--approver', 'alice', '--status', 'Approved', '--live-sidecar', 'live-sidecar.json', '--stage-dir', 'stage-solo') -EnvSet @{ SDD_CONTEXT_KEY = $TestKey }
 } finally { Pop-Location }
-$T043Solo = Join-Path $T043 'stage-solo/project-context.approval.json'
+$T043Solo = Get-StagedSidecarPath (Join-Path $T043 'stage-solo')
 
 $T043Post = Join-Path $Work 't043-postpublish'
 New-Item -ItemType Directory -Path $T043Post -Force | Out-Null

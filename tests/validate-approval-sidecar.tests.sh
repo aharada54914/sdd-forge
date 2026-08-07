@@ -94,6 +94,22 @@ run_val() {
   return $?
 }
 
+# Staged-artifact layout resolver (mirrors tests/generate-approval-sidecar.tests.sh's
+# staged_rel_sidecar/staged_sidecar_path -- see that file's comment for full
+# rationale). The generator's staged bundle mirrors the sidecar's LIVE
+# repo-relative path (sdd/project-context.approval.json) rather than a bare
+# basename; this resolver locates it under either layout so these
+# path-agnostic tests keep passing before AND after that layout changes.
+staged_rel_sidecar() {
+  # staged_rel_sidecar <stagedir> -> sidecar path RELATIVE to <stagedir>
+  if [ -f "$1/sdd/project-context.approval.json" ]; then
+    printf 'sdd/project-context.approval.json'
+  else
+    printf 'project-context.approval.json'
+  fi
+}
+staged_sidecar_path() { printf '%s/%s' "$1" "$(staged_rel_sidecar "$1")"; }
+
 # ---------------------------------------------------------------------------
 # sign_fixture.py: builds a fully-signed approval-sidecar JSON object from a
 # template, computing context_sha256 (via canonicalize-sdd-yaml.py
@@ -161,6 +177,12 @@ printf '%s' "$TESTKEY" > "$KEYFILE"
 # ---------------------------------------------------------------------------
 # Content, registry, and weakening-verdict fixtures.
 # ---------------------------------------------------------------------------
+
+# A syntactically-valid (schema pattern ^[0-9a-f]{64}$) but obviously-fake
+# 64-hex-digit placeholder, generated rather than hand-counted so the digit
+# count can never silently drift (as a hand-typed literal previously did:
+# see OBLIGATION 2's predecessor_context_sha256 fixture below).
+HEX64_PLACEHOLDER="$(printf 'c%.0s' $(seq 1 64))"
 
 CONTENT_VALID="$WORK/project-context.yaml"
 cat > "$CONTENT_VALID" <<'EOF'
@@ -421,7 +443,7 @@ fi
   --effective-at "2099-06-01T00:00:00Z" \
   --live-sidecar "$WORK/no-such-live-sidecar.json" \
   --stage-dir "$WORK/stage-t020-future" >"$WORK/out" 2>"$WORK/err")
-T020_FUTURE="$WORK/stage-t020-future/project-context.approval.json"
+T020_FUTURE="$(staged_sidecar_path "$WORK/stage-t020-future")"
 
 (cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$CONTENT_VALID" --sidecar "$T020_FUTURE" --approver-registry "$REGISTRY_VALID")
 rc=$?
@@ -439,7 +461,7 @@ fi
   --effective-at "2020-01-01T00:00:00Z" \
   --live-sidecar "$WORK/no-such-live-sidecar.json" \
   --stage-dir "$WORK/stage-t020-past" >"$WORK/out" 2>"$WORK/err")
-T020_PAST="$WORK/stage-t020-past/project-context.approval.json"
+T020_PAST="$(staged_sidecar_path "$WORK/stage-t020-past")"
 
 (cd "$WORK" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content "$CONTENT_VALID" --sidecar "$T020_PAST" --approver-registry "$REGISTRY_VALID")
 rc=$?
@@ -473,8 +495,8 @@ cp "$CONTENT_VALID" "$WORK/t019/baseline.yaml"
 cp "$CONTENT_OTHER" "$WORK/t019/candidate.yaml"
 cp "$WORK/t019/baseline.yaml" "$WORK/t019/sdd/.approved-context/project-context.approved.yaml"
 cp "$REGISTRY_VALID" "$WORK/t019/sdd/approver-registry.yaml"
-cat > "$WORK/t019/live-sidecar.json" <<'EOF'
-{"schema": "sdd-project-context-approval/v1", "context_sha256": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "approval_epoch": 1}
+cat > "$WORK/t019/live-sidecar.json" <<EOF
+{"schema": "sdd-project-context-approval/v1", "context_sha256": "sha256:$HEX64_PLACEHOLDER", "approval_epoch": 1}
 EOF
 
 # (a) solo primary_approval against a policy-weakening candidate
@@ -494,7 +516,7 @@ if [ "$gen_solo_rc" = 0 ]; then
 else
   fail "TEST-019 (a) [discharge note] generate-approval-sidecar.py's documented current behavior (sign, exit 0) changed unexpectedly (exit $gen_solo_rc; stderr: $(cat "$WORK/err"))"
 fi
-T019_SOLO="$WORK/t019/stage-solo/project-context.approval.json"
+T019_SOLO="$(staged_sidecar_path "$WORK/t019/stage-solo")"
 if [ -f "$T019_SOLO" ] && "$PY" -c "
 import json
 d = json.load(open('$T019_SOLO'))
@@ -507,7 +529,7 @@ else
   fail "TEST-019 (a) the signed solo sidecar carries the expected underapproved shape: $(cat "$WORK/err")"
 fi
 
-(cd "$WORK/t019" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content candidate.yaml --sidecar stage-solo/project-context.approval.json --approver-registry sdd/approver-registry.yaml)
+(cd "$WORK/t019" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content candidate.yaml --sidecar "stage-solo/$(staged_rel_sidecar "$WORK/t019/stage-solo")" --approver-registry sdd/approver-registry.yaml)
 rc=$?
 if [ "$rc" = 43 ] && grep -q WEAKENING_PROVENANCE_UNDERAPPROVED "$WORK/err"; then
   pass "TEST-019 (a) validate-approval-sidecar.py REJECTS the solo-approved two-person-required sidecar (WEAKENING_PROVENANCE_UNDERAPPROVED) -- the canonical enforcement point (obligation 4b)"
@@ -531,7 +553,7 @@ if [ "$rc" = 0 ]; then
 else
   fail "TEST-019 (b) generate-approval-sidecar.py signs with two distinct approvers (exit $rc; stderr: $(cat "$WORK/err"))"
 fi
-(cd "$WORK/t019" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content candidate.yaml --sidecar stage-two/project-context.approval.json --approver-registry sdd/approver-registry.yaml)
+(cd "$WORK/t019" && SDD_CONTEXT_KEY="$TESTKEY" run_val --content candidate.yaml --sidecar "stage-two/$(staged_rel_sidecar "$WORK/t019/stage-two")" --approver-registry sdd/approver-registry.yaml)
 rc=$?
 if [ "$rc" = 0 ]; then
   pass "TEST-019 (b) validate-approval-sidecar.py accepts the two-distinct-approver sidecar"
@@ -627,7 +649,11 @@ fi
 # ---------------------------------------------------------------------------
 
 T_OBL2_TPL="$WORK/t_obl2_tpl.json"
-write_template "$T_OBL2_TPL" alice 'null' 'null' '"sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"' '"weakening_verdict": null' 2
+# predecessor_context_sha256 must independently conform to the schema's
+# ^sha256:[0-9a-f]{64}$ pattern (contracts/approval-sidecar.schema.json) --
+# generated the same way write_template's own context_sha256 placeholder is,
+# rather than a hand-counted literal, so the digit count can never drift.
+write_template "$T_OBL2_TPL" alice 'null' 'null' "\"sha256:$(printf 'd%.0s' $(seq 1 64))\"" '"weakening_verdict": null' 2
 T_OBL2_SIDECAR="$WORK/t_obl2_sidecar.json"
 sign_fixture "$CONTENT_VALID" "$KEYFILE" "$T_OBL2_TPL" "$T_OBL2_SIDECAR"
 
@@ -659,8 +685,8 @@ cp "$CONTENT_VALID" "$WORK/t043/baseline.yaml"
 cp "$CONTENT_OTHER" "$WORK/t043/candidate.yaml"
 cp "$WORK/t043/baseline.yaml" "$WORK/t043/sdd/.approved-context/project-context.approved.yaml"
 cp "$REGISTRY_VALID" "$WORK/t043/sdd/approver-registry.yaml"
-cat > "$WORK/t043/live-sidecar.json" <<'EOF'
-{"schema": "sdd-project-context-approval/v1", "context_sha256": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc", "approval_epoch": 1}
+cat > "$WORK/t043/live-sidecar.json" <<EOF
+{"schema": "sdd-project-context-approval/v1", "context_sha256": "sha256:$HEX64_PLACEHOLDER", "approval_epoch": 1}
 EOF
 
 # Two-distinct-approver (correctly-approved) weakening sidecar.
@@ -672,7 +698,7 @@ EOF
   --status Approved \
   --live-sidecar live-sidecar.json \
   --stage-dir stage-approved >"$WORK/out" 2>"$WORK/err")
-T043_APPROVED="$WORK/t043/stage-approved/project-context.approval.json"
+T043_APPROVED="$(staged_sidecar_path "$WORK/t043/stage-approved")"
 
 # Solo (underapproved) weakening sidecar -- signed by the REAL generator
 # (documented T-003 gap, same as TEST-019 (a)).
@@ -683,7 +709,7 @@ T043_APPROVED="$WORK/t043/stage-approved/project-context.approval.json"
   --status Approved \
   --live-sidecar live-sidecar.json \
   --stage-dir stage-solo >"$WORK/out" 2>"$WORK/err")
-T043_SOLO="$WORK/t043/stage-solo/project-context.approval.json"
+T043_SOLO="$(staged_sidecar_path "$WORK/t043/stage-solo")"
 
 # Simulate "post-publish, predecessor anchor gone": move BOTH sidecars to a
 # fresh directory that never had sdd/.approved-context/* at all, and
