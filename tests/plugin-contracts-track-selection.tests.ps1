@@ -531,9 +531,19 @@ function Invoke-Mutation([string]$Dir, [string]$Name, [string]$Doc) {
     return $null
 }
 
+# The per-mutation scratch directory is named <mutation>-<seq> rather than
+# <mutation>-<full doc path with separators flattened>. The flattened form
+# embedded an 87-character component for the two staged human-copy consumer
+# docs, and the deepest file it then had to create underneath was
+# <temp>\<suite>-<32 hex>\mut\<that component>\<the same 87-char doc path> --
+# 311 characters on a Windows runner (temp base "C:\Users\runneradmin\AppData\
+# Local\Temp\"), well past MAX_PATH's 260. The sequence form is 225, with room
+# to spare. The directory name is pure scratch -- no assertion reads it, and
+# uniqueness is all it was ever providing -- so this costs nothing on POSIX.
 $script:MutSeq = 0
 function Assert-Mutation([string]$Name, [string]$Doc, [string]$FindDoc, [string]$Check, [string]$Label) {
-    $dir = Join-Path $Work ("mut/" + $Name + '-' + ($Doc -replace '[/.]', '_'))
+    $script:MutSeq++
+    $dir = Join-Path $Work ("mut/" + $Name + '-' + $script:MutSeq)
     if (Test-Path -LiteralPath $dir) { Remove-Item -LiteralPath $dir -Recurse -Force }
     Copy-DocsTo $dir
     $err = Invoke-Mutation $dir $Name $Doc

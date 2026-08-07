@@ -144,7 +144,29 @@ $flag = @(
 # Payload construction: design.md Test Strategy item 8's 12 surface rows
 # ---------------------------------------------------------------------------
 
-function Get-Payload([string]$id, [string]$target, [string]$base, [string]$absolute) {
+# JSON string-body escaping for the path values interpolated into the payload
+# literals below. On POSIX every one of those values is a plain path with no
+# backslash and no double quote, so this is a byte-for-byte no-op there and the
+# .sh-parity payloads are unchanged. On native Windows $absolute is a real
+# absolute path ("C:\Users\runneradmin\AppData\Local\Temp\..."), whose
+# backslashes the guard's own ConvertFrom-Json would otherwise read as JSON
+# escape sequences -- "\U", "\A", "\L", "\T" are invalid escapes, and "\r"/"\t"
+# would silently become control characters -- so the payload would arrive
+# MALFORMED. That is not a harmless difference: the guard denies malformed
+# payloads (sdd-hook-guard.ps1's ConvertFrom-Json catch calls
+# Emit-Decision "deny"), so surface 05's AC-023 and BASE-* deny cells would
+# have passed VACUOUSLY -- the exact failure mode this suite's header calls out
+# -- while every MUT surface-05 cell, which must be ALLOWED after
+# de-registration, failed. Escaping keeps all three cell families measuring the
+# guard's real path analysis on both platforms.
+function ConvertTo-JsonStringBody([string]$value) {
+    return $value.Replace('\', '\\').Replace('"', '\"')
+}
+
+function Get-Payload([string]$id, [string]$rawTarget, [string]$rawBase, [string]$rawAbsolute) {
+    $target = ConvertTo-JsonStringBody $rawTarget
+    $base = ConvertTo-JsonStringBody $rawBase
+    $absolute = ConvertTo-JsonStringBody $rawAbsolute
     switch ($id) {
         "01" { return '{"tool_name":"Bash","tool_input":{"command":"echo x > ' + $target + '"}}' }
         "02" { return '{"tool_name":"Bash","tool_input":{"command":"echo x >' + $target + '"}}' }
