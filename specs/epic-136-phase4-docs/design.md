@@ -20,7 +20,7 @@ The design's central choice is that a timeout must be **indistinguishable downst
 | `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh` | Existing (extended) | same, around `:137-142` |
 | `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1` | Existing (extended) | replace `-Wait` with a bounded `WaitForExit` (`:184-195`) |
 | `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1` | Existing (extended) | same |
-| `plugins/sdd-quality-loop/references/cross-model-verification-policy.md` | Existing (extended) | new "Panelist Failure Taxonomy" section; `:28-31` and `:202-210` unchanged (BL-003) |
+| `plugins/sdd-quality-loop/references/cross-model-verification-policy.md` | Existing (extended) | new "Panelist Failure Taxonomy" section; `:28-31` unchanged; the `:202-210` block (now `:203-211`) carries only the human-ratified exit-code correction (BL-003 posture preserved; tasks.md ruling 2026-08-07) |
 | `docs/THREAT-MODEL.md` | Existing (extended) | two new sections; `:39-41` and `:56` unchanged (REQ-005 forbids re-documenting `.codex/agents/*.toml`) |
 | `tests/cross-model.tests.sh` | Existing (extended) | AC-003/004/005/006 cases via a stub CLI |
 | `tests/cross-model.tests.ps1` | Existing (extended) | parity cases (BL-004) |
@@ -119,7 +119,7 @@ Naming and default-inline shape follow `install.sh:758` (`SDD_INSTALL_LOCK_TIMEO
 
 ### Policy document: the new taxonomy section
 
-Appended to `cross-model-verification-policy.md`, leaving `:28-31` and `:202-210` intact (BL-003):
+Appended to `cross-model-verification-policy.md`, leaving `:28-31` intact and the `:202-210` block (now `:203-211`) with only the human-ratified exit-code correction (BL-003 posture preserved; tasks.md ruling 2026-08-07):
 
 | Failure mode | Runner exit | Verdict file | Reaches the gate as |
 |---|---|---|---|

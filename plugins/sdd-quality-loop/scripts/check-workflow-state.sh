@@ -195,16 +195,43 @@ normalized_hash() {
 # normalization can reproduce. Accepting either form does not weaken
 # provenance: both prove the reviewers read the document's current body, and
 # an edit to the body still matches neither.
+# A task-stage re-review binds the raw bytes of an executable state (statuses
+# uniformly `Implementation Complete` or `Done` with approvals granted). The
+# quality gate's own later `Done` flips are lifecycle transitions, not body
+# edits, so they must be absorbable the same way the ordinary flow's
+# `Planned -> ...` flips are absorbed by normalized_hash(). These two extra
+# canonical forms rewrite ONLY the lifecycle fields to each uniform
+# re-review-legal state; a body edit still matches none of the four forms.
+rereview_normalized_hash() {
+  local file="$1" status="$2"
+  local cr=""
+  LC_ALL=C grep -q $'^Task-Review-Status:.*\r$' "$file" && cr=$'\r'
+  sed \
+    -e "s/^Task-Review-Status:[[:space:]]*.*/Task-Review-Status: Passed${cr}/" \
+    -e "s/^Approval:[[:space:]]*.*/Approval: Approved${cr}/" \
+    -e "s/^Status:[[:space:]]*.*/Status: ${status}${cr}/" \
+    -e "/^Second Approval:/d" "$file" | sha256_stream
+}
 reviewed_hash_accepted() {
   local file="$1" stage="$2" candidate="$3"
   [[ -n "$candidate" ]] || return 1
   [[ "$candidate" == "$(normalized_hash "$file" "$stage")" ]] && return 0
-  [[ "$candidate" == "$(sha256_file "$file")" ]]
+  [[ "$candidate" == "$(sha256_file "$file")" ]] && return 0
+  if [[ "$stage" == task ]]; then
+    [[ "$candidate" == "$(rereview_normalized_hash "$file" "Implementation Complete")" ]] && return 0
+    [[ "$candidate" == "$(rereview_normalized_hash "$file" "Done")" ]] && return 0
+  fi
+  return 1
 }
 manifest_has_reviewed_hash() {
   local contract="$1" suffix="$2" file="$3" stage="$4" recorded_root="$5"
   manifest_has_hash "$contract" "$suffix" "$(normalized_hash "$file" "$stage")" "$recorded_root" && return 0
-  manifest_has_hash "$contract" "$suffix" "$(sha256_file "$file")" "$recorded_root"
+  manifest_has_hash "$contract" "$suffix" "$(sha256_file "$file")" "$recorded_root" && return 0
+  if [[ "$stage" == task ]]; then
+    manifest_has_hash "$contract" "$suffix" "$(rereview_normalized_hash "$file" "Implementation Complete")" "$recorded_root" && return 0
+    manifest_has_hash "$contract" "$suffix" "$(rereview_normalized_hash "$file" "Done")" "$recorded_root" && return 0
+  fi
+  return 1
 }
 manifest_has_hash() {
   local contract="$1" suffix="$2" expected="$3" recorded_root="$4"

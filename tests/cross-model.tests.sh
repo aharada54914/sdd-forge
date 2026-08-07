@@ -602,7 +602,7 @@ for runner_kind in gpt gemini; do
         mkdir -p "$case_dir"
         started=$(monotonic_ms)
         run_panelist "$runner" set 2 "$case_dir" \
-            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=1.5
+            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=2.5
         finished=$(monotonic_ms)
         elapsed=$((finished-started))
         echo "measurement: TEST-004(c) runner=${runner_kind} iteration=${iteration} elapsed_ms=${elapsed} deadline_ms=2000 exit=${PANELIST_EXIT} verdict=$([ -f "$verdict" ] && echo present || echo absent)"
@@ -610,6 +610,33 @@ for runner_kind in gpt gemini; do
             ok "TEST-004(c) ${runner_kind}/${iteration}: near-boundary completion stays successful"
         else
             fail "TEST-004(c) ${runner_kind}/${iteration}: exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
+        fi
+    done
+done
+
+# TEST-004(c2): deterministically exercise the post-deadline re-check branch.
+# With the start phase aligned early in the wall-clock second and a stub that
+# outlives the effective limit+1 deadline, the deadline check fires while the
+# child is still alive, and the one-second settling pause lets the child
+# publish before the expiry is treated as authoritative — so this case
+# succeeds THROUGH the re-check branch and fails if that branch is removed.
+for runner_kind in gpt gemini; do
+    runner=$(runner_path "$runner_kind")
+    for iteration in 1 2 3; do
+        case_dir="${WORK}/recheck-${runner_kind}-${iteration}"
+        marker="${case_dir}/called"
+        verdict="${case_dir}/timeout-test/verification/$(runner_verdict_name "$runner_kind")"
+        mkdir -p "$case_dir"
+        python3 -c 'import time; t = time.time(); time.sleep((1 - t % 1) % 1 + 0.10)'
+        started=$(monotonic_ms)
+        run_panelist "$runner" set 2 "$case_dir"             STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=3.5
+        finished=$(monotonic_ms)
+        elapsed=$((finished-started))
+        echo "measurement: TEST-004(c2) runner=${runner_kind} iteration=${iteration} elapsed_ms=${elapsed} deadline_ms=2000 exit=${PANELIST_EXIT} verdict=$([ -f "$verdict" ] && echo present || echo absent)"
+        if [ "$PANELIST_EXIT" = "0" ] && [ -f "$verdict" ]; then
+            ok "TEST-004(c2) ${runner_kind}/${iteration}: post-deadline re-check rescues a completing child"
+        else
+            fail "TEST-004(c2) ${runner_kind}/${iteration}: exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
         fi
     done
 done

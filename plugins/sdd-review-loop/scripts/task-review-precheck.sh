@@ -523,10 +523,19 @@ if [[ "${ROUND}" -gt 1 ]]; then
 
   if [[ -f "${prior_contract}" ]]; then
     prior_tasks_sha256=$(python3 -c "import json,sys; d=json.load(open('${prior_contract}')); print(d.get('tasks_sha256',''))" 2>/dev/null || echo "")
+    prior_traceability_sha256=$(python3 -c "import json,sys; d=json.load(open('${prior_contract}')); print(d.get('traceability_sha256',''))" 2>/dev/null || echo "")
 
-    if [[ "${tasks_sha256}" == "${prior_tasks_sha256}" ]]; then
-      echo "ERROR: task-review-precheck: tasks.md sha256 is unchanged from round ${prior_round}." \
-        "Edit tasks.md before re-invoking, then provide --edit-summary." >&2
+    # A later round must show progress on SOME reviewed artifact. tasks.md is
+    # the usual target, but TRACEABILITY-SYNC findings are legitimately fixed
+    # in traceability.md alone, so a traceability.md change (when both rounds
+    # record its hash) also satisfies the progress requirement. Fail closed
+    # when neither changed, or when the traceability hashes are unavailable
+    # for comparison.
+    if [[ "${tasks_sha256}" == "${prior_tasks_sha256}" ]] &&
+       { [[ -z "${prior_traceability_sha256}" || -z "${traceability_sha256}" ]] ||
+         [[ "${traceability_sha256}" == "${prior_traceability_sha256}" ]]; }; then
+      echo "ERROR: task-review-precheck: neither tasks.md nor traceability.md changed from round ${prior_round}." \
+        "Edit the artifact the prior round's findings target before re-invoking, then provide --edit-summary." >&2
       exit 1
     fi
   fi
