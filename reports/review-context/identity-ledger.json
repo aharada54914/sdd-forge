@@ -4743,6 +4743,15 @@
       "host_session_id": "SESS-qg-epic-136-phase4-docs-T-005-0527",
       "previous_record_sha256": "846b784f3ee72c9c2b5c595e4b0248416e7e019afe109014e5a18ecb25470a34",
       "record_sha256": "4f22621b6e19cfc8f032c66d316e1db350f27fd899c4bffc92b580a7f7dce415"
+    },
+    {
+      "sequence": 528,
+      "stage": "task",
+      "role": "task-reviewer-a",
+      "run_id": "RUN-epic-136-phase4-docs-task-task-reviewer-a-seq0528",
+      "host_session_id": "SESS-task-task-reviewer-a-epic-136-phase4-docs-0528",
+      "previous_record_sha256": "4f22621b6e19cfc8f032c66d316e1db350f27fd899c4bffc92b580a7f7dce415",
+      "record_sha256": "7c5b5df7c7e20d9f5eba0408594da4add8ed114681f6ab194ab1aaeb2662a3f3"
     }
   ]
 }
