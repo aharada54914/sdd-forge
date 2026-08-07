@@ -1,0 +1,146 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "design-sync-consent",
+  "task_id": "T-005",
+  "run_id": "RUN-design-sync-consent-qg-T-005-seq0516",
+  "host_session_id": "SESS-qg-design-sync-consent-T-005-0516",
+  "sequence": 516,
+  "previous_record_sha256": "38bbb5238b6a60f9ebf22bbca80466f2d679acdbfe1283402c77182745b7c724",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "28c174c654f33ba13080265e4784742cc918309e10bdc1ccd130b140c6845cbc",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/design-sync-consent/T-005.md",
+      "sha256": "91e7c5c149871fbb85517220c29c9f55c5d8b307886bb524c8cc4b176eb294b3"
+    },
+    {
+      "path": "specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26"
+    },
+    {
+      "path": "specs/design-sync-consent/design.md",
+      "sha256": "63ce02d71d9698f88c2cd257dc825d856ff8086b73d0bc702fba4c2a9ba67d4b"
+    },
+    {
+      "path": "specs/design-sync-consent/frontend-spec.md",
+      "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+    },
+    {
+      "path": "specs/design-sync-consent/infra-spec.md",
+      "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+    },
+    {
+      "path": "specs/design-sync-consent/requirements.md",
+      "sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a"
+    },
+    {
+      "path": "specs/design-sync-consent/security-spec.md",
+      "sha256": "733d26821f122e9c41bdcf623c9a5604cbc8f9fa39d0c3bf4559db140b6a19c1"
+    },
+    {
+      "path": "specs/design-sync-consent/tasks.md",
+      "sha256": "3eeac61f5502cc78523b6dae795abc16c8ce7a7f120ae11693c825795096b060"
+    },
+    {
+      "path": "specs/design-sync-consent/traceability.md",
+      "sha256": "75c69cdb8cb713cfdc7c341f9071125cd7893bfbf28d498b7f3e720f1d73e2e2"
+    },
+    {
+      "path": "specs/design-sync-consent/ux-spec.md",
+      "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/acceptance-mapping.md",
+      "sha256": "0423803a7533b73d6764a4781dd6f2891028b58c6f749e03a246db51945b0031"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/case-sensitivity-sweep-evidence.log",
+      "sha256": "185093ee4e5b658f4a6980dc47b1cca8aa822281979d03533f93d033a81fbb53"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/cross-model-sh-isolated.log",
+      "sha256": "a40c6fa1aae1072c1e8ee3cb4ef816f423ed43f61e879d084d55d1dd3e7eef61"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/direct-ps1-run.log",
+      "sha256": "37ee080546c190feb4d6577ef471d6ac7378f5f47ec65fb1eeb5e1c71e0bf872"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/direct-sh-run.log",
+      "sha256": "cba8664e1e9a050e9a17d64ff3ddcb8fb0323c0632e6098fda33429fb802b496"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/fixture-correctcased-changelog-anchor.md",
+      "sha256": "880abac6b4626b89eb2b543244fa14266f374a2105b5b07bcf48cff39caaea14"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/fixture-correctcased-loop-heading.md",
+      "sha256": "e674061948cfdeeb84c18dab6c7ce27b664c584c94b08b75087521a5e5af514d"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/fixture-miscased-changelog-anchor.md",
+      "sha256": "3b2f385e567b65e6b6b5a81e881df7bd185ca2d32adc8c1dd9b260bb8d8ee754"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/fixture-miscased-loop-heading.md",
+      "sha256": "d850175755b8b539091667bebcf418cf5301cc8062ed66ce9a7c04af11045e8f"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/per-test-id-table.md",
+      "sha256": "39a66ce8ab33bae904083d5e069836a0c29fbdd230c76a13083afdc3b39933d7"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/run-all-execution-evidence.log",
+      "sha256": "e303f647bad58d08292853f70bcddd7e90d9a6c7b5e46b4e5814e20210bf8cf1"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/run-all-ps1-output.log",
+      "sha256": "9c0ecd8f8dd5091fbe196ae19ea5c4ef9ee1a3600a7e2531078c75a5bfa4e9df"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/run-all-sh-output.log",
+      "sha256": "ce760cdfc488338e8d71cebe9bc98678d98cab97ef2d00604e0c2e6902d4f4f6"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/sweep-operator.ps1",
+      "sha256": "41e485cb3fbaeffa953121cc59efe5fea7ae83a00e5b94ee6706a038f500f383"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/sweep-operator.sh",
+      "sha256": "92a72e60cb36423f753d7f60da227cda1d1ae15f115c11c519fd7232eae886b3"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/tail-harness-ps1.log",
+      "sha256": "2cab3103e169e45e5dbd435e2b736aecf9fffc518daa1188c9d2ec92962c94b7"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/tail-harness-sh.log",
+      "sha256": "5c96282c2867a7798fdf21894ae83f3c8553527a409adcf993da2ff4b0dea6ff"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/tail-harness.ps1",
+      "sha256": "97db42e0fd662e0bcf5b698cb3880df35feb96f8712d7f2266b0ffb2ab244274"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-005/tail-harness.sh",
+      "sha256": "ba6440b79efbacc2e4b9bff95d5a33be2f302b745dd0d008a79932afe0ddb9ba"
+    },
+    {
+      "path": "tests/run-all.ps1",
+      "sha256": "1c22b1b1797a7364d9290ce099bc952fb632d751399c554c25cb6ccbd87b3588"
+    },
+    {
+      "path": "tests/run-all.sh",
+      "sha256": "e4162c506905ece5f9a3a8ea73de41e290dfc960045f201d04af32b8c0d2a250"
+    }
+  ]
+}

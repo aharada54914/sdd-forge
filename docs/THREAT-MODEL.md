@@ -135,6 +135,10 @@
    - If tasks.md `(sudo <ISO8601>)` notation is accidentally or maliciously removed, the audit trail is obscured.
    - **Mitigation:** Quality-gate reports and evidence bundles are immutable artifacts stored separately from tasks.md and serve as the authoritative record. Audits should cross-reference bundles and reports, not only tasks.md.
 
+7. **Unbounded external panelist (Closed by this feature)**
+   - The prior unbounded external panelist invocation could wait forever on a vendor CLI and stall critical verification. This historical availability risk is **closed by this feature** through the positive whole-second `SDD_PANELIST_TIMEOUT` bound and fail-closed process termination.
+   - **Implemented evidence:** the bound and timeout branch are live in all four runners: `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:49` and `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:314`; `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh:30` and `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh:219`; `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1:44` and `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1:208-211`; `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1:26` and `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1:140-143`.
+
 ---
 
 ## Enforcement by Runtime
@@ -162,3 +166,58 @@
 - **Risk-Adaptive Layer Design** (security considerations section, control surfaces): [`specs/risk-adaptive-layer/design.md`](../specs/risk-adaptive-layer/design.md)
 - **Deterministic Check Policy**: [`plugins/sdd-quality-loop/references/deterministic-check-policy.md`](../plugins/sdd-quality-loop/references/deterministic-check-policy.md)
 - **SDD Hook Guard** (Python, JavaScript, PowerShell implementations): [`plugins/sdd-quality-loop/scripts/sdd-hook-guard.{py,ps1,js}`](../plugins/sdd-quality-loop/scripts/)
+
+---
+
+## OWASP LLM Top 10 (2025) Cross-Reference
+
+This repository-level mapping uses the identifiers and category names from the
+[OWASP Top 10 for LLM Applications 2025](https://genai.owasp.org/llm-top-10/?cat=253).
+It does not claim that a mapped control eliminates the category; it identifies
+the existing control that constrains the repository's exposure. `N/A` means the
+category has no applicable attack surface in this repository's current scope.
+
+| OWASP entry | Disposition | Repository evidence |
+|---|---|---|
+| LLM01 | Control — Prompt Injection: external content is treated as untrusted data, and injected instructions do not override repository policy. | The trust assumption and prompt-injection mitigation are defined at `docs/THREAT-MODEL.md:15` and `docs/THREAT-MODEL.md:91-93`. |
+| LLM02 | Control — Sensitive Information Disclosure: panelist activation, output sanitization, CI isolation, and key isolation constrain outbound data. | The four existing code-leakage controls are defined at `docs/THREAT-MODEL.md:103-108`. |
+| LLM03 | Partial control — Supply Chain: **Branch protection (main)** requires status checks and CODEOWNERS review for repository changes. | The named control is defined in the Controls Table at `docs/THREAT-MODEL.md:65`; this mapping does not assert model or dataset supply-chain coverage. |
+| LLM04 | N/A — Data and Model Poisoning does not apply because this repository does not train, fine-tune, or maintain model-training datasets. | Repository scope contains workflow tooling and documentation, not a training or model-data pipeline. |
+| LLM05 | Control — Improper Output Handling: **Deterministic checks** and the **Review verdict requirement** reject malformed or unverified agent-produced artifacts before approval. | Both named controls are defined in the Controls Table at `docs/THREAT-MODEL.md:60` and `docs/THREAT-MODEL.md:63`. |
+| LLM06 | Control — Excessive Agency: the **Approval guard**, **WFI guard**, **Second Approval**, and **Two-person rule** keep privileged workflow transitions human-controlled. | The named controls are defined in the Controls Table at `docs/THREAT-MODEL.md:53-55` and `docs/THREAT-MODEL.md:64`. |
+| LLM07 | N/A — System Prompt Leakage does not apply because the repository does not host a model or treat its versioned role and instruction files as a confidential security boundary. | The repository's prompts are reviewable configuration; no secret system prompt is asserted as a protected asset. |
+| LLM08 | N/A — Vector and Embedding Weaknesses do not apply because the repository has no vector database, embedding pipeline, or retrieval-augmented generation store. | No vector, embedding, or RAG trust boundary exists in the documented system scope. |
+| LLM09 | Control — Misinformation: the **Traceability gate**, **Review verdict requirement**, and **Deterministic checks** require claims and completion evidence to be independently checkable. | The named controls are defined in the Controls Table at `docs/THREAT-MODEL.md:60`, `docs/THREAT-MODEL.md:62`, and `docs/THREAT-MODEL.md:63`. |
+| LLM10 | Control — Unbounded Consumption: `SDD_PANELIST_TIMEOUT` enforces a positive bounded panelist runtime and terminates the spawned process group on expiry. | The control is implemented in `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:49`, validated at lines 65-76, and enforced at lines 178-230. |
+
+## MCP Security Cross-Reference
+
+The MCP servers use local stdio rather than exposing a network listener. Their
+postures follow the MCP project's primary guidance to obtain consent for local
+server commands, apply least privilege and sandboxing where possible, and use
+authorization for HTTP transports that access protected resources.
+
+| Server | Trust posture | Repository evidence | Primary MCP source |
+|---|---|---|---|
+| sdd-forge-mcp | Local stdio under the caller's OS-user boundary; read-only, project-root-confined access through a fail-closed allowlist and denylist path guard; no network listener or server-side authentication. | `specs/sdd-forge-mcp/security-spec.md:17-18`, `specs/sdd-forge-mcp/security-spec.md:33-36`, and `specs/sdd-forge-mcp/security-spec.md:42-45`. | [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) and [MCP authorization guidance](https://modelcontextprotocol.io/docs/tutorials/security/authorization). |
+| local-env-mcp | Local stdio under the caller's OS-user boundary; exposes only bounded environment probes from a compile-time allowlist, executes them without a shell, and provides no caller-selected command or filesystem access. | `specs/local-env-mcp/security-spec.md:21-22`, `specs/local-env-mcp/security-spec.md:29-33`, and `specs/local-env-mcp/security-spec.md:39-48`. | [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) and [MCP authorization guidance](https://modelcontextprotocol.io/docs/tutorials/security/authorization). |
+| ci-mcp | Local stdio under the caller's OS-user boundary; uses an environment-provided read-only token solely for fixed-host GitHub API GET requests, scrubs token values, and exposes no write or local-filesystem operation. | `specs/ci-mcp/security-spec.md:23-24`, `specs/ci-mcp/security-spec.md:31-38`, `specs/ci-mcp/security-spec.md:59-61`, and `specs/ci-mcp/security-spec.md:67-70`. | [MCP security best practices](https://modelcontextprotocol.io/docs/tutorials/security/security_best_practices) and [MCP authorization guidance](https://modelcontextprotocol.io/docs/tutorials/security/authorization). |
+
+---
+
+## Runtime Trust Surfaces
+
+These configuration surfaces decide whether the deterministic controls above
+are invoked. They are security boundaries even though most live in a user's
+tool configuration rather than in repository source. The agent role definition
+files are not restated here: their `developer_instructions` control remains
+documented by **Assets Protected**, item 5, and the **Agent-role guard** row in
+the Controls Table.
+
+| Surface | Trust assumption | Mitigation or residual risk | Repository evidence |
+|---|---|---|---|
+| `--dangerously-bypass-hook-trust` | Trust assumption — on first use, an operator reviews the repository hook configuration and grants Codex's first-run trust approval only when the checkout and hook commands are trusted. | Mitigation — do not pass `--dangerously-bypass-hook-trust` during normal operation. An operator who uses it **forfeits the first-run trust approval checkpoint** and allows the repository hooks to execute without that interactive trust confirmation; the shipped hook chain is the kill switch followed by the write guard. | Codex's repository hook commands are declared at `plugins/sdd-quality-loop/hooks/hooks.json:2-26`. |
+| `hooks.state` | Trust assumption — the `hooks.state` field in the user-level `~/.codex/config.toml` accurately persists the operator's hook-trust decision and is not silently changed by another process with access to that file. | Mitigation — treat the user config as security-sensitive, protect it with OS-user permissions, do not hand-edit `hooks.state` to bypass review, and use Codex's normal trust flow when approving this repository's hook configuration. | The decision controls whether the shipped Codex hook chain in `plugins/sdd-quality-loop/hooks/hooks.json:2-26` is allowed to run. |
+| `managed by sdd-forge installer` | Trust assumption — each installer-managed MCP-registration marker block in `~/.codex/config.toml` still points `command = "node"` and `args` at the intended, operator-approved install root. | Mitigation — the installer bounds each registration with per-server begin/end markers, replaces only the matching block idempotently, and refuses to create a missing config file; operators should inspect marker-delimited command paths after changing the install root. This configuration-file surface does **not** substitute for the separate three-server trust-posture cross-reference above. | POSIX writes and replaces the markers at `install.sh:361-395`; PowerShell mirrors it at `install.ps1:239-268`. |
+| `claude-hooks.json` | Trust assumption — Claude Code loads the quality-loop plugin's declared hooks file and resolves `${CLAUDE_PLUGIN_ROOT}` to the installed plugin before executing its commands. | Mitigation — `plugins/sdd-quality-loop/hooks/claude-hooks.json` uses node exec form for both `PreToolUse` layers: the kill switch matches every tool and the guard matches repository-mutating tools with fail-closed exit emission. | The plugin declares the hook file at `plugins/sdd-quality-loop/.claude-plugin/plugin.json:8`; node exec entries are at `plugins/sdd-quality-loop/hooks/claude-hooks.json:2-22`. |
+| `Claude Code settings/permissions` | Trust assumption — as the counterpart to Codex hook trust, the operator keeps Claude Code's user/project settings and interactive permissions least-privileged and does not grant tools broader access than the task requires. | Residual risk — this repository ships no `.claude/settings.json`, so host-level grants remain operator-controlled and can enlarge blast radius. The plugin's `PreToolUse` guard still constrains covered writes while hooks are active; read-only review roles separately declare disallowed write tools. | The hook matcher is at `plugins/sdd-quality-loop/hooks/claude-hooks.json:15-22`; the existing permission model is summarized at `docs/agent-capability-matrix.md:55-61`. |

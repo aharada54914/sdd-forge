@@ -220,8 +220,9 @@ UI アプリでは Step 3a の途中で `ds_profile`（`custom` / `none`）を�
 `design-system/`（W3C DTCG 準拠の design-tokens.json / design-system.md /
 ui-patterns.md）を保証（ui-ux-pro-max シード生成・Figma DTCG エクスポート取込・
 D6 テンプレートインタビューのいずれか）したうえで、トークン駆動の使い捨て
-モックアップを生成し、claude.ai/design で確認ループを回す（アップロードは
-都度人間承認）。実装段階では `implement-task` が UI タスクで
+モックアップを生成し、claude.ai/design で確認ループを回す（アップロードの
+同意は機能・セッション単位で得る。同一機能・セッション内の再送信は再確認
+不要）。実装段階では `implement-task` が UI タスクで
 `visual-verify-loop`（advisory・非ブロッキング）を実行し、品質検証では
 `check-design-system.(sh|ps1)` が warn モードで決定論的に照合する
 （`SDD_DESIGN_SYSTEM_ENFORCE=error` で昇格）。`ds_profile: none` と非 UI

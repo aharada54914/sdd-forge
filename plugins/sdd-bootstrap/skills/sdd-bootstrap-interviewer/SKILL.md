@@ -81,8 +81,9 @@ design catch-all.
   `design-sync-loop` skill: it ensures `design-system/` exists (seeding it
   when absent), pulls design-system context from claude.ai/design, generates
   token-driven disposable HTML mockups under `specs/<feature>/mockups/`,
-  manages per-upload human approval, and falls back to
-  `references/claude-design-workflow.md` when design tools are unavailable.
+  resolves egress consent scoped to this feature and session before any
+  upload, and falls back to `references/claude-design-workflow.md` when
+  design tools are unavailable.
   On `none`, skip design-system integration entirely — no artifacts and no
   further design-system questions.
 - Otherwise ask whether the human has a local mockup or visual reference. If

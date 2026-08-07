@@ -1,0 +1,41 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "feature": "design-sync-consent",
+  "run_id": "RUN-designsyncconsent-spec-a1r1-b-seq0465",
+  "host_session_id": "SESS-spec-a1r1-b-designsyncconsent-0465",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "5e8f1e75523fa506b57132926dd39010cc5fb7d10117cc0c34708ad6bcb746bd",
+  "previous_record_sha256": "81b4acbb5ebb8e57139e944cbde26e7f91ebf44fd5fc5c6ecebf1cf2c32c63dd",
+  "sequence": 465,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/design-sync-consent/requirements.md",
+      "sha256": "d79242ad6216a43939a382d490554d0ac12fe288d854cb407182af10e467366c"
+    },
+    {
+      "path": "specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "e2a1d451dd8030bdccdd765a009032c2f9772ef92b8f1730b6568e4d65cb87c7"
+    },
+    {
+      "path": "specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/design-sync-consent/attempt-1/round-1/precheck-result.json",
+      "sha256": "2a74e7bdb9379a381eac1a57d49f31439c13ab52c7f878eed3acb2d97e629ed7"
+    },
+    {
+      "path": "reports/spec-review/design-sync-consent/attempt-1/round-1/integrated-summary.json",
+      "sha256": "8248479f12e1eb2bfc0aeba72069b67336329c77a518abd198e491bc4dde01b1"
+    }
+  ]
+}

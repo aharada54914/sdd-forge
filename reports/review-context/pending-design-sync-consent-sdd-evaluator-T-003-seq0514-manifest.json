@@ -1,0 +1,90 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "quality",
+  "role": "sdd-evaluator",
+  "feature": "design-sync-consent",
+  "task_id": "T-003",
+  "run_id": "RUN-design-sync-consent-qg-T-003-seq0514",
+  "host_session_id": "SESS-qg-design-sync-consent-T-003-0514",
+  "sequence": 514,
+  "previous_record_sha256": "3c2fc9a4e91948b79f0ea56a626dcec8854dd65355967176d2cbc748ff8a4d08",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "00289cbe889728a8b6d369b1a834b74b261fc12b191ccdec3e3a35cfa726eeba",
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "read_only": true,
+  "allowed_input_manifest": [
+    {
+      "path": "docs/workflow-guide.md",
+      "sha256": "e8a5f0053673f219c8e41d11529ea19d5592f774930afe0163962bb9df36634f"
+    },
+    {
+      "path": "plugins/sdd-bootstrap/skills/sdd-bootstrap-interviewer/SKILL.md",
+      "sha256": "eacf4d3e3d68b30589be4456fe7f2b0e35ae3dba9a3016c0ca0242ea455b8100"
+    },
+    {
+      "path": "plugins/sdd-quality-loop/references/quality-gate-calibration.md",
+      "sha256": "fe2a3a11d5bc6144b2cb1a6eb258a6b2de837b6b2059e06a35009ecd47c9a542"
+    },
+    {
+      "path": "reports/implementation/design-sync-consent/T-003.md",
+      "sha256": "78ab25f460d2150a77d0579395e88422f0ddfe07716e5100525cd5b3ab997f49"
+    },
+    {
+      "path": "specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26"
+    },
+    {
+      "path": "specs/design-sync-consent/design.md",
+      "sha256": "63ce02d71d9698f88c2cd257dc825d856ff8086b73d0bc702fba4c2a9ba67d4b"
+    },
+    {
+      "path": "specs/design-sync-consent/frontend-spec.md",
+      "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+    },
+    {
+      "path": "specs/design-sync-consent/infra-spec.md",
+      "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+    },
+    {
+      "path": "specs/design-sync-consent/requirements.md",
+      "sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a"
+    },
+    {
+      "path": "specs/design-sync-consent/security-spec.md",
+      "sha256": "733d26821f122e9c41bdcf623c9a5604cbc8f9fa39d0c3bf4559db140b6a19c1"
+    },
+    {
+      "path": "specs/design-sync-consent/tasks.md",
+      "sha256": "3eeac61f5502cc78523b6dae795abc16c8ce7a7f120ae11693c825795096b060"
+    },
+    {
+      "path": "specs/design-sync-consent/traceability.md",
+      "sha256": "75c69cdb8cb713cfdc7c341f9071125cd7893bfbf28d498b7f3e720f1d73e2e2"
+    },
+    {
+      "path": "specs/design-sync-consent/ux-spec.md",
+      "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-003/acceptance-mapping.md",
+      "sha256": "f572dd7295bfe3e2e5d109ac68f2bf133e6910ebdfd77766166138d010655bba"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-003/green-evidence-ps1.log",
+      "sha256": "13e4758006591121642f2b795c8567022185cc2e82fd27952f3f2b58cf47a41c"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-003/green-evidence-sh.log",
+      "sha256": "434316d883b6807ddd26d80afb6ff95bd1a35c3a5623ea033e503c33b9cbb418"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-003/red-baseline-ps1.log",
+      "sha256": "78c89933a167c795b27a653f498432733895758f84f8ddc5e0751a727f0aa65f"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-003/red-baseline-sh.log",
+      "sha256": "10f8071c27c239ac93b698323b59954d9c3fba791e36c8a804f2d3f733a0ce54"
+    }
+  ]
+}
