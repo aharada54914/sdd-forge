@@ -1,6 +1,6 @@
 # Requirements: design-sync-standing-consent
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 
 Source issue: [#140](https://github.com/aharada54914/sdd-forge/issues/140) (`enhancement`, `workflow-improvement`; key `DS-31`, epic #136). Depends on: [#138](https://github.com/aharada54914/sdd-forge/issues/138) (`DS-29`, "design-sync-consent"). Sibling: [#139](https://github.com/aharada54914/sdd-forge/issues/139) (`DS-30`, "design-sync-scan") — independent of this feature (see Non-goals).
 

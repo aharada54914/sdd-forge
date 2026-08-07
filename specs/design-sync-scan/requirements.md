@@ -1,6 +1,6 @@
 # Requirements: design-sync-scan
 
-Spec-Review-Status: Pending
+Spec-Review-Status: Passed
 
 Source issue: [#139](https://github.com/aharada54914/sdd-forge/issues/139) (`enhancement`, `security`; key `DS-30`, epic #136). Depends on: [#138](https://github.com/aharada54914/sdd-forge/issues/138) (`DS-29`), specified in `specs/design-sync-consent/`. Sibling: [#140](https://github.com/aharada54914/sdd-forge/issues/140) (`DS-31`), not addressed here.
 
