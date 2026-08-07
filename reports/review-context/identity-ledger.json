@@ -4860,6 +4860,42 @@
       "host_session_id": "SESS-qg-epic-136-phase4-docs-T-002-0540",
       "previous_record_sha256": "a331a49ddbdafbbc77b82ec50f633798f090c01921896f3a05b9a244694897ce",
       "record_sha256": "27fdb44fcf8eac689009d4c8e465e754320df4a87cfffe91c9146b1a7a74affd"
+    },
+    {
+      "sequence": 541,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-designsyncscan-spec-a1r1-a-seq0541",
+      "host_session_id": "SESS-spec-a1r1-a-designsyncscan-0541",
+      "previous_record_sha256": "27fdb44fcf8eac689009d4c8e465e754320df4a87cfffe91c9146b1a7a74affd",
+      "record_sha256": "2294ecdfd5bc1f716c623641f15da8f282c7ae8114167c8ca08cfbb755c5a6eb"
+    },
+    {
+      "sequence": 542,
+      "stage": "spec",
+      "role": "spec-reviewer-a",
+      "run_id": "RUN-designsyncstandingconsent-spec-a1r1-a-seq0542",
+      "host_session_id": "SESS-spec-a1r1-a-designsyncstandingconsent-0542",
+      "previous_record_sha256": "2294ecdfd5bc1f716c623641f15da8f282c7ae8114167c8ca08cfbb755c5a6eb",
+      "record_sha256": "12326bc3a47f2fb6593d646867fb0072b748ca2bef6ec1492ae3001231d29f54"
+    },
+    {
+      "sequence": 543,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-designsyncstandingconsent-spec-a1r1-b-seq0543",
+      "host_session_id": "SESS-spec-a1r1-b-designsyncstandingconsent-0543",
+      "previous_record_sha256": "12326bc3a47f2fb6593d646867fb0072b748ca2bef6ec1492ae3001231d29f54",
+      "record_sha256": "dafbc9b1d6d35b74464dfb1f777bd94d05320e8e9f99b16a59a13c5eaf64fc74"
+    },
+    {
+      "sequence": 544,
+      "stage": "spec",
+      "role": "spec-reviewer-b",
+      "run_id": "RUN-designsyncscan-spec-a1r1-b-seq0544",
+      "host_session_id": "SESS-spec-a1r1-b-designsyncscan-0544",
+      "previous_record_sha256": "dafbc9b1d6d35b74464dfb1f777bd94d05320e8e9f99b16a59a13c5eaf64fc74",
+      "record_sha256": "e8a14f227f31683573f52c38c56452304f84bfb08c041be271135fda25d9eb31"
     }
   ]
 }
