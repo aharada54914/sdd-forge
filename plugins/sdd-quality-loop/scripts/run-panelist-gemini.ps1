@@ -24,6 +24,7 @@ $Model       = "gemini-2.0-flash"
 $InputDigest = ""
 $ConsentKind = "human-flag"
 $PanelistTimeoutDefault = 600
+$PanelistTimeoutMaximum = 2147483
 
 $argIdx = 0
 $passedArgs = $args
@@ -137,7 +138,10 @@ Rules:
             -RedirectStandardOutput $rawOutput `
             -RedirectStandardError  (Join-Path $scratch "stderr.txt") `
             -PassThru -NoNewWindow
-        if (-not $proc.WaitForExit($PanelistTimeout * 1000)) {
+        # WaitForExit takes Int32 milliseconds; clamp so a large but
+        # spec-valid timeout cannot overflow and skip the kill path.
+        $panelistWaitMs = if ($PanelistTimeout -gt $PanelistTimeoutMaximum) { [int]::MaxValue } else { $PanelistTimeout * 1000 }
+        if (-not $proc.WaitForExit($panelistWaitMs)) {
             $proc.Kill($true)
             $proc.WaitForExit()
             [Console]::Error.WriteLine("run-panelist-gemini: gemini CLI exceeded SDD_PANELIST_TIMEOUT=${PanelistTimeout}s; terminated")

@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 2,
+  "round": 3,
+  "run_id": "RUN-epic-136-phase4-docs-task-task-reviewer-b-seq0535",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase4-docs-0535",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/reports/task-review/epic-136-phase4-docs/attempt-2/round-3/integrated-summary.json",
+        "sha256": "170f89cfadd3cbc2dd9d8d82537fcc0fa517ddacb77f6d1e2e9653bdbb941833"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/reports/task-review/epic-136-phase4-docs/attempt-2/round-3/precheck-result.json",
+        "sha256": "2388c69de774bb2adb9951f741829e2ff718d18ad9235a5153d4612a110a888a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/acceptance-tests.md",
+        "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/design.md",
+        "sha256": "d98f046a8127125e4e75244aab06645070e4faccf32ea1e82cd8a82ae3027984"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/frontend-spec.md",
+        "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/infra-spec.md",
+        "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/requirements.md",
+        "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/security-spec.md",
+        "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/tasks.md",
+        "sha256": "485721bbe84d2c43bc83c4ed37e0c3034a1d6f975f98a6d9900b32738169904b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/traceability.md",
+        "sha256": "c1b8a57dc0b2b086bdec4538b7704eb52e63585161533e6f6b242704dfc378e7"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/ux-spec.md",
+        "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (tasks.md:124 Risk: high) and T-002 (tasks.md:238 Risk: high) modify process-lifecycle control flow of the critical-tier cross-model gate's only child-process owner (security-spec.md:7-11 B1, :13-17 B2); Risk Rationale (tasks.md:126-141, :240-246) grounds high in risk-classification-policy.md:16's 'anything where a silent defect causes material harm' clause, and scope is real script control flow (design.md:31-107), not UI/CSS/docs/test-only, so no over-classification. T-003 (tasks.md:317, doc-only taxonomy) is low; T-004/T-005 (tasks.md:375,430) are documentation-of-record edits with no executable behaviour change and no sentinel surface touched. No proximity-rule violation in either direction."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 carries RED/GREEN-separated TDD evidence (tasks.md:215-224) and a named-distinct-reviewer plus independent quality-gate verdict item (tasks.md:225-228); T-002 carries the same (tasks.md:295-303, :304-307). No Risk: critical task exists in this decomposition, so the second-approver/signed-evidence-bundle addendum does not apply."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Adjudicating the round-1 (PASS) / round-2 (FAIL) split on this check's own text: the >3-area, >8-item, and multi-phase-title bullets are stated as 'Indicators of oversized tasks' subordinate to the actual criterion -- 'one coherent unit of implementable work completable in a single focused session' -- not independent hard thresholds; the parallel fragmentation indicator's 'no broader integration concern' qualifier confirms holistic judgment, not raw counting. reviewer-calibration.md:114-115 ('Do not inflate severity because a best practice is absent. Severity follows the project's check contract and the concrete failure mode') and :54-55 (a FAIL must 'state the concrete failure mode') apply. T-001 has 14 Done-When items (tasks.md:175-228) and T-002 has 10 (tasks.md:274-307), both over the 8-item indicator -- but every item verifies ONE mechanism (the bounded-wait timeout plus process-group kill escalation), not >3 distinct implementation areas; granularity is set by design.md's own coverage table (design.md:195-210) and acceptance-tests.md's own sub-case tables (AC-003's 7 sub-cases, :36-45; AC-004's a/b/c, :47-77) -- requirements-layer-mandated granularity, not task-author padding. Splitting T-001's sub-cases across tasks would violate tasks.md's own Global Constraint 'One commit per functional task ... never split' (tasks.md:71-74). This sides with attempt-2/round-1/reviewer-b.json's PASS reasoning and rejects attempt-2/round-2/reviewer-b.json's FAIL: round 2 treats the numeric indicator as a threshold and does not identify a task-specific concrete failure mode distinct from the count itself, which the evidence gate requires before a FAIL."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:164-172 enumerates 7 explicit edge cases each mapped to a specific AC/task (Edge Case 2 orphan-child -> AC-004, tasks.md:183-185; Edge Case 6 boundary race -> AC-004(c), tasks.md:193-195; Edge Case 7 SIGTERM-ignoring stub -> AC-004(b), tasks.md:190-192). acceptance-tests.md:36-45 and :47-77 supply non-happy-path coverage for T-001/T-002. T-003's AC-002/TEST-002 states a limitation rather than only a happy path. T-004's AC-008 anti-padding assertion and T-005's AC-010/AC-014 assertions are non-happy-path integrity checks. No functional task has happy-path-only AC coverage."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (tasks.md:149-156) and T-002 (tasks.md:254-255) declare integration for real-child-process/real-elapsed-time/real-liveness assertions (acceptance-tests.md:10-12), correctly isolating the unit-tier AC-003 config sub-cases within the same suite. T-003/T-004/T-005 (tasks.md:332-335,390-391,444-445) declare 'integration (real file read)', matching acceptance-tests.md's own Test Matrix labels and its stated convention (acceptance-tests.md:126). No mismatched test-type declaration found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both Risk: high tasks carry an explicit Rollback: field: T-001 (tasks.md:163-171) and T-002 (tasks.md:262-270), each stating single-commit revert, explicitly noting it is not a neutral undo (reopens the B1 DoS hole), and cross-referencing infra-spec.md:30-38's Rollback section. No high/critical task lacks rollback evidence."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All five tasks write to the same two shared test-suite files (tasks.md:81-90), and tasks.md:90-102 explicitly serializes every pairwise edge with a stated reason: T-002<-T-001 (tasks.md:260), T-003<-T-002 (tasks.md:339), T-004<-T-003 (tasks.md:395), T-005<-T-004 (tasks.md:449). T-004 and T-005 additionally share docs/THREAT-MODEL.md, coordinated by the same T-005<-T-004 edge. Matches the legitimate-overlap exception (Blockers-enforced serialization)."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every Blockers edge is labeled with an explicit rationale rather than dressed up as functional when it is not (tasks.md:90-102): T-002<-T-001 functional+shared-artifact; T-003<-T-002 and T-004<-T-003 disclosed as shared-artifact-only; T-005<-T-004 functional+shared-artifact. None inflates the critical path without a stated reason, and none is missing where a real output dependency exists."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All five tasks add new documented behaviour or documentation closing gaps requirements.md's investigation identified, not diagnosing or fixing a regression in existing behaviour."
+    }
+  ],
+  "findings": []
+}
