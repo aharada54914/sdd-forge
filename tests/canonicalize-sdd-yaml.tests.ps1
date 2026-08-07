@@ -238,7 +238,18 @@ empty_list: []
 
   $bashLike = $null
   foreach ($candidate in @('bash', 'sh')) {
-    if (Get-Command $candidate -ErrorAction SilentlyContinue) { $bashLike = $candidate; break }
+    $cmd = Get-Command $candidate -ErrorAction SilentlyContinue
+    if (-not $cmd) { continue }
+    # PR #229 CI (first-ever Windows execution): GitHub's Windows runners
+    # resolve `bash` to the System32 WSL launcher stub, which is FOUND by
+    # Get-Command but cannot execute anything ("Windows Subsystem for Linux
+    # has no installed distributions", emitted in UTF-16 — which this test
+    # then compared as a SHA). Presence is not capability: require the
+    # candidate to actually run a command before trusting it; otherwise the
+    # existing skip path below reports the leg honestly. A Windows host
+    # with a real POSIX shell first on PATH still gets full parity coverage.
+    try { $probeOut = (& $cmd.Source -c 'echo __sh_probe_ok__') 2>$null | Out-String } catch { continue }
+    if ($LASTEXITCODE -eq 0 -and $probeOut -match '__sh_probe_ok__') { $bashLike = $cmd.Source; break }
   }
   if ($bashLike) {
     $rSh = Invoke-Canon -FilePath $t009Fixture -ExtraArgs @('--hash-only') -Exe $bashLike -ExeArgsPrefix @($CanonSh)
