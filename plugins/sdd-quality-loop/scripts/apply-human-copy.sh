@@ -224,18 +224,72 @@ sha256_of() {
   printf '%s' "$out" | awk '{print $1}'
 }
 
+# file_mode_of <path> -> prints the octal permission bits (e.g. "755",
+# "644") on stdout, or nothing + nonzero exit on failure. Same BSD-then-
+# GNU capability probe as stat_id above. The output is validated as pure
+# octal digits so an unexpected stat variant can never hand chmod an
+# empty or option-shaped argument (fail closed, never fail open).
+file_mode_of() {
+  if stat -f '%Lp' "$1" >/dev/null 2>&1; then
+    fm=$(stat -f '%Lp' "$1" 2>/dev/null) || return 1
+  else
+    fm=$(stat -c '%a' "$1" 2>/dev/null) || return 1
+  fi
+  case "$fm" in
+    ''|*[!0-7]*) return 1 ;;
+  esac
+  printf '%s' "$fm"
+}
+
 sha256_of_or_absent() {
-  # sha256_of_or_absent <file> -> the file's sha256, or the literal
-  # sentinel "ABSENT" if it does not exist (or is not a regular file).
-  # quality-gate seq0360: propagates a genuine sha256_of read failure
-  # (e.g. the file exists, passed the -e/-L/-f checks, but is unreadable)
-  # as its OWN nonzero exit -- never silently coerced to "ABSENT", which
-  # would misrepresent "cannot determine" as "confirmed absent" (the same
-  # failure class this round's Critical fix eliminates at the walk layer).
+  # sha256_of_or_absent <file> -> prints the file's sha256 (exit 0), or the
+  # literal sentinel "ABSENT" (exit 0) ONLY when NOTHING WHATSOEVER occupies
+  # <file>. Returns nonzero, printing NOTHING, whenever the state cannot be
+  # determined:
+  #   1 = an entry is there and IS a regular file, but sha256_of could not
+  #       read it (e.g. mode 000).
+  #   2 = an entry IS there but is NOT a regular file -- a symlink (dangling
+  #       or not), a directory, a fifo, a device. "Cannot hash what is
+  #       here", never "confirmed absent".
+  #
+  # quality-gate seq0360 established this function's governing rule: a
+  # genuine read failure propagates as its OWN nonzero exit and is NEVER
+  # silently coerced to "ABSENT", because that misrepresents "cannot
+  # determine" as "confirmed absent". External review of PR #229 (Codex)
+  # found the rule had been applied to only ONE of the two ways this
+  # function can fail to hash an entry that exists: the prior
+  # `[ -e ] && [ ! -L ] && [ -f ]` guard sent a SYMLINK straight through to
+  # `printf 'ABSENT'`. During crash recovery that is exactly the
+  # misrepresentation seq0360 forbids -- a journal recording
+  # pre_hash="ABSENT" plus a symlink squatting the live target made
+  # recover_all()'s `[ "$ph" = ABSENT ] && [ "$cur" = ABSENT ]` comparison
+  # read as "confirmed absent => the transaction never began committing",
+  # so recovery deleted the journal AND the pre/ backups and left the
+  # symlink standing on a protected path. Verified empirically against the
+  # pre-fix script: publish a target, crash after rename-1, replace the
+  # committed target with a symlink, re-run -> {"status":"ok","recovered":1},
+  # journal and backups gone, symlink still in place.
+  #
+  # Fixed for EVERY non-regular entry rather than for symlinks alone -- the
+  # same "repair the whole class, never another single-case patch"
+  # discipline seq0360 itself applied to the full C0 range in json_escape().
+  # A directory or a fifo at the target path is the identical "something is
+  # here that I cannot hash" observation; coercing THAT to ABSENT would be
+  # the same defect wearing a different inode type.
+  #
+  # `[ -L "$file" ]` is tested FIRST and SEPARATELY because `[ -e ]` is
+  # FALSE for a DANGLING symlink -- testing existence first would let a
+  # symlink pointing at a nonexistent path fall through to "ABSENT" again.
   file=$1
-  if [ -e "$file" ] && [ ! -L "$file" ] && [ -f "$file" ]; then
-    sha256_of "$file" || return 1
-    return 0
+  if [ -L "$file" ]; then
+    return 2
+  fi
+  if [ -e "$file" ]; then
+    if [ -f "$file" ]; then
+      sha256_of "$file" || return 1
+      return 0
+    fi
+    return 2
   fi
   printf 'ABSENT'
 }
@@ -592,6 +646,14 @@ parse_manifest() {
 # rehashes, and commits via a same-directory atomic rename. Prints
 # "<pre_hash_or_ABSENT>" on stdout on success. Returns nonzero (and prints
 # nothing) on any denial.
+#
+# Mode-preservation contract (Human-copy publisher transactional bundle
+# contract, design.md): the STAGED CANDIDATE's own Unix permission bits
+# (read via file_mode_of, above) are `chmod`ed onto the temp file BEFORE
+# the atomic rename, so they -- and never the live target's own
+# pre-existing mode -- are what the rename commits. Return 13 = the
+# staged candidate's mode could not be read; subshell exit 9 (surfaced by
+# the caller as 109) = the temp file's mode could not be set to match.
 # ---------------------------------------------------------------------------
 
 publish_one_target() {
@@ -622,6 +684,14 @@ publish_one_target() {
   if [ "$actual_hash" != "$expected_hash" ]; then
     return 12
   fi
+  # Mode-preservation contract (Human-copy publisher transactional bundle
+  # contract, design.md): the STAGED CANDIDATE's own permission bits are
+  # what get applied to the live target below -- the live target's
+  # pre-existing mode is deliberately NEVER consulted. Captured here,
+  # before the destination-parent anchor, so a failure to read it denies
+  # the whole publish (return 13) rather than silently falling through to
+  # whatever mode the temp file's own `mktemp` default happens to be.
+  staged_mode=$(file_mode_of "$staged_file") || return 13
 
   # --- Anchor into the DESTINATION-PARENT side (held for this target's
   #     entire write+rename window, inside one subshell). ------------------
@@ -659,6 +729,14 @@ publish_one_target() {
     if [ "$tmp_hash" != "$expected_hash" ]; then
       rm -f -- "$tmp" 2>/dev/null
       exit 6
+    fi
+    # The rename below carries the temp file's own permission bits, so
+    # the STAGED candidate's mode is applied here -- the live target's
+    # pre-existing mode is deliberately never consulted (it is exactly
+    # the drift/tamper surface this publisher exists to overwrite).
+    if ! chmod "$staged_mode" "$tmp" 2>/dev/null; then
+      rm -f -- "$tmp" 2>/dev/null
+      exit 9
     fi
     # Immediately-before-use identity re-check: the destination-parent we
     # anchored into at the top of this subshell must still be the SAME
@@ -719,6 +797,25 @@ publish_one_target() {
 # recovery_probe_live_target() below, which derives it from the JOURNAL's
 # own recorded pre_hash rather than from the probe result. See that
 # function's header for the design derivation.
+#
+# RETURN CODES (external review of PR #229, Codex): a probe failure is no
+# longer a single undifferentiated `1`. The `tolerate-not-found` flag has
+# ALWAYS been scoped to walk_relative_dir's rc 3 alone, so it never
+# tolerated a non-regular LEAF -- but sha256_of_or_absent used to hide that
+# case by returning "ABSENT" instead of failing, so the distinction never
+# reached this layer at all. Now it does:
+#   0 = state determined; the hash (or the literal "ABSENT") is on stdout.
+#   1 = state could NOT be determined (bad anchor, or a destination-parent
+#       segment that is a symlink / access-denied / blocked by a
+#       non-directory / plainly missing without `tolerate-not-found`).
+#   2 = the destination-parent chain walked cleanly, but a NON-REGULAR
+#       entry (symlink, directory, fifo, ...) occupies the target LEAF, so
+#       its bytes cannot be hashed. Callers classify this distinctly: at
+#       PREPARE it is PRE_EXISTING_SYMLINK_DENIED (exit 10, the category
+#       publish_one_target already uses for exactly this condition at the
+#       final target name); during recovery it is RECOVERY_FAILED (exit 17,
+#       fail-closed, journal and backups retained).
+# Stdout is EMPTY for both nonzero codes; callers MUST check the status.
 pre_hash_of_live_target() {
   repo_root_abs=$1
   relpath=$2
@@ -735,11 +832,16 @@ pre_hash_of_live_target() {
       fi
       exit 1
     fi
-    sha256_of_or_absent "$SPLIT_BASE" || exit 1
+    # `exit $?` (never a flattened `exit 1`): sha256_of_or_absent's own
+    # rc 2 -- "a non-regular entry occupies the leaf" -- must survive to
+    # this function's caller so it can be classified under the script's
+    # existing symlink-rejection category rather than merged into the
+    # generic probe failure.
+    sha256_of_or_absent "$SPLIT_BASE" || exit $?
   )
   rc=$?
   if [ "$rc" != 0 ]; then
-    return 1
+    return "$rc"
   fi
   printf '%s' "$result"
   return 0
@@ -828,13 +930,42 @@ backup_pre_bytes() {
   found_rc=$?
   if [ "$found_rc" != 0 ]; then
     rm -f -- "$dest_file" 2>/dev/null
+  else
+    # Capture the live target's PRE-transaction permission bits onto the
+    # backup, so a MIX-state rollback restores mode as well as bytes
+    # (fully-reverted must be faithful in both). Read through the same
+    # anchored walk as the byte read above; on any failure the backup is
+    # discarded (fail closed -- revert will then refuse on the missing
+    # backup rather than restore with a fabricated mode).
+    live_mode=$(
+      cd -- "$repo_root_abs" 2>/dev/null || exit 1
+      walk_relative_dir "$SPLIT_DIR" || exit 1
+      file_mode_of "$SPLIT_BASE"
+    )
+    # NOTE: no `--` before $dest_file here (unlike this file's other
+    # commands): verified empirically that BSD/macOS chmod, UNLIKE GNU
+    # chmod (and unlike BSD's own rm/mv/cat, which all support `--`
+    # correctly), does NOT treat `--` as an end-of-options marker -- it
+    # is parsed as a literal (nonexistent) file OPERAND, so
+    # `chmod MODE -- $dest_file` silently chmods $dest_file correctly
+    # but still EXITS NONZERO (failing on the bogus `--` operand), which
+    # would make this fail-closed check wrongly delete a backup it had
+    # just correctly written. Safe to omit here because $dest_file is
+    # always `$BATCH_DIR_ABS/pre/$base` -- always absolute (prefixed by
+    # a `pwd -P`-derived batch directory) and therefore can never begin
+    # with `-` regardless of $base's own leading character.
+    if [ -z "$live_mode" ] || ! chmod "$live_mode" "$dest_file" 2>/dev/null; then
+      rm -f -- "$dest_file" 2>/dev/null
+    fi
   fi
 }
 
 # revert_one_target <repo_root_abs> <relpath> <pre_hash> <backup_file>
-# Restores <relpath> to its PRE-transaction bytes: deletes it if
+# Restores <relpath> to its PRE-transaction bytes AND mode: deletes it if
 # pre_hash is ABSENT, else atomically renames <backup_file> onto it
-# (same anchored-write discipline as publish_one_target).
+# (same anchored-write discipline as publish_one_target), first chmod-ing
+# the temp file to the backup's own captured PRE-transaction permission
+# bits (backup_pre_bytes populated them onto the backup file itself).
 revert_one_target() {
   repo_root_abs=$1
   relpath=$2
@@ -855,6 +986,10 @@ revert_one_target() {
     cat -- "$backup_file" >"$tmp" || { rm -f -- "$tmp"; exit 6; }
     got=$(sha256_of "$tmp")
     if [ "$got" != "$pre_hash" ]; then rm -f -- "$tmp"; exit 7; fi
+    # Restore the PRE-transaction permission bits captured on the backup
+    # (backup_pre_bytes) along with the bytes.
+    backup_mode=$(file_mode_of "$backup_file") || { rm -f -- "$tmp"; exit 9; }
+    if ! chmod "$backup_mode" "$tmp" 2>/dev/null; then rm -f -- "$tmp"; exit 10; fi
     mv -f -- "$tmp" "$SPLIT_BASE" || exit 8
   )
 }
@@ -1137,7 +1272,13 @@ recover_all() {
       # (seq0360 Critical) and never by refusing every absence (seq0361
       # Critical). See its header for the full design derivation.
       cur=$(recovery_probe_live_target "$repo_root_abs" "$lp" "$ph")
-      if [ $? != 0 ]; then
+      probe_rc=$?
+      if [ "$probe_rc" = 2 ]; then
+        rm -f "$targets_tmp"
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "recovery found a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) occupying target '$lp' in batch $batch_dir_abs; its bytes cannot be hashed, so this target's state is UNDETERMINED and must never be read as 'confirmed absent' (external review PR #229); refusing to proceed, journal and backups retained (fail-closed)"
+      fi
+      if [ "$probe_rc" != 0 ]; then
         rm -f "$targets_tmp"
         die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
           "recovery could not determine the current live state of target '$lp' in batch $batch_dir_abs (its destination-parent chain could not be safely walked -- possibly replaced, renamed, or made inaccessible since the crash); refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
@@ -1173,7 +1314,13 @@ recover_all() {
       [ -n "$lp" ] || continue
       idx=$((idx + 1))
       cur=$(recovery_probe_live_target "$repo_root_abs" "$lp" "$ph")
-      if [ $? != 0 ]; then
+      probe_rc=$?
+      if [ "$probe_rc" = 2 ]; then
+        rm -f "$targets_tmp"
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "recovery found a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) occupying target '$lp' in batch $batch_dir_abs before deciding whether to revert it; its bytes cannot be hashed, so this target's state is UNDETERMINED and must never be read as 'confirmed absent' (external review PR #229); refusing to proceed, journal and backups retained (fail-closed)"
+      fi
+      if [ "$probe_rc" != 0 ]; then
         rm -f "$targets_tmp"
         die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
           "recovery could not determine the current live state of target '$lp' in batch $batch_dir_abs before deciding whether to revert it; refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
@@ -1208,7 +1355,13 @@ recover_all() {
       lp=$TR_PATH; ph=$TR_PRE
       [ -n "$lp" ] || continue
       cur=$(recovery_probe_live_target "$repo_root_abs" "$lp" "$ph")
-      if [ $? != 0 ]; then
+      probe_rc=$?
+      if [ "$probe_rc" = 2 ]; then
+        rm -f "$targets_tmp"
+        die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
+          "post-revert confirmation found a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) occupying target '$lp' in batch $batch_dir_abs; its bytes cannot be hashed, so it can never be CONFIRMED back at PRE (external review PR #229); refusing to delete the journal (fail-closed, design.md:1055-1056)"
+      fi
+      if [ "$probe_rc" != 0 ]; then
         rm -f "$targets_tmp"
         die "$EXIT_RECOVERY_FAILED" RECOVERY_FAILED \
           "post-revert confirmation could not determine the current live state of target '$lp' in batch $batch_dir_abs; refusing to delete the journal (fail-closed, design.md:1055-1056)"
@@ -1330,7 +1483,22 @@ while IFS= read -r manifest_line || [ -n "$manifest_line" ]; do
   # could misrepresent hidden live content as absent and skip backing it
   # up.
   pre_hash=$(pre_hash_of_live_target "$REPO_ROOT_ABS" "$relpath" "tolerate-not-found")
-  if [ $? != 0 ]; then
+  probe_rc=$?
+  # rc 2 -- a non-regular entry occupies the target LEAF itself (external
+  # review PR #229). Reported under the script's OWN existing category for
+  # exactly this condition (EXIT_PRE_EXISTING_SYMLINK_DENIED, the same one
+  # publish_one_target's `[ -L "$dest_base" ]` guard raises at commit time),
+  # not merged into LIVE_PROBE_FAILED, whose message is specifically about
+  # the destination-PARENT CHAIN. Denying here, inside PREPARE, is strictly
+  # earlier and safer than the pre-fix behaviour, which recorded a bogus
+  # pre_hash="ABSENT", skipped the backup, wrote a journal, and only then
+  # let the commit-time guard refuse.
+  if [ "$probe_rc" = 2 ]; then
+    rm -rf -- "$BATCH_DIR"
+    die "$EXIT_PRE_EXISTING_SYMLINK_DENIED" PRE_EXISTING_SYMLINK_DENIED \
+      "a NON-REGULAR entry (a symlink, directory, fifo, or other non-file) already occupies live target '$relpath'; its bytes cannot be hashed, so its pre-transaction state can never be recorded or restored, and recording it as 'ABSENT' would misrepresent an undetermined state as a confirmed one; refusing to stage batch $BATCH_NONCE (fail-closed)"
+  fi
+  if [ "$probe_rc" != 0 ]; then
     rm -rf -- "$BATCH_DIR"
     die "$EXIT_LIVE_PROBE_FAILED" LIVE_PROBE_FAILED \
       "could not determine the current live state of target '$relpath' before staging batch $BATCH_NONCE (its destination-parent chain exists but could not be safely walked -- a symlink, access-denied directory, or a non-directory entry blocking the path); refusing to proceed (fail-closed, never coerced to ABSENT)"

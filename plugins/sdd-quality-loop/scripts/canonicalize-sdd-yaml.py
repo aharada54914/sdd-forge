@@ -1005,7 +1005,20 @@ def _run_pipeline(func):
     previous_stack_size = threading.stack_size()
     previous_recursion_limit = sys.getrecursionlimit()
     try:
-        threading.stack_size(_PIPELINE_STACK_SIZE_BYTES)
+        # PR #229 CI (first-ever Windows execution): win32 Python rejects a
+        # 512 MiB thread stack outright (ValueError: size not valid), which
+        # crashed every invocation UNCLASSIFIED (exit 1) before parsing began.
+        # Fall back through halving sizes; any accepted dedicated stack still
+        # dwarfs the platform default, and the pipeline's own recursion limit
+        # plus the classified resource-exhaustion path remain the real
+        # depth governors. If no size is accepted, run on the default stack.
+        stack_bytes = _PIPELINE_STACK_SIZE_BYTES
+        while stack_bytes >= (1 << 20):
+            try:
+                threading.stack_size(stack_bytes)
+                break
+            except ValueError:
+                stack_bytes //= 2
         thread = threading.Thread(target=runner)
         thread.start()
         thread.join()

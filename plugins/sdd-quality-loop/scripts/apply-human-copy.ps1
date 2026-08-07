@@ -121,11 +121,61 @@ function Get-Sha256Hex([string]$Path) {
     return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
 }
 
+# Get-Sha256OrAbsent <Path> -- returns the sha256 when $Path holds a
+# REGULAR file, or the literal 'ABSENT' ONLY when NOTHING WHATSOEVER
+# occupies $Path. THROWS 'live-target-not-regular-file' when an entry IS
+# there but is not a regular file, so Invoke-AnchoredChild reports it as a
+# PROBE FAILURE (Ok=$false, Reason='live-target-not-regular-file') rather
+# than as an observation.
+#
+# External review of PR #229 (Codex): the PRIOR body returned the bare
+# string 'ABSENT' for a symlink, and Get-PreHashOfLiveTarget's caller could
+# not tell that from "the target genuinely does not exist". During crash
+# recovery a journal recording pre_hash='ABSENT' plus a symlink squatting
+# the live target therefore satisfied Invoke-RecoverAll's
+# `$t.pre_hash -eq 'ABSENT' -and $cur -eq 'ABSENT'` comparison, was
+# classified as "the transaction never began committing", and recovery
+# deleted the journal AND the pre/ backups while leaving the symlink
+# standing on a protected path -- the exact "cannot determine" ->
+# "confirmed absent" coercion quality-gate seq0360 forbids everywhere else
+# in this file. Verified empirically against the pre-fix script (publish,
+# crash after rename-1, replace the committed target with a symlink,
+# re-run -> {"status":"ok","recovered":1}); the .sh twin carried the
+# identical hole in its own sha256_of_or_absent and is fixed in lockstep.
+#
+# [System.IO.File]::GetAttributes is used as the existence probe rather
+# than Test-Path because it was verified EMPIRICALLY (macOS, pwsh 7.6) to
+# be the only one of the two that distinguishes the cases this function
+# must separate: it THROWS only when nothing at all occupies the path,
+# while still reporting ReparsePoint for a DANGLING symlink (lstat
+# semantics) -- so a link pointing at a nonexistent target can never slip
+# through to 'ABSENT'.
+#
+# DOCUMENTED RUNTIME DIVERGENCE (never silently implied as closed): the
+# .sh twin's `[ -f ]` additionally excludes FIFOs, devices, and sockets,
+# which .NET on Unix reports indistinguishably from a regular file
+# (verified: a fifo yields attrs=Normal, PathType Leaf=$true; .NET exposes
+# no st_mode file-type accessor, and this script's architecture forbids an
+# FFI/native-interop dependency). This runtime therefore fail-closes on the
+# two non-regular kinds it CAN detect -- reparse points and directories,
+# which together cover the reviewed defect -- and would still attempt to
+# hash a fifo. That residual is inherent to the platform API surface, not
+# to this fix.
 function Get-Sha256OrAbsent([string]$Path) {
-    if ((Test-Path -LiteralPath $Path) -and -not (Test-ReparsePoint $Path) -and (Test-Path -LiteralPath $Path -PathType Leaf)) {
-        return Get-Sha256Hex $Path
+    $attrs = $null
+    try {
+        $attrs = [System.IO.File]::GetAttributes($Path)
+    } catch {
+        # Nothing occupies this path at all -- the ONE case that is a
+        # genuine, first-class observation of absence.
+        return 'ABSENT'
     }
-    return 'ABSENT'
+    $isReparse = ([int]$attrs -band [int][System.IO.FileAttributes]::ReparsePoint) -ne 0
+    $isDirectory = ([int]$attrs -band [int][System.IO.FileAttributes]::Directory) -ne 0
+    if ($isReparse -or $isDirectory -or -not (Test-Path -LiteralPath $Path -PathType Leaf)) {
+        throw 'live-target-not-regular-file'
+    }
+    return Get-Sha256Hex $Path
 }
 
 function Test-ReparsePoint([string]$Path) {
@@ -429,6 +479,18 @@ function Invoke-AnchoredChild([string]$BaseDir, [scriptblock]$Body, [hashtable]$
 # "never reached" OR "reached, and the evidence was just destroyed" --
 # genuinely indistinguishable from current filesystem state alone) is
 # fail-closed, full stop.
+#
+# External review of PR #229 (Codex): Get-Sha256OrAbsent now raises the
+# distinct reason 'live-target-not-regular-file' when a non-regular entry
+# occupies the target LEAF (see its own header). That reason reaches this
+# function through Invoke-AnchoredChild's catch and is returned as an
+# ordinary probe FAILURE. No -TolerateNotFound special case applies to it,
+# by construction: that switch has always been scoped to the single reason
+# 'segment-missing', so the leaf case fail-closes in BOTH the PREPARE-time
+# and the recovery-time callers without any further gating here. Callers
+# classify it distinctly -- PRE_EXISTING_SYMLINK_DENIED at PREPARE (the
+# category Invoke-PublishOneTarget already uses for exactly this condition
+# at the final target name), RECOVERY_FAILED during recovery.
 function Get-PreHashOfLiveTarget([string]$RepoRootAbs, [string]$RelPath, [bool]$TolerateNotFound = $false) {
     $split = Split-RelPath $RelPath
     $r = Invoke-AnchoredChild -BaseDir $RepoRootAbs -Body {
@@ -491,6 +553,13 @@ function Backup-PreBytes([string]$RepoRootAbs, [string]$RelPath, [string]$DestFi
     } -BodyArgs @{ Dir = $split.Dir; Base = $split.Base }
     if ($r.Ok -and $r.Value) {
         Copy-Item -LiteralPath $r.Value -Destination $DestFile -Force
+        # Capture the live target's PRE-transaction permission bits onto
+        # the backup, so a MIX-state rollback restores mode as well as
+        # bytes (Human-copy publisher transactional bundle contract,
+        # design.md; the .sh twin's backup_pre_bytes does the same).
+        if (-not $IsWindows) {
+            [System.IO.File]::SetUnixFileMode($DestFile, [System.IO.File]::GetUnixFileMode($r.Value))
+        }
     }
 }
 
@@ -522,6 +591,18 @@ function Publish-OneTarget {
     $stagedFile = $srcResult.Value
     $actualHash = Get-Sha256Hex $stagedFile
     if ($actualHash -ne $ExpectedHash) { return @{ Ok = $false; Code = 12; Reason = 'hash-mismatch' } }
+
+    # Mode-preservation contract: the STAGED candidate's Unix permission
+    # bits are applied to the temp file before the rename below, so the
+    # live target's pre-existing mode is never consulted. On Windows
+    # POSIX modes do not exist and this is a no-op. [System.IO.File]::Copy
+    # already copies the source mode on Unix, but the contract is made
+    # explicit here rather than relying on that undocumented behaviour.
+    $stagedMode = $null
+    if (-not $IsWindows) {
+        try { $stagedMode = [System.IO.File]::GetUnixFileMode($stagedFile) }
+        catch { return @{ Ok = $false; Code = 13; Reason = 'staged-mode-unreadable' } }
+    }
 
     # --- Anchor into DESTINATION-PARENT, held for the write+rename window. -
     # From this point on, EVERY actual read/write of the destination uses
@@ -604,6 +685,7 @@ function Publish-OneTarget {
         $liveDirFinal = [System.Environment]::CurrentDirectory
         $tmpAbsFinal = [System.IO.Path]::Combine($liveDirFinal, $tmpName)
         $destBaseAbsFinal = [System.IO.Path]::Combine($liveDirFinal, $split.Base)
+        if ($null -ne $stagedMode) { [System.IO.File]::SetUnixFileMode($tmpAbsFinal, $stagedMode) }
         [System.IO.File]::Move($tmpAbsFinal, $destBaseAbsFinal, $true)
         return @{ Ok = $true }
     } catch {
@@ -638,6 +720,11 @@ function Restore-OneTarget([string]$RepoRootAbs, [string]$RelPath, [string]$PreH
         if ($got -ne $PreHash) {
             [System.IO.File]::Delete($tmpAbs)
             return $false
+        }
+        # Restore the PRE-transaction permission bits captured on the
+        # backup (Backup-PreBytes) along with the bytes.
+        if (-not $IsWindows) {
+            [System.IO.File]::SetUnixFileMode($tmpAbs, [System.IO.File]::GetUnixFileMode($BackupFile))
         }
         $liveDirFinal = [System.Environment]::CurrentDirectory
         [System.IO.File]::Move([System.IO.Path]::Combine($liveDirFinal, $tmpName), [System.IO.Path]::Combine($liveDirFinal, $split.Base), $true)
@@ -751,6 +838,9 @@ function Invoke-RecoverAll([string]$RepoRootAbs, [string]$RecoveryCrashStage) {
             # absence (seq0361 Critical). See its header for the full
             # design derivation.
             $probe = Get-RecoveryProbe $RepoRootAbs $t.live_path $t.pre_hash
+            if ((-not $probe.Ok) -and $probe.Reason -eq 'live-target-not-regular-file') {
+                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery found a NON-REGULAR entry (a symlink or directory) occupying target '$($t.live_path)' in batch $batchDirAbs; its bytes cannot be hashed, so this target's state is UNDETERMINED and must never be read as 'confirmed absent' (external review PR #229); refusing to proceed, journal and backups retained (fail-closed)"
+            }
             if (-not $probe.Ok) {
                 Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "recovery could not determine the current live state of target '$($t.live_path)' in batch $batchDirAbs (its destination-parent chain could not be safely walked -- possibly replaced, renamed, or made inaccessible since the crash); refusing to proceed, journal and backups retained (fail-closed, never coerced to ABSENT)"
             }
@@ -799,6 +889,9 @@ function Invoke-RecoverAll([string]$RepoRootAbs, [string]$RecoveryCrashStage) {
         # is resolved.
         foreach ($t in $targets) {
             $probe = Get-RecoveryProbe $RepoRootAbs $t.live_path $t.pre_hash
+            if ((-not $probe.Ok) -and $probe.Reason -eq 'live-target-not-regular-file') {
+                Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation found a NON-REGULAR entry (a symlink or directory) occupying target '$($t.live_path)' in batch $batchDirAbs; its bytes cannot be hashed, so it can never be CONFIRMED back at PRE (external review PR #229); refusing to delete the journal (fail-closed, design.md:1055-1056)"
+            }
             if (-not $probe.Ok) {
                 Write-Denial $ExitRecoveryFailed 'RECOVERY_FAILED' "post-revert confirmation could not determine the current live state of target '$($t.live_path)' in batch $batchDirAbs; refusing to delete the journal (fail-closed, design.md:1055-1056)"
             }
@@ -882,6 +975,20 @@ foreach ($entry in $manifestEntries) {
     # guessed "ABSENT" that could misrepresent hidden live content as
     # absent and skip backing it up.
     $preHashResult = Get-PreHashOfLiveTarget $RepoRootAbs $relPath $true
+    # 'live-target-not-regular-file' -- a non-regular entry occupies the
+    # target LEAF itself (external review PR #229). Reported under this
+    # script's OWN existing category for exactly that condition
+    # ($ExitPreExistingSymlinkDenied, the same one Invoke-PublishOneTarget's
+    # reparse-point guard raises at commit time), never merged into
+    # LIVE_PROBE_FAILED, whose message is specifically about the
+    # destination-PARENT CHAIN. Denying here, inside PREPARE, is strictly
+    # earlier and safer than the pre-fix behaviour, which recorded a bogus
+    # pre_hash='ABSENT', skipped the backup, wrote a journal, and only then
+    # let the commit-time guard refuse.
+    if ((-not $preHashResult.Ok) -and $preHashResult.Reason -eq 'live-target-not-regular-file') {
+        Remove-Item -LiteralPath $BatchDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Denial $ExitPreExistingSymlinkDenied 'PRE_EXISTING_SYMLINK_DENIED' "a NON-REGULAR entry (a symlink or directory) already occupies live target '$relPath'; its bytes cannot be hashed, so its pre-transaction state can never be recorded or restored, and recording it as 'ABSENT' would misrepresent an undetermined state as a confirmed one; refusing to stage batch $BatchNonce (fail-closed)"
+    }
     if (-not $preHashResult.Ok) {
         Remove-Item -LiteralPath $BatchDir -Recurse -Force -ErrorAction SilentlyContinue
         Write-Denial $ExitLiveProbeFailed 'LIVE_PROBE_FAILED' "could not determine the current live state of target '$relPath' before staging batch $BatchNonce (its destination-parent chain exists but could not be safely walked -- a symlink, access-denied directory, or a non-directory entry blocking the path); refusing to proceed (fail-closed, never coerced to ABSENT)"

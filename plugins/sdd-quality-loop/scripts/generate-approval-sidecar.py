@@ -412,6 +412,34 @@ def _default_stage_dir(schema_id, nonce):
     return os.path.join("sdd", ".staging", schema_id, nonce)
 
 
+# The repo-relative LIVE paths this staged bundle is destined for, per
+# design.md's Data Plan (design.md:139 for the sidecar, design.md:142 and
+# design.md:907-908 for the anchor snapshot). apply-human-copy consumes a
+# manifest of `<sha256>  <repo-relative live path>` rows and reads each
+# staged candidate's bytes from `<staging-dir>/<that same relative path>`,
+# so the staging tree MIRRORS the live tree -- exactly the layout every
+# other human-copy staging area in this repository already uses (compare
+# `specs/epic-159-pillar-d/human-copy/.github/workflows/test.yml`).
+#
+# NOTE the anchor's directory: `sdd/.approved-context/`, NOT `sdd/`. The
+# two live basenames therefore differ (`<name>.approval.json` vs
+# `<name>.approved.yaml`), which also keeps the pair clear of
+# apply-human-copy's DUPLICATE_BASENAME_IN_BATCH refusal (exit 19) -- the
+# publisher's `pre/<basename>` backup slot is basename-keyed, so a batch
+# whose two targets shared a basename could not be safely journaled.
+LIVE_SIDECAR_DIR = "sdd"
+LIVE_ANCHOR_DIR = "sdd/.approved-context"
+
+
+def _live_target_paths(schema_id):
+    """(sidecar, snapshot) repo-relative LIVE paths for this schema id."""
+    basename = SCHEMA_BASENAMES[schema_id]
+    return (
+        f"{LIVE_SIDECAR_DIR}/{basename}.approval.json",
+        f"{LIVE_ANCHOR_DIR}/{basename}.approved.yaml",
+    )
+
+
 def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonce, simulate_failure=None):
     """Writes the signed candidate, the byte-exact approved-context snapshot,
     and MANIFEST.sha256 to a TEMPORARY sibling directory, re-hashes every
@@ -421,6 +449,37 @@ def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonc
     temporary directory is removed. A re-run always uses a fresh nonce, so
     it never collides with a prior failed attempt's leftovers.
 
+    PUBLISHER-CONSUMABLE LAYOUT (external review of PR #229, Codex). The
+    staged bundle is now directly consumable by
+    `apply-human-copy --staging-dir <stage_dir> --manifest
+    <stage_dir>/MANIFEST.sha256`, which it previously was NOT, for two
+    independent reasons -- both verified empirically against the pre-fix
+    script:
+
+      1. MANIFEST.sha256 opened with a `nonce: <hex>` line. The publisher's
+         parse_manifest/Read-Manifest requires EVERY non-empty line to be
+         `<64-hex-lowercase><2 spaces><path>`; it has no comment or header
+         syntax, so that first line was rejected outright with
+         MANIFEST_INVALID (exit 13).
+      2. The rows named BARE BASENAMES (`project-context.approval.json`).
+         Manifest paths are repo-relative LIVE targets, so even with the
+         nonce line gone the publisher would have written both artifacts
+         into the REPOSITORY ROOT rather than to `sdd/` and
+         `sdd/.approved-context/`.
+
+    Both are fixed here: the artifacts are staged UNDER their repo-relative
+    live paths inside `stage_dir`, and the manifest carries exactly two
+    publisher-format rows naming those same paths.
+
+    The nonce is preserved -- never dropped -- but moved OUT of the manifest
+    into a sibling `NONCE` file. A repo-wide search established that nothing
+    reads the manifest's nonce line (the only readers of this manifest are
+    tests/generate-approval-sidecar.tests.sh/.ps1, which match the two hash
+    rows), while the value itself still matters when `--stage-dir` overrides
+    the default `sdd/.staging/<schema-id>/<nonce>/` layout and the directory
+    name therefore no longer carries it. `NONCE` is not listed in the
+    manifest, so the publisher never touches it.
+
     Every filesystem operation in this function -- including directory
     creation and the final commit rename -- is covered by the try/except
     below: an OSError from any of them (a colliding `--stage-dir`, an
@@ -428,7 +487,7 @@ def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonc
     a permission error, etc.) is wrapped as `GenerateApprovalSidecarError`
     (`STAGING_IO_ERROR`), never left to propagate as a raw, undocumented
     traceback (quality-gate seq0350 Major remedy)."""
-    basename = SCHEMA_BASENAMES[schema_id]
+    sidecar_live_path, snapshot_live_path = _live_target_paths(schema_id)
     sidecar_bytes = (json.dumps(sidecar_obj, indent=2, sort_keys=True) + "\n").encode("utf-8")
 
     stage_dir = stage_dir.rstrip("/").rstrip(os.sep)
@@ -442,9 +501,12 @@ def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonc
             shutil.rmtree(tmp_leaf)
         os.makedirs(tmp_leaf)
 
-        sidecar_path = os.path.join(tmp_leaf, f"{basename}.approval.json")
-        snapshot_path = os.path.join(tmp_leaf, f"{basename}.approved.yaml")
+        sidecar_path = os.path.join(tmp_leaf, *sidecar_live_path.split("/"))
+        snapshot_path = os.path.join(tmp_leaf, *snapshot_live_path.split("/"))
         manifest_path = os.path.join(tmp_leaf, "MANIFEST.sha256")
+        nonce_path = os.path.join(tmp_leaf, "NONCE")
+        os.makedirs(os.path.dirname(sidecar_path), exist_ok=True)
+        os.makedirs(os.path.dirname(snapshot_path), exist_ok=True)
 
         with open(sidecar_path, "wb") as f:
             f.write(sidecar_bytes)
@@ -471,13 +533,22 @@ def _write_staged_outputs(stage_dir, schema_id, sidecar_obj, content_bytes, nonc
         with open(snapshot_path, "rb") as f:
             snapshot_hash = hashlib.sha256(f.read()).hexdigest()
 
+        # apply-human-copy manifest format, EXACTLY: two spaces between the
+        # 64 lowercase hex digits and the repo-relative live path, one row
+        # per target, in COMMIT ORDER (sidecar first, then the anchor
+        # snapshot). No header, no comments, no trailing metadata -- the
+        # publisher rejects any other line shape as MANIFEST_INVALID.
         manifest_text = (
-            f"nonce: {nonce}\n"
-            f"{sidecar_hash}  {basename}.approval.json\n"
-            f"{snapshot_hash}  {basename}.approved.yaml\n"
+            f"{sidecar_hash}  {sidecar_live_path}\n"
+            f"{snapshot_hash}  {snapshot_live_path}\n"
         )
         with open(manifest_path, "w", encoding="utf-8", newline="\n") as f:
             f.write(manifest_text)
+        # The nonce, preserved out-of-band (see this function's docstring):
+        # deliberately NOT a manifest row, so the publisher never treats it
+        # as a target.
+        with open(nonce_path, "w", encoding="utf-8", newline="\n") as f:
+            f.write(f"nonce: {nonce}\n")
 
         os.rename(tmp_leaf, stage_dir)
     except OSError as exc:

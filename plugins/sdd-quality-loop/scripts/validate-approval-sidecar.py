@@ -18,6 +18,17 @@ failure with that failure's own named, stable diagnostic:
       (schema conformance + `DUPLICATE_APPROVER_REGISTRY_ID`, AC-045) --
       before hash comparison, since a corrupted registry can never yield a
       trustworthy approver-identity gate later.
+  (0b) sidecar-schema conformance (external review of PR #229, Codex) --
+      the SIDECAR itself must conform to
+      `contracts/approval-sidecar.schema.json`, not merely carry the nine
+      required top-level keys. Before this gate existed, a sidecar with a
+      VALID HMAC but `primary_approval.status: "Rejected"`, an
+      `approval_epoch` of `0` or `"1"`, an uppercase `hmac`, or smuggled
+      extra properties reported `VALID` (all verified empirically). Runs
+      immediately after the sidecar loads and before every value-dependent
+      gate below, so each of those reads a field already proven
+      well-shaped. Deliberately NOT applied under `--verify-provenance`
+      (see `_validate_sidecar_schema` for why).
   (1) hash match -- `context_sha256` equals REQ-003's canonical hash of the
       live content file, byte-for-byte.
   (2) HMAC verification -- recompute the REQ-004 preimage (the sidecar
@@ -89,6 +100,7 @@ import hashlib
 import hmac
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -125,6 +137,12 @@ CATEGORY_EXIT_CODES = {
     "PREIMAGE_CANONICALIZATION_FAILED": 44,
     "SCHEMA_FILE_UNREADABLE": 45,
     "WEAKENING_VERDICT_MISSING": 46,
+    # External review of PR #229 (Codex). The third member of this script's
+    # existing schema-violation family (CONTENT_SCHEMA_VIOLATION 32,
+    # APPROVER_REGISTRY_SCHEMA_VIOLATION 35) -- the SIDECAR's own
+    # conformance to contracts/approval-sidecar.schema.json, which the
+    # standard path never checked at all before.
+    "SIDECAR_SCHEMA_VIOLATION": 47,
     # Last-resort classification: never a raw, uncaught traceback.
     "INTERNAL_ERROR": 90,
 }
@@ -384,24 +402,89 @@ def _check_no_publish_in_progress(*paths_being_read):
 # contracts/project-context.schema.json, contracts/provider-bindings.schema.json,
 # and contracts/approver-registry.schema.json use: type, required,
 # additionalProperties, properties, items, enum, const, minLength, oneOf.
+#
+# EXTENDED (external review of PR #229, Codex) with `$ref`
+# (`#/definitions/...`), `pattern`, `minimum`, and the `integer`/`number`/
+# `null` type names, so this same function can additionally validate
+# contracts/approval-sidecar.schema.json -- which uses all four and which
+# nothing enforced at runtime before (see _validate_sidecar_schema below).
+# The extended keyword set is now EXACTLY the one the T-003 suite's own
+# purpose-built harness (tests/generate-approval-sidecar.tests.sh,
+# TEST-010) already applies to that schema, so the production checker and
+# the test-side reference agree by construction rather than by coincidence.
+#
+# The extension is behaviour-PRESERVING for the two schemas this function
+# already served: contracts/project-context.schema.json,
+# contracts/provider-bindings.schema.json, and
+# contracts/approver-registry.schema.json contain no `$ref`, no `pattern`,
+# no `minimum`, and no integer/number/null type (audited at fix time -- the
+# single textual "pattern" in project-context.schema.json is a required
+# PROPERTY NAME, `"required": ["pattern"]`, never the keyword), so no newly
+# supported keyword can fire against them.
+#
+# `format` is deliberately NOT implemented. Draft-07 defines `format` as an
+# annotation, not an assertion, and the T-003 reference harness omits it for
+# the same reason; implementing it here would make this validator stricter
+# than the schema it claims to enforce and would silently diverge from that
+# harness. CONSEQUENCE, stated rather than implied: a malformed
+# `approved_at`/`effective_at` STRING is well-formed per this schema and is
+# NOT rejected by schema conformance. `effective_at` is separately parsed
+# and gated by _check_effective_at; `approved_at` has no equivalent gate,
+# and adding one would be a new requirement, not a conformance fix.
 # ---------------------------------------------------------------------------
 
 
-def _schema_validate(schema, instance, path="/"):
+def _schema_type_ok(t, instance):
+    if t == "object":
+        return isinstance(instance, dict)
+    if t == "array":
+        return isinstance(instance, list)
+    if t == "string":
+        return isinstance(instance, str)
+    if t == "integer":
+        # bool is a subclass of int in Python; `true` must never satisfy
+        # `type: integer` (JSON's type lattice keeps them disjoint).
+        return isinstance(instance, int) and not isinstance(instance, bool)
+    if t == "number":
+        return isinstance(instance, (int, float)) and not isinstance(instance, bool)
+    if t == "boolean":
+        return isinstance(instance, bool)
+    if t == "null":
+        return instance is None
+    return True
+
+
+def _schema_validate(schema, instance, path="/", root=None):
+    # `root` carries the ORIGINAL document down every recursion so
+    # `#/definitions/...` stays resolvable from arbitrary depth; it defaults
+    # to `schema` on the outermost call, keeping the existing 3-argument
+    # call sites source-compatible.
+    if root is None:
+        root = schema
+
+    if "$ref" in schema:
+        ref = schema["$ref"]
+        if not ref.startswith("#/definitions/"):
+            return ["%s: unsupported $ref %r (only #/definitions/... is supported)" % (path, ref)]
+        target = (root.get("definitions") or {}).get(ref[len("#/definitions/"):])
+        if not isinstance(target, dict):
+            return ["%s: unresolvable $ref %r" % (path, ref)]
+        return _schema_validate(target, instance, path, root)
+
     errors = []
     if "const" in schema and instance != schema["const"]:
         errors.append("%s: expected const %r, got %r" % (path, schema["const"], instance))
     if "enum" in schema and instance not in schema["enum"]:
         errors.append("%s: %r not in enum %r" % (path, instance, schema["enum"]))
     t = schema.get("type")
-    if t == "object" and not isinstance(instance, dict):
-        errors.append("%s: expected object" % path)
-    elif t == "array" and not isinstance(instance, list):
-        errors.append("%s: expected array" % path)
-    elif t == "string" and not isinstance(instance, str):
-        errors.append("%s: expected string" % path)
-    elif t == "boolean" and not isinstance(instance, bool):
-        errors.append("%s: expected boolean" % path)
+    if t is not None and not _schema_type_ok(t, instance):
+        errors.append("%s: expected %s" % (path, t))
+    if "pattern" in schema:
+        if not isinstance(instance, str) or re.match(schema["pattern"], instance) is None:
+            errors.append("%s: %r does not match pattern %r" % (path, instance, schema["pattern"]))
+    if "minimum" in schema:
+        if (not isinstance(instance, (int, float))) or isinstance(instance, bool) or instance < schema["minimum"]:
+            errors.append("%s: %r is below minimum %r" % (path, instance, schema["minimum"]))
 
     if isinstance(instance, dict):
         for req in schema.get("required", []):
@@ -414,17 +497,17 @@ def _schema_validate(schema, instance, path="/"):
                     errors.append("%s: additional property %r not allowed" % (path, k))
         for k, v in instance.items():
             if k in props:
-                errors.extend(_schema_validate(props[k], v, path.rstrip("/") + "/" + k))
+                errors.extend(_schema_validate(props[k], v, path.rstrip("/") + "/" + k, root))
     elif isinstance(instance, list) and "items" in schema:
         for idx, item in enumerate(instance):
-            errors.extend(_schema_validate(schema["items"], item, path.rstrip("/") + "/%d" % idx))
+            errors.extend(_schema_validate(schema["items"], item, path.rstrip("/") + "/%d" % idx, root))
     elif isinstance(instance, str) and "minLength" in schema and len(instance) < schema["minLength"]:
         errors.append("%s: shorter than minLength %d" % (path, schema["minLength"]))
 
     if "oneOf" in schema:
         matches = 0
         for sub in schema["oneOf"]:
-            if not _schema_validate(sub, instance, path):
+            if not _schema_validate(sub, instance, path, root):
                 matches += 1
         if matches != 1:
             errors.append("%s: oneOf matched %d branches (need exactly 1)" % (path, matches))
@@ -552,6 +635,50 @@ def _load_sidecar(path):
             f"--sidecar {str(path)!r} missing required field(s): {sorted(missing)}",
         )
     return obj
+
+
+def _validate_sidecar_schema(sidecar_obj, sidecar_path):
+    """Gate (0b), external review of PR #229 (Codex): the sidecar's OWN
+    conformance to contracts/approval-sidecar.schema.json.
+
+    _load_sidecar checks only that the nine top-level keys are PRESENT. It
+    says nothing about their values, so -- verified empirically against the
+    pre-fix script, with every mutation RE-SIGNED so the HMAC gate could not
+    be the discriminator -- all of the following reported `VALID`, exit 0:
+
+      * primary_approval.status = "Rejected"   (schema: const "Approved")
+      * a smuggled extra top-level property    (additionalProperties: false)
+      * an extra property inside primary_approval
+      * approval_epoch = 0                     (schema: minimum 1)
+      * approval_epoch = "1"                   (schema: type integer)
+      * an all-uppercase hmac                  (schema: ^[0-9a-f]{64}$)
+
+    The uppercase-hmac case is the previously-registered carryover: _check_hmac
+    compares `stored_hmac.lower()`, so case never reached a gate. It is now
+    rejected structurally, by the schema's own pattern, rather than by
+    tightening the constant-time comparison (which must keep normalizing, so
+    that a case difference can never be turned into a timing signal).
+
+    Placed immediately after _load_sidecar and BEFORE every value-dependent
+    gate, because those gates read these fields: _resolve_content_schema_info
+    reads `schema`, _check_hash_match reads `context_sha256`,
+    _check_approver_identity reads `primary_approval.approver`. Checking
+    shape first means each of them operates on a field already proven to have
+    the right type and form.
+
+    NOT applied to --verify-provenance. That mode exists to re-prove a
+    HISTORICAL sidecar's own internal consistency indefinitely, after its
+    predecessor anchor's bytes are gone; binding it to the CURRENT schema
+    revision would make historical re-provability expire whenever the schema
+    is next extended, defeating the mode's entire purpose."""
+    schema = _load_json_schema_file(_repo_root() / "contracts" / "approval-sidecar.schema.json")
+    errors = _schema_validate(schema, sidecar_obj)
+    if errors:
+        raise ValidateApprovalSidecarError(
+            "SIDECAR_SCHEMA_VIOLATION",
+            f"--sidecar {str(sidecar_path)!r} does not conform to "
+            f"contracts/approval-sidecar.schema.json: " + "; ".join(errors),
+        )
 
 
 def _check_hash_match(content_path, sidecar_obj):
@@ -696,6 +823,7 @@ def _default_registry_path():
 def run_standard_validation(content_path, sidecar_path, registry_path):
     _check_no_publish_in_progress(content_path, sidecar_path)
     sidecar_obj = _load_sidecar(sidecar_path)
+    _validate_sidecar_schema(sidecar_obj, sidecar_path)
     _check_bootstrap_invariant(sidecar_obj)
     content_info = _resolve_content_schema_info(sidecar_obj)
     _validate_content(content_path, content_info)
