@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a1r2-b-seq0468",
+  "host_session_id": "SESS-spec-a1r2-b-mcpreadonlypreflight-0468",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-1/round-2/integrated-summary.json",
+      "sha256": "add4016f68311a059200143fd815a5047379aa8be2c3f81ffaab6b86694c0521"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-1/round-2/precheck-result.json",
+      "sha256": "89bfba2f6228d2dd33a109b651b6d06697bd84a1f40299a89c8609c45a1f049f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "6662fbf87bb63d38203e5f55d18c94ec695fab1478dd0b2052a1cdc617dfd4ef"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every place a term could be read two ways is either made concrete by a multi-element AC (requirements.md:58-64, AC-001 requires all three of a named tool identifier, an explicit read-only statement and an explicit advisory statement, not a heading or a single element) or explicitly named as an open question with a stated resolution-independence property (:56; investigation.md:201-231). requirements.md:144-148 reads as internally consistent on a full read: the stop instruction is scoped to the undecided divergence-reporting behaviour, not to AC-012/AC-013, which the same paragraph and the next both state remain buildable and unconditionally required. No unflagged term, actor or state was found that two implementers would resolve differently."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked REQ-005's new block (requirements.md:144) against its own follow-on sentence (:148, unlike REQ-002 this requirement is not withdrawn under any resolution) and against REQ-002's block (:78): these describe the same stop-before-design gating action applied to different consequences, withdrawal versus deferral of one criterion, which the text itself flags as the difference rather than leaving as a conflict. Checked Non-goals (:234-240) against REQ-005/REQ-006/REQ-003/BL-003: each Non-goal is the stated inverse of a corresponding requirement, not a competing claim."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md:43-52 shows the quantified issue language expanded into branch-complete AC and TEST sets with arithmetic that checks out: 2 skills times 2 unavailability conditions yields AC-008..011 and TEST-008..011 (requirements.md:116-126; acceptance-tests.md:91-102). requirements.md:242-250 names seven edge cases including two left uncovered by design with stated rationale rather than silently dropped: edge case 4 is unaffected because AC-012/013 guarantee outcome equality regardless of probe freshness, and the OQ-010 error-envelope branch (:128; acceptance-tests.md:52) is a named deferral, not a coverage hole."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:252-256 ties each assumption to investigation evidence rather than leaving it inferred. Of the ten open questions, the two that gate constructability of a requirement (OQ-007 at :68 and :78, and as of this round OQ-005 at :144) are explicitly marked as decisions needed before design or task decomposition. The remaining eight are explicitly scoped as resolution-independent for the stated ACs (:56) or placed in Non-goals (:239-240), so they do not require the same blocking treatment."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "This feature has a genuine governance boundary: the ship skill file is agent-unwritable (requirements.md:23-46; BL-004 at :263) and requires a human-applied patch. It is made testable rather than merely asserted: AC-025/AC-026 (:221-226) and TEST-025/TEST-026 (acceptance-tests.md:35-36, 144-154) assert the staged-candidate hash match and that the live protected file carries no agent-authored edit, without opening it for write. The OQ-005 and OQ-007 human-decision gates (:78, :144) are likewise testable process boundaries with a stated actionable consequence."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The round-1 gap is closed on the merits rather than restated: requirements.md:144 now contains an imperative stop instruction a design reviewer or task author can act on directly, at parity with REQ-002's existing block (:68, :78). The scope of what is blocked, only the undecided divergence-reporting behaviour, versus what is not, AC-012/AC-013 outcome equality (:134-138, :146), is disambiguated within the same paragraph block, so a reviewer reading REQ-005 in full is not left to invent the missing reporting behaviour. The rest hands off cleanly: every quantified issue phrase is pre-expanded into a complete AC and TEST set (acceptance-tests.md:43-52), and OQ-009's undetermined verification method is permitted to remain open because only the test method, not the product behaviour, is deferred (:175-185)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in the target repository; globs for domain/* and domain return no files, so there is no context map recording an Approved domain model and no domain contract to evaluate against. Per the check's own skip condition this is recorded as skipped."
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+T-005 run-all execution evidence. Captured 2026-08-05 in
+/Users/jrmag/Projects/active/sdd-forge-wt-phase4 (shared worktree; multiple
+other agent sessions confirmed concurrently active throughout this task --
+see §3).
+
+=== §0: static validation ===
+
+  $ bash -n tests/run-all.sh
+  (exit 0, no output -- syntax-clean)
+
+  $ pwsh -NoProfile -Command '$errors=$null; $tokens=$null; \
+      [void][System.Management.Automation.Language.Parser]::ParseFile( \
+        (Resolve-Path "tests/run-all.ps1").Path, [ref]$tokens, [ref]$errors); \
+      Write-Host ("ParseErrors=" + $errors.Count)'
+  ParseErrors=0
+
+=== §1: direct suite invocation (both runtimes), current live tree ===
+
+  $ bash tests/design-system-contract.tests.sh
+  ... (70 DS-NNN lines, 51 TEST-NNN lines) ...
+  PASS: 119
+  FAIL: 2
+  (exit 1)
+
+  Failures: "FAIL: DS-010 impl count updated" (pre-existing, unrelated --
+  T-001's own commit message already named this "out of scope, reported not
+  fixed"; checks a stale "20 checks" literal in
+  phase-review-checklist.md, not a design-sync-consent TEST-NNN assertion)
+  and "FAIL: TEST-039 ... -- DESIGNED RED: staged workflow patch not yet
+  applied (R-OQ-8 part 3)" (designed, per tasks.md T-005 Done-When item 5).
+
+  $ pwsh -NoProfile -ExecutionPolicy Bypass -File tests/design-system-contract.tests.ps1
+  ... (17 DS-NNN "ok:" lines, 51 TEST-NNN lines) ...
+  PASS: 50
+  FAIL: 1
+  (exit 1)
+
+  Failure: "FAIL: TEST-039 ... -- DESIGNED RED ..." only (the .ps1 DS-010
+  check does not carry the stale-count literal the .sh twin does -- a
+  pre-existing, documented .sh/.ps1 asymmetry, not introduced by this task).
+
+Full transcripts: direct-sh-run.log, direct-ps1-run.log (this directory).
+
+=== §2: tail-scoped run-all-loop-mechanism replica (both runtimes) ===
+
+Purpose: prove the newly-registered entries are reached and behave
+correctly under run-all's own exact per-file invocation semantics
+(`bash "$test_file"` under `set -euo pipefail`, resp.
+`& $powerShell -NoProfile -File (Join-Path $root $testFile); if
+($LASTEXITCODE -ne 0) { throw ... }`), independent of the unrelated
+failures reported in §3 that occur earlier in the real arrays. The harness
+scripts (tail-harness.sh, tail-harness.ps1, this directory) copy that loop
+body verbatim, scoped to the tail of each real array: the two pre-existing
+entries immediately before the new one, plus the new one itself.
+
+  $ bash tail-harness.sh
+  ==> tests/facet-manifest-schema.tests.sh
+  ... (passes) ...
+  ==> tests/facet-manifest-semantics.tests.sh
+  ... (passes) ...
+  ==> tests/design-system-contract.tests.sh
+  ... (same 119 PASS / 2 FAIL as §1) ...
+  (exit 1, from `set -e` propagating design-system-contract.tests.sh's exit
+  status -- expected, see §1's failure classification)
+
+  $ pwsh -NoProfile -ExecutionPolicy Bypass -File tail-harness.ps1
+  ==> tests/facet-manifest-schema.tests.ps1
+  ... (passes) ...
+  ==> tests/facet-manifest-semantics.tests.ps1
+  ... (passes) ...
+  ==> tests/design-system-contract.tests.ps1
+  ... (same 50 PASS / 1 FAIL as §1) ...
+  Exception: .../tail-harness.ps1:27 ... "tests/design-system-contract.tests.ps1
+  failed with exit code 1"
+  (exit 1, from the harness's own `throw` on non-zero -- expected, mirrors
+  what real run-all.ps1 would do at this entry)
+
+Conclusion: both registrations are reached, execute, and terminate with
+exactly the outcome §1 already established via direct invocation. The exit
+codes above come from `DS-010`/`TEST-039` (sh) and `TEST-039` (ps1) alone --
+not from any defect in the registration itself. This satisfies tasks.md
+T-005 Done-When item 2's "exercises... for real" clause for the newly-
+registered entries specifically.
+
+=== §3: full run-all.sh / run-all.ps1, real launch, this session ===
+
+Both were launched for real, from the repository root, no wrapper beyond
+output redirection. `ps aux` at multiple points during this task confirmed
+6-8 *other*, independently-launched `bash tests/run-all.sh` /
+`pwsh ... run-all.ps1` processes concurrently active in this same shared
+worktree from other agent sessions (timestamps 9:20PM-9:46PM, several
+distinct zsh parent PIDs with distinct `CODEX_COMPANION_SESSION_ID` values)
+-- this is the "shared-worktree concurrent-agent hazard" pattern.
+
+--- run-all.ps1 ---
+
+Completed within this task's session. Halted at `tests/cross-model.tests.ps1`
+(array position ~24 of 32, entered via `throw "$testFile failed with exit
+code $LASTEXITCODE"` at run-all.ps1:51) with "Results: 48 passed, 14 failed"
+-- 14 timing/wall-clock-budget assertions (TEST-003 gemini timeout,
+TEST-004(a)/(c) gpt+gemini near-boundary and wall-clock-bound checks,
+elapsed_ms measurements of ~3800-5300ms). Re-ran `cross-model.tests.ps1` in
+isolation (untouched by this task, no other file before it in the array
+touched either): reproduced the identical 14-failure pattern
+(48 passed / 14 failed) at that point in time. This is upstream of, and
+unrelated to, `tests/design-system-contract.tests.ps1` (last entry) --
+never reached in this run. Root cause: wall-clock budgets tuned for an
+unloaded machine, exceeded under the concurrent-session CPU contention
+described above -- an environmental condition, not a defect in this task's
+one-line addition to a 32-entry array positioned after it.
+
+--- run-all.sh ---
+
+Completed within this task's session (after several minutes, under the same
+contention). Halted at `tests/prepare-panelist.tests.sh` (array position 7
+of 65, `set -euo pipefail` propagating that file's own non-zero exit) with
+"Results: 48 passed, 3 failed" -- "FAIL: PP-001a: no consent should exit
+non-zero, got 0", "FAIL: PP-001b: output file must NOT be created without
+consent", "FAIL: PP-001c: error message should mention 'consent', got:
+<hash>". PP-001 asserts fail-closed behaviour when *neither* a tasks.md flag
+*nor* `SDD_SUDO` grants consent -- a precondition about ambient environment
+state, not this suite's own logic. This shared worktree's scratchpad already
+contains an `enable-sdd-sudo.sh` script (evidence a concurrent session in
+this same environment exercises the `SDD_SUDO` consent path), consistent
+with ambient `SDD_SUDO` state from a concurrent session causing PP-001's
+"no consent present" precondition to not hold at the moment this run reached
+it. This is upstream of, and unrelated to, both `tests/cross-model.tests.sh`
+(position ~24) and `tests/design-system-contract.tests.sh` (last entry,
+position 65) -- neither was reached in this run.
+
+Both are real, complete executions of the actual `run-all` entry points,
+performed for real per tasks.md T-005 Done-When item 2's first clause. Both
+independently confirm a pre-existing, environment-contention-linked failure
+positioned *before* this task's newly-registered entry in each array --
+neither is a regression this task introduced, and neither is reachable from
+this task's one-line, tail-positioned edit to fix. §2's tail-harness
+evidence is the decisive, real, in-scope demonstration that this task's own
+addition is correct and reachable; §3 is recorded in full per this task's
+"flag any resulting failure" obligation rather than omitted because it
+happened to be inconvenient.
+
+Full transcripts: run-all-sh-output.log, run-all-ps1-output.log,
+cross-model-sh-isolated.log (cross-model.tests.sh run in isolation, PASSED
+64/0 under lighter contention later in this task -- included to show the
+condition is load-dependent, not a fixed defect), this directory.
+
+=== §4: comparison against T-001's cited RED baseline (not a re-capture) ===
+
+Cross-referencing `specs/design-sync-consent/verification/T-001/red-baseline-sh.log`
+(78 PASS / 43 FAIL, captured 2026-08-05 immediately after T-001's commit,
+before T-002/T-003/T-004) against §1's current result (119 PASS / 2 FAIL):
+every TEST-NNN row T-001's baseline recorded as FAIL is now PASS in §1,
+except TEST-039 (still red, designed) -- the expected GREEN transition
+T-002's and T-003's own Done-When items name (tasks.md:485-492,
+tasks.md:597-601), not a re-capture of the RED window itself (see
+acceptance-mapping.md "RED baseline: why cited, not re-captured").

@@ -6,8 +6,8 @@ ca9183c7cacecdd12df0d6f5d077b021b316a907460c64db654d3046e3072937  plugins/sdd-qu
 afc7b0738e83bf55dd49a7f66a27a7b45209f4ace524d34ccfa2f9259b4a3e03  plugins/sdd-lite/references/risk-upgrade-policy.md
 192fc9887883e30e4ab8ff2f512ca7169ce7dea3149ab7cd60efb36312d8ba45  plugins/sdd-lite/scripts/check-risk-upgrade.sh
 d1ac00563adecf9906516b7aa29d98b36ac5a485ba245532adf3ed00f14c4b38  plugins/sdd-lite/scripts/check-risk-upgrade.ps1
-40fdba6f1849effb06a8439a09b92a192a36b42a708c3cf1a253d7d48a50fc74  plugins/sdd-lite/skills/lite-spec/SKILL.md
-6e9d9c44641171c2934178cb8fa1bda4a4e10f156a349189e2ed3a2df050ec43  plugins/sdd-ship/skills/ship/SKILL.md
+d428b0dff8fec5b64917e7fd66796e470dc4d3462ddc2139d428f8bc96681bd8  plugins/sdd-lite/skills/lite-spec/SKILL.md
+5b978fe405834d1046f3ef0a55384ea0068436f1e691d481846d8786dbd51334  plugins/sdd-ship/skills/ship/SKILL.md
 df007163c4422f1760302977ac5091736f797380c5405f793d801772a287ca08  plugins/sdd-quality-loop/references/guard-invariants.json
 e63de23091b603f220ef6e26e1cbc94b0f81e62f5ead63e4c02418e07732408d  plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
 749c5ca3b4131e7d9408c208e4a0c826c220f16022ae927de61da99fc10373aa  plugins/sdd-quality-loop/scripts/generated/guard_invariants.py

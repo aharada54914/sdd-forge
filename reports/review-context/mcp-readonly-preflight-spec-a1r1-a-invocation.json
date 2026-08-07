@@ -1,0 +1,37 @@
+{
+  "schema": "review-context-invocation/v2",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "feature": "mcp-readonly-preflight",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a1r1-a-seq0463",
+  "host_session_id": "SESS-spec-a1r1-a-mcpreadonlypreflight-0463",
+  "read_only": true,
+  "input_mode": "file-manifest",
+  "fallback_mode": "none",
+  "identity_ledger_path": "reports/review-context/identity-ledger.json",
+  "identity_ledger_sha256": "2191a5a7e06e310d3d864dd41787450e08e5671a271f211b02bbe4a93b2d259b",
+  "previous_record_sha256": "14fb075b3dd7456b5ef287f9ef53cb32acdb02ff79a244b675d9b409beb91446",
+  "sequence": 463,
+  "allowed_input_manifest": [
+    {
+      "path": "specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "f3ced5cded0cfe4a7981520e77f6597e53e07fc9b1607b78ff036daeea8845c9"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93"
+    },
+    {
+      "path": "specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "reports/spec-review/mcp-readonly-preflight/attempt-1/round-1/precheck-result.json",
+      "sha256": "e77b853f715c0d74bc19abf3b96e7200269849521c1949a5ca92f2d8104787ad"
+    }
+  ]
+}

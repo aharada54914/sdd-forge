@@ -1,0 +1,124 @@
+{
+  "schema": "impl-reviewer-a/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-a",
+  "run_id": "RUN-designsyncconsent-impl-a1r2-a-seq0484",
+  "host_session_id": "SESS-impl-a1r2-a-designsyncconsent-0484",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-1/integrated-summary.json",
+      "sha256": "4cf6b85b313a37d1b812828d2cecef9d58bf7d5e43f3e4daddebc5c54d8b2b81"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-consent/attempt-1/round-2/precheck-result.json",
+      "sha256": "9cd6b2b9a9eba8b265f3d77f0ac0ce9cd726b0f9efe0442b81a9d48b0bc907e8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+      "sha256": "f3ce8bb23891aecb89e55de52a5531789960a85c3b32dcd3187f1d218ab57550"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/design.md",
+      "sha256": "4693e65e7b57edce7bfe576c7802b5ad43572e24d3ca667cce42e45bf8c14807"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/frontend-spec.md",
+      "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/infra-spec.md",
+      "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/investigation.md",
+      "sha256": "81b4f68f9e585da91d734e420f1d463009b0e429cd115bfe5aa69fe745f120e2"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+      "sha256": "7d1d4e81866266c74020abfb2de8decd38897a153faff2b71f57b0860f535f2d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/security-spec.md",
+      "sha256": "63254ac7a73ebbf98e6e61c3d4330af8265cf0674d8e581adeee3f7b5cf6e3ba"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/ux-spec.md",
+      "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "ARCH-COVERAGE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "design.md:10-18 names the four edit surfaces (component boundaries); :21-47 ('The central structural decision') describes the split of the fused push step into Consent Resolution -> Pre-Upload Check Point -> Upload with a mermaid flow and explicit rejected-alternative rationale, describing integration with the existing design-sync-loop/sdd-bootstrap-interviewer/lite-spec flow; :69-76 (Layer Specifications table) states the technology posture per layer (UX N/A no rendered surface, Frontend N/A no browser/bundle, Infrastructure Drafted, Security Load-bearing) and :328-335 names the stack as shell/Markdown with no build. All three required elements are present with more than a one-sentence treatment."
+    },
+    {
+      "id": "NO-CIRCULAR-DEPS",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no explicit component dependency declarations (A depends on B) are present in design.md:6-67. The mermaid flow at design.md:27-39 (G -> R -> ... -> V -> G) is an intentional workflow/regeneration cycle stated as such by the design (AC-009, TEST-014 require the cycle to return to generation, not consent) and design.md:158-159 explicitly calls out this property as load-bearing -- it is a process loop, not a software component dependency cycle. No circular architectural dependency pattern was found in the narrative."
+    },
+    {
+      "id": "DATA-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:192-204 ('## Data Plan') states 'No data model, no persistence, no migration' and enumerates the two on-disk artifacts touched in shape (Design-Source section gains named fields, additive; mockups unchanged in shape), explicitly states no migration/backfill follows and gives the rationale (infra-spec.md's Rollback section can state a revert is complete). This substantively covers Data Entities (none introduced), Existing Data Affected (the two named artifacts, both non-data-store), and Migration Strategy ('no migration required', with rationale), even though the literal sub-field labels are not used verbatim."
+    },
+    {
+      "id": "API-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:84-190 ('## API and Contract Plan') specifies the Loop's full step-by-step target shape (7 numbered steps with three-valued consent-resolution outcomes) and the Design-Source consent record's field table with explicit extensibility rules (unknown fields ignored, absent optional fields non-invalidating), functioning as this feature's contract surface since it has no HTTP endpoints. design.md:222-230 ('Cross-Layer Dependencies') explicitly ties this contract to downstream consumers (#139, #140) with REQ/AC/TEST references, and REQ-007/design.md Components table cover reconciliation of the four now-superseded prose statements as the closest analogue to a breaking-change disclosure for this feature type."
+    },
+    {
+      "id": "SECURITY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "The round-1 staleness class recurs at two sites not touched by the round-2 fix. (1) design.md:213, the B3 row of design.md's own '## Security Boundaries' table, still reads 'leaves whether it may authorize a *later session* to OQ-1/OQ-2 rather than assuming yes' -- framing OQ-1/OQ-2 as open, when design.md's own Open Questions section (design.md:360-364, 'OQ-1: ... Resolved') and Design Decisions section (design.md:253) record R-OQ-1/R-OQ-2 as resolved 2026-08-04, with the resolved answer being that a later session does NOT inherit the consent (AC-001 branch 3). This directly contradicts security-spec.md:92-94, which was correctly updated ('That branch did not happen: R-OQ-1 resolved to the feature AND session conjunction... the record does not cover a later session'). (2) security-spec.md:133 ('Authorization' section) still states '.github/workflows/test.yml is on the same list and becomes a second target only if OQ-8 resolves toward CI registration' -- a stale conditional. OQ-8 is resolved (R-OQ-8), and it resolved toward CI registration: requirements.md:286 (BL-005) states plainly 'OQ-8 was answered 2026-08-04, and the answer registers the suite in CI, so this feature does acquire a second protected target', and infra-spec.md:45 was correctly updated to the same effect ('R-OQ-8 (resolved 2026-08-04): ... A second protected target is acquired'). security-spec.md's own Authorization section -- the section governing the auth/protection mechanism for B3's staging boundary -- was not brought into line with its sibling documents. A reader of design.md's Security Boundaries table or security-spec.md's Authorization section in isolation would conclude both matters remain open, when both are decided; that is precisely the ambiguity SECURITY-COVERAGE exists to catch, now surfacing at new sites after the round-1 fix pass addressed the previously-cited ones."
+    },
+    {
+      "id": "FRONTEND-BACKEND-CONSISTENCY",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no frontend or backend surface exists for this feature. design.md:69-76 (Layer Specifications) marks UX and Frontend both N/A with rationale ('no rendered surface' / 'no browser, bundle, or build output'), confirmed by ux-spec.md:5 and frontend-spec.md:5. Feature Type is 'feature (workflow/policy change to an existing internal skill; no application code)', functionally equivalent to the cli/library skip category since there is no client/server split to check for consistency."
+    },
+    {
+      "id": "TEST-STRATEGY-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "design.md gained a new substantive behavioral commitment this round -- the push-failure design decision at design.md:137-145 (Loop step 6: 'Push failure ... does NOT change consent state ... A retry within the same scope resumes at step 5 with NO re-prompt ... Decided 2026-08-05') and design.md:251 (Design Decisions: 'Push failure does not revoke consent (decided 2026-08-05)'). A repository-wide search of requirements.md, acceptance-tests.md, ux-spec.md, infra-spec.md and security-spec.md for 'push fail', 'network error', 'auth expiry', 'service outage', and 'retry' returns zero matches in any of them. Every other design commitment in this document is traced through a REQ -> AC -> TEST chain (the exhaustive coverage table at design.md:267-297, whose own stated purpose is 'If an AC has no row here, the plan is incomplete; that is the check'), but this new behavior has no REQ, no AC, and no TEST anywhere -- it does not even appear as a gap in that table because no AC was created to place there. Since every criterion in this feature is a document-conformance assertion (acceptance-tests.md:3) and this is the feature's only verification mechanism, there is no concrete planned evidence that an implementation of plugins/sdd-bootstrap/skills/design-sync-loop/SKILL.md will actually state this behavior, or that a deviation (e.g. an implementation that revokes consent on push failure, or re-prompts unnecessarily) would be caught. This is the acceptance-test-approach element of TEST-STRATEGY-COVERAGE failing for one specific, newly-added commitment."
+    },
+    {
+      "id": "NO-UNDEFINED-COMPONENT",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every file/skill referenced in design.md's Architecture Overview and API and Contract Plan is defined in the Components table at design.md:49-67 (design-sync-loop/SKILL.md and its four subsections, sdd-bootstrap-interviewer/SKILL.md, docs/workflow-guide.md, lite-spec/SKILL.md, claude-design-workflow.md, CHANGELOG.md, tests/design-system-contract.tests.{sh,ps1}, .github/workflows/test.yml, tests/run-all.{sh,ps1}, AGENTS.md, specs/workflow-state-registry.json). The six DesignSync tool calls (finalize_plan, write_files, list_projects, create_project, list_files, get_file) referenced in the API and Contract Plan and Security Boundaries are acknowledged as external and out of this repository's definitional scope at design.md:351-354 ('DesignSync tool semantics are outside this repository'), consistent with investigation.md INV-007 which establishes them as an already-identified external system surface -- not an undefined component."
+    },
+    {
+      "id": "ADR-PRESENT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:232-240 ('## ADR Change Log') lists one candidate decision with status 'Proposed' and number explicitly '_TBD_', and design.md states plainly 'Whether this warrants an ADR is a maintainer call and is not decided here,' with argument for and against. This does not assert an existing ADR file, so it does not trigger the 'referenced ADR that does not exist' failure mode -- it honestly flags candidacy rather than fabricating a docs/adr/NNNN-*.md reference, and it satisfies the second limb of the check (a new architectural departure is recorded as a candidate ADR, not silently omitted)."
+    },
+    {
+      "id": "DESIGN-SYSTEM-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: design.md:78-82 ('## Design System Compliance') records exactly 'N/A -- ds_profile: none.' with rationale (sdd-forge is a CLI/plugin repository with no project-level design-system/ directory), matching the check's own skip condition verbatim."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: verified via the single permitted out-of-manifest check (directory existence test only) that no domain/ directory exists at the project root, so DOMAIN-CONFORMANCE's applicability precondition is not met."
+    }
+  ],
+  "legacy_design": false,
+  "feature_type": "feature (workflow/policy change to an existing internal skill; no application code)"
+}

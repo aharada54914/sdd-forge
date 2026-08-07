@@ -38,7 +38,8 @@ $tests = @(
     'tests/run-panelist-effort.tests.ps1',
     'tests/model-freshness-check.tests.ps1',
     'tests/facet-manifest-schema.tests.ps1',
-    'tests/facet-manifest-semantics.tests.ps1'
+    'tests/facet-manifest-semantics.tests.ps1',
+    'tests/design-system-contract.tests.ps1'
 )
 
 Push-Location $root

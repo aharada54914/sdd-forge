@@ -1,0 +1,38 @@
+ticket_id: RT-20260805-001
+status: open
+type: test-gap
+severity: major
+target:
+  feature: "mcp-readonly-preflight"
+  task: "T-001"
+  files:
+    - "plugins/sdd-bootstrap/skills/bootstrap/SKILL.md"
+    - "specs/mcp-readonly-preflight/verification/T-001/02-verification-record.md"
+summary: "AC-008/AC-009/AC-012 runtime evidence missing; structural substitute for AC-012 ruled invalid by the QG evaluator"
+problem: |
+  QG evaluator (seq 0507, VERDICT NEEDS_WORK, report
+  reports/quality-gate/20260805T131808Z-mcp-readonly-preflight-T-001.md)
+  accepted two Major findings: (1) AC-012's differential outcome-equality has
+  no real test -- the byte-unchanged-below-##-Routing diff argument cannot
+  establish outcome equality because the executing agent reads the probe's
+  suggestion in the same context (security-spec.md:83 forecloses exactly this
+  substitution); (2) AC-008/AC-009's two fallback cases were never exercised
+  as bootstrap runs (TEST-008 evidence is an environment observation plus a
+  counterfactual; TEST-009 not run). The OQ-009 open-method deferral covers
+  AC-017..020 only. This session's environment cannot produce the evidence:
+  no MCP server is registered for launchable sessions, and a
+  registered-but-failing MCP cannot be arranged mid-session.
+expected_fix:
+  - "Environment step (human): register sdd-forge-mcp locally (e.g. claude mcp add sdd-forge-mcp -- node mcp/sdd-forge-mcp/dist/index.js) so probe-present sessions exist"
+  - "TEST-008: run /sdd-bootstrap:bootstrap in a session with no MCP registered; record that the file-based flow completes with no error surfaced as a run failure"
+  - "TEST-009: run it in a session with sdd-forge-mcp registered but failing (e.g. server binary intentionally broken); record the same completion"
+  - "TEST-012: two /sdd-bootstrap:bootstrap runs over one identical repository state, probe registered vs. forced absent; record and compare the reached mode/track conclusions"
+  - "Append a supplementary verification record under specs/mcp-readonly-preflight/verification/T-001/ (do not edit the existing record); withdraw-note for bullet 5's 'PASS (structural verification)' label is already recorded in the QG report"
+  - "Re-run the quality gate for T-001 (new evaluator reservation) once the evidence exists"
+references:
+  - "reports/quality-gate/20260805T131808Z-mcp-readonly-preflight-T-001.md"
+  - "specs/mcp-readonly-preflight/tasks.md"
+  - "specs/mcp-readonly-preflight/security-spec.md"
+auto_fix_allowed: false
+requires_human_decision: true
+review_cycles: 1

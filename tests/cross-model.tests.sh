@@ -5,6 +5,8 @@ set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 SCRIPTS_DIR="${REPO_ROOT}/plugins/sdd-quality-loop/scripts"
+POLICY_FILE="${REPO_ROOT}/plugins/sdd-quality-loop/references/cross-model-verification-policy.md"
+THREAT_MODEL_FILE="${REPO_ROOT}/docs/THREAT-MODEL.md"
 PASS=0
 FAIL=0
 
@@ -395,6 +397,537 @@ PYEOF
     fi
 else
     fail "CM-015: aggregate JSON not created"
+fi
+
+# ============================================================================
+# epic-136-phase4-docs T-001: POSIX runner timeout contract (AC-003..006,012)
+# ============================================================================
+
+echo "=== T-001: POSIX panelist runner timeout contract ==="
+
+PANELIST_STUBS="${WORK}/panelist-stubs"
+PANELIST_INPUT="${WORK}/panelist-input.txt"
+mkdir -p "$PANELIST_STUBS"
+printf '# sanitized test bundle\n' > "$PANELIST_INPUT"
+
+write_panelist_stub() {
+    local path="$1"
+    local vendor="$2"
+    cat > "$path" <<EOF
+#!/bin/sh
+printf 'called\n' >> "\${STUB_CALLED_FILE}"
+case "\${STUB_MODE:-success}" in
+    success)
+        sleep "\${STUB_DELAY:-0}"
+        ;;
+    hang | ignore-term)
+        printf '%s\n' "\$\$" > "\${STUB_PID_FILE}"
+        (
+            trap '' TERM
+            _stub_child_end=\$(( \$(date +%s) + 30 ))
+            while [ "\$(date +%s)" -lt "\$_stub_child_end" ]; do sleep 1; done
+        ) &
+        printf '%s\n' "\$!" > "\${STUB_CHILD_PID_FILE}"
+        if [ "\${STUB_MODE}" = "ignore-term" ]; then
+            trap '' TERM
+        fi
+        _stub_end=\$(( \$(date +%s) + 30 ))
+        while [ "\$(date +%s)" -lt "\$_stub_end" ]; do sleep 1; done
+        ;;
+esac
+cat <<JSON
+{"schema":"cross-model-verdict/v1","task_id":"T-901","feature":"timeout-test","vendor":"${vendor}","model":"stub-model","verdict":"PASS","findings":[],"blind":true,"input_digest":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","consent":{"kind":"human-flag","ref":"test"}}
+JSON
+EOF
+    chmod +x "$path"
+}
+
+write_panelist_stub "${PANELIST_STUBS}/codex" "openai"
+write_panelist_stub "${PANELIST_STUBS}/gemini" "google"
+
+runner_path() {
+    case "$1" in
+        gpt) printf '%s\n' "${SCRIPTS_DIR}/run-panelist-gpt.sh" ;;
+        gemini) printf '%s\n' "${SCRIPTS_DIR}/run-panelist-gemini.sh" ;;
+    esac
+}
+
+runner_verdict_name() {
+    case "$1" in
+        gpt) printf '%s\n' 'T-901.panelist-openai.verdict.json' ;;
+        gemini) printf '%s\n' 'T-901.panelist-google.verdict.json' ;;
+    esac
+}
+
+run_panelist() {
+    local runner="$1"
+    local timeout_mode="$2"
+    local timeout_value="${3:-}"
+    local spec_root="$4"
+    shift 4
+    PANELIST_OUTPUT=""
+    PANELIST_EXIT=0
+    if [ "$timeout_mode" = "unset" ]; then
+        PANELIST_OUTPUT=$(env -u SDD_PANELIST_TIMEOUT PATH="${PANELIST_STUBS}:$PATH" "$@" \
+            sh "$runner" --task T-901 --feature timeout-test --input "$PANELIST_INPUT" \
+            --spec-root "$spec_root" 2>&1) || PANELIST_EXIT=$?
+    else
+        PANELIST_OUTPUT=$(env SDD_PANELIST_TIMEOUT="$timeout_value" \
+            PATH="${PANELIST_STUBS}:$PATH" "$@" \
+            sh "$runner" --task T-901 --feature timeout-test --input "$PANELIST_INPUT" \
+            --spec-root "$spec_root" 2>&1) || PANELIST_EXIT=$?
+    fi
+}
+
+process_is_dead() {
+    local pid="$1"
+    local attempts=0
+    while kill -0 "$pid" 2>/dev/null && [ "$attempts" -lt 20 ]; do
+        sleep 0.1
+        attempts=$((attempts+1))
+    done
+    ! kill -0 "$pid" 2>/dev/null
+}
+
+monotonic_ms() {
+    python3 -c 'import time; print(time.monotonic_ns() // 1_000_000)'
+}
+
+# TEST-003 / AC-003: four valid values invoke the CLI; three invalid values do not.
+for runner_kind in gpt gemini; do
+    runner=$(runner_path "$runner_kind")
+    case_dir="${WORK}/config-${runner_kind}"
+    marker="${case_dir}/called"
+    mkdir -p "$case_dir"
+
+    for config_case in unset empty explicit-default one; do
+        rm -f "$marker"
+        default_from_source=$(sed -n 's/.*${SDD_PANELIST_TIMEOUT:-\([0-9][0-9]*\)}.*/\1/p' "$runner" | head -n 1)
+        case "$config_case" in
+            unset) run_panelist "$runner" unset "" "$case_dir" STUB_CALLED_FILE="$marker" ;;
+            empty) run_panelist "$runner" set "" "$case_dir" STUB_CALLED_FILE="$marker" ;;
+            explicit-default) run_panelist "$runner" set "$default_from_source" "$case_dir" STUB_CALLED_FILE="$marker" ;;
+            one) run_panelist "$runner" set 1 "$case_dir" STUB_CALLED_FILE="$marker" ;;
+        esac
+        if [ "$config_case" = "one" ]; then
+            # A 1-second bound races stub start-up on slow runners: acceptance
+            # is proven by CLI invocation without the exit-2 validation
+            # rejection, whether or not the timeout then fires.
+            if [ -s "$marker" ] && { [ "$PANELIST_EXIT" = "0" ] || [ "$PANELIST_EXIT" = "1" ]; }; then
+                ok "TEST-003 ${runner_kind}/${config_case}: valid timeout invokes CLI"
+            else
+                fail "TEST-003 ${runner_kind}/${config_case}: expected CLI invocation without validation rejection; exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
+            fi
+        elif [ "$PANELIST_EXIT" = "0" ] && [ -s "$marker" ]; then
+            ok "TEST-003 ${runner_kind}/${config_case}: valid timeout invokes CLI"
+        else
+            fail "TEST-003 ${runner_kind}/${config_case}: expected CLI invocation and exit 0; exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
+        fi
+    done
+
+    for invalid_timeout in 0 -5 abc; do
+        rm -f "$marker"
+        run_panelist "$runner" set "$invalid_timeout" "$case_dir" STUB_CALLED_FILE="$marker"
+        if [ "$PANELIST_EXIT" = "2" ] && [ ! -e "$marker" ]; then
+            ok "TEST-003 ${runner_kind}/${invalid_timeout}: exit 2 without CLI invocation"
+        else
+            fail "TEST-003 ${runner_kind}/${invalid_timeout}: expected exit 2/no invocation; exit=${PANELIST_EXIT}, marker=$([ -e "$marker" ] && echo present || echo absent), output=${PANELIST_OUTPUT}"
+        fi
+    done
+done
+
+# TEST-012 / AC-012: derive, then compare, the defaults from runner source.
+gpt_default=$(sed -n 's/.*${SDD_PANELIST_TIMEOUT:-\([0-9][0-9]*\)}.*/\1/p' "$(runner_path gpt)" | head -n 1)
+gemini_default=$(sed -n 's/.*${SDD_PANELIST_TIMEOUT:-\([0-9][0-9]*\)}.*/\1/p' "$(runner_path gemini)" | head -n 1)
+if [ -n "$gpt_default" ] && [ "$gpt_default" = "$gemini_default" ]; then
+    ok "TEST-012: POSIX timeout defaults are derived from source and match (${gpt_default}s)"
+else
+    fail "TEST-012: runner-source defaults missing or unequal (gpt=${gpt_default:-missing}, gemini=${gemini_default:-missing})"
+fi
+
+run_timeout_case() {
+    local runner_kind="$1"
+    local stub_mode="$2"
+    local label="$3"
+    local runner
+    runner=$(runner_path "$runner_kind")
+    local case_dir="${WORK}/timeout-${runner_kind}-${label}"
+    local marker="${case_dir}/called"
+    local stub_pid_file="${case_dir}/stub.pid"
+    local child_pid_file="${case_dir}/child.pid"
+    local verdict="${case_dir}/timeout-test/verification/$(runner_verdict_name "$runner_kind")"
+    mkdir -p "$case_dir"
+
+    local started finished elapsed
+    started=$(monotonic_ms)
+    run_panelist "$runner" set 1 "$case_dir" \
+        STUB_CALLED_FILE="$marker" STUB_MODE="$stub_mode" \
+        STUB_PID_FILE="$stub_pid_file" STUB_CHILD_PID_FILE="$child_pid_file"
+    finished=$(monotonic_ms)
+    elapsed=$((finished-started))
+
+    local stub_pid="" child_pid=""
+    [ -s "$stub_pid_file" ] && stub_pid=$(cat "$stub_pid_file")
+    [ -s "$child_pid_file" ] && child_pid=$(cat "$child_pid_file")
+    local stub_dead=0 child_dead=0
+    [ -n "$stub_pid" ] && process_is_dead "$stub_pid" && stub_dead=1
+    [ -n "$child_pid" ] && process_is_dead "$child_pid" && child_dead=1
+
+    echo "measurement: TEST-004(${label}) runner=${runner_kind} elapsed_ms=${elapsed} deadline_ms=1000 margin_ms=10000 stub_pid=${stub_pid:-missing} stub_alive=$((1-stub_dead)) child_pid=${child_pid:-missing} child_alive=$((1-child_dead))"
+    if [ "$elapsed" -le 10000 ] && [ "$stub_dead" = "1" ] && [ "$child_dead" = "1" ]; then
+        ok "TEST-004(${label}) ${runner_kind}: deadline enforced and process group is dead"
+    else
+        fail "TEST-004(${label}) ${runner_kind}: elapsed=${elapsed}ms stub_dead=${stub_dead} child_dead=${child_dead}"
+    fi
+    if [ "$PANELIST_EXIT" = "1" ] && [ ! -e "$verdict" ]; then
+        ok "TEST-005 ${runner_kind}/${label}: timeout exits 1 with no verdict JSON"
+    else
+        fail "TEST-005 ${runner_kind}/${label}: expected exit 1/no verdict; exit=${PANELIST_EXIT}, verdict=$([ -e "$verdict" ] && echo present || echo absent)"
+    fi
+}
+
+# TEST-004(a)/(b) and TEST-005 for both POSIX runners.
+for runner_kind in gpt gemini; do
+    run_timeout_case "$runner_kind" hang a
+    run_timeout_case "$runner_kind" ignore-term b
+done
+
+# TEST-004(c): repeat the polling-boundary success case five times per runner.
+for runner_kind in gpt gemini; do
+    runner=$(runner_path "$runner_kind")
+    for iteration in 1 2 3 4 5; do
+        case_dir="${WORK}/boundary-${runner_kind}-${iteration}"
+        marker="${case_dir}/called"
+        verdict="${case_dir}/timeout-test/verification/$(runner_verdict_name "$runner_kind")"
+        mkdir -p "$case_dir"
+        started=$(monotonic_ms)
+        run_panelist "$runner" set 2 "$case_dir" \
+            STUB_CALLED_FILE="$marker" STUB_MODE=success STUB_DELAY=1.5
+        finished=$(monotonic_ms)
+        elapsed=$((finished-started))
+        echo "measurement: TEST-004(c) runner=${runner_kind} iteration=${iteration} elapsed_ms=${elapsed} deadline_ms=2000 exit=${PANELIST_EXIT} verdict=$([ -f "$verdict" ] && echo present || echo absent)"
+        if [ "$PANELIST_EXIT" = "0" ] && [ -f "$verdict" ]; then
+            ok "TEST-004(c) ${runner_kind}/${iteration}: near-boundary completion stays successful"
+        else
+            fail "TEST-004(c) ${runner_kind}/${iteration}: exit=${PANELIST_EXIT}, output=${PANELIST_OUTPUT}"
+        fi
+    done
+done
+
+# TEST-006 / AC-006: a timed-out sole non-Anthropic panelist cannot yield PASS.
+gate_root="${WORK}/timeout-gpt-a"
+gate_verification="${gate_root}/timeout-test/verification"
+mkdir -p "$gate_verification"
+write_verdict "${gate_verification}/T-901.panelist-anthropic.verdict.json" "anthropic" "PASS"
+CM_EXIT=0
+run_cross_model --task T-901 --feature timeout-test --spec-root "$gate_root"
+gate_aggregate="${gate_verification}/T-901.cross-model.json"
+gate_result=""
+[ -f "$gate_aggregate" ] && gate_result=$(python3 -c "import json; print(json.load(open('${gate_aggregate}'))['result'])")
+if [ "$CM_EXIT" != "0" ] && [ "$gate_result" != "PASS" ] && ! printf '%s' "$CM_OUTPUT" | grep -q 'consensus PASS'; then
+    ok "TEST-006: missing timed-out non-Anthropic verdict fails gate without consensus PASS"
+else
+    fail "TEST-006: expected non-zero/no PASS; exit=${CM_EXIT}, result=${gate_result:-missing}, output=${CM_OUTPUT}"
+fi
+
+# ============================================================================
+# TEST-001 / TEST-002: shipped policy taxonomy
+# ============================================================================
+
+echo "=== TEST-001/002: panelist failure taxonomy ==="
+
+assert_policy_taxonomy_row() {
+    local mode="$1"
+    if python3 - "$POLICY_FILE" "$mode" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+policy_path, expected_mode = sys.argv[1:]
+text = pathlib.Path(policy_path).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Panelist Failure Taxonomy\s*$([\s\S]*?)(?=^##\s)",
+    text,
+    flags=re.MULTILINE,
+)
+if not match:
+    raise SystemExit(1)
+
+for line in match.group(1).splitlines():
+    if not line.startswith("|"):
+        continue
+    cells = [cell.strip() for cell in line.strip("|").split("|")]
+    if len(cells) != 4 or cells[0] != expected_mode:
+        continue
+    exit_code, verdict_file, gate_consequence = cells[1:]
+    valid = (
+        exit_code.startswith("`1`")
+        and "`2`" not in exit_code
+        and verdict_file.startswith("No.")
+        and "diversity" in gate_consequence.lower()
+        and "gate" in gate_consequence.lower()
+        and "exit 1" in gate_consequence.lower()
+        and "exit 2" in gate_consequence.lower()
+    )
+    raise SystemExit(0 if valid else 1)
+raise SystemExit(1)
+PYEOF
+    then
+        ok "TEST-001: ${mode} states exit, no-verdict, and gate propagation"
+    else
+        fail "TEST-001: ${mode} must state exit 1, no verdict, and diversity/gate propagation"
+    fi
+}
+
+for mode in \
+    "CLI absent" \
+    "CLI exits non-zero" \
+    "CLI rate-limited" \
+    "CLI hangs / exceeds the time bound" \
+    "CLI returns malformed output"; do
+    assert_policy_taxonomy_row "$mode"
+done
+
+if python3 - "$POLICY_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Panelist Failure Taxonomy\s*$([\s\S]*?)(?=^##\s)",
+    text,
+    flags=re.MULTILINE,
+)
+section = re.sub(r"\s+", " ", match.group(1)) if match else ""
+required = (
+    "Rate-limiting is **not separately handled**" in section
+    and "exit-non-zero or timeout" in section
+)
+raise SystemExit(0 if required else 1)
+PYEOF
+then
+    ok "TEST-002: rate limiting is explicitly delegated to exit-non-zero or timeout"
+else
+    fail "TEST-002: rate limiting must be stated as not separately handled"
+fi
+
+# ============================================================================
+# TEST-007 / TEST-008 / TEST-013: threat-model security cross-references
+# ============================================================================
+
+echo "=== TEST-007/008/013: threat-model security cross-references ==="
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## OWASP LLM Top 10 \(2025\) Cross-Reference\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+rows = []
+if match:
+    for line in match.group(1).splitlines():
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if line.startswith("|") and cells and re.fullmatch(r"LLM(?:0[1-9]|10)", cells[0]):
+            rows.append(cells)
+expected = {f"LLM{number:02d}" for number in range(1, 11)}
+valid = (
+    len(rows) == 10
+    and {row[0] for row in rows} == expected
+    and all(len(row) == 3 and row[1] and row[2] for row in rows)
+)
+raise SystemExit(0 if valid else 1)
+PYEOF
+then
+    ok "TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence"
+else
+    fail "TEST-007: OWASP table must map LLM01 through LLM10 exactly once"
+fi
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+owasp = re.search(
+    r"^## OWASP LLM Top 10 \(2025\) Cross-Reference\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+controls = re.search(
+    r"^## Controls Table\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+rows = []
+if owasp:
+    for line in owasp.group(1).splitlines():
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if line.startswith("|") and cells and re.fullmatch(r"LLM(?:0[1-9]|10)", cells[0]):
+            rows.append(cells)
+control_names = re.findall(r"\*\*([^*]+)\*\*", controls.group(1) if controls else "")
+na_rows = [row for row in rows if len(row) == 3 and row[1].startswith("N/A — ")]
+mapped_rows = [
+    row for row in rows
+    if len(row) == 3 and (row[1].startswith("Control — ") or row[1].startswith("Partial control — "))
+]
+named_control_cited = any(
+    any(name in row[1] or name in row[2] for name in control_names)
+    for row in mapped_rows
+)
+valid = (
+    any(len(row[1].removeprefix("N/A — ").strip()) >= 12 for row in na_rows)
+    and bool(mapped_rows)
+    and named_control_cited
+)
+raise SystemExit(0 if valid else 1)
+PYEOF
+then
+    ok "TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows"
+else
+    fail "TEST-008: OWASP mapping needs both a reasoned N/A and an existing named control"
+fi
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## MCP Security Cross-Reference\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+rows = []
+if match:
+    for line in match.group(1).splitlines():
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if line.startswith("|") and cells and cells[0] in {"sdd-forge-mcp", "local-env-mcp", "ci-mcp"}:
+            rows.append(cells)
+expected = {"sdd-forge-mcp", "local-env-mcp", "ci-mcp"}
+valid = (
+    len(rows) == 3
+    and {row[0] for row in rows} == expected
+    and all(
+        len(row) == 4
+        and row[1]
+        and row[2]
+        and "https://modelcontextprotocol.io/" in row[3]
+        for row in rows
+    )
+)
+raise SystemExit(0 if valid else 1)
+PYEOF
+then
+    ok "TEST-013: all three MCP servers state trust posture and cite primary MCP guidance"
+else
+    fail "TEST-013: MCP cross-reference must cover three servers with posture and primary sources"
+fi
+
+# ============================================================================
+# TEST-009 / TEST-010 / TEST-014: runtime trust surfaces and closed risk
+# ============================================================================
+
+echo "=== TEST-009/010/014: runtime trust surfaces and closed risk ==="
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Runtime Trust Surfaces\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+rows = []
+if match:
+    for line in match.group(1).splitlines():
+        cells = [cell.strip() for cell in line.strip("|").split("|")]
+        if line.startswith("|") and len(cells) == 4:
+            rows.append(cells)
+expected = {
+    "--dangerously-bypass-hook-trust",
+    "hooks.state",
+    "managed by sdd-forge installer",
+    "claude-hooks.json",
+    "Claude Code settings/permissions",
+}
+surface_rows = [row for row in rows if row[0].strip("`") in expected]
+valid = (
+    len(surface_rows) == 5
+    and {row[0].strip("`") for row in surface_rows} == expected
+    and all(row[1].startswith("Trust assumption — ") for row in surface_rows)
+    and all(
+        row[2].startswith("Mitigation — ") or row[2].startswith("Residual risk — ")
+        for row in surface_rows
+    )
+    and all(re.search(r"`[^`]+:\d+(?:-\d+)?`", row[3]) for row in surface_rows)
+)
+raise SystemExit(0 if valid else 1)
+PYEOF
+then
+    ok "TEST-009: five runtime surfaces each state trust assumption, mitigation or risk, and evidence"
+else
+    fail "TEST-009: runtime trust table must substantively cover all five surfaces"
+fi
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Runtime Trust Surfaces\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+section = re.sub(r"\s+", " ", match.group(1)) if match else ""
+required = (
+    "--dangerously-bypass-hook-trust" in section
+    and "first-run trust approval" in section
+    and re.search(r"forfeit\w*", section, flags=re.IGNORECASE)
+)
+raise SystemExit(0 if required else 1)
+PYEOF
+then
+    ok "TEST-010: hook-trust bypass explicitly states the first-run approval forfeited"
+else
+    fail "TEST-010: bypass flag must name what its operator forfeits"
+fi
+
+if python3 - "$THREAT_MODEL_FILE" <<'PYEOF'
+import pathlib
+import re
+import sys
+
+text = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+match = re.search(
+    r"^## Residual Risks\s*$([\s\S]*?)(?=^##\s|\Z)",
+    text,
+    flags=re.MULTILINE,
+)
+section = re.sub(r"\s+", " ", match.group(1)) if match else ""
+required = (
+    re.search(r"unbounded external panelist", section, flags=re.IGNORECASE)
+    and "closed by this feature" in section
+    and "SDD_PANELIST_TIMEOUT" in section
+)
+raise SystemExit(0 if required else 1)
+PYEOF
+then
+    ok "TEST-014: unbounded external panelist risk is recorded as closed with its timeout control"
+else
+    fail "TEST-014: residual risks must record the closed unbounded-panelist risk"
 fi
 
 # ============================================================================

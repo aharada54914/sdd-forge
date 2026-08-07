@@ -97,6 +97,10 @@ Update this list whenever a new spec directory is bootstrapped:
 - `specs/epic-159-pillar-c/`
 - `specs/epic-159-pillar-d/`
 - `specs/epic-192-a4-facet-manifest/`
+- `specs/epic-136-phase4-docs/`
+- `specs/mcp-readonly-preflight/`
+- `specs/review-cross-critique/`
+- `specs/design-sync-consent/`
 
 ## Source Artifact Locations
 
@@ -161,3 +165,92 @@ Implementation work may start only after every persisted field has all three
 entries. This front-loads the cross-artifact consistency checks that were
 previously discovered during review (claude-workflow-compatibility T-002 and
 T-006). (WFI-001)
+
+### Author-time sweeps that replace case-by-case vigilance
+
+Five rules sharing one shape: a property easy to state once and easy to miss per
+case. Each names the point in the workflow where the sweep is mandatory, so it is
+performed rather than remembered. They sit under one heading to keep this file
+from growing a heading per rule, and are kept distinct rather than merged because
+merging them into one general instruction would lose the specificity that makes
+each actionable.
+
+1. **Case-sensitivity sweep on `.sh`->`.ps1` ports, at two independent layers.**
+   Any full-parity translation port must be swept before it is reported
+   Implementation Complete. (a) An *operator-level* sweep covering every
+   `-match`/`-notmatch`/`-eq`/`-ne`/`-contains`/`-notcontains`/`-replace`/
+   `-like`/`-notlike` site against a value the `.sh` original compares
+   case-sensitively (`[[ =~ ]]`, `==`, `sed`, `jq ==`/`test()`), narrowed to its
+   `-c`-prefixed case-sensitive variant. (b) A *separate* cmdlet and
+   language-feature sweep covering `Select-String`,
+   `Get-ChildItem -Filter`/`-Include`/`-Exclude`, `-split`,
+   `[regex]::Match`/`IsMatch`/`Replace`, `switch -wildcard`/`-regex`,
+   `Sort-Object`, and raw string-instance methods. Each cmdlet and operator
+   defaults independently, so one sweep does not imply the other. The port's
+   acceptance evidence must include at least one **mis-cased negative fixture per
+   layer** — an uppercase-variant input the `.sh` original rejects — proving the
+   `.ps1` port rejects it identically. (WFI-012)
+
+2. **Detection-suite sources must not be their own false positives.** Any test
+   suite whose acceptance checks assert against a literal marker or vocabulary
+   string (a grep pattern, an output assertion, a human-readable `ok`/`fail`
+   message) must assemble that marker at runtime from non-contiguous literals, or
+   otherwise avoid embedding the contiguous banned substring in its own source,
+   comments or messages, whenever the same vocabulary is plausibly scanned by a
+   deterministic detection gate this repository runs. The suite's own source must
+   never be a false-positive target of the mechanism it exists to test. (WFI-012)
+
+3. **Claims about shared, git-tracked state carry a re-verification
+   instruction.** Any `requirements.md` or `design.md` assumption or declaration
+   asserting a currently-true fact about repository-wide, git-tracked,
+   shared/global state that this feature's branch does not exclusively own — a
+   protected-file or guard membership list, the next-free number in a shared
+   sequential namespace such as `docs/adr/NNNN-*.md`, or an equivalent shared
+   registration surface — must carry an explicit re-verification instruction, to
+   be executed at the point closest to where the claim is consumed: at
+   spec/design-review time for a claim that gates a reviewer's conclusion, and at
+   implementation or drafting time for a claimed-free identifier. A bare,
+   unconditional claim about this class of state is a structural gap for
+   spec-review's `ASSUMPTIONS-RESOLVABLE` check, not something to accept on the
+   strength of prose. (WFI-013)
+
+4. **Exhaustive AC language is expanded before spec-review, not after.** When
+   drafting or amending `acceptance-tests.md`, for every AC whose own language
+   enumerates a set of branches (a named list such as "locks the A, B, C and D
+   branches") or quantifies over conditions ("any", "either", "each", "every"),
+   expand that language into its individual branches and verify each has a
+   TEST-ID row with its own concrete assertion — or an explicit, stated reason it
+   is covered elsewhere — BEFORE submitting for spec-review. TEST coverage that
+   is a strict subset of an AC's own stated scope is an authoring defect to fix
+   proactively, not something to leave for `EDGE-CASE-COVERAGE` to catch
+   reactively. (WFI-014)
+
+5. **A newly-reachable SKIP branch is named and either exercised or flagged.**
+   When a change alters the condition gating an existing suite's environment- or
+   platform-SKIPped branch — an OS capability probe, a `sed`/toolchain
+   portability SKIP, or an equivalent conditional gate — such that the gated
+   branch will newly execute for real somewhere it previously did not (a CI
+   runner's actual OS, or a real release run rather than a dry run), the author
+   must, before considering the change complete: (a) name explicitly in the
+   implementation report which previously-gated branch is now reachable and in
+   which environment; and (b) either exercise that branch for real in a matching
+   environment before merging, or explicitly flag it as "pending first real
+   execution at CI/release time" so the quality-gate reviewer and the next
+   retrospective can trace a resulting failure to this class rather than treating
+   it as an unrelated surprise. (WFI-015)
+
+6. **A recorded decision is propagated by identifier sweep, not by memory.**
+   Whenever an edit changes a recorded fact that other artifacts of the same
+   feature restate — resolving an open question, adding or amending a
+   constraint, changing a membership or status claim — the author must, before
+   submitting any review round that reads those artifacts: (a) grep the
+   feature's full artifact set (`requirements.md`, `design.md`,
+   `acceptance-tests.md`, every layer spec, `tasks.md` if present) for the
+   changed fact's identifiers (`OQ-N`, `BL-N`, `REQ-N`, the list or field
+   name); (b) resolve every hit to either the updated state or an explicit,
+   dated supersession note; and (c) for hash-frozen inputs that cannot be
+   edited without invalidating a round in progress (`investigation.md` during
+   spec review), place the supersession note in the governing artifact,
+   naming the stale span and stating the precedence rule. A sibling document
+   that still asserts the superseded state at review time is an authoring
+   defect of this class, not a reviewer discovery to wait for. (WFI-023)

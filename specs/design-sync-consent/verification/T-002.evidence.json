@@ -1,0 +1,63 @@
+{
+  "task_id": "T-002",
+  "feature": "design-sync-consent",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "b1c503eae137f40a20c7db2d20540fc5a7536ae90379b5017a60effc9d5081fd",
+  "quality_report": "reports/quality-gate/20260805T142052Z-design-sync-consent-T-002.md",
+  "verification_contract": "specs/design-sync-consent/verification/T-002.contract.json",
+  "git_commit": "0e455878b6af656503d605f7afcf267c610f7bf7",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 7,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/design-sync-consent/verification/T-002.contract.json",
+      "sha256": "6ddc1351c8fddd4ae13aa4f262f1e27cde132e198386c97f0d94a6f17bdcaeab"
+    },
+    {
+      "path": "reports/quality-gate/20260805T142052Z-design-sync-consent-T-002.md",
+      "sha256": "f98b39029919696c0805be252acb8ed1e258caedcc82541b541f1877f68b69bc"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-002/green-sh-isolated.log",
+      "sha256": "b7ee5578db6a67a264f98694a36a7f2f6dd9bbb30dddc5006984485ac76926ca"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/T-002/tdd-evidence.md",
+      "sha256": "758bda2112fe2eb445ec1f2904c24830746eb67ae5eefefc62ccd291b3205d56"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/placeholder-T-002.log",
+      "sha256": "340950d0e1d579c4da8456ea3bf45b968072d019c0649fbb37b228650a5bf086"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/run-all.log",
+      "sha256": "8d07f0108968efdc2b4c7799f20ed7216fd7b27ffb78e604e402b74d2e66f958"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/task-state.log",
+      "sha256": "fe0311a7f59b74bd8fdc87579fbe5f04700c46b307f08b65e913e12ee03ccc68"
+    },
+    {
+      "path": "specs/design-sync-consent/verification/qg/traceability.log",
+      "sha256": "2ff9b1b478f7ef565b73be99f6240aa5bb4f8df0e591fdf14161b7f90731e732"
+    }
+  ]
+}

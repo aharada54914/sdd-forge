@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a2r3-a-seq0477",
+  "host_session_id": "SESS-spec-a2r3-a-mcpreadonlypreflight-0477",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-2/round-3/precheck-result.json",
+      "sha256": "99532b802b1934c4aa27db9331b854e41a50e02910aad81e68ed2c72f5e1e418"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "6ec9215deaf0b2bca7e4a85e6967da881335b7f257669c67fed0eaf5668283b9"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Every in-scope requirement resolves to at least one concrete, checkable AC. requirements.md:58-64 (AC-001) requires three separately-assertable elements (named tool identifier, 'read-only' statement, advisory statement), matched by acceptance-tests.md:11/58-66 (TEST-001) which explicitly rejects a heading-only or tool-name-only reading. Even the deliberately deferred branch (the Result error-envelope case, OQ-010) is recorded as a stated non-obligation rather than a silent gap: requirements.md:128 and acceptance-tests.md:54 both name it and explain why an AC against an undecided branch would be unverifiable. REQ-007's runtime grid (AC-017..AC-020, requirements.md:189-199) has an undetermined verification method (OQ-009, acceptance-tests.md:131/165) but the behavior being tested (probe path executes / fallback path executes per runtime) is itself observable, which is what this check requires; per the calibration's False-Positive Guard (spec-review-calibration.md:63-71), an unresolved test-command choice does not fail testability when the outcome is already observable."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Overview's three stated obligations (requirements.md:9-21: the probe create, the policy gap-fill, and the protected-file handling) each trace to a requirement/AC cluster: probe -> REQ-001/REQ-002 (AC-001, AC-002, requirements.md:50-78), runtime-agnosticism -> REQ-003 (AC-004..AC-007, requirements.md:90-104), fallback -> REQ-004 (AC-008..AC-011, requirements.md:112-128), no-auto-advance/divergence -> REQ-005 (AC-012, AC-013, AC-027a, AC-027b, requirements.md:130-158), write-preservation -> REQ-006 (AC-014..AC-016, requirements.md:168-179), dual-runtime -> REQ-007 (AC-017..AC-020, requirements.md:181-201), documentation -> REQ-008/REQ-009 (AC-021..AC-024, requirements.md:203-229), protected-file staging -> REQ-010 (AC-025, AC-026, requirements.md:231-239), and regression -> REQ-011 (AC-027, requirements.md:241-244). No stated goal is left without a matching criterion."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria describe externally checkable artifacts and behavior rather than intent: AC-001 (requirements.md:58-64) is a file-content assertion with three named elements; AC-014 (requirements.md:172-173) is asserted 'against the registered tool set, not against prose'; AC-025/AC-026 (requirements.md:235-239) are SHA-256 hash-conformance and no-agent-write assertions; AC-027a/AC-027b (requirements.md:148-156) require two independently observable output elements. acceptance-tests.md's Test Details sections (e.g. :58-91, :106-131) reinforce that each AC maps to a concrete read, diff, or registry check rather than a vague quality statement."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md:246-254 (## Non-goals) explicitly excludes: adding any write/approval/state-mutating MCP tool, rewriting existing correct read-only prose, making the probe authoritative, changing any MCP server implementation, registering/configuring MCP servers, generalising ADR-0006, and adding the probe to sdd-bootstrap-interviewer/SKILL.md (OQ-006). Each exclusion is tied to a concrete reason (e.g. BL-003, REQ-005, REQ-003) rather than stated bare, closing off the directions this feature could otherwise silently expand into."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Baseline Constraints (requirements.md:272-278) state data/compatibility constraints (BL-001 no mcp/ implementation changes, BL-002/BL-003 exact preservation of existing flows and prose) and a registry constraint (BL-005). The approval boundary for the protected file is stated in detail in the Protected Gate Files section (requirements.md:23-46): membership re-derived against guard_invariants.py:4 (PROTECTED_GATE_SUFFIXES) and guard_invariants.py:18 (PHASE2_HUMAN_COPY_TARGETS) -- both independently confirmed correct by direct re-reading of plugins/sdd-quality-loop/scripts/generated/guard_invariants.py in this working tree (line 4 contains the literal 'plugins/sdd-ship/skills/ship/SKILL.md' entry in PROTECTED_GATE_SUFFIXES; line 18 contains the same entry in PHASE2_HUMAN_COPY_TARGETS) -- plus BL-004 requiring human-applied staging. This resolves round 2's ASSUMPTIONS-RESOLVABLE finding: requirements.md:34 now states the PHASE2_HUMAN_COPY_TARGETS claim 'carries the same re-verification obligation' as the table above, and the re-verification instruction at requirements.md:44 names both lists by line number rather than leaving either bare."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The highest-risk claims each have a named validation surface. REQ-005's 'probe cannot change the outcome' claim (requirements.md:130-146) is validated by AC-012/AC-013 (outcome-equality differential tests, requirements.md:134-138) and the divergence-reporting sub-claim by AC-027a/AC-027b (requirements.md:148-156), matched to TEST-012/TEST-013/TEST-027a/TEST-027b (acceptance-tests.md:22-23,38-39,106-113). The guard-circumvention risk on the protected ship/SKILL.md path (AC-002's second half, requirements.md:74-76) is validated by TEST-003 (acceptance-tests.md:13,70-76), which checks the live path was not agent-written without opening it for write. The dual-runtime obligation (REQ-007) has an explicitly named but methodologically open validation surface (OQ-009, acceptance-tests.md:122-131) rather than a silently absent one, which the calibration's allowance for 'a later quality-gate evidence path' (spec-review-calibration.md:52-54) covers."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No domain/ directory exists under the target project root (glob search for domain/** returned zero matches), so there is no domain/context-map.md with Domain-Model-Status: Approved and no domain-contract.json to check requirements.md against. Per the check's explicit skip condition, this is recorded as skipped rather than evaluated."
+    }
+  ]
+}

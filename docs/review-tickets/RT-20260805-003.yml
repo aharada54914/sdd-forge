@@ -1,0 +1,37 @@
+ticket_id: RT-20260805-003
+status: open
+type: test-gap
+severity: minor
+target:
+  feature: "design-sync-consent"
+  task: "T-001"
+  files:
+    - "tests/design-system-contract.tests.sh"
+    - "tests/design-system-contract.tests.ps1"
+summary: "Two assertion-strength gaps found by the T-002 QG evaluator's mutation testing (TEST-026 redirect bypass, TEST-043 deletion)"
+problem: |
+  During the design-sync-consent T-002 quality gate (seq 0513, report
+  reports/quality-gate/20260805T142052Z-design-sync-consent-T-002.md), the
+  evaluator ran ten targeted mutations. Two exposed assertion-strength gaps
+  in T-001's suite (the shipped SKILL.md text satisfies the ACs by direct
+  inspection in both cases, so these are test-artifact gaps, not behavior
+  defects): (1) TEST-026 -- named by security-spec.md:169 as one of the two
+  load-bearing assertions -- does not detect a redirect-style bypass:
+  mutating design-sync-loop/SKILL.md:91 'continue to 5 with no prompt' to
+  'continue to 6 with no prompt' (routing the consent-already-holds path
+  straight to push around the check point) leaves TEST-026 green; it does
+  detect deletion and reordering. (2) TEST-043 (AC-026 row 3, the
+  'substantive' distinction) stayed green when both decline-vs-not-permitted
+  distinctions were deleted, while TEST-041/042 correctly flipped.
+expected_fix:
+  - "Rework TEST-038 (both runtimes) to accept BOTH sanctioned lifecycle states: staged-only (live lite-spec unmodified, draft+manifest match) and applied (live file content matches the manifest-recorded candidate). Since the human applied the T-004 candidate on 2026-08-06, the current live-unmodified premise fails against the sanctioned post-apply state (suite now 118/3)"
+  - "Strengthen TEST-026 (both runtimes) to assert the consent-already-holds outcome routes to the check point step (5), not merely that the check point exists before push -- e.g. parse the step-3 outcome (a) target"
+  - "Strengthen TEST-043 (both runtimes) to anchor on the step 3/4 distinction text rather than (or in addition to) step 6's boundary sentence"
+  - "Re-run both suites (expect the same 119/2, 50/1 at the current tree) and re-run the T-002 evaluator's two mutations to confirm both now flip red"
+references:
+  - "reports/quality-gate/20260805T142052Z-design-sync-consent-T-002.md"
+  - "specs/design-sync-consent/acceptance-tests.md"
+  - "specs/design-sync-consent/security-spec.md"
+auto_fix_allowed: true
+requires_human_decision: false
+review_cycles: 1
