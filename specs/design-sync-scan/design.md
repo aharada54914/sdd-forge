@@ -81,23 +81,26 @@ This feature adds nothing to the diagram's left half (generation, consent) and n
 design-sync-scan.sh <target-dir>
 design-sync-scan.ps1 <target-dir>
 
-  <target-dir>   required. Scanned recursively for *.html files -- the
+  <target-dir>   required. Scanned recursively for *.html files,
+                 including files in subdirectories (AC-002) -- the
                  extension test is case-insensitive (.HTML/.Html are
                  scanned; requirements.md AC-039, round 3), and any file
                  with a different extension is outside the scan entirely
                  (no finding, no block, even with matching content).
+                 All three detection categories run in every invocation;
+                 no flag selects a subset (AC-003).
 
 Exit codes (precedence: a tool-error condition always yields 2, evaluated
 before either detection outcome — a scan that does not complete is never 0
 or 1, regardless of what it would have found):
   0   the scan COMPLETED and found zero matches in any category — caller
       may proceed to push
-  1   the scan COMPLETED and found at least one match — caller must not
+  1   the scan COMPLETED and found at least one match (AC-006) — caller must not
       push without an explicit, human-granted override recorded per
       "Design-Source scan record" below, and that override applies only
       to THIS scan's disclosed findings
   2   the scan DID NOT COMPLETE (bad/missing argument, nonexistent
-      target-dir, an unreadable .html file) — a tool-error outcome, not a
+      target-dir, an unreadable .html file; AC-007) — a tool-error outcome, not a
       detection outcome, so whether the payload contains anything is
       genuinely unknown. Blocking is unconditional here: unlike exit 1,
       exit 2 has NO override path, because an override is a decision
@@ -121,6 +124,8 @@ Output, on exit 0:
 
   Design-Sync Scan passed (0 findings).
 ```
+
+The script itself presumes no interactive human at its own invocation — it reads no stdin and prompts for nothing; its exit code plus its finding report are sufficient for a caller to gate on (AC-015). The human enters only at the *skill* layer, and only on exit 1.
 
 Masking (AC-014) replaces the matched span of a `secret` or `PII` finding with a fixed token (`[REDACTED]`); it does not reveal a partial fragment (no "first 4 / last 4 characters" style preview), because a partial reveal of a real private key or a real token is still a disclosure, and this repository's own redaction precedent (`cross-model-verification-policy.md:272-283`) replaces rather than truncates. A `placeholder` finding shows the matched marker text in full, because a stub marker carries no sensitivity and the human needs to see exactly what triggered it.
 
@@ -173,8 +178,8 @@ Extends the field table `design-sync-loop/SKILL.md`'s "Design-Source consent rec
 | Field | Meaning | Value | Owner |
 |---|---|---|---|
 | `Egress-Consent`, `Egress-Consent-Scope`, `Egress-Consent-Subject`, `Egress-Destination`, `Egress-Consent-Expiry` | consent decision fields | unchanged | `design-sync-consent` (DS-29) — **untouched by this feature** |
-| `Egress-Scan` | this scan's outcome | `clean` (no finding) or `overridden` (finding present, human explicitly approved) | **this feature** |
-| `Egress-Scan-At` | when the scan that produced the `Egress-Scan` value ran | ISO-8601 timestamp | **this feature** |
+| `Egress-Scan` | this scan's outcome (AC-022) | `clean` (no finding) or `overridden` (finding present, human explicitly approved) — both values are written, so a reader can tell "nothing found" from "found and excused" | **this feature** |
+| `Egress-Scan-At` | when the scan that produced the `Egress-Scan` value ran (AC-023) | ISO-8601 timestamp, written for both `clean` and `overridden`, not only the exceptional one | **this feature** |
 
 Two rules carried forward unchanged from the extensibility statement already in the skill (`design-sync-consent/design.md:180`): unknown fields are ignored by a reader, and absent optional fields do not make a record non-conforming. That is what lets this feature add two fields without touching the five it does not own, and what would let a later feature add more without invalidating a record this one writes.
 
@@ -211,6 +216,8 @@ Two rules carried forward unchanged from the extensibility statement already in 
    available at this step; the tool error must be resolved (the script
    must actually complete) before this step can be re-entered at all.
 ```
+
+The step's target text also carries the boundary statement both artifacts must state (AC-018): this check point is **egress hygiene** — "may this content leave the repository" — not design-quality judgment. A finding blocks the payload; it says nothing about whether the mockup is good, and the skill text must not let the two be conflated.
 
 ## Data Plan
 
