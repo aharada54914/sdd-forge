@@ -420,7 +420,8 @@ try {
         foreach ($validCase in @(
             @{ Name = "unset"; Mode = "unset"; Value = "" },
             @{ Name = "empty"; Mode = "set"; Value = "" },
-            @{ Name = "one"; Mode = "set"; Value = "1" }
+            @{ Name = "one"; Mode = "set"; Value = "1" },
+            @{ Name = "huge"; Mode = "set"; Value = "99999999" }
         )) {
             $caseRoot = Join-Path $workDir "config-$($runner.Name)-$($validCase.Name)/specs"
             $calledFile = Join-Path $workDir "config-$($runner.Name)-$($validCase.Name).called"

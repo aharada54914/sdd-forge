@@ -27,7 +27,24 @@
   副産物: BSD/macOS の `chmod` は `--` を end-of-options として扱わない
   (bogus operand 扱いで nonzero exit) ことを実測で確認し、該当呼び出しに
   インライン文書化。
+### 修正
 
+- **`tests/run-all.sh` / `.ps1` が最初の失敗スイートで全体を中断していた問題**:
+  両ランナーはスイートを直列実行し、最初の非ゼロ終了で `set -e` / `throw` に
+  より打ち切っていたため、下流スイートが「通っている」のか「そもそも実行され
+  ていない」のか区別できなかった。スイート同士は相互独立なので、これは無関係な
+  不具合の集合を「1 CI ラウンドトリップにつき 1 件」の直列発見キューへ変える。
+  実測例: POSIX レーンで 21 番目の `turn-first-workflow.tests.sh` が落ちると、
+  以降の約 40 スイートは一度も実行されない。全スイートを最後まで実行し、失敗を
+  `FAILED: <suite>` 行で即時に示したうえで末尾に一覧を出力し、1 件でも失敗が
+  あれば終了コード 1 を返すよう変更。`==>` 進捗行・`tests` 配列・全 green 時の
+  最終行 (`All POSIX regression tests passed.` /
+  `All PowerShell regression tests passed.`) と終了コード 0 は不変なので、
+  スイート名を grep する自己登録チェック群には影響しない。POSIX レーンでは
+  pwsh 版 `guard-r10-port.tests.ps1` も同様に集約対象となり、従来は先行スイート
+  が落ちると一度も実行されなかったものが実行される。なお同じ欠陥クラスを
+  `check-workflow-state.{sh,ps1}` について扱う WFI-021 は Draft 段階であり、
+  その Proposed Change にこの 2 ランナーは含まれない。
 ### Corrections
 
 - **v1.12.0 の Issue #125 エントリの訂正 (epic-136-phase3, Stream C)**:
@@ -992,6 +1009,7 @@
   する作業は、その後の live 適用と同じく**人間のアクション**であり、
   `specs/epic-136-phase3/human-copy/MANIFEST.sha256` がその検証用ダイジェスト
   を記録する。詳細は `reports/implementation/epic-136-phase3/T-003.md` を参照。
+
 ## v1.11.1 (2026-07-22)
 
 ### 修正

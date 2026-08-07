@@ -1,0 +1,19 @@
+Acceptance verification after extending docs/THREAT-MODEL.md
+
+Command: bash -n tests/cross-model.tests.sh && bash tests/cross-model.tests.sh
+Exit: 0
+Relevant output:
+=== TEST-007/008/013: threat-model security cross-references ===
+ok: TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence
+ok: TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows
+ok: TEST-013: all three MCP servers state trust posture and cite primary MCP guidance
+Results: 61 passed, 0 failed
+
+Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/cross-model.tests.ps1
+Exit: 0
+Relevant output:
+=== TEST-007/008/013: threat-model security cross-references ===
+ok: TEST-007: OWASP table maps LLM01 through LLM10 with dispositions and evidence
+ok: TEST-008: OWASP mapping includes reasoned N/A and existing named-control rows
+ok: TEST-013: all three MCP servers state trust posture and cite primary MCP guidance
+Results: 59 passed, 0 failed

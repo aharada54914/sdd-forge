@@ -137,7 +137,7 @@
 
 7. **Unbounded external panelist (Closed by this feature)**
    - The prior unbounded external panelist invocation could wait forever on a vendor CLI and stall critical verification. This historical availability risk is **closed by this feature** through the positive whole-second `SDD_PANELIST_TIMEOUT` bound and fail-closed process termination.
-   - **Implemented evidence:** the bound and timeout branch are live in all four runners: `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:49` and `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:314`; `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh:30` and `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh:219`; `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1:44` and `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1:208-211`; `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1:26` and `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1:140-143`.
+   - **Implemented evidence:** the bound and timeout branch are live in all four runners: `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:49` and `plugins/sdd-quality-loop/scripts/run-panelist-gpt.sh:317`; `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh:30` and `plugins/sdd-quality-loop/scripts/run-panelist-gemini.sh:224`; `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1:44` and `plugins/sdd-quality-loop/scripts/run-panelist-gpt.ps1:211-214`; `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1:26` and `plugins/sdd-quality-loop/scripts/run-panelist-gemini.ps1:143-146`.
 
 ---
 

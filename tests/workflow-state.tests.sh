@@ -620,4 +620,39 @@ jq '{schema_version, migration_baseline_commit,
 bash "$CHECKER" --registry "$lite/specs/workflow-state-registry.json" >/dev/null ||
   fail "lite fixture was subjected to full rules"
 
+# WFI-021: two independently broken features are BOTH reported in one run
+# (cross-feature accumulation), while a feature's own chain still stops at
+# its first diagnostic (within-feature short-circuit). Under the pre-change
+# exit-at-first behavior the second feature's line was absent, so asserting
+# its presence is the non-vacuous regression guard.
+accumulate="$TMP/accumulate"
+mkdir -p "$accumulate/specs/feat-a" "$accumulate/specs/feat-b"
+printf 'x\n' > "$accumulate/specs/feat-a/acceptance-tests.md"
+printf 'Spec-Review-Status: Bogus\n' > "$accumulate/specs/feat-b/requirements.md"
+printf 'Impl-Review-Status: Pending\n' > "$accumulate/specs/feat-b/design.md"
+printf 'x\n' > "$accumulate/specs/feat-b/acceptance-tests.md"
+jq '{schema_version, migration_baseline_commit,
+     entries: [{"feature":"feat-a","profile":"full"},{"feature":"feat-b","profile":"full"}]}' \
+  "$ROOT/specs/workflow-state-registry.json" > "$accumulate/specs/workflow-state-registry.json"
+diag_seq() { sed -n 's/^workflow-state: \([^:]*\): \([^:]*\):.*/\1:\2/p'; }
+set +e
+acc_output="$(bash "$CHECKER" --registry "$accumulate/specs/workflow-state-registry.json" 2>&1)"
+acc_status=$?
+acc_ps_output="$(pwsh -NoProfile -File \
+  "$ROOT/plugins/sdd-quality-loop/scripts/check-workflow-state.ps1" \
+  --registry "$accumulate/specs/workflow-state-registry.json" 2>&1)"
+acc_ps_status=$?
+set -e
+[[ $acc_status -ne 0 && $acc_ps_status -ne 0 ]] || fail "WFI-021 accumulate fixture unexpectedly passed"
+for acc_out in "$acc_output" "$acc_ps_output"; do
+  [[ "$acc_out" == *"workflow-state: feat-a: stage-input:"* ]] ||
+    fail "WFI-021 first feature diagnostic missing: $acc_out"
+  [[ "$acc_out" == *"workflow-state: feat-b: stage-status:"* ]] ||
+    fail "WFI-021 second feature diagnostic missing (exit-at-first regression): $acc_out"
+  [[ "$(printf '%s\n' "$acc_out" | grep -c '^workflow-state: feat-a:')" -eq 1 ]] ||
+    fail "WFI-021 within-feature short-circuit lost: $acc_out"
+done
+[[ "$(printf '%s\n' "$acc_output" | diag_seq)" == "$(printf '%s\n' "$acc_ps_output" | diag_seq)" ]] ||
+  fail "WFI-021 twins diverged: Shell=$acc_output PowerShell=$acc_ps_output"
+
 printf 'ok: Shell workflow-state validation fixtures passed\n'

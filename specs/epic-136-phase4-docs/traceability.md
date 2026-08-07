@@ -12,9 +12,9 @@ blank.
 
 | Requirement | Summary | Layer Spec | AC | Test ID | Task |
 |---|---|---|---|---|---|
-| REQ-001 | The policy document states a complete panelist failure taxonomy, including the mode nobody wrote down: a CLI that neither succeeds nor exits | security-spec.md#b3--the-threat-model-as-a-control-inventory-stream-b-134 | AC-001, AC-002 | TEST-001, TEST-002 | T-003 |
+| REQ-001 | The policy document states a complete panelist failure taxonomy, including the mode nobody wrote down: a CLI that neither succeeds nor exits | security-spec.md#b2--the-cross-model-consensus-as-an-assurance-signal-stream-a-133 | AC-001, AC-002 | TEST-001, TEST-002 | T-003 |
 | REQ-002 | Every panelist invocation is bounded in wall-clock time, configurable via `SDD_PANELIST_TIMEOUT`, default 600s | security-spec.md#b1--the-vendor-cli-process-boundary-stream-a-133 | AC-003, AC-004 | TEST-003, TEST-004 | T-001, T-002 |
-| REQ-003 | A timeout is fail-closed and indistinguishable downstream from a CLI error: exit 1, no verdict file, gate fails | security-spec.md#b2--the-cross-model-consensus-as-an-assurance-signal-stream-a-133 | AC-005, AC-006 | TEST-005, TEST-006 | T-001 |
+| REQ-003 | A timeout is fail-closed and indistinguishable downstream from a CLI error: exit 1, no verdict file, gate fails | security-spec.md#b2--the-cross-model-consensus-as-an-assurance-signal-stream-a-133 | AC-005, AC-006 | TEST-005, TEST-006 | T-001, T-002 |
 | REQ-004 | The threat model carries an OWASP LLM Top 10 mapping and an MCP server cross-reference | security-spec.md#b3--the-threat-model-as-a-control-inventory-stream-b-134 | AC-007, AC-008, AC-013 | TEST-007, TEST-008, TEST-013 | T-004 |
 | REQ-005 | The threat model documents the five absent runtime trust surfaces, including the hook-trust bypass and this release's own closed residual risk | security-spec.md#b4--the-hook-trust-surface-the-threat-model-omits-stream-b-134 | AC-009, AC-010, AC-014 | TEST-009, TEST-010, TEST-014 | T-005 |
 | REQ-006 | Both test suites gain the cases, pass unmodified alongside their existing ones, and assert the default from its source rather than a copy | infra-spec.md#cicd-sequence | AC-011, AC-012 | TEST-011, TEST-012 | T-001, T-002 |
@@ -80,6 +80,6 @@ model onto a platform that has no equivalent.
 |---|---|---|
 | BL-001 behaviour preservation on the absent/error path | every pre-existing suite case passes unmodified | T-001, T-002 |
 | BL-002 `check-cross-model` untouched | verified by diff, not assertion | T-001 |
-| BL-003 existing policy text intact | verified by diff against the cited line ranges | T-003 |
+| BL-003 policy fail-closed posture preserved | `:28-31` byte-identical by diff; the block design.md cites as `:202-210` (now `:203-211`) carries exactly the one human-ratified exit-code correction (tasks.md ruling 2026-08-07) | T-003 |
 | BL-004 dual-runtime parity at outcome level | the two suites, with the one stated (b) exception | T-002 |
 | BL-005 no protected gate file written | re-verified against `PROTECTED_GATE_SUFFIXES` at task-authoring time; see tasks.md Protected Files | all |

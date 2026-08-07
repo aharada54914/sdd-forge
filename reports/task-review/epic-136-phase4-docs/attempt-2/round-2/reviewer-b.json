@@ -1,0 +1,135 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "epic-136-phase4-docs",
+  "attempt": 2,
+  "round": 2,
+  "run_id": "RUN-epic-136-phase4-docs-task-task-reviewer-b-seq0533",
+  "host_session_id": "SESS-task-task-reviewer-b-epic-136-phase4-docs-0533",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/reports/task-review/epic-136-phase4-docs/attempt-2/round-2/integrated-summary.json",
+        "sha256": "94adefd07f0fd4b485222da3ad6c211b609b69d820352e9ccfd83351e6db275d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/reports/task-review/epic-136-phase4-docs/attempt-2/round-2/precheck-result.json",
+        "sha256": "ee0228ff656f5c312b1458b7df75ba713f999a77730806e0b9aaca5c418480cf"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/acceptance-tests.md",
+        "sha256": "b715af75248fb28d13a9c478451c221fd1430a74ab566a7fe0396c0024ac31c2"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/design.md",
+        "sha256": "d98f046a8127125e4e75244aab06645070e4faccf32ea1e82cd8a82ae3027984"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/frontend-spec.md",
+        "sha256": "dde4cc958d0dad30a86733e57b6ae7cd16e74793e37f66d1384f45f32ff11a87"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/infra-spec.md",
+        "sha256": "28be477e1b46fa170df40ce6146085e4c1008499284b0e54e1c8fddb413dcd93"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/requirements.md",
+        "sha256": "e1a20ef119bf2a0c0e51c7c6894fc8057ffaecc98bc5960c5198dfe79533332c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/security-spec.md",
+        "sha256": "53e0aabf1d270340fe32f3abd8ac2ebef719f210e14efdacf58ee1d8440624bf"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/tasks.md",
+        "sha256": "485721bbe84d2c43bc83c4ed37e0c3034a1d6f975f98a6d9900b32738169904b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/traceability.md",
+        "sha256": "1e96be29fd9e2182bd4c2d76da912bba88ff25953cb735023ae7003494625e5e"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-audit/specs/epic-136-phase4-docs/ux-spec.md",
+        "sha256": "d08787aa1b840149a5a73c5e7617dd5c66e7f1af2f764525e34918d81549444f"
+      }
+    ]
+  },
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md T-001/T-002 (Risk: high) touch B1, a critical-tier gate's process-lifecycle boundary (Risk Rationale, tasks.md:126-141, 240-246); scope is real code (run-panelist-*.sh/.ps1), not doc/CSS-only, so no over-classification. T-003 (Risk: low, tasks.md:317-324) and T-004/T-005 (Risk: medium, tasks.md:375-382, 430-436) are documentation-only with no auth/authz/payment/PII/migration/API-contract surface touched, so low/medium is consistent with the policy's own tier definitions. No issues found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-001 Done-When (tasks.md:215-228) and T-002 Done-When (tasks.md:295-307) each carry a two-stage TDD Red->Green evidence item and an independent-review-verdict-plus-QG-verdict item recorded by a named reviewer distinct from the implementing agent. No task is Risk: critical, so second-approver/signature evidence is not required. No issues found."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "specs/epic-136-phase4-docs/tasks.md:173-228 (T-001 Done-When) contains 14 distinct verifiable checklist items (mechanically counted via grep), and tasks.md:272-307 (T-002 Done-When) contains 10 \u2014 both exceed the '>8 distinct verifiable items' oversizing indicator (T-001 by 75%). Items span config parsing/validation (AC-003), three independent timeout sub-cases (AC-004 a/b/c), a no-verdict fail-closed assertion (AC-005), downstream gate-composition (AC-006), a portability constraint, a default-sourcing constraint, regression preservation, a diff-verified untouched-file constraint (BL-002), plus TDD and independent-review evidence, bundled into one commit-scoped task. Bundling this many independently-checkable claims raises the risk that the required independent review samples rather than exhaustively verifies each one -- the same omission failure mode acceptance-tests.md's own Notes section (citing epic-136-phase3's FP-02) warns against."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001/T-002 map to AC-003 (invalid-config error path: 0/-5/abc exit 2) and AC-004 sub-cases (b)/(c) (SIGTERM-ignoring escalation, polling-boundary race) per acceptance-tests.md:38-77 -- edge/error paths, not happy-path only. T-003 is itself a failure-taxonomy documentation task (AC-001/AC-002, requirements.md:21-39). T-004's AC-008 (acceptance-tests.md:105-107) is an explicit anti-padding edge-case assertion. T-005's AC-009/AC-014 require documenting surfaces with no mitigation (residual risk) as an explicit edge case (requirements.md:123-141). No functional task is happy-path-only. No issues found."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each task's declared Test Type matches acceptance-tests.md's own Test Matrix and the definitions: T-001/T-002 'integration' (tasks.md:149-156, 254-255) involve >=2 real components (runner + stub CLI child process, plus check-cross-model for AC-006), correctly distinguishing AC-003's unit-tier sub-cases within the same suite. T-003/T-004/T-005 'integration (real file read)' matches acceptance-tests.md:7-20's Test Matrix and the repo's own documented convention (acceptance-tests.md:126). No mismatch found."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-001 (tasks.md:163-171) and T-002 (tasks.md:262-270), the only Risk: high tasks, each carry an explicit Rollback field describing single-commit revert, that it is not a neutral undo (reopens B1 DoS per infra-spec.md Rollback), and required companion-revert coordination (T-001 with T-003's taxonomy; T-002's PowerShell/POSIX parity asymmetry). No issues found."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "tasks.md:81-102 (Global Constraints) discloses that all five tasks add cases to the same two shared test suites, and T-004/T-005 additionally share docs/THREAT-MODEL.md. This overlap is fully serialized by a linear Blockers chain (tasks.md:161,260,339,395,449), which transitively prevents any concurrent edit of a shared file. Matches the check's 'legitimate multi-task scope sharing... provided Blockers enforces ordering' allowance. No uncoordinated overlap found."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Each Blockers edge is explicitly labelled and justified in tasks.md:91-102: T-002<-T-001 (functional + shared-artifact), T-003<-T-002 and T-004<-T-003 (shared-artifact only, disclosed honestly), T-005<-T-004 (functional). No edge lacks a stated justification, and no cross-task dependency is left undeclared. No spurious or missing blockers found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. T-001 through T-005 are new-capability (timeout bound) and documentation-completion tasks, not scoped as bugfix, regression fix, debugging, or incident remediation."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "TASK-SIZE",
+      "severity": "Major",
+      "task_id": "T-001",
+      "finding": "specs/epic-136-phase4-docs/tasks.md:173-228 (T-001 Done-When) has 14 distinct verifiable checklist items, exceeding the >8-item oversizing indicator by 75%; tasks.md:272-307 (T-002 Done-When) has 10, also over the threshold. See TASK-SIZE check finding for the itemized breakdown."
+    }
+  ]
+}

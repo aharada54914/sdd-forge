@@ -25,6 +25,15 @@ run_prepare() {
     PP_OUTPUT=$(bash "${SCRIPTS_DIR}/prepare-panelist-input.sh" "$@" 2>&1) || PP_EXIT=$?
 }
 
+# Hermetic key for fixtures that assume NO consent. Such fixtures pass no
+# --project-root, so the script walks up from CWD and can find an operator's
+# live SDD_SUDO token at the real repo root — which ~/.sdd/sudo-key would
+# legitimately verify, granting consent and breaking the fixture assumption.
+# Prefixing run_prepare with SDD_SUDO_KEY="$DUMMY_SUDO_KEY" wins the script's
+# key-resolution order, so no real token can ever verify during the fixture;
+# SDD_SUDO_SKIP_SIG=0 shields against the skip flag leaking in from the env.
+DUMMY_SUDO_KEY="0000000000000000000000000000000000000000000000000000000000000000"
+
 # Write a minimal tasks.md with Cross-Model: enabled for a task
 write_tasks_with_consent() {
     local path="$1"
@@ -167,7 +176,7 @@ write_clean_input "${WORK}/pp001/input.txt"
 OUT_FILE="${WORK}/pp001/out.txt"
 
 PP_EXIT=0
-run_prepare \
+SDD_SUDO_KEY="$DUMMY_SUDO_KEY" SDD_SUDO_SKIP_SIG=0 run_prepare \
     --task T-004 \
     --feature cross-model-verification \
     --input "${WORK}/pp001/input.txt" \

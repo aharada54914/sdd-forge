@@ -27,6 +27,7 @@ $tests = @(
     'tests/agent-capabilities-v2.tests.ps1',
     'tests/render-agent-frontmatter.tests.ps1',
     'tests/agent-model-routing.tests.ps1',
+    'tests/template-validator-parity.tests.ps1',
     'tests/loop-inventory.tests.ps1',
     'tests/loop-driver.tests.ps1',
     'tests/loop-consistency.tests.ps1',
@@ -54,17 +55,32 @@ $tests = @(
     'tests/ship-track-selection-migration.tests.ps1'
 )
 
+# Every suite runs even after one fails: the suites are mutually independent,
+# so aborting at the first failure hides the status of every later suite and
+# turns an unbounded set of unrelated defects into a serial discovery queue.
+$failed = @()
+
 Push-Location $root
 try {
     foreach ($testFile in $tests) {
         Write-Host "==> $testFile"
         & $powerShell -NoProfile -File (Join-Path $root $testFile)
         if ($LASTEXITCODE -ne 0) {
-            throw "$testFile failed with exit code $LASTEXITCODE"
+            Write-Host "FAILED: $testFile (exit code $LASTEXITCODE)"
+            $failed += $testFile
         }
     }
 } finally {
     Pop-Location
+}
+
+if ($failed.Count -gt 0) {
+    Write-Host ''
+    Write-Host "$($failed.Count) failing suite(s):"
+    foreach ($failedTest in $failed) {
+        Write-Host "  $failedTest"
+    }
+    exit 1
 }
 
 Write-Host 'All PowerShell regression tests passed.'

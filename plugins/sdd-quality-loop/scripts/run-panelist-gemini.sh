@@ -110,8 +110,10 @@ import sys
 status_path = sys.argv[1]
 os.setsid()
 return_code = subprocess.call(sys.argv[2:])
-with open(status_path, "w", encoding="ascii") as status_file:
+tmp_path = status_path + ".tmp"
+with open(tmp_path, "w", encoding="ascii") as status_file:
     status_file.write(str(return_code))
+os.rename(tmp_path, status_path)
 sys.exit(return_code if 0 <= return_code <= 255 else 1)
 ' "$_bw_status" "$@" &
     _bw_pid=$!
@@ -125,7 +127,12 @@ sys.exit(return_code if 0 <= return_code <= 255 else 1)
             return $?
         fi
         if [ "$(date +%s)" -ge "$_bw_deadline" ]; then
-            sleep 0.1
+            # Completion and expiry are not atomic, and the integer-second
+            # deadline can fire with sub-second slack depending on the
+            # start phase. Wait a full second so any child that finished
+            # within limit+1 real seconds has published its status before
+            # the expiry is treated as authoritative (Edge Case 6).
+            sleep 1
             if [ -s "$_bw_status" ]; then
                 wait "$_bw_pid"
                 return $?
