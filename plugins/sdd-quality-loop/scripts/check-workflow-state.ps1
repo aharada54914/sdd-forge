@@ -1,8 +1,20 @@
 # Validate the repository-wide SDD workflow state. Keep rule IDs in parity with Bash.
 $ErrorActionPreference = "Stop"
 
-function Stop-WorkflowState([string]$Feature, [string]$Rule, [string]$Message) {
+# WFI-021: diagnostics accumulate across independent features instead of
+# exiting at the first one. Inside a feature's validation scope
+# Stop-WorkflowState throws a sentinel the per-feature loop catches (so the
+# short-circuit WITHIN a feature is retained); outside feature scope it
+# still exits immediately. The run exits non-zero at the end if any fired.
+$script:WorkflowStateFailed = 0
+$script:FeatureScopeActive = $false
+$script:WorkflowStateFeatureAbort = "workflow-state-feature-abort"
+function Write-WorkflowStateDiagnostic([string]$Feature, [string]$Rule, [string]$Message) {
     [Console]::Error.WriteLine("workflow-state: ${Feature}: ${Rule}: ${Message}")
+}
+function Stop-WorkflowState([string]$Feature, [string]$Rule, [string]$Message) {
+    Write-WorkflowStateDiagnostic $Feature $Rule $Message
+    if ($script:FeatureScopeActive) { throw $script:WorkflowStateFeatureAbort }
     exit 1
 }
 function Get-Sha256([string]$Path) {
@@ -455,32 +467,43 @@ $RepoRoot = (Resolve-Path (Join-Path $SpecsRoot "..")).Path
 $duplicate = @($RegistryData.entries | Group-Object feature | Where-Object Count -gt 1 | Select-Object -First 1)
 if ($duplicate) { Stop-WorkflowState $duplicate[0].Name "registry-duplicate" "feature is registered more than once" }
 $declared = @{}
+$script:RegistryFailedFeatures = @{}
 foreach ($entry in @($RegistryData.entries)) {
     $feature = [string]$entry.feature
     $declared[$feature] = $true
-    $candidate = Join-Path $SpecsRoot $feature
-    if (-not (Test-Path -LiteralPath $candidate -PathType Container)) {
-        Stop-WorkflowState $feature "registry-dangling-entry" "registered specification directory is missing"
-    }
-    $item = Get-Item -LiteralPath $candidate -Force
-    if ($item.LinkType) {
-        $target = [string]$item.Target
-        if (-not [IO.Path]::IsPathRooted($target)) { $target = Join-Path $item.Parent.FullName $target }
-        $resolved = [IO.Path]::GetFullPath($target)
-    } else {
-        $resolved = (Resolve-Path -LiteralPath $candidate).Path
-    }
-    $prefix = $SpecsRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
-    if (-not ($resolved + [IO.Path]::DirectorySeparatorChar).StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
-        Stop-WorkflowState $feature "registry-path-escape" "registered directory escapes specs root"
-    }
-    if ($item.LinkType) {
-        Stop-WorkflowState $feature "registry-linked-entry" "registered specification directory must not be linked"
+    $script:FeatureScopeActive = $true
+    try {
+        $candidate = Join-Path $SpecsRoot $feature
+        if (-not (Test-Path -LiteralPath $candidate -PathType Container)) {
+            Stop-WorkflowState $feature "registry-dangling-entry" "registered specification directory is missing"
+        }
+        $item = Get-Item -LiteralPath $candidate -Force
+        if ($item.LinkType) {
+            $target = [string]$item.Target
+            if (-not [IO.Path]::IsPathRooted($target)) { $target = Join-Path $item.Parent.FullName $target }
+            $resolved = [IO.Path]::GetFullPath($target)
+        } else {
+            $resolved = (Resolve-Path -LiteralPath $candidate).Path
+        }
+        $prefix = $SpecsRoot.TrimEnd([IO.Path]::DirectorySeparatorChar) + [IO.Path]::DirectorySeparatorChar
+        if (-not ($resolved + [IO.Path]::DirectorySeparatorChar).StartsWith($prefix, [StringComparison]::OrdinalIgnoreCase)) {
+            Stop-WorkflowState $feature "registry-path-escape" "registered directory escapes specs root"
+        }
+        if ($item.LinkType) {
+            Stop-WorkflowState $feature "registry-linked-entry" "registered specification directory must not be linked"
+        }
+    } catch {
+        if ([string]$_.Exception.Message -ne $script:WorkflowStateFeatureAbort) { throw }
+        $script:WorkflowStateFailed++
+        $script:RegistryFailedFeatures[$feature] = $true
+    } finally {
+        $script:FeatureScopeActive = $false
     }
 }
 foreach ($directory in @(Get-ChildItem -LiteralPath $SpecsRoot -Directory -Force)) {
     if (-not $declared.ContainsKey($directory.Name)) {
-        Stop-WorkflowState $directory.Name "registry-unregistered-directory" "specification directory is not registered"
+        Write-WorkflowStateDiagnostic $directory.Name "registry-unregistered-directory" "specification directory is not registered"
+        $script:WorkflowStateFailed++
     }
 }
 if ($FeatureFilter -and -not $declared.ContainsKey($FeatureFilter)) {
@@ -881,6 +904,9 @@ function Test-Legacy([string]$Feature, [string]$Directory, $Entry) {
 foreach ($entry in @($RegistryData.entries)) {
     $feature = [string]$entry.feature
     if ($FeatureFilter -and $feature -ne $FeatureFilter) { continue }
+    if ($script:RegistryFailedFeatures.ContainsKey($feature)) { continue }
+    $script:FeatureScopeActive = $true
+    try {
     $profile = [string]$entry.profile
     $directory = Join-Path $SpecsRoot $feature
     if ($profile -eq "lite") { continue }
@@ -950,7 +976,14 @@ foreach ($entry in @($RegistryData.entries)) {
     if ($spec -eq "Passed") { Test-PassedStage $feature "spec" $directory }
     if ($impl -eq "Passed") { Test-PassedStage $feature "impl" $directory }
     if ($task -eq "Passed") { Test-PassedStage $feature "task" $directory }
+    } catch {
+        if ([string]$_.Exception.Message -ne $script:WorkflowStateFeatureAbort) { throw }
+        $script:WorkflowStateFailed++
+    } finally {
+        $script:FeatureScopeActive = $false
+    }
 }
 
+if ($script:WorkflowStateFailed -gt 0) { exit 1 }
 Write-Output "workflow-state: ok"
 exit 0
