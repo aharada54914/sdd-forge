@@ -82,7 +82,7 @@ event-identical assertion simultaneously.
 | T-009 | REQ-003 (AC-011, AC-012, AC-033) | TEST-011, TEST-012, TEST-033 | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-195-a7-compatibility/verification/T-009/green-sh.log, .../T-009/red-sh.log |
 | T-010 | REQ-007 (AC-016, AC-034, AC-035) | TEST-016, TEST-034, TEST-035 | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-195-a7-compatibility/verification/T-010/green-sh.log, .../T-010/red-sh.log |
 | T-011 | REQ-005 (AC-015, AC-028), REQ-006 (AC-040, AC-041) | TEST-015, TEST-028, TEST-040, TEST-041 | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-195-a7-compatibility/verification/T-011/green-sh.log, .../T-011/red-sh.log |
-| T-012 | REQ-002 (AC-031) | TEST-031 | implementation report with acceptance-first red/green evidence, independent quality-gate report, specs/epic-195-a7-compatibility/verification/T-012/green-sh.log, .../T-012/red-sh.log |
+| T-012 | REQ-002 (AC-031) | TEST-031 | implementation report with TDD red/green evidence, independent quality-gate report, specs/epic-195-a7-compatibility/verification/T-012/green-sh.log, .../T-012/red-sh.log |
 
 ## Acceptance Mapping
 

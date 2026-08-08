@@ -1648,34 +1648,56 @@ Approval: Draft
 
 Status: Planned
 
-Risk: medium
+Risk: high
 
 Risk Rationale: Evaluated against
 `plugins/sdd-quality-loop/references/risk-classification-policy.md`
-directly. `medium` is justified: this task authors a standalone,
-explicitly non-gating integration test that regenerates
-`structural-fixture-corpus/v1` entries via an actual live model call —
-normal internal test tooling with observable behavior (a corpus entry
-written/updated in the documented schema shape) but no sensitive surface
-of its own. It never participates in the gating `tests/run-all.sh` array
-or `.github/workflows/test.yml` (Global Constraints; AC-031), and it does
-not itself implement Security Boundary B5 — the gating structural-
-compatibility suite that boundary protects is T-004's own scope,
-already secured; this task is only the sanctioned-but-optional refresh
-path security-spec.md's B5 row names as the corpus's one legitimate
-mutation route. It is not `high`: a defect in this task cannot silently
-vacuous-pass the gating suite (design.md's own "never mutated by the
-gating suite itself" discipline means T-004's gating suite is structurally
-unaffected by anything this task does), and this task performs no
-capability-machinery invocation and no write to any protected or gating
-path. Matches this repository's own precedent for a self-contained,
-non-gating tooling task (T-001's identical "inert/optional until
-consumed" reasoning). Required Workflow is `acceptance-first` per the
-policy's medium-tier row.
+directly, revised on task-review round 2 (RISK-APPROPRIATE, Major
+finding): `high`, not `medium`, is required. This task is the sole
+implementer of the write path for Security Boundary B5
+(security-spec.md#trust-boundaries — "a malformed recorded artifact must
+never be silently treated as passing"): the corpus's own
+`refresh_procedure` field (design.md Data Plan) names this task's
+live-model refresh as B5's one sanctioned mutation route for
+`tests/fixtures/structural-fixture-corpus/`, the exact artifact T-004's
+gating structural-compatibility suite trusts as its comparison oracle
+(REQ-002, AC-005/AC-006). That is structurally the identical "silently
+canonized as the new compatibility oracle" pattern that earns T-002 its
+`high` tier under Boundary B1: a silent defect here (a live-model
+response that is schema-valid but semantically wrong, written without
+validation against T-004's own structural assertions) would become
+T-004's new gating baseline undetected, matching security-spec.md's own
+STRIDE-B5 threat text verbatim ("A malformed or subtly-altered
+recorded-response fixture ... is silently treated as a passing
+structural-compatibility comparison") — the "silent defect causes
+material harm" surface the policy's `high` tier names. Unlike B1, the
+frozen specification names no structural CI-env-var/`--approved-by`-
+equivalent fail-closed guard on this write path: AC-031 only requires the
+refresh test to exist, exercise the live model, and stay non-gating;
+B5's own mitigation column names procedure ("the corpus is refreshed
+only via the separate, non-gating AC-031 ... test, never mutated by the
+gating suite itself") and the canonicalizer's existing
+parse-failure-is-a-hard-fail discipline (AC-030), not a dedicated
+structural refusal comparable to AC-040/AC-041 — no such AC is fabricated
+here. The gap is instead compensated by (1) this task's own Done When
+now requiring the refresh path to validate a live-model response against
+T-004's own structural assertions (the AC-030 canonicalizer) *before*
+writing any corpus entry, refusing — non-zero exit, no corpus write — on
+a structural mismatch, closing the schema-valid-but-semantically-wrong
+gap the shape-only check left open; (2) `high`-tier TDD Red→Green
+evidence capturing that refusal path as the Red case; and (3) an
+independent quality-gate verdict (risk-gate-matrix.md high-tier row)
+that reviews the refreshed corpus content itself, not merely its shape.
+It is not `critical`: no financial-settlement, physical-safety, or
+irreversible-destructive surface — a bad refreshed entry is a plain
+`git revert` of that entry's own commit (infra-spec.md#rollback), and
+the gating suite is structurally unaffected by anything this task does
+unless a resulting corpus entry is actually merged. Required Workflow is
+`tdd` per the policy's high-tier row.
 
-Required Workflow: acceptance-first
+Required Workflow: tdd
 
-Security-Sensitive: false
+Security-Sensitive: true
 
 Cross-Model: not enabled
 
@@ -1709,7 +1731,12 @@ wholly new files, and this task alters no gating suite's behavior.
 
 Rollback: revert this task's commit(s) (infra-spec.md#rollback); since
 this test never runs in the gating suite or in CI, a revert has zero
-blast radius on any consumer's own pass/fail state.
+blast radius on any consumer's own pass/fail state. A corpus entry this
+task's refresh path later writes is likewise a plain committed JSON file
+under `structural-fixture-corpus/v1` (no promotion history to
+reconcile, unlike T-002's golden baseline) — a bad refreshed entry is a
+straightforward `git revert` of that entry's own commit, never a special
+procedure.
 
 ### Goal
 
@@ -1752,9 +1779,15 @@ entries (AC-015).
   `tests/run-all.sh`/`.github/workflows/test.yml`; register it, if at
   all, as a separate explicitly non-gating entry only, or leave it
   run-manually-only (Global Constraints).
-- Acceptance-first: write the assertions for the refresh path's own
-  observable behavior (a corpus entry written/updated in the documented
-  schema shape) before/alongside the implementation.
+- Implement the refresh path so it validates a live-model response
+  against T-004's own structural assertions (the AC-030 canonicalizer)
+  before writing any corpus entry, refusing — non-zero exit, no corpus
+  file touched — on a structural mismatch; a schema-valid-but-wrong
+  response must never be written as-is (security-spec.md B5).
+- TDD Red→Green: write the fixture asserting that refusal path (a
+  live-model response engineered to fail the AC-030 structural
+  assertions must be rejected — non-zero exit, no corpus write) before
+  implementing the validate-then-write logic.
 
 ### Done When
 
@@ -1772,9 +1805,20 @@ entries (AC-015).
   `refresh_procedure` field's own contract, never mutating a
   gating-suite-consumed entry outside this sanctioned path
   (security-spec.md B5).
-- [ ] Acceptance-first evidence: the refresh path's own assertions are
-  written and run against a live model call, with an independent
-  quality-gate verdict recording PASS.
+- [ ] Before writing, the refresh path validates the live-model response
+  against T-004's own structural assertions (the AC-030 canonicalizer:
+  frontmatter parse, required headings, required-file count) and refuses
+  — non-zero exit, no corpus file touched — on a structural mismatch, so
+  a schema-valid-but-semantically-wrong response can never silently
+  become T-004's new gating baseline (security-spec.md B5, STRIDE
+  Tampering/Elevation-of-Privilege row).
+- [ ] TDD evidence: RED (a live-model response deliberately engineered to
+  fail the AC-030 structural assertions, asserting the refresh path
+  rejects it — non-zero exit, no corpus write — before the
+  validate-then-write logic is implemented) and GREEN (the full suite,
+  including a successful refresh against an actual live model call).
+  An independent quality-gate verdict records PASS, reviewing the
+  refreshed corpus content itself, not only its schema shape.
 - [ ] Implementation report created; quality gate passes; traceability.md
   updated with T-012 → REQ-002 (AC-031).
 
