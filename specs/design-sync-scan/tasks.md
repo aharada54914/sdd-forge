@@ -210,9 +210,9 @@ out of scope.
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/139
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-07T23:13:22Z)
 
-Status: Planned
+Status: Done
 
 Risk: high
 
@@ -378,9 +378,9 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/139
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-07T23:13:22Z)
 
-Status: Planned
+Status: Done
 
 Risk: high
 
@@ -499,9 +499,9 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/139
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-07T23:13:22Z)
 
-Status: Planned
+Status: Done
 
 Risk: high
 
@@ -679,9 +679,9 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/139
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-07T23:13:22Z)
 
-Status: Planned
+Status: Done
 
 Risk: medium
 
@@ -758,9 +758,9 @@ Done-When:
 
 Source Issue: https://github.com/aharada54914/sdd-forge/issues/139
 
-Approval: Draft
+Approval: Approved (sudo 2026-08-07T23:13:22Z)
 
-Status: Planned
+Status: Done
 
 Risk: medium
 
