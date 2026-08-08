@@ -1,0 +1,30 @@
+# Generic project-context.yaml starter scaffold (contracts/project-context.template.yaml).
+#
+# This is a generic, provider-neutral scaffold conforming to
+# contracts/project-context.schema.json (sdd-project-context/v1). It is
+# NOT a live instance for sdd-forge itself (see design.md Non-goals).
+#
+# shared_paths below is the ONE canonical, single-source-of-truth
+# cross-cutting seed inventory for this epic and for Epic A3's Reverse
+# Coverage Gate day-one integration fixture, which reads this file
+# directly rather than maintaining its own copy of the list. Do not
+# duplicate this list elsewhere.
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: legacy-seven-layer
+  capability_enforcement: advisory
+components: []
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+  - pattern: "reports/**"
+    classification: cross-cutting
+  - pattern: "docs/**"
+    classification: cross-cutting
+  - pattern: ".github/**"
+    classification: cross-cutting
+  - pattern: "tests/fixtures/**"
+    classification: cross-cutting
+  - pattern: "CHANGELOG.md"
+    classification: cross-cutting

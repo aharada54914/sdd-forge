@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a1r1-a-seq0463",
+  "host_session_id": "SESS-spec-a1r1-a-mcpreadonlypreflight-0463",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-1/round-1/precheck-result.json",
+      "sha256": "e77b853f715c0d74bc19abf3b96e7200269849521c1949a5ca92f2d8104787ad"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "ed8fdcc4b03bb784943a1dbcc971a518c2687133ee23a1ffac199053e6670f93"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "f3ced5cded0cfe4a7981520e77f6597e53e07fc9b1607b78ff036daeea8845c9"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "REQ-001..REQ-011 each resolve to testable ACs via the quantifier expansion recorded in acceptance-tests.md:39-52 (Expansion Ledger). REQ-006's no-write-permission claim over 3 servers expands to AC-014/015/016, tested against the tool registry itself (requirements.md:150-159; acceptance-tests.md:112-118) rather than against prose, avoiding a text-marker false pass. AC-001 (requirements.md:58-64) is verified via three separately-assertable elements (acceptance-tests.md:56-64), deliberately not a heading check. REQ-007's runtime-split ACs 017-020 (requirements.md:169-179) name an observable outcome even though the verification method remains open pending OQ-009 (acceptance-tests.md:120-129,163); per spec-review-calibration.md:67 a missing test command where acceptance outcomes are still observable is not gate-failing. OQ-005 (investigation.md:213-214) is handled correctly: REQ-005's tested claim (AC-012/013) is scoped to outcome equality, which holds under every candidate resolution, while the untestable part is named as a deferral rather than smuggled into an AC (requirements.md:142; acceptance-tests.md:110). No requirement carries an impossible or wholly unobservable acceptance criterion."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All eleven requirements map to at least one AC in the Test Matrix (acceptance-tests.md:9-37): REQ-001 to AC-001, REQ-002 to AC-002 (explicitly withdrawn together with REQ-002 if OQ-007 resolves to descoping ship, requirements.md:78), REQ-003 to AC-004..007, REQ-004 to AC-008..011, REQ-005 to AC-012/013, REQ-006 to AC-014..016, REQ-007 to AC-017..020, REQ-008 to AC-021/022, REQ-009 to AC-023/024, REQ-010 to AC-025/026, REQ-011 to AC-027. The one retired identifier AC-003 (requirements.md:88) is explicitly vacated with its coverage redistributed, not silently dropped."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Acceptance criteria assert externally observable file content (AC-001, requirements.md:58-64; AC-021/022, :191-196), tool-registry state (AC-014-016, :152-159), cross-run outcome equality (AC-012/013, :134-140), and hash and provenance conformance for the protected-file staging path (AC-025/026, :215-219). Criteria require an accompanying substantive statement rather than a bare keyword match (requirements.md:196-197), citing the epic-136-phase3 FP-02 text-marker defect and its live recurrence at USERGUIDE.md:99 (acceptance-tests.md:138)."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Non-goals section (requirements.md:226-234) explicitly excludes adding write, approval or state-mutating MCP tools, rewriting existing correct read-only prose, making the probe authoritative, editing any file under mcp/, registering or configuring MCP servers, generalising ADR-0006, and adding the probe to the interviewer skill (OQ-006). Each exclusion is tied to a citation that would otherwise leave the boundary implicit and expandable."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Baseline Constraints BL-001..BL-005 (requirements.md:252-258) state the no-server-implementation-change constraint, exact preservation of existing file-based flows and prose, the approval and write boundary for the protected ship skill file (agent cannot write it; human-copy staging required, tied to guard_invariants.py:4 membership per INV-010 at investigation.md:132-145), and the mechanical registry-registration constraint at check-workflow-state.sh:130-135."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Both highest-risk claims carry a validation surface. REQ-005's probe-cannot-change-the-outcome claim is tested by outcome-equality AC-012/013 (requirements.md:134-140; acceptance-tests.md:104-110). REQ-006's no-write-capability claim is tested against the tool registry rather than documentation prose (AC-014-016; acceptance-tests.md:112-118), explicitly reasoned so a prose claim and an implementation cannot silently drift apart. REQ-007's dual-runtime claim names a validation surface even though the specific suite is undetermined pending OQ-009 \u2014 an open method, not an absent one, which spec-review-calibration.md:67 treats as non-blocking."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/context-map.md exists in the target repository and requirements.md carries no Bounded-Context field; a full-file search for Bounded-Context, domain-contract and context-map returns zero matches. The check's skip condition applies."
+    }
+  ]
+}

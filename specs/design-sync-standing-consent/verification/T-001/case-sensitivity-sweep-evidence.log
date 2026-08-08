@@ -1,0 +1,22 @@
+=== Case-sensitivity mis-cased fixture evidence (AGENTS.md "Author-time sweeps" item 1) ===
+
+-- Operator-level layer (item 1(a)): TEST-010's -cmatch site --
+mis-cased (Standing/Destination capitalized) -cmatch result: False  (expect False)
+correctly-cased -cmatch result: True  (expect True)
+
+-- Operator-level layer (item 1(a)): TEST-005/TEST-007 host-conditional -cmatch site --
+mis-cased (lowercase codex/claude code) -cmatch result: False  (expect False)
+correctly-cased -cmatch result: True  (expect True)
+
+-- Operator-level layer (item 1(a)): field-name/prefix .Contains()/.StartsWith() ordinal sites --
+.Contains mis-cased (ds_upload_consent lowercased-differently) result: False  (expect False)
+.Contains correct result: True  (expect True)
+.StartsWith mis-cased prefix result: False  (expect False)
+.StartsWith correct prefix result: True  (expect True)
+
+-- Cmdlet-level layer (item 1(b)): not applicable -- no Select-String, -split, [regex] static
+   method, switch -wildcard/-regex, or Sort-Object is used anywhere in the .ps1 suite
+   (grep -c confirms zero code occurrences, only the header comment names them):
+17:# case-insensitive literal-substring check, `-match [regex]::Escape(...)`).
+18:# No `Select-String`, `-split`, `[regex]` static methods, `switch
+19:# -wildcard`/`-regex`, or `Sort-Object` are used anywhere in this file, so

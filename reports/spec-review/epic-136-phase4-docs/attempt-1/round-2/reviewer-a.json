@@ -1,0 +1,74 @@
+{
+  "schema": "spec-reviewer-a/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-a",
+  "run_id": "RUN-epic136phase4docs-spec-a1r2-a-seq0390",
+  "host_session_id": "SESS-spec-a1r2-a-epic136phase4docs-0390",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/epic-136-phase4-docs/attempt-1/round-2/precheck-result.json",
+      "sha256": "e8324334990d95449500306e3b790a957388d2d5b622e9ede93f6c226f1000ae"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/acceptance-tests.md",
+      "sha256": "e7412d29597bb73de73f0f7085169559697108a015cf5ebe74dcf0c7d5cf0535"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/investigation.md",
+      "sha256": "dcb108286b7f465f0de3719a8f30b64fb31f9139c7ec0d868a497a16209ecb4e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/epic-136-phase4-docs/requirements.md",
+      "sha256": "57b3126d1298f66aab1b57a4db260036317f7d7de58a868e0fd1d23792f8ab51"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "REQ-TESTABILITY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "All six requirements carry concrete, checkable acceptance criteria: REQ-001->AC-001 (requirements.md:31-35, three-element structural check per failure mode) + AC-002 (:37-39); REQ-002->AC-003 (:47-49, env-var parse + exit-2 on non-numeric/non-positive) + AC-004 (:51-53, wall-clock + PID-liveness check); REQ-003->AC-005 (:61-63, exit code + absent-verdict-file check) + AC-006 (:65-67, composed gate-failure check); REQ-004->AC-007/AC-008 (:75-81) + the round-2-added AC-013 (:83-89, three named MCP servers + trust posture); REQ-005->AC-009 (:97-103, two mandatory assertions) + AC-010 (:105-107); REQ-006->AC-011/AC-012 (:113-119). Every AC maps to a TEST-* entry in acceptance-tests.md with a non-vague assertion (e.g. TEST-001, acceptance-tests.md:27, explicitly forbids a section-heading-only or exit-code-only pass). No in-scope requirement lacks a concrete verification path."
+    },
+    {
+      "id": "GOAL-AC-TRACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The Overview's stated consequence 'a hung panelist fails the gate instead of hanging it' (requirements.md:17) traces to AC-004/AC-005/AC-006. REQ-001's taxonomy-completeness goal traces to AC-001/AC-002. #134's OWASP-mapping goal traces to AC-007/AC-008; its MCP-cross-reference goal, which round 1 found had zero AC/test coverage, now traces to the added AC-013 (requirements.md:83-89) and TEST-013 (acceptance-tests.md:89-93). The five-runtime-surface goal traces to AC-009/AC-010. The 'documentation and behaviour verified equal' goal traces to AC-011/AC-012. No stated goal in the Overview or in any REQ-* prose is left without a matching AC."
+    },
+    {
+      "id": "AC-OBSERVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Round 1's central finding -- AC-001 and AC-009 verifying less than their parent requirements demanded -- is genuinely closed, not merely narrated: AC-001 (requirements.md:31-35) requires 'all three elements... not merely the mode name, and not merely the exit code' and TEST-001 (acceptance-tests.md:27) repeats the same non-heading, non-exit-code-only exclusion; AC-009 (requirements.md:97-103) requires 'two assertions, both required' and TEST-009 (acceptance-tests.md:75-79) mirrors it. The new AC-013/TEST-013 (requirements.md:83-89, acceptance-tests.md:89-93) requires both server-name presence and a stated trust posture, so it does not reproduce the single-assertion defect it was added to avoid. Minor, non-blocking observation: TEST-003's prose (acceptance-tests.md:37-38) lists 7 sub-cases (unset, empty, 600, 1, 0, -5, abc) but describes only 'first three... last three' (6), leaving the value 1 unclassified by that summary sentence; AC-003's own text ('rejects a non-numeric or non-positive value') and AC-004's reuse of TIMEOUT=1 as the standard valid bound make 1's classification unambiguous in practice, so this does not block a downstream test author's decision."
+    },
+    {
+      "id": "SCOPE-BOUNDARY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Non-goals (requirements.md:121-128) explicitly excludes retries, rewriting the already-correct absent/error path, adding new output-validation code, re-documenting the Codex agent-role surface, changing check-cross-model's logic, and pinning/vendoring vendor CLIs -- each with a stated reason. Baseline Constraints (requirements.md:146-152) reinforce the same boundaries (BL-001 through BL-005). No requirement or AC implies unbounded expansion beyond these stated limits."
+    },
+    {
+      "id": "CONSTRAINTS-EXPLICIT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Baseline Constraints BL-001 through BL-005 (requirements.md:148-152) state behaviour-preservation for the absent/error path, an unchanged check-cross-model, extension-not-replacement of existing policy text, mandatory dual-runtime parity, and a guard-protection boundary verified directly against guard-invariants.generated.js:5 (INV-017, cited requirements.md:152). The Assumptions section (requirements.md:142-144) states the SIGTERM/SIGKILL escalation constraint explicitly and requires it be exercised by a test (Edge Case 7, TEST-004(b)) rather than left assumed."
+    },
+    {
+      "id": "RISK-VALIDATION-SURFACE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "The behaviour-changing claim (hung panelist now fails the gate) has a concrete validation surface: AC-005/AC-006 and TEST-005/TEST-006 (acceptance-tests.md:59-67), composed against the real check-cross-model gate. The corrected malformed-output exit-code claim (requirements.md:27-29, citing run-panelist-gpt.sh:241-297) is a second high-risk claim -- it reverses this specification's own prior error (exit 2 -> exit 1) -- but that file is outside this review's allowed manifest and I could not verify it directly. Noting this plainly rather than assuming either way: its validation surface is the Assumptions section's 're-verify every file:line... at implementation start' instruction (requirements.md:144) plus the explicit Non-goal against writing new validation code for this path (requirements.md:125); no acceptance test independently re-derives the exit code from the runner script itself (TEST-001 is a policy-document read, not a runner-script execution), so if the citation is wrong, detection is deferred to that named re-verification step rather than caught by this feature's own test suite. That is a named, if thinner-than-executable, validation surface, which is what this check requires."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists in this worktree (confirmed via glob for domain/context-map.md and domain/domain-contract.json, neither found), so the Approved-domain-model precondition for this check is absent. Skipped per the check's explicit skip condition."
+    }
+  ]
+}

@@ -1,0 +1,64 @@
+=== TDD RED: facet-manifest-schema.tests.sh against deliberately non-conformant validator (validate_document() call stubbed to return no diagnostics -- see red-step-stub comment) ===
+$ bash tests/facet-manifest-schema.tests.sh
+ok: TEST-001: $schema is draft-07
+ok: TEST-001: $id present (https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json)
+ok: TEST-002 positive baseline: valid-base.json valid (exit 0, no diagnostics)
+FAIL: TEST-002: required-missing-schema.json expected invalid containing 'missing required property', got exit=0 output=[]
+FAIL: TEST-002: required-missing-feature.json expected invalid containing 'missing required property', got exit=0 output=[]
+FAIL: TEST-002: required-missing-affected-components.json expected invalid containing 'missing required property', got exit=0 output=[]
+FAIL: TEST-002: required-missing-required-facets.json expected invalid containing 'missing required property', got exit=0 output=[]
+FAIL: TEST-002: required-missing-conditional-facets.json expected invalid containing 'missing required property', got exit=0 output=[]
+FAIL: TEST-002: required-missing-resolved-gates.json expected invalid containing 'missing required property', got exit=0 output=[]
+FAIL: TEST-002: required-missing-capabilities.json expected invalid containing 'missing required property', got exit=0 output=[]
+FAIL: TEST-002: required-missing-lite-eligibility.json expected invalid containing 'missing required property', got exit=0 output=[]
+FAIL: TEST-002: required-missing-context-binding.json expected invalid containing 'missing required property', got exit=0 output=[]
+FAIL: TEST-002: required-missing-resolver.json expected invalid containing 'missing required property', got exit=0 output=[]
+ok: TEST-003: empty-arrays-valid.json valid (exit 0, no diagnostics)
+FAIL: TEST-003: duplicate-affected-components.json expected invalid containing 'uniqueItems violated', got exit=0 output=[]
+FAIL: TEST-003: duplicate-required-facets.json expected invalid containing 'uniqueItems violated', got exit=0 output=[]
+FAIL: TEST-003: duplicate-capabilities.json expected invalid containing 'uniqueItems violated', got exit=0 output=[]
+FAIL: TEST-004: conditional-facet-applied-false-missing-reason.json expected invalid containing 'missing required property 'reason'', got exit=0 output=[]
+FAIL: TEST-004: conditional-facet-applied-true-with-reason.json expected invalid containing 'matched a schema under 'not'', got exit=0 output=[]
+ok: TEST-004: conditional-facet-applied-true-valid.json valid (exit 0, no diagnostics)
+FAIL: TEST-005: evidence-invalid-operator.json expected invalid containing 'expected one of', got exit=0 output=[]
+FAIL: TEST-005: evidence-warn-missing-reason.json expected invalid containing 'missing required property 'reason'', got exit=0 output=[]
+ok: TEST-005: evidence-warn-with-reason-valid.json valid (exit 0, no diagnostics)
+FAIL: TEST-006: resolved-gate-invalid-stage.json expected invalid containing 'expected one of', got exit=0 output=[]
+ok: TEST-006: resolved-gate-valid-multi.json valid (exit 0, no diagnostics)
+FAIL: TEST-007: capability-minimum-enforcement-invalid-value.json expected invalid containing 'expected const 'required'', got exit=0 output=[]
+ok: TEST-007: capability-minimum-enforcement-absent-valid.json valid (exit 0, no diagnostics)
+ok: TEST-007: capability-minimum-enforcement-aggregate-valid.json valid (exit 0, no diagnostics)
+FAIL: TEST-008: lite-eligibility-missing-upgrade-reasons.json expected invalid containing 'missing required property 'upgrade_reasons'', got exit=0 output=[]
+ok: TEST-008: lite-eligibility-empty-upgrade-reasons-valid.json valid (exit 0, no diagnostics)
+FAIL: TEST-009: context-binding-malformed-digest.json expected invalid containing 'does not match pattern', got exit=0 output=[]
+FAIL: TEST-009: context-binding-empty-dependency-pointers.json expected invalid containing '< minItems 1', got exit=0 output=[]
+FAIL: TEST-010: resolver-malformed-semver.json expected invalid containing 'does not match pattern', got exit=0 output=[]
+ok: TEST-010: resolver-valid-semver.json valid (exit 0, no diagnostics)
+ok: TEST-011: decision-doc-v2-section16-worked-example.json valid (exit 0, no diagnostics)
+FAIL: TEST-017: dependency-pointer-root-not-allowlisted.json expected invalid containing 'does not match pattern', got exit=0 output=[]
+FAIL: TEST-018: dependency-pointer-malformed-rfc6901.json expected invalid containing 'does not match pattern', got exit=0 output=[]
+ok: TEST-017/018: dependency-pointer-all-roots-valid.json valid (exit 0, no diagnostics)
+ok: TEST-041: covered by evidence-warn-{missing-reason,with-reason-valid} above
+FAIL: TEST-048: upgrade-reasons-duplicate.json expected invalid containing 'uniqueItems violated', got exit=0 output=[]
+ok: TEST-034: facet-manifest.yaml/capability-summary.yaml alongside specs/<feature>/ files does not break check-sdd-structure.sh
+ok: self-registration: tests/run-all.sh lists this suite
+
+facet-manifest-schema: 16 passed, 26 failed
+
+=== TDD RED: facet-manifest-semantics.tests.sh against the same stub ===
+$ bash tests/facet-manifest-semantics.tests.sh
+FAIL: TEST-028: resolved-gate-id-duplicate.json expected invalid containing 'facet-manifest: resolved-gate-id-duplicate:', got exit=0 output=[]
+FAIL: TEST-028: facet-classification-conflict.json expected invalid containing 'facet-manifest: facet-classification-conflict:', got exit=0 output=[]
+FAIL: TEST-028: conditional-facet-duplicate.json expected invalid containing 'facet-manifest: conditional-facet-duplicate:', got exit=0 output=[]
+FAIL: TEST-028: affected-components-not-sorted.json expected invalid containing 'facet-manifest: array-not-stable-sorted:', got exit=0 output=[]
+ok: TEST-028 negative proof: fully-clean.json valid (exit 0, no diagnostics)
+FAIL: AC-047: conditional-facet-duplicate.json expected invalid containing 'duplicate conditional_facets facet', got exit=0 output=[]
+FAIL: array-not-stable-sorted: required-facets-not-sorted.json expected invalid containing 'facet-manifest: array-not-stable-sorted: /required_facets:', got exit=0 output=[]
+FAIL: array-not-stable-sorted: capabilities-not-sorted.json expected invalid containing 'facet-manifest: array-not-stable-sorted: /capabilities:', got exit=0 output=[]
+FAIL: array-not-stable-sorted / AC-048 semantic half: upgrade-reasons-not-sorted.json expected invalid containing 'facet-manifest: array-not-stable-sorted: /lite_eligibility/upgrade_reasons:', got exit=0 output=[]
+FAIL: array-not-stable-sorted: conditional-facets-not-sorted.json expected invalid containing 'facet-manifest: array-not-stable-sorted: /conditional_facets:', got exit=0 output=[]
+FAIL: array-not-stable-sorted: resolved-gates-not-sorted.json expected invalid containing 'facet-manifest: array-not-stable-sorted: /resolved_gates:', got exit=0 output=[]
+ok: determinism: single-diagnostic fixture emits exactly one line
+ok: self-registration: tests/run-all.sh lists this suite
+
+facet-manifest-semantics: 3 passed, 10 failed

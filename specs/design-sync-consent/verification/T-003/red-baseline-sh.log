@@ -1,0 +1,123 @@
+PASS: DS-001 schema draft 2020-12
+PASS: DS-001 schema $id
+PASS: DS-001 schema const id
+PASS: DS-001 generated_by in contract
+PASS: DS-001 strict meta envelope
+PASS: DS-002 template meta.schema
+PASS: DS-002 template meta.version semver
+PASS: DS-002 template meta.generated_by
+PASS: DS-002 template meta.profile
+PASS: DS-002 token group color
+PASS: DS-002 token group typography
+PASS: DS-002 token group spacing
+PASS: DS-002 DTCG $type present
+PASS: DS-002 DTCG $value present
+PASS: DS-003 layer 1 section
+PASS: DS-003 layer 2 section
+PASS: DS-003 layer 3 section
+PASS: DS-003 change process section
+PASS: DS-003 WCAG 2.2 AA
+PASS: DS-004 ui-patterns section Actions
+PASS: DS-004 ui-patterns section Dialogs
+PASS: DS-004 ui-patterns section Icons
+PASS: DS-004 ui-patterns section Flow
+PASS: DS-004 ui-patterns section States
+PASS: DS-004 ui-patterns section Cognitive Load
+PASS: DS-004 single primary action rule
+PASS: DS-004 dialog timing rule
+PASS: DS-005 contract section heading
+PASS: DS-005 schema referenced
+PASS: DS-005 absence contract
+PASS: DS-006 ensure section
+PASS: DS-006 seed generator detection
+PASS: DS-006 seed generation command
+PASS: DS-006 D6 fallback note
+PASS: DS-006 figma DTCG import path
+PASS: DS-006 mockups reference tokens
+PASS: DS-006 seed is input, artifacts authoritative
+PASS: DS-007 design inventory group
+PASS: DS-007 hardcoded color patterns
+PASS: DS-008 compliance section
+PASS: DS-008 none profile N/A rule
+PASS: DS-008 version placeholder
+PASS: DS-009 lite token declaration
+PASS: DS-010 reviewer-a check defined
+PASS: DS-010 ordered checks updated
+PASS: DS-010 checklist block
+FAIL: DS-010 impl count updated
+PASS: DS-011 reviewer-b UI library rule
+PASS: DS-011 checklist UI library rule
+PASS: DS-012 UI rules section
+PASS: DS-012 tokens-only rule
+PASS: DS-012 ui-patterns reference
+PASS: DS-012 conditional required reading
+PASS: DS-013 token conformance in loop
+PASS: DS-013 ui-patterns in loop
+PASS: DS-013 deterministic gate ownership
+PASS: DS-014 checklist exists
+PASS: DS-014 ui-patterns section
+PASS: DS-014 rubric Major classification
+PASS: DS-014 quality-gate conditional load
+PASS: DS-015 target updated
+PASS: DS-015 target size SC
+PASS: DS-015 accessible authentication SC
+PASS: DS-016 contract check id
+PASS: DS-016 matrix conditional row
+PASS: DS-016 quality-gate runs the script
+PASS: DS-017 README feature bullet
+PASS: DS-017 workflow-guide integration
+PASS: DS-017 skill-reference script entry
+PASS: DS-017 changelog entry
+FAIL: TEST-001 first upload in a scope is gated on an explicit consent decision (AC-001 branch 1)
+FAIL: TEST-002 subsequent uploads in the same scope proceed without re-prompting (AC-001 branch 2)
+FAIL: TEST-003 a different scope does not inherit the consent (AC-001 branch 3)
+FAIL: TEST-004 scope names exactly one unit, no disjunction between units (AC-002)
+FAIL: TEST-005 disclosure element (a): payload is specification-derived, may be confidential (AC-003)
+FAIL: TEST-006 disclosure element (b): destination is claude.ai/design, external, the selected project (AC-003)
+FAIL: TEST-007 disclosure element (c): content sent there may be retained, outside repo control (AC-003)
+FAIL: TEST-008 disclosure states scope and that later uploads proceed without asking again (AC-004)
+FAIL: TEST-009 finalize_plan payload is cited or its opacity is stated as a limitation (AC-005)
+FAIL: TEST-010 Loop order: generate -> consent -> push -> claude.ai review (AC-006, ordered structure)
+FAIL: TEST-011 local review carries an optionality marker (AC-007)
+FAIL: TEST-012 local review is explicitly stated not to be a precondition for push (AC-007)
+FAIL: TEST-013 the demotion's consequence is stated where the demotion is described (AC-008)
+FAIL: TEST-014 regeneration cycle returns to generation (2), not consent (3) (AC-009, ordered structure)
+FAIL: TEST-015 Design-Source record fields are enumerated by name, not a heading check (AC-010)
+PASS: TEST-016 full-profile record destination is specs/<feature>/ux-spec.md (AC-011)
+FAIL: TEST-017 lite-profile record destination is specs/<feature>/design.md, staged draft (AC-011)
+FAIL: TEST-018 record is an audit trace, not an authorization anything enforces (AC-012, load-bearing)
+PASS: TEST-019 capability-detection branch 1: tool unavailable -> fallback, marker recorded (AC-013)
+PASS: TEST-020 capability-detection branch 2: authentication failure -> fallback, marker recorded (AC-013)
+PASS: TEST-021 fallback still performs no upload, and gained no consent step (AC-014, positive+negative)
+PASS: TEST-022 non-blocking condition 1: absence of mockups never blocks review (AC-015)
+PASS: TEST-023 non-blocking condition 2: absence of design tools never blocks review (AC-015)
+PASS: TEST-024 ds_profile: none keeps no artifacts / no further questions; no consent leak (AC-016)
+FAIL: TEST-025 pre-upload check point named, distinct from consent, over mockups/ (AC-017)
+FAIL: TEST-026 no upload path in the Loop bypasses the pre-upload check point (AC-017, structural)
+FAIL: TEST-027 check point's blocking behaviour carries no interactive-human precondition (AC-018)
+FAIL: TEST-028 consent-resolution outcome 1: must be requested (AC-019)
+FAIL: TEST-029 consent-resolution outcome 2: already holds for this scope (AC-019)
+FAIL: TEST-030 consent-resolution outcome 3: not permitted -> manual fallback, no upload (AC-019)
+FAIL: TEST-031 Design-Source shape is stated as additively extensible (AC-020)
+FAIL: TEST-032 this feature's behaviour is the one a later per-feature setting selects (AC-020)
+FAIL: TEST-033 site 1 (frontmatter description) states the per-feature model, not per-upload (AC-021)
+FAIL: TEST-034 site 2 (Boundaries) states the per-feature model, not every time (AC-021)
+FAIL: TEST-035 site 3 (sdd-bootstrap-interviewer) states the per-feature model, not per-upload (AC-021)
+FAIL: TEST-036 site 4 (workflow-guide.md, Japanese) states the per-feature/session model (AC-021)
+PASS: TEST-037 CHANGELOG.md historical release note is byte-identical to pre-change content (AC-022)
+FAIL: TEST-038 lite-spec change staged, live file unmodified, manifest hash matches (AC-023)
+FAIL: TEST-039 this feature's assertions are reachable from a CI entry point (AC-024) -- DESIGNED RED: staged workflow patch not yet applied (R-OQ-8 part 3)
+PASS: TEST-040 the seven pre-existing DS-006 literals still pass (AC-025, regression)
+FAIL: TEST-041 a decline blocks that upload -- no upload occurs (AC-026)
+FAIL: TEST-042 the next upload attempt within the same scope prompts again (AC-026)
+FAIL: TEST-043 a decline is distinguished from AC-019's persistent not-permitted outcome (AC-026)
+FAIL: TEST-044 the consent names the destination project as part of its coverage (AC-027)
+FAIL: TEST-045 a different destination project does not inherit the consent, is gated again (AC-027)
+FAIL: TEST-046 a mid-session withdrawal path is stated (AC-028)
+FAIL: TEST-047 after withdrawal, the next upload within that scope is gated again (AC-028)
+FAIL: TEST-048 disclosure element (d): coverage includes future regenerations, this session (AC-029)
+FAIL: TEST-049 disclosure element (e): the pull direction also transmits a project name (AC-029)
+FAIL: TEST-050 disclosure element (f): operator asserts authority to send content externally (AC-029)
+FAIL: TEST-051 push-failure rule, all four parts (AC-030)
+PASS: 78
+FAIL: 43

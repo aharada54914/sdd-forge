@@ -1,0 +1,154 @@
+==============================================================================
+T-003 RED EVIDENCE -- epic-136-phase4-mcp
+Captured: 2026-07-29T05:09:26Z
+Host: Darwin 25.5.0 arm64; node v24.13.0; npm 11.6.2
+Base commit at capture time: 9091f96b6fa191a0fa5851cef49e9a30a1619193
+
+STAGE: RED. Captured BEFORE any edit to mcp/sdd-forge-mcp/src/path-guard.ts.
+The only file that exists at this moment which did not exist at HEAD is the
+new test suite:
+  mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts
+
+The red state this task's Scope names is "unresolved import / type error"
+against the not-yet-existing listGuardedFilesWithDiagnostics export. Two
+independent captures of it are below:
+
+  (1) COMPILE-TIME. `tsc -p tsconfig.test.json` (which npm's `pretest` hook
+      runs) fails with TS2305 on the import. Because `pretest` exits non-zero,
+      `npm test` aborts and ZERO tests execute -- stated plainly here rather
+      than presented as a partial-suite failure. This is disclosed, not
+      glossed: unlike T-002 (whose new assertions read a field structurally
+      and so still let the suite run), T-003's new suite cannot compile at
+      all until the export exists, because the export IS the unit under test.
+  (2) RUNTIME. `tsc` emits JavaScript despite the type error (noEmitOnError
+      is not set), so the emitted test file can be handed to `node --test`
+      directly. It fails at ESM link time with
+      "SyntaxError: The requested module '../../src/path-guard.js' does not
+      provide an export named 'listGuardedFilesWithDiagnostics'".
+      This second capture exists so the RED evidence is not purely a type-
+      checker opinion: the module genuinely does not export the function at
+      this commit.
+
+--- the 13 cases in the new suite, all red at this moment ---
+   1. TEST-005 sub-case (a) (AC-005): a genuinely empty, readable allowlisted
+      directory returns { files: [], errors: [] }
+   2. TEST-005 sub-case (b1) (AC-005): a relDir that does not exist returns
+      files: [] plus the not-found guard reason
+   3. TEST-005 sub-case (b2) (AC-005, security-spec B3): a READABLE, NON-EMPTY
+      directory outside the allowlist is denied BEFORE any walk-level
+      readdirSync
+   4. TEST-005 sub-case (b3) (AC-005, security-spec B3): a denylisted directory
+      reached through an allowlisted parent is denied BEFORE any walk-level
+      readdirSync
+   5. TEST-005 sub-case (c1) (AC-005): a mid-walk statSync failure is reported
+      while every readable sibling is still collected
+   6. TEST-005 sub-case (c2) (AC-005): a mid-walk readdirSync failure is
+      reported while siblings both before and after it are still collected
+   7. TEST-005 (AC-005): the three sub-cases are distinguishable by
+      errors.length and never collapse into one another
+   8. TEST-006 (AC-006): quality-report.ts's own aggregation fixture lists
+      byte-identically through both functions
+   9. TEST-006 (AC-006): review-ticket.ts's own aggregation fixture lists
+      byte-identically through both functions
+  10. TEST-006 (AC-006): report-lookup.ts's nested reports-directory scan shape
+      lists byte-identically through both functions
+  11. TEST-006 (AC-006): the real repository directories the 3 call sites scan
+      list byte-identically through both functions
+  12. TEST-006 (AC-006): every guard-failure class still collapses to [] for
+      the legacy function
+  13. TEST-006 (AC-006, BL-003): none of the 3 existing call sites was changed
+      to opt into the diagnostics function
+
+--- ON THE GUARD-ORDERING ASSERTION (AC-005 sub-case (b), security-spec B3) ---
+Cases 3 and 4 above are the assertions security-spec.md B3's STRIDE row
+requires: the ones that must NOT go green if the isAllowlisted/isDenylisted
+check is moved inside the new errors-collecting try/catch. They are written so
+that a swallowed guard check cannot satisfy them, and this is a property of
+the assertions themselves, not of the RED capture:
+
+  * both fixtures are REAL, READABLE, NON-EMPTY directories (case 3:
+    plugins/some-plugin holding script.sh and nested/notes.md; case 4:
+    reports/.env holding leak.txt), so a walk that ran would return entries;
+  * each asserts `files` deep-equals [] AND that no entry name from inside the
+    denied directory ("script.sh", "notes.md", "leak.txt") appears anywhere in
+    JSON.stringify(result) -- a name could only get there via a walk;
+  * each asserts errors[0].reason EQUALS the guard's own hard-deny message
+    ("Path is outside the allowlisted directories." /
+    "Path matches a denylisted file.") and does NOT match /ENOENT|EACCES|
+    EPERM|ENOTDIR/, so a denial reinterpreted as an I/O error fails;
+  * case 3 additionally runs a POSITIVE CONTROL of the identical directory
+    shape under an allowlisted parent (reports/control-plugin) and asserts the
+    walk DOES list it -- so `files: []` on the denied path cannot be an
+    artefact of an unwalkable fixture.
+
+Because the RED capture here is a compile abort, these assertions are not
+observed executing in this file. That is disclosed rather than glossed. Their
+non-vacuity is proven separately and executably by the MUTATION EXPERIMENT
+recorded in specs/epic-136-phase4-mcp/verification/T-003/selfcheck.log, which
+applies exactly the naive refactor B3 names to the landed path-guard.ts,
+re-runs this suite, and records the resulting failures before restoring the
+file from git and re-verifying the tree is clean.
+
+--- git status --short, whole tree ---
+?? mcp/sdd-forge-mcp/tests/path-security/list-guarded-files-diagnostics.test.ts
+
+--- git status --short -- mcp/sdd-forge-mcp/src/ mcp/sdd-forge-mcp/dist/ ---
+(empty = src/ and dist/ are untouched at capture time)
+
+--- git diff --stat -- mcp/sdd-forge-mcp/src/ mcp/sdd-forge-mcp/dist/ ---
+(empty = no src/ or dist/ change)
+
+--- git diff --stat, whole tree ---
+(empty = the only change is the new UNTRACKED test file listed above)
+
+--- RED totals ---
+  npx tsc -p tsconfig.test.json  -> EXIT 2, 1 error (TS2305)
+  npm test                       -> EXIT 2, aborted in `pretest`, 0 tests ran
+  node --test <emitted new file> -> EXIT 1, tests 1 / pass 0 / fail 1
+                                    (ESM link-time SyntaxError)
+  Baseline NOT re-measured by this run. The last recorded measurement of this
+  suite at the T-002 landed state is 214 tests / 214 pass / 0 fail, in
+  specs/epic-136-phase4-mcp/verification/T-002/dist-parity.log -- cited as a
+  prior observation, not re-run here.
+==============================================================================
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npx tsc -p tsconfig.test.json  (the pretest compile) ===
+tests/path-security/list-guarded-files-diagnostics.test.ts(31,3): error TS2305: Module '"../../src/path-guard.js"' has no exported member 'listGuardedFilesWithDiagnostics'.
+pretest tsc EXIT: 2
+
+=== COMMAND: cd mcp/sdd-forge-mcp && npm test ===
+
+> sdd-forge-mcp@0.1.0 pretest
+> tsc -p tsconfig.test.json
+
+tests/path-security/list-guarded-files-diagnostics.test.ts(31,3): error TS2305: Module '"../../src/path-guard.js"' has no exported member 'listGuardedFilesWithDiagnostics'.
+npm test EXIT: 2
+
+=== COMMAND: cd mcp/sdd-forge-mcp && node --test dist-test/tests/path-security/list-guarded-files-diagnostics.test.js ===
+(the emitted-despite-error JS, run directly, to show the export genuinely does not exist at this commit)
+file:///Users/jrmag/Projects/active/sdd-forge-wt-phase4/mcp/sdd-forge-mcp/dist-test/tests/path-security/list-guarded-files-diagnostics.test.js:28
+import { listGuardedFiles, listGuardedFilesWithDiagnostics, } from "../../src/path-guard.js";
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../../src/path-guard.js' does not provide an export named 'listGuardedFilesWithDiagnostics'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:302:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:405:5)
+    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:660:26)
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.13.0
+✖ dist-test/tests/path-security/list-guarded-files-diagnostics.test.js (25.843584ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 29.927209
+
+✖ failing tests:
+
+test at dist-test/tests/path-security/list-guarded-files-diagnostics.test.js:1:1
+✖ dist-test/tests/path-security/list-guarded-files-diagnostics.test.js (25.843584ms)
+  'test failed'
+node --test EXIT: 1

@@ -45,7 +45,6 @@ if len(valid_schema_lines) != 1:
     raise SystemExit(1)
 
 required_headings = (
-    "Output Paths And Hashes",
     "Test Evidence",
     "Iteration And Escalation",
     "Isolation Evidence",
@@ -111,22 +110,74 @@ def canonical_repository_path(value, field_name):
         fail(f"invalid {field_name}")
     return value
 
-output_body = sections["Output Paths And Hashes"][0]
-output_pattern = re.compile(
-    r"(?m)^- \*\*Path\*\*: `([^`\n]+)`; "
-    r"\*\*SHA-256\*\*: `([0-9a-f]{64})`\s*$"
-)
-outputs = output_pattern.findall(output_body)
-if not outputs:
-    fail("missing Output Paths And Hashes entry")
-if len(outputs) != len(re.findall(r"(?m)^- \*\*Path\*\*:", output_body)):
-    fail("malformed Output Paths And Hashes entry")
+# WFI-017: the v2 outputs contract accepts EITHER (or both) of two forms --
+# the current template's "## Outputs" two-column table, and the legacy
+# "## Output Paths And Hashes" bullet list retained solely so previously
+# committed bullet-only and dual-form v2 reports remain valid. At least one
+# of the two sections must be present; when both are present both are
+# validated, and duplicate-path rejection spans both sections via one shared
+# `seen_paths` set.
+outputs_sections = sections.get("Outputs", [])
+legacy_sections = sections.get("Output Paths And Hashes", [])
+if len(outputs_sections) > 1:
+    fail("duplicate ## Outputs")
+if len(legacy_sections) > 1:
+    fail("duplicate ## Output Paths And Hashes")
+if not outputs_sections and not legacy_sections:
+    fail("missing ## Outputs")
+
 seen_paths = set()
-for output_path, _output_hash in outputs:
-    canonical_repository_path(output_path, "output path")
-    if output_path in seen_paths:
-        fail("duplicate output path")
-    seen_paths.add(output_path)
+
+# Outputs-table row parser. Mirrors the semantics of the Outputs-table row
+# consumed by validate-review-context-set.sh's evaluator_output_is_declared
+# (an exact `| \`path\` | \`sha256\` |` row match on a "## Outputs" section)
+# but additionally enforces the malformed-entry guard the legacy bullet
+# rules apply today: every line inside the section that starts with `|` and
+# is neither the header row nor the separator row must parse as a data row,
+# or the report is rejected.
+outputs_header_pattern = re.compile(r"^\|\s*Path\s*\|\s*SHA-256\s*\|\s*$")
+outputs_separator_pattern = re.compile(r"^\|\s*:?-+:?\s*\|\s*:?-+:?\s*\|\s*$")
+outputs_row_pattern = re.compile(
+    r"^\|\s*`([^`\n]+)`\s*\|\s*`([0-9a-f]{64})`\s*\|\s*$"
+)
+
+if outputs_sections:
+    outputs_body = outputs_sections[0]
+    table_rows = []
+    for line in outputs_body.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("|"):
+            continue
+        if outputs_header_pattern.match(stripped) or outputs_separator_pattern.match(stripped):
+            continue
+        row_match = outputs_row_pattern.match(stripped)
+        if row_match is None:
+            fail("malformed Outputs entry")
+        table_rows.append(row_match.groups())
+    if not table_rows:
+        fail("missing Outputs entry")
+    for output_path, _output_hash in table_rows:
+        canonical_repository_path(output_path, "output path")
+        if output_path in seen_paths:
+            fail("duplicate output path")
+        seen_paths.add(output_path)
+
+if legacy_sections:
+    legacy_body = legacy_sections[0]
+    output_pattern = re.compile(
+        r"(?m)^- \*\*Path\*\*: `([^`\n]+)`; "
+        r"\*\*SHA-256\*\*: `([0-9a-f]{64})`\s*$"
+    )
+    legacy_outputs = output_pattern.findall(legacy_body)
+    if not legacy_outputs:
+        fail("missing Output Paths And Hashes entry")
+    if len(legacy_outputs) != len(re.findall(r"(?m)^- \*\*Path\*\*:", legacy_body)):
+        fail("malformed Output Paths And Hashes entry")
+    for output_path, _output_hash in legacy_outputs:
+        canonical_repository_path(output_path, "output path")
+        if output_path in seen_paths:
+            fail("duplicate output path")
+        seen_paths.add(output_path)
 
 label("Test Evidence", "Test Command")
 test_result = label("Test Evidence", "Test Result")

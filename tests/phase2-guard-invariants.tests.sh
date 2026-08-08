@@ -59,6 +59,7 @@ phase2_targets=(
   'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js'
   'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1'
   'plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh'
+  'tests/guard-parity.tests.sh'
   '.github/workflows/test.yml'
   'specs/epic-136-phase2-gates/human-copy/apply-protected-files.ps1'
 )
@@ -249,6 +250,49 @@ if command -v node >/dev/null 2>&1 && (cd "$cwd" && PAYLOAD="$payload" node "$(n
 else
   ok 'Node denies an unconsumed fixed-module export'
 fi
+
+# WFI-016 followup (issue #207): every staged human-copy target must be
+# byte-identical to its live counterpart. The reviewed batch travels WITH its
+# application in the same change, so any divergence here is stale staging (the
+# 2b8a52f class that nearly reverted ten commits of CI definition) and must be
+# caught at commit time, not at the next apply.
+sync_ok=1
+sync_canonical="$stage/plugins/sdd-quality-loop/references/guard-invariants.json"
+sync_targets=""
+if [[ -f "$sync_canonical" ]]; then
+  # native_path is required: on Windows Git Bash python3 is a native
+  # interpreter that cannot open POSIX-style /c/... paths (same convention as
+  # every other python3 call in this suite). Guard the substitution so a
+  # python failure records a bad instead of killing the suite via set -e.
+  if ! sync_targets="$(python3 - "$(native_path "$sync_canonical")" <<'PY'
+import json, sys
+for t in json.load(open(sys.argv[1], encoding="utf-8"))["phase2_human_copy_targets"]:
+    print(t)
+PY
+)"; then
+    sync_ok=0
+  fi
+  while IFS= read -r sync_target; do
+    # Native Windows python emits CRLF on stdout; strip the trailing CR so
+    # target paths resolve (mirrors the runner's manifest CRLF normalization).
+    sync_target="${sync_target%$'\r'}"
+    [[ -n "$sync_target" ]] || continue
+    if [[ ! -f "$root/$sync_target" || ! -f "$stage/$sync_target" ]]; then
+      echo "  missing: $sync_target"
+      sync_ok=0
+      continue
+    fi
+    staged_digest="$(sha256sum "$stage/$sync_target" | awk '{print $1}')"
+    live_digest="$(sha256sum "$root/$sync_target" | awk '{print $1}')"
+    if [[ "$staged_digest" != "$live_digest" ]]; then
+      echo "  out of sync: $sync_target"
+      sync_ok=0
+    fi
+  done <<< "$sync_targets"
+else
+  sync_ok=0
+fi
+[[ "$sync_ok" == 1 ]] && ok 'WFI-016 staged targets are byte-identical to live (no stale staging)' || bad 'WFI-016 staged targets are byte-identical to live (no stale staging)'
 
 echo "phase2-guard-invariants.tests.sh: $pass passed, $fail failed"
 [[ "$fail" -eq 0 ]]

@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-qualityloopfixes-spec-a1r1-b-seq0321",
+  "host_session_id": "SESS-spec-a1r1-b-qualityloopfixes-0321",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-1/integrated-summary.json",
+      "sha256": "d09c1aa44b71a6c430451d1f8acc4edb86e21308b742c37d6b9932eaf33b18e6"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/quality-loop-fixes/attempt-1/round-1/precheck-result.json",
+      "sha256": "ec0e94910c31b8b77e545d67fb13633dc18a95ee9416d8646a514b7d3d8bc069"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/acceptance-tests.md",
+      "sha256": "34b11186fea61722d6a7a1e2057c8250a6c84ccebd23877fff56d62a7558ebe4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/investigation.md",
+      "sha256": "4f0b32075d4ce670bbb89dae82f02395ff59026fdb563636836b907d283aa94d"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/quality-loop-fixes/requirements.md",
+      "sha256": "d95fe8c13309ace7fe37ea8b47fdb97d77ba6604f9c5de43ed99c50863201c71"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Terms are unusually concrete throughout: exact regexes (feature-slug `^[a-z0-9][a-z0-9-]*$`, VERDICT anchor `^VERDICT:[[:space:]]*BLOCKED[[:space:]]*$`, Feature anchor), exact file:line citations for every changed site (e.g. REQ-005 enumerates all 12 `jq -r` call sites by line number), and TEST-014/016 pin the hash algorithm to SHA-256 despite requirements.md only saying 'hash'. The one candidate ambiguity -- REQ-004/AC-019's undefined trigger for when a task's specification 'flags an enumerable coverage requirement' -- is explicitly deferred to Phase 2 design.md's API/Contract Plan per acceptance-tests.md's own Notes section ('TEST-019..021 are reviewed at PR time... against the exact wording design.md's API/Contract Plan specifies'), which is a design decision the calibration's false-positive guard says this gate must not require resolved here."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "No direct conflict found among requirements, ACs, constraints, or non-goals. The apparent tension between issue #179's 'protected gate script' framing for validate-review-context-set.sh and the machine-enforced PROTECTED_GATE_SUFFIXES list not containing it (investigation.md INV-020..022) is explicitly reconciled by requirements.md's OQ-1 (RESOLVED: direct edit) and the matching Non-goal ('Extending guard protection... is out of scope for this spec'), not left as an unresolved contradiction. Fail-open (AC-009, missing VERDICT) vs. fail-closed (AC-015/016, AC-026) outcomes are explicitly distinguished per-stream in the Edge Cases section, precluding a mixup."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "REQ-004/AC-019-021 define three branches for cross-model-verify's new pre-panel readiness step: the step exists (AC-019/TEST-019), it fails closed when an enumerated coverage element is unmapped (AC-020/TEST-020), and it is a no-op when the task's specification does NOT flag an enumerable coverage requirement (AC-021/TEST-021). No AC/TEST exercises the remaining material branch implied by REQ-004 itself: a task whose specification DOES flag an enumerable coverage requirement and whose coverage manifest is complete (every element mapped) -- i.e. the step's positive continuation into Step 2/panelist invocation. Downstream failure mode: the person writing/reviewing the new SKILL.md step text (per TEST-019..021's own note, reviewed against design.md's exact wording) has no acceptance criterion confirming the step's success-continuation contract, so wording that only ever documents the failure path (or omits confirming that a complete manifest lets execution proceed) would still satisfy every stated AC. This is a spec-review concern, not a task/quality-gate concern, because acceptance-tests.md is the artifact this spec itself uses to define the 1:1 AC-to-TEST coverage boundary (requirements.md/acceptance-tests.md header: 'TEST-NNN numbers match their AC-NNN counterpart 1:1'), and the gap is in that boundary, not in downstream test authoring. Severity Major per calibration ('missing observable acceptance criterion... = Major'): it is a coverage gap in a fail-closed gate's positive branch, not a contradiction/unsafe boundary (not Critical), and it is material enough to block confident downstream verification (not Minor)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All 5 Assumptions entries carry explicit WFI-013-discipline re-verification instructions naming the exact authority to recheck at implementation time (e.g. `guard_invariants.py:4,18` for OQ-1's finding; the `grep -l 'PWSH=\\|command -v pwsh' tests/*.tests.sh` re-enumeration for the run-all.ps1 convention; the identity-ledger tail sequence/hash for Stream 4 fixtures) rather than being left as unstated risk. All 6 Open Questions are marked RESOLVED with the chosen remedy and rationale, including the 3 investigation.md flagged 'Blocking: yes' (OQ-1 direct-edit, OQ-2 yes/human-copy, OQ-3 grep-both) -- none are left open for design or task decomposition to invent."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-copy staging boundary (ship/SKILL.md and .github/workflows/test.yml as the two protected-file targets) is concretely testable: AC-006/TEST-006 and AC-007/TEST-007 both require (a) the staged copy's SHA-256 to match its MANIFEST.sha256 entry, and (b) the LIVE protected file confirmed byte-for-byte unmodified by the agent (empty diff against pre-staging content) -- a checkable gate, not a prose-only expectation. Roles and Permissions section separately assigns 'Human maintainer: ... validates and applies both staged human-copy candidates as pre-merge commits,' matching the epic-136/epic-159-pillar-c/-d precedent cited at INV-023."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Every REQ maps 1:1 to numbered ACs which map 1:1 to numbered TESTs (AC-001..030 / TEST-001..030 per the acceptance-tests.md header convention), each citing an exact file:line target or an existing reused parser/pattern (e.g. AC-014 reuses `validate-review-context-set.sh:63-74`'s declared-outputs parser shape verbatim; REQ-005 enumerates all `jq -r` call sites by exact line number). No REQ/AC requires the design reviewer to invent net-new product behavior; the sole deferred decision (REQ-004's exact SKILL.md trigger wording) is explicitly routed to design.md's API/Contract Plan per acceptance-tests.md's own Notes, consistent with the calibration's instruction not to require implementation-architecture decisions at the spec gate. The EDGE-CASE-COVERAGE gap above is a missing acceptance criterion, not missing product behavior (AC-020's fail-closed statement implies the converse success path by negation), so it does not independently block a DOWNSTREAM-READINESS PASS."
+    }
+  ]
+}

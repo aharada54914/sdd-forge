@@ -1,0 +1,1775 @@
+=== regression mode note: individual-suite runs (both lanes). tests/run-all.sh is NOT usable as this task's regression evidence and is deliberately excluded: it runs a fixed ordered list under `set -euo pipefail`, invoking each suite sequentially with `bash`, so the first failing suite aborts the entire run - and the epic-189-a1 suites sit at tests/run-all.sh:57-66, behind 49 unrelated suites. Measured this round rather than assumed: a full `bash tests/run-all.sh` against an isolated `git clone` of HEAD (cf0f8808) in a throwaway scratch directory aborted after 21 suites at tests/turn-first-workflow.tests.sh - `not ok: implementation report template omits: ## Output Paths And Hashes`, exit 1 - so the aggregate runner never reaches the epic-189 suites at all. That failing assertion reads plugins/sdd-implementation/templates/implementation-report.template.md, which T-010 does not touch (`git diff --name-only d2f37d0e HEAD` lists 19 paths, none of them under plugins/), so the abort is NOT attributable to T-010. CORRECTION to prior rounds, recorded rather than silently repeated: the T-006..T-009 regression logs named tests/prepare-panelist.tests.sh as run-all's abort point; re-measured here, that suite now PASSES (32 passed, 0 failed, exit 0) under bash and run-all gets past it. The exclusion still holds, but on a different, freshly measured abort point. Set is the epic-189-a1 suites OTHER than T-010's own (which is recorded in focused-tests.log), now including guard-invariants-epic-a1 (T-009, landed) - nine suites, eighteen runs. Every sh-lane run below is invoked with `bash`, not `sh`, matching the T-007/T-008/T-009 regression logs: suites across this epic's guard surface use process substitution and abort under POSIX `sh`. ===
+=== bash tests/project-context-schema.tests.sh ===
+PASS: TEST-001 positive fixture (full field coverage) validates
+PASS: TEST-001 deleting required pointer /schema is rejected
+PASS: TEST-001 deleting required pointer /workflow is rejected
+PASS: TEST-001 deleting required pointer /workflow/spec_profile is rejected
+PASS: TEST-001 deleting required pointer /workflow/artifact_layout is rejected
+PASS: TEST-001 deleting required pointer /workflow/capability_enforcement is rejected
+PASS: TEST-001 deleting required pointer /components/*/id is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/os is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/architecture is rejected
+PASS: TEST-002 allowlist path artifact_kinds resolves to a schema field
+PASS: TEST-002 allowlist path runtime_classes resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.pii resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.ui resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.auto_update resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.local_persistence resolves to a schema field
+PASS: TEST-002 allowlist path distribution_channels resolves to a schema field
+PASS: TEST-002 allowlist path data_classification resolves to a schema field
+PASS: TEST-003 positive fixture with state_authority/credentials passthrough validates
+PASS: TEST-003 deleting required pointer /schema is rejected
+PASS: TEST-003 deleting required pointer /bindings is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/id is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/provider is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/product is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/purpose is rejected
+PASS: TEST-004 no fixed Provider enum exists in the schema
+PASS: TEST-004 invented provider string 'totally-invented-provider-xyz' validates
+PASS: TEST-040 duplicate-id components[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate components[].id (DUPLICATE_COMPONENT_ID)
+PASS: TEST-040 duplicate-id bindings[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)
+PASS: TEST-041 bindings[] entry declaring adapter_paths validates
+PASS: TEST-041 bindings[] entry with no adapter_paths also validates
+PASS: TEST-042 project-context.template.yaml parses
+PASS: TEST-042 project-context.template.yaml validates against the schema
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'specs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'reports/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'docs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern '.github/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'tests/fixtures/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'CHANGELOG.md'
+PASS: TEST-042 shared_paths contains exactly the six canonical seed patterns
+PASS: 41
+FAIL: 0
+exit=0
+=== pwsh tests/project-context-schema.tests.ps1 ===
+PASS: TEST-001 positive fixture (full field coverage) validates
+PASS: TEST-001 deleting required pointer /schema is rejected
+PASS: TEST-001 deleting required pointer /workflow is rejected
+PASS: TEST-001 deleting required pointer /workflow/spec_profile is rejected
+PASS: TEST-001 deleting required pointer /workflow/artifact_layout is rejected
+PASS: TEST-001 deleting required pointer /workflow/capability_enforcement is rejected
+PASS: TEST-001 deleting required pointer /components/*/id is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/os is rejected
+PASS: TEST-001 deleting required pointer /components/*/platform_targets/*/architecture is rejected
+PASS: TEST-002 allowlist path artifact_kinds resolves to a schema field
+PASS: TEST-002 allowlist path runtime_classes resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.pii resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.ui resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.auto_update resolves to a schema field
+PASS: TEST-002 allowlist path characteristics.local_persistence resolves to a schema field
+PASS: TEST-002 allowlist path distribution_channels resolves to a schema field
+PASS: TEST-002 allowlist path data_classification resolves to a schema field
+PASS: TEST-003 positive fixture with state_authority/credentials passthrough validates
+PASS: TEST-003 deleting required pointer /schema is rejected
+PASS: TEST-003 deleting required pointer /bindings is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/id is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/provider is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/product is rejected
+PASS: TEST-003 deleting required pointer /bindings/*/purpose is rejected
+PASS: TEST-004 no fixed Provider enum exists in the schema
+PASS: TEST-004 invented provider string 'totally-invented-provider-xyz' validates
+PASS: TEST-040 duplicate-id components[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate components[].id (DUPLICATE_COMPONENT_ID)
+PASS: TEST-040 duplicate-id bindings[] fixture still passes plain JSON Schema (M18)
+PASS: TEST-040 semantic-validator layer rejects duplicate bindings[].id (DUPLICATE_BINDING_ID)
+PASS: TEST-041 bindings[] entry declaring adapter_paths validates
+PASS: TEST-041 bindings[] entry with no adapter_paths also validates
+PASS: TEST-042 project-context.template.yaml parses
+PASS: TEST-042 project-context.template.yaml validates against the schema
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'specs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'reports/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'docs/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern '.github/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'tests/fixtures/**'
+PASS: TEST-042 shared_paths contains cross-cutting seed pattern 'CHANGELOG.md'
+PASS: TEST-042 shared_paths contains exactly the six canonical seed patterns
+PASS: 41
+FAIL: 0
+exit=0
+=== bash tests/approver-registry-schema.tests.sh ===
+PASS: TEST-044 positive fixture (id+name+registered_at) validates
+PASS: TEST-044 deleting required field /approvers/*/id is rejected
+PASS: TEST-044 deleting required field /approvers/*/name is rejected
+PASS: TEST-044 non-array 'approvers' value is rejected
+PASS: TEST-044 zero-entry 'approvers: []' fixture validates
+PASS: TEST-045 duplicate-id fixture still passes plain JSON Schema (M18-equivalent)
+PASS: TEST-045 semantic-validator layer rejects duplicate approvers[].id (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: TEST-046 zero-identity 'approvers: []' fixture validates against the schema
+PASS: 8
+FAIL: 0
+exit=0
+=== pwsh tests/approver-registry-schema.tests.ps1 ===
+PASS: TEST-044 positive fixture (id+name+registered_at) validates
+PASS: TEST-044 deleting required field /approvers/*/id is rejected
+PASS: TEST-044 deleting required field /approvers/*/name is rejected
+PASS: TEST-044 non-array 'approvers' value is rejected
+PASS: TEST-044 zero-entry 'approvers: []' fixture validates
+PASS: TEST-045 duplicate-id fixture still passes plain JSON Schema (M18-equivalent)
+PASS: TEST-045 semantic-validator layer rejects duplicate approvers[].id (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: TEST-046 zero-identity 'approvers: []' fixture validates against the schema
+PASS: 8
+FAIL: 0
+exit=0
+=== bash tests/canonicalize-sdd-yaml.tests.sh ===
+PASS: TEST-005 anchor rejected
+PASS: TEST-005 alias rejected
+PASS: TEST-005 custom tag rejected
+PASS: TEST-005 duplicate key rejected
+PASS: TEST-006 1.1-only tokens (yes/no/on/off, any casing) stay strings; true/TRUE/FALSE resolve as booleans
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce byte-identical canonical output
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce an identical SHA-256
+PASS: TEST-008 JCS golden byte sequence (key sort, hex int, trailing-zero float, bool/null)
+PASS: TEST-009 .py and .sh produce an identical SHA-256
+PASS: TEST-009 .ps1 produces the identical SHA-256 as .py
+PASS: TEST-009 .js produces the identical SHA-256 as .py
+PASS: TEST-009 .sh dispatch-not-reimplement proof (.sh alone, without .py, fails -- it truly dispatches to canonicalize-sdd-yaml.py)
+PASS: TEST-009 .ps1 dispatch-not-reimplement proof (.ps1 alone, without .py, fails -- no native PowerShell fallback exists)
+PASS: TEST-009 .js dispatch-not-reimplement proof (.js alone, without .py, fails -- it truly dispatches to canonicalize-sdd-yaml.py)
+PASS: TEST-009 .sh denies fail-closed with CANONICALIZER_RUNTIME_UNAVAILABLE (exit 3) when no python3/python is on PATH
+PASS: TEST-037 multi-document rejection
+PASS: TEST-037 non-string-key rejection
+PASS: TEST-037 post-NFC duplicate-key collision rejection
+PASS: TEST-037 non-finite number rejection (.inf)
+PASS: TEST-037 non-finite number rejection (.nan)
+PASS: TEST-037 RFC 8785 §3.2.2.3 numeric-formatting boundary vector (1e20/1e21, 1e-6/1e-7)
+PASS: TEST-037 byte-exact stdout framing: default mode has no trailing newline byte
+PASS: TEST-037 byte-exact stdout framing: default mode byte count matches exactly (51 bytes)
+PASS: TEST-037 byte-exact stdout framing: --hash-only emits exactly 'sha256:' + 64 hex chars
+PASS: TEST-037 byte-exact stdout framing: --hash-only output ends with exactly one trailing newline
+PASS: TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode) is INVALID_UTF8_REJECTED, not an uncaught exception
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode, --hash-only) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a quoted mapping KEY (YAML mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a string VALUE (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in an object KEY (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY a correctly-paired surrogate escape (astral character) still succeeds
+PASS: TEST-REMEDY plain scalar value 'b: c' (embedded ': ') is rejected, not best-effort-interpreted as "b: c"
+PASS: TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint
+PASS: TEST-REMEDY plain scalar value 'value:' (trailing ':') is rejected
+PASS: TEST-REMEDY embedded ': ' is rejected inside an inline '- key: value' mapping too
+PASS: TEST-REMEDY a URL value (':' not followed by a space) still succeeds
+PASS: TEST-REMEDY a QUOTED value containing ': ' still succeeds
+PASS: TEST-REMEDY(26) block scalar indicator is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) non-empty flow sequence is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) tab indentation is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) a leading '---' marker on a single document is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(10) genuinely invalid UTF-8 input BYTES (not an escape) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY(11) malformed JSON input is INVALID_JSON_REJECTED
+PASS: TEST-REMEDY JSON input mode round-trips and re-sorts keys (extension auto-detection)
+PASS: TEST-REMEDY JSON input mode round-trips via explicit --input-format json (no .json extension)
+PASS: TEST-REMEDY JSON input mode rejects a duplicate object key
+PASS: TEST-REMEDY JSON input mode rejects the non-standard NaN constant
+PASS: TEST-REMEDY JSON input mode rejects the non-standard Infinity constant
+PASS: TEST-REMEDY2 sequence item '-  a' (2 spaces) is rejected, not silently parsed as ' a'
+PASS: TEST-REMEDY2 sequence item '-   a' (3 spaces) is rejected
+PASS: TEST-REMEDY2 sequence inline mapping '-  k: v' (2 spaces) is rejected, not key-corrupted to {' k':'v'}
+PASS: TEST-REMEDY2 the multi-line coupled fixture (nested '-   k: v' + aligned sibling) now gets the construct-specific separator diagnostic, not the misleading generic one
+PASS: TEST-REMEDY2 sequence item '-<TAB>a' is rejected, not reinterpreted as a bare scalar document
+PASS: TEST-REMEDY2 the tab-separator rejection names 'tab' specifically
+PASS: TEST-REMEDY2 inline nested-sequence lookalike '- - a' is rejected, not swallowed as '- a'
+PASS: TEST-REMEDY2 correct single-space '- k: v' still succeeds
+PASS: TEST-REMEDY2 multi-line nested sequence (bare '-' + indented block) still succeeds
+PASS: TEST-REMEDY2(c) a '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY2(c) a '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3 nested merge key with a mapping value is rejected, not key-polluted to {"<<":{...}}
+PASS: TEST-REMEDY3 the merge-key rejection names 'merge key' specifically
+PASS: TEST-REMEDY3 top-level merge key with an empty-flow-map value is rejected
+PASS: TEST-REMEDY3 merge key with a sequence value is rejected
+PASS: TEST-REMEDY3 merge key with a null (colon-nothing) value is rejected
+PASS: TEST-REMEDY3 '<<: *base' now reports the merge-key rejection (not ALIAS_REJECTED)
+PASS: TEST-REMEDY3 a quoted '<<' key still succeeds as a literal string key
+PASS: TEST-REMEDY3 a value merely starting with '<' (not merge-key syntax) still succeeds
+PASS: TEST-REMEDY3 a key merely starting with '<' (not the exact key '<<') still succeeds
+PASS: TEST-REMEDY3 a depth-2000 in-subset document succeeds (no RecursionError, no artificial depth cap)
+PASS: TEST-REMEDY3(c) a nested '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3(c) a nested '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY3(c) mapping-side 'k:   v' (multiple spaces after ':') still succeeds (deliberate, recorded non-change)
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 twin exists
+PASS: 80
+FAIL: 0
+exit=0
+=== pwsh tests/canonicalize-sdd-yaml.tests.ps1 ===
+PASS: TEST-005 anchor rejected
+PASS: TEST-005 alias rejected
+PASS: TEST-005 custom tag rejected
+PASS: TEST-005 duplicate key rejected
+PASS: TEST-006 1.1-only tokens (yes/no/on/off, any casing) stay strings; true/TRUE/FALSE resolve as booleans
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce byte-identical canonical output
+PASS: TEST-007 precomposed vs. decomposed NFC fixture pair produce an identical SHA-256
+PASS: TEST-008 JCS golden byte sequence (key sort, hex int, trailing-zero float, bool/null)
+PASS: TEST-009 .py and .ps1 produce an identical SHA-256
+PASS: TEST-009 .sh produces the identical SHA-256 as .py
+PASS: TEST-009 .js produces the identical SHA-256 as .py
+PASS: TEST-009 .ps1 dispatch-not-reimplement proof (.ps1 alone, without .py, fails -- no native PowerShell fallback exists)
+PASS: TEST-009 .ps1 denies fail-closed with CANONICALIZER_RUNTIME_UNAVAILABLE (exit 3) when no python3/python is on PATH
+PASS: TEST-037 multi-document rejection
+PASS: TEST-037 non-string-key rejection
+PASS: TEST-037 post-NFC duplicate-key collision rejection
+PASS: TEST-037 non-finite number rejection (.inf)
+PASS: TEST-037 non-finite number rejection (.nan)
+PASS: TEST-037 RFC 8785 §3.2.2.3 numeric-formatting boundary vector (1e20/1e21, 1e-6/1e-7)
+PASS: TEST-037 byte-exact stdout framing: default mode has no trailing newline byte
+PASS: TEST-037 byte-exact stdout framing: default mode byte count matches exactly (51 bytes)
+PASS: TEST-037 byte-exact stdout framing: --hash-only emits exactly 'sha256:' + 64 hex chars
+PASS: TEST-037 byte-exact stdout framing: --hash-only output ends with exactly one trailing newline
+PASS: TEST-037(remedy) CATEGORY_EXIT_CODES read from canonicalize-sdd-yaml.py itself matches the documented table
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode) is INVALID_UTF8_REJECTED, not an uncaught exception
+PASS: TEST-REMEDY lone surrogate in a double-quoted scalar VALUE (YAML mode, --hash-only) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a quoted mapping KEY (YAML mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in a string VALUE (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY lone surrogate in an object KEY (JSON input mode) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY a correctly-paired surrogate escape (astral character) still succeeds
+PASS: TEST-REMEDY plain scalar value 'b: c' (embedded ': ') is rejected, not best-effort-interpreted
+PASS: TEST-REMEDY embedded ': ' rejection carries the quote-the-scalar hint
+PASS: TEST-REMEDY plain scalar value 'value:' (trailing ':') is rejected
+PASS: TEST-REMEDY embedded ': ' is rejected inside an inline '- key: value' mapping too
+PASS: TEST-REMEDY a URL value (':' not followed by a space) still succeeds
+PASS: TEST-REMEDY a QUOTED value containing ': ' still succeeds
+PASS: TEST-REMEDY(26) block scalar indicator is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) non-empty flow sequence is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) tab indentation is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(26) a leading '---' marker on a single document is UNSUPPORTED_SYNTAX_REJECTED
+PASS: TEST-REMEDY(10) genuinely invalid UTF-8 input BYTES (not an escape) is INVALID_UTF8_REJECTED
+PASS: TEST-REMEDY(11) malformed JSON input is INVALID_JSON_REJECTED
+PASS: TEST-REMEDY JSON input mode round-trips and re-sorts keys (extension auto-detection)
+PASS: TEST-REMEDY JSON input mode round-trips via explicit --input-format json (no .json extension)
+PASS: TEST-REMEDY JSON input mode rejects a duplicate object key
+PASS: TEST-REMEDY JSON input mode rejects the non-standard NaN constant
+PASS: TEST-REMEDY JSON input mode rejects the non-standard Infinity constant
+PASS: TEST-REMEDY2 sequence item '-  a' (2 spaces) is rejected, not silently parsed as ' a'
+PASS: TEST-REMEDY2 sequence item '-   a' (3 spaces) is rejected
+PASS: TEST-REMEDY2 sequence inline mapping '-  k: v' (2 spaces) is rejected, not key-corrupted
+PASS: TEST-REMEDY2 the multi-line coupled fixture now gets the construct-specific separator diagnostic, not the misleading generic one
+PASS: TEST-REMEDY2 sequence item '-<TAB>a' is rejected, not reinterpreted as a bare scalar document
+PASS: TEST-REMEDY2 the tab-separator rejection names 'tab' specifically
+PASS: TEST-REMEDY2 inline nested-sequence lookalike '- - a' is rejected, not swallowed as '- a'
+PASS: TEST-REMEDY2 correct single-space '- k: v' still succeeds
+PASS: TEST-REMEDY2 multi-line nested sequence (bare '-' + indented block) still succeeds
+PASS: TEST-REMEDY2(c) a '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY2(c) a '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY2(c) the '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3 nested merge key with a mapping value is rejected, not key-polluted
+PASS: TEST-REMEDY3 the merge-key rejection names 'merge key' specifically
+PASS: TEST-REMEDY3 top-level merge key with an empty-flow-map value is rejected
+PASS: TEST-REMEDY3 merge key with a sequence value is rejected
+PASS: TEST-REMEDY3 merge key with a null (colon-nothing) value is rejected
+PASS: TEST-REMEDY3 '<<: *base' now reports the merge-key rejection (not ALIAS_REJECTED)
+PASS: TEST-REMEDY3 a quoted '<<' key still succeeds as a literal string key
+PASS: TEST-REMEDY3 a value merely starting with '<' (not merge-key syntax) still succeeds
+PASS: TEST-REMEDY3 a key merely starting with '<' (not the exact key '<<') still succeeds
+PASS: TEST-REMEDY3 a depth-2000 in-subset document succeeds (no RecursionError, no artificial depth cap)
+PASS: TEST-REMEDY3(c) a nested '?' explicit key gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '?' rejection names 'explicit-key' specifically
+PASS: TEST-REMEDY3(c) a nested '%' directive gets a construct-specific diagnostic
+PASS: TEST-REMEDY3(c) the nested '%' rejection names 'directive' specifically
+PASS: TEST-REMEDY3(c) mapping-side 'k:   v' still succeeds (deliberate, recorded non-change)
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/canonicalize-sdd-yaml.tests.ps1 registered in tests/run-all.ps1
+PASS: 77
+FAIL: 0
+exit=0
+=== bash tests/generate-approval-sidecar.tests.sh ===
+PASS: TEST-010 full-field fixture (non-null second_approval/effective_at) validates
+PASS: TEST-010 hmac shorter than 64 hex chars is rejected
+PASS: TEST-010 hmac containing an uppercase character is rejected
+PASS: TEST-011 staged signing succeeds (exit 0)
+PASS: TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist
+PASS: TEST-011 approved-context snapshot is byte-exact with the live content file
+PASS: TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes
+PASS: TEST-011 context_sha256 matches the live content file's independently-recomputed SHA-256
+PASS: TEST-011 staged sidecar's hmac verifies under independent preimage/HMAC re-derivation
+PASS: TEST-011 no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY
+PASS: TEST-011 no-key refusal writes NO staged artifact at all
+PASS: TEST-012 two sidecars differing ONLY in hmac produce an identical preimage
+PASS: TEST-013 case 1/4 (env var): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 4/4 (none resolvable): both resolvers return None
+PASS: TEST-034 the live sidecar path is never opened for writing (byte-identical before/after)
+PASS: TEST-034 a simulated failure after the sidecar write leaves no partial artifact at the staged path
+PASS: TEST-034 no stray temp staging directory remains after a simulated failure
+PASS: TEST-034 a simulated failure after the snapshot write leaves no partial artifact at the staged path
+PASS: TEST-034 a re-run after a mid-write failure succeeds with a fresh nonce/staging subdirectory
+PASS: TEST-036 golden vector's HMAC matches the hand-verified expected value
+PASS: TEST-036 mutating schema changes the HMAC
+PASS: TEST-036 mutating context_sha256 changes the HMAC
+PASS: TEST-036 mutating primary_approval.status changes the HMAC
+PASS: TEST-036 mutating primary_approval.approver changes the HMAC
+PASS: TEST-036 mutating primary_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating second_approval.status changes the HMAC
+PASS: TEST-036 mutating second_approval.approver changes the HMAC
+PASS: TEST-036 mutating second_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating effective_at changes the HMAC
+PASS: TEST-036 mutating predecessor_context_sha256 changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.policy_weakening changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.categories.capability_enforcement_weakened changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.two_person_required changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.cooldown_hours changes the HMAC
+PASS: TEST-036 mutating approval_epoch changes the HMAC
+PASS: SEAM bootstrap (no live sidecar): signing succeeds
+PASS: SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1
+PASS: SEAM non-bootstrap (live sidecar present, detector now wired): signing succeeds
+PASS: SEAM non-bootstrap: WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture
+PASS: SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves
+PASS: SEAM non-bootstrap: the embedded weakening_verdict is non-null (T-005's in-process seam)
+PASS: TEST-HARDEN(a) identical primary/second approver id refused (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-HARDEN(a) DUPLICATE_APPROVER_IDENTITY refusal writes no staged artifact
+PASS: TEST-HARDEN(b) an invalid-UTF-8 approver id is rejected (PREIMAGE_CANONICALIZATION_FAILED), never a traceback
+PASS: TEST-HARDEN(b) hostile-field refusal writes no staged artifact
+PASS: TEST-HARDEN(c) a missing required argument (--live-sidecar) is a clean usage error (exit 2)
+PASS: TEST-HARDEN(c) --status not exactly "Approved" is a clean usage error (exit 2)
+PASS: TEST-HARDEN(d) --stage-dir = existing non-empty directory: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) a stage-dir directory collision writes no staged candidate into it
+PASS: TEST-HARDEN(d) a stage-dir directory collision leaves no stray temp staging directory
+PASS: TEST-HARDEN(d) --stage-dir = existing regular file: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) a stage-dir file collision leaves no stray temp staging directory
+PASS: TEST-HARDEN(d) default path with 'sdd' as a regular file: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere
+PASS: self-registration: tests/generate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/generate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/generate-approval-sidecar.tests.ps1 twin exists
+PASS: 59
+FAIL: 0
+exit=0
+=== pwsh tests/generate-approval-sidecar.tests.ps1 ===
+PASS: TEST-010 full-field fixture (non-null second_approval/effective_at) validates
+PASS: TEST-010 hmac shorter than 64 hex chars is rejected
+PASS: TEST-010 hmac containing an uppercase character is rejected
+PASS: TEST-011 staged signing succeeds (exit 0)
+PASS: TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist
+PASS: TEST-011 approved-context snapshot is byte-exact with the live content file
+PASS: TEST-011 MANIFEST.sha256 hashes match the actual staged file hashes
+PASS: TEST-011 context_sha256 matches the live content file's independently-recomputed SHA-256
+PASS: TEST-011 staged sidecar's hmac verifies under independent preimage/HMAC re-derivation
+PASS: TEST-011 no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY
+PASS: TEST-011 no-key refusal writes NO staged artifact at all
+PASS: TEST-012 two sidecars differing ONLY in hmac produce an identical preimage
+PASS: TEST-013 case 1/4 (env var): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes to _resolve_sudo_key
+PASS: TEST-013 case 4/4 (none resolvable): both resolvers return None
+PASS: TEST-034 the live sidecar path is never opened for writing (byte-identical before/after)
+PASS: TEST-034 a simulated failure after the sidecar write leaves no partial artifact at the staged path
+PASS: TEST-034 no stray temp staging directory remains after a simulated failure
+PASS: TEST-034 a simulated failure after the snapshot write leaves no partial artifact at the staged path
+PASS: TEST-034 a re-run after a mid-write failure succeeds with a fresh nonce/staging subdirectory
+PASS: TEST-036 golden vector's HMAC matches the hand-verified expected value
+PASS: TEST-036 mutating schema changes the HMAC
+PASS: TEST-036 mutating context_sha256 changes the HMAC
+PASS: TEST-036 mutating primary_approval.status changes the HMAC
+PASS: TEST-036 mutating primary_approval.approver changes the HMAC
+PASS: TEST-036 mutating primary_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating second_approval.status changes the HMAC
+PASS: TEST-036 mutating second_approval.approver changes the HMAC
+PASS: TEST-036 mutating second_approval.approved_at changes the HMAC
+PASS: TEST-036 mutating effective_at changes the HMAC
+PASS: TEST-036 mutating predecessor_context_sha256 changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.policy_weakening changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.categories.capability_enforcement_weakened changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.two_person_required changes the HMAC
+PASS: TEST-036 mutating weakening_verdict.cooldown_hours changes the HMAC
+PASS: TEST-036 mutating approval_epoch changes the HMAC
+PASS: SEAM bootstrap (no live sidecar): signing succeeds
+PASS: SEAM bootstrap: predecessor_context_sha256/weakening_verdict = null, approval_epoch = 1
+PASS: SEAM non-bootstrap (live sidecar present, detector now wired): signing succeeds
+PASS: SEAM non-bootstrap: WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture
+PASS: SEAM non-bootstrap: a staged candidate IS written now that a real verdict resolves
+PASS: SEAM non-bootstrap: the embedded weakening_verdict is non-null (T-005's in-process seam)
+PASS: TEST-HARDEN(a) identical primary/second approver id refused (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-HARDEN(a) DUPLICATE_APPROVER_IDENTITY refusal writes no staged artifact
+PASS: TEST-HARDEN(b) an invalid-UTF-8/unpaired-surrogate field value is rejected (PREIMAGE_CANONICALIZATION_FAILED), never a traceback
+PASS: TEST-HARDEN(c) a missing required argument (--live-sidecar) is a clean usage error (exit 2)
+PASS: TEST-HARDEN(c) --status not exactly "Approved" is a clean usage error (exit 2)
+PASS: TEST-HARDEN(d) --stage-dir = existing non-empty directory: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) a stage-dir directory collision writes no staged candidate into it
+PASS: TEST-HARDEN(d) a stage-dir directory collision leaves no stray temp staging directory
+PASS: TEST-HARDEN(d) --stage-dir = existing regular file: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) a stage-dir file collision leaves no stray temp staging directory
+PASS: TEST-HARDEN(d) default path with 'sdd' as a regular file: clean STAGING_IO_ERROR (exit 16), never a traceback
+PASS: TEST-HARDEN(d) default path with 'sdd' as a regular file: no staged artifact or stray temp path created anywhere
+PASS: self-registration: tests/generate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/generate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: 57
+FAIL: 0
+exit=0
+=== bash tests/detect-policy-weakening.tests.sh ===
+PASS: TEST-016 capability_enforcement_weakened: tool exits 0
+PASS: TEST-016 capability_enforcement_weakened classifies 'weakened' (required -> advisory)
+PASS: TEST-016 capability_enforcement_weakened: overall policy_weakening is True
+PASS: TEST-016 N/A category 'capability_removed' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'public_distribution_descoped' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'criticality_lowered' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'provider_allowlist_widened' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'production_write_path_changed' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'required_gate_removed' reported explicitly as n/a, never omitted
+PASS: TEST-016 component_path_narrowed classifies 'weakened' (src/** -> src/desktop/**)
+PASS: TEST-016 component_path_narrowed: overall policy_weakening is True
+PASS: TEST-016 spec_profile_full_to_lite classifies 'weakened' (full -> lite)
+PASS: TEST-016 spec_profile_full_to_lite: overall policy_weakening is True
+PASS: TEST-017 a strengthening change (advisory -> required) classifies 'not_weakened'
+PASS: TEST-017 a strengthening change is NOT misclassified as weakening
+PASS: TEST-018 a 2-distinct-identity registry emits two_person_required: true
+PASS: TEST-018 the two-person path emits cooldown_hours: null
+PASS: TEST-018 a 1-identity registry emits two_person_required: false
+PASS: TEST-018 a 1-identity registry emits cooldown_hours: 24
+PASS: TEST-046 a zero-entry (approvers: []) registry emits two_person_required: false
+PASS: TEST-046 a zero-entry registry emits cooldown_hours: 24, identical to the 1-identity case
+PASS: TEST-046 a MISSING registry file is treated identically to a zero-entry one (two_person_required: false)
+PASS: TEST-046 a MISSING registry file emits cooldown_hours: 24
+PASS: TEST-031 (1) an include pattern removed narrows coverage
+PASS: TEST-031 (2) an include pattern replaced by a more specific one at unchanged count narrows coverage
+PASS: TEST-031 (3) an exclude pattern added narrows coverage
+PASS: TEST-031 (4) an exclude pattern replaced by a broader one narrows coverage
+PASS: TEST-031 (5) a pure-broadening change (include pattern added, nothing removed) does NOT narrow
+PASS: TEST-031 (5) a pure-broadening change is not classified as policy-weakening
+PASS: TEST-031 (6a) a whole component removed (docs) narrows coverage (fail-closed extension beyond design.md's five literal fixtures)
+PASS: TEST-031 (6a) a whole component removed is classified as policy-weakening
+PASS: TEST-031 (6b) mirror case: a NEW component added (docs) does NOT narrow (the baseline's own components are untouched)
+PASS: TEST-031 (6b) a component addition is NOT classified as policy-weakening
+PASS: TEST-030 (1) a candidate identical to the approved anchor classifies policy_weakening: false
+PASS: TEST-030 (2a) before any change, candidate matches the anchor: policy_weakening: false
+PASS: TEST-030 (2b) a genuine weakening diff classifies true IMMEDIATELY (before any commit)
+PASS: TEST-030 (2c) the weakening diff STILL classifies true AFTER landing as an ordinary git commit (a commit never moves the anchor)
+PASS: TEST-030 (3) generate-approval-sidecar.py never passes --approved-context to the detector
+PASS: TEST-030 (4) no approved-context anchor yet: exit 0 with the documented NO_APPROVED_CONTEXT_ANCHOR note
+PASS: TEST-030 (4) with no anchor, every category treated as a new addition (policy_weakening: false)
+PASS: TEST-030 (5) a live TRANSACTION.json naming the anchor fails closed (exit 21/HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: TEST-030 (5) the in-progress-publish refusal emits no verdict on stdout
+PASS: WIRING a non-bootstrap signing fixture succeeds now that the detector is present (exit 0)
+PASS: WIRING WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture
+PASS: WIRING a staged sidecar candidate was written
+PASS: WIRING the sidecar's embedded weakening_verdict is EXACTLY the in-process-computed verdict
+PASS: WIRING carry-forward #1: an unexpected compute_verdict() exception surfaces as classified WEAKENING_DETECTOR_ERROR (exit 17), never a raw traceback
+PASS: WIRING carry-forward #1b: the detector's own named category is passed through verbatim (exit 20/CANDIDATE_NOT_SCHEMA_VALID), never collapsed to a generic label
+PASS: WIRING carry-forward #2: a malformed verdict is rejected BEFORE preimage construction (exit 18/WEAKENING_VERDICT_MALFORMED), never a downstream TypeError
+PASS: WIRING carry-forward #2b: a non-serializable cooldown_hours value is rejected as WEAKENING_VERDICT_MALFORMED (exit 18), never an uncaught TypeError
+PASS: WIRING carry-forward #3: a None verdict for a non-bootstrap transition is refused (exit 18/WEAKENING_VERDICT_MALFORMED), never embedded as weakening_verdict: null
+PASS: WIRING carry-forward #3: the refusal writes no staged candidate
+PASS: TEST-HARDEN(a) a missing --candidate file is rejected cleanly (exit 20/CANDIDATE_NOT_SCHEMA_VALID), never a traceback
+PASS: TEST-HARDEN(b) an unrecognized 'schema' field is rejected cleanly (exit 20/CANDIDATE_NOT_SCHEMA_VALID), never a traceback
+PASS: TEST-HARDEN(c) a corrupt (out-of-subset) approved-context anchor is rejected cleanly (exit 22/APPROVED_CONTEXT_ANCHOR_UNREADABLE), never a traceback
+PASS: TEST-HARDEN(d) a malformed (non-object) approver-registry.yaml is rejected cleanly (exit 23/APPROVER_REGISTRY_UNREADABLE), never a traceback
+PASS: TEST-HARDEN(e) a missing required --candidate argument is a clean usage error (exit 2), never a traceback
+PASS: self-registration: tests/detect-policy-weakening.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/detect-policy-weakening.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/detect-policy-weakening.tests.ps1 twin exists
+PASS: 60
+FAIL: 0
+exit=0
+=== pwsh tests/detect-policy-weakening.tests.ps1 ===
+PASS: TEST-016 capability_enforcement_weakened: tool exits 0
+PASS: TEST-016 capability_enforcement_weakened classifies 'weakened' (required -> advisory)
+PASS: TEST-016 capability_enforcement_weakened: overall policy_weakening is True
+PASS: TEST-016 N/A category 'capability_removed' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'public_distribution_descoped' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'criticality_lowered' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'provider_allowlist_widened' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'production_write_path_changed' reported explicitly as n/a, never omitted
+PASS: TEST-016 N/A category 'required_gate_removed' reported explicitly as n/a, never omitted
+PASS: TEST-016 component_path_narrowed classifies 'weakened' (src/** -> src/desktop/**)
+PASS: TEST-016 component_path_narrowed: overall policy_weakening is True
+PASS: TEST-016 spec_profile_full_to_lite classifies 'weakened' (full -> lite)
+PASS: TEST-016 spec_profile_full_to_lite: overall policy_weakening is True
+PASS: TEST-017 a strengthening change (advisory -> required) classifies 'not_weakened'
+PASS: TEST-017 a strengthening change is NOT misclassified as weakening
+PASS: TEST-018 a 2-distinct-identity registry emits two_person_required: true
+PASS: TEST-018 the two-person path emits cooldown_hours: null
+PASS: TEST-018 a 1-identity registry emits two_person_required: false
+PASS: TEST-018 a 1-identity registry emits cooldown_hours: 24
+PASS: TEST-046 a zero-entry (approvers: []) registry emits two_person_required: false
+PASS: TEST-046 a zero-entry registry emits cooldown_hours: 24, identical to the 1-identity case
+PASS: TEST-046 a MISSING registry file is treated identically to a zero-entry one (two_person_required: false)
+PASS: TEST-046 a MISSING registry file emits cooldown_hours: 24
+PASS: TEST-031 (1) an include pattern removed narrows coverage
+PASS: TEST-031 (2) an include pattern replaced by a more specific one at unchanged count narrows coverage
+PASS: TEST-031 (3) an exclude pattern added narrows coverage
+PASS: TEST-031 (4) an exclude pattern replaced by a broader one narrows coverage
+PASS: TEST-031 (5) a pure-broadening change (include pattern added, nothing removed) does NOT narrow
+PASS: TEST-031 (5) a pure-broadening change is not classified as policy-weakening
+PASS: TEST-031 (6a) a whole component removed (docs) narrows coverage (fail-closed extension beyond design.md's five literal fixtures)
+PASS: TEST-031 (6a) a whole component removed is classified as policy-weakening
+PASS: TEST-031 (6b) mirror case: a NEW component added (docs) does NOT narrow (the baseline's own components are untouched)
+PASS: TEST-031 (6b) a component addition is NOT classified as policy-weakening
+PASS: TEST-030 (1) a candidate identical to the approved anchor classifies policy_weakening: false
+PASS: TEST-030 (2a) before any change, candidate matches the anchor: policy_weakening: false
+PASS: TEST-030 (2b) a genuine weakening diff classifies true IMMEDIATELY (before any commit)
+PASS: TEST-030 (2c) the weakening diff STILL classifies true AFTER landing as an ordinary git commit (a commit never moves the anchor)
+PASS: TEST-030 (3) generate-approval-sidecar.py never passes --approved-context to the detector
+PASS: TEST-030 (4) no approved-context anchor yet: exit 0 with the documented NO_APPROVED_CONTEXT_ANCHOR note
+PASS: TEST-030 (4) with no anchor, every category treated as a new addition (policy_weakening: false)
+PASS: TEST-030 (5) a live TRANSACTION.json naming the anchor fails closed (exit 21/HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: TEST-030 (5) the in-progress-publish refusal emits no verdict on stdout
+PASS: WIRING a non-bootstrap signing fixture succeeds now that the detector is present (exit 0)
+PASS: WIRING WEAKENING_DETECTOR_UNAVAILABLE no longer fires for this fixture
+PASS: WIRING a staged sidecar candidate was written
+PASS: WIRING the sidecar's embedded weakening_verdict is EXACTLY the in-process-computed verdict
+PASS: WIRING carry-forward #1: an unexpected compute_verdict() exception surfaces as classified WEAKENING_DETECTOR_ERROR (exit 17), never a raw traceback
+PASS: WIRING carry-forward #1b: the detector's own named category is passed through verbatim (exit 20/CANDIDATE_NOT_SCHEMA_VALID), never collapsed to a generic label
+PASS: WIRING carry-forward #2: a malformed verdict is rejected BEFORE preimage construction (exit 18/WEAKENING_VERDICT_MALFORMED), never a downstream TypeError
+PASS: WIRING carry-forward #2b: a non-serializable cooldown_hours value is rejected as WEAKENING_VERDICT_MALFORMED (exit 18), never an uncaught TypeError
+PASS: WIRING carry-forward #3: a None verdict for a non-bootstrap transition is refused (exit 18/WEAKENING_VERDICT_MALFORMED), never embedded as weakening_verdict: null
+PASS: WIRING carry-forward #3: the refusal writes no staged candidate
+PASS: TEST-HARDEN(a) a missing --candidate file is rejected cleanly (exit 20/CANDIDATE_NOT_SCHEMA_VALID), never a traceback
+PASS: TEST-HARDEN(b) an unrecognized 'schema' field is rejected cleanly (exit 20/CANDIDATE_NOT_SCHEMA_VALID), never a traceback
+PASS: TEST-HARDEN(c) a corrupt (out-of-subset) approved-context anchor is rejected cleanly (exit 22/APPROVED_CONTEXT_ANCHOR_UNREADABLE), never a traceback
+PASS: TEST-HARDEN(d) a malformed (non-object) approver-registry.yaml is rejected cleanly (exit 23/APPROVER_REGISTRY_UNREADABLE), never a traceback
+PASS: TEST-HARDEN(e) a missing required --candidate argument is a clean usage error (exit 2), never a traceback
+PASS: self-registration: tests/detect-policy-weakening.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/detect-policy-weakening.tests.ps1 registered in tests/run-all.ps1
+PASS: 59
+FAIL: 0
+exit=0
+=== bash tests/validate-approval-sidecar.tests.sh ===
+PASS: TEST-015 positive fixture (correct hash/HMAC/registered approver/null effective_at) validates PASS
+PASS: TEST-015 positive fixture (two distinct registered approvers, elapsed effective_at) validates PASS
+PASS: TEST-014 (1) content-schema violation (duplicate components[].id) rejected (DUPLICATE_COMPONENT_ID)
+PASS: TEST-014 (2) hash mismatch rejected (HASH_MISMATCH)
+PASS: TEST-014 (3) HMAC mismatch (context_sha256 matches; hmac signed under a different key) rejected (HMAC_MISMATCH)
+PASS: TEST-014 (4) unregistered approver id rejected (UNREGISTERED_APPROVER)
+PASS: TEST-014 (5) duplicate approver identity (primary == second) rejected (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-014 (6) future effective_at rejected (EFFECTIVE_AT_NOT_YET_REACHED)
+PASS: TEST-020 validator rejects applying a cooldown sidecar before its effective_at
+PASS: TEST-020 validator accepts applying a cooldown sidecar after its effective_at has elapsed
+PASS: TEST-019 (a) [discharge note] generate-approval-sidecar.py currently SIGNS a solo-approved two-person-required transition (documented T-003 gap, not this task's to fix)
+PASS: TEST-019 (a) the signed solo sidecar carries a two_person_required:true verdict with second_approval: null (the exact underapproved shape)
+PASS: TEST-019 (a) validate-approval-sidecar.py REJECTS the solo-approved two-person-required sidecar (WEAKENING_PROVENANCE_UNDERAPPROVED) -- the canonical enforcement point (obligation 4b)
+PASS: TEST-019 (b) generate-approval-sidecar.py signs successfully with two DISTINCT registered approver ids
+PASS: TEST-019 (b) validate-approval-sidecar.py accepts the two-distinct-approver sidecar
+PASS: TEST-019 (c) generate-approval-sidecar.py refuses to sign when second_approval.approver == primary_approval.approver (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-019 (c) same-identity refusal writes NO staged artifact
+PASS: TEST-046 validate-approval-sidecar.py refuses to validate against a zero-entry approvers:[] registry (no id can ever resolve, UNREGISTERED_APPROVER)
+PASS: AC-045 PRODUCTION discharge: validate-approval-sidecar.py rejects a duplicate-id approver-registry.yaml (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: OBLIGATION 2 a non-bootstrap sidecar (predecessor_context_sha256 present) with weakening_verdict: null is rejected (WEAKENING_VERDICT_MISSING)
+PASS: OBLIGATION 2 --verify-provenance also rejects a non-bootstrap null-verdict sidecar (WEAKENING_VERDICT_MISSING)
+PASS: TEST-043 --verify-provenance PASSES a correctly-two-person-approved weakening sidecar after its predecessor anchor is gone
+PASS: TEST-043 --verify-provenance FAILS an underapproved (solo) weakening sidecar after its predecessor anchor is gone (WEAKENING_PROVENANCE_UNDERAPPROVED)
+PASS: TEST-043 --verify-provenance PASSES the bootstrap case (approval_epoch:1, weakening_verdict: null) with no second-approval requirement implied
+PASS: TEST-043 a live TRANSACTION.json naming the sidecar path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: TEST-043 standard validation path: a live TRANSACTION.json naming the content path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: SEQ0355 REMEDY (a) --verify-provenance rejects a two-person-required sidecar whose second_approval.approver duplicates primary_approval.approver (WEAKENING_PROVENANCE_UNDERAPPROVED, gate 5's duplicate clause)
+PASS: SEQ0355 REMEDY (b) the SAME fixture on the standard path is intercepted by gate 3 (DUPLICATE_APPROVER_IDENTITY), never reaching gate 5 -- the two-path split is pinned
+PASS: TEST-HARDEN a malformed (non-array approvers) registry is rejected (APPROVER_REGISTRY_SCHEMA_VIOLATION)
+PASS: TEST-HARDEN no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY, never a skip
+PASS: TEST-HARDEN missing --content (without --verify-provenance) is a clean usage error, never a traceback
+PASS: TEST-HARDEN --content combined with --verify-provenance is a clean usage error
+PASS: TEST-HARDEN a missing --sidecar file is rejected cleanly (SIDECAR_UNREADABLE), never a traceback
+PASS: OBLIGATION 1 (TEST-013-style) case 1/4 (env var): validate-approval-sidecar.py's resolve_context_key() matches generate-approval-sidecar.py's AND sdd-hook-guard.py's _resolve_sudo_key byte-for-byte
+PASS: OBLIGATION 1 (TEST-013-style) case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 4/4 (none resolvable): all three resolvers return None
+PASS: self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/validate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/validate-approval-sidecar.tests.ps1 twin exists
+PASS: 40
+FAIL: 0
+exit=0
+=== pwsh tests/validate-approval-sidecar.tests.ps1 ===
+PASS: TEST-015 positive fixture (correct hash/HMAC/registered approver/null effective_at) validates PASS
+PASS: TEST-015 positive fixture (two distinct registered approvers, elapsed effective_at) validates PASS
+PASS: TEST-014 (1) content-schema violation (duplicate components[].id) rejected (DUPLICATE_COMPONENT_ID)
+PASS: TEST-014 (2) hash mismatch rejected (HASH_MISMATCH)
+PASS: TEST-014 (3) HMAC mismatch (context_sha256 matches; hmac signed under a different key) rejected (HMAC_MISMATCH)
+PASS: TEST-014 (4) unregistered approver id rejected (UNREGISTERED_APPROVER)
+PASS: TEST-014 (5) duplicate approver identity (primary == second) rejected (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-014 (6) future effective_at rejected (EFFECTIVE_AT_NOT_YET_REACHED)
+PASS: TEST-020 validator rejects applying a cooldown sidecar before its effective_at
+PASS: TEST-020 validator accepts applying a cooldown sidecar after its effective_at has elapsed
+PASS: TEST-019 (a) [discharge note] generate-approval-sidecar.py currently SIGNS a solo-approved two-person-required transition (documented T-003 gap, not this task's to fix)
+PASS: TEST-019 (a) the signed solo sidecar carries a two_person_required:true verdict with second_approval: null (the exact underapproved shape)
+PASS: TEST-019 (a) validate-approval-sidecar.py REJECTS the solo-approved two-person-required sidecar (WEAKENING_PROVENANCE_UNDERAPPROVED) -- the canonical enforcement point (obligation 4b)
+PASS: TEST-019 (b) generate-approval-sidecar.py signs successfully with two DISTINCT registered approver ids
+PASS: TEST-019 (b) validate-approval-sidecar.py accepts the two-distinct-approver sidecar
+PASS: TEST-019 (c) generate-approval-sidecar.py refuses to sign when second_approval.approver == primary_approval.approver (DUPLICATE_APPROVER_IDENTITY)
+PASS: TEST-019 (c) same-identity refusal writes NO staged artifact
+PASS: TEST-046 validate-approval-sidecar.py refuses to validate against a zero-entry approvers:[] registry (no id can ever resolve, UNREGISTERED_APPROVER)
+PASS: AC-045 PRODUCTION discharge: validate-approval-sidecar.py rejects a duplicate-id approver-registry.yaml (DUPLICATE_APPROVER_REGISTRY_ID)
+PASS: OBLIGATION 2 a non-bootstrap sidecar (predecessor_context_sha256 present) with weakening_verdict: null is rejected (WEAKENING_VERDICT_MISSING)
+PASS: OBLIGATION 2 --verify-provenance also rejects a non-bootstrap null-verdict sidecar (WEAKENING_VERDICT_MISSING)
+PASS: TEST-043 --verify-provenance PASSES a correctly-two-person-approved weakening sidecar after its predecessor anchor is gone
+PASS: TEST-043 --verify-provenance FAILS an underapproved (solo) weakening sidecar after its predecessor anchor is gone (WEAKENING_PROVENANCE_UNDERAPPROVED)
+PASS: TEST-043 --verify-provenance PASSES the bootstrap case (approval_epoch:1, weakening_verdict: null) with no second-approval requirement implied
+PASS: TEST-043 a live TRANSACTION.json naming the sidecar path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: TEST-043 standard validation path: a live TRANSACTION.json naming the content path fails closed (HUMAN_COPY_PUBLISH_IN_PROGRESS)
+PASS: SEQ0355 REMEDY (a) --verify-provenance rejects a two-person-required sidecar whose second_approval.approver duplicates primary_approval.approver (WEAKENING_PROVENANCE_UNDERAPPROVED, gate 5's duplicate clause)
+PASS: SEQ0355 REMEDY (b) the SAME fixture on the standard path is intercepted by gate 3 (DUPLICATE_APPROVER_IDENTITY), never reaching gate 5 -- the two-path split is pinned
+PASS: TEST-HARDEN a malformed (non-array approvers) registry is rejected (APPROVER_REGISTRY_SCHEMA_VIOLATION)
+PASS: TEST-HARDEN no resolvable SDD_CONTEXT_KEY: exit 11/NO_CONTEXT_KEY, never a skip
+PASS: TEST-HARDEN missing --content (without --verify-provenance) is a clean usage error, never a traceback
+PASS: TEST-HARDEN --content combined with --verify-provenance is a clean usage error
+PASS: TEST-HARDEN a missing --sidecar file is rejected cleanly (SIDECAR_UNREADABLE), never a traceback
+PASS: OBLIGATION 1 (TEST-013-style) case 1/4 (env var): validate-approval-sidecar.py's resolve_context_key() matches generate-approval-sidecar.py's AND sdd-hook-guard.py's _resolve_sudo_key byte-for-byte
+PASS: OBLIGATION 1 (TEST-013-style) case 2/4 (env-file, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 3/4 (home-path, BOM+whitespace-stripped): identical key bytes across all three resolvers
+PASS: OBLIGATION 1 (TEST-013-style) case 4/4 (none resolvable): all three resolvers return None
+PASS: self-registration: tests/validate-approval-sidecar.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/validate-approval-sidecar.tests.ps1 registered in tests/run-all.ps1
+PASS: 39
+FAIL: 0
+exit=0
+=== bash tests/apply-human-copy.tests.sh ===
+PASS: TEST-033a fresh single-target publish: tool exits 0
+PASS: TEST-033a fresh single-target publish: live content matches candidate
+PASS: TEST-033a fresh single-target publish: no journal/staging litter remains
+PASS: TEST-033b publish over existing live content: content replaced
+PASS: TEST-033c pre-existing symlink at destination leaf denied (exit 16, category RENAME_FAILED)
+PASS: TEST-033c symlink target (canary) is never written through
+PASS: TEST-033c the pre-existing symlink itself is left in place, not silently replaced
+PASS: TEST-033d symlinked intermediate destination-parent segment denied (exit 21)
+PASS: TEST-033d write never redirected through the symlinked segment
+PASS: TEST-033e symlinked staged source candidate denied (exit 10)
+PASS: TEST-033e no live target created from a symlinked source
+PASS: TEST-033f hard-link non-propagation: live target updated
+PASS: TEST-033f hard-link non-propagation: alias name retains OLD bytes
+PASS: TEST-033g staged-candidate hash mismatch denied (STAGED_CANDIDATE_HASH_MISMATCH)
+PASS: TEST-033g live target unchanged on preparation-stage failure
+PASS: TEST-033h malformed manifest line rejected (MANIFEST_INVALID)
+PASS: TEST-033h traversal target path rejected (MANIFEST_INVALID)
+PASS: TEST-033h duplicate manifest target rejected (MANIFEST_INVALID)
+tests/apply-human-copy.tests.sh: 87 行: 99681 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033i [pre-existing] crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i [pre-existing] recovery converges to ALL-PRE (crash before any rename)
+PASS: TEST-033i [pre-existing] stale journal cleaned up after recovery
+PASS: TEST-033i [pre-existing] a subsequent UNRELATED batch still publishes (publisher not bricked)
+tests/apply-human-copy.tests.sh: 87 行:  2708 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033j [pre-existing] mid-batch crash leaves an observable partial state right after the crash (a advanced, b not)
+PASS: TEST-033j [pre-existing] recovery converges to ALL-PRE (mid-batch crash rolled back)
+PASS: TEST-033j [pre-existing] journal/staging litter fully cleaned up after convergence
+tests/apply-human-copy.tests.sh: 87 行:  4281 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033k [pre-existing] recovery converges to ALL-POST (crash after last rename, before journal delete)
+PASS: TEST-033k [pre-existing] journal removed once recovery confirms ALL-POST
+tests/apply-human-copy.tests.sh: 87 行:  5798 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+tests/apply-human-copy.tests.sh: 87 行:  7798 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033l [pre-existing] a second crash mid-recovery leaves an observable partial-recovery state
+PASS: TEST-033l [pre-existing] the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+PASS: TEST-033l [pre-existing] journal fully cleaned up after the second recovery invocation
+tests/apply-human-copy.tests.sh: 87 行:  8088 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033i [absent] crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i [absent] recovery converges to ALL-PRE (crash before any rename)
+PASS: TEST-033i [absent] stale journal cleaned up after recovery
+PASS: TEST-033i [absent] a subsequent UNRELATED batch still publishes (publisher not bricked)
+tests/apply-human-copy.tests.sh: 87 行: 10483 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033j [absent] mid-batch crash leaves an observable partial state right after the crash (a advanced, b not)
+PASS: TEST-033j [absent] recovery converges to ALL-PRE (mid-batch crash rolled back)
+PASS: TEST-033j [absent] journal/staging litter fully cleaned up after convergence
+tests/apply-human-copy.tests.sh: 87 行: 11978 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033k [absent] recovery converges to ALL-POST (crash after last rename, before journal delete)
+PASS: TEST-033k [absent] journal removed once recovery confirms ALL-POST
+tests/apply-human-copy.tests.sh: 87 行: 13459 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+tests/apply-human-copy.tests.sh: 87 行: 15456 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033l [absent] a second crash mid-recovery leaves an observable partial-recovery state
+PASS: TEST-033l [absent] the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+PASS: TEST-033l [absent] journal fully cleaned up after the second recovery invocation
+PASS: TEST-033m shape-mismatched journal (missing targets[]) is REJECTED, not silently ignored (JOURNAL_SHAPE_INVALID)
+PASS: TEST-033m the malformed journal is left in place for human inspection, not deleted
+PASS: TEST-033m an unparsable (non-JSON) journal is ALSO fail-closed, identically to a shape mismatch
+PASS: TEST-033n recovery-only invocation with nothing stale exits 0
+PASS: TEST-033n recovery-only invocation reports recovered:0
+PASS: TEST-033o substitution-resistance fixture: tool still completes successfully
+PASS: TEST-033o the newly-substituted directory at the ORIGINAL name never receives the candidate
+PASS: TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)
+tests/apply-human-copy.tests.sh: 87 行: 17445 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033p zero-byte live target survives mid-batch crash + recovery, converging ALL-PRE (exit 0)
+PASS: TEST-033p the publisher remains usable afterward (a subsequent legitimate publish succeeds, not permanently bricked)
+PASS: TEST-033q duplicate-basename batch rejected (DUPLICATE_BASENAME_IN_BATCH)
+PASS: TEST-033q both live targets unchanged (refused before any live mutation)
+tests/apply-human-copy.tests.sh: 87 行: 20384 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033r sh and ps1 journals have IDENTICAL leading 3 bytes (no BOM divergence, got 7b2273)
+PASS: TEST-033r sh journal parses via plain python3 json.load
+PASS: TEST-033r ps1 journal parses via plain python3 json.load (no utf-8-sig needed)
+PASS: TEST-033s embedded-space path publishes correctly (exit 0, correct content)
+tests/apply-human-copy.tests.sh: 87 行: 22201 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033s journal preserves the embedded-space live_path byte-exact
+PASS: TEST-033s journal's pre_hash/post_hash for the space-containing target are each EXACTLY one 64-hex value (never concatenated)
+PASS: TEST-033s mid-batch crash with an embedded-space target converges to ALL-PRE on recovery
+PASS: TEST-033s 'b.txt' is never false-positive-flagged as a duplicate of 'a b.txt' (both publish correctly)
+PASS: TEST-033s genuine duplicate-path rejection still fires (regression lock on the grep-based rewrite)
+PASS: TEST-033s a tab character embedded in a path is preserved end-to-end
+tests/apply-human-copy.tests.sh: 87 行: 26964 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [space] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [space] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [space] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [space] no journal/staging litter remains after recovery
+PASS: TEST-033t [space] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 29481 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [tab] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [tab] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [tab] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [tab] no journal/staging litter remains after recovery
+PASS: TEST-033t [tab] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 31994 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [leadtrail] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [leadtrail] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [leadtrail] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [leadtrail] no journal/staging litter remains after recovery
+PASS: TEST-033t [leadtrail] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 34547 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [dquote] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [dquote] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [dquote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dquote] no journal/staging litter remains after recovery
+PASS: TEST-033t [dquote] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 37068 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [obrace] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [obrace] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [obrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obrace] no journal/staging litter remains after recovery
+PASS: TEST-033t [obrace] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 39587 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [cbrace] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [cbrace] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [cbrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbrace] no journal/staging litter remains after recovery
+PASS: TEST-033t [cbrace] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 42100 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [comma] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [comma] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [comma] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [comma] no journal/staging litter remains after recovery
+PASS: TEST-033t [comma] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 44616 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [star] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [star] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [star] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [star] no journal/staging litter remains after recovery
+PASS: TEST-033t [star] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 47136 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [question] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [question] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [question] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [question] no journal/staging litter remains after recovery
+PASS: TEST-033t [question] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 49658 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [obracket] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [obracket] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [obracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obracket] no journal/staging litter remains after recovery
+PASS: TEST-033t [obracket] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 52185 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [cbracket] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [cbracket] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [cbracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbracket] no journal/staging litter remains after recovery
+PASS: TEST-033t [cbracket] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 54727 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [dollar] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [dollar] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [dollar] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dollar] no journal/staging litter remains after recovery
+PASS: TEST-033t [dollar] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 57245 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [backtick] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [backtick] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [backtick] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [backtick] no journal/staging litter remains after recovery
+PASS: TEST-033t [backtick] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 59765 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [squote] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [squote] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [squote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [squote] no journal/staging litter remains after recovery
+PASS: TEST-033t [squote] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 62281 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [utf8] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [utf8] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [utf8] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [utf8] no journal/staging litter remains after recovery
+PASS: TEST-033t [utf8] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 64804 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [vtab] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [vtab] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [vtab] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [vtab] no journal/staging litter remains after recovery
+PASS: TEST-033t [vtab] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 67322 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [soh] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [soh] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [soh] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [soh] no journal/staging litter remains after recovery
+PASS: TEST-033t [soh] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 69842 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [formfeed] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [formfeed] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [formfeed] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [formfeed] no journal/staging litter remains after recovery
+PASS: TEST-033t [formfeed] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 72361 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [esc] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [esc] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [esc] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [esc] no journal/staging litter remains after recovery
+PASS: TEST-033t [esc] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+tests/apply-human-copy.tests.sh: 87 行: 74877 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033t [unitsep] journal round-trips live_path exactly via plain python3 json.load
+PASS: TEST-033t [unitsep] T-005-reader surrogate correctly reports IN-PROGRESS for the mid-publish path
+PASS: TEST-033t [unitsep] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [unitsep] no journal/staging litter remains after recovery
+PASS: TEST-033t [unitsep] sh/ps1 parity: both publish identically (exit 0, same content, same declared path)
+PASS: TEST-033t a literal newline inside a manifest path is structurally unrepresentable -- the resulting malformed line is rejected (MANIFEST_INVALID), confirming no separate rejection code is needed
+PASS: TEST-033t sh rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER, both-runtime parity by design)
+PASS: TEST-033t ps1 ALSO rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER, parity confirmed)
+PASS: TEST-033t sh rejects a literal CR in a manifest path (UNSUPPORTED_PATH_CHARACTER, both-runtime parity by design)
+PASS: TEST-033t ps1 ALSO rejects a literal CR in a manifest path (UNSUPPORTED_PATH_CHARACTER, parity confirmed)
+PASS: TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name, not a decoy
+PASS: TEST-033u decoy directory 'axxb' left completely untouched (no substitution into it)
+tests/apply-human-copy.tests.sh: 87 行: 79576 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033v [symlink/pre-existing] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [symlink/pre-existing] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [symlink/pre-existing] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [symlink/pre-existing] journal/staging litter fully cleaned up after convergence
+tests/apply-human-copy.tests.sh: 87 行: 81604 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033v [renameaside/pre-existing] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [renameaside/pre-existing] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [renameaside/pre-existing] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [renameaside/pre-existing] journal/staging litter fully cleaned up after convergence
+tests/apply-human-copy.tests.sh: 87 行: 83564 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033v [chmod000/pre-existing] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [chmod000/pre-existing] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [chmod000/pre-existing] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [chmod000/pre-existing] journal/staging litter fully cleaned up after convergence
+tests/apply-human-copy.tests.sh: 87 行: 85484 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033v [symlink/absent] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [symlink/absent] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [symlink/absent] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [symlink/absent] journal/staging litter fully cleaned up after convergence
+tests/apply-human-copy.tests.sh: 87 行: 87498 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033v [renameaside/absent] a plainly-absent chain the journal itself recorded as ABSENT converges to ALL-PRE (design.md:1042-1043), never a permanent RECOVERY_FAILED brick
+PASS: TEST-033v [renameaside/absent] the journal is deleted once recovery reaches its terminal state
+PASS: TEST-033v [renameaside/absent] a further invocation after convergence is a clean no-op (recovery is idempotent)
+PASS: TEST-033v [renameaside/absent] journal/staging litter fully cleaned up after convergence
+tests/apply-human-copy.tests.sh: 87 行: 88941 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033v [chmod000/absent] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [chmod000/absent] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [chmod000/absent] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [chmod000/absent] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033w PREPARE-time symlinked destination-parent denies the whole batch (LIVE_PROBE_FAILED)
+PASS: TEST-033w real content behind the symlink is unchanged (never silently overwritten)
+PASS: TEST-033w no journal/staging litter left behind by the denied batch
+tests/apply-human-copy.tests.sh: 87 行: 91243 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033x [pre-existing] post-revert confirmation catches a target left at a THIRD state (RECOVERY_FAILED, design.md:1055-1056)
+PASS: TEST-033x [pre-existing] the journal is RETAINED, never deleted, while any target is unconfirmed
+PASS: TEST-033x [pre-existing] the pre/ backup (where one exists) is RETAINED alongside the journal
+PASS: TEST-033x [pre-existing] once the target is back at PRE the SAME journal converges and is deleted
+tests/apply-human-copy.tests.sh: 87 行: 93154 Killed: 9                  ( cd "$repo_dir" && "$APPLY_SH" "$@" ) > "$WORK/out" 2> "$WORK/err"
+PASS: TEST-033x [absent] post-revert confirmation catches a target left at a THIRD state (RECOVERY_FAILED, design.md:1055-1056)
+PASS: TEST-033x [absent] the journal is RETAINED, never deleted, while any target is unconfirmed
+PASS: TEST-033x [absent] the pre/ backup (where one exists) is RETAINED alongside the journal
+PASS: TEST-033x [absent] once the target is back at PRE the SAME journal converges and is deleted
+PASS: TEST-033y basenames differing only by ASCII case are refused (DUPLICATE_BASENAME_IN_BATCH), on every platform
+PASS: TEST-033y both live targets unchanged (refused at manifest-parse time, before any live mutation)
+PASS: TEST-033y no journal/staging litter left behind by the refused batch
+PASS: TEST-033y the manifest-parse case fold refuses a case-variant batch even when no backup slot would ever be written (guard isolated from the slot check)
+PASS: TEST-033y neither target was published by the refused no-live-content batch
+PASS: TEST-033y on a volume that folds non-ASCII case, the colliding backup slot is detected and the batch refused (DUPLICATE_BASENAME_IN_BATCH)
+PASS: TEST-033y non-ASCII collision refused BEFORE any live mutation (both targets still at PRE)
+PASS: TEST-033z a denial raised AFTER argument parsing still reaches stderr (die()'s diagnostic is never swallowed)
+PASS: TEST-033z the same denial ALSO reaches the machine-readable stdout channel (both channels, as documented)
+PASS: TEST-033z ps1 emits the identical denial on stderr too (sh/ps1 diagnostic-channel parity)
+PASS: self-registration: tests/run-all.sh references apply-human-copy.tests.sh
+PASS: self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1
+
+218 passed, 0 failed
+exit=0
+=== pwsh tests/apply-human-copy.tests.ps1 ===
+PASS: TEST-033a fresh single-target publish: tool exits 0
+PASS: TEST-033a fresh single-target publish: live content matches candidate
+PASS: TEST-033b publish over existing live content: content replaced
+PASS: TEST-033c pre-existing symlink at destination leaf denied (exit 16)
+PASS: TEST-033c symlink target (canary) is never written through
+PASS: TEST-033d symlinked intermediate destination-parent segment denied (exit 21)
+PASS: TEST-033d write never redirected through the symlinked segment
+PASS: TEST-033e symlinked staged source candidate denied (exit 10)
+PASS: TEST-033e no live target created from a symlinked source
+PASS: TEST-033f hard-link non-propagation: live target updated
+PASS: TEST-033f hard-link non-propagation: alias name retains OLD bytes
+PASS: TEST-033g staged-candidate hash mismatch denied (STAGED_CANDIDATE_HASH_MISMATCH)
+PASS: TEST-033g live target unchanged on preparation-stage failure
+PASS: TEST-033h malformed manifest line rejected (MANIFEST_INVALID)
+PASS: TEST-033h traversal target path rejected (MANIFEST_INVALID)
+PASS: TEST-033h duplicate manifest target rejected (MANIFEST_INVALID)
+PASS: TEST-033i [pre-existing] crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i [pre-existing] recovery converges to ALL-PRE (crash before any rename)
+PASS: TEST-033i [pre-existing] stale journal cleaned up after recovery
+PASS: TEST-033i [pre-existing] a subsequent UNRELATED batch still publishes (publisher not bricked)
+PASS: TEST-033j [pre-existing] mid-batch crash leaves an observable partial state right after the crash
+PASS: TEST-033j [pre-existing] recovery converges to ALL-PRE (mid-batch crash rolled back)
+PASS: TEST-033j [pre-existing] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033k [pre-existing] recovery converges to ALL-POST (crash after last rename, before journal delete)
+PASS: TEST-033k [pre-existing] journal removed once recovery confirms ALL-POST
+PASS: TEST-033l [pre-existing] a second crash mid-recovery leaves an observable partial-recovery state
+PASS: TEST-033l [pre-existing] the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+PASS: TEST-033l [pre-existing] journal fully cleaned up after the second recovery invocation
+PASS: TEST-033i [absent] crash before any rename: both targets still PRE immediately after the crash
+PASS: TEST-033i [absent] recovery converges to ALL-PRE (crash before any rename)
+PASS: TEST-033i [absent] stale journal cleaned up after recovery
+PASS: TEST-033i [absent] a subsequent UNRELATED batch still publishes (publisher not bricked)
+PASS: TEST-033j [absent] mid-batch crash leaves an observable partial state right after the crash
+PASS: TEST-033j [absent] recovery converges to ALL-PRE (mid-batch crash rolled back)
+PASS: TEST-033j [absent] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033k [absent] recovery converges to ALL-POST (crash after last rename, before journal delete)
+PASS: TEST-033k [absent] journal removed once recovery confirms ALL-POST
+PASS: TEST-033l [absent] a second crash mid-recovery leaves an observable partial-recovery state
+PASS: TEST-033l [absent] the FOLLOWING invocation still converges to ALL-PRE (recovery is idempotent/re-entrant)
+PASS: TEST-033l [absent] journal fully cleaned up after the second recovery invocation
+PASS: TEST-033m shape-mismatched journal (missing targets[]) is REJECTED, not silently ignored (JOURNAL_SHAPE_INVALID)
+PASS: TEST-033m the malformed journal is left in place for human inspection, not deleted
+PASS: TEST-033n recovery-only invocation with nothing stale exits 0
+PASS: TEST-033n recovery-only invocation reports recovered:0
+PASS: TEST-033o substitution-resistance fixture: tool still completes successfully
+PASS: TEST-033o the newly-substituted directory at the ORIGINAL name never receives the candidate
+PASS: TEST-033o the write lands in the TRUE, anchored original directory (now at its new name)
+PASS: TEST-033p zero-byte live target survives mid-batch crash + recovery, converging ALL-PRE (exit 0)
+PASS: TEST-033p the publisher remains usable afterward (a subsequent legitimate publish succeeds, not permanently bricked)
+PASS: TEST-033q duplicate-basename batch rejected (DUPLICATE_BASENAME_IN_BATCH)
+PASS: TEST-033q both live targets unchanged (refused before any live mutation)
+PASS: TEST-033r ps1 journal has no BOM (leading bytes 7b2273 = open-brace quote s)
+PASS: TEST-033r ps1 journal parses via plain python3 json.load (no utf-8-sig needed)
+PASS: TEST-033s embedded-space path publishes correctly (exit 0, correct content)
+PASS: TEST-033s journal preserves the embedded-space live_path byte-exact
+PASS: TEST-033s mid-batch crash with an embedded-space target converges to ALL-PRE on recovery
+PASS: TEST-033s 'b.txt' is never false-positive-flagged as a duplicate of 'a b.txt' (both publish correctly)
+PASS: TEST-033t [space] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [space] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [tab] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [tab] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [leadtrail] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [leadtrail] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dquote] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [dquote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obrace] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [obrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbrace] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [cbrace] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [comma] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [comma] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [star] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [star] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [question] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [question] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [obracket] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [obracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [cbracket] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [cbracket] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [dollar] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [dollar] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [backtick] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [backtick] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [squote] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [squote] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [utf8] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [utf8] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [vtab] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [vtab] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [soh] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [soh] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [formfeed] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [formfeed] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [esc] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [esc] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t [unitsep] journal round-trips live_path exactly (ConvertFrom-Json)
+PASS: TEST-033t [unitsep] recovery converges ALL-PRE (target absent, sibling unchanged)
+PASS: TEST-033t ps1 rejects a literal backslash in a manifest path (UNSUPPORTED_PATH_CHARACTER)
+PASS: TEST-033t ps1 rejects a literal CR in a manifest path (UNSUPPORTED_PATH_CHARACTER)
+PASS: TEST-033u glob-metacharacter DIRECTORY SEGMENT publishes to the literal name, not a decoy
+PASS: TEST-033u decoy directory 'axxb' left completely untouched (no substitution into it)
+PASS: TEST-033v [symlink/pre-existing] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [symlink/pre-existing] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [symlink/pre-existing] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [symlink/pre-existing] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [renameaside/pre-existing] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [renameaside/pre-existing] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [renameaside/pre-existing] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [renameaside/pre-existing] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [chmod000/pre-existing] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [chmod000/pre-existing] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [chmod000/pre-existing] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [chmod000/pre-existing] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [symlink/absent] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [symlink/absent] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [symlink/absent] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [symlink/absent] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [renameaside/absent] a plainly-absent chain the journal itself recorded as ABSENT converges to ALL-PRE (design.md:1042-1043), never a permanent RECOVERY_FAILED brick
+PASS: TEST-033v [renameaside/absent] the journal is deleted once recovery reaches its terminal state
+PASS: TEST-033v [renameaside/absent] a further invocation after convergence is a clean no-op (recovery is idempotent)
+PASS: TEST-033v [renameaside/absent] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033v [chmod000/absent] recovery fails closed while the target's true state is undeterminable (RECOVERY_FAILED)
+PASS: TEST-033v [chmod000/absent] journal (and pre/ backup where one exists) RETAINED after the failed recovery attempt
+PASS: TEST-033v [chmod000/absent] recovery converges to ALL-PRE once the trigger is undone
+PASS: TEST-033v [chmod000/absent] journal/staging litter fully cleaned up after convergence
+PASS: TEST-033w PREPARE-time symlinked destination-parent denies the whole batch (LIVE_PROBE_FAILED)
+PASS: TEST-033w real content behind the symlink is unchanged (never silently overwritten)
+PASS: TEST-033w no journal/staging litter left behind by the denied batch
+PASS: TEST-033x [pre-existing] post-revert confirmation catches a target left at a THIRD state (RECOVERY_FAILED, design.md:1055-1056)
+PASS: TEST-033x [pre-existing] the journal is RETAINED, never deleted, while any target is unconfirmed
+PASS: TEST-033x [pre-existing] the pre/ backup (where one exists) is RETAINED alongside the journal
+PASS: TEST-033x [pre-existing] once the target is back at PRE the SAME journal converges and is deleted
+PASS: TEST-033x [absent] post-revert confirmation catches a target left at a THIRD state (RECOVERY_FAILED, design.md:1055-1056)
+PASS: TEST-033x [absent] the journal is RETAINED, never deleted, while any target is unconfirmed
+PASS: TEST-033x [absent] the pre/ backup (where one exists) is RETAINED alongside the journal
+PASS: TEST-033x [absent] once the target is back at PRE the SAME journal converges and is deleted
+PASS: TEST-033y basenames differing only by ASCII case are refused (DUPLICATE_BASENAME_IN_BATCH), on every platform
+PASS: TEST-033y both live targets unchanged (refused at manifest-parse time, before any live mutation)
+PASS: TEST-033y no journal/staging litter left behind by the refused batch
+PASS: TEST-033y the manifest-parse case fold refuses a case-variant batch even when no backup slot would ever be written (guard isolated from the slot check)
+PASS: TEST-033y neither target was published by the refused no-live-content batch
+PASS: TEST-033y on a volume that folds non-ASCII case, the colliding backup slot is detected and the batch refused (DUPLICATE_BASENAME_IN_BATCH)
+PASS: TEST-033y non-ASCII collision refused BEFORE any live mutation (both targets still at PRE)
+PASS: TEST-033z a denial raised AFTER argument parsing still reaches stderr (the diagnostic is never swallowed)
+PASS: TEST-033z the same denial ALSO reaches the machine-readable stdout channel (both channels, as documented)
+PASS: self-registration: tests/run-all.ps1 references apply-human-copy.tests.ps1
+
+146 passed, 0 failed
+exit=0
+=== bash tests/check-hook-activation-handshake.tests.sh ===
+PASS: TEST-027 claude-code: a genuine --emit exit deny signature + matching nonce -> exit 0
+PASS: TEST-027 claude-code: HOOK_ACTIVE reported
+PASS: TEST-027 claude-code: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 claude-code: WRITE_EXECUTED -> CAPABILITY_RUNTIME_UNAVAILABLE
+PASS: TEST-027 claude-code: WRITE_EXECUTED reason reported
+PASS: TEST-027 claude-code: executed:false with no guard_emit_mode/exit_code -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 claude-code: UNRECOGNIZED_RESULT reason reported
+PASS: TEST-027 claude-code: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 claude-code: NO_RECORDED_RESULT reason reported
+PASS: TEST-027 claude-code: an otherwise-correct signature with a MISMATCHED nonce -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 claude-code: STALE_CHALLENGE_REJECTED reason reported (never HOOK_ACTIVE without a fresh nonce match)
+PASS: TEST-027 copilot-cli: a genuine --emit copilot deny JSON + matching nonce -> exit 0
+PASS: TEST-027 copilot-cli: HOOK_ACTIVE reported
+PASS: TEST-027 copilot-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 copilot-cli: an ABSENT permissionDecision -> exit 64/UNRECOGNIZED_RESULT, never HOOK_ACTIVE
+PASS: TEST-027 copilot-cli: the well-known 'subagent hook often does not fire' case (permissionDecision: allow) -> exit 64/UNRECOGNIZED_RESULT, not a special case
+PASS: TEST-027 copilot-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 copilot-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 codex-cli: plugin_hooks_enabled + denied_by_plugin_hooks + matching nonce -> exit 0
+PASS: TEST-027 codex-cli: HOOK_ACTIVE reported
+PASS: TEST-027 codex-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 codex-cli: an unset/false plugin_hooks_enabled -> exit 65/PLUGIN_HOOKS_DISABLED even when denied_by_plugin_hooks claims true (the collapse-into-hook-not-active case, REQ-010)
+PASS: TEST-027 codex-cli: PLUGIN_HOOKS_DISABLED reason reported, never HOOK_ACTIVE
+PASS: TEST-027 codex-cli: plugin_hooks_enabled true but no denied_by_plugin_hooks -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 codex-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 codex-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 shared: invalid JSON syntax -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: a non-object (JSON array) top level -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: invalid UTF-8 bytes -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 challenge shape: 'schema' is the exact literal design.md's CLI contract fixes
+PASS: TEST-027 challenge shape: 'canary_target' is the exact literal protected sentinel path design.md's Data Plan registers
+PASS: TEST-027 challenge shape: tool_call_template includes a 'claude-code' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'codex-cli' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'copilot-cli' entry
+PASS: TEST-032 (a) precondition: sentinel absent BEFORE the hook-fires branch
+PASS: TEST-032 (a) hook FIRES: HOOK_ACTIVE
+PASS: TEST-032 (a) the sentinel is absent-AFTER the hook-fires branch too (never created)
+PASS: TEST-032 (a) the live sidecar fixtures are byte-identical before/after (never touched)
+PASS: TEST-032 (b) hook does not fire: CAPABILITY_RUNTIME_UNAVAILABLE/WRITE_EXECUTED
+PASS: TEST-032 (b) a recorded cleanup delete showing success -> exit 0/SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) cleanup_status is SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) the standing capability_status (from the original probe) is restated alongside the cleanup verdict
+PASS: TEST-032 (c1) no cleanup-result evidence recorded at all -> exit 70/NO_CLEANUP_RESULT
+PASS: TEST-032 (c1) cleanup_status is SENTINEL_CLEANUP_UNCONFIRMED
+PASS: TEST-032 (c1) the standing CAPABILITY_RUNTIME_UNAVAILABLE is restated alongside (independent verdicts, never retroactively changed)
+PASS: TEST-032 (c2) the cleanup delete's own attempt was denied (create-to-delete race) -> exit 72/CLEANUP_DENIED, never a privileged force-delete
+PASS: TEST-032 (c2) CLEANUP_DENIED reason reported
+PASS: TEST-032 (c3) a cleanup-result with a MISMATCHED nonce is never confirmed -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-032 stale-start: --emit-challenge with a pre-existing stale sentinel still exits 0
+PASS: TEST-032 stale-start: the pre-existing stale sentinel is reported as a diagnostic (STALE_SENTINEL_DETECTED)
+PASS: TEST-032 stale-start: a fresh, valid challenge is still emitted regardless
+PASS: TEST-032 stale-start: the new challenge carries a non-empty nonce
+PASS: TEST-032 stale-start: the stale sentinel itself is byte-identical before/after --emit-challenge (this script never touches it, only the calling skill does)
+PASS: TEST-032 stale-start: the NEW challenge's own probe still resolves to HOOK_ACTIVE correctly, regardless of the stale-sentinel condition at start
+PASS: TEST-032 stale-start: HOOK_ACTIVE reported for the new challenge
+PASS: TEST-032 no-stale: --emit-challenge with NO pre-existing sentinel exits 0
+PASS: TEST-032 no-stale: no STALE_SENTINEL_DETECTED diagnostic when the sentinel is genuinely absent
+PASS: TEST-032 battery: all three live sidecar/registry fixtures are byte-identical across a full multi-invocation battery (--emit-challenge, HOOK_ACTIVE, WRITE_EXECUTED, confirm-cleanup)
+PASS: TEST-032 battery: the sentinel itself was never created by this script across the whole battery
+PASS: TEST-HARDEN(a) --verify-response with NO --nonce -> exit 2 usage error
+PASS: TEST-HARDEN(a): no raw traceback on stderr
+PASS: TEST-HARDEN(b) --verify-response with NO --recorded-result -> exit 2 usage error
+PASS: TEST-HARDEN(b): no raw traceback on stderr
+PASS: TEST-HARDEN(c) --verify-response with NO --runtime -> exit 2 usage error
+PASS: TEST-HARDEN(c): no raw traceback on stderr
+PASS: TEST-HARDEN(d) an unrecognized --runtime value -> exit 2 usage error
+PASS: TEST-HARDEN(d): no raw traceback on stderr
+PASS: TEST-HARDEN(e) an EMPTY --nonce value -> exit 2 usage error, never accepted as a trivial match
+PASS: TEST-HARDEN(e): no raw traceback on stderr
+PASS: TEST-HARDEN(f) --emit-challenge combined with --nonce -> exit 2 usage error (takes no other arguments)
+PASS: TEST-HARDEN(f): no raw traceback on stderr
+PASS: TEST-HARDEN(g) --confirm-cleanup combined with --recorded-result/--runtime -> exit 2 usage error
+PASS: TEST-HARDEN(g): no raw traceback on stderr
+PASS: TEST-HARDEN(h) --verify-response combined with --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(h): no raw traceback on stderr
+PASS: TEST-HARDEN(i) --confirm-cleanup with NO --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(i): no raw traceback on stderr
+PASS: TEST-HARDEN(j) no mode flag at all -> exit 2 usage error (argparse's own required mutually-exclusive-group check)
+PASS: TEST-HARDEN(k) two mode flags together -> exit 2 usage error (argparse's own mutually-exclusive-group check)
+PASS: TEST-HARDEN(l) an evidence path containing spaces resolves correctly -> exit 0/HOOK_ACTIVE
+PASS: TEST-HARDEN(l): no raw traceback on stderr
+PASS: TEST-HARDEN(m) a string 'executed' field (not boolean) -> exit 64/UNRECOGNIZED_RESULT, never coerced to a truthy/falsy denial
+PASS: TEST-HARDEN(m): no raw traceback on stderr
+PASS: TEST-HARDEN(n) a recorded-cleanup-result with no 'executed' field -> exit 71/CLEANUP_RESULT_UNREADABLE
+PASS: TEST-HARDEN(n): no raw traceback on stderr
+PASS: self-registration: tests/check-hook-activation-handshake.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/check-hook-activation-handshake.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/check-hook-activation-handshake.tests.ps1 twin exists
+PASS: 88
+FAIL: 0
+exit=0
+=== pwsh tests/check-hook-activation-handshake.tests.ps1 ===
+PASS: TEST-027 claude-code: a genuine --emit exit deny signature + matching nonce -> exit 0
+PASS: TEST-027 claude-code: HOOK_ACTIVE reported
+PASS: TEST-027 claude-code: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 claude-code: WRITE_EXECUTED -> CAPABILITY_RUNTIME_UNAVAILABLE
+PASS: TEST-027 claude-code: WRITE_EXECUTED reason reported
+PASS: TEST-027 claude-code: executed:false with no guard_emit_mode/exit_code -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 claude-code: UNRECOGNIZED_RESULT reason reported
+PASS: TEST-027 claude-code: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 claude-code: NO_RECORDED_RESULT reason reported
+PASS: TEST-027 claude-code: an otherwise-correct signature with a MISMATCHED nonce -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 claude-code: STALE_CHALLENGE_REJECTED reason reported (never HOOK_ACTIVE without a fresh nonce match)
+PASS: TEST-027 copilot-cli: a genuine --emit copilot deny JSON + matching nonce -> exit 0
+PASS: TEST-027 copilot-cli: HOOK_ACTIVE reported
+PASS: TEST-027 copilot-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 copilot-cli: an ABSENT permissionDecision -> exit 64/UNRECOGNIZED_RESULT, never HOOK_ACTIVE
+PASS: TEST-027 copilot-cli: the well-known 'subagent hook often does not fire' case (permissionDecision: allow) -> exit 64/UNRECOGNIZED_RESULT, not a special case
+PASS: TEST-027 copilot-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 copilot-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 codex-cli: plugin_hooks_enabled + denied_by_plugin_hooks + matching nonce -> exit 0
+PASS: TEST-027 codex-cli: HOOK_ACTIVE reported
+PASS: TEST-027 codex-cli: the write actually executing -> exit 63/WRITE_EXECUTED
+PASS: TEST-027 codex-cli: an unset/false plugin_hooks_enabled -> exit 65/PLUGIN_HOOKS_DISABLED even when denied_by_plugin_hooks claims true (the collapse-into-hook-not-active case, REQ-010)
+PASS: TEST-027 codex-cli: PLUGIN_HOOKS_DISABLED reason reported, never HOOK_ACTIVE
+PASS: TEST-027 codex-cli: plugin_hooks_enabled true but no denied_by_plugin_hooks -> exit 64/UNRECOGNIZED_RESULT
+PASS: TEST-027 codex-cli: a missing recorded-result file -> exit 60/NO_RECORDED_RESULT
+PASS: TEST-027 codex-cli: a MISMATCHED nonce against an otherwise-correct deny signature -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-027 shared: invalid JSON syntax -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: a non-object (JSON array) top level -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 shared: invalid UTF-8 bytes -> exit 61/RECORDED_RESULT_UNREADABLE
+PASS: TEST-027 challenge shape: 'schema' is the exact literal design.md's CLI contract fixes
+PASS: TEST-027 challenge shape: 'canary_target' is the exact literal protected sentinel path design.md's Data Plan registers
+PASS: TEST-027 challenge shape: tool_call_template includes a 'claude-code' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'codex-cli' entry
+PASS: TEST-027 challenge shape: tool_call_template includes a 'copilot-cli' entry
+PASS: TEST-032 (a) precondition: sentinel absent BEFORE the hook-fires branch
+PASS: TEST-032 (a) hook FIRES: HOOK_ACTIVE
+PASS: TEST-032 (a) the sentinel is absent-AFTER the hook-fires branch too (never created)
+PASS: TEST-032 (a) the live sidecar fixtures are byte-identical before/after (never touched)
+PASS: TEST-032 (b) hook does not fire: CAPABILITY_RUNTIME_UNAVAILABLE/WRITE_EXECUTED
+PASS: TEST-032 (b) a recorded cleanup delete showing success -> exit 0/SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) cleanup_status is SENTINEL_CLEANUP_CONFIRMED
+PASS: TEST-032 (b) the standing capability_status (from the original probe) is restated alongside the cleanup verdict
+PASS: TEST-032 (c1) no cleanup-result evidence recorded at all -> exit 70/NO_CLEANUP_RESULT
+PASS: TEST-032 (c1) cleanup_status is SENTINEL_CLEANUP_UNCONFIRMED
+PASS: TEST-032 (c1) the standing CAPABILITY_RUNTIME_UNAVAILABLE is restated alongside (independent verdicts, never retroactively changed)
+PASS: TEST-032 (c2) the cleanup delete's own attempt was denied (create-to-delete race) -> exit 72/CLEANUP_DENIED, never a privileged force-delete
+PASS: TEST-032 (c2) CLEANUP_DENIED reason reported
+PASS: TEST-032 (c3) a cleanup-result with a MISMATCHED nonce is never confirmed -> exit 62/STALE_CHALLENGE_REJECTED
+PASS: TEST-032 stale-start: --emit-challenge with a pre-existing stale sentinel still exits 0
+PASS: TEST-032 stale-start: the pre-existing stale sentinel is reported as a diagnostic (STALE_SENTINEL_DETECTED)
+PASS: TEST-032 stale-start: a fresh, valid challenge is still emitted regardless
+PASS: TEST-032 stale-start: the new challenge carries a non-empty nonce
+PASS: TEST-032 stale-start: the stale sentinel itself is byte-identical before/after --emit-challenge (this script never touches it, only the calling skill does)
+PASS: TEST-032 stale-start: the NEW challenge's own probe still resolves to HOOK_ACTIVE correctly, regardless of the stale-sentinel condition at start
+PASS: TEST-032 stale-start: HOOK_ACTIVE reported for the new challenge
+PASS: TEST-032 no-stale: --emit-challenge with NO pre-existing sentinel exits 0
+PASS: TEST-032 no-stale: no STALE_SENTINEL_DETECTED diagnostic when the sentinel is genuinely absent
+PASS: TEST-032 battery: all three live sidecar/registry fixtures are byte-identical across a full multi-invocation battery (--emit-challenge, HOOK_ACTIVE, WRITE_EXECUTED, confirm-cleanup)
+PASS: TEST-032 battery: the sentinel itself was never created by this script across the whole battery
+PASS: TEST-HARDEN(a) --verify-response with NO --nonce -> exit 2 usage error
+PASS: TEST-HARDEN(a): no raw traceback on stderr
+PASS: TEST-HARDEN(b) --verify-response with NO --recorded-result -> exit 2 usage error
+PASS: TEST-HARDEN(b): no raw traceback on stderr
+PASS: TEST-HARDEN(c) --verify-response with NO --runtime -> exit 2 usage error
+PASS: TEST-HARDEN(c): no raw traceback on stderr
+PASS: TEST-HARDEN(d) an unrecognized --runtime value -> exit 2 usage error
+PASS: TEST-HARDEN(d): no raw traceback on stderr
+PASS: TEST-HARDEN(e) an EMPTY --nonce value -> exit 2 usage error, never accepted as a trivial match
+PASS: TEST-HARDEN(e): no raw traceback on stderr
+PASS: TEST-HARDEN(f) --emit-challenge combined with --nonce -> exit 2 usage error (takes no other arguments)
+PASS: TEST-HARDEN(f): no raw traceback on stderr
+PASS: TEST-HARDEN(g) --confirm-cleanup combined with --recorded-result/--runtime -> exit 2 usage error
+PASS: TEST-HARDEN(g): no raw traceback on stderr
+PASS: TEST-HARDEN(h) --verify-response combined with --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(h): no raw traceback on stderr
+PASS: TEST-HARDEN(i) --confirm-cleanup with NO --recorded-cleanup-result -> exit 2 usage error
+PASS: TEST-HARDEN(i): no raw traceback on stderr
+PASS: TEST-HARDEN(j) no mode flag at all -> exit 2 usage error (argparse's own required mutually-exclusive-group check)
+PASS: TEST-HARDEN(k) two mode flags together -> exit 2 usage error (argparse's own mutually-exclusive-group check)
+PASS: TEST-HARDEN(l) an evidence path containing spaces resolves correctly -> exit 0/HOOK_ACTIVE
+PASS: TEST-HARDEN(l): no raw traceback on stderr
+PASS: TEST-HARDEN(m) a string 'executed' field (not boolean) -> exit 64/UNRECOGNIZED_RESULT, never coerced to a truthy/falsy denial
+PASS: TEST-HARDEN(m): no raw traceback on stderr
+PASS: TEST-HARDEN(n) a recorded-cleanup-result with no 'executed' field -> exit 71/CLEANUP_RESULT_UNREADABLE
+PASS: TEST-HARDEN(n): no raw traceback on stderr
+PASS: self-registration: tests/check-hook-activation-handshake.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/check-hook-activation-handshake.tests.ps1 registered in tests/run-all.ps1
+PASS: 87
+FAIL: 0
+exit=0
+=== bash tests/guard-invariants-epic-a1.tests.sh ===
+PASS: manifest: PROTECTED-MANIFEST.md exists
+PASS: manifest: every inventory-shaped row satisfies the normative grammar
+PASS: manifest: total entry count is 28 (design.md Protected-File Statement)
+PASS: manifest: concrete entry count is 24
+PASS: manifest: reserved entry count is 4
+PASS: manifest: no duplicate paths
+PASS: manifest: ordinals are contiguous and ascending 01..28
+PASS: manifest: every path is a valid repository-relative path
+PASS: manifest: prose Counts table states concrete=24, matching the rows
+PASS: manifest: prose Counts table states reserved=4, matching the rows
+PASS: manifest: prose Counts table states total=28, matching the rows
+PASS: TEST-038: ADR-0019 item 3 category represented: canonicalizer
+PASS: TEST-038: ADR-0019 item 3 category represented: hash-generator
+PASS: TEST-038: ADR-0019 item 3 category represented: approval-validator
+PASS: TEST-038: ADR-0019 item 3 category represented: policy-weakening-detector
+PASS: TEST-038: ADR-0019 item 3 category represented: resolver
+PASS: TEST-038: ADR-0019 item 3 category represented: generated-projection
+PASS: TEST-038: 20 entries fall under an ADR-0019 item 3 category
+PASS: TEST-038: 8 entries are deliberate beyond-item-3 extensions (6 data + 2 publisher)
+PASS: TEST-038: resolver reservation is exactly the three resolve-project-context paths
+PASS: TEST-038: generated-projection reservation is exactly the resolved-projection path
+PASS: TEST-038: plugins/sdd-quality-loop/scripts/apply-human-copy.sh is a concrete entry
+PASS: TEST-038: plugins/sdd-quality-loop/scripts/apply-human-copy.ps1 is a concrete entry
+PASS: TEST-038: sdd/.approved-context/project-context.approved.yaml is a concrete entry
+PASS: TEST-038: sdd/.approved-context/provider-bindings.approved.yaml is a concrete entry
+PASS: staged: candidate exists: specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/references/guard-invariants.json
+PASS: staged: candidate exists: specs/epic-189-a1-project-context/human-copy/plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+PASS: staged: generated output exists: guard_invariants.py
+PASS: staged: generated output exists: guard-invariants.generated.js
+PASS: staged: generated output exists: guard-invariants.generated.ps1
+PASS: staged: generated output exists: guard-invariants.generated.sh
+PASS: TEST-021: staged JSON epic_a1_targets equals the manifest exactly (ordered)
+PASS: TEST-021: staged protected_gate_suffixes equals the live list (human apply landed)
+PASS: TEST-021: the staged protected_gate_suffixes tail is exactly the 28 manifest paths, in manifest order
+PASS: TEST-021: each manifest path occurs exactly once in staged protected_gate_suffixes
+PASS: TEST-021: staged protected_gate_suffixes has no duplicates
+PASS: TEST-021: staged generator EPIC_A1_TARGETS equals the manifest exactly (ordered)
+PASS: TEST-021: frozen constant untouched in the staged generator: PHASE2_TARGETS
+PASS: TEST-021: frozen constant untouched in the staged generator: BASELINE_SUFFIXES
+PASS: TEST-021: staged REQUIRED_TOP_LEVEL requires epic_a1_targets
+PASS: TEST-021: staged REQUIRED_TOP_LEVEL matches live, which already requires it (human apply landed)
+PASS: TEST-021: staged REQUIRED_TOP_LEVEL removes no existing key
+PASS: TEST-021: staged JSON top-level key set equals the staged generator's REQUIRED_TOP_LEVEL
+PASS: TEST-021: no EPIC_A1 projection is emitted into the generated outputs (design decision)
+PASS: TEST-021: all 28 manifest paths are projected into guard_invariants.py
+PASS: TEST-021: all 28 manifest paths are projected into guard-invariants.generated.js
+PASS: TEST-021: all 28 manifest paths are projected into guard-invariants.generated.ps1
+PASS: TEST-021: staged-tree generate-guard-invariants.py --check passes
+PASS: TEST-021: the staged generator anchors on the STAGED canonical JSON, never the live one
+PASS: TEST-021-MUT: pristine copy passes --check before mutation (dropped JSON entry)
+PASS: TEST-021-MUT: --check rejects a dropped protected_gate_suffixes entry
+PASS: TEST-021-MUT: pristine copy passes --check before mutation (dropped EPIC_A1_TARGETS entry)
+PASS: TEST-021-MUT: --check rejects a dropped EPIC_A1_TARGETS entry
+PASS: TEST-021-MUT: pristine copy passes --check before mutation (stale generated output)
+PASS: TEST-021-MUT: --check rejects a stale generated output
+PASS: TEST-022: live guard-invariants.json equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generate-guard-invariants.py equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard_invariants.py equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard-invariants.generated.js equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard-invariants.generated.ps1 equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard-invariants.generated.sh equals this batch's reviewed staged candidate (human apply landed)
+PASS: staging: MANIFEST.sha256 exists
+PASS: staging: every MANIFEST.sha256 line is <64-lowercase-hex><2 spaces><path>
+PASS: staging: the CI-staging .github/workflows/test.yml entry is present exactly once
+PASS: staging: every MANIFEST.sha256 entry has staged bytes at <stage>/<path>
+PASS: staging: every MANIFEST.sha256 digest matches its staged bytes
+PASS: staging: MANIFEST.sha256 has 8 entries (1 pre-existing + 7 added by T-009)
+PASS: staging: MANIFEST.sha256 registers specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/references/guard-invariants.json
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+PASS: staging: the nested staged PROTECTED-MANIFEST.md copy is byte-identical to the canonical one
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.ps1 twin exists
+PASS: 78
+FAIL: 0
+exit=0
+=== pwsh tests/guard-invariants-epic-a1.tests.ps1 ===
+PASS: manifest: PROTECTED-MANIFEST.md exists
+PASS: manifest: every inventory-shaped row satisfies the normative grammar
+PASS: manifest: total entry count is 28 (design.md Protected-File Statement)
+PASS: manifest: concrete entry count is 24
+PASS: manifest: reserved entry count is 4
+PASS: manifest: no duplicate paths
+PASS: manifest: ordinals are contiguous and ascending 01..28
+PASS: manifest: every path is a valid repository-relative path
+PASS: manifest: prose Counts table states concrete=24, matching the rows
+PASS: manifest: prose Counts table states reserved=4, matching the rows
+PASS: manifest: prose Counts table states total=28, matching the rows
+PASS: TEST-038: ADR-0019 item 3 category represented: canonicalizer
+PASS: TEST-038: ADR-0019 item 3 category represented: hash-generator
+PASS: TEST-038: ADR-0019 item 3 category represented: approval-validator
+PASS: TEST-038: ADR-0019 item 3 category represented: policy-weakening-detector
+PASS: TEST-038: ADR-0019 item 3 category represented: resolver
+PASS: TEST-038: ADR-0019 item 3 category represented: generated-projection
+PASS: TEST-038: 20 entries fall under an ADR-0019 item 3 category
+PASS: TEST-038: 8 entries are deliberate beyond-item-3 extensions (6 data + 2 publisher)
+PASS: TEST-038: resolver reservation is exactly the three resolve-project-context paths
+PASS: TEST-038: generated-projection reservation is exactly the resolved-projection path
+PASS: TEST-038: plugins/sdd-quality-loop/scripts/apply-human-copy.sh is a concrete entry
+PASS: TEST-038: plugins/sdd-quality-loop/scripts/apply-human-copy.ps1 is a concrete entry
+PASS: TEST-038: sdd/.approved-context/project-context.approved.yaml is a concrete entry
+PASS: TEST-038: sdd/.approved-context/provider-bindings.approved.yaml is a concrete entry
+PASS: staged: candidate exists: guard-invariants.json
+PASS: staged: candidate exists: generate-guard-invariants.py
+PASS: staged: generated output exists: guard_invariants.py
+PASS: staged: generated output exists: guard-invariants.generated.js
+PASS: staged: generated output exists: guard-invariants.generated.ps1
+PASS: staged: generated output exists: guard-invariants.generated.sh
+PASS: TEST-021: staged JSON epic_a1_targets equals the manifest exactly (ordered)
+PASS: TEST-021: staged protected_gate_suffixes equals the live list (human apply landed)
+PASS: TEST-021: the staged protected_gate_suffixes tail is exactly the 28 manifest paths, in manifest order
+PASS: TEST-021: each manifest path occurs exactly once in staged protected_gate_suffixes
+PASS: TEST-021: staged protected_gate_suffixes has no duplicates
+PASS: TEST-021: staged generator declares an EPIC_A1_TARGETS tuple
+PASS: TEST-021: staged generator EPIC_A1_TARGETS equals the manifest exactly (ordered)
+PASS: TEST-021: PHASE2_TARGETS is parseable in both live and staged generators
+PASS: TEST-021: frozen constant untouched in the staged generator: PHASE2_TARGETS
+PASS: TEST-021: BASELINE_SUFFIXES is parseable in both live and staged generators
+PASS: TEST-021: frozen constant untouched in the staged generator: BASELINE_SUFFIXES
+PASS: TEST-021: REQUIRED_TOP_LEVEL is parseable in both generators
+PASS: TEST-021: staged REQUIRED_TOP_LEVEL requires epic_a1_targets
+PASS: TEST-021: staged REQUIRED_TOP_LEVEL matches live, which already requires it (human apply landed)
+PASS: TEST-021: staged REQUIRED_TOP_LEVEL removes no existing key
+PASS: TEST-021: staged JSON top-level key set equals the staged generator's REQUIRED_TOP_LEVEL
+PASS: TEST-021: no EPIC_A1 projection is emitted into the generated outputs (design decision)
+PASS: TEST-021: all 28 manifest paths are projected into guard_invariants.py
+PASS: TEST-021: all 28 manifest paths are projected into guard-invariants.generated.js
+PASS: TEST-021: all 28 manifest paths are projected into guard-invariants.generated.ps1
+PASS: TEST-021: staged-tree generate-guard-invariants.py --check passes
+PASS: TEST-021: the staged generator anchors on the STAGED canonical JSON, never the live one
+PASS: TEST-021-MUT: pristine copy passes --check before mutation (dropped JSON entry)
+PASS: TEST-021-MUT: --check rejects a dropped protected_gate_suffixes entry
+PASS: TEST-021-MUT: pristine copy passes --check before mutation (dropped EPIC_A1_TARGETS entry)
+PASS: TEST-021-MUT: --check rejects a dropped EPIC_A1_TARGETS entry
+PASS: TEST-021-MUT: pristine copy passes --check before mutation (stale generated output)
+PASS: TEST-021-MUT: --check rejects a stale generated output
+PASS: TEST-022: live guard-invariants.json equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generate-guard-invariants.py equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard_invariants.py equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard-invariants.generated.js equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard-invariants.generated.ps1 equals this batch's reviewed staged candidate (human apply landed)
+PASS: TEST-022: live generated/guard-invariants.generated.sh equals this batch's reviewed staged candidate (human apply landed)
+PASS: staging: MANIFEST.sha256 exists
+PASS: staging: every MANIFEST.sha256 line is <64-lowercase-hex><2 spaces><path>
+PASS: staging: the CI-staging .github/workflows/test.yml entry is present exactly once
+PASS: staging: every MANIFEST.sha256 entry has staged bytes at <stage>/<path>
+PASS: staging: every MANIFEST.sha256 digest matches its staged bytes
+PASS: staging: MANIFEST.sha256 has 8 entries (1 pre-existing + 7 added by T-009)
+PASS: staging: MANIFEST.sha256 registers specs/epic-189-a1-project-context/human-copy/PROTECTED-MANIFEST.md
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/references/guard-invariants.json
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generate-guard-invariants.py
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard_invariants.py
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.js
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.ps1
+PASS: staging: MANIFEST.sha256 registers plugins/sdd-quality-loop/scripts/generated/guard-invariants.generated.sh
+PASS: staging: the nested staged PROTECTED-MANIFEST.md copy is byte-identical to the canonical one
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.sh registered in tests/run-all.sh
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.ps1 registered in tests/run-all.ps1
+PASS: self-registration: tests/guard-invariants-epic-a1.tests.sh twin exists
+PASS: 82
+FAIL: 0
+exit=0
+=== SUPPLEMENTARY (BEYOND the required T-010 regression set) ===
+T-010 is the task that proves the LIVE hook guard's protected-write deny
+matrix, so the three adjacent guard suites are its direct blast radius. They
+are not part of the required set above; they are recorded here because T-009's
+Done chain recorded the same three, and because the seq0366 evaluator
+independently exercised tests/guards.tests.sh. Their result does NOT gate the
+`regression` check, whose evidence is the eighteen green runs above.
+
+TWO failures appear in this section. Both are PRE-EXISTING and neither is
+attributable to T-010. They are stated up front rather than buried, and each
+is PROVEN pre-existing rather than asserted. The shared basis for both:
+
+  $ git rev-parse --short 2e68b373^
+  d2f37d0e            # the commit immediately BEFORE T-010's first commit
+  $ git log --oneline d2f37d0e..HEAD -- tests/guards.tests.sh \
+      tests/phase2-guard-invariants.tests.ps1 plugins/sdd-quality-loop/scripts/
+  (no output - 0 commits; T-010's entire range touches neither suite nor any
+   guard script, and `git diff --stat d2f37d0e HEAD -- \
+   plugins/sdd-quality-loop/scripts/` is empty)
+
+DISCLOSURE 1 - tests/phase2-guard-invariants.tests.ps1 FAILS here
+(59 passed, 9 failed, exit 1). Reproduced against the pre-T-010 tree:
+
+  $ git archive d2f37d0e | tar -x -C <mktemp -d>
+  $ cd <mktemp -d> && pwsh -NoProfile -File tests/phase2-guard-invariants.tests.ps1
+  phase2-guard-invariants.tests.ps1: 59 passed, 9 failed   (exit 1)
+  $ diff <pre-T-010 FAIL lines> <current-HEAD FAIL lines>
+  (no output - identical failure set)
+
+All nine are TEST-013 install/rollback cases that depend on Windows/NTFS
+semantics (junctions, held handles, out-of-inventory hard-link aliases, the
+fixed native replacement API) being exercised on macOS; the bash twin of the
+same suite passes 33/0 here. This one is already a registered epic-189-a1
+carryover item - reports/notes/epic-189-a1-carryover-items.md, section
+"既存不具合: phase2-guard-invariants の pwsh レーンが macOS で 9 件失敗",
+discovered during T-009's Done chain.
+
+DISCLOSURE 2 - tests/guards.tests.sh is INVOCATION-DEPENDENT here:
+
+  $ bash tests/guards.tests.sh
+  Results: 133 passed, 0 failed          (exit 0)
+  $ sh tests/guards.tests.sh
+  FAIL: sh: copilot deny -> JSON deny ...
+  (46 ok lines, no "Results:" line, exit 2 - the run aborts)
+
+The failing case name labels the guard's `sh` IMPLEMENTATION, not the harness
+shell: this suite labels every case sh:/py:/node: by which guard runtime it
+drives. The deny JSON that case emits carries an embedded newline, which the
+POSIX-sh harness path does not survive. This is exactly the one failure the
+seq0366 evaluator recorded. Reproduced against the pre-T-010 tree:
+
+  $ git archive d2f37d0e | tar -x -C <mktemp -d>
+  $ cd <mktemp -d> && sh tests/guards.tests.sh
+  FAIL: sh: copilot deny -> JSON deny ...   (exit 2)
+  $ diff <pre-T-010 sh-lane output> <current-HEAD sh-lane output>
+  (no output - byte-identical; sha256
+   0bdd7b370d972aff62a442ba6335c09e11a74d32e8cf64217f77c7ccf5616afb both sides)
+
+NOTE for the coordinator: unlike disclosure 1, this failure is NOT yet written
+up in reports/notes/epic-189-a1-carryover-items.md - that note covers only the
+phase2 pwsh lane. Reported as an out-of-scope observation needing its own
+carryover entry. Both invocations of the suite are transcribed in full below.
+=== bash tests/phase2-guard-invariants.tests.sh ===
+ok: staged stdlib generator exists
+ok: committed native output exists: guard_invariants.py
+ok: committed native output exists: guard-invariants.generated.js
+ok: committed native output exists: guard-invariants.generated.ps1
+ok: committed native output exists: guard-invariants.generated.sh
+ok: --check accepts committed outputs
+ok: TEST-013 staged batch contains each exact protected candidate
+ok: TEST-013 final manifest has exact ordered lowercase staged hashes
+ok: TEST-011 staged CI uses platform-native generator and invariant suites before validation and guards
+ok: two independent write-mode renders are byte-identical
+ok: --check rejects stale output without writing
+ok: --check rejects missing output
+ok: --check rejects invalid type schema
+ok: --check rejects invalid version schema
+ok: --check rejects malformed canonical JSON
+ok: --check rejects canonical read I/O errors
+ok: Python uses explicit fixed module loading
+ok: Python loader targets its generated module
+ok: Node loader targets its generated module
+ok: Node loader is script-directory based
+ok: PowerShell loader targets its generated module
+ok: PowerShell loader is script-directory based
+ok: dispatcher sources schema/provenance module
+ok: sdd-hook-guard.py does not parse canonical JSON at runtime
+ok: sdd-hook-guard.js does not parse canonical JSON at runtime
+ok: sdd-hook-guard.ps1 does not parse canonical JSON at runtime
+ok: sdd-hook-guard.sh does not parse canonical JSON at runtime
+ok: Python ignores CWD/PYTHONPATH shadow and preserves read-only decision
+ok: Node ignores CWD/NODE_PATH shadow and preserves read-only decision
+ok: Python denies a missing fixed generated module
+ok: Node denies a missing fixed generated module
+ok: Python denies an unconsumed fixed-module export
+ok: Node denies an unconsumed fixed-module export
+phase2-guard-invariants.tests.sh: 33 passed, 0 failed
+exit=0
+=== pwsh tests/phase2-guard-invariants.tests.ps1 ===
+ok: staged generator exists
+ok: generated output exists: guard_invariants.py
+ok: generated output exists: guard-invariants.generated.js
+ok: generated output exists: guard-invariants.generated.ps1
+ok: generated output exists: guard-invariants.generated.sh
+ok: generator --check succeeds
+ok: Python output exports the exact v1 key set
+ok: Node output exports the exact v1 key set
+ok: PowerShell output exports the exact v1 key set
+ok: PowerShell schema/version constants are v1/64
+ok: generator --check rejects malformed canonical JSON
+ok: generator --check rejects canonical read I/O errors
+ok: Python uses explicit importlib fixed loader
+ok: Python loader names fixed native module
+ok: Node loader names fixed native module
+ok: Node loader is not CWD-relative
+ok: PowerShell loader names fixed native module
+ok: PowerShell loader is not PWD-relative
+ok: dispatcher sources only schema/provenance output
+ok: runtime avoids canonical JSON: sdd-hook-guard.py
+ok: runtime avoids canonical JSON: sdd-hook-guard.js
+ok: runtime avoids canonical JSON: sdd-hook-guard.ps1
+ok: runtime avoids canonical JSON: sdd-hook-guard.sh
+ok: Python staged guard preserves shared read-only corpus from another CWD
+ok: Node staged guard preserves shared read-only corpus from another CWD
+ok: PowerShell staged guard preserves shared read-only corpus from another CWD
+ok: TEST-012 Python denies a missing fixed generated module
+ok: TEST-012 Python denies an unconsumed fixed-module export
+ok: TEST-012 Node denies a missing fixed generated module
+ok: TEST-012 Node denies an unconsumed fixed-module export
+ok: TEST-012 PowerShell denies a missing fixed generated module
+ok: TEST-012 PowerShell denies an unconsumed fixed-module export
+ok: TEST-013 staged batch contains each exact protected candidate
+ok: TEST-013 final manifest has exact ordered lowercase staged hashes
+ok: TEST-011 staged CI uses platform-native generator and invariant suites before validation and guards
+ok: TEST-013 staged bootstrap validator exists
+ok: TEST-013 bootstrap validator is ASCII/no-BOM for PowerShell 5.1
+ok: TEST-013 runner binds the reviewed anchored native API contract
+ok: TEST-013 runner has no path-based copy or source-hash fallback
+ok: TEST-013 runner fails closed outside FullLanguage and local NTFS capability floor
+ok: TEST-013 isolated fixtures have inert source, parent, prepare, and rename patch markers
+FAIL: TEST-013 bootstrap accepts literal-order canonical data and installs the exact batch
+ok: TEST-013 bootstrap rejects expansion invariant mismatch
+ok: TEST-013 bootstrap rejects grammar invariant mismatch
+ok: TEST-013 bootstrap rejects hash invariant mismatch
+ok: TEST-013 bootstrap rejects missing invariant mismatch
+ok: TEST-013 bootstrap rejects duplicate invariant mismatch
+FAIL: TEST-013 normal update validates only the installed live canonical authority
+ok: TEST-013 normal update rejects an absent live canonical file
+ok: TEST-013 normal update rejects an invalid live canonical file
+ok: TEST-013 normal update rejects staged/live ordered-array mismatch
+ok: TEST-013 validation rejects absolute path remapping
+ok: TEST-013 validation rejects traversal path remapping
+ok: TEST-013 validation rejects remap path remapping
+ok: TEST-013 validation rejects a staged source final link
+ok: TEST-013 validation rejects a staged source intermediate junction
+ok: TEST-013 validation rejects a target final link
+ok: TEST-013 validation rejects a target parent junction
+FAIL: TEST-013 isolated install completes after full validation
+FAIL: TEST-013 isolated install copies every staged candidate in inventory order
+FAIL: TEST-013 post-install guard denies protected test.yml write
+ok: TEST-013 later hash failure leaves early destination sentinel untouched
+FAIL: TEST-013 atomic rename preserves an out-of-inventory hard-link alias
+FAIL: TEST-013 held source handle denies late source substitution and supplies copied bytes
+FAIL: TEST-013 held destination parent denies late namespace substitution
+ok: TEST-013 preparation failure changes no live file and cleans every temporary
+FAIL: TEST-013 fixed-index failure leaves exact new prefix and complete rollback restores every prior digest
+ok: TEST-013 unavailable native API fails before the first live replacement
+phase2-guard-invariants.tests.ps1: 59 passed, 9 failed
+exit=1
+=== bash tests/guard-staging-exemption.tests.sh ===
+ok: [py] invariant: Write live workflow file denied (exit 2)
+ok: [js] invariant: Write live workflow file denied (exit 2)
+ok: [ps1] invariant: Write live workflow file denied (exit 2)
+ok: [py] invariant: Write live guard script denied (exit 2)
+ok: [js] invariant: Write live guard script denied (exit 2)
+ok: [ps1] invariant: Write live guard script denied (exit 2)
+ok: [py] invariant: Write registered human-copy publisher denied (exit 2)
+ok: [js] invariant: Write registered human-copy publisher denied (exit 2)
+ok: [ps1] invariant: Write registered human-copy publisher denied (exit 2)
+ok: [py] invariant: dot-dot traversal out of human-copy denied (exit 2)
+ok: [js] invariant: dot-dot traversal out of human-copy denied (exit 2)
+ok: [ps1] invariant: dot-dot traversal out of human-copy denied (exit 2)
+ok: [py] invariant: bash rm of live guard denied (exit 2)
+ok: [js] invariant: bash rm of live guard denied (exit 2)
+ok: [ps1] invariant: bash rm of live guard denied (exit 2)
+ok: [py] invariant: bash redirect into live workflow denied (exit 2)
+ok: [js] invariant: bash redirect into live workflow denied (exit 2)
+ok: [ps1] invariant: bash redirect into live workflow denied (exit 2)
+ok: [py] fix: Write human-copy staging candidate allowed (exit 0)
+ok: [js] fix: Write human-copy staging candidate allowed (exit 0)
+ok: [ps1] fix: Write human-copy staging candidate allowed (exit 0)
+ok: [py] fix: Write human-copy staged guard candidate allowed (exit 0)
+ok: [js] fix: Write human-copy staged guard candidate allowed (exit 0)
+ok: [ps1] fix: Write human-copy staged guard candidate allowed (exit 0)
+ok: [py] fix: bash cp into human-copy staging allowed (exit 0)
+ok: [js] fix: bash cp into human-copy staging allowed (exit 0)
+ok: [ps1] fix: bash cp into human-copy staging allowed (exit 0)
+ok: [py] fix: commit message prose mention (heredoc) allowed (exit 0)
+ok: [js] fix: commit message prose mention (heredoc) allowed (exit 0)
+ok: [ps1] fix: commit message prose mention (heredoc) allowed (exit 0)
+ok: [py] fix: commit message prose mention (backtick) allowed (exit 0)
+ok: [js] fix: commit message prose mention (backtick) allowed (exit 0)
+ok: [ps1] fix: commit message prose mention (backtick) allowed (exit 0)
+
+guard-staging-exemption.tests.sh: 33 passed, 0 failed
+exit=0
+=== bash tests/guards.tests.sh ===
+ok: sh: edit adds approval -> deny (exit 2)
+ok: sh: status-only change -> allow (exit 0)
+ok: sh: malformed payload -> deny (exit 2)
+ok: sh: copilot deny -> JSON deny, exit 0
+ok: sh: Write nonexistent tasks.md with approval -> deny
+ok: sh: Write content extra headerless approval -> deny
+ok: sh: Write content same approval count -> allow
+ok: sh: Write per-task swap (constant total) -> deny
+ok: sh: Write agent role without developer_instructions -> deny (exit 2)
+ok: sh: Write agent role with developer_instructions -> allow (exit 0)
+ok: sh: Write to non-agent path -> allow (exit 0)
+ok: sh: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: sh: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: sh: apply_patch Delete File agent role -> deny (exit 2)
+ok: sh: apply_patch Update File agent role -> deny (exit 2)
+ok: sh: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: sh: shell read agent role path -> allow (exit 0)
+ok: sh: shell heredoc with developer_instructions -> deny (exit 2)
+ok: sh: no runtime available -> deny (exit 2)
+ok: sh sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: sh sudo: expired epoch + approval increase -> deny (exit 2)
+ok: sh sudo: malformed flag + approval increase -> deny (exit 2)
+ok: sh sudo: valid sudo + AGENT_STOP -> deny (exit 2, kill switch wins)
+ok: sh sudo: valid sudo + invalid agent role -> deny (exit 2, check 3 not bypassed)
+ok: py sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: py sudo: expired epoch + approval increase -> deny (exit 2)
+ok: py sudo: malformed flag + approval increase -> deny (exit 2)
+ok: py sudo: valid sudo + AGENT_STOP -> deny (exit 2)
+ok: py sudo: valid sudo + invalid agent role -> deny (exit 2)
+ok: node sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: node sudo: expired epoch + approval increase -> deny (exit 2)
+ok: node sudo: malformed flag + approval increase -> deny (exit 2)
+ok: node sudo: valid sudo + AGENT_STOP -> deny (exit 2)
+ok: node sudo: valid sudo + invalid agent role -> deny (exit 2)
+ok: sh: valid signed token -> approval bypassed (allow)
+ok: py: valid signed token -> approval bypassed (allow)
+ok: node: valid signed token -> approval bypassed (allow)
+ok: sh: wrong sig -> sudo inactive -> approval denied
+ok: py: wrong sig -> sudo inactive -> approval denied
+ok: node: wrong sig -> sudo inactive -> approval denied
+ok: sh: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: py: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: node: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: sh: missing sig field -> sudo inactive -> approval denied
+ok: py: missing sig field -> sudo inactive -> approval denied
+ok: node: missing sig field -> sudo inactive -> approval denied
+ok: sh: kill-switch absent -> 0
+ok: sh: kill-switch present -> 2
+ok: sh: kill-switch dual-path: cwd has AGENT_STOP -> 2
+ok: sh: kill-switch dual-path: CLAUDE_PROJECT_DIR has AGENT_STOP -> 2
+ok: py: edit adds approval -> deny (exit 2)
+ok: py: other file -> allow (exit 0)
+ok: py: malformed -> deny (exit 2)
+ok: py: copilot deny -> JSON deny, exit 0
+ok: py: TTY guard with empty stdin (/dev/null) does not hang -> deny (exit 2)
+ok: py: kill-switch in cwd -> deny (exit 2)
+ok: py: Write agent role without developer_instructions -> deny (exit 2)
+ok: py: Write agent role with developer_instructions -> allow (exit 0)
+ok: py: Write to non-agent path -> allow (exit 0)
+ok: py: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: py: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: py: apply_patch Delete File agent role -> deny (exit 2)
+ok: py: apply_patch Update File agent role -> deny (exit 2)
+ok: py: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: py: shell read agent role path -> allow (exit 0)
+ok: py: shell heredoc with developer_instructions -> deny (exit 2)
+ok: node: edit adds approval -> deny (exit 2)
+ok: node: other file -> allow (exit 0)
+ok: node: Write agent role without developer_instructions -> deny (exit 2)
+ok: node: Write agent role with developer_instructions -> allow (exit 0)
+ok: node: Write to non-agent path -> allow (exit 0)
+ok: node: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: node: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: node: apply_patch Delete File agent role -> deny (exit 2)
+ok: node: apply_patch Update File agent role -> deny (exit 2)
+ok: node: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: node: shell read agent role path -> allow (exit 0)
+ok: node: shell heredoc with developer_instructions -> deny (exit 2)
+ok: check-task-state.sh header-only exits 1
+ok: check-task-state.sh header-only produces per-field errors (not 'no tasks found')
+ok: check-placeholders.sh: lowercase todo passes (prose, RT-20260706-001)
+ok: check-placeholders.sh: uppercase TODO flagged
+ok: sh: relative write after cd into agent role directory -> deny (exit 2)
+ok: py: relative write after cd into agent role directory -> deny (exit 2)
+ok: node: relative write after cd into agent role directory -> deny (exit 2)
+ok: sh: cp into agent role directory -> deny (exit 2)
+ok: py: cp into agent role directory -> deny (exit 2)
+ok: node: cp into agent role directory -> deny (exit 2)
+ok: sh: Write full-replace Draft→Approved -> deny (exit 2)
+ok: sh: Write preserving Approved state -> allow (exit 0)
+ok: sh: Write introducing new Approved task -> deny (exit 2)
+ok: py: Write full-replace Draft→Approved -> deny (exit 2)
+ok: py: Write preserving Approved state -> allow (exit 0)
+ok: py: Write introducing new Approved task -> deny (exit 2)
+ok: node: Write full-replace Draft→Approved -> deny (exit 2)
+ok: node: Write preserving Approved state -> allow (exit 0)
+ok: node: Write introducing new Approved task -> deny (exit 2)
+ok: sh: net-zero approval transfer (delete old, add new) -> deny (exit 2)
+ok: sh: Approved→Draft deletion only -> allow (exit 0)
+ok: sh: Write to SDD_SUDO -> deny even without sudo (exit 2)
+ok: sh: shell write to SDD_SUDO -> deny (exit 2)
+ok: sh sudo: missing issued-epoch -> sudo inactive, approval denied (exit 2)
+ok: sh sudo: TTL > 24h -> sudo inactive (exit 2)
+ok: sh: kill-switch found in ancestor directory -> 2
+ok: sh: WFI Edit Status: Approved -> deny (exit 2)
+ok: sh: WFI Edit Status: Applied -> allow (exit 0)
+ok: sh: Status: Approved in non-WFI path -> allow (exit 0)
+ok: sh: WFI apply_patch Status: Approved -> deny (exit 2)
+ok: sh sudo: WFI Status: Approved denied even with valid sudo (exit 2)
+ok: py: WFI Edit Status: Approved -> deny (exit 2)
+ok: py: WFI Edit Status: Applied -> allow (exit 0)
+ok: py: WFI apply_patch Status: Approved -> deny (exit 2)
+ok: py sudo: WFI approval denied even with valid sudo (exit 2)
+ok: node: WFI Edit Status: Approved -> deny (exit 2)
+ok: node: WFI Edit Status: Applied -> allow (exit 0)
+ok: node: WFI apply_patch Status: Approved -> deny (exit 2)
+ok: node sudo: WFI approval denied even with valid sudo (exit 2)
+ok: sh: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: sh sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: sh: Write content adds Second Approval -> deny (exit 2)
+ok: sh: bash writes Second Approval to tasks.md -> deny (exit 2)
+ok: sh: apply_patch adds Second Approval to tasks.md -> deny (exit 2)
+ok: sh: primary Approval without sudo -> deny (exit 2)
+ok: sh sudo: primary Approval WITH valid sudo -> allow (exit 0) — primary guard behavior unchanged
+ok: sh: Second Approval edit denied (not bypassed by primary guard)
+ok: py: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: py sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: py sudo: primary Approval WITH valid sudo -> allow (exit 0)
+ok: py: Second Approval edit denied (not bypassed by primary guard)
+ok: node: edit adds Second Approval to tasks.md -> deny (exit 2)
+ok: node sudo: Second Approval denied even with valid sudo (exit 2) — sudo does NOT bypass
+ok: node sudo: primary Approval WITH valid sudo -> allow (exit 0)
+ok: node: Second Approval edit denied (not bypassed by primary guard)
+
+Results: 133 passed, 0 failed.
+exit=0
+=== sh tests/guards.tests.sh (the seq0366 evaluator invocation shape) ===
+ok: sh: edit adds approval -> deny (exit 2)
+ok: sh: status-only change -> allow (exit 0)
+ok: sh: malformed payload -> deny (exit 2)
+FAIL: sh: copilot deny -> JSON deny (code=0 out='{"permissionDecision":"deny","permissionDecisionReason":"SDD決定論ゲート: エージェントは tasks.md に 'Approval: Approved' を設定できません。タスクの承認は、ファイルを直接編集する人間のみが行えます。タスクは Draft のままにし、人間に承認を依頼してください。
+[EN] SDD deterministic gate: agents must not set 'Approval: Approved' in tasks.md. Only a human may approve a task by editing the file directly. Leave the task as Draft and ask the human to approve it."}')
+ok: sh: Write nonexistent tasks.md with approval -> deny
+ok: sh: Write content extra headerless approval -> deny
+ok: sh: Write content same approval count -> allow
+ok: sh: Write per-task swap (constant total) -> deny
+ok: sh: Write agent role without developer_instructions -> deny (exit 2)
+ok: sh: Write agent role with developer_instructions -> allow (exit 0)
+ok: sh: Write to non-agent path -> allow (exit 0)
+ok: sh: apply_patch Add File agent role with empty body -> deny (exit 2)
+ok: sh: apply_patch Add File agent role with developer_instructions -> allow (exit 0)
+ok: sh: apply_patch Delete File agent role -> deny (exit 2)
+ok: sh: apply_patch Update File agent role -> deny (exit 2)
+ok: sh: shell redirect into agent role without developer_instructions -> deny (exit 2)
+ok: sh: shell read agent role path -> allow (exit 0)
+ok: sh: shell heredoc with developer_instructions -> deny (exit 2)
+ok: sh: no runtime available -> deny (exit 2)
+ok: sh sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: sh sudo: expired epoch + approval increase -> deny (exit 2)
+ok: sh sudo: malformed flag + approval increase -> deny (exit 2)
+ok: sh sudo: valid sudo + AGENT_STOP -> deny (exit 2, kill switch wins)
+ok: sh sudo: valid sudo + invalid agent role -> deny (exit 2, check 3 not bypassed)
+ok: py sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: py sudo: expired epoch + approval increase -> deny (exit 2)
+ok: py sudo: malformed flag + approval increase -> deny (exit 2)
+ok: py sudo: valid sudo + AGENT_STOP -> deny (exit 2)
+ok: py sudo: valid sudo + invalid agent role -> deny (exit 2)
+ok: node sudo: valid future epoch + approval increase -> allow (exit 0)
+ok: node sudo: expired epoch + approval increase -> deny (exit 2)
+ok: node sudo: malformed flag + approval increase -> deny (exit 2)
+ok: node sudo: valid sudo + AGENT_STOP -> deny (exit 2)
+ok: node sudo: valid sudo + invalid agent role -> deny (exit 2)
+ok: sh: valid signed token -> approval bypassed (allow)
+ok: py: valid signed token -> approval bypassed (allow)
+ok: node: valid signed token -> approval bypassed (allow)
+ok: sh: wrong sig -> sudo inactive -> approval denied
+ok: py: wrong sig -> sudo inactive -> approval denied
+ok: node: wrong sig -> sudo inactive -> approval denied
+ok: sh: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: py: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: node: repo mismatch (valid sig for wrong repo) -> sudo inactive -> approval denied
+ok: sh: missing sig field -> sudo inactive -> approval denied
+ok: py: missing sig field -> sudo inactive -> approval denied
+ok: node: missing sig field -> sudo inactive -> approval denied
+ok: sh: kill-switch absent -> 0
+exit=2

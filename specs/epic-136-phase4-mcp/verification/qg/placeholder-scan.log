@@ -1,0 +1,59 @@
+# check-placeholders.sh — epic-136-phase4-mcp gate evidence
+# run: 2026-07-29T23:39:23Z
+# HEAD: aeaea6b248debb6ca8af8c92b5d275e79a40e8ad   merge-base(main): 7f152ce563c93eb0e7123b3518d7a82f038a702b
+
+## Run A — canonical scope: every production file this feature changed
+$ check-placeholders.sh <7 changed production files>   # at HEAD
+Placeholder scan FAILED (8 finding(s)):
+ - CHANGELOG.md:1745:**CIテンプレートのフェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーにより未設定のまま CI が通過しない。
+ - CHANGELOG.md:1755:| CIテンプレートがコマンドなしで通過 | **フェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定のまま通過しない |
+ - CHANGELOG.md:607:  `raise NotImplementedError` を持つ抽象基底クラス(`src/base.py`)、
+ - CHANGELOG.md:608:  タスク無関係の既存 `# TODO` マーカー(`src/legacy_util.py`)、マーカーの無い
+ - CHANGELOG.md:617:  (base.py の NotImplementedError、legacy_util.py の TODO)を報告し、
+ - mcp/sdd-forge-mcp/dist/index.js:2919:        // TODO can its length be used as dataLevel if nil is removed?
+ - mcp/sdd-forge-mcp/dist/index.js:5457:      // TODO change to reference
+ - mcp/sdd-forge-mcp/dist/index.js:5523:          // TODO var
+Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.
+# exit=1
+
+## Run A' — IDENTICAL command over the SAME 7 paths' content at the merge base
+# (each path extracted with 'git show <base>:<path>' into a scratch tree, so
+#  the only variable between Run A and Run A' is this feature's own diff)
+Placeholder scan FAILED (8 finding(s)):
+ - CHANGELOG.md:1541:**CIテンプレートのフェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーにより未設定のまま CI が通過しない。
+ - CHANGELOG.md:1551:| CIテンプレートがコマンドなしで通過 | **フェイルクローズ化**: `TODO_REPLACE_WITH_PROJECT_COMMANDS` マーカーで未設定のまま通過しない |
+ - CHANGELOG.md:403:  `raise NotImplementedError` を持つ抽象基底クラス(`src/base.py`)、
+ - CHANGELOG.md:404:  タスク無関係の既存 `# TODO` マーカー(`src/legacy_util.py`)、マーカーの無い
+ - CHANGELOG.md:413:  (base.py の NotImplementedError、legacy_util.py の TODO)を報告し、
+ - mcp/sdd-forge-mcp/dist/index.js:2919:        // TODO can its length be used as dataLevel if nil is removed?
+ - mcp/sdd-forge-mcp/dist/index.js:5457:      // TODO change to reference
+ - mcp/sdd-forge-mcp/dist/index.js:5523:          // TODO var
+Each finding must be implemented properly, or explicitly accepted by a human in the quality-gate report.
+# exit=1
+
+## Delta: Run A vs Run A' = ZERO findings introduced by this feature
+# Same 8 findings, same text, both runs. CHANGELOG line numbers shift only by
+# the length of T-005's new '## Unreleased' entries (403->607, 404->608,
+# 413->617, 1541->1745, 1551->1755); dist/index.js line numbers are identical
+# (2919, 5457, 5523). No finding is new, moved into, or caused by this feature.
+
+## Provenance of each of the 8 pre-existing findings (measured, not asserted)
+# 5x CHANGELOG.md - inside RELEASED history sections that DOCUMENT the
+#    placeholder-scan feature itself; the marker words are the subject matter
+#    of the release note. Verified below to sit outside '## Unreleased':
+#    '## Unreleased' spans CHANGELOG.md:3..80; all 5 findings are at
+#    lines 607/608/617/1745/1755 -> every one is BELOW 80, i.e. released history.
+# 3x mcp/sdd-forge-mcp/dist/index.js - inside the bundled THIRD-PARTY ajv
+#    library that esbuild inlines (ADR-0003 commits the bundle). Verified by
+#    reading the surrounding code: ajv internals (codegen_1/names_1/
+#    propertyInData/mergeValidEvaluated). No task in this feature authored
+#    a single one of those lines; they are node_modules content.
+
+## Run B — the gating scope: content THIS FEATURE ACTUALLY AUTHORED
+# Excludes, with reasons measured above: (1) dist/index.js, an esbuild-generated
+#   bundle whose only findings are third-party ajv source; (2) CHANGELOG.md's
+#   released history, which this feature does not write. CHANGELOG's authored
+#   part - the '## Unreleased' section - IS scanned, extracted verbatim.
+$ check-placeholders.sh <3 changed src/*.ts> <schema> USERGUIDE.md <'## Unreleased' section>
+Placeholder scan passed.
+# exit=0

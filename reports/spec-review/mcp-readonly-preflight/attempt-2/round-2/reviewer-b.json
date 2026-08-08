@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a2r2-b-seq0476",
+  "host_session_id": "SESS-spec-a2r2-b-mcpreadonlypreflight-0476",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-2/round-2/integrated-summary.json",
+      "sha256": "58053462bb7d22c06fa19f1c2ac4ef6225edc26206fb3ae4ed1205573bc4e117"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-2/round-2/precheck-result.json",
+      "sha256": "6870e5d9377388871c58cb983928cdf366721b86d2d461ab5cc7d09e50a7698a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "00f843a9f1d647599f42c2748c68bd7b25e3a426e92830579925e6f7a57c99a1"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Core terms/states are pinned to concrete, testable boundaries rather than left loose: AC-001 (requirements.md:58-64) requires three separately-asserted elements (named tool identifier, explicit 'read-only', explicit 'advisory/non-deciding'), not a heading or a single element; 'conclusion' is defined per skill in acceptance-tests.md:108 (bootstrap = mode/track routing decision, ship = selected tasks.md); 'disagreement' is grounded to a concrete comparison (get_next_sdd_command vs ship:64) in requirements.md:260 (Edge Case 3). Terms that remain genuinely underspecified (exact probe tool set, exact insertion point, mode/track scope) are OQ-001/OQ-002/OQ-003/OQ-004, explicitly named as open decisions rather than silently assumed, and every AC that touches them is written to hold under every resolution (e.g. requirements.md:56, 'AC-001 asserts only the properties that hold under every resolution of those questions'). I found no term where two implementers could reasonably diverge that the spec has not already flagged as an open decision."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The round-1 contradiction (Overview claiming all ten OQs unresolved; Edge Case 3 claiming REQ-005 does not guarantee the disagreement is reported) is corrected in both live locations: Overview now reads 'OQ-005 is the exception: it was answered by the human on 2026-08-04 and is decided in REQ-005 below' (requirements.md:21), and Edge Case 3 now reads 'This was OQ-005 and is now decided (2026-08-04, warn-on-divergence): REQ-005 guarantees both that the outcome is unaffected ... AC-027b ... and that the disagreement is reported ... AC-027a' (requirements.md:260). investigation.md:213-214 still states the pre-decision framing verbatim, but requirements.md:160 explicitly names that exact span, states it is superseded, gives the structural reason it was not edited (spec-review-precheck.sh:232-233 hashes it live per round; corroborated independently by this round's own precheck-result.json edit_summary, which records the same rationale), and states an unambiguous governance rule a downstream reader can mechanically apply: 'Where the two disagree, this specification governs; investigation.md remains the record of what was open at investigation time.' On the merits this is a genuine resolution rather than a relocation: (1) both enforceable artifacts for this behavior (requirements.md AC-027a/AC-027b at :148-156 and acceptance-tests.md TEST-027a/TEST-027b at :38-39) are mutually consistent and consistent with the corrected narrative text, (2) investigation.md is scoped by the calibration's own Gate Responsibility as optional/background material rather than the binding requirements artifact, and (3) the addendum resolves the ambiguity a reader would face (which document controls) rather than merely repeating the stale claim in a second place. No unresolved conflict remains between requirements, acceptance criteria, constraints, or non-goals."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All seven documented edge cases (requirements.md:257-264) resolve to either a tested requirement or an explicitly named deferral: Edge Case 3 (divergence) maps to REQ-005/AC-027a/AC-027b and TEST-027a/TEST-027b; Edge Cases 1, 2, 5 map to OQ-003/OQ-004, named rather than silently dropped; Edge Case 4 (stale-but-present MCP bundle) needs no separate AC because REQ-005's outcome-equality guarantee (AC-012/AC-013) plus the general warn-on-divergence mechanism (AC-027a/AC-027b) cover any divergence regardless of its cause; Edge Case 6 (guard denies a read-only command) carries explicit implementation guidance; Edge Case 7 (protected-file membership can change) is covered by the requirements.md:44-46 re-verification instruction. The fallback 2x2 grid (AC-008-011 / TEST-008-011) and the deliberately-excluded third unavailability branch (OQ-010, requirements.md:128, acceptance-tests.md:54, with an explicit stated reason it has no AC/TEST) show negative and boundary paths were enumerated deliberately, not omitted."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:34 asserts, as a bare unconditional fact, that 'plugins/sdd-ship/skills/ship/SKILL.md is additionally listed in PHASE2_HUMAN_COPY_TARGETS at guard_invariants.py:18' -- a claim about membership in a shared, git-tracked, generated list (guard_invariants.py, per requirements.md:44-46 itself 'generated from plugins/sdd-quality-loop/references/guard-invariants.json and can change on any branch'). Ten lines later, the document gives the structurally identical PROTECTED_GATE_SUFFIXES table an explicit, targeted re-verification instruction (requirements.md:44-46: 'At spec-review time, the reviewer must re-derive this table by reading guard_invariants.py:4 ... rather than accepting this table on the strength of prose'), but the PHASE2_HUMAN_COPY_TARGETS claim at :34 gets no equivalent instruction -- only the generic, citation-location-only 'Re-verify every file:line in this document at implementation start' (requirements.md:270), which addresses whether a citation still points to a real line, not whether the list's membership content is still current. The identical unverified claim is repeated in investigation.md:143 with no instruction either. Downstream failure mode: a task author or design reviewer who treats this as settled ground (as the Protected Gate Files section's own framing invites, immediately adjacent to a claim the document itself treats as volatile) inherits an unverified fact about repository-wide shared state with no instruction to re-derive it, exactly the structural gap AGENTS.md's re-verification requirement exists to prevent. This is a specification-authoring completeness defect properly caught at spec review, before design/task decomposition treats the claim as fixed; downstream implementation, task, or quality-gate review would not independently catch a missing spec-level re-verification instruction. Major, per the calibration's 'missing constraint' bucket, matching the severity the document's own author assigned to the sibling PROTECTED_GATE_SUFFIXES claim."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The one irreversible/human-approval boundary this feature implies -- that ship/SKILL.md cannot be agent-written and must be human-applied -- is both stated and made testable. requirements.md:30 and :36-40 require task decomposition to isolate the change, express Done-When in terms of the staged candidate plus manifest entry, and 'carry an explicit human action in the handoff.' The boundary is enforced structurally by the write guard (INV-010) and verified by AC-025/AC-026 (requirements.md:235-239) and TEST-025/TEST-026 (acceptance-tests.md:35-36, 146-156), modeled on the existing tests/quality-gate-cycle-limit.tests.sh:356-361/363-378 precedent, including the explicit expectation that the live-file half is red pre-human-copy (acceptance-tests.md:156) so a red result is not misread as a blocker. This is a genuine, testable approval boundary, not merely stated intent."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Nine Open Questions remain unresolved (OQ-001,002,003,004,006,007,008,009,010), but the specification consistently avoids requiring a downstream design reviewer to invent product behavior to close them: each affected requirement/AC is either written resolution-agnostic (AC-001, requirements.md:56, 'asserts only the properties that hold under every resolution'; AC-012/AC-013 outcome-equality holds 'under every candidate answer' per requirements.md:142) or explicitly conditioned/withdrawable pending a human decision (REQ-002/AC-002 'Blocked on OQ-007 ... withdrawn rather than weakened', requirements.md:78; REQ-007's runtime-verification method left as 'an open method' rather than downgraded to an unconditionally-passing text check, acceptance-tests.md:131). This follows the framework convention cited at requirements.md:21 ('unknown product decisions are recorded, not invented'). The one genuinely load-bearing open question (OQ-005, divergence handling) was resolved this round rather than left open. No requirement was found where the design reviewer would have to silently guess at missing product behavior instead of either applying a resolution-agnostic AC or triggering the named human decision."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No domain model artifacts exist under specs/mcp-readonly-preflight/ -- requirements.md carries no Bounded-Context field and neither requirements.md, acceptance-tests.md, nor investigation.md references a domain contract or context map. Skip condition met."
+    }
+  ]
+}

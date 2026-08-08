@@ -1,0 +1,18 @@
+=== RED evidence: emit-run-record blocked-count (UNMODIFIED pre-fix, unanchored `grep -q 'BLOCKED'` / `-match "BLOCKED"` whole-file scan) ===
+=== reproduces WFI-010's remaining defect / AC-010 / TEST-010: a feature-scoped report whose VERDICT: line says PASS but whose BODY prose separately contains the literal substring "BLOCKED" is wrongly counted (mirrors the real reports/quality-gate/T-008.md shape, INV-009) ===
+Script SHA-256 (pre-fix .sh):  3985c86e319ca7d4a3e6bf9f5f6f13e81da6c96f1fbf95bbe0e24d9a1b536bc5
+Script SHA-256 (pre-fix .ps1): ff78183396b2a1f73ff7761d72303bc3367effae1ebedd261349b31fb73a3600
+
+--- Fixture: 5 feat-t002 gate reports, one feature, one run ---
+- t002-blocked.md      Task: T-001  VERDICT: BLOCKED (own header line)              -- TRUE POSITIVE, must count
+- t002-pass.md         Task: T-002  VERDICT: PASS                                   -- must NOT count
+- t002-needswork.md    Task: T-003  VERDICT: NEEDS_WORK                             -- must NOT count
+- t002-noverdict.md    Task: T-004  no VERDICT: line at all (legacy shape)          -- must NOT count (AC-009, fail-open)
+- t002-bodyblocked.md  Task: T-005  VERDICT: PASS + body prose contains "BLOCKED"   -- must NOT count (AC-010/AC-011, THE regression)
+
+[sh]  emit-run-record.sh feat-t002 --track lite
+      gate_reports.blocked=2 gate_reports.total=1
+[ps1] emit-run-record.ps1 -Feature feat-t002 -Track lite
+      gate_reports.blocked=2 gate_reports.total=1
+
+=== EXPECTED (RED): both lanes wrongly report gate_reports.blocked=2 -- the unanchored whole-file `BLOCKED` scan matches BOTH t002-blocked.md (correctly, it says VERDICT: BLOCKED) AND t002-bodyblocked.md (incorrectly -- its own VERDICT: line says PASS, only its body prose mentions the word), inflating the true count of 1 to 2. This is the exact INV-010 coverage gap: the existing tests/emit-run-record-feature-scope.tests.sh feat-a/feat-b fixture never exercises a same-feature, non-BLOCKED-verdict, body-text-"BLOCKED" report, so this miscount would pass the pre-fix test suite undetected. ===

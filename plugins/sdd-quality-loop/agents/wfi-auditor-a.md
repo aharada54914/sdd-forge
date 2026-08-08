@@ -87,8 +87,10 @@ Examples:
 - PASS: `AGENTS.md` / `Add data plan self-check to § Design Review Preparation`
 - FAIL: `AGENTS.md` / `Improve workflow`
 
-A row that names a path inside `plugins/` is a Major finding regardless of description
-(plugin files are out of scope for WFI changes — this overlaps with NO-PLUGIN-SCOPE-CREEP).
+A row that names a path inside `plugins/` is a Major finding regardless of description,
+unless the NO-PLUGIN-SCOPE-CREEP carve-out below applies. The two checks share one rule
+about `plugins/` paths and must never disagree about the same row: apply the carve-out
+here on exactly the same conditions, or not at all.
 
 ## EFFECT-MEASURABLE (Major)
 
@@ -123,6 +125,38 @@ Every Target File in `## Proposed Change` must be a project-side workflow file:
 - `specs/` template files or task-splitting guideline documents
 
 Any path inside `plugins/` in the Target File column is a Major finding. Quote the row.
+
+**Carve-out — the plugin's own source repository.** The rule above exists because in a
+CONSUMING project `plugins/` holds vendored code: a WFI that edits it would be
+overwritten by the next plugin update, so the change belongs upstream and the WFI must
+route it through a GitHub Issue instead. That reasoning does not hold in the repository
+that IS the plugin's source of truth, where those files are the project's own code and a
+repository commit is the only delivery mechanism that exists. In that repository the
+unconditional form is not merely strict, it is unsatisfiable: no `plugin-improvement`
+WFI can name its actual target and pass.
+
+A `plugins/` path is therefore NOT a finding when ALL THREE hold, and IS a Major finding
+whenever any one of them fails:
+
+1. the WFI declares `Category: plugin-improvement`; AND
+2. its `## Category` section states, in its own words, that this repository is the
+   plugin's source of truth and that the change travels as a repository commit; AND
+3. a `## GitHub-Issue` section is present, carrying either an issue URL or an explicit
+   statement of when the tracking issue is filed.
+
+For every other Category — `app-dev-efficiency`, `human-process`, `measurement` — a
+`plugins/` path remains a Major finding with no exception. Condition 2 is what keeps the
+carve-out honest: a WFI must assert the source-of-truth relationship itself rather than
+inherit it silently, so a mis-categorised WFI in a consuming project still fails.
+
+When you apply the carve-out, say so in that check's `finding` text and name which of
+the three conditions you verified. A silent exemption is indistinguishable from a missed
+check.
+
+Provenance: added by human decision on 2026-08-03, resolving the contradiction WFI-020
+recorded — six prior WFIs (004/005/006/007/009/010) adopted a lane split to defuse the
+unconditional form, and the attempt-2 auditor verified the split still failed, so further
+audit rounds could only keep returning the same Major.
 
 # Verdict Rules
 

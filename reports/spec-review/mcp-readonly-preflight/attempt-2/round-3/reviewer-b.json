@@ -1,0 +1,78 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-mcpreadonlypreflight-spec-a2r3-b-seq0478",
+  "host_session_id": "SESS-spec-a2r3-b-mcpreadonlypreflight-0478",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-2/round-3/integrated-summary.json",
+      "sha256": "2d8faf3876068fbceb4d2a1f8f5f82649a9f8b120b7aea2eeda075da362560fe"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/spec-review/mcp-readonly-preflight/attempt-2/round-3/precheck-result.json",
+      "sha256": "99532b802b1934c4aa27db9331b854e41a50e02910aad81e68ed2c72f5e1e418"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/acceptance-tests.md",
+      "sha256": "bd1e41756c942d107f7ec632f0a53d2d9052edfe04f05b1b25f723954f7226a0"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/investigation.md",
+      "sha256": "c41bfe815873e495cc37acfa0c4bebd5b33de5169bc339789ac1d3d298127c6e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/mcp-readonly-preflight/requirements.md",
+      "sha256": "6ec9215deaf0b2bca7e4a85e6967da881335b7f257669c67fed0eaf5668283b9"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md systematically expands every quantified/enumerated issue phrase into per-branch ACs (AC-004..AC-007 at :92-102, AC-008..AC-011 at :116-126, AC-014..AC-016 at :172-179, AC-017..AC-020 at :189-199, AC-021..AC-024 at :211-215) with an Expansion Ledger cross-check in acceptance-tests.md:41-54. Remaining under-specified terms (e.g. 'near the start of the run' REQ-001 :52) are explicitly bounded by AC-001's 'holds under every resolution' framing (:56, :62) rather than left ambiguous, and unresolved specifics are routed to named OQ-001..OQ-010 rather than left as silent ambiguity. No residual term found where two implementers would reasonably diverge without the divergence being either constrained by an AC or flagged as an open question."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "Checked the candidate conflict points: REQ-002's conditional withdrawal on OQ-007 (:78) is consistent with BL-004's 'stands whatever OQ-007 resolves to ... satisfied vacuously' (:277); REQ-005's outcome-equality guarantee (:132, AC-012/AC-013 :134-138) is consistent with the Non-goal 'Making the probe authoritative' (:250) and with AC-027a/AC-027b's divergence handling (:148-156), which explicitly forbids 'warn, then follow the probe' (:156) rather than permitting it. The investigation.md OQ-005 entry (:213-214) is explicitly marked superseded by requirements.md:160 rather than left as a silent conflicting statement. No direct conflict between any requirement, AC, constraint, or non-goal was found."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Edge Cases 1-7 (requirements.md:258-264) each resolve to either a TEST row or a named, explicit deferral: edge case 3 (probe/file divergence) is covered by TEST-027a/TEST-027b (acceptance-tests.md:38-39); edge cases 1, 2, and 5 (feature-dir-absent, adopt-with-no-specs, lite-track) are explicitly tied to unresolved OQ-002/OQ-003/OQ-004 rather than silently untested, consistent with 'An AC written against an undecided branch would be unverifiable' (requirements.md:128); edge case 4 (stale MCP server) is explicitly named as 'not caught by any fallback branch in REQ-004' (:261), a stated deferral rather than an oversight; edge case 7 (list membership drift) is covered by the re-verification instruction (:44). Material negative/failure paths that are NOT blocked on an open question -- no-registration and call-failure for both skills -- are covered by TEST-008..TEST-011 (acceptance-tests.md:18-21)."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Re-derived both membership claims directly against the working tree rather than accepting prose: read plugins/sdd-quality-loop/scripts/generated/guard_invariants.py:4 (PROTECTED_GATE_SUFFIXES) and :18 (PHASE2_HUMAN_COPY_TARGETS) and applied endswith() to all four target paths. Confirmed 'plugins/sdd-ship/skills/ship/SKILL.md' is the sole match among the four in BOTH tuples, and none of bootstrap/SKILL.md, USERGUIDE.md, README.md appears in either -- matching requirements.md's table (:29-32) and the :34 claim exactly. The round-2 gap (PHASE2_HUMAN_COPY_TARGETS claim at :34 bare while PROTECTED_GATE_SUFFIXES had an explicit re-verification instruction) is now closed: :34 states 'This claim carries the same re-verification obligation as the table above, on the same terms' and the blockquote instruction at :44 names both lists by line number (':4 ... and guard_invariants.py:18') and prescribes the same endswith() method for both. Checked for a further claim of the same class (a second parallel pair of shared-mutable-state membership assertions where one gets bespoke re-verification treatment and its structural twin does not) and found none: the only other candidate mutable-state citation of comparable downstream weight, the tests/workflow-documentation.tests.sh DOCS-array claim at requirements.md:229 (INV-013), was verified against tests/workflow-documentation.tests.sh:6-13 (README.md present) and is a single, non-paired claim already covered by the document-wide 'Re-verify every file:line in this document at implementation start' Assumption (:270), not a second instance of the round-2 asymmetry pattern."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "The human-approval/irreversible-change boundary in scope is the protected-file human-copy workflow for ship/SKILL.md (BL-004 :277, Protected Gate Files :23-46). It is concretely testable: AC-025/AC-026 (:235-239) and TEST-025/TEST-026 (acceptance-tests.md:35-36, :146-156) assert staged-candidate hash conformance and that the live protected file carries no agent-authored edit, modelled on an existing precedent (tests/quality-gate-cycle-limit.tests.sh:363-378 per investigation.md:157). The upstream human decision of which of three options (a/b/c) resolves the boundary's shape is explicitly named as OQ-007, a human decision (investigation.md:219-220), not silently invented by this specification."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Remaining open questions (OQ-001..OQ-004, OQ-006..OQ-010) are each explicitly named as decisions needed before design/task decomposition rather than gaps a downstream reviewer must invent product behavior to fill; ACs are constructed to hold under every candidate resolution (e.g. AC-001's note at :62 that it 'asserts only the properties that hold under every resolution of those questions'). Structurally significant items are pre-resolved into conditional task-decomposition guidance rather than left open: the Protected Gate Files section (:36-40) states three concrete task-decomposition constraints for ship/SKILL.md, and REQ-002/AC-002 state the explicit withdrawal condition if OQ-007 resolves to descoping (:78). REQ-005's previously load-bearing OQ-005 gap is now resolved in-document (:130-162) with AC-027a/AC-027b, removing what the spec itself calls the 'difference between a specifiable feature and an unspecifiable one' (:21)."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Minor",
+      "finding": "No domain model is in scope for this feature: requirements.md declares no Bounded-Context field, and neither requirements.md, acceptance-tests.md, nor investigation.md references any domain/ artifact. Skipped per the check's skip condition."
+    }
+  ]
+}

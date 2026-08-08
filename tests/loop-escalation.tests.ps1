@@ -38,6 +38,13 @@ $validatorPs1 = Join-Path $script:SddLoopRepoRoot "plugins/sdd-quality-loop/scri
 $templateMd = Join-Path $script:SddLoopRepoRoot "plugins/sdd-implementation/templates/implementation-report.template.md"
 $schemaJson = Join-Path $script:SddLoopRepoRoot "contracts/terminal-tier-blocked-state.schema.json"
 
+# issue #167 / RT-20260712-001 / quality-loop-fixes T-001: the cycle-limit
+# script's CLI contract gained a REQUIRED feature 2nd positional and its
+# counting logic now requires an anchored Feature: header line matching the
+# invoked feature -- every invocation below and every fixture report this
+# suite writes must carry this feature slug, or every count silently reads 0.
+$script:EscCycleLimitFeature = "loop-escalation-fixture"
+
 foreach ($f in @($cycleLimitPs1, $selectModelPs1, $resumePs1, $validatorPs1, $templateMd, $schemaJson)) {
     if (-not (Test-Path -LiteralPath $f -PathType Leaf)) {
         Write-Host "FAIL: required driven artifact missing: $f"
@@ -63,12 +70,19 @@ function New-EscTempDir([string]$Prefix) {
     return $dir
 }
 
+# issue #167 / RT-20260712-001 / quality-loop-fixes T-001: the cycle-limit
+# script's CLI contract gained a REQUIRED feature 2nd positional and its
+# counting logic now requires an anchored Feature: header line matching the
+# invoked feature -- every fixture report this suite writes must carry that
+# feature slug (default: $EscCycleLimitFeature, set below), or every count
+# silently reads 0.
 function New-EscGateReport {
-    param([string]$Path, [string]$Task)
+    param([string]$Path, [string]$Task, [string]$Feature = $script:EscCycleLimitFeature)
     @"
 # Quality Gate Report
 
 Task ID: $Task
+Feature: $Feature
 
 VERDICT: NEEDS_WORK
 "@ | Set-Content -LiteralPath $Path -NoNewline -Encoding utf8
@@ -142,7 +156,7 @@ try {
 
     $clTask = "T-511"
     $clAbsentDir = Join-Path $work "cycle-limit-absent-dir-does-not-exist"
-    $out = & $cycleLimitPs1 -TaskId $clTask -ReportsDir $clAbsentDir
+    $out = & $cycleLimitPs1 -TaskId $clTask -Feature $script:EscCycleLimitFeature -ReportsDir $clAbsentDir
     $rc = $LASTEXITCODE
     if ($rc -eq 0 -and $out -eq "continue") {
         Test-Ok "TEST-011.1: 0 gate reports (absent reports/quality-gate/ dir) -> continue"
@@ -154,7 +168,7 @@ try {
     New-Item -ItemType Directory -Path $clDir | Out-Null
 
     New-EscGateReport (Join-Path $clDir "q1.md") $clTask
-    $out = & $cycleLimitPs1 -TaskId $clTask -ReportsDir $clDir
+    $out = & $cycleLimitPs1 -TaskId $clTask -Feature $script:EscCycleLimitFeature -ReportsDir $clDir
     $rc = $LASTEXITCODE
     if ($rc -eq 0 -and $out -eq "continue") {
         Test-Ok "TEST-011.2: 1 gate report -> continue"
@@ -163,7 +177,7 @@ try {
     }
 
     New-EscGateReport (Join-Path $clDir "q2.md") $clTask
-    $out = & $cycleLimitPs1 -TaskId $clTask -ReportsDir $clDir
+    $out = & $cycleLimitPs1 -TaskId $clTask -Feature $script:EscCycleLimitFeature -ReportsDir $clDir
     $rc = $LASTEXITCODE
     if ($rc -eq 0 -and $out -eq "continue") {
         Test-Ok "TEST-011.3: 2 gate reports -> continue"
@@ -172,7 +186,7 @@ try {
     }
 
     New-EscGateReport (Join-Path $clDir "q3.md") $clTask
-    $out = & $cycleLimitPs1 -TaskId $clTask -ReportsDir $clDir
+    $out = & $cycleLimitPs1 -TaskId $clTask -Feature $script:EscCycleLimitFeature -ReportsDir $clDir
     $rc = $LASTEXITCODE
     if ($rc -eq 1 -and $out -eq "Escalate-Human") {
         Test-Ok "TEST-011.4: 3 gate reports -> Escalate-Human/exit1"
@@ -332,7 +346,7 @@ mktemp repo-root.
     New-EscGateReport (Join-Path $collisionDir "c2.md") "T-0010"
     New-EscGateReport (Join-Path $collisionDir "c3.md") "T-0010"
 
-    $out = & $cycleLimitPs1 -TaskId "T-001" -ReportsDir $collisionDir
+    $out = & $cycleLimitPs1 -TaskId "T-001" -Feature $script:EscCycleLimitFeature -ReportsDir $collisionDir
     $rc = $LASTEXITCODE
     if ($rc -eq 0 -and $out -eq "continue") {
         Test-Ok "TEST-018.1: 3 gate reports referencing T-0010 leave the T-001 count at 0 (word-boundary match)"
@@ -352,7 +366,7 @@ mktemp repo-root.
         Test-Fail "TEST-018.2: could not construct the substring-match mutated temp copy"
     }
 
-    $out = & $mutatedCycleLimit -TaskId "T-001" -ReportsDir $collisionDir
+    $out = & $mutatedCycleLimit -TaskId "T-001" -Feature $script:EscCycleLimitFeature -ReportsDir $collisionDir
     $rc = $LASTEXITCODE
     if ($rc -eq 1 -and $out -eq "Escalate-Human") {
         Test-Ok "TEST-018.3 (negative self-check): the substring-match mutation turns the T-0010-vs-T-001 fixture red (wrongly escalates)"

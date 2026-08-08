@@ -53,10 +53,11 @@ test("AC-001: evidence_deep_verify tool returns an ok pass envelope for a consis
           invariants: {
             artifactsDigest: { status: string };
             specRevision: { status: string };
-            gitCommit: { shapeValid: boolean; ancestryVerified: boolean };
+            gitCommit: { shapeValid: boolean; ancestryVerified: boolean; reason: string };
             crossBindings: Array<{ status: string }>;
           };
-          signature: { verified: boolean };
+          signature: { verified: boolean; note: string };
+          hostRequiredChecks?: Array<{ check: string; verified: boolean; note: string }>;
         };
       }
     ).data;
@@ -74,6 +75,21 @@ test("AC-001: evidence_deep_verify tool returns an ok pass envelope for a consis
     assert.equal(data.invariants.gitCommit.ancestryVerified, false);
     assert.ok(data.invariants.crossBindings.every((b) => b.status === "match"));
     assert.equal(data.signature.verified, false);
+
+    // AC-012 leg (epic-136-phase4-mcp T-002): this pre-existing ok-shape case
+    // now also asserts the top-level `hostRequiredChecks` field.
+    const hostRequiredChecks = data.hostRequiredChecks;
+    if (!Array.isArray(hostRequiredChecks)) {
+      assert.fail("hostRequiredChecks is absent from the ok evidence_deep_verify response");
+    }
+    assert.equal(hostRequiredChecks.length, 2);
+    assert.deepEqual(
+      hostRequiredChecks.map((entry) => entry.check),
+      ["git-commit-ancestry", "signature-verification"],
+    );
+    assert.ok(hostRequiredChecks.every((entry) => entry.verified === false));
+    assert.equal(hostRequiredChecks[0]?.note, data.invariants.gitCommit.reason);
+    assert.equal(hostRequiredChecks[1]?.note, data.signature.note);
   } finally {
     await fixture.cleanup();
   }

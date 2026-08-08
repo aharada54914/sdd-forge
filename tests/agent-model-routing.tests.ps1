@@ -386,7 +386,10 @@ Required Workflow: test-after
     # --- T-002: selector v2 registry support, effort-resolution priority
     # (TEST-006..013, TEST-053, TEST-054) --------------------------------
 
-    $realV2Json = & $SelectorPs -Risk low -Registry $RegistryV2 -CandidatesFile $allTiersPath -RequiredTier lightweight -Json | ConvertFrom-Json
+    # --effort-policy welded is explicit here (epic-159-pillar-c T-007,
+    # #155): this check's own intent is schema auto-detection, never the
+    # --effort-policy DEFAULT value -- see the .sh twin's matching comment.
+    $realV2Json = & $SelectorPs -Risk low -Registry $RegistryV2 -CandidatesFile $allTiersPath -RequiredTier lightweight -EffortPolicy welded -Json | ConvertFrom-Json
     if (-not ($realV2Json.model -ceq 'openai/gpt-5.1-codex-mini' -and $realV2Json.effort_source -ceq 'welded')) {
         Fail 'PowerShell selector did not auto-detect the real v2 registry schema'
     }
@@ -579,7 +582,10 @@ Required Workflow: test-after
     if ($explicitWeldedText -cne 'openai/gpt-5.2-codex strong') {
         Fail 'TEST-007/TEST-028 v2 welded (explicit policy) text output diverged from the v1 golden baseline'
     }
-    $weldedJson = & $SelectorPs -Risk high -Registry $v2RegistryPath -CandidatesFile $v2GoldenCandidatesPath -Json | ConvertFrom-Json
+    # -EffortPolicy welded explicit here (epic-159-pillar-c T-007, #155):
+    # this JSON-mode assertion's own claim is welded mode's output shape,
+    # never whichever policy happens to be the selector's own default.
+    $weldedJson = & $SelectorPs -Risk high -Registry $v2RegistryPath -CandidatesFile $v2GoldenCandidatesPath -EffortPolicy welded -Json | ConvertFrom-Json
     if (-not ($weldedJson.model -ceq 'openai/gpt-5.2-codex' -and $weldedJson.canonical_tier -ceq 'strong' -and
             $weldedJson.effort -ceq 'high' -and $weldedJson.estimated_cost_per_attempt_usd -ceq '0.03' -and
             $weldedJson.effort_source -ceq 'welded' -and $weldedJson.effort_control -ceq 'none' -and
@@ -709,7 +715,9 @@ Required Workflow: test-after
         & $SelectorPs -Risk low -Registry $Registry -CandidatesFile $v1OmitEffortCandidatePath -Json | Out-Null
         Fail 'TEST-013 v1 -CandidatesFile accepted a candidate omitting effort'
     } catch { }
-    $v2OmitJson = & $SelectorPs -Risk low -Registry $v2RegistryPath -CandidatesFile $v1OmitEffortCandidatePath -Json | ConvertFrom-Json
+    # -EffortPolicy welded explicit here (epic-159-pillar-c T-007, #155) --
+    # same reasoning as the TEST-007 block above.
+    $v2OmitJson = & $SelectorPs -Risk low -Registry $v2RegistryPath -CandidatesFile $v1OmitEffortCandidatePath -EffortPolicy welded -Json | ConvertFrom-Json
     if (-not ($v2OmitJson.model -ceq 'anthropic/haiku' -and $v2OmitJson.effort -ceq 'low' -and
             $v2OmitJson.effort_source -ceq 'welded')) {
         Fail 'TEST-013 v2 -CandidatesFile did not fill an omitted effort via policy'
@@ -785,9 +793,12 @@ Required Workflow: test-after
     # --- T-005 (#154): REQ-005 case (h), not already covered above -------
     # TEST-034 (AC-034): v1<->v2 projection invariant -- the SAME candidate
     # set and risk/tier input, run against the REAL v1 registry and the
-    # REAL v2 registry (welded, the Phase-1 default), select the identical
-    # winning model and canonical_tier, with effort_source correctly
-    # attributed "welded" (shares fixtures with
+    # REAL v2 registry under -EffortPolicy welded (explicit here,
+    # epic-159-pillar-c T-007/#155 -- see the .sh twin's matching comment:
+    # this invariant is about v1<->v2 PROJECTION equivalence, never about
+    # whichever policy happens to be the selector's own default), select
+    # the identical winning model and canonical_tier, with effort_source
+    # correctly attributed "welded" (shares fixtures with
     # tests/agent-capabilities-v2.tests.ps1's TEST-004 registry-content
     # parity lock; this is the same invariant re-asserted at the
     # select-agent-model.ps1 OUTPUT level).
@@ -796,7 +807,7 @@ Required Workflow: test-after
         $projRisk = $parts[0]
         $projTier = $parts[1]
         $v1Projection = & $SelectorPs -Risk $projRisk -Registry $Registry -CandidatesFile $allTiersPath -RequiredTier $projTier -Json | ConvertFrom-Json
-        $v2Projection = & $SelectorPs -Risk $projRisk -Registry $RegistryV2 -CandidatesFile $allTiersPath -RequiredTier $projTier -Json | ConvertFrom-Json
+        $v2Projection = & $SelectorPs -Risk $projRisk -Registry $RegistryV2 -CandidatesFile $allTiersPath -RequiredTier $projTier -EffortPolicy welded -Json | ConvertFrom-Json
         if (-not ($v1Projection.model -ceq $v2Projection.model -and
                 $v1Projection.canonical_tier -ceq $v2Projection.canonical_tier -and
                 $v2Projection.effort_source -ceq 'welded')) {

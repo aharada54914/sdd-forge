@@ -1,0 +1,122 @@
+{
+  "schema": "impl-reviewer-b/v1",
+  "stage": "impl",
+  "role": "impl-reviewer-b",
+  "run_id": "RUN-designsyncscan-impl-a1r1-b-seq0551",
+  "host_session_id": "SESS-impl-a1r1-b-designsyncscan-0551",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-scan/attempt-1/round-1/integrated-summary.json",
+      "sha256": "84ad5dd421ec4e263deed077fdae61b592978de9b80f5309ab4d5cbd0246dd71"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/impl-review/design-sync-scan/attempt-1/round-1/precheck-result.json",
+      "sha256": "1aa8989a3f776ab8cd16825646d9b90b5fdd21066399cd85cca3ca0cca2e4367"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/acceptance-tests.md",
+      "sha256": "c6b1b55137764cbfe4af6d8616f44fb11102d50096cf239956f6b7fcf70f00f7"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/design.md",
+      "sha256": "ba1b23032de5929d56b0402b41136b06d076cb3267b955dcf1005fb1564bc6d4"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/frontend-spec.md",
+      "sha256": "535e8276e4265022643ab0f96b7c8d619494ae593eefc8b5c6b5dda65fe6c291"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/infra-spec.md",
+      "sha256": "a908b7e24cf308e8cc4a94dd7f6c786e07d09ec4b7cd939e118de2cfa3d3f410"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/investigation.md",
+      "sha256": "67560e11a356a0e26769a01b010aab0695049705b89ee8a47130ebf6bbd44048"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/requirements.md",
+      "sha256": "354fb581c98441c02894f4a66c4e331b28165f426ab4ef822e93a2c9ccb51a01"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/security-spec.md",
+      "sha256": "3b59d7e0e8ae1e1cfb03d1ce6b42238fdaef51598014a689ba0306af01f2792a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-scan/ux-spec.md",
+      "sha256": "4f63869ff536f816bc8bd4d9f59d29a45e547c35f53dc66c902450e156a8c554"
+    }
+  ],
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "DECISION-JUSTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's 'Design Decisions' section (design.md:264-276) states, for every decision, a rejected alternative and an explicit rationale (e.g. design.md:268 exit-code-2 divergence justified against check-placeholders.sh's exit-1 convention; design.md:272 RFC 2606/6761 domain exclusion justified with the .edu correction rationale; design.md:273 P2 both-sides boundary justified against relying on the quantifier alone). 'Why the scan is a script, not more skill prose' (design.md:42-44) independently justifies the script-vs-prose architecture choice. No unjustified 'we will use X' statement found."
+    },
+    {
+      "id": "OPEN-QUESTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md:280-286's Open Questions table (OQ-1-OQ-5, carried into design.md:331-337) names a role owner for every entry (security/product/maintainers, never TBD) and explicitly states Blocks=no for all five. None uses a literal 'Resolution Path:' field label; the Notes column instead states why deferral is acceptable (e.g. requirements.md:282 OQ-1 'a stated v1 baseline, not exhaustive by design'). Per calibration, a non-blocking open question with a stated owner is an acceptable Minor completeness gap, not a blocking defect."
+    },
+    {
+      "id": "ASSUMPTIONS-VALID",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "investigation.md is present (INV-201-INV-206). requirements.md:260-266's Assumptions map directly to it: the SKILL.md step-5 line-number assumption (requirements.md:261) grounds in INV-201; the check-placeholders.sh pattern-string assumption (requirements.md:263) grounds in INV-202; the design-system-contract.tests block-boundary assumption (requirements.md:264) grounds in INV-203; the run-all/CI-invocation assumption (requirements.md:265) cites design-sync-consent's INV-016/INV-017 directly. The remaining two (protected-file re-derivation, requirements.md:262; lite-spec/SKILL.md non-target, requirements.md:266) state an explicit direct-read basis plus a re-verification instruction. All assumptions satisfy criterion 1 or 2; the investigation.md-absence fallback does not trigger."
+    },
+    {
+      "id": "NO-REQ-CONTRADICTION",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md has no literal '## Constraint Compliance' heading (confirmed by grep), so the TYPE-H fallback applies. requirements.md's 'must not' constraints are each addressed: the exit-1 override-required constraint (requirements.md:51) is implemented in design.md's step-5 target shape (design.md:191-217) and AC-020's override procedure; the exit-1/exit-2 non-interchangeability constraint (requirements.md:51,77) is implemented via design.md's Design Decisions (design.md:269) and the API contract's precedence rule (design.md:93-95); the PII-pattern-set-must-not-grow-unbounded constraint (requirements.md:97) is implemented via design.md's fixed P1/P2 catalogue (design.md:154-159) and Non-goals; the decline/Egress-Consent-decline non-conflation constraint (requirements.md:176) is implemented in design.md's step-5 target text (design.md:200-204). The line-truncation safety guardrail (requirements.md:255, Edge Case 7) is explicitly deferred by requirements.md itself to implementation time with a stated preservation rationale (must jointly preserve AC-013/AC-014), the same class of stated-rationale deferral the check exempts."
+    },
+    {
+      "id": "PERF-ADDRESSED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "No performance requirement with a numeric threshold or SLA statement appears in requirements.md (grep for response time/throughput/concurrency/latency/ms/SLA/qps returned no substantive match). AC-017's 'no delay beyond the scan's own run time' is a workflow-ordering statement, not a numeric performance requirement. No performance requirements found in requirements.md."
+    },
+    {
+      "id": "DEPLOYMENT-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's 'Deployment & CI Plan' section (design.md:309-317) states the deployment target ('No service, no artifact, no build'; cross-referenced to infra-spec.md#deployment-topology, which names local/CI/no-production explicitly), states CI pipeline impact (no protected-file staging round; CI registration of the new suite staged separately per Global Constraints BL-004, design.md:323, detailed in infra-spec.md's 'CI/CD Sequence'), and Data Plan (design.md:222-233) confirms no schema change exists so migration-order omission does not apply. No incremental rollout is described anywhere in this feature (a script/skill-text change activated on merge, not behind a toggle), so feature-flag strategy is not applicable and its absence is not a gap."
+    },
+    {
+      "id": "MIGRATION-PLANNED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md's Data Plan (design.md:222-233) states explicitly: 'No new storage mechanism is introduced, and no migration is required' and 'No migration and no backfill follow.' The only artifact change (Design-Source section gains two additive, optional Markdown fields, design.md:226-231) is stated as backward-compatible per the extensibility rule design-sync-consent already established (unknown fields ignored, absent fields non-conforming-safe) and involves no database column/table. This matches the check's 'No data changes' PASS carve-out."
+    },
+    {
+      "id": "INTEGRATION-IDENTIFIED",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "This feature introduces zero new external integrations: security-spec.md's F1-F4 table (security-spec.md:9-14) and infra-spec.md's 'No egress dependency exists' (infra-spec.md:19) both state explicitly that the scanner performs no network call, contacts no external service, and requires no credential. The only external system referenced in design.md, B1 (outbound to claude.ai/design via DesignSync), is explicitly marked 'unchanged from design-sync-consent' (design.md:241, security-spec.md's Trust Boundaries table) and cross-referenced to that sibling feature's own already-reviewed specification rather than restated -- consistent with this document's stated cross-reference discipline (design.md:7, 'to avoid a second copy of truth'), not an undocumented passing mention of a new integration."
+    },
+    {
+      "id": "DESIGN-WITHIN-SCOPE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "requirements.md uses REQ-001-REQ-010 in place of a Goals/User Stories section (confirmed by grep of '## ' headings: no Goals/User Stories heading exists). design.md's Test Strategy 'Coverage table' (design.md:284) maps every REQ-001-REQ-010 to specific ACs, and the Components table (design.md:48-59) lists exactly the artifacts REQ-001-REQ-010 call for (scanner script pair, SKILL.md step 5, Design-Source field extension, claude-design-workflow.md edit, test suites, workflow-state-registry.json entry) with no additional component. Design System Compliance (design.md:70-74) confirms ds_profile: none and no design-system/ directory exists in this repository, so no UI-library scope-creep risk applies."
+    },
+    {
+      "id": "VERIFICATION-PATH-CONCRETE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "High-risk surfaces present: security/authorization gate behaviour and PII/secret handling (security-spec.md is marked 'load-bearing', security-spec.md:3). Concrete validation paths are named: TEST-027/TEST-028/TEST-063 for masking correctness (security-spec.md's Security Tests table, security-spec.md:128), TEST-024/TEST-057-062 for the PII false-positive exclusion boundary, TEST-021/TEST-080-082/TEST-084 for the S7/P2 boundary correctness, and TEST-045 for the no-bypass structural claim (security-spec.md:130, STRIDE row for control-bypass tampering) -- all named acceptance-test artifacts in acceptance-tests.md's Test Matrix and cross-referenced from design.md's Test Strategy (design.md:284) and security-spec.md's Security Tests table."
+    },
+    {
+      "id": "DOMAIN-CONFORMANCE",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "No domain/ directory exists at the project root (confirmed by direct existence check, the one permitted exception to the manifest-only read boundary). The Domain-Model-Status: Approved gate condition therefore does not apply; check skipped."
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schema": "spec-review-precheck/v1",
+  "stage": "spec",
+  "feature": "epic-136-phase3",
+  "attempt": 4,
+  "round": 1,
+  "spec_review_status_field": "Pending",
+  "requirements_sha256": "fa1c3ce6ddddefcc3e0280680c45835747c38a9942f25c87bcced6ee16a20d95",
+  "acceptance_sha256": "d59a8b30ee3a2bb1b415b11edec57fcff2a2af853327372c566c64768bccc83b",
+  "calibration_sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8",
+  "input_sha256": "beb3e7f695bd7c6ee6f17e544d7abb58ec0bff69496ad1a740caf987ed3957f6",
+  "edit_summary": "",
+  "reset": true,
+  "generated_at": "2026-08-01T22:55:57Z"
+}

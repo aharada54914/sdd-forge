@@ -1,0 +1,13 @@
+PASS: TEST-010 full-field fixture (non-null second_approval/effective_at) validates
+PASS: TEST-010 hmac shorter than 64 hex chars is rejected
+PASS: TEST-010 hmac containing an uppercase character is rejected
+FAIL: TEST-011 staged signing succeeds (exit 0): /opt/homebrew/Cellar/python@3.14/3.14.5/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python: can't open file '/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/plugins/sdd-quality-loop/scripts/generate-approval-sidecar.py': [Errno 2] No such file or directory
+
+FAIL: TEST-011 all three staged artifacts (sidecar, snapshot, manifest) exist: 
+[31;1mParentContainsErrorRecordException: [0m/Users/jrmag/Projects/active/sdd-forge-wt-epic-189/tests/generate-approval-sidecar.tests.ps1:317[0m
+[31;1m[0m[36;1mLine |[0m
+[31;1m[0m[36;1m[36;1m 317 | [0m [36;1m$snapshotBytes = [System.IO.File]::ReadAllBytes($SnapshotOut)[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m     | [31;1m ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m     | [31;1mException calling "ReadAllBytes" with "1" argument(s): "Could not find a[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m     | [31;1mpart of the path[0m
+[31;1m[0m[36;1m[36;1m[0m[36;1m[0m[36;1m[31;1m[31;1m[36;1m[31;1m[36;1m[31;1m[36;1m     | [31;1m'/var/folders/7z/hjmz6jdj4wb40srf64sl368w0000gn/T/gen-approval-sidecar-test-5998652567054265822356348b12b87d/stage-t011/project-context.approved.yaml'."[0m

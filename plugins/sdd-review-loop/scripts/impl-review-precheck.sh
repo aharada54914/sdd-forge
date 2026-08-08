@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # impl-review-precheck.sh
-# Usage: impl-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs]
+# Usage: impl-review-precheck.sh <feature-slug> <attempt> <round> [--verify-inputs|--provenance-rereview]
 #
 # Generates precheck-result.json for the impl-review-loop.
 # Outputs to: reports/impl-review/<feature>/attempt-<M>/round-<N>/
@@ -48,6 +48,48 @@ reviewed_sha256() {
       shasum -a 256 | awk '{print $1}'
   fi
 }
+# A round's verdict belongs to the text its two reviewers actually read.
+# Elsewhere the manifest checks accept either the contract's recorded hash or the
+# current file hash, which is right for tolerating an untouched file but leaves a
+# real gap: a contract written after a remediation edit can record a hash neither
+# reviewer ever saw, and the round's verdict is then attributed to text that was
+# never reviewed. That happened on epic-136-phase4-docs attempt 2 round 2, and
+# surfaced only because the next round's precheck happened to refuse.
+#
+# Close it directly: the two reviewers must have pinned the same hash for each
+# reviewed document, and the contract must record that hash and no other.
+assert_contract_reviewer_agreement() {
+  local contract="$1" stage="$2"
+  local role_a="${stage}-reviewer-a" role_b="${stage}-reviewer-b"
+  local doc doc_key hash_a hash_b hash_contract
+  pinned_hash() {
+    jq -r --arg role "$1" --arg path "$2" --arg repo "${repo_root}/" '
+      def relative_path:
+        if startswith($repo) then .[($repo | length):]
+        elif startswith("/") then ((capture("^.*/(?<tail>(specs|reports|plugins)/.+)$") | .tail) // .)
+        else . end;
+      [.reviewers[]? | select(.role == $role) | .allowed_input_manifest[]?
+       | select((.path | relative_path) == $path) | .sha256] | first // ""
+    ' "$contract"
+  }
+  for doc in requirements.md acceptance-tests.md design.md; do
+    case "$doc" in
+      requirements.md)     doc_key=requirements_sha256 ;;
+      acceptance-tests.md) doc_key=acceptance_sha256 ;;
+      design.md)           doc_key=design_sha256 ;;
+    esac
+    hash_a=$(pinned_hash "$role_a" "specs/${FEATURE}/${doc}")
+    hash_b=$(pinned_hash "$role_b" "specs/${FEATURE}/${doc}")
+    [[ -n "$hash_a" && -n "$hash_b" ]] || continue
+    [[ "$hash_a" == "$hash_b" ]] ||
+      fail "persisted ${stage} contract: reviewer-a and reviewer-b pinned different ${doc}; they did not review the same text"
+    hash_contract=$(jq -r --arg k "$doc_key" '.[$k] // ""' "$contract")
+    if [[ -n "$hash_contract" && "$hash_contract" != "$hash_a" ]]; then
+      fail "persisted ${stage} contract records a ${doc} hash neither reviewer read; the verdict does not belong to that text"
+    fi
+  done
+}
+
 require_persisted_pass() {
   local root="$1" stage="$2" requirements_hash="$3" acceptance_hash="$4" design_hash="$5"
   local requirements_current_hash="$6" design_current_hash="$7" verdict="" contract contract_dir
@@ -208,6 +250,8 @@ require_persisted_pass() {
     manifest_has "$role_a" "$previous_summary" "$(sha256 "${repo_root}/${previous_summary}")" ||
       fail "persisted impl reviewer-a manifest is missing previous-round summary"
   fi
+
+  assert_contract_reviewer_agreement "$contract" "$stage"
   jq -e --slurpfile verdict "$verdict" --arg stage "$stage" '
     . as $contract | $verdict[0] as $verdict |
     $contract.attempt == $verdict.attempt and
@@ -228,7 +272,8 @@ command -v jq >/dev/null 2>&1 || fail "jq is required"
 [[ "$FEATURE" =~ ^[a-z0-9][a-z0-9-]*$ ]] || fail "invalid feature slug"
 [[ "$ATTEMPT" =~ ^[1-9][0-9]*$ ]] || fail "attempt must be a positive integer"
 [[ "$ROUND" =~ ^[1-9][0-9]*$ ]] || fail "round must be a positive integer"
-[[ -z "$MODE" || "$MODE" == "--verify-inputs" ]] || fail "unknown mode: $MODE"
+[[ -z "$MODE" || "$MODE" == "--verify-inputs" || "$MODE" == "--provenance-rereview" ]] ||
+  fail "unknown mode: $MODE"
 profile="$(jq -r --arg feature "$FEATURE" '.entries[]? | select(.feature == $feature) | .profile' "$REGISTRY" | tail -n 1)"
 full_profile=false
 [[ "$profile" == "full" ]] && full_profile=true
@@ -266,8 +311,35 @@ fi
 [[ ! -e "$REPORT_DIR" && ! -L "$REPORT_DIR" ]] || fail "round destination already exists (replay is forbidden)"
 [[ -d "$SPECS_DIR" && ! -L "$SPECS_DIR" ]] || fail "feature specification directory must be a real directory"
 [[ "$(cd "$SPECS_DIR" && pwd -P)" == "$repo_root/specs/$FEATURE" ]] || fail "feature specification directory escapes repository"
-bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
-  fail "canonical workflow-state validation failed"
+if [[ "$MODE" == "--provenance-rereview" ]]; then
+  # Post-implementation evidence re-binding. Mirrors task-review-precheck.sh's
+  # mode of the same name, with the same guard: a prior persisted PASS at this
+  # stage must already exist, so this mode can only ever re-bind evidence for a
+  # design that genuinely passed -- it can never stand in for a first review.
+  #
+  # The canonical gate is advisory here rather than fatal, because a stale
+  # impl-stage contract hash is exactly the condition this mode exists to
+  # repair: requiring the gate to be green first would make the repair
+  # unreachable from the state that needs it.
+  prior_pass=false
+  while IFS= read -r verdict_file; do
+    if jq -e --arg feature "$FEATURE" \
+      '.feature == $feature and .stage == "impl" and .verdict == "PASS"' \
+      "$verdict_file" >/dev/null 2>&1; then
+      prior_pass=true
+      break
+    fi
+  done < <(find "$IMPL_REPORT_ROOT" -type f -name integrated-verdict.json ! -lname '*' -print 2>/dev/null)
+  [[ "$prior_pass" == "true" ]] ||
+    fail "provenance re-review requires a prior persisted impl-review PASS verdict"
+  if ! bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE"; then
+    echo "NOTE: impl-review-precheck: canonical workflow-state validation failed;" \
+      "proceeding under --provenance-rereview (impl-stage evidence re-binding in progress)." >&2
+  fi
+else
+  bash "$repo_root/plugins/sdd-quality-loop/scripts/check-workflow-state.sh" --feature "$FEATURE" ||
+    fail "canonical workflow-state validation failed"
+fi
 
 # ──────────────────────────────────────────────────────────────────────────────
 # STEP 1: Check design.md exists and has Impl-Review-Status: Pending
@@ -295,9 +367,23 @@ if [[ -z "${impl_review_status}" ]]; then
   exit 1
 fi
 
-if [[ "${impl_review_status}" != "Pending" ]] && [[ "${impl_review_status}" != "pending" ]]; then
+if [[ "$MODE" == "--provenance-rereview" ]]; then
+  # The header stays Passed for the whole re-binding, deliberately. Flipping it
+  # to Pending is not an option here: check-workflow-state.sh's task-lifecycle
+  # rule requires every stage to read Passed once any task is Approved or past
+  # Planned, so a Pending header on a feature that has already shipped trades
+  # this stage's contradiction for a worse one.
+  if [[ "${impl_review_status}" != "Passed" ]]; then
+    echo "ERROR: impl-review-precheck: --provenance-rereview requires design.md to" \
+      "declare 'Impl-Review-Status: Passed'; it declares '${impl_review_status}'." \
+      "Without a prior pass there is no provenance to re-bind -- run an ordinary" \
+      "attempt instead." >&2
+    exit 1
+  fi
+elif [[ "${impl_review_status}" != "Pending" ]] && [[ "${impl_review_status}" != "pending" ]]; then
   echo "ERROR: impl-review-precheck: Impl-Review-Status is '${impl_review_status}', expected 'Pending'." \
-    "Use --reset to start a new attempt if a previous review has passed." >&2
+    "If a previous review has already passed and this is an evidence re-binding," \
+    "use --provenance-rereview." >&2
   exit 1
 fi
 
@@ -362,11 +448,17 @@ if [[ "${ROUND}" -gt 1 ]]; then
   prior_contract="reports/impl-review/${FEATURE}/attempt-${ATTEMPT}/round-${prior_round}/impl-review-contract.json"
 
   if [[ -f "${prior_contract}" ]]; then
+    # The prior round's own verdict must belong to the text its reviewers read.
+    # This is the site where the epic-136-phase4-docs attempt-2 round-2 defect
+    # lived: require_persisted_pass only inspects the spec contract, so without
+    # this call an impl round-to-round handoff carries no such check at all.
+    assert_contract_reviewer_agreement "${prior_contract}" impl
+
     prior_design_sha256=$(python3 -c "import json,sys; d=json.load(open('${prior_contract}')); print(d.get('design_sha256',''))" 2>/dev/null || echo "")
 
     if [[ "${design_sha256}" == "${prior_design_sha256}" ]]; then
       echo "ERROR: impl-review-precheck: design.md sha256 is unchanged from round ${prior_round}." \
-        "Edit design.md before re-invoking, then provide --edit-summary." >&2
+        "A new round must review changed text; edit design.md, then re-invoke." >&2
       exit 1
     fi
 
@@ -382,6 +474,29 @@ if [[ "${ROUND}" -gt 1 ]]; then
       fi
     fi
   fi
+fi
+
+# AC coverage. Every AC-NNN in requirements.md must be named in design.md.
+#
+# This is deterministic work that was being paid for with reviewer rounds. On
+# epic-136-phase4-docs, impl review spent rounds 2 and 3 of attempt 1 finding
+# AC-013 and then AC-012 missing from the design plan, one per round, and the
+# attempt escalated to BLOCKED. A later mechanical sweep found AC-001 and AC-014
+# absent as well. Every one of them was an AC that spec review had added late as
+# a gap-closer, which the design -- written against the REQ-* headings -- dropped
+# silently. A design that does not name an AC cannot be audited for covering it.
+ac_missing=""
+if [[ -f "${REQS_MD}" && -f "${DESIGN_MD}" ]]; then
+  while IFS= read -r ac_id; do
+    [[ -n "${ac_id}" ]] || continue
+    grep -Fq -- "${ac_id}" "${DESIGN_MD}" || ac_missing+="${ac_id} "
+  done < <(grep -oE 'AC-[0-9]{3}' "${REQS_MD}" | sort -u)
+fi
+if [[ -n "${ac_missing}" ]]; then
+  echo "ERROR: impl-review-precheck: design.md never names these acceptance criteria: ${ac_missing% }" >&2
+  echo "       Each one is testable and traceable in requirements.md but absent from the design plan," >&2
+  echo "       so an implementer could satisfy the plan and still not deliver them." >&2
+  exit 1
 fi
 
 # ──────────────────────────────────────────────────────────────────────────────

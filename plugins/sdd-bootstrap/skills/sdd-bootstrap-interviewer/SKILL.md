@@ -81,8 +81,9 @@ design catch-all.
   `design-sync-loop` skill: it ensures `design-system/` exists (seeding it
   when absent), pulls design-system context from claude.ai/design, generates
   token-driven disposable HTML mockups under `specs/<feature>/mockups/`,
-  manages per-upload human approval, and falls back to
-  `references/claude-design-workflow.md` when design tools are unavailable.
+  resolves egress consent scoped to this feature and session before any
+  upload, and falls back to `references/claude-design-workflow.md` when
+  design tools are unavailable.
   On `none`, skip design-system integration entirely — no artifacts and no
   further design-system questions.
 - Otherwise ask whether the human has a local mockup or visual reference. If
@@ -140,11 +141,66 @@ Phase 2 outputs (generated after impl-review-loop passes):
 CI/issue/PR templates are created by `sdd-adopt` based on detected host; do not
 recreate them here.
 
+## Track Detection
+
+Resolve the track ONCE, here, at the start of the skill — before Phase 1
+artifacts are generated. All three review gates below consume this one
+resolved track; none of them re-reads `AGENTS.md` on its own, because a gate
+that resolves the profile independently can reach a different answer than the
+entry point did.
+
+This is a Capability-Mode-relevant entry point, so run the hook-activation
+handshake first:
+
+<!-- sdd:handshake-wiring v1 -->
+
+1. `check-hook-activation-handshake --emit-challenge` — returns a fresh
+   nonce and the canary target `sdd/.hook-canary-sentinel`.
+2. Make your **own** real tool-call attempt against that canary target,
+   using the per-runtime template the challenge carries, and record the raw
+   result verbatim.
+3. `check-hook-activation-handshake --verify-response --nonce <nonce>
+   --recorded-result <path> --runtime <claude-code|codex-cli|copilot-cli>`.
+4. `HOOK_ACTIVE` — continue to track resolution. Any other outcome — stop
+   with `CAPABILITY_RUNTIME_UNAVAILABLE`; never fall back to legacy
+   behaviour silently.
+
+<!-- /sdd:handshake-wiring -->
+
+Then resolve the track, checking physical presence FIRST and approval
+validity SECOND. A `sdd/project-context.yaml` that exists but fails
+`validate-approval-sidecar` is **not** the same as one that is absent.
+
+<!-- sdd:track-selection-contract v1 -->
+
+| Case | Project Context | Flag | Resolution |
+|---|---|---|---|
+| C1 | physically absent | `--full`, `--lite`, or none | `COMPATIBILITY_FALLBACK` |
+| C2 | physically present, REQ-005 validation fails | `--full`, `--lite`, or none | `PROJECT_CONTEXT_INVALID` |
+| C3 | physically present and valid, `spec_profile: lite` | `--full` | `PROMOTE_FULL` |
+| C4 | physically present and valid, `spec_profile: lite` | `--lite` | `NO_OP_LITE` |
+| C5 | physically present and valid, `spec_profile: full` | `--lite` | `ERROR_STOP` |
+| C6 | physically present and valid, `spec_profile: full` | `--full` | `NO_OP_FULL` |
+
+<!-- /sdd:track-selection-contract -->
+
+- `COMPATIBILITY_FALLBACK` (C1 only) — the resolved track is `lite` when
+  `--lite` is passed or `AGENTS.md` declares `spec_profile: lite`; otherwise
+  `full`.
+- `PROJECT_CONTEXT_INVALID` (C2) — stop and report that name. Generate no
+  artifact, and do not fall through to C1's fallback.
+- `PROMOTE_FULL` → resolved track `full`; `NO_OP_LITE` → `lite`;
+  `NO_OP_FULL` → `full`; `ERROR_STOP` → stop with an explicit message,
+  because `--lite` never downgrades a `full` profile.
+
+`PLUGIN-CONTRACTS.md`'s Track Detection section is the normative source for
+this table.
+
 ## Specification Review Gate
 
 Run after Phase 1 artifacts (requirements.md, acceptance-tests.md) are generated.
 
-1. If `spec_profile: lite` in AGENTS.md → SKIP; log "spec-review skipped: lite profile".
+1. If the resolved track is `lite` → SKIP; log "spec-review skipped: lite profile".
 2. Invoke `/sdd-review-loop:spec-review-loop --feature <feature>`.
 3. verdict == PASS or PASS-with-warnings → continue.
 4. verdict == NEEDS_WORK → present proposed changes; await human edit of
@@ -156,7 +212,7 @@ Run after Phase 1 artifacts (requirements.md, acceptance-tests.md) are generated
 
 Run after design.md is generated and spec-review-loop has passed.
 
-1. Check AGENTS.md spec_profile. If lite → SKIP.
+1. If the resolved track is `lite` → SKIP.
 2. Invoke `/sdd-review-loop:impl-review-loop --feature <feature>`.
 3. verdict == PASS or PASS-with-warnings → continue (Impl-Review-Status: Passed
    is now set in design.md).
@@ -196,7 +252,7 @@ that does not declare `Required Workflow: tdd`.
 
 Run after Risk Classification completes and tasks.md has been generated.
 
-1. Check AGENTS.md spec_profile. If lite → SKIP.
+1. If the resolved track is `lite` → SKIP.
 2. Invoke `/sdd-review-loop:task-review-loop --feature <feature>`.
 3. verdict == PASS or PASS-with-warnings → continue to ## Approval Gate.
 4. verdict == NEEDS_WORK → present tasks-round-N-proposed-changes.md; await

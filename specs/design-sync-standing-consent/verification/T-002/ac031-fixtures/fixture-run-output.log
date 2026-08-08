@@ -1,0 +1,11 @@
+=== fixture-casefold.md (case-folding matcher; expect TEST-056 FAIL, TEST-055 PASS) ===
+PASS: TEST-055 branch 3: a present out-of-domain value is stated to resolve to per-feature, never standing, never off (AC-031)
+FAIL: TEST-056 value matching is stated as exact and case-sensitive, a case variant is named as out-of-domain input (AC-031)
+
+=== fixture-harddefault.md (out-of-domain defaults to standing; expect TEST-055 FAIL, TEST-056 PASS) ===
+FAIL: TEST-055 branch 3: a present out-of-domain value is stated to resolve to per-feature, never standing, never off (AC-031)
+PASS: TEST-056 value matching is stated as exact and case-sensitive, a case variant is named as out-of-domain input (AC-031)
+
+=== fixture-correct.md (the real target text; expect both PASS -- pre-flight sanity check before editing AGENTS.md) ===
+PASS: TEST-055 branch 3: a present out-of-domain value is stated to resolve to per-feature, never standing, never off (AC-031)
+PASS: TEST-056 value matching is stated as exact and case-sensitive, a case variant is named as out-of-domain input (AC-031)

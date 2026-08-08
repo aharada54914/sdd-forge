@@ -1,0 +1,17 @@
+# npm run build (esbuild bundle) — epic-136-phase4-mcp gate evidence
+# cwd: mcp/sdd-forge-mcp
+# run: 2026-07-29T23:37:21Z
+# HEAD: aeaea6b248debb6ca8af8c92b5d275e79a40e8ad
+
+
+> sdd-forge-mcp@0.1.0 build
+> esbuild src/index.ts --bundle --platform=node --format=esm --outfile=dist/index.js
+
+
+  dist/index.js  1.3mb ⚠️
+
+⚡ Done in 25ms
+
+# exit=0
+# --- ADR-0003 dist parity: git diff --exit-code -- dist/ ---
+# dist-parity exit=0

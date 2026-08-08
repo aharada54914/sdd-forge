@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/aharada54914/sdd-forge/contracts/facet-manifest.schema.json",
+  "title": "SDD Forge Facet Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "feature", "affected_components", "required_facets",
+    "conditional_facets", "resolved_gates", "capabilities",
+    "lite_eligibility", "context_binding", "resolver"
+  ],
+  "properties": {
+    "schema": { "const": "sdd-facet-manifest/v1" },
+    "feature": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+    "affected_components": {
+      "type": "array", "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "required_facets": {
+      "type": "array", "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "conditional_facets": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/conditionalFacet" }
+    },
+    "resolved_gates": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/resolvedGate" }
+    },
+    "capabilities": {
+      "type": "array", "items": { "type": "string", "minLength": 1 },
+      "uniqueItems": true
+    },
+    "capability_minimum_enforcement": { "const": "required" },
+    "lite_eligibility": { "$ref": "#/definitions/liteEligibility" },
+    "context_binding": { "$ref": "#/definitions/contextBinding" },
+    "resolver": { "$ref": "#/definitions/resolverBlock" }
+  },
+  "definitions": {
+    "conditionalFacet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["facet", "applied", "evidence"],
+      "properties": {
+        "facet": { "type": "string", "minLength": 1 },
+        "applied": { "type": "boolean" },
+        "reason": { "type": "string", "minLength": 1 },
+        "evidence": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/evidenceNode" }
+        }
+      },
+      "if": { "properties": { "applied": { "const": false } } },
+      "then": { "required": ["facet", "applied", "reason", "evidence"] },
+      "else": { "not": { "required": ["reason"] } }
+    },
+    "evidenceNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["operator", "path", "outcome"],
+      "properties": {
+        "operator": {
+          "enum": ["all", "any", "not", "equals", "not_equals",
+                   "contains", "in", "exists"]
+        },
+        "path": { "type": ["string", "null"] },
+        "outcome": { "enum": ["match", "no-match", "warn"] },
+        "reason": { "type": "string" },
+        "children": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/evidenceNode" }
+        }
+      },
+      "if": { "properties": { "outcome": { "const": "warn" } } },
+      "then": { "required": ["operator", "path", "outcome", "reason"] }
+    },
+    "resolvedGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "stage", "blocking"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$" },
+        "stage": { "enum": ["implementation", "artifact", "promotion"] },
+        "blocking": { "type": "boolean" }
+      }
+    },
+    "liteEligibility": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eligible", "upgrade_reasons"],
+      "properties": {
+        "eligible": { "type": "boolean" },
+        "upgrade_reasons": {
+          "type": "array", "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        }
+      }
+    },
+    "contextBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "full_context_revision", "dependency_pointers", "projection_sha256",
+        "registry_digest", "ownership_digest"
+      ],
+      "properties": {
+        "full_context_revision": { "$ref": "#/definitions/sha256Digest" },
+        "dependency_pointers": {
+          "type": "array", "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^/(workflow|components|shared_paths)(/([^/~]|~0|~1)*)*$"
+          }
+        },
+        "projection_sha256": { "$ref": "#/definitions/sha256Digest" },
+        "registry_digest": { "$ref": "#/definitions/sha256Digest" },
+        "ownership_digest": { "$ref": "#/definitions/sha256Digest" }
+      }
+    },
+    "resolverBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["version", "rule_set_revision"],
+      "properties": {
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "rule_set_revision": { "$ref": "#/definitions/sha256Digest" }
+      }
+    },
+    "sha256Digest": {
+      "type": "string", "pattern": "^sha256:[0-9a-f]{64}$"
+    }
+  }
+}

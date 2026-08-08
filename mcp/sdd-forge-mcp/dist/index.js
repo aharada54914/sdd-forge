@@ -3643,7 +3643,12 @@ var require_fast_uri = __commonJS({
     }
     function resolve3(baseURI, relativeURI, options) {
       const schemelessOptions = options ? Object.assign({ scheme: "null" }, options) : { scheme: "null" };
-      const resolved = resolveComponent(parse3(baseURI, schemelessOptions), parse3(relativeURI, schemelessOptions), schemelessOptions, true);
+      const { parsed: baseParsed, malformedAuthorityOrPort: baseMalformed } = parseWithStatus(baseURI, schemelessOptions);
+      const { parsed: relativeParsed, malformedAuthorityOrPort: relativeMalformed } = parseWithStatus(relativeURI, schemelessOptions);
+      if (baseMalformed || relativeMalformed) {
+        throw new Error(baseParsed.error || relativeParsed.error || "URI is malformed.");
+      }
+      const resolved = resolveComponent(baseParsed, relativeParsed, schemelessOptions, true);
       schemelessOptions.skipEscape = true;
       return serialize(resolved, schemelessOptions);
     }
@@ -3768,6 +3773,8 @@ var require_fast_uri = __commonJS({
       return uriTokens.join("");
     }
     var URI_PARSE = /^(?:([^#/:?]+):)?(?:\/\/((?:([^#/?@]*)@)?(\[[^#/?\]]+\]|[^#/:?]*)(?::(\d*))?))?([^#?]*)(?:\?([^#]*))?(?:#((?:.|[\n\r])*))?/u;
+    var AUTHORITY_PREFIX = /^(?:[^#/:?]+:)?\/\/([^/?#]*)/;
+    var AUTHORITY_INTRODUCER_REGION = /^(?:[^#/:?]+:)?([/\\\t\n\r]*)/;
     function getParseError(parsed, matches) {
       if (matches[2] !== void 0 && parsed.path && parsed.path[0] !== "/") {
         return 'URI path must start with "/" when authority is present.';
@@ -3795,6 +3802,25 @@ var require_fast_uri = __commonJS({
           uri = options.scheme + ":" + uri;
         } else {
           uri = "//" + uri;
+        }
+      }
+      const authorityMatch = uri.match(AUTHORITY_PREFIX);
+      if (authorityMatch !== null && authorityMatch[1].indexOf("\\") !== -1) {
+        parsed.error = "URI authority must not contain a literal backslash.";
+        malformedAuthorityOrPort = true;
+      }
+      const introducerMatch = uri.match(AUTHORITY_INTRODUCER_REGION);
+      if (introducerMatch !== null) {
+        const region = introducerMatch[1];
+        const normalizedRegion = region.replace(/[\t\n\r]/g, "");
+        if (normalizedRegion.length >= 2) {
+          if (normalizedRegion.slice(0, 2) !== "//") {
+            parsed.error = parsed.error || "URI authority must not contain a literal backslash.";
+            malformedAuthorityOrPort = true;
+          } else if (region.length !== normalizedRegion.length) {
+            parsed.error = parsed.error || "URI authority introducer must not contain whitespace.";
+            malformedAuthorityOrPort = true;
+          }
         }
       }
       const matches = uri.match(URI_PARSE);
@@ -22937,8 +22963,17 @@ var UrlElicitationRequiredError = class extends McpError {
 };
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/shared/stdio.js
+var STDIO_DEFAULT_MAX_BUFFER_SIZE = 10 * 1024 * 1024;
 var ReadBuffer = class {
+  constructor(options) {
+    this._maxBufferSize = options?.maxBufferSize ?? STDIO_DEFAULT_MAX_BUFFER_SIZE;
+  }
   append(chunk) {
+    const newSize = (this._buffer?.length ?? 0) + chunk.length;
+    if (newSize > this._maxBufferSize) {
+      this.clear();
+      throw new Error(`ReadBuffer exceeded maximum size of ${this._maxBufferSize} bytes`);
+    }
     this._buffer = this._buffer ? Buffer.concat([this._buffer, chunk]) : chunk;
   }
   readMessage() {
@@ -22966,18 +23001,24 @@ function serializeMessage(message) {
 
 // node_modules/@modelcontextprotocol/sdk/dist/esm/server/stdio.js
 var StdioServerTransport = class {
-  constructor(_stdin = process3.stdin, _stdout = process3.stdout) {
+  constructor(_stdin = process3.stdin, _stdout = process3.stdout, options) {
     this._stdin = _stdin;
     this._stdout = _stdout;
-    this._readBuffer = new ReadBuffer();
     this._started = false;
     this._ondata = (chunk) => {
-      this._readBuffer.append(chunk);
-      this.processReadBuffer();
+      try {
+        this._readBuffer.append(chunk);
+        this.processReadBuffer();
+      } catch (error51) {
+        this.onerror?.(error51);
+        this.close().catch(() => {
+        });
+      }
     };
     this._onerror = (error51) => {
       this.onerror?.(error51);
     };
+    this._readBuffer = new ReadBuffer({ maxBufferSize: options?.maxBufferSize });
   }
   /**
    * Starts listening for messages on stdin.
@@ -23445,15 +23486,15 @@ var makeIssue = (params) => {
       message: issueData.message
     };
   }
-  let errorMessage = "";
+  let errorMessage2 = "";
   const maps = errorMaps.filter((m) => !!m).slice().reverse();
   for (const map3 of maps) {
-    errorMessage = map3(fullIssue, { data, defaultError: errorMessage }).message;
+    errorMessage2 = map3(fullIssue, { data, defaultError: errorMessage2 }).message;
   }
   return {
     ...issueData,
     path: fullPath,
-    message: errorMessage
+    message: errorMessage2
   };
 };
 function addIssueToContext(ctx, issueData) {
@@ -27079,16 +27120,32 @@ function normalizeObjectSchema(schema2) {
   }
   return void 0;
 }
+function getDotPath(path) {
+  if (path.length === 0) {
+    return "object root";
+  }
+  return path.reduce((acc, seg, index) => {
+    if (index === 0) {
+      return String(seg);
+    }
+    if (typeof seg === "number") {
+      return `${acc}[${seg}]`;
+    }
+    return `${acc}.${seg}`;
+  }, "");
+}
 function getParseErrorMessage(error51) {
   if (error51 && typeof error51 === "object") {
+    if ("issues" in error51 && Array.isArray(error51.issues) && error51.issues.length > 0) {
+      return error51.issues.map((i) => {
+        if (!i.path?.length) {
+          return i.message;
+        }
+        return `${i.message} at ${getDotPath(i.path)}`;
+      }).join("\n");
+    }
     if ("message" in error51 && typeof error51.message === "string") {
       return error51.message;
-    }
-    if ("issues" in error51 && Array.isArray(error51.issues) && error51.issues.length > 0) {
-      const firstIssue = error51.issues[0];
-      if (firstIssue && typeof firstIssue === "object" && "message" in firstIssue) {
-        return String(firstIssue.message);
-      }
     }
     try {
       return JSON.stringify(error51);
@@ -27200,19 +27257,19 @@ var getRefs = (options) => {
 };
 
 // node_modules/zod-to-json-schema/dist/esm/errorMessages.js
-function addErrorMessage(res, key, errorMessage, refs) {
+function addErrorMessage(res, key, errorMessage2, refs) {
   if (!refs?.errorMessages)
     return;
-  if (errorMessage) {
+  if (errorMessage2) {
     res.errorMessage = {
       ...res.errorMessage,
-      [key]: errorMessage
+      [key]: errorMessage2
     };
   }
 }
-function setResponseValueAndErrors(res, key, value, errorMessage, refs) {
+function setResponseValueAndErrors(res, key, value, errorMessage2, refs) {
   res[key] = value;
-  addErrorMessage(res, key, errorMessage, refs);
+  addErrorMessage(res, key, errorMessage2, refs);
 }
 
 // node_modules/zod-to-json-schema/dist/esm/getRelativePath.js
@@ -28523,8 +28580,8 @@ var Protocol = class {
                   if (queuedMessage.type === "response") {
                     resolver(message);
                   } else {
-                    const errorMessage = message;
-                    const error51 = new McpError(errorMessage.error.code, errorMessage.error.message, errorMessage.error.data);
+                    const errorMessage2 = message;
+                    const error51 = new McpError(errorMessage2.error.code, errorMessage2.error.message, errorMessage2.error.data);
                     resolver(error51);
                   }
                 } else {
@@ -29806,16 +29863,7 @@ var Server = class extends Protocol {
     if (!methodSchema) {
       throw new Error("Schema is missing a method literal");
     }
-    let methodValue;
-    if (isZ4Schema(methodSchema)) {
-      const v4Schema = methodSchema;
-      const v4Def = v4Schema._zod?.def;
-      methodValue = v4Def?.value ?? v4Schema.value;
-    } else {
-      const v3Schema = methodSchema;
-      const legacyDef = v3Schema._def;
-      methodValue = legacyDef?.value ?? v3Schema.value;
-    }
+    const methodValue = getLiteralValue(methodSchema);
     if (typeof methodValue !== "string") {
       throw new Error("Schema method literal must be a string");
     }
@@ -29824,23 +29872,23 @@ var Server = class extends Protocol {
       const wrappedHandler = async (request, extra) => {
         const validatedRequest = safeParse3(CallToolRequestSchema, request);
         if (!validatedRequest.success) {
-          const errorMessage = validatedRequest.error instanceof Error ? validatedRequest.error.message : String(validatedRequest.error);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call request: ${errorMessage}`);
+          const errorMessage2 = validatedRequest.error instanceof Error ? validatedRequest.error.message : String(validatedRequest.error);
+          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call request: ${errorMessage2}`);
         }
         const { params } = validatedRequest.data;
         const result = await Promise.resolve(handler(request, extra));
         if (params.task) {
           const taskValidationResult = safeParse3(CreateTaskResultSchema, result);
           if (!taskValidationResult.success) {
-            const errorMessage = taskValidationResult.error instanceof Error ? taskValidationResult.error.message : String(taskValidationResult.error);
-            throw new McpError(ErrorCode.InvalidParams, `Invalid task creation result: ${errorMessage}`);
+            const errorMessage2 = taskValidationResult.error instanceof Error ? taskValidationResult.error.message : String(taskValidationResult.error);
+            throw new McpError(ErrorCode.InvalidParams, `Invalid task creation result: ${errorMessage2}`);
           }
           return taskValidationResult.data;
         }
         const validationResult = safeParse3(CallToolResultSchema, result);
         if (!validationResult.success) {
-          const errorMessage = validationResult.error instanceof Error ? validationResult.error.message : String(validationResult.error);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call result: ${errorMessage}`);
+          const errorMessage2 = validationResult.error instanceof Error ? validationResult.error.message : String(validationResult.error);
+          throw new McpError(ErrorCode.InvalidParams, `Invalid tools/call result: ${errorMessage2}`);
         }
         return validationResult.data;
       };
@@ -30556,12 +30604,12 @@ var McpServer = class {
    * @param errorMessage - The error message.
    * @returns The tool error result.
    */
-  createToolError(errorMessage) {
+  createToolError(errorMessage2) {
     return {
       content: [
         {
           type: "text",
-          text: errorMessage
+          text: errorMessage2
         }
       ],
       isError: true
@@ -30579,8 +30627,8 @@ var McpServer = class {
     const parseResult = await safeParseAsync3(schemaToParse, args);
     if (!parseResult.success) {
       const error51 = "error" in parseResult ? parseResult.error : "Unknown error";
-      const errorMessage = getParseErrorMessage(error51);
-      throw new McpError(ErrorCode.InvalidParams, `Input validation error: Invalid arguments for tool ${toolName}: ${errorMessage}`);
+      const errorMessage2 = getParseErrorMessage(error51);
+      throw new McpError(ErrorCode.InvalidParams, `Input validation error: Invalid arguments for tool ${toolName}: ${errorMessage2}`);
     }
     return parseResult.data;
   }
@@ -30604,8 +30652,8 @@ var McpServer = class {
     const parseResult = await safeParseAsync3(outputObj, result.structuredContent);
     if (!parseResult.success) {
       const error51 = "error" in parseResult ? parseResult.error : "Unknown error";
-      const errorMessage = getParseErrorMessage(error51);
-      throw new McpError(ErrorCode.InvalidParams, `Output validation error: Invalid structured content for tool ${toolName}: ${errorMessage}`);
+      const errorMessage2 = getParseErrorMessage(error51);
+      throw new McpError(ErrorCode.InvalidParams, `Output validation error: Invalid structured content for tool ${toolName}: ${errorMessage2}`);
     }
   }
   /**
@@ -30817,8 +30865,8 @@ var McpServer = class {
         const parseResult = await safeParseAsync3(argsObj, request.params.arguments);
         if (!parseResult.success) {
           const error51 = "error" in parseResult ? parseResult.error : "Unknown error";
-          const errorMessage = getParseErrorMessage(error51);
-          throw new McpError(ErrorCode.InvalidParams, `Invalid arguments for prompt ${request.params.name}: ${errorMessage}`);
+          const errorMessage2 = getParseErrorMessage(error51);
+          throw new McpError(ErrorCode.InvalidParams, `Invalid arguments for prompt ${request.params.name}: ${errorMessage2}`);
         }
         const args = parseResult.data;
         const cb = prompt.callback;
@@ -31399,17 +31447,22 @@ function guardedExistsNonEmpty(root, relPath) {
   const guardResult = resolveGuarded(root, relPath);
   return guardResult.ok && guardResult.data.size > 0;
 }
-function listGuardedFiles(root, relDir) {
+function errorMessage(error51) {
+  return error51 instanceof Error ? error51.message : String(error51);
+}
+function listGuardedFilesWithDiagnostics(root, relDir) {
   const guardResult = resolveGuardedDirectory(root, relDir);
   if (!guardResult.ok) {
-    return [];
+    return { files: [], errors: [{ path: relDir, reason: guardResult.error.message }] };
   }
-  const results = [];
+  const files = [];
+  const errors = [];
   const walk = (absDir, relPrefix) => {
     let entries;
     try {
       entries = readdirSync(absDir);
-    } catch {
+    } catch (error51) {
+      errors.push({ path: relPrefix, reason: errorMessage(error51) });
       return;
     }
     for (const entry of entries) {
@@ -31418,18 +31471,22 @@ function listGuardedFiles(root, relDir) {
       let stats;
       try {
         stats = statSync2(absEntryPath);
-      } catch {
+      } catch (error51) {
+        errors.push({ path: relEntryPath, reason: errorMessage(error51) });
         continue;
       }
       if (stats.isDirectory()) {
         walk(absEntryPath, relEntryPath);
       } else if (stats.isFile()) {
-        results.push(relEntryPath);
+        files.push(relEntryPath);
       }
     }
   };
   walk(guardResult.data.resolvedPath, relDir.replace(/\/+$/, ""));
-  return results;
+  return { files, errors };
+}
+function listGuardedFiles(root, relDir) {
+  return listGuardedFilesWithDiagnostics(root, relDir).files;
 }
 function resolveGuardedDirectory(root, relPath) {
   const shapeError = validateInputShape(relPath);
@@ -32484,7 +32541,7 @@ function requireOmap() {
   const _toString = Object.prototype.toString;
   function resolveYamlOmap(data) {
     if (data === null) return true;
-    const objectKeys = [];
+    const objectKeys = {};
     const object3 = data;
     for (let index = 0, length = object3.length; index < length; index += 1) {
       const pair = object3[index];
@@ -32498,8 +32555,8 @@ function requireOmap() {
         }
       }
       if (!pairHasKey) return false;
-      if (objectKeys.indexOf(pairKey) === -1) objectKeys.push(pairKey);
-      else return false;
+      if (_hasOwnProperty.call(objectKeys, pairKey)) return false;
+      Object.defineProperty(objectKeys, pairKey, { value: true });
     }
     return true;
   }
@@ -35016,16 +35073,20 @@ function verifyEvidenceBundle(root, bundleRelPath, taskId) {
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
-function anyFileContaining(root, relDir, pattern) {
+function anyFileContainingWithDiagnostics(root, relDir, pattern) {
   const wordBoundary = new RegExp(`(^|[^A-Za-z0-9_-])${escapeRegExp(pattern)}([^A-Za-z0-9_-]|$)`);
+  const { files, errors } = listGuardedFilesWithDiagnostics(root, relDir);
   const matches = [];
-  for (const relFilePath of listGuardedFiles(root, relDir)) {
+  for (const relFilePath of files) {
     const read = guardedRead(root, relFilePath);
     if (read.ok && wordBoundary.test(read.data.contents)) {
       matches.push(relFilePath);
     }
   }
-  return matches;
+  return { matches, errors };
+}
+function anyFileContaining(root, relDir, pattern) {
+  return anyFileContainingWithDiagnostics(root, relDir, pattern).matches;
 }
 function hasAnyFileMentioning(root, relDir, taskId) {
   return anyFileContaining(root, relDir, taskId).length > 0;
@@ -36198,6 +36259,7 @@ function evidenceFindMissing(root, feature, taskId) {
   const required2 = [EVIDENCE_BUNDLE_REQUIREMENT, VERIFICATION_CONTRACT_REQUIREMENT, QUALITY_GATE_REPORT_REQUIREMENT];
   const present = [];
   const missing = [];
+  const undeterminable = [];
   if (guardedExists(root, bundleRelPath)) {
     present.push(EVIDENCE_BUNDLE_REQUIREMENT);
   } else {
@@ -36208,13 +36270,15 @@ function evidenceFindMissing(root, feature, taskId) {
   } else {
     missing.push(VERIFICATION_CONTRACT_REQUIREMENT);
   }
-  const qgMatches = anyFileContaining(root, reportsDir, taskId);
-  if (qgMatches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
+  const qgScan = anyFileContainingWithDiagnostics(root, reportsDir, taskId);
+  if (qgScan.errors.length > 0) {
+    undeterminable.push(QUALITY_GATE_REPORT_REQUIREMENT);
+  } else if (qgScan.matches.length > 0 && hasQualityGateVerdictPass(root, reportsDir, taskId)) {
     present.push(QUALITY_GATE_REPORT_REQUIREMENT);
   } else {
     missing.push(QUALITY_GATE_REPORT_REQUIREMENT);
   }
-  return ok({ kind: "evidence-missing", feature, taskId, required: required2, present, missing });
+  return ok({ kind: "evidence-missing", feature, taskId, required: required2, present, missing, undeterminable });
 }
 function evidenceSummarizeContractChecks(root, feature, taskId) {
   const featureResult = validateFeature(feature);
@@ -36275,9 +36339,11 @@ function evidenceCompareToTraceability(root, feature) {
     }
   }
   const declaredReqIds = new Set(traceability.reqToTask.map((row) => row.reqId));
+  const unreadableContracts = [];
   for (const taskId of knownTaskIds) {
     const contractResult = parseVerificationContract(root, feature, taskId);
     if (!contractResult.ok) {
+      unreadableContracts.push({ taskId, reason: contractResult.error.message });
       continue;
     }
     for (const check2 of contractResult.data.checks) {
@@ -36296,7 +36362,8 @@ function evidenceCompareToTraceability(root, feature) {
     kind: "traceability-comparison",
     feature,
     matches: totalChecks - mismatches.length,
-    mismatches
+    mismatches,
+    unreadableContracts
   });
 }
 var RECORDED_SHA256_PATTERN = /^[a-f0-9]{64}$/;
@@ -36505,6 +36572,11 @@ function evidenceDeepVerify(root, feature, taskId) {
       failures.push(`cross-binding ${binding.subject}: ${binding.detail}`);
     }
   }
+  const signature = echoSignature(bundle);
+  const hostRequiredChecks = [
+    { check: "git-commit-ancestry", verified: false, note: gitCommit.reason },
+    { check: "signature-verification", verified: false, note: signature.note }
+  ];
   return ok({
     kind: "evidence-deep-verify",
     feature,
@@ -36512,7 +36584,8 @@ function evidenceDeepVerify(root, feature, taskId) {
     verdict: failures.length === 0 ? "pass" : "fail",
     artifacts,
     invariants: { artifactsDigest, specRevision, gitCommit, crossBindings },
-    signature: echoSignature(bundle),
+    signature,
+    hostRequiredChecks,
     failures
   });
 }

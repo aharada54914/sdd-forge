@@ -1,0 +1,36 @@
+T-003 pre-implementation consistency check
+Date: 2026-08-04
+
+Binding preservation requirement
+-------------------------------
+specs/epic-136-phase4-docs/tasks.md:355-356 requires the existing fail-closed
+statements at the design-cited line ranges to remain unchanged (BL-003).
+specs/epic-136-phase4-docs/design.md:122 identifies policy lines 202-210 as
+one of those preserved ranges.
+
+Preserved policy claim
+----------------------
+plugins/sdd-quality-loop/references/cross-model-verification-policy.md:204-207
+states that when no verdict JSONs are found, the gate exits 1, fails the
+diversity requirement, and the caller opens a review ticket.
+
+Current executable behaviour
+----------------------------
+plugins/sdd-quality-loop/scripts/check-cross-model.sh:89-97 discovers verdict
+files and calls sys.exit(2) when the resulting list is empty.
+plugins/sdd-quality-loop/scripts/check-cross-model.ps1:88-94 performs the same
+check and exits 2 when no verdict files are found.
+
+Current regression contract
+---------------------------
+tests/cross-model.tests.sh:190-197 defines CM-003 and requires exit 2 when no
+verdicts are found.
+tests/cross-model.tests.ps1:256-260 defines the matching CM-003 assertion and
+also requires exit 2.
+
+Conclusion
+----------
+The binding BL-003 preservation requirement and the accuracy rule cannot both
+be satisfied: preserving policy lines 204-207 retains an exit-code claim that
+contradicts both gate implementations and both existing integration suites.
+No policy, runner, gate, test, specification, protected, or CI file was edited.

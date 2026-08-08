@@ -1,0 +1,24 @@
+Requirement-traceability check passed for T-008:
+ - tasks.md T-008 -> REQ-010; REQ-010 in requirements.md and traceability.md; T-008 in traceability.md
+ - AC/TEST-027 and AC/TEST-032 present in acceptance-tests.md, referenced by T-008, and implemented
+   in the suite (tests/check-hook-activation-handshake.tests.sh 34 TEST-027 / 37 TEST-032 references,
+   tests/check-hook-activation-handshake.tests.ps1 34 / 37)
+ - traceability.md REQ-010 row also names TEST-035; that test is assigned to T-012 (full wiring
+   inventory, AC-035), NOT to T-008, and the T-008 task row correctly lists TEST-027, TEST-032 only.
+ - suite self-registration verified: tests/run-all.sh:64 and tests/run-all.ps1:47.
+ - NOTE: traceability.md's T-008 artifact column also names
+   specs/epic-189-a1-project-context/human-copy/.github/workflows/test.yml (staged, appended) and
+   .../human-copy/MANIFEST.sha256. That staging was deliberately not performed for T-008, matching
+   the identical T-001..T-007 precedent, with the T-009/T-013 chain named as owner. Observed and
+   recorded, not adjudicated: it is Minor 2 of the seq0363 PASS report
+   (reports/quality-gate/2026-08-01T144328Z-T-008.md).
+   CORRECTION (coordinator, post-commit): an earlier version of this line also stated that
+   human-copy/ holds only MANIFEST.sha256 and no .github/ tree at all. That observation was WRONG -
+   a plain directory listing had missed the dot-prefixed directory. human-copy/ does contain a
+   tracked .github/workflows/test.yml (committed 1c8e036f). It is however STALE: it registers only
+   the T-001 and T-004 suite steps, so T-008's own step is genuinely absent and the deferral above
+   stands unchanged.
+ - NOTE: the LIVE, cross-runtime proof that a real host guard actually denies is explicitly OUT of
+   this task's scope (acceptance-tests.md AC-027 "Scope"; design.md Test Strategy item 9) and is
+   Epic A8's own Done condition. T-008's evidence is FIXTURE-SIMULATED by design; nothing in this
+   chain claims otherwise.

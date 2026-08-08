@@ -1,0 +1,72 @@
+{
+  "schema": "spec-reviewer-b/v1",
+  "stage": "spec",
+  "role": "spec-reviewer-b",
+  "run_id": "RUN-epic136phase3-spec-a1r3-b-seq0343",
+  "host_session_id": "SESS-spec-a1r3-b-epic136phase3-0343",
+  "allowed_input_manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/plugins/sdd-review-loop/references/spec-review-calibration.md",
+      "sha256": "1ddd4ed250e30c0eb78a3d644adfefd21d0af5ea311444b526c8d840fc0649b8"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-1/round-3/integrated-summary.json",
+      "sha256": "ed16b13716f0196a644bc7e62f2c42588dbb770939831398e01c0413f26af1d3"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/reports/spec-review/epic-136-phase3/attempt-1/round-3/precheck-result.json",
+      "sha256": "7e43405e7517c8adc4b36f5d27bb1a938b90d339fe3f9408915e66a5c50a0981"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/investigation.md",
+      "sha256": "0d2aa2a3447f691e95e661f0a751c92a54e830c1db5ed42a7ddc6692caad66d1"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge/specs/epic-136-phase3/requirements.md",
+      "sha256": "932cad5187ae6aab63b8ae7ba88e8288a49b7b5b921f58f246aaee690f945cab"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "AMBIGUITY",
+      "result": "FAIL",
+      "severity": "Major",
+      "finding": "requirements.md:578-579 (Main Workflows item 2, Stream B) still reads: 'stage a CI step via human-copy (may share the SAME staged `test.yml` batch as Stream A's step, design.md decides)' \u2014 this survived the round-2->3 edit despite precheck-result.json's edit_summary claiming 'OQ-4/Main Workflows/Non-goals now agree' on the ONE-shared-batch decision. Non-goals (requirements.md:298-308) states definitively: 'Any .github/workflows/test.yml human-copy staging beyond the ONE shared staged batch this feature produces [is out of scope]... That single batch carries: one CI step per new suite from Stream A AND from Stream B... plus Stream D's step-prefix restructuring.' OQ-4 (requirements.md:731-740) states: 'The batch COUNT is decided at this spec level... design.md's Global Constraints is only the internal ordering of those edits WITHIN that single batch \u2014 not... a one-vs-two-batches choice.' Stream D's own parallel Main Workflows entry (requirements.md:601) correctly restates this ('design.md decides only the internal ordering of edits WITHIN that single reviewed diff, not the batch count'), but Stream B's entry was never updated to match. A task author or design reviewer reading only Main Workflows item 2 would reasonably conclude the batch-sharing question is still open for design.md to adjudicate \u2014 possibly staging Stream B's CI step in a second batch or blocking on a design ruling \u2014 directly diverging from a reader of Non-goals/OQ-4 who treats it as already fixed: exactly the two-implementers-diverge failure mode this check exists to catch. This belongs to spec review because it is a spec-internal cross-reference defect (the decision itself is already spec-level per OQ-4's own text; only one sentence was left unsynced), not a design or implementation-policy question. Major severity because this is the identical downstream-mismatch-causing ambiguity flagged Major in round 2, now only partially remediated (4 of 5 locations fixed, 1 surviving)."
+    },
+    {
+      "id": "CONTRADICTION",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The round-2 Critical finding (REQ-004 job-split framing surviving in Overview/Main Workflows item 4/Roles/Edge Cases/Risks against the single-job [deterministic] step-prefix decision) is now fully resolved, verified by full-document sweep: Overview (requirements.md:126) 'job-count-preserving lane marking, not a job split and not a fix to an existing mixed-lane defect'; REQ-004 (requirements.md:236,238) 'WITHOUT splitting the job... so a job split now would be speculative'; Non-goals (requirements.md:292) 'Stream D is scoped as preventive restructuring only'; OQ-5 (requirements.md:741-750) 'not a job split and not a fix for a currently mixed lane... no job to split'; Main Workflows item 4 (requirements.md:593-605) keeps job count/names/needs: byte-unchanged, states AC-017 'CONFIRMS, never updates' needs: membership; Roles (requirements.md:561) 'the same single test job with its [deterministic]-prefixed steps'; Edge Cases (requirements.md:644-651) 'that SAME single test job'; Risks (requirements.md:790-799) frames only accidental-drop/needs:-edit risk, never a job-split premise. acceptance-tests.md's TEST-016/017/018 rows (lines 30-32) likewise use only 'single-job structure' / 'byte-unchanged' / 'membership confirmed unchanged' language. investigation.md's historical job-split references (e.g. INV-023 line 588, OQ-5/Risks/Recommended-Next-Steps/BL-001 lines 766-856) predate and are explicitly superseded by requirements.md's 'OQ-5 \u2014 RESOLVED' entry; investigation.md is this project's established Phase-0 historical snapshot and is not expected to be retrofitted, so its surviving language is not a live contradiction. Minor advisory: the residual batch-cardinality hedge at requirements.md:578-579 (the blocking AMBIGUITY finding this round) is also technically inconsistent with OQ-4's 'not a... choice' framing and sits on this same batch-staging topic \u2014 recommend closing both in the same edit pass."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md's Edge Cases section (lines 612-651) enumerates 5 concrete negative/boundary/failure paths: uniform fail-closed behavior across every new-suite negative case (614-618); a false-negative PATH-restriction guard requiring each fixture to assert genuine tool absence before asserting on the guard's decision (619-625); stub-PowerShell independence from the real decision-parity target (626-632); Stream C's ADR-0010 Blocker re-check discipline at both task-decomposition and implementation time (639-643); Stream D's step-survival self-check discipline requiring full enumeration rather than substring presence (644-651). acceptance-tests.md applies WFI-014 branch-enumeration rigor explicitly (Notes, lines 41-52): TEST-001..006 as 6 independent fixtures rather than one combined fallback assertion, TEST-007's 8 named emit-mode sub-cases, and TEST-008/009/010's 36 total independently-reported leaf assertions across the 3-class x 4-runtime x 3-shape matrix. Feature-specific boundary/negative states are also covered: AC-022/TEST-022 treats a premature Stream-C CHANGELOG entry as an explicit FAIL, not merely a missing-entry check; AC-012/TEST-012's 'Blocked' Status is deliberately distinguished from 'Planned' so a reader cannot mistake blocked rows for ready work (acceptance-tests.md:71-75); the SKIP-vs-silent-PASS convention for a runtime absent on a CI host is stated explicitly (acceptance-tests.md:63-70). No material negative path, empty state, or failure mode implied by REQ-001/002/004/005/006 was found uncovered."
+    },
+    {
+      "id": "ASSUMPTIONS-RESOLVABLE",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "requirements.md's Assumptions section (lines 664-704) lists 5 assumptions, each pinned to a specific investigation-confirmed fact (identity-ledger tail sequence 337 and its record hash; PROTECTED_GATE_SUFFIXES/PHASE2_HUMAN_COPY_TARGETS membership; ADR-0010's Status:Proposed; drive_review_round's spec-only stage implementation; tests/collection-layer.tests.sh's PATH-restriction technique) and each carries an explicit RE-VERIFY-at-implementation-time instruction (WFI-013 discipline) rather than a silent staleness assumption \u2014 e.g. lines 671-673: 'RE-VERIFY directly by grep at implementation time before assuming any of Streams A/B/D's test.yml edits are the first to touch this surface.' None are left as bare unresolved placeholders: the one assumption with genuine external dependency (ADR-0010's Proposed status) is elevated out of Assumptions into a recorded Blocker with a named human decision owner (OQ-2 lines 718-726, Non-goals lines 279-284, Roles lines 557-559), matching the 'explicitly marked as decisions needed before design/task decomposition' branch of this check."
+    },
+    {
+      "id": "APPROVAL-BOUNDARY",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "The human-approval boundary is explicit, singular, and testable throughout: Roles (requirements.md:554-559) 'Human maintainer: approves this spec and (Phase 2) tasks; validates and applies the staged .github/workflows/test.yml human-copy candidate(s)... separately, decides when ADR-0010 moves to Status: Accepted, which is the sole unblock condition for Stream C's implementation... this decision is NOT made by this spec or by any agent session.' The agent-side boundary is equally explicit: 'The agent NEVER writes .github/workflows/test.yml directly for any stream' (requirements.md:548-549). AC-020/TEST-020 (requirements.md:465-469, acceptance-tests.md:34) gives an objectively testable fail-closed gate: 'the live file's grep-based self-check for each new suite's basename is red until a human applies the staged candidate \u2014 the designed fail-closed state, no staged-candidate fallback.' The Security Boundaries table's B3 row (requirements.md:659) names the exact mechanism (MANIFEST.sha256, human-only apply). No ambiguity found in who approves what or how approval is observed; this boundary is unaffected by the residual batch-hedge issue since 'a human applies it' is never in question anywhere in the document."
+    },
+    {
+      "id": "DOWNSTREAM-READINESS",
+      "result": "PASS",
+      "severity": "Minor",
+      "finding": "REQ-001/002/004/005/006 each carry named branch enumerations, exact file/line citations, and closed-set Field Definitions (guard-runtime surface, tool_name shape, decision parity, combined suite, human-copy staging, preventive restructuring \u2014 requirements.md:493-538) sufficient for implementation-policy review without inventing product behavior; the Security Boundaries table and Roles/Permissions section pre-empt design-level invention of trust-boundary or staging-authority behavior. Minor advisory: the same residual hedge flagged under this round's AMBIGUITY check (requirements.md:578-579, Stream B's Main Workflows entry) would, left unresolved, force a downstream design reviewer to either silently pick an answer or re-litigate a batch-cardinality question Non-goals/OQ-4 already closed \u2014 recommend closing it in the same edit pass so implementation-policy review is not asked to adjudicate a spec-level decision."
+    }
+  ]
+}

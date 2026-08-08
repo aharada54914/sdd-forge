@@ -1,0 +1,128 @@
+{
+  "schema": "task-reviewer-b/v1",
+  "stage": "task",
+  "role": "task-reviewer-b",
+  "feature": "design-sync-consent",
+  "attempt": 2,
+  "round": 1,
+  "run_id": "RUN-design-sync-consent-task-task-reviewer-b-seq0522",
+  "host_session_id": "SESS-task-task-reviewer-b-design-sync-consent-0522",
+  "manifest": {
+    "allowed_inputs": [
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-classification-policy.md",
+        "sha256": "21b0a61d30cf2fb95a855683dac0b180c42f7605e58a74322681d46e216ec05c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-quality-loop/references/risk-gate-matrix.md",
+        "sha256": "b714b445b4c5e7ba85d63f93031ba1f5b19a8815613d8e9ddfdf7c8b359420be"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/plugins/sdd-review-loop/references/reviewer-calibration.md",
+        "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-consent/attempt-2/round-1/integrated-summary.json",
+        "sha256": "23f08761a05c9ba9876596d95cb1fba8fdfecac19832aed2c514c49c5eeba3e2"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/reports/task-review/design-sync-consent/attempt-2/round-1/precheck-result.json",
+        "sha256": "4aec94d8818179fea79b7c1f1c8877bc5073450af4a154d9e658863a092a067d"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/acceptance-tests.md",
+        "sha256": "215f66c6a42c767b5165c0d68a6f5947318e8e25f67692961acf6b5399d71f26"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/design.md",
+        "sha256": "2d9ae6e12897a2e834ccc003892a2ddee463b781df55514bb4a54758db34d983"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/frontend-spec.md",
+        "sha256": "3ada85e7a6530c644795779d01d632c4f2b2d7ad7d3534b9e8a9ac7879db497c"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/infra-spec.md",
+        "sha256": "9452b3d3a0d0b2fd96a4b2d7357fcb1af241f01621d2ff9ccd2b5e9dbe276927"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/requirements.md",
+        "sha256": "3e14df3c14f640b3b119ded7677e9b455d4d885500a52c304468f90085b3fb5a"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/security-spec.md",
+        "sha256": "733d26821f122e9c41bdcf623c9a5604cbc8f9fa39d0c3bf4559db140b6a19c1"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/tasks.md",
+        "sha256": "bacbeea50d197ce9094a6bb6d411a235ec1bce8113e0488a6b1ac50acdbf991b"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/traceability.md",
+        "sha256": "75c69cdb8cb713cfdc7c341f9071125cd7893bfbf28d498b7f3e720f1d73e2e2"
+      },
+      {
+        "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase4/specs/design-sync-consent/ux-spec.md",
+        "sha256": "db8999fd92bbc6ad11b92e9fbe23934c962a79ff34d452c073349204423bfac6"
+      }
+    ]
+  },
+  "verdict": "PASS",
+  "checks": [
+    {
+      "id": "RISK-APPROPRIATE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "design.md:105-106's amendment only clarifies AC-026's decline-scope wording to match :185 and tasks.md T-002's already-written Done-When (:412-416, 'binding only the attempted upload, not the scope'); it introduces no new sentinel surface. T-002 (tasks.md:321) remains Risk: high on the same egress-consent-relaxation ground (Rationale :323-343), now more precisely evidenced since the corrected reading confirms decline is scoped narrowly, not a change of surface. T-001/T-003/T-004/T-005 remain Risk: medium (tasks.md:175,521,616,708); none newly touches auth/payment/PII-storage/migration/external-API-contract per risk-classification-policy.md's proximity rule, and no high-risk task's scope is UI-copy/CSS/docs/test-only. No misclassification found."
+    },
+    {
+      "id": "HIGH-CRITICAL-EVIDENCE",
+      "result": "PASS",
+      "severity": "Critical",
+      "finding": "T-002 (tasks.md:321) is the sole Risk: high/critical task, line-identical to attempt-1 round-3's binding. Its Done-When still carries both mandatory items: TDD Red->Green evidence with explicit RED/GREEN stages (tasks.md:493-504) and an independent review verdict plus independent quality-gate verdict from a named reviewer distinct from the implementer (tasks.md:508-511), matching risk-gate-matrix.md:28-30. No Risk: critical task exists (grep confirms one 'Risk: high' at :321 only). No missing item; unchanged and unaffected by the design.md wording fix."
+    },
+    {
+      "id": "TASK-SIZE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "Recounted Done-When items via script: T-001=5 (lines 236,250,267,286,305), T-002=7 (380,396,461,485,493,505,508), T-003=7 (565,571,576,580,591,597,602), T-004=7 (656,664,669,679,682,687,694), T-005=6 (766,769,778,784,798,804) -- identical counts and line numbers to attempt-1 round-3. All at/under the 8-item threshold; no task spans more than three implementation areas; no fragmentation indicator. The design.md amendment touches no task body."
+    },
+    {
+      "id": "EDGE-CASE-COVERAGE",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002's edge-case coverage for AC-026 (tasks.md:412-416, :481-483, citing TEST-041/042/043) is now textually reinforced by the amended design.md:105-106/185 wording it already matched, strengthening rather than disturbing coverage. Other edge-case coverage unchanged: AC-027 destination-mismatch re-gate (TEST-044/045, tasks.md:479), AC-028 mid-session withdrawal (TEST-046/047, tasks.md:410,481), AC-016 negative ds_profile:none check (TEST-024, tasks.md:571-575), AC-022 CHANGELOG regression check (TEST-037, tasks.md:591-596), AC-023 negative live-file-unmodified check (TEST-038, tasks.md:669-678). No functional task (T-002/T-003/T-004) is happy-path-only; T-001/T-005 remain correctly excluded as test/infrastructure tasks."
+    },
+    {
+      "id": "TEST-TYPE-MATCH",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "acceptance-tests.md is byte-identical to attempt-1 round-3 (sha256 215f66c6...71f26 matches both rounds), so per-row typing is unchanged. T-001's Test Type field (tasks.md:202-210) still names all 51 tests plus the four documented exceptions correctly. T-002 (tasks.md:351-355), T-003 (tasks.md:544-549), T-004 (tasks.md:639-640), T-005 (tasks.md:737-744) all retain their previously-verified correct type declarations (ordered-structure/structural/regression/staging/document-conformance) against acceptance-tests.md's Notes (:256) and per-row types. No mismatch."
+    },
+    {
+      "id": "ROLLBACK-PLAN",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "T-002, the sole Risk: high task, retains its explicit Rollback field (tasks.md:365-376, line-identical to attempt-1 round-3) stating single-commit prose revert, flagging the revert as security-tightening (not neutral), and specifying safe partial-rollback direction relative to T-003. Unaffected by the design.md wording amendment, which touches no Rollback text. Satisfies the Done-When/Rollback requirement for the feature's one high-risk task."
+    },
+    {
+      "id": "SCOPE-DISJOINT",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "traceability.md is byte-identical to attempt-1 round-3 (sha256 75c69cdb...d73e2e2 matches both rounds); its Task Mapping table (:84-88) still lists disjoint file sets for all five tasks. tasks.md Global Constraints (:113-119) still states the same functional-dependency serialization with no shared-artifact conflict among any pair. No overlap introduced by the design.md amendment, which is outside any task's owned Scope file set."
+    },
+    {
+      "id": "DEPENDENCY-OVERLAP",
+      "result": "PASS",
+      "severity": "Major",
+      "finding": "All four Blockers edges are line-identical to attempt-1 round-3 and remain justified: T-002<-T-001 (tasks.md:363), T-003<-T-001 (tasks.md:554), T-004<-T-001,T-002 (tasks.md:644), T-005<-T-001 (tasks.md:754). No blocker references the design.md decline-scope wording or is affected by it. No spurious or missing blocker found."
+    },
+    {
+      "id": "BUGFIX-DIAGNOSTIC-PATH",
+      "result": "SKIP",
+      "severity": "Major",
+      "finding": "SKIP: no bugfix or debugging task in scope. All five tasks (T-001 tasks.md:167, T-002 :313, T-003 :513, T-004 :608, T-005 :700) remain scoped as feature/workflow-policy tasks per their Goal/Scope/Done-When text; the design.md wording amendment is a documentation clarification of already-implemented behavior, not a bugfix task within this decomposition."
+    }
+  ],
+  "findings": []
+}

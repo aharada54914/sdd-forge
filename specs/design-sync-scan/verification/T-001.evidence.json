@@ -1,0 +1,59 @@
+{
+  "task_id": "T-001",
+  "feature": "design-sync-scan",
+  "risk": "high",
+  "required_workflow": "tdd",
+  "spec_revision": "94493e7d858ef22cf8acfe1a40b9fbd262e564d17a2d2cdda088f93b3a8c2a84",
+  "quality_report": "reports/quality-gate/20260808T043830Z-design-sync-scan-T-001.md",
+  "verification_contract": "specs/design-sync-scan/verification/T-001.contract.json",
+  "git_commit": "45a85bf776603a04cbb186b975cf34daacade017",
+  "git_generated_dirty": true,
+  "build_env": {
+    "os": "darwin",
+    "python": "3.14.5",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "lockfile_sha256": null
+  },
+  "builder": {
+    "kind": "local",
+    "id": "jrmag",
+    "runtime": "unknown"
+  },
+  "review_verdict": {
+    "verdict": "PASS",
+    "critical": 0,
+    "major": 0,
+    "minor": 4,
+    "reviewer": "sdd-evaluator"
+  },
+  "artifacts": [
+    {
+      "path": "specs/design-sync-scan/verification/T-001.contract.json",
+      "sha256": "d11761202315bba2d63de78916c858ca72a198dc81e65518a45a09148b88320e"
+    },
+    {
+      "path": "reports/quality-gate/20260808T043830Z-design-sync-scan-T-001.md",
+      "sha256": "3c99e5571bd6c35a363c3750952d1787c8a49608546d3c4d7be32a2d17a618ba"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/T-001/green.log",
+      "sha256": "c7cf6b5abacf841340164485a7f0b068652bad59eb59cc4d66f6067c25db01ec"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/placeholder-T-001-accepted.log",
+      "sha256": "21ca4caab81c895f48c910442db9f656b3d4543b5d7e64260a736bdeab6d39df"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/run-all.log",
+      "sha256": "9108c63769e473afd748a0569b457022d583589eb8fb1cbc2225ace1d3da535d"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/task-state.log",
+      "sha256": "fe0311a7f59b74bd8fdc87579fbe5f04700c46b307f08b65e913e12ee03ccc68"
+    },
+    {
+      "path": "specs/design-sync-scan/verification/qg/traceability.log",
+      "sha256": "d6670fbbe73e70de8c7074b21f743a906b81176bd23c038280d15cfee4ca268e"
+    }
+  ]
+}

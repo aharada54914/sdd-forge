@@ -1,0 +1,155 @@
+{
+  "schema": "task-reviewer-a/v1",
+  "stage": "task-review",
+  "role": "reviewer-a",
+  "feature": "epic-136-phase3",
+  "attempt": 1,
+  "round": 1,
+  "run_id": "RUN-epic-136-phase3-task-task-reviewer-a-seq0351",
+  "host_session_id": "SESS-task-task-reviewer-a-epic-136-phase3-0351",
+  "manifest": [
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/plugins/sdd-review-loop/references/reviewer-calibration.md",
+      "sha256": "85c9c6ceb80e86ae54b4ccda64d00c2e84eda8241e315aaafba60ac2c6d3e851"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/reports/task-review/epic-136-phase3/attempt-1/round-1/dependency-graph.json",
+      "sha256": "5c869fdf209177822a00e96bff912d55dd5dbc53c35549504eacb431613ad0f9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/reports/task-review/epic-136-phase3/attempt-1/round-1/precheck-result.json",
+      "sha256": "64ef3cfcb4943b41c6ee59904d16ddae4e6c608be9ba035da227ab73b9338f3a"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/acceptance-tests.md",
+      "sha256": "f42552cf996d816607dc5f7e2dbcb592852da9b9b13168e009cc5e4b3df6af66"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/design.md",
+      "sha256": "326166d0efc1fd7dd9e28ccadb1f2f40a993624fb2777f533e1e8db45f28da5f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/frontend-spec.md",
+      "sha256": "e15f2213726d64daec586f72135d2734ee01543f6194d16487e2d5ad072e5f0f"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/infra-spec.md",
+      "sha256": "9fcd57454c7576fb9b6e38485f80d82726326f6956d0fe180e6aa831ea321e19"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/requirements.md",
+      "sha256": "d4d57f77463ea283b4c5de336f09009f3cdabb7d3cb69c9bd65bc8eba06a9986"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/security-spec.md",
+      "sha256": "5b8a3ad60e478b5ab83f159239771fd2a639876dfa7cfedb0547f56676300fe9"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/tasks.md",
+      "sha256": "0e103a32cdcffca240750342396603a20c4e2fc770286a5ecd27212d234d712e"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/traceability.md",
+      "sha256": "df4c5af9127710ba730a90a29e4023e66088b83212677917437b8fedc61cac79"
+    },
+    {
+      "path": "/Users/jrmag/Projects/active/sdd-forge-wt-phase3/specs/epic-136-phase3/ux-spec.md",
+      "sha256": "4d7d386b43f5219d0b60b9f260b099af049e56b6875366ff24f2dcfbe9d4ca72"
+    }
+  ],
+  "verdict": "NEEDS_WORK",
+  "checks": [
+    {
+      "id": "PREREQ-AC-IDS",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "All AC-NNN ids referenced in tasks.md (AC-001..AC-023, verified via `grep -oE 'AC-[0-9]{3}' specs/epic-136-phase3/tasks.md`) resolve 1:1 to acceptance-tests.md's table (acceptance-tests.md:15-37, AC-001..AC-023). The two sorted-unique ID sets are identical (23/23); no dangling AC-NNN found."
+    },
+    {
+      "id": "BLOCKERS-FORMAT",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every task's `Blockers:` field is the literal string `None` (tasks.md:347, 541, 770, 1052); precheck-result.json confirms blockers_format_valid: true. Stream C/T-004's historical ADR-0010 Blocker is correctly resolved, not stale: tasks.md:19-52 documents the re-check (ADR-0010 `Status: Accepted`, commit 67015a5, 2026-07-22) and T-004's Blockers field (tasks.md:1050-1058) is 'None' with the re-check citation recorded verbatim, plus an instruction to re-verify again at implementation start."
+    },
+    {
+      "id": "REQ-COVERAGE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "REQ-001..REQ-006 (requirements.md:196-271 Goals) are each referenced by at least one task's `Requirements:` field: REQ-001 by T-001 (tasks.md:196), REQ-002 by T-002 (tasks.md:397), REQ-003 by T-004 (tasks.md:822), REQ-004 by T-003 (tasks.md:590), REQ-005 and REQ-006 by all 4 tasks as share legs (tasks.md:196,397,590,822). No uncovered REQ."
+    },
+    {
+      "id": "AC-COVERAGE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "AC-001..AC-023 all map to a task via traceability.md's Acceptance Mapping (traceability.md:37-59). AC-012..AC-015 remain marked `Blocked` in acceptance-tests.md's Status column (acceptance-tests.md:26-29, spec-authoring-time snapshot), but tasks.md treats T-004 as a normal, unblocked task with an explicit ADR-0010 re-check (tasks.md:19-52) and a second re-verification instruction at implementation start (tasks.md:915-917) \u2014 the Blocked-line ACs are handled consistently and transparently, not silently ignored or silently marked unconditionally Done."
+    },
+    {
+      "id": "ORPHAN-TASK",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every task (T-001..T-004) carries a non-empty `Requirements:` field citing at least one REQ-NNN (tasks.md:196,397,590,822). No orphan task found."
+    },
+    {
+      "id": "ORPHAN-TEST",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Every TEST-NNN (TEST-001..TEST-023) in acceptance-tests.md is owned by a task per traceability.md's Task/Acceptance Mapping (traceability.md:28-31,37-59): TEST-001..007->T-001, TEST-008..011->T-002, TEST-012..015->T-004, TEST-016..018,020->T-003, TEST-019/021/022/023 shared with each task's own leg explicitly annotated. No unowned TEST-NNN."
+    },
+    {
+      "id": "INITIAL-STATE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "All 4 tasks carry `Approval: Draft` and `Status: Planned` (tasks.md:162/164, 358/360, 552/554, 783/785), matching the round-1/attempt-1 requirement. No Done-When checkbox is pre-ticked (tasks.md Global Constraints:99-101, spot-checked in each task's Done When block)."
+    },
+    {
+      "id": "RISK-WORKFLOW-FORMAT",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "T-001: Risk medium / Required Workflow acceptance-first (tasks.md:166,190); T-002: same pairing (tasks.md:362,391); T-003: Risk high / Required Workflow tdd (tasks.md:556,584); T-004: same pairing (tasks.md:787,816). All 4 pairings match the risk-gate-matrix (medium->acceptance-first, high->tdd); precheck-result.json's workflow_match_precheck: PASS corroborates."
+    },
+    {
+      "id": "NO-DUPLICATE-AC",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "AC-001..018 and AC-020 are each claimed by exactly one task (traceability.md:37-54,56). AC-019/AC-021/AC-022/AC-023 are shared across multiple tasks but traceability.md explicitly annotates each occurrence '(each task's own leg)' / 'four independent CHANGELOG entries, never merged into one' (traceability.md:55,57-59) \u2014 a documented, distinct-scope differentiation (each task's own suite file / CHANGELOG entry / doc-check), not the same AC tested twice at the same level."
+    },
+    {
+      "id": "DEPENDENCY-COMPLETE",
+      "status": "FAIL",
+      "severity": "Major",
+      "finding": "T-003's `Depends On: T-001, T-002` (tasks.md:594-600) states an explicit functional/content dependency ('this task's staged candidate must contain a working CI step naming each of T-001's and T-002's own suite basenames... sequenced after both so the batch is authored against their FINAL basenames, not a placeholder'), but reports/task-review/epic-136-phase3/attempt-1/round-1/dependency-graph.json's `edges` array is empty (`\"edges\": []`) despite `nodes` listing all 4 tasks \u2014 no T-003->T-001 or T-003->T-002 edge is recorded. The Depends On list does not match the dependency-graph.json artifact. Failure mode: a downstream tool or scheduler consulting dependency-graph.json rather than tasks.md prose would treat T-003 as startable in parallel with T-001/T-002, risking the shared `test.yml` candidate being authored against placeholder/non-final suite basenames \u2014 exactly the risk tasks.md's own Depends-On rationale (tasks.md:594-600) warns against. Not precheck-owned: precheck-result.json (reports/task-review/epic-136-phase3/attempt-1/round-1/precheck-result.json) contains no field addressing this cross-artifact mismatch."
+    },
+    {
+      "id": "DEPENDENCY-CYCLE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "Runs because BLOCKERS-FORMAT is PASS. dependency-graph.json's `edges` array is empty, trivially acyclic. Cross-checked against tasks.md's own stated Depends On values (T-001: none, T-002: none, T-003: [T-001, T-002], T-004: none; tasks.md:199,400,594,826) \u2014 this also forms a valid DAG (T-003 depends on two independent leaf nodes, no back-reference), so no cycle exists under either representation despite the DEPENDENCY-COMPLETE mismatch noted above."
+    },
+    {
+      "id": "SINGLE-CONCERN",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "T-001/T-002/T-004 each address one coherent suite-authoring concern (tasks.md:158,354,779). T-003's title ('Mark the deterministic CI lane and stage the shared test.yml batch (Streams A/B/D)', tasks.md:548) connects two clauses via 'and', but both target the SAME single protected artifact (one staged test.yml candidate) and are explicitly required to be combined by a hard technical constraint: requirements.md Non-goals / design.md Global Constraints forbid 'two sequential human-copy rounds against the same file within this feature' (design.md:460-464) \u2014 mandatory housekeeping that cannot be decoupled, not two independent feature concerns merged for convenience."
+    },
+    {
+      "id": "OBSERVABLE-DONE",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "All 4 tasks' Done When items (tasks.md:302-336, 496-525, 717-751, 994-1027) name a concrete, named TEST-ID/AC-ID with a specific expected observable behavior (e.g. 'TEST-001 confirms the python3-present control case: .py branch selected, decision matches a direct sdd-hook-guard.py invocation'), a concrete artifact (CHANGELOG.md entry, grep-based self-check, implementation report content), or a specific verdict (independent quality-gate PASS, independent review verdict distinct from the implementing agent). Grep of tasks.md found zero instances of the forbidden verbs/phrases 'ensure', 'consider', 'works correctly', 'verify is correct'. Every task (none is documentation-only) names at least one concrete verification command/evidence artifact (e.g. T-001 ties to tests/guard-dispatch-fallback.tests.sh's TEST-001..007 output; T-003 ties to TEST-017's RED/GREEN self-check)."
+    },
+    {
+      "id": "TRACEABILITY-SYNC",
+      "status": "PASS",
+      "severity": "Minor",
+      "finding": "All 4 task IDs (T-001..T-004) have a corresponding row in traceability.md's Task Mapping/Deliverables tables (traceability.md:28-31,65-68). All REQ-001..006 referenced in traceability.md exist in requirements.md's Goals section (requirements.md:196-271). Each REQ row's Layer Spec column cites a canonical anchor resolving in the hash-bound layer document: REQ-001/002/003 cite security-spec.md#trust-boundaries (security-spec.md:17 '## Trust Boundaries'); REQ-004/005 cite infra-spec.md#cicd-sequence (infra-spec.md:39 '## CI/CD Sequence'); REQ-006 uses the reasoned 'N/A \u2014 cross-layer only: <reason>' form (traceability.md REQ-006 row). Layer Coverage's UX/Frontend anchors (ux-spec.md#scope-and-user-journeys, frontend-spec.md#technology-stack) also resolve (ux-spec.md:25, frontend-spec.md:11). All 4 layer-spec sha256 values in precheck-result.json/the review-context invocation manifest match the files read."
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "DEPENDENCY-COMPLETE",
+      "severity": "Major",
+      "task_id": "T-003",
+      "finding": "T-003's `Depends On: T-001, T-002` (tasks.md:594-600) states an explicit functional/content dependency ('this task's staged candidate must contain a working CI step naming each of T-001's and T-002's own suite basenames... sequenced after both so the batch is authored against their FINAL basenames, not a placeholder'), but reports/task-review/epic-136-phase3/attempt-1/round-1/dependency-graph.json's `edges` array is empty (`\"edges\": []`) despite `nodes` listing all 4 tasks \u2014 no T-003->T-001 or T-003->T-002 edge is recorded. The Depends On list does not match the dependency-graph.json artifact. Failure mode: a downstream tool or scheduler consulting dependency-graph.json rather than tasks.md prose would treat T-003 as startable in parallel with T-001/T-002, risking the shared `test.yml` candidate being authored against placeholder/non-final suite basenames \u2014 exactly the risk tasks.md's own Depends-On rationale (tasks.md:594-600) warns against. Not precheck-owned: precheck-result.json (reports/task-review/epic-136-phase3/attempt-1/round-1/precheck-result.json) contains no field addressing this cross-artifact mismatch."
+    }
+  ]
+}
