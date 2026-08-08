@@ -27,7 +27,8 @@
 # This restricted YAML-subset parser mirrors resolve-component-paths.py's
 # own — deliberately not a general YAML 1.2 implementation (no
 # Microsoft.PowerShell.Yaml module dependency is assumed to be installed in
-# CI), re-validated against Epic A1's canonical schema once it lands.
+# CI). Its schema-conformance mode validates the projection against Epic A1's
+# landed canonical schema and template.
 
 param(
     [string]$Config,
@@ -38,12 +39,14 @@ param(
     [string]$RepoRoot = ".",
     [switch]$CheckSchemaConformance,
     [string]$Schema = "contracts/project-context.template.yaml",
+    [string]$SchemaContract = "contracts/project-context.schema.json",
     [switch]$Diagnose,
     [string]$ProviderBindings = "sdd/provider-bindings.yaml"
 )
 $ErrorActionPreference = "Stop"
 
 $MATCHER_SEMANTICS_VERSION = "1.0.0"
+$PROJECT_CONTEXT_SCHEMA_VERSION = "sdd-project-context/v1"
 $UNSUPPORTED_METACHARS = @("?", "[", "]", "{", "}", "(", ")", "!", "+", "@", "^", "$", "|", "~")
 
 class ConfigError : System.Exception {
@@ -77,6 +80,12 @@ function Strip-Comment {
 function Parse-ScalarValue {
     param([string]$Raw)
     $s = $Raw.Trim()
+    # The canonical project-context template intentionally ships with an
+    # empty component inventory. Support exactly the empty flow sequence;
+    # all other flow-style YAML remains outside this restricted parser.
+    if ($s -ceq "[]") {
+        return ,([object[]]@())
+    }
     if ($s.Length -ge 2 -and $s[0] -eq '"' -and $s[-1] -eq '"') {
         return $s.Substring(1, $s.Length - 2)
     }
@@ -136,10 +145,19 @@ function Test-LooksLikeMappingEntry {
     return $S[$idx + 1] -eq " "
 }
 
+function New-OrdinalMapping {
+    # PowerShell's [ordered]@{} uses a case-insensitive comparer. YAML/JSON
+    # contract field names are case-sensitive, so use an insertion-ordered
+    # dictionary whose comparer is explicitly ordinal (WFI-012).
+    return [System.Collections.Specialized.OrderedDictionary]::new(
+        [System.StringComparer]::Ordinal
+    )
+}
+
 function Parse-Block {
     param([YamlLineReader]$Lines, [int]$Indent)
     $peeked = $Lines.Peek()
-    if ($null -eq $peeked) { return [ordered]@{} }
+    if ($null -eq $peeked) { return (New-OrdinalMapping) }
     if ($peeked.Indent -ne $Indent) {
         throw [ConfigError]::new("unexpected indentation at: '$($peeked.Content)'")
     }
@@ -179,7 +197,7 @@ function Parse-Sequence {
 
 function Parse-InlineMappingEntry {
     param([YamlLineReader]$Lines, [string]$FirstRest, [int]$KeyCol)
-    $result = [ordered]@{}
+    $result = New-OrdinalMapping
     $idx = $FirstRest.IndexOf(":")
     $key = $FirstRest.Substring(0, $idx).Trim()
     $value = $FirstRest.Substring($idx + 1).Trim()
@@ -220,7 +238,7 @@ function Parse-InlineMappingEntry {
 
 function Parse-Mapping {
     param([YamlLineReader]$Lines, [int]$Indent)
-    $result = [ordered]@{}
+    $result = New-OrdinalMapping
     while ($true) {
         $peeked = $Lines.Peek()
         if ($null -eq $peeked -or $peeked.Indent -ne $Indent) { break }
@@ -250,7 +268,7 @@ function Parse-Mapping {
 function ConvertFrom-MinimalYaml {
     param([string]$Text)
     $lines = [YamlLineReader]::new($Text)
-    if ($null -eq $lines.Peek()) { return [ordered]@{} }
+    if ($null -eq $lines.Peek()) { return (New-OrdinalMapping) }
     $topIndent = $lines.Peek().Indent
     $value = Parse-Block -Lines $lines -Indent $topIndent
     if ($null -ne $lines.Peek()) {
@@ -414,8 +432,8 @@ function ConvertTo-ConfigObject {
         throw [ConfigError]::new("config must be a mapping")
     }
     $componentsRaw = $Data["components"]
-    if ($null -eq $componentsRaw -or $componentsRaw -isnot [System.Array] -or $componentsRaw.Count -eq 0) {
-        throw [ConfigError]::new("config.components must be a non-empty list")
+    if ($null -eq $componentsRaw -or $componentsRaw -isnot [System.Array]) {
+        throw [ConfigError]::new("config.components must be a list")
     }
     $components = [System.Collections.Generic.List[object]]::new()
     # Ordinal, not PowerShell's default case-insensitive @{} (see the
@@ -426,9 +444,14 @@ function ConvertTo-ConfigObject {
         if ($entry -isnot [System.Collections.IDictionary]) {
             throw [ConfigError]::new("each components[] entry must be a mapping")
         }
-        $name = $entry["name"]
+        $hasId = $entry.Contains("id") -and $null -ne $entry["id"]
+        $hasName = $entry.Contains("name") -and $null -ne $entry["name"]
+        if ($hasName) {
+            throw [ConfigError]::new("legacy 'name' is not supported; use canonical component field 'id'")
+        }
+        $name = if ($hasId) { $entry["id"] } else { $null }
         if ([string]::IsNullOrEmpty($name)) {
-            throw [ConfigError]::new("each component requires a non-empty 'name'")
+            throw [ConfigError]::new("each component requires a non-empty 'id'")
         }
         if ($seenNames.ContainsKey($name)) {
             throw [ConfigError]::new("duplicate component name: $name")
@@ -467,7 +490,7 @@ function ConvertTo-ConfigObject {
                 throw [ConfigError]::new("shared_paths entry '$pattern' must carry exactly one of 'components' (bounded) or 'classification: cross-cutting' (unbounded), never both or neither")
             }
             if ($hasClassification) {
-                if ($classification -ne "cross-cutting") {
+                if ($classification -cne "cross-cutting") {
                     throw [ConfigError]::new("shared_paths entry '$pattern' has unsupported classification '$classification' (only 'cross-cutting' is defined)")
                 }
                 $sharedPaths.Add((New-SharedPathEntryObject -PatternRaw $pattern -Components $null -Classification "cross-cutting"))
@@ -577,7 +600,9 @@ function Invoke-ClassifyPaths {
             $anyIncludeMatched = $true
             $matchedExcludes = @($comp.Exclude | Where-Object { Test-PatternMatches -PatternNormalized $_ -PathNfc $nfc })
             if ($matchedExcludes.Count -gt 0) {
-                $excludedMatchEvidence.Add([ordered]@{ component = $comp.Name; patterns = $matchedExcludes })
+                foreach ($matchedPattern in $matchedExcludes) {
+                    $excludedMatchEvidence.Add([ordered]@{ component = $comp.Name; pattern = $matchedPattern })
+                }
                 continue
             }
             $residualOwners.Add($comp.Name)
@@ -649,7 +674,7 @@ function Invoke-ClassifyPaths {
 
     $ownershipInputComponents = @($Config.Components | ForEach-Object {
         [ordered]@{
-            name  = $_.Name
+            id    = $_.Name
             paths = [ordered]@{ include = $_.IncludeRaw; exclude = $_.ExcludeRaw }
         }
     })
@@ -672,43 +697,224 @@ function Invoke-ClassifyPaths {
 # Schema conformance (AC-011)
 # --------------------------------------------------------------------------
 
+function Test-JsonSchemaNodeType {
+    param($Node, [string]$Expected)
+    return $null -ne $Node -and $Node.type -is [string] -and $Node.type -ceq $Expected
+}
+
+function Test-RequiredField {
+    param($Node, [string]$Field)
+    if ($null -eq $Node.required) { return $false }
+    return @($Node.required) -ccontains $Field
+}
+
+# JSON Schema draft-07 SUBSET validator — PowerShell twin of the Python
+# master's `_schema_validate` (INV-008 parity, T-006). Same bounded-subset
+# rationale and the same stated limit: the instance comes from this file's
+# restricted YAML-subset parser, which yields every scalar as a string, so
+# "boolean"/"integer"/"number" keywords accept string scalars rather than
+# falsely rejecting them. Epic A1's schema declares booleans only under
+# components[].characteristics, which the canonical template leaves unset.
+function Test-JsonSchemaInstanceType {
+    param($Expected, $Instance)
+    if ($Expected -is [System.Array]) {
+        foreach ($candidate in $Expected) {
+            if (Test-JsonSchemaInstanceType $candidate $Instance) { return $true }
+        }
+        return $false
+    }
+    switch -CaseSensitive ($Expected) {
+        "object"  { return ($Instance -is [System.Collections.IDictionary]) }
+        "array"   { return ($Instance -is [System.Array]) }
+        "string"  { return ($Instance -is [string]) }
+        "null"    { return ($null -eq $Instance) }
+        "boolean" { if ($Instance -is [string]) { return $true } return ($Instance -is [bool]) }
+        "integer" { if ($Instance -is [string]) { return $true } return ($Instance -is [int] -or $Instance -is [long]) }
+        "number"  { if ($Instance -is [string]) { return $true } return ($Instance -is [int] -or $Instance -is [long] -or $Instance -is [double]) }
+        default   { return $true }
+    }
+}
+
+function Test-JsonSchemaInstance {
+    param($Schema, $Instance, [string]$Path = "/", $Root = $null)
+    if ($null -eq $Schema) { return @() }
+    if ($null -eq $Root) { $Root = $Schema }
+    $keys = @($Schema.PSObject.Properties.Name)
+    $errors = @()
+
+    if ($keys -ccontains '$ref') {
+        $ref = $Schema.'$ref'
+        if ($ref -isnot [string] -or -not $ref.StartsWith('#/definitions/')) {
+            return @("${Path}: unsupported `$ref '$ref'")
+        }
+        $target = $Root.definitions.($ref.Substring('#/definitions/'.Length))
+        if ($null -eq $target) { return @("${Path}: unresolvable `$ref '$ref'") }
+        return Test-JsonSchemaInstance $target $Instance $Path $Root
+    }
+
+    if ($keys -ccontains 'const' -and $Schema.const -cne $Instance) {
+        $errors += "${Path}: expected const '$($Schema.const)', got '$Instance'"
+    }
+    if ($keys -ccontains 'enum' -and -not (@($Schema.enum) -ccontains $Instance)) {
+        $errors += "${Path}: '$Instance' not in enum"
+    }
+    if ($keys -ccontains 'type' -and -not (Test-JsonSchemaInstanceType $Schema.type $Instance)) {
+        $errors += "${Path}: expected $($Schema.type)"
+    }
+
+    $prefix = $Path.TrimEnd('/')
+    if ($Instance -is [System.Collections.IDictionary]) {
+        foreach ($req in @($Schema.required)) {
+            if ($null -ne $req -and -not $Instance.Contains($req)) {
+                $errors += "${Path}: missing required field '$req'"
+            }
+        }
+        $propNames = @()
+        if ($keys -ccontains 'properties') { $propNames = @($Schema.properties.PSObject.Properties.Name) }
+        if (($keys -ccontains 'additionalProperties') -and ($Schema.additionalProperties -is [bool]) -and (-not $Schema.additionalProperties)) {
+            foreach ($key in @($Instance.Keys)) {
+                if ($propNames -cnotcontains $key) {
+                    $errors += "${Path}: additional property '$key' not allowed"
+                }
+            }
+        }
+        foreach ($key in @($Instance.Keys)) {
+            if ($propNames -ccontains $key) {
+                $errors += Test-JsonSchemaInstance $Schema.properties.$key $Instance[$key] "$prefix/$key" $Root
+            }
+        }
+    } elseif (($Instance -is [System.Array]) -and ($keys -ccontains 'items')) {
+        for ($i = 0; $i -lt $Instance.Count; $i++) {
+            $errors += Test-JsonSchemaInstance $Schema.items $Instance[$i] "$prefix/$i" $Root
+        }
+    } elseif (($Instance -is [string]) -and ($keys -ccontains 'minLength')) {
+        if ($Instance.Length -lt $Schema.minLength) {
+            $errors += "${Path}: shorter than minLength $($Schema.minLength)"
+        }
+    }
+
+    if ($keys -ccontains 'oneOf') {
+        $matched = 0
+        foreach ($branch in @($Schema.oneOf)) {
+            if (@(Test-JsonSchemaInstance $branch $Instance $Path $Root).Count -eq 0) { $matched++ }
+        }
+        if ($matched -ne 1) {
+            $errors += "${Path}: oneOf matched $matched branches (need exactly 1)"
+        }
+    }
+    return $errors
+}
+
 function Test-SchemaConformance {
-    param([string]$SchemaPath)
+    param([string]$SchemaPath, [string]$SchemaContractPath)
+    if (-not (Test-Path -LiteralPath $SchemaContractPath -PathType Leaf)) {
+        return @{ Conformant = $false; Diagnostic = "schema contract absent: $SchemaContractPath" }
+    }
+    try {
+        $contract = Get-Content -Raw -LiteralPath $SchemaContractPath -Encoding utf8 | ConvertFrom-Json
+        $properties = $contract.properties
+        $rootPropertyNames = @($properties.PSObject.Properties.Name)
+        foreach ($field in @("schema", "components", "shared_paths")) {
+            if ($rootPropertyNames -cnotcontains $field) {
+                throw [ConfigError]::new("contract properties must contain exact-case field '$field'")
+            }
+        }
+        $schemaNode = $properties.schema
+        $componentsNode = $properties.components
+        $componentItem = $componentsNode.items
+        $componentProperties = $componentItem.properties
+        $componentPropertyNames = @($componentProperties.PSObject.Properties.Name)
+        foreach ($field in @("id", "paths")) {
+            if ($componentPropertyNames -cnotcontains $field) {
+                throw [ConfigError]::new("components[] properties must contain exact-case field '$field'")
+            }
+        }
+        $pathsNode = $componentProperties.paths
+        $pathProperties = $pathsNode.properties
+        $pathPropertyNames = @($pathProperties.PSObject.Properties.Name)
+        foreach ($field in @("include", "exclude")) {
+            if ($pathPropertyNames -cnotcontains $field) {
+                throw [ConfigError]::new("components[].paths properties must contain exact-case field '$field'")
+            }
+        }
+        $sharedNode = $properties.shared_paths
+        $sharedItem = $sharedNode.items
+
+        if ($null -eq $schemaNode -or $schemaNode.const -isnot [string] -or $schemaNode.const -cne $PROJECT_CONTEXT_SCHEMA_VERSION) {
+            throw [ConfigError]::new("properties.schema.const must equal '$PROJECT_CONTEXT_SCHEMA_VERSION'")
+        }
+        if (-not (Test-JsonSchemaNodeType $componentsNode "array") -or -not (Test-JsonSchemaNodeType $componentItem "object")) {
+            throw [ConfigError]::new("properties.components must be an array of objects")
+        }
+        if (-not (Test-RequiredField $componentItem "id") -or -not (Test-JsonSchemaNodeType $componentProperties.id "string")) {
+            throw [ConfigError]::new("components[] must require string field 'id'")
+        }
+        if (-not (Test-JsonSchemaNodeType $pathsNode "object")) {
+            throw [ConfigError]::new("components[].paths must be an object when present")
+        }
+        foreach ($field in @("include", "exclude")) {
+            $node = $pathProperties.$field
+            if (-not (Test-JsonSchemaNodeType $node "array") -or -not (Test-JsonSchemaNodeType $node.items "string")) {
+                throw [ConfigError]::new("components[].paths.$field must be an array of strings")
+            }
+        }
+        if (-not (Test-JsonSchemaNodeType $sharedNode "array") -or -not (Test-JsonSchemaNodeType $sharedItem "object") -or -not (Test-RequiredField $sharedItem "pattern")) {
+            throw [ConfigError]::new("shared_paths must be an array of objects requiring 'pattern'")
+        }
+        $branches = @($sharedItem.oneOf)
+        $bounded = @($branches | Where-Object { Test-RequiredField $_ "components" })
+        $crossCutting = @($branches | Where-Object {
+            (Test-RequiredField $_ "classification") -and $_.properties.classification.const -ceq "cross-cutting"
+        })
+        if ($bounded.Count -ne 1 -or $crossCutting.Count -ne 1) {
+            throw [ConfigError]::new("shared_paths[] must define bounded components and cross-cutting classification branches")
+        }
+        $boundedComponents = $bounded[0].properties.components
+        if (-not (Test-JsonSchemaNodeType $boundedComponents "array") -or -not (Test-JsonSchemaNodeType $boundedComponents.items "string")) {
+            throw [ConfigError]::new("bounded shared_paths[].components must be an array of strings")
+        }
+    } catch {
+        return @{ Conformant = $false; Diagnostic = "schema contract at $SchemaContractPath diverges: $($_.Exception.Message)" }
+    }
+
     if (-not (Test-Path -LiteralPath $SchemaPath -PathType Leaf)) {
-        return @{ Conformant = $false; Diagnostic = "schema artifact absent: $SchemaPath (Epic A1 has not landed it yet)" }
+        return @{ Conformant = $false; Diagnostic = "schema artifact absent: $SchemaPath" }
     }
     try {
         $text = Get-Content -Raw -LiteralPath $SchemaPath -Encoding utf8
         $data = ConvertFrom-MinimalYaml $text
+        if ($data["schema"] -cne $PROJECT_CONTEXT_SCHEMA_VERSION) {
+            throw [ConfigError]::new("top-level schema must equal '$PROJECT_CONTEXT_SCHEMA_VERSION'")
+        }
+        if ($data["components"] -isnot [System.Array]) {
+            throw [ConfigError]::new("top-level components must be a list")
+        }
+        if ($data["shared_paths"] -isnot [System.Array]) {
+            throw [ConfigError]::new("top-level shared_paths must be a list")
+        }
     } catch {
-        return @{ Conformant = $false; Diagnostic = "schema artifact at $SchemaPath could not be parsed: $($_.Exception.Message)" }
+        return @{ Conformant = $false; Diagnostic = "schema artifact at $SchemaPath diverges: $($_.Exception.Message)" }
     }
-    $sharedRaw = $data["shared_paths"]
-    if ($null -eq $sharedRaw) {
-        return @{ Conformant = $false; Diagnostic = "schema artifact at $SchemaPath has no top-level 'shared_paths' key" }
-    }
-    if ($sharedRaw -isnot [System.Array]) {
-        return @{ Conformant = $false; Diagnostic = "schema artifact at $SchemaPath 'shared_paths' is not a list" }
-    }
-    foreach ($entry in $sharedRaw) {
-        if ($entry -isnot [System.Collections.IDictionary] -or -not $entry.Contains("pattern")) {
-            return @{ Conformant = $false; Diagnostic = "schema artifact at $SchemaPath has a shared_paths entry missing 'pattern'" }
-        }
-        $hasComponents = $entry.Contains("components") -and $null -ne $entry["components"]
-        $hasClassification = $null -ne $entry["classification"]
-        if ($hasComponents -eq $hasClassification) {
-            return @{ Conformant = $false; Diagnostic = "schema artifact at $SchemaPath shared_paths entry '$($entry['pattern'])' violates the bounded-xor-cross-cutting shape" }
+
+    # AC-011's substantive step (parity with the Python master): validate the
+    # parsed artifact as an INSTANCE against Epic A1's real JSON Schema, not
+    # merely parse it and shape-check the schema.
+    $instanceErrors = @(Test-JsonSchemaInstance $contract $data)
+    if ($instanceErrors.Count -gt 0) {
+        $joined = ($instanceErrors | Select-Object -First 5) -join "; "
+        return @{
+            Conformant = $false
+            Diagnostic = "schema artifact at $SchemaPath does not validate against ${SchemaContractPath}: $joined"
         }
     }
-    $componentsRaw = $data["components"]
-    if ($null -ne $componentsRaw) {
-        try {
-            [void](ConvertTo-ConfigObject @{ components = $componentsRaw; shared_paths = $sharedRaw })
-        } catch [ConfigError] {
-            return @{ Conformant = $false; Diagnostic = "schema artifact at $SchemaPath components[] shape diverges: $($_.Exception.Message)" }
-        }
+
+    try {
+        [void](ConvertTo-ConfigObject $data)
+    } catch {
+        return @{ Conformant = $false; Diagnostic = "schema artifact at $SchemaPath components[] shape diverges: $($_.Exception.Message)" }
     }
-    return @{ Conformant = $true; Diagnostic = "schema artifact at $SchemaPath conforms to this parser's expected shape" }
+
+    return @{ Conformant = $true; Diagnostic = "schema artifact $SchemaPath validates against $SchemaContractPath and conforms to the resolver projection" }
 }
 
 # --------------------------------------------------------------------------
@@ -1005,7 +1211,7 @@ function ConvertTo-CanonicalJson {
 if ($MyInvocation.InvocationName -ne '.') {
 
 if ($CheckSchemaConformance) {
-    $result = Test-SchemaConformance -SchemaPath $Schema
+    $result = Test-SchemaConformance -SchemaPath $Schema -SchemaContractPath $SchemaContract
     $out = [ordered]@{ conformant = $result.Conformant; diagnostic = $result.Diagnostic }
     Write-Output (ConvertTo-CanonicalJson $out)
     if ($result.Conformant) { exit 0 } else { exit 1 }

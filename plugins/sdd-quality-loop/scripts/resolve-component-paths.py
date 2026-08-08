@@ -36,9 +36,9 @@ CI installs no Python packages for its gate scripts (check-contract.py sets
 the same precedent), so a YAML library such as PyYAML is unavailable. The
 restricted YAML-subset parser below is a deliberate, bounded implementation
 choice (mirroring this repository's existing restricted-DSL philosophy,
-ADR-0020 / ADR-0025), not a general YAML 1.2 implementation — it will be
-re-validated against Epic A1's own canonical schema once that artifact
-lands (the schema-conformance fixture above).
+ADR-0020 / ADR-0027), not a general YAML 1.2 implementation. The
+schema-conformance fixture below validates this projection against Epic A1's
+landed canonical schema and template.
 """
 from __future__ import annotations
 
@@ -51,6 +51,8 @@ import unicodedata
 from typing import Dict, List, Optional, Tuple
 
 SCHEMA_ARTIFACT_PATH = "contracts/project-context.template.yaml"
+SCHEMA_CONTRACT_PATH = "contracts/project-context.schema.json"
+PROJECT_CONTEXT_SCHEMA_VERSION = "sdd-project-context/v1"
 MATCHER_SEMANTICS_VERSION = "1.0.0"
 
 # Characters the restricted glob DSL never supports (REQ-001: "?" and
@@ -81,6 +83,7 @@ class CollisionError(ValueError):
 #   - block mappings ("key: value" / "key:" + nested indented block)
 #   - block sequences ("- item" / "- key: value" inline-mapping-start)
 #   - scalar strings, optionally single- or double-quoted
+#   - the exact empty sequence `[]` used by the canonical starter template
 #   - "#" starts a line comment when not inside a quoted scalar
 #
 # Deliberately NOT supported (and never silently guessed at): flow style
@@ -103,8 +106,13 @@ def _strip_comment(line: str) -> str:
     return line
 
 
-def _parse_scalar(raw: str) -> str:
+def _parse_scalar(raw: str):
     s = raw.strip()
+    # The canonical A1 starter intentionally declares `components: []`.
+    # Accept this one bounded flow-style value without widening the parser
+    # into a general flow-style YAML implementation.
+    if s == "[]":
+        return []
     if len(s) >= 2 and s[0] == '"' and s[-1] == '"':
         return s[1:-1]
     if len(s) >= 2 and s[0] == "'" and s[-1] == "'":
@@ -400,16 +408,21 @@ def load_config_dict(data: dict) -> Config:
     if not isinstance(data, dict):
         raise ConfigError("config must be a mapping")
     components_raw = data.get("components")
-    if not isinstance(components_raw, list) or len(components_raw) == 0:
-        raise ConfigError("config.components must be a non-empty list")
+    if not isinstance(components_raw, list):
+        raise ConfigError("config.components must be a list")
     components: List[Component] = []
     seen_names = set()
     for entry in components_raw:
         if not isinstance(entry, dict):
             raise ConfigError("each components[] entry must be a mapping")
-        name = entry.get("name")
+        # Epic A1's canonical schema requires `id` and forbids additional
+        # properties. Do not retain the pre-A1 `name` alias on the ordinary
+        # resolve path: AC-011 field-name conformance applies here too.
+        if "name" in entry:
+            raise ConfigError("legacy 'name' is not supported; use canonical component field 'id'")
+        name = entry.get("id")
         if not isinstance(name, str) or name == "":
-            raise ConfigError("each component requires a non-empty 'name'")
+            raise ConfigError("each component requires a non-empty 'id'")
         if name in seen_names:
             raise ConfigError(f"duplicate component name: {name}")
         seen_names.add(name)
@@ -544,7 +557,10 @@ def classify_paths(config: Config, raw_paths: List[str]) -> dict:
                 # AC-013 (Fail-5 invariant): a path inside component C's own
                 # exclude is NEVER attributed to C, even though one of C's
                 # include patterns also matched.
-                excluded_match_evidence.append({"component": comp.name, "patterns": matched_excludes})
+                excluded_match_evidence.extend(
+                    {"component": comp.name, "pattern": pattern}
+                    for pattern in matched_excludes
+                )
                 continue
             residual_owners.append(comp.name)
 
@@ -584,7 +600,7 @@ def classify_paths(config: Config, raw_paths: List[str]) -> dict:
     ownership_input = {
         "components": [
             {
-                "name": c.name,
+                "id": c.name,
                 "paths": {"include": list(c.include_raw), "exclude": list(c.exclude_raw)},
             }
             for c in config.components
@@ -608,27 +624,205 @@ def classify_paths(config: Config, raw_paths: List[str]) -> dict:
 # --------------------------------------------------------------------------
 
 
-def check_schema_conformance(schema_path: str) -> Tuple[bool, str]:
-    """Returns (conformant, diagnostic). `conformant` is False whenever the
-    artifact is absent (fail-closed, never a skip) or present-but-divergent
-    from decision-document v2 section 12's shape this feature's parser
-    builds against."""
+def _json_schema_type_is(node, expected: str) -> bool:
+    return isinstance(node, dict) and node.get("type") == expected
+
+
+# JSON Schema draft-07 SUBSET validator.
+#
+# Deliberately a subset, mirroring the same bounded-validator precedent this
+# repository already set in validate-approval-sidecar.py's `_schema_validate`
+# (CI installs no third-party packages for gate scripts, so `jsonschema` is
+# unavailable). Supported: $ref into #/definitions, const, enum, type,
+# required, additionalProperties:false, properties, items, oneOf, minLength.
+#
+# KNOWN LIMIT, stated rather than hidden: the instance handed to this
+# validator comes from this file's restricted YAML-subset parser, which
+# yields every scalar as a `str`. A `"type": "boolean"`/`"integer"` keyword
+# therefore cannot be checked faithfully against a YAML-sourced instance and
+# is skipped for string scalars (see `_schema_type_ok`). Epic A1's
+# project-context schema declares booleans only under
+# `components[].characteristics`, which the canonical starter template does
+# not populate, so every field this resolver actually consumes is validated
+# for real. A JSON-sourced instance has no such limit.
+_YAML_UNTYPED_SCALAR = object()
+
+
+def _schema_type_ok(expected, instance) -> bool:
+    if isinstance(expected, list):
+        return any(_schema_type_ok(t, instance) for t in expected)
+    if expected == "object":
+        return isinstance(instance, dict)
+    if expected == "array":
+        return isinstance(instance, list)
+    if expected == "string":
+        return isinstance(instance, str)
+    if expected in ("boolean", "integer", "number"):
+        # See KNOWN LIMIT above: a restricted-YAML scalar is always `str`,
+        # so a string instance is accepted rather than falsely rejected.
+        if isinstance(instance, str):
+            return True
+        if expected == "boolean":
+            return isinstance(instance, bool)
+        return isinstance(instance, (int, float)) and not isinstance(instance, bool)
+    if expected == "null":
+        return instance is None
+    return True
+
+
+def _schema_validate(schema, instance, path="/", root=None) -> List[str]:
+    if root is None:
+        root = schema
+    if not isinstance(schema, dict):
+        return []
+    if "$ref" in schema:
+        ref = schema["$ref"]
+        if not ref.startswith("#/definitions/"):
+            return [f"{path}: unsupported $ref {ref!r}"]
+        target = (root.get("definitions") or {}).get(ref[len("#/definitions/"):])
+        if not isinstance(target, dict):
+            return [f"{path}: unresolvable $ref {ref!r}"]
+        return _schema_validate(target, instance, path, root)
+
+    errors: List[str] = []
+    if "const" in schema and instance != schema["const"]:
+        errors.append(f"{path}: expected const {schema['const']!r}, got {instance!r}")
+    if "enum" in schema and instance not in schema["enum"]:
+        errors.append(f"{path}: {instance!r} not in enum {schema['enum']!r}")
+    if "type" in schema and not _schema_type_ok(schema["type"], instance):
+        errors.append(f"{path}: expected {schema['type']}")
+
+    if isinstance(instance, dict):
+        for req in schema.get("required", []):
+            if req not in instance:
+                errors.append(f"{path}: missing required field {req!r}")
+        props = schema.get("properties", {})
+        if schema.get("additionalProperties") is False:
+            for key in instance:
+                if key not in props:
+                    errors.append(f"{path}: additional property {key!r} not allowed")
+        for key, value in instance.items():
+            if key in props:
+                errors.extend(
+                    _schema_validate(props[key], value, path.rstrip("/") + "/" + key, root)
+                )
+    elif isinstance(instance, list) and "items" in schema:
+        for idx, item in enumerate(instance):
+            errors.extend(
+                _schema_validate(schema["items"], item, path.rstrip("/") + f"/{idx}", root)
+            )
+    elif isinstance(instance, str) and "minLength" in schema:
+        if len(instance) < schema["minLength"]:
+            errors.append(f"{path}: shorter than minLength {schema['minLength']}")
+
+    if "oneOf" in schema:
+        matches = sum(
+            1 for sub in schema["oneOf"] if not _schema_validate(sub, instance, path, root)
+        )
+        if matches != 1:
+            errors.append(f"{path}: oneOf matched {matches} branches (need exactly 1)")
+    return errors
+
+
+def _check_schema_contract_shape(schema_contract_path: str) -> Tuple[bool, str]:
+    """Validate only the A3-consumed projection of Epic A1's JSON Schema."""
+    if not os.path.isfile(schema_contract_path):
+        return False, f"schema contract absent: {schema_contract_path}"
+    try:
+        with open(schema_contract_path, "r", encoding="utf-8") as fh:
+            contract = json.load(fh)
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, f"schema contract at {schema_contract_path} could not be parsed: {exc}"
+
+    properties = contract.get("properties") if isinstance(contract, dict) else None
+    if not isinstance(properties, dict):
+        return False, f"schema contract at {schema_contract_path} has no properties mapping"
+    schema_node = properties.get("schema")
+    if not isinstance(schema_node, dict) or schema_node.get("const") != PROJECT_CONTEXT_SCHEMA_VERSION:
+        return False, f"schema contract at {schema_contract_path} has a divergent schema version"
+
+    components_node = properties.get("components")
+    if not _json_schema_type_is(components_node, "array"):
+        return False, f"schema contract at {schema_contract_path} components is not an array"
+    component_item = components_node.get("items", {})
+    if not _json_schema_type_is(component_item, "object"):
+        return False, f"schema contract at {schema_contract_path} components[] is not an object"
+    if "id" not in component_item.get("required", []):
+        return False, f"schema contract at {schema_contract_path} components[].id is not required"
+    component_props = component_item.get("properties", {})
+    if not _json_schema_type_is(component_props.get("id"), "string"):
+        return False, f"schema contract at {schema_contract_path} components[].id is not a string"
+    paths_node = component_props.get("paths")
+    if not _json_schema_type_is(paths_node, "object"):
+        return False, f"schema contract at {schema_contract_path} components[].paths is not an object"
+    path_props = paths_node.get("properties", {})
+    for field in ("include", "exclude"):
+        field_node = path_props.get(field)
+        if not _json_schema_type_is(field_node, "array") or not _json_schema_type_is(
+            field_node.get("items") if isinstance(field_node, dict) else None, "string"
+        ):
+            return (
+                False,
+                f"schema contract at {schema_contract_path} "
+                f"components[].paths.{field} is not a string array",
+            )
+
+    shared_node = properties.get("shared_paths")
+    if not _json_schema_type_is(shared_node, "array"):
+        return False, f"schema contract at {schema_contract_path} shared_paths is not an array"
+    shared_items = shared_node.get("items", {})
+    if not _json_schema_type_is(shared_items, "object"):
+        return False, f"schema contract at {schema_contract_path} shared_paths[] is not an object"
+    if "pattern" not in shared_items.get("required", []):
+        return False, f"schema contract at {schema_contract_path} shared_paths[].pattern is not required"
+    bounded_ok = False
+    cross_cutting_ok = False
+    for branch in shared_items.get("oneOf", []):
+        if not isinstance(branch, dict):
+            continue
+        branch_props = branch.get("properties", {})
+        components = branch_props.get("components")
+        if (
+            "components" in branch.get("required", [])
+            and _json_schema_type_is(components, "array")
+            and _json_schema_type_is(components.get("items"), "string")
+        ):
+            bounded_ok = True
+        classification = branch_props.get("classification")
+        if (
+            "classification" in branch.get("required", [])
+            and isinstance(classification, dict)
+            and classification.get("const") == "cross-cutting"
+        ):
+            cross_cutting_ok = True
+    if not (bounded_ok and cross_cutting_ok):
+        return False, f"schema contract at {schema_contract_path} shared_paths XOR shape diverges"
+    return True, "schema contract field names, types, and version conform"
+
+
+def check_schema_conformance(
+    schema_path: str, schema_contract_path: str = SCHEMA_CONTRACT_PATH
+) -> Tuple[bool, str]:
+    """Fail closed unless both the JSON Schema and starter template align."""
+    contract_ok, contract_diagnostic = _check_schema_contract_shape(schema_contract_path)
+    if not contract_ok:
+        return False, contract_diagnostic
     if not os.path.isfile(schema_path):
-        return False, f"schema artifact absent: {schema_path} (Epic A1 has not landed it yet)"
+        return False, f"schema artifact absent: {schema_path}"
     try:
         with open(schema_path, "r", encoding="utf-8") as fh:
             text = fh.read()
         data = parse_minimal_yaml(text)
     except (ConfigError, OSError) as exc:
         return False, f"schema artifact at {schema_path} could not be parsed: {exc}"
+    if data.get("schema") != PROJECT_CONTEXT_SCHEMA_VERSION:
+        return False, f"schema artifact at {schema_path} has a divergent or missing schema version"
     shared_raw = data.get("shared_paths")
-    if shared_raw is None:
-        return False, f"schema artifact at {schema_path} has no top-level 'shared_paths' key"
     if not isinstance(shared_raw, list):
         return False, f"schema artifact at {schema_path} 'shared_paths' is not a list"
     for entry in shared_raw:
-        if not isinstance(entry, dict) or "pattern" not in entry:
-            return False, f"schema artifact at {schema_path} has a shared_paths entry missing 'pattern'"
+        if not isinstance(entry, dict) or not isinstance(entry.get("pattern"), str):
+            return False, f"schema artifact at {schema_path} has an invalid shared_paths pattern"
         has_components = "components" in entry and entry.get("components") is not None
         has_classification = entry.get("classification") is not None
         if has_components == has_classification:
@@ -637,16 +831,37 @@ def check_schema_conformance(schema_path: str) -> Tuple[bool, str]:
                 f"schema artifact at {schema_path} shared_paths entry {entry.get('pattern')!r} "
                 "violates the bounded-xor-cross-cutting shape",
             )
+    # AC-011's substantive step: validate the parsed artifact as an INSTANCE
+    # against Epic A1's real JSON Schema. The shape checks above only assert
+    # that A1's schema still says what this resolver was built against;
+    # without this call nothing ever checks a document against the schema,
+    # which is what AC-011 is framed as doing.
+    try:
+        with open(schema_contract_path, "r", encoding="utf-8") as fh:
+            contract = json.load(fh)
+    except (OSError, json.JSONDecodeError) as exc:
+        return False, f"schema contract at {schema_contract_path} could not be parsed: {exc}"
+    instance_errors = _schema_validate(contract, data)
+    if instance_errors:
+        return (
+            False,
+            f"schema artifact at {schema_path} does not validate against "
+            f"{schema_contract_path}: " + "; ".join(instance_errors[:5]),
+        )
+
     components_raw = data.get("components")
-    if components_raw is not None:
-        # The template may legitimately omit `components` (it documents
-        # `shared_paths` conventions primarily); when present, it must
-        # conform to the same components[].paths.{include,exclude} shape.
-        try:
-            load_config_dict({"components": components_raw, "shared_paths": shared_raw})
-        except ConfigError as exc:
-            return False, f"schema artifact at {schema_path} components[] shape diverges: {exc}"
-    return True, f"schema artifact at {schema_path} conforms to this parser's expected shape"
+    if not isinstance(components_raw, list):
+        return False, f"schema artifact at {schema_path} 'components' is not a list"
+    try:
+        load_config_dict({"components": components_raw, "shared_paths": shared_raw})
+    except ConfigError as exc:
+        return False, f"schema artifact at {schema_path} components[] shape diverges: {exc}"
+
+    return (
+        True,
+        f"schema artifact {schema_path} validates against {schema_contract_path} "
+        "and conforms to the resolver projection",
+    )
 
 
 # --------------------------------------------------------------------------
@@ -660,7 +875,7 @@ def check_schema_conformance(schema_path: str) -> Tuple[bool, str]:
 # follows renames under a pinned threshold/limit, evaluates submodule/
 # symlink entries reference-only, and enforces a single-writer/TOCTOU
 # snapshot check with a retry-once-then-fail-closed rule. Every axis is
-# normatively fail-closed (ADR-0025).
+# normatively fail-closed (ADR-0027).
 
 RENAME_SIMILARITY_THRESHOLD = 50  # percent, pinned (git's own default -M50%)
 RENAME_LIMIT = 1000  # pinned diff.renameLimit
@@ -972,6 +1187,11 @@ def main(argv: Optional[List[str]] = None) -> int:
         help=f"schema artifact path for --check-schema-conformance (default: {SCHEMA_ARTIFACT_PATH})",
     )
     parser.add_argument(
+        "--schema-contract",
+        default=SCHEMA_CONTRACT_PATH,
+        help=f"JSON Schema path for --check-schema-conformance (default: {SCHEMA_CONTRACT_PATH})",
+    )
+    parser.add_argument(
         "--diagnose",
         action="store_true",
         help="T-004: resolver-only diagnostics (Fail-1/3/5/6-conditional), never Gate-invoked, "
@@ -985,7 +1205,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     if args.check_schema_conformance:
-        conformant, diagnostic = check_schema_conformance(args.schema)
+        conformant, diagnostic = check_schema_conformance(args.schema, args.schema_contract)
         print(json.dumps({"conformant": conformant, "diagnostic": diagnostic}, indent=2))
         return 0 if conformant else 1
 

@@ -1,15 +1,15 @@
 workflow:
   capability_enforcement: advisory
 components:
-  - name: desktop
+  - id: desktop
     paths:
       include:
         - "src/desktop/**"
-  - name: mobile
+  - id: mobile
     paths:
       include:
         - "src/mobile/**"
-  - name: backend
+  - id: backend
     paths:
       include:
         - "src/backend/**"

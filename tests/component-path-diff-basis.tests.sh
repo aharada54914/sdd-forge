@@ -22,11 +22,11 @@ trap 'rm -rf "$WORK"' EXIT
 CONFIG="${WORK}/config.yaml"
 cat > "$CONFIG" << 'EOF'
 components:
-  - name: desktop
+  - id: desktop
     paths:
       include:
         - "src/desktop/**"
-  - name: mobile
+  - id: mobile
     paths:
       include:
         - "src/mobile/**"

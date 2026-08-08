@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### Added
+
+- **component path ownership resolver の A1 契約追従完了 (Issue #191,
+  epic-191-a3-path-ownership T-001)**: `resolve-component-paths.{py,sh,ps1}`
+  を landed 済みの `contracts/project-context.schema.json` /
+  `project-context.template.yaml` に適合させ、`components[].id`、空の
+  `components: []`、bounded/cross-cutting `shared_paths` の排他的形状を
+  fail-closed で検証する。グロブ、raw-byte sort、分類、exclude 証跡、
+  大文字小文字を区別する契約検査を Bash/PowerShell twin で固定し、ADR は
+  drafting-time の番号再検証により `0027` とした。保護領域への書込みを
+  避けるため CI ステップ候補は実装レポート配下の hash 検証済みドラフトに
+  記録した。この 2026-08-08 エントリは v1.11.0 の T-001 記録に残る
+  「A1 未着地」「human-copy staging 未作成」という当時の状態を現在状態に
+  ついてのみ訂正し、リリース履歴自体は変更しない。
+
 ### Fixed
 
 - **human-copy publisher のファイルモード保持 (epic-189-a1-project-context,

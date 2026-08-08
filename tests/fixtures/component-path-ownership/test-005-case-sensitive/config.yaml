@@ -1,5 +1,5 @@
 components:
-  - name: c1
+  - id: c1
     paths:
       include:
         - "Src/**"

@@ -1,11 +1,11 @@
 workflow:
   capability_enforcement: required
 components:
-  - name: desktop
+  - id: desktop
     paths:
       include:
         - "shared/**"
-  - name: mobile
+  - id: mobile
     paths:
       include:
         - "shared/**"

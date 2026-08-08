@@ -37,6 +37,7 @@ for ps in pwsh powershell.exe powershell; do
         --changed-paths-file) mapped="-ChangedPathsFile" ;;
         --check-schema-conformance) mapped="-CheckSchemaConformance" ;;
         --schema) mapped="-Schema" ;;
+        --schema-contract) mapped="-SchemaContract" ;;
         *) mapped="$arg" ;;
       esac
       if [ "$first" = true ]; then

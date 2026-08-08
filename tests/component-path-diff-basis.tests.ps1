@@ -24,11 +24,11 @@ $work = (Resolve-Path -LiteralPath $work).Path
 $configPath = Join-Path $work "config.yaml"
 @"
 components:
-  - name: desktop
+  - id: desktop
     paths:
       include:
         - "src/desktop/**"
-  - name: mobile
+  - id: mobile
     paths:
       include:
         - "src/mobile/**"

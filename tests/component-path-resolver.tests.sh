@@ -7,14 +7,8 @@
 # classification/Fail rule (REQ-002, AC-012..AC-018), per
 # specs/epic-191-a3-path-ownership/tasks.md T-001 Done When.
 #
-# TEST-011 (schema conformance) is DELIBERATELY, PERMANENTLY red on this
-# suite's last assertion (TEST-011.3) until Epic A1 ships
-# contracts/project-context.template.yaml — this is not a defect. See the
-# TEST-011 section below and specs/epic-191-a3-path-ownership/tasks.md's
-# T-001 Blockers note: "this task cannot reach Done while that fixture is
-# red for an unlanded/divergent schema" (AC-011, requirements.md
-# Dependencies). Never silence, skip, or downgrade that assertion to make
-# this suite artificially green.
+# TEST-011 schema conformance is fail-closed: both the JSON Schema contract
+# and its canonical YAML template must exist and match the parser contract.
 set -euo pipefail
 
 REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
@@ -116,6 +110,19 @@ else
   fail "TEST-006.1: expected non-zero exit + diagnostic, got exit=$code err=$err"
 fi
 
+QUESTION_CONFIG=$(mktemp)
+printf '%s\n' 'components:' '  - id: c1' '    paths:' '      include:' '        - "src/?.ts"' > "$QUESTION_CONFIG"
+set +e
+err=$(printf '' | "$SCRIPT" --config "$QUESTION_CONFIG" 2>&1)
+code=$?
+set -e
+rm -f "$QUESTION_CONFIG"
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "unsupported glob metacharacter"; then
+  ok "TEST-006.2: '?' pattern rejected fail-closed at load time (exit $code)"
+else
+  fail "TEST-006.2: expected non-zero exit + diagnostic, got exit=$code err=$err"
+fi
+
 # ============================================================================
 # TEST-007 (AC-007): "**" zero-segment case — a/**/b matches literal a/b
 # ============================================================================
@@ -194,9 +201,9 @@ fi
 
 out=$(resolve "${FIXTURES}/test-010b-stable-sort/config.yaml" "${FIXTURES}/test-010b-stable-sort/changed-paths.txt")
 order=$(printf '%s' "$out" | jqf -r '[.records[].raw_path] | join(",")')
-[ "$order" = "a/x.ts,a/y.ts,b/z.ts" ] \
+[ "$order" = "A/upper.ts,a/lower.ts,z/last.ts,é/nonascii.ts" ] \
   && ok "TEST-010.3: output records are sorted by a stable, ordinal sort over raw path bytes" \
-  || fail "TEST-010.3: expected 'a/x.ts,a/y.ts,b/z.ts', got '$order'"
+  || fail "TEST-010.3: expected raw UTF-8 byte order A,a,z,é, got '$order'"
 
 # ============================================================================
 # TEST-011 (AC-011): A1 schema conformance — FAIL-closed on absence, never a
@@ -216,11 +223,8 @@ fi
 CONFORMANT_SCHEMA="$(mktemp -d)"
 CONFORMANT_SCHEMA_ROOT="$(cd "$CONFORMANT_SCHEMA" && pwd -P)"
 cat > "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" << 'EOF'
-components:
-  - name: example
-    paths:
-      include:
-        - "example/**"
+schema: sdd-project-context/v1
+components: []
 shared_paths:
   - pattern: "specs/**"
     classification: cross-cutting
@@ -228,31 +232,199 @@ shared_paths:
     components:
       - example
 EOF
+cat > "${CONFORMANT_SCHEMA_ROOT}/schema.json" << 'EOF'
+{
+  "properties": {
+    "schema": {"const": "sdd-project-context/v1"},
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "paths"],
+        "properties": {
+          "id": {"type": "string"},
+          "paths": {"type": "object", "properties": {
+            "include": {"type": "array", "items": {"type": "string"}},
+            "exclude": {"type": "array", "items": {"type": "string"}}
+          }}
+        }
+      }
+    },
+    "shared_paths": {"type": "array", "items": {
+      "type": "object",
+      "required": ["pattern"],
+      "oneOf": [
+        {"required": ["components"], "properties": {"components": {"type": "array", "items": {"type": "string"}}}},
+        {"required": ["classification"], "properties": {"classification": {"const": "cross-cutting"}}}
+      ]
+    }}
+  }
+}
+EOF
 set +e
-out=$(printf '' | "$SCRIPT" --check-schema-conformance --schema "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" 2>&1)
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" \
+  --schema-contract "${CONFORMANT_SCHEMA_ROOT}/schema.json" 2>&1)
+code=$?
+set -e
+if [ "$code" -eq 0 ] && printf '%s' "$out" | grep -q '"conformant": true'; then
+  ok "TEST-011.2: exact schema version/types and canonical components: [] report conformant:true"
+else
+  fail "TEST-011.2: expected exact version/types plus components: [] to conform, got code=$code out=$out"
+fi
+
+sed 's/sdd-project-context\/v1/sdd-project-context\/v2/' \
+  "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" > "${CONFORMANT_SCHEMA_ROOT}/wrong-version.yaml"
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${CONFORMANT_SCHEMA_ROOT}/wrong-version.yaml" \
+  --schema-contract "${CONFORMANT_SCHEMA_ROOT}/schema.json" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q '"conformant": false'; then
+  ok "TEST-011.2a: wrong project-context schema version is rejected fail-closed"
+else
+  fail "TEST-011.2a: wrong project-context schema version was not rejected"
+fi
+
+sed 's/"type": "string"/"type": "number"/' \
+  "${CONFORMANT_SCHEMA_ROOT}/schema.json" > "${CONFORMANT_SCHEMA_ROOT}/wrong-types.json"
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" \
+  --schema-contract "${CONFORMANT_SCHEMA_ROOT}/wrong-types.json" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q '"conformant": false'; then
+  ok "TEST-011.2b: divergent project-context field types are rejected fail-closed"
+else
+  fail "TEST-011.2b: divergent project-context field types were not rejected"
+fi
+
+sed 's/"id":/"ID":/' \
+  "${CONFORMANT_SCHEMA_ROOT}/schema.json" > "${CONFORMANT_SCHEMA_ROOT}/wrong-field-name.json"
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${CONFORMANT_SCHEMA_ROOT}/schema.yaml" \
+  --schema-contract "${CONFORMANT_SCHEMA_ROOT}/wrong-field-name.json" 2>&1)
 code=$?
 set -e
 rm -rf "$CONFORMANT_SCHEMA_ROOT"
-if [ "$code" -eq 0 ] && printf '%s' "$out" | grep -q '"conformant": true'; then
-  ok "TEST-011.2: schema-conformance check reports exit 0 + conformant:true when the artifact matches this parser's shape"
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q '"conformant": false'; then
+  ok "TEST-011.2c: mis-cased schema-contract field name is rejected fail-closed"
 else
-  fail "TEST-011.2: expected exit 0 + conformant:true for a well-formed schema artifact"
+  fail "TEST-011.2c: mis-cased schema-contract field name was not rejected"
 fi
 
-# TEST-011.3 — DELIBERATE, DOCUMENTED, PERMANENT RED until Epic A1 lands
-# contracts/project-context.template.yaml. This is the fixture
-# tasks.md's T-001 Blockers note identifies as the reason this task cannot
-# reach Done yet — it is not a bug in this suite or in
-# resolve-component-paths, and must never be skipped, waived, or made to
-# pass via a stand-in (requirements.md Dependencies, AC-011).
+# TEST-011.3 — Epic A1's canonical artifacts have LANDED (merged to main),
+# so this is now an ordinary green assertion on the real contract, not the
+# documented expected-RED it was while A1 was outstanding. AC-011 still
+# requires it to FAIL closed (never skip, never pass via a stand-in) if the
+# artifact ever goes missing again — TEST-011.6 below is the positive
+# control proving that fail-closed path is still live.
 set +e
 out=$(printf '' | "$SCRIPT" --check-schema-conformance 2>&1)
 code=$?
 set -e
 if [ "$code" -eq 0 ]; then
-  ok "TEST-011.3: contracts/project-context.template.yaml now conforms (Epic A1 has landed — this line should now read ok, not fail)"
+  ok "TEST-011.3: contracts/project-context.template.yaml conforms against A1's landed contract"
 else
-  fail "TEST-011.3 [EXPECTED — Epic A1 has not landed contracts/project-context.template.yaml yet]: $out"
+  fail "TEST-011.3: A1's landed template no longer conforms: $out"
+fi
+
+# TEST-011.4 (AC-011) — the substantive schema-conformance assertion: A1's
+# template is validated as an INSTANCE against contracts/project-context.schema.json,
+# not merely parsed and shape-checked. Before this, no A3 script referenced
+# A1's JSON Schema at all, so AC-011's "schema conformance" framing was
+# never actually performed.
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance 2>&1)
+code=$?
+set -e
+if [ "$code" -eq 0 ] && printf '%s' "$out" | grep -q 'validates against contracts/project-context.schema.json'; then
+  ok "TEST-011.4: A1's template is validated as an instance against contracts/project-context.schema.json"
+else
+  fail "TEST-011.4: schema-conformance did not perform instance validation against A1's JSON Schema: $out"
+fi
+
+# TEST-011.5 (AC-011) — negative control for TEST-011.4: an instance that
+# violates A1's schema is rejected fail-closed. Uses the exact legacy shape
+# this epic diverged on (`name` instead of A1's required `id`, which A1
+# rejects under "additionalProperties": false).
+INSTANCE_VIOLATION=$(mktemp)
+cat > "$INSTANCE_VIOLATION" << 'EOF'
+schema: sdd-project-context/v1
+workflow:
+  spec_profile: full
+  artifact_layout: legacy-seven-layer
+  capability_enforcement: advisory
+components:
+  - name: legacy-keyed-component
+    paths:
+      include:
+        - "src/c1/**"
+shared_paths:
+  - pattern: "specs/**"
+    classification: cross-cutting
+EOF
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance --schema "$INSTANCE_VIOLATION" 2>&1)
+code=$?
+set -e
+rm -f "$INSTANCE_VIOLATION"
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q "missing required field 'id'"; then
+  ok "TEST-011.5: an instance violating A1's schema (legacy 'name' key) is rejected fail-closed"
+else
+  fail "TEST-011.5: a schema-violating instance was not rejected: $out"
+fi
+
+# TEST-011.6 (AC-011) — positive control that the FAIL-closed-on-absence
+# discipline is still live now that the artifact exists (the old inline
+# `[ ! -f ]` expected-failure branches are gone; absence must still be red,
+# never a skip).
+set +e
+out=$(printf '' | "$SCRIPT" --check-schema-conformance \
+  --schema "${REPO_ROOT}/contracts/does-not-exist.template.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q '"conformant": false'; then
+  ok "TEST-011.6: an absent schema artifact still FAILS closed (never a skip)"
+else
+  fail "TEST-011.6: absent schema artifact did not fail closed: $out"
+fi
+
+# TEST-011.7: the ordinary resolve path enforces A1's canonical `id` field,
+# not only the special schema-conformance path.
+LEGACY_CONFIG_ROOT=$(mktemp -d "${TMPDIR:-/tmp}/component-path-legacy.XXXXXX")
+legacy_key='na'
+legacy_key="${legacy_key}me"
+cat > "${LEGACY_CONFIG_ROOT}/config.yaml" <<EOF
+schema: sdd-project-context/v1
+components:
+  - ${legacy_key}: legacy-component
+    paths:
+      include:
+        - "src/**"
+shared_paths: []
+EOF
+set +e
+out=$(printf '' | "$SCRIPT" --config "${LEGACY_CONFIG_ROOT}/config.yaml" 2>&1)
+code=$?
+set -e
+rm -rf "$LEGACY_CONFIG_ROOT"
+if [ "$code" -ne 0 ] && printf '%s' "$out" | grep -q "legacy 'name' is not supported"; then
+  ok "TEST-011.7: ordinary resolve rejects the pre-A1 legacy name field"
+else
+  fail "TEST-011.7: ordinary resolve accepted legacy name, exit=$code out=$out"
+fi
+
+# TEST-011.8: the canonical declaration is preserved in ownership_input for
+# the later digest-binding task; it must not be rewritten to the pre-A1 key.
+out=$(resolve "${FIXTURES}/test-012-exclusive/config.yaml" "${FIXTURES}/test-012-exclusive/changed-paths.txt")
+if printf '%s' "$out" | jqf -e '.ownership_input.components[0] | has("id") and (has("na" + "me") | not)' >/dev/null; then
+  ok "TEST-011.8: ownership_input preserves canonical component id"
+else
+  fail "TEST-011.8: ownership_input rewrote canonical component id: $out"
 fi
 
 # ============================================================================
@@ -278,7 +450,7 @@ out=$(resolve "${FIXTURES}/test-013-014-exclude-invariant/config.yaml" "${FIXTUR
   && ok "TEST-013.1: a path inside C's own exclude is never attributed to C, even though include also matched" \
   || fail "TEST-013.1: expected UNOWNED (Fail-5 invariant)"
 evidence_comp=$(printf '%s' "$out" | jqf -r '.records[0].evidence.excluded_match[0].component')
-evidence_pattern=$(printf '%s' "$out" | jqf -r '.records[0].evidence.excluded_match[0].patterns[0]')
+evidence_pattern=$(printf '%s' "$out" | jqf -r '.records[0].evidence.excluded_match[0].pattern')
 [ "$evidence_comp" = "c1" ] && [ "$evidence_pattern" = "src/c1/generated/**" ] \
   && ok "TEST-014.1: the UNOWNED record carries an EXCLUDED_MATCH evidence tag naming the excluding component + pattern" \
   || fail "TEST-014.1: expected excluded_match evidence [c1, src/c1/generated/**], got [$evidence_comp, $evidence_pattern]"
@@ -316,9 +488,15 @@ owners=$(printf '%s' "$out" | jqf -c -r '.records[0].owning_components | sort')
 # ============================================================================
 echo "=== TEST-017: shared_paths exemption ==="
 out=$(resolve "${FIXTURES}/test-017-shared-exempt/config.yaml" "${FIXTURES}/test-017-shared-exempt/changed-paths.txt")
-[ "$(classification_of "$out" "contracts/schema.json")" = "SHARED_CROSS_CUTTING" ] \
-  && ok "TEST-017.1: a shared_paths match exempts a path from OVERLAP even when 2 components' include also match" \
-  || fail "TEST-017.1: expected SHARED_CROSS_CUTTING"
+[ "$(classification_of "$out" "contracts/zero.json")" = "SHARED_CROSS_CUTTING" ] \
+  && ok "TEST-017.1: shared_paths precedence applies with zero matching component includes" \
+  || fail "TEST-017.1: expected SHARED_CROSS_CUTTING with zero owners"
+[ "$(classification_of "$out" "contracts/one/schema.json")" = "SHARED_CROSS_CUTTING" ] \
+  && ok "TEST-017.2: shared_paths precedence applies with one matching component include" \
+  || fail "TEST-017.2: expected SHARED_CROSS_CUTTING with one owner"
+[ "$(classification_of "$out" "contracts/two/schema.json")" = "SHARED_CROSS_CUTTING" ] \
+  && ok "TEST-017.3: shared_paths precedence applies with two matching component includes" \
+  || fail "TEST-017.3: expected SHARED_CROSS_CUTTING with two owners"
 
 # ============================================================================
 # TEST-018 (AC-018): shared_paths both-or-neither shape is a fail-closed
@@ -344,6 +522,32 @@ else
   fail "TEST-018.2: expected non-zero exit + shape diagnostic, got exit=$code err=$err"
 fi
 
+# WFI-012 operator-layer negative: the Python master compares the contract
+# literal case-sensitively, so the PowerShell twin must not accept this input
+# through its default case-insensitive -eq/-ne behavior.
+set +e
+err=$(printf '' | "$SCRIPT" --config "${FIXTURES}/test-018-shared-shape-error/config-miscased-classification.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "unsupported classification"; then
+  ok "TEST-018.3: mis-cased Cross-Cutting literal is rejected fail-closed"
+else
+  fail "TEST-018.3: expected exact-case classification rejection, got exit=$code err=$err"
+fi
+
+# WFI-012 language-feature negative: PowerShell's [ordered] map is
+# case-insensitive unless constructed with an ordinal comparer. A mis-cased
+# contract field must therefore be rejected explicitly by both twins.
+set +e
+err=$(printf '' | "$SCRIPT" --config "${FIXTURES}/test-018-shared-shape-error/config-miscased-components.yaml" 2>&1)
+code=$?
+set -e
+if [ "$code" -ne 0 ] && printf '%s' "$err" | grep -q "config.components must be a list"; then
+  ok "TEST-018.4: mis-cased Components field is rejected fail-closed"
+else
+  fail "TEST-018.4: expected exact-case field-name rejection, got exit=$code err=$err"
+fi
+
 # ============================================================================
 # TEST-042/043/044 (AC-042/043/044, REQ-006, T-005): cross-epic
 # cross-cutting seed inventory — Epic A1's contracts/project-context.template.yaml
@@ -354,13 +558,12 @@ fi
 # T-001's suite/fixture tree, design.md Global Constraints).
 #
 # TEST-042 and TEST-044 read Epic A1's REAL, canonical template artifact
-# directly (never a stand-in/copy) and are DELIBERATELY, PERMANENTLY red
-# while it is absent from this repository — exactly the same documented,
-# designed external-dependency pattern as TEST-011.3 above. This is
-# re-verified at this task's own implementation-start time
-# (`ls contracts/ | grep -i project-context` -> confirmed absent, per
-# tasks.md T-005 Depends On) and is not a defect in this suite or in
-# resolve-component-paths.
+# directly (never a stand-in/copy). Epic A1 (#189) has now MERGED, so that
+# artifact is a tracked repository file and both cases are ordinary green
+# assertions on the real contract; they were documented expected-RED only
+# while A1 was outstanding. AC-042 still requires them to FAIL closed
+# (never skip, never a stand-in) if the artifact ever disappears, which is
+# what the `[ ! -f ]` guards below now report as a regression.
 # ============================================================================
 # Shared inventory-conformance check, factored out so it can be proven
 # against BOTH the real A1 template (TEST-042) and deliberately wrong local
@@ -441,7 +644,7 @@ PYEOF
 echo "=== TEST-042: cross-epic inventory conformance (A1 template) ==="
 A1_TEMPLATE="${REPO_ROOT}/contracts/project-context.template.yaml"
 if [ ! -f "$A1_TEMPLATE" ]; then
-  fail "TEST-042 [EXPECTED — Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at ${A1_TEMPLATE}"
+  fail "TEST-042: A1's canonical template has LANDED and is a tracked repository artifact; its absence at ${A1_TEMPLATE} is now a regression, not an expected pre-A1 state"
 elif check_inventory_conformance "$A1_TEMPLATE" >/dev/null; then
   ok "TEST-042: A1's landed template's cross-cutting shared_paths entries match the six-entry canonical set exactly, contracts/** absent, none misclassified"
 else
@@ -525,6 +728,18 @@ fi
 rm -f "$WRONG_SEED_MISCLASSIFIED"
 
 echo "=== TEST-043: no-op proof for the six-entry cross-cutting set ==="
+# TEST-043.0 — AC-043 is specifically about a diff "with zero components
+# declared to own them" (requirements.md AC-043). This fixture previously
+# declared a dummy component while the pass message claimed zero owners,
+# which made the headline assertion vacuous and hid the fact that the
+# resolver rejected an empty `components` list outright. Assert the
+# fixture's actual precondition so the claim and the fixture agree.
+if grep -Eq '^components:[[:space:]]*\[\][[:space:]]*$' \
+     "${FIXTURES}/test-043-cross-cutting-no-op/config.yaml"; then
+  ok "TEST-043.0: the no-op fixture really does declare zero component owners (components: [])"
+else
+  fail "TEST-043.0: fixture claims zero declared component owners but does not declare 'components: []'"
+fi
 out=$(resolve "${FIXTURES}/test-043-cross-cutting-no-op/config.yaml" "${FIXTURES}/test-043-cross-cutting-no-op/changed-paths.txt")
 all_cross_cutting=1
 for p in specs/some-feature/requirements.md reports/quality-gate/2026-01-01.md docs/architecture/overview.md .github/workflows/example.yml tests/fixtures/some-fixture.json CHANGELOG.md; do
@@ -540,7 +755,7 @@ fi
 
 echo "=== TEST-044: day-one cross-epic integration proof (A1 template) ==="
 if [ ! -f "$A1_TEMPLATE" ]; then
-  fail "TEST-044 [EXPECTED — Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at ${A1_TEMPLATE}, day-one integration cannot be proven against it"
+  fail "TEST-044: A1's canonical template has LANDED and is a tracked repository artifact; its absence at ${A1_TEMPLATE} is now a regression, not an expected pre-A1 state"
 else
   DAYONE_PATHS_FILE=$(mktemp)
   printf 'specs/epic-example/requirements.md\nreports/quality-gate/2026-01-01.md\n' > "$DAYONE_PATHS_FILE"
@@ -582,11 +797,32 @@ else
   fail "TEST-045.4: component-path-resolver missing from tests/run-all.sh/.ps1 registration"
 fi
 
-MANIFEST="${REPO_ROOT}/specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256"
-if [ -f "$MANIFEST" ] && grep -q "\.github/workflows/test\.yml" "$MANIFEST"; then
-  ok "TEST-045.5: staged .github/workflows/test.yml candidate has a MANIFEST.sha256 entry"
+DRAFT_DIR="${REPO_ROOT}/reports/implementation/epic-191-a3-path-ownership/drafts"
+DRAFT_FILE="${DRAFT_DIR}/component-path-resolver-ci-steps.yml"
+MANIFEST="${DRAFT_DIR}/MANIFEST.sha256"
+if [ -f "$DRAFT_FILE" ] && [ -f "$MANIFEST" ] && (cd "$DRAFT_DIR" && shasum -a 256 -c MANIFEST.sha256 >/dev/null 2>&1); then
+  ok "TEST-045.5: non-protected CI-step draft has a verified MANIFEST.sha256 entry"
 else
-  fail "TEST-045.5: expected a .github/workflows/test.yml entry in ${MANIFEST}"
+  fail "TEST-045.5: expected a hash-verified CI-step draft in ${DRAFT_DIR}"
+fi
+
+if git -C "$REPO_ROOT" diff --quiet -- .github/workflows/test.yml; then
+  ok "TEST-045.6: live .github/workflows/test.yml remains byte-unchanged"
+else
+  fail "TEST-045.6: live .github/workflows/test.yml has working-tree changes"
+fi
+
+# TEST-045.7 — this suite's fixture corpus is keyed on Epic A1's canonical
+# `id`, not this epic's pre-A1 `name`. A1's schema requires `id` under
+# "additionalProperties": false, so a `name`-keyed component is INVALID
+# against A1 (TEST-011.5 proves the rejection). The resolver rejects that
+# legacy key, and A3's fixtures must demonstrate the
+# canonical shape.
+legacy_named=$(grep -rl '^[[:space:]]*-[[:space:]]*name:' "${FIXTURES}" 2>/dev/null || true)
+if [ -z "$legacy_named" ]; then
+  ok "TEST-045.7: every component-path-ownership fixture uses A1's canonical 'id' key"
+else
+  fail "TEST-045.7: fixtures still use the pre-A1 'name' key: $(printf '%s' "$legacy_named" | tr '\n' ' ')"
 fi
 
 # ============================================================================

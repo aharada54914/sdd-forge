@@ -1,3 +1,4 @@
-b/z.ts
-a/y.ts
-a/x.ts
+z/last.ts
+é/nonascii.ts
+a/lower.ts
+A/upper.ts

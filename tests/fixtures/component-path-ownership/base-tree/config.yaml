@@ -1,12 +1,12 @@
 components:
-  - name: desktop-client
+  - id: desktop-client
     paths:
       include:
         - "src/desktop/**"
         - "src/shared-ui/**"
       exclude:
         - "src/desktop/generated/**"
-  - name: mobile-client
+  - id: mobile-client
     paths:
       include:
         - "src/mobile/**"

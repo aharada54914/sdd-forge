@@ -19,9 +19,8 @@
 # stream/scope semantics and matches how every real caller (the .sh
 # dispatcher, `pwsh -File`) actually invokes this script.
 #
-# TEST-011.3 is DELIBERATELY, PERMANENTLY red on this suite too, until Epic
-# A1 ships contracts/project-context.template.yaml — see the bash twin's
-# header comment and tasks.md's T-001 Blockers note. Never silence it.
+# TEST-011 is fail-closed: both the JSON Schema contract and canonical YAML
+# template must exist and agree with the parser contract.
 $ErrorActionPreference = "Stop"
 
 $repoRoot = Split-Path -Parent $PSScriptRoot
@@ -68,7 +67,7 @@ function Invoke-ResolveFixture {
 function Get-Classification {
     param([string]$Json, [string]$RawPath)
     $obj = $Json | ConvertFrom-Json
-    $rec = $obj.records | Where-Object { $_.raw_path -eq $RawPath }
+    $rec = $obj.records | Where-Object { $_.raw_path -ceq $RawPath }
     if ($null -eq $rec) { return $null }
     return $rec.classification
 }
@@ -125,6 +124,24 @@ if ($r.ExitCode -ne 0 -and $r.Output -match "unsupported glob metacharacter") {
     Ok "TEST-006.1: '[abc]' pattern rejected fail-closed at load time"
 } else {
     Fail "TEST-006.1: expected non-zero exit + diagnostic, got exit=$($r.ExitCode) out=$($r.Output)"
+}
+$questionConfig = Join-Path ([IO.Path]::GetTempPath()) ("rcp-question." + [Guid]::NewGuid().ToString("N") + ".yaml")
+@'
+components:
+  - id: c1
+    paths:
+      include:
+        - "src/?.ts"
+'@ | Set-Content -LiteralPath $questionConfig -Encoding utf8 -NoNewline
+try {
+    $r = Invoke-ResolverRaw -CliArgs @("-Config", $questionConfig)
+    if ($r.ExitCode -ne 0 -and $r.Output -match "unsupported glob metacharacter") {
+        Ok "TEST-006.2: '?' pattern rejected fail-closed at load time"
+    } else {
+        Fail "TEST-006.2: expected non-zero exit + diagnostic, got exit=$($r.ExitCode) out=$($r.Output)"
+    }
+} finally {
+    Remove-Item -Force -LiteralPath $questionConfig -ErrorAction SilentlyContinue
 }
 
 # ============================================================================
@@ -186,7 +203,7 @@ if ([System.Linq.Enumerable]::SequenceEqual([byte[]]$rawBytes, [byte[]]$fileByte
 $r = Invoke-ResolveFixture (Join-Path $fixtures "test-010b-stable-sort/config.yaml") (Join-Path $fixtures "test-010b-stable-sort/changed-paths.txt")
 $obj = $r.Output | ConvertFrom-Json
 $order = ($obj.records | ForEach-Object { $_.raw_path }) -join ","
-if ($order -eq "a/x.ts,a/y.ts,b/z.ts") { Ok "TEST-010.3: stable ordinal sort over raw path bytes" } else { Fail "TEST-010.3: expected 'a/x.ts,a/y.ts,b/z.ts', got '$order'" }
+if ($order -ceq "A/upper.ts,a/lower.ts,z/last.ts,é/nonascii.ts") { Ok "TEST-010.3: stable ordinal sort over raw UTF-8 path bytes" } else { Fail "TEST-010.3: expected raw UTF-8 byte order A,a,z,é, got '$order'" }
 
 # ============================================================================
 # TEST-011 (AC-011): A1 schema conformance
@@ -204,11 +221,8 @@ New-Item -ItemType Directory -Path $conformantDir | Out-Null
 try {
     $schemaPath = Join-Path $conformantDir "schema.yaml"
     @"
-components:
-  - name: example
-    paths:
-      include:
-        - "example/**"
+schema: sdd-project-context/v1
+components: []
 shared_paths:
   - pattern: "specs/**"
     classification: cross-cutting
@@ -216,23 +230,158 @@ shared_paths:
     components:
       - example
 "@ | Set-Content -LiteralPath $schemaPath -Encoding utf8 -NoNewline
-    $r = Invoke-ResolverRaw -CliArgs @("-CheckSchemaConformance", "-Schema", $schemaPath)
+    $schemaContractPath = Join-Path $conformantDir "schema.json"
+    @'
+{
+  "properties": {
+    "schema": {"const": "sdd-project-context/v1"},
+    "components": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "paths"],
+        "properties": {
+          "id": {"type": "string"},
+          "paths": {"type": "object", "properties": {
+            "include": {"type": "array", "items": {"type": "string"}},
+            "exclude": {"type": "array", "items": {"type": "string"}}
+          }}
+        }
+      }
+    },
+    "shared_paths": {"type": "array", "items": {
+      "type": "object",
+      "required": ["pattern"],
+      "oneOf": [
+        {"required": ["components"], "properties": {"components": {"type": "array", "items": {"type": "string"}}}},
+        {"required": ["classification"], "properties": {"classification": {"const": "cross-cutting"}}}
+      ]
+    }}
+  }
+}
+'@ | Set-Content -LiteralPath $schemaContractPath -Encoding utf8 -NoNewline
+    $r = Invoke-ResolverRaw -CliArgs @("-CheckSchemaConformance", "-Schema", $schemaPath, "-SchemaContract", $schemaContractPath)
     if ($r.ExitCode -eq 0 -and $r.Output -match '"conformant": true') {
-        Ok "TEST-011.2: exit 0 + conformant:true for a well-formed schema artifact"
+        Ok "TEST-011.2: exact schema version/types and canonical components: [] report conformant:true"
     } else {
-        Fail "TEST-011.2: expected exit 0 + conformant:true, got exit=$($r.ExitCode) out=$($r.Output)"
+        Fail "TEST-011.2: expected exact version/types plus components: [] to conform, got exit=$($r.ExitCode) out=$($r.Output)"
+    }
+
+    $wrongVersionPath = Join-Path $conformantDir "wrong-version.yaml"
+    ((Get-Content -Raw -LiteralPath $schemaPath) -replace 'sdd-project-context/v1', 'sdd-project-context/v2') |
+        Set-Content -LiteralPath $wrongVersionPath -Encoding utf8 -NoNewline
+    $r = Invoke-ResolverRaw -CliArgs @("-CheckSchemaConformance", "-Schema", $wrongVersionPath, "-SchemaContract", $schemaContractPath)
+    if ($r.ExitCode -ne 0 -and $r.Output -match '"conformant": false') {
+        Ok "TEST-011.2a: wrong project-context schema version is rejected fail-closed"
+    } else {
+        Fail "TEST-011.2a: wrong project-context schema version was not rejected"
+    }
+
+    $wrongTypesPath = Join-Path $conformantDir "wrong-types.json"
+    ((Get-Content -Raw -LiteralPath $schemaContractPath) -replace '"type": "string"', '"type": "number"') |
+        Set-Content -LiteralPath $wrongTypesPath -Encoding utf8 -NoNewline
+    $r = Invoke-ResolverRaw -CliArgs @("-CheckSchemaConformance", "-Schema", $schemaPath, "-SchemaContract", $wrongTypesPath)
+    if ($r.ExitCode -ne 0 -and $r.Output -match '"conformant": false') {
+        Ok "TEST-011.2b: divergent project-context field types are rejected fail-closed"
+    } else {
+        Fail "TEST-011.2b: divergent project-context field types were not rejected"
+    }
+
+    $wrongFieldNamePath = Join-Path $conformantDir "wrong-field-name.json"
+    ((Get-Content -Raw -LiteralPath $schemaContractPath) -replace '"id":', '"ID":') |
+        Set-Content -LiteralPath $wrongFieldNamePath -Encoding utf8 -NoNewline
+    $r = Invoke-ResolverRaw -CliArgs @("-CheckSchemaConformance", "-Schema", $schemaPath, "-SchemaContract", $wrongFieldNamePath)
+    if ($r.ExitCode -ne 0 -and $r.Output -match '"conformant": false') {
+        Ok "TEST-011.2c: mis-cased schema-contract field name is rejected fail-closed"
+    } else {
+        Fail "TEST-011.2c: mis-cased schema-contract field name was not rejected"
     }
 } finally {
     Remove-Item -Recurse -Force -LiteralPath $conformantDir -ErrorAction SilentlyContinue
 }
 
-# TEST-011.3 — DELIBERATE, DOCUMENTED, PERMANENT RED until Epic A1 lands
-# contracts/project-context.template.yaml. See the bash twin's header.
+# TEST-011.3 — Epic A1 has LANDED, so this is now an ordinary green
+# assertion on the real contract. See the bash twin's header.
 $r = Invoke-ResolverRaw -CliArgs @("-CheckSchemaConformance")
 if ($r.ExitCode -eq 0) {
-    Ok "TEST-011.3: contracts/project-context.template.yaml now conforms (Epic A1 has landed)"
+    Ok "TEST-011.3: contracts/project-context.template.yaml conforms against A1's landed contract"
 } else {
-    Fail "TEST-011.3 [EXPECTED - Epic A1 has not landed contracts/project-context.template.yaml yet]: $($r.Output)"
+    Fail "TEST-011.3: A1's landed template no longer conforms: $($r.Output)"
+}
+
+# TEST-011.4 (AC-011) — instance validation against A1's real JSON Schema.
+$r = Invoke-ResolverRaw -CliArgs @("-CheckSchemaConformance")
+if ($r.ExitCode -eq 0 -and $r.Output -match 'validates against contracts/project-context\.schema\.json') {
+    Ok "TEST-011.4: A1's template is validated as an instance against contracts/project-context.schema.json"
+} else {
+    Fail "TEST-011.4: schema-conformance did not perform instance validation against A1's JSON Schema: $($r.Output)"
+}
+
+# TEST-011.5 (AC-011) — negative control: an instance violating A1's schema
+# (the pre-A1 'name' key, invalid under "additionalProperties": false) is
+# rejected fail-closed.
+$instanceViolation = Join-Path ([System.IO.Path]::GetTempPath()) ("a3-instance-" + [guid]::NewGuid().ToString() + ".yaml")
+@(
+    'schema: sdd-project-context/v1'
+    'workflow:'
+    '  spec_profile: full'
+    '  artifact_layout: legacy-seven-layer'
+    '  capability_enforcement: advisory'
+    'components:'
+    '  - name: legacy-keyed-component'
+    '    paths:'
+    '      include:'
+    '        - "src/c1/**"'
+    'shared_paths:'
+    '  - pattern: "specs/**"'
+    '    classification: cross-cutting'
+) -join "`n" | Set-Content -LiteralPath $instanceViolation -Encoding utf8
+try {
+    $r = Invoke-ResolverRaw -CliArgs @("-CheckSchemaConformance", "-Schema", $instanceViolation)
+    if ($r.ExitCode -ne 0 -and $r.Output -match "missing required field 'id'") {
+        Ok "TEST-011.5: an instance violating A1's schema (legacy 'name' key) is rejected fail-closed"
+    } else {
+        Fail "TEST-011.5: a schema-violating instance was not rejected: $($r.Output)"
+    }
+} finally {
+    Remove-Item -Force -LiteralPath $instanceViolation -ErrorAction SilentlyContinue
+}
+
+# TEST-011.6 (AC-011) — fail-closed-on-absence is still live.
+$r = Invoke-ResolverRaw -CliArgs @("-CheckSchemaConformance", "-Schema", (Join-Path $repoRoot "contracts/does-not-exist.template.yaml"))
+if ($r.ExitCode -ne 0 -and $r.Output -match '"conformant": false') {
+    Ok "TEST-011.6: an absent schema artifact still FAILS closed (never a skip)"
+} else {
+    Fail "TEST-011.6: absent schema artifact did not fail closed: $($r.Output)"
+}
+
+$legacyConfig = Join-Path ([System.IO.Path]::GetTempPath()) ("component-path-legacy-" + [guid]::NewGuid().ToString() + ".yaml")
+$legacyKey = "na" + "me"
+@(
+    'schema: sdd-project-context/v1'
+    'components:'
+    "  - ${legacyKey}: legacy-component"
+    '    paths:'
+    '      include:'
+    '        - "src/**"'
+    'shared_paths: []'
+) -join "`n" | Set-Content -LiteralPath $legacyConfig -Encoding utf8
+$r = Invoke-ResolverRaw -CliArgs @("-Config", $legacyConfig)
+Remove-Item -Force -LiteralPath $legacyConfig -ErrorAction SilentlyContinue
+if ($r.ExitCode -ne 0 -and $r.Output -match "legacy 'name' is not supported") {
+    Ok "TEST-011.7: ordinary resolve rejects the pre-A1 legacy name field"
+} else {
+    Fail "TEST-011.7: ordinary resolve accepted legacy name, exit=$($r.ExitCode) out=$($r.Output)"
+}
+
+$r = Invoke-ResolveFixture (Join-Path $fixtures "test-012-exclusive/config.yaml") (Join-Path $fixtures "test-012-exclusive/changed-paths.txt")
+$ownershipComponent = ($r.Output | ConvertFrom-Json).ownership_input.components[0]
+$ownershipKeys = @($ownershipComponent.PSObject.Properties.Name)
+$legacyOwnershipKey = "na" + "me"
+if ($ownershipKeys -ccontains "id" -and $ownershipKeys -cnotcontains $legacyOwnershipKey) {
+    Ok "TEST-011.8: ownership_input preserves canonical component id"
+} else {
+    Fail "TEST-011.8: ownership_input rewrote canonical component id: $($r.Output)"
 }
 
 # ============================================================================
@@ -252,7 +401,7 @@ $r = Invoke-ResolveFixture (Join-Path $fixtures "test-013-014-exclude-invariant/
 $obj = $r.Output | ConvertFrom-Json
 if ($obj.records[0].classification -eq "UNOWNED") { Ok "TEST-013.1: Fail-5 invariant — exclude wins over include within the same component" } else { Fail "TEST-013.1: expected UNOWNED" }
 $evComp = $obj.records[0].evidence.excluded_match[0].component
-$evPattern = $obj.records[0].evidence.excluded_match[0].patterns[0]
+$evPattern = $obj.records[0].evidence.excluded_match[0].pattern
 if ($evComp -eq "c1" -and $evPattern -eq "src/c1/generated/**") {
     Ok "TEST-014.1: UNOWNED record carries EXCLUDED_MATCH evidence"
 } else {
@@ -283,8 +432,9 @@ if ($owners -eq "c1,c2") { Ok "TEST-016.2: OVERLAP names every residual owner" }
 # ============================================================================
 Write-Output "=== TEST-017: shared_paths exemption ==="
 $r = Invoke-ResolveFixture (Join-Path $fixtures "test-017-shared-exempt/config.yaml") (Join-Path $fixtures "test-017-shared-exempt/changed-paths.txt")
-$obj = $r.Output | ConvertFrom-Json
-if ($obj.records[0].classification -eq "SHARED_CROSS_CUTTING") { Ok "TEST-017.1: shared_paths match exempts from OVERLAP" } else { Fail "TEST-017.1: expected SHARED_CROSS_CUTTING" }
+if ((Get-Classification $r.Output "contracts/zero.json") -ceq "SHARED_CROSS_CUTTING") { Ok "TEST-017.1: shared_paths precedence applies with zero matching component includes" } else { Fail "TEST-017.1: expected SHARED_CROSS_CUTTING with zero owners" }
+if ((Get-Classification $r.Output "contracts/one/schema.json") -ceq "SHARED_CROSS_CUTTING") { Ok "TEST-017.2: shared_paths precedence applies with one matching component include" } else { Fail "TEST-017.2: expected SHARED_CROSS_CUTTING with one owner" }
+if ((Get-Classification $r.Output "contracts/two/schema.json") -ceq "SHARED_CROSS_CUTTING") { Ok "TEST-017.3: shared_paths precedence applies with two matching component includes" } else { Fail "TEST-017.3: expected SHARED_CROSS_CUTTING with two owners" }
 
 # ============================================================================
 # TEST-018 (AC-018): shared_paths shape fail-closed
@@ -294,13 +444,17 @@ $r = Invoke-ResolverRaw -CliArgs @("-Config", (Join-Path $fixtures "test-018-sha
 if ($r.ExitCode -ne 0 -and $r.Output -match "never both or neither") { Ok "TEST-018.1: both components+classification rejected" } else { Fail "TEST-018.1: expected shape diagnostic, got exit=$($r.ExitCode) out=$($r.Output)" }
 $r = Invoke-ResolverRaw -CliArgs @("-Config", (Join-Path $fixtures "test-018-shared-shape-error/config-neither.yaml"))
 if ($r.ExitCode -ne 0 -and $r.Output -match "never both or neither") { Ok "TEST-018.2: neither components nor classification rejected" } else { Fail "TEST-018.2: expected shape diagnostic, got exit=$($r.ExitCode) out=$($r.Output)" }
+$r = Invoke-ResolverRaw -CliArgs @("-Config", (Join-Path $fixtures "test-018-shared-shape-error/config-miscased-classification.yaml"))
+if ($r.ExitCode -ne 0 -and $r.Output -match "unsupported classification") { Ok "TEST-018.3: mis-cased Cross-Cutting literal is rejected fail-closed" } else { Fail "TEST-018.3: expected exact-case classification rejection, got exit=$($r.ExitCode) out=$($r.Output)" }
+$r = Invoke-ResolverRaw -CliArgs @("-Config", (Join-Path $fixtures "test-018-shared-shape-error/config-miscased-components.yaml"))
+if ($r.ExitCode -ne 0 -and $r.Output -match "config.components must be a list") { Ok "TEST-018.4: mis-cased Components field is rejected fail-closed" } else { Fail "TEST-018.4: expected exact-case field-name rejection, got exit=$($r.ExitCode) out=$($r.Output)" }
 
 # ============================================================================
 # TEST-042/043/044 (AC-042/043/044, REQ-006, T-005): cross-epic
 # cross-cutting seed inventory. TEST-042/044 read Epic A1's REAL template
-# directly and are DELIBERATELY, PERMANENTLY red while it is absent — same
-# documented pattern as TEST-011.3. See the bash twin's header comment for
-# the full rationale.
+# directly; now that A1 has landed they are green, while an absent or divergent
+# artifact remains fail-closed. See the bash twin's header comment for the full
+# rationale.
 # ============================================================================
 # Shared inventory-conformance check, factored out so it can be proven
 # against BOTH the real A1 template (TEST-042) and deliberately wrong local
@@ -364,7 +518,7 @@ function Test-InventoryConformance {
 Write-Output "=== TEST-042: cross-epic inventory conformance (A1 template) ==="
 $a1Template = Join-Path $repoRoot "contracts/project-context.template.yaml"
 if (-not (Test-Path -LiteralPath $a1Template)) {
-    Fail "TEST-042 [EXPECTED - Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at $a1Template"
+    Fail "TEST-042: A1's canonical template has LANDED and is a tracked repository artifact; its absence at $a1Template is now a regression, not an expected pre-A1 state"
 } else {
     $r042 = Test-InventoryConformance $a1Template
     if ($r042.Conformant) {
@@ -458,6 +612,15 @@ try {
 }
 
 Write-Output "=== TEST-043: no-op proof for the six-entry cross-cutting set ==="
+# TEST-043.0 — AC-043 is about a diff "with zero components declared to own
+# them". Assert the fixture's actual precondition so the pass message and
+# the fixture agree (see the bash twin's comment).
+$noOpConfig = Join-Path $fixtures "test-043-cross-cutting-no-op/config.yaml"
+if ((Get-Content -Raw -LiteralPath $noOpConfig -Encoding utf8) -match '(?m)^components:[ \t]*\[\][ \t]*$') {
+    Ok "TEST-043.0: the no-op fixture really does declare zero component owners (components: [])"
+} else {
+    Fail "TEST-043.0: fixture claims zero declared component owners but does not declare 'components: []'"
+}
 $r = Invoke-ResolveFixture (Join-Path $fixtures "test-043-cross-cutting-no-op/config.yaml") (Join-Path $fixtures "test-043-cross-cutting-no-op/changed-paths.txt")
 $dayOnePaths = @("specs/some-feature/requirements.md", "reports/quality-gate/2026-01-01.md", "docs/architecture/overview.md", ".github/workflows/example.yml", "tests/fixtures/some-fixture.json", "CHANGELOG.md")
 $allCrossCutting = $true
@@ -472,7 +635,7 @@ if ($allCrossCutting) { Ok "TEST-043: a diff confined to the six-entry cross-cut
 
 Write-Output "=== TEST-044: day-one cross-epic integration proof (A1 template) ==="
 if (-not (Test-Path -LiteralPath $a1Template)) {
-    Fail "TEST-044 [EXPECTED - Epic A1 has not landed contracts/project-context.template.yaml yet]: artifact absent at $a1Template, day-one integration cannot be proven against it"
+    Fail "TEST-044: A1's canonical template has LANDED and is a tracked repository artifact; its absence at $a1Template is now a regression, not an expected pre-A1 state"
 } else {
     $dayOneFile = Join-Path ([IO.Path]::GetTempPath()) ("rcp-dayone." + [Guid]::NewGuid().ToString("N") + ".txt")
     "specs/epic-example/requirements.md`nreports/quality-gate/2026-01-01.md`n" | Set-Content -LiteralPath $dayOneFile -Encoding utf8 -NoNewline
@@ -505,11 +668,35 @@ if ((Select-String -LiteralPath $runAllSh -Pattern "component-path-resolver" -Qu
     Fail "TEST-045.4: component-path-resolver missing from run-all.sh/.ps1 registration"
 }
 
-$manifest = Join-Path $repoRoot "specs/epic-191-a3-path-ownership/human-copy/MANIFEST.sha256"
-if ((Test-Path -LiteralPath $manifest) -and (Select-String -LiteralPath $manifest -Pattern "\.github/workflows/test\.yml" -Quiet)) {
-    Ok "TEST-045.5: staged .github/workflows/test.yml candidate has a MANIFEST.sha256 entry"
+$draftDir = Join-Path $repoRoot "reports/implementation/epic-191-a3-path-ownership/drafts"
+$draftFile = Join-Path $draftDir "component-path-resolver-ci-steps.yml"
+$manifest = Join-Path $draftDir "MANIFEST.sha256"
+$expectedDigest = if (Test-Path -LiteralPath $manifest) { ((Get-Content -LiteralPath $manifest -Raw) -split '\s+')[0] } else { "" }
+$actualDigest = if (Test-Path -LiteralPath $draftFile) { (Get-FileHash -Algorithm SHA256 -LiteralPath $draftFile).Hash.ToLowerInvariant() } else { "" }
+if ($expectedDigest -cne "" -and $actualDigest -ceq $expectedDigest) {
+    Ok "TEST-045.5: non-protected CI-step draft has a verified MANIFEST.sha256 entry"
 } else {
-    Fail "TEST-045.5: expected a .github/workflows/test.yml entry in $manifest"
+    Fail "TEST-045.5: expected a hash-verified CI-step draft in $draftDir"
+}
+
+& git -C $repoRoot diff --quiet -- .github/workflows/test.yml
+if ($LASTEXITCODE -eq 0) {
+    Ok "TEST-045.6: live .github/workflows/test.yml remains byte-unchanged"
+} else {
+    Fail "TEST-045.6: live .github/workflows/test.yml has working-tree changes"
+}
+
+# TEST-045.7 — this suite's fixture corpus is keyed on Epic A1's canonical
+# 'id', not this epic's pre-A1 'name'. See the bash twin's comment.
+$legacyNamed = @(
+    Get-ChildItem -Recurse -File -LiteralPath $fixtures |
+        Where-Object { (Get-Content -Raw -LiteralPath $_.FullName -Encoding utf8) -match '(?m)^[ \t]*-[ \t]*name:' } |
+        ForEach-Object { $_.FullName }
+)
+if ($legacyNamed.Count -eq 0) {
+    Ok "TEST-045.7: every component-path-ownership fixture uses A1's canonical 'id' key"
+} else {
+    Fail "TEST-045.7: fixtures still use the pre-A1 'name' key: $($legacyNamed -join ' ')"
 }
 
 # ============================================================================

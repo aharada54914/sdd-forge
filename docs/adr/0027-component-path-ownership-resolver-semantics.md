@@ -1,8 +1,12 @@
-# ADR 0025: Component Path Ownership Resolver Semantics
+# ADR 0027: Component Path Ownership Resolver Semantics
 
 Status: Accepted
 
 Date: 2026-07-23
+
+Numbering note: re-verified with `ls docs/adr/` on 2026-08-08. ADR numbers
+0025 and 0026 were occupied after the original draft, so this decision was
+renumbered to the next free slot, 0027.
 
 ## Context
 
@@ -109,6 +113,37 @@ regardless of the Gate's eventual `disabled-legacy`/`advisory`/`required`
 state, so a classification bug cannot be masked by a particular
 enforcement mode.
 
+The three applicability states are therefore normative:
+
+- **`disabled-legacy`**: do not consult the Facet Manifest and do not
+  evaluate any Fail condition; emit truthful `not-applicable
+  (disabled-legacy)` evidence and exit 0.
+- **`advisory`**: require a readable Facet Manifest and evaluate/record all
+  six Fail conditions, but exit 0 even when one triggers.
+- **`required`**: require a readable Facet Manifest and evaluate/record all
+  six Fail conditions; exit non-zero exactly when one or more triggers.
+
+### Reverse Coverage Gate Fail conditions (REQ-004)
+
+1. **Fail-1 — UNOWNED:** a changed path belongs to no component and no
+   `shared_paths` entry.
+2. **Fail-2 — missing exclusive owner:** an EXCLUSIVE path's owner is
+   absent from `facet-manifest.affected_components`. It never evaluates a
+   bounded-shared shortfall.
+3. **Fail-3 — OVERLAP:** a path that should be exclusive retains two or
+   more component owners after excludes are applied.
+4. **Fail-4 — bounded-shared shortfall:** a changed path matches a bounded
+   `shared_paths` entry and one or more of that entry's declared components
+   is absent from `facet-manifest.affected_components`. Because shared-path
+   precedence prevents the same path from being EXCLUSIVE, Fail-2 and
+   Fail-4 are mutually exclusive per path.
+5. **Fail-5 — excluded match:** resolver `EXCLUDED_MATCH` evidence reaches
+   the Gate, proving that every otherwise-matching owner excluded the path.
+6. **Fail-6 — provider-adapter drift:** when Provider Bindings exist, an
+   `adapter_paths` glob matches an EXCLUSIVE-owned changed path for the
+   joined component. Missing Provider Bindings is N/A with WARN; a binding
+   lacking `adapter_paths` is WARN `evaluation not possible`.
+
 ### Reachability-registration decision
 
 Suffix-protecting `check-component-coverage`'s own content
@@ -133,11 +168,10 @@ establishes, not an unconditional adversarial-agent-proof guarantee.
   code-only change — `check-component-coverage`'s Fail conditions and the
   `ownership_digest`'s full-input binding (ADR-0021) both depend on this
   contract staying stable and documented.
-- The schema-conformance fixture (AC-011) that validates T-001's parser
-  against Epic A1's landed `contracts/project-context.template.yaml` is
-  intentionally, permanently red in this repository until that artifact
-  lands — this is a designed, documented external dependency, not a
-  defect in this ADR's algorithm or its test suite (see
+- The schema-conformance fixture (AC-011) validates T-001's parser against
+  Epic A1's landed `contracts/project-context.schema.json` and
+  `contracts/project-context.template.yaml`; divergence in either artifact
+  fails closed (see
   `specs/epic-191-a3-path-ownership/tasks.md` T-001 Blockers, and
   `reports/implementation/epic-191-a3-path-ownership/T-001.md`).
 
