@@ -121,11 +121,64 @@ reports it.
 
 ## Layer Specifications
 
-Not applicable. This package is explicitly Phase 1, four-file only
-(investigation.md/requirements.md/design.md/acceptance-tests.md); no
-`ux-spec.md`/`frontend-spec.md`/`infra-spec.md`/`security-spec.md` is
-produced (Risks, requirements.md — matching Epic A7's own established
-precedent, INV-018).
+This section previously recorded `ux-spec.md`/`frontend-spec.md`/
+`infra-spec.md`/`security-spec.md` as "Not applicable," citing Epic A7's
+own investigation.md INV-018 as "established precedent" for omitting
+them permanently. That citation was a misreading: Epic A7's own INV-018
+records only that its own package, at a specific point during its own
+Phase 1 authoring, deliberately shipped four files (`investigation.md`/
+`requirements.md`/`design.md`/`acceptance-tests.md`) with "no layer
+specs, no Phase 2" as an explicitly-scoped, temporary deviation from the
+nine-file full-profile default (`specs/epic-195-a7-compatibility/
+investigation.md:50`) — a Medium-severity Risk Epic A7's own requirements.md
+records for itself, never a claim that a `profile: full` feature may
+omit the four layer files indefinitely. Epic A7's own package
+(`specs/epic-195-a7-compatibility/`) carries all four layer-spec files
+today (`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`,
+`security-spec.md`), added once its own impl-review-loop precondition
+required them; no other feature registered `profile: "full"` in this
+repository's `specs/workflow-state-registry.json` has ever completed
+Phase 1 without all four (`epic-136-phase1-rce`, `epic-136-phase1-guards`,
+`epic-136-phase2-gates`, `second-approval-mask`, `epic-159-pillar-a`,
+`epic-159-pillar-a2`, `epic-159-pillar-b`, `epic-159-pillar-c`,
+`epic-159-pillar-d`, `epic-192-a4-facet-manifest`, `quality-loop-fixes`,
+`epic-136-phase3`, `epic-136-phase4-mcp`, `epic-136-phase4-docs`,
+`mcp-readonly-preflight`, `review-cross-critique`, `design-sync-consent`,
+`epic-189-a1-project-context`, `design-sync-scan`,
+`design-sync-standing-consent` each carry all four layer files in their
+own `specs/<feature>/` directory) — there is no `profile: full` precedent
+for omitting them, established by Epic A7 or otherwise.
+
+This registry entry's own `profile: "full"` value
+(`specs/workflow-state-registry.json:401-403`) triggers the identical
+precondition for this package:
+`plugins/sdd-review-loop/skills/impl-review-loop/SKILL.md`'s own
+Preconditions item 4 — "For a feature registered with profile `full`,
+`ux-spec.md`, `frontend-spec.md`, `infra-spec.md`, and `security-spec.md`
+must exist as real files in the feature spec directory. The precheck
+hash-binds all four." — a distinct requirement from this package's own
+earlier Phase-1-only content decision. `ux-spec.md`, `frontend-spec.md`,
+`infra-spec.md`, and `security-spec.md` are therefore produced as real,
+hash-bound files; the layer content that would otherwise be folded into
+this document alone is now split between this section's own compact
+summary, below, and those four files' own fuller detail — this section
+is retained as the compact cross-reference, not a claim that the four
+files do not exist:
+
+- UX: N/A — no GUI, view, dialog, menu item, or human interactive shell
+  surface. The only human-observable effects are suite pass/fail output,
+  live-host-session diagnostics, and CI job status (requirements.md's own
+  Security Boundaries: "This is internal test-infrastructure
+  specification work with no user-facing entry point; the UI Integration
+  Checklist is not applicable."). Expanded in ux-spec.md.
+- Frontend: N/A — no browser or frontend application; every future-task
+  deliverable this package specifies is sh/PowerShell/Python plus JSON
+  (Components, above). Expanded in frontend-spec.md.
+- Infrastructure: CI registration of the five verification surfaces is
+  described in Deployment / CI Plan, below; no new CI topology (Global
+  Constraints, below). Expanded in infra-spec.md.
+- Security: described in Security Boundaries, below (B1 live-host session
+  authenticity, B2 read-only drift check). Expanded in security-spec.md.
 
 ## Design System Compliance
 
