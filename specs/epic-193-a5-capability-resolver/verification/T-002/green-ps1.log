@@ -1,0 +1,11 @@
+Command: pwsh -NoProfile -ExecutionPolicy Bypass -File tests/resolve-project-context-block.tests.ps1
+Exit: 0
+PASS: disabled-legacy-invocation: 6/6 assertions
+PASS: workflow-combination-invalid-lite: 6/6 assertions
+PASS: workflow-combination-invalid-full: 6/6 assertions
+PASS: project-context-validation-failed: 6/6 assertions
+PASS: canonicalizer-invocation-failed: 6/6 assertions
+PASS: dependency-output-malformed: 6/6 assertions
+PASS: POSIX suite registered in tests/run-all.sh
+PASS: PowerShell suite registered in tests/run-all.ps1
+RESULT: 38 passed, 0 failed

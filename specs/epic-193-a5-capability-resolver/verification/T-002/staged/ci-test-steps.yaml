@@ -1,0 +1,16 @@
+# Draft insertion for the version-gates job in .github/workflows/test.yml.
+# Keep the resolver evidence checks before the T-002 blocked-outcome matrix.
+
+- name: Test resolver evidence schema (bash)
+  run: bash tests/resolver-evidence-schema.tests.sh
+
+- name: Test resolver evidence schema (PowerShell)
+  shell: pwsh
+  run: ./tests/resolver-evidence-schema.tests.ps1
+
+- name: Test project-context block resolver (bash)
+  run: bash tests/resolve-project-context-block.tests.sh
+
+- name: Test project-context block resolver (PowerShell)
+  shell: pwsh
+  run: ./tests/resolve-project-context-block.tests.ps1

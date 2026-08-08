@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- **Capability Resolver steps 0-3 (Issue #193, epic-193-a5 T-002)**:
+  Project Context の入力検証、workflow state 導出、2-pass canonicalization、
+  Context Projection のメモリ内 staging、および早期 Block 5診断を実装。
+  `resolve-project-context-block.tests.{sh,ps1}` で無効 workflow の2分岐を
+  含む6シナリオを固定した。保護対象の適用候補は呼び出し側の指示に従い
+  `verification/T-002/staged/` に置き、`human-copy/` と live plugin は未変更。
+
 ### Fixed
 
 - **human-copy publisher のファイルモード保持 (epic-189-a1-project-context,

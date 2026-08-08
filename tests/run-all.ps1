@@ -55,7 +55,8 @@ $tests = @(
     'tests/ship-track-selection-migration.tests.ps1',
     'tests/design-sync-standing-consent.tests.ps1',
     'tests/design-sync-scan.tests.ps1',
-    'tests/resolver-evidence-schema.tests.ps1'
+    'tests/resolver-evidence-schema.tests.ps1',
+    'tests/resolve-project-context-block.tests.ps1'
 )
 
 # Every suite runs even after one fails: the suites are mutually independent,
